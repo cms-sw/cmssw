@@ -89,29 +89,32 @@ void ME0StubBuilderV2::build(const GEMPadDigiCollection* padDigis, GE0TriggerDig
   config.BXWindow = BXWindow_;
   config.enablePeaking = enablePeaking_;
 
-  if (config.numOutputs <= 0) 
+  if (config.numOutputs <= 0)
     throw cms::Exception("ME0StubBuilder") << "numOutputs must be greater than 0";
-  if (config.numOr <= 0) 
+  if (config.numOr <= 0)
     throw cms::Exception("ME0StubBuilder") << "numOr must be greater than 0";
   if (config.BXWindow <= 0)
     throw cms::Exception("ME0StubBuilder") << "BXWindow must be greater than 0";
   if (config.BXWindow % 2 == 0)
     throw cms::Exception("ME0StubBuilder") << "BXWindow must be odd";
 
-  std::vector<int> BXOffsetList; // list of BX offsets to consider
-  for (int bx = -2; bx <= 3; ++bx) { BXOffsetList.push_back(bx); }
+  std::vector<int> BXOffsetList;  // list of BX offsets to consider
+  for (int bx = -2; bx <= 3; ++bx) {
+    BXOffsetList.push_back(bx);
+  }
 
   int bxMin = BXOffsetList.front() - config.BXWindow / 2;
   int bxMax = BXOffsetList.back() + config.BXWindow / 2;
 
-  std::map<uint32_t, std::vector<std::pair<ME0ChamberData, ME0ChamberBXData> > > dataMap; // rawId -> vector of (chamberData, chamberBXData) pairs for each bxOffset
+  std::map<uint32_t, std::vector<std::pair<ME0ChamberData, ME0ChamberBXData>>>
+      dataMap;  // rawId -> vector of (chamberData, chamberBXData) pairs for each bxOffset
   for (auto it = padDigis->begin(); it != padDigis->end(); ++it) {
     GEMDetId gemId((*it).first);
     if (gemId.station() != 0)
       continue;
 
     uint32_t gemRawId = (gemId.superChamberId()).rawId();
-    
+
     // Initialize dataMap for this chamber if not already done
     if (dataMap.find(gemRawId) == dataMap.end()) {
       for (size_t idxBX = 0; idxBX < BXOffsetList.size(); ++idxBX) {
@@ -130,7 +133,7 @@ void ME0StubBuilderV2::build(const GEMPadDigiCollection* padDigis, GE0TriggerDig
         continue;
       for (size_t idxBX = 0; idxBX < BXOffsetList.size(); ++idxBX) {
         int crntBX = BXOffsetList[idxBX];
-        if (bx >= crntBX - config.BXWindow / 2 && bx <= crntBX + config.BXWindow / 2) { // pulse stretch
+        if (bx >= crntBX - config.BXWindow / 2 && bx <= crntBX + config.BXWindow / 2) {  // pulse stretch
           dataMap[gemRawId][idxBX].first.at(ieta - 1).at(layer - 1) |= (UInt192(1) << (strip));
           dataMap[gemRawId][idxBX].second.at(ieta - 1).at(layer - 1).at(strip) = bx;
         }
@@ -147,17 +150,16 @@ void ME0StubBuilderV2::build(const GEMPadDigiCollection* padDigis, GE0TriggerDig
     std::vector<ME0TriggerDigi> segmentVector;
 
     for (size_t idxBX = 0; idxBX < BXOffsetList.size(); ++idxBX) {
-
       auto data = dataPair.second[idxBX].first;
       auto bxData = dataPair.second[idxBX].second;
 
-      std::tuple<std::vector<ME0StubPrimitive>, Config> outputChamber = processChamber(data, bxData, config, peakingManager);
+      std::tuple<std::vector<ME0StubPrimitive>, Config> outputChamber =
+          processChamber(data, bxData, config, peakingManager);
       auto& segList = std::get<0>(outputChamber);
       // auto& configOut = std::get<1>(outputChamber);
 
       for (ME0StubPrimitive& seg : segList) {
-
-        if (seg.patternId() == 0) 
+        if (seg.patternId() == 0)
           continue;
 
         if ((seg.etaPartition() % 2) != 0)
@@ -169,14 +171,10 @@ void ME0StubBuilderV2::build(const GEMPadDigiCollection* padDigis, GE0TriggerDig
         if (debug_) {
           std::cout << std::fixed;
           std::cout.precision(4);
-          std::cout << "    Eta Partition = " << seg.etaPartition() 
-                    << ", Center Strip = " << seg.strip() + seg.subStrip()
-                    << ", Bending angle = " << seg.bendingAngle()
-                    << ", ID = " << seg.patternId()
-                    << ", Hit count = " << seg.hitCount()
-                    << ", Layer count = " << seg.layerCount()
-                    << ", Quality = " << seg.quality()
-                    << std::endl;
+          std::cout << "    Eta Partition = " << seg.etaPartition()
+                    << ", Center Strip = " << seg.strip() + seg.subStrip() << ", Bending angle = " << seg.bendingAngle()
+                    << ", ID = " << seg.patternId() << ", Hit count = " << seg.hitCount()
+                    << ", Layer count = " << seg.layerCount() << ", Quality = " << seg.quality() << std::endl;
         }
 
         ME0TriggerDigi segFinal = stubConversion(seg, detid, BXOffsetList[idxBX] - 1);
@@ -191,12 +189,15 @@ void ME0StubBuilderV2::build(const GEMPadDigiCollection* padDigis, GE0TriggerDig
 ME0TriggerDigi ME0StubBuilderV2::stubConversion(const ME0StubPrimitive& stub, const GEMDetId& detid, int crntBX) {
   int chamberid = detid.chamber() % 2;
   int quality = stub.layerCount();
-  double phiposition_f = (stub.strip() + stub.subStrip()) * 2; // stub.strip() and stub.subStrip() are in units of pads (2 strips size)
-  int phiposition = static_cast<int>(std::round(phiposition_f * 2)); // Convert to half-strip resolution
+  double phiposition_f =
+      (stub.strip() + stub.subStrip()) * 2;  // stub.strip() and stub.subStrip() are in units of pads (2 strips size)
+  int phiposition = static_cast<int>(std::round(phiposition_f * 2));  // Convert to half-strip resolution
   int partition = stub.etaPartition();
-  double bendAngle = stub.bendingAngle(); // unit: pads / 6 layers
-  int bend = (bendAngle > 0.0) ? 0 : 1; // 0: positive bend, 1: negative bend (pad-wise, not global phi-wise)
-  int idphi = static_cast<int>(std::round(std::fabs(bendAngle) * 6 * 2 * 4)); // bendAngle * (6 layers) * (2 strips per pad) * (4 units per strip) = units of 1/4 strip
+  double bendAngle = stub.bendingAngle();  // unit: pads / 6 layers
+  int bend = (bendAngle > 0.0) ? 0 : 1;    // 0: positive bend, 1: negative bend (pad-wise, not global phi-wise)
+  int idphi = static_cast<int>(
+      std::round(std::fabs(bendAngle) * 6 * 2 *
+                 4));  // bendAngle * (6 layers) * (2 strips per pad) * (4 units per strip) = units of 1/4 strip
   ME0TriggerDigi segFinal(chamberid, quality, phiposition, partition, idphi, bend, crntBX);
   return segFinal;
 }

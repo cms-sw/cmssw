@@ -89,29 +89,32 @@ void ME0StubBuilder::build(const GEMPadDigiCollection* padDigis, ME0StubCollecti
   config.BXWindow = BXWindow_;
   config.enablePeaking = enablePeaking_;
 
-  if (config.numOutputs <= 0) 
+  if (config.numOutputs <= 0)
     throw cms::Exception("ME0StubBuilder") << "numOutputs must be greater than 0";
-  if (config.numOr <= 0) 
+  if (config.numOr <= 0)
     throw cms::Exception("ME0StubBuilder") << "numOr must be greater than 0";
   if (config.BXWindow <= 0)
     throw cms::Exception("ME0StubBuilder") << "BXWindow must be greater than 0";
   if (config.BXWindow % 2 == 0)
     throw cms::Exception("ME0StubBuilder") << "BXWindow must be odd";
 
-  std::vector<int> BXOffsetList; // list of BX offsets to consider
-  for (int bx = -2; bx <= 3; ++bx) { BXOffsetList.push_back(bx); }
+  std::vector<int> BXOffsetList;  // list of BX offsets to consider
+  for (int bx = -2; bx <= 3; ++bx) {
+    BXOffsetList.push_back(bx);
+  }
 
   int bxMin = BXOffsetList.front() - config.BXWindow / 2;
   int bxMax = BXOffsetList.back() + config.BXWindow / 2;
 
-  std::map<uint32_t, std::vector<std::pair<ME0ChamberData, ME0ChamberBXData> > > dataMap; // rawId -> vector of (chamberData, chamberBXData) pairs for each bxOffset
+  std::map<uint32_t, std::vector<std::pair<ME0ChamberData, ME0ChamberBXData>>>
+      dataMap;  // rawId -> vector of (chamberData, chamberBXData) pairs for each bxOffset
   for (auto it = padDigis->begin(); it != padDigis->end(); ++it) {
     GEMDetId gemId((*it).first);
     if (gemId.station() != 0)
       continue;
 
     uint32_t gemRawId = (gemId.superChamberId()).rawId();
-    
+
     // Initialize dataMap for this chamber if not already done
     if (dataMap.find(gemRawId) == dataMap.end()) {
       for (size_t idxBX = 0; idxBX < BXOffsetList.size(); ++idxBX) {
@@ -130,7 +133,7 @@ void ME0StubBuilder::build(const GEMPadDigiCollection* padDigis, ME0StubCollecti
         continue;
       for (size_t idxBX = 0; idxBX < BXOffsetList.size(); ++idxBX) {
         int crntBX = BXOffsetList[idxBX];
-        if (bx >= crntBX - config.BXWindow / 2 && bx <= crntBX + config.BXWindow / 2) { // pulse stretch
+        if (bx >= crntBX - config.BXWindow / 2 && bx <= crntBX + config.BXWindow / 2) {  // pulse stretch
           dataMap[gemRawId][idxBX].first.at(ieta - 1).at(layer - 1) |= (UInt192(1) << (strip));
           dataMap[gemRawId][idxBX].second.at(ieta - 1).at(layer - 1).at(strip) = bx;
         }
@@ -147,17 +150,16 @@ void ME0StubBuilder::build(const GEMPadDigiCollection* padDigis, ME0StubCollecti
     std::vector<ME0Stub> segListProcessed;
 
     for (size_t idxBX = 0; idxBX < BXOffsetList.size(); ++idxBX) {
-
       auto data = dataPair.second[idxBX].first;
       auto bxData = dataPair.second[idxBX].second;
 
-      std::tuple<std::vector<ME0StubPrimitive>, Config> outputChamber = processChamber(data, bxData, config, peakingManager);
+      std::tuple<std::vector<ME0StubPrimitive>, Config> outputChamber =
+          processChamber(data, bxData, config, peakingManager);
       auto& segList = std::get<0>(outputChamber);
       // auto& configOut = std::get<1>(outputChamber);
 
       for (ME0StubPrimitive& seg : segList) {
-
-        if (seg.patternId() == 0) 
+        if (seg.patternId() == 0)
           continue;
 
         if ((seg.etaPartition() % 2) != 0)
@@ -169,14 +171,10 @@ void ME0StubBuilder::build(const GEMPadDigiCollection* padDigis, ME0StubCollecti
         if (debug_) {
           std::cout << std::fixed;
           std::cout.precision(4);
-          std::cout << "    Eta Partition = " << seg.etaPartition() 
-                    << ", Center Strip = " << seg.strip() + seg.subStrip()
-                    << ", Bending angle = " << seg.bendingAngle()
-                    << ", ID = " << seg.patternId()
-                    << ", Hit count = " << seg.hitCount()
-                    << ", Layer count = " << seg.layerCount()
-                    << ", Quality = " << seg.quality()
-                    << std::endl;
+          std::cout << "    Eta Partition = " << seg.etaPartition()
+                    << ", Center Strip = " << seg.strip() + seg.subStrip() << ", Bending angle = " << seg.bendingAngle()
+                    << ", ID = " << seg.patternId() << ", Hit count = " << seg.hitCount()
+                    << ", Layer count = " << seg.layerCount() << ", Quality = " << seg.quality() << std::endl;
         }
 
         ME0Stub segFinal(id,
