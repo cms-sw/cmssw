@@ -20,8 +20,10 @@
 #include "DataFormats/GEMDigi/interface/ME0StubCollection.h"
 #include "DataFormats/GEMDigi/interface/ME0Stub.h"
 
-#include "L1Trigger/L1TGEM/plugins/ME0StubBuilder.h"
+#include "L1Trigger/L1TGEM/interface/ME0StubBuilder.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+
+class ME0StubBuilder;
 
 class ME0StubProducer : public edm::stream::EDProducer<> {
 public:
