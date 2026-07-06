@@ -41,6 +41,7 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
+#include "RecoHGCal/TICL/interface/TICLUtils.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -77,26 +78,12 @@ public:
     rhtools.setGeometry(geom);
 
     // build disks at HGCal front & EM-Had interface for track propagation
-    float zVal = hgcons.waferZ(1, true);
-    std::pair<float, float> rMinMax = hgcons.rangeR(zVal, true);
+    auto firstDisks = ticl::utils::buildHGCalFirstDisks(hgcons);
+    auto interfaceDisks = ticl::utils::buildHGCalInterfaceDisks(hgcons, rhtools);
 
-    float zVal_interface = rhtools.getPositionLayer(rhtools.lastLayerEE()).z();
-    std::pair<float, float> rMinMax_interface = hgcons.rangeR(zVal_interface, true);
-
-    for (int iSide = 0; iSide < 2; ++iSide) {
-      float zSide = (iSide == 0) ? (-1. * zVal) : zVal;
-      firstDisk_[iSide] = std::make_unique<GeomDet>(
-          Disk::build(Disk::PositionType(0, 0, zSide),
-                      Disk::RotationType(),
-                      SimpleDiskBounds(rMinMax.first, rMinMax.second, zSide - 0.5, zSide + 0.5))
-              .get());
-
-      zSide = (iSide == 0) ? (-1. * zVal_interface) : zVal_interface;
-      interfaceDisk_[iSide] = std::make_unique<GeomDet>(
-          Disk::build(Disk::PositionType(0, 0, zSide),
-                      Disk::RotationType(),
-                      SimpleDiskBounds(rMinMax_interface.first, rMinMax_interface.second, zSide - 0.5, zSide + 0.5))
-              .get());
+    for (int side = 0; side < 2; ++side) {
+      firstDisk_[side] = std::move(firstDisks[side]);
+      interfaceDisk_[side] = std::move(interfaceDisks[side]);
     }
   }
 
