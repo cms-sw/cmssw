@@ -14,11 +14,16 @@ uint64_t l1t::me0::parseData(const UInt192& data, int strip, int maxSpan) {
   }
   return parsedData;
 }
-std::vector<uint64_t> l1t::me0::extractDataWindow(const std::vector<UInt192>& layerData, int strip, int maxSpan) {
+std::vector<uint64_t> l1t::me0::extractDataWindow(const std::vector<UInt192>& prtData,
+                                                  int strip,
+                                                  const std::vector<int>& layerSpans) {
+  if (*std::max_element(layerSpans.begin(), layerSpans.end()) > 64) {
+    throw cms::Exception("ME0StubAlgoPatUnitMux") << "Layer span exceeds 64 bits, which is not supported.";
+  }
   std::vector<uint64_t> out;
-  out.reserve(layerData.size());
-  for (const UInt192& data : layerData) {
-    out.push_back(parseData(data, strip, maxSpan));
+  out.reserve(prtData.size());
+  for (int ly = 0; ly < static_cast<int>(prtData.size()); ++ly) {
+    out.push_back(parseData(prtData[ly], strip, layerSpans[ly]));
   }
   return out;
 }
@@ -42,12 +47,12 @@ std::vector<int> l1t::me0::parseBxData(const std::vector<int>& bxData, int strip
   }
   return parsedBxData;
 }
-std::vector<std::vector<int>> l1t::me0::extractBxDataWindow(const std::vector<std::vector<int>>& layerData,
+std::vector<std::vector<int>> l1t::me0::extractBxDataWindow(const std::vector<std::vector<int>>& prtBxData,
                                                             int strip,
                                                             int maxSpan) {
   std::vector<std::vector<int>> out;
-  out.reserve(layerData.size());
-  for (const std::vector<int>& data : layerData) {
+  out.reserve(prtBxData.size());
+  for (const std::vector<int>& data : prtBxData) {
     out.push_back(parseBxData(data, strip, maxSpan));
   }
   return out;
@@ -55,11 +60,14 @@ std::vector<std::vector<int>> l1t::me0::extractBxDataWindow(const std::vector<st
 std::vector<ME0StubPrimitive> l1t::me0::patMux(const std::vector<UInt192>& partitionData,
                                                const std::vector<std::vector<int>>& partitionBxData,
                                                int partition,
-                                               Config& config) {
-  std::vector<ME0StubPrimitive> out;
+                                               Config& config,
+                                               PeakingManager& peakingManager,
+                                               bool debug) {
+  std::vector<ME0StubPrimitive> newSegs;
+  int maxLayerSpan = *std::max_element(kLayerSpans.begin(), kLayerSpans.end());
   for (int strip = 0; strip < config.width; ++strip) {
-    const std::vector<uint64_t>& dataWindow = extractDataWindow(partitionData, strip, config.maxSpan);
-    const std::vector<std::vector<int>>& bxDataWindow = extractBxDataWindow(partitionBxData, strip, config.maxSpan);
+    const std::vector<uint64_t>& dataWindow = extractDataWindow(partitionData, strip, kLayerSpans);
+    const std::vector<std::vector<int>>& bxDataWindow = extractBxDataWindow(partitionBxData, strip, maxLayerSpan);
     const ME0StubPrimitive& seg = patUnit(dataWindow,
                                           bxDataWindow,
                                           strip,
@@ -68,8 +76,33 @@ std::vector<ME0StubPrimitive> l1t::me0::patMux(const std::vector<UInt192>& parti
                                           config.layerThresholdEta,
                                           config.maxSpan,
                                           config.skipCentroids,
-                                          config.numOr);
-    out.push_back(seg);
+                                          config.numOr,
+                                          false,
+                                          false);
+    newSegs.push_back(seg);
   }
-  return out;
+
+  std::vector<ME0StubPrimitive> outSegs;
+  if (config.enablePeaking) {
+    outSegs = peakingManager.processSegments(partition, newSegs);
+  } else {
+    outSegs = newSegs;
+  }
+
+  if (debug) {
+    // auto seg_print = newSegs;
+    auto seg_print = outSegs;
+    int num = 0;
+    std::cout << "Partition = " << partition << std::endl;
+    for (const auto& seg : seg_print) {
+      std::cout << seg.quality() << "/" << seg.strip() << "/" << seg.patternId() << " ";
+      num++;
+      if (num % 10 == 0) {
+        std::cout << std::endl;
+      }
+    }
+    std::cout << std::endl;
+  }
+
+  return outSegs;
 }

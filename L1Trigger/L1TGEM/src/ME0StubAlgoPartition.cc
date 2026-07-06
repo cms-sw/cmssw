@@ -17,7 +17,7 @@ bool l1t::me0::isGhost(const ME0StubPrimitive& seg, const ME0StubPrimitive& comp
 
 bool l1t::me0::isAtEdge(int x, int groupWidth, int edgeDistance) {
   if (groupWidth > 0) {
-    return ((x % groupWidth) < edgeDistance) || ((x % groupWidth) >= (groupWidth - edgeDistance));
+    return ((x % groupWidth) <= edgeDistance) || ((x % groupWidth) >= (groupWidth - edgeDistance - 1));
   } else {
     return true;
   }
@@ -58,24 +58,24 @@ std::vector<ME0StubPrimitive> l1t::me0::cancelEdges(
   std::vector<ME0StubPrimitive> canceledSegments = segments;
   std::vector<int> comps;
 
-  bool ghost;
   for (int i = 0; i < static_cast<int>(segments.size()); ++i) {
     if (isAtEdge(i, groupWidth, edgeDistance)) {
       for (int x = i - ghostWidth; x < i; ++x) {
-        if (x >= 0) {
+        if (x >= 0)
           comps.push_back(x);
-        }
       }
       for (int x = i + 1; x < i + ghostWidth + 1; ++x) {
-        if (x < static_cast<int>(segments.size())) {
+        if (x < static_cast<int>(segments.size()))
           comps.push_back(x);
-        }
       }
 
       for (int comp : comps) {
-        ghost = isGhost(segments[i], segments[comp]);
+        bool ghost = isGhost(segments[i], segments[comp]);
+        if (verbose) {
+          std::cout << "isGhost " << segments[i] << " with " << segments[comp] << ": " << ghost << std::endl;
+        }
         if (ghost) {
-          canceledSegments[i].reset();
+          canceledSegments[i] = ME0StubPrimitive(0, 0, 0, segments[i].strip(), segments[i].etaPartition());
         }
       }
       comps.clear();
@@ -88,7 +88,8 @@ std::vector<ME0StubPrimitive> l1t::me0::cancelEdges(
 std::vector<ME0StubPrimitive> l1t::me0::processPartition(const std::vector<UInt192>& partitionData,
                                                          const std::vector<std::vector<int>>& partitionBxData,
                                                          int partition,
-                                                         Config& config) {
+                                                         Config& config,
+                                                         PeakingManager& peakingManager) {
   /*
     takes in partition data, a group size, and a ghost width to return a
     smaller data set, using ghost edge cancellation and segment quality
@@ -103,7 +104,12 @@ std::vector<ME0StubPrimitive> l1t::me0::processPartition(const std::vector<UInt1
   std::vector<ME0StubPrimitive> tmp;
   std::vector<ME0StubPrimitive> out;
   std::vector<ME0StubPrimitive> maxSegs;
-  const std::vector<ME0StubPrimitive> segments = patMux(partitionData, partitionBxData, partition, config);
+  const std::vector<ME0StubPrimitive> segments =
+      patMux(partitionData, partitionBxData, partition, config, peakingManager);
+
+  if (config.deghostPre && config.deghostPost) {
+    throw std::runtime_error("Both pre and post deghosting cannot be enabled at the same time");
+  }
 
   if (config.deghostPre) {
     tmp = cancelEdges(segments, config.groupWidth, config.ghostWidth, config.edgeDistance);
