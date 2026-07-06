@@ -83,7 +83,7 @@ void HDF5ProductResolver::prefetchAsyncImpl(edm::WaitingTaskHolder iTask,
           CMS_SA_ALLOW try {
             edm::ESModuleCallingContext context(providerDescription(),
                                                 reinterpret_cast<std::uintptr_t>(this),
-                                                edm::ESModuleCallingContext::State::kRunning,
+                                                edm::ESModuleCallingContext::State::kPrefetching,
                                                 iParent);
             iRecord.activityRegistry()->preESModuleSignal_.emit(iRecord.key(), context);
             struct EndGuard {
