@@ -9,6 +9,9 @@
 #include "DataFormats/EcalDigi/interface/EcalEBPhase2TriggerPrimitiveDigi.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
+#include <format>
+#include <string>
+
 class EcalTPsValidationPh2 : public DQMEDAnalyzer {
 public:
   EcalTPsValidationPh2(const edm::ParameterSet& ps);
@@ -65,42 +68,40 @@ void EcalTPsValidationPh2::fillDescriptions(edm::ConfigurationDescriptions& desc
 }
 
 void EcalTPsValidationPh2::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
-  Char_t histo[200];
-
   ibooker.setCurrentFolder("EcalDigisV/EcalTriggerPrimitivesTask");
 
-  sprintf(histo, "EcalTPDigiTask TP digis multiplicity");
+  std::string histo("EcalTPDigiTask TP digis multiplicity");
   meTPDigisMultiplicity_ = ibooker.book1D(histo, histo, 613, 0, 61300);
 
-  sprintf(histo, "EcalTPDigiTask TP digi occupancy");
+  histo = "EcalTPDigiTask TP digi occupancy";
   meTPDigiOccupancy_ = ibooker.book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
-  sprintf(histo, "EcalTPDigiTask TP digi size");
+  histo = "EcalTPDigiTask TP digi size";
   meTPDigiSize_ = ibooker.book1D(histo, histo, kMaxSamples_, 0, kMaxSamples_);
 
-  sprintf(histo, "EcalTPDigiTask TP digi encoded ET");
+  histo = "EcalTPDigiTask TP digi encoded ET";
   meTPDigiEt_ = ibooker.book1D(histo, histo, 1025, -1, 1024);
 
-  sprintf(histo, "EcalTPDigiTask TP digi spike flag");
+  histo = "EcalTPDigiTask TP digi spike flag";
   meTPDigiSpike_ = ibooker.book1D(histo, histo, 2, 0, 2);
 
-  sprintf(histo, "EcalTPDigiTask TP digi time");
+  histo = "EcalTPDigiTask TP digi time";
   meTPDigiTime_ = ibooker.book1D(histo, histo, 33, -1, 32);
 
-  sprintf(histo, "EcalTPDigiTask TP digi debug flag");
+  histo = "EcalTPDigiTask TP digi debug flag";
   meTPDigiDebugFlag_ = ibooker.book1D(histo, histo, 2, 0, 2);
 
-  sprintf(histo, "EcalTPDigiTask TP digi sample of interest");
+  histo = "EcalTPDigiTask TP digi sample of interest";
   meTPDigiSOI_ = ibooker.book1D(histo, histo, kMaxSamples_ + 1, -1, kMaxSamples_);
 
   for (unsigned int i = 0; i < kMaxSamples_; ++i) {
-    sprintf(histo, "EcalTPDigiTask TP sample %02d encoded ET", i);
+    histo = std::format("EcalTPDigiTask TP sample {:02d} encoded ET", i);
     meTPSampleEt_[i] = ibooker.book1D(histo, histo, 1024, 0, 1024);
 
-    sprintf(histo, "EcalTPDigiTask TP sample %02d spike flag", i);
+    histo = std::format("EcalTPDigiTask TP sample {:02d} spike flag", i);
     meTPSampleSpike_[i] = ibooker.book1D(histo, histo, 2, 0, 2);
 
-    sprintf(histo, "EcalTPDigiTask TP sample %02d time", i);
+    histo = std::format("EcalTPDigiTask TP sample {:02d} time", i);
     meTPSampleTime_[i] = ibooker.book1D(histo, histo, 32, 0, 32);
   }
 }

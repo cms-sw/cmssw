@@ -20,11 +20,13 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
+#include <format>
+#include <string>
 #include <vector>
 #include <map>
 
 class EcalDigisValidationPh2 : public DQMEDAnalyzer {
-  typedef std::map<uint32_t, float, std::less<uint32_t> > MapType;
+  typedef std::map<uint32_t, float> MapType;
 
 public:
   EcalDigisValidationPh2(const edm::ParameterSet& ps);
@@ -105,61 +107,59 @@ void EcalDigisValidationPh2::fillDescriptions(edm::ConfigurationDescriptions& de
 }
 
 void EcalDigisValidationPh2::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
-  Char_t histo[200];
-
   ibooker.setCurrentFolder("EcalDigisV/EcalDigiTask");
 
-  sprintf(histo, "EcalDigiTask Gun Momentum");
+  std::string histo("EcalDigiTask Gun Momentum");
   meGunEnergy_ = ibooker.book1D(histo, histo, 100, 0., 1000.);
 
-  sprintf(histo, "EcalDigiTask Gun Eta");
+  histo = "EcalDigiTask Gun Eta";
   meGunEta_ = ibooker.book1D(histo, histo, 700, -3.5, 3.5);
 
-  sprintf(histo, "EcalDigiTask Gun Phi");
+  histo = "EcalDigiTask Gun Phi";
   meGunPhi_ = ibooker.book1D(histo, histo, 360, 0., 360.);
 
-  sprintf(histo, "EcalDigiTask maximum Digi over Sim ratio");
+  histo = "EcalDigiTask maximum Digi over Sim ratio";
   meDigiSimRatio_ = ibooker.book1D(histo, histo, 100, 0., 2.);
 
-  sprintf(histo, "EcalDigiTask maximum Digi over Sim ratio gt 10 ADC");
+  histo = "EcalDigiTask maximum Digi over Sim ratio gt 10 ADC";
   meDigiSimRatiogt10ADC_ = ibooker.book1D(histo, histo, 100, 0., 2.);
 
-  sprintf(histo, "EcalDigiTask maximum Digi over Sim ratio gt 100 ADC");
+  histo = "EcalDigiTask maximum Digi over Sim ratio gt 100 ADC";
   meDigiSimRatiogt100ADC_ = ibooker.book1D(histo, histo, 100, 0., 2.);
 
-  sprintf(histo, "EcalDigiTask occupancy");
+  histo = "EcalDigiTask occupancy";
   meDigiOccupancy_ = ibooker.book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
-  sprintf(histo, "EcalDigiTask digis multiplicity");
+  histo = "EcalDigiTask digis multiplicity";
   meDigiMultiplicity_ = ibooker.book1D(histo, histo, 612, 0., 61200);
 
-  sprintf(histo, "EcalDigiTask global pulse shape");
+  histo = "EcalDigiTask global pulse shape";
   meDigiADCGlobal_ = ibooker.bookProfile(histo, histo, kMaxSamples_, 0, kMaxSamples_, 10000, 0., 1000.);
 
   for (int i = 0; i < kMaxSamples_; ++i) {
-    sprintf(histo, "EcalDigiTask analog pulse %02d", i + 1);
+    histo = std::format("EcalDigiTask analog pulse {:02d}", i + 1);
     meDigiADCAnalog_[i] = ibooker.book1D(histo, histo, 4000, 0., 400.);
 
-    sprintf(histo, "EcalDigiTask ADC pulse %02d Gain 10", i + 1);
+    histo = std::format("EcalDigiTask ADC pulse {:02d} Gain 10", i + 1);
     meDigiADCg10_[i] = ibooker.book1D(histo, histo, 4096, -0.5, 4095.5);
 
-    sprintf(histo, "EcalDigiTask ADC pulse %02d Gain 1", i + 1);
+    histo = std::format("EcalDigiTask ADC pulse {:02d} Gain 1", i + 1);
     meDigiADCg1_[i] = ibooker.book1D(histo, histo, 4096, -0.5, 4095.5);
 
-    sprintf(histo, "EcalDigiTask gain pulse %02d", i + 1);
+    histo = std::format("EcalDigiTask gain pulse {:02d}", i + 1);
     meDigiGain_[i] = ibooker.book1D(histo, histo, 2, 0, 2);
   }
 
-  sprintf(histo, "EcalDigiTask pedestal for pre-sample");
+  histo = "EcalDigiTask pedestal for pre-sample";
   mePedestal_ = ibooker.book1D(histo, histo, 4096, -0.5, 4095.5);
 
-  sprintf(histo, "EcalDigiTask maximum position gt 10 ADC");
+  histo = "EcalDigiTask maximum position gt 10 ADC";
   meMaximumgt10ADC_ = ibooker.book1D(histo, histo, kMaxSamples_, 0., static_cast<double>(kMaxSamples_));
 
-  sprintf(histo, "EcalDigiTask maximum position gt 100 ADC");
+  histo = "EcalDigiTask maximum position gt 100 ADC";
   meMaximumgt100ADC_ = ibooker.book1D(histo, histo, kMaxSamples_, 0., static_cast<double>(kMaxSamples_));
 
-  sprintf(histo, "EcalDigiTask ADC counts after gain switch");
+  histo = "EcalDigiTask ADC counts after gain switch";
   menADCafterSwitch_ = ibooker.book1D(histo, histo, kMaxSamples_, 0., static_cast<double>(kMaxSamples_));
 }
 
@@ -297,14 +297,15 @@ void EcalDigisValidationPh2::analyze(edm::Event const& event, edm::EventSetup co
           meDigiADCGlobal_->Fill(sample, ebAnalogSignal[sample]);
       }
 
-      if (ebSimMap[ebid.rawId()] != 0.) {
-        LogDebug("DigiInfo") << " Digi / Hit = " << Erec << " / " << ebSimMap[ebid.rawId()] << " gainConv "
+      auto const simHit = ebSimMap.find(ebid.rawId());
+      if (simHit != ebSimMap.end() && simHit->second != 0.) {
+        LogDebug("DigiInfo") << " Digi / Hit = " << Erec << " / " << simHit->second << " gainConv "
                              << gainConv[pmaxGainId];
-        meDigiSimRatio_->Fill(Erec / ebSimMap[ebid.rawId()]);
+        meDigiSimRatio_->Fill(Erec / simHit->second);
         if (Erec > 10. * adcToGeV) {
-          meDigiSimRatiogt10ADC_->Fill(Erec / ebSimMap[ebid.rawId()]);
+          meDigiSimRatiogt10ADC_->Fill(Erec / simHit->second);
           if (Erec > 100. * adcToGeV)
-            meDigiSimRatiogt100ADC_->Fill(Erec / ebSimMap[ebid.rawId()]);
+            meDigiSimRatiogt100ADC_->Fill(Erec / simHit->second);
         }
       }
 
