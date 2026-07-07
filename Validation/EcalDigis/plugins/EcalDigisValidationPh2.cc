@@ -20,6 +20,7 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
+#include <array>
 #include <format>
 #include <string>
 #include <vector>
@@ -227,7 +228,8 @@ void EcalDigisValidationPh2::analyze(edm::Event const& event, edm::EventSetup co
     // get conditions
     auto const adcToGeV = eventSetup.getData(adcToGeVToken_).getEBValue();
     auto const& gainRatios = eventSetup.getData(gainRatiosToken_);
-    std::array<EcalCATIAGainRatio, 2> gainConv = {10., 1.};
+    // The nominal CATIA gains are 10 and 1 when the gain bit is 0 and 1, respectively
+    std::array<EcalCATIAGainRatio, 2> gainConv = {1., 10.};
 
     meDigiMultiplicity_->Fill(digis->size());
 
@@ -240,7 +242,7 @@ void EcalDigisValidationPh2::analyze(edm::Event const& event, edm::EventSetup co
 
       meDigiOccupancy_->Fill(ebid.iphi(), ebid.ieta());
 
-      gainConv[0] = gainRatios[ebid];
+      gainConv[1] = gainRatios[ebid];
 
       double emax = 0.;
       int pmax = 0;
