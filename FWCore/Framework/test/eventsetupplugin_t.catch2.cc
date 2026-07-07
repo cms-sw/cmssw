@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/ComponentInterfaceHolder.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 #include "DummyFinder.h"
@@ -30,7 +31,17 @@ using namespace edm::eventsetup;
 
 namespace {
   edm::ActivityRegistry activityRegistry;
-}
+
+  void addToESProvider(edm::eventsetup::EventSetupProvider& esProvider,
+                       edm::eventsetup::ComponentInterfaceHolder& interfaceHolder) {
+    if (interfaceHolder.finder()) {
+      esProvider.add(interfaceHolder.finder());
+    }
+    if (interfaceHolder.provider()) {
+      esProvider.add(interfaceHolder.provider());
+    }
+  }
+}  // namespace
 
 namespace edm::test {
   namespace other {
@@ -127,8 +138,13 @@ TEST_CASE("EventSetupPlugin", "[Framework][EventSetup]") {
     dummyFinderPSet.addParameter("@module_type", std::string("LoadableDummyFinder"));
     dummyFinderPSet.addParameter("@module_label", std::string(""));
     dummyFinderPSet.registerIt();
-    SourceFactory::get()->addTo(provider, dummyFinderPSet, resolverMaker);
-
+    {
+      edm::eventsetup::ComponentInterfaceHolder interfaceHolder;
+      SourceFactory::get()->addTo(interfaceHolder, dummyFinderPSet, resolverMaker);
+      REQUIRE(interfaceHolder.finder());
+      REQUIRE(not interfaceHolder.provider());
+      addToESProvider(provider, interfaceHolder);
+    }
     ComponentDescription descFinder("LoadableDummyFinder", "", ComponentDescription::unknownID(), true);
     std::set<ComponentDescription> descriptions(provider.resolverProviderDescriptions());
     //should not be found since not a provider
@@ -138,7 +154,13 @@ TEST_CASE("EventSetupPlugin", "[Framework][EventSetup]") {
     dummyProviderPSet.addParameter("@module_type", std::string("LoadableDummyProvider"));
     dummyProviderPSet.addParameter("@module_label", std::string(""));
     dummyProviderPSet.registerIt();
-    ModuleFactory::get()->addTo(provider, dummyProviderPSet, resolverMaker);
+    {
+      edm::eventsetup::ComponentInterfaceHolder interfaceHolder;
+      ModuleFactory::get()->addTo(interfaceHolder, dummyProviderPSet, resolverMaker);
+      REQUIRE(not interfaceHolder.finder());
+      REQUIRE(interfaceHolder.provider());
+      addToESProvider(provider, interfaceHolder);
+    }
 
     ComponentDescription desc("LoadableDummyProvider", "", ComponentDescription::unknownID(), false);
     descriptions = provider.resolverProviderDescriptions();
@@ -149,7 +171,13 @@ TEST_CASE("EventSetupPlugin", "[Framework][EventSetup]") {
     dummySourcePSet.addParameter("@module_type", std::string("LoadableDummyESSource"));
     dummySourcePSet.addParameter("@module_label", std::string(""));
     dummySourcePSet.registerIt();
-    SourceFactory::get()->addTo(provider, dummySourcePSet, resolverMaker);
+    {
+      edm::eventsetup::ComponentInterfaceHolder interfaceHolder;
+      SourceFactory::get()->addTo(interfaceHolder, dummySourcePSet, resolverMaker);
+      REQUIRE(interfaceHolder.finder());
+      REQUIRE(interfaceHolder.provider());
+      addToESProvider(provider, interfaceHolder);
+    }
 
     ComponentDescription descSource("LoadableDummyESSource", "", ComponentDescription::unknownID(), true);
     descriptions = provider.resolverProviderDescriptions();
@@ -167,7 +195,13 @@ TEST_CASE("EventSetupPlugin", "[Framework][EventSetup]") {
     dummyFinderPSet.addParameter("@module_type", std::string("LoadableDummyFinder"));
     dummyFinderPSet.addParameter("@module_label", std::string(""));
     dummyFinderPSet.registerIt();
-    SourceFactory::get()->addTo(provider, dummyFinderPSet, &resolverMaker);
+    {
+      edm::eventsetup::ComponentInterfaceHolder interfaceHolder;
+      SourceFactory::get()->addTo(interfaceHolder, dummyFinderPSet, &resolverMaker);
+      REQUIRE(interfaceHolder.finder());
+      REQUIRE(not interfaceHolder.provider());
+      addToESProvider(provider, interfaceHolder);
+    }
 
     ComponentDescription descFinder("LoadableDummyFinder", "", ComponentDescription::unknownID(), true);
     std::set<ComponentDescription> descriptions(provider.resolverProviderDescriptions());
@@ -178,7 +212,13 @@ TEST_CASE("EventSetupPlugin", "[Framework][EventSetup]") {
     dummyProviderPSet.addParameter("@module_type", std::string("LoadableDummyProvider"));
     dummyProviderPSet.addParameter("@module_label", std::string(""));
     dummyProviderPSet.registerIt();
-    ModuleFactory::get()->addTo(provider, dummyProviderPSet, &resolverMaker);
+    {
+      edm::eventsetup::ComponentInterfaceHolder interfaceHolder;
+      ModuleFactory::get()->addTo(interfaceHolder, dummyProviderPSet, &resolverMaker);
+      REQUIRE(not interfaceHolder.finder());
+      REQUIRE(interfaceHolder.provider());
+      addToESProvider(provider, interfaceHolder);
+    }
 
     ComponentDescription desc("LoadableDummyProvider", "", ComponentDescription::unknownID(), false);
     descriptions = provider.resolverProviderDescriptions();
@@ -189,7 +229,13 @@ TEST_CASE("EventSetupPlugin", "[Framework][EventSetup]") {
     dummySourcePSet.addParameter("@module_type", std::string("LoadableDummyESSource"));
     dummySourcePSet.addParameter("@module_label", std::string(""));
     dummySourcePSet.registerIt();
-    SourceFactory::get()->addTo(provider, dummySourcePSet, &resolverMaker);
+    {
+      edm::eventsetup::ComponentInterfaceHolder interfaceHolder;
+      SourceFactory::get()->addTo(interfaceHolder, dummySourcePSet, &resolverMaker);
+      REQUIRE(interfaceHolder.finder());
+      REQUIRE(interfaceHolder.provider());
+      addToESProvider(provider, interfaceHolder);
+    }
 
     ComponentDescription descSource("LoadableDummyESSource", "", ComponentDescription::unknownID(), true);
     descriptions = provider.resolverProviderDescriptions();
@@ -207,7 +253,13 @@ TEST_CASE("EventSetupPlugin", "[Framework][EventSetup]") {
     dummyFinderPSet.addParameter("@module_type", std::string("generic::LoadableDummyFinderA"));
     dummyFinderPSet.addParameter("@module_label", std::string(""));
     dummyFinderPSet.registerIt();
-    SourceFactory::get()->addTo(provider, dummyFinderPSet, &resolverMaker);
+    {
+      edm::eventsetup::ComponentInterfaceHolder interfaceHolder;
+      SourceFactory::get()->addTo(interfaceHolder, dummyFinderPSet, &resolverMaker);
+      REQUIRE(interfaceHolder.finder());
+      REQUIRE(not interfaceHolder.provider());
+      addToESProvider(provider, interfaceHolder);
+    }
 
     ComponentDescription descFinder("generic::LoadableDummyFinderA", "", ComponentDescription::unknownID(), true);
     std::set<ComponentDescription> descriptions(provider.resolverProviderDescriptions());
@@ -222,7 +274,13 @@ TEST_CASE("EventSetupPlugin", "[Framework][EventSetup]") {
       dummyProviderPSet.addParameter("@module_type", std::string("generic::LoadableDummyProviderA"));
       dummyProviderPSet.addParameter("@module_label", std::string(""));
       dummyProviderPSet.registerIt();
-      ModuleFactory::get()->addTo(provider, dummyProviderPSet, &resolverMaker);
+      {
+        edm::eventsetup::ComponentInterfaceHolder interfaceHolder;
+        ModuleFactory::get()->addTo(interfaceHolder, dummyProviderPSet, &resolverMaker);
+        REQUIRE(not interfaceHolder.finder());
+        REQUIRE(interfaceHolder.provider());
+        addToESProvider(provider, interfaceHolder);
+      }
 
       ComponentDescription desc("generic::LoadableDummyProviderA", "", ComponentDescription::unknownID(), false);
       descriptions = provider.resolverProviderDescriptions();
@@ -240,7 +298,13 @@ TEST_CASE("EventSetupPlugin", "[Framework][EventSetup]") {
       dummyProviderPSet.addParameter("@module_type", std::string("generic::LoadableDummyProviderB"));
       dummyProviderPSet.addParameter("@module_label", std::string(""));
       dummyProviderPSet.registerIt();
-      ModuleFactory::get()->addTo(provider, dummyProviderPSet, &resolverMaker);
+      {
+        edm::eventsetup::ComponentInterfaceHolder interfaceHolder;
+        ModuleFactory::get()->addTo(interfaceHolder, dummyProviderPSet, &resolverMaker);
+        REQUIRE(not interfaceHolder.finder());
+        REQUIRE(interfaceHolder.provider());
+        addToESProvider(provider, interfaceHolder);
+      }
 
       ComponentDescription desc("generic::LoadableDummyProviderB", "", ComponentDescription::unknownID(), false);
       descriptions = provider.resolverProviderDescriptions();
@@ -258,7 +322,13 @@ TEST_CASE("EventSetupPlugin", "[Framework][EventSetup]") {
       dummySourcePSet.addParameter("@module_type", std::string("generic::LoadableDummyESSourceA"));
       dummySourcePSet.addParameter("@module_label", std::string(""));
       dummySourcePSet.registerIt();
-      SourceFactory::get()->addTo(provider, dummySourcePSet, &resolverMaker);
+      {
+        edm::eventsetup::ComponentInterfaceHolder interfaceHolder;
+        SourceFactory::get()->addTo(interfaceHolder, dummySourcePSet, &resolverMaker);
+        REQUIRE(interfaceHolder.finder());
+        REQUIRE(interfaceHolder.provider());
+        addToESProvider(provider, interfaceHolder);
+      }
 
       ComponentDescription descSource("generic::LoadableDummyESSourceA", "", ComponentDescription::unknownID(), true);
       descriptions = provider.resolverProviderDescriptions();
@@ -276,7 +346,13 @@ TEST_CASE("EventSetupPlugin", "[Framework][EventSetup]") {
       dummySourcePSet.addParameter("@module_type", std::string("generic::LoadableDummyESSourceB"));
       dummySourcePSet.addParameter("@module_label", std::string(""));
       dummySourcePSet.registerIt();
-      SourceFactory::get()->addTo(provider, dummySourcePSet, &resolverMaker);
+      {
+        edm::eventsetup::ComponentInterfaceHolder interfaceHolder;
+        SourceFactory::get()->addTo(interfaceHolder, dummySourcePSet, &resolverMaker);
+        REQUIRE(interfaceHolder.finder());
+        REQUIRE(interfaceHolder.provider());
+        addToESProvider(provider, interfaceHolder);
+      }
 
       ComponentDescription descSource("generic::LoadableDummyESSourceB", "", ComponentDescription::unknownID(), true);
       descriptions = provider.resolverProviderDescriptions();
@@ -298,7 +374,13 @@ TEST_CASE("EventSetupPlugin", "[Framework][EventSetup]") {
     dummyFinderPSet.addParameter("@module_label", std::string(""));
     //dummyFinderPSet.addUntrackedParameter("variant", std::string(""));
     dummyFinderPSet.registerIt();
-    SourceFactory::get()->addTo(provider, dummyFinderPSet, &resolverMaker);
+    {
+      edm::eventsetup::ComponentInterfaceHolder interfaceHolder;
+      SourceFactory::get()->addTo(interfaceHolder, dummyFinderPSet, &resolverMaker);
+      REQUIRE(interfaceHolder.finder());
+      REQUIRE(not interfaceHolder.provider());
+      addToESProvider(provider, interfaceHolder);
+    }
 
     ComponentDescription descFinder("generic::LoadableDummyFinderA", "", ComponentDescription::unknownID(), true);
     std::set<ComponentDescription> descriptions(provider.resolverProviderDescriptions());
@@ -314,7 +396,13 @@ TEST_CASE("EventSetupPlugin", "[Framework][EventSetup]") {
       dummyProviderPSet.addParameter("@module_label", std::string(""));
       //dummyProviderPSet.addUntrackedParameter("variant", std::string(""));
       dummyProviderPSet.registerIt();
-      ModuleFactory::get()->addTo(provider, dummyProviderPSet, &resolverMaker);
+      {
+        edm::eventsetup::ComponentInterfaceHolder interfaceHolder;
+        ModuleFactory::get()->addTo(interfaceHolder, dummyProviderPSet, &resolverMaker);
+        REQUIRE(not interfaceHolder.finder());
+        REQUIRE(interfaceHolder.provider());
+        addToESProvider(provider, interfaceHolder);
+      }
 
       ComponentDescription desc("generic::LoadableDummyProviderA", "", ComponentDescription::unknownID(), false);
       descriptions = provider.resolverProviderDescriptions();
@@ -334,7 +422,13 @@ TEST_CASE("EventSetupPlugin", "[Framework][EventSetup]") {
       dummyProviderPSet.addParameter("@module_label", std::string(""));
       dummyProviderPSet.addUntrackedParameter("variant", std::string("cpu"));
       dummyProviderPSet.registerIt();
-      ModuleFactory::get()->addTo(provider, dummyProviderPSet, &resolverMaker);
+      {
+        edm::eventsetup::ComponentInterfaceHolder interfaceHolder;
+        ModuleFactory::get()->addTo(interfaceHolder, dummyProviderPSet, &resolverMaker);
+        REQUIRE(not interfaceHolder.finder());
+        REQUIRE(interfaceHolder.provider());
+        addToESProvider(provider, interfaceHolder);
+      }
 
       ComponentDescription desc("generic::LoadableDummyProviderA", "", ComponentDescription::unknownID(), false);
       descriptions = provider.resolverProviderDescriptions();
@@ -354,7 +448,13 @@ TEST_CASE("EventSetupPlugin", "[Framework][EventSetup]") {
       dummyProviderPSet.addParameter("@module_label", std::string(""));
       dummyProviderPSet.addUntrackedParameter("variant", std::string("other"));
       dummyProviderPSet.registerIt();
-      ModuleFactory::get()->addTo(provider, dummyProviderPSet, &resolverMaker);
+      {
+        edm::eventsetup::ComponentInterfaceHolder interfaceHolder;
+        ModuleFactory::get()->addTo(interfaceHolder, dummyProviderPSet, &resolverMaker);
+        REQUIRE(not interfaceHolder.finder());
+        REQUIRE(interfaceHolder.provider());
+        addToESProvider(provider, interfaceHolder);
+      }
 
       ComponentDescription desc("generic::LoadableDummyProviderA", "", ComponentDescription::unknownID(), false);
       descriptions = provider.resolverProviderDescriptions();

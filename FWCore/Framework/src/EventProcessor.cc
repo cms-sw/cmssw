@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/EDLooperBase.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/ComponentInterfaceHolder.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
@@ -213,7 +214,14 @@ namespace edm {
     for (auto const& looperName : loopers) {
       ParameterSet* providerPSet = params.getPSetForUpdate(looperName);
       // Unlikely we would ever need the ModuleTypeResolver in Looper
-      vLooper = eventsetup::LooperFactory::get()->addTo(eventSetupProvider, *providerPSet, nullptr);
+      eventsetup::ComponentInterfaceHolder iInterfaceHolder;
+      vLooper = eventsetup::LooperFactory::get()->addTo(iInterfaceHolder, *providerPSet, nullptr);
+      if (iInterfaceHolder.finder()) {
+        eventSetupProvider.add(iInterfaceHolder.finder());
+      }
+      if (iInterfaceHolder.provider()) {
+        eventSetupProvider.add(iInterfaceHolder.provider());
+      }
     }
     return vLooper;
   }

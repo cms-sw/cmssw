@@ -8,10 +8,12 @@
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
+#include "FWCore/Framework/interface/ComponentInterfaceHolder.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -98,7 +100,14 @@ namespace edm {
            itName != itNameEnd;
            ++itName) {
         ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
-        ModuleFactory::get()->addTo(eventSetupProvider, *providerPSet, resolverMaker);
+        ComponentInterfaceHolder interfaceHolder;
+        interfaceHolder.connectSignals(eventSetupProvider.activityRegistry()->preESModuleConstructionSignal_,
+                                       eventSetupProvider.activityRegistry()->postESModuleConstructionSignal_);
+        ModuleFactory::get()->addTo(interfaceHolder, *providerPSet, resolverMaker);
+        if (interfaceHolder.provider()) {
+          eventSetupProvider.add(interfaceHolder.provider());
+        }
+        assert(not interfaceHolder.finder());
       }
 
       std::vector<std::string> sources = params.getParameter<std::vector<std::string> >("@all_essources");
@@ -106,7 +115,16 @@ namespace edm {
       for (std::vector<std::string>::iterator itName = sources.begin(), itNameEnd = sources.end(); itName != itNameEnd;
            ++itName) {
         ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
-        SourceFactory::get()->addTo(eventSetupProvider, *providerPSet, resolverMaker);
+        ComponentInterfaceHolder interfaceHolder;
+        interfaceHolder.connectSignals(eventSetupProvider.activityRegistry()->preESModuleConstructionSignal_,
+                                       eventSetupProvider.activityRegistry()->postESModuleConstructionSignal_);
+        SourceFactory::get()->addTo(interfaceHolder, *providerPSet, resolverMaker);
+        if (interfaceHolder.provider()) {
+          eventSetupProvider.add(interfaceHolder.provider());
+        }
+        if (interfaceHolder.finder()) {
+          eventSetupProvider.add(interfaceHolder.finder());
+        }
       }
     }
   }  // namespace eventsetup

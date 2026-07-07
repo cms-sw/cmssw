@@ -41,7 +41,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ComponentFactory.h"
-#include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/ComponentInterfaceHolder.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
 
 // forward declarations
@@ -57,17 +57,17 @@ namespace edm {
       static std::string name();
       static std::string const& baseType();
       template <class T>
-      static void addTo(EventSetupProvider& iProvider, std::shared_ptr<T> iComponent) {
+      static void addTo(ComponentInterfaceHolder& iInterfaceHolder, std::shared_ptr<T> iComponent) {
         //a source does not always have to be a provider
         if constexpr (std::is_base_of_v<ESProductResolverProvider, T>) {
           std::shared_ptr<ESProductResolverProvider> pProvider(iComponent);
           ComponentDescription description = pProvider->description();
           description.isSource_ = true;
           pProvider->setDescription(description);
-          iProvider.add(pProvider);
+          iInterfaceHolder.setProvider(pProvider);
         }
         std::shared_ptr<EventSetupRecordIntervalFinder> pFinder(iComponent);
-        iProvider.add(pFinder);
+        iInterfaceHolder.setFinder(pFinder);
       }
     };
 

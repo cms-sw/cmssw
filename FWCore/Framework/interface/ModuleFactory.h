@@ -47,14 +47,15 @@ namespace edm {
 
   namespace eventsetup {
     class ESProductResolverProvider;
-    class EventSetupProvider;
+    class ComponentInterfaceHolder;
 
     struct ModuleMakerTraits {
       typedef ESProductResolverProvider base_type;
 
       static std::string name();
       static std::string const& baseType();
-      static void addTo(EventSetupProvider& iProvider, std::shared_ptr<ESProductResolverProvider> iComponent);
+      static void addTo(ComponentInterfaceHolder& iInterfaceHolder,
+                        std::shared_ptr<ESProductResolverProvider> iComponent);
     };
     template <class TType>
     struct ModuleMaker : public ComponentMaker<edm::eventsetup::ModuleMakerTraits, TType> {};
