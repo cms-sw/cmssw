@@ -104,7 +104,10 @@ private:
 
       for (size_t iSim = 0; iSim < simTracksters.size(); ++iSim) {
         const auto& simT = simTracksters[iSim];
-        assert(simT.seedID() == simTracksterToSimCluster_map.id());
+        if (simT.seedID() != simTracksterToSimCluster_map.id())
+          throw cms::Exception("LogicError")
+              << "Mismatch between SimTrackster seed ProductID and SimTrackster->SimCluster map source ProductID. "
+                 "Likely mismatched collections were given.";
 
         SimCluster const& simCluster = *simTracksterToSimCluster_map[iSim];
         CaloParticle const& caloParticle = *simTracksterToCaloParticle_map[iSim];

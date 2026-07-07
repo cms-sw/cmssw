@@ -433,7 +433,9 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
   event.getByToken(associatorMapStRToken_, mergeTsSimToReco_h);
   /// Map : SimTrackster collection in 1-1 correspondance to simTICLCandidate => TICLCandidates tracksters
   auto const& mergeTsSimToRecoMap = *mergeTsSimToReco_h;
-  assert(mergeTsSimToRecoMap.getCollectionIDs().second.id() == Tracksters_h.id());
+  if (mergeTsSimToRecoMap.getCollectionIDs().second.id() != Tracksters_h.id())
+    throw cms::Exception("LogicError")
+        << "Mismatch between SimTICLCandidate SimToReco map and SimTICLCandidate collection";
 
   // candidates plots
   for (const auto& cand : TICLCandidates) {
@@ -597,7 +599,9 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
 
     int32_t cand_idx = -1;
     float shared_energy = 0.;
-    assert(i < (int)mergeTsSimToRecoMap.size());
+    if (i >= (int)mergeTsSimToRecoMap.size())
+      throw cms::Exception("LogicError") << "Mismatch between SimTICLCandidate index and SimTrackster index. Most "
+                                            "likely mismatched collections were given as inputs.";
     const auto& ts_vec = mergeTsSimToRecoMap[i];
     if (!ts_vec.empty()) {
       auto min_elem =

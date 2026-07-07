@@ -21,7 +21,9 @@ ticl::RecoToSimTracksterCollection LCToSimTSAssociatorByEnergyScoreImpl::associa
   for (size_t lcId = 0; lcId < cCCH.product()->size(); ++lcId) {
     const edm::Ref<reco::CaloClusterCollection> lcRef(cCCH, lcId);
     for (size_t tsId = 0; tsId < simTracksters.size(); ++tsId) {
-      assert(simTracksters[tsId].seedID() == sCCH.id());
+      if (simTracksters[tsId].seedID() != sCCH.id())
+        throw cms::Exception("LogicError") << "Mismatch between SimTrackster seed ProductID and SimCluster collection "
+                                              "ProductID. Likely mismatched collections were given.";
       const auto& scIt = lCToSCs.find(lcRef);
       if (scIt == lCToSCs.end()) {
         LogDebug("LCToSimTSAssociatorByEnergyScoreImpl")
@@ -63,7 +65,9 @@ ticl::SimTracksterToRecoCollection LCToSimTSAssociatorByEnergyScoreImpl::associa
 
   const auto simTracksters = *sTCH.product();
   for (size_t tsId = 0; tsId < simTracksters.size(); ++tsId) {
-    assert(simTracksters[tsId].seedID() == sCCH.id());
+    if (simTracksters[tsId].seedID() != sCCH.id())
+      throw cms::Exception("LogicError") << "Mismatch between SimTrackster seed ProductID and SimCluster collection "
+                                            "ProductID. Likely mismatched collections were given.";
     const auto scId = simTracksters[tsId].seedIndex();
     const edm::Ref<SimClusterCollection> scRef(sCCH, scId);
     const auto& lcIt = sCToLCs.find(scRef);
