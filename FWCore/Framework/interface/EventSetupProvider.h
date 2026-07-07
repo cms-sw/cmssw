@@ -67,14 +67,12 @@ namespace edm {
 
       std::shared_ptr<const EventSetupImpl> eventSetupForInstance(IOVSyncValue const&, bool& newEventSetupImpl);
 
-      bool doWeNeedToWaitForIOVsToFinish(IOVSyncValue const&) const;
-
       EventSetupImpl const& eventSetupImpl() const { return *eventSetupImpl_; }
 
       void add(std::shared_ptr<ESProductResolverProvider>);
       void add(std::shared_ptr<EventSetupRecordIntervalFinder>);
 
-      void finishConfiguration(NumberOfConcurrentIOVs const&, bool& hasNonconcurrentFinder);
+      void finishConfiguration(NumberOfConcurrentIOVs const&);
 
       ///Used when we need to force a Record to reset all its resolvers
       void resetRecordPlusDependentRecords(EventSetupRecordKey const&);

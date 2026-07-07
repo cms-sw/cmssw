@@ -8,20 +8,12 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 cmsRun ${LOCAL_TEST_DIR}/EventSetupTest_cfg.py || die 'Failed in EventSetupTest_cfg.py' $?
 cmsRun ${LOCAL_TEST_DIR}/EventSetupAppendLabelTest_cfg.py || die 'Failed in EventSetupAppendLabelTest_cfg.py' $?
 cmsRun ${LOCAL_TEST_DIR}/EventSetupTest2_cfg.py || die 'Failed in EventSetupTest2_cfg.py' $?
-cmsRun ${LOCAL_TEST_DIR}/EventSetupForceCacheClearTest_cfg.py || die 'Failed in EventSetupForceCacheClearTest_cfg.py' $?
 
 echo testESProductHost
 cmsRun ${LOCAL_TEST_DIR}/ESProductHostTest_cfg.py || die 'Failed in ESProductHostTest_cfg.py' $?
 
 echo testConcurrentIOVs
 cmsRun ${LOCAL_TEST_DIR}/testConcurrentIOVs_cfg.py || die 'Failed in testConcurrentIOVs_cfg.py' $?
-
-echo testConcurrentIOVsLegacy 1 thread
-cmsRun ${LOCAL_TEST_DIR}/testConcurrentIOVsLegacy_cfg.py -n 1|| die 'Failed in testConcurrentIOVsLegacy_cfg.py' $?
-
-echo testConcurrentIOVsLegacy 4 threads
-cmsRun ${LOCAL_TEST_DIR}/testConcurrentIOVsLegacy_cfg.py -n 4 &> testConcurrentIOVsLegacy_4threads.txt && die 'Failed in testConcurrentIOVsLegacy_cfg.py, the configuration succeeded while it should have failed' $?
-grep "The EventSetup configuration contains a non-concurrent ESSource" testConcurrentIOVsLegacy_4threads.txt >/dev/null || diecat 'Failed in testConcurrentIOVsLegacy_cfg.py, the configuration failed but in an unexpected way' $? testConcurrentIOVsLegacy_4threads.txt
 
 echo testAllowConcurrentIOVs_cfg
 cmsRun ${LOCAL_TEST_DIR}/testAllowConcurrentIOVs_cfg.py || die 'Failed in testAllowConcurrentIOVs_cfg.py' $?
