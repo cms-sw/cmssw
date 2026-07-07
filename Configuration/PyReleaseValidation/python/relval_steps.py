@@ -4791,8 +4791,8 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     upgradeStepDict['GenSimCloseBy'][k]['--beamspot'] = 'CloseBy'
 
     upgradeStepDict['GenSimDisplaced'][k] = deepcopy(upgradeStepDict['GenSim'][k])
-    upgradeStepDict['GenSimDisplaced'][k]['--beamspot'] = 'CloseBy'
-
+    upgradeStepDict['GenSimDisplaced'][k]['--beamspot'] = 'CloseBy' # still using DBrealisticHLLHC
+        
     upgradeStepDict['GenSimHLBeamSpot'][k] = {'-s' : 'GEN,SIM',
                                               '-n' : 10,
                                               '--conditions' : gt+'_13TeV',
