@@ -2380,11 +2380,11 @@ class UpgradeWorkflowPremix_ecalDevel(UpgradeWorkflow):
             if 'Digi' in step:
                 mods['-s'] = 'DIGI:pdigi_valid,DATAMIX,DIGI2RAW'
                 mods['--datamix'] = 'PreMix'
-                mods['--procModifiers'] = 'premix_stage2'
                 mods['--custom_conditions'] = 'EcalSimPulseShapePhaseII,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
                 mods['--filein'] = 'file:step1.root'
                 mods['--pileup_input'] = 'file:step2.root'
                 mods |= self.__digi
+                mods['--procModifiers'] = mods['--procModifiers']+',premix_stage2' if '--procModifiers' in mods else 'premix_stage2'
             elif 'Reco' in step:
                 mods['-s'] = 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly'
                 mods['--datatier'] = 'GEN-SIM-RECO,DQMIO'

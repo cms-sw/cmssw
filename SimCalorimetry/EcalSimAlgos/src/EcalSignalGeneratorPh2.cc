@@ -1,5 +1,7 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSignalGeneratorPh2.h"
 
+#include <array>
+
 template <>
 EcalSignalGeneratorPh2<EBDigitizerTraits_Ph2>::EcalSignalGeneratorPh2(edm::ConsumesCollector& cc,
                                                                       const edm::InputTag& inputTag,
@@ -116,10 +118,8 @@ CaloSamples EcalSignalGeneratorPh2<EBDigitizerTraits_Ph2>::samplesInPE(const DIG
 
   auto const gainRatio = (*gainRatios_)[detId];
 
-  double LSB[ecalPh2::NGAINS];
-  for (unsigned int igain(0); igain < ecalPh2::NGAINS; ++igain) {
-    LSB[igain] = maxEne_ / (ecalPh2::MAXADC * gainRatio);
-  }
+  auto const lsbBase = maxEne_ / ecalPh2::MAXADC;
+  std::array<double, ecalPh2::NGAINS> const LSB = {lsbBase / gainRatio, lsbBase};
 
   LogDebug("EcalSignalGeneratorPh2") << "Intercalibration: " << icalconst << ", LSBs: " << LSB[0] << " " << LSB[1]
                                      << ", gain ratio: " << gainRatio << ", max. energy: " << maxEne_;

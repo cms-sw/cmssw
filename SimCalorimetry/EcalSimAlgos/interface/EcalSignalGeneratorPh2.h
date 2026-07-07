@@ -43,6 +43,8 @@ public:
   typedef std::unordered_map<uint32_t, double> CalibCache;
 
   EcalSignalGeneratorPh2() : EcalBaseSignalGenerator() {}
+  EcalSignalGeneratorPh2(const EcalSignalGeneratorPh2&) = delete;
+  EcalSignalGeneratorPh2& operator=(const EcalSignalGeneratorPh2&) = delete;
 
   EcalSignalGeneratorPh2(edm::ConsumesCollector& cc,
                          const edm::InputTag& inputTag,
