@@ -55,9 +55,9 @@ from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
 _phase2_ecal_extraCommands = cms.PSet( # using PSet in order to potentially customize with Modifier
     v = cms.vstring('drop EBDigiCollection_*_*_*', 'drop EEDigiCollection_*_*_*', 'drop ESDigiCollection_*_*_*', 'keep *_simEcalUnsuppressedDigis_*_*', 'keep *_ecal*_*_*'),
 )
-phase2_ecal_devel.toModify(SimCalorimetryFEVTDEBUG.outputCommands, outputCommands = SimCalorimetryFEVTDEBUG.outputCommands + _phase2_ecal_extraCommands.v)
-phase2_ecal_devel.toModify(SimCalorimetryPREMIX.outputCommands, outputCommands = SimCalorimetryPREMIX.outputCommands + _phase2_ecal_extraCommands.v)
-phase2_ecal_devel.toModify(SimCalorimetryRAW.outputCommands, outputCommands = SimCalorimetryRAW.outputCommands + _phase2_ecal_extraCommands.v)
+phase2_ecal_devel.toModify(SimCalorimetryFEVTDEBUG, outputCommands = SimCalorimetryFEVTDEBUG.outputCommands + _phase2_ecal_extraCommands.v)
+phase2_ecal_devel.toModify(SimCalorimetryPREMIX, outputCommands = SimCalorimetryPREMIX.outputCommands + _phase2_ecal_extraCommands.v)
+phase2_ecal_devel.toModify(SimCalorimetryRAW, outputCommands = SimCalorimetryRAW.outputCommands + _phase2_ecal_extraCommands.v)
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify( SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outputCommands: outputCommands.append('keep EBDigiCollectionPh2_mixData_*_*') )
