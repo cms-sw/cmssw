@@ -44,6 +44,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   HOST_DEVICE_CONSTANT float kWidthPS = 0.01;
   HOST_DEVICE_CONSTANT float kPt_betaMax = 7.0;
   HOST_DEVICE_CONSTANT int kNTripletThreshold = 1000;
+  HOST_DEVICE_CONSTANT int kNQuintupletThreshold = 100000;
   HOST_DEVICE_CONSTANT int kLogicalOTLayers = 11;  // logical OT layers are 1..11
   HOST_DEVICE_CONSTANT auto kMaxPLSHitBitsInHitsSoA = ::lst::kMaxPLSHitBitsInHitsSoA;
 
