@@ -14,11 +14,10 @@ namespace l1t {
                                                                    int clearanceWidth);
     std::vector<std::vector<ME0StubPrimitive>> crossPartitionCancellation(
         std::vector<std::vector<ME0StubPrimitive>>& segments, int crossPartSegWidth);
-    std::tuple<std::vector<ME0StubPrimitive>, Config> processChamber(
-        const std::vector<std::vector<UInt192>>& chamberData,
-        const std::vector<std::vector<std::vector<int>>>& chamberBxData,
-        Config& config,
-        PeakingManager& peakingManager);
+    std::vector<ME0StubPrimitive> processChamber(const std::vector<std::vector<UInt192>>& chamberData,
+                                                 const std::vector<std::vector<std::vector<int>>>& chamberBxData,
+                                                 Config& config,
+                                                 PeakingManager& peakingManager);
   }  // namespace me0
 }  // namespace l1t
 

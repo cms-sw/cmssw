@@ -1,7 +1,6 @@
 #include "L1Trigger/L1TGEM/interface/ME0StubAlgoChamber.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
-
-using namespace l1t::me0;
 
 std::vector<std::vector<ME0StubPrimitive>> l1t::me0::deghostingClearance(
     std::vector<std::vector<ME0StubPrimitive>>& segments, int clearanceWidth) {
@@ -103,15 +102,14 @@ std::vector<std::vector<ME0StubPrimitive>> l1t::me0::crossPartitionCancellation(
   return segsOut;
 }
 
-std::tuple<std::vector<ME0StubPrimitive>, Config> l1t::me0::processChamber(
-    const std::vector<std::vector<UInt192>>& chamberData,
-    const std::vector<std::vector<std::vector<int>>>& chamberBxData,
-    Config& config,
-    PeakingManager& peakingManager) {
+std::vector<ME0StubPrimitive> l1t::me0::processChamber(const std::vector<std::vector<l1t::me0::UInt192>>& chamberData,
+                                                       const std::vector<std::vector<std::vector<int>>>& chamberBxData,
+                                                       Config& config,
+                                                       PeakingManager& peakingManager) {
   std::vector<std::vector<ME0StubPrimitive>> segments;
   int numFinder = (config.xPartitionEnabled) ? 15 : 8;
 
-  std::vector<std::vector<UInt192>> data(numFinder, std::vector<UInt192>(6, UInt192(0)));
+  std::vector<std::vector<l1t::me0::UInt192>> data(numFinder, std::vector<l1t::me0::UInt192>(6, l1t::me0::UInt192(0)));
   std::vector<std::vector<std::vector<int>>> bxData(numFinder,
                                                     std::vector<std::vector<int>>(6, std::vector<int>(192, -9999)));
   if (config.xPartitionEnabled) {
@@ -145,7 +143,7 @@ std::tuple<std::vector<ME0StubPrimitive>, Config> l1t::me0::processChamber(
   }
 
   for (int partition = 0; partition < static_cast<int>(data.size()); ++partition) {
-    const std::vector<UInt192>& partitionData = data[partition];
+    const std::vector<l1t::me0::UInt192>& partitionData = data[partition];
     const std::vector<std::vector<int>>& partitionBxData = bxData[partition];
     const std::vector<ME0StubPrimitive>& segs =
         processPartition(partitionData, partitionBxData, partition, config, peakingManager);
@@ -188,5 +186,5 @@ std::tuple<std::vector<ME0StubPrimitive>, Config> l1t::me0::processChamber(
     }
   }
 
-  return std::make_tuple(concatenated, config);
+  return concatenated;
 }

@@ -1,6 +1,5 @@
 #include "L1Trigger/L1TGEM/interface/ME0StubAlgoPartition.h"
-
-using namespace l1t::me0;
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 bool l1t::me0::isGhost(const ME0StubPrimitive& seg, const ME0StubPrimitive& comp, bool checkIds, bool checkStrips) {
   /*
@@ -72,7 +71,8 @@ std::vector<ME0StubPrimitive> l1t::me0::cancelEdges(
       for (int comp : comps) {
         bool ghost = isGhost(segments[i], segments[comp]);
         if (verbose) {
-          std::cout << "isGhost " << segments[i] << " with " << segments[comp] << ": " << ghost << std::endl;
+          LogTrace("ME0StubAlgoPartition")
+              << "isGhost " << segments[i] << " with " << segments[comp] << ": " << ghost << "\n";
         }
         if (ghost) {
           canceledSegments[i] = ME0StubPrimitive(0, 0, 0, segments[i].strip(), segments[i].etaPartition());
@@ -85,7 +85,7 @@ std::vector<ME0StubPrimitive> l1t::me0::cancelEdges(
   return canceledSegments;
 }
 
-std::vector<ME0StubPrimitive> l1t::me0::processPartition(const std::vector<UInt192>& partitionData,
+std::vector<ME0StubPrimitive> l1t::me0::processPartition(const std::vector<l1t::me0::UInt192>& partitionData,
                                                          const std::vector<std::vector<int>>& partitionBxData,
                                                          int partition,
                                                          Config& config,
@@ -108,7 +108,7 @@ std::vector<ME0StubPrimitive> l1t::me0::processPartition(const std::vector<UInt1
       patMux(partitionData, partitionBxData, partition, config, peakingManager);
 
   if (config.deghostPre && config.deghostPost) {
-    throw std::runtime_error("Both pre and post deghosting cannot be enabled at the same time");
+    throw cms::Exception("ME0StubAlgoPartition") << "Both pre and post deghosting cannot be enabled at the same time";
   }
 
   if (config.deghostPre) {

@@ -9,9 +9,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace l1t::me0;
+#include <format>
 
-typedef std::vector<std::vector<UInt192>> ME0ChamberData;
+typedef std::vector<std::vector<l1t::me0::UInt192>> ME0ChamberData;
 typedef std::vector<std::vector<std::vector<int>>> ME0ChamberBXData;
 
 ME0StubBuilder::ME0StubBuilder(const edm::ParameterSet& ps) {
@@ -38,7 +38,6 @@ ME0StubBuilder::ME0StubBuilder(const edm::ParameterSet& ps) {
   enablePeaking_ = ps.getParameter<bool>("enablePeaking");
   debug_ = ps.getParameter<bool>("debug");
 }
-ME0StubBuilder::~ME0StubBuilder() {}
 
 void ME0StubBuilder::fillDescription(edm::ParameterSetDescription& desc) {
   desc.add<bool>("skipCentroids", false);
@@ -66,7 +65,7 @@ void ME0StubBuilder::fillDescription(edm::ParameterSetDescription& desc) {
 }
 
 void ME0StubBuilder::build(const GEMPadDigiCollection* padDigis, ME0StubCollection& oc) {
-  Config config;
+  l1t::me0::Config config;
   config.skipCentroids = skipCentroids_;
   config.layerThresholdPatternId = layerThresholdPatternId_;
   config.layerThresholdEta = layerThresholdEta_;
@@ -118,7 +117,7 @@ void ME0StubBuilder::build(const GEMPadDigiCollection* padDigis, ME0StubCollecti
     // Initialize dataMap for this chamber if not already done
     if (dataMap.find(gemRawId) == dataMap.end()) {
       for (size_t idxBX = 0; idxBX < BXOffsetList.size(); ++idxBX) {
-        ME0ChamberData chamberData(8, std::vector<UInt192>(6, UInt192(0)));
+        ME0ChamberData chamberData(8, std::vector<l1t::me0::UInt192>(6, l1t::me0::UInt192(0)));
         ME0ChamberBXData chamberBXData(8, std::vector<std::vector<int>>(6, std::vector<int>(192, -9999)));
         dataMap[gemRawId].push_back(std::make_pair(chamberData, chamberBXData));
       }
@@ -134,7 +133,7 @@ void ME0StubBuilder::build(const GEMPadDigiCollection* padDigis, ME0StubCollecti
       for (size_t idxBX = 0; idxBX < BXOffsetList.size(); ++idxBX) {
         int crntBX = BXOffsetList[idxBX];
         if (bx >= crntBX - config.BXWindow / 2 && bx <= crntBX + config.BXWindow / 2) {  // pulse stretch
-          dataMap[gemRawId][idxBX].first.at(ieta - 1).at(layer - 1) |= (UInt192(1) << (strip));
+          dataMap[gemRawId][idxBX].first.at(ieta - 1).at(layer - 1) |= (l1t::me0::UInt192(1) << (strip));
           dataMap[gemRawId][idxBX].second.at(ieta - 1).at(layer - 1).at(strip) = bx;
         }
       }
@@ -146,17 +145,14 @@ void ME0StubBuilder::build(const GEMPadDigiCollection* padDigis, ME0StubCollecti
   for (const auto& dataPair : dataMap) {
     uint32_t rawId = dataPair.first;
     GEMDetId id(rawId);
-    PeakingManager peakingManager(numPartitions, config.width);
+    l1t::me0::PeakingManager peakingManager(numPartitions, config.width);
     std::vector<ME0Stub> segListProcessed;
 
     for (size_t idxBX = 0; idxBX < BXOffsetList.size(); ++idxBX) {
       auto data = dataPair.second[idxBX].first;
       auto bxData = dataPair.second[idxBX].second;
 
-      std::tuple<std::vector<ME0StubPrimitive>, Config> outputChamber =
-          processChamber(data, bxData, config, peakingManager);
-      auto& segList = std::get<0>(outputChamber);
-      // auto& configOut = std::get<1>(outputChamber);
+      std::vector<ME0StubPrimitive> segList = l1t::me0::processChamber(data, bxData, config, peakingManager);
 
       for (ME0StubPrimitive& seg : segList) {
         if (seg.patternId() == 0)
@@ -169,12 +165,11 @@ void ME0StubBuilder::build(const GEMPadDigiCollection* padDigis, ME0StubCollecti
 
         // debug
         if (debug_) {
-          std::cout << std::fixed;
-          std::cout.precision(4);
-          std::cout << "    Eta Partition = " << seg.etaPartition()
-                    << ", Center Strip = " << seg.strip() + seg.subStrip() << ", Bending angle = " << seg.bendingAngle()
-                    << ", ID = " << seg.patternId() << ", Hit count = " << seg.hitCount()
-                    << ", Layer count = " << seg.layerCount() << ", Quality = " << seg.quality() << std::endl;
+          LogTrace("ME0StubBuilder") << "    Eta Partition = " << seg.etaPartition()
+                                     << ", Center Strip = " << std::format("{:.4f}", seg.strip() + seg.subStrip())
+                                     << ", Bending angle = " << std::format("{:.4f}", seg.bendingAngle())
+                                     << ", ID = " << seg.patternId() << ", Hit count = " << seg.hitCount()
+                                     << ", Layer count = " << seg.layerCount() << ", Quality = " << seg.quality();
         }
 
         ME0Stub segFinal(id,
@@ -184,7 +179,7 @@ void ME0StubBuilder::build(const GEMPadDigiCollection* padDigis, ME0StubCollecti
                          seg.layerCount(),
                          seg.quality(),
                          seg.patternId(),
-                         seg.bx());
+                         BXOffsetList[idxBX] - 1);
 
         segListProcessed.push_back(segFinal);
       }

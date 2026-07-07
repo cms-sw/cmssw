@@ -1,20 +1,19 @@
 #include "L1Trigger/L1TGEM/interface/ME0StubAlgoPatUnitMux.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace l1t::me0;
-
-uint64_t l1t::me0::parseData(const UInt192& data, int strip, int maxSpan) {
-  UInt192 dataShifted;
+uint64_t l1t::me0::parseData(const l1t::me0::UInt192& data, int strip, int maxSpan) {
+  l1t::me0::UInt192 dataShifted;
   uint64_t parsedData;
   if (strip < maxSpan / 2 + 1) {
     dataShifted = data << (maxSpan / 2 - strip);
-    parsedData = (dataShifted & UInt192(0xffffffffffffffff >> (64 - maxSpan))).to_ullong();
+    parsedData = (dataShifted & l1t::me0::UInt192(0xffffffffffffffff >> (64 - maxSpan))).to_ullong();
   } else {
     dataShifted = data >> (strip - maxSpan / 2);
-    parsedData = (dataShifted & UInt192(0xffffffffffffffff >> (64 - maxSpan))).to_ullong();
+    parsedData = (dataShifted & l1t::me0::UInt192(0xffffffffffffffff >> (64 - maxSpan))).to_ullong();
   }
   return parsedData;
 }
-std::vector<uint64_t> l1t::me0::extractDataWindow(const std::vector<UInt192>& prtData,
+std::vector<uint64_t> l1t::me0::extractDataWindow(const std::vector<l1t::me0::UInt192>& prtData,
                                                   int strip,
                                                   const std::vector<int>& layerSpans) {
   if (*std::max_element(layerSpans.begin(), layerSpans.end()) > 64) {
@@ -57,7 +56,7 @@ std::vector<std::vector<int>> l1t::me0::extractBxDataWindow(const std::vector<st
   }
   return out;
 }
-std::vector<ME0StubPrimitive> l1t::me0::patMux(const std::vector<UInt192>& partitionData,
+std::vector<ME0StubPrimitive> l1t::me0::patMux(const std::vector<l1t::me0::UInt192>& partitionData,
                                                const std::vector<std::vector<int>>& partitionBxData,
                                                int partition,
                                                Config& config,
@@ -90,18 +89,17 @@ std::vector<ME0StubPrimitive> l1t::me0::patMux(const std::vector<UInt192>& parti
   }
 
   if (debug) {
-    // auto seg_print = newSegs;
     auto seg_print = outSegs;
     int num = 0;
-    std::cout << "Partition = " << partition << std::endl;
+    LogTrace("ME0StubAlgoPatUnitMux") << "Partition = " << partition << "\n";
     for (const auto& seg : seg_print) {
-      std::cout << seg.quality() << "/" << seg.strip() << "/" << seg.patternId() << " ";
+      LogTrace("ME0StubAlgoPatUnitMux") << seg.quality() << "/" << seg.strip() << "/" << seg.patternId() << " ";
       num++;
       if (num % 10 == 0) {
-        std::cout << std::endl;
+        LogTrace("ME0StubAlgoPatUnitMux") << "\n";
       }
     }
-    std::cout << std::endl;
+    LogTrace("ME0StubAlgoPatUnitMux") << "\n";
   }
 
   return outSegs;

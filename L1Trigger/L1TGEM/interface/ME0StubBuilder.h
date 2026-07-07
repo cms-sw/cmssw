@@ -24,7 +24,7 @@
 class ME0StubBuilder {
 public:
   explicit ME0StubBuilder(const edm::ParameterSet&);
-  ~ME0StubBuilder();
+  ~ME0StubBuilder() = default;
 
   void build(const GEMPadDigiCollection* padDigis, ME0StubCollection& oc);
 

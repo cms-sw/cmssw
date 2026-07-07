@@ -1,8 +1,7 @@
 #include "L1Trigger/L1TGEM/interface/ME0StubAlgoPatUnit.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace l1t::me0;
-
-std::vector<uint64_t> l1t::me0::maskLayerData(const std::vector<uint64_t>& data, const Mask& mask) {
+std::vector<uint64_t> l1t::me0::maskLayerData(const std::vector<uint64_t>& data, const l1t::me0::Mask& mask) {
   std::vector<uint64_t> out;
   out.reserve(static_cast<int>(data.size()));
   for (int i = 0; i < static_cast<int>(data.size()); ++i) {
@@ -114,7 +113,7 @@ ME0StubPrimitive l1t::me0::patUnit(const std::vector<uint64_t>& data,
   //    for each of the N patterns, the masked []*6 layer data
   std::vector<std::vector<uint64_t>> maskedData;
   std::vector<int> pids;
-  for (const Mask& M : kLayerMask) {
+  for (const l1t::me0::Mask& M : kLayerMask) {
     maskedData.push_back(maskLayerData(data, M));
     pids.push_back(M.id);
   }
@@ -154,20 +153,18 @@ ME0StubPrimitive l1t::me0::patUnit(const std::vector<uint64_t>& data,
   }
 
   if (verbose) {
-    std::cout << "maskedData : " << std::endl;
+    LogTrace("ME0StubAlgoPatUnit") << "maskedData : \n";
     for (auto& x : maskedData) {
       for (auto& y : x) {
-        std::cout << y << " ";
+        LogTrace("ME0StubAlgoPatUnit") << y << " ";
       }
-      std::cout << std::endl;
+      LogTrace("ME0StubAlgoPatUnit") << "\n";
     }
-    std::cout << "layer counts : " << std::endl;
+    LogTrace("ME0StubAlgoPatUnit") << "layer counts : \n";
     for (auto& lc : lcs) {
-      std::cout << lc << " ";
+      LogTrace("ME0StubAlgoPatUnit") << lc << " ";
     }
-    std::cout << std::endl;
-    std::cout << "layer threshold = " << lyThreshFinal << std::endl;
-    std::cout << "Best segment: " << best << std::endl;
+    LogTrace("ME0StubAlgoPatUnit") << "\nlayer threshold = " << lyThreshFinal << "\nBest segment: " << best << "\n";
   }
 
   // process centroids if a segment is found
@@ -175,11 +172,11 @@ ME0StubPrimitive l1t::me0::patUnit(const std::vector<uint64_t>& data,
     best.setCentroids({0, 0, 0, 0, 0, 0});
     best.setBx(-9999);
   } else {
-    const std::vector<uint64_t>& orginalSbits = maskedData[best.patternId() - 1];
+    const std::vector<uint64_t>& originalSbits = maskedData[best.patternId() - 1];
     std::vector<uint64_t> extractedSbits;
     for (int ly = 0; ly < 6; ++ly) {
       int shift = kPatOffsets[best.patternId() - 1][ly];
-      uint64_t extractedSbit = (shift > 0) ? (orginalSbits[ly] << shift) : (orginalSbits[ly] >> -shift);
+      uint64_t extractedSbit = (shift > 0) ? (originalSbits[ly] << shift) : (originalSbits[ly] >> -shift);
       extractedSbits.push_back(extractedSbit);
     }
     auto temp = calculateCentroids(extractedSbits, bxData);

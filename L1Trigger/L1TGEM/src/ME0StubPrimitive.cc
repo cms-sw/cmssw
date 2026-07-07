@@ -1,4 +1,5 @@
 #include "L1Trigger/L1TGEM/interface/ME0StubPrimitive.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //define class ME0StubPrimitive
 ME0StubPrimitive::ME0StubPrimitive() : layerCount_{0}, hitCount_{0}, patternId_{0}, strip_{0}, etaPartition_{0} {
@@ -49,23 +50,6 @@ void ME0StubPrimitive::updateQuality() {
 }
 void ME0StubPrimitive::fit(int patSpan) {
   if (patternId_ != 0) {
-    // std::vector<double> tmp;
-    // tmp.reserve(centroids_.size());
-    // for (double centroid : centroids_) {
-    //   tmp.push_back(centroid - (patSpan / 2 + 1));
-    // }
-    // std::vector<double> x;
-    // std::vector<double> centroids;
-    // for (uint32_t i = 0; i < tmp.size(); ++i) {
-    //   if (tmp[i] != -1 * (maxSpan / 2 + 1)) {
-    //     x.push_back(i - 2.5);
-    //     centroids.push_back(tmp[i]);
-    //   }
-    // }
-    // std::vector<double> fit = llseFit(x, centroids);
-    // bendingAngle_ = fit[0];
-    // subStrip_ = fit[1];
-    // mse_ = fit[2];
     std::vector<bool> validMask;
     validMask.reserve(centroids_.size());
     for (int centroid : centroids_) {

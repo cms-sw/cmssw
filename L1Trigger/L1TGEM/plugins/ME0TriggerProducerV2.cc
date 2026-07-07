@@ -10,18 +10,18 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "L1Trigger/L1TGEM/interface/ME0StubBuilderV2.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GEMDigi/interface/ME0TriggerDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/ME0PadDigiCollection.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
-
-class ME0StubBuilderV2;
+#include "L1Trigger/L1TGEM/interface/ME0StubBuilderV2.h"
 
 class ME0TriggerProducerV2 : public edm::global::EDProducer<> {
 public:

@@ -12,12 +12,12 @@ namespace l1t {
       HiLo(int hi_, int lo_) : hi(hi_), lo(lo_) {}
     };
 
-    class PatternDefinition {
+    class PatternDef {
     private:
     public:
       int id;
       std::vector<HiLo> layers;
-      PatternDefinition(int id_, std::vector<HiLo> layers_) : id(id_), layers(layers_) {}
+      PatternDef(int id_, std::vector<HiLo> layers_) : id(id_), layers(layers_) {}
     };
 
     class Mask {
@@ -31,10 +31,10 @@ namespace l1t {
 
     std::vector<int> shiftCenter(const HiLo& layer, int maxSpan);
     uint64_t setHighBits(const std::vector<int>& loHiPair);
-    Mask getLayerMask(const PatternDefinition& layerPattern, const std::vector<int> layerSpans);
+    Mask getLayerMask(const PatternDef& layerPattern, const std::vector<int> layerSpans);
 
     HiLo mirrorHiLo(const HiLo& layer);
-    PatternDefinition mirrorPatternDefinition(const PatternDefinition& pattern, int id);
+    PatternDef mirrorPatternDefinition(const PatternDef& pattern, int id);
     std::vector<HiLo> createPatternLayer(double lower, double upper);
 
     /*
@@ -44,9 +44,9 @@ namespace l1t {
     For example, createPatternLayer(0.2, 0.9) returns a vector of HiLo objects with the following values:
     { [ hi: 0, lo: -3 ], [ hi: 0, lo: -2 ], [ hi: 0, lo: -1 ], [ hi: 1, lo: 0 ], [ hi: 2, lo: 0 ], [ hi: 3, lo: 0 ]}
 
-    PatternDefinition(id, layers) saves the pattern ID and the vector of HiLo objects for each layer.
+    PatternDef(id, layers) saves the pattern ID and the vector of HiLo objects for each layer.
     
-    getLayerMask(PatternDefinition pattern, const std::vector<int>& layerSpans) returns a Mask object with the given pattern and layerSpans values.
+    getLayerMask(PatternDef pattern, const std::vector<int>& layerSpans) returns a Mask object with the given pattern and layerSpans values.
     example:
 
     getLayerMask(patternLeft, {37, 37, 37, 37, 37, 37}) returns a Mask object with the following values:
@@ -59,49 +59,49 @@ namespace l1t {
      0b0000000000000001111000000000000000000}  // ly0 
     */
 
-    const PatternDefinition kPatternStraight = PatternDefinition(17, createPatternLayer(-0.4, 0.4));
-    const PatternDefinition kPatternLeft = PatternDefinition(16, createPatternLayer(0.2, 0.9));
-    const PatternDefinition kPatternRight = mirrorPatternDefinition(kPatternLeft, kPatternLeft.id - 1);
-    const PatternDefinition kPatternLeft2 = PatternDefinition(14, createPatternLayer(0.9, 1.7));
-    const PatternDefinition kPatternRight2 = mirrorPatternDefinition(kPatternLeft2, kPatternLeft2.id - 1);
-    const PatternDefinition kPatternLeft3 = PatternDefinition(12, createPatternLayer(1.4, 2.3));
-    const PatternDefinition kPatternRight3 = mirrorPatternDefinition(kPatternLeft3, kPatternLeft3.id - 1);
-    const PatternDefinition kPatternLeft4 = PatternDefinition(10, createPatternLayer(2.0, 3.0));
-    const PatternDefinition kPatternRight4 = mirrorPatternDefinition(kPatternLeft4, kPatternLeft4.id - 1);
-    const PatternDefinition kPatternLeft5 = PatternDefinition(8, createPatternLayer(2.7, 3.8));
-    const PatternDefinition kPatternRight5 = mirrorPatternDefinition(kPatternLeft5, kPatternLeft5.id - 1);
-    const PatternDefinition kPatternLeft6 = PatternDefinition(6, createPatternLayer(3.5, 4.7));
-    const PatternDefinition kPatternRight6 = mirrorPatternDefinition(kPatternLeft6, kPatternLeft6.id - 1);
-    const PatternDefinition kPatternLeft7 = PatternDefinition(4, createPatternLayer(4.3, 5.5));
-    const PatternDefinition kPatternRight7 = mirrorPatternDefinition(kPatternLeft7, kPatternLeft7.id - 1);
-    const PatternDefinition kPatternLeft8 = PatternDefinition(2, createPatternLayer(5.4, 7.0));
-    const PatternDefinition kPatternRight8 = mirrorPatternDefinition(kPatternLeft8, kPatternLeft8.id - 1);
+    const PatternDef kPatternStraight = PatternDef(17, createPatternLayer(-0.4, 0.4));
+    const PatternDef kPatternLeft1 = PatternDef(16, createPatternLayer(0.2, 0.9));
+    const PatternDef kPatternRight1 = mirrorPatternDefinition(kPatternLeft1, kPatternLeft1.id - 1);
+    const PatternDef kPatternLeft2 = PatternDef(14, createPatternLayer(0.9, 1.7));
+    const PatternDef kPatternRight2 = mirrorPatternDefinition(kPatternLeft2, kPatternLeft2.id - 1);
+    const PatternDef kPatternLeft3 = PatternDef(12, createPatternLayer(1.4, 2.3));
+    const PatternDef kPatternRight3 = mirrorPatternDefinition(kPatternLeft3, kPatternLeft3.id - 1);
+    const PatternDef kPatternLeft4 = PatternDef(10, createPatternLayer(2.0, 3.0));
+    const PatternDef kPatternRight4 = mirrorPatternDefinition(kPatternLeft4, kPatternLeft4.id - 1);
+    const PatternDef kPatternLeft5 = PatternDef(8, createPatternLayer(2.7, 3.8));
+    const PatternDef kPatternRight5 = mirrorPatternDefinition(kPatternLeft5, kPatternLeft5.id - 1);
+    const PatternDef kPatternLeft6 = PatternDef(6, createPatternLayer(3.5, 4.7));
+    const PatternDef kPatternRight6 = mirrorPatternDefinition(kPatternLeft6, kPatternLeft6.id - 1);
+    const PatternDef kPatternLeft7 = PatternDef(4, createPatternLayer(4.3, 5.5));
+    const PatternDef kPatternRight7 = mirrorPatternDefinition(kPatternLeft7, kPatternLeft7.id - 1);
+    const PatternDef kPatternLeft8 = PatternDef(2, createPatternLayer(5.4, 7.0));
+    const PatternDef kPatternRight8 = mirrorPatternDefinition(kPatternLeft8, kPatternLeft8.id - 1);
 
-    const std::vector<PatternDefinition> kPatternList{kPatternRight8,
-                                                      kPatternLeft8,
-                                                      kPatternRight7,
-                                                      kPatternLeft7,
-                                                      kPatternRight6,
-                                                      kPatternLeft6,
-                                                      kPatternRight5,
-                                                      kPatternLeft5,
-                                                      kPatternRight4,
-                                                      kPatternLeft4,
-                                                      kPatternRight3,
-                                                      kPatternLeft3,
-                                                      kPatternRight2,
-                                                      kPatternLeft2,
-                                                      kPatternRight,
-                                                      kPatternLeft,
-                                                      kPatternStraight};
+    const std::vector<PatternDef> kPatternList{kPatternRight8,
+                                               kPatternLeft8,
+                                               kPatternRight7,
+                                               kPatternLeft7,
+                                               kPatternRight6,
+                                               kPatternLeft6,
+                                               kPatternRight5,
+                                               kPatternLeft5,
+                                               kPatternRight4,
+                                               kPatternLeft4,
+                                               kPatternRight3,
+                                               kPatternLeft3,
+                                               kPatternRight2,
+                                               kPatternLeft2,
+                                               kPatternRight1,
+                                               kPatternLeft1,
+                                               kPatternStraight};
 
-    std::vector<int> calculateLayerSpans(const std::vector<PatternDefinition>& patternList);
+    std::vector<int> calculateLayerSpans(const std::vector<PatternDef>& patternList);
     const std::vector<int> kLayerSpans = calculateLayerSpans(kPatternList);
 
-    std::vector<int> calculatePatternSpans(const std::vector<PatternDefinition>& patternList);
+    std::vector<int> calculatePatternSpans(const std::vector<PatternDef>& patternList);
     const std::vector<int> kPatSpans = calculatePatternSpans(kPatternList);
 
-    std::vector<std::vector<int>> calculatePatternOffsets(const std::vector<PatternDefinition>& patternList,
+    std::vector<std::vector<int>> calculatePatternOffsets(const std::vector<PatternDef>& patternList,
                                                           const std::vector<int>& patternSpans,
                                                           const std::vector<int>& layerSpans);
     const std::vector<std::vector<int>> kPatOffsets = calculatePatternOffsets(kPatternList, kPatSpans, kLayerSpans);
@@ -120,8 +120,8 @@ namespace l1t {
                                        getLayerMask(kPatternLeft3, kLayerSpans),
                                        getLayerMask(kPatternRight2, kLayerSpans),
                                        getLayerMask(kPatternLeft2, kLayerSpans),
-                                       getLayerMask(kPatternRight, kLayerSpans),
-                                       getLayerMask(kPatternLeft, kLayerSpans),
+                                       getLayerMask(kPatternRight1, kLayerSpans),
+                                       getLayerMask(kPatternLeft1, kLayerSpans),
                                        getLayerMask(kPatternStraight, kLayerSpans)};
   }  // namespace me0
 }  // namespace l1t

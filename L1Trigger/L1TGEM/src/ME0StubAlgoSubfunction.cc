@@ -1,6 +1,5 @@
 #include "L1Trigger/L1TGEM/interface/ME0StubAlgoSubfunction.h"
-
-using namespace l1t::me0;
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 std::vector<ME0StubPrimitive> l1t::me0::PeakingManager::processSegments(const int partition,
                                                                         const std::vector<ME0StubPrimitive>& newSegs) {
@@ -87,13 +86,13 @@ int l1t::me0::maxClusterSize(uint64_t x) {
   }
   return maxSize;
 }
-UInt192 l1t::me0::setBit(int index, UInt192 num1 = UInt192(0)) {
-  UInt192 num2 = (UInt192(1) << index);
-  UInt192 final_v = num1 | num2;
+l1t::me0::UInt192 l1t::me0::setBit(int index, l1t::me0::UInt192 num1 = l1t::me0::UInt192(0)) {
+  l1t::me0::UInt192 num2 = (l1t::me0::UInt192(1) << index);
+  l1t::me0::UInt192 final_v = num1 | num2;
   return final_v;
 }
-UInt192 l1t::me0::clearBit(int index, UInt192 num) {
-  UInt192 bit = UInt192(1) & (num >> index);
+l1t::me0::UInt192 l1t::me0::clearBit(int index, l1t::me0::UInt192 num) {
+  l1t::me0::UInt192 bit = l1t::me0::UInt192(1) & (num >> index);
   return num ^ (bit << index);
 }
 uint64_t l1t::me0::oneBitMask(int num) {

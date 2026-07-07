@@ -1,6 +1,5 @@
 #include "L1Trigger/L1TGEM/interface/ME0StubFit.h"
-
-using namespace l1t::me0;
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 double l1t::me0::reciprocal6(int n) {
   if (n >= 1 && n <= 6) {
@@ -63,13 +62,13 @@ std::vector<double> l1t::me0::vhdlExactFit(const std::vector<int>& centroids,
   }
 
   if (verbose) {
-    std::cout << "vhdlExactFit: x=";
+    LogTrace("ME0StubFit") << "vhdlExactFit: x=";
     for (const auto& val : x)
-      std::cout << val << " ";
-    std::cout << ", y=";
+      LogTrace("ME0StubFit") << val << " ";
+    LogTrace("ME0StubFit") << ", y=";
     for (const auto& val : y)
-      std::cout << val << " ";
-    std::cout << std::endl;
+      LogTrace("ME0StubFit") << val << " ";
+    LogTrace("ME0StubFit") << "\n";
   }
 
   // Stage 1
