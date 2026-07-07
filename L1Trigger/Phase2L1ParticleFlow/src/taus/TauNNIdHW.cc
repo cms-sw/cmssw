@@ -4,7 +4,6 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/taus/TauNNIdHW.h"
 
 TauNNIdHW::TauNNIdHW(const std::shared_ptr<hls4mlEmulator::Model> model) : modelRef_(model) { NNvectorVar_.clear(); }
-TauNNIdHW::~TauNNIdHW() {}
 
 void TauNNIdHW::initialize(const std::string &iInput, int iNParticles) {
   fNParticles_ = iNParticles;
@@ -19,9 +18,9 @@ void TauNNIdHW::initialize(const std::string &iInput, int iNParticles) {
 void TauNNIdHW::SetNNVectorVar() {
   NNvectorVar_.clear();
   for (unsigned i0 = 0; i0 < fNParticles_; i0++) {
-    tauinput_t pPt = tauinput_t(fPt_.get()[i0]);
-    tauinput_t pEta = tauinput_t(fEta_.get()[i0]);
-    tauinput_t pPhi = tauinput_t(fPhi_.get()[i0]);
+    L1TauEmu::tauinput_t pPt = L1TauEmu::tauinput_t(fPt_.get()[i0]);
+    L1TauEmu::tauinput_t pEta = L1TauEmu::tauinput_t(fEta_.get()[i0]);
+    L1TauEmu::tauinput_t pPhi = L1TauEmu::tauinput_t(fPhi_.get()[i0]);
 
     NNvectorVar_.push_back(pPt);
     NNvectorVar_.push_back(pEta);
@@ -45,12 +44,12 @@ void TauNNIdHW::SetNNVectorVar() {
 // loaded into the same process (cms-sw/cmssw#49632).
 Tau_NN_Result TauNNIdHW::EvaluateNN() {
   constexpr unsigned kNInputs = 80;
-  tauinput_t model_input[kNInputs];
+  L1TauEmu::tauinput_t model_input[kNInputs];
   for (unsigned int i = 0; i < NNvectorVar_.size(); i++) {
-    model_input[i] = tauinput_t(NNvectorVar_[i]);
+    model_input[i] = L1TauEmu::tauinput_t(NNvectorVar_[i]);
   }
 
-  typedef std::pair<std::array<tauresult_t, 1>, std::array<tauresult_t, 1>> pairtype;
+  typedef std::pair<std::array<L1TauEmu::tauresult_t, 1>, std::array<L1TauEmu::tauresult_t, 1>> pairtype;
   pairtype modelResult;
   modelRef_->prepare_input(model_input);
   modelRef_->predict();
