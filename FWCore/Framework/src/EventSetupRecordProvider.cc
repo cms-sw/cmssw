@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/ESProductResolverProvider.h"
 #include "FWCore/Framework/interface/ESProductResolver.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Framework/interface/SupportingRecordIntervalFinderHelper.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -75,10 +76,6 @@ namespace edm {
         }
       }
     }
-    void EventSetupRecordProvider::setValidityInterval_forTesting(const ValidityInterval& iInterval) {
-      validityInterval_ = iInterval;
-    }
-
     const ValidityInterval& EventSetupRecordProvider::findIntervalFor(const IOVSyncValue& iInstance) {
       if (nullptr == finder_.get()) {
         return validityInterval_;
@@ -110,7 +107,8 @@ namespace edm {
             missingRecords += key.name();
           }
         } else {
-          newFinder->addProviderWeAreDependentOn(itFound->second);
+          SupportingRecordIntervalFinderHelper helper(itFound->first, itFound->second->finder());
+          newFinder->addSupporter(helper);
         }
       }
       if (!missingRecords.empty()) {

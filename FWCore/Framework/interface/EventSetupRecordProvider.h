@@ -93,9 +93,6 @@ namespace edm {
       ///For now, only use one finder
       void addFinder(std::shared_ptr<EventSetupRecordIntervalFinder>);
 
-      ///Intended for use only in unit tests
-      void setValidityInterval_forTesting(ValidityInterval const&);
-
       /** This function is called when an IOV is started up by the asynchronous task assigned to start IOVs.
        *  This is the point where we know the value of iovIndex, so we know which EventSetupRecordImpl
        *  object will be used. We set a pointer to it. In the EventSetupRecordImpl we set the cacheIdentifier

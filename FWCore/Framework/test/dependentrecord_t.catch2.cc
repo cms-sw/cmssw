@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
+#include "FWCore/Framework/interface/SupportingRecordIntervalFinderHelper.h"
 #include "FWCore/Framework/src/SynchronousEventSetupsController.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
 #include "FWCore/Framework/test/print_eventsetup_record_dependencies.h"
@@ -146,11 +147,17 @@ namespace {
     }
   };
 
-  class DepRecordFinder : public edm::EventSetupRecordIntervalFinder {
+  template <typename RECORD>
+  class TestFinder : public edm::EventSetupRecordIntervalFinder {
   public:
-    DepRecordFinder() : edm::EventSetupRecordIntervalFinder(), interval_() { this->findingRecord<DepRecord>(); }
+    TestFinder() : edm::EventSetupRecordIntervalFinder(), interval_() { this->findingRecord<RECORD>(); }
 
-    void setInterval(const edm::ValidityInterval& iInterval) { interval_ = iInterval; }
+    void setInterval(const edm::ValidityInterval& iInterval) {
+      interval_ = iInterval;
+      resetInterval(key());
+    }
+
+    edm::eventsetup::EventSetupRecordKey key() const { return edm::eventsetup::EventSetupRecordKey::makeKey<RECORD>(); }
 
   protected:
     void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
@@ -172,31 +179,9 @@ namespace {
     edm::ValidityInterval interval_;
   };
 
-  class Dummy2RecordFinder : public edm::EventSetupRecordIntervalFinder {
-  public:
-    Dummy2RecordFinder() : edm::EventSetupRecordIntervalFinder(), interval_() { this->findingRecord<Dummy2Record>(); }
-
-    void setInterval(const edm::ValidityInterval& iInterval) { interval_ = iInterval; }
-
-  protected:
-    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                        const edm::IOVSyncValue& iTime,
-                        edm::ValidityInterval& iInterval) override {
-      if (interval_.validFor(iTime)) {
-        iInterval = interval_;
-      } else {
-        if (interval_.last() == edm::IOVSyncValue::invalidIOVSyncValue() &&
-            interval_.first() != edm::IOVSyncValue::invalidIOVSyncValue() && interval_.first() <= iTime) {
-          iInterval = interval_;
-        } else {
-          iInterval = edm::ValidityInterval();
-        }
-      }
-    }
-
-  private:
-    edm::ValidityInterval interval_;
-  };
+  using DepRecordFinder = TestFinder<DepRecord>;
+  using DummyRecordFinder = TestFinder<DummyRecord>;
+  using Dummy2RecordFinder = TestFinder<Dummy2Record>;
   template <typename RECORD>
   struct DummyDataConsumer : public edm::EDConsumerBase {
     explicit DummyDataConsumer(edm::ESInputTag const& iTag)
@@ -272,7 +257,7 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
 
     const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
     DependentRecordIntervalFinder finder(depRecordKey);
-    finder.addProviderWeAreDependentOn(dummyProvider);
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyProvider->key(), dummyProvider->finder()));
 
     REQUIRE(definedInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 2))));
 
@@ -289,19 +274,20 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
   }
 
   SECTION("dependentFinder2Test") {
-    auto dummyProvider1 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+    auto dummyFinder1 = std::make_shared<DummyRecordFinder>();
+    auto dummyFinder2 = std::make_shared<Dummy2RecordFinder>();
 
     const edm::EventID eID_1(1, 1, 1);
     const edm::IOVSyncValue sync_1(eID_1);
     const edm::ValidityInterval definedInterval1(sync_1, edm::IOVSyncValue(edm::EventID(1, 1, 5)));
-    dummyProvider1->setValidityInterval_forTesting(definedInterval1);
+    dummyFinder1->setInterval(definedInterval1);
 
     auto dummyProvider2 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
 
     const edm::EventID eID_2(1, 1, 2);
     const edm::IOVSyncValue sync_2(eID_2);
     const edm::ValidityInterval definedInterval2(sync_2, edm::IOVSyncValue(edm::EventID(1, 1, 6)));
-    dummyProvider2->setValidityInterval_forTesting(definedInterval2);
+    dummyFinder2->setInterval(definedInterval2);
 
     const edm::ValidityInterval overlapInterval(std::max(definedInterval1.first(), definedInterval2.first()),
                                                 std::min(definedInterval1.last(), definedInterval2.last()));
@@ -309,8 +295,8 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
 
     DependentRecordIntervalFinder finder(depRecordKey);
-    finder.addProviderWeAreDependentOn(dummyProvider1);
-    finder.addProviderWeAreDependentOn(dummyProvider2);
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinder1->key(), dummyFinder1));
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinder2->key(), dummyFinder2));
 
     REQUIRE(overlapInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 4))));
   }
@@ -320,20 +306,19 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     DependentRecordIntervalFinder finder(depRecordKey);
 
     //test case where we have two providers, one synching on time the other on run/lumi/event
-    auto dummyProviderEventID =
-        std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
-    auto dummyProviderTime = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+    auto dummyFinderEventID = std::make_shared<DummyRecordFinder>();
+    auto dummyFinderTime = std::make_shared<DummyRecordFinder>();
 
-    finder.addProviderWeAreDependentOn(dummyProviderEventID);
-    finder.addProviderWeAreDependentOn(dummyProviderTime);
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinderEventID->key(), dummyFinderEventID));
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinderTime->key(), dummyFinderTime));
 
     {
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 1)),
                                              edm::IOVSyncValue(edm::EventID(1, 1, 5)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+      dummyFinderEventID->setInterval(iovEventID);
 
       const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(1)), edm::IOVSyncValue(edm::Timestamp(6)));
-      dummyProviderTime->setValidityInterval_forTesting(iovTime);
+      dummyFinderTime->setInterval(iovTime);
 
       const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
@@ -369,8 +354,11 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
       //IOV.
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 6)),
                                              edm::IOVSyncValue(edm::EventID(1, 1, 10)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+      dummyFinderEventID->setInterval(iovEventID);
 
+      REQUIRE(iovEventID ==
+              dummyFinderEventID->findIntervalFor(dummyFinderEventID->key(),
+                                                  edm::IOVSyncValue(edm::EventID(1, 1, 6), edm::Timestamp(5))));
       const edm::ValidityInterval expectedIOV(iovEventID.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
       REQUIRE(expectedIOV ==
@@ -379,7 +367,7 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     {
       //Change only time based provider
       const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(7)), edm::IOVSyncValue(edm::Timestamp(10)));
-      dummyProviderTime->setValidityInterval_forTesting(iovTime);
+      dummyFinderTime->setInterval(iovTime);
 
       const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
@@ -390,11 +378,11 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     {
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 2, 11)),
                                              edm::IOVSyncValue(edm::EventID(1, 3, 20)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+      dummyFinderEventID->setInterval(iovEventID);
 
       const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(1ULL << 32)),
                                           edm::IOVSyncValue(edm::Timestamp(5ULL << 32)));
-      dummyProviderTime->setValidityInterval_forTesting(iovTime);
+      dummyFinderTime->setInterval(iovTime);
 
       const edm::ValidityInterval expectedIOV(iovEventID.first(), edm::IOVSyncValue::invalidIOVSyncValue());
       REQUIRE(expectedIOV == finder.findIntervalFor(
@@ -404,11 +392,11 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     {
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 3, 21)),
                                              edm::IOVSyncValue(edm::EventID(1, 10, 40)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+      dummyFinderEventID->setInterval(iovEventID);
 
       const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(7ULL << 32)),
                                           edm::IOVSyncValue(edm::Timestamp(10ULL << 32)));
-      dummyProviderTime->setValidityInterval_forTesting(iovTime);
+      dummyFinderTime->setInterval(iovTime);
 
       const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
       REQUIRE(expectedIOV == finder.findIntervalFor(
@@ -418,11 +406,11 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     {
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 11, 41)),
                                              edm::IOVSyncValue(edm::EventID(1, 20, 60)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+      dummyFinderEventID->setInterval(iovEventID);
 
       const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(11ULL << 32)),
                                           edm::IOVSyncValue(edm::Timestamp(100ULL << 32)));
-      dummyProviderTime->setValidityInterval_forTesting(iovTime);
+      dummyFinderTime->setInterval(iovTime);
 
       const edm::ValidityInterval expectedIOV(iovEventID.first(), edm::IOVSyncValue::invalidIOVSyncValue());
       REQUIRE(expectedIOV ==
@@ -434,11 +422,11 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     {
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(2, 1, 0)),
                                              edm::IOVSyncValue(edm::EventID(6, 0, 0)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+      dummyFinderEventID->setInterval(iovEventID);
 
       const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(200ULL << 32)),
                                           edm::IOVSyncValue(edm::Timestamp(500ULL << 32)));
-      dummyProviderTime->setValidityInterval_forTesting(iovTime);
+      dummyFinderTime->setInterval(iovTime);
 
       const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
       REQUIRE(expectedIOV ==
@@ -448,10 +436,10 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     {
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 6)),
                                              edm::IOVSyncValue(edm::EventID(1, 1, 10)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+      dummyFinderEventID->setInterval(iovEventID);
 
       const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(7)), edm::IOVSyncValue(edm::Timestamp(10)));
-      dummyProviderTime->setValidityInterval_forTesting(iovTime);
+      dummyFinderTime->setInterval(iovTime);
 
       const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
       REQUIRE(expectedIOV ==
@@ -463,20 +451,19 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
     DependentRecordIntervalFinder finder(depRecordKey);
 
-    auto dummyProviderEventID =
-        std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
-    auto dummyProviderTime = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+    auto dummyFinderEventID = std::make_shared<DummyRecordFinder>();
+    auto dummyFinderTime = std::make_shared<DummyRecordFinder>();
 
-    finder.addProviderWeAreDependentOn(dummyProviderEventID);
-    finder.addProviderWeAreDependentOn(dummyProviderTime);
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinderEventID->key(), dummyFinderEventID));
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinderTime->key(), dummyFinderTime));
 
     {
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 6)),
                                              edm::IOVSyncValue(edm::EventID(1, 1, 10)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+      dummyFinderEventID->setInterval(iovEventID);
 
       const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(7)), edm::IOVSyncValue(edm::Timestamp(10)));
-      dummyProviderTime->setValidityInterval_forTesting(iovTime);
+      dummyFinderTime->setInterval(iovTime);
 
       const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
       REQUIRE(expectedIOV ==
@@ -487,7 +474,7 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const edm::ValidityInterval invalid(edm::IOVSyncValue::invalidIOVSyncValue(),
                                         edm::IOVSyncValue::invalidIOVSyncValue());
     {
-      dummyProviderEventID->setValidityInterval_forTesting(invalid);
+      dummyFinderEventID->setInterval(invalid);
       const edm::ValidityInterval expectedIOV(edm::IOVSyncValue(edm::Timestamp(7)),
                                               edm::IOVSyncValue::invalidIOVSyncValue());
       REQUIRE(expectedIOV ==
@@ -496,15 +483,15 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     {
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 12)),
                                              edm::IOVSyncValue(edm::EventID(1, 1, 20)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
-      dummyProviderTime->setValidityInterval_forTesting(invalid);
+      dummyFinderEventID->setInterval(iovEventID);
+      dummyFinderTime->setInterval(invalid);
       const edm::ValidityInterval expectedIOV(iovEventID.first(), edm::IOVSyncValue::invalidIOVSyncValue());
       REQUIRE(expectedIOV ==
               finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 13), edm::Timestamp(11))));
     }
     {
-      dummyProviderEventID->setValidityInterval_forTesting(invalid);
-      dummyProviderTime->setValidityInterval_forTesting(invalid);
+      dummyFinderEventID->setInterval(invalid);
+      dummyFinderTime->setInterval(invalid);
 
       REQUIRE(invalid ==
               finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 13), edm::Timestamp(11))));
@@ -515,12 +502,11 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
     DependentRecordIntervalFinder finder(depRecordKey);
 
-    auto dummyProviderEventID =
-        std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
-    auto dummyProviderTime = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+    auto dummyFinderEventID = std::make_shared<DummyRecordFinder>();
+    auto dummyFinderTime = std::make_shared<DummyRecordFinder>();
 
-    finder.addProviderWeAreDependentOn(dummyProviderEventID);
-    finder.addProviderWeAreDependentOn(dummyProviderTime);
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinderEventID->key(), dummyFinderEventID));
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinderTime->key(), dummyFinderTime));
 
     const edm::ValidityInterval invalid(edm::IOVSyncValue::invalidIOVSyncValue(),
                                         edm::IOVSyncValue::invalidIOVSyncValue());
@@ -529,9 +515,9 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
       // have the second one invalid
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 1)),
                                              edm::IOVSyncValue(edm::EventID(1, 1, 6)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+      dummyFinderEventID->setInterval(iovEventID);
 
-      dummyProviderTime->setValidityInterval_forTesting(invalid);
+      dummyFinderTime->setInterval(invalid);
 
       const edm::ValidityInterval expectedIOV(iovEventID.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
@@ -540,7 +526,7 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     }
     {
       const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(2)), edm::IOVSyncValue(edm::Timestamp(6)));
-      dummyProviderTime->setValidityInterval_forTesting(iovTime);
+      dummyFinderTime->setInterval(iovTime);
 
       const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
@@ -553,22 +539,21 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
     DependentRecordIntervalFinder finder(depRecordKey);
 
-    auto dummyProviderEventID =
-        std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
-    auto dummyProviderTime = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+    auto dummyFinderEventID = std::make_shared<DummyRecordFinder>();
+    auto dummyFinderTime = std::make_shared<DummyRecordFinder>();
 
-    finder.addProviderWeAreDependentOn(dummyProviderEventID);
-    finder.addProviderWeAreDependentOn(dummyProviderTime);
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinderEventID->key(), dummyFinderEventID));
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinderTime->key(), dummyFinderTime));
 
     const edm::ValidityInterval invalid(edm::IOVSyncValue::invalidIOVSyncValue(),
                                         edm::IOVSyncValue::invalidIOVSyncValue());
     {
       //check for bug which only happens the first time we synchronize
       // have the  first one invalid
-      dummyProviderEventID->setValidityInterval_forTesting(invalid);
+      dummyFinderEventID->setInterval(invalid);
 
       const edm::ValidityInterval iovTime(edm::IOVSyncValue(edm::Timestamp(1)), edm::IOVSyncValue(edm::Timestamp(6)));
-      dummyProviderTime->setValidityInterval_forTesting(iovTime);
+      dummyFinderTime->setInterval(iovTime);
 
       const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
@@ -578,7 +563,7 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     {
       const edm::ValidityInterval iovEventID(edm::IOVSyncValue(edm::EventID(1, 1, 5)),
                                              edm::IOVSyncValue(edm::EventID(1, 1, 10)));
-      dummyProviderEventID->setValidityInterval_forTesting(iovEventID);
+      dummyFinderEventID->setInterval(iovEventID);
 
       const edm::ValidityInterval expectedIOV(edm::IOVSyncValue(edm::Timestamp(1)),
                                               edm::IOVSyncValue::invalidIOVSyncValue());
@@ -1319,7 +1304,7 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
     DependentRecordIntervalFinder finder(depRecordKey);
     finder.setAlternateFinder(depFinder);
-    finder.addProviderWeAreDependentOn(dummyProvider);
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyProvider->key(), dummyProvider->finder()));
 
     REQUIRE(depInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 1))));
 
@@ -1359,20 +1344,20 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
   }
 
   SECTION("invalidRecordTest") {
-    auto dummyProvider1 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+    auto dummyProvider1 = std::make_shared<DummyRecordFinder>();
 
     const edm::ValidityInterval invalid(edm::IOVSyncValue::invalidIOVSyncValue(),
                                         edm::IOVSyncValue::invalidIOVSyncValue());
 
-    dummyProvider1->setValidityInterval_forTesting(invalid);
+    dummyProvider1->setInterval(invalid);
 
-    auto dummyProvider2 = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
-    dummyProvider2->setValidityInterval_forTesting(invalid);
+    auto dummyProvider2 = std::make_shared<DummyRecordFinder>();
+    dummyProvider2->setInterval(invalid);
 
     const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
     DependentRecordIntervalFinder finder(depRecordKey);
-    finder.addProviderWeAreDependentOn(dummyProvider1);
-    finder.addProviderWeAreDependentOn(dummyProvider2);
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyProvider1->key(), dummyProvider1));
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyProvider2->key(), dummyProvider2));
 
     REQUIRE(invalid == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 2))));
 
@@ -1382,20 +1367,20 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const edm::EventID eID_2(1, 1, 2);
     const edm::IOVSyncValue sync_2(eID_2);
     const edm::ValidityInterval definedInterval2(sync_2, edm::IOVSyncValue(edm::EventID(1, 1, 6)));
-    dummyProvider2->setValidityInterval_forTesting(definedInterval2);
+    dummyProvider2->setInterval(definedInterval2);
 
     const edm::ValidityInterval openEnded1(definedInterval2.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
     REQUIRE(openEnded1 == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 4))));
 
-    dummyProvider1->setValidityInterval_forTesting(definedInterval1);
+    dummyProvider1->setInterval(definedInterval1);
 
     const edm::ValidityInterval overlapInterval(std::max(definedInterval1.first(), definedInterval2.first()),
                                                 std::min(definedInterval1.last(), definedInterval2.last()));
 
     REQUIRE(overlapInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 5))));
 
-    dummyProvider2->setValidityInterval_forTesting(invalid);
+    dummyProvider2->setInterval(invalid);
     const edm::ValidityInterval openEnded2(definedInterval1.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
     REQUIRE(openEnded2 == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 7))));

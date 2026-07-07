@@ -11,23 +11,23 @@
 //
 
 #include "FWCore/Framework/interface/DependentRecordIntervalFinder.h"
-#include "FWCore/Framework/interface/EventSetupRecordProvider.h"
+#include "FWCore/Framework/interface/SupportingRecordIntervalFinderHelper.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <cassert>
+#include <ranges>
 
 namespace edm {
   namespace eventsetup {
 
-    DependentRecordIntervalFinder::DependentRecordIntervalFinder(const EventSetupRecordKey& iKey) : providers_() {
+    DependentRecordIntervalFinder::DependentRecordIntervalFinder(const EventSetupRecordKey& iKey) : supporters_() {
       findingRecordWithKey(iKey);
     }
 
     DependentRecordIntervalFinder::~DependentRecordIntervalFinder() {}
 
-    void DependentRecordIntervalFinder::addProviderWeAreDependentOn(
-        std::shared_ptr<EventSetupRecordProvider> iProvider) {
-      providers_.push_back(iProvider);
+    void DependentRecordIntervalFinder::addSupporter(SupportingRecordIntervalFinderHelper const& iSupporter) {
+      supporters_.push_back(iSupporter);
     }
 
     void DependentRecordIntervalFinder::setAlternateFinder(std::shared_ptr<EventSetupRecordIntervalFinder> iOther) {
@@ -41,7 +41,7 @@ namespace edm {
 
       //I am assuming that an invalidTime is always less then the first valid time
       assert(IOVSyncValue::invalidIOVSyncValue() < IOVSyncValue::beginOfTime());
-      if (providers_.empty() && alternate_.get() == nullptr) {
+      if (supporters_.empty() && alternate_.get() == nullptr) {
         oInterval = ValidityInterval::invalidInterval();
         return;
       }
@@ -57,10 +57,8 @@ namespace edm {
         }
       }
       bool intervalsWereComparible = true;
-      for (Providers::iterator itProvider = providers_.begin(), itProviderEnd = providers_.end();
-           itProvider != itProviderEnd;
-           ++itProvider) {
-        const ValidityInterval& providerInterval = (*itProvider)->findIntervalFor(iTime);
+      for (auto& supporter : supporters_) {
+        const ValidityInterval& providerInterval = supporter.findIntervalFor(iTime);
         if (providerInterval != ValidityInterval::invalidInterval()) {
           haveAValidDependentRecord = true;
           if ((!newInterval.first().comparable(providerInterval.first())) ||
@@ -97,7 +95,7 @@ namespace edm {
       // and use its start time to do the synching and use an 'invalid' end time
       // so the system always checks back to see if something has changed
       if (previousIOVs_.empty()) {
-        std::vector<ValidityInterval> tmp(providers_.size(), ValidityInterval());
+        std::vector<ValidityInterval> tmp(supporters_.size(), ValidityInterval());
         previousIOVs_.swap(tmp);
       }
 
@@ -111,11 +109,11 @@ namespace edm {
       //both start at the smallest value
       EventID closestID;
       Timestamp closestTimeStamp(0);
+      //NOTE: in C++23 this can be changed to std::views::zip
       std::vector<ValidityInterval>::iterator itIOVs = previousIOVs_.begin();
-      for (Providers::iterator itProvider = providers_.begin(), itProviderEnd = providers_.end();
-           itProvider != itProviderEnd;
-           ++itProvider, ++itIOVs) {
-        const ValidityInterval& providerInterval = (*itProvider)->findIntervalFor(iTime);
+      for (auto itSupporter = supporters_.begin(), itSupporterEnd = supporters_.end(); itSupporter != itSupporterEnd;
+           ++itSupporter, ++itIOVs) {
+        const ValidityInterval& providerInterval = itSupporter->findIntervalFor(iTime);
         if (providerInterval != ValidityInterval::invalidInterval()) {
           if (*itIOVs != providerInterval) {
             hadChangedIOV = true;
