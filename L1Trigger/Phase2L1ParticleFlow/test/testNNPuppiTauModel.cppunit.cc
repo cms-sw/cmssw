@@ -15,6 +15,7 @@ namespace {
   typedef ap_fixed<16, 10> tauinput_t;
   typedef ap_fixed<16, 6> tauresult_t;
   constexpr int kNInputs = 80;
+  constexpr char const* kModelName = "NNPuppiTauModel_v1";
 }  // namespace
 
 class test_NNPuppiTauModel : public CppUnit::TestFixture {
@@ -33,19 +34,19 @@ public:
 CPPUNIT_TEST_SUITE_REGISTRATION(test_NNPuppiTauModel);
 
 void test_NNPuppiTauModel::doModelLoad() {
-  auto loader = hls4mlEmulator::ModelLoader("NNPuppiTauModel_v1");
+  auto loader = hls4mlEmulator::ModelLoader(kModelName);
   auto model = loader.load_model();
 }
 
 void test_NNPuppiTauModel::doMultiModelLoad() {
-  auto loader_a = hls4mlEmulator::ModelLoader("NNPuppiTauModel_v1");
-  auto loader_b = hls4mlEmulator::ModelLoader("NNPuppiTauModel_v1");
+  auto loader_a = hls4mlEmulator::ModelLoader(kModelName);
+  auto loader_b = hls4mlEmulator::ModelLoader(kModelName);
   auto model_a = loader_a.load_model();
   auto model_b = loader_b.load_model();
 }
 
 void test_NNPuppiTauModel::doPredictSanity() {
-  auto loader = hls4mlEmulator::ModelLoader("NNPuppiTauModel_v1");
+  auto loader = hls4mlEmulator::ModelLoader(kModelName);
   auto model = loader.load_model();
 
   // All-zero input: not physically representative, but exercises the full
