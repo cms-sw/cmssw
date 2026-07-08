@@ -39,6 +39,7 @@
 #include "HepMC3/GenParticle.h"
 #include "HepMC3/GenVertex.h"
 
+#include "PhysicsTools/HepMCCandAlgos/interface/MCTruthHelper.h"
 #include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 
 namespace {
@@ -103,6 +104,11 @@ namespace {
 
     std::unordered_map<int, int32_t> particlePdgIdByBarcode;
     std::unordered_map<int, int16_t> particleStatusByBarcode;
+    // Packed reco::GenStatusFlags computed from the HepMC record via MCTruthHelper
+    // (the same helper GenParticleProducer uses), so no barcode-to-reco::GenParticle
+    // association is needed. HepMC2 only; the HepMC3 path leaves them 0 until
+    // MCTruthHelper grows a HepMC3 specialization.
+    std::unordered_map<int, uint16_t> particleStatusFlagsByBarcode;
   };
 
   GenBuild buildFromHepMC2(HepMC::GenEvent const& ev) {
@@ -149,6 +155,7 @@ namespace {
       }
     }
 
+    MCTruthHelper<HepMC::GenParticle> mcTruthHelper;
     for (auto p = ev.particles_begin(); p != ev.particles_end(); ++p) {
       if (*p == nullptr)
         continue;
@@ -158,6 +165,10 @@ namespace {
       gb.particleBarcodeByIndex.push_back(pbc);
       gb.particlePdgIdByBarcode.emplace(pbc, (*p)->pdg_id());
       gb.particleStatusByBarcode.emplace(pbc, static_cast<int16_t>((*p)->status()));
+
+      reco::GenStatusFlags flags;
+      mcTruthHelper.fillGenStatusFlags(**p, flags);
+      gb.particleStatusFlagsByBarcode.emplace(pbc, static_cast<uint16_t>(flags.flags_.to_ulong()));
 
       if (seenP.insert(pbc).second)
         gb.partBarcodes.push_back(pbc);
@@ -431,9 +442,10 @@ public:
         if (itStatus != gb.particleStatusByBarcode.end())
           out->status()[nodeId] = itStatus->second;
 
-        // Do not fill statusFlags from reco::GenParticle unless we have a validated
-        // barcode-to-reco::GenParticle association.
-        out->statusFlags()[nodeId] = 0;
+        // Computed from the HepMC record via MCTruthHelper at build time (HepMC2);
+        // 0 when unavailable (HepMC3 path, missing barcode).
+        auto itFlags = gb.particleStatusFlagsByBarcode.find(pbc);
+        out->statusFlags()[nodeId] = (itFlags != gb.particleStatusFlagsByBarcode.end()) ? itFlags->second : 0;
       }
     }
 
