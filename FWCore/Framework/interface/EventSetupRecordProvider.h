@@ -66,7 +66,6 @@ namespace edm {
       ValidityInterval const& validityInterval() const { return validityInterval_; }
       EventSetupRecordKey const& key() const { return key_; }
 
-      const ValidityInterval& findIntervalFor(const IOVSyncValue& iInstance);
       // Returns a reference for the first of the allowed concurrent IOVs.
       // There is always at least one IOV allowed. Intended for cases where
       // you only need one of them and don't care which one you get.

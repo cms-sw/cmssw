@@ -76,12 +76,6 @@ namespace edm {
         }
       }
     }
-    const ValidityInterval& EventSetupRecordProvider::findIntervalFor(const IOVSyncValue& iInstance) {
-      if (nullptr == finder_.get()) {
-        return validityInterval_;
-      }
-      return finder_->findIntervalFor(key(), iInstance);
-    }
 
     void EventSetupRecordProvider::setSupportingProviders(
         const std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordProvider>>& iKeyToProviders) {
