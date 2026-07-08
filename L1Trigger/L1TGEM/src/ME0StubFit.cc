@@ -108,7 +108,7 @@ std::vector<double> l1t::me0::vhdlExactFit(const std::vector<int>& centroids,
   ap_int<14> sumSquare = std::accumulate(square.begin(), square.end(), 0);
 
   ap_fixed<14, 14, AP_RND> sumProductFixed = sumProduct;
-  ap_fixed<15, 2, AP_RND> sumSquareReciprocal = reciprocal(static_cast<int>(sumSquare));
+  ap_fixed<15, 2, AP_RND> sumSquareReciprocal = l1t::me0::reciprocal(static_cast<int>(sumSquare));
 
   // Stage 6-7
   ap_fixed<29, 16, AP_RND> slopeTemp = sumProductFixed * sumSquareReciprocal;
@@ -124,7 +124,7 @@ std::vector<double> l1t::me0::vhdlExactFit(const std::vector<int>& centroids,
 
   // Stage 10, 11, 12
   ap_fixed<7, 7, AP_RND> sumYFixed = sumY;
-  ap_fixed<16, 2, AP_RND> validCountReciprocal = reciprocal6(validCount);
+  ap_fixed<16, 2, AP_RND> validCountReciprocal = l1t::me0::reciprocal6(validCount);
   ap_fixed<32, 11, AP_RND> interceptMult = validCountReciprocal * (sumYFixed - slopeTimesX);
   ap_fixed<20, 8, AP_RND> slopeS10Mult = slope * static_cast<ap_fixed<10, 4, AP_RND>>(5.0);
 
