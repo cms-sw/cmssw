@@ -21,6 +21,7 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 #include <array>
+#include <cstdlib>
 #include <format>
 #include <string>
 #include <vector>
@@ -197,7 +198,7 @@ void EcalDigisValidationPh2::analyze(edm::Event const& event, edm::EventSetup co
       auto hphi = (*p)->momentum().phi();
       hphi = (hphi >= 0) ? hphi : hphi + 2 * M_PI;
       hphi = hphi / M_PI * 180.;
-      LogDebug("EventInfo") << "Particle gun type form MC = " << abs((*p)->pdg_id()) << "\n"
+      LogDebug("EventInfo") << "Particle gun type form MC = " << std::abs((*p)->pdg_id()) << "\n"
                             << "Energy = " << (*p)->momentum().e() << " Eta = " << heta << " Phi = " << hphi;
 
       meGunEnergy_->Fill(theGunEnergy);
