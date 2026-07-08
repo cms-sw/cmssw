@@ -9,6 +9,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordIOVQueue.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
+#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
@@ -46,19 +47,56 @@ namespace edm {
     }
 
     bool EventSetupRecordIOVQueue::setValidityIntervalFor(const IOVSyncValue& iTime) {
+      //If still valid for the same interval, then we don't need to do anything.
+      if (validityInterval_.first() != IOVSyncValue::invalidIOVSyncValue() && validityInterval_.validFor(iTime)) {
+        assert(firstForCurrentIOV_ == validityInterval_.first());
+        intervalStatus_ = IntervalStatus::SameInterval;
+        return false;
+      }
+
       // Implementation for setting validity interval
-      auto status = recordProvider_->setValidityIntervalFor(iTime);
-      if (not status) {
-        if (firstForCurrentIOV_ != IOVSyncValue::invalidIOVSyncValue()) {
-          firstForCurrentIOV_ = IOVSyncValue::invalidIOVSyncValue();
-        }
+      updateValidityIntervalAndStatus(iTime);
+      if (intervalStatus_ == IntervalStatus::Invalid) {
+        firstForCurrentIOV_ = IOVSyncValue::invalidIOVSyncValue();
+        newIOVNeeded_ = false;
         return true;
       }
-      newIOVNeeded_ = recordProvider_->validityInterval().first() != firstForCurrentIOV_;
+      newIOVNeeded_ = validityInterval_.first() != firstForCurrentIOV_;
       if (newIOVNeeded_) {
-        firstForCurrentIOV_ = recordProvider_->validityInterval().first();
+        firstForCurrentIOV_ = validityInterval_.first();
       }
       return newIOVNeeded_;
+    }
+
+    void EventSetupRecordIOVQueue::updateValidityIntervalAndStatus(const IOVSyncValue& iTime) {
+      intervalStatus_ = IntervalStatus::Invalid;
+
+      auto finder = recordProvider_->finder();
+      if (finder.get() == nullptr) {
+        return;
+      }
+      IOVSyncValue oldFirst(validityInterval_.first());
+      IOVSyncValue oldLast(validityInterval_.last());
+      validityInterval_ = finder->findIntervalFor(key(), iTime);
+
+      // An interval is valid if and only if the start of the interval is
+      // valid. If the start is valid and the end is invalid, it means we
+      // do not know when the interval ends, but the interval is valid and
+      // iTime is within the interval.
+      if (validityInterval_.first() != IOVSyncValue::invalidIOVSyncValue()) {
+        // An interval is new if the start of the interval changes
+        if (validityInterval_.first() != oldFirst) {
+          intervalStatus_ = IntervalStatus::NewInterval;
+
+          // If the start is the same but the end changes, we consider
+          // this the same interval because we do not want to do the
+          // work to update the caches of data in this case.
+        } else if (validityInterval_.last() != oldLast) {
+          intervalStatus_ = IntervalStatus::UpdateIntervalEnd;
+        } else {
+          intervalStatus_ = IntervalStatus::SameInterval;
+        }
+      }
     }
 
     void EventSetupRecordIOVQueue::checkForNewIOVsAndStartIfNeededAsync(WaitingTaskHolder const& taskToStartAfterIOVInit,
@@ -70,12 +108,17 @@ namespace edm {
         startNewIOVAsync(taskToStartAfterIOVInit, endIOVWaitingTasks, eventSetupImpl);
         return;
       }
-
-      if (recordProvider_->intervalStatus() != EventSetupRecordProvider::IntervalStatus::Invalid) {
-        endIOVWaitingTasks.add(endIOVTaskHolder_);
+      if (intervalStatus_ == IntervalStatus::Invalid) {
+        return;
       }
 
-      recordProvider_->continueIOV(newEventSetupImpl, eventSetupImpl);
+      endIOVWaitingTasks.add(endIOVTaskHolder_);
+      edm::ValidityInterval const* validityInterval = nullptr;
+      if (intervalStatus_ == IntervalStatus::UpdateIntervalEnd) {
+        validityInterval = &validityInterval_;
+      }
+      edm::EventSetupImpl* esImpl = &eventSetupImpl;
+      recordProvider_->continueIOV(lastUsedIovIndex_, validityInterval, esImpl);
     }
 
     void EventSetupRecordIOVQueue::startNewIOVAsync(WaitingTaskHolder const& taskToStartAfterIOVInit,
@@ -107,7 +150,8 @@ namespace edm {
                     << "Couldn't find available IOV slot. This should never happen.\n"
                     << "Contact a Framework Developer\n";
               }
-              recordProvider_->initializeForNewIOV(iovIndex, cacheIdentifier_, eventSetupImpl);
+              lastUsedIovIndex_ = iovIndex;
+              recordProvider_->initializeForNewIOV(iovIndex, cacheIdentifier_, validityInterval_, eventSetupImpl);
 
               auto endIOVWaitingTask = make_waiting_task([this, iResumer, iovIndex](std::exception_ptr const*) mutable {
                 recordProvider_->endIOV(iovIndex);
@@ -130,6 +174,17 @@ namespace edm {
 
     void EventSetupRecordIOVQueue::addRecProvider(EventSetupRecordProvider* recProvider) {
       recordProvider_ = recProvider;
+    }
+
+    void EventSetupRecordIOVQueue::reset() {
+      firstForCurrentIOV_ = IOVSyncValue();
+      // Force a new IOV to start with a new cacheIdentifier
+      // on the next eventSetupForInstance call.
+      validityInterval_ = ValidityInterval{};
+      auto finder = recordProvider_->finder();
+      if (finder.get() != nullptr) {
+        finder->resetInterval(key());
+      }
     }
 
   }  // namespace eventsetup

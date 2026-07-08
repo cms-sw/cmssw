@@ -40,7 +40,6 @@ namespace edm {
                                                        ActivityRegistry const* activityRegistry,
                                                        unsigned int nConcurrentIOVs)
         : key_(iKey),
-          validityInterval_(),
           finder_(),
           providers_(),
           multipleFinders_(new std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>()),
@@ -157,68 +156,35 @@ namespace edm {
 
     void EventSetupRecordProvider::initializeForNewIOV(unsigned int iovIndex,
                                                        unsigned long long cacheIdentifier,
+                                                       ValidityInterval const& validityInterval,
                                                        EventSetupImpl& eventSetupImpl) {
-      EventSetupRecordImpl* impl = &recordImpls_[iovIndex];
-      recordImpl_ = impl;
-      impl->initializeForNewIOV(cacheIdentifier, validityInterval_);
-      eventSetupImpl.addRecordImpl(*recordImpl_);
+      EventSetupRecordImpl& impl = recordImpls_[iovIndex];
+      impl.initializeForNewIOV(cacheIdentifier, validityInterval);
+      eventSetupImpl.addRecordImpl(impl);
     }
 
-    void EventSetupRecordProvider::continueIOV(bool newEventSetupImpl, EventSetupImpl& eventSetupImpl) {
-      if (intervalStatus_ == IntervalStatus::UpdateIntervalEnd) {
-        recordImpl_->setSafely(validityInterval_);
-      }
-      if (newEventSetupImpl && intervalStatus_ != IntervalStatus::Invalid) {
-        eventSetupImpl.addRecordImpl(*recordImpl_);
+    void EventSetupRecordProvider::continueIOV(unsigned int iovIndex,
+                                               edm::ValidityInterval const* validityInterval,
+                                               EventSetupImpl* eventSetupImpl) {
+      if (iovIndex < recordImpls_.size()) {
+        auto const& recordImpl = recordImpls_[iovIndex];
+
+        if (validityInterval) {
+          recordImpl.setSafely(*validityInterval);
+        }
+        if (eventSetupImpl) {
+          eventSetupImpl->addRecordImpl(recordImpl);
+        }
       }
     }
 
     void EventSetupRecordProvider::endIOV(unsigned int iovIndex) { recordImpls_[iovIndex].invalidateResolvers(); }
-
-    bool EventSetupRecordProvider::setValidityIntervalFor(const IOVSyncValue& iTime) {
-      intervalStatus_ = IntervalStatus::Invalid;
-
-      if (validityInterval_.first() != IOVSyncValue::invalidIOVSyncValue() && validityInterval_.validFor(iTime)) {
-        intervalStatus_ = IntervalStatus::SameInterval;
-
-      } else if (finder_.get() != nullptr) {
-        IOVSyncValue oldFirst(validityInterval_.first());
-        IOVSyncValue oldLast(validityInterval_.last());
-        validityInterval_ = finder_->findIntervalFor(key_, iTime);
-
-        // An interval is valid if and only if the start of the interval is
-        // valid. If the start is valid and the end is invalid, it means we
-        // do not know when the interval ends, but the interval is valid and
-        // iTime is within the interval.
-        if (validityInterval_.first() != IOVSyncValue::invalidIOVSyncValue()) {
-          // An interval is new if the start of the interval changes
-          if (validityInterval_.first() != oldFirst) {
-            intervalStatus_ = IntervalStatus::NewInterval;
-
-            // If the start is the same but the end changes, we consider
-            // this the same interval because we do not want to do the
-            // work to update the caches of data in this case.
-          } else if (validityInterval_.last() != oldLast) {
-            intervalStatus_ = IntervalStatus::UpdateIntervalEnd;
-          } else {
-            intervalStatus_ = IntervalStatus::SameInterval;
-          }
-        }
-      }
-      return intervalStatus_ != IntervalStatus::Invalid;
-    }
 
     void EventSetupRecordProvider::resetResolvers() {
       // Clear out all the ESProductResolver's
       for (auto& recordImplIter : recordImpls_) {
         recordImplIter.invalidateResolvers();
         recordImplIter.resetIfTransientInResolvers();
-      }
-      // Force a new IOV to start with a new cacheIdentifier
-      // on the next eventSetupForInstance call.
-      validityInterval_ = ValidityInterval{};
-      if (finder_.get() != nullptr) {
-        finder_->resetInterval(key_);
       }
     }
 

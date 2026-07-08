@@ -45,6 +45,8 @@ namespace edm {
 
     class EventSetupRecordIOVQueue {
     public:
+      enum class IntervalStatus { NotInitializedForSyncValue, Invalid, NewInterval, UpdateIntervalEnd, SameInterval };
+
       EventSetupRecordIOVQueue(unsigned int nConcurrentIOVs);
       ~EventSetupRecordIOVQueue();
 
@@ -58,14 +60,18 @@ namespace edm {
                                                 bool newEventSetupImpl,
                                                 EventSetupImpl& eventSetupImpl);
 
-      void startNewIOVAsync(WaitingTaskHolder const& taskToStartAfterIOVInit, WaitingTaskList& endIOVWaitingTasks, EventSetupImpl& eventSetupImpl);
+      void startNewIOVAsync(WaitingTaskHolder const& taskToStartAfterIOVInit,
+                            WaitingTaskList& endIOVWaitingTasks,
+                            EventSetupImpl& eventSetupImpl);
 
       void addRecProvider(EventSetupRecordProvider* recProvider);
 
       auto const& key() const { return recordProvider_->key(); }
-      void reset() { firstForCurrentIOV_ = IOVSyncValue(); }
+      void reset();
 
     private:
+      void updateValidityIntervalAndStatus(const IOVSyncValue& iTime);
+
       // Used to limit the number of concurrent IOVs
       edm::LimitedTaskQueue iovQueue_;
       edm::WaitingTaskList endIOVTasks_;
@@ -74,14 +80,19 @@ namespace edm {
       // out the set of possible concurrent IOVs.
       std::vector<std::atomic<bool>> isAvailable_;
 
-      // Can't watch for change in recordProvider_ since call to setValidityIntervalFor can happen multiple times
-      //  for the same transition because of dependent Records.
-      edm::IOVSyncValue firstForCurrentIOV_;
+      edm::IOVSyncValue firstForCurrentIOV_ = edm::IOVSyncValue::invalidIOVSyncValue();
       edm::propagate_const<EventSetupRecordProvider*> recordProvider_;
 
       // These are associated with the most recent iov.
       unsigned long long cacheIdentifier_;
       WaitingTaskHolder endIOVTaskHolder_;
+      // This holds the interval most recently initialized with a call to
+      // eventSetupForInstance. A particular EventSetupRecordImpl in flight
+      // might contain an older interval.
+      ValidityInterval validityInterval_;
+      IntervalStatus intervalStatus_ = IntervalStatus::Invalid;
+
+      unsigned int lastUsedIovIndex_ = std::numeric_limits<unsigned int>::max();
       bool endIOVCalled_ = false;
       bool newIOVNeeded_ = false;
     };
