@@ -91,6 +91,9 @@ protected:
   bool isBOFF_ = false;
   const std::string ttrhBuilder_;
   const std::string mfName_;
+  const float ptMin_;
+  const float originZBound_;
+  const float originRBound_;
 
   TkClonerImpl cloner_;
 
@@ -113,6 +116,9 @@ ElectronSeedFitter::ElectronSeedFitter(const edm::ParameterSet& cfg)
       minOneOverPtError_(cfg.getParameter<double>("MinOneOverPtError")),
       ttrhBuilder_(cfg.getParameter<std::string>("TTRHBuilder")),
       mfName_(cfg.getParameter<std::string>("magneticField")),
+      ptMin_(cfg.getParameter<double>("ptMin")),
+      originZBound_(cfg.getParameter<double>("originHalfLength")),
+      originRBound_(cfg.getParameter<double>("originRadius")),
       trackerGeometryESToken_(esConsumes()),
       propagatorESToken_(esConsumes(edm::ESInputTag("", propagatorLabel_))),
       magneticFieldESToken_(esConsumes(edm::ESInputTag("", mfName_))),
@@ -131,6 +137,9 @@ void ElectronSeedFitter::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<std::string>("TTRHBuilder", "WithTrackAngle");
   desc.add<std::string>("magneticField", "ParabolicMf");
   desc.add<edm::InputTag>("beamSpot", {"hltOnlineBeamSpot"});
+  desc.add<double>("ptMin", 1.5);
+  desc.add<double>("originHalfLength", 12.5);
+  desc.add<double>("originRadius", 0.05);
 
   descriptions.addWithDefaultLabel(desc);
 }
@@ -210,9 +219,9 @@ CurvilinearTrajectoryError ElectronSeedFitter::initialError(float sin2Theta) con
 
   auto sin2th = sin2Theta;
   auto minC00 = sqr(minOneOverPtError_);
-  C[0][0] = std::max(sin2th / sqr(1.5f), minC00);
-  auto zErr = sqr(12.5f);
-  auto transverseErr = sqr(originTransverseErrorMultiplier_ * 0.2f);
+  C[0][0] = std::max(sin2th / sqr(ptMin_), minC00);
+  auto zErr = sqr(originZBound_);
+  auto transverseErr = sqr(originTransverseErrorMultiplier_ * originRBound_);
   C[1][1] = C[2][2] = 1.f;
   C[3][3] = transverseErr;
   C[4][4] = zErr * sin2th + transverseErr * (1.f - sin2th);
