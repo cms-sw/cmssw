@@ -28,6 +28,11 @@ namespace edm {
   class EventSetup;
 }  // namespace edm
 namespace ticl {
+  // Sentinel a muon interpretation pass writes into resultCandidate for a track it
+  // rejected (the trajectory points to a shower, so it is not a muon). The producer
+  // routes such tracks to the next (general) pass instead of building a muon candidate.
+  constexpr int kMuonRejected = -2;
+
   template <typename T>
   class TICLInterpretationAlgoBase {
   public:
@@ -79,10 +84,14 @@ namespace ticl {
           : tkTime_h(tkT), tkTimeErr_h(tkTE), tkQuality_h(tkQ), tkBeta_h(tkB), tkPath_h(tkP), tkMtdPos_h(mtdPos) {}
     };
 
+    // maskedTracksters (indexed over input.tracksters) lets several interpretation
+    // passes run in sequence: a pass marks the tracksters it consumes, and later
+    // passes skip them. Empty or all-false means "nothing already consumed".
     virtual void makeCandidates(const Inputs& input,
                                 edm::Handle<MtdHostCollection> inputTiming_h,
                                 std::vector<Trackster>& resultTracksters,
-                                std::vector<int>& resultCandidate) = 0;
+                                std::vector<int>& resultCandidate,
+                                std::vector<bool>& maskedTracksters) = 0;
 
     virtual void initialize(const HGCalDDDConstants* hgcons,
                             const hgcal::RecHitTools rhtools,

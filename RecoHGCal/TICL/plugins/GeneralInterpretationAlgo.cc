@@ -194,7 +194,8 @@ bool GeneralInterpretationAlgo::timeAndEnergyCompatible(float &total_raw_energy,
 void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
                                                edm::Handle<MtdHostCollection> inputTiming_h,
                                                std::vector<Trackster> &resultTracksters,
-                                               std::vector<int> &resultCandidate) {
+                                               std::vector<int> &resultCandidate,
+                                               std::vector<bool> &maskedTracksters) {
   bool useMTDTiming = inputTiming_h.isValid();
   const auto tkH = input.tracksHandle;
   const auto maskTracks = input.maskedTracks;
@@ -308,6 +309,12 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
   trackstersInTrackIndices.resize(tracks.size());
 
   std::vector<bool> chargedMask(tracksters.size(), true);
+  // Tracksters already consumed by an earlier interpretation pass (e.g. muon MIP
+  // tracksters) are unavailable here: they are neither linked to a track nor emitted
+  // as neutral candidates.
+  for (size_t i = 0; i < tracksters.size() && i < maskedTracksters.size(); ++i)
+    if (maskedTracksters[i])
+      chargedMask[i] = false;
   for (unsigned &i : candidateTrackIds) {
     if (tsNearTk[i].empty() && tsNearTkAtInt[i].empty()) {  // nothing linked to track, make charged hadrons
       continue;
