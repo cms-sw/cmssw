@@ -115,10 +115,10 @@ void HGCalGeometry::newCell(
       if (typm.first >= 0) {
         hid.setType(typm.first);
         hid.setSiPM(typm.second);
-        idc = static_cast<DetId>(hid);
       }
       int granul = m_topology.dddConstants().tileGranularity(hid.layer());
       hid.setGranularity(granul);
+      idc = static_cast<DetId>(hid);
       m_validIds.emplace_back(idc);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Valid Id [0] " << HGCScintillatorDetId(idc);
