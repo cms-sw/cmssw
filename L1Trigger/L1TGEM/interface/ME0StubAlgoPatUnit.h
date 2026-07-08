@@ -10,7 +10,7 @@
 
 namespace l1t {
   namespace me0 {
-    std::vector<uint64_t> maskLayerData(const std::vector<uint64_t>& data, const Mask& mask);
+    std::vector<uint64_t> maskLayerData(const std::vector<uint64_t>& data, const l1t::me0::Mask& mask);
     std::pair<std::vector<int>, double> calculateCentroids(const std::vector<uint64_t>& maskedData,
                                                            const std::vector<std::vector<int>>& partitionBxData);
     int calculateHitCount(const std::vector<uint64_t>& maskedData, bool light = false);

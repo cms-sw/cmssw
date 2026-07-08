@@ -58,7 +58,7 @@ std::vector<ME0StubPrimitive> l1t::me0::cancelEdges(
   std::vector<int> comps;
 
   for (int i = 0; i < static_cast<int>(segments.size()); ++i) {
-    if (isAtEdge(i, groupWidth, edgeDistance)) {
+    if (l1t::me0::isAtEdge(i, groupWidth, edgeDistance)) {
       for (int x = i - ghostWidth; x < i; ++x) {
         if (x >= 0)
           comps.push_back(x);
@@ -69,7 +69,7 @@ std::vector<ME0StubPrimitive> l1t::me0::cancelEdges(
       }
 
       for (int comp : comps) {
-        bool ghost = isGhost(segments[i], segments[comp]);
+        bool ghost = l1t::me0::isGhost(segments[i], segments[comp]);
         if (verbose) {
           LogTrace("ME0StubAlgoPartition")
               << "isGhost " << segments[i] << " with " << segments[comp] << ": " << ghost << "\n";
@@ -88,8 +88,8 @@ std::vector<ME0StubPrimitive> l1t::me0::cancelEdges(
 std::vector<ME0StubPrimitive> l1t::me0::processPartition(const std::vector<l1t::me0::UInt192>& partitionData,
                                                          const std::vector<std::vector<int>>& partitionBxData,
                                                          int partition,
-                                                         Config& config,
-                                                         PeakingManager& peakingManager) {
+                                                         l1t::me0::Config& config,
+                                                         l1t::me0::PeakingManager& peakingManager) {
   /*
     takes in partition data, a group size, and a ghost width to return a
     smaller data set, using ghost edge cancellation and segment quality
@@ -105,19 +105,19 @@ std::vector<ME0StubPrimitive> l1t::me0::processPartition(const std::vector<l1t::
   std::vector<ME0StubPrimitive> out;
   std::vector<ME0StubPrimitive> maxSegs;
   const std::vector<ME0StubPrimitive> segments =
-      patMux(partitionData, partitionBxData, partition, config, peakingManager);
+      l1t::me0::patMux(partitionData, partitionBxData, partition, config, peakingManager);
 
   if (config.deghostPre && config.deghostPost) {
     throw cms::Exception("ME0StubAlgoPartition") << "Both pre and post deghosting cannot be enabled at the same time";
   }
 
   if (config.deghostPre) {
-    tmp = cancelEdges(segments, config.groupWidth, config.ghostWidth, config.edgeDistance);
+    tmp = l1t::me0::cancelEdges(segments, config.groupWidth, config.ghostWidth, config.edgeDistance);
   } else {
     tmp = segments;
   }
 
-  std::vector<std::vector<ME0StubPrimitive>> chunked = chunk(tmp, config.groupWidth);
+  std::vector<std::vector<ME0StubPrimitive>> chunked = l1t::me0::chunk(tmp, config.groupWidth);
   for (const std::vector<ME0StubPrimitive>& segV : chunked) {
     ME0StubPrimitive maxSeg = ME0StubPrimitive();
     for (const ME0StubPrimitive& seg : segV) {
@@ -129,7 +129,7 @@ std::vector<ME0StubPrimitive> l1t::me0::processPartition(const std::vector<l1t::
   }
 
   if (config.deghostPost) {
-    out = cancelEdges(maxSegs, 0, 1, 1);
+    out = l1t::me0::cancelEdges(maxSegs, 0, 1, 1);
   } else {
     out = maxSegs;
   }

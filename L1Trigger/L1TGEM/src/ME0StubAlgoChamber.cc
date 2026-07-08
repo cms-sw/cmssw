@@ -59,20 +59,14 @@ std::vector<std::vector<ME0StubPrimitive>> l1t::me0::crossPartitionCancellation(
       for (int segAboveIdx = 0; segAboveIdx < static_cast<int>(segments[prtIdx - 1].size()); ++segAboveIdx) {
         ME0StubPrimitive segAbove = segments[prtIdx - 1][segAboveIdx];
         if (segAbove.layerCount() != 0 && std::abs(seg.strip() - segAbove.strip()) <= crossPartSegWidth &&
-            ((seg.layerCount() << 5) + seg.patternId() >
-             (segAbove.layerCount() << 5) +
-                 segAbove
-                     .patternId())) {  // compare quality with only layer count and pattern id (ignore hit count, strip and eta partition)
+            ((seg.layerCount() << 5) + seg.patternId() > (segAbove.layerCount() << 5) + segAbove.patternId())) {
           segRealKilled[prtIdx - 1][segAboveIdx].reset();
         }
       }
       for (int segBelowIdx = 0; segBelowIdx < static_cast<int>(segments[prtIdx + 1].size()); ++segBelowIdx) {
         ME0StubPrimitive segBelow = segments[prtIdx + 1][segBelowIdx];
         if (segBelow.layerCount() != 0 && std::abs(seg.strip() - segBelow.strip()) <= crossPartSegWidth &&
-            ((seg.layerCount() << 5) + seg.patternId() >
-             (segBelow.layerCount() << 5) +
-                 segBelow
-                     .patternId())) {  // compare quality with only layer count and pattern id (ignore hit count, strip and eta partition)
+            ((seg.layerCount() << 5) + seg.patternId() > (segBelow.layerCount() << 5) + segBelow.patternId())) {
           segRealKilled[prtIdx + 1][segBelowIdx].reset();
         }
       }
@@ -104,8 +98,8 @@ std::vector<std::vector<ME0StubPrimitive>> l1t::me0::crossPartitionCancellation(
 
 std::vector<ME0StubPrimitive> l1t::me0::processChamber(const std::vector<std::vector<l1t::me0::UInt192>>& chamberData,
                                                        const std::vector<std::vector<std::vector<int>>>& chamberBxData,
-                                                       Config& config,
-                                                       PeakingManager& peakingManager) {
+                                                       l1t::me0::Config& config,
+                                                       l1t::me0::PeakingManager& peakingManager) {
   std::vector<std::vector<ME0StubPrimitive>> segments;
   int numFinder = (config.xPartitionEnabled) ? 15 : 8;
 
@@ -146,35 +140,35 @@ std::vector<ME0StubPrimitive> l1t::me0::processChamber(const std::vector<std::ve
     const std::vector<l1t::me0::UInt192>& partitionData = data[partition];
     const std::vector<std::vector<int>>& partitionBxData = bxData[partition];
     const std::vector<ME0StubPrimitive>& segs =
-        processPartition(partitionData, partitionBxData, partition, config, peakingManager);
+        l1t::me0::processPartition(partitionData, partitionBxData, partition, config, peakingManager);
     segments.push_back(segs);
   }
 
   if (config.crossPartitionSegmentWidth > 0)
-    segments = crossPartitionCancellation(segments, config.crossPartitionSegmentWidth);
+    segments = l1t::me0::crossPartitionCancellation(segments, config.crossPartitionSegmentWidth);
   if (config.clearanceWidth > 0)
-    segments = deghostingClearance(segments, config.clearanceWidth);
+    segments = l1t::me0::deghostingClearance(segments, config.clearanceWidth);
 
   // pick the best N outputs from each partition
   for (int i = 0; i < static_cast<int>(segments.size()); ++i) {
-    segmentSorter(segments[i], config.numOutputs);
+    l1t::me0::segmentSorter(segments[i], config.numOutputs);
   }
 
   // join each 2 partitions and pick the best N outputs from them
   std::vector<std::vector<ME0StubPrimitive>> joinedSegments;
   for (int i = 1; i < static_cast<int>(segments.size()); i += 2) {
     std::vector<std::vector<ME0StubPrimitive>> seed = {segments[i - 1], segments[i]};
-    std::vector<ME0StubPrimitive> pair = concatVector(seed);
+    std::vector<ME0StubPrimitive> pair = l1t::me0::concatVector(seed);
     joinedSegments.push_back(pair);
   }
   joinedSegments.push_back(segments[14]);
   for (int i = 0; i < static_cast<int>(joinedSegments.size()); ++i) {
-    segmentSorter(joinedSegments[i], config.numOutputs);
+    l1t::me0::segmentSorter(joinedSegments[i], config.numOutputs);
   }
 
   // concatenate together all of the segments, sort them, and pick the best N outputs
-  std::vector<ME0StubPrimitive> concatenated = concatVector(joinedSegments);
-  segmentSorter(concatenated, config.numOutputs);
+  std::vector<ME0StubPrimitive> concatenated = l1t::me0::concatVector(joinedSegments);
+  l1t::me0::segmentSorter(concatenated, config.numOutputs);
 
   // Fit segments and bending angle cut
   for (ME0StubPrimitive& seg : concatenated) {

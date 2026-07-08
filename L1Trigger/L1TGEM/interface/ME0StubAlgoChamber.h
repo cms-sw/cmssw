@@ -2,6 +2,7 @@
 #define L1Trigger_L1TGEM_ME0StubAlgoChamber_H
 
 #include "L1Trigger/L1TGEM/interface/ME0StubAlgoSubfunction.h"
+#include "L1Trigger/L1TGEM/interface/ME0StubAlgoPeaking.h"
 #include "L1Trigger/L1TGEM/interface/ME0StubAlgoPartition.h"
 #include "L1Trigger/L1TGEM/interface/ME0StubAlgoMask.h"
 #include <vector>
@@ -16,8 +17,8 @@ namespace l1t {
         std::vector<std::vector<ME0StubPrimitive>>& segments, int crossPartSegWidth);
     std::vector<ME0StubPrimitive> processChamber(const std::vector<std::vector<UInt192>>& chamberData,
                                                  const std::vector<std::vector<std::vector<int>>>& chamberBxData,
-                                                 Config& config,
-                                                 PeakingManager& peakingManager);
+                                                 l1t::me0::Config& config,
+                                                 l1t::me0::PeakingManager& peakingManager);
   }  // namespace me0
 }  // namespace l1t
 

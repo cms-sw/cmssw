@@ -22,7 +22,7 @@ std::vector<uint64_t> l1t::me0::extractDataWindow(const std::vector<l1t::me0::UI
   std::vector<uint64_t> out;
   out.reserve(prtData.size());
   for (int ly = 0; ly < static_cast<int>(prtData.size()); ++ly) {
-    out.push_back(parseData(prtData[ly], strip, layerSpans[ly]));
+    out.push_back(l1t::me0::parseData(prtData[ly], strip, layerSpans[ly]));
   }
   return out;
 }
@@ -52,32 +52,31 @@ std::vector<std::vector<int>> l1t::me0::extractBxDataWindow(const std::vector<st
   std::vector<std::vector<int>> out;
   out.reserve(prtBxData.size());
   for (const std::vector<int>& data : prtBxData) {
-    out.push_back(parseBxData(data, strip, maxSpan));
+    out.push_back(l1t::me0::parseBxData(data, strip, maxSpan));
   }
   return out;
 }
 std::vector<ME0StubPrimitive> l1t::me0::patMux(const std::vector<l1t::me0::UInt192>& partitionData,
                                                const std::vector<std::vector<int>>& partitionBxData,
                                                int partition,
-                                               Config& config,
-                                               PeakingManager& peakingManager,
+                                               l1t::me0::Config& config,
+                                               l1t::me0::PeakingManager& peakingManager,
                                                bool debug) {
   std::vector<ME0StubPrimitive> newSegs;
   int maxLayerSpan = *std::max_element(kLayerSpans.begin(), kLayerSpans.end());
   for (int strip = 0; strip < config.width; ++strip) {
-    const std::vector<uint64_t>& dataWindow = extractDataWindow(partitionData, strip, kLayerSpans);
-    const std::vector<std::vector<int>>& bxDataWindow = extractBxDataWindow(partitionBxData, strip, maxLayerSpan);
-    const ME0StubPrimitive& seg = patUnit(dataWindow,
-                                          bxDataWindow,
-                                          strip,
-                                          partition,
-                                          config.layerThresholdPatternId,
-                                          config.layerThresholdEta,
-                                          config.maxSpan,
-                                          config.skipCentroids,
-                                          config.numOr,
-                                          false,
-                                          false);
+    const std::vector<uint64_t>& dataWindow = l1t::me0::extractDataWindow(partitionData, strip, kLayerSpans);
+    const std::vector<std::vector<int>>& bxDataWindow =
+        l1t::me0::extractBxDataWindow(partitionBxData, strip, maxLayerSpan);
+    const ME0StubPrimitive& seg = l1t::me0::patUnit(dataWindow,
+                                                    bxDataWindow,
+                                                    strip,
+                                                    partition,
+                                                    config.layerThresholdPatternId,
+                                                    config.layerThresholdEta,
+                                                    config.maxSpan,
+                                                    config.skipCentroids,
+                                                    config.numOr);
     newSegs.push_back(seg);
   }
 

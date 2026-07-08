@@ -17,23 +17,6 @@ namespace l1t {
   namespace me0 {
     typedef std::bitset<192> UInt192;
 
-    class PeakingManager {
-    private:
-      std::vector<std::vector<std::vector<ME0StubPrimitive>>>
-          segs_;                                // [oldest / old][partition][sbit] : size = (2, 15, 192)
-      std::vector<std::vector<bool>> trigger_;  // [partition][sbit]
-    public:
-      PeakingManager() = default;
-      PeakingManager(const int numPart = 15, const int width = 192) {
-        segs_ = std::vector<std::vector<std::vector<ME0StubPrimitive>>>(
-            2, std::vector<std::vector<ME0StubPrimitive>>(numPart, std::vector<ME0StubPrimitive>(width)));
-        trigger_ = std::vector<std::vector<bool>>(numPart, std::vector<bool>(width, false));
-      }
-      std::vector<ME0StubPrimitive> processSegments(const int partition, const std::vector<ME0StubPrimitive>& newSegs);
-      std::vector<std::vector<bool>> getTrigger() const { return trigger_; };
-      std::vector<std::vector<std::vector<ME0StubPrimitive>>> getSegs() const { return segs_; };
-    };
-
     struct Config {
       bool skipCentroids;
       std::vector<int32_t> layerThresholdPatternId;
@@ -61,8 +44,8 @@ namespace l1t {
 
     int countOnes(uint64_t x);
     int maxClusterSize(uint64_t x);
-    UInt192 setBit(int index, UInt192 num);
-    UInt192 clearBit(int index, UInt192 num);
+    l1t::me0::UInt192 setBit(int index, l1t::me0::UInt192 num);
+    l1t::me0::UInt192 clearBit(int index, l1t::me0::UInt192 num);
     uint64_t oneBitMask(int num);
     std::vector<int> findOnes(const uint64_t& data);
     std::pair<int, std::vector<int>> findCentroid(const uint64_t& data);

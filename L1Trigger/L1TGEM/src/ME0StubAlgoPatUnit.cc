@@ -17,7 +17,7 @@ std::pair<std::vector<int>, double> l1t::me0::calculateCentroids(const std::vect
   for (int ly = 0; ly < static_cast<int>(maskedData.size()); ++ly) {
     const auto& data = maskedData[ly];
     const auto& bxData = partitionBxData[ly];
-    const auto temp = findCentroid(data);
+    const auto temp = l1t::me0::findCentroid(data);
     int curCentroid = temp.first;
     std::vector<int> hitsIndices = temp.second;
     centroids.push_back(curCentroid);
@@ -38,12 +38,12 @@ int l1t::me0::calculateHitCount(const std::vector<uint64_t>& maskedData, bool li
   int totHitCount = 0;
   if (light) {
     for (int ly : {0, 5}) {
-      int hitLy = countOnes(maskedData[ly]);
+      int hitLy = l1t::me0::countOnes(maskedData[ly]);
       totHitCount += (hitLy < 7) ? hitLy : 7;
     }
   } else {
     for (uint64_t d : maskedData) {
-      totHitCount += countOnes(d);
+      totHitCount += l1t::me0::countOnes(d);
     }
   }
   return totHitCount;
@@ -63,7 +63,7 @@ std::vector<int> l1t::me0::calculateClusterSize(const std::vector<uint64_t>& dat
   std::vector<int> clusterSizePerLayer;
   clusterSizePerLayer.reserve(data.size());
   for (uint64_t x : data) {
-    clusterSizePerLayer.push_back(maxClusterSize(x));
+    clusterSizePerLayer.push_back(l1t::me0::maxClusterSize(x));
   }
   return clusterSizePerLayer;
 }
@@ -72,7 +72,7 @@ std::vector<int> l1t::me0::calculateHits(const std::vector<uint64_t>& data) {
   std::vector<int> nHitsPerLayer;
   nHitsPerLayer.reserve(data.size());
   for (uint64_t x : data) {
-    nHitsPerLayer.push_back(countOnes(x));
+    nHitsPerLayer.push_back(l1t::me0::countOnes(x));
   }
   return nHitsPerLayer;
 }
@@ -125,8 +125,8 @@ ME0StubPrimitive l1t::me0::patUnit(const std::vector<uint64_t>& data,
     const std::vector<uint64_t>& x = maskedData[idxPat];
     hcs.push_back(
         0);  // hit count is not used in the current quality calculation, so we set it to 0 for now - can be re-enabled if needed
-    // hcs.push_back(calculateHitCount(x, lightHitCount));
-    lcs.push_back(calculateLayerCount(x));
+    // hcs.push_back(l1t::me0::calculateHitCount(x, lightHitCount));
+    lcs.push_back(l1t::me0::calculateLayerCount(x));
   }
 
   if (*std::max_element(lcs.begin(), lcs.end()) < 4) {

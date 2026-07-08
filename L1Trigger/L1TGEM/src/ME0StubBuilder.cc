@@ -5,6 +5,7 @@
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 #include "L1Trigger/L1TGEM/interface/ME0StubAlgoChamber.h"
 #include "L1Trigger/L1TGEM/interface/ME0StubAlgoSubfunction.h"
+#include "L1Trigger/L1TGEM/interface/ME0StubAlgoPeaking.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

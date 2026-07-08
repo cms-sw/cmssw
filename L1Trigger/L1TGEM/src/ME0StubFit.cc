@@ -135,15 +135,16 @@ std::vector<double> l1t::me0::vhdlExactFit(const std::vector<int>& centroids,
   ap_fixed<15, 7, AP_RND> intercept = interceptMult;
 
   if (verbose) {
-    std::cout.precision(16);
-    std::cout << "sumY = " << sumY << std::endl;
-    std::cout << "sumYFixed = " << sumYFixed << std::endl;
-    std::cout << "slopeTimesX = " << slopeTimesX << std::endl;
-    std::cout << "validCountReciprocal = " << validCountReciprocal << std::endl;
-    std::cout << "intercept: " << intercept << " interceptMult: " << interceptMult << std::endl;
-    std::cout << "slopeS10Mult = " << slopeS10Mult << std::endl;
-    std::cout << "slopeS11X5 = " << slopeS11X5 << std::endl;
-    std::cout << "slopeS12X2p5 = " << slopeS12X2p5 << std::endl;
+    LogTrace("ME0StubFit") << "sumY = " << sumY << "\n"
+                           << "sumYFixed = " << std::format("{:.16f}", sumYFixed.to_double()) << "\n"
+                           << "slopeTimesX = " << std::format("{:.16f}", slopeTimesX.to_double()) << "\n"
+                           << "validCountReciprocal = " << std::format("{:.16f}", validCountReciprocal.to_double())
+                           << "\n"
+                           << "intercept: " << std::format("{:.16f}", intercept.to_double()) << "\n"
+                           << "interceptMult: " << std::format("{:.16f}", interceptMult.to_double()) << "\n"
+                           << "slopeS10Mult = " << std::format("{:.16f}", slopeS10Mult.to_double()) << "\n"
+                           << "slopeS11X5 = " << std::format("{:.16f}", slopeS11X5.to_double()) << "\n"
+                           << "slopeS12X2p5 = " << std::format("{:.16f}", slopeS12X2p5.to_double()) << "\n";
   }
 
   // Stage 13 : Output
@@ -152,8 +153,10 @@ std::vector<double> l1t::me0::vhdlExactFit(const std::vector<int>& centroids,
   const ap_fixed<10, 4, AP_RND>& slopeOut = slope;
 
   if (verbose) {
-    std::cout << "vhdlExactFit: slopeOut=" << slopeOut << ", interceptOut=" << interceptOut << ", stripOut=" << stripOut
-              << std::endl;
+    LogTrace("ME0StubFit") << "vhdlExactFit: "
+                           << "slopeOut=" << std::format("{:.16f}", slopeOut.to_double())
+                           << ", interceptOut=" << std::format("{:.16f}", interceptOut.to_double())
+                           << ", stripOut=" << std::format("{:.16f}", stripOut.to_double());
   }
 
   return {slopeOut.to_double(), interceptOut.to_double(), stripOut.to_double()};

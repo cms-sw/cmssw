@@ -42,14 +42,14 @@ l1t::me0::Mask l1t::me0::getLayerMask(const l1t::me0::PatternDef& layerPattern, 
   // pattern definition by center
   mVals.reserve(layerPattern.layers.size());
   for (int idxLy = 0; idxLy < static_cast<int>(layerPattern.layers.size()); ++idxLy) {
-    mVals.push_back(shiftCenter(layerPattern.layers[idxLy], layerSpans[idxLy]));
+    mVals.push_back(l1t::me0::shiftCenter(layerPattern.layers[idxLy], layerSpans[idxLy]));
   }
 
   // use the high and low indices to determine where the high bits must go for
   // each layer
   mVec.reserve(mVals.size());
   for (const std::vector<int>& x : mVals) {
-    mVec.push_back(setHighBits(x));
+    mVec.push_back(l1t::me0::setHighBits(x));
   }
 
   l1t::me0::Mask mask_{layerPattern.id, mVec};
@@ -64,7 +64,7 @@ l1t::me0::PatternDef l1t::me0::mirrorPatternDefinition(const l1t::me0::PatternDe
   std::vector<l1t::me0::HiLo> layers_;
   layers_.reserve(pattern.layers.size());
   for (const auto& l : pattern.layers) {
-    layers_.push_back(mirrorHiLo(l));
+    layers_.push_back(l1t::me0::mirrorHiLo(l));
   }
   l1t::me0::PatternDef mirrored{id, layers_};
   return mirrored;

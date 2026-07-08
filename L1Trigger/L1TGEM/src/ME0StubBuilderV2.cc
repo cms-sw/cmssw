@@ -5,6 +5,7 @@
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 #include "L1Trigger/L1TGEM/interface/ME0StubAlgoChamber.h"
 #include "L1Trigger/L1TGEM/interface/ME0StubAlgoSubfunction.h"
+#include "L1Trigger/L1TGEM/interface/ME0StubAlgoPeaking.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -186,13 +187,11 @@ ME0TriggerDigi ME0StubBuilderV2::stubConversion(const ME0StubPrimitive& stub, co
   int quality = stub.layerCount();
   double phiposition_f =
       (stub.strip() + stub.subStrip()) * 2;  // stub.strip() and stub.subStrip() are in units of pads (2 strips size)
-  int phiposition = static_cast<int>(std::round(phiposition_f * 2));  // Convert to half-strip resolution
+  int phiposition = static_cast<int>(std::round(phiposition_f * 2));  // unit: 1/2 strip
   int partition = stub.etaPartition();
   double bendAngle = stub.bendingAngle();  // unit: pads / 6 layers
   int bend = (bendAngle > 0.0) ? 0 : 1;    // 0: positive bend, 1: negative bend (pad-wise, not global phi-wise)
-  int idphi = static_cast<int>(
-      std::round(std::fabs(bendAngle) * 6 * 2 *
-                 4));  // bendAngle * (6 layers) * (2 strips per pad) * (4 units per strip) = units of 1/4 strip
+  int idphi = static_cast<int>(std::round(std::fabs(bendAngle) * 6 * 2 * 4));  // unit: 1/4 strip
   ME0TriggerDigi segFinal(chamberid, quality, phiposition, partition, idphi, bend, crntBX);
   return segFinal;
 }
