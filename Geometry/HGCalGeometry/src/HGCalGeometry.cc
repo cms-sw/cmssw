@@ -115,7 +115,6 @@ void HGCalGeometry::newCell(
       if (typm.first >= 0) {
         hid.setType(typm.first);
         hid.setSiPM(typm.second);
-        idc = static_cast<DetId>(hid);
       }
       int granul = m_topology.dddConstants().tileGranularity(hid.layer());
       hid.setGranularity(granul);
