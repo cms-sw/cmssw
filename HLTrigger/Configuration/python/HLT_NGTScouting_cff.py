@@ -106,7 +106,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltChi2EstimatorForR
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltKFSmootherForRefitInsideOut_cfi")
 
 ### Paths
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/DST_PFScouting_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/DST_NGTScouting_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLTAnalyzerEndpath_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLTriggerFinalPath_cfi")
 
@@ -245,7 +245,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/services/FastTimerService_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/services/ThroughputService_cfi")
 
 fragment.schedule = cms.Schedule(*[
-    fragment.DST_PFScouting,
+    fragment.DST_NGTScouting,
     fragment.HLTriggerFinalPath,
     fragment.HLTAnalyzerEndpath,
 ])

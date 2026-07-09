@@ -102,6 +102,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltChi2EstimatorForR
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltKFSmootherForRefitInsideOut_cfi")
 
 ### Paths
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/DST_PFScouting_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_AK4PFPuppiJet520_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Diphoton30_23_IsoCaloId_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Diphoton30_23_IsoCaloId_Unseeded_cfi")
@@ -283,6 +284,8 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/services/ThroughputService_cfi"
 
 fragment.schedule = cms.Schedule(*[
 
+    fragment.DST_PFScouting,
+   
     fragment.HLT_AK4PFPuppiJet520,
     fragment.HLT_PFPuppiHT1070,
     fragment.HLT_PFPuppiMETTypeOne140_PFPuppiMHT140,
