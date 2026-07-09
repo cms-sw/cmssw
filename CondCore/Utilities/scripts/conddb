@@ -55,10 +55,18 @@ db_credential_type_map = { db_key_credential_type_code : ("DB KEY",'K'),
                            db_cmsuser_credential_type_code : ("CMS USER",'U'),
                            db_session_credential_type_code : ("DB SESSION",'S'), }
 
-# Utility functions
-query_logger = logging.getLogger("sqlalchemy.query_time")
-query_logger.setLevel(logging.DEBUG)
-query_logger.propagate = True
+class QueryLogAdapter(logging.LoggerAdapter):
+    def process(self, msg, kwargs):
+        return f"[QUERY_LOG] {msg}", kwargs
+
+
+query_logger = QueryLogAdapter(
+    logging.getLogger("sqlalchemy.query_time"),
+    {}
+)
+
+query_logger.logger.setLevel(logging.DEBUG)
+query_logger.logger.propagate = True
 
 
 def install_query_timer(engine, label="db"):
@@ -78,6 +86,12 @@ def install_query_timer(engine, label="db"):
     def before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
         conn.info.setdefault("query_start_time", []).append(time.perf_counter())
 
+        query_logger.debug(
+            "event=query_start role=%s statement=%s", 
+            label,
+            statement
+        )
+
     @event.listens_for(engine, "after_cursor_execute")
     def after_cursor_execute(conn, cursor, statement, parameters, context, executemany):
         total = time.perf_counter() - conn.info["query_start_time"].pop()
@@ -86,7 +100,7 @@ def install_query_timer(engine, label="db"):
         stats["total_query_time"] += total
 
         query_logger.debug(
-            "[%s] Query complete in %.6f seconds",
+            "event=query_complete role=%s total_time=%.6fs",
             label,
             total,
         )
@@ -1746,7 +1760,7 @@ def _copy_payload(args, copyTime, session1, session2, payloadHash, payloadSerial
         total_time = time.perf_counter() - function_start
 
         query_logger.debug(
-            "_copy_payload payload=%s total_time=%.6fs",
+            "event=copy_payload payload=%s total_time=%.6fs",
             payloadHash,
             total_time
         )
@@ -2043,7 +2057,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
         total_time = time.perf_counter() - function_start
 
         query_logger.debug(
-            "_copy_tag tag=%s total_time=%.6fs, num_payloads=%d, num_iovs=%d",
+            "event=copy_tag tag=%s total_time=%.6fs, num_payloads=%d, num_iovs=%d",
             str_db_object(args.db, first),
             total_time,
             np,
@@ -2165,13 +2179,17 @@ def copy(args):
     finally:
 
         query_logger.debug(
-            "Source DB session during Copy Executed %s queries in a total %.6f seconds",
+            "event=query_session_summary role=%s operation=%s query_count=%d total_time=%.6fs",
+            "source",
+            "copy",
             stats1["query_count"],
             stats1["total_query_time"],
         )
 
         query_logger.debug(
-            "Destination DB session during Copy Executed %s queries in a total %.6f seconds",
+            "event=query_session_summary role=%s operation=%s query_count=%d total_time=%.6fs",
+            "destination",
+            "copy",
             stats2["query_count"],
             stats2["total_query_time"],
         )
