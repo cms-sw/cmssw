@@ -876,6 +876,7 @@ class DQMPlotter:
         ylim=None,
         ylim_ratio=None,
         ytitle_ratio_fontsize=None,
+        ratio_label=None,
         complement=False,
         rebin=None,
         multiply_x_values=None,
@@ -1073,7 +1074,13 @@ class DQMPlotter:
             else:
                 ax_ratio.set_xlabel(xlabel, fontsize=label_size if xtitle_fontsize is None else xtitle_fontsize)
 
-            ax_ratio.set_ylabel(f"Ratio wrt to {labels[0]}", fontsize=label_size if ytitle_ratio_fontsize is None else ytitle_ratio_fontsize)
+            if ratio_label is None:
+                ratio_ylabel = "Ratio"
+            elif ratio_label == "auto":
+                ratio_ylabel = f"Ratio wrt {labels[0]}"
+            else:
+                ratio_ylabel = ratio_label
+            ax_ratio.set_ylabel(ratio_ylabel, fontsize=label_size if ytitle_ratio_fontsize is None else ytitle_ratio_fontsize)
             ax_ratio.axhline(y=1, color="black", linestyle="--", alpha=0.7)
 
             if grid:
@@ -1495,7 +1502,18 @@ def process_histogram_task(task, debug):
 if __name__ == "__main__":
     """Command line interface for DQM plotter."""
     parser = argparse.ArgumentParser(
-        description="Compare DQM histograms with CMS styling"
+        description="Compare DQM histograms with CMS styling",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "argument order:\n"
+            "  Pass the positional ROOT files first, then the options, e.g.\n"
+            "    dqm-plot file1.root file2.root -s \"path/*\" --ratio-label\n"
+            "  Several options (-s/--source, --operation, --overlay, --overlay-legend,\n"
+            "  --legend, --ratio-label) take a variable number of values and would\n"
+            "  otherwise swallow trailing positional files. To list the files last,\n"
+            "  separate them with '--':\n"
+            "    dqm-plot -s \"path/*\" --ratio-label -- file1.root file2.root\n"
+        ),
     )
     parser.add_argument("files", nargs="+", help="ROOT files to compare")
     parser.add_argument(
@@ -1594,6 +1612,14 @@ if __name__ == "__main__":
         help="Bottom ratio plot Y axis label font size."
     )
     parser.add_argument(
+        '--ratio-label', type=str, nargs='?', const='auto', default=None,
+        help="Y axis label of the ratio panel. Omit the flag for 'Ratio'; pass "
+        "'--ratio-label' (or '--ratio-label auto') for 'Ratio wrt <first legend "
+        "label>'; or pass '--ratio-label VALUE' for a custom label. Since the bare "
+        "flag takes an optional value, keep the input ROOT files away from it "
+        "(place them first, or after a '--' separator)."
+    )
+    parser.add_argument(
         "--histograms",
         action="store_true",
         help="Plot histograms instead of points (default: points with error bars).",
@@ -1684,7 +1710,18 @@ if __name__ == "__main__":
 
     if not args.operation and not args.source:
         parser.error("Either --source or --operation must be specified")
-        
+
+    # '--ratio-label' takes an optional value (nargs='?'); if it accidentally consumed
+    # an input ROOT file, flag it clearly instead of silently dropping that file.
+    if args.ratio_label not in (None, "auto") and (
+        args.ratio_label.endswith(".root") or os.path.exists(args.ratio_label)
+    ):
+        parser.error(
+            f"--ratio-label consumed '{args.ratio_label}', which looks like an input "
+            "file. Use '--ratio-label auto', quote a custom label, or separate the "
+            "ROOT files with '--' (e.g. '... --ratio-label -- file1.root file2.root')."
+        )
+
     if args.legend is not None:
         # --legend is a single comma-separated string, e.g. -l "File 1,File 2".
         args.legend = [entry.strip() for entry in args.legend.split(",")]
@@ -1759,6 +1796,7 @@ if __name__ == "__main__":
         ylim=args.ylim,
         ylim_ratio=args.ylim_ratio,
         ytitle_ratio_fontsize=args.ytitle_ratio_fontsize,
+        ratio_label=args.ratio_label,
         plot_histograms=args.histograms,
         save_as_pdf=args.pdf,
         more_files=args.more_files,
