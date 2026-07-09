@@ -2,8 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 def customizeHLT_removeCPUOnlySequences_AlCaPFJet40(process):
     """
-    Remove AlCa paths from the process to avoid running them twice 
-    (Alpaka and SerialSync, CMSHLT-2461).
+    Replace the duplicated CPU-only (SerialSync) reconstruction in the
+    AlCa_PFJet40_CPUOnly path with the standard AlCa_PFJet40 reconstruction
+    to avoid running particle-flow reconstruction twice in MC (CMSHLT-2461).    
     """
     path_cpu_only = None
     path_standard = None
@@ -21,7 +22,7 @@ def customizeHLT_removeCPUOnlySequences_AlCaPFJet40(process):
 
     # If standard path is missing, copy fails
     if not path_standard:
-        print("WARNING: path AlCa_PFJet40_CPUOnly found but not path AlCa_PFJet40, cannot remove it from the process")
+        print("WARNING: found AlCa_PFJet40_CPUOnly path but no AlCa_PFJet40 path; cannot replace CPUOnly reconstruction")
         return process
 
     # Verify both prescalers exist before replacing
@@ -33,7 +34,7 @@ def customizeHLT_removeCPUOnlySequences_AlCaPFJet40(process):
         new_path.replace(process.hltPreAlCaPFJet40, process.hltPreAlCaPFJet40CPUOnly)
         setattr(process, path_cpu_only, new_path)
     else:
-        print("WARNING: path AlCa_PFJet40_CPUOnly found but not hltPreAlCaPFJet40 or hltPreAlCaPFJet40CPUOnly, cannot replace it in the path")
+        print("WARNING: found AlCa_PFJet40_CPUOnly path but missing hltPreAlCaPFJet40 and/or hltPreAlCaPFJet40CPUOnly; leaving CPUOnly path unchanged")
 
     return process
 
