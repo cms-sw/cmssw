@@ -11,6 +11,7 @@ import ROOT
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+import matplotlib.legend as mlegend
 import mplhep as hep
 import argparse
 import os
@@ -424,7 +425,7 @@ class DQMPlotter:
             wrapped.append(wrapped_label)
         return wrapped
 
-    def _configure_legend(self, ax, labels, legend_title,
+    def _configure_legend(self, ax, labels, legend_title, legend_location,
                           legend_title_fontsize, legend_fontsize,
                           logy=False, force_outside=False):
         """Configure legend; wrap long entries and move outside if needed."""
@@ -487,7 +488,7 @@ class DQMPlotter:
         legend_columns = 1 if len(wrapped_labels) <= 2 else 2
         ax.legend(
             wrapped_labels,
-            loc="upper right",
+            loc=legend_location,
             ncols=legend_columns,
             title=legend_title,
             fontsize=legend_fontsize,
@@ -957,6 +958,7 @@ class DQMPlotter:
         save_as_pdf=False,
         legend_outside=False,
         legend_title=None,
+        legend_location=None,
         legend_title_fontsize=None,
         legend_fontsize=None,
         title=None,
@@ -1108,7 +1110,7 @@ class DQMPlotter:
             )
             ax_main.tick_params(axis="x", which="minor", bottom=False)
 
-        self._configure_legend(ax_main, labels, legend_title,
+        self._configure_legend(ax_main, labels, legend_title, legend_location,
                                legend_title_fontsize, legend_fontsize,
                                logy, force_outside=legend_outside)
 
@@ -1771,6 +1773,12 @@ if __name__ == "__main__":
         help="Legend title.",
     )
     parser.add_argument(
+        "--legend-location",
+        default="upper right",
+        choices=list(mlegend.Legend.codes.keys()),
+        help="Legend location.",
+    )
+    parser.add_argument(
         "--legend-title-fontsize",
         required=False,
         default=None,
@@ -1794,7 +1802,11 @@ if __name__ == "__main__":
         "file index (or '*'/omitted for all files). "
         "'--overlay collA:collB' overlays both collections from every file; "
         "'--overlay collA@1:collB@2' overlays collA from file 1 with collB from "
-        "file 2. Can be used multiple times for several overlay jobs.",
+        "file 2. Can be used multiple times for several overlay jobs. "
+        "By default also produces the plots that would have been produced "
+        "without setting this option. "
+        "Use --no-overlay-individual if you want to plot only the combinations "
+        "specified in this parameter."
     )
     parser.add_argument(
         "--overlay-legend",
@@ -1861,6 +1873,8 @@ if __name__ == "__main__":
         # --legend is a single comma-separated string, e.g. -l "File 1,File 2".
         args.legend = [entry.strip() for entry in args.legend.split(",")]
         if args.source is not None and len(args.legend) != len(args.files):
+            print(args.legend)
+            print(args.files)
             raise ValueError(f"Number of legend entries ({len(args.legend)}) must match number of files ({len(args.files)})")
 
     if args.nProcessors < 1:
@@ -1960,6 +1974,7 @@ if __name__ == "__main__":
         create_web_index=args.web,
         legend_outside=args.legend_outside,
         legend_title=args.legend_title,
+        legend_location=args.legend_location,
         legend_title_fontsize=args.legend_title_fontsize,
         legend_fontsize=args.legend_fontsize,
         overlay_groups=overlay_groups,
