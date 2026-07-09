@@ -20,7 +20,17 @@ if [ $STATUS -eq 0 ]; then
     --overlay "hltMergedWrtHighPurity:hltMergedWrtHighPurityPV" \
     --energy-text "TEST" \
     -l "File 1, File 2" \
+    -o plots \
     ./${DQMFILE} ./${DQMFILE}) || die 'failed running dqm-plot $DQMFILE' $?
+
+    # Regression: omitting -l/--legend must not crash; default filename labels are used.
+    (dqm-plot \
+    -n 4 \
+    -s "DQMData/Run 1/HLT/Run summary/Tracking/ValidationWRTOffline/*" \
+    --overlay "hltMergedWrtHighPurity:hltMergedWrtHighPurityPV" \
+    -o plots_no_legend \
+    ./${DQMFILE} ./${DQMFILE}) || die 'failed running dqm-plot without --legend' $?
+
     rm -fr ./${DQMFILE}
 else 
   die "SKIPPING test, file ${DQMFILE} not found" 0

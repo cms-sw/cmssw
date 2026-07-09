@@ -1517,8 +1517,9 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        '-l', '--legend', nargs='+',
-        help="List of legend entries for each file. "
+        '-l', '--legend',
+        help="Comma-separated list of legend entries for each file "
+        "(e.g. -l \"File 1,File 2\"). Use \\n for explicit line breaks.",
     )
     parser.add_argument("-o", "--output-dir", default="plots", help="Output directory.")
     parser.add_argument("--logy", action="store_true", help="Use log scale for y-axis.")
@@ -1681,8 +1682,11 @@ if __name__ == "__main__":
     if not args.operation and not args.source:
         parser.error("Either --source or --operation must be specified")
         
-    if len(args.legend) != len(args.files) and args.source is not None:
-        raise ValueError(f"Number of legend entries ({len(args.legend)}) must match number of files ({len(args.files)})")
+    if args.legend is not None:
+        # --legend is a single comma-separated string, e.g. -l "File 1,File 2".
+        args.legend = [entry.strip() for entry in args.legend.split(",")]
+        if args.source is not None and len(args.legend) != len(args.files):
+            raise ValueError(f"Number of legend entries ({len(args.legend)}) must match number of files ({len(args.files)})")
 
     if args.nProcessors < 1:
         args.nProcessors = len(os.sched_getaffinity(0))
