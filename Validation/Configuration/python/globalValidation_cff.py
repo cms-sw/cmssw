@@ -9,6 +9,7 @@ from Validation.RecoTrack.SiTrackingRecHitsValid_cff import *
 from Validation.RecoTrack.TrackValidation_cff import *
 from Validation.EcalHits.ecalSimHitsValidationSequence_cff import *
 from Validation.EcalDigis.ecalDigisValidationSequence_cff import *
+from Validation.EcalTriggerPrimitives.ecalTPsValidationSequence_cff import *
 from Validation.EcalRecHits.ecalRecHitsValidationSequence_cff import *
 from Validation.EcalClusters.ecalClustersValidationSequence_cff import *
 from Validation.HcalHits.SimHitsValidationSequence_cff import *
@@ -73,6 +74,7 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + trackingRecHitsValid
                                  + ecalSimHitsValidationSequence
                                  + ecalDigisValidationSequence
+                                 + ecalTPsValidationSequence
                                  + ecalRecHitsValidationSequence
                                  + ecalClustersValidationSequence
                                  + hcalSimHitsValidationSequence
@@ -109,7 +111,7 @@ fastSim.toReplaceWith(globalValidation, globalValidation.copyAndExclude([
     trackerHitsValidation, trackerDigisValidation, trackerRecHitsValidation, trackingRecHitsValid,
     # the following depends on crossing frame of ecal simhits, which is a bit hard to implement in the fastsim workflow
     # besides: is this cross frame doing something, or is it a relic from the past?
-    ecalDigisValidationSequence, ecalRecHitsValidationSequence
+    ecalDigisValidationSequence, ecalTPsValidationSequence, ecalRecHitsValidationSequence
 ]))
 
 #lite tracking validator to be used in the Validation matrix
@@ -162,6 +164,7 @@ globalPrevalidationECALOnly = cms.Sequence(
 globalValidationECAL = cms.Sequence(
       ecalSimHitsValidationSequence
     + ecalDigisValidationSequence
+    + ecalTPsValidationSequence
     + ecalRecHitsValidationSequence
     + ecalClustersValidationSequence
 )
@@ -169,6 +172,7 @@ globalValidationECAL = cms.Sequence(
 globalValidationECALOnly = cms.Sequence(
       ecalSimHitsValidationSequence
     + ecalDigisValidationSequence
+    + ecalTPsValidationSequence
     + ecalRecHitsValidationSequence
     + pfClusterCaloOnlyValidationSequence
 )
@@ -177,6 +181,8 @@ phase2_ecal_devel.toReplaceWith(ecalSimHitsValidationSequence, ecalSimHitsValida
 phase2_ecal_devel.toReplaceWith(ecalDigisValidationSequence, ecalDigisValidationSequencePhase2)
 phase2_ecal_devel.toReplaceWith(ecalRecHitsValidationSequence, ecalRecHitsValidationSequencePhase2)
 phase2_ecal_devel.toReplaceWith(pfClusterCaloOnlyValidationSequence, ecalClustersValidationSequence)
+from Configuration.Eras.Modifier_phase2_ecalTP_devel_cff import phase2_ecalTP_devel
+phase2_ecalTP_devel.toReplaceWith(ecalTPsValidationSequence, ecalTPsValidationSequencePhase2)
 
 # HCAL local reconstruction
 globalPrevalidationHCAL = cms.Sequence()
