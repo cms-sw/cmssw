@@ -87,17 +87,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                    ? value + maxDepthHB * hcal::reconstruction::mahi::IPHI_MAX * (did.ieta() - firstHBRing)
                    : value + maxDepthHB * hcal::reconstruction::mahi::IPHI_MAX * (did.ieta() + lastHBRing + nEtaHB);
       }
-      ALPAKA_FN_ACC ALPAKA_FN_INLINE uint32_t did2linearIndexHE(uint32_t const didraw,
-                                                                int const maxDepthHE,
-                                                                int const maxPhiHE,
-                                                                int const firstHERing,
-                                                                int const lastHERing,
-                                                                int const nEtaHE) {
-        HcalDetId did{didraw};
-        uint32_t const value = (did.depth() - 1) + maxDepthHE * (did.iphi() - 1);
-        return did.ieta() > 0 ? value + maxDepthHE * maxPhiHE * (did.ieta() - firstHERing)
-                              : value + maxDepthHE * maxPhiHE * (did.ieta() + lastHERing + nEtaHE);
-      }
       ALPAKA_FN_ACC ALPAKA_FN_INLINE uint32_t get_qiecoder_index(uint32_t const capid, uint32_t const range) {
         return capid * 4 + range;
       }
@@ -334,7 +323,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     ? f01HEDigis[gch].ids()
                                     : (gch < nchannelsf015 ? f5HBDigis.ids()[gch - f01HEDigis.size()]
                                                            : f3HBDigis.ids()[gch - nchannelsf015]);
-                auto const did = HcalDetId{id};
 
                 auto const adc =
                     gch < f01HEDigis.size()
@@ -352,15 +340,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 // compute hash for this did
                 // hash needed to convert condition arrays order (based on Topo) into digi arrays order(based on FED)
                 auto const hashedId =
-                    did.subdetId() == HcalBarrel
-                        ? did2linearIndexHB(id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB())
-                        : did2linearIndexHE(id,
-                                            mahi.maxDepthHE(),
-                                            mahi.maxPhiHE(),
-                                            mahi.firstHERing(),
-                                            mahi.lastHERing(),
-                                            mahi.nEtaHE()) +
-                              mahi.offsetForHashes();
+                    did2linearIndexHB(id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB());
 
                 // conditions based on the hash
                 auto const qieType = mahi[hashedId].qieTypes_values() > 0 ? 1 : 0;  // 2 types at this point
@@ -413,7 +393,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     ? f01HEDigis[gch].ids()
                                     : (gch < nchannelsf015 ? f5HBDigis.ids()[gch - f01HEDigis.size()]
                                                            : f3HBDigis.ids()[gch - nchannelsf015]);
-                auto const did = HcalDetId{id};
 
                 auto const adc =
                     gch < f01HEDigis.size()
@@ -431,15 +410,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 // compute hash for this did
                 // hash needed to convert condition arrays order (based on Topo) into digi arrays order(based on FED)
                 auto const hashedId =
-                    did.subdetId() == HcalBarrel
-                        ? did2linearIndexHB(id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB())
-                        : did2linearIndexHE(id,
-                                            mahi.maxDepthHE(),
-                                            mahi.maxPhiHE(),
-                                            mahi.firstHERing(),
-                                            mahi.lastHERing(),
-                                            mahi.nEtaHE()) +
-                              mahi.offsetForHashes();
+                    did2linearIndexHB(id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB());
 
                 // conditions based on the hash
                 auto const qieType = mahi[hashedId].qieTypes_values() > 0 ? 1 : 0;  // 2 types at this point
@@ -681,18 +652,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
 #ifdef HCAL_MAHI_GPUDEBUG
-                  auto const did = HcalDetId{id};
                   auto const hashedId =
-                      did.subdetId() == HcalBarrel
-                          ? did2linearIndexHB(
-                                id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB())
-                          : did2linearIndexHE(id,
-                                              mahi.maxDepthHE(),
-                                              mahi.maxPhiHE(),
-                                              mahi.firstHERing(),
-                                              mahi.lastHERing(),
-                                              mahi.nEtaHE()) +
-                                mahi.offsetForHashes();
+                      did2linearIndexHB(id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB());
 
                   auto const recoParam1 = recoParamsWithPS.recoParamView().param1()[hashedId];
                   auto const recoParam2 = recoParamsWithPS.recoParamView().param2()[hashedId];
@@ -794,17 +755,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
                 // compute hash for this did
                 // hash needed to convert condition arrays order (based on Topo) into digi arrays order(based on FED)
-                auto const did = DetId{id};
                 auto const hashedId =
-                    did.subdetId() == HcalBarrel
-                        ? did2linearIndexHB(id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB())
-                        : did2linearIndexHE(id,
-                                            mahi.maxDepthHE(),
-                                            mahi.maxPhiHE(),
-                                            mahi.firstHERing(),
-                                            mahi.lastHERing(),
-                                            mahi.nEtaHE()) +
-                              mahi.offsetForHashes();
+                    did2linearIndexHB(id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB());
                 auto const pulseShape = recoParamsWithPS.getPulseShape(hashedId);
 
                 // offset output arrays
@@ -1014,17 +966,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               auto const id = gch < f01HEDigis.size() ? f01HEDigis[gch].ids()
                                                       : (gch < nchannelsf015 ? f5HBDigis.ids()[gch - f01HEDigis.size()]
                                                                              : f3HBDigis.ids()[gch - nchannelsf015]);
-              auto const did = DetId{id};
               auto const hashedId =
-                  did.subdetId() == HcalBarrel
-                      ? did2linearIndexHB(id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB())
-                      : did2linearIndexHE(id,
-                                          mahi.maxDepthHE(),
-                                          mahi.maxPhiHE(),
-                                          mahi.firstHERing(),
-                                          mahi.lastHERing(),
-                                          mahi.nEtaHE()) +
-                            mahi.offsetForHashes();
+                  did2linearIndexHB(id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB());
 
               // conditions based on the hash
               auto const* pedestalWidthsForChannel =
