@@ -154,28 +154,22 @@ namespace edm {
       }
     }
 
-    void EventSetupRecordProvider::initializeForNewIOV(unsigned int iovIndex,
-                                                       unsigned long long cacheIdentifier,
-                                                       ValidityInterval const& validityInterval,
-                                                       EventSetupImpl& eventSetupImpl) {
+    EventSetupRecordImpl const& EventSetupRecordProvider::initializeForNewIOV(
+        unsigned int iovIndex, unsigned long long cacheIdentifier, ValidityInterval const& validityInterval) {
       EventSetupRecordImpl& impl = recordImpls_[iovIndex];
       impl.initializeForNewIOV(cacheIdentifier, validityInterval);
-      eventSetupImpl.addRecordImpl(impl);
+      return impl;
     }
 
-    void EventSetupRecordProvider::continueIOV(unsigned int iovIndex,
-                                               edm::ValidityInterval const* validityInterval,
-                                               EventSetupImpl* eventSetupImpl) {
-      if (iovIndex < recordImpls_.size()) {
-        auto const& recordImpl = recordImpls_[iovIndex];
+    EventSetupRecordImpl const& EventSetupRecordProvider::continueIOV(unsigned int iovIndex,
+                                                                      edm::ValidityInterval const* validityInterval) {
+      assert(iovIndex < recordImpls_.size());
+      auto const& recordImpl = recordImpls_[iovIndex];
 
-        if (validityInterval) {
-          recordImpl.setSafely(*validityInterval);
-        }
-        if (eventSetupImpl) {
-          eventSetupImpl->addRecordImpl(recordImpl);
-        }
+      if (validityInterval) {
+        recordImpl.setSafely(*validityInterval);
       }
+      return recordImpl;
     }
 
     void EventSetupRecordProvider::endIOV(unsigned int iovIndex) { recordImpls_[iovIndex].invalidateResolvers(); }

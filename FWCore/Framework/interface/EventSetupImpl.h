@@ -44,7 +44,6 @@ namespace edm {
   namespace eventsetup {
     class EventSetupProvider;
     class EventSetupRecordImpl;
-    class EventSetupRecordProvider;
   }  // namespace eventsetup
 
   class EventSetupImpl {
@@ -75,13 +74,11 @@ namespace edm {
 
     ///Only EventSetupProvider allowed to create an EventSetupImpl
     friend class eventsetup::EventSetupProvider;
-    friend class eventsetup::EventSetupRecordProvider;
     friend class ::testEventsetup;
     friend class ::testEventsetupRecord;
     friend class ProcessBlockTransitionInfo;
     friend EventSetupImpl makeEmptyEventSetupImplForTest();
 
-  protected:
     void addRecordImpl(const eventsetup::EventSetupRecordImpl& iRecord);
 
   private:

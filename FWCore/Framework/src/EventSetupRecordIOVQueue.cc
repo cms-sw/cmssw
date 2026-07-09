@@ -9,6 +9,7 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordIOVQueue.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
+#include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -117,8 +118,8 @@ namespace edm {
       if (intervalStatus_ == IntervalStatus::UpdateIntervalEnd) {
         validityInterval = &validityInterval_;
       }
-      edm::EventSetupImpl* esImpl = &eventSetupImpl;
-      recordProvider_->continueIOV(lastUsedIovIndex_, validityInterval, esImpl);
+      auto const& recordImpl = recordProvider_->continueIOV(lastUsedIovIndex_, validityInterval);
+      eventSetupImpl.addRecordImpl(recordImpl);
     }
 
     void EventSetupRecordIOVQueue::startNewIOVAsync(WaitingTaskHolder const& taskToStartAfterIOVInit,
@@ -131,44 +132,45 @@ namespace edm {
         WaitingTaskHolder tmp{std::move(endIOVTaskHolder_)};
       }
       auto taskHolder = std::make_shared<WaitingTaskHolder>(taskToStartAfterIOVInit);
-      auto startIOVForRecord =
-          [this, taskHolder, &endIOVWaitingTasks, &eventSetupImpl](edm::LimitedTaskQueue::Resumer iResumer) mutable {
-            // Caught exception is propagated via WaitingTaskHolder
-            CMS_SA_ALLOW try {
-              unsigned int iovIndex = 0;
-              auto nConcurrentIOVs = isAvailable_.size();
-              for (; iovIndex < nConcurrentIOVs; ++iovIndex) {
-                bool expected = true;
-                if (isAvailable_[iovIndex].compare_exchange_strong(expected, false)) {
-                  break;
-                }
-              }
-              // Should never fail, just a sanity check
-              if (iovIndex == nConcurrentIOVs) {
-                throw edm::Exception(edm::errors::LogicError)
-                    << "EventSetupRecordIOVQueue::startNewIOVAsync\n"
-                    << "Couldn't find available IOV slot. This should never happen.\n"
-                    << "Contact a Framework Developer\n";
-              }
-              lastUsedIovIndex_ = iovIndex;
-              recordProvider_->initializeForNewIOV(iovIndex, cacheIdentifier_, validityInterval_, eventSetupImpl);
-
-              auto endIOVWaitingTask = make_waiting_task([this, iResumer, iovIndex](std::exception_ptr const*) mutable {
-                recordProvider_->endIOV(iovIndex);
-                isAvailable_[iovIndex].store(true);
-                iResumer.resume();
-                endIOVTasks_.doneWaiting(std::exception_ptr());
-                // There is nothing in this task to catch an exception
-                // because it is extremely unlikely to throw.
-              });
-              endIOVTaskHolder_ = WaitingTaskHolder{*taskHolder->group(), endIOVWaitingTask};
-              endIOVWaitingTasks.add(endIOVTaskHolder_);
-            } catch (...) {
-              taskHolder->doneWaiting(std::current_exception());
-              return;
+      auto startIOVForRecord = [this, taskHolder, &endIOVWaitingTasks, &eventSetupImpl](
+                                   edm::LimitedTaskQueue::Resumer iResumer) mutable {
+        // Caught exception is propagated via WaitingTaskHolder
+        CMS_SA_ALLOW try {
+          unsigned int iovIndex = 0;
+          auto nConcurrentIOVs = isAvailable_.size();
+          for (; iovIndex < nConcurrentIOVs; ++iovIndex) {
+            bool expected = true;
+            if (isAvailable_[iovIndex].compare_exchange_strong(expected, false)) {
+              break;
             }
-            taskHolder->doneWaiting(std::exception_ptr{});
-          };
+          }
+          // Should never fail, just a sanity check
+          if (iovIndex == nConcurrentIOVs) {
+            throw edm::Exception(edm::errors::LogicError)
+                << "EventSetupRecordIOVQueue::startNewIOVAsync\n"
+                << "Couldn't find available IOV slot. This should never happen.\n"
+                << "Contact a Framework Developer\n";
+          }
+          lastUsedIovIndex_ = iovIndex;
+          auto const& recordImpl = recordProvider_->initializeForNewIOV(iovIndex, cacheIdentifier_, validityInterval_);
+          eventSetupImpl.addRecordImpl(recordImpl);
+
+          auto endIOVWaitingTask = make_waiting_task([this, iResumer, iovIndex](std::exception_ptr const*) mutable {
+            recordProvider_->endIOV(iovIndex);
+            isAvailable_[iovIndex].store(true);
+            iResumer.resume();
+            endIOVTasks_.doneWaiting(std::exception_ptr());
+            // There is nothing in this task to catch an exception
+            // because it is extremely unlikely to throw.
+          });
+          endIOVTaskHolder_ = WaitingTaskHolder{*taskHolder->group(), endIOVWaitingTask};
+          endIOVWaitingTasks.add(endIOVTaskHolder_);
+        } catch (...) {
+          taskHolder->doneWaiting(std::current_exception());
+          return;
+        }
+        taskHolder->doneWaiting(std::exception_ptr{});
+      };
       iovQueue_.pushAndPause(*taskToStartAfterIOVInit.group(), std::move(startIOVForRecord));
     }
 

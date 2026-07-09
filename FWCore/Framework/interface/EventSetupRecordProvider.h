@@ -35,7 +35,6 @@
 // forward declarations
 namespace edm {
   class ActivityRegistry;
-  class EventSetupImpl;
   class EventSetupRecordIntervalFinder;
 
   namespace eventsetup {
@@ -43,7 +42,6 @@ namespace edm {
     class DataKey;
     class ESProductResolverProvider;
     class ESRecordsToProductResolverIndices;
-    class EventSetupProvider;
     class EventSetupRecordImpl;
 
     class EventSetupRecordProvider {
@@ -94,22 +92,18 @@ namespace edm {
       /** This function is called when an IOV is started up by the asynchronous task assigned to start IOVs.
        *  This is the point where we know the value of iovIndex, so we know which EventSetupRecordImpl
        *  object will be used. In the EventSetupRecordImpl we set the cacheIdentifier
-       *  and validity interval. We also set the pointer in the EventSetupImpl to the EventSetupRecordImpl here.
+       *  and validity interval.
        */
-      void initializeForNewIOV(unsigned int iovIndex,
-                               unsigned long long cacheIdentifier,
-                               ValidityInterval const& validityInterval,
-                               EventSetupImpl& eventSetupImpl);
+      EventSetupRecordImpl const& initializeForNewIOV(unsigned int iovIndex,
+                                                      unsigned long long cacheIdentifier,
+                                                      ValidityInterval const& validityInterval);
 
       /** This function is called when we do not need to start a new IOV for a record and syncValue.
-       *  If a new EventSetupImpl was created, then this will set its pointer to the EventSetupRecordImpl.
        *  This is also the place where the validity interval will be updated in the special case
        *  where the beginning of the interval did not change but the end changed so it is not treated
        *  as a new IOV.
        */
-      void continueIOV(unsigned int iovIndex,
-                       edm::ValidityInterval const* validityInterval,
-                       EventSetupImpl* eventSetupImpl);
+      EventSetupRecordImpl const& continueIOV(unsigned int iovIndex, edm::ValidityInterval const* validityInterval);
 
       /** The asynchronous task called when an IOV ends calls this function. It clears the caches
        *  of the ESProductResolver's.
