@@ -37,12 +37,6 @@ def customiseForOffline(process):
 
     return process
 
-def customizeHLTFor51053(process):
-    for module in producers_by_type(process, "MuonIdProducer"):
-        if not hasattr(module, "isPhase2"):
-            module.isPhase2 = cms.bool(False)
-
-    return process
 
 def replace_all_pixel_seed_inputtags(process):
     import FWCore.ParameterSet.Config as cms
@@ -215,6 +209,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
 
     # process = customizeHLTfor49436(process)
-    process = customizeHLTFor51053(process)
-
+    
     return process
