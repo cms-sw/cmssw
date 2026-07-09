@@ -2,44 +2,86 @@
 # exit on error
 set -e
 
-# ----- ARGUMENTS
+# ----- TEST CONFIGURATION
 
-TESTNAME="sipixel_query_logging"
-TEST_NR="1"
+CAMPAIGN="sipixel_query_logging"
 
-# TEST SETUP
-TESTFILE="${TESTNAME}_${TEST_NR}"
-     
-TESTDIR=/data/upload_test/alejandro/15_1_0_patch2_conddb_copy_logging_test/src/CondCore/Utilities/test/conddb_query_tests
-mkdir -p $TESTDIR
+# Simulated test metadata for now
+PAYLOAD_SIZE="10"
+PAYLOAD_NUMBER="5"
+TEST_EXECUTION="1"
 
-LOGFILE=$TESTDIR/${TESTFILE}_$(date +%Y-%m-%d-%Hh%Mm%S).log
+# Source and destination DBs
+SOURCE_DB="onlineorapro"
+
+# Base directory for all query logging tests
+BASE_TESTDIR="/data/upload_test/alejandro/15_1_0_patch2_conddb_copy_logging_test/src/CondCore/Utilities/test/conddb_query_tests"
+
+# Timestamp for this test campaign execution
+RUN_TIME="$(date +%Y-%m-%d-%Hh%Mm%S)"
+
+# Directory for this campaign execution
+TESTDIR="${BASE_TESTDIR}/${CAMPAIGN}_${RUN_TIME}"
+mkdir -p "$TESTDIR"
+
+# Test file name used for the log and DB
+TESTFILE="${CAMPAIGN}_s${PAYLOAD_SIZE}_n${PAYLOAD_NUMBER}_t${TEST_EXECUTION}_${RUN_TIME}"
+
+LOGFILE="${TESTDIR}/${TESTFILE}.log"
 DEST_DB="sqlite_file:${TESTDIR}/${TESTFILE}.db"
 
-#if exists ask if it should be removed
-if [ -f $TESTDIR/${TESTFILE}.db ]; then
-    read -p "File ${TESTDIR}/${TESTFILE}.db already exists. Do you want to remove it? (y/n) " -n 1 -r
-    echo    # move to a new line
+# Final consolidated CSV for all logs in this campaign directory
+CSVFILE="${TESTDIR}/${CAMPAIGN}_${RUN_TIME}_query_log.csv"
+
+# Parser location
+PARSER="${BASE_TESTDIR}/parser_query_logging.py"
+
+# ----- SETUP CHECKS
+
+if [ ! -f "$PARSER" ]; then
+    echo "ERROR: Parser file does not exist: $PARSER"
+    exit 1
+fi
+
+# If destination DB exists, ask if it should be removed
+DB_FILE="${TESTDIR}/${TESTFILE}.db"
+
+if [ -f "$DB_FILE" ]; then
+    read -p "File ${DB_FILE} already exists. Do you want to remove it? (y/n) " -n 1 -r
+    echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        rm $TESTDIR/${TESTFILE}.db
-        echo "File ${TESTDIR}/${TESTFILE}.db removed." | tee -a $LOGFILE
+        rm "$DB_FILE"
+        echo "File ${DB_FILE} removed." | tee -a "$LOGFILE"
     else
-        echo "File ${TESTDIR}/${TESTFILE}.db exists and was not removed." | tee -a $LOGFILE
+        echo "File ${DB_FILE} exists and was not removed." | tee -a "$LOGFILE"
     fi
 fi
 
-# ------- EXECUTION
-echo "writing to log file: $LOGFILE"
+# ----- EXECUTION
 
-{ time 
-conddb -v -a ~/ --yes --db onlineorapro copy SiPixelQuality_phase1_2021_v1 --destdb $DEST_DB;
- } 2>&1 | tee -a $LOGFILE
+echo "Campaign: $CAMPAIGN"
+echo "Payload size: $PAYLOAD_SIZE"
+echo "Payload number: $PAYLOAD_NUMBER"
+echo "Test execution: $TEST_EXECUTION"
+echo "Source DB: $SOURCE_DB"
+echo "Destination DB: $DEST_DB"
+echo "Writing to log file: $LOGFILE"
 
-echo "wrote to log file: $LOGFILE"
+{
+    time conddb -v -a ~/ --yes \
+        --db "$SOURCE_DB" \
+        copy SiPixelQuality_phase1_2021_v1 \
+        --destdb "$DEST_DB"
+} 2>&1 | tee -a "$LOGFILE"
 
-CSVFILE="${LOGFILE%.log}_query_log.csv"
+echo "Wrote log file: $LOGFILE"
 
-python3 $TESTDIR/parser_query_logging.py "$LOGFILE" -o "$CSVFILE"
+# ----- PARSE ALL LOGS IN THIS TEST DIRECTORY
 
-echo "wrote QUERY_LOG CSV file: $CSVFILE"
+python3 "$PARSER" "$TESTDIR" \
+    -o "$CSVFILE" \
+    --source "$SOURCE_DB" \
+    --destination "$DEST_DB"
+
+echo "Wrote consolidated QUERY_LOG CSV file: $CSVFILE"
 ls -lh "$CSVFILE"

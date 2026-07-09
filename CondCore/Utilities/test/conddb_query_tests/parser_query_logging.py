@@ -18,6 +18,14 @@ HEADER = [
     "num_iovs",
     "query_type",
     "statement",
+    "campaign",
+    "payload_size",
+    "payload_number",
+    "test_execution",
+    "test_time",
+    "source",
+    "destination",
+    "log_file",
 ]
 
 
@@ -25,6 +33,42 @@ LOG_START_RE = re.compile(
     r"^(?:\[(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3})\]\s+)?"
     r"(?P<level>\w+):\s+\[QUERY_LOG\]\s*(?P<body>.*)$"
 )
+
+LOG_FILE_RE = re.compile(
+    r"^(?P<campaign>.+)_s(?P<payload_size>\d+)_n(?P<payload_number>\d+)_t(?P<test_execution>\d+)_(?P<test_time>\d{4}-\d{2}-\d{2}-\d{2}h\d{2}m\d{2})$"
+)
+
+def parse_log_file_metadata(log_path: Path) -> dict:
+    """
+    Extract metadata from filenames like:
+
+        test1_s10_n5_t2_2026-07-09-19h39m48.log
+
+    Result:
+        campaign       = test1
+        payload_size   = 10
+        payload_number = 5
+        test_execution = 2
+        test_time      = 2026-07-09-19h39m48
+    """
+    match = LOG_FILE_RE.match(log_path.stem)
+
+    if not match:
+        raise ValueError(
+            f"Log filename does not match expected format: {log_path.name}\n"
+            "Expected format: <campaign>_s<size>_n<number>_t<execution>_<YYYY-MM-DD-HHhMMmSS>.log\n"
+            "Example: test1_s10_n5_t2_2026-07-09-19h39m48.log"
+        )
+
+    metadata = match.groupdict()
+
+    return {
+        "campaign": metadata["campaign"],
+        "payload_size": metadata["payload_size"],
+        "payload_number": metadata["payload_number"],
+        "test_execution": metadata["test_execution"],
+        "test_time": metadata["test_time"],
+    }
 
 
 def get_value(body: str, key: str, default: str = "none") -> str:
@@ -280,6 +324,8 @@ def parse_query_log(log_path: Path) -> list[dict]:
 
 
 def write_csv(rows: list[dict], csv_path: Path) -> None:
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+
     with csv_path.open("w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=HEADER)
         writer.writeheader()
@@ -288,32 +334,90 @@ def write_csv(rows: list[dict], csv_path: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Parse conddb QUERY_LOG lines into one-row-per-query CSV."
+        description="Parse multiple conddb QUERY_LOG files into one consolidated CSV."
     )
-    parser.add_argument("logfile", help="Path to the .log file")
+
+    parser.add_argument(
+        "input_dir",
+        help="Directory containing .log files",
+    )
+
     parser.add_argument(
         "-o",
         "--output",
-        help="Output CSV path. Defaults to <logfile>_query_log.csv",
+        required=True,
+        help="Output consolidated CSV path",
+    )
+
+    parser.add_argument(
+        "--source",
+        required=True,
+        help="Source database label to append to each row",
+    )
+
+    parser.add_argument(
+        "--destination",
+        required=True,
+        help="Destination database label to append to each row",
+    )
+
+    parser.add_argument(
+        "--glob",
+        default="*.log",
+        help="Glob pattern for log files. Default: *.log",
+    )
+
+    parser.add_argument(
+        "--skip-bad-filenames",
+        action="store_true",
+        help="Skip log files whose names do not match the expected metadata format.",
     )
 
     args = parser.parse_args()
 
-    log_path = Path(args.logfile)
+    input_dir = Path(args.input_dir)
+    csv_path = Path(args.output)
 
-    if not log_path.exists():
-        raise FileNotFoundError(f"Log file does not exist: {log_path}")
+    if not input_dir.exists():
+        raise FileNotFoundError(f"Input directory does not exist: {input_dir}")
 
-    if args.output:
-        csv_path = Path(args.output)
-    else:
-        csv_path = log_path.with_name(log_path.stem + "_query_log.csv")
+    if not input_dir.is_dir():
+        raise NotADirectoryError(f"Input path is not a directory: {input_dir}")
 
-    rows = parse_query_log(log_path)
-    write_csv(rows, csv_path)
+    log_files = sorted(input_dir.glob(args.glob))
 
-    print(f"Parsed {len(rows)} QUERY_LOG row(s)")
-    print(f"Wrote CSV file: {csv_path}")
+    if not log_files:
+        raise FileNotFoundError(
+            f"No log files found in {input_dir} matching pattern {args.glob}"
+        )
+
+    all_rows = []
+
+    for log_path in log_files:
+        try:
+            file_metadata = parse_log_file_metadata(log_path)
+        except ValueError as error:
+            if args.skip_bad_filenames:
+                print(f"Skipping {log_path.name}: {error}")
+                continue
+            raise
+
+        rows = parse_query_log(log_path)
+
+        for row in rows:
+            row.update(file_metadata)
+            row["source"] = args.source
+            row["destination"] = args.destination
+            row["log_file"] = log_path.name
+
+        all_rows.extend(rows)
+
+        print(f"Parsed {len(rows)} QUERY_LOG row(s) from {log_path.name}")
+
+    write_csv(all_rows, csv_path)
+
+    print(f"Parsed {len(all_rows)} total QUERY_LOG row(s)")
+    print(f"Wrote consolidated CSV file: {csv_path}")
 
 
 if __name__ == "__main__":
