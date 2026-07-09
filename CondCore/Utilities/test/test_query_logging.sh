@@ -13,7 +13,7 @@ TESTFILE="${TESTNAME}_${TEST_NR}"
 TESTDIR=/data/upload_test/alejandro/15_1_0_patch2_conddb_copy_logging_test/src/CondCore/Utilities/test/conddb_query_tests
 mkdir -p $TESTDIR
 
-LOGFILE=$TESTDIR/${TESTFILE}_$(date +%Y-%m-%d_%Hh%Mm%S).log
+LOGFILE=$TESTDIR/${TESTFILE}_$(date +%Y-%m-%d-%Hh%Mm%S).log
 DEST_DB="sqlite_file:${TESTDIR}/${TESTFILE}.db"
 
 #if exists ask if it should be removed
@@ -39,7 +39,7 @@ echo "wrote to log file: $LOGFILE"
 
 CSVFILE="${LOGFILE%.log}_query_log.csv"
 
-python3 $TESTDIR/test_query_logging.py "$LOGFILE" -o "$CSVFILE"
+python3 $TESTDIR/parser_query_logging.py "$LOGFILE" -o "$CSVFILE"
 
 echo "wrote QUERY_LOG CSV file: $CSVFILE"
 ls -lh "$CSVFILE"
