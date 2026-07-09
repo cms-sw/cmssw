@@ -1,4 +1,4 @@
-<use name="FWCore/ServiceRegistry"/>
+<use name="PerfTools/ProfilerService"/>
 <use name="HeterogeneousCore/ROCmUtilities" source_only="true"/>
 <export>
   <lib name="1"/>

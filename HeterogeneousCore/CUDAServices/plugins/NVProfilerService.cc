@@ -18,7 +18,7 @@
 
 #include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 
-#include "FWCore/Services/interface/ProfilerService.h"
+#include "PerfTools/ProfilerService/interface/ProfilerService.h"
 
 namespace {
   /**
