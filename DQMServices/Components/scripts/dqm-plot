@@ -732,11 +732,17 @@ class DQMPlotter:
                 obj_name = key.GetName()
                 obj_path = f"{current_path}/{obj_name}" if current_path else obj_name
 
-                obj = key.ReadObj()
-                if obj.InheritsFrom("TDirectory"):
-                    hist_paths.extend(traverse_directory(obj, obj_path))
+                # Decide what to do from the class name stored in the key, without
+                # deserializing the object. Only directories are read (to recurse);
+                # matching histogram paths are collected without ever reading the
+                # (potentially large) histograms, since only their paths are needed.
+                cls = ROOT.TClass.GetClass(key.GetClassName())
+                if cls is None:
+                    continue
+                if cls.InheritsFrom("TDirectory"):
+                    hist_paths.extend(traverse_directory(key.ReadObj(), obj_path))
                 # Skip 2D histograms
-                elif obj.InheritsFrom("TH1") and not obj.InheritsFrom("TH2"):
+                elif cls.InheritsFrom("TH1") and not cls.InheritsFrom("TH2"):
                     for pat in compiled:
                         if pat.search(obj_path):
                             hist_paths.append((obj_path, pat.pattern))
