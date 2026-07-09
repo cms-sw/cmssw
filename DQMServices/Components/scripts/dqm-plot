@@ -18,6 +18,7 @@ import re
 import random
 import string
 import multiprocessing
+import atexit
 from functools import partial
 import warnings
 import urllib.request
@@ -33,6 +34,35 @@ plt.style.use(hep.style.CMS)
 
 # Use matplotlib's mathtext
 plt.rcParams["mathtext.default"] = "regular"
+
+
+# Per-process cache of open ROOT files. A worker process handles many plot
+# tasks, so caching the open TFile keeps each input file opened at most once
+# per process instead of once per histogram. Histograms handed back to callers
+# are detached clones (SetDirectory(0)), so the cached files can stay open.
+_OPEN_ROOT_FILES = {}
+
+
+def _get_cached_root_file(file_path):
+    """Return an open TFile for file_path, reusing a cached handle if present."""
+    root_file = _OPEN_ROOT_FILES.get(file_path)
+    if not root_file or root_file.IsZombie() or not root_file.IsOpen():
+        root_file = ROOT.TFile.Open(file_path, "READ")
+        _OPEN_ROOT_FILES[file_path] = root_file
+    return root_file
+
+
+@atexit.register
+def _close_cached_root_files():
+    """Close any ROOT files cached in this process on interpreter shutdown."""
+    for root_file in _OPEN_ROOT_FILES.values():
+        try:
+            if root_file and root_file.IsOpen():
+                root_file.Close()
+        except Exception:
+            pass
+    _OPEN_ROOT_FILES.clear()
+
 
 class DQMPlotter:
     def __init__(self, figsize=(12, 9), ratio_height=0.3, processors=None, debug=False):
@@ -496,15 +526,14 @@ class DQMPlotter:
         ROOT histogram clone, or None if not found.
         """
         try:
-            root_file = ROOT.TFile.Open(file_path, 'READ')
+            root_file = _get_cached_root_file(file_path)
             if not root_file or root_file.IsZombie():
                 print(f'Warning: Could not open {file_path}.')
                 return None
-     
+
             hist = root_file.Get(hist_path)
 
             if not hist:
-                root_file.Close()
                 # A histogram can legitimately be absent from a file (e.g. a
                 # collection present in only some inputs). Missing histograms are
                 # summarised once per file in compare_files, so only note each one
@@ -512,12 +541,10 @@ class DQMPlotter:
                 if self.debug:
                     print(f'Warning: Could not find {hist_path}.')
                 return None
-     
+
             hist_clone = hist.Clone()
             hist_clone.SetDirectory(0)
-     
-            root_file.Close()
-     
+
             return hist_clone
 
         except Exception as e:
