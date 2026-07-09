@@ -1,7 +1,7 @@
 #ifndef __FWCore_Services_ProfilerService_h__
 #define __FWCore_Services_ProfilerService_h__
 
-#include "FWCore/Services/interface/ProfilerServiceBase.h"
+#include "PerfTools/ProfilerService/interface/ProfilerServiceBase.h"
 
 #include <atomic>
 #include <iostream>

@@ -15,7 +15,7 @@
 
 #include "HeterogeneousCore/ROCmServices/interface/ROCmInterface.h"
 
-#include "FWCore/Services/interface/ProfilerService.h"
+#include "PerfTools/ProfilerService/interface/ProfilerService.h"
 
 namespace {
   /**
