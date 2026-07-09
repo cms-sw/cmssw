@@ -1302,6 +1302,8 @@ class DQMPlotter:
             for job_index, job in enumerate(overlay_groups):
                 job_patterns = job["patterns"]
                 file_patterns = job["file_patterns"]
+                job_legend = job.get("legend")
+                job_legend_title = job.get("legend_title")
 
                 # Per-job output folder, kept unique across jobs.
                 job_folder = self._overlay_job_folder(job_patterns) or f"overlay{job_index + 1}"
@@ -1331,21 +1333,33 @@ class DQMPlotter:
                     )
 
                     # Build the overlaid series in file-major order: for each file,
-                    # take the collections assigned to it in command-line order.
+                    # take the collections assigned to it in command-line order. A
+                    # custom --overlay-legend maps to these (file, collection) slots
+                    # in the same order.
                     series_files, series_paths, series_labels = [], [], []
+                    slot = 0
                     for file_idx in range(len(file_paths)):
                         for pattern in file_patterns[file_idx]:
                             hist_path = pattern_to_path.get(pattern)
-                            if hist_path is None:
-                                continue
-                            collection = re.search(pattern, hist_path)
-                            collection_name = collection.group(0) if collection else pattern
-                            series_files.append(file_paths[file_idx])
-                            series_paths.append(hist_path)
-                            series_labels.append(f"{labels[file_idx]} - {collection_name}")
+                            if hist_path is not None:
+                                if job_legend is not None and slot < len(job_legend):
+                                    label = job_legend[slot]
+                                else:
+                                    collection = re.search(pattern, hist_path)
+                                    collection_name = collection.group(0) if collection else pattern
+                                    label = f"{labels[file_idx]} - {collection_name}"
+                                series_files.append(file_paths[file_idx])
+                                series_paths.append(hist_path)
+                                series_labels.append(label)
+                            slot += 1
 
                     if len(series_paths) < 2:
                         continue
+
+                    task_plot_kwargs = plot_kwargs
+                    if job_legend_title is not None:
+                        task_plot_kwargs = dict(plot_kwargs)
+                        task_plot_kwargs["legend_title"] = job_legend_title
 
                     plot_tasks.append({
                         "file_paths": series_files,
@@ -1353,7 +1367,7 @@ class DQMPlotter:
                         "labels": series_labels,
                         "colors": self.colors,
                         "output_path": output_path,
-                        "plot_kwargs": plot_kwargs,
+                        "plot_kwargs": task_plot_kwargs,
                         "is_overlay": True,
                     })
 
@@ -1773,9 +1787,27 @@ if __name__ == "__main__":
     parser.add_argument(
         "--overlay",
         action="append",
-        help="Overlay histograms from different collections. Specify colon-separated patterns."
-        "(e.g., 'hltPhase2PixelTracks:hltPhase2PixelTracksCAExtension')."
-        "Can be used multiple times for different overlay groups.",
+        help="Overlay histograms from different collections into one plot. Each "
+        "--overlay is one overlay job written to its own plots/overlay/<name>/ "
+        "folder, and is a colon-separated list of 'collections[@file]' specs: "
+        "comma-separated collection patterns, each optionally bound to a 1-based "
+        "file index (or '*'/omitted for all files). "
+        "'--overlay collA:collB' overlays both collections from every file; "
+        "'--overlay collA@1:collB@2' overlays collA from file 1 with collB from "
+        "file 2. Can be used multiple times for several overlay jobs.",
+    )
+    parser.add_argument(
+        "--overlay-legend",
+        action="append",
+        help="Comma-separated legend labels for an --overlay job, in file-major "
+        "order (file 1 collections first, then file 2, ...). Pair one "
+        "--overlay-legend with each --overlay, in the same order.",
+    )
+    parser.add_argument(
+        "--overlay-legend-title",
+        action="append",
+        help="Legend title for an --overlay job's plots. Pair one "
+        "--overlay-legend-title with each --overlay, in the same order.",
     )
     parser.add_argument(
         "--no-overlay-individual",
@@ -1876,6 +1908,26 @@ if __name__ == "__main__":
     overlay_groups = (
         plotter._parse_overlay_groups(args.overlay, len(args.files)) if args.overlay else None
     )
+
+    if (args.overlay_legend or args.overlay_legend_title) and not overlay_groups:
+        parser.error("--overlay-legend/--overlay-legend-title require --overlay")
+
+    # Attach per-job legend labels and titles, paired with --overlay by order.
+    overlay_legends = args.overlay_legend or []
+    overlay_titles = args.overlay_legend_title or []
+    for job_index, job in enumerate(overlay_groups or []):
+        if job_index < len(overlay_legends) and overlay_legends[job_index] is not None:
+            labels = [entry.strip() for entry in overlay_legends[job_index].split(",")]
+            expected = sum(len(patterns) for patterns in job["file_patterns"])
+            if len(labels) != expected:
+                parser.error(
+                    f"--overlay-legend #{job_index + 1} has {len(labels)} labels but its "
+                    f"overlay job produces {expected} series"
+                )
+            job["legend"] = labels
+        if job_index < len(overlay_titles) and overlay_titles[job_index] is not None:
+            job["legend_title"] = overlay_titles[job_index]
+
     plotter.compare_files(
         file_paths=args.files,
         hist_pattern=source_patterns,
