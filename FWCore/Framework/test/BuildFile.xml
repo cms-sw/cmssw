@@ -1,5 +1,5 @@
 <use name="boost"/>
-<library file="DummyData.cc,DummyRecord.cc,DepRecord.cc,Dummy2Record.cc,DepOn2Record.cc" name="FWCoreFrameworkTestDummyForEventSetup">
+<library file="DummyData.cc,DummyRecord.cc,DepRecord.cc,DepOnDepRecord.cc,Dummy2Record.cc,DepOn2Record.cc" name="FWCoreFrameworkTestDummyForEventSetup">
   <use name="FWCore/Framework"/>
 </library>
 
