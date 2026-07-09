@@ -100,7 +100,7 @@ def install_query_timer(engine, label="db"):
         stats["total_query_time"] += total
 
         query_logger.debug(
-            "event=query_complete role=%s total_time=%.6fs",
+            "event=query_complete role=%s total_time=%.6f",
             label,
             total,
         )
@@ -1712,6 +1712,11 @@ def _update_tag_log(session,the_tag,the_timestamp,the_action,note):
 
 
 def _copy_payload(args, copyTime, session1, session2, payloadHash, payloadSerializationVersionMap=None):
+    query_logger.debug(
+        "event=copy_payload_start payload=%s",
+        payloadHash
+    )
+
     function_start = time.perf_counter()
 
     Payload1 = session1.get_dbtype(conddb.Payload)
@@ -1760,12 +1765,17 @@ def _copy_payload(args, copyTime, session1, session2, payloadHash, payloadSerial
         total_time = time.perf_counter() - function_start
 
         query_logger.debug(
-            "event=copy_payload payload=%s total_time=%.6fs",
+            "event=copy_payload payload=%s total_time=%.6f",
             payloadHash,
             total_time
         )
 
 def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, toIOV=None, timeMap=None):
+    query_logger.debug(
+        "event=copy_tag_start tag=%s",
+        str_db_object(args.db, first)
+        
+    )
     function_start = time.perf_counter()
     
     ret = True
@@ -2057,7 +2067,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
         total_time = time.perf_counter() - function_start
 
         query_logger.debug(
-            "event=copy_tag tag=%s total_time=%.6fs, num_payloads=%d, num_iovs=%d",
+            "event=copy_tag tag=%s total_time=%.6f, num_payloads=%d, num_iovs=%d",
             str_db_object(args.db, first),
             total_time,
             np,
@@ -2065,6 +2075,8 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
         )
 
 def copy(args):
+    function_start = time.perf_counter()
+
     try:
         _check_same_object(args)
 
@@ -2177,24 +2189,12 @@ def copy(args):
             session2.commit()
 
     finally:
+        total_time = time.perf_counter() - function_start
 
         query_logger.debug(
-            "event=query_session_summary role=%s operation=%s query_count=%d total_time=%.6fs",
-            "source",
-            "copy",
-            stats1["query_count"],
-            stats1["total_query_time"],
+            "event=copy total_time=%.6f",
+            total_time,
         )
-
-        query_logger.debug(
-            "event=query_session_summary role=%s operation=%s query_count=%d total_time=%.6fs",
-            "destination",
-            "copy",
-            stats2["query_count"],
-            stats2["total_query_time"],
-        )
-
-        return 0
 
 
 def edit(args):
