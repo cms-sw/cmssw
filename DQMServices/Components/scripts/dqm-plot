@@ -779,26 +779,74 @@ class DQMPlotter:
 
         return traverse_directory(root_file)
 
-    def _parse_overlay_groups(self, overlay_specs):
+    def _parse_overlay_groups(self, overlay_specs, n_files):
         """
-        Parse overlay specifications into groups.
+        Parse --overlay specifications into overlay jobs.
+
+        Each --overlay value is one job. A job is a colon-separated list of
+        specs; each spec is 'collections[@file]', where collections is a
+        comma-separated list of collection patterns and the optional @file
+        selector is a 1-based file index or '*' (all files, the default).
+
+        Backward compatible: '--overlay collA:collB' has no @ selectors, so
+        both collections are overlaid from every file, exactly as before.
+        The new form '--overlay collA,collB@1:collC@2' overlays collA and
+        collB from file 1 together with collC from file 2.
 
         Args:
-            overlay_specs: List of colon-separated pattern strings
+            overlay_specs: List of --overlay strings (one per --overlay flag)
+            n_files: Number of input files (to resolve/validate @file indices)
 
         Returns:
-            List of lists, where each inner list contains patterns to overlay
+            List of jobs. Each job is a dict with:
+              'patterns':      ordered list of unique collection patterns
+              'file_patterns': list (indexed by file) of the patterns to take
+                               from that file, in command-line order
         """
         if not overlay_specs:
             return []
 
-        groups = []
+        jobs = []
         for spec in overlay_specs:
-            patterns = [p.strip() for p in spec.split(":")]
-            if len(patterns) > 1:
-                groups.append(patterns)
+            patterns = []
+            file_patterns = [[] for _ in range(n_files)]
+            for chunk in spec.split(":"):
+                chunk = chunk.strip()
+                if not chunk:
+                    continue
+                collections, _, file_sel = chunk.partition("@")
+                file_sel = file_sel.strip()
+                collection_list = [c.strip() for c in collections.split(",") if c.strip()]
+                if not collection_list:
+                    continue
 
-        return groups
+                if file_sel in ("", "*"):
+                    targets = range(n_files)
+                else:
+                    try:
+                        idx = int(file_sel)
+                    except ValueError:
+                        raise ValueError(
+                            f"--overlay: invalid file selector '@{file_sel}' in '{spec}' "
+                            "(use a 1-based file index or '*')."
+                        )
+                    if not 1 <= idx <= n_files:
+                        raise ValueError(
+                            f"--overlay: file index {idx} in '{spec}' is out of range "
+                            f"(1..{n_files})."
+                        )
+                    targets = [idx - 1]
+
+                for collection in collection_list:
+                    if collection not in patterns:
+                        patterns.append(collection)
+                    for target in targets:
+                        file_patterns[target].append(collection)
+
+            if patterns:
+                jobs.append({"patterns": patterns, "file_patterns": file_patterns})
+
+        return jobs
 
     def _normalize_path_for_overlay(self, hist_path, overlay_patterns):
         """
@@ -820,70 +868,76 @@ class DQMPlotter:
 
         return None, None
 
-    def _group_histograms_by_overlay(self, all_hists, overlay_groups):
+    def _group_histograms_by_overlay(self, all_hists, job_patterns):
         """
-        Group histograms that should be overlaid together.
+        Group the histograms of one overlay job by their normalized path.
+
+        Patterns are tried longest-first so that a collection name which is a
+        prefix of another (e.g. 'hltFoo' vs 'hltFooBar') does not shadow the
+        more specific one, letting both end up in the same group.
 
         Args:
-            all_hists: Set of all histogram paths
-            overlay_groups: List of overlay pattern groups
+            all_hists: Set of all matched histogram paths
+            job_patterns: Collection patterns of a single overlay job
 
         Returns:
-            Dictionary mapping normalized paths to lists of (hist_path, pattern) tuples
+            (grouped, used) where grouped maps a normalized path to a
+            {pattern: hist_path} dict, keeping only groups that span at least
+            two collections; used is the set of histogram paths that ended up
+            in a kept group.
         """
+        ordered = sorted(job_patterns, key=len, reverse=True)
         grouped = {}
-        used_hists = set()
 
-        for overlay_patterns in overlay_groups:
-            # Find all histograms matching any pattern in this overlay group
-            for hist_path in all_hists:
-                normalized, matched_pattern = self._normalize_path_for_overlay(
-                    hist_path, overlay_patterns
-                )
+        for hist_path in all_hists:
+            normalized, matched_pattern = self._normalize_path_for_overlay(
+                hist_path, ordered
+            )
+            if normalized is None:
+                continue
+            grouped.setdefault(normalized, {}).setdefault(matched_pattern, hist_path)
 
-                if normalized:
-                    if normalized not in grouped:
-                        grouped[normalized] = []
-                    grouped[normalized].append((hist_path, matched_pattern))
-                    used_hists.add(hist_path)
-
-        # Filter groups to only include those with multiple histograms
+        # Keep only groups that overlay at least two different collections.
         filtered_groups = {
-            norm_path: hists 
-            for norm_path, hists in grouped.items() 
+            norm_path: hists
+            for norm_path, hists in grouped.items()
             if len(hists) > 1
         }
+        used_hists = {hp for hists in filtered_groups.values() for hp in hists.values()}
 
         return filtered_groups, used_hists
 
-    def _generate_overlay_output_path(self, normalized_path, matched_patterns, 
-                                     pattern, output_dir):
+    def _overlay_job_folder(self, job_patterns):
+        """Build a filesystem-safe folder name from an overlay job's patterns."""
+        names = []
+        for pat in job_patterns:
+            name = re.sub(r'[^a-zA-Z0-9_]', '', pat)
+            if name:
+                names.append(name)
+        return "+".join(sorted(set(names)))
+
+    def _generate_overlay_output_path(self, normalized_path, base_pattern,
+                                      output_dir, job_folder):
         """
-        Generate output path for overlaid histograms.
+        Generate the output path for an overlaid histogram.
+
+        The overlaid collections live in a per-job folder
+        (output_dir/overlay/<job_folder>/...), so the collection segment is
+        dropped from the preserved directory tree.
 
         Args:
-            normalized_path: Normalized path with placeholder
-            matched_patterns: List of patterns that were matched
-            pattern: Original search pattern
+            normalized_path: Normalized path with the collection placeholder
+            base_pattern: Source pattern used to preserve the folder structure
             output_dir: Base output directory
+            job_folder: Name of this overlay job's subfolder
 
         Returns:
             Output file path
         """
-        # Create combined collection name from patterns
-        collection_names = []
-        for pat in matched_patterns:
-            # Extract meaningful name from pattern (remove regex special chars)
-            name = re.sub(r'[^a-zA-Z0-9_]', '', pat)
-            if name:
-                collection_names.append(name)
-
-        combined_name = "+".join(sorted(set(collection_names)))
-
-        # Replace placeholder with combined name
-        overlay_path = normalized_path.replace("OVERLAY_PLACEHOLDER", combined_name)
-
-        return self._generate_output_path(overlay_path, pattern, output_dir)
+        tree_path = normalized_path.replace("OVERLAY_PLACEHOLDER", "")
+        tree_path = re.sub(r"/+", "/", tree_path).strip("/")
+        overlay_dir = os.path.join(output_dir, "overlay", job_folder)
+        return self._generate_output_path(tree_path, base_pattern, overlay_dir)
 
     def plot_comparison(
         self,
@@ -1242,79 +1296,74 @@ class DQMPlotter:
 
         # Handle overlay groups if specified
         if overlay_groups:
-            grouped_hists, used_hists = self._group_histograms_by_overlay(
-                all_matching_hists, overlay_groups
-            )
+            used_folders = set()
+            all_used = set()
 
-            if grouped_hists:
-                print(f"Found {len(grouped_hists)} histogram groups to overlay")
+            for job_index, job in enumerate(overlay_groups):
+                job_patterns = job["patterns"]
+                file_patterns = job["file_patterns"]
 
-                # Create tasks for overlaid histograms
-                for normalized_path, hist_pattern_pairs in grouped_hists.items():
-                    # Sort by pattern to ensure consistent ordering
-                    hist_pattern_pairs = sorted(hist_pattern_pairs, key=lambda x: x[1])
-                    hist_paths = [hp for hp, _ in hist_pattern_pairs]
-                    matched_patterns = [pat for _, pat in hist_pattern_pairs]
+                # Per-job output folder, kept unique across jobs.
+                job_folder = self._overlay_job_folder(job_patterns) or f"overlay{job_index + 1}"
+                base_folder = job_folder
+                dup = 2
+                while job_folder in used_folders:
+                    job_folder = f"{base_folder}_{dup}"
+                    dup += 1
+                used_folders.add(job_folder)
 
-                    # Use first pattern for output path generation
-                    base_pattern = hist_to_pattern.get(hist_paths[0], patterns[0])
+                grouped_hists, used_hists = self._group_histograms_by_overlay(
+                    all_matching_hists, job_patterns
+                )
+                all_used |= used_hists
+
+                if not grouped_hists:
+                    print(f"No overlappable histogram groups found for overlay 'overlay/{job_folder}'")
+                    continue
+                print(f"Found {len(grouped_hists)} histogram groups to overlay in 'overlay/{job_folder}'")
+
+                for normalized_path, pattern_to_path in grouped_hists.items():
+                    base_pattern = hist_to_pattern.get(
+                        next(iter(pattern_to_path.values())), patterns[0]
+                    )
                     output_path = self._generate_overlay_output_path(
-                        normalized_path, matched_patterns, base_pattern, output_dir
+                        normalized_path, base_pattern, output_dir, job_folder
                     )
 
-                    # For single file: overlay collections within the file
-                    if len(file_paths) == 1:
-                        # Load all histograms from different collections
-                        overlay_labels = []
-                        for hist_path, pattern in hist_pattern_pairs:
-                            # Extract collection name from path
+                    # Build the overlaid series in file-major order: for each file,
+                    # take the collections assigned to it in command-line order.
+                    series_files, series_paths, series_labels = [], [], []
+                    for file_idx in range(len(file_paths)):
+                        for pattern in file_patterns[file_idx]:
+                            hist_path = pattern_to_path.get(pattern)
+                            if hist_path is None:
+                                continue
                             collection = re.search(pattern, hist_path)
                             collection_name = collection.group(0) if collection else pattern
-                            overlay_labels.append(f"{labels[0]} - {collection_name}")
+                            series_files.append(file_paths[file_idx])
+                            series_paths.append(hist_path)
+                            series_labels.append(f"{labels[file_idx]} - {collection_name}")
 
-                        plot_tasks.append({
-                            "file_paths": file_paths * len(hist_paths),
-                            "hist_path": hist_paths,
-                            "labels": overlay_labels,
-                            "colors": self.colors,
-                            "output_path": output_path,
-                            "plot_kwargs": plot_kwargs,
-                            "is_overlay": True,
-                        })
-                    else:
-                        # For multiple files: overlay collections across files
-                        # Create consistent ordering: all collections for file1, then all for file2, etc.
-                        overlay_labels = []
-                        extended_file_paths = []
-                        extended_hist_paths = []
+                    if len(series_paths) < 2:
+                        continue
 
-                        for file_idx, (file_path, file_label) in enumerate(zip(file_paths, labels)):
-                            for hist_path, pattern in hist_pattern_pairs:
-                                collection = re.search(pattern, hist_path)
-                                collection_name = collection.group(0) if collection else pattern
-                                overlay_labels.append(f"{file_label} - {collection_name}")
-                                extended_file_paths.append(file_path)
-                                extended_hist_paths.append(hist_path)
+                    plot_tasks.append({
+                        "file_paths": series_files,
+                        "hist_path": series_paths,
+                        "labels": series_labels,
+                        "colors": self.colors,
+                        "output_path": output_path,
+                        "plot_kwargs": plot_kwargs,
+                        "is_overlay": True,
+                    })
 
-                        plot_tasks.append({
-                            "file_paths": extended_file_paths,
-                            "hist_path": extended_hist_paths,
-                            "labels": overlay_labels,
-                            "colors": self.colors,
-                            "output_path": output_path,
-                            "plot_kwargs": plot_kwargs,
-                            "is_overlay": True,
-                        })
-
-            # Process non-overlaid histograms separately
+            # Also make individual plots unless disabled.
             if overlay_individual:
-                # Include individual plots for overlaid collections
                 remaining_hists = all_matching_hists
                 if remaining_hists:
                     print(f"Processing {len(remaining_hists)} histograms (including individual overlay collections)")
             else:
-                # Exclude overlaid histograms from individual processing
-                remaining_hists = all_matching_hists - used_hists
+                remaining_hists = all_matching_hists - all_used
                 if remaining_hists:
                     print(f"Processing {len(remaining_hists)} non-overlaid histograms separately")
         else:
@@ -1824,7 +1873,9 @@ if __name__ == "__main__":
         operation_specs = [tuple(op) for op in operation]
 
     # Parse overlay groups
-    overlay_groups = plotter._parse_overlay_groups(args.overlay) if args.overlay else None
+    overlay_groups = (
+        plotter._parse_overlay_groups(args.overlay, len(args.files)) if args.overlay else None
+    )
     plotter.compare_files(
         file_paths=args.files,
         hist_pattern=source_patterns,
