@@ -505,7 +505,12 @@ class DQMPlotter:
 
             if not hist:
                 root_file.Close()
-                print(f'Warning: Could not find {hist_path}.')
+                # A histogram can legitimately be absent from a file (e.g. a
+                # collection present in only some inputs). Missing histograms are
+                # summarised once per file in compare_files, so only note each one
+                # individually in debug mode instead of spamming a line per plot.
+                if self.debug:
+                    print(f'Warning: Could not find {hist_path}.')
                 return None
      
             hist_clone = hist.Clone()
@@ -1183,6 +1188,22 @@ class DQMPlotter:
         print(
             f"Total unique histograms found across all files: {len(all_matching_hists)}"
         )
+
+        # Warn once (not once per plot) about matched histograms missing from some
+        # input files, e.g. a collection present in only a subset of the files. Those
+        # histograms are simply skipped in the affected plots.
+        for fp, (file_hists, _) in zip(file_paths, scan_results):
+            missing = all_matching_hists - set(file_hists)
+            if not missing:
+                continue
+            collections = sorted({hp.rsplit("/", 1)[0] for hp in missing})
+            print(
+                f"Warning: {os.path.basename(fp)} is missing {len(missing)} of the matched "
+                f"histogram(s) in {len(collections)} collection(s); they are skipped in the "
+                f"affected plots:"
+            )
+            for collection in collections:
+                print(f"    {collection}")
 
         plot_tasks = []
 
