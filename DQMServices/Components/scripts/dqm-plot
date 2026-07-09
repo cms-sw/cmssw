@@ -112,14 +112,7 @@ class DQMPlotter:
     def operate_histograms(self, histos1, histos2, operation_type):
         if operation_type == "division":
             return self.divide_histograms(histos1, histos2)
-        elif operation_type == "difference":
-            raise NotImplementedError(f"Operation '{operation_type}' not yet implemented!")
-        elif operation_type == "sum":
-            raise NotImplementedError(f"Operation '{operation_type}' not yet implemented!")
-        elif operation_type == "product":
-            raise NotImplementedError(f"Operation '{operation_type}' not yet implemented!")
-        
-        raise ValueError(f"Unknown operation '{operation_type}'")
+        raise ValueError(f"Unsupported operation '{operation_type}'")
 
     def _rebin_histogram(self, hist, rebin):
         """
@@ -204,6 +197,8 @@ class DQMPlotter:
 
     def _is_tex_math(self, label):
         """Whether the string is to be interpreted as a latex string."""
+        if not label:
+            return False
         return any(x in label for x in ('\\','~'))
         
     def _apply_axis_scaling(self, ax, xlabel, ylabel, title, logy=False, xlim=None, has_negative_values=False):
@@ -219,12 +214,12 @@ class DQMPlotter:
         xlim_blocks_log = xlim is not None and xlim[0] <= 0
 
         # Automatic log scale for specific variable types
-        if ( any(x in xlabel for x in ('p_{\text{T}}', '$p_{\\text{T}}$'))
+        if ( any(x in xlabel for x in (r'p_{\text{T}}', r'$p_{\text{T}}$'))
              and "pull" not in xlabel.lower() and not xlim_blocks_log ):
             ax.set_xscale("log")
 
-        if ( (any(x in ylabel for x in ('p_{\text{T}}', '$p_{\\text{T}}$'))
-             and "pull" not in ylabel.lower()) or "Sigma" in title ):
+        if ( (any(x in ylabel for x in (r'p_{\text{T}}', r'$p_{\text{T}}$'))
+             and "pull" not in ylabel.lower()) or (title is not None and "Sigma" in title) ):
             if not has_negative_values:
                 ax.set_yscale("log")
 
@@ -578,13 +573,15 @@ class DQMPlotter:
 
             if "#sigma(" in title.lower():
                 core = left[left.find("(") + 1 : left.rfind(")")]
-                ylabel = r"\delta " + core + "/" + core
+                ylabel = r"$\delta$" + core
+                if "p_{T}" in ylabel:
+                    ylabel = ylabel + "/" + core
                 right_clean = right
                 if "Mean" in title:
                     ylabel = "<" + ylabel + ">"
                     right_clean = right_clean.replace("Mean", "")
                 elif "Sigma" in title:
-                    ylabel = r"\sigma\,(" + ylabel + ")"
+                    ylabel = r"$\sigma$(" + ylabel + ")"
                     right_clean = right_clean.replace("Sigma", "")
                 xlabel = right_clean.strip()
 
@@ -594,7 +591,7 @@ class DQMPlotter:
                 xlabel = right_clean
             elif "Sigma" in title:
                 right_clean = right.replace("Sigma", "").strip()
-                ylabel = r"\sigma\,<" + left + ">"
+                ylabel = r"$\sigma$<" + left + ">"
                 xlabel = right_clean
             else:
                 # Default: "ylabel vs xlabel"
@@ -606,34 +603,36 @@ class DQMPlotter:
             # Pull plots
             if "pull" not in title.lower():
                 if "eta" in title.lower():
-                    xlabel = r"\eta"
+                    xlabel = r"$\eta$"
                 elif "pt2" in title.lower():
-                    xlabel = r"p_{\text{T}}^2"
+                    xlabel = r"$p_{\text{T}}^2$"
                 elif "pt" in title.lower():
-                    xlabel = r"p_{\text{T}}"
+                    xlabel = r"$p_{\text{T}}$"
                 elif "phi" in title.lower():
-                    xlabel = r"\phi"
+                    xlabel = r"$\phi$"
             # Efficiency and turn-on plots
             if "eff" in title.lower():
                 ylabel = "Efficiency"
             elif "turn-on" in title.lower():
                 ylabel = "Turn-On"
 
-        if xtitle is None:
-            xtitle = xlabel
-        if ytitle is None:
-            ytitle = ylabel
+        # Always convert ROOT (#eta, #phi, ...) notation in the automatic labels to
+        # mathtext. These labels can mix hand-written mathtext ($\sigma$) with ROOT
+        # tokens taken from the histogram title, so the conversion must always run;
+        # skipping it (as when a label merely contains a backslash) leaves raw ROOT
+        # tokens that matplotlib's mathtext parser rejects.
+        title = self.convert_root_to_latex(title)
+        xlabel = self.convert_root_to_latex(xlabel)
+        ylabel = self.convert_root_to_latex(ylabel)
 
-        if self._is_tex_math(xtitle):
-            xtitle = fr'${xtitle}$'
-        if self._is_tex_math(ytitle):
-            ytitle = fr'${ytitle}$'
+        # A user-provided --xtitle/--ytitle overrides the automatic label: wrap it as
+        # math if it already looks like LaTeX, otherwise convert its ROOT notation.
+        if xtitle is not None:
+            xlabel = fr'${xtitle}$' if self._is_tex_math(xtitle) else self.convert_root_to_latex(xtitle)
+        if ytitle is not None:
+            ylabel = fr'${ytitle}$' if self._is_tex_math(ytitle) else self.convert_root_to_latex(ytitle)
 
-        return (
-            self.convert_root_to_latex(title),
-            self.convert_root_to_latex(xtitle) if not self._is_tex_math(xtitle) else xtitle,
-            self.convert_root_to_latex(ytitle) if not self._is_tex_math(ytitle) else ytitle
-        )
+        return title, xlabel, ylabel
 
     def convert_root_to_latex(self, text):
         """
@@ -772,7 +771,8 @@ class DQMPlotter:
             overlay_patterns: List of patterns that should be removed for grouping
 
         Returns:
-            Normalized path (or None if path doesn't match any pattern)
+            Tuple (normalized_path, matched_pattern), or (None, None) if the path
+            does not match any overlay pattern.
         """
         for pattern in overlay_patterns:
             if re.search(pattern, hist_path):
@@ -867,7 +867,6 @@ class DQMPlotter:
         legend_title=None,
         legend_title_fontsize=None,
         legend_fontsize=None,
-        overlay_groups=None,
         title=None,
         xtitle=None,
         ytitle=None,
@@ -897,7 +896,6 @@ class DQMPlotter:
             plot_histograms: Whether to plot histograms instead of individual bin points with errors
             pdf: Whether to save as PDF in addition to PNG
             legend_outside: Force legend to be placed outside the plot area
-            overlay_groups: List of pattern groups to overlay
             rebin: Optional rebinning specification, either a single int or an array-like of new bin edges
         """
         if len(histograms) != len(labels):
@@ -969,7 +967,10 @@ class DQMPlotter:
 
             if complement:
                 bin_contents = np.array([1-i for i in bin_contents])
-                
+
+            if np.any(bin_contents < 0):
+                has_negative_values = True
+
             # Use first histogram as reference
             if i == 0:
                 ref_centers, ref_contents, ref_errors = bin_centers, bin_contents, bin_errors
@@ -990,7 +991,6 @@ class DQMPlotter:
         label_size = "medium" if len(visible_ylabel) < 20 else "small"
         if title:
             ax_main.set_title(title, pad=50)
-        has_negative_values = np.any(bin_contents < 0)
 
         xlabel, ylabel = self._apply_axis_scaling(ax_main, xlabel, ylabel, title, logy, xlim, has_negative_values)
 
@@ -998,7 +998,8 @@ class DQMPlotter:
         ax_main.set_ylabel(ylabel, fontsize=label_size if ytitle_fontsize is None else ytitle_fontsize)
 
         ha = "right"
-        if "KindOfSignalPV" in args.source[0][0]:
+        # args.source is None in --operation mode; guard before indexing it.
+        if args.source and "KindOfSignalPV" in args.source[0][0]:
             if rebin != None:
                 bin_labels = ['PV not Reco', 'PV Reco\nas Leading', 'PV Reco\nnot as Leading']
                 ha = "center"
@@ -1009,7 +1010,7 @@ class DQMPlotter:
                 bin_labels,
                 size="small" if len(bin_labels) < 10 else "xx-small",
                 rotation=45,
-                ha="right",
+                ha=ha,
                 va="top",
             )
             ax_main.tick_params(axis="x", which="minor", bottom=False)
@@ -1130,8 +1131,8 @@ class DQMPlotter:
         if operation_specs is not None:
          
             plot_tasks = []
-            for ii, (numerator, denominator) in enumerate(operation_specs):
-                output_path = os.path.join(args.output_dir, os.path.basename(numerator) + '_' + operation_type.upper() + '_' + os.path.basename(denominator))
+            for numerator, denominator in operation_specs:
+                output_path = os.path.join(output_dir, os.path.basename(numerator) + '_' + operation_type.upper() + '_' + os.path.basename(denominator))
                 
                 plot_tasks.append({
                     "is_operation": True,
@@ -1144,9 +1145,9 @@ class DQMPlotter:
                     "output_path": output_path,
                     "plot_kwargs": plot_kwargs,
                 })
-         
-                self._process_files(plot_tasks)
-         
+
+            self._process_files(plot_tasks)
+
             if create_web_index:
                 print("Adding php index files for web viewing...")
                 self._create_web_index_files(output_dir)
@@ -1446,8 +1447,10 @@ def process_histogram_task(task, debug):
             for fp, lab in zip(file_paths, labels):
                 num, lab = plotter._load_histograms([fp], task["numerator_path"], [lab])
                 den, _ = plotter._load_histograms([fp], task["denominator_path"], [lab])
-                if num is None or den is None:
-                    return
+                # _load_histograms returns ([], []) when a histogram is missing; skip
+                # this file so numerator/denominator/labels stay aligned.
+                if not num or not den:
+                    continue
 
                 numhistos.extend(num)
                 denhistos.extend(den)
