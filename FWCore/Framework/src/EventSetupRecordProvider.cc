@@ -76,23 +76,21 @@ namespace edm {
       }
     }
 
-    void EventSetupRecordProvider::setSupportingProviders(
-        const std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordProvider>>& iKeyToProviders) {
+    void EventSetupRecordProvider::setSupportingFinders(
+        const std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordIntervalFinder>>& iKeyToFinders) {
       auto const& supportingKeys = supportingRecords();
       if (supportingKeys.empty()) {
         return;
       }
-      assert(not(finder_ and dynamic_cast<DependentRecordIntervalFinder*>(finder_.get()) != nullptr));
-      std::shared_ptr<DependentRecordIntervalFinder> newFinder =
-          make_shared_noexcept_false<DependentRecordIntervalFinder>(key());
-
-      std::shared_ptr<EventSetupRecordIntervalFinder> old = swapFinder(newFinder);
+      assert(finder_);
+      auto depFinder = dynamic_cast<DependentRecordIntervalFinder*>(finder_.get());
+      assert(depFinder);
 
       std::string missingRecords;
 
       for (auto const& key : supportingKeys) {
-        auto itFound = iKeyToProviders.find(key);
-        if (itFound == iKeyToProviders.end()) {
+        auto itFound = iKeyToFinders.find(key);
+        if (itFound == iKeyToFinders.end()) {
           if (missingRecords.empty()) {
             missingRecords = key.name();
           } else {
@@ -100,8 +98,8 @@ namespace edm {
             missingRecords += key.name();
           }
         } else {
-          SupportingRecordIntervalFinderHelper helper(itFound->first, itFound->second->finder());
-          newFinder->addSupporter(helper);
+          SupportingRecordIntervalFinderHelper helper(itFound->first, itFound->second);
+          depFinder->addSupporter(helper);
         }
       }
       if (!missingRecords.empty()) {
@@ -111,24 +109,29 @@ namespace edm {
                "\n This may lead to an exception begin thrown during event processing.\n If no exception occurs "
                "during the job than it is usually safe to ignore this message.";
       }
-
-      //if a finder was already set, add it as a dependency.  This is done to ensure that the IOVs properly change even if the
-      // old finder does not update each time a supporting record does change
-      if (old.get() != nullptr) {
-        newFinder->setAlternateFinder(old);
-      }
     }
     void EventSetupRecordProvider::usePreferred(const DataToPreferredProviderMap& iMap) {
       using std::placeholders::_1;
       for_all(providers_, std::bind(&EventSetupRecordProvider::addResolversToRecordHelper, this, _1, iMap));
+    }
+
+    std::shared_ptr<EventSetupRecordIntervalFinder> EventSetupRecordProvider::finalizeFinder() {
       if (1 < multipleFinders_->size()) {
         std::shared_ptr<IntersectingIOVRecordIntervalFinder> intFinder =
             make_shared_noexcept_false<IntersectingIOVRecordIntervalFinder>(key_);
         intFinder->swapFinders(*multipleFinders_);
         finder_ = intFinder;
       }
+      if (not supportingRecords().empty()) {
+        //do this now as the return value of this routine is used to set the supporting finders of other records and we need to have the DependentRecordIntervalFinder in place before that is done
+        std::shared_ptr<DependentRecordIntervalFinder> newFinder =
+            make_shared_noexcept_false<DependentRecordIntervalFinder>(key());
+        newFinder->setAlternateFinder(get_underlying_safe(finder_));
+        finder_ = newFinder;
+      }
       //now we get rid of the temporary
       multipleFinders_.reset(nullptr);
+      return edm::get_underlying(finder_);
     }
 
     void EventSetupRecordProvider::addResolversToRecord(

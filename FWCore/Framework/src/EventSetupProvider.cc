@@ -279,7 +279,7 @@ namespace edm {
 
       determinePreferred();
 
-      std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordProvider>> keyToProviders;
+      std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordIntervalFinder>> keyToFinders;
       for (auto& itRecordProvider : recordProviders_) {
         const EventSetupRecordProvider::DataToPreferredProviderMap* preferredInfo = &kEmptyMap;
         RecordToPreferred::const_iterator itRecordFound = recordToPreferred_->find(itRecordProvider->key());
@@ -288,11 +288,11 @@ namespace edm {
         }
         //Give it our list of preferred
         itRecordProvider->usePreferred(*preferredInfo);
-        keyToProviders.insert(std::make_pair(itRecordProvider->key(), itRecordProvider));
+        keyToFinders.insert(std::make_pair(itRecordProvider->key(), itRecordProvider->finalizeFinder()));
       }
       //For each Provider, find all the Providers it depends on.
       for (auto& itRecordProvider : recordProviders_) {
-        itRecordProvider->setSupportingProviders(keyToProviders);
+        itRecordProvider->setSupportingFinders(keyToFinders);
       }
 
       dataProviders_.reset();

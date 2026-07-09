@@ -110,12 +110,15 @@ namespace edm {
        */
       void endIOV(unsigned int iovIndex);
 
-      ///If the provided Record depends on other Records, here are the supporting Providers
-      void setSupportingProviders(std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordProvider>> const&);
+      ///If the provided Record depends on other Records, here are the supporting Finders
+      void setSupportingFinders(
+          const std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordIntervalFinder>>& iKeyToFinders);
 
       /**In the case of a conflict, sets what Provider to call.  This must be called after
          all providers have been added.  An empty map is acceptable. */
       void usePreferred(DataToPreferredProviderMap const&);
+
+      std::shared_ptr<EventSetupRecordIntervalFinder> finalizeFinder();
 
       ///This will clear the cache's of all the Resolvers so that next time they are called they will run
       void resetResolvers();
