@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/ComponentConstructionSentry.h"
 #include "FWCore/Framework/interface/ComponentInterfaceHolder.h"
-#include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 namespace edm {
