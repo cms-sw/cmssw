@@ -126,6 +126,17 @@ class DQMPlotter:
 
         self.colors.extend(new_colors)
 
+    def _clamp_yerrors(self, contents, yerrors):
+        """
+        Clamp yerrors so content +/- yerr stays within [0, 1].
+        Returns a (2, N) numpy array of asymmetric error *distances* (lower, upper)
+        as expected by matplotlib's `yerr` argument for asymmetric error bars.
+        """
+        assert len(contents) == len(yerrors)
+        lower = [cont - max(cont - yerr, 0.0) for cont, yerr in zip(contents, yerrors)]
+        upper = [min(cont + yerr, 1.0) - cont for cont, yerr in zip(contents, yerrors)]
+        return np.array([lower, upper])
+    
     def divide_histograms(self, histos1, histos2):
         results = []
         for h1, h2 in zip(histos1, histos2):
@@ -973,6 +984,7 @@ class DQMPlotter:
         ratio_label=None,
         complement=False,
         rebin=None,
+        clamp_yerrors=False,
         multiply_x_values=None,
     ):
         """
@@ -1063,6 +1075,12 @@ class DQMPlotter:
             if complement:
                 bin_contents = np.array([1-i for i in bin_contents])
 
+            # clamp_yerrors only affects how the error bars are drawn on the main plot,
+            # so its (2, N) asymmetric output is kept in a separate variable used just for display.
+            plot_errors = bin_errors
+            if clamp_yerrors:
+                plot_errors = self._clamp_yerrors(bin_contents, bin_errors)
+
             if np.any(bin_contents < 0):
                 has_negative_values = True
 
@@ -1070,7 +1088,7 @@ class DQMPlotter:
             if i == 0:
                 ref_centers, ref_contents, ref_errors = bin_centers, bin_contents, bin_errors
 
-            self._plot_histogram_data(ax_main, bin_centers, bin_contents, bin_errors, 
+            self._plot_histogram_data(ax_main, bin_centers, bin_contents, plot_errors, 
                                     bin_edges, label, i, plot_histograms)
 
             if i > 0:
@@ -1843,7 +1861,17 @@ if __name__ == "__main__":
         "this flag takes exactly one value - this keeps it from swallowing "
         "the positional ROOT file arguments that follow it.",
     )
-
+    parser.add_argument(
+        "--clamp_yerrors",
+        action="store_true",
+        help="Avoids y errors to lie above 1 or below 0. "
+        "To be used when plotting efficiencies. "
+        "This is NOT the correct approach, but can be sufficient in many cases. "
+        "The DQMGenericClient CMSSW module does not support assymetric errors, "
+        "so most DQM files will be incorrect. "
+        "If you can, consider instead Clopper-Pearson errors by manually computing "
+        "the errors using the numerator and denominator histograms, if available."
+    )
     parser.add_argument(
         "--debug",
         action="store_true",
@@ -1981,6 +2009,7 @@ if __name__ == "__main__":
         overlay_individual=not args.no_overlay_individual,
         complement=args.complement,
         rebin=rebin_arg,
+        clamp_yerrors=args.clamp_yerrors,
         multiply_x_values=args.multiply_x_values,
         debug=args.debug,
     )
