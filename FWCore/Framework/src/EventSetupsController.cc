@@ -59,7 +59,7 @@ namespace edm {
 
       // Construct the ESProducers and ESSources.
       // shared_ptrs to them are stored in the EventSetupProvider
-      fillEventSetupProvider(typeResolverMaker_, *returnValue, iPSet);
+      loadedFinders_ = fillEventSetupProvider(typeResolverMaker_, *returnValue, iPSet);
 
       numberOfConcurrentIOVs_.readConfigurationParameters(eventSetupPset, maxConcurrentIOVs, dumpOptions);
 
@@ -67,16 +67,32 @@ namespace edm {
       return returnValue;
     }
 
+    void EventSetupsController::addExtra(std::shared_ptr<EventSetupRecordIntervalFinder> iFinder) {
+      assert(loadedFinders_.has_value());
+      loadedFinders_->push_back(iFinder);
+    }
+    void EventSetupsController::addExtra(std::shared_ptr<eventsetup::ESProductResolverProvider> iProvider) {
+      assert(provider_);
+      provider_->add(iProvider);
+    }
+
     void EventSetupsController::finishConfiguration() {
       if (mustFinishConfiguration_) {
         numberOfConcurrentIOVs_.fillRecordsNotAllowingConcurrentIOVs(*provider_);
-        auto finders = provider_->finishConfiguration(numberOfConcurrentIOVs_);
+        std::set<edm::eventsetup::EventSetupRecordKey> finderRecords;
+        for (auto const& finder : loadedFinders_.value()) {
+          auto const& recordsUsing = finder->findingForRecords();
+          finderRecords.insert(recordsUsing.begin(), recordsUsing.end());
+        }
+        provider_->finishConfiguration(finderRecords, numberOfConcurrentIOVs_);
         provider_->clearInitializationData();
         provider_->updateLookup();
 
-        auto findersForRecords = impl::makeFindersForRecords(provider_->keys(), finders);
+        assert(loadedFinders_.has_value());
+        auto findersForRecords = impl::makeFindersForRecords(provider_->keys(), loadedFinders_.value());
         initializeEventSetupRecordIOVQueues(findersForRecords);
         numberOfConcurrentIOVs_.clear();
+        loadedFinders_.reset();
         mustFinishConfiguration_ = false;
       }
     }

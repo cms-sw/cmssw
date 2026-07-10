@@ -34,9 +34,6 @@ namespace {
 
   void addToESProvider(edm::eventsetup::EventSetupProvider& esProvider,
                        edm::eventsetup::ComponentInterfaceHolder& interfaceHolder) {
-    if (interfaceHolder.finder()) {
-      esProvider.add(interfaceHolder.finder());
-    }
     if (interfaceHolder.provider()) {
       esProvider.add(interfaceHolder.provider());
     }

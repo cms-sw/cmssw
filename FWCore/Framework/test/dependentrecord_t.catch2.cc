@@ -595,21 +595,21 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
 
       std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
           std::make_shared<DummyESProductResolverProvider>();
-      provider.add(dummyProv);
+      controller.addExtra(dummyProv);
 
       std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
       dummyFinder->setInterval(
           edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 5))));
-      provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+      controller.addExtra(dummyFinder);
 
       std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv =
           std::make_shared<DepOn2RecordResolverProvider>();
-      provider.add(depProv);
+      controller.addExtra(depProv);
 
       std::shared_ptr<Dummy2RecordFinder> dummy2Finder = std::make_shared<Dummy2RecordFinder>();
       dummy2Finder->setInterval(
           edm::ValidityInterval(edm::IOVSyncValue(edm::Timestamp(1)), edm::IOVSyncValue(edm::Timestamp(5))));
-      provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummy2Finder));
+      controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummy2Finder));
 
       {
         edm::ESParentContext parentC;
@@ -653,21 +653,21 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
 
       std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
           std::make_shared<DummyESProductResolverProvider>();
-      provider.add(dummyProv);
+      controller.addExtra(dummyProv);
 
       std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
       dummyFinder->setInterval(
           edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue::invalidIOVSyncValue()));
-      provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+      controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
       std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv =
           std::make_shared<DepOn2RecordResolverProvider>();
-      provider.add(depProv);
+      controller.addExtra(depProv);
 
       std::shared_ptr<Dummy2RecordFinder> dummy2Finder = std::make_shared<Dummy2RecordFinder>();
       dummy2Finder->setInterval(
           edm::ValidityInterval(edm::IOVSyncValue(edm::Timestamp(1)), edm::IOVSyncValue::invalidIOVSyncValue()));
-      provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummy2Finder));
+      controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummy2Finder));
       {
         edm::ESParentContext parentC;
         controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1), edm::Timestamp(1)));
@@ -773,15 +773,15 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
 
     std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
         std::make_shared<DummyESProductResolverProvider>();
-    provider.add(dummyProv);
+    controller.addExtra(dummyProv);
 
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(
         edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
-    provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
     std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv = std::make_shared<DepRecordResolverProvider>();
-    provider.add(depProv);
+    controller.addExtra(depProv);
     edm::ESParentContext parentC;
     {
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
@@ -818,7 +818,7 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
       description.pid_ = ps.id();
       auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kBad);
       dummyProv->setDescription(description);
-      provider.add(dummyProv);
+      controller.addExtra(dummyProv);
     }
     {
       edm::eventsetup::ComponentDescription description("DepRecordResolverProviderWithData", "testTwo", 1, true);
@@ -830,13 +830,13 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
       auto dummyProv = std::make_shared<DepRecordResolverProviderWithData>(kGood);
       dummyProv->setDescription(description);
       dummyProv->setAppendToDataLabel(ps);
-      provider.add(dummyProv);
+      controller.addExtra(dummyProv);
     }
 
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(
         edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
-    provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
     controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
     edm::ESParentContext parentC;
@@ -960,7 +960,7 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
       description.pid_ = ps.id();
       auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kBad);
       dummyProv->setDescription(description);
-      provider.add(dummyProv);
+      controller.addExtra(dummyProv);
     }
     {
       edm::eventsetup::ComponentDescription description("DepRecordResolverProviderWithData", "testTwo", 1, true);
@@ -972,12 +972,12 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
       auto dummyProv = std::make_shared<DepRecordResolverProviderWithData>(kGood);
       dummyProv->setDescription(description);
       dummyProv->setAppendToDataLabel(ps);
-      provider.add(dummyProv);
+      controller.addExtra(dummyProv);
     }
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(
         edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
-    provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
     controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
 
@@ -1119,7 +1119,7 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
       description.pid_ = ps.id();
       auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kBad);
       dummyProv->setDescription(description);
-      provider.add(dummyProv);
+      controller.addExtra(dummyProv);
     }
     {
       edm::eventsetup::ComponentDescription description("DepRecordResolverProviderWithData", "testTwo", 1, true);
@@ -1131,12 +1131,12 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
       auto dummyProv = std::make_shared<DepRecordResolverProviderWithData>(kGood);
       dummyProv->setDescription(description);
       dummyProv->setAppendToDataLabel(ps);
-      provider.add(dummyProv);
+      controller.addExtra(dummyProv);
     }
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(
         edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
-    provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
     controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
     edm::ESParentContext parentC;
@@ -1268,16 +1268,16 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
 
     std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
         std::make_shared<DummyESProductResolverProvider>();
-    provider.add(dummyProv);
+    controller.addExtra(dummyProv);
 
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(
         edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
-    provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
     std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv =
         std::make_shared<DepOn2RecordResolverProvider>();
-    provider.add(depProv);
+    controller.addExtra(depProv);
     {
       edm::ESParentContext parentC;
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
@@ -1305,15 +1305,15 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
 
     std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
         std::make_shared<DummyESProductResolverProvider>();
-    provider->add(dummyProv);
+    controller.addExtra(dummyProv);
 
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(
         edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
-    provider->add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
     std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv = std::make_shared<DepRecordResolverProvider>();
-    provider->add(depProv);
+    controller.addExtra(depProv);
     {
       edm::ESParentContext parentC;
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
@@ -1438,22 +1438,22 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
 
     std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
         std::make_shared<DummyESProductResolverProvider>();
-    provider.add(dummyProv);
+    controller.addExtra(dummyProv);
 
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
 
     edm::IOVSyncValue startSyncValue{edm::EventID{1, 1, 1}};
     dummyFinder->setInterval(edm::ValidityInterval{startSyncValue, edm::IOVSyncValue{edm::EventID{1, 1, 5}}});
-    provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>{dummyFinder});
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>{dummyFinder});
 
     std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv =
         std::make_shared<DepOn2RecordResolverProvider>();
-    provider.add(depProv);
+    controller.addExtra(depProv);
 
     edm::ESParentContext parentC;
     std::shared_ptr<Dummy2RecordFinder> dummy2Finder = std::make_shared<Dummy2RecordFinder>();
     dummy2Finder->setInterval(edm::ValidityInterval{startSyncValue, edm::IOVSyncValue{edm::EventID{1, 1, 6}}});
-    provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummy2Finder));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummy2Finder));
     {
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1), edm::Timestamp(1)));
       const edm::EventSetup eventSetup1(provider.eventSetupImpl(), 0, nullptr, parentC);

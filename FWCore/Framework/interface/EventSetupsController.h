@@ -21,6 +21,7 @@
 #include <memory>
 #include <vector>
 #include <map>
+#include <optional>
 
 #include "oneapi/tbb/task_group.h"
 
@@ -44,6 +45,7 @@ namespace edm {
 
     class EventSetupProvider;
     class EventSetupRecordIOVQueue;
+    class ESProductResolverProvider;
 
     class EventSetupsController {
     public:
@@ -62,6 +64,9 @@ namespace edm {
                                                        unsigned int maxConcurrentIOVs = 0,
                                                        bool dumpOptions = false);
 
+      //must be called after makeProvider and before any calls to eventSetupForInstanceAsync
+      void addExtra(std::shared_ptr<EventSetupRecordIntervalFinder> iFinder);
+      void addExtra(std::shared_ptr<eventsetup::ESProductResolverProvider> iProvider);
       void finishConfiguration();
 
       // The main purpose of this function is to call eventSetupForInstanceAsync. It might
@@ -97,7 +102,8 @@ namespace edm {
       void resetRecordPlusDependentRecords(EventSetupRecordKey const& recordKey);
 
     private:
-      void initializeEventSetupRecordIOVQueues(std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordIntervalFinder>> const& iKeyToFinders);
+      void initializeEventSetupRecordIOVQueues(
+          std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordIntervalFinder>> const& iKeyToFinders);
 
       // ---------- member data --------------------------------
       propagate_const<std::shared_ptr<EventSetupProvider>> provider_;
@@ -108,6 +114,7 @@ namespace edm {
       std::vector<propagate_const<std::unique_ptr<EventSetupRecordIOVQueue>>> eventSetupRecordIOVQueues_;
 
       ModuleTypeResolverMaker const* typeResolverMaker_ = nullptr;
+      std::optional<std::vector<std::shared_ptr<EventSetupRecordIntervalFinder>>> loadedFinders_;
 
       bool mustFinishConfiguration_ = true;
     };

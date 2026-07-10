@@ -345,7 +345,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
 
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
 
-    provider->add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
     Timestamp time_1(1);
     controller.eventSetupForInstance(IOVSyncValue(time_1));
@@ -385,7 +385,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
 
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
 
-    provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
     Timestamp time_1(1);
     controller.eventSetupForInstance(IOVSyncValue(time_1));
@@ -426,7 +426,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
     edm::ParameterSet pset = createDummyPset();
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-    provider.add(std::make_shared<DummyESProductResolverProvider>());
+    controller.addExtra(std::make_shared<DummyESProductResolverProvider>());
 
     Timestamp time_1(1);
     controller.eventSetupForInstance(IOVSyncValue(time_1));
@@ -440,7 +440,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
     edm::ParameterSet pset = createDummyPset();
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-    provider.add(std::make_shared<DummyESProductResolverProvider>());
+    controller.addExtra(std::make_shared<DummyESProductResolverProvider>());
 
     Timestamp time_1(1);
     controller.eventSetupForInstance(IOVSyncValue(time_1));
@@ -452,19 +452,19 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
   SECTION("producerConflictTest") {
     SynchronousEventSetupsController controller;
     edm::ParameterSet pset = createDummyPset();
-    EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
+    //makeProvider has to be called before addExtra
+    (void)*controller.makeProvider(pset, &activityRegistry);
 
     edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "", 0, false);
-
     {
       auto dummyProv = std::make_shared<DummyESProductResolverProvider>();
       dummyProv->setDescription(description);
-      provider.add(dummyProv);
+      controller.addExtra(dummyProv);
     }
     {
       auto dummyProv = std::make_shared<DummyESProductResolverProvider>();
       dummyProv->setDescription(description);
-      provider.add(dummyProv);
+      controller.addExtra(dummyProv);
     }
     //checking for conflicts is delayed until first eventSetupForInstance
     REQUIRE_THROWS_AS(controller.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()), cms::Exception);
@@ -473,19 +473,19 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
   SECTION("sourceConflictTest") {
     SynchronousEventSetupsController controller;
     edm::ParameterSet pset = createDummyPset();
-    EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
+    //makeProvider has to be called before addExtra
+    (void)*controller.makeProvider(pset, &activityRegistry);
 
     edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "", 0, true);
-
     {
       auto dummyProv = std::make_shared<DummyESProductResolverProvider>();
       dummyProv->setDescription(description);
-      provider.add(dummyProv);
+      controller.addExtra(dummyProv);
     }
     {
       auto dummyProv = std::make_shared<DummyESProductResolverProvider>();
       dummyProv->setDescription(description);
-      provider.add(dummyProv);
+      controller.addExtra(dummyProv);
     }
     //checking for conflicts is delayed until first eventSetupForInstance
     REQUIRE_THROWS_AS(controller.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue()), cms::Exception);
@@ -500,7 +500,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
     {
       auto dummyProv = std::make_shared<DummyESProductResolverProvider>();
       dummyProv->setDescription(description);
-      provider.add(dummyProv);
+      controller.addExtra(dummyProv);
     }
     {
       auto dummyProv = std::make_shared<edm::DummyEventSetupRecordRetriever>(IOVSyncValue(edm::EventID(2, 0, 0)));
@@ -508,8 +508,8 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
       std::shared_ptr<edm::EventSetupRecordIntervalFinder> finderPtr(dummyProv);
       edm::eventsetup::ComponentDescription description2("DummyEventSetupRecordRetriever", "", 0, true);
       dummyProv->setDescription(description2);
-      provider.add(providerPtr);
-      provider.add(finderPtr);
+      controller.addExtra(providerPtr);
+      controller.addExtra(finderPtr);
     }
     //checking for conflicts
     controller.finishConfiguration();
@@ -531,7 +531,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
 
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(ValidityInterval(IOVSyncValue(Timestamp(2)), IOVSyncValue(Timestamp(3))));
-    provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
     try {
       {
@@ -542,7 +542,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
         description.pid_ = ps.id();
         auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kBad);
         dummyProv->setDescription(description);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       {
         edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "testLabel", 1, false);
@@ -552,7 +552,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
         description.pid_ = ps.id();
         auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kGood);
         dummyProv->setDescription(description);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       controller.eventSetupForInstance(IOVSyncValue(Timestamp(2)));
       DummyDataConsumer consumer{edm::ESInputTag("", "")};
@@ -581,7 +581,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
 
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(ValidityInterval(IOVSyncValue(Timestamp(2)), IOVSyncValue(Timestamp(3))));
-    provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
     try {
       {
@@ -592,7 +592,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
         description.pid_ = ps.id();
         auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kBad);
         dummyProv->setDescription(description);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       {
         edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "testTwo", 1, false);
@@ -604,7 +604,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
         auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kGood);
         dummyProv->setDescription(description);
         dummyProv->setAppendToDataLabel(ps);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       {
         edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "", 100, false);
@@ -616,7 +616,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
         auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kGood);
         dummyProv->setDescription(description);
         dummyProv->setAppendToDataLabel(ps);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       {
         edm::eventsetup::ComponentDescription description("ConsumesProducer", "consumes", 2, false);
@@ -627,7 +627,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
         auto dummyProv = std::make_shared<ConsumesProducer>();
         dummyProv->setDescription(description);
         dummyProv->setAppendToDataLabel(ps);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       {
         edm::eventsetup::ComponentDescription description("ConsumesFromProducer", "consumesFrom", 3, false);
@@ -638,7 +638,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
         auto dummyProv = std::make_shared<ConsumesFromProducer>();
         dummyProv->setDescription(description);
         dummyProv->setAppendToDataLabel(ps);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       {
         edm::eventsetup::ComponentDescription description("SetMayConsumeProducer", "setMayConsumeSuceed", 4, false);
@@ -649,7 +649,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
         auto dummyProv = std::make_shared<SetMayConsumeProducer>(true, "", "", "setMayConsumeSucceed");
         dummyProv->setDescription(description);
         dummyProv->setAppendToDataLabel(ps);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       {
         edm::eventsetup::ComponentDescription description("SetMayConsumeProducer", "setMayConsumeFail", 5, false);
@@ -660,7 +660,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
         auto dummyProv = std::make_shared<SetMayConsumeProducer>(false, "", "", "setMayConsumeFail");
         dummyProv->setDescription(description);
         dummyProv->setAppendToDataLabel(ps);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       {
         edm::eventsetup::ComponentDescription description(
@@ -673,7 +673,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
             std::make_shared<SetMayConsumeProducer>(true, "testTwo", "blah", "productLabelForProducerWithModuleLabel");
         dummyProv->setDescription(description);
         dummyProv->setAppendToDataLabel(ps);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       {
         edm::eventsetup::ComponentDescription description(
@@ -686,7 +686,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
             true, "doesNotExist", "blah", "productLabelForProducerWithModuleLabelThatDoesntExist");
         dummyProv->setDescription(description);
         dummyProv->setAppendToDataLabel(ps);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       {
         edm::eventsetup::ComponentDescription description(
@@ -699,7 +699,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
             true, "testTwo", "doesNotExist", "productLabelForProducerWithProductLabelThatDoesntExist");
         dummyProv->setDescription(description);
         dummyProv->setAppendToDataLabel(ps);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       {
         edm::eventsetup::ComponentDescription description(
@@ -712,7 +712,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
             true, "DummyESProductResolverProvider", "blahblah", "productLabelForProducerWithMayConsumesUnlabeledCase");
         dummyProv->setDescription(description);
         dummyProv->setAppendToDataLabel(ps);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       {
         edm::eventsetup::ComponentDescription description(
@@ -725,7 +725,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
             true, "doesNotExist", "blahblah", "productLabelForProducerWithMayConsumesUnlabeledCaseNonexistent");
         dummyProv->setDescription(description);
         dummyProv->setAppendToDataLabel(ps);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
 
       edm::ESParentContext pc;
@@ -898,7 +898,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
 
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(ValidityInterval(IOVSyncValue(Timestamp(2)), IOVSyncValue(Timestamp(3))));
-    provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
     edm::ESParentContext pc;
     try {
@@ -910,7 +910,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
         description.pid_ = ps.id();
         auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kBad);
         dummyProv->setDescription(description);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       {
         edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "testTwo", 1, false);
@@ -922,7 +922,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
         auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kGood);
         dummyProv->setDescription(description);
         dummyProv->setAppendToDataLabel(ps);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       controller.eventSetupForInstance(IOVSyncValue(Timestamp(2)));
       {
@@ -1006,7 +1006,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
         description.pid_ = ps.id();
         auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kBad);
         dummyProv->setDescription(description);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       {
         edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "testTwo", 1, false);
@@ -1018,12 +1018,12 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
         auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kGood);
         dummyProv->setDescription(description);
         dummyProv->setAppendToDataLabel(ps);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
       dummyFinder->setInterval(
           edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
-      provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+      controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
       {
@@ -1095,20 +1095,20 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
 
       std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
       dummyFinder->setInterval(ValidityInterval(IOVSyncValue(Timestamp(2)), IOVSyncValue(Timestamp(3))));
-      provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+      controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
       edm::ESParentContext pc;
       {
         edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "", 0, true);
         auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kBad);
         dummyProv->setDescription(description);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       {
         edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "", 1, false);
         auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kGood);
         dummyProv->setDescription(description);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       controller.eventSetupForInstance(IOVSyncValue(Timestamp(2)));
       DummyDataConsumer consumer{edm::ESInputTag("", "")};
@@ -1130,18 +1130,18 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
 
       std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
       dummyFinder->setInterval(ValidityInterval(IOVSyncValue(Timestamp(2)), IOVSyncValue(Timestamp(3))));
-      provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+      controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
       {
         edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "", 0, false);
         auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kGood);
         dummyProv->setDescription(description);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       {
         edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "", 1, true);
         auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kBad);
         dummyProv->setDescription(description);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       controller.eventSetupForInstance(IOVSyncValue(Timestamp(2)));
       ESParentContext pc;
@@ -1168,7 +1168,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
       {
         SynchronousEventSetupsController controller;
         EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
-        provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+        controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
         EventSetupProvider::PreferredProviderInfo preferInfo;
         EventSetupProvider::RecordToDataMap recordToData;
@@ -1180,13 +1180,13 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
           edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "bad", 0, false);
           auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kBad);
           dummyProv->setDescription(description);
-          provider.add(dummyProv);
+          controller.addExtra(dummyProv);
         }
         {
           edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "", 1, false);
           auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kGood);
           dummyProv->setDescription(description);
-          provider.add(dummyProv);
+          controller.addExtra(dummyProv);
         }
         controller.eventSetupForInstance(IOVSyncValue(Timestamp(2)));
         DummyDataConsumer consumer{edm::ESInputTag("", "")};
@@ -1204,7 +1204,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
       {
         SynchronousEventSetupsController controller;
         EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
-        provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+        controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
         EventSetupProvider::PreferredProviderInfo preferInfo;
         EventSetupProvider::RecordToDataMap recordToData;
@@ -1216,13 +1216,13 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
           edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "", 0, true);
           auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kGood);
           dummyProv->setDescription(description);
-          provider.add(dummyProv);
+          controller.addExtra(dummyProv);
         }
         {
           edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "bad", 1, true);
           auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kBad);
           dummyProv->setDescription(description);
-          provider.add(dummyProv);
+          controller.addExtra(dummyProv);
         }
         controller.eventSetupForInstance(IOVSyncValue(Timestamp(2)));
         DummyDataConsumer consumer{edm::ESInputTag("", "")};
@@ -1240,7 +1240,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
       {
         SynchronousEventSetupsController controller;
         EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
-        provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+        controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
         EventSetupProvider::PreferredProviderInfo preferInfo;
         EventSetupProvider::RecordToDataMap recordToData;
@@ -1253,13 +1253,13 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
           edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "", 0, true);
           auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kGood);
           dummyProv->setDescription(description);
-          provider.add(dummyProv);
+          controller.addExtra(dummyProv);
         }
         {
           edm::eventsetup::ComponentDescription description("DummyESProductResolverProvider", "bad", 1, true);
           auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kBad);
           dummyProv->setDescription(description);
-          provider.add(dummyProv);
+          controller.addExtra(dummyProv);
         }
         controller.eventSetupForInstance(IOVSyncValue(Timestamp(2)));
         DummyDataConsumer consumer{edm::ESInputTag("", "")};
@@ -1286,7 +1286,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
 
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(ValidityInterval(IOVSyncValue(Timestamp(2)), IOVSyncValue(Timestamp(3))));
-    provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
     edm::ESParentContext pc;
     try {
@@ -1298,7 +1298,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
         description.pid_ = ps.id();
         auto dummyProv = std::make_shared<DummyESProductResolverProvider>(kBad);
         dummyProv->setDescription(description);
-        provider.add(dummyProv);
+        controller.addExtra(dummyProv);
       }
       EventSetupRecordKey dummyRecordKey = EventSetupRecordKey::makeKey<DummyRecord>();
       controller.eventSetupForInstance(IOVSyncValue(Timestamp(2)));
@@ -1346,7 +1346,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
 
     std::shared_ptr<DummyFinder> finder = std::make_shared<DummyFinder>();
     finder->setInterval(ValidityInterval(IOVSyncValue(Timestamp(2)), IOVSyncValue(Timestamp(3))));
-    provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(finder));
+    controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(finder));
 
     edm::ESParentContext pc;
     {
@@ -1384,7 +1384,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
 
       std::shared_ptr<DummyFinder> finder = std::make_shared<DummyFinder>();
       finder->setInterval(ValidityInterval(IOVSyncValue(Timestamp(2)), IOVSyncValue(Timestamp(5))));
-      provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(finder));
+      controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(finder));
 
       edm::ESParentContext pc;
       decltype(DummyRecord().cacheIdentifier()) oldCacheId = 0;
@@ -1417,7 +1417,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
 
       std::shared_ptr<DummyFinder> finder = std::make_shared<DummyFinder>();
       finder->setInterval(ValidityInterval(IOVSyncValue(EventID(1, 1, 0)), IOVSyncValue(EventID(1, 3, 0))));
-      provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(finder));
+      controller.addExtra(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(finder));
 
       edm::ESParentContext pc;
       decltype(DummyRecord().cacheIdentifier()) oldCacheId = 0;

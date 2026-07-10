@@ -27,7 +27,6 @@
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/ESProductResolverProvider.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/NumberOfConcurrentIOVs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -40,7 +39,6 @@ namespace edm {
     EventSetupProvider::EventSetupProvider(ActivityRegistry const* activityRegistry, const PreferredProviderInfo* iInfo)
         : activityRegistry_(activityRegistry),
           preferredProviderInfo_((nullptr != iInfo) ? (new PreferredProviderInfo(*iInfo)) : nullptr),
-          finders_(new std::vector<std::shared_ptr<EventSetupRecordIntervalFinder>>()),
           dataProviders_(new std::vector<std::shared_ptr<ESProductResolverProvider>>()),
           recordToPreferred_(new std::map<EventSetupRecordKey, std::map<DataKey, ComponentDescription>>) {}
 
@@ -100,11 +98,6 @@ namespace edm {
       if (activityRegistry_) {
         activityRegistry_->postESModuleRegistrationSignal_.emit(iProvider->description());
       }
-    }
-
-    void EventSetupProvider::add(std::shared_ptr<EventSetupRecordIntervalFinder> iFinder) {
-      assert(iFinder.get() != nullptr);
-      finders_->push_back(iFinder);
     }
 
     using RecordProviders = std::vector<std::shared_ptr<EventSetupRecordProvider>>;
@@ -233,26 +226,20 @@ namespace edm {
       }
     }
 
-    std::vector<std::shared_ptr<EventSetupRecordIntervalFinder>> EventSetupProvider::finishConfiguration(NumberOfConcurrentIOVs const& numberOfConcurrentIOVs) {
+    void EventSetupProvider::finishConfiguration(std::set<edm::eventsetup::EventSetupRecordKey> const& finderRecords,
+                                                 NumberOfConcurrentIOVs const& numberOfConcurrentIOVs) {
       //we delayed adding finders to the system till here so that everything would be loaded first
-      for (auto& finder : *finders_) {
-        const std::set<EventSetupRecordKey> recordsUsing = finder->findingForRecords();
+      for (auto const& key : finderRecords) {
+        EventSetupRecordProvider* recProvider = tryToGetRecordProvider(key);
+        if (recProvider == nullptr) {
+          bool printInfoMsg = true;
+          unsigned int nConcurrentIOVs = numberOfConcurrentIOVs.numberOfConcurrentIOVs(key, printInfoMsg);
 
-        for (auto const& key : recordsUsing) {
-          EventSetupRecordProvider* recProvider = tryToGetRecordProvider(key);
-          if (recProvider == nullptr) {
-            bool printInfoMsg = true;
-            unsigned int nConcurrentIOVs = numberOfConcurrentIOVs.numberOfConcurrentIOVs(key, printInfoMsg);
-
-            //create a provider for this record
-            insert(key, std::make_unique<EventSetupRecordProvider>(key, activityRegistry_, nConcurrentIOVs));
-            recProvider = tryToGetRecordProvider(key);
-          }
+          //create a provider for this record
+          insert(key, std::make_unique<EventSetupRecordProvider>(key, activityRegistry_, nConcurrentIOVs));
+          recProvider = tryToGetRecordProvider(key);
         }
       }
-      //we've transfered our ownership so this is no longer needed
-      auto finders = std::move(*finders_);
-      finders_.reset();
 
       //Now handle providers since sources can also be finders and the sources can delay registering
       // their Records and therefore could delay setting up their Resolvers
@@ -290,7 +277,6 @@ namespace edm {
       }
 
       dataProviders_.reset();
-      return finders;
     }
 
     using Itr = RecordProviders::iterator;

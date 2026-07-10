@@ -31,7 +31,6 @@
 namespace edm {
   class ActivityRegistry;
   class EventSetupImpl;
-  class EventSetupRecordIntervalFinder;
   class IOVSyncValue;
 
   namespace eventsetup {
@@ -67,9 +66,9 @@ namespace edm {
       EventSetupImpl const& eventSetupImpl() const { return *eventSetupImpl_; }
 
       void add(std::shared_ptr<ESProductResolverProvider>);
-      void add(std::shared_ptr<EventSetupRecordIntervalFinder>);
 
-      std::vector<std::shared_ptr<EventSetupRecordIntervalFinder>> finishConfiguration(NumberOfConcurrentIOVs const&);
+      void finishConfiguration(std::set<edm::eventsetup::EventSetupRecordKey> const& finderRecords,
+                               NumberOfConcurrentIOVs const&);
 
       ///Used when we need to force a Record to reset all its resolvers
       std::vector<EventSetupRecordKey> resetRecordPlusDependentRecords(EventSetupRecordKey const&);
@@ -112,9 +111,7 @@ namespace edm {
       propagate_const<std::shared_ptr<EventSetupImpl>> eventSetupImpl_;
 
       // The following are all used only during initialization and then cleared.
-
       std::unique_ptr<PreferredProviderInfo> preferredProviderInfo_;
-      std::unique_ptr<std::vector<std::shared_ptr<EventSetupRecordIntervalFinder>>> finders_;
       std::unique_ptr<std::vector<std::shared_ptr<ESProductResolverProvider>>> dataProviders_;
       std::unique_ptr<std::map<EventSetupRecordKey, std::map<DataKey, ComponentDescription>>> recordToPreferred_;
     };

@@ -204,23 +204,26 @@ namespace edm {
   }
 
   // ---------------------------------------------------------------
-  std::shared_ptr<EDLooperBase> fillLooper(eventsetup::EventSetupProvider& eventSetupProvider,
+  std::shared_ptr<EDLooperBase> fillLooper(eventsetup::EventSetupsController& controller,
                                            ParameterSet& params,
                                            std::vector<std::string> const& loopers) {
     std::shared_ptr<EDLooperBase> vLooper;
 
     assert(1 == loopers.size());
 
+    std::vector<std::shared_ptr<eventsetup::ESProductResolverProvider>> extraProviders;
+    std::vector<std::shared_ptr<EventSetupRecordIntervalFinder>> extraFinders;
     for (auto const& looperName : loopers) {
       ParameterSet* providerPSet = params.getPSetForUpdate(looperName);
       // Unlikely we would ever need the ModuleTypeResolver in Looper
       eventsetup::ComponentInterfaceHolder iInterfaceHolder;
       vLooper = eventsetup::LooperFactory::get()->addTo(iInterfaceHolder, *providerPSet, nullptr);
+
       if (iInterfaceHolder.finder()) {
-        eventSetupProvider.add(iInterfaceHolder.finder());
+        controller.addExtra(iInterfaceHolder.finder());
       }
       if (iInterfaceHolder.provider()) {
-        eventSetupProvider.add(iInterfaceHolder.provider());
+        controller.addExtra(iInterfaceHolder.provider());
       }
     }
     return vLooper;
@@ -468,7 +471,7 @@ namespace edm {
 
       // initialize the looper, if any
       if (!loopers.empty()) {
-        looper_ = fillLooper(*esp_, *parameterSet, loopers);
+        looper_ = fillLooper(*espController_, *parameterSet, loopers);
         looper_->setActionTable(items.act_table_.get());
         looper_->attachTo(*items.actReg_);
 
