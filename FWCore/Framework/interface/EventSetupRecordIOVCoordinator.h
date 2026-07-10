@@ -1,11 +1,11 @@
 // -*- C++ -*-
-#ifndef FWCore_Framework_EventSetupRecordIOVQueue_h
-#define FWCore_Framework_EventSetupRecordIOVQueue_h
+#ifndef FWCore_Framework_EventSetupRecordIOVCoordinator_h
+#define FWCore_Framework_EventSetupRecordIOVCoordinator_h
 //
 // Package:     Framework
-// Class  :     EventSetupRecordIOVQueue
+// Class  :     EventSetupRecordIOVCoordinator
 //
-/** \class edm::eventsetup::EventSetupRecordIOVQueue
+/** \class edm::eventsetup::EventSetupRecordIOVCoordinator
 
  Description: Contains a LimitedQueue for each Record that
  limits the number of IOVs that can be processed concurrently.
@@ -43,12 +43,12 @@ namespace edm {
 
     class EventSetupRecordProvider;
 
-    class EventSetupRecordIOVQueue {
+    class EventSetupRecordIOVCoordinator {
     public:
       enum class IntervalStatus { NotInitializedForSyncValue, Invalid, NewInterval, UpdateIntervalEnd, SameInterval };
 
-      EventSetupRecordIOVQueue(unsigned int nConcurrentIOVs);
-      ~EventSetupRecordIOVQueue();
+      EventSetupRecordIOVCoordinator(unsigned int nConcurrentIOVs);
+      ~EventSetupRecordIOVCoordinator();
 
       void endIOVAsync(WaitingTaskHolder endTask);
 

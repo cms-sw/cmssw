@@ -1,13 +1,13 @@
 // -*- C++ -*-
 //
 // Package:     Framework
-// Class  :     EventSetupRecordIOVQueue
+// Class  :     EventSetupRecordIOVCoordinator
 //
 //
 // Author:      W. David Dagenhart
 // Created:     22 Feb 2019
 
-#include "FWCore/Framework/interface/EventSetupRecordIOVQueue.h"
+#include "FWCore/Framework/interface/EventSetupRecordIOVCoordinator.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
@@ -20,7 +20,7 @@
 namespace edm {
   namespace eventsetup {
 
-    EventSetupRecordIOVQueue::EventSetupRecordIOVQueue(unsigned int nConcurrentIOVs)
+    EventSetupRecordIOVCoordinator::EventSetupRecordIOVCoordinator(unsigned int nConcurrentIOVs)
         : iovQueue_(nConcurrentIOVs),
           isAvailable_(nConcurrentIOVs),
           // start valid cacheIdentifiers at 1 and only increment them
@@ -34,9 +34,9 @@ namespace edm {
       }
     }
 
-    EventSetupRecordIOVQueue::~EventSetupRecordIOVQueue() { assert(endIOVCalled_); }
+    EventSetupRecordIOVCoordinator::~EventSetupRecordIOVCoordinator() { assert(endIOVCalled_); }
 
-    void EventSetupRecordIOVQueue::endIOVAsync(edm::WaitingTaskHolder iEndTask) {
+    void EventSetupRecordIOVCoordinator::endIOVAsync(edm::WaitingTaskHolder iEndTask) {
       endIOVTasks_.reset();
       if (endIOVTaskHolder_.hasTask()) {
         endIOVTasks_.add(std::move(iEndTask));
@@ -47,7 +47,7 @@ namespace edm {
       endIOVCalled_ = true;
     }
 
-    bool EventSetupRecordIOVQueue::setValidityIntervalFor(const IOVSyncValue& iTime) {
+    bool EventSetupRecordIOVCoordinator::setValidityIntervalFor(const IOVSyncValue& iTime) {
       //If still valid for the same interval, then we don't need to do anything.
       if (validityInterval_.first() != IOVSyncValue::invalidIOVSyncValue() && validityInterval_.validFor(iTime)) {
         assert(firstForCurrentIOV_ == validityInterval_.first());
@@ -69,7 +69,7 @@ namespace edm {
       return newIOVNeeded_;
     }
 
-    void EventSetupRecordIOVQueue::updateValidityIntervalAndStatus(const IOVSyncValue& iTime) {
+    void EventSetupRecordIOVCoordinator::updateValidityIntervalAndStatus(const IOVSyncValue& iTime) {
       intervalStatus_ = IntervalStatus::Invalid;
 
       if (finder_.get() == nullptr) {
@@ -99,10 +99,11 @@ namespace edm {
       }
     }
 
-    void EventSetupRecordIOVQueue::checkForNewIOVsAndStartIfNeededAsync(WaitingTaskHolder const& taskToStartAfterIOVInit,
-                                                                        WaitingTaskList& endIOVWaitingTasks,
-                                                                        bool newEventSetupImpl,
-                                                                        EventSetupImpl& eventSetupImpl) {
+    void EventSetupRecordIOVCoordinator::checkForNewIOVsAndStartIfNeededAsync(
+        WaitingTaskHolder const& taskToStartAfterIOVInit,
+        WaitingTaskList& endIOVWaitingTasks,
+        bool newEventSetupImpl,
+        EventSetupImpl& eventSetupImpl) {
       if (newIOVNeeded_) {
         newIOVNeeded_ = false;
         startNewIOVAsync(taskToStartAfterIOVInit, endIOVWaitingTasks, eventSetupImpl);
@@ -121,9 +122,9 @@ namespace edm {
       eventSetupImpl.addRecordImpl(recordImpl);
     }
 
-    void EventSetupRecordIOVQueue::startNewIOVAsync(WaitingTaskHolder const& taskToStartAfterIOVInit,
-                                                    WaitingTaskList& endIOVWaitingTasks,
-                                                    EventSetupImpl& eventSetupImpl) {
+    void EventSetupRecordIOVCoordinator::startNewIOVAsync(WaitingTaskHolder const& taskToStartAfterIOVInit,
+                                                          WaitingTaskList& endIOVWaitingTasks,
+                                                          EventSetupImpl& eventSetupImpl) {
       ++cacheIdentifier_;
       {
         // Let the old IOV end when all the lumis using it are done.
@@ -146,7 +147,7 @@ namespace edm {
           // Should never fail, just a sanity check
           if (iovIndex == nConcurrentIOVs) {
             throw edm::Exception(edm::errors::LogicError)
-                << "EventSetupRecordIOVQueue::startNewIOVAsync\n"
+                << "EventSetupRecordIOVCoordinator::startNewIOVAsync\n"
                 << "Couldn't find available IOV slot. This should never happen.\n"
                 << "Contact a Framework Developer\n";
           }
@@ -173,11 +174,11 @@ namespace edm {
       iovQueue_.pushAndPause(*taskToStartAfterIOVInit.group(), std::move(startIOVForRecord));
     }
 
-    void EventSetupRecordIOVQueue::addRecProvider(EventSetupRecordProvider* recProvider) {
+    void EventSetupRecordIOVCoordinator::addRecProvider(EventSetupRecordProvider* recProvider) {
       recordProvider_ = recProvider;
     }
 
-    void EventSetupRecordIOVQueue::reset() {
+    void EventSetupRecordIOVCoordinator::reset() {
       firstForCurrentIOV_ = IOVSyncValue();
       // Force a new IOV to start with a new cacheIdentifier
       // on the next eventSetupForInstance call.

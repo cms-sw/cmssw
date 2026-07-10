@@ -23,7 +23,7 @@
 #include "FWCore/Framework/src/EventSetupProviderMaker.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-#include "FWCore/Framework/interface/EventSetupRecordIOVQueue.h"
+#include "FWCore/Framework/interface/EventSetupRecordIOVCoordinator.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/src/SendSourceTerminationSignalIfException.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -42,8 +42,8 @@ namespace edm {
     EventSetupsController::~EventSetupsController() {}
 
     void EventSetupsController::endIOVsAsync(edm::WaitingTaskHolder iEndTask) {
-      for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
-        eventSetupRecordIOVQueue->endIOVAsync(iEndTask);
+      for (auto& eventSetupRecordIOVCoordinator : eventSetupRecordIOVCoordinators_) {
+        eventSetupRecordIOVCoordinator->endIOVAsync(iEndTask);
       }
     }
 
@@ -90,7 +90,7 @@ namespace edm {
 
         assert(loadedFinders_.has_value());
         auto findersForRecords = impl::makeFindersForRecords(provider_->keys(), loadedFinders_.value());
-        initializeEventSetupRecordIOVQueues(findersForRecords);
+        initializeEventSetupRecordIOVCoordinators(findersForRecords);
         numberOfConcurrentIOVs_.clear();
         loadedFinders_.reset();
         mustFinishConfiguration_ = false;
@@ -133,8 +133,8 @@ namespace edm {
       bool newEventSetupImpl = false;
       eventSetupImpl.reset();
 
-      for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
-        if (eventSetupRecordIOVQueue->setValidityIntervalFor(syncValue)) {
+      for (auto& eventSetupRecordIOVCoordinator : eventSetupRecordIOVCoordinators_) {
+        if (eventSetupRecordIOVCoordinator->setValidityIntervalFor(syncValue)) {
           newEventSetupImpl = true;
         }
       }
@@ -146,35 +146,35 @@ namespace edm {
       auto nonConst = provider_->cachedEventSetup(newEventSetupImpl);
 
       eventSetupImpl = nonConst;
-      for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
-        eventSetupRecordIOVQueue->checkForNewIOVsAndStartIfNeededAsync(
+      for (auto& eventSetupRecordIOVCoordinator : eventSetupRecordIOVCoordinators_) {
+        eventSetupRecordIOVCoordinator->checkForNewIOVsAndStartIfNeededAsync(
             taskToStartAfterIOVInit, endIOVWaitingTasks, newEventSetupImpl, *nonConst);
       }
     }
 
-    void EventSetupsController::initializeEventSetupRecordIOVQueues(
+    void EventSetupsController::initializeEventSetupRecordIOVCoordinators(
         std::map<edm::eventsetup::EventSetupRecordKey, std::shared_ptr<edm::EventSetupRecordIntervalFinder>> const&
             iKeyToFinders) {
       std::set<EventSetupRecordKey> keys = provider_->keys();
 
       for (auto const& key : keys) {
-        eventSetupRecordIOVQueues_.push_back(
-            std::make_unique<EventSetupRecordIOVQueue>(numberOfConcurrentIOVs_.numberOfConcurrentIOVs(key)));
-        EventSetupRecordIOVQueue& iovQueue = *eventSetupRecordIOVQueues_.back();
+        eventSetupRecordIOVCoordinators_.push_back(
+            std::make_unique<EventSetupRecordIOVCoordinator>(numberOfConcurrentIOVs_.numberOfConcurrentIOVs(key)));
+        EventSetupRecordIOVCoordinator& iovCoordinator = *eventSetupRecordIOVCoordinators_.back();
         EventSetupRecordProvider* recProvider = provider_->tryToGetRecordProvider(key);
         if (recProvider) {
-          iovQueue.addRecProvider(recProvider);
+          iovCoordinator.addRecProvider(recProvider);
         }
         auto finderIt = iKeyToFinders.find(key);
         if (finderIt != iKeyToFinders.end()) {
-          iovQueue.setFinder(finderIt->second);
+          iovCoordinator.setFinder(finderIt->second);
         }
       }
     }
 
     void EventSetupsController::resetRecordPlusDependentRecords(EventSetupRecordKey const& recordKey) {
       auto dependentKeys = provider_->resetRecordPlusDependentRecords(recordKey);
-      for (auto& queue : eventSetupRecordIOVQueues_) {
+      for (auto& queue : eventSetupRecordIOVCoordinators_) {
         if (queue->key() == recordKey) {
           queue->reset();
         } else if (std::find(dependentKeys.begin(), dependentKeys.end(), queue->key()) != dependentKeys.end()) {

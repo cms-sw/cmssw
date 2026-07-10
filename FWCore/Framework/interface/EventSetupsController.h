@@ -44,7 +44,7 @@ namespace edm {
   namespace eventsetup {
 
     class EventSetupProvider;
-    class EventSetupRecordIOVQueue;
+    class EventSetupRecordIOVCoordinator;
     class ESProductResolverProvider;
 
     class EventSetupsController {
@@ -102,7 +102,7 @@ namespace edm {
       void resetRecordPlusDependentRecords(EventSetupRecordKey const& recordKey);
 
     private:
-      void initializeEventSetupRecordIOVQueues(
+      void initializeEventSetupRecordIOVCoordinators(
           std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordIntervalFinder>> const& iKeyToFinders);
 
       // ---------- member data --------------------------------
@@ -111,7 +111,7 @@ namespace edm {
 
       // This data member is intentionally declared after provider_
       // It is important that this is destroyed first.
-      std::vector<propagate_const<std::unique_ptr<EventSetupRecordIOVQueue>>> eventSetupRecordIOVQueues_;
+      std::vector<propagate_const<std::unique_ptr<EventSetupRecordIOVCoordinator>>> eventSetupRecordIOVCoordinators_;
 
       ModuleTypeResolverMaker const* typeResolverMaker_ = nullptr;
       std::optional<std::vector<std::shared_ptr<EventSetupRecordIntervalFinder>>> loadedFinders_;
