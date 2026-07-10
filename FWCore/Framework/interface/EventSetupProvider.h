@@ -84,7 +84,7 @@ namespace edm {
 
       void fillRecordsNotAllowingConcurrentIOVs(std::set<EventSetupRecordKey>& recordsNotAllowingConcurrentIOVs) const;
 
-      void fillKeys(std::set<EventSetupRecordKey>& keys) const;
+      std::set<EventSetupRecordKey> keys() const;
 
       EventSetupRecordProvider* tryToGetRecordProvider(const EventSetupRecordKey& iKey);
       EventSetupRecordProvider const* tryToGetRecordProvider(const EventSetupRecordKey& iKey) const;

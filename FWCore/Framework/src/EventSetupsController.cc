@@ -135,8 +135,7 @@ namespace edm {
     }
 
     void EventSetupsController::initializeEventSetupRecordIOVQueues() {
-      std::set<EventSetupRecordKey> keys;
-      provider_->fillKeys(keys);
+      std::set<EventSetupRecordKey> keys = provider_->keys();
 
       for (auto const& key : keys) {
         eventSetupRecordIOVQueues_.push_back(

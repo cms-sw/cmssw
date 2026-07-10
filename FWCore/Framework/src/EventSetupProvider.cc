@@ -390,10 +390,12 @@ namespace edm {
       preferredProviderInfo_ = std::make_unique<PreferredProviderInfo>(iInfo);
     }
 
-    void EventSetupProvider::fillKeys(std::set<EventSetupRecordKey>& keys) const {
+    std::set<EventSetupRecordKey> EventSetupProvider::keys() const {
+      std::set<EventSetupRecordKey> keys;
       for (auto const& recProvider : recordProviders_) {
         keys.insert(recProvider->key());
       }
+      return keys;
     }
 
     ESRecordsToProductResolverIndices EventSetupProvider::recordsToResolverIndices() const {
