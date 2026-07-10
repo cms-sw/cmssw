@@ -43,7 +43,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE float sigmoid_activation(TAcc const& acc, const float x) {
-    return alpaka::math::exp(acc, x) / (alpaka::math::exp(acc, x) + 1.f);
+    const float e = alpaka::math::exp(acc, x);
+    return e / (e + 1.f);
   }
 
   template <int IN_FEATURES, int OUT_FEATURES>
@@ -154,7 +155,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       constexpr unsigned int kInputFeatures = 7;
       constexpr unsigned int kHiddenFeatures = 32;
       constexpr unsigned int kOutputFeatures = 1;
-
       float x[kInputFeatures] = {
           alpaka::math::log10(acc, rPhiChiSquared),
           alpaka::math::log10(acc, tripletRadius),

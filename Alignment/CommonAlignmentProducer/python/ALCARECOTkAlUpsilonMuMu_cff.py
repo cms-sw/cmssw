@@ -41,8 +41,8 @@ ALCARECOTkAlUpsilonMuMu.GlobalSelector.applyIsolationtest = False
 ALCARECOTkAlUpsilonMuMu.GlobalSelector.applyGlobalMuonFilter = True
 
 ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.applyMassrangeFilter = True
-ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.minXMass = 8.9 ##GeV
-ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.maxXMass = 9.9 ##GeV
+ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.minXMass = 8.5 ##GeV
+ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.maxXMass = 11.4 ##GeV
 ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.daughterMass = 0.105 ##GeV (Muons)
 ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.applyChargeFilter = True
 ALCARECOTkAlUpsilonMuMu.TwoBodyDecaySelector.charge = 0

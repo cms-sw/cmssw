@@ -15,7 +15,6 @@ namespace edm {
   class ExceptionToActionTable;
   class ActivityRegistry;
   class BranchIDListHelper;
-  class ThinnedAssociationsHelper;
   struct CommonParams;
   class ParameterSet;
   class ProcessConfiguration;
@@ -78,12 +77,6 @@ namespace edm {
       return get_underlying_safe(branchIDListHelper_);
     }
     std::shared_ptr<BranchIDListHelper>& branchIDListHelper() { return get_underlying_safe(branchIDListHelper_); }
-    std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper() const {
-      return get_underlying_safe(thinnedAssociationsHelper_);
-    }
-    std::shared_ptr<ThinnedAssociationsHelper>& thinnedAssociationsHelper() {
-      return get_underlying_safe(thinnedAssociationsHelper_);
-    }
     std::shared_ptr<ProcessConfiguration const> processConfiguration() const {
       return get_underlying_safe(processConfiguration_);
     }
@@ -92,7 +85,6 @@ namespace edm {
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     edm::propagate_const<std::shared_ptr<SignallingProductRegistryFiller>> preg_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
-    edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     std::unique_ptr<ExceptionToActionTable const> act_table_;
     edm::propagate_const<std::shared_ptr<ProcessConfiguration>> processConfiguration_;
   };

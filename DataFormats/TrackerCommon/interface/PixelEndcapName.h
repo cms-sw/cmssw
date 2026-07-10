@@ -6,11 +6,11 @@
  */
 #include "DataFormats/SiPixelDetId/interface/PixelModuleName.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 
 #include <string>
 #include <iostream>
 
-class DetId;
 class TrackerTopology;
 
 class PixelEndcapName : public PixelModuleName {

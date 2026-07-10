@@ -134,7 +134,6 @@ namespace edm {
                                          CommonParams const& common,
                                          std::shared_ptr<BranchIDListHelper> branchIDListHelper,
                                          std::shared_ptr<ProcessBlockHelper> const& processBlockHelper,
-                                         std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
                                          std::shared_ptr<ActivityRegistry> areg,
                                          std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                          PreallocationConfiguration const& allocations) {
@@ -178,7 +177,6 @@ namespace edm {
     InputSourceDescription isdesc(md,
                                   branchIDListHelper,
                                   processBlockHelper,
-                                  thinnedAssociationsHelper,
                                   areg,
                                   common.maxEventsInput_,
                                   common.maxLumisInput_,
@@ -230,7 +228,6 @@ namespace edm {
         preg_(),
         branchIDListHelper_(),
         serviceToken_(),
-        input_(),
         moduleTypeResolverMaker_(makeModuleTypeResolverMaker(*parameterSet)),
         espController_(std::make_unique<eventsetup::EventSetupsController>(moduleTypeResolverMaker_.get())),
         esp_(),
@@ -241,8 +238,9 @@ namespace edm {
         fb_(),
         looper_(),
         deferredExceptionPtrIsSet_(false),
-        sourceResourcesAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first),
-        sourceMutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
+        sourceCoordinator_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first,
+                           SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second,
+                           serviceToken_),
         principalCache_(),
         beginJobCalled_(false),
         shouldWeStop_(false),
@@ -251,8 +249,7 @@ namespace edm {
         exceptionMessageRuns_(false),
         exceptionMessageLumis_(false),
         forceLooperToEnd_(false),
-        looperBeginJobRun_(false),
-        forceESCacheClearOnNewRun_(false) {
+        looperBeginJobRun_(false) {
     auto processDesc = std::make_shared<ProcessDesc>(std::move(parameterSet));
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, iToken, iLegacy);
@@ -265,7 +262,6 @@ namespace edm {
         preg_(),
         branchIDListHelper_(),
         serviceToken_(),
-        input_(),
         moduleTypeResolverMaker_(makeModuleTypeResolverMaker(*parameterSet)),
         espController_(std::make_unique<eventsetup::EventSetupsController>(moduleTypeResolverMaker_.get())),
         esp_(),
@@ -276,8 +272,9 @@ namespace edm {
         fb_(),
         looper_(),
         deferredExceptionPtrIsSet_(false),
-        sourceResourcesAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first),
-        sourceMutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
+        sourceCoordinator_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first,
+                           SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second,
+                           serviceToken_),
         principalCache_(),
         beginJobCalled_(false),
         shouldWeStop_(false),
@@ -286,8 +283,7 @@ namespace edm {
         exceptionMessageRuns_(false),
         exceptionMessageLumis_(false),
         forceLooperToEnd_(false),
-        looperBeginJobRun_(false),
-        forceESCacheClearOnNewRun_(false) {
+        looperBeginJobRun_(false) {
     auto processDesc = std::make_shared<ProcessDesc>(std::move(parameterSet));
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
@@ -300,7 +296,6 @@ namespace edm {
         preg_(),
         branchIDListHelper_(),
         serviceToken_(),
-        input_(),
         moduleTypeResolverMaker_(makeModuleTypeResolverMaker(*processDesc->getProcessPSet())),
         espController_(std::make_unique<eventsetup::EventSetupsController>(moduleTypeResolverMaker_.get())),
         esp_(),
@@ -311,8 +306,9 @@ namespace edm {
         fb_(),
         looper_(),
         deferredExceptionPtrIsSet_(false),
-        sourceResourcesAcquirer_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first),
-        sourceMutex_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
+        sourceCoordinator_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first,
+                           SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second,
+                           serviceToken_),
         principalCache_(),
         beginJobCalled_(false),
         shouldWeStop_(false),
@@ -321,8 +317,7 @@ namespace edm {
         exceptionMessageRuns_(false),
         exceptionMessageLumis_(false),
         forceLooperToEnd_(false),
-        looperBeginJobRun_(false),
-        forceESCacheClearOnNewRun_(false) {
+        looperBeginJobRun_(false) {
     init(processDesc, token, legacy);
   }
 
@@ -354,7 +349,6 @@ namespace edm {
     } else {
       fileModeNoMerge_ = (fileMode == "NOMERGE");
     }
-    forceESCacheClearOnNewRun_ = optionsPset.getUntrackedParameter<bool>("forceEventSetupCacheClearOnNewRun");
     ensureAvailableAccelerators(*parameterSet);
 
     //threading
@@ -442,6 +436,7 @@ namespace edm {
     serviceToken_ = items.addTNS(*parameterSet, token);
     items.actReg_->postServicesConstructionSignal_.emit();
 
+    sourceCoordinator_.setSignals(*items.actReg_);
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
@@ -492,29 +487,36 @@ namespace edm {
         // initialize the input source
         auto sourceID = ModuleDescription::getUniqueID();
 
-        group.run([&, this]() {
-          // initialize the Schedule
-          ServiceRegistry::Operate operate(serviceToken_);
-          auto const& tns = ServiceRegistry::instance().get<service::TriggerNamesService>();
-          madeModules =
-              items.initModules(*parameterSet, tns, preallocations_, &processContext_, moduleTypeResolverMaker_.get());
-        });
+        {
+          items.actReg_->preModulesAndSourceConstructionSignal_.emit();
+          auto guard = makeGuard([&items]() { items.actReg_->postModulesAndSourceConstructionSignal_.emit(); });
 
-        group.run([&, this]() {
-          ServiceRegistry::Operate operate(serviceToken_);
-          input_ = makeInput(sourceID,
-                             *parameterSet,
-                             *common,
-                             items.branchIDListHelper(),
-                             get_underlying_safe(processBlockHelper_),
-                             items.thinnedAssociationsHelper(),
-                             items.actReg_,
-                             items.processConfiguration(),
-                             preallocations_);
-        });
+          group.run([&, this]() {
+            // initialize the Schedule
+            ServiceRegistry::Operate operate(serviceToken_);
+            auto const& tns = ServiceRegistry::instance().get<service::TriggerNamesService>();
+            madeModules = items.initModules(
+                *parameterSet, tns, preallocations_, &processContext_, moduleTypeResolverMaker_.get());
+          });
 
-        group.wait();
-        items.preg()->addFromInput(input_->productRegistry());
+          std::unique_ptr<InputSource> input;
+          group.run([&, this]() {
+            ServiceRegistry::Operate operate(serviceToken_);
+            input = makeInput(sourceID,
+                              *parameterSet,
+                              *common,
+                              items.branchIDListHelper(),
+                              get_underlying_safe(processBlockHelper_),
+                              items.actReg_,
+                              items.processConfiguration(),
+                              preallocations_);
+          });
+
+          group.wait();
+          sourceCoordinator_.setSource(std::move(input));
+        }
+
+        items.preg()->addFromInput(sourceCoordinator_.productRegistry());
         {
           items.actReg_->preFinishScheduleSignal_.emit();
           auto guard = makeGuard([&items]() { items.actReg_->postFinishScheduleSignal_.emit(); });
@@ -530,7 +532,6 @@ namespace edm {
       preg_ = std::make_shared<ProductRegistry>(items.preg()->moveTo());
       mergeableRunProductProcesses_.setProcessesWithMergeableRunProducts(*preg_);
       branchIDListHelper_ = items.branchIDListHelper();
-      thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();
       processConfiguration_ = items.processConfiguration();
       processContext_.setProcessConfiguration(processConfiguration_.get());
 
@@ -552,7 +553,6 @@ namespace edm {
           auto ep = std::make_shared<EventPrincipal>(preg(),
                                                      productResolversFactory::makePrimary,
                                                      branchIDListHelper(),
-                                                     thinnedAssociationsHelper(),
                                                      *processConfiguration_,
                                                      historyAppender_.get(),
                                                      index,
@@ -592,7 +592,7 @@ namespace edm {
       espController_ = nullptr;
       esp_ = nullptr;
       schedule_ = nullptr;
-      input_ = nullptr;
+      sourceCoordinator_.releaseSource();
       looper_ = nullptr;
       actReg_ = nullptr;
       throw;
@@ -609,7 +609,7 @@ namespace edm {
     espController_ = nullptr;
     esp_ = nullptr;
     schedule_ = nullptr;
-    input_ = nullptr;
+    sourceCoordinator_.releaseSource();
     looper_ = nullptr;
     actReg_ = nullptr;
 
@@ -706,7 +706,7 @@ namespace edm {
 
     actReg_->eventSetupConfigurationSignal_.emit(esRecordsToProductResolverIndices, processContext_);
     try {
-      convertException::wrap([&]() { input_->doBeginJob(*preg_); });
+      convertException::wrap([&]() { sourceCoordinator_.beginJob(*preg_); });
     } catch (cms::Exception& ex) {
       ex.addContext("Calling beginJob for the source");
       throw;
@@ -826,7 +826,7 @@ namespace edm {
 
     if (beginJobStartedModules_) {
       schedule_->endJob(c);
-      c.call(std::bind(&InputSource::doEndJob, input_.get()));
+      c.call([this]() { sourceCoordinator_.endJob(); });
       if (looper_) {
         c.call(std::bind(&EDLooperBase::endOfJob, looper()));
       }
@@ -854,72 +854,8 @@ namespace edm {
 #include "TransitionProcessors.icc"
   }
 
-  bool EventProcessor::checkForAsyncStopRequest(StatusCode& returnCode) {
-    bool returnValue = false;
-
-    // Look for a shutdown signal
-    if (shutdown_flag.load(std::memory_order_acquire)) {
-      returnValue = true;
-      edm::LogSystem("ShutdownSignal") << "an external signal was sent to shutdown the job early.";
-      edm::Service<edm::JobReport> jr;
-      jr->reportShutdownSignal();
-      returnCode = epSignal;
-    }
-    return returnValue;
-  }
-
-  namespace {
-    struct SourceNextGuard {
-      SourceNextGuard(edm::ActivityRegistry& iReg) : act_(iReg) { iReg.preSourceNextTransitionSignal_.emit(); }
-      ~SourceNextGuard() { act_.postSourceNextTransitionSignal_.emit(); }
-      edm::ActivityRegistry& act_;
-    };
-  }  // namespace
-
-  InputSource::ItemTypeInfo EventProcessor::nextTransitionType() {
-    SendSourceTerminationSignalIfException sentry(actReg_.get());
-    InputSource::ItemTypeInfo itemTypeInfo;
-    {
-      SourceNextGuard guard(*actReg_.get());
-      //For now, do nothing with InputSource::IsSynchronize
-      do {
-        itemTypeInfo = input_->nextItemType();
-      } while (itemTypeInfo == InputSource::ItemType::IsSynchronize);
-    }
-    lastSourceTransition_ = itemTypeInfo;
-    sentry.completedSuccessfully();
-
-    StatusCode returnCode = epSuccess;
-
-    if (checkForAsyncStopRequest(returnCode)) {
-      actReg_->preSourceEarlyTerminationSignal_.emit(TerminationOrigin::ExternalSignal);
-      lastSourceTransition_ = InputSource::ItemType::IsStop;
-    }
-
-    return lastSourceTransition_;
-  }
-
-  void EventProcessor::nextTransitionTypeAsync(std::shared_ptr<RunProcessingStatus> iRunStatus,
-                                               WaitingTaskHolder nextTask) {
-    auto group = nextTask.group();
-    sourceResourcesAcquirer_.serialQueueChain().push(
-        *group, [this, runStatus = std::move(iRunStatus), nextHolder = std::move(nextTask)]() mutable {
-          CMS_SA_ALLOW try {
-            ServiceRegistry::Operate operate(serviceToken_);
-            std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
-            nextTransitionType();
-            if (lastTransitionType() == InputSource::ItemType::IsRun &&
-                runStatus->runPrincipal()->run() == input_->run() &&
-                runStatus->runPrincipal()->reducedProcessHistoryID() == input_->reducedProcessHistoryID()) {
-              throw Exception(errors::LogicError)
-                  << "InputSource claimed previous Run Entry was last to be merged in this file,\n"
-                  << "but the next entry has the same run number and reduced ProcessHistoryID.\n"
-                  << "This is probably a bug in the InputSource. Please report to the Core group.\n";
-            }
-          } catch (...) {
-            nextHolder.doneWaiting(std::current_exception());
-          }
-        });
+  [[nodiscard]] SourceStatus EventProcessor::thread_unsafe_peekNextTransitionType() {
+    return sourceCoordinator_.thread_unsafe_peekNextTransitionType();
   }
 
   EventProcessor::StatusCode EventProcessor::runToCompletion() {
@@ -932,7 +868,6 @@ namespace edm {
     std::unique_ptr<ActivityRegistry, decltype(endSignal)> guard(actReg_.get(), endSignal);
     try {
       FilesProcessor fp(fileModeNoMerge_);
-
       convertException::wrap([&]() {
         bool firstTime = true;
         do {
@@ -951,11 +886,12 @@ namespace edm {
           if (deferredExceptionPtrIsSet_.load()) {
             std::rethrow_exception(deferredExceptionPtr_);
           }
-          if (trans != InputSource::ItemType::IsStop) {
+          if (trans.nextTransitionType() != InputSource::ItemType::IsStop) {
             //problem with the source
-            doErrorStuff();
+            doErrorStuff(trans.nextTransitionType().itemType());
 
-            throw cms::Exception("BadTransition") << "Unexpected transition change " << static_cast<int>(trans);
+            throw cms::Exception("BadTransition")
+                << "Unexpected transition change " << static_cast<int>(trans.nextTransitionType().itemType());
           }
         } while (not endOfLoop());
       });  // convertException::wrap
@@ -998,13 +934,12 @@ namespace edm {
       streamRunStatus_[0]->runPrincipal()->preReadFile();
     }
 
-    auto oldCacheID = input_->productRegistry().cacheIdentifier();
-    fb_ = input_->readFile();
+    auto [fb, sourceReg] = sourceCoordinator_.readFile();
+    fb_ = std::move(fb);
     //incase the input's registry changed
-    if (input_->productRegistry().cacheIdentifier() != oldCacheID) {
+    if (sourceReg) {
       auto temp = std::make_shared<edm::ProductRegistry>(*preg_);
-      temp->merge(
-          input_->productRegistry(), fb_ ? fb_->fileName() : std::string(), ProductDescription::FromInputToCurrent);
+      temp->merge(*sourceReg, fb_ ? fb_->fileName() : std::string(), ProductDescription::FromInputToCurrent);
       preg_ = std::move(temp);
     }
     if (preallocations_.numberOfStreams() > 1 and preallocations_.numberOfThreads() > 1) {
@@ -1016,19 +951,25 @@ namespace edm {
   void EventProcessor::closeInputFile(bool cleaningUpAfterException) {
     if (fileBlockValid()) {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
-      input_->closeFile(fb_.get(), cleaningUpAfterException);
+      sourceCoordinator_.closeFile(fb_.get(), cleaningUpAfterException);
       sentry.completedSuccessfully();
     }
   }
 
   void EventProcessor::openOutputFiles() {
     if (fileBlockValid()) {
+      auto guard = makeGuard([this]() { actReg_->postOpenOutputFilesSignal_.emit(); });
+      actReg_->preOpenOutputFilesSignal_.emit();
       schedule_->openOutputFiles(*fb_);
     }
   }
 
   void EventProcessor::closeOutputFiles() {
-    schedule_->closeOutputFiles();
+    {
+      auto guard = makeGuard([this]() { actReg_->postCloseOutputFilesSignal_.emit(); });
+      actReg_->preCloseOutputFilesSignal_.emit();
+      schedule_->closeOutputFiles();
+    }
     processBlockHelper_->clearAfterOutputFilesClose();
   }
 
@@ -1068,18 +1009,15 @@ namespace edm {
     return true;
   }
 
-  void EventProcessor::rewindInput() {
-    input_->repeat();
-    input_->rewind();
-  }
+  void EventProcessor::rewindInput() { sourceCoordinator_.rewind(); }
 
   void EventProcessor::prepareForNextLoop() { looper_->prepareForNextLoop(esp_.get()); }
 
   bool EventProcessor::shouldWeCloseOutput() const { return schedule_->shouldWeCloseOutput(); }
 
-  void EventProcessor::doErrorStuff() {
-    LogError("StateMachine") << "The EventProcessor state machine encountered an unexpected event\n"
-                             << "and went to the error state\n"
+  void EventProcessor::doErrorStuff(InputSource::ItemType itemType) {
+    LogError("StateMachine") << "The EventProcessor state machine encountered an unexpected event transition of type ("
+                             << static_cast<int>(itemType) << ")\nand went to the error state\n"
                              << "Will attempt to terminate processing normally\n"
                              << "(IF using the looper the next loop will be attempted)\n"
                              << "This likely indicates a bug in an input module or corrupted input or both\n";
@@ -1101,10 +1039,10 @@ namespace edm {
   }
 
   void EventProcessor::inputProcessBlocks() {
-    input_->fillProcessBlockHelper();
+    sourceCoordinator_.fillProcessBlockHelper();
     ProcessBlockPrincipal& processBlockPrincipal = principalCache_.inputProcessBlockPrincipal();
-    while (input_->nextProcessBlock(processBlockPrincipal)) {
-      readProcessBlock(processBlockPrincipal);
+    while (sourceCoordinator_.nextProcessBlock(processBlockPrincipal)) {
+      sourceCoordinator_.readProcessBlock(processBlockPrincipal);
 
       using Traits = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionProcessBlockInput>;
       FinalWaitingTask globalWaitTask{taskGroup_};
@@ -1143,60 +1081,84 @@ namespace edm {
     processBlockPrincipal.clearPrincipal();
   }
 
-  InputSource::ItemType EventProcessor::processRuns() {
+  SourceStatus EventProcessor::processRuns(SourceStatus const& iStatus) {
     FinalWaitingTask waitTask{taskGroup_};
-    assert(lastTransitionType() == InputSource::ItemType::IsRun);
+    assert(iStatus.nextTransitionType() == InputSource::ItemType::IsRun);
     if (streamRunActive_ == 0) {
       assert(streamLumiActive_ == 0);
 
-      beginRunAsync(IOVSyncValue(EventID(input_->run(), 0, 0), input_->runAuxiliary()->beginTime()),
-                    WaitingTaskHolder{taskGroup_, &waitTask});
+      beginRunAsync(*iStatus.runAuxiliary(), WaitingTaskHolder{taskGroup_, &waitTask});
     } else {
       assert(streamRunActive_ == preallocations_.numberOfStreams());
 
       auto runStatus = streamRunStatus_[0];
+      assert(runStatus);
+      if (iStatus.nextTransitionType() == InputSource::ItemType::IsRun) {
+        assert(runStatus->runPrincipal());
+        auto& runPrincipal = *runStatus->runPrincipal();
+        //If a file open happened and we are continuing the Run we may need
+        // to do the update
+        runPrincipal.possiblyUpdateAfterAddition(preg());
 
-      while (lastTransitionType() == InputSource::ItemType::IsRun and
-             runStatus->runPrincipal()->run() == input_->run() and
-             runStatus->runPrincipal()->reducedProcessHistoryID() == input_->reducedProcessHistoryID()) {
-        readAndMergeRun(*runStatus);
-        nextTransitionType();
+        if (runPrincipal.run() == iStatus.runAuxiliary()->run() and
+            runPrincipal.reducedProcessHistoryID() == iStatus.reducedProcessHistoryID()) {
+          runPrincipal.mergeAuxiliary(*iStatus.runAuxiliary());
+          sourceCoordinator_.mergeRunIfNeeded(runPrincipal);
+        }
       }
-
-      setNeedToCallNext(false);
+      auto newStatus = sourceCoordinator_.thread_unsafe_peekNextTransitionType();
 
       WaitingTaskHolder holder{taskGroup_, &waitTask};
       runStatus->setHolderOfTaskInProcessRuns(holder);
       if (streamLumiActive_ > 0) {
         assert(streamLumiActive_ == preallocations_.numberOfStreams());
-        continueLumiAsync(std::move(holder));
+        continueLumiAsync(std::move(holder), newStatus);
       } else {
-        handleNextItemAfterMergingRunEntries(std::move(runStatus), std::move(holder));
+        handleNextItemAfterMergingRunEntriesAsync(std::move(runStatus), std::move(holder), newStatus);
       }
     }
     waitTask.wait();
-    return lastTransitionType();
+    return sourceCoordinator_.thread_unsafe_peekNextTransitionType();
   }
 
-  void EventProcessor::beginRunAsync(IOVSyncValue const& iSync, WaitingTaskHolder iHolder) {
+  namespace {
+    void releaseBeginRunResourcesAfterFailure(RunProcessingStatus& iStatus) { iStatus.resetBeginResources(); }
+    void releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(RunProcessingStatus& iStatus) {
+      iStatus.resetBeginResources();
+      iStatus.resumeGlobalRunQueue();
+    }
+  }  // namespace
+
+  void EventProcessor::readRunAsync(std::shared_ptr<RunProcessingStatus> iRunStatus,
+                                    RunAuxiliary const& iRunAux,
+                                    WaitingTaskHolder iNextTask,
+                                    SourceStatus& oNextStatus) {
+    auto rp = principalCache_.getAvailableRunPrincipalPtr();
+    //a new file may have been opened since the last use of this Run
+    rp->possiblyUpdateAfterAddition(preg());
+    rp->setAux(iRunAux);
+    iRunStatus->setRunPrincipal(rp);
+    sourceCoordinator_.readNewRunAsync(iRunStatus, processContext_, *historyAppender_, oNextStatus, iNextTask);
+  }
+
+  void EventProcessor::beginRunAsync(RunAuxiliary const& iRunAux, WaitingTaskHolder iHolder) {
     if (iHolder.taskHasFailed()) {
       return;
     }
 
+    IOVSyncValue iSync{EventID(iRunAux.run(), 0, 0), iRunAux.beginTime()};
     actReg_->esSyncIOVQueuingSignal_.emit(iSync);
 
-    auto status = std::make_shared<RunProcessingStatus>(preallocations_.numberOfStreams(), iHolder);
+    auto runStatus = std::make_shared<RunProcessingStatus>(preallocations_.numberOfStreams(), iHolder);
 
-    chain::first([this, &status, iSync](auto nextTask) {
+    chain::first([this, &runStatus, iSync](auto nextTask) {
       espController_->runOrQueueEventSetupForInstanceAsync(iSync,
                                                            nextTask,
-                                                           status->endIOVWaitingTasks(),
-                                                           status->eventSetupImplPtr(),
-                                                           queueWhichWaitsForIOVsToFinish_,
+                                                           runStatus->endIOVWaitingTasks(),
+                                                           runStatus->eventSetupImplPtr(),
                                                            actReg_.get(),
-                                                           serviceToken_,
-                                                           forceESCacheClearOnNewRun_);
-    }) | chain::then([this, status](std::exception_ptr const* iException, auto nextTask) {
+                                                           serviceToken_);
+    }) | chain::then([this, runStatus, iRunAux](std::exception_ptr const* iException, auto nextTask) {
       CMS_SA_ALLOW try {
         if (iException) {
           WaitingTaskHolder copyHolder(nextTask);
@@ -1207,174 +1169,153 @@ namespace edm {
 
         runQueue_->pushAndPause(
             *nextTask.group(),
-            [this, postRunQueueTask = nextTask, status](edm::LimitedTaskQueue::Resumer iResumer) mutable {
+            [this, postRunQueueTask = nextTask, runStatus, iRunAux](edm::LimitedTaskQueue::Resumer iResumer) mutable {
               CMS_SA_ALLOW try {
                 if (postRunQueueTask.taskHasFailed()) {
-                  status->resetBeginResources();
-                  queueWhichWaitsForIOVsToFinish_.resume();
+                  releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus);
                   return;
                 }
 
-                status->setResumer(std::move(iResumer));
+                runStatus->setResumer(std::move(iResumer));
 
-                sourceResourcesAcquirer_.serialQueueChain().push(
-                    *postRunQueueTask.group(), [this, postSourceTask = postRunQueueTask, status]() mutable {
-                      CMS_SA_ALLOW try {
-                        ServiceRegistry::Operate operate(serviceToken_);
+                std::unique_ptr<SourceStatus> newSourceStatus = std::make_unique<SourceStatus>();
+                auto pNewStatus = newSourceStatus.get();
+                chain::first([this, runStatus, iRunAux, pNewStatus](auto nextTask) mutable {
+                  readRunAsync(runStatus, iRunAux, nextTask, *pNewStatus);
+                }) | chain::then([runStatus](std::exception_ptr const* iException, auto nextTask) mutable {
+                  if (iException) {
+                    //handle exception from readRunAsync
+                    WaitingTaskHolder copyHolder(nextTask);
+                    copyHolder.doneWaiting(*iException);
+                    releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus);
+                  }
+                }) |
+                    chain::ifThen(looper_ and not looperBeginJobRun_.exchange(true),
+                                  [this, runStatus](const std::exception_ptr* iException, auto nextTask) mutable {
+                                    chain::first([this, runStatus](auto nextTask) mutable {
+                                      CMS_SA_ALLOW try {
+                                        looper_->copyInfo(ScheduleInfo(schedule_.get()));
+                                        EventSetupImpl const& es = runStatus->eventSetupImpl();
+                                        looper_->esPrefetchAsync(nextTask, es, Transition::BeginRun, serviceToken_);
+                                      } catch (...) {
+                                        nextTask.doneWaiting(std::current_exception());
+                                        releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus);
+                                      }
+                                    }) | chain::then([this, runStatus](auto nextTask) mutable {
+                                      CMS_SA_ALLOW try {
+                                        EventSetupImpl const& es = runStatus->eventSetupImpl();
+                                        looper_->beginOfJob(es);
+                                        looper_->doStartingNewLoop();
 
-                        if (postSourceTask.taskHasFailed()) {
-                          status->resetBeginResources();
-                          queueWhichWaitsForIOVsToFinish_.resume();
-                          status->resumeGlobalRunQueue();
-                          return;
-                        }
-
-                        {
-                          std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
-                          status->setRunPrincipal(readRun());
-
-                          RunPrincipal& runPrincipal = *status->runPrincipal();
-                          {
-                            SendSourceTerminationSignalIfException sentry(actReg_.get());
-                            input_->doBeginRun(runPrincipal, &processContext_);
-                            sentry.completedSuccessfully();
-                          }
-                        }
-
-                        EventSetupImpl const& es = status->eventSetupImpl();
-                        if (looper_ && looperBeginJobRun_ == false) {
-                          looper_->copyInfo(ScheduleInfo(schedule_.get()));
-
-                          oneapi::tbb::task_group group;
-                          FinalWaitingTask waitTask{group};
-                          using namespace edm::waiting_task::chain;
-                          chain::first([this, &es](auto nextTask) {
-                            looper_->esPrefetchAsync(nextTask, es, Transition::BeginRun, serviceToken_);
-                          }) | then([this, &es](auto nextTask) mutable {
-                            looper_->beginOfJob(es);
-                            looperBeginJobRun_ = true;
-                            looper_->doStartingNewLoop();
-                          }) | runLast(WaitingTaskHolder(group, &waitTask));
-                          waitTask.wait();
-                        }
-
-                        using namespace edm::waiting_task::chain;
-                        chain::first([this, status](auto nextTask) mutable {
-                          CMS_SA_ALLOW try {
-                            if (lastTransitionType().itemPosition() != InputSource::ItemPosition::LastItemToBeMerged) {
-                              readAndMergeRunEntriesAsync(status, nextTask);
-                            } else {
-                              setNeedToCallNext(true);
-                            }
-                          } catch (...) {
-                            status->setStopBeforeProcessingRun(true);
-                            nextTask.doneWaiting(std::current_exception());
-                          }
-                        }) | then([this, status, &es](auto nextTask) {
-                          if (status->stopBeforeProcessingRun()) {
-                            return;
-                          }
-                          RunTransitionInfo transitionInfo(*status->runPrincipal(), es);
-                          using Traits = OccurrenceTraits<RunPrincipal, TransitionActionGlobalBegin>;
-                          schedule_->processOneGlobalAsync<Traits>(nextTask, transitionInfo, serviceToken_);
-                        }) | ifThen(looper_, [this, status, &es](auto nextTask) {
-                          if (status->stopBeforeProcessingRun()) {
-                            return;
-                          }
-                          looper_->prefetchAsync(
-                              nextTask, serviceToken_, Transition::BeginRun, *status->runPrincipal(), es);
-                        }) | ifThen(looper_, [this, status, &es](auto nextTask) {
-                          if (status->stopBeforeProcessingRun()) {
-                            return;
-                          }
-                          ServiceRegistry::Operate operateLooper(serviceToken_);
-                          looper_->doBeginRun(*status->runPrincipal(), es, &processContext_);
-                        }) | then([this, status](std::exception_ptr const* iException, auto holder) mutable {
-                          if (iException) {
-                            WaitingTaskHolder copyHolder(holder);
-                            copyHolder.doneWaiting(*iException);
-                          } else {
-                            status->globalBeginDidSucceed();
-                          }
-
-                          if (status->stopBeforeProcessingRun()) {
-                            // We just quit now if there was a failure when merging runs
-                            status->resetBeginResources();
-                            queueWhichWaitsForIOVsToFinish_.resume();
-                            status->resumeGlobalRunQueue();
-                            return;
-                          }
-                          CMS_SA_ALLOW try {
-                            // Under normal circumstances, this task runs after endRun has completed for all streams
-                            // and global endLumi has completed for all lumis contained in this run
-                            auto globalEndRunTask =
-                                edm::make_waiting_task([this, status](std::exception_ptr const*) mutable {
-                                  WaitingTaskHolder taskHolder = status->holderOfTaskInProcessRuns();
-                                  status->holderOfTaskInProcessRuns().doneWaiting(std::exception_ptr{});
-                                  globalEndRunAsync(std::move(taskHolder), std::move(status));
-                                });
-                            status->setGlobalEndRunHolder(WaitingTaskHolder{*holder.group(), globalEndRunTask});
-                          } catch (...) {
-                            status->resetBeginResources();
-                            queueWhichWaitsForIOVsToFinish_.resume();
-                            status->resumeGlobalRunQueue();
-                            holder.doneWaiting(std::current_exception());
-                            return;
-                          }
-
-                          // After this point we are committed to end the run via endRunAsync
-
-                          ServiceRegistry::Operate operate(serviceToken_);
-
-                          // The only purpose of the pause is to cause stream begin run to execute before
-                          // global begin lumi in the single threaded case (maintains consistency with
-                          // the order that existed before concurrent runs were implemented).
-                          PauseQueueSentry pauseQueueSentry(streamQueuesInserter_);
-
-                          CMS_SA_ALLOW try {
-                            streamQueuesInserter_.push(*holder.group(), [this, status, holder]() mutable {
-                              for (auto i : std::views::iota(0U, preallocations_.numberOfStreams())) {
-                                CMS_SA_ALLOW try {
-                                  streamQueues_[i].push(*holder.group(), [this, i, status, holder]() mutable {
-                                    streamBeginRunAsync(i, std::move(status), std::move(holder));
-                                  });
-                                } catch (...) {
-                                  if (status->streamFinishedBeginRun()) {
-                                    WaitingTaskHolder copyHolder(holder);
-                                    copyHolder.doneWaiting(std::current_exception());
-                                    status->resetBeginResources();
-                                    queueWhichWaitsForIOVsToFinish_.resume();
-                                    exceptionRunStatus_ = status;
-                                  }
-                                }
-                              }
-                            });
-                          } catch (...) {
-                            WaitingTaskHolder copyHolder(holder);
-                            copyHolder.doneWaiting(std::current_exception());
-                            status->resetBeginResources();
-                            queueWhichWaitsForIOVsToFinish_.resume();
-                            exceptionRunStatus_ = status;
-                          }
-                          handleNextItemAfterMergingRunEntries(status, holder);
-                        }) | runLast(postSourceTask);
-                      } catch (...) {
-                        status->resetBeginResources();
-                        queueWhichWaitsForIOVsToFinish_.resume();
-                        status->resumeGlobalRunQueue();
-                        postSourceTask.doneWaiting(std::current_exception());
+                                      } catch (...) {
+                                        nextTask.doneWaiting(std::current_exception());
+                                        releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus);
+                                      }
+                                    }) | chain::runLast(nextTask);
+                                  }) |
+                    chain::then([this, runStatus](auto nextTask) {
+                      if (runStatus->stopBeforeProcessingRun()) {
+                        return;
                       }
-                    });  // task in sourceResourcesAcquirer
+                      EventSetupImpl const& es = runStatus->eventSetupImpl();
+                      RunTransitionInfo transitionInfo(*runStatus->runPrincipal(), es);
+                      using Traits = OccurrenceTraits<RunPrincipal, TransitionActionGlobalBegin>;
+                      schedule_->processOneGlobalAsync<Traits>(nextTask, transitionInfo, serviceToken_);
+                    }) |
+                    chain::ifThen(looper_,
+                                  [this, runStatus](auto nextTask) {
+                                    EventSetupImpl const& es = runStatus->eventSetupImpl();
+
+                                    if (runStatus->stopBeforeProcessingRun()) {
+                                      return;
+                                    }
+                                    looper_->prefetchAsync(
+                                        nextTask, serviceToken_, Transition::BeginRun, *runStatus->runPrincipal(), es);
+                                  }) |
+                    chain::ifThen(looper_,
+                                  [this, runStatus](auto nextTask) {
+                                    EventSetupImpl const& es = runStatus->eventSetupImpl();
+                                    if (runStatus->stopBeforeProcessingRun()) {
+                                      return;
+                                    }
+                                    ServiceRegistry::Operate operateLooper(serviceToken_);
+                                    looper_->doBeginRun(*runStatus->runPrincipal(), es, &processContext_);
+                                  }) |
+                    chain::then([this, runStatus, sourceStatus = std::move(newSourceStatus)](
+                                    std::exception_ptr const* iException, auto holder) mutable {
+                      if (iException) {
+                        WaitingTaskHolder copyHolder(holder);
+                        copyHolder.doneWaiting(*iException);
+                      } else {
+                        runStatus->globalBeginDidSucceed();
+                      }
+                      if (runStatus->stopBeforeProcessingRun()) {
+                        // We just quit now if there was a failure when merging runs
+                        releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus);
+                        return;
+                      }
+                      CMS_SA_ALLOW try {
+                        // Under normal circumstances, this task runs after endRun has completed for all streams
+                        // and global endLumi has completed for all lumis contained in this run
+                        //NOTE: this task does not hold open any waiting task. Instead only once the task is run does
+                        // it acquire the waiting task presently being held by the runStatus. This is on purpose as
+                        // the globalEndRun task might have to wait between new file opennings before it gets run.
+                        auto globalEndRunTask =
+                            edm::make_waiting_task([this, runStatus](std::exception_ptr const*) mutable {
+                              auto tmp = runStatus->releaseHolderOfTaskInProcessRuns();
+                              assert(tmp);
+                              WaitingTaskHolder taskHolder = *tmp;
+                              globalEndRunAsync(std::move(taskHolder), std::move(runStatus));
+                            });
+                        runStatus->setGlobalEndRunHolder(WaitingTaskHolder{*holder.group(), globalEndRunTask});
+                      } catch (...) {
+                        releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus);
+                        holder.doneWaiting(std::current_exception());
+                        return;
+                      }
+
+                      // After this point we are committed to end the run via endRunAsync
+
+                      ServiceRegistry::Operate operate(serviceToken_);
+
+                      // The only purpose of the pause is to cause stream begin run to execute before
+                      // global begin lumi in the single threaded case (maintains consistency with
+                      // the order that existed before concurrent runs were implemented).
+                      PauseQueueSentry pauseQueueSentry(streamQueuesInserter_);
+
+                      CMS_SA_ALLOW try {
+                        streamQueuesInserter_.push(*holder.group(), [this, runStatus, holder]() mutable {
+                          for (auto i : std::views::iota(0U, preallocations_.numberOfStreams())) {
+                            CMS_SA_ALLOW try {
+                              streamQueues_[i].push(*holder.group(), [this, i, runStatus, holder]() mutable {
+                                streamBeginRunAsync(i, std::move(runStatus), std::move(holder));
+                              });
+                            } catch (...) {
+                              if (runStatus->streamFinishedBeginRun()) {
+                                WaitingTaskHolder copyHolder(holder);
+                                copyHolder.doneWaiting(std::current_exception());
+                                releaseBeginRunResourcesAfterFailure(*runStatus);
+                                exceptionRunStatus_ = runStatus;
+                              }
+                            }
+                          }
+                        });
+                      } catch (...) {
+                        WaitingTaskHolder copyHolder(holder);
+                        copyHolder.doneWaiting(std::current_exception());
+                        releaseBeginRunResourcesAfterFailure(*runStatus);
+                        exceptionRunStatus_ = runStatus;
+                      }
+                      handleNextItemAfterMergingRunEntriesAsync(runStatus, holder, *sourceStatus);
+                    }) |
+                    chain::runLast(postRunQueueTask);
               } catch (...) {
-                status->resetBeginResources();
-                queueWhichWaitsForIOVsToFinish_.resume();
-                status->resumeGlobalRunQueue();
+                releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus);
                 postRunQueueTask.doneWaiting(std::current_exception());
               }
             });  // task in runQueue
       } catch (...) {
-        status->resetBeginResources();
-        queueWhichWaitsForIOVsToFinish_.resume();
+        releaseBeginRunResourcesAfterFailure(*runStatus);
         nextTask.doneWaiting(std::current_exception());
       }
     }) | chain::runLast(std::move(iHolder));
@@ -1413,12 +1354,13 @@ namespace edm {
     auto& status = streamRunStatus_[iStream];
     if (status->streamFinishedBeginRun()) {
       status->resetBeginResources();
-      queueWhichWaitsForIOVsToFinish_.resume();
     }
     streamQueues_[iStream].resume();
   }
 
-  void EventProcessor::endRunAsync(std::shared_ptr<RunProcessingStatus> iRunStatus, WaitingTaskHolder iHolder) {
+  void EventProcessor::endRunAsync(std::shared_ptr<RunProcessingStatus> iRunStatus,
+                                   std::optional<RunAuxiliary> const& iRunAuxiliary,
+                                   WaitingTaskHolder iHolder) noexcept {
     RunPrincipal& runPrincipal = *iRunStatus->runPrincipal();
     iRunStatus->setEndTime();
     IOVSyncValue ts(
@@ -1434,10 +1376,9 @@ namespace edm {
                                                            nextTask,
                                                            iRunStatus->endIOVWaitingTasksEndRun(),
                                                            iRunStatus->eventSetupImplPtrEndRun(),
-                                                           queueWhichWaitsForIOVsToFinish_,
                                                            actReg_.get(),
                                                            serviceToken_);
-    }) | chain::then([this, iRunStatus](std::exception_ptr const* iException, auto nextTask) {
+    }) | chain::then([this, iRunStatus, iRunAuxiliary](std::exception_ptr const* iException, auto nextTask) {
       if (iException) {
         iRunStatus->setEndingEventSetupSucceeded(false);
         handleEndRunExceptions(*iException, nextTask);
@@ -1457,10 +1398,8 @@ namespace edm {
         }
       });
 
-      if (lastTransitionType() == InputSource::ItemType::IsRun) {
-        CMS_SA_ALLOW try {
-          beginRunAsync(IOVSyncValue(EventID(input_->run(), 0, 0), input_->runAuxiliary()->beginTime()), nextTask);
-        } catch (...) {
+      if (iRunAuxiliary) {
+        CMS_SA_ALLOW try { beginRunAsync(*iRunAuxiliary, nextTask); } catch (...) {
           WaitingTaskHolder copyHolder(nextTask);
           copyHolder.doneWaiting(std::current_exception());
         }
@@ -1531,10 +1470,7 @@ namespace edm {
               ptr = std::current_exception();
             }
           }
-          CMS_SA_ALLOW try {
-            status->resumeGlobalRunQueue();
-            queueWhichWaitsForIOVsToFinish_.resume();
-          } catch (...) {
+          CMS_SA_ALLOW try { status->resumeGlobalRunQueue(); } catch (...) {
             if (not ptr) {
               ptr = std::current_exception();
             }
@@ -1609,10 +1545,10 @@ namespace edm {
       runStatus->setCleaningUpAfterException(cleaningUpAfterException);
       WaitingTaskHolder holder{taskGroup_, &waitTask};
       runStatus->setHolderOfTaskInProcessRuns(holder);
-      lastSourceTransition_ = InputSource::ItemType::IsStop;
-      endRunAsync(streamRunStatus_[0], std::move(holder));
+      endRunAsync(streamRunStatus_[0], std::nullopt, std::move(holder));
       waitTask.wait();
     }
+    return;
   }
 
   namespace {
@@ -1634,23 +1570,34 @@ namespace edm {
         }
       }
     }
+    void releaseLumiResourcesAfterFailure(LuminosityBlockProcessingStatus& iStatus) { iStatus.resetResources(); }
+
   }  // namespace
 
-  void EventProcessor::beginLumiAsync(IOVSyncValue const& iSync,
-                                      std::shared_ptr<RunProcessingStatus> iRunStatus,
+  void EventProcessor::readLumiAsync(std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus,
+                                     std::shared_ptr<RunProcessingStatus> iRunStatus,
+                                     LuminosityBlockAuxiliary const& iLumiAux,
+                                     WaitingTaskHolder iNextTask) {
+    auto lbp = principalCache_.getAvailableLumiPrincipalPtr();
+    assert(lbp);
+    iLumiStatus->setLumiPrincipal(lbp);
+    //A new file may have been opened since the last use of the LuminosityBlock
+    lbp->possiblyUpdateAfterAddition(preg());
+    lbp->setAux(iLumiAux);
+    lbp->setRunPrincipal(iRunStatus->runPrincipal());
+    sourceCoordinator_.readNewLuminosityBlockAsync(iLumiStatus, processContext_, *historyAppender_, iNextTask);
+  }
+  void EventProcessor::beginLumiAsync(std::shared_ptr<RunProcessingStatus> iRunStatus,
+                                      LuminosityBlockAuxiliary const& iLumiAux,
                                       edm::WaitingTaskHolder iHolder) {
+    IOVSyncValue iSync(EventID(iLumiAux.run(), iLumiAux.luminosityBlock(), 0), iLumiAux.beginTime());
     actReg_->esSyncIOVQueuingSignal_.emit(iSync);
 
     auto status = std::make_shared<LuminosityBlockProcessingStatus>();
     chain::first([this, &iSync, &status](auto nextTask) {
-      espController_->runOrQueueEventSetupForInstanceAsync(iSync,
-                                                           nextTask,
-                                                           status->endIOVWaitingTasks(),
-                                                           status->eventSetupImplPtr(),
-                                                           queueWhichWaitsForIOVsToFinish_,
-                                                           actReg_.get(),
-                                                           serviceToken_);
-    }) | chain::then([this, status, iRunStatus](std::exception_ptr const* iException, auto nextTask) {
+      espController_->runOrQueueEventSetupForInstanceAsync(
+          iSync, nextTask, status->endIOVWaitingTasks(), status->eventSetupImplPtr(), actReg_.get(), serviceToken_);
+    }) | chain::then([this, status, iRunStatus, iLumiAux](std::exception_ptr const* iException, auto nextTask) {
       CMS_SA_ALLOW try {
         //the call to doneWaiting will cause the count to decrement
         if (iException) {
@@ -1660,182 +1607,140 @@ namespace edm {
 
         lumiQueue_->pushAndPause(
             *nextTask.group(),
-            [this, postLumiQueueTask = nextTask, status, iRunStatus](edm::LimitedTaskQueue::Resumer iResumer) mutable {
+            [this, postLumiQueueTask = nextTask, status, iRunStatus, iLumiAux](
+                edm::LimitedTaskQueue::Resumer iResumer) mutable {
               CMS_SA_ALLOW try {
                 if (postLumiQueueTask.taskHasFailed()) {
-                  status->resetResources();
-                  queueWhichWaitsForIOVsToFinish_.resume();
-                  endRunAsync(iRunStatus, postLumiQueueTask);
+                  releaseLumiResourcesAfterFailure(*status);
+                  endRunAsync(iRunStatus, std::nullopt, postLumiQueueTask);
                   return;
                 }
 
+                ServiceRegistry::Operate operate(serviceToken_);
+                Service<RandomNumberGenerator> rng;
+                using namespace edm::waiting_task::chain;
+
                 status->setResumer(std::move(iResumer));
+                chain::first([this, status, iRunStatus, iLumiAux](auto nextTask) mutable {
+                  readLumiAsync(status, iRunStatus, iLumiAux, nextTask);
+                }) | then([this, status, iRunStatus](std::exception_ptr const* iException, auto nextTask) mutable {
+                  if (iException) {
+                    //deal with possible failure from readLumiAsync
+                    releaseLumiResourcesAfterFailure(*status);
+                    nextTask.doneWaiting(*iException);
+                    endRunAsync(iRunStatus, std::nullopt, nextTask);
+                    return;
+                  }
+                }) | chain::ifThen(rng.isAvailable() and rng->consumer() != nullptr, [this, status](auto nextTask) {
+                  //handle RandomNumberGenerator prefetching and preBeginLumi
+                  assert(status->lumiPrincipal() != nullptr);
+                  auto& lumiPrincipal = *status->lumiPrincipal();
+                  prefetchForRandomNumberGeneratorAsync(std::move(nextTask), lumiPrincipal, serviceToken_);
+                }) | ifThen(rng.isAvailable() and rng->consumer() != nullptr, [this, status](auto nextTask) {
+                  ServiceRegistry::Operate operate(serviceToken_);
+                  Service<RandomNumberGenerator> rng;
+                  auto& lumiPrincipal = *status->lumiPrincipal();
+                  LuminosityBlock lb(lumiPrincipal, ModuleDescription(), nullptr, false);
+                  lb.setConsumer(rng->consumer());
+                  rng->preBeginLumi(lb);
+                }) | then([this, status](auto nextTask) {
+                  EventSetupImpl const& es = status->eventSetupImpl();
+                  auto& lumiPrincipal = *status->lumiPrincipal();
+                  LumiTransitionInfo transitionInfo(lumiPrincipal, es);
+                  using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalBegin>;
+                  schedule_->processOneGlobalAsync<Traits>(nextTask, transitionInfo, serviceToken_);
+                }) | ifThen(looper_, [this, status](auto nextTask) {
+                  EventSetupImpl const& es = status->eventSetupImpl();
+                  looper_->prefetchAsync(
+                      nextTask, serviceToken_, Transition::BeginLuminosityBlock, *(status->lumiPrincipal()), es);
+                }) | ifThen(looper_, [this, status](auto nextTask) {
+                  ServiceRegistry::Operate operateLooper(serviceToken_);
+                  looper_->doBeginLuminosityBlock(
+                      *(status->lumiPrincipal()), status->eventSetupImpl(), &processContext_);
+                }) | then([this, status, iRunStatus](std::exception_ptr const* iException, auto holder) mutable {
+                  status->setGlobalEndRunHolder(iRunStatus->globalEndRunHolder());
 
-                sourceResourcesAcquirer_.serialQueueChain().push(
-                    *postLumiQueueTask.group(),
-                    [this, postSourceTask = postLumiQueueTask, status, iRunStatus]() mutable {
-                      CMS_SA_ALLOW try {
-                        ServiceRegistry::Operate operate(serviceToken_);
+                  if (iException) {
+                    WaitingTaskHolder copyHolder(holder);
+                    copyHolder.doneWaiting(*iException);
+                    globalEndLumiAsync(holder, status);
+                    endRunAsync(iRunStatus, std::nullopt, holder);
+                  } else {
+                    status->globalBeginDidSucceed();
 
-                        if (postSourceTask.taskHasFailed()) {
-                          status->resetResources();
-                          queueWhichWaitsForIOVsToFinish_.resume();
-                          endRunAsync(iRunStatus, postSourceTask);
-                          return;
-                        }
-
-                        {
-                          std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
-                          status->setLumiPrincipal(readLuminosityBlock(iRunStatus->runPrincipal()));
-
-                          LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
-                          {
-                            SendSourceTerminationSignalIfException sentry(actReg_.get());
-                            input_->doBeginLumi(lumiPrincipal, &processContext_);
-                            sentry.completedSuccessfully();
+                    EventSetupImpl const& es = status->eventSetupImpl();
+                    using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamBegin>;
+                    streamQueuesInserter_.push(*holder.group(), [this, status, holder, &es]() mutable {
+                      for (auto i : std::views::iota(0U, preallocations_.numberOfStreams())) {
+                        streamQueues_[i].push(*holder.group(), [this, i, status, holder, &es]() mutable {
+                          if (!status->shouldStreamStartLumi()) {
+                            return;
                           }
-                        }
-                        LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
-                        Service<RandomNumberGenerator> rng;
+                          streamQueues_[i].pause();
 
-                        EventSetupImpl const& es = status->eventSetupImpl();
-
-                        using namespace edm::waiting_task::chain;
-                        chain::firstIf(rng.isAvailable() and rng->consumer() != nullptr,
-                                       [this, &lumiPrincipal](auto nextTask) {
-                                         //handle RandomNumberGenerator prefetching and preBeginLumi
-                                         chain::first([this, &lumiPrincipal](auto nextTask) {
-                                           prefetchForRandomNumberGeneratorAsync(
-                                               std::move(nextTask), lumiPrincipal, serviceToken_);
-                                         }) | then([this, &lumiPrincipal](auto nextTask) {
-                                           ServiceRegistry::Operate operate(serviceToken_);
-                                           Service<RandomNumberGenerator> rng;
-                                           if (rng.isAvailable()) {
-                                             LuminosityBlock lb(lumiPrincipal, ModuleDescription(), nullptr, false);
-                                             lb.setConsumer(rng->consumer());
-                                             rng->preBeginLumi(lb);
-                                           }
-                                         }) | runLast(nextTask);
-                                       }) |
-                            then([this, status](auto nextTask) mutable {
-                              if (lastTransitionType().itemPosition() !=
-                                  InputSource::ItemPosition::LastItemToBeMerged) {
-                                readAndMergeLumiEntriesAsync(std::move(status), std::move(nextTask));
-                              } else {
-                                setNeedToCallNext(true);
-                              }
-                            }) |
-                            then([this, status, &es, &lumiPrincipal](auto nextTask) {
-                              LumiTransitionInfo transitionInfo(lumiPrincipal, es);
-                              using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalBegin>;
-                              schedule_->processOneGlobalAsync<Traits>(nextTask, transitionInfo, serviceToken_);
-                            }) |
-                            ifThen(looper_,
-                                   [this, status, &es](auto nextTask) {
-                                     looper_->prefetchAsync(nextTask,
-                                                            serviceToken_,
-                                                            Transition::BeginLuminosityBlock,
-                                                            *(status->lumiPrincipal()),
-                                                            es);
-                                   }) |
-                            ifThen(looper_,
-                                   [this, status, &es](auto nextTask) {
-                                     ServiceRegistry::Operate operateLooper(serviceToken_);
-                                     looper_->doBeginLuminosityBlock(*(status->lumiPrincipal()), es, &processContext_);
-                                   }) |
-                            then([this, status, iRunStatus](std::exception_ptr const* iException, auto holder) mutable {
-                              status->setGlobalEndRunHolder(iRunStatus->globalEndRunHolder());
-
-                              if (iException) {
-                                WaitingTaskHolder copyHolder(holder);
-                                copyHolder.doneWaiting(*iException);
-                                globalEndLumiAsync(holder, status);
-                                endRunAsync(iRunStatus, holder);
-                              } else {
-                                status->globalBeginDidSucceed();
-
-                                EventSetupImpl const& es = status->eventSetupImpl();
-                                using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamBegin>;
-
-                                streamQueuesInserter_.push(*holder.group(), [this, status, holder, &es]() mutable {
-                                  for (auto i : std::views::iota(0U, preallocations_.numberOfStreams())) {
-                                    streamQueues_[i].push(*holder.group(), [this, i, status, holder, &es]() mutable {
-                                      if (!status->shouldStreamStartLumi()) {
-                                        return;
-                                      }
-                                      streamQueues_[i].pause();
-
-                                      auto& event = principalCache_.eventPrincipal(i);
-                                      auto lp = status->lumiPrincipal().get();
-                                      streamLumiStatus_[i] = std::move(status);
-                                      ++streamLumiActive_;
-                                      event.setLuminosityBlockPrincipal(lp);
-                                      LumiTransitionInfo transitionInfo(*lp, es);
-                                      using namespace edm::waiting_task::chain;
-                                      chain::first([this, i, &transitionInfo](auto nextTask) {
-                                        schedule_->processOneStreamAsync<Traits>(
-                                            std::move(nextTask), i, transitionInfo, serviceToken_);
-                                      }) |
-                                          then([this, i](std::exception_ptr const* exceptionFromBeginStreamLumi,
-                                                         auto nextTask) {
-                                            if (exceptionFromBeginStreamLumi) {
-                                              WaitingTaskHolder copyHolder(nextTask);
-                                              copyHolder.doneWaiting(*exceptionFromBeginStreamLumi);
-                                            }
-                                            handleNextEventForStreamAsync(std::move(nextTask), i);
-                                          }) |
-                                          runLast(std::move(holder));
-                                    });
-                                  }  // end for loop over streams
-                                });
-                              }
-                            }) |
-                            runLast(postSourceTask);
-                      } catch (...) {
-                        status->resetResources();
-                        queueWhichWaitsForIOVsToFinish_.resume();
-                        WaitingTaskHolder copyHolder(postSourceTask);
-                        copyHolder.doneWaiting(std::current_exception());
-                        endRunAsync(iRunStatus, postSourceTask);
-                      }
-                    });  // task in sourceResourcesAcquirer
+                          auto& event = principalCache_.eventPrincipal(i);
+                          auto lp = status->lumiPrincipal().get();
+                          streamLumiStatus_[i] = std::move(status);
+                          ++streamLumiActive_;
+                          event.setLuminosityBlockPrincipal(lp);
+                          LumiTransitionInfo transitionInfo(*lp, es);
+                          using namespace edm::waiting_task::chain;
+                          chain::first([this, i, &transitionInfo](auto nextTask) {
+                            schedule_->processOneStreamAsync<Traits>(
+                                std::move(nextTask), i, transitionInfo, serviceToken_);
+                          }) | then([this, i](std::exception_ptr const* exceptionFromBeginStreamLumi, auto nextTask) {
+                            handleNextEventForStreamAsync(exceptionFromBeginStreamLumi, i, std::move(nextTask));
+                          }) | runLast(std::move(holder));
+                        });
+                      }  // end for loop over streams
+                    });
+                  }
+                }) | runLast(postLumiQueueTask);
               } catch (...) {
-                status->resetResources();
-                queueWhichWaitsForIOVsToFinish_.resume();
+                releaseLumiResourcesAfterFailure(*status);
                 WaitingTaskHolder copyHolder(postLumiQueueTask);
                 copyHolder.doneWaiting(std::current_exception());
-                endRunAsync(iRunStatus, postLumiQueueTask);
+                endRunAsync(iRunStatus, std::nullopt, postLumiQueueTask);
               }
             });  // task in lumiQueue
       } catch (...) {
-        status->resetResources();
-        queueWhichWaitsForIOVsToFinish_.resume();
+        releaseLumiResourcesAfterFailure(*status);
         WaitingTaskHolder copyHolder(nextTask);
         copyHolder.doneWaiting(std::current_exception());
-        endRunAsync(iRunStatus, nextTask);
+        endRunAsync(iRunStatus, std::nullopt, nextTask);
       }
     }) | chain::runLast(std::move(iHolder));
   }
 
-  void EventProcessor::continueLumiAsync(edm::WaitingTaskHolder iHolder) {
-    chain::first([this](auto nextTask) {
+  void EventProcessor::continueLumiAsync(edm::WaitingTaskHolder iHolder, SourceStatus const& oSourceStatus) {
+    chain::first([this, &oSourceStatus](auto nextTask) {
       //all streams are sharing the same status at the moment
       auto status = streamLumiStatus_[0];  //read from streamLumiActive_ happened in calling routine
-      status->setEventProcessingState(LuminosityBlockProcessingStatus::EventProcessingState::kProcessing);
+      status->resetEventProcessingStateToProcessing();
 
-      while (lastTransitionType() == InputSource::ItemType::IsLumi and
-             status->lumiPrincipal()->luminosityBlock() == input_->luminosityBlock()) {
-        readAndMergeLumi(*status);
-        nextTransitionType();
+      if (oSourceStatus.nextTransitionType() != InputSource::ItemType::IsLumi) {
+        nextTask.doneWaiting(std::exception_ptr());
+        return;
+      }
+      assert(status->lumiPrincipal() != nullptr);
+      auto& lumiPrincipal = *status->lumiPrincipal();
+      //If a file was opened and the LuminosityBlock is continuing
+      // we may need to do the update
+      lumiPrincipal.possiblyUpdateAfterAddition(preg());
+      assert(oSourceStatus.lumiAuxiliary() != nullptr);
+      if (oSourceStatus.lumiAuxiliary()->luminosityBlock() == lumiPrincipal.luminosityBlock()) {
+        lumiPrincipal.mergeAuxiliary(*oSourceStatus.lumiAuxiliary());
+
+        sourceCoordinator_.mergeLuminosityBlockIfNeeded(lumiPrincipal);
       }
     }) | chain::then([this](auto nextTask) mutable {
       unsigned int streamIndex = 0;
       oneapi::tbb::task_arena arena{oneapi::tbb::task_arena::attach()};
       for (; streamIndex < preallocations_.numberOfStreams() - 1; ++streamIndex) {
-        arena.enqueue([this, streamIndex, h = nextTask]() { handleNextEventForStreamAsync(h, streamIndex); });
+        arena.enqueue([this, streamIndex, h = nextTask]() { handleNextEventForStreamAsync(nullptr, streamIndex, h); });
       }
       nextTask.group()->run(
-          [this, streamIndex, h = std::move(nextTask)]() { handleNextEventForStreamAsync(h, streamIndex); });
+          [this, streamIndex, h = std::move(nextTask)]() { handleNextEventForStreamAsync(nullptr, streamIndex, h); });
     }) | chain::runLast(std::move(iHolder));
   }
 
@@ -1883,18 +1788,11 @@ namespace edm {
       ServiceRegistry::Operate operate(serviceToken_);
 
       std::exception_ptr ptr;
-
       // Try hard to clean up resources so the
       // process can terminate in a controlled
       // fashion even after exceptions have occurred.
       // Caught exception is passed to handleEndLumiExceptions()
       CMS_SA_ALLOW try { clearLumiPrincipal(*status); } catch (...) {
-        if (not ptr) {
-          ptr = std::current_exception();
-        }
-      }
-      // Caught exception is passed to handleEndLumiExceptions()
-      CMS_SA_ALLOW try { queueWhichWaitsForIOVsToFinish_.resume(); } catch (...) {
         if (not ptr) {
           ptr = std::current_exception();
         }
@@ -1959,7 +1857,7 @@ namespace edm {
       if (streamLumiActive_ > 0) {
         FinalWaitingTask globalWaitTask{taskGroup_};
         assert(streamLumiActive_ == preallocations_.numberOfStreams());
-        streamLumiStatus_[0]->noMoreEventsInLumi();
+        streamLumiStatus_[0]->startNextLumiOrEndRun();
         streamLumiStatus_[0]->setCleaningUpAfterException(cleaningUpAfterException);
         {
           WaitingTaskHolder holder{taskGroup_, &globalWaitTask};
@@ -1969,73 +1867,6 @@ namespace edm {
         }
         globalWaitTask.wait();
       }
-    }
-  }
-
-  void EventProcessor::readProcessBlock(ProcessBlockPrincipal& processBlockPrincipal) {
-    SendSourceTerminationSignalIfException sentry(actReg_.get());
-    input_->readProcessBlock(processBlockPrincipal);
-    sentry.completedSuccessfully();
-  }
-
-  std::shared_ptr<RunPrincipal> EventProcessor::readRun() {
-    auto rp = principalCache_.getAvailableRunPrincipalPtr();
-    //a new file may have been opened since the last use of this Run
-    rp->possiblyUpdateAfterAddition(preg());
-    assert(rp);
-    rp->setAux(*input_->runAuxiliary());
-    {
-      SendSourceTerminationSignalIfException sentry(actReg_.get());
-      input_->readRun(*rp, *historyAppender_);
-      sentry.completedSuccessfully();
-    }
-    assert(input_->reducedProcessHistoryID() == rp->reducedProcessHistoryID());
-    return rp;
-  }
-
-  void EventProcessor::readAndMergeRun(RunProcessingStatus& iStatus) {
-    RunPrincipal& runPrincipal = *iStatus.runPrincipal();
-    //If a file open happened and we are continuing the Run we may need
-    // to do the update
-    runPrincipal.possiblyUpdateAfterAddition(preg());
-
-    runPrincipal.mergeAuxiliary(*input_->runAuxiliary());
-    {
-      SendSourceTerminationSignalIfException sentry(actReg_.get());
-      input_->readAndMergeRun(runPrincipal);
-      sentry.completedSuccessfully();
-    }
-  }
-
-  std::shared_ptr<LuminosityBlockPrincipal> EventProcessor::readLuminosityBlock(std::shared_ptr<RunPrincipal> rp) {
-    auto lbp = principalCache_.getAvailableLumiPrincipalPtr();
-    //A new file may have been opened since the last use of the LuminosityBlock
-    lbp->possiblyUpdateAfterAddition(preg());
-    assert(lbp);
-    lbp->setAux(*input_->luminosityBlockAuxiliary());
-    {
-      SendSourceTerminationSignalIfException sentry(actReg_.get());
-      input_->readLuminosityBlock(*lbp, *historyAppender_);
-      sentry.completedSuccessfully();
-    }
-    lbp->setRunPrincipal(std::move(rp));
-    return lbp;
-  }
-
-  void EventProcessor::readAndMergeLumi(LuminosityBlockProcessingStatus& iStatus) {
-    auto& lumiPrincipal = *iStatus.lumiPrincipal();
-    assert(lumiPrincipal.aux().sameIdentity(*input_->luminosityBlockAuxiliary()) or
-           input_->processHistoryRegistry().reducedProcessHistoryID(lumiPrincipal.aux().processHistoryID()) ==
-               input_->processHistoryRegistry().reducedProcessHistoryID(
-                   input_->luminosityBlockAuxiliary()->processHistoryID()));
-    //If a file was opened and the LuminosityBlock is continuing
-    // we may need to do the update
-    lumiPrincipal.possiblyUpdateAfterAddition(preg());
-    lumiPrincipal.mergeAuxiliary(*input_->luminosityBlockAuxiliary());
-    {
-      SendSourceTerminationSignalIfException sentry(actReg_.get());
-      input_->readAndMergeLumi(*iStatus.lumiPrincipal());
-      sentry.completedSuccessfully();
     }
   }
 
@@ -2079,247 +1910,146 @@ namespace edm {
     iStatus.lumiPrincipal()->clearPrincipal();
   }
 
-  void EventProcessor::readAndMergeRunEntriesAsync(std::shared_ptr<RunProcessingStatus> iRunStatus,
-                                                   WaitingTaskHolder iHolder) {
-    auto group = iHolder.group();
-    sourceResourcesAcquirer_.serialQueueChain().push(
-        *group, [this, status = std::move(iRunStatus), holder = std::move(iHolder)]() mutable {
-          CMS_SA_ALLOW try {
-            ServiceRegistry::Operate operate(serviceToken_);
-
-            std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
-
-            nextTransitionType();
-            setNeedToCallNext(false);
-
-            while (lastTransitionType() == InputSource::ItemType::IsRun and
-                   status->runPrincipal()->run() == input_->run() and
-                   status->runPrincipal()->reducedProcessHistoryID() == input_->reducedProcessHistoryID()) {
-              if (status->holderOfTaskInProcessRuns().taskHasFailed()) {
-                status->setStopBeforeProcessingRun(true);
-                return;
-              }
-              readAndMergeRun(*status);
-              if (lastTransitionType().itemPosition() == InputSource::ItemPosition::LastItemToBeMerged) {
-                setNeedToCallNext(true);
-                return;
-              }
-              nextTransitionType();
-            }
-          } catch (...) {
-            status->setStopBeforeProcessingRun(true);
-            holder.doneWaiting(std::current_exception());
+  void EventProcessor::handleNextItemAfterMergingRunEntriesAsync(std::shared_ptr<RunProcessingStatus> iRunStatus,
+                                                                 WaitingTaskHolder iHolder,
+                                                                 SourceStatus const& iSourceStatus) {
+    std::unique_ptr<SourceStatus> sourceStatus = std::make_unique<SourceStatus>(iSourceStatus);
+    auto* pSourceStatus = sourceStatus.get();
+    chain::first([this, iRunStatus, pSourceStatus](auto nextTask) mutable {
+      if (pSourceStatus->needToAskSourceForNext()) {
+        sourceCoordinator_.peekNextTransitionTypeThatIsNotTheSameRunAsync(
+            iRunStatus->runPrincipal()->run(),
+            iRunStatus->runPrincipal()->reducedProcessHistoryID(),
+            *pSourceStatus,
+            std::move(nextTask));
+      }
+    }) |
+        chain::then([this, iRunStatus, sourceStatus = std::move(sourceStatus)](std::exception_ptr const* iException,
+                                                                               auto nextTask) {
+          ServiceRegistry::Operate operate(serviceToken_);
+          if (iException) {
+            WaitingTaskHolder copyHolder(nextTask);
+            copyHolder.doneWaiting(*iException);
           }
-        });
-  }
-
-  void EventProcessor::readAndMergeLumiEntriesAsync(std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus,
-                                                    WaitingTaskHolder iHolder) {
-    auto group = iHolder.group();
-    sourceResourcesAcquirer_.serialQueueChain().push(
-        *group, [this, iLumiStatus = std::move(iLumiStatus), holder = std::move(iHolder)]() mutable {
-          CMS_SA_ALLOW try {
-            ServiceRegistry::Operate operate(serviceToken_);
-
-            std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
-
-            nextTransitionType();
-            setNeedToCallNext(false);
-
-            while (lastTransitionType() == InputSource::ItemType::IsLumi and
-                   iLumiStatus->lumiPrincipal()->luminosityBlock() == input_->luminosityBlock()) {
-              readAndMergeLumi(*iLumiStatus);
-              if (lastTransitionType().itemPosition() == InputSource::ItemPosition::LastItemToBeMerged) {
-                setNeedToCallNext(true);
-                return;
-              }
-              nextTransitionType();
-            }
-          } catch (...) {
-            holder.doneWaiting(std::current_exception());
+          if (sourceStatus->nextTransitionType() == InputSource::ItemType::IsFile) {
+            nextTask.doneWaiting(std::exception_ptr());
+            iRunStatus->setHolderOfTaskInProcessRunsDoneWaiting();
+            return;
           }
-        });
+          if (sourceStatus->nextTransitionType() == InputSource::ItemType::IsLumi && !nextTask.taskHasFailed()) {
+            CMS_SA_ALLOW try {
+              beginLumiAsync(iRunStatus, *sourceStatus->lumiAuxiliary(), nextTask);
+              return;
+            } catch (...) {
+              WaitingTaskHolder copyHolder(nextTask);
+              copyHolder.doneWaiting(std::current_exception());
+            }
+          }
+          // Note that endRunAsync will call beginRunAsync for the following run
+          // if appropriate.
+          std::optional<RunAuxiliary> runAux;
+          if (sourceStatus->nextTransitionType() == InputSource::ItemType::IsRun) {
+            runAux = *sourceStatus->runAuxiliary();
+          }
+          endRunAsync(iRunStatus, runAux, std::move(nextTask));
+        }) |
+        chain::runLast(std::move(iHolder));
   }
 
-  void EventProcessor::handleNextItemAfterMergingRunEntries(std::shared_ptr<RunProcessingStatus> iRunStatus,
-                                                            WaitingTaskHolder iHolder) {
-    chain::first([this, iRunStatus](auto nextTask) mutable {
-      if (needToCallNext()) {
-        nextTransitionTypeAsync(std::move(iRunStatus), std::move(nextTask));
-      }
-    }) | chain::then([this, iRunStatus](std::exception_ptr const* iException, auto nextTask) {
-      ServiceRegistry::Operate operate(serviceToken_);
-      if (iException) {
-        WaitingTaskHolder copyHolder(nextTask);
-        copyHolder.doneWaiting(*iException);
-      }
-      if (lastTransitionType() == InputSource::ItemType::IsFile) {
-        iRunStatus->holderOfTaskInProcessRuns().doneWaiting(std::exception_ptr{});
-        return;
-      }
-      if (lastTransitionType() == InputSource::ItemType::IsLumi && !nextTask.taskHasFailed()) {
-        CMS_SA_ALLOW try {
-          beginLumiAsync(IOVSyncValue(EventID(input_->run(), input_->luminosityBlock(), 0),
-                                      input_->luminosityBlockAuxiliary()->beginTime()),
-                         iRunStatus,
-                         nextTask);
-          return;
-        } catch (...) {
-          WaitingTaskHolder copyHolder(nextTask);
-          copyHolder.doneWaiting(std::current_exception());
-        }
-      }
-      // Note that endRunAsync will call beginRunAsync for the following run
-      // if appropriate.
-      endRunAsync(iRunStatus, std::move(nextTask));
-    }) | chain::runLast(std::move(iHolder));
-  }
-
-  bool EventProcessor::readNextEventForStream(WaitingTaskHolder const& iTask,
-                                              unsigned int iStreamIndex,
-                                              LuminosityBlockProcessingStatus& iStatus) {
-    // This function returns true if it successfully reads an event for the stream and that
-    // requires both that an event is next and there are no problems or requests to stop.
-
-    if (iTask.taskHasFailed()) {
-      // We want all streams to stop or all streams to pause. If we are already in the
-      // middle of pausing streams, then finish pausing all of them and the lumi will be
-      // ended later. Otherwise, just end it now.
-      if (iStatus.eventProcessingState() == LuminosityBlockProcessingStatus::EventProcessingState::kProcessing) {
-        iStatus.setEventProcessingState(LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi);
-      }
-      return false;
+  void EventProcessor::handleNextEventForStreamAsync(std::exception_ptr const* iExceptionPtr,
+                                                     unsigned int iStreamIndex,
+                                                     WaitingTaskHolder iTask) {
+    if (iExceptionPtr) {
+      WaitingTaskHolder copyHolder(iTask);
+      copyHolder.doneWaiting(*iExceptionPtr);
+      //we do not return here because we want the code in the chain to properly handle ending the lumi and run if needed, which is handled by the same code for exceptions as for normal end of lumi/run
     }
-
-    // Did another stream already stop or pause this lumi?
-    if (iStatus.eventProcessingState() != LuminosityBlockProcessingStatus::EventProcessingState::kProcessing) {
-      return false;
-    }
-
-    // Are output modules or the looper requesting we stop?
-    if (shouldWeStop()) {
-      lastSourceTransition_ = InputSource::ItemType::IsStop;
-      iStatus.setEventProcessingState(LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi);
-      return false;
-    }
-
-    ServiceRegistry::Operate operate(serviceToken_);
-
-    // need to use lock in addition to the serial task queue because
-    // of delayed provenance reading and reading data in response to
-    // edm::Refs etc
-    std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
-
-    // If we didn't already call nextTransitionType while merging lumis, call it here.
-    // This asks the input source what is next and also checks for signals.
-
-    InputSource::ItemType itemType = needToCallNext() ? nextTransitionType() : lastTransitionType();
-    setNeedToCallNext(true);
-
-    if (InputSource::ItemType::IsEvent != itemType) {
-      // IsFile may continue processing the lumi and
-      // looper_ can cause the input source to declare a new IsRun which is actually
-      // just a continuation of the previous run
-      if (InputSource::ItemType::IsStop == itemType or InputSource::ItemType::IsLumi == itemType or
-          (InputSource::ItemType::IsRun == itemType and
-           (iStatus.lumiPrincipal()->run() != input_->run() or
-            iStatus.lumiPrincipal()->runPrincipal().reducedProcessHistoryID() != input_->reducedProcessHistoryID()))) {
-        if (itemType == InputSource::ItemType::IsLumi &&
-            iStatus.lumiPrincipal()->luminosityBlock() == input_->luminosityBlock()) {
-          throw Exception(errors::LogicError)
-              << "InputSource claimed previous Lumi Entry was last to be merged in this file,\n"
-              << "but the next lumi entry has the same lumi number.\n"
-              << "This is probably a bug in the InputSource. Please report to the Core group.\n";
-        }
-        iStatus.setEventProcessingState(LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi);
-      } else {
-        iStatus.setEventProcessingState(LuminosityBlockProcessingStatus::EventProcessingState::kPauseForFileTransition);
-      }
-      return false;
-    }
-    readEvent(iStreamIndex);
-    return true;
-  }
-
-  void EventProcessor::handleNextEventForStreamAsync(WaitingTaskHolder iTask, unsigned int iStreamIndex) {
+    assert(streamLumiStatus_[iStreamIndex]);
     if (streamLumiStatus_[iStreamIndex]->haveStartedNextLumiOrEndedRun()) {
       streamEndLumiAsync(iTask, iStreamIndex);
       return;
     }
-    auto group = iTask.group();
-    sourceResourcesAcquirer_.serialQueueChain().push(*group, [this, iTask = std::move(iTask), iStreamIndex]() mutable {
-      CMS_SA_ALLOW try {
-        auto status = streamLumiStatus_[iStreamIndex].get();
-        ServiceRegistry::Operate operate(serviceToken_);
+    bool earlierTaskFailed = iTask.taskHasFailed();
+    auto resultFromReadNextEventForStream = std::make_unique<SourceCoordinator::ReadNextEventForStreamResult>(false);
+    auto* ptrToResultFromReadNextEventForStream = resultFromReadNextEventForStream.get();
+    bool needToStop = shouldWeStop();
+    auto sourceStatus = std::make_unique<SourceStatus>();
+    auto* pSourceStatus = sourceStatus.get();
+    chain::first(
+        [this, iStreamIndex, pSourceStatus, earlierTaskFailed, ptrToResultFromReadNextEventForStream, needToStop](
+            auto nextTask) mutable {
+          auto& event = principalCache_.eventPrincipal(iStreamIndex);
+          // a new file may have been read since the last time this event was used
+          event.possiblyUpdateAfterAddition(preg());
 
-        if (readNextEventForStream(iTask, iStreamIndex, *status)) {
-          auto recursionTask =
-              make_waiting_task([this, iTask, iStreamIndex](std::exception_ptr const* iEventException) mutable {
-                if (iEventException) {
-                  WaitingTaskHolder copyHolder(iTask);
-                  copyHolder.doneWaiting(*iEventException);
-                  // Intentionally, we don't return here. The recursive call to
-                  // handleNextEvent takes care of immediately ending the run properly
-                  // using the same code it uses to end the run in other situations.
+          sourceCoordinator_.readNextEventForStreamAsync(event,
+                                                         processContext_,
+                                                         *streamLumiStatus_[iStreamIndex],
+                                                         *streamRunStatus_[iStreamIndex],
+                                                         earlierTaskFailed,
+                                                         needToStop,
+                                                         *ptrToResultFromReadNextEventForStream,
+                                                         *pSourceStatus,
+                                                         nextTask);
+        }) |
+        chain::then([this,
+                     iStreamIndex,
+                     sourceStatus = std::move(sourceStatus),
+                     retValue = std::move(resultFromReadNextEventForStream),
+                     possibleFailedTask = iTask](std::exception_ptr const* iEventException,
+                                                 WaitingTaskHolder iNextTask) mutable {
+          CMS_SA_ALLOW try {
+            if (iEventException) {
+              WaitingTaskHolder copyHolder(iNextTask);
+              copyHolder.doneWaiting(*iEventException);
+              //NOTE: the ptrToResultFromReadNextEventForStream has already been set to deal with how the exception should be handled, so we don't need to do anything else here.
+            }
+            if (retValue->didCallReadEvent) {
+              chain::first([this, iStreamIndex](auto nextTask) mutable { processEventAsync(nextTask, iStreamIndex); }) |
+                  chain::then([this, iStreamIndex](std::exception_ptr const* iEventException,
+                                                   WaitingTaskHolder iNextTask) mutable {
+                    handleNextEventForStreamAsync(iEventException, iStreamIndex, std::move(iNextTask));
+                  }) |
+                  chain::runLast(iNextTask);
+            } else {
+              // the stream will stop processing this lumi now
+              if (retValue->stopLumi) {
+                if (retValue->mustStartNextLumiOrEndRun) {
+                  if (retValue->nextTransitionType == InputSource::ItemType::IsLumi &&
+                      !possibleFailedTask.taskHasFailed()) {
+                    CMS_SA_ALLOW try {
+                      beginLumiAsync(streamRunStatus_[iStreamIndex], *sourceStatus->lumiAuxiliary(), iNextTask);
+                    } catch (...) {
+                      WaitingTaskHolder copyHolder(iNextTask);
+                      copyHolder.doneWaiting(std::current_exception());
+                      endRunAsync(streamRunStatus_[iStreamIndex], std::nullopt, iNextTask);
+                    }
+                  } else {
+                    // If appropriate, this will also start the next run.
+                    std::optional<RunAuxiliary> runAux;
+                    if (sourceStatus->nextTransitionType() == InputSource::ItemType::IsRun) {
+                      runAux = *sourceStatus->runAuxiliary();
+                    }
+                    endRunAsync(streamRunStatus_[iStreamIndex], runAux, iNextTask);
+                  }
                 }
-                handleNextEventForStreamAsync(std::move(iTask), iStreamIndex);
-              });
-
-          processEventAsync(WaitingTaskHolder(*iTask.group(), recursionTask), iStreamIndex);
-        } else {
-          // the stream will stop processing this lumi now
-          if (status->eventProcessingState() == LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi) {
-            if (not status->haveStartedNextLumiOrEndedRun()) {
-              status->noMoreEventsInLumi();
-              status->startNextLumiOrEndRun();
-              if (lastTransitionType() == InputSource::ItemType::IsLumi && !iTask.taskHasFailed()) {
-                CMS_SA_ALLOW try {
-                  beginLumiAsync(IOVSyncValue(EventID(input_->run(), input_->luminosityBlock(), 0),
-                                              input_->luminosityBlockAuxiliary()->beginTime()),
-                                 streamRunStatus_[iStreamIndex],
-                                 iTask);
-                } catch (...) {
-                  WaitingTaskHolder copyHolder(iTask);
-                  copyHolder.doneWaiting(std::current_exception());
-                  endRunAsync(streamRunStatus_[iStreamIndex], iTask);
-                }
+                streamEndLumiAsync(iNextTask, iStreamIndex);
               } else {
-                // If appropriate, this will also start the next run.
-                endRunAsync(streamRunStatus_[iStreamIndex], iTask);
+                //if both of these conditions are false, then we must have had a file transition and we need to pause the stream until all streams are ready to continue.
+                // Note that in this case we do not call endRunAsync or beginLumiAsync here. The stream will just pause until the lumi is ended or the next lumi is started at
+                // which point it will be resumed and endRunAsync or beginLumiAsync will be called at that time if appropriate.
+                assert(not retValue->didCallReadEvent and not retValue->stopLumi);
+                auto runStatus = streamRunStatus_[iStreamIndex].get();
+                assert(runStatus);
+                runStatus->setHolderOfTaskInProcessRunsDoneWaiting();
               }
             }
-            streamEndLumiAsync(iTask, iStreamIndex);
-          } else {
-            assert(status->eventProcessingState() ==
-                   LuminosityBlockProcessingStatus::EventProcessingState::kPauseForFileTransition);
-            auto runStatus = streamRunStatus_[iStreamIndex].get();
-
-            if (runStatus->holderOfTaskInProcessRuns().hasTask()) {
-              runStatus->holderOfTaskInProcessRuns().doneWaiting(std::exception_ptr{});
-            }
+          } catch (...) {
+            WaitingTaskHolder copyHolder(iNextTask);
+            copyHolder.doneWaiting(std::current_exception());
           }
-        }
-      } catch (...) {
-        WaitingTaskHolder copyHolder(iTask);
-        copyHolder.doneWaiting(std::current_exception());
-        handleNextEventForStreamAsync(std::move(iTask), iStreamIndex);
-      }
-    });
-  }
-
-  void EventProcessor::readEvent(unsigned int iStreamIndex) {
-    //TODO this will have to become per stream
-    auto& event = principalCache_.eventPrincipal(iStreamIndex);
-    StreamContext streamContext(event.streamID(), &processContext_);
-    // a new file may have been read since the last time this event was used
-    event.possiblyUpdateAfterAddition(preg());
-
-    SendSourceTerminationSignalIfException sentry(actReg_.get());
-    input_->readEvent(event, streamContext);
-
-    streamRunStatus_[iStreamIndex]->updateLastTimestamp(input_->timestamp());
-    streamLumiStatus_[iStreamIndex]->updateLastTimestamp(input_->timestamp());
-    sentry.completedSuccessfully();
+        }) |
+        chain::runLast(iTask);
   }
 
   void EventProcessor::processEventAsync(WaitingTaskHolder iHolder, unsigned int iStreamIndex) {
@@ -2385,9 +2115,9 @@ namespace edm {
   }
 
   void EventProcessor::processEventWithLooper(EventPrincipal& iPrincipal, unsigned int iStreamIndex) {
-    bool randomAccess = input_->randomAccess();
-    ProcessingController::ForwardState forwardState = input_->forwardState();
-    ProcessingController::ReverseState reverseState = input_->reverseState();
+    bool randomAccess = sourceCoordinator_.randomAccess();
+    ProcessingController::ForwardState forwardState = sourceCoordinator_.forwardState();
+    ProcessingController::ReverseState reverseState = sourceCoordinator_.reverseState();
     ProcessingController pc(forwardState, reverseState, randomAccess);
 
     EDLooperBase::Status status = EDLooperBase::kContinue;
@@ -2399,9 +2129,9 @@ namespace edm {
       bool succeeded = true;
       if (randomAccess) {
         if (pc.requestedTransition() == ProcessingController::kToPreviousEvent) {
-          input_->skipEvents(-2);
+          sourceCoordinator_.skipEvents(-2);
         } else if (pc.requestedTransition() == ProcessingController::kToSpecifiedEvent) {
-          succeeded = input_->goToEvent(pc.specifiedEventTransition());
+          succeeded = sourceCoordinator_.goToEvent(pc.specifiedEventTransition());
         }
       }
       pc.setLastOperationSucceeded(succeeded);

@@ -17,9 +17,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDetEnumerators.h"
 
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"

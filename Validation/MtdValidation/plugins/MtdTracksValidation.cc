@@ -128,6 +128,7 @@ private:
   const float trackMaxBtlEta_;
   const float trackMinEtlEta_;
   const float trackMaxEtlEta_;
+  const bool skipNonExistingSrc_;
 
   static constexpr double simUnit_ = 1e9;                // sim time in s while reco time in ns
   static constexpr double etacutGEN_ = 4.;               // |eta| < 4;
@@ -514,7 +515,8 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
       trackMaxPt_(iConfig.getParameter<double>("trackMaximumPt")),
       trackMaxBtlEta_(iConfig.getParameter<double>("trackMaximumBtlEta")),
       trackMinEtlEta_(iConfig.getParameter<double>("trackMinimumEtlEta")),
-      trackMaxEtlEta_(iConfig.getParameter<double>("trackMaximumEtlEta")) {
+      trackMaxEtlEta_(iConfig.getParameter<double>("trackMaximumEtlEta")),
+      skipNonExistingSrc_(iConfig.getParameter<bool>("skipNonExistingSrc")) {
   GenRecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagG"));
   RecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagT"));
 
@@ -568,33 +570,86 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   using namespace geant_units::operators;
   using namespace std;
 
-  auto GenRecTrackHandle = makeValid(iEvent.getHandle(GenRecTrackToken_));
+  const auto& GenRecTrackHandle = iEvent.getHandle(GenRecTrackToken_);
+  const auto& btlRecCluHandle = iEvent.getHandle(btlRecCluToken_);
+  const auto& etlRecCluHandle = iEvent.getHandle(etlRecCluToken_);
 
-  auto btlRecCluHandle = makeValid(iEvent.getHandle(btlRecCluToken_));
-  auto etlRecCluHandle = makeValid(iEvent.getHandle(etlRecCluToken_));
+  if (!GenRecTrackHandle.isValid() || !btlRecCluHandle.isValid() || !etlRecCluHandle.isValid()) {
+    if (skipNonExistingSrc_)
+      return;
+    else
+      throw cms::Exception("Invalid Product")
+          << "Attempted to fill a input collection edm::Handle with an invalid product";
+  }
 
   const auto& tp2SimAssociationMap = iEvent.get(tp2SimAssociationMapToken_);
   const auto& Sim2tpAssociationMap = iEvent.get(Sim2tpAssociationMapToken_);
   const auto& r2sAssociationMap = iEvent.get(r2sAssociationMapToken_);
 
-  const auto& tMtd = iEvent.get(tmtdToken_);
-  const auto& SigmatMtd = iEvent.get(SigmatmtdToken_);
-  const auto& t0Src = iEvent.get(t0SrcToken_);
-  const auto& Sigmat0Src = iEvent.get(Sigmat0SrcToken_);
-  const auto& t0Pid = iEvent.get(t0PidToken_);
-  const auto& Sigmat0Pid = iEvent.get(Sigmat0PidToken_);
-  const auto& t0Safe = iEvent.get(t0SafePidToken_);
-  const auto& Sigmat0Safe = iEvent.get(Sigmat0SafePidToken_);
-  const auto& SigmaTofPi = iEvent.get(SigmaTofPiToken_);
-  const auto& SigmaTofK = iEvent.get(SigmaTofKToken_);
-  const auto& SigmaTofP = iEvent.get(SigmaTofPToken_);
-  const auto& mtdQualMVA = iEvent.get(trackMVAQualToken_);
-  const auto& trackAssoc = iEvent.get(trackAssocToken_);
-  const auto& pathLength = iEvent.get(pathLengthToken_);
-  const auto& btlMatchTimeChi2 = iEvent.get(btlMatchTimeChi2Token_);
-  const auto& etlMatchTimeChi2 = iEvent.get(etlMatchTimeChi2Token_);
-  const auto& btlMatchChi2 = iEvent.get(btlMatchChi2Token_);
-  const auto& outermostHitPosition = iEvent.get(outermostHitPositionToken_);
+  const auto& tMtdHandle = iEvent.getHandle(tmtdToken_);
+  const auto& SigmatMtdHandle = iEvent.getHandle(SigmatmtdToken_);
+  const auto& t0SrcHandle = iEvent.getHandle(t0SrcToken_);
+  const auto& Sigmat0SrcHandle = iEvent.getHandle(Sigmat0SrcToken_);
+  const auto& t0PidHandle = iEvent.getHandle(t0PidToken_);
+  const auto& Sigmat0PidHandle = iEvent.getHandle(Sigmat0PidToken_);
+  const auto& t0SafeHandle = iEvent.getHandle(t0SafePidToken_);
+  const auto& Sigmat0SafeHandle = iEvent.getHandle(Sigmat0SafePidToken_);
+  const auto& SigmaTofPiHandle = iEvent.getHandle(SigmaTofPiToken_);
+  const auto& SigmaTofKHandle = iEvent.getHandle(SigmaTofKToken_);
+  const auto& SigmaTofPHandle = iEvent.getHandle(SigmaTofPToken_);
+  const auto& mtdQualMVAHandle = iEvent.getHandle(trackMVAQualToken_);
+  const auto& trackAssocHandle = iEvent.getHandle(trackAssocToken_);
+  const auto& pathLengthHandle = iEvent.getHandle(pathLengthToken_);
+  const auto& btlMatchTimeChi2Handle = iEvent.getHandle(btlMatchTimeChi2Token_);
+  const auto& etlMatchTimeChi2Handle = iEvent.getHandle(etlMatchTimeChi2Token_);
+  const auto& btlMatchChi2Handle = iEvent.getHandle(btlMatchChi2Token_);
+  const auto& outermostHitPositionHandle = iEvent.getHandle(outermostHitPositionToken_);
+
+  const auto& allValid = {tMtdHandle.isValid(),
+                          SigmatMtdHandle.isValid(),
+                          t0SrcHandle.isValid(),
+                          Sigmat0SrcHandle.isValid(),
+                          t0PidHandle.isValid(),
+                          Sigmat0PidHandle.isValid(),
+                          t0SafeHandle.isValid(),
+                          Sigmat0SafeHandle.isValid(),
+                          SigmaTofPiHandle.isValid(),
+                          SigmaTofKHandle.isValid(),
+                          SigmaTofPHandle.isValid(),
+                          mtdQualMVAHandle.isValid(),
+                          trackAssocHandle.isValid(),
+                          pathLengthHandle.isValid(),
+                          btlMatchTimeChi2Handle.isValid(),
+                          etlMatchTimeChi2Handle.isValid(),
+                          btlMatchChi2Handle.isValid(),
+                          outermostHitPositionHandle.isValid()};
+
+  if (!std::all_of(allValid.begin(), allValid.end(), [](bool v) { return v; })) {
+    if (skipNonExistingSrc_)
+      return;
+    else
+      throw cms::Exception("Invalid Product")
+          << "Attempted to fill a edm::ValueMap edm::Handle with an invalid product";
+  }
+
+  const auto& tMtd = *tMtdHandle;
+  const auto& SigmatMtd = *SigmatMtdHandle;
+  const auto& t0Src = *t0SrcHandle;
+  const auto& Sigmat0Src = *Sigmat0SrcHandle;
+  const auto& t0Pid = *t0PidHandle;
+  const auto& Sigmat0Pid = *Sigmat0PidHandle;
+  const auto& t0Safe = *t0SafeHandle;
+  const auto& Sigmat0Safe = *Sigmat0SafeHandle;
+  const auto& SigmaTofPi = *SigmaTofPiHandle;
+  const auto& SigmaTofK = *SigmaTofKHandle;
+  const auto& SigmaTofP = *SigmaTofPHandle;
+  const auto& mtdQualMVA = *mtdQualMVAHandle;
+  const auto& trackAssoc = *trackAssocHandle;
+  const auto& pathLength = *pathLengthHandle;
+  const auto& btlMatchTimeChi2 = *btlMatchTimeChi2Handle;
+  const auto& etlMatchTimeChi2 = *etlMatchTimeChi2Handle;
+  const auto& btlMatchChi2 = *btlMatchChi2Handle;
+  const auto& outermostHitPosition = *outermostHitPositionHandle;
 
   auto recoToSimH = makeValid(iEvent.getHandle(recoToSimAssociationToken_));
   r2s_ = recoToSimH.product();
@@ -906,13 +961,13 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
             // Find the first direct hit in time
             directSimClusIt = std::find_if(simClustersRefs.begin(), simClustersRefs.end(), [](const auto& simCluster) {
               MTDDetId mtddetid = simCluster->detIds_and_rows().front().first;
-              return (mtddetid.mtdSubDetector() == 1 && simCluster->trackIdOffset() == 0);
+              return (mtddetid.mtdSubDetector() == 1 && simCluster->hitProdType() == 0);
             });
             // Check if TP has direct or other sim cluster for BTL
             for (const auto& simClusterRef : simClustersRefs) {
               if (directSimClusIt != simClustersRefs.end() && simClusterRef == *directSimClusIt) {
                 isTPmtdDirectBTL = true;
-              } else if (simClusterRef->trackIdOffset() != 0) {
+              } else if (simClusterRef->hitProdType() != 0) {
                 isTPmtdOtherBTL = true;
               }
             }
@@ -950,7 +1005,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                     GlobalPoint simClusRecoMatchGlobalPos =
                         geomUtil.globalPosition(detidRecoMatch, simClusRecoMatchLocalPos);
 
-                    simClusterRef_RecoMatch_trackIdOff = simClusterRef_RecoMatch->trackIdOffset();
+                    simClusterRef_RecoMatch_trackIdOff = simClusterRef_RecoMatch->hitProdType();
                     simClusterRef_RecoMatch_DeltaZ = simClusRecoMatchGlobalPos.z() - simClusGlobalPos.z();
                     simClusterRef_RecoMatch_DeltaPhi = simClusRecoMatchGlobalPos.phi() - simClusGlobalPos.phi();
                     simClusterRef_RecoMatch_DeltaT = simClusterRef_RecoMatch->simLCTime() - directSimClus->simLCTime();
@@ -964,7 +1019,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                         isTPmtdDirectCorrectBTL = true;
                         simClusterEarliestTime_correctAssoc = earliestSimHitTimeInSimCluster((*simClusterIt));
 
-                      } else if (simClusterRef_RecoMatch->trackIdOffset() != 0) {
+                      } else if (simClusterRef_RecoMatch->hitProdType() != 0) {
                         isTPmtdOtherCorrectBTL = true;
                       }
                     }
@@ -1374,7 +1429,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                               meBTLTrackMatchedTPnomtdAssocTrackID_->Fill(1);
                           }
                         }
-                        meBTLTrackMatchedTPnomtdAssocTrackIdOff_->Fill(sc->trackIdOffset());
+                        meBTLTrackMatchedTPnomtdAssocTrackIdOff_->Fill(sc->hitProdType());
                       }
                     }
                   }
@@ -3286,6 +3341,7 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
 
   desc.add<std::string>("folder", "MTD/Tracks");
   desc.add<bool>("optionalPlots", false);
+  desc.add<bool>("skipNonExistingSrc", false);
   desc.add<edm::InputTag>("inputTagG", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("inputTagT", edm::InputTag("trackExtenderWithMTD"));
   desc.add<edm::InputTag>("inputTagV", edm::InputTag("offlinePrimaryVertices4D"));

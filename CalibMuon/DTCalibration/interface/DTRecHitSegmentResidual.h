@@ -5,9 +5,10 @@
  *  \author A. Vilela Pereira
  */
 
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DFwd.h"
+#include "DataFormats/DTRecHit/interface/DTRecHit1DFwd.h"
+
 class DTGeometry;
-class DTRecSegment4D;
-class DTRecHit1D;
 
 class DTRecHitSegmentResidual {
 public:

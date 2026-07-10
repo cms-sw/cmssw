@@ -29,7 +29,7 @@
 
 using namespace std;
 
-class GenParticles2HepMCConverter : public edm::stream::EDProducer<> {
+class GenParticles2HepMCConverter : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit GenParticles2HepMCConverter(const edm::ParameterSet& pset);
   ~GenParticles2HepMCConverter() override;

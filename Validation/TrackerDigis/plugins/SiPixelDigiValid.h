@@ -7,6 +7,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigiFwd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include <string>
@@ -15,7 +16,6 @@ namespace edm {
   template <class T>
   class DetSetVector;
 }
-class PixelDigi;
 
 class SiPixelDigiValid : public DQMEDAnalyzer {
 public:

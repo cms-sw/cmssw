@@ -1,0 +1,20 @@
+#include "DataFormats/PortableTestObjects/interface/alpaka/ImageDeviceCollection.h"
+#include "DataFormats/PortableTestObjects/interface/alpaka/LogitsDeviceCollection.h"
+#include "DataFormats/PortableTestObjects/interface/alpaka/MaskDeviceCollection.h"
+#include "DataFormats/PortableTestObjects/interface/alpaka/MultiHeadNetDeviceCollection.h"
+#include "DataFormats/PortableTestObjects/interface/alpaka/ParticleDeviceCollection.h"
+#include "DataFormats/PortableTestObjects/interface/alpaka/SimpleNetDeviceCollection.h"
+#include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceCollection.h"
+#include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceObject.h"
+#include "HeterogeneousCore/TrivialSerialisation/interface/alpaka/SerialiserFactoryDevice.h"
+
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(portabletest::ImageDeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(portabletest::LogitsDeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(portabletest::MaskDeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(portabletest::MultiHeadNetDeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(portabletest::ParticleDeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(portabletest::SimpleNetDeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(portabletest::TestDeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(portabletest::TestDeviceCollection2);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(portabletest::TestDeviceCollection3);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(portabletest::TestDeviceObject);

@@ -18,10 +18,10 @@ process.maxEvents = cms.untracked.PSet(
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('Geometry/HcalTestBeamData/data/dd4hep/cms-test-ddTB2004-algorithm.xml'),
                                             appendToDataLabel = cms.string('')
-                                            )
+)
 
 process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
-                                                appendToDataLabel = cms.string('')
+                                                 appendToDataLabel = cms.string('')
 )
 
 process.TFileService = cms.Service("TFileService",
@@ -49,13 +49,17 @@ process.common_beam_direction_parameters = cms.PSet(
     MinEta       = cms.double(0.5655),
     MaxEta       = cms.double(0.5655),
     MinPhi       = cms.double(-0.1309),
-    MaxPhi       = cms.double(-0.1309),
+    MaxPhi       = cms.double(-0.1309)
+)
+
+process.common_beam_position_parameters = cms.PSet(
     BeamPosition = cms.double(beamPosition)
 )
 
 from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
 process.VtxSmeared = cms.EDProducer("BeamProfileVtxGenerator",
     process.common_beam_direction_parameters,
+    process.common_beam_position_parameters,
     VtxSmearedCommon,
     BeamMeanX       = cms.double(0.0),
     BeamMeanY       = cms.double(0.0),
@@ -129,6 +133,7 @@ process.g4SimHits.OnlySDs = ['HcalTB06BeamDetector',
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     HcalTB04Analysis = cms.PSet(
         process.common_beam_direction_parameters,
+        process.common_beam_position_parameters,
         HcalOnly  = cms.bool(False),
         Type      = cms.int32(2),
         Mode      = cms.int32(1),

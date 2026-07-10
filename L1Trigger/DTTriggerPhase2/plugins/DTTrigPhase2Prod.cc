@@ -79,7 +79,7 @@ using namespace edm;
 using namespace std;
 using namespace cmsdt;
 
-class DTTrigPhase2Prod : public edm::stream::EDProducer<> {
+class DTTrigPhase2Prod : public edm::stream::EDProducer<edm::stream::WatchRuns> {
   typedef std::map<DTChamberId, DTDigiCollection, std::less<DTChamberId>> DTDigiMap;
   typedef DTDigiMap::iterator DTDigiMap_iterator;
   typedef DTDigiMap::const_iterator DTDigiMap_const_iterator;

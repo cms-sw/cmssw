@@ -35,40 +35,39 @@
 
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 
-#include "RecoHGCal/TICL/interface/GlobalCache.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToBeamLine.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
+#include "RecoHGCal/TICL/interface/TICLONNXGlobalCache.h"
 
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "RecoHGCal/TICL/interface/TracksterInferenceAlgoFactory.h"
 
 #include "TrackstersPCA.h"
 
 using namespace ticl;
-using cms::Ort::ONNXRuntime;
 
-class TICLCandidateProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
+class TICLCandidateProducer
+    : public edm::stream::EDProducer<edm::GlobalCache<ticl::TICLONNXGlobalCache>, edm::stream::WatchRuns> {
 public:
-  explicit TICLCandidateProducer(const edm::ParameterSet &ps, const ONNXRuntime *);
+  explicit TICLCandidateProducer(const edm::ParameterSet &ps, const ticl::TICLONNXGlobalCache *);
   ~TICLCandidateProducer() override {}
   void produce(edm::Event &, const edm::EventSetup &) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   void beginRun(edm::Run const &iEvent, edm::EventSetup const &es) override;
-  static std::unique_ptr<ONNXRuntime> initializeGlobalCache(const edm::ParameterSet &iConfig);
-  static void globalEndJob(const ONNXRuntime *);
+  static std::unique_ptr<ticl::TICLONNXGlobalCache> initializeGlobalCache(const edm::ParameterSet &iConfig);
+  static void globalEndJob(const ticl::TICLONNXGlobalCache *);
 
 private:
   void dumpCandidate(const TICLCandidate &) const;
@@ -80,6 +79,7 @@ private:
                               F func) const;
 
   std::unique_ptr<TICLInterpretationAlgoBase<reco::Track>> generalInterpretationAlgo_;
+  std::unique_ptr<TICLInterpretationAlgoBase<reco::Track>> muonInterpretationAlgo_;
   std::vector<edm::EDGetTokenT<std::vector<Trackster>>> egamma_tracksters_tokens_;
   std::vector<edm::EDGetTokenT<std::vector<std::vector<unsigned>>>> egamma_tracksterlinks_tokens_;
 
@@ -121,7 +121,7 @@ private:
   static constexpr float timeRes = 0.02f;
 };
 
-TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps, const ONNXRuntime *)
+TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps, const ticl::TICLONNXGlobalCache *cache)
     : clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
       clustersTime_token_(
           consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("layer_clustersTime"))),
@@ -177,11 +177,30 @@ TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps, const 
   if (useMTDTiming_) {
     inputTimingToken_ = consumes<MtdHostCollection>(ps.getParameter<edm::InputTag>("timingSoA"));
   }
-  // Initialize inference algorithm using the factory
-  std::string inferencePlugin = ps.getParameter<std::string>("inferenceAlgo");
-  edm::ParameterSet inferencePSet = ps.getParameter<edm::ParameterSet>("pluginInferenceAlgo" + inferencePlugin);
-  inferenceAlgo_ = std::unique_ptr<TracksterInferenceAlgoBase>(
-      TracksterInferenceAlgoFactory::get()->create(inferencePlugin, inferencePSet));
+  // Initialize inference algorithm using the factory.
+  // Do not build the inference plugin if it is disabled or if no model is configured (empty string => no session loaded).
+  if (regressionAndPid_) {
+    const std::string inferencePlugin = ps.getParameter<std::string>("inferenceAlgo");
+    if (!inferencePlugin.empty()) {
+      const edm::ParameterSet inferencePSet =
+          ps.getParameter<edm::ParameterSet>("pluginInferenceAlgo" + inferencePlugin);
+
+      // If the plugin config exposes model paths as std::string with default "",
+      // the cache will only contain sessions for non-empty paths.
+      const bool hasSingleModel = inferencePSet.existsAs<std::string>("onnxModelPath", true) &&
+                                  !inferencePSet.getParameter<std::string>("onnxModelPath").empty();
+      const bool hasPIDModel = inferencePSet.existsAs<std::string>("onnxPIDModelPath", true) &&
+                               !inferencePSet.getParameter<std::string>("onnxPIDModelPath").empty();
+      const bool hasEnergyModel = inferencePSet.existsAs<std::string>("onnxEnergyModelPath", true) &&
+                                  !inferencePSet.getParameter<std::string>("onnxEnergyModelPath").empty();
+
+      // Only instantiate the plugin if at least one model path is configured.
+      if (hasSingleModel || hasPIDModel || hasEnergyModel) {
+        inferenceAlgo_ = std::unique_ptr<TracksterInferenceAlgoBase>(
+            TracksterInferenceAlgoFactory::get()->create(inferencePlugin, inferencePSet, cache));
+      }
+    }
+  }
 
   produces<std::vector<TICLCandidate>>();
 
@@ -192,13 +211,19 @@ TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps, const 
   auto algoType = interpretationPSet.getParameter<std::string>("type");
   generalInterpretationAlgo_ =
       TICLGeneralInterpretationPluginFactory::get()->create(algoType, interpretationPSet, consumesCollector());
+
+  auto muonInterpretationPSet = ps.getParameter<edm::ParameterSet>("muonInterpretationDescPSet");
+  auto muonAlgoType = muonInterpretationPSet.getParameter<std::string>("type");
+  muonInterpretationAlgo_ =
+      TICLGeneralInterpretationPluginFactory::get()->create(muonAlgoType, muonInterpretationPSet, consumesCollector());
 }
 
-std::unique_ptr<ONNXRuntime> TICLCandidateProducer::initializeGlobalCache(const edm::ParameterSet &iConfig) {
-  return std::unique_ptr<ONNXRuntime>(nullptr);
+std::unique_ptr<ticl::TICLONNXGlobalCache> TICLCandidateProducer::initializeGlobalCache(
+    const edm::ParameterSet &iConfig) {
+  return ticl::TICLONNXGlobalCache::initialize(iConfig);
 }
 
-void TICLCandidateProducer::globalEndJob(const ONNXRuntime *) {}
+void TICLCandidateProducer::globalEndJob(const ticl::TICLONNXGlobalCache *) {}
 
 void TICLCandidateProducer::beginRun(edm::Run const &iEvent, edm::EventSetup const &es) {
   edm::ESHandle<HGCalDDDConstants> hdc = es.getHandle(hdc_token_);
@@ -210,9 +235,10 @@ void TICLCandidateProducer::beginRun(edm::Run const &iEvent, edm::EventSetup con
   bfield_ = es.getHandle(bfield_token_);
   propagator_ = es.getHandle(propagator_token_);
   generalInterpretationAlgo_->initialize(hgcons_, rhtools_, bfield_, propagator_);
+  muonInterpretationAlgo_->initialize(hgcons_, rhtools_, bfield_, propagator_);
 
   trackingGeometry_ = es.getHandle(trackingGeometry_token_);
-};
+}
 
 void filterTracks(edm::Handle<std::vector<reco::Track>> tkH,
                   const edm::Handle<std::vector<reco::Muon>> &muons_h,
@@ -234,7 +260,7 @@ void filterTracks(edm::Handle<std::vector<reco::Track>> tkH,
     }
 
     // don't consider tracks below 2 GeV for linking
-    if (std::sqrt(tk.p() * tk.p() + ticl::mpion2) < tkEnergyCut_) {
+    if (std::sqrt(tk.p() * tk.p() + mpion2) < tkEnergyCut_) {
       maskTracks[i] = false;
       continue;
     }
@@ -307,6 +333,55 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
   maskTracks.resize(tracks.size());
   filterTracks(tracks_h, muons_h, cutTk_, tkEnergyCut_, maskTracks);
 
+  // Split the selected tracks: identified muons go to the muon interpretation pass
+  // (built from the track momentum), the rest to the general pass.
+  std::vector<bool> muonTrackMask(tracks.size(), false);
+  std::vector<bool> generalTrackMask(maskTracks);
+  for (size_t i = 0; i < tracks.size(); ++i) {
+    if (!maskTracks[i])
+      continue;
+    auto trackRef = edm::Ref<reco::TrackCollection>(tracks_h, i);
+    const int muId = PFMuonAlgo::muAssocToTrack(trackRef, *muons_h);
+    const reco::MuonRef muonRef(muons_h, muId);
+    if (muonRef.isNonnull() and PFMuonAlgo::isMuon(muonRef)) {
+      muonTrackMask[i] = true;
+      generalTrackMask[i] = false;
+    }
+  }
+
+  const typename TICLInterpretationAlgoBase<reco::Track>::Inputs muonInput(evt,
+                                                                           es,
+                                                                           layerClusters,
+                                                                           layerClustersTimes,
+                                                                           generalTrackstersSpan,
+                                                                           generalTracksterLinksGlobalId,
+                                                                           tracks_h,
+                                                                           muonTrackMask);
+  auto resultCandidates = std::make_unique<std::vector<TICLCandidate>>();
+  std::vector<int> muonInTrackIndices(tracks.size(), -1);
+  std::vector<int> trackstersInTrackIndices(tracks.size(), -1);
+
+  //TODO
+  //egammaInterpretationAlg_->makecandidates(inputGSF, inputTiming, *resultTrackstersMerged, trackstersInGSFTrackIndices)
+  // mask generalTracks associated to GSFTrack linked in egammaInterpretationAlgo_
+
+  // Tracksters consumed across interpretation passes (indexed over the input span). The
+  // muon pass runs first: it masks the MIP tracksters it consumes and reports, per
+  // muon-candidate track, the consumed trackster (>=0), no trackster (-1, a track-only
+  // muon), or a rejection (kMuonRejected: the trajectory points to a shower).
+  std::vector<bool> maskedInputTracksters(generalTrackstersSpan.size(), false);
+  muonInterpretationAlgo_->makeCandidates(
+      muonInput, inputTiming_h, *resultTracksters, muonInTrackIndices, maskedInputTracksters);
+
+  // A track the muon pass rejected is not a muon: route it back to the general pass so
+  // it is reconstructed there (and no muon candidate is built for it below).
+  for (size_t iTrack = 0; iTrack < tracks.size(); ++iTrack) {
+    if (muonTrackMask[iTrack] && muonInTrackIndices[iTrack] == kMuonRejected) {
+      muonTrackMask[iTrack] = false;
+      generalTrackMask[iTrack] = true;
+    }
+  }
+
   const typename TICLInterpretationAlgoBase<reco::Track>::Inputs input(evt,
                                                                        es,
                                                                        layerClusters,
@@ -314,16 +389,9 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
                                                                        generalTrackstersSpan,
                                                                        generalTracksterLinksGlobalId,
                                                                        tracks_h,
-                                                                       maskTracks);
-
-  auto resultCandidates = std::make_unique<std::vector<TICLCandidate>>();
-  std::vector<int> trackstersInTrackIndices(tracks.size(), -1);
-
-  //TODO
-  //egammaInterpretationAlg_->makecandidates(inputGSF, inputTiming, *resultTrackstersMerged, trackstersInGSFTrackIndices)
-  // mask generalTracks associated to GSFTrack linked in egammaInterpretationAlgo_
-
-  generalInterpretationAlgo_->makeCandidates(input, inputTiming_h, *resultTracksters, trackstersInTrackIndices);
+                                                                       generalTrackMask);
+  generalInterpretationAlgo_->makeCandidates(
+      input, inputTiming_h, *resultTracksters, trackstersInTrackIndices, maskedInputTracksters);
 
   assignPCAtoTracksters(*resultTracksters,
                         layerClusters,
@@ -333,16 +401,35 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
                         true);
   if (regressionAndPid_) {
     // Run inference algorithm
-    inferenceAlgo_->inputData(layerClusters, *resultTracksters, rhtools_);
-    inferenceAlgo_->runInference(
-        *resultTracksters);  //option to use "Linking" instead of "CLU3D"/"energyAndPid" instead of "PID"
+    inferenceAlgo_->runInference(layerClusters, *resultTracksters, rhtools_);
   }
 
   std::vector<bool> maskTracksters(resultTracksters->size(), true);
   edm::OrphanHandle<std::vector<Trackster>> resultTracksters_h = evt.put(std::move(resultTracksters));
-  //create ChargedCandidates
+
+  // Muon candidates: energy from the track momentum (pdgId 13), attaching the MIP
+  // trackster the muon pass associated (if any) and masking it so it is not re-emitted.
+  for (size_t iTrack = 0; iTrack < tracks.size(); ++iTrack) {
+    if (!muonTrackMask[iTrack])
+      continue;
+    auto trackPtr = edm::Ptr<reco::Track>(tracks_h, iTrack);
+    auto const &tk = *trackPtr;
+    const int tracksterId = muonInTrackIndices[iTrack];
+    edm::Ptr<Trackster> tracksterPtr;
+    if (tracksterId >= 0) {
+      tracksterPtr = edm::Ptr<Trackster>(resultTracksters_h, tracksterId);
+      maskTracksters[tracksterId] = false;
+    }
+    TICLCandidate muonCandidate(trackPtr, tracksterPtr);
+    muonCandidate.setPdgId(13 * tk.charge());
+    math::PtEtaPhiMLorentzVector p4Polar(tk.pt(), tk.eta(), tk.phi(), ticl::mmuon);
+    muonCandidate.setP4(p4Polar);
+    resultCandidates->push_back(muonCandidate);
+  }
+
+  //create ChargedCandidates (non-muon tracks)
   for (size_t iTrack = 0; iTrack < tracks.size(); iTrack++) {
-    if (maskTracks[iTrack]) {
+    if (generalTrackMask[iTrack]) {
       auto const tracksterId = trackstersInTrackIndices[iTrack];
       auto trackPtr = edm::Ptr<reco::Track>(tracks_h, iTrack);
       if (tracksterId != -1 and !maskTracksters.empty()) {
@@ -350,18 +437,6 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
         TICLCandidate chargedCandidate(trackPtr, tracksterPtr);
         resultCandidates->push_back(chargedCandidate);
         maskTracksters[tracksterId] = false;
-      } else {
-        //charged candidates track only
-        auto trackRef = edm::Ref<reco::TrackCollection>(tracks_h, iTrack);
-        const int muId = PFMuonAlgo::muAssocToTrack(trackRef, *muons_h);
-        const reco::MuonRef muonRef = reco::MuonRef(muons_h, muId);
-        if (muonRef.isNonnull() and muonRef->isGlobalMuon()) {
-          // create muon candidate
-          edm::Ptr<Trackster> tracksterPtr;
-          TICLCandidate chargedCandidate(trackPtr, tracksterPtr);
-          chargedCandidate.setPdgId(13 * trackPtr.get()->charge());
-          resultCandidates->push_back(chargedCandidate);
-        }
       }
     }
   }
@@ -378,6 +453,15 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
 
   auto getPathLength =
       [&](const reco::Track &track, float zVal) {
+        // Bail out early if inner/outer surfaces are not available
+        if (!track.innerOk() || !track.outerOk()) {
+          if (edm::isDebugEnabled()) {
+            LogDebug("TICLCandidateProducer")
+                << "Not able to use the track to compute the path length. A straight line will be used instead.";
+          }
+          return 0.f;
+        }
+
         const auto &fts_inn = trajectoryStateTransform::innerFreeState(track, bFieldProd);
         const auto &fts_out = trajectoryStateTransform::outerFreeState(track, bFieldProd);
         const auto &surf_inn = trajectoryStateTransform::innerStateOnSurface(track, *trackingGeometry_, bFieldProd);
@@ -504,6 +588,9 @@ void TICLCandidateProducer::fillDescriptions(edm::ConfigurationDescriptions &des
   edm::ParameterSetDescription desc;
   edm::ParameterSetDescription interpretationDesc;
   interpretationDesc.addNode(edm::PluginDescription<TICLGeneralInterpretationPluginFactory>("type", "General", true));
+  edm::ParameterSetDescription muonInterpretationDesc;
+  muonInterpretationDesc.addNode(edm::PluginDescription<TICLGeneralInterpretationPluginFactory>("type", "Muon", true));
+  desc.add<edm::ParameterSetDescription>("muonInterpretationDescPSet", muonInterpretationDesc);
   edm::ParameterSetDescription inferenceDesc;
   inferenceDesc.addNode(edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByPFN", true));
   desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByPFN", inferenceDesc);

@@ -7,10 +7,26 @@ hltHgcalLayerClustersHSci = cms.EDProducer("HGCalLayerClusterProducer",
     nHitsTime = cms.uint32(3),
     plugin = cms.PSet(
         dEdXweights = HGCAL_reco_constants.dEdXweights,
+        # Scintillator tiles use (eta, phi) coordinates, so the critical/seed/outlier
+        # distances need the scintillator scale (the silicon-scale defaults are used by
+        # the EE/FH instances). deltao = 0.063 reproduces the previous effective outlier
+        # distance (outlierDeltaFactor = 2.0) x (scint critical distance = 0.0315).
         deltac = cms.vdouble(
-            1.3,
-            1.3,
-            1.3,
+            0.0315,
+            0.0315,
+            0.0315,
+            0.0315
+        ),
+        deltao = cms.vdouble(
+            0.063,
+            0.063,
+            0.063,
+            0.063
+        ),
+        deltas = cms.vdouble(
+            0.0315,
+            0.0315,
+            0.0315,
             0.0315
         ),
         deltasi_index_regemfac = cms.int32(3),

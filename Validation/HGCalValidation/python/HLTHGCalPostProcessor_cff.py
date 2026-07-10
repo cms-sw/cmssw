@@ -5,11 +5,11 @@ from Validation.HGCalValidation.PostProcessorHGCAL_cfi import postProcessorHGCAL
 from Validation.HGCalValidation.PostProcessorHGCAL_cfi import postProcessorHGCALTracksters as _postProcessorHGCALTracksters
 from Validation.HGCalValidation.PostProcessorHGCAL_cfi import postProcessorHGCALCandidates as _postProcessorHGCALCandidates 
 
-from Validation.HGCalValidation.HLT_TICLIterLabels_cff import hltTiclIterLabels as _hltTiclIterLabels
+from Validation.HGCalValidation.HLT_TICLIterLabels_cff import hltTiclIterLabelsPSet as _hltTiclIterLabelsPSet
 from Validation.HGCalValidation.HLTHGCalValidator_cff import hltHgcalValidator as _hltHgcalValidator
 
 hltPrefix = 'HLT/HGCAL/HGCalValidator/'
-hltTracksterLabels = _hltTiclIterLabels.copy()
+hltTracksterLabels = _hltTiclIterLabelsPSet.labels.copy()
 hltTracksterLabels.extend(['hltTiclSimTracksters', 'hltTiclSimTracksters_fromCPs'])
 
 hltLcToCP_linking = _hltHgcalValidator.label_LCToCPLinking.value()

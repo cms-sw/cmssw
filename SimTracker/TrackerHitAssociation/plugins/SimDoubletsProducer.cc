@@ -69,7 +69,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
 private:
   TrackingParticleSelector trackingParticleSelector;
@@ -210,9 +209,6 @@ void SimDoubletsProducer<pixelTopology::Phase2>::fillDescriptions(edm::Configura
 
   descriptions.addWithDefaultLabel(desc);
 }
-
-template <typename TrackerTraits>
-void SimDoubletsProducer<TrackerTraits>::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {}
 
 template <typename TrackerTraits>
 void SimDoubletsProducer<TrackerTraits>::produce(edm::Event& event, const edm::EventSetup& eventSetup) {

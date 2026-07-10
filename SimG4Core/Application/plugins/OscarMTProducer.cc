@@ -17,6 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/ThreadHandoff.h"
 
 #include "SimG4Core/Application/interface/OscarMTMasterThread.h"
 #include "SimG4Core/Application/interface/RunManagerMT.h"
@@ -34,12 +35,11 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-#include "SimG4Core/Application/interface/ThreadHandoff.h"
-
 #include "Randomize.hh"
 
 // for some reason void doesn't compile
-class OscarMTProducer : public edm::stream::EDProducer<edm::GlobalCache<OscarMTMasterThread>, edm::RunCache<int>> {
+class OscarMTProducer
+    : public edm::stream::EDProducer<edm::GlobalCache<OscarMTMasterThread>, edm::RunCache<int>, edm::stream::WatchRuns> {
 public:
   typedef std::vector<std::shared_ptr<SimProducer>> Producers;
 
@@ -58,7 +58,7 @@ public:
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
-  omt::ThreadHandoff m_handoff;
+  edm::ThreadHandoff m_handoff;
   std::unique_ptr<RunManagerMTWorker> m_runManagerWorker;
   const OscarMTMasterThread* m_masterThread;
   const edm::ParameterSetID m_psetID;

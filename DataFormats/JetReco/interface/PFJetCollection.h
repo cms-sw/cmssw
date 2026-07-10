@@ -11,7 +11,10 @@
 #include "DataFormats/JetReco/interface/PFJet.h"  //INCLUDECHECKER:SKIP
 
 namespace reco {
-  class PFJet;
+  namespace io_v1 {
+    class PFJet;
+  }
+  using PFJet = io_v1::PFJet;
   /// collection of PFJet objects
   typedef std::vector<PFJet> PFJetCollection;
   /// edm references

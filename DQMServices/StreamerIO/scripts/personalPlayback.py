@@ -218,7 +218,7 @@ TODAY=$(date)
 logname="/var/log/hltd/pid/hlt_run$4_pid$$.log"
 lognamez="/var/log/hltd/pid/hlt_run$4_pid$$_gzip.log.gz"
 #override the noclobber option by using >| operator for redirection - then keep appending to log
-echo startDqmRun invoked $TODAY with arguments $1 $2 $3 $4 $5 $6 $7 $8 >| $logname
+echo startDqmRun invoked $TODAY with arguments $@ >| $logname
 export http_proxy="http://cmsproxy.cms:3128"
 export https_proxy="https://cmsproxy.cms:3128/"
 export NO_PROXY=".cms"
@@ -232,8 +232,8 @@ pwd >> $logname 2>&1
 eval `scram runtime -sh`;
 cd $3;
 pwd >> $logname 2>&1
-#exec esMonitoring.py -z $lognamez cmsRun `readlink $6` runInputDir=$5 runNumber=$4 $7 $8 >> $logname 2>&1
-exec esMonitoring.py cmsRun `readlink $6` runInputDir=$5 runNumber=$4 $7 $8
+#exec esMonitoring.py -z $lognamez cmsRun `readlink $6` runInputDir=$5 runNumber=$4 ${{@:7}} >> $logname 2>&1
+exec esMonitoring.py cmsRun `readlink $6` runInputDir=$5 runNumber=$4 ${{@:7}}
 """
 
 start_dqm_job = start_dqm_job.replace("/var/log/hltd/pid/", '{log_path}/')
@@ -361,6 +361,9 @@ class FrameworkJob(Applet):
         args.append(self.cfg_link)          # cmsRun arg 1
         args.append(f"runkey={self.opts.run_key}")        # cmsRun arg 2
 
+        for extra_arg in self.opts.extra_args:
+            args.append(extra_arg)
+
         return args
 
     def discover_latest(self):
@@ -472,6 +475,8 @@ if __name__ == "__main__":
     run_group.add_argument("--cmsRun", type=str, help="cmsRun command to run, for igprof and so on.", default="cmsRun")
     run_group.add_argument("--run_key", type=str, help="Run key to use (pp_run, cosmic_run or hi_run)", default="pp_run")
 
+    client_group = parser.add_argument_group("Client", "Client extra arguments.")
+    client_group.add_argument("--extra-args", nargs="+", metavar="KEY=VALUE", help="Client extra arguments split by whitespace")
 
     parser.add_argument('cmssw_configs', metavar='cmssw_cfg.py', type=str, nargs='*', help='List of cmssw jobs (clients).')
 

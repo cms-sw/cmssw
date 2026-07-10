@@ -24,7 +24,7 @@
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 
 // Geometry
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"

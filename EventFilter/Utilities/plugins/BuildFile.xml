@@ -7,10 +7,10 @@
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Sources"/>
   <use name="FWCore/Utilities"/>
+  <use name="FWStorage/Catalog"/>
   <use name="IOPool/Streamer"/>
   <use name="CLHEP"/>
   <use name="boost"/>
   <use name="root"/>
-  <use name="stdcxx-fs"/>
   <flags EDM_PLUGIN="1"/>
 </library>

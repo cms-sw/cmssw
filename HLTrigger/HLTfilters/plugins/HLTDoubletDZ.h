@@ -9,16 +9,13 @@
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "DataFormats/L1Trigger/interface/P2GTAlgoBlock.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefsFwd.h"
 
 #include <string>
 #include <vector>
 
 namespace edm {
   class ConfigurationDescriptions;
-}
-
-namespace trigger {
-  class TriggerFilterObjectWithRefs;
 }
 
 template <typename T1, typename T2>

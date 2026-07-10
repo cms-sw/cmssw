@@ -1,5 +1,4 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -53,7 +52,6 @@ private:
   std::vector<std::vector<l1ScoutingRun3::Tau>> orbitBufferTaus_;
   std::vector<std::vector<l1ScoutingRun3::BxSums>> orbitBufferEtSums_;
 
-  bool debug_ = false;
   bool enableAllSums_ = false;  // write the full sert of ET sums
   edm::InputTag srcInputTag_;
   edm::EDGetToken rawToken_;

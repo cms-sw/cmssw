@@ -8,7 +8,9 @@ import json
 import os
 
 ##Define process
-process = cms.Process("OfflineValidator")
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+process = cms.Process("OfflineValidator",_PH2_ERA)
 
 ##Argument parsing
 options = VarParsing()
@@ -83,17 +85,17 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 ##Basic modules
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-process.load("Configuration.Geometry.GeometryDB_cff")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
 
 ##Track fitting
 import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
 process.seqTrackselRefit = trackselRefit.getSequence(process,
                                                      config["validation"].get("trackcollection", "generalTracks"),
                                                      isPVValidation = False, 
-                                                     TTRHBuilder = config["validation"].get("tthrbuilder", "WithAngleAndTemplate"),
-                                                     usePixelQualityFlag=config["validation"].get("usePixelQualityFlag", True),
+                                                     TTRHBuilder = config["validation"].get("tthrbuilder", "WithTrackAngle"),
+                                                     usePixelQualityFlag=config["validation"].get("usePixelQualityFlag", False),
                                                      openMassWindow = False,
                                                      cosmicsDecoMode = True,
                                                      cosmicsZeroTesla=config["validation"].get("cosmicsZeroTesla", False),
@@ -105,7 +107,7 @@ process.seqTrackselRefit = trackselRefit.getSequence(process,
 #Global tag
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", "auto:phase1_2017_realistic"))
+process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", _PH2_GLOBAL_TAG))
 
 ##Load conditions if wished
 if "conditions" in config["alignment"]:

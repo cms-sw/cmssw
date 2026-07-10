@@ -8,13 +8,11 @@
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
-class PFDisplacedTrackerVertexProducer : public edm::stream::EDProducer<> {
+#include <memory>
+class PFDisplacedTrackerVertexProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   ///Constructor
   explicit PFDisplacedTrackerVertexProducer(const edm::ParameterSet&);
-
-  ///Destructor
-  ~PFDisplacedTrackerVertexProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -26,7 +24,7 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   ///PFTrackTransformer
-  PFTrackTransformer* pfTransformer_;
+  std::unique_ptr<PFTrackTransformer> pfTransformer_;
   edm::EDGetTokenT<reco::PFDisplacedVertexCollection> pfDisplacedVertexContainer_;
   edm::EDGetTokenT<reco::TrackCollection> pfTrackContainer_;
 
@@ -46,7 +44,7 @@ void PFDisplacedTrackerVertexProducer::fillDescriptions(edm::ConfigurationDescri
 using namespace std;
 using namespace edm;
 PFDisplacedTrackerVertexProducer::PFDisplacedTrackerVertexProducer(const ParameterSet& iConfig)
-    : pfTransformer_(nullptr), magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()) {
+    : pfTransformer_(), magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()) {
   produces<reco::PFRecTrackCollection>();
   produces<reco::PFDisplacedTrackerVertexCollection>();
 
@@ -55,8 +53,6 @@ PFDisplacedTrackerVertexProducer::PFDisplacedTrackerVertexProducer(const Paramet
 
   pfTrackContainer_ = consumes<reco::TrackCollection>(iConfig.getParameter<InputTag>("trackColl"));
 }
-
-PFDisplacedTrackerVertexProducer::~PFDisplacedTrackerVertexProducer() { delete pfTransformer_; }
 
 void PFDisplacedTrackerVertexProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   //create the empty collections
@@ -116,12 +112,9 @@ void PFDisplacedTrackerVertexProducer::produce(Event& iEvent, const EventSetup& 
 // ------------ method called once each job just before starting event loop  ------------
 void PFDisplacedTrackerVertexProducer::beginRun(const edm::Run& run, const EventSetup& iSetup) {
   auto const& magneticField = &iSetup.getData(magneticFieldToken_);
-  pfTransformer_ = new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0, 0, 0))));
+  pfTransformer_ = std::make_unique<PFTrackTransformer>(math::XYZVector(magneticField->inTesla(GlobalPoint(0, 0, 0))));
   pfTransformer_->OnlyProp();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void PFDisplacedTrackerVertexProducer::endRun(const edm::Run& run, const EventSetup& iSetup) {
-  delete pfTransformer_;
-  pfTransformer_ = nullptr;
-}
+void PFDisplacedTrackerVertexProducer::endRun(const edm::Run& run, const EventSetup& iSetup) { pfTransformer_.reset(); }

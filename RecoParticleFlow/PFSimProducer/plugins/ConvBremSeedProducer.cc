@@ -51,7 +51,7 @@
 
 #include <memory>
 
-class ConvBremSeedProducer : public edm::stream::EDProducer<> {
+class ConvBremSeedProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit ConvBremSeedProducer(const edm::ParameterSet&);
 
@@ -88,8 +88,8 @@ private:
   const TrackerGeometry* tracker_;
   const MagneticField* magfield_;
   const MagneticFieldMap* fieldMap_;
-  const PropagatorWithMaterial* propagator_;
-  const KFUpdator* kfUpdator_;
+  std::unique_ptr<const PropagatorWithMaterial> propagator_;
+  std::unique_ptr<const KFUpdator> kfUpdator_;
   const TransientTrackingRecHitBuilder* hitBuilder_;
   std::vector<const DetLayer*> layerMap_;
   int negLayerOffset_;
@@ -434,13 +434,13 @@ void ConvBremSeedProducer::beginRun(const edm::Run& run, const EventSetup& iSetu
 
   hitBuilder_ = &iSetup.getData(hitBuilderToken_);
 
-  propagator_ = new PropagatorWithMaterial(alongMomentum, 0.0005, magfield_);
-  kfUpdator_ = new KFUpdator();
+  propagator_ = std::make_unique<PropagatorWithMaterial>(alongMomentum, 0.0005, magfield_);
+  kfUpdator_ = std::make_unique<KFUpdator>();
 }
 
 void ConvBremSeedProducer::endRun(const edm::Run& run, const EventSetup& iSetup) {
-  delete propagator_;
-  delete kfUpdator_;
+  propagator_.reset();
+  kfUpdator_.reset();
 }
 
 void ConvBremSeedProducer::initializeLayerMap() {

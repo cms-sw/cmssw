@@ -38,6 +38,7 @@ namespace edm {
       std::vector<std::string> const& gpuModels() const final;
 
       bool hasGpuNvidia() const final;
+      bool hasGpuAMD() const final;
 
       std::string const& nvidiaDriverVersion() const final;
       int cudaDriverVersion() const final;
@@ -52,8 +53,11 @@ namespace edm {
       void setGPUModels(std::vector<std::string> const&) final;
 
       void setNvidiaDriverVersion(std::string const&) final;
+      void setAMDDriverVersion(std::string const&) final;
       void setCudaDriverVersion(int) final;
       void setCudaRuntimeVersion(int) final;
+      void setRocmDriverVersion(int) final;
+      void setRocmRuntimeVersion(int) final;
 
       void setCpuModelsFormatted(std::string const&) final;
       void setCpuAverageSpeed(double) final;
@@ -68,13 +72,19 @@ namespace edm {
       std::vector<std::string> gpuModels_;
 
       std::string nvidiaDriverVersion_;
+      std::string amdDriverVersion_;
+
       int cudaDriverVersion_ = 0;
       int cudaRuntimeVersion_ = 0;
+
+      int rocmDriverVersion_ = 0;
+      int rocmRuntimeVersion_ = 0;
 
       std::string cpuModelsFormatted_;
       double cpuAverageSpeed_ = 0;
 
       bool hasGpuNvidia_ = false;
+      bool hasGpuAMD_ = false;
       bool locked_ = false;
       bool verbose_;
     };
@@ -114,6 +124,7 @@ namespace edm {
     std::vector<std::string> const& ResourceInformationService::gpuModels() const { return gpuModels_; }
 
     bool ResourceInformationService::hasGpuNvidia() const { return hasGpuNvidia_; }
+    bool ResourceInformationService::hasGpuAMD() const { return hasGpuAMD_; }
 
     std::string const& ResourceInformationService::nvidiaDriverVersion() const { return nvidiaDriverVersion_; }
 
@@ -148,6 +159,12 @@ namespace edm {
       hasGpuNvidia_ = true;
     }
 
+    void ResourceInformationService::setAMDDriverVersion(std::string const& val) {
+      throwIfLocked();
+      amdDriverVersion_ = val;
+      hasGpuAMD_ = true;
+    }
+
     void ResourceInformationService::setCudaDriverVersion(int val) {
       throwIfLocked();
       cudaDriverVersion_ = val;
@@ -168,6 +185,18 @@ namespace edm {
     void ResourceInformationService::setCpuAverageSpeed(double val) {
       throwIfLocked();
       cpuAverageSpeed_ = val;
+    }
+
+    void ResourceInformationService::setRocmDriverVersion(int val) {
+      throwIfLocked();
+      rocmDriverVersion_ = val;
+      hasGpuAMD_ = true;
+    }
+
+    void ResourceInformationService::setRocmRuntimeVersion(int val) {
+      throwIfLocked();
+      rocmRuntimeVersion_ = val;
+      hasGpuAMD_ = true;
     }
 
     void ResourceInformationService::throwIfLocked() const {

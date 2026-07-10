@@ -34,7 +34,7 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
-class HcalRecHitRecalib : public edm::stream::EDProducer<> {
+class HcalRecHitRecalib : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit HcalRecHitRecalib(const edm::ParameterSet &);
   ~HcalRecHitRecalib() override;

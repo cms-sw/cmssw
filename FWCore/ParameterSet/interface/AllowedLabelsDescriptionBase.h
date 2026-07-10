@@ -1,6 +1,26 @@
 #ifndef FWCore_ParameterSet_AllowedLabelsDescriptionBase_h
 #define FWCore_ParameterSet_AllowedLabelsDescriptionBase_h
 
+/**
+ * \class AllowedLabelsDescriptionBase
+ * 
+ * Description: Base class for AllowedLabelsDescription
+ * Usage:
+    This is the base class for all types which handle the case where one parameter of a PSet
+    declares what labels are allowed to be used for the rest of the parameters in that PSet.
+    The derived class is templated on the type of the other parameters.
+
+    E.g.
+
+    cms.PSet(labels = cms.untracked.vstring('a','b','c'),
+             a = cms.untracked.int32(1),
+             b = cms.untracked.int32(2)
+            )
+    Here the parameter 'labels' declares that only parameters with labels 'a','b', or 'c' are
+    allowed in this PSet.  The parameters 'a' and 'b' are allowed, but if 'd' were used instead,
+    validation would fail.
+ */
+
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 #include "FWCore/ParameterSet/interface/ParameterDescription.h"
 
@@ -42,6 +62,8 @@ namespace edm {
                    bool& wroteSomething) const override;
 
     void print_(std::ostream& os, Modifier modifier, bool writeToCfi, DocFormatHelper& dfh) const override;
+
+    cfi::Trackiness trackiness_(std::string_view path) const override;
 
     bool hasNestedContent_() const override;
 

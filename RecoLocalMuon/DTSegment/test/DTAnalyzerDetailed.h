@@ -23,12 +23,12 @@ namespace edm {
 
 /* Collaborating Class Declarations */
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/MuonDetId/interface/DTLayerIdFwd.h"
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
 class TFile;
 class TH1F;
 class TH2F;
-class DTLayerId;
 class DTSuperLayerId;
-class DTChamberId;
 class DTTTrigBaseSync;
 class MuonGeometryRecord;
 class DTGeometry;

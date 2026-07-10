@@ -254,9 +254,11 @@ void RPCDetId::init(int region, int ring, int station, int sector, int layer, in
          (rollInBits & RollMask_) << RollStartBit_;
 }
 
-std::ostream& operator<<(std::ostream& os, const RPCDetId& id) {
-  os << " Re " << id.region() << " Ri " << id.ring() << " St " << id.station() << " Se " << id.sector() << " La "
-     << id.layer() << " Su " << id.subsector() << " Ro " << id.roll() << " Tr " << id.trIndex() << " ";
+namespace io_v1 {
+  std::ostream& operator<<(std::ostream& os, const RPCDetId& id) {
+    os << " Re " << id.region() << " Ri " << id.ring() << " St " << id.station() << " Se " << id.sector() << " La "
+       << id.layer() << " Su " << id.subsector() << " Ro " << id.roll() << " Tr " << id.trIndex() << " ";
 
-  return os;
-}
+    return os;
+  }
+}  // namespace io_v1

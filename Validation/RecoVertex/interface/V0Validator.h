@@ -55,11 +55,11 @@
 #include "SimTracker/TrackHistory/interface/TrackClassifier.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/TrackingGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GluedGeomDet.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"

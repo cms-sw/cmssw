@@ -13,6 +13,8 @@
 // system include files
 #include <atomic>
 #include <numeric>
+#include <ranges>
+#include <unordered_map>
 #include <unordered_set>
 
 // user include files
@@ -29,7 +31,6 @@
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include "monitor_file_utilities.h"
-#include "mea_AllocMap.h"
 #include "ThreadTracker.h"
 
 #define DEBUGGER_BREAK
@@ -40,8 +41,13 @@ void break_on_unmatched_dealloc() {}
 }
 #endif
 namespace {
-  using namespace edm::service::moduleEventAlloc;
   using namespace edm::moduleAlloc::monitor_file_utilities;
+
+  using AllocMap = std::unordered_map<void const*, std::size_t>;
+  auto accumulateValues(AllocMap const& map) {
+    auto const values = map | std::views::transform([](auto const& element) { return element.second; });
+    return std::accumulate(values.begin(), values.end(), 0ULL);
+  }
 
   struct ThreadAllocInfo {
     AllocMap allocMap_;
@@ -55,11 +61,16 @@ namespace {
     std::size_t numUnmatchedDeallocs_ = 0;
 
     bool active_ = false;
-    void alloc(void const* iAddress, std::size_t iSize) { allocMap_.insert(iAddress, iSize); }
+    void alloc(void const* iAddress, std::size_t iSize) {
+      // Note that the iAddress might already be in the map if the
+      // allocation occurred within and the deallocation outside of
+      // the measurement region.
+      allocMap_[iAddress] = iSize;
+    }
 
     void dealloc(void const* iAddress, std::size_t iSize) {
-      auto size = allocMap_.erase(iAddress);
-      if (size == 0) {
+      auto nErased = allocMap_.erase(iAddress);
+      if (nErased == 0) {
 #if defined(DEBUGGER_BREAK)
         break_on_unmatched_dealloc();
 #endif
@@ -77,7 +88,7 @@ namespace {
       totalUnmatchedDealloc_ = 0;
       numMatchedDeallocs_ = 0;
       numUnmatchedDeallocs_ = 0;
-      allocMap_.clear();
+      AllocMap{}.swap(allocMap_);  // release memory
       unmatched_.clear();
       active_ = true;
     }
@@ -285,7 +296,6 @@ public:
     iAR.watchPreallocate([this](auto const& alloc) { nStreams_ = alloc.maxNumberOfStreams(); });
     iAR.watchPreBeginJob([this](auto const&) {
       streamModuleAllocs_.resize(nStreams_ * nModules_);
-      streamModuleInAcquire_ = std::vector<std::atomic<bool>>(nStreams_ * nModules_);
       streamModuleFinishOrder_ = std::vector<int>(nStreams_ * nModules_);
       streamNFinishedModules_ = std::vector<std::atomic<unsigned int>>(nStreams_);
       streamSync_ = std::vector<std::atomic<unsigned int>>(nStreams_);
@@ -293,13 +303,11 @@ public:
 
     iAR.watchPreModuleEvent([this](auto const& iStream, auto const& iMod) {
       auto mod_id = module_id(iMod);
-      auto acquireInfo = [this, iStream, mod_id]() {
+      // Explicit return type to avoid copies of return value for sure
+      auto acquireInfo = [this, iStream, mod_id]() -> AllocMap const& {
         //acquire might have started stuff
         streamSync_[iStream.streamID().value()].load();
         auto index = moduleIndex(mod_id);
-        auto const& inAcquire = streamModuleInAcquire_[nModules_ * iStream.streamID().value() + index];
-        while (inAcquire.load())
-          ;
         return streamModuleAllocs_[nModules_ * iStream.streamID().value() + index];
       };
       filter_.startOnThread(mod_id, acquireInfo);
@@ -308,56 +316,41 @@ public:
       auto mod_id = module_id(iMod);
       auto info = filter_.stopOnThread(mod_id);
       if (info) {
-        auto v = std::accumulate(info->allocMap_.allocationSizes().begin(), info->allocMap_.allocationSizes().end(), 0);
+        auto v = accumulateValues(info->allocMap_);
         std::stringstream s;
         s << "M " << mod_id << " " << iStream.streamID().value() << " " << info->totalMatchedDeallocSize_ << " "
           << info->numMatchedDeallocs_ << " " << info->totalUnmatchedDealloc_ << " " << info->numUnmatchedDeallocs_
-          << " " << v << " " << info->allocMap_.allocationSizes().size() << "\n";
+          << " " << v << " " << info->allocMap_.size() << "\n";
         file->write(s.str());
         auto index = moduleIndex(mod_id);
         auto finishedOrder = streamNFinishedModules_[iStream.streamID().value()]++;
-        streamModuleFinishOrder_[finishedOrder + nModules_ * iStream.streamID().value()] =
-            nModules_ * iStream.streamID().value() + index;
+        streamModuleFinishOrder_[finishedOrder + nModules_ * iStream.streamID().value()] = index;
         streamModuleAllocs_[nModules_ * iStream.streamID().value() + index] = info->allocMap_;
         ++streamSync_[iStream.streamID().value()];
       }
     });
 
     iAR.watchPreModuleEventAcquire([this](auto const& iStream, auto const& iMod) {
-      auto index = moduleIndex(module_id(iMod));
-      auto acquireInfo = [index, this, iStream]() {
-        streamModuleInAcquire_[nModules_ * iStream.streamID().value() + index].store(true);
-        return AllocMap();
-      };
+      auto acquireInfo = []() { return AllocMap(); };
       filter_.startOnThread(module_id(iMod), acquireInfo);
     });
     iAR.watchPostModuleEventAcquire([this, file](auto const& iStream, auto const& iMod) {
       auto mod_id = module_id(iMod);
       auto info = filter_.stopOnThread(mod_id);
       if (info) {
-        assert(info->allocMap_.allocationSizes().size() == info->allocMap_.size());
-        auto v = std::accumulate(info->allocMap_.allocationSizes().begin(), info->allocMap_.allocationSizes().end(), 0);
+        auto v = accumulateValues(info->allocMap_);
         std::stringstream s;
         s << "A " << mod_id << " " << iStream.streamID().value() << " " << info->totalMatchedDeallocSize_ << " "
           << info->numMatchedDeallocs_ << " " << info->totalUnmatchedDealloc_ << " " << info->numUnmatchedDeallocs_
-          << " " << v << " " << info->allocMap_.allocationSizes().size() << "\n";
+          << " " << v << " " << info->allocMap_.size() << "\n";
         file->write(s.str());
         auto index = mod_id;
         if (not moduleIDs_.empty()) {
           auto it = std::lower_bound(moduleIDs_.begin(), moduleIDs_.end(), mod_id);
           index = it - moduleIDs_.begin();
         }
-        {
-          auto const& alloc = streamModuleAllocs_[nModules_ * iStream.streamID().value() + index];
-          assert(alloc.size() == alloc.allocationSizes().size());
-        }
         streamModuleAllocs_[nModules_ * iStream.streamID().value() + index] = info->allocMap_;
-        {
-          auto const& alloc = streamModuleAllocs_[nModules_ * iStream.streamID().value() + index];
-          assert(alloc.size() == alloc.allocationSizes().size());
-        }
         ++streamSync_[iStream.streamID().value()];
-        streamModuleInAcquire_[nModules_ * iStream.streamID().value() + index].store(false);
       }
     });
     //NOTE: the following watch points may need to be used in the future if allocations occurring during these
@@ -377,43 +370,55 @@ public:
       auto info = filter_.stopOnThread();
       if (info) {
         streamSync_[iStream.streamID().value()].load();
-        //search for associated allocs to deallocs in reverse order that modules finished
-        auto nRan = streamNFinishedModules_[iStream.streamID().value()].load();
-        auto itBegin =
-            std::reverse_iterator(streamModuleFinishOrder_.begin() + iStream.streamID().value() * nModules_ + nRan);
-        auto const itEnd = itBegin + nRan;
+
+        // value is size, index
+        std::unordered_map<void const*, std::pair<std::size_t, std::size_t>> combinedAllocMap;
+        {
+          auto const nRan = streamNFinishedModules_[iStream.streamID().value()].load();
+          assert(nRan <= nModules_);
+          auto const streamModuleOffset = iStream.streamID().value() * nModules_;
+          auto const itBegin = streamModuleFinishOrder_.begin() + streamModuleOffset;
+          auto const itEnd = itBegin + nRan;
+
+          std::size_t const total =
+              std::accumulate(itBegin, itEnd, 0U, [this, streamModuleOffset](unsigned int a, auto const index) {
+                return a + streamModuleAllocs_[index + streamModuleOffset].size();
+              });
+          combinedAllocMap.reserve(total);
+
+          for (auto it = itBegin; it != itEnd; ++it) {
+            auto& allocs = streamModuleAllocs_[*it + streamModuleOffset];
+            for (auto const [addr, size] : allocs) {
+              // need to keep the address -> (size, module)
+              // association of the last finished module as that is
+              // the most likely module (that we can figure out) that
+              // allocated the memory of a data product that was
+              // destructed here
+              combinedAllocMap[addr] = std::pair(size, *it);
+            }
+            AllocMap{}.swap(allocs);
+          }
+        }
         streamNFinishedModules_[iStream.streamID().value()].store(0);
         {
           std::vector<std::size_t> moduleDeallocSize(nModules_);
           std::vector<unsigned int> moduleDeallocCount(nModules_);
-          for (auto& address : info->unmatched_) {
-            decltype(streamModuleAllocs_[0].findOffset(address)) offset = 0;
-            auto found = std::find_if(itBegin, itEnd, [&address, &offset, this](auto const& index) {
-              auto const& elem = streamModuleAllocs_[index];
-              return elem.size() != 0 and (offset = elem.findOffset(address)) != elem.size();
-            });
-            if (found != itEnd) {
-              auto index = *found - nModules_ * iStream.streamID().value();
-              moduleDeallocSize[index] += streamModuleAllocs_[*found].allocationSizes()[offset];
+          for (auto const& address : info->unmatched_) {
+            auto const found = combinedAllocMap.find(address);
+            if (found != combinedAllocMap.end()) {
+              auto const index = found->second.second;
+              moduleDeallocSize[index] += found->second.first;
               moduleDeallocCount[index] += 1;
             }
           }
           for (unsigned int index = 0; index < nModules_; ++index) {
             if (moduleDeallocCount[index] != 0) {
-              auto id = moduleIDs_.empty() ? index : moduleIDs_[index];
+              auto const id = moduleIDs_.empty() ? index : moduleIDs_[index];
               std::stringstream s;
               s << "D " << id << " " << iStream.streamID().value() << " " << moduleDeallocSize[index] << " "
                 << moduleDeallocCount[index] << "\n";
               file->write(s.str());
             }
-          }
-        }
-
-        {
-          auto itBegin = streamModuleAllocs_.begin() + nModules_ * iStream.streamID().value();
-          auto itEnd = itBegin + nModules_;
-          for (auto it = itBegin; it != itEnd; ++it) {
-            it->clear();
           }
         }
       }
@@ -452,7 +457,6 @@ private:
   }
   //The size is (#streams)*(#modules)
   CMS_THREAD_GUARD(streamSync_) std::vector<AllocMap> streamModuleAllocs_;
-  CMS_THREAD_GUARD(streamSync_) std::vector<std::atomic<bool>> streamModuleInAcquire_;
   //This holds the index into the streamModuleAllocs_ for the module which finished
   CMS_THREAD_GUARD(streamSync_) std::vector<int> streamModuleFinishOrder_;
   std::vector<std::atomic<unsigned int>> streamNFinishedModules_;

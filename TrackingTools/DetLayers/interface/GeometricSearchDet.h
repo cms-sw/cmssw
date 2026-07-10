@@ -1,7 +1,7 @@
 #ifndef DetLayers_GeometricSearchDet_h
 #define DetLayers_GeometricSearchDet_h
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 
 #include "TrackingTools/DetLayers/interface/DetGroup.h"

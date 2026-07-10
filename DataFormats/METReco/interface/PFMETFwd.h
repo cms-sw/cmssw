@@ -9,7 +9,10 @@
 #include "DataFormats/Common/interface/RefProd.h"
 
 namespace reco {
-  class PFMET;
+  namespace io_v1 {
+    class PFMET;
+  }
+  using PFMET = io_v1::PFMET;
   /// collection of PFMET objects
   typedef std::vector<PFMET> PFMETCollection;
   /// edm references

@@ -12,32 +12,33 @@
 
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtPhDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtThDigi.h"
-#include <vector>
-#include <algorithm>
 
-class L1Phase2MuDTExtPhiThetaPair {
-public:
-  /// Default constructor
-  L1Phase2MuDTExtPhiThetaPair() = default;
+namespace io_v1 {
+  class L1Phase2MuDTExtPhiThetaPair {
+  public:
+    /// Default constructor
+    L1Phase2MuDTExtPhiThetaPair() = default;
 
-  /// Constructor with digis and quality
-  L1Phase2MuDTExtPhiThetaPair(const L1Phase2MuDTExtPhDigi& phi, const L1Phase2MuDTExtThDigi& theta, int quality);
+    /// Constructor with digis and quality
+    L1Phase2MuDTExtPhiThetaPair(const L1Phase2MuDTExtPhDigi& phi, const L1Phase2MuDTExtThDigi& theta, int quality);
 
-  // Explicitly allow copy/move
-  L1Phase2MuDTExtPhiThetaPair(const L1Phase2MuDTExtPhiThetaPair&) = default;
-  L1Phase2MuDTExtPhiThetaPair& operator=(const L1Phase2MuDTExtPhiThetaPair&) = default;
-  L1Phase2MuDTExtPhiThetaPair(L1Phase2MuDTExtPhiThetaPair&&) = default;
-  L1Phase2MuDTExtPhiThetaPair& operator=(L1Phase2MuDTExtPhiThetaPair&&) = default;
+    // Explicitly allow copy/move
+    L1Phase2MuDTExtPhiThetaPair(const L1Phase2MuDTExtPhiThetaPair&) = default;
+    L1Phase2MuDTExtPhiThetaPair& operator=(const L1Phase2MuDTExtPhiThetaPair&) = default;
+    L1Phase2MuDTExtPhiThetaPair(L1Phase2MuDTExtPhiThetaPair&&) = default;
+    L1Phase2MuDTExtPhiThetaPair& operator=(L1Phase2MuDTExtPhiThetaPair&&) = default;
 
-  /// Accessors
-  const L1Phase2MuDTExtPhDigi& phiDigi() const { return phi_; }
-  const L1Phase2MuDTExtThDigi& thetaDigi() const { return theta_; }
-  int quality() const { return quality_; }
+    /// Accessors
+    const L1Phase2MuDTExtPhDigi& phiDigi() const { return phi_; }
+    const L1Phase2MuDTExtThDigi& thetaDigi() const { return theta_; }
+    int quality() const { return quality_; }
 
-private:
-  L1Phase2MuDTExtPhDigi phi_;
-  L1Phase2MuDTExtThDigi theta_;
-  int quality_;
-};
+  private:
+    L1Phase2MuDTExtPhDigi phi_;
+    L1Phase2MuDTExtThDigi theta_;
+    int quality_;
+  };
+}  // namespace io_v1
+using L1Phase2MuDTExtPhiThetaPair = io_v1::L1Phase2MuDTExtPhiThetaPair;
 
 #endif

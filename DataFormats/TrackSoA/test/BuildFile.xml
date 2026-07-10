@@ -15,6 +15,7 @@
 <library name="testTrackSoA" file="TestWriteHostTrackSoA.cc,TestReadHostTrackSoA.cc,">
   <flags EDM_PLUGIN="1"/>
   <use name="alpaka"/>
+  <use name="DataFormats/SoATemplate"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>

@@ -8,12 +8,12 @@
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 #include <string>
 
 class DetLayer;
 class FreeTrajectoryState;
 class TrajectoryStateOnSurface;
-class DetId;
 
 class MuonPatternRecoDumper {
 public:

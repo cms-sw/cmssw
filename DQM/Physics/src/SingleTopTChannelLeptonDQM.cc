@@ -440,8 +440,6 @@ namespace SingleTopTChannelLepton {
     unsigned int mMult = 0, mTight = 0, mTightId = 0;
 
     edm::Handle<edm::View<reco::Muon>> muons;
-    edm::View<reco::Muon>::const_iterator muon;
-    //reco::MuonRef muon;
     reco::Muon mu;
 
     if (!event.getByToken(muons_, muons))

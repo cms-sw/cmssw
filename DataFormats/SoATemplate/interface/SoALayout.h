@@ -10,51 +10,6 @@
 
 #include "SoACommon.h"
 
-/* dump SoA fields information; these should expand to, for columns:
- * Example:
- * GENERATE_SOA_LAYOUT(SoA,
- *   // predefined static scalars
- *   // size_t size;
- *   // size_t alignment;
- *
- *   // columns: one value per element
- *   SOA_COLUMN(double, x),
- *   SOA_COLUMN(double, y),
- *   SOA_COLUMN(double, z),
- *   SOA_EIGEN_COLUMN(Eigen::Vector3d, a),
- *   SOA_EIGEN_COLUMN(Eigen::Vector3d, b),
- *   SOA_EIGEN_COLUMN(Eigen::Vector3d, r),
- *   SOA_COLUMN(uint16_t, colour),
- *   SOA_COLUMN(int32_t, value),
- *   SOA_COLUMN(double *, py),
- *   SOA_COLUMN(uint32_t, count),
- *   SOA_COLUMN(uint32_t, anotherCount),
- *
- *   // scalars: one value for the whole structure
- *   SOA_SCALAR(const char *, description), 
- *   SOA_SCALAR(uint32_t, someNumber)
- * );
- *
- * dumps as:
- * SoA(32, 64):
- *   sizeof(SoA): 152
- *  Column x_ at offset 0 has size 256 and padding 0
- *  Column y_ at offset 256 has size 256 and padding 0
- *  Column z_ at offset 512 has size 256 and padding 0
- *  Eigen value a_ at offset 768 has dimension (3 x 1) and per column size 256 and padding 0
- *  Eigen value b_ at offset 1536 has dimension (3 x 1) and per column size 256 and padding 0
- *  Eigen value r_ at offset 2304 has dimension (3 x 1) and per column size 256 and padding 0
- *  Column colour_ at offset 3072 has size 64 and padding 0
- *  Column value_ at offset 3136 has size 128 and padding 0
- *  Column py_ at offset 3264 has size 256 and padding 0
- *  Column count_ at offset 3520 has size 128 and padding 0
- *  Column anotherCount_ at offset 3648 has size 128 and padding 0
- *  Scalar description_ at offset 3776 has size 8 and padding 56
- *  Scalar someNumber_ at offset 3840 has size 4 and padding 60
- * Final offset = 3904 computeDataSize(...): 3904
- *
- */
-
 namespace cms::soa {
 
   /* Traits for the different column type scenarios */
@@ -104,8 +59,9 @@ namespace cms::soa {
   BOOST_PP_EXPAND(_COUNT_SOA_CONST_METHODS_IMPL BOOST_PP_TUPLE_PUSH_BACK(TYPE_NAME, DATA))
 
 // clang-format off
-#define _DECLARE_SOA_STREAM_INFO_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                \
-  cms::soa::detail::printColumn(_soa_impl_os, ConstView::BOOST_PP_CAT(NAME, Parameters_), BOOST_PP_STRINGIZE(NAME), _soa_impl_offset, elements_, alignment);
+#define _DECLARE_SOA_STREAM_INFO_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                     \
+  cms::soa::detail::PrintColumn<BOOST_PP_CAT(typename Metadata::ParametersTypeOf_, NAME)>{} \
+  (_soa_impl_os, BOOST_PP_STRINGIZE(NAME), _soa_impl_offset, elements_, alignment);
 // clang-format on
 
 #define _DECLARE_SOA_STREAM_INFO(R, DATA, TYPE_NAME)                                        \
@@ -128,35 +84,34 @@ namespace cms::soa {
         return  BOOST_PP_CAT(ParametersTypeOf_, NAME) (parent_.BOOST_PP_CAT(NAME, _));                                 \
       },                                                                                                               \
       /* Column */                                                                                                     \
+      constexpr static cms::soa::SoAColumnType BOOST_PP_CAT(ColumnTypeOf_, NAME) = cms::soa::SoAColumnType::column;    \
       using BOOST_PP_CAT(ParametersTypeOf_, NAME) =                                                                    \
         cms::soa::SoAParameters_ColumnType<cms::soa::SoAColumnType::column>::DataType<CPP_TYPE>;                       \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       BOOST_PP_CAT(ParametersTypeOf_, NAME) BOOST_PP_CAT(parametersOf_, NAME)() const {                                \
         return  BOOST_PP_CAT(ParametersTypeOf_, NAME) (parent_.BOOST_PP_CAT(NAME, _));                                 \
-      }                                                                                                                \
-      constexpr static cms::soa::SoAColumnType BOOST_PP_CAT(ColumnTypeOf_, NAME) = cms::soa::SoAColumnType::column;,   \
+      },                                                                                                               \
       /* Eigen column */                                                                                               \
+      constexpr static cms::soa::SoAColumnType BOOST_PP_CAT(ColumnTypeOf_, NAME) = cms::soa::SoAColumnType::eigen;     \
       using BOOST_PP_CAT(ParametersTypeOf_, NAME) =                                                                    \
           cms::soa::SoAParameters_ColumnType<cms::soa::SoAColumnType::eigen>::DataType<CPP_TYPE>;                      \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       BOOST_PP_CAT(ParametersTypeOf_, NAME) BOOST_PP_CAT(parametersOf_, NAME)() const {                                \
-        return BOOST_PP_CAT(ParametersTypeOf_, NAME) (                                                                 \
-          parent_.BOOST_PP_CAT(NAME, _),                                                                               \
-          parent_.BOOST_PP_CAT(NAME, Stride_));                                                                        \
+        return BOOST_PP_CAT(ParametersTypeOf_, NAME) (parent_.BOOST_PP_CAT(NAME, _),                                   \
+                                                      parent_.BOOST_PP_CAT(NAME, Stride_));                            \
       }                                                                                                                \
-      constexpr static cms::soa::SoAColumnType BOOST_PP_CAT(ColumnTypeOf_, NAME) = cms::soa::SoAColumnType::eigen;     \
-  )																													   \
-  SOA_HOST_DEVICE SOA_INLINE                                                                                       	   \
-  auto* BOOST_PP_CAT(addressOf_, NAME)() {                                                                     		   \
-	return parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)().addr_;                                           	   \
-  }                                                                                                               	   \
-  SOA_HOST_DEVICE SOA_INLINE                                                                                       	   \
-  const auto* BOOST_PP_CAT(addressOf_, NAME)() const {                                                         		   \
-	return parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)().addr_;                                           	   \
-  } 																												   \
+  )                                                                                                                    \
+  SOA_HOST_DEVICE SOA_INLINE                                                                                           \
+  auto* BOOST_PP_CAT(addressOf_, NAME)() {                                                                             \
+    return parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)().addr_;                                               \
+  }                                                                                                                    \
+  SOA_HOST_DEVICE SOA_INLINE                                                                                           \
+  const auto* BOOST_PP_CAT(addressOf_, NAME)() const {                                                                 \
+    return parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)().addr_;                                               \
+  }                                                                                                                    \
   SOA_HOST_DEVICE SOA_INLINE byte_size_type BOOST_PP_CAT(NAME, Pitch()) const {                                        \
-	return cms::soa::detail::computePitch(parent_.metadata().BOOST_PP_CAT(parametersOf_, NAME)(),					   \
-						ParentClass::alignment, parent_.elements_);													   \
+    return cms::soa::detail::ComputePitch<BOOST_PP_CAT(ParametersTypeOf_, NAME)>{}(parent_.elements_,                  \
+                                                                                   ParentClass::alignment);            \
   }
 // clang-format on
 
@@ -225,7 +180,7 @@ namespace cms::soa {
  * Declare the spans of the descriptor data member 
  */
 // clang-format off
-#define _DECLARE_DESCRIPTOR_SPANS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                              \
+#define _DECLARE_DESCRIPTOR_SPANS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                    \
   (cms::soa::detail::SpanType<typename Metadata::BOOST_PP_CAT(ParametersTypeOf_, NAME)>)
 // clang-format on
 
@@ -238,8 +193,10 @@ namespace cms::soa {
  * Build the spans of the (const) descriptor from a (const) view 
  */
 // clang-format off
-#define _ASSIGN_SPAN_TO_COLUMNS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                		   \
-    (cms::soa::detail::getSpanToColumn(view.metadata().BOOST_PP_CAT(parametersOf_, NAME)(), view.metadata().size(), alignment))
+#define _ASSIGN_SPAN_TO_COLUMNS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                      \
+    (cms::soa::detail::getSpanToColumn(view.metadata().BOOST_PP_CAT(parametersOf_, NAME)(), \
+                                                                    view.metadata().size(), \
+                                                                    alignment))
 // clang-format on
 
 #define _ASSIGN_SPAN_TO_COLUMNS(R, DATA, TYPE_NAME)                                         \
@@ -425,9 +382,9 @@ namespace cms::soa {
         * CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime;                                                   \
   )                                                                                                                    \
   if constexpr (alignmentEnforcement == AlignmentEnforcement::enforced)                                                \
-    if (reinterpret_cast<intptr_t>(BOOST_PP_CAT(NAME, _)) % alignment)                                                 \
-      throw std::runtime_error("In layout constructor: misaligned column: " #NAME);
-// clang-format on
+    cms::soa::detail::checkAlignment(BOOST_PP_CAT(NAME, _), alignment,                                                 \
+                                     "In layout constructor: misaligned column: " #NAME); \
+  // clang-format on
 
 #define _ASSIGN_SOA_COLUMN_OR_SCALAR(R, DATA, TYPE_NAME)                                    \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
@@ -439,7 +396,7 @@ namespace cms::soa {
  */
 // clang-format off
 #define _ACCUMULATE_SOA_ELEMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                                 \
-  _soa_impl_ret += cms::soa::detail::AccumulateColumnByteSizes<BOOST_PP_CAT(typename Metadata::ParametersTypeOf_, NAME)>{}(elements, alignment);
+  _soa_impl_ret += cms::soa::detail::ComputePitch<BOOST_PP_CAT(typename Metadata::ParametersTypeOf_, NAME)>{}(elements, alignment);
 // clang-format on
 
 #define _ACCUMULATE_SOA_ELEMENT(R, DATA, TYPE_NAME)                                         \
@@ -514,7 +471,7 @@ namespace cms::soa {
       /* Eigen column */                                                                                               \
       memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _),                                                      \
         sizeof(CPP_TYPE::Scalar) * BOOST_PP_CAT(NAME, ElementsWithPadding_));                                          \
-	)
+    )
 // clang-format on
 
 #define _STREAMER_READ_SOA_DATA_MEMBER(R, DATA, TYPE_NAME)                                  \
@@ -651,8 +608,8 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
   (BOOST_PP_CAT(NAME, Parameters_)([&]() -> auto {                                                                     \
     auto params = layout.metadata().BOOST_PP_CAT(parametersOf_, NAME)();                                               \
     if constexpr (alignmentEnforcement == AlignmentEnforcement::enforced)                                              \
-      if (reinterpret_cast<intptr_t>(params.addr_) % alignment)                                                        \
-        throw std::runtime_error("In constructor by layout: misaligned column: " #NAME);                               \
+        cms::soa::detail::checkAlignment(params.data(), alignment,                                                     \
+                                         "In constructor by layout: misaligned column: " #NAME);                       \
     return params;                                                                                                     \
   }()))
 // clang-format on
@@ -661,39 +618,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
               BOOST_PP_EMPTY(),                                                             \
               BOOST_PP_EXPAND(_DECLARE_VIEW_MEMBER_INITIALIZERS_IMPL TYPE_NAME))
-
-/**
- * Generator of parameters for constructor by column.
- */
-#define _DECLARE_VIEW_CONSTRUCTION_BYCOLUMN_PARAMETERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS, DATA) \
-  (typename BOOST_PP_CAT(Metadata::ParametersTypeOf_, NAME)::TupleOrPointerType NAME)
-
-#define _DECLARE_VIEW_CONSTRUCTION_BYCOLUMN_PARAMETERS(R, DATA, TYPE_NAME)          \
-  BOOST_PP_IF(                                                                      \
-      BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-      BOOST_PP_EMPTY(),                                                             \
-      BOOST_PP_EXPAND(_DECLARE_VIEW_CONSTRUCTION_BYCOLUMN_PARAMETERS_IMPL BOOST_PP_TUPLE_PUSH_BACK(TYPE_NAME, DATA)))
-
-/**
- * Generator of member initialization from constructor.
- * We use a lambda with auto return type to handle multiple possible return types.
- */
-// clang-format off
-#define _DECLARE_VIEW_MEMBER_INITIALIZERS_BYCOLUMN_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                              \
-  (                                                                                                                    \
-    BOOST_PP_CAT(NAME, Parameters_)([&]() -> auto {                                                                    \
-      if constexpr (alignmentEnforcement == AlignmentEnforcement::enforced)                                            \
-        if (Metadata:: BOOST_PP_CAT(ParametersTypeOf_, NAME)::checkAlignment(NAME, alignment))                         \
-          throw std::runtime_error("In constructor by column: misaligned column: " #NAME);                             \
-      return NAME;                                                                                                     \
-    }())                                                                                                               \
-  )
-// clang-format on
-
-#define _DECLARE_VIEW_MEMBER_INITIALIZERS_BYCOLUMN(R, DATA, TYPE_NAME)                      \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
-              BOOST_PP_EXPAND(_DECLARE_VIEW_MEMBER_INITIALIZERS_BYCOLUMN_IMPL TYPE_NAME))
 
 /**
  * Generator of parameters for (const) view Metarecords subclass.
@@ -716,13 +640,12 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         }                                                                                                              \
         BOOST_PP_CAT(NAME, Parameters_) = [&]() -> auto {                                                              \
           if (elements_ != std::get<1>(NAME))                                                                          \
-            throw std::runtime_error(                                                                                  \
+            cms::soa::detail::throwRuntimeError(                                                                       \
               "In constructor by column pointers: number of elements not equal for every column: "                     \
               BOOST_PP_STRINGIZE(NAME));                                                                               \
           if constexpr (alignmentEnforcement == AlignmentEnforcement::enforced)                                        \
-            if (Metadata:: BOOST_PP_CAT(ParametersTypeOf_, NAME)::                                                     \
-              checkAlignment(std::get<0>(NAME).tupleOrPointer(), alignment))                                           \
-                throw std::runtime_error("In constructor by column: misaligned column: " #NAME);                       \
+            cms::soa::detail::checkAlignment(std::get<0>(NAME).data(), alignment,                                      \
+                                             "In constructor by column: misaligned column: " #NAME);                   \
           return std::get<0>(NAME);                                                                                    \
             }();                                                                                                       \
         ,                                                                                                              \
@@ -733,13 +656,12 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         }                                                                                                              \
         BOOST_PP_CAT(NAME, Parameters_) = [&]() -> auto {                                                              \
           if (elements_ != std::get<1>(NAME))                                                                          \
-            throw std::runtime_error(                                                                                  \
+            cms::soa::detail::throwRuntimeError(                                                                       \
               "In constructor by column pointers: number of elements not equal for every column: "                     \
               BOOST_PP_STRINGIZE(NAME));                                                                               \
           if constexpr (alignmentEnforcement == AlignmentEnforcement::enforced)                                        \
-            if (Metadata:: BOOST_PP_CAT(ParametersTypeOf_, NAME)::                                                     \
-              checkAlignment(std::get<0>(NAME).tupleOrPointer(), alignment))                                           \
-                throw std::runtime_error("In constructor by column: misaligned column: " #NAME);                       \
+            cms::soa::detail::checkAlignment(std::get<0>(NAME).data(), alignment,                                      \
+                                             "In constructor by column: misaligned column: " #NAME);                   \
           return std::get<0>(NAME);                                                                                    \
             }();                                                                                                       \
         ,                                                                                                              \
@@ -751,18 +673,17 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         BOOST_PP_CAT(NAME, Parameters_) = [&]() -> auto {                                                              \
           if (cms::soa::alignSize(elements_ * sizeof(CPP_TYPE::Scalar), alignment)                                     \
                     / sizeof(CPP_TYPE::Scalar) != std::get<0>(NAME).stride_) {                                         \
-            throw std::runtime_error(                                                                                  \
+            cms::soa::detail::throwRuntimeError(                                                                       \
               "In constructor by column pointers: stride not equal between eigen columns: "                            \
               BOOST_PP_STRINGIZE(NAME));                                                                               \
           }                                                                                                            \
           if (elements_ != std::get<1>(NAME))                                                                          \
-          throw std::runtime_error(                                                                                    \
+          cms::soa::detail::throwRuntimeError(                                                                         \
             "In constructor by column pointers: number of elements not equal for every column: "                       \
             BOOST_PP_STRINGIZE(NAME));                                                                                 \
           if constexpr (alignmentEnforcement == AlignmentEnforcement::enforced)                                        \
-            if (Metadata:: BOOST_PP_CAT(ParametersTypeOf_, NAME)::                                                     \
-              checkAlignment(std::get<0>(NAME).tupleOrPointer(), alignment))                                           \
-                throw std::runtime_error("In constructor by column: misaligned column: " #NAME);                       \
+            cms::soa::detail::checkAlignment(std::get<0>(NAME).data(), alignment,                                      \
+                                             "In constructor by column: misaligned column: " #NAME);                   \
           return std::get<0>(NAME);                                                                                    \
           }();                                                                                                         \
   )
@@ -777,7 +698,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
  * Generator of view member list.
  */
 #define _DECLARE_VIEW_OTHER_MEMBER_LIST_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
-  (cms::soa::const_cast_SoAParametersImpl(other.BOOST_PP_CAT(NAME, Parameters_)).tupleOrPointer())
+  (cms::soa::const_cast_SoAParametersImpl(other.BOOST_PP_CAT(NAME, Parameters_)))
 
 #define _DECLARE_VIEW_OTHER_MEMBER_LIST(R, DATA, TYPE_NAME)                                 \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
@@ -1041,13 +962,12 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       }                                                                                                              \
       base_type::BOOST_PP_CAT(NAME, Parameters_) = [&]() -> auto {                                                   \
         if (base_type::elements_ != std::get<1>(NAME))                                                               \
-          throw std::runtime_error(                                                                                  \
+          cms::soa::detail::throwRuntimeError(                                                                       \
             "In constructor by column pointers: number of elements not equal for every column: "                     \
             BOOST_PP_STRINGIZE(NAME));                                                                               \
         if constexpr (alignmentEnforcement == AlignmentEnforcement::enforced)                                        \
-          if (Metadata:: BOOST_PP_CAT(ParametersTypeOf_, NAME)::                                                     \
-            checkAlignment(std::get<0>(NAME).tupleOrPointer(), alignment))                                           \
-              throw std::runtime_error("In constructor by column: misaligned column: " #NAME);                       \
+          cms::soa::detail::checkAlignment(std::get<0>(NAME).data(), alignment,                                      \
+                                           "In constructor by column: misaligned column: " #NAME);                   \
         return std::get<0>(NAME);                                                                                    \
           }();                                                                                                       \
       ,                                                                                                              \
@@ -1058,13 +978,12 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       }                                                                                                              \
       base_type::BOOST_PP_CAT(NAME, Parameters_) = [&]() -> auto {                                                   \
         if (base_type::elements_ != std::get<1>(NAME))                                                               \
-          throw std::runtime_error(                                                                                  \
+          cms::soa::detail::throwRuntimeError(                                                                       \
             "In constructor by column pointers: number of elements not equal for every column: "                     \
             BOOST_PP_STRINGIZE(NAME));                                                                               \
         if constexpr (alignmentEnforcement == AlignmentEnforcement::enforced)                                        \
-          if (Metadata:: BOOST_PP_CAT(ParametersTypeOf_, NAME)::                                                     \
-            checkAlignment(std::get<0>(NAME).tupleOrPointer(), alignment))                                           \
-              throw std::runtime_error("In constructor by column: misaligned column: " #NAME);                       \
+          cms::soa::detail::checkAlignment(std::get<0>(NAME).data(), alignment,                                      \
+                                           "In constructor by column: misaligned column: " #NAME);                   \
         return std::get<0>(NAME);                                                                                    \
           }();                                                                                                       \
       ,                                                                                                              \
@@ -1076,18 +995,17 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       base_type::BOOST_PP_CAT(NAME, Parameters_) = [&]() -> auto {                                                   \
         if (cms::soa::alignSize(base_type::elements_ * sizeof(CPP_TYPE::Scalar), alignment)                          \
                   / sizeof(CPP_TYPE::Scalar) != std::get<0>(NAME).stride_) {                                         \
-          throw std::runtime_error(                                                                                  \
+          cms::soa::detail::throwRuntimeError(                                                                       \
             "In constructor by column pointers: stride not equal between eigen columns: "                            \
             BOOST_PP_STRINGIZE(NAME));                                                                               \
         }                                                                                                            \
         if (base_type::elements_ != std::get<1>(NAME))                                                               \
-        throw std::runtime_error(                                                                                    \
+        cms::soa::detail::throwRuntimeError(                                                                         \
           "In constructor by column pointers: number of elements not equal for every column: "                       \
           BOOST_PP_STRINGIZE(NAME));                                                                                 \
         if constexpr (alignmentEnforcement == AlignmentEnforcement::enforced)                                        \
-          if (Metadata:: BOOST_PP_CAT(ParametersTypeOf_, NAME)::                                                     \
-            checkAlignment(std::get<0>(NAME).tupleOrPointer(), alignment))                                           \
-              throw std::runtime_error("In constructor by column: misaligned column: " #NAME);                       \
+          cms::soa::detail::checkAlignment(std::get<0>(NAME).data(), alignment,                                      \
+                                           "In constructor by column: misaligned column: " #NAME);                   \
         return std::get<0>(NAME);                                                                                    \
         }();                                                                                                         \
   )
@@ -1494,7 +1412,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       */                                                                                                               \
       struct Metarecords {                                                                                             \
         friend ConstViewTemplateFreeParams;                                                                            \
-		SOA_HOST_DEVICE SOA_INLINE\
+        SOA_HOST_DEVICE SOA_INLINE                                                                                     \
         Metarecords(const ConstViewTemplateFreeParams& _soa_impl_parent) :                                             \
                     parent_(_soa_impl_parent), _ITERATE_ON_ALL_COMMA(_STRUCT_ELEMENT_INITIALIZERS, ~, __VA_ARGS__) {}  \
         _ITERATE_ON_ALL(_CONST_ACCESSORS_STRUCT_MEMBERS, ~, __VA_ARGS__)                                               \
@@ -1662,7 +1580,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
        */                                                                                                              \
       struct Metarecords {                                                                                             \
         friend ViewTemplateFreeParams;                                                                                 \
-		SOA_HOST_DEVICE SOA_INLINE\
+        SOA_HOST_DEVICE SOA_INLINE                                                                                     \
         Metarecords(const ViewTemplateFreeParams& _soa_impl_parent) :                                                  \
                     parent_(_soa_impl_parent), _ITERATE_ON_ALL_COMMA(_STRUCT_ELEMENT_INITIALIZERS, ~, __VA_ARGS__) {}  \
         _ITERATE_ON_ALL(_ACCESSORS_STRUCT_MEMBERS, ~, __VA_ARGS__)                                                     \
@@ -1855,7 +1773,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
      */                                                                                                                \
     SOA_HOST_ONLY void deepCopy(ConstView const& view) {                                                               \
       if (elements_ < view.metadata().size())                                                                          \
-        throw std::runtime_error(                                                                                      \
+        cms::soa::detail::throwRuntimeError(                                                                           \
             "In "#CLASS"::deepCopy method: number of elements mismatch ");                                             \
       _ITERATE_ON_ALL(_COPY_VIEW_COLUMNS, ~, __VA_ARGS__)                                                              \
     }                                                                                                                  \
@@ -1880,14 +1798,13 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     /* Helper method for the user provided storage constructor and ROOT streamer */                                    \
     void organizeColumnsFromBuffer() {                                                                                 \
       if constexpr (alignmentEnforcement == cms::soa::AlignmentEnforcement::enforced)                                  \
-        if (reinterpret_cast<intptr_t>(mem_) % alignment)                                                              \
-          throw std::runtime_error("In " #CLASS "::" #CLASS ": misaligned buffer");                                    \
+        cms::soa::detail::checkAlignment(mem_, alignment, "In " #CLASS "::" #CLASS ": misaligned buffer");             \
       auto _soa_impl_curMem = mem_;                                                                                    \
       _ITERATE_ON_ALL(_ASSIGN_SOA_COLUMN_OR_SCALAR, ~, __VA_ARGS__)                                                    \
       /* Sanity check: we should have reached the computed size, only on host code */                                  \
       byteSize_ = computeDataSize(elements_);                                                                          \
       if (mem_ + byteSize_ != _soa_impl_curMem)                                                                        \
-        throw std::runtime_error("In " #CLASS "::" #CLASS ": unexpected end pointer.");                                \
+        cms::soa::detail::throwRuntimeError("In " #CLASS "::" #CLASS ": unexpected end pointer.");                     \
     }                                                                                                                  \
                                                                                                                        \
     /* Helper function to compute the total number of methods */                                                       \
@@ -1915,8 +1832,8 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     size_type elements_;                                                                                               \
     size_type const scalar_ = 1;                                                                                       \
     byte_size_type byteSize_ EDM_REFLEX_TRANSIENT;                                                                     \
-    /* TODO: The layout will contain SoAParametersImpl as members for the columns, which will allow the use of   	   \
-    * more template helper functions. */																			   \
+    /* TODO: The layout will contain SoAParametersImpl as members for the columns, which will allow the use of         \
+    * more template helper functions. */                                                                               \
     _ITERATE_ON_ALL(_DECLARE_SOA_DATA_MEMBER, ~, __VA_ARGS__)                                                          \
     /* Making the code conditional is problematic in macros as the commas will interfere with parameter lisings     */ \
     /* So instead we make the code unconditional with paceholder names which are protected by a private protection. */ \

@@ -34,7 +34,7 @@ This producer makes use of PFAlgo, the particle flow algorithm.
 \date   July 2006
 */
 
-class PFProducer : public edm::stream::EDProducer<> {
+class PFProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit PFProducer(const edm::ParameterSet&);
 

@@ -31,7 +31,7 @@ namespace gs {
         : ItemDescriptor(classId, ioPrototype, name, category), itemId_(0), itemLength_(0) {}
 
   private:
-    friend gs::AbsArchive & ::operator<<(gs::AbsArchive & ar, const gs::AbsRecord & record);
+    friend gs::AbsArchive & ::operator<<(gs::AbsArchive &ar, const gs::AbsRecord &record);
 
     // The following functions must be overriden by derived classes.
     // "writeData" should return "true" upon success.

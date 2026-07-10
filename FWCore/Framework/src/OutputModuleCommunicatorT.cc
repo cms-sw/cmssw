@@ -199,9 +199,8 @@ namespace edm {
 
   template <typename T>
   void OutputModuleCommunicatorT<T>::selectProducts(edm::ProductRegistry const& preg,
-                                                    ThinnedAssociationsHelper const& helper,
                                                     ProcessBlockHelperBase const& processBlockHelper) {
-    module().selectProducts(preg, helper, processBlockHelper);
+    module().selectProducts(preg, processBlockHelper);
   }
 
   template <typename T>

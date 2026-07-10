@@ -34,9 +34,12 @@ def plot(json_files, labels, output_file, f_ymin, f_ymax):
   
  
     fig, ax = plt.subplots(figsize = (10, 10), dpi = 150)
-    
-    hep.cms.text(f"{CMS_Text}", exp = 'CMS',fontsize = CMS_Text_Size,ax=ax)
-    hep.cms.lumitext(f"{lumitext}", fontsize = CMS_Text_Size,ax=ax)
+
+    if hasattr(hep.cms, "lumitext"): # mplhep 0.4
+        hep.cms.text(f"{CMS_Text}", exp = 'CMS',fontsize = CMS_Text_Size,ax=ax)
+        hep.cms.lumitext(f"{lumitext}", fontsize = CMS_Text_Size,ax=ax)
+    else:                            # mplhep >= 1.0
+        hep.cms.text(text=f" {CMS_Text}", lumi=lumitext, ax=ax, fontsize=CMS_Text_Size)
 
     plt.style.use(hep.style.CMS)
 

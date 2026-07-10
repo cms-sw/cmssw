@@ -20,11 +20,8 @@
 #include "TTree.h"
 #include "TTreeCache.h"
 
-#include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/WrapperBase.h"
-#include "DataFormats/Common/interface/getThinned_implementation.h"
-#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 
 #include "FWCore/FWLite/interface/setRefStreamer.h"
 
@@ -429,84 +426,6 @@ namespace fwlite {
     edm::TypeWithDict wrapperBaseTypeWithDict(typeid(edm::WrapperBase));
     return static_cast<edm::WrapperBase const*>(
         wrapperBaseTypeWithDict.pointerToBaseType(objectWithDict.address(), objectWithDict.typeOf()));
-  }
-
-  std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> DataGetterHelper::getThinnedProduct(
-      edm::ProductID const& pid, unsigned int key, Long_t eventEntry) const {
-    return edm::detail::getThinnedProduct(
-        pid,
-        key,
-        branchMap_->thinnedAssociationsHelper(),
-        [this](edm::ProductID const& p) { return branchMap_->productToBranchID(p); },
-        [this, eventEntry](edm::BranchID const& b) { return getThinnedAssociation(b, eventEntry); },
-        [this, eventEntry](edm::ProductID const& p) { return getByProductID(p, eventEntry); });
-  }
-
-  void DataGetterHelper::getThinnedProducts(edm::ProductID const& pid,
-                                            std::vector<edm::WrapperBase const*>& foundContainers,
-                                            std::vector<unsigned int>& keys,
-                                            Long_t eventEntry) const {
-    edm::detail::getThinnedProducts(
-        pid,
-        branchMap_->thinnedAssociationsHelper(),
-        [this](edm::ProductID const& p) { return branchMap_->productToBranchID(p); },
-        [this, eventEntry](edm::BranchID const& b) { return getThinnedAssociation(b, eventEntry); },
-        [this, eventEntry](edm::ProductID const& p) { return getByProductID(p, eventEntry); },
-        foundContainers,
-        keys);
-  }
-
-  edm::OptionalThinnedKey DataGetterHelper::getThinnedKeyFrom(edm::ProductID const& parentID,
-                                                              unsigned int key,
-                                                              edm::ProductID const& thinnedID,
-                                                              Long_t eventEntry) const {
-    edm::BranchID parent = branchMap_->productToBranchID(parentID);
-    if (!parent.isValid())
-      return std::monostate{};
-    edm::BranchID thinned = branchMap_->productToBranchID(thinnedID);
-    if (!thinned.isValid())
-      return std::monostate{};
-
-    try {
-      auto ret = edm::detail::getThinnedKeyFrom_implementation(
-          parentID,
-          parent,
-          key,
-          thinnedID,
-          thinned,
-          branchMap_->thinnedAssociationsHelper(),
-          [this, eventEntry](edm::BranchID const& branchID) { return getThinnedAssociation(branchID, eventEntry); });
-      if (auto factory = std::get_if<edm::detail::GetThinnedKeyFromExceptionFactory>(&ret)) {
-        return [func = *factory]() {
-          auto ex = func();
-          ex.addContext("Calling DataGetterHelper::getThinnedKeyFrom()");
-          return ex;
-        };
-      } else {
-        return ret;
-      }
-    } catch (edm::Exception& ex) {
-      ex.addContext("Calling DataGetterHelper::getThinnedKeyFrom()");
-      throw ex;
-    }
-  }
-
-  edm::ThinnedAssociation const* DataGetterHelper::getThinnedAssociation(edm::BranchID const& branchID,
-                                                                         Long_t eventEntry) const {
-    edm::WrapperBase const* wrapperBase = getByBranchID(branchID, eventEntry);
-    if (wrapperBase == nullptr) {
-      throw edm::Exception(edm::errors::LogicError)
-          << "DataGetterHelper::getThinnedAssociation, product ThinnedAssociation not found.\n";
-    }
-    if (!(typeid(edm::ThinnedAssociation) == wrapperBase->dynamicTypeInfo())) {
-      throw edm::Exception(edm::errors::LogicError)
-          << "DataGetterHelper::getThinnedAssociation, product has wrong type, not a ThinnedAssociation.\n";
-    }
-    edm::Wrapper<edm::ThinnedAssociation> const* wrapper =
-        static_cast<edm::Wrapper<edm::ThinnedAssociation> const*>(wrapperBase);
-
-    edm::ThinnedAssociation const* thinnedAssociation = wrapper->product();
-    return thinnedAssociation;
   }
 
   const edm::ProcessHistory& DataGetterHelper::history() const { return historyGetter_->history(); }

@@ -286,7 +286,9 @@ TEST_CASE("DetSetNew", "[DetSetNew]") {
     }
     REQUIRE(detsets.size() == 5);
     REQUIRE(!detsets.exists(31));
-    { FF ff1(detsets, 32, true); }
+    {
+      FF ff1(detsets, 32, true);
+    }
     REQUIRE(detsets.size() == 6);
 
     DSTV detsets2(detsets);

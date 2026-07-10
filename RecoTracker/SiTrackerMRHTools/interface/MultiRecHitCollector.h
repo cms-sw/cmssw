@@ -2,9 +2,9 @@
 #define SiTrackerMRHTools_MultiRecHitCollector_h
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 #include <vector>
 
-class Trajectory;
 class TrajectoryMeasurement;
 
 class MultiRecHitCollector {

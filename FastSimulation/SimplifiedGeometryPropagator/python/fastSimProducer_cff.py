@@ -81,3 +81,6 @@ fastSimProducer = cms.EDProducer(
     MaterialEffectsForMuonsInHCAL = MaterialEffectsForMuonsInHCALBlock.MaterialEffectsForMuonsInHCAL,
     GFlash = FamosCalorimetryBlock.GFlash,
 )
+
+from Configuration.Eras.Modifier_phase2_fastSim_cff import phase2_fastSim
+phase2_fastSim.toModify(fastSimProducer, simulateCalorimetry = False)

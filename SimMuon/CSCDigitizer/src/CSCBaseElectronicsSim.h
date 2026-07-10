@@ -19,6 +19,8 @@
 #include <vector>
 
 #include "DataFormats/Common/interface/DetSet.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitFwd.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 
 // declarations
@@ -27,8 +29,6 @@ class CSCChamberSpecs;
 class CSCDetectorHit;
 class CSCLayerGeometry;
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
-class DetId;
-class PSimHit;
 
 namespace CLHEP {
   class HepRandomEngine;

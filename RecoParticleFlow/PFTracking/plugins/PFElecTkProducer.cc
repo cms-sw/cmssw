@@ -59,7 +59,8 @@ namespace {
 
 }  // namespace
 
-class PFElecTkProducer final : public edm::stream::EDProducer<edm::GlobalCache<convbremhelpers::HeavyObjectCache> > {
+class PFElecTkProducer final
+    : public edm::stream::EDProducer<edm::GlobalCache<convbremhelpers::HeavyObjectCache>, edm::stream::WatchRuns> {
 public:
   ///Constructor
   explicit PFElecTkProducer(const edm::ParameterSet&, const convbremhelpers::HeavyObjectCache*);

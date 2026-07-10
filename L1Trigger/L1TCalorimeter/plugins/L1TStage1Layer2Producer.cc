@@ -66,7 +66,7 @@ using namespace l1t;
 // class declaration
 //
 
-class L1TStage1Layer2Producer : public stream::EDProducer<> {
+class L1TStage1Layer2Producer : public stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit L1TStage1Layer2Producer(const ParameterSet&);
   ~L1TStage1Layer2Producer() override;

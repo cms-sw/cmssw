@@ -16,7 +16,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -26,6 +26,7 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 
 namespace edm {
   class ParameterSet;
@@ -39,7 +40,6 @@ class TrajectoryFitter;
 class TrajectorySmoother;
 class Propagator;
 class TransientTrackingRecHitBuilder;
-class Trajectory;
 class TrackerTopology;
 
 class TrackTransformerForGlobalCosmicMuons : public TrackTransformerBase {

@@ -43,6 +43,7 @@ namespace edm {
       return std::regex_replace(iIn, reAllSpaces, emptyString);
     }
     static std::regex const reWrapper("edm::Wrapper<(.*)>");
+    static std::regex const reVersion("io_v[0-9]+::");
     static std::regex const reString("std::basic_string<char>");
     static std::regex const reString2("std::string");
     static std::regex const reString3("std::basic_string<char,std::char_traits<char> >");
@@ -83,7 +84,7 @@ namespace edm {
         "edm::AssociationMap<edm::OneToManyWithQuality<(.*?), *(.*?), *(.*?), *u[a-z]*> >");
     static std::regex const reToVector("edm::AssociationVector<(.*), *(.*), *edm::Ref.*,.*>");
     //NOTE: if the item within a clone policy is a template, this substitution will probably fail
-    static std::regex const reToRangeMap("edm::RangeMap< *(.*), *(.*), *edm::ClonePolicy<([^>]*)> >");
+    static std::regex const reToRangeMap("edm::RangeMap< *(.*), *(.*), *edm::(Clone|Copy)Policy<([^>]*)> >");
     //NOTE: If container is a template with one argument which is its 'type' then can simplify name
     static std::regex const reToRefs1(
         "edm::RefVector< *(.*)< *(.*) *>, *\\2 *, *edm::refhelper::FindUsingAdvance< *\\1< *\\2 *> *, *\\2 *> *>");
@@ -116,6 +117,7 @@ namespace edm {
       static std::regex const reArray("\\[\\]");
 
       std::string name = regex_replace(iIn, reWrapper, "$1");
+      name = regex_replace(name, reVersion, "");
       name = regex_replace(name, rePointer, "ptr");
       name = regex_replace(name, reArray, "As");
       name = regex_replace(name, reAIKR, "");

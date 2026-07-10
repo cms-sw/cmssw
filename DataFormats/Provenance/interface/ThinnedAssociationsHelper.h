@@ -3,6 +3,8 @@
 
 /** \class edm::ThinnedAssociationsHelper
 \author W. David Dagenhart, created 11 June 2014
+
+NOTE: This class is obsolete and only exists for backward compatiblity when reading old files.
 */
 
 #include "DataFormats/Provenance/interface/BranchID.h"

@@ -2,12 +2,12 @@
 #define RecoTracker_PixelTrackFitting_PixelFitterBase_h
 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
 #include <vector>
 #include <memory>
 
 class TrackingRegion;
-class TrackingRecHit;
 
 class PixelFitterBase {
 public:

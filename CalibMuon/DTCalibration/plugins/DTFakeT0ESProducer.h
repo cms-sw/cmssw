@@ -15,7 +15,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -26,17 +26,17 @@
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
+#include "DataFormats/MuonDetId/interface/DTLayerIdFwd.h"
 
 //#include <pair>
 #include <map>
 
 class DTT0;
 class DTT0Rcd;
-class DTLayerId;
 
-class DTFakeT0ESProducer : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class DTFakeT0ESProducer : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  DTFakeT0ESProducer(const edm::ParameterSet& pset);
+  explicit DTFakeT0ESProducer(const edm::ParameterSet& pset);
 
   ~DTFakeT0ESProducer() override;
 
@@ -45,15 +45,11 @@ public:
 private:
   void parseDDD(const DTT0Rcd& iRecord);
 
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval& oValidity) override;
-
   std::map<DTLayerId, std::pair<unsigned int, unsigned int> > theLayerIdWiresMap;
 
   //t0 mean and sigma values read from cfg
-  double t0Mean;
-  double t0Sigma;
+  const double t0Mean;
+  const double t0Sigma;
 
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvTokenDDD_;
   edm::ESGetToken<MuonGeometryConstants, IdealGeometryRecord> mdcToken_;

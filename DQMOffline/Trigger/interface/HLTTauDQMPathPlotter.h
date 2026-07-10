@@ -5,16 +5,13 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQMPlotter.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQMPath.h"
 #include "DQMOffline/Trigger/interface/HistoWrapper.h"
+#include "DataFormats/HLTReco/interface/TriggerEventFwd.h"
 
 namespace edm {
   class Event;
   class EventSetup;
   class TriggerResults;
 }  // namespace edm
-
-namespace trigger {
-  class TriggerEvent;
-}
 
 class HLTConfigProvider;
 

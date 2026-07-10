@@ -15,8 +15,9 @@ applyExtraConditions = True
 theRefitter = RefitType.COMMON
 _theTrackCollection = "generalTracks" #"ALCARECOTkAlMinBias" unfortunately not yet
 
-from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
-process = cms.Process("Demo",Phase2C22I13M9) 
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+process = cms.Process("Demo",_PH2_ERA)
 
 ###################################################################
 # Set the process to run multi-threaded
@@ -81,7 +82,8 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 # Standard loads
 ###################################################################
 #process.load("Configuration.Geometry.GeometryRecoDB_cff")
-process.load('Configuration.Geometry.GeometryExtendedRun4D121Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtendedRun4D121Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
 
 ####################################################################
 # Get the BeamSpot
@@ -93,7 +95,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 ####################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, _PH2_GLOBAL_TAG, '')
 
 if allFromGT:
      print("############ testPVValidation_cfg.py: msg%-i: All is taken from GT")

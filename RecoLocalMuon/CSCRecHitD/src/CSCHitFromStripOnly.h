@@ -20,6 +20,7 @@
 #include "RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h"
 
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCStripDigiFwd.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -28,7 +29,6 @@
 #include <array>
 
 class CSCLayer;
-class CSCStripDigi;
 class CSCPedestalChoice;
 
 class CSCHitFromStripOnly {

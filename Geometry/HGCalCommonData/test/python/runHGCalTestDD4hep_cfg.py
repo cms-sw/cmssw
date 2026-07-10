@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun runHGCalTestDD4hep_cfg.py type=V17
 #
-#   Options for type V16, V17, V17n, V18, V19
+#   Options for type V17, V17n, V18, V19
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('type',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17, V17n, V18, V19")
+                  "type of operations: V17, V17n, V18, V19")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -26,6 +26,9 @@ from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 if (options.type == "V18"):
     from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
     process = cms.Process("HGCalTest",Phase2C12213M9,dd4hep)
+elif (options.type == "V19"):
+    from Configuration.Eras.Era_Phase2C26I13M9_cff import Phase2C26I13M9
+    process = cms.Process("HGCalTest",Phase2C26I13M9)
 else:
     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
     process = cms.Process("HGCalTest",Phase2C17I13M9,dd4hep)
@@ -129,7 +132,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T35', '')
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(

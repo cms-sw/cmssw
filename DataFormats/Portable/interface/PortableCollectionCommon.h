@@ -6,9 +6,23 @@
 #include <stdexcept>
 #include <typeinfo>
 
+#include <alpaka/alpaka.hpp>
+
 #include "FWCore/Utilities/interface/TypeDemangler.h"
 
 namespace portablecollection {
+
+  template <int I, typename TQueue, typename Descriptor, typename ConstDescriptor>
+  void deepCopy(TQueue& queue, Descriptor& dest, ConstDescriptor const& src) {
+    if constexpr (I < ConstDescriptor::num_cols) {
+      assert(std::get<I>(dest.buff).size_bytes() == std::get<I>(src.buff).size_bytes());
+      alpaka::memcpy(
+          queue,
+          alpaka::createView(alpaka::getDev(queue), std::get<I>(dest.buff).data(), std::get<I>(dest.buff).size()),
+          alpaka::createView(alpaka::getDev(queue), std::get<I>(src.buff).data(), std::get<I>(src.buff).size()));
+      deepCopy<I + 1>(queue, dest, src);
+    }
+  }
 
   template <std::integral Int>
   constexpr int size_cast(Int input) {

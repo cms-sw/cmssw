@@ -453,6 +453,7 @@ namespace l1t {
       gtObj.hwZ0_ = hwZ0;
       gtObj.hwIsolationPT_ = gtElectron.isolationPT.V.to_int();
       gtObj.hwQualityFlags_ = gtElectron.qualityFlags.V.to_int();
+      gtObj.hwQualityScore_ = gtElectron.idScore.V.to_int();
       gtObj.hwCharge_ = gtElectron.charge.V.to_int();
       gtObj.objectType_ = P2GTCandidate::CL2Electrons;
 

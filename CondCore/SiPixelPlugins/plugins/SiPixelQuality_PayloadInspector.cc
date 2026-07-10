@@ -6,15 +6,17 @@
   \date $Date: 2018/10/18 14:48:00 $
 */
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "CondCore/Utilities/interface/PayloadInspectorModule.h"
-#include "CondCore/Utilities/interface/PayloadInspector.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
+#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 #include "CondCore/CondDB/interface/Time.h"
 #include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
+#include "CondCore/Utilities/interface/PayloadInspector.h"
+#include "CondCore/Utilities/interface/PayloadInspectorModule.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
 
 // the data format of the condition to be inspected
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
@@ -159,10 +161,10 @@ namespace {
     time history class
   *************************************************/
 
-  class SiPixelQualityBadRocsTimeHistory : public TimeHistoryPlot<SiPixelQuality, std::pair<double, double> > {
+  class SiPixelQualityBadRocsTimeHistory : public TimeHistoryPlot<SiPixelQuality, std::pair<double, double>> {
   public:
     SiPixelQualityBadRocsTimeHistory()
-        : TimeHistoryPlot<SiPixelQuality, std::pair<double, double> >("bad ROCs count vs time", "bad ROCs count") {}
+        : TimeHistoryPlot<SiPixelQuality, std::pair<double, double>>("bad ROCs count vs time", "bad ROCs count") {}
 
     std::pair<double, double> getFromPayload(SiPixelQuality& payload) override {
       return std::make_pair(extractBadRocCount(payload), 0.);
@@ -181,6 +183,88 @@ namespace {
       return BadRocCount;
     }
   };
+
+  /***********************************************
+   time history per layer / disk
+   **********************************************/
+  template <bool IsBarrel, int Index>
+  struct PixelRegionSelector {
+    static bool accept(uint32_t detId, const TrackerTopology& tTopo) {
+      DetId id(detId);
+
+      if constexpr (IsBarrel) {
+        if (id.subdetId() != PixelSubdetector::PixelBarrel)
+          return false;
+
+        return tTopo.pxbLayer(detId) == Index;
+
+      } else {
+        if (id.subdetId() != PixelSubdetector::PixelEndcap)
+          return false;
+
+        return tTopo.pxfDisk(detId) == Index;
+      }
+    }
+
+    static std::string label() {
+      if constexpr (IsBarrel)
+        return "Layer " + std::to_string(Index);
+      else
+        return "Disk " + std::to_string(Index);
+    }
+  };
+
+  template <typename Selector>
+  class SiPixelQualityBadRocsTimeHistoryPerRegion : public TimeHistoryPlot<SiPixelQuality, std::pair<double, double>> {
+  public:
+    SiPixelQualityBadRocsTimeHistoryPerRegion()
+        : TimeHistoryPlot<SiPixelQuality, std::pair<double, double>>(
+              "bad ROCs count vs time (" + Selector::label() + ")", "bad ROCs count"),
+          m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
+              edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {}
+    std::pair<double, double> getFromPayload(SiPixelQuality& payload) override {
+      return std::make_pair(extractBadRocCount(payload), 0.);
+    }
+
+  private:
+    TrackerTopology m_trackerTopo;
+
+    unsigned int extractBadRocCount(SiPixelQuality& payload) {
+      unsigned int BadRocCount = 0;
+      const auto& modules = payload.getBadComponentList();
+
+      for (const auto& mod : modules) {
+        if (!Selector::accept(mod.DetID, m_trackerTopo)) {
+          continue;
+        } else {
+          edm::LogInfo("SiPixelQualityBadRocsTimeHistoryPerRegion")
+              << Selector::label() << " DetId:" << mod.DetID << std::endl;
+        }
+
+        for (unsigned short n = 0; n < 16; ++n) {
+          if (mod.BadRocs & (1 << n))
+            ++BadRocCount;
+        }
+      }
+      return BadRocCount;
+    }
+  };
+
+#define DECLARE_BPIX_LAYER(N) \
+  using SiPixelQualityBadRocsTimeHistory_L##N = SiPixelQualityBadRocsTimeHistoryPerRegion<PixelRegionSelector<true, N>>;
+
+#define DECLARE_FPIX_DISK(N)                    \
+  using SiPixelQualityBadRocsTimeHistory_D##N = \
+      SiPixelQualityBadRocsTimeHistoryPerRegion<PixelRegionSelector<false, N>>;
+
+  DECLARE_BPIX_LAYER(1)
+  DECLARE_BPIX_LAYER(2)
+  DECLARE_BPIX_LAYER(3)
+  DECLARE_BPIX_LAYER(4)
+
+  DECLARE_FPIX_DISK(1)
+  DECLARE_FPIX_DISK(2)
+  DECLARE_FPIX_DISK(3)
 
   /************************************************
    occupancy style map whole Pixel
@@ -716,6 +800,13 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelQuality) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelQualityTest);
   PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadRocsSummary);
   PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadRocsTimeHistory);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadRocsTimeHistory_L1);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadRocsTimeHistory_L2);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadRocsTimeHistory_L3);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadRocsTimeHistory_L4);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadRocsTimeHistory_D1);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadRocsTimeHistory_D2);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadRocsTimeHistory_D3);
   //PAYLOAD_INSPECTOR_CLASS(SiPixelQualityDebugger);
   PAYLOAD_INSPECTOR_CLASS(SiPixelBPixQualityMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelFPixQualityMap);

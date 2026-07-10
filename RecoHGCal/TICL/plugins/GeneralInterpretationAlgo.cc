@@ -1,4 +1,5 @@
 #include "RecoHGCal/TICL/interface/TICLInterpretationAlgoBase.h"
+#include "RecoHGCal/TICL/interface/TICLUtils.h"
 #include "RecoHGCal/TICL/plugins/GeneralInterpretationAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -21,37 +22,25 @@ void GeneralInterpretationAlgo::initialize(const HGCalDDDConstants *hgcons,
                                            const edm::ESHandle<Propagator> propH) {
   hgcons_ = hgcons;
   rhtools_ = rhtools;
-  buildLayers();
 
   bfield_ = bfieldH;
   propagator_ = propH;
+
+  buildLayers();
 }
 
+// Geometry construction
 void GeneralInterpretationAlgo::buildLayers() {
-  // build disks at HGCal front & EM-Had interface for track propagation
+  // Build propagation disks at HGCal front face and CE-E CE-H interface
+  auto firstDisks = ticl::utils::buildHGCalFirstDisks(*hgcons_);
+  auto interfaceDisks = ticl::utils::buildHGCalInterfaceDisks(*hgcons_, rhtools_);
 
-  float zVal = hgcons_->waferZ(1, true);
-  std::pair<float, float> rMinMax = hgcons_->rangeR(zVal, true);
-
-  float zVal_interface = rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z();
-  std::pair<float, float> rMinMax_interface = hgcons_->rangeR(zVal_interface, true);
-
-  for (int iSide = 0; iSide < 2; ++iSide) {
-    float zSide = (iSide == 0) ? (-1. * zVal) : zVal;
-    firstDisk_[iSide] =
-        std::make_unique<GeomDet>(Disk::build(Disk::PositionType(0, 0, zSide),
-                                              Disk::RotationType(),
-                                              SimpleDiskBounds(rMinMax.first, rMinMax.second, zSide - 0.5, zSide + 0.5))
-                                      .get());
-
-    zSide = (iSide == 0) ? (-1. * zVal_interface) : zVal_interface;
-    interfaceDisk_[iSide] = std::make_unique<GeomDet>(
-        Disk::build(Disk::PositionType(0, 0, zSide),
-                    Disk::RotationType(),
-                    SimpleDiskBounds(rMinMax_interface.first, rMinMax_interface.second, zSide - 0.5, zSide + 0.5))
-            .get());
+  for (int side = 0; side < 2; ++side) {
+    firstDisk_[side] = std::move(firstDisks[side]);
+    interfaceDisk_[side] = std::move(interfaceDisks[side]);
   }
 }
+
 Vector GeneralInterpretationAlgo::propagateTrackster(const Trackster &t,
                                                      const unsigned idx,
                                                      float zVal,
@@ -205,7 +194,8 @@ bool GeneralInterpretationAlgo::timeAndEnergyCompatible(float &total_raw_energy,
 void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
                                                edm::Handle<MtdHostCollection> inputTiming_h,
                                                std::vector<Trackster> &resultTracksters,
-                                               std::vector<int> &resultCandidate) {
+                                               std::vector<int> &resultCandidate,
+                                               std::vector<bool> &maskedTracksters) {
   bool useMTDTiming = inputTiming_h.isValid();
   const auto tkH = input.tracksHandle;
   const auto maskTracks = input.maskedTracks;
@@ -246,7 +236,17 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
   for (auto const i : candidateTrackIds) {
     const auto &tk = tracks[i];
     int iSide = int(tk.eta() > 0);
-    const auto &fts = trajectoryStateTransform::outerFreeState((tk), bFieldProd);
+    FreeTrajectoryState fts;
+
+    // Check whether the outer state is actually valid
+    if (tk.outerOk()) {
+      // Use outer state if available
+      fts = trajectoryStateTransform::outerFreeState(tk, bFieldProd);
+    } else {
+      // Fallback: use PCA (reference point)
+      fts = trajectoryStateTransform::initialFreeState(tk, bFieldProd);
+    }
+
     // to the HGCal front
     const auto &tsos = prop.propagate(fts, firstDisk_[iSide]->surface());
     if (tsos.isValid()) {
@@ -309,6 +309,12 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
   trackstersInTrackIndices.resize(tracks.size());
 
   std::vector<bool> chargedMask(tracksters.size(), true);
+  // Tracksters already consumed by an earlier interpretation pass (e.g. muon MIP
+  // tracksters) are unavailable here: they are neither linked to a track nor emitted
+  // as neutral candidates.
+  for (size_t i = 0; i < tracksters.size() && i < maskedTracksters.size(); ++i)
+    if (maskedTracksters[i])
+      chargedMask[i] = false;
   for (unsigned &i : candidateTrackIds) {
     if (tsNearTk[i].empty() && tsNearTkAtInt[i].empty()) {  // nothing linked to track, make charged hadrons
       continue;

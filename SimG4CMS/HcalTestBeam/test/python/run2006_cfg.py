@@ -38,36 +38,40 @@ process.common_beam_direction_parameters = cms.PSet(
     MaxEta       = cms.double(0.5655),
     MinPhi       = cms.double(-0.1309),
     MaxPhi       = cms.double(-0.1309),
+)
+
+process.common_beam_position_parameters = cms.PSet(
     BeamPosition = cms.double(beamPosition)
-    )
+)
 
 process.source = cms.Source("EmptySource",
                             firstRun        = cms.untracked.uint32(1),
                             firstEvent      = cms.untracked.uint32(1)
-                            )
+)
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
                                    PGunParameters = cms.PSet(
-        process.common_beam_direction_parameters,
-        ),
+                                       process.common_beam_direction_parameters
+                                   ),
                                    Verbosity       = cms.untracked.int32(0),
                                    AddAntiParticle = cms.bool(False)
-                                   )
+)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
-    )
+)
 
 process.o1 = cms.OutputModule("PoolOutputModule",
                               process.FEVTSIMEventContent,
                               fileName = cms.untracked.string('sim2006.root')
-                              )
+)
 
 process.Timing = cms.Service("Timing")
 
 from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
 process.VtxSmeared = cms.EDProducer("BeamProfileVtxGenerator",
-    process.common_beam_direction_parameters,
+                                    process.common_beam_direction_parameters,
+                                    process.common_beam_position_parameters,
                                     VtxSmearedCommon,
                                     BeamMeanX       = cms.double(0.0),
                                     BeamMeanY       = cms.double(0.0),
@@ -80,25 +84,26 @@ process.VtxSmeared = cms.EDProducer("BeamProfileVtxGenerator",
                                     File            = cms.string('beam.profile'),
                                     UseFile         = cms.bool(False),
                                     TimeOffset      = cms.double(0.)
-                                    )
+)
 
 process.testbeam = cms.EDAnalyzer("HcalTB06Analysis",
                                   process.common_beam_direction_parameters,
+                                  process.common_beam_position_parameters,
                                   ECAL = cms.bool(True),
                                   TestBeamAnalysis = cms.PSet(
-        EHCalMax   = cms.untracked.double(400.0),
-        ETtotMax   = cms.untracked.double(400.0),
-        beamEnergy = cms.untracked.double(50.),
-        TimeLimit  = cms.double(180.0),
-        EcalWidth  = cms.double(0.362),
-        HcalWidth  = cms.double(0.640),
-        EcalFactor = cms.double(1.0),
-        HcalFactor = cms.double(100.0),
-        MIP        = cms.double(0.8),
-        Verbose    = cms.untracked.bool(True),
-        MakeTree   = cms.untracked.bool(True)
-        )
+                                      EHCalMax   = cms.untracked.double(400.0),
+                                      ETtotMax   = cms.untracked.double(400.0),
+                                      beamEnergy = cms.untracked.double(50.),
+                                      TimeLimit  = cms.double(180.0),
+                                      EcalWidth  = cms.double(0.362),
+                                      HcalWidth  = cms.double(0.640),
+                                      EcalFactor = cms.double(1.0),
+                                      HcalFactor = cms.double(100.0),
+                                      MIP        = cms.double(0.8),
+                                      Verbose    = cms.untracked.bool(True),
+                                      MakeTree   = cms.untracked.bool(True)
                                   )
+)
 
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared*process.g4SimHits*process.testbeam)
 process.outpath = cms.EndPath(process.o1)

@@ -22,7 +22,7 @@ class TrackerTopologyRcd;
 //
 // Generate tracker seeds from L2 muons
 //
-class TSGFromL2Muon : public edm::stream::EDProducer<> {
+class TSGFromL2Muon : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   TSGFromL2Muon(const edm::ParameterSet& cfg);
   ~TSGFromL2Muon() override;

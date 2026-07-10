@@ -11,28 +11,13 @@
 //
 
 // system include files
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
-#include <cppunit/extensions/HelperMacros.h>
+#include "catch2/catch_all.hpp"
 #include <functional>
 #include <iostream>
 
 // user include files
 #include "FWCore/PluginManager/interface/PluginFactoryManager.h"
 #include "FWCore/PluginManager/interface/PluginFactoryBase.h"
-
-class TestPluginFactoryManager : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(TestPluginFactoryManager);
-  CPPUNIT_TEST(test);
-  CPPUNIT_TEST_SUITE_END();
-
-public:
-  void test();
-  void setUp() {}
-  void tearDown() {}
-};
-
-///registration of the test so that the runner can find it
-CPPUNIT_TEST_SUITE_REGISTRATION(TestPluginFactoryManager);
 
 class DummyTestPlugin : public edmplugin::PluginFactoryBase {
 public:
@@ -48,16 +33,18 @@ struct Catcher {
   void catchIt(const edmplugin::PluginFactoryBase* iFactory) { lastSeen_ = iFactory->category(); }
 };
 
-void TestPluginFactoryManager::test() {
-  using namespace edmplugin;
-  using std::placeholders::_1;
-  PluginFactoryManager& pfm = *(PluginFactoryManager::get());
-  CPPUNIT_ASSERT(pfm.begin() == pfm.end());
+TEST_CASE("PluginFactoryManager", "[PluginManager]") {
+  SECTION("test") {
+    using namespace edmplugin;
+    using std::placeholders::_1;
+    PluginFactoryManager& pfm = *(PluginFactoryManager::get());
+    REQUIRE(pfm.begin() == pfm.end());
 
-  Catcher catcher;
-  pfm.newFactory_.connect(std::bind(std::mem_fn(&Catcher::catchIt), &catcher, _1));
+    Catcher catcher;
+    pfm.newFactory_.connect(std::bind(std::mem_fn(&Catcher::catchIt), &catcher, _1));
 
-  DummyTestPlugin one("one");
-  CPPUNIT_ASSERT((pfm.begin() != pfm.end()));
-  CPPUNIT_ASSERT(catcher.lastSeen_ == std::string("one"));
+    DummyTestPlugin one("one");
+    REQUIRE((pfm.begin() != pfm.end()));
+    REQUIRE(catcher.lastSeen_ == std::string("one"));
+  }
 }

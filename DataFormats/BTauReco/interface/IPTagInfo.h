@@ -138,7 +138,7 @@ namespace reco {
     const Track* selectedTrack(size_t i) const { return reco::btag::toTrack(m_selected[i]); }
 
     // Used by ROOT storage
-    CMS_CLASS_VERSION(11)
+    CMS_CLASS_VERSION(3)
 
   private:
     std::vector<btag::TrackIPData> m_data;
@@ -201,6 +201,7 @@ namespace reco {
   template <class Container, class Base>
   Container IPTagInfo<Container, Base>::sorted(const std::vector<size_t>& indexes) const {
     Container tr;
+    tr.reserve(indexes.size());
     for (size_t i = 0; i < indexes.size(); i++)
       tr.push_back(m_selected[indexes[i]]);
     return tr;

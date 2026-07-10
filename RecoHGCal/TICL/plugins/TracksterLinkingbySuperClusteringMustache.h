@@ -4,8 +4,8 @@ Authors : Theo Cuisset <theo.cuisset@cern.ch>, Shamik Ghosh <shamik.ghosh@cern.c
 Date : 06/2024
 */
 
-#ifndef RecoHGCal_TICL_TracksterLinkingSuperClusteringMustache_H
-#define RecoHGCal_TICL_TracksterLinkingSuperClusteringMustache_H
+#ifndef RecoHGCal_TICL_TracksterLinkingbySuperClusteringMustache_h
+#define RecoHGCal_TICL_TracksterLinkingbySuperClusteringMustache_h
 
 #include <vector>
 
@@ -22,10 +22,9 @@ namespace cms {
 #include "CondFormats/DataRecord/interface/EcalMustacheSCParametersRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalSCDynamicDPhiParameters.h"
 #include "CondFormats/DataRecord/interface/EcalSCDynamicDPhiParametersRcd.h"
+#include "DataFormats/HGCalReco/interface/TracksterFwd.h"
 
 namespace ticl {
-  class Trackster;
-
   class TracksterLinkingbySuperClusteringMustache : public TracksterLinkingAlgoBase {
   public:
     TracksterLinkingbySuperClusteringMustache(const edm::ParameterSet& ps,
@@ -43,7 +42,7 @@ namespace ticl {
                     const edm::ESHandle<MagneticField> bfieldH,
                     const edm::ESHandle<Propagator> propH) override;
 
-    virtual void setEvent(edm::Event& iEvent, edm::EventSetup const& iEventSetup) override;
+    void setEvent(edm::Event& iEvent, edm::EventSetup const& iEventSetup) override;
 
   private:
     bool trackstersPassesPIDCut(const Trackster& ts) const;

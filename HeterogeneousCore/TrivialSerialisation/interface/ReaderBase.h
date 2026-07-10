@@ -1,5 +1,5 @@
-#ifndef TrivialSerialisation_Common_interface_ReaderBase_h
-#define TrivialSerialisation_Common_interface_ReaderBase_h
+#ifndef HeterogeneousCore_TrivialSerialisation_interface_ReaderBase_h
+#define HeterogeneousCore_TrivialSerialisation_interface_ReaderBase_h
 
 #include <cstddef>
 #include <span>
@@ -10,6 +10,7 @@
 
 namespace ngt {
 
+  // Base class for reading the memory regions and properties of a serialised product.
   class ReaderBase {
   public:
     ReaderBase(const edm::WrapperBase* ptr) : ptr_(ptr) {}
@@ -25,4 +26,4 @@ namespace ngt {
 
 }  // namespace ngt
 
-#endif  // TrivialSerialisation_Common_interface_ReaderBase_h
+#endif  // HeterogeneousCore_TrivialSerialisation_interface_ReaderBase_h

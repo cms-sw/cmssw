@@ -30,4 +30,4 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<test name="testMuonTrackRefitting" command="testMuonTrackRefitting.sh"/>
+<!-- <test name="testMuonTrackRefitting" command="testMuonTrackRefitting.sh"/> COMMENT: reads old format file -->

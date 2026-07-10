@@ -52,8 +52,6 @@ EventContainer::EventContainer(optutl::CommandLineParser& parser, FuncPtr funcPt
 
   // remember my parser
   m_parserPtr = &parser;
-
-  // TH1::AddDirectory(false);
 }
 
 EventContainer::~EventContainer() {

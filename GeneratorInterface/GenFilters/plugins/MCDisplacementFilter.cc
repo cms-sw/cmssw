@@ -30,7 +30,6 @@ using namespace std;
 // class decleration
 //
 namespace edm {
-  class HepMCProduct;
   class ConfigurationDescriptions;
 }  // namespace edm
 

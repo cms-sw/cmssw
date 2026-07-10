@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-
 # list of layers to exclude from the CA (empty list doesn't exclude; [28, 29, 30] excludes the OT)
 layersToExclude = []
 
@@ -165,60 +164,7 @@ for i, lp in enumerate(layerPairsCAExtension):
     if lp[2]:
         startingPairsCAExtension.append(i)
 
-hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2@alpaka',
-    pixelRecHitSrc = cms.InputTag('hltPhase2SiPixelRecHitsSoA'),
-    ptmin = cms.double(0.9),
-    hardCurvCut = cms.double(0.01425), # corresponds to 800 MeV in 3.8T.
-    earlyFishbone = cms.bool(True),
-    lateFishbone = cms.bool(False),
-    fillStatistics = cms.bool(False),
-    minHitsPerNtuplet = cms.uint32(4),
-    maxNumberOfDoublets = cms.string(str(6*512*1024)),
-    maxNumberOfTuples = cms.string(str(60*1024)),
-    cellZ0Cut = cms.double(12.5), # it's half the BS width! It has nothing to do with the sample!!
-    minYsizeB1 = cms.int32(20),
-    minYsizeB2 = cms.int32(18),
-    maxDYsize12 = cms.int32(12),
-    maxDYsize = cms.int32(10),
-    maxDYPred = cms.int32(24),
-    avgHitsPerTrack = cms.double(7.0),
-    avgCellsPerHit = cms.double(12),
-    avgCellsPerCell = cms.double(0.151),
-    avgTracksPerCell = cms.double(0.040),
-    minHitsForSharingCut = cms.uint32(10),
-    fitNas4 = cms.bool(False),
-    useRiemannFit = cms.bool(False),
-    doSharedHitCut = cms.bool(True),
-    dupPassThrough = cms.bool(False),
-    useSimpleTripletCleaner = cms.bool(True),
-    trackQualityCuts = cms.PSet(
-        maxChi2TripletsOrQuadruplets = cms.double(5.0),
-        maxChi2Quintuplets = cms.double(5.0),
-        maxChi2 = cms.double(5.0),
-        minPt   = cms.double(0.9),
-        maxTip  = cms.double(0.3),
-        maxZip  = cms.double(12),
-    ),
-    geometry = cms.PSet(
-        caDCACuts   = cms.vdouble([l[2] for l in layers[:28]]),
-        caThetaCuts = cms.vdouble([l[3] for l in layers[:28]]),
-        startingPairs = cms.vuint32(startingPairsAlpaka),
-        pairGraph = cms.vuint32(sum([[lp[0], lp[1]] for lp in layerPairsAlpaka], [])),
-        phiCuts   = cms.vint32( [lp[ 3] for lp in layerPairsAlpaka]),
-        minInner  = cms.vdouble([lp[ 4] for lp in layerPairsAlpaka]),
-        maxInner  = cms.vdouble([lp[ 5] for lp in layerPairsAlpaka]),
-        minOuter  = cms.vdouble([lp[ 6] for lp in layerPairsAlpaka]),
-        maxOuter  = cms.vdouble([lp[ 7] for lp in layerPairsAlpaka]),
-        maxDR     = cms.vdouble([lp[ 8] for lp in layerPairsAlpaka]),
-        minDZ     = cms.vdouble([lp[ 9] for lp in layerPairsAlpaka]),
-        maxDZ     = cms.vdouble([lp[10] for lp in layerPairsAlpaka]),
-        ptCuts    = cms.vdouble([lp[11] for lp in layerPairsAlpaka]),
-  ),
-    # autoselect the alpaka backend
-    alpaka = cms.untracked.PSet(backend = cms.untracked.string(''))
-)
-
-_hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
+hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
     pixelRecHitSrc = cms.InputTag('hltPhase2PixelRecHitsExtendedSoA'),
     ptmin = cms.double(0.9),
     hardCurvCut = cms.double(0.01425), # corresponds to 800 MeV in 3.8T.
@@ -284,6 +230,65 @@ _hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
     alpaka = cms.untracked.PSet(backend = cms.untracked.string(''))
 )
 
+
+_hltPhase2PixelTracksSoANonCAExtended = cms.EDProducer('CAHitNtupletAlpakaPhase2@alpaka',
+    pixelRecHitSrc = cms.InputTag('hltPhase2SiPixelRecHitsSoA'),
+    ptmin = cms.double(0.9),
+    hardCurvCut = cms.double(0.01425), # corresponds to 800 MeV in 3.8T.
+    earlyFishbone = cms.bool(True),
+    lateFishbone = cms.bool(False),
+    fillStatistics = cms.bool(False),
+    minHitsPerNtuplet = cms.uint32(4),
+    maxNumberOfDoublets = cms.string(str(6*512*1024)),
+    maxNumberOfTuples = cms.string(str(60*1024)),
+    cellZ0Cut = cms.double(12.5), # it's half the BS width! It has nothing to do with the sample!!
+    minYsizeB1 = cms.int32(20),
+    minYsizeB2 = cms.int32(18),
+    maxDYsize12 = cms.int32(12),
+    maxDYsize = cms.int32(10),
+    maxDYPred = cms.int32(24),
+    avgHitsPerTrack = cms.double(7.0),
+    avgCellsPerHit = cms.double(12),
+    avgCellsPerCell = cms.double(0.151),
+    avgTracksPerCell = cms.double(0.040),
+    minHitsForSharingCut = cms.uint32(10),
+    fitNas4 = cms.bool(False),
+    useRiemannFit = cms.bool(False),
+    doSharedHitCut = cms.bool(True),
+    dupPassThrough = cms.bool(False),
+    useSimpleTripletCleaner = cms.bool(True),
+    trackQualityCuts = cms.PSet(
+        maxChi2TripletsOrQuadruplets = cms.double(5.0),
+        maxChi2Quintuplets = cms.double(5.0),
+        maxChi2 = cms.double(5.0),
+        minPt   = cms.double(0.9),
+        maxTip  = cms.double(0.3),
+        maxZip  = cms.double(12),
+    ),
+    geometry = cms.PSet(
+        caDCACuts   = cms.vdouble([l[2] for l in layers[:28]]),
+        caThetaCuts = cms.vdouble([l[3] for l in layers[:28]]),
+        startingPairs = cms.vuint32(startingPairsAlpaka),
+        pairGraph = cms.vuint32(sum([[lp[0], lp[1]] for lp in layerPairsAlpaka], [])),
+        phiCuts   = cms.vint32( [lp[ 3] for lp in layerPairsAlpaka]),
+        minInner  = cms.vdouble([lp[ 4] for lp in layerPairsAlpaka]),
+        maxInner  = cms.vdouble([lp[ 5] for lp in layerPairsAlpaka]),
+        minOuter  = cms.vdouble([lp[ 6] for lp in layerPairsAlpaka]),
+        maxOuter  = cms.vdouble([lp[ 7] for lp in layerPairsAlpaka]),
+        maxDR     = cms.vdouble([lp[ 8] for lp in layerPairsAlpaka]),
+        minDZ     = cms.vdouble([lp[ 9] for lp in layerPairsAlpaka]),
+        maxDZ     = cms.vdouble([lp[10] for lp in layerPairsAlpaka]),
+        ptCuts    = cms.vdouble([lp[11] for lp in layerPairsAlpaka]),
+  ),
+    # autoselect the alpaka backend
+    alpaka = cms.untracked.PSet(backend = cms.untracked.string(''))
+)
+
+from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
+from Configuration.ProcessModifiers.hltPhase2LegacyTrackingPatatrackQuadsChain_cff import hltPhase2LegacyTrackingPatatrackQuads
+(hltPhase2LegacyTracking & hltPhase2LegacyTrackingPatatrackQuads).toReplaceWith(hltPhase2PixelTracksSoA, _hltPhase2PixelTracksSoANonCAExtended)
+
+
 def _exclude_OT_layers(hltPhase2PixelTracksSoA, layers_to_exclude = [28, 29, 30]):
     keep_indices = []
     num_pairs = len(hltPhase2PixelTracksSoA.geometry.pairGraph) // 2
@@ -313,8 +318,5 @@ def _exclude_OT_layers(hltPhase2PixelTracksSoA, layers_to_exclude = [28, 29, 30]
     hltPhase2PixelTracksSoA.geometry.minDZ[:] = [hltPhase2PixelTracksSoA.geometry.minDZ[i] for i in keep_indices]
     hltPhase2PixelTracksSoA.geometry.maxDZ[:] = [hltPhase2PixelTracksSoA.geometry.maxDZ[i] for i in keep_indices]
     hltPhase2PixelTracksSoA.geometry.ptCuts[:] = [hltPhase2PixelTracksSoA.geometry.ptCuts[i] for i in keep_indices]
-
-from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtension
-phase2CAExtension.toReplaceWith(hltPhase2PixelTracksSoA, _hltPhase2PixelTracksSoA)
 
 #print("Using {} pair connections: {}".format(len(hltPhase2PixelTracksSoA.geometry.pairGraph) // 2, hltPhase2PixelTracksSoA.geometry.pairGraph))

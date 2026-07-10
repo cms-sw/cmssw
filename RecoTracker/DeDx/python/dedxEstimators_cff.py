@@ -99,14 +99,9 @@ from Configuration.Eras.Modifier_run3_oxygen_cff import run3_oxygen
 
 from RecoTracker.DeDx.dedxHitCalibrator_cfi import dedxHitCalibrator as _dedxHitCalibrator
 from SimGeneral.MixingModule.SiStripSimParameters_cfi import SiStripSimBlock as _SiStripSimBlock
-from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters as _siPixelClusters
 dedxHitCalibrator = _dedxHitCalibrator.clone(
     dedxHitInfo = 'dedxAllHitInfo',
     MeVPerElectron = 1000*_SiStripSimBlock.GevPerElectron.value(),
-    VCaltoElectronGain = _siPixelClusters.VCaltoElectronGain,
-    VCaltoElectronGain_L1 = _siPixelClusters.VCaltoElectronGain_L1,
-    VCaltoElectronOffset = _siPixelClusters.VCaltoElectronOffset,
-    VCaltoElectronOffset_L1 = _siPixelClusters.VCaltoElectronOffset_L1
 )
 
 dedxAllLikelihood = _mod.DeDxEstimatorProducer.clone(

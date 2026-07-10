@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Package:    SiPixelCompareTracksSoA
+// Package:    DQM/SiPixelHetrogeneous
 // Class:      SiPixelCompareTracksSoA
 //
 /**\class SiPixelCompareTracksSoA SiPixelCompareTracksSoA.cc
@@ -8,25 +8,26 @@
 // Author: Suvankar Roy Chowdhury
 //
 
-// for string manipulations
+// system includes
 #include <algorithm>
 #include <fmt/printf.h>
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-// DQM Histograming
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+// user includes
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-// DataFormats
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/TrackSoA/interface/TracksHost.h"
 #include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace {
   // same logic used for the MTV:
@@ -275,7 +276,7 @@ void SiPixelCompareTracksSoA::analyzeSeparate(U tokenRef, V tokenTar, const edm:
 //
 
 void SiPixelCompareTracksSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  // The default use case is to use vertices from Alpaka reconstructed on CPU and GPU;
+  // The default use case is to use tracks from Alpaka reconstructed on CPU and GPU;
   // The function is left templated if any other cases need to be added
   analyzeSeparate(tokenSoATrackReference_, tokenSoATrackTarget_, iEvent);
 }
@@ -366,7 +367,6 @@ void SiPixelCompareTracksSoA::bookHistograms(DQMStore::IBooker& iBook,
 }
 
 void SiPixelCompareTracksSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // monitorpixelTrackSoA
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelTrackReferenceSoA", edm::InputTag("pixelTracksAlpakaSerial"));
   desc.add<edm::InputTag>("pixelTrackTargetSoA", edm::InputTag("pixelTracksAlpaka"));
@@ -377,6 +377,5 @@ void SiPixelCompareTracksSoA::fillDescriptions(edm::ConfigurationDescriptions& d
   descriptions.addWithDefaultLabel(desc);
 }
 
-// Duplicates to keep them alive for the HLT menu to migrate to the new modules
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiPixelCompareTracksSoA);
-

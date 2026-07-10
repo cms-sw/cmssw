@@ -6,6 +6,7 @@
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
+#include "RecoHGCal/TICL/interface/TICLUtils.h"
 #include "RecoHGCal/TICL/interface/TracksterLinkingAlgoBase.h"
 #include "RecoHGCal/TICL/plugins/TracksterLinkingbySkeletons.h"
 #include "TICLGraph.h"
@@ -82,29 +83,15 @@ TracksterLinkingbySkeletons::TracksterLinkingbySkeletons(const edm::ParameterSet
 
 {}
 
+// Geometry construction
 void TracksterLinkingbySkeletons::buildLayers() {
-  // build disks at HGCal front & EM-Had interface for track propagation
+  // Build propagation disks at HGCal front face and CE-E CE-H interface
+  auto firstDisks = ticl::utils::buildHGCalFirstDisks(*hgcons_);
+  auto interfaceDisks = ticl::utils::buildHGCalInterfaceDisks(*hgcons_, rhtools_);
 
-  float zVal = hgcons_->waferZ(1, true);
-  std::pair<float, float> rMinMax = hgcons_->rangeR(zVal, true);
-
-  float zVal_interface = rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z();
-  std::pair<float, float> rMinMax_interface = hgcons_->rangeR(zVal_interface, true);
-
-  for (int iSide = 0; iSide < 2; ++iSide) {
-    float zSide = (iSide == 0) ? (-1. * zVal) : zVal;
-    firstDisk_[iSide] =
-        std::make_unique<GeomDet>(Disk::build(Disk::PositionType(0, 0, zSide),
-                                              Disk::RotationType(),
-                                              SimpleDiskBounds(rMinMax.first, rMinMax.second, zSide - 0.5, zSide + 0.5))
-                                      .get());
-
-    zSide = (iSide == 0) ? (-1. * zVal_interface) : zVal_interface;
-    interfaceDisk_[iSide] = std::make_unique<GeomDet>(
-        Disk::build(Disk::PositionType(0, 0, zSide),
-                    Disk::RotationType(),
-                    SimpleDiskBounds(rMinMax_interface.first, rMinMax_interface.second, zSide - 0.5, zSide + 0.5))
-            .get());
+  for (int side = 0; side < 2; ++side) {
+    firstDisk_[side] = std::move(firstDisks[side]);
+    interfaceDisk_[side] = std::move(interfaceDisks[side]);
   }
 }
 
@@ -480,7 +467,8 @@ void TracksterLinkingbySkeletons::linkTracksters(
           auto const &tracksterOut = tracksters[n];
           auto const &skeletonOut = skeletons[n];
           auto const deltaphi = reco::deltaPhi(trackster.barycenter().phi(), tracksterOut.barycenter().phi());
-          if (abs(trackster.barycenter().eta() - tracksterOut.barycenter().eta()) <= window && deltaphi <= window) {
+          if (abs(trackster.barycenter().eta() - tracksterOut.barycenter().eta()) <= window &&
+              std::abs(deltaphi) <= window) {
             bool isInGood = isGoodTrackster(trackster, skeleton, min_num_lcs_, min_trackster_energy_, pca_quality_th_);
             bool isOutGood =
                 isGoodTrackster(tracksterOut, skeletonOut, min_num_lcs_, min_trackster_energy_, pca_quality_th_);

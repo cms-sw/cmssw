@@ -142,8 +142,6 @@ unsigned long long EcalEBTrigPrimProducer::getRecords(edm::EventSetup const& set
 
 void EcalEBTrigPrimProducer::endRun(edm::Run const& run, edm::EventSetup const& setup) { algo_.reset(); }
 
-EcalEBTrigPrimProducer::~EcalEBTrigPrimProducer() {}
-
 // ------------ method called to produce the data  ------------
 void EcalEBTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup& iSetup) {
   nEvent_++;

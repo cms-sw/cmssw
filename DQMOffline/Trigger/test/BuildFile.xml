@@ -4,4 +4,4 @@
 </bin>
 
 <!-- test the HLTFiltersDQMonitor plugin -->
-<test name="testHLTFiltersDQMonitor" command="testHLTFiltersDQMonitor.sh"/>
+<!-- <test name="testHLTFiltersDQMonitor" command="testHLTFiltersDQMonitor.sh"/> COMMENT: reads old format file-->

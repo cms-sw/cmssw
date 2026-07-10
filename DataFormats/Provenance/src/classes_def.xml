@@ -73,6 +73,8 @@
  <class name="edm::BranchChildren" ClassVersion="10">
   <version ClassVersion="10" checksum="137742168"/>
  </class>
+ <!--ProductDependencies is a typedef of BranchChildren  -->
+ <typedef name="edm::ProductDependencies"/>
  <class name="edm::ProductProvenance" ClassVersion="12">
   <version ClassVersion="12" checksum="737844716"/>
   <version ClassVersion="11" checksum="3594205707"/>
@@ -214,6 +216,7 @@
 
  <class name="std::vector<TFormula*>"/>
 
+<!-- Needed for backwards compatibility-->
  <class name="edm::ThinnedAssociationBranches" ClassVersion="5">
   <version ClassVersion="5" checksum="3178849990"/>
   <version ClassVersion="4" checksum="377132180"/>

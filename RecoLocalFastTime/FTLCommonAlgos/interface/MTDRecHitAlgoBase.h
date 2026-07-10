@@ -8,6 +8,7 @@
   */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/FTLRecHit/interface/FTLRecHit.h"

@@ -19,9 +19,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitFwd.h"
 #include <set>
 
-class PSimHit;
 class RPCSimSetUp;
 
 namespace edm {

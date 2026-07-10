@@ -34,7 +34,7 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class ME0DigiPreRecoProducer : public edm::stream::EDProducer<> {
+class ME0DigiPreRecoProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit ME0DigiPreRecoProducer(const edm::ParameterSet& ps);
 

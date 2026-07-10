@@ -23,10 +23,10 @@
  */
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 
 class TrajectoryStateOnSurface;
 class MuonServiceProxy;
-class Trajectory;
 
 namespace edm {
   class ParameterSet;

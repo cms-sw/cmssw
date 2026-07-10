@@ -1,6 +1,6 @@
-<bin name="testFWCoreSOA" file="table_t.cppunit.cpp">
-  <use name="cppunit"/>
+<bin name="testFWCoreSOA" file="table_t.catch2.cpp">
+  <use name="catch2"/>
 </bin>
-<bin name="testFWCoreSOATableFilling" file="table_filling_t.cppunit.cpp">
-  <use name="cppunit"/>
+<bin name="testFWCoreSOATableFilling" file="table_filling_t.catch2.cpp">
+  <use name="catch2"/>
 </bin>

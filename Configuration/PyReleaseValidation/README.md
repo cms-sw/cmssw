@@ -51,37 +51,38 @@ The offsets currently in use are:
 * 0.7: trackingMkFit modifier
 * 0.701: DisplacedRegionalStep tracking iteration for Run-3
 * 0.702: trackingMkFit modifier for Phase-2 (initialStep only)
-* 0.703: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on CPU
-* 0.704: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available)
+* 0.711: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on CPU
+* 0.712: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available)
+* 0.713: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available), CPU vs. GPU
 * 0.75: HLT phase-2 timing menu
 * 0.7501: HLT phase-2 tracking-only menu
+* 0.7502: HLT phase-2 menu, with tracking ntuple
+* 0.7503: HLT phase-2 menu, CPU vs. GPU validation
 * 0.751: HLT phase-2 timing menu Alpaka variant
-* 0.7511: HLT phase-2 timing menu, with PixelTracks CA Extension
-* 0.752: HLT phase-2 timing menu ticl_v5 variant
-* 0.753: HLT phase-2 timing menu Alpaka, single tracking iteration variant
-* 0.754: HLT phase-2 timing menu Alpaka, single tracking iteration, LST building variant
-* 0.755: HLT phase-2 timing menu Alpaka, LST building variant
+* 0.7521: HLT phase-2 timing menu ticlv5TrackLinkingGNN variant
+* 0.7522: HLT phase-2 timing menu mtd_at_hlt variant
+* 0.753: HLT phase-2 timing menu legacy tracking
+* 0.754: HLT phase-2 timing menu legacy tracking with Patatrack quads
+* 0.755: HLT phase-2 timing menu LST building variant
 * 0.756 HLT phase-2 timing menu trimmed tracking
-* 0.7561 HLT phase-2 timing menu Alpaka, trimmed tracking
-* 0.7562 HLT phase-2 timing menu Alpaka, trimmed tracking, single tracking iteration variant
-* 0.757: HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + CKF building variant
-* 0.7571: HLT phase-2 timing menu Alpaka, single tracking iteration, Phase2CAExtension+LST seeding + mkFit building variant
-* 0.7572: HLT phase-2 timing menu Alpaka, single tracking iteration, Phase2CAExtension+LST seeding + mkFit building and fitting variant
+* 0.757: HLT phase-2 timing menu mkFitFit variant
 * 0.758 HLT phase-2 timing menu ticl_barrel variant
-* 0.759: HLT phase-2 timing menu, with NANO:@Phase2HLT
+* 0.759: HLT phase-2 menu, with NANO:@Phase2HLT
+* 0.7591: HLT phase-2 menu, with NANO:@Phase2HLTVal
 * 0.76: HLT phase-2 reduced menu, with DIGI step
 * 0.77: HLT phase-2 NGT Scouting menu
-* 0.771: HLT phase-2 NGT Scouting menu, Alpaka, TICL-v5, TICL-Barrel, CA Extension
+* 0.771: HLT phase-2 NGT Scouting menu, Alpaka, TICL-Barrel
 * 0.772: HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
 * 0.773: HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
-* 0.774: HLT phase-2 NGT Scouting menu Alpaka variant, with PixelTracks CA Extension as GeneralTracks
-* 0.775: HLT phase-2 NGT Scouting menu Alpaka variant, with Pixeltracks CA Extension + LST T5s as GeneralTracks
+* 0.774: HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal+@Phase2L1DPGwithGen (L1+HLT objects)
+* 0.775: HLT phase-2 NGT Scouting menu with Pixeltracks CA Extension + LST T5s as GeneralTracks
 * 0.778 L3 Tracker Muons reconstruction Outside-In first, HLT Muon NanoAOD
 * 0.78: Complete L1 workflow
 * 0.781: Complete L1 workflow, producing FEVT and NANO output L1/P2GT objects
 * 0.782: Complete L1 workflow, producing only NANO output L1/P2GT objects
 * 0.8: BPH Parking (Run-2)
 * 0.81: Running also HeavyFlavor DQM
+* 0.82: Displaced vertex
 * 0.85: Phase-2 Heavy Ion
 * 0.9: Vector hits
 * 0.12: Neutron background
@@ -96,12 +97,16 @@ The offsets currently in use are:
 * 0.31: Photon energy corrections with DRN architecture
 * 0.61: ECAL `phase2_ecal_devel` era, on CPU
 * 0.612: ECAL `phase2_ecal_devel` era, with automatic offload to GPU if available
+* 0.6199: ECAL `phase2_ecal_devel` era, on CPU and with premixing stage1+stage2
+* 0.61299: ECAL `phase2_ecal_devel` era, with automatic offload to GPU if available and premixing stage1+stage2
 * 0.631: ECAL component-method based digis
 * 0.632: ECAL component-method based finely-sampled waveforms
 * 0.633: ECAL phase2 Trigger Primitive
 * 0.634: ECAL phase2 Trigger Primitive + component-method based digis
 * 0.635: ECAL phase2 Trigger Primitive + component-method based finely-sampled waveforms
 * 0.91: Track DNN modifier
+* 0.95: Hybrid PU (FullSim signal + FastSim PU) stage2
+* 0.96: Hybrid PU (FullSim signal + FastSim PU) stage1+stage2
 * 0.97: Premixing stage1
 * 0.98: Premixing stage2
 * 0.99: Premixing stage1+stage2
@@ -113,12 +118,11 @@ The offsets currently in use are:
 * 0.914: DDD DB
 * 0.101: Phase-2 aging, 1000fb-1
 * 0.103: Phase-2 aging, 3000fb-1
-* 0.201: HGCAL special TICL Pattern recognition Workflows: clue3D
-* 0.202: HGCAL special TICL Pattern recognition Workflows: FastJet
-* 0.203: HGCAL TICLv5
-* 0.204: HGCAL superclustering : using Mustache in TICLv5
-* 0.205: HGCAL superclustering : using old PFCluster-based Mustache algorithm with TICLv5
+* 0.204: HGCAL superclustering : using Mustache in TICL
+* 0.205: HGCAL superclustering : using old PFCluster-based Mustache algorithm with TICL
 * 0.209: TICL barrel : run TICL in HGCAL and barrel calorimeters
+* 0.212: Enables offline HGCAL/TICL NanoAOD: NANO:@HGCAL
+* 0.213: Enables offline HGCAL/TICL NanoAOD with Sim objects for validation purposes: NANO:@HGCALVal
 * 0.2091: TICL barrel with CaloParticles from PU enabled
 * 0.302: FastSim Run-3 trackingOnly validation
 * 0.303: FastSim Run-3 MB for mixing

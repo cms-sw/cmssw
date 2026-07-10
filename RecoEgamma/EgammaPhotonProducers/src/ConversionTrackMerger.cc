@@ -10,8 +10,8 @@
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/EgammaTrackReco/interface/ConversionTrack.h"
-#include "DataFormats/EgammaTrackReco/interface/ConversionTrackFwd.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTrack.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTrackFwd.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -23,7 +23,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 

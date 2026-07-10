@@ -3,9 +3,9 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
-<use name="DataFormats/Provenance"/>
+<use name="DataFormats/Provenance" source_only="1"/>
 <use name="DataFormats/DetId"/>
-<use name="roothistmatrix"/>
+<use name="rootrio"/>
 <export>
   <lib name="1"/>
 </export>

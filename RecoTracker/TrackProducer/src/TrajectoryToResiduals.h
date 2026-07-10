@@ -3,7 +3,7 @@
 
 #include "DataFormats/TrackReco/interface/TrackResiduals.h"
 
-class Trajectory;
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 reco::TrackResiduals trajectoryToResiduals(const Trajectory &);
 
 #endif

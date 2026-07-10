@@ -19,7 +19,7 @@
 
 using namespace l1t;
 
-class P2GTTriggerResultsConverter : public edm::stream::EDProducer<> {
+class P2GTTriggerResultsConverter : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit P2GTTriggerResultsConverter(const edm::ParameterSet&);
 

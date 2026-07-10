@@ -150,7 +150,7 @@ namespace edm {
     void fillView(ProductID const& id, std::vector<void const*>& pointers, FillViewHelperVector& helpers) const;
 
     //Needed for ROOT storage
-    CMS_CLASS_VERSION(13)
+    CMS_CLASS_VERSION(3)
 
   private:
     contents_type refVector_;
@@ -180,8 +180,7 @@ namespace edm {
     pointers.reserve(this->size());
     helpers.reserve(this->size());
 
-    size_type key = 0;
-    for (const_iterator i = begin(), e = end(); i != e; ++i, ++key) {
+    for (const_iterator i = begin(), e = end(); i != e; ++i) {
       member_type const* address = i->isNull() ? nullptr : &**i;
       pointers.push_back(address);
       helpers.emplace_back(i->id(), i->key());
@@ -241,8 +240,7 @@ namespace edm {
     // this is woefully inefficient and could be optimized
     // to run much faster with some nontrivial effort. There
     // is only 1 place in the code base where this function
-    // is used at all and I'm not sure whether it will ever
-    // be used with thinned collections, so for the moment I
+    // is used at all, so for the moment I
     // am not spending the time to optimize this.
     for (size_type i = 0; i < size(); ++i) {
       if (!(*this)[i].isAvailable()) {

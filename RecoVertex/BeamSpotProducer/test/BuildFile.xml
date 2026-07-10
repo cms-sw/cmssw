@@ -11,7 +11,7 @@
 
 <test name="testReadWriteBSFromDB" command="testReadWriteBSFromDB.sh"/>
 
-<test name="testBeamSpotCompatibilityEventData" command="testBeamSpotCompatibility.sh"/>
+<!-- <test name="testBeamSpotCompatibilityEventData" command="testBeamSpotCompatibility.sh"/> COMMENT: reads old format file -->
 
 <bin file="testBeamSpotAnalyzer.cc">
   <use name="FWCore/TestProcessor"/>

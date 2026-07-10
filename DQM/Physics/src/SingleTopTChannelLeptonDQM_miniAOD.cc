@@ -506,8 +506,6 @@ namespace SingleTopTChannelLepton_miniAOD {
 
     pat::Muon mu;
 
-    edm::View<pat::Muon>::const_iterator muonit;
-
     if (!event.getByToken(muons_, muons))
       return;
 

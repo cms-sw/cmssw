@@ -31,6 +31,7 @@
     <Parameter name="UseSimWt"            value="0"/>
     <Parameter name="WaferMaskMode"       value="5"/>
     <Parameter name="WaferZside"          value="-1"/>
+    <Parameter name="WaferNoGap"          value="0"/>
     <Parameter name="LayerRotation"       value="[hgcal:LayerRotation]"/>
     <Parameter name="Cassettes"           value="0"/>
     <Parameter name="Radius100to200"      value="0.0*mm"/>
@@ -69,6 +70,7 @@
     <Parameter name="OnlyForHGCalNumbering" value="HGCal" eval="false"/>
     <Parameter name="WaferMode" value="HGCalGeometryMode::ExtrudedPolygon" eval="false"/>
     <Parameter name="WaferSize"           value="[hgcal:WaferSize]"/>
+    <Parameter name="WaferSizeNominal"    value="[hgcal:WaferSizeNominal]"/>
     <Parameter name="WaferThickness"      value="[hgcal:WaferThickness]"/>
     <Parameter name="SensorSeparation"    value="[hgcal:SensorSeparation]"/>
     <Parameter name="SensorSizeOffset"    value="[hgcal:SensorSizeOffset]"/>

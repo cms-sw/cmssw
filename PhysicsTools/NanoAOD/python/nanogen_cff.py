@@ -1,3 +1,4 @@
+from PhysicsTools.NanoAOD.nano_cff import nanoMetadata
 from PhysicsTools.NanoAOD.taus_cff import *
 from PhysicsTools.NanoAOD.jetMC_cff import *
 from PhysicsTools.NanoAOD.globals_cff import genTable,genFilterTable
@@ -9,14 +10,6 @@ from PhysicsTools.NanoAOD.genVertex_cff import *
 from PhysicsTools.NanoAOD.common_cff import Var,CandVars
 from PhysicsTools.NanoAOD.simpleSingletonCandidateFlatTableProducer_cfi import simpleSingletonCandidateFlatTableProducer
 from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
-
-nanoMetadata = cms.EDProducer("UniqueStringProducer",
-    strings = cms.PSet(
-        tag = cms.string("untagged"),
-    )
-)
-
-
 
 nanogenSequence = cms.Sequence(
     nanoMetadata+
@@ -130,6 +123,14 @@ def customizeNanoGEN(process):
     process.nanogenSequence.remove(process.genIso)
     delattr(process.genParticleTable.externalVariables,"iso")
     nanoGenCommonCustomize(process)
+    return process
+
+def customizeNanoGENMinimal(process):
+    process.nanogenSequence.insert(0, process.finalGenParticles)
+    for output in ("NANOEDMAODSIMoutput", "NANOAODSIMoutput"):
+        if hasattr(process, output):
+            getattr(process, output).outputCommands.append("drop edmTriggerResults_*_*_*")
+
     return process
 
 # Prune gen particles with tight conditions applied in usual NanoAOD

@@ -28,7 +28,7 @@ process.source = PoolSource(
     ]
 )
 
-from FWCore.Framework.modules import RunLumiEventAnalyzer
+from FWCore.TestModules.modules import RunLumiEventAnalyzer
 process.test = RunLumiEventAnalyzer(
     verbose = True
     , expectedRunLumiEvents = [

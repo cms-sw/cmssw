@@ -4,7 +4,7 @@
 //#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 #include <Utilities/General/interface/precomputed_value_sort.h>
-#include <Geometry/CommonDetUnit/interface/DetSorting.h>
+#include <Geometry/CommonTopologies/interface/DetSorting.h>
 
 #include <algorithm>
 #include <cmath>

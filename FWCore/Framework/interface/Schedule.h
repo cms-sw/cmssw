@@ -116,7 +116,6 @@ namespace edm {
   struct TriggerTimingReport;
   class ModuleRegistry;
   class ModuleTypeResolverMaker;
-  class ThinnedAssociationsHelper;
   class TriggerResultInserter;
   class PathStatusInserter;
   class EndPathStatusInserter;
@@ -144,7 +143,6 @@ namespace edm {
                      SignallingProductRegistryFiller& preg,
                      BranchIDListHelper& branchIDListHelper,
                      ProcessBlockHelperBase& processBlockHelper,
-                     ThinnedAssociationsHelper& thinnedAssociationsHelper,
                      std::shared_ptr<ActivityRegistry> areg,
                      std::shared_ptr<ProcessConfiguration> processConfiguration,
                      PreallocationConfiguration const& prealloc,

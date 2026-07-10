@@ -3,12 +3,12 @@
 
 #include "DataFormats/GeometryVector/interface/Vector2DBase.h"
 #include "DataFormats/GeometryVector/interface/LocalTag.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include <limits>
 
 class Plane;
 class TrajectoryStateOnSurface;
 class Surface;
-class TrackingRecHit;
 
 /** The MeasurementEstimator defines the compatibility of a 
  *  TrajectoryStateOnSurface and a RecHit, and of a 

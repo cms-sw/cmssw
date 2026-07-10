@@ -36,6 +36,7 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -48,8 +49,6 @@
 #include "TFile.h"
 #include "TTree.h"
 
-class RPCDetId;
-class Trajectory;
 class Propagator;
 class GeomDet;
 class TrajectoryStateOnSurface;

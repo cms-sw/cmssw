@@ -37,9 +37,6 @@ ticlTrackstersTrkEM = _trackstersProducer.clone(
     itername = "TrkEM",
 )
 
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
-ticl_v5.toModify(ticlTrackstersTrkEM.pluginPatternRecognitionByCA, computeLocalTime = cms.bool(True))
-
 ticlTrkEMStepTask = cms.Task(ticlSeedingTrk
     ,filteredLayerClustersTrkEM
     ,ticlTrackstersTrkEM)
@@ -64,6 +61,7 @@ ticlTrackstersHFNoseTrkEM = ticlTrackstersTrkEM.clone(
     filtered_mask = "filteredLayerClustersHFNoseTrkEM:TrkEMn",
     seeding_regions = "ticlSeedingTrkHFNose",
     time_layerclusters = "hgcalLayerClustersHFNose:timeLayerCluster",
+    patternRecognitionBy = cms.string('CA'),
     itername = "TrkEMn",
     pluginPatternRecognitionByCA = dict(
         filter_on_categories = [0, 1],
@@ -73,7 +71,6 @@ ticlTrackstersHFNoseTrkEM = ticlTrackstersTrkEM.clone(
     )
 )
 
-ticl_v5.toModify(ticlTrackstersHFNoseTrkEM.pluginPatternRecognitionByCA, computeLocalTime = cms.bool(True))
 
 ticlHFNoseTrkEMStepTask = cms.Task(ticlSeedingTrkHFNose
     ,filteredLayerClustersHFNoseTrkEM

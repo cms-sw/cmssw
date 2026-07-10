@@ -13,7 +13,7 @@
 
 class EcalTBEventHeader {
 public:
-  EcalTBEventHeader() {}
+  EcalTBEventHeader() = default;
 
   ~EcalTBEventHeader() {}
 

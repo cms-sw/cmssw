@@ -2,7 +2,7 @@
 #define Alignment_CommonAlignment_AlignableDetUnit_H
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 /// A concrete class that allows to (mis)align a DetUnit.
 ///

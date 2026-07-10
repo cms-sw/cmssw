@@ -112,16 +112,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void setFishbone(Acc2D const& acc, hindex_type id, float z, const HitsConstView& hh) {
-      // make it deterministic: use the farther apart (in z)
+      // make it deterministic: use the farther apart (in z), breaking exact ties by the hit id so
+      // that concurrent updates converge to the same winner independently of their order
       auto old = theFishboneId_;
-      while (
-          old !=
-          alpaka::atomicCas(
-              acc,
-              &theFishboneId_,
-              old,
-              (invalidHitId == old || std::abs(z - theInnerZ_) > std::abs(hh[old].zGlobal() - theInnerZ_)) ? id : old,
-              alpaka::hierarchy::Blocks{}))
+      while (old != alpaka::atomicCas(
+                        acc,
+                        &theFishboneId_,
+                        old,
+                        (invalidHitId == old || std::abs(z - theInnerZ_) > std::abs(hh[old].zGlobal() - theInnerZ_) ||
+                         (std::abs(z - theInnerZ_) == std::abs(hh[old].zGlobal() - theInnerZ_) && id < old))
+                            ? id
+                            : old,
+                        alpaka::hierarchy::Blocks{}))
         old = theFishboneId_;
     }
 
@@ -228,9 +230,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         if (last) {  // if long enough save...
           if ((unsigned int)(tmpNtuplet.size()) >= minHitsPerNtuplet - 1) {
             {
-              hindex_type hits[TrackerTraits::maxDepth + 2];
+              constexpr int maxFB = 2;  // for the time being let's limit this - fishbone extra hits limit
+              // maxDepth is the number of CACells. So +maxFB for the fishbone and +1 to properly count the number of hits
+              hindex_type hits
+                  [TrackerTraits::maxDepth + maxFB +
+                   1];  // maxDepth is the number of CACells. So +maxFB for the fishbone and +1 to properly count the number of hits
+
               auto nh = 0U;
-              constexpr int maxFB = 2;  // for the time being let's limit this
               int nfb = 0;
               for (auto c : tmpNtuplet) {
                 hits[nh++] = cells[c].theInnerHitId_;
@@ -245,7 +251,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #ifdef CA_DEBUG
               printf("track n. %d nhits %d with cells: ", it, nh + 1);
 #endif
-              if (it >= 0) {  // if negative is overflow....
+              if (it != cms::alpakatools::kOverflow) {
                 for (auto c : tmpNtuplet) {
 #ifdef CA_DEBUG
                   printf("%d - ", c);

@@ -35,7 +35,6 @@ namespace edm {
   class PreallocationConfiguration;
   class StreamID;
   class ActivityRegistry;
-  class ThinnedAssociationsHelper;
   class SignallingProductRegistryFiller;
 
   namespace maker {

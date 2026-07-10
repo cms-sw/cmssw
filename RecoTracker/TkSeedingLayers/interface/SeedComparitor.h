@@ -9,8 +9,8 @@
  */
 
 #include "SeedingHitSet.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedFwd.h"
 
-class TrajectorySeed;
 class TrackingRegion;
 class TrajectoryStateOnSurface;
 class FastHelix;

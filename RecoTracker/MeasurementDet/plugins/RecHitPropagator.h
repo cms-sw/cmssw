@@ -2,8 +2,8 @@
 #define RecHitPropagator_H
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
-class TrackingRecHit;
 class MagneticField;
 class Plane;
 
@@ -14,7 +14,7 @@ public:
                                      const TrajectoryStateOnSurface& ts) const;
 };
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 // propagate from glued to mono/stereo
 inline TrajectoryStateOnSurface fastProp(const TrajectoryStateOnSurface& ts, const Plane& oPlane, const Plane& tPlane) {

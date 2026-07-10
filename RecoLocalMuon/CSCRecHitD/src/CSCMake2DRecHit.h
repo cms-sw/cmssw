@@ -17,10 +17,10 @@
 #include <RecoLocalMuon/CSCRecHitD/src/CSCFindPeakTime.h>
 
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
+#include "DataFormats/MuonDetId/interface/CSCDetIdFwd.h"
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-class CSCDetId;
 class CSCLayer;
 class CSCChamberSpecs;
 class CSCLayerGeometry;

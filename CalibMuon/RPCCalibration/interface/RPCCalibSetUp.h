@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/MuonDetId/interface/RPCDetIdFwd.h"
 //#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include <cstdlib>
 #include <cstring>
@@ -17,7 +18,6 @@
 
 class RPCDigitizer;
 class RPCGeometry;
-class RPCDetId;
 
 class RPCCalibSetUp {
 public:

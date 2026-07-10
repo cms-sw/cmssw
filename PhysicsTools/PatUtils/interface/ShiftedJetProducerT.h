@@ -141,7 +141,7 @@ private:
     JetCollection shiftedJets;
     shiftedJets.reserve(originalJets.size());
     for (auto const& originalJet : originalJets) {
-      reco::Candidate::LorentzVector originalJetP4 = originalJet.p4();
+      const reco::Candidate::LorentzVector& originalJetP4 = originalJet.p4();
       if (verbosity_) {
         std::cout << "originalJet: Pt = " << originalJetP4.pt() << ", eta = " << originalJetP4.eta()
                   << ", phi = " << originalJetP4.phi() << std::endl;

@@ -12,6 +12,12 @@ process.options.wantSummary = False
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
+process.load("FWCore.ParameterSet.MessageLogger")
+process.MessageLogger.cerr.MPI = cms.untracked.PSet(
+    reportEvery = cms.untracked.int32( 1 ),
+    limit = cms.untracked.int32( 10000000 )
+)
+
 process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
 
 from eventlist_cff import eventlist
@@ -24,7 +30,8 @@ process.maxEvents.input = 30
 from HeterogeneousCore.MPICore.modules import MPIController, MPISender, MPIReceiver
 
 process.mpiController = MPIController(
-    mode = 'CommWorld'
+    mode = 'CommWorld',
+    followerProcessName = 'MPIFollower'
 )
 
 # Produce EventID, that will be sent to the Follower
@@ -44,19 +51,14 @@ process.sender = MPISender(
 process.receiver = MPIReceiver(
     upstream = "sender",
     instance = 99,
-    products = [
-        dict(
-            type = "edm::PathStateToken",
-            label = "remoteCapture"
-        )
-    ]
+    activity = cms.bool(True)
 )
 
 # The PathStateRelease module below is a filter that will pass if the
 # edm::PathStateToken above is present, and will not pass otherwise.
 from FWCore.Modules.modules import PathStateRelease
 process.remoteRelease = PathStateRelease(
-    state = cms.InputTag("receiver", "remoteCapture")
+    state = cms.InputTag("receiver")
 )
 
 # The Follower runs "ModuloEventIDFilter" which accepts only events where (event

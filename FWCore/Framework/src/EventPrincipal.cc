@@ -2,9 +2,7 @@
 
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/FunctorHandleExceptionFactory.h"
-#include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Common/interface/getThinned_implementation.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
@@ -13,7 +11,7 @@
 #include "DataFormats/Provenance/interface/ProductIDToBranchID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
+
 #include "FWCore/Common/interface/ProcessBlockHelperBase.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/ProductResolverBase.h"
@@ -34,7 +32,6 @@ namespace edm {
   EventPrincipal::EventPrincipal(std::shared_ptr<ProductRegistry const> reg,
                                  std::vector<std::shared_ptr<ProductResolverBase>>&& resolvers,
                                  std::shared_ptr<BranchIDListHelper const> branchIDListHelper,
-                                 std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper,
                                  ProcessConfiguration const& pc,
                                  HistoryAppender* historyAppender,
                                  unsigned int streamIndex,
@@ -46,12 +43,9 @@ namespace edm {
         eventSelectionIDs_(),
         branchIDListHelper_(branchIDListHelper),
         processBlockHelper_(processBlockHelper),
-        thinnedAssociationsHelper_(thinnedAssociationsHelper),
         branchListIndexes_(),
         branchListIndexToProcessIndex_(),
         streamID_(streamIndex) {
-    assert(thinnedAssociationsHelper_);
-
     for (auto& prod : *this) {
       if (prod->singleProduct()) {
         prod->setProductProvenanceRetriever(productProvenanceRetrieverPtr());
@@ -294,56 +288,6 @@ namespace edm {
 
   WrapperBase const* EventPrincipal::getIt(ProductID const& pid) const { return getByProductID(pid).wrapper(); }
 
-  std::optional<std::tuple<WrapperBase const*, unsigned int>> EventPrincipal::getThinnedProduct(
-      ProductID const& pid, unsigned int key) const {
-    return detail::getThinnedProduct(
-        pid,
-        key,
-        *thinnedAssociationsHelper_,
-        [this](ProductID const& p) { return pidToBid(p); },
-        [this](BranchID const& b) { return getThinnedAssociation(b); },
-        [this](ProductID const& p) { return getIt(p); });
-  }
-
-  void EventPrincipal::getThinnedProducts(ProductID const& pid,
-                                          std::vector<WrapperBase const*>& foundContainers,
-                                          std::vector<unsigned int>& keys) const {
-    detail::getThinnedProducts(
-        pid,
-        *thinnedAssociationsHelper_,
-        [this](ProductID const& p) { return pidToBid(p); },
-        [this](BranchID const& b) { return getThinnedAssociation(b); },
-        [this](ProductID const& p) { return getIt(p); },
-        foundContainers,
-        keys);
-  }
-
-  OptionalThinnedKey EventPrincipal::getThinnedKeyFrom(ProductID const& parentID,
-                                                       unsigned int key,
-                                                       ProductID const& thinnedID) const {
-    BranchID parent = pidToBid(parentID);
-    BranchID thinned = pidToBid(thinnedID);
-
-    try {
-      auto ret = detail::getThinnedKeyFrom_implementation(
-          parentID, parent, key, thinnedID, thinned, *thinnedAssociationsHelper_, [this](BranchID const& branchID) {
-            return getThinnedAssociation(branchID);
-          });
-      if (auto factory = std::get_if<detail::GetThinnedKeyFromExceptionFactory>(&ret)) {
-        return [func = *factory]() {
-          auto ex = func();
-          ex.addContext("Calling EventPrincipal::getThinnedKeyFrom()");
-          return ex;
-        };
-      } else {
-        return ret;
-      }
-    } catch (Exception& ex) {
-      ex.addContext("Calling EventPrincipal::getThinnedKeyFrom()");
-      throw ex;
-    }
-  }
-
   Provenance const& EventPrincipal::getProvenance(ProductID const& pid) const {
     BranchID bid = pidToBid(pid);
     return getProvenance(bid);
@@ -361,26 +305,4 @@ namespace edm {
   EventToProcessBlockIndexes const& EventPrincipal::eventToProcessBlockIndexes() const {
     return eventToProcessBlockIndexes_;
   }
-
-  edm::ThinnedAssociation const* EventPrincipal::getThinnedAssociation(edm::BranchID const& branchID) const {
-    ConstProductResolverPtr const phb = getProductResolver(branchID);
-
-    if (phb == nullptr) {
-      throw Exception(errors::LogicError)
-          << "EventPrincipal::getThinnedAssociation, ThinnedAssociation ProductResolver cannot be found\n"
-          << "This should never happen. Contact a Framework developer";
-    }
-    ProductData const* productData = (phb->resolveProduct(*this, nullptr, nullptr)).data();
-    if (productData == nullptr) {
-      return nullptr;
-    }
-    WrapperBase const* product = productData->wrapper();
-    if (!(typeid(edm::ThinnedAssociation) == product->dynamicTypeInfo())) {
-      throw Exception(errors::LogicError)
-          << "EventPrincipal::getThinnedProduct, product has wrong type, not a ThinnedAssociation.\n";
-    }
-    Wrapper<ThinnedAssociation> const* wrapper = static_cast<Wrapper<ThinnedAssociation> const*>(product);
-    return wrapper->product();
-  }
-
 }  // namespace edm

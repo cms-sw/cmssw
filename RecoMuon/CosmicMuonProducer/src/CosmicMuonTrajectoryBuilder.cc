@@ -12,7 +12,7 @@
 
 /* Collaborating Class Header */
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"

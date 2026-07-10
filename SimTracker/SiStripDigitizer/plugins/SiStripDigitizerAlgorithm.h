@@ -14,6 +14,7 @@
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLinkFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
@@ -29,10 +30,10 @@
 #include "SimTracker/SiStripDigitizer/interface/SiGaussianTailNoiseAdder.h"
 #include "SiHitDigitizer.h"
 #include "SimTracker/SiStripDigitizer/interface/SiPileUpSignals.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripFedZeroSuppression.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -47,7 +48,6 @@
 class TrackerTopology;
 
 class SiStripLorentzAngle;
-class StripDigiSimLink;
 
 namespace CLHEP {
   class HepRandomEngine;

@@ -18,7 +18,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
+#include "FWCore/Sources/interface/ProducerSourceBase.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHECommonBlocks.h"
@@ -28,7 +29,7 @@
 #include "GeneratorInterface/AlpgenInterface/interface/AlpgenHeader.h"
 #include "GeneratorInterface/AlpgenInterface/interface/AlpgenEventRecordFixes.h"
 
-class AlpgenSource : public edm::ProducerSourceFromFiles {
+class AlpgenSource : public edm::ProducerSourceBase {
 public:
   /// Constructor
   AlpgenSource(const edm::ParameterSet &params, const edm::InputSourceDescription &desc);
@@ -79,6 +80,8 @@ private:
 
   std::unique_ptr<lhef::HEPEUP> hepeup_;
 
+  edm::InputFileCatalog inputFileCatalog_;
+
   /// Name of the extra header file
   std::string extraHeaderFileName_;
 
@@ -92,24 +95,25 @@ private:
 };
 
 AlpgenSource::AlpgenSource(const edm::ParameterSet &params, const edm::InputSourceDescription &desc)
-    : edm::ProducerSourceFromFiles(params, desc, false),
+    : edm::ProducerSourceBase(params, desc, false),
       skipEvents_(params.getUntrackedParameter<unsigned int>("skipEvents", 0)),
       nEvent_(0),
       lheAlpgenUnwParHeader("AlpgenUnwParFile"),
+      inputFileCatalog_(params),
       extraHeaderFileName_(params.getUntrackedParameter<std::string>("extraHeaderFileName", "")),
       extraHeaderName_(params.getUntrackedParameter<std::string>("extraHeaderName", "")),
       writeAlpgenWgtFile(params.getUntrackedParameter<bool>("writeAlpgenWgtFile", true)),
       writeAlpgenParFile(params.getUntrackedParameter<bool>("writeAlpgenParFile", true)),
       writeExtraHeader(params.getUntrackedParameter<bool>("writeExtraHeader", false)) {
-  std::vector<std::string> allFileNames = fileNames(0);
+  std::vector<std::string> physicalFileNames = inputFileCatalog_.allPFNsFromFirstCatalog();
 
   // Only one filename
-  if (allFileNames.size() != 1)
+  if (physicalFileNames.size() != 1)
     throw cms::Exception("Generator|AlpgenInterface") << "AlpgenSource needs exactly one file specified "
                                                          "for now."
                                                       << std::endl;
 
-  fileName_ = allFileNames[0];
+  fileName_ = physicalFileNames[0];
 
   // Strip the "file:" prefix
   if (fileName_.find("file:") != 0)

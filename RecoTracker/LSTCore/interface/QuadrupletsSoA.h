@@ -16,26 +16,28 @@ namespace lst {
                       SOA_COLUMN(Params_T4::ArrayU16xLayers, lowerModuleIndices),  // lower module index in each layer
                       SOA_COLUMN(Params_T4::ArrayU8xLayers, logicalLayers),        // layer ID
                       SOA_COLUMN(Params_T4::ArrayUxHits, hitIndices),              // hit indices
-                      SOA_COLUMN(FPX, innerRadius),                                // inner triplet circle radius
-                      SOA_COLUMN(FPX, outerRadius),                                // outer triplet radius
-                      SOA_COLUMN(FPX, pt),
                       SOA_COLUMN(FPX, eta),
                       SOA_COLUMN(FPX, phi),
-                      SOA_COLUMN(FPX, score_rphisum),  // r-phi based score
-                      SOA_COLUMN(char, isDup),         // duplicate flag
-                      SOA_COLUMN(bool, partOfTC),
+                      SOA_COLUMN(char, isDup),  // duplicate flag
                       SOA_COLUMN(float, regressionRadius),
-                      SOA_COLUMN(float, nonAnchorRegressionRadius),
                       SOA_COLUMN(float, regressionCenterX),
                       SOA_COLUMN(float, regressionCenterY),
-                      SOA_COLUMN(float, rzChiSquared),  // r-z only chi2
                       SOA_COLUMN(float, chiSquared),
                       SOA_COLUMN(float, nonAnchorChiSquared),
-                      SOA_COLUMN(float, promptScore),
                       SOA_COLUMN(float, displacedScore),
                       SOA_COLUMN(float, fakeScore),
+                      SOA_COLUMN(FPX, innerRadius),  // inner triplet circle radius
+                      SOA_COLUMN(FPX, outerRadius),  // outer triplet radius
+                      SOA_COLUMN(FPX, pt),
+#ifdef CUT_VALUE_DEBUG
+                      SOA_COLUMN(FPX, score_rphisum),  // r-phi based score
+                      SOA_COLUMN(float, nonAnchorRegressionRadius),
+                      SOA_COLUMN(float, rzChiSquared),  // r-z only chi2
+                      SOA_COLUMN(float, promptScore),
                       SOA_COLUMN(int, layer),
-                      SOA_COLUMN(float, dBeta));
+                      SOA_COLUMN(float, dBeta),
+#endif
+                      SOA_COLUMN(bool, partOfTC));
 
   using QuadrupletsSoA = QuadrupletsSoALayout<>;
   using Quadruplets = QuadrupletsSoA::View;

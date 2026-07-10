@@ -37,11 +37,12 @@
 #include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-namespace l1t {
-  bool operator>(const l1t::Jet &a, l1t::Jet &b) { return a.hwPt() > b.hwPt(); }
-  bool operator>(const l1t::EGamma &a, l1t::EGamma &b) { return a.hwPt() > b.hwPt(); }
-  bool operator>(const l1t::Tau &a, l1t::Tau &b) { return a.hwPt() > b.hwPt(); }
-}  // namespace l1t
+namespace {
+  template <typename T>
+  struct Greater {
+    constexpr bool operator()(const T &a, const T &b) const noexcept { return a.hwPt() > b.hwPt(); }
+  };
+}  // namespace
 
 /**
  * Short class description.
@@ -669,8 +670,8 @@ bool L1TStage2CaloLayer2Comp::compareSums(const edm::Handle<l1t::EtSumBxCollecti
 void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::Jet> *jets) {
   math::PtEtaPhiMLorentzVector emptyP4;
   l1t::Jet tempJet(emptyP4, 0, 0, 0, 0);
-  std::vector<std::vector<l1t::Jet> > jetEtaPos(41, std::vector<l1t::Jet>(18, tempJet));
-  std::vector<std::vector<l1t::Jet> > jetEtaNeg(41, std::vector<l1t::Jet>(18, tempJet));
+  std::vector<std::vector<l1t::Jet>> jetEtaPos(41, std::vector<l1t::Jet>(18, tempJet));
+  std::vector<std::vector<l1t::Jet>> jetEtaNeg(41, std::vector<l1t::Jet>(18, tempJet));
 
   for (unsigned int iJet = 0; iJet < jets->size(); iJet++) {
     if (jets->at(iJet).hwEta() > 0)
@@ -679,8 +680,8 @@ void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::Jet> *jets) {
       jetEtaNeg.at(-(jets->at(iJet).hwEta() + 1)).at((jets->at(iJet).hwPhi() - 1) / 4) = jets->at(iJet);
   }
 
-  AccumulatingSort<l1t::Jet> etaPosSorter(7);
-  AccumulatingSort<l1t::Jet> etaNegSorter(7);
+  AccumulatingSort<l1t::Jet, Greater<l1t::Jet>> etaPosSorter(7);
+  AccumulatingSort<l1t::Jet, Greater<l1t::Jet>> etaNegSorter(7);
   std::vector<l1t::Jet> accumEtaPos;
   std::vector<l1t::Jet> accumEtaNeg;
 
@@ -689,13 +690,13 @@ void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::Jet> *jets) {
     std::vector<l1t::Jet>::iterator start_, end_;
     start_ = jetEtaPos.at(ieta).begin();
     end_ = jetEtaPos.at(ieta).end();
-    BitonicSort<l1t::Jet>(down, start_, end_);
+    BitonicSort<l1t::Jet, Greater<l1t::Jet>>(down, start_, end_);
     etaPosSorter.Merge(jetEtaPos.at(ieta), accumEtaPos);
 
     // eta -
     start_ = jetEtaNeg.at(ieta).begin();
     end_ = jetEtaNeg.at(ieta).end();
-    BitonicSort<l1t::Jet>(down, start_, end_);
+    BitonicSort<l1t::Jet, Greater<l1t::Jet>>(down, start_, end_);
     etaNegSorter.Merge(jetEtaNeg.at(ieta), accumEtaNeg);
   }
 
@@ -729,8 +730,8 @@ void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::Jet> *jets) {
 void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::EGamma> *egs) {
   math::PtEtaPhiMLorentzVector emptyP4;
   l1t::EGamma tempEGamma(emptyP4, 0, 0, 0, 0);
-  std::vector<std::vector<l1t::EGamma> > jetEtaPos(41, std::vector<l1t::EGamma>(18, tempEGamma));
-  std::vector<std::vector<l1t::EGamma> > jetEtaNeg(41, std::vector<l1t::EGamma>(18, tempEGamma));
+  std::vector<std::vector<l1t::EGamma>> jetEtaPos(41, std::vector<l1t::EGamma>(18, tempEGamma));
+  std::vector<std::vector<l1t::EGamma>> jetEtaNeg(41, std::vector<l1t::EGamma>(18, tempEGamma));
 
   for (unsigned int iEGamma = 0; iEGamma < egs->size(); iEGamma++) {
     if (egs->at(iEGamma).hwEta() > 0)
@@ -739,8 +740,8 @@ void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::EGamma> *egs) {
       jetEtaNeg.at(-(egs->at(iEGamma).hwEta() + 1)).at((egs->at(iEGamma).hwPhi() - 1) / 4) = egs->at(iEGamma);
   }
 
-  AccumulatingSort<l1t::EGamma> etaPosSorter(7);
-  AccumulatingSort<l1t::EGamma> etaNegSorter(7);
+  AccumulatingSort<l1t::EGamma, Greater<l1t::EGamma>> etaPosSorter(7);
+  AccumulatingSort<l1t::EGamma, Greater<l1t::EGamma>> etaNegSorter(7);
   std::vector<l1t::EGamma> accumEtaPos;
   std::vector<l1t::EGamma> accumEtaNeg;
 
@@ -749,13 +750,13 @@ void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::EGamma> *egs) {
     std::vector<l1t::EGamma>::iterator start_, end_;
     start_ = jetEtaPos.at(ieta).begin();
     end_ = jetEtaPos.at(ieta).end();
-    BitonicSort<l1t::EGamma>(down, start_, end_);
+    BitonicSort<l1t::EGamma, Greater<l1t::EGamma>>(down, start_, end_);
     etaPosSorter.Merge(jetEtaPos.at(ieta), accumEtaPos);
 
     // eta -
     start_ = jetEtaNeg.at(ieta).begin();
     end_ = jetEtaNeg.at(ieta).end();
-    BitonicSort<l1t::EGamma>(down, start_, end_);
+    BitonicSort<l1t::EGamma, Greater<l1t::EGamma>>(down, start_, end_);
     etaNegSorter.Merge(jetEtaNeg.at(ieta), accumEtaNeg);
   }
 
@@ -789,8 +790,8 @@ void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::EGamma> *egs) {
 void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::Tau> *taus) {
   math::PtEtaPhiMLorentzVector emptyP4;
   l1t::Tau tempTau(emptyP4, 0, 0, 0, 0);
-  std::vector<std::vector<l1t::Tau> > jetEtaPos(41, std::vector<l1t::Tau>(18, tempTau));
-  std::vector<std::vector<l1t::Tau> > jetEtaNeg(41, std::vector<l1t::Tau>(18, tempTau));
+  std::vector<std::vector<l1t::Tau>> jetEtaPos(41, std::vector<l1t::Tau>(18, tempTau));
+  std::vector<std::vector<l1t::Tau>> jetEtaNeg(41, std::vector<l1t::Tau>(18, tempTau));
 
   for (unsigned int iTau = 0; iTau < taus->size(); iTau++) {
     if (taus->at(iTau).hwEta() > 0)
@@ -799,8 +800,8 @@ void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::Tau> *taus) {
       jetEtaNeg.at(-(taus->at(iTau).hwEta() + 1)).at((taus->at(iTau).hwPhi() - 1) / 4) = taus->at(iTau);
   }
 
-  AccumulatingSort<l1t::Tau> etaPosSorter(7);
-  AccumulatingSort<l1t::Tau> etaNegSorter(7);
+  AccumulatingSort<l1t::Tau, Greater<l1t::Tau>> etaPosSorter(7);
+  AccumulatingSort<l1t::Tau, Greater<l1t::Tau>> etaNegSorter(7);
   std::vector<l1t::Tau> accumEtaPos;
   std::vector<l1t::Tau> accumEtaNeg;
 
@@ -809,13 +810,13 @@ void L1TStage2CaloLayer2Comp::accuSort(std::vector<l1t::Tau> *taus) {
     std::vector<l1t::Tau>::iterator start_, end_;
     start_ = jetEtaPos.at(ieta).begin();
     end_ = jetEtaPos.at(ieta).end();
-    BitonicSort<l1t::Tau>(down, start_, end_);
+    BitonicSort<l1t::Tau, Greater<l1t::Tau>>(down, start_, end_);
     etaPosSorter.Merge(jetEtaPos.at(ieta), accumEtaPos);
 
     // eta -
     start_ = jetEtaNeg.at(ieta).begin();
     end_ = jetEtaNeg.at(ieta).end();
-    BitonicSort<l1t::Tau>(down, start_, end_);
+    BitonicSort<l1t::Tau, Greater<l1t::Tau>>(down, start_, end_);
     etaNegSorter.Merge(jetEtaNeg.at(ieta), accumEtaNeg);
   }
 

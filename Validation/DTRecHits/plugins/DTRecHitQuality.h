@@ -27,6 +27,7 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitFwd.h"
 
 namespace edm {
   class ParameterSet;
@@ -34,7 +35,6 @@ namespace edm {
   class EventSetup;
 }  // namespace edm
 
-class PSimHit;
 class DTLayer;
 class DTWireId;
 class DTGeometry;

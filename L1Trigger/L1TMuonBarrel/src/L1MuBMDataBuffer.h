@@ -30,9 +30,9 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhiFwd.h"
 
 class L1MuBMSectorProcessor;
-class L1MuBMTrackSegPhi;
 
 //              ---------------------
 //              -- Class Interface --

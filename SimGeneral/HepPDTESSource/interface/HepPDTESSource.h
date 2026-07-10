@@ -18,7 +18,7 @@
 //         Created:  Fri Mar 10 15:58:18 CET 2006
 //
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "HepPDT/TableBuilder.hh"
@@ -27,7 +27,7 @@
 #include <fstream>
 #include <memory>
 
-class HepPDTESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class HepPDTESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   /// constructor from parameter set
   HepPDTESSource(const edm::ParameterSet &);
@@ -39,10 +39,6 @@ public:
   typedef std::unique_ptr<PDT> ReturnType;
   /// return the particle table
   ReturnType produce(const PDTRecord &);
-  /// set validity interval
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                      const edm::IOVSyncValue &,
-                      edm::ValidityInterval &) override;
 
 private:
   edm::FileInPath pdtFileName;

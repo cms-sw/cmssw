@@ -1,3 +1,5 @@
+<use name="rootcling"/>
+<use name="fmt"/>
 <use name="mpi"/>
 <use name="DataFormats/Common"/>
 <use name="FWCore/Framework"/>

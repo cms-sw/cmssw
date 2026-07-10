@@ -37,6 +37,7 @@ defaultOptions.harvesting= 'AtRunEnd'
 defaultOptions.gflash = False
 defaultOptions.number = -1
 defaultOptions.number_out = None
+defaultOptions.skipEvents = -1
 defaultOptions.arguments = ""
 defaultOptions.name = "NO NAME GIVEN"
 defaultOptions.evt_type = ""
@@ -417,7 +418,7 @@ class ConfigBuilder(object):
         if self._options.number_out:
             self.process.maxEvents.output = self._options.number_out
         self.addedObjects.append(("","maxEvents"))
-
+        
     def addSource(self):
         """Here the source is built. Priority: file, generator"""
         self.addedObjects.append(("Input source","source"))
@@ -829,14 +830,18 @@ class ConfigBuilder(object):
         # load the geometry file
         try:
             if len(self.stepMap):
-                self.loadAndRemember(self.GeometryCFF)
-                if (self.GeometryCFF == 'Configuration/StandardSequences/GeometryRecoDB_cff' and not self.geometryDBLabel):
-                    print("Warning: The default GeometryRecoDB_cff is being used; however, the DB geometry is not applied. You may need to verify your cmsDriver.")
-                if ('SIM' in self.stepMap or 'reSIM' in self.stepMap) and not self._options.fast:
-                    self.loadAndRemember(self.SimGeometryCFF)
-                    if self.geometryDBLabel:
-                        self.executeAndRemember('if hasattr(process, "XMLFromDBSource"): process.XMLFromDBSource.label="%s"'%(self.geometryDBLabel))
-                        self.executeAndRemember('if hasattr(process, "DDDetectorESProducerFromDB"): process.DDDetectorESProducerFromDB.label="%s"'%(self.geometryDBLabel))
+                if isinstance(self.GeometryCFF, list):
+                    for cff in self.GeometryCFF:
+                        self.loadAndRemember(cff)
+                else:
+                    self.loadAndRemember(self.GeometryCFF)
+                    if (self.GeometryCFF == 'Configuration/StandardSequences/GeometryRecoDB_cff' and not self.geometryDBLabel):
+                        print("Warning: The default GeometryRecoDB_cff is being used; however, the DB geometry is not applied. You may need to verify your cmsDriver.")
+                    if ('SIM' in self.stepMap or 'reSIM' in self.stepMap) and not self._options.fast:
+                        self.loadAndRemember(self.SimGeometryCFF)
+                        if self.geometryDBLabel:
+                            self.executeAndRemember('if hasattr(process, "XMLFromDBSource"): process.XMLFromDBSource.label="%s"'%(self.geometryDBLabel))
+                            self.executeAndRemember('if hasattr(process, "DDDetectorESProducerFromDB"): process.DDDetectorESProducerFromDB.label="%s"'%(self.geometryDBLabel))
 
         except ImportError:
             print("Geometry option",self._options.geometry,"unknown.")
@@ -916,6 +921,8 @@ class ConfigBuilder(object):
             if not self._options.dropDescendant:
                 self.process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
 
+        if self._options.skipEvents >= 0:
+            self.process.source.skipEvents = cms.untracked.uint32(self._options.skipEvents)
 
         return
 
@@ -1183,44 +1190,39 @@ class ConfigBuilder(object):
         self.GeometryCFF='Configuration/StandardSequences/GeometryRecoDB_cff'
         self.geometryDBLabel=None
         simGeometry=''
-        if self._options.fast:
-            if 'start' in self._options.conditions.lower():
-                self.GeometryCFF='FastSimulation/Configuration/Geometries_START_cff'
+
+        def inGeometryKeys(opt):
+            from Configuration.StandardSequences.GeometryConf import GeometryConf
+            if opt in GeometryConf:
+                return GeometryConf[opt]
             else:
-                self.GeometryCFF='FastSimulation/Configuration/Geometries_MC_cff'
+                if (opt=='SimDB' or opt.startswith('DB:')):
+                    return opt
+                else:
+                    raise Exception("Geometry "+opt+" does not exist!")
+
+        geoms=self._options.geometry.split(',')
+        if len(geoms)==1: geoms=inGeometryKeys(geoms[0]).split(',')
+        if len(geoms)==2:
+            #may specify the reco geometry
+            if '/' in geoms[1] or '_cff' in geoms[1]:
+                self.GeometryCFF=geoms[1]
+            else:
+                self.GeometryCFF='Configuration/Geometry/Geometry'+geoms[1]+'_cff'
+
+        if (geoms[0].startswith('DB:')):
+            self.SimGeometryCFF='Configuration/StandardSequences/GeometrySimDB_cff'
+            self.geometryDBLabel=geoms[0][3:]
+            print("with DB:")
         else:
-            def inGeometryKeys(opt):
-                from Configuration.StandardSequences.GeometryConf import GeometryConf
-                if opt in GeometryConf:
-                    return GeometryConf[opt]
-                else:
-                    if (opt=='SimDB' or opt.startswith('DB:')):
-                        return opt
-                    else:
-                        raise Exception("Geometry "+opt+" does not exist!")
-
-            geoms=self._options.geometry.split(',')
-            if len(geoms)==1: geoms=inGeometryKeys(geoms[0]).split(',')
-            if len(geoms)==2:
-                #may specify the reco geometry
-                if '/' in geoms[1] or '_cff' in geoms[1]:
-                    self.GeometryCFF=geoms[1]
-                else:
-                    self.GeometryCFF='Configuration/Geometry/Geometry'+geoms[1]+'_cff'
-
-            if (geoms[0].startswith('DB:')):
-                self.SimGeometryCFF='Configuration/StandardSequences/GeometrySimDB_cff'
-                self.geometryDBLabel=geoms[0][3:]
-                print("with DB:")
+            if '/' in geoms[0] or '_cff' in geoms[0]:
+                self.SimGeometryCFF=geoms[0]
             else:
-                if '/' in geoms[0] or '_cff' in geoms[0]:
-                    self.SimGeometryCFF=geoms[0]
+                simGeometry=geoms[0]
+                if self._options.gflash==True:
+                    self.SimGeometryCFF='Configuration/Geometry/Geometry'+geoms[0]+'GFlash_cff'
                 else:
-                    simGeometry=geoms[0]
-                    if self._options.gflash==True:
-                        self.SimGeometryCFF='Configuration/Geometry/Geometry'+geoms[0]+'GFlash_cff'
-                    else:
-                        self.SimGeometryCFF='Configuration/Geometry/Geometry'+geoms[0]+'_cff'
+                    self.SimGeometryCFF='Configuration/Geometry/Geometry'+geoms[0]+'_cff'
 
         # synchronize the geometry configuration and the FullSimulation sequence to be used
         if simGeometry not in defaultOptions.geometryExtendedOptions:
@@ -1232,6 +1234,21 @@ class ConfigBuilder(object):
 
         # fastsim requires some changes to the default cff files and sequences
         if self._options.fast:
+            # always use reco geometry for xml (includes sim components)
+            if 'Reco' not in self.GeometryCFF and 'DB' not in self.GeometryCFF:
+                self.GeometryCFF = self.GeometryCFF.replace("_cff","Reco_cff")
+            if 'DB' in self.GeometryCFF:
+                self.GeometryCFF = 'Configuration/StandardSequences/GeometryDB_cff'
+            self.GeometryCFF = [self.GeometryCFF]
+
+            if 'DB' in self.GeometryCFF[0]:
+                self.GeometryCFF.append('FastSimulation/Configuration/GeometryDB_cff')
+            else:
+                self.GeometryCFF.append('FastSimulation/Configuration/GeometryXML_cff')
+            if 'start' in self._options.conditions.lower():
+                from FastSimulation.Configuration.Geometries_cff import _fastSimGeometryCustomStart
+                self.executeAndRemember(_fastSimGeometryCustomStart)
+
             self.SIMDefaultCFF = 'FastSimulation.Configuration.SimIdeal_cff'
             self.RECODefaultCFF= 'FastSimulation.Configuration.Reconstruction_AftMix_cff'
             self.RECOBEFMIXDefaultCFF = 'FastSimulation.Configuration.Reconstruction_BefMix_cff'
@@ -1830,6 +1847,47 @@ class ConfigBuilder(object):
 
     def prepare_PAT(self, stepSpec = "patTask"):
         ''' Enrich the schedule with PAT '''
+
+        # Handle @-prefixed flavors (e.g., @Scout for scouting MiniAOD)
+        if '@' in stepSpec:
+            from PhysicsTools.PatFromScouting.autoPAT import autoPAT, expandPATMapping
+
+            _patSeq = stepSpec.split('+')
+            _patCustoms = stepSpec.split('+')
+            expandPATMapping(_patSeq, autoPAT, 'sequence')
+            expandPATMapping(_patCustoms, autoPAT, 'customize')
+
+            # Remove duplicates while preserving order
+            _patSeq = list(sorted(set(_patSeq), key=_patSeq.index))
+            _patCustoms = list(sorted(set(_patCustoms), key=_patCustoms.index))
+            # Remove empty strings
+            _patSeq = [s for s in _patSeq if s]
+            _patCustoms = [c for c in _patCustoms if c]
+
+            # Load and schedule sequences
+            _seqToSchedule = []
+            for _subSeq in _patSeq:
+                if '.' in _subSeq:
+                    _cff, _seq = _subSeq.rsplit('.', 1)
+                    print(f"PAT: scheduling: {_seq} from {_cff}")
+                    self.loadAndRemember(_cff)
+                    _seqToSchedule.append(_seq)
+                elif '/' in _subSeq:
+                    self.loadAndRemember(_subSeq)
+
+            if _seqToSchedule:
+                self.scheduleSequence('+'.join(_seqToSchedule), 'patMiniAOD_step')
+
+            # Add customizations
+            for custom in _patCustoms:
+                self._options.customisation_file.append(custom)
+
+            # cpu efficiency boost when running PAT by itself
+            if self.stepKeys[0] == 'PAT':
+                self._customise_coms.append( 'process.source.delayReadingEventProducts = cms.untracked.bool(False)')
+
+            return
+
         _,pat_sequence,pat_cff = self.loadDefaultOrSpecifiedCFF(stepSpec,self.PATDefaultCFF)
         ## handle the noise filters as Flag_* path that were loaded
         for existing_path,path_ in self.process.paths_().items():
@@ -1874,6 +1932,12 @@ class ConfigBuilder(object):
         print(_nanoSeq)
         # create full specified sequence using autoNANO
         from PhysicsTools.NanoAOD.autoNANO import autoNANO, expandNanoMapping
+        # Extend with scouting-specific NANO flavors if available
+        try:
+            from PhysicsTools.PatFromScouting.autoPAT import autoNANO_scouting
+            autoNANO.update(autoNANO_scouting)
+        except ImportError:
+            pass  # PatFromScouting not available
         # if not a autoNANO mapping, load an empty customization, which later will be converted into the default.
         _nanoCustoms = _nanoSeq.split('+') if '@' in stepSpec else ['']
         _nanoSeq = _nanoSeq.split('+')

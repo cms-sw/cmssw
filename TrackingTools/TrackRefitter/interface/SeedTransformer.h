@@ -12,6 +12,8 @@
 // Base class header
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedFwd.h"
 
 #include <vector>
 
@@ -20,8 +22,6 @@ namespace edm {
   class EventSetup;
   class ConsumesCollector;
 }  // namespace edm
-class Trajectory;
-class TrajectorySeed;
 class TrajectoryStateOnSurface;
 class GlobalTrackingGeometry;
 class MagneticField;

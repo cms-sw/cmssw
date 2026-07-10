@@ -38,7 +38,7 @@ process.source = PoolSource(
 from FWCore.Integration.modules import ThingWithMergeProducer
 process.thingWithMergeProducer = ThingWithMergeProducer()
 
-from FWCore.Framework.modules import RunLumiEventAnalyzer
+from FWCore.TestModules.modules import RunLumiEventAnalyzer
 process.test = RunLumiEventAnalyzer(
     verbose = True,
     expectedRunLumiEvents = [

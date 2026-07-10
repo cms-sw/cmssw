@@ -10,16 +10,17 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "FWCore/Utilities/interface/transform.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/TrackReco/interface/trackFromSeedFitFailed.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+#include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
 
 #include "RecoTracker/LSTCore/interface/LSTInputHostCollection.h"
 #include "RecoTracker/LSTCore/interface/LSTPrepareInput.h"
@@ -42,7 +43,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
     const edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
-    const std::vector<edm::EDGetTokenT<edm::View<reco::Track>>> seedTokens_;
+    const std::vector<edm::EDGetTokenT<TrajectorySeedCollection>> seedTokens_;
     const edm::EDPutTokenT<TrajectorySeedCollection> lstPixelSeedsPutToken_;
 
     const edm::EDPutTokenT<lst::LSTInputHostCollection> lstInputPutToken_;
@@ -55,8 +56,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         mfToken_(esConsumes()),
         beamSpotToken_(consumes(iConfig.getParameter<edm::InputTag>("beamSpot"))),
         seedTokens_(
-            edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag>>("seedTracks"),
-                                  [&](const edm::InputTag& tag) { return consumes<edm::View<reco::Track>>(tag); })),
+            edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag>>("pixelSeeds"),
+                                  [&](const edm::InputTag& tag) { return consumes<TrajectorySeedCollection>(tag); })),
         lstPixelSeedsPutToken_(produces()),
         lstInputPutToken_(produces()) {}
 
@@ -68,9 +69,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<edm::InputTag>("phase2OTRecHits", edm::InputTag("siPhase2RecHits"));
 
     desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
-    desc.add<std::vector<edm::InputTag>>("seedTracks",
-                                         std::vector<edm::InputTag>{edm::InputTag("lstInitialStepSeedTracks"),
-                                                                    edm::InputTag("lstHighPtTripletStepSeedTracks")});
+    desc.add<std::vector<edm::InputTag>>(
+        "pixelSeeds",
+        std::vector<edm::InputTag>{edm::InputTag("initialStepSeeds"), edm::InputTag("highPtTripletStepSeeds")});
 
     descriptions.addWithDefaultLabel(desc);
   }
@@ -108,6 +109,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto const& mf = iSetup.getData(mfToken_);
     auto const& bs = iEvent.get(beamSpotToken_);
 
+    TSCBLBuilderNoMaterial tscblBuilder;
+
     // Vector definitions
     std::vector<float> see_px;
     std::vector<float> see_py;
@@ -124,53 +127,69 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::vector<float> see_stateTrajGlbPz;
     std::vector<int> see_q;
     std::vector<std::vector<int>> see_hitIdx;
+    std::vector<std::vector<int>> see_hitType;
     TrajectorySeedCollection see_seeds;
 
     for (auto const& seedToken : seedTokens_) {
-      auto const& seedTracks = iEvent.get(seedToken);
+      auto const& seeds = iEvent.get(seedToken);
 
-      if (seedTracks.empty())
+      if (seeds.empty())
         continue;
 
-      // Get seed track refs
-      edm::RefToBaseVector<reco::Track> seedTrackRefs;
-      for (edm::View<reco::Track>::size_type i = 0; i < seedTracks.size(); ++i) {
-        seedTrackRefs.push_back(seedTracks.refAt(i));
-      }
-
-      edm::ProductID id = seedTracks[0].seedRef().id();
-
-      for (size_t iSeed = 0; iSeed < seedTrackRefs.size(); ++iSeed) {
-        auto const& seedTrackRef = seedTrackRefs[iSeed];
-        auto const& seedTrack = *seedTrackRef;
-        auto const& seedRef = seedTrack.seedRef();
-        auto const& seed = *seedRef;
-
-        if (seedRef.id() != id)
-          throw cms::Exception("LogicError")
-              << "All tracks in 'TracksFromSeeds' collection should point to seeds in the same collection. Now the "
-                 "element 0 had ProductID "
-              << id << " while the element " << seedTrackRef.key() << " had " << seedTrackRef.id() << ".";
-
-        const bool seedFitOk = !trackFromSeedFitFailed(seedTrack);
-
+      for (auto const& seed : seeds) {
         const TrackingRecHit* lastRecHit = &*(seed.recHits().end() - 1);
         TrajectoryStateOnSurface tsos =
             trajectoryStateTransform::transientState(seed.startingState(), lastRecHit->surface(), &mf);
         auto const& stateGlobal = tsos.globalParameters();
 
+        // Propagate to beam line to get perigee parameters (replicates TrackFromSeedProducer)
+        TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(tsos.freeState()), bs);
+        const bool tscblValid = tscbl.isValid();
+
+        float px = 0, py = 0, pz = 0, dxy = 0, dz = 0, ptErr = 0, etaErr = 0;
+        int charge = tscblValid ? tsos.charge() : 0;
+
+        if (tscblValid) {
+          auto const& fts = tscbl.trackStateAtPCA();
+          auto const& mom = fts.momentum();
+          auto const& pos = fts.position();
+          auto const& bsPos = bs.position();
+          px = mom.x();
+          py = mom.y();
+          pz = mom.z();
+          dxy = (-(pos.x() - bsPos.x()) * mom.y() + (pos.y() - bsPos.y()) * mom.x()) / mom.perp();
+          dz = (pos.z() - bsPos.z()) - ((pos.x() - bsPos.x()) * mom.x() + (pos.y() - bsPos.y()) * mom.y()) /
+                                           mom.perp() * (mom.z() / mom.perp());
+
+          // Compute ptErr and etaErr replicating reco::TrackBase::ptError() and etaError()
+          PerigeeTrajectoryError periErr = PerigeeConversions::ftsToPerigeeError(fts);
+          auto const& errMat = periErr.covarianceMatrix();
+          double pt = mom.perp();
+          double p = mom.mag();
+          double pz = mom.z();
+          double q = static_cast<double>(charge);
+          // Full error propagation matching reco::TrackBase::ptError2():
+          //   pt2*p2/q2 * cov(qoverp,qoverp) + 2*sqrt(p2*pt2)/q * pz * cov(qoverp,lambda) + pz2 * cov(lambda,lambda)
+          double pt2 = pt * pt;
+          double p2 = p * p;
+          ptErr = std::sqrt(pt2 * p2 / (q * q) * errMat(0, 0) + 2.0 * std::sqrt(p2 * pt2) / q * pz * errMat(0, 1) +
+                            pz * pz * errMat(1, 1));
+          // etaError() = sqrt(cov(lambda,lambda)) * p/pt
+          etaErr = std::sqrt(errMat(1, 1)) * p / pt;
+        }
+
         std::vector<int> hitIdx;
+        std::vector<int> hitType;
         for (auto const& hit : seed.recHits()) {
           auto det = hit.geographicalId().det();
-          int subid = hit.geographicalId().subdetId();
           if (det == DetId::Tracker) {
             const BaseTrackerRecHit* bhit = dynamic_cast<const BaseTrackerRecHit*>(&hit);
             const auto& clusterRef = bhit->firstClusterRef();
-            if (subid == (int)PixelSubdetector::PixelBarrel || subid == (int)PixelSubdetector::PixelEndcap) {
-              const auto clusterKey = clusterRef.cluster_pixel().key();
-              hitIdx.push_back(clusterKey);
+            hitIdx.push_back(clusterRef.index());
+            if (clusterRef.isPixel()) {
+              hitType.push_back(static_cast<int>(lst::HitType::Pixel));
             } else if (clusterRef.isPhase2()) {
-              hitIdx.push_back(clusterRef.rawIndex());
+              hitType.push_back(static_cast<int>(lst::HitType::Phase2OT));
             } else {
               throw cms::Exception("LSTInputProducer") << "Unknown tracker hit type found!";
             }
@@ -180,21 +199,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
 
         // Fill output
-        see_px.push_back(seedFitOk ? seedTrack.px() : 0);
-        see_py.push_back(seedFitOk ? seedTrack.py() : 0);
-        see_pz.push_back(seedFitOk ? seedTrack.pz() : 0);
-        see_dxy.push_back(seedFitOk ? seedTrack.dxy(bs.position()) : 0);
-        see_dz.push_back(seedFitOk ? seedTrack.dz(bs.position()) : 0);
-        see_ptErr.push_back(seedFitOk ? seedTrack.ptError() : 0);
-        see_etaErr.push_back(seedFitOk ? seedTrack.etaError() : 0);
+        see_px.push_back(px);
+        see_py.push_back(py);
+        see_pz.push_back(pz);
+        see_dxy.push_back(dxy);
+        see_dz.push_back(dz);
+        see_ptErr.push_back(ptErr);
+        see_etaErr.push_back(etaErr);
         see_stateTrajGlbX.push_back(stateGlobal.position().x());
         see_stateTrajGlbY.push_back(stateGlobal.position().y());
         see_stateTrajGlbZ.push_back(stateGlobal.position().z());
         see_stateTrajGlbPx.push_back(stateGlobal.momentum().x());
         see_stateTrajGlbPy.push_back(stateGlobal.momentum().y());
         see_stateTrajGlbPz.push_back(stateGlobal.momentum().z());
-        see_q.push_back(seedTrack.charge());
+        see_q.push_back(charge);
         see_hitIdx.emplace_back(std::move(hitIdx));
+        see_hitType.emplace_back(std::move(hitType));
         see_seeds.push_back(seed);
       }
     }
@@ -214,6 +234,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                         see_stateTrajGlbPz,
                                         see_q,
                                         see_hitIdx,
+                                        see_hitType,
                                         {},
                                         ph2_detId,
                                         ph2_clustSize,

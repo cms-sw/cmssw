@@ -29,7 +29,7 @@ using namespace geant_units::operators;
 const double tolerance = 0.001;
 const double tolmin = 1.e-20;
 
-HGCalGeomParameters::HGCalGeomParameters() : sqrt3_(std::sqrt(3.0)) {
+HGCalGeomParameters::HGCalGeomParameters(bool coldBoxMode) : coldBoxMode_(coldBoxMode), sqrt3_(std::sqrt(3.0)) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters::HGCalGeomParameters "
                                 << "constructor";
@@ -921,7 +921,7 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const DDCompactView* cpv,
               const DDBox& box = static_cast<DDBox>(sol);
               rout = HGCalParameters::k_ScaleFromDDD * box.halfX();
             }
-            double zp = zvals[std::make_pair(lay, 1)];
+            double zp = (php.coldBoxMode_ == 0) ? zvals[std::make_pair(lay, 1)] : zvals[std::make_pair(lay, zside)];
             HGCalGeomParameters::layerParameters laypar(rin, rout, zp);
             layers[lay] = laypar;
 #ifdef EDM_ML_DEBUG
@@ -1192,6 +1192,16 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
   else
     php.layerOffset_ = 0;
 
+  // Cold Box
+  const auto& dummy3 = dbl_to_int(getDDDArray("ColdBoxMode", sv, 0));
+  if (coldBoxMode_ && (!dummy3.empty()))
+    php.coldBoxMode_ = dummy3[0];
+  else
+    php.coldBoxMode_ = 0;
+  if (php.coldBoxMode_ == 0)
+    coldBoxMode_ = false;
+  php.coldBoxRots_ = getDDDArray("ColdBoxRots", sv, 0);
+
   // Wafer size
   std::string attribute = "Volume";
   DDSpecificsMatchesValueFilter filter1{DDValue(attribute, sdTag1, 0.0)};
@@ -1241,10 +1251,20 @@ void HGCalGeomParameters::loadSpecParsHexagon(const cms::DDFilteredView& fv,
   php.cellSize_ = fv.get<std::vector<double> >(sdTag3, "CellSize");
   rescale(php.cellSize_, HGCalParameters::k_ScaleFromDD4hepToG4);
 
+  // Cold Box
+  const auto& dummy2 = fv.get<std::vector<double> >(sdTag4, "ColdBoxMode");
+  if (coldBoxMode_ && (!dummy2.empty()))
+    php.coldBoxMode_ = dummy2[0];
+  else
+    php.coldBoxMode_ = 0;
+  if (php.coldBoxMode_ == 0)
+    coldBoxMode_ = false;
+  php.coldBoxRots_ = fv.get<std::vector<double> >(sdTag4, "coldBoxRots");
+
   // Layer Offset
-  const auto& dummy2 = fv.get<std::vector<double> >(sdTag1, "LayerOffset");
-  if (!dummy2.empty()) {
-    php.layerOffset_ = dummy2[0];
+  const auto& dummy3 = fv.get<std::vector<double> >(sdTag1, "LayerOffset");
+  if (!dummy3.empty()) {
+    php.layerOffset_ = dummy3[0];
   } else {
     php.layerOffset_ = 0;
   }
@@ -1577,15 +1597,30 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
     php.layerType_.emplace_back(HGCalTypes::layerType(layerType[k]));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << layerType[k] << ":" << php.layerType_.back();
+    if (coldBoxMode_) {
+      edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << layerType[k] << ":" << php.layerType_.back() << " "
+                                    << php.coldBoxRots_[k];
+    }
 #endif
   }
   for (unsigned int k = 0; k < php.layerType_.size(); ++k) {
-    double cth = (php.layerType_[k] == HGCalTypes::WaferCenterR) ? cos(php.layerRotation_) : 1.0;
-    double sth = (php.layerType_[k] == HGCalTypes::WaferCenterR) ? sin(php.layerRotation_) : 0.0;
+    double cth(1.0), sth(0.0);
+    if (coldBoxMode_) {
+      cth = cos(php.coldBoxRots_[k]);
+      sth = sin(php.coldBoxRots_[k]);
+    } else if (php.layerType_[k] == HGCalTypes::WaferCenterR) {
+      cth = cos(php.layerRotation_);
+      sth = sin(php.layerRotation_);
+    }
     php.layerRotV_.emplace_back(std::make_pair(cth, sth));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << php.layerType_[k] << " cos|sin(Theta) "
                                   << php.layerRotV_.back().first << ":" << php.layerRotV_.back().second;
+    if (coldBoxMode_) {
+      edm::LogVerbatim("HGCalGeom") << "Rot Layer[" << k << "] Type " << php.layerType_[k] << " cos|sin(Theta) "
+                                    << php.layerRotV_[k].first << ":" << php.layerRotV_[k].second << " "
+                                    << php.layerRotV_.size();
+    }
 #endif
   }
   for (unsigned int k = 0; k < waferIndex.size(); ++k) {
@@ -2571,7 +2606,8 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
     double rmin = php.radiusLayer_[kk][std::max((irmin - 1), 0)];
     double rmax = php.radiusLayer_[kk][std::min(irmax, irm)];
     edm::LogVerbatim("HGCalGeom") << "Layer " << php.firstLayer_ + k << ":" << kk << " Radius range " << irmin << ":"
-                                  << irmax << ":" << rmin << ":" << rmax << " Size " << php.radiusLayer_[kk].size();
+                                  << irmax << ":" << rmin << ":" << rmax << " Size " << php.radiusLayer_[kk].size()
+                                  << " nphi " << php.nPhiLayer_[k];
 #endif
     mytr.lay = php.firstLayer_ + k;
     for (int irad = irmin; irad <= irmax; ++irad) {

@@ -154,7 +154,6 @@ namespace edm {
       act_table_ = std::move(items.act_table_);
       actReg_ = items.actReg_;
       branchIDListHelper_ = items.branchIDListHelper();
-      thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();
       processContext_.setProcessConfiguration(processConfiguration_.get());
 
       principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
@@ -168,7 +167,6 @@ namespace edm {
         auto ep = std::make_shared<EventPrincipal>(preg_,
                                                    edm::productResolversFactory::makePrimary,
                                                    branchIDListHelper_,
-                                                   thinnedAssociationsHelper_,
                                                    *processConfiguration_,
                                                    historyAppender_.get(),
                                                    index);

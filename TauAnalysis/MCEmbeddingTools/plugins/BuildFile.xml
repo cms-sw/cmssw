@@ -11,5 +11,6 @@
 <use name="CondFormats/JetMETObjects"/>
 <use name="JetMETCorrections/Objects"/>
 <use name="JetMETCorrections/JetCorrector"/>
+<use name="RecoEgamma/EgammaTools"/>
 <use name="RecoMET/METAlgorithms"/>
 <flags EDM_PLUGIN="1"/>

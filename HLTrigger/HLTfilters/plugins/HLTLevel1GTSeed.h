@@ -31,12 +31,12 @@
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecordFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecordFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 #include "HLTrigger/HLTcore/interface/HLTStreamFilter.h"
 
 // forward declarations
-class L1GlobalTriggerReadoutRecord;
-class L1GlobalTriggerObjectMapRecord;
 namespace edm {
   class ConfigurationDescriptions;
 }

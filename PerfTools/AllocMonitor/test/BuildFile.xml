@@ -23,6 +23,7 @@
     <flags CXXFLAGS="-O0"/>
   </bin>
   <test name="TestPerfToolsModuleAllocMonitor" command="runModuleAlloc.sh"/>
+  <test name="TestPerfToolsModuleEventAllocMonitor" command="runModuleEventAlloc.sh"/>
 
   <!-- can't be part of the catch2 tests above because of ASAN exclusion -->
   <bin file="test_intrusiveAllocMonitor.cc" name="testIntrusiveAllocMonitor">
@@ -33,8 +34,30 @@
     <use name="FWCore/ServiceRegistry"/>
     <use name="PerfTools/AllocMonitor"/>
     <use name="PerfTools/AllocMonitorPreload"/>
+    <!-- This binary run by the tests below. Without a command-line argument it would fail -->
+    <flags NO_TESTRUN="1"/>
   </bin>
-  <test name="testIntrusiveAllocMonitorOutput" command="testIntrusiveAllocMonitor 2>&amp;1 | ${LOCALTOP}/src/PerfTools/AllocMonitor/test/verifyIntrusiveAllocMonitor.py">
+  <test name="testIntrusiveAllocMonitorOutput" command="testIntrusiveAllocMonitor IntrusiveAllocMonitor 2>&amp;1 | ${LOCALTOP}/src/PerfTools/AllocMonitor/test/verifyIntrusiveAllocMonitor.py">
     <flags PRE_TEST="testIntrusiveAllocMonitor"/>
   </test>
+  <ifrelease name="CPP23">
+    <test name="testIntrusiveAllocProfilerOutput" command="testIntrusiveAllocMonitor IntrusiveAllocProfiler 2>&amp;1 | ${LOCALTOP}/src/PerfTools/AllocMonitor/test/verifyIntrusiveAllocProfiler.py">
+      <flags PRE_TEST="testIntrusiveAllocMonitor"/>
+    </test>
+    <test name="TestPerfToolsModuleAllocProfilerNone" command="runModuleAllocProfiler.sh none"/>
+    <test name="TestPerfToolsModuleAllocProfilerEDModule" command="runModuleAllocProfiler.sh edmodule"/>
+    <test name="TestPerfToolsModuleAllocProfilerESModule" command="runModuleAllocProfiler.sh esmodule"/>
+    <test name="TestPerfToolsModuleAllocProfilerSource" command="runModuleAllocProfiler.sh source"/>
+    <test name="TestPerfToolsModuleAllocProfilerOut" command="runModuleAllocProfiler.sh out"/>
+    <test name="TestPerfToolsModuleAllocProfilerSkipEvents" command="runModuleAllocProfiler.sh skipEvents"/>
+    <test name="TestPerfToolsModuleAllocProfilerClearEvent" command="runModuleAllocProfiler.sh clearEvent"/>
+
+    <bin file="test_AllocProfilerCommon.cc" name="testAllocProfilerCommon">
+      <use name="PerfTools/AllocMonitor"/>
+      <use name="FWCore/MessageLogger"/>
+      <use name="boost"/>
+      <use name="catch2"/>
+      <lib name="stdc++exp"/>
+    </bin>
+  </ifrelease>
 </ifrelease>

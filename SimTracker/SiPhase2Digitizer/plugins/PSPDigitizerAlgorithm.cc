@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Geometry
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 
 using namespace edm;
 

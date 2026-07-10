@@ -144,6 +144,8 @@ private:
   const bool algoCandCutSelection_;
   const float algoCandMinPtCut_;
   const int algoCandMinNHitsCut_;
+  const float algoCandMinPtRelaxedCut_;
+  const float algoCandMinAbsEtaForRelaxedCut_;
   const bool algoCandMVASelection_;
   const float algoCandMVAWorkingPoint_;
   const int bsize_;
@@ -183,6 +185,8 @@ MkFitOutputConverter::MkFitOutputConverter(edm::ParameterSet const& iConfig)
       algoCandCutSelection_{bool(iConfig.getParameter<bool>("candCutSel"))},
       algoCandMinPtCut_{float(iConfig.getParameter<double>("candMinPtCut"))},
       algoCandMinNHitsCut_{iConfig.getParameter<int>("candMinNHitsCut")},
+      algoCandMinPtRelaxedCut_{float(iConfig.getParameter<double>("candMinPtRelaxedCut"))},
+      algoCandMinAbsEtaForRelaxedCut_{float(iConfig.getParameter<double>("candMinAbsEtaForRelaxedCut"))},
       algoCandMVASelection_{bool(iConfig.getParameter<bool>("candMVASel"))},
       algoCandMVAWorkingPoint_{float(iConfig.getParameter<double>("candWP"))},
       bsize_{int(iConfig.getParameter<int>("batchSize"))},
@@ -220,6 +224,8 @@ void MkFitOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<bool>("candCutSel", false)->setComment("flag used to trigger cut-based selection at cand level");
   desc.add<double>("candMinPtCut", 0)->setComment("min pt cut at cand level");
   desc.add<int>("candMinNHitsCut", 0)->setComment("min cut on number of hits at cand level");
+  desc.add<double>("candMinPtRelaxedCut", 0)->setComment("min pt cut at cand level");
+  desc.add<double>("candMinAbsEtaForRelaxedCut", 0)->setComment("eta region for different selection");
 
   desc.add<bool>("candMVASel", false)->setComment("flag used to trigger MVA selection at cand level");
   desc.add<double>("candWP", 0)->setComment("MVA selection at cand level working point");
@@ -317,10 +323,14 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
           << "Candidate " << candIndex << " failed state quality checks" << cand.state().parameters;
       continue;
     }
-
-    if (algoCandCutSelection_ && (cand.pT() < algoCandMinPtCut_ || cand.nTotalHits() < algoCandMinNHitsCut_))
-      continue;
-
+    if (algoCandCutSelection_) {
+      const auto minPtCutForCand =
+          (algoCandMinPtRelaxedCut_ > 0 && std::abs(cand.momEta()) > algoCandMinAbsEtaForRelaxedCut_)
+              ? algoCandMinPtRelaxedCut_
+              : algoCandMinPtCut_;
+      if (cand.pT() < minPtCutForCand || cand.nTotalHits() < algoCandMinNHitsCut_)
+        continue;
+    }
     auto state = cand.state();  // copy because have to modify
     state.convertFromCCSToGlbCurvilinear();
     const auto& param = state.parameters;

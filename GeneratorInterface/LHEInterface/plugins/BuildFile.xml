@@ -1,4 +1,3 @@
-<use name="stdcxx-fs"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
@@ -14,9 +13,11 @@
 </library>
 
 <library name="GeneratorInterfaceLHEIO" file="LH5Source.cc LHESource.cc LHEProvenanceHelper.cc LHEWriter.cc">
+  <use name="DataFormats/Provenance"/>
   <use name="FWCore/AbstractServices"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/Sources"/>
+  <use name="FWStorage/Catalog"/>
   <use name="SimDataFormats/GeneratorProducts"/>
   <flags EDM_PLUGIN="1"/>
 </library>

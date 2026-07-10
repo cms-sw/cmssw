@@ -83,7 +83,8 @@ namespace alCaIsoTracksProducer {
   };
 }  // namespace alCaIsoTracksProducer
 
-class AlCaIsoTracksProducer : public edm::stream::EDProducer<edm::GlobalCache<alCaIsoTracksProducer::Counters> > {
+class AlCaIsoTracksProducer
+    : public edm::stream::EDProducer<edm::GlobalCache<alCaIsoTracksProducer::Counters>, edm::stream::WatchRuns> {
 public:
   explicit AlCaIsoTracksProducer(edm::ParameterSet const&, const alCaIsoTracksProducer::Counters* count);
   ~AlCaIsoTracksProducer() override = default;

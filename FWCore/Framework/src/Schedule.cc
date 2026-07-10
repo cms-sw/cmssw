@@ -5,7 +5,6 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
@@ -303,7 +302,6 @@ namespace edm {
                              SignallingProductRegistryFiller& preg,
                              BranchIDListHelper& branchIDListHelper,
                              ProcessBlockHelperBase& processBlockHelper,
-                             ThinnedAssociationsHelper& thinnedAssociationsHelper,
                              std::shared_ptr<ActivityRegistry> areg,
                              std::shared_ptr<ProcessConfiguration> processConfiguration,
                              PreallocationConfiguration const& prealloc,
@@ -346,7 +344,7 @@ namespace edm {
 
     // This is used for a little sanity-check to make sure no code
     // modifications alter the number of workers at a later date.
-    size_t all_workers_count = moduleRegistry_->maxModuleID();
+    [[maybe_unused]] size_t all_workers_count = moduleRegistry_->maxModuleID();
 
     moduleRegistry_->forAllModuleHolders([this](maker::ModuleHolder* iHolder) {
       auto comm = iHolder->createOutputModuleCommunicator();
@@ -363,16 +361,12 @@ namespace edm {
 
     branchIDListHelper.updateFromRegistry(preg.registry());
 
-    moduleRegistry_->forAllModuleHolders([&preg, &thinnedAssociationsHelper](auto& iHolder) {
-      iHolder->registerThinnedAssociations(preg.registry(), thinnedAssociationsHelper);
-    });
-
     processBlockHelper.updateForNewProcess(preg.registry(), processConfiguration->processName());
 
     // The output modules consume products in kept branches.
     // So we must set this up before freezing.
     for (auto& c : all_output_communicators_) {
-      c->selectProducts(preg.registry(), thinnedAssociationsHelper, processBlockHelper);
+      c->selectProducts(preg.registry(), processBlockHelper);
     }
 
     for (auto& product : preg.productListUpdator()) {

@@ -45,11 +45,9 @@
 
 class EcalEBTrigPrimTestAlgo;
 
-class EcalEBTrigPrimProducer : public edm::stream::EDProducer<> {
+class EcalEBTrigPrimProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit EcalEBTrigPrimProducer(const edm::ParameterSet& conf);
-
-  ~EcalEBTrigPrimProducer() override;
 
   void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;

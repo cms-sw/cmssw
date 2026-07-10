@@ -72,7 +72,6 @@ std::unique_ptr<std::vector<SiPixelTemplateStore>> SiPixelTemplateStoreESProduce
 //
 void SiPixelTemplateStoreESProducer::fillDescriptions(edm::ConfigurationDescriptions& iDesc) {
   edm::ParameterSetDescription iPSet;
-  iDesc.addDefault(iPSet);
   iDesc.add("SiPixelTemplateStoreESProducer", iPSet);
 }
 

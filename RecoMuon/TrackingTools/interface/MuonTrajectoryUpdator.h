@@ -16,13 +16,13 @@
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/DetLayers/interface/NavigationDirection.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 
 #include <functional>
 
 class Propagator;
 class MeasurementEstimator;
 class TrajectoryMeasurement;
-class Trajectory;
 class TrajectoryStateOnSurface;
 class TrajectoryStateUpdator;
 class DetLayer;

@@ -22,6 +22,7 @@
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "DataFormats/DTDigi/interface/DTuROSControlData.h"
+#include "DataFormats/DTDigi/interface/DTuROSFEDDataFwd.h"
 
 #include <fstream>
 #include <map>
@@ -36,7 +37,6 @@ namespace dtdi {
 }  // namespace dtdi
 
 class DTuROSROSData;
-class DTuROSFEDData;
 class DTTimeEvolutionHisto;
 
 class DTDataIntegrityTask : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<dtdi::LumiCache>> {

@@ -1,5 +1,5 @@
-<bin name="testDataFormatsProvenance" file="testRunner.cpp,eventid_t.cppunit.cc,timestamp_t.cppunit.cc,parametersetid_t.cppunit.cc,indexIntoFile_t.cppunit.cc,indexIntoFile1_t.cppunit.cc,indexIntoFile2_t.cppunit.cc,indexIntoFile3_t.cppunit.cc,indexIntoFile4_t.cppunit.cc,indexIntoFile5_t.cppunit.cc,lumirange_t.cppunit.cc,eventrange_t.cppunit.cc,compactEventAuxiliaryVector_t.cppunit.cc">
-<use name="cppunit"/>
+<bin name="testDataFormatsProvenance" file="eventid_t.catch2.cc,timestamp_t.catch2.cc,parametersetid_t.catch2.cc,indexIntoFile_t.catch2.cc,indexIntoFile1_t.catch2.cc,indexIntoFile2_t.catch2.cc,indexIntoFile3_t.catch2.cc,indexIntoFile4_t.catch2.cc,indexIntoFile5_t.catch2.cc,lumirange_t.catch2.cc,eventrange_t.catch2.cc,compactEventAuxiliaryVector_t.catch2.cc">
+<use name="catch2"/>
 <use name="DataFormats/Provenance"/>
 </bin>
 

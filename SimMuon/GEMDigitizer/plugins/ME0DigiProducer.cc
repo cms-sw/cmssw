@@ -36,7 +36,7 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class ME0DigiProducer : public edm::stream::EDProducer<> {
+class ME0DigiProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   typedef edm::DetSetVector<ME0DigiSimLink> ME0DigiSimLinks;
 

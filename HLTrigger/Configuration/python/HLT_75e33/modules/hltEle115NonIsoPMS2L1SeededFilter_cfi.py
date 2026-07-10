@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltEle115NonIsoPMS2L1SeededFilter = cms.EDFilter("HLTEgammaGenericFilter",
+hltEle115NonIsoPMS2L1SeededFilter = cms.EDFilter("HLTEgammaGenericQuadraticFilter",
     absEtaLowEdges = cms.vdouble(0.0, 1.479),
     candTag = cms.InputTag("hltEle115NonIsoPixelMatchL1SeededFilter"),
     doRhoCorrection = cms.bool(False),

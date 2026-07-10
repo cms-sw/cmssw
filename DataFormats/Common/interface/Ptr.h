@@ -174,7 +174,7 @@ namespace edm {
     void const* product() const { return nullptr; }
 
     //Used by ROOT storage
-    CMS_CLASS_VERSION(10)
+    CMS_CLASS_VERSION(3)
 
   private:
     template <typename C>
@@ -186,15 +186,11 @@ namespace edm {
         WrapperBase const* prod = getter->getIt(core_.id());
         unsigned int iKey = key_;
         if (prod == nullptr) {
-          auto optionalProd = getter->getThinnedProduct(core_.id(), key_);
-          if (not optionalProd.has_value()) {
-            if (throwIfNotFound) {
-              core_.productNotFoundException(typeid(T));
-            } else {
-              return;
-            }
+          if (throwIfNotFound) {
+            core_.productNotFoundException(typeid(T));
+          } else {
+            return;
           }
-          std::tie(prod, iKey) = *optionalProd;
         }
         void const* ad = nullptr;
         prod->setPtr(typeid(T), iKey, ad);

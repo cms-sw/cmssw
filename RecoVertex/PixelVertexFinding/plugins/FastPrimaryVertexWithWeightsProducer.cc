@@ -79,7 +79,7 @@ private:
   const double m_maxDeltaPhi;         // Use only pixel clusters with DeltaPhi(Jet,Cluster) < maxDeltaPhi
   const double m_weight_charge_down;  // Use only pixel clusters with ClusterCharge > weight_charge_down
   const double m_weight_charge_up;    // Use only pixel clusters with ClusterCharge < weight_charge_up
-      //It is the ratio between pixel cell height and width along z coordinate about 285µm/150µm=1.9
+  //It is the ratio between pixel cell height and width along z coordinate about 285µm/150µm=1.9
   const double m_PixelCellHeightOverWidth;
   // Use only pixel clusters with sizeY > PixelCellHeightOverWidth * |jetZOverRho| + minSizeY_q
   const double m_minSizeY_q;
@@ -93,7 +93,7 @@ private:
   const double m_weight_SizeX1;       // used in weight_SizeX1 = (ClusterSizeX==2)*1+(ClusterSizeX==1)*m_weight_SizeX1;
   const double m_weight_rho_up;       // used in weight_rho = (m_weight_rho_up - ClusterRho)/m_weight_rho_up
   const double m_weight_charge_peak;  // Give the maximum weight_charge for a cluster with Charge = m_weight_charge_peak
-      // Give the maximum weight_sizeY for a cluster with sizeY = PixelCellHeightOverWidth * |jetZOverRho| + peakSizeY_q
+  // Give the maximum weight_sizeY for a cluster with sizeY = PixelCellHeightOverWidth * |jetZOverRho| + peakSizeY_q
   const double m_peakSizeY_q;
 
   // PARAMETERS USED IN THE ENDCAP PIXEL CLUSTERS PROJECTION

@@ -9,7 +9,9 @@ from Alignment.OfflineValidation.TkAlAllInOneTool.utils import _byteify
 ###################################################################
 # Define process 
 ###################################################################
-process = cms.Process("PrimaryVertexResolution")
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+process = cms.Process("PrimaryVertexResolution",_PH2_ERA)
 
 ###################################################################
 # Argument parsing
@@ -100,7 +102,7 @@ process.MessageLogger.cout.enableStatistics = cms.untracked.bool(True)
 # Basic modules
 ###################################################################
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-process.load("Configuration.Geometry.GeometryDB_cff")
+process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -109,7 +111,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 ####################################################################
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 process.TrackRefitter.src = config["validation"].get("trackcollection", "generalTracks")
-process.TrackRefitter.TTRHBuilder = config["validation"].get("tthrbuilder", "WithAngleAndTemplate")
+process.TrackRefitter.TTRHBuilder = config["validation"].get("tthrbuilder", "WithTrackAngle")
 process.TrackRefitter.NavigationSchool = ""
 
 ####################################################################
@@ -117,7 +119,7 @@ process.TrackRefitter.NavigationSchool = ""
 ####################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", "105X_upgrade2018_realistic_v4"))
+process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", _PH2_GLOBAL_TAG))
 
 ####################################################################
 # Load conditions if wished

@@ -2,7 +2,7 @@
 #define GeometryReaders_XMLIdealGeometryESSource_XMLIdealGeometryESSource_H
 
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -13,7 +13,7 @@
 #include <memory>
 #include <string>
 
-class XMLIdealGeometryESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class XMLIdealGeometryESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   XMLIdealGeometryESSource(const edm::ParameterSet &p);
   XMLIdealGeometryESSource(const XMLIdealGeometryESSource &) = delete;
@@ -22,11 +22,6 @@ public:
   std::unique_ptr<DDCompactView> produceGeom(const IdealGeometryRecord &);
   std::unique_ptr<DDCompactView> produceMagField(const IdealMagneticFieldRecord &);
   std::unique_ptr<DDCompactView> produce();
-
-protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                      const edm::IOVSyncValue &,
-                      edm::ValidityInterval &) override;
 
 private:
   std::string rootNodeName_;

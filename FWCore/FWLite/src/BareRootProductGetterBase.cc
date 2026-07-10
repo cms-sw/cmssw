@@ -16,13 +16,10 @@
 
 // user include files
 #include "FWCore/FWLite/interface/BareRootProductGetterBase.h"
-#include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Common/interface/getThinned_implementation.h"
 #include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
@@ -127,66 +124,6 @@ edm::WrapperBase const* BareRootProductGetterBase::getIt(edm::BranchID const& br
   return buffer->product_.get();
 }
 
-std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> BareRootProductGetterBase::getThinnedProduct(
-    edm::ProductID const& pid, unsigned int key) const {
-  Long_t eventEntry = branchMap_.getEventTree()->GetReadEntry();
-  return edm::detail::getThinnedProduct(
-      pid,
-      key,
-      branchMap_.thinnedAssociationsHelper(),
-      [this](edm::ProductID const& p) { return branchMap_.productToBranchID(p); },
-      [this, eventEntry](edm::BranchID const& b) { return getThinnedAssociation(b, eventEntry); },
-      [this](edm::ProductID const& p) { return getIt(p); });
-}
-
-void BareRootProductGetterBase::getThinnedProducts(edm::ProductID const& pid,
-                                                   std::vector<edm::WrapperBase const*>& foundContainers,
-                                                   std::vector<unsigned int>& keys) const {
-  Long_t eventEntry = branchMap_.getEventTree()->GetReadEntry();
-  edm::detail::getThinnedProducts(
-      pid,
-      branchMap_.thinnedAssociationsHelper(),
-      [this](edm::ProductID const& p) { return branchMap_.productToBranchID(p); },
-      [this, eventEntry](edm::BranchID const& b) { return getThinnedAssociation(b, eventEntry); },
-      [this](edm::ProductID const& p) { return getIt(p); },
-      foundContainers,
-      keys);
-}
-
-edm::OptionalThinnedKey BareRootProductGetterBase::getThinnedKeyFrom(edm::ProductID const& parentID,
-                                                                     unsigned int key,
-                                                                     edm::ProductID const& thinnedID) const {
-  Long_t eventEntry = branchMap_.getEventTree()->GetReadEntry();
-  edm::BranchID parent = branchMap_.productToBranchID(parentID);
-  if (!parent.isValid())
-    return std::monostate{};
-  edm::BranchID thinned = branchMap_.productToBranchID(thinnedID);
-  if (!thinned.isValid())
-    return std::monostate{};
-  try {
-    auto ret = edm::detail::getThinnedKeyFrom_implementation(
-        parentID,
-        parent,
-        key,
-        thinnedID,
-        thinned,
-        branchMap_.thinnedAssociationsHelper(),
-        [this, eventEntry](edm::BranchID const& branchID) { return getThinnedAssociation(branchID, eventEntry); });
-    if (auto factory = std::get_if<edm::detail::GetThinnedKeyFromExceptionFactory>(&ret)) {
-      return [func = *factory]() {
-        auto ex = func();
-        ex.addContext("Calling BareRootProductGetterBase::getThinnedKeyFrom()");
-        return ex;
-      };
-    } else {
-      return ret;
-    }
-  } catch (edm::Exception& ex) {
-    ex.addContext("Calling BareRootProductGetterBase::getThinnedKeyFrom()");
-    throw ex;
-  }
-}
-
 BareRootProductGetterBase::Buffer* BareRootProductGetterBase::createNewBuffer(edm::BranchID const& branchID) const {
   //find the branch
   edm::ProductDescription const& bdesc = branchMap_.branchIDToBranch(branchID);
@@ -232,22 +169,4 @@ BareRootProductGetterBase::Buffer* BareRootProductGetterBase::createNewBuffer(ed
   branch->SetAddress(address);
 
   return &(idToBuffers_[branchID]);
-}
-
-edm::ThinnedAssociation const* BareRootProductGetterBase::getThinnedAssociation(edm::BranchID const& branchID,
-                                                                                Long_t eventEntry) const {
-  edm::WrapperBase const* wrapperBase = getIt(branchID, eventEntry);
-  if (wrapperBase == nullptr) {
-    throw edm::Exception(edm::errors::LogicError)
-        << "BareRootProductGetterBase::getThinnedAssociation, product ThinnedAssociation not found.\n";
-  }
-  if (!(typeid(edm::ThinnedAssociation) == wrapperBase->dynamicTypeInfo())) {
-    throw edm::Exception(edm::errors::LogicError)
-        << "BareRootProductGetterBase::getThinnedAssociation, product has wrong type, not a ThinnedAssociation.\n";
-  }
-  edm::Wrapper<edm::ThinnedAssociation> const* wrapper =
-      static_cast<edm::Wrapper<edm::ThinnedAssociation> const*>(wrapperBase);
-
-  edm::ThinnedAssociation const* thinnedAssociation = wrapper->product();
-  return thinnedAssociation;
 }

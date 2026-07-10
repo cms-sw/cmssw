@@ -30,7 +30,7 @@
 class HGCalTestScintHits : public edm::one::EDAnalyzer<> {
 public:
   HGCalTestScintHits(const edm::ParameterSet& ps);
-  ~HGCalTestScintHits() override = default;
+  ~HGCalTestScintHits() override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
@@ -43,6 +43,7 @@ private:
   const edm::EDGetTokenT<edm::PCaloHitContainer> tok_calo_;
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
   std::vector<int> tiles_;
+  int32_t nEvents_, nHits_;
 };
 
 HGCalTestScintHits::HGCalTestScintHits(const edm::ParameterSet& ps)
@@ -51,7 +52,9 @@ HGCalTestScintHits::HGCalTestScintHits(const edm::ParameterSet& ps)
       nameSense_(ps.getParameter<std::string>("nameSense")),
       tileFileName_(ps.getParameter<std::string>("tileFileName")),
       tok_calo_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, caloHitSource_))),
-      geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})) {
+      geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})),
+      nEvents_(0),
+      nHits_(0) {
   edm::LogVerbatim("HGCalSim") << "Test Hit ID using SimHits for " << nameSense_ << " with module Label: " << g4Label_
                                << "   Hits: " << caloHitSource_ << " Tile file " << tileFileName_;
   if (!tileFileName_.empty()) {
@@ -77,6 +80,10 @@ HGCalTestScintHits::HGCalTestScintHits(const edm::ParameterSet& ps)
   }
 }
 
+HGCalTestScintHits::~HGCalTestScintHits() {
+  edm::LogVerbatim("HGCalSim") << "Reads " << nHits_ << " hits in " << nEvents_ << " events";
+}
+
 void HGCalTestScintHits::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("moduleLabel", "g4SimHits");
@@ -87,6 +94,7 @@ void HGCalTestScintHits::fillDescriptions(edm::ConfigurationDescriptions& descri
 }
 
 void HGCalTestScintHits::analyze(const edm::Event& e, const edm::EventSetup& iS) {
+  ++nEvents_;
   // get hcalGeometry
   const HGCalGeometry* geom = &iS.getData(geomToken_);
   const HGCalDDDConstants& hgc = geom->topology().dddConstants();
@@ -103,6 +111,7 @@ void HGCalTestScintHits::analyze(const edm::Event& e, const edm::EventSetup& iS)
     std::vector<PCaloHit> hits;
     hits.insert(hits.end(), hitsCalo->begin(), hitsCalo->end());
     if (!hits.empty()) {
+      ++nHits_;
       // Loop over all hits
       for (auto hit : hits) {
         ++all;

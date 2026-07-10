@@ -80,6 +80,14 @@ namespace edm {
     }
   }
 
+  cfi::Trackiness XORGroupDescription::trackiness_(std::string_view path) const {
+    cfi::Trackiness trackinessLeft = node_left_->trackiness(path);
+    if (trackinessLeft != cfi::Trackiness::kNotAllowed) {
+      return trackinessLeft;
+    }
+    return node_right_->trackiness(path);
+  }
+
   void XORGroupDescription::writeCfi_(std::ostream& os,
                                       Modifier modifier,
                                       bool& startWithComma,

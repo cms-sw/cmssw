@@ -9,7 +9,7 @@
 #include <CepGen/Core/ParametersList.h>
 
 namespace cepgen {
-  ParametersList fromParameterSet(const edm::ParameterSet& iConfig) {
+  inline ParametersList fromParameterSet(const edm::ParameterSet& iConfig) {
     ParametersList params;
     for (const auto& param : iConfig.getParameterNames()) {
       const auto cepgen_param = param == "name" ? MODULE_NAME : param;

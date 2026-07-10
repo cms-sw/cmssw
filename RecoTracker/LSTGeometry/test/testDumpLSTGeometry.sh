@@ -1,0 +1,14 @@
+#!/bin/sh
+
+die() {
+  echo "$1: status $2"
+  exit "$2"
+}
+
+if [ "${SCRAM_TEST_NAME}" != "" ] ; then
+  mkdir "${SCRAM_TEST_NAME}"
+  cd "${SCRAM_TEST_NAME}" || die "failed to enter ${SCRAM_TEST_NAME}" $?
+fi
+
+cmsRun "${SCRAM_TEST_PATH}/dumpLSTGeometry.py" --outputDirectory data --ptCut 0.8 --binaryOutput ||
+  die "failed to run dumpLSTGeometry.py" $?

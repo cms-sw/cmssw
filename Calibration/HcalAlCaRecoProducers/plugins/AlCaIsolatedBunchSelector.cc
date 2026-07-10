@@ -34,7 +34,8 @@ namespace alCaIsolatedBunchSelector {
   };
 }  // namespace alCaIsolatedBunchSelector
 
-class AlCaIsolatedBunchSelector : public edm::stream::EDFilter<edm::GlobalCache<alCaIsolatedBunchSelector::Counters> > {
+class AlCaIsolatedBunchSelector
+    : public edm::stream::EDFilter<edm::GlobalCache<alCaIsolatedBunchSelector::Counters>, edm::stream::WatchRuns> {
 public:
   explicit AlCaIsolatedBunchSelector(edm::ParameterSet const&, const alCaIsolatedBunchSelector::Counters* count);
   ~AlCaIsolatedBunchSelector() override = default;

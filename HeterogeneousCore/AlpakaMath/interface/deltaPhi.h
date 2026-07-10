@@ -22,7 +22,7 @@ namespace cms::alpakatools {
 
   template <alpaka::concepts::Acc TAcc, typename T>
   ALPAKA_FN_HOST_ACC inline T deltaPhi(TAcc const& acc, T x1, T y1, T x2, T y2) {
-    return reducePhiRange(acc, alpaka::math::atan2(acc, -y2, -x2) - alpaka::math::atan2(acc, -y1, -x1));
+    return alpaka::math::atan2(acc, x1 * y2 - x2 * y1, x1 * x2 + y1 * y2);
   }
 
   template <alpaka::concepts::Acc TAcc, typename T>

@@ -33,6 +33,7 @@ rhoTable = globalVariablesTableProducer.clone(
 
 puTable = cms.EDProducer("NPUTablesProducer",
         src = cms.InputTag("slimmedAddPileupInfo"),
+        savePUDensityVars = cms.bool(True),
         pvsrc = cms.InputTag("offlineSlimmedPrimaryVertices"),
         zbins = cms.vdouble( [0.0,1.7,2.6,3.0,3.5,4.2,5.2,6.0,7.5,9.0,12.0] ),
         savePtHatMax = cms.bool(True),

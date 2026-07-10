@@ -29,10 +29,3 @@ std::unique_ptr<SiStripQuality> SiStripQualityFakeESSource::produce(const SiStri
       SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
   return std::make_unique<SiStripQuality>(detInfo);
 }
-
-void SiStripQualityFakeESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                                const edm::IOVSyncValue& iov,
-                                                edm::ValidityInterval& iValidity) {
-  edm::ValidityInterval infinity(iov.beginOfTime(), iov.endOfTime());
-  iValidity = infinity;
-}

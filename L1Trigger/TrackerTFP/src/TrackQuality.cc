@@ -139,7 +139,7 @@ namespace trackerTFP {
     TTTrack<Ref_Phase2TrackerDigi_> ttTrack(
         aRinv, aphi, aTanLambda, az0, ad0, aChi2xyfit, aChi2zfit, trkMVA1, trkMVA2, trkMVA3, aHitpattern, nPar, Bfield);
     ttTrack.setStubRefs(ttStubRefs);
-    ttTrack.setStubPtConsistency(
+    ttTrack.setChi2BendRed(
         StubPtConsistency::getConsistency(ttTrack, setup->trackerGeometry(), setup->trackerTopology(), Bfield, nPar));
     const int chi2B = tq->toBinChi2B(ttTrack.chi2Bend());
     const int chi2rphi = tq->toBinchi2rphi(trackchi2rphi);

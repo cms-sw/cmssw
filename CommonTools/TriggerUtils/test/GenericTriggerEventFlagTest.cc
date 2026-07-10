@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
-class GenericTriggerEventFlagTest : public edm::stream::EDFilter<> {
+class GenericTriggerEventFlagTest : public edm::stream::EDFilter<edm::stream::WatchRuns> {
   GenericTriggerEventFlag genericTriggerEventFlag_;
 
 public:

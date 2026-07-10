@@ -13,5 +13,6 @@
 
 <library file="HcalTBSource.cc" name="HcalTBSource.cc">
   <use name="FWCore/Sources"/>
+  <use name="FWStorage/Catalog"/>
   <flags EDM_PLUGIN="1"/>
 </library>

@@ -40,8 +40,6 @@
 using namespace edm;
 using namespace std;
 
-class PSimHit;
-
 namespace edm {
   class ParameterSet;
   class Event;

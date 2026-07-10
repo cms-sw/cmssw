@@ -23,7 +23,6 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 class TrajectoryStateOnSurface;
-class TrajectorySeed;
 class MuonServiceProxy;
 
 class MuonSeedsAnalyzer : public DQMEDAnalyzer {

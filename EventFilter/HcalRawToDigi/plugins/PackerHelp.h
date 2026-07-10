@@ -9,6 +9,9 @@
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "DataFormats/HcalDigi/interface/QIE11DataFrame.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 #include <cstdio>
@@ -618,8 +621,10 @@ public:
 // converts HE QIE digies to HB data format
 
 inline QIE11DataFrame convertHB(QIE11DataFrame qiehe,
+                                const HcalDbService& db,
                                 std::vector<int> const& tdc1,
                                 std::vector<int> const& tdc2,
+                                const bool useTDCfromDB,
                                 const int tdcmax) {
   QIE11DataFrame qiehb = qiehe;
   HcalDetId did = HcalDetId(qiehb.detid());
@@ -627,16 +632,38 @@ inline QIE11DataFrame convertHB(QIE11DataFrame qiehe,
   bool soi;
   int is = 0;
   int capid = qiehe[0].capid();
-  //  flavor for HB digies is hardcoded here
+  // flavor for HB digies is hardcoded here
   static const int hbflavor = 3;
-  //  maximum HB depth
+  // maximum HB depth
   static const int maxHBdepth = 4;
 
+  // read thresholds from hardcoded vectors
   const int entry = (abs(did.ieta()) - 1) * maxHBdepth + did.depth() - 1;
-  const int first = tdc1.at(entry);
-  const int second = tdc2.at(entry);
+  int first = tdc1.at(entry);
+  int second = tdc2.at(entry);
 
-  //  iterator over samples
+  // switch is on: read from CondDB
+  if (useTDCfromDB) {
+    // access TPChannelParameters and read thresholds from first two bytes of auxi1
+    auto tpchparams = db.getHcalTPChannelParameter(did, false);
+    const uint32_t auxi1 = tpchparams->getauxi1();
+    const int tp_tdc1 = auxi1 & 0xFF;
+    const int tp_tdc2 = (auxi1 >> 8) & 0xFF;
+
+    // accept only if sane and nonzero
+    const bool empty = (tp_tdc1 == 0 && tp_tdc2 == 0);
+    const bool bad = (tp_tdc2 < tp_tdc1) || (tp_tdc2 > tdcmax);
+
+    if (empty || bad) {
+      throw cms::Exception("HBTDCThresholds") << "Missing/invalid HB TDC thresholds from HcalTPChannelParameters for "
+                                              << did << " (auxi1: tdc1/tdc2 not set or out of range).";
+    }
+
+    first = tp_tdc1;
+    second = tp_tdc2;
+  }
+
+  // iterator over samples
   for (edm::DataFrame::const_iterator it = qiehe.begin(); it != qiehe.end(); ++it) {
     if (it == qiehe.begin())
       continue;

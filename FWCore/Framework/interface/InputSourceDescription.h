@@ -16,7 +16,6 @@ namespace edm {
   class ActivityRegistry;
   class BranchIDListHelper;
   class PreallocationConfiguration;
-  class ThinnedAssociationsHelper;
 
   struct InputSourceDescription {
     InputSourceDescription() : moduleDescription_(), actReg_(), maxEvents_(-1), maxLumis_(-1), allocations_(nullptr) {}
@@ -24,7 +23,6 @@ namespace edm {
     InputSourceDescription(ModuleDescription const& md,
                            std::shared_ptr<BranchIDListHelper> branchIDListHelper,
                            std::shared_ptr<ProcessBlockHelper> const& processBlockHelper,
-                           std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
                            std::shared_ptr<ActivityRegistry> areg,
                            int maxEvents,
                            int maxLumis,
@@ -33,7 +31,6 @@ namespace edm {
         : moduleDescription_(md),
           branchIDListHelper_(branchIDListHelper),
           processBlockHelper_(processBlockHelper),
-          thinnedAssociationsHelper_(thinnedAssociationsHelper),
           actReg_(areg),
           maxEvents_(maxEvents),
           maxLumis_(maxLumis),
@@ -43,7 +40,6 @@ namespace edm {
     ModuleDescription moduleDescription_;
     std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
     std::shared_ptr<ProcessBlockHelper> processBlockHelper_;
-    std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     int maxEvents_;
     int maxLumis_;

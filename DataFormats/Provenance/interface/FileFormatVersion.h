@@ -29,7 +29,6 @@ namespace edm {
     bool noMetaDataTrees() const;
     bool storedProductProvenanceUsed() const;
     bool useReducedProcessHistoryID() const;
-    bool hasThinnedAssociations() const;
     int value() const { return value_; }
 
   private:

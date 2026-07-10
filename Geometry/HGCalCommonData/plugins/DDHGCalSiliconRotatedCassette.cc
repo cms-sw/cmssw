@@ -319,7 +319,7 @@ void DDHGCalSiliconRotatedCassette::constructLayers(const DDLogicalPart& module,
   double zi(zMinBlock_);
   int laymin(0);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: Enters constructLayers with " << layers_.size()
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: Starts constructLayers with " << layers_.size()
                                 << " layers";
 #endif
   for (unsigned int i = 0; i < layers_.size(); i++) {
@@ -401,7 +401,6 @@ void DDHGCalSiliconRotatedCassette::constructLayers(const DDLogicalPart& module,
           unsigned int num = (-layerSense_[ly] <= waferTypes_) ? passiveAbsorb_.size() : passiveCool_.size();
           if (num > 0)
             positionPassiveNew(glog, i, -layerSense_[ly], cpv);
-          //          positionPassiveNew(glog, (copy - firstLayer_), -layerSense_[ly], cpv);
         } else {
           positionPassive(glog, (copy - firstLayer_), -layerSense_[ly], cpv);
         }
@@ -432,11 +431,12 @@ void DDHGCalSiliconRotatedCassette::constructLayers(const DDLogicalPart& module,
     // Make consistency check of all the partitions of the block
     if (std::abs(thickTot - layerThick_[i]) >= tol2_) {
       if (thickTot > layerThick_[i]) {
-        edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " is smaller than " << thickTot
+        edm::LogError("HGCalGeom") << "DHGCalSiliconRotatedCassette:Thickness of the partition " << layerThick_[i]
+                                   << " is smaller than " << thickTot
                                    << ": thickness of all its components **** ERROR ****";
       } else {
-        edm::LogWarning("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " does not match with "
-                                     << thickTot << " of the components";
+        edm::LogWarning("HGCalGeom") << "DHGCalSiliconRotatedCassette:Thickness of the partition " << layerThick_[i]
+                                     << " does not match with " << thickTot << " of the components";
       }
     }
   }  // End of loop over blocks
@@ -461,10 +461,11 @@ void DDHGCalSiliconRotatedCassette::positionSensitive(const DDLogicalPart& glog,
                                 << " R " << dely << " dy " << dy << " Shift " << xyoff.first << ":" << xyoff.second
                                 << " WaferSize " << (waferSize_ + waferSepar_) << " index " << firstWafer << ":"
                                 << (lastWafer - 1) << " Layer Center " << layercenter << ":" << layertype;
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: " << glog.ddname() << "  r " << delx << " R " << dely
-                                << " dy " << dy << " Shift " << xyoff.first << ":" << xyoff.second << " WaferSize "
-                                << (waferSize_ + waferSepar_) << " index " << firstWafer << ":" << (lastWafer - 1)
-                                << " Layer Center " << layercenter << ":" << layertype;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: PositionSensitive layer " << glog.ddname() << "  r "
+                                << delx << " R " << dely << " dy " << dy << " Shift " << xyoff.first << ":"
+                                << xyoff.second << " WaferSize " << (waferSize_ + waferSepar_) << " index "
+                                << firstWafer << ":" << (lastWafer - 1) << " Layer Center " << layercenter << ":"
+                                << layertype;
 #endif
   for (int k = firstWafer; k < lastWafer; ++k) {
     int u = HGCalWaferIndex::waferU(waferIndex_[k]);
@@ -667,7 +668,9 @@ void DDHGCalSiliconRotatedCassette::positionPassiveNew(const DDLogicalPart& glog
                                                        int absType,
                                                        DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: positionPassiveNew is called";
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: positionPassiveNew is called for layer " << layer
+                                << " absType " << absType << " cassettes_ " << cassettes_ << " number of layers "
+                                << layers_.size();
   int kount(0);
 #endif
   bool type = (absType <= waferTypes_);
@@ -688,7 +691,7 @@ void DDHGCalSiliconRotatedCassette::positionPassiveNew(const DDLogicalPart& glog
 #endif
       std::string passive = (type) ? passiveAbsorb_[i2] : passiveCool_[i2];
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconRotatedCassette: Passive2 " << passive << " number " << i2
+      edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconRotatedCassette::Passive2 " << passive << " number " << i2
                                     << " pos " << xpos << ":" << ypos << ":" << zpos;
       kount++;
 #endif

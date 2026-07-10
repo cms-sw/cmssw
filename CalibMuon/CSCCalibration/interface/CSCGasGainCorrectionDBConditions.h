@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -18,9 +18,9 @@
 #include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCGasGainCorrectionDBConditions : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class CSCGasGainCorrectionDBConditions : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  CSCGasGainCorrectionDBConditions(const edm::ParameterSet &);
+  explicit CSCGasGainCorrectionDBConditions(const edm::ParameterSet &);
   ~CSCGasGainCorrectionDBConditions() override;
 
   inline static CSCDBGasGainCorrection *prefillDBGasGainCorrection(bool isForMC, std::string dataCorrFileName);
@@ -31,10 +31,6 @@ public:
 
 private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                      const edm::IOVSyncValue &,
-                      edm::ValidityInterval &) override;
-
   // Flag for determining if this is for setting MC or data corrections
   bool isForMC;
   // File for reading 55944 gas gain corrections.  MC will be fake;

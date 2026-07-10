@@ -5,6 +5,7 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProductFwd.h"
 
 #include "Math/Vector4D.h"
 #include "TMatrixD.h"
@@ -18,15 +19,15 @@ namespace CLHEP {
 }
 
 namespace edm {
-  class HepMCProduct;
   class HepMC3Product;
 }  // namespace edm
 
-class BaseEvtVtxGenerator : public edm::stream::EDProducer<> {
+template <typename... T>
+class BaseEvtVtxGeneratorT : public edm::stream::EDProducer<T...> {
 public:
   // ctor & dtor
-  explicit BaseEvtVtxGenerator(const edm::ParameterSet&);
-  ~BaseEvtVtxGenerator() override;
+  explicit BaseEvtVtxGeneratorT(const edm::ParameterSet&);
+  ~BaseEvtVtxGeneratorT() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
@@ -38,5 +39,8 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> sourceToken;
   edm::EDGetTokenT<edm::HepMC3Product> sourceToken3;
 };
+
+using BaseEvtVtxGenerator = BaseEvtVtxGeneratorT<>;
+using BaseEvtVtxGeneratorWithLumi = BaseEvtVtxGeneratorT<edm::stream::WatchLuminosityBlocks>;
 
 #endif

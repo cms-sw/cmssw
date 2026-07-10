@@ -12,6 +12,8 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "SimDataFormats/Vertex/interface/SimVertexFwd.h"
+#include "SimDataFormats/Track/interface/SimTrackFwd.h"
 //
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -22,25 +24,23 @@
 #include <map>
 #include <vector>
 #include <memory>
+
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProductFwd.h"
+
 /** \class PhotonValidatorMiniAOD
  **
  **
  **  $Id: PhotonValidatorMiniAOD
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
- ***/
+ **/
 
 // forward declarations
-namespace edm {
-  class HepMCProduct;
-}
 class TFile;
 class TH1F;
 class TH2F;
 class TProfile;
 class TTree;
-class SimVertex;
-class SimTrack;
 
 class PhotonValidatorMiniAOD : public DQMEDAnalyzer {
 public:

@@ -230,8 +230,18 @@ void* realloc(void* ptr, size_t size) noexcept {
   }
   size_t used = malloc_usable_size(ret);
   if (used != oldsize) {
-    reg.deallocCalled(ptr, [](auto) {}, [oldsize](auto) { return oldsize; });
-    reg.allocCalled(size, [ret]() { return ret; }, [used](auto) { return used; });
+    if (ret == ptr) {
+      // If the allocation was extended (in which case the address ought to stay the same), signal dealloc+alloc in
+      // order to allow an assumption in the AllocMonitor implementations that each memory address looks like being
+      // "allocated" at most once at all times
+      reg.deallocCalled(ptr, [](auto) {}, [oldsize](auto) { return oldsize; });
+      reg.allocCalled(size, [ret]() { return ret; }, [used](auto) { return used; });
+    } else {
+      // If realloc() returns a new address it must have allocated the new address first in order to copy the contents
+      // from the old address. Signaling alloc+dealloc makes the peak memory tracking closer to reality.
+      reg.allocCalled(size, [ret]() { return ret; }, [used](auto) { return used; });
+      reg.deallocCalled(ptr, [](auto) {}, [oldsize](auto) { return oldsize; });
+    }
   }
   return ret;
 }

@@ -21,7 +21,8 @@
 class TransientInitialStateEstimator;
 
 namespace cms {
-  class dso_internal CkfTrajectoryMaker : public edm::stream::EDProducer<>, public CkfTrackCandidateMakerBase {
+  class dso_internal CkfTrajectoryMaker : public edm::stream::EDProducer<edm::stream::WatchRuns>,
+                                          public CkfTrackCandidateMakerBase {
   public:
     typedef std::vector<Trajectory> TrajectoryCollection;
 

@@ -27,9 +27,9 @@ namespace edm {
 class TFile;
 class TH1F;
 class TH2F;
-class DTLayerId;
 class DTSuperLayerId;
-class DTChamberId;
+#include "DataFormats/MuonDetId/interface/DTLayerIdFwd.h"
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"

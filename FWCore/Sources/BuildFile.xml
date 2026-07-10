@@ -1,5 +1,4 @@
 <use name="DataFormats/Provenance"/>
-<use name="FWCore/Catalog"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>

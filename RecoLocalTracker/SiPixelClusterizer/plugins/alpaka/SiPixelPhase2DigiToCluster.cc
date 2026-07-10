@@ -34,7 +34,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  class SiPixelPhase2DigiToCluster : public stream::SynchronizingEDProducer<> {
+  class SiPixelPhase2DigiToCluster : public stream::SynchronizingEDProducer<edm::stream::WatchRuns> {
   public:
     explicit SiPixelPhase2DigiToCluster(const edm::ParameterSet& iConfig);
     ~SiPixelPhase2DigiToCluster() override = default;
@@ -139,12 +139,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     for (const auto& det : input) {
       nDigis_ += det.size();
     }
-    digis_d_ = SiPixelDigisSoACollection(nDigis_, iEvent.queue());
+    digis_d_ = SiPixelDigisSoACollection(iEvent.queue(), nDigis_);
 
-    if (nDigis_ == 0)
+    if (nDigis_ == 0) {
+      algo_.zeroInitializePhase2Clusters(iEvent.queue());
       return;
+    }
 
-    SiPixelDigisHost digis_h(nDigis_, iEvent.queue());
+    SiPixelDigisHost digis_h(iEvent.queue(), nDigis_);
 
     uint32_t nDigis = 0;
     for (const auto& det : input) {
@@ -170,14 +172,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   void SiPixelPhase2DigiToCluster::produce(device::Event& iEvent, device::EventSetup const& iSetup) {
-    if (nDigis_ == 0) {
-      iEvent.emplace(digiPutToken_, std::move(*digis_d_));
-      iEvent.emplace(clusterPutToken_, pixelTopology::Phase2::numberOfModules, iEvent.queue());
-    } else {
+    if (nDigis_ != 0)
       digis_d_->setNModules(algo_.nModules());
-      iEvent.emplace(digiPutToken_, std::move(*digis_d_));
-      iEvent.emplace(clusterPutToken_, algo_.getClusters());
-    }
+
+    iEvent.emplace(digiPutToken_, std::move(*digis_d_));
+    iEvent.emplace(clusterPutToken_, algo_.getClusters());
     digis_d_.reset();
   }
 

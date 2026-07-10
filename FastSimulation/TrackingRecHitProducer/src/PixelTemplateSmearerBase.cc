@@ -19,8 +19,8 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
 
 // Geometry
-/// #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"  // Keep... needed if we backport to CMSSW_9
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+/// #include "Geometry/CommonTopologies/interface/GeomDetUnit.h"  // Keep... needed if we backport to CMSSW_9
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
@@ -69,7 +69,7 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(const std::string& name,
   theRegularPixelResolutions = std::make_shared<PixelResolutionHistograms>(theRegularPixelResolutionFileName, "");
   if ((status = theRegularPixelResolutions->status()) != 0) {
     throw cms::Exception("PixelTemplateSmearerBase:")
-        << " constructing PixelResolutionHistograms file " << theRegularPixelResolutionFileName
+        << " constructing Regular PixelResolutionHistograms file " << theRegularPixelResolutionFileName
         << " failed with status = " << status << std::endl;
   }
 
@@ -77,7 +77,7 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(const std::string& name,
       theBigPixelResolutionFileName, "", detType, (!isBarrel), false, true);  // can miss qBin
   if ((status = theBigPixelResolutions->status()) != 0) {
     throw cms::Exception("PixelTemplateSmearerBase:")
-        << " constructing PixelResolutionHistograms file " << theBigPixelResolutionFileName
+        << " constructing Big PixelResolutionHistograms file " << theBigPixelResolutionFileName
         << " failed with status = " << status << std::endl;
   }
 
@@ -85,7 +85,7 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(const std::string& name,
       theEdgePixelResolutionFileName, "", detType, false, true, true);  // can miss both single & qBin
   if ((status = theEdgePixelResolutions->status()) != 0) {
     throw cms::Exception("PixelTemplateSmearerBase:")
-        << " constructing PixelResolutionHistograms file " << theEdgePixelResolutionFileName
+        << " constructing Edge PixelResolutionHistograms file " << theEdgePixelResolutionFileName
         << " failed with status = " << status << std::endl;
   }
 
@@ -343,14 +343,13 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(const PSimHit& simHit
                        << "   cotalpha=" << cotalpha << ",  cotbeta=" << cotbeta;
 
   const PixelTopology* theSpecificTopology = &(detUnit->specificType().specificTopology());
-  const RectangularPixelTopology* rectPixelTopology = static_cast<const RectangularPixelTopology*>(theSpecificTopology);
 
   const int nrows = theSpecificTopology->nrows();
   const int ncolumns = theSpecificTopology->ncolumns();
 
   const Local3DPoint lp = simHit.localPosition();
   //Transform local position to measurement position
-  const MeasurementPoint mp = rectPixelTopology->measurementPosition(lp);
+  const MeasurementPoint mp = theSpecificTopology->measurementPosition(lp);
   float mpy = mp.y();
   float mpx = mp.x();
   //Get the center of the struck pixel in measurement position
@@ -359,7 +358,7 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(const PSimHit& simHit
 
   const MeasurementPoint mpCenter(pixelCenterX, pixelCenterY);
   //Transform the center of the struck pixel back into local position
-  const Local3DPoint lpCenter = rectPixelTopology->localPosition(mpCenter);
+  const Local3DPoint lpCenter = theSpecificTopology->localPosition(mpCenter);
 
   //Get the relative position of struck point to the center of the struck pixel
   float xtrk = lp.x() - lpCenter.x();
@@ -408,8 +407,8 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(const PSimHit& simHit
 
   double xsizeProbability = random->flatShoot();
   double ysizeProbability = random->flatShoot();
-  bool hitbigx = rectPixelTopology->isItBigPixelInX((int)mpx);  // pixel we hit in x
-  bool hitbigy = rectPixelTopology->isItBigPixelInY((int)mpy);  // pixel we hit in y
+  bool hitbigx = theSpecificTopology->isItBigPixelInX((int)mpx);  // pixel we hit in x
+  bool hitbigy = theSpecificTopology->isItBigPixelInY((int)mpy);  // pixel we hit in y
 
   if (hitbigx)
     if (xsizeProbability < nx2_frac)
@@ -521,14 +520,14 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(const PSimHit& simHit
   lastPixelInX = (lastPixelInX < nrows) ? lastPixelInX : nrows - 1;
   lastPixelInY = (lastPixelInY < ncolumns) ? lastPixelInY : ncolumns - 1;
 
-  edgex = rectPixelTopology->isItEdgePixelInX(firstPixelInX) || rectPixelTopology->isItEdgePixelInX(lastPixelInX);
-  edgey = rectPixelTopology->isItEdgePixelInY(firstPixelInY) || rectPixelTopology->isItEdgePixelInY(lastPixelInY);
+  edgex = theSpecificTopology->isItEdgePixelInX(firstPixelInX) || theSpecificTopology->isItEdgePixelInX(lastPixelInX);
+  edgey = theSpecificTopology->isItEdgePixelInY(firstPixelInY) || theSpecificTopology->isItEdgePixelInY(lastPixelInY);
   edge = edgex || edgey;
 
-  //  bigx = rectPixelTopology->isItBigPixelInX( firstPixelInX ) || rectPixelTopology->isItBigPixelInX( lastPixelInX );
-  //  bigy = rectPixelTopology->isItBigPixelInY( firstPixelInY ) || rectPixelTopology->isItBigPixelInY( lastPixelInY );
-  bool hasBigPixelInX = rectPixelTopology->containsBigPixelInX(firstPixelInX, lastPixelInX);
-  bool hasBigPixelInY = rectPixelTopology->containsBigPixelInY(firstPixelInY, lastPixelInY);
+  //  bigx = theSpecificTopology->isItBigPixelInX( firstPixelInX ) || theSpecificTopology->isItBigPixelInX( lastPixelInX );
+  //  bigy = theSpecificTopology->isItBigPixelInY( firstPixelInY ) || theSpecificTopology->isItBigPixelInY( lastPixelInY );
+  bool hasBigPixelInX = theSpecificTopology->containsBigPixelInX(firstPixelInX, lastPixelInX);
+  bool hasBigPixelInY = theSpecificTopology->containsBigPixelInY(firstPixelInY, lastPixelInY);
 
   //Variables for SiPixelTemplate pixel hit error output
   float sigmay, sigmax, sy1, sy2, sx1, sx2;

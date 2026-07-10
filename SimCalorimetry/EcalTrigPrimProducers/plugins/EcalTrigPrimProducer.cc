@@ -74,11 +74,9 @@
 
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
 
-class EcalTrigPrimProducer : public edm::stream::EDProducer<> {
+class EcalTrigPrimProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit EcalTrigPrimProducer(const edm::ParameterSet &conf);
-
-  ~EcalTrigPrimProducer() override;
 
   void beginRun(const edm::Run &run, const edm::EventSetup &es) override;
   void endRun(const edm::Run &, const edm::EventSetup &) override;
@@ -294,8 +292,6 @@ unsigned long long EcalTrigPrimProducer::getRecords(edm::EventSetup const &setup
   // EcalTPGLinearizationConstRcd has changed
   return setup.get<EcalTPGLinearizationConstRcd>().cacheIdentifier();
 }
-
-EcalTrigPrimProducer::~EcalTrigPrimProducer() {}
 
 // ------------ method called to produce the data  ------------
 void EcalTrigPrimProducer::produce(edm::Event &e, const edm::EventSetup &iSetup) {

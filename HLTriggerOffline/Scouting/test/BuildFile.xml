@@ -1,0 +1,6 @@
+<environment>
+  <bin file="testHLTScoutingDQMAnalyzers.cc" name="testHLTScoutingDQMAnalyzers">
+    <use name="FWCore/TestProcessor"/>
+    <use name="catch2"/>
+  </bin>
+</environment>

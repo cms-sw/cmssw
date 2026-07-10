@@ -12,8 +12,8 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 
 #include "ConformalMappingFit.h"
 #include "RecoTracker/PixelTrackFitting/interface/PixelTrackBuilder.h"

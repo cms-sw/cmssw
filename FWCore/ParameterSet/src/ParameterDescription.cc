@@ -79,6 +79,25 @@ namespace edm {
     }
   }
 
+  cfi::Trackiness ParameterDescription<ParameterSetDescription>::trackiness_(std::string_view path) const {
+    using namespace pdn;
+    std::string_view label = parameterLabelFromPath(path);
+    std::string_view remainingPath = remainingPathAfterLabel(path);
+    if (label == this->label()) {
+      if (remainingPath.empty()) {
+        return this->isTracked() ? cfi::Trackiness::kTracked : cfi::Trackiness::kUntracked;
+      } else {
+        for (auto const& subnodeEntry : *psetDesc_) {
+          auto v = subnodeEntry.node()->trackiness(remainingPath);
+          if (v != cfi::Trackiness::kNotAllowed) {
+            return v;
+          }
+        }
+      }
+    }
+    return cfi::Trackiness::kNotAllowed;
+  }
+
   void ParameterDescription<ParameterSetDescription>::printDefault_(std::ostream& os,
                                                                     bool writeToCfi,
                                                                     DocFormatHelper& dfh) const {

@@ -1,5 +1,5 @@
-#ifndef HeterogeneousCore_MPICore_MPIToken_h
-#define HeterogeneousCore_MPICore_MPIToken_h
+#ifndef HeterogeneousCore_MPICore_interface_MPIToken_h
+#define HeterogeneousCore_MPICore_interface_MPIToken_h
 
 // C++ standard library headers
 #include <memory>
@@ -13,7 +13,7 @@ public:
   MPIToken() = default;
 
   // user-defined constructor
-  explicit MPIToken(std::shared_ptr<MPIChannel> channel) : channel_(channel) {}
+  explicit MPIToken(MPIChannel& channel);
 
   // access the data member
   MPIChannel* channel() const { return channel_.get(); }
@@ -23,4 +23,4 @@ private:
   std::shared_ptr<MPIChannel> channel_;
 };
 
-#endif  // HeterogeneousCore_MPICore_MPIToken_h
+#endif  // HeterogeneousCore_MPICore_interface_MPIToken_h

@@ -28,6 +28,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
@@ -49,7 +50,6 @@ namespace edm {
 }  // namespace edm
 
 class FreeTrajectoryState;
-class TrackingRecHit;
 
 class TrajSeedMatcher {
 public:

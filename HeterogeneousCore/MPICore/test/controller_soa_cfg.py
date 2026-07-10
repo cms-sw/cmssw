@@ -15,6 +15,12 @@ process.options.wantSummary = False
 process.source = cms.Source("EmptySource")
 process.maxEvents.input = 10
 
+process.load("FWCore.ParameterSet.MessageLogger")
+process.MessageLogger.cerr.MPI = cms.untracked.PSet(
+    reportEvery = cms.untracked.int32( 1 ),
+    limit = cms.untracked.int32( 10000000 )
+)
+
 process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
 
 # produce and send a portable object, a portable collection, and some portable multicollections
@@ -24,7 +30,8 @@ process.load("HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka_cfi")
 from HeterogeneousCore.MPICore.modules import *
 
 process.mpiController = MPIController(
-    mode = 'CommWorld'
+    mode = 'CommWorld',
+    followerProcessName = 'MPIFollower'
 )
 
 process.producePortableObjects = cms.EDProducer("TestAlpakaProducer@alpaka",
@@ -49,8 +56,24 @@ process.sender = MPISender(
     ]
 )
 
+# Same thing, but this time disabling TrivialSerialisation so all products are
+# serialized through ROOT
+process.senderNoTrivialSerialisation = MPISender(
+    upstream = "sender",
+    instance = 43,
+    enableTrivialSerialisation = False,
+    products = [
+        "portabletestTestStructPortableHostObject_producePortableObjects__*",
+        "128falseportabletestTestSoALayoutPortableHostCollection_producePortableObjects__*",
+        "128falseportabletestSoABlocks2PortableHostCollection_producePortableObjects__*",
+        "128falseportabletestSoABlocks3PortableHostCollection_producePortableObjects__*",
+        "ushort_producePortableObjects_backend_*"
+    ]
+)
+
 process.pathSoA = cms.Path(
     process.mpiController +
     process.producePortableObjects +
-    process.sender
+    process.sender +
+    process.senderNoTrivialSerialisation
 )

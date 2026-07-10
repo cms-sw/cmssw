@@ -19,7 +19,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -158,7 +158,7 @@ void L1FastTrackingJetProducer::produce(edm::Event& iEvent, const edm::EventSetu
     float trk_pt = iterL1Track->momentum().perp();
     float trk_z0 = iterL1Track->z0();
     float trk_chi2dof = iterL1Track->chi2Red();
-    float trk_bendchi2 = iterL1Track->stubPtConsistency();
+    float trk_bendchi2 = iterL1Track->chi2BendRed();
     std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
         theStubs = iterL1Track->getStubRefs();
     int trk_nstub = (int)theStubs.size();

@@ -50,7 +50,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Validation.HGCalValidation.hgcSimHitStudy_cfi')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '')
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

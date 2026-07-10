@@ -26,14 +26,13 @@ namespace edm {
 //
 // class declaration
 //
-class HLTEventAnalyzerAOD : public edm::stream::EDAnalyzer<> {
+class HLTEventAnalyzerAOD : public edm::stream::EDAnalyzer<edm::stream::WatchRuns> {
 public:
   explicit HLTEventAnalyzerAOD(const edm::ParameterSet &);
   ~HLTEventAnalyzerAOD() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   void beginRun(edm::Run const &, edm::EventSetup const &) override;
-  void endRun(edm::Run const &, edm::EventSetup const &) override {}
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   virtual void analyzeTrigger(const edm::Event &, const edm::EventSetup &, const std::string &triggerName);

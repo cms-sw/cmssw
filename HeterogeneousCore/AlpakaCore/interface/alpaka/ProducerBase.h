@@ -1,14 +1,14 @@
 #ifndef HeterogeneousCore_AlpakaCore_interface_ProducerBase_h
 #define HeterogeneousCore_AlpakaCore_interface_ProducerBase_h
 
+#include "DataFormats/AlpakaCommon/interface/alpaka/DeviceProductType.h"
 #include "DataFormats/Common/interface/DeviceProduct.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/Framework/interface/moduleAbilities.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/Transition.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/DeviceProductType.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDMetadataAcquireSentry.h"
 #include "HeterogeneousCore/AlpakaCore/interface/modulePrevalidate.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/Backend.h"
@@ -134,12 +134,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         this->registerTransformAsync(
             token,
             [](edm::StreamID, TToken const& deviceProduct, edm::WaitingTaskWithArenaHolder holder) {
+              // Reuse the queue associated o the device product for the host copy.
               auto queue = deviceProduct.template metadata<EDMetadata>().shared_queue();
               detail::EDMetadataAcquireSentry sentry(queue, std::move(holder));
               auto metadataPtr = sentry.metadata();
-              constexpr bool tryReuseQueue = true;
-              TProduct const& productOnDevice =
-                  deviceProduct.template getSynchronized<EDMetadata>(*metadataPtr, tryReuseQueue);
+              TProduct const& productOnDevice = deviceProduct.template getSynchronized<EDMetadata>(*metadataPtr);
 
               auto productOnHost = CopyT::copyAsync(*queue, productOnDevice);
 

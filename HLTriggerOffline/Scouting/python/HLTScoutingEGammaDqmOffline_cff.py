@@ -7,7 +7,7 @@ from RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff import egmGsfElectr
 
 egmGsfElectronIDsForScoutingDQM = egmGsfElectronIDs.clone()
 egmGsfElectronIDsForScoutingDQM.physicsObjectsIDs = cms.VPSet()
-egmGsfElectronIDsForScoutingDQM.physicsObjectSrc = cms.InputTag('slimmedElectrons')
+egmGsfElectronIDsForScoutingDQM.physicsObjectSrc = cms.InputTag('gedGsfElectrons')
 #note: be careful here to when selecting new ids that the vid tools dont do extra setup for them
 #for example the HEEP cuts need an extra producer which vid tools automatically handles
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import setupVIDSelection

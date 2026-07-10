@@ -3,8 +3,9 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.JetMCAlgos.AK4GenJetFlavourInfos_cfi import *
 from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import *
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.jetMC_cff import *
 from PhysicsTools.NanoAOD.genparticles_cff import *
+from PhysicsTools.NanoAOD.jetMC_cff import *
+from PhysicsTools.NanoAOD.taus_cff import *
 from PhysicsTools.PatAlgos.slimming.genParticles_cff import *
 from PhysicsTools.PatAlgos.slimming.packedGenParticles_cfi import *
 from PhysicsTools.PatAlgos.slimming.prunedGenParticles_cfi import *
@@ -25,6 +26,7 @@ from HLTrigger.NGTScouting.hltTICLCandidates_cfi import *
 from HLTrigger.NGTScouting.hltTICLSuperClusters_cfi import *
 from HLTrigger.NGTScouting.hltLayerClusters_cfi import * 
 from HLTrigger.NGTScouting.hltSums_cfi import *
+from HLTrigger.NGTScouting.hltTriggerObjects_cff import *
 from HLTrigger.NGTScouting.hltTriggerAcceptFilter_cfi import hltTriggerAcceptFilter,dstTriggerAcceptFilter
 
 ######################################
@@ -46,11 +48,17 @@ NanoGenTables = cms.Sequence(
     + slimmedGenJetsFlavourInfos
     + genJetTable
     + genJetFlavourTable
+    + tauGenJetsForNano
+    + tauGenJetsSelectorAllHadronsForNano
+    + genVisTaus
+    + genVisTauTable
 )
 
 # Store hlt objects for NGT scouting
 NanoHltTables = cms.Sequence(
-    hltVertexTable
+    hltTriggerObjP4Table
+    + hltVertexTable
+    + hltSecondaryVertexTable
     + hltPixelVertexTable
     + hltGeneralTrackTable
     + hltGeneralTrackExtTable
@@ -90,6 +98,8 @@ NanoValTables = cms.Sequence(
     + hltSimTiclCandidateTable
     + hltSimTiclCandidateExtraTable
     + hltLayerClustersTableSequence
+    + hltTrackingParticleRecoTrackAssociationTable
+    + hltRecoTrackTrackingParticleAssociationTable
 )
 
 ######################################
@@ -132,6 +142,9 @@ hltPixelOnlyNanoFlavour = cms.Sequence(
     + NanoPixelTables
 )
 
+from Configuration.ProcessModifiers.nano_l1_hlt_cff import nano_l1_hlt
+nano_l1_hlt.toReplaceWith(dstValidationNanoFlavour, dstValidationNanoFlavour.copyAndExclude([dstTriggerAcceptFilter]))
+
 ######################################
 # Customization
 ######################################
@@ -149,6 +162,12 @@ def hltNanoCustomize(process):
             SelectEvents = cms.vstring(
                 [p for p in process.paths if p.startswith('HLT_') or p.startswith('MC_') or p.startswith('DST_')]
             )
+        )
+
+        # disable SelectEvents for nano_l1_hlt
+        nano_l1_hlt.toModify(
+            process.NANOAODSIMoutput,
+            SelectEvents = cms.untracked.PSet()
         )
 
     return process

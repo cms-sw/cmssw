@@ -9,7 +9,7 @@ from ..modules.hltSiPixelClusterShapeCache_cfi import hltSiPixelClusterShapeCach
 HLTDoLocalPixelSequence = cms.Sequence(
      hltPhase2SiPixelClustersSoA
     +hltSiPixelClusters
-    +hltSiPixelClusterShapeCache  # should we disable this? Still needed by tracker muons
+    +hltSiPixelClusterShapeCache  # Currently needed by tracker muons
     +hltPhase2SiPixelRecHitsSoA
     +hltSiPixelRecHits
 )

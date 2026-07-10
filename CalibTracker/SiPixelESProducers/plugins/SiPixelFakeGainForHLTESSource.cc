@@ -24,7 +24,7 @@
 #include "CondFormats/DataRecord/interface/SiPixelGainCalibrationForHLTRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -39,19 +39,14 @@
 // class decleration
 //
 
-class SiPixelFakeGainForHLTESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class SiPixelFakeGainForHLTESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  SiPixelFakeGainForHLTESSource(const edm::ParameterSet&);
+  explicit SiPixelFakeGainForHLTESSource(const edm::ParameterSet&);
   ~SiPixelFakeGainForHLTESSource() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  virtual std::unique_ptr<SiPixelGainCalibrationForHLT> produce(const SiPixelGainCalibrationForHLTRcd&);
-
-protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
+  std::unique_ptr<SiPixelGainCalibrationForHLT> produce(const SiPixelGainCalibrationForHLTRcd&);
 
 private:
   edm::FileInPath fp_;
@@ -114,13 +109,6 @@ std::unique_ptr<SiPixelGainCalibrationForHLT> SiPixelFakeGainForHLTESSource::pro
 
   //
   return std::unique_ptr<SiPixelGainCalibrationForHLT>(obj);
-}
-
-void SiPixelFakeGainForHLTESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                                   const edm::IOVSyncValue& iosv,
-                                                   edm::ValidityInterval& oValidity) {
-  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
-  oValidity = infinity;
 }
 
 void SiPixelFakeGainForHLTESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

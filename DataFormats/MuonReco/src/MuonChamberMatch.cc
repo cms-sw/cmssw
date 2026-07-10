@@ -7,6 +7,7 @@
 #include "DataFormats/MuonReco/interface/MuonChamberMatch.h"
 #include <cmath>
 using namespace reco;
+using namespace reco::io_v1;
 
 int MuonChamberMatch::station() const {
   if (detector() == MuonSubdetId::DT) {  // DT

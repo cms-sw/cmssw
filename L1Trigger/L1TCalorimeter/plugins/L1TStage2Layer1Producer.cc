@@ -60,7 +60,7 @@
 
 using namespace l1t;
 
-class L1TStage2Layer1Producer : public edm::stream::EDProducer<> {
+class L1TStage2Layer1Producer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit L1TStage2Layer1Producer(const edm::ParameterSet& ps);
   ~L1TStage2Layer1Producer() override;
@@ -171,8 +171,7 @@ void L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup&
 
     // loop over ECAL TPs
     EcalTrigPrimDigiCollection::const_iterator ecalItr;
-    int nEcal = 0;
-    for (ecalItr = ecalTPs->begin(); ecalItr != ecalTPs->end(); ++ecalItr, ++nEcal) {
+    for (ecalItr = ecalTPs->begin(); ecalItr != ecalTPs->end(); ++ecalItr) {
       int ieta = ecalItr->id().ieta();
       int iphi = ecalItr->id().iphi();
 
@@ -197,8 +196,7 @@ void L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup&
 
     // loop over HCAL TPs
     HcalTrigPrimDigiCollection::const_iterator hcalItr;
-    int nHcal = 0;
-    for (hcalItr = hcalTPs->begin(); hcalItr != hcalTPs->end(); ++hcalItr, ++nHcal) {
+    for (hcalItr = hcalTPs->begin(); hcalItr != hcalTPs->end(); ++hcalItr) {
       int ieta = hcalItr->id().ieta();
       int iphi = hcalItr->id().iphi();
       int ver = hcalItr->id().version();

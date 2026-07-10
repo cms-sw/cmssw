@@ -191,7 +191,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack,
   }
 
   // The Particle at ECAL entrance
-  RawParticle myPart = myTrack.ecalEntrance();
+  const RawParticle& myPart = myTrack.ecalEntrance();
   RawParticle myElec, myPosi;
 
   // protection against infinite loop.

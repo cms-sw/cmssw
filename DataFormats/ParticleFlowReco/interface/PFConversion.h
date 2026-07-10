@@ -9,8 +9,6 @@
 #include <iostream>
 #include <vector>
 
-class Conversion;
-
 namespace reco {
 
   /**\class PFConversion

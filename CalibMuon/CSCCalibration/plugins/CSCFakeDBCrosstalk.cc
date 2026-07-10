@@ -16,9 +16,3 @@ CSCFakeDBCrosstalk::~CSCFakeDBCrosstalk() {}
 CSCFakeDBCrosstalk::Pointer CSCFakeDBCrosstalk::produceDBCrosstalk(const CSCDBCrosstalkRcd &iRecord) {
   return CSCFakeDBCrosstalk::Pointer(prefillDBCrosstalk());
 }
-
-void CSCFakeDBCrosstalk::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                        const edm::IOVSyncValue &,
-                                        edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}

@@ -19,10 +19,10 @@
 //------------------------------------
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "FWCore/Utilities/interface/ConstRespectingPtr.h"
+#include "DataFormats/MuonDetId/interface/DTLayerIdFwd.h"
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
 
 class DTWireId;
-class DTLayerId;
-class DTChamberId;
 
 //---------------
 // C++ Headers --

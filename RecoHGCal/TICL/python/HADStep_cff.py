@@ -33,8 +33,6 @@ ticlTrackstersHAD = _trackstersProducer.clone(
     itername = "HAD"
 )
 
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
-ticl_v5.toModify(ticlTrackstersHAD.pluginPatternRecognitionByCA, computeLocalTime = cms.bool(True))
 
 ticlHADStepTask = cms.Task(ticlSeedingGlobal
     ,filteredLayerClustersHAD
@@ -60,6 +58,7 @@ ticlTrackstersHFNoseHAD = ticlTrackstersHAD.clone(
     filtered_mask = "filteredLayerClustersHFNoseHAD:HADn",
     seeding_regions = "ticlSeedingGlobalHFNose",
     time_layerclusters = "hgcalLayerClustersHFNose:timeLayerCluster",
+    patternRecognitionBy = cms.string('CA'),
     pluginPatternRecognitionByCA = dict(
        pid_threshold = 0.,
        skip_layers = 1,
@@ -71,7 +70,6 @@ ticlTrackstersHFNoseHAD = ticlTrackstersHAD.clone(
     itername = "HADn"
     )
 
-ticl_v5.toModify(ticlTrackstersHFNoseHAD.pluginPatternRecognitionByCA, computeLocalTime = cms.bool(True))
 
 ticlHFNoseHADStepTask = cms.Task(ticlSeedingGlobalHFNose
                                  ,filteredLayerClustersHFNoseHAD

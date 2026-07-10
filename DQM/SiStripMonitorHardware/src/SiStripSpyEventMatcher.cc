@@ -67,7 +67,6 @@ namespace sistrip {
     eventPrincipal_ = std::make_unique<edm::EventPrincipal>(source_->productRegistry(),
                                                             edm::productResolversFactory::makePrimary,
                                                             std::make_shared<edm::BranchIDListHelper>(),
-                                                            std::make_shared<edm::ThinnedAssociationsHelper>(),
                                                             *processConfiguration_,
                                                             nullptr);
   }

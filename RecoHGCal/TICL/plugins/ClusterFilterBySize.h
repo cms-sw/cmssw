@@ -1,8 +1,8 @@
 // Author: Marco Rovere - marco.rovere@cern.ch
 // Date: 11/2018
 
-#ifndef RecoHGCal_TICL_ClusterFilterBySize_H__
-#define RecoHGCal_TICL_ClusterFilterBySize_H__
+#ifndef RecoHGCal_TICL_ClusterFilterBySize_h
+#define RecoHGCal_TICL_ClusterFilterBySize_h
 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "ClusterFilterBase.h"

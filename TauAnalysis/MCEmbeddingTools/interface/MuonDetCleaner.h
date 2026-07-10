@@ -22,8 +22,7 @@
 
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/Common/interface/RangeMap.h"
+#include "DataFormats/Common/interface/IdToHitRange.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
@@ -39,13 +38,13 @@
 #include <vector>
 
 template <typename T1, typename T2>
-class MuonDetCleaner : public edm::stream::EDProducer<> {
+class MuonDetCleaner : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit MuonDetCleaner(const edm::ParameterSet &);
   ~MuonDetCleaner() override;
 
 private:
-  typedef edm::RangeMap<T1, edm::OwnVector<T2>> RecHitCollection;
+  using RecHitCollection = typename edm::IdToHitRange<T1, T2>;
 
   void beginRun(const edm::Run &, const edm::EventSetup &) override;
   void produce(edm::Event &, const edm::EventSetup &) override;

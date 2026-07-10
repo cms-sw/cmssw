@@ -31,7 +31,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
@@ -44,7 +44,7 @@ using namespace reco;
 using namespace std;
 using namespace edm;
 
-class DeDxHitInfoProducer : public edm::stream::EDProducer<> {
+class DeDxHitInfoProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit DeDxHitInfoProducer(const edm::ParameterSet&);
   ~DeDxHitInfoProducer() override;

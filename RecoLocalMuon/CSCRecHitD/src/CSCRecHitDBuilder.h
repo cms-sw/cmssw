@@ -24,12 +24,12 @@
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCStripDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
+#include <DataFormats/MuonDetId/interface/CSCDetIdFwd.h>
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 class CSCLayer;
 class CSCGeometry;
-class CSCDetId;
 class CSCHitFromStripOnly;
 class CSCHitFromWireOnly;
 class CSCMake2DRecHit;

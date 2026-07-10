@@ -26,7 +26,7 @@ namespace edm {
 //
 // class declaration
 //
-class HLTEventAnalyzerRAW : public edm::stream::EDAnalyzer<> {
+class HLTEventAnalyzerRAW : public edm::stream::EDAnalyzer<edm::stream::WatchRuns> {
 public:
   explicit HLTEventAnalyzerRAW(const edm::ParameterSet&);
   ~HLTEventAnalyzerRAW() override = default;

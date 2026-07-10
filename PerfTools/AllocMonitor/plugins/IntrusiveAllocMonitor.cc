@@ -6,39 +6,25 @@
 #include "PerfTools/AllocMonitor/interface/AllocMonitorBase.h"
 #include "PerfTools/AllocMonitor/interface/AllocMonitorRegistry.h"
 
+#include "MonitorStackNode.h"
 #include "ThreadAllocInfo.h"
 #include "ThreadTracker.h"
 
 namespace {
   using namespace edm::service::moduleAlloc;
 
-  /**
-   * These objects form a linked list of nested uses
-   * IntrusiveAllocMonitor measurements.
-   */
-  class MonitorStackNode {
+  class StackData {
   public:
-    MonitorStackNode(std::string_view name,
-                     bool nameIsString,
-                     ThreadAllocInfo const& previousInfo,
-                     std::unique_ptr<MonitorStackNode> previousNode)
-        : name_(name), previousInfo_(previousInfo), previousNode_(std::move(previousNode)) {
-      if (nameIsString and previousNode_) {
-        auto& n = previousNode_->nestedNameSizes_;
+    StackData(std::string_view name, bool nameIsString, ThreadAllocInfo const& previousInfo, StackData* previousNodeData)
+        : previousInfo_(previousInfo) {
+      if (nameIsString and previousNodeData) {
+        auto& n = previousNodeData->nestedNameSizes_;
         n.sum_ += name.size();
         n.count_ += 1;
       }
     }
-    MonitorStackNode(MonitorStackNode const&) = delete;
-    MonitorStackNode& operator=(MonitorStackNode const&) = delete;
-    MonitorStackNode(MonitorStackNode&&) = delete;
-    MonitorStackNode& operator=(MonitorStackNode&&) = delete;
 
-    ~MonitorStackNode() noexcept = default;
-
-    std::string_view name() const { return name_; }
     ThreadAllocInfo const& previousAllocInfo() const { return previousInfo_; }
-    MonitorStackNode const* previousNode() const { return previousNode_.get(); }
 
     struct NestedNameSizes {
       size_t sum_ = 0;
@@ -46,14 +32,11 @@ namespace {
     };
     NestedNameSizes const& nestedNameSizes() const { return nestedNameSizes_; }
 
-    std::unique_ptr<MonitorStackNode> popPreviousNode() { return std::move(previousNode_); }
-
   private:
-    std::string_view name_;
     NestedNameSizes nestedNameSizes_;
     ThreadAllocInfo previousInfo_;
-    std::unique_ptr<MonitorStackNode> previousNode_;
   };
+  using MonitorStackNode = cms::perftools::allocMon::MonitorStackNode<StackData>;
   std::unique_ptr<MonitorStackNode>& currentMonitorStackNode() {
     static thread_local std::unique_ptr<MonitorStackNode> ptr;
     return ptr;
@@ -65,7 +48,7 @@ namespace {
         : currentNode_(std::move(node)), info_(info) {}
     ~PreviousStateRestoreGuard() noexcept {
       currentMonitorStackNode() = currentNode_->popPreviousNode();
-      info_ = currentNode_->previousAllocInfo();
+      info_ = currentNode_->get().previousAllocInfo();
       assert(not info_.active_);
 
       // deallocate outside of measurement
@@ -90,7 +73,11 @@ namespace {
       // keep the previous measurement deactivated until the guard activates it again in ~PreviousStateRestoreGuard
       t.deactivate();
       // push a node to the top of the MonitorStackNode list
-      auto node = std::make_unique<MonitorStackNode>(name, nameIsString, t, std::move(currentMonitorStackNode()));
+      auto prevNodePtr = currentMonitorStackNode().get();
+      auto node = std::make_unique<MonitorStackNode>(
+          name,
+          std::move(currentMonitorStackNode()),
+          StackData(name, nameIsString, t, prevNodePtr ? &(prevNodePtr->get()) : nullptr));
       currentMonitorStackNode() = std::move(node);
       t.reset();
     }
@@ -176,7 +163,7 @@ public:
         node = node->previousNode();
         ++depth;
       }
-      auto const& nestedNames = guard.currentNode()->nestedNameSizes();
+      auto const& nestedNames = guard.currentNode()->get().nestedNameSizes();
       if (nestedNames.count_ > 0) {
         log.format("\nThis includes at least {} bytes in {} allocations from string names in nested measurements",
                    nestedNames.sum_,

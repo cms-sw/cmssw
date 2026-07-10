@@ -122,6 +122,9 @@ SiPixelAliTrackerTrackHitFilter = HitFilter.TrackerTrackHitFilter.clone(
     usePixelQualityFlag = True #False
     )
 
+from Configuration.ProcessModifiers.PixelCPEGeneric_cff import PixelCPEGeneric
+PixelCPEGeneric.toModify(SiPixelAliTrackerTrackHitFilter,usePixelQualityFlag = False)
+
 # Ingredient: SiPixelAliSiPixelAliTrackFitter
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff as fitWithMaterial
 SiPixelAliTrackFitter = fitWithMaterial.ctfWithMaterialTracks.clone(

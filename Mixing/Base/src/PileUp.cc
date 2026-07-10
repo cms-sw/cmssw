@@ -1,7 +1,6 @@
 #include "Mixing/Base/interface/PileUp.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -135,7 +134,6 @@ namespace edm {
     eventPrincipal_ = std::make_unique<EventPrincipal>(productRegistry_,
                                                        edm::productResolversFactory::makePrimary,
                                                        std::make_shared<BranchIDListHelper>(),
-                                                       std::make_shared<ThinnedAssociationsHelper>(),
                                                        *processConfiguration_,
                                                        nullptr);
 

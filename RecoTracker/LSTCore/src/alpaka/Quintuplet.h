@@ -63,6 +63,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quintuplets.phi()[quintupletIndex] = __F2H(phi);
     quintuplets.score_rphisum()[quintupletIndex] = __F2H(scores);
     quintuplets.isDup()[quintupletIndex] = 0;
+    quintuplets.nLayers()[quintupletIndex] = Params_T5::kBaseLayers;
     quintuplets.tightCutFlag()[quintupletIndex] = tightCutFlag;
     quintuplets.regressionRadius()[quintupletIndex] = regressionRadius;
     quintuplets.regressionCenterX()[quintupletIndex] = regressionCenterX;
@@ -84,16 +85,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quintuplets.hitIndices()[quintupletIndex][8] = triplets.hitIndices()[outerTripletIndex][4];
     quintuplets.hitIndices()[quintupletIndex][9] = triplets.hitIndices()[outerTripletIndex][5];
     quintuplets.bridgeRadius()[quintupletIndex] = bridgeRadius;
+#ifdef CUT_VALUE_DEBUG
     quintuplets.rzChiSquared()[quintupletIndex] = rzChiSquared;
     quintuplets.chiSquared()[quintupletIndex] = rPhiChiSquared;
     quintuplets.nonAnchorChiSquared()[quintupletIndex] = nonAnchorChiSquared;
     quintuplets.dBeta1()[quintupletIndex] = dBeta1;
     quintuplets.dBeta2()[quintupletIndex] = dBeta2;
+#endif
     quintuplets.dnnScore()[quintupletIndex] = dnnScore;
 
     CMS_UNROLL_LOOP
     for (unsigned int i = 0; i < Params_T5::kEmbed; ++i) {
       quintuplets.t5Embed()[quintupletIndex][i] = t5Embed[i];
+    }
+
+    // Initialize extended layer slots with sentinel values
+    for (int i = Params_T5::kBaseLayers; i < Params_T5::kLayers; ++i) {
+      quintuplets.logicalLayers()[quintupletIndex][i] = 0;
+      quintuplets.lowerModuleIndices()[quintupletIndex][i] = lst::kTCEmptyLowerModule;
+      quintuplets.hitIndices()[quintupletIndex][2 * i] = lst::kTCEmptyHitIdx;
+      quintuplets.hitIndices()[quintupletIndex][2 * i + 1] = lst::kTCEmptyHitIdx;
     }
   }
 
@@ -665,9 +676,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       // Computing sigmas is a very tricky affair
       // if the module is tilted or endcap, we need to use the slopes properly!
 
-      absArctanSlope = ((slopes[i] != kVerticalModuleSlope && edm::isFinite(slopes[i]))
-                            ? alpaka::math::abs(acc, alpaka::math::atan(acc, slopes[i]))
-                            : kPi / 2.f);
+      absArctanSlope =
+          (edm::isFinite(slopes[i]) ? alpaka::math::abs(acc, alpaka::math::atan(acc, slopes[i])) : kPi / 2.f);
 
       if (xs[i] > 0 and ys[i] > 0) {
         angleM = kPi / 2.f - absArctanSlope;
@@ -749,9 +759,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float chiSquared = 0.f;
     float absArctanSlope, angleM, xPrime, yPrime, sigma2;
     for (size_t i = 0; i < nPoints; i++) {
-      absArctanSlope = ((slopes[i] != kVerticalModuleSlope && edm::isFinite(slopes[i]))
-                            ? alpaka::math::abs(acc, alpaka::math::atan(acc, slopes[i]))
-                            : kPi / 2.f);
+      absArctanSlope =
+          (edm::isFinite(slopes[i]) ? alpaka::math::abs(acc, alpaka::math::atan(acc, slopes[i])) : kPi / 2.f);
       if (xs[i] > 0 and ys[i] > 0) {
         angleM = kPi / 2.f - absArctanSlope;
       } else if (xs[i] < 0 and ys[i] > 0) {
@@ -782,18 +791,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void runDeltaBetaIterations(TAcc const& acc,
                                                              float& betaIn,
                                                              float& betaOut,
-                                                             float betaAv,
                                                              float& pt_beta,
                                                              float sdIn_dr,
                                                              float sdOut_dr,
                                                              float dr,
-                                                             float lIn) {
+                                                             float lIn,
+                                                             bool useBetaInSign = false) {
     if (lIn == 0) {
       betaOut += alpaka::math::copysign(
           acc,
           alpaka::math::asin(
               acc, alpaka::math::min(acc, sdOut_dr * k2Rinv1GeVf / alpaka::math::abs(acc, pt_beta), kSinAlphaMax)),
-          betaOut);
+          useBetaInSign ? betaIn : betaOut);
       return;
     }
 
@@ -816,7 +825,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               alpaka::math::asin(
                   acc, alpaka::math::min(acc, sdOut_dr * k2Rinv1GeVf / alpaka::math::abs(acc, pt_beta), kSinAlphaMax)),
               betaOut);  //FIXME: need a faster version
-      betaAv = 0.5f * (betaInUpd + betaOutUpd);
+      float betaAv = 0.5f * (betaInUpd + betaOutUpd);
 
       //1st update
       const float pt_beta_inv =
@@ -854,9 +863,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                   acc,
                   alpaka::math::min(acc, sdOut_dr * k2Rinv1GeVf / alpaka::math::abs(acc, pt_betaIn), kSinAlphaMax)),
               betaIn);  //FIXME: need a faster version
-      betaAv = (alpaka::math::abs(acc, betaOut) > 0.2f * alpaka::math::abs(acc, betaIn))
-                   ? (0.5f * (betaInUpd + betaOutUpd))
-                   : betaInUpd;
+      float betaAv = (alpaka::math::abs(acc, betaOut) > 0.2f * alpaka::math::abs(acc, betaIn))
+                         ? (0.5f * (betaInUpd + betaOutUpd))
+                         : betaInUpd;
 
       //1st update
       pt_beta = dr * k2Rinv1GeVf / alpaka::math::sin(acc, betaAv);  //get a better pt estimate
@@ -1002,7 +1011,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                 (mds.anchorY()[fourthMDIndex] - mds.anchorY()[thirdMDIndex]));
     float sdOut_d = mds.anchorRt()[fourthMDIndex] - mds.anchorRt()[thirdMDIndex];
 
-    runDeltaBetaIterations(acc, betaIn, betaOut, betaAv, pt_beta, rt_InSeg, sdOut_dr, drt_tl_axis, lIn);
+    runDeltaBetaIterations(acc, betaIn, betaOut, pt_beta, rt_InSeg, sdOut_dr, drt_tl_axis, lIn);
 
     const float betaInMMSF = (alpaka::math::abs(acc, betaInRHmin + betaInRHmax) > 0)
                                  ? (2.f * betaIn / alpaka::math::abs(acc, betaInRHmin + betaInRHmax))
@@ -1168,7 +1177,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                 (mds.anchorY()[fourthMDIndex] - mds.anchorY()[thirdMDIndex]));
     float sdOut_d = mds.anchorRt()[fourthMDIndex] - mds.anchorRt()[thirdMDIndex];
 
-    runDeltaBetaIterations(acc, betaIn, betaOut, betaAv, pt_beta, sdIn_dr, sdOut_dr, dr, lIn);
+    runDeltaBetaIterations(acc, betaIn, betaOut, pt_beta, sdIn_dr, sdOut_dr, dr, lIn);
 
     const float betaInMMSF = (alpaka::math::abs(acc, betaInRHmin + betaInRHmax) > 0)
                                  ? (2.f * betaIn / alpaka::math::abs(acc, betaInRHmin + betaInRHmax))
@@ -1313,7 +1322,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                 (mds.anchorY()[fourthMDIndex] - mds.anchorY()[thirdMDIndex]));
     float sdOut_d = mds.anchorRt()[fourthMDIndex] - mds.anchorRt()[thirdMDIndex];
 
-    runDeltaBetaIterations(acc, betaIn, betaOut, betaAv, pt_beta, sdIn_dr, sdOut_dr, dr, lIn);
+    runDeltaBetaIterations(acc, betaIn, betaOut, pt_beta, sdIn_dr, sdOut_dr, dr, lIn);
 
     const float betaInMMSF = (alpaka::math::abs(acc, betaInRHmin + betaInRHmax) > 0)
                                  ? (2.f * betaIn / alpaka::math::abs(acc, betaInRHmin + betaInRHmax))
@@ -1631,7 +1640,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     computeSigmasForRegression(acc, modules, lowerModuleIndices, delta1, delta2, slopes, isFlat);
     regressionRadius = computeRadiusUsingRegression(acc,
-                                                    Params_T5::kLayers,
+                                                    Params_T5::kBaseLayers,
                                                     xVec,
                                                     yVec,
                                                     delta1,
@@ -1645,7 +1654,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     //compute the other chisquared
     //non anchor is always shifted for tilted and endcap!
-    float nonAnchorDelta1[Params_T5::kLayers], nonAnchorDelta2[Params_T5::kLayers], nonAnchorSlopes[Params_T5::kLayers];
+    float nonAnchorDelta1[Params_T5::kBaseLayers], nonAnchorDelta2[Params_T5::kBaseLayers],
+        nonAnchorSlopes[Params_T5::kBaseLayers];
     float nonAnchorxs[] = {mds.outerX()[firstMDIndex],
                            mds.outerX()[secondMDIndex],
                            mds.outerX()[thirdMDIndex],
@@ -1664,10 +1674,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                nonAnchorDelta2,
                                nonAnchorSlopes,
                                isFlat,
-                               Params_T5::kLayers,
+                               Params_T5::kBaseLayers,
                                false);
     nonAnchorChiSquared = computeChiSquared(acc,
-                                            Params_T5::kLayers,
+                                            Params_T5::kBaseLayers,
                                             nonAnchorxs,
                                             nonAnchorys,
                                             nonAnchorDelta1,
@@ -1680,7 +1690,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return true;
   }
 
-  struct CreateQuintuplets {
+  template <bool ReduceMem>
+  struct CreateQuintupletsT {
     ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
                                   MiniDoubletsConst mds,
@@ -1752,7 +1763,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               continue;
 
             // If densely connected, do not attempt parallel processing to avoid truncation
-            if (nInnerTriplets >= kNTripletThreshold || nOuterTriplets >= kNTripletThreshold) {
+            if (ReduceMem || nInnerTriplets >= kNTripletThreshold || nOuterTriplets >= kNTripletThreshold) {
               uint16_t lowerModule2 = triplets.lowerModuleIndices()[innerTripletIndex][1];
               uint16_t lowerModule4 = triplets.lowerModuleIndices()[outerTripletIndex][1];
               uint16_t lowerModule5 = triplets.lowerModuleIndices()[outerTripletIndex][2];
@@ -1860,6 +1871,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
             // Match inner Sg and Outer Sg
             int mIdx = alpaka::atomicAdd(acc, &matchCount, 1, alpaka::hierarchy::Threads{});
+            if (mIdx >= ranges.quintupletModuleOccupancy()[lowerModule1])
+              continue;
             unsigned int quintupletIndex = ranges.quintupletModuleIndices()[lowerModule1] + mIdx;
 
 #ifdef WARNINGS
@@ -1880,13 +1893,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           }
         }
 
+        if constexpr (ReduceMem)
+          continue;
+
         alpaka::syncBlockThreads(acc);
         if (matchCount == 0) {
           continue;
         }
 
         // Step 2: Parallel processing of triplet pairs
-        for (int i = flatThreadIdxXY; i < matchCount; i += flatThreadExtent) {
+        const int stage2Bound = matchCount < ranges.quintupletModuleOccupancy()[lowerModule1]
+                                    ? matchCount
+                                    : ranges.quintupletModuleOccupancy()[lowerModule1];
+        for (int i = flatThreadIdxXY; i < stage2Bound; i += flatThreadExtent) {
           unsigned int quintupletIndex = ranges.quintupletModuleIndices()[lowerModule1] + i;
           int innerTripletIndex = quintuplets.preAllocatedTripletIndices()[quintupletIndex][0];
           int outerTripletIndex = quintuplets.preAllocatedTripletIndices()[quintupletIndex][1];
@@ -1996,6 +2015,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   };
 
+  using CreateQuintuplets = CreateQuintupletsT<false>;
+  using CreateQuintupletsReduceMem = CreateQuintupletsT<true>;
+
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool isValidQuintRegion(ModulesConst modules, uint16_t lowerModule) {
     const short layer = modules.layers()[lowerModule];
     const short subdet = modules.subdets()[lowerModule];
@@ -2003,7 +2025,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return (subdet == Barrel && layer < 3) || (subdet == Endcap && layer <= 1);
   }
 
-  struct CountTripletConnections {
+  template <bool ReduceMem>
+  struct CountTripletConnectionsT {
     ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
                                   MiniDoubletsConst mds,
@@ -2046,7 +2069,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
             if (secondMDOuter == thirdMDInner) {
               // Will only perform runQuintupletDefaultAlgorithm() checks if densely connected
-              if (nInnerTriplets < kNTripletThreshold && nOuterTriplets < kNTripletThreshold) {
+              if (!ReduceMem && nInnerTriplets < kNTripletThreshold && nOuterTriplets < kNTripletThreshold) {
                 alpaka::atomicAdd(acc, &triplets.connectedMax()[innerTripletIndex], 1u, alpaka::hierarchy::Threads{});
               } else {
                 const uint16_t lowerModule2 = lmIdx[innerTripletIndex][1];
@@ -2097,6 +2120,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   };
 
+  using CountTripletConnections = CountTripletConnectionsT<false>;
+  using CountTripletConnectionsReduceMem = CountTripletConnectionsT<true>;
+
   struct CreateEligibleModulesListForQuintuplets {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   ModulesConst modules,
@@ -2132,6 +2158,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
         if (dynamic_count == 0)
           continue;
+        if (dynamic_count > kNQuintupletThreshold)
+          dynamic_count = kNQuintupletThreshold;
 
         int nEligibleT5Modules = alpaka::atomicAdd(acc, &nEligibleT5Modulesx, 1, alpaka::hierarchy::Threads{});
         int nTotQ = alpaka::atomicAdd(acc, &nTotalQuintupletsx, dynamic_count, alpaka::hierarchy::Threads{});

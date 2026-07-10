@@ -16,10 +16,12 @@
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/DescriptionCloner.h"
 
 #include <vector>
 #include <set>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <iosfwd>
 
@@ -48,6 +50,8 @@ namespace edm {
     void add(std::string const& label, ParameterSetDescription const& psetDescription);
     void add(char const* label, ParameterSetDescription const& psetDescription);
     void addWithDefaultLabel(ParameterSetDescription const& psetDescription);
+
+    void add(std::string_view label, DescriptionCloner const& cloner);
 
     void addDefault(ParameterSetDescription const& psetDescription);
 
@@ -91,6 +95,12 @@ namespace edm {
 
     cfi::Paths writeClassFile(ParameterSetDescription const&, bool willUseWithCfis) const;
 
+    static void writeCfiForLabel(std::pair<std::string, DescriptionCloner> const& labelAndDesc,
+                                 std::string const& baseType,
+                                 std::string const& pluginName,
+                                 CfiOptions& options,
+                                 std::set<std::string>& usedCfiFileNames);
+
     void printForLabel(std::pair<std::string, ParameterSetDescription> const& labelAndDesc,
                        std::ostream& os,
                        std::string const& moduleLabel,
@@ -114,7 +124,7 @@ namespace edm {
     std::string pluginName_;
 
     std::vector<std::pair<std::string, ParameterSetDescription> > descriptions_;
-
+    std::vector<std::pair<std::string, DescriptionCloner> > descriptionCloners_;
     ParameterSetDescription defaultDesc_;
 
     std::string comment_;

@@ -47,7 +47,7 @@
 // class declaration
 //
 
-class L1TriggerResultsConverter : public edm::stream::EDProducer<> {
+class L1TriggerResultsConverter : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit L1TriggerResultsConverter(const edm::ParameterSet&);
   ~L1TriggerResultsConverter() override;

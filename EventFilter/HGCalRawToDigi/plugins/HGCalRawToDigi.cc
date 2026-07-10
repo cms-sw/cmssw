@@ -25,7 +25,7 @@
 #include "oneapi/tbb.h"
 
 #include "EventFilter/HGCalRawToDigi/interface/HGCalUnpacker.h"
-class HGCalRawToDigi : public edm::stream::EDProducer<> {
+class HGCalRawToDigi : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit HGCalRawToDigi(const edm::ParameterSet&);
   uint16_t callUnpacker(unsigned fedId,

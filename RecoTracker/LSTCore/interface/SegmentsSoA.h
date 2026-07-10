@@ -10,13 +10,13 @@
 namespace lst {
 
   GENERATE_SOA_LAYOUT(SegmentsSoALayout,
-                      SOA_COLUMN(FPX, dPhis),
-                      SOA_COLUMN(FPX, dPhiMins),
-                      SOA_COLUMN(FPX, dPhiMaxs),
                       SOA_COLUMN(FPX, dPhiChanges),
                       SOA_COLUMN(FPX, dPhiChangeMins),
                       SOA_COLUMN(FPX, dPhiChangeMaxs),
 #ifdef CUT_VALUE_DEBUG
+                      SOA_COLUMN(FPX, dPhis),
+                      SOA_COLUMN(FPX, dPhiMins),
+                      SOA_COLUMN(FPX, dPhiMaxs),
                       SOA_COLUMN(FPX, zHis),
                       SOA_COLUMN(FPX, zLos),
                       SOA_COLUMN(FPX, rtHis),

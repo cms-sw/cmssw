@@ -5,11 +5,10 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 //#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
 
 #include <iostream>
 

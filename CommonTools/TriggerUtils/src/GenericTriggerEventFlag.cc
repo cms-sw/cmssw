@@ -226,26 +226,38 @@ void GenericTriggerEventFlag::initRun(const edm::Run& run, const edm::EventSetup
 
     for (unsigned iExpr = 0; iExpr < l1LogicalExpressions_.size(); ++iExpr) {
       std::string l1LogicalExpression(l1LogicalExpressions_.at(iExpr));
+
+      // First: collect replacements
+      std::vector<std::string> toExpand;
       L1GtLogicParser l1AlgoLogicParser(l1LogicalExpression);
-      // Loop over algorithms
-      for (size_t iAlgo = 0; iAlgo < l1AlgoLogicParser.operandTokenVector().size(); ++iAlgo) {
-        const std::string l1AlgoName(l1AlgoLogicParser.operandTokenVector().at(iAlgo).tokenName);
-        if (l1AlgoName.find('*') != std::string::npos) {
-          l1LogicalExpression.replace(
-              l1LogicalExpression.find(l1AlgoName), l1AlgoName.size(), expandLogicalExpression(algoNames, l1AlgoName));
+      for (auto const& tok : l1AlgoLogicParser.operandTokenVector()) {
+        if (tok.tokenName.find('*') != std::string::npos)
+          toExpand.push_back(tok.tokenName);
+      }
+
+      // Second: apply replacements
+      for (auto const& name : toExpand) {
+        auto pos = l1LogicalExpression.find(name);
+        if (pos != std::string::npos) {
+          l1LogicalExpression.replace(pos, name.size(), expandLogicalExpression(algoNames, name));
         }
       }
       l1LogicalExpressions_[iExpr] = l1LogicalExpression;
     }
-    std::vector<std::string> tmp = l1LogicalExpressions_;
-    for (unsigned iExpr = 0; iExpr < tmp.size(); ++iExpr)
-      if (std::find(algoNames.begin(), algoNames.end(), tmp[iExpr]) == algoNames.end()) {
-        l1LogicalExpressions_.erase(l1LogicalExpressions_.begin() + iExpr);
-        if (verbose_ > 1)
-          edm::LogWarning("GenericTriggerEventFlag")
-              << "L1 algorithm \"" << tmp[iExpr]
-              << "\" does not exist in the L1 menu ==> drop it from the list of l1LogicalExpressions";
-      }
+
+    l1LogicalExpressions_.erase(
+        std::remove_if(l1LogicalExpressions_.begin(),
+                       l1LogicalExpressions_.end(),
+                       [&](const std::string& iExpr) {
+                         if (std::find(algoNames.begin(), algoNames.end(), iExpr) == algoNames.end()) {
+                           if (verbose_ > 1)
+                             edm::LogWarning("GenericTriggerEventFlag")
+                                 << "L1 algorithm \"" << iExpr << "\" does not exist...";
+                           return true;
+                         }
+                         return false;
+                       }),
+        l1LogicalExpressions_.end());
   }
   // HLT
   if (hltConfigInit_) {

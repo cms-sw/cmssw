@@ -15,7 +15,7 @@
 
 #include "HFClusterAlgo.h"
 
-class HFEMClusterProducer : public edm::stream::EDProducer<> {
+class HFEMClusterProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit HFEMClusterProducer(edm::ParameterSet const& conf);
   void produce(edm::Event& e, edm::EventSetup const& iSetup) override;

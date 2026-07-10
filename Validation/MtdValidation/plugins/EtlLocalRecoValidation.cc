@@ -209,9 +209,9 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 #ifdef EDM_ML_DEBUG
   for (const auto& hits : *mtdTrkHitHandle) {
     if (MTDDetId(hits.id()).mtdSubDetector() == MTDDetId::MTDType::ETL) {
-      LogDebug("EtlLocalRecoValidation") << "MTD cluster DetId " << hits.id() << " # cluster " << hits.size();
+      LogTrace("EtlLocalRecoValidation") << "MTD cluster DetId " << hits.id() << " # cluster " << hits.size();
       for (const auto& hit : hits) {
-        LogDebug("EtlLocalRecoValidation")
+        LogTrace("EtlLocalRecoValidation")
             << "MTD_TRH: " << hit.localPosition().x() << "," << hit.localPosition().y() << " : "
             << hit.localPositionError().xx() << "," << hit.localPositionError().yy() << " : " << hit.time() << " : "
             << hit.timeError();
@@ -369,6 +369,9 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
         throw cms::Exception("EtlLocalRecoValidation")
             << "GeographicalID: " << std::hex << cluId << " is invalid!" << std::dec << std::endl;
       }
+      LogTrace("EtlLocalRecoValidation") << "Cluster DetId " << cluId.rawId() << " size = " << cluster.size()
+                                         << " min/max row = " << cluster.minHitRow() << " " << cluster.maxHitRow()
+                                         << " min/max col = " << cluster.minHitCol() << " " << cluster.maxHitCol();
 
       MTDClusterParameterEstimator::ReturnType tuple = cpe.getParameters(cluster, *genericDet);
 
@@ -395,7 +398,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       }
 
       index++;
-      LogDebug("EtlLocalRecoValidation") << "Cluster # " << index << " DetId " << cluId.rawId() << " idet " << idet;
+      LogTrace("EtlLocalRecoValidation") << "Cluster # " << index << " DetId " << cluId.rawId() << " idet " << idet;
 
       meCluTime_[idet]->Fill(cluster.time());
       meCluTimeError_[idet]->Fill(cluster.timeError());
@@ -417,10 +420,20 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
       if (optionalPlots_) {
         for (int ihit = 0; ihit < cluster.size(); ++ihit) {
+          auto thisHit = cluster.hit(ihit);
+          LogTrace("EtlLocalRecoValidation")
+              << "Cluster hit " << ihit << " row/col = " << thisHit.x() << " " << thisHit.y()
+              << " time = " << thisHit.time() << " timeError = " << thisHit.time_error()
+              << " energy = " << thisHit.energy();
           int hit_row = cluster.minHitRow() + cluster.hitOffset()[ihit * 2];
           int hit_col = cluster.minHitCol() + cluster.hitOffset()[ihit * 2 + 1];
+          if (hit_row != thisHit.x() || hit_col != thisHit.y()) {
+            edm::LogWarning("EtlLocalRecoValidation")
+                << "Index in cluster memory not consistent, row/col = " << hit_row << " " << hit_col;
+          }
 
           // Match the RECO hit to the corresponding SIM hit
+          bool found(false);
           for (const auto& recHit : *etlRecHitsHandle) {
             ETLDetId detId(recHit.id().rawId());
 
@@ -461,9 +474,14 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
             cluEneSIM += m_etlSimHits[idet][pixelId].energy;
             cluTimeSIM += m_etlSimHits[idet][pixelId].time * m_etlSimHits[idet][pixelId].energy;
 
+            found = true;
             break;
 
           }  // recHit loop
+          if (!found) {
+            edm::LogWarning("EtlLocalRecoValidation")
+                << "Cluster " << cluster.id().rawId() << " hit " << ihit << " Matching recHit not found!";
+          }
 
         }  // ihit loop
       }
@@ -480,7 +498,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
         }
       }
       if (!matchClu) {
-        edm::LogWarning("BtlLocalRecoValidation")
+        edm::LogWarning("EtlLocalRecoValidation")
             << "No valid TrackingRecHit corresponding to cluster, detId = " << detIdObject.rawId();
       }
 
@@ -526,7 +544,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
             (*itp.first).second;  // the range of itp.first, itp.second should be always 1
         for (unsigned int i = 0; i < simClustersRefs.size(); i++) {
           const auto& simClusterRef = simClustersRefs[i];
-          unsigned int idOffset = (*simClusterRef).trackIdOffset();
+          unsigned int idOffset = (*simClusterRef).hitProdType();
 
           meCluTrackIdOffset_[idet]->Fill(float(idOffset));
 

@@ -30,8 +30,8 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/GluedGeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -64,7 +64,7 @@
 // class declaration
 //
 
-class FastTrackDeDxProducer : public edm::stream::EDProducer<> {
+class FastTrackDeDxProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit FastTrackDeDxProducer(const edm::ParameterSet&);
   ~FastTrackDeDxProducer() override = default;

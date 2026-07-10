@@ -34,7 +34,6 @@ namespace edm {
   class ModuleCallingContext;
   class PreallocationConfiguration;
   class ActivityRegistry;
-  class ThinnedAssociationsHelper;
   class SignallingProductRegistryFiller;
 
   namespace maker {

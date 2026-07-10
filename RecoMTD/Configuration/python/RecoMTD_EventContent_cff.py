@@ -21,3 +21,13 @@ RecoMTDFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring()
 )
 RecoMTDFEVT.outputCommands.extend(RecoMTDRECO.outputCommands)
+
+#FEVTHLT content
+RecoMTDFEVTHLT = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+        'keep *edmValueMap_hltTrackExtenderWithMTD_*_*',
+        'keep *_hltMtdTrackQualityMVA_*_*',
+        'keep recoTrack*_hltTrackExtenderWithMTD_*_*',
+        'keep TrackingRecHitsOwned_hltTrackExtenderWithMTD_*_*',
+    )
+)

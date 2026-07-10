@@ -11,6 +11,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CalibMuon/DTCalibration/interface/DTSegmentSelector.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "CondFormats/DataRecord/interface/DTTtrigRcd.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -23,7 +24,6 @@ namespace edm {
   class EventSetup;
 }  // namespace edm
 
-class DTChamberId;
 class DTTtrig;
 class TFile;
 class TH1F;

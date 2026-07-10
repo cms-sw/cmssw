@@ -52,7 +52,7 @@
 // class declaration
 //
 
-class APVModeFilter : public edm::stream::EDFilter<> {
+class APVModeFilter : public edm::stream::EDFilter<edm::stream::WatchRuns> {
 public:
   explicit APVModeFilter(const edm::ParameterSet&);
   ~APVModeFilter() override = default;

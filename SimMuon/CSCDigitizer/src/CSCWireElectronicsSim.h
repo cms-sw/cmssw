@@ -9,12 +9,12 @@
  */
 
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCWireDigiFwd.h"
 #include "SimMuon/CSCDigitizer/src/CSCBaseElectronicsSim.h"
 
 // declarations
 class CSCLayer;
 class CSCDetectorHit;
-class CSCWireDigi;
 class CSCAnalogSignal;
 
 class CSCWireElectronicsSim : public CSCBaseElectronicsSim {

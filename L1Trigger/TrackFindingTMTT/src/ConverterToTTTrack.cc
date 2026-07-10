@@ -55,7 +55,7 @@ namespace tmtt {
     track.setPhiSector(iPhiSec);
     track.setEtaSector(iEtaReg);
 
-    track.setStubPtConsistency(-1);  // not yet filled.
+    track.setChi2BendRed(-1);  // not yet filled.
 
     return track;
   }

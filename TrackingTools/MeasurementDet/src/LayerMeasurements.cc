@@ -36,7 +36,7 @@ namespace {
   //    (e.g. global position of TSOS within detector volume)
   //  - current implementation does not make use of layer argument,
   //    see below for an example of how to use it
-  //      #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
+  //      #include "Geometry/CommonTopologies/interface/GeomDetEnumerators.h"
   //       [..]
   //      using namespace GeomDetEnumerators;
   //      auto const& det = layer.subDetector();

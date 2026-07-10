@@ -116,6 +116,15 @@ getPayloadData.py \
     --db Prod \
     --test;
 
+getPayloadData.py \
+    --plugin pluginSiStripDetVOff_PayloadInspector \
+    --plot plot_SiStripDetVOffComparisonTrackerMapSingleTag \
+    --tag SiStripDetVOff_NGTDemonstrator \
+    --time_type Run \
+    --iovs '{"start_iov": "1725125154046333", "end_iov": "1726422234169390"}' \
+    --db Prod \
+    --test;
+
 ######################
 # Test dumping of switched off modules
 ######################

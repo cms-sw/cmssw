@@ -22,7 +22,9 @@ tpSelectorPixelTracks = cms.PSet(
 )
 
 pixelTrackAssoc = trackingAssocValueMapsProducer.clone(
-    trackCollection =  cms.InputTag("hltPhase2PixelTracks"),
+    # To be updated according to
+    # https://github.com/cms-sw/cmssw/pull/50040#discussion_r2768436192
+    trackCollection =  cms.InputTag("hltPhase2PixelTracksCAExtension"),
     associator = cms.InputTag("hltTrackAssociatorByHits"),
     trackingParticles = cms.InputTag("mix", "MergedTrackTruth"),
     tpSelectorPSet = tpSelectorPixelTracks,
@@ -30,13 +32,15 @@ pixelTrackAssoc = trackingAssocValueMapsProducer.clone(
     useMuonAssociators = cms.bool(False)
 )
 
-from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtension
-phase2CAExtension.toModify(pixelTrackAssoc, trackCollection = "hltPhase2PixelTracksCAExtension")
+from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
+hltPhase2LegacyTracking.toModify(pixelTrackAssoc, trackCollection = "hltPhase2PixelTracks")
 
 hltPixelTrackTable = cms.EDProducer(
     "SimpleTriggerTrackFlatTableProducer",
     skipNonExistingSrc = cms.bool(True),
-    src = cms.InputTag("hltPhase2PixelTracks"),
+    # To be updated according to
+    # https://github.com/cms-sw/cmssw/pull/50040#discussion_r2768436192
+    src = cms.InputTag("hltPhase2PixelTracksCAExtension"),
     cut = cms.string(""),
     name = cms.string("hltPixelTrack"),
     doc = cms.string("HLT Pixel Track information"),
@@ -97,22 +101,56 @@ hltPixelTrackTable = cms.EDProducer(
 hltPixelTrackExtTable = cms.EDProducer("HLTTracksExtraTableProducer",
                                        tableName = cms.string("hltPixelTrack"),                                    
                                        skipNonExistingSrc = cms.bool(True),
-                                       tracksSrc = cms.InputTag("hltPhase2PixelTracks"),
+                                       # To be updated according to
+                                       # https://github.com/cms-sw/cmssw/pull/50040#discussion_r2768436192
+                                       tracksSrc = cms.InputTag("hltPhase2PixelTracksCAExtension"),
                                        beamSpot = cms.InputTag("hltOnlineBeamSpot"),
                                        precision = cms.int32(7))
 
 hltPixelTrackRecHitsTable = cms.EDProducer("HLTTracksRecHitsTableProducer",
-                                            tableName = cms.string("hltPixelTrackRecHits"),
-                                            skipNonExistingSrc = cms.bool(True),
-                                            tracksSrc = cms.InputTag("hltPhase2PixelTracks"),
-                                            maxRecHits = cms.uint32(16),
-                                            precision = cms.int32(7)
+                                           tableName = cms.string("hltPixelTrackRecHits"),
+                                           skipNonExistingSrc = cms.bool(True),
+                                           # To be updated according to
+                                           # https://github.com/cms-sw/cmssw/pull/50040#discussion_r2768436192
+                                           tracksSrc = cms.InputTag("hltPhase2PixelTracksCAExtension"),
+                                           maxRecHits = cms.uint32(16),
+                                           precision = cms.int32(7)
 )
 
+hltPhase2LegacyTracking.toModify(hltPixelTrackTable, src = "hltPhase2PixelTracks")
+hltPhase2LegacyTracking.toModify(hltPixelTrackExtTable, tracksSrc = "hltPhase2PixelTracks")
+hltPhase2LegacyTracking.toModify(hltPixelTrackRecHitsTable, tracksSrc = "hltPhase2PixelTracks")
 
-phase2CAExtension.toModify(hltPixelTrackTable, src = "hltPhase2PixelTracksCAExtension")
-phase2CAExtension.toModify(hltPixelTrackExtTable, tracksSrc = "hltPhase2PixelTracksCAExtension")
-phase2CAExtension.toModify(hltPixelTrackRecHitsTable, tracksSrc = "hltPhase2PixelTracksCAExtension")
+# TrackingParticle <-> hltGeneralTracks NanoAOD tables (Phase-2 HLT
+# validation). The underlying TrackAssociatorEDProducer is
+# `tpToHltGeneralTrackAssociation` and is assumed to be already present in the
+# process.
+from SimTracker.TrackAssociation.trackingParticleRecoTrackAssociationTables_cff import (
+    trackingParticleRecoTrackAssociationTable,
+    recoTrackTrackingParticleAssociationTable,
+)
+
+hltTrackingParticleRecoTrackAssociationTable = trackingParticleRecoTrackAssociationTable.clone(
+    src       = "tpToHltGeneralTrackAssociation",
+    keySrc    = ("mix", "MergedTrackTruth"),
+    valSrc    = "hltGeneralTracks",
+    name      = "hltTPAssoc",
+    linksName = "hltTPAssocLinks",
+    doc       = "TrackingParticle -> hltGeneralTracks associations (dense per TP)",
+    linksDoc  = "Flattened TP -> hltGeneralTracks links: target hltGeneralTrack index and association score",
+    skipNonExistingSrc = cms.bool(True),
+)
+
+hltRecoTrackTrackingParticleAssociationTable = recoTrackTrackingParticleAssociationTable.clone(
+    src       = "tpToHltGeneralTrackAssociation",
+    keySrc    = "hltGeneralTracks",
+    valSrc    = ("mix", "MergedTrackTruth"),
+    name      = "hltTrackAssoc",
+    linksName = "hltTrackAssocLinks",
+    doc       = "hltGeneralTrack -> TrackingParticle associations (dense per HLT general track)",
+    linksDoc  = "Flattened hltGeneralTrack -> TP links: target TP index and association score",
+    skipNonExistingSrc = cms.bool(True),
+)
 
 hltGeneralTrackTable = cms.EDProducer(
     "SimpleTriggerTrackFlatTableProducer",

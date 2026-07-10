@@ -44,7 +44,7 @@
 #include "DataFormats/GEMRecHit/interface/ME0RecHitCollection.h"
 
 // calorimeter and muon infos
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"

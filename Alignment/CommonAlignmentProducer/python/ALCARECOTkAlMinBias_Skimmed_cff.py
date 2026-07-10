@@ -68,6 +68,9 @@ AlignmentHitFilterCTF=RecoTracker.FinalTrackSelectors.TrackerTrackHitFilter_cff.
     PxlCorrClusterChargeCut=10000.0
     )
 
+from Configuration.ProcessModifiers.PixelCPEGeneric_cff import PixelCPEGeneric
+PixelCPEGeneric.toModify(AlignmentHitFilterCTF, usePixelQualityFlag = False)
+
 # 3: produce track after NEW track hit filter
 
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff

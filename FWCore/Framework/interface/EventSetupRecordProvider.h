@@ -122,8 +122,6 @@ namespace edm {
        */
       void initializeForNewSyncValue();
 
-      bool doWeNeedToWaitForIOVsToFinish(IOVSyncValue const&) const;
-
       /** Sets the validity interval for this sync value and returns true if we have a valid
        *  interval for sync value. Also sets the interval status.
        */
@@ -191,7 +189,6 @@ namespace edm {
       const unsigned int nConcurrentIOVs_;
       IntervalStatus intervalStatus_ = IntervalStatus::NotInitializedForSyncValue;
       bool newInterval_ = false;
-      bool hasNonconcurrentFinder_ = false;
     };
   }  // namespace eventsetup
 }  // namespace edm

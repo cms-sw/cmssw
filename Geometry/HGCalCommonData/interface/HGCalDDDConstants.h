@@ -72,8 +72,13 @@ public:
   std::vector<double> cellThickness() const;
   double cellThickness(int layer, int waferU, int waferV) const;
   int32_t cellType(int type, int waferU, int waferV, int iz, int fwdBack, int orient) const;
+  inline bool coldBoxMode() const { return (hgpar_->coldBoxMode_ > 0); }
+  inline double coldBoxRots(unsigned int k) const {
+    return ((k < hgpar_->coldBoxRots_.size()) ? hgpar_->coldBoxRots_[k] : 0);
+  }
   double distFromEdgeHex(double x, double y, double z) const;
   double distFromEdgeTrap(double x, double y, double z) const;
+  int endcaps() const { return (coldBoxMode() ? 1 : 2); }
   void etaPhiFromPosition(const double x,
                           const double y,
                           const double z,
@@ -168,24 +173,37 @@ public:
   std::pair<int, int> simToReco(int cell, int layer, int mod, bool half) const;
   int tileCount(int layer, int ring) const;
   bool tileExist(int zside, int layer, int ring, int phi) const;
+  int tileGranularity(int layer) const { return ((hgpar_->scintCells(layer) > 288) ? 1 : 0); }
   HGCalParameters::tileInfo tileInfo(int zside, int layer, int ring) const;
   bool tilePhiEdge(double phi, int layer, int iphi) const;
   bool tileRingEdge(double rho, int layer, int ring) const;
   std::pair<int, int> tileRings(int layer) const;
-  inline int tileSiPM(int sipm) const { return ((sipm > 0) ? HGCalTypes::SiPMSmall : HGCalTypes::SiPMLarge); }
+  std::pair<double, double> tileRingsR(int layer, int ring) const {
+    int type = hgpar_->scintType(layer);
+    return std::pair<double, double>(hgpar_->radiusLayer_[type][ring - 1], hgpar_->radiusLayer_[type][ring]);
+  }
   bool tileTrapezoid() const {
     return ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile) ||
             (mode_ == HGCalGeometryMode::TrapezoidModule) || (mode_ == HGCalGeometryMode::TrapezoidCassette) ||
             (mode_ == HGCalGeometryMode::TrapezoidFineCell));
   }
   std::pair<int, int> tileType(int layer, int ring, int phi) const;
+  bool tileTrapezoidCassette() const {
+    return ((mode_ == HGCalGeometryMode::TrapezoidCassette) || (mode_ == HGCalGeometryMode::TrapezoidFineCell));
+  }
   inline bool trapezoidFile() const {
     return ((mode_ == HGCalGeometryMode::TrapezoidFile) || (mode_ == HGCalGeometryMode::TrapezoidModule) ||
             (mode_ == HGCalGeometryMode::TrapezoidCassette) || (mode_ == HGCalGeometryMode::TrapezoidFineCell));
   }
+  inline bool trapeoidFine() const { return (mode_ == HGCalGeometryMode::Hexagon8FineCell); }
+  bool tileTrapezoidModule() const {
+    return ((mode_ == HGCalGeometryMode::TrapezoidModule) || (mode_ == HGCalGeometryMode::TrapezoidCassette) ||
+            (mode_ == HGCalGeometryMode::TrapezoidFineCell));
+  }
   inline bool v16OrLess() const { return (mode_ < HGCalGeometryMode::Hexagon8Cassette); }
   inline bool v17OrLess() const { return (mode_ < HGCalGeometryMode::Hexagon8CalibCell); }
   inline bool v18OrLess() const { return (mode_ < HGCalGeometryMode::Hexagon8FineCell); }
+  inline bool v18OrMore() const { return (mode_ >= HGCalGeometryMode::Hexagon8CalibCell); }
   inline unsigned int volumes() const { return hgpar_->moduleLayR_.size(); }
   inline bool waferExist(int layer, int waferU, int waferV) const { return hgpar_->waferExist(layer, waferU, waferV); }
   int waferFromCopy(int copy) const;
@@ -223,7 +241,7 @@ public:
             (mode_ == HGCalGeometryMode::Hexagon8Cassette) || (mode_ == HGCalGeometryMode::Hexagon8CalibCell) ||
             (mode_ == HGCalGeometryMode::Hexagon8FineCell));
   }
-  inline bool waferHexagon8Fine() const { return ((mode_ == HGCalGeometryMode::Hexagon8FineCell)); }
+  inline bool waferHexagon8Fine() const { return ((mode_ >= HGCalGeometryMode::Hexagon8FineCell)); }
   inline bool waferHexagon8Module() const {
     return ((mode_ == HGCalGeometryMode::Hexagon8Module) || (mode_ == HGCalGeometryMode::Hexagon8Cassette) ||
             (mode_ == HGCalGeometryMode::Hexagon8CalibCell) || (mode_ == HGCalGeometryMode::Hexagon8FineCell));

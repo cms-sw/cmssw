@@ -38,7 +38,7 @@ int main() {
       int32_t offset = 100;
       uint32_t nModules = 200;
 
-      SiPixelClustersSoACollection clusters(nModules, queue);
+      SiPixelClustersSoACollection clusters(queue, nModules);
       clusters.setNClusters(nHits, offset);
 
       auto moduleStartH = cms::alpakatools::make_host_buffer<uint32_t[]>(queue, nModules + 1);

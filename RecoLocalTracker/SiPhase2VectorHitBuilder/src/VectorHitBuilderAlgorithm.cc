@@ -1,6 +1,6 @@
 #include "RecoLocalTracker/SiPhase2VectorHitBuilder/interface/VectorHitBuilderAlgorithm.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/ClusterParameterEstimator.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/VectorHit2D.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

@@ -23,7 +23,6 @@
 #include <memory>
 #include <tuple>
 
-class PCaloHit;
 class PileUpEventPrincipal;
 
 class HGCDigitizer {

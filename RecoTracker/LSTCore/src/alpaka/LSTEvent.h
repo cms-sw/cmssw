@@ -43,6 +43,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     Queue& queue_;
     const float ptCut_;
     const uint16_t clustSizeCut_;
+    const bool reduceMemByFullPrecompute_;
 
     std::array<unsigned int, 6> n_minidoublets_by_layer_barrel_{};
     std::array<unsigned int, 5> n_minidoublets_by_layer_endcap_{};
@@ -96,15 +97,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     ModulesDeviceCollection const& modules_;
     PixelMap const& pixelMapping_;
     EndcapGeometryDevDeviceCollection const& endcapGeometry_;
-    bool addObjects_;
+    bool objectsStatistics_ = false;
+    double memoryAllocatedMB_ = 0;
 
   public:
     // Constructor used for CMSSW integration. Uses an external queue.
-    LSTEvent(
-        bool verbose, const float ptCut, const uint16_t clustSizeCut, Queue& q, const LSTESData<Device>* deviceESData)
+    LSTEvent(bool verbose,
+             const float ptCut,
+             const uint16_t clustSizeCut,
+             Queue& q,
+             const LSTESData<Device>* deviceESData,
+             bool reduce_mem_by_full_precompute)
         : queue_(q),
           ptCut_(ptCut),
           clustSizeCut_(clustSizeCut),
+          reduceMemByFullPrecompute_(reduce_mem_by_full_precompute),
           nModules_(deviceESData->nModules),
           nLowerModules_(deviceESData->nLowerModules),
           nPixels_(deviceESData->nPixels),
@@ -112,7 +119,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           modules_(*deviceESData->modules),
           pixelMapping_(*deviceESData->pixelMapping),
           endcapGeometry_(*deviceESData->endcapGeometry),
-          addObjects_(verbose) {
+          objectsStatistics_(verbose) {
       if (ptCut < 0.6f) {
         throw std::invalid_argument("Minimum pT cut must be at least 0.6 GeV. Provided value: " +
                                     std::to_string(ptCut));
@@ -176,6 +183,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     unsigned int getNumberOfQuadruplets();
     unsigned int getNumberOfQuadrupletsByLayerBarrel(unsigned int layer);
     unsigned int getNumberOfQuadrupletsByLayerEndcap(unsigned int layer);
+
+    double getMemoryAllocatedMB() const { return memoryAllocatedMB_; }
 
     // sync adds alpaka::wait at the end of filling a buffer during lazy fill
     // (has no effect on repeated calls)

@@ -55,7 +55,7 @@ UserCode/L1Trigger/src/L1MuonRecoTreeProducer.cc
 
 // Geometry
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
@@ -737,7 +737,7 @@ void L1MuonRecoTreeProducer::analyze(const edm::Event &iEvent, const edm::EventS
                 ring == rpcHitData->ring.at(iRpcHit) && fabs(xLoc - rpcHitData->xLoc.at(iRpcHit)) < 0.01)
 
               rpcHitData->muonId.at(iRpcHit) = muonData->nMuons;  // CB rpc hit belongs to mu imu
-                  // due to cleaning as in 2012 1 rpc hit belogns to 1 mu
+            // due to cleaning as in 2012 1 rpc hit belogns to 1 mu
           }
         }
       }

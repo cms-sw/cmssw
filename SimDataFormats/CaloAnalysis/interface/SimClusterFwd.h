@@ -5,13 +5,16 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include <vector>
 
-class SimCluster;
+namespace io_v1 {
+  class SimCluster;
+  std::ostream &operator<<(std::ostream &s, SimCluster const &tp);
+}  // namespace io_v1
+using SimCluster = io_v1::SimCluster;
+
 typedef std::vector<SimCluster> SimClusterCollection;
 typedef edm::Ref<SimClusterCollection> SimClusterRef;
 typedef edm::RefVector<SimClusterCollection> SimClusterRefVector;
 typedef edm::RefProd<SimClusterCollection> SimClusterRefProd;
 typedef edm::RefVector<SimClusterCollection> SimClusterContainer;
-
-std::ostream &operator<<(std::ostream &s, SimCluster const &tp);
 
 #endif

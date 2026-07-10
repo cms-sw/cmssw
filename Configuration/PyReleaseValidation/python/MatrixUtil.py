@@ -208,7 +208,7 @@ class InputInfo(object):
         return "input from: {0} with run {1}".format(self.dataSet, self.run)
 
     
-# merge dictionaries, with prioty on the [0] index
+# merge dictionaries, with priority on the [0] index
 def merge(dictlist,TELL=False):
     import copy
     last=len(dictlist)-1

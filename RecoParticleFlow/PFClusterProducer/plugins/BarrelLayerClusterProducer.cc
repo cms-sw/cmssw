@@ -74,6 +74,7 @@ BarrelLayerClusterProducer::BarrelLayerClusterProducer(const edm::ParameterSet& 
   algo_ = HGCalLayerClusterAlgoFactory::get()->create(type, pluginPSet);
   setAlgoId(type);
 
+  algo_->setAlgoId(algoId_);
   algo_->setThresholds(consumesCollector().esConsumes<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd>(),
                        consumesCollector().esConsumes<HcalPFCuts, HcalPFCutsRcd>());
 

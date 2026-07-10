@@ -55,7 +55,7 @@ namespace hgcal {
       std::vector<HGCalEntityRow> entities_;
       void setHeader(HGCalEntityRow &header) {
         for (size_t i = 0; i < header.size(); i++) {
-          std::string cname = header[i];
+          const std::string &cname = header[i];
           colNames_.push_back(cname);
           columnIndex_[cname] = i;
         }

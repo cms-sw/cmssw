@@ -297,7 +297,9 @@ public:
       _lmfRunIOV[ilmr] = lmfiov_;
       lmfiov = _lmfRunIOV[ilmr];
     }
-    { printLMFRunIOV(lmfiov); }
+    {
+      printLMFRunIOV(lmfiov);
+    }
 
     bool isEB = ME::isBarrel(ilmr);
 

@@ -23,7 +23,7 @@
 
 using namespace ticl;
 
-class TICLSeedingRegionProducer : public edm::stream::EDProducer<> {
+class TICLSeedingRegionProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   TICLSeedingRegionProducer(const edm::ParameterSet&);
   ~TICLSeedingRegionProducer() override {}

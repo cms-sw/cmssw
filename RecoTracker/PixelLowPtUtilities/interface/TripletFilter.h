@@ -3,10 +3,10 @@
 
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
 #include <vector>
 
-class TrackingRecHit;
 class ClusterShapeHitFilter;
 class TrackerTopology;
 class SiPixelClusterShapeCache;

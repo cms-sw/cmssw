@@ -14,8 +14,8 @@
  */
 
 #include <vector>
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionFwd.h"
 
-class L1CaloRegion;
 class L1CaloEtScale;
 class L1GlobalCaloTrigger;
 

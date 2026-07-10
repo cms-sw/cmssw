@@ -225,7 +225,7 @@ void DisplacedVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const e
       rho = 1 / l1track_ptr->rInv();
       chi2rphi = l1track_ptr->chi2XYRed();
       chi2rz = l1track_ptr->chi2ZRed();
-      bendchi2 = l1track_ptr->stubPtConsistency();
+      bendchi2 = l1track_ptr->chi2BendRed();
       MVA1 = l1track_ptr->trkMVA1();
       std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
           stubRefs = l1track_ptr->getStubRefs();

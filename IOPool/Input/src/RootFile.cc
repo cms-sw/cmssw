@@ -9,7 +9,6 @@
 #include "FWCore/Sources/interface/InputSourceRunHelper.h"
 
 #include "DataFormats/Common/interface/setIsMergeable.h"
-#include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
@@ -23,7 +22,7 @@
 #include "DataFormats/Provenance/interface/StoredMergeableRunProductMetadata.h"
 #include "DataFormats/Provenance/interface/StoredProcessBlockHelper.h"
 #include "DataFormats/Provenance/interface/StoredProductProvenance.h"
-#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
+
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/Common/interface/ProcessBlockHelper.h"
 #include "FWCore/Framework/interface/FileBlock.h"
@@ -201,8 +200,6 @@ namespace edm {
         branchIDLists_(),
         branchIDListHelper_(crossFileInfo.branchIDListHelper),
         processBlockHelper_(crossFileInfo.processBlockHelper),
-        fileThinnedAssociationsHelper_(),
-        thinnedAssociationsHelper_(crossFileInfo.thinnedAssociationsHelper),
         processingMode_(processingOptions.processingMode),
         runHelper_(crossFileInfo.runHelper),
         newBranchToOldBranch_(),
@@ -337,17 +334,6 @@ namespace edm {
       metaDataTree->SetBranchAddress(poolNames::branchIDListBranchName().c_str(), &branchIDListsPtr);
     }
 
-    ThinnedAssociationsHelper* thinnedAssociationsHelperPtr;  // must remain in scope through getEntry()
-    if (inputType != InputType::SecondarySource) {
-      fileThinnedAssociationsHelper_ =
-          std::make_unique<ThinnedAssociationsHelper>();  // propagate_const<T> has no reset() function
-      thinnedAssociationsHelperPtr = fileThinnedAssociationsHelper_.get();
-      if (metaDataTree->FindBranch(poolNames::thinnedAssociationsHelperBranchName().c_str()) != nullptr) {
-        metaDataTree->SetBranchAddress(poolNames::thinnedAssociationsHelperBranchName().c_str(),
-                                       &thinnedAssociationsHelperPtr);
-      }
-    }
-
     ProductDependencies* productDependenciesBuffer = productDependencies_.get();
     if (metaDataTree->FindBranch(poolNames::productDependenciesBranchName().c_str()) != nullptr) {
       metaDataTree->SetBranchAddress(poolNames::productDependenciesBranchName().c_str(), &productDependenciesBuffer);
@@ -421,13 +407,6 @@ namespace edm {
         throw Exception(errors::EventCorruption) << "Failed to find branchIDLists branch in metaData tree.\n";
       }
       mutableBranchIDLists.reset(branchIDListsAPtr.release());
-    }
-
-    if (fileFormatVersion().hasThinnedAssociations()) {
-      if (metaDataTree->FindBranch(poolNames::thinnedAssociationsHelperBranchName().c_str()) == nullptr) {
-        throw Exception(errors::EventCorruption)
-            << "Failed to find thinnedAssociationsHelper branch in metaData tree.\n";
-      }
     }
 
     if (!fileOptions.bypassVersionCheck) {
@@ -522,7 +501,7 @@ namespace edm {
           if (fileFormatVersion().splitProductIDs()) {
             throw Exception(errors::UnimplementedFeature)
                 << "Cannot change friendly class name algorithm without more development work\n"
-                << "to update BranchIDLists and ThinnedAssociationsHelper.  Contact the framework group.\n";
+                << "to update BranchIDLists.  Contact the framework group.\n";
           }
           ProductDescription newBD(prod);
           newBD.updateFriendlyClassName();
@@ -538,12 +517,8 @@ namespace edm {
                             storedProcessBlockHelper,
                             crossFileInfo.processBlockHelper);
 
-      if (inputType == InputType::SecondaryFile) {
-        crossFileInfo.thinnedAssociationsHelper->updateFromSecondaryInput(*fileThinnedAssociationsHelper_,
-                                                                          *productChoices.associationsFromSecondary);
-      } else if (inputType == InputType::Primary) {
+      if (inputType == InputType::Primary) {
         crossFileInfo.processBlockHelper->initializeFromPrimaryInput(storedProcessBlockHelper);
-        crossFileInfo.thinnedAssociationsHelper->updateFromPrimaryInput(*fileThinnedAssociationsHelper_);
       }
 
       if (inputType == InputType::Primary) {
@@ -814,11 +789,6 @@ namespace edm {
 
   void RootFile::setPosition(IndexIntoFile::IndexIntoFileItr const& position) {
     indexIntoFileIter_.copyPosition(position);
-  }
-
-  void RootFile::initAssociationsFromSecondary(std::vector<BranchID> const& associationsFromSecondary) {
-    thinnedAssociationsHelper_->initAssociationsFromSecondary(associationsFromSecondary,
-                                                              *fileThinnedAssociationsHelper_);
   }
 
   bool RootFile::skipThisEntry() {
@@ -1970,56 +1940,9 @@ namespace edm {
       ProductDescription const& prod = product.second;
       if (inputType != InputType::Primary && prod.branchType() == InProcess) {
         markBranchToBeDropped(dropDescendants, prod, branchesToDrop, droppedToKeptAlias);
-      } else if (prod.unwrappedType() == typeid(ThinnedAssociation) && prod.present()) {
-        // Special handling for ThinnedAssociations
-        if (inputType != InputType::SecondarySource) {
-          associationDescriptions.push_back(&prod);
-        } else {
-          markBranchToBeDropped(dropDescendants, prod, branchesToDrop, droppedToKeptAlias);
-        }
       } else if (!productSelector.selected(prod)) {
         markBranchToBeDropped(dropDescendants, prod, branchesToDrop, droppedToKeptAlias);
       }
-    }
-
-    if (inputType != InputType::SecondarySource) {
-      // Decide whether to keep the thinned associations and corresponding
-      // entries in the helper. For secondary source they are all dropped,
-      // but in other cases we look for thinned collections the associations
-      // redirect a Ref or Ptr to when dereferencing them.
-
-      // Need a list of kept products in order to determine which thinned associations
-      // are kept.
-      std::set<BranchID> keptProductsInEvent;
-      for (auto const& product : prodList) {
-        ProductDescription const& prod = product.second;
-        if (branchesToDrop.find(prod.branchID()) == branchesToDrop.end() && prod.present() &&
-            prod.branchType() == InEvent) {
-          keptProductsInEvent.insert(prod.branchID());
-        }
-      }
-
-      // Decide which ThinnedAssociations to keep and store the decision in keepAssociation
-      std::map<BranchID, bool> keepAssociation;
-      fileThinnedAssociationsHelper_->selectAssociationProducts(
-          associationDescriptions, keptProductsInEvent, keepAssociation);
-
-      for (auto association : associationDescriptions) {
-        if (!keepAssociation[association->branchID()]) {
-          markBranchToBeDropped(dropDescendants, *association, branchesToDrop, droppedToKeptAlias);
-        }
-      }
-
-      // Also delete the dropped associations from the ThinnedAssociationsHelper
-      auto temp = std::make_unique<ThinnedAssociationsHelper>();
-      for (auto const& associationBranches : fileThinnedAssociationsHelper_->data()) {
-        auto iter = keepAssociation.find(associationBranches.association());
-        if (iter != keepAssociation.end() && iter->second) {
-          temp->addAssociation(associationBranches);
-        }
-      }
-      // propagate_const<T> has no reset() function
-      fileThinnedAssociationsHelper_ = std::unique_ptr<ThinnedAssociationsHelper>(temp.release());
     }
 
     // On this pass, actually drop the branches.
@@ -2030,8 +1953,7 @@ namespace edm {
       bool drop = branchesToDrop.find(prod.branchID()) != branchesToDropEnd;
       if (drop) {
         if (!prod.dropped()) {
-          if (productSelector.selected(prod) && prod.unwrappedType() != typeid(ThinnedAssociation) &&
-              prod.branchType() != InProcess) {
+          if (productSelector.selected(prod) && prod.branchType() != InProcess) {
             LogWarning("RootFile") << "Branch '" << prod.branchName() << "' is being dropped from the input\n"
                                    << "of file '" << file_ << "' because it is dependent on a branch\n"
                                    << "that was explicitly dropped.\n";

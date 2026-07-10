@@ -336,7 +336,6 @@ void test_helix_fit(bool getcin) {
   const double B_field = 3.8 * c_speed / pow(10, 9) / 100;
   Matrix<double, 6, 1> gen_par;
   Vector5d true_par;
-  Vector5d err;
   generator.seed(1);
   std::cout << std::setprecision(6);
   cout << "_________________________________________________________________________\n";

@@ -41,6 +41,7 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
+#include "RecoHGCal/TICL/interface/TICLUtils.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -52,7 +53,7 @@
 
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -77,26 +78,12 @@ public:
     rhtools.setGeometry(geom);
 
     // build disks at HGCal front & EM-Had interface for track propagation
-    float zVal = hgcons.waferZ(1, true);
-    std::pair<float, float> rMinMax = hgcons.rangeR(zVal, true);
+    auto firstDisks = ticl::utils::buildHGCalFirstDisks(hgcons);
+    auto interfaceDisks = ticl::utils::buildHGCalInterfaceDisks(hgcons, rhtools);
 
-    float zVal_interface = rhtools.getPositionLayer(rhtools.lastLayerEE()).z();
-    std::pair<float, float> rMinMax_interface = hgcons.rangeR(zVal_interface, true);
-
-    for (int iSide = 0; iSide < 2; ++iSide) {
-      float zSide = (iSide == 0) ? (-1. * zVal) : zVal;
-      firstDisk_[iSide] = std::make_unique<GeomDet>(
-          Disk::build(Disk::PositionType(0, 0, zSide),
-                      Disk::RotationType(),
-                      SimpleDiskBounds(rMinMax.first, rMinMax.second, zSide - 0.5, zSide + 0.5))
-              .get());
-
-      zSide = (iSide == 0) ? (-1. * zVal_interface) : zVal_interface;
-      interfaceDisk_[iSide] = std::make_unique<GeomDet>(
-          Disk::build(Disk::PositionType(0, 0, zSide),
-                      Disk::RotationType(),
-                      SimpleDiskBounds(rMinMax_interface.first, rMinMax_interface.second, zSide - 0.5, zSide + 0.5))
-              .get());
+    for (int side = 0; side < 2; ++side) {
+      firstDisk_[side] = std::move(firstDisks[side]);
+      interfaceDisk_[side] = std::move(interfaceDisks[side]);
     }
   }
 
@@ -161,6 +148,7 @@ public:
     trackster_tree_->Branch("sigmaPCA3", &trackster_sigmaPCA3);
     if (tracksterType_ != TracksterType::Trackster) {
       trackster_tree_->Branch("regressed_pt", &simtrackster_regressed_pt);
+      trackster_tree_->Branch("CPidx", &simtrackster_CPidx);
       trackster_tree_->Branch("pdgID", &simtrackster_pdgID);
       trackster_tree_->Branch("trackIdx", &simtrackster_trackIdxs);
       trackster_tree_->Branch("timeBoundary", &simtrackster_timeBoundary);
@@ -218,6 +206,7 @@ public:
     trackster_sigmaPCA3.clear();
 
     simtrackster_regressed_pt.clear();
+    simtrackster_CPidx.clear();
     simtrackster_pdgID.clear();
     simtrackster_trackIdxs.clear();
     simtrackster_timeBoundary.clear();
@@ -289,6 +278,15 @@ public:
       if (tracksterType_ != TracksterType::Trackster) {  // is simtrackster
         auto const& simclusters = *simClusters_h;
         auto const& caloparticles = *caloparticles_h;
+        std::map<uint, uint> SimClusterToCaloParticleMap;
+        for (const auto& cp : caloparticles) {
+          auto cpIndex = &cp - &caloparticles[0];
+          for (const auto& scRef : cp.simClusters()) {
+            auto const& sc = *(scRef);
+            auto const scIndex = &sc - &simclusters[0];
+            SimClusterToCaloParticleMap[scIndex] = cpIndex;
+          }
+        }
 
         simtrackster_timeBoundary.push_back(trackster_iterator->boundaryTime());
 
@@ -299,14 +297,18 @@ public:
            - a SimCluster (other cases)
         Thus trackster.seedIndex() can point to either CaloParticle or SimCluster collection (check seedID to differentiate)
         */
+        auto CPindex = 0;
         using CaloObjectVariant = std::variant<CaloParticle, SimCluster>;
         CaloObjectVariant caloObj;
         if (trackster_iterator->seedID() == caloparticles_h.id()) {
           caloObj = caloparticles[trackster_iterator->seedIndex()];
+          CPindex = trackster_iterator->seedIndex();
         } else {
           caloObj = simclusters[trackster_iterator->seedIndex()];
+          CPindex = SimClusterToCaloParticleMap[trackster_iterator->seedIndex()];
         }
 
+        simtrackster_CPidx.push_back(CPindex);
         simtrackster_pdgID.push_back(std::visit([](auto&& obj) { return obj.pdgId(); }, caloObj));
         auto const& simTrack = std::visit([](auto&& obj) { return obj.g4Tracks()[0]; }, caloObj);
         auto const& caloPt = std::visit([](auto&& obj) { return obj.pt(); }, caloObj);
@@ -466,6 +468,7 @@ private:
 
   // for simtrackster
   std::vector<float> simtrackster_regressed_pt;
+  std::vector<int> simtrackster_CPidx;
   std::vector<int> simtrackster_pdgID;
   std::vector<std::vector<int>> simtrackster_trackIdxs;
   std::vector<float> simtrackster_timeBoundary;
@@ -973,7 +976,7 @@ TICLDumper::TICLDumper(const edm::ParameterSet& ps)
       saveSuperclustering_(ps.getParameter<bool>("saveSuperclustering")),
       //saveSuperclusteringDNNScore_(ps.getParameter<bool>("saveSuperclusteringDNNScore")),
       saveRecoSuperclusters_(ps.getParameter<bool>("saveRecoSuperclusters")),
-      saveTICLCandidate_(ps.getParameter<bool>("saveSimTICLCandidate")),
+      saveTICLCandidate_(ps.getParameter<bool>("saveTICLCandidate")),
       saveSimTICLCandidate_(ps.getParameter<bool>("saveSimTICLCandidate")),
       saveTracks_(ps.getParameter<bool>("saveTracks")),
       saveHits_(ps.getParameter<bool>("saveHits")) {
@@ -1177,9 +1180,6 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
   eventId_ = event.id();
   clearVariables();
 
-  edm::Handle<std::vector<ticl::Trackster>> tracksters_in_candidate_handle;
-  event.getByToken(tracksters_in_candidate_token_, tracksters_in_candidate_handle);
-
   //get all the layer clusters
   edm::Handle<std::vector<reco::CaloCluster>> layer_clusters_h;
   event.getByToken(layer_clusters_token_, layer_clusters_h);
@@ -1379,6 +1379,7 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
     simTICLCandidate_pt.push_back(cand.pt());
     simTICLCandidate_phi.push_back(cand.phi());
     simTICLCandidate_eta.push_back(cand.eta());
+    simTICLCandidate_caloParticleMass.push_back(cand.p4().mass());
     std::vector<int> tmpIdxVec;
     for (auto const& simTS : cand.tracksters()) {
       auto trackster_idx = simTS.get() - (edm::Ptr<ticl::Trackster>(simTrackstersSC_h, 0)).get();
@@ -1455,7 +1456,10 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
     cluster_layer_id.push_back(layerId);
     uint32_t number_of_hits = cluster_iterator->hitsAndFractions().size();
     cluster_number_of_hits.push_back(number_of_hits);
-    cluster_type.push_back(detectorTools_->rhtools.getCellType(lc_seed));
+    if (!detectorTools_->rhtools.isBarrel(haf[0].first))
+      cluster_type.push_back(detectorTools_->rhtools.getCellType(lc_seed));
+    else
+      cluster_type.push_back(-1);
     cluster_timeErr.push_back(layerClustersTimes.get(c_id).second);
     cluster_time.push_back(layerClustersTimes.get(c_id).first);
     c_id += 1;
@@ -1493,7 +1497,8 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
     auto trackster_ptrs = candidate.tracksters();
     auto track_ptr = candidate.trackPtr();
     for (const auto& ts_ptr : trackster_ptrs) {
-      auto ts_idx = ts_ptr.get() - (edm::Ptr<ticl::Trackster>(tracksters_in_candidate_handle, 0)).get();
+      // the candidate's trackster Ptrs reference the ticlCandidate trackster collection, not trackstersInCand
+      auto ts_idx = ts_ptr.get() - (edm::Ptr<ticl::Trackster>(ticlcandidates_tracksters_h, 0)).get();
       tracksters_in_candidate[i].push_back(ts_idx);
     }
     if (track_ptr.isNull())
@@ -1597,7 +1602,7 @@ void TICLDumper::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 
   desc.add<edm::InputTag>("layerClusters", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<edm::InputTag>("layer_clustersTime", edm::InputTag("hgcalMergeLayerClusters", "timeLayerCluster"));
-  desc.add<edm::InputTag>("ticlcandidates", edm::InputTag("ticlTrackstersMerge"));
+  desc.add<edm::InputTag>("ticlcandidates", edm::InputTag("ticlCandidate"));
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("tracksTime", edm::InputTag("tofPID:t0"));
   desc.add<edm::InputTag>("tracksTimeQual", edm::InputTag("mtdTrackQualityMVA:mtdQualMVA"));
@@ -1612,7 +1617,7 @@ void TICLDumper::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
       ->setComment(
           "egamma supercluster collection (either from PFECALSuperClusterProducer for Mustache, or from "
           "TICL->Egamma converter in case of TICL DNN superclusters)");
-  desc.add<edm::InputTag>("recoSuperClusters_sourceTracksterCollection", edm::InputTag("ticlTrackstersMerge"))
+  desc.add<edm::InputTag>("recoSuperClusters_sourceTracksterCollection", edm::InputTag("ticlCandidate"))
       ->setComment(
           "Trackster collection used to produce the reco::SuperCluster, used to provide a mapping back to the "
           "tracksters used in superclusters");

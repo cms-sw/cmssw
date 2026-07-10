@@ -1,16 +1,18 @@
 <lcgdict>
-   <class name="CaloParticle"  ClassVersion="5">
-    <version ClassVersion="5" checksum="2074797506"/>
-   <version ClassVersion="4" checksum="1423471036"/>
+   <class name="io_v1::CaloParticle"  ClassVersion="3">
+    <version ClassVersion="3" checksum="489431184"/>
   </class>
   <class name="CaloParticleCollection"/>
   <class name="edm::Wrapper<CaloParticleCollection>"/>
   <class name="CaloParticleRef"/>
   <class name="CaloParticleRefVector"/>
+  <class name="edm::Wrapper<CaloParticleRefVector>"/>
   <class name="CaloParticleRefProd"/>
   <class name="CaloParticleContainer"/>
 
-  <class name="MtdCaloParticle"/>
+  <class name="io_v1::MtdCaloParticle"  ClassVersion="3">
+    <version ClassVersion="3" checksum="2823088021"/>
+  </class>
   <class name="MtdCaloParticleCollection"/>
   <class name="edm::Wrapper<MtdCaloParticleCollection>"/>
   <class name="MtdCaloParticleRef"/>
@@ -18,27 +20,21 @@
   <class name="MtdCaloParticleRefProd"/>
   <class name="MtdCaloParticleContainer"/>
 
-  <class name="SimCluster"  ClassVersion="7">
-   <version ClassVersion="7" checksum="3868743425"/>
-   <version ClassVersion="6" checksum="1198608638"/>
-   <version ClassVersion="5" checksum="3963576369"/>
-   <version ClassVersion="4" checksum="3868743425"/>
-   <version ClassVersion="3" checksum="1773780587"/>
+  <class name="io_v1::SimCluster"  ClassVersion="3">
+   <version ClassVersion="3" checksum="2253109319"/>
   </class>
   <class name="SimClusterCollection"/>
   <class name="edm::Wrapper<SimClusterCollection>"/>
   <class name="SimClusterRef"/>
   <class name="SimClusterRefVector"/>
+  <class name="edm::Wrapper<SimClusterRefVector>"/>
   <class name="SimClusterRefProd"/>
   <class name="SimClusterContainer"/>
 
-  <class name="std::pair<edm::RefProd<std::vector<SimCluster> >, edm::RefProd<std::vector<CaloParticle> > >"/>
+  <class name="std::pair<edm::RefProd<std::vector<io_v1::SimCluster> >, edm::RefProd<std::vector<io_v1::CaloParticle> > >"/>
 
-  <class name="MtdSimCluster" ClassVersion="6">
-    <version ClassVersion="6" checksum="3803328692"/>
-    <version ClassVersion="5" checksum="3108339619"/>
-    <version ClassVersion="4" checksum="3803328692"/>
-    <version ClassVersion="3" checksum="1001786642"/>
+  <class name="io_v1::MtdSimCluster" ClassVersion="3">
+    <version ClassVersion="3" checksum="3934609990"/>
   </class>
   <class name="MtdSimClusterCollection"/>
   <class name="edm::Wrapper<MtdSimClusterCollection>"/>
@@ -48,7 +44,9 @@
   <class name="MtdSimClusterContainer"/>
 
 
-  <class name="MtdSimLayerCluster"/>
+  <class name="MtdSimLayerCluster" ClassVersion="3">
+    <version ClassVersion="3" checksum="3418591020"/>
+  </class>
   <class name="MtdSimLayerClusterCollection"/>
   <class name="edm::Wrapper<MtdSimLayerClusterCollection>"/>
   <class name="MtdSimLayerClusterRef"/>
@@ -56,7 +54,9 @@
   <class name="MtdSimLayerClusterRefProd"/>
   <class name="MtdSimLayerClusterContainer"/>
 
-  <class name="MtdSimTrackster"/>
+  <class name="MtdSimTrackster" ClassVersion="3">
+    <version ClassVersion="3" checksum="1528473350"/>
+  </class>
   <class name="MtdSimTracksterCollection"/>
   <class name="edm::Wrapper<MtdSimTracksterCollection>"/>
   <class name="MtdSimTracksterRef"/>
@@ -64,11 +64,11 @@
   <class name="MtdSimTracksterRefProd"/>
   <class name="MtdSimTracksterContainer"/>
 
-  <class name="SimTauCPLink" ClassVersion="3">
-   <version ClassVersion="3" checksum="213448491"/>
+  <class name="io_v1::SimTauCPLink" ClassVersion="3">
+   <version ClassVersion="3" checksum="308068769"/>
   </class>
-  <class name="std::vector<SimTauCPLink>"/>
-  <class name="edm::Wrapper<std::vector<SimTauCPLink> >" />
+  <class name="std::vector<io_v1::SimTauCPLink>"/>
+  <class name="edm::Wrapper<std::vector<io_v1::SimTauCPLink> >" />
 
   <class name="std::pair<uint64_t,float>"/>
   <class name="std::vector<std::pair<uint64_t,float>>"/>

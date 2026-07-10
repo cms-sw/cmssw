@@ -18,6 +18,7 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackFwd.h"
 
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 
@@ -25,8 +26,6 @@ class OMTFProcessor;
 class OMTFConfiguration;
 class OMTFConfigMaker;
 class OMTFinputMaker;
-
-class SimTrack;
 
 class XMLConfigWriter;
 

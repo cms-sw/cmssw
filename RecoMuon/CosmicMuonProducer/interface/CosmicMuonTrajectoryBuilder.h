@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
@@ -29,7 +30,6 @@ namespace edm {
   class EventSetup;
 }  // namespace edm
 
-class Trajectory;
 class TrajectoryMeasurement;
 class CosmicMuonUtilities;
 class DirectMuonNavigation;

@@ -21,9 +21,12 @@ namespace edm {
 
   //-------------------------------------------------------------------------
   MCFileSource::MCFileSource(const ParameterSet& pset, InputSourceDescription const& desc)
-      : ProducerSourceFromFiles(pset, desc, false), reader_(HepMCFileReader::instance()), evt_(nullptr) {
-    LogInfo("MCFileSource") << "Reading HepMC file:" << fileNames(0)[0];
-    std::string fileName = fileNames(0)[0];
+      : ProducerSourceBase(pset, desc, false),
+        reader_(HepMCFileReader::instance()),
+        evt_(nullptr),
+        inputFileCatalog_(pset) {
+    LogInfo("MCFileSource") << "Reading HepMC file:" << inputFileCatalog_.firstPFNFromFirstCatalog();
+    std::string fileName = inputFileCatalog_.firstPFNFromFirstCatalog();
     // strip the file:
     if (fileName.find("file:") == 0) {
       fileName.erase(0, 5);

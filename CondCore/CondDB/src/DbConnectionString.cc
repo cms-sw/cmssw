@@ -3,8 +3,8 @@
 #include "DbConnectionString.h"
 //
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
 
 namespace cond {
 

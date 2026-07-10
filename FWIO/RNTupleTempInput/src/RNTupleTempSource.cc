@@ -4,11 +4,10 @@
 #include "InputFile.h"
 #include "RootPrimaryFileSequence.h"
 #include "RootSecondaryFileSequence.h"
-#include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
+
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
@@ -32,7 +31,7 @@ namespace edm {
   class BranchID;
   class LuminosityBlockID;
   class EventID;
-  class ThinnedAssociationsHelper;
+
 }  // namespace edm
 namespace edm::rntuple_temp {
   namespace {
@@ -73,11 +72,9 @@ namespace edm::rntuple_temp {
   RNTupleTempSource::RNTupleTempSource(ParameterSet const& pset, InputSourceDescription const& desc)
       : InputSource(pset, desc),
         rootServiceChecker_(),
-        catalog_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"),
-                 pset.getUntrackedParameter<std::string>("overrideCatalog", std::string())),
-        secondaryCatalog_(
-            pset.getUntrackedParameter<std::vector<std::string> >("secondaryFileNames", std::vector<std::string>()),
-            pset.getUntrackedParameter<std::string>("overrideCatalog", std::string())),
+        catalog_(pset),
+        secondaryCatalog_(pset.getUntrackedParameter<std::vector<std::string> >("secondaryFileNames"),
+                          pset.getUntrackedParameter<std::string>("overrideCatalog")),
         secondaryRunPrincipal_(),
         secondaryLumiPrincipal_(),
         secondaryEventPrincipals_(),
@@ -111,7 +108,6 @@ namespace edm::rntuple_temp {
         secondaryEventPrincipals_.emplace_back(new EventPrincipal(secondaryFileSequence_->fileProductRegistry(),
                                                                   edm::productResolversFactory::makePrimary,
                                                                   secondaryFileSequence_->fileBranchIDListHelper(),
-                                                                  std::make_shared<ThinnedAssociationsHelper const>(),
                                                                   processConfiguration(),
                                                                   nullptr,
                                                                   index));
@@ -119,15 +115,11 @@ namespace edm::rntuple_temp {
       std::array<std::set<BranchID>, NumBranchTypes> idsToReplace;
       ProductRegistry::ProductList const& secondary = secondaryFileSequence_->fileProductRegistry()->productList();
       ProductRegistry::ProductList const& primary = primaryFileSequence_->fileProductRegistry()->productList();
-      std::set<BranchID> associationsFromSecondary;
       //this is the registry used by the 'outside' world and only has the primary file information in it at present
       ProductRegistry::ProductList& fullList = productRegistryUpdate().productListUpdator();
       for (auto const& item : secondary) {
         if (item.second.present()) {
           idsToReplace[item.second.branchType()].insert(item.second.branchID());
-          if (item.second.branchType() == InEvent && item.second.unwrappedType() == typeid(ThinnedAssociation)) {
-            associationsFromSecondary.insert(item.second.branchID());
-          }
           //now make sure this is marked as not dropped else the product will not be 'get'table from the Event
           auto itFound = fullList.find(item.first);
           if (itFound != fullList.end()) {
@@ -142,7 +134,6 @@ namespace edm::rntuple_temp {
       for (auto const& item : primary) {
         if (item.second.present()) {
           idsToReplace[item.second.branchType()].erase(item.second.branchID());
-          associationsFromSecondary.erase(item.second.branchID());
         }
       }
       if (idsToReplace[InEvent].empty() && idsToReplace[InLumi].empty() && idsToReplace[InRun].empty()) {
@@ -154,7 +145,6 @@ namespace edm::rntuple_temp {
             branchIDsToReplace_[i].push_back(id);
           }
         }
-        secondaryFileSequence_->initAssociationsFromSecondary(associationsFromSecondary);
       }
     }
   }
@@ -285,11 +275,11 @@ namespace edm::rntuple_temp {
     if (secondaryFileSequence_ && (ItemType::IsSynchronize != state())) {
       if (itemType == ItemType::IsRun || itemType == ItemType::IsLumi || itemType == ItemType::IsEvent) {
         if (!secondaryFileSequence_->containedInCurrentFile(run, lumi, event)) {
-          return ItemType::IsSynchronize;
+          return ItemTypeInfo::isSynchronize();
         }
       }
     }
-    return runHelper_->nextItemType(state(), itemType, run, lumi, event);
+    return InputSource::ItemTypeInfo(runHelper_->nextItemType(state(), itemType, run, lumi, event));
   }
 
   std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> RNTupleTempSource::resourceSharedWithDelayedReader_() {
@@ -309,12 +299,11 @@ namespace edm::rntuple_temp {
 
     std::vector<std::string> defaultStrings;
     desc.setComment("Reads EDM/RNTuple Root files.");
-    desc.addUntracked<std::vector<std::string> >("fileNames")->setComment("Names of files to be processed.");
+    InputFileCatalog::fillDescription(desc);
     desc.addUntracked<std::vector<std::string> >("secondaryFileNames", defaultStrings)
         ->setComment("Names of secondary files to be processed.");
     desc.addUntracked<bool>("needSecondaryFileNames", false)
         ->setComment("If True, 'secondaryFileNames' must be specified and be non-empty.");
-    desc.addUntracked<std::string>("overrideCatalog", std::string());
     desc.addUntracked<bool>("skipBadFiles", false)
         ->setComment(
             "True:  Ignore any missing or unopenable input file.\n"

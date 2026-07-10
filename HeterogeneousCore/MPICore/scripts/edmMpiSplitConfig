@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+
+"""
+This script splits an HLT configuration into local and remote processes
+by offloading selected modules or sequences.
+
+This tool analyzes data dependencies between CMSSW modules and generates
+the derived configuration files:
+    - one *local* process config
+    - one or multiple *remote* process configs
+
+Modules specified for offloading will be moved to the remote processes.
+If multiple remote processes are needed, individual parameters should
+be separated by ":".
+Any required data products are automatically identified and forwarded
+between processes unless the producing module is explicitly marked as
+shared.
+
+Notes:
+    - Only data dependencies expressed via InputTag are considered.
+    - Module execution order inside dependency groups is preserved.
+
+Some TBDs:
+    - Now we check all dependencies by input tags. We have to try utilising DependencyGraph. 
+      Modifying the service is mandatory, because current visual graph is to large to be processed
+    - (maybe later?) Do more elegant file dumping
+    - Test if the results and througputs are the same as in manual split
+
+"""
+
+import argparse
+import pathlib
+import os
+import sys
+
+from HeterogeneousCore.MPICore.configuration_splitter.cpp_name_getter import CPPNameGetter
+from HeterogeneousCore.MPICore.configuration_splitter.module_dependency_analyzer import ModuleDependencyAnalyzer, flatten_all_to_module_list
+from HeterogeneousCore.MPICore.configuration_splitter.editor_functions import *
+from HeterogeneousCore.MPICore.configuration_splitter.path_state_helpers import *
+from HeterogeneousCore.MPICore.configuration_splitter.multiple_remotes_option_parser import *
+from HeterogeneousCore.MPICore.configuration_splitter.split_remote import *
+from FWCore.ParameterSet.processFromFile import processFromFile
+
+
+def main():
+    configs = parse_mpi_style_args(sys.argv[1:])
+    
+    if configs[0].verbose:
+        for i, cfg in enumerate(configs):
+            print(f"\n=== Process {i} ===")
+            print(cfg)
+
+    local_process = processFromFile(str(configs[0].config))
+
+    # -- get c++ names --
+
+    if configs[0].verbose:
+        if not configs[0].reuse_cpp_names:
+            print("Launching cmsRun to get C++ names of all products in the process...")
+        else:
+            print("Trying to get C++ product names from existing file...")
+
+    cpp_names_getter = CPPNameGetter(local_process, reuse=configs[0].reuse_cpp_names)
+    cpp_names_of_the_products = cpp_names_getter.get_cpp_types_of_module_products()
+
+    if configs[0].verbose:
+        print("Got C++ product names")
+    
+    num_remotes = len(configs)
+    
+    for i, process_args in enumerate(configs):
+        if process_args.remote_process_name is None or process_args.remote_process_name == "":
+            process_args.remote_process_name = f"REMOTE{i}"
+        if process_args.output_remote is None:
+            if num_remotes == 1:
+                process_args.output_remote = pathlib.Path("remote.py")
+            else:
+                process_args.output_remote = pathlib.Path(
+                    f"remote_{process_args.remote_process_name}.py"
+                )
+        
+        remote_process = split_remote(local_process, process_args, cpp_names_of_the_products)
+        process_args.output_remote.parent.mkdir(parents=True, exist_ok=True)
+        process_args.output_remote.write_text(remote_process.dumpPython())
+    
+    configs[0].output_local.parent.mkdir(parents=True, exist_ok=True)
+    configs[0].output_local.write_text(local_process.dumpPython())
+    
+
+if __name__ == "__main__":
+    main()

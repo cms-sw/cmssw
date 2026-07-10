@@ -1,6 +1,6 @@
 #include <ostream>
 
-#include "IOMC/ParticleGuns/interface/FlatRandomPtThetaGunProducer.h"
+#include "FlatBaseThetaGunProducer.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
@@ -8,6 +8,8 @@
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -19,97 +21,128 @@ namespace CLHEP {
 
 using namespace edm;
 
-FlatRandomPtThetaGunProducer::FlatRandomPtThetaGunProducer(const edm::ParameterSet& pset)
-    : FlatBaseThetaGunProducer(pset) {
-  edm::ParameterSet defpset;
-  edm::ParameterSet pgun_params = pset.getParameter<edm::ParameterSet>("PGunParameters");
+namespace edm {
 
-  fMinPt = pgun_params.getParameter<double>("MinPt");
-  fMaxPt = pgun_params.getParameter<double>("MaxPt");
+  class FlatRandomPtThetaGunProducer : public FlatBaseThetaGunProducer {
+  public:
+    FlatRandomPtThetaGunProducer(const ParameterSet&);
+    ~FlatRandomPtThetaGunProducer() override;
 
-  produces<HepMCProduct>("unsmeared");
-  produces<GenEventInfoProduct>();
-  //  edm::LogInfo("FlatThetaGun") << "Internal FlatRandomPtThetaGun is initialzed"
-  //			       << "\nIt is going to generate "
-  //			       << remainingEvents() << " events";
-}
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
-FlatRandomPtThetaGunProducer::~FlatRandomPtThetaGunProducer() {}
+  private:
+    void produce(Event& e, const EventSetup& es) override;
 
-void FlatRandomPtThetaGunProducer::produce(edm::Event& e, const EventSetup& es) {
-  if (fVerbosity > 0) {
-    LogDebug("FlatThetaGun") << "FlatRandomPtThetaGunProducer : Begin New Event Generation";
+  protected:
+    // data members
+
+    double fMinPt;
+    double fMaxPt;
+  };
+
+  FlatRandomPtThetaGunProducer::FlatRandomPtThetaGunProducer(const edm::ParameterSet& pset)
+      : FlatBaseThetaGunProducer(pset) {
+    edm::ParameterSet defpset;
+    edm::ParameterSet pgun_params = pset.getParameter<edm::ParameterSet>("PGunParameters");
+
+    fMinPt = pgun_params.getParameter<double>("MinPt");
+    fMaxPt = pgun_params.getParameter<double>("MaxPt");
+
+    produces<HepMCProduct>("unsmeared");
+    produces<GenEventInfoProduct>();
+    //  edm::LogInfo("FlatThetaGun") << "Internal FlatRandomPtThetaGun is initialzed"
+    //			       << "\nIt is going to generate "
+    //			       << remainingEvents() << " events";
   }
 
-  edm::Service<edm::RandomNumberGenerator> rng;
-  CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+  FlatRandomPtThetaGunProducer::~FlatRandomPtThetaGunProducer() {}
+  void FlatRandomPtThetaGunProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    ParameterSetDescription pgunParams;
+    pgunParams.add<double>("MinPt");
+    pgunParams.add<double>("MaxPt");
+    FlatBaseThetaGunProducer::fillDescription(desc, pgunParams);
+    descriptions.addDefault(desc);
+  }
+  void FlatRandomPtThetaGunProducer::produce(edm::Event& e, const EventSetup& es) {
+    if (fVerbosity > 0) {
+      LogDebug("FlatThetaGun") << "FlatRandomPtThetaGunProducer : Begin New Event Generation";
+    }
 
-  // event loop (well, another step in it...)
+    edm::Service<edm::RandomNumberGenerator> rng;
+    CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
-  // no need to clean up GenEvent memory - done in HepMCProduct
-  //
+    // event loop (well, another step in it...)
 
-  // here re-create fEvt (memory)
-  //
-  fEvt = new HepMC::GenEvent();
+    // no need to clean up GenEvent memory - done in HepMCProduct
+    //
 
-  // now actualy, cook up the event from PDGTable and gun parameters
-  //
-  // 1st, primary vertex
-  //
-  HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
+    // here re-create fEvt (memory)
+    //
+    fEvt = new HepMC::GenEvent();
 
-  // loop over particles
-  //
-  int barcode = 1;
-  for (unsigned int ip = 0; ip < fPartIDs.size(); ++ip) {
-    double pt = CLHEP::RandFlat::shoot(engine, fMinPt, fMaxPt);
-    double theta = CLHEP::RandFlat::shoot(engine, fMinTheta, fMaxTheta);
-    double phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
-    int PartID = fPartIDs[ip];
-    const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
-    double mass = PData->mass().value();
-    double mom = pt / sin(theta);
-    double px = pt * cos(phi);
-    double py = pt * sin(phi);
-    double pz = mom * cos(theta);
-    double energy2 = mom * mom + mass * mass;
-    double energy = sqrt(energy2);
-    HepMC::FourVector p(px, py, pz, energy);
-    HepMC::GenParticle* Part = new HepMC::GenParticle(p, PartID, 1);
-    Part->suggest_barcode(barcode);
-    barcode++;
-    Vtx->add_particle_out(Part);
+    // now actualy, cook up the event from PDGTable and gun parameters
+    //
+    // 1st, primary vertex
+    //
+    HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
 
-    if (fAddAntiParticle) {
-      HepMC::FourVector ap(-px, -py, -pz, energy);
-      int APartID = -PartID;
-      if (PartID == 22 || PartID == 23) {
-        APartID = PartID;
-      }
-      HepMC::GenParticle* APart = new HepMC::GenParticle(ap, APartID, 1);
-      APart->suggest_barcode(barcode);
+    // loop over particles
+    //
+    int barcode = 1;
+    for (unsigned int ip = 0; ip < fPartIDs.size(); ++ip) {
+      double pt = CLHEP::RandFlat::shoot(engine, fMinPt, fMaxPt);
+      double theta = CLHEP::RandFlat::shoot(engine, fMinTheta, fMaxTheta);
+      double phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
+      int PartID = fPartIDs[ip];
+      const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
+      double mass = PData->mass().value();
+      double mom = pt / sin(theta);
+      double px = pt * cos(phi);
+      double py = pt * sin(phi);
+      double pz = mom * cos(theta);
+      double energy2 = mom * mom + mass * mass;
+      double energy = sqrt(energy2);
+      HepMC::FourVector p(px, py, pz, energy);
+      HepMC::GenParticle* Part = new HepMC::GenParticle(p, PartID, 1);
+      Part->suggest_barcode(barcode);
       barcode++;
-      Vtx->add_particle_out(APart);
+      Vtx->add_particle_out(Part);
+
+      if (fAddAntiParticle) {
+        HepMC::FourVector ap(-px, -py, -pz, energy);
+        int APartID = -PartID;
+        if (PartID == 22 || PartID == 23) {
+          APartID = PartID;
+        }
+        HepMC::GenParticle* APart = new HepMC::GenParticle(ap, APartID, 1);
+        APart->suggest_barcode(barcode);
+        barcode++;
+        Vtx->add_particle_out(APart);
+      }
+    }
+
+    fEvt->add_vertex(Vtx);
+    fEvt->set_event_number(e.id().event());
+    fEvt->set_signal_process_id(20);
+
+    if (fVerbosity > 0) {
+      fEvt->print();
+    }
+
+    std::unique_ptr<HepMCProduct> BProduct(new HepMCProduct());
+    BProduct->addHepMCData(fEvt);
+    e.put(std::move(BProduct), "unsmeared");
+
+    std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+    e.put(std::move(genEventInfo));
+
+    if (fVerbosity > 0) {
+      LogDebug("FlatThetaGun") << "FlatRandomPtThetaGunProducer : Event Generation Done ";
     }
   }
+}  // namespace edm
 
-  fEvt->add_vertex(Vtx);
-  fEvt->set_event_number(e.id().event());
-  fEvt->set_signal_process_id(20);
-
-  if (fVerbosity > 0) {
-    fEvt->print();
-  }
-
-  std::unique_ptr<HepMCProduct> BProduct(new HepMCProduct());
-  BProduct->addHepMCData(fEvt);
-  e.put(std::move(BProduct), "unsmeared");
-
-  std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
-  e.put(std::move(genEventInfo));
-
-  if (fVerbosity > 0) {
-    LogDebug("FlatThetaGun") << "FlatRandomPtThetaGunProducer : Event Generation Done ";
-  }
-}
+#include "FWCore/Framework/interface/MakerMacros.h"
+using edm::FlatRandomPtThetaGunProducer;
+DEFINE_FWK_MODULE(FlatRandomPtThetaGunProducer);

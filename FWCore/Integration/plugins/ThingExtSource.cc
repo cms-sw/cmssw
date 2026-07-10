@@ -7,7 +7,7 @@
 
 namespace edmtest {
   ThingExtSource::ThingExtSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc)
-      : ProducerSourceFromFiles(pset, desc, true), alg_() {
+      : ProducerSourceBase(pset, desc, true), alg_() {
     produces<ThingCollection>();
     produces<ThingCollection, edm::Transition::BeginLuminosityBlock>("beginLumi");
     produces<ThingCollection, edm::Transition::BeginLuminosityBlock>("endLumi");
@@ -100,7 +100,7 @@ namespace edmtest {
   void ThingExtSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.setComment("Creates ThingCollections from a file for testing.");
-    edm::ProducerSourceFromFiles::fillDescription(desc);
+    edm::ProducerSourceBase::fillDescription(desc);
     descriptions.add("source", desc);
   }
 

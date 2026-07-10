@@ -261,7 +261,8 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeomT") << "assignCellTrap Input " << x << ":" << y << ":" << z << ":" << layer << ":" << reco
                                  << " x|y|r " << xx << ":" << yy << ":" << r << " phi " << phi << ":"
-                                 << convertRadToDeg(phi) << " o/p " << irad << ":" << iphi << ":" << type;
+                                 << convertRadToDeg(phi) << " o/p " << irad << ":" << iphi << ":" << type << ":"
+                                 << hgpar_->scintFine(indx.first);
 #endif
   if (!tileExist(zside, layer, irad, iphi)) {
     if (tileRingEdge(r, layer, irad)) {
@@ -312,6 +313,15 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
 #endif
     }
   }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeomT") << "assignCellTrap:irad " << irad << " iphi " << iphi << " type " << type
+                                 << " for layer " << layer;
+  if (type) {
+    auto xy = locateCellTrap(zside, layer, irad, iphi, false, true);
+    edm::LogVerbatim("HGCalGeomT") << "assignCellTrap:xy " << xy.first << ":" << xy.second << " Original " << x << ":"
+                                   << y;
+  }
+#endif
   return std::array<int, 3>{{irad, iphi, type}};
 }
 
@@ -644,6 +654,26 @@ std::pair<double, double> HGCalDDDConstants::getXY(int layer, double x, double y
       y0 = y * hgpar_->layerRotV_[ll].first + x * hgpar_->layerRotV_[ll].second;
     }
   }
+  if (coldBoxMode()) {
+    double x1(x0), y1(y0);
+    if (ll < static_cast<int>(hgpar_->layerRotV_.size())) {
+      if (forwd) {
+        x1 = x0 * hgpar_->layerRotV_[ll].first - y0 * hgpar_->layerRotV_[ll].second;
+        y1 = y0 * hgpar_->layerRotV_[ll].first + x0 * hgpar_->layerRotV_[ll].second;
+      } else {
+        x1 = x0 * hgpar_->layerRotV_[ll].first + y0 * hgpar_->layerRotV_[ll].second;
+        y1 = y0 * hgpar_->layerRotV_[ll].first - x0 * hgpar_->layerRotV_[ll].second;
+      }
+      x0 = x1;
+      y0 = y1;
+    }
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "CBox HGCalDDDConstants: Layer " << layer << ":" << ll << ":" << layer << " mode "
+                                  << forwd << " x " << x << ":" << x0 << ":" << x1 << " y " << y << ":" << y0 << ":"
+                                  << y1 << " " << hgpar_->layerRotV_[ll].first << " " << hgpar_->layerRotV_[ll].second;
+#endif
+  }
+
 #ifdef EDM_ML_DEBUG
   double x1(x0), y1(y0);
   if (ll < static_cast<int>(hgpar_->layerRotV_.size())) {
@@ -878,6 +908,8 @@ std::pair<float, float> HGCalDDDConstants::localToGlobal8(
   double x(localX), y(localY);
   bool rotx =
       ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[lay - hgpar_->firstLayer_] == HGCalTypes::WaferCenterR));
+  if (coldBoxMode())
+    rotx = (!hgpar_->layerType_.empty());
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "LocalToGlobal8 " << lay << ":" << (lay - hgpar_->firstLayer_) << ":" << rotx
                                   << " Local (" << x << ":" << y << ") Reco " << reco;
@@ -963,6 +995,8 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int zside,
   int fineCoarse = (type == HGCSiliconDetId::HGCalHD120) || (type == HGCSiliconDetId::HGCalHD200) ? 0 : 1;
   int layertype = layerType(lay);
   bool rotx = (norot) ? false : (layertype == HGCalTypes::WaferCenterR);
+  if (coldBoxMode())
+    rotx = (!norot);
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "LocateCell " << lay << ":" << (lay - hgpar_->firstLayer_) << ":" << layertype
                                   << ":" << rotx << ":" << waferU << ":" << waferV << ":" << indx << ":"
@@ -1080,7 +1114,7 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "locateCellTrap:: Input " << lay << ":" << irad << ":" << iphi << ":" << zside
                                   << ":" << reco << ":" << indx.first << " First Layer " << hgpar_->firstLayer_ << ":"
-                                  << hgpar_->firstMixedLayer_;
+                                  << hgpar_->firstMixedLayer_ << " cell :" << indx.second;
 #endif
   if (indx.first >= 0) {
     int ir = std::abs(irad);
@@ -1509,8 +1543,14 @@ int HGCalDDDConstants::tileCount(int layer, int ring) const {
   for (int lay = laymin; lay <= laymax; ++lay) {
     if (ring < 0) {
       int ll = lay - hgpar_->firstLayer_;
-      ringmin = hgpar_->tileRingRange_[ll].first;
-      ringmax = hgpar_->tileRingRange_[ll].second;
+      if (scintFine(lay)) {
+        ringmin = hgpar_->tileRingFineRange_[ll].first;
+        ringmax = hgpar_->tileRingFineRange_[ll].second;
+      } else {
+        ll -= hgpar_->tileRingFineRange_.size();
+        ringmin = hgpar_->tileRingRange_[ll].first;
+        ringmax = hgpar_->tileRingRange_[ll].second;
+      }
     }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "tileCount: lay " << lay << ":" << (lay - hgpar_->firstLayer_) << " rings "
@@ -1541,9 +1581,11 @@ bool HGCalDDDConstants::tileExist(int zside, int layer, int ring, int phi) const
   const auto& index = getIndex(layer, true);
   bool fine = hgpar_->scintFine(index.first);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeomT") << "TileExist: Layer : " << layer << ":" << index.first << " Fine " << fine;
+  edm::LogVerbatim("HGCalGeomT") << "TileExist: Layer : " << layer << ":" << index.first << " Fine " << fine
+                                 << " index " << index.first << " :" << index.second;
 #endif
-  bool ok = ((ring >= hgpar_->iradMinBH_[index.first]) && (ring <= hgpar_->iradMaxBH_[index.first]));
+  bool ok = (fine) ? ((ring >= hgpar_->iradMinBHFine_[index.first]) && (ring <= hgpar_->iradMaxBHFine_[index.first]))
+                   : ((ring >= hgpar_->iradMinBH_[index.first]) && (ring <= hgpar_->iradMaxBH_[index.first]));
   if (ok) {
     if (fine) {
       int indx = HGCalTileIndex::tileIndex(layer, ring, 1);
@@ -1585,9 +1627,13 @@ bool HGCalDDDConstants::tileExist(int zside, int layer, int ring, int phi) const
     }
 #ifdef EDM_ML_DEBUG
   } else {
+    std::ostringstream st1;
+    if (fine)
+      st1 << hgpar_->iradMinBHFine_[index.first] << ":" << hgpar_->iradMaxBHFine_[index.first];
+    else
+      st1 << hgpar_->iradMinBH_[index.first] << ":" << hgpar_->iradMaxBH_[index.first];
     edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
-                                  << " Index " << index.first << " Ring limits " << hgpar_->iradMinBH_[index.first]
-                                  << ":" << hgpar_->iradMaxBH_[index.first] << " ok " << ok;
+                                  << " Index " << index.first << " Ring limits " << st1.str() << " ok " << ok;
 #endif
   }
   return ok;
@@ -1632,8 +1678,14 @@ bool HGCalDDDConstants::tileRingEdge(double r, int layer, int ring) const {
 std::pair<int, int> HGCalDDDConstants::tileRings(int layer) const {
   if (trapezoidFile()) {
     int ll = layer - hgpar_->firstLayer_;
-    if (ll >= 0 && ll < static_cast<int>(hgpar_->tileRingRange_.size()))
-      return hgpar_->tileRingRange_[ll];
+    if (scintFine(layer)) {
+      if (ll >= 0 && ll < static_cast<int>(hgpar_->tileRingFineRange_.size()))
+        return hgpar_->tileRingFineRange_[ll];
+    } else {
+      ll -= hgpar_->tileRingFineRange_.size();
+      if (ll >= 0 && ll < static_cast<int>(hgpar_->tileRingRange_.size()))
+        return hgpar_->tileRingRange_[ll];
+    }
   }
   return std::make_pair(0, 0);
 }
@@ -1747,6 +1799,8 @@ void HGCalDDDConstants::waferFromPosition(const double x,
   int ll = layer - hgpar_->firstLayer_;
   int layertype = layerType(layer);
   bool rotx = ((!hgpar_->layerType_.empty()) && (layertype == HGCalTypes::WaferCenterR));
+  if (coldBoxMode())
+    rotx = (!hgpar_->layerType_.empty());
   double xx(0), yy(0);
   if (rotx) {
     std::pair<double, double> xy =
@@ -1977,6 +2031,8 @@ std::pair<double, double> HGCalDDDConstants::waferPosition(
     int lay, int waferU, int waferV, bool reco, bool debug) const {
   int ll = lay - hgpar_->firstLayer_;
   bool rotx = ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[ll] == HGCalTypes::WaferCenterR));
+  if (coldBoxMode())
+    rotx = (!hgpar_->layerType_.empty());  //to check
 #ifdef EDM_ML_DEBUG
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "Layer " << lay << ":" << ll << " Rotation " << rotx << " U:V " << waferU << ":"
@@ -2001,6 +2057,8 @@ std::pair<double, double> HGCalDDDConstants::waferPositionWithCshift(
   auto ktr = hgpar_->waferInfoMap_.end();
   int ll = lay - hgpar_->firstLayer_;
   bool rotx = (norot) ? false : ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[ll] == HGCalTypes::WaferCenterR));
+  if (coldBoxMode())
+    rotx = (!hgpar_->layerType_.empty());  //to check
   if (waferHexagon8File()) {
     if (cassetteMode()) {
       ktr = hgpar_->waferInfoMap_.find(indx);
@@ -2331,6 +2389,8 @@ std::pair<int, float> HGCalDDDConstants::getIndex(int lay, bool reco) const {
   float cell(0);
   if (waferHexagon6()) {
     cell = (reco ? hgpar_->moduleCellR_[0] : hgpar_->moduleCellS_[0]);
+  } else if (tileTrapezoid()) {
+    cell = hgpar_->scintCellSize(lay);
   } else {
     if (waferHexagon8()) {
       cell = (reco ? hgpar_->moduleCellR_[0] : hgpar_->moduleCellS_[0]);

@@ -66,13 +66,13 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
 //added by Ajay 6Nov 2014
 //.......................
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 

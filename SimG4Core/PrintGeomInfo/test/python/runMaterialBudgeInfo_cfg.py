@@ -3,7 +3,7 @@
 #   cmsRun runMaterialBudgetInfo_cfg.py type=DDD detector=Tracker geometry=2023
 #
 #   Options for type DDD, DD4hep
-#           for geometry 2021, 2023, 2024, 2025
+#           for geometry 2021, 2023, 2024, 2025, 2026
 #
 ################################################################################
 import FWCore.ParameterSet.Config as cms
@@ -22,7 +22,7 @@ options.register('geometry',
                  "2024",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: 2021, 2023, 2024, 2025")
+                  "geometry of operations: 2021, 2023, 2024, 2025, 2026")
 options.register('detector',
                  "Tracker",
                   VarParsing.VarParsing.multiplicity.singleton,

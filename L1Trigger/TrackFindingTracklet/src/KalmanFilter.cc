@@ -389,7 +389,7 @@ namespace trklet {
         ttTracks_.back().setPhiSector(ttTrackRef->phiSector());
         ttTracks_.back().setEtaSector(ttTrackRef->etaSector());
         ttTracks_.back().setTrackSeedType(ttTrackRef->trackSeedType());
-        ttTracks_.back().setStubPtConsistency(ttTrackRef->stubPtConsistency());
+        ttTracks_.back().setChi2BendRed(ttTrackRef->chi2BendRed());
         ttTracks_.back().setStubRefs(ttTrackRef->getStubRefs());
       }
     }

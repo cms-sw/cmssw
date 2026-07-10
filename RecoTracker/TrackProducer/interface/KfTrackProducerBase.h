@@ -11,7 +11,7 @@
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
-class Trajectory;
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 
 class KfTrackProducerBase : public TrackProducerBase<reco::Track> {
 public:

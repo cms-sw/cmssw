@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-class DetId;
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 namespace edm {
   class ParameterSet;
 }

@@ -21,8 +21,8 @@
 #include "RecoMuon/MuonSeedGenerator/interface/SETPatternRecognition.h"
 #include "RecoMuon/MuonSeedGenerator/interface/SETSeedFinder.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedFwd.h"
 
-class TrajectorySeed;
 class STAFilter;
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"

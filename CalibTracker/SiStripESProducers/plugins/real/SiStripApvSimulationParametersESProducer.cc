@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
@@ -7,14 +7,11 @@
 #include <fstream>
 #include <boost/range/adaptor/indexed.hpp>
 
-class SiStripApvSimulationParametersESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class SiStripApvSimulationParametersESSource : public edm::ESProducer,
+                                               public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   explicit SiStripApvSimulationParametersESSource(const edm::ParameterSet& conf);
   ~SiStripApvSimulationParametersESSource() override {}
-
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue& iov,
-                      edm::ValidityInterval& iValidity) override;
 
   std::unique_ptr<SiStripApvSimulationParameters> produce(const SiStripApvSimulationParametersRcd& record);
 
@@ -81,12 +78,6 @@ SiStripApvSimulationParametersESSource::SiStripApvSimulationParametersESSource(c
                           conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tec8"),
                           conf.getUntrackedParameter<edm::FileInPath>("apvBaselinesFile_tec9")};
   }
-}
-
-void SiStripApvSimulationParametersESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                                            const edm::IOVSyncValue& iov,
-                                                            edm::ValidityInterval& iValidity) {
-  iValidity = edm::ValidityInterval{iov.beginOfTime(), iov.endOfTime()};
 }
 
 SiStripApvSimulationParameters::LayerParameters SiStripApvSimulationParametersESSource::makeLayerParameters(

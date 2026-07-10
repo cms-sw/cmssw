@@ -63,7 +63,6 @@
 #include <TFile.h>
 #include <TMath.h>
 
-class DetId;
 //class HcalTopology;
 class CaloGeometry;
 class CaloSubdetectorGeometry;

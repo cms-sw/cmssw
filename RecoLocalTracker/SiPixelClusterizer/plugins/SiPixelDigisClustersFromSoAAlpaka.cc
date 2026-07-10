@@ -92,15 +92,27 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
   edm::DetSet<PixelDigi>* detDigis = nullptr;
   uint32_t detId = 0;
 
+  // Get the first valid detId (same conditions below)
   for (uint32_t i = 0; i < nDigis; i++) {
     // check for uninitialized digis
-    // this is set in RawToDigi_kernel in SiPixelRawToClusterGPUKernel.cu
     if (digisView[i].rawIdArr() == 0)
       continue;
-
     // check for noisy/dead pixels (electrons set to 0)
     if (digisView[i].adc() == 0)
       continue;
+    // from clusters killed by charge cut
+    if (digisView[i].moduleId() == pixelClustering::invalidModuleId)
+      continue;
+    // not in cluster; TODO add an assert for the size
+    if (digisView[i].clus() == pixelClustering::invalidClusterId) {
+      continue;
+    }
+    // unexpected invalid value
+    if (digisView[i].clus() < 0) {
+      edm::LogError("SiPixelDigisClustersFromSoAAlpaka")
+          << "Skipping pixel digi with unexpected invalid cluster id " << digisView[i].clus();
+      continue;
+    }
 
     detId = digisView[i].rawIdArr();
     if (storeDigis_) {
@@ -134,7 +146,8 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
             << "Layer/DetId/clusId " << layer << '/' << detId << '/' << ic << " size/charge " << acluster.isize << '/'
             << acluster.charge << "\n";
       // sort by row (x)
-      spc.emplace_back(acluster.isize, acluster.adc, acluster.x, acluster.y, acluster.xmin, acluster.ymin, ic);
+      spc.emplace_back(
+          acluster.isize, acluster.adc, acluster.x, acluster.y, acluster.xmin, acluster.ymin, ic, acluster.isSaturated);
       aclusters[ic].clear();
 #ifdef EDM_ML_DEBUG
       ++totClustersFilled;
@@ -166,19 +179,19 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
     // check for noisy/dead pixels (electrons set to 0)
     if (digisView[i].adc() == 0)
       continue;
+    // from clusters killed by charge cut
+    if (digisView[i].moduleId() == pixelClustering::invalidModuleId)
+      continue;
     // not in cluster; TODO add an assert for the size
     if (digisView[i].clus() == pixelClustering::invalidClusterId) {
       continue;
     }
     // unexpected invalid value
-    if (digisView[i].clus() < pixelClustering::invalidClusterId) {
+    if (digisView[i].clus() < 0) {
       edm::LogError("SiPixelDigisClustersFromSoAAlpaka")
           << "Skipping pixel digi with unexpected invalid cluster id " << digisView[i].clus();
       continue;
     }
-    // from clusters killed by charge cut
-    if (digisView[i].clus() == pixelClustering::invalidModuleId)
-      continue;
 
 #ifdef EDM_ML_DEBUG
     assert(digisView[i].rawIdArr() > 109999);
@@ -211,7 +224,7 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
 
     if (storeDigis_)
       (*detDigis).data.emplace_back(dig);
-      // fill clusters
+    // fill clusters
 #ifdef EDM_ML_DEBUG
     assert(digisView[i].clus() >= 0);
     assert(digisView[i].clus() < static_cast<int>(TrackerTraits::maxNumClustersPerModules));
@@ -220,7 +233,7 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
     auto row = dig.row();
     auto col = dig.column();
     SiPixelCluster::PixelPos pix(row, col);
-    aclusters[digisView[i].clus()].add(pix, digisView[i].adc());
+    aclusters[digisView[i].clus()].add(pix, digisView[i].adc(), digisView[i].rawADC());
   }
 
   // fill final clusters

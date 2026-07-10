@@ -66,7 +66,7 @@ Implementation:
 
 //...........................................................................
 
-class RPCTechnicalTrigger : public edm::stream::EDProducer<> {
+class RPCTechnicalTrigger : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit RPCTechnicalTrigger(const edm::ParameterSet&);
   ~RPCTechnicalTrigger() override;

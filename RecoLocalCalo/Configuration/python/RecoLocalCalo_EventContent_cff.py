@@ -64,9 +64,6 @@ RecoLocalCaloRECO = cms.PSet(
 )
 RecoLocalCaloRECO.outputCommands.extend(RecoLocalCaloAOD.outputCommands)
 RecoLocalCaloRECO.outputCommands.extend(ecalLocalRecoRECO.outputCommands)
-phase2_hgcal.toModify( RecoLocalCaloRECO, 
-    outputCommands = RecoLocalCaloRECO.outputCommands + ['keep *_hgcalMultiClusters_*_*',
-                                                         'keep *_iterHGCalMultiClusters_*_*'])
 
 #FEVT content
 RecoLocalCaloFEVT = cms.PSet(
@@ -79,3 +76,11 @@ RecoLocalCaloFEVT.outputCommands.extend(RecoLocalCaloRECO.outputCommands)
 RecoLocalCaloFEVT.outputCommands.extend(ecalLocalRecoFEVT.outputCommands)
 phase2_hgcal.toModify( RecoLocalCaloFEVT, 
     outputCommands = RecoLocalCaloFEVT.outputCommands + ['keep *_HGCalUncalibRecHit_*_*'])
+
+#HGCAL FEVTHLT content
+HGCAL_FEVTHLT = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+        'keep *_hltHGCalRecHit_*_*',
+        'keep *_hltMergeLayerClusters*_*_*'
+    )
+)

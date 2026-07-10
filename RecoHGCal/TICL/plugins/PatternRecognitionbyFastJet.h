@@ -1,9 +1,10 @@
 // Author: Marco Rovere - marco.rovere@cern.ch
 // Date: 10/2021
 
-#ifndef __RecoHGCal_TICL_PRbyFASTJET_H__
-#define __RecoHGCal_TICL_PRbyFASTJET_H__
+#ifndef RecoHGCal_TICL_PatternRecognitionbyFastJet_h
+#define RecoHGCal_TICL_PatternRecognitionbyFastJet_h
 #include <memory>  // unique_ptr
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
@@ -29,19 +30,13 @@ namespace ticl {
                 const typename PatternRecognitionAlgoBaseT<TILES>::Inputs& input,
                 std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
 
-    void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters,
-                               const tensorflow::Session*,
-                               std::vector<Trackster>& result);
-
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
+    void setGeometry(hgcal::RecHitTools const& rhtools) override;
 
   private:
-    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
     const double antikt_radius_;
     const int minNumLayerCluster_;
     const bool computeLocalTime_;
-
-    hgcal::RecHitTools rhtools_;
 
     void buildJetAndTracksters(std::vector<fastjet::PseudoJet>&, std::vector<ticl::Trackster>&);
   };

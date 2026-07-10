@@ -17,6 +17,27 @@ function err() {
   echo -e "$@" 1>&2
 }
 
+function warn_open_option() {
+  err ""
+  err "$(printf '%0.s#' {1..72})"
+  err "$(printf '%0.s#' {1..72})"
+  err "##                                                                    ##"
+  err "##  WARNING: '--open' was passed via '-x / --extra'.                  ##"
+  err "##                                                                    ##"
+  err "##  DO NOT use '--open' when trying to VALIDATE your HLT menu!        ##"
+  err "##                                                                    ##"
+  err "##  The '--open' option disables output filtering, which means the    ##"
+  err "##  integration test results will NOT reflect the real behaviour of   ##"
+  err "##  your menu in production. Validation results obtained with         ##"
+  err "##  '--open' are UNRELIABLE and should NOT be used to approve menus.  ##"
+  err "##                                                                    ##"
+  err "##  Remove '--open' from your command and re-run the tests.           ##"
+  err "##                                                                    ##"
+  err "$(printf '%0.s#' {1..72})"
+  err "$(printf '%0.s#' {1..72})"
+  err ""
+}
+
 NAME=$(basename $0)
 
 HELP="Run the integration tests on a given HLT menu.
@@ -215,6 +236,10 @@ while true; do
       ;;
     "-x" | "--extra" )
       EXTRA="$EXTRA $2"
+      # warn users if --open is passed, as it interferes with menu validation
+      if echo "$2" | grep -qw -- '--open'; then
+        warn_open_option
+      fi
       shift 2
       ;;
     "--mc" )

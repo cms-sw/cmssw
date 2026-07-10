@@ -4,13 +4,12 @@
 #include <vector>
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
 namespace edm {
   class Event;
   class ParameterSet;
 }  // namespace edm
-
-class TrackingRecHit;
 
 class AlignmentCSCOverlapSelector {
 public:

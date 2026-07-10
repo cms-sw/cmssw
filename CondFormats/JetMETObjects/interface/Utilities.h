@@ -56,8 +56,8 @@ namespace std {
   //Return a tuple which is a subset of the original tuple
   //This function pops an entry off the font of the tuple
   template <size_t... indices, typename Tuple>
-  auto tuple_subset(const Tuple& tpl,
-                    ct_integers_list<indices...>) -> decltype(std::make_tuple(std::get<indices>(tpl)...)) {
+  auto tuple_subset(const Tuple& tpl, ct_integers_list<indices...>)
+      -> decltype(std::make_tuple(std::get<indices>(tpl)...)) {
     return std::make_tuple(std::get<indices>(tpl)...);
     // this means:
     //   make_tuple(get<indices[0]>(tpl), get<indices[1]>(tpl), ...)

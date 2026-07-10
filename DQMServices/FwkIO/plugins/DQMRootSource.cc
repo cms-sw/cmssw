@@ -26,7 +26,6 @@
 
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Sources/interface/PuttableSourceBase.h"
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ExceptionPropagate.h"
 
@@ -48,6 +47,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 
 #include "format.h"
 
@@ -406,7 +406,7 @@ private:
 
 void DQMRootSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<std::vector<std::string>>("fileNames")->setComment("Names of files to be processed.");
+  edm::InputFileCatalog::fillDescription(desc);
   desc.addUntracked<unsigned int>("filterOnRun", 0)->setComment("Just limit the process to the selected run.");
   desc.addUntracked<std::string>("reScope", "JOB")
       ->setComment(
@@ -414,8 +414,6 @@ void DQMRootSource::fillDescriptions(edm::ConfigurationDescriptions& description
           " Options: \"\": keep unchanged, \"RUN\": turn LUMI histograms into RUN histograms, \"JOB\": turn everything "
           "into JOB histograms.");
   desc.addUntracked<bool>("skipBadFiles", false)->setComment("Skip the file if it is not valid");
-  desc.addUntracked<std::string>("overrideCatalog", std::string())
-      ->setComment("An alternate file catalog to use instead of the standard site one.");
   std::vector<edm::LuminosityBlockRange> defaultLumis;
   desc.addUntracked<std::vector<edm::LuminosityBlockRange>>("lumisToProcess", defaultLumis)
       ->setComment("Skip any lumi inside the specified run:lumi range.");
@@ -431,8 +429,7 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
     : edm::PuttableSourceBase(iPSet, iDesc),
       m_skipBadFiles(iPSet.getUntrackedParameter<bool>("skipBadFiles", false)),
       m_filterOnRun(iPSet.getUntrackedParameter<unsigned int>("filterOnRun", 0)),
-      m_catalog(iPSet.getUntrackedParameter<std::vector<std::string>>("fileNames"),
-                iPSet.getUntrackedParameter<std::string>("overrideCatalog")),
+      m_catalog(iPSet),
       m_lumisToProcess(iPSet.getUntrackedParameter<std::vector<edm::LuminosityBlockRange>>(
           "lumisToProcess", std::vector<edm::LuminosityBlockRange>())),
       m_rescope(std::map<std::string, MonitorElementData::Scope>{
@@ -447,7 +444,7 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
       m_fileMetadatas(std::vector<FileMetadata>()) {
   edm::sortAndRemoveOverlaps(m_lumisToProcess);
 
-  if (m_catalog.fileNames(0).empty()) {
+  if (m_catalog.empty()) {
     m_nextItemType = edm::InputSource::ItemType::IsStop;
   } else {
     m_treeReaders[kIntIndex] = std::make_shared<TreeSimpleReader<Long64_t>>(MonitorElementData::Kind::INT, m_rescope);
@@ -486,22 +483,21 @@ DQMRootSource::~DQMRootSource() {
 // member functions
 //
 
-edm::InputSource::ItemTypeInfo DQMRootSource::getNextItemType() { return m_nextItemType; }
+edm::InputSource::ItemTypeInfo DQMRootSource::getNextItemType() { return ItemTypeInfo(m_nextItemType); }
 
 // We will read the metadata of all files and fill m_fileMetadatas vector
 std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
-  const int numFiles = m_catalog.fileNames(0).size();
+  const int numFiles = m_catalog.configuredFileNames().size();
   m_openFiles.reserve(numFiles);
 
-  for (auto& fileitem : m_catalog.fileCatalogItems()) {
+  for (auto const& configuredFileName : m_catalog.configuredFileNames()) {
     TFile* file = nullptr;
     std::string pfn;
-    std::string lfn;
     std::list<std::string> exInfo;
     //loop over names of a file, each of them corresponds to a data catalog
     bool isGoodFile(true);
     //get all names of a file, each of them corresponds to a data catalog
-    const std::vector<std::string>& fNames = fileitem.fileNames();
+    std::vector<std::string> fNames = m_catalog.physicalFileNames(configuredFileName);
     for (std::vector<std::string>::const_iterator it = fNames.begin(); it != fNames.end(); ++it) {
       // Try to open a file
       try {
@@ -537,7 +533,6 @@ std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
       if (file && !file->IsZombie()) {
         logFileAction("Successfully opened file ", it->c_str());
         pfn = *it;
-        lfn = fileitem.logicalFileName();
         break;
       } else {
         if (std::next(it) == fNames.end()) {
@@ -567,6 +562,8 @@ std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
       guid = std::make_unique<std::string>(file->GetUUID().AsString());
       std::transform(guid->begin(), guid->end(), guid->begin(), (int (*)(int))std::toupper);
     }
+
+    std::string const& lfn = m_catalog.logicalFileName(configuredFileName);
 
     edm::Service<edm::JobReport> jr;
     auto jrToken = jr->inputFileOpened(

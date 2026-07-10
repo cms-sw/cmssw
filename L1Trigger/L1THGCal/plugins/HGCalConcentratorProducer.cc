@@ -17,7 +17,7 @@
 #include <memory>
 #include <utility>
 
-class HGCalConcentratorProducer : public edm::stream::EDProducer<> {
+class HGCalConcentratorProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   HGCalConcentratorProducer(const edm::ParameterSet&);
   ~HGCalConcentratorProducer() override {}

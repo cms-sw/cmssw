@@ -1,6 +1,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterWildcardBase.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -182,6 +182,17 @@ namespace edm {
       os << "untracked.";
 
     writeTemplate(os, indentation, options);
+  }
+
+  cfi::Trackiness ParameterWildcardBase::trackiness_(std::string_view path) const {
+    if (path.empty()) {
+      return cfi::Trackiness::kNotAllowed;
+    }
+    auto dotPos = path.find('.');
+    if (dotPos != std::string_view::npos) {
+      return cfi::Trackiness::kUnknown;
+    }
+    return isTracked() ? cfi::Trackiness::kTracked : cfi::Trackiness::kUntracked;
   }
 
   void ParameterWildcardBase::writeTemplate(std::ostream& os, int indentation, CfiOptions&) const {

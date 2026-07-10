@@ -11,7 +11,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToBeamLine.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"

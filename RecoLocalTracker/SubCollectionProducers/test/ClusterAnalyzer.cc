@@ -39,8 +39,6 @@
 // class declaration
 //
 
-class ClusterSummary;
-
 using namespace std;
 
 class ClusterAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {

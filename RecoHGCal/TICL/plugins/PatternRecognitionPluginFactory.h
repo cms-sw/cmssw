@@ -1,11 +1,10 @@
-#ifndef RecoHGCal_TICL_PatternRecognitionPluginFactory_H
-#define RecoHGCal_TICL_PatternRecognitionPluginFactory_H
+#ifndef RecoHGCal_TICL_PatternRecognitionPluginFactory_h
+#define RecoHGCal_TICL_PatternRecognitionPluginFactory_h
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
-#include "RecoHGCal/TICL/interface/GlobalCache.h"
 
 typedef edmplugin::PluginFactory<ticl::PatternRecognitionAlgoBaseT<TICLLayerTiles>*(const edm::ParameterSet&,
                                                                                     edm::ConsumesCollector)>
@@ -13,5 +12,7 @@ typedef edmplugin::PluginFactory<ticl::PatternRecognitionAlgoBaseT<TICLLayerTile
 typedef edmplugin::PluginFactory<ticl::PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>*(const edm::ParameterSet&,
                                                                                           edm::ConsumesCollector)>
     PatternRecognitionHFNoseFactory;
-
+typedef edmplugin::PluginFactory<ticl::PatternRecognitionAlgoBaseT<TICLLayerTilesBarrel>*(const edm::ParameterSet&,
+                                                                                          edm::ConsumesCollector)>
+    PatternRecognitionBarrelFactory;
 #endif

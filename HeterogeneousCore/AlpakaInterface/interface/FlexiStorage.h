@@ -3,16 +3,28 @@
 #define HeterogeneousCore_AlpakaInterface_interface_FlexiStorage_h
 
 #include <cstdint>
+#include <limits>
+
+#include <alpaka/alpaka.hpp>
 
 namespace cms::alpakatools {
-
-  template <typename I, int S>
-  class FlexiStorage {
+  class FlexiStorageBase {
   public:
-    constexpr int capacity() const { return S; }
+    using size_type = uint32_t;
+  };
 
-    constexpr I& operator[](int i) { return m_v[i]; }
-    constexpr const I& operator[](int i) const { return m_v[i]; }
+  inline constexpr FlexiStorageBase::size_type kDynamicSize = std::numeric_limits<FlexiStorageBase::size_type>::max();
+  inline constexpr FlexiStorageBase::size_type kOverflow = std::numeric_limits<FlexiStorageBase::size_type>::max() - 1;
+
+  template <typename I, FlexiStorageBase::size_type S>
+  class FlexiStorage : public FlexiStorageBase {
+    static_assert(S != kOverflow, "FlexiStorage<I, S>: S must not be kOverflow");
+
+  public:
+    constexpr size_type capacity() const { return S; }
+
+    constexpr I& operator[](size_type i) { return m_v[i]; }
+    constexpr const I& operator[](size_type i) const { return m_v[i]; }
 
     constexpr I* data() { return m_v; }
     constexpr I const* data() const { return m_v; }
@@ -22,24 +34,26 @@ namespace cms::alpakatools {
   };
 
   template <typename I>
-  class FlexiStorage<I, -1> {
+  class FlexiStorage<I, kDynamicSize> : public FlexiStorageBase {
   public:
-    constexpr void init(I* v, int s) {
+    constexpr void init(I* v, size_type s) {
+      ALPAKA_ASSERT_ACC((s != kDynamicSize) && "FlexiStorage::init(v, s): s must not be kDynamicSize");
+      ALPAKA_ASSERT_ACC((s != kOverflow) && "FlexiStorage::init(v, s): s must not be kOverflow");
       m_v = v;
       m_capacity = s;
     }
 
-    constexpr int capacity() const { return m_capacity; }
+    constexpr size_type capacity() const { return m_capacity; }
 
-    constexpr I& operator[](int i) { return m_v[i]; }
-    constexpr const I& operator[](int i) const { return m_v[i]; }
+    constexpr I& operator[](size_type i) { return m_v[i]; }
+    constexpr const I& operator[](size_type i) const { return m_v[i]; }
 
     constexpr I* data() { return m_v; }
     constexpr I const* data() const { return m_v; }
 
   private:
     I* m_v;
-    int m_capacity;
+    size_type m_capacity;
   };
 
 }  // namespace cms::alpakatools

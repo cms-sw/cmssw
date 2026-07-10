@@ -22,9 +22,12 @@ namespace fwlite {
 
 namespace reco {
   namespace JetExtendedAssociation {
-    class JetExtendedData;
+    namespace io_v1 {
+      class JetExtendedData;
+    }
+    using io_v1::JetExtendedData;
     typedef math::PtEtaPhiELorentzVectorF LorentzVector;
-    typedef reco::JetExtendedAssociation::JetExtendedData Value;
+    typedef reco::JetExtendedAssociation::io_v1::JetExtendedData Value;
     typedef std::vector<Value> Values;
     typedef edm::AssociationVector<reco::JetRefBaseProd, Values> Container;
     typedef Container::value_type value_type;
@@ -64,15 +67,17 @@ namespace reco {
     /// check if jet is associated
     bool hasJet(const Container&, const reco::Jet&);
 
-    class JetExtendedData {
-    public:
-      JetExtendedData();
-      ~JetExtendedData() {}
-      int mTracksAtVertexNumber;
-      LorentzVector mTracksAtVertexP4;
-      int mTracksAtCaloNumber;
-      LorentzVector mTracksAtCaloP4;
-    };
+    namespace io_v1 {
+      class JetExtendedData {
+      public:
+        JetExtendedData();
+        ~JetExtendedData() {}
+        int mTracksAtVertexNumber;
+        LorentzVector mTracksAtVertexP4;
+        int mTracksAtCaloNumber;
+        LorentzVector mTracksAtCaloP4;
+      };
+    }  // namespace io_v1
   }  // namespace JetExtendedAssociation
 }  // namespace reco
 

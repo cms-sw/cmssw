@@ -33,23 +33,6 @@ namespace fwlite {
 
       edm::WrapperBase const* getIt(edm::ProductID const& iID) const override { return event_->getByProductID(iID); }
 
-      std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> getThinnedProduct(
-          edm::ProductID const& pid, unsigned int key) const override {
-        return event_->getThinnedProduct(pid, key);
-      }
-
-      void getThinnedProducts(edm::ProductID const& pid,
-                              std::vector<edm::WrapperBase const*>& foundContainers,
-                              std::vector<unsigned int>& keys) const override {
-        event_->getThinnedProducts(pid, foundContainers, keys);
-      }
-
-      edm::OptionalThinnedKey getThinnedKeyFrom(edm::ProductID const& parent,
-                                                unsigned int key,
-                                                edm::ProductID const& thinned) const override {
-        return event_->getThinnedKeyFrom(parent, key, thinned);
-      }
-
     private:
       unsigned int transitionIndex_() const override { return 0U; }
 
@@ -333,43 +316,6 @@ namespace fwlite {
     if (edp == nullptr) {
       (const_cast<MultiChainEvent*>(this))->toSec(event1_->id());
       edp = event2_->getByProductID(iID);
-    }
-    return edp;
-  }
-
-  std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> MultiChainEvent::getThinnedProduct(
-      edm::ProductID const& pid, unsigned int key) const {
-    // First try the first file
-    auto edp = event1_->getThinnedProduct(pid, key);
-    // Did not find the product, try secondary file
-    if (not edp.has_value()) {
-      (const_cast<MultiChainEvent*>(this))->toSec(event1_->id());
-      edp = event2_->getThinnedProduct(pid, key);
-    }
-    return edp;
-  }
-
-  void MultiChainEvent::getThinnedProducts(edm::ProductID const& pid,
-                                           std::vector<edm::WrapperBase const*>& wrappers,
-                                           std::vector<unsigned int>& keys) const {
-    // First try the first file
-    event1_->getThinnedProducts(pid, wrappers, keys);
-    // Did not find all the products, try secondary file
-    if (std::find(wrappers.begin(), wrappers.end(), nullptr) != wrappers.end()) {
-      (const_cast<MultiChainEvent*>(this))->toSec(event1_->id());
-      event2_->getThinnedProducts(pid, wrappers, keys);
-    }
-  }
-
-  edm::OptionalThinnedKey MultiChainEvent::getThinnedKeyFrom(edm::ProductID const& parent,
-                                                             unsigned int key,
-                                                             edm::ProductID const& thinned) const {
-    // First try the first file
-    auto edp = event1_->getThinnedKeyFrom(parent, key, thinned);
-    // Did not find the product, try secondary file
-    if (std::holds_alternative<std::monostate>(edp)) {
-      (const_cast<MultiChainEvent*>(this))->toSec(event1_->id());
-      edp = event2_->getThinnedKeyFrom(parent, key, thinned);
     }
     return edp;
   }

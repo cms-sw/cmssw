@@ -1,16 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-# This is an ugly hack (but better what was before) to record if the
-# loadDigiAliases() was called with premixing or not. Unfortunately
-# which alias to use depends on that. If we had a premixing Modifier,
-# this hack would not be needed.
-_loadDigiAliasesWasCalledPremix = None
-
-def loadGeneralTracksAlias(process):
-    if _loadDigiAliasesWasCalledPremix is None:
-        raise Exception("This function may be called only after loadDigiAliases() has been called")
-
-    nopremix = not _loadDigiAliasesWasCalledPremix
+def loadGeneralTracksAlias(process, premix=False):
+    nopremix = not premix
     process.generalTracks = cms.EDAlias(
         **{"mix" if nopremix else "mixData" :
            cms.VPSet(
@@ -35,8 +26,6 @@ def loadGeneralTracksAlias(process):
 
 def loadDigiAliases(process, premix=False):
     nopremix = not premix
-    global _loadDigiAliasesWasCalledPremix
-    _loadDigiAliasesWasCalledPremix = premix
 
     process.ecalPreshowerDigis = cms.EDAlias(
         **{"simEcalPreshowerDigis" if nopremix else "DMEcalPreshowerDigis" :
@@ -135,7 +124,28 @@ def loadDigiAliases(process, premix=False):
                 #    ),
                 )
           )
-    
+
+def loadDigiAliasesHGCal(process):
+    process.hgcalDigis = cms.EDAlias(
+        mix = cms.VPSet(
+            cms.PSet(
+                fromProductInstance = cms.string('HGCDigisEE'),
+                toProductInstance = cms.string('EE'),
+                type = cms.string('DetIdHGCSampleHGCDataFramesSorted')
+            ),
+            cms.PSet(
+                fromProductInstance = cms.string('HGCDigisHEfront'),
+                toProductInstance = cms.string('HEfront'),
+                type = cms.string('DetIdHGCSampleHGCDataFramesSorted')
+            ),
+            cms.PSet(
+                fromProductInstance = cms.string('HGCDigisHEback'),
+                toProductInstance = cms.string('HEback'),
+                type = cms.string('DetIdHGCSampleHGCDataFramesSorted')
+            )
+        )
+    )
+
 def loadTriggerDigiAliases(process):
     process.caloStage1LegacyFormatDigis = cms.EDAlias(
         **{ "simCaloStage1LegacyFormatDigis" :

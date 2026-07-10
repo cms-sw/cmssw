@@ -57,7 +57,6 @@ namespace edm {
         processHistoryRegistry_(new ProcessHistoryRegistry),
         branchIDListHelper_(desc.branchIDListHelper_),
         processBlockHelper_(desc.processBlockHelper_),
-        thinnedAssociationsHelper_(desc.thinnedAssociationsHelper_),
         processGUID_(edm::processGUID().toBinary()),
         time_(),
         newRun_(true),
@@ -66,8 +65,7 @@ namespace edm {
         state_(),
         runAuxiliary_(),
         lumiAuxiliary_(),
-        statusFileName_(),
-        numberOfEventsBeforeBigSkip_(0) {
+        statusFileName_() {
     if (pset.getUntrackedParameter<bool>("writeStatusFile", false)) {
       std::ostringstream statusfilename;
       statusfilename << "source_" << getpid();
@@ -130,19 +128,21 @@ namespace edm {
   // to get to the lumis and runs), this is all that is involved to implement these modes.
   // For input sources where events or lumis can be skipped, getNextItemType() should
   // implement the skipping internally, so that the performance gain is realized.
-  // If this is done for a source, the 'if' blocks in this function will never be entered
+  // If this is done for a source, the 'while' blocks in this function will never be entered
   // for that source.
   InputSource::ItemTypeInfo InputSource::nextItemType_() {
     ItemTypeInfo itemTypeInfo = callWithTryCatchAndPrint<ItemTypeInfo>([this]() { return getNextItemType(); },
                                                                        "Calling InputSource::getNextItemType");
 
-    if (itemTypeInfo == ItemType::IsEvent && processingMode() != RunsLumisAndEvents) {
+    while (itemTypeInfo.itemType() == ItemType::IsEvent && processingMode() == RunsAndLumis) {
       skipEvents(1);
-      return nextItemType_();
+      itemTypeInfo = callWithTryCatchAndPrint<ItemTypeInfo>(
+          [this]() { return getNextItemType(); }, "Calling InputSource::getNextItemType looking for Run or Lumi");
     }
-    if (itemTypeInfo == ItemType::IsLumi && processingMode() == Runs) {
-      // QQQ skipLuminosityBlock_();
-      return nextItemType_();
+    while ((itemTypeInfo == ItemType::IsLumi or itemTypeInfo == ItemType::IsEvent) && processingMode() == Runs) {
+      skipEvents(1);
+      itemTypeInfo = callWithTryCatchAndPrint<ItemTypeInfo>([this]() { return getNextItemType(); },
+                                                            "Calling InputSource::getNextItemType looking for Run");
     }
     return itemTypeInfo;
   }
@@ -151,43 +151,43 @@ namespace edm {
     ItemType oldType = state_.itemType();
     if (eventLimitReached()) {
       // If the maximum event limit has been reached, stop.
-      state_ = ItemType::IsStop;
+      state_ = ItemTypeInfo::isStop();
     } else if (lumiLimitReached()) {
       // If the maximum lumi limit has been reached, stop
       // when reaching a new file, run, or lumi.
       if (oldType == ItemType::IsInvalid || oldType == ItemType::IsFile || oldType == ItemType::IsRun ||
           processingMode() != RunsLumisAndEvents) {
-        state_ = ItemType::IsStop;
+        state_ = ItemTypeInfo::isStop();
       } else {
         ItemTypeInfo newState = nextItemType_();
         if (newState == ItemType::IsEvent) {
           assert(processingMode() == RunsLumisAndEvents);
-          state_ = ItemType::IsEvent;
+          state_ = ItemTypeInfo::isEvent();
         } else {
-          state_ = ItemType::IsStop;
+          state_ = ItemTypeInfo::isStop();
         }
       }
     } else {
       ItemTypeInfo newState = nextItemType_();
-      if (newState == ItemType::IsStop) {
-        state_ = ItemType::IsStop;
-      } else if (newState == ItemType::IsSynchronize) {
-        state_ = ItemType::IsSynchronize;
-      } else if (newState == ItemType::IsFile || oldType == ItemType::IsInvalid) {
-        state_ = ItemType::IsFile;
-      } else if (newState == ItemType::IsRun || oldType == ItemType::IsFile) {
+      if (newState.itemType() == ItemType::IsStop) {
+        state_ = ItemTypeInfo::isStop();
+      } else if (newState.itemType() == ItemType::IsSynchronize) {
+        state_ = ItemTypeInfo::isSynchronize();
+      } else if (newState.itemType() == ItemType::IsFile || oldType == ItemType::IsInvalid) {
+        state_ = ItemTypeInfo::isFile();
+      } else if (newState.itemType() == ItemType::IsRun || oldType == ItemType::IsFile) {
         runAuxiliary_ = readRunAuxiliary();
-        state_ = (newState == ItemType::IsRun) ? newState : ItemTypeInfo(ItemType::IsRun);
-      } else if (newState == ItemType::IsLumi || oldType == ItemType::IsRun) {
+        state_ = (newState.itemType() == ItemType::IsRun) ? newState : ItemTypeInfo::isRun();
+      } else if (newState.itemType() == ItemType::IsLumi || oldType == ItemType::IsRun) {
         assert(processingMode() != Runs);
         lumiAuxiliary_ = readLuminosityBlockAuxiliary();
-        state_ = (newState == ItemType::IsLumi) ? newState : ItemTypeInfo(ItemType::IsLumi);
+        state_ = (newState.itemType() == ItemType::IsLumi) ? newState : ItemTypeInfo::isLumi();
       } else {
         assert(processingMode() == RunsLumisAndEvents);
-        state_ = ItemType::IsEvent;
+        state_ = ItemTypeInfo::isEvent();
       }
     }
-    if (state_ == ItemType::IsStop) {
+    if (state_.itemType() == ItemType::IsStop) {
       lumiAuxiliary_.reset();
       runAuxiliary_.reset();
     }
@@ -220,7 +220,7 @@ namespace edm {
 
   // Return a dummy file block.
   std::shared_ptr<FileBlock> InputSource::readFile() {
-    assert(state_ == ItemType::IsFile);
+    assert(state_.itemType() == ItemType::IsFile);
     assert(!limitReached());
     return callWithTryCatchAndPrint<std::shared_ptr<FileBlock> >([this]() { return readFile_(); },
                                                                  "Calling InputSource::readFile_");
@@ -299,7 +299,7 @@ namespace edm {
   }
 
   void InputSource::readEvent(EventPrincipal& ep, StreamContext& streamContext) {
-    assert(state_ == ItemType::IsEvent);
+    assert(state_.itemType() == ItemType::IsEvent);
     assert(!eventLimitReached());
     {
       // block scope, in order to issue the PostSourceEvent signal before calling postRead and issueReports

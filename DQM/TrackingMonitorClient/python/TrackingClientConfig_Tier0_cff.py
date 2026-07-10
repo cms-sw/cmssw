@@ -98,8 +98,9 @@ highPtTripletStepTrackToTrackSerialSyncAnalyzer = _t2t.clone(
 trackToTrackCPUAnalyzer = cms.Sequence()
 _trackToTrackCPUAnalyzer_trackingLST = cms.Sequence(highPtTripletStepTrackToTrackSerialSyncAnalyzer)
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+from Configuration.ProcessModifiers.alpakaValidationLST_cff import alpakaValidationLST
 from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
-(trackingPhase2PU140 & trackingLST).toReplaceWith(trackToTrackCPUAnalyzer, _trackToTrackCPUAnalyzer_trackingLST)
+(trackingPhase2PU140 & alpakaValidationLST & trackingLST).toReplaceWith(trackToTrackCPUAnalyzer, _trackToTrackCPUAnalyzer_trackingLST)
 
 
 TrackingOfflineDQMClient = cms.Sequence(trackingQTester*trackingOfflineAnalyser*trackingEffFromHitPattern*voMonitoringClientSequence*primaryVertexResolutionClient*TrackEffClient*foldedMapClientSeq*trackToTrackCPUAnalyzer)

@@ -9,7 +9,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/FixedQueueEDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/TensorCollection.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/alpaka/AlpakaModel.h"
@@ -18,10 +18,10 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
 
-  class MaskedNet : public stream::EDProducer<> {
+  class MaskedNet : public stream::FixedQueueEDProducer<> {
   public:
     MaskedNet(const edm::ParameterSet &params)
-        : EDProducer<>(params),
+        : FixedQueueEDProducer<>(params),
           particles_token_(consumes(params.getParameter<edm::InputTag>("particles"))),
           masked_net_token_{produces()},
           model_(params.getParameter<edm::FileInPath>("model").fullPath()),
@@ -38,14 +38,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     void produce(device::Event &event, const device::EventSetup &event_setup) override {
       // in/out collections
       const auto &particles = event.get(particles_token_);
-      const auto batch_size = particles.const_view().metadata().size();
-      auto masked_net_output = portabletest::SimpleNetDeviceCollection(event.queue(), batch_size);
+      const auto total_size = particles.const_view().metadata().size();
+      auto masked_net_output = portabletest::SimpleNetDeviceCollection(event.queue(), total_size);
 
       // mask
-      auto mask = portabletest::MaskDeviceCollection(event.queue(), batch_size);
+      auto mask = portabletest::MaskDeviceCollection(event.queue(), total_size);
       kernels::fillMask(event.queue(), mask);
       // note that scalar mask can be used to mask out entire batch at once (scalars are broadcasted)
-      // auto scalar_mask = ScalarMaskDeviceCollection(batch_size, event.queue());
+      // auto scalar_mask = ScalarMaskDeviceCollection(total_size, event.queue());
       // scalar_mask.zeroInitialise(event.queue());
 
       // records
@@ -54,14 +54,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
       // auto scalar_mask_records = scalar_mask.view().records();
       auto output_records = masked_net_output.view().records();
       // input tensor definition
-      cms::torch::alpakatools::TensorCollection<Queue> inputs(batch_size);
+      cms::torch::alpakatools::TensorCollection<Queue> inputs(total_size);
       inputs.add<portabletest::ParticleSoA>(
           "particles", particle_records.pt(), particle_records.eta(), particle_records.phi());
       // note override of default `ParticleSoA` layout with `MaskSoA`
       inputs.add<portabletest::MaskSoA>("mask", mask_records.mask());
       // inputs.add<ScalarMaskSoA>("scalar_mask", scalar_mask_records.scalar_mask());
       // output tensor definition
-      cms::torch::alpakatools::TensorCollection<Queue> outputs(batch_size);
+      cms::torch::alpakatools::TensorCollection<Queue> outputs(total_size);
       outputs.add<portabletest::SimpleNetSoA>("regression_head", output_records.reco_pt());
       // metadata for automatic tensor conversion
       // ModelMetadata metadata(inputs, outputs);

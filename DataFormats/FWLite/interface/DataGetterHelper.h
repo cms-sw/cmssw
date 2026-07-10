@@ -36,6 +36,7 @@
 #include <typeinfo>
 #include <vector>
 #include <functional>
+#include <optional>
 
 // forward declarations
 class TTreeCache;
@@ -45,7 +46,6 @@ namespace edm {
   class BranchID;
   class ObjectWithDict;
   class ProductID;
-  class ThinnedAssociation;
   class WrapperBase;
 }  // namespace edm
 
@@ -71,18 +71,6 @@ namespace fwlite {
 
     edm::WrapperBase const* getByProductID(edm::ProductID const& pid, Long_t eventEntry) const;
     edm::WrapperBase const* getByBranchID(edm::BranchID const& bid, Long_t eventEntry) const;
-    std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> getThinnedProduct(edm::ProductID const& pid,
-                                                                                       unsigned int key,
-                                                                                       Long_t eventEntry) const;
-    void getThinnedProducts(edm::ProductID const& pid,
-                            std::vector<edm::WrapperBase const*>& foundContainers,
-                            std::vector<unsigned int>& keys,
-                            Long_t eventEntry) const;
-    edm::OptionalThinnedKey getThinnedKeyFrom(edm::ProductID const& parent,
-                                              unsigned int key,
-                                              edm::ProductID const& thinned,
-                                              Long_t eventEntry) const;
-
     // ---------- static member functions --------------------
 
     // ---------- member functions ---------------------------
@@ -101,7 +89,6 @@ namespace fwlite {
     void getBranchData(edm::EDProductGetter const*, Long64_t, internal::Data&) const;
     bool getByProductDescription(edm::ProductDescription const&, Long_t eventEntry, KeyToDataMap::iterator&) const;
     edm::WrapperBase const* wrapperBasePtr(edm::ObjectWithDict const&) const;
-    edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID, Long_t eventEntry) const;
 
     // ---------- member data --------------------------------
     TTree* tree_;

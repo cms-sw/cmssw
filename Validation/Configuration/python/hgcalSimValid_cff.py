@@ -35,6 +35,8 @@ hgcalTiclPFValidation = cms.Sequence(ticlPFValidation)
 from Validation.HGCalValidation.ticlTrackstersEdgesValidation_cfi import ticlTrackstersEdgesValidation
 hgcalTiclTrackstersEdgesValidationSequence = cms.Sequence(ticlTrackstersEdgesValidation)
 
+from Validation.HGCalValidation.ticlSuperclusterValidation_cff import *
+
 hgcalValidatorSequence = cms.Sequence(hgcalValidator)
 hgcalPFJetValidation = _hgcalPFJetValidation.clone(BenchmarkLabel = 'PFJetValidation/HGCAlCompWithGenJet',
     VariablePtBins=[10., 30., 80., 120., 250., 600.],
@@ -53,7 +55,6 @@ hgcalAssociators = cms.Task(lcAssocByEnergyScoreProducer, layerClusterCaloPartic
                             SimClusterToCaloParticleAssociation, 
                             )
 
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_pf_cff import ticl_superclustering_mustache_pf
 
 
@@ -69,6 +70,7 @@ hgcalValidation = cms.Sequence(hgcalSimHitValidationEE
                                + hgcalHitValidationSequence
                                + hgcalValidatorSequence
                                + hgcalTiclPFValidation
+                               + ticlSuperclusterValidation
                                #Currently commented out until trackster edges are saved
 #                               + hgcalTiclTrackstersEdgesValidationSequence
                                + hgcalPFJetValidation)

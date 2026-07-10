@@ -1,6 +1,7 @@
 <use name="boost"/>
 <use name="boost_regex"/>
 <use name="tbb"/>
+<use name="rootcling"/>
 <use name="DataFormats/BTauReco"/>
 <use name="DataFormats/CLHEP"/>
 <use name="DataFormats/CaloTowers"/>
@@ -23,6 +24,7 @@
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/Provenance"/>
 <use name="DataFormats/RecoCandidate"/>
+<use name="DataFormats/Scouting"/>
 <use name="DataFormats/SiPixelDetId"/>
 <use name="DataFormats/SiStripDetId"/>
 <use name="DataFormats/TauReco"/>

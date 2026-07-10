@@ -1,7 +1,7 @@
 #ifndef Geometry_GEMGeometry_ME0Layer_h
 #define Geometry_GEMGeometry_ME0Layer_h
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 class ME0EtaPartition;

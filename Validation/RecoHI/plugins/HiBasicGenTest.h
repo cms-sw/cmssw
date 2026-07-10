@@ -14,9 +14,7 @@
 #include <iostream>
 #include <cstdlib>
 
-namespace edm {
-  class HepMCProduct;
-}
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProductFwd.h"
 
 class HiBasicGenTest : public DQMEDAnalyzer {
 public:

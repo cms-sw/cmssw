@@ -17,13 +17,13 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
 
 #include <map>
 #include <string>
 #include <vector>
 
 class DTGeometry;
-class DTChamberId;
 class DTStatusFlag;
 class TFile;
 

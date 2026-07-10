@@ -15,8 +15,8 @@
   <Vector name="LayerCenter" type="numeric" nEntries="47">
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0,
-    0, 6, 0, 6, 0, 6, 0,
-    2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1
+    0, 0, 0, 0, 0, 0, 0,
+    3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2
   </Vector>
 </ConstantsSection>
 
@@ -81,6 +81,8 @@
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal5]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal10]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal11]"/>
+    <Parameter name="ColdBoxMode"         value="0"/>
+    <Parameter name="ColdBoxRots"         value="0"/>
   </SpecPar>
   <SpecPar name="HGCalEESensitive">
     <PartSelector path="//HGCalEESensitive.*"/>    
@@ -146,6 +148,8 @@
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal5]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal10]"/>
     <Parameter name="RMaxFront"           value="[hgcal:rMaxHGCal11]"/>
+    <Parameter name="ColdBoxMode"         value="0"/>
+    <Parameter name="ColdBoxRots"         value="0"/>
   </SpecPar>
   <SpecPar name="HGCalHESiliconSensitive">
     <PartSelector path="//HGCalHESiliconSensitive.*"/>

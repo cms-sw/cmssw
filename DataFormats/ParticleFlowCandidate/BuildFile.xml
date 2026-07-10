@@ -9,8 +9,7 @@
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/EgammaReco"/>
 <use name="DataFormats/VertexReco"/>
-<use name="rootcore"/>
-<use name="rootmath"/>
+<use name="rootmathcore"/>
 <use name="clhepheader"/>
 <export>
   <lib name="1"/>

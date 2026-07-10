@@ -1,24 +1,57 @@
-#include "IOMC/ParticleGuns/interface/BeamMomentumGunProducer.h"
-
+#include "FlatBaseThetaGunProducer.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "CLHEP/Random/RandFlat.h"
 
-#include "TFile.h"
+#include <iostream>
+#include <string>
+#include <vector>
 
-namespace CLHEP {
-  class HepRandomEngine;
-}
+#include "TFile.h"
+#include "TTree.h"
 
 namespace edm {
-  BeamMomentumGunProducer::BeamMomentumGunProducer(const edm::ParameterSet& pset)
+
+  class BeamMomentumGunProducer : public FlatBaseThetaGunProducer {
+  public:
+    BeamMomentumGunProducer(const ParameterSet &);
+    ~BeamMomentumGunProducer() override {}
+
+    static void fillDescriptions(ConfigurationDescriptions &descriptions);
+    void produce(Event &e, const EventSetup &es) override;
+
+  private:
+    // data members
+    double xoff_, yoff_, zpos_;
+    TFile *fFile_;
+    TTree *fTree_;
+    long int nentries_;
+
+    // Declaration of leaf types
+    int npar_, eventId_;
+    std::vector<int> *parPDGId_;
+    std::vector<float> *parX_, *parY_, *parZ_;
+    std::vector<float> *parPx_, *parPy_, *parPz_;
+
+    // List of branches
+    TBranch *b_npar_, *b_eventId_, *b_parPDGId_;
+    TBranch *b_parX_, *b_parY_, *b_parZ_;
+    TBranch *b_parPx_, *b_parPy_, *b_parPz_;
+
+    static constexpr double mm2cm_ = 0.1, cm2mm_ = 10.0;
+    static constexpr double MeV2GeV_ = 0.001;
+  };
+
+  BeamMomentumGunProducer::BeamMomentumGunProducer(const edm::ParameterSet &pset)
       : FlatBaseThetaGunProducer(pset),
         parPDGId_(nullptr),
         parX_(nullptr),
@@ -47,7 +80,7 @@ namespace edm {
           << "Beam vertex offset (cm) " << xoff_ << ":" << yoff_ << " and z position " << zpos_;
 
     edm::FileInPath fp = pgun_params.getParameter<edm::FileInPath>("FileName");
-    const std::string& infileName = fp.fullPath();
+    const std::string &infileName = fp.fullPath();
 
     fFile_ = new TFile(infileName.c_str());
     fFile_->GetObject("EventTree", fTree_);
@@ -76,12 +109,23 @@ namespace edm {
       edm::LogVerbatim("BeamMomentumGun") << "BeamMonetumGun is initialzed";
   }
 
-  void BeamMomentumGunProducer::produce(edm::Event& e, const edm::EventSetup& es) {
+  void BeamMomentumGunProducer::fillDescriptions(ConfigurationDescriptions &descriptions) {
+    ParameterSetDescription desc;
+    ParameterSetDescription pgunParams;
+    pgunParams.add<double>("XOffset");
+    pgunParams.add<double>("YOffset");
+    pgunParams.add<double>("ZPosition");
+    pgunParams.add<edm::FileInPath>("FileName");
+    FlatBaseThetaGunProducer::fillDescription(desc, pgunParams);
+    descriptions.addDefault(desc);
+  }
+
+  void BeamMomentumGunProducer::produce(edm::Event &e, const edm::EventSetup &es) {
     if (fVerbosity > 0)
       edm::LogVerbatim("BeamMomentumGun") << "BeamMomentumGunProducer : Begin New Event Generation";
 
     edm::Service<edm::RandomNumberGenerator> rng;
-    CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+    CLHEP::HepRandomEngine *engine = &rng->getEngine(e.streamID());
 
     // event loop (well, another step in it...)
     // no need to clean up GenEvent memory - done in HepMCProduct
@@ -99,14 +143,14 @@ namespace edm {
     int barcode = 1;
     for (unsigned int ip = 0; ip < parPDGId_->size(); ip++) {
       int partID = parPDGId_->at(ip);
-      const HepPDT::ParticleData* pData = fPDGTable->particle(HepPDT::ParticleID(std::abs(partID)));
+      const HepPDT::ParticleData *pData = fPDGTable->particle(HepPDT::ParticleID(std::abs(partID)));
       double mass = pData->mass().value();
       if (fVerbosity > 0)
         edm::LogVerbatim("BeamMomentumGun") << "PDGId: " << partID << "   mass: " << mass;
       double xp = (xoff_ * cm2mm_ + (-1) * parY_->at(ip));  // 90 degree rotation applied
       double yp = (yoff_ * cm2mm_ + parX_->at(ip));         // 90 degree rotation applied
       double zp = zpos_ * cm2mm_;
-      HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(xp, yp, zp));
+      HepMC::GenVertex *Vtx = new HepMC::GenVertex(HepMC::FourVector(xp, yp, zp));
       double pxGeV = MeV2GeV_ * (-1) * parPy_->at(ip);  // 90 degree rotation applied
       double pyGeV = MeV2GeV_ * parPx_->at(ip);         // 90 degree rotation applied
       double pzGeV = MeV2GeV_ * parPz_->at(ip);
@@ -128,7 +172,7 @@ namespace edm {
       }
 
       HepMC::FourVector p(px, py, pz, energy);
-      HepMC::GenParticle* part = new HepMC::GenParticle(p, partID, 1);
+      HepMC::GenParticle *part = new HepMC::GenParticle(p, partID, 1);
       part->suggest_barcode(barcode);
       barcode++;
       Vtx->add_particle_out(part);
@@ -136,7 +180,7 @@ namespace edm {
       if (fAddAntiParticle) {
         HepMC::FourVector ap(-px, -py, -pz, energy);
         int apartID = (partID == 22 || partID == 23) ? partID : -partID;
-        HepMC::GenParticle* apart = new HepMC::GenParticle(ap, apartID, 1);
+        HepMC::GenParticle *apart = new HepMC::GenParticle(ap, apartID, 1);
         apart->suggest_barcode(barcode);
         if (fVerbosity > 0)
           edm::LogVerbatim("BeamMomentumGun")
@@ -165,3 +209,7 @@ namespace edm {
       edm::LogVerbatim("BeamMomentumGun") << "BeamMomentumGunProducer : Event Generation Done";
   }
 }  // namespace edm
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+using edm::BeamMomentumGunProducer;
+DEFINE_FWK_MODULE(BeamMomentumGunProducer);

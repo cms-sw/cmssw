@@ -32,10 +32,6 @@ class TFile;
 class TTree;
 class TBranch;
 
-namespace edm {
-  class ThinnedAssociationsHelper;
-}
-
 namespace fwlite {
   namespace internal {
     class BMRStrategy {
@@ -53,7 +49,6 @@ namespace fwlite {
       virtual const edm::ProductDescription& branchIDToBranch(const edm::BranchID& bid) const = 0;
       virtual const std::vector<edm::ProductDescription>& getProductDescriptions() = 0;
       virtual const edm::BranchListIndexes& branchListIndexes() const = 0;
-      virtual const edm::ThinnedAssociationsHelper& thinnedAssociationsHelper() const = 0;
 
       edm::propagate_const<TFile*> currentFile_;
       edm::propagate_const<TTree*> eventTree_;
@@ -105,9 +100,6 @@ namespace fwlite {
     const edm::BranchListIndexes& branchListIndexes() const {
       strategy_->updateMap();
       return strategy_->branchListIndexes();
-    }
-    const edm::ThinnedAssociationsHelper& thinnedAssociationsHelper() const {
-      return strategy_->thinnedAssociationsHelper();
     }
 
     // ---------- member data --------------------------------

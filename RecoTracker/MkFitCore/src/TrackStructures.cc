@@ -96,7 +96,7 @@ namespace mkfit {
         if ((int)m_trk_cands.size() >= params.maxCandsPerSeed)
           m_trk_cands.pop_back();
 
-          // To print out what has been replaced -- remove when done with short track handling.
+        // To print out what has been replaced -- remove when done with short track handling.
 #ifdef DEBUG
         if (ci == m_trk_cands.begin()) {
           printf("FindTracksStd -- Replacing best cand (%f) with short one (%f) in final sorting\n",

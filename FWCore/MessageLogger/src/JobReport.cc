@@ -18,7 +18,7 @@
 //
 
 #include "FWCore/MessageLogger/interface/JobReport.h"
-#include "FWCore/MessageLogger/interface/xmlUtils.h"
+#include "FWCore/MessageLogger/src/xmlUtils.h"
 #include "FWCore/Utilities/interface/Map.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -762,7 +762,6 @@ namespace edm {
 
       msg << "\n<LumiSections>";
       msg << "\n<Inputs>";
-      typedef std::vector<JobReport::Token>::iterator iterator;
       for (auto const& iInput : f.contributingInputs) {
         addInputElement(impl_->inputFiles_[iInput], f.fastCopyingInputs, msg);
       }

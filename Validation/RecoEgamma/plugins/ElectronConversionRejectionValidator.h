@@ -11,6 +11,8 @@
 #include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "SimDataFormats/Vertex/interface/SimVertexFwd.h"
+#include "SimDataFormats/Track/interface/SimTrackFwd.h"
 //
 //DQM services
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -27,8 +29,6 @@ class TH1F;
 class TH2F;
 class TProfile;
 class TTree;
-class SimVertex;
-class SimTrack;
 /** \class ElectronConversionRejectionValidator
  **
  **

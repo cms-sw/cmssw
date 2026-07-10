@@ -2,6 +2,7 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Math"/>
 <use name="boost"/>
+<use name="rootcling"/>
 <export>
   <lib name="1"/>
 </export>

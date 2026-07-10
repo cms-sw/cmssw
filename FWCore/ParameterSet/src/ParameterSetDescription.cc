@@ -76,12 +76,13 @@ namespace edm {
   }
 
   void ParameterSetDescription::validate(ParameterSet& pset) const {
-    using std::placeholders::_1;
     if (unknown_)
       return;
 
     std::set<std::string> validatedLabels;
-    for_all(entries_, std::bind(&ParameterSetDescription::validateNode, _1, std::ref(pset), std::ref(validatedLabels)));
+    for (auto const& entry : entries_) {
+      validateNode(entry, pset, validatedLabels);
+    }
 
     std::vector<std::string> parameterNames = pset.getParameterNames();
     if (validatedLabels.size() != parameterNames.size()) {
@@ -257,6 +258,19 @@ namespace edm {
     } else {
       entry.node()->printNestedContent(os, entry.optional(), dfh);
     }
+  }
+
+  cfi::Trackiness ParameterSetDescription::trackiness(std::string_view path) const {
+    for (auto const& e : entries_) {
+      cfi::Trackiness t = e.node()->trackiness(path);
+      if (t != cfi::Trackiness::kNotAllowed) {
+        return t;
+      }
+    }
+    if (anythingAllowed()) {
+      return cfi::Trackiness::kUnknown;
+    }
+    return cfi::Trackiness::kNotAllowed;
   }
 
   void ParameterSetDescription::throwIfLabelsAlreadyUsed(std::set<std::string> const& nodeLabels) {

@@ -25,7 +25,7 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
-class PFTrackProducer : public edm::stream::EDProducer<> {
+class PFTrackProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   ///Constructor
   explicit PFTrackProducer(const edm::ParameterSet&);

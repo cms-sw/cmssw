@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun dumpHGCalTB_cfg.py type=TB230FEB
 #
-#   Options for type TB230FEB, TB230Aug, TB230Sep, TB231May
+#   Options for type TB230FEB, TB230Aug, TB230Sep, TB231May, TB251, TB252
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('type',
                  "TB230FEB",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: TB230FEB, TB230Aug, TB230Sep, TB231May")
+                  "type of operations: TB230FEB, TB230Aug, TB230Sep, TB231May, TB251, TB252")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -37,7 +37,7 @@ if 'MessageLogger' in process.__dict__:
     process.MessageLogger.G4cerr=dict()
     process.MessageLogger.G4cout=dict()
     process.MessageLogger.HGCalGeom=dict()
-#   process.MessageLogger.TGeoMgrFromDdd=dict()
+    process.MessageLogger.TGeoMgrFromDdd=dict()
 
 process.source = cms.Source("EmptySource")
 

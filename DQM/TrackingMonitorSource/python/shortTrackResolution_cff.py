@@ -10,6 +10,9 @@ ShortTrackCandidates = _trackerTrackHitFilter.clone(src = "SingleLongTrackProduc
                                                     rejectBadStoNHits = True,
                                                     usePixelQualityFlag = True)
 
+from Configuration.ProcessModifiers.PixelCPEGeneric_cff import PixelCPEGeneric
+PixelCPEGeneric.toModify(ShortTrackCandidates, usePixelQualityFlag = False)
+
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(ShortTrackCandidates,
                         isPhase2 = True)

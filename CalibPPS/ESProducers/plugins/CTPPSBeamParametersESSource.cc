@@ -21,7 +21,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -39,7 +39,7 @@ using namespace std;
  * \brief Loads CTPPSBeamParameters from a config file.
  **/
 
-class CTPPSBeamParametersESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class CTPPSBeamParametersESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   CTPPSBeamParametersESSource(const edm::ParameterSet&);
   ~CTPPSBeamParametersESSource() override = default;
@@ -64,12 +64,6 @@ private:
   double vtxOffsetX45_, vtxOffsetY45_, vtxOffsetZ45_, vtxOffsetT45_;
   double vtxOffsetX56_, vtxOffsetY56_, vtxOffsetZ56_, vtxOffsetT56_;
   double vtxStddevX_, vtxStddevY_, vtxStddevZ_, vtxStddevT_;
-
-protected:
-  /// sets infinite validity of this data
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -189,19 +183,6 @@ std::unique_ptr<CTPPSBeamParameters> CTPPSBeamParametersESSource::fillBeamParame
   p->setVtxStddevT(vtxStddevT_);
 
   return p;
-}
-
-//----------------------------------------------------------------------------------------------------
-
-void CTPPSBeamParametersESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& key,
-                                                 const edm::IOVSyncValue& iosv,
-                                                 edm::ValidityInterval& oValidity) {
-  edm::LogInfo("CTPPSBeamParametersESSource")
-      << ">> CTPPSBeamParametersESSource::setIntervalFor(" << key.name() << ")\n"
-      << "    run=" << iosv.eventID().run() << ", event=" << iosv.eventID().event();
-
-  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
-  oValidity = infinity;
 }
 
 //----------------------------------------------------------------------------------------------------

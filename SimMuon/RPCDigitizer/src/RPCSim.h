@@ -16,12 +16,12 @@
 
 #include "DataFormats/Common/interface/DetSet.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitFwd.h"
 #include "SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h"
 
 class RPCRoll;
 class RPCGeometry;
 class RPCSimSetUp;
-class PSimHit;
 
 namespace CLHEP {
   class HepRandomEngine;

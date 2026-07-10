@@ -1,7 +1,7 @@
 #ifndef Geometry_MTDGeometryBuilder_MTDGeomDetUnit_H
 #define Geometry_MTDGeometryBuilder_MTDGeomDetUnit_H
 
-#include "Geometry/CommonDetUnit/interface/MTDGeomDet.h"
+#include "Geometry/CommonTopologies/interface/MTDGeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 

@@ -13,7 +13,6 @@
 // system include files
 #include <algorithm>
 #include <limits>
-#include "boost/version.hpp"
 
 // user include files
 #include "FWCore/PluginManager/interface/CacheParser.h"
@@ -147,11 +146,7 @@ namespace edmplugin {
       std::string type(it->first);
       for (std::vector<PluginInfo>::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
         //remove any directory specification
-#if (BOOST_VERSION / 100000) >= 1 && ((BOOST_VERSION / 100) % 1000) >= 47
-        std::string loadable(it2->loadable_.filename().string());
-#else
-        std::string loadable(it2->loadable_.filename());
-#endif
+        auto loadable = it2->loadable_.filename();
         std::string name(it2->name_);
         ordered[loadable].push_back(NameAndType(name, type));
       }

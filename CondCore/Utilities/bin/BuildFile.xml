@@ -5,11 +5,11 @@
 </bin>
 
 <bin file="cmscond_to_lumiid.cpp" name="cmscond_to_lumiid">
-  <use name="DataFormats/Provenance"/>
+  <use name="DataFormats/Provenance" source_only="1"/>
 </bin>
 
 <bin file="cmscond_from_lumiid.cpp" name="cmscond_from_lumiid">
-  <use name="DataFormats/Provenance"/>
+  <use name="DataFormats/Provenance" source_only="1"/>
 </bin>
 
 <bin file="cmscond_authentication_manager.cpp" name="cmscond_authentication_manager">

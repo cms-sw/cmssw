@@ -25,7 +25,7 @@
     to test the final DigiToRaw and RawToDigi/RawToCluster converters.  
  */
 
-class SiStripTrivialClusterSource : public edm::stream::EDProducer<> {
+class SiStripTrivialClusterSource : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   SiStripTrivialClusterSource(const edm::ParameterSet&);
   ~SiStripTrivialClusterSource() override;

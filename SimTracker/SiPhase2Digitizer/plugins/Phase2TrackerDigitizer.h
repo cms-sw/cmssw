@@ -26,6 +26,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitFwd.h"
 
 // Forward declaration
 namespace CLHEP {
@@ -43,7 +44,6 @@ namespace edm {
 
 class MagneticField;
 class PileUpEventPrincipal;
-class PSimHit;
 class Phase2TrackerDigitizerAlgorithm;
 class TrackerDigiGeometryRecord;
 

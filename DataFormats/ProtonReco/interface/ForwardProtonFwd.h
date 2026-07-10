@@ -17,7 +17,10 @@
 #include <vector>
 
 namespace reco {
-  class ForwardProton;
+  namespace io_v1 {
+    class ForwardProton;
+  }
+  using ForwardProton = io_v1::ForwardProton;
   /// Collection of ForwardProton objects
   typedef std::vector<ForwardProton> ForwardProtonCollection;
   /// Persistent reference to a ForwardProton

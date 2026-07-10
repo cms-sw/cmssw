@@ -39,6 +39,9 @@ public:
 
     for (const auto& genTauJet : *genTauJets) {
       std::string decayMode_string = JetMCTagUtils::genTauDecayMode(genTauJet);
+      // MB: ignore undecayed taus
+      if (decayMode_string == "tau")
+        continue;
       // CV: store hadronic tau decays only
       if (decayMode_string == "electron" || decayMode_string == "muon")
         continue;

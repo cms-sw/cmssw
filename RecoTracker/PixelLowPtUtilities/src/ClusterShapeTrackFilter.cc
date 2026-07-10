@@ -4,7 +4,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
 #include "RecoTracker/PixelLowPtUtilities/interface/ClusterShapeTrackFilter.h"

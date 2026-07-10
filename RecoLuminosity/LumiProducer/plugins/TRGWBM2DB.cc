@@ -51,9 +51,9 @@ namespace lumi {
     typedef std::vector<BITCOUNT> TriggerCountResult_Algo;
     typedef std::vector<BITCOUNT> TriggerCountResult_Tech;
   };  //cl TRGWBM2DB
-      //
-      //implementation
-      //
+  //
+  //implementation
+  //
   TRGWBM2DB::TRGWBM2DB(const std::string& dest) : DataPipe(dest) {}
   unsigned long long TRGWBM2DB::retrieveData(unsigned int runnumber) {
     std::string runnumberstr = int2str(runnumber, 6);

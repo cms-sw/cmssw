@@ -1,9 +1,11 @@
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 
-std::ostream& operator<<(std::ostream& s, const HFRecHit& hit) {
-  s << hit.id() << ": " << hit.energy() << " GeV";
-  if (hit.time() > -998) {
-    s << ", t= " << hit.time() << " to " << hit.timeFalling() << " ns";
+namespace io_v1 {
+  std::ostream& operator<<(std::ostream& s, const HFRecHit& hit) {
+    s << hit.id() << ": " << hit.energy() << " GeV";
+    if (hit.time() > -998) {
+      s << ", t= " << hit.time() << " to " << hit.timeFalling() << " ns";
+    }
+    return s;
   }
-  return s;
-}
+}  // namespace io_v1

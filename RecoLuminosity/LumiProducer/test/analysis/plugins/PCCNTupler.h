@@ -18,9 +18,10 @@
 #include <map>
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
@@ -39,7 +40,6 @@ class TObject;
 class TTree;
 class TH1D;
 class TFile;
-class DetId;
 
 class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchLuminosityBlocks> {
 public:

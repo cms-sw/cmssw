@@ -21,7 +21,7 @@ class DTGeometry;
 class DTChamber;
 class DTSuperLayer;
 class DTLayer;
-class DetId;
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 

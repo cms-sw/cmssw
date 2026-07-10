@@ -134,6 +134,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ecal::raw {
         // prepare for the next iteration
         next_tower_id = exp_ttids[iCh];
 
+        // do not unpack the membox data
+        if (ttid > NUMB_FE) {
+          continue;
+        }
+
         uint16_t const dccbx = bx & 0xfff;
         uint16_t const dccl1 = lv1 & 0xfff;
         // fov>=1 is required to support simulated data for which bx==bxlocal==0

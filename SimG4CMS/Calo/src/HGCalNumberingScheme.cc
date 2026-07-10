@@ -175,6 +175,11 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
         detId.setType(typm.first);
         detId.setSiPM(typm.second);
       }
+      detId.setGranularity(hgcons_.tileGranularity(layer));
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCSim") << "Trapezoid : Type " << typm.first << " SiPM " << typm.second << " Granularity "
+                                 << hgcons_.tileGranularity(layer);
+#endif
       index = detId.rawId();
       bool debug(false);
       if (!indices_.empty()) {
@@ -184,9 +189,8 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
       }
       if (debug)
         edm::LogVerbatim("HGCSim") << "Radius/Phi " << id[0] << ":" << id[1] << " Type " << id[2] << ":" << typm.first
-                                   << " SiPM " << typm.second << ":" << hgcons_.tileSiPM(typm.second) << " Layer "
-                                   << layer << " z " << iz << " ID " << detId << " wt " << wt << " position " << pos
-                                   << " R " << pos.perp();
+                                   << " SiPM " << typm.second << " Layer " << layer << " z " << iz << " ID " << detId
+                                   << " wt " << wt << " position " << pos << " R " << pos.perp();
 #ifdef EDM_ML_DEBUG
     } else {
       edm::LogVerbatim("HGCSim") << "Radius/Phi " << id[0] << ":" << id[1] << " Type " << id[2] << " Layer|iz " << layer

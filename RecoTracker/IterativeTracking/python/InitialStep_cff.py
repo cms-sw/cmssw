@@ -119,7 +119,8 @@ _fastSim_initialStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.t
                              )
 )
 #new for phase1
-trackingPhase1.toModify(_fastSim_initialStepSeeds, seedFinderSelector = dict(
+#adding phase2 also
+(trackingPhase1|trackingPhase2PU140).toModify(_fastSim_initialStepSeeds, seedFinderSelector = dict(
         pixelTripletGeneratorFactory = None,
         CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(initialStepHitQuadruplets).clone(SeedComparitorPSet = dict(ComponentName = 'none')),
         #new parameters required for phase1 seeding
@@ -136,7 +137,6 @@ trackingPhase1.toModify(_fastSim_initialStepSeeds, seedFinderSelector = dict(
 )
 
 fastSim.toReplaceWith(initialStepSeeds,_fastSim_initialStepSeeds)
-
 
 # building
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
@@ -429,7 +429,7 @@ trackingPhase2PU140.toModify(initialStepSelector,
         ), #end of vpset
 ) #end of clone
 
-
+fastSim.toModify(initialStepSelector,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 # Final sequence
 InitialStepTask = cms.Task(initialStepSeedLayers,
@@ -471,10 +471,21 @@ _InitialStepTask_trackingPhase2 = InitialStepTask.copyAndExclude([initialStepCla
 _InitialStepTask_trackingPhase2.replace(initialStepHitTriplets, initialStepHitQuadruplets)
 _InitialStepTask_trackingPhase2.replace(initialStep, initialStepSelector)
 trackingPhase2PU140.toReplaceWith(InitialStepTask, _InitialStepTask_trackingPhase2)
+
+
+from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
+from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
+(trackingPhase2PU140 & (seedingLST | trackingLST)).toModify(firstStepPrimaryVerticesUnsorted, TrackLabel = 'highPtTripletStepTracks')
+(trackingPhase2PU140 & (seedingLST | trackingLST)).toModify(initialStepTrackRefsForJets, src = 'highPtTripletStepTracks')
+
+_InitialStepTask_trackingPhase2_LST = InitialStepTask.copyAndExclude([initialStepTrackCandidatesMkFitSeeds, initialStepTrackCandidatesMkFit, initialStepTrackCandidatesMkFitConfig, initialStepTrackCandidates, initialStepTracks, initialStepSelector])
+(trackingPhase2PU140 & (seedingLST | trackingLST)).toReplaceWith(InitialStepTask, _InitialStepTask_trackingPhase2_LST)
+
 (trackingMkFitCommon & trackingPhase2PU140).toModify(mkFitEventOfHits, stripHits=cms.InputTag('mkFitSiPhase2Hits'), useStripStripQualityDB=cms.bool(False))
 (trackingMkFitInitialStep & trackingPhase2PU140).toModify(initialStepTrackCandidatesMkFit, stripHits=cms.InputTag('mkFitSiPhase2Hits'))
 (trackingMkFitInitialStep & trackingPhase2PU140).toModify(initialStepTrackCandidates, mkFitStripHits=cms.InputTag('mkFitSiPhase2Hits'))
 (trackingMkFitInitialStep & trackingPhase2PU140).toModify(initialStepTrackCandidatesMkFitConfig, config='RecoTracker/MkFit/data/mkfit-phase2-initialStep.json')
+
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 _InitialStepTask_fastSim = cms.Task(initialStepTrackingRegions
@@ -485,7 +496,10 @@ _InitialStepTask_fastSim = cms.Task(initialStepTrackingRegions
                            ,initialStepClassifier1,initialStepClassifier2,initialStepClassifier3
                            ,initialStep
                            )
+_InitialStepTask_fastSim_Phase2 = _InitialStepTask_fastSim.copy()
+_InitialStepTask_fastSim_Phase2.replace(initialStep, initialStepSelector)
 fastSim.toReplaceWith(InitialStepTask, _InitialStepTask_fastSim)
+(fastSim & trackingPhase2PU140).toReplaceWith(InitialStepTask, _InitialStepTask_fastSim_Phase2)
 
 ##
 ## Modify for the tau embedding methods reco sim step

@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_TracksterLinkingAlgoBySkeletons_H
-#define RecoHGCal_TICL_TracksterLinkingAlgoBySkeletons_H
+#ifndef RecoHGCal_TICL_TracksterLinkingbySkeletons_h
+#define RecoHGCal_TICL_TracksterLinkingbySkeletons_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -12,7 +12,7 @@
 #include "RecoHGCal/TICL/interface/TracksterLinkingAlgoBase.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -67,6 +67,7 @@ namespace ticl {
                     const edm::ESHandle<Propagator> propH) override;
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+      iDesc.add<std::string>("onnxModelPath", "")->setComment("Optional ONNX model path, empty means unused");
       iDesc.add<double>("cylinder_radius_sqr_split", 9.);
       iDesc.add<double>("proj_distance_split", 5.);
       iDesc.add<double>("track_time_quality_threshold", 0.5);

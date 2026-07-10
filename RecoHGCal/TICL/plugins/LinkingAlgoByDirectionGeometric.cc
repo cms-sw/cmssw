@@ -1,9 +1,11 @@
 #include <cmath>
 #include <string>
+#include "RecoHGCal/TICL/interface/TICLUtils.h"
 #include "RecoHGCal/TICL/plugins/LinkingAlgoByDirectionGeometric.h"
 
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "DataFormats/HGCalReco/interface/Common.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -105,8 +107,9 @@ void LinkingAlgoByDirectionGeometric::findTrackstersInWindow(
         const auto &in_tile = tile[tile.globalBin(eta_i, (phi_i % TileConstants::nPhiBins))];
         for (const unsigned &t_i : in_tile) {
           // calculate actual distances of tracksters to the seed for a more accurate cut
-          auto sep2 = (tracksterPropPoints[t_i].Eta() - seed_eta) * (tracksterPropPoints[t_i].Eta() - seed_eta) +
-                      (tracksterPropPoints[t_i].Phi() - seed_phi) * (tracksterPropPoints[t_i].Phi() - seed_phi);
+          const auto dphi = reco::deltaPhi(tracksterPropPoints[t_i].Phi(), seed_phi);
+          auto sep2 =
+              (tracksterPropPoints[t_i].Eta() - seed_eta) * (tracksterPropPoints[t_i].Eta() - seed_eta) + dphi * dphi;
           if (sep2 < delta2) {
             in_delta.push_back(t_i);
             distances2.push_back(sep2);
@@ -204,29 +207,15 @@ void LinkingAlgoByDirectionGeometric::dumpLinksFound(std::vector<std::vector<uns
 #endif  // EDM_ML_DEBUG
 }
 
+// Geometry construction
 void LinkingAlgoByDirectionGeometric::buildLayers() {
-  // build disks at HGCal front & EM-Had interface for track propagation
+  // Build propagation disks at HGCal front face and CE-E CE-H interface
+  auto firstDisks = ticl::utils::buildHGCalFirstDisks(*hgcons_);
+  auto interfaceDisks = ticl::utils::buildHGCalInterfaceDisks(*hgcons_, rhtools_);
 
-  float zVal = hgcons_->waferZ(1, true);
-  std::pair<float, float> rMinMax = hgcons_->rangeR(zVal, true);
-
-  float zVal_interface = rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z();
-  std::pair<float, float> rMinMax_interface = hgcons_->rangeR(zVal_interface, true);
-
-  for (int iSide = 0; iSide < 2; ++iSide) {
-    float zSide = (iSide == 0) ? (-1. * zVal) : zVal;
-    firstDisk_[iSide] =
-        std::make_unique<GeomDet>(Disk::build(Disk::PositionType(0, 0, zSide),
-                                              Disk::RotationType(),
-                                              SimpleDiskBounds(rMinMax.first, rMinMax.second, zSide - 0.5, zSide + 0.5))
-                                      .get());
-
-    zSide = (iSide == 0) ? (-1. * zVal_interface) : zVal_interface;
-    interfaceDisk_[iSide] = std::make_unique<GeomDet>(
-        Disk::build(Disk::PositionType(0, 0, zSide),
-                    Disk::RotationType(),
-                    SimpleDiskBounds(rMinMax_interface.first, rMinMax_interface.second, zSide - 0.5, zSide + 0.5))
-            .get());
+  for (int side = 0; side < 2; ++side) {
+    firstDisk_[side] = std::move(firstDisks[side]);
+    interfaceDisk_[side] = std::move(interfaceDisks[side]);
   }
 }
 

@@ -7,26 +7,26 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/FixedQueueEDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "PhysicsTools/PyTorchAlpakaTest/interface/Environment.h"
 #include "PhysicsTools/PyTorchAlpakaTest/plugins/alpaka/CommonKernels.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
 
-  class DataSource : public stream::EDProducer<> {
+  class DataSource : public stream::FixedQueueEDProducer<> {
   public:
     DataSource(const edm::ParameterSet &params)
-        : EDProducer<>(params),
+        : FixedQueueEDProducer<>(params),
           particles_token_{produces()},
           images_token_{produces()},
-          batch_size_(params.getParameter<uint32_t>("batchSize")),
+          total_size_(params.getParameter<uint32_t>("totalSize")),
           environment_{static_cast<::torchtest::Environment>(params.getUntrackedParameter<int>("environment"))} {}
 
     void produce(device::Event &event, const device::EventSetup &event_setup) override {
       // allocate data sources
-      auto particles = portabletest::ParticleDeviceCollection(event.queue(), batch_size_);
-      auto images = portabletest::ImageDeviceCollection(event.queue(), batch_size_);
+      auto particles = portabletest::ParticleDeviceCollection(event.queue(), total_size_);
+      auto images = portabletest::ImageDeviceCollection(event.queue(), total_size_);
 
       // fill data
       kernels::randomFillParticleCollection(event.queue(), particles);
@@ -39,7 +39,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
 
     static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
       edm::ParameterSetDescription desc;
-      desc.add<uint32_t>("batchSize");
+      desc.add<uint32_t>("totalSize");
       desc.addUntracked<int>("environment", static_cast<int>(::torchtest::Environment::kProduction));
       descriptions.addWithDefaultLabel(desc);
     }
@@ -47,7 +47,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
   private:
     const device::EDPutToken<portabletest::ParticleDeviceCollection> particles_token_;
     const device::EDPutToken<portabletest::ImageDeviceCollection> images_token_;
-    const uint32_t batch_size_;
+    const uint32_t total_size_;
     const ::torchtest::Environment environment_;
   };
 

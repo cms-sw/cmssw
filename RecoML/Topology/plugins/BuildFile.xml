@@ -1,0 +1,15 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/BTauReco"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/JetReco"/>
+<use name="DataFormats/METReco"/>
+<use name="DataFormats/RecoCandidate"/>
+<use name="PhysicsTools/XGBoost"/>
+<!-- <use name="xgboost"/> -->
+
+<library file="*.cc" name="RecoMLTopologyPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

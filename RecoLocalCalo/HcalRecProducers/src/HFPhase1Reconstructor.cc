@@ -51,7 +51,7 @@
 //
 // class declaration
 //
-class HFPhase1Reconstructor : public edm::stream::EDProducer<> {
+class HFPhase1Reconstructor : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit HFPhase1Reconstructor(const edm::ParameterSet&);
   ~HFPhase1Reconstructor() override = default;

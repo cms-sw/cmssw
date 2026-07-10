@@ -18,7 +18,7 @@ namespace edm {
 
 class RPCAMCUnpacker;
 
-class RPCAMCRawToDigi : public edm::stream::EDProducer<> {
+class RPCAMCRawToDigi : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   RPCAMCRawToDigi(edm::ParameterSet const &config);
   ~RPCAMCRawToDigi() override;

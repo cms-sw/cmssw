@@ -20,7 +20,7 @@
 // ROOT includes
 #include "TPRegexp.h"
 
-class HLTPathSelector : public edm::stream::EDFilter<> {
+class HLTPathSelector : public edm::stream::EDFilter<edm::stream::WatchRuns> {
 public:
   explicit HLTPathSelector(const edm::ParameterSet&);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

@@ -10,8 +10,7 @@
 #include <string>
 #include <iostream>
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-
-class DetId;
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 
 class PixelEndcapNameUpgrade : public PixelModuleName {
 public:

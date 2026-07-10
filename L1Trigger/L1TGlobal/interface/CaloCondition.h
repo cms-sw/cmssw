@@ -23,14 +23,13 @@
 // user include files
 //   base classes
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
+#include "DataFormats/L1Trigger/interface/L1CandidateFwd.h"
 
 // forward declarations
 class GlobalCondition;
 class CaloTemplate;
 
 namespace l1t {
-
-  class L1Candidate;
 
   class GlobalBoard;
 

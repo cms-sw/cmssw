@@ -25,6 +25,7 @@
 #include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L2MuonTrajectorySeedCollection.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedFwd.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
@@ -38,11 +39,10 @@
 
 #include "CLHEP/Vector/ThreeVector.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
+#include "Geometry/CommonTopologies/interface/GeomDetEnumerators.h"
 
 class MuonServiceProxy;
 class MeasurementEstimator;
-class TrajectorySeed;
 class TrajectoryStateOnSurface;
 
 namespace edm {

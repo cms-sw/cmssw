@@ -31,7 +31,10 @@ process.common_beam_direction_parameters = cms.PSet(
     MinEta       = cms.double(0.7397),
     MaxEta       = cms.double(0.7397),
     MinPhi       = cms.double(6.23955),
-    MaxPhi       = cms.double(6.23955),
+    MaxPhi       = cms.double(6.23955)
+)
+
+process.common_beam_position_parameters = cms.PSet(
     BeamPosition = cms.double(0.0)
 )
 

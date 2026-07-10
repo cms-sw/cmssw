@@ -53,14 +53,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quadruplets.lowerModuleIndices()[quadrupletIndex][1] = lowerModule2;
     quadruplets.lowerModuleIndices()[quadrupletIndex][2] = lowerModule3;
     quadruplets.lowerModuleIndices()[quadrupletIndex][3] = lowerModule4;
+    quadruplets.eta()[quadrupletIndex] = __F2H(eta);
+    quadruplets.phi()[quadrupletIndex] = __F2H(phi);
+    quadruplets.isDup()[quadrupletIndex] = 0;
     quadruplets.innerRadius()[quadrupletIndex] = __F2H(innerRadius);
     quadruplets.outerRadius()[quadrupletIndex] = __F2H(outerRadius);
     quadruplets.pt()[quadrupletIndex] = __F2H(pt);
-    quadruplets.eta()[quadrupletIndex] = __F2H(eta);
-    quadruplets.phi()[quadrupletIndex] = __F2H(phi);
+#ifdef CUT_VALUE_DEBUG
     quadruplets.score_rphisum()[quadrupletIndex] = __F2H(scores);
     quadruplets.layer()[quadrupletIndex] = layer;
-    quadruplets.isDup()[quadrupletIndex] = 0;
+#endif
     quadruplets.logicalLayers()[quadrupletIndex][0] = triplets.logicalLayers()[innerTripletIndex][0];
     quadruplets.logicalLayers()[quadrupletIndex][1] = triplets.logicalLayers()[innerTripletIndex][1];
     quadruplets.logicalLayers()[quadrupletIndex][2] = triplets.logicalLayers()[innerTripletIndex][2];
@@ -75,14 +77,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quadruplets.hitIndices()[quadrupletIndex][6] = triplets.hitIndices()[outerTripletIndex][4];
     quadruplets.hitIndices()[quadrupletIndex][7] = triplets.hitIndices()[outerTripletIndex][5];
 
-    quadruplets.rzChiSquared()[quadrupletIndex] = rzChiSquared;
-    quadruplets.dBeta()[quadrupletIndex] = dBeta;
-    quadruplets.promptScore()[quadrupletIndex] = promptScore;
     quadruplets.displacedScore()[quadrupletIndex] = displacedScore;
     quadruplets.fakeScore()[quadrupletIndex] = fakeScore;
 
     quadruplets.regressionRadius()[quadrupletIndex] = regressionRadius;
+#ifdef CUT_VALUE_DEBUG
+    quadruplets.rzChiSquared()[quadrupletIndex] = rzChiSquared;
+    quadruplets.dBeta()[quadrupletIndex] = dBeta;
+    quadruplets.promptScore()[quadrupletIndex] = promptScore;
     quadruplets.nonAnchorRegressionRadius()[quadrupletIndex] = nonAnchorRegressionRadius;
+#endif
     quadruplets.regressionCenterX()[quadrupletIndex] = regressionCenterX;
     quadruplets.regressionCenterY()[quadrupletIndex] = regressionCenterY;
   };
@@ -250,20 +254,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       error2 = moduleTypei == 0 ? kPixelPSZpitch * kPixelPSZpitch : kStrip2SZpitch * kStrip2SZpitch;
 
       //check the tilted module, side: PosZ, NegZ, Center(for not tilted)
-      float drdz;
-      short side, subdets;
-      if (i == 2) {
-        drdz = alpaka::math::abs(acc, modules.drdzs()[lowerModuleIndex2]);
-        side = modules.sides()[lowerModuleIndex2];
-        subdets = modules.subdets()[lowerModuleIndex2];
-      }
-      if (i == 3) {
-        drdz = alpaka::math::abs(acc, modules.drdzs()[lowerModuleIndex3]);
-        side = modules.sides()[lowerModuleIndex3];
-        subdets = modules.subdets()[lowerModuleIndex3];
-      }
-      const bool isEndcapOrCenter = (subdets == lst::Endcap) or (side == lst::Center);
       if (i == 2 || i == 3) {
+        uint16_t moduleIndex = (i == 2) ? lowerModuleIndex2 : lowerModuleIndex3;
+        float drdz = alpaka::math::abs(acc, modules.drdzs()[moduleIndex]);
+        short side = modules.sides()[moduleIndex];
+        short subdets = modules.subdets()[moduleIndex];
+        const bool isEndcapOrCenter = (subdets == lst::Endcap) or (side == lst::Center);
         residual = (layeri <= 6 && ((side == Center) or (drdz < 1))) ? diffz : diffr;
         float projection_missing2 = 1.f;
         if (drdz < 1)
@@ -517,7 +513,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return true;
   };
 
-  struct CreateQuadruplets {
+  template <bool ReduceMem>
+  struct CreateQuadrupletsT {
     ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
                                   MiniDoubletsConst mds,
@@ -607,7 +604,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               continue;
 
             // If densely connected, do not attempt parallel processing to avoid truncation
-            if (nInnerTriplets >= kNTripletThreshold || nOuterTriplets >= kNTripletThreshold) {
+            if (ReduceMem || nInnerTriplets >= kNTripletThreshold || nOuterTriplets >= kNTripletThreshold) {
               const uint16_t lowerModule3 = lmIdx[outerTripletIndex][1];
               const uint16_t lowerModule4 = lmIdx[outerTripletIndex][2];
 
@@ -721,6 +718,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           }
         }
 
+        if constexpr (ReduceMem)
+          continue;
+
         alpaka::syncBlockThreads(acc);
         if (matchCount == 0) {
           continue;
@@ -824,6 +824,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   };
 
+  using CreateQuadruplets = CreateQuadrupletsT<false>;
+  using CreateQuadrupletsReduceMem = CreateQuadrupletsT<true>;
+
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool isValidQuadRegion(ModulesConst modules, uint16_t lowerModule) {
     const short layer = modules.layers()[lowerModule];
     const short subdet = modules.subdets()[lowerModule];
@@ -831,7 +834,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return (subdet == Barrel && layer > 2) || (subdet == Endcap);
   }
 
-  struct CountTripletLSConnections {
+  template <bool ReduceMem>
+  struct CountTripletLSConnectionsT {
     ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
                                   MiniDoubletsConst mds,
@@ -876,7 +880,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
             if ((secondMDInner == thirdMDInner) && (secondMDOuter == thirdMDOuter)) {
               // Will only perform runQuadrupletDefaultAlgorithm() checks if densely connected
-              if (nInnerTriplets < kNTripletThreshold && nOuterTriplets < kNTripletThreshold) {
+              if (!ReduceMem && nInnerTriplets < kNTripletThreshold && nOuterTriplets < kNTripletThreshold) {
                 alpaka::atomicAdd(acc, &triplets.connectedLSMax()[innerTripletIndex], 1u, alpaka::hierarchy::Threads{});
               } else {
                 const uint16_t lowerModule3 = lmIdx[outerTripletIndex][1];
@@ -919,6 +923,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       }
     }
   };
+
+  using CountTripletLSConnections = CountTripletLSConnectionsT<false>;
+  using CountTripletLSConnectionsReduceMem = CountTripletLSConnectionsT<true>;
 
   struct CreateEligibleModulesListForQuadruplets {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,

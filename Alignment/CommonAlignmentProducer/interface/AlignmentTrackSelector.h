@@ -6,6 +6,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -19,7 +20,6 @@ namespace edm {
   class ParameterSet;
 }  // namespace edm
 
-class TrackingRecHit;
 class SiStripRecHit1D;
 class SiStripRecHit2D;
 

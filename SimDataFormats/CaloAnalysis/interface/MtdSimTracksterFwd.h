@@ -5,13 +5,16 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include <vector>
 
-class MtdSimTrackster;
+namespace io_v1 {
+  class MtdSimTrackster;
+  std::ostream &operator<<(std::ostream &s, MtdSimTrackster const &tp);
+}  // namespace io_v1
+using MtdSimTrackster = io_v1::MtdSimTrackster;
+
 typedef std::vector<MtdSimTrackster> MtdSimTracksterCollection;
 typedef edm::Ref<MtdSimTracksterCollection> MtdSimTracksterRef;
 typedef edm::RefVector<MtdSimTracksterCollection> MtdSimTracksterRefVector;
 typedef edm::RefProd<MtdSimTracksterCollection> MtdSimTracksterRefProd;
 typedef edm::RefVector<MtdSimTracksterCollection> MtdSimTracksterContainer;
-
-std::ostream &operator<<(std::ostream &s, MtdSimTrackster const &tp);
 
 #endif

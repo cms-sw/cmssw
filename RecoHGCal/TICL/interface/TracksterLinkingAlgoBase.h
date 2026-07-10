@@ -1,8 +1,8 @@
 // Author: Felice Pantaleo - felice.pantaleo@cern.ch
 // Date: 09/2018
 
-#ifndef RecoHGCal_TICL_PatternRecognitionAlgoBase_H__
-#define RecoHGCal_TICL_PatternRecognitionAlgoBase_H__
+#ifndef RecoHGCal_TICL_TracksterLinkingAlgoBase_h
+#define RecoHGCal_TICL_TracksterLinkingAlgoBase_h
 
 #include <memory>
 #include <vector>
@@ -15,10 +15,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "RecoHGCal/TICL/interface/GlobalCache.h"
 #include "DataFormats/HGCalReco/interface/Common.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"

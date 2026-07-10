@@ -18,9 +18,9 @@
 // geometry stuff
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
+#include "Geometry/CommonTopologies/interface/GluedGeomDet.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 // sim stuff
@@ -44,18 +44,18 @@ private:
   // create projected hit
   std::unique_ptr<FastTrackerRecHit> projectOnly(const FastSingleTrackerRecHit* originalRH,
                                                  const GeomDet* monoDet,
-                                                 const GluedGeomDet* gluedDet,
+                                                 const DoubleSensGeomDet* gluedDet,
                                                  LocalVector& ldir) const;
 
   // create matched hit
   std::unique_ptr<FastTrackerRecHit> match(const FastSingleTrackerRecHit* monoRH,
                                            const FastSingleTrackerRecHit* stereoRH,
-                                           const GluedGeomDet* gluedDet,
+                                           const DoubleSensGeomDet* gluedDet,
                                            LocalVector& trackdirection,
                                            bool stereLayerFirst) const;
 
   StripPosition project(const GeomDetUnit* det,
-                        const GluedGeomDet* glueddet,
+                        const DoubleSensGeomDet* glueddet,
                         const StripPosition& strip,
                         const LocalVector& trackdirection) const;
 
@@ -148,7 +148,8 @@ void FastTrackerRecHitMatcher::produce(edm::Event& iEvent, const edm::EventSetup
         //   - transform to global coordinates
         GlobalVector globalSimTrackDir = recHit->det()->surface().toGlobal(localSimTrackDir);
         //   - transform to local coordinates of glued module
-        const GluedGeomDet* gluedDet = (const GluedGeomDet*)geometry.idToDet(DetId(stripSubDetId.glued()));
+        const DoubleSensGeomDet* gluedDet =
+            static_cast<const DoubleSensGeomDet*>(geometry.idToDet(DetId(stripSubDetId.glued())));
         LocalVector gluedLocalSimTrackDir = gluedDet->surface().toLocal(globalSimTrackDir);
 
         // check whether next hit is partner
@@ -194,13 +195,13 @@ void FastTrackerRecHitMatcher::produce(edm::Event& iEvent, const edm::EventSetup
 
 std::unique_ptr<FastTrackerRecHit> FastTrackerRecHitMatcher::match(const FastSingleTrackerRecHit* monoRH,
                                                                    const FastSingleTrackerRecHit* stereoRH,
-                                                                   const GluedGeomDet* gluedDet,
+                                                                   const DoubleSensGeomDet* gluedDet,
                                                                    LocalVector& trackdirection,
                                                                    bool stereoHitFirst) const {
   // stripdet = mono
   // partnerstripdet = stereo
-  const GeomDetUnit* stripdet = gluedDet->monoDet();
-  const GeomDetUnit* partnerstripdet = gluedDet->stereoDet();
+  const GeomDetUnit* stripdet = gluedDet->firstDet();
+  const GeomDetUnit* partnerstripdet = gluedDet->secondDet();
   const StripTopology& topol = (const StripTopology&)stripdet->topology();
 
   LocalPoint position;
@@ -293,7 +294,7 @@ std::unique_ptr<FastTrackerRecHit> FastTrackerRecHitMatcher::match(const FastSin
 }
 
 FastTrackerRecHitMatcher::StripPosition FastTrackerRecHitMatcher::project(const GeomDetUnit* det,
-                                                                          const GluedGeomDet* glueddet,
+                                                                          const DoubleSensGeomDet* glueddet,
                                                                           const StripPosition& strip,
                                                                           const LocalVector& trackdirection) const {
   GlobalPoint globalpointini = (det->surface()).toGlobal(strip.first);
@@ -315,7 +316,7 @@ FastTrackerRecHitMatcher::StripPosition FastTrackerRecHitMatcher::project(const 
 
 std::unique_ptr<FastTrackerRecHit> FastTrackerRecHitMatcher::projectOnly(const FastSingleTrackerRecHit* originalRH,
                                                                          const GeomDet* monoDet,
-                                                                         const GluedGeomDet* gluedDet,
+                                                                         const DoubleSensGeomDet* gluedDet,
                                                                          LocalVector& ldir) const {
   LocalPoint position(originalRH->localPosition().x(), 0., 0.);
   const BoundPlane& gluedPlane = gluedDet->surface();
@@ -335,8 +336,8 @@ std::unique_ptr<FastTrackerRecHit> FastTrackerRecHitMatcher::projectOnly(const F
   }
   LocalError rotatedError = hitErr.rotate(hitXAxis.x(), hitXAxis.y());
 
-  const GeomDetUnit* gluedMonoDet = gluedDet->monoDet();
-  const GeomDetUnit* gluedStereoDet = gluedDet->stereoDet();
+  const GeomDetUnit* gluedMonoDet = gluedDet->firstDet();
+  const GeomDetUnit* gluedStereoDet = gluedDet->secondDet();
   int isMono = 0;
   int isStereo = 0;
 

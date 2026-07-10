@@ -30,12 +30,11 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProductFwd.h"
+
 //
 // class decleration
 //
-namespace edm {
-  class HepMCProduct;
-}
 
 class MCSingleParticleFilter : public edm::global::EDFilter<> {
 public:

@@ -29,7 +29,8 @@ using CLHEP::cm;
 using CLHEP::ns;
 using CLHEP::radian;
 
-BetafuncEvtVtxGenerator::BetafuncEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvtVtxGenerator(p), boost_(4, 4) {
+BetafuncEvtVtxGenerator::BetafuncEvtVtxGenerator(const edm::ParameterSet& p)
+    : BaseEvtVtxGeneratorWithLumi(p), boost_(4, 4) {
   readDB_ = p.getParameter<bool>("readDB");
   if (!readDB_) {
     fX0 = p.getParameter<double>("X0") * cm;

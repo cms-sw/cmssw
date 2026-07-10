@@ -33,20 +33,23 @@
  */
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include <vdt/vdtMath.h>
 #include <vector>
 
 class Thrust {
 public:
   /// spatial vector
   typedef math::XYZVector Vector;
+  static constexpr double PI = M_PI, PI2 = 2. * PI, PI_2 = PI / 2., PI_4 = PI / 4.;
   /// constructor from first and last iterators
   template <typename const_iterator>
   Thrust(const_iterator begin, const_iterator end) : thrust_(0), axis_(0, 0, 0), pSum_(0), n_(end - begin), p_(n_) {
     if (n_ == 0)
       return;
     std::vector<const reco::Candidate *> cands;
+    cands.reserve(n_);
     for (const_iterator i = begin; i != end; ++i) {
-      cands.push_back(&*i);
+      cands.emplace_back(&*i);
     }
     init(cands);
   }

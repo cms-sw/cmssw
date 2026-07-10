@@ -12,4 +12,7 @@ namespace edm {
     }
     return description_;
   }
+  [[noreturn]] void ESHandleBase::throwIfDataNotAvailable() {
+    throw edm::Exception(edm::errors::InvalidReference, "ESHandle was not set.");
+  }
 }  // namespace edm

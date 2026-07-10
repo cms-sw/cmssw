@@ -104,10 +104,6 @@ namespace edm {
         intFinder->swapFinders(*multipleFinders_);
         finder_ = intFinder;
       }
-      if (finder_) {
-        hasNonconcurrentFinder_ = !finder_->concurrentFinder();
-      }
-
       //now we get rid of the temporary
       multipleFinders_.reset(nullptr);
     }
@@ -156,16 +152,6 @@ namespace edm {
 
     void EventSetupRecordProvider::initializeForNewSyncValue() {
       intervalStatus_ = IntervalStatus::NotInitializedForSyncValue;
-    }
-
-    bool EventSetupRecordProvider::doWeNeedToWaitForIOVsToFinish(IOVSyncValue const& iTime) const {
-      if (!hasNonconcurrentFinder_) {
-        return false;
-      }
-      if (intervalStatus_ == IntervalStatus::Invalid || !validityInterval_.validFor(iTime)) {
-        return finder_->nonconcurrentAndIOVNeedsUpdate(key_, iTime);
-      }
-      return false;
     }
 
     bool EventSetupRecordProvider::setValidityIntervalFor(const IOVSyncValue& iTime) {

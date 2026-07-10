@@ -626,6 +626,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         for (int i = 0; i < 5; ++i) {
           isNaN |= edm::isNotFinite(tracks_view[it].state()(i));
         }
+        // state(2) is the (finite) inverse pt: an exactly-zero value from a straight-line or
+        // numerically-degenerate fit maps to an infinite momentum in the host local-to-global
+        // transform, so treat it as bad here too and never promote such a track
+        isNaN |= (tracks_view[it].state()(2) == 0.f);
         if (isNaN) {
 #ifdef NTUPLE_DEBUG
           printf("NaN in fit %d size %d chi2 %f\n", it, foundNtuplets->size(it), tracks_view[it].chi2());
@@ -1054,8 +1058,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   TkSoAView tracks_view,
                                   HitContainer const *__restrict__ foundNtuplets,
                                   HitToTuple const *__restrict__ phitToTuple,
-                                  int32_t firstPrint,
-                                  int32_t lastPrint,
+                                  uint32_t firstPrint,
+                                  uint32_t lastPrint,
                                   int iev) const {
       constexpr auto loose = Quality::loose;
 

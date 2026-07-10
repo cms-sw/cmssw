@@ -47,7 +47,7 @@ typedef SectCollPhiColl::const_iterator SectCollPhiColl_iterator;
 typedef vector<DTSectCollThSegm> SectCollThetaColl;
 typedef SectCollThetaColl::const_iterator SectCollThetaColl_iterator;
 
-class DTTrigProd : public edm::stream::EDProducer<> {
+class DTTrigProd : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   //! Constructor
   DTTrigProd(const edm::ParameterSet& pset);

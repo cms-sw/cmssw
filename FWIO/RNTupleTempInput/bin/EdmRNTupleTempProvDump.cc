@@ -12,21 +12,21 @@
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "DataFormats/Provenance/interface/StoredProductProvenance.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
-#include "FWCore/Catalog/interface/StorageURLModifier.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWStorage/Services/interface/setupSiteLocalConfig.h"
-
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
+#include "FWStorage/Catalog/interface/StorageURLModifier.h"
+#include "FWStorage/Services/interface/setupSiteLocalConfig.h"
 
 #include "TError.h"
 #include "TFile.h"
 
 #include "ROOT/RNTuple.hxx"
 #include "ROOT/RNTupleReader.hxx"
+#include "TApplication.h"
 
 #include "boost/program_options.hpp"
 
@@ -192,12 +192,13 @@ namespace {
     std::vector<std::string> fileNames;
     fileNames.push_back(filename);
     edm::InputFileCatalog catalog(fileNames, override, true, edm::SciTagCategory::Undefined);
-    if (catalog.fileNames(0)[0] == filename) {
+    std::string pfn = catalog.firstPFNFromFirstCatalog();
+    if (pfn == filename) {
       throw cms::Exception("FileNotFound", "RootFile::RootFile()")
           << "File " << filename << " was not found or could not be opened.\n";
     }
     // filename is a valid LFN.
-    std::unique_ptr<TFile> result(TFile::Open(catalog.fileNames(0)[0].c_str()));
+    std::unique_ptr<TFile> result(TFile::Open(pfn.c_str()));
     if (!result.get()) {
       throw cms::Exception("FileNotFound", "RootFile::RootFile()")
           << "File " << fileNames[0] << " was not found or could not be opened.\n";
@@ -1177,6 +1178,11 @@ static char const* const kDumpPSetIDCommandOpt = "dumpPSetID,i";
 static char const* const kProductIDEntryOpt = "productIDEntry";
 
 int main(int argc, char* argv[]) {
+  // TApplication sets up atexit handlers such that header parsing
+  // should not happen there
+  // A simpler solution would be nice
+  TApplication application("edmRNTupleTempProvDump", nullptr, nullptr);
+
   using namespace boost::program_options;
 
   std::string descString(argv[0]);

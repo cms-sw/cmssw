@@ -24,7 +24,7 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "RecoLocalMuon/GEMRecHit/interface/GEMRecHitBaseAlgo.h"
 
-class GEMRecHitProducer : public edm::stream::EDProducer<> {
+class GEMRecHitProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   /// Constructor
   GEMRecHitProducer(const edm::ParameterSet& config);
@@ -65,6 +65,6 @@ private:
   std::map<GEMDetId, EtaPartitionMask> gemMask_;
 
   bool applyMasking_;
-  bool ge21Off_;
+  bool ge21Container_;
 };
 #endif

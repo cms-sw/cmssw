@@ -55,7 +55,7 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 //
 // class declaration

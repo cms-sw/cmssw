@@ -22,7 +22,7 @@
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"

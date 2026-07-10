@@ -50,7 +50,7 @@ namespace edm {
       bool isAvailable() const override { return helper_->isAvailable(); }
 
       //Used by ROOT storage
-      CMS_CLASS_VERSION(10)
+      CMS_CLASS_VERSION(3)
 
     private:
       typedef typename base_type::const_iterator_imp const_iterator_imp;

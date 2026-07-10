@@ -109,6 +109,7 @@ namespace l1gt {
       pack_into_bits(ret, start, valid);
       pack_into_bits(ret, start, v3.pack());
       pack_into_bits(ret, start, z0);
+      start = start + 10;  //offset for LLP + unassigned
       for (unsigned i = 0; i < NTagFields; i++) {
         pack_into_bits(ret, start, hwTagScores[i]);
       }
@@ -136,6 +137,7 @@ namespace l1gt {
       unpack_from_bits(src, start, v3.phi);
       unpack_from_bits(src, start, v3.eta);
       unpack_from_bits(src, start, z0);
+      start = start + 10;  //offset for LLP + unassigned
       for (unsigned i = 0; i < NTagFields; i++) {
         unpack_from_bits(src, start, hwTagScores[i]);
       }
@@ -362,6 +364,7 @@ namespace l1gt {
     ap_uint<1> charge;
     z0_t z0;
     iso_t isolationPT;
+    id_proba_t idScore;
 
     static const int BITWIDTH = 96;
     inline ap_uint<BITWIDTH> pack() const {
@@ -373,6 +376,7 @@ namespace l1gt {
       pack_into_bits(ret, start, isolationPT);
       pack_into_bits(ret, start, charge);
       pack_into_bits(ret, start, z0);
+      pack_into_bits(ret, start, idScore);
       return ret;
     }
 
@@ -386,6 +390,7 @@ namespace l1gt {
       unpack_from_bits(src, start, isolationPT);
       unpack_from_bits(src, start, charge);
       unpack_from_bits(src, start, z0);
+      unpack_from_bits(src, start, idScore);
     }
 
     inline static Electron unpack_ap(const ap_uint<BITWIDTH> &src) {
@@ -481,6 +486,13 @@ namespace l1ct {
 
   inline l1gt::mass2_t CTtoGT_massSq(mass2_t x) { return (l1gt::mass2_t)x; }
 
+  inline l1gt::id_proba_t CTtoGT_idProba(id_score_t x) {
+    // l1ct::id_score_t is [-1, 1-LSB] with LSB = 1/512,
+    // l1gt::id_proba_t is [0, 1] with LSB = 1/128 although datatype can represent [0, 2-LSB]
+    typedef ap_fixed<id_score_t::width + 1, id_score_t::iwidth + 1, AP_RND_CONV, AP_SAT> id_score_ext_t;
+    id_score_ext_t x_ext = x;
+    return l1gt::id_proba_t((x_ext + id_score_ext_t(1)) >> 1);
+  }
 }  // namespace l1ct
 
 #endif

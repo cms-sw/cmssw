@@ -45,6 +45,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCandFwd.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrack.h"
 #include "DataFormats/L1TMuon/interface/L1MuBMTrackSegEta.h"
@@ -59,7 +60,6 @@ class L1MuBMSecProcId;
 class L1MuBMSectorProcessor;
 class L1MuBMEtaProcessor;
 class L1MuBMWedgeSorter;
-class L1MuRegionalCand;
 class L1MuDTTrack;
 class L1MuDTTrackSegPhi;
 class L1MuDTTrackSegEta;

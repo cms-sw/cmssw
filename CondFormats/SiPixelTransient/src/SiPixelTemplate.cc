@@ -166,7 +166,10 @@ bool SiPixelTemplate::pushfile(int filenum, std::vector<SiPixelTemplateStore>& p
   if (in_file.is_open() && in_file.good()) {
     // Create a local template storage entry
 
-    SiPixelTemplateStore theCurrentTemp;
+    // Create a local template storage entry
+    /// SiPixelTemplateStore theCurrentTemp;    // large, don't allocate it on the stack
+    auto tmpPtr = std::make_unique<SiPixelTemplateStore>();  // must be allocated on the heap instead
+    auto& theCurrentTemp = *tmpPtr;
 
     // Read-in a header string first and print it
 

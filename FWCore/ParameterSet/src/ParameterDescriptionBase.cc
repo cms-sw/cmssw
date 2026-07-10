@@ -353,4 +353,11 @@ namespace edm {
   int ParameterDescriptionBase::howManyXORSubNodesExist_(ParameterSet const& pset) const {
     return exists(pset) ? 1 : 0;
   }
+
+  cfi::Trackiness ParameterDescriptionBase::trackiness_(std::string_view path) const {
+    if (path == label()) {
+      return isTracked() ? cfi::Trackiness::kTracked : cfi::Trackiness::kUntracked;
+    }
+    return cfi::Trackiness::kNotAllowed;
+  }
 }  // namespace edm

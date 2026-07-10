@@ -19,6 +19,7 @@
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -44,7 +45,6 @@ class TrajectoryStateOnSurface;
 class FreeTrajectoryState;
 class MuonServiceProxy;
 class MuonPatternRecoDumper;
-class TrajectorySeed;
 class MuonUpdatorAtVertex;
 
 class MuonTrackAnalyzer : public DQMEDAnalyzer {

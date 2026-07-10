@@ -97,11 +97,11 @@ const TrajectorySeed* SeedForPhotonConversionFromQuadruplets::trajectorySeed(Tra
   if (mhits.size() < 2)
     return nullptr;
 
-    //PUT HERE THE QUADRUPLET ALGORITHM, AND IN CASE USE THE METHODS ALREADY DEVELOPED, ADAPTING THEM
+  //PUT HERE THE QUADRUPLET ALGORITHM, AND IN CASE USE THE METHODS ALREADY DEVELOPED, ADAPTING THEM
 
-    //
-    // Rozzo ma efficace (per ora)
-    //
+  //
+  // Rozzo ma efficace (per ora)
+  //
 
 #ifdef mydebug_sguazz
   std::cout << " --------------------------------------------------------------------------"
@@ -417,8 +417,8 @@ than CleaningmaxRadialDistance cm, the combination is rejected.
   if (!(nite && abs(nite) < 25 && nite != -1000 && nite != -2000))
     return nullptr;
 
-    //  math::XYZVector plusCenter = quad.GetPlusCenter(rPlus);
-    //  math::XYZVector minusCenter = quad.GetMinusCenter(rMinus);
+  //  math::XYZVector plusCenter = quad.GetPlusCenter(rPlus);
+  //  math::XYZVector minusCenter = quad.GetMinusCenter(rMinus);
 
 #ifdef mydebug_sguazz
   std::cout << " >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"

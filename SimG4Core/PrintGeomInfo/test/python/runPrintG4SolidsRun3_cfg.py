@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun runPrintG4SolidsRun3_cfg.py dd4hep=False geometry=2023
 #
-#   Options for geometry 2021, 2023, 2024
+#   Options for geometry 2021, 2023, 2024, 2025, 2026
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -21,7 +21,7 @@ options.register('geometry',
                  "2024",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: 2021, 2023, 2024")
+                  "geometry of operations: 2021, 2023, 2024, 2025, 2026")
 
 ### get and parse the command line arguments
 options.parseArguments()

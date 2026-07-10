@@ -329,7 +329,7 @@ caloDict = {
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
-            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
+            'from Geometry.HGCalGeometry.hgcalGeometryESProducer_cff import *',
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
             'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
             'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
@@ -402,7 +402,7 @@ caloDict = {
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
-            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
+            'from Geometry.HGCalGeometry.hgcalGeometryESProducer_cff import *',
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
             'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
             'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
@@ -485,7 +485,7 @@ caloDict = {
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
-            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
+            'from Geometry.HGCalGeometry.hgcalGeometryESProducer_cff import *',
             'from Geometry.CaloEventSetup.HFNoseTopology_cfi import *',
             'from Geometry.ForwardGeometry.HFNoseGeometryESProducer_cfi import *',
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
@@ -563,7 +563,7 @@ caloDict = {
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
-            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
+            'from Geometry.HGCalGeometry.hgcalGeometryESProducer_cff import *',
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
             'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
             'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
@@ -637,7 +637,7 @@ caloDict = {
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
-            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
+            'from Geometry.HGCalGeometry.hgcalGeometryESProducer_cff import *',
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
             'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
             'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
@@ -712,7 +712,7 @@ caloDict = {
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
-            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
+            'from Geometry.HGCalGeometry.hgcalGeometryESProducer_cff import *',
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
             'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
             'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
@@ -786,7 +786,7 @@ caloDict = {
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
-            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
+            'from Geometry.HGCalGeometry.hgcalGeometryESProducer_cff import *',
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
             'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
             'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
@@ -860,7 +860,7 @@ caloDict = {
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
-            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
+            'from Geometry.HGCalGeometry.hgcalGeometryESProducer_cff import *',
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
             'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
             'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
@@ -891,7 +891,7 @@ caloDict = {
 muonDict = {
     "abbrev" : "M",
     "name" : "muon",
-    "default" : 16,
+    "default" : 17,
     "M14" : {
         1 : [
             'Geometry/MuonCommonData/data/mbCommon/2021/v1/mbCommon.xml',
@@ -1033,12 +1033,59 @@ muonDict = {
         ],
         "era" : "phase2_muon, phase2_GEM, phase2_GE0",
     },
+    "M17" : {
+        1 : [
+            'Geometry/MuonCommonData/data/mbCommon/2021/v1/mbCommon.xml',
+            'Geometry/MuonCommonData/data/mb1/2015/v2/mb1.xml',
+            'Geometry/MuonCommonData/data/mb2/2015/v2/mb2.xml',
+            'Geometry/MuonCommonData/data/mb3/2015/v3/mb3.xml',
+            'Geometry/MuonCommonData/data/mb4/2015/v2/mb4.xml',
+            'Geometry/MuonCommonData/data/mb4Shield/2030/v1/mb4Shield.xml',
+            'Geometry/MuonCommonData/data/muonYoke/2030/v4/muonYoke.xml',
+            'Geometry/MuonCommonData/data/mf/2030/v8/mf.xml',
+            'Geometry/MuonCommonData/data/csc/2021/v2/csc.xml',
+            'Geometry/MuonCommonData/data/rpcf/2030/v6/rpcf.xml',
+            'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml',
+            'Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml',
+            'Geometry/MuonCommonData/data/gem21/2030/v1/gem21.xml',
+            'Geometry/MuonCommonData/data/mfshield/2030/v6/mfshield.xml',
+            'Geometry/MuonCommonData/data/ge0/TDR_Dev/v6/ge0.xml',
+            'Geometry/MuonCommonData/data/ge0shield/2030/v1/ge0shield.xml',
+         ],
+        2 : [
+            'Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/v5/muonNumbering.xml',
+        ],
+        3 : [
+            'Geometry/MuonSimData/data/PhaseII/v2/muonSens.xml',
+            'Geometry/DTGeometryBuilder/data/dtSpecsFilter/2021/v1/dtSpecsFilter.xml',
+            'Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml',
+            'Geometry/CSCGeometryBuilder/data/cscSpecs.xml',
+            'Geometry/RPCGeometryBuilder/data/2030/v1/RPCSpecs.xml',
+            'Geometry/GEMGeometryBuilder/data/v12/GEMSpecsFilter.xml',
+            'Geometry/GEMGeometryBuilder/data/v12/GEMSpecs.xml',
+        ],
+        4 : [
+            'Geometry/MuonSimData/data/muonProdCuts/2030/v2/muonProdCuts.xml',
+        ],
+        "sim" : [
+            'from Geometry.MuonNumbering.muonGeometryConstants_cff import *',
+            'from Geometry.MuonNumbering.muonOffsetESProducer_cff import *',
+        ],
+        "reco" : [
+            'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
+            'from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *',
+            'from Geometry.GEMGeometryBuilder.gemGeometry_cff import *',
+            'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
+            'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
+        ],
+        "era" : "phase2_muon, phase2_GEM, phase2_GE0",
+    },
 }
 
 forwardDict = {
     "abbrev" : "F",
     "name" : "forward",
-    "default" : 8,
+    "default" : 9,
     "F8" : {
         1 : [
             'Geometry/ForwardCommonData/data/forwardshield/2030/v4/forwardshield.xml',
@@ -1065,6 +1112,29 @@ forwardDict = {
     "F9" : {
         1 : [
             'Geometry/ForwardCommonData/data/forwardshield/2030/v5/forwardshield.xml',
+            'Geometry/ForwardCommonData/data/zdcmaterials/2021/v1/zdcmaterials.xml',
+            'Geometry/ForwardCommonData/data/lumimaterials.xml',
+            'Geometry/ForwardCommonData/data/zdcrotations.xml',
+            'Geometry/ForwardCommonData/data/lumirotations.xml',
+            'Geometry/ForwardCommonData/data/zdc/2030/v1/zdc.xml',
+            'Geometry/ForwardCommonData/data/zdclumi/2021/v2/zdclumi.xml',
+            'Geometry/ForwardCommonData/data/cmszdc.xml',
+        ],
+        3 : [
+            'Geometry/ForwardSimData/data/zdcsens.xml',
+        ],
+        4 : [
+            'Geometry/ForwardSimData/data/zdcProdCuts/2021/v2/zdcProdCuts.xml',
+            'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
+        ],
+        "reco" :[
+            'from Geometry.ForwardGeometry.zdcTopologyEP_cfi import *',
+            'from Geometry.ForwardGeometry.ZdcGeometry_cfi import *',
+        ]
+    },
+    "F10" : {
+        1 : [
+            'Geometry/ForwardCommonData/data/forwardshield/2030/v6/forwardshield.xml',
             'Geometry/ForwardCommonData/data/zdcmaterials/2021/v1/zdcmaterials.xml',
             'Geometry/ForwardCommonData/data/lumimaterials.xml',
             'Geometry/ForwardCommonData/data/zdcrotations.xml',
@@ -1241,7 +1311,7 @@ detectorVersionDict = {
     ("O10","T36","C25","M15","F9","I17") : "D111",
     ("O10","T37","C25","M15","F9","I17") : "D112",
     ("O10","T38","C25","M15","F9","I17") : "D113",
-    ("O9","T39","C19","M14","F8","I17") : "D114",
+    ("O10","T39","C25","M15","F9","I17") : "D114",
     ("O9","T35","C20","M14","F8","I17") : "D115",
     ("O11","T35","C26","M16","F9","I20") : "D120",
     ("O10","T35","C25","M16","F9","I18") : "D121",
@@ -1249,6 +1319,7 @@ detectorVersionDict = {
     ("O11","T35","C28","M16","F9","I18") : "D123",
     ("O10","T35","C25","M16","F9","I21") : "D124",
     ("O10","T35","C25","M16","F9","I22") : "D125",
+    ("O11","T37","C27","M17","F9","I21") : "D126",
 }
 
 deprecatedDets = set(["D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31", "D32", "D33", "D34", "D36", "D37", "D38", "D39", "D40", "D42", "D35", "D41", "D43", "D44", "D45", "D46", "D48", "D47", "D50", "D51", "D52", "D53", "D54", "D55", "D56", "D57", "D58", "D59", "D61", "D62", "D63", "D64", "D65", "D66", "D67", "D69", "D71", "D72", "D73", "D74", "D75", "D78", "D79", "D87", "D89", "D90", "D49", "D60", "D68", "D70", "D76", "D77", "D80", "D81", "D82", "D83", "D84", "D85","D86", "D88", "D91", "D92", "D93", "D94", "D95", "D96", "D97", "D98", "D99", "D100", "D101", "D102", "D103", "D105", "D106", "D107", "D108", "D109", "D116", "D117", "D118", "D119"])

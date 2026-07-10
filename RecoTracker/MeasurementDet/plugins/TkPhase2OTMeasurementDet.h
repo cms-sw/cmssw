@@ -3,14 +3,14 @@
 
 #include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "RecoTracker/MeasurementDet/src/TkMeasurementDetSet.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
-class TrackingRecHit;
 class LocalTrajectoryParameters;
 
 class dso_hidden TkPhase2OTMeasurementDet final : public MeasurementDet {

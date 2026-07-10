@@ -38,7 +38,9 @@ namespace edm {
       endIOVTasks_.reset();
       if (endIOVTaskHolder_.hasTask()) {
         endIOVTasks_.add(std::move(iEndTask));
-        { WaitingTaskHolder tmp{std::move(endIOVTaskHolder_)}; }
+        {
+          WaitingTaskHolder tmp{std::move(endIOVTaskHolder_)};
+        }
       }
       endIOVCalled_ = true;
     }

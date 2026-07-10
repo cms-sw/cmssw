@@ -1,0 +1,387 @@
+from collections import defaultdict, deque
+from typing import Dict, Set, List
+from itertools import chain
+
+import FWCore.ParameterSet.Config as cms
+
+
+def flatten_all_to_module_list(process, user_args):
+    """
+    Flatten input arguments into an ordered list of module names.
+    Preserves user-provided order and avoids duplicates.
+    """
+    module_list = []
+    seen = set()
+
+    for name in user_args:
+        if not hasattr(process, name):
+            print(f"[WARN] process has no attribute named '{name}'")
+            continue
+
+        obj_ = getattr(process, name)
+
+        if hasattr(obj_, "moduleNames"):
+            for mod in obj_.moduleNames():
+                if mod not in seen:
+                    module_list.append(mod)
+                    seen.add(mod)
+        else:
+            if name not in seen:
+                module_list.append(name)
+                seen.add(name)
+
+    return module_list
+
+class ModuleDependencyAnalyzer:
+    def __init__(self, process):
+        self.process = process
+        # cached core structures
+        self.module_inputs: Dict[str, Set[str]] = defaultdict(set)
+        self.producer_to_consumers: Dict[str, Set[str]] = defaultdict(set)
+        self._build_dependency_maps()
+
+    def _build_dependency_maps(self):
+        """
+        Core extraction of dependencies based on input tags (DONE ONCE)
+        """
+        for name in chain(self.process.producers_().keys(), self.process.analyzers_().keys(), \
+                            self.process.outputModules_().keys(), self.process.filters_().keys()):
+            mod = getattr(self.process, name)
+
+            for param in mod.parameters_().values():
+                for tag in self._extract_inputtags(param):
+                    producer = tag.getModuleLabel()
+                    if producer:
+                        self.module_inputs[name].add(producer)
+                        self.producer_to_consumers[producer].add(name)
+
+    def _extract_inputtags(self, value):
+        """
+        Recursively extract cms.InputTag objects from a parameter value.
+        Returns a list of cms.InputTag.
+        """
+        tags = []
+
+        if isinstance(value, cms.InputTag):
+            tags.append(value)
+
+        elif isinstance(value, cms.VInputTag):
+            for elem in value:
+                if isinstance(elem, cms.InputTag):
+                    tags.append(elem)
+                elif isinstance(elem, str):
+                    tags.append(cms.InputTag(elem))
+
+        elif isinstance(value, cms.PSet):
+            for v in value.parameters_().values():
+                tags.extend(self._extract_inputtags(v))
+
+        elif isinstance(value, (list, tuple)):
+            for v in value:
+                tags.extend(self._extract_inputtags(v))
+
+        return tags
+
+    def direct_dependencies(self, modules: List[str]) -> Set[str]:
+        """
+        Get the modules whose products are needed
+        """
+        deps = set()
+        for m in modules:
+            deps |= self.module_inputs.get(m, set())
+        return deps
+
+    def _consumers_of(self, producer: str) -> Set[str]:
+        """
+        Get the modules which need the products of producer
+        """
+        return self.producer_to_consumers.get(producer, set())
+
+    def _restricted_graph(self, modules: List[str]) -> Dict[str, Set[str]]:
+        """
+        Restricted dependency graph, reflecting the relationships between the modules to offload
+        """
+        graph = defaultdict(set)
+        for m in modules:
+            graph.setdefault(m, set())
+
+        for consumer in modules:
+            for producer in self.module_inputs.get(consumer, []):
+                if producer in modules:
+                    graph[producer].add(consumer)
+
+        return graph
+    
+    def _connected_groups(
+        self,
+        graph: Dict[str, Set[str]],
+        module_order: List[str],
+    ) -> List[List[str]]:
+        """
+        Return list of weakly connected components.
+        Each component is returned as a list of modules ordered
+        by dependency from root to leaf.
+        """
+
+        # ---- build undirected graph ----
+        undirected = defaultdict(set)
+
+        for src in graph:
+            undirected[src]
+            for dst in graph[src]:
+                undirected[src].add(dst)
+                undirected[dst].add(src)
+
+        seen = set()
+        components = []
+
+        # ---- deterministic traversal using module_order ----
+        for node in module_order:
+            if node not in undirected or node in seen:
+                continue
+
+            stack = [node]
+            comp = []
+
+            while stack:
+                n = stack.pop()
+                if n in seen:
+                    continue
+                seen.add(n)
+                comp.append(n)
+
+                stack.extend(undirected[n] - seen)
+
+            components.append(comp)
+
+         # ---- order each component by dependencies ----
+        ordered_components = []
+
+        for comp in components:
+            # compute in-degree restricted to this component
+            indegree = {n: 0 for n in comp}
+            local_edges = defaultdict(set)
+
+            for src in comp:
+                for dst in graph.get(src, []):
+                    if dst in comp:
+                        local_edges[src].add(dst)
+                        indegree[dst] += 1
+
+            # Kahn's algorithm
+            queue = deque(sorted(n for n in comp if indegree[n] == 0))
+            ordered = []
+
+            while queue:
+                n = queue.popleft()
+                ordered.append(n)
+                for dst in local_edges.get(n, []):
+                    indegree[dst] -= 1
+                    if indegree[dst] == 0:
+                        queue.append(dst)
+
+            # If there is a cycle, append remaining nodes deterministically
+            if len(ordered) < len(comp):
+                remaining = sorted(comp - set(ordered))
+                ordered.extend(remaining)
+
+            ordered_components.append(ordered)
+
+        return ordered_components
+    
+    
+    def _connected_groups_except(
+        self,
+        graph: Dict[str, Set[str]],
+        module_order: List[str],
+        exceptions: Set[str],
+    ) -> List[List[str]]:
+        """
+        Weakly connected groups where exception nodes do not connect
+        non-exception nodes together.
+
+        Exception nodes may appear in multiple groups.
+        """
+
+        # Build undirected graph
+        undirected = defaultdict(set)
+
+        for src in graph:
+            undirected[src]
+            for dst in graph[src]:
+                undirected[src].add(dst)
+                undirected[dst].add(src)
+
+        groups = []
+
+        # Tracks only non-exception nodes already assigned
+        assigned_non_exception = set()
+
+        for root in module_order:
+            if root in exceptions:
+                continue
+
+            if root in assigned_non_exception:
+                continue
+
+            stack = [root]
+            visited = set()
+
+            while stack:
+                node = stack.pop()
+
+                if node in visited:
+                    continue
+
+                visited.add(node)
+
+                for neigh in undirected[node]:
+                    if neigh in visited:
+                        continue
+
+                    if node in exceptions:
+                        # exception nodes may only expand to other exceptions
+                        if neigh in exceptions:
+                            stack.append(neigh)
+                    else:
+                        # normal nodes may expand to everything
+                        stack.append(neigh)
+
+            # Mark only non-exception nodes as assigned
+            assigned_non_exception.update(
+                n for n in visited if n not in exceptions
+            )
+
+            groups.append(visited)
+
+        # Handle graphs containing only exception nodes
+        for node in module_order:
+            if node in exceptions and not any(node in g for g in groups):
+                groups.append({node})
+
+        # Topologically order each group exactly like your current code
+        ordered_groups = []
+
+        for comp in groups:
+            indegree = {n: 0 for n in comp}
+            local_edges = defaultdict(set)
+
+            for src in comp:
+                for dst in graph.get(src, []):
+                    if dst in comp:
+                        local_edges[src].add(dst)
+                        indegree[dst] += 1
+
+            queue = deque(sorted(
+                n for n in comp
+                if indegree[n] == 0
+            ))
+
+            ordered = []
+
+            while queue:
+                n = queue.popleft()
+                ordered.append(n)
+
+                for dst in local_edges.get(n, []):
+                    indegree[dst] -= 1
+                    if indegree[dst] == 0:
+                        queue.append(dst)
+
+            if len(ordered) < len(comp):
+                remaining = sorted(set(comp) - set(ordered))
+                ordered.extend(remaining)
+
+            ordered_groups.append(ordered)
+
+        return ordered_groups
+    
+        
+    def dependency_groups(self, modules: List[str]) -> List[List[str]]:
+        """
+        Get dependency groups (ordered)
+        """
+        graph = self._restricted_graph(modules)
+        return self._connected_groups(graph, modules)
+    
+    def dependency_groups_except(
+        self,
+        modules: List[str],
+        exceptions: List[str] = None,
+    ) -> List[List[str]]:
+        graph = self._restricted_graph(modules)
+        return self._connected_groups_except(
+            graph,
+            modules,
+            set(exceptions or [])
+        )
+
+    def grouped_external_dependencies(
+        self,
+        groups: List[List[str]],
+        exceptions: List[str]
+    ) -> List[Set[str]]:
+        """
+        Grouped external dependencies
+        """
+
+        grouped = []
+        for group in groups:
+            gset = set(group)
+            deps = set()
+
+            for m in group:
+                for prod in self.module_inputs.get(m, []):
+                    if prod not in gset and prod not in exceptions:
+                        deps.add(prod)
+
+            grouped.append(deps)
+
+        return grouped
+
+    def producer_to_groups(
+        self,
+        grouped_deps: List[Set[str]],
+    ) -> Dict[str, Set[int]]:
+        """
+        Producer → groups map
+        """
+
+        mapping = defaultdict(set)
+        for gi, deps in enumerate(grouped_deps):
+            for prod in deps:
+                mapping[prod].add(gi)
+        return mapping
+
+    def modules_to_send_back_by_group(
+        self,
+        groups: List[List[str]],
+        modules_to_run_on_both: List[str],
+    ):
+        """
+        Which offloaded modules must send products back, and which are not needed on local
+        """
+        module_to_group = {
+            m: gi for gi, g in enumerate(groups) for m in g
+        }
+
+        result = [[] for _ in groups]
+        unused = []
+
+        for gi, group in enumerate(groups):
+            for produced in group:
+                if produced in modules_to_run_on_both:
+                    continue
+
+                needed = False
+                for consumer in self._consumers_of(produced):
+                    if module_to_group.get(consumer) != gi:
+                        needed = True
+                        break
+
+                if needed:
+                    result[gi].append(produced)
+                else:
+                    unused.append(produced)
+
+        return result, unused

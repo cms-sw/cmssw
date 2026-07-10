@@ -128,8 +128,7 @@ template <int DEGREE>
 //Vectorization is affected on x86_64 if change to unsigned int
 __attribute__((no_sanitize("signed-integer-overflow")))
 #endif
-constexpr float
-unsafe_expf_impl(float x) {
+constexpr float unsafe_expf_impl(float x) {
   using namespace approx_math;
   /* Sollya for the following constants:
      display=hexadecimal;

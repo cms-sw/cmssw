@@ -24,10 +24,10 @@
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/TrackerGeomDet.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetType.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
@@ -907,9 +907,8 @@ unsigned int Phase2TrackerValidateDigi::getSimTrackId(const edm::DetSetVector<Pi
 
   edm::DetSet<PixelDigiSimLink> link_detset = (*simLinks)[detId];
   // Loop over DigiSimLink in this det unit
-  int iSimLink = 0;
   for (edm::DetSet<PixelDigiSimLink>::const_iterator it = link_detset.data.begin(); it != link_detset.data.end();
-       it++, iSimLink++) {
+       it++) {
     if (channel == it->channel()) {
       simTrkId = it->SimTrackId();
       break;

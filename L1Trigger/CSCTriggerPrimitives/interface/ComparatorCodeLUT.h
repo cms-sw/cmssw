@@ -14,13 +14,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/CSCDigi/interface/CSCConstants.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiFwd.h"
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCPatternBank.h"
 #include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableCCLUT.h"
 
 #include <vector>
 #include <string>
-
-class CSCCLCTDigi;
 
 class ComparatorCodeLUT {
 public:

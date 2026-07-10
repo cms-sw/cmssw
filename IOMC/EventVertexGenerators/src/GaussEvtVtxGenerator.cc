@@ -9,7 +9,7 @@
 using CLHEP::cm;
 using CLHEP::ns;
 
-GaussEvtVtxGenerator::GaussEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvtVtxGenerator(p) {
+GaussEvtVtxGenerator::GaussEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvtVtxGeneratorWithLumi(p) {
   readDB_ = p.getParameter<bool>("readDB");
   if (!readDB_) {
     fMeanX = p.getParameter<double>("MeanX") * cm;

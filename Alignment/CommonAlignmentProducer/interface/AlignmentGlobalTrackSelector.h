@@ -3,6 +3,7 @@
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 //Framework
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -12,9 +13,6 @@
 //STL
 #include <vector>
 
-namespace reco {
-  class Track;
-}
 namespace edm {
   class Event;
   class EventSetup;

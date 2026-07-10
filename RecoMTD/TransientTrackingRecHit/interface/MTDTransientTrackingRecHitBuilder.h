@@ -6,7 +6,7 @@
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 class MTDTransientTrackingRecHitBuilder : public TransientTrackingRecHitBuilder {

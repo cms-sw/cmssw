@@ -36,7 +36,6 @@ namespace edm {
   class ModuleCallingContext;
   class PreallocationConfiguration;
   class ActivityRegistry;
-  class ThinnedAssociationsHelper;
   class EventForTransformer;
   class ServiceWeakToken;
 

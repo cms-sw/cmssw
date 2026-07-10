@@ -27,10 +27,10 @@
 #include "DataFormats/METReco/interface/CommonMETData.h"
 #include "DataFormats/METReco/interface/SpecificCaloMETData.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 #include <vector>
 
-class CaloTower;
 struct SpecificCaloMETData;
 
 //____________________________________________________________________________||

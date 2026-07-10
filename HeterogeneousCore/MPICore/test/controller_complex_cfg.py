@@ -15,12 +15,19 @@ process.options.wantSummary = False
 process.source = cms.Source("EmptySource")
 process.maxEvents.input = 10
 
+process.load("FWCore.ParameterSet.MessageLogger")
+process.MessageLogger.cerr.MPI = cms.untracked.PSet(
+    reportEvery = cms.untracked.int32( 1 ),
+    limit = cms.untracked.int32( 10000000 )
+)
+
 process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
 
 from HeterogeneousCore.MPICore.modules import *
 
 process.mpiController = MPIController(
-    mode = 'CommWorld'
+    mode = 'CommWorld',
+    followerProcessName = 'MPIFollower'
 )
 
 # Phase-1 FED RAW data collection pseudo object

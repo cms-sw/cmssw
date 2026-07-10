@@ -10,7 +10,7 @@
 #include "CondTools/Hcal/interface/HcalPFCutsHandler.h"
 #include <memory>
 
-class PFClusterProducer : public edm::stream::EDProducer<> {
+class PFClusterProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
   typedef RecHitTopologicalCleanerBase RHCB;
   typedef InitialClusteringStepBase ICSB;
   typedef PFClusterBuilderBase PFCBB;

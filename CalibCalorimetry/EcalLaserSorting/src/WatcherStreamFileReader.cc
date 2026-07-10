@@ -27,7 +27,7 @@ using namespace edm::streamer;
 /* getline implementation is copied from glibc. */
 
 #ifndef SIZE_MAX
-#define SIZE_MAX ((size_t) - 1)
+#define SIZE_MAX ((size_t)-1)
 #endif
 #ifndef SSIZE_MAX
 #define SSIZE_MAX ((ssize_t)(SIZE_MAX / 2))

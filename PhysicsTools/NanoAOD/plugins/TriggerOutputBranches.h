@@ -49,7 +49,7 @@ private:
   void fillColumn(NamedBranchPtr &nb, const edm::TriggerResults &triggers) {
     nb.buffer = (nb.idx >= 0) ? triggers.accept(nb.idx) : 0;
     nb.branch->SetAddress(&(nb.buffer));  // Can be improved: this is not reallt needed at each event
-        //but we should be sure that resize of vectors of TriggerOutputBranches do not mess up things
+    //but we should be sure that resize of vectors of TriggerOutputBranches do not mess up things
   }
 };
 

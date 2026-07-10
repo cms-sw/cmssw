@@ -1,5 +1,5 @@
-#ifndef RECOHGCAL_TICL_TRACKSTERSPCA_H
-#define RECOHGCAL_TICL_TRACKSTERSPCA_H
+#ifndef RecoHGCal_TICL_TrackstersPCA_h
+#define RecoHGCal_TICL_TrackstersPCA_h
 
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
@@ -23,9 +23,10 @@ namespace ticl {
                              const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
                              double z_limit_em,
                              hgcal::RecHitTools const &rhTools,
-                             bool computeLocalTime = false,
+                             bool computeLocalTime = true,
                              bool energyWeight = true,
                              bool clean = false,
+                             bool isBarrel = false,
                              int minLayer = 10,
                              int maxLayer = 10);
   std::pair<float, float> computeLocalTracksterTime(const Trackster &trackster,
@@ -38,9 +39,7 @@ namespace ticl {
                                                size_t N);
 
   inline unsigned getLayerFromLC(const reco::CaloCluster &LC, const hgcal::RecHitTools &rhtools) {
-    std::vector<std::pair<DetId, float>> thisclusterHits = LC.hitsAndFractions();
-    auto layer = rhtools.getLayerWithOffset(thisclusterHits[0].first);
-    return layer;
+    return rhtools.getLayerWithOffset(LC.hitsAndFractions()[0].first);
   }
 
   // Sort the layer clusters in the given trackster in bins of layer. Returns : vector[index=layer, value=vector[LC index]]]

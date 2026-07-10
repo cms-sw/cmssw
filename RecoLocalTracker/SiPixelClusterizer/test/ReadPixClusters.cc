@@ -31,12 +31,12 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 // For L1
@@ -427,9 +427,9 @@ void ReadPixClusters::analyze(const edm::Event &e, const edm::EventSetup &es) {
                                        << subid;
 
 #ifdef HISTOS
-      //hdetunit->Fill(float(detid));
-      //hpixid->Fill(float(detType));
-      //hpixsubid->Fill(float(subid));
+    //hdetunit->Fill(float(detid));
+    //hpixid->Fill(float(detType));
+    //hpixsubid->Fill(float(subid));
 #endif  // HISTOS
 
     if (detType != 1)

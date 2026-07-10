@@ -5,13 +5,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
 
 #include <utility>
 
 class Propagator;
 class GeomDet;
-class Trajectory;
 class TrackingComponentsRecord;
 namespace edm {
   class EventSetup;

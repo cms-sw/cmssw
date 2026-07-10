@@ -27,7 +27,7 @@
 
 // forward declarations
 template <class object>
-class TriggerMatchProducer : public edm::stream::EDProducer<> {
+class TriggerMatchProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit TriggerMatchProducer(const edm::ParameterSet&);
   ~TriggerMatchProducer() override;

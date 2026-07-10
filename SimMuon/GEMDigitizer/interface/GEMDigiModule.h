@@ -15,6 +15,7 @@
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitFwd.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimDataFormats/GEMDigiSimLink/interface/GEMDigiSimLink.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
@@ -30,7 +31,6 @@ namespace CLHEP {
 class GEMDigiModel;
 class GEMEtaPartition;
 class GEMGeometry;
-class PSimHit;
 
 class GEMDigiModule {
 public:

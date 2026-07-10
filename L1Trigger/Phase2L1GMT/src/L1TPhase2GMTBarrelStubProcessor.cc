@@ -31,6 +31,8 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStub(const L1Phase2MuDTPhDig
                                                          const L1MuDTChambThDigi* etaS) {
   l1t::MuonStub stub = buildStubNoEta(phiS);
 
+  //we do not yet have the full eta information in phase 2, so we will just use coarse eta for now
+  /*
   //Now full eta
   int qeta1 = -16384;
   int qeta2 = -16384;
@@ -66,7 +68,7 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStub(const L1Phase2MuDTPhDig
     stub.setEta(eta1, 0, 1);
     stub.setOfflineQuantities(stub.offline_coord1(), stub.offline_coord2(), eta1 * etaLSB_, 0.0);
   }
-
+  */
   return stub;
 }
 

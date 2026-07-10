@@ -14,8 +14,11 @@
 #include <iostream>
 #include <fstream>
 #include <cassert>
-#include "zlib.h"
-#include "lzma.h"
+
+// compression libraries
+#include <zlib.h>
+#include <lzma.h>
+#include <zstd.h>
 
 // user include files
 #include "HDF5ProductResolver.h"
@@ -80,7 +83,7 @@ void HDF5ProductResolver::prefetchAsyncImpl(edm::WaitingTaskHolder iTask,
           CMS_SA_ALLOW try {
             edm::ESModuleCallingContext context(providerDescription(),
                                                 reinterpret_cast<std::uintptr_t>(this),
-                                                edm::ESModuleCallingContext::State::kRunning,
+                                                edm::ESModuleCallingContext::State::kPrefetching,
                                                 iParent);
             iRecord.activityRegistry()->preESModuleSignal_.emit(iRecord.key(), context);
             struct EndGuard {
@@ -206,6 +209,37 @@ std::vector<char> HDF5ProductResolver::decompress_lzma(std::vector<char> compres
   return buffer;
 }
 
+std::vector<char> HDF5ProductResolver::decompress_zstd(std::vector<char> compressedBuffer, std::size_t iMemSize) const {
+  std::vector<char> buffer;
+  if (iMemSize == compressedBuffer.size()) {
+    //memory was not compressed
+    //std::cout <<"NOT COMPRESSED"<<std::endl;
+    buffer = std::move(compressedBuffer);
+  } else {
+    //zstd compression was used
+    // TODO: use an explicit decompression context (one per thread) to reduce memory churn
+    std::size_t size = ZSTD_getFrameContentSize(compressedBuffer.data(), compressedBuffer.size());
+    if (size == ZSTD_CONTENTSIZE_UNKNOWN) {
+      // decompressed size field is not present, assume iMemSize
+      size = iMemSize;
+    } else if (size == ZSTD_CONTENTSIZE_ERROR) {
+      throw cms::Exception("H5CondFailedDecompress")
+          << "error detected before attempting to decompress buffer using zstd";
+    } else if (size != iMemSize) {
+      throw cms::Exception("H5CondFailedDecompress")
+          << "unexpected payload size before attempting to decompress buffer using zstd";
+    }
+    buffer = std::vector<char>(size);
+    size = ZSTD_decompress(buffer.data(), buffer.size(), compressedBuffer.data(), compressedBuffer.size());
+    if (ZSTD_isError(size)) {
+      throw cms::Exception("H5CondFailedDecompress") << "error detected during zstd buffer decompression";
+    } else if (size != iMemSize) {
+      throw cms::Exception("H5CondFailedDecompress") << "unexpected payload size after zstd buffer decompression";
+    }
+  }
+  return buffer;
+}
+
 void HDF5ProductResolver::threadFriendlyPrefetch(uint64_t iFileOffset,
                                                  std::size_t iStorageSize,
                                                  std::size_t iMemSize,
@@ -223,12 +257,14 @@ void HDF5ProductResolver::threadFriendlyPrefetch(uint64_t iFileOffset,
     buffer = decompress_zlib(std::move(compressedBuffer), iMemSize);
   } else if (compression_ == cond::hdf5::Compression::kLZMA) {
     buffer = decompress_lzma(std::move(compressedBuffer), iMemSize);
+  } else if (compression_ == cond::hdf5::Compression::kZSTD) {
+    buffer = decompress_zstd(std::move(compressedBuffer), iMemSize);
   } else {
     buffer = std::move(compressedBuffer);
   }
 
   std::stringbuf sBuffer;
-  sBuffer.pubsetbuf(&buffer[0], buffer.size());
+  sBuffer.pubsetbuf(buffer.data(), buffer.size());
   data_ = helper_->deserialize(sBuffer, iTypeName);
   if (data_.get() == nullptr) {
     throw cms::Exception("H5CondFailedDeserialization")

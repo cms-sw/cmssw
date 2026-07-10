@@ -32,12 +32,11 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProductFwd.h"
+
 //
 // class decleration
 //
-namespace edm {
-  class HepMCProduct;
-}
 
 class PythiaFilterMotherSister : public edm::global::EDFilter<> {
 public:

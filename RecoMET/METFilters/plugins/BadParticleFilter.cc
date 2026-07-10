@@ -22,6 +22,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/DescriptionCloner.h"
 
 //
 // class declaration
@@ -233,9 +234,9 @@ void BadParticleFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<double>("maxDR", 0.001);
   desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
   desc.add<double>("minPtDiffRel", 0.0);
-  descriptions.addDefault(desc);
-  descriptions.add("BadPFMuonFilter", desc);
   descriptions.addWithDefaultLabel(desc);
+  edm::DescriptionCloner clone;
+  descriptions.add("BadPFMuonFilter", clone);
 }
 
 //define this as a plug-in

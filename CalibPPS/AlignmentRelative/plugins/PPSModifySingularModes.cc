@@ -24,7 +24,7 @@
 /**
  *\brief Modifies the alignment modes unconstrained by the track-based alignment.
  **/
-class PPSModifySingularModes : public edm::stream::EDAnalyzer<> {
+class PPSModifySingularModes : public edm::stream::EDAnalyzer<edm::stream::WatchRuns> {
 public:
   PPSModifySingularModes(const edm::ParameterSet &ps);
 

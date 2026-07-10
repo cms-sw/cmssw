@@ -14,6 +14,7 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
 #include <cmath>
+#include <sstream>
 
 #include <Math/Transform3D.h>
 #include <Math/EulerAngles.h>
@@ -80,7 +81,6 @@ void HGCalGeometry::newCell(
 #endif
   }
   const uint32_t cellIndex(m_topology.detId2denseGeomId(geomId));
-
   if (m_det == DetId::HGCalHSc) {
     m_cellVec2.at(cellIndex) = FlatTrd(cornersMgr(), f1, f2, f3, parm);
   } else {
@@ -108,12 +108,17 @@ void HGCalGeometry::newCell(
     DetId idc = m_topology.encode(id);
     if (m_topology.valid(idc)) {
       HGCScintillatorDetId hid(idc);
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "buildGeom: Layer" << hid.layer() << " Ring " << hid.ring();
+#endif
       std::pair<int, int> typm = m_topology.dddConstants().tileType(hid.layer(), hid.ring(), 0);
       if (typm.first >= 0) {
         hid.setType(typm.first);
         hid.setSiPM(typm.second);
-        idc = static_cast<DetId>(hid);
       }
+      int granul = m_topology.dddConstants().tileGranularity(hid.layer());
+      hid.setGranularity(granul);
+      idc = static_cast<DetId>(hid);
       m_validIds.emplace_back(idc);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Valid Id [0] " << HGCScintillatorDetId(idc);
@@ -207,9 +212,13 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& detid) const { return getPos
 
 GlobalPoint HGCalGeometry::getPosition(const DetId& detid, int overRideDebug) const {
   bool debug = ((overRideDebug % 10) > 0);
-  bool cog = m_topology.dddConstants().waferHexagon8Fine() ? true : false;
-  if (((overRideDebug / 10) % 10) > 0)
-    cog = false;
+  bool cog = m_topology.dddConstants().v18OrMore() ? true : false;
+  if (((overRideDebug / 10) % 10) > 0) {
+    if (cog)
+      cog = false;
+    else
+      cog = true;
+  }
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "HGCalGeometry::getPosition:ID " << std::hex << detid.rawId() << std::dec
                                   << " COG " << cog;
@@ -258,8 +267,16 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& detid, bool cog, bool debug)
                                       << id.iCell1 << ":" << id.iCell2 << " Global " << glob;
     }
   } else {
-    edm::LogVerbatim("HGCalGeom") << "Cannot recognize " << std::hex << detid.rawId() << " cellIndex " << cellIndex
-                                  << ":" << maxSize << " Type " << m_topology.tileTrapezoid();
+    std::ostringstream st1;
+    st1 << "Cannot recognize " << std::hex << detid.rawId() << std::dec;
+    if (m_topology.tileTrapezoid())
+      st1 << " " << HGCScintillatorDetId(detid);
+    else if ((detid.det() == DetId::HGCalEE) || (detid.det() == DetId::HGCalHSi))
+      st1 << " " << HGCSiliconDetId(detid);
+    else
+      st1 << " " << HGCalDetId(detid);
+    edm::LogVerbatim("HGCalGeom") << st1.str() << " cellIndex " << cellIndex << ":" << maxSize << " Type "
+                                  << detid.det() << ":" << detid.subdetId();
   }
   return glob;
 }
@@ -663,8 +680,10 @@ unsigned int HGCalGeometry::indexFor(const DetId& detId) const {
     DetId geomId = getGeometryDetId(detId);
     cellIndex = m_topology.detId2denseGeomId(geomId);
 #ifdef EDM_ML_DEBUG
+    /*
     edm::LogVerbatim("HGCalGeom") << "indexFor " << std::hex << detId.rawId() << ":" << geomId.rawId() << std::dec
                                   << " index " << cellIndex;
+    */
 #endif
   }
   return cellIndex;

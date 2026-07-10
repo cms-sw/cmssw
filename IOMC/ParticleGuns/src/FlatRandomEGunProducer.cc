@@ -1,10 +1,12 @@
-/*
- *  \author Julia Yarba
- */
+/** \class FlatRandomEGunProducer
+ *
+ * Generates single particle gun in HepMC format
+ * Julia Yarba 10/2005 
+ ***************************************/
 
 #include <ostream>
 
-#include "IOMC/ParticleGuns/interface/FlatRandomEGunProducer.h"
+#include "BaseFlatGunProducer.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
@@ -12,6 +14,8 @@
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "CLHEP/Random/RandFlat.h"
@@ -19,109 +23,140 @@
 using namespace edm;
 using namespace std;
 
-FlatRandomEGunProducer::FlatRandomEGunProducer(const ParameterSet& pset) : BaseFlatGunProducer(pset) {
-  ParameterSet defpset;
-  // ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters") ;
-  ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters");
+namespace edm {
 
-  // doesn't seem necessary to check if pset is empty - if this
-  // is the case, default values will be taken for params
-  fMinE = pgun_params.getParameter<double>("MinE");
-  fMaxE = pgun_params.getParameter<double>("MaxE");
+  class FlatRandomEGunProducer : public BaseFlatGunProducer {
+  public:
+    FlatRandomEGunProducer(const ParameterSet& pset);
+    ~FlatRandomEGunProducer() override;
 
-  produces<HepMCProduct>("unsmeared");
-  produces<GenEventInfoProduct>();
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
+    void produce(Event& e, const EventSetup& es) override;
 
-  cout << "Internal FlatRandomEGun is initialzed" << endl;
-  // cout << "It is going to generate " << remainingEvents() << "events" << endl ;
-}
+  private:
+    // data members
 
-FlatRandomEGunProducer::~FlatRandomEGunProducer() {
-  // no need to cleanup fEvt since it's done in HepMCProduct
-}
+    double fMinE;
+    double fMaxE;
+  };
 
-void FlatRandomEGunProducer::produce(Event& e, const EventSetup& es) {
-  edm::Service<edm::RandomNumberGenerator> rng;
-  CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+  FlatRandomEGunProducer::FlatRandomEGunProducer(const ParameterSet& pset) : BaseFlatGunProducer(pset) {
+    ParameterSet defpset;
+    // ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters") ;
+    ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters");
 
-  if (fVerbosity > 0) {
-    cout << " FlatRandomEGunProducer : Begin New Event Generation" << endl;
+    // doesn't seem necessary to check if pset is empty - if this
+    // is the case, default values will be taken for params
+    fMinE = pgun_params.getParameter<double>("MinE");
+    fMaxE = pgun_params.getParameter<double>("MaxE");
+
+    produces<HepMCProduct>("unsmeared");
+    produces<GenEventInfoProduct>();
+
+    cout << "Internal FlatRandomEGun is initialzed" << endl;
+    // cout << "It is going to generate " << remainingEvents() << "events" << endl ;
   }
 
-  // event loop (well, another step in it...)
+  FlatRandomEGunProducer::~FlatRandomEGunProducer() {
+    // no need to cleanup fEvt since it's done in HepMCProduct
+  }
 
-  // no need to clean up GenEvent memory - done in HepMCProduct
+  void FlatRandomEGunProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    ParameterSetDescription pgunParams;
+    pgunParams.add<double>("MinE");
+    pgunParams.add<double>("MaxE");
+    BaseFlatGunProducer::fillDescription(desc, pgunParams);
+    descriptions.addDefault(desc);
+  }
 
-  // here re-create fEvt (memory)
-  //
-  fEvt = new HepMC::GenEvent();
+  void FlatRandomEGunProducer::produce(Event& e, const EventSetup& es) {
+    edm::Service<edm::RandomNumberGenerator> rng;
+    CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
-  // now actualy, cook up the event from PDGTable and gun parameters
-  //
-
-  // 1st, primary vertex
-  //
-  HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
-
-  // loop over particles
-  //
-  int barcode = 1;
-  for (unsigned int ip = 0; ip < fPartIDs.size(); ip++) {
-    double energy = CLHEP::RandFlat::shoot(engine, fMinE, fMaxE);
-    double eta = CLHEP::RandFlat::shoot(engine, fMinEta, fMaxEta);
-    double phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
-    int PartID = fPartIDs[ip];
-    const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
-    double mass = PData->mass().value();
-    double mom2 = energy * energy - mass * mass;
-    double mom = 0.;
-    if (mom2 > 0.) {
-      mom = sqrt(mom2);
-    } else {
-      mom = 0.;
+    if (fVerbosity > 0) {
+      cout << " FlatRandomEGunProducer : Begin New Event Generation" << endl;
     }
-    double theta = 2. * atan(exp(-eta));
-    double px = mom * sin(theta) * cos(phi);
-    double py = mom * sin(theta) * sin(phi);
-    double pz = mom * cos(theta);
 
-    HepMC::FourVector p(px, py, pz, energy);
-    HepMC::GenParticle* Part = new HepMC::GenParticle(p, PartID, 1);
-    Part->suggest_barcode(barcode);
-    barcode++;
-    Vtx->add_particle_out(Part);
+    // event loop (well, another step in it...)
 
-    if (fAddAntiParticle) {
-      HepMC::FourVector ap(-px, -py, -pz, energy);
-      int APartID = -PartID;
-      if (PartID == 22 || PartID == 23) {
-        APartID = PartID;
+    // no need to clean up GenEvent memory - done in HepMCProduct
+
+    // here re-create fEvt (memory)
+    //
+    fEvt = new HepMC::GenEvent();
+
+    // now actualy, cook up the event from PDGTable and gun parameters
+    //
+
+    // 1st, primary vertex
+    //
+    HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
+
+    // loop over particles
+    //
+    int barcode = 1;
+    for (unsigned int ip = 0; ip < fPartIDs.size(); ip++) {
+      double energy = CLHEP::RandFlat::shoot(engine, fMinE, fMaxE);
+      double eta = CLHEP::RandFlat::shoot(engine, fMinEta, fMaxEta);
+      double phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
+      int PartID = fPartIDs[ip];
+      const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
+      double mass = PData->mass().value();
+      double mom2 = energy * energy - mass * mass;
+      double mom = 0.;
+      if (mom2 > 0.) {
+        mom = sqrt(mom2);
+      } else {
+        mom = 0.;
       }
-      HepMC::GenParticle* APart = new HepMC::GenParticle(ap, APartID, 1);
-      APart->suggest_barcode(barcode);
+      double theta = 2. * atan(exp(-eta));
+      double px = mom * sin(theta) * cos(phi);
+      double py = mom * sin(theta) * sin(phi);
+      double pz = mom * cos(theta);
+
+      HepMC::FourVector p(px, py, pz, energy);
+      HepMC::GenParticle* Part = new HepMC::GenParticle(p, PartID, 1);
+      Part->suggest_barcode(barcode);
       barcode++;
-      Vtx->add_particle_out(APart);
+      Vtx->add_particle_out(Part);
+
+      if (fAddAntiParticle) {
+        HepMC::FourVector ap(-px, -py, -pz, energy);
+        int APartID = -PartID;
+        if (PartID == 22 || PartID == 23) {
+          APartID = PartID;
+        }
+        HepMC::GenParticle* APart = new HepMC::GenParticle(ap, APartID, 1);
+        APart->suggest_barcode(barcode);
+        barcode++;
+        Vtx->add_particle_out(APart);
+      }
+    }
+    fEvt->add_vertex(Vtx);
+    fEvt->set_event_number(e.id().event());
+    fEvt->set_signal_process_id(20);
+
+    if (fVerbosity > 0) {
+      fEvt->print();
+    }
+
+    unique_ptr<HepMCProduct> BProduct(new HepMCProduct());
+    BProduct->addHepMCData(fEvt);
+    e.put(std::move(BProduct), "unsmeared");
+
+    unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+    e.put(std::move(genEventInfo));
+
+    if (fVerbosity > 0) {
+      // for testing purpose only
+      //fEvt->print() ;  // for some strange reason, it prints NO event info
+      // after it's been put into edm::Event...
+      cout << " FlatRandomEGunProducer : Event Generation Done " << endl;
     }
   }
-  fEvt->add_vertex(Vtx);
-  fEvt->set_event_number(e.id().event());
-  fEvt->set_signal_process_id(20);
+}  // namespace edm
 
-  if (fVerbosity > 0) {
-    fEvt->print();
-  }
-
-  unique_ptr<HepMCProduct> BProduct(new HepMCProduct());
-  BProduct->addHepMCData(fEvt);
-  e.put(std::move(BProduct), "unsmeared");
-
-  unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
-  e.put(std::move(genEventInfo));
-
-  if (fVerbosity > 0) {
-    // for testing purpose only
-    //fEvt->print() ;  // for some strange reason, it prints NO event info
-    // after it's been put into edm::Event...
-    cout << " FlatRandomEGunProducer : Event Generation Done " << endl;
-  }
-}
+#include "FWCore/Framework/interface/MakerMacros.h"
+using edm::FlatRandomEGunProducer;
+DEFINE_FWK_MODULE(FlatRandomEGunProducer);

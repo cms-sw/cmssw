@@ -38,7 +38,6 @@ namespace edm {
   class StreamID;
   class GlobalSchedule;
   class ActivityRegistry;
-  class ThinnedAssociationsHelper;
   class EventForTransformer;
   class ServiceWeakToken;
 

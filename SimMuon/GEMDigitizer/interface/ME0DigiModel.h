@@ -14,6 +14,7 @@
 #include "DataFormats/GEMDigi/interface/ME0DigiCollection.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitFwd.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimDataFormats/GEMDigiSimLink/interface/ME0DigiSimLink.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
@@ -27,7 +28,6 @@ namespace CLHEP {
 
 class ME0EtaPartition;
 class ME0Geometry;
-class PSimHit;
 
 class ME0DigiModel {
 public:

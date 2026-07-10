@@ -46,9 +46,8 @@ namespace edm::streamer {
     return builders_.serializeEvent(buffer_, e, triggerResults, selectorCfg, eventMetaDataChecksum_);
   }
 
-  std::unique_ptr<EventMsgBuilder> StreamerOutputModuleCommon::serializeEventMetaData(
-      BranchIDLists const& branchLists, ThinnedAssociationsHelper const& helper) {
-    auto ret = builders_.serializeEventMetaData(buffer_, branchLists, helper);
+  std::unique_ptr<EventMsgBuilder> StreamerOutputModuleCommon::serializeEventMetaData(BranchIDLists const& branchLists) {
+    auto ret = builders_.serializeEventMetaData(buffer_, branchLists);
     eventMetaDataChecksum_ = ret.second;
     return std::move(ret.first);
   }

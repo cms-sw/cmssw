@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCandFwd.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 //
@@ -24,7 +25,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 class L1MuDTTrackCand;
-class L1MuRegionalCand;
 
 class L1TDTTF : public DQMEDAnalyzer {
 public:

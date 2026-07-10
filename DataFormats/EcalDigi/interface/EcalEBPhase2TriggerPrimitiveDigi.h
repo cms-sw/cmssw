@@ -35,7 +35,7 @@ public:
   void setSample(int i, const EcalEBPhase2TriggerPrimitiveSample& sam);
   void setSampleValue(int i, uint16_t value) { data_[i].setValue(value); }
 
-  /// get the 12 bits Et of interesting sample
+  /// get the 10 bits Et of interesting sample
   int encodedEt() const;
 
   /// Spike flag

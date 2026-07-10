@@ -14,7 +14,10 @@
 
 namespace l1t {
 
-  class TkEm;
+  namespace io_v1 {
+    class TkEm;
+  }
+  using TkEm = io_v1::TkEm;
 
   typedef std::vector<TkEm> TkEmCollection;
 

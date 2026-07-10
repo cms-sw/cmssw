@@ -10,7 +10,6 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
@@ -108,7 +107,6 @@ namespace edm {
     eventPrincipal_ = std::make_unique<EventPrincipal>(secInput_->productRegistry(),
                                                        edm::productResolversFactory::makePrimary,
                                                        std::make_shared<BranchIDListHelper>(),
-                                                       std::make_shared<ThinnedAssociationsHelper>(),
                                                        *processConfiguration_,
                                                        nullptr);
   }

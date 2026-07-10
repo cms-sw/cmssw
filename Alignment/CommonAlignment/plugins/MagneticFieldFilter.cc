@@ -36,7 +36,7 @@
 // class declaration
 //
 
-class MagneticFieldFilter : public edm::stream::EDFilter<> {
+class MagneticFieldFilter : public edm::stream::EDFilter<edm::stream::WatchRuns> {
 public:
   explicit MagneticFieldFilter(const edm::ParameterSet&);
   ~MagneticFieldFilter() override = default;

@@ -27,7 +27,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include <utility>
 
-class Trajectory;
 class ConversionHitChecker {
 public:
   ConversionHitChecker() {}

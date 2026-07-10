@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-import ROOT
+import ROOT as R
 import optparse
 import re
 import os
@@ -8,7 +8,7 @@ def main():
     parser = optparse.OptionParser()
     (options, args) = parser.parse_args()
     
-    ROOT.gROOT.SetBatch(True)
+    R.gROOT.SetBatch(True)
     for filename in args:
        
         if "vDrift_" in filename:
@@ -54,7 +54,8 @@ def runttrig(name, filename, path, run):
         #mean[0].SaveAs(name+run+"-SL"+str(SL)+"-mean.root")
         sigma[0].Print(name+run+"-SL"+str(SL)+"-sigma.png")
         #sigma[0].SaveAs(name+run+"-SL"+str(SL)+"-sigma.root")
-
+        del mean,sigma
+        
 def runvdrift(name, run, filename):
     from CalibMuon.DTCalibration.PlottingTools.plotVDriftFromHistos import plot
     for SL in [1,2,3]:
@@ -62,15 +63,17 @@ def runvdrift(name, run, filename):
         mean[0].Print(name+run+"-SL"+str(SL)+"-mean.png")
         #mean[0].Print(name+run+"-SL"+str(SL)+"-mean.pdf")
         #mean[0].SaveAs(name+run+"-SL"+str(SL)+"-mean.root")
-        #sigma[0].Print(name+run+"-SL"+str(SL)+"-sigma.pdf")
+        del mean
         
 def runt0(name,filename,run):
     from CalibMuon.DTCalibration.PlottingTools.plotT0FromHistos import plot
     for SL in [1,2,3]:
         mean = plot(filename, SL ,run)
-        mean[0].Print(name+run+"-SL"+str(SL)+"-mean.pdf")
-        mean[0].SaveAs(name+run+"-SL"+str(SL)+"-mean.root")
-
+        mean[0].Print(name+run+"-SL"+str(SL)+"-mean.png")
+        #mean[0].Print(name+run+"-SL"+str(SL)+"-mean.pdf")
+        #mean[0].SaveAs(name+run+"-SL"+str(SL)+"-mean.root")
+        del mean
+        
 if __name__=="__main__":
     main()
 

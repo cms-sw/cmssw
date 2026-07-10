@@ -120,6 +120,9 @@ namespace edmtest {
 
       void produce(edm::Event&, edm::EventSetup const&) override {
         ++m_count;
+        if (not runCache()) {
+          throw cms::Exception("runCache not set");
+        }
         ++(runCache()->value);
       }
 
@@ -255,6 +258,9 @@ namespace edmtest {
 
       void produce(edm::Event&, edm::EventSetup const&) override {
         ++m_count;
+        if (not runCache()) {
+          throw cms::Exception("runCache not set");
+        }
         ++(runCache()->value);
         ++valueAccumulatedForStream_;
       }
@@ -677,10 +683,16 @@ namespace edmtest {
         gbr = true;
         ger = false;
         gbrp = false;
-        return std::shared_ptr<bool>{};
+        return std::make_shared<bool>(true);
       }
 
       void produce(edm::Event&, edm::EventSetup const&) override {
+        if (not runCache()) {
+          throw cms::Exception("runCache not set");
+        }
+        if (not *runCache()) {
+          throw cms::Exception("runCache wrong value");
+        }
         if (!gbrp) {
           throw cms::Exception("out of sequence") << "produce before globalBeginRunProduce";
         }
@@ -722,7 +734,7 @@ namespace edmtest {
         gbr = true;
         ger = false;
         p = false;
-        return std::shared_ptr<bool>{};
+        return std::make_shared<bool>(true);
       }
 
       TestEndRunProducer(edm::ParameterSet const& p) {
@@ -732,7 +744,15 @@ namespace edmtest {
         produces<unsigned int, edm::Transition::EndRun>("a");
       }
 
-      void produce(edm::Event&, edm::EventSetup const&) override { p = true; }
+      void produce(edm::Event&, edm::EventSetup const&) override {
+        p = true;
+        if (not runCache()) {
+          throw cms::Exception("runCache not set");
+        }
+        if (not *runCache()) {
+          throw cms::Exception("runCache has wrong value");
+        }
+      }
 
       static void globalEndRunProduce(edm::Run& iRun, edm::EventSetup const&, RunContext const*) {
         ++m_count;
@@ -780,6 +800,12 @@ namespace edmtest {
         if (!gblp) {
           throw cms::Exception("begin out of sequence") << "produce seen before globalBeginLumiBlockProduce";
         }
+        if (not luminosityBlockCache()) {
+          throw cms::Exception("luminosityBlockCache not set");
+        }
+        if (not *luminosityBlockCache()) {
+          throw cms::Exception("luminosityBlockCache has wrong value");
+        }
       }
 
       static void globalBeginLuminosityBlockProduce(edm::LuminosityBlock&,
@@ -799,7 +825,7 @@ namespace edmtest {
         gbl = true;
         gel = false;
         gblp = false;
-        return std::shared_ptr<bool>();
+        return std::make_shared<bool>(true);
       }
 
       static void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB,
@@ -838,7 +864,15 @@ namespace edmtest {
         produces<unsigned int, edm::Transition::EndLuminosityBlock>("a");
       }
 
-      void produce(edm::Event&, edm::EventSetup const&) override { p = true; }
+      void produce(edm::Event&, edm::EventSetup const&) override {
+        p = true;
+        if (not luminosityBlockCache()) {
+          throw cms::Exception("luminosityBlockCache not set");
+        }
+        if (not *luminosityBlockCache()) {
+          throw cms::Exception("luminosityBlockCache has wrong value");
+        }
+      }
 
       static void globalEndLuminosityBlockProduce(edm::LuminosityBlock&,
                                                   edm::EventSetup const&,
@@ -855,7 +889,7 @@ namespace edmtest {
         gbl = true;
         gel = false;
         p = false;
-        return std::shared_ptr<bool>{};
+        return std::make_shared<bool>(true);
       }
 
       static void globalEndLuminosityBlock(edm::LuminosityBlock const& iLB,

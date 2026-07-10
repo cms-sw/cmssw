@@ -11,7 +11,7 @@
 // class declaration
 //
 
-class LSNumberFilter : public edm::stream::EDFilter<> {
+class LSNumberFilter : public edm::stream::EDFilter<edm::stream::WatchRuns> {
 public:
   explicit LSNumberFilter(const edm::ParameterSet&);
   ~LSNumberFilter() override = default;

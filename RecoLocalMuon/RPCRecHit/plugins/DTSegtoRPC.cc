@@ -1,7 +1,7 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -56,7 +56,7 @@ std::unique_ptr<RPCRecHitCollection> DTSegtoRPC::thePoints(const DTRecSegment4DC
                                                            bool debug,
                                                            double eyr) {
   auto _ThePoints = std::make_unique<RPCRecHitCollection>();
-  edm::OwnVector<RPCRecHit> RPCPointVector;
+  std::vector<RPCRecHit> RPCPointVector;
   std::vector<uint32_t> extrapolatedRolls;
 
   if (all4DSegments->size() > 8) {

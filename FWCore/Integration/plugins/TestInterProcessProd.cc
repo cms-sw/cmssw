@@ -41,7 +41,7 @@ namespace testinter {
 
         {
           auto nlines = std::to_string(std::count(iConfig.begin(), iConfig.end(), '\n'));
-          auto result = fwrite(nlines.data(), sizeof(char), nlines.size(), pipe_);
+          [[maybe_unused]] auto result = fwrite(nlines.data(), sizeof(char), nlines.size(), pipe_);
           assert(result == nlines.size());
           result = fwrite(iConfig.data(), sizeof(char), iConfig.size(), pipe_);
           assert(result == iConfig.size());
@@ -51,9 +51,8 @@ namespace testinter {
     }
 
     template <typename SERIAL>
-    auto doTransition(SERIAL& iDeserializer,
-                      edm::Transition iTrans,
-                      unsigned long long iTransitionID) -> decltype(iDeserializer.deserialize()) {
+    auto doTransition(SERIAL& iDeserializer, edm::Transition iTrans, unsigned long long iTransitionID)
+        -> decltype(iDeserializer.deserialize()) {
       decltype(iDeserializer.deserialize()) value;
       if (not channel_.doTransition(
               [&value, this]() {

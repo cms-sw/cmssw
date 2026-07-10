@@ -4,6 +4,9 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternEtSum.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternHtMiss.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternJetDataFwd.h"
+
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionFwd.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctRegion.h"
@@ -14,11 +17,9 @@
 
 #include <vector>
 
-class L1GctInternJetData;
 class L1GctJetFinderParams;
 class L1GctJetEtCalibrationLut;
 class L1GctChannelMask;
-class L1CaloRegion;
 
 /*! \class L1GctJetFinderBase
  * \brief Base class to allow implementation of jetFinder algorithms

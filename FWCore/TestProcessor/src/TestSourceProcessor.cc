@@ -61,7 +61,6 @@ namespace {
                                          ParameterSet& params,
                                          std::shared_ptr<BranchIDListHelper> branchIDListHelper,
                                          std::shared_ptr<ProcessBlockHelper> const& processBlockHelper,
-                                         std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
                                          std::shared_ptr<ActivityRegistry> areg,
                                          std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                          PreallocationConfiguration const& allocations) {
@@ -95,8 +94,7 @@ namespace {
                          processConfiguration.get(),
                          moduleIndex);
 
-    InputSourceDescription isdesc(
-        md, branchIDListHelper, processBlockHelper, thinnedAssociationsHelper, areg, -1, -1, 0, allocations);
+    InputSourceDescription isdesc(md, branchIDListHelper, processBlockHelper, areg, -1, -1, 0, allocations);
 
     return std::unique_ptr<InputSource>(InputSourceFactory::get()->makeInputSource(*main_input, isdesc).release());
   }
@@ -149,7 +147,6 @@ namespace edm::test {
                           *psetPtr,
                           items.branchIDListHelper(),
                           processBlockHelper_,
-                          items.thinnedAssociationsHelper(),
                           items.actReg_,
                           items.processConfiguration(),
                           preallocations_);
@@ -158,7 +155,6 @@ namespace edm::test {
 
     actReg_ = items.actReg_;
     branchIDListHelper_ = items.branchIDListHelper();
-    thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();
     processConfiguration_ = items.processConfiguration();
 
     processContext_.setProcessConfiguration(processConfiguration_.get());
@@ -173,7 +169,6 @@ namespace edm::test {
       auto ep = std::make_shared<EventPrincipal>(preg_,
                                                  edm::productResolversFactory::makePrimary,
                                                  branchIDListHelper_,
-                                                 thinnedAssociationsHelper_,
                                                  *processConfiguration_,
                                                  historyAppender_.get(),
                                                  index);

@@ -6,6 +6,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackFwd.h"
 
 #include <vector>
 namespace edm {
@@ -17,7 +18,6 @@ namespace edm {
 class MuonServiceProxy;
 class MuonTrackingRegionBuilder;
 class RectangularEtaPhiTrackingRegion;
-class SimTrack;
 
 //
 // generate seeds corresponding to L2 muons

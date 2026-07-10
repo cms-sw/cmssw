@@ -1,0 +1,155 @@
+#ifndef HeterogeneousCore_AlpakaCore_interface_alpaka_EDMetadata_h
+#define HeterogeneousCore_AlpakaCore_interface_alpaka_EDMetadata_h
+
+#include <atomic>
+#include <memory>
+
+#include <alpaka/alpaka.hpp>
+
+#include "DataFormats/Common/interface/DeviceProduct.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/EventCache.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/QueueCache.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+
+namespace ALPAKA_ACCELERATOR_NAMESPACE {
+  /**
+   * The EDMetadata class provides the exact synchronization
+   * mechanisms for Event data products for backends with asynchronous
+   * Queue. These include
+   * - adding a notification for edm::WaitingTaskWithArenaHolder
+   * - recording an Event
+   * - synchronizing an Event data product and a consuming EDModule
+   *
+   * For synchronous backends the EDMetadata acts as an owner of the
+   * Queue object, as no further synchronization is needed.
+   *
+   * EDMetadata is used as the Metadata class for
+   * edm::DeviceProduct<T>, and is an implementation detail (not
+   * visible to user code).
+   *
+   * TODO: What to do with device-synchronous backends? The data
+   * product needs to be wrapped into the edm::DeviceProduct, but the
+   * EDMetadata class used there does not need anything except "dummy"
+   * implementation of synchronize(). The question is clearly
+   * solvable, so maybe leave it to the time we would actually need
+   * one?
+   */
+
+#ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
+  // Host backends with a synchronous queue
+
+  class EDMetadata {
+  public:
+    EDMetadata(Device device) : device_(std::move(device)) {}
+    EDMetadata(std::shared_ptr<Queue> queue) : device_(alpaka::getDev(*queue)), queue_(std::move(queue)) {}
+
+    Device const& device() const { return device_; }
+
+    // Alpaka operations do not accept a temporary as an argument
+    // TODO: Returning non-const reference here is BAD
+    Queue& queue() const {
+      assert(queue_);
+      return *queue_;
+    }
+
+    Queue& queue() {
+      if (not queue_) {
+        queue_ = cms::alpakatools::getQueueCache<Queue>().get(device_);
+      }
+      return *queue_;
+    }
+
+    // Used by ProducerBase to reuse the product's queue for enqueueing
+    // the host copy.
+    std::shared_ptr<Queue> shared_queue() {
+      assert(queue_);
+      return queue_;
+    }
+
+    void recordEvent() {}
+
+  private:
+    Device device_;
+    std::shared_ptr<Queue> queue_;
+  };
+
+  // TODO: else if device backends with a synchronous queue
+
+#else
+  // All backends with an asynchronous queue
+
+  class EDMetadata : public edm::DeviceProductMetadataBase {
+  public:
+    EDMetadata(Device device) : device_(std::move(device)) {}
+    EDMetadata(std::shared_ptr<Queue> queue) : device_(alpaka::getDev(*queue)), queue_(std::move(queue)) {}
+    ~EDMetadata() noexcept override;
+
+    Device const& device() const { return device_; }
+
+    // Alpaka operations do not accept a temporary as an argument
+    // TODO: Returning non-const reference here is BAD
+    Queue& queue() const {
+      assert(queue_);
+      return *queue_;
+    }
+
+    Queue& queue() {
+      if (not queue_) {
+        queue_ = cms::alpakatools::getQueueCache<Queue>().get(device_);
+      }
+      return *queue_;
+    }
+
+    // Used by ProducerBase to reuse the product's queue for enqueueing
+    // the host copy.
+    std::shared_ptr<Queue> shared_queue() const {
+      assert(queue_);
+      return queue_;
+    }
+
+    // Used by EDMetadataSentry and EDMetadataAcquireSentry to record the event
+    // corresponding to the completion of the work of the EDProducer associated
+    // to this metadata object.
+    std::shared_ptr<Event> recordEvent() {
+      if (not event_) {
+        event_ = cms::alpakatools::getEventCache<Event>().get(device_);
+      }
+      alpaka::enqueue(queue(), *event_);
+      return event_;
+    }
+
+    /**
+     * Synchronizes 'this' metadata wrt. host (caller)
+     * This is always a blocking call. It is intended to be called from
+     * edm::DeviceProduct destructor.
+     */
+    void synchronize() const noexcept final;
+
+    /**
+     * Synchronizes 'consumer' metadata wrt. 'this' in the event product
+     * This is a non-blocking call. At the worst case the queue of the 'consumer'
+     * will wait for the event of 'this' to complete.
+     */
+    void synchronize(EDMetadata& consumer) const;
+
+  private:
+    /**
+     * Returns a shared_ptr to the Queue if it can be reused, or a
+     * null shared_ptr if not
+     */
+    bool tryReuseQueue_() const;
+
+    Device device_;
+    std::shared_ptr<Queue> queue_;
+    std::shared_ptr<Event> event_;
+    // This flag tells whether the Queue may be reused by a
+    // consumer or not. The goal is to have a "chain" of modules to
+    // queue their work to the same queue.
+    mutable std::atomic<bool> mayReuseQueue_ = true;
+    // Cache to potentially reduce alpaka::wait() calls
+    mutable std::atomic<bool> eventComplete_ = false;
+  };
+#endif
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+
+#endif  // HeterogeneousCore_AlpakaCore_interface_alpaka_EDMetadata_h

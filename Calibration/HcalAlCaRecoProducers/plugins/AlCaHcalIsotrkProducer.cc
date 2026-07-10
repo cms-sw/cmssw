@@ -90,7 +90,8 @@ namespace alCaHcalIsotrkProducer {
   };
 }  // namespace alCaHcalIsotrkProducer
 
-class AlCaHcalIsotrkProducer : public edm::stream::EDProducer<edm::GlobalCache<alCaHcalIsotrkProducer::Counters>> {
+class AlCaHcalIsotrkProducer
+    : public edm::stream::EDProducer<edm::GlobalCache<alCaHcalIsotrkProducer::Counters>, edm::stream::WatchRuns> {
 public:
   explicit AlCaHcalIsotrkProducer(edm::ParameterSet const&, const alCaHcalIsotrkProducer::Counters*);
   ~AlCaHcalIsotrkProducer() override = default;

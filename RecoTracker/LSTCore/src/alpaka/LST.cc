@@ -2,6 +2,8 @@
 
 #include "LSTEvent.h"
 
+#include <format>
+
 using namespace ALPAKA_ACCELERATOR_NAMESPACE::lst;
 
 #include "Math/Vector3D.h"
@@ -15,8 +17,9 @@ void LST::run(Queue& queue,
               LSTESData<Device> const* deviceESData,
               LSTInputDeviceCollection const* lstInputDC,
               bool no_pls_dupclean,
-              bool tc_pls_triplets) {
-  auto event = LSTEvent(verbose, ptCut, clustSizeCut, queue, deviceESData);
+              bool tc_pls_triplets,
+              bool reduce_mem_by_full_precompute) {
+  auto event = LSTEvent(verbose, ptCut, clustSizeCut, queue, deviceESData, reduce_mem_by_full_precompute);
 
   event.addInputToEvent(lstInputDC);
   event.addHitToEvent();
@@ -132,6 +135,7 @@ void LST::run(Queue& queue,
     printf("        # of pLS TrackCandidates produced: %d\n", event.getNumberOfPLSTrackCandidates());
     printf("        # of T5 TrackCandidates produced: %d\n", event.getNumberOfT5TrackCandidates());
     printf("        # of T4 TrackCandidates produced: %d\n", event.getNumberOfT4TrackCandidates());
+    lstWarning(std::format("[MEM] Total: {:.1f} MB", event.getMemoryAllocatedMB()));
   }
 
   trackCandidatesBaseDC_ = event.releaseTrackCandidatesBaseDeviceCollection();

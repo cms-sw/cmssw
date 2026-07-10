@@ -128,21 +128,26 @@ void ScoutingMuonTriggerAnalyzer::dqmBeginRun(edm::Run const& iRun, edm::EventSe
   bool changed{false};
   hltConfig_.init(iRun, iSetup, hltProcessName_, changed);
 
-  // deal with Fake HLT menus
-  if (hltConfig_.tableName().find("Fake") != std::string::npos) {
+  // deal with Fake and HIon HLT menus
+  const std::string& tableName = hltConfig_.tableName();
+
+  const bool toIgnore = tableName.find("Fake") != std::string::npos || tableName.find("HIon") != std::string::npos;
+
+  if (toIgnore) {
     edm::LogPrint("ScoutingMuonTriggerAnalyzer")
-        << "Detected Fake in HLT Config tableName(): " << hltConfig_.tableName()
+        << "Detected special HLT menu in HLT Config tableName(): " << tableName
         << "; the list of trigger expressions is going to be overridden!" << std::endl;
+
     vtriggerSelector_.clear();
     return;
   }
 
   for (const auto& menu : special_HLT_Menus_) {
-    std::size_t found = hltConfig_.tableName().find(menu);
+    std::size_t found = tableName.find(menu);
     if (found != std::string::npos) {
       isSpecial_ = true;
       edm::LogPrint("ScoutingMuonTriggerAnalyzer")
-          << "Detected " << menu << " in HLT Config tableName(): " << hltConfig_.tableName()
+          << "Detected " << menu << " in HLT Config tableName(): " << tableName
           << "; the list of trigger expressions is going to be overridden!" << std::endl;
       break;
     }
@@ -157,7 +162,7 @@ void ScoutingMuonTriggerAnalyzer::analyze(edm::Event const& iEvent, edm::EventSe
   edm::Handle<std::vector<Run3ScoutingMuon>> sctMuons;
   iEvent.getByToken(scoutingMuonCollection_, sctMuons);
   if (sctMuons.failedToGet()) {
-    edm::LogWarning("ScoutingMonitoring") << "Run3ScoutingMuon collection not found.";
+    edm::LogWarning("ScoutingMuonTriggerAnalyzer") << "Run3ScoutingMuon collection not found.";
     return;
   }
   //Apply cuts specified in config file
@@ -298,10 +303,16 @@ void ScoutingMuonTriggerAnalyzer::fillDescriptions(edm::ConfigurationDescription
   desc.add<edm::InputTag>("l1tAlgBlkInputTag", edm::InputTag("gtStage2Digis"));
   desc.add<edm::InputTag>("l1tExtBlkInputTag", edm::InputTag("gtStage2Digis"));
   desc.add<bool>("ReadPrescalesFromFile", false);
+  desc.add<std::string>("muonSelection", "");
+
   edm::ParameterSetDescription triggerConfig;
-  desc.add<std::string>("muonSelection");
-  triggerConfig.setAllowAnything();
+  triggerConfig.add<edm::InputTag>("hltResults", edm::InputTag("TriggerResults", "", "HLT"));
+  triggerConfig.add<edm::InputTag>("l1tResults", edm::InputTag(""));
+  triggerConfig.add<bool>("l1tIgnoreMaskAndPrescale", false);
+  triggerConfig.add<bool>("throw", true);
+  triggerConfig.add<bool>("usePathStatus", false);
   desc.add<edm::ParameterSetDescription>("triggerConfiguration", triggerConfig);
+
   descriptions.addWithDefaultLabel(desc);
 }
 

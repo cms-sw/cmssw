@@ -10,9 +10,8 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCandFwd.h"
 #include "L1Trigger/CSCTrackFinder/src/CSCTFCandidateBuilder.h"
-
-class L1MuRegionalCand;
 
 class CSCTFCandidateProducer : public edm::global::EDProducer<> {
 public:

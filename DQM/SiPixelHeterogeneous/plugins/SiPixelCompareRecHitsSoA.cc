@@ -1,3 +1,13 @@
+// -*- C++ -*-
+// Package:    DQM/SiPixelHeterogeneous
+// Class:      SiPixelCompareRecHitsSoA
+//
+/**\class SiPixelCompareRecHitsSoA SiPixelCompareRecHitsSoA.cc
+*/
+//
+// Author: Suvankar Roy Chowdhury
+//
+
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -12,7 +22,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"

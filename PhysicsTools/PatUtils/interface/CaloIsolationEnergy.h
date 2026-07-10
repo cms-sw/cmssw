@@ -20,10 +20,10 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/PatCandidates/interface/MuonFwd.h"
 #include "DataFormats/PatCandidates/interface/ElectronFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 class MagneticField;
 class TrackToEcalPropagator;
-class CaloTower;
 
 namespace pat {
   class CaloIsolationEnergy {

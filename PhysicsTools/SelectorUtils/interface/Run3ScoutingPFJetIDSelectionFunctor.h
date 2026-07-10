@@ -160,6 +160,8 @@ public:  // interface
 
 private:  // member variables
   int nConstituents_ = 0;
+  int nNeutrals_TR_ = 0;
+  int nNeutrals_EC_ = 0;
   double CHF_ = 0.0;
   double NHF_ = 0.0;
   double NEF_ = 0.0;
@@ -174,27 +176,30 @@ private:  // member variables
     if (quality_ == TIGHT) {
       if (version_ == RUN3Scouting) {
         nConstituents_ = 1;
-        CHF_ = 0.01;
+        //CHF_ = 0.01;
         NHF_ = 0.99;
         NEF_ = 0.9;
         NCH_ = 0.0;
-        NEF_TR_ = 0.9;
-        NEF_EC_ = 0.9;
-        NEF_FW_ = 0.2;
+        NEF_TR_ = 0.99;
+        NEF_EC_ = 0.99;
+        NEF_FW_ = 0.1;
+        nNeutrals_TR_ = 1;
+        nNeutrals_EC_ = 1;
       }
     } else if (quality_ == TIGHTLEPVETO) {
       if (version_ == RUN3Scouting) {
-        CHF_ = 0.01;
         nConstituents_ = 1;
-        CHF_ = 0.01;
+        //CHF_ = 0.01;
         NHF_ = 0.99;
         NEF_ = 0.9;
         NCH_ = 0.0;
         MUF_ = 0.8;
-        NEF_TR_ = 0.9;
+        NEF_TR_ = 0.99;
         MUF_TR_ = 0.8;
-        NEF_EC_ = 0.9;
-        NEF_FW_ = 0.2;
+        NEF_EC_ = 0.99;
+        NEF_FW_ = 0.1;
+        nNeutrals_TR_ = 1;
+        nNeutrals_EC_ = 1;
       }
     }
   }

@@ -38,9 +38,9 @@
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTMatrix.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCandFwd.h"
 
 class L1MuGMTMipIsoAU;
-class L1MuGMTCand;
 
 //              ---------------------
 //              -- Class Interface --

@@ -3,7 +3,7 @@
 
 #include <map>
 
-class DetId;
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 
 class SiStripTKNumbers {
 public:

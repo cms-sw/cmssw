@@ -69,7 +69,8 @@ namespace alCaIsoTracksFilter {
   };
 }  // namespace alCaIsoTracksFilter
 
-class AlCaIsoTracksFilter : public edm::stream::EDFilter<edm::GlobalCache<alCaIsoTracksFilter::Counters>> {
+class AlCaIsoTracksFilter
+    : public edm::stream::EDFilter<edm::GlobalCache<alCaIsoTracksFilter::Counters>, edm::stream::WatchRuns> {
 public:
   explicit AlCaIsoTracksFilter(edm::ParameterSet const&, const alCaIsoTracksFilter::Counters* count);
   ~AlCaIsoTracksFilter() override = default;

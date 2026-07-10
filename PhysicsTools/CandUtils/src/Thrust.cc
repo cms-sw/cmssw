@@ -1,11 +1,8 @@
 #include "PhysicsTools/CandUtils/interface/Thrust.h"
-#include <cmath>
-using namespace reco;
-const double pi = M_PI, pi2 = 2 * pi, pi_2 = pi / 2, pi_4 = pi / 4;
 
-void Thrust::init(const std::vector<const Candidate*>& cands) {
+void Thrust::init(const std::vector<const reco::Candidate*>& cands) {
   int i = 0;
-  for (std::vector<const Candidate*>::const_iterator t = cands.begin(); t != cands.end(); ++t, ++i)
+  for (std::vector<const reco::Candidate*>::const_iterator t = cands.begin(); t != cands.end(); ++t, ++i)
     pSum_ += (p_[i] = (*t)->momentum()).r();
   axis_ = axis(finalAxis(initialAxis()));
   if (axis_.z() < 0)
@@ -14,21 +11,23 @@ void Thrust::init(const std::vector<const Candidate*>& cands) {
 }
 
 Thrust::ThetaPhi Thrust::initialAxis() const {
-  static const int nSegsTheta = 10, nSegsPhi = 10, nSegs = nSegsTheta * nSegsPhi;
-  int i, j;
+  constexpr int nSegsTheta = 10, nSegsPhi = 10, nSegs = nSegsTheta * nSegsPhi;
+  constexpr double fPhi = PI2 / nSegsPhi;
+  constexpr double fTheta = PI / (nSegsTheta - 1);
   double thr[nSegs], max = 0;
-  int indI = 0, indJ = 0, index = -1;
-  for (i = 0; i < nSegsTheta; ++i) {
-    double z = cos(pi * i / (nSegsTheta - 1));
-    double r = sqrt(1 - z * z);
-    for (j = 0; j < nSegsPhi; ++j) {
-      double phi = pi2 * j / nSegsPhi;
-      thr[i * nSegsPhi + j] = thrust(Vector(r * cos(phi), r * sin(phi), z));
-      if (thr[i * nSegsPhi + j] > max) {
-        index = i * nSegsPhi + j;
+  int indI = 0, indJ = 0;
+  for (int i = 0; i < nSegsTheta; ++i) {
+    double z = vdt::fast_cos(i * fTheta);
+    double r = std::sqrt(1 - z * z);
+    for (int j = 0; j < nSegsPhi; ++j) {
+      double sinPhi, cosPhi;
+      vdt::fast_sincos(j * fPhi, sinPhi, cosPhi);
+      double val = thrust(Vector(r * cosPhi, r * sinPhi, z));
+      thr[i * nSegsPhi + j] = val;
+      if (val > max) {
         indI = i;
         indJ = j;
-        max = thr[index];
+        max = val;
       }
     }
   }
@@ -61,11 +60,11 @@ Thrust::ThetaPhi Thrust::initialAxis() const {
     if (a != 0)
       maxThetaInd = -b / (2 * a);
   }
-  return ThetaPhi(pi * (maxThetaInd + indI) / (nSegsTheta - 1), pi2 * (maxPhiInd + indJ) / nSegsPhi);
+  return ThetaPhi((maxThetaInd + indI) * fTheta, (maxPhiInd + indJ) * fPhi);
 }
 
 Thrust::ThetaPhi Thrust::finalAxis(ThetaPhi best) const {
-  static const double epsilon = 0.0001;
+  constexpr double epsilon = 0.0001;
   double maxChange1 = 0.0, maxChange2 = 0.0, a = 0.0, b = 0.0, c = 0.0, thr = 0.0;
   int mandCt = 3, maxCt = 1000;
   bool done;
@@ -74,12 +73,12 @@ Thrust::ThetaPhi Thrust::finalAxis(ThetaPhi best) const {
     maxChange1 = 10 * (b < 0 ? -1 : 1);
     if (a != 0)
       maxChange1 = -b / (2 * a);
-    while (fabs(maxChange1 * epsilon) > pi_4)
+    while (std::abs(maxChange1 * epsilon) > PI_4)
       maxChange1 /= 2;
-    if (maxChange1 == 0 && (best.theta == 0 || best.theta == pi)) {
-      best.phi += pi_2;
-      if (best.phi > pi2)
-        best.phi -= pi2;
+    if (maxChange1 == 0 && (best.theta == 0 || best.theta == PI)) {
+      best.phi += PI_2;
+      if (best.phi > PI2)
+        best.phi -= PI2;
       parabola(a, b, c, axis(best), axis(best.theta + epsilon, best.phi), axis(best.theta - epsilon, best.phi));
       maxChange1 = 10 * (b < 0 ? -1 : 1);
       if (a != 0)
@@ -93,23 +92,23 @@ Thrust::ThetaPhi Thrust::finalAxis(ThetaPhi best) const {
     } while (thr < c);
 
     best.theta += maxChange1 * epsilon;
-    if (best.theta > pi) {
-      best.theta = pi - (best.theta - pi);
-      best.phi += pi;
-      if (best.phi > pi2)
-        best.phi -= pi2;
+    if (best.theta > PI) {
+      best.theta = PI - (best.theta - PI);
+      best.phi += PI;
+      if (best.phi > PI2)
+        best.phi -= PI2;
     }
     if (best.theta < 0) {
       best.theta *= -1;
-      best.phi += pi;
-      if (best.phi > pi2)
-        best.phi -= pi2;
+      best.phi += PI;
+      if (best.phi > PI2)
+        best.phi -= PI2;
     }
     parabola(a, b, c, axis(best), axis(best.theta, best.phi + epsilon), axis(best.theta, best.phi - epsilon));
     maxChange2 = 10 * (b < 0 ? -1 : 1);
     if (a != 0)
       maxChange2 = -b / (2 * a);
-    while (fabs(maxChange2 * epsilon) > pi_4) {
+    while (std::abs(maxChange2 * epsilon) > PI_4) {
       maxChange2 /= 2;
     }
     do {
@@ -119,14 +118,14 @@ Thrust::ThetaPhi Thrust::finalAxis(ThetaPhi best) const {
         maxChange2 /= 2;
     } while (thr < c);
     best.phi += maxChange2 * epsilon;
-    if (best.phi > pi2)
-      best.phi -= pi2;
+    if (best.phi > PI2)
+      best.phi -= PI2;
     if (best.phi < 0)
-      best.phi += pi2;
+      best.phi += PI2;
     if (mandCt > 0)
       mandCt--;
     maxCt--;
-    done = (fabs(maxChange1) > 1 || fabs(maxChange2) > 1 || mandCt) && (maxCt > 0);
+    done = (std::abs(maxChange1) > 1 || std::abs(maxChange2) > 1 || mandCt) && (maxCt > 0);
   } while (done);
 
   return best;
@@ -140,16 +139,15 @@ void Thrust::parabola(double& a, double& b, double& c, const Vector& a1, const V
 }
 
 Thrust::Vector Thrust::axis(double theta, double phi) const {
-  double theSin = sin(theta);
-  return Vector(theSin * cos(phi), theSin * sin(phi), cos(theta));
+  double sinTheta, cosTheta, sinPhi, cosPhi;
+  vdt::fast_sincos(theta, sinTheta, cosTheta);
+  vdt::fast_sincos(phi, sinPhi, cosPhi);
+  return Vector(sinTheta * cosPhi, sinTheta * sinPhi, cosTheta);
 }
 
 double Thrust::thrust(const Vector& axis) const {
-  double result = 0;
   double sum = 0;
   for (unsigned int i = 0; i < n_; ++i)
-    sum += fabs(axis.Dot(p_[i]));
-  if (pSum_ > 0)
-    result = sum / pSum_;
-  return result;
+    sum += std::abs(axis.Dot(p_[i]));
+  return pSum_ > 0 ? sum / pSum_ : 0;
 }

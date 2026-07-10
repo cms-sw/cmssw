@@ -36,12 +36,12 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "RecoTracker/NuclearSeedGenerator/interface/TrajectoryToSeedMap.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 
 namespace reco {
   class TransientTrack;
 }
 
-class Trajectory;
 class Chi2MeasurementEstimatorBase;
 class CkfComponentsRecord;
 class NavigationSchoolRecord;
@@ -50,7 +50,7 @@ class NavigationSchoolRecord;
  *
  */
 
-class NuclearSeedsEDProducer : public edm::stream::EDProducer<> {
+class NuclearSeedsEDProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit NuclearSeedsEDProducer(const edm::ParameterSet&);
   ~NuclearSeedsEDProducer() override;

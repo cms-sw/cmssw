@@ -18,7 +18,7 @@ flow blocks This is done at a later stage, see PFProducer and PFAlgo.
 
 class FSimEvent;
 
-class PFBlockProducer : public edm::stream::EDProducer<> {
+class PFBlockProducer : public edm::stream::EDProducer<edm::stream::WatchLuminosityBlocks> {
 public:
   explicit PFBlockProducer(const edm::ParameterSet&);
 

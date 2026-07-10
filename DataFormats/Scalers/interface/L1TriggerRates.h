@@ -9,6 +9,7 @@
 #define DATAFORMATS_SCALERS_L1TRIGGERRATES_H
 
 #include "DataFormats/Scalers/interface/TimeSpec.h"
+#include "DataFormats/Scalers/interface/L1TriggerScalersFwd.h"
 
 #include <ctime>
 #include <iosfwd>
@@ -24,8 +25,6 @@
 
 /// \class L1TriggerRates.h
 /// \brief Persistable copy of L1 Trigger Rates
-
-class L1TriggerScalers;
 
 class L1TriggerRates {
 public:

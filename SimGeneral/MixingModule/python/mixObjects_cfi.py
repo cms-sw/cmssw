@@ -61,16 +61,32 @@ premix_stage1.toModify(mixSimHits,
 # fastsim customs
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(mixSimHits,
-    input = ["MuonSimHits:MuonCSCHits", 
-             "MuonSimHits:MuonDTHits", 
-             "MuonSimHits:MuonRPCHits", 
-             "fastSimProducer:TrackerHits"],
-    subdets = ['MuonCSCHits', 
-               'MuonDTHits', 
-               'MuonRPCHits', 
-               'TrackerHits']
+        input = cms.VInputTag(  
+        cms.InputTag("MuonSimHits","MuonCSCHits"),
+        cms.InputTag("MuonSimHits","MuonDTHits"),
+        cms.InputTag("MuonSimHits","MuonRPCHits"),
+        cms.InputTag("fastSimProducer", "TrackerHits")
+    ),
+    subdets = cms.vstring('MuonCSCHits', 
+                'MuonDTHits', 
+                'MuonRPCHits', 
+               'TrackerHits')
 )
-
+from Configuration.ProcessModifiers.fastSimPU_cff import fastSimPU
+fastSimPU.toModify(mixSimHits,
+    input =  mixSimHits.input +
+                   [ cms.InputTag("MuonSimHits","MuonCSCHits"),
+                     cms.InputTag("MuonSimHits","MuonDTHits"), 
+                     cms.InputTag("MuonSimHits","MuonRPCHits"),
+                     cms.InputTag("MuonSimHits","MuonGEMHits"),                                  
+                     cms.InputTag("fastSimProducer","TrackerHits")],
+   subdets = mixSimHits.subdets +
+                   ['MuonCSCHits', 
+                    'MuonDTHits', 
+                    'MuonRPCHits',
+                    'MuonGEMHits',                                 
+                    'TrackerHits']
+)
 mixCaloHits = cms.PSet(
     input = cms.VInputTag(  # note that this list needs to be in the same order as the subdets
         #cms.InputTag("g4SimHits","CaloHitsTk"), cms.InputTag("g4SimHits","CastorBU"), cms.InputTag("g4SimHits","CastorPL"), cms.InputTag("g4SimHits","CastorTU"), 
@@ -107,6 +123,19 @@ fastSim.toModify(mixCaloHits,
                'EcalHitsES',
                'HcalHits']
 )
+# fastsimPU customs
+fastSimPU.toModify(mixCaloHits,
+    input = mixCaloHits.input +
+                    ["fastSimProducer:EcalHitsEB",
+                     "fastSimProducer:EcalHitsEE",
+                     "fastSimProducer:EcalHitsES",
+                     "fastSimProducer:HcalHits"],
+    subdets = mixCaloHits.subdets +
+                    ['EcalHitsEB',
+                     'EcalHitsEE',
+                     'EcalHitsES',
+                     'HcalHits']
+)
 
 
 mixSimTracks = cms.PSet(
@@ -123,6 +152,8 @@ mixSimVertices = cms.PSet(
 # fastsim customs
 fastSim.toModify(mixSimTracks, input = ["fastSimProducer"])
 fastSim.toModify(mixSimVertices, input = ["fastSimProducer"])
+fastSimPU.toModify(mixSimTracks, input = mixSimTracks.input + ["fastSimProducer"])
+fastSimPU.toModify(mixSimVertices, input = mixSimVertices.input + ["fastSimProducer"])
     
 mixHepMCProducts = cms.PSet(
     makeCrossingFrame = cms.untracked.bool(True),
@@ -155,7 +186,7 @@ theMixObjects = cms.PSet(
 )
 
 # fastsim customs
-fastSim.toModify(theMixObjects, mixRecoTracks = cms.PSet(mixReconstructedTracks))
+(fastSim | fastSimPU).toModify(theMixObjects, mixRecoTracks = cms.PSet(mixReconstructedTracks))
     
 mixPCFSimHits = cms.PSet(
     input = cms.VInputTag(cms.InputTag("CFWriter","g4SimHitsBSCHits"), cms.InputTag("CFWriter","g4SimHitsBCM1FHits"), cms.InputTag("CFWriter","g4SimHitsPLTHits"), cms.InputTag("CFWriter","g4SimHitsFP420SI"), cms.InputTag("CFWriter","g4SimHitsMuonCSCHits"), cms.InputTag("CFWriter","g4SimHitsMuonDTHits"), cms.InputTag("CFWriter","g4SimHitsMuonRPCHits"), 

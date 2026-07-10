@@ -5,11 +5,11 @@
 #include <RecoMTD/DetLayers/interface/MTDSectorForwardDoubleLayer.h>
 #include <RecoMTD/DetLayers/interface/MTDDetSector.h>
 #include <DataFormats/ForwardDetId/interface/ETLDetId.h>
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <Geometry/CommonTopologies/interface/GeomDet.h>
 #include <Geometry/MTDCommonData/interface/MTDTopologyMode.h>
 
 #include <Utilities/General/interface/precomputed_value_sort.h>
-#include <Geometry/CommonDetUnit/interface/DetSorting.h>
+#include <Geometry/CommonTopologies/interface/DetSorting.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <iostream>

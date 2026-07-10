@@ -19,12 +19,12 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-class DTDigi;
 class DTBtiChip;
 
 //----------------------
 // Base Class Headers --
 //----------------------
+#include "DataFormats/DTDigi/interface/DTDigiFwd.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigData.h"
 #include "L1Trigger/DTBti/interface/DTBtiTrigData.h"
 

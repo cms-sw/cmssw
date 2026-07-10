@@ -4,6 +4,8 @@
 #include "DataFormats/Common/interface/StdArray.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
+#include "RecoTracker/LSTGeometry/interface/Common.h"
+
 #if defined(FP16_Base)
 #if defined ALPAKA_ACC_GPU_CUDA_ENABLED
 #include <cuda_fp16.h>
@@ -19,6 +21,13 @@ namespace lst {
 
   // Named types for LST objects
   enum LSTObjType : int8_t { T5 = 4, pT3 = 5, pT5 = 7, pLS = 8, T4 = 9 };
+
+  enum class HitType : int { Pixel = 0, Invalid = 3, Phase2OT = 4 };  // as in TrackingNtuple.cc
+
+  constexpr unsigned int kPixelModuleId = 1;
+
+  constexpr unsigned int kMaxPLSHitsInHitsSoA = 4;
+  constexpr unsigned int kMaxPLSHitBitsInHitsSoA = 8;
 
   constexpr unsigned int max_blocks = 80;
   constexpr unsigned int max_connected_modules = 40;
@@ -37,6 +46,9 @@ namespace lst {
 
   constexpr uint16_t kTCEmptyLowerModule = 0xFFFF;     // Sentinel for empty lowerModule index
   constexpr unsigned int kTCEmptyHitIdx = 0xFFFFFFFF;  // Sentinel for empty hit slots
+
+  constexpr float kB = lstgeometry::kB;
+  constexpr float kC = lstgeometry::kC;
 
 // Half precision wrapper functions.
 #if defined(FP16_Base)
@@ -83,7 +95,8 @@ namespace lst {
     using ArrayUxHits = edm::StdArray<unsigned int, kHits>;
   };
   struct Params_T5 {
-    static constexpr int kLayers = 5, kHits = 10;
+    static constexpr int kLayers = 7, kHits = 14;  // 5 base + max 2 extensions
+    static constexpr int kBaseLayers = 5;
     static constexpr int kEmbed = 6;
     using ArrayU8xLayers = edm::StdArray<uint8_t, kLayers>;
     using ArrayU16xLayers = edm::StdArray<uint16_t, kLayers>;
@@ -91,7 +104,8 @@ namespace lst {
     using ArrayFxEmbed = edm::StdArray<float, kEmbed>;
   };
   struct Params_pT5 {
-    static constexpr int kLayers = 7, kHits = 14;
+    static constexpr int kLayers = 9, kHits = 18;  // 2 pixel + 7 OT (= T5::kLayers after extension)
+    static constexpr int kBaseLayers = 7;
     using ArrayU8xLayers = edm::StdArray<uint8_t, kLayers>;
     using ArrayU16xLayers = edm::StdArray<uint16_t, kLayers>;
     using ArrayUxHits = edm::StdArray<unsigned int, kHits>;

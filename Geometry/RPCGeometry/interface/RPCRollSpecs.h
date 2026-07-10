@@ -13,7 +13,7 @@
 
 class StripTopology;
 
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 
 class RPCRollSpecs : public GeomDetType {
 public:

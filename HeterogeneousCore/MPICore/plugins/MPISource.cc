@@ -2,14 +2,10 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 // MPI headers
 #include <mpi.h>
-
-// ROOT headers
-#include <TBuffer.h>
-#include <TBufferFile.h>
-#include <TClass.h>
 
 // CMSSW headers
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
@@ -26,6 +22,7 @@
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/ProductProvenanceRetriever.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -33,12 +30,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "HeterogeneousCore/MPICore/interface/api.h"
+#include "FWCore/Utilities/interface/StreamID.h"
+#include "HeterogeneousCore/MPICore/interface/MPIChannel.h"
+#include "HeterogeneousCore/MPICore/interface/MPIToken.h"
 #include "HeterogeneousCore/MPICore/interface/conversion.h"
 #include "HeterogeneousCore/MPICore/interface/messages.h"
-#include "HeterogeneousCore/MPICore/interface/MPIToken.h"
 #include "HeterogeneousCore/MPIServices/interface/MPIService.h"
 
 class MPISource : public edm::ProducerSourceBase {
@@ -67,11 +66,15 @@ private:
 
   char port_[MPI_MAX_PORT_NAME];
   MPI_Comm comm_ = MPI_COMM_NULL;
-  MPIChannel channel_;
+  MPIChannel controller_;
+  std::vector<std::unique_ptr<MPIChannel>> channels_;
   edm::EDPutTokenT<MPIToken> token_;
   Mode mode_;
 
   edm::ProcessHistory history_;
+
+  // temporary value used to pass information from setRunAndEventInfo() to produce()
+  MPIChannel* channel_ = nullptr;
 };
 
 MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescription const& desc)
@@ -82,8 +85,7 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
       token_(produces<MPIToken>()),
       mode_(parseMode(config.getUntrackedParameter<std::string>("mode")))  //
 {
-  // make sure that MPI is initialised
-
+  // Make sure that MPI is initialised.
   MPIService::required();
 
   // Make sure the EDM MPI types are available.
@@ -91,28 +93,65 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
 
   if (mode_ == kCommWorld) {
     // All processes are in MPI_COMM_WORLD.
-    // The current implementation supports only two processes: one controller and one source.
-    edm::LogAbsolute("MPI") << "MPISource in " << ModeDescription[mode_] << " mode.";
+    edm::LogInfo("MPI") << "MPISource in " << ModeDescription[mode_] << " mode.";
 
     // Check how many processes are there in MPI_COMM_WORLD
     int size;
     MPI_Comm_size(MPI_COMM_WORLD, &size);
-    if (size != 2) {
-      throw edm::Exception(edm::errors::Configuration)
-          << "The current implementation supports only two processes: one controller and one source.";
-    }
 
-    // Check the rank of this process, and determine the rank of the other process.
+    // Check the rank of this process.
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    edm::LogAbsolute("MPI") << "MPISource has rank " << rank << " in MPI_COMM_WORLD.";
-    int other_rank = 1 - rank;
-    comm_ = MPI_COMM_WORLD;
-    channel_ = MPIChannel(comm_, other_rank);
+
+    edm::LogInfo("MPI") << "MPIController Comm World size: " << size;
+
+    // All processes exchange the hashes of their names.
+    // One follower process has to make one communication channel with the controller process
+    // If controller process is not unique, error is thrown
+    auto controller_name = config.getParameter<std::string>("controllerProcessName");
+    if (controller_name.empty()) {
+      throw edm::Exception(edm::errors::Configuration)
+          << "ERROR: Controller process name cannot be empty. Aborting MPISource...";
+    }
+
+    edm::Service<edm::service::TriggerNamesService> tns;
+    std::string const& this_process_name = tns->getProcessName();
+    if (controller_name == this_process_name) {
+      throw edm::Exception(edm::errors::Configuration)
+          << "ERROR: controller and follower processes cannot have the same name. Aborting MPISource...";
+    }
+
+    edm::Service<MPIService> mpiservice;
+    std::vector<int> controller_indices = mpiservice->getRanksByProcessName(controller_name);
+    int remote = -1;
+    if (controller_indices.empty()) {
+      throw edm::Exception(edm::errors::Configuration)
+          << "ERROR: No controller process with name " << controller_name << " found. Aborting...";
+    } else if (controller_indices.size() == 1) {
+      remote = controller_indices[0];
+    } else {
+      throw edm::Exception(edm::errors::Configuration)
+          << "ERROR: Multiple controller processes with name " << controller_name
+          << " were found. Currently, only one controller process is supported. Aborting...";
+    }
+
+    // Create a new communicator that spans only this process and the one with the given remote rank.
+    int ranks[2] = {remote, rank};
+    MPI_Group world_group, comm_group;
+    MPI_Comm_group(MPI_COMM_WORLD, &world_group);
+    MPI_Group_incl(world_group, 2, ranks, &comm_group);
+    MPI_Comm_create_group(MPI_COMM_WORLD, comm_group, 0, &comm_);
+    MPI_Group_free(&world_group);
+    MPI_Group_free(&comm_group);
+    edm::LogInfo("MPI") << "The MPIController process and MPISource have ranks " << remote << ", " << rank
+                        << " in MPI_COMM_WORLD, mapped to ranks 0, 1 in their private communicator.";
+    // The remote process always has rank 0 in the new communicator.
+    remote = 0;
+    controller_ = MPIChannel(comm_, remote);
   } else if (mode_ == kIntercommunicator) {
     // Use an intercommunicator to let two groups of processes communicate with each other.
     // The current implementation supports only two processes: one controller and one source.
-    edm::LogAbsolute("MPI") << "MPISource in " << ModeDescription[mode_] << " mode.";
+    edm::LogInfo("MPI") << "MPISource in " << ModeDescription[mode_] << " mode.";
 
     // Check how many processes are there in MPI_COMM_WORLD
     int size;
@@ -134,11 +173,11 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
     MPI_Publish_name(name.c_str(), port_info, port_);
 
     // Create an intercommunicator and accept a client connection.
-    edm::LogAbsolute("MPI") << "Waiting for a connection to the MPI server at port " << port_;
+    edm::LogInfo("MPI") << "Waiting for a connection to the MPI server at port " << port_;
 
     MPI_Comm_accept(port_, MPI_INFO_NULL, 0, MPI_COMM_SELF, &comm_);
-    edm::LogAbsolute("MPI") << "Connection accepted.";
-    channel_ = MPIChannel(comm_, 0);
+    edm::LogInfo("MPI") << "Connection accepted.";
+    controller_ = MPIChannel(comm_, 0);
   } else {
     // Invalid mode.
     throw edm::Exception(edm::errors::Configuration)
@@ -149,10 +188,18 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
   MPI_Status status;
   EDM_MPI_Empty_t buffer;
   MPI_Recv(&buffer, 1, EDM_MPI_Empty, MPI_ANY_SOURCE, EDM_MPI_Connect, comm_, &status);
-  edm::LogAbsolute("MPI") << "connected from " << status.MPI_SOURCE;
+  edm::LogInfo("MPI") << "connected from " << status.MPI_SOURCE;
 }
 
 MPISource::~MPISource() {
+  // Disconnect the communicators.
+  for (auto& channel : channels_) {
+    if (channel) {
+      channel->reset();
+    }
+  }
+  controller_.reset();
+
   if (mode_ == kIntercommunicator) {
     // Close the intercommunicator.
     MPI_Comm_disconnect(&comm_);
@@ -229,11 +276,13 @@ bool MPISource::setRunAndEventInfo(edm::EventID& event,
 
         // receive the ProcessHistory
         history_.clear();
-        channel_.receiveProduct(0, history_);
+        controller_.receiveProduct(0, history_);
         history_.initializeTransients();
+        /*
         if (processHistoryRegistryForUpdate().registerProcessHistory(history_)) {
-          edm::LogAbsolute("MPI") << "new ProcessHistory registered: " << history_;
+          edm::LogInfo("MPI") << "new ProcessHistory registered: " << history_;
         }
+        */
 
         // receive the next message
         break;
@@ -276,7 +325,19 @@ bool MPISource::setRunAndEventInfo(edm::EventID& event,
       case EDM_MPI_ProcessEvent: {
         // receive the EventAuxiliary
         edm::EventAuxiliary aux;
-        status = channel_.receiveEvent(aux, message);
+        unsigned int slot;
+        status = controller_.receiveEvent(aux, slot, message);
+
+        // use the same communicator that the MPIController will use for this event
+        if (slot >= channels_.size()) {
+          channels_.resize(slot + 1);
+        }
+        if (not channels_[slot]) {
+          channels_[slot] = controller_.duplicate(slot);
+        }
+
+        // store the channel to use it in produce()
+        channel_ = channels_[slot].get();
 
         // extract the rank of the other process (currently unused)
         int source = status.MPI_SOURCE;
@@ -302,12 +363,13 @@ bool MPISource::setRunAndEventInfo(edm::EventID& event,
 }
 
 void MPISource::produce(edm::Event& event) {
-  // duplicate the MPIChannel and put the copy into the Event
-  std::shared_ptr<MPIChannel> channel(new MPIChannel(channel_.duplicate()), [](MPIChannel* ptr) {
-    ptr->reset();
-    delete ptr;
-  });
-  event.emplace(token_, std::move(channel));
+  // Wait for the barrier to be cleared by the MPI software in the local process.
+  channel_->wait();
+
+  // The destructor of the last copy of the token will call channel_->sync().
+  // The channel is ready to receive a new event after the call is made by both local and remote processes.
+  event.emplace(token_, *channel_);
+  channel_ = nullptr;
 }
 
 void MPISource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -319,7 +381,13 @@ void MPISource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ProducerSourceBase::fillDescription(desc);
   desc.ifValue(
           edm::ParameterDescription<std::string>("mode", "CommWorld", false),
-          ModeDescription[kCommWorld] >> edm::EmptyGroupDescription() or
+          ModeDescription[kCommWorld] >>
+                  edm::ParameterDescription<std::string>(
+                      "controllerProcessName",
+                      "",
+                      true,
+                      edm::Comment("Process name of the controller process corresponding to this MPISource.\n"
+                                   "Only one process with this name is expected.\n")) or
               ModeDescription[kIntercommunicator] >> edm::ParameterDescription<std::string>("name", "server", false))
       ->setComment(
           "Valid modes are CommWorld (use MPI_COMM_WORLD) and Intercommunicator (use an MPI name server to setup an "

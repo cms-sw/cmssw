@@ -20,7 +20,7 @@
 
 // forward declarations
 template <class object>
-class TriggerCandProducer : public edm::stream::EDProducer<> {
+class TriggerCandProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit TriggerCandProducer(const edm::ParameterSet&);
   ~TriggerCandProducer() override;

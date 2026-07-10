@@ -10,10 +10,10 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCShape.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 #include <vector>
 #include <map>
 class CaloVShape;
-class DetId;
 
 class HcalShapes : public CaloShapes {
 public:

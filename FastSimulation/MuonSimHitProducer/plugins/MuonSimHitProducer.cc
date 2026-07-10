@@ -48,7 +48,7 @@
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
-class MuonSimHitProducer : public edm::stream::EDProducer<> {
+class MuonSimHitProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit MuonSimHitProducer(const edm::ParameterSet&);
 

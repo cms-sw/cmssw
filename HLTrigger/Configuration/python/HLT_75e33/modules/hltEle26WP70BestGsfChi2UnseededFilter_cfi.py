@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltEle26WP70BestGsfChi2UnseededFilter = cms.EDFilter("HLTEgammaGenericFilter",
+hltEle26WP70BestGsfChi2UnseededFilter = cms.EDFilter("HLTEgammaGenericQuadraticFilter",
     absEtaLowEdges = cms.vdouble(0.0, 1.479),
     candTag = cms.InputTag("hltEle26WP70BestGsfNLayerITUnseededFilter"),
     doRhoCorrection = cms.bool(False),

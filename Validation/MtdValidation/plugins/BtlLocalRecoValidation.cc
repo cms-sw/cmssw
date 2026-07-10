@@ -339,9 +339,9 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 #ifdef EDM_ML_DEBUG
   for (const auto& hits : *mtdTrkHitHandle) {
     if (MTDDetId(hits.id()).mtdSubDetector() == MTDDetId::MTDType::BTL) {
-      LogDebug("BtlLocalRecoValidation") << "MTD cluster DetId " << hits.id() << " # cluster " << hits.size();
+      LogTrace("BtlLocalRecoValidation") << "MTD cluster DetId " << hits.id() << " # cluster " << hits.size();
       for (const auto& hit : hits) {
-        LogDebug("BtlLocalRecoValidation")
+        LogTrace("BtlLocalRecoValidation")
             << "MTD_TRH: " << hit.localPosition().x() << "," << hit.localPosition().y() << " : "
             << hit.localPositionError().xx() << "," << hit.localPositionError().yy() << " : " << hit.time() << " : "
             << hit.timeError();
@@ -429,7 +429,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     meHitTvsZ_->Fill(global_point.z(), recHit.time());
 
     // Resolution histograms
-    LogDebug("BtlLocalRecoValidation") << "RecoHit DetId= " << detId.rawId()
+    LogTrace("BtlLocalRecoValidation") << "RecoHit DetId= " << detId.rawId()
                                        << " sim hits in id= " << m_btlSimHits.count(detId.rawId());
     if (m_btlSimHits.count(detId.rawId()) == 1 && m_btlSimHits[detId.rawId()].energy > hitMinEnergy_) {
       float longpos_res = recHit.position() - convertMmToCm(m_btlSimHits[detId.rawId()].x);
@@ -456,7 +456,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       meTPullvsE_->Fill(m_btlSimHits[detId.rawId()].energy, time_res / recHit.timeError());
     } else if (m_btlSimHits.count(detId.rawId()) == 0) {
       n_reco_btl_nosimhit++;
-      LogDebug("BtlLocalRecoValidation") << "BTL rec hit with no corresponding sim hit in crystal, DetId= "
+      LogTrace("BtlLocalRecoValidation") << "BTL rec hit with no corresponding sim hit in crystal, DetId= "
                                          << detId.rawId() << " geoId= " << geoId.rawId() << " ene= " << recHit.energy()
                                          << " time= " << recHit.time();
     }
@@ -488,6 +488,9 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
             << "GeographicalID: " << std::hex << cluId << " is invalid!" << std::dec << std::endl;
       }
       n_clus_btl++;
+      LogTrace("BtlLocalRecoValidation") << "Cluster DetId " << cluId.rawId() << " size = " << cluster.size()
+                                         << " min/max row = " << cluster.minHitRow() << " " << cluster.maxHitRow()
+                                         << " min/max col = " << cluster.minHitCol() << " " << cluster.maxHitCol();
 
       const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(genericDet->topology());
       const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
@@ -517,10 +520,20 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
       if (optionalPlots_) {
         for (int ihit = 0; ihit < cluster.size(); ++ihit) {
+          auto thisHit = cluster.hit(ihit);
+          LogTrace("BtlLocalRecoValidation")
+              << "Cluster hit " << ihit << " row/col = " << thisHit.x() << " " << thisHit.y()
+              << " time = " << thisHit.time() << " timeError = " << thisHit.time_error()
+              << " energy = " << thisHit.energy();
           int hit_row = cluster.minHitRow() + cluster.hitOffset()[ihit * 2];
           int hit_col = cluster.minHitCol() + cluster.hitOffset()[ihit * 2 + 1];
+          if (hit_row != thisHit.x() || hit_col != thisHit.y()) {
+            edm::LogWarning("BtlLocalRecoValidation")
+                << "Index in cluster memory not consistent, row/col = " << hit_row << " " << hit_col;
+          }
 
           // Match the RECO hit to the corresponding SIM hit
+          bool found(false);
           for (const auto& recHit : *btlRecHitsHandle) {
             BTLDetId hitId(recHit.id().rawId());
 
@@ -552,9 +565,14 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
             cluEneSIM += m_btlSimHits[recHit.id().rawId()].energy;
             cluTimeSIM += m_btlSimHits[recHit.id().rawId()].time * m_btlSimHits[recHit.id().rawId()].energy;
 
+            found = true;
             break;
 
           }  // recHit loop
+          if (!found) {
+            edm::LogWarning("BtlLocalRecoValidation")
+                << "Cluster " << cluster.id().rawId() << " hit " << ihit << " Matching recHit not found!";
+          }
 
         }  // ihit loop
       }
@@ -686,7 +704,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
           float simClusTime = (*simClusterRef).simLCTime();
           LocalPoint simClusLocalPos = (*simClusterRef).simLCPos();
           const auto& simClusGlobalPos = genericDet->toGlobal(simClusLocalPos);
-          unsigned int idOffset = (*simClusterRef).trackIdOffset();
+          unsigned int idOffset = (*simClusterRef).hitProdType();
 
           float time_res = cluster.time() - simClusTime;
           float energy_res = cluster.energy() - simClusEnergy;
@@ -885,7 +903,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       hit_amplitude /= nHits;
       hit_time /= nHits;
 
-      LogDebug("BtlLocalRecoValidation") << "#unc " << nHits << " A/T " << hit_amplitude << " " << hit_time;
+      LogTrace("BtlLocalRecoValidation") << "#unc " << nHits << " A/T " << hit_amplitude << " " << hit_time;
       if (nHits == 0.) {
         edm::LogWarning("BtlLocalRecoValidation") << "Empty uncalibrated hit in DetId " << detId;
         continue;

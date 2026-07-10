@@ -65,9 +65,9 @@ def prependPaths(process,seqname):
         getattr(process,path)._seq = getattr(process,seqname)*getattr(process,path)._seq
 
 
-def stdinWait(prompt_text, default, time, timeoutDisplay = None, **kwargs):
+def stdinWait(prompt_text, default, wait_time):
     print(prompt_text)
-    i, o, e = select.select( [sys.stdin], [], [], 10 )
+    i, o, e = select.select( [sys.stdin], [], [], wait_time )
 
     if (i):
         inp = sys.stdin.readline().strip()

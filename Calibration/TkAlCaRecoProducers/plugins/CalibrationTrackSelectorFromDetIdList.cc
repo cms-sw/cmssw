@@ -41,7 +41,7 @@ Tracker DetIds
 // class decleration
 //
 
-class dso_hidden CalibrationTrackSelectorFromDetIdList final : public edm::stream::EDProducer<> {
+class dso_hidden CalibrationTrackSelectorFromDetIdList final : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit CalibrationTrackSelectorFromDetIdList(const edm::ParameterSet &);
   ~CalibrationTrackSelectorFromDetIdList() override;

@@ -5,6 +5,8 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 import sys
 
 from Configuration.StandardSequences.Eras import eras
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
 from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_DoubleMuon_string
 
 ###################################################################
@@ -26,13 +28,13 @@ options.register('maxEvents',
                  VarParsing.VarParsing.varType.int,
                  "number of events to process (\"-1\" for all)")
 options.register ('era',
-                  '2022', # default value
+                  'Phase2', # default value
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,         # string, int, or float
                   "CMS running era")
 
 options.register ('GlobalTag',
-                  'auto:phase1_2022_realistic', # default value
+                  _PH2_GLOBAL_TAG, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "seed number")
@@ -101,6 +103,9 @@ elif options.era=='2022':
 elif options.era=='2023':
     print("===> running era 2023")
     process = cms.Process('Analysis',eras.Run3_2023)
+elif options.era=='Phase2':
+    print("===> running era Phase2")
+    process = cms.Process('Analysis', _PH2_ERA)
 
 ###################################################################
 # Set the process to run multi-threaded
@@ -109,7 +114,10 @@ process.options.numberOfThreads = 8
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
-process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+if options.era=='Phase2':
+    process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
+else:    
+    process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 

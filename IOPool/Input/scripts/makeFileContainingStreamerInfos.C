@@ -68,7 +68,6 @@ void makeFileContainingStreamerInfos() {
       ->GetStreamerInfo()
       ->ForceWriteInfo(f);
   TClass::GetClass("edm::StoredProductProvenance")->GetStreamerInfo()->ForceWriteInfo(f);
-  TClass::GetClass("edm::ThinnedAssociationBranches")->GetStreamerInfo()->ForceWriteInfo(f);
   TClass::GetClass("l1t::CaloTower")->GetStreamerInfo()->ForceWriteInfo(f);
   TClass::GetClass("l1t::RegionalMuonShower")->GetStreamerInfo()->ForceWriteInfo(f);
   TClass::GetClass("reco::DeDxData")->GetStreamerInfo()->ForceWriteInfo(f);

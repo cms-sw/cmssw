@@ -20,7 +20,6 @@ RootSecondaryFileSequence: This is an InputSource
 namespace edm {
 
   class BranchID;
-  class FileCatalogItem;
   class InputFileCatalog;
   class PoolSource;
   class RootFile;
@@ -34,15 +33,14 @@ namespace edm {
     RootSecondaryFileSequence& operator=(RootSecondaryFileSequence const&) = delete;  // Disallow copying and moving
 
     void endJob();
-    void initAssociationsFromSecondary(std::set<BranchID> const&);
 
   private:
     void closeFile_() override;
     void initFile_(bool skipBadFiles) override;
-    RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) override;
+    RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr,
+                                   std::string const& physicalFileNameFirstCatalog) override;
 
     PoolSource& input_;
-    std::vector<BranchID> associationsFromSecondary_;
     std::vector<ProcessHistoryID> orderedProcessHistoryIDs_;
     bool enablePrefetching_;
     bool enforceGUIDInFileName_;

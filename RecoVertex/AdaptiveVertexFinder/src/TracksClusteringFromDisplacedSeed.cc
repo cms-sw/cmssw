@@ -116,9 +116,12 @@ std::vector<TracksClusteringFromDisplacedSeed::Cluster> TracksClusteringFromDisp
   }
 
   std::vector<Cluster> clusters;
-  int i = 0;
-  for (std::vector<TransientTrack>::const_iterator s = seeds.begin(); s != seeds.end(); ++s, ++i) {
 #ifdef VTXDEBUG
+  int i = 0;
+#endif
+  for (std::vector<TransientTrack>::const_iterator s = seeds.begin(); s != seeds.end(); ++s) {
+#ifdef VTXDEBUG
+    i++;
     std::cout << "Seed N. " << i << std::endl;
 #endif  // VTXDEBUG
     std::pair<std::vector<reco::TransientTrack>, GlobalPoint> ntracks = nearTracks(*s, selectedTracks, pv);

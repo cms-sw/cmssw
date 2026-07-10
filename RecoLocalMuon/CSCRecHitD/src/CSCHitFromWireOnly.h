@@ -21,6 +21,7 @@
 #include <RecoLocalMuon/CSCRecHitD/src/CSCWireHit.h>
 
 #include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
+#include "DataFormats/MuonDetId/interface/CSCDetIdFwd.h"
 
 #include <RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h>
 
@@ -31,7 +32,6 @@
 
 class CSCLayer;
 class CSCLayerGeometry;
-class CSCDetId;
 
 class CSCHitFromWireOnly {
 public:

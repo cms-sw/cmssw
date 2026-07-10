@@ -17,10 +17,9 @@ namespace edm {
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-
-class DTChamberId;
 
 // C++ Headers
 #include <vector>

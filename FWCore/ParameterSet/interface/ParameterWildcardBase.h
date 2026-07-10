@@ -50,6 +50,8 @@ namespace edm {
 
     void print_(std::ostream& os, Modifier modifier, bool writeToCfi, DocFormatHelper& dfh) const override;
 
+    cfi::Trackiness trackiness_(std::string_view path) const override;
+
     bool partiallyExists_(ParameterSet const& pset) const override;
 
     int howManyXORSubNodesExist_(ParameterSet const& pset) const override;

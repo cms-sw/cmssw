@@ -49,7 +49,6 @@ namespace reco {
 }  // namespace reco
 
 class MuonServiceProxy;
-class Trajectory;
 class Cylinder;
 class Disk;
 class BarrelDetLayer;

@@ -1,0 +1,3 @@
+<bin file="test_catch2*.cc" name="testL1TriggerL1TCalorimeter">
+  <use name="catch2"/>
+</bin>

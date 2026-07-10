@@ -26,7 +26,7 @@
 #include <string>
 
 // Values are not ordered randomly, but the order is taken from
-// http://cmslxr.fnal.gov/dxr/CMSSW/source/Geometry/CommonDetUnit/interface/GeomDetEnumerators.h#15
+// http://cmslxr.fnal.gov/dxr/CMSSW/source/Geometry/CommonTopologies/interface/GeomDetEnumerators.h#15
 static const std::vector<std::string> sDETS{"", "PXB", "PXF", "TIB", "TID", "TOB", "TEC"};
 
 class TrackingRecoMaterialAnalyser : public DQMEDAnalyzer {

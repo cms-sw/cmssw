@@ -37,7 +37,6 @@ namespace CLHEP {
 }
 
 class DTLayer;
-class PSimHit;
 class DTWireType;
 class DTBaseDigiSync;
 class DTTopology;
@@ -129,11 +128,7 @@ private:
   bool MultipleLinks;
   float LinksTimeWindow;
 
-  // Name of Collection use for create the XF
-  std::string mix_;
-  std::string collection_for_XF;
-
-  edm::EDGetTokenT<CrossingFrame<PSimHit>> cf_token;
+  std::vector<edm::EDGetTokenT<CrossingFrame<PSimHit>>> cf_tokens;
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> muonGeom_token;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magnField_token;
 };

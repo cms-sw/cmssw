@@ -56,10 +56,6 @@ namespace edm {
     private:
       void doResetInterval(const eventsetup::EventSetupRecordKey&) override;
 
-      // Should never be called for this class
-      bool isConcurrentFinder() const override;
-
-      bool isNonconcurrentAndIOVNeedsUpdate(const EventSetupRecordKey&, const IOVSyncValue&) const override;
       // ---------- member data --------------------------------
       typedef std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordProvider>>> Providers;
       Providers providers_;

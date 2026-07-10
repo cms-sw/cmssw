@@ -17,6 +17,7 @@ from Validation.RecoB.BDHadronTrackValidation_cff import *
 from Validation.RecoParticleFlow.PFValidationClient_cff import *
 from Validation.RPCRecHits.postValidation_cfi import *
 from Validation.RecoTau.DQMMCValidation_cfi import *
+from Validation.RecoTau.RecoTauPostProcessor_cff import *
 from Validation.RecoVertex.PostProcessorVertex_cff import *
 from Validation.RecoMET.METPostProcessor_cff import *
 from Validation.L1T.postProcessorL1Gen_cff import *
@@ -47,7 +48,6 @@ postValidation = cms.Sequence(
     + MuonCSCDigisPostProcessors
 )
 
-effPlotting = cms.Sequence(runTauEff + makeBetterPlots) #test
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
 postValidation_preprod = cms.Sequence(
@@ -93,6 +93,11 @@ postValidation_muons = cms.Sequence(
 
 postValidation_JetMET = cms.Sequence(
     METPostProcessor
+)
+
+postValidationTaus = cms.Sequence(
+    # runTauEff
+    RecoTauPostProcessor
 )
 
 postValidation_ECAL = cms.Sequence()

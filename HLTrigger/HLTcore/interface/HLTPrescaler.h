@@ -39,7 +39,8 @@ namespace trigger {
   };
 }  // namespace trigger
 
-class HLTPrescaler : public edm::stream::EDFilter<edm::GlobalCache<trigger::Efficiency> > {
+class HLTPrescaler
+    : public edm::stream::EDFilter<edm::GlobalCache<trigger::Efficiency>, edm::stream::WatchLuminosityBlocks> {
 public:
   //
   // construction/destruction

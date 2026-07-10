@@ -42,8 +42,6 @@ namespace edm {
   class ModuleCallingContext;
   class ProductID;
   class StreamContext;
-  class ThinnedAssociation;
-  class ThinnedAssociationsHelper;
   class RunPrincipal;
 
   class EventPrincipal : public Principal {
@@ -58,7 +56,6 @@ namespace edm {
     EventPrincipal(std::shared_ptr<ProductRegistry const> reg,
                    FACTORY&& iFactory,
                    std::shared_ptr<BranchIDListHelper const> branchIDListHelper,
-                   std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper,
                    ProcessConfiguration const& pc,
                    HistoryAppender* historyAppender,
                    unsigned int streamIndex = 0,
@@ -66,7 +63,6 @@ namespace edm {
         : EventPrincipal(reg,
                          iFactory(InEvent, pc.processName(), *reg),
                          branchIDListHelper,
-                         thinnedAssociationsHelper,
                          pc,
                          historyAppender,
                          streamIndex,
@@ -151,15 +147,6 @@ namespace edm {
                    std::optional<ProductProvenance> productProvenance) const;
 
     WrapperBase const* getIt(ProductID const& pid) const override;
-    std::optional<std::tuple<WrapperBase const*, unsigned int>> getThinnedProduct(ProductID const& pid,
-                                                                                  unsigned int key) const override;
-    void getThinnedProducts(ProductID const& pid,
-                            std::vector<WrapperBase const*>& foundContainers,
-                            std::vector<unsigned int>& keys) const override;
-    OptionalThinnedKey getThinnedKeyFrom(ProductID const& parent,
-                                         unsigned int key,
-                                         ProductID const& thinned) const override;
-
     ProductID branchIDToProductID(BranchID const& bid) const;
 
     void mergeProvenanceRetrievers(EventPrincipal& other) {
@@ -175,15 +162,12 @@ namespace edm {
     EventPrincipal(std::shared_ptr<ProductRegistry const> reg,
                    std::vector<std::shared_ptr<ProductResolverBase>>&& resolvers,
                    std::shared_ptr<BranchIDListHelper const> branchIDListHelper,
-                   std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper,
                    ProcessConfiguration const& pc,
                    HistoryAppender* historyAppender,
                    unsigned int streamIndex,
                    ProcessBlockHelperBase const* processBlockHelper);
 
     BranchID pidToBid(ProductID const& pid) const;
-
-    edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID) const;
 
     unsigned int transitionIndex_() const override;
     void changedIndexes_() final;
@@ -211,7 +195,6 @@ namespace edm {
 
     std::shared_ptr<BranchIDListHelper const> branchIDListHelper_;
     ProcessBlockHelperBase const* processBlockHelper_;
-    std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper_;
 
     BranchListIndexes branchListIndexes_;
 

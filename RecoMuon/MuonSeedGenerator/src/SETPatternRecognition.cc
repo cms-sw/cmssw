@@ -8,7 +8,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "TMath.h"
 
 using namespace edm;

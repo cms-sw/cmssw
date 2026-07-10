@@ -9,6 +9,7 @@
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/HGCalMultiCluster.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -19,7 +20,6 @@
 
 class HGCalGeometry;
 class HGCalDDDConstants;
-class DetId;
 
 namespace edm {
   class Event;

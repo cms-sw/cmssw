@@ -129,9 +129,9 @@ private:
   edm::Service<TFileService> FileService;
   TTree* outTree;
 
-  int run;
-  int evt;
-  int ls;
+  uint32_t run;
+  uint64_t evt;
+  uint32_t ls;
 
   int nBxTrain;
 
@@ -314,9 +314,9 @@ float MahiDebugger::hbminusCorrectionFactor(const HcalDetId& cell,
 void MahiDebugger::beginJob() {
   outTree = FileService->make<TTree>("HcalTree", "HcalTree");
 
-  outTree->Branch("run", &run, "run/I");
-  outTree->Branch("evt", &evt, "evt/I");
-  outTree->Branch("ls", &ls, "ls/I");
+  outTree->Branch("run", &run, "run/i");
+  outTree->Branch("evt", &evt, "evt/l");
+  outTree->Branch("ls", &ls, "ls/i");
   outTree->Branch("nBxTrain", &nBxTrain, "nBxTrain/I");
 
   outTree->Branch("ieta", &ieta, "ieta/I");
@@ -365,7 +365,7 @@ void MahiDebugger::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   desc.add<bool>("dynamicPed");
   desc.add<bool>("calculateArrivalTime");
   desc.add<int>("timeAlgo");
-  desc.add<double>("thEnergeticPulse");
+  desc.add<double>("thEnergeticPulses");
   desc.add<double>("ts4Thresh");
   desc.add<double>("chiSqSwitch");
   desc.add<bool>("applyTimeSlew");

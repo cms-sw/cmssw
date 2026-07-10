@@ -8,12 +8,10 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefsFwd.h"
 
 #include <string>
 #include <vector>
-namespace trigger {
-  class TriggerFilterObjectWithRefs;
-}
 
 //
 // class declaration

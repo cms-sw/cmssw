@@ -16,7 +16,6 @@
   <use name="Geometry/CaloGeometry"/>
   <use name="Geometry/CaloTopology"/>
   <use name="Geometry/Records"/>
-  <use name="HeterogeneousCore/CUDACore"/>
   <use name="RecoLocalCalo/HGCalRecProducers"/>
   <use name="RecoParticleFlow/PFClusterProducer"/>
   <flags EDM_PLUGIN="1"/>
@@ -56,7 +55,6 @@
   <use name="Geometry/Records"/>
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
-  <use name="HeterogeneousCore/CUDACore"/>
   <use name="RecoParticleFlow/PFClusterProducer"/>
   <use name="RecoParticleFlow/PFRecHitProducer"/>
   <flags ALPAKA_BACKENDS="1"/>

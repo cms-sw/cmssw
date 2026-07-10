@@ -1,6 +1,8 @@
 #ifndef Utilities_CondFormats_h
 #define Utilities_CondFormats_h
 //
+#include "CondFormats/MLObjects/interface/MLMetadata.h"
+#include "CondFormats/MLObjects/interface/MLMetadataWrapper.h"
 #include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
@@ -227,6 +229,7 @@
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
 #include "CondFormats/HcalObjects/interface/HcalPFCuts.h"
+#include "CondFormats/HcalObjects/interface/HcalPulseDelays.h"
 #include "CondFormats/HcalObjects/interface/HcalL1TriggerObjects.h"
 #include "CondFormats/HcalObjects/interface/HcalLUTCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalLongRecoParams.h"

@@ -276,7 +276,7 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker& iboo
   TrackerGeometry const& trackerGeometry = iSetup.getData(trackerGeometryToken_);
 
   // Values are not ordered randomly, but the order is taken from
-  // http://cmslxr.fnal.gov/dxr/CMSSW/source/Geometry/CommonDetUnit/interface/GeomDetEnumerators.h#15
+  // http://cmslxr.fnal.gov/dxr/CMSSW/source/Geometry/CommonTopologies/interface/GeomDetEnumerators.h#15
   const char* dets[] = {"None", "PXB", "PXF", "TIB", "TID", "TOB", "TEC"};
 
   // Also in this case, ordering is not random but extracted from
@@ -1169,10 +1169,12 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   auto pt = track.pt();
   auto phi = track.phi();
   // double eta   = track.eta();
-  auto phiIn = track.innerPosition().phi();
-  auto etaIn = track.innerPosition().eta();
-  auto phiOut = track.outerPosition().phi();
-  auto etaOut = track.outerPosition().eta();
+  const bool hasExtra = track.extra().isAvailable();
+
+  const float phiIn = hasExtra ? track.innerPosition().phi() : track.phi();
+  const float etaIn = hasExtra ? track.innerPosition().eta() : track.eta();
+  const float phiOut = hasExtra ? track.outerPosition().phi() : track.phi();
+  const float etaOut = hasExtra ? track.outerPosition().eta() : track.eta();
 
   int nRecHits = track.hitPattern().numberOfAllHits(reco::HitPattern::TRACK_HITS);
   int nValidRecHits = track.numberOfValidHits();

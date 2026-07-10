@@ -12,7 +12,6 @@
 
 class CaloGeometry;
 class CaloSubdetectorGeometry;
-class DetId;
 
 namespace edm {
   class Event;
@@ -33,6 +32,7 @@ namespace hgcal {
     };
     RecHitTools()
         : geom_(nullptr),
+          eeLastLayer_(0),
           eeOffset_(0),
           fhOffset_(0),
           bhFirstLayer_(0),
@@ -65,6 +65,7 @@ namespace hgcal {
     unsigned int getLayer(const DetId&) const;
     unsigned int getLayerWithOffset(const DetId&) const;
     int getCellType(const DetId& id) const;
+    int getSensorGroup(const DetId& id) const;
     std::pair<int, int> getWafer(const DetId&) const;
     std::pair<int, int> getCell(const DetId&) const;
 
@@ -93,7 +94,16 @@ namespace hgcal {
     unsigned int lastLayerFH() const { return fhLastLayer_; }
     unsigned int firstLayerBH() const { return bhFirstLayer_; }
     unsigned int lastLayerBH() const { return bhLastLayer_; }
-    unsigned int lastLayer(bool nose = false) const { return (nose ? noseLastLayer_ : bhLastLayer_); }
+    // unsigned int lastLayer(bool nose = false) const { return (nose ? noseLastLayer_ : bhLastLayer_); }
+    unsigned int lastLayer(bool nose = false) const { return (nose ? noseLastLayer_ : getNumberOfLayers()); }
+    unsigned int getNumberOfLayers() const {
+      unsigned int numberOfLayers = 0;
+      for (unsigned int i = 0; i < theFirstLayersOfComp_.size(); ++i) {
+        numberOfLayers = std::max(numberOfLayers, theFirstLayersOfComp_[i] + theNumberOfLayersOfComp_[i] - 1);
+      }
+      return numberOfLayers;
+    }
+
     unsigned int lastLayerECAL() const { return ecalBarrelLastLayer_; }
     unsigned int lastLayerBarrel() const { return hcalBarrelLastLayer_; }
     std::pair<uint32_t, uint32_t> firstAndLastLayer(DetId::Detector det, int subdet) const;
@@ -113,12 +123,37 @@ namespace hgcal {
   private:
     const CaloGeometry* geom_;
     void checkGeometry() const;
-    unsigned int eeOffset_, fhOffset_, bhFirstLayer_, bhLastLayer_, bhOffset_, fhLastLayer_, noseLastLayer_;
+    unsigned int eeLastLayer_, eeOffset_, fhOffset_, bhFirstLayer_, bhLastLayer_, bhOffset_, fhLastLayer_,
+        noseLastLayer_;
     unsigned int hcalBarrelFirstLayer_, hcalBarrelLastLayer_, ecalBarrelFirstLayer_, ecalBarrelLastLayer_;
     unsigned int maxNumberOfWafersPerLayer_, maxNumberOfWafersNose_;
     int geometryType_;
     int bhMaxIphi_;
+    std::vector<unsigned int> theFirstLayersOfComp_ = {};
+    std::vector<unsigned int> theNumberOfLayersOfComp_ = {};
   };
+
+  enum SensorType {
+    CE_E_200_LD = 0,
+    CE_E_300_LD = 1,
+    CE_E_120_HD = 2,
+    CE_E_200_HD = 3,
+    CE_H_200_Fine_LD = 4,
+    CE_H_300_Fine_LD = 5,
+    CE_H_120_Fine_HD = 6,
+    CE_H_200_Fine_HD = 7,
+    CE_H_200_Coarse_LD = 8,
+    CE_H_300_Coarse_LD = 9,
+    CE_H_120_Coarse_HD = 10,
+    CE_H_200_Coarse_HD = 11,
+    CE_H_Tile_HD = 12,
+    CE_H_Tile_LD_c = 13,
+    CE_H_Tile_LD_m = 14,
+    EnumSize = 15
+  };
+
+  enum SensorGroup { CEE_LD = 0, CEE_HD = 1, CEH_LD = 2, CEH_HD = 3, UNKNOWN };
+
 }  // namespace hgcal
 
 #endif

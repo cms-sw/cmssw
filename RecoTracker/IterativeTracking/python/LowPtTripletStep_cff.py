@@ -160,6 +160,26 @@ trackingPhase1.toModify(_fastSim_lowPtTripletStepSeeds, seedFinderSelector = dic
 )
 fastSim.toReplaceWith(lowPtTripletStepSeeds,_fastSim_lowPtTripletStepSeeds)
 
+
+#new for phase2
+trackingPhase2PU140.toModify(_fastSim_lowPtTripletStepSeeds, seedFinderSelector = dict(
+        pixelTripletGeneratorFactory = None,
+        CAHitTripletGeneratorFactory = _hitSetProducerToFactoryPSet(lowPtTripletStepHitTriplets).clone(SeedComparitorPSet = dict(ComponentName = "none")),
+        #new parameters required for phase2 seeding
+        BPix = dict(
+            TTRHBuilder = 'WithoutRefit',
+            HitProducer = 'TrackingRecHitProducer',
+            ),
+        FPix = dict(
+            TTRHBuilder = 'WithoutRefit',
+            HitProducer = 'TrackingRecHitProducer',
+            ),
+        layerPairs = lowPtTripletStepHitDoublets.layerPairs.value()
+        )
+)
+fastSim.toReplaceWith(lowPtTripletStepSeeds,_fastSim_lowPtTripletStepSeeds)
+
+
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff as _TrajectoryFilter_cff
 _lowPtTripletStepStandardTrajectoryFilterBase = _TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
@@ -400,6 +420,7 @@ trackingPhase2PU140.toModify(lowPtTripletStepSelector,
         ), #end of vpset
 ) #end of clone
 
+fastSim.toModify(lowPtTripletStepSelector, vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
 vectorHits.toModify(lowPtTripletStepSelector.trackSelectors[2], minNumberLayers = 3, minNumber3DLayers = 3)
@@ -429,11 +450,14 @@ trackingPhase2PU140.toReplaceWith(LowPtTripletStepTask, _LowPtTripletStepTask_Lo
 #fastsim
 from FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi import maskProducerFromClusterRemover
 lowPtTripletStepMasks = maskProducerFromClusterRemover(lowPtTripletStepClusters)
-fastSim.toReplaceWith(LowPtTripletStepTask,
-                      cms.Task(lowPtTripletStepMasks
-                                   ,lowPtTripletStepTrackingRegions
-                                   ,lowPtTripletStepSeeds
-                                   ,lowPtTripletStepTrackCandidates
-                                   ,lowPtTripletStepTracks  
-                                   ,lowPtTripletStep   
-                                   ))
+_LowPtTripletStepTask_fastSim = cms.Task(lowPtTripletStepMasks
+                                        ,lowPtTripletStepTrackingRegions
+                                        ,lowPtTripletStepSeeds
+                                        ,lowPtTripletStepTrackCandidates
+                                        ,lowPtTripletStepTracks
+                                        ,lowPtTripletStep
+)
+_LowPtTripletStepTask_fastSim_phase2 = _LowPtTripletStepTask_fastSim.copy()
+_LowPtTripletStepTask_fastSim_phase2.replace(lowPtTripletStep, lowPtTripletStepSelector)
+fastSim.toReplaceWith(LowPtTripletStepTask, _LowPtTripletStepTask_fastSim)
+(fastSim & trackingPhase2PU140).toReplaceWith(LowPtTripletStepTask, _LowPtTripletStepTask_fastSim_phase2)

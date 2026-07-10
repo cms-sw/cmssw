@@ -4,11 +4,14 @@
 #include <cmath>
 
 #include "DataFormats/Scouting/interface/Run3ScoutingElectron.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
 namespace scoutingDQMUtils {
 
   // Constants
+  static constexpr double MUON_MASS = 0.105658;      // Muon mass in GeV
   static constexpr double ELECTRON_MASS = 0.000511;  // Electron mass in GeV
   static constexpr double ELE_etaEB = 1.479;         // Eta restriction to barrel (for electrons)
 
@@ -18,32 +21,43 @@ namespace scoutingDQMUtils {
     return transverseEnergy / std::cosh(eta);
   }
 
+  // scouting muons ID
+  inline const bool scoutingMuonID(const Run3ScoutingMuon& mu) {
+    if (mu.pt() < 3.0)
+      return false;
+    if (std::abs(mu.eta()) > 2.4)
+      return false;
+    if (mu.normalizedChi2() > 3)
+      return false;
+    return true;
+  }
+
   // scouting electron IB
   inline const bool scoutingElectronID(const Run3ScoutingElectron& el) {
     bool isEB = (std::abs(el.eta()) < scoutingDQMUtils::ELE_etaEB);
     if (isEB) {
-      if (el.sigmaIetaIeta() > 0.015)
+      if (el.sigmaIetaIeta() > 0.0146)
         return false;
       if (el.hOverE() > 0.2)
         return false;
-      if (std::abs(el.dEtaIn()) > 0.008)
+      if (std::abs(el.ooEMOop()) > 0.0641)
         return false;
-      if (std::abs(el.dPhiIn()) > 0.06)
+      if (std::abs(el.dEtaIn()) > 0.0087)
         return false;
-      if (el.ecalIso() / el.pt() > 0.25)
+      if (std::abs(el.dPhiIn()) > 0.2653)
         return false;
       return true;
 
     } else {
-      if (el.sigmaIetaIeta() > 0.045)
+      if (el.sigmaIetaIeta() > 0.0305)
         return false;
       if (el.hOverE() > 0.2)
         return false;
-      if (std::abs(el.dEtaIn()) > 0.012)
+      if (std::abs(el.dEtaIn()) > 1.5994)
         return false;
-      if (std::abs(el.dPhiIn()) > 0.06)
+      if (std::abs(el.dPhiIn()) > 0.2728)
         return false;
-      if (el.ecalIso() / el.pt() > 0.1)
+      if (std::abs(el.ooEMOop()) > 0.0681)
         return false;
       return true;
     }

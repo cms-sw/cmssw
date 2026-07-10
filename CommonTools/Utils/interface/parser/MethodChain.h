@@ -53,7 +53,7 @@ namespace reco {
     public:  // Public Methods
       MethodChain(const std::vector<MethodInvoker>& methods);
       MethodChain(const MethodChain&);
-      ~MethodChain();
+      ~MethodChain() override;
       edm::ObjectWithDict value(const edm::ObjectWithDict&) const override;
     };
 

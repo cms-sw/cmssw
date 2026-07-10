@@ -11,13 +11,14 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
-#include "IOMC/ParticleGuns/interface/BaseFlatGunProducer.h"
+#include "BaseFlatGunProducer.h"
 
 #include <iostream>
 
@@ -44,7 +45,7 @@ BaseFlatGunProducer::BaseFlatGunProducer(const ParameterSet& pset)
   // it looks like it's NOT even necessary to check if it is,
   // before trying to extract parameters - if it is empty,
   // the default values seem to be taken
-  fPartIDs = pgun_params.getParameter<vector<int> >("PartID");
+  fPartIDs = pgun_params.getParameter<vector<int>>("PartID");
   fMinEta = pgun_params.getParameter<double>("MinEta");
   fMaxEta = pgun_params.getParameter<double>("MaxEta");
   fMinPhi = pgun_params.getParameter<double>("MinPhi");
@@ -95,4 +96,18 @@ void BaseFlatGunProducer::endRunProduce(Run& run, const EventSetup& es) {
   // later on we might put the info into the run info that this is a PGun
   unique_ptr<GenRunInfoProduct> genRunInfo(new GenRunInfoProduct());
   run.put(std::move(genRunInfo));
+}
+
+void BaseFlatGunProducer::fillDescription(ParameterSetDescription& desc, ParameterSetDescription& pgunParams) {
+  pgunParams.add<std::vector<int>>("PartID");
+  pgunParams.add<double>("MinEta");
+  pgunParams.add<double>("MaxEta");
+  pgunParams.add<double>("MinPhi");
+  pgunParams.add<double>("MaxPhi");
+  desc.add<ParameterSetDescription>("PGunParameters", pgunParams);
+  desc.addUntracked<int>("Verbosity", 0);
+  desc.add<bool>("AddAntiParticle");
+  //many configurations have these two but they are not used anywhere
+  desc.addObsoleteUntracked<unsigned int>("firstRun");
+  desc.addOptional<std::string>("psethack");
 }

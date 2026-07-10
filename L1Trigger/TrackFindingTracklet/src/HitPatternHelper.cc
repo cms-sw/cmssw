@@ -131,6 +131,10 @@ namespace hph {
           if (hphDebug_) {
             edm::LogVerbatim("TrackTriggerHPH") << "Layer found in hitpattern";
           }
+          if (layerEncoding_[i] < 0) {
+            // Tracks hit-pattern shows stub in non-traversed layer. Should never get here. To be fixed in subsequent PR.
+            continue;
+          }
           binary_[reducedId(layerEncoding_[i])] = 1;
         } else {
           if (hphDebug_) {

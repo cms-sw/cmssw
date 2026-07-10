@@ -209,6 +209,9 @@ namespace dqm::impl {
     // access will throw.
     bool isValid() const { return mutable_ != nullptr; }
 
+    // outputs the kind of MonitorElement in a readable format
+    std::string kindHumanReadable() const;
+
     // used to implement getQErrors et. al.
     template <typename FILTER>
     std::vector<MonitorElementData::QReport *> filterQReports(FILTER filter) const;
@@ -456,6 +459,7 @@ namespace dqm::impl {
 
   private:
     void incompatible(const char *func) const;
+    void wrongKind(const std::string rightKind) const;
     TH1 const *accessRootObject(Access const &access, const char *func, int reqdim) const;
     TH1 *accessRootObject(AccessMut const &, const char *func, int reqdim) const;
 

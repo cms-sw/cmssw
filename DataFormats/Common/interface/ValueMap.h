@@ -229,7 +229,7 @@ namespace edm {
     const_reference_type get(size_t idx) const { return values_[idx]; }
 
     //Used by ROOT storage
-    CMS_CLASS_VERSION(10)
+    CMS_CLASS_VERSION(3)
 
   protected:
     container values_;

@@ -7,7 +7,7 @@
 // topology and geometry
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/TrackingGeometry.h"
 
 // alignment
 #include "Alignment/CommonAlignment/interface/Utilities.h"

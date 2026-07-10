@@ -13,8 +13,8 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/GluedGeomDet.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
@@ -42,7 +42,7 @@
 // class declaration
 //
 
-class DeDxEstimatorProducer : public edm::stream::EDProducer<> {
+class DeDxEstimatorProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit DeDxEstimatorProducer(const edm::ParameterSet&);
   ~DeDxEstimatorProducer() override;

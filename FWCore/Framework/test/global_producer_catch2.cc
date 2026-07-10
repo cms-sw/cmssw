@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
-#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
@@ -303,7 +302,6 @@ namespace {
     edm::PreallocationConfiguration m_preallocConfig;
     std::shared_ptr<edm::ProductRegistry> m_prodReg;
     std::shared_ptr<edm::BranchIDListHelper> m_idHelper;
-    std::shared_ptr<edm::ThinnedAssociationsHelper> m_associationsHelper;
     std::unique_ptr<edm::EventPrincipal> m_ep;
     edm::HistoryAppender historyAppender_;
     std::shared_ptr<edm::LuminosityBlockPrincipal> m_lbp;
@@ -325,11 +323,7 @@ namespace {
     void testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect);
 
     TestFixture()
-        : m_preallocConfig{},
-          m_prodReg(new edm::ProductRegistry{}),
-          m_idHelper(new edm::BranchIDListHelper{}),
-          m_associationsHelper(new edm::ThinnedAssociationsHelper{}),
-          m_ep() {
+        : m_preallocConfig{}, m_prodReg(new edm::ProductRegistry{}), m_idHelper(new edm::BranchIDListHelper{}), m_ep() {
       //Setup the principals
       m_prodReg->setFrozen();
       m_idHelper->updateFromRegistry(*m_prodReg);
@@ -347,12 +341,8 @@ namespace {
       m_lbp->setRunPrincipal(m_rp);
       edm::EventAuxiliary eventAux(eventID, uuid, now, true);
 
-      m_ep.reset(new edm::EventPrincipal(m_prodReg,
-                                         edm::productResolversFactory::makePrimary,
-                                         m_idHelper,
-                                         m_associationsHelper,
-                                         m_procConfig,
-                                         nullptr));
+      m_ep.reset(new edm::EventPrincipal(
+          m_prodReg, edm::productResolversFactory::makePrimary, m_idHelper, m_procConfig, nullptr));
       m_ep->fillEventPrincipal(eventAux, nullptr);
       m_ep->setLuminosityBlockPrincipal(m_lbp.get());
       m_actReg.reset(new edm::ActivityRegistry);

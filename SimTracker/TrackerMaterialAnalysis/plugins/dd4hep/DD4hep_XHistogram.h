@@ -2,6 +2,7 @@
 #define DD4hep_XHistogram_h
 
 #include <algorithm>
+#include <memory>
 #include <vector>
 #include <iostream>
 #include <stdexcept>
@@ -57,12 +58,14 @@ public:
         m_colormap() {
     // setup unnamed ROOT histograms
     for (size_t i = 0; i < m_size; ++i) {
-      m_histograms[i].reset(new Histogram(nullptr, nullptr, bins_x, x.first, x.second, bins_y, y.first, y.second));
+      m_histograms[i] =
+          std::make_shared<Histogram>(nullptr, nullptr, bins_x, x.first, x.second, bins_y, y.first, y.second);
       m_histograms[i]->SetMinimum(0.);
       m_histograms[i]->SetMaximum(max[i]);
     }
-    m_normalization.reset(new Histogram(nullptr, nullptr, bins_x, x.first, x.second, bins_y, y.first, y.second));
-    m_colormap.reset(new ColorMap(nullptr, nullptr, bins_x, x.first, x.second, bins_y, y.first, y.second));
+    m_normalization =
+        std::make_shared<Histogram>(nullptr, nullptr, bins_x, x.first, x.second, bins_y, y.first, y.second);
+    m_colormap = std::make_shared<ColorMap>(nullptr, nullptr, bins_x, x.first, x.second, bins_y, y.first, y.second);
     m_colormap->SetMinimum(0);
     m_colormap->SetMaximum(zones);
     Histogram(nullptr, nullptr, 0, 0., 0., 0, 0., 0.);  // make ROOT "forget" about unnamed histograms

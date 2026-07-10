@@ -17,6 +17,7 @@
 #include "Validation/RecoTrack/interface/MTVHistoProducerAlgoForTracker.h"
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociator.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfoFwd.h"
 #include "CommonTools/RecoAlgos/interface/CosmicTrackingParticleSelector.h"
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include "CommonTools/RecoAlgos/interface/RecoTrackSelectorBase.h"
@@ -25,8 +26,6 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
-
-class PileupSummaryInfo;
 
 struct MultiTrackValidatorHistograms {
   MTVHistoProducerAlgoForTrackerHistograms histoProducerAlgo;

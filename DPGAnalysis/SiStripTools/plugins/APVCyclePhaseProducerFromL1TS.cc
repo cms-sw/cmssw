@@ -55,7 +55,7 @@
 // class declaration
 //
 
-class APVCyclePhaseProducerFromL1TS : public edm::stream::EDProducer<> {
+class APVCyclePhaseProducerFromL1TS : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit APVCyclePhaseProducerFromL1TS(const edm::ParameterSet&);
   ~APVCyclePhaseProducerFromL1TS() override;

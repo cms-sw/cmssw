@@ -171,6 +171,7 @@ namespace l1ct {
       ele.charge = (!hwCharge) & ele.valid;
       ele.z0(l1ct::z0_t::width - 1, 0) = hwZ0(l1ct::z0_t::width - 1, 0);
       ele.isolationPT = hwIso;
+      ele.idScore = l1ct::CTtoGT_idProba(hwIDScore);
       return ele;
     }
   };

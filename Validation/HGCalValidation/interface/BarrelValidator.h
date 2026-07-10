@@ -30,7 +30,7 @@
 #include "DataFormats/Common/interface/RefProdVector.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 
-class PileupSummaryInfo;
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfoFwd.h"
 
 struct BarrelValidatorHistograms {
   BarrelVHistoProducerAlgoHistograms histoProducerAlgo;
@@ -68,7 +68,13 @@ public:
 
 protected:
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
-  edm::InputTag label_lcl;
+  edm::InputTag lclTag_;
+  edm::InputTag sclTag_;
+  edm::InputTag rechitmapTag_;
+  std::vector<edm::InputTag> label_tst;
+  std::vector<edm::InputTag> allTracksterTracksterAssociatorsLabels_;
+  std::vector<edm::InputTag> allTracksterTracksterByHitsAssociatorsLabels_;
+  edm::InputTag label_simTS, label_simTSFromCP;
   std::vector<edm::InputTag> associator_;
   std::vector<edm::InputTag> associatorSim_;
   const bool SaveGeneralInfo_;
@@ -76,15 +82,20 @@ protected:
   const bool doCaloParticleSelection_;
   const bool doSimClustersPlots_;
   std::string label_SimClustersPlots_, label_SimClustersLevel_;
+  edm::InputTag simVerticesTag_;
   const bool doLayerClustersPlots_;
   std::string label_layerClustersPlots_, label_LCToCPLinking_;
-  std::vector<edm::InputTag> label_clustersmask;
+  std::vector<edm::InputTag> clustersmaskTags_;
+  const bool doTrackstersPlots_;
+  std::string label_TS_, label_TSbyHitsCP_, label_TSbyHits_, label_TSbyLCsCP_, label_TSbyLCs_;
 
-  std::vector<edm::EDGetTokenT<reco::CaloClusterCollection>> labelToken;
   edm::EDGetTokenT<std::vector<SimCluster>> simClusters_;
-  edm::EDGetTokenT<reco::CaloClusterCollection> layerclusters_;
-  edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_effic;
-  edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_fake;
+  edm::EDGetTokenT<reco::CaloClusterCollection> layerClusters_;
+  edm::EDGetTokenT<std::vector<CaloParticle>> cpToken_;
+  std::vector<edm::EDGetTokenT<ticl::TracksterCollection>> label_tstTokens;
+  edm::EDGetTokenT<ticl::TracksterCollection> simTracksters_;
+  edm::EDGetTokenT<ticl::TracksterCollection> simTracksters_fromCPs_;
+  edm::EDGetTokenT<std::map<uint, std::vector<uint>>> simTrackstersMap_;
   edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;
   std::vector<edm::EDGetTokenT<std::vector<float>>> clustersMaskTokens_;
   edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> barrelHitMap_;
@@ -96,7 +107,10 @@ protected:
       associatorMapRtSim;
   std::unique_ptr<BarrelVHistoProducerAlgo> histoProducerAlgo_;
   edm::EDGetTokenT<edm::RefProdVector<reco::PFRecHitCollection>> hitsToken_;
+  std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterAssociatorsTokens_;
+  std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterByHitsAssociatorsTokens_;
   edm::EDGetTokenT<SimClusterToCaloParticleMap> scToCpMapToken_;
+  edm::InputTag cpTag_;
 
 private:
   CaloParticleSelector cpSelector;

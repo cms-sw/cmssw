@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "DataFormats/DetId/interface/DetId.h"

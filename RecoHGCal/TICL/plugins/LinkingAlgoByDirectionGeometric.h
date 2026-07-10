@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_LinkingAlgoByDirectionGeometric_H__
-#define RecoHGCal_TICL_LinkingAlgoByDirectionGeometric_H__
+#ifndef RecoHGCal_TICL_LinkingAlgoByDirectionGeometric_h
+#define RecoHGCal_TICL_LinkingAlgoByDirectionGeometric_h
 
 #include <memory>
 #include <array>

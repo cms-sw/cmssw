@@ -1,9 +1,9 @@
 #ifndef Geometry_MTDGeometryBuilder_MTDGeometry_H
 #define Geometry_MTDGeometryBuilder_MTDGeometry_H
 
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
-#include "Geometry/CommonDetUnit/interface/MTDGeomDet.h"
+#include "Geometry/CommonTopologies/interface/TrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GeomDetEnumerators.h"
+#include "Geometry/CommonTopologies/interface/MTDGeomDet.h"
 
 class GeometricTimingDet;
 
@@ -31,7 +31,7 @@ public:
   const MTDGeomDet* idToDetUnit(DetId) const override;
   const MTDGeomDet* idToDet(DetId) const override;
 
-  const GeomDetEnumerators::SubDetector geomDetSubDetector(int subdet) const;
+  GeomDetEnumerators::SubDetector geomDetSubDetector(int subdet) const;
   unsigned int numberOfLayers(int subdet) const;
   bool isThere(GeomDetEnumerators::SubDetector subdet) const;
 

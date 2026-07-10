@@ -15,7 +15,7 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/TrackingGeometry.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 

@@ -69,7 +69,8 @@
 
 namespace pat {
 
-  class PATTriggerProducer : public edm::stream::EDProducer<> {
+  class PATTriggerProducer
+      : public edm::stream::EDProducer<edm::stream::WatchRuns, edm::stream::WatchLuminosityBlocks> {
   public:
     explicit PATTriggerProducer(const edm::ParameterSet& iConfig);
     ~PATTriggerProducer() override {}

@@ -24,12 +24,13 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -41,10 +42,7 @@
 #include "SimTracker/SiPixelDigitizer/plugins/SiPixelDigitizerAlgorithm.h"
 
 // forward declarations
-class DetId;
 class GaussianTailNoiseGenerator;
-class PixelDigi;
-class PixelDigiSimLink;
 class PixelGeomDetUnit;
 class SiG4UniversalFluctuation;
 

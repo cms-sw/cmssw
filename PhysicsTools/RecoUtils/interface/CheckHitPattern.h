@@ -13,10 +13,9 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 #include <utility>
 #include <map>
-
-class DetId;
 
 class TrackerTopology;
 class TrackerGeometry;

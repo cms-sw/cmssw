@@ -40,12 +40,6 @@ HcalTimeSlewEP::HcalTimeSlewEP(const edm::ParameterSet& pset) {
 
 HcalTimeSlewEP::~HcalTimeSlewEP() {}
 
-void HcalTimeSlewEP::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& iKey,
-                                    const edm::IOVSyncValue& iTime,
-                                    edm::ValidityInterval& oInterval) {
-  oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}
-
 void HcalTimeSlewEP::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // HcalTimeSlewEP
   edm::ParameterSetDescription desc;

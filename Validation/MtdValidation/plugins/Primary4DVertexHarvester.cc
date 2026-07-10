@@ -165,6 +165,10 @@ void Primary4DVertexHarvester::incrementME(MonitorElement* base, MonitorElement*
 // ------------ endjob tasks ----------------------------
 void Primary4DVertexHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& igetter) {
   // --- Get the monitoring histograms
+  MonitorElement* meSelVtxTrk = igetter.get(folder_ + "SelVtxTrk");
+  MonitorElement* meSelVtxTrkwTime = igetter.get(folder_ + "SelVtxTrkwTime");
+  MonitorElement* meSelVtxTrkvsEta = igetter.get(folder_ + "SelVtxTrkvsEta");
+  MonitorElement* meSelVtxTrkwTimevsEta = igetter.get(folder_ + "SelVtxTrkwTimevsEta");
   MonitorElement* meTrackEffPtTot = igetter.get(folder_ + "EffPtTot");
   MonitorElement* meTrackMatchedTPEffPtTot = igetter.get(folder_ + "MatchedTPEffPtTot");
   MonitorElement* meTrackMatchedTPEffPtMtd = igetter.get(folder_ + "MatchedTPEffPtMtd");
@@ -178,15 +182,27 @@ void Primary4DVertexHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGe
   MonitorElement* meSimVerZ = igetter.get(folder_ + "simPVZ");
   MonitorElement* meSimVerT = igetter.get(folder_ + "simPVT");
 
-  if (!meTrackEffPtTot || !meTrackMatchedTPEffPtTot || !meTrackMatchedTPEffPtMtd || !meTrackEffEtaTot ||
-      !meTrackMatchedTPEffEtaTot || !meTrackMatchedTPEffEtaMtd || !meRecSelVerNumber || !meRecVerZ || !meRecVerT ||
-      !meSimVerNumber || !meSimVerZ || !meSimVerT) {
+  if (!meSelVtxTrk || !meSelVtxTrkwTime || !meSelVtxTrkvsEta || !meSelVtxTrkwTimevsEta || !meTrackEffPtTot ||
+      !meTrackMatchedTPEffPtTot || !meTrackMatchedTPEffPtMtd || !meTrackEffEtaTot || !meTrackMatchedTPEffEtaTot ||
+      !meTrackMatchedTPEffEtaMtd || !meRecSelVerNumber || !meRecVerZ || !meRecVerT || !meSimVerNumber || !meSimVerZ ||
+      !meSimVerT) {
     edm::LogError("Primary4DVertexHarvester") << "Monitoring histograms not found!" << std::endl;
     return;
   }
 
+  // Normalize selected track distribution vs eta
+  double scale = meSelVtxTrk->getTH1F()->Integral();
+  scale = (scale > 0.) ? 1. / scale : 0.;
+  if (scale > 0.) {
+    scaleby(meSelVtxTrkvsEta, scale);
+  }
+  scale = meSelVtxTrkwTime->getTH1F()->Integral();
+  scale = (scale > 0.) ? 1. / scale : 0.;
+  if (scale > 0.) {
+    scaleby(meSelVtxTrkwTimevsEta, scale);
+  }
   // Normalize z,time multiplicty plots to get correct line densities
-  double scale = meRecSelVerNumber->getTH1F()->Integral();
+  scale = meRecSelVerNumber->getTH1F()->Integral();
   scale = (scale > 0.) ? 1. / scale : 0.;
   if (scale > 0.) {
     scaleby(meRecVerZ, scale);

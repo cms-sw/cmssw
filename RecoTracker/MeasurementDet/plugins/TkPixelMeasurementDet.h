@@ -4,14 +4,14 @@
 #include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 //#include "DataFormats/SiPixelCluster/interface/SiPixelClusterFwd.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "RecoTracker/MeasurementDet/src/TkMeasurementDetSet.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
-class TrackingRecHit;
 class LocalTrajectoryParameters;
 
 class dso_hidden TkPixelMeasurementDet final : public MeasurementDet {

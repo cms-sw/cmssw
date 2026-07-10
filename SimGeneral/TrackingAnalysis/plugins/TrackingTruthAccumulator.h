@@ -7,13 +7,13 @@
 #include "FWCore/Framework/interface/ProducesCollector.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitFwd.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include <memory>  // required for std::unique_ptr
 
 // Forward declarations
 class PileUpEventPrincipal;
-class PSimHit;
 
 /** @brief Replacement for TrackingTruthProducer in the new pileup mixing setup.
  *
@@ -137,8 +137,12 @@ private:
 
   /// As of 11/Feb/2013 this option hasn't been implemented yet.
   const bool removeDeadModules_;
-  const edm::InputTag simTrackLabel_;
-  const edm::InputTag simVertexLabel_;
+  edm::InputTag simTrackLabel_;
+  edm::InputTag simVertexLabel_;
+  edm::InputTag simTrackLabelSig_;
+  edm::InputTag simVertexLabelSig_;
+  edm::InputTag simTrackLabelPU_;
+  edm::InputTag simVertexLabelPU_;
   std::vector<edm::InputTag> collectionTags_;
   edm::InputTag genParticleLabel_;
   /// Needed to add HepMC::GenVertex to SimVertex

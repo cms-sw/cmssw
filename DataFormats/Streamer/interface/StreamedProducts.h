@@ -22,7 +22,6 @@
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
-#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 
 namespace edm {
 
@@ -79,14 +78,12 @@ namespace edm {
               EventSelectionIDVector const& eventSelectionIDs,
               BranchListIndexes const& branchListIndexes,
               BranchIDLists const& branchIDLists,
-              ThinnedAssociationsHelper const& thinnedAssociationsHelper,
               uint32_t metaDataChecksum)
         : aux_(aux),
           processHistory_(processHistory),
           eventSelectionIDs_(eventSelectionIDs),
           branchListIndexes_(branchListIndexes),
           branchIDLists_(branchIDLists),
-          thinnedAssociationsHelper_(thinnedAssociationsHelper),
           products_(),
           metaDataChecksum_(metaDataChecksum) {}
     EventAuxiliary const& aux() const { return aux_; }
@@ -97,7 +94,6 @@ namespace edm {
     //This will only hold values for EventMetaData messages
     BranchIDLists const& branchIDLists() const { return branchIDLists_; }
     //This will only hold values for EventMetaData messages
-    ThinnedAssociationsHelper const& thinnedAssociationsHelper() const { return thinnedAssociationsHelper_; }
     //This is the adler32 checksum of the EventMetaData associated with this Event
     uint32_t metaDataChecksum() const { return metaDataChecksum_; }
     SendProds& products() { return products_; }
@@ -108,7 +104,6 @@ namespace edm {
     EventSelectionIDVector eventSelectionIDs_;
     BranchListIndexes branchListIndexes_;
     BranchIDLists branchIDLists_;
-    ThinnedAssociationsHelper thinnedAssociationsHelper_;
     SendProds products_;
     uint32_t metaDataChecksum_;
 

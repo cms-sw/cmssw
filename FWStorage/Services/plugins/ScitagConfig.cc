@@ -55,19 +55,19 @@ Other organizations handle the network monitoring.
 #include <string>
 #include <vector>
 
-#include "FWCore/Catalog/interface/StorageURLModifier.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWStorage/Catalog/interface/StorageURLModifier.h"
 
 namespace {
   constexpr char const* const kXRootPrefix = "root:";
   // These are the values assigned to CMS.
   // Values outside this range are used by other organizations.
-  constexpr int kCMSSciTagRangeStart = 196612;
-  constexpr int kCMSSciTagRangeEnd = 196860;
+  constexpr int kCMSSciTagRangeStart = 193;
+  constexpr int kCMSSciTagRangeEnd = 216;
 }  // namespace
 
 namespace edm {
@@ -135,15 +135,15 @@ namespace edm {
       ParameterSetDescription desc;
 
       ParameterSetDescription analysisDesc;
-      analysisDesc.addUntracked<unsigned int>("primarySciTag", 196664);
-      analysisDesc.addUntracked<unsigned int>("embeddedSciTag", 196700);
-      analysisDesc.addUntracked<unsigned int>("preMixedPileupSciTag", 196704);
+      analysisDesc.addUntracked<unsigned int>("primarySciTag", 206);
+      analysisDesc.addUntracked<unsigned int>("embeddedSciTag", 215);
+      analysisDesc.addUntracked<unsigned int>("preMixedPileupSciTag", 216);
       desc.addUntracked<ParameterSetDescription>("analysis", analysisDesc);
 
       ParameterSetDescription productionDesc;
-      productionDesc.addUntracked<unsigned int>("primarySciTag", 196656);
-      productionDesc.addUntracked<unsigned int>("embeddedSciTag", 196700);
-      productionDesc.addUntracked<unsigned int>("preMixedPileupSciTag", 196704);
+      productionDesc.addUntracked<unsigned int>("primarySciTag", 204);
+      productionDesc.addUntracked<unsigned int>("embeddedSciTag", 215);
+      productionDesc.addUntracked<unsigned int>("preMixedPileupSciTag", 216);
       desc.addUntracked<ParameterSetDescription>("production", productionDesc);
 
       desc.addUntracked<bool>("enable", true);

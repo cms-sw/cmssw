@@ -13,11 +13,13 @@
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 
 #include <vector>
 #include <array>
@@ -29,13 +31,8 @@
 class TH1;
 class TH2;
 class TDirectory;
-class Trajectory;
 
 class TrackerTopology;
-
-namespace reco {
-  class Track;
-}
 
 class Alignable;
 class AlignableDetOrUnitPtr;

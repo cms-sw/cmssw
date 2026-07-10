@@ -9,8 +9,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
 
 #include "TBranch.h"
 #include "TBranchElement.h"

@@ -30,7 +30,7 @@ namespace tt {
    *  \author Thomas Schuh
    *  \date   2020, Apr
    */
-  class StubAssociator : public edm::stream::EDProducer<> {
+  class StubAssociator : public edm::stream::EDProducer<edm::stream::WatchRuns> {
   public:
     explicit StubAssociator(const edm::ParameterSet&);
     ~StubAssociator() override = default;

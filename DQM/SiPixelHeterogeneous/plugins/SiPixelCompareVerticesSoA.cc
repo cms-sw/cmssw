@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Package:    SiPixelCompareVerticesSoA
+// Package:    DQM/SiPixelHeterogeneous
 // Class:      SiPixelCompareVerticesSoA
 //
 /**\class SiPixelCompareVerticesSoA SiPixelCompareVerticesSoA.cc
@@ -187,7 +187,6 @@ void SiPixelCompareVerticesSoA::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 void SiPixelCompareVerticesSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // monitorpixelVertexSoA
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelVertexReferenceSoA", edm::InputTag("pixelVerticesAlpakaSerial"));
   desc.add<edm::InputTag>("pixelVertexTargetSoA", edm::InputTag("pixelVerticesAlpaka"));

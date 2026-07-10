@@ -6,10 +6,14 @@ hltIter0Phase2L3FromL1TkMuonPixelSeedsFromPixelTracks = cms.EDProducer("SeedGene
     SeedCreatorPSet = cms.PSet(
         refToPSet_ = cms.string('hltPhase2SeedFromProtoTracks')
     ),
-    TTRHBuilder = cms.string('WithTrackAngle'),
     originHalfLength = cms.double(0.3),
     originRadius = cms.double(0.1),
+    useProtoTrackKinematics = cms.bool(False),
+    sortAndFilterProtoTracks = cms.bool(False),
     useEventsWithNoVertex = cms.bool(True),
+    TTRHBuilder = cms.string('WithTrackAngle'),
     usePV = cms.bool(False),
-    useProtoTrackKinematics = cms.bool(False)
+    includeFourthHit = cms.bool(False),
+    removeOTRechits = cms.bool(False),
+    produceComplement = cms.bool(False)
 )

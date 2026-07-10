@@ -1,6 +1,5 @@
 #include "TFileAdaptor.h"
 
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -9,6 +8,7 @@
 #include "FWCore/Reflection/interface/SetClassParsing.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
 #include "FWStorage/StorageFactory/interface/StorageAccount.h"
 #include "FWStorage/StorageFactory/interface/StorageFactory.h"
 #include "FWStorage/StorageFactory/interface/StorageProxyMaker.h"
@@ -192,10 +192,12 @@ TFileAdaptor::TFileAdaptor(edm::ParameterSet const& pset, edm::ActivityRegistry&
     addType(mgr, "^dcap:");
   if (!native("gsidcap"))
     addType(mgr, "^gsidcap:");
-  if (!native("root"))
-    addType(mgr, "^root:", 1);  // See comments in addType
-  if (!native("root"))
-    addType(mgr, "^[x]?root:", 1);  // See comments in addType
+  if (!native("root")) {
+    // See comments in addType
+    addType(mgr, "^root:", 1);
+    addType(mgr, "^[x]?root:", 1);
+    addType(mgr, "^[x]?root[s]?:", 1);
+  }
 
   // Make sure the TStorageFactoryFile can be loaded regardless of the header auto-parsing setting
   {

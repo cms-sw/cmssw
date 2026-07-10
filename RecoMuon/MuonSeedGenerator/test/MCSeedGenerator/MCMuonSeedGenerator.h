@@ -11,16 +11,16 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedFwd.h"
+#include "SimDataFormats/Track/interface/SimTrackFwd.h"
+#include "SimDataFormats/Vertex/interface/SimVertexFwd.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 class MuonServiceProxy;
-class TrajectorySeed;
-class SimTrack;
-class SimVertex;
 
 namespace edm {
   class ParameterSet;

@@ -11,7 +11,19 @@ hltHgcalLayerClustersEE = cms.EDProducer("HGCalLayerClusterProducer",
             1.3,
             1.3,
             1.3,
-            0.0315
+            1.3
+        ),
+        deltao = cms.vdouble(
+            2.6,
+            2.6,
+            2.6,
+            2.6
+        ),
+        deltas = cms.vdouble(
+            1.3,
+            1.3,
+            1.3,
+            1.3
         ),
         deltasi_index_regemfac = cms.int32(3),
         dependSensor = cms.bool(True),

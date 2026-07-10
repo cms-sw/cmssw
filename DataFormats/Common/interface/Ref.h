@@ -261,7 +261,7 @@ namespace edm {
     RefCore const& refCore() const { return product_; }
 
     //Used by ROOT storage
-    CMS_CLASS_VERSION(10)
+    CMS_CLASS_VERSION(3)
     //  private:
     // Constructor from member of RefVector
     Ref(RefCore const& iRefCore, key_type const& iKey) : product_(iRefCore), index_(iKey) {}
@@ -410,7 +410,7 @@ namespace edm {
     RefCore const& refCore() const { return product_.toRefCore(); }
 
     //Used by ROOT storage
-    CMS_CLASS_VERSION(11)
+    CMS_CLASS_VERSION(3)
     //  private:
     // Constructor from member of RefVector
     Ref(RefCore const& iRefCore, key_type const& iKey) : product_(iRefCore, iKey) {}
@@ -533,18 +533,12 @@ namespace edm {
 
   template <typename C, typename T, typename F>
   inline bool Ref<C, T, F>::isAvailable() const {
-    if (product_.isAvailable()) {
-      return true;
-    }
-    return isThinnedAvailable<C>(product_, index_);
+    return product_.isAvailable();
   }
 
   template <typename E>
   inline bool Ref<REF_FOR_VECTOR_ARGS>::isAvailable() const {
-    if (product_.isAvailable()) {
-      return true;
-    }
-    return isThinnedAvailable<std::vector<E>>(product_.toRefCore(), key());
+    return product_.isAvailable();
   }
 
   /// Dereference operator

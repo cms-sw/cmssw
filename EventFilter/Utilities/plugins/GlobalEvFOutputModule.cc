@@ -44,11 +44,8 @@ namespace evf {
   class FastMonitoringService;
 
   struct MetaDataCache {
-    MetaDataCache(StreamerOutputMsgBuilders const& builders,
-                  edm::BranchIDLists const& branchLists,
-                  edm::ThinnedAssociationsHelper const helper)
-        : buffer_() {
-      auto ret = builders.serializeEventMetaData(buffer_, branchLists, helper);
+    MetaDataCache(StreamerOutputMsgBuilders const& builders, edm::BranchIDLists const& branchLists) : buffer_() {
+      auto ret = builders.serializeEventMetaData(buffer_, branchLists);
       builder_ = std::move(ret.first);
       checksum_ = ret.second;
     }
@@ -491,7 +488,7 @@ namespace evf {
   }
 
   void GlobalEvFOutputModule::cacheEventMetaData() {
-    metaDataCache_ = std::make_shared<MetaDataCache>(*msgBuilders_, *branchIDLists(), *thinnedAssociationsHelper());
+    metaDataCache_ = std::make_shared<MetaDataCache>(*msgBuilders_, *branchIDLists());
   }
 
   void GlobalEvFOutputModule::acquire(edm::StreamID id,

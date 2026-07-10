@@ -5,7 +5,6 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
 <use name="FWCore/ParameterSet"/>
-<use name="Geometry/CommonDetUnit"/>
 <use name="Geometry/CommonTopologies"/>
 <use name="Geometry/MTDCommonData"/>
 <use name="Geometry/MTDNumberingBuilder"/>

@@ -52,7 +52,6 @@ namespace edm {
   class EDConsumerBase;
   class PreallocationConfiguration;
   class ProductResolverIndexAndSkipBit;
-  class ThinnedAssociationsHelper;
   class ActivityRegistry;
   class WaitingTaskHolder;
   class ServiceWeakToken;
@@ -174,13 +173,15 @@ namespace edm {
       void doBeginStream(StreamID);
       void doEndStream(StreamID);
       void doStreamBeginRun(StreamID, RunTransitionInfo const&, ModuleCallingContext const*);
-      virtual void setupRun(T*, RunIndex) = 0;
+      virtual void streamBeginRun(T*, edm::RunTransitionInfo const&, ModuleCallingContext const*) = 0;
       void doStreamEndRun(StreamID, RunTransitionInfo const&, ModuleCallingContext const*);
+      virtual void streamEndRun(T*, edm::RunTransitionInfo const&, ModuleCallingContext const*) = 0;
       virtual void streamEndRunSummary(T*, edm::Run const&, edm::EventSetup const&) = 0;
 
       void doStreamBeginLuminosityBlock(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
-      virtual void setupLuminosityBlock(T*, LuminosityBlockIndex) = 0;
+      virtual void streamBeginLuminosityBlock(T*, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
       void doStreamEndLuminosityBlock(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
+      virtual void streamEndLuminosityBlock(T*, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
       virtual void streamEndLuminosityBlockSummary(T*, edm::LuminosityBlock const&, edm::EventSetup const&) = 0;
 
       virtual void doBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;
@@ -192,7 +193,6 @@ namespace edm {
       virtual void doEndLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
 
       virtual void doRespondToCloseOutputFile() = 0;
-      void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&);
 
       // ---------- member data --------------------------------
       void setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }

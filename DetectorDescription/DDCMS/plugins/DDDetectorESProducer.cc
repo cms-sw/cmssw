@@ -18,10 +18,13 @@
 
 #include <memory>
 
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/DescriptionCloner.h"
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/Common/interface/FileBlob.h"
@@ -37,7 +40,7 @@ using namespace std;
 using namespace cms;
 using namespace edm;
 
-class DDDetectorESProducer : public ESProducer, public EventSetupRecordIntervalFinder {
+class DDDetectorESProducer : public ESProducer, public EventSetupRecordInfiniteIntervalFinder {
 public:
   DDDetectorESProducer(const ParameterSet&);
   ~DDDetectorESProducer() override;
@@ -49,9 +52,6 @@ public:
   ReturnType produceMagField(const IdealMagneticFieldRecord&);
   ReturnType produce();
   static void fillDescriptions(ConfigurationDescriptions&);
-
-protected:
-  void setIntervalFor(const eventsetup::EventSetupRecordKey&, const IOVSyncValue&, ValidityInterval&) override;
 
 private:
   const bool fromDB_;
@@ -99,20 +99,12 @@ void DDDetectorESProducer::fillDescriptions(ConfigurationDescriptions& descripti
   desc.add<string>("rootDDName", "cms:OCMS");
   desc.add<string>("label", "");
   desc.add<bool>("fromDB", false);
-  descriptions.addDefault(desc);
   descriptions.add("DDDetectorESProducer", desc);
 
-  edm::ParameterSetDescription descDB;
-  descDB.add<string>("rootDDName", "cms:OCMS");
-  descDB.add<string>("label", "Extended");
-  descDB.add<bool>("fromDB", true);
+  edm::DescriptionCloner descDB;
+  descDB.set<string>("label", "Extended");
+  descDB.set<bool>("fromDB", true);
   descriptions.add("DDDetectorESProducerFromDB", descDB);
-}
-
-void DDDetectorESProducer::setIntervalFor(const eventsetup::EventSetupRecordKey& iKey,
-                                          const IOVSyncValue& iTime,
-                                          ValidityInterval& oInterval) {
-  oInterval = ValidityInterval(IOVSyncValue::beginOfTime(), IOVSyncValue::endOfTime());  //infinite
 }
 
 DDDetectorESProducer::ReturnType DDDetectorESProducer::produceMagField(const IdealMagneticFieldRecord& iRecord) {

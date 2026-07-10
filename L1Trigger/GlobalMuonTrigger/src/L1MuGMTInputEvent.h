@@ -32,7 +32,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTMatrix.h"
-class L1MuRegionalCand;
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCandFwd.h"
 
 //---------------------
 //-- Class Interface --

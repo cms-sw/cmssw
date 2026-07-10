@@ -11,12 +11,8 @@
 
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "DataFormats/GEMRecHit/interface/ME0RecHit.h"
-#include "DataFormats/Common/interface/RangeMap.h"
-#include "DataFormats/Common/interface/ClonePolicy.h"
-#include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/Common/interface/IdToHitRange.h"
 #include <functional>
 
-typedef edm::RangeMap<ME0DetId, edm::OwnVector<ME0RecHit, edm::ClonePolicy<ME0RecHit> >, edm::ClonePolicy<ME0RecHit> >
-    ME0RecHitCollection;
-
+using ME0RecHitCollection = edm::IdToHitRange<ME0DetId, ME0RecHit>;
 #endif

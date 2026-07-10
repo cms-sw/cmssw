@@ -47,7 +47,6 @@ namespace edm {
   class StreamContext;
   class ModuleCallingContext;
   class SharedResourcesAcquirer;
-  class ThinnedAssociationsHelper;
 
   class InputSource {
   public:
@@ -56,17 +55,34 @@ namespace edm {
 
     class ItemTypeInfo {
     public:
-      constexpr ItemTypeInfo(ItemType type = ItemType::IsInvalid, ItemPosition position = ItemPosition::Invalid)
+      explicit constexpr ItemTypeInfo(ItemType type = ItemType::IsInvalid,
+                                      ItemPosition position = ItemPosition::Invalid)
           : type_(type), position_(position) {}
-      ItemType itemType() const { return type_; }
-      ItemPosition itemPosition() const { return position_; }
+
+      ItemTypeInfo(ItemTypeInfo const&) = default;
+      ItemTypeInfo(ItemTypeInfo&&) = default;
+      ItemTypeInfo& operator=(ItemTypeInfo const&) = default;
+      ItemTypeInfo& operator=(ItemTypeInfo&&) = default;
+      constexpr ItemType itemType() const noexcept { return type_; }
+      constexpr ItemPosition itemPosition() const noexcept { return position_; }
 
       // Note that conversion to ItemType is defined and often used to
       // compare an ItemTypeInfo with an ItemType.
       // operator== of two ItemTypeInfo's is intentionally NOT defined.
-      // The constructor also allows implicit conversion from ItemType and
-      // often assignment from ItemType to ItemTypeInfo occurs.
       operator ItemType() const { return type_; }
+
+      static constexpr ItemTypeInfo isInvalid() noexcept { return ItemTypeInfo(ItemType::IsInvalid); }
+      static constexpr ItemTypeInfo isStop() noexcept { return ItemTypeInfo(ItemType::IsStop); }
+      static constexpr ItemTypeInfo isSynchronize() noexcept { return ItemTypeInfo(ItemType::IsSynchronize); }
+      static constexpr ItemTypeInfo isFile() noexcept { return ItemTypeInfo(ItemType::IsFile); }
+      static constexpr ItemTypeInfo isRun(ItemPosition position = ItemPosition::Invalid) noexcept {
+        return ItemTypeInfo(ItemType::IsRun, position);
+      }
+      static constexpr ItemTypeInfo isLumi(ItemPosition position = ItemPosition::Invalid) noexcept {
+        return ItemTypeInfo(ItemType::IsLumi, position);
+      }
+      static constexpr ItemTypeInfo isEvent() noexcept { return ItemTypeInfo(ItemType::IsEvent); }
+      static constexpr ItemTypeInfo isRepeat() noexcept { return ItemTypeInfo(ItemType::IsRepeat); }
 
     private:
       ItemType type_;
@@ -179,14 +195,6 @@ namespace edm {
       return get_underlying_safe(processBlockHelper_);
     }
     std::shared_ptr<ProcessBlockHelper>& processBlockHelper() { return get_underlying_safe(processBlockHelper_); }
-
-    /// Accessors for thinnedAssociationsHelper
-    std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper() const {
-      return get_underlying_safe(thinnedAssociationsHelper_);
-    }
-    std::shared_ptr<ThinnedAssociationsHelper>& thinnedAssociationsHelper() {
-      return get_underlying_safe(thinnedAssociationsHelper_);
-    }
 
     /// Reset the remaining number of events/lumis to the maximum number.
     void repeat() {
@@ -451,7 +459,6 @@ namespace edm {
     edm::propagate_const<std::unique_ptr<ProcessHistoryRegistry>> processHistoryRegistry_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
     edm::propagate_const<std::shared_ptr<ProcessBlockHelper>> processBlockHelper_;
-    edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     std::string processGUID_;
     Timestamp time_;
     mutable bool newRun_;
@@ -461,8 +468,6 @@ namespace edm {
     mutable std::shared_ptr<RunAuxiliary> runAuxiliary_;
     mutable std::shared_ptr<LuminosityBlockAuxiliary> lumiAuxiliary_;
     std::string statusFileName_;
-
-    unsigned int numberOfEventsBeforeBigSkip_;
   };
 }  // namespace edm
 

@@ -5,13 +5,14 @@
 #include "IOPool/Streamer/interface/DumpTools.h"
 #include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
-#include <iostream>
-#include <iterator>
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
+#include "IOPool/Streamer/interface/uncompress.h"
 
 #include "TBufferFile.h"
 
+#include <iostream>
+#include <iterator>
 #include <memory>
 
 using namespace edm;
@@ -129,6 +130,24 @@ namespace edm::streamer {
   }
 
   void dumpEventHeader(const EventMsgView* eview) {
+    std::string_view algo = "uncompressed";
+    unsigned long origsize = eview->origDataSize();
+    if (origsize != 0 && origsize != 78) {
+      using namespace edm::streamer::uncompress;
+      auto ealgo = compressionAlgo(static_cast<unsigned char const*>(eview->eventData()), eview->eventLength());
+      switch (ealgo) {
+        case Algo::kZLIB:
+          algo = "ZLIB";
+          break;
+        case Algo::kZSTD:
+          algo = "ZSTD";
+          break;
+        case Algo::kLZMA:
+          algo = "LZMA";
+          break;
+      }
+    }
+
     std::cout << "code=" << eview->code() << "\n"
               << "size=" << eview->size() << "\n"
               << "protocolVersion=" << eview->protocolVersion() << "\n"
@@ -137,6 +156,7 @@ namespace edm::streamer {
               << "lumi=" << eview->lumi() << "\n"
               << "origDataSize=" << eview->origDataSize() << "\n"
               << "outModId=0x" << std::hex << eview->outModId() << std::dec << "\n"
+              << "compression=" << algo << "\n"
               << "adler32 chksum= " << eview->adler32_chksum() << "\n"
               << "host name= " << eview->hostName() << "\n"
               << "event length=" << eview->eventLength() << "\n"
@@ -162,13 +182,18 @@ namespace edm::streamer {
     std::cout.flush();
   }
 
-  void dumpEventView(const EventMsgView* eview) {
+  void dumpEventView(const EventMsgView* eview, const SendEvent* sendEvent) {
     dumpEventHeader(eview);
     //const uint8* edata = eview->eventData();
     //std::cout << "\nevent data=\n(";
     //std::copy(&edata[0],&edata[0]+eview->eventLength(),
     //     std::ostream_iterator<char>(std::cout,""));
     //std::cout << ")\n";
+    if (sendEvent) {
+      auto history = sendEvent->processHistory();
+      history.reduce();
+      std::cout << "\nReduced ProcessHistory ID=" << history.id() << "\n";
+    }
     std::cout.flush();
   }
 

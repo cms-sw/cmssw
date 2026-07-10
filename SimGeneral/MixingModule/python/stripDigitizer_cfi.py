@@ -7,6 +7,7 @@ stripDigitizer = cms.PSet(
     SiStripSimBlock,
     accumulatorType = cms.string("SiStripDigitizer"),
     hitsProducer = cms.string('g4SimHits'),
+    hitsProducerPU = cms.string('g4SimHits'),    
     makeDigiSimLinks = cms.untracked.bool(True)
     )
 
@@ -30,4 +31,12 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify( stripDigitizer, ROUList = ["g4SimHitsTrackerHitsPixelBarrelLowTof",
                                                          "g4SimHitsTrackerHitsPixelEndcapLowTof"]
 )
+# when FastSim events as PileUP events during mixing
+from Configuration.ProcessModifiers.fastSimPU_cff import fastSimPU
+fastSimPU.toModify(stripDigitizer,
+                   hitsProducerPU = cms.string('fastSimProducer'))
 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(stripDigitizer,
+                   hitsProducer = cms.string('fastSimProducer'),
+                   hitsProducerPU = cms.string('fastSimProducer'))

@@ -11,7 +11,7 @@
  */
 
 #include <iosfwd>
-class PSimHit;
+#include "SimDataFormats/TrackingHit/interface/PSimHitFwd.h"
 
 class CSCDetectorHit {
 public:

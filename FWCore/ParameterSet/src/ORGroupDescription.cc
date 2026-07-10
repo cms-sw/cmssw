@@ -82,6 +82,14 @@ namespace edm {
     node_left_->writeCfi(os, modifier, startWithComma, indentation, options, wroteSomething);
   }
 
+  cfi::Trackiness ORGroupDescription::trackiness_(std::string_view path) const {
+    cfi::Trackiness trackinessLeft = node_left_->trackiness(path);
+    if (trackinessLeft != cfi::Trackiness::kNotAllowed) {
+      return trackinessLeft;
+    }
+    return node_right_->trackiness(path);
+  }
+
   void ORGroupDescription::print_(std::ostream& os, Modifier modifier, bool writeToCfi, DocFormatHelper& dfh) const {
     if (dfh.parent() == DocFormatHelper::OR) {
       dfh.decrementCounter();
@@ -207,7 +215,7 @@ namespace edm {
         ss << " \"" << *iter << "\"\n";
       }
       throw edm::Exception(errors::LogicError) << "Labels used in a node of a ParameterSetDescription\n"
-                                               << "\"or\" expression must be not be the same as labels used\n"
+                                               << "\"or\" expression must not be the same as labels used\n"
                                                << "in other nodes of the expression.  The following duplicate\n"
                                                << "labels were detected:\n"
                                                << ss.str() << "\n";

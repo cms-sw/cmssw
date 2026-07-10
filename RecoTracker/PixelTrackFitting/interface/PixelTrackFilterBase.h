@@ -1,15 +1,14 @@
 #ifndef RecoTracker_PixelTrackFitting_PixelTrackFilterBase_h
 #define RecoTracker_PixelTrackFitting_PixelTrackFilterBase_h
 
-namespace reco {
-  class Track;
-}
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
 namespace edm {
   class Event;
   class EventSetup;
   class ConsumesCollector;
 }  // namespace edm
-class TrackingRecHit;
 
 #include <vector>
 

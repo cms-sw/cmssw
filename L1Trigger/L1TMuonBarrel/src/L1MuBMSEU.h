@@ -35,10 +35,11 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhiFwd.h"
+
 class L1MuBMSectorProcessor;
 class L1MuBMTFConfig;
 class L1TMuonBarrelParams;
-class L1MuBMTrackSegPhi;
 class L1MuBMEUX;
 class L1MuBMERS;
 

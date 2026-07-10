@@ -1,28 +1,29 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/jetmet/L1SeedConePFJetEmulator.h"
 
-L1SCJetEmu::L1SCJetEmu(bool debug, float coneSize, unsigned nJets)
+L1SCJetEmu::L1SCJetEmu(bool debug, float coneSize, unsigned nJets, bool doMass)
     : debug_(debug),
       coneSize_(coneSize),
       nJets_(nJets),
-      rCone2_(coneSize * coneSize / l1ct::Scales::ETAPHI_LSB / l1ct::Scales::ETAPHI_LSB) {
+      rCone2_(coneSize * coneSize / l1ct::Scales::ETAPHI_LSB / l1ct::Scales::ETAPHI_LSB),
+      doMass_(doMass) {
   init_invert_table<pt_t, inv_pt_t, N_table_inv_pt>(inv_pt_table_);
 }
 
 L1SCJetEmu::detaphi_t L1SCJetEmu::deltaPhi(L1SCJetEmu::Particle a, L1SCJetEmu::Particle b) {
-  detaphi_t dphi = detaphi_t(a.hwPhi) - detaphi_t(b.hwPhi);
+  detaphi_t dphi = detaphi_t(a.hwPhi - b.hwPhi);
   // phi wrap
   detaphi_t dphi0 =
-      dphi > detaphi_t(l1ct::Scales::INTPHI_PI) ? detaphi_t(l1ct::Scales::INTPHI_TWOPI - dphi) : detaphi_t(dphi);
+      dphi > detaphi_t(l1ct::Scales::INTPHI_PI) ? detaphi_t(dphi - l1ct::Scales::INTPHI_TWOPI) : detaphi_t(dphi);
   detaphi_t dphi1 =
-      dphi < detaphi_t(-l1ct::Scales::INTPHI_PI) ? detaphi_t(l1ct::Scales::INTPHI_TWOPI + dphi) : detaphi_t(dphi);
+      dphi < detaphi_t(-l1ct::Scales::INTPHI_PI) ? detaphi_t(dphi + l1ct::Scales::INTPHI_TWOPI) : detaphi_t(dphi);
   detaphi_t dphiw = dphi > detaphi_t(0) ? dphi0 : dphi1;
   return dphiw;
 }
 
 bool L1SCJetEmu::inCone(L1SCJetEmu::Particle seed, L1SCJetEmu::Particle part) const {
   // scale the particle eta, phi to hardware units
-  detaphi_t deta = detaphi_t(seed.hwEta) - detaphi_t(part.hwEta);
-  detaphi_t dphi = deltaPhi(seed, part);
+  detaphi_t deta = detaphi_t(part.hwEta - seed.hwEta);
+  detaphi_t dphi = deltaPhi(part, seed);
   bool ret = deta * deta + dphi * dphi < rCone2_;
   //bool ret = r2 < cone2;
   if (debug_) {
@@ -133,7 +134,7 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts, const
 
   std::vector<Particle> truncated =
       sortConstituents(parts, seed);  // sort the constituents by pt and truncate to NCONSTITS
-  mass2_t massSq = L1SCJetEmu::jetMass_HW(truncated);
+  mass2_t massSq = (doMass_) ? L1SCJetEmu::jetMass_HW(truncated) : mass2_t(0);
 
   Jet jet;
   jet.hwPt = pt;
@@ -141,6 +142,7 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts, const
   jet.hwPhi = phi;
   jet.hwMassSq = massSq;
   jet.constituents = parts;
+  jet.seed = seed;
   // jet.constituents = truncated;  // store the truncated, sorted NCONSTITSFW sparse array of constituents
 
   if (debug_) {

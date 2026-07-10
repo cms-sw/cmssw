@@ -37,7 +37,7 @@
 #include "DataFormats/Common/interface/RefProdVector.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 
-class PileupSummaryInfo;
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfoFwd.h"
 
 struct HGCalValidatorHistograms {
   HGVHistoProducerAlgoHistograms histoProducerAlgo;
@@ -96,7 +96,6 @@ protected:
   const bool doCandidatesPlots_;
   std::string label_candidates_;
   const edm::FileInPath cummatbudinxo_;
-  const bool isTICLv5_;
 
   std::vector<edm::EDGetTokenT<reco::CaloClusterCollection>> labelToken;
   edm::EDGetTokenT<std::vector<SimCluster>> simClusters_;

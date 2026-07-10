@@ -14,12 +14,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableME11ILT.h"
 #include "CondFormats/CSCObjects/interface/CSCL1TPLookupTableME21ILT.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiFwd.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiFwd.h"
 
 #include <string>
 #include <vector>
 
-class CSCALCTDigi;
-class CSCCLCTDigi;
 class GEMInternalCluster;
 
 class CSCGEMMatcher {

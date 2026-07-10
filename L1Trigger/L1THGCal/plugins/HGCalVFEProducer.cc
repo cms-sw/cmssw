@@ -15,7 +15,7 @@
 
 #include <memory>
 
-class HGCalVFEProducer : public edm::stream::EDProducer<> {
+class HGCalVFEProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   HGCalVFEProducer(const edm::ParameterSet&);
   ~HGCalVFEProducer() override {}

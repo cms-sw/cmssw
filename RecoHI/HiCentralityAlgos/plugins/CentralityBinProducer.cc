@@ -43,7 +43,7 @@
 // class declaration
 //
 
-class CentralityBinProducer : public edm::stream::EDProducer<> {
+class CentralityBinProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
   enum VariableType {
     HFtowers = 0,
     HFtowersPlus = 1,

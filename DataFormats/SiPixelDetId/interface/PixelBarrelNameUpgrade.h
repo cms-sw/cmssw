@@ -8,8 +8,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelModuleName.h"
 #include <string>
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-
-class DetId;
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 
 class PixelBarrelNameUpgrade : public PixelModuleName {
 public:

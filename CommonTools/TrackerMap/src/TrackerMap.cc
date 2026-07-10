@@ -1,32 +1,34 @@
-#include "CommonTools/TrackerMap/interface/TrackerMap.h"
-#include "CommonTools/TrackerMap/interface/TmModule.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "CommonTools/TrackerMap/interface/TmApvPair.h"
-#include "CommonTools/TrackerMap/interface/TmCcu.h"
-#include "CommonTools/TrackerMap/interface/TmPsu.h"
-#include "FWCore/Utilities/interface/isFinite.h"
 #include <fstream>
-#include <vector>
 #include <iostream>
 #include <sstream>
-#include "TCanvas.h"
-#include "TPolyLine.h"
-#include "TStyle.h"
-#include "TColor.h"
-#include "TROOT.h"
-#include "TGaxis.h"
-#include "TLatex.h"
+#include <vector>
+
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "CommonTools/TrackerMap/interface/TmApvPair.h"
+#include "CommonTools/TrackerMap/interface/TmCcu.h"
+#include "CommonTools/TrackerMap/interface/TmModule.h"
+#include "CommonTools/TrackerMap/interface/TmPsu.h"
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
+#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/isFinite.h"
+
 #include "TArrow.h"
-#include "TLegend.h"
+#include "TCanvas.h"
+#include "TColor.h"
+#include "TGaxis.h"
+#include "TGraph.h"
 #include "TH1F.h"
 #include "TH2Poly.h"
-#include "TGraph.h"
+#include "TLatex.h"
+#include "TLegend.h"
 #include "TPaletteAxis.h"
+#include "TPolyLine.h"
+#include "TROOT.h"
+#include "TStyle.h"
 
 /**********************************************************
 Allocate all the modules in a map of TmModule
@@ -37,6 +39,7 @@ when the user starts to fill it.
 TrackerMap::TrackerMap(const edm::ParameterSet &tkmapPset,
                        const SiStripFedCabling *tkFed,
                        const TrackerTopology *const topology) {
+  padColor_ = 38;
   psetAvailable = true;
   xsize = 340;
   ysize = 200;
@@ -417,6 +420,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet &tkmapPset,
 }
 
 TrackerMap::TrackerMap(const edm::ParameterSet &tkmapPset) {
+  padColor_ = 38;
   psetAvailable = true;
   xsize = 340;
   ysize = 200;
@@ -442,6 +446,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet &tkmapPset) {
 }
 
 TrackerMap::TrackerMap(std::string s, int xsize1, int ysize1) {
+  padColor_ = 38;
   psetAvailable = false;
   xsize = xsize1;
   ysize = ysize1;
@@ -967,7 +972,7 @@ void TrackerMap::save(bool print_total, float minval, float maxval, std::string 
       double x[4], y[4];
       std::ifstream tempfile(tempfilename.c_str(), std::ios::in);
       TCanvas *MyC = new TCanvas("MyC", "TrackerMap", width, height);
-      gPad->SetFillColor(38);
+      gPad->SetFillColor(padColor_);
 
       if (addPixelFlag) {
         gPad->Range(0, 0, 3800, 1600);
@@ -3092,6 +3097,9 @@ void TrackerMap::load(std::string inputfilename) {
   inputfile->close();
   delete inputfile;
 }
+
+//sets the background color
+void TrackerMap::setBackgroundColor(Color_t color) { padColor_ = color; }
 
 //print in svg format tracker map
 //print_total = true represent in color the total stored in the module

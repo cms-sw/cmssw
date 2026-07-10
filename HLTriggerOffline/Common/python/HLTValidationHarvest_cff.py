@@ -17,6 +17,8 @@ from HLTriggerOffline.Btag.HltBtagPostValidation_cff import *
 from HLTriggerOffline.Egamma.HLTpostProcessorGsfTracker_cfi import *
 from Validation.HGCalValidation.HLTHGCalPostProcessor_cff import *
 from Validation.HLTrigger.HLTGenValidationHarvesting_cff import *
+from Validation.HGCalValidation.BarrelPostProcessor_cff import *
+from Validation.MtdValidation.hltMtdPostProcessor_cff import *
 
 hltpostvalidation = cms.Sequence( 
     postProcessorHLTtrackingSequence
@@ -42,7 +44,7 @@ from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
 # Temporary Phase-2 configuration
 # Exclude everything except JetMET for now
-_phase2_hltpostvalidation =  hltpostvalidation.copyAndExclude([HLTTauPostVal,
+_phase2_hltpostvalidation =  hltpostvalidation.copyAndExclude([#HLTTauPostVal,
                                                                EgammaPostVal,
                                                                heavyFlavorValidationHarvestingSequence,
                                                                #HLTJetMETPostVal,
@@ -61,8 +63,20 @@ _phase2_hltpostvalidation += hltHcalValidatorPostProcessor
 # Add HLT gen validation
 _phase2_hltpostvalidation += hltGenValidationClient
 
+from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
+# Add MTD validation only when mtd_at_hlt is active
+mtd_at_hlt.toModify(
+    _phase2_hltpostvalidation,
+    func=lambda seq: seq.insert(-1, hltMtdValidationPostProcessor)
+)
+
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toReplaceWith(hltpostvalidation, _phase2_hltpostvalidation)
+
+_phase2_hltpostvalidation_WithBarrel = _phase2_hltpostvalidation.copy()
+_phase2_hltpostvalidation_WithBarrel += barrelValidatorPostProcessor
+from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
+ticl_barrel.toReplaceWith(hltpostvalidation, _phase2_hltpostvalidation_WithBarrel)
 
 # fastsim customs
 from Configuration.Eras.Modifier_fastSim_cff import fastSim

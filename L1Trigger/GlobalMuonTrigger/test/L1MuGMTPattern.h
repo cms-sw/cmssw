@@ -33,6 +33,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCandFwd.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -40,7 +41,6 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
-class L1MuRegionalCand;
 class L1MuGMTExtendedCand;
 
 //              ---------------------

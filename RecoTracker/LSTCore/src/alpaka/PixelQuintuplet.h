@@ -46,44 +46,43 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     pixelQuintuplets.centerX()[pixelQuintupletIndex] = __F2H(centerX);
     pixelQuintuplets.centerY()[pixelQuintupletIndex] = __F2H(centerY);
 
+    // Copy pixel layers (always 2)
     pixelQuintuplets.logicalLayers()[pixelQuintupletIndex][0] = 0;
     pixelQuintuplets.logicalLayers()[pixelQuintupletIndex][1] = 0;
-    pixelQuintuplets.logicalLayers()[pixelQuintupletIndex][2] = quintuplets.logicalLayers()[t5Index][0];
-    pixelQuintuplets.logicalLayers()[pixelQuintupletIndex][3] = quintuplets.logicalLayers()[t5Index][1];
-    pixelQuintuplets.logicalLayers()[pixelQuintupletIndex][4] = quintuplets.logicalLayers()[t5Index][2];
-    pixelQuintuplets.logicalLayers()[pixelQuintupletIndex][5] = quintuplets.logicalLayers()[t5Index][3];
-    pixelQuintuplets.logicalLayers()[pixelQuintupletIndex][6] = quintuplets.logicalLayers()[t5Index][4];
-
     pixelQuintuplets.lowerModuleIndices()[pixelQuintupletIndex][0] = segments.innerLowerModuleIndices()[pixelIndex];
     pixelQuintuplets.lowerModuleIndices()[pixelQuintupletIndex][1] = segments.outerLowerModuleIndices()[pixelIndex];
-    pixelQuintuplets.lowerModuleIndices()[pixelQuintupletIndex][2] = quintuplets.lowerModuleIndices()[t5Index][0];
-    pixelQuintuplets.lowerModuleIndices()[pixelQuintupletIndex][3] = quintuplets.lowerModuleIndices()[t5Index][1];
-    pixelQuintuplets.lowerModuleIndices()[pixelQuintupletIndex][4] = quintuplets.lowerModuleIndices()[t5Index][2];
-    pixelQuintuplets.lowerModuleIndices()[pixelQuintupletIndex][5] = quintuplets.lowerModuleIndices()[t5Index][3];
-    pixelQuintuplets.lowerModuleIndices()[pixelQuintupletIndex][6] = quintuplets.lowerModuleIndices()[t5Index][4];
 
     unsigned int pixelInnerMD = segments.mdIndices()[pixelIndex][0];
     unsigned int pixelOuterMD = segments.mdIndices()[pixelIndex][1];
-
     pixelQuintuplets.hitIndices()[pixelQuintupletIndex][0] = mds.anchorHitIndices()[pixelInnerMD];
     pixelQuintuplets.hitIndices()[pixelQuintupletIndex][1] = mds.outerHitIndices()[pixelInnerMD];
     pixelQuintuplets.hitIndices()[pixelQuintupletIndex][2] = mds.anchorHitIndices()[pixelOuterMD];
     pixelQuintuplets.hitIndices()[pixelQuintupletIndex][3] = mds.outerHitIndices()[pixelOuterMD];
 
-    pixelQuintuplets.hitIndices()[pixelQuintupletIndex][4] = quintuplets.hitIndices()[t5Index][0];
-    pixelQuintuplets.hitIndices()[pixelQuintupletIndex][5] = quintuplets.hitIndices()[t5Index][1];
-    pixelQuintuplets.hitIndices()[pixelQuintupletIndex][6] = quintuplets.hitIndices()[t5Index][2];
-    pixelQuintuplets.hitIndices()[pixelQuintupletIndex][7] = quintuplets.hitIndices()[t5Index][3];
-    pixelQuintuplets.hitIndices()[pixelQuintupletIndex][8] = quintuplets.hitIndices()[t5Index][4];
-    pixelQuintuplets.hitIndices()[pixelQuintupletIndex][9] = quintuplets.hitIndices()[t5Index][5];
-    pixelQuintuplets.hitIndices()[pixelQuintupletIndex][10] = quintuplets.hitIndices()[t5Index][6];
-    pixelQuintuplets.hitIndices()[pixelQuintupletIndex][11] = quintuplets.hitIndices()[t5Index][7];
-    pixelQuintuplets.hitIndices()[pixelQuintupletIndex][12] = quintuplets.hitIndices()[t5Index][8];
-    pixelQuintuplets.hitIndices()[pixelQuintupletIndex][13] = quintuplets.hitIndices()[t5Index][9];
+    // Copy T5 layers (respects nLayers for extended T5s); fill remaining slots with sentinels.
+    unsigned int t5Layers = quintuplets.nLayers()[t5Index];
+    auto& dstLayers = pixelQuintuplets.logicalLayers()[pixelQuintupletIndex];
+    auto& dstModules = pixelQuintuplets.lowerModuleIndices()[pixelQuintupletIndex];
+    auto& dstHits = pixelQuintuplets.hitIndices()[pixelQuintupletIndex];
+    auto const& srcLayers = quintuplets.logicalLayers()[t5Index];
+    auto const& srcModules = quintuplets.lowerModuleIndices()[t5Index];
+    auto const& srcHits = quintuplets.hitIndices()[t5Index];
+    for (unsigned int i = 0; i < Params_T5::kLayers; ++i) {
+      const bool inT5 = (i < t5Layers);
+      dstLayers[2 + i] = inT5 ? srcLayers[i] : uint8_t{0};
+      dstModules[2 + i] = inT5 ? srcModules[i] : lst::kTCEmptyLowerModule;
+      dstHits[4 + 2 * i] = inT5 ? srcHits[2 * i] : lst::kTCEmptyHitIdx;
+      dstHits[4 + 2 * i + 1] = inT5 ? srcHits[2 * i + 1] : lst::kTCEmptyHitIdx;
+    }
 
+    // Set pT5 nLayers = 2 pixel + T5 layers
+    pixelQuintuplets.nLayers()[pixelQuintupletIndex] = 2 + t5Layers;
+
+#ifdef CUT_VALUE_DEBUG
     pixelQuintuplets.rzChiSquared()[pixelQuintupletIndex] = rzChiSquared;
     pixelQuintuplets.rPhiChiSquared()[pixelQuintupletIndex] = rPhiChiSquared;
     pixelQuintuplets.rPhiChiSquaredInwards()[pixelQuintupletIndex] = rPhiChiSquaredInwards;
+#endif
   }
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passPT5RZChiSquaredCuts(ModulesConst modules,
@@ -406,7 +405,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     float a = -100 / kR1GeVf * charge;
 
-    for (size_t i = 0; i < Params_T5::kLayers; i++) {
+    for (size_t i = 0; i < Params_T5::kBaseLayers; i++) {
       float zsi = zs[i] / 100;
       float rtsi = rts[i] / 100;
       uint16_t lowerModuleIndex = lowerModuleIndices[i];
@@ -491,15 +490,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float pixelRadiusTemp, tripletRadius, rPhiChiSquaredTemp, rzChiSquaredTemp, rPhiChiSquaredInwardsTemp, centerXTemp,
         centerYTemp, pixelRadiusErrorTemp;
 
+    PixelSeedData pixelData =
+        loadPixelSeedData(pixelSeeds, pixelSegments, mds, segments, pixelSegmentIndex, pixelSegmentArrayIndex);
+
     if (not runPixelTripletDefaultAlgo<dnn::pt3dnn::pT5WP>(acc,
                                                            modules,
-                                                           ranges,
                                                            mds,
                                                            segments,
-                                                           pixelSeeds,
-                                                           pixelSegments,
+                                                           pixelData,
                                                            triplets,
-                                                           pixelSegmentIndex,
                                                            t5InnerT3Index,
                                                            pixelRadiusTemp,
                                                            tripletRadius,
@@ -518,9 +517,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     unsigned int secondSegmentIndex = triplets.segmentIndices()[t5InnerT3Index][1];
     unsigned int thirdSegmentIndex = triplets.segmentIndices()[t5OuterT3Index][0];
     unsigned int fourthSegmentIndex = triplets.segmentIndices()[t5OuterT3Index][1];
-
-    unsigned int pixelInnerMDIndex = segments.mdIndices()[pixelSegmentIndex][0];
-    unsigned int pixelOuterMDIndex = segments.mdIndices()[pixelSegmentIndex][1];
     unsigned int firstMDIndex = segments.mdIndices()[firstSegmentIndex][0];
     unsigned int secondMDIndex = segments.mdIndices()[secondSegmentIndex][0];
     unsigned int thirdMDIndex = segments.mdIndices()[secondSegmentIndex][1];
@@ -533,34 +529,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     uint16_t lowerModuleIndex4 = quintuplets.lowerModuleIndices()[quintupletIndex][3];
     uint16_t lowerModuleIndex5 = quintuplets.lowerModuleIndices()[quintupletIndex][4];
 
-    uint16_t lowerModuleIndices[Params_T5::kLayers] = {
+    uint16_t lowerModuleIndices[Params_T5::kBaseLayers] = {
         lowerModuleIndex1, lowerModuleIndex2, lowerModuleIndex3, lowerModuleIndex4, lowerModuleIndex5};
 
-    float rtPix[Params_pLS::kLayers] = {mds.anchorRt()[pixelInnerMDIndex], mds.anchorRt()[pixelOuterMDIndex]};
-    float xPix[Params_pLS::kLayers] = {mds.anchorX()[pixelInnerMDIndex], mds.anchorX()[pixelOuterMDIndex]};
-    float yPix[Params_pLS::kLayers] = {mds.anchorY()[pixelInnerMDIndex], mds.anchorY()[pixelOuterMDIndex]};
-    float zPix[Params_pLS::kLayers] = {mds.anchorZ()[pixelInnerMDIndex], mds.anchorZ()[pixelOuterMDIndex]};
-    float zs[Params_T5::kLayers] = {mds.anchorZ()[firstMDIndex],
-                                    mds.anchorZ()[secondMDIndex],
-                                    mds.anchorZ()[thirdMDIndex],
-                                    mds.anchorZ()[fourthMDIndex],
-                                    mds.anchorZ()[fifthMDIndex]};
-    float rts[Params_T5::kLayers] = {mds.anchorRt()[firstMDIndex],
-                                     mds.anchorRt()[secondMDIndex],
-                                     mds.anchorRt()[thirdMDIndex],
-                                     mds.anchorRt()[fourthMDIndex],
-                                     mds.anchorRt()[fifthMDIndex]};
-
-    float pixelSegmentPt = pixelSeeds.ptIn()[pixelSegmentArrayIndex];
-    float pixelSegmentPx = pixelSeeds.px()[pixelSegmentArrayIndex];
-    float pixelSegmentPy = pixelSeeds.py()[pixelSegmentArrayIndex];
-    float pixelSegmentPz = pixelSeeds.pz()[pixelSegmentArrayIndex];
-    int pixelSegmentCharge = pixelSeeds.charge()[pixelSegmentArrayIndex];
+    float rtPix[Params_pLS::kLayers] = {pixelData.rt_InLo, pixelData.rt_InUp};
+    float xPix[Params_pLS::kLayers] = {pixelData.x_InLo, pixelData.x_InUp};
+    float yPix[Params_pLS::kLayers] = {pixelData.y_InLo, pixelData.y_InUp};
+    float zPix[Params_pLS::kLayers] = {pixelData.z_InLo, pixelData.z_InUp};
+    float zs[Params_T5::kBaseLayers] = {mds.anchorZ()[firstMDIndex],
+                                        mds.anchorZ()[secondMDIndex],
+                                        mds.anchorZ()[thirdMDIndex],
+                                        mds.anchorZ()[fourthMDIndex],
+                                        mds.anchorZ()[fifthMDIndex]};
+    float rts[Params_T5::kBaseLayers] = {mds.anchorRt()[firstMDIndex],
+                                         mds.anchorRt()[secondMDIndex],
+                                         mds.anchorRt()[thirdMDIndex],
+                                         mds.anchorRt()[fourthMDIndex],
+                                         mds.anchorRt()[fifthMDIndex]};
 
     rzChiSquared = 0;
 
     //get the appropriate centers
-    pixelRadius = pixelSegments.circleRadius()[pixelSegmentArrayIndex];
+    pixelRadius = pixelData.circleRadius;
 
     rzChiSquared = computePT5RZChiSquared(acc,
                                           modules,
@@ -571,11 +561,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                           zPix,
                                           rts,
                                           zs,
-                                          pixelSegmentPt,
-                                          pixelSegmentPx,
-                                          pixelSegmentPy,
-                                          pixelSegmentPz,
-                                          pixelSegmentCharge);
+                                          pixelData.ptIn,
+                                          pixelData.px,
+                                          pixelData.py,
+                                          pixelData.pz,
+                                          pixelData.charge);
 
     if (pixelRadius < 5.0f * kR1GeVf) {  //only apply r-z chi2 cuts for <5GeV tracks
       if (not passPT5RZChiSquaredCuts(modules,
@@ -589,20 +579,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
 
     //outer T5
-    float xs[Params_T5::kLayers] = {mds.anchorX()[firstMDIndex],
-                                    mds.anchorX()[secondMDIndex],
-                                    mds.anchorX()[thirdMDIndex],
-                                    mds.anchorX()[fourthMDIndex],
-                                    mds.anchorX()[fifthMDIndex]};
-    float ys[Params_T5::kLayers] = {mds.anchorY()[firstMDIndex],
-                                    mds.anchorY()[secondMDIndex],
-                                    mds.anchorY()[thirdMDIndex],
-                                    mds.anchorY()[fourthMDIndex],
-                                    mds.anchorY()[fifthMDIndex]};
+    float xs[Params_T5::kBaseLayers] = {mds.anchorX()[firstMDIndex],
+                                        mds.anchorX()[secondMDIndex],
+                                        mds.anchorX()[thirdMDIndex],
+                                        mds.anchorX()[fourthMDIndex],
+                                        mds.anchorX()[fifthMDIndex]};
+    float ys[Params_T5::kBaseLayers] = {mds.anchorY()[firstMDIndex],
+                                        mds.anchorY()[secondMDIndex],
+                                        mds.anchorY()[thirdMDIndex],
+                                        mds.anchorY()[fourthMDIndex],
+                                        mds.anchorY()[fifthMDIndex]};
 
     //get the appropriate centers
-    centerX = pixelSegments.circleCenterX()[pixelSegmentArrayIndex];
-    centerY = pixelSegments.circleCenterY()[pixelSegmentArrayIndex];
+    centerX = pixelData.circleCenterX;
+    centerY = pixelData.circleCenterY;
 
     float T5CenterX = quintuplets.regressionCenterX()[quintupletIndex];
     float T5CenterY = quintuplets.regressionCenterY()[quintupletIndex];

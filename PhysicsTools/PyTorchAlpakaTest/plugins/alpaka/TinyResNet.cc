@@ -8,7 +8,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/FixedQueueEDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/TensorCollection.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/alpaka/AlpakaModel.h"
@@ -16,10 +16,10 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
 
-  class TinyResNet : public stream::EDProducer<> {
+  class TinyResNet : public stream::FixedQueueEDProducer<> {
   public:
     TinyResNet(const edm::ParameterSet &params)
-        : EDProducer<>(params),
+        : FixedQueueEDProducer<>(params),
           images_token_(consumes(params.getParameter<edm::InputTag>("images"))),
           logits_token_{produces()},
           model_(params.getParameter<edm::FileInPath>("model").fullPath()),
@@ -36,17 +36,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     void produce(device::Event &event, const device::EventSetup &event_setup) override {
       // in/out collections
       const auto &images = event.get(images_token_);
-      const auto batch_size = images.const_view().metadata().size();
-      auto logits = portabletest::LogitsDeviceCollection(event.queue(), batch_size);
+      const auto total_size = images.const_view().metadata().size();
+      auto logits = portabletest::LogitsDeviceCollection(event.queue(), total_size);
 
       // records
       auto input_records = images.const_view().records();
       auto output_records = logits.view().records();
       // input tensor definition
-      cms::torch::alpakatools::TensorCollection<Queue> inputs(batch_size);
+      cms::torch::alpakatools::TensorCollection<Queue> inputs(total_size);
       inputs.add<portabletest::ImageSoA>("images", input_records.r(), input_records.g(), input_records.b());
       // output tensor definition
-      cms::torch::alpakatools::TensorCollection<Queue> outputs(batch_size);
+      cms::torch::alpakatools::TensorCollection<Queue> outputs(total_size);
       outputs.add<portabletest::LogitsSoA>("logits", output_records.logits());
 
       model_.forward(event.queue(), inputs, outputs);

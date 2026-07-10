@@ -11,5 +11,13 @@ jetmetMonitorHLT = cms.Sequence(
     * HLTZGammaJetmonitoring
 )
 
+jetmetScoutingMonitorHLT = cms.Sequence(
+    HLTScoutingJetmonitoring
+)
+
+jetmetScoutingNoJECsMonitorHLT = cms.Sequence(
+    HLTScoutingJetnoJECsmonitoring
+)
+
 jmeHLTDQMSourceExtra = cms.Sequence(
 )

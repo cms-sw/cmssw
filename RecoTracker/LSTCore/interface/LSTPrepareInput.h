@@ -1,6 +1,7 @@
 #ifndef RecoTracker_LSTCore_interface_LSTPrepareInput_h
 #define RecoTracker_LSTCore_interface_LSTPrepareInput_h
 
+#include <algorithm>
 #include <memory>
 #include <Math/Vector3D.h>
 #include <Math/VectorUtil.h>
@@ -36,6 +37,7 @@ namespace lst {
                                              std::vector<float> const& see_stateTrajGlbPz,
                                              std::vector<int> const& see_q,
                                              std::vector<std::vector<int>> const& see_hitIdx,
+                                             std::vector<std::vector<int>> const& see_hitType,
                                              std::vector<unsigned int> const& see_algo,
                                              std::vector<unsigned int> const& ph2_detId,
                                              std::vector<uint16_t> const& ph2_clustSize,
@@ -53,7 +55,9 @@ namespace lst {
     std::vector<uint16_t> hitClustSize;
     std::vector<unsigned int> hitId;
     std::vector<unsigned int> hitIdxs;
-    std::vector<Params_pLS::ArrayUxHits> hitIndices_vec;
+    std::vector<unsigned int> firstHit_vec;
+    std::vector<uint8_t> nHits_vec;
+    std::vector<uint8_t> hitDetBits_vec;
     std::vector<float> deltaPhi_vec;
     std::vector<float> ptIn_vec;
     std::vector<float> ptErr_vec;
@@ -76,7 +80,9 @@ namespace lst {
     px_vec.reserve(n_see);
     py_vec.reserve(n_see);
     pz_vec.reserve(n_see);
-    hitIndices_vec.reserve(n_see);
+    firstHit_vec.reserve(n_see);
+    nHits_vec.reserve(n_see);
+    hitDetBits_vec.reserve(n_see);
     ptIn_vec.reserve(n_see);
     ptErr_vec.reserve(n_see);
     etaErr_vec.reserve(n_see);
@@ -94,6 +100,7 @@ namespace lst {
     hitIdxs.resize(hit_size);
 
     std::iota(hitIdxs.begin(), hitIdxs.end(), 0);
+    int nHitsOT = ph2_x.size();
 
     for (size_t iSeed = 0; iSeed < n_see; iSeed++) {
       // Only needed for standalone
@@ -131,20 +138,31 @@ namespace lst {
         } else
           continue;
 
-        unsigned int hitIdx0 = hit_size + count;
-        count++;
-        unsigned int hitIdx1 = hit_size + count;
-        count++;
-        unsigned int hitIdx2 = hit_size + count;
-        count++;
-        unsigned int hitIdx3;
-        if (see_hitIdx[iSeed].size() <= 3)
-          hitIdx3 = hitIdx2;
-        else {
-          hitIdx3 = hit_size + count;
-          count++;
-        }
+        firstHit_vec.push_back(hit_size + count);
+        nHits_vec.push_back(see_hitIdx[iSeed].size());
 
+        const unsigned int nHitsToSoA =
+            std::min(static_cast<unsigned int>(see_hitIdx[iSeed].size()), kMaxPLSHitsInHitsSoA);
+        assert(nHitsToSoA >= 3);  // need to rework the logic for less than 3 hits
+        count += nHitsToSoA;
+
+        auto const& hTypes = see_hitType[iSeed];
+        auto constexpr intPixel = static_cast<int>(HitType::Pixel);
+        auto const& hIdxs = see_hitIdx[iSeed];
+        for (unsigned int iSH = 0; iSH < nHitsToSoA; iSH++) {
+          auto iH = iSH + 1 == nHitsToSoA ? see_hitIdx[iSeed].size() - 1 : iSH;  // include the last
+          hitId.push_back(hTypes[iH] == intPixel ? kPixelModuleId : ph2_detId[hIdxs[iH]]);
+          hitClustSize.push_back(hTypes[iH] == intPixel ? 1 : ph2_clustSize[hIdxs[iH]]);
+        }
+        uint8_t hitDetBits = 0;
+        uint8_t nToBits = std::min(kMaxPLSHitBitsInHitsSoA, static_cast<unsigned int>(see_hitIdx[iSeed].size()));
+        for (int iSH = 0; iSH < nToBits; iSH++) {
+          auto iH = iSH + 1 == nToBits ? see_hitIdx[iSeed].size() - 1 : iSH;  // include the last
+          hitDetBits |= (hTypes[iH] != intPixel) << iSH;
+        }
+        hitDetBits_vec.push_back(hitDetBits);
+
+        // eventually these trk[XYZ] should be moved to the PixelSeeds SoA
         trkX.push_back(r3PCA.x());
         trkY.push_back(r3PCA.y());
         trkZ.push_back(r3PCA.z());
@@ -156,24 +174,17 @@ namespace lst {
         trkX.push_back(r3LH.x());
         trkY.push_back(r3LH.y());
         trkZ.push_back(r3LH.z());
-        hitId.push_back(1);
-        hitId.push_back(1);
-        hitId.push_back(1);
-        hitClustSize.push_back(1);
-        hitClustSize.push_back(1);
-        hitClustSize.push_back(1);
-        if (see_hitIdx[iSeed].size() > 3) {
+        for (unsigned int iH = 3; iH < nHitsToSoA; iH++) {
           trkX.push_back(r3LH.x());
           trkY.push_back(see_dxy[iSeed]);
           trkZ.push_back(see_dz[iSeed]);
-          hitId.push_back(1);
-          hitClustSize.push_back(1);
         }
+        assert(trkX.size() == count);
+
         px_vec.push_back(px);
         py_vec.push_back(py);
         pz_vec.push_back(pz);
 
-        hitIndices_vec.push_back({{hitIdx0, hitIdx1, hitIdx2, hitIdx3}});
         ptIn_vec.push_back(ptIn);
         ptErr_vec.push_back(ptErr);
         etaErr_vec.push_back(etaErr);
@@ -190,7 +201,7 @@ namespace lst {
         char isQuad = false;
         if (see_hitIdx[iSeed].size() > 3) {
           isQuad = true;
-          hitIdxs.push_back(see_hitIdx[iSeed][3]);
+          hitIdxs.push_back(see_hitIdx[iSeed].back());
         }
         float neta = 25.;
         float nphi = 72.;
@@ -206,7 +217,6 @@ namespace lst {
     }
 
     // Build the SoAs
-    int nHitsOT = ph2_x.size();
     int nHitsIT = trkX.size();
     int nPixelSeeds = ptIn_vec.size();
     if (static_cast<unsigned int>(nPixelSeeds) > n_max_pixel_segments_per_module) {
@@ -216,42 +226,45 @@ namespace lst {
     LSTInputHostCollection lstInputHC(queue, nHitsIT + nHitsOT, nPixelSeeds);
 
     auto hits = lstInputHC.view().hits();
-    std::memcpy(hits.xs().data(), ph2_x.data(), nHitsOT * sizeof(float));
-    std::memcpy(hits.ys().data(), ph2_y.data(), nHitsOT * sizeof(float));
-    std::memcpy(hits.zs().data(), ph2_z.data(), nHitsOT * sizeof(float));
-    std::memcpy(hits.detid().data(), ph2_detId.data(), nHitsOT * sizeof(unsigned int));
-    std::memcpy(hits.clustsize().data(), ph2_clustSize.data(), nHitsOT * sizeof(uint16_t));
+    hits.nHitsOT() = nHitsOT;
+    std::copy_n(ph2_x.data(), nHitsOT, hits.xs().data());
+    std::copy_n(ph2_y.data(), nHitsOT, hits.ys().data());
+    std::copy_n(ph2_z.data(), nHitsOT, hits.zs().data());
+    std::copy_n(ph2_detId.data(), nHitsOT, hits.detid().data());
+    std::copy_n(ph2_clustSize.data(), nHitsOT, hits.clustsize().data());
 #ifndef LST_STANDALONE
-    std::memcpy(hits.hits().data(), ph2_hits.data(), nHitsOT * sizeof(TrackingRecHit const*));
+    std::copy_n(ph2_hits.data(), nHitsOT, hits.hits().data());
 #endif
 
-    std::memcpy(hits.xs().data() + nHitsOT, trkX.data(), nHitsIT * sizeof(float));
-    std::memcpy(hits.ys().data() + nHitsOT, trkY.data(), nHitsIT * sizeof(float));
-    std::memcpy(hits.zs().data() + nHitsOT, trkZ.data(), nHitsIT * sizeof(float));
-    std::memcpy(hits.detid().data() + nHitsOT, hitId.data(), nHitsIT * sizeof(unsigned int));
-    std::memcpy(hits.clustsize().data() + nHitsOT, hitClustSize.data(), nHitsIT * sizeof(uint16_t));
+    std::copy_n(trkX.data(), nHitsIT, hits.xs().data() + nHitsOT);
+    std::copy_n(trkY.data(), nHitsIT, hits.ys().data() + nHitsOT);
+    std::copy_n(trkZ.data(), nHitsIT, hits.zs().data() + nHitsOT);
+    std::copy_n(hitId.data(), nHitsIT, hits.detid().data() + nHitsOT);
+    std::copy_n(hitClustSize.data(), nHitsIT, hits.clustsize().data() + nHitsOT);
 #ifndef LST_STANDALONE
-    std::memset(hits.hits().data() + nHitsOT, 0, nHitsIT * sizeof(TrackingRecHit const*));
+    std::fill_n(hits.hits().data() + nHitsOT, nHitsIT, nullptr);
 #endif
 
-    std::memcpy(hits.idxs().data(), hitIdxs.data(), (nHitsIT + nHitsOT) * sizeof(unsigned int));
+    std::copy_n(hitIdxs.data(), nHitsIT + nHitsOT, hits.idxs().data());
 
     auto pixelSeeds = lstInputHC.view().pixelSeeds();
-    std::memcpy(pixelSeeds.hitIndices().data(), hitIndices_vec.data(), nPixelSeeds * sizeof(Params_pLS::ArrayUxHits));
-    std::memcpy(pixelSeeds.deltaPhi().data(), deltaPhi_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.ptIn().data(), ptIn_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.ptErr().data(), ptErr_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.px().data(), px_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.py().data(), py_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.pz().data(), pz_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.etaErr().data(), etaErr_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.isQuad().data(), isQuad_vec.data(), nPixelSeeds * sizeof(char));
-    std::memcpy(pixelSeeds.eta().data(), eta_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.phi().data(), phi_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.charge().data(), charge_vec.data(), nPixelSeeds * sizeof(int));
-    std::memcpy(pixelSeeds.seedIdx().data(), seedIdx_vec.data(), nPixelSeeds * sizeof(unsigned int));
-    std::memcpy(pixelSeeds.superbin().data(), superbin_vec.data(), nPixelSeeds * sizeof(int));
-    std::memcpy(pixelSeeds.pixelType().data(), pixelType_vec.data(), nPixelSeeds * sizeof(PixelType));
+    std::copy_n(firstHit_vec.data(), nPixelSeeds, pixelSeeds.firstHit().data());
+    std::copy_n(nHits_vec.data(), nPixelSeeds, pixelSeeds.nHits().data());
+    std::copy_n(hitDetBits_vec.data(), nPixelSeeds, pixelSeeds.hitDetBits().data());
+    std::copy_n(deltaPhi_vec.data(), nPixelSeeds, pixelSeeds.deltaPhi().data());
+    std::copy_n(ptIn_vec.data(), nPixelSeeds, pixelSeeds.ptIn().data());
+    std::copy_n(ptErr_vec.data(), nPixelSeeds, pixelSeeds.ptErr().data());
+    std::copy_n(px_vec.data(), nPixelSeeds, pixelSeeds.px().data());
+    std::copy_n(py_vec.data(), nPixelSeeds, pixelSeeds.py().data());
+    std::copy_n(pz_vec.data(), nPixelSeeds, pixelSeeds.pz().data());
+    std::copy_n(etaErr_vec.data(), nPixelSeeds, pixelSeeds.etaErr().data());
+    std::copy_n(isQuad_vec.data(), nPixelSeeds, pixelSeeds.isQuad().data());
+    std::copy_n(eta_vec.data(), nPixelSeeds, pixelSeeds.eta().data());
+    std::copy_n(phi_vec.data(), nPixelSeeds, pixelSeeds.phi().data());
+    std::copy_n(charge_vec.data(), nPixelSeeds, pixelSeeds.charge().data());
+    std::copy_n(seedIdx_vec.data(), nPixelSeeds, pixelSeeds.seedIdx().data());
+    std::copy_n(superbin_vec.data(), nPixelSeeds, pixelSeeds.superbin().data());
+    std::copy_n(pixelType_vec.data(), nPixelSeeds, pixelSeeds.pixelType().data());
 
     return lstInputHC;
   }

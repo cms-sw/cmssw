@@ -39,7 +39,7 @@ Implementation:
 // class decleration
 //
 
-class dso_hidden TrackCandidateTopBottomHitFilter final : public edm::stream::EDProducer<> {
+class dso_hidden TrackCandidateTopBottomHitFilter final : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit TrackCandidateTopBottomHitFilter(const edm::ParameterSet&);
   ~TrackCandidateTopBottomHitFilter() override;

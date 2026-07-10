@@ -39,10 +39,10 @@ autoNANO = {
     'ScoutFromMini' : {'sequence': '@Scout',
                        'customize': '@Scout+PhysicsTools/NanoAOD/custom_run3scouting_cff.customiseScoutingNanoFromMini'},
     # L1Scouting nano
-    'L1Scout': {'sequence': 'PhysicsTools/NanoAOD/custom_l1scoutingrun3_cff',
-                'customize': 'PhysicsTools/NanoAOD/custom_l1scoutingrun3_cff.customiseL1ScoutingNanoAOD'},
-    'L1ScoutSelect': {'sequence': '@L1Scout',
-                      'customize': '@L1Scout+PhysicsTools/NanoAOD/custom_l1scoutingrun3_cff.customiseL1ScoutingNanoAODSelection'},
+    'L1Scout': {'sequence': 'L1TriggerScouting/NanoAOD/custom_l1scoutingrun3_cff.l1scoutingNanoSequence',
+                'customize': 'L1TriggerScouting/NanoAOD/custom_l1scoutingrun3_cff.customiseL1ScoutingNanoAOD'},
+    'L1ScoutSelect': {'sequence': 'L1TriggerScouting/NanoAOD/custom_l1scoutingrun3_cff.l1scoutingNanoSequence',
+                      'customize': 'L1TriggerScouting/NanoAOD/custom_l1scoutingrun3_cff.customiseL1ScoutingNanoAODSelection'},
     # BPH nano
     'BPH' : {'sequence': '@PHYS',
              'customize': '@PHYS+PhysicsTools/NanoAOD/custom_bph_cff.nanoAOD_customizeBPH'},
@@ -109,13 +109,24 @@ autoNANO = {
     # Custom BTV Nano for SF measurements or tagger training
     'BTV': {'sequence': '@PHYS',
             'customize': '@PHYS+PhysicsTools/NanoAOD/custom_btv_cff.BTVCustomNanoAOD'},
+    # Custom EXO Nano for EXO analyses 
+    'EXO': {'sequence': '@PHYS',
+            'customize': '@PHYS+PhysicsTools/NanoAOD/custom_exo_cff.add_exonanoTables'},
     # NANOGEN (from LHE/GEN/AOD)
     'GEN': {'sequence': 'PhysicsTools/NanoAOD/nanogen_cff.nanogenSequence',
             'customize': 'PhysicsTools/NanoAOD/nanogen_cff.customizeNanoGEN'},
     # NANOGEN (from MiniAOD)
     'GENFromMini': {'sequence': 'PhysicsTools/NanoAOD/nanogen_cff.nanogenSequence',
                     'customize': 'PhysicsTools/NanoAOD/nanogen_cff.customizeNanoGENFromMini'},
+    # NANOGEN as in same GEN content of regular NANOAODSIM
+    'GENMinimal': {'sequence': 'PhysicsTools/NanoAOD/nanogen_cff.nanogenSequence',
+            'customize': 'PhysicsTools/NanoAOD/nanogen_cff.customizeNanoGENMinimal'},
     # Tau embedding NanoAOD (includes Data as well as MC tables with an addition tau embedding table)
     'TauEmbedding': {'sequence': '@PHYS+PhysicsTools/NanoAOD/nano_cff.nanoSequenceFS+TauAnalysis/MCEmbeddingTools/Nano_cff.embeddingTable_seq',
                      'customize': '@PHYS'},
+    # Offline HGCAL NanoAOD 
+    'HGCAL': {'sequence': 'DPGAnalysis/HGCalNanoAOD/HGCalNanoAOD_cff.hgcalNanoSequence',
+              'customize': 'DPGAnalysis/HGCalNanoAOD/HGCalNanoAOD_cff.hgcalNanoCustomize'},
+    'HGCALVal': {'sequence': 'DPGAnalysis/HGCalNanoAOD/HGCalNanoAOD_cff.hgcalNanoValidationSequence',
+                 'customize': 'DPGAnalysis/HGCalNanoAOD/HGCalNanoAOD_cff.hgcalNanoCustomize'},
 }

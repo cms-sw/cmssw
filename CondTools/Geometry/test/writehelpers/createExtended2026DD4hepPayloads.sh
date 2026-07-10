@@ -34,23 +34,23 @@ cmsRun geometryExtended2026DD4hep_writer.py --tag=${mytag} || die 'failed geomet
 
 #sed -i '{s/ExtendedGeometry2026/ExtendedGeometry2026ZeroMaterial/g}' geometryExtended2026DD4hep_xmlwriter.py
 #sed -i '{s/\/ge/\/gez/g}' geometryExtended2026DD4hep_xmlwriter.py
-cmsRun geometryExtended2026DD4hep_xmlwriter.py --geom=ExtendedGeometry2026ZeroMaterial --out=gez || die 'failed geometryExtended2026DD4hep_xmlwriter.py ExtendedGeometry2026ZeroMaterial' $?
+#cmsRun geometryExtended2026DD4hep_xmlwriter.py --geom=ExtendedGeometry2026ZeroMaterial --out=gez || die 'failed geometryExtended2026DD4hep_xmlwriter.py ExtendedGeometry2026ZeroMaterial' $?
 
 #sed -i '{s/ExtendedGeometry2026ZeroMaterial/ExtendedGeometry2026FlatMinus05Percent/g}' geometryExtended2026DD4hep_xmlwriter.py
 #sed -i '{s/\/gez/\/geFM05/g}' geometryExtended2026DD4hep_xmlwriter.py
-cmsRun geometryExtended2026DD4hep_xmlwriter.py --geom=ExtendedGeometry2026FlatMinus05Percent --out=geFM05 || die 'failed geometryExtended2026DD4hep_xmlwriter.py ExtendedGeometry2026FlatMinus05Percent' $?
+#cmsRun geometryExtended2026DD4hep_xmlwriter.py --geom=ExtendedGeometry2026FlatMinus05Percent --out=geFM05 || die 'failed geometryExtended2026DD4hep_xmlwriter.py ExtendedGeometry2026FlatMinus05Percent' $?
 
 #sed -i '{s/ExtendedGeometry2026FlatMinus05Percent/ExtendedGeometry2026FlatMinus10Percent/g}' geometryExtended2026DD4hep_xmlwriter.py
 #sed -i '{s/\/geFM05/\/geFM10/g}' geometryExtended2026DD4hep_xmlwriter.py
-cmsRun geometryExtended2026DD4hep_xmlwriter.py --geom=ExtendedGeometry2026FlatMinus10Percent --out=geFM10 || die 'failed geometryExtended2026DD4hep_xmlwriter.py' $?
+#cmsRun geometryExtended2026DD4hep_xmlwriter.py --geom=ExtendedGeometry2026FlatMinus10Percent --out=geFM10 || die 'failed geometryExtended2026DD4hep_xmlwriter.py' $?
 
 #sed -i '{s/ExtendedGeometry2026FlatMinus10Percent/ExtendedGeometry2026FlatPlus05Percent/g}' geometryExtended2026DD4hep_xmlwriter.py
 #sed -i '{s/\/geFM10/\/geFP05/g}' geometryExtended2026DD4hep_xmlwriter.py
-cmsRun geometryExtended2026DD4hep_xmlwriter.py --geom=ExtendedGeometry2026FlatPlus05Percent --out=geFP05 || die 'failed geometryExtended2026DD4hep_xmlwriter.py ExtendedGeometry2026FlatPlus05Percent' $?
+#cmsRun geometryExtended2026DD4hep_xmlwriter.py --geom=ExtendedGeometry2026FlatPlus05Percent --out=geFP05 || die 'failed geometryExtended2026DD4hep_xmlwriter.py ExtendedGeometry2026FlatPlus05Percent' $?
 
 #sed -i '{s/ExtendedGeometry2026FlatPlus05Percent/ExtendedGeometry2026FlatPlus10Percent/g}' geometryExtended2026DD4hep_xmlwriter.py
 #sed -i '{s/\/geFP05/\/geFP10/g}' geometryExtended2026DD4hep_xmlwriter.py
-cmsRun geometryExtended2026DD4hep_xmlwriter.py --geom=ExtendedGeometry2026FlatPlus10Percent --out=geFP10 || die 'failed geometryExtended2026DD4hep_xmlwriter.py' $?
+#cmsRun geometryExtended2026DD4hep_xmlwriter.py --geom=ExtendedGeometry2026FlatPlus10Percent --out=geFP10 || die 'failed geometryExtended2026DD4hep_xmlwriter.py' $?
 
 # Read the one big XML file and output a record to the
 # database with the an identifying tag
@@ -63,23 +63,23 @@ cmsRun geometryExtended2026DD4hep_xmlwriter.py --geom=ExtendedGeometry2026FlatPl
 
 #sed -i '{s/Extended/Extended2026ZeroMaterial/g}' xmlgeometrywriter.py
 #sed -i '{s/\/ge/\/gez/g}' xmlgeometrywriter.py
-cmsRun xmlgeometrywriter.py --tag=${mytag} --out=Extended2026ZeroMaterial --inPre=gez|| die 'failed xmlgeometrywriter.py Extended2026ZeroMaterial' $?
+#cmsRun xmlgeometrywriter.py --tag=${mytag} --out=Extended2026ZeroMaterial --inPre=gez|| die 'failed xmlgeometrywriter.py Extended2026ZeroMaterial' $?
 
 #sed -i '{s/Extended2026ZeroMaterial/Extended2026FlatMinus05Percent/g}' xmlgeometrywriter.py
 #sed -i '{s/\/gez/\/geFM05/g}' xmlgeometrywriter.py
-cmsRun xmlgeometrywriter.py --tag=${mytag} --out=Extended2026FlatMinus05Percent --inPre=geFM05 || die 'failed xmlgeometrywriter.py Extended2026FlatMinus05Percent' $?
+#cmsRun xmlgeometrywriter.py --tag=${mytag} --out=Extended2026FlatMinus05Percent --inPre=geFM05 || die 'failed xmlgeometrywriter.py Extended2026FlatMinus05Percent' $?
 
 #sed -i '{s/Extended2026FlatMinus05Percent/Extended2026FlatMinus10Percent/g}' xmlgeometrywriter.py
 #sed -i '{s/\/geFM05/\/geFM10/g}' xmlgeometrywriter.py
-cmsRun xmlgeometrywriter.py --tag=${mytag} --out=Extended2026FlatMinus10Percent --inPre=geFM10 || die 'failed xmlgeometrywriter.py Extended2026FlatMinus10Percent' $?
+#cmsRun xmlgeometrywriter.py --tag=${mytag} --out=Extended2026FlatMinus10Percent --inPre=geFM10 || die 'failed xmlgeometrywriter.py Extended2026FlatMinus10Percent' $?
 
 #sed -i '{s/Extended2026FlatMinus10Percent/Extended2026FlatPlus05Percent/g}' xmlgeometrywriter.py
 #sed -i '{s/\/geFM10/\/geFP05/g}' xmlgeometrywriter.py
-cmsRun xmlgeometrywriter.py --tag=${mytag} --out=Extended2026FlatPlus05Percent --inPre=geFP05 || die 'failed xmlgeometrywriter.py Extended2026FlatPlus05Percent' $?
+#cmsRun xmlgeometrywriter.py --tag=${mytag} --out=Extended2026FlatPlus05Percent --inPre=geFP05 || die 'failed xmlgeometrywriter.py Extended2026FlatPlus05Percent' $?
 
 #sed -i '{s/Extended2026FlatPlus05Percent/Extended2026FlatPlus10Percent/g}' xmlgeometrywriter.py
 #sed -i '{s/\/geFP05/\/geFP10/g}' xmlgeometrywriter.py
-cmsRun xmlgeometrywriter.py --tag=${mytag} --out=Extended2026FlatPlus10Percent --inPre=geFP10 || die 'failed xmlgeometrywriter.py Extended2026FlatPlus10Percent' $?
+#cmsRun xmlgeometrywriter.py --tag=${mytag} --out=Extended2026FlatPlus10Percent --inPre=geFP10 || die 'failed xmlgeometrywriter.py Extended2026FlatPlus10Percent' $?
 
 # All the database objects were written into one database
 # (myfile.db) in the steps above.  Extract the different

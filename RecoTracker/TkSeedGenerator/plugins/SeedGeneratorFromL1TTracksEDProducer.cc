@@ -14,10 +14,10 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"

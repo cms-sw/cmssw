@@ -3,7 +3,7 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Reflection"/>
-<use name="FWCore/Catalog"/>
+<use name="FWStorage/Catalog"/>
 <use name="rootcore"/>
 <export>
   <lib name="1"/>

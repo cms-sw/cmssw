@@ -7,7 +7,7 @@
     <use name="FWCore/Utilities"/>
   </library>
 
-  <library file="DetSetVectorThingProducer.cc,PostInsertProducer.cc,PutOrMergeTestSource.cc,SlimmingDSVThingProducer.cc,TestGetByLabelAnalyzer.cc,TestGetterOfProducts.cc,TestOutputWithGetterOfProducts.cc,TestOutputWithGetterOfProductsGlobal.cc,TestOutputWithGetterOfProductsLimited.cc,ThingAlgorithm.cc,ThingAnalyzer.cc,ThingExtSource.cc,ThingProducer.cc,ThingSource.cc,ThingWithMergeProducer.cc,ThinnedRefFromTestAnalyzer.cc,ThinningDSVTestAnalyzer.cc,ThinningDSVThingProducer.cc,ThinningTestAnalyzer.cc,TrackOfDSVThingsProducer.cc,TrackOfThingsProducer.cc" name="FWCoreIntegrationTestWithThing">
+  <library file="DetSetVectorThingProducer.cc,PostInsertProducer.cc,PutOrMergeTestSource.cc,TestGetByLabelAnalyzer.cc,TestGetterOfProducts.cc,TestOutputWithGetterOfProducts.cc,TestOutputWithGetterOfProductsGlobal.cc,TestOutputWithGetterOfProductsLimited.cc,ThingAlgorithm.cc,ThingAnalyzer.cc,ThingExtSource.cc,ThingProducer.cc,ThingSource.cc,ThingWithMergeProducer.cc,TrackOfDSVThingsProducer.cc,TrackOfThingsProducer.cc" name="FWCoreIntegrationTestWithThing">
       <flags EDM_PLUGIN="1"/>
       <use name="FWCore/Framework"/>
       <use name="FWCore/Sources"/>
@@ -15,7 +15,7 @@
       <use name="DataFormats/TestObjects"/>
 </library>
 
-  <library file="ThinningThingProducer.cc,SlimmingThingProducer.cc,WhatsIt.cc,GadgetRcd.cc,Doodad.cc,WhatsItESProducer.cc,WhatsItAnalyzer.cc,WhatsItWatcherAnalyzer.cc,DoodadESProducer.cc,DoodadEDLooper.cc,DoodadESSource.cc,ConsumeWhatsIt.cc,MayConsumeWhatsIt.cc,ConsumeIOVTestInfoAnalyzer.cc" name="FWCoreIntegrationTestWithWhatsItDoodad">
+  <library file="WhatsIt.cc,GadgetRcd.cc,Doodad.cc,WhatsItESProducer.cc,WhatsItAnalyzer.cc,WhatsItWatcherAnalyzer.cc,DoodadESProducer.cc,DoodadEDLooper.cc,DoodadESSource.cc,ConsumeWhatsIt.cc,MayConsumeWhatsIt.cc,ConsumeIOVTestInfoAnalyzer.cc" name="FWCoreIntegrationTestWithWhatsItDoodad">
       <flags EDM_PLUGIN="1"/>
       <use name="FWCore/Framework"/>
       <use name="FWCore/Integration"/>
@@ -123,18 +123,6 @@
     <use name="boost"/>
   </library>
 
-  <library file="TestInterProcessRandomProd.cc,RandomIntProducer.cc" name="TestInterProcessRandomProd">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/AbstractServices"/>
-    <use name="FWCore/Framework"/>
-    <use name="FWCore/ParameterSet"/>
-    <use name="FWCore/Sources"/>
-    <use name="FWCore/SharedMemory"/>
-    <use name="FWCore/Utilities"/>
-    <use name="DataFormats/TestObjects"/>
-    <use name="boost"/>
-    <use name="clhep"/>
-  </library>
   <library file="TestServicesOnNonFrameworkThreadsAnalyzer.cc" name = "TestServicesOnNonFrameworkThreadsAnalyzer">
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/AbstractServices"/>

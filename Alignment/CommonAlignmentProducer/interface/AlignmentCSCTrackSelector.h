@@ -4,14 +4,13 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include <vector>
 
 namespace edm {
   class Event;
   class ParameterSet;
 }  // namespace edm
-
-class TrackingRecHit;
 
 class AlignmentCSCTrackSelector {
 public:

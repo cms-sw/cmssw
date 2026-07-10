@@ -34,6 +34,11 @@ namespace Phase2L1GMT {
           d0_(d0),
           beta_(beta),
           isGlobal_(false),
+          quality0_(0),
+          quality1_(0),
+          quality2_(0),
+          quality3_(0),
+          quality4_(0),
           quality_(0),
           stubID0_(4095),
           stubID1_(4095),
@@ -52,8 +57,13 @@ namespace Phase2L1GMT {
     const uint beta() const { return beta_; }
 
     bool isGlobalMuon() const { return isGlobal_; }
-    const int quality() const { return quality_; }
-    const int offline_pt() const { return offline_pt_; }
+    const uint quality0() const { return quality0_; }
+    const uint quality1() const { return quality1_; }
+    const uint quality2() const { return quality2_; }
+    const uint quality3() const { return quality3_; }
+    const uint quality4() const { return quality4_; }
+    const uint quality() const { return quality_; }
+    const float offline_pt() const { return offline_pt_; }
     const float offline_eta() const { return offline_eta_; }
     const float offline_phi() const { return offline_phi_; }
 
@@ -65,7 +75,11 @@ namespace Phase2L1GMT {
     const uint matchMask() const { return matchMask_; }
 
     bool valid() const { return valid_; }
-
+    void setQuality0(uint quality0) { quality0_ = quality0; }
+    void setQuality1(uint quality1) { quality1_ = quality1; }
+    void setQuality2(uint quality2) { quality2_ = quality2; }
+    void setQuality3(uint quality3) { quality3_ = quality3; }
+    void setQuality4(uint quality4) { quality4_ = quality4; }
     void setQuality(uint quality) { quality_ = quality; }
     void setValid(bool v) { valid_ = v; }
 
@@ -80,39 +94,39 @@ namespace Phase2L1GMT {
     void resetGlobal() { isGlobal_ = false; }
 
     const l1t::SAMuonRefVector& muonRef() const { return muRef_; }
-    void addStub(const l1t::MuonStubRef& stub, uint mask) {
+    void addStub(const l1t::MuonStubRef& stub, uint mask, uint quality) {
       stubs_.push_back(stub);
       if (stub->tfLayer() == 0) {
         stubID0_ = stub->address();
         matchMask_ = matchMask_ | (mask);
+        quality0_ = quality;
       } else if (stub->tfLayer() == 1) {
         stubID1_ = stub->address();
         matchMask_ = matchMask_ | (mask << 2);
+        quality1_ = quality;
       } else if (stub->tfLayer() == 2) {
         stubID2_ = stub->address();
         matchMask_ = matchMask_ | (mask << 4);
+        quality2_ = quality;
       } else if (stub->tfLayer() == 3) {
         stubID3_ = stub->address();
         matchMask_ = matchMask_ | (mask << 6);
+        quality3_ = quality;
       } else if (stub->tfLayer() == 4) {
         stubID4_ = stub->address();
         matchMask_ = matchMask_ | (mask << 8);
+        quality4_ = quality;
       }
     }
 
+    void setCleanMask(const uint cleanMask) { cleanMask_ = cleanMask; }
+    const uint cleanMask() const { return cleanMask_; }
+
     const l1t::MuonStubRefVector& stubs() const { return stubs_; }
 
-    void setTrkPtr(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> >& trkPtr) { trkPtr_ = trkPtr; }
+    void setTrkPtr(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>& trkPtr) { trkPtr_ = trkPtr; }
 
-    const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > trkPtr() const { return trkPtr_; }
-
-    void print() const {
-      LogDebug("PreTrackMatchedMuon") << "preconstructed muon : charge=" << charge_ << " pt=" << offline_pt_ << ","
-                                      << pt_ << " eta=" << offline_eta_ << "," << eta_ << " phi=" << offline_phi_ << ","
-                                      << phi_ << " z0=" << z0_ << " d0=" << d0_ << " quality=" << quality_
-                                      << " isGlobal=" << isGlobal_ << " valid=" << valid_ << " stubs: " << stubID0_
-                                      << " " << stubID1_ << " " << stubID2_ << " " << stubID3_ << " " << stubID4_;
-    }
+    const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> trkPtr() const { return trkPtr_; }
 
     uint64_t lsb() const {
       wordtype w = 0;
@@ -142,11 +156,92 @@ namespace Phase2L1GMT {
       return w2.to_int();
     }
 
-    void printWord() const {
-      LogDebug("PreTrackMatchedMuon") << "PreTrackMatchedMuon : word=" << std::setfill('0') << std::setw(16) << std::hex
-                                      << (long long unsigned int)(msb() >> 2) << std::setfill('0') << std::setw(16)
-                                      << std::hex
-                                      << (long long unsigned int)((lsb() | (msb() << 62)) & 0xffffffffffffffff);
+    const ap_uint<182> word() const {
+      ap_uint<182> w = 0;
+      int bstart = 0;
+      bstart = wordconcat<ap_uint<182>>(w, bstart, valid_, 1);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, charge_, 1);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, pt_, BITSPT);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, phi_, BITSPHI);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, eta_, BITSETA);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, z0_, BITSZ0);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, d0_, BITSD0);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, isGlobal_, 1);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, beta_, BITSMUONBETA);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, quality0_, BITSMATCHQUALITY - 2);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, stubID0_, BITSSTUBID);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, ((matchMask_) & 0b11), 2);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, quality1_, BITSMATCHQUALITY - 2);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, stubID1_, BITSSTUBID);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, ((matchMask_ >> 2) & 0b11), 2);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, quality2_, BITSMATCHQUALITY - 2);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, stubID2_, BITSSTUBID);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, ((matchMask_ >> 4) & 0b11), 2);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, quality3_, BITSMATCHQUALITY - 2);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, stubID3_, BITSSTUBID);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, ((matchMask_ >> 6) & 0b11), 2);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, quality4_, BITSMATCHQUALITY - 2);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, stubID4_, BITSSTUBID);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, ((matchMask_ >> 8) & 0b11), 2);
+      bstart = wordconcat<ap_uint<182>>(w, bstart, quality_, BITSMATCHQUALITY);
+
+      return w;
+    }
+
+    void print(std::string module = "PreTrackMatchedMuon", uint spaces = 0, bool label = true) const {
+      std::string lab = "";
+      lab.append(spaces, ' ');
+      if (label)
+        lab.append("TPS premuon:    ");
+      std::string chargeSign = (charge_ == 0) ? "+1" : "-1";
+      edm::LogInfo(module) << lab << "charge = " << chargeSign << " (" << charge_ << ")"
+                           << ",    "
+                           << "pt = " << offline_pt_ << " (" << pt_ << ")"
+                           << ",    "
+                           << "phi = " << offline_phi_ << " (" << phi_ << ")"
+                           << ",    "
+                           << "eta = " << offline_eta_ << " (" << eta_ << ")"
+                           << ","
+                           << "\n"
+                           << std::setfill(' ') << std::setw(lab.length()) << " "
+                           << "z0 = " << z0_ << ",    "
+                           << "d0 = " << d0_ << ",    "
+                           << "isGlobal = " << isGlobal_ << ",    "
+                           << "beta = " << beta_ << ","
+                           << "\n"
+                           << std::setfill(' ') << std::setw(lab.length()) << " "
+                           << "stubID0 = " << stubID0_ << ",    "
+                           << "stubID1 = " << stubID1_ << ",    "
+                           << "stubID2 = " << stubID2_ << ",    "
+                           << "stubID3 = " << stubID3_ << ",    "
+                           << "stubID4 = " << stubID4_ << ","
+                           << "\n"
+                           << std::setfill(' ') << std::setw(lab.length()) << " "
+                           << "quality = " << quality_ << ",    "
+                           << "quality0 = " << quality0_ << ",    "
+                           << "quality1 = " << quality1_ << ",    "
+                           << "quality2 = " << quality2_ << ",    "
+                           << "quality3 = " << quality3_ << ",    "
+                           << "quality4 = " << quality4_ << "\n"
+                           << std::setfill(' ') << std::setw(spaces + 4) << " "
+                           << "Stubs: " << std::flush;
+      for (const auto& stub : stubs_) {
+        stub->printHybridStub(module, spaces + 8, false);
+        stub->printHybridStubWord(module, spaces + 12, true);
+      }
+    }
+
+    void printWord(std::string module = "PreTrackMatchedMuon", uint spaces = 0, bool label = true) const {
+      std::string lab = "";
+      lab.append(spaces, ' ');
+      if (label)
+        lab.append("TPS premuon word = ");
+      ap_uint<182> w = word();
+      edm::LogInfo(module) << lab << std::setfill('0') << std::setw(14) << std::hex
+                           << (long long unsigned int)((w >> 128).to_uint64()) << std::setfill('0') << std::setw(16)
+                           << std::hex << (long long unsigned int)((w >> 64).to_uint64()) << std::setfill('0')
+                           << std::setw(16) << std::hex
+                           << (long long unsigned int)((w & 0xffffffffffffffff).to_uint64()) << std::flush;
     }
 
   private:
@@ -158,6 +253,11 @@ namespace Phase2L1GMT {
     int d0_;
     uint beta_;
     bool isGlobal_;
+    uint quality0_;  //qualities of the matches in the individual tf layers
+    uint quality1_;
+    uint quality2_;
+    uint quality3_;
+    uint quality4_;
     uint quality_;
     float offline_pt_;
     float offline_eta_;
@@ -168,11 +268,12 @@ namespace Phase2L1GMT {
     uint stubID3_;
     uint stubID4_;
     uint matchMask_;
+    uint cleanMask_;
 
     bool valid_;
     l1t::MuonStubRefVector stubs_;
     l1t::SAMuonRefVector muRef_;
-    edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> > trkPtr_;
+    edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> trkPtr_;
   };
 }  // namespace Phase2L1GMT
 

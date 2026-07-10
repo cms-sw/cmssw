@@ -30,9 +30,6 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtPhiThetaPair.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtPhiThetaPairContainer.h"
 
-#include <fstream>
-#include <iostream>
-#include <queue>
 #include <cmath>
 
 // Plugin which takes Phi and Theta DT Phase2 digi Extended collections(*) and
@@ -43,9 +40,6 @@
 // and counterpart in pair is set to default values of the constructor digi class
 //
 // (*) Requires df_extended>0 in L1Trigger/DTTriggerPhase2/plugins/DTTrigPhase2Prod.cc
-
-using namespace std;
-using namespace cmsdt;
 
 namespace {
   struct {
@@ -110,14 +104,8 @@ public:
   //! Destructor
   ~DTTrigPhase2PairsProd() override;
 
-  //! Create Trigger Units before starting event processing
-  void beginRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
-
   //! Producer: process every event and generates trigger data
   void produce(edm::Event& iEvent, const edm::EventSetup& iEventSetup) override;
-
-  //! endRun: finish things
-  void endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
 
   // Methods
   std::vector<L1Phase2MuDTExtPhiThetaPair> bestPairsPerChamber(const std::vector<L1Phase2MuDTExtPhDigi>& phiDigis,
@@ -159,11 +147,11 @@ DTTrigPhase2PairsProd::DTTrigPhase2PairsProd(const edm::ParameterSet& pset) {
   digiThToken_ = consumes<L1Phase2MuDTExtThContainer>(pset.getParameter<edm::InputTag>("digiThTag"));
 
   double temp_shift = 0;
-  if (scenario_ == MC)
+  if (scenario_ == cmsdt::MC)
     temp_shift = 400;  // value used in standard CMSSW simulation
-  else if (scenario_ == DATA)
+  else if (scenario_ == cmsdt::DATA)
     temp_shift = 0;
-  else if (scenario_ == SLICE_TEST)
+  else if (scenario_ == cmsdt::SLICE_TEST)
     temp_shift = 400;  // slice test mimics simulation
 
   shift_back = temp_shift;
@@ -172,11 +160,6 @@ DTTrigPhase2PairsProd::DTTrigPhase2PairsProd(const edm::ParameterSet& pset) {
 DTTrigPhase2PairsProd::~DTTrigPhase2PairsProd() {
   if (debug_)
     LogDebug("DTTrigPhase2PairsProd") << "calling destructor" << std::endl;
-}
-
-void DTTrigPhase2PairsProd::beginRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) {
-  if (debug_)
-    LogDebug("DTTrigPhase2PairsProd") << "beginRun " << iRun.id().run();
 }
 
 void DTTrigPhase2PairsProd::produce(edm::Event& iEvent, const edm::EventSetup& iEventSetup) {
@@ -271,8 +254,6 @@ void DTTrigPhase2PairsProd::produce(edm::Event& iEvent, const edm::EventSetup& i
   allPairs.erase(allPairs.begin(), allPairs.end());
 }
 
-void DTTrigPhase2PairsProd::endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) {};
-
 void DTTrigPhase2PairsProd::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // dtTriggerPhase2PrimitivePairDigis
   edm::ParameterSetDescription desc;
@@ -317,7 +298,7 @@ std::vector<L1Phase2MuDTExtPhiThetaPair> DTTrigPhase2PairsProd::bestPairsPerCham
   else {  // phi and theta digis in chamber
 
     for (const auto& phi : phiDigis) {
-      float closestDistance = numeric_limits<float>::infinity();
+      float closestDistance = std::numeric_limits<float>::infinity();
       const L1Phase2MuDTExtThDigi* closestTheta = nullptr;
 
       for (const auto& theta : thetaDigis) {
@@ -344,17 +325,17 @@ std::vector<L1Phase2MuDTExtPhiThetaPair> DTTrigPhase2PairsProd::bestPairsPerCham
 
 float DTTrigPhase2PairsProd::computeTimePosDistance(
     const L1Phase2MuDTExtPhDigi& phiDigi, const L1Phase2MuDTExtThDigi& thetaDigi, int sector, int wheel, int station) {
-  float t01 = ((int)round(thetaDigi.t0() / (float)LHC_CLK_FREQ)) - shift_back;
-  float posRefZ = zFE[wheel + 2];
+  float t01 = ((int)round(thetaDigi.t0() / (float)cmsdt::LHC_CLK_FREQ)) - shift_back;
+  float posRefZ = cmsdt::zFE[wheel + 2];
 
   if (wheel == 0 && (sector == 1 || sector == 4 || sector == 5 || sector == 8 || sector == 9 || sector == 12))
     posRefZ = -posRefZ;
 
   float posZ = abs(thetaDigi.z());
 
-  float t02 = ((int)round(phiDigi.t0() / (float)LHC_CLK_FREQ)) - shift_back;
+  float t02 = ((int)round(phiDigi.t0() / (float)cmsdt::LHC_CLK_FREQ)) - shift_back;
 
-  float tphi = t02 - abs(posZ / ZRES_CONV - posRefZ) / vwire;
+  float tphi = t02 - abs(posZ / cmsdt::ZRES_CONV - posRefZ) / cmsdt::vwire;
 
   int LR = -1;
   if (wheel == 0 && (sector == 3 || sector == 4 || sector == 7 || sector == 8 || sector == 11 || sector == 12))
@@ -364,8 +345,8 @@ float DTTrigPhase2PairsProd::computeTimePosDistance(
   else if (wheel < 0)
     LR = pow(-1, -wheel + sector);
 
-  float posRefX = LR * xFE[station - 1];
-  float ttheta = t01 - (phiDigi.xLocal() / 1000 - posRefX) / vwire;
+  float posRefX = LR * cmsdt::xFE[station - 1];
+  float ttheta = t01 - (phiDigi.xLocal() / 1000 - posRefX) / cmsdt::vwire;
 
   return abs(tphi - ttheta);
 }

@@ -117,7 +117,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               if (synchronize) {
                 alpaka::wait(deviceRecord.queue());
               } else {
-                enqueueCallback(deviceRecord.queue(), std::move(holder));
+                asyncWait(deviceRecord.queue(), std::move(holder));
               }
               // The Queue is returned to the QueueCache. The same
               // Queue may be used for other work before the work
@@ -154,7 +154,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           label);
     }
 
-    static void enqueueCallback(Queue& queue, edm::WaitingTaskWithArenaHolder holder);
+    static void asyncWait(Queue& queue, edm::WaitingTaskWithArenaHolder holder);
     static void throwSomeNullException();
 
     std::string const moduleLabel_;

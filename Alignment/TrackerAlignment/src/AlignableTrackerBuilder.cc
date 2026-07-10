@@ -4,8 +4,8 @@
 //         Created:  Thu, 13 Jan 2016 10:22:57 CET
 
 // geometry
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GluedGeomDet.h"
 #include "Geometry/CommonTopologies/interface/StackGeomDet.h"
 
 // alignment

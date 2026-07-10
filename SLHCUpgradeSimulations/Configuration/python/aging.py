@@ -262,7 +262,9 @@ def ageMTD(process,lumi):
             "time_over_thr1": [1.3e9, 9.58676, -2.51351e-10, 5.98501e-18, -3.326821e-27, -7.61576e-10, 13.21],
             "slew_rate": [1.3e9, -0.8, 8.7e-9, 11.1],
             "pulse_q": [-43.5, 0.0793],
-            "hit_time_res": "0.143789*pow(x,-1.09324)+0.0166063"
+            "hit_time_res": "0.143789*pow(x,-1.09324)+0.0166063",
+            "sipm_saturation": [-9.80E-06, 1.007],
+            "time_walk_corr":"2.40863*pow(x,-0.583148)+0.0545682"
         },
         3000: {
             "light_output": 1004.,
@@ -277,7 +279,9 @@ def ageMTD(process,lumi):
             "time_over_thr1": [1.3e9, 9.58676, -2.51351e-10, 5.98501e-18, -3.326821e-27, -7.61576e-10, 13.21],
             "slew_rate": [1.3e9, -0.8, 8.7e-9, 11.1],
             "pulse_q": [-34.3, 0.085],
-            "hit_time_res": "0.2567*pow(x,-1.10973)+0.0165099"
+            "hit_time_res": "0.2567*pow(x,-1.10973)+0.0165099",
+            "sipm_saturation": [-1.04E-05, 1.008],
+            "time_walk_corr":"3.42178*pow(x,-0.57758)+0.0448797"
         },
     }
 
@@ -286,7 +290,7 @@ def ageMTD(process,lumi):
             process.mix.digitizers.fastTimingLayer.barrelDigitizer.DeviceSimulation.LightOutput = cms.double(mtd_parameters[lumi]["light_output"])
             process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.LightOutput = cms.double(mtd_parameters[lumi]["light_output"])
             process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.PulseT2Threshold = cms.double(mtd_parameters[lumi]["pulse_t2_threshold"])
-            process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.PulseEThrershold = cms.double(mtd_parameters[lumi]["pulse_e_threshold"])
+            process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.PulseEThreshold = cms.double(mtd_parameters[lumi]["pulse_e_threshold"])
             process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.DarkCountRate  = cms.double(mtd_parameters[lumi]["dark_count_rate"])
             process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.SiPMGain = cms.double(mtd_parameters[lumi]["sipm_gain"])
             process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.PulseTbranchAParam = cms.vdouble(mtd_parameters[lumi]["pulse_tbranch_a"])
@@ -296,12 +300,13 @@ def ageMTD(process,lumi):
             process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.TimeOverThr1Param = cms.vdouble(mtd_parameters[lumi]["time_over_thr1"])
             process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.SlewRateParam = cms.vdouble(mtd_parameters[lumi]["slew_rate"])
             process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.PulseQParam = cms.vdouble(mtd_parameters[lumi]["pulse_q"])
+            process.mix.digitizers.fastTimingLayer.barrelDigitizer.ElectronicsSimulation.SiPMSaturationParam = cms.vdouble(mtd_parameters[lumi]["sipm_saturation"])
         # --- This is for the workflows with premixing:
         if hasattr(process,'mixData') and hasattr(process.mixData,'workers') and hasattr(process.mixData.workers,'mtdBarrel'):
             process.mixData.workers.mtdBarrel.DeviceSimulation.LightOutput = cms.double(mtd_parameters[lumi]["light_output"])
             process.mixData.workers.mtdBarrel.ElectronicsSimulation.LightOutput = cms.double(mtd_parameters[lumi]["light_output"])
             process.mixData.workers.mtdBarrel.ElectronicsSimulation.PulseT2Threshold = cms.double(mtd_parameters[lumi]["pulse_t2_threshold"])
-            process.mixData.workers.mtdBarrel.ElectronicsSimulation.PulseEThrershold = cms.double(mtd_parameters[lumi]["pulse_e_threshold"])
+            process.mixData.workers.mtdBarrel.ElectronicsSimulation.PulseEThreshold = cms.double(mtd_parameters[lumi]["pulse_e_threshold"])
             process.mixData.workers.mtdBarrel.ElectronicsSimulation.DarkCountRate  = cms.double(mtd_parameters[lumi]["dark_count_rate"])
             process.mixData.workers.mtdBarrel.ElectronicsSimulation.SiPMGain = cms.double(mtd_parameters[lumi]["sipm_gain"])
             process.mixData.workers.mtdBarrel.ElectronicsSimulation.PulseTbranchAParam = cms.vdouble(mtd_parameters[lumi]["pulse_tbranch_a"])
@@ -311,20 +316,13 @@ def ageMTD(process,lumi):
             process.mixData.workers.mtdBarrel.ElectronicsSimulation.TimeOverThr1Param = cms.vdouble(mtd_parameters[lumi]["time_over_thr1"])
             process.mixData.workers.mtdBarrel.ElectronicsSimulation.SlewRateParam = cms.vdouble(mtd_parameters[lumi]["slew_rate"])
             process.mixData.workers.mtdBarrel.ElectronicsSimulation.PulseQParam = cms.vdouble(mtd_parameters[lumi]["pulse_q"])
+            process.mixData.workers.mtdBarrel.ElectronicsSimulation.SiPMSaturationParam = cms.vdouble(mtd_parameters[lumi]["sipm_saturation"])
         # --- This is for the uncalibrated RecHit reconstruction:
         if hasattr(process,'mtdUncalibratedRecHits') and hasattr(process.mtdUncalibratedRecHits,'barrel'):
             process.mtdUncalibratedRecHits.barrel.npePerMeV = cms.double(mtd_parameters[lumi]["light_output"])
             process.mtdUncalibratedRecHits.barrel.npeToADC = cms.vdouble(mtd_parameters[lumi]["pulse_q"])
             process.mtdUncalibratedRecHits.barrel.timeResolutionInNs = cms.string(mtd_parameters[lumi]["hit_time_res"])
-            process.mtdUncalibratedRecHits.barrel.timeWalkCorrection = cms.string(
-                "{}/{}*pow({}/{}*(x-{}),{})".format( mtd_parameters[lumi]["time_at_thr1rise"][0],
-                                                     0.020, # [ns], TDC LSB
-                                                     mtd_parameters[lumi]["sipm_gain"],
-                                                     mtd_parameters[lumi]["pulse_q"][1],
-                                                     mtd_parameters[lumi]["pulse_q"][0],
-                                                     mtd_parameters[lumi]["time_at_thr1rise"][1]
-                )
-            )
+            process.mtdUncalibratedRecHits.barrel.timeWalkCorrection = cms.string(mtd_parameters[lumi]["time_walk_corr"])
 
     return process
 

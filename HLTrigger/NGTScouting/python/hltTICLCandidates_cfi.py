@@ -1,14 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.nano_cff import nanoMetadata
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
 
 hltUpgradeNanoTask = cms.Task(nanoMetadata)
 
 hltTiclCandidateTable = cms.EDProducer(
     "TICLCandidateTableProducer",
     skipNonExistingSrc=cms.bool(True),
-    src=cms.InputTag("hltTiclTrackstersMerge"),
+    src=cms.InputTag("hltTiclCandidate"),
     cut=cms.string(""),
     name=cms.string("hltTICLCandidates"),
     doc=cms.string("TICLCandidates"),
@@ -97,16 +96,21 @@ hltSimTiclCandidateTable = cms.EDProducer(
 )
 hltTiclCandidateExtraTable = cms.EDProducer(
     "TICLCandidateExtraTableProducer",
-    src = cms.InputTag("hltTiclTrackstersMerge"),
-    name = cms.string("Candidate2Tracksters"),
+    src = cms.InputTag("hltTiclCandidate"),
+    name = cms.string("hltTICLCandidates"),
+    skipNonExistingSrc = cms.bool(True),
     doc = cms.string("TICLCandidates extra table with linked Tracksters"),
+    tracksters = cms.InputTag("hltTiclTrackstersCLUE3DHigh"),
+    tracks = cms.InputTag("hltGeneralTracks"),
+    detector = cms.string("HGCAL"),
+    propagator = cms.string("PropagatorWithMaterial"),
     collectionVariables = cms.PSet(
         tracksters = cms.PSet(
-            name = cms.string("Candidate2TrackstersIndices"),
-            doc = cms.string("Tracksters linked to TICLCandidates"),
+            name = cms.string("hltTICLCandidatesExtra"),
+            doc = cms.string("Tracksters linked to TICLCandidates with track boundary information"),
             useCount = cms.bool(True),
             useOffset = cms.bool(False),
-            variables = cms.PSet() 
+            variables = cms.PSet()
         ),
     ),
 )
@@ -114,18 +118,22 @@ hltTiclCandidateExtraTable = cms.EDProducer(
 hltSimTiclCandidateExtraTable = cms.EDProducer(
     "TICLCandidateExtraTableProducer",
     src = cms.InputTag("hltTiclSimTracksters"),
-    name = cms.string("SimCandidate2Tracksters"),
+    name = cms.string("hltSimTICLCandidates"),
+    skipNonExistingSrc = cms.bool(True),
     doc = cms.string("TICLCandidates extra table with linked Tracksters"),
+    tracksters = cms.InputTag("hltTiclSimTracksters"),
+    tracks = cms.InputTag("hltGeneralTracks"),
+    detector = cms.string("HGCAL"),
+    propagator = cms.string("PropagatorWithMaterial"),
     collectionVariables = cms.PSet(
         tracksters = cms.PSet(
-            name = cms.string("SimCandidate2TrackstersIndices"),
-            doc = cms.string("Tracksters linked to SimTICLCandidates"),
+            name = cms.string("hltSimTICLCandidatesExtra"),
+            doc = cms.string("Tracksters linked to SimTICLCandidates with track boundary information"),
             useCount = cms.bool(True),
             useOffset = cms.bool(False),
-            variables = cms.PSet() 
+            variables = cms.PSet()
         ),
     ),
 )
 
-ticl_v5.toModify(hltTiclCandidateTable, src = cms.InputTag('hltTiclCandidate'))
-ticl_v5.toModify(hltTiclCandidateExtraTable, src = cms.InputTag('hltTiclCandidate'))
+

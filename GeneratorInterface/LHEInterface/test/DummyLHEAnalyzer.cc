@@ -15,7 +15,7 @@ using namespace std;
 using namespace edm;
 using namespace lhef;
 
-class DummyLHEAnalyzer : public edm::stream::EDAnalyzer<> {
+class DummyLHEAnalyzer : public edm::stream::EDAnalyzer<edm::stream::WatchRuns> {
 private:
   bool dumpEvent_;
   bool dumpHeader_;
@@ -71,6 +71,7 @@ private:
     }
   }
 
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
   void endRun(edm::Run const& iRun, edm::EventSetup const& es) override {
     Handle<LHERunInfoProduct> run;
     //iRun.getByLabel( src_, run );

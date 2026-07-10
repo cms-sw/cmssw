@@ -3,10 +3,9 @@
 
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedFwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-class TrajectorySeed;
 
 /** The component of track reconstruction that, strating from a seed,
  *  reconstructs all possible trajectories.

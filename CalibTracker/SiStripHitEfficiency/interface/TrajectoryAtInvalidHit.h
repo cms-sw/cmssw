@@ -9,11 +9,11 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
 class Topology;
-class TrackingRecHit;
 class StripTopology;
 class PixelTopology;
 class TrackerTopology;

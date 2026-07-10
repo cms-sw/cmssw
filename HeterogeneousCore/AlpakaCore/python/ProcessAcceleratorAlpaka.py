@@ -62,10 +62,10 @@ class ProcessAcceleratorAlpaka(cms.ProcessAccelerator):
     accelerators that the concrete ProcessAccelerators (like
     ProcessAcceleratorCUDA) define.
     """
-    def __init__(self):
+    def __init__(self, backend = None, synchronize = False):
         super(ProcessAcceleratorAlpaka, self).__init__()
-        self._backend = None
-        self._synchronize = False
+        self._backend = backend
+        self._synchronize = synchronize
 
     # User-facing interface
     def setBackend(self, backend):
@@ -73,6 +73,15 @@ class ProcessAcceleratorAlpaka(cms.ProcessAccelerator):
 
     def setSynchronize(self, synchronize):
         self._synchronize = synchronize
+
+    # Include the ProcessAcceleratorAlpaka configuration in the python dumps
+    def dumpPythonImpl(self, options) -> str:
+        args = []
+        if self._backend is not None:
+            args.append(options.indentation() + f"backend = '{self._backend}'")
+        if self._synchronize != False:
+            args.append(options.indentation() + f"synchronize = {self._synchronize}")
+        return ',\n'.join(args)
 
     # Framework-facing interface
     def moduleTypeResolver(self, accelerators):

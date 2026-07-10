@@ -19,17 +19,21 @@ hltJetMETmonitoring = jetMonitoring.clone(
                 xmin  = 0.,
                 xmax  = 900),
     ),
-    jetSrc = 'ak4PFJets', # ak4PFJets, ak4PFJetsCHS
-    ptcut = 20.,
+    jetSrc = 'ak4PFJetsPuppi', 
+    ptcut = 30.,
     ispfjettrg = True, # is PFJet Trigger ?
     iscalojettrg = False, # is CaloJet Trigger ?
+    isscoutingpfjettrg = False, # is ScoutingPFJet Trigger ?
+    doVariablebinning = False,
+    JetIDQuality = 'TIGHT',
+    JetIDVersion = 'RUN3Scouting',  #maybe put a pfpuppi version, but need to define it in the relevant if above
 
     numGenericTriggerEventPSet = dict(
         andOr         =  False,
         dbLabel       = "JetMETDQMTrigger", # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !
         andOrHlt      = True, # True:=OR; False:=AND
         hltInputTag   =  "TriggerResults::HLT",
-        hltPaths      = ["HLT_PFJet450_v*"], # HLT_ZeroBias_v*
+        hltPaths      = ["HLT_PFJet450_v*"], 
         errorReplyHlt = False,
         verbosityLevel = 1),
 
@@ -40,7 +44,8 @@ hltJetMETmonitoring = jetMonitoring.clone(
         dcsPartitions = [ 24, 25, 26, 27, 28, 29], # 24-27: strip, 28-29: pixel, we should add all other detectors !
         andOrDcs      = False,
         errorReplyDcs =  True,
-        verbosityLevel = 1)
+        verbosityLevel = 1,
+        hltPaths      = []) 
 )
 
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
