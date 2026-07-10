@@ -417,7 +417,6 @@ def main() -> None:
     write_csv(all_rows, csv_path)
 
     print(f"Parsed {len(all_rows)} total QUERY_LOG row(s)")
-    print(f"Wrote consolidated CSV file: {csv_path}")
 
 
 if __name__ == "__main__":
