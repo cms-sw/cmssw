@@ -30,6 +30,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "makeFindersForRecords.h"
 
 namespace edm {
   namespace eventsetup {
@@ -69,11 +70,12 @@ namespace edm {
     void EventSetupsController::finishConfiguration() {
       if (mustFinishConfiguration_) {
         numberOfConcurrentIOVs_.fillRecordsNotAllowingConcurrentIOVs(*provider_);
-        provider_->finishConfiguration(numberOfConcurrentIOVs_);
+        auto finders = provider_->finishConfiguration(numberOfConcurrentIOVs_);
         provider_->clearInitializationData();
         provider_->updateLookup();
 
-        initializeEventSetupRecordIOVQueues();
+        auto findersForRecords = impl::makeFindersForRecords(provider_->keys(), finders);
+        initializeEventSetupRecordIOVQueues(findersForRecords);
         numberOfConcurrentIOVs_.clear();
         mustFinishConfiguration_ = false;
       }
@@ -116,7 +118,7 @@ namespace edm {
       eventSetupImpl.reset();
 
       for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
-        if( eventSetupRecordIOVQueue->setValidityIntervalFor(syncValue) ) {
+        if (eventSetupRecordIOVQueue->setValidityIntervalFor(syncValue)) {
           newEventSetupImpl = true;
         }
       }
@@ -134,7 +136,9 @@ namespace edm {
       }
     }
 
-    void EventSetupsController::initializeEventSetupRecordIOVQueues() {
+    void EventSetupsController::initializeEventSetupRecordIOVQueues(
+        std::map<edm::eventsetup::EventSetupRecordKey, std::shared_ptr<edm::EventSetupRecordIntervalFinder>> const&
+            iKeyToFinders) {
       std::set<EventSetupRecordKey> keys = provider_->keys();
 
       for (auto const& key : keys) {
@@ -144,6 +148,10 @@ namespace edm {
         EventSetupRecordProvider* recProvider = provider_->tryToGetRecordProvider(key);
         if (recProvider) {
           iovQueue.addRecProvider(recProvider);
+        }
+        auto finderIt = iKeyToFinders.find(key);
+        if (finderIt != iKeyToFinders.end()) {
+          iovQueue.setFinder(finderIt->second);
         }
       }
     }

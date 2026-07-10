@@ -233,7 +233,7 @@ namespace edm {
       }
     }
 
-    void EventSetupProvider::finishConfiguration(NumberOfConcurrentIOVs const& numberOfConcurrentIOVs) {
+    std::vector<std::shared_ptr<EventSetupRecordIntervalFinder>> EventSetupProvider::finishConfiguration(NumberOfConcurrentIOVs const& numberOfConcurrentIOVs) {
       //we delayed adding finders to the system till here so that everything would be loaded first
       for (auto& finder : *finders_) {
         const std::set<EventSetupRecordKey> recordsUsing = finder->findingForRecords();
@@ -248,10 +248,10 @@ namespace edm {
             insert(key, std::make_unique<EventSetupRecordProvider>(key, activityRegistry_, nConcurrentIOVs));
             recProvider = tryToGetRecordProvider(key);
           }
-          recProvider->addFinder(finder);
         }
       }
       //we've transfered our ownership so this is no longer needed
+      auto finders = std::move(*finders_);
       finders_.reset();
 
       //Now handle providers since sources can also be finders and the sources can delay registering
@@ -279,7 +279,6 @@ namespace edm {
 
       determinePreferred();
 
-      std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordIntervalFinder>> keyToFinders;
       for (auto& itRecordProvider : recordProviders_) {
         const EventSetupRecordProvider::DataToPreferredProviderMap* preferredInfo = &kEmptyMap;
         RecordToPreferred::const_iterator itRecordFound = recordToPreferred_->find(itRecordProvider->key());
@@ -288,14 +287,10 @@ namespace edm {
         }
         //Give it our list of preferred
         itRecordProvider->usePreferred(*preferredInfo);
-        keyToFinders.insert(std::make_pair(itRecordProvider->key(), itRecordProvider->finalizeFinder()));
-      }
-      //For each Provider, find all the Providers it depends on.
-      for (auto& itRecordProvider : recordProviders_) {
-        itRecordProvider->setSupportingFinders(keyToFinders);
       }
 
       dataProviders_.reset();
+      return finders;
     }
 
     using Itr = RecordProviders::iterator;

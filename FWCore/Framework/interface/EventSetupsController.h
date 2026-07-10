@@ -20,6 +20,7 @@
 
 #include <memory>
 #include <vector>
+#include <map>
 
 #include "oneapi/tbb/task_group.h"
 
@@ -37,6 +38,7 @@ namespace edm {
   class ServiceToken;
   class WaitingTaskHolder;
   class WaitingTaskList;
+  class EventSetupRecordIntervalFinder;
 
   namespace eventsetup {
 
@@ -95,7 +97,7 @@ namespace edm {
       void resetRecordPlusDependentRecords(EventSetupRecordKey const& recordKey);
 
     private:
-      void initializeEventSetupRecordIOVQueues();
+      void initializeEventSetupRecordIOVQueues(std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordIntervalFinder>> const& iKeyToFinders);
 
       // ---------- member data --------------------------------
       propagate_const<std::shared_ptr<EventSetupProvider>> provider_;

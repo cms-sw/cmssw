@@ -707,7 +707,6 @@ TEST_CASE("EventSetupRecord", "[Framework][EventSetup]") {
     //this causes the resolvers to actually be placed in the Record
     edm::eventsetup::EventSetupRecordProvider::DataToPreferredProviderMap pref;
     dummyProvider->usePreferred(pref);
-    dummyProvider->finalizeFinder();
 
     edm::ESHandle<Dummy> hDummy = dummyRecord.getHandle(token);
 
@@ -765,7 +764,6 @@ TEST_CASE("EventSetupRecord", "[Framework][EventSetup]") {
     //this causes the resolvers to actually be placed in the Record
     edm::eventsetup::EventSetupRecordProvider::DataToPreferredProviderMap pref;
     dummyProvider->usePreferred(pref);
-    dummyProvider->finalizeFinder();
 
     //do a transient access to see if it clears properly
     edm::ESTransientHandle<Dummy> hTDummy;

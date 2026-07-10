@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/SupportingRecordIntervalFinderHelper.h"
 #include "FWCore/Framework/src/SynchronousEventSetupsController.h"
+#include "FWCore/Framework/src/makeFindersForRecords.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
 #include "FWCore/Framework/test/print_eventsetup_record_dependencies.h"
 #include "FWCore/Framework/interface/ESModuleProducesInfo.h"
@@ -262,18 +263,16 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
   }
 
   SECTION("dependentFinder1Test") {
-    auto dummyProvider = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
     const edm::EventID eID_1(1, 1, 1);
     const edm::IOVSyncValue sync_1(eID_1);
     const edm::EventID eID_3(1, 1, 3);
     const edm::ValidityInterval definedInterval(sync_1, edm::IOVSyncValue(eID_3));
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(definedInterval);
-    dummyProvider->addFinder(dummyFinder);
 
     const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
     DependentRecordIntervalFinder finder(depRecordKey);
-    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyProvider->key(), dummyProvider->finder()));
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(DummyRecord::keyForClass(), dummyFinder));
 
     REQUIRE(definedInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 2))));
 
@@ -710,46 +709,59 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(
         edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
-    dummyProvider->addFinder(dummyFinder);
+    std::vector<std::shared_ptr<edm::EventSetupRecordIntervalFinder>> finders;
+    finders.push_back(dummyFinder);
+
+    std::set<EventSetupRecordKey> neededRecords;
+    neededRecords.insert(dummyProvider->key());
+    neededRecords.insert(depProvider->key());
+    {
+      auto supporters = depProvider->supportingRecords();
+      neededRecords.insert(supporters.begin(), supporters.end());
+    }
 
     REQUIRE(*(depProvider->supportingRecords().begin()) == dummyProvider->key());
 
-    std::map<EventSetupRecordKey, std::shared_ptr<edm::EventSetupRecordIntervalFinder>> keyToFinders;
-    keyToFinders.emplace(dummyProvider->key(), dummyProvider->finalizeFinder());
-    keyToFinders.emplace(depProvider->key(), depProvider->finalizeFinder());
-    depProvider->setSupportingFinders(keyToFinders);
+    std::map<EventSetupRecordKey, std::shared_ptr<edm::EventSetupRecordIntervalFinder>> keyToFinders =
+        edm::impl::makeFindersForRecords(neededRecords, finders);
 
-    auto interval = depProvider->finder()->findIntervalFor(depProvider->key(), edm::IOVSyncValue(edm::EventID(1, 1, 2)));
+    auto interval =
+        keyToFinders[depProvider->key()]->findIntervalFor(depProvider->key(), edm::IOVSyncValue(edm::EventID(1, 1, 2)));
     REQUIRE(interval.first() == edm::IOVSyncValue(edm::EventID(1, 1, 1)));
     REQUIRE(interval.last() == edm::IOVSyncValue(edm::EventID(1, 1, 3)));
   }
 
-    SECTION("indirect dependencies") {
-    auto depProvider = std::make_unique<EventSetupRecordProvider>(DepRecord::keyForClass(), &activityRegistry);
+  SECTION("indirect dependencies") {
+    std::vector<std::shared_ptr<edm::EventSetupRecordIntervalFinder>> finders;
+    std::set<EventSetupRecordKey> neededRecords;
 
-    auto depOnDepProvider = std::make_unique<EventSetupRecordProvider>(DepOnDepRecord::keyForClass(), &activityRegistry);
+    auto depProvider = std::make_unique<EventSetupRecordProvider>(DepRecord::keyForClass(), &activityRegistry);
+    neededRecords.insert(depProvider->key());
+
+    auto depOnDepProvider =
+        std::make_unique<EventSetupRecordProvider>(DepOnDepRecord::keyForClass(), &activityRegistry);
+    neededRecords.insert(depOnDepProvider->key());
 
     auto dummyProvider = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
+    neededRecords.insert(dummyProvider->key());
 
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(
         edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
-    dummyProvider->addFinder(dummyFinder);
+    finders.push_back(dummyFinder);
 
     REQUIRE(*(depProvider->supportingRecords().begin()) == dummyProvider->key());
 
-    std::map<EventSetupRecordKey, std::shared_ptr<edm::EventSetupRecordIntervalFinder>> keyToFinders;
-    keyToFinders.emplace(dummyProvider->key(), dummyProvider->finalizeFinder());
-    keyToFinders.emplace(depProvider->key(), depProvider->finalizeFinder());
-    keyToFinders.emplace(depOnDepProvider->key(), depOnDepProvider->finalizeFinder());
-    depProvider->setSupportingFinders(keyToFinders);
-    depOnDepProvider->setSupportingFinders(keyToFinders);
+    std::map<EventSetupRecordKey, std::shared_ptr<edm::EventSetupRecordIntervalFinder>> keyToFinders =
+        edm::impl::makeFindersForRecords(neededRecords, finders);
 
-    auto interval = depProvider->finder()->findIntervalFor(depProvider->key(), edm::IOVSyncValue(edm::EventID(1, 1, 2)));
+    auto interval =
+        keyToFinders[depProvider->key()]->findIntervalFor(depProvider->key(), edm::IOVSyncValue(edm::EventID(1, 1, 2)));
     REQUIRE(interval.first() == edm::IOVSyncValue(edm::EventID(1, 1, 1)));
     REQUIRE(interval.last() == edm::IOVSyncValue(edm::EventID(1, 1, 3)));
 
-    interval = depOnDepProvider->finder()->findIntervalFor(depOnDepProvider->key(), edm::IOVSyncValue(edm::EventID(1, 1, 2)));
+    interval = keyToFinders[depOnDepProvider->key()]->findIntervalFor(depOnDepProvider->key(),
+                                                                      edm::IOVSyncValue(edm::EventID(1, 1, 2)));
     REQUIRE(interval.first() == edm::IOVSyncValue(edm::EventID(1, 1, 1)));
     REQUIRE(interval.last() == edm::IOVSyncValue(edm::EventID(1, 1, 3)));
   }
@@ -1319,8 +1331,6 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
   }
 
   SECTION("alternateFinderTest") {
-    auto dummyProvider = std::make_shared<EventSetupRecordProvider>(DummyRecord::keyForClass(), &activityRegistry);
-
     const edm::EventID eID_1(1, 1, 1);
     const edm::IOVSyncValue sync_1(eID_1);
     const edm::EventID eID_3(1, 1, 3);
@@ -1329,7 +1339,6 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const edm::ValidityInterval definedInterval(sync_1, edm::IOVSyncValue(eID_4));
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(definedInterval);
-    dummyProvider->addFinder(dummyFinder);
 
     std::shared_ptr<DepRecordFinder> depFinder = std::make_shared<DepRecordFinder>();
     const edm::EventID eID_2(1, 1, 2);
@@ -1340,7 +1349,7 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
     DependentRecordIntervalFinder finder(depRecordKey);
     finder.setAlternateFinder(depFinder);
-    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyProvider->key(), dummyProvider->finder()));
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(DummyRecord::keyForClass(), dummyFinder));
 
     REQUIRE(depInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 1))));
 

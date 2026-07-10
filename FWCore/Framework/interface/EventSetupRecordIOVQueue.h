@@ -69,6 +69,8 @@ namespace edm {
       auto const& key() const { return recordProvider_->key(); }
       void reset();
 
+      void setFinder(std::shared_ptr<EventSetupRecordIntervalFinder> iFinder) { finder_ = std::move(iFinder); }
+
     private:
       void updateValidityIntervalAndStatus(const IOVSyncValue& iTime);
 
@@ -82,7 +84,7 @@ namespace edm {
 
       edm::IOVSyncValue firstForCurrentIOV_ = edm::IOVSyncValue::invalidIOVSyncValue();
       edm::propagate_const<EventSetupRecordProvider*> recordProvider_;
-
+      edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>> finder_;
       // These are associated with the most recent iov.
       unsigned long long cacheIdentifier_;
       WaitingTaskHolder endIOVTaskHolder_;

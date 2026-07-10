@@ -72,13 +72,12 @@ namespace edm {
     void EventSetupRecordIOVQueue::updateValidityIntervalAndStatus(const IOVSyncValue& iTime) {
       intervalStatus_ = IntervalStatus::Invalid;
 
-      auto finder = recordProvider_->finder();
-      if (finder.get() == nullptr) {
+      if (finder_.get() == nullptr) {
         return;
       }
       IOVSyncValue oldFirst(validityInterval_.first());
       IOVSyncValue oldLast(validityInterval_.last());
-      validityInterval_ = finder->findIntervalFor(key(), iTime);
+      validityInterval_ = finder_->findIntervalFor(key(), iTime);
 
       // An interval is valid if and only if the start of the interval is
       // valid. If the start is valid and the end is invalid, it means we
@@ -183,9 +182,8 @@ namespace edm {
       // Force a new IOV to start with a new cacheIdentifier
       // on the next eventSetupForInstance call.
       validityInterval_ = ValidityInterval{};
-      auto finder = recordProvider_->finder();
-      if (finder.get() != nullptr) {
-        finder->resetInterval(key());
+      if (finder_.get() != nullptr) {
+        finder_->resetInterval(key());
       }
     }
 

@@ -86,8 +86,6 @@ namespace edm {
       std::shared_ptr<ESProductResolverProvider> resolverProvider(ComponentDescription const&);
 
       void add(std::shared_ptr<ESProductResolverProvider>);
-      ///For now, only use one finder
-      void addFinder(std::shared_ptr<EventSetupRecordIntervalFinder>);
 
       /** This function is called when an IOV is started up by the asynchronous task assigned to start IOVs.
        *  This is the point where we know the value of iovIndex, so we know which EventSetupRecordImpl
@@ -110,21 +108,12 @@ namespace edm {
        */
       void endIOV(unsigned int iovIndex);
 
-      ///If the provided Record depends on other Records, here are the supporting Finders
-      void setSupportingFinders(
-          const std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordIntervalFinder>>& iKeyToFinders);
-
       /**In the case of a conflict, sets what Provider to call.  This must be called after
          all providers have been added.  An empty map is acceptable. */
       void usePreferred(DataToPreferredProviderMap const&);
 
-      std::shared_ptr<EventSetupRecordIntervalFinder> finalizeFinder();
-
       ///This will clear the cache's of all the Resolvers so that next time they are called they will run
       void resetResolvers();
-
-      std::shared_ptr<EventSetupRecordIntervalFinder const> finder() const { return get_underlying_safe(finder_); }
-      std::shared_ptr<EventSetupRecordIntervalFinder>& finder() { return get_underlying_safe(finder_); }
 
       void getReferencedESProducers(
           std::map<EventSetupRecordKey, std::vector<ComponentDescription const*>>& referencedESProducers) const;
@@ -141,22 +130,13 @@ namespace edm {
       }
       void addResolversToRecord(std::shared_ptr<ESProductResolverProvider>, DataToPreferredProviderMap const&);
 
-      std::shared_ptr<EventSetupRecordIntervalFinder> swapFinder(std::shared_ptr<EventSetupRecordIntervalFinder> iNew) {
-        std::swap(iNew, finder());
-        return iNew;
-      }
-
     private:
       // ---------- member data --------------------------------
       const EventSetupRecordKey key_;
 
       std::vector<EventSetupRecordImpl> recordImpls_;
 
-      edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>> finder_;
       std::vector<edm::propagate_const<std::shared_ptr<ESProductResolverProvider>>> providers_;
-      //only used during initialization. Eventually replaced with one finder_ to combine them all.
-      std::unique_ptr<std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>>
-          multipleFinders_;
 
       const unsigned int nConcurrentIOVs_;
     };

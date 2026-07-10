@@ -69,7 +69,7 @@ namespace edm {
       void add(std::shared_ptr<ESProductResolverProvider>);
       void add(std::shared_ptr<EventSetupRecordIntervalFinder>);
 
-      void finishConfiguration(NumberOfConcurrentIOVs const&);
+      std::vector<std::shared_ptr<EventSetupRecordIntervalFinder>> finishConfiguration(NumberOfConcurrentIOVs const&);
 
       ///Used when we need to force a Record to reset all its resolvers
       std::vector<EventSetupRecordKey> resetRecordPlusDependentRecords(EventSetupRecordKey const&);

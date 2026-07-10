@@ -20,14 +20,10 @@
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/EventSetupImpl.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-#include "FWCore/Framework/src/IntersectingIOVRecordIntervalFinder.h"
-#include "FWCore/Framework/interface/DependentRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/RecordDependencyRegister.h"
 #include "FWCore/Framework/interface/ESProductResolverProvider.h"
 #include "FWCore/Framework/interface/ESProductResolver.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
-#include "FWCore/Framework/interface/SupportingRecordIntervalFinderHelper.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -39,11 +35,7 @@ namespace edm {
     EventSetupRecordProvider::EventSetupRecordProvider(const EventSetupRecordKey& iKey,
                                                        ActivityRegistry const* activityRegistry,
                                                        unsigned int nConcurrentIOVs)
-        : key_(iKey),
-          finder_(),
-          providers_(),
-          multipleFinders_(new std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>()),
-          nConcurrentIOVs_(nConcurrentIOVs) {
+        : key_(iKey), providers_(), nConcurrentIOVs_(nConcurrentIOVs) {
       recordImpls_.reserve(nConcurrentIOVs);
       for (unsigned int i = 0; i < nConcurrentIOVs_; ++i) {
         recordImpls_.emplace_back(iKey, activityRegistry, i);
@@ -59,79 +51,9 @@ namespace edm {
       providers_.emplace_back(iProvider);
     }
 
-    void EventSetupRecordProvider::addFinder(std::shared_ptr<EventSetupRecordIntervalFinder> iFinder) {
-      auto oldFinder = finder();
-      finder_ = iFinder;
-      if (nullptr != multipleFinders_.get()) {
-        multipleFinders_->emplace_back(iFinder);
-      } else {
-        //dependent records set there finders after the multipleFinders_ has been released
-        // but they also have never had a finder set
-        if (nullptr != oldFinder.get()) {
-          cms::Exception("EventSetupMultipleSources")
-              << "An additional source has been added to the Record " << key_.name() << "'\n"
-              << "after all the other sources have been dealt with.  This is a logic error, please send email to the "
-                 "framework group.";
-        }
-      }
-    }
-
-    void EventSetupRecordProvider::setSupportingFinders(
-        const std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordIntervalFinder>>& iKeyToFinders) {
-      auto const& supportingKeys = supportingRecords();
-      if (supportingKeys.empty()) {
-        return;
-      }
-      assert(finder_);
-      auto depFinder = dynamic_cast<DependentRecordIntervalFinder*>(finder_.get());
-      assert(depFinder);
-
-      std::string missingRecords;
-
-      for (auto const& key : supportingKeys) {
-        auto itFound = iKeyToFinders.find(key);
-        if (itFound == iKeyToFinders.end()) {
-          if (missingRecords.empty()) {
-            missingRecords = key.name();
-          } else {
-            missingRecords += ", ";
-            missingRecords += key.name();
-          }
-        } else {
-          SupportingRecordIntervalFinderHelper helper(itFound->first, itFound->second);
-          depFinder->addSupporter(helper);
-        }
-      }
-      if (!missingRecords.empty()) {
-        edm::LogInfo("EventSetupDependency")
-            << "The EventSetup record " << key().name() << " depends on at least one Record \n (" << missingRecords
-            << ") which is not present in the job."
-               "\n This may lead to an exception begin thrown during event processing.\n If no exception occurs "
-               "during the job than it is usually safe to ignore this message.";
-      }
-    }
     void EventSetupRecordProvider::usePreferred(const DataToPreferredProviderMap& iMap) {
       using std::placeholders::_1;
       for_all(providers_, std::bind(&EventSetupRecordProvider::addResolversToRecordHelper, this, _1, iMap));
-    }
-
-    std::shared_ptr<EventSetupRecordIntervalFinder> EventSetupRecordProvider::finalizeFinder() {
-      if (1 < multipleFinders_->size()) {
-        std::shared_ptr<IntersectingIOVRecordIntervalFinder> intFinder =
-            make_shared_noexcept_false<IntersectingIOVRecordIntervalFinder>(key_);
-        intFinder->swapFinders(*multipleFinders_);
-        finder_ = intFinder;
-      }
-      if (not supportingRecords().empty()) {
-        //do this now as the return value of this routine is used to set the supporting finders of other records and we need to have the DependentRecordIntervalFinder in place before that is done
-        std::shared_ptr<DependentRecordIntervalFinder> newFinder =
-            make_shared_noexcept_false<DependentRecordIntervalFinder>(key());
-        newFinder->setAlternateFinder(get_underlying_safe(finder_));
-        finder_ = newFinder;
-      }
-      //now we get rid of the temporary
-      multipleFinders_.reset(nullptr);
-      return edm::get_underlying(finder_);
     }
 
     void EventSetupRecordProvider::addResolversToRecord(
