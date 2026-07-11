@@ -89,7 +89,8 @@ void HGCalNeighbourTester::beginRun(edm::Run const &iRun, edm::EventSetup const 
     edm::LogVerbatim("HGCalGeom") << "Loaded HGCalDDConstants for " << nameDetector_;
     detIds_ = geom->getValidDetIds(dets_);
     edm::LogVerbatim("HGCalGeom") << "Gets " << detIds_.size() << " valid ID's for detector " << dets_;
-    std::unique_ptr<HGCalNeighbourFinder> finder = std::make_unique<HGCalNeighbourFinder>(geom->topology().dddConstants());
+    std::unique_ptr<HGCalNeighbourFinder> finder =
+        std::make_unique<HGCalNeighbourFinder>(geom->topology().dddConstants());
     for (unsigned int k = 0; k < detIds_.size(); k += nskip_) {
       HGCSiliconDetId id(detIds_[k]);
       std::vector<uint32_t> ids = finder->nearestNeighboursOfDetId(id.rawId());
@@ -97,15 +98,17 @@ void HGCalNeighbourTester::beginRun(edm::Run const &iRun, edm::EventSetup const 
       for (auto const &idZ : ids)
         if (idZ != 0)
           ++nn;
-      edm::LogVerbatim("HGCalGeom") << "[" << k << "] Layer " << id.layer() << " Wafer " << id.waferU() << ":" << id.waferV() << " Cell " << id.cellU() << ":" << id.cellV() << " has " << nn << " neighbours:";
+      edm::LogVerbatim("HGCalGeom") << "[" << k << "] Layer " << id.layer() << " Wafer " << id.waferU() << ":"
+                                    << id.waferV() << " Cell " << id.cellU() << ":" << id.cellV() << " has " << nn
+                                    << " neighbours:";
       unsigned int k1(0);
       for (auto const &idZ : ids) {
-	if (idZ != 0) {
-	  HGCSiliconDetId idx(idZ);
-	  edm::LogVerbatim("HGCalGeom") << "[" << k1 << "] Layer " << idx.layer() << " Wafer " << idx.waferU() << ":"
-				      << idx.waferV() << " Cell " << idx.cellU() << ":" << idx.cellV();
-	  ++k1;
-	}
+        if (idZ != 0) {
+          HGCSiliconDetId idx(idZ);
+          edm::LogVerbatim("HGCalGeom") << "[" << k1 << "] Layer " << idx.layer() << " Wafer " << idx.waferU() << ":"
+                                        << idx.waferV() << " Cell " << idx.cellU() << ":" << idx.cellV();
+          ++k1;
+        }
       }
     }
   } else {

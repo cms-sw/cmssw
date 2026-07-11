@@ -74,13 +74,15 @@ HGCalNeighbourVerify::HGCalNeighbourVerify(const edm::ParameterSet &iC)
   int32_t waferUsign = (waferU >= 0) ? 0 : 1;
   int32_t waferVsign = (waferV >= 0) ? 0 : 1;
   idUV_ |= (((cellU & HGCSiliconDetId::kHGCalCellUMask) << HGCSiliconDetId::kHGCalCellUOffset) |
-	    ((cellV & HGCSiliconDetId::kHGCalCellVMask) << HGCSiliconDetId::kHGCalCellVOffset) |
+            ((cellV & HGCSiliconDetId::kHGCalCellVMask) << HGCSiliconDetId::kHGCalCellVOffset) |
             ((waferUabs & HGCSiliconDetId::kHGCalWaferUMask) << HGCSiliconDetId::kHGCalWaferUOffset) |
             ((waferUsign & HGCSiliconDetId::kHGCalWaferUSignMask) << HGCSiliconDetId::kHGCalWaferUSignOffset) |
             ((waferVabs & HGCSiliconDetId::kHGCalWaferVMask) << HGCSiliconDetId::kHGCalWaferVOffset) |
             ((waferVsign & HGCSiliconDetId::kHGCalWaferVSignMask) << HGCSiliconDetId::kHGCalWaferVSignOffset));
 
-  edm::LogVerbatim("HGCalGeom") << "Test neighbours of cell (" << cellU << ", " << cellV << ") in wafer (" << waferU << ", " << waferV << " for " << nameDetector_ << " given by " << std::hex << idUV_ << std::dec;
+  edm::LogVerbatim("HGCalGeom") << "Test neighbours of cell (" << cellU << ", " << cellV << ") in wafer (" << waferU
+                                << ", " << waferV << " for " << nameDetector_ << " given by " << std::hex << idUV_
+                                << std::dec;
 }
 
 void HGCalNeighbourVerify::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -106,28 +108,33 @@ void HGCalNeighbourVerify::beginRun(edm::Run const &iRun, edm::EventSetup const 
     std::vector<DetId> detIds;
     static constexpr uint32_t mask1 = 0xFFFFF;
     for (unsigned int k = 0; k < detIdx.size(); ++k) {
-      if (((detIdx[k].rawId())&mask1) == idUV_)
-	detIds.emplace_back(detIdx[k]);
+      if (((detIdx[k].rawId()) & mask1) == idUV_)
+        detIds.emplace_back(detIdx[k]);
     }
     edm::LogVerbatim("HGCalGeom") << "Gets " << detIds.size() << " valid ID's for detector " << dets_;
     for (unsigned int k = 0; k < detIds.size(); ++k)
       edm::LogVerbatim("HGCalGeom") << " [" << k << "] " << HGCSiliconDetId(detIds[k]);
-    std::unique_ptr<HGCalNeighbourFinder> finder = std::make_unique<HGCalNeighbourFinder>(geom->topology().dddConstants());
+    std::unique_ptr<HGCalNeighbourFinder> finder =
+        std::make_unique<HGCalNeighbourFinder>(geom->topology().dddConstants());
     for (unsigned int k = 0; k < detIds.size(); ++k) {
       HGCSiliconDetId id(detIds[k]);
       std::vector<uint32_t> ids = finder->nearestNeighboursOfDetId(id.rawId());
       unsigned int nn(0);
       for (auto const &idZ : ids)
-	if (idZ != 0)
-	  ++nn;
-      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << id.detType() << " Type " << id.waferTypeX() << " z " << id.zside() << " Layer " << id.layer() << " Wafer " << id.waferU() << ":" << id.waferV() << " Cell " << id.cellU() << ":" << id.cellV() << " has " << nn << " neighbours:";
+        if (idZ != 0)
+          ++nn;
+      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << id.detType() << " Type " << id.waferTypeX() << " z "
+                                    << id.zside() << " Layer " << id.layer() << " Wafer " << id.waferU() << ":"
+                                    << id.waferV() << " Cell " << id.cellU() << ":" << id.cellV() << " has " << nn
+                                    << " neighbours:";
       unsigned int k1(0);
       for (auto const &idZ : ids) {
-	if (idZ != 0) {
-	  HGCSiliconDetId idx(idZ);
-	  edm::LogVerbatim("HGCalGeom") << "[" << k1 << "] Layer " << idx.layer() << " Wafer " << idx.waferU() << ":" << idx.waferV() << " Cell " << idx.cellU() << ":" << idx.cellV();
-	  ++k1;
-	}
+        if (idZ != 0) {
+          HGCSiliconDetId idx(idZ);
+          edm::LogVerbatim("HGCalGeom") << "[" << k1 << "] Layer " << idx.layer() << " Wafer " << idx.waferU() << ":"
+                                        << idx.waferV() << " Cell " << idx.cellU() << ":" << idx.cellV();
+          ++k1;
+        }
       }
     }
   } else {
