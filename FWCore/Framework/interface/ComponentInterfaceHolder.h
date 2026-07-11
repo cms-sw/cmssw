@@ -19,7 +19,7 @@
 #include <memory>
 
 namespace edm::eventsetup {
-  class ComponentDescription;
+  struct ComponentDescription;
 
   class ComponentInterfaceHolder {
   public:
