@@ -200,7 +200,7 @@ void TauValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
       }
     }
   }
-  if (use_raw) {
+  else if (use_raw) {
     outFolder += "/CutID";
     for (size_t i = 0; i < recoTauIDLabels_.size(); ++i) {
       if (cutIDs_raw[i] > 0) {
