@@ -134,8 +134,8 @@ TEST_CASE("IOVSyncValue", "[Framework][EventSetup]") {
   }
 
   SECTION("comparison time and event") {
-    const IOVSyncValue base(EventID(2,1,0),Timestamp(1));
-    const IOVSyncValue sameEventDifferentTime(EventID(2,1,0),Timestamp(2));
+    const IOVSyncValue base(EventID(2, 1, 0), Timestamp(1));
+    const IOVSyncValue sameEventDifferentTime(EventID(2, 1, 0), Timestamp(2));
 
     //NOTE: if EventID valid in both, that is all that is used
     REQUIRE(base.comparable(sameEventDifferentTime));
