@@ -20,6 +20,7 @@
 // system include files
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -42,6 +43,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeomUtils.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
+#include "Geometry/CaloTopology/interface/HGCalNeighbourFinder.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 class HGCalNeighbourCheck : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
@@ -70,14 +72,14 @@ HGCalNeighbourCheck::HGCalNeighbourCheck(const edm::ParameterSet &iC)
       tok_hgcal_{esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag{"", nameDetector_})},
       dets_((nameDetector_ == "HGCalEESensitive") ? DetId::HGCalEE : DetId::HGCalHSi) {
-  edm::LogVerbatim("HGCGeom") << "Test validity of cells for " << nameDetector_ << " with inputs from " << fileName_;
+  edm::LogVerbatim("HGCalGeom") << "Test validity of cells for " << nameDetector_ << " with inputs from " << fileName_;
 
   if (!fileName_.empty()) {
     edm::FileInPath filetmp("Geometry/CaloTopology/data/" + fileName_);
     std::string fileName = filetmp.fullPath();
     std::ifstream fInput(fileName.c_str());
     if (!fInput.good()) {
-      edm::LogVerbatim("HGCGeom") << "Cannot open file " << fileName;
+      edm::LogVerbatim("HGCalGeom") << "Cannot open file " << fileName;
     } else {
       char buffer[80];
       while (fInput.getline(buffer, 80)) {
@@ -88,15 +90,15 @@ HGCalNeighbourCheck::HGCalNeighbourCheck(const edm::ParameterSet &iC)
           auto itr = std::find(detIds_.begin(), detIds_.end(), DetId(id));
           if (itr == detIds_.end()) {
             detIds_.emplace_back(DetId(id));
-            edm::LogVerbatim("HGCGeom") << "[" << detIds_.size() << "] " << HGCSiliconDetId(id);
+            edm::LogVerbatim("HGCalGeom") << "[" << detIds_.size() << "] " << HGCSiliconDetId(id);
           }
         }
       }
       fInput.close();
     }
-    edm::LogVerbatim("HGCGeom") << "Reads " << detIds_.size() << " ID's from " << fileName_;
+    edm::LogVerbatim("HGCalGeom") << "Reads " << detIds_.size() << " ID's from " << fileName_;
   } else {
-    edm::LogVerbatim("HGCGeom") << "No input file is given == will test all valid ids for " << dets_;
+    edm::LogVerbatim("HGCalGeom") << "No input file is given == will test all valid ids for " << dets_;
   }
 }
 
@@ -110,29 +112,35 @@ void HGCalNeighbourCheck::fillDescriptions(edm::ConfigurationDescriptions &descr
 // ------------ method called to produce the data  ------------
 void HGCalNeighbourCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup) {
   //initiating hgc Geometry
-  edm::LogVerbatim("HGCGeom") << "Tries to initialize HGCalGeometry and HGCalDDDConstants for " << nameDetector_;
+  edm::LogVerbatim("HGCalGeom") << "Tries to initialize HGCalGeometry and HGCalDDDConstants for " << nameDetector_;
   const edm::ESHandle<HGCalGeometry> &hgcGeom = iSetup.getHandle(tok_hgcal_);
   if (hgcGeom.isValid()) {
     const HGCalGeometry *geom = hgcGeom.product();
-    edm::LogVerbatim("HGCGeom") << "Loaded HGCalDDConstants for " << nameDetector_;
+    edm::LogVerbatim("HGCalGeom") << "Loaded HGCalDDConstants for " << nameDetector_;
     if (fileName_.empty()) {
       detIds_ = geom->getValidDetIds(dets_);
-      edm::LogVerbatim("HGCGeom") << "Gets " << detIds_.size() << " valid ID's for detector " << dets_;
+      edm::LogVerbatim("HGCalGeom") << "Gets " << detIds_.size() << " valid ID's for detector " << dets_;
     }
+    std::unique_ptr<HGCalNeighbourFinder> finder = std::make_unique<HGCalNeighbourFinder>(geom->topology().dddConstants());
     for (unsigned int k = 0; k < detIds_.size(); ++k) {
       std::ostringstream st1;
       HGCSiliconDetId id(detIds_[k]);
-      std::vector<DetId> ids = geom->topology().neighbors(id);
-      st1 << "[" << k << "]" << id << " with " << ids.size() << " neighbours:";
+      std::vector<uint32_t> ids = finder->nearestNeighboursOfDetId(id.rawId());
+      unsigned int nn(0);
+      for (auto const &idZ : ids)
+        if (idZ != 0)
+          ++nn;
+      st1 << "[" << k << "]" << id << " with " << nn << " neighbours:";
       for (auto &idx : ids) {
-        st1 << "(" << HGCSiliconDetId(idx).waferU() << "," << HGCSiliconDetId(idx).waferV() << ","
-            << HGCSiliconDetId(idx).cellU() << "," << HGCSiliconDetId(idx).cellV() << ")";
+	if (idx != 0) 
+	  st1 << "(" << HGCSiliconDetId(idx).waferU() << "," << HGCSiliconDetId(idx).waferV() << ","
+	      << HGCSiliconDetId(idx).cellU() << "," << HGCSiliconDetId(idx).cellV() << ")";
       }
-      edm::LogVerbatim("HGCGeom") << st1.str();
+      edm::LogVerbatim("HGCalGeom") << st1.str();
     }
-    edm::LogVerbatim("HGCGeom") << "Log information of " << detIds_.size() << " cells";
+    edm::LogVerbatim("HGCalGeom") << "Log information of " << detIds_.size() << " cells";
   } else {
-    edm::LogWarning("HGCGeom") << "Cannot initiate HGCalGeometry for " << nameDetector_ << std::endl;
+    edm::LogWarning("HGCalGeom") << "Cannot initiate HGCalGeometry for " << nameDetector_ << std::endl;
   }
 }
 

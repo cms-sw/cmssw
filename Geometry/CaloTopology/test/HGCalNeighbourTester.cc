@@ -67,9 +67,9 @@ HGCalNeighbourTester::HGCalNeighbourTester(const edm::ParameterSet &iC)
       tok_hgcal_{esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag{"", nameDetector_})},
       dets_((nameDetector_ == "HGCalEESensitive") ? DetId::HGCalEE : DetId::HGCalHSi) {
-  edm::LogVerbatim("HGCGeom") << "Test neighbours of cells for " << nameDetector_;
+  edm::LogVerbatim("HGCalGeom") << "Test neighbours of cells for " << nameDetector_;
 
-  edm::LogVerbatim("HGCGeom") << "It will test all valid ids for " << dets_ << " skipping " << nskip_ << " entries";
+  edm::LogVerbatim("HGCalGeom") << "It will test all valid ids for " << dets_ << " skipping " << nskip_ << " entries";
 }
 
 void HGCalNeighbourTester::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -82,29 +82,34 @@ void HGCalNeighbourTester::fillDescriptions(edm::ConfigurationDescriptions &desc
 // ------------ method called to produce the data  ------------
 void HGCalNeighbourTester::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup) {
   //initiating hgc Geometry
-  edm::LogVerbatim("HGCGeom") << "Tries to initialize HGCalGeometry and HGCalDDDConstants for " << nameDetector_;
+  edm::LogVerbatim("HGCalGeom") << "Tries to initialize HGCalGeometry and HGCalDDDConstants for " << nameDetector_;
   const edm::ESHandle<HGCalGeometry> &hgcGeom = iSetup.getHandle(tok_hgcal_);
   if (hgcGeom.isValid()) {
     const HGCalGeometry *geom = hgcGeom.product();
-    edm::LogVerbatim("HGCGeom") << "Loaded HGCalDDConstants for " << nameDetector_;
+    edm::LogVerbatim("HGCalGeom") << "Loaded HGCalDDConstants for " << nameDetector_;
     detIds_ = geom->getValidDetIds(dets_);
-    edm::LogVerbatim("HGCGeom") << "Gets " << detIds_.size() << " valid ID's for detector " << dets_;
+    edm::LogVerbatim("HGCalGeom") << "Gets " << detIds_.size() << " valid ID's for detector " << dets_;
+    std::unique_ptr<HGCalNeighbourFinder> finder = std::make_unique<HGCalNeighbourFinder>(geom->topology().dddConstants());
     for (unsigned int k = 0; k < detIds_.size(); k += nskip_) {
       HGCSiliconDetId id(detIds_[k]);
-      std::vector<DetId> ids = geom->topology().neighbors(id);
-      edm::LogVerbatim("HGCGeom") << "[" << k << "] Layer " << id.layer() << " Wafer " << id.waferU() << ":"
-                                  << id.waferV() << " Cell " << id.cellU() << ":" << id.cellV() << " has " << ids.size()
-                                  << " neighbours:";
+      std::vector<uint32_t> ids = finder->nearestNeighboursOfDetId(id.rawId());
+      unsigned int nn(0);
+      for (auto const &idZ : ids)
+        if (idZ != 0)
+          ++nn;
+      edm::LogVerbatim("HGCalGeom") << "[" << k << "] Layer " << id.layer() << " Wafer " << id.waferU() << ":" << id.waferV() << " Cell " << id.cellU() << ":" << id.cellV() << " has " << nn << " neighbours:";
       unsigned int k1(0);
       for (auto const &idZ : ids) {
-        HGCSiliconDetId idx(idZ);
-        edm::LogVerbatim("HGCGeom") << "[" << k1 << "] Layer " << idx.layer() << " Wafer " << idx.waferU() << ":"
-                                    << idx.waferV() << " Cell " << idx.cellU() << ":" << idx.cellV();
-        ++k1;
+	if (idZ != 0) {
+	  HGCSiliconDetId idx(idZ);
+	  edm::LogVerbatim("HGCalGeom") << "[" << k1 << "] Layer " << idx.layer() << " Wafer " << idx.waferU() << ":"
+				      << idx.waferV() << " Cell " << idx.cellU() << ":" << idx.cellV();
+	  ++k1;
+	}
       }
     }
   } else {
-    edm::LogWarning("HGCGeom") << "Cannot initiate HGCalGeometry for " << nameDetector_ << std::endl;
+    edm::LogWarning("HGCalGeom") << "Cannot initiate HGCalGeometry for " << nameDetector_ << std::endl;
   }
 }
 
