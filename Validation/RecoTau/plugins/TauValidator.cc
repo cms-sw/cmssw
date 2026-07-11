@@ -45,7 +45,8 @@ public:
                  const std::vector<int>& validCutIDs_wp,
                  bool use_raw,
                  bool use_wp);
-
+  bool passPreSelectionCut(const reco::PFTau& tau, double ptMinCut, double etaMaxCut);
+  
 private:
   edm::EDGetTokenT<reco::GenJetCollection> genTauToken_;
   edm::EDGetTokenT<reco::PFTauCollection> recoTauToken_;
@@ -54,6 +55,9 @@ private:
   std::vector<std::string> recoTauIDLabels_;
   edm::InputTag recoTauCollection;
 
+  double pTMinRecoCut_;
+  double etaMaxRecoCut_;
+  
   const std::unordered_map<std::string, std::tuple<unsigned, float, float>> histoVars = {
       {"pt", std::make_tuple(200, 0., 1000.)},
       {"eta", std::make_tuple(60, -4.0, 4.0)},
@@ -144,6 +148,10 @@ bool TauValidator::passIdCut(const std::vector<double> idValuesForTau,
   return false;
 }
 
+bool TauValidator::passPreSelectionCut(const reco::PFTau& tau, double ptMinCut, double etaMaxCut) {
+  return tau.pt() > ptMinCut && std::abs(tau.eta()) < etaMaxCut;
+}
+
 TauValidator::TauValidator(const edm::ParameterSet& iConfig) {
   genTauToken_ = consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("genTauCollection"));
   recoTauCollection = iConfig.getParameter<edm::InputTag>("recoTauCollection");
@@ -157,6 +165,10 @@ TauValidator::TauValidator(const edm::ParameterSet& iConfig) {
     recoTauToken_ = consumes<reco::PFTauCollection>(recoTauCollection);
   }
 
+  ParameterSet presel = iConfig.getParameter<ParameterSet>("TauPreSelection");
+  pTMinRecoCut_ = presel.getParameter<bool>("PtMinRecoCut");
+  etaMaxRecoCut_ = presel.getParameter<bool>("EtaMaxRecoCut");
+	
   std::vector<edm::InputTag> idTags = iConfig.getParameter<std::vector<edm::InputTag>>("recoTauIDCollections");
   for (const auto& tag : idTags) {
     // Extract label from the instance part of the InputTag (e.g., "VSjet" from "module:VSjet")
@@ -382,7 +394,9 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
         idValuesForTau.push_back(disc.rawValues.empty() ? -1.0 : disc.rawValues[0]);
         wpValuesForTau.push_back(disc.workingPoints.empty() ? std::vector<bool>(1, false) : disc.workingPoints);
       }
-      if (applyIdCuts && !passIdCut(idValuesForTau, wpValuesForTau, validCutIDs_raw, validCutIDs_wp, use_raw, use_wp)) {
+      if (applyIdCuts &&
+		  !passIdCut(idValuesForTau, wpValuesForTau, validCutIDs_raw, validCutIDs_wp, use_raw, use_wp) &&
+		  !passPreSelectionCut(recoTausTmp->at(itau), pTMinRecoCut_, etaMaxRecoCut_)) {
         continue;
       }
       recoTauIDValues.push_back(idValuesForTau);
@@ -406,7 +420,9 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
         idValuesForTau.push_back(disc.rawValues.empty() ? -1.0 : disc.rawValues[0]);
         wpValuesForTau.push_back(disc.workingPoints.empty() ? std::vector<bool>(1, false) : disc.workingPoints);
       }
-      if (applyIdCuts && !passIdCut(idValuesForTau, wpValuesForTau, validCutIDs_raw, validCutIDs_wp, use_raw, use_wp)) {
+      if (applyIdCuts &&
+		  !passIdCut(idValuesForTau, wpValuesForTau, validCutIDs_raw, validCutIDs_wp, use_raw, use_wp) &&
+		  !passPreSelectionCut(tauFromPat, pTMinRecoCut_, etaMaxRecoCut_)) {
         continue;
       }
       recoTauIDValues.push_back(idValuesForTau);
@@ -587,6 +603,12 @@ void TauValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   desc.add<double>("minDeltaR", 0.3);
   desc.add<std::string>("outFolder", "HLT/Tau/TauValidation");
   desc.addUntracked<bool>("isPatTaus", false);
+
+  edm::ParameterSetDescription ps_presel;
+  ps_presel.add<double>("PtMinRecoCut", 20.);
+  ps_presel.add<double>("EtaMaxRecoCut", 3.);
+
+  desc.add<edm::ParameterSetDescription>("TauPreSelection", ps_presel);
   descriptions.addWithDefaultLabel(desc);
 }
 
