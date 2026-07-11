@@ -133,7 +133,7 @@ bool TauValidator::passIdCut(const std::vector<double> idValuesForTau,
         if (validCutIDs_wp[i] > static_cast<int>(wpValuesForTau[i].size())) {
           return false;
         }
-        if (wpValuesForTau[i][validCutIDs_wp[i]] == 0) {
+        if (!wpValuesForTau[i][validCutIDs_wp[i]]) {
           return false;  // Fails WP cut
         }
       }
