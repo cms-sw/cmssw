@@ -1,0 +1,35 @@
+<bin name="TruthLogicalGraphPostProcessor_t" file="TruthLogicalGraphPostProcessor_t.cpp">
+  <use name="PhysicsTools/TruthInfo"/>
+  <use name="SimDataFormats/TruthInfo"/>
+  <use name="SimDataFormats/EncodedEventId"/>
+  <use name="cppunit"/>
+</bin>
+
+<bin name="LogicalGraphHitIndexBuilder_t" file="LogicalGraphHitIndexBuilder_t.cpp">
+  <use name="PhysicsTools/TruthInfo"/>
+  <use name="SimDataFormats/TruthInfo"/>
+  <use name="cppunit"/>
+</bin>
+
+<bin name="Branch_t" file="Branch_t.cpp">
+  <use name="PhysicsTools/TruthInfo"/>
+  <use name="SimDataFormats/TruthInfo"/>
+  <use name="cppunit"/>
+</bin>
+
+<bin name="BranchHitAssociator_t" file="BranchHitAssociator_t.cpp">
+  <use name="PhysicsTools/TruthInfo"/>
+  <use name="SimDataFormats/TruthInfo"/>
+  <use name="cppunit"/>
+</bin>
+
+<bin name="BranchSelector_t" file="BranchSelector_t.cpp">
+  <use name="PhysicsTools/TruthInfo"/>
+  <use name="SimDataFormats/TruthInfo"/>
+  <use name="SimDataFormats/EncodedEventId"/>
+  <use name="cppunit"/>
+</bin>
+
+<test name="truthGraphSelections_t" command="python3 ${LOCALTOP}/src/PhysicsTools/TruthInfo/test/truthGraphSelections_t.py"/>
+
+<test name="testTruthHistoryGuard" command="bash ${LOCALTOP}/src/PhysicsTools/TruthInfo/test/testTruthHistoryGuard.sh"/>
