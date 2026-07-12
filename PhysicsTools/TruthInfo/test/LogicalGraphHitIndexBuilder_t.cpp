@@ -33,15 +33,15 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestLogicalGraphHitIndexBuilder);
 void TestLogicalGraphHitIndexBuilder::testSubgraphHitsAreSortedContiguousAndAccumulated() {
   // particle 0 (track 100) -> child particle 1 (track 101)
   truth::LogicalGraphHitIndexBuilder builder(2);
-  builder.setSimTrackForParticle(0, 100);
-  builder.setSimTrackForParticle(1, 101);
+  builder.setSimTrackForParticle(0, 0, 100);
+  builder.setSimTrackForParticle(1, 0, 101);
   builder.addParticleChild(0, 1);
 
-  builder.addHit(truth::HitChannel::HGCalCalo, 100, /*detId=*/10, /*energy=*/1.0f, /*recHitIndex=*/0);
-  builder.addHit(truth::HitChannel::HGCalCalo, 100, /*detId=*/5, /*energy=*/2.0f, /*recHitIndex=*/1);
+  builder.addHit(truth::HitChannel::HGCalCalo, 0, 100, /*detId=*/10, /*energy=*/1.0f, /*recHitIndex=*/0);
+  builder.addHit(truth::HitChannel::HGCalCalo, 0, 100, /*detId=*/5, /*energy=*/2.0f, /*recHitIndex=*/1);
   builder.addHit(
-      truth::HitChannel::HGCalCalo, 101, /*detId=*/10, /*energy=*/3.0f, /*recHitIndex=*/0);  // same detId as parent
-  builder.addHit(truth::HitChannel::HGCalCalo, 101, /*detId=*/20, /*energy=*/1.5f, /*recHitIndex=*/2);
+      truth::HitChannel::HGCalCalo, 0, 101, /*detId=*/10, /*energy=*/3.0f, /*recHitIndex=*/0);  // same detId as parent
+  builder.addHit(truth::HitChannel::HGCalCalo, 0, 101, /*detId=*/20, /*energy=*/1.5f, /*recHitIndex=*/2);
 
   auto index = builder.finish();
 
@@ -66,10 +66,10 @@ void TestLogicalGraphHitIndexBuilder::testSubgraphHitsAreSortedContiguousAndAccu
 
 void TestLogicalGraphHitIndexBuilder::testDirectHitsAreSortedByDetId() {
   truth::LogicalGraphHitIndexBuilder builder(1);
-  builder.setSimTrackForParticle(0, 7);
-  builder.addHit(truth::HitChannel::HGCalCalo, 7, 30, 1.0f, 0);
-  builder.addHit(truth::HitChannel::HGCalCalo, 7, 3, 1.0f, 1);
-  builder.addHit(truth::HitChannel::HGCalCalo, 7, 17, 1.0f, 2);
+  builder.setSimTrackForParticle(0, 0, 7);
+  builder.addHit(truth::HitChannel::HGCalCalo, 0, 7, 30, 1.0f, 0);
+  builder.addHit(truth::HitChannel::HGCalCalo, 0, 7, 3, 1.0f, 1);
+  builder.addHit(truth::HitChannel::HGCalCalo, 0, 7, 17, 1.0f, 2);
 
   auto index = builder.finish();
   auto direct = index.directHits(truth::HitChannel::HGCalCalo, 0);
@@ -85,16 +85,16 @@ void TestLogicalGraphHitIndexBuilder::testSubgraphDiamondCountsSharedDescendantO
   // once. (Regression: the old recursive child-subgraph merge summed it once per
   // path, since coalesce() sums equal detIds, doubling the energy.)
   truth::LogicalGraphHitIndexBuilder builder(4);
-  builder.setSimTrackForParticle(0, 100);
-  builder.setSimTrackForParticle(1, 101);
-  builder.setSimTrackForParticle(2, 102);
-  builder.setSimTrackForParticle(3, 103);
+  builder.setSimTrackForParticle(0, 0, 100);
+  builder.setSimTrackForParticle(1, 0, 101);
+  builder.setSimTrackForParticle(2, 0, 102);
+  builder.setSimTrackForParticle(3, 0, 103);
   builder.addParticleChild(0, 1);
   builder.addParticleChild(0, 2);
   builder.addParticleChild(1, 3);
   builder.addParticleChild(2, 3);
 
-  builder.addHit(truth::HitChannel::HGCalCalo, 103, /*detId=*/50, /*energy=*/2.0f, /*recHitIndex=*/0);
+  builder.addHit(truth::HitChannel::HGCalCalo, 0, 103, /*detId=*/50, /*energy=*/2.0f, /*recHitIndex=*/0);
 
   auto index = builder.finish();
 

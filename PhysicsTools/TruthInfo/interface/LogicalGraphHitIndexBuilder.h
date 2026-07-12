@@ -18,17 +18,26 @@ namespace truth {
   public:
     explicit LogicalGraphHitIndexBuilder(uint32_t nParticles);
 
-    void setSimTrackForParticle(uint32_t particleId, uint32_t trackId);
+    // trackId is event-local (each mixing sub-event reuses 1,2,3,...); it MUST be
+    // namespaced by the packed EncodedEventId or signal and pileup collide.
+    void setSimTrackForParticle(uint32_t particleId, uint64_t eventId, uint32_t trackId);
     void addParticleChild(uint32_t parentParticleId, uint32_t childParticleId);
 
     // Add a hit on `trackId`'s SimTrack to `channel`. recHitIndex defaults to "no
     // recHit" for channels without a DetId->RecHit link (tracker, muon); calo/MTD
     // pass the mapped global recHit index.
     void addHit(HitChannel channel,
+                uint64_t eventId,
                 uint32_t trackId,
                 uint32_t detId,
                 float energy,
                 uint32_t recHitIndex = LogicalGraphHitIndex::Hit::kInvalidRecHitIndex);
+
+    // (EncodedEventId, trackId) -> global map key. The packed EncodedEventId fits in
+    // 32 bits (reco::EncodedEventId::rawId is uint32), so shift it into the high word.
+    static uint64_t simKey(uint64_t eventId, uint32_t trackId) {
+      return (eventId << 32) | static_cast<uint64_t>(trackId);
+    }
 
     [[nodiscard]] LogicalGraphHitIndex finish();
 
@@ -72,7 +81,7 @@ namespace truth {
 
     uint32_t nParticles_ = 0;
 
-    std::unordered_map<uint32_t, uint32_t> trackIdToParticle_;
+    std::unordered_map<uint64_t, uint32_t> trackIdToParticle_;
     std::vector<std::vector<uint32_t>> children_;
 
     // [channel index][particle] -> direct hit list. Subgraph hits are aggregated
