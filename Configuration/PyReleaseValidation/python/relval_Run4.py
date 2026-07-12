@@ -49,6 +49,7 @@ numWFIB.extend([prefixDet+61.0])   #Nu Gun
 numWFIB.extend([prefixDet+34.75])  #Timing menu
 numWFIB.extend([prefixDet+151.85]) #Heavy ion reconstruction
 #Default Phase-2 Det PU
+numWFIB.extend([prefixDet+234.0])     #standard PU	
 #numWFIB.extend([prefixDet+261.97])   #premixing stage1 (NuGun+PU)  COMMENT: reads old format file
 #numWFIB.extend([prefixDet+234.99])   #premixing combined stage1+stage2 ttbar+PU200  COMMENT: reads old format file
 #numWFIB.extend([prefixDet+234.999])  #premixing combined stage1+stage2 ttbar+PU50 for PR test  COMMENT: reads old format file
