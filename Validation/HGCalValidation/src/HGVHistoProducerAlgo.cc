@@ -1572,7 +1572,10 @@ void HGVHistoProducerAlgo::fill_caloparticle_histos(const Histograms& histograms
     }
 
     for (auto const& haf : haf_cp) {
-      const auto hitEn = (hits[hitMap.find(haf.first)->second]).energy();
+      const auto hitIt = hitMap.find(haf.first);
+      if (hitIt == hitMap.end())
+        continue;
+      const auto hitEn = (hits[hitIt->second]).energy();
       const auto weight = pow(hitEn, 2);
       histograms.h_caloparticle_fractions.at(pdgid)->Fill(haf.second, weight * hitEnergyWeight_invSum);
       histograms.h_caloparticle_fractions_weight.at(pdgid)->Fill(haf.second, weight * hitEnergyWeight_invSum, weight);
@@ -1825,6 +1828,13 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(
       const auto rhFraction = hits_and_fractions[iHit].second;
 
       std::unordered_map<DetId, const unsigned int>::const_iterator itcheck = hitMap.find(rh_detid);
+      if (itcheck == hitMap.end()) {
+        // the hit map can legitimately miss hits (or be empty when the
+        // rechit collections are unavailable): mark the hit as not linked
+        // to any CaloParticle instead of dereferencing the end iterator
+        hitsToCaloParticleId[iHit] = -1;
+        continue;
+      }
       const HGCRecHit* hit = &(hits[itcheck->second]);
 
       if (detIdToLayerClusterId_Map.find(rh_detid) == detIdToLayerClusterId_Map.end()) {
