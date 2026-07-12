@@ -26,13 +26,13 @@ namespace {
   //    cellTotal   = {10:1, 11:2, 12:2}
   truth::LogicalGraphHitIndex buildIndex() {
     truth::LogicalGraphHitIndexBuilder b(2);
-    b.setSimTrackForParticle(0, 100);
-    b.setSimTrackForParticle(1, 101);
+    b.setSimTrackForParticle(0, 0, 100);
+    b.setSimTrackForParticle(1, 0, 101);
     b.addParticleChild(0, 1);
-    b.addHit(truth::HitChannel::HGCalCalo, 100, 10, 1.0f, 0);
-    b.addHit(truth::HitChannel::HGCalCalo, 100, 11, 1.0f, 0);
-    b.addHit(truth::HitChannel::HGCalCalo, 101, 11, 1.0f, 0);
-    b.addHit(truth::HitChannel::HGCalCalo, 101, 12, 2.0f, 0);
+    b.addHit(truth::HitChannel::HGCalCalo, 0, 100, 10, 1.0f, 0);
+    b.addHit(truth::HitChannel::HGCalCalo, 0, 100, 11, 1.0f, 0);
+    b.addHit(truth::HitChannel::HGCalCalo, 0, 101, 11, 1.0f, 0);
+    b.addHit(truth::HitChannel::HGCalCalo, 0, 101, 12, 2.0f, 0);
     return b.finish();
   }
 
@@ -40,14 +40,14 @@ namespace {
   // calo cell (10) that the tracker associator must ignore.
   truth::LogicalGraphHitIndex buildTrackerIndex() {
     truth::LogicalGraphHitIndexBuilder b(2);
-    b.setSimTrackForParticle(0, 100);
-    b.setSimTrackForParticle(1, 101);
+    b.setSimTrackForParticle(0, 0, 100);
+    b.setSimTrackForParticle(1, 0, 101);
     b.addParticleChild(0, 1);
-    b.addHit(truth::HitChannel::HGCalCalo, 100, 10, 1.0f, 0);  // calo channel
-    b.addHit(truth::HitChannel::Tracker, 100, 20, 1.0f);
-    b.addHit(truth::HitChannel::Tracker, 100, 21, 1.0f);
-    b.addHit(truth::HitChannel::Tracker, 101, 21, 1.0f);
-    b.addHit(truth::HitChannel::Tracker, 101, 22, 2.0f);
+    b.addHit(truth::HitChannel::HGCalCalo, 0, 100, 10, 1.0f, 0);  // calo channel
+    b.addHit(truth::HitChannel::Tracker, 0, 100, 20, 1.0f);
+    b.addHit(truth::HitChannel::Tracker, 0, 100, 21, 1.0f);
+    b.addHit(truth::HitChannel::Tracker, 0, 101, 21, 1.0f);
+    b.addHit(truth::HitChannel::Tracker, 0, 101, 22, 2.0f);
     return b.finish();
   }
 
