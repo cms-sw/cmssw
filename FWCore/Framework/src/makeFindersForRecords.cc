@@ -53,6 +53,7 @@ namespace {
       assert(depFinder);
 
       std::string missingRecords;
+      std::string missingFinders;
 
       for (auto const& key : supportingKeys) {
         auto itFound = iKeyToFinders.find(key);
@@ -63,6 +64,13 @@ namespace {
             missingRecords += ", ";
             missingRecords += key.name();
           }
+        } else if (not itFound->second) {
+          if (missingFinders.empty()) {
+            missingFinders = key.name();
+          } else {
+            missingFinders += ", ";
+            missingFinders += key.name();
+          }
         } else {
           eventsetup::SupportingRecordIntervalFinderHelper helper(itFound->first, itFound->second);
           depFinder->addSupporter(helper);
@@ -72,6 +80,13 @@ namespace {
         edm::LogInfo("EventSetupDependency")
             << "The EventSetup record " << key_.name() << " depends on at least one Record \n (" << missingRecords
             << ") which is not present in the job."
+               "\n This may lead to an exception begin thrown during event processing.\n If no exception occurs "
+               "during the job than it is usually safe to ignore this message.";
+      }
+      if (!missingFinders.empty()) {
+        edm::LogInfo("EventSetupDependency")
+            << "The EventSetup record " << key_.name() << " depends on at least one Record \n (" << missingFinders
+            << ") which has no ESSource associated with it."
                "\n This may lead to an exception begin thrown during event processing.\n If no exception occurs "
                "during the job than it is usually safe to ignore this message.";
       }

@@ -316,6 +316,28 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     REQUIRE(overlapInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 4))));
   }
 
+  SECTION("no finder for dependent record") {
+    auto depOn2Key = DepOn2Record::keyForClass();
+    DependentRecordIntervalFinder finder(depOn2Key);
+    auto dummyFinder = std::make_shared<DummyRecordFinder>();
+
+    finder.addSupporter(SupportingRecordIntervalFinderHelper(dummyFinder->key(), dummyFinder));
+    const edm::EventID eID_1(1, 1, 1);
+    const edm::IOVSyncValue sync_1(eID_1);
+    const edm::ValidityInterval definedInterval1(sync_1, edm::IOVSyncValue(edm::EventID(1, 1, 5)));
+    dummyFinder->setInterval(definedInterval1);
+
+    REQUIRE(finder.findIntervalFor(depOn2Key, edm::IOVSyncValue(edm::EventID(1, 1, 4))) == definedInterval1);
+  }
+
+  SECTION("one finder for dependent record") {
+    const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
+    DependentRecordIntervalFinder finder(depRecordKey);
+
+    REQUIRE(finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 4))) ==
+            edm::ValidityInterval::invalidInterval());
+  }
+
   SECTION("testIncomparibleIOVAlgorithm") {
     const EventSetupRecordKey depRecordKey = DepRecord::keyForClass();
     DependentRecordIntervalFinder finder(depRecordKey);
@@ -1429,6 +1451,25 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const edm::ValidityInterval openEnded2(definedInterval1.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
     REQUIRE(openEnded2 == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 7))));
+  }
+
+  SECTION("EventSetupController with missing finder") {
+    SynchronousEventSetupsController controller;
+    edm::ParameterSet pset = createDummyPset();
+    EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
+
+    std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
+        std::make_shared<DummyESProductResolverProvider>();
+    controller.addExtra(dummyProv);
+
+    std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv =
+        std::make_shared<DepOn2RecordResolverProvider>();
+    controller.addExtra(depProv);
+
+    edm::ESParentContext parentC;
+    controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
+    const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, parentC);
+    REQUIRE_THROWS_AS(eventSetup.get<DepOn2Record>(), edm::eventsetup::NoRecordException<DepOn2Record>);
   }
 
   SECTION("extendIOVTest") {
