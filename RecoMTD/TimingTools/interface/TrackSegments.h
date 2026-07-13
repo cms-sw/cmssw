@@ -101,7 +101,7 @@ namespace mtd {
       return nSegment_;
     }
 
-    inline std::pair<float, float> getSegmentPathAndMom2(uint32_t iSegment) const {
+    inline std::pair<float, float> segmentPathAndMom2(uint32_t iSegment) const {
       if (iSegment >= nSegment_) {
         throw cms::Exception("TrackExtenderWithMTD") << "Requesting non existing track segment #" << iSegment;
       }

@@ -808,7 +808,7 @@ namespace {
 
           const float t_vtx_err = useVtxConstraint ? vtxTimeError : bsTimeSpread;
 
-          float lastpmag2 = trs0.getSegmentPathAndMom2(0).second;
+          float lastpmag2 = trs0.segmentPathAndMom2(0).second;
 
           for (auto detitr = range.first; detitr != range.second; ++detitr) {
             for (const auto& hit : *detitr) {
@@ -1107,7 +1107,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       thitpos = mtdhit->globalPosition();
       validmtd = true;
     } else if (ihitcount == 2 && ietlcount == 2) {
-      std::pair<float, float> lastStep = trs.getSegmentPathAndMom2(0);
+      std::pair<float, float> lastStep = trs.segmentPathAndMom2(0);
       float etlpathlength = std::abs(lastStep.first * c_cm_ns);
       //
       // The information of the two ETL hits is combined and attributed to the innermost hit
