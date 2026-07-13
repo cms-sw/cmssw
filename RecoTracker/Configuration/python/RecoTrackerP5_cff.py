@@ -116,6 +116,7 @@ tracksP5Task = cms.Task(cosmictracksP5Task,
                             gridtracksP5Task,
                             doAllCosmicdEdXEstimatorsTask,
                             siPixelClusterShapeCache)
+phase2_tracker.toReplaceWith(tracksP5Task,tracksP5Task.copyAndExclude([cosmictracksP5Task, gridtracksP5Task, doAllCosmicdEdXEstimatorsTask, siPixelClusterShapeCache]))
 tracksP5 = cms.Sequence(tracksP5Task)
 tracksP5_wodEdX = tracksP5.copy()
 tracksP5_wodEdX.remove(doAllCosmicdEdXEstimators)

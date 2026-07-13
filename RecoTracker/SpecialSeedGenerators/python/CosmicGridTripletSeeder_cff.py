@@ -1,2 +1,4 @@
-from RecoTracker.SpecialSeedGenerators.CosmicGridTripletSeeder_cfi import * 
-cosmicSeedingPhase2 = cms.Sequence(cosmicGridTripletSeeds)
+import FWCore.ParameterSet.Config as cms
+from RecoTracker.SpecialSeedGenerators.cosmicGridTripletSeeder_cfi import cosmicGridTripletSeeder 
+
+cosmicGridTripletSeeds = cosmicGridTripletSeeder.clone()
