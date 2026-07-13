@@ -85,14 +85,6 @@ public:
 
   MonitorElement* XYPositionMap{nullptr};
   MonitorElement* RZPositionMap{nullptr};
-
-  MonitorElement* XYPosition_shell[12] = {nullptr};
-  MonitorElement* RZPosition_shell[12] = {nullptr};
-  MonitorElement* XZPosition_shell[12] = {nullptr};
-  MonitorElement* ZPhiPosition_shell[12] = {nullptr};
-
-  MonitorElement* XYOccupancyMap{nullptr};
-  MonitorElement* RZOccupancyMap{nullptr};
   MonitorElement* CrackOverview{nullptr};
 
 private:
@@ -190,7 +182,6 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
     if (nRows * nColumns == 0)
       continue;
 
-    GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
     int nDigi = 0;
     int row_last = -1;
     int col_last = -1;
@@ -207,49 +198,6 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
           XYPositionMap->Fill(pdPos.x(), pdPos.y());
         if (RZPositionMap)
           RZPositionMap->Fill(pdPos.z(), std::hypot(pdPos.x(), pdPos.y()));
-
-        if (XYPositionMap) {
-          int i = 0;
-          int disc = tTopo_->pxfDisk(detId);
-          std::string shell = phase2tkutil::getITShell(detId, tTopo_, detPos.phi());
-          if (shell == "pI") {
-            if (!isEndcap) {
-              i = 0;
-            } else if (disc < 9) {
-              i = 4;
-            } else {
-              i = 8;
-            }
-          } else if (shell == "pO") {
-            if (!isEndcap) {
-              i = 1;
-            } else if (disc < 9) {
-              i = 5;
-            } else {
-              i = 9;
-            }
-          } else if (shell == "mI") {
-            if (!isEndcap) {
-              i = 2;
-            } else if (disc < 9) {
-              i = 6;
-            } else {
-              i = 10;
-            }
-          } else if (shell == "mO") {
-            if (!isEndcap) {
-              i = 3;
-            } else if (disc < 9) {
-              i = 7;
-            } else {
-              i = 11;
-            }
-          }
-          XZPosition_shell[i]->Fill(pdPos.x(), pdPos.z());
-          RZPosition_shell[i]->Fill(pdPos.z(), std::hypot(pdPos.x(), pdPos.y()));
-          ZPhiPosition_shell[i]->Fill(pdPos.z(), pdPos.phi());
-          XYPosition_shell[i]->Fill(pdPos.x(), pdPos.y());
-        }
       }
       nDigi++;
       LogDebug("Phase2TrackerMonitorDigi") << "  column " << col << " row " << row << std::dec << std::endl;
@@ -551,44 +499,6 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
 
   } else
     CrackOverview = nullptr;
-
-  Parameters = config_.getParameter<edm::ParameterSet>("XYPositionMapH");
-  edm::ParameterSet ParametersRZ = config_.getParameter<edm::ParameterSet>("RZPositionMapH");
-  if (Parameters.getParameter<bool>("switch") && pixelFlag_) {
-    std::vector<std::string> topFold = {"/Barrel", "/Endcaps/ForwardPix", "/Endcaps/EndcapPix"};
-    std::vector<std::string> Shell = {"/pI/", "/pO/", "/mI/", "/mO/"};
-    for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < 4; j++) {
-        ibooker.setCurrentFolder(top_folder + topFold[i] + Shell[j]);
-        XYPosition_shell[j + (4 * i)] = ibooker.book2D("Digi_Position_XY",
-                                                       "Digi_Position_XY (end view);x [cm];y [cm]",
-                                                       Parameters.getParameter<int32_t>("Nxbins"),
-                                                       Parameters.getParameter<double>("xmin"),
-                                                       Parameters.getParameter<double>("xmax"),
-                                                       Parameters.getParameter<int32_t>("Nybins"),
-                                                       Parameters.getParameter<double>("ymin"),
-                                                       Parameters.getParameter<double>("ymax"));
-        XZPosition_shell[j + (4 * i)] = ibooker.book2D("Digi_Position_XZ",
-                                                       "Digi_Position_XZ (top view);x [cm];z [cm]",
-                                                       Parameters.getParameter<int32_t>("Nxbins"),
-                                                       -40.0,
-                                                       40.0,
-                                                       Parameters.getParameter<int32_t>("Nybins"),
-                                                       -300.0,
-                                                       300.0);
-
-        RZPosition_shell[j + (4 * i)] = ibooker.book2D("Digi_Position_RZ",
-                                                       "Digi_Position_RZ (side view);z [cm];r [cm]",
-                                                       ParametersRZ.getParameter<int32_t>("Nxbins"),
-                                                       -300.0,
-                                                       300.0,
-                                                       ParametersRZ.getParameter<int32_t>("Nybins"),
-                                                       ParametersRZ.getParameter<double>("ymin"),
-                                                       ParametersRZ.getParameter<double>("ymax"));
-        ZPhiPosition_shell[j + (4 * i)] = ibooker.book2D("Digi_ZPhi", "digi z phi", 60, -300.0, 300.0, 50, -4.0, 4.0);
-      }
-    }
-  }
 }
 //
 // -- Book Layer Histograms
