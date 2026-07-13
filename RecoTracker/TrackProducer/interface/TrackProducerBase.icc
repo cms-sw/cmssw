@@ -287,10 +287,10 @@ void TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj,
         }  //end loop over layers
       };  // end lambda
 
-  localProp->setPropagationDirection(oppositeToMomentum);
+  localProp->setPropagationDirection(dirForInnerLayers);
   loopOverLayer(innerCompLayers, innerTSOS);
 
-  localProp->setPropagationDirection(alongMomentum);
+  localProp->setPropagationDirection(dirForOuterLayers);
   outIn = !outIn;  // if inOut should mark missing_outer
   loopOverLayer(outerCompLayers, outerTSOS);
 }
