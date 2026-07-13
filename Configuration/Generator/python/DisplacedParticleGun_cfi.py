@@ -15,9 +15,9 @@ import FWCore.ParameterSet.Config as cms
 #
 # `SampleAt` is a physics choice, not merely an implementation strategy.  The
 # sampled position is held fixed while direction candidates are retried.  This
-# preserves the requested spatial distribution on that plane.  `Momentum` is
-# also held fixed because its magnitude does not affect straight-line plane
-# intersections.
+# preserves the requested spatial distribution on that plane.  Momentum
+# magnitude does not affect straight-line plane intersections, so it is sampled
+# only after a direction has been accepted.
 #
 # The selected plane must provide RMin/RMax and PhiMin/PhiMax.  Bounds on the
 # other planes are acceptance requirements.  An optional plane is disabled by
@@ -96,10 +96,10 @@ generator = cms.EDProducer(
             ),
         ),
 
-        # Number of direction candidates tried for one fixed sampled position
-        # and momentum.  Exhaustion is a configuration/geometry failure; the
-        # primary point is not silently resampled because that would change the
-        # requested spatial distribution.
+        # Number of direction candidates tried for one fixed sampled position.
+        # Exhaustion is a configuration/geometry failure; the primary point is
+        # not silently resampled because that would change the requested
+        # spatial distribution.
         MaxDirectionTries=cms.uint32(10000),
     ),
 
