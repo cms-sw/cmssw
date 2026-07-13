@@ -232,11 +232,11 @@ void UnifiedParticleTransformerAK4TagInfoProducer::produce(edm::Event& iEvent, c
       features.is_filled = false;
     }
     // dynamical casting to pointers, null if not possible
-    const auto* pf_jet = dynamic_cast<const reco::PFJet*>(&jet);
-    const auto* pat_jet = dynamic_cast<const pat::Jet*>(&jet);
     edm::RefToBase<reco::Jet> jet_ref(jets, jet_n);
     const auto& unsubJet =
         (use_unsubjet_map_ && (*unsubjet_map)[jet_ref].isNonnull()) ? *(*unsubjet_map)[jet_ref] : jet;
+    const auto* pf_jet = dynamic_cast<const reco::PFJet*>(&unsubJet);
+    const auto* pat_jet = dynamic_cast<const pat::Jet*>(&unsubJet);
 
     if (features.is_filled) {
       math::XYZVector jet_dir = jet.momentum().Unit();
