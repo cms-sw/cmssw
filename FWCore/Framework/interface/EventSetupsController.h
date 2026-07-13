@@ -69,16 +69,15 @@ namespace edm {
       void addExtra(std::shared_ptr<eventsetup::ESProductResolverProvider> iProvider);
       void finishConfiguration();
 
-      // The main purpose of this function is to call eventSetupForInstanceAsync. It might
-      // be called immediately or we might need to wait until all the currently active
-      // IOVs end. If there is an exception, then a signal is emitted and the exception
+      // The main purpose of this function is to call eventSetupForInstanceAsync.
+      // If there is an exception, then a signal is emitted and the exception
       // is propagated.
-      void runOrQueueEventSetupForInstanceAsync(IOVSyncValue const&,
-                                                WaitingTaskHolder& taskToStartAfterIOVInit,
-                                                WaitingTaskList& endIOVWaitingTasks,
-                                                std::shared_ptr<const EventSetupImpl>&,
-                                                ActivityRegistry*,
-                                                ServiceToken const&);
+      void runEventSetupForInstanceAsync(IOVSyncValue const&,
+                                         WaitingTaskHolder& taskToStartAfterIOVInit,
+                                         WaitingTaskList& endIOVWaitingTasks,
+                                         std::shared_ptr<const EventSetupImpl>&,
+                                         ActivityRegistry*,
+                                         ServiceToken const&);
 
       // Pass in an IOVSyncValue to let the EventSetup system know which run and lumi
       // need to be processed and prepare IOVs for it (also could be a time or only a run).

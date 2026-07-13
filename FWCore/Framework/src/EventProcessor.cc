@@ -1168,12 +1168,12 @@ namespace edm {
     auto runStatus = std::make_shared<RunProcessingStatus>(preallocations_.numberOfStreams(), iHolder);
 
     chain::first([this, &runStatus, iSync](auto nextTask) {
-      espController_->runOrQueueEventSetupForInstanceAsync(iSync,
-                                                           nextTask,
-                                                           runStatus->endIOVWaitingTasks(),
-                                                           runStatus->eventSetupImplPtr(),
-                                                           actReg_.get(),
-                                                           serviceToken_);
+      espController_->runEventSetupForInstanceAsync(iSync,
+                                                    nextTask,
+                                                    runStatus->endIOVWaitingTasks(),
+                                                    runStatus->eventSetupImplPtr(),
+                                                    actReg_.get(),
+                                                    serviceToken_);
     }) | chain::then([this, runStatus, iRunAux](std::exception_ptr const* iException, auto nextTask) {
       CMS_SA_ALLOW try {
         if (iException) {
@@ -1388,12 +1388,12 @@ namespace edm {
     }
 
     chain::first([this, &iRunStatus, &ts](auto nextTask) {
-      espController_->runOrQueueEventSetupForInstanceAsync(ts,
-                                                           nextTask,
-                                                           iRunStatus->endIOVWaitingTasksEndRun(),
-                                                           iRunStatus->eventSetupImplPtrEndRun(),
-                                                           actReg_.get(),
-                                                           serviceToken_);
+      espController_->runEventSetupForInstanceAsync(ts,
+                                                    nextTask,
+                                                    iRunStatus->endIOVWaitingTasksEndRun(),
+                                                    iRunStatus->eventSetupImplPtrEndRun(),
+                                                    actReg_.get(),
+                                                    serviceToken_);
     }) | chain::then([this, iRunStatus, iRunAuxiliary](std::exception_ptr const* iException, auto nextTask) {
       if (iException) {
         iRunStatus->setEndingEventSetupSucceeded(false);
@@ -1611,7 +1611,7 @@ namespace edm {
 
     auto status = std::make_shared<LuminosityBlockProcessingStatus>();
     chain::first([this, &iSync, &status](auto nextTask) {
-      espController_->runOrQueueEventSetupForInstanceAsync(
+      espController_->runEventSetupForInstanceAsync(
           iSync, nextTask, status->endIOVWaitingTasks(), status->eventSetupImplPtr(), actReg_.get(), serviceToken_);
     }) | chain::then([this, status, iRunStatus, iLumiAux](std::exception_ptr const* iException, auto nextTask) {
       CMS_SA_ALLOW try {

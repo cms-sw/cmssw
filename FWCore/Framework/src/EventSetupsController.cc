@@ -97,32 +97,27 @@ namespace edm {
       }
     }
 
-    void EventSetupsController::runOrQueueEventSetupForInstanceAsync(
-        IOVSyncValue const& iSync,
-        WaitingTaskHolder& taskToStartAfterIOVInit,
-        WaitingTaskList& endIOVWaitingTasks,
-        std::shared_ptr<const EventSetupImpl>& eventSetupImpl,
-        ActivityRegistry* actReg,
-        ServiceToken const& iToken) {
-      auto asyncEventSetup = [this, &endIOVWaitingTasks, &eventSetupImpl, actReg](IOVSyncValue const& iSync,
-                                                                                  WaitingTaskHolder& task) {
-        CMS_SA_ALLOW try {
-          SendSourceTerminationSignalIfException sentry(actReg);
-          {
-            //all EventSetupRecordIntervalFinders are sequentially set to the
-            // new SyncValue in the call. The async part is just waiting for
-            // the Records to be available which is done after the SyncValue setup.
-            actReg->preESSyncIOVSignal_.emit(iSync);
-            auto postSignal = [&iSync](ActivityRegistry* actReg) { actReg->postESSyncIOVSignal_.emit(iSync); };
-            std::unique_ptr<ActivityRegistry, decltype(postSignal)> guard(actReg, postSignal);
-            eventSetupForInstanceAsync(iSync, task, endIOVWaitingTasks, eventSetupImpl);
-          }
-          sentry.completedSuccessfully();
-        } catch (...) {
-          task.doneWaiting(std::current_exception());
+    void EventSetupsController::runEventSetupForInstanceAsync(IOVSyncValue const& iSync,
+                                                              WaitingTaskHolder& taskToStartAfterIOVInit,
+                                                              WaitingTaskList& endIOVWaitingTasks,
+                                                              std::shared_ptr<const EventSetupImpl>& eventSetupImpl,
+                                                              ActivityRegistry* actReg,
+                                                              ServiceToken const& iToken) {
+      CMS_SA_ALLOW try {
+        SendSourceTerminationSignalIfException sentry(actReg);
+        {
+          //all EventSetupRecordIntervalFinders are sequentially set to the
+          // new SyncValue in the call. The async part is just waiting for
+          // the Records to be available which is done after the SyncValue setup.
+          actReg->preESSyncIOVSignal_.emit(iSync);
+          auto postSignal = [&iSync](ActivityRegistry* actReg) { actReg->postESSyncIOVSignal_.emit(iSync); };
+          std::unique_ptr<ActivityRegistry, decltype(postSignal)> guard(actReg, postSignal);
+          eventSetupForInstanceAsync(iSync, taskToStartAfterIOVInit, endIOVWaitingTasks, eventSetupImpl);
         }
-      };
-      asyncEventSetup(iSync, taskToStartAfterIOVInit);
+        sentry.completedSuccessfully();
+      } catch (...) {
+        taskToStartAfterIOVInit.doneWaiting(std::current_exception());
+      }
     }
 
     void EventSetupsController::eventSetupForInstanceAsync(IOVSyncValue const& syncValue,
