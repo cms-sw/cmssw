@@ -3,44 +3,20 @@
 
 #include "PerfTools/ProfilerService/interface/ProfilerServiceBase.h"
 
-#include <atomic>
-#include <iostream>
-#include <mutex>
-#include <optional>
-#include <string_view>
-#include <unordered_map>
-
 #include <fmt/printf.h>
 
-#include <boost/stacktrace.hpp>
-
-#include "DataFormats/Common/interface/HLTPathStatus.h"
-#include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Provenance/interface/RunID.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ComponentDescription.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ESModuleCallingContext.h"
-#include "FWCore/Framework/interface/ComponentDescription.h"
-#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
-#include "FWCore/ServiceRegistry/interface/PathsAndConsumesOfModulesBase.h"
-#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
-#include "FWCore/Utilities/interface/BranchType.h"
-#include "FWCore/Utilities/interface/ESInputTag.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/ProductKindOfType.h"
-#include "FWCore/Utilities/interface/TimeOfDay.h"
 
 /**
  * Based template class for range/mark based profiling services, targeting
