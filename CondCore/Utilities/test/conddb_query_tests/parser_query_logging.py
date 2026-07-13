@@ -13,7 +13,9 @@ HEADER = [
     "operation",
     "total_time",
     "payload",
-    "tag",
+    "payload_size_serialized",
+    "source_tag",
+    "dest_tag",
     "num_payloads",
     "num_iovs",
     "query_type",
@@ -134,7 +136,9 @@ def build_metadata(timestamp: str, body: str) -> dict:
         "operation": "none",
         "total_time": get_value(body, "total_time"),
         "payload": get_value(body, "payload"),
-        "tag": get_value(body, "tag"),
+        "payload_size_serialized": get_value(body,"payload_size_serialized"),
+        "source_tag": get_value(body, "source_tag"),
+        "dest_tag": get_value(body,"dest_tag"),
         "num_payloads": get_value(body, "num_payloads"),
         "num_iovs": get_value(body, "num_iovs"),
         "query_type": "none",
@@ -161,7 +165,8 @@ def parse_query_log(log_path: Path) -> list[dict]:
     active_tag = False
     active_payload = False
 
-    current_tag = "none"
+    current_source_tag = "none"
+    current_dest_tag = "none"
     current_payload = "none"
 
     with log_path.open("r", encoding="utf-8", errors="replace") as f:
@@ -185,7 +190,8 @@ def parse_query_log(log_path: Path) -> list[dict]:
                     active_tag = True
                     active_payload = False
 
-                    current_tag = metadata["tag"]
+                    current_source_tag = metadata["source_tag"]
+                    current_dest_tag = metadata["dest_tag"]
                     current_payload = "none"
 
                     # Do not write copy_tag_start to CSV
@@ -201,7 +207,8 @@ def parse_query_log(log_path: Path) -> list[dict]:
                 if event == "copy_payload":
                     # This is the end/summary of one payload copy.
                     metadata["operation"] = "copy_payload"
-                    metadata["tag"] = current_tag
+                    metadata["source_tag"] = current_source_tag
+                    metadata["dest_tag"] = current_dest_tag
                     metadata["payload"] = (
                         metadata["payload"]
                         if metadata["payload"] != "none"
@@ -218,18 +225,16 @@ def parse_query_log(log_path: Path) -> list[dict]:
                 if event == "copy_tag":
                     # This is the end/summary of the tag copy.
                     metadata["operation"] = "copy_tag"
-                    metadata["tag"] = (
-                        metadata["tag"]
-                        if metadata["tag"] != "none"
-                        else current_tag
-                    )
+                    metadata["source_tag"] = current_source_tag
+                    metadata["dest_tag"] = current_dest_tag
 
                     rows.append(metadata)
 
                     # After tag finishes, we are back at top-level copy
                     active_tag = False
                     active_payload = False
-                    current_tag = "none"
+                    current_source_tag = "none"
+                    current_dest_tag = "none"
                     current_payload = "none"
                     continue
 
@@ -253,7 +258,8 @@ def parse_query_log(log_path: Path) -> list[dict]:
                         "operation": current_operation(active_tag, active_payload),
                         "total_time": "none",
                         "payload": current_payload if current_payload != "none" else "none",
-                        "tag": current_tag if current_tag != "none" else "none",
+                        "source_tag": current_source_tag if current_source_tag != "none" else "none",
+                        "dest_tag": current_dest_tag if current_dest_tag != "none" else "none",
                         "num_payloads": "none",
                         "num_iovs": "none",
                         "query_type": get_query_type(statement),
@@ -284,7 +290,8 @@ def parse_query_log(log_path: Path) -> list[dict]:
                             active_payload,
                         )
                         metadata["payload"] = current_payload
-                        metadata["tag"] = current_tag
+                        metadata["source_tag"] = current_source_tag
+                        metadata["dest_tag"] = current_dest_tag
                         metadata["query_type"] = get_query_type(metadata["statement"])
                         rows.append(metadata)
 
@@ -303,8 +310,11 @@ def parse_query_log(log_path: Path) -> list[dict]:
 
                 metadata["operation"] = current_operation(active_tag, active_payload)
 
-                if metadata["tag"] == "none":
-                    metadata["tag"] = current_tag
+                if metadata["source_tag"] == "none":
+                    metadata["source_tag"] = current_source_tag
+
+                if metadata["dest_tag"] == "none":
+                    metadata["dest_tag"] = current_dest_tag
 
                 if metadata["payload"] == "none":
                     metadata["payload"] = current_payload

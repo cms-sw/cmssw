@@ -1727,6 +1727,7 @@ def _copy_payload(args, copyTime, session1, session2, payloadHash, payloadSerial
 
     try:
         payload_exists = _exists(session2, Payload2.hash, payloadHash)
+        payload_size_bytes = 0
 
         if payload_exists:
             logging.debug(
@@ -1752,6 +1753,12 @@ def _copy_payload(args, copyTime, session1, session2, payloadHash, payloadSerial
             payload['insertion_time'] = copyTime
             streamerInfo = payload['streamer_info']
 
+            payload_size_mb = (
+                len(payload["data"]) / (1024 ** 2)
+                if payload["data"] is not None
+                else 0
+            )
+
             session2.add(Payload2(**payload))
             ret = True
 
@@ -1765,16 +1772,17 @@ def _copy_payload(args, copyTime, session1, session2, payloadHash, payloadSerial
         total_time = time.perf_counter() - function_start
 
         query_logger.debug(
-            "event=copy_payload payload=%s total_time=%.6f",
+            "event=copy_payload payload=%s payload_size_serialized=%s total_time=%.6f",
             payloadHash,
+            payload_size_mb,
             total_time
         )
 
 def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, toIOV=None, timeMap=None):
     query_logger.debug(
-        "event=copy_tag_start tag=%s",
-        str_db_object(args.db, first)
-        
+        "event=copy_tag_start source_tag=%s dest_tag=%s",
+        first,
+        second  
     )
     function_start = time.perf_counter()
     
@@ -2067,8 +2075,9 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
         total_time = time.perf_counter() - function_start
 
         query_logger.debug(
-            "event=copy_tag tag=%s total_time=%.6f, num_payloads=%d, num_iovs=%d",
+            "event=copy_tag source_tag=%s dest_tag=%s total_time=%.6f, num_payloads=%d, num_iovs=%d",
             str_db_object(args.db, first),
+            str_db_object(args.db, second),
             total_time,
             np,
             niovs
