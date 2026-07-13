@@ -11,6 +11,16 @@ module to its plugin library, reads the per-kernel STACK size with cuobjdump, an
 maxResidentThreads * max(STACK) per device. That is a conservative upper bound over every
 kernel in those libraries. The --launched mode runs the job once under a CUPTI logger and
 reports only the kernels that actually launched.
+
+Alongside the stack budget it reports each kernel's per-block shared-memory use: the static
+amount from cuobjdump and, in --launched mode, the dynamic amount requested at launch (from
+CUPTI) and their total. That helps decide whether register/local spills could be steered into
+the on-chip L1/shared memory instead of global memory.
+
+If the target device has no compatible embedded SASS arch (it would JIT-compile the PTX at
+runtime), the tool exits with an error rather than report figures that would not describe what
+actually runs; arch compatibility follows the CUDA rules for base, family ('f') and accelerated
+('a') targets.
 """
 
 import concurrent.futures
@@ -26,8 +36,9 @@ from FWCore.ParameterSet.processFromFile import processFromFile
 
 _ALPAKA_SUFFIX = "@alpaka"
 
-# cuobjdump --dump-resource-usage parsing
-_ARCH_RE = re.compile(r"arch\s*=\s*(sm_\d+)")
+# cuobjdump --dump-resource-usage parsing; the arch carries the CUDA 12.9+ variant suffix, e.g.
+# "arch = sm_90a" (accelerated) or "arch = sm_100f" (family-specific)
+_ARCH_RE = re.compile(r"arch\s*=\s*(sm_\d+[af]?)")
 _FUNC_RE = re.compile(r"Function\s+(\S+):")
 _USAGE_RE = re.compile(r"REG:(\d+)\s+STACK:(\d+)\s+SHARED:(\d+)\s+LOCAL:(\d+)")
 
@@ -37,25 +48,35 @@ _MAXRES_RE = re.compile(r"max resident threads:\s*(\d+)")
 
 
 def find_tool(name):
-    """Locate a CUDA/CMSSW tool, preferring the build's CUDA external, then $PATH."""
-    cuda_base = os.environ.get("CUDA_BASE")
-    if cuda_base:
-        candidate = os.path.join(cuda_base, "bin", name)
-        if os.path.exists(candidate):
-            return candidate
+    """Locate a CUDA/CMSSW tool on $PATH (cmsenv puts the CUDA external's bin/ on it)."""
     return shutil.which(name)
 
 
 def lib_directories():
-    """Library directories to search, local developer area first, then the base release."""
+    """CMSSW plugin-library directories to search, developer area first, then the release base(s).
+
+    Ordering matters: locally rebuilt plugins in the developer area must shadow the release, so
+    the developer-area directories have to come first.
+
+    The directories are read from LD_LIBRARY_PATH, which scram (cmsenv) fills with every plugin
+    directory in the right precedence order (local, then cvmfs).
+    """
     arch = os.environ.get("SCRAM_ARCH", "")
     dirs = []
-    for var in ("CMSSW_BASE", "CMSSW_RELEASE_BASE"):
-        top = os.environ.get(var)
-        if top:
-            path = os.path.join(top, "lib", arch)
-            if os.path.isdir(path) and path not in dirs:
-                dirs.append(path)
+
+    def add(path):
+        if path and os.path.isdir(path) and path not in dirs:
+            dirs.append(path)
+
+    def is_plugin_dir(path):
+        parts = path.rstrip("/").split(os.sep)
+        return (len(parts) >= 2 and parts[-2:] == ["lib", arch]) or \
+               (len(parts) >= 3 and parts[-3:-1] == ["lib", arch])
+
+    for path in os.environ.get("LD_LIBRARY_PATH", "").split(os.pathsep):
+        if is_plugin_dir(path):
+            add(path)
+
     return dirs
 
 
@@ -89,7 +110,11 @@ def resolve_library_path(basename, lib_dirs):
 
 
 def _module_backend(module, default_backend):
-    """Return the Alpaka backend an @alpaka module resolves to."""
+    """Return the Alpaka backend an @alpaka module resolves to.
+
+    A per-module 'alpaka.backend' set explicitly in the configuration wins; otherwise the
+    process-wide default_backend applies (see config_backend).
+    """
     alpaka = getattr(module, "alpaka", None)
     if alpaka is not None and hasattr(alpaka, "backend"):
         backend = alpaka.backend.value()
@@ -108,6 +133,52 @@ def plugin_name_for(cpp_type, module, default_backend):
         base = cpp_type[: -len(_ALPAKA_SUFFIX)]
         return "alpaka_{}::{}".format(_module_backend(module, default_backend), base)
     return cpp_type
+
+
+# accelerator name (process.options.accelerators) -> Alpaka backend, in the priority order
+# ModuleTypeResolverAlpaka uses when picking the default backend
+_ACCELERATOR_BACKENDS = (
+    ("gpu-nvidia", "cuda_async"),
+    ("gpu-amd", "rocm_async"),
+    ("cpu", "serial_sync"),
+)
+# the Alpaka backend that emits CUDA device code: the only backend this tool can analyse, the
+# natural default, and what '*' (all accelerators, nvidia first) resolves to here
+_CUDA_BACKEND = "cuda_async"
+
+
+def config_backend(process):
+    """Return the Alpaka backend @alpaka modules resolve to, honouring the configuration.
+
+    Mirrors HeterogeneousCore/AlpakaCore ModuleTypeResolverAlpaka: an explicit
+    ProcessAcceleratorAlpaka.setBackend(...) wins; otherwise the backend follows
+    process.options.accelerators (the first of gpu-nvidia -> cuda_async, gpu-amd -> rocm_async,
+    cpu -> serial_sync that the requested accelerators allow). '*' (the default) allows all, which
+    for this tool means cuda_async. Anything that cannot be read falls back to cuda_async.
+    """
+    import fnmatch
+
+    # an explicit ProcessAcceleratorAlpaka.setBackend(...) takes precedence over the accelerators
+    try:
+        accelerators = process.processAccelerators_()
+    except (AttributeError, TypeError):
+        accelerators = {}
+    for accelerator in accelerators.values():
+        if type(accelerator).__name__ == "ProcessAcceleratorAlpaka":
+            backend = getattr(accelerator, "_backend", None)
+            if backend:
+                return backend
+
+    # otherwise follow process.options.accelerators (patterns such as 'gpu-*' are allowed)
+    try:
+        selected = list(process.options.accelerators)
+    except (AttributeError, TypeError):
+        selected = []
+    if selected and "*" not in selected:
+        for name, backend in _ACCELERATOR_BACKENDS:
+            if any(fnmatch.fnmatch(name, pattern) for pattern in selected):
+                return backend
+    return _CUDA_BACKEND
 
 
 def scheduled_modules(process):
@@ -348,15 +419,126 @@ def detect_devices():
     return parse_device_info(completed.stdout)
 
 
+def _parse_arch(sm):
+    """Split an arch string into (compute-capability number, variant suffix).
+
+    'sm_75' -> (75, ''), 'sm_100' -> (100, ''), 'sm_100f' -> (100, 'f'), 'sm_90a' -> (90, 'a').
+    The 'f' (family-specific) and 'a' (architecture-specific, "accelerated") suffixes are the CUDA
+    12.9+ arch-conditional variants that cuobjdump reports in its "arch = ..." line.
+    """
+    body = sm.split("_", 1)[1]
+    suffix = ""
+    if body and body[-1] in "af":
+        suffix, body = body[-1], body[:-1]
+    return int(body), suffix
+
+
+# preference when several compatible arch variants are embedded for the same function: accelerated
+# ('a') over family ('f') over base, then the higher compute capability
+_ARCH_VARIANT_PRIORITY = {"a": 2, "f": 1, "": 0}
+
+
+def _arch_preference(arch):
+    """Sort key for the arch the driver would prefer: variant first (a > f > base), then CC."""
+    number, suffix = _parse_arch(arch)
+    return (_ARCH_VARIANT_PRIORITY[suffix], number)
+
+
+def _sm_major_minor(sm):
+    """Split an arch string into (major, minor), ignoring any variant suffix.
+
+    Compute capabilities have a single-digit minor revision, so the last digit of the number is the
+    minor and everything before it is the major (two digits from Blackwell/sm_10x onwards).
+    """
+    number, _ = _parse_arch(sm)
+    return number // 10, number % 10
+
+
+# major compute-capability generations whose base (no-suffix) SASS is forward-compatible beyond the
+# usual same-major rule. Blackwell datacenter (sm_10x) and consumer (sm_12x) share this: base sm_100
+# also runs on sm_120, whereas sm_100f (family-specific) and sm_100a (accelerated) do not.
+_BASE_COMPATIBLE_GENERATIONS = (frozenset({10, 12}),)
+
+
+def _arch_runs_on(arch, device_number):
+    """True if SASS compiled for `arch` runs on a device of compute capability `device_number`.
+
+    `arch` is a cuobjdump arch string, optionally with a variant suffix; `device_number` is the
+    device's plain compute capability (e.g. 120 for sm_120). CUDA binary (SASS) compatibility:
+      * accelerated ('a', e.g. sm_100a): only the exact same compute capability, nothing else.
+      * family ('f', e.g. sm_100f): same major generation, forward across minor revisions.
+      * base (no suffix): same major generation forward, plus the cross-generation families NVIDIA
+        declares forward-compatible (Blackwell base sm_10x also runs on sm_12x).
+    SASS is never backward compatible: a device never runs code built for a higher capability, and
+    (for example) a Turing sm_75 device runs Volta sm_70 code but not Pascal sm_6x code.
+    """
+    number, suffix = _parse_arch(arch)
+    if suffix == "a":
+        return device_number == number
+    if device_number < number:
+        return False
+    major, device_major = number // 10, device_number // 10
+    if device_major == major:
+        return True
+    if suffix == "f":
+        return False
+    return any(major in family and device_major in family for family in _BASE_COMPATIBLE_GENERATIONS)
+
+
 def select_arch(target_sm, available_sms):
-    """Pick the embedded arch matching the device, else the highest embedded arch below it."""
-    if target_sm in available_sms:
-        return target_sm, False
-    target_n = int(target_sm.split("_")[1])
-    lower = sorted((int(sm.split("_")[1]) for sm in available_sms if int(sm.split("_")[1]) <= target_n))
-    if lower:
-        return "sm_{}".format(lower[-1]), True
-    return None, False
+    """Pick the embedded SASS arch that will run on a device of compute capability `target_sm`.
+
+    Returns (chosen_sm, fell_back). chosen_sm is None when no embedded arch runs on the device --
+    the driver would JIT-compile the embedded PTX, whose per-kernel resource usage cuobjdump cannot
+    report (cudaKernelStackBudget treats that as a fatal error). fell_back is True when the chosen
+    arch is not the device's own compute capability (a compatible lower/other arch is used instead).
+
+    Compatibility follows _arch_runs_on: exact match for 'a' (accelerated) variants, same major
+    generation forward for 'f' (family) variants, and that plus the declared cross-generation
+    families for base arches. Among the compatible arches the highest compute capability is chosen.
+    PTX JIT resource usage is not known untile runtime: sm incompatibility is treated as an error.
+    """
+    device_number, _ = _parse_arch(target_sm)
+    compatible = [sm for sm in available_sms if _arch_runs_on(sm, device_number)]
+    if not compatible:
+        return None, False
+    chosen = max(compatible, key=lambda sm: _parse_arch(sm)[0])
+    return chosen, _parse_arch(chosen)[0] != device_number
+
+
+def _available_arches(records):
+    """Sorted embedded SASS arches, preferring the configuration's own libraries.
+
+    Run-loaded libraries (config=False) are ignored while the configuration's libraries provide any
+    arch, so an extra library that happens to embed a different arch cannot skew the selection.
+    """
+    config_records = [record for record in records if record.get("config", True)]
+    pool = config_records if config_records else records
+    return sorted({record["arch"] for record in pool}, key=lambda sm: _parse_arch(sm)[0])
+
+
+def _device_records(records, device_number):
+    """Per (kernel, library), the record for the arch the driver would run on the device.
+
+    A function is embedded once per arch; among the arches that run on the device the most specific
+    variant is preferred in the following order:
+    - accelerated ('a') (e.g. sm_100a)
+    - family ('f') (e.g. sm_100f)
+    - base (e.g. sm_100)
+    - if the code was not compiled for base, take the highest compatible compute capability
+    Functions with no device-compatible arch are dropped.
+    Selecting per function (rather than filtering on one 'chosen' arch string) keeps arch-variant
+    functions that an exact arch-string match would otherwise miss.
+    """
+    best = {}
+    for record in records:
+        if not _arch_runs_on(record["arch"], device_number):
+            continue
+        key = (record["kernel"], record["library"])
+        current = best.get(key)
+        if current is None or _arch_preference(record["arch"]) > _arch_preference(current["arch"]):
+            best[key] = record
+    return list(best.values())
 
 
 def _scan_libraries(paths, cuobjdump, from_config):
@@ -381,7 +563,7 @@ def _human_bytes(value):
 
 
 def _worst(records, key):
-    return max(records, key=lambda record: record[key]) if records else None
+    return max(records, key=lambda record: record.get(key, 0)) if records else None
 
 
 def _modules_suffix(kernel, launched_modules):
@@ -392,8 +574,12 @@ def _modules_suffix(kernel, launched_modules):
     return "  [{}]".format(", ".join(modules)) if modules else "  [unattributed]"
 
 
-def _emit_reservation(out, label, worst, max_resident, launched_modules=None):
-    """Write a 'reservation = threads x stack' block for the worst kernel (or a zero line)."""
+def _emit_reservation(out, label, worst, max_resident, launched_modules=None, launched=False):
+    """Write a 'reservation = threads x stack' block for the worst kernel (or a zero line).
+
+    The block also reports that kernel's per-block shared-memory use: the static amount (from
+    cuobjdump) and, when launched is set, the dynamic amount captured at launch and their total.
+    """
     if worst is None or worst["stack"] == 0:
         out.write("  {}: {}\n".format(label, _human_bytes(0)))
         return
@@ -401,6 +587,13 @@ def _emit_reservation(out, label, worst, max_resident, launched_modules=None):
         label, _human_bytes(max_resident * worst["stack"]), max_resident, worst["stack"]))
     out.write("      largest stack frame {} B in {}\n".format(worst["stack"], worst["library"]))
     out.write("      kernel: {}{}\n".format(worst["short"], _modules_suffix(worst["kernel"], launched_modules)))
+    static_shared = worst.get("shared", 0)
+    if launched:
+        dynamic_shared = worst.get("dyn_shared", 0)
+        out.write("      shared memory: {} B total = {} B static + {} B dynamic\n".format(
+            static_shared + dynamic_shared, static_shared, dynamic_shared))
+    else:
+        out.write("      shared memory: {} B static\n".format(static_shared))
 
 
 def _report(out, records, library_labels, devices, unresolved, top, verbose,
@@ -415,11 +608,9 @@ def _report(out, records, library_labels, devices, unresolved, top, verbose,
     """
     nlibraries = len(library_labels)
     nmodules = len(set().union(*library_labels.values())) if library_labels else 0
-    config_records = [record for record in records if record.get("config", True)]
-    # pick the device arch from the configuration's libraries when available, so the static
+    # the device arch is chosen from the configuration's own libraries when available, so the static
     # bound is never blanked out by an extra run-loaded library that happens to add an arch
-    arch_pool = config_records if config_records else records
-    available_sms = sorted({record["arch"] for record in arch_pool}, key=lambda sm: int(sm.split("_")[1]))
+    available_sms = _available_arches(records)
     record_names = {record["kernel"] for record in records}
     extra_libraries = {record["library"] for record in records if not record.get("config", True)}
 
@@ -454,14 +645,17 @@ def _report(out, records, library_labels, devices, unresolved, top, verbose,
             out.write("  worst-case reservation: {}\n".format(_human_bytes(0)))
             continue
 
+        # main() already rejects a device with no compatible arch (it would JIT from PTX); this is a
+        # defensive guard for direct callers of _report
         chosen_sm, fell_back = select_arch(target_sm, available_sms)
         if chosen_sm is None:
-            out.write("  no embedded arch <= {} (have {}); cannot estimate.\n".format(target_sm, ", ".join(available_sms)))
+            out.write("  no embedded arch runs on {} (have {}); would JIT from PTX, cannot estimate.\n".format(
+                target_sm, ", ".join(available_sms)))
             continue
         if fell_back:
-            out.write("  WARNING: {} not embedded; using nearest lower arch {}.\n".format(target_sm, chosen_sm))
+            out.write("  WARNING: {} not embedded; using compatible arch {}.\n".format(target_sm, chosen_sm))
 
-        arch_records = [record for record in records if record["arch"] == chosen_sm]
+        arch_records = _device_records(records, _parse_arch(target_sm)[0])
 
         if launched_names is None:
             active = arch_records
@@ -469,7 +663,7 @@ def _report(out, records, library_labels, devices, unresolved, top, verbose,
         else:
             active = [record for record in arch_records if record["kernel"] in launched_names]
             _emit_reservation(out, "reservation (launched kernels)", _worst(active, "stack"), max_resident,
-                              launched_modules)
+                              launched_modules, launched=True)
             # the static upper bound stays over the configuration's CUDA libraries only
             static_active = [record for record in arch_records if record.get("config", True)]
             static_worst = _worst(static_active, "stack")
@@ -490,9 +684,12 @@ def _report(out, records, library_labels, devices, unresolved, top, verbose,
             out.write("  spilling kernels ({}):\n".format(len(spilling)))
             shown = spilling if top <= 0 else spilling[:top]
             for record in shown:
-                out.write("    STACK {:>6} B  LOCAL {:>6} B  REG {:>3}  {}{}\n".format(
-                    record["stack"], record["local"], record["reg"], record["short"],
-                    _modules_suffix(record["kernel"], launched_modules)))
+                # SHARED is the static per-block shared memory; DYN (launched runs only) is the
+                # dynamic amount requested at launch, so SHARED + DYN is the per-block total
+                dyn_col = "  DYN {:>6} B".format(record.get("dyn_shared", 0)) if launched_names is not None else ""
+                out.write("    STACK {:>6} B  LOCAL {:>6} B  SHARED {:>6} B{}  REG {:>3}  {}{}\n".format(
+                    record["stack"], record["local"], record.get("shared", 0), dyn_col,
+                    record["reg"], record["short"], _modules_suffix(record["kernel"], launched_modules)))
             hidden = spilling[len(shown):]
             if hidden:
                 lo, hi = hidden[-1]["stack"], hidden[0]["stack"]
@@ -544,28 +741,39 @@ def _read_lines(path):
 def _read_launched(path):
     """Read the CuptiKernelLoggerService kernel log.
 
-    Lines are "<mangled kernel>\\t<module label>" (the module may be empty). Returns the set of
-    launched kernel names and a {kernel: sorted module labels} attribution map.
+    Lines are "<mangled kernel>\\t<module label>\\t<max dynamic shared bytes>" (the module may be
+    empty).
+    Returns the set of launched kernel names, a {kernel: sorted module labels} attribution map,
+    and a {kernel: max dynamic shared bytes} map (only kernels seen with a non-zero amount).
     """
     names = set()
     modules = defaultdict(set)
+    dynamic_shared = {}
     for line in _iter_file_lines(path):
-        kernel, _, module = line.rstrip("\n").partition("\t")
-        kernel = kernel.strip()
+        fields = line.rstrip("\n").split("\t")
+        kernel = fields[0].strip()
         if not kernel:
             continue
         names.add(kernel)
-        module = module.strip()
+        module = fields[1].strip() if len(fields) > 1 else ""
         if module:
             modules[kernel].add(module)
-    return names, {kernel: sorted(labels) for kernel, labels in modules.items()}
+        if len(fields) > 2:
+            try:
+                shared = int(fields[2].strip() or "0")
+            except ValueError:
+                shared = 0
+            if shared > dynamic_shared.get(kernel, 0):
+                dynamic_shared[kernel] = shared
+    return names, {kernel: sorted(labels) for kernel, labels in modules.items()}, dynamic_shared
 
 
 def capture_launched_kernels(config, config_args):
     """Run cmsRun once with CuptiKernelLoggerService added to the configuration.
 
-    Returns (launched kernel names, {kernel: modules}, loaded library paths, returncode).
-    cmsRun's own output streams to the terminal so the run is visible.
+    Returns (launched kernel names, {kernel: modules}, {kernel: max dynamic shared bytes},
+    loaded library paths, returncode). cmsRun's own output streams to the terminal so the run is
+    visible.
     """
     import tempfile
 
@@ -599,8 +807,8 @@ def capture_launched_kernels(config, config_args):
                 dir=os.path.dirname(config), config=config, kernel=kernel_log, library=library_log))
     try:
         completed = subprocess.run([cmsrun, wrapper] + list(config_args))
-        names, modules = _read_launched(kernel_log)
-        return names, modules, _read_lines(library_log), completed.returncode
+        names, modules, dynamic_shared = _read_launched(kernel_log)
+        return names, modules, dynamic_shared, _read_lines(library_log), completed.returncode
     finally:
         for path in (kernel_log, library_log, wrapper):
             try:
@@ -666,8 +874,6 @@ def _build_parser():
                     "the configuration.",
     )
     parser.add_argument("config", help="cmsRun Python configuration file")
-    parser.add_argument("--backend", default="cuda_async",
-                        help="Alpaka backend to resolve @alpaka modules to (default: cuda_async)")
     parser.add_argument("--compute-capability", dest="compute_capability",
                         help="target compute capability, e.g. 9.0 or 90 (default: auto-detect devices)")
     parser.add_argument("--max-resident-threads", dest="max_resident_threads", type=int,
@@ -679,7 +885,7 @@ def _build_parser():
     parser.add_argument("--top", type=int, default=25,
                         help="cap the verbose spilling-kernel listing at N rows (0 = all; default 25)")
     parser.add_argument("-v", "--verbose", action="store_true",
-                        help="print the per-kernel and per-library breakdown")
+                        help="print the per-kernel (stack, local and shared memory) and per-library breakdown")
     return parser
 
 
@@ -691,8 +897,10 @@ def main(argv=None):
     args = parser.parse_args(tool_args + ([config] if config is not None else []))
 
     if args.compute_capability is not None:
-        normalized = args.compute_capability[3:] if args.compute_capability.startswith("sm_") else args.compute_capability
-        if not re.fullmatch(r"\d+(\.\d+)?", normalized):
+        # validate through the same normalisation the report uses (compute_capability_to_sm)
+        try:
+            _sm_major_minor(compute_capability_to_sm(args.compute_capability))
+        except (ValueError, IndexError):
             parser.error("invalid --compute-capability {!r}; expected e.g. 9.0 or 90".format(args.compute_capability))
 
     cuobjdump = find_tool("cuobjdump")
@@ -709,18 +917,72 @@ def main(argv=None):
         parser.error("could not load configuration {}: {}".format(config, error))
     lib_dirs = lib_directories()
     plugin_cache = parse_plugin_cache(lib_dirs)
-    library_labels, unresolved = loaded_cuda_libraries(process, args.backend, plugin_cache, lib_dirs)
+    # the backend @alpaka modules resolve to comes from the configuration (setBackend / accelerators)
+    default_backend = config_backend(process)
+    if default_backend != _CUDA_BACKEND:
+        # exit from non cuda_async configs
+        parser.error(
+            "the configuration resolves Alpaka modules to the '{}' backend, not the CUDA backend "
+            "'{}'."
+            "\nThis job would not launch CUDA kernels, so there is no device-memory budget to "
+            "estimate."
+            "\nConfigure a CUDA GPU, e.g. process.options.accelerators = ['gpu-nvidia'] or "
+            "process.ProcessAcceleratorAlpaka.setBackend('{}').".format(
+                default_backend, _CUDA_BACKEND, _CUDA_BACKEND))
+    library_labels, unresolved = loaded_cuda_libraries(process, default_backend, plugin_cache, lib_dirs)
 
     # static analyzer: every kernel in the configuration's CUDA libraries
     records = _scan_libraries(library_labels, cuobjdump, True)
 
+    # resolve the target device(s) and check arch compatibility up front, before the (possibly slow)
+    # --launched cmsRun. A device with no compatible embedded SASS arch would JIT-compile PTX at
+    # runtime, so cuobjdump's resource usage would not describe what runs: warn and skip such a
+    # device, keeping any that can be estimated, and only error out if none can.
+    if args.compute_capability is not None or args.max_resident_threads is not None:
+        if args.compute_capability is None or args.max_resident_threads is None:
+            parser.error("--compute-capability and --max-resident-threads must be given together")
+        devices = [{
+            "index": None,
+            "compute_capability": args.compute_capability,
+            "name": "target device",
+            "max_resident_threads": args.max_resident_threads,
+        }]
+    else:
+        devices = detect_devices()
+        if not devices:
+            parser.error("no CUDA devices detected; pass --compute-capability and --max-resident-threads")
+    if records:
+        available_sms = _available_arches(records)
+        satisfiable = []
+        for device in devices:
+            target_sm = compute_capability_to_sm(device["compute_capability"])
+            if select_arch(target_sm, available_sms)[0] is not None:
+                satisfiable.append(device)
+                continue
+            prefix = "device {}: ".format(device["index"]) if device.get("index") is not None else ""
+            sys.stderr.write(
+                "WARNING: {}{} (compute capability {}, {}) has no compatible embedded CUDA arch and "
+                "would JIT-compile PTX at runtime."
+                "\nSkipping it (its stack/shared-memory usage cannot be reported)."
+                "\nEmbedded arches: {}.\n".format(
+                    prefix, device.get("name", ""), device["compute_capability"], target_sm,
+                    ", ".join(available_sms)))
+        if not satisfiable:
+            parser.error(
+                "no target CUDA device can run the embedded arches ({}):"
+                "\nevery device would JIT-compile PTX at runtime, so the result would be meaningless."
+                "\nRebuild the CUDA libraries for a compatible architecture.".format(", ".join(available_sms)))
+        devices = satisfiable
+
     exit_code = 0
     launched_names = None
     launched_modules = None
+    launched_shared = None
     unmatched_display = None
     if args.launched:
         sys.stderr.write("Running cmsRun with the CUPTI kernel logger service to capture launched kernels...\n")
-        launched_names, launched_modules, loaded_libraries, returncode = capture_launched_kernels(config, config_args)
+        launched_names, launched_modules, launched_shared, loaded_libraries, returncode = capture_launched_kernels(
+            config, config_args)
         if returncode != 0:
             # the launched data is incomplete; report it and fail so automation notices
             sys.stderr.write("WARNING: cmsRun exited with code {}; launched-kernel data may be incomplete.\n".format(
@@ -749,26 +1011,16 @@ def main(argv=None):
     for record in records:
         record["demangled"] = names.get(record["kernel"], record["kernel"])
         record["short"] = short_kernel_name(record["demangled"])
+        # attach the launch-time dynamic shared memory (0 in static mode) and the per-block total
+        dynamic_shared = launched_shared.get(record["kernel"], 0) if launched_shared else 0
+        record["dyn_shared"] = dynamic_shared
+        record["total_shared"] = record.get("shared", 0) + dynamic_shared
 
     if launched_names:
         unmatched = sorted(launched_names - {record["kernel"] for record in records})
         if unmatched:
             unmatched_names = demangle(unmatched)
             unmatched_display = sorted(short_kernel_name(unmatched_names.get(name, name)) for name in unmatched)
-
-    if args.compute_capability is not None or args.max_resident_threads is not None:
-        if args.compute_capability is None or args.max_resident_threads is None:
-            parser.error("--compute-capability and --max-resident-threads must be given together")
-        devices = [{
-            "index": None,
-            "compute_capability": args.compute_capability,
-            "name": "target device",
-            "max_resident_threads": args.max_resident_threads,
-        }]
-    else:
-        devices = detect_devices()
-        if not devices:
-            parser.error("no CUDA devices detected; pass --compute-capability and --max-resident-threads")
 
     _report(sys.stdout, records, library_labels, devices, unresolved, args.top, args.verbose,
             launched_names, unmatched_display, launched_modules)
