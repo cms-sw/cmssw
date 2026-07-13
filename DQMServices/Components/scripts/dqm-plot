@@ -1178,8 +1178,8 @@ class DQMPlotter:
                     ref_centers,
                     bin_labels,
                     size="small" if len(bin_labels) < 10 else "xx-small",
-                    rotation=45,
-                    ha="right",
+                    rotation=0,
+                    ha="center",
                     va="top",
                 )
                 ax_ratio.tick_params(axis="x", which="minor", bottom=False)
@@ -1189,7 +1189,7 @@ class DQMPlotter:
             if ratio_label is None:
                 ratio_ylabel = "Ratio"
             elif ratio_label == "auto":
-                ratio_ylabel = f"Ratio wrt {labels[0]}"
+                ratio_ylabel = f"Ratio wrt. {labels[0]}"
             else:
                 ratio_ylabel = ratio_label
             ax_ratio.set_ylabel(ratio_ylabel, fontsize=label_size if ytitle_ratio_fontsize is None else ytitle_ratio_fontsize)
