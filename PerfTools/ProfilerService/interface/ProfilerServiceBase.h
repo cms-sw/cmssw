@@ -4,10 +4,10 @@
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 #include <iostream>
 #include <mutex>
 #include <shared_mutex>
-#include <cstdio>
 #include <string>
 #include <string_view>
 #include <tuple>

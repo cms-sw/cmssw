@@ -1,16 +1,3 @@
-#include <algorithm>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <vector>
-#include <utility>
-// For scoped locks
-#include <mutex>
-
-#include <oneapi/tbb/concurrent_vector.h>
-
-#include <fmt/printf.h>
-
 #include <rocprofiler-sdk-roctx/roctx.h>
 
 #include "HeterogeneousCore/ROCmServices/interface/ROCmInterface.h"
