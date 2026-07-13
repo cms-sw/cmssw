@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
 #include <cassert>
+#include <memory>
 
 namespace edm {
   namespace eventsetup {
