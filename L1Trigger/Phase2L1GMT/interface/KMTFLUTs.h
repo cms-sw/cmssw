@@ -14,8 +14,8 @@ namespace Phase2L1GMT {
     KMTFLUTs(const std::string &filename, const std::string &ThetaFilename) {
       edm::FileInPath path(filename);
       edm::FileInPath pathTheta(ThetaFilename);
-      lutFile_ = new TFile(path.fullPath().c_str());
-      lutThetaFile_ = new TFile(pathTheta.fullPath().c_str());
+      lutFile_ = std::unique_ptr<TFile>{TFile::Open(path.fullPath().c_str())};
+      lutThetaFile_ = std::unique_ptr<TFile>(TFile::Open(pathTheta.fullPath().c_str()));
       lut_[3 * 64 + 8] = (TH1 *)lutFile_->Get("gain_8_3");
       lut_[2 * 64 + 8] = (TH1 *)lutFile_->Get("gain_8_2");
       lut_[2 * 64 + 12] = (TH1 *)lutFile_->Get("gain_12_2");
@@ -87,12 +87,6 @@ namespace Phase2L1GMT {
     ~KMTFLUTs() {
       lutFile_->Close();
       lutThetaFile_->Close();
-      if (lutFile_ != nullptr) {
-        delete lutFile_;
-      }
-      if (lutThetaFile_ != nullptr) {
-        delete lutThetaFile_;
-      }
     }
 
     std::vector<float> trackGain(uint step, uint bitmask, uint K) {
@@ -134,13 +128,13 @@ namespace Phase2L1GMT {
       return uint((1 << 12) * coarseEta_->GetBinContent(coarseEta_->GetXaxis()->FindBin(mask)) / M_PI);
     }
 
-    std::vector<float> trackGainTheta(uint step, uint bitmask, uint K, bool is2D) {
+    std::vector<float> trackGainTheta(uint step, uint bitmask, uint K, bool is2D) const {
       std::vector<float> gain(4, 0.0);
       const TH1 *h;
       if (is2D) {
-        h = lutTheta2D_[64 * step + bitmask];
+        h = lutTheta2D_.at(64 * step + bitmask);
       } else {
-        h = lutTheta1D_[64 * step + bitmask];
+        h = lutTheta1D_.at(64 * step + bitmask);
       }
       gain[0] = h->GetBinContent(K + 1);
       gain[1] = h->GetBinContent(512 + K + 1);
@@ -149,15 +143,15 @@ namespace Phase2L1GMT {
       return gain;
     }
 
-    std::vector<float> trackGainTheta2(uint step, uint bitmask, uint phiBitmask, uint K) {
+    std::vector<float> trackGainTheta2(uint step, uint bitmask, uint phiBitmask, uint K) const {
       std::vector<float> gain(4, 0.0);
       const TH1 *h;
       if (phiBitmask == 0b1100) {
-        h = lutTheta1D11_[64 * step + bitmask];
+        h = lutTheta1D11_.at(64 * step + bitmask);
       } else if (phiBitmask == 0b1000) {
-        h = lutTheta1D10_[64 * step + bitmask];
+        h = lutTheta1D10_.at(64 * step + bitmask);
       } else {
-        h = lutTheta1D01_[64 * step + bitmask];
+        h = lutTheta1D01_.at(64 * step + bitmask);
       }
       gain[0] = h->GetBinContent(K + 1);
       gain[1] = h->GetBinContent(512 + K + 1);
@@ -166,8 +160,8 @@ namespace Phase2L1GMT {
       return gain;
     }
 
-    TFile *lutFile_;
-    TFile *lutThetaFile_;
+    std::unique_ptr<TFile> lutFile_;
+    std::unique_ptr<TFile> lutThetaFile_;
     std::map<uint, const TH1 *> lut_;
     std::map<uint, const TH1 *> lut2HH_;
     std::map<uint, const TH1 *> lut2LH_;
