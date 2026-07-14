@@ -47,7 +47,7 @@ namespace edm {
     public:
       enum class IntervalStatus { NotInitializedForSyncValue, Invalid, NewInterval, UpdateIntervalEnd, SameInterval };
 
-      EventSetupRecordIOVCoordinator(unsigned int nConcurrentIOVs);
+      explicit EventSetupRecordIOVCoordinator(unsigned int nConcurrentIOVs);
       ~EventSetupRecordIOVCoordinator();
 
       void endIOVAsync(WaitingTaskHolder endTask);

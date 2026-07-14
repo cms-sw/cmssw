@@ -84,14 +84,14 @@ namespace edm {
       // do not know when the interval ends, but the interval is valid and
       // iTime is within the interval.
       if (validityInterval_.first() != IOVSyncValue::invalidIOVSyncValue()) {
-        // An interval is new if the start of the interval changes
         if (validityInterval_.first() != oldFirst) {
+          // An interval is new if the start of the interval changes
           intervalStatus_ = IntervalStatus::NewInterval;
 
+        } else if (validityInterval_.last() != oldLast) {
           // If the start is the same but the end changes, we consider
           // this the same interval because we do not want to do the
           // work to update the caches of data in this case.
-        } else if (validityInterval_.last() != oldLast) {
           intervalStatus_ = IntervalStatus::UpdateIntervalEnd;
         } else {
           intervalStatus_ = IntervalStatus::SameInterval;
@@ -180,8 +180,7 @@ namespace edm {
 
     void EventSetupRecordIOVCoordinator::reset() {
       firstForCurrentIOV_ = IOVSyncValue();
-      // Force a new IOV to start with a new cacheIdentifier
-      // on the next eventSetupForInstance call.
+      // Force a new IOV to start on the next setValidityIntervalFor call.
       validityInterval_ = ValidityInterval{};
       if (finder_.get() != nullptr) {
         finder_->resetInterval(key());

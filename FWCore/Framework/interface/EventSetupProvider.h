@@ -55,8 +55,6 @@ namespace edm {
       EventSetupProvider(EventSetupProvider const&) = delete;
       EventSetupProvider const& operator=(EventSetupProvider const&) = delete;
 
-      ~EventSetupProvider();
-
       std::set<ComponentDescription> resolverProviderDescriptions() const;
 
       ESRecordsToProductResolverIndices recordsToResolverIndices() const;
@@ -67,8 +65,7 @@ namespace edm {
 
       void add(std::shared_ptr<ESProductResolverProvider>);
 
-      void finishConfiguration(std::set<edm::eventsetup::EventSetupRecordKey> const& finderRecords,
-                               NumberOfConcurrentIOVs const&);
+      void finishConfiguration(std::set<EventSetupRecordKey> const& finderRecords, NumberOfConcurrentIOVs const&);
 
       ///Used when we need to force a Record to reset all its resolvers
       std::vector<EventSetupRecordKey> resetRecordPlusDependentRecords(EventSetupRecordKey const&);

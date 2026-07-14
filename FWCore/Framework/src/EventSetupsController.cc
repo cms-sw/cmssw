@@ -184,8 +184,7 @@ namespace edm {
       espController.finishConfiguration();
       FinalWaitingTask waitUntilIOVInitializationCompletes{iGroup};
 
-      // These do nothing ...
-
+      //this is just used for testing so best to constrain to only 1 thread to avoid overloading the system.
       oneapi::tbb::task_arena arena(1);
       arena.execute([&]() {
         WaitingTaskList dummyWaitingTaskList;

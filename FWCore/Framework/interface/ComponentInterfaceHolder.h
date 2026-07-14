@@ -1,6 +1,5 @@
 #ifndef FWCore_Framework_ComponentInterfaceHolder_h
 #define FWCore_Framework_ComponentInterfaceHolder_h
-// -*- C++ -*-
 // Package:     Framework
 // Class  :     ComponentInterfaceHolder
 //
