@@ -46,7 +46,7 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #        (Patatrack ECAL-only: TTbar - on CPU)
 #        (Patatrack HCAL-only: TTbar - on CPU)
 #        (Patatrack pixel-only: ZMM - on CPU: quadruplets, triplets)
-#        (TTbar FastSim, TTbar FastSim PU, MinBiasFS for mixing))
+#        (TTbar FastSim, TTbar FastSim+HLT, TTbar FastSim PU, MinBiasFS for mixing))
 #        (ZEE)
 #        (Nu Gun)
 #   2024 (TTbar, TTbar PU, TTbar PU premix, TTbar PU prod-like)
@@ -97,7 +97,7 @@ numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009
            12434.511,
            12434.521,
            12450.501,12450.505,
-           14034.0,14234.0,14040.303,
+           14034.0,14034.913,14234.0,14040.303,
            12446.0,
            12461.0,	
            # 2024
