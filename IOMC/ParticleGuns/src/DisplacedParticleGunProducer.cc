@@ -14,7 +14,6 @@
 #include "HepMC/GenEvent.h"
 
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -32,7 +31,6 @@ namespace edm {
   namespace {
 
     enum class MagnitudeVariable { kEnergy, kPt };
-    enum class SampleAt { kOrigin, kProduction };
     enum class RadialDistribution { kUniformArea, kUniformRadius };
 
     MagnitudeVariable readMagnitudeVariable(const std::string& value) {
@@ -44,17 +42,6 @@ namespace edm {
       }
       throw cms::Exception("DisplacedParticleGunProducer")
           << "Momentum.Magnitude.Variable must be either 'energy' or 'pt', but is '" << value << "'.";
-    }
-
-    SampleAt readSampleAt(const std::string& value) {
-      if (value == "origin") {
-        return SampleAt::kOrigin;
-      }
-      if (value == "production") {
-        return SampleAt::kProduction;
-      }
-      throw cms::Exception("DisplacedParticleGunProducer")
-          << "Geometry.SampleAt must be either 'origin' or 'production', but is '" << value << "'.";
     }
 
     RadialDistribution readRadialDistribution(const std::string& value) {
@@ -156,8 +143,7 @@ namespace edm {
 
     struct GeometryParameters {
       explicit GeometryParameters(const ParameterSet& pset)
-          : sampleAt(readSampleAt(pset.getParameter<std::string>("SampleAt"))),
-            radialDistribution(readRadialDistribution(pset.getParameter<std::string>("RadialDistribution"))),
+          : radialDistribution(readRadialDistribution(pset.getParameter<std::string>("RadialDistribution"))),
             origin(pset.getParameter<ParameterSet>("Origin"), 0., "Origin"),
             production(pset.getParameter<ParameterSet>("Production"), "Production"),
             target(readTarget(pset)) {
@@ -178,7 +164,6 @@ namespace edm {
         }
       }
 
-      SampleAt sampleAt;
       RadialDistribution radialDistribution;
       PlaneParameters origin;
       PlaneParameters production;
@@ -221,18 +206,13 @@ namespace edm {
           throw cms::Exception("DisplacedParticleGunProducer") << "MaxDirectionTries must be greater than zero.";
         }
 
-        const auto& sampled = geometry.sampleAt == SampleAt::kOrigin ? geometry.origin : geometry.production;
         const auto checkReachable = [&](const PlaneParameters& required, const char* name) {
-          if (!capIsPairwiseReachable(sampled, required, momentum.direction)) {
+          if (!capIsPairwiseReachable(geometry.origin, required, momentum.direction)) {
             throw cms::Exception("DisplacedParticleGunProducer")
-                << "Geometry." << name << " radial range is unreachable from the sampled cap within the theta range.";
+                << "Geometry." << name << " radial range is unreachable from the origin within the theta range.";
           }
         };
-        if (geometry.sampleAt == SampleAt::kOrigin) {
-          checkReachable(geometry.production, "Production");
-        } else {
-          checkReachable(geometry.origin, "Origin");
-        }
+        checkReachable(geometry.production, "Production");
         if (geometry.target) {
           checkReachable(*geometry.target, "Target");
         }
@@ -279,6 +259,7 @@ namespace edm {
     };
 
     struct ResolvedParticle {
+      int pdgId;
       FourMomentum momentum;
       ProductionVertex vertex;
     };
@@ -399,15 +380,13 @@ namespace edm {
       const auto& geometry = parameters.geometry;
       const auto& origin = geometry.origin;
       const auto& production = geometry.production;
-      const auto& sampledCap = geometry.sampleAt == SampleAt::kOrigin ? origin : production;
 
-      const double sampledR = sampleRadius(engine, sampledCap, geometry.radialDistribution);
-      const double sampledSpatialPhi = CLHEP::RandFlat::shoot(engine, sampledCap.phiMin, sampledCap.phiMax);
+      const double sampledR = sampleRadius(engine, origin, geometry.radialDistribution);
+      const double sampledSpatialPhi = CLHEP::RandFlat::shoot(engine, origin.phiMin, origin.phiMax);
       const Point sampledPoint{sampledR * std::cos(sampledSpatialPhi), sampledR * std::sin(sampledSpatialPhi)};
 
       double theta = 0.;
       double momentumPhi = 0.;
-      Point originPoint{};
       Point productionPoint{};
       std::optional<Point> targetPoint;
       bool accepted = false;
@@ -419,10 +398,10 @@ namespace edm {
 
         const auto addRadialConstraint = [&](const PlaneParameters& cap) {
           allowedSlopes =
-              intersectIntervals(allowedSlopes, allowedSlopesForCap(sampledR, deltaPhi, cap.z - sampledCap.z, cap));
+              intersectIntervals(allowedSlopes, allowedSlopesForCap(sampledR, deltaPhi, cap.z - origin.z, cap));
         };
 
-        addRadialConstraint(geometry.sampleAt == SampleAt::kOrigin ? production : origin);
+        addRadialConstraint(production);
         if (geometry.target) {
           addRadialConstraint(*geometry.target);
         }
@@ -431,13 +410,12 @@ namespace edm {
         }
 
         theta = sampleTheta(engine, allowedSlopes);
-        originPoint = projectToZ(sampledPoint, sampledCap.z, origin.z, theta, momentumPhi);
-        productionPoint = projectToZ(sampledPoint, sampledCap.z, production.z, theta, momentumPhi);
+        productionPoint = projectToZ(sampledPoint, origin.z, production.z, theta, momentumPhi);
         if (geometry.target) {
-          targetPoint = projectToZ(sampledPoint, sampledCap.z, geometry.target->z, theta, momentumPhi);
+          targetPoint = projectToZ(sampledPoint, origin.z, geometry.target->z, theta, momentumPhi);
         }
 
-        accepted = capContains(originPoint, origin) && capContains(productionPoint, production) &&
+        accepted = capContains(productionPoint, production) &&
                    (!geometry.target || capContains(*targetPoint, *geometry.target));
         if (accepted) {
           break;
@@ -447,9 +425,8 @@ namespace edm {
       if (!accepted) {
         throw cms::Exception("DisplacedParticleGunProducer")
             << "Failed to find a direction satisfying all configured caps after MaxDirectionTries="
-            << parameters.maxDirectionTries
-            << ". Fixed sampled point: cap=" << (geometry.sampleAt == SampleAt::kOrigin ? "Origin" : "Production")
-            << ", R=" << sampledR << " cm, phi=" << sampledSpatialPhi << ".";
+            << parameters.maxDirectionTries << ". Fixed sampled point: cap=Origin, R=" << sampledR
+            << " cm, phi=" << sampledSpatialPhi << ".";
       }
 
       const double sampledMagnitude = CLHEP::RandFlat::shoot(engine, magnitude.min, magnitude.max);
@@ -469,18 +446,37 @@ namespace edm {
 
       const FourMomentum momentum{pt * std::cos(momentumPhi), pt * std::sin(momentumPhi), pz, energy};
 
-      double time = 0.;
-      if (geometry.sampleAt == SampleAt::kOrigin) {
-        const double deltaX = productionPoint.x - originPoint.x;
-        const double deltaY = productionPoint.y - originPoint.y;
-        const double deltaZ = production.z - origin.z;
-        const double pathLength = std::sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
-        const double absoluteMomentum =
-            std::sqrt(momentum.px * momentum.px + momentum.py * momentum.py + momentum.pz * momentum.pz);
-        time = pathLength * CLHEP::cm * energy / absoluteMomentum;
-      }
+      const double deltaX = productionPoint.x - sampledPoint.x;
+      const double deltaY = productionPoint.y - sampledPoint.y;
+      const double deltaZ = production.z - origin.z;
+      const double pathLength = std::sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+      const double absoluteMomentum =
+          std::sqrt(momentum.px * momentum.px + momentum.py * momentum.py + momentum.pz * momentum.pz);
+      const double time = pathLength * CLHEP::cm * energy / absoluteMomentum;
 
-      return {momentum, {productionPoint.x, productionPoint.y, production.z, time}};
+      return {parameters.partId, momentum, {productionPoint.x, productionPoint.y, production.z, time}};
+    }
+
+    void appendParticleToGenEvent(HepMC::GenEvent& genEvent,
+                                  const ResolvedParticle& particle,
+                                  int barcode,
+                                  bool verbose) {
+      const auto& momentum = particle.momentum;
+      const auto& vertex = particle.vertex;
+
+      auto* genVertex = new HepMC::GenVertex(
+          HepMC::FourVector(vertex.x * CLHEP::cm, vertex.y * CLHEP::cm, vertex.z * CLHEP::cm, vertex.time));
+      auto* genParticle = new HepMC::GenParticle(
+          HepMC::FourVector(momentum.px, momentum.py, momentum.pz, momentum.energy), particle.pdgId, 1);
+      genParticle->suggest_barcode(barcode);
+
+      genVertex->add_particle_out(genParticle);
+      genEvent.add_vertex(genVertex);
+
+      if (verbose) {
+        genVertex->print();
+        genParticle->print();
+      }
     }
 
   }  // namespace
@@ -493,7 +489,7 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& es) const override;
+    void produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const override;
 
     const ProducerParameters fParameters;
     const ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> fPDGTableToken;
@@ -553,7 +549,6 @@ namespace edm {
     target.add<double>("PhiMax");
 
     edm::ParameterSetDescription geometry;
-    geometry.add<std::string>("SampleAt");
     geometry.add<std::string>("RadialDistribution");
     geometry.add<edm::ParameterSetDescription>("Origin", origin);
     geometry.add<edm::ParameterSetDescription>("Production", production);
@@ -572,63 +567,45 @@ namespace edm {
     descriptions.add("DisplacedParticleGunProducer", desc);
   }
 
-  void DisplacedParticleGunProducer::produce(edm::StreamID, edm::Event& e, const edm::EventSetup& es) const {
-    const auto& particleGun = fParameters.particleGun;
-
-    edm::Service<edm::RandomNumberGenerator> rng;
-    CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
-
+  void DisplacedParticleGunProducer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
     if (fParameters.verbosity > 0) {
       LogDebug("DisplacedParticleGunProducer")
           << " DisplacedParticleGunProducer : Begin New Event Generation" << std::endl;
     }
 
-    HepMC::GenEvent* fEvt = new HepMC::GenEvent();
+    const auto& particleGun = fParameters.particleGun;
+    edm::Service<edm::RandomNumberGenerator> rng;
+    CLHEP::HepRandomEngine* randomEngine = &rng->getEngine(event.streamID());
 
-    auto const& pdgTable = es.getData(fPDGTableToken);
+    auto const& pdgTable = setup.getData(fPDGTableToken);
     const HepPDT::ParticleData* pData = pdgTable.particle(HepPDT::ParticleID(std::abs(particleGun.partId)));
     if (!pData) {
       throw cms::Exception("DisplacedParticleGunProducer")
           << "Particle ID " << particleGun.partId << " not found in PDG table";
     }
+
     const double mass = pData->mass().value();
     validateParticleCompatibility(particleGun, mass, pData->charge());
 
-    int barcode = 1;
+    HepMC::GenEvent* genEvent = new HepMC::GenEvent();
+    genEvent->set_event_number(event.id().event());
+    genEvent->set_signal_process_id(20);
 
-    for (int ip = 0; ip < particleGun.nParticles; ++ip) {
-      const ResolvedParticle resolved = resolveParticle(engine, particleGun, mass);
-      const auto& momentum = resolved.momentum;
-      const auto& vertex = resolved.vertex;
-
-      auto* vtx = new HepMC::GenVertex(
-          HepMC::FourVector(vertex.x * CLHEP::cm, vertex.y * CLHEP::cm, vertex.z * CLHEP::cm, vertex.time));
-      auto* part = new HepMC::GenParticle(
-          HepMC::FourVector(momentum.px, momentum.py, momentum.pz, momentum.energy), particleGun.partId, 1);
-      part->suggest_barcode(barcode++);
-
-      vtx->add_particle_out(part);
-      fEvt->add_vertex(vtx);
-
-      if (fParameters.verbosity > 0) {
-        vtx->print();
-        part->print();
-      }
+    for (int particleIndex = 0; particleIndex < particleGun.nParticles; ++particleIndex) {
+      const ResolvedParticle particle = resolveParticle(randomEngine, particleGun, mass);
+      appendParticleToGenEvent(*genEvent, particle, particleIndex + 1, fParameters.verbosity > 0);
     }
-
-    fEvt->set_event_number(e.id().event());
-    fEvt->set_signal_process_id(20);
 
     if (fParameters.verbosity > 0) {
-      fEvt->print();
+      genEvent->print();
     }
 
-    auto bProduct = std::make_unique<HepMCProduct>();
-    bProduct->addHepMCData(fEvt);
-    e.put(std::move(bProduct), "unsmeared");
+    auto hepMcProduct = std::make_unique<HepMCProduct>();
+    hepMcProduct->addHepMCData(genEvent);
+    event.put(std::move(hepMcProduct), "unsmeared");
 
-    auto genEventInfo = std::make_unique<GenEventInfoProduct>(fEvt);
-    e.put(std::move(genEventInfo));
+    auto genEventInfo = std::make_unique<GenEventInfoProduct>(genEvent);
+    event.put(std::move(genEventInfo));
 
     if (fParameters.verbosity > 0) {
       std::cout << " DisplacedParticleGunProducer : Event Generation Done. " << std::endl;
