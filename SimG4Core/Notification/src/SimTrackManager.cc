@@ -12,6 +12,7 @@
 
 // system include files
 #include <iostream>
+#include <unordered_set>
 
 // user include files
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
@@ -49,6 +50,8 @@ void SimTrackManager::reset() {
   cleanVertexMap();
   idsave.clear();
   ancestorList.clear();
+  m_parentOfAll.clear();
+  m_droppedParentRedirect.clear();
   lastTrack = 0;
   lastHist = 0;
 }
@@ -72,6 +75,11 @@ void SimTrackManager::cleanVertexMap() {
 void SimTrackManager::addTrack(TrackWithHistory* iTrack, const G4Track* track, bool inHistory, bool withAncestor) {
   std::pair<int, int> thePair(iTrack->trackID(), iTrack->parentID());
   idsave.push_back(thePair);
+  // Independent, persistent-for-the-event copy of the full parent map: idsave is
+  // cleared per primary by fillMotherList(), but the redirect needs to walk the
+  // whole chain (through dropped intermediates) at end of event.
+  if (m_reconnectDroppedAncestors)
+    m_parentOfAll[iTrack->trackID()] = iTrack->parentID();
   if (inHistory) {
     auto info = static_cast<const TrackInformation*>(track->GetUserInformation());
     if (info->isInTrkFromBackscattering())
@@ -114,6 +122,11 @@ void SimTrackManager::saveTrackAndItsBranch(TrackWithHistory* trkWHist) {
 
 void SimTrackManager::storeTracks() {
   cleanTracksWithHistory();
+
+  // Precompute the nearest-stored-ancestor redirect while the full idsave parent
+  // map is still intact (it is consumed by the swap below). Only when enabled.
+  if (m_reconnectDroppedAncestors)
+    buildDroppedAncestorRedirect();
 
   // fill the map with the final mother-daughter relationship
   idsave.swap(ancestorList);
@@ -187,6 +200,57 @@ void SimTrackManager::reallyStoreTracks() {
   }
 }
 
+std::unordered_map<int, int> SimTrackManager::computeDroppedAncestorRedirect(
+    const std::vector<std::pair<int, int> >& storedTracks, const std::unordered_map<int, int>& parentOfAll) {
+  std::unordered_map<int, int> redirect;
+  if (storedTracks.empty())
+    return redirect;
+
+  // The set of tracks that will be persisted as SimTracks this event.
+  std::unordered_set<int> savedIds;
+  savedIds.reserve(2 * storedTracks.size());
+  for (auto const& [trackId, parentId] : storedTracks)
+    savedIds.insert(trackId);
+
+  for (auto const& [trackId, parentId] : storedTracks) {
+    // Primary, or immediate parent already stored: getOrCreateVertex resolves it.
+    if (parentId <= 0 || savedIds.count(parentId) != 0)
+      continue;
+
+    // Walk up through the dropped intermediates (parentOfAll holds the complete
+    // topology) to the nearest stored ancestor. The chain terminates at the
+    // primary (always stored), so it resolves; the step cap is a defensive guard
+    // against a malformed parent loop.
+    int p = parentId;
+    std::size_t guard = 0;
+    const std::size_t maxSteps = parentOfAll.size() + 1;
+    while (p > 0 && savedIds.count(p) == 0 && guard++ < maxSteps) {
+      auto it = parentOfAll.find(p);
+      if (it == parentOfAll.end()) {
+        p = 0;
+        break;
+      }
+      p = it->second;
+    }
+    if (p > 0 && savedIds.count(p) != 0)
+      redirect.emplace(trackId, p);
+  }
+  return redirect;
+}
+
+void SimTrackManager::buildDroppedAncestorRedirect() {
+  m_droppedParentRedirect.clear();
+  if (m_trackContainer.empty())
+    return;
+
+  std::vector<std::pair<int, int> > storedTracks;
+  storedTracks.reserve(m_trackContainer.size());
+  for (auto const& trk : m_trackContainer)
+    storedTracks.emplace_back(trk->trackID(), trk->parentID());
+
+  m_droppedParentRedirect = computeDroppedAncestorRedirect(storedTracks, m_parentOfAll);
+}
+
 int SimTrackManager::getOrCreateVertex(TrackWithHistory* trkH, int iParentID) {
   int parent = -1;
   for (auto const& trk : m_trackContainer) {
@@ -195,6 +259,15 @@ int SimTrackManager::getOrCreateVertex(TrackWithHistory* trkH, int iParentID) {
       parent = id;
       break;
     }
+  }
+  // The immediate parent track was dropped (e.g. a sub-PersistencyEmin
+  // intermediate). Reattach this production vertex to the nearest stored ancestor
+  // so it does not become an orphan; the target is precomputed in
+  // buildDroppedAncestorRedirect(). No-op unless the redirect is enabled.
+  if (parent < 0 && m_reconnectDroppedAncestors) {
+    auto it = m_droppedParentRedirect.find(trkH->trackID());
+    if (it != m_droppedParentRedirect.end())
+      parent = it->second;
   }
 
   VertexMap::const_iterator iterator = m_vertexMap.find(parent);
