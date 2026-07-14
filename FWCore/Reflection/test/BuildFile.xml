@@ -7,3 +7,4 @@
 <test name="TestFWCoreReflectionCheckClassVersion" command="run_checkClassVersion.sh"/>
 <test name="TestFWCoreReflectionDumpClassVersion" command="run_dumpClassVersion.sh"/>
 <test name="TestFWCoreReflectionClassVersionUpdate" command="run_classVersionUpdate.sh"/>
+<test name="TestFWCoreReflectionEdmTypeInfo" command="run_edmTypeInfo.sh"/>
