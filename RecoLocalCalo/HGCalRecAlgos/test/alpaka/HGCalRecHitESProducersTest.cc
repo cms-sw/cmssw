@@ -80,7 +80,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     return stream.str();
   }
 
-  using CalibParamView = hgcalrechit::HGCalCalibParamSoALayout<>::ConstViewTemplateFreeParams<128, false, true, true>;
+  using CalibParamView = hgcalrechit::HGCalCalibParamSoALayout<>::
+      ConstViewTemplateFreeParams<128, false, true, cms::soa::RangeChecking::enabled>;
   static void printCalPars(const CalibParamView& calibView, const int idx) {
     const auto& calib = calibView[idx];
     std::cout << std::setw(6) << idx << std::setw(7) << int2hex(idx) << std::dec << std::setw(12) << calib.ADC_ped()

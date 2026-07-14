@@ -135,4 +135,35 @@ TEST_CASE("SoATemplate") {
     REQUIRE_THROWS_AS(slcv.x(underflow), std::out_of_range);
     REQUIRE_THROWS_AS(slcv.x(overflow), std::out_of_range);
   }
+
+  SECTION("Range checking View Extended") {
+    // Enable range checking
+    using View = SimpleLayout::ViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::extended>;
+    View slv{sl};
+    int underflow = -1;
+    int overflow = slv.metadata().size();
+
+    REQUIRE_THROWS_WITH(slv[underflow], Catch::Matchers::ContainsSubstring("at file"));
+    REQUIRE_THROWS_WITH(slv[overflow], Catch::Matchers::ContainsSubstring("at file"));
+
+    REQUIRE_THROWS_WITH(slv.x(underflow), Catch::Matchers::ContainsSubstring("at file"));
+    REQUIRE_THROWS_WITH(slv.x(overflow), Catch::Matchers::ContainsSubstring("at file"));
+  }
+
+  SECTION("Range checking ConstView Extended") {
+    // Enable range checking
+    using ConstView =
+        SimpleLayout::ConstViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::extended>;
+    ConstView slcv{sl};
+    int underflow = -1;
+    int overflow = slcv.metadata().size();
+
+    // Check for under- and overflow in the row accessor
+    REQUIRE_THROWS_WITH(slcv[underflow], Catch::Matchers::ContainsSubstring("at file"));
+    REQUIRE_THROWS_WITH(slcv[overflow], Catch::Matchers::ContainsSubstring("at file"));
+
+    // Check for under- and overflow in the element accessors
+    REQUIRE_THROWS_WITH(slcv.x(underflow), Catch::Matchers::ContainsSubstring("at file"));
+    REQUIRE_THROWS_WITH(slcv.x(overflow), Catch::Matchers::ContainsSubstring("at file"));
+  }
 }
