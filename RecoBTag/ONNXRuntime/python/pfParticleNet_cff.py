@@ -31,7 +31,12 @@ particleNetSonicTriton.toReplaceWith(pfParticleNetJetTags, _particleNetSonicJetT
         modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particlenet/config.pbtxt"),
         modelVersion = cms.string(""),
         verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(0),
+        Retry = cms.VPSet(
+          cms.PSet(
+            retryType = cms.string('RetrySameServerAction'),
+            allowedTries = cms.untracked.uint32(0)
+          )
+        ),
         useSharedMemory = cms.untracked.bool(True),
         compression = cms.untracked.string(""),
     ),
@@ -64,7 +69,12 @@ particleNetSonicTriton.toReplaceWith(pfMassDecorrelatedParticleNetJetTags, _part
         modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particlenet_AK8_MD-2prong/config.pbtxt"),
         modelVersion = cms.string(""),
         verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(0),
+        Retry = cms.VPSet(
+          cms.PSet(
+            retryType = cms.string('RetrySameServerAction'),
+            allowedTries = cms.untracked.uint32(0)
+          )
+        ),
     ),
     flav_names = pfMassDecorrelatedParticleNetJetTags.flav_names,
 ))
@@ -94,7 +104,12 @@ particleNetSonicTriton.toReplaceWith(pfParticleNetMassRegressionJetTags, _partic
         modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particlenet_AK8_MassRegression/config.pbtxt"),
         modelVersion = cms.string(""),
         verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(0),
+        Retry = cms.VPSet(
+          cms.PSet(
+            retryType = cms.string('RetrySameServerAction'),
+            allowedTries = cms.untracked.uint32(0)
+          )
+        ),
     ),
     flav_names = pfParticleNetMassRegressionJetTags.flav_names,
 ))

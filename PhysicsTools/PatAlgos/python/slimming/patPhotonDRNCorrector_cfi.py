@@ -6,7 +6,12 @@ patPhotonsDRN = patPhotonDRNCorrectionProducer.clone(
                             rhoName = 'fixedGridRhoFastjetAll',
                             Client = patPhotonDRNCorrectionProducer.Client.clone(
                               mode = 'Async',
-                              allowedTries = 1,
+                              Retry = cms.VPSet(
+                                cms.PSet(
+                                  retryType = cms.string('RetrySameServerAction'),
+                                  allowedTries = cms.untracked.uint32(1)
+                                )
+                              ),
                               modelName = 'photonObjectCombined',
                               modelConfigPath = 'RecoEgamma/EgammaPhotonProducers/data/models/photonObjectCombined/config.pbtxt',
                               timeout = 10

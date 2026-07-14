@@ -57,7 +57,12 @@ particleNetSonicTriton.toReplaceWith(pfParticleNetFromMiniAODAK4CHSCentralJetTag
         modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particleNetFromMiniAODAK4CHSCentral/config.pbtxt"),
         modelVersion = cms.string(""),
         verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(0),
+        Retry = cms.VPSet(
+          cms.PSet(
+            retryType = cms.string('RetrySameServerAction'),
+            allowedTries = cms.untracked.uint32(0)
+          )
+        ),
         useSharedMemory = cms.untracked.bool(True),
         compression = cms.untracked.string(""),
     ),
@@ -81,7 +86,12 @@ particleNetSonicTriton.toReplaceWith(pfParticleNetFromMiniAODAK4CHSForwardJetTag
         modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particleNetFromMiniAODAK4CHSForward/config.pbtxt"),
         modelVersion = cms.string(""),
         verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(0),
+        Retry = cms.VPSet(
+          cms.PSet(
+            retryType = cms.string('RetrySameServerAction'),
+            allowedTries = cms.untracked.uint32(0)
+          )
+        ),
         useSharedMemory = cms.untracked.bool(True),
         compression = cms.untracked.string(""),
     ),
@@ -105,7 +115,12 @@ particleNetSonicTriton.toReplaceWith(pfParticleNetFromMiniAODAK4PuppiCentralJetT
         modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particleNetFromMiniAODAK4PuppiCentral/config.pbtxt"),
         modelVersion = cms.string(""),
         verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(0),
+        Retry = cms.VPSet(
+          cms.PSet(
+            retryType = cms.string('RetrySameServerAction'),
+            allowedTries = cms.untracked.uint32(0)
+          )
+        ),
         useSharedMemory = cms.untracked.bool(True),
         compression = cms.untracked.string(""),
     ),
@@ -129,7 +144,12 @@ particleNetSonicTriton.toReplaceWith(pfParticleNetFromMiniAODAK4PuppiForwardJetT
         modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particleNetFromMiniAODAK4PuppiForward/config.pbtxt"),
         modelVersion = cms.string(""),
         verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(0),
+        Retry = cms.VPSet(
+          cms.PSet(
+            retryType = cms.string('RetrySameServerAction'),
+            allowedTries = cms.untracked.uint32(0)
+          )
+        ),
         useSharedMemory = cms.untracked.bool(True),
         compression = cms.untracked.string(""),
     ),

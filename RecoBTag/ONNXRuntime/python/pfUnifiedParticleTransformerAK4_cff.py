@@ -19,7 +19,12 @@ unifiedparticleTransformerAK4SonicTriton.toReplaceWith(pfUnifiedParticleTransfor
         modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/unifiedparticletransformer_AK4_V01/config.pbtxt"),
         modelVersion = cms.string(""),
         verbose = cms.untracked.bool(True),
-        allowedTries = cms.untracked.uint32(0),
+        Retry = cms.VPSet(
+          cms.PSet(
+            retryType = cms.string('RetrySameServerAction'),
+            allowedTries = cms.untracked.uint32(0)
+          )
+        ),
         useSharedMemory = cms.untracked.bool(True),
         compression = cms.untracked.string(""),
     ),

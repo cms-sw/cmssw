@@ -797,7 +797,12 @@ class TauIDEmbedder(object):
             deepTauSonicTriton.toReplaceWith(_deepTauProducer, DeepTauIdSonicProducer.clone(
                 Client = cms.PSet(
                   mode = cms.string('PseudoAsync'),
-                  allowedTries = cms.untracked.uint32(0),
+                  Retry = cms.VPSet(
+                    cms.PSet(
+                      retryType = cms.string('RetrySameServerAction'),
+                      allowedTries = cms.untracked.uint32(0)
+                    )
+                  ),
                   verbose = cms.untracked.bool(False),
                   modelName = cms.string("deeptau_2017v2p1"),
                   modelVersion = cms.string(''),
@@ -849,7 +854,12 @@ class TauIDEmbedder(object):
             deepTauSonicTriton.toReplaceWith(_deepTauProducer, DeepTauIdSonicProducer.clone(
                 Client = cms.PSet(
                   mode = cms.string('PseudoAsync'),
-                  allowedTries = cms.untracked.uint32(0),
+                  Retry = cms.VPSet(
+                    cms.PSet(
+                      retryType = cms.string('RetrySameServerAction'),
+                      allowedTries = cms.untracked.uint32(0)
+                    )
+                  ),
                   verbose = cms.untracked.bool(False),
                   modelName = cms.string("deeptau_2017v2p1"),
                   modelVersion = cms.string(''),
@@ -903,7 +913,12 @@ class TauIDEmbedder(object):
             deepTauSonicTriton.toReplaceWith(_deepTauProducer, DeepTauIdSonicProducer.clone(
                 Client = cms.PSet(
                   mode = cms.string('PseudoAsync'),
-                  allowedTries = cms.untracked.uint32(0),
+                  Retry = cms.VPSet(
+                    cms.PSet(
+                      retryType = cms.string('RetrySameServerAction'),
+                      allowedTries = cms.untracked.uint32(0)
+                    )
+                  ),
                   verbose = cms.untracked.bool(False),
                   modelName = cms.string("deeptau_2018v2p5"),
                   modelVersion = cms.string(''),
