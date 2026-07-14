@@ -14,14 +14,10 @@
   <use name="DataFormats/TestObjects"/>
 </library>
 
-<bin file="RetryActionDiffServer.cc" name="TestHeterogeneousCoreSonicTritonRetryActionDiffServer">
+<bin file="test_RetryActionDiffServer.cc" name="TestHeterogeneousCoreSonicTritonRetryActionDiffServer">
   <use name="catch2"/>
   <use name="FWCore/ParameterSet"/>
   <use name="HeterogeneousCore/SonicTriton"/>
-</bin>
-
-<bin file="RefCount.cc" name="TestHeterogeneousCoreSonicTritonRefCount">
-  <use name="catch2"/>
 </bin>
 
 <test name="TestHeterogeneousCoreSonicTritonRetryActionDiff_Log" command="retry_action_diff_log_test.sh ${LOCALTOP}"/>

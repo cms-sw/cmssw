@@ -15,18 +15,14 @@ class TestTritonClient : public TritonClient {
 public:
   TestTritonClient() : TritonClient() {}
 
-  void connectToServer(const std::string& url) override { lastConnectedUrl = url; }
-
   void updateServer(const std::string& serverName) override { lastUpdatedServerName = serverName; }
 
-  const std::string& lastUrl() const { return lastConnectedUrl; }
   const std::string& lastServerName() const { return lastUpdatedServerName; }
 
 protected:
   void evaluate() override {}
 
 private:
-  std::string lastConnectedUrl;
   std::string lastUpdatedServerName;
 };
 
