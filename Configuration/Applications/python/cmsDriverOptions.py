@@ -288,8 +288,21 @@ def OptionsFromItems(items):
     # options incompatible with fastsim
     if options.fast and not options.scenario == "pp":
         raise Exception("ERROR: the --option fast is only compatible with the default scenario (--scenario=pp)")
-    if options.fast and 'HLT' in options.trimmedStep:
-        raise Exception("ERROR: the --option fast is incompatible with HLT (HLT is no longer available in FastSim)")
+    customisation_files = getattr(options, "customisation_file", []) or []
+    if isinstance(customisation_files, str):
+        customisation_files = [customisation_files]
+    fastsimHLTResurrection = any(
+        customisation.endswith("customizeFastSimHLT.customizeFastSimHLTGRunReviewDefault")
+        for customisation in customisation_files
+    ) or (
+        os.environ.get("FASTSIM_HLT_ENABLE_REVIEW_DEFAULT", "").lower()
+        in ("1", "true", "yes", "on")
+    )
+    if options.fast and 'HLT' in options.trimmedStep and not fastsimHLTResurrection:
+        raise Exception(
+            "ERROR: the --option fast is incompatible with HLT (HLT is no longer available in FastSim). "
+            "Use FastSimulation/HighLevelTrigger/customizeFastSimHLT.customizeFastSimHLTGRunReviewDefault "
+            "to enable the experimental FastSim HLT prototype."
+        )
 
     return options
-
