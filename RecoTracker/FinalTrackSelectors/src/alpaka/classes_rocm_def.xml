@@ -1,0 +1,9 @@
+<lcgdict>
+  <class name="alpaka_rocm_async::TrackFeaturesDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::TrackFeaturesDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::TrackFeaturesDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_rocm_async::TrackScoresDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::TrackScoresDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::TrackScoresDeviceCollection>>" persistent="false"/>
+</lcgdict>
