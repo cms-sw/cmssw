@@ -284,6 +284,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     static constexpr unsigned int kPackedIndexMask = 0xFFFFFFF;
     static constexpr unsigned int kPackedSlotMask = 0xF;
     static constexpr int kT5DuplicateMinSharedHits = 8;
+    static constexpr unsigned int kMaxCompatModules = 40;
 
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   ModulesConst modules,
@@ -292,6 +293,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   QuintupletsOccupancyConst quintupletsOccupancy) const {
       // Best candidate per OT logical layer (1..11), packed score|index|slot.
       uint64_t* sharedBestPacked = alpaka::declareSharedVar<uint64_t[lst::kLogicalOTLayers], __COUNTER__>(acc);
+      unsigned int* testModuleStart = alpaka::declareSharedVar<unsigned int[kMaxCompatModules], __COUNTER__>(acc);
+      unsigned int* testModuleLength = alpaka::declareSharedVar<unsigned int[kMaxCompatModules], __COUNTER__>(acc);
+      unsigned int& testModules = alpaka::declareSharedVar<unsigned int, __COUNTER__>(acc);
+      uint8_t* testModuleLogicalLayer = alpaka::declareSharedVar<uint8_t[kMaxCompatModules], __COUNTER__>(acc);
 
       // One block per T5 in 1D; block index = ref T5 index.
       const unsigned int refT5Index = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];
@@ -305,6 +310,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         for (int logicalLayerBin = 0; logicalLayerBin < lst::kLogicalOTLayers; ++logicalLayerBin) {
           sharedBestPacked[logicalLayerBin] = 0;
         }
+        for (unsigned int iM = 0; iM < kMaxCompatModules; ++iM) {
+          testModuleStart[iM] = 0;
+          testModuleLength[iM] = 0;
+        }
+        testModules = 0;
       }
       alpaka::syncBlockThreads(acc);
 
@@ -325,24 +335,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         refHits[h] = quintuplets.hitIndices()[refT5Index][h];
       auto refModuleIndex1 = quintuplets.lowerModuleIndices()[refT5Index][1];
 
-      const int threadIndexFlat = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u];
-      const int blockDimFlat = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
+      const auto threadIndexFlat = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u];
+      const auto blockDimFlat = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
 
       // Ref-starts-at-layer-1 special case: only ref's slot-1 module can host a valid candidate.
       const bool restrictToRefSlot1 = (refStartLogicalLayer == 1);
       const uint16_t nEligibleT5Modules = ranges.nEligibleT5Modules();
-      const int loopCount = restrictToRefSlot1 ? 1 : static_cast<int>(nEligibleT5Modules);
+      const unsigned int loopCount = restrictToRefSlot1 ? 1 : nEligibleT5Modules;
 
-      for (int idx = threadIndexFlat; idx < loopCount; idx += blockDimFlat) {
+      for (auto idx = threadIndexFlat; idx < loopCount; idx += blockDimFlat) {
         const uint16_t testModuleIndex =
             restrictToRefSlot1 ? refModuleIndex1 : ranges.indicesOfEligibleT5Modules()[idx];
 
         const short modSubdet = modules.subdets()[testModuleIndex];
-        const int testStartLogicalLayer =
-            static_cast<int>(modules.layers()[testModuleIndex]) + (modSubdet == Endcap ? 6 : 0);
+        const uint8_t testStartLogicalLayer =
+            static_cast<uint8_t>(modules.layers()[testModuleIndex]) + (modSubdet == Endcap ? 6 : 0);
         if (!restrictToRefSlot1) {
           // Skip same-starting-layer modules (logical = physical + 6 for endcap, see Triplet.h).
-          if (testStartLogicalLayer == static_cast<int>(refStartLogicalLayer))
+          if (testStartLogicalLayer == refStartLogicalLayer)
             continue;
           if constexpr (kT5DuplicateMinSharedHits == 8) {
             if (testStartLogicalLayer > refStartLogicalLayer && testModuleIndex != refModuleIndex1)
@@ -360,9 +370,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           continue;
 
         const unsigned int nQuintupletsInModule = quintupletsOccupancy.nQuintuplets()[testModuleIndex];
-
-        for (unsigned int quintupletOffset = 0; quintupletOffset < nQuintupletsInModule; ++quintupletOffset) {
-          const unsigned int testT5Index = firstQuintupletInModule + quintupletOffset;
+        unsigned int iTestModule = alpaka::atomicAdd(acc, &testModules, 1u, alpaka::hierarchy::Threads{});
+        if (iTestModule >= kMaxCompatModules) {
+#ifdef WARNINGS
+          printf("ERROR! Compatible module excess in ExtendT5FromDupT5: now at %d\n", iTestModule);
+#endif
+        } else {
+          testModuleStart[iTestModule] = firstQuintupletInModule;
+          testModuleLength[iTestModule] = nQuintupletsInModule;
+          testModuleLogicalLayer[iTestModule] = testStartLogicalLayer;
+        }
+      }
+      alpaka::syncBlockThreads(acc);
+      auto const tModuleMax = testModules < kMaxCompatModules ? testModules : kMaxCompatModules;
+      for (unsigned int tModule = 0; tModule < tModuleMax; ++tModule) {
+        auto const testT5Min = testModuleStart[tModule] + threadIndexFlat;
+        auto const testT5Max = testModuleStart[tModule] + testModuleLength[tModule];
+        auto const testModuleLayer = testModuleLogicalLayer[tModule];
+        for (auto testT5Index = testT5Min; testT5Index < testT5Max; testT5Index += blockDimFlat) {
           if (testT5Index == refT5Index)
             continue;
 
@@ -372,7 +397,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               bool hitMiss = false;
               int refOffset = 2;
               int testOffset = 0;
-              if (testStartLogicalLayer < refStartLogicalLayer) {
+              if (testModuleLayer < refStartLogicalLayer) {
                 refOffset = 0;
                 testOffset = 2;
               }
