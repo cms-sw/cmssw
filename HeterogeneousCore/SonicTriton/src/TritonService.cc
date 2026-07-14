@@ -327,16 +327,8 @@ void TritonService::updateServerHealth(const std::string& modelName) const {
       health.avgQueueTimeMs = (queue_count > 0) ? avgQueueTimeMs / queue_count : 0.0;
       health.avgInferTimeMs = (infer_count > 0) ? avgInferTimeMs / infer_count : 0.0;
 
-    } catch (const TritonException& e) {
-      // mark existing entry unhealthy if present
-      tbb::concurrent_hash_map<std::string, ServerHealth>::accessor acc;
-      if (serversHealth_.find(acc, serverName)) {
-        ServerHealth& health = acc->second;
-        health.live = false;
-        health.ready = false;
-      }
     } catch (const std::exception& e) {
-      // fallback for other exceptions
+      // mark existing entry unhealthy if present
       tbb::concurrent_hash_map<std::string, ServerHealth>::accessor acc;
       if (serversHealth_.find(acc, serverName)) {
         ServerHealth& health = acc->second;
@@ -348,7 +340,7 @@ void TritonService::updateServerHealth(const std::string& modelName) const {
 }
 
 std::optional<std::string> TritonService::getBestServer(const std::string& modelName,
-                                                        const std::string& IgnoreServer) const {
+                                                        const std::string& ignoreServer) const {
   std::optional<std::string> bestServerName;
   ServerHealth bestHealth;
 
@@ -357,7 +349,7 @@ std::optional<std::string> TritonService::getBestServer(const std::string& model
   edm::LogInfo("TritonService") << "Getting best server";
 
   for (auto& [serverName, server] : servers_) {
-    if (serverName == IgnoreServer) {
+    if (serverName == ignoreServer) {
       edm::LogInfo("TritonService") << serverName << " is ignored";
       continue;  // skip ignored server
     }

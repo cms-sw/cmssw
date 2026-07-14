@@ -136,14 +136,6 @@ public:
   // return the best server for retry, ignore the current server
   std::optional<std::string> getBestServer(const std::string& modelName, const std::string& IgnoreServer = "") const;
 
-  // helper functions to get server statistics?
-  //  - getServerSideStatus()
-  //  - updateServerStatus()
-  //    - loop over servers_ get statistics
-  //  - getBestServer(model)
-  //    - call updateServerStatus()
-  //    - loop over servers_ get their statistics, compute metric, return server name
-
   const std::string& pid() const { return pid_; }
   void notifyCallStatus(bool status) const;
 

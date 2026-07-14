@@ -441,7 +441,6 @@ void TritonClient::evaluate() {
       element.second.prepare();
     }
   });
-  //edm::LogInfo("TritonClient") << "evaluate() return 1";
   if (!success)
     return;
 
@@ -451,7 +450,6 @@ void TritonClient::evaluate() {
     if (verbose())
       start_status = getServerSideStatus();
   });
-  //edm::LogInfo("TritonClient") << "evaluate() return 2";
   if (!success)
     return;
 
@@ -459,11 +457,11 @@ void TritonClient::evaluate() {
     // Reset before each inference attempt: false=retryable/not-yet-succeeded.
     // The callback sets this to true on success before calling doneWaiting(nullptr).
     // If the launch throws (lambda destroyed inside AsyncInferMulti), the holder destructor
-    // calls doneWaiting(nullptr) with inferSuccess_=false → finish(false) [retryable] on TBB.
+    // calls doneWaiting(nullptr) with inferSuccess_=false -> finish(false) [retryable] on TBB.
     inferSuccess_ = false;
 
     // Create holder[finish]: when doneWaiting() is called, finish() is scheduled as a TBB task
-    // so retry logic (finish→retry→updateServer) never runs on the gRPC callback thread.
+    // so retry logic (finish->retry->updateServer) never runs on the gRPC callback thread.
     auto* finishTask = edm::make_waiting_task([this](std::exception_ptr const* excptr) {
       if (excptr)
         finish(false, *excptr);  // non-retryable exception
@@ -515,10 +513,9 @@ void TritonClient::evaluate() {
           localService());
     } catch (TritonException& e) {
       e.convertToWarning();
-      // fh destructor already called doneWaiting(nullptr) → finish(false) scheduled on TBB
+      // fh destructor already called doneWaiting(nullptr) -> finish(false) scheduled on TBB
     }
   } else {
-    //edm::LogInfo("TritonClient") << "evaluate() return 4";
     //blocking call
     std::vector<tc::InferResult*> resultsTmp;
     success = handle_exception([&]() {
@@ -633,9 +630,10 @@ void TritonClient::updateServer(const std::string& serverName) {
   serverType_ = server.type;
   edm::LogInfo("TritonDiscovery") << debugName_ << " assigned server: " << server.url;
   //enforce sync mode for fallback CPU server to avoid contention
-  //todo: could enforce async mode otherwise (unless mode was specified by user?)
   if (serverType_ == TritonServerType::LocalCPU)
     setMode(SonicMode::Sync);
+  if (serverType_ == TritonServerType::Remote)
+    setMode(SonicMode::Async);
   isLocal_ = serverType_ == TritonServerType::LocalCPU or serverType_ == TritonServerType::LocalGPU;
 
   // updateServer() is always called from a TBB thread (via finish() -> retry() -> updateServer()),
@@ -683,22 +681,6 @@ void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   descClient.addUntracked<std::string>("compression", "");
   descClient.addUntracked<std::vector<std::string>>("outputs", {});
   iDesc.add<edm::ParameterSetDescription>("Client", descClient);
-}
-
-void TritonClient::connectToServer(const std::string& url) {
-  // Update client state for a generic remote server
-  serverType_ = TritonServerType::Remote;
-  isLocal_ = false;
-
-  edm::LogInfo("TritonDiscovery") << debugName_ << " connecting to server: " << url;
-
-  // Use default SSL options
-  triton::client::SslOptions sslOptions;
-  bool useSsl = false;  // Assuming no SSL for direct URL connection
-
-  // Connect to the server
-  TRITON_THROW_IF_ERROR(triton::client::InferenceServerGrpcClient::Create(&client_, url, false, useSsl, sslOptions),
-                        "TritonClient::connectToServer(): unable to create inference context");
 }
 
 //constructor for testing
