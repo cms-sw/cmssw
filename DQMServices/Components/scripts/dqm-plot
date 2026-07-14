@@ -11,11 +11,16 @@ import ROOT
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+import matplotlib.legend as mlegend
 import mplhep as hep
 import argparse
 import os
 import re
+import random
+import string
 import multiprocessing
+import atexit
+from functools import partial
 import warnings
 import urllib.request
 import urllib.error
@@ -32,8 +37,36 @@ plt.style.use(hep.style.CMS)
 plt.rcParams["mathtext.default"] = "regular"
 
 
+# Per-process cache of open ROOT files. A worker process handles many plot
+# tasks, so caching the open TFile keeps each input file opened at most once
+# per process instead of once per histogram. Histograms handed back to callers
+# are detached clones (SetDirectory(0)), so the cached files can stay open.
+_OPEN_ROOT_FILES = {}
+
+
+def _get_cached_root_file(file_path):
+    """Return an open TFile for file_path, reusing a cached handle if present."""
+    root_file = _OPEN_ROOT_FILES.get(file_path)
+    if not root_file or root_file.IsZombie() or not root_file.IsOpen():
+        root_file = ROOT.TFile.Open(file_path, "READ")
+        _OPEN_ROOT_FILES[file_path] = root_file
+    return root_file
+
+
+@atexit.register
+def _close_cached_root_files():
+    """Close any ROOT files cached in this process on interpreter shutdown."""
+    for root_file in _OPEN_ROOT_FILES.values():
+        try:
+            if root_file and root_file.IsOpen():
+                root_file.Close()
+        except Exception:
+            pass
+    _OPEN_ROOT_FILES.clear()
+
+
 class DQMPlotter:
-    def __init__(self, figsize=(12, 9), ratio_height=0.3, processors=None):
+    def __init__(self, figsize=(12, 9), ratio_height=0.3, processors=None, debug=False):
         """
         Initialize the plotter.
 
@@ -72,6 +105,7 @@ class DQMPlotter:
         self.processors = (
             processors if processors is not None else len(os.sched_getaffinity(0))
         )
+        self.debug = debug
 
     def _extend_color_palette(self, needed: int):
         """Ensure self.colors has at least 'needed' distinct entries."""
@@ -92,20 +126,100 @@ class DQMPlotter:
 
         self.colors.extend(new_colors)
 
-    def root_to_numpy(self, hist):
+    def _clamp_yerrors(self, contents, yerrors):
+        """
+        Clamp yerrors so content +/- yerr stays within [0, 1].
+        Returns a (2, N) numpy array of asymmetric error *distances* (lower, upper)
+        as expected by matplotlib's `yerr` argument for asymmetric error bars.
+        """
+        assert len(contents) == len(yerrors)
+        lower = [cont - max(cont - yerr, 0.0) for cont, yerr in zip(contents, yerrors)]
+        upper = [min(cont + yerr, 1.0) - cont for cont, yerr in zip(contents, yerrors)]
+        return np.array([lower, upper])
+    
+    def divide_histograms(self, histos1, histos2):
+        results = []
+        for h1, h2 in zip(histos1, histos2):
+            if h1.GetNbinsX() != h2.GetNbinsX():
+                raise ValueError("Histogram binning mismatch.")
+
+            rndstr = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+            result = h1.ProjectionX('ProjectionX1_' + rndstr)
+            tmp = h2.ProjectionX('ProjectionX2_' + rndstr)
+            result.Divide(tmp)
+            results.append(result)
+     
+        return results
+
+    def operate_histograms(self, histos1, histos2, operation_type):
+        if operation_type == "division":
+            return self.divide_histograms(histos1, histos2)
+        raise ValueError(f"Unsupported operation '{operation_type}'")
+
+    def _rebin_histogram(self, hist, rebin):
+        """
+        Rebin a ROOT histogram, leaving the original untouched.
+
+        Args:
+            hist: ROOT histogram
+            rebin: Either a single int/float, interpreted as the number of
+                existing bins to merge together (ROOT's "ngroup" rebinning,
+                e.g. rebin=2 merges every 2 bins into 1), or an array-like of
+                new bin edges to rebin into variable-width bins.
+
+        Returns:
+            A new, independent ROOT histogram with the requested binning.
+        """
+        rndstr = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+        hist_clone = hist.Clone(f"{hist.GetName()}_rebin_{rndstr}")
+        hist_clone.SetDirectory(0)
+
+        if isinstance(rebin, (int, np.integer)):
+            if rebin < 1:
+                raise ValueError(f"rebin group size must be >= 1, got {rebin}")
+            hist_clone.Rebin(int(rebin))
+            return hist_clone
+
+        # Otherwise treat as an array-like of new bin edges (variable rebinning)
+        edges = np.asarray(rebin, dtype=float)
+        if edges.ndim != 1 or len(edges) < 2:
+            raise ValueError(
+                "rebin must be either a single int (number of bins to merge) "
+                "or an array-like of at least 2 bin edges."
+            )
+        if np.any(np.diff(edges) <= 0):
+            raise ValueError("rebin bin edges must be strictly increasing.")
+
+        n_new_bins = len(edges) - 1
+        rebinned = hist_clone.Rebin(n_new_bins, f"{hist.GetName()}_rebin_var_{rndstr}", edges)
+        if not rebinned:
+            raise ValueError(
+                "Rebin failed - check that the provided bin edges are compatible "
+                "with the histogram's original binning."
+            )
+        rebinned.SetDirectory(0)
+        return rebinned
+
+    def root_to_numpy(self, hist, rebin=None):
         """
         Convert ROOT histogram to numpy arrays.
 
         Args:
             hist: ROOT histogram
+            rebin: Optional rebinning specification. Either a single int
+                (number of existing bins to merge together) or an array-like
+                of new bin edges for variable-width rebinning.
 
         Returns:
             tuple: (bin_centers, bin_contents, bin_errors, bin_edges, bin_labels, has_labels)
         """
+        if rebin is not None:
+            hist = self._rebin_histogram(hist, rebin)
+
         n_bins = hist.GetNbinsX()
         bin_edges = np.array([hist.GetBinLowEdge(i) for i in range(1, n_bins + 2)])
         bin_centers = np.array([hist.GetBinCenter(i) for i in range(1, n_bins + 1)])
-
+        
         bin_contents = np.array([hist.GetBinContent(i) for i in range(1, n_bins + 1)])
         bin_errors = np.array([hist.GetBinError(i) for i in range(1, n_bins + 1)])
 
@@ -123,7 +237,13 @@ class DQMPlotter:
         """Clean up bin label for better readability."""
         return label.replace("TrackSelectionHighPurity", "HP")
 
-    def _apply_axis_scaling(self, ax, xlabel, ylabel, title, logy=False, has_negative_values=False):
+    def _is_tex_math(self, label):
+        """Whether the string is to be interpreted as a latex string."""
+        if not label:
+            return False
+        return any(x in label for x in ('\\','~'))
+        
+    def _apply_axis_scaling(self, ax, xlabel, ylabel, title, logy=False, xlim=None, has_negative_values=False):
         """Apply log scaling to axes based on content and user settings."""
         if logy:
             if has_negative_values:
@@ -132,15 +252,20 @@ class DQMPlotter:
             else:
                 ax.set_yscale("log")
 
+        # Skip auto x-log-scale if the user gave an explicit xlim that includes non-positive values
+        xlim_blocks_log = xlim is not None and xlim[0] <= 0
+
         # Automatic log scale for specific variable types
-        if "p_{\mathrm{T}}" in xlabel and "pull" not in xlabel.lower():
+        if ( any(x in xlabel for x in (r'p_{\text{T}}', r'$p_{\text{T}}$'))
+             and "pull" not in xlabel.lower() and not xlim_blocks_log ):
             ax.set_xscale("log")
 
-        if ("p_{\mathrm{T}}" in ylabel and "pull" not in ylabel.lower()) or "Sigma" in title:
+        if ( (any(x in ylabel for x in (r'p_{\text{T}}', r'$p_{\text{T}}$'))
+             and "pull" not in ylabel.lower()) or (title is not None and "Sigma" in title) ):
             if not has_negative_values:
                 ax.set_yscale("log")
 
-        if "vertpos" in xlabel:
+        if "vertpos" in xlabel and not xlim_blocks_log:
             ax.set_xscale("log")
             xlabel = "vert r [cm]"
 
@@ -173,7 +298,7 @@ class DQMPlotter:
                 linewidth=1.5,
             )
 
-    def _calculate_and_plot_ratio(self, ax_ratio, bin_centers, bin_contents, bin_errors,
+    def _calculate_and_plot_ratio(self, ax_ratio, bin_centers, bin_contents, bin_errors, bin_edges,
                                 ref_centers, ref_contents, ref_errors, color_idx, plot_histograms):
         """Calculate and plot ratio between current and reference histogram."""
         if ax_ratio is None:
@@ -214,12 +339,29 @@ class DQMPlotter:
         ratio_errors = np.nan_to_num(ratio_errors, nan=0.0, posinf=0.0, neginf=0.0)
 
         if plot_histograms and len(matching_centers) > 1:
-            bin_widths = np.diff(np.sort(matching_centers))
-            avg_width = np.mean(bin_widths)
-            matching_edges = np.concatenate([
-                [matching_centers[0] - avg_width / 2],
-                matching_centers + avg_width / 2,
-            ])
+            # Use the histogram's real bin edges for the matched bins instead
+            # of reconstructing fake uniform-width edges from the average bin
+            # spacing - the latter silently diverges from the main plot's
+            # (possibly variable-width, e.g. after a variable-edge rebin)
+            # bin_edges, so the two panels ended up drawing different bin
+            # boundaries.
+            curr_idx_arr = np.array(curr_idxs)
+            is_contiguous = np.all(np.diff(curr_idx_arr) == 1)
+            if is_contiguous:
+                matching_edges = np.concatenate([
+                    bin_edges[curr_idx_arr],
+                    [bin_edges[curr_idx_arr[-1] + 1]],
+                ])
+            else:
+                # Fallback for non-contiguous matches (gaps between matched
+                # bins): fall back to the previous approximation rather than
+                # constructing a misleading edges array.
+                bin_widths = np.diff(np.sort(matching_centers))
+                avg_width = np.mean(bin_widths)
+                matching_edges = np.concatenate([
+                    [matching_centers[0] - avg_width / 2],
+                    matching_centers + avg_width / 2,
+                ])
             hep.histplot(
                 ratio, bins=matching_edges, yerr=ratio_errors,
                 color=self.colors[color_idx % len(self.colors)],
@@ -294,7 +436,9 @@ class DQMPlotter:
             wrapped.append(wrapped_label)
         return wrapped
 
-    def _configure_legend(self, ax, labels, legend_title, logy=False, force_outside=False):
+    def _configure_legend(self, ax, labels, legend_title, legend_location,
+                          legend_title_fontsize, legend_fontsize,
+                          logy=False, force_outside=False):
         """Configure legend; wrap long entries and move outside if needed."""
         if not labels:
             return
@@ -308,16 +452,22 @@ class DQMPlotter:
             or (len(wrapped_labels) > 8 and max_label_length > 20)
         )
 
-        legend_columns = 1 if len(wrapped_labels) <= 2 else 2
-        legend_fontsize = "22"
-        if len(wrapped_labels) > 6:
-            legend_fontsize = "20"
-        if len(wrapped_labels) > 10:
-            legend_fontsize = "18"
+        if legend_fontsize is None:
+            if len(wrapped_labels) > 10:
+                legend_fontsize = 18
+            elif len(wrapped_labels) > 6:
+                legend_fontsize = 20
+            else:
+                legend_fontsize = 22
 
-        legend_title_fontsize = "24"
-        if legend_title and len(legend_title) > 30:
-            legend_title_fontsize = "20"
+        if legend_title_fontsize is None:
+            if legend_title and len(legend_title) > 30:
+                legend_title_fontsize = 20
+            else:
+                legend_title_fontsize = 24
+
+        if self._is_tex_math(legend_title):
+            legend_title = fr'${legend_title}$'
 
         if place_outside:
             y_min, y_max = ax.get_ylim()
@@ -346,9 +496,10 @@ class DQMPlotter:
         y_range = y_max - y_min
         ax.set_ylim(y_min, y_max + y_range * legend_padding)
 
+        legend_columns = 1 if len(wrapped_labels) <= 2 else 2
         ax.legend(
             wrapped_labels,
-            loc="upper right",
+            loc=legend_location,
             ncols=legend_columns,
             title=legend_title,
             fontsize=legend_fontsize,
@@ -375,41 +526,73 @@ class DQMPlotter:
             ax.yaxis.get_offset_text().set_horizontalalignment("right")
             ax.yaxis.get_offset_text().set_verticalalignment("bottom")
 
+    def _load_single_histogram(self, file_path, hist_path):
+        """
+        Load a single histogram from a ROOT file.
+        
+        Args:
+        file_path: ROOT file path
+        hist_path: Histogram path inside the ROOT file
+        
+        Returns:
+        ROOT histogram clone, or None if not found.
+        """
+        try:
+            root_file = _get_cached_root_file(file_path)
+            if not root_file or root_file.IsZombie():
+                print(f'Warning: Could not open {file_path}.')
+                return None
+
+            hist = root_file.Get(hist_path)
+
+            if not hist:
+                # A histogram can legitimately be absent from a file (e.g. a
+                # collection present in only some inputs). Missing histograms are
+                # summarised once per file in compare_files, so only note each one
+                # individually in debug mode instead of spamming a line per plot.
+                if self.debug:
+                    print(f'Warning: Could not find {hist_path}.')
+                return None
+
+            hist_clone = hist.Clone()
+            hist_clone.SetDirectory(0)
+
+            return hist_clone
+
+        except Exception as e:
+            print(f"Error processing {file_path}: {e}")
+            return None
+        
     def _load_histograms(self, file_paths, hist_path, labels):
-        """Load histograms from files, returning list of histograms and valid labels."""
+        """
+        Load histograms from files, returning list of histograms and valid labels.
+        
+        Args:
+        file_paths: list of ROOT files
+        hist_path: histogram path (same for every file)
+        labels: legend labels
+        
+        Returns:
+        tuple: (histograms, valid_labels)
+        """
         histograms = []
         valid_labels = []
 
         for file_path, label in zip(file_paths, labels):
-            try:
-                root_file = ROOT.TFile.Open(file_path, "READ")
-                if not root_file or root_file.IsZombie():
-                    print(f"Warning: Could not open {file_path}")
-                    continue
+            hist = self._load_single_histogram(file_path, hist_path)
 
-                hist = root_file.Get(hist_path)
-                if not hist:
-                    root_file.Close()
-                    continue
-
-                # Clone histogram to avoid issues when file is closed
-                hist_clone = hist.Clone(f"hist_{len(histograms)}")
-                hist_clone.SetDirectory(0)
-                histograms.append(hist_clone)
-                valid_labels.append(label)
-
-                root_file.Close()
-
-            except Exception as e:
-                print(f"Error processing {file_path}: {e}")
+            if hist is None:
                 continue
+
+            histograms.append(hist)
+            valid_labels.append(label)
 
         return histograms, valid_labels
 
-    def extract_labels_from_hist(self, hist):
+    def extract_labels_from_hist(self, hist, xtitle=None, ytitle=None):
         """
         Extract title and axis labels from ROOT histogram.
-
+        Overwrite result with user optional arguments.
         Args:
             hist: ROOT histogram
 
@@ -434,7 +617,9 @@ class DQMPlotter:
 
             if "#sigma(" in title.lower():
                 core = left[left.find("(") + 1 : left.rfind(")")]
-                ylabel = r"$\delta$" + core + "/" + core
+                ylabel = r"$\delta$" + core
+                if "p_{T}" in ylabel:
+                    ylabel = ylabel + "/" + core
                 right_clean = right
                 if "Mean" in title:
                     ylabel = "<" + ylabel + ">"
@@ -443,6 +628,7 @@ class DQMPlotter:
                     ylabel = r"$\sigma$(" + ylabel + ")"
                     right_clean = right_clean.replace("Sigma", "")
                 xlabel = right_clean.strip()
+
             elif "Mean" in title:
                 right_clean = right.replace("Mean", "").strip()
                 ylabel = "<" + left + ">"
@@ -463,9 +649,9 @@ class DQMPlotter:
                 if "eta" in title.lower():
                     xlabel = r"$\eta$"
                 elif "pt2" in title.lower():
-                    xlabel = r"$p_{\mathrm{T}}^2$"
+                    xlabel = r"$p_{\text{T}}^2$"
                 elif "pt" in title.lower():
-                    xlabel = r"$p_{\mathrm{T}}$"
+                    xlabel = r"$p_{\text{T}}$"
                 elif "phi" in title.lower():
                     xlabel = r"$\phi$"
             # Efficiency and turn-on plots
@@ -474,11 +660,23 @@ class DQMPlotter:
             elif "turn-on" in title.lower():
                 ylabel = "Turn-On"
 
-        return (
-            self.convert_root_to_latex(title),
-            self.convert_root_to_latex(xlabel),
-            self.convert_root_to_latex(ylabel),
-        )
+        # Always convert ROOT (#eta, #phi, ...) notation in the automatic labels to
+        # mathtext. These labels can mix hand-written mathtext ($\sigma$) with ROOT
+        # tokens taken from the histogram title, so the conversion must always run;
+        # skipping it (as when a label merely contains a backslash) leaves raw ROOT
+        # tokens that matplotlib's mathtext parser rejects.
+        title = self.convert_root_to_latex(title)
+        xlabel = self.convert_root_to_latex(xlabel)
+        ylabel = self.convert_root_to_latex(ylabel)
+
+        # A user-provided --xtitle/--ytitle overrides the automatic label: wrap it as
+        # math if it already looks like LaTeX, otherwise convert its ROOT notation.
+        if xtitle is not None:
+            xlabel = fr'${xtitle}$' if self._is_tex_math(xtitle) else self.convert_root_to_latex(xtitle)
+        if ytitle is not None:
+            ylabel = fr'${ytitle}$' if self._is_tex_math(ytitle) else self.convert_root_to_latex(ytitle)
+
+        return title, xlabel, ylabel
 
     def convert_root_to_latex(self, text):
         """
@@ -505,13 +703,13 @@ class DQMPlotter:
             ("#chi", r"$\chi$"),
             ("#nu", r"$\nu$"),
             ("#tau", r"$\tau$"),
-            ("pt2", r"$p_{\mathrm{T}}^2$"),
-            ("Pt2", r"$p_{\mathrm{T}}^2$"),
-            ("pT2", r"$p_{\mathrm{T}}^2$"),
-            ("p_{T}", r"$p_{\mathrm{T}}$"),
-            ("p_{t}", r"$p_{\mathrm{T}}$"),
-            ("pT", r"$p_{\mathrm{T}}$"),
-            ("pt", r"$p_{\mathrm{T}}$"),
+            ("pt2", r"$p_{\text{T}}^2$"),
+            ("Pt2", r"$p_{\text{T}}^2$"),
+            ("pT2", r"$p_{\text{T}}^2$"),
+            ("p_{T}", r"$p_{\text{T}}$"),
+            ("p_{t}", r"$p_{\text{T}}$"),
+            ("pT", r"$p_{\text{T}}$"),
+            ("pt", r"$p_{\text{T}}$"),
             ("GeV/c^{2}", r"GeV/$c^2$"),
             ("GeV/c", r"GeV/$c$"),
             ("^{2}", r"$^2$"),
@@ -573,11 +771,17 @@ class DQMPlotter:
                 obj_name = key.GetName()
                 obj_path = f"{current_path}/{obj_name}" if current_path else obj_name
 
-                obj = key.ReadObj()
-                if obj.InheritsFrom("TDirectory"):
-                    hist_paths.extend(traverse_directory(obj, obj_path))
+                # Decide what to do from the class name stored in the key, without
+                # deserializing the object. Only directories are read (to recurse);
+                # matching histogram paths are collected without ever reading the
+                # (potentially large) histograms, since only their paths are needed.
+                cls = ROOT.TClass.GetClass(key.GetClassName())
+                if cls is None:
+                    continue
+                if cls.InheritsFrom("TDirectory"):
+                    hist_paths.extend(traverse_directory(key.ReadObj(), obj_path))
                 # Skip 2D histograms
-                elif obj.InheritsFrom("TH1") and not obj.InheritsFrom("TH2"):
+                elif cls.InheritsFrom("TH1") and not cls.InheritsFrom("TH2"):
                     for pat in compiled:
                         if pat.search(obj_path):
                             hist_paths.append((obj_path, pat.pattern))
@@ -587,26 +791,74 @@ class DQMPlotter:
 
         return traverse_directory(root_file)
 
-    def _parse_overlay_groups(self, overlay_specs):
+    def _parse_overlay_groups(self, overlay_specs, n_files):
         """
-        Parse overlay specifications into groups.
+        Parse --overlay specifications into overlay jobs.
+
+        Each --overlay value is one job. A job is a colon-separated list of
+        specs; each spec is 'collections[@file]', where collections is a
+        comma-separated list of collection patterns and the optional @file
+        selector is a 1-based file index or '*' (all files, the default).
+
+        Backward compatible: '--overlay collA:collB' has no @ selectors, so
+        both collections are overlaid from every file, exactly as before.
+        The new form '--overlay collA,collB@1:collC@2' overlays collA and
+        collB from file 1 together with collC from file 2.
 
         Args:
-            overlay_specs: List of colon-separated pattern strings
+            overlay_specs: List of --overlay strings (one per --overlay flag)
+            n_files: Number of input files (to resolve/validate @file indices)
 
         Returns:
-            List of lists, where each inner list contains patterns to overlay
+            List of jobs. Each job is a dict with:
+              'patterns':      ordered list of unique collection patterns
+              'file_patterns': list (indexed by file) of the patterns to take
+                               from that file, in command-line order
         """
         if not overlay_specs:
             return []
 
-        groups = []
+        jobs = []
         for spec in overlay_specs:
-            patterns = [p.strip() for p in spec.split(":")]
-            if len(patterns) > 1:
-                groups.append(patterns)
+            patterns = []
+            file_patterns = [[] for _ in range(n_files)]
+            for chunk in spec.split(":"):
+                chunk = chunk.strip()
+                if not chunk:
+                    continue
+                collections, _, file_sel = chunk.partition("@")
+                file_sel = file_sel.strip()
+                collection_list = [c.strip() for c in collections.split(",") if c.strip()]
+                if not collection_list:
+                    continue
 
-        return groups
+                if file_sel in ("", "*"):
+                    targets = range(n_files)
+                else:
+                    try:
+                        idx = int(file_sel)
+                    except ValueError:
+                        raise ValueError(
+                            f"--overlay: invalid file selector '@{file_sel}' in '{spec}' "
+                            "(use a 1-based file index or '*')."
+                        )
+                    if not 1 <= idx <= n_files:
+                        raise ValueError(
+                            f"--overlay: file index {idx} in '{spec}' is out of range "
+                            f"(1..{n_files})."
+                        )
+                    targets = [idx - 1]
+
+                for collection in collection_list:
+                    if collection not in patterns:
+                        patterns.append(collection)
+                    for target in targets:
+                        file_patterns[target].append(collection)
+
+            if patterns:
+                jobs.append({"patterns": patterns, "file_patterns": file_patterns})
+
+        return jobs
 
     def _normalize_path_for_overlay(self, hist_path, overlay_patterns):
         """
@@ -617,7 +869,8 @@ class DQMPlotter:
             overlay_patterns: List of patterns that should be removed for grouping
 
         Returns:
-            Normalized path (or None if path doesn't match any pattern)
+            Tuple (normalized_path, matched_pattern), or (None, None) if the path
+            does not match any overlay pattern.
         """
         for pattern in overlay_patterns:
             if re.search(pattern, hist_path):
@@ -627,70 +880,76 @@ class DQMPlotter:
 
         return None, None
 
-    def _group_histograms_by_overlay(self, all_hists, overlay_groups):
+    def _group_histograms_by_overlay(self, all_hists, job_patterns):
         """
-        Group histograms that should be overlaid together.
+        Group the histograms of one overlay job by their normalized path.
+
+        Patterns are tried longest-first so that a collection name which is a
+        prefix of another (e.g. 'hltFoo' vs 'hltFooBar') does not shadow the
+        more specific one, letting both end up in the same group.
 
         Args:
-            all_hists: Set of all histogram paths
-            overlay_groups: List of overlay pattern groups
+            all_hists: Set of all matched histogram paths
+            job_patterns: Collection patterns of a single overlay job
 
         Returns:
-            Dictionary mapping normalized paths to lists of (hist_path, pattern) tuples
+            (grouped, used) where grouped maps a normalized path to a
+            {pattern: hist_path} dict, keeping only groups that span at least
+            two collections; used is the set of histogram paths that ended up
+            in a kept group.
         """
+        ordered = sorted(job_patterns, key=len, reverse=True)
         grouped = {}
-        used_hists = set()
 
-        for overlay_patterns in overlay_groups:
-            # Find all histograms matching any pattern in this overlay group
-            for hist_path in all_hists:
-                normalized, matched_pattern = self._normalize_path_for_overlay(
-                    hist_path, overlay_patterns
-                )
+        for hist_path in all_hists:
+            normalized, matched_pattern = self._normalize_path_for_overlay(
+                hist_path, ordered
+            )
+            if normalized is None:
+                continue
+            grouped.setdefault(normalized, {}).setdefault(matched_pattern, hist_path)
 
-                if normalized:
-                    if normalized not in grouped:
-                        grouped[normalized] = []
-                    grouped[normalized].append((hist_path, matched_pattern))
-                    used_hists.add(hist_path)
-
-        # Filter groups to only include those with multiple histograms
+        # Keep only groups that overlay at least two different collections.
         filtered_groups = {
-            norm_path: hists 
-            for norm_path, hists in grouped.items() 
+            norm_path: hists
+            for norm_path, hists in grouped.items()
             if len(hists) > 1
         }
+        used_hists = {hp for hists in filtered_groups.values() for hp in hists.values()}
 
         return filtered_groups, used_hists
 
-    def _generate_overlay_output_path(self, normalized_path, matched_patterns, 
-                                     pattern, output_dir):
+    def _overlay_job_folder(self, job_patterns):
+        """Build a filesystem-safe folder name from an overlay job's patterns."""
+        names = []
+        for pat in job_patterns:
+            name = re.sub(r'[^a-zA-Z0-9_]', '', pat)
+            if name:
+                names.append(name)
+        return "+".join(sorted(set(names)))
+
+    def _generate_overlay_output_path(self, normalized_path, base_pattern,
+                                      output_dir, job_folder):
         """
-        Generate output path for overlaid histograms.
+        Generate the output path for an overlaid histogram.
+
+        The overlaid collections live in a per-job folder
+        (output_dir/overlay/<job_folder>/...), so the collection segment is
+        dropped from the preserved directory tree.
 
         Args:
-            normalized_path: Normalized path with placeholder
-            matched_patterns: List of patterns that were matched
-            pattern: Original search pattern
+            normalized_path: Normalized path with the collection placeholder
+            base_pattern: Source pattern used to preserve the folder structure
             output_dir: Base output directory
+            job_folder: Name of this overlay job's subfolder
 
         Returns:
             Output file path
         """
-        # Create combined collection name from patterns
-        collection_names = []
-        for pat in matched_patterns:
-            # Extract meaningful name from pattern (remove regex special chars)
-            name = re.sub(r'[^a-zA-Z0-9_]', '', pat)
-            if name:
-                collection_names.append(name)
-
-        combined_name = "+".join(sorted(set(collection_names)))
-
-        # Replace placeholder with combined name
-        overlay_path = normalized_path.replace("OVERLAY_PLACEHOLDER", combined_name)
-
-        return self._generate_output_path(overlay_path, pattern, output_dir)
+        tree_path = normalized_path.replace("OVERLAY_PLACEHOLDER", "")
+        tree_path = re.sub(r"/+", "/", tree_path).strip("/")
+        overlay_dir = os.path.join(output_dir, "overlay", job_folder)
+        return self._generate_output_path(tree_path, base_pattern, overlay_dir)
 
     def plot_comparison(
         self,
@@ -700,6 +959,7 @@ class DQMPlotter:
         logy=False,
         normalize=False,
         cms_text="Preliminary",
+        cms_text_fontsize=18,
         energy_text=None,
         show_energy=False,
         data=False,
@@ -708,7 +968,24 @@ class DQMPlotter:
         do_ratio=True,
         save_as_pdf=False,
         legend_outside=False,
-        overlay_groups=None,
+        legend_title=None,
+        legend_location=None,
+        legend_title_fontsize=None,
+        legend_fontsize=None,
+        title=None,
+        xtitle=None,
+        ytitle=None,
+        xtitle_fontsize=None,
+        ytitle_fontsize=None,
+        xlim=None,
+        ylim=None,
+        ylim_ratio=None,
+        ytitle_ratio_fontsize=None,
+        ratio_label=None,
+        complement=False,
+        rebin=None,
+        clamp_yerrors=False,
+        multiply_x_values=None,
     ):
         """
         Create comparison plot with ratio panel.
@@ -726,25 +1003,28 @@ class DQMPlotter:
             plot_histograms: Whether to plot histograms instead of individual bin points with errors
             pdf: Whether to save as PDF in addition to PNG
             legend_outside: Force legend to be placed outside the plot area
-            overlay_groups: List of pattern groups to overlay
+            rebin: Optional rebinning specification, either a single int or an array-like of new bin edges
         """
         if len(histograms) != len(labels):
             raise ValueError("Number of histograms must match number of labels")
 
-        title, xlabel, ylabel = self.extract_labels_from_hist(histograms[0])
+        if title is None:
+            title, xlabel, ylabel = self.extract_labels_from_hist(histograms[0], xtitle, ytitle)
+        else:
+            _, xlabel, ylabel = self.extract_labels_from_hist(histograms[0], xtitle, ytitle)
 
-        legend_title = None
-        if hasattr(self, "_current_output_path"):
-            output_parts = self._current_output_path.replace("\\", "/").split("/")
-            if len(output_parts) > 1:
-                # Get the parent directory name (second to last part)
-                legend_title = output_parts[-2] if len(output_parts) >= 2 else None
-                # Ignore legend name for summary plots
-                if "global" in output_parts[-1].lower() or "coll" in output_parts[-1].lower():
-                    legend_title = None
-                # Split long overlay titles at + marker
-                elif legend_title and "+" in legend_title and len(legend_title) > 30:
-                    legend_title = legend_title.replace("+", "\n+")
+        if legend_title is None: # otherwise use the user's choice
+            if hasattr(self, "_current_output_path"):
+                output_parts = self._current_output_path.replace("\\", "/").split("/")
+                if len(output_parts) > 1:
+                    # Get the parent directory name (second to last part)
+                    legend_title = output_parts[-2] if len(output_parts) >= 2 else None
+                    # Ignore legend name for summary plots
+                    if "global" in output_parts[-1].lower() or "coll" in output_parts[-1].lower():
+                        legend_title = None
+                    # Split long overlay titles at + marker
+                    elif legend_title and "+" in legend_title and len(legend_title) > 30:
+                        legend_title = legend_title.replace("+", "\n+")
 
         fig = plt.figure(figsize=self.figsize)
         gs = gridspec.GridSpec(
@@ -757,11 +1037,12 @@ class DQMPlotter:
         if show_energy:
             if energy_text is None:
                 # Default energy text (13 TeV)
-                hep.cms.label(cms_text, data=data, ax=ax_main)
+                hep.cms.label(cms_text, data=data, ax=ax_main, fontsize=cms_text_fontsize)
             else:
-                hep.cms.label(cms_text, data=data, ax=ax_main, rlabel=energy_text)
+                hep.cms.label(cms_text, data=data, ax=ax_main, fontsize=cms_text_fontsize,
+                              rlabel=fr"${energy_text}$" if self._is_tex_math(energy_text) else energy_text)
         else:
-            hep.cms.label(cms_text, data=data, ax=ax_main, rlabel="")
+            hep.cms.label(cms_text, data=data, ax=ax_main, rlabel="", fontsize=cms_text_fontsize)
 
         ax_ratio = None
         if do_ratio and len(histograms) > 1:
@@ -779,24 +1060,40 @@ class DQMPlotter:
 
         for i, (hist, label) in enumerate(zip(histograms, labels)):
             bin_centers, bin_contents, bin_errors, bin_edges, bin_labels, has_labels = (
-                self.root_to_numpy(hist)
+                self.root_to_numpy(hist, rebin=rebin)
             )
+
+            if multiply_x_values is not None:
+                bin_centers = bin_centers * multiply_x_values
+                bin_edges = bin_edges * multiply_x_values
 
             if normalize and np.sum(bin_contents) > 0:
                 norm_factor = 1.0 / np.sum(bin_contents)
                 bin_contents *= norm_factor
                 bin_errors *= norm_factor
 
+            if complement:
+                bin_contents = np.array([1-i for i in bin_contents])
+
+            # clamp_yerrors only affects how the error bars are drawn on the main plot,
+            # so its (2, N) asymmetric output is kept in a separate variable used just for display.
+            plot_errors = bin_errors
+            if clamp_yerrors:
+                plot_errors = self._clamp_yerrors(bin_contents, bin_errors)
+
+            if np.any(bin_contents < 0):
+                has_negative_values = True
+
             # Use first histogram as reference
             if i == 0:
                 ref_centers, ref_contents, ref_errors = bin_centers, bin_contents, bin_errors
 
-            self._plot_histogram_data(ax_main, bin_centers, bin_contents, bin_errors, 
+            self._plot_histogram_data(ax_main, bin_centers, bin_contents, plot_errors, 
                                     bin_edges, label, i, plot_histograms)
 
             if i > 0:
                 valid_ratios = self._calculate_and_plot_ratio(
-                    ax_ratio, bin_centers, bin_contents, bin_errors,
+                    ax_ratio, bin_centers, bin_contents, bin_errors, bin_edges,
                     ref_centers, ref_contents, ref_errors, i, plot_histograms
                 )
                 all_ratios.extend(valid_ratios)
@@ -807,40 +1104,55 @@ class DQMPlotter:
         label_size = "medium" if len(visible_ylabel) < 20 else "small"
         if title:
             ax_main.set_title(title, pad=50)
-        has_negative_values = np.any(bin_contents < 0)
-        xlabel, ylabel = self._apply_axis_scaling(ax_main, xlabel, ylabel, title, logy, has_negative_values)
 
-        # Set custom labels if available
-        if has_labels:
+        xlabel, ylabel = self._apply_axis_scaling(ax_main, xlabel, ylabel, title, logy, xlim, has_negative_values)
+
+        ax_main.set_xlabel(xlabel, fontsize=label_size if xtitle_fontsize is None else xtitle_fontsize)
+        ax_main.set_ylabel(ylabel, fontsize=label_size if ytitle_fontsize is None else ytitle_fontsize)
+
+        ha = "right"
+        # args.source is None in --operation mode; guard before indexing it.
+        if args.source and "KindOfSignalPV" in args.source[0][0]:
+            if rebin != None:
+                bin_labels = ['PV not Reco', 'PV Reco\nas Leading', 'PV Reco\nnot as Leading']
+                ha = "center"
+                
+        if has_labels: # Set custom labels if available
             ax_main.set_xticks(
                 ref_centers,
                 bin_labels,
                 size="small" if len(bin_labels) < 10 else "xx-small",
                 rotation=45,
-                ha="right",
+                ha=ha,
                 va="top",
             )
             ax_main.tick_params(axis="x", which="minor", bottom=False)
-        else:
-            ax_main.set_xlabel(xlabel)
 
-        ax_main.set_ylabel(ylabel, fontsize=label_size)
-
-        self._configure_legend(ax_main, labels, legend_title, logy, force_outside=legend_outside)
+        self._configure_legend(ax_main, labels, legend_title, legend_location,
+                               legend_title_fontsize, legend_fontsize,
+                               logy, force_outside=legend_outside)
 
         if grid:
-            ax_main.grid(True, alpha=0.75, linestyle="dashdot", linewidth=0.75)
+            ax_main.grid(True, alpha=0.75, linestyle="dashdot", linewidth=0.75)           
+        if xlim:
+            ax_main.set_xlim(*xlim)
+        if ylim:
+            ax_main.set_ylim(*ylim)
+ 
 
         self._apply_custom_formatter(ax_main)
 
         # Ratio plot styling
         if ax_ratio is not None:
+
             # Only show label in ratio and keep the same ticks as main plot
             ax_main.set_xlabel("")
             ax_main.tick_params(axis="x", labelbottom=False)
 
             # Set ratio plot limits
-            if len(all_ratios) > 0:
+            if ylim_ratio:
+                ax_ratio.set_ylim(*ylim_ratio)
+            elif len(all_ratios) > 0:
                 # Use percentiles to avoid extreme outliers
                 ratio_min = np.percentile(all_ratios, 5)
                 ratio_max = np.percentile(all_ratios, 95)
@@ -872,9 +1184,15 @@ class DQMPlotter:
                 )
                 ax_ratio.tick_params(axis="x", which="minor", bottom=False)
             else:
-                ax_ratio.set_xlabel(xlabel)
+                ax_ratio.set_xlabel(xlabel, fontsize=label_size if xtitle_fontsize is None else xtitle_fontsize)
 
-            ax_ratio.set_ylabel("Ratio")
+            if ratio_label is None:
+                ratio_ylabel = "Ratio"
+            elif ratio_label == "auto":
+                ratio_ylabel = f"Ratio wrt {labels[0]}"
+            else:
+                ratio_ylabel = ratio_label
+            ax_ratio.set_ylabel(ratio_ylabel, fontsize=label_size if ytitle_ratio_fontsize is None else ytitle_ratio_fontsize)
             ax_ratio.axhline(y=1, color="black", linestyle="--", alpha=0.7)
 
             if grid:
@@ -888,18 +1206,9 @@ class DQMPlotter:
             plt.savefig(pdf_path, dpi=300, bbox_inches="tight")
         plt.close()
 
-    def compare_files(
-        self,
-        file_paths,
-        hist_pattern,
-        labels=None,
-        output_dir="plots",
-        more_files=False,
-        create_web_index=False,
-        overlay_groups=None,
-        overlay_individual=True,
-        **plot_kwargs,
-    ):
+    def compare_files(self, file_paths, hist_pattern=None, operation_specs=None, operation_type=None,
+                      labels=None, output_dir="plots", more_files=False, create_web_index=False,
+                      overlay_groups=None, overlay_individual=True, debug=False, **plot_kwargs):
         """
         Compare histograms matching a pattern from multiple files.
 
@@ -937,21 +1246,41 @@ class DQMPlotter:
                 if legend_label.startswith("DQM_"):
                     legend_label = legend_label.replace("DQM_", "")
                 labels.append(legend_label)
-        elif isinstance(labels, str):
-            labels = [label.strip() for label in labels.split(",")]
 
-        if len(labels) != len(file_paths):
-            raise ValueError(
-                f"Number of legend entries ({len(labels)}) must match number of files ({len(file_paths)})"
-            )
+        if operation_specs is not None:
+         
+            plot_tasks = []
+            for numerator, denominator in operation_specs:
+                output_path = os.path.join(output_dir, os.path.basename(numerator) + '_' + operation_type.upper() + '_' + os.path.basename(denominator))
+                
+                plot_tasks.append({
+                    "is_operation": True,
+                    "file_paths": file_paths,
+                    "numerator_path": numerator,
+                    "denominator_path": denominator,
+                    "operation_type": operation_type,
+                    "labels": labels,
+                    "colors": self.colors,
+                    "output_path": output_path,
+                    "plot_kwargs": plot_kwargs,
+                })
 
+            self._process_files(plot_tasks)
+
+            if create_web_index:
+                print("Adding php index files for web viewing...")
+                self._create_web_index_files(output_dir)
+         
+            return
+        
         all_matching_hists = set()
         hist_to_pattern = {}
 
         print(f"Scanning all files for histograms matching the pattern(s) using {self.processors} parallel processes...")
         scan_tasks = [{"file_path": fp, "patterns": patterns} for fp in file_paths]
         with multiprocessing.Pool(self.processors) as pool:
-            scan_results = pool.map(scan_file_task, scan_tasks)
+            scan_file_task_extra_args = partial(scan_file_task, debug=self.debug)
+            scan_results = pool.map(scan_file_task_extra_args, scan_tasks)
 
         for file_hists, file_hist_to_pattern in scan_results:
             all_matching_hists.update(file_hists)
@@ -967,83 +1296,108 @@ class DQMPlotter:
             f"Total unique histograms found across all files: {len(all_matching_hists)}"
         )
 
+        # Warn once (not once per plot) about matched histograms missing from some
+        # input files, e.g. a collection present in only a subset of the files. Those
+        # histograms are simply skipped in the affected plots.
+        for fp, (file_hists, _) in zip(file_paths, scan_results):
+            missing = all_matching_hists - set(file_hists)
+            if not missing:
+                continue
+            collections = sorted({hp.rsplit("/", 1)[0] for hp in missing})
+            print(
+                f"Warning: {os.path.basename(fp)} is missing {len(missing)} of the matched "
+                f"histogram(s) in {len(collections)} collection(s); they are skipped in the "
+                f"affected plots:"
+            )
+            for collection in collections:
+                print(f"    {collection}")
+
         plot_tasks = []
 
         # Handle overlay groups if specified
         if overlay_groups:
-            grouped_hists, used_hists = self._group_histograms_by_overlay(
-                all_matching_hists, overlay_groups
-            )
+            used_folders = set()
+            all_used = set()
 
-            if grouped_hists:
-                print(f"Found {len(grouped_hists)} histogram groups to overlay")
+            for job_index, job in enumerate(overlay_groups):
+                job_patterns = job["patterns"]
+                file_patterns = job["file_patterns"]
+                job_legend = job.get("legend")
+                job_legend_title = job.get("legend_title")
 
-                # Create tasks for overlaid histograms
-                for normalized_path, hist_pattern_pairs in grouped_hists.items():
-                    # Sort by pattern to ensure consistent ordering
-                    hist_pattern_pairs = sorted(hist_pattern_pairs, key=lambda x: x[1])
-                    hist_paths = [hp for hp, _ in hist_pattern_pairs]
-                    matched_patterns = [pat for _, pat in hist_pattern_pairs]
+                # Per-job output folder, kept unique across jobs.
+                job_folder = self._overlay_job_folder(job_patterns) or f"overlay{job_index + 1}"
+                base_folder = job_folder
+                dup = 2
+                while job_folder in used_folders:
+                    job_folder = f"{base_folder}_{dup}"
+                    dup += 1
+                used_folders.add(job_folder)
 
-                    # Use first pattern for output path generation
-                    base_pattern = hist_to_pattern.get(hist_paths[0], patterns[0])
+                grouped_hists, used_hists = self._group_histograms_by_overlay(
+                    all_matching_hists, job_patterns
+                )
+                all_used |= used_hists
+
+                if not grouped_hists:
+                    print(f"No overlappable histogram groups found for overlay 'overlay/{job_folder}'")
+                    continue
+                print(f"Found {len(grouped_hists)} histogram groups to overlay in 'overlay/{job_folder}'")
+
+                for normalized_path, pattern_to_path in grouped_hists.items():
+                    base_pattern = hist_to_pattern.get(
+                        next(iter(pattern_to_path.values())), patterns[0]
+                    )
                     output_path = self._generate_overlay_output_path(
-                        normalized_path, matched_patterns, base_pattern, output_dir
+                        normalized_path, base_pattern, output_dir, job_folder
                     )
 
-                    # For single file: overlay collections within the file
-                    if len(file_paths) == 1:
-                        # Load all histograms from different collections
-                        overlay_labels = []
-                        for hist_path, pattern in hist_pattern_pairs:
-                            # Extract collection name from path
-                            collection = re.search(pattern, hist_path)
-                            collection_name = collection.group(0) if collection else pattern
-                            overlay_labels.append(f"{labels[0]} - {collection_name}")
+                    # Build the overlaid series in file-major order: for each file,
+                    # take the collections assigned to it in command-line order. A
+                    # custom --overlay-legend maps to these (file, collection) slots
+                    # in the same order.
+                    series_files, series_paths, series_labels = [], [], []
+                    slot = 0
+                    for file_idx in range(len(file_paths)):
+                        for pattern in file_patterns[file_idx]:
+                            hist_path = pattern_to_path.get(pattern)
+                            if hist_path is not None:
+                                if job_legend is not None and slot < len(job_legend):
+                                    label = job_legend[slot]
+                                else:
+                                    collection = re.search(pattern, hist_path)
+                                    collection_name = collection.group(0) if collection else pattern
+                                    label = f"{labels[file_idx]} - {collection_name}"
+                                series_files.append(file_paths[file_idx])
+                                series_paths.append(hist_path)
+                                series_labels.append(label)
+                            slot += 1
 
-                        plot_tasks.append({
-                            "file_paths": file_paths * len(hist_paths),
-                            "hist_path": hist_paths,
-                            "labels": overlay_labels,
-                            "colors": self.colors,
-                            "output_path": output_path,
-                            "plot_kwargs": plot_kwargs,
-                            "is_overlay": True,
-                        })
-                    else:
-                        # For multiple files: overlay collections across files
-                        # Create consistent ordering: all collections for file1, then all for file2, etc.
-                        overlay_labels = []
-                        extended_file_paths = []
-                        extended_hist_paths = []
+                    if len(series_paths) < 2:
+                        continue
 
-                        for file_idx, (file_path, file_label) in enumerate(zip(file_paths, labels)):
-                            for hist_path, pattern in hist_pattern_pairs:
-                                collection = re.search(pattern, hist_path)
-                                collection_name = collection.group(0) if collection else pattern
-                                overlay_labels.append(f"{file_label} - {collection_name}")
-                                extended_file_paths.append(file_path)
-                                extended_hist_paths.append(hist_path)
+                    task_plot_kwargs = plot_kwargs
+                    if job_legend_title is not None:
+                        task_plot_kwargs = dict(plot_kwargs)
+                        task_plot_kwargs["legend_title"] = job_legend_title
 
-                        plot_tasks.append({
-                            "file_paths": extended_file_paths,
-                            "hist_path": extended_hist_paths,
-                            "labels": overlay_labels,
-                            "colors": self.colors,
-                            "output_path": output_path,
-                            "plot_kwargs": plot_kwargs,
-                            "is_overlay": True,
-                        })
+                    plot_tasks.append({
+                        "file_paths": series_files,
+                        "hist_path": series_paths,
+                        "labels": series_labels,
+                        "colors": self.colors,
+                        "output_path": output_path,
+                        "plot_kwargs": task_plot_kwargs,
+                        "is_overlay": True,
+                    })
 
-            # Process non-overlaid histograms separately
+            # Also make individual plots unless disabled.
             if overlay_individual:
-                # Include individual plots for overlaid collections
                 remaining_hists = all_matching_hists
                 if remaining_hists:
                     print(f"Processing {len(remaining_hists)} histograms (including individual overlay collections)")
             else:
-                # Exclude overlaid histograms from individual processing
-                remaining_hists = all_matching_hists - used_hists
+                remaining_hists = all_matching_hists - all_used
                 if remaining_hists:
                     print(f"Processing {len(remaining_hists)} non-overlaid histograms separately")
         else:
@@ -1097,7 +1451,7 @@ class DQMPlotter:
                     output_path = os.path.join(output_dir, subdirs, f"{filename}")
                 else:
                     # Single file, no subdirectories
-                    filename = path_parts[0]
+                    filename = os.path.basename(hist_path)
                     output_path = os.path.join(output_dir, f"{filename}")
             else:
                 # If no remaining path, use the last part of the matched path
@@ -1131,23 +1485,18 @@ class DQMPlotter:
         print(f"Created index.php files in {n_index} directories for web viewing")
 
     def _process_files(self, plot_tasks):
-        """Process plotting tasks using multiprocessing."""
-        print(f"Using {self.processors} parallel processes")
-
-        with multiprocessing.Pool(self.processors) as pool:
-            results = []
+        """Process plotting tasks using multiprocessing or sequentially in debug mode."""
+        if self.debug:
+            print("Debug mode: processing sequentially")
+            completed = 0
+            failed = 0
             for i, task in enumerate(plot_tasks):
                 task_copy = task.copy()
                 task_copy.pop("progress_counter", None)
                 task_copy.pop("total_tasks", None)
-                result = pool.apply_async(process_histogram_task, (task_copy,))
-                results.append((i, result))
 
-            completed = 0
-            failed = 0
-            for i, result in results:
                 try:
-                    result.get(timeout=300)
+                    process_histogram_task(task_copy, self.debug)
                     completed += 1
                     if completed % 10 == 0 or completed == len(plot_tasks):
                         print(
@@ -1155,33 +1504,57 @@ class DQMPlotter:
                             end="",
                             flush=True,
                         )
-                except multiprocessing.TimeoutError:
-                    print(f"\nTask {i} timed out")
-                    failed += 1
                 except Exception as e:
                     print(f"\nError in task {i}: {e}")
                     failed += 1
-
-            pool.close()
-            pool.join()
-
-            if failed > 0:
-                print(f"\n{failed} tasks failed out of {len(plot_tasks)} total")
+        else:
+            print(f"Using {self.processors} parallel processes")
+            with multiprocessing.Pool(self.processors) as pool:
+                results = []
+                for i, task in enumerate(plot_tasks):
+                    task_copy = task.copy()
+                    task_copy.pop("progress_counter", None)
+                    task_copy.pop("total_tasks", None)
+                    result = pool.apply_async(process_histogram_task, (task_copy, self.debug))
+                    results.append((i, result))
+                completed = 0
+                failed = 0
+                for i, result in results:
+                    try:
+                        result.get(timeout=300)
+                        completed += 1
+                        if completed % 10 == 0 or completed == len(plot_tasks):
+                            print(
+                                f"\rProgress: {completed}/{len(plot_tasks)} plots completed",
+                                end="",
+                                flush=True,
+                            )
+                    except multiprocessing.TimeoutError:
+                        print(f"\nTask {i} timed out")
+                        failed += 1
+                    except Exception as e:
+                        print(f"\nError in task {i}: {e}")
+                        failed += 1
+                pool.close()
+                pool.join()
+     
+        if failed > 0:
+            print(f"\n{failed} tasks failed out of {len(plot_tasks)} total")
         print()
 
-def scan_file_task(task):
+def scan_file_task(task, debug):
     """Scan a single ROOT file for histograms matching patterns, in a separate process."""
     try:
         file_path = task["file_path"]
         patterns = task["patterns"]
 
-        plotter = DQMPlotter()
+        finder = DQMPlotter(debug=debug)
         root_file = ROOT.TFile.Open(file_path, "READ")
         if not root_file or root_file.IsZombie():
             print(f"Error: Could not open {file_path}")
             return [], {}
 
-        results = plotter.find_histograms_in_file(root_file, patterns)
+        results = finder.find_histograms_in_file(root_file, patterns)
         root_file.Close()
 
         file_hists = [hp for hp, _ in results]
@@ -1197,20 +1570,43 @@ def scan_file_task(task):
         return [], {}
 
 
-def process_histogram_task(task):
+def process_histogram_task(task, debug):
     """Process a single histogram task in a separate process."""
     try:
         file_paths = task["file_paths"]
-        hist_path = task["hist_path"]
         labels = task["labels"]
         output_path = task["output_path"]
         plot_kwargs = task["plot_kwargs"]
-        is_overlay = task["is_overlay"]
+        is_overlay = task.get("is_overlay", False)
+        is_operation = task.get("is_operation", False)
 
-        plotter = DQMPlotter()
+        plotter = DQMPlotter(debug=debug)
         plotter._current_output_path = output_path
         plotter.colors = task["colors"]
+        
+        if is_operation:
+            numhistos, denhistos = [], []
+            valid_labels = []
 
+            for fp, lab in zip(file_paths, labels):
+                num, lab = plotter._load_histograms([fp], task["numerator_path"], [lab])
+                den, _ = plotter._load_histograms([fp], task["denominator_path"], [lab])
+                # _load_histograms returns ([], []) when a histogram is missing; skip
+                # this file so numerator/denominator/labels stay aligned.
+                if not num or not den:
+                    continue
+
+                numhistos.extend(num)
+                denhistos.extend(den)
+                valid_labels.extend(lab)
+
+            if len(numhistos) > 0:
+                results = plotter.operate_histograms(numhistos, denhistos, task["operation_type"])
+                plotter.plot_comparison(results, valid_labels, output_path, **plot_kwargs)
+            return
+
+        hist_path = task["hist_path"]
+            
         if is_overlay:
             # hist_path is a list of paths for overlay mode
             histograms = []
@@ -1243,56 +1639,135 @@ def process_histogram_task(task):
 if __name__ == "__main__":
     """Command line interface for DQM plotter."""
     parser = argparse.ArgumentParser(
-        description="Compare DQM histograms with CMS styling"
+        description="Compare DQM histograms with CMS styling",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "argument order:\n"
+            "  Pass the positional ROOT files first, then the options, e.g.\n"
+            "    dqm-plot file1.root file2.root -s \"path/*\" --ratio-label\n"
+            "  Several options (-s/--source, --operation, --overlay, --overlay-legend,\n"
+            "  --legend, --ratio-label) take a variable number of values and would\n"
+            "  otherwise swallow trailing positional files. To list the files last,\n"
+            "  separate them with '--':\n"
+            "    dqm-plot -s \"path/*\" --ratio-label -- file1.root file2.root\n"
+        ),
     )
     parser.add_argument("files", nargs="+", help="ROOT files to compare")
     parser.add_argument(
         "-s",
         "--source",
-        required=True,
         nargs="+",
         action="append",
-        help="Histogram path or regex pattern(s) to match. "
-             "Use multiple -s or space-separated values to provide several patterns.",
+        help="Histogram path(s) or regex pattern(s).",
+    )
+
+    parser.add_argument(
+        "--operation",
+        type=str,
+        nargs=2,
+        help="Operate on two histogram specifications. Each argument uses the same syntax accepted by --source.",
     )
     parser.add_argument(
-        "-l", "--legend", help="Comma-separated list of legend entries for each file. Use \\n for explicit line breaks."
+        "--operation-type",
+        choices=["division"],
+        default="division",
+        help="Operation applied between the two histograms.",
     )
-    parser.add_argument("-o", "--output-dir", default="plots", help="Output directory")
-    parser.add_argument("--logy", action="store_true", help="Use log scale for y-axis")
-    parser.add_argument("--normalize", action="store_true", help="Normalize histograms")
+
+    parser.add_argument(
+        '-l', '--legend',
+        help="Comma-separated list of legend entries for each file "
+        "(e.g. -l \"File 1,File 2\"). Use \\n for explicit line breaks.",
+    )
+    parser.add_argument("-o", "--output-dir", default="plots", help="Output directory.")
+    parser.add_argument("--logy", action="store_true", help="Use log scale for y-axis.")
+    parser.add_argument("--normalize", action="store_true", help="Normalize histograms.")
     parser.add_argument(
         "--cms-text",
         default="Preliminary",
-        help="CMS label text (e.g. Preliminary, Work in progress)",
+        help="CMS label text (e.g. Preliminary, Work in progress).",
+    )
+    parser.add_argument(
+        "--cms-text-fontsize",
+        default=20,
+        type=int,
+        help="CMS label text fontsize.",
     )
     parser.add_argument(
         "--energy-text",
         default=None,
-        help="Custom energy text in the top right corner (e.g., '14 TeV', 'Run 3')",
+        help="Custom energy text in the top right corner (e.g., '14 TeV', 'Run 3').",
     )
     parser.add_argument(
-        "--data", action="store_true", help="Use CMS datastyle for plots"
+        "--data", action="store_true", help="Use CMS datastyle for plots."
     )
     parser.add_argument(
-        "--no-energy", action="store_true", help="Don't show energy text"
+        "--no-energy", action="store_true", help="Don't show energy text."
     )
-    parser.add_argument("--no-ratio", action="store_true", help="Disable ratio plots")
+    parser.add_argument("--no-ratio", action="store_true", help="Disable ratio plots.")
     parser.add_argument(
-        "--no-grid", action="store_true", help="Remove grid from all plots"
+        "--no-grid", action="store_true", help="Remove grid from all plots."
+    )
+    parser.add_argument(
+        '--multiply-x-values', type=float, required=False, default=None, dest='multiply_x_values',
+        help="Multiply all x-axis values (bin centers and edges) by this fixed factor."
+    )
+    parser.add_argument(
+        '--title', required=False, default=None,
+        help="Plot title."
+    )
+    parser.add_argument(
+        '--xtitle', required=False, default=None,
+        help="Label of the x axis."
+    )
+    parser.add_argument(
+        '--ytitle', required=False, default=None,
+        help="Label of the y axis."
+    )
+    parser.add_argument(
+        '--xtitle-fontsize', type=int, required=False, default=None,
+        help="X axis label font size."
+    )
+    parser.add_argument(
+        '--xlim', nargs=2, type=float, required=False,
+        help="Numerical limits of the x axis of the main and ratio histograms."
+    )
+    parser.add_argument(
+        '--ytitle-fontsize', type=int, required=False, default=None,
+        help="Y axis label font size."
+    )
+    parser.add_argument(
+        '--ylim', nargs=2, type=float, required=False,
+        help="Numerical limits of the y axis of the main histogram."
+    )
+    parser.add_argument(
+        '--ylim-ratio', nargs=2, type=float, required=False,
+        help="Numerical limits of the y axis of the ratio histogram."
+    )
+    parser.add_argument(
+        '--ytitle-ratio-fontsize', type=int, required=False, default=None,
+        help="Bottom ratio plot Y axis label font size."
+    )
+    parser.add_argument(
+        '--ratio-label', type=str, nargs='?', const='auto', default=None,
+        help="Y axis label of the ratio panel. Omit the flag for 'Ratio'; pass "
+        "'--ratio-label' (or '--ratio-label auto') for 'Ratio wrt <first legend "
+        "label>'; or pass '--ratio-label VALUE' for a custom label. Since the bare "
+        "flag takes an optional value, keep the input ROOT files away from it "
+        "(place them first, or after a '--' separator)."
     )
     parser.add_argument(
         "--histograms",
         action="store_true",
-        help="Plot histograms instead of points (default: points with error bars)",
+        help="Plot histograms instead of points (default: points with error bars).",
     )
     parser.add_argument(
-        "--pdf", action="store_true", help="Also save plots in PDF format"
+        "--pdf", action="store_true", help="Also save plots in PDF format."
     )
     parser.add_argument(
         "--more-files",
         action="store_true",
-        help="Allow more than 10 input files (legend might overlap with the plots, color palette only supports 10 files)",
+        help="Allow more than 10 input files (legend might overlap with the plots, color palette only supports 10 files).",
     )
     parser.add_argument(
         "-n",
@@ -1304,7 +1779,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--web",
         action="store_true",
-        help="Create index.php files for web viewing (downloads from CernBox)",
+        help="Create index.php files for web viewing (downloads from CernBox).",
     )
     parser.add_argument(
         "--legend-outside",
@@ -1312,49 +1787,229 @@ if __name__ == "__main__":
         help="Force legend to be placed outside the plot area",
     )
     parser.add_argument(
+        "--legend-title",
+        help="Legend title.",
+    )
+    parser.add_argument(
+        "--legend-location",
+        default="upper right",
+        choices=list(mlegend.Legend.codes.keys()),
+        help="Legend location.",
+    )
+    parser.add_argument(
+        "--legend-title-fontsize",
+        required=False,
+        default=None,
+        type=int,
+        help="Legend title fontsize.",
+    )
+    parser.add_argument(
+        "--legend-fontsize",
+        required=False,
+        default=None,
+        type=int,
+        help="Legend label fontsize.",
+    )
+    parser.add_argument(
         "--overlay",
         action="append",
-        help="Overlay histograms from different collections. Specify colon-separated patterns "
-             "(e.g., 'hltPhase2PixelTracks:hltPhase2PixelTracksCAExtension'). "
-             "Can be used multiple times for different overlay groups.",
+        help="Overlay histograms from different collections into one plot. Each "
+        "--overlay is one overlay job written to its own plots/overlay/<name>/ "
+        "folder, and is a colon-separated list of 'collections[@file]' specs: "
+        "comma-separated collection patterns, each optionally bound to a 1-based "
+        "file index (or '*'/omitted for all files). "
+        "'--overlay collA:collB' overlays both collections from every file; "
+        "'--overlay collA@1:collB@2' overlays collA from file 1 with collB from "
+        "file 2. Can be used multiple times for several overlay jobs. "
+        "By default also produces the plots that would have been produced "
+        "without setting this option. "
+        "Use --no-overlay-individual if you want to plot only the combinations "
+        "specified in this parameter."
+    )
+    parser.add_argument(
+        "--overlay-legend",
+        action="append",
+        help="Comma-separated legend labels for an --overlay job, in file-major "
+        "order (file 1 collections first, then file 2, ...). Pair one "
+        "--overlay-legend with each --overlay, in the same order.",
+    )
+    parser.add_argument(
+        "--overlay-legend-title",
+        action="append",
+        help="Legend title for an --overlay job's plots. Pair one "
+        "--overlay-legend-title with each --overlay, in the same order.",
     )
     parser.add_argument(
         "--no-overlay-individual",
         action="store_true",
-        help="Disable creation of individual plots for collections that are overlaid (default: create both overlay and individual plots)",
+        help="Disable creation of individual plots for collections that are overlaid (default: create both overlay and individual plots).",
+    )
+    parser.add_argument(
+        "--complement",
+        action="store_true",
+        help="Apply the 1-j operation to every bin j of the histogram before plotting it. Useful for converting purity plots into fake rates.",
+    )
+    parser.add_argument(
+        "--rebin",
+        type=str,
+        default=None,
+        help="Rebin histograms before plotting. Pass a single integer to merge "
+        "that many existing bins together (e.g. '--rebin 2' merges every 2 "
+        "bins into 1), or a comma-separated list of numbers to define new "
+        "variable-width bin edges (e.g. '--rebin 0,10,20,50,100'). Must be "
+        "a single shell argument (quote it if it contains spaces) since "
+        "this flag takes exactly one value - this keeps it from swallowing "
+        "the positional ROOT file arguments that follow it.",
+    )
+    parser.add_argument(
+        "--clamp_yerrors",
+        action="store_true",
+        help="Avoids y errors to lie above 1 or below 0. "
+        "To be used when plotting efficiencies. "
+        "This is NOT the correct approach, but can be sufficient in many cases. "
+        "The DQMGenericClient CMSSW module does not support assymetric errors, "
+        "so most DQM files will be incorrect. "
+        "If you can, consider instead Clopper-Pearson errors by manually computing "
+        "the errors using the numerator and denominator histograms, if available."
+    )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Run in debug mode: converts CPU-parallel calls to sequential steps.",
     )
 
     args = parser.parse_args()
 
+    if args.operation and args.source:
+        parser.error("Cannot use --operation and --source together")
+
+    if not args.operation and not args.source:
+        parser.error("Either --source or --operation must be specified")
+
+    # '--ratio-label' takes an optional value (nargs='?'); if it accidentally consumed
+    # an input ROOT file, flag it clearly instead of silently dropping that file.
+    if args.ratio_label not in (None, "auto") and (
+        args.ratio_label.endswith(".root") or os.path.exists(args.ratio_label)
+    ):
+        parser.error(
+            f"--ratio-label consumed '{args.ratio_label}', which looks like an input "
+            "file. Use '--ratio-label auto', quote a custom label, or separate the "
+            "ROOT files with '--' (e.g. '... --ratio-label -- file1.root file2.root')."
+        )
+
+    if args.legend is not None:
+        # --legend is a single comma-separated string, e.g. -l "File 1,File 2".
+        args.legend = [entry.strip() for entry in args.legend.split(",")]
+        if args.source is not None and len(args.legend) != len(args.files):
+            print(args.legend)
+            print(args.files)
+            raise ValueError(f"Number of legend entries ({len(args.legend)}) must match number of files ({len(args.files)})")
+
     if args.nProcessors < 1:
         args.nProcessors = len(os.sched_getaffinity(0))
 
-    plotter = DQMPlotter(processors=args.nProcessors)
+    plotter = DQMPlotter(processors=args.nProcessors, debug=args.debug)
+
+    # Ensure the first axis limit lies below the second
+    if args.xlim is not None and args.xlim[0] >= args.xlim[1]:
+        parser.error(f"--xlim: lower bound ({args.xlim[0]}) must be <= upper bound ({args.xlim[1]})")
+    if args.ylim is not None and args.ylim[0] >= args.ylim[1]:
+        parser.error(f"--ylim: lower bound ({args.ylim[0]}) must be <= upper bound ({args.ylim[1]})")
+    if args.ylim_ratio is not None and args.ylim_ratio[0] >= args.ylim_ratio[1]:
+        parser.error(f"--ylim_ratio: lower bound ({args.ylim_ratio[0]}) must be <= upper bound ({args.ylim_ratio[1]})")
+
+    rebin_arg = None
+    if args.rebin is not None:
+        rebin_tokens = [tok for tok in re.split(r"[,\s]+", args.rebin.strip()) if tok]
+        if not rebin_tokens:
+            parser.error("--rebin: no values found.")
+        try:
+            rebin_values = [float(tok) for tok in rebin_tokens]
+        except ValueError:
+            parser.error(f"--rebin: could not parse '{args.rebin}' as number(s).")
+
+        if len(rebin_values) == 1:
+            rebin_value = rebin_values[0]
+            if not rebin_value.is_integer():
+                parser.error("--rebin: a single value must be an integer number of bins to merge.")
+            rebin_arg = int(rebin_value)
+        else:
+            rebin_arg = rebin_values
 
     # Flatten list of patterns
-    source_patterns = [p for group in args.source for p in group] if isinstance(args.source, list) else [args.source]
+    source_patterns = None
+    if args.source:
+        source_patterns = [p for group in args.source for p in group]
+
+    operation_specs = None
+    if args.operation:
+        operation = [args.operation]
+        operation_specs = [tuple(op) for op in operation]
 
     # Parse overlay groups
-    overlay_groups = plotter._parse_overlay_groups(args.overlay) if args.overlay else None
+    overlay_groups = (
+        plotter._parse_overlay_groups(args.overlay, len(args.files)) if args.overlay else None
+    )
+
+    if (args.overlay_legend or args.overlay_legend_title) and not overlay_groups:
+        parser.error("--overlay-legend/--overlay-legend-title require --overlay")
+
+    # Attach per-job legend labels and titles, paired with --overlay by order.
+    overlay_legends = args.overlay_legend or []
+    overlay_titles = args.overlay_legend_title or []
+    for job_index, job in enumerate(overlay_groups or []):
+        if job_index < len(overlay_legends) and overlay_legends[job_index] is not None:
+            labels = [entry.strip() for entry in overlay_legends[job_index].split(",")]
+            expected = sum(len(patterns) for patterns in job["file_patterns"])
+            if len(labels) != expected:
+                parser.error(
+                    f"--overlay-legend #{job_index + 1} has {len(labels)} labels but its "
+                    f"overlay job produces {expected} series"
+                )
+            job["legend"] = labels
+        if job_index < len(overlay_titles) and overlay_titles[job_index] is not None:
+            job["legend_title"] = overlay_titles[job_index]
 
     plotter.compare_files(
         file_paths=args.files,
         hist_pattern=source_patterns,
         labels=args.legend,
+        operation_specs=operation_specs,
+        operation_type=args.operation_type,
         output_dir=args.output_dir,
         logy=args.logy,
         normalize=args.normalize,
         cms_text=args.cms_text,
+        cms_text_fontsize=args.cms_text_fontsize,
         energy_text=args.energy_text,
         show_energy=not args.no_energy or args.energy_text is not None,
         data=args.data,
         do_ratio=not args.no_ratio,
         grid=not args.no_grid,
+        title=args.title,
+        xtitle=args.xtitle,
+        xtitle_fontsize=args.xtitle_fontsize,
+        ytitle=args.ytitle,
+        ytitle_fontsize=args.ytitle_fontsize,
+        xlim=args.xlim,
+        ylim=args.ylim,
+        ylim_ratio=args.ylim_ratio,
+        ytitle_ratio_fontsize=args.ytitle_ratio_fontsize,
+        ratio_label=args.ratio_label,
         plot_histograms=args.histograms,
         save_as_pdf=args.pdf,
         more_files=args.more_files,
         create_web_index=args.web,
         legend_outside=args.legend_outside,
+        legend_title=args.legend_title,
+        legend_location=args.legend_location,
+        legend_title_fontsize=args.legend_title_fontsize,
+        legend_fontsize=args.legend_fontsize,
         overlay_groups=overlay_groups,
         overlay_individual=not args.no_overlay_individual,
+        complement=args.complement,
+        rebin=rebin_arg,
+        clamp_yerrors=args.clamp_yerrors,
+        multiply_x_values=args.multiply_x_values,
+        debug=args.debug,
     )
