@@ -84,9 +84,13 @@ namespace edm {
         if (phiMax <= phiMin) {
           throw cms::Exception("DisplacedParticleGunProducer") << "Please fix Momentum.Direction.PhiMin/PhiMax.";
         }
-        if (thetaMin <= 0. || thetaMax >= std::numbers::pi / 2.) {
+        if (thetaMin < 0. || thetaMax >= std::numbers::pi / 2.) {
           throw cms::Exception("DisplacedParticleGunProducer")
-              << "Momentum.Direction theta bounds must lie inside (0, pi/2).";
+              << "Momentum.Direction theta bounds must lie inside [0, pi/2).";
+        }
+        if (phiMin < -std::numbers::pi || phiMax > std::numbers::pi) {
+          throw cms::Exception("DisplacedParticleGunProducer")
+              << "Momentum.Direction phi bounds must lie inside [-pi, pi].";
         }
       }
 
@@ -120,6 +124,10 @@ namespace edm {
         }
         if (phiMax <= phiMin) {
           throw cms::Exception("DisplacedParticleGunProducer") << "Please fix Geometry." << name << ".PhiMin/PhiMax.";
+        }
+        if (phiMin < -std::numbers::pi || phiMax > std::numbers::pi) {
+          throw cms::Exception("DisplacedParticleGunProducer")
+              << "Geometry." << name << " phi bounds must lie inside [-pi, pi].";
         }
       }
 
@@ -169,7 +177,7 @@ namespace edm {
       std::optional<PlaneParameters> target;
     };
 
-    double distanceBetweenIntervals(double firstMin, double firstMax, double secondMin, double secondMax) {
+    double getDistanceBetweenIntervals(double firstMin, double firstMax, double secondMin, double secondMax) {
       if (firstMax < secondMin) {
         return secondMin - firstMax;
       }
@@ -179,14 +187,14 @@ namespace edm {
       return 0.;
     }
 
-    bool radialRangeMayBeReachable(const PlaneParameters& initial,
-                                   const PlaneParameters& final,
-                                   const DirectionParameters& direction) {
+    bool isRadialRangeReachableForDirection(const PlaneParameters& initial,
+                                            const PlaneParameters& final,
+                                            const DirectionParameters& direction) {
       const double deltaZ = std::abs(final.z - initial.z);
       const double displacementMin = deltaZ * std::tan(direction.thetaMin);
       const double displacementMax = deltaZ * std::tan(direction.thetaMax);
       const double reachableRMin =
-          distanceBetweenIntervals(initial.rMin, initial.rMax, displacementMin, displacementMax);
+          getDistanceBetweenIntervals(initial.rMin, initial.rMax, displacementMin, displacementMax);
       const double reachableRMax = initial.rMax + displacementMax;
       return final.rMax >= reachableRMin && final.rMin <= reachableRMax;
     }
@@ -196,7 +204,7 @@ namespace edm {
                                     const DirectionParameters& direction,
                                     const char* initialName,
                                     const char* finalName) {
-      if (!radialRangeMayBeReachable(initial, final, direction)) {
+      if (!isRadialRangeReachableForDirection(initial, final, direction)) {
         throw cms::Exception("DisplacedParticleGunProducer")
             << "Geometry." << finalName << " radial range is unreachable from Geometry." << initialName
             << " within the theta range.";
@@ -215,6 +223,10 @@ namespace edm {
         }
         if (maxSamplingAttempts == 0) {
           throw cms::Exception("DisplacedParticleGunProducer") << "MaxSamplingAttempts must be greater than zero.";
+        }
+        if (momentum.magnitude.variable == MagnitudeVariable::kPt && momentum.direction.thetaMin == 0.) {
+          throw cms::Exception("DisplacedParticleGunProducer")
+              << "Momentum.Direction.ThetaMin must be greater than zero when Momentum.Magnitude.Variable is 'pt'.";
         }
 
         validateRadialReachability(geometry.origin, geometry.production, momentum.direction, "Origin", "Production");
@@ -307,7 +319,7 @@ namespace edm {
       return result;
     }
 
-    std::optional<Interval> quadraticRoots(double a, double b, double c) {
+    std::optional<Interval> getQuadraticRoots(double a, double b, double c) {
       const double discriminant = b * b - 4. * a * c;
       if (discriminant <= 0.) {
         return std::nullopt;
@@ -317,7 +329,7 @@ namespace edm {
       return Interval{(-b - sqrtDiscriminant) / (2. * a), (-b + sqrtDiscriminant) / (2. * a)};
     }
 
-    std::vector<Interval> allowedSlopesForCap(const Point& originPoint,
+    std::vector<Interval> getAllowedSlopesForCap(const Point& originPoint,
                                               double momentumPhi,
                                               const PlaneParameters& cap) {
       const double deltaZ = cap.z - originPoint.z;
@@ -325,12 +337,12 @@ namespace edm {
       const double b = 2. * deltaZ * (originPoint.x * std::cos(momentumPhi) + originPoint.y * std::sin(momentumPhi));
       const double c = originPoint.x * originPoint.x + originPoint.y * originPoint.y;
 
-      const auto outerRoots = quadraticRoots(a, b, c - cap.rMax * cap.rMax);
+      const auto outerRoots = getQuadraticRoots(a, b, c - cap.rMax * cap.rMax);
       if (!outerRoots) {
         return {};
       }
 
-      const auto innerRoots = quadraticRoots(a, b, c - cap.rMin * cap.rMin);
+      const auto innerRoots = getQuadraticRoots(a, b, c - cap.rMin * cap.rMin);
       if (!innerRoots) {
         return {*outerRoots};
       }
@@ -342,7 +354,7 @@ namespace edm {
                                                const Point& originPoint,
                                                double momentumPhi,
                                                const PlaneParameters& cap) {
-      return intersectIntervals(slopes, allowedSlopesForCap(originPoint, momentumPhi, cap));
+      return intersectIntervals(slopes, getAllowedSlopesForCap(originPoint, momentumPhi, cap));
     }
 
     double sampleTheta(CLHEP::HepRandomEngine* engine, const std::vector<Interval>& slopes) {
@@ -370,28 +382,29 @@ namespace edm {
       return CLHEP::RandFlat::shoot(engine, plane.rMin, plane.rMax);
     }
 
-    Point projectToZ(const Point& sampled, double z, double theta, double momentumPhi) {
-      const double transverseDisplacement = (z - sampled.z) * std::tan(theta);
+    Point projectToZ(const Point& sampled, double z, double momentumTheta, double momentumPhi) {
+      const double transverseDisplacement = (z - sampled.z) * std::tan(momentumTheta);
       return {sampled.x + transverseDisplacement * std::cos(momentumPhi),
               sampled.y + transverseDisplacement * std::sin(momentumPhi),
               z};
     }
 
-    bool phiIsWithin(double phi, double min, double max) {
-      constexpr double kTolerance = 1e-12;
-      constexpr double kTwoPi = 2. * std::numbers::pi;
-      if (max - min >= kTwoPi - kTolerance) {
-        return true;
-      }
-      const double equivalentPhi = phi + kTwoPi * std::ceil((min - phi) / kTwoPi);
-      return equivalentPhi <= max + kTolerance;
+    bool isPhiWithin(double phi, double min, double max) { return phi >= min && phi <= max; }
+
+    bool doesCapContain(const Point& point, const PlaneParameters& cap) {
+      const double radius = std::hypot(point.x, point.y);
+      return radius >= cap.rMin && radius <= cap.rMax &&
+             isPhiWithin(std::atan2(point.y, point.x), cap.phiMin, cap.phiMax);
     }
 
-    bool capContains(const Point& point, const PlaneParameters& cap) {
-      constexpr double kTolerance = 1e-10;
-      const double radius = std::hypot(point.x, point.y);
-      return radius >= cap.rMin - kTolerance && radius <= cap.rMax + kTolerance &&
-             phiIsWithin(std::atan2(point.y, point.x), cap.phiMin, cap.phiMax);
+    double resolveTimeOfFlight(const Point& origin, const Point& destination, const FourMomentum& momentum) {
+      const double deltaX = destination.x - origin.x;
+      const double deltaY = destination.y - origin.y;
+      const double deltaZ = destination.z - origin.z;
+      const double pathLength = std::sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+      const double absoluteMomentum =
+          std::sqrt(momentum.px * momentum.px + momentum.py * momentum.py + momentum.pz * momentum.pz);
+      return pathLength * CLHEP::cm * momentum.energy / absoluteMomentum;
     }
 
     std::optional<SampledDirection> sampleDirection(CLHEP::HepRandomEngine* engine,
@@ -414,13 +427,13 @@ namespace edm {
 
         const double theta = sampleTheta(engine, allowedSlopes);
         const Point productionPoint = projectToZ(originPoint, geometry.production.z, theta, phi);
-        if (!capContains(productionPoint, geometry.production)) {
+        if (!doesCapContain(productionPoint, geometry.production)) {
           continue;
         }
 
         if (geometry.target) {
           const Point targetPoint = projectToZ(originPoint, geometry.target->z, theta, phi);
-          if (!capContains(targetPoint, *geometry.target)) {
+          if (!doesCapContain(targetPoint, *geometry.target)) {
             continue;
           }
         }
@@ -482,13 +495,7 @@ namespace edm {
 
       const FourMomentum momentum{pt * std::cos(momentumPhi), pt * std::sin(momentumPhi), pz, energy};
 
-      const double deltaX = productionPoint.x - sampledOriginPoint.x;
-      const double deltaY = productionPoint.y - sampledOriginPoint.y;
-      const double deltaZ = productionPoint.z - sampledOriginPoint.z;
-      const double pathLength = std::sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
-      const double absoluteMomentum =
-          std::sqrt(momentum.px * momentum.px + momentum.py * momentum.py + momentum.pz * momentum.pz);
-      const double time = pathLength * CLHEP::cm * energy / absoluteMomentum;
+      const double time = resolveTimeOfFlight(sampledOriginPoint, productionPoint, momentum);
 
       return {parameters.partId, momentum, {productionPoint.x, productionPoint.y, productionPoint.z, time}};
     }
