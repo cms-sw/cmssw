@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import json
 
 def getDefaultClientPSet():
     from HeterogeneousCore.SonicTriton.TritonGraphAnalyzer import TritonGraphAnalyzer
