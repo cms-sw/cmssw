@@ -52,7 +52,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * @param pfRecHit            Input PF rec hit device collection.
  */
 
-  template <unsigned int max_w_items = 32, bool is_cooperative = false>
+  template <unsigned int max_w_items = 32, bool is_cooperative = true>
   class ECLCCFinalizeEpilogueKernel {
   public:
     ALPAKA_FN_ACC void operator()(
@@ -77,6 +77,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       //block-local number of components
       unsigned int& nComponents = alpaka::declareSharedVar<uint32_t, __COUNTER__>(acc);
       unsigned int& blockRHFShift = alpaka::declareSharedVar<uint32_t, __COUNTER__>(acc);
+
+      // Warning: This algorithm relies on thread-private variables (vertex_idx, rep_idx)
+      // For correctness on non-GPU architectures, the launch parameters
+      // must guarantee that these variables remain private to each thread.
 
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
         if (::cms::alpakatools::once_per_block(acc)) {
