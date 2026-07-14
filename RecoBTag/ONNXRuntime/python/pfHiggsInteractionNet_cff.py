@@ -33,7 +33,12 @@ particleNetSonicTriton.toReplaceWith(pfHiggsInteractionNetTags, _particleNetSoni
         modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/higgsInteractionNet/config.pbtxt"),
         modelVersion = cms.string(""),
         verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(0),
+        Retry = cms.VPSet(
+          cms.PSet(
+            retryType = cms.string('RetrySameServerAction'),
+            allowedTries = cms.untracked.uint32(0)
+          )
+        ),
         useSharedMemory = cms.untracked.bool(True),
         compression = cms.untracked.string(""),
     ),

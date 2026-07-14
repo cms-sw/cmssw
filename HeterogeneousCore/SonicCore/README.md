@@ -43,12 +43,17 @@ process.MyProducer = cms.EDProducer("MyProducer",
     Client = cms.PSet(
         # necessary client options go here
         mode = cms.string("Sync"),
-        allowedTries = cms.untracked.uint32(0),
+        Retry = cms.VPSet(
+          cms.PSet(
+            retryType = cms.string('RetrySameServerAction'),
+            allowedTries = cms.untracked.uint32(0)
+          )
+        )
     )
 )
 ```
 These parameters can be prepopulated and validated by the client using `fillDescriptions()`.
-The `mode` and `allowedTries` parameters are always necessary (example values are shown here, but other values are also allowed).
+The `mode` and `Retry` parameters are always necessary (example values are shown here, but other values are also allowed).
 These parameters are described in the next section.
 
 In addition, there is a `SonicOneEDAnalyzer` class template for user analysis, e.g. to produce simple ROOT files.
@@ -110,9 +115,9 @@ For the `Sync` and `PseudoAsync` modes, `finish()` should be called at the end o
 For the `Async` mode, `finish()` should be called inside the communication protocol callback function (implementations may vary).
 
 When `finish()` is called, the success or failure of the call should be conveyed.
-If a call fails, it can optionally be retried. This is only allowed if the call failure does not cause an exception.
+If a call fails without raising an exception, it can be retried through an ordered chain of retry actions rather than a single fixed number of tries. 
+The chain is configured per client through a `Retry` `VPSet` parameter, where each `PSet` specifies a `retryType` plus any action-specific parameters; VPSet order is try order. 
 Therefore, if retrying is desired, any exception should be converted to a `LogWarning` or `LogError` message by the client.
-A Python configuration parameter can be provided to enable retries with a specified maximum number of allowed tries.
 
 The client must also provide a static method `fillPSetDescription()` to populate its parameters in the `fillDescriptions()` for the producers that use the client:
 ```cpp
@@ -126,6 +131,6 @@ void MyClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
 
 As indicated, the `fillBasePSetDescription()` function should always be applied to the `descClient` object,
 to ensure that it includes the necessary parameters.
-(Calling `fillBasePSetDescription(descClient, false)` will omit the `allowedTries` parameter, disabling retries.)
+(Calling `fillBasePSetDescription(descClient, false)` will omit the `Retry` parameter, disabling retries.)
 
 Example client code can be found in the `interface` and `src` directories of the other Sonic packages in this repository.

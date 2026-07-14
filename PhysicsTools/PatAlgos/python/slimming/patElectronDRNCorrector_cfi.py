@@ -7,7 +7,12 @@ patElectronsDRN = patElectronDRNCorrectionProducer.clone(
                             rhoName = 'fixedGridRhoFastjetAll',
                             Client = patElectronDRNCorrectionProducer.Client.clone(
                               mode = 'Async',
-                              allowedTries = 1,
+                              Retry = cms.VPSet(
+                                cms.PSet(
+                                  retryType = cms.string('RetrySameServerAction'),
+                                  allowedTries = cms.untracked.uint32(1)
+                                )
+                              ),
                               modelName = 'electronObjectEnsemble',
                               modelConfigPath = 'RecoEgamma/EgammaElectronProducers/data/models/electronObjectEnsemble/config.pbtxt',
                               timeout = 10
