@@ -269,11 +269,11 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     // reco jet reference (use as much as possible)
     const auto& jet = jets->at(jet_n);
     // dynamical casting to pointers, null if not possible
-    const auto* pf_jet = dynamic_cast<const reco::PFJet*>(&jet);
-    const auto* pat_jet = dynamic_cast<const pat::Jet*>(&jet);
     edm::RefToBase<reco::Jet> jet_ref(jets, jet_n);
     const auto& unsubJet =
         (use_unsubjet_map_ && (*unsubjet_map)[jet_ref].isNonnull()) ? *(*unsubjet_map)[jet_ref] : jet;
+    const auto* pf_jet = dynamic_cast<const reco::PFJet*>(&unsubJet);
+    const auto* pat_jet = dynamic_cast<const pat::Jet*>(&unsubJet);
     // TagInfoCollection not in an associative container so search for matchs
     const edm::View<reco::ShallowTagInfo>& taginfos = *shallow_tag_infos;
     edm::Ptr<reco::ShallowTagInfo> match;
