@@ -34,7 +34,6 @@
 <use name="DataFormats/ParticleFlowReco"/>
 <use name="SimDataFormats/TrackingHit"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
-<use name="Geometry/CommonDetUnit"/>
 <use name="Geometry/CommonTopologies"/>
 
 <use name="DataFormats/TrackReco"/>
