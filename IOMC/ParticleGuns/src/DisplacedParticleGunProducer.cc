@@ -248,6 +248,13 @@ namespace edm {
     struct Point {
       double x;
       double y;
+      double z;
+    };
+
+    struct SampledDirection {
+      double theta;
+      double phi;
+      Point productionPoint;
     };
 
     struct FourMomentum {
@@ -313,7 +320,7 @@ namespace edm {
     std::vector<Interval> allowedSlopesForCap(const Point& originPoint,
                                               double momentumPhi,
                                               const PlaneParameters& cap) {
-      const double deltaZ = cap.z;
+      const double deltaZ = cap.z - originPoint.z;
       const double a = deltaZ * deltaZ;
       const double b = 2. * deltaZ * (originPoint.x * std::cos(momentumPhi) + originPoint.y * std::sin(momentumPhi));
       const double c = originPoint.x * originPoint.x + originPoint.y * originPoint.y;
@@ -363,10 +370,11 @@ namespace edm {
       return CLHEP::RandFlat::shoot(engine, plane.rMin, plane.rMax);
     }
 
-    Point projectToZ(const Point& sampled, double sampledZ, double z, double theta, double momentumPhi) {
-      const double transverseDisplacement = (z - sampledZ) * std::tan(theta);
+    Point projectToZ(const Point& sampled, double z, double theta, double momentumPhi) {
+      const double transverseDisplacement = (z - sampled.z) * std::tan(theta);
       return {sampled.x + transverseDisplacement * std::cos(momentumPhi),
-              sampled.y + transverseDisplacement * std::sin(momentumPhi)};
+              sampled.y + transverseDisplacement * std::sin(momentumPhi),
+              z};
     }
 
     bool phiIsWithin(double phi, double min, double max) {
@@ -386,6 +394,43 @@ namespace edm {
              phiIsWithin(std::atan2(point.y, point.x), cap.phiMin, cap.phiMax);
     }
 
+    std::optional<SampledDirection> sampleDirection(CLHEP::HepRandomEngine* engine,
+                                                    const ParticleGunParameters& parameters,
+                                                    const Point& originPoint) {
+      const auto& direction = parameters.momentum.direction;
+      const auto& geometry = parameters.geometry;
+
+      for (unsigned int attempt = 0; attempt < parameters.maxSamplingAttempts; ++attempt) {
+        const double phi = CLHEP::RandFlat::shoot(engine, direction.phiMin, direction.phiMax);
+        std::vector<Interval> allowedSlopes{{std::tan(direction.thetaMin), std::tan(direction.thetaMax)}};
+
+        allowedSlopes = constrainSlopesToCap(allowedSlopes, originPoint, phi, geometry.production);
+        if (geometry.target) {
+          allowedSlopes = constrainSlopesToCap(allowedSlopes, originPoint, phi, *geometry.target);
+        }
+        if (allowedSlopes.empty()) {
+          continue;
+        }
+
+        const double theta = sampleTheta(engine, allowedSlopes);
+        const Point productionPoint = projectToZ(originPoint, geometry.production.z, theta, phi);
+        if (!capContains(productionPoint, geometry.production)) {
+          continue;
+        }
+
+        if (geometry.target) {
+          const Point targetPoint = projectToZ(originPoint, geometry.target->z, theta, phi);
+          if (!capContains(targetPoint, *geometry.target)) {
+            continue;
+          }
+        }
+
+        return SampledDirection{theta, phi, productionPoint};
+      }
+
+      return std::nullopt;
+    }
+
     void validateParticleCompatibility(const ParticleGunParameters& parameters, double mass, double charge) {
       if (parameters.geometry.target && charge != 0.) {
         throw cms::Exception("DisplacedParticleGunProducer")
@@ -403,52 +448,22 @@ namespace edm {
                                      const ParticleGunParameters& parameters,
                                      double mass) {
       const auto& magnitude = parameters.momentum.magnitude;
-      const auto& direction = parameters.momentum.direction;
       const auto& geometry = parameters.geometry;
       const auto& origin = geometry.origin;
-      const auto& production = geometry.production;
 
       const double sampledR = sampleRadius(engine, origin, geometry.radialDistribution);
       const double sampledSpatialPhi = CLHEP::RandFlat::shoot(engine, origin.phiMin, origin.phiMax);
-      const Point sampledOriginPoint{sampledR * std::cos(sampledSpatialPhi), sampledR * std::sin(sampledSpatialPhi)};
+      const Point sampledOriginPoint{
+          sampledR * std::cos(sampledSpatialPhi), sampledR * std::sin(sampledSpatialPhi), origin.z};
 
-      double theta = 0.;
-      double momentumPhi = 0.;
-      Point productionPoint{};
-      std::optional<Point> targetPoint;
-      bool accepted = false;
-
-      for (unsigned int attempt = 0; attempt < parameters.maxSamplingAttempts; ++attempt) {
-        momentumPhi = CLHEP::RandFlat::shoot(engine, direction.phiMin, direction.phiMax);
-        std::vector<Interval> allowedSlopes{{std::tan(direction.thetaMin), std::tan(direction.thetaMax)}};
-
-        allowedSlopes = constrainSlopesToCap(allowedSlopes, sampledOriginPoint, momentumPhi, production);
-        if (geometry.target) {
-          allowedSlopes = constrainSlopesToCap(allowedSlopes, sampledOriginPoint, momentumPhi, *geometry.target);
-        }
-        if (allowedSlopes.empty()) {
-          continue;
-        }
-
-        theta = sampleTheta(engine, allowedSlopes);
-        productionPoint = projectToZ(sampledOriginPoint, origin.z, production.z, theta, momentumPhi);
-        if (geometry.target) {
-          targetPoint = projectToZ(sampledOriginPoint, origin.z, geometry.target->z, theta, momentumPhi);
-        }
-
-        accepted = capContains(productionPoint, production) &&
-                   (!geometry.target || capContains(*targetPoint, *geometry.target));
-        if (accepted) {
-          break;
-        }
-      }
-
-      if (!accepted) {
+      const auto sampledDirection = sampleDirection(engine, parameters, sampledOriginPoint);
+      if (!sampledDirection) {
         throw cms::Exception("DisplacedParticleGunProducer")
             << "Failed to find a direction satisfying all configured caps after MaxSamplingAttempts="
             << parameters.maxSamplingAttempts << ". Fixed sampled point: cap=Origin, R=" << sampledR
             << " cm, phi=" << sampledSpatialPhi << ".";
       }
+      const auto [theta, momentumPhi, productionPoint] = *sampledDirection;
 
       const double sampledMagnitude = CLHEP::RandFlat::shoot(engine, magnitude.min, magnitude.max);
       double pt = 0.;
@@ -469,13 +484,13 @@ namespace edm {
 
       const double deltaX = productionPoint.x - sampledOriginPoint.x;
       const double deltaY = productionPoint.y - sampledOriginPoint.y;
-      const double deltaZ = production.z - origin.z;
+      const double deltaZ = productionPoint.z - sampledOriginPoint.z;
       const double pathLength = std::sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
       const double absoluteMomentum =
           std::sqrt(momentum.px * momentum.px + momentum.py * momentum.py + momentum.pz * momentum.pz);
       const double time = pathLength * CLHEP::cm * energy / absoluteMomentum;
 
-      return {parameters.partId, momentum, {productionPoint.x, productionPoint.y, production.z, time}};
+      return {parameters.partId, momentum, {productionPoint.x, productionPoint.y, productionPoint.z, time}};
     }
 
     void appendParticleToGenEvent(HepMC::GenEvent& genEvent,
