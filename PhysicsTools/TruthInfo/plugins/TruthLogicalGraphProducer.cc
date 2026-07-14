@@ -888,7 +888,12 @@ public:
     std::vector<uint8_t> particleDirectHit;
 
     if (dropHitlessSimSubgraphs_) {
-      std::unordered_set<uint32_t> hitTrackIds;
+      // trackId is event-local (each mixing sub-event reuses 1,2,3,...), so it MUST
+      // be namespaced by the packed EncodedEventId or signal and pileup collide and
+      // the wrong particles get flagged as hit-bearing. Mirrors the same key in
+      // LogicalGraphHitIndexBuilder so the pruned graph stays consistent with the index.
+      auto simKey = [](uint64_t eventId, uint32_t trackId) { return (eventId << 32) | static_cast<uint64_t>(trackId); };
+      std::unordered_set<uint64_t> hitKeys;
       bool anyCollectionValid = false;
 
       for (auto const& token : caloSimHitTokens_) {
@@ -900,7 +905,7 @@ public:
         for (auto const& hit : *hHits) {
           const int trackId = hit.geantTrackId();
           if (trackId > 0 && hit.energy() > 0.f)
-            hitTrackIds.insert(static_cast<uint32_t>(trackId));
+            hitKeys.insert(simKey(hit.eventId().rawId(), static_cast<uint32_t>(trackId)));
         }
       }
 
@@ -912,7 +917,7 @@ public:
         anyCollectionValid = true;
         for (auto const& hit : *hHits) {
           if (hit.energyLoss() > 0.f)
-            hitTrackIds.insert(hit.trackId());
+            hitKeys.insert(simKey(hit.eventId().rawId(), hit.trackId()));
         }
       }
 
@@ -930,7 +935,7 @@ public:
             continue;
           if (ref.key <= 0 || ref.key > static_cast<int64_t>(std::numeric_limits<uint32_t>::max()))
             continue;
-          if (hitTrackIds.count(static_cast<uint32_t>(ref.key)) != 0)
+          if (hitKeys.count(simKey(raw.nodeEventId(simNodeU32), static_cast<uint32_t>(ref.key))) != 0)
             particleDirectHit[particleId] = 1;
         }
       } else {
