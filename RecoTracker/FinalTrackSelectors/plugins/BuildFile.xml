@@ -38,3 +38,17 @@
 <library file="*.cc" name="RecoTrackerFinalTrackSelectorsPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="alpaka/*.cc" name="RecoTrackerFinalTrackSelectorsAlpakaPlugins">
+  <use name="alpaka"/>
+  <use name="xtd"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="PhysicsTools/PyTorchAlpaka"/>
+  <use name="pytorch"/>
+  <use name="pytorch-cuda"/>
+
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+  <flags remove="1">ofast-flag</flags>
+</library>
