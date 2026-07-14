@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <cmath>
-#include <limits>
 #include <memory>
 #include <numbers>
 #include <optional>
@@ -180,16 +179,28 @@ namespace edm {
       return 0.;
     }
 
-    bool capIsPairwiseReachable(const PlaneParameters& sampled,
-                                const PlaneParameters& required,
-                                const DirectionParameters& direction) {
-      const double deltaZ = std::abs(required.z - sampled.z);
+    bool radialRangeMayBeReachable(const PlaneParameters& initial,
+                                   const PlaneParameters& final,
+                                   const DirectionParameters& direction) {
+      const double deltaZ = std::abs(final.z - initial.z);
       const double displacementMin = deltaZ * std::tan(direction.thetaMin);
       const double displacementMax = deltaZ * std::tan(direction.thetaMax);
       const double reachableRMin =
-          distanceBetweenIntervals(sampled.rMin, sampled.rMax, displacementMin, displacementMax);
-      const double reachableRMax = sampled.rMax + displacementMax;
-      return required.rMax >= reachableRMin && required.rMin <= reachableRMax;
+          distanceBetweenIntervals(initial.rMin, initial.rMax, displacementMin, displacementMax);
+      const double reachableRMax = initial.rMax + displacementMax;
+      return final.rMax >= reachableRMin && final.rMin <= reachableRMax;
+    }
+
+    void validateRadialReachability(const PlaneParameters& initial,
+                                    const PlaneParameters& final,
+                                    const DirectionParameters& direction,
+                                    const char* initialName,
+                                    const char* finalName) {
+      if (!radialRangeMayBeReachable(initial, final, direction)) {
+        throw cms::Exception("DisplacedParticleGunProducer")
+            << "Geometry." << finalName << " radial range is unreachable from Geometry." << initialName
+            << " within the theta range.";
+      }
     }
 
     struct ParticleGunParameters {
@@ -198,23 +209,18 @@ namespace edm {
             nParticles(pset.getParameter<int>("NParticles")),
             momentum(pset.getParameter<ParameterSet>("Momentum")),
             geometry(pset.getParameter<ParameterSet>("Geometry")),
-            maxDirectionTries(pset.getParameter<unsigned int>("MaxDirectionTries")) {
+            maxSamplingAttempts(pset.getParameter<unsigned int>("MaxSamplingAttempts")) {
         if (nParticles <= 0) {
           throw cms::Exception("DisplacedParticleGunProducer") << "NParticles must be greater than zero.";
         }
-        if (maxDirectionTries == 0) {
-          throw cms::Exception("DisplacedParticleGunProducer") << "MaxDirectionTries must be greater than zero.";
+        if (maxSamplingAttempts == 0) {
+          throw cms::Exception("DisplacedParticleGunProducer") << "MaxSamplingAttempts must be greater than zero.";
         }
 
-        const auto checkReachable = [&](const PlaneParameters& required, const char* name) {
-          if (!capIsPairwiseReachable(geometry.origin, required, momentum.direction)) {
-            throw cms::Exception("DisplacedParticleGunProducer")
-                << "Geometry." << name << " radial range is unreachable from the origin within the theta range.";
-          }
-        };
-        checkReachable(geometry.production, "Production");
+        validateRadialReachability(geometry.origin, geometry.production, momentum.direction, "Origin", "Production");
         if (geometry.target) {
-          checkReachable(*geometry.target, "Target");
+          validateRadialReachability(geometry.origin, *geometry.target, momentum.direction, "Origin", "Target");
+          validateRadialReachability(geometry.production, *geometry.target, momentum.direction, "Production", "Target");
         }
       }
 
@@ -222,7 +228,7 @@ namespace edm {
       int nParticles;
       MomentumParameters momentum;
       GeometryParameters geometry;
-      unsigned int maxDirectionTries;
+      unsigned int maxSamplingAttempts;
     };
 
     struct ProducerParameters {
@@ -278,6 +284,22 @@ namespace edm {
       return result;
     }
 
+    std::vector<Interval> subtractInterval(const Interval& allowed, const Interval& excluded) {
+      std::vector<Interval> result;
+
+      const double leftMax = std::min(allowed.max, excluded.min);
+      if (allowed.min < leftMax) {
+        result.push_back({allowed.min, leftMax});
+      }
+
+      const double rightMin = std::max(allowed.min, excluded.max);
+      if (rightMin < allowed.max) {
+        result.push_back({rightMin, allowed.max});
+      }
+
+      return result;
+    }
+
     std::optional<Interval> quadraticRoots(double a, double b, double c) {
       const double discriminant = b * b - 4. * a * c;
       if (discriminant <= 0.) {
@@ -288,27 +310,32 @@ namespace edm {
       return Interval{(-b - sqrtDiscriminant) / (2. * a), (-b + sqrtDiscriminant) / (2. * a)};
     }
 
-    std::vector<Interval> allowedSlopesForCap(double sampledR,
-                                              double deltaPhi,
-                                              double deltaZ,
-                                              const PlaneParameters& required) {
+    std::vector<Interval> allowedSlopesForCap(const Point& originPoint,
+                                              double momentumPhi,
+                                              const PlaneParameters& cap) {
+      const double deltaZ = cap.z;
       const double a = deltaZ * deltaZ;
-      const double b = 2. * deltaZ * sampledR * std::cos(deltaPhi);
-      const double c = sampledR * sampledR;
+      const double b = 2. * deltaZ * (originPoint.x * std::cos(momentumPhi) + originPoint.y * std::sin(momentumPhi));
+      const double c = originPoint.x * originPoint.x + originPoint.y * originPoint.y;
 
-      const auto outerRoots = quadraticRoots(a, b, c - required.rMax * required.rMax);
+      const auto outerRoots = quadraticRoots(a, b, c - cap.rMax * cap.rMax);
       if (!outerRoots) {
         return {};
       }
 
-      std::vector<Interval> allowed{{outerRoots->min, outerRoots->max}};
-      const auto innerRoots = quadraticRoots(a, b, c - required.rMin * required.rMin);
-      if (innerRoots) {
-        allowed = intersectIntervals(allowed,
-                                     {{-std::numeric_limits<double>::infinity(), innerRoots->min},
-                                      {innerRoots->max, std::numeric_limits<double>::infinity()}});
+      const auto innerRoots = quadraticRoots(a, b, c - cap.rMin * cap.rMin);
+      if (!innerRoots) {
+        return {*outerRoots};
       }
-      return allowed;
+
+      return subtractInterval(*outerRoots, *innerRoots);
+    }
+
+    std::vector<Interval> constrainSlopesToCap(const std::vector<Interval>& slopes,
+                                               const Point& originPoint,
+                                               double momentumPhi,
+                                               const PlaneParameters& cap) {
+      return intersectIntervals(slopes, allowedSlopesForCap(originPoint, momentumPhi, cap));
     }
 
     double sampleTheta(CLHEP::HepRandomEngine* engine, const std::vector<Interval>& slopes) {
@@ -383,7 +410,7 @@ namespace edm {
 
       const double sampledR = sampleRadius(engine, origin, geometry.radialDistribution);
       const double sampledSpatialPhi = CLHEP::RandFlat::shoot(engine, origin.phiMin, origin.phiMax);
-      const Point sampledPoint{sampledR * std::cos(sampledSpatialPhi), sampledR * std::sin(sampledSpatialPhi)};
+      const Point sampledOriginPoint{sampledR * std::cos(sampledSpatialPhi), sampledR * std::sin(sampledSpatialPhi)};
 
       double theta = 0.;
       double momentumPhi = 0.;
@@ -391,28 +418,22 @@ namespace edm {
       std::optional<Point> targetPoint;
       bool accepted = false;
 
-      for (unsigned int itry = 0; itry < parameters.maxDirectionTries; ++itry) {
+      for (unsigned int attempt = 0; attempt < parameters.maxSamplingAttempts; ++attempt) {
         momentumPhi = CLHEP::RandFlat::shoot(engine, direction.phiMin, direction.phiMax);
         std::vector<Interval> allowedSlopes{{std::tan(direction.thetaMin), std::tan(direction.thetaMax)}};
-        const double deltaPhi = momentumPhi - sampledSpatialPhi;
 
-        const auto addRadialConstraint = [&](const PlaneParameters& cap) {
-          allowedSlopes =
-              intersectIntervals(allowedSlopes, allowedSlopesForCap(sampledR, deltaPhi, cap.z - origin.z, cap));
-        };
-
-        addRadialConstraint(production);
+        allowedSlopes = constrainSlopesToCap(allowedSlopes, sampledOriginPoint, momentumPhi, production);
         if (geometry.target) {
-          addRadialConstraint(*geometry.target);
+          allowedSlopes = constrainSlopesToCap(allowedSlopes, sampledOriginPoint, momentumPhi, *geometry.target);
         }
         if (allowedSlopes.empty()) {
           continue;
         }
 
         theta = sampleTheta(engine, allowedSlopes);
-        productionPoint = projectToZ(sampledPoint, origin.z, production.z, theta, momentumPhi);
+        productionPoint = projectToZ(sampledOriginPoint, origin.z, production.z, theta, momentumPhi);
         if (geometry.target) {
-          targetPoint = projectToZ(sampledPoint, origin.z, geometry.target->z, theta, momentumPhi);
+          targetPoint = projectToZ(sampledOriginPoint, origin.z, geometry.target->z, theta, momentumPhi);
         }
 
         accepted = capContains(productionPoint, production) &&
@@ -424,8 +445,8 @@ namespace edm {
 
       if (!accepted) {
         throw cms::Exception("DisplacedParticleGunProducer")
-            << "Failed to find a direction satisfying all configured caps after MaxDirectionTries="
-            << parameters.maxDirectionTries << ". Fixed sampled point: cap=Origin, R=" << sampledR
+            << "Failed to find a direction satisfying all configured caps after MaxSamplingAttempts="
+            << parameters.maxSamplingAttempts << ". Fixed sampled point: cap=Origin, R=" << sampledR
             << " cm, phi=" << sampledSpatialPhi << ".";
       }
 
@@ -446,8 +467,8 @@ namespace edm {
 
       const FourMomentum momentum{pt * std::cos(momentumPhi), pt * std::sin(momentumPhi), pz, energy};
 
-      const double deltaX = productionPoint.x - sampledPoint.x;
-      const double deltaY = productionPoint.y - sampledPoint.y;
+      const double deltaX = productionPoint.x - sampledOriginPoint.x;
+      const double deltaY = productionPoint.y - sampledOriginPoint.y;
       const double deltaZ = production.z - origin.z;
       const double pathLength = std::sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
       const double absoluteMomentum =
@@ -558,7 +579,7 @@ namespace edm {
     pgun.add<int>("NParticles");
     pgun.add<edm::ParameterSetDescription>("Momentum", momentum);
     pgun.add<edm::ParameterSetDescription>("Geometry", geometry);
-    pgun.add<unsigned int>("MaxDirectionTries");
+    pgun.add<unsigned int>("MaxSamplingAttempts");
 
     desc.add<edm::ParameterSetDescription>("PGunParameters", pgun);
 
@@ -608,7 +629,8 @@ namespace edm {
     event.put(std::move(genEventInfo));
 
     if (fParameters.verbosity > 0) {
-      std::cout << " DisplacedParticleGunProducer : Event Generation Done. " << std::endl;
+      LogDebug("DisplacedParticleGunProducer")
+          << " DisplacedParticleGunProducer : Event Generation Done. " << std::endl;
     }
   }
 
