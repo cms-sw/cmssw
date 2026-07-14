@@ -10,8 +10,6 @@
 //  Documentation: see TEcnaRead.h
 //--------------------------------------
 
-R__EXTERN TEcnaRootFile *gCnaRootFile;
-
 ClassImp(TEcnaRead);
 //___________________________________________________________________________
 //

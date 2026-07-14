@@ -6,6 +6,8 @@
 #include "TFile.h"
 #include "TTree.h"
 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaObject.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaResultType.h"
 
@@ -62,6 +64,6 @@ public:
   ClassDefOverride(TEcnaRootFile, 1)  //Root file of CNA
 };
 
-R__EXTERN TEcnaRootFile *gCnaRootFile;
+R__EXTERN TEcnaRootFile *gCnaRootFile CMS_THREAD_SAFE;
 
 #endif

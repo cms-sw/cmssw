@@ -10,8 +10,6 @@
 //  Documentation: see TEcnaRun.h
 //--------------------------------------
 
-R__EXTERN TEcnaRootFile* gCnaRootFile;
-
 ClassImp(TEcnaRun);
 //___________________________________________________________________________
 //

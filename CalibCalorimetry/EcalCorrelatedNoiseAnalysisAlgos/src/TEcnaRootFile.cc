@@ -11,7 +11,7 @@
 //  Documentation: see TEcnaRootFile.h
 //--------------------------------------
 
-TEcnaRootFile *gCnaRootFile = nullptr;
+TEcnaRootFile *gCnaRootFile CMS_THREAD_SAFE = nullptr;
 
 ClassImp(TEcnaRootFile);
 //___________________________________________________________________________
