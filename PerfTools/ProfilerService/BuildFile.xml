@@ -1,5 +1,4 @@
 <export>
-  <include dir="interface"/>
   <use name="boost"/>
   <use name="fmt" />
   <use name="tbb"/>
