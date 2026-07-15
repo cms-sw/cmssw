@@ -37,18 +37,19 @@ _simAssoc = [
     'keep CaloParticles_mix_*_*',
     'keep SimClusters_mix_*_*',
     'keep SimClustersRefs_mix_*_*',
-    'keep *_SimClusterToCaloParticleAssociation*_*_*',
-    'keep *_layerClusterSimClusterAssociationProducer_*_*',
+    'keep *_layerClusterBoundaryTrackSimClusterAssociationProducer_*_*',
     'keep *_layerClusterCaloParticleSimClusterAssociationProducer_*_*',
     'keep *_layerClusterSimTracksterAssociationProducer_*_*',
-    'keep *_allTrackstersToSimTrackstersAssociations*_*_*',
+    'keep *_allTrackstersToSimTrackstersAssociations*_*fromBoundarySimCluster*_*',
+    'keep *_allTrackstersToSimTrackstersAssociations*_*fromCaloParticle*_*',
 ]
 _simFEVT = [
     'keep *_ticlSimTracksters_*_*',
     'keep *_ticlSimTICLCandidates_*_*',
     'keep *_ticlSimTrackstersFromCP_*_*',
     'keep *_SimTau*_*_*',
-    'keep *_allTrackstersToSimTrackstersAssociations*_*_*',
+    'keep *_allTrackstersToSimTrackstersAssociations*_*fromBoundarySimCluster*_*',
+    'keep *_allTrackstersToSimTrackstersAssociations*_*fromCaloParticle*_*',
 ]
 # HLT TICL products
 _hltTICL = [

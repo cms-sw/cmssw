@@ -6,7 +6,7 @@ from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsPSet, associatorsInst
 
 # Default configuration is now TICLv5
 hgcalValidator = _hgcalValidator.clone(
-    label_tst = cms.VInputTag(*[cms.InputTag(label) for label in ticlIterLabelsPSet.labels] + [cms.InputTag('ticlSimTracksters', 'fromCaloParticle'), cms.InputTag("ticlSimTracksters", "fromLegacySimCluster"), cms.InputTag("ticlSimTracksters", "fromBoundarySimCluster"), cms.InputTag("ticlSimTracksters", "fromMergedSimCluster")]),
+    label_tst = cms.VInputTag(*[cms.InputTag(label) for label in ticlIterLabelsPSet.labels] + [cms.InputTag('ticlSimTracksters', 'fromCaloParticle'), cms.InputTag("ticlSimTracksters", "fromBoundarySimCluster")]),
     allTracksterTracksterAssociatorsLabels = cms.VInputTag( *[cms.InputTag('allTrackstersToSimTrackstersAssociationsByLCs:'+associator) for associator in associatorsInstances] ),
     allTracksterTracksterByHitsAssociatorsLabels = cms.VInputTag( *[cms.InputTag('allTrackstersToSimTrackstersAssociationsByHits:'+associator) for associator in associatorsInstances] ),
     # v5 defaults 

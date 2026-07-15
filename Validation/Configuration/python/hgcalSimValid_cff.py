@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimCalorimetry.HGCalAssociatorProducers.LCToSCAssociation_cff import scAssocByEnergyScoreProducer, layerClusterSimClusterAssociationProducer, layerClusterBoundaryTrackSimClusterAssociationProducer, layerClusterMergedSimClusterAssociationProducer, layerClusterCaloParticleSimClusterAssociationProducer
+from SimCalorimetry.HGCalAssociatorProducers.LCToSCAssociation_cff import scAssocByEnergyScoreProducer, layerClusterBoundaryTrackSimClusterAssociationProducer, layerClusterCaloParticleSimClusterAssociationProducer
 from SimCalorimetry.HGCalAssociatorProducers.LCToSCAssociation_cff import layerClusterSimClusterAssociationProducerHFNose, layerClusterCaloParticleSimClusterAssociationProducerHFNose
 # from SimCalorimetry.HGCalAssociatorProducers.TSToSimTSAssociation_cfi import tracksterSimTracksterAssociationLinkingSuperclustering, tracksterSimTracksterAssociationPRSuperclustering #, tracksterSimTracksterAssociationLinkingbyCLUE3DEM, tracksterSimTracksterAssociationLinkingbyCLUE3DHAD, tracksterSimTracksterAssociationPRbyCLUE3DEM, tracksterSimTracksterAssociationPRbyCLUE3DHAD
 from RecoHGCal.TICL.mergedTrackstersProducer_cfi import mergedTrackstersProducer as _mergedTrackstersProducer
@@ -12,8 +12,7 @@ from SimCalorimetry.HGCalAssociatorProducers.LCToTSAssociator_cfi import allLaye
 from SimCalorimetry.HGCalAssociatorProducers.HitToTracksterAssociation_cfi import allHitToTracksterAssociations
 from SimCalorimetry.HGCalAssociatorProducers.TSToSimTSAssociation_cfi import  allTrackstersToSimTrackstersAssociationsByLCs
 from SimCalorimetry.HGCalAssociatorProducers.TSToSimTSAssociationByHits_cfi import allTrackstersToSimTrackstersAssociationsByHits
-from SimCalorimetry.HGCalAssociatorProducers.HitToSimClusterAssociation_cff import hitToLegacySimClusterAssociator, hitToBoundarySimClusterAssociator, hitToMergedSimClusterAssociator, hitToCPSimClusterAssociator
-from SimCalorimetry.HGCalAssociatorProducers.SimClusterToCaloParticleAssociation_cfi import SimClusterToCaloParticleAssociation
+from SimCalorimetry.HGCalAssociatorProducers.HitToSimClusterAssociation_cff import hitToBoundarySimClusterAssociator, hitToCPSimClusterAssociator
 
 
 from Validation.HGCalValidation.simhitValidation_cff    import *
@@ -40,7 +39,7 @@ hgcalPFJetValidation = _hgcalPFJetValidation.clone(BenchmarkLabel = 'PFJetValida
     DeltaPtOvPtHistoParameter = dict(EROn=True,EREtaMax=3.0, EREtaMin=1.6, slicingOn=True))
 
 hgcalAssociators = cms.Task(scAssocByEnergyScoreProducer,
-                            layerClusterSimClusterAssociationProducer, layerClusterBoundaryTrackSimClusterAssociationProducer, layerClusterMergedSimClusterAssociationProducer, layerClusterCaloParticleSimClusterAssociationProducer,
+                            layerClusterBoundaryTrackSimClusterAssociationProducer, layerClusterCaloParticleSimClusterAssociationProducer,
                             SimTauProducer,
                             # FP 07/2024 new associators:
                             # layerClusterToCLUE3DTracksterAssociation, layerClusterToTracksterMergeAssociation,
@@ -48,8 +47,7 @@ hgcalAssociators = cms.Task(scAssocByEnergyScoreProducer,
                             allLayerClusterToTracksterAssociations, allHitToTracksterAssociations, allTrackstersToSimTrackstersAssociationsByLCs, allTrackstersToSimTrackstersAssociationsByHits,
                             # hitToTrackstersAssociationLinking, hitToTrackstersAssociationPR,
                             # hitToSimTracksterAssociation, hitToSimTracksterFromCPsAssociation,
-                            hitToLegacySimClusterAssociator, hitToBoundarySimClusterAssociator, hitToMergedSimClusterAssociator, hitToCPSimClusterAssociator,
-                            SimClusterToCaloParticleAssociation, 
+                            hitToBoundarySimClusterAssociator, hitToCPSimClusterAssociator,
                             )
 
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_pf_cff import ticl_superclustering_mustache_pf

@@ -13,7 +13,10 @@ validation can never drift out of sync.
 
 import FWCore.ParameterSet.Config as cms
 
-SIM_COLLECTIONS = ['ticlSimTrackstersfromLegacySimCluster', 'ticlSimTrackstersfromBoundarySimCluster', 'ticlSimTrackstersfromCaloParticle', 'ticlSimTrackstersfromMergedSimCluster']
+SIM_COLLECTIONS = [
+    "ticlSimTrackstersfromBoundarySimCluster",
+    "ticlSimTrackstersfromCaloParticle",
+]
 
 
 # --------------------------------------------------------------------------- #
@@ -60,10 +63,8 @@ def build_associators_by_lcs(labels):
         import AllTracksterToSimTracksterAssociatorsByLCsProducer as base
     return base.clone(
         tracksterCollections=cms.VInputTag(*[cms.InputTag(l) for l in labels]),
-        simTracksterCollections = cms.VInputTag(
-            cms.InputTag("ticlSimTracksters", "fromLegacySimCluster"),
+        simTracksterCollections=cms.VInputTag(
             cms.InputTag("ticlSimTracksters", "fromBoundarySimCluster"),
-            cms.InputTag("ticlSimTracksters", "fromMergedSimCluster"),
             cms.InputTag("ticlSimTracksters", "fromCaloParticle"),
         ),
     )
@@ -74,22 +75,14 @@ def build_associators_by_hits(labels):
         import AllTracksterToSimTracksterAssociatorsByHitsProducer as base
     return base.clone(
         tracksterCollections=cms.VInputTag(*[cms.InputTag(l) for l in labels]),
-        simTracksters = cms.VPSet(
-            cms.PSet(
-                simTracksterCollection=cms.InputTag("ticlSimTracksters", "fromLegacySimCluster"),
-                hitToSimClusterMap=cms.InputTag("hitToLegacySimClusterAssociator")
-            ),
+        simTracksters=cms.VPSet(
             cms.PSet(
                 simTracksterCollection=cms.InputTag("ticlSimTracksters", "fromBoundarySimCluster"),
-                hitToSimClusterMap=cms.InputTag("hitToBoundarySimClusterAssociator")
-            ),
-            cms.PSet(
-                simTracksterCollection=cms.InputTag("ticlSimTracksters", "fromMergedSimCluster"),
-                hitToSimClusterMap=cms.InputTag("hitToMergedSimClusterAssociator")
+                hitToSimClusterMap=cms.InputTag("hitToBoundarySimClusterAssociator"),
             ),
             cms.PSet(
                 simTracksterCollection=cms.InputTag("ticlSimTracksters", "fromCaloParticle"),
-                hitToSimClusterMap=cms.InputTag("hitToCPSimClusterAssociator")
+                hitToSimClusterMap=cms.InputTag("hitToCPSimClusterAssociator"),
             ),
         )
     )
@@ -102,7 +95,7 @@ def build_associators_by_hits(labels):
 def build_ticl_dumper(labels):
     from RecoHGCal.TICL.ticlDumper_cfi import ticlDumper as base
     dumper_associators = []
-    for sts in ['ticlSimTrackstersfromBoundarySimCluster', 'ticlSimTrackstersfromCaloParticle']: #SIM_COLLECTIONS:
+    for sts in SIM_COLLECTIONS:
         for lab in labels:
             suffix = "CP" if "fromCaloParticle" in sts else "SC"
             dumper_associators.append(cms.PSet(
@@ -135,7 +128,8 @@ def build_hgcal_validator(labels, primary_trackster="ticlTrackstersCLUE3DHigh",
     return base.clone(
         label_tst=cms.VInputTag(
             *[cms.InputTag(l) for l in labels]
-            +  [cms.InputTag('ticlSimTracksters', 'fromCaloParticle'), cms.InputTag("ticlSimTracksters", "fromLegacySimCluster"), cms.InputTag("ticlSimTracksters", "fromBoundarySimCluster"), cms.InputTag("ticlSimTracksters", "fromMergedSimCluster")]),
+            + [cms.InputTag("ticlSimTracksters", "fromCaloParticle"),
+               cms.InputTag("ticlSimTracksters", "fromBoundarySimCluster")]),
         allTracksterTracksterAssociatorsLabels=cms.VInputTag(
             *[cms.InputTag("allTrackstersToSimTrackstersAssociationsByLCs:" + a) for a in inst]),
         allTracksterTracksterByHitsAssociatorsLabels=cms.VInputTag(

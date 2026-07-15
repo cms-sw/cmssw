@@ -19,14 +19,14 @@ trackingParticleGsfTrackAssociation = trackingParticleRecoTrackAsssociation.clon
 ticlSimTracksters = _simTrackstersProducer.clone(
     computeLocalTime = cms.bool(True),
     tpToGsfTrack = cms.InputTag("trackingParticleGsfTrackAssociation"),
-    simClusterCollections =  cms.VPSet(
-      cms.PSet( # creates a SimTrackster for every SimCluster. Creates a lot of SImTrackster (including backscattering etc)
-        outputProductLabel = cms.string('fromLegacySimCluster'),
-        tracksterIterationIndex = cms.int32(5), #  See Trackster.h (ticl::Trackster::IterationIndex enum). 5=SIM (ie from SimCluster), 6=SIM_CP (ie from CaloParticle)
-        simClusterCollection = cms.InputTag('mix', 'MergedCaloTruth'),
-        simTracksterBoundaryTime = cms.string("boundaryTime"),
-        simClusterToLayerClusterAssociationMap = cms.InputTag('layerClusterSimClusterAssociationProducer'),
-      ),
+    simClusterCollections =  cms.VPSet( # not all collections are run to save on memory
+    #   cms.PSet( # creates a SimTrackster for every SimCluster. Creates a lot of SImTrackster (including backscattering etc)
+    #     outputProductLabel = cms.string('fromLegacySimCluster'),
+    #     tracksterIterationIndex = cms.int32(5), #  See Trackster.h (ticl::Trackster::IterationIndex enum). 5=SIM (ie from SimCluster), 6=SIM_CP (ie from CaloParticle)
+    #     simClusterCollection = cms.InputTag('mix', 'MergedCaloTruth'),
+    #     simTracksterBoundaryTime = cms.string("boundaryTime"),
+    #     simClusterToLayerClusterAssociationMap = cms.InputTag('layerClusterSimClusterAssociationProducer'),
+    #   ),
       cms.PSet( # the "fromBoundarySimCluster" output is what resembles the most the old behaviour : if CaloParticle simTrack crosses boundary, makes only one trackster (ignore any backscattering); 
        # else one trackster per simtrack crossing boundary (collapsing tracks that leave&reenter, different than previous behaviour that created a SimTrackster for backscattering that re-entered the calorimeter volume)
         outputProductLabel = cms.string('fromBoundarySimCluster'),
@@ -35,13 +35,13 @@ ticlSimTracksters = _simTrackstersProducer.clone(
         simTracksterBoundaryTime = cms.string("boundaryTime"),
         simClusterToLayerClusterAssociationMap = cms.InputTag('layerClusterBoundaryTrackSimClusterAssociationProducer')
       ),
-      cms.PSet(
-        outputProductLabel = cms.string('fromMergedSimCluster'),
-        tracksterIterationIndex = cms.int32(5),
-        simClusterCollection = cms.InputTag('mix', 'MergedCaloTruthMergedSimCluster'),
-        simTracksterBoundaryTime = cms.string("boundaryTime"), # will pick the time of the first simtrack
-        simClusterToLayerClusterAssociationMap = cms.InputTag('layerClusterMergedSimClusterAssociationProducer')
-      ),
+    #   cms.PSet(
+    #     outputProductLabel = cms.string('fromMergedSimCluster'),
+    #     tracksterIterationIndex = cms.int32(5),
+    #     simClusterCollection = cms.InputTag('mix', 'MergedCaloTruthMergedSimCluster'),
+    #     simTracksterBoundaryTime = cms.string("boundaryTime"), # will pick the time of the first simtrack
+    #     simClusterToLayerClusterAssociationMap = cms.InputTag('layerClusterMergedSimClusterAssociationProducer')
+    #   ),
       cms.PSet(
         outputProductLabel = cms.string('fromCaloParticle'),
         tracksterIterationIndex = cms.int32(6),
@@ -102,7 +102,12 @@ for _simProducer in [ticlSimTICLCandidatesFromLegacy, ticlSimTICLCandidatesFromB
     # MtdSimTracksters=cms.InputTag("mixData", _simProducer.MtdSimTracksters.productInstanceLabel) # MTD SimTracksters do not have premixing for now
   )
 
-ticlSimTrackstersTask = cms.Task(filteredLayerClustersSimTracksters, trackingParticleGsfTrackAssociation, ticlSimTracksters, ticlSimTICLCandidatesFromLegacy, ticlSimTICLCandidatesFromBoundary, ticlSimTICLCandidatesFromMergedSimCluster)
+ticlSimTrackstersTask = cms.Task(
+    filteredLayerClustersSimTracksters,
+    trackingParticleGsfTrackAssociation,
+    ticlSimTracksters,
+    ticlSimTICLCandidatesFromBoundary,
+)
 
 # BARREL
 

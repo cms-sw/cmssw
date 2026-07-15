@@ -26,9 +26,7 @@ from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsPSet
 allHitToTracksterAssociations = _AllHitToTracksterAssociatorsProducer.clone(    
     tracksterCollections = cms.VInputTag(
         *[cms.InputTag(label) for label in ticlIterLabelsPSet.labels],
-        cms.InputTag("ticlSimTracksters", "fromLegacySimCluster"),
         cms.InputTag("ticlSimTracksters", "fromBoundarySimCluster"),
-        cms.InputTag("ticlSimTracksters", "fromMergedSimCluster"),
         cms.InputTag("ticlSimTracksters", "fromCaloParticle"),
     )
 )

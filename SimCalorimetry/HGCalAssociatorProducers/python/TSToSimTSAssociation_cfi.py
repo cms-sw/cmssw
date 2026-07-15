@@ -12,9 +12,7 @@ allTrackstersToSimTrackstersAssociationsByLCs = AllTracksterToSimTracksterAssoci
         *[cms.InputTag(label) for label in ticlIterLabelsPSet.labels]
     ),
     simTracksterCollections = cms.VInputTag(
-        cms.InputTag("ticlSimTracksters", "fromLegacySimCluster"),
         cms.InputTag("ticlSimTracksters", "fromBoundarySimCluster"),
-        cms.InputTag("ticlSimTracksters", "fromMergedSimCluster"),
         cms.InputTag("ticlSimTracksters", "fromCaloParticle"),
     ),
 )
@@ -26,4 +24,3 @@ allBarrelTrackstersToSimTrackstersAssociationsByLCs = AllTracksterToSimTrackster
     layerClusters = cms.InputTag('hgcalMergeLayerClusters'),
     simTracksterCollections = cms.VInputTag(['ticlSimTrackstersBarrel:fromBoundarySimCluster', 'ticlSimTrackstersBarrel:fromCaloParticle'])
 )
-
