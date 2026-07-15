@@ -48,16 +48,6 @@ namespace Rivet {
       }
       return current;
     }
-    // TODO: delete below
-    // Particle getLastInstance(Particle ptcl) {
-    //   if (ptcl.genParticle()->end_vertex()) {
-    //     if (!hasChild(ptcl.genParticle(), ptcl.pid()))
-    //       return ptcl;
-    //     else
-    //       return getLastInstance(ptcl.children()[0]);
-    //   }
-    //   return ptcl;
-    // }
 
     /// @brief Whether particle p originate from any of the ptcls
     bool originateFrom(const Particle &p, const Particles &ptcls) {
