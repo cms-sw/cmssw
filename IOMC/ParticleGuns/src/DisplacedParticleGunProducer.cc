@@ -330,8 +330,8 @@ namespace edm {
     }
 
     std::vector<Interval> getAllowedSlopesForCap(const Point& originPoint,
-                                              double momentumPhi,
-                                              const PlaneParameters& cap) {
+                                                 double momentumPhi,
+                                                 const PlaneParameters& cap) {
       const double deltaZ = cap.z - originPoint.z;
       const double a = deltaZ * deltaZ;
       const double b = 2. * deltaZ * (originPoint.x * std::cos(momentumPhi) + originPoint.y * std::sin(momentumPhi));
