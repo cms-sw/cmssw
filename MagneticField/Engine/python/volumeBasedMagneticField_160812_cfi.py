@@ -1,22 +1,14 @@
+"""
+This cfi contains everything needed to use the VolumeBased magnetic field engine version 160812.
+
+MF geometry is read from xml files using DDD.
+PLEASE DO NOT USE THIS DIRECTLY.
+Always use the standard sequence: Configuration.StandardSequences.MagneticField_cff
+"""
+
 import FWCore.ParameterSet.Config as cms
 
-
-# This cfi contains everything needed to use the VolumeBased magnetic
-# field engine version 160812.
-#
-# PLEASE DO NOT USE THIS DIRECTLY
-# Always use the standard sequence Configuration.StandardSequences.MagneticField_cff
-
-
-magfield = cms.ESSource("XMLIdealGeometryESSource",
-    geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/normal/cmsextent.xml', 
-        'Geometry/CMSCommonData/data/cms.xml', 
-        'Geometry/CMSCommonData/data/cmsMagneticField.xml', 
-        'MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_1.xml',
-        'MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_2.xml',
-        'Geometry/CMSCommonData/data/materials.xml'),
-    rootNodeName = cms.string('cmsMagneticField:MAGF')
-)
+from MagneticField.GeomBuilder.MFDDDGeometry_160812_cff import MFDDDGeometry as magfield
 
 # avoid interference with EmptyESSource in uniformMagneticField.cfi
 es_prefer_magfield = cms.ESPrefer("XMLIdealGeometryESSource","magfield")
