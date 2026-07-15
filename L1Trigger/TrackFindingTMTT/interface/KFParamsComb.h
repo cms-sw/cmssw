@@ -59,6 +59,8 @@ namespace tmtt {
     // Convert to physical helix params instead of local ones used by KF
     TVectorD trackParams(const KalmanState* state) const override;
     TVectorD trackParams_BeamConstr(const KalmanState* state, double& chi2rphi) const override;
+    // Convert to physical helix covariance matrix instead of local ones used by KF
+    TMatrixD trackParamsCov(const KalmanState* state) const override;
 
     // Does helix state pass cuts?
     bool isGoodState(const KalmanState& state) const override;

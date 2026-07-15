@@ -12,7 +12,7 @@
 
 #include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 
 #include <string>
 
@@ -35,27 +35,27 @@ namespace trackerTFP {
     // ED output token for accepted stubs
     edm::EDPutTokenT<tt::StreamsStub> edPutToken_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
   };
 
   ProducerPP::ProducerPP(const edm::ParameterSet& iConfig) {
     const std::string& label = iConfig.getParameter<std::string>("InputLabelPP");
     const std::string& branch = iConfig.getParameter<std::string>("BranchStubs");
     // book in- and output ED products
-    edGetToken_ = consumes<TTDTC>(edm::InputTag(label, branch));
-    edPutToken_ = produces<tt::StreamsStub>(branch);
+    edGetToken_ = consumes(edm::InputTag(label, branch));
+    edPutToken_ = produces(branch);
     // book ES products
     esGetTokenSetup_ = esConsumes();
   }
 
   void ProducerPP::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // helper classe to store configurations
-    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // empty GP products
-    tt::StreamsStub stubs(setup->numRegions() * setup->numDTCsPerTFP());
+    tt::StreamsStub stubs(setup->sysNumRegion() * setup->numDTCsPerTFP());
     // read in DTC Product and produce TFP product
     const TTDTC& ttDTC = iEvent.get(edGetToken_);
-    for (int region = 0; region < setup->numRegions(); region++) {
+    for (int region = 0; region < setup->sysNumRegion(); region++) {
       const int offset = region * setup->numDTCsPerTFP();
       for (int channel = 0; channel < setup->numDTCsPerTFP(); channel++)
         stubs[offset + channel] = ttDTC.stream(region, channel);

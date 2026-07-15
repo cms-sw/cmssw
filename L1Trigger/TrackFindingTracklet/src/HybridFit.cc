@@ -221,6 +221,8 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
       int ichi2rphifit = chi2rphi / 16;
       int ichi2rzfit = trk.chi2rz() / 16;
 
+      const tmtt::KFTrackletTrack::CovMat& covMat = trk.helixCovMat();
+
       const vector<const tmtt::Stub*>& stubsFromFit = trk.stubs();
       vector<const L1TStub*> l1stubsFromFit;
       for (const tmtt::Stub* s : stubsFromFit) {
@@ -251,7 +253,9 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
                            ichi2rphifit,
                            ichi2rzfit,
                            trk.hitPattern(),
-                           l1stubsFromFit);
+                           l1stubsFromFit,
+                           covMat);
+
     } else {
       if (settings_.printDebugKF()) {
         edm::LogVerbatim("L1track") << "FitTrack:KF rejected track";

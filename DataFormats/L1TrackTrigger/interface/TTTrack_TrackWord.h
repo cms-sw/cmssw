@@ -7,9 +7,9 @@
 // packing scheme given below.
 //
 // author:      Mike Hildreth
-// modified by: Alexx Perloff
-// created:     April 9, 2019
-// modified:    March 9, 2021
+// modified by: Alexx Perloff + Ian Tomalin
+// created:     Apr. 2019
+// modified:    Mar. 2021 + Dec. 2025
 //
 ///////
 
@@ -27,18 +27,13 @@
 #include <string>
 #include <vector>
 
-namespace tttrack_trackword {
-  void infoTestDigitizationScheme(
-      const unsigned int, const double, const double, const unsigned int, const double, const unsigned int);
-}
-
 class TTTrack_TrackWord {
 public:
   // ----------constants, enums and typedefs ---------
   enum TrackBitWidths {
     // The sizes of the track word components
     kMVAOtherSize = 6,    // Space for two specialized MVA selections
-    kMVAQualitySize = 3,  // Width of track quality MVA
+    kMVAQualitySize = 3,  // Width of track quality MVA (generic prompt tracks)
     kHitPatternSize = 7,  // Width of the hit pattern for stubs
     kBendChi2Size = 3,    // Width of the bend-chi2/dof
     kD0Size = 13,         // Width of D0
@@ -50,10 +45,10 @@ public:
     kRinvSize = 15,       // Width of Rinv
     kValidSize = 1,       // Valid bit
   };
+  // Width of the track word in bits
   static constexpr int kTrackWordSize = kValidSize + kRinvSize + kPhiSize + kChi2RPhiSize + kTanlSize + kZ0Size +
                                         kChi2RZSize + kD0Size + kBendChi2Size + kHitPatternSize + kMVAQualitySize +
-                                        kMVAOtherSize  // Width of the track word in bits
-      ;
+                                        kMVAOtherSize;
 
   enum TrackBitLocations {
     // The location of the least significant bit (LSB) and most significant bit (MSB) in the track word for different fields
@@ -96,7 +91,7 @@ public:
   static constexpr double stepZ0 = (2. * std::abs(minZ0)) / (1 << TrackBitWidths::kZ0Size);
   static constexpr double stepD0 = (1. / (1 << 8));
 
-  // Bin edges for chi2/dof
+  // Lower edges of each bin in chi2/dof.
   static constexpr std::array<double, 1 << TrackBitWidths::kChi2RPhiSize> chi2RPhiBins = {
       {0.0, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 10.0, 15.0, 20.0, 35.0, 60.0, 200.0}};
   static constexpr std::array<double, 1 << TrackBitWidths::kChi2RZSize> chi2RZBins = {
@@ -106,7 +101,7 @@ public:
 
   // Bin edges for TQ MVA
   static constexpr std::array<double, 1 << TrackBitWidths::kMVAQualitySize> tqMVABins = {
-      {0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.750, 0.875}};
+      {0.0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.750, 0.875}};
 
   // Sector constants
   static constexpr unsigned int nSectors = 9;
@@ -115,24 +110,24 @@ public:
   // Track flags
   typedef ap_uint<TrackBitWidths::kValidSize> valid_t;  // valid bit
 
-  // Track parameters types
+  // Track parameter HLS types
   typedef ap_uint<TrackBitWidths::kRinvSize> rinv_t;  // Track Rinv
   typedef ap_uint<TrackBitWidths::kPhiSize> phi_t;    // Track phi
   typedef ap_uint<TrackBitWidths::kTanlSize> tanl_t;  // Track tan(l)
   typedef ap_uint<TrackBitWidths::kZ0Size> z0_t;      // Track z
   typedef ap_uint<TrackBitWidths::kD0Size> d0_t;      // D0
 
-  // Track quality types
+  // Track quality HLS types
   typedef ap_uint<TrackBitWidths::kChi2RPhiSize> chi2rphi_t;      // Chi2 r-phi
   typedef ap_uint<TrackBitWidths::kChi2RZSize> chi2rz_t;          // Chi2 r-z
   typedef ap_uint<TrackBitWidths::kBendChi2Size> bendChi2_t;      // Bend-Chi2
   typedef ap_uint<TrackBitWidths::kHitPatternSize> hit_t;         // Hit mask bits
-  typedef ap_uint<TrackBitWidths::kMVAQualitySize> qualityMVA_t;  // Track quality MVA
+  typedef ap_uint<TrackBitWidths::kMVAQualitySize> qualityMVA_t;  // Track quality MVA (generic prompt)
   typedef ap_uint<TrackBitWidths::kMVAOtherSize> otherMVA_t;      // Specialized MVA selection
 
   // Track word types
   typedef std::bitset<kTrackWordSize> tkword_bs_t;  // Entire track word;
-  typedef ap_uint<kTrackWordSize> tkword_t;         // Entire track word;
+  typedef ap_uint<kTrackWordSize> tkword_t;         // Entire track word HLS type;
 
 public:
   // ----------Constructors --------------------------
@@ -141,44 +136,50 @@ public:
                     const GlobalVector& momentum,
                     const GlobalPoint& POCA,
                     double rInv,
-                    double chi2RPhi,  // would be xy chisq if chi2Z is non-zero
-                    double chi2RZ,
-                    double bendChi2,
+                    double chi2RPhiRed,  // normalized to dof
+                    double chi2RZRed,
+                    double bendChi2Red,
                     unsigned int hitPattern,
                     double mvaQuality,
                     double mvaOther,
                     unsigned int sector);
+
   TTTrack_TrackWord(unsigned int valid,
                     unsigned int rInv,
-                    unsigned int phi0,  // local phi
+                    unsigned int localPhi,  // phi relative to centre of phi nonant
                     unsigned int tanl,
                     unsigned int z0,
                     unsigned int d0,
-                    unsigned int chi2RPhi,  // would be total chisq if chi2Z is zero
-                    unsigned int chi2RZ,
-                    unsigned int bendChi2,
+                    unsigned int chi2RPhiRed,  // normalized to dof
+                    unsigned int chi2RZRed,
+                    unsigned int bendChi2Red,
                     unsigned int hitPattern,
                     unsigned int mvaQuality,
                     unsigned int mvaOther);
 
+  TTTrack_TrackWord(const tkword_bs_t& trackWord) : trackWord_(trackWord) {}
+
   // ----------copy constructor ----------------------
-  TTTrack_TrackWord(const TTTrack_TrackWord& word) { trackWord_ = word.trackWord_; }
+  TTTrack_TrackWord(const TTTrack_TrackWord& word) { trackWord_ = word.getTrackWordBS(); }
 
   // ----------operators -----------------------------
   TTTrack_TrackWord& operator=(const TTTrack_TrackWord& word) {
-    trackWord_ = word.trackWord_;
+    trackWord_ = word.getTrackWordBS();
     return *this;
   }
 
   // ----------member functions (getters) ------------
-  // These functions return arbitarary precision unsigned int words (lists of bits) for each quantity
+  // These functions return HLS-type finite bits words.
   // Signed quantities have the sign enconded in the left-most bit.
   valid_t getValidWord() const { return getTrackWord()(TrackBitLocations::kValidMSB, TrackBitLocations::kValidLSB); }
   rinv_t getRinvWord() const { return getTrackWord()(TrackBitLocations::kRinvMSB, TrackBitLocations::kRinvLSB); }
-  phi_t getPhiWord() const { return getTrackWord()(TrackBitLocations::kPhiMSB, TrackBitLocations::kPhiLSB); }
+  phi_t getPhiWord() const {
+    return getTrackWord()(TrackBitLocations::kPhiMSB, TrackBitLocations::kPhiLSB);
+  }  // relative to centre of phi nonant
   tanl_t getTanlWord() const { return getTrackWord()(TrackBitLocations::kTanlMSB, TrackBitLocations::kTanlLSB); }
   z0_t getZ0Word() const { return getTrackWord()(TrackBitLocations::kZ0MSB, TrackBitLocations::kZ0LSB); }
   d0_t getD0Word() const { return getTrackWord()(TrackBitLocations::kD0MSB, TrackBitLocations::kD0LSB); }
+  // These return chi2/dof
   chi2rphi_t getChi2RPhiWord() const {
     return getTrackWord()(TrackBitLocations::kChi2RPhiMSB, TrackBitLocations::kChi2RPhiLSB);
   }
@@ -197,17 +198,21 @@ public:
   otherMVA_t getMVAOtherWord() const {
     return getTrackWord()(TrackBitLocations::kMVAOtherMSB, TrackBitLocations::kMVAOtherLSB);
   }
+
+  // Get entire data word
   tkword_t getTrackWord() const { return tkword_t(trackWord_.to_string().c_str(), 2); }
+  tkword_bs_t getTrackWordBS() const { return trackWord_; }
 
   // These functions return the packed bits in unsigned integer format for each quantity
   // Signed quantities have the sign enconded in the left-most bit of the pattern using
   //   a two's complement representation
   unsigned int getValidBits() const { return getValidWord().to_uint(); }
   unsigned int getRinvBits() const { return getRinvWord().to_uint(); }
-  unsigned int getPhiBits() const { return getPhiWord().to_uint(); }
+  unsigned int getPhiBits() const { return getPhiWord().to_uint(); }  // phi relative to centre of phi nonant
   unsigned int getTanlBits() const { return getTanlWord().to_uint(); }
   unsigned int getZ0Bits() const { return getZ0Word().to_uint(); }
   unsigned int getD0Bits() const { return getD0Word().to_uint(); }
+  // These return chi2/dof
   unsigned int getChi2RPhiBits() const { return getChi2RPhiWord().to_uint(); }
   unsigned int getChi2RZBits() const { return getChi2RZWord().to_uint(); }
   unsigned int getBendChi2Bits() const { return getBendChi2Word().to_uint(); }
@@ -219,26 +224,31 @@ public:
   // These functions return real numbers converted from the digitized quantities by unpacking the 96-bit track word
   bool getValid() const { return getValidWord().to_bool(); }
   double getRinv() const { return undigitizeSignedValue(getRinvBits(), TrackBitWidths::kRinvSize, stepRinv); }
-  double getPhi() const { return undigitizeSignedValue(getPhiBits(), TrackBitWidths::kPhiSize, stepPhi0); }
+  double getPhi() const {
+    return undigitizeSignedValue(getPhiBits(), TrackBitWidths::kPhiSize, stepPhi0);
+  }  // phi relative to centre of phi nonant
   double getTanl() const { return undigitizeSignedValue(getTanlBits(), TrackBitWidths::kTanlSize, stepTanL); }
   double getZ0() const { return undigitizeSignedValue(getZ0Bits(), TrackBitWidths::kZ0Size, stepZ0); }
   double getD0() const { return undigitizeSignedValue(getD0Bits(), TrackBitWidths::kD0Size, stepD0); }
+  // These return chi2/dof
   double getChi2RPhi() const { return chi2RPhiBins[getChi2RPhiBits()]; }
   double getChi2RZ() const { return chi2RZBins[getChi2RZBits()]; }
   double getBendChi2() const { return bendChi2Bins[getBendChi2Bits()]; }
   unsigned int getHitPattern() const { return getHitPatternBits(); }
   unsigned int getNStubs() const { return countSetBits(getHitPatternBits()); }
   double getMVAQuality() const { return tqMVABins[getMVAQualityBits()]; }
-  double getMVAOther() const { return getMVAOtherBits(); }
+  double getMVAOtherQuality() const { return getMVAOtherBits(); }
 
   // ----------member functions (setters) ------------
+  void setTrackWord(const tkword_bs_t& trackWord) { trackWord_ = trackWord; }
+
   void setTrackWord(unsigned int valid,
                     const GlobalVector& momentum,
                     const GlobalPoint& POCA,
                     double rInv,
-                    double chi2RPhi,  // would be total chisq if chi2Z is zero
-                    double chi2RZ,
-                    double bendChi2,
+                    double chi2RPhiRed,  // normalized to dof
+                    double chi2RZRed,
+                    double bendChi2Red,
                     unsigned int hitPattern,
                     double mvaQuality,
                     double mvaOther,
@@ -246,36 +256,39 @@ public:
 
   void setTrackWord(unsigned int valid,
                     unsigned int rInv,
-                    unsigned int phi0,  // local phi
+                    unsigned int localPhi,  // local phi
                     unsigned int tanl,
                     unsigned int z0,
                     unsigned int d0,
-                    unsigned int chi2RPhi,  // would be total chisq if chi2Z is zero
-                    unsigned int chi2RZ,
-                    unsigned int bendChi2,
+                    unsigned int chi2RPhiRed,  // normalized to dof
+                    unsigned int chi2RZRed,
+                    unsigned int bendChi2Red,
                     unsigned int hitPattern,
                     unsigned int mvaQuality,
                     unsigned int mvaOther);
 
   void setTrackWord(ap_uint<TrackBitWidths::kValidSize> valid,
                     ap_uint<TrackBitWidths::kRinvSize> rInv,
-                    ap_uint<TrackBitWidths::kPhiSize> phi0,  // local phi
+                    ap_uint<TrackBitWidths::kPhiSize> localPhi,  // local phi
                     ap_uint<TrackBitWidths::kTanlSize> tanl,
                     ap_uint<TrackBitWidths::kZ0Size> z0,
                     ap_uint<TrackBitWidths::kD0Size> d0,
-                    ap_uint<TrackBitWidths::kChi2RPhiSize> chi2RPhi,  // would be total chisq if chi2Z is zero
-                    ap_uint<TrackBitWidths::kChi2RZSize> chi2RZ,
-                    ap_uint<TrackBitWidths::kBendChi2Size> bendChi2,
+                    ap_uint<TrackBitWidths::kChi2RPhiSize> chi2RPhiRed,  // normalized to dof
+                    ap_uint<TrackBitWidths::kChi2RZSize> chi2RZRed,
+                    ap_uint<TrackBitWidths::kBendChi2Size> bendChi2Red,
                     ap_uint<TrackBitWidths::kHitPatternSize> hitPattern,
                     ap_uint<TrackBitWidths::kMVAQualitySize> mvaQuality,
                     ap_uint<TrackBitWidths::kMVAOtherSize> mvaOther);
 
   // ----------member functions (testers) ------------
+  void printTestDigitizationScheme(
+      const unsigned int, const double, const double, const unsigned int, const double, const unsigned int) const;
   bool singleDigitizationSchemeTest(const double floatingPointValue, const unsigned int nBits, const double lsb) const;
   void testDigitizationScheme() const;
 
 protected:
   // ----------protected member functions ------------
+  // Phi with respect to centre line of phi nonant, which for sector 0 is parallel to x-axis.
   float localPhi(float globalPhi, unsigned int sector) const {
     return reco::deltaPhi(globalPhi, (sector * sectorWidth));
   }

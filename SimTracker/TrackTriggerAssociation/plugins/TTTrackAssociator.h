@@ -1,5 +1,10 @@
 /*! \class   TTTrackAssociator
- *  \brief   Plugin to create the MC truth for TTTracks.
+ *  \brief   Creates the L1 track reco-truth association object TTTrackAssociationMap,
+ *           which contains two maps. One map associates each L1 track its principle TP.
+ *           (i.e. Not to all TP that contributed to it), providing that that TP
+ *           contributed to all stubs on the track (allowing for one incorrect stub).
+ *           The other map associates each TP to a vector of all L1 tracks 
+ *           it contributed to. 
  *  \details After moving from SimDataFormats to DataFormats,
  *           the template structure of the class was maintained
  *           in order to accomodate any types other than PixelDigis
@@ -7,7 +12,7 @@
  *
  *  \author Nicola Pozzobon
  *  \date   2013, Jul 19
- *  (tidy up: Ian Tomalin, 2020)
+ *  (tidy up: Ian Tomalin, 2020 + 2025)
  *
  */
 
@@ -57,8 +62,6 @@ private:
   edm::EDGetTokenT<TTStubAssociationMap<T> > ttStubTruthToken_;
   edm::EDGetTokenT<TTClusterAssociationMap<T> > ttClusterTruthToken_;
 
-  bool TTTrackAllowOneFalse2SStub;
-
   /// Mandatory methods
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
@@ -77,12 +80,6 @@ TTTrackAssociator<T>::TTTrackAssociator(const edm::ParameterSet& iConfig) {
   ttTracksInputTags_ = iConfig.getParameter<std::vector<edm::InputTag> >("TTTracks");
   ttClusterTruthToken_ = consumes<TTClusterAssociationMap<T> >(iConfig.getParameter<edm::InputTag>("TTClusterTruth"));
   ttStubTruthToken_ = consumes<TTStubAssociationMap<T> >(iConfig.getParameter<edm::InputTag>("TTStubTruth"));
-  TTTrackAllowOneFalse2SStub = iConfig.getParameter<bool>("TTTrackAllowOneFalse2SStub");
-  if (TTTrackAllowOneFalse2SStub) {
-    edm::LogInfo("TTTrackAssociator< ") << "Allow track if no more than one 2S stub doesn't match truth.";
-  } else {
-    edm::LogInfo("TTTrackAssociator< ") << "All 2S stubs must match truth.";
-  }
 
   for (const auto& iTag : ttTracksInputTags_) {
     ttTracksTokens_.push_back(consumes<std::vector<TTTrack<T> > >(iTag));

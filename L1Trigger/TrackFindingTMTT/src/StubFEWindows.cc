@@ -43,27 +43,29 @@ namespace tmtt {
     // Code accessing geometry inspired by L1Trigger/TrackTrigger/src/TTStubAlgorithm_official.cc
 
     const double* storedHalfWindow = nullptr;
-    if (detId.subdetId() == StripSubdetector::TOB) {
+    if (detId.subdetId() == Phase2Tracker::Subdetector::Barrel) {
       unsigned int layer = trackerTopo->layer(detId);
-      unsigned int ladder = trackerTopo->tobRod(detId);
-      int type = 2 * trackerTopo->tobSide(detId) - 3;  // -1 for tilted-, 1 for tilted+, 3 for flat
+      unsigned int ladder = trackerTopo->barrelRodP2(detId);
+      Phase2Tracker::BarrelModuleTilt type = trackerTopo->barrelTiltTypeP2(detId);
       double corr = 0;
 
-      if (type != TrackerModule::BarrelModuleType::flat) {
+      if (type == Phase2Tracker::BarrelModuleTilt::tiltedZminus ||
+          type == Phase2Tracker::BarrelModuleTilt::tiltedZplus) {
         // Tilted barrel
         corr = (numTiltedLayerRings_.at(layer) + 1) / 2.;
         // Corrected ring number, between 0 and barrelNTilt.at(layer), in ascending |z|
-        ladder = corr - (corr - ladder) * type;
+        int ladderSign = (type == Phase2Tracker::BarrelModuleTilt::tiltedZminus) ? -1 : +1;
+        ladder = corr - (corr - ladder) * ladderSign;
         storedHalfWindow = &(windowSizeTiltedLayersRings_.at(layer).at(ladder));
       } else {
         // Flat barrel
         storedHalfWindow = &(windowSizeBarrelLayers_.at(layer));
       }
 
-    } else if (detId.subdetId() == StripSubdetector::TID) {
+    } else if (detId.subdetId() == Phase2Tracker::Subdetector::Endcap) {
       // Endcap
-      unsigned int wheel = trackerTopo->tidWheel(detId);
-      unsigned int ring = trackerTopo->tidRing(detId);
+      unsigned int wheel = trackerTopo->endcapWheelP2(detId);
+      unsigned int ring = trackerTopo->endcapRingP2(detId);
       storedHalfWindow = &(windowSizeEndcapDisksRings_.at(wheel).at(ring));
     }
     return storedHalfWindow;

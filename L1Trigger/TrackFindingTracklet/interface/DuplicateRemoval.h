@@ -1,10 +1,9 @@
 #ifndef L1Trigger_TrackFindingTracklet_DuplicateRemoval_h
 #define L1Trigger_TrackFindingTracklet_DuplicateRemoval_h
 
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
-#include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Setup.h"
 #include "L1Trigger/TrackFindingTracklet/interface/DataFormats.h"
-#include "L1Trigger/TrackFindingTracklet/interface/ChannelAssignment.h"
+#include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
 
 #include <vector>
 
@@ -20,47 +19,56 @@ namespace trklet {
    */
   class DuplicateRemoval {
   public:
-    DuplicateRemoval(const tt::Setup* setup_,
-                     const trackerTFP::LayerEncoding* layerEncoding,
-                     const DataFormats* dataFormats,
-                     const ChannelAssignment* channelAssignment,
-                     int region);
+    DuplicateRemoval(const Setup*, const DataFormats*, int, const TTDTC&);
     ~DuplicateRemoval() = default;
     // read in and organize input tracks and stubs
-    void consume(const tt::StreamsTrack& streamsTrack, const tt::StreamsStub& streamsStub);
+    void consume(const tt::StreamsTrack&, const tt::StreamsStub&);
     // fill output products
-    void produce(tt::StreamsTrack& acceptedTracks, tt::StreamsStub& accpetedStubs);
+    void produce(tt::StreamsTrack&, tt::StreamsStub&);
 
   private:
+    // remove duplicated tracks, no merge of stubs, one stub per layer expected
+    void algo();
+    // unify stubs
+    void unify();
+    // calc stub position
+    void pos();
+    // replace stubs with DTC stubs
+    void dtc();
+    // replace stubs with TT stubs
+    void tt();
+    // calc stub uncertainties
+    void delta();
+    // base transformation
+    void redigi();
+    // store output
+    void store(tt::StreamsTrack&, tt::StreamsStub&) const;
     struct Stub {
-      Stub(const tt::FrameStub& frame, int stubId, int layer) : frame_(frame), stubId_(stubId), layer_(layer) {}
-      // output frame
-      tt::FrameStub frame_;
-      // all stubs id
-      int stubId_;
-      // kf layer id
+      Stub(const TTStubRef& ttStubRef) : ttStubRef_(ttStubRef), r_(0.), phi_(0.), z_(0.) {}
+      TTStubRef ttStubRef_;
+      const trackerDTC::SensorModule* sm_;
       int layer_;
+      int stubId_;
+      double r_;
+      double phi_;
+      double z_;
+      double dPhi_;
+      double dZ_;
     };
     struct Track {
-      // max number of stubs a track may formed of (we allow only one stub per layer)
-      static constexpr int max_ = 11;
-      Track() { stubs_.reserve(max_); }
-      Track(const tt::FrameTrack& frame, const std::vector<Stub*>& stubs) : frame_(frame), stubs_(stubs) {}
-      tt::FrameTrack frame_;
+      TrackDR trackDR_;
+      double inv2R_;
+      double phi0_;
+      double cot_;
+      double z0_;
       std::vector<Stub*> stubs_;
     };
     // compares two tracks, returns true if those are considered duplicates
     bool equalEnough(Track* t0, Track* t1) const;
-    // true if truncation is enbaled
-    bool enableTruncation_;
     // provides run-time constants
-    const tt::Setup* setup_;
-    // helper class to encode layer
-    const trackerTFP::LayerEncoding* layerEncoding_;
+    const Setup* setup_;
     // provides dataformats
     const DataFormats* dataFormats_;
-    // helper class to assign tracks to channel
-    const ChannelAssignment* channelAssignment_;
     // processing region (0 - 8) aka processing phi nonant
     const int region_;
     // storage of input tracks
@@ -68,13 +76,13 @@ namespace trklet {
     // storage of input stubs
     std::vector<Stub> stubs_;
     // h/w liked organized pointer to input tracks
-    std::vector<Track*> input_;
-    // dataformat used to calculate pitch over stubs radius
-    DataFormat r_;
-    // number of TM layers
-    int tmNumLayers_;
-    // phi data format
-    DataFormat phi_;
+    std::vector<Track*> stream_;
+    // DTC stubs
+    std::vector<tt::FrameStub> dtc_;
+    // internal used bases
+    double baseR_;
+    double basePhi_;
+    double baseZ_;
   };
 
 }  // namespace trklet

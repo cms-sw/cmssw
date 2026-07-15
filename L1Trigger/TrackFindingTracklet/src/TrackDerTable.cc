@@ -1024,13 +1024,11 @@ void TrackDerTable::calculateDerivatives(Settings const& settings,
       MinvDt[3][2 * i + 1] /= denom;
 
       iMinvDt[0][2 * i + 1] =
-          (1 << settings.fitrinvbitshift()) * MinvDt[0][2 * i + 1] * settings.krprojshiftdisk() / settings.krinvpars();
+          (1 << settings.fitrinvbitshift()) * MinvDt[0][2 * i + 1] * settings.kr() / settings.krinvpars();
       iMinvDt[1][2 * i + 1] =
-          (1 << settings.fitphi0bitshift()) * MinvDt[1][2 * i + 1] * settings.krprojshiftdisk() / settings.kphi0pars();
-      iMinvDt[2][2 * i + 1] =
-          (1 << settings.fittbitshift()) * MinvDt[2][2 * i + 1] * settings.krprojshiftdisk() / settings.ktpars();
-      iMinvDt[3][2 * i + 1] =
-          (1 << settings.fitz0bitshift()) * MinvDt[3][2 * i + 1] * settings.krprojshiftdisk() / settings.kz();
+          (1 << settings.fitphi0bitshift()) * MinvDt[1][2 * i + 1] * settings.kr() / settings.kphi0pars();
+      iMinvDt[2][2 * i + 1] = (1 << settings.fittbitshift()) * MinvDt[2][2 * i + 1] * settings.kr() / settings.ktpars();
+      iMinvDt[3][2 * i + 1] = (1 << settings.fitz0bitshift()) * MinvDt[3][2 * i + 1] * settings.kr() / settings.kz();
     }
   }
 }

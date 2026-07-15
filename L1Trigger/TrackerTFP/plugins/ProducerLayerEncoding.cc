@@ -18,10 +18,10 @@ namespace trackerTFP {
   public:
     ProducerLayerEncoding(const edm::ParameterSet& iConfig);
     ~ProducerLayerEncoding() override = default;
-    std::unique_ptr<LayerEncoding> produce(const DataFormatsRcd& rcd);
+    std::unique_ptr<LayerEncoding> produce(const trackerDTC::SetupRcd& rcd);
 
   private:
-    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetToken_;
+    edm::ESGetToken<DataFormats, trackerDTC::SetupRcd> esGetToken_;
   };
 
   ProducerLayerEncoding::ProducerLayerEncoding(const edm::ParameterSet& iConfig) {
@@ -29,7 +29,7 @@ namespace trackerTFP {
     esGetToken_ = cc.consumes();
   }
 
-  std::unique_ptr<LayerEncoding> ProducerLayerEncoding::produce(const DataFormatsRcd& rcd) {
+  std::unique_ptr<LayerEncoding> ProducerLayerEncoding::produce(const trackerDTC::SetupRcd& rcd) {
     const DataFormats* dataFormats = &rcd.get(esGetToken_);
     return std::make_unique<LayerEncoding>(dataFormats);
   }
