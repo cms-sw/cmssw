@@ -336,7 +336,7 @@ void TruthLogicalGraphHitIndexProducer::fillTrackToParticleMap(LogicalGraphView 
     if (trackId == 0)
       continue;
 
-    builder.setSimTrackForParticle(particleId, trackId);
+    builder.setSimTrackForParticle(particleId, rawGraph.nodeEventId(simNodeU32), trackId);
   }
 
   for (uint32_t parentId = 0; parentId < graph.nParticles(); ++parentId) {
@@ -487,8 +487,12 @@ void TruthLogicalGraphHitIndexProducer::fillSimHits(edm::Event& event,
         }
       }
 
-      builder.addHit(
-          truth::HitChannel::HGCalCalo, static_cast<uint32_t>(geantTrackId), detId, simHit.energy(), recHitIndex);
+      builder.addHit(truth::HitChannel::HGCalCalo,
+                     simHit.eventId().rawId(),
+                     static_cast<uint32_t>(geantTrackId),
+                     detId,
+                     simHit.energy(),
+                     recHitIndex);
     }
   }
 }
@@ -508,7 +512,11 @@ void TruthLogicalGraphHitIndexProducer::fillTrackerSimHits(edm::Event& event,
     for (auto const& simHit : *hSimHits) {
       // PSimHit::trackId() is the G4 trackId of the SimTrack that made the hit,
       // the same id space used to associate calorimeter simhits to particles.
-      builder.addHit(truth::HitChannel::Tracker, simHit.trackId(), simHit.detUnitId(), simHit.energyLoss());
+      builder.addHit(truth::HitChannel::Tracker,
+                     simHit.eventId().rawId(),
+                     simHit.trackId(),
+                     simHit.detUnitId(),
+                     simHit.energyLoss());
     }
   }
 }
@@ -524,7 +532,8 @@ void TruthLogicalGraphHitIndexProducer::fillMuonSimHits(edm::Event& event,
       continue;
 
     for (auto const& simHit : *hSimHits) {
-      builder.addHit(truth::HitChannel::Muon, simHit.trackId(), simHit.detUnitId(), simHit.energyLoss());
+      builder.addHit(
+          truth::HitChannel::Muon, simHit.eventId().rawId(), simHit.trackId(), simHit.detUnitId(), simHit.energyLoss());
     }
   }
 }
@@ -578,7 +587,11 @@ void TruthLogicalGraphHitIndexProducer::fillMtdHits(edm::Event& event,
     const auto trackId = static_cast<uint32_t>(cluster.particleId());
     for (auto const& [packedHit, energy] : cluster.hits_and_energies()) {
       const uint32_t moduleDetId = static_cast<uint32_t>(packedHit >> 32);
-      builder.addHit(truth::HitChannel::MTD, trackId, moduleDetId, energy, recHitIndex);
+      // eventId 0 is correct only because the clusters above are filtered to the signal
+      // interaction (bx 0, event 0), so simKey(0, trackId) matches the signal track.
+      // If a merged pileup MTD collection is ever added, this must pass the real
+      // eventId like the calo/tracker channels or pileup tracks would alias the signal.
+      builder.addHit(truth::HitChannel::MTD, 0ull, trackId, moduleDetId, energy, recHitIndex);
     }
   }
 }

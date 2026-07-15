@@ -16,11 +16,11 @@ namespace truth {
       channel.resize(nParticles);
   }
 
-  void LogicalGraphHitIndexBuilder::setSimTrackForParticle(uint32_t particleId, uint32_t trackId) {
+  void LogicalGraphHitIndexBuilder::setSimTrackForParticle(uint32_t particleId, uint64_t eventId, uint32_t trackId) {
     if (particleId >= nParticles_)
       return;
 
-    trackIdToParticle_[trackId] = particleId;
+    trackIdToParticle_[simKey(eventId, trackId)] = particleId;
   }
 
   void LogicalGraphHitIndexBuilder::addParticleChild(uint32_t parentParticleId, uint32_t childParticleId) {
@@ -31,11 +31,11 @@ namespace truth {
   }
 
   void LogicalGraphHitIndexBuilder::addHit(
-      HitChannel channel, uint32_t trackId, uint32_t detId, float energy, uint32_t recHitIndex) {
+      HitChannel channel, uint64_t eventId, uint32_t trackId, uint32_t detId, float energy, uint32_t recHitIndex) {
     if (energy <= 0.f)
       return;
 
-    auto it = trackIdToParticle_.find(trackId);
+    auto it = trackIdToParticle_.find(simKey(eventId, trackId));
     if (it == trackIdToParticle_.end())
       return;
 
