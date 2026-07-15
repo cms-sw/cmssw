@@ -10,8 +10,8 @@ namespace trklet {
 
   // Controls the conversion between TTTrack features and ML model training features
   // used for Track Quality simulation
-  std::vector<float> featureTransform(TTTrack<Ref_Phase2TrackerDigi_>& aTrack,
-                                      const std::vector<std::string>& featureNames) {
+  inline std::vector<float> featureTransform(TTTrack<Ref_Phase2TrackerDigi_>& aTrack,
+                                             const std::vector<std::string>& featureNames) {
     // List input features for MVA in proper order below, the current features options are
     // {"phi", "eta", "z0", "bendchi2_bin", "nstub", "nlaymiss_interior", "chi2rphi_bin",
     // "chi2rz_bin"}
