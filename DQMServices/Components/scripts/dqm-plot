@@ -986,6 +986,7 @@ class DQMPlotter:
         xlim=None,
         ylim=None,
         ylim_ratio=None,
+        hline=None,
         ytitle_ratio_fontsize=None,
         ratio_label=None,
         complement=False,
@@ -1009,6 +1010,7 @@ class DQMPlotter:
             plot_histograms: Whether to plot histograms instead of individual bin points with errors
             pdf: Whether to save as PDF in addition to PNG
             legend_outside: Force legend to be placed outside the plot area
+            hline: Add a horizontal dashed line at the specified y axis value
             rebin: Optional rebinning specification, either a single int or an array-like of new bin edges
         """
         if len(histograms) != len(labels):
@@ -1144,7 +1146,10 @@ class DQMPlotter:
             ax_main.set_xlim(*xlim)
         if ylim:
             ax_main.set_ylim(*ylim)
- 
+
+        if hline:
+            ax_main.axhline(y=1, color="black", linestyle="--", alpha=0.7)
+        
         self._apply_custom_formatter(ax_main)
 
         # Ratio plot styling
@@ -1718,6 +1723,10 @@ if __name__ == "__main__":
         help="Multiply all x-axis values (bin centers and edges) by this fixed factor."
     )
     parser.add_argument(
+        '--hline', type=float, required=False, default=None, dest='hline',
+        help="Add a horizontal dashed line at the specified Y axis location."
+    )    
+    parser.add_argument(
         '--title', required=False, default=None,
         help="Plot title."
     )
@@ -2016,5 +2025,6 @@ if __name__ == "__main__":
         rebin=rebin_arg,
         clamp_yerrors=args.clamp_yerrors,
         multiply_x_values=args.multiply_x_values,
+        hline=args.hline,
         debug=args.debug,
     )
