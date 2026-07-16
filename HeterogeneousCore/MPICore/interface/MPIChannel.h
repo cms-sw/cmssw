@@ -4,6 +4,7 @@
 // C++ standard library headers
 #include <atomic>
 #include <memory>
+#include <mutex>
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
@@ -34,18 +35,18 @@ public:
   MPIChannel& operator=(MPIChannel const& other) = delete;
 
   MPIChannel(MPIChannel&& other) : comm_(other.comm_), request_(other.request_), dest_(other.dest_) {
-    ChannelStatus status = kInvalid;
-    other.status_.exchange(status, std::memory_order::acq_rel);
-    status_.store(status, std::memory_order::acq_rel);
+    ChannelStatus state = kInvalid;
+    other.state_.exchange(state, std::memory_order::acq_rel);
+    state_.store(state, std::memory_order::acq_rel);
     other.comm_ = MPI_COMM_NULL;
     other.request_ = MPI_REQUEST_NULL;
     other.dest_ = MPI_UNDEFINED;
   }
 
   MPIChannel& operator=(MPIChannel&& other) {
-    ChannelStatus status = kInvalid;
-    other.status_.exchange(status, std::memory_order::acq_rel);
-    status_.store(status, std::memory_order::acq_rel);
+    ChannelStatus state = kInvalid;
+    other.state_.exchange(state, std::memory_order::acq_rel);
+    state_.store(state, std::memory_order::acq_rel);
     comm_ = other.comm_;
     request_ = other.request_;
     dest_ = other.dest_;
@@ -226,9 +227,13 @@ private:
 
   int slot_ = -1;
 
-  // Note: the status_ flag is accessed atomically because it can be written to and read from by
+  // Note: the state_ flag is accessed atomically because it can be written to and read from by
   // different threads.
-  std::atomic<ChannelStatus> status_ = kInvalid;
+  std::atomic<ChannelStatus> state_ = kInvalid;
+
+  // Mutex to guard state_ transitions and MPI operations modifying request_
+  // in ready() and wait().
+  std::mutex mutex_;
 };
 
 #endif  // HeterogeneousCore_MPICore_interface_MPIChannel_h

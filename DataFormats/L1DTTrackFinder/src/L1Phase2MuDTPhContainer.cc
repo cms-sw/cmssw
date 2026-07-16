@@ -31,11 +31,17 @@
 //----------------
 // Constructors --
 //----------------
-L1Phase2MuDTPhContainer::L1Phase2MuDTPhContainer() {}
+namespace io_v1 {
 
-//--------------
-// Operations --
-//--------------
-void L1Phase2MuDTPhContainer::setContainer(const Segment_Container& inputSegments) { m_segments = inputSegments; }
+  L1Phase2MuDTPhContainer::L1Phase2MuDTPhContainer() {}
 
-L1Phase2MuDTPhContainer::Segment_Container const* L1Phase2MuDTPhContainer::getContainer() const { return &m_segments; }
+  //--------------
+  // Operations --
+  //--------------
+  void L1Phase2MuDTPhContainer::setContainer(const Segment_Container& inputSegments) { m_segments = inputSegments; }
+
+  L1Phase2MuDTPhContainer::Segment_Container const* L1Phase2MuDTPhContainer::getContainer() const {
+    return &m_segments;
+  }
+
+}  // namespace io_v1

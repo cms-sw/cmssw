@@ -5,6 +5,9 @@ import FWCore.Utilities.FileUtils as FileUtils
 from FWCore.ParameterSet.VarParsing import VarParsing
 from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_DoubleMuon_string
 
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+
 options = VarParsing('analysis')
 options.register('scenario', 
                  'null',
@@ -13,7 +16,7 @@ options.register('scenario',
                  "Name of input misalignment scenario")
 
 options.register('globalTag',
-                 "125X_mcRun3_2022_design_v6", # default value
+                 _PH2_GLOBAL_TAG, # default value
                  VarParsing.multiplicity.singleton, # singleton or list
                  VarParsing.varType.string, # string, int, or float
                  "name of the input Global Tag")
@@ -53,7 +56,7 @@ if options.scenario not in valid_scenarios:
     print(valid_scenarios)
     exit(1)
 
-process = cms.Process("SagittaBiasNtuplizer")
+process = cms.Process("SagittaBiasNtuplizer",_PH2_ERA)
 
 ###################################################################
 # Set the process to run multi-threaded
@@ -82,7 +85,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
 ###################################################################
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 process.load("Configuration.StandardSequences.Services_cff")
-process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load("CondCore.CondDB.CondDB_cfi")
 

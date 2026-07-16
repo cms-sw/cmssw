@@ -9,42 +9,46 @@ namespace reco {
 
   typedef LeafRefCandidateT RecoChargedRefCandidateBase;
 
-  class RecoChargedRefCandidate : public LeafRefCandidateT {
-  public:
-    RecoChargedRefCandidate() {}
-    RecoChargedRefCandidate(TrackRef ref, float m) : LeafRefCandidateT(ref, m) {}
+  namespace io_v1 {
 
-    ~RecoChargedRefCandidate() override {}
+    class RecoChargedRefCandidate : public LeafRefCandidateT {
+    public:
+      RecoChargedRefCandidate() {}
+      RecoChargedRefCandidate(TrackRef ref, float m) : LeafRefCandidateT(ref, m) {}
 
-    RecoChargedRefCandidate* clone() const override { return new RecoChargedRefCandidate(*this); }
+      ~RecoChargedRefCandidate() override {}
 
-    reco::TrackRef track() const { return getRef<reco::TrackRef>(); }
-    // return a pointer to the best track, if available.
-    // otherwise, return a null pointer
-    const reco::Track* bestTrack() const override {
-      if (track().isNonnull() && track().isAvailable())
-        return &(*track());
-      else
-        return nullptr;
-    }
+      RecoChargedRefCandidate* clone() const override { return new RecoChargedRefCandidate(*this); }
 
-    /// uncertainty on dz
-    float dzError() const override {
-      const Track* tr = bestTrack();
-      if (tr != nullptr)
-        return tr->dzError();
-      else
-        return 0;
-    }
-    /// uncertainty on dxy
-    float dxyError() const override {
-      const Track* tr = bestTrack();
-      if (tr != nullptr)
-        return tr->dxyError();
-      else
-        return 0;
-    }
-  };
+      reco::TrackRef track() const { return getRef<reco::TrackRef>(); }
+      // return a pointer to the best track, if available.
+      // otherwise, return a null pointer
+      const reco::Track* bestTrack() const override {
+        if (track().isNonnull() && track().isAvailable())
+          return &(*track());
+        else
+          return nullptr;
+      }
+
+      /// uncertainty on dz
+      float dzError() const override {
+        const Track* tr = bestTrack();
+        if (tr != nullptr)
+          return tr->dzError();
+        else
+          return 0;
+      }
+      /// uncertainty on dxy
+      float dxyError() const override {
+        const Track* tr = bestTrack();
+        if (tr != nullptr)
+          return tr->dxyError();
+        else
+          return 0;
+      }
+    };
+  }  // namespace io_v1
+  using RecoChargedRefCandidate = io_v1::RecoChargedRefCandidate;
 }  // namespace reco
 
 #endif

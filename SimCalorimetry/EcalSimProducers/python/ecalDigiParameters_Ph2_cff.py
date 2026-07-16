@@ -14,9 +14,7 @@ ecal_digi_parameters = cms.PSet(
     1.00000, 0.73354, 0.64442, 0.58851, 0.55425,
     0.53082, 0.51916, 0.51097, 0.50732, 0.50409, 0.40449,0.40449,0.40449,0.40449,0.40449,0.40449) ,
 
-    EcalPreMixStage1 = cms.bool(False),
-    EcalPreMixStage2 = cms.bool(False)
-    
+    EcalPreMixStage1 = cms.bool(False)
 )
 
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1

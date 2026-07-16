@@ -1,9 +1,8 @@
 <lcgdict>
-  <class name="reco::BeamSpot" ClassVersion="11">
-   <version ClassVersion="11" checksum="1497064974"/>
-   <version ClassVersion="10" checksum="915260007"/>
+  <class name="reco::io_v1::BeamSpot" ClassVersion="3">
+   <version ClassVersion="3" checksum="1710795988"/>
   </class>
-  <class name="edm::Wrapper<reco::BeamSpot>"/>
+  <class name="edm::Wrapper<reco::io_v1::BeamSpot>"/>
 
   <class name="BeamSpotHost" rntupleStreamerMode="true"/>
   <!-- BeamSpotHost::Product must be listed before the aliased-to type -->

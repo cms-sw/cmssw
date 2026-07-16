@@ -45,7 +45,7 @@ for year in upgradeKeys:
                             step = 'GenSimHLBeamSpotCloseBy'
                     elif 'CloseBy' in frag or 'CE_E' in frag or 'CE_H' in frag:
                         step = 'GenSimCloseBy'
-                    elif 'Displaced' in frag:
+                    elif 'DisplacedParticleGun' in frag:
                         step = 'GenSimDisplaced'
                     stepMaker = makeStepNameSim
                 elif 'Gen' in step:

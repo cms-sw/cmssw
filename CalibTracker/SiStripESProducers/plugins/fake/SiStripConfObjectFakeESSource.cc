@@ -16,20 +16,16 @@
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class SiStripConfObjectFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class SiStripConfObjectFakeESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  SiStripConfObjectFakeESSource(const edm::ParameterSet&);
+  explicit SiStripConfObjectFakeESSource(const edm::ParameterSet&);
   ~SiStripConfObjectFakeESSource() override;
-
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue& iov,
-                      edm::ValidityInterval& iValidity) override;
 
   typedef std::unique_ptr<SiStripConfObject> ReturnType;
   ReturnType produce(const SiStripConfObjectRcd&);
@@ -48,12 +44,6 @@ SiStripConfObjectFakeESSource::SiStripConfObjectFakeESSource(const edm::Paramete
 }
 
 SiStripConfObjectFakeESSource::~SiStripConfObjectFakeESSource() {}
-
-void SiStripConfObjectFakeESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                                   const edm::IOVSyncValue& iov,
-                                                   edm::ValidityInterval& iValidity) {
-  iValidity = edm::ValidityInterval{iov.beginOfTime(), iov.endOfTime()};
-}
 
 // ------------ method called to produce the data  ------------
 SiStripConfObjectFakeESSource::ReturnType SiStripConfObjectFakeESSource::produce(const SiStripConfObjectRcd& iRecord) {

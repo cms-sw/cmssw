@@ -324,7 +324,6 @@ namespace TopDiLeptonOffline {
     std::vector<const reco::PFCandidate*> isoMuons;
 
     edm::Handle<edm::View<reco::PFCandidate>> muons;
-    edm::View<reco::PFCandidate>::const_iterator muonit;
 
     if (!event.getByToken(muons_, muons))
       return;

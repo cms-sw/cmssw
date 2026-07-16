@@ -1,56 +1,33 @@
 <lcgdict>
-  <class name="HcalElectronicsId" ClassVersion="10">
-   <version ClassVersion="10" checksum="4189456723"/>
+  <class name="HcalElectronicsId" ClassVersion="3">
+   <version ClassVersion="3" checksum="4189456723"/>
   </class>
-  <class name="HcalFrontEndId" ClassVersion="10">
-   <version ClassVersion="10" checksum="1241522245"/>
+  <class name="HcalFrontEndId" ClassVersion="3">
+   <version ClassVersion="3" checksum="1241522245"/>
   </class>
-  <class name="HcalDetId" ClassVersion="12">
-   <version ClassVersion="12" checksum="1604420376"/>
-   <version ClassVersion="11" checksum="1604420376"/>
-   <version ClassVersion="10" checksum="193306378"/>
-   <ioread sourceClass = "HcalDetId" version="[-11]" targetClass="HcalDetId" source="" target="">
-    <![CDATA[
-      HcalDetId tmp(HcalDetId::newForm(newObj->rawId()));
-      *newObj=tmp;
-    ]]>
-   </ioread>
+  <class name="HcalDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="1604420376"/>
   </class>
-  <class name="HcalTrigTowerDetId" ClassVersion="11">
-   <version ClassVersion="11" checksum="1583611399"/>
-   <version ClassVersion="10" checksum="3049681583"/>
+  <class name="HcalTrigTowerDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="1583611399"/>
   </class>
-  <class name="HcalCalibDetId" ClassVersion="12">
-   <version ClassVersion="12" checksum="958215579"/>
-   <version ClassVersion="11" checksum="324201917"/>
-   <version ClassVersion="10" checksum="173148569"/>
+  <class name="HcalCalibDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="958215579"/>
   </class>
-  <class name="HcalOtherDetId" ClassVersion="11">
-   <version ClassVersion="11" checksum="438769872"/>
-   <version ClassVersion="10" checksum="4099723506"/>
+  <class name="HcalOtherDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="438769872"/>
   </class>
-  <class name="HcalDcsDetId" ClassVersion="12">
-   <version ClassVersion="12" checksum="49533732"/>
-   <version ClassVersion="11" checksum="3710487366"/>
-   <version ClassVersion="10" checksum="4165221916"/>
+  <class name="HcalDcsDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="49533732"/>
   </class>
-  <class name="HcalZDCDetId" ClassVersion="12">
-   <version ClassVersion="12" checksum="3806242743"/>
-   <version ClassVersion="11" checksum="3806242743"/>
-   <version ClassVersion="10" checksum="927247167"/>
-   <ioread sourceClass = "HcalZDCDetId" version="[-11]" targetClass="HcalZDCDetId" source="" target="">
-    <![CDATA[
-      HcalZDCDetId tmp(HcalZDCDetId::newForm(newObj->rawId()));
-      *newObj=tmp;
-    ]]>
-   </ioread>
+  <class name="HcalZDCDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="3806242743"/>
   </class>
-  <class name="HcalCastorDetId" ClassVersion="11">
-   <version ClassVersion="11" checksum="2854161010"/>
-   <version ClassVersion="10" checksum="3473198120"/>
+  <class name="HcalCastorDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="2854161010"/>
   </class>
-  <class name="CastorElectronicsId" ClassVersion="10">
-   <version ClassVersion="10" checksum="849697027"/>
+  <class name="CastorElectronicsId" ClassVersion="3">
+   <version ClassVersion="3" checksum="849697027"/>
   </class>
   <class name="std::vector<HcalDetId>"/>
   <class name="edm::Wrapper<std::vector<HcalDetId>>"/>

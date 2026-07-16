@@ -15,30 +15,32 @@
 // Original Author:  Jim Brooke
 //         Created:
 //
+namespace io_v1 {
+  class L1TriggerError {
+  public:
+    /// construct from an error code
+    explicit L1TriggerError(unsigned short prodID = 0, unsigned short code = 0);
 
-class L1TriggerError {
-public:
-  /// construct from an error code
-  explicit L1TriggerError(unsigned short prodID = 0, unsigned short code = 0);
+    /// dtor
+    ~L1TriggerError();
 
-  /// dtor
-  ~L1TriggerError();
+    /// set error
+    void setCode(int code) { code_ = code; }
 
-  /// set error
-  void setCode(int code) { code_ = code; }
+    /// get error
+    unsigned code() { return code_; }
 
-  /// get error
-  unsigned code() { return code_; }
+    /// producer ID
+    unsigned prodID();
 
-  /// producer ID
-  unsigned prodID();
+    /// producer error
+    unsigned prodErr();
 
-  /// producer error
-  unsigned prodErr();
-
-private:
-  unsigned code_;
-};
+  private:
+    unsigned code_;
+  };
+}  // namespace io_v1
+using L1TriggerError = io_v1::L1TriggerError;
 
 #include <vector>
 

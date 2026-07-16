@@ -444,7 +444,7 @@ namespace edm {
     void watchPreOpenOutputFiles(PreOpenOutputFiles::slot_type const& iSlot) {
       preOpenOutputFilesSignal_.connect(iSlot);
     }
-    AR_WATCH_USING_METHOD_1(watchPreOpenOutputFiles)
+    AR_WATCH_USING_METHOD_0(watchPreOpenOutputFiles)
 
     /// signal is emitted after the framework asks OutputModules to open output files
     typedef signalslot::Signal<void()> PostOpenOutputFiles;
@@ -452,7 +452,7 @@ namespace edm {
     void watchPostOpenOutputFiles(PostOpenOutputFiles::slot_type const& iSlot) {
       postOpenOutputFilesSignal_.connect_front(iSlot);
     }
-    AR_WATCH_USING_METHOD_1(watchPostOpenOutputFiles)
+    AR_WATCH_USING_METHOD_0(watchPostOpenOutputFiles)
 
     /// signal is emitted before the framework asks OutputModules to close output files
     // Note an OutputModule may decide to close and open files by itself, those are not covered by this signal
@@ -461,7 +461,7 @@ namespace edm {
     void watchPreCloseOutputFiles(PreCloseOutputFiles::slot_type const& iSlot) {
       preCloseOutputFilesSignal_.connect(iSlot);
     }
-    AR_WATCH_USING_METHOD_1(watchPreCloseOutputFiles)
+    AR_WATCH_USING_METHOD_0(watchPreCloseOutputFiles)
 
     /// signal is emitted after the framework asks OutputModules to close output files
     typedef signalslot::Signal<void()> PostCloseOutputFiles;
@@ -469,7 +469,7 @@ namespace edm {
     void watchPostCloseOutputFiles(PostCloseOutputFiles::slot_type const& iSlot) {
       postCloseOutputFilesSignal_.connect_front(iSlot);
     }
-    AR_WATCH_USING_METHOD_1(watchPostCloseOutputFiles)
+    AR_WATCH_USING_METHOD_0(watchPostCloseOutputFiles)
 
     typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PreModuleBeginStream;
     PreModuleBeginStream preModuleBeginStreamSignal_;

@@ -66,6 +66,7 @@ trackerphase2ValidationHarvesting = cms.Sequence(Phase2ITRechitHarvester
                                                  * Phase2ITtrackingrechitHarvester
                                                  * Phase2OTTrackingRechitHarvester_PS
                                                  * Phase2OTTrackingRechitHarvester_2S
+                                                 * Phase2OTHarvestTracks
                                                  * phase2OTEffClientSeq
 )
 

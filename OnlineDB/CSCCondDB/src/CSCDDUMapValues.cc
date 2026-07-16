@@ -29,9 +29,3 @@ CSCDDUMapValues::ReturnType CSCDDUMapValues::produceDDUMap(const CSCDDUMapRcd& i
   //need a new object so to not be deleted at exit
   return ReturnType(fillDDUMap());
 }
-
-void CSCDDUMapValues::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                     const edm::IOVSyncValue&,
-                                     edm::ValidityInterval& oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}

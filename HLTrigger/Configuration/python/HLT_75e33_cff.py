@@ -85,18 +85,24 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPPixelCPEFastPa
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltPixelTracksCleanerBySharedHits_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPTTRHBuilderWithTrackAngle_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPMkFit_cfi")
-
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFFittingSmootherForL2Muon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFTrajectoryFitterForL2Muon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFTrajectorySmootherForL2Muon_cfi")
-
-fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/trackdnn_source_cfi")
-
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPPixelCPEFastParams_cfi")
-
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltLSTGeometry_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPModulesDevLST_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPTTRHBuilderWithoutRefit_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltMTDCPEESProducer_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltMTDTimeCalibESProducer_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltMTDTransientTrackingRecHitBuilder_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltPropagatorWithMaterialForMTD_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltKFFitterForRefitInsideOut_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltSmartPropagatorAnyRK_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltChi2EstimatorForRefit_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltKFSmootherForRefitInsideOut_cfi")
 
+### Paths
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/DST_PFScouting_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_AK4PFPuppiJet520_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Diphoton30_23_IsoCaloId_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Diphoton30_23_IsoCaloId_Unseeded_cfi")
@@ -135,9 +141,11 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_Ele5_Open_Unseeded_cfi
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_JME_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_TRK_cfi")
 
+### GPU vs CPU paths
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/DQM_TRKHeterogeneousValidation_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/DQM_HGCALHeterogeneousValidation_cfi")
 
+### Global PSets
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/ClusterShapeTrajectoryFilter_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/HGCAL_chargeCollectionEfficiencies_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/HGCAL_noise_fC_cfi")
@@ -172,6 +180,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/psets/seedFromProtoTracks_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/SiStripClusterChargeCutLoose_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/SiStripClusterChargeCutNone_cfi")
 
+### Sequences
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTCalolocalrecoSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTCaloTowersRecSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTCsclocalrecoSequence_cfi")
@@ -275,6 +284,8 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/services/ThroughputService_cfi"
 
 fragment.schedule = cms.Schedule(*[
 
+    fragment.DST_PFScouting,
+   
     fragment.HLT_AK4PFPuppiJet520,
     fragment.HLT_PFPuppiHT1070,
     fragment.HLT_PFPuppiMETTypeOne140_PFPuppiMHT140,
@@ -309,9 +320,6 @@ fragment.schedule = cms.Schedule(*[
     fragment.HLT_DoubleMediumDeepTauPFTauHPS35_eta2p1,
     fragment.HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1,
     fragment.HLT_Ele30_WPTight_L1Seeded_LooseDeepTauPFTauHPS30_eta2p1_CrossL1,
-    ### Removed temporarily until final decision on L1T tau Phase-2
-    #fragment.L1T_DoubleNNTau52,
-    #fragment.L1T_SingleNNTau150,
 
     fragment.MC_JME,
     fragment.MC_BTV,

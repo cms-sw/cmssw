@@ -1,6 +1,7 @@
 <use name="boost"/>
 <use name="boost_regex"/>
 <use name="tbb"/>
+<use name="rootcling"/>
 <use name="DataFormats/BTauReco"/>
 <use name="DataFormats/CLHEP"/>
 <use name="DataFormats/CaloTowers"/>

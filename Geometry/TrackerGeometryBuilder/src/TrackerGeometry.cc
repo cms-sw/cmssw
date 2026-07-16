@@ -200,7 +200,7 @@ const TrackerGeomDet* TrackerGeometry::idToDet(DetId s) const {
   }
 }
 
-const GeomDetEnumerators::SubDetector TrackerGeometry::geomDetSubDetector(int subdet) const {
+GeomDetEnumerators::SubDetector TrackerGeometry::geomDetSubDetector(int subdet) const {
   if (subdet >= 1 && subdet <= 6) {
     return theSubDetTypeMap[subdet - 1];
   } else {

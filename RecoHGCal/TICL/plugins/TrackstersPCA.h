@@ -1,5 +1,5 @@
-#ifndef RECOHGCAL_TICL_TRACKSTERSPCA_H
-#define RECOHGCAL_TICL_TRACKSTERSPCA_H
+#ifndef RecoHGCal_TICL_TrackstersPCA_h
+#define RecoHGCal_TICL_TrackstersPCA_h
 
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"

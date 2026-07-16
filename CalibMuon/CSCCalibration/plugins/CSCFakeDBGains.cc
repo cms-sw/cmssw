@@ -16,9 +16,3 @@ CSCFakeDBGains::~CSCFakeDBGains() {}
 CSCFakeDBGains::Pointer CSCFakeDBGains::produceDBGains(const CSCDBGainsRcd &iRecord) {
   return CSCFakeDBGains::Pointer(prefillDBGains());
 }
-
-void CSCFakeDBGains::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                    const edm::IOVSyncValue &,
-                                    edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}

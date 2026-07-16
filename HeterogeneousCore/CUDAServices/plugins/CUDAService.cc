@@ -266,8 +266,14 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
       log << "  streaming multiprocessors: " << std::setw(13) << properties.multiProcessorCount << '\n';
       log << "  CUDA cores: " << std::setw(28)
           << properties.multiProcessorCount * getCudaCoresPerSM(properties.major, properties.minor) << '\n';
-      log << "  single to double performance: " << std::setw(8) << properties.singleToDoublePrecisionPerfRatio
-          << ":1\n";
+      int singleToDoublePrecisionPerfRatio = 0;
+#if CUDART_VERSION < 13000
+      singleToDoublePrecisionPerfRatio = properties.singleToDoublePrecisionPerfRatio;
+#else
+      cudaCheck(
+          cudaDeviceGetAttribute(&singleToDoublePrecisionPerfRatio, cudaDevAttrSingleToDoublePrecisionPerfRatio, i));
+#endif
+      log << "  single to double performance: " << std::setw(8) << singleToDoublePrecisionPerfRatio << ":1\n";
     }
 
     // compute mode
@@ -277,11 +283,18 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
         "prohibited",                  // cudaComputeModeProhibited
         "exclusive (single process)",  // cudaComputeModeExclusiveProcess
         "unknown"};
+    static constexpr const int cudaComputeModeUnknown = static_cast<int>(std::size(computeModeDescription)) - 1;
     if (verbose_) {
-      log << "  compute mode:" << std::right << std::setw(27)
-          << computeModeDescription[std::min(properties.computeMode,
-                                             static_cast<int>(std::size(computeModeDescription)) - 1)]
-          << '\n';
+      int computeMode = cudaComputeModeUnknown;
+#if CUDART_VERSION < 13000
+      computeMode = properties.computeMode;
+#else
+      cudaCheck(cudaDeviceGetAttribute(&computeMode, cudaDevAttrComputeMode, i));
+#endif
+      if (computeMode < 0 or computeMode >= cudaComputeModeUnknown) {
+        computeMode = cudaComputeModeUnknown;
+      }
+      log << "  compute mode:" << std::right << std::setw(27) << computeModeDescription[computeMode] << '\n';
     }
 
     // TODO if a device is in exclusive use, skip it and remove it from the list, instead of failing with abort()
@@ -327,8 +340,10 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
           << " directly access managed memory on the device without migration\n";
       log << "  " << (properties.cooperativeLaunch ? "supports" : "does not support")
           << " launching cooperative kernels via cudaLaunchCooperativeKernel()\n";
+#if CUDART_VERSION < 13000
       log << "  " << (properties.cooperativeMultiDeviceLaunch ? "supports" : "does not support")
           << " launching cooperative kernels via cudaLaunchCooperativeKernelMultiDevice()\n";
+#endif
       log << '\n';
     }
 

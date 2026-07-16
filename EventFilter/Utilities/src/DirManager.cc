@@ -1,6 +1,7 @@
 #include "EventFilter/Utilities/interface/DirManager.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <filesystem>
 #include <iostream>
 #include <string>
 #include <string_view>
@@ -43,7 +44,7 @@ namespace evf {
       }
     }
     closedir(dir);
-    retval += tmpdir;
+    retval = (std::filesystem::path(dir_) / tmpdir).string();
     return retval;
   }
 
@@ -66,7 +67,7 @@ namespace evf {
     closedir(dir);
     if (tmpdir.empty())
       throw cms::Exception("LogicError") << "Run Directory for Run " << run << " Not Found";
-    retval += tmpdir;
+    retval = (std::filesystem::path(dir_) / tmpdir).string();
     return retval;
   }
 

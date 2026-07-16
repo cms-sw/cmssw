@@ -31,54 +31,57 @@
 // -- Class Interface --
 // ---------------------
 
-class L1Phase2MuDTExtThDigi : public L1Phase2MuDTThDigi {
-public:
-  //  Constructors
-  L1Phase2MuDTExtThDigi();
+namespace io_v1 {
+  class L1Phase2MuDTExtThDigi : public L1Phase2MuDTThDigi {
+  public:
+    //  Constructors
+    L1Phase2MuDTExtThDigi();
 
-  L1Phase2MuDTExtThDigi(int bx,
-                        int wh,
-                        int sc,
-                        int st,
-                        int z,
-                        int k,
-                        int qual,
-                        int idx,
-                        int t0,
-                        int chi2,
-                        int y,
-                        int z_cmssw,
-                        int k_cmssw,
-                        int rpc = -10,
-                        int wireId[4] = nullptr,
-                        int tdc[4] = nullptr,
-                        int lat[4] = nullptr);
+    L1Phase2MuDTExtThDigi(int bx,
+                          int wh,
+                          int sc,
+                          int st,
+                          int z,
+                          int k,
+                          int qual,
+                          int idx,
+                          int t0,
+                          int chi2,
+                          int y,
+                          int z_cmssw,
+                          int k_cmssw,
+                          int rpc = -10,
+                          int wireId[4] = nullptr,
+                          int tdc[4] = nullptr,
+                          int lat[4] = nullptr);
 
-  L1Phase2MuDTExtThDigi(const L1Phase2MuDTExtThDigi& digi);
-  L1Phase2MuDTExtThDigi& operator=(const L1Phase2MuDTExtThDigi&) = default;
-  L1Phase2MuDTExtThDigi& operator=(L1Phase2MuDTExtThDigi&&) = default;
+    L1Phase2MuDTExtThDigi(const L1Phase2MuDTExtThDigi& digi);
+    L1Phase2MuDTExtThDigi& operator=(const L1Phase2MuDTExtThDigi&) = default;
+    L1Phase2MuDTExtThDigi& operator=(L1Phase2MuDTExtThDigi&&) = default;
 
-  ~L1Phase2MuDTExtThDigi() override {}
+    ~L1Phase2MuDTExtThDigi() override {}
 
-  // Operations
-  int yLocal() const;
+    // Operations
+    int yLocal() const;
 
-  int zCMSSW() const;
-  int kCMSSW() const;
+    int zCMSSW() const;
+    int kCMSSW() const;
 
-  int pathWireId(int) const;
-  int pathTDC(int) const;
-  int pathLat(int) const;
+    int pathWireId(int) const;
+    int pathTDC(int) const;
+    int pathLat(int) const;
 
-private:
-  int m_yLocal;
+  private:
+    int m_yLocal;
 
-  int m_zCMSSW;
-  int m_kCMSSW;
+    int m_zCMSSW;
+    int m_kCMSSW;
 
-  int m_pathWireId[4];
-  int m_pathTDC[4];
-  int m_pathLat[4];
-};
+    int m_pathWireId[4];
+    int m_pathTDC[4];
+    int m_pathLat[4];
+  };
+}  // namespace io_v1
+using L1Phase2MuDTExtThDigi = io_v1::L1Phase2MuDTExtThDigi;
 
 #endif

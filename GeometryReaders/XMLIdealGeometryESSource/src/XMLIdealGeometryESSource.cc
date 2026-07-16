@@ -69,13 +69,6 @@ std::unique_ptr<DDCompactView> XMLIdealGeometryESSource::produce() {
   return returnValue;
 }
 
-void XMLIdealGeometryESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                              const edm::IOVSyncValue &iosv,
-                                              edm::ValidityInterval &oValidity) {
-  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
-  oValidity = infinity;
-}
-
 #include "FWCore/Framework/interface/SourceFactory.h"
 
 DEFINE_FWK_EVENTSETUP_SOURCE(XMLIdealGeometryESSource);

@@ -34,18 +34,18 @@
 #include "Alignment/OfflineValidation/macros/CMS_lumi.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
-bool debugMode_{false};
-Int_t def_markers[9] = {kFullSquare,
-                        kFullCircle,
-                        kFullTriangleDown,
-                        kOpenSquare,
-                        kDot,
-                        kOpenCircle,
-                        kFullTriangleDown,
-                        kFullTriangleUp,
-                        kOpenTriangleDown};
+constexpr bool debugMode_{false};
+constexpr Int_t def_markers[9] = {kFullSquare,
+                                  kFullCircle,
+                                  kFullTriangleDown,
+                                  kOpenSquare,
+                                  kDot,
+                                  kOpenCircle,
+                                  kFullTriangleDown,
+                                  kFullTriangleUp,
+                                  kOpenTriangleDown};
 
-Int_t def_colors[9] = {kBlack, kRed, kBlue, kMagenta, kGreen, kCyan, kViolet, kOrange, kGreen + 2};
+constexpr Int_t def_colors[9] = {kBlack, kRed, kBlue, kMagenta, kGreen, kCyan, kViolet, kOrange, kGreen + 2};
 
 namespace diMuonMassBias {
 
@@ -623,7 +623,8 @@ void producePlots(const std::vector<diMuonMassBias::histoMap>& inputMap,
                   const std::vector<TString>& labels,
                   const TString& Rlabel,
                   const bool useAutoLimits,
-                  const bool isWidth)
+                  const bool isWidth,
+                  const TString& outdir = "")
 /************************************************/
 {
   int W = 800;
@@ -729,8 +730,8 @@ void producePlots(const std::vector<diMuonMassBias::histoMap>& inputMap,
       outputName.erase(0, pos + 1);
     }
 
-    c->SaveAs(((isWidth ? "width_" : "mean_") + outputName + ".png").c_str());
-    c->SaveAs(((isWidth ? "width_" : "mean_") + outputName + ".pdf").c_str());
+    c->SaveAs(outdir + (isWidth ? "width_" : "mean_") + TString(outputName) + ".png");
+    c->SaveAs(outdir + (isWidth ? "width_" : "mean_") + TString(outputName) + ".pdf");
   }
 }
 
@@ -740,7 +741,8 @@ void produceMaps(const std::vector<diMuonMassBias::histo2DMap>& inputMap,
                  const std::vector<TString>& labels,
                  const TString& Rlabel,
                  const bool useAutoLimits,
-                 const bool isWidth)
+                 const bool isWidth,
+                 const TString& outdir = "")
 /************************************************/
 {
   const auto& sides = getClosestFactors(labels.size());
@@ -840,8 +842,8 @@ void produceMaps(const std::vector<diMuonMassBias::histo2DMap>& inputMap,
       outputName.erase(0, pos + 1);
     }
 
-    c->SaveAs(((isWidth ? "width_" : "mean_") + outputName + ".png").c_str());
-    c->SaveAs(((isWidth ? "width_" : "mean_") + outputName + ".pdf").c_str());
+    c->SaveAs(outdir + (isWidth ? "width_" : "mean_") + TString(outputName) + ".png");
+    c->SaveAs(outdir + (isWidth ? "width_" : "mean_") + TString(outputName) + ".pdf");
   }
 }
 
@@ -849,7 +851,8 @@ void produceMaps(const std::vector<diMuonMassBias::histo2DMap>& inputMap,
 void DiMuonMassProfiles(TString namesandlabels,
                         const TString& CMSlabel = "",
                         const TString& Rlabel = "",
-                        const bool useAutoLimits = false)
+                        const bool useAutoLimits = false,
+                        TString outdir = "")
 /************************************************/
 {
   gStyle->SetOptStat(0);
@@ -870,6 +873,11 @@ void DiMuonMassProfiles(TString namesandlabels,
       std::cout << "Please give file name and legend entry in the following form:\n"
                 << " filename1=legendentry1,filename2=legendentry2\n";
       return;
+    }
+  }
+  if (outdir != "") {
+    if (!outdir.EndsWith("/")) {
+      outdir += "/";
     }
   }
 
@@ -938,13 +946,13 @@ void DiMuonMassProfiles(TString namesandlabels,
                                           "TkTkMassVsPhiPlusInEtaBins/th2d_mass_PhiPlus_backward-backward",
                                           "TkTkMassVsPhiPlusInEtaBins/th2d_mass_PhiPlus_forward-backward"};
 
-  producePlots(v_meanHistos, MEtoHarvest, labels, Rlabel, useAutoLimits, false);
-  producePlots(v_widthHistos, MEtoHarvest, labels, Rlabel, useAutoLimits, true);
+  producePlots(v_meanHistos, MEtoHarvest, labels, Rlabel, useAutoLimits, false, outdir);
+  producePlots(v_widthHistos, MEtoHarvest, labels, Rlabel, useAutoLimits, true, outdir);
 
   std::vector<std::string> MEtoHarvest3D = {"th3d_mass_vs_eta_phi_plus", "th3d_mass_vs_eta_phi_minus"};
 
-  produceMaps(v_meanMaps, MEtoHarvest3D, labels, Rlabel, useAutoLimits, false);
-  produceMaps(v_widthMaps, MEtoHarvest3D, labels, Rlabel, useAutoLimits, true);
+  produceMaps(v_meanMaps, MEtoHarvest3D, labels, Rlabel, useAutoLimits, false, outdir);
+  produceMaps(v_widthMaps, MEtoHarvest3D, labels, Rlabel, useAutoLimits, true, outdir);
 
   // finally close the file
   for (const auto& file : sourceFiles) {

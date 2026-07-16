@@ -24,10 +24,9 @@
 
 #include <vector>
 
-namespace reco {
+#include "DataFormats/TauReco/interface/PFRecoTauChargedHadronFwd.h"
 
-  // Forward declarations
-  class PFRecoTauChargedHadron;
+namespace reco {
 
   namespace tau {
 

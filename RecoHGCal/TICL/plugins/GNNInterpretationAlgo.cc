@@ -1,5 +1,7 @@
 // Author: Mohamed Darwish
+//
 #include "RecoHGCal/TICL/interface/TICLInterpretationAlgoBase.h"
+#include "RecoHGCal/TICL/interface/TICLUtils.h"
 #include "RecoHGCal/TICL/plugins/GNNInterpretationAlgo.h"
 
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
@@ -33,38 +35,20 @@ void GNNInterpretationAlgo::initialize(const HGCalDDDConstants* hgcons,
                                        const edm::ESHandle<Propagator> propH) {
   hgcons_ = hgcons;
   rhtools_ = rhtools;
+  buildLayers();
+
   bfield_ = bfieldH;
   propagator_ = propH;
-
-  buildLayers();
 }
 // Geometry construction
 void GNNInterpretationAlgo::buildLayers() {
-  // Build propagation disks at:
-  //  - HGCal front face
-  //  - CE-E CE-H interface
-
-  const float z_front = hgcons_->waferZ(1, true);
-  const auto r_front = hgcons_->rangeR(z_front, true);
-
-  const float z_interface = rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z();
-  const auto r_interface = hgcons_->rangeR(z_interface, true);
+  // Build propagation disks at HGCal front face and CE-E CE-H interface
+  auto firstDisks = ticl::utils::buildHGCalFirstDisks(*hgcons_);
+  auto interfaceDisks = ticl::utils::buildHGCalInterfaceDisks(*hgcons_, rhtools_);
 
   for (int side = 0; side < 2; ++side) {
-    const float sign = (side == 0 ? -1.f : 1.f);
-
-    firstDisk_[side] = std::make_unique<GeomDet>(
-        Disk::build(Disk::PositionType(0, 0, sign * z_front),
-                    Disk::RotationType(),
-                    SimpleDiskBounds(r_front.first, r_front.second, sign * z_front - 0.5f, sign * z_front + 0.5f))
-            .get());
-
-    interfaceDisk_[side] = std::make_unique<GeomDet>(
-        Disk::build(Disk::PositionType(0, 0, sign * z_interface),
-                    Disk::RotationType(),
-                    SimpleDiskBounds(
-                        r_interface.first, r_interface.second, sign * z_interface - 0.5f, sign * z_interface + 0.5f))
-            .get());
+    firstDisk_[side] = std::move(firstDisks[side]);
+    interfaceDisk_[side] = std::move(interfaceDisks[side]);
   }
 }
 
@@ -145,7 +129,9 @@ void GNNInterpretationAlgo::constructNodeFromWindow(
     float delta2,
     unsigned trackstersSize,
     std::vector<ticl::Node>& graph) {
-  const float delta = 0.5f * delta2;
+  // delta2 carries the configured linear deltaR window (del_tk_ts_); build the eta/phi search box
+  // with the full window and cut on the squared distance below, matching the General algo.
+  const float delta = delta2;
 
   for (const auto& [seedPos, seedIdx, _] : seeding) {
     const float seedEta = seedPos.Eta();
@@ -173,7 +159,7 @@ void GNNInterpretationAlgo::constructNodeFromWindow(
 
           const float sep2 =
               reco::deltaR2(tracksterPropPoints[tsIdx].Eta(), tracksterPropPoints[tsIdx].Phi(), seedEta, seedPhi);
-          if (sep2 < delta2) {
+          if (sep2 < delta * delta) {
             node.addOuterNeighbour(tsIdx);
           }
         }
@@ -345,7 +331,8 @@ void GNNInterpretationAlgo::buildGraphFromNodes(const std::tuple<Vector, Algebra
 void GNNInterpretationAlgo::makeCandidates(const Inputs& input,
                                            edm::Handle<MtdHostCollection> inputTiming_h,
                                            std::vector<Trackster>& resultTracksters,
-                                           std::vector<int>& resultCandidate) {
+                                           std::vector<int>& resultCandidate,
+                                           std::vector<bool>& maskedTracksters) {
   const auto& tracks = *input.tracksHandle;
   const auto& maskTracks = input.maskedTracks;
   const auto& tracksters = input.tracksters;
@@ -443,6 +430,11 @@ void GNNInterpretationAlgo::makeCandidates(const Inputs& input,
   std::vector<std::vector<unsigned>> trackToTracksters(tracks.size());
   std::vector<std::vector<std::pair<unsigned, float>>> trackToScores(tracks.size());
   std::vector<bool> tracksterAvailable(tracksters.size(), true);
+  // Tracksters consumed by an earlier interpretation pass (e.g. muon MIP tracksters)
+  // are unavailable: they are neither re-linked to a track nor emitted as neutrals.
+  for (size_t i = 0; i < tracksters.size() && i < maskedTracksters.size(); ++i)
+    if (maskedTracksters[i])
+      tracksterAvailable[i] = false;
 
   auto runInferenceForTrack = [&](unsigned trkId,
                                   const std::vector<TrackPropInfo>& tkProps,

@@ -8,17 +8,15 @@
  *  \author Matteo Sani
  */
 
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <DataFormats/CSCRecHit/interface/CSCSegment.h>
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 
-#include <DataFormats/Common/interface/RangeMap.h>
-#include <DataFormats/Common/interface/ClonePolicy.h>
-#include <DataFormats/Common/interface/OwnVector.h>
+#include "DataFormats/Common/interface/IdToHitRange.h"
 
-typedef edm::RangeMap<CSCDetId, edm::OwnVector<CSCSegment> > CSCSegmentCollection;
+using CSCSegmentCollection = edm::IdToHitRange<CSCDetId, CSCSegment>;
 
-#include <DataFormats/Common/interface/Ref.h>
-typedef edm::Ref<CSCSegmentCollection> CSCSegmentRef;
+#include "DataFormats/Common/interface/Ref.h"
+using CSCSegmentRef = edm::Ref<CSCSegmentCollection>;
 
 //typedef std::vector<CSCSegment> CSCSegmentCollection;
 

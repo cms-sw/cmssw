@@ -16,7 +16,10 @@
 
 #include <vector>
 
-class CTPPSLocalTrackLite;
+namespace io_v1 {
+  class CTPPSLocalTrackLite;
+}
+using CTPPSLocalTrackLite = io_v1::CTPPSLocalTrackLite;
 /// Collection of CTPPSLocalTrackLite objects
 typedef std::vector<CTPPSLocalTrackLite> CTPPSLocalTrackLiteCollection;
 /// Persistent reference to a CTPPSLocalTrackLite

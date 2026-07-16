@@ -4,26 +4,26 @@
   <ConstantsSection label="ge0.xml" eval="true">
     <Constant name="rMin"   value="620*mm"/>
     <Constant name="rMax"   value="1730*mm"/>
-    <Constant name="dZ"     value="395.686*mm"/>
-    <Constant name="rPos"   value="([dZ] + [rMin])"/>
-    <Constant name="dzGE0"  value="112.9*mm"/>
-    <Constant name="zFrGE0" value="10.0*mm"/>
-    <Constant name="zGpGE0" value="5.0*mm"/>
+    <Constant name="dZ"     value="395.686*mm"/>      <!-- Temporary Fix -->
+    <Constant name="rPos"   value="([dZ] + [rMin])"/>   <!-- actual middle point-->
+    <Constant name="dzGE0"  value="112.9*mm"/>    <!--Detector Thickness-->
+    <Constant name="zFrGE0" value="10.0*mm"/>  <!--some kind of spacing...-->
+    <Constant name="zGpGE0" value="5.0*mm"/>  <!--NOT used herer-->
     <Constant name="zPos"   value="([cms:CalorBeamZ3] + [zFrGE0] + [dzGE0])"/>
-    <Constant name="zShift" value="41.70*mm"/>
-    <Constant name="z10"    value="101.85*mm"/>
+    <Constant name="zShift" value="41.70*mm"/>  <!-- center to center between modules in the stack -->
+    <Constant name="z10"    value="101.85*mm"/>  <!-- location of stack one; farest from the beamline --> 
     <Constant name="z20"    value="([z10]-[zShift])"/>  
     <Constant name="z30"    value="([z20]-[zShift])"/> 
     <Constant name="z40"    value="([z30]-[zShift])"/> 
     <Constant name="z50"    value="([z40]-[zShift])"/> 
-    <Constant name="z60"    value="([z50]-[zShift])"/>
-    <Constant name="Angle"  value="10.0*deg"/>
+    <Constant name="z60"    value="([z50]-[zShift])"/>  <!-- location of stack one; nearest from the beamline -->
+    <Constant name="Angle"  value="10.0*deg"/>  <!-- half coverage 20/2-->
     <Constant name="slope"  value="tan([Angle])"/>
-    <Constant name="tol"    value="0.001*mm"/>
-    <Constant name="xBot"   value="([rMin]*[slope]-[tol])"/>
-    <Constant name="xTop"   value="(2.*[dZ]*[slope]+[xBot])"/>
-    <Constant name="tBase"  value="1.6*mm"/>
-    <Constant name="tFoil"  value="0.025*mm"/>
+    <Constant name="tol"    value="0.001*mm"/>  <!--NOTSURE-->
+    <Constant name="xBot"   value="([rMin]*[slope]-[tol])"/>   <!--half very bottom of ME0 (like ieta8) -->
+    <Constant name="xTop"   value="(2.*[dZ]*[slope]+[xBot])"/>  <!-- dX of rMin+2dZ-->
+    <Constant name="tBase"  value="1.6*mm"/>  <!-- Maybe half of 3.2 mm -->
+    <Constant name="tFoil"  value="0.025*mm"/>  <!--Seems like only Kapton layer applied-->
     <Constant name="tSense" value="(6.0*mm-[tFoil])/2"/>
     <Constant name="tGas1"  value="(1.0*mm-2*[tFoil])/2"/>
     <Constant name="tGas2"  value="(2.0*mm-2*[tFoil])/2"/>
@@ -53,7 +53,7 @@
 
     <Constant name="dzInL"  value="([dzS1]+[dzS2]+[dzS3]+[dzS4]+[dzS5]+[dzS6]+[dzS7]+[dzS8]+7*[dzGap])"/>
     <Constant name="z10L"   value="([dzInL]-[dzS1])"/> 
-    <Constant name="z20L"   value="([z10L]-[dzS1]-2*[dzGap]-[dzS2])"/>
+    <Constant name="z20L"   value="([z10L]-[dzS1]-2*[dzGap]-[dzS2])"/>   <!-- Why 2*dzGap?-->
     <Constant name="z30L"   value="([z20L]-[dzS2]-2*[dzGap]-[dzS3])"/> 
     <Constant name="z40L"   value="([z30L]-[dzS3]-2*[dzGap]-[dzS4])"/> 
     <Constant name="z50L"   value="([z40L]-[dzS4]-2*[dzGap]-[dzS5])"/> 
@@ -78,21 +78,23 @@
     <Constant name="dx72"   value="([dxTop]-[slope]*([dzInL]-[z70L]-[dzS7]))"/>
     <Constant name="dx81"   value="([dxTop]-[slope]*([dzInL]-[z80L]+[dzS8]))"/>
     <Constant name="dx82"   value="([dxTop]-[slope]*([dzInL]-[z80L]-[dzS8]))"/>
+    <Constant name="dxWing" value="[slope]*[dzWing]"/>
+    <Constant name="dxTopR" value="[dx12]-[dxWing]"/>
     <Constant name="zero"   value="0.0*fm"/>
 
   </ConstantsSection>
 
   <SolidSection label="ge0.xml">
     <Tubs name="GE0" rMin="[rMin]" rMax="[rMax]" dz="[dzGE0] " startPhi="0*deg" deltaPhi="360*deg"/>
-    <Trd1 name="GE0Box" dz="[dZ]" dy1="[dzGE0]" dy2="[dzGE0]" dx1="[xBot]" dx2="[xTop]" />
-    <Trd1 name="GE0L"    dz="[dZ]" dy1="[tSense]" dy2="[tSense]" dx1="[xBot]" dx2="[xTop]" />
-    <Trd1 name="GE0Base" dz="[dZ]" dy1="[tBase]"  dy2="[tBase]"  dx1="[xBot]" dx2="[xTop]" />
-    <Trd1 name="GE0Gas1" dz="[dZ]" dy1="[tGas1]"  dy2="[tGas1]"  dx1="[xBot]" dx2="[xTop]" />
-    <Trd1 name="GE0Gas2" dz="[dZ]" dy1="[tGas2]"  dy2="[tGas2]"  dx1="[xBot]" dx2="[xTop]" />
-    <Trd1 name="GE0Gas3" dz="[dZ]" dy1="[tGas3]"  dy2="[tGas3]"  dx1="[xBot]" dx2="[xTop]" />
-    <Trd1 name="GE0Foil" dz="[dZ]" dy1="[tFoil]"  dy2="[tFoil]"  dx1="[xBot]" dx2="[xTop]" />
-    <Trd1 name="GE0Read" dz="[dZ]" dy1="[tRead]"  dy2="[tRead]"  dx1="[xBot]" dx2="[xTop]" />
-    <Trd1 name="GE0Top"  dz="[dZ]" dy1="[tTop]"   dy2="[tTop]"   dx1="[xBot]" dx2="[xTop]" />
+    <Trd1 name="GE0Box_raw" dz="[dZ]" dy1="[dzGE0]" dy2="[dzGE0]" dx1="[xBot]" dx2="[xTop]" />
+    <Trd1 name="GE0L_raw"    dz="[dZ]" dy1="[tSense]" dy2="[tSense]" dx1="[xBot]" dx2="[xTop]" />
+    <Trd1 name="GE0Base_raw" dz="[dZ]" dy1="[tBase]"  dy2="[tBase]"  dx1="[xBot]" dx2="[xTop]" />
+    <Trd1 name="GE0Gas1_raw" dz="[dZ]" dy1="[tGas1]"  dy2="[tGas1]"  dx1="[xBot]" dx2="[xTop]" />
+    <Trd1 name="GE0Gas2_raw" dz="[dZ]" dy1="[tGas2]"  dy2="[tGas2]"  dx1="[xBot]" dx2="[xTop]" />
+    <Trd1 name="GE0Gas3_raw" dz="[dZ]" dy1="[tGas3]"  dy2="[tGas3]"  dx1="[xBot]" dx2="[xTop]" />
+    <Trd1 name="GE0Foil_raw" dz="[dZ]" dy1="[tFoil]"  dy2="[tFoil]"  dx1="[xBot]" dx2="[xTop]" />
+    <Trd1 name="GE0Read_raw" dz="[dZ]" dy1="[tRead]"  dy2="[tRead]"  dx1="[xBot]" dx2="[xTop]" />
+    <Trd1 name="GE0Top_raw"  dz="[dZ]" dy1="[tTop]"   dy2="[tTop]"   dx1="[xBot]" dx2="[xTop]" />
   
     <Trd1 name="GHA001_raw" dz="[dzS1]" dy1="[tSense]" dy2="[tSense]" dx1="[dx11]" dx2="[dx12]" />
     <Trd1 name="GHA002_raw" dz="[dzS2]" dy1="[tSense]" dy2="[tSense]" dx1="[dx21]" dx2="[dx22]" />
@@ -103,28 +105,130 @@
     <Trd1 name="GHA007" dz="[dzS7]" dy1="[tSense]" dy2="[tSense]" dx1="[dx71]" dx2="[dx72]" />
     <Trd1 name="GHA008" dz="[dzS8]" dy1="[tSense]" dy2="[tSense]" dx1="[dx81]" dx2="[dx82]" />
 
-    <Box name="Eta1Wing" dz="[dzS1]" dy="[tSense]" dx="[slope]*[dzWing]"/>
-    <Box name="Eta2Wing" dz="[dzS2]" dy="[tSense]" dx="[slope]*[dzWing]"/>
+    <Box name="GE0BoxWing"  dz="[dZ]" dy="[dzGE0]"  dx="[dxWing]" />
+    <Box name="GE0LWing"    dz="[dZ]" dy="[tSense]" dx="[dxWing]" />
+    <Box name="GE0BaseWing" dz="[dZ]" dy="[tBase]"  dx="[dxWing]" />
+    <Box name="GE0Gas1Wing" dz="[dZ]" dy="[tGas1]"  dx="[dxWing]" />
+    <Box name="GE0Gas2Wing" dz="[dZ]" dy="[tGas2]"  dx="[dxWing]" />
+    <Box name="GE0Gas3Wing" dz="[dZ]" dy="[tGas3]"  dx="[dxWing]" />
+    <Box name="GE0FoilWing" dz="[dZ]" dy="[tFoil]"  dx="[dxWing]" />
+    <Box name="GE0ReadWing" dz="[dZ]" dy="[tRead]"  dx="[dxWing]" />
+    <Box name="GE0TopWing"  dz="[dZ]" dy="[tTop]"   dx="[dxWing]" />
 
-    <SubtractionSolid name="GHA001_left">
+    <Box name="Eta1Wing" dz="[dzS1]" dy="[tSense]" dx="[dxWing]"/>
+    <Box name="Eta2Wing" dz="[dzS2]" dy="[tSense]" dx="[dxWing]"/>
+
+    <UnionSolid name="GE0BoxWings">
+      <rSolid name="GE0BoxWing"/>
+      <rSolid name="GE0BoxWing"/>
+      <Translation x="2*[dxTopR]" y="[zero]" z="[zero]"/>
+    </UnionSolid>
+    <UnionSolid name="GE0LWings">
+      <rSolid name="GE0LWing"/>
+      <rSolid name="GE0LWing"/>
+      <Translation x="2*[dxTopR]" y="[zero]" z="[zero]"/>
+    </UnionSolid>
+    <UnionSolid name="GE0BaseWings">
+      <rSolid name="GE0BaseWing"/>
+      <rSolid name="GE0BaseWing"/>
+      <Translation x="2*[dxTopR]" y="[zero]" z="[zero]"/>
+    </UnionSolid>
+    <UnionSolid name="GE0Gas1Wings">
+      <rSolid name="GE0Gas1Wing"/>
+      <rSolid name="GE0Gas1Wing"/>
+      <Translation x="2*[dxTopR]" y="[zero]" z="[zero]"/>
+    </UnionSolid>
+    <UnionSolid name="GE0Gas2Wings">
+      <rSolid name="GE0Gas2Wing"/>
+      <rSolid name="GE0Gas2Wing"/>
+      <Translation x="2*[dxTopR]" y="[zero]" z="[zero]"/>
+    </UnionSolid>
+    <UnionSolid name="GE0Gas3Wings">
+      <rSolid name="GE0Gas3Wing"/>
+      <rSolid name="GE0Gas3Wing"/>
+      <Translation x="2*[dxTopR]" y="[zero]" z="[zero]"/>
+    </UnionSolid>
+    <UnionSolid name="GE0FoilWings">
+      <rSolid name="GE0FoilWing"/>
+      <rSolid name="GE0FoilWing"/>
+      <Translation x="2*[dxTopR]" y="[zero]" z="[zero]"/>
+    </UnionSolid>
+    <UnionSolid name="GE0ReadWings">
+      <rSolid name="GE0ReadWing"/>
+      <rSolid name="GE0ReadWing"/>
+      <Translation x="2*[dxTopR]" y="[zero]" z="[zero]"/>
+    </UnionSolid>
+    <UnionSolid name="GE0TopWings">
+      <rSolid name="GE0TopWing"/>
+      <rSolid name="GE0TopWing"/>
+      <Translation x="2*[dxTopR]" y="[zero]" z="[zero]"/>
+    </UnionSolid>
+    <UnionSolid name="Eta1Wings">
+      <rSolid name="Eta1Wing"/>
+      <rSolid name="Eta1Wing"/>
+      <Translation x="2*[dxTopR]" y="[zero]" z="[zero]"/>
+    </UnionSolid>
+    <UnionSolid name="Eta2Wings">
+      <rSolid name="Eta2Wing"/>
+      <rSolid name="Eta2Wing"/>
+      <Translation x="2*[dxTopR]" y="[zero]" z="[zero]"/>
+    </UnionSolid>
+
+    <SubtractionSolid name="GE0Box">
+      <rSolid name="GE0Box_raw"/>
+      <rSolid name="GE0BoxWings"/>
+      <Translation x="-[dxTopR]" y="[zero]" z="[zero]"/>
+    </SubtractionSolid>
+    <SubtractionSolid name="GE0L">
+      <rSolid name="GE0L_raw"/>
+      <rSolid name="GE0LWings"/>
+      <Translation x="-[dxTopR]" y="[zero]" z="[zero]"/>
+    </SubtractionSolid>
+    <SubtractionSolid name="GE0Base">
+      <rSolid name="GE0Base_raw"/>
+      <rSolid name="GE0BaseWings"/>
+      <Translation x="-[dxTopR]" y="[zero]" z="[zero]"/>
+    </SubtractionSolid>
+    <SubtractionSolid name="GE0Gas1">
+      <rSolid name="GE0Gas1_raw"/>
+      <rSolid name="GE0Gas1Wings"/>
+      <Translation x="-[dxTopR]" y="[zero]" z="[zero]"/>
+    </SubtractionSolid>
+    <SubtractionSolid name="GE0Gas2">
+      <rSolid name="GE0Gas2_raw"/>
+      <rSolid name="GE0Gas2Wings"/>
+      <Translation x="-[dxTopR]" y="[zero]" z="[zero]"/>
+    </SubtractionSolid>
+    <SubtractionSolid name="GE0Gas3">
+      <rSolid name="GE0Gas3_raw"/>
+      <rSolid name="GE0Gas3Wings"/>
+      <Translation x="-[dxTopR]" y="[zero]" z="[zero]"/>
+    </SubtractionSolid>
+    <SubtractionSolid name="GE0Foil">
+      <rSolid name="GE0Foil_raw"/>
+      <rSolid name="GE0FoilWings"/>
+      <Translation x="-[dxTopR]" y="[zero]" z="[zero]"/>
+    </SubtractionSolid>
+    <SubtractionSolid name="GE0Read">
+      <rSolid name="GE0Read_raw"/>
+      <rSolid name="GE0ReadWings"/>
+      <Translation x="-[dxTopR]" y="[zero]" z="[zero]"/>
+    </SubtractionSolid>
+    <SubtractionSolid name="GE0Top">
+      <rSolid name="GE0Top_raw"/>
+      <rSolid name="GE0TopWings"/>
+      <Translation x="-[dxTopR]" y="[zero]" z="[zero]"/>
+    </SubtractionSolid>
+
+    <SubtractionSolid name="GHA001">
       <rSolid name="GHA001_raw"/>
       <rSolid name="Eta1Wing"/>
-      <Translation x="(-[dx12]+([slope]*[dzWing]))" y="[zero]" z="[zero]"/>
-    </SubtractionSolid>
-    <SubtractionSolid name="GHA002_left">
-      <rSolid name="GHA002_raw"/>
-      <rSolid name="Eta2Wing"/>
-      <Translation x="(-[dx12]+([slope]*[dzWing]))" y="[zero]" z="[zero]"/>
-    </SubtractionSolid>
-    <SubtractionSolid name="GHA001">
-      <rSolid name="GHA001_left"/>
-      <rSolid name="Eta1Wing"/>
-      <Translation x="([dx12]-([slope]*[dzWing]))" y="[zero]" z="[zero]"/>
+      <Translation x="-[dxTopR]" y="[zero]" z="[zero]"/>
     </SubtractionSolid>
     <SubtractionSolid name="GHA002">
-      <rSolid name="GHA002_left"/>
+      <rSolid name="GHA002_raw"/>
       <rSolid name="Eta2Wing"/>
-      <Translation x="([dx12]-([slope]*[dzWing]))" y="[zero]" z="[zero]"/>
+      <Translation x="-[dxTopR]" y="[zero]" z="[zero]"/>
     </SubtractionSolid>
   </SolidSection>
 

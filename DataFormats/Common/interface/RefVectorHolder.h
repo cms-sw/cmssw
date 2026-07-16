@@ -32,7 +32,7 @@ namespace edm {
       size_t keyForIndex(size_t idx) const override;
 
       //Needed for ROOT storage
-      CMS_CLASS_VERSION(10)
+      CMS_CLASS_VERSION(3)
 
     private:
       typedef typename RefVectorHolderBase::const_iterator_imp const_iterator_imp;

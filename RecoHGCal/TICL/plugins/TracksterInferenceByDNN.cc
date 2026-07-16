@@ -21,7 +21,7 @@ namespace ticl {
         eidNClusters_(conf.getParameter<int>("eid_n_clusters")),
         doPID_(conf.getParameter<int>("doPID")),
         doRegression_(conf.getParameter<int>("doRegression")),
-        miniBatchSize_(conf.getUntrackedParameter<int>("miniBatchSize", 256)) {
+        miniBatchSize_(conf.getUntrackedParameter<int>("miniBatchSize", 64)) {
     const std::string pidModel = conf.getParameter<std::string>("onnxPIDModelPath");
     const std::string energyModel = conf.getParameter<std::string>("onnxEnergyModelPath");
 
@@ -108,6 +108,9 @@ namespace ticl {
         for (int k : clusterIndices) {
           const unsigned int v = ts.vertices(k);
           auto const& cl = layerClusters[v];
+          if (rhtools.isBarrel(cl.seed())) {  // keep the tensor consistent with the selection loop
+            continue;
+          }
 
           const int j = rhtools.getLayerWithOffset(cl.hitsAndFractions()[0].first) - 1;
           if (j < 0 || j >= eidNLayers_) {

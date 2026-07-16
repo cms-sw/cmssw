@@ -15,7 +15,10 @@
 
 namespace l1t {
 
-  class TkTriplet;
+  namespace io_v1 {
+    class TkTriplet;
+  }
+  using TkTriplet = io_v1::TkTriplet;
 
   typedef edm::RefProd<TkTriplet> TkTripletRefProd;
 

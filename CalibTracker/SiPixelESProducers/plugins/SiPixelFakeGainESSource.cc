@@ -24,7 +24,7 @@
 #include "CondFormats/DataRecord/interface/SiPixelGainCalibrationRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -39,19 +39,14 @@
 // class decleration
 //
 
-class SiPixelFakeGainESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class SiPixelFakeGainESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  SiPixelFakeGainESSource(const edm::ParameterSet&);
+  explicit SiPixelFakeGainESSource(const edm::ParameterSet&);
   ~SiPixelFakeGainESSource() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  virtual std::unique_ptr<SiPixelGainCalibration> produce(const SiPixelGainCalibrationRcd&);
-
-protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
+  std::unique_ptr<SiPixelGainCalibration> produce(const SiPixelGainCalibrationRcd&);
 
 private:
   edm::FileInPath fp_;
@@ -99,13 +94,6 @@ std::unique_ptr<SiPixelGainCalibration> SiPixelFakeGainESSource::produce(const S
 
   //
   return std::unique_ptr<SiPixelGainCalibration>(obj);
-}
-
-void SiPixelFakeGainESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                             const edm::IOVSyncValue& iosv,
-                                             edm::ValidityInterval& oValidity) {
-  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
-  oValidity = infinity;
 }
 
 void SiPixelFakeGainESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

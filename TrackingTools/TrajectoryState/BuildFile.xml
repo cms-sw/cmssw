@@ -9,6 +9,7 @@
 <use name="TrackingTools/AnalyticalJacobians"/>
 <use name="TrackingTools/TrajectoryParametrization"/>
 <use name="MagneticField/Engine"/>
+<use name="rootcling"/>
 <use name="vdt_headers"/>
 <export>
   <lib name="1"/>

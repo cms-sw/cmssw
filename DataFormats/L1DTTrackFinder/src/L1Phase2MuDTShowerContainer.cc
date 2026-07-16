@@ -19,13 +19,17 @@
 //----------------
 // Constructors --
 //----------------
-L1Phase2MuDTShowerContainer::L1Phase2MuDTShowerContainer() {}
+namespace io_v1 {
 
-//--------------
-// Operations --
-//--------------
-void L1Phase2MuDTShowerContainer::setContainer(const Shower_Container& inputShowers) { m_showers = inputShowers; }
+  L1Phase2MuDTShowerContainer::L1Phase2MuDTShowerContainer() {}
 
-L1Phase2MuDTShowerContainer::Shower_Container const* L1Phase2MuDTShowerContainer::getContainer() const {
-  return &m_showers;
-}
+  //--------------
+  // Operations --
+  //--------------
+  void L1Phase2MuDTShowerContainer::setContainer(const Shower_Container& inputShowers) { m_showers = inputShowers; }
+
+  L1Phase2MuDTShowerContainer::Shower_Container const* L1Phase2MuDTShowerContainer::getContainer() const {
+    return &m_showers;
+  }
+
+}  // namespace io_v1

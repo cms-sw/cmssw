@@ -56,7 +56,7 @@ std::unique_ptr<RPCRecHitCollection> DTSegtoRPC::thePoints(const DTRecSegment4DC
                                                            bool debug,
                                                            double eyr) {
   auto _ThePoints = std::make_unique<RPCRecHitCollection>();
-  edm::OwnVector<RPCRecHit> RPCPointVector;
+  std::vector<RPCRecHit> RPCPointVector;
   std::vector<uint32_t> extrapolatedRolls;
 
   if (all4DSegments->size() > 8) {

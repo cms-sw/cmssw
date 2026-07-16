@@ -2,7 +2,7 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
@@ -22,7 +22,7 @@
 /**
  * @short ESProducer to parse HGCAL electronics configuration from JSON file
  */
-class HGCalConfigurationESProducer : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class HGCalConfigurationESProducer : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   explicit HGCalConfigurationESProducer(const edm::ParameterSet& iConfig)
       :  //edm::ESProducer(iConfig),
@@ -189,12 +189,6 @@ public:
   }  // end of produce()
 
 private:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval& oValidity) override {
-    oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-  }
-
   edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> indexToken_;
   const edm::FileInPath fedjson_;   // JSON file
   const edm::FileInPath modjson_;   // JSON file

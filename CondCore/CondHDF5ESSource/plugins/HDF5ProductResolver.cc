@@ -83,7 +83,7 @@ void HDF5ProductResolver::prefetchAsyncImpl(edm::WaitingTaskHolder iTask,
           CMS_SA_ALLOW try {
             edm::ESModuleCallingContext context(providerDescription(),
                                                 reinterpret_cast<std::uintptr_t>(this),
-                                                edm::ESModuleCallingContext::State::kRunning,
+                                                edm::ESModuleCallingContext::State::kPrefetching,
                                                 iParent);
             iRecord.activityRegistry()->preESModuleSignal_.emit(iRecord.key(), context);
             struct EndGuard {
@@ -222,14 +222,14 @@ std::vector<char> HDF5ProductResolver::decompress_zstd(std::vector<char> compres
     if (size == ZSTD_CONTENTSIZE_UNKNOWN) {
       // decompressed size field is not present, assume iMemSize
       size = iMemSize;
-    } else if (ZSTD_isError(size)) {
+    } else if (size == ZSTD_CONTENTSIZE_ERROR) {
       throw cms::Exception("H5CondFailedDecompress")
           << "error detected before attempting to decompress buffer using zstd";
     } else if (size != iMemSize) {
       throw cms::Exception("H5CondFailedDecompress")
           << "unexpected payload size before attempting to decompress buffer using zstd";
     }
-    buffer = std::vector<char>(iMemSize);
+    buffer = std::vector<char>(size);
     size = ZSTD_decompress(buffer.data(), buffer.size(), compressedBuffer.data(), compressedBuffer.size());
     if (ZSTD_isError(size)) {
       throw cms::Exception("H5CondFailedDecompress") << "error detected during zstd buffer decompression";

@@ -1,4 +1,4 @@
-<test name="runtestTqafTopTools" command="runtests.sh"/>
+<!-- <test name="runtestTqafTopTools" command="runtests.sh"/> COMMENT: reads old format files -->
 
 <library file="TestGenTtbarCategories.cc">
   <flags EDM_PLUGIN="1"/>

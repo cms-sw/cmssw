@@ -2260,33 +2260,43 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
   edm::Handle<TrackingParticleCollection> TPCollectionH;
   iEvent.getByToken(trackingParticleCollectionToken_, TPCollectionH);
-  if (!TPCollectionH.isValid())
+  if (!TPCollectionH.isValid()) {
     edm::LogWarning("Primary4DVertexValidation") << "TPCollectionH is not valid";
+    return;
+  }
 
   edm::Handle<TrackingVertexCollection> TVCollectionH;
   iEvent.getByToken(trackingVertexCollectionToken_, TVCollectionH);
-  if (!TVCollectionH.isValid())
+  if (!TVCollectionH.isValid()) {
     edm::LogWarning("Primary4DVertexValidation") << "TVCollectionH is not valid";
+    return;
+  }
 
   edm::Handle<reco::SimToRecoCollection> simToRecoH;
   iEvent.getByToken(simToRecoAssociationToken_, simToRecoH);
   if (simToRecoH.isValid())
     s2r_ = simToRecoH.product();
-  else
+  else {
     edm::LogWarning("Primary4DVertexValidation") << "simToRecoH is not valid";
+    return;
+  }
 
   edm::Handle<reco::RecoToSimCollection> recoToSimH;
   iEvent.getByToken(recoToSimAssociationToken_, recoToSimH);
   if (recoToSimH.isValid())
     r2s_ = recoToSimH.product();
-  else
+  else {
     edm::LogWarning("Primary4DVertexValidation") << "recoToSimH is not valid";
+    return;
+  }
 
   reco::BeamSpot beamSpot;
   edm::Handle<reco::BeamSpot> BeamSpotH;
   iEvent.getByToken(RecBeamSpotToken_, BeamSpotH);
-  if (!BeamSpotH.isValid())
+  if (!BeamSpotH.isValid()) {
     edm::LogWarning("Primary4DVertexValidation") << "BeamSpotH is not valid";
+    return;
+  }
   beamSpot = *BeamSpotH;
 
   edm::Handle<reco::TrackCollection> tks;
@@ -2305,8 +2315,10 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
   std::vector<recoPrimaryVertex> recopv;  // a list of reconstructed primary MC vertices
   edm::Handle<edm::View<reco::Vertex>> recVtxs;
   iEvent.getByToken(Rec4DVerToken_, recVtxs);
-  if (!recVtxs.isValid())
+  if (!recVtxs.isValid()) {
     edm::LogWarning("Primary4DVertexValidation") << "recVtxs is not valid";
+    return;
+  }
   recopv = getRecoPVs(recVtxs);
 
   const auto& trackAssoc = iEvent.get(trackAssocToken_);

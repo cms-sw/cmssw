@@ -1,11 +1,9 @@
 <lcgdict>
-  <class name="PXBDetId" ClassVersion="11">
-   <version ClassVersion="11" checksum="1217531328"/>
-   <version ClassVersion="10" checksum="64343362"/>
+  <class name="PXBDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="1217531328"/>
   </class>
-  <class name="PXFDetId" ClassVersion="11">
-   <version ClassVersion="11" checksum="1218239916"/>
-   <version ClassVersion="10" checksum="64579558"/>
+  <class name="PXFDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="1218239916"/>
   </class>
   <class name="PixelFEDChannel" ClassVersion="3">
    <version ClassVersion="3" checksum="2591256255"/>

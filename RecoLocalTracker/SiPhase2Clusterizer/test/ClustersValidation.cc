@@ -239,7 +239,7 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
       const PSimHit* simhit = 0;  // bad naming to avoid changing code below. This is the closest simhit in x
       float minx = 10000;
       for (unsigned int simhitidx = 0; simhitidx < 2; ++simhitidx) {  // loop over both barrel and endcap hits
-        for (auto simhitIt : *simHitsRaw[simhitidx]) {
+        for (const auto& simhitIt : *simHitsRaw[simhitidx]) {
           if (rawid == simhitIt.detUnitId()) {
             //std::cout << "=== " << rawid << " " << &simhitIt << " " << simhitIt.trackId() << " " << simhitIt.localPosition().x() << " " << simhitIt.localPosition().y() << std::endl;
             auto it = std::lower_bound(clusterSimTrackIds.begin(), clusterSimTrackIds.end(), simhitIt.trackId());

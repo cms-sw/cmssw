@@ -144,7 +144,7 @@ namespace edm {
     void swap(RefProd<C>&);
 
     //Needed for ROOT storage
-    CMS_CLASS_VERSION(10)
+    CMS_CLASS_VERSION(3)
 
   private:
     // Compile time check that the argument is a C* or C const*

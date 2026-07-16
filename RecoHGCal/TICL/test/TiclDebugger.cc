@@ -77,7 +77,7 @@ TiclDebugger::TiclDebugger(const edm::ParameterSet& iConfig)
 TiclDebugger::~TiclDebugger() {}
 
 void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  static const char* particle_kind[] = {"gam", "e", "mu", "pi0", "h", "h0", "?", "!"};
+  static const char* const particle_kind[] = {"gam", "e", "mu", "pi0", "h", "h0", "?", "!"};
   using namespace edm;
   using std::begin;
   using std::end;

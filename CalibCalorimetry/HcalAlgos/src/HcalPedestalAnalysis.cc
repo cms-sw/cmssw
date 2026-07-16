@@ -250,7 +250,6 @@ void HcalPedestalAnalysis::per2CapsHists(int flag,
   float lo = -0.5;
   float hi = 9.5;
   map<int, PEDBUNCH> _mei;
-  static map<HcalDetId, map<int, float> > QieCalibMap;
   string type = "HBHE";
 
   if (id == 0) {
@@ -274,7 +273,6 @@ void HcalPedestalAnalysis::per2CapsHists(int flag,
   // if histos for the current channel do not exist, first create them,
   if (_meot == toolT.end()) {
     map<int, PEDBUNCH> insert;
-    map<int, float> qiecalib;
     char name[1024];
     for (int i = 0; i < 4; i++) {
       lo = -0.5;
@@ -329,8 +327,6 @@ void HcalPedestalAnalysis::per2CapsHists(int flag,
     insert[18].first = new TH1F(name, name, 21, -10.5, 10.5);
     toolT[detid] = insert;
     _meot = toolT.find(detid);
-    // store QIE calibrations in a map for later reuse
-    QieCalibMap[detid] = qiecalib;
   }
 
   _mei = _meot->second;
@@ -363,9 +359,6 @@ void HcalPedestalAnalysis::per2CapsHists(int flag,
 
   // fill 2 capID histo
   if (flag > 0) {
-    map<int, float> qiecalib = QieCalibMap[detid];
-    //float charge1=(qie1.adc()-qiecalib[qie1.capid()+4])/qiecalib[qie1.capid()];
-    //float charge2=(qie2.adc()-qiecalib[qie2.capid()+4])/qiecalib[qie2.capid()];
     if (charge1 * charge2 < bins2) {
       _mei[qie1.capid() + 4 * flag].first->Fill(charge1 * charge2);
     } else {

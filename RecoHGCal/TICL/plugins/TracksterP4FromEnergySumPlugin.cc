@@ -80,7 +80,7 @@ namespace ticl {
     }
     std::transform(
         std::begin(barycentre), std::end(barycentre), std::begin(barycentre), [&energy](double val) -> double {
-          return energy >= 0. ? val / energy : val;
+          return energy > 0. ? val / energy : val;
         });
 
     math::XYZVector direction(barycentre[0] - vertex.x(), barycentre[1] - vertex.y(), barycentre[2] - vertex.z());

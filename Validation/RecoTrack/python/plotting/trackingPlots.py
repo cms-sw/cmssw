@@ -1489,6 +1489,8 @@ _iterations = [
                      "mkFitSiPixelHits",
                      "mkFitEventOfHits"]),
     Iteration("highPtTripletStep",
+              seeding=["highPtTripletStepSeedsPixelsWithLST",
+                       "highPtTripletStepSeedsPixelsOnly"],
               selection=["highPtTripletStepClassifier1",
                          "highPtTripletStepClassifier2",
                          "highPtTripletStepClassifier3",

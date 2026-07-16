@@ -60,6 +60,7 @@ The offsets currently in use are:
 * 0.7503: HLT phase-2 menu, CPU vs. GPU validation
 * 0.751: HLT phase-2 timing menu Alpaka variant
 * 0.7521: HLT phase-2 timing menu ticlv5TrackLinkingGNN variant
+* 0.7522: HLT phase-2 timing menu mtd_at_hlt variant
 * 0.753: HLT phase-2 timing menu legacy tracking
 * 0.754: HLT phase-2 timing menu legacy tracking with Patatrack quads
 * 0.755: HLT phase-2 timing menu LST building variant
@@ -96,6 +97,8 @@ The offsets currently in use are:
 * 0.31: Photon energy corrections with DRN architecture
 * 0.61: ECAL `phase2_ecal_devel` era, on CPU
 * 0.612: ECAL `phase2_ecal_devel` era, with automatic offload to GPU if available
+* 0.6199: ECAL `phase2_ecal_devel` era, on CPU and with premixing stage1+stage2
+* 0.61299: ECAL `phase2_ecal_devel` era, with automatic offload to GPU if available and premixing stage1+stage2
 * 0.631: ECAL component-method based digis
 * 0.632: ECAL component-method based finely-sampled waveforms
 * 0.633: ECAL phase2 Trigger Primitive
@@ -118,6 +121,8 @@ The offsets currently in use are:
 * 0.204: HGCAL superclustering : using Mustache in TICL
 * 0.205: HGCAL superclustering : using old PFCluster-based Mustache algorithm with TICL
 * 0.209: TICL barrel : run TICL in HGCAL and barrel calorimeters
+* 0.212: Enables offline HGCAL/TICL NanoAOD: NANO:@HGCAL
+* 0.213: Enables offline HGCAL/TICL NanoAOD with Sim objects for validation purposes: NANO:@HGCALVal
 * 0.2091: TICL barrel with CaloParticles from PU enabled
 * 0.302: FastSim Run-3 trackingOnly validation
 * 0.303: FastSim Run-3 MB for mixing

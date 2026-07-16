@@ -4,7 +4,7 @@
 
 #include "CalibTracker/SiStripESProducers/interface/SiStripFedCablingESProducer.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include <vector>
 #include <string>
 #include <cstdint>
@@ -15,11 +15,12 @@ class SiStripFecCabling;
 class SiStripConfigDb;
 class TkDcuInfo;
 
-class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESProducer, public edm::EventSetupRecordIntervalFinder {
+class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESProducer,
+                                       public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   // -------------------- Constructors, destructors --------------------
 
-  SiStripFedCablingBuilderFromDb(const edm::ParameterSet&);
+  explicit SiStripFedCablingBuilderFromDb(const edm::ParameterSet&);
   ~SiStripFedCablingBuilderFromDb() override;
 
   // -------------------- Methods to build FED cabling --------------------
@@ -65,11 +66,6 @@ public:
   static void buildFecCablingFromDetIds(SiStripConfigDb* const, SiStripFecCabling&);
 
 protected:
-  /** */
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
-
   /** */
   static void assignDcuAndDetIds(SiStripFecCabling&, const std::vector<std::pair<uint32_t, TkDcuInfo*> >&);
 

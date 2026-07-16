@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_TracksterLinkingRecovery_H
-#define RecoHGCal_TICL_TracksterLinkingRecovery_H
+#ifndef RecoHGCal_TICL_TracksterLinkingRecovery_h
+#define RecoHGCal_TICL_TracksterLinkingRecovery_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"

@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_TracksterInferenceAlgo_H__
-#define RecoHGCal_TICL_TracksterInferenceAlgo_H__
+#ifndef RecoHGCal_TICL_TracksterInferenceAlgoBase_h
+#define RecoHGCal_TICL_TracksterInferenceAlgoBase_h
 
 #include <vector>
 

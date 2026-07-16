@@ -8,3 +8,6 @@ hltInitialStepTrackSelectionHighPurity = cms.EDProducer("TrackCollectionFilterCl
     originalQualVals = cms.InputTag("hltInitialStepTrackCutClassifier","QualityMasks"),
     originalSource = cms.InputTag("hltInitialStepTracks")
 )
+
+from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
+mtd_at_hlt.toModify(hltInitialStepTrackSelectionHighPurity, copyTrajectories = True)

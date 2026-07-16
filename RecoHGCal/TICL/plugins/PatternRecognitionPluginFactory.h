@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_PatternRecognitionPluginFactory_H
-#define RecoHGCal_TICL_PatternRecognitionPluginFactory_H
+#ifndef RecoHGCal_TICL_PatternRecognitionPluginFactory_h
+#define RecoHGCal_TICL_PatternRecognitionPluginFactory_h
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

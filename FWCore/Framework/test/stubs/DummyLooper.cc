@@ -42,9 +42,9 @@ public:
 
   ReturnType produce(const DummyRecord&);
 
-  void startingNewLoop(unsigned int) {}
-  Status duringLoop(const edm::Event&, const edm::EventSetup&) { return issueStop_ ? kStop : kContinue; }
-  Status endOfLoop(const edm::EventSetup&, unsigned int) {
+  void startingNewLoop(unsigned int) final {}
+  Status duringLoop(const edm::Event&, const edm::EventSetup&) final { return issueStop_ ? kStop : kContinue; }
+  Status endOfLoop(const edm::EventSetup&, unsigned int) final {
     (data_->value_)++;
     ++counter_;
     return counter_ == 2 ? kStop : kContinue;

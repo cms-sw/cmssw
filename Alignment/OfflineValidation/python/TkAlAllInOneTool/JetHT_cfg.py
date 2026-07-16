@@ -5,8 +5,11 @@ here doing refit of tracks and vertices using latest alignment
 
 # Define the process
 import FWCore.ParameterSet.Config as cms
-from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultData_JetHTRun2018D
-process = cms.Process("JetHTAnalyzer")
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_NoPU_AlCa
+
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+process = cms.Process("JetHTAnalyzer",_PH2_ERA)
 
 # Choose whether to run with Monte Carlo or data settings based on command line argument
 import FWCore.ParameterSet.VarParsing as VarParsing
@@ -42,7 +45,7 @@ else:
         configuration = json.load(configFile)
 
 # Read parameters from the configuration file
-useMC = configuration["validation"].get("mc", False)
+useMC = configuration["validation"].get("mc", True)
 printTriggers = configuration["validation"].get("printTriggers", False)
 triggerFilter = str(configuration["validation"].get("triggerFilter", "nothing"))
 iovListFile = str(configuration["validation"].get("iovListFile", "nothing"))
@@ -53,8 +56,8 @@ maxEventsToRun = configuration["validation"].get("maxevents", 1)
 filesPerJob = configuration["validation"].get("filesPerJob", 5)
 runsInFiles = configuration.get("runsInFiles",[])
 
-# The default global tag is suiteble for the unit test file for data
-globalTag = str(configuration["alignment"].get("globaltag", "auto:run2_data"))
+# The default global tag is suiteble for the unit test file for Phase 2 MC
+globalTag = str(configuration["alignment"].get("globaltag", _PH2_GLOBAL_TAG))
 
 # Alignment conditions can be also loaded from a configuration file instead of database
 alignmentFile = str(configuration["validation"].get("TrackerAlignmentRcdFile", "nothing"))
@@ -94,7 +97,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(maxEventsToR
 # Basic modules
 ###################################################################
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-process.load("Configuration.Geometry.GeometryDB_cff")
+process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -163,14 +166,14 @@ else:
     print(">>>>>>>>>> JetHT_cfg.py: msg%-i: dataset not specified in configuration! Loading default file!")
 
     if useMC:
-        print(">>>>>>>>>> JetHT_cfg.py: msg%-i: Default file for 2018 MC from 170-300 pT hat bin.")
+        print(">>>>>>>>>> JetHT_cfg.py: msg%-i: Default file for Phase 2 MC from RelValQCD_FlatPt_15_3000HS_14.")
         process.source = cms.Source("PoolSource",
-                              fileNames = cms.untracked.vstring('root://xrootd-cms.infn.it//store/mc/RunIIWinter19PFCalibDRPremix/QCD_Pt_170to300_TuneCP5_13TeV_pythia8/ALCARECO/TkAlMinBias-2018Conditions_105X_upgrade2018_realistic_v4-v1/270000/C42688BC-7401-3A41-9008-7CD1CA4B09E1.root')
-                              )
+                                    fileNames = filesDefaultMC_NoPU_AlCa)
     else:
-        print(">>>>>>>>>> JetHT_cfg.py: msg%-i: Default file read from 2018D JetHT dataset.")
+        print(">>>>>>>>>> JetHT_cfg.py: msg%-i: Default file read from <TODO> dataset.")
+        raise FileNotFoundError("No Default Phase 2 data exist yet. Use MC only.")
         process.source = cms.Source("PoolSource",
-                                    fileNames = filesDefaultData_JetHTRun2018D)
+                                    fileNames = "") #FIXME
 
 ####################################################################
 # Global tag

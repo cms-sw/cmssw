@@ -88,14 +88,20 @@ void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
 
     if (doNose_) {
       resultHFNose->fill(layer, lc.eta(), lc.phi(), lcId);
+      LogDebug("TICLLayerTileProducer") << "Adding layerClusterId: " << lcId << " into bin [eta,phi]: [ "
+                                        << (*resultHFNose)[layer].etaBin(lc.eta()) << ", "
+                                        << (*resultHFNose)[layer].phiBin(lc.phi()) << "] for layer: " << layer;
     } else if (doBarrel_ && isBarrelLC) {
       resultBarrel->fill(layer, lc.eta(), lc.phi(), lcId);
+      LogDebug("TICLLayerTileProducer") << "Adding layerClusterId: " << lcId << " into bin [eta,phi]: [ "
+                                        << (*resultBarrel)[layer].etaBin(lc.eta()) << ", "
+                                        << (*resultBarrel)[layer].phiBin(lc.phi()) << "] for layer: " << layer;
     } else if (!isBarrelLC) {
       result->fill(layer, lc.eta(), lc.phi(), lcId);
+      LogDebug("TICLLayerTileProducer") << "Adding layerClusterId: " << lcId << " into bin [eta,phi]: [ "
+                                        << (*result)[layer].etaBin(lc.eta()) << ", "
+                                        << (*result)[layer].phiBin(lc.phi()) << "] for layer: " << layer;
     }
-    LogDebug("TICLLayerTileProducer") << "Adding layerClusterId: " << lcId << " into bin [eta,phi]: [ "
-                                      << (*result)[layer].etaBin(lc.eta()) << ", " << (*result)[layer].phiBin(lc.phi())
-                                      << "] for layer: " << layer << std::endl;
     lcId++;
   }
 

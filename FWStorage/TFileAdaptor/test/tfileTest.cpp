@@ -18,9 +18,18 @@
 
 int main(int argc, char* argv[]) {
   // This list should replicate the addHandler calls in TFileAdaptor
-  std::array<char const*, 10> const protocols = {
-      {"^file:", "^http:", "^http[s]?:", "^ftp:", "^web:", "^dcache:", "^dcap:", "^gsidcap:", "^root:", "^[x]?root:"}};
-  std::array<char const*, 10> const uris{{"file:foo",
+  std::array<char const*, 11> const protocols = {{"^file:",
+                                                  "^http:",
+                                                  "^http[s]?:",
+                                                  "^ftp:",
+                                                  "^web:",
+                                                  "^dcache:",
+                                                  "^dcap:",
+                                                  "^gsidcap:",
+                                                  "^root:",
+                                                  "^[x]?root:",
+                                                  "^[x]?root[s]?:"}};
+  std::array<char const*, 11> const uris{{"file:foo",
                                           "http://foo",
                                           "https://foo",
                                           "ftp://foo",
@@ -29,7 +38,8 @@ int main(int argc, char* argv[]) {
                                           "dcap://foo",
                                           "gsidcap://foo",
                                           "root://foo",
-                                          "xroot://foo"}};
+                                          "xroot://foo",
+                                          "xroots://foo"}};
 
   char const* tStorageFactoryFileFunc = "TStorageFactoryFile(char const*, Option_t*, char const*, Int_t)";
   char const* tStorageFactoryFileFuncNet =

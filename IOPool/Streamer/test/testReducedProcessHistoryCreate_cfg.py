@@ -7,6 +7,7 @@ parser.add_argument("--accelerators", type=str, nargs='+', help="Propagated to p
 parser.add_argument("--firstEvent", default=1, type=int, help="Number of first event")
 parser.add_argument("--lumi", default=1, type=int, help="LuminosityBlock number")
 parser.add_argument("--output", type=str, help="Output file name")
+parser.add_argument("--compression", type=str, default=None, help="Specify compression algorithm")
 
 args = parser.parse_args()
 
@@ -38,6 +39,8 @@ from IOPool.Streamer.modules import EventStreamFileWriter
 process.out = EventStreamFileWriter(
     fileName = args.output
 )
+if args.compression:
+    process.out.compression_algorithm = args.compression
 
 from FWCore.Framework.modules import IntProducer
 process.intProducer = IntProducer(ivalue = 42)

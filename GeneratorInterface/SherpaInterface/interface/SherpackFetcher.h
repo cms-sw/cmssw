@@ -30,6 +30,7 @@ namespace spf {
     std::string SherpackLocation;
     std::string SherpackChecksum;
     bool FetchSherpack;
+    bool NewSherpackFormat;
     std::string SherpaPath;
   };
 

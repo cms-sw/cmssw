@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/ESProducts.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -31,7 +31,7 @@ namespace pt = boost::property_tree;
 
 //------------------------------------------------------------------------------
 
-class PPSTimingCalibrationESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class PPSTimingCalibrationESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   PPSTimingCalibrationESSource(const edm::ParameterSet&);
 
@@ -41,10 +41,6 @@ public:
 
 private:
   enum struct DetectorType { INVALID = 0, TOTEM_UFSD = 1, PPS_DIAMOND = 2 };
-
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
 
   /// Extract calibration data from JSON file (TOTEM vertical)
   std::unique_ptr<PPSTimingCalibration> parseTotemUFSDJsonFile() const;
@@ -76,14 +72,6 @@ edm::ESProducts<std::unique_ptr<PPSTimingCalibration> > PPSTimingCalibrationESSo
     default:
       throw cms::Exception("PPSTimingCalibrationESSource") << "Subdetector " << (int)subdetector_ << " not recognised!";
   }
-}
-
-//------------------------------------------------------------------------------
-
-void PPSTimingCalibrationESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                                  const edm::IOVSyncValue&,
-                                                  edm::ValidityInterval& oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }
 
 //------------------------------------------------------------------------------

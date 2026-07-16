@@ -23,7 +23,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -40,14 +40,11 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/JamesRandom.h"
 
-class SiPhase2BadStripConfigurableFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class SiPhase2BadStripConfigurableFakeESSource : public edm::ESProducer,
+                                                 public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   SiPhase2BadStripConfigurableFakeESSource(const edm::ParameterSet&);
   ~SiPhase2BadStripConfigurableFakeESSource() override = default;
-
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue& iov,
-                      edm::ValidityInterval& iValidity) override;
 
   typedef std::unique_ptr<SiStripBadStrip> ReturnType;
   ReturnType produce(const SiPhase2OuterTrackerBadStripRcd&);
@@ -85,12 +82,6 @@ SiPhase2BadStripConfigurableFakeESSource::SiPhase2BadStripConfigurableFakeESSour
   }
 
   findingRecord<SiPhase2OuterTrackerBadStripRcd>();
-}
-
-void SiPhase2BadStripConfigurableFakeESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                                              const edm::IOVSyncValue& iov,
-                                                              edm::ValidityInterval& iValidity) {
-  iValidity = edm::ValidityInterval{iov.beginOfTime(), iov.endOfTime()};
 }
 
 // ------------ method called to produce the data  ------------

@@ -1,5 +1,5 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/FEDRawData"/>
-<use name="DataFormats/Provenance"/>
+<use name="DataFormats/Provenance" source_only="1"/>
 <flags   EDM_PLUGIN="1"/>

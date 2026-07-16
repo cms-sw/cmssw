@@ -24,7 +24,7 @@
 #include "CondFormats/DataRecord/interface/SiPixelGainCalibrationOfflineRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -39,19 +39,14 @@
 // class decleration
 //
 
-class SiPixelFakeGainOfflineESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class SiPixelFakeGainOfflineESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  SiPixelFakeGainOfflineESSource(const edm::ParameterSet&);
+  explicit SiPixelFakeGainOfflineESSource(const edm::ParameterSet&);
   ~SiPixelFakeGainOfflineESSource() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  virtual std::unique_ptr<SiPixelGainCalibrationOffline> produce(const SiPixelGainCalibrationOfflineRcd&);
-
-protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
+  std::unique_ptr<SiPixelGainCalibrationOffline> produce(const SiPixelGainCalibrationOfflineRcd&);
 
 private:
   edm::FileInPath fp_;
@@ -112,13 +107,6 @@ std::unique_ptr<SiPixelGainCalibrationOffline> SiPixelFakeGainOfflineESSource::p
 
   //
   return std::unique_ptr<SiPixelGainCalibrationOffline>(obj);
-}
-
-void SiPixelFakeGainOfflineESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                                    const edm::IOVSyncValue& iosv,
-                                                    edm::ValidityInterval& oValidity) {
-  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
-  oValidity = infinity;
 }
 
 void SiPixelFakeGainOfflineESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

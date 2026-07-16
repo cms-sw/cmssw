@@ -586,7 +586,7 @@ hltGenValSourceLabels = [
 for label in hltGenValSourceLabels:
     if label in globals():
         ngtScouting.toModify(globals()[label],
-                             hltPathsToCheck = ['DST_PFScouting'])
+                             hltPathsToCheck = ['DST_NGTScouting'])
 
 from RecoMET.Configuration.RecoGenMET_cff import genMetCalo,genMetTrue
 from RecoMET.Configuration.GenMETParticles_cff import genCandidatesForMET, genParticlesForMETAllVisible

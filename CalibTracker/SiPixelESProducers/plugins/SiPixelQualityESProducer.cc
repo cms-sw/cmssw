@@ -20,7 +20,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -31,7 +31,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 
-class SiPixelQualityESProducer : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class SiPixelQualityESProducer : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   SiPixelQualityESProducer(const edm::ParameterSet& iConfig);
   ~SiPixelQualityESProducer() override = default;
@@ -41,10 +41,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
-
   edm::ESGetToken<SiPixelQuality, SiPixelQualityFromDbRcd> siPixelQualityFromDbToken_;
   edm::ESGetToken<SiStripDetVOff, SiPixelDetVOffRcd> voffToken_;
 };
@@ -86,13 +82,6 @@ std::unique_ptr<SiPixelQuality> SiPixelQualityESProducer::produce(const SiPixelQ
   //here is the magic line in which it switches off Bad Modules
   dbptr->add(&(iRecord.get(voffToken_)));
   return dbptr;
-}
-
-void SiPixelQualityESProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                              const edm::IOVSyncValue& iosv,
-                                              edm::ValidityInterval& oValidity) {
-  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
-  oValidity = infinity;
 }
 
 void SiPixelQualityESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

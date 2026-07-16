@@ -64,7 +64,7 @@ for simTrackstersCollection in simTrackstersBarrelCollections:
 dumperAssociators+=dumperAssociatorsBarrel
 
 ticl_barrel.toModify(ticlDumper,
-                     tracksterCollections = [*[cms.PSet(treeName=cms.string(label), inputTag=cms.InputTag(label)) for label in ticlIterLabels+ticlBarrelIterLabels],
+                     tracksterCollections = [*[cms.PSet(treeName=cms.string(label), inputTag=cms.InputTag(label)) for label in ticlIterLabelsPSet.labels+ticlBarrelIterLabels],
                         cms.PSet(                                                        
                             treeName=cms.string("simtrackstersSC"),
                             inputTag=cms.InputTag("ticlSimTracksters"),

@@ -34,7 +34,6 @@
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-using namespace reco;
 namespace {
   class DuplicateTrackMerger final : public edm::stream::EDProducer<> {
   public:

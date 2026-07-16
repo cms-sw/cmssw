@@ -88,7 +88,7 @@ SuperclusteringSampleDumper::SuperclusteringSampleDumper(const edm::ParameterSet
       deltaPhiWindow_(ps.getParameter<double>("deltaPhiWindow")),
       seedPtThreshold_(ps.getParameter<double>("seedPtThreshold")),
       candidateEnergyThreshold_(ps.getParameter<double>("candidateEnergyThreshold")),
-      explVarRatioCut_energyBoundary_(ps.getParameter<double>("candidateEnergyThreshold")),
+      explVarRatioCut_energyBoundary_(ps.getParameter<double>("explVarRatioCut_energyBoundary")),
       explVarRatioMinimum_lowEnergy_(ps.getParameter<double>("explVarRatioMinimum_lowEnergy")),
       explVarRatioMinimum_highEnergy_(ps.getParameter<double>("explVarRatioMinimum_highEnergy")),
       eventId_(),

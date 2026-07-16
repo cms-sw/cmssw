@@ -1,8 +1,8 @@
 // Author: Felice Pantaleo, Marco Rovere - felice.pantaleo@cern.ch, marco.rovere@cern.ch
 // Date: 09/2018
 
-#ifndef RecoHGCal_TICL_ClusterFilterBase_H__
-#define RecoHGCal_TICL_ClusterFilterBase_H__
+#ifndef RecoHGCal_TICL_ClusterFilterBase_h
+#define RecoHGCal_TICL_ClusterFilterBase_h
 
 #include "DataFormats/HGCalReco/interface/Common.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"

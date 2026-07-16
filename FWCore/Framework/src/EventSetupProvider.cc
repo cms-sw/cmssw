@@ -233,14 +233,9 @@ namespace edm {
       }
     }
 
-    void EventSetupProvider::finishConfiguration(NumberOfConcurrentIOVs const& numberOfConcurrentIOVs,
-                                                 bool& hasNonconcurrentFinder) {
+    void EventSetupProvider::finishConfiguration(NumberOfConcurrentIOVs const& numberOfConcurrentIOVs) {
       //we delayed adding finders to the system till here so that everything would be loaded first
       for (auto& finder : *finders_) {
-        if (!finder->concurrentFinder()) {
-          hasNonconcurrentFinder = true;
-        }
-
         const std::set<EventSetupRecordKey> recordsUsing = finder->findingForRecords();
 
         for (auto const& key : recordsUsing) {
@@ -447,15 +442,6 @@ namespace edm {
         }
       }
       return get_underlying_safe(eventSetupImpl_);
-    }
-
-    bool EventSetupProvider::doWeNeedToWaitForIOVsToFinish(IOVSyncValue const& iValue) const {
-      for (auto& recProvider : recordProviders_) {
-        if (recProvider->doWeNeedToWaitForIOVsToFinish(iValue)) {
-          return true;
-        }
-      }
-      return false;
     }
 
     std::set<ComponentDescription> EventSetupProvider::resolverProviderDescriptions() const {

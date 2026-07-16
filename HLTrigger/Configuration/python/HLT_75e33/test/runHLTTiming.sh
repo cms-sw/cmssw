@@ -11,7 +11,7 @@ set -o pipefail
 ############################
 
 FOLDER_FILES="/data/user/${USER}/"
-DATASET="/RelValTTbar_14TeV/CMSSW_15_1_0_pre3-PU_150X_mcRun4_realistic_v1_STD_Run4D110_PU-v1/GEN-SIM-DIGI-RAW"
+DATASET="/RelValTTbar_14TeV/CMSSW_20_0_0_pre1-PU_150X_mcRun4_realistic_v1_STD_D121_RegeneratedGS_PU-v1/GEN-SIM-DIGI-RAW"
 
 EVENTS=1000
 THREADS=4
@@ -38,19 +38,26 @@ fi
 check_logs_for_errors() {
     local log_dirs=${1:-"logs/step*/pid*"}
     local error_found=0
+    local pattern='fatal|fail|exception|traceback'
 
     for f in $log_dirs/stdout $log_dirs/stderr; do
-	if [[ -f "$f" ]]; then
-	    if grep -qiE 'error|fail|exception|traceback' "$f"; then
-		echo "Error keyword found in: $f"
-		error_found=1
-	    fi
-	fi
+        [[ -f "$f" ]] || continue
+
+        if grep -qiE "$pattern" "$f"; then
+            echo "Error keyword found in: $f"
+
+            grep -inE "$pattern" "$f" | while IFS=: read -r lineno line; do
+                keyword=$(grep -ioE "$pattern" <<< "$line" | head -1)
+                echo "  Line $lineno [$keyword]: $line"
+            done
+
+            error_found=1
+        fi
     done
 
     if [[ $error_found -eq 1 ]]; then
-	echo "Failure detected in logs."
-	return 1
+        echo "Failure detected in logs."
+        return 1
     fi
 }
 
@@ -151,8 +158,8 @@ run_cmsdriver() {
 		 -s ${menu} \
 		 --processName=${process} \
 		 --conditions auto:phase2_realistic_T35 \
-		 --geometry ExtendedRun4D110 \
-		 --era Phase2C17I13M9 \
+		 --geometry ExtendedRun4D121 \
+		 --era Phase2C22I13M9 \
 		 --customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000 \
 		 --eventcontent FEVTDEBUGHLT \
 		 --filein="${ALL_FILES}" \
@@ -373,7 +380,7 @@ run_ngt_scouting() {
 	"L1P2GT,HLT:NGTScouting" \
 	"NLTX" \
 	"NGTScouting_L1P2GT_HLT.py" \
-	"--procModifiers ngtScouting"
+	"--procModifiers alpaka,ngtScouting"
 
     run_benchmark \
 	"NGTScouting_L1P2GT_HLT.py" \
@@ -385,7 +392,6 @@ run_ngt_scouting() {
 ############################
 
 main() {
-
     fetch_files
     build_input_file_string
 

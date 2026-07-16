@@ -74,9 +74,6 @@ if __name__ == '__main__':
             1306.0,     # RelValSingleMuPt1_UP15
             1330,       # RelValZMM_13
             135.4,      # ZEE_13TeV_TuneCUETP8M1
-            25202.0,    # RelValTTbar_13                2016 PU = AVE_35_BX_25ns
-            250202.181, # RelValTTbar_13                2016 PREMIX
-            10224.0,    # RelValTTbar_13                2017 PU = AVE_35_BX_25ns
 
             ###### pp Data
             ## Run1
@@ -98,15 +95,10 @@ if __name__ == '__main__':
             12434.0,    # RelValTTbar_14TeV             2023
             12834.0,    # RelValTTbar_14TeV             2024
             12846.0,    # RelValZEE_13                  2024
-            13034.0,    # RelValTTbar_14TeV             2024 PU = Run3_Flat55To75_PoissonOOTPU
             16834.0,    # RelValTTbar_14TeV             2025
-            17034.0,    # RelValTTbar_14TeV             2025 PU = Run3_Flat55To75_PoissonOOTPU
             17034.96,   # RelValTTbar_14TeV             2025 Hybrid PU
             14034.0,    # RelValTTbar_14TeV             Run3_2023_FastSim
-            14234.0,    # RelValTTbar_14TeV             Run3_2023_FastSim   PU = Run3_Flat55To75_PoissonOOTPU
-            2500.3001,   # RelValTTbar_14TeV            NanoAOD from existing MINI
             18434.0,    # RelValTTbar_14TeV             2026
-            18634.0,    # RelValTTbar_14TeV             2026 PU = Run3_Flat55To75_PoissonOOTPU
 
             ###### pp Data
             ## Run3
@@ -137,9 +129,10 @@ if __name__ == '__main__':
         'phase2' : [
             ###### MC (generated from scratch or from RelVals)
             # Phase2
-            prefixDet+34.0,    # RelValTTbar_14TeV                     phase2_realistic_T35        ExtendedRun4D121         (Phase-2 baseline)
-            prefixDet+34.911,  # TTbar_14TeV_TuneCP5                   phase2_realistic_T35        DD4hepExtendedRun4D121   DD4Hep (HLLHC14TeV BeamSpot)
-            prefixDet+234.999, # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T35        ExtendedRun4D121         AVE_50_BX_25ns_m3p3
+            prefixDet+34.0,	# RelValTTbar_14TeV                     phase2_realistic_T35        ExtendedRun4D121         (Phase-2 baseline)
+            prefixDet+234.0,	# RelValTTbar_14TeV                     phase2_realistic_T35        ExtendedRun4D121         AVE_200_BX_25ns	(Phase-2 baseline with PU) 
+            prefixDet+34.911,	# TTbar_14TeV_TuneCP5                   phase2_realistic_T35        DD4hepExtendedRun4D121   DD4Hep (HLLHC14TeV BeamSpot)
+            #prefixDet+234.999, # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T35        ExtendedRun4D121         AVE_50_BX_25ns_m3p3 COMMENT: reads old format file
             prefixDet+96.0,    # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T35        ExtendedRun4D121
             prefixDet+100.0,   # RelValCloseByPGun_CE_H_Coarse_Scint   phase2_realistic_T35        ExtendedRun4D121
             #23234.0,   # Need new workflow with HFNose
@@ -152,7 +145,6 @@ if __name__ == '__main__':
             # Run2
             140.56,    # HIRun2018A HIHardProbes                    Run2_2018_pp_on_AA
             ## MC
-            312.0,     # Pyquen_ZeemumuJets_pt10_2760GeV            PU : HiMixGEN
         ],
 
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
@@ -164,7 +156,8 @@ if __name__ == '__main__':
                      prefixDet+34.7502,  # HLT phase-2 tracking menu with tracking ntuple
                      prefixDet+34.7503,  # HLT phase-2 menu, CPU vs. GPU validation
                      prefixDet+34.751,   # HLT phase-2 timing menu Alpaka variant
-                     prefixDet+34.7521,  # HLT phase-2 timing menu ticlv5TrackLinkGNN variant   
+                     prefixDet+34.7521,  # HLT phase-2 timing menu ticlv5TrackLinkGNN variant
+                     prefixDet+34.7522,  # HLT phase-2 timing menu mtd_at_hlt variant
                      prefixDet+34.753,   # HLT phase-2 timing menu legacy tracking
                      prefixDet+34.754,   # HLT phase-2 timing menu legacy tracking with Patatrack quads
                      prefixDet+34.755,   # HLT phase-2 timing menu LST building variant

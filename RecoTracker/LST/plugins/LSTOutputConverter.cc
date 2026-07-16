@@ -25,6 +25,8 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
+#include <ranges>
+
 class LSTOutputConverter : public edm::stream::EDProducer<> {
 public:
   explicit LSTOutputConverter(edm::ParameterSet const& iConfig);
@@ -40,6 +42,8 @@ private:
   const edm::EDGetTokenT<TrajectorySeedCollection> lstPixelSeedToken_;
   const bool includeT5s_;
   const bool includeNonpLSTSs_;
+  const bool dropOTHitsPurePLS_;
+  const int maxITHitsToDropOTHitsPurePLS_;
   const bool produceSeeds_;
   const bool produceTrackCandidates_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
@@ -68,6 +72,8 @@ LSTOutputConverter::LSTOutputConverter(edm::ParameterSet const& iConfig)
       lstPixelSeedToken_{consumes(iConfig.getParameter<edm::InputTag>("lstPixelSeeds"))},
       includeT5s_(iConfig.getParameter<bool>("includeT5s")),
       includeNonpLSTSs_(iConfig.getParameter<bool>("includeNonpLSTSs")),
+      dropOTHitsPurePLS_(iConfig.getParameter<bool>("dropOTHitsPurePLS")),
+      maxITHitsToDropOTHitsPurePLS_(iConfig.getParameter<int>("maxITHitsToDropOTHitsPurePLS")),
       produceSeeds_(iConfig.getParameter<bool>("produceSeeds")),
       produceTrackCandidates_(iConfig.getParameter<bool>("produceTrackCandidates")),
       mfToken_(esConsumes()),
@@ -110,6 +116,8 @@ void LSTOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::InputTag>("lstPixelSeeds", edm::InputTag("lstInputProducer"));
   desc.add<bool>("includeT5s", true);
   desc.add<bool>("includeNonpLSTSs", false);
+  desc.add<bool>("dropOTHitsPurePLS", false);
+  desc.add<int>("maxITHitsToDropOTHitsPurePLS", 3);
   desc.add<bool>("produceSeeds", true);
   desc.add<bool>("produceTrackCandidates", true);
   desc.add("propagatorAlong", edm::ESInputTag{"", "PropagatorWithMaterial"});
@@ -167,16 +175,21 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   for (unsigned int i = 0; i < nTrackCandidates; i++) {
     auto iType = lstOutput_view.trackCandidateType()[i];
     bool const isT5orT4 = (iType == lst::LSTObjType::T5 || iType == lst::LSTObjType::T4);
-    LogDebug("LSTOutputConverter") << " cand " << i << " " << iType << " " << lstOutput_view.pixelSeedIndex()[i];
+    const auto iSeed = lstOutput_view.pixelSeedIndex()[i];
+    const bool dropHitsOTpL =
+        iType == lst::LSTObjType::pLS && dropOTHitsPurePLS_ &&
+        std::prev(pixelSeeds[iSeed].recHits().end())->geographicalId().subdetId() > PixelSubdetector::PixelEndcap &&
+        std::ranges::count_if(pixelSeeds[iSeed].recHits(), [](const auto& h) {
+          return h.geographicalId().subdetId() <= PixelSubdetector::PixelEndcap;
+        }) <= maxITHitsToDropOTHitsPurePLS_;
+    LogDebug("LSTOutputConverter") << " cand " << i << " " << iType << " " << iSeed;
     TrajectorySeed seed;
     edm::RefToBase<TrajectorySeed> seedRef;
-    if (!isT5orT4) {
-      seed = pixelSeeds[lstOutput_view.pixelSeedIndex()[i]];
-      seedRef = {pixelSeedsRBP, lstOutput_view.pixelSeedIndex()[i]};
-    }
-
     edm::OwnVector<TrackingRecHit> recHits;
-    if (!isT5orT4) {
+    if (!isT5orT4 && !dropHitsOTpL) {
+      seed = pixelSeeds[iSeed];
+      seedRef = {pixelSeedsRBP, iSeed};
+
       for (auto const& hit : seed.recHits())
         recHits.push_back(hit.clone());
     }
@@ -189,7 +202,14 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
           unsigned int hitIdx = lstOutput_view.hitIndices()[i][layerSlot][hitSlot];
           if (hitIdx == lst::kTCEmptyHitIdx)
             continue;
-          recHits.push_back(OTHits[hitIdx]->clone());
+          bool hitOK = true;
+          for (auto const& hit : recHits)
+            if (hit.sharesInput(OTHits[hitIdx], TrackingRecHit::all)) {
+              hitOK = false;
+              break;
+            }
+          if (hitOK)
+            recHits.push_back(OTHits[hitIdx]->clone());
         }
       }
 
@@ -212,9 +232,7 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
           }
         }
       });
-    }
 
-    if (iType != lst::LSTObjType::pLS) {
       // For T5/T4: makeSeed is needed whenever seeds or TCs are produced, since the resulting
       // seed is the only source of initial state for T5/T4 track candidates.
       // For other pT objects: makeSeed is only needed for seed output.
@@ -264,11 +282,29 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
         LogDebug("LSTOutputConverter") << "Created a seed with " << trajectorySeed.nHits() << " " << ss.detId() << " "
                                        << ss.pt() << " " << ss.parameters().vector() << " " << ss.error(0);
       }
-    } else {
-      if (produceSeeds_) {
-        outputTS.emplace_back(seed);
-        outputpLSTS.emplace_back(seed);
+    } else if (produceSeeds_ || (produceTrackCandidates_ && dropHitsOTpL)) {  // pLS handling
+      if (dropHitsOTpL) {                                                     // true if need to drop OT hits
+        using Hit = SeedingHitSet::ConstRecHitPointer;
+        hitsForSeed.clear();
+        hitsForSeed.reserve(std::ranges::size(pixelSeeds[iSeed].recHits()));
+        for (auto const& hit : pixelSeeds[iSeed].recHits()) {
+          if (hit.geographicalId().subdetId() > PixelSubdetector::PixelEndcap)
+            continue;
+          hitsForSeed.emplace_back(dynamic_cast<Hit>(&hit));
+          recHits.push_back(hit.clone());
+        }
+        GlobalTrackingRegion region;
+        seedCreator_->init(region, iSetup, nullptr);
+        seeds.clear();
+        seedCreator_->makeSeed(seeds, hitsForSeed);
+        if (seeds.empty())
+          edm::LogInfo("LSTOutputConverter") << "failed to convert a pLS object to a seed" << i << iSeed;
+        seed = seeds[0];
+        seedRef = edm::RefToBase<TrajectorySeed>(edm::Ref(outputTSRP, outputTS.size()));
       }
+      outputTS.emplace_back(seed);
+      if (produceSeeds_)  // matches the logic for iEvent.emplace
+        outputpLSTS.emplace_back(seed);
     }
 
     if (!produceTrackCandidates_)

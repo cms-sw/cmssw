@@ -28,7 +28,7 @@ process.source = RNTupleTempSource(
     ]
 )
 
-from FWCore.Framework.modules import RunLumiEventAnalyzer
+from FWCore.TestModules.modules import RunLumiEventAnalyzer
 process.test = RunLumiEventAnalyzer(
     verbose = True
     , expectedRunLumiEvents = [

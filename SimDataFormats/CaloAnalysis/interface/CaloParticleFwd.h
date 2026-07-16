@@ -5,8 +5,11 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include <vector>
 
-class CaloParticle;
-std::ostream &operator<<(std::ostream &s, CaloParticle const &tp);
+namespace io_v1 {
+  class CaloParticle;
+  std::ostream &operator<<(std::ostream &s, CaloParticle const &tp);
+}  // namespace io_v1
+using CaloParticle = io_v1::CaloParticle;
 
 typedef std::vector<CaloParticle> CaloParticleCollection;
 typedef edm::Ref<CaloParticleCollection> CaloParticleRef;

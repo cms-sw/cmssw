@@ -1,7 +1,7 @@
 <use name="CondCore/CondDB"/>
 <use name="CondFormats/DTObjects"/>
 <use name="CoralBase"/>
-<use name="DataFormats/Provenance"/>
+<use name="DataFormats/Provenance" source_only="1"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="CondCore/DBOutputService"/>

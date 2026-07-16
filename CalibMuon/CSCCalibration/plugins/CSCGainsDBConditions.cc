@@ -28,9 +28,3 @@ CSCGainsDBConditions::ReturnType CSCGainsDBConditions::produceDBGains(const CSCD
   // need a new object so to not be deleted at exit
   return CSCGainsDBConditions::ReturnType(prefillDBGains());
 }
-
-void CSCGainsDBConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                          const edm::IOVSyncValue &,
-                                          edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}

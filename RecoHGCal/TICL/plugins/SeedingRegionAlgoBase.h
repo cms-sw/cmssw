@@ -2,8 +2,8 @@
 // Emails: felice.pantaleo@cern.ch, marco.rovere@cern.ch
 // Date: 06/2019
 
-#ifndef RecoHGCal_TICL_SeedingRegionAlgoBase_H__
-#define RecoHGCal_TICL_SeedingRegionAlgoBase_H__
+#ifndef RecoHGCal_TICL_SeedingRegionAlgoBase_h
+#define RecoHGCal_TICL_SeedingRegionAlgoBase_h
 
 #include <memory>
 #include <vector>

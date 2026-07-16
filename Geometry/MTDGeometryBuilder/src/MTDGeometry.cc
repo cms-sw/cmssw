@@ -176,7 +176,7 @@ const MTDGeomDet* MTDGeometry::idToDet(DetId s) const {
   return nullptr;
 }
 
-const GeomDetEnumerators::SubDetector MTDGeometry::geomDetSubDetector(int subdet) const {
+GeomDetEnumerators::SubDetector MTDGeometry::geomDetSubDetector(int subdet) const {
   if (subdet >= 1 && subdet <= 2) {
     return theSubDetTypeMap[subdet - 1];
   } else {

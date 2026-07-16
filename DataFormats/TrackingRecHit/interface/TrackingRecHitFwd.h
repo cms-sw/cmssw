@@ -7,7 +7,10 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "FWCore/Utilities/interface/Range.h"
 
-class TrackingRecHit;
+namespace io_v1 {
+  class TrackingRecHit;
+}
+using TrackingRecHit = io_v1::TrackingRecHit;
 /// collection of TrackingRecHits
 typedef edm::OwnVector<TrackingRecHit> TrackingRecHitCollection;
 /// persistent reference to a TrackingRecHit

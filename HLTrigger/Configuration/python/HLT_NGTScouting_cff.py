@@ -91,18 +91,26 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPTTRHBuilderWit
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFFittingSmootherForL2Muon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFTrajectoryFitterForL2Muon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFTrajectorySmootherForL2Muon_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/trackdnn_source_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPPixelCPEFastParams_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltLSTGeometry_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPModulesDevLST_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPTTRHBuilderWithoutRefit_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPMkFit_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltMTDCPEESProducer_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltMTDTimeCalibESProducer_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltMTDTransientTrackingRecHitBuilder_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltPropagatorWithMaterialForMTD_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltKFFitterForRefitInsideOut_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltSmartPropagatorAnyRK_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltChi2EstimatorForRefit_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltKFSmootherForRefitInsideOut_cfi")
 
-# Paths
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/DST_PFScouting_cfi")
+### Paths
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/DST_NGTScouting_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLTAnalyzerEndpath_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLTriggerFinalPath_cfi")
 
-# Global PSets
+### Global PSets
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/ClusterShapeTrajectoryFilter_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/HGCAL_chargeCollectionEfficiencies_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/HGCAL_noise_fC_cfi")
@@ -137,7 +145,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/psets/seedFromProtoTracks_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/SiStripClusterChargeCutLoose_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/SiStripClusterChargeCutNone_cfi")
 
-# Sequences
+### Sequences
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTCalolocalrecoSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTCaloTowersRecSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTCsclocalrecoSequence_cfi")
@@ -237,7 +245,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/services/FastTimerService_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/services/ThroughputService_cfi")
 
 fragment.schedule = cms.Schedule(*[
-    fragment.DST_PFScouting,
+    fragment.DST_NGTScouting,
     fragment.HLTriggerFinalPath,
     fragment.HLTAnalyzerEndpath,
 ])
