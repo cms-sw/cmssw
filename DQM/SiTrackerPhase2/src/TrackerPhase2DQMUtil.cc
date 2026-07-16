@@ -52,7 +52,7 @@ std::string phase2tkutil::getOTHistoId(uint32_t det_id, const TrackerTopology* t
     fname1 << "Layer" << layer;
     fname1 << "";
   } else {
-    fname1 << "EndCaps/";
+    fname1 << "Endcaps/";
     int side = tTopo->tidSide(det_id);
     Side = (side == 1) ? "MINUS" : "PLUS";
     fname1 << Side << "/";
@@ -73,7 +73,7 @@ std::string phase2tkutil::getOTHistoWheelId(uint32_t det_id, const TrackerTopolo
   if (layer < 100) {  //This should ALWAYS be an endcap histo
     return "";
   } else {
-    fname1 << "EndCaps/";
+    fname1 << "Endcaps/";
     int side = tTopo->tidSide(det_id);
     Side = (side == 1) ? "MINUS" : "PLUS";
     fname1 << Side << "/";
