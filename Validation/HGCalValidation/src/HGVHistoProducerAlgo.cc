@@ -25,9 +25,7 @@ namespace {
     }
 
     void consider(double value) {
-      const bool passes =
-          comparison_ == Comparison::below ? value < threshold_ : value >= threshold_;
-      if (passes) {
+      if (doesPass(value)) {
         ++count_;
       }
     }
@@ -39,6 +37,15 @@ namespace {
 
     ThresholdCounter(double threshold, unsigned int minimumCount, Comparison comparison)
         : threshold_(threshold), minimumCount_(minimumCount), comparison_(comparison) {}
+
+    bool doesPass(double value) const {
+      switch (comparison_) {
+        case Comparison::below:
+          return value < threshold_;
+        case Comparison::above:
+          return value > threshold_;
+      }
+    }
 
     double threshold_;
     unsigned int minimumCount_;
