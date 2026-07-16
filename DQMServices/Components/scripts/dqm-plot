@@ -256,18 +256,17 @@ class DQMPlotter:
         xlim_blocks_log = xlim is not None and xlim[0] <= 0
 
         # Automatic log scale for specific variable types
-        if ( any(x in xlabel for x in (r'p_{\text{T}}', r'$p_{\text{T}}$'))
+        if ( any(x in xlabel for x in (r'p_{\text{T}}', r'$p_{\text{T}}$', 'p_{T}'))
              and "pull" not in xlabel.lower() and not xlim_blocks_log ):
             ax.set_xscale("log")
 
-        if ( (any(x in ylabel for x in (r'p_{\text{T}}', r'$p_{\text{T}}$'))
+        if ( (any(x in ylabel for x in (r'p_{\text{T}}', r'$p_{\text{T}}$', 'p_{T}'))
              and "pull" not in ylabel.lower()) or (title is not None and "Sigma" in title) ):
             if not has_negative_values:
                 ax.set_yscale("log")
 
-        if "vertpos" in xlabel and not xlim_blocks_log:
+        if any(x in xlabel for x in ('vertpos', 'Track~r')) and not xlim_blocks_log:
             ax.set_xscale("log")
-            xlabel = "vert r [cm]"
 
         return xlabel, ylabel
 
