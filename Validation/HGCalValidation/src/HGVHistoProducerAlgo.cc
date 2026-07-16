@@ -46,6 +46,77 @@ namespace {
     unsigned int count_ = 0;
   };
 
+  struct CaloParticleDisplacement {
+    double R;
+    double alpha;
+  };
+
+  /* Given a point and direction along a straight trajectory, returns
+     R=sqrt(x*x+y*y) at z=0 and the displacement angle alpha at the
+     HGCAL front surface. Works for uncharged particles only.
+
+     The displacement angle is the angle between the trajectory of the particle
+     and the trajectory that a particle crossing the HGCAL surface at the same point
+     would have. It measures how non-pointing a given particle's trajectory is.
+  */
+  CaloParticleDisplacement resolveDisplacement(const math::XYZVectorF& point,
+                                               const math::XYZVectorF& unitDirection) {
+    const float tToOrigin = -point.z() / unitDirection.z();
+    const float x = point.x() + tToOrigin * unitDirection.x();
+    const float y = point.y() + tToOrigin * unitDirection.y();
+
+    const double R = std::hypot(x, y);
+
+    constexpr float hgcalFrontSurfaceZ = 320.99f;
+    const float surfaceZ = std::copysign(hgcalFrontSurfaceZ, point.z());
+    const float tToSurface = (surfaceZ - point.z()) / unitDirection.z();
+    const math::XYZVectorF surfacePoint(point.x() + tToSurface * unitDirection.x(),
+                                       point.y() + tToSurface * unitDirection.y(),
+                                       surfaceZ);
+    const auto surfaceDirection = surfacePoint.Unit();
+    const double cosAlpha = std::clamp(static_cast<double>(unitDirection.Dot(surfaceDirection)), -1.0, 1.0);
+
+    return {R, std::acos(cosAlpha)};
+  }
+
+  CaloParticleDisplacement resolveSimTrackDisplacement(const SimTrack& simTrack) {
+    const auto& boundaryPos = simTrack.getPositionAtBoundary();
+    const auto& boundaryMom = simTrack.getMomentumAtBoundary();
+
+    const math::XYZVectorF point(boundaryPos.x(), boundaryPos.y(), boundaryPos.z());
+    const math::XYZVectorF direction(boundaryMom.x(), boundaryMom.y(), boundaryMom.z());
+
+    return resolveDisplacement(point, direction.unit());
+  }
+
+  const ticl::Trackster::Vector& resolveTracksterDirection(const ticl::Trackster& trackster) {
+    // eigenvectors()[0] is the unit-norm principal PCA axis of the trackster,
+    // oriented along the particle direction regarding z sign
+    return trackster.eigenvectors()[0];
+  }
+
+  CaloParticleDisplacement resolveRecoTracksterDisplacement(const ticl::Trackster& trackster) {
+    return resolveDisplacement(trackster.barycenter(), resolveTracksterDirection(trackster));
+  }
+
+  const SimTrack& getSimTrack(const CaloParticle& caloParticle) {
+    if (caloParticle.g4Tracks().empty())
+      throw cms::Exception("HGVHistoProducerAlgo") << "SimTrack not found!";
+
+    return caloParticle.g4Tracks().front();
+  }
+
+  int getCaloParticleId(const ticl::Trackster& simTS,
+                        const edm::ProductID& cPHandle_id,
+                        const HGVHistoProducerAlgo::SimClusterToCaloParticleMap& scToCpMap) {
+    const auto productID = simTS.seedID();
+    if (productID == cPHandle_id) {
+      return simTS.seedIndex();
+    }
+
+    return int(scToCpMap.at(simTS.seedIndex()).index());
+  }
+
 }  // namespace
 
 //Parameters for the score cut. Later, this will become part of the
@@ -3176,65 +3247,4 @@ double HGVHistoProducerAlgo::getEta(double eta) const {
     return fabs(eta);
   else
     return eta;
-}
-
-/* Returns the R=sqrt(x*x+y*y) at z=0 and the displacement angle alpha,
-     extrapolating from the position and momentum at the surface of HGCAL.
-     Works for uncharged particles only.
-
-     The displacement angle is the angle between the trajectory of the particle
-     and the trajectory that a particle crossing the HGCAL surface at the same point
-     would have. It measures how non-pointing a given particle's trajectory is.
-  */
-HGVHistoProducerAlgo::CaloParticleDisplacement HGVHistoProducerAlgo::resolveDisplacement(
-    const math::XYZVectorF& point, const math::XYZVectorF& unitDirection) {
-  const float t = -point.z() / unitDirection.z();
-  const float x = point.x() + t * unitDirection.x();
-  const float y = point.y() + t * unitDirection.y();
-
-  const double R = std::hypot(x, y);
-  const auto radialDirection = point.Unit();
-  const double cosAlpha = std::clamp(static_cast<double>(unitDirection.Dot(radialDirection)), -1.0, 1.0);
-
-  return {R, std::acos(cosAlpha)};
-}
-
-HGVHistoProducerAlgo::CaloParticleDisplacement HGVHistoProducerAlgo::resolveSimTrackDisplacement(
-    const SimTrack& simTrack) {
-  const auto& boundaryPos = simTrack.getPositionAtBoundary();
-  const auto& boundaryMom = simTrack.getMomentumAtBoundary();
-
-  const math::XYZVectorF point(boundaryPos.x(), boundaryPos.y(), boundaryPos.z());
-  const math::XYZVectorF direction(boundaryMom.x(), boundaryMom.y(), boundaryMom.z());
-
-  return resolveDisplacement(point, direction.unit());
-}
-
-const ticl::Trackster::Vector& HGVHistoProducerAlgo::resolveTracksterDirection(const ticl::Trackster& trackster) {
-  // eigenvectors()[0] is the unit-norm principal PCA axis of the trackster,
-  // oriented along the particle direction regarding z sign
-  return trackster.eigenvectors()[0];
-}
-
-HGVHistoProducerAlgo::CaloParticleDisplacement HGVHistoProducerAlgo::resolveRecoTracksterDisplacement(
-    const ticl::Trackster& trackster) {
-  return resolveDisplacement(trackster.barycenter(), resolveTracksterDirection(trackster));
-}
-
-const SimTrack& HGVHistoProducerAlgo::getSimTrack(const CaloParticle& caloParticle) {
-  if (caloParticle.g4Tracks().empty())
-    throw cms::Exception("HGVHistoProducerAlgo") << "SimTrack not found!";
-
-  return caloParticle.g4Tracks().front();
-}
-
-int HGVHistoProducerAlgo::getCaloParticleId(const ticl::Trackster& simTS,
-                                            const edm::ProductID& cPHandle_id,
-                                            const SimClusterToCaloParticleMap& scToCpMap) {
-  const auto productID = simTS.seedID();
-  if (productID == cPHandle_id) {
-    return simTS.seedIndex();
-  }
-
-  return int(scToCpMap.at(simTS.seedIndex()).index());
 }

@@ -430,26 +430,7 @@ public:
   };
 
 private:
-  struct CaloParticleDisplacement {
-    double R;
-    double alpha;
-  };
-
   double getEta(double eta) const;
-
-  static CaloParticleDisplacement resolveDisplacement(const math::XYZVectorF& point, const math::XYZVectorF& direction);
-
-  static CaloParticleDisplacement resolveSimTrackDisplacement(const SimTrack& simTrack);
-
-  const static ticl::Trackster::Vector& resolveTracksterDirection(const ticl::Trackster& trackster);
-
-  static CaloParticleDisplacement resolveRecoTracksterDisplacement(const ticl::Trackster& trackster);
-
-  static const SimTrack& getSimTrack(const CaloParticle& caloParticle);
-
-  static int getCaloParticleId(const ticl::Trackster& simTS,
-                               const edm::ProductID& cPHandle_id,
-                               const SimClusterToCaloParticleMap& scToCpMap);
 
   std::shared_ptr<hgcal::RecHitTools> recHitTools_;
   constexpr static int numberOfValidationTypes_ = 4;
