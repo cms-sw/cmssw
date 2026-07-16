@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <cmath>
-#include <numeric>
 #include <iomanip>
 #include <sstream>
 
@@ -13,14 +12,48 @@
 
 using namespace std;
 
+namespace {
+
+  class ThresholdCounter {
+  public:
+    static ThresholdCounter below(double threshold, unsigned int minimumCount) {
+      return ThresholdCounter(threshold, minimumCount, Comparison::below);
+    }
+
+    static ThresholdCounter above(double threshold, unsigned int minimumCount) {
+      return ThresholdCounter(threshold, minimumCount, Comparison::above);
+    }
+
+    void consider(double value) {
+      const bool passes =
+          comparison_ == Comparison::below ? value < threshold_ : value >= threshold_;
+      if (passes) {
+        ++count_;
+      }
+    }
+
+    bool isSatisfied() const { return count_ >= minimumCount_; }
+
+  private:
+    enum class Comparison { below, above };
+
+    ThresholdCounter(double threshold, unsigned int minimumCount, Comparison comparison)
+        : threshold_(threshold), minimumCount_(minimumCount), comparison_(comparison) {}
+
+    double threshold_;
+    unsigned int minimumCount_;
+    Comparison comparison_;
+    unsigned int count_ = 0;
+  };
+
+}  // namespace
+
 //Parameters for the score cut. Later, this will become part of the
 //configuration parameter for the HGCAL associator.
 const double ScoreCutLCtoCP_ = 0.1;
 const double ScoreCutCPtoLC_ = 0.1;
 const double ScoreCutLCtoSC_ = 0.1;
 const double ScoreCutSCtoLC_ = 0.1;
-const double ScoreCutTStoSTSFakeMerge_[] = {0.6, FLT_MIN};  //1.e-09
-const double ScoreCutSTStoTSPurDup_[] = {0.2, FLT_MIN};     //1.e-11
 
 HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset)
     :  //parameters for eta
@@ -105,6 +138,10 @@ HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset)
       minScore_(pset.getParameter<double>("minScore")),
       maxScore_(pset.getParameter<double>("maxScore")),
       nintScore_(pset.getParameter<int>("nintScore")),
+      maxRecoToSimScoreForNonFake_(pset.getParameter<double>("maxRecoToSimScoreForNonFake")),
+      maxRecoToSimScoreForMerge_(pset.getParameter<double>("maxRecoToSimScoreForMerge")),
+      maxSimToRecoScoreForPurity_(pset.getParameter<double>("maxSimToRecoScoreForPurity")),
+      maxSimToRecoScoreForDuplicate_(pset.getParameter<double>("maxSimToRecoScoreForDuplicate")),
 
       //Parameters for shared energy fraction. That is:
       //1. Fraction of each of the layer clusters energy related to a
@@ -2677,11 +2714,7 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
                                                           const edm::ProductID& cPHandle_id) const {
   const auto nTracksters = trackstersToSimTrackstersMap.getMap().size();
   const auto nSimTracksters = simTrackstersToTrackstersMap.getMap().size();
-  std::vector<int> tracksters_FakeMerge(nTracksters, 0);
-  std::vector<int> tracksters_PurityDuplicate(nSimTracksters, 0);
 
-  auto ScoreCutSTStoTSPurDup = ScoreCutSTStoTSPurDup_[0];
-  auto ScoreCutTStoSTSFakeMerge = ScoreCutTStoSTSFakeMerge_[0];
   for (unsigned int tracksterIndex = 0; tracksterIndex < nTracksters; ++tracksterIndex) {
     const auto& trackster = *(trackstersToSimTrackstersMap.getRefFirst(tracksterIndex));
     if (trackster.vertices().empty())
@@ -2699,6 +2732,9 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
     histograms.h_denom_trackster_R[valType][count]->Fill(displacement.R);
     histograms.h_denom_trackster_alpha[valType][count]->Fill(displacement.alpha);
     histograms.h_denom_trackster_time[valType][count]->Fill(trackster.time());
+
+    auto nonFake = ThresholdCounter::below(maxRecoToSimScoreForNonFake_, 1);
+    auto merge = ThresholdCounter::below(maxRecoToSimScoreForMerge_, 2);
 
     // loop over trackstersToSimTrackstersMap[tracksterIndex] by index
     for (unsigned int i = 0; i < trackstersToSimTrackstersMap[tracksterIndex].size(); ++i) {
@@ -2723,10 +2759,11 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
       histograms.h_score_trackster2caloparticle[valType][count]->Fill(score);
       histograms.h_sharedenergy_trackster2caloparticle[valType][count]->Fill(sharedEnergyFraction);
       histograms.h_energy_vs_score_trackster2caloparticle[valType][count]->Fill(score, sharedEnergyFraction);
-      tracksters_FakeMerge[tracksterIndex] += score < ScoreCutTStoSTSFakeMerge;
+      nonFake.consider(score);
+      merge.consider(score);
     }
 
-    if (tracksters_FakeMerge[tracksterIndex] > 0) {
+    if (nonFake.isSatisfied()) {
       histograms.h_num_trackster_eta[valType][count]->Fill(iTS_eta);
       histograms.h_num_trackster_phi[valType][count]->Fill(iTS_phi);
       histograms.h_num_trackster_en[valType][count]->Fill(iTS_en);
@@ -2734,16 +2771,16 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
       histograms.h_num_trackster_R[valType][count]->Fill(displacement.R);
       histograms.h_num_trackster_alpha[valType][count]->Fill(displacement.alpha);
       histograms.h_num_trackster_time[valType][count]->Fill(trackster.time());
+    }
 
-      if (tracksters_FakeMerge[tracksterIndex] > 1) {
-        histograms.h_numMerge_trackster_eta[valType][count]->Fill(iTS_eta);
-        histograms.h_numMerge_trackster_phi[valType][count]->Fill(iTS_phi);
-        histograms.h_numMerge_trackster_en[valType][count]->Fill(iTS_en);
-        histograms.h_numMerge_trackster_pt[valType][count]->Fill(iTS_pt);
-        histograms.h_numMerge_trackster_R[valType][count]->Fill(displacement.R);
-        histograms.h_numMerge_trackster_alpha[valType][count]->Fill(displacement.alpha);
-        histograms.h_numMerge_trackster_time[valType][count]->Fill(trackster.time());
-      }
+    if (merge.isSatisfied()) {
+      histograms.h_numMerge_trackster_eta[valType][count]->Fill(iTS_eta);
+      histograms.h_numMerge_trackster_phi[valType][count]->Fill(iTS_phi);
+      histograms.h_numMerge_trackster_en[valType][count]->Fill(iTS_en);
+      histograms.h_numMerge_trackster_pt[valType][count]->Fill(iTS_pt);
+      histograms.h_numMerge_trackster_R[valType][count]->Fill(displacement.R);
+      histograms.h_numMerge_trackster_alpha[valType][count]->Fill(displacement.alpha);
+      histograms.h_numMerge_trackster_time[valType][count]->Fill(trackster.time());
     }
   }
 
@@ -2774,13 +2811,9 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
     histograms.h_denom_caloparticle_alpha[valType][count]->Fill(displacement.alpha);
     histograms.h_denom_caloparticle_time[valType][count]->Fill(sts_time);
 
-    //Loop through related Tracksters here
-    // In case the threshold to associate a CaloParticle to a Trackster is
-    // below 50%, there could be cases in which the CP is linked to more than
-    // one tracksters, leading to efficiencies >1. This boolean is used to
-    // avoid "over counting".
-    bool sts_considered_efficient = false;
-    bool sts_considered_pure = false;
+    auto efficiency = ThresholdCounter::above(minTSTSharedEneFracEfficiency_, 1);
+    auto purity = ThresholdCounter::below(maxSimToRecoScoreForPurity_, 1);
+    auto duplicate = ThresholdCounter::below(maxSimToRecoScoreForDuplicate_, 2);
 
     for (unsigned int i = 0; i < simTrackstersToTrackstersMap[simTracksterIndex].size(); ++i) {
       const auto sharedEnergy = simTrackstersToTrackstersMap[simTracksterIndex][i].sharedEnergy();
@@ -2806,28 +2839,22 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
       histograms.h_sharedenergy_caloparticle2trackster[valType][count]->Fill(sharedEnergyFraction);
       histograms.h_energy_vs_score_caloparticle2trackster[valType][count]->Fill(score, sharedEnergyFraction);
 
-      // Fill the numerator for the efficiency calculation. The efficiency is computed by considering the energy shared between a Trackster and a _corresponding_ caloParticle. The threshold is configurable via python.
-      if (!sts_considered_efficient && (sharedEnergyFraction >= minTSTSharedEneFracEfficiency_)) {
-        sts_considered_efficient = true;
-        histograms.h_numEff_caloparticle_eta[valType][count]->Fill(sts_eta);
-        histograms.h_numEff_caloparticle_phi[valType][count]->Fill(sts_phi);
-        histograms.h_numEff_caloparticle_en[valType][count]->Fill(sts_en);
-        histograms.h_numEff_caloparticle_pt[valType][count]->Fill(sts_pt);
-        histograms.h_numEff_caloparticle_R[valType][count]->Fill(displacement.R);
-        histograms.h_numEff_caloparticle_alpha[valType][count]->Fill(displacement.alpha);
-        histograms.h_numEff_caloparticle_time[valType][count]->Fill(sts_time);
-      }
-
-      if (score < ScoreCutSTStoTSPurDup) {
-        if (tracksters_PurityDuplicate[simTracksterIndex] < 1)
-          tracksters_PurityDuplicate[simTracksterIndex]++;  // for Purity
-        if (sts_considered_pure)
-          tracksters_PurityDuplicate[simTracksterIndex]++;  // for Duplicate
-        sts_considered_pure = true;
-      }
-
+      efficiency.consider(sharedEnergyFraction);
+      purity.consider(score);
+      duplicate.consider(score);
     }  // end of loop through Tracksters related to SimTrackster
-    if (tracksters_PurityDuplicate[simTracksterIndex] > 0) {
+
+    if (efficiency.isSatisfied()) {
+      histograms.h_numEff_caloparticle_eta[valType][count]->Fill(sts_eta);
+      histograms.h_numEff_caloparticle_phi[valType][count]->Fill(sts_phi);
+      histograms.h_numEff_caloparticle_en[valType][count]->Fill(sts_en);
+      histograms.h_numEff_caloparticle_pt[valType][count]->Fill(sts_pt);
+      histograms.h_numEff_caloparticle_R[valType][count]->Fill(displacement.R);
+      histograms.h_numEff_caloparticle_alpha[valType][count]->Fill(displacement.alpha);
+      histograms.h_numEff_caloparticle_time[valType][count]->Fill(sts_time);
+    }
+
+    if (purity.isSatisfied()) {
       histograms.h_num_caloparticle_eta[valType][count]->Fill(sts_eta);
       histograms.h_num_caloparticle_phi[valType][count]->Fill(sts_phi);
       histograms.h_num_caloparticle_en[valType][count]->Fill(sts_en);
@@ -2835,18 +2862,17 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
       histograms.h_num_caloparticle_R[valType][count]->Fill(displacement.R);
       histograms.h_num_caloparticle_alpha[valType][count]->Fill(displacement.alpha);
       histograms.h_num_caloparticle_time[valType][count]->Fill(sts_time);
-
-      if (tracksters_PurityDuplicate[simTracksterIndex] > 1) {
-        histograms.h_numDup_trackster_eta[valType][count]->Fill(sts_eta);
-        histograms.h_numDup_trackster_phi[valType][count]->Fill(sts_phi);
-        histograms.h_numDup_trackster_en[valType][count]->Fill(sts_en);
-        histograms.h_numDup_trackster_pt[valType][count]->Fill(sts_pt);
-        histograms.h_numDup_trackster_R[valType][count]->Fill(displacement.R);
-        histograms.h_numDup_trackster_alpha[valType][count]->Fill(displacement.alpha);
-        histograms.h_numDup_trackster_time[valType][count]->Fill(sts_time);
-      }
     }
 
+    if (duplicate.isSatisfied()) {
+      histograms.h_numDup_trackster_eta[valType][count]->Fill(sts_eta);
+      histograms.h_numDup_trackster_phi[valType][count]->Fill(sts_phi);
+      histograms.h_numDup_trackster_en[valType][count]->Fill(sts_en);
+      histograms.h_numDup_trackster_pt[valType][count]->Fill(sts_pt);
+      histograms.h_numDup_trackster_R[valType][count]->Fill(displacement.R);
+      histograms.h_numDup_trackster_alpha[valType][count]->Fill(displacement.alpha);
+      histograms.h_numDup_trackster_time[valType][count]->Fill(sts_time);
+    }
   }  // end of loop through SimTracksters
 }
 

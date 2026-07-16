@@ -11,9 +11,6 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 from Validation.RecoTrack.plotting.plotting import Plot, PlotGroup, PlotFolder, Plotter, PlotOnSideGroup
 from Validation.RecoTrack.plotting.html import PlotPurpose
-import Validation.RecoTrack.plotting.plotting as plotting
-import Validation.RecoTrack.plotting.validation as validation
-import Validation.RecoTrack.plotting.html as html
 
 from Validation.HGCalValidation.HGCalValidator_cff import hgcalValidator
 from Validation.HGCalValidation.PostProcessorHGCAL_cfi import lcToCP_linking, simDict, TSbyHits_CP, TSbyLCs, TSbyLCs_CP, TSbyHits, variables

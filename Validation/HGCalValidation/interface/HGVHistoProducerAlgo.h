@@ -4,7 +4,6 @@
 /* \author HGCal
  */
 
-#include <iostream>
 #include <fstream>
 #include <optional>
 #include <vector>
@@ -497,6 +496,10 @@ private:
   int nintEneClperlay_;
   double minScore_, maxScore_;
   int nintScore_;
+  double maxRecoToSimScoreForNonFake_;
+  double maxRecoToSimScoreForMerge_;
+  double maxSimToRecoScoreForPurity_;
+  double maxSimToRecoScoreForDuplicate_;
   double minSharedEneFrac_, maxSharedEneFrac_;
   int nintSharedEneFrac_;
   double minTSTSharedEneFracEfficiency_;
