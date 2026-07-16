@@ -621,8 +621,6 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
               muon.setType(muon.type() | reco::Muon::GEMMuon);
             if (goodME0Muon)
               muon.setType(muon.type() | reco::Muon::ME0Muon);
-            if (isPhase2_)
-              muon.setType(muon.type() | reco::Muon::Phase2Muon);
             LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
             break;
           }
@@ -712,7 +710,8 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // Fill various information
   for (unsigned int i = 0; i < outputMuons->size(); ++i) {
     auto& muon = outputMuons->at(i);
-
+    if (isPhase2_)
+      muon.setType(muon.type() | reco::Muon::Phase2Muon);
     // Fill muonID
     if ((fillMatching_ && !muon.isMatchesValid()) || (fillEnergy_ && !muon.isEnergyValid())) {
       // predict direction based on the muon interaction region location
