@@ -66,8 +66,7 @@ namespace {
      and the trajectory that a particle crossing the HGCAL surface at the same point
      would have. It measures how non-pointing a given particle's trajectory is.
   */
-  CaloParticleDisplacement resolveDisplacement(const math::XYZVectorF& point,
-                                               const math::XYZVectorF& unitDirection) {
+  CaloParticleDisplacement resolveDisplacement(const math::XYZVectorF& point, const math::XYZVectorF& unitDirection) {
     const float tToOrigin = -point.z() / unitDirection.z();
     const float x = point.x() + tToOrigin * unitDirection.x();
     const float y = point.y() + tToOrigin * unitDirection.y();
@@ -77,9 +76,8 @@ namespace {
     constexpr float hgcalFrontSurfaceZ = 320.99f;
     const float surfaceZ = std::copysign(hgcalFrontSurfaceZ, point.z());
     const float tToSurface = (surfaceZ - point.z()) / unitDirection.z();
-    const math::XYZVectorF surfacePoint(point.x() + tToSurface * unitDirection.x(),
-                                       point.y() + tToSurface * unitDirection.y(),
-                                       surfaceZ);
+    const math::XYZVectorF surfacePoint(
+        point.x() + tToSurface * unitDirection.x(), point.y() + tToSurface * unitDirection.y(), surfaceZ);
     const auto surfaceDirection = surfacePoint.Unit();
     const double cosAlpha = std::clamp(static_cast<double>(unitDirection.Dot(surfaceDirection)), -1.0, 1.0);
 
