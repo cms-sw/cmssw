@@ -34,3 +34,5 @@
     <use name="cuda"/>
   </bin>
 </iftool>
+
+<test name="TestHeterogeneousCoreCUDAUtilitiesKernelStackBudget" command="python3 ${LOCALTOP}/src/HeterogeneousCore/CUDAUtilities/test/testKernelStackBudget.py"/>
