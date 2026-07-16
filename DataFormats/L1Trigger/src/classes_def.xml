@@ -273,7 +273,8 @@
 
   <class name="edm::Ptr<l1t::io_v1::L1Candidate>"/>
 
-  <class name="l1t::io_v1::Vertex" ClassVersion="3">
+  <class name="l1t::io_v1::Vertex" ClassVersion="4">
+    <version ClassVersion="4" checksum="52727054"/>
     <version ClassVersion="3" checksum="3405271232"/>
   </class>
   <class name="std::vector<l1t::io_v1::Vertex>"/>
