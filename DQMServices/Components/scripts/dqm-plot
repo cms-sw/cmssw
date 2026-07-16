@@ -144,8 +144,14 @@ class DQMPlotter:
                 raise ValueError("Histogram binning mismatch.")
 
             rndstr = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
-            result = h1.ProjectionX('ProjectionX1_' + rndstr)
-            tmp = h2.ProjectionX('ProjectionX2_' + rndstr)
+            if isinstance(h1, ROOT.TH2) and isinstance(h2, ROOT.TH2):
+                result = h1.ProjectionX('ProjectionX1_' + rndstr)
+                tmp = h2.ProjectionX('ProjectionX2_' + rndstr)
+            elif isinstance(h1, ROOT.TH1) and isinstance(h2, ROOT.TH1):
+                result = h1
+                tmp = h2
+            tmp.Sumw2()
+            result.Sumw2()
             result.Divide(tmp)
             results.append(result)
      
@@ -581,6 +587,7 @@ class DQMPlotter:
             hist = self._load_single_histogram(file_path, hist_path)
 
             if hist is None:
+                print(f'Warning: Histogram {hist_path} in file {file_path} was not found.')
                 continue
 
             histograms.append(hist)
@@ -1138,7 +1145,6 @@ class DQMPlotter:
         if ylim:
             ax_main.set_ylim(*ylim)
  
-
         self._apply_custom_formatter(ax_main)
 
         # Ratio plot styling
@@ -1251,7 +1257,6 @@ class DQMPlotter:
             plot_tasks = []
             for numerator, denominator in operation_specs:
                 output_path = os.path.join(output_dir, os.path.basename(numerator) + '_' + operation_type.upper() + '_' + os.path.basename(denominator))
-                
                 plot_tasks.append({
                     "is_operation": True,
                     "file_paths": file_paths,
@@ -1590,6 +1595,7 @@ def process_histogram_task(task, debug):
             for fp, lab in zip(file_paths, labels):
                 num, lab = plotter._load_histograms([fp], task["numerator_path"], [lab])
                 den, _ = plotter._load_histograms([fp], task["denominator_path"], [lab])
+
                 # _load_histograms returns ([], []) when a histogram is missing; skip
                 # this file so numerator/denominator/labels stay aligned.
                 if not num or not den:
