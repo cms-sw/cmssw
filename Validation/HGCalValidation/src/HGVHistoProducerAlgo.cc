@@ -45,6 +45,7 @@ namespace {
         case Comparison::above:
           return value > threshold_;
       }
+      return false;
     }
 
     double threshold_;
