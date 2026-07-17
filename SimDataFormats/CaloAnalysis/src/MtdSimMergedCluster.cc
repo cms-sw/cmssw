@@ -44,7 +44,6 @@ float MtdSimMergedCluster::simTime() const {
   }
 }
 
-
 float MtdSimMergedCluster::simEnergy() const {
   float totalEnergy = 0;
   for (const auto& clu : clusters_) {
@@ -80,7 +79,7 @@ std::vector<DetId> MtdSimMergedCluster::detIds() const {
   return ids;
 }
 
-std::vector<std::pair<float, LocalPoint>> MtdSimMergedCluster::getHitTimesAndPositions() const {
+std::vector<std::pair<float, LocalPoint>> MtdSimMergedCluster::hitTimesAndPositions() const {
   std::vector<std::pair<float, LocalPoint>> hitTimesAndPositions;
 
   for (const auto& clu : clusters_) {
@@ -112,6 +111,15 @@ std::vector<std::pair<float, LocalPoint>> MtdSimMergedCluster::getHitTimesAndPos
       [](const std::pair<float, LocalPoint>& a, const std::pair<float, LocalPoint>& b) { return a.first < b.first; });
 
   return hitTimesAndPositions;
+}
+
+unsigned int MtdSimMergedCluster::hitProdType() const {
+  unsigned int thisType(0), oldType(999);
+  for (auto const& clu : clusters_) {
+    thisType = std::min((*clu).hitProdType(), oldType);
+    oldType = thisType;
+  }
+  return thisType;
 }
 
 std::ostream& operator<<(std::ostream& s, const MtdSimMergedCluster& sc) {

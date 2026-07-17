@@ -41,17 +41,11 @@ public:
     return getParameters(cl, det, tsos.localParameters());
   }
   // FTLMergedCluster overloads
-  virtual ReturnType getParameters(const FTLMergedCluster& cl, const GeomDetUnit& det) const {
-    throw cms::Exception("MTDClusterParameterEstimator")
-        << "getParameters(FTLMergedCluster, GeomDetUnit) not implemented!";
-  }
+  virtual ReturnType getParameters(const FTLMergedCluster& cl, const GeomDetUnit& det) const = 0;
 
   virtual ReturnType getParameters(const FTLMergedCluster& cl,
                                    const GeomDetUnit& det,
-                                   const LocalTrajectoryParameters& ltp) const {
-    throw cms::Exception("MTDClusterParameterEstimator")
-        << "getParameters(FTLMergedCluster, GeomDetUnit, LocalTrajectoryParameters) not implemented!";
-  }
+                                   const LocalTrajectoryParameters& ltp) const = 0;
 
   virtual ReturnType getParameters(const FTLMergedCluster& cl,
                                    const GeomDetUnit& det,
