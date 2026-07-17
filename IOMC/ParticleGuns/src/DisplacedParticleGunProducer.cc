@@ -398,10 +398,10 @@ namespace edm {
     }
 
     /**
-     * Return the HepMC time coordinate (c * time of flight) at the production point. The calculation sums the
-     * beam-spot-to-origin and origin-to-production path lengths and uses the speed beta = |p| / E derived from the
-     * supplied momentum. Both path segments are assumed to be straight, so this only applies to uncharged particles
-     * in the detector's magnetic field.
+     * Return the HepMC time coordinate (c * time of flight) at the production point. The beam-spot-to-origin segment
+     * is traversed at the speed of light, while the origin-to-production segment uses the speed beta = |p| / E
+     * derived from the supplied momentum. Both path segments are assumed to be straight, so this only applies to
+     * uncharged particles in the detector's magnetic field.
      */
     double resolveTimeOfFlight(const Point& origin, const Point& production, const FourMomentum& momentum) {
       const double beamSpotToOriginPathLength = std::hypot(origin.x, origin.y, origin.z);
@@ -412,8 +412,8 @@ namespace edm {
       const double originToProductionPathLength = std::hypot(deltaX, deltaY, deltaZ);
 
       const double absoluteMomentum = std::hypot(momentum.px, momentum.py, momentum.pz);
-      const double totalPathLength = beamSpotToOriginPathLength + originToProductionPathLength;
-      return totalPathLength * CLHEP::cm * momentum.energy / absoluteMomentum;
+      return (beamSpotToOriginPathLength + originToProductionPathLength * momentum.energy / absoluteMomentum) *
+             CLHEP::cm;
     }
 
     std::optional<SampledDirection> sampleDirection(CLHEP::HepRandomEngine* engine,
