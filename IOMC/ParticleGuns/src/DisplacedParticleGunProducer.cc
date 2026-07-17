@@ -397,14 +397,23 @@ namespace edm {
              isPhiWithin(std::atan2(point.y, point.x), cap.phiMin, cap.phiMax);
     }
 
-    double resolveTimeOfFlight(const Point& origin, const Point& destination, const FourMomentum& momentum) {
-      const double deltaX = destination.x - origin.x;
-      const double deltaY = destination.y - origin.y;
-      const double deltaZ = destination.z - origin.z;
-      const double pathLength = std::sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
-      const double absoluteMomentum =
-          std::sqrt(momentum.px * momentum.px + momentum.py * momentum.py + momentum.pz * momentum.pz);
-      return pathLength * CLHEP::cm * momentum.energy / absoluteMomentum;
+    /**
+     * Return the HepMC time coordinate (c * time of flight) at the production point. The calculation sums the
+     * beam-spot-to-origin and origin-to-production path lengths and uses the speed beta = |p| / E derived from the
+     * supplied momentum. Both path segments are assumed to be straight, so this only applies to uncharged particles
+     * in the detector's magnetic field.
+     */
+    double resolveTimeOfFlight(const Point& origin, const Point& production, const FourMomentum& momentum) {
+      const double beamSpotToOriginPathLength = std::hypot(origin.x, origin.y, origin.z);
+
+      const double deltaX = production.x - origin.x;
+      const double deltaY = production.y - origin.y;
+      const double deltaZ = production.z - origin.z;
+      const double originToProductionPathLength = std::hypot(deltaX, deltaY, deltaZ);
+
+      const double absoluteMomentum = std::hypot(momentum.px, momentum.py, momentum.pz);
+      const double totalPathLength = beamSpotToOriginPathLength + originToProductionPathLength;
+      return totalPathLength * CLHEP::cm * momentum.energy / absoluteMomentum;
     }
 
     std::optional<SampledDirection> sampleDirection(CLHEP::HepRandomEngine* engine,
