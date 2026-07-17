@@ -25,11 +25,11 @@
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/FTLRecHit/interface/FTLRecHitCollections.h"
-#include "DataFormats/FTLRecHit/interface/FTLClusterCollections.h"
+#include "DataFormats/FTLRecHit/interface/FTLMergedClusterCollections.h"
 #include "DataFormats/TrackerRecHit2D/interface/MTDTrackingRecHit.h"
 
-#include "SimDataFormats/CaloAnalysis/interface/MtdSimLayerCluster.h"
-#include "SimDataFormats/Associations/interface/MtdRecoClusterToSimLayerClusterAssociationMap.h"
+#include "SimDataFormats/CaloAnalysis/interface/MtdSimMergedCluster.h"
+#include "SimDataFormats/Associations/interface/MtdRecoMergedClusterToSimMergedClusterAssociationMap.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -61,8 +61,6 @@ private:
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  bool isSameCluster(const FTLCluster&, const FTLCluster&);
-
   // ------------ member data ------------
 
   const std::string folder_;
@@ -75,9 +73,9 @@ private:
   edm::EDGetTokenT<FTLRecHitCollection> btlRecHitsToken_;
   edm::EDGetTokenT<FTLUncalibratedRecHitCollection> btlUncalibRecHitsToken_;
   edm::EDGetTokenT<CrossingFrame<PSimHit>> btlSimHitsToken_;
-  edm::EDGetTokenT<FTLClusterCollection> btlRecCluToken_;
+  edm::EDGetTokenT<FTLMergedClusterCollection> btlRecCluToken_;
   edm::EDGetTokenT<MTDTrackingDetSetVector> mtdTrackingHitToken_;
-  edm::EDGetTokenT<MtdRecoClusterToSimLayerClusterAssociationMap> r2sAssociationMapToken_;
+  edm::EDGetTokenT<MtdRecoMergedClusterToSimMergedClusterAssociationMap> r2sAssociationMapToken_;
 
   const edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
   const edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
@@ -295,11 +293,6 @@ private:
   MonitorElement* meDeltaTsimvsEL_;
 };
 
-bool BtlLocalRecoValidation::isSameCluster(const FTLCluster& clu1, const FTLCluster& clu2) {
-  return clu1.id() == clu2.id() && clu1.size() == clu2.size() && clu1.x() == clu2.x() && clu1.y() == clu2.y() &&
-         clu1.time() == clu2.time();
-}
-
 // ------------ constructor and destructor --------------
 BtlLocalRecoValidation::BtlLocalRecoValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
@@ -315,9 +308,9 @@ BtlLocalRecoValidation::BtlLocalRecoValidation(const edm::ParameterSet& iConfig)
   btlUncalibRecHitsToken_ =
       consumes<FTLUncalibratedRecHitCollection>(iConfig.getParameter<edm::InputTag>("uncalibRecHitsTag"));
   btlSimHitsToken_ = consumes<CrossingFrame<PSimHit>>(iConfig.getParameter<edm::InputTag>("simHitsTag"));
-  btlRecCluToken_ = consumes<FTLClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTag"));
+  btlRecCluToken_ = consumes<FTLMergedClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTag"));
   mtdTrackingHitToken_ = consumes<MTDTrackingDetSetVector>(iConfig.getParameter<edm::InputTag>("trkHitTag"));
-  r2sAssociationMapToken_ = consumes<MtdRecoClusterToSimLayerClusterAssociationMap>(
+  r2sAssociationMapToken_ = consumes<MtdRecoMergedClusterToSimMergedClusterAssociationMap>(
       iConfig.getParameter<edm::InputTag>("r2sAssociationMapTag"));
 }
 
@@ -492,15 +485,14 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       DetId detIdObject(cluId);
       const auto& genericDet = geom->idToDetUnit(detIdObject);
       if (genericDet == nullptr) {
-        continue;
+        throw cms::Exception("EtlLocalRecoValidation")
+            << "GeographicalID: " << std::hex << cluId << " is invalid!" << std::dec << std::endl;
       }
+      LogTrace("BtlLocalRecoValidation") << " BTL Cluster above threshold # " << n_clus_btl << cluster;
       n_clus_btl++;
       LogTrace("BtlLocalRecoValidation") << "Cluster DetId " << cluId.rawId() << " size = " << cluster.size()
                                          << " min/max row = " << cluster.minHitRow() << " " << cluster.maxHitRow()
                                          << " min/max col = " << cluster.minHitCol() << " " << cluster.maxHitCol();
-
-      const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(genericDet->topology());
-      const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
       MTDClusterParameterEstimator::ReturnType tuple = cpe.getParameters(cluster, *genericDet);
 
@@ -514,75 +506,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       meCluPhi_->Fill(global_point.phi());
       meCluEta_->Fill(global_point.eta());
       meCluZvsPhi_->Fill(global_point.z(), global_point.phi());
-      meCluHits_->Fill(cluster.size());
-
-      // --- Get the SIM hits associated to the cluster and calculate
-      //     the cluster SIM energy, time and position
-
-      double cluEneSIM = 0.;
-      double cluTimeSIM = 0.;
-      double cluLocXSIM = 0.;
-      double cluLocYSIM = 0.;
-      double cluLocZSIM = 0.;
-
-      if (optionalPlots_) {
-        for (int ihit = 0; ihit < cluster.size(); ++ihit) {
-          auto thisHit = cluster.hit(ihit);
-          LogTrace("BtlLocalRecoValidation")
-              << "Cluster hit " << ihit << " row/col = " << thisHit.x() << " " << thisHit.y()
-              << " time = " << thisHit.time() << " timeError = " << thisHit.time_error()
-              << " energy = " << thisHit.energy();
-          int hit_row = cluster.minHitRow() + cluster.hitOffset()[ihit * 2];
-          int hit_col = cluster.minHitCol() + cluster.hitOffset()[ihit * 2 + 1];
-          if (hit_row != thisHit.x() || hit_col != thisHit.y()) {
-            edm::LogWarning("BtlLocalRecoValidation")
-                << "Index in cluster memory not consistent, row/col = " << hit_row << " " << hit_col;
-          }
-
-          // Match the RECO hit to the corresponding SIM hit
-          bool found(false);
-          for (const auto& recHit : *btlRecHitsHandle) {
-            BTLDetId hitId(recHit.id().rawId());
-
-            if (m_btlSimHits.count(hitId.rawId()) == 0)
-              continue;
-
-            // Check the hit position
-            if (hitId.mtdSide() != cluId.mtdSide() || hitId.mtdRR() != cluId.mtdRR() || recHit.row() != hit_row ||
-                recHit.column() != hit_col)
-              continue;
-
-            // Check the hit energy and time
-            if (recHit.energy() != cluster.hitENERGY()[ihit] || recHit.time() != cluster.hitTIME()[ihit])
-              continue;
-
-            // SIM hit's position in the module reference frame
-            Local3DPoint local_point_sim(convertMmToCm(m_btlSimHits[recHit.id().rawId()].x),
-                                         convertMmToCm(m_btlSimHits[recHit.id().rawId()].y),
-                                         convertMmToCm(m_btlSimHits[recHit.id().rawId()].z));
-            local_point_sim =
-                topo.pixelToModuleLocalPoint(local_point_sim, hitId.row(topo.nrows()), hitId.column(topo.nrows()));
-
-            // Calculate the SIM cluster's position in the module reference frame
-            cluLocXSIM += local_point_sim.x() * m_btlSimHits[recHit.id().rawId()].energy;
-            cluLocYSIM += local_point_sim.y() * m_btlSimHits[recHit.id().rawId()].energy;
-            cluLocZSIM += local_point_sim.z() * m_btlSimHits[recHit.id().rawId()].energy;
-
-            // Calculate the SIM cluster energy and time
-            cluEneSIM += m_btlSimHits[recHit.id().rawId()].energy;
-            cluTimeSIM += m_btlSimHits[recHit.id().rawId()].time * m_btlSimHits[recHit.id().rawId()].energy;
-
-            found = true;
-            break;
-
-          }  // recHit loop
-          if (!found) {
-            edm::LogWarning("BtlLocalRecoValidation")
-                << "Cluster " << cluster.id().rawId() << " hit " << ihit << " Matching recHit not found!";
-          }
-
-        }  // ihit loop
-      }
+      meCluHits_->Fill(cluster.nHits());
 
       // Find the MTDTrackingRecHit corresponding to the cluster
       MTDTrackingRecHit* comp(nullptr);
@@ -591,323 +515,193 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       const auto& trkHits = mtdTrkHitHandle->find(detIdObject);
       if (trkHits != mtdTrkHitHandle->end()) {
         for (const auto& trkHit : *trkHits) {
-          auto mergedCluster = trkHit.mtdMergedCluster();
-          const auto& mergedClusterRefs = mergedCluster.clusterRefs();
-          for (const auto& ref : mergedClusterRefs) {
-            if (isSameCluster(cluster, *ref)) {
-              comp = trkHit.clone();
-              matchClu = true;
-              break;
-            }
-          }
-          if (matchClu)
+          const auto mergedCluster = trkHit.mtdMergedCluster();
+          if (mergedCluster == cluster) {
+            LogTrace("BtlLocalRecoValidation")
+                << "MTD_TRH: " << trkHit.localPosition().x() << "," << trkHit.localPosition().y() << " : "
+                << trkHit.localPositionError().xx() << "," << trkHit.localPositionError().yy() << " : " << trkHit.time()
+                << " : " << trkHit.timeError();
+            matchClu = true;
             break;
-        }
-      }
-      if (!matchClu) {  //didn't find the cluster in the same detId, probably has been merged, look for clusters in adjacent detIds (in eta direction)
-        std::pair<uint32_t, uint32_t> indices = topology->btlIndex(detIdObject.rawId());
-        uint32_t iphi = indices.first;
-        uint32_t ieta = indices.second;
-        std::vector<int> etaOffsets = {1, -1};
-        for (int etaOffset : etaOffsets) {
-          uint32_t adjDetIdRaw = topology->btlidFromIndex(iphi, ieta + etaOffset);
-          if (adjDetIdRaw == 0) {
-            continue;  //skip if the adjacent detId is invalid
           }
-          BTLDetId cluId_nearby(adjDetIdRaw);
-          DetId detIdObject_nearby(cluId_nearby);
+        }
 
-          const auto& trkHits_nearby = mtdTrkHitHandle->find(detIdObject_nearby);
-          if (trkHits_nearby != mtdTrkHitHandle->end()) {
-            for (const auto& trkHit : *trkHits_nearby) {
-              auto mergedCluster = trkHit.mtdMergedCluster();
-              const auto& mergedClusterRefs = mergedCluster.clusterRefs();
-              for (const auto& ref : mergedClusterRefs) {
-                if (isSameCluster(cluster, *ref)) {
-                  comp = trkHit.clone();
-                  matchClu = true;
-                  break;
+        if (!matchClu) {
+          edm::LogWarning("BtlLocalRecoValidation")
+              << "No valid TrackingRecHit corresponding to cluster, detId = " << detIdObject.rawId();
+        }
+
+        // --- Fill the cluster resolution histograms using MtdSimLayerClusters as mtd truth
+        edm::Ref<edmNew::DetSetVector<FTLMergedCluster>, FTLMergedCluster> clusterRef =
+            edmNew::makeRefTo(btlRecCluHandle, &cluster);
+        auto itp = r2sAssociationMap.equal_range(clusterRef);
+        if (itp.first != itp.second) {
+          std::vector<MtdSimMergedClusterRef> simClustersRefs =
+              (*itp.first).second;  // the range of itp.first, itp.second should be always 1
+          for (unsigned int i = 0; i < simClustersRefs.size(); i++) {
+            const auto& simClusterRef = simClustersRefs[i];
+
+            float simClusEnergy = convertUnitsTo(0.001_MeV, (*simClusterRef).simEnergy());  // GeV --> MeV
+            float simClusTime = (*simClusterRef).simTime();
+            LocalPoint simClusLocalPos = (*simClusterRef).simPos();
+            const auto& simClusGlobalPos = genericDet->toGlobal(simClusLocalPos);
+            unsigned int idOffset = (*simClusterRef).hitProdType();
+
+            float time_res = cluster.time() - simClusTime;
+            float energy_res = cluster.energy() - simClusEnergy;
+            float rho_res = global_point.perp() - simClusGlobalPos.perp();
+            float phi_res = global_point.phi() - simClusGlobalPos.phi();
+            float z_res = global_point.z() - simClusGlobalPos.z();
+            float xlocal_res = local_point.x() - simClusLocalPos.x();
+            float ylocal_res = local_point.y() - simClusLocalPos.y();
+
+            meCluTrackIdOffset_->Fill(float(idOffset));
+
+            // -- Fill for direct hits
+            if (idOffset == 0) {
+              meCluTimeRes_simLC_->Fill(time_res);
+              meCluEnergyRes_simLC_->Fill(energy_res);
+              meCluRhoRes_simLC_->Fill(rho_res);
+              meCluPhiRes_simLC_->Fill(phi_res);
+              meCluZRes_simLC_->Fill(z_res);
+
+              if (matchClu && comp != nullptr) {
+                meCluLocalXRes_simLC_->Fill(xlocal_res);
+
+                if (global_point.z() > 0) {
+                  meCluLocalYResZGlobPlus_simLC_->Fill(ylocal_res);
+                  meCluLocalYPullZGlobPlus_simLC_->Fill(ylocal_res / std::sqrt(comp->localPositionError().yy()));
+                } else {
+                  meCluLocalYResZGlobMinus_simLC_->Fill(ylocal_res);
+                  meCluLocalYPullZGlobMinus_simLC_->Fill(ylocal_res / std::sqrt(comp->localPositionError().yy()));
                 }
+                if (optionalPlots_) {
+                  if (cluster.size() == 1) {  // single-crystal clusters
+                    meCluSingCrystalLocalYRes_simLC_->Fill(ylocal_res);
+                    if (global_point.z() > 0) {
+                      meCluSingCrystalLocalYResZGlobPlus_simLC_->Fill(ylocal_res);
+                    } else {
+                      meCluSingCrystalLocalYResZGlobMinus_simLC_->Fill(ylocal_res);
+                    }
+                  }  // end of single-crystal clusters
+                  else {
+                    if (cluster.size() > 1) {  // multi-crystal clusters
+                      meCluMultiCrystalLocalYRes_simLC_->Fill(ylocal_res);
+                      if (global_point.z() > 0) {
+                        meCluMultiCrystalLocalYResZGlobPlus_simLC_->Fill(ylocal_res);
+                      } else {
+                        meCluMultiCrystalLocalYResZGlobMinus_simLC_->Fill(ylocal_res);
+                      }
+                    }
+                  }  // end of multi-crystal clusters
+
+                  if (abs(global_point.eta()) < 0.3) {
+                    meCluCentralLocalYRes_simLC_->Fill(ylocal_res);
+                    if (global_point.z() > 0) {
+                      meCluCentralLocalYResZGlobPlus_simLC_->Fill(ylocal_res);
+                    } else {
+                      meCluCentralLocalYResZGlobMinus_simLC_->Fill(ylocal_res);
+                    }
+                  } else {
+                    if (abs(global_point.eta()) > 1) {
+                      meCluForwardLocalYRes_simLC_->Fill(ylocal_res);
+                      if (global_point.z() > 0) {
+                        meCluForwardPlusLocalYRes_simLC_->Fill(ylocal_res);
+                      } else {
+                        meCluForwardMinusLocalYRes_simLC_->Fill(ylocal_res);
+                      }
+                    }
+                  }
+                }  //end of optional plots
+
+                meCluLocalXPull_simLC_->Fill(xlocal_res / std::sqrt(comp->localPositionError().xx()));
+                meCluZPull_simLC_->Fill(z_res / std::sqrt(comp->globalPositionError().czz()));
               }
-              if (matchClu)
-                break;
-            }
-          }
-        }
-      }
 
-      if (!matchClu) {
-        edm::LogWarning("BtlLocalRecoValidation")
-            << "No valid TrackingRecHit corresponding to cluster, detId = " << detIdObject.rawId();
-      }
+              meCluTResvsEta_simLC_->Fill(std::abs(simClusGlobalPos.eta()), time_res);
+              meCluTResvsE_simLC_->Fill(simClusEnergy, time_res);
 
-      // --- Fill the cluster resolution histograms
-      if (optionalPlots_) {
-        if (cluTimeSIM > 0. && cluEneSIM > 0.) {
-          cluTimeSIM /= cluEneSIM;
+              meCluTPullvsEta_simLC_->Fill(std::abs(simClusGlobalPos.eta()), time_res / cluster.timeError());
+              meCluTPullvsE_simLC_->Fill(simClusEnergy, time_res / cluster.timeError());
 
-          Local3DPoint cluLocalPosSIM(cluLocXSIM / cluEneSIM, cluLocYSIM / cluEneSIM, cluLocZSIM / cluEneSIM);
-          const auto& cluGlobalPosSIM = genericDet->toGlobal(cluLocalPosSIM);
-
-          float time_res = cluster.time() - cluTimeSIM;
-          float energy_res = cluster.energy() - cluEneSIM;
-          meCluTimeRes_->Fill(time_res);
-          meCluEnergyRes_->Fill(energy_res);
-
-          float rho_res = global_point.perp() - cluGlobalPosSIM.perp();
-          float phi_res = global_point.phi() - cluGlobalPosSIM.phi();
-
-          meCluRhoRes_->Fill(rho_res);
-          meCluPhiRes_->Fill(phi_res);
-
-          float xlocal_res = local_point.x() - cluLocalPosSIM.x();
-          float ylocal_res = local_point.y() - cluLocalPosSIM.y();
-
-          float z_res = global_point.z() - cluGlobalPosSIM.z();
-
-          meCluZRes_->Fill(z_res);
-
-          if (matchClu && comp != nullptr) {
-            meCluLocalXRes_->Fill(xlocal_res);
-
-            if (global_point.z() > 0) {
-              meCluLocalYResZGlobPlus_->Fill(ylocal_res);
-              meCluLocalYPullZGlobPlus_->Fill(ylocal_res / std::sqrt(comp->localPositionError().yy()));
-            } else {
-              meCluLocalYResZGlobMinus_->Fill(ylocal_res);
-              meCluLocalYPullZGlobMinus_->Fill(ylocal_res / std::sqrt(comp->localPositionError().yy()));
-            }
-            if (cluster.size() == 1) {  // single-crystal clusters
-              meCluSingCrystalLocalYRes_->Fill(ylocal_res);
-              if (global_point.z() > 0) {
-                meCluSingCrystalLocalYResZGlobPlus_->Fill(ylocal_res);
-              } else {
-                meCluSingCrystalLocalYResZGlobMinus_->Fill(ylocal_res);
-              }
-            }  // end of single-crystal clusters
+            }  // if idOffset == 0
             else {
-              if (cluster.size() > 1) {  // multi-crystal clusters
-                meCluMultiCrystalLocalYRes_->Fill(ylocal_res);
-                if (global_point.z() > 0) {
-                  meCluMultiCrystalLocalYResZGlobPlus_->Fill(ylocal_res);
-                } else {
-                  meCluMultiCrystalLocalYResZGlobMinus_->Fill(ylocal_res);
-                }
-              }
-            }  // end of multi-crystal clusters
+              meCluTimeRes_simLC_fromIndirectHits_->Fill(time_res);
+              meCluEnergyRes_simLC_fromIndirectHits_->Fill(energy_res);
+              meCluRhoRes_simLC_fromIndirectHits_->Fill(rho_res);
+              meCluPhiRes_simLC_fromIndirectHits_->Fill(phi_res);
+              meCluZRes_simLC_fromIndirectHits_->Fill(z_res);
 
-            if (abs(global_point.eta()) < 0.3) {
-              meCluCentralLocalYRes_->Fill(ylocal_res);
-              if (global_point.z() > 0) {
-                meCluCentralLocalYResZGlobPlus_->Fill(ylocal_res);
-              } else {
-                meCluCentralLocalYResZGlobMinus_->Fill(ylocal_res);
+              if (matchClu && comp != nullptr) {
+                meCluLocalXRes_simLC_fromIndirectHits_->Fill(xlocal_res);
+
+                if (global_point.z() > 0) {
+                  meCluLocalYResZGlobPlus_simLC_fromIndirectHits_->Fill(ylocal_res);
+                  meCluLocalYPullZGlobPlus_simLC_fromIndirectHits_->Fill(ylocal_res /
+                                                                         std::sqrt(comp->localPositionError().yy()));
+                } else {
+                  meCluLocalYResZGlobMinus_simLC_fromIndirectHits_->Fill(ylocal_res);
+                  meCluLocalYPullZGlobMinus_simLC_fromIndirectHits_->Fill(ylocal_res /
+                                                                          std::sqrt(comp->localPositionError().yy()));
+                }
+                if (optionalPlots_) {
+                  if (cluster.size() == 1) {  // single-crystal clusters
+                    meCluSingCrystalLocalYRes_simLC_fromIndirectHits_->Fill(ylocal_res);
+                    if (global_point.z() > 0) {
+                      meCluSingCrystalLocalYResZGlobPlus_simLC_fromIndirectHits_->Fill(ylocal_res);
+                    } else {
+                      meCluSingCrystalLocalYResZGlobMinus_simLC_fromIndirectHits_->Fill(ylocal_res);
+                    }
+                  }  // end of single-crystal clusters
+                  else {
+                    if (cluster.size() > 1) {  // multi-crystal clusters
+                      meCluMultiCrystalLocalYRes_simLC_fromIndirectHits_->Fill(ylocal_res);
+                      if (global_point.z() > 0) {
+                        meCluMultiCrystalLocalYResZGlobPlus_simLC_fromIndirectHits_->Fill(ylocal_res);
+                      } else {
+                        meCluMultiCrystalLocalYResZGlobMinus_simLC_fromIndirectHits_->Fill(ylocal_res);
+                      }
+                    }
+                  }  // end of multi-crystal clusters
+
+                  if (abs(global_point.eta()) < 0.3) {
+                    meCluCentralLocalYRes_simLC_fromIndirectHits_->Fill(ylocal_res);
+                    if (global_point.z() > 0) {
+                      meCluCentralLocalYResZGlobPlus_simLC_fromIndirectHits_->Fill(ylocal_res);
+                    } else {
+                      meCluCentralLocalYResZGlobMinus_simLC_fromIndirectHits_->Fill(ylocal_res);
+                    }
+                  } else {
+                    if (abs(global_point.eta()) > 1) {
+                      meCluForwardLocalYRes_simLC_fromIndirectHits_->Fill(ylocal_res);
+                      if (global_point.z() > 0) {
+                        meCluForwardPlusLocalYRes_simLC_fromIndirectHits_->Fill(ylocal_res);
+                      } else {
+                        meCluForwardMinusLocalYRes_simLC_fromIndirectHits_->Fill(ylocal_res);
+                      }
+                    }
+                  }
+                }  //end of optional plots
+
+                meCluLocalXPull_simLC_fromIndirectHits_->Fill(xlocal_res / std::sqrt(comp->localPositionError().xx()));
+                meCluZPull_simLC_fromIndirectHits_->Fill(z_res / std::sqrt(comp->globalPositionError().czz()));
               }
 
-            } else {
-              if (abs(global_point.eta()) > 1) {
-                meCluForwardLocalYRes_->Fill(ylocal_res);
-                if (global_point.z() > 0) {
-                  meCluForwardPlusLocalYRes_->Fill(ylocal_res);
-                } else {
-                  meCluForwardMinusLocalYRes_->Fill(ylocal_res);
-                }
-              }
+              meCluTResvsEta_simLC_fromIndirectHits_->Fill(std::abs(simClusGlobalPos.eta()), time_res);
+              meCluTResvsE_simLC_fromIndirectHits_->Fill(simClusEnergy, time_res);
+
+              meCluTPullvsEta_simLC_fromIndirectHits_->Fill(std::abs(simClusGlobalPos.eta()),
+                                                            time_res / cluster.timeError());
+              meCluTPullvsE_simLC_fromIndirectHits_->Fill(simClusEnergy, time_res / cluster.timeError());
             }
 
-            meCluYXLocal_->Fill(local_point.x(), local_point.y());
-            meCluYXLocalSim_->Fill(cluLocalPosSIM.x(), cluLocalPosSIM.y());
-
-            meCluLocalXPull_->Fill(xlocal_res / std::sqrt(comp->localPositionError().xx()));
-            meCluZPull_->Fill(z_res / std::sqrt(comp->globalPositionError().czz()));
-            meCluXLocalErr_->Fill(std::sqrt(comp->localPositionError().xx()));
-            meCluYLocalErr_->Fill(std::sqrt(comp->localPositionError().yy()));
-          }
-
-          meCluEnergyvsEta_->Fill(std::abs(cluGlobalPosSIM.eta()), cluster.energy());
-          meCluHitsvsEta_->Fill(std::abs(cluGlobalPosSIM.eta()), cluster.size());
-
-          meCluTResvsEta_->Fill(std::abs(cluGlobalPosSIM.eta()), time_res);
-          meCluTResvsE_->Fill(cluEneSIM, time_res);
-
-          meCluTPullvsEta_->Fill(std::abs(cluGlobalPosSIM.eta()), time_res / cluster.timeError());
-          meCluTPullvsE_->Fill(cluEneSIM, time_res / cluster.timeError());
-
-        }  // if ( cluTimeSIM > 0. &&  cluEneSIM > 0. )
-        else {
-          meUnmatchedCluEnergy_->Fill(std::log10(cluster.energy()));
+          }  // simLayerClusterRefs loop
         }
-      }
 
-      // --- Fill the cluster resolution histograms using MtdSimLayerClusters as mtd truth
-      edm::Ref<edmNew::DetSetVector<FTLCluster>, FTLCluster> clusterRef = edmNew::makeRefTo(btlRecCluHandle, &cluster);
-      auto itp = r2sAssociationMap.equal_range(clusterRef);
-      if (itp.first != itp.second) {
-        std::vector<MtdSimLayerClusterRef> simClustersRefs =
-            (*itp.first).second;  // the range of itp.first, itp.second should be always 1
-        for (unsigned int i = 0; i < simClustersRefs.size(); i++) {
-          const auto& simClusterRef = simClustersRefs[i];
+      }  // cluster loop
 
-          float simClusEnergy = convertUnitsTo(0.001_MeV, (*simClusterRef).simLCEnergy());  // GeV --> MeV
-          float simClusTime = (*simClusterRef).simLCTime();
-          LocalPoint simClusLocalPos = (*simClusterRef).simLCPos();
-          const auto& simClusGlobalPos = genericDet->toGlobal(simClusLocalPos);
-          unsigned int idOffset = (*simClusterRef).hitProdType();
-
-          float time_res = cluster.time() - simClusTime;
-          float energy_res = cluster.energy() - simClusEnergy;
-          float rho_res = global_point.perp() - simClusGlobalPos.perp();
-          float phi_res = global_point.phi() - simClusGlobalPos.phi();
-          float z_res = global_point.z() - simClusGlobalPos.z();
-          float xlocal_res = local_point.x() - simClusLocalPos.x();
-          float ylocal_res = local_point.y() - simClusLocalPos.y();
-
-          meCluTrackIdOffset_->Fill(float(idOffset));
-
-          // -- Fill for direct hits
-          if (idOffset == 0) {
-            meCluTimeRes_simLC_->Fill(time_res);
-            meCluEnergyRes_simLC_->Fill(energy_res);
-            meCluRhoRes_simLC_->Fill(rho_res);
-            meCluPhiRes_simLC_->Fill(phi_res);
-            meCluZRes_simLC_->Fill(z_res);
-
-            if (matchClu && comp != nullptr) {
-              meCluLocalXRes_simLC_->Fill(xlocal_res);
-
-              if (global_point.z() > 0) {
-                meCluLocalYResZGlobPlus_simLC_->Fill(ylocal_res);
-                meCluLocalYPullZGlobPlus_simLC_->Fill(ylocal_res / std::sqrt(comp->localPositionError().yy()));
-              } else {
-                meCluLocalYResZGlobMinus_simLC_->Fill(ylocal_res);
-                meCluLocalYPullZGlobMinus_simLC_->Fill(ylocal_res / std::sqrt(comp->localPositionError().yy()));
-              }
-              if (optionalPlots_) {
-                if (cluster.size() == 1) {  // single-crystal clusters
-                  meCluSingCrystalLocalYRes_simLC_->Fill(ylocal_res);
-                  if (global_point.z() > 0) {
-                    meCluSingCrystalLocalYResZGlobPlus_simLC_->Fill(ylocal_res);
-                  } else {
-                    meCluSingCrystalLocalYResZGlobMinus_simLC_->Fill(ylocal_res);
-                  }
-                }  // end of single-crystal clusters
-                else {
-                  if (cluster.size() > 1) {  // multi-crystal clusters
-                    meCluMultiCrystalLocalYRes_simLC_->Fill(ylocal_res);
-                    if (global_point.z() > 0) {
-                      meCluMultiCrystalLocalYResZGlobPlus_simLC_->Fill(ylocal_res);
-                    } else {
-                      meCluMultiCrystalLocalYResZGlobMinus_simLC_->Fill(ylocal_res);
-                    }
-                  }
-                }  // end of multi-crystal clusters
-
-                if (abs(global_point.eta()) < 0.3) {
-                  meCluCentralLocalYRes_simLC_->Fill(ylocal_res);
-                  if (global_point.z() > 0) {
-                    meCluCentralLocalYResZGlobPlus_simLC_->Fill(ylocal_res);
-                  } else {
-                    meCluCentralLocalYResZGlobMinus_simLC_->Fill(ylocal_res);
-                  }
-                } else {
-                  if (abs(global_point.eta()) > 1) {
-                    meCluForwardLocalYRes_simLC_->Fill(ylocal_res);
-                    if (global_point.z() > 0) {
-                      meCluForwardPlusLocalYRes_simLC_->Fill(ylocal_res);
-                    } else {
-                      meCluForwardMinusLocalYRes_simLC_->Fill(ylocal_res);
-                    }
-                  }
-                }
-              }  //end of optional plots
-
-              meCluLocalXPull_simLC_->Fill(xlocal_res / std::sqrt(comp->localPositionError().xx()));
-              meCluZPull_simLC_->Fill(z_res / std::sqrt(comp->globalPositionError().czz()));
-            }
-
-            meCluTResvsEta_simLC_->Fill(std::abs(simClusGlobalPos.eta()), time_res);
-            meCluTResvsE_simLC_->Fill(simClusEnergy, time_res);
-
-            meCluTPullvsEta_simLC_->Fill(std::abs(simClusGlobalPos.eta()), time_res / cluster.timeError());
-            meCluTPullvsE_simLC_->Fill(simClusEnergy, time_res / cluster.timeError());
-
-          }  // if idOffset == 0
-          else {
-            meCluTimeRes_simLC_fromIndirectHits_->Fill(time_res);
-            meCluEnergyRes_simLC_fromIndirectHits_->Fill(energy_res);
-            meCluRhoRes_simLC_fromIndirectHits_->Fill(rho_res);
-            meCluPhiRes_simLC_fromIndirectHits_->Fill(phi_res);
-            meCluZRes_simLC_fromIndirectHits_->Fill(z_res);
-
-            if (matchClu && comp != nullptr) {
-              meCluLocalXRes_simLC_fromIndirectHits_->Fill(xlocal_res);
-
-              if (global_point.z() > 0) {
-                meCluLocalYResZGlobPlus_simLC_fromIndirectHits_->Fill(ylocal_res);
-                meCluLocalYPullZGlobPlus_simLC_fromIndirectHits_->Fill(ylocal_res /
-                                                                       std::sqrt(comp->localPositionError().yy()));
-              } else {
-                meCluLocalYResZGlobMinus_simLC_fromIndirectHits_->Fill(ylocal_res);
-                meCluLocalYPullZGlobMinus_simLC_fromIndirectHits_->Fill(ylocal_res /
-                                                                        std::sqrt(comp->localPositionError().yy()));
-              }
-              if (optionalPlots_) {
-                if (cluster.size() == 1) {  // single-crystal clusters
-                  meCluSingCrystalLocalYRes_simLC_fromIndirectHits_->Fill(ylocal_res);
-                  if (global_point.z() > 0) {
-                    meCluSingCrystalLocalYResZGlobPlus_simLC_fromIndirectHits_->Fill(ylocal_res);
-                  } else {
-                    meCluSingCrystalLocalYResZGlobMinus_simLC_fromIndirectHits_->Fill(ylocal_res);
-                  }
-                }  // end of single-crystal clusters
-                else {
-                  if (cluster.size() > 1) {  // multi-crystal clusters
-                    meCluMultiCrystalLocalYRes_simLC_fromIndirectHits_->Fill(ylocal_res);
-                    if (global_point.z() > 0) {
-                      meCluMultiCrystalLocalYResZGlobPlus_simLC_fromIndirectHits_->Fill(ylocal_res);
-                    } else {
-                      meCluMultiCrystalLocalYResZGlobMinus_simLC_fromIndirectHits_->Fill(ylocal_res);
-                    }
-                  }
-                }  // end of multi-crystal clusters
-
-                if (abs(global_point.eta()) < 0.3) {
-                  meCluCentralLocalYRes_simLC_fromIndirectHits_->Fill(ylocal_res);
-                  if (global_point.z() > 0) {
-                    meCluCentralLocalYResZGlobPlus_simLC_fromIndirectHits_->Fill(ylocal_res);
-                  } else {
-                    meCluCentralLocalYResZGlobMinus_simLC_fromIndirectHits_->Fill(ylocal_res);
-                  }
-                } else {
-                  if (abs(global_point.eta()) > 1) {
-                    meCluForwardLocalYRes_simLC_fromIndirectHits_->Fill(ylocal_res);
-                    if (global_point.z() > 0) {
-                      meCluForwardPlusLocalYRes_simLC_fromIndirectHits_->Fill(ylocal_res);
-                    } else {
-                      meCluForwardMinusLocalYRes_simLC_fromIndirectHits_->Fill(ylocal_res);
-                    }
-                  }
-                }
-              }  //end of optional plots
-
-              meCluLocalXPull_simLC_fromIndirectHits_->Fill(xlocal_res / std::sqrt(comp->localPositionError().xx()));
-              meCluZPull_simLC_fromIndirectHits_->Fill(z_res / std::sqrt(comp->globalPositionError().czz()));
-            }
-
-            meCluTResvsEta_simLC_fromIndirectHits_->Fill(std::abs(simClusGlobalPos.eta()), time_res);
-            meCluTResvsE_simLC_fromIndirectHits_->Fill(simClusEnergy, time_res);
-
-            meCluTPullvsEta_simLC_fromIndirectHits_->Fill(std::abs(simClusGlobalPos.eta()),
-                                                          time_res / cluster.timeError());
-            meCluTPullvsE_simLC_fromIndirectHits_->Fill(simClusEnergy, time_res / cluster.timeError());
-          }
-
-        }  // simLayerClusterRefs loop
-      }
-
-    }  // cluster loop
-
-  }  // DetSetClu loop
+    }  // DetSetClu loop
+  }
 
   if (n_clus_btl > 0)
     meNclusters_->Fill(log10(n_clus_btl));
@@ -1186,184 +980,6 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meCluZvsPhi_ = ibook.book2D(
       "BtlCluZvsPhi", "BTL cluster Z vs #phi;Z_{RECO} [cm]; #phi_{RECO} [rad]", 144, -260., 260., 50, -3.2, 3.2);
 
-  if (optionalPlots_) {
-    meCluEnergyvsEta_ = ibook.bookProfile(
-        "BtlCluEnergyVsEta", "BTL cluster energy vs #eta; |#eta_{RECO}|; E_{RECO} [MeV]", 30, 0., 1.55, 0., 20., "S");
-    meCluHitsvsEta_ = ibook.bookProfile(
-        "BtlCluHitsVsEta", "BTL hits per cluster vs #eta; |#eta_{RECO}|;Cluster size", 30, 0., 1.55, 0., 10., "S");
-
-    meCluTimeRes_ = ibook.book1D("BtlCluTimeRes", "BTL cluster time resolution;T_{RECO}-T_{SIM} [ns]", 100, -0.5, 0.5);
-    meCluEnergyRes_ =
-        ibook.book1D("BtlCluEnergyRes", "BTL cluster energy resolution;E_{RECO}-E_{SIM} [MeV]", 100, -0.5, 0.5);
-    meCluTResvsE_ = ibook.bookProfile("BtlCluTResvsE",
-                                      "BTL cluster time resolution vs E;E_{SIM} [MeV];T_{RECO}-T_{SIM} [ns]",
-                                      20,
-                                      0.,
-                                      20.,
-                                      -0.5,
-                                      0.5,
-                                      "S");
-    meCluTResvsEta_ = ibook.bookProfile("BtlCluTResvsEta",
-                                        "BTL cluster time resolution vs #eta;|#eta_{RECO}|;T_{RECO}-T_{SIM} [ns]",
-                                        30,
-                                        0,
-                                        1.55,
-                                        -0.5,
-                                        0.5,
-                                        "S");
-    meCluTPullvsE_ = ibook.bookProfile("BtlCluTPullvsE",
-                                       "BTL cluster time pull vs E;E_{SIM} [MeV];(T_{RECO}-T_{SIM})/#sigma_{T_{RECO}}",
-                                       20,
-                                       0.,
-                                       20.,
-                                       -5.,
-                                       5.,
-                                       "S");
-    meCluTPullvsEta_ =
-        ibook.bookProfile("BtlCluTPullvsEta",
-                          "BTL cluster time pull vs #eta;|#eta_{RECO}|;(T_{RECO}-T_{SIM})/#sigma_{T_{RECO}}",
-                          30,
-                          0,
-                          1.55,
-                          -5.,
-                          5.,
-                          "S");
-    meCluRhoRes_ =
-        ibook.book1D("BtlCluRhoRes", "BTL cluster #rho resolution;#rho_{RECO}-#rho_{SIM} [cm]", 100, -0.5, 0.5);
-    meCluPhiRes_ =
-        ibook.book1D("BtlCluPhiRes", "BTL cluster #phi resolution;#phi_{RECO}-#phi_{SIM} [rad]", 100, -0.03, 0.03);
-    meCluZRes_ = ibook.book1D("BtlCluZRes", "BTL cluster Z resolution;Z_{RECO}-Z_{SIM} [cm]", 100, -0.2, 0.2);
-    meCluLocalXRes_ = ibook.book1D(
-        "BtlCluLocalXRes", "BTL cluster local X resolution;X^{loc}_{RECO}-X^{loc}_{SIM} [cm]", 100, -3.1, 3.1);
-    meCluLocalYResZGlobPlus_ =
-        ibook.book1D("BtlCluLocalYResZGlobPlus",
-                     "BTL cluster local Y resolution (global Z > 0);Y^{loc}_{RECO}-Y^{loc}_{SIM} [cm]",
-                     100,
-                     -0.2,
-                     0.2);
-    meCluLocalYResZGlobMinus_ =
-        ibook.book1D("BtlCluLocalYResZGlobMinus",
-                     "BTL cluster local Y resolution (global Z < 0);Y^{loc}_{RECO}-Y^{loc}_{SIM} [cm]",
-                     100,
-                     -0.2,
-                     0.2);
-    meCluSingCrystalLocalYRes_ =
-        ibook.book1D("BtlCluSingCrystalLocalYRes",
-                     "BTL cluster local Y resolution (single Crystal clusters);Y^{loc}_{RECO}-Y^{loc}_{SIM} [cm]",
-                     100,
-                     -0.2,
-                     0.2);
-    meCluSingCrystalLocalYResZGlobPlus_ = ibook.book1D(
-        "BtlCluSingCrystalLocalYResZGlobPlus",
-        "BTL cluster local Y resolution (single Crystal clusters, global Z > 0);Y^{loc}_{RECO}-Y^{loc}_{SIM} [cm]",
-        100,
-        -0.2,
-        0.2);
-    meCluSingCrystalLocalYResZGlobMinus_ = ibook.book1D(
-        "BtlCluSingCrystalLocalYResZGlobMinus",
-        "BTL cluster local Y resolution (single Crystal clusters, global Z < 0);Y^{loc}_{RECO}-Y^{loc}_{SIM} [cm]",
-        100,
-        -0.2,
-        0.2);
-    meCluMultiCrystalLocalYRes_ =
-        ibook.book1D("BtlCluMultiCrystalLocalYRes",
-                     "BTL cluster local Y resolution (Multi-Crystal clusters);Y^{loc}_{RECO}-Y^{loc}_{SIM} [cm]",
-                     100,
-                     -0.2,
-                     0.2);
-    meCluMultiCrystalLocalYResZGlobPlus_ = ibook.book1D(
-        "BtlCluMultiCrystalLocalYResZGlobPlus",
-        "BTL cluster local Y resolution (Multi-Crystal clusters, global Z > 0);Y^{loc}_{RECO}-Y^{loc}_{SIM} [cm]",
-        100,
-        -0.2,
-        0.2);
-    meCluMultiCrystalLocalYResZGlobMinus_ = ibook.book1D(
-        "BtlCluMultiCrystalLocalYResZGlobMinus",
-        "BTL cluster local Y resolution (Multi-Crystal clusters, global Z < 0);Y^{loc}_{RECO}-Y^{loc}_{SIM} [cm]",
-        100,
-        -0.2,
-        0.2);
-    meCluCentralLocalYRes_ =
-        ibook.book1D("BtlCluCentralLocalYRes",
-                     "BTL cluster local Y resolution (central region);Y^{loc}_{RECO}-Y^{loc}_{SIM} [cm]",
-                     100,
-                     -0.2,
-                     0.2);
-    meCluCentralLocalYResZGlobPlus_ =
-        ibook.book1D("BtlCluCentralLocalYResZGlobPlus",
-                     "BTL cluster local Y resolution (central region, global Z > 0);Y^{loc}_{RECO}-Y^{loc}_{SIM} [cm]",
-                     100,
-                     -0.2,
-                     0.2);
-    meCluCentralLocalYResZGlobMinus_ =
-        ibook.book1D("BtlCluCentralLocalYResZGlobMinus",
-                     "BTL cluster local Y resolution (central region, global Z < 0);Y^{loc}_{RECO}-Y^{loc}_{SIM} [cm]",
-                     100,
-                     -0.2,
-                     0.2);
-    meCluForwardLocalYRes_ =
-        ibook.book1D("BtlCluForwardLocalYRes",
-                     "BTL cluster local Y resolution (forward region);Y^{loc}_{RECO}-Y^{loc}_{SIM} [cm]",
-                     100,
-                     -0.2,
-                     0.2);
-    meCluForwardPlusLocalYRes_ =
-        ibook.book1D("BtlCluForwardPlusLocalYRes",
-                     "BTL cluster local Y resolution (forward region, global Z > 0);Y^{loc}_{RECO}-Y^{loc}_{SIM} [cm]",
-                     100,
-                     -0.2,
-                     0.2);
-    meCluForwardMinusLocalYRes_ =
-        ibook.book1D("BtlCluForwardMinusLocalYRes",
-                     "BTL cluster local Y resolution (forward region, global Z < 0);Y^{loc}_{RECO}-Y^{loc}_{SIM} [cm]",
-                     100,
-                     -0.2,
-                     0.2);
-
-    meCluLocalYPullZGlobPlus_ =
-        ibook.book1D("BtlCluLocalYPullZGlobPlus",
-                     "BTL cluster local Y pull (global Z > 0);(Y^{loc}_{RECO}-Y^{loc}_{SIM})/#sigma_{Y^{loc}_{RECO}}",
-                     100,
-                     -5.,
-                     5.);
-    meCluLocalYPullZGlobMinus_ =
-        ibook.book1D("BtlCluLocalYPullZGlobMinus",
-                     "BTL cluster local Y pull (global Z < 0);(Y^{loc}_{RECO}-Y^{loc}_{SIM})/#sigma_{Y^{loc}_{RECO}}",
-                     100,
-                     -5.,
-                     5.);
-
-    meCluLocalXPull_ = ibook.book1D("BtlCluLocalXPull",
-                                    "BTL cluster local X pull;(X^{loc}_{RECO}-X^{loc}_{SIM})/#sigma_{X^{loc}_{RECO}}",
-                                    100,
-                                    -5.,
-                                    5.);
-
-    meCluZPull_ = ibook.book1D("BtlCluZPull", "BTL cluster Z pull;(Z_{RECO}-Z_{SIM})/#sigma_{Z_{RECO}}", 100, -5., 5.);
-    meCluXLocalErr_ =
-        ibook.book1D("BtlCluXLocalErr", "BTL cluster X local error;#sigma_{X^{loc}_{RECO}} [cm]", 20, 0., 2.);
-    meCluYLocalErr_ =
-        ibook.book1D("BtlCluYLocalErr", "BTL cluster Y local error;#sigma_{Y^{loc}_{RECO}} [cm]", 20, 0., 0.4);
-    meCluYXLocal_ = ibook.book2D("BtlCluYXLocal",
-                                 "BTL RECO cluster local Y vs X;X^{loc}_{RECO} [cm];Y^{loc}_{RECO} [cm]",
-                                 200,
-                                 -9.5,
-                                 9.5,
-                                 200,
-                                 -2.8,
-                                 2.8);
-    meCluYXLocalSim_ = ibook.book2D("BtlCluYXLocalSim",
-                                    "BTL SIM cluster local Y vs X;X^{loc}_{SIM} [cm];Y^{loc}_{SIM} [cm]",
-                                    200,
-                                    -9.5,
-                                    9.5,
-                                    200,
-                                    -2.8,
-                                    2.8);
-    meUnmatchedCluEnergy_ =
-        ibook.book1D("BtlUnmatchedCluEnergy", "BTL unmatched cluster log10(energy);log10(E_{RECO} [MeV])", 5, -3, 2);
-  }
-
   // with MtdSimLayerCluster as truth
 
   meCluTrackIdOffset_ =
@@ -1488,12 +1104,12 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                      100,
                      -0.2,
                      0.2);
-    meCluCentralLocalYRes_simLC_ = ibook.book1D(
-        "BtlCluCentralLocalYRes_simLC",
-        "BTL cluster local Y resolution (w.r.t. MtdSimLayerClusters, central region);Y^{loc}_{RECO}-Y^{loc}_{SIM} [cm]",
-        100,
-        -0.2,
-        0.2);
+    meCluCentralLocalYRes_simLC_ = ibook.book1D("BtlCluCentralLocalYRes_simLC",
+                                                "BTL cluster local Y resolution (w.r.t. MtdSimLayerClusters, central "
+                                                "region);Y^{loc}_{RECO}-Y^{loc}_{SIM} [cm]",
+                                                100,
+                                                -0.2,
+                                                0.2);
     meCluCentralLocalYResZGlobPlus_simLC_ =
         ibook.book1D("BtlCluCentralLocalYResZGlobPlus_simLC",
                      "BTL cluster local Y resolution (w.r.t. MtdSimLayerClusters, central region, global Z > "
@@ -1508,12 +1124,12 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                      100,
                      -0.2,
                      0.2);
-    meCluForwardLocalYRes_simLC_ = ibook.book1D(
-        "BtlCluForwardLocalYRes_simLC",
-        "BTL cluster local Y resolution (w.r.t. MtdSimLayerClusters, forward region);Y^{loc}_{RECO}-Y^{loc}_{SIM} [cm]",
-        100,
-        -0.2,
-        0.2);
+    meCluForwardLocalYRes_simLC_ = ibook.book1D("BtlCluForwardLocalYRes_simLC",
+                                                "BTL cluster local Y resolution (w.r.t. MtdSimLayerClusters, forward "
+                                                "region);Y^{loc}_{RECO}-Y^{loc}_{SIM} [cm]",
+                                                100,
+                                                -0.2,
+                                                0.2);
     meCluForwardPlusLocalYRes_simLC_ = ibook.book1D("BtlCluForwardPlusLocalYRes_simLC",
                                                     "BTL cluster local Y resolution (w.r.t. MtdSimLayerClusters, "
                                                     "forward region, global Z > 0);Y^{loc}_{RECO}-Y^{loc}_{SIM} [cm]",
@@ -1637,12 +1253,12 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                    100,
                    -0.2,
                    0.2);
-  meCluLocalXRes_simLC_fromIndirectHits_ = ibook.book1D(
-      "BtlCluLocalXRes_simLC_fromIndirectHits",
-      "BTL cluster local X resolution (w.r.t. MtdSimLayerClusters, non-direct hits);X^{loc}_{RECO}-X^{loc}_{SIM} [cm]",
-      100,
-      -3.1,
-      3.1);
+  meCluLocalXRes_simLC_fromIndirectHits_ = ibook.book1D("BtlCluLocalXRes_simLC_fromIndirectHits",
+                                                        "BTL cluster local X resolution (w.r.t. MtdSimLayerClusters, "
+                                                        "non-direct hits);X^{loc}_{RECO}-X^{loc}_{SIM} [cm]",
+                                                        100,
+                                                        -3.1,
+                                                        3.1);
   meCluLocalYResZGlobPlus_simLC_fromIndirectHits_ =
       ibook.book1D("BtlCluLocalYResZGlobPlus_simLC_fromIndirectHits",
                    "BTL cluster local Y resolution (w.r.t. MtdSimLayerClusters, non-direct hits, global Z > "
@@ -1885,9 +1501,9 @@ void BtlLocalRecoValidation::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<edm::InputTag>("recHitsTag", edm::InputTag("mtdRecHits", "FTLBarrel"));
   desc.add<edm::InputTag>("uncalibRecHitsTag", edm::InputTag("mtdUncalibratedRecHits", "FTLBarrel"));
   desc.add<edm::InputTag>("simHitsTag", edm::InputTag("mix", "g4SimHitsFastTimerHitsBarrel"));
-  desc.add<edm::InputTag>("recCluTag", edm::InputTag("mtdClusters", "FTLBarrel"));
+  desc.add<edm::InputTag>("recCluTag", edm::InputTag("mtdMergedClusters", "FTLBarrel"));
   desc.add<edm::InputTag>("trkHitTag", edm::InputTag("mtdTrackingRecHits"));
-  desc.add<edm::InputTag>("r2sAssociationMapTag", edm::InputTag("mtdRecoClusterToSimLayerClusterAssociation"));
+  desc.add<edm::InputTag>("r2sAssociationMapTag", edm::InputTag("mtdRecoMergedClusterToSimMergedClusterAssociation"));
   desc.add<double>("HitMinimumEnergy", 1.);  // [MeV]
   desc.add<bool>("optionalPlots", false);
   desc.add<bool>("UncalibRecHitsPlots", false);

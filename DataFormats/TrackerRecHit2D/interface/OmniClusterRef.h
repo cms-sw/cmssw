@@ -23,14 +23,16 @@ namespace io_v1 {
     static const unsigned int subClusMask = 0xF000000;
     static const unsigned int subClusShift = 24;
 
-public:
+  public:
     typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> ClusterPixelRef;
     typedef edm::Ref<edmNew::DetSetVector<SiStripCluster>, SiStripCluster> ClusterStripRef;
     typedef edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>, Phase2TrackerCluster1D> Phase2Cluster1DRef;
     typedef edm::Ref<FTLMergedClusterCollection, FTLMergedCluster> MergedClusterRef;
 
     OmniClusterRef() : me(edm::RefCore(), kInvalid) {}
-    OmniClusterRef(edm::ProductID const& id, SiStripCluster const* clu, unsigned int key) : me(id, clu, key | kIsStrip) {}
+    OmniClusterRef(edm::ProductID const& id, SiStripCluster const* clu, unsigned int key)
+        : me(id, clu, key | kIsStrip) {}
+
     explicit OmniClusterRef(ClusterPixelRef const& ref, unsigned int subClus = 0)
         : me(ref.refCore(), (ref.isNonnull() ? ref.key() | (subClus << subClusShift) : kInvalid)) {}
     explicit OmniClusterRef(ClusterStripRef const& ref, unsigned int subClus = 0)
