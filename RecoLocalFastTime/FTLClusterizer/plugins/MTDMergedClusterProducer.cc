@@ -94,10 +94,16 @@ FTLMergedCluster MTDMergedClusterProducer::mergeClusters(const std::vector<const
   double weightedGlobalX = 0;
   double weightedGlobalY = 0;
   double weightedGlobalZ = 0;
-  
-                                                    
+
   std::vector<DetId> clusterIds;
   std::vector<FTLClusterRef> clusterRefs;
+
+  std::vector<DetId> hitDetId;
+  std::vector<int> hitRow;
+  std::vector<int> hitCol;
+  std::vector<float> hitEnergy;
+  std::vector<float> hitTime;
+  std::vector<float> hitTimeError;
 
   // get primary cluster -- if only one, pick that detid, else pick the one with earliest time
   const FTLCluster* primary = clusters.front();
@@ -130,6 +136,16 @@ FTLMergedCluster MTDMergedClusterProducer::mergeClusters(const std::vector<const
 
     clusterIds.push_back(cluster->id());
     clusterRefs.push_back(edmNew::makeRefTo(mtdClustersHandle, cluster));
+
+    for (int i = 0; i < cluster->size(); ++i) {
+      hitDetId.emplace_back(cluster->id());
+      auto thisHit = cluster->hit(i);
+      hitRow.emplace_back(static_cast<int>(thisHit.x()));
+      hitCol.emplace_back(static_cast<int>(thisHit.y()));
+      hitEnergy.emplace_back(thisHit.energy());
+      hitTime.emplace_back(thisHit.time());
+      hitTimeError.emplace_back(thisHit.time_error());
+    }
 
     // convert clus pos to global coordinates
     const GeomDet* det = geom.idToDetUnit(cluster->id());
@@ -239,6 +255,10 @@ FTLMergedCluster MTDMergedClusterProducer::mergeClusters(const std::vector<const
   FTLMergedCluster mergedCluster(
       mergedId, totalEnergy, avgTime, avgTimeError, avgX, avgY, avgXError, avgYError, clusterIds, clusterRefs);
 
+  for (size_t i = 0; i < hitDetId.size(); i++) {
+    mergedCluster.addHit(hitDetId[i], hitRow[i], hitCol[i], hitTime[i], hitTimeError[i], hitEnergy[i]);
+  }
+
   return mergedCluster;
 }
 
@@ -247,10 +267,10 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
   auto const& geom = es.getData(mtdgeoToken_);
   auto topologyHandle = es.getTransientHandle(mtdtopoToken_);
   const MTDTopology* topology = topologyHandle.product();
-  
-  static constexpr uint32_t halfTrayBTL_SMidx = MTDTopology::BTLLayout::nBTLeta_/2;
+
+  static constexpr uint32_t halfTrayBTL_SMidx = MTDTopology::BTLLayout::nBTLeta_ / 2;
   static constexpr uint32_t fullTrayBTL_SMidx = MTDTopology::BTLLayout::nBTLeta_;
-  
+
   edm::Handle<FTLClusterCollection> btlClustersHandle;
   edm::Handle<FTLClusterCollection> etlClustersHandle;
   e.getByToken(btlClustersToken_, btlClustersHandle);
@@ -365,7 +385,8 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
               for (int j = 0; j < adjCluster->size(); ++j) {
                 auto hit = adjCluster->hit(j);
                 int hit_col = hit.y();
-                if ((edgeHitIn0 && hit_col == 15 && ieta < halfTrayBTL_SMidx) || (edgeHitIn15 && hit_col == 0 && ieta > halfTrayBTL_SMidx)) {
+                if ((edgeHitIn0 && hit_col == 15 && ieta < halfTrayBTL_SMidx) ||
+                    (edgeHitIn15 && hit_col == 0 && ieta > halfTrayBTL_SMidx)) {
                   hasOppositeEdgeHit = true;
                   break;
                 }
@@ -390,8 +411,10 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
       uint32_t rawDetId = entry.first;
       const auto& vec = entry.second;
       edmNew::DetSetVector<FTLMergedCluster>::FastFiller filler(*btlOutput, rawDetId);
-      for (const auto& mc : vec)
+      for (const auto& mc : vec) {
         filler.push_back(mc);
+        LogDebug("MTDMergedClusterProducer") << "BTL merged cluster " << mc;
+      }
     }
 
     LogTrace("MTDMergedClusterProducer") << "About to put " << btlOutput->size() << " MergedClusters into event "
@@ -421,8 +444,10 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
       uint32_t rawDetId = entry.first;
       const auto& vec = entry.second;
       edmNew::DetSetVector<FTLMergedCluster>::FastFiller filler(*etlOutput, rawDetId);
-      for (const auto& mc : vec)
+      for (const auto& mc : vec) {
         filler.push_back(mc);
+        LogDebug("MTDMergedClusterProducer") << "ETL merged cluster " << mc;
+      }
     }
     LogTrace("MTDMergedClusterProducer") << "About to put " << etlOutput->size() << " ETL MergedClusters into event "
                                          << e.id() << std::endl;
