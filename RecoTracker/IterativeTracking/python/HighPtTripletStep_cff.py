@@ -470,11 +470,15 @@ highPtTripletStepSeedsPixelsWithLSTSerialSync  =  highPtTripletStepSeedsPixelsWi
     lstInput = "lstInputProducerSerialSync",
     lstPixelSeeds = "lstInputProducerSerialSync"
 )
-(trackingPhase2PU140 & trackingMkFitHighPtTripletStep & seedingLST & trackingLST).toModify(highPtTripletStepTrackCandidatesSerialSync, seeds = 'highPtTripletStepSeedsPixelsWithLSTSerialSync')
+(trackingPhase2PU140 & alpakaValidationLST & trackingMkFitHighPtTripletStep & seedingLST & trackingLST).toModify(highPtTripletStepTrackCandidatesSerialSync,
+    seeds = 'highPtTripletStepSeedsPixelsWithLSTSerialSync',
+    mkFitSeeds = 'highPtTripletStepTrackCandidatesMkFitSeedsSerialSync',
+    tracks = 'highPtTripletStepTrackCandidatesMkFitSerialSync'
+)
 highPtTripletStepTrackCandidatesMkFitSeedsSerialSync = highPtTripletStepTrackCandidatesMkFitSeeds.clone()
-(trackingPhase2PU140 & trackingMkFitHighPtTripletStep & seedingLST & trackingLST).toModify(highPtTripletStepTrackCandidatesMkFitSeedsSerialSync, seeds = 'highPtTripletStepSeedsPixelsWithLSTSerialSync')
+(trackingPhase2PU140 & alpakaValidationLST & trackingMkFitHighPtTripletStep & seedingLST & trackingLST).toModify(highPtTripletStepTrackCandidatesMkFitSeedsSerialSync, seeds = 'highPtTripletStepSeedsPixelsWithLSTSerialSync')
 highPtTripletStepTrackCandidatesMkFitSerialSync = highPtTripletStepTrackCandidatesMkFit.clone()
-(trackingPhase2PU140 & trackingMkFitHighPtTripletStep & seedingLST & trackingLST).toModify(highPtTripletStepTrackCandidatesMkFitSerialSync, seeds = 'highPtTripletStepTrackCandidatesMkFitSeedsSerialSync')
+(trackingPhase2PU140 & alpakaValidationLST & trackingMkFitHighPtTripletStep & seedingLST & trackingLST).toModify(highPtTripletStepTrackCandidatesMkFitSerialSync, seeds = 'highPtTripletStepTrackCandidatesMkFitSeedsSerialSync')
 _HighPtTripletStepTask_LST_mkFitSerialSync.add(highPtTripletStepSeedsPixelsWithLSTSerialSync,highPtTripletStepTrackCandidatesMkFitSeedsSerialSync, highPtTripletStepTrackCandidatesMkFitSerialSync, highPtTripletStepTrackCandidatesMkFitConfig)
 HighPtTripletStepTaskSerialSync = cms.Task()
 (trackingPhase2PU140 & alpakaValidationLST & trackingLST).toReplaceWith(HighPtTripletStepTaskSerialSync, _HighPtTripletStepTask_LSTSerialSync)
