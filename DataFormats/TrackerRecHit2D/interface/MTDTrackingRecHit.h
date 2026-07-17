@@ -23,11 +23,6 @@ namespace io_v1 {
     bool isPhase2() const final { return true; }
     void getKfComponents(KfComponentsHolder& holder) const final;
 
-    // constructor accepting a merged-cluster Ref
-    using FTLMergedClusterRef = edm::Ref<FTLMergedClusterCollection, FTLMergedCluster>;
-    MTDTrackingRecHit(const LocalPoint& p, const LocalError& e, const GeomDet& idet, const FTLMergedClusterRef& objref)
-        : TrackerSingleRecHit(p, e, idet, trackerHitRTTI::mipTiming, objref) {}
-
     int dimension() const final { return 2; }
 
     // constructor accepting a merged-cluster Ref

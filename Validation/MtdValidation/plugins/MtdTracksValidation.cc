@@ -2755,7 +2755,8 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         "BTLTrackMatchedTPnomtdAssocTrackNdf", "Ndf of tracks matched to TP w/o sim hit in MTD; Ndof", 80, 0., 220);
     meBTLTrackMatchedTPnomtdAssocTrackIdOff_ =
         ibook.book1D("BTLTrackMatchedTPnomtdAssocTrackIdOff",
-                     "TrackIdOff of the simClusters of the MtdSimMergedCluster matched to the reco cluster associated to the track,  TP w/o sim hit in "
+                     "TrackIdOff of the simClusters of the MtdSimMergedCluster matched to the reco cluster associated "
+                     "to the track,  TP w/o sim hit in "
                      "MTD; Track Id Off",
                      6,
                      -1.,
