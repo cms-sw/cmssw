@@ -199,7 +199,18 @@ else:
     readFiles = cms.untracked.vstring([options.myfile])
 
 process.source = cms.Source("PoolSource",
-                            fileNames = readFiles)
+                            fileNames = readFiles,
+                            # Workaround for backwards-incompatible change in these types.
+                            # Can be removed after the input file(s) have been updated to something more recent than 20_1_0_pre2 RelVals
+                            inputCommands = cms.untracked.vstring([
+                                "keep *",
+                                "drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTClusterAssociationMap_*_*_*",
+                                "drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTClusteredmNewDetSetVector_*_*_*",
+                                "drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTStubAssociationMap_*_*_*",
+                                "drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTStubedmNewDetSetVector_*_*_*",
+                                "drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTTrackAssociationMap_*_*_*",
+                            ]),
+)
 
 ###################################################################
 # TransientTrack from https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideTransientTracks

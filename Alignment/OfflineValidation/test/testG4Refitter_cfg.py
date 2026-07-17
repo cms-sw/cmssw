@@ -22,7 +22,17 @@ options.parseArguments()
 ###################################################################
 process.source = cms.Source("PoolSource",
                             fileNames = filesDefaultMC_TTbarPhase2RECO,
-                            duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
+                            duplicateCheckMode = cms.untracked.string('checkAllFilesOpened'),
+                            # Workaround for backwards-incompatible change in these types.
+                            # Can be removed after the input file(s) have been updated to something more recent than 20_1_0_pre2 RelVals
+                            inputCommands = cms.untracked.vstring([
+                                "keep *",
+                                "drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTClusterAssociationMap_*_*_*",
+                                "drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTClusteredmNewDetSetVector_*_*_*",
+                                "drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTStubAssociationMap_*_*_*",
+                                "drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTStubedmNewDetSetVector_*_*_*",
+                                "drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTTrackAssociationMap_*_*_*",
+                            ]),
                             )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )

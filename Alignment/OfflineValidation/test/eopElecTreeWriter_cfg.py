@@ -62,7 +62,18 @@ process.source = cms.Source("PoolSource",
                                 '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/0abaf7aa-c2ec-4bcb-96f1-d22d5c7bd937.root',
                                 '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/053a2340-040a-4be4-b335-7f546f24bab6.root',
                                 '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/cf187c8c-96e7-4949-9a75-67d4b7696cf8.root',
-                                '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/0c2bfdc1-278c-4e60-8fa1-2ef58cc3a35b.root'))
+                                '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/0c2bfdc1-278c-4e60-8fa1-2ef58cc3a35b.root'),
+                            # Workaround for backwards-incompatible change in these types.
+                            # Can be removed after the input file(s) have been updated to something more recent than 20_1_0_pre2 RelVals
+                            inputCommands = cms.untracked.vstring([
+                                "keep *",
+                                "drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTClusterAssociationMap_*_*_*",
+                                "drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTClusteredmNewDetSetVector_*_*_*",
+                                "drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTStubAssociationMap_*_*_*",
+                                "drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTStubedmNewDetSetVector_*_*_*",
+                                "drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTTrackAssociationMap_*_*_*",
+                            ]),
+)
                         
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(options.maxEvents)
