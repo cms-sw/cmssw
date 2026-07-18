@@ -470,7 +470,6 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       }  // cluster loop
 
     }  // DetSetClu loop
-  }
 
   // --- Loop over the ETL Uncalibrated RECO hits
   if (optionalPlots_) {
