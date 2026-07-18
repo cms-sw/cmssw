@@ -28,7 +28,6 @@ public:
                    float y,
                    float xError,
                    float yError,
-                   const std::vector<DetId>& clusterIds,
                    const std::vector<FTLClusterRef>& clusterRefs)
       : id_(id),
         energy_(energy),
@@ -38,7 +37,6 @@ public:
         y_(y),
         xError_(xError),
         yError_(yError),
-        clusterIds_(clusterIds),
         clusterRefs_(clusterRefs) {}
 
   FTLMergedCluster(DetId id, float energy, float time, float timeError, float x, float y, float xError, float yError)
@@ -53,7 +51,16 @@ public:
   float y() const { return y_; }
   float xError() const { return xError_; }
   float yError() const { return yError_; }
-  const std::vector<DetId>& clusterIds() const { return clusterIds_; }
+  const std::vector<DetId> clusterIds() const {
+    if (hitsDetId_.size() == 1) {
+      return hitsDetId_;
+    }
+    auto listId = hitsDetId_;
+    std::sort(listId.begin(), listId.end());
+    auto it = std::unique(listId.begin(), listId.end());
+    listId.resize(std::distance(listId.begin(), it));
+    return listId;
+  }
   const std::vector<FTLClusterRef>& clusterRefs() const { return clusterRefs_; }
   size_t nClusters() const {
     if (hitsDetId_.size() == 1) {
@@ -114,7 +121,6 @@ private:
   float xError_;
   float yError_;
 
-  std::vector<DetId> clusterIds_;
   std::vector<FTLClusterRef> clusterRefs_;
 
   std::vector<DetId> hitsDetId_;
