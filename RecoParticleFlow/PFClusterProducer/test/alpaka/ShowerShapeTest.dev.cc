@@ -628,8 +628,8 @@ int main(int argc, char** argv) {
   }
 
   int nStreams = 1;
-  int nClusters =  1024;
-  int nIters =  nColdIters + 10;
+  int nClusters = 1024;
+  int nIters = nColdIters + 10;
 
   if (argc > 1) {
     nClusters = std::stoi(argv[1]);

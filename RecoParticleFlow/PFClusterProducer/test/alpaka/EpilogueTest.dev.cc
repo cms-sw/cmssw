@@ -831,14 +831,14 @@ int main(int argc, char **argv) {
   if (devices.empty()) {
     std::cerr << "No devices available for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) " backend, "
                  "the test will be skipped.\n";
-    return EXIT_FAILURE; // Prefer returning over raw exit() in main
+    return EXIT_FAILURE;  // Prefer returning over raw exit() in main
   }
 
   int nStreams = 1;
   int nClusters = multiblock ? 1024 : 512;
   int nIters = nColdIters + 100;
 
-  auto parseArg = [](const char* arg, const std::string& name) {
+  auto parseArg = [](const char *arg, const std::string &name) {
     try {
       return std::stoi(arg);
     } catch (...) {
@@ -858,8 +858,10 @@ int main(int argc, char **argv) {
     }
   }
 
-  if (argc > 2) nStreams = parseArg(argv[2], "<nStreams>");
-  if (argc > 3) nIters   = parseArg(argv[3], "<nIters>");
+  if (argc > 2)
+    nStreams = parseArg(argv[2], "<nStreams>");
+  if (argc > 3)
+    nIters = parseArg(argv[3], "<nIters>");
 
   int threadsPerBlock = multiblock ? 128 : nClusters;
 
@@ -890,7 +892,7 @@ int main(int argc, char **argv) {
   const int nHits = sizes.first;
   const int nFracs = sizes.second;
 
-  std::vector<int> cc_roots = {0, 1, 5, 9, 38 , 45, 49, 66, 71, 77, 89, 91, 99 };
+  std::vector<int> cc_roots = {0, 1, 5, 9, 38, 45, 49, 66, 71, 77, 89, 91, 99};
 
   const int cc_num = static_cast<int>(cc_roots.size());
 
