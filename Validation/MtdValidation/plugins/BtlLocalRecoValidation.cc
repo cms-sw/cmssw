@@ -515,7 +515,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       const auto& trkHits = mtdTrkHitHandle->find(detIdObject);
       if (trkHits != mtdTrkHitHandle->end()) {
         for (const auto& trkHit : *trkHits) {
-          const auto mergedCluster = trkHit.mtdMergedCluster();
+          const auto mergedCluster = trkHit.mtdCluster();
           if (mergedCluster == cluster) {
             LogTrace("BtlLocalRecoValidation")
                 << "MTD_TRH: " << trkHit.localPosition().x() << "," << trkHit.localPosition().y() << " : "

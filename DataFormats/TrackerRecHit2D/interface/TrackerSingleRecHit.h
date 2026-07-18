@@ -59,7 +59,7 @@ namespace io_v1 {
 
     Phase2TrackerCluster1D const& phase2OTCluster() const { return cluster_.phase2OTCluster(); }
 
-    FTLMergedCluster const& mtdMergedCluster() const { return cluster_.mtdMergedCluster(); }
+    FTLMergedCluster const& mtdCluster() const { return cluster_.mtdCluster(); }
 
     // void setClusterRef(const &  OmniClusterRef ref) {  cluster_ =ref;}
     void setClusterPixelRef(ClusterPixelRef const& ref) { cluster_ = OmniClusterRef(ref); }

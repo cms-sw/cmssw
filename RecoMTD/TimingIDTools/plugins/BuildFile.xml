@@ -7,4 +7,6 @@
   <use name="RecoMTD/TimingIDTools"/>
   <use name="RecoVertex/PrimaryVertexProducer"/>
   <use name="PhysicsTools/UtilAlgos"/>
+  <use name="SimDataFormats/Associations"/>
+  <use name="SimDataFormats/CaloAnalysis"/>
 </library>

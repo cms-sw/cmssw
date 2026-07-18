@@ -739,7 +739,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
             MTDBtl = true;
             numMTDBtlvalidhits++;
             const auto* mtdhit = static_cast<const MTDTrackingRecHit*>(hit);
-            const auto& hitCluster = mtdhit->omniCluster().mtdMergedCluster();
+            const auto& hitCluster = mtdhit->omniCluster().mtdCluster();
             auto recoClusterRef = edmNew::makeRefTo(btlRecCluHandle, &hitCluster);
             recoClustersRefs.push_back(recoClusterRef);
           }
@@ -775,7 +775,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
             ETLDetId ETLHit = hit->geographicalId();
 
             const auto* mtdhit = static_cast<const MTDTrackingRecHit*>(hit);
-            const auto& hitCluster = mtdhit->omniCluster().mtdMergedCluster();
+            const auto& hitCluster = mtdhit->omniCluster().mtdCluster();
             auto recoClusterRef = edmNew::makeRefTo(etlRecCluHandle, &hitCluster);
             recoClustersRefs.push_back(recoClusterRef);
 
