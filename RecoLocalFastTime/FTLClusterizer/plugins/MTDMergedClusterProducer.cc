@@ -1,3 +1,5 @@
+#define EDM_ML_DEBUG
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -18,7 +20,7 @@
 #include "Geometry/Records/interface/MTDTopologyRcd.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
@@ -95,7 +97,6 @@ FTLMergedCluster MTDMergedClusterProducer::mergeClusters(const std::vector<const
   double weightedGlobalY = 0;
   double weightedGlobalZ = 0;
 
-  std::vector<DetId> clusterIds;
   std::vector<FTLClusterRef> clusterRefs;
 
   std::vector<DetId> hitDetId;
@@ -134,7 +135,6 @@ FTLMergedCluster MTDMergedClusterProducer::mergeClusters(const std::vector<const
     weightedTime += energy * cluster->time();
     weightedTimeError2 += energy * energy * cluster->timeError() * cluster->timeError();
 
-    clusterIds.push_back(cluster->id());
     clusterRefs.push_back(edmNew::makeRefTo(mtdClustersHandle, cluster));
 
     for (int i = 0; i < cluster->size(); ++i) {
@@ -211,6 +211,21 @@ FTLMergedCluster MTDMergedClusterProducer::mergeClusters(const std::vector<const
     double weightedErrorY2 = 0.;
 
     for (const auto* cluster : clusters) {
+#ifdef EDM_ML_DEBUG
+      LogDebug("MTDMergedClusterProducer") << "Original hits for cluster in DetId: " << cluster->id();
+      for (int ihit = 0; ihit < cluster->size(); ++ihit) {
+        auto thisHit = cluster->hit(ihit);
+        LogTrace("MTDMergedClusterProducer")
+            << "Cluster hit " << ihit << " row/col = " << thisHit.x() << " " << thisHit.y()
+            << " energy = " << thisHit.energy() << " time = " << thisHit.time() << " +/- " << thisHit.time_error();
+        int hit_row = cluster->minHitRow() + cluster->hitOffset()[ihit * 2];
+        int hit_col = cluster->minHitCol() + cluster->hitOffset()[ihit * 2 + 1];
+        if (hit_row != thisHit.x() || hit_col != thisHit.y()) {
+          edm::LogWarning("MTDMergedClusterProducer")
+              << "Index in cluster memory not consistent, row/col = " << hit_row << " " << hit_col;
+        }
+      }
+#endif
       float energy = cluster->energy();
       const GeomDet* det = geom.idToDetUnit(cluster->id());
       if (!det)
@@ -253,12 +268,13 @@ FTLMergedCluster MTDMergedClusterProducer::mergeClusters(const std::vector<const
 
   DetId mergedId = DetId(seedId.rawId());
   FTLMergedCluster mergedCluster(
-      mergedId, totalEnergy, avgTime, avgTimeError, avgX, avgY, avgXError, avgYError, clusterIds, clusterRefs);
+      mergedId, totalEnergy, avgTime, avgTimeError, avgX, avgY, avgXError, avgYError, clusterRefs);
 
   for (size_t i = 0; i < hitDetId.size(); i++) {
     mergedCluster.addHit(hitDetId[i], hitRow[i], hitCol[i], hitTime[i], hitTimeError[i], hitEnergy[i]);
   }
 
+  LogTrace("MTDMergedClusterProducer") << "Building merged cluster " << mergedCluster;
   return mergedCluster;
 }
 

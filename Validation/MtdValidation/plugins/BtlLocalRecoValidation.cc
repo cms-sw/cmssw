@@ -1,3 +1,5 @@
+#define EDM_ML_DEBUG
+
 // -*- C++ -*-
 //
 // Package:    Validation/MtdValidation
@@ -490,9 +492,6 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       }
       LogTrace("BtlLocalRecoValidation") << " BTL Cluster above threshold # " << n_clus_btl << cluster;
       n_clus_btl++;
-      LogTrace("BtlLocalRecoValidation") << "Cluster DetId " << cluId.rawId() << " size = " << cluster.size()
-                                         << " min/max row = " << cluster.minHitRow() << " " << cluster.maxHitRow()
-                                         << " min/max col = " << cluster.minHitCol() << " " << cluster.maxHitCol();
 
       MTDClusterParameterEstimator::ReturnType tuple = cpe.getParameters(cluster, *genericDet);
 
