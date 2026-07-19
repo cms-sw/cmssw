@@ -329,10 +329,11 @@ def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap
     process.HGCAL_noises = cms.PSet(
         values = cms.vdouble([x for x in endOfLifeNoises])  
         )
-    phase2_hgcalV19.toModify(HGCAL_noise_fC, values = [x*fC_per_ele for x in endOfLifeNoises_v19] ) #100,200,300 um, to be deprecated
-    phase2_hgcalV19.toModify(HGCAL_noise_fC, values = [x*fC_per_ele for x in endOfLifeNoises_v19] ) #100,200,300 um, to be deprecated
-    phase2_hgcalV19.toModify(HGCAL_chargeCollectionEfficiencies, values = endOfLifeNoises_v19)
-    phase2_hgcalV19.toModify(HGCAL_noises, values = [x for x in endOfLifeNoises_v19])
+    #target the PSets just attached to the process: the module-level objects of
+    #the same names are not the ones the digitizers resolve on a loaded process
+    phase2_hgcalV19.toModify(process.HGCAL_noise_fC, values = [x*fC_per_ele for x in endOfLifeNoises_v19] ) #120,200,300,HD200 um, to be deprecated
+    phase2_hgcalV19.toModify(process.HGCAL_chargeCollectionEfficiencies, values = endOfLifeCCEs_v19)
+    phase2_hgcalV19.toModify(process.HGCAL_noises, values = [x for x in endOfLifeNoises_v19])
 
     return process
 
