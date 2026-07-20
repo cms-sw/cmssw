@@ -480,7 +480,6 @@ inline void calculateShowerShapes(const ::reco::PFClusterCollection& clusters,
                                   std::vector<reduce_t>& phiRMS2) {
   const unsigned int nClusters = clusters.size();
 
-#pragma omp parallel for schedule(static)
   for (unsigned int i = 0; i < nClusters; ++i) {
     const ::reco::PFCluster& cluster = clusters[i];
 
@@ -492,7 +491,6 @@ inline void calculateShowerShapes(const ::reco::PFClusterCollection& clusters,
 
     const unsigned int nFractions = fractions.size();
 
-#pragma omp simd reduction(+ : etaSum, phiSum)
     for (unsigned int j = 0; j < nFractions; ++j) {
       const auto& frac = fractions[j];
 
