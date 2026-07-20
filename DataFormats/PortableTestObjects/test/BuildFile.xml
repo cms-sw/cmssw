@@ -2,3 +2,8 @@
   <use name="DataFormats/PortableTestObjects"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
 </bin>
+
+<test name="DataFormatsPortableTestObjectsEdmTypeInfo" command="run_edmTypeInfo.sh">
+  <!-- explicit dependency on FWCore/Reflection where edmTypeInfo is implemented -->
+  <use name="FWCore/Reflection"/>
+</test>
