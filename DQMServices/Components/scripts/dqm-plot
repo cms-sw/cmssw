@@ -586,8 +586,7 @@ class DQMPlotter:
         for file_path, label in zip(file_paths, labels):
             hist = self._load_single_histogram(file_path, hist_path)
 
-            if hist is None:
-                print(f'Warning: Histogram {hist_path} in file {file_path} was not found.')
+            if hist is None: # a warning is already present in _load_single_histogram()
                 continue
 
             histograms.append(hist)
