@@ -46,8 +46,6 @@ namespace edm {
 
     class EventSetupRecordProvider {
     public:
-      enum class IntervalStatus { NotInitializedForSyncValue, Invalid, NewInterval, UpdateIntervalEnd, SameInterval };
-
       using DataToPreferredProviderMap = std::map<DataKey, ComponentDescription>;
 
       EventSetupRecordProvider(EventSetupRecordKey const& iKey,

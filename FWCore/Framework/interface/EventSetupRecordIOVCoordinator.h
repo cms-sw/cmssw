@@ -45,7 +45,7 @@ namespace edm {
 
     class EventSetupRecordIOVCoordinator {
     public:
-      enum class IntervalStatus { NotInitializedForSyncValue, Invalid, NewInterval, UpdateIntervalEnd, SameInterval };
+      enum class IntervalStatus { Invalid, NewInterval, UpdateIntervalEnd, SameInterval };
 
       explicit EventSetupRecordIOVCoordinator(unsigned int nConcurrentIOVs);
       ~EventSetupRecordIOVCoordinator();
