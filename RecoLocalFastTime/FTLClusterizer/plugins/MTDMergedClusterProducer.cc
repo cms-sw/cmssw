@@ -97,7 +97,6 @@ FTLMergedCluster MTDMergedClusterProducer::mergeClusters(const std::vector<const
   double weightedGlobalY = 0;
   double weightedGlobalZ = 0;
 
-  std::vector<DetId> clusterIds;
   std::vector<FTLClusterRef> clusterRefs;
 
   std::vector<DetId> hitDetId;
@@ -136,7 +135,6 @@ FTLMergedCluster MTDMergedClusterProducer::mergeClusters(const std::vector<const
     weightedTime += energy * cluster->time();
     weightedTimeError2 += energy * energy * cluster->timeError() * cluster->timeError();
 
-    clusterIds.push_back(cluster->id());
     clusterRefs.push_back(edmNew::makeRefTo(mtdClustersHandle, cluster));
 
     for (int i = 0; i < cluster->size(); ++i) {
@@ -270,7 +268,7 @@ FTLMergedCluster MTDMergedClusterProducer::mergeClusters(const std::vector<const
 
   DetId mergedId = DetId(seedId.rawId());
   FTLMergedCluster mergedCluster(
-      mergedId, totalEnergy, avgTime, avgTimeError, avgX, avgY, avgXError, avgYError, clusterIds, clusterRefs);
+      mergedId, totalEnergy, avgTime, avgTimeError, avgX, avgY, avgXError, avgYError, clusterRefs);
 
   for (size_t i = 0; i < hitDetId.size(); i++) {
     mergedCluster.addHit(hitDetId[i], hitRow[i], hitCol[i], hitTime[i], hitTimeError[i], hitEnergy[i]);
