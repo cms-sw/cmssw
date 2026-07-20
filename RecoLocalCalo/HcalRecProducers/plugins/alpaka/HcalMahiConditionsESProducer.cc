@@ -276,9 +276,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         vi.sipmPar_auxi2() = sipmParameters_barrel[i].getauxi2();
       }
 
-      //fill the scalars
-      static const int IPHI_MAX = 72;  // private member of topology
-
       view.maxDepthHB() = topology.maxDepthHB();
       view.firstHBRing() = topology.firstHBRing();
       view.lastHBRing() = topology.lastHBRing();
