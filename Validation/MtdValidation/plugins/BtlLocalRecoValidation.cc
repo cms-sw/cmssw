@@ -1,3 +1,5 @@
+#define EDM_ML_DEBUG
+
 // -*- C++ -*-
 //
 // Package:    Validation/MtdValidation

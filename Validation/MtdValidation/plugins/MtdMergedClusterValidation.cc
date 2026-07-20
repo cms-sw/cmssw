@@ -1,3 +1,5 @@
+#define EDM_ML_DEBUG
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -70,12 +72,6 @@ private:
   edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
   edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
 
-  // RECO
-  int totalMC2DFilled_ = 0;
-  int totalMCClusterNotFound_ = 0;
-  int totalMCGeometryFailed_ = 0;
-  int totalMCWrongSize_ = 0;
-
   MonitorElement* h_mc_energy_;
   MonitorElement* h_mc_time_;
   MonitorElement* h_mc_timeError_;
@@ -144,38 +140,6 @@ private:
   MonitorElement* h_simmc_primaryPt_vs_energy_;
   MonitorElement* h_simmc_primaryEnergy_vs_energy_;
   MonitorElement* h_simmc_primaryEnergy_vs_nClusters_;
-
-  int evt_run_, evt_event_;
-
-  // RECO
-  int mc_n_;
-  std::vector<float> mc_energy_, mc_time_, mc_timeError_, mc_x_, mc_y_;
-  std::vector<int> mc_nClusters_;
-  std::vector<uint32_t> mc_seedId_;
-  std::vector<std::vector<uint32_t>> mc_clusterIds_;
-
-  int cluster_n_;
-  std::vector<float> cluster_energy_, cluster_time_, cluster_x_, cluster_y_;
-  std::vector<uint32_t> cluster_detId_;
-  std::vector<bool> cluster_inMergedCluster_;
-
-  // SIM
-  int simmc_n_;
-  std::vector<float> simmc_energy_, simmc_time_, simmc_timeError_, simmc_x_, simmc_y_;
-  std::vector<int> simmc_nClusters_;
-  std::vector<std::vector<uint32_t>> simmc_iphi_perCluster_, simmc_ieta_perCluster_;
-  std::vector<std::vector<float>> simmc_energy_perCluster_, simmc_time_perCluster_;
-  std::vector<std::vector<uint32_t>> simmc_clusterType_;
-
-  // Primary particle information per mergedcluster
-  std::vector<float> simmc_primary_energy_, simmc_primary_et_, simmc_primary_phi_, simmc_primary_eta_;
-  std::vector<int> simmc_primary_pdgId_;
-
-  int totalAdjacentPairs_;
-  int totalMergedPairs_;
-
-  int sameTrackIdPairs_;
-  int mergedSameTrackIDPairs_;
 };
 
 MtdMergedClusterValidation::MtdMergedClusterValidation(const edm::ParameterSet& iConfig)
@@ -193,11 +157,6 @@ MtdMergedClusterValidation::MtdMergedClusterValidation(const edm::ParameterSet& 
       consumes<reco::SimToTPCollectionMtd>(iConfig.getParameter<edm::InputTag>("sim2tpAssociationMapTag"));
   r2sAssociationMapToken_ = consumes<MtdRecoClusterToSimLayerClusterAssociationMap>(
       iConfig.getParameter<edm::InputTag>("r2sAssociationMapTag"));
-
-  totalAdjacentPairs_ = 0;
-  totalMergedPairs_ = 0;
-  sameTrackIdPairs_ = 0;
-  mergedSameTrackIDPairs_ = 0;
 }
 
 void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -239,40 +198,6 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
   auto geomHandle = iSetup.getTransientHandle(mtdgeoToken_);
   const MTDGeometry* geom = geomHandle.product();
 
-  evt_run_ = iEvent.id().run();
-  evt_event_ = iEvent.id().event();
-
-  mc_energy_.clear();
-  mc_time_.clear();
-  mc_timeError_.clear();
-  mc_x_.clear();
-  mc_y_.clear();
-  mc_nClusters_.clear();
-  mc_seedId_.clear();
-  mc_clusterIds_.clear();
-  cluster_energy_.clear();
-  cluster_time_.clear();
-  cluster_x_.clear();
-  cluster_y_.clear();
-  cluster_detId_.clear();
-  cluster_inMergedCluster_.clear();
-
-  simmc_energy_.clear();
-  simmc_time_.clear();
-  simmc_x_.clear();
-  simmc_y_.clear();
-  simmc_nClusters_.clear();
-  simmc_iphi_perCluster_.clear();
-  simmc_ieta_perCluster_.clear();
-  simmc_energy_perCluster_.clear();
-  simmc_time_perCluster_.clear();
-  simmc_clusterType_.clear();
-  simmc_primary_energy_.clear();
-  simmc_primary_et_.clear();
-  simmc_primary_phi_.clear();
-  simmc_primary_eta_.clear();
-  simmc_primary_pdgId_.clear();
-
   // flatten detsetvector
   std::vector<const FTLMergedCluster*> mergedVec;
   mergedVec.reserve(mergedClustersHandle->size());
@@ -281,9 +206,6 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
       mergedVec.push_back(&mc);
     }
   }
-  mc_n_ = mergedVec.size();
-
-  simmc_n_ = simMergedClustersHandle->size();
 
   std::set<uint32_t> clusterDetIds;
   std::map<uint32_t, int> detIdToSCIndex;
@@ -292,7 +214,7 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
 
   std::map<BTLDetId, const FTLCluster*> clusterMap;
   std::vector<const FTLCluster*> validClusters;
-  cluster_n_ = 0;
+  int cluster_n(0);
 
   // ---------------------- //
   // -------- RECO -------- //
@@ -310,7 +232,7 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
       if (cluster.energy() < 1.0)
         continue;
 
-      cluster_n_++;
+      cluster_n++;
       validClusters.push_back(&cluster);
       //clusterMap[cluster.id()] = &cluster;
 
@@ -320,7 +242,7 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
   }
 
   // debug
-  LogDebug("MtdMergedClusterValidation") << "Valid clusters for event " << evt_event_ << ":";
+  LogDebug("MtdMergedClusterValidation") << "Valid clusters for event:";
   for (const auto* cluster : validClusters) {
     LogTrace("MtdMergedClusterValidation") << "  DetId " << cluster->id().rawId();
   }
@@ -370,14 +292,6 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
     h_mc_energy_vs_time_->Fill(mc->time(), mc->energy());
     h_mc_xy_->Fill(mc->x(), mc->y());
     h_mc_energy_vs_nClusters_->Fill(mc->nClusters(), mc->energy());
-
-    mc_energy_.push_back(mc->energy());
-    mc_time_.push_back(mc->time());
-    mc_timeError_.push_back(mc->timeError());
-    mc_x_.push_back(mc->x());
-    mc_y_.push_back(mc->y());
-    mc_nClusters_.push_back(mc->nClusters());
-    mc_seedId_.push_back(mc->id().rawId());
 
     // da budemo sigurni
     bool seedFound = false;
@@ -553,7 +467,7 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
       LogDebug("MtdMergedClusterValidation") << id.rawId() << " ";
     }
     LogDebug("MtdMergedClusterValidation");
-    if (cluIds.size() == 2) {
+    if (cluIds.size() == 2 && MTDDetId::testForBTL(mc->id())) {
       std::vector<GlobalPoint> clusterPositions;
 
       for (const auto& detId : cluIds) {
@@ -624,11 +538,10 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
       }
     }
     // i onda ide isto sta i prije:
-    mc_clusterIds_.push_back(clusterIds);
     scIndex++;
 
     //debug detIdtoscindex
-    LogDebug("MtdMergedClusterValidation") << "detIdToSCIndex contents for event " << evt_event_ << ":";
+    LogDebug("MtdMergedClusterValidation") << "detIdToSCIndex contents for event:";
     for (const auto& entry : detIdToSCIndex) {
       LogDebug("MtdMergedClusterValidation") << "  DetId " << entry.first << " -> MergedCluster " << entry.second;
     }
@@ -650,17 +563,14 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
 
   std::set<uint32_t> countedDetIds;
   for (const auto* cluster : validClusters) {
+    // test meaningful only for BTL
+    if (!MTDDetId::testForBTL(cluster->id())) {
+      continue;
+    }
     if (countedDetIds.count(cluster->id().rawId()))
       continue;
     countedDetIds.insert(cluster->id().rawId());
     bool inMergedCluster = detIdToSCIndex.count(cluster->id().rawId()) > 0;
-
-    cluster_energy_.push_back(cluster->energy());
-    cluster_time_.push_back(cluster->time());
-    cluster_x_.push_back(cluster->x());
-    cluster_y_.push_back(cluster->y());
-    cluster_detId_.push_back(cluster->id().rawId());
-    cluster_inMergedCluster_.push_back(inMergedCluster);
 
     if (!inMergedCluster) {
       //LogDebug("MtdMergedClusterValidation") << "[DEBUG] Filling eff with STANDALONE cluster: E=" << cluster->energy()
@@ -670,8 +580,7 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
     }
   }
 
-  LogDebug("MtdMergedClusterValidation") << "MergedClusters and their constituent DetIds for event " << evt_event_
-                                         << ":";
+  LogDebug("MtdMergedClusterValidation") << "MergedClusters and their constituent DetIds:";
   for (size_t i = 0; i < mergedVec.size(); ++i) {
     const FTLMergedCluster* mc = mergedVec[i];
     LogDebug("MtdMergedClusterValidation") << "  MergedCluster " << i << ": ";
@@ -710,9 +619,7 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
   int sameTrackIDPairs = 0;
   int mergedSameTrackIDPairs = 0;
 
-  if (evt_event_ <= 3) {
-    LogDebug("MtdMergedClusterValidation") << "Checking " << validClusters.size() << " clusters for adjacency:";
-  }
+  LogDebug("MtdMergedClusterValidation") << "Checking " << validClusters.size() << " clusters for adjacency:";
 
   //WIP
   for (const auto* cluster : validClusters) {
@@ -919,7 +826,7 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
           }
 #endif
 
-          if (evt_event_ <= 3 && adjacentPairs <= 10) {
+          if (adjacentPairs <= 10) {
             LogDebug("MtdMergedClusterValidation")
                 << "  ETA adjacent pair " << adjacentPairs << ": " << detId1 << " <-> " << detId2
                 << ", bothInSC=" << bothInSC << ", sameIndex=" << sameIndexMerged;
@@ -931,67 +838,9 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
         }
       }
     }
-
-    //phi
-    /*std::vector<int> phiOffsets = {1, -1};
-        for (int phiOffset : phiOffsets) {
-            uint32_t adjDetIdRaw = topology->btlidFromIndex(iphi + phiOffset, ieta);
-            if (adjDetIdRaw == 0) continue;
-            
-            BTLDetId adjDetId(adjDetIdRaw);
-            auto it = clusterMap.find(adjDetId);
-            if (it == clusterMap.end()) continue;
-
-            std::pair<uint32_t, uint32_t> pairKey = 
-                (cluId.rawId() < adjDetId.rawId()) ? 
-                std::make_pair(cluId.rawId(), adjDetId.rawId()) :
-                std::make_pair(adjDetId.rawId(), cluId.rawId());
-            
-            // Skip if already processed
-            if (processedPairs.find(pairKey) != processedPairs.end()) {
-                continue;
-            }
-            processedPairs.insert(pairKey);
-            
-            adjacentPairs++;
-
-            h_eta_adjacent_pairs_->Fill(cluster_eta);
-
-            // Check if both clusters are in the same MergedCluster
-            uint32_t detId1 = cluId.rawId();
-            uint32_t detId2 = adjDetId.rawId();
-            
-            auto it1 = detIdToSCIndex.find(detId1);
-            auto it2 = detIdToSCIndex.find(detId2);
-            
-            bool bothInSC = (it1 != detIdToSCIndex.end()) && (it2 != detIdToSCIndex.end());
-            bool sameIndexMerged = bothInSC && (it1->second == it2->second);
-            
-            if (sameIndexMerged) {
-                mergedPairs++;
-
-                h_eta_merged_pairs_->Fill(cluster_eta);
-            }
-            
-            if (evt_event_ <= 3 && adjacentPairs <= 10) {
-                LogDebug("MtdMergedClusterValidation") << "  PHI adjacent pair " << adjacentPairs << ": " 
-                          << detId1 << " <-> " << detId2 
-                          << ", bothInSC=" << bothInSC
-                          << ", sameIndex=" << sameIndexMerged;
-                if (bothInSC) {
-                    LogDebug("MtdMergedClusterValidation") << " (SC indices: " << it1->second << "," << it2->second << ")";
-                }
-                LogDebug("MtdMergedClusterValidation") ;
-            }
-        }*/
   }
 
-  totalAdjacentPairs_ += adjacentPairs;
-  totalMergedPairs_ += mergedPairs;
-  sameTrackIdPairs_ += sameTrackIDPairs;
-  mergedSameTrackIDPairs_ += mergedSameTrackIDPairs;
-
-  LogDebug("MtdMergedClusterValidation") << "Event " << evt_event_ << ": " << mc_n_ << " MergedClusters, " << cluster_n_
+  LogDebug("MtdMergedClusterValidation") << mergedVec.size() << " MergedClusters, " << cluster_n
                                          << " individual clusters";
   LogDebug("MtdMergedClusterValidation") << "Adjacent pairs: " << adjacentPairs << ", Merged pairs: " << mergedPairs;
   LogDebug("MtdMergedClusterValidation") << "Same TrackID pairs: " << sameTrackIDPairs
@@ -1070,14 +919,6 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
 
     h_simmc_xy_->Fill(global_point.x(), global_point.y());
 
-    // Tree filling
-    simmc_energy_.push_back(energy);
-    simmc_time_.push_back(time);
-    // simmc_timeError_.push_back(simmc.timeError());
-    simmc_x_.push_back(global_point.x());
-    simmc_y_.push_back(global_point.y());
-    simmc_nClusters_.push_back(nClusters);
-
     // Collect per-cluster information for this mergedcluster
     std::vector<uint32_t> iphi_perCluster;
     std::vector<uint32_t> ieta_perCluster;
@@ -1124,12 +965,6 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
           << " t: " << cluster.simLCTime() << " ns"
           << " hitProdType: " << cluster.hitProdType();
     }
-
-    simmc_iphi_perCluster_.push_back(iphi_perCluster);
-    simmc_ieta_perCluster_.push_back(ieta_perCluster);
-    simmc_energy_perCluster_.push_back(energy_perCluster);
-    simmc_time_perCluster_.push_back(time_perCluster);
-    simmc_clusterType_.push_back(clusterType_perCluster);
 
     // Find primary tracking particle for this mergedcluster
     float primary_energy = -999.0;
@@ -1213,33 +1048,21 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
     h_simmc_primaryEnergy_vs_energy_->Fill(energy, primary_energy);
     h_simmc_primaryEnergy_vs_nClusters_->Fill(nClusters, primary_energy);
 
-    simmc_primary_energy_.push_back(primary_energy);
-    simmc_primary_et_.push_back(primary_et);
-    simmc_primary_phi_.push_back(primary_phi);
-    simmc_primary_eta_.push_back(primary_eta);
-    simmc_primary_pdgId_.push_back(primary_pdgId);
-
     // Print detailed info for first few events
-    if (evt_event_ <= 3) {
-      LogDebug("MtdMergedClusterValidation") << "MergedCluster: MeV, t=" << time << " ns;"
-                                             << " E = " << energy << " MeV;"
-                                             << " pos = (" << simmc.simPos().x() << "," << simmc.simPos().y() << ")";
-      LogDebug("MtdMergedClusterValidation") << "  Made from " << nClusters << " clusters:";
-      for (const auto& detId : simmc.detIds()) {
-        LogDebug("MtdMergedClusterValidation") << "    DetId: " << detId.rawId();
-      }
+    LogDebug("MtdMergedClusterValidation") << "MergedCluster: MeV, t=" << time << " ns;"
+                                           << " E = " << energy << " MeV;"
+                                           << " pos = (" << simmc.simPos().x() << "," << simmc.simPos().y() << ")";
+    LogDebug("MtdMergedClusterValidation") << "  Made from " << nClusters << " clusters:";
+    for (const auto& detId : simmc.detIds()) {
+      LogDebug("MtdMergedClusterValidation") << "    DetId: " << detId.rawId();
     }
   }
 
-  h_simmc_n_->Fill(simmc_n_);
+  h_simmc_n_->Fill(simMergedClustersHandle->size());
 
-  // tree_->getTTree()->Fill();
-
-  if (evt_event_ <= 3) {
-    LogDebug("MtdMergedClusterValidation")
-        << "Event " << evt_event_ << ": " << mc_n_ << " MergedClusters, " << cluster_n_ << " individual clusters";
-    LogDebug("MtdMergedClusterValidation") << "Adjacent pairs: " << adjacentPairs << ", Merged pairs: " << mergedPairs;
-  }
+  LogDebug("MtdMergedClusterValidation") << mergedVec.size() << " MergedClusters, " << cluster_n
+                                         << " individual clusters";
+  LogDebug("MtdMergedClusterValidation") << "Adjacent pairs: " << adjacentPairs << ", Merged pairs: " << mergedPairs;
 }
 
 void MtdMergedClusterValidation::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {

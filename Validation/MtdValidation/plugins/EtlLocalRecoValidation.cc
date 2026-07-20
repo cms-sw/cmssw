@@ -1,3 +1,5 @@
+#define EDM_ML_DEBUG
+
 // -*- C++ -*-
 //
 // Package:    Validation/MtdValidation
@@ -419,57 +421,57 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
           break;
       }
 
-        if (!matchClu) {
-          edm::LogWarning("EtlLocalRecoValidation")
-              << "No valid TrackingRecHit corresponding to cluster, detId = " << detIdObject.rawId();
-        }
+      if (!matchClu) {
+        edm::LogWarning("EtlLocalRecoValidation")
+            << "No valid TrackingRecHit corresponding to cluster, detId = " << detIdObject.rawId();
+      }
 
-        // --- Fill the cluster resolution histograms using MtdSimLayerClusters as mtd truth
-        int iside = (cluId.zside() == -1 ? 0 : 1);
-        edm::Ref<edmNew::DetSetVector<FTLMergedCluster>, FTLMergedCluster> clusterRef =
-            edmNew::makeRefTo(etlRecCluHandle, &cluster);
-        auto itp = r2sAssociationMap.equal_range(clusterRef);
-        if (itp.first != itp.second) {
-          std::vector<MtdSimMergedClusterRef> simClustersRefs =
-              (*itp.first).second;  // the range of itp.first, itp.second should be always 1
-          for (unsigned int i = 0; i < simClustersRefs.size(); i++) {
-            const auto& simClusterRef = simClustersRefs[i];
-            unsigned int idOffset = (*simClusterRef).hitProdType();
+      // --- Fill the cluster resolution histograms using MtdSimLayerClusters as mtd truth
+      int iside = (cluId.zside() == -1 ? 0 : 1);
+      edm::Ref<edmNew::DetSetVector<FTLMergedCluster>, FTLMergedCluster> clusterRef =
+          edmNew::makeRefTo(etlRecCluHandle, &cluster);
+      auto itp = r2sAssociationMap.equal_range(clusterRef);
+      if (itp.first != itp.second) {
+        std::vector<MtdSimMergedClusterRef> simClustersRefs =
+            (*itp.first).second;  // the range of itp.first, itp.second should be always 1
+        for (unsigned int i = 0; i < simClustersRefs.size(); i++) {
+          const auto& simClusterRef = simClustersRefs[i];
+          unsigned int idOffset = (*simClusterRef).hitProdType();
 
-            meCluTrackIdOffset_[idet]->Fill(float(idOffset));
+          meCluTrackIdOffset_[idet]->Fill(float(idOffset));
 
-            float simClusEnergy = convertUnitsTo(0.001_MeV, (*simClusterRef).simEnergy());  // GeV --> MeV
-            float simClusTime = (*simClusterRef).simTime();
-            LocalPoint simClusLocalPos = (*simClusterRef).simPos();
-            const auto& simClusGlobalPos = genericDet->toGlobal(simClusLocalPos);
+          float simClusEnergy = convertUnitsTo(0.001_MeV, (*simClusterRef).simEnergy());  // GeV --> MeV
+          float simClusTime = (*simClusterRef).simTime();
+          LocalPoint simClusLocalPos = (*simClusterRef).simPos();
+          const auto& simClusGlobalPos = genericDet->toGlobal(simClusLocalPos);
 
-            float time_res = cluster.time() - simClusTime;
-            float x_res = global_point.x() - simClusGlobalPos.x();
-            float y_res = global_point.y() - simClusGlobalPos.y();
-            float z_res = global_point.z() - simClusGlobalPos.z();
+          float time_res = cluster.time() - simClusTime;
+          float x_res = global_point.x() - simClusGlobalPos.x();
+          float y_res = global_point.y() - simClusGlobalPos.y();
+          float z_res = global_point.z() - simClusGlobalPos.z();
 
-            meCluTimeRes_simLC_[iside]->Fill(time_res);
-            meCluXRes_simLC_[iside]->Fill(x_res);
-            meCluYRes_simLC_[iside]->Fill(y_res);
-            meCluZRes_simLC_[iside]->Fill(z_res);
+          meCluTimeRes_simLC_[iside]->Fill(time_res);
+          meCluXRes_simLC_[iside]->Fill(x_res);
+          meCluYRes_simLC_[iside]->Fill(y_res);
+          meCluZRes_simLC_[iside]->Fill(z_res);
 
-            meCluTPullvsEta_simLC_[iside]->Fill(simClusGlobalPos.eta(), time_res / cluster.timeError());
-            meCluTPullvsE_simLC_[iside]->Fill(simClusEnergy, time_res / cluster.timeError());
+          meCluTPullvsEta_simLC_[iside]->Fill(simClusGlobalPos.eta(), time_res / cluster.timeError());
+          meCluTPullvsE_simLC_[iside]->Fill(simClusEnergy, time_res / cluster.timeError());
 
-            if (matchClu && comp != nullptr) {
-              meCluXPull_simLC_[iside]->Fill(x_res / std::sqrt(comp->globalPositionError().cxx()));
-              meCluYPull_simLC_[iside]->Fill(y_res / std::sqrt(comp->globalPositionError().cyy()));
-            }
-            if (optionalPlots_) {
-              meCluYXLocalSim_simLC_[iside]->Fill(simClusLocalPos.x(), simClusLocalPos.y());
-            }
+          if (matchClu && comp != nullptr) {
+            meCluXPull_simLC_[iside]->Fill(x_res / std::sqrt(comp->globalPositionError().cxx()));
+            meCluYPull_simLC_[iside]->Fill(y_res / std::sqrt(comp->globalPositionError().cyy()));
+          }
+          if (optionalPlots_) {
+            meCluYXLocalSim_simLC_[iside]->Fill(simClusLocalPos.x(), simClusLocalPos.y());
+          }
 
-          }  // loop over MtdSimLayerClusters
-        }
+        }  // loop over MtdSimLayerClusters
+      }
 
-      }  // cluster loop
+    }  // cluster loop
 
-    }  // DetSetClu loop
+  }  // DetSetClu loop
 
   // --- Loop over the ETL Uncalibrated RECO hits
   if (optionalPlots_) {
