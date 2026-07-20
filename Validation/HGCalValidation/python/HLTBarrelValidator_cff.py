@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Validation.HGCalValidation.barrelValidator_cfi import barrelValidator as _barrelValidator
-from SimCalorimetry.HGCalAssociatorProducers.hltLCToCPAssociation_cfi import hltBarrelLayerClusterCaloParticleAssociation
-from SimCalorimetry.HGCalAssociatorProducers.hltLCToSCAssociation_cfi import hltBarrelLayerClusterSimClusterAssociation
+from SimCalorimetry.HGCalAssociatorProducers.hltLCToSCAssociation_cfi import hltBarrelLayerClusterSimClusterAssociation, hltBarrelLayerClusterSimClusterAssociation
 
 hltBarrelValidator = _barrelValidator.clone(
     lclTag = 'hltMergeLayerClusters',

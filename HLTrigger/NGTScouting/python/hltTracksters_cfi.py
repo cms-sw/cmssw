@@ -4,7 +4,11 @@ from PhysicsTools.NanoAOD.nano_cff import nanoMetadata
 from Validation.HGCalValidation.HLT_TICLIterLabels_cff import hltTiclIterLabelsPSet
 
 hltUpgradeNanoTask = cms.Task(nanoMetadata)
-hltSimTrackstersLabels = ['hltTiclSimTracksters', 'hltTiclSimTrackstersfromCPs']
+hltSimTrackstersLabels = [
+    cms.InputTag('hltTiclSimTracksters', 'fromBoundarySimCluster'), cms.InputTag('hltTiclSimTracksters', 'fromCaloParticle')]
+hltSimTracksters_sourceSimClusterLabels = [ # SimCluster collections that were used to make SimTrackster (to be kept in sync)
+    cms.InputTag( "mix", "MergedCaloTruthBoundaryTrackSimCluster"), cms.InputTag( "mix", "MergedCaloTruthCaloParticle")]
+assert len(hltSimTrackstersLabels)==len(hltSimTracksters_sourceSimClusterLabels)
 # Tracksters
 hltTrackstersTable = []
 hltSimTrackstersTable = []
@@ -58,10 +62,10 @@ for iterLabel in hltTiclIterLabelsPSet.labels:
     globals()[label] = tracksterTable.clone()
     tracksterTableProducers.append(globals()[label])
     for iterLabelSim in hltSimTrackstersLabels:
-        CP_SC_label = "CP" if "CP" in iterLabelSim else "SC"
+        CP_SC_label = "CP" if ("CP" in iterLabelSim.productInstanceLabel or "CaloParticle" in iterLabelSim.productInstanceLabel) else "SC"
         trackstersAssociationOneToManyS2RTable = cms.EDProducer(
             "TracksterTracksterEnergyScoreFlatTableProducer",
-            src=cms.InputTag(f"hltAllTrackstersToSimTrackstersAssociationsByHits:{iterLabelSim}To{iterLabel}"),
+            src=cms.InputTag(f"hltAllTrackstersToSimTrackstersAssociationsByHits:{iterLabelSim.moduleLabel}{iterLabelSim.productInstanceLabel}To{iterLabel}"),
             skipNonExistingSrc=cms.bool(True),
             name=cms.string(f"Sim{CP_SC_label}2{iterLabel}ByHits"),
             doc=cms.string(f"Association between SimTracksters and {iterLabel}, by hits."),
@@ -78,13 +82,13 @@ for iterLabel in hltTiclIterLabelsPSet.labels:
                 )
             ),
         )
-        labelAssociation = f"{iterLabelSim}To{iterLabel}AssociationTableProducer"
+        labelAssociation = f"{iterLabelSim.moduleLabel}{iterLabelSim.productInstanceLabel}To{iterLabel}AssociationTableProducer"
         globals()[labelAssociation] = trackstersAssociationOneToManyS2RTable.clone()
         hltTrackstersAssociationOneToManyTableProducers.append(
             globals()[labelAssociation])
 
         trackstersAssociationOneToManyR2STable = cms.EDProducer("TracksterTracksterEnergyScoreFlatTableProducer",
-            src=cms.InputTag(f"hltAllTrackstersToSimTrackstersAssociationsByHits:{iterLabel}To{iterLabelSim}"),
+            src=cms.InputTag(f"hltAllTrackstersToSimTrackstersAssociationsByHits:{iterLabel}To{iterLabelSim.moduleLabel}{iterLabelSim.productInstanceLabel}"),
             skipNonExistingSrc=cms.bool(True),
             name=cms.string(f"Reco{iterLabel}2Sim{CP_SC_label}ByHits"),
             doc=cms.string(f"Association between {iterLabel} and SimTracksters, by hits."),
@@ -101,7 +105,7 @@ for iterLabel in hltTiclIterLabelsPSet.labels:
                 )
             ),
         )
-        labelAssociation = f"{iterLabel}To{iterLabelSim}AssociationTableProducer"
+        labelAssociation = f"{iterLabel}To{iterLabelSim.moduleLabel}{iterLabelSim.productInstanceLabel}AssociationTableProducer"
         globals()[labelAssociation] = trackstersAssociationOneToManyR2STable.clone()
         hltTrackstersAssociationOneToManyTableProducers.append(
             globals()[labelAssociation])
@@ -109,17 +113,18 @@ for iterLabel in hltTiclIterLabelsPSet.labels:
 hltTrackstersTableSequence = cms.Sequence(sum(tracksterTableProducers, cms.Sequence()))
 hltTiclAssociationsTableSequence = cms.Sequence(sum(hltTrackstersAssociationOneToManyTableProducers, cms.Sequence()))
 simTracksterTableProducers = []
-for iterLabel in hltSimTrackstersLabels:
-    label = iterLabel
-    objName = ""
-    if ("CP" in iterLabel):
-        label, objName = iterLabel.split("hltTiclSimTracksters")
-    hltSimTracksterTable = cms.EDProducer("TracksterCollectionTableProducer",
+for iterLabel, sourceSimClusterIterLabel in zip(hltSimTrackstersLabels, hltSimTracksters_sourceSimClusterLabels):
+    if ("CP" in iterLabel.productInstanceLabel or "CaloParticle" in iterLabel.productInstanceLabel):
+        outputLabel = f"{iterLabel.moduleLabel}fromCPs"
+    else:
+        outputLabel = iterLabel.moduleLabel
+    hltSimTracksterTable = cms.EDProducer(
+        "TracksterCollectionTableProducer",
         skipNonExistingSrc=cms.bool(True),
-        src=cms.InputTag(f"hltTiclSimTracksters", objName),
+        src=iterLabel,
         cut=cms.string(""),
-        name=cms.string(f"{iterLabel}"),
-        doc=cms.string(f"{iterLabel}"),
+        name=cms.string(outputLabel),
+        doc=cms.string(outputLabel),
         singleton=cms.bool(False),  # the number of entries is variable
         variables=cms.PSet(
             raw_energy=Var("raw_energy", "float", doc="Raw Energy of the trackster [GeV]"),
@@ -142,7 +147,7 @@ for iterLabel in hltSimTrackstersLabels:
         ),
         collectionVariables=cms.PSet(
             tracksterVertices=cms.PSet(
-                name=cms.string(f"{iterLabel}vertices"),
+                name=cms.string(f"{outputLabel}vertices"),
                 doc=cms.string("Vertex properties"),
                 useCount=cms.bool(True),
                 useOffset=cms.bool(True),
@@ -153,26 +158,31 @@ for iterLabel in hltSimTrackstersLabels:
             )
         ),
     )
-    label = f"{iterLabel}TableProducer"
+    label = f"{outputLabel}TableProducer"
     globals()[label] = hltSimTracksterTable.clone()
     simTracksterTableProducers.append(globals()[label])
 
     hltTiclSimTrackstersExtraTable = cms.EDProducer("SimTracksterTableProducer",
-                                                    tableName=cms.string(f"{iterLabel}"),
+                                                    tableName=cms.string(outputLabel),
                                                     skipNonExistingSrc=cms.bool(True),
-                                                    simTracksters=cms.InputTag("hltTiclSimTracksters", objName),
+                                                    simTracksters=iterLabel,
                                                     caloParticles=cms.InputTag("mix", "MergedCaloTruth"),
-                                                    simClusters=cms.InputTag("mix", "MergedCaloTruth"),
-                                                    caloParticleToSimClustersMap=cms.InputTag("hltTiclSimTracksters"),
+                                                    simClusters=sourceSimClusterIterLabel,  # this has to be the same that was used for SimTrackster building in hltTiclSimTracksters
+                                                    simTracksterToSimClusterMap=iterLabel,
+                                                    simTracksterToCaloParticleMap=iterLabel,
                                                     precision=cms.int32(7),
                                                     )
-    labelExtra = f"{iterLabel}TableExtraProducer"
+    labelExtra = f"{outputLabel}TableExtraProducer"
     globals()[labelExtra] = hltTiclSimTrackstersExtraTable.clone()
     simTracksterTableProducers.append(globals()[labelExtra])
 
 hltSimTracksterSequence = cms.Sequence(
     sum(simTracksterTableProducers, cms.Sequence()))
+
 # Tracksters Associators
+# this map is from "legacy" SimCluster collection to CaloParticle (it could be updated to "boundary" SimCluster to match SimTrackster above).
+# Note that it cannot be used in relation to the (Sim)Trackster tables, as the indices are not the same 
+# (the SimCluster->SimTrackster conversion removes SimCluster that lead to empty tracksters, because for ex. all simhits were "outliers" in CLUE, thus simTracksters.size() <= simClusters.size())
 hltSimCl2CPOneToOneFlatTable = cms.EDProducer(
     "SimClusterCaloParticleFractionFlatTableProducer",
     src=cms.InputTag("SimClusterToCaloParticleAssociation:simClusterToCaloParticleMap"),

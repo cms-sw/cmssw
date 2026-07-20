@@ -201,8 +201,6 @@ public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   using TracksterToTracksterMap =
       ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>;
-  using SimClusterToCaloParticleMap =
-      ticl::AssociationMap<ticl::oneToOneMapWithFraction, std::vector<SimCluster>, std::vector<CaloParticle>>;
   enum validationType { byHits_CP = 0, byLCs, byLCs_CP, byHits };
 
   BarrelVHistoProducerAlgo(const edm::ParameterSet& pset);
@@ -227,18 +225,19 @@ public:
 
   void bookTracksterSTSHistos(DQMStore::IBooker& ibook, Histograms& histograms, const validationType valType);
 
-  void layerClusters_to_CaloParticles(const Histograms& histograms,
-                                      edm::Handle<reco::CaloClusterCollection> clusterHandle,
-                                      const reco::CaloClusterCollection& clusters,
-                                      edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
-                                      std::vector<CaloParticle> const& cP,
-                                      std::vector<size_t> const& cPIndices,
-                                      std::vector<size_t> const& cPSelectedIndices,
-                                      std::unordered_map<DetId, const unsigned int> const&,
-                                      unsigned int layers,
-                                      const ticl::RecoToSimCollectionT<reco::CaloClusterCollection>& recSimColl,
-                                      const ticl::SimToRecoCollectionT<reco::CaloClusterCollection>& simRecColl,
-                                      edm::MultiSpan<reco::PFRecHit> const& barrelHits) const;
+  void layerClusters_to_CaloParticles(
+      const Histograms& histograms,
+      edm::Handle<reco::CaloClusterCollection> clusterHandle,
+      const reco::CaloClusterCollection& clusters,
+      edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
+      std::vector<CaloParticle> const& cP,
+      std::vector<size_t> const& cPIndices,
+      std::vector<size_t> const& cPSelectedIndices,
+      std::unordered_map<DetId, const unsigned int> const&,
+      unsigned int layers,
+      const ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>& recSimColl,
+      const ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>& simRecColl,
+      edm::MultiSpan<reco::PFRecHit> const& barrelHits) const;
   void layerClusters_to_SimClusters(
       const Histograms& histograms,
       const int count,
@@ -259,7 +258,7 @@ public:
                                       const TracksterToTracksterMap& trackstersToSimTrackstersMap,
                                       const TracksterToTracksterMap& simTrackstersToTrackstersMap,
                                       const validationType valType,
-                                      const SimClusterToCaloParticleMap& scToCpMap,
+                                      const SimClusterRefVector& scToCpMap,
                                       const std::vector<size_t>& cPIndices,
                                       const std::vector<size_t>& cPSelectedIndices,
                                       const edm::ProductID& cPHandle_id) const;
@@ -272,19 +271,20 @@ public:
                                 unsigned int layers,
                                 std::unordered_map<DetId, const unsigned int> const&,
                                 edm::MultiSpan<reco::PFRecHit> const& barrelHits) const;
-  void fill_generic_cluster_histos(const Histograms& histograms,
-                                   const int count,
-                                   edm::Handle<reco::CaloClusterCollection> clusterHandle,
-                                   const reco::CaloClusterCollection& clusters,
-                                   edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
-                                   std::vector<CaloParticle> const& cP,
-                                   std::vector<size_t> const& cPIndices,
-                                   std::vector<size_t> const& cPSelectedIndices,
-                                   std::unordered_map<DetId, const unsigned int> const&,
-                                   unsigned int layers,
-                                   const ticl::RecoToSimCollectionT<reco::CaloClusterCollection>& recSimColl,
-                                   const ticl::SimToRecoCollectionT<reco::CaloClusterCollection>& simRecColl,
-                                   edm::MultiSpan<reco::PFRecHit> const& barrelHits) const;
+  void fill_generic_cluster_histos(
+      const Histograms& histograms,
+      const int count,
+      edm::Handle<reco::CaloClusterCollection> clusterHandle,
+      const reco::CaloClusterCollection& clusters,
+      edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
+      std::vector<CaloParticle> const& cP,
+      std::vector<size_t> const& cPIndices,
+      std::vector<size_t> const& cPSelectedIndices,
+      std::unordered_map<DetId, const unsigned int> const&,
+      unsigned int layers,
+      const ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>& recSimColl,
+      const ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>& simRecColl,
+      edm::MultiSpan<reco::PFRecHit> const& barrelHits) const;
   void fill_simCluster_histos(const Histograms& histograms,
                               std::vector<SimCluster> const& simClusters,
                               unsigned int layers) const;
@@ -310,7 +310,6 @@ public:
                              const reco::CaloClusterCollection& layerClusters,
                              const ticl::TracksterCollection& simTSs,
                              const ticl::TracksterCollection& simTSs_fromCP,
-                             const std::map<unsigned int, std::vector<unsigned int>>& cpToSc_SimTrackstersMap,
                              std::vector<SimCluster> const& sC,
                              const edm::ProductID& cPHandle_id,
                              std::vector<CaloParticle> const& cP,
@@ -328,7 +327,7 @@ public:
                              const edm::Handle<TracksterToTracksterMap>& simTrackstersToTrackstersByHitsMapH,
                              const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersFromCPsByHitsMapH,
                              const edm::Handle<TracksterToTracksterMap>& simTrackstersFromCPsToTrackstersByHitsMapH,
-                             const SimClusterToCaloParticleMap& scToCpMap) const;
+                             const SimClusterRefVector& scToCpMap) const;
 
   double distance2(const double x1, const double y1, const double x2, const double y2) const;
   double distance(const double x1, const double y1, const double x2, const double y2) const;

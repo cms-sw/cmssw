@@ -13,7 +13,10 @@ validation can never drift out of sync.
 
 import FWCore.ParameterSet.Config as cms
 
-SIM_COLLECTIONS = ["ticlSimTracksters", "ticlSimTrackstersfromCPs"]
+SIM_COLLECTIONS = [
+    "ticlSimTrackstersfromBoundarySimCluster",
+    "ticlSimTrackstersfromCaloParticle",
+]
 
 
 # --------------------------------------------------------------------------- #
@@ -61,8 +64,8 @@ def build_associators_by_lcs(labels):
     return base.clone(
         tracksterCollections=cms.VInputTag(*[cms.InputTag(l) for l in labels]),
         simTracksterCollections=cms.VInputTag(
-            cms.InputTag("ticlSimTracksters"),
-            cms.InputTag("ticlSimTracksters", "fromCPs"),
+            cms.InputTag("ticlSimTracksters", "fromBoundarySimCluster"),
+            cms.InputTag("ticlSimTracksters", "fromCaloParticle"),
         ),
     )
 
@@ -72,7 +75,16 @@ def build_associators_by_hits(labels):
         import AllTracksterToSimTracksterAssociatorsByHitsProducer as base
     return base.clone(
         tracksterCollections=cms.VInputTag(*[cms.InputTag(l) for l in labels]),
-        simTracksterCollections=cms.VInputTag("ticlSimTracksters", "ticlSimTracksters:fromCPs"),
+        simTracksters=cms.VPSet(
+            cms.PSet(
+                simTracksterCollection=cms.InputTag("ticlSimTracksters", "fromBoundarySimCluster"),
+                hitToSimClusterMap=cms.InputTag("hitToBoundarySimClusterAssociator"),
+            ),
+            cms.PSet(
+                simTracksterCollection=cms.InputTag("ticlSimTracksters", "fromCaloParticle"),
+                hitToSimClusterMap=cms.InputTag("hitToCPSimClusterAssociator"),
+            ),
+        )
     )
 
 
@@ -85,7 +97,7 @@ def build_ticl_dumper(labels):
     dumper_associators = []
     for sts in SIM_COLLECTIONS:
         for lab in labels:
-            suffix = "CP" if "fromCPs" in sts else "SC"
+            suffix = "CP" if "fromCaloParticle" in sts else "SC"
             dumper_associators.append(cms.PSet(
                 branchName=cms.string(lab),
                 suffix=cms.string(suffix),
@@ -98,10 +110,10 @@ def build_ticl_dumper(labels):
         tracksterCollections=[
             *[cms.PSet(treeName=cms.string(l), inputTag=cms.InputTag(l)) for l in labels],
             cms.PSet(treeName=cms.string("simtrackstersSC"),
-                     inputTag=cms.InputTag("ticlSimTracksters"),
+                     inputTag=cms.InputTag("ticlSimTracksters", "fromBoundarySimCluster"),
                      tracksterType=cms.string("SimTracksterSC")),
             cms.PSet(treeName=cms.string("simtrackstersCP"),
-                     inputTag=cms.InputTag("ticlSimTracksters", "fromCPs"),
+                     inputTag=cms.InputTag("ticlSimTracksters", "fromCaloParticle"),
                      tracksterType=cms.string("SimTracksterCP")),
         ],
         associators=dumper_associators,
@@ -116,20 +128,21 @@ def build_hgcal_validator(labels, primary_trackster="ticlTrackstersCLUE3DHigh",
     return base.clone(
         label_tst=cms.VInputTag(
             *[cms.InputTag(l) for l in labels]
-            + [cms.InputTag("ticlSimTracksters", "fromCPs"), cms.InputTag("ticlSimTracksters")]),
+            + [cms.InputTag("ticlSimTracksters", "fromCaloParticle"),
+               cms.InputTag("ticlSimTracksters", "fromBoundarySimCluster")]),
         allTracksterTracksterAssociatorsLabels=cms.VInputTag(
             *[cms.InputTag("allTrackstersToSimTrackstersAssociationsByLCs:" + a) for a in inst]),
         allTracksterTracksterByHitsAssociatorsLabels=cms.VInputTag(
             *[cms.InputTag("allTrackstersToSimTrackstersAssociationsByHits:" + a) for a in inst]),
         LayerClustersInputMask=cms.VInputTag(
             cms.InputTag(primary_trackster),
-            cms.InputTag("ticlSimTracksters", "fromCPs"),
-            cms.InputTag("ticlSimTracksters")),
+            cms.InputTag("ticlSimTracksters", "fromCaloParticle"),
+            cms.InputTag("ticlSimTracksters", "fromBoundarySimCluster")),
         ticlTrackstersMerge=cms.InputTag(merge_label),
         mergeSimToRecoAssociator=cms.InputTag(
-            "allTrackstersToSimTrackstersAssociationsByLCs:ticlSimTrackstersfromCPsTo" + merge_label),
+            "allTrackstersToSimTrackstersAssociationsByLCs:ticlSimTrackstersfromCaloParticleTo" + merge_label),
         mergeRecoToSimAssociator=cms.InputTag(
-            "allTrackstersToSimTrackstersAssociationsByLCs:" + merge_label + "ToticlSimTrackstersfromCPs"),
+            "allTrackstersToSimTrackstersAssociationsByLCs:" + merge_label + "ToticlSimTrackstersfromCaloParticle"),
     )
 
 

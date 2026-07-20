@@ -157,9 +157,9 @@ ticl_superclustering_mustache_ticl.toModify(
 
 associatorsInstances = []
 for labelts in ticlIterLabelsPSet.labels:
-    for labelsts in ["ticlSimTracksters", "ticlSimTrackstersfromCPs"]:
-        associatorsInstances.append(labelts + "To" + labelsts)
-        associatorsInstances.append(labelsts + "To" + labelts)
+    for labelsts in ['ticlSimTrackstersfromBoundarySimCluster', 'ticlSimTrackstersfromCaloParticle']:
+        associatorsInstances.append(labelts+'To'+labelsts)
+        associatorsInstances.append(labelsts+'To'+labelts)
 
 ticlTracksterLinksTask = cms.Task(ticlTracksterLinks, ticlSuperclusteringTask) 
 
@@ -211,4 +211,3 @@ iterBarrelTICLTask = cms.Task(ticlLayerTileBarrel
 )
 
 ticl_barrel.toModify(mergeTICLTask, func=lambda x : x.add(ticlLayerTileBarrelTask, iterBarrelTICLTask))
-

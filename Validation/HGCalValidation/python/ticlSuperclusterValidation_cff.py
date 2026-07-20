@@ -9,7 +9,7 @@ from Validation.HGCalValidation.tracksterSuperclusteringValidCandidateMaskProduc
 
 sourceTracksterIteration = "ticlTrackstersCLUE3DHigh" # trackster collection used as input to superclustering (CLUE3D tracksters)
 superclusterTracksterIteration = "ticlTracksterLinksSuperclusteringDNN" # trackster collection output by superclustering (superclusters in trackster dataformat)
-simTrackstersCollection = "ticlSimTrackstersfromCPs" # simtrackster collection used for genmatching (CaloParticle)
+simTrackstersCollection = "ticlSimTrackstersfromCaloParticle" # simtrackster collection used for genmatching (CaloParticle)
 sim2recoscore = 0.3 # cut on sim2reco score to consider a supercluster genmatched
 
 

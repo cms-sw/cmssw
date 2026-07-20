@@ -16,18 +16,19 @@ def customiseHGCalOnlyEventContent(process):
                                             'keep *_hgcalMergeLayerClusters_*_*',
                                             'keep CaloParticles_mix_*_*',
                                             'keep SimClusters_mix_*_*',
+                                            'keep SimClustersRefs_mix_*_*',
                                             'keep recoTracks_generalTracks_*_*',
                                             'keep recoTrackExtras_generalTracks_*_*',
                                             'keep SimTracks_g4SimHits_*_*',
                                             'keep SimVertexs_g4SimHits_*_*',
-                                            'keep *_layerClusterSimClusterAssociationProducer_*_*',
-                                            'keep *_layerClusterCaloParticleAssociationProducer_*_*',
+                                            'keep *_layerClusterBoundaryTrackSimClusterAssociationProducer_*_*',
+                                            'keep *_layerClusterCaloParticleSimClusterAssociationProducer_*_*',
                                             'keep *_randomEngineStateProducer_*_*',
                                             'keep *_layerClusterSimTracksterAssociationProducer_*_*',
-                                            'keep *_SimClusterToCaloParticleAssociation*_*_*',
                                             'keep *_simClusterToCaloParticleAssociator*_*_*',
                                             'keep *_SimTau*_*_*',
-                                            'keep *_allTrackstersToSimTrackstersAssociations*_*_*'
+                                            'keep *_allTrackstersToSimTrackstersAssociations*_*fromBoundarySimCluster*_*',
+                                            'keep *_allTrackstersToSimTrackstersAssociations*_*fromCaloParticle*_*'
                                             ])
 
     if hasattr(process, 'FEVTDEBUGEventContent'):
