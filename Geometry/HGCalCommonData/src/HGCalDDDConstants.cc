@@ -852,6 +852,11 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, int cellU, in
   return isValidCell8(layer, modU, modV, cellU, cellV, type);
 }
 
+bool HGCalDDDConstants::isValidSilicon(unsigned int id) const {
+  HGCSiliconDetId detId(id);
+  return waferExist(detId.layer(), detId.waferU(), detId.waferV());
+}
+
 bool HGCalDDDConstants::isValidTrap(int zside, int layer, int irad, int iphi) const {
   // Check validity for a layer|eta|phi of scintillator
   const auto& indx = getIndex(layer, true);

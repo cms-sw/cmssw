@@ -24,7 +24,7 @@ constexpr int waferShift = 10;
 constexpr int duCell[6] = {-1, 0, +1, +1, 0, -1};
 constexpr int dvCell[6] = {-1, -1, 0, +1, +1, 0};
 constexpr int duWaf[6] = {0, +1, +1, 0, -1, -1};
-const int dvWaf[6] = {-1, 0, +1, +1, 0, -1};
+constexpr int dvWaf[6] = {-1, 0, +1, +1, 0, -1};
 
 HGCalNeighbourFinder::HGCalNeighbourFinder(const HGCalDDDConstants& hgc) : hgc_(hgc) {
   /* ----------------------------------------
@@ -172,7 +172,7 @@ std::vector<unsigned int> HGCalNeighbourFinder::nearestNeighboursOfDetId(unsigne
       int nn = 0;
       for (int i = 0; i < 6; i++) {
         detIdVec[nn] = (detId & ~(iuMask | ivMask)) | (iu + duCell[i]) | ((iv + dvCell[i]) << ivShift);
-        if (hgc_.waferExist(layer, (iu + duCell[i]), (iv + dvCell[i])))
+        if (hgc_.isValidSilicon(detIdVec[nn]))
           nn++;
         else
           detIdVec[nn] = 0;
@@ -218,7 +218,7 @@ std::vector<unsigned int> HGCalNeighbourFinder::nearestNeighboursOfDetId(unsigne
       detIdVec[nn] =
           (detId & ~(iuMask | ivMask)) | (iu + duCell[j] + mod) % mod | ((iv + dvCell[j] + mod) % mod << ivShift);
       if (partialWafer) {
-        if (!(hgc_.waferExist(layer, ((iu + duCell[i] + mod) % mod), ((iv + dvCell[i] + mod) % mod)))) {
+        if (!(hgc_.isValidSilicon(detIdVec[nn]))) {
           detIdVec[nn] = 0;
           nn--;
         }
@@ -264,7 +264,7 @@ std::vector<unsigned int> HGCalNeighbourFinder::nearestNeighboursOfDetId(unsigne
       idir = (irot - iside + 5) % 6;
     }
 
-    int waferId = (detId & waferMask) >> waferShift;
+    unsigned int waferId = (detId & waferMask) >> waferShift;
 
     int wiu = waferId & iuMask;
     int wiv = (waferId & ivMask) >> ivShift;
@@ -285,7 +285,7 @@ std::vector<unsigned int> HGCalNeighbourFinder::nearestNeighboursOfDetId(unsigne
     if (wivNxt < 0)
       wvId = wvId | signMask;
 
-    int detIdNxt = (detId & ~(waferMask)) | (wuId | (wvId << ivShift)) << waferShift;
+    unsigned int detIdNxt = (detId & ~(waferMask)) | (wuId | (wvId << ivShift)) << waferShift;
     HGCSiliconDetId idNxt(detIdNxt);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "HGCalNeighbourFinder: mirror|irot|idir " << mirror << ":" << irot << ":" << idir
@@ -435,7 +435,7 @@ std::vector<unsigned int> HGCalNeighbourFinder::nearestNeighboursOfDetId(unsigne
       int ivNxt = ivEdge[(newIndex + i) % edgeCount];
       detIdVec[icount] = (detIdNxt & ~(iuMask | ivMask)) | iuNxt | (ivNxt << ivShift);
       if (partialWafer) {
-        if (hgc_.waferExist(idNxt.layer(), iuNxt, ivNxt))
+        if (hgc_.isValidSilicon(detIdVec[icount]))
           icount++;
         else
           detIdVec[icount] = 0;
