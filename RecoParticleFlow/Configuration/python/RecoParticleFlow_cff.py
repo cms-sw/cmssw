@@ -105,7 +105,7 @@ MLPFSonicTriton.toReplaceWith(particleFlowTmp, mlpfsonicProducer.clone(
         timeout = cms.untracked.uint32(300),
         mode = cms.string("Async"),
         modelName = cms.string("MLPF"),
-        modelConfigPath = cms.FileInPath("/depot/cms/private/users/zhong202/SONIC/CMSSW_15_0_1/src/RecoParticleFlow/PFProducer/data/mlpf/config.pbtxt"),
+        modelConfigPath = cms.FileInPath("RecoParticleFlow/PFProducer/data/models/MLPF/config.pbtxt"),
         modelVersion = cms.string(""),
         verbose = cms.untracked.bool(False),
         allowedTries = cms.untracked.uint32(0),
