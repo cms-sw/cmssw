@@ -144,8 +144,14 @@ class DQMPlotter:
                 raise ValueError("Histogram binning mismatch.")
 
             rndstr = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
-            result = h1.ProjectionX('ProjectionX1_' + rndstr)
-            tmp = h2.ProjectionX('ProjectionX2_' + rndstr)
+            if isinstance(h1, ROOT.TH2) and isinstance(h2, ROOT.TH2):
+                result = h1.ProjectionX('ProjectionX1_' + rndstr)
+                tmp = h2.ProjectionX('ProjectionX2_' + rndstr)
+            elif isinstance(h1, ROOT.TH1) and isinstance(h2, ROOT.TH1):
+                result = h1
+                tmp = h2
+            tmp.Sumw2()
+            result.Sumw2()
             result.Divide(tmp)
             results.append(result)
      
@@ -256,18 +262,17 @@ class DQMPlotter:
         xlim_blocks_log = xlim is not None and xlim[0] <= 0
 
         # Automatic log scale for specific variable types
-        if ( any(x in xlabel for x in (r'p_{\text{T}}', r'$p_{\text{T}}$'))
+        if ( any(x in xlabel for x in (r'p_{\text{T}}', r'$p_{\text{T}}$', 'p_{T}'))
              and "pull" not in xlabel.lower() and not xlim_blocks_log ):
             ax.set_xscale("log")
 
-        if ( (any(x in ylabel for x in (r'p_{\text{T}}', r'$p_{\text{T}}$'))
+        if ( (any(x in ylabel for x in (r'p_{\text{T}}', r'$p_{\text{T}}$', 'p_{T}'))
              and "pull" not in ylabel.lower()) or (title is not None and "Sigma" in title) ):
             if not has_negative_values:
                 ax.set_yscale("log")
 
-        if "vertpos" in xlabel and not xlim_blocks_log:
+        if any(x in xlabel for x in ('vertpos', 'Track~r')) and not xlim_blocks_log:
             ax.set_xscale("log")
-            xlabel = "vert r [cm]"
 
         return xlabel, ylabel
 
@@ -581,7 +586,7 @@ class DQMPlotter:
         for file_path, label in zip(file_paths, labels):
             hist = self._load_single_histogram(file_path, hist_path)
 
-            if hist is None:
+            if hist is None: # a warning is already present in _load_single_histogram()
                 continue
 
             histograms.append(hist)
@@ -980,6 +985,7 @@ class DQMPlotter:
         xlim=None,
         ylim=None,
         ylim_ratio=None,
+        hline=None,
         ytitle_ratio_fontsize=None,
         ratio_label=None,
         complement=False,
@@ -1003,6 +1009,7 @@ class DQMPlotter:
             plot_histograms: Whether to plot histograms instead of individual bin points with errors
             pdf: Whether to save as PDF in addition to PNG
             legend_outside: Force legend to be placed outside the plot area
+            hline: Add a horizontal dashed line at the specified y axis value
             rebin: Optional rebinning specification, either a single int or an array-like of new bin edges
         """
         if len(histograms) != len(labels):
@@ -1138,8 +1145,10 @@ class DQMPlotter:
             ax_main.set_xlim(*xlim)
         if ylim:
             ax_main.set_ylim(*ylim)
- 
 
+        if hline:
+            ax_main.axhline(y=1, color="black", linestyle="--", alpha=0.7)
+        
         self._apply_custom_formatter(ax_main)
 
         # Ratio plot styling
@@ -1178,8 +1187,8 @@ class DQMPlotter:
                     ref_centers,
                     bin_labels,
                     size="small" if len(bin_labels) < 10 else "xx-small",
-                    rotation=45,
-                    ha="right",
+                    rotation=0,
+                    ha="center",
                     va="top",
                 )
                 ax_ratio.tick_params(axis="x", which="minor", bottom=False)
@@ -1189,7 +1198,7 @@ class DQMPlotter:
             if ratio_label is None:
                 ratio_ylabel = "Ratio"
             elif ratio_label == "auto":
-                ratio_ylabel = f"Ratio wrt {labels[0]}"
+                ratio_ylabel = f"Ratio wrt. {labels[0]}"
             else:
                 ratio_ylabel = ratio_label
             ax_ratio.set_ylabel(ratio_ylabel, fontsize=label_size if ytitle_ratio_fontsize is None else ytitle_ratio_fontsize)
@@ -1252,7 +1261,6 @@ class DQMPlotter:
             plot_tasks = []
             for numerator, denominator in operation_specs:
                 output_path = os.path.join(output_dir, os.path.basename(numerator) + '_' + operation_type.upper() + '_' + os.path.basename(denominator))
-                
                 plot_tasks.append({
                     "is_operation": True,
                     "file_paths": file_paths,
@@ -1591,6 +1599,7 @@ def process_histogram_task(task, debug):
             for fp, lab in zip(file_paths, labels):
                 num, lab = plotter._load_histograms([fp], task["numerator_path"], [lab])
                 den, _ = plotter._load_histograms([fp], task["denominator_path"], [lab])
+
                 # _load_histograms returns ([], []) when a histogram is missing; skip
                 # this file so numerator/denominator/labels stay aligned.
                 if not num or not den:
@@ -1712,6 +1721,10 @@ if __name__ == "__main__":
         '--multiply-x-values', type=float, required=False, default=None, dest='multiply_x_values',
         help="Multiply all x-axis values (bin centers and edges) by this fixed factor."
     )
+    parser.add_argument(
+        '--hline', type=float, required=False, default=None, dest='hline',
+        help="Add a horizontal dashed line at the specified Y axis location."
+    )    
     parser.add_argument(
         '--title', required=False, default=None,
         help="Plot title."
@@ -2011,5 +2024,6 @@ if __name__ == "__main__":
         rebin=rebin_arg,
         clamp_yerrors=args.clamp_yerrors,
         multiply_x_values=args.multiply_x_values,
+        hline=args.hline,
         debug=args.debug,
     )
