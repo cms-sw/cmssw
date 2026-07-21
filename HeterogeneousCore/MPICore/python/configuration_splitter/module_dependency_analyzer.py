@@ -189,16 +189,137 @@ class ModuleDependencyAnalyzer:
 
         return ordered_components
     
+    
+    def _connected_groups_except(
+        self,
+        graph: Dict[str, Set[str]],
+        module_order: List[str],
+        exceptions: Set[str],
+    ) -> List[List[str]]:
+        """
+        Weakly connected groups where exception nodes do not connect
+        non-exception nodes together.
+
+        Exception nodes may appear in multiple groups.
+        """
+
+        # Build undirected graph
+        undirected = defaultdict(set)
+
+        for src in graph:
+            undirected[src]
+            for dst in graph[src]:
+                undirected[src].add(dst)
+                undirected[dst].add(src)
+
+        groups = []
+
+        # Tracks only non-exception nodes already assigned
+        assigned_non_exception = set()
+
+        for root in module_order:
+            if root in exceptions:
+                continue
+
+            if root in assigned_non_exception:
+                continue
+
+            stack = [root]
+            visited = set()
+
+            while stack:
+                node = stack.pop()
+
+                if node in visited:
+                    continue
+
+                visited.add(node)
+
+                for neigh in undirected[node]:
+                    if neigh in visited:
+                        continue
+
+                    if node in exceptions:
+                        # exception nodes may only expand to other exceptions
+                        if neigh in exceptions:
+                            stack.append(neigh)
+                    else:
+                        # normal nodes may expand to everything
+                        stack.append(neigh)
+
+            # Mark only non-exception nodes as assigned
+            assigned_non_exception.update(
+                n for n in visited if n not in exceptions
+            )
+
+            groups.append(visited)
+
+        # Handle graphs containing only exception nodes
+        for node in module_order:
+            if node in exceptions and not any(node in g for g in groups):
+                groups.append({node})
+
+        # Topologically order each group exactly like your current code
+        ordered_groups = []
+
+        for comp in groups:
+            indegree = {n: 0 for n in comp}
+            local_edges = defaultdict(set)
+
+            for src in comp:
+                for dst in graph.get(src, []):
+                    if dst in comp:
+                        local_edges[src].add(dst)
+                        indegree[dst] += 1
+
+            queue = deque(sorted(
+                n for n in comp
+                if indegree[n] == 0
+            ))
+
+            ordered = []
+
+            while queue:
+                n = queue.popleft()
+                ordered.append(n)
+
+                for dst in local_edges.get(n, []):
+                    indegree[dst] -= 1
+                    if indegree[dst] == 0:
+                        queue.append(dst)
+
+            if len(ordered) < len(comp):
+                remaining = sorted(set(comp) - set(ordered))
+                ordered.extend(remaining)
+
+            ordered_groups.append(ordered)
+
+        return ordered_groups
+    
+        
     def dependency_groups(self, modules: List[str]) -> List[List[str]]:
         """
         Get dependency groups (ordered)
         """
         graph = self._restricted_graph(modules)
         return self._connected_groups(graph, modules)
+    
+    def dependency_groups_except(
+        self,
+        modules: List[str],
+        exceptions: List[str] = None,
+    ) -> List[List[str]]:
+        graph = self._restricted_graph(modules)
+        return self._connected_groups_except(
+            graph,
+            modules,
+            set(exceptions or [])
+        )
 
     def grouped_external_dependencies(
         self,
         groups: List[List[str]],
+        exceptions: List[str]
     ) -> List[Set[str]]:
         """
         Grouped external dependencies
@@ -211,7 +332,7 @@ class ModuleDependencyAnalyzer:
 
             for m in group:
                 for prod in self.module_inputs.get(m, []):
-                    if prod not in gset:
+                    if prod not in gset and prod not in exceptions:
                         deps.add(prod)
 
             grouped.append(deps)
