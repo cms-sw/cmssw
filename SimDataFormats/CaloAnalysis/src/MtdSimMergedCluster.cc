@@ -66,12 +66,14 @@ DetId MtdSimMergedCluster::simDetId() const {
 std::vector<DetId> MtdSimMergedCluster::detIds() const {
   std::vector<DetId> ids;
   for (const auto& clu : clusters_) {
-    const auto& clusterDetIds = clu->hits_and_fractions();
-    for (const auto& hitFrac : clusterDetIds) {
-      // check if hitFrac.first is already in ids
-      if (std::find(ids.begin(), ids.end(), DetId(hitFrac.first)) == ids.end()) {
-        // if not, add it to the list
-        ids.push_back(hitFrac.first);
+    const auto& clusterDetIds_and_rows = clu->detIds_and_rows();
+   for (const auto& hit : clusterDetIds_and_rows) {
+      // hit.first contains the valid 32-bit DetId
+      DetId id(hit.first);
+      
+      // Add it to the vector if it is not already present
+      if (std::find(ids.begin(), ids.end(), id) == ids.end()) {
+        ids.push_back(id);
       }
     }
   }
@@ -111,6 +113,36 @@ std::vector<std::pair<float, LocalPoint>> MtdSimMergedCluster::hitTimesAndPositi
       [](const std::pair<float, LocalPoint>& a, const std::pair<float, LocalPoint>& b) { return a.first < b.first; });
 
   return hitTimesAndPositions;
+}
+
+std::vector<uint64_t> MtdSimMergedCluster::hitUniqueIds()
+    const {  //unique ids, computed in the same way as in FTLMergedCluster, for all hits in the merged cluster
+
+  std::vector<uint64_t> uniqueIds;
+  //consider all hits from all clusters in the merged cluster
+  for (const auto& clu : clusters_) {
+    auto detIds_and_rows = clu->detIds_and_rows();
+
+    for (const auto& hit : detIds_and_rows) {
+      uint32_t rawId = hit.first;
+      uint8_t row = hit.second.first;
+      uint8_t col = hit.second.second;
+
+      uint8_t row8 = static_cast<uint8_t>(std::clamp(static_cast<int>(row), 0, 15));
+      uint8_t col8 = static_cast<uint8_t>(std::clamp(static_cast<int>(col), 0, 15));
+
+      uint8_t rowcol = static_cast<uint8_t>((row8 << krcOffset) | col8);
+
+      uint64_t uniqueId = (static_cast<uint64_t>(rawId) << 8) | static_cast<uint64_t>(rowcol);
+
+      //avoid duplicates in the uniqueIds vector
+      if (std::find(uniqueIds.begin(), uniqueIds.end(), uniqueId) == uniqueIds.end()) {
+        uniqueIds.push_back(uniqueId);
+      }
+    }
+  }
+
+  return uniqueIds;
 }
 
 unsigned int MtdSimMergedCluster::hitProdType() const {

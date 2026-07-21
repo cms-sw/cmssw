@@ -508,7 +508,7 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
       std::vector<std::pair<uint32_t, uint32_t>> indices;
       for (const auto& detId : cluIds) {
         std::pair<uint32_t, uint32_t> idx =
-            topology->btlIndex(BTLDetId(detId).geographicalId(BTLDetId::CrysLayout::v4).rawId());
+            topology->btlIndex(BTLDetId(detId).geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode())).rawId());
         indices.push_back(idx);
       }
 
@@ -633,7 +633,7 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
     double cluster_eta = global_point.eta();
 
     // topology indices
-    std::pair<uint32_t, uint32_t> indices = topology->btlIndex(cluId.geographicalId(BTLDetId::CrysLayout::v4).rawId());
+    std::pair<uint32_t, uint32_t> indices = topology->btlIndex(cluId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode())).rawId());
     uint32_t iphi = indices.first;
     uint32_t ieta = indices.second;
 
@@ -817,7 +817,7 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
             LogDebug("MtdMergedClusterValidation") << "  Δt = " << dt << ", threshold = " << (10 * combinedError);
 
             LogDebug("MtdMergedClusterValidation") << "  Cluster 1 ieta, iphi: " << ieta << ", " << iphi;
-            auto adjIndices = topology->btlIndex(adjDetId.geographicalId(BTLDetId::CrysLayout::v4).rawId());
+            auto adjIndices = topology->btlIndex(adjDetId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode())).rawId());
             LogDebug("MtdMergedClusterValidation")
                 << "  Cluster 2 ieta, iphi: " << adjIndices.second << ", " << adjIndices.first;
 
@@ -943,7 +943,7 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
 
       // Get topology indices for this cluster
       std::pair<uint32_t, uint32_t> cluster_indices =
-          topology->btlIndex(clusterDetId.geographicalId(BTLDetId::CrysLayout::v4).rawId());
+          topology->btlIndex(clusterDetId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode())).rawId());
       iphi_perCluster.push_back(cluster_indices.first);
       ieta_perCluster.push_back(cluster_indices.second);
 
