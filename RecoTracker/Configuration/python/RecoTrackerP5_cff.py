@@ -45,8 +45,10 @@ ctfWithMaterialTracksP5LHCNavigation = ctfWithMaterialTracksCosmics.clone(src = 
 
 
 
-ctfSeedsP5Task = cms.Task(combinatorialcosmicseedinglayersP5Task,
-                                  simpleCosmicBONSeeds)
+ctfSeedsP5Task = cms.Task(      combinatorialcosmicseedinglayersP5Task,
+                                combinatorialcosmicseedfinderP5,
+                                simpleCosmicBONSeedingLayers,
+                                simpleCosmicBONSeeds)
 
 phase2SeedsP5Task = cms.Task(cosmicGridTripletSeeds)
 
