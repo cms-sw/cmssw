@@ -120,7 +120,7 @@ namespace {
       return simTS.seedIndex();
     }
 
-    return int(scToCpMap.at(simTS.seedIndex()).index());
+    return static_cast<int>(scToCpMap.at(simTS.seedIndex()).index());
   }
 
 }  // namespace
@@ -1630,7 +1630,7 @@ void HGVHistoProducerAlgo::bookTracksterSTSHistos(DQMStore::IBooker& ibook,
       "NumDup_Trackster_R" + valSuffix_[valType], "Num Duplicate Trackster vs R;R [cm]", nintR_, minR_, maxR_));
   histograms.h_denom_caloparticle_R[valType].push_back(
       ibook.book1D("Denom_" + ref_[valType] + "_R",
-                   "Denom " + refText_[valType] + " p_{T} per Trackster;R [GeV]",
+                   "Denom " + refText_[valType] + " R per Trackster;R [cm]",
                    nintR_,
                    minR_,
                    maxR_));

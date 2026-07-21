@@ -688,10 +688,17 @@ void HGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptio
     psd1.add<double>("minPhi", -3.2);
     psd1.add<double>("maxPhi", 3.2);
     psd1.add<int>("nintPhi", 80);
-    psd1.add<double>("minR", 0.);
+    psd1.add<double>("minR", 0.)
+        ->setComment(
+            "Minimum histogram value for the displacement radius R, defined as the transverse distance "
+            "from the z axis of the trajectory extrapolated to z = 0, in cm");
     psd1.add<double>("maxR", 100.);
     psd1.add<int>("nintR", 50);
-    psd1.add<double>("minAlpha", 0.);
+    psd1.add<double>("minAlpha", 0.)
+        ->setComment(
+            "Minimum histogram value for the displacement angle alpha, defined at the HGCal front surface "
+            "as the angle between the particle direction and the vector from the origin to the surface "
+            "intersection, in radians");
     psd1.add<double>("maxAlpha", std::numbers::pi / 4.);
     psd1.add<int>("nintAlpha", 50);
     psd1.add<double>("minTime", -50.);
