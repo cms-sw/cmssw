@@ -22,6 +22,7 @@ namespace ecaldqm {
         //    ievt_(0),
         //    massCalcPrescale_(_workerParams.getUntrackedParameter<int>("massCalcPrescale")),
         doExtra_(true),
+        doEndcaps_(true),
         energyThreshold_(0.),
         swissCrossMaxThreshold_(3.),
         egTriggerAlgos_(),
@@ -33,6 +34,7 @@ namespace ecaldqm {
 
   void ClusterTask::setParams(edm::ParameterSet const& _params) {
     doExtra_ = _params.getUntrackedParameter<bool>("doExtra");
+    doEndcaps_ = _params.getUntrackedParameter<bool>("doEndcaps");
 
     if (!doExtra_) {
       MEs_.erase(std::string("SCSizeVsEnergy"));
@@ -68,7 +70,9 @@ namespace ecaldqm {
 
   void ClusterTask::addDependencies(DependencySet& _dependencies) {
     _dependencies.push_back(Dependency(kEBSuperCluster, kEBRecHit));
-    _dependencies.push_back(Dependency(kEESuperCluster, kEERecHit));
+    if (doEndcaps_) {
+      _dependencies.push_back(Dependency(kEESuperCluster, kEERecHit));
+    }
   }
 
   void ClusterTask::beginEvent(edm::Event const& _evt, edm::EventSetup const& _es, bool const&, bool&) {
@@ -183,8 +187,6 @@ namespace ecaldqm {
   }
 
   void ClusterTask::endEvent(edm::Event const&, edm::EventSetup const&) {
-    //    ++ievt_;
-
     ebHits_ = nullptr;
     eeHits_ = nullptr;
   }
@@ -537,10 +539,12 @@ namespace ecaldqm {
   }
 
   void ClusterTask::setTokens(edm::ConsumesCollector& _collector) {
-    L1GlobalTriggerReadoutRecordToken_ =
-        _collector.consumes<L1GlobalTriggerReadoutRecord>(L1GlobalTriggerReadoutRecordTag_);
-    L1MuGMTReadoutCollectionToken_ = _collector.consumes<L1MuGMTReadoutCollection>(L1MuGMTReadoutCollectionTag_);
-    menuRcd = _collector.esConsumes();
+    if (doExtra_) {
+      L1GlobalTriggerReadoutRecordToken_ =
+          _collector.consumes<L1GlobalTriggerReadoutRecord>(L1GlobalTriggerReadoutRecordTag_);
+      L1MuGMTReadoutCollectionToken_ = _collector.consumes<L1MuGMTReadoutCollection>(L1MuGMTReadoutCollectionTag_);
+      menuRcd = _collector.esConsumes();
+    }
   }
 
   DEFINE_ECALDQM_WORKER(ClusterTask);

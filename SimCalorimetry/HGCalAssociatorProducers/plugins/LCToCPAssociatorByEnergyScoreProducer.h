@@ -36,7 +36,6 @@ private:
   edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMap_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometry_;
   const bool hardScatterOnly_;
-  std::shared_ptr<hgcal::RecHitTools> rhtools_;
   edm::EDGetTokenT<multiCollectionT> hits_token_;
 };
 
