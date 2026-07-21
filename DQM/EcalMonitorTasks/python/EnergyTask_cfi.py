@@ -5,7 +5,8 @@ threshS9 = 0.125
 ecalEnergyTask = cms.untracked.PSet(
     params = cms.untracked.PSet(
         #    threshS9 = cms.untracked.double(0.125),
-        isPhysicsRun = cms.untracked.bool(True)
+        isPhysicsRun = cms.untracked.bool(True),
+        doEndcaps = cms.untracked.bool(True)
     ),
     MEs = cms.untracked.PSet(
         HitMapAll = cms.untracked.PSet(
@@ -67,3 +68,4 @@ ecalEnergyTask = cms.untracked.PSet(
     )
 )
 
+ecalEnergyTaskPhase2 = ecalEnergyTask.clone(params = dict(doEndcaps = False))
