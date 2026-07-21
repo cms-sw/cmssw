@@ -45,6 +45,9 @@ public:
   /// Retrieve list of all DetIds from clusters
   std::vector<DetId> detIds() const;
 
+  //unique ids, computed in the same way as in FTLMergedCluster, for all hits in the merged cluster
+  std::vector<uint64_t> hitUniqueIds() const;
+
   /// Retrieve list of times and positions of all sim hits in the clusters
   std::vector<std::pair<float, LocalPoint>> hitTimesAndPositions() const;
 
@@ -57,10 +60,11 @@ public:
   const TrackingParticleRefVector& trackingParticles() const { return trackingParticles_; }
 
 private:
+  static constexpr uint32_t krcOffset = 4;
   MtdSimLayerClusterRefVector clusters_;
   TrackingParticleRefVector trackingParticles_;
   TrackingParticleRef mainTrack_;
-  LocalPoint simMC_pos_;
+  LocalPoint simMC_pos_ = LocalPoint(0.f, 0.f, 0.f);
 };
 
 #endif
