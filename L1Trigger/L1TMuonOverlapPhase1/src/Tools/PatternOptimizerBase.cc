@@ -105,8 +105,7 @@ void PatternOptimizerBase::printPatterns() {
   }
 }
 
-void PatternOptimizerBase::observeEventEnd(const edm::Event& iEvent,
-                                           std::unique_ptr<l1t::RegionalMuonCandBxCollection>& finalCandidates) {
+void PatternOptimizerBase::observeEventEnd(const edm::Event& iEvent, FinalMuons& finalMuons) {
   if (simMuon == nullptr || omtfCand->getGoldenPatern() == nullptr)  //no sim muon or empty candidate
     return;
 

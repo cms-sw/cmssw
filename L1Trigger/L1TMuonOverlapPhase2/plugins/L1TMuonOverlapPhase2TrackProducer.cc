@@ -2,16 +2,17 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
-#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/L1TMuonPhase2/interface/SAMuon.h"
 
 #include <algorithm>
 #include <iostream>
@@ -19,10 +20,13 @@
 
 L1TMuonOverlapPhase2TrackProducer::L1TMuonOverlapPhase2TrackProducer(const edm::ParameterSet& edmParameterSet)
     : muStubsInputTokens(
-          {consumes<L1MuDTChambPhContainer>(edmParameterSet.getParameter<edm::InputTag>("srcDTPh")),
-           consumes<L1MuDTChambThContainer>(edmParameterSet.getParameter<edm::InputTag>("srcDTTh")),
+          {mayConsume<L1MuDTChambPhContainer>(edmParameterSet.getParameter<edm::InputTag>("srcDTPh")),
+           mayConsume<L1MuDTChambThContainer>(edmParameterSet.getParameter<edm::InputTag>("srcDTTh")),
            consumes<CSCCorrelatedLCTDigiCollection>(edmParameterSet.getParameter<edm::InputTag>("srcCSC")),
            consumes<RPCDigiCollection>(edmParameterSet.getParameter<edm::InputTag>("srcRPC"))}),
+      muStubsPhase2InputTokens(
+          {consumes<L1Phase2MuDTPhContainer>(edmParameterSet.getParameter<edm::InputTag>("srcDTPhPhase2")),
+           consumes<L1Phase2MuDTThContainer>(edmParameterSet.getParameter<edm::InputTag>("srcDTThPhase2"))}),
       omtfParamsEsToken(esConsumes<L1TMuonOverlapParams, L1TMuonOverlapParamsRcd, edm::Transition::BeginRun>()),
       muonGeometryTokens({esConsumes<RPCGeometry, MuonGeometryRecord, edm::Transition::BeginRun>(),
                           esConsumes<CSCGeometry, MuonGeometryRecord, edm::Transition::BeginRun>(),
@@ -31,16 +35,17 @@ L1TMuonOverlapPhase2TrackProducer::L1TMuonOverlapPhase2TrackProducer(const edm::
       magneticFieldEsToken(esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()),
       propagatorEsToken(esConsumes<Propagator, TrackingComponentsRecord, edm::Transition::BeginRun>(
           edm::ESInputTag("", "SteppingHelixPropagatorAlong"))),
-      omtfEmulation(edmParameterSet,
-                    muStubsInputTokens,
-                    consumes<L1Phase2MuDTPhContainer>(edmParameterSet.getParameter<edm::InputTag>("srcDTPhPhase2"))) {
-  produces<l1t::RegionalMuonCandBxCollection>("OMTF");
+      omtfEmulation(edmParameterSet, muStubsInputTokens, muStubsPhase2InputTokens) {
+  produces<l1t::SAMuonCollection>("constrCands");
+  produces<l1t::SAMuonCollection>("unconstrCands");
 
   //it is needed for pattern generation and RootDataDumper
   if (edmParameterSet.exists("simTracksTag"))
     mayConsume<edm::SimTrackContainer>(edmParameterSet.getParameter<edm::InputTag>("simTracksTag"));
   if (edmParameterSet.exists("simVertexesTag"))
     mayConsume<edm::SimVertexContainer>(edmParameterSet.getParameter<edm::InputTag>("simVertexesTag"));
+  if (edmParameterSet.exists("trackingParticleTag"))
+    mayConsume<TrackingParticleCollection>(edmParameterSet.getParameter<edm::InputTag>("trackingParticleTag"));
 }
 
 /////////////////////////////////////////////////////
@@ -59,9 +64,10 @@ void L1TMuonOverlapPhase2TrackProducer::beginRun(edm::Run const& run, edm::Event
 void L1TMuonOverlapPhase2TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup) {
   std::ostringstream str;
 
-  std::unique_ptr<l1t::RegionalMuonCandBxCollection> candidates = omtfEmulation.reconstruct(iEvent, evSetup);
+  auto outputCollections = omtfEmulation.run(iEvent, evSetup);
 
-  iEvent.put(std::move(candidates), "OMTF");
+  iEvent.put(std::move(outputCollections.constrSaMuons), "constrCands");
+  iEvent.put(std::move(outputCollections.unConstrSaMuons), "unconstrCands");
 }
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
