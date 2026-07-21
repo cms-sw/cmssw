@@ -1,0 +1,6 @@
+<environment>
+  <use name="PerfTools/AllocMonitor"/>
+  <export>
+    <lib name="1"/>
+  </export>
+</environment>
