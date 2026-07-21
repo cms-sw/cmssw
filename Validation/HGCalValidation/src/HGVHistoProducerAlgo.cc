@@ -1628,12 +1628,8 @@ void HGVHistoProducerAlgo::bookTracksterSTSHistos(DQMStore::IBooker& ibook,
                    maxR_));
   histograms.h_numDup_trackster_R[valType].push_back(ibook.book1D(
       "NumDup_Trackster_R" + valSuffix_[valType], "Num Duplicate Trackster vs R;R [cm]", nintR_, minR_, maxR_));
-  histograms.h_denom_caloparticle_R[valType].push_back(
-      ibook.book1D("Denom_" + ref_[valType] + "_R",
-                   "Denom " + refText_[valType] + " R per Trackster;R [cm]",
-                   nintR_,
-                   minR_,
-                   maxR_));
+  histograms.h_denom_caloparticle_R[valType].push_back(ibook.book1D(
+      "Denom_" + ref_[valType] + "_R", "Denom " + refText_[valType] + " R per Trackster;R [cm]", nintR_, minR_, maxR_));
 
   // Displacement angle alpha
   histograms.h_numEff_caloparticle_alpha[valType].push_back(
