@@ -343,28 +343,28 @@ namespace Rivet {
       // HTXS classification variables (STXS 1.3)
       // Vector-boson pt for VH production modes
       if (isVH(prodMode)) {
-        cat.pt_V = cat.V.pt();
+        cat.V_pt = cat.V.pt();
       } else {
-        cat.pt_V = -999;
+        cat.V_pt = -999;
       }
       // Single jet variable
       if (cat.jets30.size() >= 1) {
-        cat.pt_Hj_over_pt_H = (cat.jets30[0].mom() + cat.higgs.momentum()).pt() / cat.higgs.pt();
+        cat.ptHj_over_ptH = (cat.jets30[0].mom() + cat.higgs.momentum()).pt() / cat.higgs.pt();
       } else {
-        cat.pt_Hj_over_pt_H = -999;
+        cat.ptHj_over_ptH = -999;
       }
       // Dijet variables using jets30 collection
       if (cat.jets30.size() >= 2) {
-        cat.M_jj = (cat.jets30[0].mom() + cat.jets30[1].mom()).mass();
-        cat.pt_Hjj = (cat.jets30[0].mom() + cat.jets30[1].mom() + cat.higgs.momentum()).pt();
-        cat.deltaphi_jj =
+        cat.Mjj = (cat.jets30[0].mom() + cat.jets30[1].mom()).mass();
+        cat.ptHjj = (cat.jets30[0].mom() + cat.jets30[1].mom() + cat.higgs.momentum()).pt();
+        cat.dPhijj =
           cat.jets30[0].eta() > cat.jets30[1].eta()
           ? deltaPhi(cat.jets30[0], cat.jets30[1])
           : -1*deltaPhi(cat.jets30[0], cat.jets30[1]);
       } else {
-        cat.M_jj = -999;
-        cat.pt_Hjj = -999;
-        cat.deltaphi_jj = -999;
+        cat.Mjj = -999;
+        cat.ptHjj = -999;
+        cat.dPhijj = -999;
       }
 
       // check that four mometum sum of all stable particles satisfies momentum consevation

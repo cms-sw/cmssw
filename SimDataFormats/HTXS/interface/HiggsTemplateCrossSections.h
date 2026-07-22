@@ -878,11 +878,11 @@ namespace HTXS {
     // Flag to distinguish tHW from tHq
     bool isTHW = false;
     // HTXS classification variables (STXS 1.3)
-    double M_jj;
-    double pt_Hjj;
-    double deltaphi_jj;
-    double pt_Hj_over_pt_H;
-    double pt_V;
+    double V_pt;
+    double Mjj;
+    double ptHjj;
+    double dPhijj;
+    double ptHj_over_ptH;
     // Error code :: classification was succesful or some error occured
     HTXS::ErrorCode errorCode;
   };
@@ -916,11 +916,11 @@ namespace HTXS {
     cat.isZ2vvDecay = htxs_cat_rivet.isZ2vvDecay;
     cat.isTHW = htxs_cat_rivet.isTHW;
     // HTXS classification variables (STXS 1.3)
-    cat.M_jj = htxs_cat_rivet.M_jj;
-    cat.pt_Hjj = htxs_cat_rivet.pt_Hjj;
-    cat.deltaphi_jj = htxs_cat_rivet.deltaphi_jj;
-    cat.pt_Hj_over_pt_H = htxs_cat_rivet.pt_Hj_over_pt_H;
-    cat.pt_V = htxs_cat_rivet.pt_V;
+    cat.V_pt = htxs_cat_rivet.V_pt;
+    cat.Mjj = htxs_cat_rivet.Mjj;
+    cat.ptHjj = htxs_cat_rivet.ptHjj;
+    cat.dPhijj = htxs_cat_rivet.dPhijj;
+    cat.ptHj_over_ptH = htxs_cat_rivet.ptHj_over_ptH;
     return cat;
   }
 
@@ -1232,11 +1232,11 @@ namespace Rivet {
     // Flag to distinguish tHW from tHq
     bool isTHW = false;
     // HTXS classification variables (STXS 1.3)
-    double M_jj;
-    double pt_Hjj;
-    double deltaphi_jj;
-    double pt_Hj_over_pt_H;
-    double pt_V;
+    double V_pt;
+    double Mjj;
+    double ptHjj;
+    double dPhijj;
+    double ptHj_over_ptH;
     /// Error code: Whether classification was succesful or some error occured
     HTXS::ErrorCode errorCode;
   };
