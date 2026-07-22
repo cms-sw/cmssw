@@ -87,17 +87,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                    ? value + maxDepthHB * hcal::reconstruction::mahi::IPHI_MAX * (did.ieta() - firstHBRing)
                    : value + maxDepthHB * hcal::reconstruction::mahi::IPHI_MAX * (did.ieta() + lastHBRing + nEtaHB);
       }
-      ALPAKA_FN_ACC ALPAKA_FN_INLINE uint32_t did2linearIndexHE(uint32_t const didraw,
-                                                                int const maxDepthHE,
-                                                                int const maxPhiHE,
-                                                                int const firstHERing,
-                                                                int const lastHERing,
-                                                                int const nEtaHE) {
-        HcalDetId did{didraw};
-        uint32_t const value = (did.depth() - 1) + maxDepthHE * (did.iphi() - 1);
-        return did.ieta() > 0 ? value + maxDepthHE * maxPhiHE * (did.ieta() - firstHERing)
-                              : value + maxDepthHE * maxPhiHE * (did.ieta() + lastHERing + nEtaHE);
-      }
       ALPAKA_FN_ACC ALPAKA_FN_INLINE uint32_t get_qiecoder_index(uint32_t const capid, uint32_t const range) {
         return capid * 4 + range;
       }
@@ -263,7 +252,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       public:
         ALPAKA_FN_ACC void operator()(Acc2D const& acc,
                                       OProductType::View outputGPU,
-                                      IProductTypef01::ConstView f01HEDigis,
                                       IProductTypef5::ConstView f5HBDigis,
                                       IProductTypef3::ConstView f3HBDigis,
                                       HcalMahiConditionsPortableDevice::ConstView mahi,
@@ -279,9 +267,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                       float* electronicNoiseTerms,
                                       int8_t* soiSamples,
                                       int const windowSize) const {
-          auto const nchannelsf015 = f01HEDigis.size() + f5HBDigis.size();
-          auto const startingSample = compute_nsamples<Flavor1>(f01HEDigis.stride()) - windowSize;
-          auto const nchannels = f01HEDigis.size() + f5HBDigis.size() + f3HBDigis.size();
+          auto const nchannelsf5 = f5HBDigis.size();
+          auto const startingSample = compute_nsamples<Flavor5>(f5HBDigis.stride()) - windowSize;
+          auto const nchannels = nchannelsf5 + f3HBDigis.size();
 
           //first index = groups of channel
           auto const nchannels_per_block(alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u]);
@@ -316,51 +304,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 }
 
                 // compute soiSamples
-                if (gch < f01HEDigis.size()) {
-                  // NOTE: assume that soi is high only for a single guy!
-                  //   which must be the case. cpu version does not check for that
-                  //   if that is not the case, we will see that with cuda mmecheck
-                  auto const soibit = soibit_for_sample<Flavor1>(&(f01HEDigis[gch].data()[0]), sample);
-                  if (soibit == 1)
-                    soiSamples[gch] = sampleWithinWindow;
-                } else if (gch >= nchannelsf015) {
-                  auto const soibit = soibit_for_sample<Flavor3>(&(f3HBDigis.data()[gch - nchannelsf015][0]), sample);
+                if (gch >= nchannelsf5) {
+                  auto const soibit = soibit_for_sample<Flavor3>(&(f3HBDigis.data()[gch - nchannelsf5][0]), sample);
                   if (soibit == 1)
                     soiSamples[gch] = sampleWithinWindow;
                 }
 
                 // compute shrMem
-                auto const id = gch < f01HEDigis.size()
-                                    ? f01HEDigis[gch].ids()
-                                    : (gch < nchannelsf015 ? f5HBDigis.ids()[gch - f01HEDigis.size()]
-                                                           : f3HBDigis.ids()[gch - nchannelsf015]);
-                auto const did = HcalDetId{id};
+                auto const id = (gch < nchannelsf5) ? f5HBDigis.ids()[gch] : f3HBDigis.ids()[gch - nchannelsf5];
 
                 auto const adc =
-                    gch < f01HEDigis.size()
-                        ? adc_for_sample<Flavor1>(&(f01HEDigis[gch].data()[0]), sample)
-                        : (gch < nchannelsf015
-                               ? adc_for_sample<Flavor5>(&(f5HBDigis.data()[gch - f01HEDigis.size()][0]), sample)
-                               : adc_for_sample<Flavor3>(&(f3HBDigis.data()[gch - nchannelsf015][0]), sample));
+                    (gch < nchannelsf5 ? adc_for_sample<Flavor5>(&(f5HBDigis.data()[gch][0]), sample)
+                                       : adc_for_sample<Flavor3>(&(f3HBDigis.data()[gch - nchannelsf5][0]), sample));
                 auto const capid =
-                    gch < f01HEDigis.size()
-                        ? capid_for_sample<Flavor1>(&(f01HEDigis[gch].data()[0]), sample)
-                        : (gch < nchannelsf015
-                               ? capid_for_sample<Flavor5>(&(f5HBDigis.data()[gch - f01HEDigis.size()][0]), sample)
-                               : capid_for_sample<Flavor3>(&(f3HBDigis.data()[gch - nchannelsf015][0]), sample));
+                    (gch < nchannelsf5 ? capid_for_sample<Flavor5>(&(f5HBDigis.data()[gch][0]), sample)
+                                       : capid_for_sample<Flavor3>(&(f3HBDigis.data()[gch - nchannelsf5][0]), sample));
 
                 // compute hash for this did
                 // hash needed to convert condition arrays order (based on Topo) into digi arrays order(based on FED)
                 auto const hashedId =
-                    did.subdetId() == HcalBarrel
-                        ? did2linearIndexHB(id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB())
-                        : did2linearIndexHE(id,
-                                            mahi.maxDepthHE(),
-                                            mahi.maxPhiHE(),
-                                            mahi.firstHERing(),
-                                            mahi.lastHERing(),
-                                            mahi.nEtaHE()) +
-                              mahi.offsetForHashes();
+                    did2linearIndexHB(id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB());
 
                 // conditions based on the hash
                 auto const qieType = mahi[hashedId].qieTypes_values() > 0 ? 1 : 0;  // 2 types at this point
@@ -399,67 +362,42 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 auto* electronicNoiseTermsForChannel = electronicNoiseTerms + nsamplesForCompute * gch;
 
                 // get event input quantities
-                auto const stride = gch < f01HEDigis.size()
-                                        ? f01HEDigis.stride()
-                                        : (gch < f5HBDigis.size() ? f5HBDigis.stride() : f3HBDigis.stride());
+                auto const stride = (gch < nchannelsf5 ? f5HBDigis.stride() : f3HBDigis.stride());
                 auto const nsamples =
-                    gch < f01HEDigis.size()
-                        ? compute_nsamples<Flavor1>(stride)
-                        : (gch < nchannelsf015 ? compute_nsamples<Flavor5>(stride) : compute_nsamples<Flavor3>(stride));
+                    (gch < nchannelsf5 ? compute_nsamples<Flavor5>(stride) : compute_nsamples<Flavor3>(stride));
 
                 ALPAKA_ASSERT_ACC(nsamples == nsamplesForCompute || nsamples - startingSample == nsamplesForCompute);
 
-                auto const id = gch < f01HEDigis.size()
-                                    ? f01HEDigis[gch].ids()
-                                    : (gch < nchannelsf015 ? f5HBDigis.ids()[gch - f01HEDigis.size()]
-                                                           : f3HBDigis.ids()[gch - nchannelsf015]);
-                auto const did = HcalDetId{id};
+                auto const id = (gch < nchannelsf5 ? f5HBDigis.ids()[gch] : f3HBDigis.ids()[gch - nchannelsf5]);
 
                 auto const adc =
-                    gch < f01HEDigis.size()
-                        ? adc_for_sample<Flavor1>(&(f01HEDigis[gch].data()[0]), sample)
-                        : (gch < nchannelsf015
-                               ? adc_for_sample<Flavor5>(&(f5HBDigis.data()[gch - f01HEDigis.size()][0]), sample)
-                               : adc_for_sample<Flavor3>(&(f3HBDigis.data()[gch - nchannelsf015][0]), sample));
+                    (gch < nchannelsf5 ? adc_for_sample<Flavor5>(&(f5HBDigis.data()[gch][0]), sample)
+                                       : adc_for_sample<Flavor3>(&(f3HBDigis.data()[gch - nchannelsf5][0]), sample));
                 auto const capid =
-                    gch < f01HEDigis.size()
-                        ? capid_for_sample<Flavor1>(&(f01HEDigis[gch].data()[0]), sample)
-                        : (gch < nchannelsf015
-                               ? capid_for_sample<Flavor5>(&(f5HBDigis.data()[gch - f01HEDigis.size()][0]), sample)
-                               : capid_for_sample<Flavor3>(&(f3HBDigis.data()[gch - nchannelsf015][0]), sample));
+                    (gch < nchannelsf5 ? capid_for_sample<Flavor5>(&(f5HBDigis.data()[gch][0]), sample)
+                                       : capid_for_sample<Flavor3>(&(f3HBDigis.data()[gch - nchannelsf5][0]), sample));
 
                 // compute hash for this did
                 // hash needed to convert condition arrays order (based on Topo) into digi arrays order(based on FED)
                 auto const hashedId =
-                    did.subdetId() == HcalBarrel
-                        ? did2linearIndexHB(id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB())
-                        : did2linearIndexHE(id,
-                                            mahi.maxDepthHE(),
-                                            mahi.maxPhiHE(),
-                                            mahi.firstHERing(),
-                                            mahi.lastHERing(),
-                                            mahi.nEtaHE()) +
-                              mahi.offsetForHashes();
+                    did2linearIndexHB(id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB());
 
                 // conditions based on the hash
                 auto const qieType = mahi[hashedId].qieTypes_values() > 0 ? 1 : 0;  // 2 types at this point
                 auto const* qieOffsets = mahi[hashedId].qieCoders_offsets().data();
                 auto const* qieSlopes = mahi[hashedId].qieCoders_slopes().data();
-                auto const* pedestalWidthsForChannel =
-                    useEffectivePedestals && (gch < f01HEDigis.size() || gch >= nchannelsf015)
-                        ? mahi[hashedId].effectivePedestalWidths().data()
-                        : mahi[hashedId].pedestals_width().data();
+                auto const* pedestalWidthsForChannel = useEffectivePedestals && (gch >= nchannelsf5)
+                                                           ? mahi[hashedId].effectivePedestalWidths().data()
+                                                           : mahi[hashedId].pedestals_width().data();
 
                 auto const gain = mahi[hashedId].gains_value()[capid];
                 auto const gain0 = mahi[hashedId].gains_value()[0];
                 auto const respCorrection = mahi[hashedId].respCorrs_values();
                 auto const pedestal = mahi[hashedId].pedestals_value()[capid];
                 auto const pedestalWidth = pedestalWidthsForChannel[capid];
-                // if needed, only use effective pedestals for f01
-                auto const pedestalToUseForMethod0 =
-                    useEffectivePedestals && (gch < f01HEDigis.size() || gch >= nchannelsf015)
-                        ? mahi[hashedId].effectivePedestals()[capid]
-                        : pedestal;
+                auto const pedestalToUseForMethod0 = useEffectivePedestals && (gch >= nchannelsf5)
+                                                         ? mahi[hashedId].effectivePedestals()[capid]
+                                                         : pedestal;
                 auto const sipmType = mahi[hashedId].sipmPar_type();
                 auto const fcByPE = mahi[hashedId].sipmPar_fcByPE();
                 auto const recoParam1 = recoParamsWithPS.recoParamView().param1()[hashedId];
@@ -477,10 +415,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 // compute charge
                 auto const charge = compute_coder_charge(qieType, adc, capid, qieOffsets, qieSlopes);
 
-                int32_t const soi =
-                    gch < f01HEDigis.size()
-                        ? soiSamples[gch]
-                        : (gch < nchannelsf015 ? f5HBDigis.npresamples()[gch - f01HEDigis.size()] : soiSamples[gch]);
+                int32_t const soi = (gch < nchannelsf5 ? f5HBDigis.npresamples()[gch] : soiSamples[gch]);
 
                 bool badSOI = (soi < 0 or static_cast<unsigned>(soi) >= nsamplesForCompute);
                 if (badSOI and sampleWithinWindow == 0) {
@@ -498,12 +433,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 auto const parLin2 = precisionItem.parLin2_;
                 auto const parLin3 = precisionItem.parLin3_;
 
-                //int32_t const soi = gch >= nchannelsf01HE
-                //    ? npresamplesf5HB[gch - nchannelsf01HE]
-                //    : soiSamples[gch];
                 // this is here just to make things uniform...
-                if (gch >= f01HEDigis.size() && gch < nchannelsf015 && sampleWithinWindow == 0)
-                  soiSamples[gch] = f5HBDigis.npresamples()[gch - f01HEDigis.size()];
+                if (gch < nchannelsf5 && sampleWithinWindow == 0)
+                  soiSamples[gch] = f5HBDigis.npresamples()[gch];
 
                 //
                 // compute various quantities (raw charge and tdc stuff)
@@ -522,10 +454,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                        sipmQNTStoSum,
                                                        fcByPE,
                                                        lch,
-                                                       gch < f01HEDigis.size() || gch >= nchannelsf015);
+                                                       gch >= nchannelsf5);
 
-                auto const dfc = compute_diff_charge_gain(
-                    qieType, adc, capid, qieOffsets, qieSlopes, gch < f01HEDigis.size() || gch >= nchannelsf015);
+                auto const dfc =
+                    compute_diff_charge_gain(qieType, adc, capid, qieOffsets, qieSlopes, gch >= nchannelsf5);
 
                 // compute method 0 quantities
                 // TODO: need to apply containment
@@ -625,15 +557,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 auto const sampleWithinWindow = i_sample;
                 auto const sample = i_sample + startingSample;
 
-                int32_t const soi =
-                    gch < f01HEDigis.size()
-                        ? soiSamples[gch]
-                        : (gch < nchannelsf015 ? f5HBDigis.npresamples()[gch - f01HEDigis.size()] : soiSamples[gch]);
+                int32_t const soi = (gch < nchannelsf5 ? f5HBDigis.npresamples()[gch] : soiSamples[gch]);
 
-                auto const id = gch < f01HEDigis.size()
-                                    ? f01HEDigis[gch].ids()
-                                    : (gch < nchannelsf015 ? f5HBDigis.ids()[gch - f01HEDigis.size()]
-                                                           : f3HBDigis.ids()[gch - nchannelsf015]);
+                auto const id = (gch < nchannelsf5 ? f5HBDigis.ids()[gch] : f3HBDigis.ids()[gch - nchannelsf5]);
 
                 // NOTE: must take soi, as values for that thread are used...
                 // NOTE: does not run if soi is bad, because it does not match any sampleWithinWindow
@@ -644,21 +570,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   auto subdetectorType = didtmp.subdet();
                   auto subdetectorDepth = didtmp.depth();
 
-                  float tdcTime = 0.f;
-                  if (gch >= f01HEDigis.size() && gch < nchannelsf015) {
-                    tdcTime = HcalSpecialTimes::UNKNOWN_T_NOTDC;
-                  } else {
-                    if (gch < f01HEDigis.size())
-                      tdcTime =
-                          HcalSpecialTimes::getTDCTime(tdc_for_sample<Flavor1>(f01HEDigis[gch].data().data(), sample),
-                                                       subdetectorType,
-                                                       subdetectorDepth);
-                    else if (gch >= nchannelsf015)
-                      tdcTime = HcalSpecialTimes::getTDCTime(
-                          tdc_for_sample<Flavor3>(f3HBDigis[gch - nchannelsf015].data().data(), sample),
-                          subdetectorType,
-                          subdetectorDepth);
-                  }
+                  const float tdcTime =
+                      (gch < nchannelsf5)
+                          ? HcalSpecialTimes::UNKNOWN_T_NOTDC
+                          : HcalSpecialTimes::getTDCTime(
+                                tdc_for_sample<Flavor3>(f3HBDigis[gch - nchannelsf5].data().data(), sample),
+                                subdetectorType,
+                                subdetectorDepth);
                   // store method0 quantities to global mem
                   outputGPU[gch].detId() = id;
                   outputGPU[gch].energyM0() = method0_energy;
@@ -681,18 +599,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
 #ifdef HCAL_MAHI_GPUDEBUG
-                  auto const did = HcalDetId{id};
                   auto const hashedId =
-                      did.subdetId() == HcalBarrel
-                          ? did2linearIndexHB(
-                                id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB())
-                          : did2linearIndexHE(id,
-                                              mahi.maxDepthHE(),
-                                              mahi.maxPhiHE(),
-                                              mahi.firstHERing(),
-                                              mahi.lastHERing(),
-                                              mahi.nEtaHE()) +
-                                mahi.offsetForHashes();
+                      did2linearIndexHB(id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB());
 
                   auto const recoParam1 = recoParamsWithPS.recoParamView().param1()[hashedId];
                   auto const recoParam2 = recoParamsWithPS.recoParamView().param2()[hashedId];
@@ -757,7 +665,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                       float* pulseMatricesP,
                                       HcalMahiPulseOffsetsSoA::ConstView pulseOffsets,
                                       float const* amplitudes,
-                                      IProductTypef01::ConstView f01HEDigis,
                                       IProductTypef5::ConstView f5HBDigis,
                                       IProductTypef3::ConstView f3HBDigis,
                                       int8_t* soiSamples,
@@ -775,8 +682,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           //3rd index = sample
           auto const nsamples(alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[2u]);
 
-          auto const nchannels = f01HEDigis.size() + f5HBDigis.size() + f3HBDigis.size();
-          auto const nchannelsf015 = f01HEDigis.size() + f5HBDigis.size();
+          auto const nchannelsf5 = f5HBDigis.size();
+          auto const nchannels = nchannelsf5 + f3HBDigis.size();
 
           //Loop over each channel
           for (auto channel : uniform_elements_z(acc, nchannels)) {
@@ -785,26 +692,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               //Loop over sample
               for (auto sample : independent_group_elements_x(acc, nsamples)) {
                 // conditions
-                auto const id = channel < f01HEDigis.size()
-                                    ? f01HEDigis[channel].ids()
-                                    : (channel < nchannelsf015 ? f5HBDigis[channel - f01HEDigis.size()].ids()
-                                                               : f3HBDigis[channel - nchannelsf015].ids());
-                auto const deltaT =
-                    channel >= f01HEDigis.size() && channel < nchannelsf015 ? timeSigmaHPD : timeSigmaSiPM;
+                auto const id =
+                    (channel < nchannelsf5 ? f5HBDigis[channel].ids() : f3HBDigis[channel - nchannelsf5].ids());
+                auto const deltaT = channel < nchannelsf5 ? timeSigmaHPD : timeSigmaSiPM;
 
                 // compute hash for this did
                 // hash needed to convert condition arrays order (based on Topo) into digi arrays order(based on FED)
-                auto const did = DetId{id};
                 auto const hashedId =
-                    did.subdetId() == HcalBarrel
-                        ? did2linearIndexHB(id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB())
-                        : did2linearIndexHE(id,
-                                            mahi.maxDepthHE(),
-                                            mahi.maxPhiHE(),
-                                            mahi.firstHERing(),
-                                            mahi.lastHERing(),
-                                            mahi.nEtaHE()) +
-                              mahi.offsetForHashes();
+                    did2linearIndexHB(id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB());
                 auto const pulseShape = recoParamsWithPS.getPulseShape(hashedId);
 
                 // offset output arrays
@@ -982,15 +877,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                       int8_t* soiSamples,
                                       HcalMahiConditionsPortableDevice::ConstView mahi,
                                       bool const useEffectivePedestals,
-                                      IProductTypef01::ConstView f01HEDigis,
                                       IProductTypef5::ConstView f5HBDigis,
                                       IProductTypef3::ConstView f3HBDigis) const {
           // can be relaxed if needed - minor updates are needed in that case!
           static_assert(NPULSES == NSAMPLES);
 
-          auto const nchannels = f01HEDigis.size() + f5HBDigis.size() + f3HBDigis.size();
-
-          auto const nchannelsf015 = f01HEDigis.size() + f5HBDigis.size();
+          auto const nchannelsf5 = f5HBDigis.size();
+          auto const nchannels = nchannelsf5 + f3HBDigis.size();
 
           auto const threadsPerBlock(alpaka::getWorkDiv<alpaka::Block, alpaka::Elems>(acc)[0u]);
 
@@ -1011,26 +904,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               float* shrAtAStorage = shrmem + calo::multifit::MapSymM<float, NPULSES>::total * (lch + threadsPerBlock);
 
               // conditions for pedestal widths
-              auto const id = gch < f01HEDigis.size() ? f01HEDigis[gch].ids()
-                                                      : (gch < nchannelsf015 ? f5HBDigis.ids()[gch - f01HEDigis.size()]
-                                                                             : f3HBDigis.ids()[gch - nchannelsf015]);
-              auto const did = DetId{id};
+              auto const id = (gch < nchannelsf5 ? f5HBDigis.ids()[gch] : f3HBDigis.ids()[gch - nchannelsf5]);
               auto const hashedId =
-                  did.subdetId() == HcalBarrel
-                      ? did2linearIndexHB(id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB())
-                      : did2linearIndexHE(id,
-                                          mahi.maxDepthHE(),
-                                          mahi.maxPhiHE(),
-                                          mahi.firstHERing(),
-                                          mahi.lastHERing(),
-                                          mahi.nEtaHE()) +
-                            mahi.offsetForHashes();
+                  did2linearIndexHB(id, mahi.maxDepthHB(), mahi.firstHBRing(), mahi.lastHBRing(), mahi.nEtaHB());
 
               // conditions based on the hash
-              auto const* pedestalWidthsForChannel =
-                  useEffectivePedestals && (gch < f01HEDigis.size() || gch >= nchannelsf015)
-                      ? mahi[hashedId].effectivePedestalWidths().data()
-                      : mahi[hashedId].pedestals_width().data();
+              auto const* pedestalWidthsForChannel = (useEffectivePedestals && gch >= nchannelsf5)
+                                                         ? mahi[hashedId].effectivePedestalWidths().data()
+                                                         : mahi[hashedId].pedestals_width().data();
               auto const averagePedestalWidth2 = 0.25 * (pedestalWidthsForChannel[0] * pedestalWidthsForChannel[0] +
                                                          pedestalWidthsForChannel[1] * pedestalWidthsForChannel[1] +
                                                          pedestalWidthsForChannel[2] * pedestalWidthsForChannel[2] +
@@ -1284,7 +1165,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }  // namespace mahi
 
     void runMahiAsync(Queue& queue,
-                      IProductTypef01::ConstView const& f01HEDigis,
                       IProductTypef5::ConstView const& f5HBDigis,
                       IProductTypef3::ConstView const& f3HBDigis,
                       OProductType::View outputGPU,
@@ -1293,16 +1173,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                       HcalRecoParamWithPulseShapeDevice::ConstView const& recoParamsWithPS,
                       HcalMahiPulseOffsetsSoA::ConstView const& mahiPulseOffsets,
                       ConfigParameters const& configParameters) {
-      auto const totalChannels =
-          f01HEDigis.metadata().size() + f5HBDigis.metadata().size() + f3HBDigis.metadata().size();
+      auto const totalChannels = f5HBDigis.metadata().size() + f3HBDigis.metadata().size();
       // FIXME: the number of channels in output might change given that some channesl might be filtered out
 
       // TODO: this can be lifted by implementing a separate kernel
       // similar to the default one, but properly handling the diff in #sample
       // or modifying existing one
-      // TODO: assert startingSample = f01nsamples - windowSize to be 0 or 2
-      // assert f01nsamples == f5nsamples
-      // assert f01nsamples == f3nsamples
       int constexpr windowSize = 8;
 
       //compute work division
@@ -1323,7 +1199,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           workDivPrep2D,
                           mahi::Kernel_prep1d_sameNumberOfSamples{},
                           outputGPU,
-                          f01HEDigis,
                           f5HBDigis,
                           f3HBDigis,
                           mahi,
@@ -1367,7 +1242,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           pulseMatricesP.data(),
                           mahiPulseOffsets,
                           amplitudes.data(),
-                          f01HEDigis,
                           f5HBDigis,
                           f3HBDigis,
                           soiSamples.data(),
@@ -1400,7 +1274,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           soiSamples.data(),
                           mahi,
                           configParameters.useEffectivePedestals,
-                          f01HEDigis,
                           f5HBDigis,
                           f3HBDigis);
     }
