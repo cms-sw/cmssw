@@ -234,6 +234,22 @@ namespace reco::mlpf {
         time = ref->time();
         timeerror = ref->timeError();
 
+        if (type == reco::PFBlockElement::ECAL) {
+          if (fabs(time) > std::numeric_limits<float>::max() * 0.9) {  // i.e. when time is set to some non-sense value
+            const std::vector<reco::PFRecHitFraction>& PFRecHits = ref->recHitFractions();
+            double maxE = 0.;
+            for (std::vector<reco::PFRecHitFraction>::const_iterator it = PFRecHits.begin(); it != PFRecHits.end();
+                 ++it) {
+              const PFRecHitRef& RefPFRecHit = it->recHitRef();
+              double energyHit = RefPFRecHit->energy() * it->fraction();
+              if (energyHit > maxE) {
+                maxE = energyHit;
+                time = RefPFRecHit->time();  // set cluster time based on the max energy hit
+              }
+            }
+          }
+        }
+
         std::vector<double> hitE(ref->recHitFractions().size(), 0.0);
         std::vector<double> posEta(ref->recHitFractions().size(), 0.0);
         std::vector<double> posPhi(ref->recHitFractions().size(), 0.0);
@@ -495,6 +511,11 @@ namespace reco::mlpf {
         const auto& ref = eltTrack->GsftrackRef();
         cand.setGsfTrackRef(ref);
         cand.setVertex(ref->vertex());
+      } else if (elem->type() == reco::PFBlockElement::TRACK && elem->trackRef().isNonnull()) {
+        const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(elem);
+        cand.setTrackRef(eltTrack->trackRef());
+        cand.setVertex(eltTrack->trackRef()->vertex());
+        cand.setPositionAtECALEntrance(eltTrack->positionAtECALEntrance());
       }
     }
   }

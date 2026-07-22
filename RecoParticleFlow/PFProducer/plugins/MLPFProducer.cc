@@ -167,6 +167,12 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
         pred_pid = 130;
       }
 
+      //consider electron candidates only from GSF track or general track. If not, label them as photons.
+      if ((pred_pid == 11) && elem->type() != reco::PFBlockElement::GSF &&
+          elem->type() != reco::PFBlockElement::TRACK) {
+        pred_pid = 22;
+      }
+
       float pred_charge = 0.0;
       if (elem->type() == reco::PFBlockElement::TRACK) {
         const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(elem);
