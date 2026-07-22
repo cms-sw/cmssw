@@ -13,6 +13,7 @@
 namespace trklet {
 
   class Settings;
+  class Stub;
   class Globals;
   class MemoryBase;
   class InputLinkMemory;
@@ -48,6 +49,8 @@ namespace trklet {
     void execute(unsigned int iSector);
 
   private:
+    void printStub(const Stub* stub);
+
     //0-5 are the layers and 6-10 are the disks
     unsigned int layerdisk_;
 
@@ -78,9 +81,6 @@ namespace trklet {
     //The all stub memories
     std::vector<AllStubsMemory*> allstubs_;
     std::vector<std::pair<char, AllInnerStubsMemory*> > allinnerstubs_;
-
-    //The VM stubs memories used by the MEs
-    std::vector<VMStubsMEMemory*> vmstubsMEPHI_;
 
     //The VM stubs memories used by the TEs (using structure defined above)
     std::vector<VMStubsTEPHICM> vmstubsTEPHI_;

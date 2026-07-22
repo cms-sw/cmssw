@@ -43,7 +43,7 @@ namespace trackerTFP {
   }
 
   // proper constructor
-  DataFormats::DataFormats(const tt::Setup* setup) : DataFormats() {
+  DataFormats::DataFormats(const Setup* setup) : DataFormats() {
     setup_ = setup;
     fillDataFormats();
     for (const Process p : Processes)
@@ -52,7 +52,7 @@ namespace trackerTFP {
     for (const Process p : Processes)
       for (const Variable v : tracks_[+p])
         numUnusedBitsTracks_[+p] -= formats_[+v][+p] ? formats_[+v][+p]->width() : 0;
-    numChannel_[+Process::dtc] = setup_->numDTCsPerRegion();
+    numChannel_[+Process::dtc] = setup_->regNumDTC();
     numChannel_[+Process::pp] = setup_->numDTCsPerTFP();
     numChannel_[+Process::gp] = setup_->numSectors();
     numChannel_[+Process::ht] = setup_->htNumBinsInv2R();
@@ -60,12 +60,12 @@ namespace trackerTFP {
     numChannel_[+Process::kf] = setup_->kfNumWorker();
     numChannel_[+Process::dr] = 1;
     for (const Process& p : {Process::dtc, Process::pp, Process::gp, Process::ht}) {
-      numStreamsStubs_.push_back(numChannel_[+p] * setup_->numRegions());
+      numStreamsStubs_.push_back(numChannel_[+p] * setup_->sysNumRegion());
       numStreamsTracks_.push_back(0);
     }
     for (const Process& p : {Process::ctb, Process::kf, Process::dr}) {
-      numStreamsTracks_.emplace_back(numChannel_[+p] * setup_->numRegions());
-      numStreamsStubs_.emplace_back(numStreamsTracks_.back() * setup_->numLayers());
+      numStreamsTracks_.emplace_back(numChannel_[+p] * setup_->sysNumRegion());
+      numStreamsStubs_.emplace_back(numStreamsTracks_.back() * setup_->sysNumLayer());
     }
   }
 
@@ -98,28 +98,28 @@ namespace trackerTFP {
   }
 
   template <>
-  DataFormat makeDataFormat<Variable::inv2R, Process::tfp>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::inv2R, Process::tfp>(const Setup* setup) {
     const int width = TTTrack_TrackWord::TrackBitWidths::kRinvSize;
     const double range = -2. * TTTrack_TrackWord::minRinv;
     const double base = range * std::pow(2, -width);
     return DataFormat(true, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::phiT, Process::tfp>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::phiT, Process::tfp>(const Setup* setup) {
     const int width = TTTrack_TrackWord::TrackBitWidths::kPhiSize;
     const double range = -2. * TTTrack_TrackWord::minPhi0;
     const double base = range * std::pow(2, -width);
     return DataFormat(true, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::cot, Process::tfp>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::cot, Process::tfp>(const Setup* setup) {
     const int width = TTTrack_TrackWord::TrackBitWidths::kTanlSize;
     const double range = -2. * TTTrack_TrackWord::minTanl;
     const double base = range * std::pow(2, -width);
     return DataFormat(true, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::zT, Process::tfp>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::zT, Process::tfp>(const Setup* setup) {
     const int width = TTTrack_TrackWord::TrackBitWidths::kZ0Size;
     const double range = -2. * TTTrack_TrackWord::minZ0;
     const double base = range * std::pow(2, -width);
@@ -127,10 +127,10 @@ namespace trackerTFP {
   }
 
   template <>
-  DataFormat makeDataFormat<Variable::r, Process::dtc>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::r, Process::dtc>(const Setup* setup) {
     const DataFormat phiT = makeDataFormat<Variable::phiT, Process::ht>(setup);
     const DataFormat inv2R = makeDataFormat<Variable::inv2R, Process::ht>(setup);
-    const int width = setup->tmttWidthR();
+    const int width = setup->glWidthR();
     const double range = 2. * setup->maxRphi();
     const double baseShifted = phiT.base() / inv2R.base();
     const int shift = std::ceil(std::log2(range / baseShifted)) - width;
@@ -138,32 +138,32 @@ namespace trackerTFP {
     return DataFormat(true, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::phi, Process::dtc>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::phi, Process::dtc>(const Setup* setup) {
     const DataFormat phiT = makeDataFormat<Variable::phiT, Process::gp>(setup);
     const DataFormat inv2R = makeDataFormat<Variable::inv2R, Process::ht>(setup);
-    const int width = setup->tmttWidthPhi();
+    const int width = setup->glWidthPhi();
     const double range = phiT.range() + inv2R.range() * setup->maxRphi();
     const int shift = std::ceil(std::log2(range / phiT.base())) - width;
     const double base = phiT.base() * std::pow(2., shift);
     return DataFormat(true, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::z, Process::dtc>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::z, Process::dtc>(const Setup* setup) {
     const DataFormat zT = makeDataFormat<Variable::zT, Process::gp>(setup);
-    const int width = setup->tmttWidthZ();
-    const double range = 2. * setup->halfLength();
+    const int width = setup->glWidthZ();
+    const double range = 2. * setup->sysHalfLength();
     const int shift = std::ceil(std::log2(range / zT.base())) - width;
     const double base = zT.base() * std::pow(2., shift);
     return DataFormat(true, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::layer, Process::dtc>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::layer, Process::dtc>(const Setup* setup) {
     const int width = 5;
     return DataFormat(false, width, 1., width);
   }
 
   template <>
-  DataFormat makeDataFormat<Variable::phi, Process::gp>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::phi, Process::gp>(const Setup* setup) {
     const DataFormat phi = makeDataFormat<Variable::phi, Process::dtc>(setup);
     const DataFormat inv2R = makeDataFormat<Variable::inv2R, Process::ht>(setup);
     const DataFormat phiT = makeDataFormat<Variable::phiT, Process::gp>(setup);
@@ -173,48 +173,48 @@ namespace trackerTFP {
     return DataFormat(true, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::z, Process::gp>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::z, Process::gp>(const Setup* setup) {
     const DataFormat z = makeDataFormat<Variable::z, Process::dtc>(setup);
     const DataFormat zT = makeDataFormat<Variable::zT, Process::gp>(setup);
-    const double rangeCot = (zT.base() + 2. * setup->beamWindowZ()) / setup->chosenRofZ();
+    const double rangeCot = (zT.base() + 2. * setup->regBeamWindowZ()) / setup->regChosenRofZ();
     const double base = z.base();
     const double range = zT.base() + rangeCot * setup->maxRz();
     const int width = std::ceil(std::log2(range / base));
     return DataFormat(true, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::phiT, Process::gp>(const tt::Setup* setup) {
-    const double range = 2. * M_PI / setup->numRegions();
+  DataFormat makeDataFormat<Variable::phiT, Process::gp>(const Setup* setup) {
+    const double range = 2. * M_PI / setup->sysNumRegion();
     const int width = std::ceil(std::log2(setup->gpNumBinsPhiT()));
     const double base = range / std::pow(2., width);
     return DataFormat(true, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::zT, Process::gp>(const tt::Setup* setup) {
-    const double range = 2. * std::sinh(setup->maxEta()) * setup->chosenRofZ();
+  DataFormat makeDataFormat<Variable::zT, Process::gp>(const Setup* setup) {
+    const double range = 2. * std::sinh(setup->regMaxEta()) * setup->regChosenRofZ();
     const double base = range / setup->gpNumBinsZT();
     const int width = std::ceil(std::log2(setup->gpNumBinsZT()));
     return DataFormat(true, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::cot, Process::gp>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::cot, Process::gp>(const Setup* setup) {
     const DataFormat zT = makeDataFormat<Variable::zT, Process::gp>(setup);
     const DataFormat r = makeDataFormat<Variable::r, Process::dtc>(setup);
     const int width = setup->widthDSPbb();
-    const double range = (zT.range() - zT.base() + 2. * setup->beamWindowZ()) / setup->chosenRofZ();
+    const double range = (zT.range() - zT.base() + 2. * setup->regBeamWindowZ()) / setup->regChosenRofZ();
     const double baseShifted = zT.base() / r.base();
     const int baseShift = std::ceil(std::log2(range / baseShifted)) - width;
     const double base = baseShifted * std::pow(2, baseShift);
     return DataFormat(true, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::layer, Process::gp>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::layer, Process::gp>(const Setup* setup) {
     const int width = 6;
     return DataFormat(false, width, 1., width);
   }
 
   template <>
-  DataFormat makeDataFormat<Variable::phi, Process::ht>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::phi, Process::ht>(const Setup* setup) {
     const DataFormat phi = makeDataFormat<Variable::phi, Process::dtc>(setup);
     const DataFormat phiT = makeDataFormat<Variable::phiT, Process::ht>(setup);
     const DataFormat inv2R = makeDataFormat<Variable::inv2R, Process::ht>(setup);
@@ -224,14 +224,14 @@ namespace trackerTFP {
     return DataFormat(true, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::inv2R, Process::ht>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::inv2R, Process::ht>(const Setup* setup) {
     const double range = 2. * setup->invPtToDphi() / setup->minPt();
     const double base = range / setup->htNumBinsInv2R();
     const int width = std::ceil(std::log2(setup->htNumBinsInv2R()));
     return DataFormat(true, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::phiT, Process::ht>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::phiT, Process::ht>(const Setup* setup) {
     const DataFormat phiT = makeDataFormat<Variable::phiT, Process::gp>(setup);
     const double range = phiT.range();
     const double base = phiT.base() / setup->htNumBinsPhiT();
@@ -240,33 +240,44 @@ namespace trackerTFP {
   }
 
   template <>
-  DataFormat makeDataFormat<Variable::dPhi, Process::ctb>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::dPhi, Process::ctb>(const Setup* setup) {
     const DataFormat phi = makeDataFormat<Variable::phi, Process::dtc>(setup);
     const DataFormat inv2R = makeDataFormat<Variable::inv2R, Process::ht>(setup);
-    const double sigma = setup->pitchRowPS() / 2. / setup->innerRadius();
-    const double pt = (setup->pitchCol2S() + setup->scattering()) / 2. * inv2R.range() / 2.;
+    const double sigma = setup->mpaPitch() / 2. / setup->sysInnerRadius();
+    const double pt = (setup->cbcLength() + setup->smScattering()) / 2. * inv2R.range() / 2.;
     const double range = sigma + pt;
     const double base = phi.base();
     const int width = std::ceil(std::log2(range / base));
     return DataFormat(false, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::dZ, Process::ctb>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::dZ, Process::ctb>(const Setup* setup) {
     const DataFormat z = makeDataFormat<Variable::z, Process::dtc>(setup);
-    const double range = setup->pitchCol2S() / 2. * std::sinh(setup->maxEta());
+    const double range = setup->cbcLength() / 2. * std::sinh(setup->regMaxEta());
     const double base = z.base();
     const int width = std::ceil(std::log2(range / base));
     return DataFormat(false, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::layer, Process::ctb>(const tt::Setup* setup) {
-    const double range = setup->numLayers();
+  DataFormat makeDataFormat<Variable::layer, Process::ctb>(const Setup* setup) {
+    const double range = setup->sysNumLayer();
     const int width = std::ceil(std::log2(range));
     return DataFormat(false, width, 1., range);
   }
+  template <>
+  DataFormat makeDataFormat<Variable::cot, Process::ctb>(const Setup* setup) {
+    const DataFormat z = makeDataFormat<Variable::z, Process::gp>(setup);
+    const DataFormat r = makeDataFormat<Variable::r, Process::dtc>(setup);
+    const DataFormat cot = makeDataFormat<Variable::cot, Process::kf>(setup);
+    const int width = std::ceil(std::log2(setup->ctbNumBinsCot()));
+    const double range = cot.range();
+    const int baseShift = std::ceil(std::log2(range / z.base() * r.base() / setup->ctbNumBinsCot()));
+    const double base = z.base() / r.base() * std::pow(2, baseShift);
+    return DataFormat(true, width, base, range);
+  }
 
   template <>
-  DataFormat makeDataFormat<Variable::inv2R, Process::kf>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::inv2R, Process::kf>(const Setup* setup) {
     const DataFormat tfp = makeDataFormat<Variable::inv2R, Process::tfp>(setup);
     const DataFormat ht = makeDataFormat<Variable::inv2R, Process::ht>(setup);
     const double range = ht.range() + 2. * ht.base();
@@ -275,26 +286,26 @@ namespace trackerTFP {
     return DataFormat(true, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::phiT, Process::kf>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::phiT, Process::kf>(const Setup* setup) {
     const DataFormat tfp = makeDataFormat<Variable::phiT, Process::tfp>(setup);
     const DataFormat ht = makeDataFormat<Variable::phiT, Process::ht>(setup);
-    const double range = ht.range() + 2. * ht.base();
+    const double range = ht.range();
     const double base = ht.base() * std::pow(2., std::floor(std::log2(tfp.base() / ht.base())));
     const int width = std::ceil(std::log2(range / base));
     return DataFormat(true, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::cot, Process::kf>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::cot, Process::kf>(const Setup* setup) {
     const DataFormat tfp = makeDataFormat<Variable::cot, Process::tfp>(setup);
     const DataFormat zT = makeDataFormat<Variable::zT, Process::gp>(setup);
     const DataFormat r = makeDataFormat<Variable::r, Process::dtc>(setup);
-    const double range = (zT.base() + 2. * setup->beamWindowZ()) / setup->chosenRofZ();
+    const double range = (zT.base() + 2. * setup->regBeamWindowZ()) / setup->regChosenRofZ();
     const double base = zT.base() / r.base() * std::pow(2., std::floor(std::log2(tfp.base() / zT.base() * r.base())));
     const int width = ceil(log2(range / base));
     return DataFormat(true, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::zT, Process::kf>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::zT, Process::kf>(const Setup* setup) {
     const DataFormat tfp = makeDataFormat<Variable::zT, Process::tfp>(setup);
     const DataFormat gp = makeDataFormat<Variable::zT, Process::gp>(setup);
     const double range = gp.range();
@@ -303,29 +314,56 @@ namespace trackerTFP {
     return DataFormat(true, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::phi, Process::kf>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::phi, Process::kf>(const Setup* setup) {
     const DataFormat phi = makeDataFormat<Variable::phi, Process::dtc>(setup);
-    const DataFormat phiT = makeDataFormat<Variable::phiT, Process::kf>(setup);
-    const DataFormat inv2R = makeDataFormat<Variable::inv2R, Process::kf>(setup);
-    const double range = phiT.base() + setup->maxRphi() * inv2R.base();
+    const DataFormat phiT = makeDataFormat<Variable::phiT, Process::ht>(setup);
+    const DataFormat inv2R = makeDataFormat<Variable::inv2R, Process::ht>(setup);
+    const double range = 3. * phiT.base() + setup->maxRphi() * 3. * inv2R.base();
     const double base = phi.base();
     const int width = std::ceil(std::log2(range / base));
     return DataFormat(true, width, base, range);
   }
   template <>
-  DataFormat makeDataFormat<Variable::match, Process::kf>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::match, Process::kf>(const Setup* setup) {
     const int width = 1;
     return DataFormat(false, width, 1., width);
   }
 
   template <>
-  DataFormat makeDataFormat<Variable::cot, Process::dr>(const tt::Setup* setup) {
+  DataFormat makeDataFormat<Variable::cot, Process::dr>(const Setup* setup) {
     const DataFormat kf = makeDataFormat<Variable::cot, Process::kf>(setup);
     const DataFormat zT = makeDataFormat<Variable::zT, Process::kf>(setup);
-    const double range = (zT.range() + 2. * setup->beamWindowZ()) / setup->chosenRofZ();
+    const double range = (zT.range() + 2. * setup->regBeamWindowZ()) / setup->regChosenRofZ();
     const double base = kf.base();
     const int width = std::ceil(std::log2(range / base));
     return DataFormat(true, width, base, range);
+  }
+
+  template <>
+  DataFormat makeDataFormat<Variable::chi20, Process::tq>(const Setup* setup) {
+    const int shift = setup->tqBaseShiftChi20();
+    const int width = setup->tqWidthChi20();
+    const double base = std::pow(2., shift);
+    const double range = base * std::pow(2, width);
+    return DataFormat(false, width, base, range);
+  }
+  template <>
+  DataFormat makeDataFormat<Variable::chi21, Process::tq>(const Setup* setup) {
+    const int shift = setup->tqBaseShiftChi21();
+    const int width = setup->tqWidthChi21();
+    const double base = std::pow(2., shift);
+    const double range = base * std::pow(2, width);
+    return DataFormat(false, width, base, range);
+  }
+  template <>
+  DataFormat makeDataFormat<Variable::mva, Process::tq>(const Setup* setup) {
+    const int width = setup->tqWidthMVA();
+    return DataFormat(false, width);
+  }
+  template <>
+  DataFormat makeDataFormat<Variable::hitPattern, Process::tq>(const Setup* setup) {
+    const int width = setup->sysNumLayer();
+    return DataFormat(false, width);
   }
 
 }  // namespace trackerTFP

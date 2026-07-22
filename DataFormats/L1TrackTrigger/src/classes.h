@@ -16,5 +16,7 @@
 #include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Math/interface/Error.h"
+#include "TMatrixTSym.h"
 
 #endif

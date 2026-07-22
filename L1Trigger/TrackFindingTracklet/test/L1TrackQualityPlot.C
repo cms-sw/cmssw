@@ -29,6 +29,7 @@
 #include "TGraphErrors.h"
 #include "TGraphPainter.h"
 #include "TSystem.h"
+#include "TMultiGraph.h"
 
 #include <iostream>
 #include <string>
@@ -56,11 +57,21 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
 
   // ----------------------------------------------------------------------------------------------------------------
   // define input options
+  // ----------------------------------------------------------------------------------------------------------------
 
-  // these are the LOOSE cuts, baseline scenario for efficiency and rate plots ==> configure as appropriate
+  // TP selection cuts (from Python script)
+  float TP_minPt = 2.0;
+  float TP_maxEta = 2.5;
+  float TP_maxLxy = 1.0;
+  float TP_maxLz = 30.0;
+  float TP_maxD0 = 1.0;
+  int TP_select_eventid = 0;
+  int TP_select_pdgid = 0;
+
+  // Track quality cuts (from Python script)
   int L1Tk_minNstub = 4;
   float L1Tk_maxChi2 = 999999;
-  float L1Tk_maxChi2dof = 999999.;
+  float L1Tk_maxChi2dof = 999999;
 
   // ----------------------------------------------------------------------------------------------------------------
   // read ntuples
@@ -88,11 +99,29 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
   vector<int>* trk_seed;
   vector<int>* trk_hitpattern;
   vector<unsigned int>* trk_phiSector;
-  vector<int>* trk_fake;
   vector<int>* trk_genuine;
   vector<int>* trk_loose;
   vector<float>* trk_MVA1;
+  vector<int>* trk_matchtp_eventtype;
   vector<float>* trk_matchtp_pdgid;
+
+  // TP branches (for efficiency calculation)
+  vector<float>* tp_pt;
+  vector<float>* tp_eta;
+  vector<float>* tp_phi;
+  vector<float>* tp_z0;
+  vector<float>* tp_d0;
+  vector<float>* tp_lxy;
+  vector<float>* tp_lz;
+  vector<int>* tp_nmatch;
+  vector<int>* tp_eventid;
+  vector<int>* tp_pdgid;
+
+  // Matched track branches (aligned with TPs)
+  vector<int>* matchtrk_nstub;
+  vector<float>* matchtrk_chi2;
+  vector<float>* matchtrk_chi2_dof;
+  vector<float>* matchtrk_MVA1;
 
   TBranch* b_trk_pt;
   TBranch* b_trk_eta;
@@ -106,12 +135,29 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
   TBranch* b_trk_phiSector;
   TBranch* b_trk_seed;
   TBranch* b_trk_hitpattern;
-  TBranch* b_trk_fake;
   TBranch* b_trk_genuine;
   TBranch* b_trk_loose;
   TBranch* b_trk_MVA1;
+  TBranch* b_trk_matchtp_eventtype;
   TBranch* b_trk_matchtp_pdgid;
 
+  TBranch* b_tp_pt;
+  TBranch* b_tp_eta;
+  TBranch* b_tp_phi;
+  TBranch* b_tp_z0;
+  TBranch* b_tp_d0;
+  TBranch* b_tp_lxy;
+  TBranch* b_tp_lz;
+  TBranch* b_tp_nmatch;
+  TBranch* b_tp_eventid;
+  TBranch* b_tp_pdgid;
+
+  TBranch* b_matchtrk_nstub;
+  TBranch* b_matchtrk_chi2;
+  TBranch* b_matchtrk_chi2_dof;
+  TBranch* b_matchtrk_MVA1;
+
+  // Initialize track pointers
   trk_pt = 0;
   trk_eta = 0;
   trk_phi = 0;
@@ -124,12 +170,31 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
   trk_phiSector = 0;
   trk_seed = 0;
   trk_hitpattern = 0;
-  trk_fake = 0;
+  trk_matchtp_eventtype = 0;
   trk_genuine = 0;
   trk_loose = 0;
   trk_MVA1 = 0;
   trk_matchtp_pdgid = 0;
 
+  // Initialize TP pointers
+  tp_pt = 0;
+  tp_eta = 0;
+  tp_phi = 0;
+  tp_z0 = 0;
+  tp_d0 = 0;
+  tp_lxy = 0;
+  tp_lz = 0;
+  tp_nmatch = 0;
+  tp_eventid = 0;
+  tp_pdgid = 0;
+
+  // Initialize matched track pointers
+  matchtrk_nstub = 0;
+  matchtrk_chi2 = 0;
+  matchtrk_chi2_dof = 0;
+  matchtrk_MVA1 = 0;
+
+  // Set track branch addresses
   tree->SetBranchAddress("trk_pt", &trk_pt, &b_trk_pt);
   tree->SetBranchAddress("trk_eta", &trk_eta, &b_trk_eta);
   tree->SetBranchAddress("trk_phi", &trk_phi, &b_trk_phi);
@@ -142,11 +207,29 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
   tree->SetBranchAddress("trk_phiSector", &trk_phiSector, &b_trk_phiSector);
   tree->SetBranchAddress("trk_seed", &trk_seed, &b_trk_seed);
   tree->SetBranchAddress("trk_hitpattern", &trk_hitpattern, &b_trk_hitpattern);
-  tree->SetBranchAddress("trk_fake", &trk_fake, &b_trk_fake);
   tree->SetBranchAddress("trk_genuine", &trk_genuine, &b_trk_genuine);
   tree->SetBranchAddress("trk_loose", &trk_loose, &b_trk_loose);
   tree->SetBranchAddress("trk_MVA1", &trk_MVA1, &b_trk_MVA1);
+  tree->SetBranchAddress("trk_matchtp_eventtype", &trk_matchtp_eventtype, &b_trk_matchtp_eventtype);
   tree->SetBranchAddress("trk_matchtp_pdgid", &trk_matchtp_pdgid, &b_trk_matchtp_pdgid);
+
+  // Set TP branch addresses
+  tree->SetBranchAddress("tp_pt", &tp_pt, &b_tp_pt);
+  tree->SetBranchAddress("tp_eta", &tp_eta, &b_tp_eta);
+  tree->SetBranchAddress("tp_phi", &tp_phi, &b_tp_phi);
+  tree->SetBranchAddress("tp_z0", &tp_z0, &b_tp_z0);
+  tree->SetBranchAddress("tp_d0", &tp_d0, &b_tp_d0);
+  tree->SetBranchAddress("tp_lxy", &tp_lxy, &b_tp_lxy);
+  tree->SetBranchAddress("tp_lz", &tp_lz, &b_tp_lz);
+  tree->SetBranchAddress("tp_nmatch", &tp_nmatch, &b_tp_nmatch);
+  tree->SetBranchAddress("tp_eventid", &tp_eventid, &b_tp_eventid);
+  tree->SetBranchAddress("tp_pdgid", &tp_pdgid, &b_tp_pdgid);
+
+  // Set matched track branch addresses
+  tree->SetBranchAddress("matchtrk_nstub", &matchtrk_nstub, &b_matchtrk_nstub);
+  tree->SetBranchAddress("matchtrk_chi2", &matchtrk_chi2, &b_matchtrk_chi2);
+  tree->SetBranchAddress("matchtrk_chi2_dof", &matchtrk_chi2_dof, &b_matchtrk_chi2_dof);
+  tree->SetBranchAddress("matchtrk_MVA1", &matchtrk_MVA1, &b_matchtrk_MVA1);
 
   // ----------------------------------------------------------------------------------------------------------------
   // histograms
@@ -165,14 +248,33 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
 
   int nevt = tree->GetEntries();
   cout << "number of events = " << nevt << endl;
+  cout << "TP selection cuts:" << endl;
+  cout << "  TP_minPt = " << TP_minPt << endl;
+  cout << "  TP_maxEta = " << TP_maxEta << endl;
+  cout << "  TP_maxLxy = " << TP_maxLxy << endl;
+  cout << "  TP_maxLz = " << TP_maxLz << endl;
+  cout << "  TP_maxD0 = " << TP_maxD0 << endl;
+  cout << "  L1Tk_minNstub = " << L1Tk_minNstub << endl;
+  cout << endl;
 
   // ----------------------------------------------------------------------------------------------------------------
   // event loop
   vector<float> MVA1s;
-  vector<float> fakes;
+  vector<int> genuines;
   vector<float> etas;
   vector<float> pts;
   vector<int> pdgids;
+
+  // For Efficiency vs Purity (TP-based)
+  vector<float> all_tp_pt, all_tp_eta, all_tp_phi, all_tp_z0, all_tp_d0, all_tp_lxy, all_tp_lz;
+  vector<int> all_tp_nmatch, all_tp_eventid, all_tp_pdgid;
+  vector<float> all_matchtrk_nstub, all_matchtrk_chi2, all_matchtrk_chi2_dof, all_matchtrk_MVA1;
+
+  // Track data for purity calculation
+  vector<float> trk_MVA1s;
+  vector<int> trk_eventtypes;
+
+  // Event loop - collect all data
   for (int i = 0; i < nevt; i++) {
     tree->GetEntry(i, 0);
 
@@ -181,24 +283,62 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
       // track properties
 
       float MVA1 = trk_MVA1->at(it);
-      float fake = trk_fake->at(it);
+      int genuine = trk_genuine->at(it);  // Track matches truth particle
+      int eventtype = trk_matchtp_eventtype->at(it);
       float eta = trk_eta->at(it);
       float pt = trk_pt->at(it);
       float pdgid = trk_matchtp_pdgid->at(it);
 
       MVA1s.push_back(MVA1);
-      fakes.push_back(fake);
+      genuines.push_back(genuine);
       etas.push_back(eta);
       pts.push_back(pt);
       pdgids.push_back(pdgid);
 
       h_trk_MVA1->Fill(MVA1);
-      if (fake == 1.)
-        h_trk_MVA1_real->Fill(MVA1);
-      else if (fake == 0.)
+      if (genuine) {
+        if (eventtype == 1)
+          h_trk_MVA1_real->Fill(MVA1);  // Genuine track in signal pp
+      } else {                          // Fake track
         h_trk_MVA1_fake->Fill(MVA1);
+      }
+
+      // Store for purity calculation
+      trk_MVA1s.push_back(MVA1);
+      trk_eventtypes.push_back(eventtype);
+    }
+
+    // ===== EFFICIENCY VS PURITY: Store TP data =====
+    for (int it = 0; it < (int)tp_pt->size(); it++) {
+      all_tp_pt.push_back(tp_pt->at(it));
+      all_tp_eta.push_back(tp_eta->at(it));
+      all_tp_phi.push_back(tp_phi->at(it));
+      all_tp_z0.push_back(tp_z0->at(it));
+      all_tp_d0.push_back(tp_d0->at(it));
+      all_tp_lxy.push_back(tp_lxy->at(it));
+      all_tp_lz.push_back(tp_lz->at(it));
+      all_tp_nmatch.push_back(tp_nmatch->at(it));
+      all_tp_eventid.push_back(tp_eventid->at(it));
+      all_tp_pdgid.push_back(tp_pdgid->at(it));
+
+      // Store matched track info (if available)
+      if (tp_nmatch->at(it) > 0 && it < (int)matchtrk_nstub->size()) {
+        all_matchtrk_nstub.push_back(matchtrk_nstub->at(it));
+        all_matchtrk_chi2.push_back(matchtrk_chi2->at(it));
+        all_matchtrk_chi2_dof.push_back(matchtrk_chi2_dof->at(it));
+        all_matchtrk_MVA1.push_back(matchtrk_MVA1->at(it));
+      } else {
+        all_matchtrk_nstub.push_back(0);
+        all_matchtrk_chi2.push_back(999999);
+        all_matchtrk_chi2_dof.push_back(999999);
+        all_matchtrk_MVA1.push_back(-1.0);
+      }
     }
   }
+
+  // ========================================================================
+  // PART 1: ORIGINAL PLOTS (ROC curves, TPR vs eta, TPR vs pt, etc.)
+  // ========================================================================
 
   // -------------------------------------------------------------------------------------------
   // create ROC curve
@@ -219,7 +359,7 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
     float P = 0, P_mu = 0, P_el = 0, P_had = 0;      //Total Positives
     float N = 0;                                     //Total Negatives
     for (int k = 0; k < (int)MVA1s.size(); k++) {
-      if (fakes.at(k)) {
+      if (genuines.at(k)) {
         P++;
         if (MVA1s.at(k) > dt)
           TP++;
@@ -330,7 +470,7 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
     float N = 0;
     for (int k = 0; k < (int)etas.size(); k++) {
       if (etas.at(k) > eta_temp && etas.at(k) <= (eta_temp + eta_step)) {
-        if (fakes.at(k)) {
+        if (genuines.at(k)) {
           P++;
           if (MVA1s.at(k) > dt)
             TP++;
@@ -421,7 +561,7 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
     float N = 0;
     for (int k = 0; k < (int)pts.size(); k++) {
       if (pts.at(k) > pow(10, logpt_temp) && pts.at(k) <= (pow(10, logpt_temp + logpt_step))) {
-        if (fakes.at(k)) {
+        if (genuines.at(k)) {
           P++;
           if (MVA1s.at(k) > dt)
             TP++;
@@ -489,9 +629,110 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
   TPR_vs_pt_had->SetName("TPR_vs_pt_had");
   TPR_vs_pt_had->SetTitle("TPR vs. p_{T} (hadrons); p_{T}; TPR");
 
-  // -------------------------------------------------------------------------------------------
-  // output file for histograms and graphs
-  // -------------------------------------------------------------------------------------------
+  // ========================================================================
+  // EFFICIENCY VS PURITY
+  // ========================================================================
+
+  vector<float> efficiency, purity;
+  int n_points = 100;
+
+  float base_efficiency = 0.0;
+  float base_purity = 0.0;
+
+  cout << "\nCalculating Efficiency vs Purity for " << n_points << " MVA cuts..." << endl;
+
+  for (int i = 0; i < n_points; i++) {
+    float mva_cut = (float)i / (n_points - 1);
+
+    // Calculate EFFICIENCY
+    int tp_passing_cuts = 0;
+    int tp_matched = 0;
+    int n_total_tps = all_tp_pt.size();
+
+    for (int it = 0; it < n_total_tps; it++) {
+      bool passes_cuts =
+          (all_tp_pt[it] >= 0.2 && fabs(all_tp_eta[it]) <= TP_maxEta && fabs(all_tp_lxy[it]) <= TP_maxLxy &&
+           fabs(all_tp_lz[it]) <= TP_maxLz && fabs(all_tp_d0[it]) <= TP_maxD0 &&
+           all_tp_eventid[it] == TP_select_eventid && all_tp_pt[it] >= TP_minPt);
+
+      if (TP_select_pdgid != 0) {
+        passes_cuts = passes_cuts && (abs(all_tp_pdgid[it]) == abs(TP_select_pdgid));
+      }
+
+      if (passes_cuts) {
+        tp_passing_cuts++;
+
+        bool is_matched = (all_tp_nmatch[it] > 0 && all_matchtrk_nstub[it] >= L1Tk_minNstub &&
+                           all_matchtrk_chi2[it] <= L1Tk_maxChi2 && all_matchtrk_chi2_dof[it] <= L1Tk_maxChi2dof &&
+                           all_matchtrk_MVA1[it] >= mva_cut);
+
+        if (is_matched) {
+          tp_matched++;
+        }
+      }
+    }
+
+    float eff = (tp_passing_cuts > 0) ? (float)tp_matched / tp_passing_cuts : 0.0;
+
+    // Calculate PURITY
+    int n_total_tracks = trk_MVA1s.size();
+    int n_fakes = 0;
+    int n_good = 0;
+
+    for (int it = 0; it < n_total_tracks; it++) {
+      if (mva_cut > 0) {
+        if (trk_MVA1s[it] >= mva_cut) {
+          if (trk_eventtypes[it] == -999) {
+            n_fakes++;
+          } else {
+            n_good++;
+          }
+        }
+      } else {
+        if (trk_eventtypes[it] == -999) {
+          n_fakes++;
+        } else {
+          n_good++;
+        }
+      }
+    }
+
+    int n_total_selected = n_fakes + n_good;
+    float pur = (n_total_selected > 0) ? (float)n_good / n_total_selected : 0.0;
+
+    efficiency.push_back(eff);
+    purity.push_back(pur);
+
+    if (i == 0) {
+      base_efficiency = eff;
+      base_purity = pur;
+      cout << "At MVA = 0: Efficiency = " << eff << ", Purity = " << pur << endl;
+      cout << "TPs passing cuts = " << tp_passing_cuts << ", TPs matched = " << tp_matched << endl;
+    }
+  }
+
+  TGraph* graph_eff_vs_purity = new TGraph(n_points, purity.data(), efficiency.data());
+  graph_eff_vs_purity->SetName("EffVsPurity");
+  graph_eff_vs_purity->SetTitle("Efficiency vs Purity;L1 Track Purity;L1 Track Finding Efficiency");
+  graph_eff_vs_purity->SetLineColor(kBlue);
+  graph_eff_vs_purity->SetLineWidth(5);
+  graph_eff_vs_purity->SetMarkerStyle(21);
+  graph_eff_vs_purity->SetMarkerSize(1.2);
+  graph_eff_vs_purity->SetMarkerColor(kBlue);
+
+  TGraph* fill_graph = new TGraph(n_points);
+  for (int i = 0; i < n_points; i++) {
+    fill_graph->SetPoint(i, purity[i], efficiency[i]);
+  }
+
+  TLine* base_line = new TLine(0.75, base_efficiency, 1.10, base_efficiency);
+  base_line->SetLineStyle(kDashed);
+  base_line->SetLineColor(kBlack);
+  base_line->SetLineWidth(2);
+
+  // ========================================================================
+  // PART 3: OUTPUT AND SAVE ALL PLOTS
+  // ========================================================================
 
   TFile* fout = new TFile(type_dir + "MVAoutput_" + type + treeName + ".root", "recreate");
   TCanvas c;
@@ -615,7 +856,40 @@ void L1TrackQualityPlot(TString type, TString type_dir = "", TString treeName = 
   FPR_vs_pt->Write();
   c.SaveAs("MVA_plots/FPR_vs_pt.pdf");
 
+  // ---- EFFICIENCY VS PURITY PLOT ----
+
+  c.Clear();
+  c.SetGrid();
+
+  graph_eff_vs_purity->Draw("APL");
+  graph_eff_vs_purity->GetXaxis()->SetLimits(0.75, 1.10);
+  graph_eff_vs_purity->SetMinimum(0.75);
+  graph_eff_vs_purity->SetMaximum(1.00);
+
+  base_line->Draw("same");
+
+  TLegend* leg_eff = new TLegend(0.12, 0.12, 0.60, 0.32);
+  leg_eff->SetBorderSize(1);
+  leg_eff->SetFillColor(kWhite);
+  leg_eff->SetFillStyle(1001);
+  leg_eff->SetTextSize(0.030);
+  leg_eff->SetTextFont(42);
+  leg_eff->AddEntry(graph_eff_vs_purity, Form("%s", type.Data()), "lp");
+  leg_eff->AddEntry(base_line, Form("Base Efficiency (No MVA Cuts) = %.1f%%", base_efficiency * 100), "l");
+  leg_eff->Draw("same");
+
+  c.Write("EffVsPurity");
+  c.SaveAs("MVA_plots/EffVsPurity.pdf");
+
+  graph_eff_vs_purity->Write();
+  fill_graph->Write();
+
   fout->Close();
+
+  cout << "\nAll plots saved to MVA_plots/ directory" << endl;
+  cout << "Efficiency vs Purity plot saved to MVA_plots/EffVsPurity.pdf" << endl;
+  cout << "Base Efficiency at MVA=0: " << base_efficiency << endl;
+  cout << "Base Purity at MVA=0: " << base_purity << endl;
 }
 
 void SetPlotStyle() {

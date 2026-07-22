@@ -12,8 +12,9 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "SimTracker/TrackTriggerAssociation/interface/StubAssociation.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "SimDataFormats/Associations/interface/StubAssociation.h"
+#include "L1Trigger/TrackTrigger/interface/Associator.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 
 #include <TProfile.h>
@@ -48,9 +49,10 @@ namespace trackerTFP {
     void formTracks(const tt::StreamStub& stream, std::vector<std::vector<TTStubRef>>& tracks) const;
     //
     void associate(const std::vector<std::vector<TTStubRef>>& tracks,
-                   const tt::StubAssociation* ass,
+                   const tt::Associator& ass,
                    std::set<TPPtr>& tps,
-                   int& sum) const;
+                   int& sum,
+                   bool perfect = false) const;
 
     // ED input token of stubs
     edm::EDGetTokenT<tt::StreamsStub> edGetToken_;
@@ -59,11 +61,13 @@ namespace trackerTFP {
     // ED input token of TTStubRef to recontructable TPPtr association
     edm::EDGetTokenT<tt::StubAssociation> edGetTokenReconstructable_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
+    // Associator token
+    edm::ESGetToken<tt::Associator, trackerDTC::SetupRcd> esGetTokenAssociator_;
     // DataFormats token
-    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, trackerDTC::SetupRcd> esGetTokenDataFormats_;
     // stores, calculates and provides run-time constants
-    const tt::Setup* setup_ = nullptr;
+    const Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats_ = nullptr;
     // enables analyze of TPs
@@ -111,6 +115,7 @@ namespace trackerTFP {
     // book ES products
     esGetTokenSetup_ = esConsumes<edm::Transition::BeginRun>();
     esGetTokenDataFormats_ = esConsumes<edm::Transition::BeginRun>();
+    esGetTokenAssociator_ = esConsumes();
     // log config
     log_.setf(std::ios::fixed, std::ios::floatfield);
     log_.precision(4);
@@ -169,27 +174,22 @@ namespace trackerTFP {
       const double tpCot = sinh(tpPtr->eta());
       const math::XYZPointD& v = tpPtr->vertex();
       const double tpZ0 = v.z() - tpCot * (v.x() * cos(tpPhi0) + v.y() * sin(tpPhi0));
-      const double tpZT = tpZ0 + tpCot * setup_->chosenRofZ();
+      const double tpZT = tpZ0 + tpCot * setup_->regChosenRofZ();
       hisEta->Fill(tpPtr->eta());
       hisZT->Fill(tpZT);
       hisInv2R->Fill(tpPtr->charge() / tpPtr->pt() * setup_->invPtToDphi());
       hisPT->Fill(tpPtr->pt());
     };
     // read in ht products
-    edm::Handle<tt::StreamsStub> handleStubs;
-    iEvent.getByToken<tt::StreamsStub>(edGetToken_, handleStubs);
+    const tt::StreamsStub& streamsStub = iEvent.get(edGetToken_);
     // read in MCTruth
-    const tt::StubAssociation* selection = nullptr;
-    const tt::StubAssociation* reconstructable = nullptr;
+    tt::Associator selection = iSetup.getData(esGetTokenAssociator_);
+    tt::Associator reconstructable = iSetup.getData(esGetTokenAssociator_);
     if (useMCTruth_) {
-      edm::Handle<tt::StubAssociation> handleSelection;
-      iEvent.getByToken<tt::StubAssociation>(edGetTokenSelection_, handleSelection);
-      selection = handleSelection.product();
-      prof_->Fill(9, selection->numTPs());
-      edm::Handle<tt::StubAssociation> handleReconstructable;
-      iEvent.getByToken<tt::StubAssociation>(edGetTokenReconstructable_, handleReconstructable);
-      reconstructable = handleReconstructable.product();
-      for (const auto& p : selection->getTrackingParticleToTTStubsMap())
+      selection.consume(iEvent.get(edGetTokenSelection_));
+      reconstructable.consume(iEvent.get(edGetTokenReconstructable_));
+      prof_->Fill(9, selection.numTPs());
+      for (const auto& p : selection.getTrackingParticleToTTStubsMap())
         fill(p.first, hisEffEtaTotal_, hisEffZTTotal_, hisEffInv2RTotal_, hisEffPTTotal_);
     }
     // analyze ht products and associate found tracks with reconstrucable TrackingParticles
@@ -197,12 +197,12 @@ namespace trackerTFP {
     std::set<TPPtr> tpPtrsSelection;
     int allMatched(0);
     int allTracks(0);
-    for (int region = 0; region < setup_->numRegions(); region++) {
+    for (int region = 0; region < setup_->sysNumRegion(); region++) {
       int nStubs(0);
       int nTracks(0);
       for (int channel = 0; channel < dataFormats_->numChannel(Process::ht); channel++) {
         const int index = region * dataFormats_->numChannel(Process::ht) + channel;
-        const tt::StreamStub& accepted = handleStubs->at(index);
+        const tt::StreamStub& accepted = streamsStub.at(index);
         hisChannel_->Fill(accepted.size());
         profChannel_->Fill(channel, accepted.size());
         nStubs += accepted.size();
@@ -214,7 +214,7 @@ namespace trackerTFP {
           continue;
         int tmp(0);
         associate(tracks, selection, tpPtrsSelection, tmp);
-        associate(tracks, reconstructable, tpPtrs, allMatched);
+        associate(tracks, reconstructable, tpPtrs, allMatched, true);
       }
       prof_->Fill(1, nStubs);
       prof_->Fill(2, nTracks);
@@ -292,10 +292,11 @@ namespace trackerTFP {
       ttStubRefs.reserve(std::distance(start, it));
       std::transform(start, it, std::back_inserter(ttStubRefs), [](const StubHT& stub) { return stub.frame().first; });
       tracks.push_back(ttStubRefs);
-      TTBV hitPattern(0, setup_->numLayers());
+      TTBV hitPattern(0, setup_->sysNumLayer());
       for (auto iter = start; iter != it; iter++)
         hitPattern.set(iter->layer().val(layer.width()));
-      const double cot = dataFormats_->format(Variable::zT, Process::ht).floating(start->zT()) / setup_->chosenRofZ();
+      const double cot =
+          dataFormats_->format(Variable::zT, Process::ht).floating(start->zT()) / setup_->regChosenRofZ();
       hisNumLayers_->Fill(hitPattern.count());
       profNumLayers_->Fill(abs(sinh(cot)), hitPattern.count());
       for (int layer : hitPattern.ids())
@@ -305,11 +306,12 @@ namespace trackerTFP {
 
   //
   void AnalyzerHT::associate(const std::vector<std::vector<TTStubRef>>& tracks,
-                             const tt::StubAssociation* ass,
+                             const tt::Associator& ass,
                              std::set<TPPtr>& tps,
-                             int& sum) const {
+                             int& sum,
+                             bool perfect) const {
     for (const std::vector<TTStubRef>& ttStubRefs : tracks) {
-      const std::vector<TPPtr>& tpPtrs = ass->associate(ttStubRefs);
+      const std::vector<TPPtr>& tpPtrs = ass.associate(ttStubRefs);
       if (tpPtrs.empty())
         continue;
       sum++;
