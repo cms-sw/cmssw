@@ -78,6 +78,30 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return hits_d;
     }
 
+    TrackingRecHitsMaskingCollection PixelRecHitMaskingKernel::makeHitsMaskingAsync(uint32_t const nHits,
+                                                                                    Queue queue) const {
+      using namespace pixelRecHits;
+
+      TrackingRecHitsMaskingCollection mask_d(queue, nHits);
+
+      int threadsPerBlock = 128;
+      int blocks = cms::alpakatools::divide_up_by(nHits, threadsPerBlock);
+      const auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock);
+
+#ifdef GPU_DEBUG
+      std::cout << "launching LaunchZerosPixelMask kernel on " << alpaka::core::demangled<Acc1D> << " with " << blocks
+                << " blocks" << std::endl;
+#endif
+      alpaka::exec<Acc1D>(queue, workDiv1D, LaunchZerosPixelMask{}, mask_d.view());
+
+#ifdef GPU_DEBUG
+      alpaka::wait(queue);
+      std::cout << "makeHitsMaskingAsync -> DONE!" << std::endl;
+#endif
+
+      return mask_d;
+    }
+
     template class PixelRecHitKernel<pixelTopology::Phase1>;
     template class PixelRecHitKernel<pixelTopology::Phase2>;
     template class PixelRecHitKernel<pixelTopology::HIonPhase1>;
