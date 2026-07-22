@@ -76,6 +76,13 @@ public:
                               float tmp_tp_phi,
                               float tmp_tp_z0,
                               const edm::Event &iEvent);
+  void processTrackRates(const edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> &trackHandle,
+                         const edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>> &mcTruthHandle,
+                         MonitorElement *allVsPt,
+                         MonitorElement *fakeVsPt,
+                         MonitorElement *nTrkPt2,
+                         MonitorElement *nTrkPt3,
+                         MonitorElement *nTrkPt10);
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
   // Tracking particle distributions
   MonitorElement *trackParts_Eta = nullptr;
@@ -172,6 +179,22 @@ public:
   std::vector<MonitorElement *> resz0_displaced_vect;
   std::vector<MonitorElement *> resd0_displaced_vect;
 
+  // Track rate / fake rate / duplicate rate monitoring
+  // (definitions follow L1Trigger/TrackFindingTracklet/test/L1TrackNtuplePlot.C)
+  MonitorElement *trk_all_vspt = nullptr;        // denominator for fake/duplicate fractions
+  MonitorElement *trk_fake_vspt = nullptr;       // numerator: tracks failing isGenuine
+  MonitorElement *trk_duplicate_vspt = nullptr;  // numerator: extra genuine matches to the same TP
+  MonitorElement *ntrk_pt2 = nullptr;            // # tracks per event with pT > 2 GeV
+  MonitorElement *ntrk_pt3 = nullptr;            // # tracks per event with pT > 3 GeV
+  MonitorElement *ntrk_pt10 = nullptr;           // # tracks per event with pT > 10 GeV
+
+  MonitorElement *trk_all_vspt_extended = nullptr;
+  MonitorElement *trk_fake_vspt_extended = nullptr;
+  MonitorElement *trk_duplicate_vspt_extended = nullptr;
+  MonitorElement *ntrk_pt2_extended = nullptr;
+  MonitorElement *ntrk_pt3_extended = nullptr;
+  MonitorElement *ntrk_pt10_extended = nullptr;
+
 private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_topoToken;
   edm::ParameterSet conf_;
@@ -184,8 +207,10 @@ private:
       ttTrackMCTruthToken_;  // MC truth association map for tracks
   edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>
       ttTrackMCTruthExtendedToken_;  // MC truth association map for extended tracks
-  edm::EDGetTokenT<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>> ttStubToken_;  // L1 Stub token
-  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> getTokenTrackerGeom_;     // Tracker geometry token
+  edm::EDGetTokenT<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>> ttStubToken_;   // L1 Stub token
+  edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> ttTrackToken_;          // L1 track collection
+  edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> ttTrackExtendedToken_;  // extended L1 tracks
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> getTokenTrackerGeom_;      // Tracker geometry token
   int L1Tk_minNStub;
   double L1Tk_maxChi2dof;
   int TP_minNStub;
@@ -216,6 +241,10 @@ Phase2OTValidateTracks::Phase2OTValidateTracks(const edm::ParameterSet &iConfig)
       conf_.getParameter<edm::InputTag>("MCTruthTrackExtendedInputTag"));
   ttStubToken_ = consumes<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>(
       edm::InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"));
+  ttTrackToken_ =
+      consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(conf_.getParameter<edm::InputTag>("L1TrackInputTag"));
+  ttTrackExtendedToken_ = consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(
+      conf_.getParameter<edm::InputTag>("L1TrackExtendedInputTag"));
   getTokenTrackerGeom_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
   L1Tk_minNStub = conf_.getParameter<int>("L1Tk_minNStub");         // min number of stubs in the track
   L1Tk_maxChi2dof = conf_.getParameter<double>("L1Tk_maxChi2dof");  // maximum chi2/dof of the track
@@ -369,6 +398,18 @@ void Phase2OTValidateTracks::processTrackCollection(
   if (nStubs < L1Tk_minNStub || chi2dof > L1Tk_maxChi2dof)
     return;
 
+  // Duplicate-rate numerator: every genuine match beyond the first is a duplicate.
+  // Same counting as the tp_nmatch > 1 block in
+  // L1Trigger/TrackFindingTracklet/test/L1TrackNtuplePlot.C; cuts on the best
+  // track mirror the trk_all_vspt denominator selection in processTrackRates().
+  float bestTrack_pt = bestTrack->momentum().perp();
+  if (tp_nMatch > 1 && bestTrack_pt > 2.0 && std::fabs(bestTrack->momentum().eta()) < TP_maxEta) {
+    MonitorElement *trk_duplicate_ptr = isExtended ? trk_duplicate_vspt_extended : trk_duplicate_vspt;
+    for (int inm = 1; inm < tp_nMatch; inm++) {  // N.B. loop doesn't start at zero
+      trk_duplicate_ptr->Fill(bestTrack_pt);
+    }
+  }
+
   if (isExtended) {
     // if extended, if "prompt"
     if (std::fabs(tmp_tp_d0) < TP_maxD0) {
@@ -501,6 +542,57 @@ void Phase2OTValidateTracks::processTrackCollection(
   }
 }
 
+// ---------------------------------------------------------------------
+// Helper function to fill track-rate and fake-rate histograms for a
+// track collection (nominal or extended); selection follows
+// L1Trigger/TrackFindingTracklet/test/L1TrackNtuplePlot.C
+// ---------------------------------------------------------------------
+void Phase2OTValidateTracks::processTrackRates(
+    const edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> &trackHandle,
+    const edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>> &mcTruthHandle,
+    MonitorElement *allVsPt,
+    MonitorElement *fakeVsPt,
+    MonitorElement *nTrkPt2,
+    MonitorElement *nTrkPt3,
+    MonitorElement *nTrkPt10) {
+  unsigned int ntrk_pt2_evt = 0;
+  unsigned int ntrk_pt3_evt = 0;
+  unsigned int ntrk_pt10_evt = 0;
+
+  for (size_t it = 0; it < trackHandle->size(); it++) {
+    edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> l1track_ptr(trackHandle, it);
+
+    int nStubs = l1track_ptr->getStubRefs().size();
+    float chi2dof = l1track_ptr->chi2Red();
+    float trk_pt = l1track_ptr->momentum().perp();
+    float trk_eta = l1track_ptr->momentum().eta();
+
+    // track quality cuts, matching those of the duplicate-rate numerator
+    if (nStubs < L1Tk_minNStub || chi2dof > L1Tk_maxChi2dof)
+      continue;
+    if (std::fabs(trk_eta) > TP_maxEta)
+      continue;
+    if (trk_pt < TP_minPt)
+      continue;
+
+    if (trk_pt > 2.0) {
+      ntrk_pt2_evt++;
+      allVsPt->Fill(trk_pt);
+      // a track failing isGenuine has no unique associated TP -> fake
+      if (!mcTruthHandle->isGenuine(l1track_ptr))
+        fakeVsPt->Fill(trk_pt);
+    }
+    if (trk_pt > 3.0)
+      ntrk_pt3_evt++;
+    if (trk_pt > 10.0)
+      ntrk_pt10_evt++;
+  }  // end loop over L1 tracks
+
+  nTrkPt2->Fill(ntrk_pt2_evt);
+  nTrkPt3->Fill(ntrk_pt3_evt);
+  nTrkPt10->Fill(ntrk_pt10_evt);
+}
+
 // ------------ method called for each event  ------------
 void Phase2OTValidateTracks::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // Tracking Particles
@@ -519,8 +611,28 @@ void Phase2OTValidateTracks::analyze(const edm::Event &iEvent, const edm::EventS
   edm::Handle<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>> TTStubHandle;
   iEvent.getByToken(ttStubToken_, TTStubHandle);
 
+  // L1 track collections (for rate / fake / duplicate monitoring)
+  edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> TTTrackHandle;
+  iEvent.getByToken(ttTrackToken_, TTTrackHandle);
+  edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> TTTrackExtendedHandle;
+  iEvent.getByToken(ttTrackExtendedToken_, TTTrackExtendedHandle);
+
   // Geometries
   const TrackerTopology *const tTopo = &iSetup.getData(m_topoToken);
+
+  // Track rate and fake rate, computed by looping over reconstructed tracks
+  if (TTTrackHandle.isValid() && MCTruthTTTrackHandle.isValid()) {
+    processTrackRates(TTTrackHandle, MCTruthTTTrackHandle, trk_all_vspt, trk_fake_vspt, ntrk_pt2, ntrk_pt3, ntrk_pt10);
+  }
+  if (TTTrackExtendedHandle.isValid() && MCTruthTTTrackExtendedHandle.isValid()) {
+    processTrackRates(TTTrackExtendedHandle,
+                      MCTruthTTTrackExtendedHandle,
+                      trk_all_vspt_extended,
+                      trk_fake_vspt_extended,
+                      ntrk_pt2_extended,
+                      ntrk_pt3_extended,
+                      ntrk_pt10_extended);
+  }
 
   // Loop over tracking particles
   int this_tp = 0;
@@ -884,6 +996,38 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
     respt_prompt_pt8toInf[i] = book1DFromPS(
         iBooker, "respt_prompt_" + ranges[i] + "_pt8toInf", psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
   }
+
+  // Track rate / fake rate / duplicate rate ingredients, filled from the loop over reconstructed tracks,
+  // following L1Trigger/TrackFindingTracklet/test/L1TrackNtuplePlot.C
+  edm::ParameterSet psTrack_pt = conf_.getParameter<edm::ParameterSet>("TH1Track_pt");
+  edm::ParameterSet psTrack_N_pt2 = conf_.getParameter<edm::ParameterSet>("TH1NTracks_pt2");
+  edm::ParameterSet psTrack_N_pt3 = conf_.getParameter<edm::ParameterSet>("TH1NTracks_pt3");
+  edm::ParameterSet psTrack_N_pt10 = conf_.getParameter<edm::ParameterSet>("TH1NTracks_pt10");
+
+  iBooker.setCurrentFolder(topFolderName_ + "/Nominal_L1TF/TrackRateIngredients");
+  trk_all_vspt = book1DFromPS(iBooker, "trk_all_vspt", psTrack_pt, "track p_{T} [GeV]", "# L1 tracks");
+  trk_fake_vspt =
+      book1DFromPS(iBooker, "trk_fake_vspt", psTrack_pt, "track p_{T} [GeV]", "# fake (not genuine) L1 tracks");
+  trk_duplicate_vspt =
+      book1DFromPS(iBooker, "trk_duplicate_vspt", psTrack_pt, "track p_{T} [GeV]", "# duplicate L1 tracks");
+  ntrk_pt2 = book1DFromPS(iBooker, "ntrk_pt2", psTrack_N_pt2, "# L1 tracks (p_{T} > 2 GeV) per event", "# events");
+  ntrk_pt3 = book1DFromPS(iBooker, "ntrk_pt3", psTrack_N_pt3, "# L1 tracks (p_{T} > 3 GeV) per event", "# events");
+  ntrk_pt10 = book1DFromPS(iBooker, "ntrk_pt10", psTrack_N_pt10, "# L1 tracks (p_{T} > 10 GeV) per event", "# events");
+
+  iBooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/TrackRateIngredients");
+  trk_all_vspt_extended =
+      book1DFromPS(iBooker, "trk_all_vspt_extended", psTrack_pt, "track p_{T} [GeV]", "# L1 tracks");
+  trk_fake_vspt_extended = book1DFromPS(
+      iBooker, "trk_fake_vspt_extended", psTrack_pt, "track p_{T} [GeV]", "# fake (not genuine) L1 tracks");
+  trk_duplicate_vspt_extended =
+      book1DFromPS(iBooker, "trk_duplicate_vspt_extended", psTrack_pt, "track p_{T} [GeV]", "# duplicate L1 tracks");
+  ntrk_pt2_extended =
+      book1DFromPS(iBooker, "ntrk_pt2_extended", psTrack_N_pt2, "# L1 tracks (p_{T} > 2 GeV) per event", "# events");
+  ntrk_pt3_extended =
+      book1DFromPS(iBooker, "ntrk_pt3_extended", psTrack_N_pt3, "# L1 tracks (p_{T} > 3 GeV) per event", "# events");
+  ntrk_pt10_extended =
+      book1DFromPS(iBooker, "ntrk_pt10_extended", psTrack_N_pt10, "# L1 tracks (p_{T} > 10 GeV) per event", "# events");
+
 }  // end of method
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -924,6 +1068,12 @@ void Phase2OTValidateTracks::fillDescriptions(edm::ConfigurationDescriptions &de
   addHist("TH1Res_d0", 100, -0.05, 0.05);
   addHist("TH1Resdisplaced_d0", 101, -2.0, 2.0);
 
+  // Track rate / fake rate / duplicate rate plots
+  addHist("TH1Track_pt", 50, 0.0, 25.0);
+  addHist("TH1NTracks_pt2", 400, 0.0, 400.0);
+  addHist("TH1NTracks_pt3", 300, 0.0, 300.0);
+  addHist("TH1NTracks_pt10", 100, 0.0, 100.0);
+
   desc.add<std::string>("TopFolderName", "TrackerPhase2OTL1TrackV");
   desc.add<edm::InputTag>("trackingParticleToken", edm::InputTag("mix", "MergedTrackTruth"));
   desc.add<edm::InputTag>("MCTruthStubInputTag", edm::InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"));
@@ -932,6 +1082,9 @@ void Phase2OTValidateTracks::fillDescriptions(edm::ConfigurationDescriptions &de
                           edm::InputTag("TTTrackAssociatorFromPixelDigisExtended", "Level1TTTracks"));
   desc.add<edm::InputTag>("MCTruthClusterInputTag",
                           edm::InputTag("TTClusterAssociatorFromPixelDigis", "ClusterInclusive"));
+  desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"));
+  desc.add<edm::InputTag>("L1TrackExtendedInputTag",
+                          edm::InputTag("l1tTTTracksFromExtendedTrackletEmulation", "Level1TTTracks"));
   desc.add<int>("L1Tk_minNStub", 4);
   desc.add<double>("L1Tk_maxChi2dof", 25.0);
   desc.add<int>("TP_minNStub", 4);
