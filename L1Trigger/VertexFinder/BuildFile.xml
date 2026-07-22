@@ -13,6 +13,8 @@
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
 <use name="PhysicsTools/TensorFlow"/>
+<use name="hls"/>
+<use name="hls4mlEmulatorExtras"/>
 <use name="boost"/>
 <use name="roothistmatrix"/>
 <export>
