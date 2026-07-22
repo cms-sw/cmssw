@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
@@ -83,13 +82,7 @@ namespace edm {
     return endOfLoop(es, iCounter_);
   }
 
-  void EDLooperBase::prepareForNextLoop(eventsetup::EventSetupProvider* esp) {
-    ++iCounter_;
-
-    std::set<edm::eventsetup::EventSetupRecordKey> const& keys = modifyingRecords();
-    for_all(keys,
-            std::bind(&eventsetup::EventSetupProvider::resetRecordPlusDependentRecords, esp, std::placeholders::_1));
-  }
+  void EDLooperBase::prepareForNextLoop() { ++iCounter_; }
 
   void EDLooperBase::beginOfJob(const edm::EventSetupImpl& iImpl) {
     ESParentContext parentC(&moduleCallingContext_);

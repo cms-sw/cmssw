@@ -35,7 +35,6 @@
 // forward declarations
 namespace edm {
   class ActivityRegistry;
-  class EventSetupImpl;
   class EventSetupRecordIntervalFinder;
 
   namespace eventsetup {
@@ -43,13 +42,10 @@ namespace edm {
     class DataKey;
     class ESProductResolverProvider;
     class ESRecordsToProductResolverIndices;
-    class EventSetupProvider;
     class EventSetupRecordImpl;
 
     class EventSetupRecordProvider {
     public:
-      enum class IntervalStatus { NotInitializedForSyncValue, Invalid, NewInterval, UpdateIntervalEnd, SameInterval };
-
       using DataToPreferredProviderMap = std::map<DataKey, ComponentDescription>;
 
       EventSetupRecordProvider(EventSetupRecordKey const& iKey,
@@ -63,7 +59,6 @@ namespace edm {
 
       unsigned int nConcurrentIOVs() const { return nConcurrentIOVs_; }
 
-      ValidityInterval const& validityInterval() const { return validityInterval_; }
       EventSetupRecordKey const& key() const { return key_; }
 
       // Returns a reference for the first of the allowed concurrent IOVs.
@@ -72,7 +67,7 @@ namespace edm {
       EventSetupRecordImpl const& firstRecordImpl() const;
 
       ///Returns the list of Records the provided Record depends on (usually none)
-      std::set<EventSetupRecordKey> dependentRecords() const;
+      std::set<EventSetupRecordKey> supportingRecords() const;
 
       ///return information on which ESProductResolverProviders are supplying information
       std::set<ComponentDescription> resolverProviderDescriptions() const;
@@ -89,49 +84,27 @@ namespace edm {
       std::shared_ptr<ESProductResolverProvider> resolverProvider(ComponentDescription const&);
 
       void add(std::shared_ptr<ESProductResolverProvider>);
-      ///For now, only use one finder
-      void addFinder(std::shared_ptr<EventSetupRecordIntervalFinder>);
-
-      ///Intended for use only in unit tests
-      void setValidityInterval_forTesting(ValidityInterval const&);
 
       /** This function is called when an IOV is started up by the asynchronous task assigned to start IOVs.
        *  This is the point where we know the value of iovIndex, so we know which EventSetupRecordImpl
-       *  object will be used. We set a pointer to it. In the EventSetupRecordImpl we set the cacheIdentifier
-       *  and validity interval. We also set the pointer in the EventSetupImpl to the EventSetupRecordImpl here.
+       *  object will be used. In the EventSetupRecordImpl we set the cacheIdentifier
+       *  and validity interval.
        */
-      void initializeForNewIOV(unsigned int iovIndex, unsigned long long cacheIdentifier);
+      EventSetupRecordImpl const& initializeForNewIOV(unsigned int iovIndex,
+                                                      unsigned long long cacheIdentifier,
+                                                      ValidityInterval const& validityInterval);
 
       /** This function is called when we do not need to start a new IOV for a record and syncValue.
-       *  If a new EventSetupImpl was created, then this will set its pointer to the EventSetupRecordImpl.
        *  This is also the place where the validity interval will be updated in the special case
        *  where the beginning of the interval did not change but the end changed so it is not treated
        *  as a new IOV.
        */
-      void continueIOV(bool newEventSetupImpl);
+      EventSetupRecordImpl const& continueIOV(unsigned int iovIndex, edm::ValidityInterval const* validityInterval);
 
       /** The asynchronous task called when an IOV ends calls this function. It clears the caches
        *  of the ESProductResolver's.
        */
       void endIOV(unsigned int iovIndex);
-
-      /** Set a flag each time the EventSetupProvider starts initializing with a new sync value.
-       *  setValidityIntervalFor can be called multiple times because of dependent records.
-       *  Using this flag allows setValidityIntervalFor to avoid duplicating its work on the same
-       *  syncValue.
-       */
-      void initializeForNewSyncValue();
-
-      /** Sets the validity interval for this sync value and returns true if we have a valid
-       *  interval for sync value. Also sets the interval status.
-       */
-      bool setValidityIntervalFor(IOVSyncValue const&);
-
-      bool newInterval() const { return newInterval_; }
-      void setNewInterval(bool value) { newInterval_ = value; }
-
-      ///If the provided Record depends on other Records, here are the dependent Providers
-      void setDependentProviders(std::vector<std::shared_ptr<EventSetupRecordProvider>> const&);
 
       /**In the case of a conflict, sets what Provider to call.  This must be called after
          all providers have been added.  An empty map is acceptable. */
@@ -140,15 +113,8 @@ namespace edm {
       ///This will clear the cache's of all the Resolvers so that next time they are called they will run
       void resetResolvers();
 
-      std::shared_ptr<EventSetupRecordIntervalFinder const> finder() const { return get_underlying_safe(finder_); }
-      std::shared_ptr<EventSetupRecordIntervalFinder>& finder() { return get_underlying_safe(finder_); }
-
       void getReferencedESProducers(
           std::map<EventSetupRecordKey, std::vector<ComponentDescription const*>>& referencedESProducers) const;
-
-      void setEventSetupImpl(EventSetupImpl* value) { eventSetupImpl_ = value; }
-
-      IntervalStatus intervalStatus() const { return intervalStatus_; }
 
       void fillAllESProductResolverProviders(std::vector<ESProductResolverProvider const*>&,
                                              std::unordered_set<unsigned int>& componentIDs) const;
@@ -162,33 +128,15 @@ namespace edm {
       }
       void addResolversToRecord(std::shared_ptr<ESProductResolverProvider>, DataToPreferredProviderMap const&);
 
-      std::shared_ptr<EventSetupRecordIntervalFinder> swapFinder(std::shared_ptr<EventSetupRecordIntervalFinder> iNew) {
-        std::swap(iNew, finder());
-        return iNew;
-      }
-
     private:
       // ---------- member data --------------------------------
       const EventSetupRecordKey key_;
 
-      // This holds the interval most recently initialized with a call to
-      // eventSetupForInstance. A particular EventSetupRecordImpl in flight
-      // might contain an older interval.
-      ValidityInterval validityInterval_;
-
-      EventSetupImpl* eventSetupImpl_ = nullptr;
-
       std::vector<EventSetupRecordImpl> recordImpls_;
-      EventSetupRecordImpl const* recordImpl_ = nullptr;
 
-      edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>> finder_;
       std::vector<edm::propagate_const<std::shared_ptr<ESProductResolverProvider>>> providers_;
-      std::unique_ptr<std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>>
-          multipleFinders_;
 
       const unsigned int nConcurrentIOVs_;
-      IntervalStatus intervalStatus_ = IntervalStatus::NotInitializedForSyncValue;
-      bool newInterval_ = false;
     };
   }  // namespace eventsetup
 }  // namespace edm

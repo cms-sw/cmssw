@@ -14,6 +14,7 @@
 
 #include <exception>
 #include <set>
+#include <oneapi/tbb/task_arena.h>
 
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
@@ -22,13 +23,14 @@
 #include "FWCore/Framework/src/EventSetupProviderMaker.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-#include "FWCore/Framework/interface/EventSetupRecordIOVQueue.h"
+#include "FWCore/Framework/interface/EventSetupRecordIOVCoordinator.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/src/SendSourceTerminationSignalIfException.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "makeFindersForRecords.h"
 
 namespace edm {
   namespace eventsetup {
@@ -40,8 +42,8 @@ namespace edm {
     EventSetupsController::~EventSetupsController() {}
 
     void EventSetupsController::endIOVsAsync(edm::WaitingTaskHolder iEndTask) {
-      for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
-        eventSetupRecordIOVQueue->endIOVAsync(iEndTask);
+      for (auto& eventSetupRecordIOVCoordinator : eventSetupRecordIOVCoordinators_) {
+        eventSetupRecordIOVCoordinator->endIOVAsync(iEndTask);
       }
     }
 
@@ -57,7 +59,7 @@ namespace edm {
 
       // Construct the ESProducers and ESSources.
       // shared_ptrs to them are stored in the EventSetupProvider
-      fillEventSetupProvider(typeResolverMaker_, *returnValue, iPSet);
+      loadedFinders_ = fillEventSetupProvider(typeResolverMaker_, *returnValue, iPSet);
 
       numberOfConcurrentIOVs_.readConfigurationParameters(eventSetupPset, maxConcurrentIOVs, dumpOptions);
 
@@ -65,45 +67,57 @@ namespace edm {
       return returnValue;
     }
 
+    void EventSetupsController::addExtra(std::shared_ptr<EventSetupRecordIntervalFinder> iFinder) {
+      assert(loadedFinders_.has_value());
+      loadedFinders_->push_back(iFinder);
+    }
+    void EventSetupsController::addExtra(std::shared_ptr<eventsetup::ESProductResolverProvider> iProvider) {
+      assert(provider_);
+      provider_->add(iProvider);
+    }
+
     void EventSetupsController::finishConfiguration() {
       if (mustFinishConfiguration_) {
         numberOfConcurrentIOVs_.fillRecordsNotAllowingConcurrentIOVs(*provider_);
-        provider_->finishConfiguration(numberOfConcurrentIOVs_);
+        std::set<edm::eventsetup::EventSetupRecordKey> finderRecords;
+        for (auto const& finder : loadedFinders_.value()) {
+          auto const& recordsUsing = finder->findingForRecords();
+          finderRecords.insert(recordsUsing.begin(), recordsUsing.end());
+        }
+        provider_->finishConfiguration(finderRecords, numberOfConcurrentIOVs_);
         provider_->clearInitializationData();
         provider_->updateLookup();
 
-        initializeEventSetupRecordIOVQueues();
+        assert(loadedFinders_.has_value());
+        auto findersForRecords = impl::makeFindersForRecords(provider_->keys(), loadedFinders_.value());
+        initializeEventSetupRecordIOVCoordinators(findersForRecords);
         numberOfConcurrentIOVs_.clear();
+        loadedFinders_.reset();
         mustFinishConfiguration_ = false;
       }
     }
 
-    void EventSetupsController::runOrQueueEventSetupForInstanceAsync(
-        IOVSyncValue const& iSync,
-        WaitingTaskHolder& taskToStartAfterIOVInit,
-        WaitingTaskList& endIOVWaitingTasks,
-        std::shared_ptr<const EventSetupImpl>& eventSetupImpl,
-        ActivityRegistry* actReg,
-        ServiceToken const& iToken) {
-      auto asyncEventSetup = [this, &endIOVWaitingTasks, &eventSetupImpl, actReg](IOVSyncValue const& iSync,
-                                                                                  WaitingTaskHolder& task) {
-        CMS_SA_ALLOW try {
-          SendSourceTerminationSignalIfException sentry(actReg);
-          {
-            //all EventSetupRecordIntervalFinders are sequentially set to the
-            // new SyncValue in the call. The async part is just waiting for
-            // the Records to be available which is done after the SyncValue setup.
-            actReg->preESSyncIOVSignal_.emit(iSync);
-            auto postSignal = [&iSync](ActivityRegistry* actReg) { actReg->postESSyncIOVSignal_.emit(iSync); };
-            std::unique_ptr<ActivityRegistry, decltype(postSignal)> guard(actReg, postSignal);
-            eventSetupForInstanceAsync(iSync, task, endIOVWaitingTasks, eventSetupImpl);
-          }
-          sentry.completedSuccessfully();
-        } catch (...) {
-          task.doneWaiting(std::current_exception());
+    void EventSetupsController::runEventSetupForInstanceAsync(IOVSyncValue const& iSync,
+                                                              WaitingTaskHolder& taskToStartAfterIOVInit,
+                                                              WaitingTaskList& endIOVWaitingTasks,
+                                                              std::shared_ptr<const EventSetupImpl>& eventSetupImpl,
+                                                              ActivityRegistry* actReg,
+                                                              ServiceToken const& iToken) {
+      CMS_SA_ALLOW try {
+        SendSourceTerminationSignalIfException sentry(actReg);
+        {
+          //all EventSetupRecordIntervalFinders are sequentially set to the
+          // new SyncValue in the call. The async part is just waiting for
+          // the Records to be available which is done after the SyncValue setup.
+          actReg->preESSyncIOVSignal_.emit(iSync);
+          auto postSignal = [&iSync](ActivityRegistry* actReg) { actReg->postESSyncIOVSignal_.emit(iSync); };
+          std::unique_ptr<ActivityRegistry, decltype(postSignal)> guard(actReg, postSignal);
+          eventSetupForInstanceAsync(iSync, taskToStartAfterIOVInit, endIOVWaitingTasks, eventSetupImpl);
         }
-      };
-      asyncEventSetup(iSync, taskToStartAfterIOVInit);
+        sentry.completedSuccessfully();
+      } catch (...) {
+        taskToStartAfterIOVInit.doneWaiting(std::current_exception());
+      }
     }
 
     void EventSetupsController::eventSetupForInstanceAsync(IOVSyncValue const& syncValue,
@@ -114,34 +128,52 @@ namespace edm {
       bool newEventSetupImpl = false;
       eventSetupImpl.reset();
 
-      provider_->setAllValidityIntervals(syncValue);
-
-      for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
-        eventSetupRecordIOVQueue->setNewInterval();
+      for (auto& eventSetupRecordIOVCoordinator : eventSetupRecordIOVCoordinators_) {
+        if (eventSetupRecordIOVCoordinator->setValidityIntervalFor(syncValue)) {
+          newEventSetupImpl = true;
+        }
       }
 
       // Decides whether we can reuse the existing EventSetupImpl and if we can
       // returns it. If a new one is needed it will create it, although the pointers
       // to the EventSetupRecordImpl's will not be set yet in the returned EventSetupImpl
       // object.
-      eventSetupImpl = provider_->eventSetupForInstance(syncValue, newEventSetupImpl);
+      auto nonConst = provider_->cachedEventSetup(newEventSetupImpl);
 
-      for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
-        eventSetupRecordIOVQueue->checkForNewIOVs(taskToStartAfterIOVInit, endIOVWaitingTasks, newEventSetupImpl);
+      eventSetupImpl = nonConst;
+      for (auto& eventSetupRecordIOVCoordinator : eventSetupRecordIOVCoordinators_) {
+        eventSetupRecordIOVCoordinator->checkForNewIOVsAndStartIfNeededAsync(
+            taskToStartAfterIOVInit, endIOVWaitingTasks, newEventSetupImpl, *nonConst);
       }
     }
 
-    void EventSetupsController::initializeEventSetupRecordIOVQueues() {
-      std::set<EventSetupRecordKey> keys;
-      provider_->fillKeys(keys);
+    void EventSetupsController::initializeEventSetupRecordIOVCoordinators(
+        std::map<edm::eventsetup::EventSetupRecordKey, std::shared_ptr<edm::EventSetupRecordIntervalFinder>> const&
+            iKeyToFinders) {
+      std::set<EventSetupRecordKey> keys = provider_->keys();
 
       for (auto const& key : keys) {
-        eventSetupRecordIOVQueues_.push_back(
-            std::make_unique<EventSetupRecordIOVQueue>(numberOfConcurrentIOVs_.numberOfConcurrentIOVs(key)));
-        EventSetupRecordIOVQueue& iovQueue = *eventSetupRecordIOVQueues_.back();
+        eventSetupRecordIOVCoordinators_.push_back(
+            std::make_unique<EventSetupRecordIOVCoordinator>(numberOfConcurrentIOVs_.numberOfConcurrentIOVs(key)));
+        EventSetupRecordIOVCoordinator& iovCoordinator = *eventSetupRecordIOVCoordinators_.back();
         EventSetupRecordProvider* recProvider = provider_->tryToGetRecordProvider(key);
         if (recProvider) {
-          iovQueue.addRecProvider(recProvider);
+          iovCoordinator.addRecProvider(recProvider);
+        }
+        auto finderIt = iKeyToFinders.find(key);
+        if (finderIt != iKeyToFinders.end()) {
+          iovCoordinator.setFinder(finderIt->second);
+        }
+      }
+    }
+
+    void EventSetupsController::resetRecordPlusDependentRecords(EventSetupRecordKey const& recordKey) {
+      auto dependentKeys = provider_->resetRecordPlusDependentRecords(recordKey);
+      for (auto& queue : eventSetupRecordIOVCoordinators_) {
+        if (queue->key() == recordKey) {
+          queue->reset();
+        } else if (std::find(dependentKeys.begin(), dependentKeys.end(), queue->key()) != dependentKeys.end()) {
+          queue->reset();
         }
       }
     }
@@ -152,24 +184,27 @@ namespace edm {
       espController.finishConfiguration();
       FinalWaitingTask waitUntilIOVInitializationCompletes{iGroup};
 
-      // These do nothing ...
-      WaitingTaskList dummyWaitingTaskList;
-      std::shared_ptr<const EventSetupImpl> dummyEventSetupImpl;
+      //this is just used for testing so best to constrain to only 1 thread to avoid overloading the system.
+      oneapi::tbb::task_arena arena(1);
+      arena.execute([&]() {
+        WaitingTaskList dummyWaitingTaskList;
+        std::shared_ptr<const EventSetupImpl> dummyEventSetupImpl;
 
-      {
-        WaitingTaskHolder waitingTaskHolder(iGroup, &waitUntilIOVInitializationCompletes);
-        // Caught exception is propagated via WaitingTaskHolder
-        CMS_SA_ALLOW try {
-          // All the real work is done here.
-          espController.eventSetupForInstanceAsync(
-              syncValue, waitingTaskHolder, dummyWaitingTaskList, dummyEventSetupImpl);
-          dummyWaitingTaskList.doneWaiting(std::exception_ptr{});
-        } catch (...) {
-          dummyWaitingTaskList.doneWaiting(std::exception_ptr{});
-          waitingTaskHolder.doneWaiting(std::current_exception());
+        {
+          WaitingTaskHolder waitingTaskHolder(iGroup, &waitUntilIOVInitializationCompletes);
+          // Caught exception is propagated via WaitingTaskHolder
+          CMS_SA_ALLOW try {
+            // All the real work is done here.
+            espController.eventSetupForInstanceAsync(
+                syncValue, waitingTaskHolder, dummyWaitingTaskList, dummyEventSetupImpl);
+            dummyWaitingTaskList.doneWaiting(std::exception_ptr{});
+          } catch (...) {
+            dummyWaitingTaskList.doneWaiting(std::exception_ptr{});
+            waitingTaskHolder.doneWaiting(std::current_exception());
+          }
         }
-      }
-      waitUntilIOVInitializationCompletes.wait();
+        waitUntilIOVInitializationCompletes.wait();
+      });
     }
   }  // namespace eventsetup
 }  // namespace edm

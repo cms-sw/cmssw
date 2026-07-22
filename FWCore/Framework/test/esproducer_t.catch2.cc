@@ -380,10 +380,10 @@ TEST_CASE("ESProducer", "[Framework][EventSetup]") {
     edm::ParameterSet pset = createDummyPset();
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-    provider.add(std::make_shared<Test1Producer>());
+    controller.addExtra(std::make_shared<Test1Producer>());
 
     auto pFinder = std::make_shared<DummyFinder>();
-    provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+    controller.addExtra(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
     edm::ESParentContext parentC;
     for (int iTime = 1; iTime != 6; ++iTime) {
@@ -408,10 +408,10 @@ TEST_CASE("ESProducer", "[Framework][EventSetup]") {
     edm::ParameterSet pset = createDummyPset();
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-    provider.add(std::make_shared<LambdaProducer>());
+    controller.addExtra(std::make_shared<LambdaProducer>());
 
     auto pFinder = std::make_shared<DummyFinder>();
-    provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+    controller.addExtra(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
     edm::ESParentContext parentC;
     for (int iTime = 1; iTime != 6; ++iTime) {
@@ -437,10 +437,10 @@ TEST_CASE("ESProducer", "[Framework][EventSetup]") {
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
     std::shared_ptr<ESProductResolverProvider> pResolverProv = std::make_shared<ShareProducer>();
-    provider.add(pResolverProv);
+    controller.addExtra(pResolverProv);
 
     auto pFinder = std::make_shared<DummyFinder>();
-    provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+    controller.addExtra(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
     edm::ESParentContext parentC;
     for (int iTime = 1; iTime != 6; ++iTime) {
@@ -466,10 +466,10 @@ TEST_CASE("ESProducer", "[Framework][EventSetup]") {
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
     std::shared_ptr<ESProductResolverProvider> pResolverProv = std::make_shared<ShareProducer>(false);
-    provider.add(pResolverProv);
+    controller.addExtra(pResolverProv);
 
     auto pFinder = std::make_shared<DummyFinder>();
-    provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+    controller.addExtra(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
     edm::ESParentContext parentC;
     for (int iTime = 1; iTime != 6; ++iTime) {
@@ -494,10 +494,10 @@ TEST_CASE("ESProducer", "[Framework][EventSetup]") {
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
     std::shared_ptr<ESProductResolverProvider> pResolverProv = std::make_shared<UniqueProducer>();
-    provider.add(pResolverProv);
+    controller.addExtra(pResolverProv);
 
     auto pFinder = std::make_shared<DummyFinder>();
-    provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+    controller.addExtra(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
     edm::ESParentContext parentC;
     for (int iTime = 1; iTime != 6; ++iTime) {
@@ -523,10 +523,10 @@ TEST_CASE("ESProducer", "[Framework][EventSetup]") {
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
     std::shared_ptr<ESProductResolverProvider> pResolverProv = std::make_shared<UniqueProducer>(false);
-    provider.add(pResolverProv);
+    controller.addExtra(pResolverProv);
 
     auto pFinder = std::make_shared<DummyFinder>();
-    provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+    controller.addExtra(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
     edm::ESParentContext parentC;
     for (int iTime = 1; iTime != 6; ++iTime) {
@@ -550,10 +550,10 @@ TEST_CASE("ESProducer", "[Framework][EventSetup]") {
     edm::ParameterSet pset = createDummyPset();
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-    provider.add(std::make_shared<OptionalProducer>());
+    controller.addExtra(std::make_shared<OptionalProducer>());
 
     auto pFinder = std::make_shared<DummyFinder>();
-    provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+    controller.addExtra(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
     edm::ESParentContext parentC;
     for (int iTime = 1; iTime != 6; ++iTime) {
@@ -578,10 +578,10 @@ TEST_CASE("ESProducer", "[Framework][EventSetup]") {
     edm::ParameterSet pset = createDummyPset();
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-    provider.add(std::make_shared<OptionalProducer>(false));
+    controller.addExtra(std::make_shared<OptionalProducer>(false));
 
     auto pFinder = std::make_shared<DummyFinder>();
-    provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+    controller.addExtra(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
     edm::ESParentContext parentC;
     for (int iTime = 1; iTime != 6; ++iTime) {
@@ -607,10 +607,10 @@ TEST_CASE("ESProducer", "[Framework][EventSetup]") {
       EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
       std::shared_ptr<ESProductResolverProvider> pResolverProv = std::make_shared<LabelledProducer>();
-      provider.add(pResolverProv);
+      controller.addExtra(pResolverProv);
 
       auto pFinder = std::make_shared<DummyFinder>();
-      provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+      controller.addExtra(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
       edm::ESParentContext parentC;
       for (int iTime = 1; iTime != 6; ++iTime) {
@@ -648,10 +648,10 @@ TEST_CASE("ESProducer", "[Framework][EventSetup]") {
     edm::ParameterSet pset = createDummyPset();
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-    provider.add(std::make_shared<DecoratorProducer>());
+    controller.addExtra(std::make_shared<DecoratorProducer>());
 
     auto pFinder = std::make_shared<DummyFinder>();
-    provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+    controller.addExtra(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
     edm::ESParentContext parentC;
     for (int iTime = 1; iTime != 6; ++iTime) {
@@ -698,10 +698,10 @@ TEST_CASE("ESProducer", "[Framework][EventSetup]") {
     edm::ParameterSet pset = createDummyPset();
     EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-    provider.add(std::make_shared<DepProducer>());
+    controller.addExtra(std::make_shared<DepProducer>());
 
     auto pFinder = std::make_shared<DummyFinder>();
-    provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
+    controller.addExtra(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
 
     edm::ESParentContext parentC;
     for (int iTime = 1; iTime != 6; ++iTime) {
@@ -796,49 +796,6 @@ TEST_CASE("ESProducer", "[Framework][EventSetup]") {
   }
 
   SECTION("failMultipleRegistration") { REQUIRE_THROWS_AS(MultiRegisterProducer(), cms::Exception); }
-
-  SECTION("forceCacheClearTest") {
-    SynchronousEventSetupsController controller;
-    edm::ParameterSet pset = createDummyPset();
-    EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
-
-    provider.add(std::make_shared<Test1Producer>());
-
-    auto pFinder = std::make_shared<DummyFinder>();
-    provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
-
-    const edm::Timestamp time(1);
-    pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
-    controller.eventSetupForInstance(edm::IOVSyncValue(time));
-    {
-      DummyDataConsumer<DummyRecord> consumer;
-      consumer.updateLookup(provider.recordsToResolverIndices());
-      consumer.prefetch(provider.eventSetupImpl());
-      edm::ESParentContext parentC;
-      const edm::EventSetup eventSetup(provider.eventSetupImpl(),
-                                       static_cast<unsigned int>(edm::Transition::Event),
-                                       consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC);
-      edm::ESHandle<DummyData> pDummy = eventSetup.getHandle(consumer.m_token);
-      REQUIRE(0 != pDummy.product());
-      REQUIRE(1 == pDummy->value_);
-    }
-    provider.forceCacheClear();
-    controller.eventSetupForInstance(edm::IOVSyncValue(time));
-    {
-      DummyDataConsumer<DummyRecord> consumer;
-      consumer.updateLookup(provider.recordsToResolverIndices());
-      consumer.prefetch(provider.eventSetupImpl());
-      edm::ESParentContext parentC;
-      const edm::EventSetup eventSetup2(provider.eventSetupImpl(),
-                                        static_cast<unsigned int>(edm::Transition::Event),
-                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                        parentC);
-      edm::ESHandle<DummyData> pDummy = eventSetup2.getHandle(consumer.m_token);
-      REQUIRE(0 != pDummy.product());
-      REQUIRE(2 == pDummy->value_);
-    }
-  }
 
   SECTION("productResolverProviderTest") {
     TestESProductResolverProvider productResolverProvider;

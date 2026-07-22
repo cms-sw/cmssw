@@ -40,9 +40,19 @@ namespace edm {
       std::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&,
                                                        ActivityRegistry*,
                                                        ParameterSet const* eventSetupPset = nullptr);
+      void addExtra(std::shared_ptr<EventSetupRecordIntervalFinder> iFinder) { controller_.addExtra(iFinder); }
+      void addExtra(std::shared_ptr<eventsetup::ESProductResolverProvider> iProvider) {
+        controller_.addExtra(iProvider);
+      }
 
       // Version to use when IOVs are not allowed to run concurrently
       void eventSetupForInstance(IOVSyncValue const&);
+
+      void finishConfiguration() { controller_.finishConfiguration(); }
+
+      void resetRecordPlusDependentRecords(EventSetupRecordKey const& recordKey) {
+        controller_.resetRecordPlusDependentRecords(recordKey);
+      }
 
     private:
       oneapi::tbb::global_control globalControl_;

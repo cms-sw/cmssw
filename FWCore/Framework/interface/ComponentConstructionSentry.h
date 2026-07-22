@@ -19,18 +19,19 @@
 
 namespace edm {
   namespace eventsetup {
-    class EventSetupProvider;
+    class ComponentInterfaceHolder;
     struct ComponentDescription;
 
     struct ComponentConstructionSentry {
-      ComponentConstructionSentry(EventSetupProvider const& iProvider, ComponentDescription const& iDescription);
+      ComponentConstructionSentry(ComponentInterfaceHolder const& iInterfaceHolder,
+                                  ComponentDescription const& iDescription);
       ~ComponentConstructionSentry() noexcept(false);
 
       //call if the construction call succeeded without throwing an exception.
       void succeeded() { succeeded_ = true; }
 
     private:
-      EventSetupProvider const& provider_;
+      ComponentInterfaceHolder const& interfaceHolder_;
       ComponentDescription const& description_;
       bool succeeded_ = false;
     };

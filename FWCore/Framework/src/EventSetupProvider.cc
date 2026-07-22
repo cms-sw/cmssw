@@ -27,7 +27,6 @@
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/ESProductResolverProvider.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/NumberOfConcurrentIOVs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -40,11 +39,8 @@ namespace edm {
     EventSetupProvider::EventSetupProvider(ActivityRegistry const* activityRegistry, const PreferredProviderInfo* iInfo)
         : activityRegistry_(activityRegistry),
           preferredProviderInfo_((nullptr != iInfo) ? (new PreferredProviderInfo(*iInfo)) : nullptr),
-          finders_(new std::vector<std::shared_ptr<EventSetupRecordIntervalFinder>>()),
           dataProviders_(new std::vector<std::shared_ptr<ESProductResolverProvider>>()),
           recordToPreferred_(new std::map<EventSetupRecordKey, std::map<DataKey, ComponentDescription>>) {}
-
-    EventSetupProvider::~EventSetupProvider() { forceCacheClear(); }
 
     std::shared_ptr<EventSetupRecordProvider>& EventSetupProvider::recordProvider(const EventSetupRecordKey& iKey) {
       auto lb = std::lower_bound(recordKeys_.begin(), recordKeys_.end(), iKey);
@@ -100,11 +96,6 @@ namespace edm {
       if (activityRegistry_) {
         activityRegistry_->postESModuleRegistrationSignal_.emit(iProvider->description());
       }
-    }
-
-    void EventSetupProvider::add(std::shared_ptr<EventSetupRecordIntervalFinder> iFinder) {
-      assert(iFinder.get() != nullptr);
-      finders_->push_back(iFinder);
     }
 
     using RecordProviders = std::vector<std::shared_ptr<EventSetupRecordProvider>>;
@@ -233,26 +224,20 @@ namespace edm {
       }
     }
 
-    void EventSetupProvider::finishConfiguration(NumberOfConcurrentIOVs const& numberOfConcurrentIOVs) {
+    void EventSetupProvider::finishConfiguration(std::set<edm::eventsetup::EventSetupRecordKey> const& finderRecords,
+                                                 NumberOfConcurrentIOVs const& numberOfConcurrentIOVs) {
       //we delayed adding finders to the system till here so that everything would be loaded first
-      for (auto& finder : *finders_) {
-        const std::set<EventSetupRecordKey> recordsUsing = finder->findingForRecords();
+      for (auto const& key : finderRecords) {
+        EventSetupRecordProvider* recProvider = tryToGetRecordProvider(key);
+        if (recProvider == nullptr) {
+          bool printInfoMsg = true;
+          unsigned int nConcurrentIOVs = numberOfConcurrentIOVs.numberOfConcurrentIOVs(key, printInfoMsg);
 
-        for (auto const& key : recordsUsing) {
-          EventSetupRecordProvider* recProvider = tryToGetRecordProvider(key);
-          if (recProvider == nullptr) {
-            bool printInfoMsg = true;
-            unsigned int nConcurrentIOVs = numberOfConcurrentIOVs.numberOfConcurrentIOVs(key, printInfoMsg);
-
-            //create a provider for this record
-            insert(key, std::make_unique<EventSetupRecordProvider>(key, activityRegistry_, nConcurrentIOVs));
-            recProvider = tryToGetRecordProvider(key);
-          }
-          recProvider->addFinder(finder);
+          //create a provider for this record
+          insert(key, std::make_unique<EventSetupRecordProvider>(key, activityRegistry_, nConcurrentIOVs));
+          recProvider = tryToGetRecordProvider(key);
         }
       }
-      //we've transfered our ownership so this is no longer needed
-      finders_.reset();
 
       //Now handle providers since sources can also be finders and the sources can delay registering
       // their Records and therefore could delay setting up their Resolvers
@@ -279,9 +264,6 @@ namespace edm {
 
       determinePreferred();
 
-      //For each Provider, find all the Providers it depends on.  If a dependent Provider
-      // can not be found pass in an empty list
-      //CHANGE: now allow for missing Providers
       for (auto& itRecordProvider : recordProviders_) {
         const EventSetupRecordProvider::DataToPreferredProviderMap* preferredInfo = &kEmptyMap;
         RecordToPreferred::const_iterator itRecordFound = recordToPreferred_->find(itRecordProvider->key());
@@ -290,43 +272,6 @@ namespace edm {
         }
         //Give it our list of preferred
         itRecordProvider->usePreferred(*preferredInfo);
-
-        std::set<EventSetupRecordKey> records = itRecordProvider->dependentRecords();
-        if (!records.empty()) {
-          std::string missingRecords;
-          std::vector<std::shared_ptr<EventSetupRecordProvider>> depProviders;
-          depProviders.reserve(records.size());
-          bool foundAllProviders = true;
-          for (auto const& key : records) {
-            auto lb = std::lower_bound(recordKeys_.begin(), recordKeys_.end(), key);
-            if (lb == recordKeys_.end() || key != *lb) {
-              foundAllProviders = false;
-              if (missingRecords.empty()) {
-                missingRecords = key.name();
-              } else {
-                missingRecords += ", ";
-                missingRecords += key.name();
-              }
-            } else {
-              auto index = std::distance(recordKeys_.begin(), lb);
-              depProviders.push_back(recordProviders_[index]);
-            }
-          }
-
-          if (!foundAllProviders) {
-            edm::LogInfo("EventSetupDependency")
-                << "The EventSetup record " << itRecordProvider->key().name() << " depends on at least one Record \n ("
-                << missingRecords
-                << ") which is not present in the job."
-                   "\n This may lead to an exception begin thrown during event processing.\n If no exception occurs "
-                   "during the job than it is usually safe to ignore this message.";
-
-            //depProviders.clear();
-            //NOTE: should provide a warning
-          }
-
-          itRecordProvider->setDependentProviders(depProviders);
-        }
       }
 
       dataProviders_.reset();
@@ -339,7 +284,7 @@ namespace edm {
                                std::vector<std::shared_ptr<EventSetupRecordProvider>>& oDependents) {
       for (Itr it = itBegin; it != itEnd; ++it) {
         //does it depend on the record in question?
-        const std::set<EventSetupRecordKey>& deps = (*it)->dependentRecords();
+        const std::set<EventSetupRecordKey>& deps = (*it)->supportingRecords();
         if (deps.end() != deps.find(iKey)) {
           oDependents.push_back(*it);
           //now see who is dependent on this record since they will be indirectly dependent on iKey
@@ -348,10 +293,11 @@ namespace edm {
       }
     }
 
-    void EventSetupProvider::resetRecordPlusDependentRecords(const EventSetupRecordKey& iKey) {
+    std::vector<EventSetupRecordKey> EventSetupProvider::resetRecordPlusDependentRecords(
+        const EventSetupRecordKey& iKey) {
       EventSetupRecordProvider* recProvider = tryToGetRecordProvider(iKey);
       if (recProvider == nullptr) {
-        return;
+        return {};
       }
 
       std::vector<std::shared_ptr<EventSetupRecordProvider>> dependents;
@@ -359,18 +305,14 @@ namespace edm {
 
       dependents.erase(std::unique(dependents.begin(), dependents.end()), dependents.end());
 
+      std::vector<EventSetupRecordKey> ret;
+      ret.reserve(dependents.size());
       recProvider->resetResolvers();
       for (auto& d : dependents) {
         d->resetResolvers();
+        ret.push_back(d->key());
       }
-    }
-
-    void EventSetupProvider::forceCacheClear() {
-      for (auto& recProvider : recordProviders_) {
-        if (recProvider) {
-          recProvider->resetResolvers();
-        }
-      }
+      return ret;
     }
 
     void EventSetupProvider::updateLookup() {
@@ -392,54 +334,11 @@ namespace edm {
       }
     }
 
-    void EventSetupProvider::setAllValidityIntervals(const IOVSyncValue& iValue) {
-      // First loop sets a flag that helps us to not duplicate calls to the
-      // same EventSetupRecordProvider setting the IOVs. Dependent records
-      // can cause duplicate calls without this protection.
-      for (auto& recProvider : recordProviders_) {
-        recProvider->initializeForNewSyncValue();
-      }
-
-      for (auto& recProvider : recordProviders_) {
-        recProvider->setValidityIntervalFor(iValue);
-      }
-    }
-
-    std::shared_ptr<const EventSetupImpl> EventSetupProvider::eventSetupForInstance(const IOVSyncValue& iValue,
-                                                                                    bool& newEventSetupImpl) {
-      using IntervalStatus = EventSetupRecordProvider::IntervalStatus;
-
-      // It is important to understand that eventSetupForInstance is a function
-      // where only one call is executing at a time (not multiple calls running
-      // concurrently). These calls are made in the order determined by the
-      // InputSource. One invocation completes and returns before another starts.
-
-      bool needNewEventSetupImpl = false;
-      if (eventSetupImpl_.get() == nullptr) {
-        needNewEventSetupImpl = true;
-      } else {
-        for (auto& recProvider : recordProviders_) {
-          if (recProvider->intervalStatus() == IntervalStatus::Invalid) {
-            if (eventSetupImpl_->validRecord(recProvider->key())) {
-              needNewEventSetupImpl = true;
-            }
-          } else {
-            if (recProvider->newInterval()) {
-              needNewEventSetupImpl = true;
-            }
-          }
-        }
-      }
-
-      if (needNewEventSetupImpl) {
+    std::shared_ptr<EventSetupImpl> EventSetupProvider::cachedEventSetup(bool newEventSetupImpl) {
+      if (newEventSetupImpl or !eventSetupImpl_) {
         //cannot use make_shared because constructor is private
         eventSetupImpl_ = std::shared_ptr<EventSetupImpl>(new EventSetupImpl());
-        newEventSetupImpl = true;
         eventSetupImpl_->setKeyIters(recordKeys_.begin(), recordKeys_.end());
-
-        for (auto& recProvider : recordProviders_) {
-          recProvider->setEventSetupImpl(eventSetupImpl_.get());
-        }
       }
       return get_underlying_safe(eventSetupImpl_);
     }
@@ -470,10 +369,12 @@ namespace edm {
       preferredProviderInfo_ = std::make_unique<PreferredProviderInfo>(iInfo);
     }
 
-    void EventSetupProvider::fillKeys(std::set<EventSetupRecordKey>& keys) const {
+    std::set<EventSetupRecordKey> EventSetupProvider::keys() const {
+      std::set<EventSetupRecordKey> keys;
       for (auto const& recProvider : recordProviders_) {
         keys.insert(recProvider->key());
       }
+      return keys;
     }
 
     ESRecordsToProductResolverIndices EventSetupProvider::recordsToResolverIndices() const {
