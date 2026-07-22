@@ -119,7 +119,6 @@ class InputInfo(object):
         self.skimEvents = skimEvents
 
     def das(self, das_options, dataset):
-        use_ibeos = os.getenv("CMSSW_USE_IBEOS","false")=="true"
         if not self.skimEvents and (len(self.run) != 0 or self.ls):
             queries = self.queries(dataset)
             if len(self.run) != 0:
@@ -127,9 +126,8 @@ class InputInfo(object):
             else:
               lumis = self.lumis()
               commands = []
-              ibeos_sort = " | ibeos-lfn-sort" if use_ibeos else ""
               while queries:
-                    commands.append("dasgoclient %s --query 'lumi,%s' --format json | das-selected-lumis.py %s %s" % (das_options, queries.pop(), lumis.pop(), ibeos_sort))
+                    commands.append("dasgoclient %s --query 'lumi,%s' --format json | das-selected-lumis.py %s " % (das_options, queries.pop(), lumis.pop()))
               command = ";".join(commands)
             command = "({0})".format(command)
         elif not self.skimEvents:
@@ -141,7 +139,8 @@ class InputInfo(object):
             command += " | grep -E -v "
             command += " ".join(["-e '{0}'".format(pattern) for pattern in self.ib_blacklist])
         if not self.skimEvents: ## keep run-lumi sorting
-            if use_ibeos:
+            from os import getenv
+            if getenv("CMSSW_USE_IBEOS","false")=="true":
                 return "export CMSSW_USE_IBEOS=true; " + command
             return command + " | sort -u"
         else:
