@@ -513,6 +513,9 @@ private:
   MonitorElement* meETLTrackMatchedTPnomtdAssocMVAQual_;
   MonitorElement* meETLTrackMatchedTPnomtdAssocTimeRes_;
   MonitorElement* meETLTrackMatchedTPnomtdAssocTimePull_;
+
+  // mergedcluster hitProdType mismatch between seed and minimum hitProdType in cluster
+  MonitorElement* meHitProdTypeMismatchVsEta_;
 };
 
 // ------------ constructor and destructor --------------
@@ -949,13 +952,13 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           // Get the refs to MtdSimMergedClusters associated to the TP
           std::vector<edm::Ref<MtdSimMergedClusterCollection>> simMergedClustersRefs;
           edm::Ref<MtdSimMergedClusterCollection> directSimMergedClusRef;
+          float earliestTime = std::numeric_limits<float>::max();
 
           for (const auto& ref : simMergedClustersRefsIt->val) {
             simMergedClustersRefs.push_back(ref);
             // Check subdetector based on component SimLayerClusters
-            for (const auto& simLayerClusRef : ref->clusters()) {
-              simClustersRefs.push_back(simLayerClusRef);
-              MTDDetId mtddetid = simLayerClusRef->detIds_and_rows().front().first;
+            for (const auto& detid : ref->detIds()) {
+              MTDDetId mtddetid(detid);
               if (mtddetid.mtdSubDetector() == 2) {
                 ETLDetId detid(mtddetid.rawId());
                 if (detid.nDisc() == 1)
@@ -964,11 +967,26 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                   isTPmtdETLD2 = true;
               }
             }
+            MTDDetId mtddetid = ref->simDetId();
+            if (mtddetid.mtdSubDetector() == 1) {
+              if (ref->hitProdType() == 0) {
+                isTPmtdDirectBTL = true;
+                if (ref->simTime() < earliestTime) {
+                  earliestTime = ref->simTime();
+                  directSimMergedClusRef = ref;
+                }
+              }
+              if (ref->hitProdType() != 0) {
+                isTPmtdOtherBTL = true;
+              }
+              double isMismatch = (ref->hitProdType() != ref->seedHitProdType()) ? 1.0 : 0.0;
+              meHitProdTypeMismatchVsEta_->Fill(std::abs(trackGen.eta()), isMismatch);
+            }
           }
 
           // === BTL
           // -- Sort BTL sim clusters by time
-          std::vector<edm::Ref<MtdSimLayerClusterCollection>>::iterator directSimClusIt;
+          /*
           if (std::abs(trackGen.eta()) < trackMaxBtlEta_ && !simClustersRefs.empty()) {
             std::sort(simClustersRefs.begin(), simClustersRefs.end(), [](const auto& a, const auto& b) {
               return a->simLCTime() < b->simLCTime();
@@ -986,7 +1004,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                 isTPmtdOtherBTL = true;
               }
             }
-          }
+          }*/
 
           // ==  Check if the track-cluster association is correct: Track->RecoMergedClus->SimMergedClus == Track->TP->SimMergedClus
           recoClusSize = recoClustersRefs.size();
@@ -1006,12 +1024,12 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                       std::find(simMergedClustersRefs.begin(), simMergedClustersRefs.end(), simMergedClusterRef_Match);
                   bool found = (simMergedClusterIt != simMergedClustersRefs.end());
                   if (optionalPlots_ && isTPmtdDirectBTL) {
-                    // simCluster matched to TP
-                    // NB we are taking the position and id of the first hit in the cluster.
-                    const auto& directSimClus = *directSimClusIt;
-                    MTDDetId mtddetid = directSimClus->detIds_and_rows().front().first;
+                    // simMergedCluster matched to TP
+                    // NB we are taking the position of the first direct MergedCluster associated
+                    const auto& directSimClus = directSimMergedClusRef;
+                    MTDDetId mtddetid = directSimClus->simDetId();
                     BTLDetId detid(mtddetid.rawId());
-                    LocalPoint simClusLocalPos = directSimClus->hits_and_positions().front().second;
+                    LocalPoint simClusLocalPos = directSimClus->simPos();
                     GlobalPoint simClusGlobalPos = geomUtil.globalPosition(detid, simClusLocalPos);
 
                     // simClusterRef_RecoMatch infos
@@ -1027,18 +1045,15 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                         (*simMergedClusterRef_Match->clusters().begin())->hitProdType();
                     simClusterRef_RecoMatch_DeltaZ = simClusRecoMatchGlobalPos.z() - simClusGlobalPos.z();
                     simClusterRef_RecoMatch_DeltaPhi = simClusRecoMatchGlobalPos.phi() - simClusGlobalPos.phi();
-                    simClusterRef_RecoMatch_DeltaT = simMergedClusterRef_Match->simTime() - directSimClus->simLCTime();
+                    simClusterRef_RecoMatch_DeltaT = simMergedClusterRef_Match->simTime() - directSimClus->simTime();
                   }
                   if (found) {
                     isFromSameTP = true;
                     if (isBTL) {
-                      for (const auto& simLCRef_RecoMatch : simMergedClusterRef_Match->clusters()) {
-                        if (directSimClusIt != simClustersRefs.end() && simLCRef_RecoMatch == *directSimClusIt) {
-                          isTPmtdDirectCorrectBTL = true;
-
-                        } else if (simLCRef_RecoMatch->hitProdType() != 0) {
-                          isTPmtdOtherCorrectBTL = true;
-                        }
+                      if (simMergedClusterRef_Match == directSimMergedClusRef) {
+                        isTPmtdDirectCorrectBTL = true;
+                      } else if (simMergedClusterRef_Match->hitProdType() != 0) {
+                        isTPmtdOtherCorrectBTL = true;
                       }
                       if (isTPmtdDirectCorrectBTL) {
                         simClusterEarliestTime_correctAssoc =
@@ -3358,6 +3373,16 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                                                         50,
                                                         -5.,
                                                         5.);
+
+  meHitProdTypeMismatchVsEta_ =
+      ibook.bookProfile("HitProdTypeMismatchVsEta",
+                        "Hit vs Seed Prod Type Mismatch Fraction vs |#eta|; |#eta|; Mismatch Fraction",
+                        20,
+                        0.0,
+                        1.5,
+                        -0.1,
+                        1.1,
+                        "");
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

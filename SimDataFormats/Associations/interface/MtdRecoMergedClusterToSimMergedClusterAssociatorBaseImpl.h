@@ -24,12 +24,16 @@ namespace reco {
     virtual reco::MergedRecoToSimCollectionMtd associateRecoToSim(
         const edm::Handle<FTLMergedClusterCollection> &btlRecoClusH,
         const edm::Handle<FTLMergedClusterCollection> &etlRecoClusH,
+        const edm::Handle<edmNew::DetSetVector<std::vector<FTLClusterRef>>> &btlConstituentsH,
+        const edm::Handle<edmNew::DetSetVector<std::vector<FTLClusterRef>>> &etlConstituentsH,
         const edm::Handle<MtdSimMergedClusterCollection> &simClusH) const;
 
     /// Associate MtdSimMergedClusters to MtdRecoMergedClusters
     virtual reco::MergedSimToRecoCollectionMtd associateSimToReco(
         const edm::Handle<FTLMergedClusterCollection> &btlRecoClusH,
         const edm::Handle<FTLMergedClusterCollection> &etlRecoClusH,
+        const edm::Handle<edmNew::DetSetVector<std::vector<FTLClusterRef>>> &btlConstituentsH,
+        const edm::Handle<edmNew::DetSetVector<std::vector<FTLClusterRef>>> &etlConstituentsH,
         const edm::Handle<MtdSimMergedClusterCollection> &simClusH) const;
   };
 }  // namespace reco

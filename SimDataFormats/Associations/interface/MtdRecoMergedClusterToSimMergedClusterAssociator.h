@@ -31,16 +31,20 @@ namespace reco {
     reco::MergedRecoToSimCollectionMtd associateRecoToSim(
         const edm::Handle<FTLMergedClusterCollection> &btlRecoClusH,
         const edm::Handle<FTLMergedClusterCollection> &etlRecoClusH,
+        const edm::Handle<edmNew::DetSetVector<std::vector<FTLClusterRef>>> &btlConstituentsH,
+        const edm::Handle<edmNew::DetSetVector<std::vector<FTLClusterRef>>> &etlConstituentsH,
         const edm::Handle<MtdSimMergedClusterCollection> &simClusH) const {
-      return m_impl->associateRecoToSim(btlRecoClusH, etlRecoClusH, simClusH);
+      return m_impl->associateRecoToSim(btlRecoClusH, etlRecoClusH, btlConstituentsH, etlConstituentsH, simClusH);
     };
 
     /// Associate MtdSimMergedCluster to RecoMergedCluster
     reco::MergedSimToRecoCollectionMtd associateSimToReco(
         const edm::Handle<FTLMergedClusterCollection> &btlRecoClusH,
         const edm::Handle<FTLMergedClusterCollection> &etlRecoClusH,
+        const edm::Handle<edmNew::DetSetVector<std::vector<FTLClusterRef>>> &btlConstituentsH,
+        const edm::Handle<edmNew::DetSetVector<std::vector<FTLClusterRef>>> &etlConstituentsH,
         const edm::Handle<MtdSimMergedClusterCollection> &simClusH) const {
-      return m_impl->associateSimToReco(btlRecoClusH, etlRecoClusH, simClusH);
+      return m_impl->associateSimToReco(btlRecoClusH, etlRecoClusH, btlConstituentsH, etlConstituentsH, simClusH);
     };
 
   private:
