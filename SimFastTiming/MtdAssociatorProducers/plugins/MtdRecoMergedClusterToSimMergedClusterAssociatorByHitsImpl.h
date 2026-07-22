@@ -21,11 +21,15 @@ public:
   reco::MergedRecoToSimCollectionMtd associateRecoToSim(
       const edm::Handle<FTLMergedClusterCollection> &btlRecoClusH,
       const edm::Handle<FTLMergedClusterCollection> &etlRecoClusH,
+      const edm::Handle<edmNew::DetSetVector<std::vector<FTLClusterRef>>> &btlConstituentsH,
+      const edm::Handle<edmNew::DetSetVector<std::vector<FTLClusterRef>>> &etlConstituentsH,
       const edm::Handle<MtdSimMergedClusterCollection> &simClusH) const override;
 
   reco::MergedSimToRecoCollectionMtd associateSimToReco(
       const edm::Handle<FTLMergedClusterCollection> &btlRecoClusH,
       const edm::Handle<FTLMergedClusterCollection> &etlRecoClusH,
+      const edm::Handle<edmNew::DetSetVector<std::vector<FTLClusterRef>>> &btlConstituentsH,
+      const edm::Handle<edmNew::DetSetVector<std::vector<FTLClusterRef>>> &etlConstituentsH,
       const edm::Handle<MtdSimMergedClusterCollection> &simClusH) const override;
 
 private:
