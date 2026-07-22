@@ -1,0 +1,9 @@
+# runing LHCInfoPerFillWriter_cfg for creating payloads
+#in /CondTools/RunInfo/test
+cmsRun LHCInfoPerFillWriter_cfg.py size=5 db=sqlite:writer_simple_test.db 
+conddb --db writer_simple_test.db listTags
+conddb --db writer_simple_test.db list LHCInfoPerFillFake
+
+# running LHCInfoPerFill O2O as a payload size test
+cmsRun ../python/LHCInfoPerFillPopConAnalyzer_cfg.py mode=endFill destinationConnection=sqlite_file:popcon_simple_test.db size=5
+conddb --db popcon_simple_test.db list LHCInfoPerFill_PopCon_test
