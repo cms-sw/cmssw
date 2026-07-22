@@ -417,8 +417,6 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
             break;
           }
         }
-        if (matchClu)
-          break;
       }
 
       if (!matchClu) {
