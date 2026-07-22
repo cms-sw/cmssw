@@ -317,7 +317,7 @@ def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap
         scaleByDoseAlgo = cms.uint32(byDoseAlgo),
         scaleByDoseFactor = cms.double(byDoseFactor),
         doseMap = byDoseMap,
-        values = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] ), #100,200,300 um, to be deprecated
+        values = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] ), #120,200,300,HD200 um, to be deprecated
         )
 
     #this is to be deprecated
@@ -347,7 +347,7 @@ def HFNose_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMa
         values = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] ), #100,200,300 um
         )
 
-    phase2_hgcalV19.toModify(HFNose_noise_fC, values = [x*fC_per_ele for x in endOfLifeNoises_v19]) #100,200,300 um, to be deprecated
+    phase2_hgcalV19.toModify(process.HFNose_noise_fC, values = [x*fC_per_ele for x in endOfLifeNoises_v19]) #120,200,300,HD200 um, to be deprecated
     return process
 
 
