@@ -122,7 +122,7 @@ In this case the URL for the directory is 'http://cern.ch/foo/plots', where 'foo
 (This requires that your personal cern web page cern.ch/username is enabled)
 
 
-# Running via condor (outdated)
+# Running via condor
 
 Make sure datasets.py is already parsed above and there are input file lists under ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache. This is written assuming that you are running condor jobs on CERN lxplus, although with some modifications, the setup can be used with condor of other clusters.
 
@@ -131,11 +131,21 @@ cd ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test
 voms-proxy-init -voms cms
 cmsenv
 mkdir -p log
+# check/fix the number of input files in .jdl
 condor_submit condor_QCD.jdl
 ~~~
 
 The output files will appear /eos/cms/store/group/phys_pf/PFVal/QCD. You will want to make sure you are subscribed to cms-eos-phys-pf so that you have eos write access. There are jdl files for other datasets also.
 
+For other datasets
+
+~~~
+condor_submit condor_QCDPU.jdl
+for sample in NuGunPU TenTauPU ZEEPU ZMMPU; do
+    sed "s/QCDPU/${sample}/g" condor_QCDPU.jdl > condor_${sample}.jdl
+done
+# and condor_submit after checking the created .jdl
+~~~
 
 # Running via crab
 
@@ -165,7 +175,7 @@ Initialize CRAB environment if not done already:
 
 ~~~
 source /cvmfs/cms.cern.ch/crab3/crab.sh
-voms-proxy-init -voms cms
+voms-proxy-init -voms cms -valid 192:00
 cmsenv
 ~~~
 
@@ -215,7 +225,7 @@ or using the list of files from your crab output areas.
 cat step3_filelist.txt
 ~~~
 
-and run DQM modules and produce DQM root files (so-called step5 & 6):
+and run DQM modules based on the already-prepared filelist and produce DQM root files (so-called step5 & 6):
 ~~~
 $CMSSW_BASE/src/Validation/RecoParticleFlow/test/run_relval.sh [QCD|QCDPU|ZEEPU|ZMMPU|TenTauPU|NuGunPU] dqm2 0 [phase1|phase2]
 ~~~
@@ -226,5 +236,6 @@ $CMSSW_BASE/src/Validation/RecoParticleFlow/test/run_relval.sh [QCD|QCDPU|ZEEPU|
 cd $CMSSW_BASE/src/Validation/RecoParticleFlow/test/crab
 rm -Rf plots
 python3 $CMSSW_BASE/src/Validation/RecoParticleFlow/test/compare.py \
-    --sample FlatQCD_noPU:tmp/QCD/DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root:tmp/QCD/DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root \
-    --doResponsePlots --doMETPlots --doPFCandPlots
+    --sample FlatQCD_noPU:QCD/DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root:QCD/DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root \
+    --sample FlatQCD_PU:QCDPU/DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root:QCDPU/DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root \
+    --doResponsePlots --doMETPlots --doPFCandPlots --doOffsetPlots

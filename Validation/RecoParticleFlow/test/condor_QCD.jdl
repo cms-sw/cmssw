@@ -3,6 +3,8 @@ Universe = vanilla
 
 Executable = $ENV(CMSSW_BASE)/src/Validation/RecoParticleFlow/test/run_relval.sh
 Arguments = "QCD reco $(Process)"
+# When running in modes other than the default (default: phase1)
+#Arguments = "QCD reco $(Process) phase2-mlpf"
 
 Log = log/test.$(Cluster).log
 Output = log/test.out.$(Cluster).$(Process)
@@ -11,7 +13,9 @@ Environment = "CMSSW_BASE=$ENV(CMSSW_BASE)"
 
 RequestMemory = 20000
 RequestCpus = 8
- 
+# for MLPF, you may request GPU
+#request_gpus = 1
+
 #8h runtume
 +MaxRuntime = 28800
 +JobFlavour = "workday"
@@ -20,7 +24,7 @@ RequestCpus = 8
 +RunAsOwner = True
 +SleepSlot = True
 +InteractiveUser = true
-+SingularityImage = "/cvmfs/singularity.opensciencegrid.org/bbockelm/cms:rhel7"
++SingularityImage = "/cvmfs/singularity.opensciencegrid.org/cmssw/cms:rhel8"
 +SingularityBindCVMFS = True
 run_as_owner = True
 
@@ -29,8 +33,9 @@ x509userproxy = $ENV(X509_USER_PROXY)
 
 #transfer section
 transfer_output_files = QCD/step3.log,QCD/step3_inMINIAODSIM.root
-transfer_output_remaps = "step3.log=/eos/cms/store/group/phys_pf/PFVal/QCD/step3.$(Cluster).$(Process).log;step3_inMINIAODSIM.root=/eos/cms/store/group/phys_pf/PFVal/QCD/step3_inMINIAODSIM.$(Cluster).$(Process).root"
+transfer_output_remaps = "QCD/step3.log=root://eoscms.cern.ch//eos/cms/store/group/phys_pf/PFVal/QCD/step3.$(Cluster).$(Process).log;QCD/step3_inMINIAODSIM.root=root://eoscms.cern.ch//eos/cms/store/group/phys_pf/PFVal/QCD/step3_inMINIAODSIM.$(Cluster).$(Process).root"
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
 
+# Check number of input files
 Queue 50

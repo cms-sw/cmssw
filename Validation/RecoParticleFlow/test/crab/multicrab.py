@@ -16,7 +16,6 @@ def submit(config):
 samples = [
     (d["path"], d["name"])
     for d in dataset_configs
-    #if d["name"] in ["QCD_noPU"] # submit only QCD_noPU
     if d["name"] in ["QCD_noPU", "QCD_PU"] # submit only QCD_noPU & QCD_PU
 ]
 
@@ -25,9 +24,9 @@ if __name__ == "__main__":
 
         if os.path.isfile("step3_dump.pyc"):
             os.remove("step3_dump.pyc")
- 
+
         conf = config()
-        
+
         conf.General.requestName = name
         conf.General.transferLogs = True
         conf.General.workArea = 'crab_projects'
@@ -38,7 +37,7 @@ if __name__ == "__main__":
         conf.JobType.outputFiles = ["step3_inMINIAODSIM.root"]
         conf.JobType.maxMemoryMB = 20000
         conf.JobType.numCores = 8
-        
+
         conf.Data.inputDataset = dataset
         conf.Data.splitting = 'FileBased'
         conf.Data.unitsPerJob = 1
@@ -46,11 +45,20 @@ if __name__ == "__main__":
         conf.Data.publication = False
         conf.Data.outputDatasetTag = 'pfvalidation'
         #conf.Data.ignoreLocality = True
-        
+
         # Where the output files will be transmitted to
         conf.Site.storageSite = 'T3_US_Baylor'
         #conf.Site.storageSite = 'T2_US_Caltech'
         #conf.Site.whitelist = ["T2_US_Caltech", "T2_CH_CERN"]
         #conf.Site.whitelist = ["T3_US_Baylor"]
-        
-        submit(conf) 
+
+        # important to use GPU when running mlpf in particular for high PU events
+        # conf.Site.requireAccelerator = True
+        # conf.Site.acceleratorParams = {
+        #     "GPUMemoryMB": "4000",
+        #     "GPUMinimumCapability": "7.0",
+        #     "GPUMaximumCapability": "8.0",
+        #     "GPURuntime": "12.1"
+        #     }
+
+        submit(conf)

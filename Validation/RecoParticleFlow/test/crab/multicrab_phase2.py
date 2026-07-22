@@ -51,4 +51,13 @@ if __name__ == "__main__":
         #conf.Site.storageSite = 'T2_US_Caltech'
         #conf.Site.whitelist = ["T2_US_Caltech", "T2_CH_CERN"]
 
+        # important to use GPU when running mlpf in particular for high PU events
+        # conf.Site.requireAccelerator = True
+        # conf.Site.acceleratorParams = {
+        #     "GPUMemoryMB": "4000",
+        #     "GPUMinimumCapability": "7.0",
+        #     "GPUMaximumCapability": "8.0",
+        #     "GPURuntime": "12.1"
+        #     }
+
         submit(conf)
