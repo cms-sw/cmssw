@@ -52,10 +52,11 @@ TEST_CASE("Construct and fill an association map") {
                                     map.view(),
                                     std::span<const uint32_t>{device_associations.data(), nvalues},
                                     std::span<const uint32_t>{device_values.data(), nvalues});
-      auto offsets = cms::alpakatools::make_host_buffer<uint32_t[]>(queue, nkeys);
+      auto offsets = cms::alpakatools::make_host_buffer<uint32_t[]>(queue, nkeys + 1);
       auto values = cms::alpakatools::make_host_buffer<uint32_t[]>(queue, nvalues);
-      alpaka::memcpy(
-          queue, offsets, cms::alpakatools::make_device_view(queue, map.view().offsets().keys_offsets().data(), nkeys));
+      alpaka::memcpy(queue,
+                     offsets,
+                     cms::alpakatools::make_device_view(queue, map.view().offsets().keys_offsets().data(), nkeys + 1));
       alpaka::memcpy(
           queue, values, cms::alpakatools::make_device_view(queue, map.view().content().values().data(), nvalues));
 
@@ -72,8 +73,9 @@ TEST_CASE("Construct and fill an association map") {
       CHECK(*host_result);
 
       // check content back on CPU
-      CHECK(offsets[0] == 50);
-      CHECK(offsets[1] == 100);
+      CHECK(offsets[0] == 0);
+      CHECK(offsets[1] == 50);
+      CHECK(offsets[2] == 100);
       for (auto i = 0u; i < nvalues; ++i) {
         if (i < nvalues / 2) {
           CHECK(values[i] % 2 != 0);
@@ -103,10 +105,11 @@ TEST_CASE("Construct and fill an association map") {
                                     map.view(),
                                     std::span<const int>{device_associations.data(), static_cast<std::size_t>(nvalues)},
                                     std::span<const int>{device_values.data(), static_cast<std::size_t>(nvalues)});
-      auto offsets = cms::alpakatools::make_host_buffer<int[]>(queue, nkeys);
+      auto offsets = cms::alpakatools::make_host_buffer<int[]>(queue, nkeys + 1);
       auto values = cms::alpakatools::make_host_buffer<int[]>(queue, nvalues);
-      alpaka::memcpy(
-          queue, offsets, cms::alpakatools::make_device_view(queue, map.view().offsets().keys_offsets().data(), nkeys));
+      alpaka::memcpy(queue,
+                     offsets,
+                     cms::alpakatools::make_device_view(queue, map.view().offsets().keys_offsets().data(), nkeys + 1));
       alpaka::memcpy(
           queue, values, cms::alpakatools::make_device_view(queue, map.view().content().values().data(), nvalues));
 
@@ -123,8 +126,9 @@ TEST_CASE("Construct and fill an association map") {
       CHECK(*host_result);
 
       // check content back on CPU
-      CHECK(offsets[0] == 50);
-      CHECK(offsets[1] == 100);
+      CHECK(offsets[0] == 0);
+      CHECK(offsets[1] == 50);
+      CHECK(offsets[2] == 100);
       for (auto i = 0u; i < nvalues; ++i) {
         if (i < nvalues / 2) {
           CHECK(values[i] % 2 != 0);

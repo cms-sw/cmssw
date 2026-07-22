@@ -75,8 +75,8 @@ namespace ticl::associator::detail {
                        warp_size);
 
     alpaka::memcpy(queue,
-                   make_device_view(queue, map.offsets().keys_offsets().data(), nkeys),
-                   make_device_view(queue, temp_offsets.data() + 1, nkeys));
+                   make_device_view(queue, map.offsets().keys_offsets().data(), nkeys + 1),
+                   make_device_view(queue, temp_offsets.data(), nkeys + 1));
     alpaka::exec<TAcc>(queue, workdiv, KernelFillAssociator{}, map, keys, values, temp_offsets.data());
   }
 
