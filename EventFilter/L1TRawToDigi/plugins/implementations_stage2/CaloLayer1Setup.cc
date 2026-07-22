@@ -19,6 +19,7 @@ namespace l1t {
       desc.addOptional<edm::InputTag>("ecalDigis");
       desc.addOptional<edm::InputTag>("hcalDigis");
       desc.addOptional<edm::InputTag>("caloRegions");
+      desc.addOptional<edm::InputTag>("CICADAScore");
     }
 
     PackerMap CaloLayer1Setup::getPackers(int fed, unsigned int fw) {
@@ -37,6 +38,8 @@ namespace l1t {
         res[{2, 15}] = {PackerFactory::get()->make("stage2::CaloLayer1Packer")};
         res[{3, 16}] = {PackerFactory::get()->make("stage2::CaloLayer1Packer")};
         res[{5, 17}] = {PackerFactory::get()->make("stage2::CaloLayer1Packer")};
+        // CICADA board
+        res[{7, 0}] = {PackerFactory::get()->make("stage2::CICADAPacker")};
         res[{8, 0}] = {PackerFactory::get()->make("stage2::CaloLayer1Packer")};
         res[{9, 1}] = {PackerFactory::get()->make("stage2::CaloLayer1Packer")};
         res[{11, 2}] = {PackerFactory::get()->make("stage2::CaloLayer1Packer")};
