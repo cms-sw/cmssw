@@ -58,7 +58,7 @@ reco::MergedRecoToSimCollectionMtd MtdRecoMergedClusterToSimMergedClusterAssocia
 
         LogDebug("MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl")
             << "RecoCluster: " << recoMergedClusterRef.key()
-            << " with nComponents=" << recoMergedClus.clusterRefs().size();
+            << " with size=" << recoMergedClus.size();
 
         LogDebug("MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl")
             << "Reco cluster : " << recoMergedClus.id();
