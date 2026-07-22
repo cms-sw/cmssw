@@ -972,6 +972,20 @@ namespace cms::soa::detail {
     }
   };
 
+  // Helper type trait for obtaining the underlying type of an enum, or the type itself if it's not an enum
+  template <typename T>
+  struct EnumTraits {
+    using type = T;
+    using value_type = T;
+  };
+
+  template <typename T>
+    requires std::is_enum_v<T>
+  struct EnumTraits<T> {
+    using type = T;
+    using value_type = std::underlying_type_t<T>;
+  };
+
   // Helper type trait for obtaining a span type for a column
   template <typename ColumnType>
   struct GetSpanType;
