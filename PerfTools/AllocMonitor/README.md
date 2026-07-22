@@ -3,7 +3,7 @@
 ## Introduction
 
 This package works with the PerfTools/AllocMonitorPreload package to provide a general facility to watch allocations and deallocations.
-This is accomplished by using LD_PRELOAD with libPerfToolsAllocMonitorPreload.so and registering a class inheriting from `AllocMonotorBase`
+This is accomplished by setting `LD_PRELOAD=libPerfToolsAllocMonitorPreload.so` environment variable and registering a class inheriting from `AllocMonitorBase`
 with `AllocMonitorRegistry`. The preloaded library puts in proxies for the C and C++ allocation methods (and forwards the calls to the
 original job methods). These proxies communicate with `AllocMonitorRegistry` which, in turn, call methods of the registered monitors.
 
@@ -128,7 +128,7 @@ This service registers a monitor when the service is created (after python parsi
 have been loaded into cmsRun) and writes module related information to the specified file. The file name, an optional
 list of module names, and  an optional number of initial events to skip are specified by setting parameters of the
 service in the configuration. The parameters are
-- `filename`: name of file to which to write reports
+- `fileName`: name of file to which to write reports
 - `moduleNames`: list of modules which should have their information added to the file. An empty list specifies all modules should be included.
 - `skippedModuleNames`: list of module which should have their information skipped. 
 - `nEventsToSkip`: the number of initial events that must be processed before reporting happens.
@@ -146,7 +146,7 @@ deallocation using the same address. The list of addresses are kept until the ev
 time the dallocations are paired with allocations done in a module. The list of addresses are then cleared (to keep memory usage down) but the amount of unassociated deallocations for each module is recorded per event.
 The file name, an optional list of module names, and  an optional number of initial events to skip are specified by setting parameters of the
 service in the configuration. The parameters are
-- `filename`: name of file to which to write reports
+- `fileName`: name of file to which to write reports
 - `moduleNames`: list of modules which should have their information added to the file. An empty list specifies all modules should be included.
 - `nEventsToSkip`: the number of initial events that must be processed before reporting happens.
 
