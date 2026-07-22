@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_phase2_hgcalV19_cff import phase2_hgcalV19
 from ..psets.hgcal_reco_constants_cfi import HGCAL_reco_constants as HGCAL_reco_constants
 
 hltHgcalLayerClustersHSi = cms.EDProducer("HGCalLayerClusterProducer",
@@ -33,3 +34,5 @@ hltHgcalLayerClustersHSi = cms.EDProducer("HGCalLayerClusterProducer",
     recHits = cms.InputTag("hltHGCalRecHit","HGCHEFRecHits"),
     timeClname = cms.string('timeLayerCluster')
 )
+#four silicon thickness slots in v19: the CE-H offset moves from 3 to 4
+phase2_hgcalV19.toModify(hltHgcalLayerClustersHSi, plugin = dict(deltasi_index_regemfac = 4))
