@@ -71,9 +71,6 @@ private:
 
   struct RecHitME {
     MonitorElement* numberRecHits = nullptr;
-    MonitorElement* globalPosXY = nullptr;
-    MonitorElement* globalPosRZ = nullptr;
-    MonitorElement* localPosXY = nullptr;
     MonitorElement* posX = nullptr;
     MonitorElement* posY = nullptr;
     MonitorElement* poserrX = nullptr;
@@ -105,7 +102,7 @@ void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent) {
   if (!rechits.isValid())
     return;
   std::map<std::string, unsigned int> nrechitLayerMap;
-  unsigned long int nTotrechitsinevt = 0;
+  unsigned long int nRechitsInEvent = 0;
   // Loop over modules
   for (const auto& DSViter : *rechits) {
     // Get the detector id
@@ -115,18 +112,16 @@ void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent) {
     const GeomDetUnit* geomDetunit(tkGeom_->idToDetUnit(detId));
     if (!geomDetunit)
       continue;
-    std::string key = phase2tkutil::getITHistoId(detId.rawId(), tTopo_);
-    nTotrechitsinevt += DSViter.size();
-    auto counterDet = nrechitLayerMap.find(key);
-    if (nrechitLayerMap.find(key) == nrechitLayerMap.end()) {
-      nrechitLayerMap.emplace(key, DSViter.size());
-    } else
-      counterDet->second += DSViter.size();
 
+    GlobalPoint detPos = geomDetunit->surface().toGlobal(Local2DPoint(0, 0));
+    nRechitsInEvent += DSViter.size();
+    int nRecHits = 0;
     //loop over rechits for a single detId
     for (const auto& rechit : DSViter) {
       LocalPoint lp = rechit.localPosition();
       Global3DPoint globalPos = geomDetunit->surface().toGlobal(lp);
+      float eta = geomDetunit->surface().toGlobal(lp).eta();
+      nRecHits++;
       //in mm
       double gx = globalPos.x() * 10.;
       double gy = globalPos.y() * 10.;
@@ -140,31 +135,43 @@ void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent) {
         globalXY_endcap_->Fill(gx, gy);
         globalRZ_endcap_->Fill(gz, gr);
       }
-      //layer wise histo
-      if (layerMEs_[key].clusterSizeX)
-        layerMEs_[key].clusterSizeX->Fill(rechit.cluster()->sizeX());
-      if (layerMEs_[key].clusterSizeY)
-        layerMEs_[key].clusterSizeY->Fill(rechit.cluster()->sizeY());
-      if (layerMEs_[key].globalPosXY)
-        layerMEs_[key].globalPosXY->Fill(gx, gy);
-      if (layerMEs_[key].globalPosRZ)
-        layerMEs_[key].globalPosRZ->Fill(gz, gr);
-      if (layerMEs_[key].localPosXY)
-        layerMEs_[key].localPosXY->Fill(lp.x(), lp.y());
-      if (layerMEs_[key].posX)
-        layerMEs_[key].posX->Fill(lp.x());
-      if (layerMEs_[key].posY)
-        layerMEs_[key].posY->Fill(lp.y());
-      float eta = geomDetunit->surface().toGlobal(lp).eta();
-      if (layerMEs_[key].poserrX)
-        layerMEs_[key].poserrX->Fill(eta, million * rechit.localPositionError().xx());
-      if (layerMEs_[key].poserrY)
-        layerMEs_[key].poserrY->Fill(eta, million * rechit.localPositionError().yy());
+      // Workaround for filling layer histograms in both Ring<> and Wheel<>
+      bool isEndcap = (detId.subdetId() != PixelSubdetector::PixelBarrel);
+      for (int booking = 1; booking < 2 + isEndcap; booking++) {
+        // Will loop twice if the module is an EndCap module
+        // The default key divides endcaps into F/EPixs and Rings
+        // in second loop  endcaps will be divided into F/EPix and Wheels
+        std::string key = (booking == 2 ? phase2tkutil::getITHistoWheelId(detId.rawId(), tTopo_, detPos.phi())
+                                        : phase2tkutil::getITHistoId(detId.rawId(), tTopo_, detPos.phi()));
+
+        if (layerMEs_[key].clusterSizeX)
+          layerMEs_[key].clusterSizeX->Fill(rechit.cluster()->sizeX());
+        if (layerMEs_[key].clusterSizeY)
+          layerMEs_[key].clusterSizeY->Fill(rechit.cluster()->sizeY());
+        if (layerMEs_[key].posX)
+          layerMEs_[key].posX->Fill(lp.x());
+        if (layerMEs_[key].posY)
+          layerMEs_[key].posY->Fill(lp.y());
+        if (layerMEs_[key].poserrX)
+          layerMEs_[key].poserrX->Fill(eta, million * rechit.localPositionError().xx());
+        if (layerMEs_[key].poserrY)
+          layerMEs_[key].poserrY->Fill(eta, million * rechit.localPositionError().yy());
+
+        if (nRecHits == int(DSViter.size())) {
+          // Reached the end of rechits in this Det
+          // Fill any histos that should only be filled once per det
+          auto counterDet = nrechitLayerMap.find(key);
+          if (counterDet == nrechitLayerMap.end()) {
+            nrechitLayerMap.emplace(key, DSViter.size());
+          } else
+            counterDet->second += DSViter.size();
+        }
+      }  // End layer ME filling loop
     }  //end loop over rechits of a detId
   }  //End loop over DetSetVector
 
   //fill nRecHits per event
-  numberRecHits_->Fill(nTotrechitsinevt);
+  numberRecHits_->Fill(nRechitsInEvent);
   //fill nRecHit counter per layer
   for (const auto& lme : nrechitLayerMap)
     if (layerMEs_[lme.first].numberRecHits)
@@ -188,6 +195,7 @@ void Phase2ITMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
   numberRecHits_ =
       phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalNumberRecHits"), ibooker);
 
+  ibooker.setCurrentFolder(dir + "/Positions");
   globalXY_barrel_ =
       phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_PXB"), ibooker);
 
@@ -209,51 +217,58 @@ void Phase2ITMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
             det_u->subDetector() == GeomDetEnumerators::SubDetector::P2PXEC))
         continue;
       unsigned int detId_raw = det_u->geographicalId().rawId();
-      edm::LogInfo("Phase2ITMonitorRecHit") << "Detid:" << detId_raw << "\tsubdet=" << det_u->subDetector()
-                                            << "\t key=" << phase2tkutil::getITHistoId(detId_raw, tTopo_) << std::endl;
+      GlobalPoint detPos = det_u->surface().toGlobal(Local2DPoint(0, 0));
+      edm::LogInfo("Phase2ITMonitorRecHit")
+          << "Detid:" << detId_raw << "\tsubdet=" << det_u->subDetector()
+          << "\t key=" << phase2tkutil::getITHistoId(detId_raw, tTopo_, detPos.phi()) << std::endl;
       bookLayerHistos(ibooker, detId_raw, dir);
     }
   }
 }
 // -- Book Layer Histograms
 void Phase2ITMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir) {
-  std::string key = phase2tkutil::getITHistoId(det_id, tTopo_);
-  if (key.empty())
-    return;
-  if (layerMEs_.find(key) == layerMEs_.end()) {
-    ibooker.cd();
-    RecHitME local_histos;
-    ibooker.setCurrentFolder(subdir + "/" + key);
-    edm::LogInfo("Phase2ITMonitorRecHit") << " Booking Histograms in : " << (subdir + "/" + key);
+  const GeomDetUnit* geomDetUnit = tkGeom_->idToDetUnit(det_id);
+  GlobalPoint detPos = geomDetUnit->surface().toGlobal(Local2DPoint(0, 0));
+  // Workaround for booking same histogram for Ring<> and Wheel<>
+  bool isEndcap = (DetId(det_id).subdetId() != PixelSubdetector::PixelBarrel);
+  for (int booking = 1; booking < 2 + isEndcap; booking++) {
+    // Will loop twice if the module is an EndCap module
+    // By default, the "key" divides endcaps into F/Epix and Rings
+    // During first loop, the default key is used
+    // In the second loop, the Wheel key is used
+    // all layer-wise histograms will be booked in Wheels as well as Rings
+    std::string key = (booking == 2 ? phase2tkutil::getITHistoWheelId(det_id, tTopo_, detPos.phi())
+                                    : phase2tkutil::getITHistoId(det_id, tTopo_, detPos.phi()));
 
-    local_histos.numberRecHits =
-        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("LocalNumberRecHits"), ibooker);
+    if (key.empty())
+      return;
+    if (layerMEs_.find(key) == layerMEs_.end()) {
+      ibooker.cd();
+      RecHitME local_histos;
+      ibooker.setCurrentFolder(subdir + "/" + key);
+      edm::LogInfo("Phase2ITMonitorRecHit") << " Booking Histograms in : " << (subdir + "/" + key);
 
-    local_histos.posX = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitPosX"), ibooker);
+      local_histos.numberRecHits =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("LocalNumberRecHits"), ibooker);
 
-    local_histos.posY = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitPosY"), ibooker);
+      local_histos.posX = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitPosX"), ibooker);
 
-    local_histos.poserrX =
-        phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitPosErrorX_Eta"), ibooker);
+      local_histos.posY = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitPosY"), ibooker);
 
-    local_histos.poserrY =
-        phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitPosErrorY_Eta"), ibooker);
+      local_histos.poserrX =
+          phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitPosErrorX_Eta"), ibooker);
 
-    local_histos.clusterSizeX =
-        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("LocalClusterSizeX"), ibooker);
+      local_histos.poserrY =
+          phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitPosErrorY_Eta"), ibooker);
 
-    local_histos.clusterSizeY =
-        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("LocalClusterSizeY"), ibooker);
+      local_histos.clusterSizeX =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("LocalClusterSizeX"), ibooker);
 
-    local_histos.globalPosXY =
-        phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_perlayer"), ibooker);
+      local_histos.clusterSizeY =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("LocalClusterSizeY"), ibooker);
 
-    local_histos.globalPosRZ =
-        phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionRZ_perlayer"), ibooker);
-
-    local_histos.localPosXY =
-        phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("LocalPositionXY"), ibooker);
-    layerMEs_.emplace(key, local_histos);
+      layerMEs_.emplace(key, local_histos);
+    }
   }
 }
 
@@ -262,7 +277,7 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   edm::ParameterSetDescription desc;
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "NumberRecHits");
+    psd0.add<std::string>("name", "Num_RecHits");
     psd0.add<std::string>("title", "NumberRecHits;Number of RecHits;");
     psd0.add<double>("xmin", 0.0);
     psd0.add<bool>("switch", true);
@@ -272,8 +287,8 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Global_Position_RZ_IT_barrel");
-    psd0.add<std::string>("title", "Global_Position_RZ_IT_barrel;z [mm];r [mm]");
+    psd0.add<std::string>("name", "RecHit_Global_Position_RZ_IT_barrel");
+    psd0.add<std::string>("title", "RecHit_Global_Position_RZ_IT_barrel;z [mm];r [mm]");
     psd0.add<double>("ymax", 300.0);
     psd0.add<int>("NxBins", 1500);
     psd0.add<int>("NyBins", 300);
@@ -285,8 +300,8 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Global_Position_XY_IT_barrel");
-    psd0.add<std::string>("title", "Global_Position_XY_IT_barrel;x [mm];y [mm];");
+    psd0.add<std::string>("name", "RecHit_Global_Position_XY_IT_barrel");
+    psd0.add<std::string>("title", "RecHit_Global_Position_XY_IT_barrel;x [mm];y [mm];");
     psd0.add<double>("ymax", 300.0);
     psd0.add<int>("NxBins", 600);
     psd0.add<int>("NyBins", 600);
@@ -298,8 +313,8 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Global_Position_RZ_IT_endcap");
-    psd0.add<std::string>("title", "Global_Position_RZ_IT_endcap;z [mm];r [mm]");
+    psd0.add<std::string>("name", "RecHit_Global_Position_RZ_IT_endcap");
+    psd0.add<std::string>("title", "RecHit_Global_Position_RZ_IT_endcap;z [mm];r [mm]");
     psd0.add<double>("ymax", 300.0);
     psd0.add<int>("NxBins", 1500);
     psd0.add<int>("NyBins", 300);
@@ -311,8 +326,8 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Global_Position_XY_IT_endcap");
-    psd0.add<std::string>("title", "Global_Position_XY_IT_endcap; x [mm]; y [mm]");
+    psd0.add<std::string>("name", "RecHit_Global_Position_XY_IT_endcap");
+    psd0.add<std::string>("title", "RecHit_Global_Position_XY_IT_endcap; x [mm]; y [mm]");
     psd0.add<double>("ymax", 300.0);
     psd0.add<int>("NxBins", 600);
     psd0.add<int>("NyBins", 600);
@@ -325,7 +340,7 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   //Per layer/ring histos
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "LocalNumberRecHits");
+    psd0.add<std::string>("name", "Num_RecHits_Per_Layer");
     psd0.add<std::string>("title", "NumberRecHits;Number of RecHits;");
     psd0.add<double>("xmin", 0.0);
     psd0.add<bool>("switch", true);
@@ -335,47 +350,8 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Global_Position_RZ");
-    psd0.add<std::string>("title", "Global_Position_RZ;z [mm];r [mm]");
-    psd0.add<double>("ymax", 300.0);
-    psd0.add<int>("NxBins", 1500);
-    psd0.add<int>("NyBins", 300);
-    psd0.add<bool>("switch", false);
-    psd0.add<double>("xmax", 3000.0);
-    psd0.add<double>("xmin", -3000.0);
-    psd0.add<double>("ymin", 0.0);
-    desc.add<edm::ParameterSetDescription>("GlobalPositionRZ_perlayer", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Global_Position_XY");
-    psd0.add<std::string>("title", "Global_Position_XY;x [mm]; y[mm]");
-    psd0.add<double>("ymax", 300.0);
-    psd0.add<int>("NxBins", 600);
-    psd0.add<int>("NyBins", 600);
-    psd0.add<bool>("switch", false);
-    psd0.add<double>("xmax", 300.0);
-    psd0.add<double>("xmin", -300.0);
-    psd0.add<double>("ymin", -300.0);
-    desc.add<edm::ParameterSetDescription>("GlobalPositionXY_perlayer", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Local_Position_XY");
-    psd0.add<std::string>("title", "Local_Position_XY; x; y");
-    psd0.add<double>("ymax", 0.0);
-    psd0.add<int>("NxBins", 500);
-    psd0.add<int>("NyBins", 500);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 0.0);
-    psd0.add<double>("xmin", 0.0);
-    psd0.add<double>("ymin", 0.0);
-    desc.add<edm::ParameterSetDescription>("LocalPositionXY", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Cluster_SizeX");
-    psd0.add<std::string>("title", "Cluster_SizeX; cluster size x;");
+    psd0.add<std::string>("name", "RecHit_Size_X");
+    psd0.add<std::string>("title", "RecHit_SizeX; cluster size x;");
     psd0.add<double>("xmin", -0.5);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 20.5);
@@ -384,8 +360,8 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Cluster_SizeY");
-    psd0.add<std::string>("title", "Cluster_SizeY;cluster size y;");
+    psd0.add<std::string>("name", "RecHit_Size_Y");
+    psd0.add<std::string>("title", "RecHit_SizeY;cluster size y;");
     psd0.add<double>("xmin", -0.5);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 25.5);
@@ -436,7 +412,7 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
     psd0.add<double>("ymin", 0.);
     desc.add<edm::ParameterSetDescription>("RecHitPosErrorY_Eta", psd0);
   }
-  desc.add<std::string>("TopFolderName", "TrackerPhase2ITRecHit");
+  desc.add<std::string>("TopFolderName", "InnerTracker");
   desc.add<edm::InputTag>("rechitsSrc", edm::InputTag("siPixelRecHits"));
   descriptions.add("Phase2ITMonitorRecHit", desc);
 }
