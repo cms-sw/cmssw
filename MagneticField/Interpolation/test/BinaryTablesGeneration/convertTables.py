@@ -1,12 +1,20 @@
-#!/bin/env python
+#!/bin/env python3
 
 import os
 
 # Path of the input tables
-INPUTPATH = '/afs/cern.ch/cms/OO/mag_field/versions_new/version_18l_160812_3_8t_v9_small_fin'
-#INPUTPATH = '/afs/cern.ch/cms/OO/mag_field/versions_new/version_18l_160812_3t_v9_large_fin'
-#INPUTPATH = '/afs/cern.ch/cms/OO/mag_field/versions_new/version_18l_160812_3_5t_v9_large_fin'
-#INPUTPATH = '/afs/cern.ch/cms/OO/mag_field/versions_new/version_18l_160812_3_8t_v9_large_fin'
+#INPUTPATH = '/eos/cms/store/group/alca_magfield/FieldMapVersions/versions_new/version_18l_170812_3_8t_v9_small_fin'
+INPUTPATH = '/eos/cms/store/group/alca_magfield/FieldMapVersions/versions_new/version_18l_170812_3_8t_v9_large_fin'
+#INPUTPATH = '/eos/cms/store/group/alca_magfield/FieldMapVersions/versions_new/version_18l_170812_3_5t_v9_large_fin'
+#INPUTPATH = '/eos/cms/store/group/alca_magfield/FieldMapVersions/versions_new/version_18l_170812_3t_v9_large_fin'
+#INPUTPATH = '/eos/cms/store/group/alca_magfield/FieldMapVersions/versions_new/version_18l_170812_2t_v9_large_fin'
+firstVol = 1
+lastVol = 464
+
+# Tables for 2006 configuration @SX5 (only first 5 tables, for the tracker region)
+#INPUTPATH = '/eos/cms/store/group/alca_magfield/FieldMapVersions/versions_new/version_18l_170812_3_8t_sx5_v9_small_fin'
+#firstVol = 1
+#lastVol = 10
 
 
 f = open('tableList.txt', 'w') #will write a list of tables here, for further validation scripts
@@ -14,7 +22,7 @@ for part in range (1, 3) :
     for sector in range (1, 13) :
         subdir = 's'+str(sector).zfill(2)
         os.system('mkdir -p '+subdir)
-        for volume in range (1, 465) :
+        for volume in range (firstVol, lastVol+1) :
             volNo=str(volume+1000*part)
             type='rpz' # for Tubs, Cone, TruncTubs
             if (volume>=138 and volume <= 402) :
