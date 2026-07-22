@@ -27,7 +27,7 @@ Activate reading files from remote locations and
 using dasgoclient for creating filelists in the next step
 
 ~~~
-voms-proxy-init -voms cms
+voms-proxy-init -voms cms -valid 192:00
 ~~~
 
 Create input file lists under test/tmp/das_cache
@@ -64,6 +64,10 @@ make QCD_reco PHASE=phase1-mlpf
 or
 ~~~
 make QCD_reco PHASE=phase2
+~~~
+or
+~~~
+make QCD_reco PHASE=phase2-mlpf
 ~~~
 
 Now let's do the DQM step that takes a few minutes
@@ -128,7 +132,7 @@ Make sure datasets.py is already parsed above and there are input file lists und
 
 ~~~
 cd ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test
-voms-proxy-init -voms cms
+voms-proxy-init -voms cms -valid 192:00
 cmsenv
 mkdir -p log
 # check/fix the number of input files in .jdl
@@ -164,6 +168,11 @@ make dumpconf PHASE=phase1
 or
 ~~~
 make conf PHASE=phase2
+make dumpconf PHASE=phase2
+~~~
+or
+~~~
+make conf PHASE=phase2-mlpf
 make dumpconf PHASE=phase2
 ~~~
 then
