@@ -1,3 +1,5 @@
+#define EDM_ML_DEBUG
+
 //---------------------------------------------------------------------------
 //! \class MTDClusterProducer
 //!
@@ -152,7 +154,7 @@ void MTDClusterProducer::run(const T& input, FTLClusterCollection& output) {
   clusterizer_->clusterize(input, geom_, topo_, output);
 
   LogDebug("MTDClusterProducer") << " Executing " << clusterMode_ << " resulted in " << output.size()
-                                 << " MTDClusters for " << input.size() << " Hits.";
+                                 << " MTDCluster DetSets for " << input.size() << " Hits.";
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

@@ -15,14 +15,14 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 # For playback pileup mode
-# process.load('SimGeneral.MixingModule.mix_POISSON_average_cfi')
-# process.load('Configuration.StandardSequences.Services_cff')
+#process.load('SimGeneral.MixingModule.mix_POISSON_average_cfi')
+#process.load('Configuration.StandardSequences.Services_cff')
 # Other statements
-# process.mix.input.nbPileupEvents.averageNumber = cms.double(200.000000)
-# process.mix.bunchspace = cms.int32(25)
-# process.mix.minBunch = cms.int32(-3)
-# process.mix.maxBunch = cms.int32(3)
-# process.mix.input.fileNames = cms.untracked.vstring([]) # MinBias, from step3 confif file
+#process.mix.input.nbPileupEvents.averageNumber = cms.double(200.000000)
+#process.mix.bunchspace = cms.int32(25)
+#process.mix.minBunch = cms.int32(-3)
+#process.mix.maxBunch = cms.int32(3)
+#process.mix.input.fileNames = cms.untracked.vstring([]) # MinBias, from step3 config file
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T35', '')
@@ -48,8 +48,8 @@ process.source = cms.Source("PoolSource",
 )
 
 # For playback pileup mode
-# process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")
-# process.mix.playback = True
+#process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")
+#process.mix.playback = True
 
 process.mix.digitizers = cms.PSet()
 for a in process.aliases: delattr(process, a)
@@ -67,6 +67,10 @@ process.load("Validation.MtdValidation.etlLocalRecoValid_cfi")
 etlValidation = cms.Sequence(process.etlSimHitsValid + process.etlDigiHitsValid + process.etlLocalRecoValid)
 
 # --- Associators for Merged Clusters
+process.load("SimFastTiming.MtdAssociatorProducers.mtdRecoClusterToSimLayerClusterAssociatorByHits_cfi")
+process.load("SimFastTiming.MtdAssociatorProducers.mtdRecoClusterToSimLayerClusterAssociation_cfi")
+process.load("SimFastTiming.MtdAssociatorProducers.mtdSimLayerClusterToTPAssociatorByTrackId_cfi")
+process.load("SimFastTiming.MtdAssociatorProducers.mtdSimLayerClusterToTPAssociation_cfi")
 process.load("SimFastTiming.MtdSimMergedClusterProducers.mtdSimMergedClusterProducer_cfi")
 process.load("SimFastTiming.MtdAssociatorProducers.mtdRecoMergedClusterToSimMergedClusterAssociation_cfi")
 process.load("SimFastTiming.MtdAssociatorProducers.mtdSimMergedClusterToTPAssociation_cfi")
@@ -77,6 +81,7 @@ process.load('SimFastTiming.MtdAssociatorProducers.mtdSimMergedClusterToTPAssoci
 # --- Global Validation
 process.load("Validation.MtdValidation.mtdTracksValid_cfi")
 process.load("Validation.MtdValidation.vertices4DValid_cff")
+process.load("Validation.MtdValidation.mtdMergedClusterValid_cfi")
 
 # process.btlSimHitsValid.optionalPlots = True
 # process.btlDigiHitsValid.optionalPlots = True
@@ -86,7 +91,7 @@ process.load("Validation.MtdValidation.vertices4DValid_cff")
 # process.mtdTracksValid.optionalPlots = True
 # process.vertices4DValid.optionalPlots = True
 
-process.validation = cms.Sequence(btlValidation + etlValidation + process.vertices4DValid + process.mtdTracksValid)
+process.validation = cms.Sequence(btlValidation + etlValidation + process.vertices4DValid + process.mtdTracksValid + process.mtdMergedClusterValid)
 
 process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
     dataset = cms.untracked.PSet(
@@ -98,7 +103,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
     splitLevel = cms.untracked.int32(0)
 )
 
-process.p = cms.Path( process.mix + process.mtdTrackingRecHits + process.mtdSimMergedClusterProducer + process.mtdRecoMergedClusterToSimMergedClusterAssociatorByHits + process.mtdSimMergedClusterToTPAssociatorByTrackId + process.mtdSimMergedClusterToTPAssociation + process.mtdRecoMergedClusterToSimMergedClusterAssociation + process.validation )
+process.p = cms.Path( process.mix + process.mtdTrackingRecHits + process.mtdRecoClusterToSimLayerClusterAssociatorByHits + process.mtdRecoClusterToSimLayerClusterAssociation + process.mtdSimLayerClusterToTPAssociatorByTrackId + process.mtdSimLayerClusterToTPAssociation + process.mtdSimMergedClusterProducer + process.mtdRecoMergedClusterToSimMergedClusterAssociatorByHits + process.mtdSimMergedClusterToTPAssociatorByTrackId + process.mtdSimMergedClusterToTPAssociation + process.mtdRecoMergedClusterToSimMergedClusterAssociation + process.validation )
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.DQMoutput_step = cms.EndPath( process.DQMoutput )
 

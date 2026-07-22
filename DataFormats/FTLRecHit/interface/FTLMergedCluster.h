@@ -42,7 +42,7 @@ public:
     listId.resize(std::distance(listId.begin(), it));
     return listId;
   }
-  
+
   size_t nClusters() const {
     if (hitsDetId_.size() == 1) {
       return 1;
@@ -101,7 +101,6 @@ private:
   float y_;
   float xError_;
   float yError_;
-
 
   std::vector<DetId> hitsDetId_;
   std::vector<uint8_t> hitsRowCol_;
