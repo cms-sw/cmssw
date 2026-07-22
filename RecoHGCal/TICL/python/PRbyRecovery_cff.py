@@ -36,7 +36,7 @@ ticlTrackstersRecovery = _trackstersProducer.clone(
       ),
       output_en = cms.vstring('enreg_output'),
       output_id = cms.vstring('pid_output'),
-      eid_min_cluster_energy = cms.double(1),
+      eid_min_cluster_energy = cms.float(1),
       eid_n_layers = cms.int32(50),
       eid_n_clusters = cms.int32(10),
       doPID = cms.int32(0),

@@ -16,7 +16,7 @@ namespace ticl {
     TracksterLinkingbyFastJet(const edm::ParameterSet& conf,
                               edm::ConsumesCollector iC,
                               cms::Ort::ONNXRuntime const* onnxRuntime = nullptr)
-        : TracksterLinkingAlgoBase(conf, iC), radius_(conf.getParameter<double>("radius")) {
+        : TracksterLinkingAlgoBase(conf, iC), radius_(conf.getParameter<float>("radius")) {
       // Cluster tracksters into jets using FastJet with configurable algorithm
       auto algo = conf.getParameter<int>("jet_algorithm");
 
@@ -51,7 +51,7 @@ namespace ticl {
       iDesc.add<int>("algo_verbosity", 0);
       iDesc.add<int>("jet_algorithm", 2)
           ->setComment("FastJet jet clustering algorithm: 0 = kt, 1 = Cambridge/Aachen, 2 = anti-kt");
-      iDesc.add<double>("radius", 0.1);
+      iDesc.add<float>("radius", 0.1);
     }
 
   private:

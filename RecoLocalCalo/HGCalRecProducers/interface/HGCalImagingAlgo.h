@@ -35,18 +35,18 @@ public:
       : HGCalClusteringAlgoBase(
             (HGCalClusteringAlgoBase::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity", 3),
             reco::CaloCluster::undefined),
-        thresholdW0_(ps.getParameter<std::vector<double>>("thresholdW0")),
+        thresholdW0_(ps.getParameter<std::vector<float>>("thresholdW0")),
         positionDeltaRho_c_(ps.getParameter<std::vector<double>>("positionDeltaRho_c")),
-        vecDeltas_(ps.getParameter<std::vector<double>>("deltac")),
-        kappa_(ps.getParameter<double>("kappa")),
-        ecut_(ps.getParameter<double>("ecut")),
+        vecDeltas_(ps.getParameter<std::vector<float>>("deltac")),
+        kappa_(ps.getParameter<float>("kappa")),
+        ecut_(ps.getParameter<float>("ecut")),
         sigma2_(1.0),
         dependSensor_(ps.getParameter<bool>("dependSensor")),
-        dEdXweights_(ps.getParameter<std::vector<double>>("dEdXweights")),
-        thicknessCorrection_(ps.getParameter<std::vector<double>>("thicknessCorrection")),
-        fcPerMip_(ps.getParameter<std::vector<double>>("fcPerMip")),
-        fcPerEle_(ps.getParameter<double>("fcPerEle")),
-        nonAgedNoises_(ps.getParameter<edm::ParameterSet>("noises").getParameter<std::vector<double>>("values")),
+        dEdXweights_(ps.getParameter<std::vector<float>>("dEdXweights")),
+        thicknessCorrection_(ps.getParameter<std::vector<float>>("thicknessCorrection")),
+        fcPerMip_(ps.getParameter<std::vector<float>>("fcPerMip")),
+        fcPerEle_(ps.getParameter<float>("fcPerEle")),
+        nonAgedNoises_(ps.getParameter<edm::ParameterSet>("noises").getParameter<std::vector<float>>("values")),
         noiseMip_(ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("noise_MIP")),
         initialized_(false) {}
 
@@ -88,24 +88,24 @@ public:
   Density getDensity() override;
 
   static void fillPSetDescription(edm::ParameterSetDescription &iDesc) {
-    iDesc.add<std::vector<double>>("thresholdW0", {2.9, 2.9, 2.9});
+    iDesc.add<std::vector<float>>("thresholdW0", {2.9, 2.9, 2.9});
     iDesc.add<std::vector<double>>("positionDeltaRho_c", {1.3, 1.3, 1.3});
-    iDesc.add<std::vector<double>>("deltac",
-                                   {
-                                       2.0,
-                                       2.0,
-                                       5.0,
-                                   });
+    iDesc.add<std::vector<float>>("deltac",
+                                  {
+                                      2.0,
+                                      2.0,
+                                      5.0,
+                                  });
     iDesc.add<bool>("dependSensor", true);
-    iDesc.add<double>("ecut", 3.0);
-    iDesc.add<double>("kappa", 9.0);
+    iDesc.add<float>("ecut", 3.0);
+    iDesc.add<float>("kappa", 9.0);
     iDesc.addUntracked<unsigned int>("verbosity", 3);
-    iDesc.add<std::vector<double>>("dEdXweights", {});
-    iDesc.add<std::vector<double>>("thicknessCorrection", {});
-    iDesc.add<std::vector<double>>("fcPerMip", {});
-    iDesc.add<double>("fcPerEle", 0.0);
+    iDesc.add<std::vector<float>>("dEdXweights", {});
+    iDesc.add<std::vector<float>>("thicknessCorrection", {});
+    iDesc.add<std::vector<float>>("fcPerMip", {});
+    iDesc.add<float>("fcPerEle", 0.0);
     edm::ParameterSetDescription descNestedNoises;
-    descNestedNoises.add<std::vector<double>>("values", {});
+    descNestedNoises.add<std::vector<float>>("values", {});
     iDesc.add<edm::ParameterSetDescription>("noises", descNestedNoises);
     edm::ParameterSetDescription descNestedNoiseMIP;
     descNestedNoiseMIP.add<bool>("scaleByDose", false);
@@ -122,15 +122,15 @@ public:
 
 private:
   // To compute the cluster position
-  std::vector<double> thresholdW0_;
+  std::vector<float> thresholdW0_;
   std::vector<double> positionDeltaRho_c_;
 
   // The two parameters used to identify clusters
-  std::vector<double> vecDeltas_;
-  double kappa_;
+  std::vector<float> vecDeltas_;
+  float kappa_;
 
   // The hit energy cutoff
-  double ecut_;
+  float ecut_;
 
   // for energy sharing
   double sigma2_;  // transverse shower size
@@ -143,11 +143,11 @@ private:
 
   // various parameters used for calculating the noise levels for a given sensor (and whether to use them)
   bool dependSensor_;
-  std::vector<double> dEdXweights_;
-  std::vector<double> thicknessCorrection_;
-  std::vector<double> fcPerMip_;
-  double fcPerEle_;
-  std::vector<double> nonAgedNoises_;
+  std::vector<float> dEdXweights_;
+  std::vector<float> thicknessCorrection_;
+  std::vector<float> fcPerMip_;
+  float fcPerEle_;
+  std::vector<float> nonAgedNoises_;
   double noiseMip_;
   std::vector<std::vector<double>> thresholds_;
   std::vector<std::vector<double>> sigmaNoise_;

@@ -39,23 +39,23 @@ public:
       : HGCalClusteringAlgoBase(
             (HGCalClusteringAlgoBase::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity", 3),
             reco::CaloCluster::undefined),
-        vecDeltasC_(ps.getParameter<std::vector<double>>("deltac")),
-        vecDeltasSeed_(ps.getParameter<std::vector<double>>("deltas")),
-        vecDeltasO_(ps.getParameter<std::vector<double>>("deltao")),
-        kappa_(ps.getParameter<double>("kappa")),
-        ecut_(ps.getParameter<double>("ecut")),
+        vecDeltasC_(ps.getParameter<std::vector<float>>("deltac")),
+        vecDeltasSeed_(ps.getParameter<std::vector<float>>("deltas")),
+        vecDeltasO_(ps.getParameter<std::vector<float>>("deltao")),
+        kappa_(ps.getParameter<float>("kappa")),
+        ecut_(ps.getParameter<float>("ecut")),
         dependSensor_(ps.getParameter<bool>("dependSensor")),
-        dEdXweights_(ps.getParameter<std::vector<double>>("dEdXweights")),
-        thicknessCorrection_(ps.getParameter<std::vector<double>>("thicknessCorrection")),
-        sciThicknessCorrection_(ps.getParameter<double>("sciThicknessCorrection")),
+        dEdXweights_(ps.getParameter<std::vector<float>>("dEdXweights")),
+        thicknessCorrection_(ps.getParameter<std::vector<float>>("thicknessCorrection")),
+        sciThicknessCorrection_(ps.getParameter<float>("sciThicknessCorrection")),
         deltasi_index_regemfac_(ps.getParameter<int>("deltasi_index_regemfac")),
         maxNumberOfThickIndices_(ps.getParameter<unsigned>("maxNumberOfThickIndices")),
-        fcPerMip_(ps.getParameter<std::vector<double>>("fcPerMip")),
-        fcPerEle_(ps.getParameter<double>("fcPerEle")),
-        nonAgedNoises_(ps.getParameter<std::vector<double>>("noises")),
+        fcPerMip_(ps.getParameter<std::vector<float>>("fcPerMip")),
+        fcPerEle_(ps.getParameter<float>("fcPerEle")),
+        nonAgedNoises_(ps.getParameter<std::vector<float>>("noises")),
         noiseMip_(ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("noise_MIP")),
-        thresholdW0_(ps.getParameter<std::vector<double>>("thresholdW0")),
-        positionDeltaRho2_(ps.getParameter<double>("positionDeltaRho2")),
+        thresholdW0_(ps.getParameter<std::vector<float>>("thresholdW0")),
+        positionDeltaRho2_(ps.getParameter<float>("positionDeltaRho2")),
         use2x2_(ps.getParameter<bool>("use2x2")),
         initialized_(false) {
 #if DEBUG_CLUSTERS_ALPAKA
@@ -93,44 +93,44 @@ public:
   void computeThreshold();
 
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
-    iDesc.add<std::vector<double>>("thresholdW0", {2.9, 2.9, 2.9, 2.9});
-    iDesc.add<double>("positionDeltaRho2", 1.69);
+    iDesc.add<std::vector<float>>("thresholdW0", {2.9, 2.9, 2.9, 2.9});
+    iDesc.add<float>("positionDeltaRho2", 1.69);
     // critical distance for the local-density calculation, per sensor group
-    iDesc.add<std::vector<double>>("deltac",
-                                   {
-                                       1.3,  //CE_E-LD
-                                       1.3,  //CE_E-HD
-                                       1.3,  //CE_H-LD
-                                       1.3,  //CE_H-HD
-                                   });
+    iDesc.add<std::vector<float>>("deltac",
+                                  {
+                                      1.3,  //CE_E-LD
+                                      1.3,  //CE_E-HD
+                                      1.3,  //CE_H-LD
+                                      1.3,  //CE_H-HD
+                                  });
     // seed-promotion distance, per sensor group (independent from deltac)
-    iDesc.add<std::vector<double>>("deltas",
-                                   {
-                                       1.3,  //CE_E-LD
-                                       1.3,  //CE_E-HD
-                                       1.3,  //CE_H-LD
-                                       1.3,  //CE_H-HD
-                                   });
+    iDesc.add<std::vector<float>>("deltas",
+                                  {
+                                      1.3,  //CE_E-LD
+                                      1.3,  //CE_E-HD
+                                      1.3,  //CE_H-LD
+                                      1.3,  //CE_H-HD
+                                  });
     // outlier distance, per sensor group
-    iDesc.add<std::vector<double>>("deltao",
-                                   {
-                                       2.6,  //CE_E-LD
-                                       2.6,  //CE_E-HD
-                                       2.6,  //CE_H-LD
-                                       2.6,  //CE_H-HD
-                                   });
+    iDesc.add<std::vector<float>>("deltao",
+                                  {
+                                      2.6,  //CE_E-LD
+                                      2.6,  //CE_E-HD
+                                      2.6,  //CE_H-LD
+                                      2.6,  //CE_H-HD
+                                  });
     iDesc.add<bool>("dependSensor", true);
-    iDesc.add<double>("ecut", 3.0);
-    iDesc.add<double>("kappa", 9.0);
+    iDesc.add<float>("ecut", 3.0);
+    iDesc.add<float>("kappa", 9.0);
     iDesc.addUntracked<unsigned int>("verbosity", 3);
-    iDesc.add<std::vector<double>>("dEdXweights", {});
-    iDesc.add<std::vector<double>>("thicknessCorrection", {});
-    iDesc.add<double>("sciThicknessCorrection", 0.9);
+    iDesc.add<std::vector<float>>("dEdXweights", {});
+    iDesc.add<std::vector<float>>("thicknessCorrection", {});
+    iDesc.add<float>("sciThicknessCorrection", 0.9);
     iDesc.add<int>("deltasi_index_regemfac", 3);
     iDesc.add<unsigned>("maxNumberOfThickIndices", 6);
-    iDesc.add<std::vector<double>>("fcPerMip", {});
-    iDesc.add<double>("fcPerEle", 0.0);
-    iDesc.add<std::vector<double>>("noises", {});
+    iDesc.add<std::vector<float>>("fcPerMip", {});
+    iDesc.add<float>("fcPerEle", 0.0);
+    iDesc.add<std::vector<float>>("noises", {});
     edm::ParameterSetDescription descNestedNoiseMIP;
     descNestedNoiseMIP.add<bool>("scaleByDose", false);
     descNestedNoiseMIP.add<unsigned int>("scaleByDoseAlgo", 0);
@@ -152,30 +152,30 @@ private:
   // vecDeltasC_   -> critical distance for the local-density calculation
   // vecDeltasSeed_-> seed-promotion distance (independent from vecDeltasC_)
   // vecDeltasO_   -> outlier distance
-  std::vector<double> vecDeltasC_;
-  std::vector<double> vecDeltasSeed_;
-  std::vector<double> vecDeltasO_;
-  double kappa_;
+  std::vector<float> vecDeltasC_;
+  std::vector<float> vecDeltasSeed_;
+  std::vector<float> vecDeltasO_;
+  float kappa_;
 
   // The hit energy cutoff
-  double ecut_;
+  float ecut_;
 
   // various parameters used for calculating the noise levels for a given sensor (and whether to use
   // them)
   bool dependSensor_;
-  std::vector<double> dEdXweights_;
-  std::vector<double> thicknessCorrection_;
-  double sciThicknessCorrection_;
+  std::vector<float> dEdXweights_;
+  std::vector<float> thicknessCorrection_;
+  float sciThicknessCorrection_;
   int deltasi_index_regemfac_;
   unsigned maxNumberOfThickIndices_;
-  std::vector<double> fcPerMip_;
-  double fcPerEle_;
-  std::vector<double> nonAgedNoises_;
+  std::vector<float> fcPerMip_;
+  float fcPerEle_;
+  std::vector<float> nonAgedNoises_;
   double noiseMip_;
   std::vector<std::vector<double>> thresholds_;
   std::vector<std::vector<double>> v_sigmaNoise_;
-  std::vector<double> thresholdW0_;
-  double positionDeltaRho2_;
+  std::vector<float> thresholdW0_;
+  float positionDeltaRho2_;
 
   bool use2x2_;
 
@@ -255,19 +255,19 @@ private:
   void prepareDataStructures(const unsigned int layerId);
   void calculateLocalDensity(const TILE& lt,
                              const unsigned int layerId,
-                             const std::vector<double>& deltas_c);  // return max density
+                             const std::vector<float>& deltas_c);  // return max density
   void calculateLocalDensity(const TILE& lt,
                              const unsigned int layerId,
-                             const std::vector<double>& deltas_c,
+                             const std::vector<float>& deltas_c,
                              HGCalSiliconStrategy strategy);
   void calculateLocalDensity(const TILE& lt,
                              const unsigned int layerId,
-                             const std::vector<double>& deltas_c,
+                             const std::vector<float>& deltas_c,
                              HGCalScintillatorStrategy strategy);
-  void calculateDistanceToHigher(const TILE& lt, const unsigned int layerId, const std::vector<double>& deltas_o);
+  void calculateDistanceToHigher(const TILE& lt, const unsigned int layerId, const std::vector<float>& deltas_o);
   int findAndAssignClusters(const unsigned int layerId,
-                            const std::vector<double>& deltas_seed,
-                            const std::vector<double>& deltas_o);
+                            const std::vector<float>& deltas_seed,
+                            const std::vector<float>& deltas_o);
 };
 
 // explicit template instantiation

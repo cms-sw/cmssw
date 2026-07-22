@@ -25,7 +25,7 @@ hltPfTICL = cms.EDProducer("PFTICLProducer",
         trackQuality = cms.string('highPurity')
     ),
     ticlCandidateSrc = cms.InputTag("hltTiclCandidate"),
-    timingQualityThreshold = cms.double(0.5),
+    timingQualityThreshold = cms.float(0.5),
     trackTimeErrorMap = cms.InputTag("hltTofPID","sigmat0"),
     trackTimeQualityMap = cms.InputTag("hltMtdTrackQualityMVA","mtdQualMVA"),
     trackTimeValueMap = cms.InputTag("hltTofPID","t0"),

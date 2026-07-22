@@ -68,23 +68,23 @@ namespace ticl {
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
       iDesc.add<std::string>("onnxModelPath", "")->setComment("Optional ONNX model path, empty means unused");
-      iDesc.add<double>("cylinder_radius_sqr_split", 9.);
-      iDesc.add<double>("proj_distance_split", 5.);
-      iDesc.add<double>("track_time_quality_threshold", 0.5);
+      iDesc.add<float>("cylinder_radius_sqr_split", 9.);
+      iDesc.add<float>("proj_distance_split", 5.);
+      iDesc.add<float>("track_time_quality_threshold", 0.5);
       iDesc.add<unsigned int>("min_num_lcs", 7);
-      iDesc.add<double>("min_trackster_energy", 10.);
-      iDesc.add<double>("pca_quality_th", 0.85);
-      iDesc.add<double>("dot_prod_th", 0.97);
-      iDesc.add<double>("deltaRxy", 4.f);
-      iDesc.add<std::vector<double>>("lower_boundary", {10., 150.});
-      iDesc.add<std::vector<double>>("upper_boundary", {3, 70.});
-      iDesc.add<std::vector<double>>("upper_distance_projective_sqr", {40., 60.});
-      iDesc.add<std::vector<double>>("lower_distance_projective_sqr", {10., 30.});
-      iDesc.add<std::vector<double>>("min_distance_z", {35., 35.});
-      iDesc.add<std::vector<double>>("upper_distance_projective_sqr_closest_points", {10., 30.});
-      iDesc.add<std::vector<double>>("lower_distance_projective_sqr_closest_points", {10., 30.});
-      iDesc.add<std::vector<double>>("max_z_distance_closest_points", {35., 35.});
-      iDesc.add<std::vector<double>>("cylinder_radius_sqr", {10, 20});
+      iDesc.add<float>("min_trackster_energy", 10.);
+      iDesc.add<float>("pca_quality_th", 0.85);
+      iDesc.add<float>("dot_prod_th", 0.97);
+      iDesc.add<float>("deltaRxy", 4.f);
+      iDesc.add<std::vector<float>>("lower_boundary", {10., 150.});
+      iDesc.add<std::vector<float>>("upper_boundary", {3, 70.});
+      iDesc.add<std::vector<float>>("upper_distance_projective_sqr", {40., 60.});
+      iDesc.add<std::vector<float>>("lower_distance_projective_sqr", {10., 30.});
+      iDesc.add<std::vector<float>>("min_distance_z", {35., 35.});
+      iDesc.add<std::vector<float>>("upper_distance_projective_sqr_closest_points", {10., 30.});
+      iDesc.add<std::vector<float>>("lower_distance_projective_sqr_closest_points", {10., 30.});
+      iDesc.add<std::vector<float>>("max_z_distance_closest_points", {35., 35.});
+      iDesc.add<std::vector<float>>("cylinder_radius_sqr", {10, 20});
 
       TracksterLinkingAlgoBase::fillPSetDescription(iDesc);
     }
@@ -97,15 +97,15 @@ namespace ticl {
     void dumpLinksFound(std::vector<std::vector<unsigned>>& resultCollection, const char* label) const;
 
     static constexpr float z_surface = 400.f;
-    std::vector<double> lower_boundary_;
-    std::vector<double> upper_boundary_;
-    std::vector<double> upper_distance_projective_sqr_;
-    std::vector<double> lower_distance_projective_sqr_;
-    std::vector<double> min_distance_z_;
-    std::vector<double> upper_distance_projective_sqr_closest_points_;
-    std::vector<double> lower_distance_projective_sqr_closest_points_;
-    std::vector<double> max_z_distance_closest_points_;
-    std::vector<double> cylinder_radius_sqr_;
+    std::vector<float> lower_boundary_;
+    std::vector<float> upper_boundary_;
+    std::vector<float> upper_distance_projective_sqr_;
+    std::vector<float> lower_distance_projective_sqr_;
+    std::vector<float> min_distance_z_;
+    std::vector<float> upper_distance_projective_sqr_closest_points_;
+    std::vector<float> lower_distance_projective_sqr_closest_points_;
+    std::vector<float> max_z_distance_closest_points_;
+    std::vector<float> cylinder_radius_sqr_;
 
     float cylinder_radius_sqr_split_;
     float proj_distance_split_;

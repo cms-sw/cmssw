@@ -130,7 +130,7 @@ TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps, const 
       muons_token_(consumes<std::vector<reco::Muon>>(ps.getParameter<edm::InputTag>("muons"))),
       useMTDTiming_(ps.getParameter<bool>("useMTDTiming")),
       useTimingAverage_(ps.getParameter<bool>("useTimingAverage")),
-      timingQualityThreshold_(ps.getParameter<double>("timingQualityThreshold")),
+      timingQualityThreshold_(ps.getParameter<float>("timingQualityThreshold")),
       geometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
       bfield_token_(esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()),
       detector_(ps.getParameter<std::string>("detector")),
@@ -610,7 +610,7 @@ void TICLCandidateProducer::fillDescriptions(edm::ConfigurationDescriptions &des
   desc.add<std::string>("propagator", "PropagatorWithMaterial");
   desc.add<bool>("useMTDTiming", true);
   desc.add<bool>("useTimingAverage", true);
-  desc.add<double>("timingQualityThreshold", 0.5);
+  desc.add<float>("timingQualityThreshold", 0.5);
   desc.add<std::string>("cutTk",
                         "1.48 < abs(eta) < 3.0 && pt > 1. && quality(\"highPurity\") && "
                         "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 5");

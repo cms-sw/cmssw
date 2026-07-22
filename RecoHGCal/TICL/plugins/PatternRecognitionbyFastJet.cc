@@ -27,7 +27,7 @@ template <typename TILES>
 PatternRecognitionbyFastJet<TILES>::PatternRecognitionbyFastJet(const edm::ParameterSet &conf,
                                                                 edm::ConsumesCollector iC)
     : PatternRecognitionAlgoBaseT<TILES>(conf, iC),
-      antikt_radius_(conf.getParameter<double>("antikt_radius")),
+      antikt_radius_(conf.getParameter<float>("antikt_radius")),
       minNumLayerCluster_(conf.getParameter<int>("minNumLayerCluster")),
       computeLocalTime_(conf.getParameter<bool>("computeLocalTime")){};
 
@@ -186,7 +186,7 @@ void PatternRecognitionbyFastJet<TILES>::filter(std::vector<Trackster> &output,
 template <typename TILES>
 void PatternRecognitionbyFastJet<TILES>::fillPSetDescription(edm::ParameterSetDescription &iDesc) {
   iDesc.add<int>("algo_verbosity", 0);
-  iDesc.add<double>("antikt_radius", 0.09)->setComment("Radius to be used while running the Anti-kt clustering");
+  iDesc.add<float>("antikt_radius", 0.09)->setComment("Radius to be used while running the Anti-kt clustering");
   iDesc.add<int>("minNumLayerCluster", 5)->setComment("Not Inclusive");
   iDesc.add<bool>("computeLocalTime", true);
 }

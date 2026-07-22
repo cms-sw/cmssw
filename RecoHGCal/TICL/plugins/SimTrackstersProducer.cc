@@ -132,8 +132,8 @@ SimTrackstersProducer::SimTrackstersProducer(const edm::ParameterSet& ps)
       associatorMapCaloParticleToReco_token_(
           consumes(ps.getParameter<edm::InputTag>("layerClusterCaloParticleAssociator"))),
       geom_token_(esConsumes()),
-      fractionCut_(ps.getParameter<double>("fractionCut")),
-      qualityCutTrack_(ps.getParameter<double>("qualityCutTrack")),
+      fractionCut_(ps.getParameter<float>("fractionCut")),
+      qualityCutTrack_(ps.getParameter<float>("qualityCutTrack")),
       trackingParticleToken_(
           consumes<std::vector<TrackingParticle>>(ps.getParameter<edm::InputTag>("trackingParticles"))),
       recoTracksToken_(consumes<std::vector<reco::Track>>(ps.getParameter<edm::InputTag>("recoTracks"))),
@@ -176,8 +176,8 @@ void SimTrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("trackingParticles", edm::InputTag("mix", "MergedTrackTruth"));
 
   desc.add<edm::InputTag>("simTrackToTPMap", edm::InputTag("simHitTPAssocProducer", "simTrackToTP"));
-  desc.add<double>("fractionCut", 0.);
-  desc.add<double>("qualityCutTrack", 0.75);
+  desc.add<float>("fractionCut", 0.);
+  desc.add<float>("qualityCutTrack", 0.75);
 
   descriptions.addWithDefaultLabel(desc);
 }

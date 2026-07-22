@@ -20,11 +20,11 @@ TracksterLinkingbySuperClusteringMustache::TracksterLinkingbySuperClusteringMust
     : TracksterLinkingAlgoBase(ps, iC, onnxRuntime),
       ecalMustacheSCParametersToken_(iC.esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd>()),
       ecalSCDynamicDPhiParametersToken_(iC.esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd>()),
-      seedThresholdPt_(ps.getParameter<double>("seedThresholdPt")),
-      candidateEnergyThreshold_(ps.getParameter<double>("candidateEnergyThreshold")),
+      seedThresholdPt_(ps.getParameter<float>("seedThresholdPt")),
+      candidateEnergyThreshold_(ps.getParameter<float>("candidateEnergyThreshold")),
       filterByTracksterPID_(ps.getParameter<bool>("filterByTracksterPID")),
       tracksterPIDCategoriesToFilter_(ps.getParameter<std::vector<int>>("tracksterPIDCategoriesToFilter")),
-      PIDThreshold_(ps.getParameter<double>("PIDThreshold")) {}
+      PIDThreshold_(ps.getParameter<float>("PIDThreshold")) {}
 
 void TracksterLinkingbySuperClusteringMustache::initialize(const HGCalDDDConstants* hgcons,
                                                            const hgcal::RecHitTools rhtools,
@@ -124,14 +124,14 @@ void TracksterLinkingbySuperClusteringMustache::linkTracksters(
 
 void TracksterLinkingbySuperClusteringMustache::fillPSetDescription(edm::ParameterSetDescription& desc) {
   TracksterLinkingAlgoBase::fillPSetDescription(desc);  // adds algo_verbosity
-  desc.add<double>("seedThresholdPt", 1.)
+  desc.add<float>("seedThresholdPt", 1.)
       ->setComment("Minimum transverse energy of trackster to be considered as seed of a supercluster");
-  desc.add<double>("candidateEnergyThreshold", 0.15)
+  desc.add<float>("candidateEnergyThreshold", 0.15)
       ->setComment("Minimum energy of trackster to be considered as candidate for superclustering");
   desc.add<bool>("filterByTracksterPID", true)->setComment("Filter tracksters before superclustering by PID score");
   desc.add<std::vector<int>>(
           "tracksterPIDCategoriesToFilter",
           {static_cast<int>(Trackster::ParticleType::photon), static_cast<int>(Trackster::ParticleType::electron)})
       ->setComment("List of PID particle types (ticl::Trackster::ParticleType enum) to consider for PID filtering");
-  desc.add<double>("PIDThreshold", 0.8)->setComment("PID score threshold");
+  desc.add<float>("PIDThreshold", 0.8)->setComment("PID score threshold");
 }

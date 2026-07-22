@@ -23,12 +23,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           initialized_(false),
           isNose_(detector_ == "HFNose"),
           maxNumberOfThickIndices_(config.getParameter<unsigned>("maxNumberOfThickIndices")),
-          fcPerEle_(config.getParameter<double>("fcPerEle")),
-          ecut_(config.getParameter<double>("ecut")),
-          fcPerMip_(config.getParameter<std::vector<double>>("fcPerMip")),
-          nonAgedNoises_(config.getParameter<std::vector<double>>("noises")),
-          dEdXweights_(config.getParameter<std::vector<double>>("dEdXweights")),
-          thicknessCorrection_(config.getParameter<std::vector<double>>("thicknessCorrection")),
+          fcPerEle_(config.getParameter<float>("fcPerEle")),
+          ecut_(config.getParameter<float>("ecut")),
+          fcPerMip_(config.getParameter<std::vector<float>>("fcPerMip")),
+          nonAgedNoises_(config.getParameter<std::vector<float>>("noises")),
+          dEdXweights_(config.getParameter<std::vector<float>>("dEdXweights")),
+          thicknessCorrection_(config.getParameter<std::vector<float>>("thicknessCorrection")),
           caloGeomToken_(consumesCollector().esConsumes<CaloGeometry, CaloGeometryRecord>()),
           hits_token_(consumes<HGCRecHitCollection>(config.getParameter<edm::InputTag>("recHits"))),
           deviceToken_{produces()} {}
@@ -140,12 +140,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       desc.add<std::string>("detector", "EE")->setComment("options EE, FH, BH,  HFNose; other value defaults to EE");
       desc.add<edm::InputTag>("recHits", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
       desc.add<unsigned int>("maxNumberOfThickIndices", 6);
-      desc.add<double>("fcPerEle", 0.00016020506);
-      desc.add<std::vector<double>>("fcPerMip");
-      desc.add<std::vector<double>>("thicknessCorrection");
-      desc.add<std::vector<double>>("noises");
-      desc.add<std::vector<double>>("dEdXweights");
-      desc.add<double>("ecut", 3.);
+      desc.add<float>("fcPerEle", 0.00016020506);
+      desc.add<std::vector<float>>("fcPerMip");
+      desc.add<std::vector<float>>("thicknessCorrection");
+      desc.add<std::vector<float>>("noises");
+      desc.add<std::vector<float>>("dEdXweights");
+      desc.add<float>("ecut", 3.);
       descriptions.addWithDefaultLabel(desc);
     }
 
@@ -157,12 +157,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     unsigned int maxlayer_;
     int deltasi_index_regemfac_;
     double sciThicknessCorrection_;
-    double fcPerEle_;
-    double ecut_;
-    std::vector<double> fcPerMip_;
-    std::vector<double> nonAgedNoises_;
-    std::vector<double> dEdXweights_;
-    std::vector<double> thicknessCorrection_;
+    float fcPerEle_;
+    float ecut_;
+    std::vector<float> fcPerMip_;
+    std::vector<float> nonAgedNoises_;
+    std::vector<float> dEdXweights_;
+    std::vector<float> thicknessCorrection_;
     std::vector<std::vector<double>> thresholds_;
     std::vector<std::vector<double>> v_sigmaNoise_;
 
