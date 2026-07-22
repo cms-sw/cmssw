@@ -1,14 +1,11 @@
 #include <memory>
 
-#include "Validation/HGCalValidation/interface/HGCalValidator.h"
-
-#include "SimCalorimetry/HGCalAssociatorProducers/interface/AssociatorTools.h"
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "SimCalorimetry/HGCalAssociatorProducers/interface/AssociatorTools.h"
+#include "Validation/HGCalValidation/interface/HGCalValidator.h"
 
 using namespace std;
 using namespace edm;
@@ -691,6 +688,22 @@ void HGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptio
     psd1.add<double>("minPhi", -3.2);
     psd1.add<double>("maxPhi", 3.2);
     psd1.add<int>("nintPhi", 80);
+    psd1.add<double>("minR", 0.)
+        ->setComment(
+            "Minimum histogram value for the displacement radius R, defined as the transverse distance "
+            "from the z axis of the trajectory extrapolated to z = 0, in cm");
+    psd1.add<double>("maxR", 100.);
+    psd1.add<int>("nintR", 50);
+    psd1.add<double>("minAlpha", 0.)
+        ->setComment(
+            "Minimum histogram value for the displacement angle alpha, defined at the HGCal front surface "
+            "as the angle between the particle direction and the vector from the origin to the surface "
+            "intersection, in radians");
+    psd1.add<double>("maxAlpha", std::numbers::pi / 4.);
+    psd1.add<int>("nintAlpha", 50);
+    psd1.add<double>("minTime", -50.);
+    psd1.add<double>("maxTime", 50.);
+    psd1.add<int>("nintTime", 50);
     psd1.add<double>("minMixedHitsSimCluster", 0.0);
     psd1.add<double>("maxMixedHitsSimCluster", 800.0);
     psd1.add<int>("nintMixedHitsSimCluster", 100);
@@ -718,6 +731,10 @@ void HGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptio
     psd1.add<double>("minScore", 0.0);
     psd1.add<double>("maxScore", 1.02);
     psd1.add<int>("nintScore", 51);
+    psd1.add<double>("maxRecoToSimScoreForNonFake", 0.6);
+    psd1.add<double>("maxRecoToSimScoreForMerge", 0.6);
+    psd1.add<double>("maxSimToRecoScoreForPurity", 0.2);
+    psd1.add<double>("maxSimToRecoScoreForDuplicate", 0.2);
     psd1.add<double>("minSharedEneFrac", 0.0);
     psd1.add<double>("maxSharedEneFrac", 1.02);
     psd1.add<int>("nintSharedEneFrac", 51);
