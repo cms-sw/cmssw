@@ -3,6 +3,7 @@
 #include <TFormula.h>
 #include "CommonTools/Utils/interface/FormulaEvaluator.h"
 
+#include "DataFormats/Common/interface/RefProdVector.h"
 #include "DataFormats/TrackSoA/interface/TracksHost.h"
 #include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
 #include "DataFormats/TrackSoA/interface/TracksDevice.h"
@@ -110,7 +111,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   edm::RunCache<cms::alpakatools::MoveToDeviceCache<Device, ::reco::CAGeometryHost>>> {
     using HitsConstView = ::reco::TrackingRecHitConstView;
     using HitsOnDevice = reco::TrackingRecHitsSoACollection;
-    using HitsOnHost = ::reco::TrackingRecHitHost;
+
+    using HitsOnDeviceRefProdVector = edm::RefProdVector<HitsOnDevice>;
 
     using TkSoAHost = ::reco::TracksHost;
     using TkSoADevice = reco::TracksSoACollection;
@@ -349,7 +351,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenField_;
-    const device::EDGetToken<HitsOnDevice> tokenHit_;
+    std::optional<device::EDGetToken<HitsOnDevice>> pixelRecHitToken_;
+    std::optional<device::EDGetToken<HitsOnDevice>> trackerRecHitToken_;
     const device::EDPutToken<TkSoADevice> tokenTrack_;
 
     const ::reco::FormulaEvaluator maxNumberOfDoublets_;
@@ -363,11 +366,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                         const ::reco::CAGeometryParams* iCache)
       : EDProducer(iConfig),
         tokenField_(esConsumes()),
-        tokenHit_(consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
         tokenTrack_(produces()),
         maxNumberOfDoublets_(iConfig.getParameter<std::string>("maxNumberOfDoublets")),
         maxNumberOfTuples_(iConfig.getParameter<std::string>("maxNumberOfTuples")),
         deviceAlgo_(iConfig) {
+    if (iConfig.exists("pixelRecHitsSoA")) {
+      pixelRecHitToken_ = consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitsSoA"));
+    }
+
+    if (iConfig.exists("trackerRecHitsSoA")) {
+      trackerRecHitToken_ = consumes(iConfig.getParameter<edm::InputTag>("trackerRecHitsSoA"));
+    }
     iCache->tokenGeometry_ = esConsumes<edm::Transition::BeginRun>();
     iCache->tokenTopology_ = esConsumes<edm::Transition::BeginRun>();
   }
@@ -376,7 +385,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void CAHitNtupletAlpaka<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
 
-    desc.add<edm::InputTag>("pixelRecHitSrc", edm::InputTag("siPixelRecHitsPreSplittingAlpaka"));
+    desc.add<edm::InputTag>("pixelRecHitsSoA", edm::InputTag("siPixelRecHitsPreSplittingAlpaka"));
+    desc.add<edm::InputTag>("trackerRecHitsSoA", edm::InputTag("phase2OTRecHitsSoAConverter"));
 
     Algo::fillPSetDescription(desc);
     descriptions.addWithDefaultLabel(desc);
@@ -387,25 +397,52 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto bf = 1. / es.getData(tokenField_).inverseBzAtOriginInGeV();
 
     auto const& geometry = runCache()->get(iEvent.queue());
-    auto const& hits = iEvent.get(tokenHit_);
+
+    HitsOnDeviceRefProdVector hitsCollections;
+    if (pixelRecHitToken_) {
+      const auto& pixColl = iEvent.get(*pixelRecHitToken_);
+      hitsCollections.push_back(edm::RefProd<HitsOnDevice>(&pixColl));
+    }
+
+    if (trackerRecHitToken_) {
+      const auto& trkColl = iEvent.get(*trackerRecHitToken_);
+      hitsCollections.push_back(edm::RefProd<HitsOnDevice>(&trkColl));
+    }
+
+    if (hitsCollections.empty()) {
+      edm::LogWarning("CAHitNtupletAlpaka") << "No input hit collection. Returning with 0 tracks!";
+      auto& queue = iEvent.queue();
+      reco::TracksSoACollection tracks(queue, 0, 0);
+      auto ntracks_d = cms::alpakatools::make_device_view(queue, tracks.view().tracks().nTracks());
+      alpaka::memset(queue, ntracks_d, 0);
+      iEvent.emplace(tokenTrack_, std::move(tracks));
+      return;
+    }
+
+    uint32_t nHits = 0;
+    for (auto const& ref : hitsCollections)
+      nHits += ref->nHits();
+
+    const int32_t offsetBPIX2 = hitsCollections[0]->offsetBPIX2();
 
     /// Don't bother if no hits on BPix1 and no good graph for that
     /// (so no staring pair without BPix1 as first layer).
     /// TODO: this could be extended to a more general check for
     /// no hits on any of the starting layers.
 
-    if (globalCache()->startNoBPix1_ or hits.offsetBPIX2() > 0) {
-      std::array<double, 1> nHitsV = {{double(hits.nHits())}};
+    if (globalCache()->startNoBPix1_ or offsetBPIX2 > 0) {
+      std::array<double, 1> nHitsV{static_cast<double>(nHits)};
       std::array<double, 1> emptyV;
 
       uint32_t const maxTuples = maxNumberOfTuples_.evaluate(nHitsV, emptyV);
       uint32_t const maxDoublets = maxNumberOfDoublets_.evaluate(nHitsV, emptyV);
 
-      iEvent.emplace(tokenTrack_,
-                     deviceAlgo_.makeTuplesAsync(hits, geometry, bf, maxDoublets, maxTuples, iEvent.queue()));
+      iEvent.emplace(
+          tokenTrack_,
+          deviceAlgo_.makeTuplesAsync(hitsCollections, geometry, bf, maxDoublets, maxTuples, iEvent.queue()));
 
     } else {
-      edm::LogWarning("CAHitNtupletAlpaka") << "No hit on BPix1 (" << hits.offsetBPIX2()
+      edm::LogWarning("CAHitNtupletAlpaka") << "No hit on BPix1 (" << offsetBPIX2
                                             << ") and all the starting pairs has BPix1 as inner layer.\nIt's useless "
                                             << "to run the CA. Returning with 0 tracks!";
       auto& queue = iEvent.queue();

@@ -199,8 +199,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   template <typename TrackerTraits>
-  void CAHitNtupletGeneratorKernels<TrackerTraits>::prepareHits(const HitsConstView &hh,
-                                                                const HitModulesConstView &mm,
+  void CAHitNtupletGeneratorKernels<TrackerTraits>::prepareHits(const HitsMultiView &hh,
+                                                                const ModulesMultiView &mm,
                                                                 const reco::CALayersSoAConstView &ll,
                                                                 Queue &queue) {
     using namespace caHitNtupletGeneratorKernels;
@@ -208,13 +208,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(1, ll.metadata().size() - 1);
     alpaka::exec<Acc1D>(queue, workDiv1D, SetHitsLayerStart{}, mm, ll, this->device_layerStarts_->data());
 
+    auto accessor = [] ALPAKA_FN_ACC(auto const &v) { return v.iphi(); };
+
     cms::alpakatools::fillManyFromVector<Acc1D>(device_hitPhiHist_->data(),
                                                 device_hitPhiView_,
                                                 TrackerTraits::numberOfLayers,  // could be ll.metadata().size() - 1
-                                                hh.iphi().data(),
+                                                hh,
+                                                accessor,
                                                 this->device_layerStarts_->data(),
-                                                hh.metadata().size(),
-                                                (uint32_t)256,
+                                                static_cast<uint32_t>(hh.size()),
+                                                static_cast<uint32_t>(256),
                                                 queue);
 
 #ifdef GPU_DEBUG
@@ -224,7 +227,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   template <typename TrackerTraits>
-  void CAHitNtupletGeneratorKernels<TrackerTraits>::launchKernels(const HitsConstView &hh,
+  void CAHitNtupletGeneratorKernels<TrackerTraits>::launchKernels(const HitsMultiView &hh,
                                                                   uint32_t offsetBPIX2,
                                                                   uint16_t nLayers,
                                                                   TkSoABlocksView &view,
@@ -237,7 +240,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto tracks_view = view.tracks();
     auto tracks_hits_view = view.trackHits();
 
-    uint32_t nhits = hh.metadata().size();
+    uint32_t nhits = static_cast<uint32_t>(hh.size());
     auto const maxDoublets = this->maxNumberOfDoublets_;
     auto const maxTuples = tracks_view.metadata().size();
 #ifdef NTUPLE_DEBUG
@@ -511,7 +514,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   template <typename TrackerTraits>
-  void CAHitNtupletGeneratorKernels<TrackerTraits>::buildDoublets(const HitsConstView &hh,
+  void CAHitNtupletGeneratorKernels<TrackerTraits>::buildDoublets(const HitsMultiView &hh,
                                                                   const ::reco::CAGraphSoAConstView &cc,
                                                                   const ::reco::CALayersSoAConstView &ll,
                                                                   uint32_t offsetBPIX2,
@@ -519,7 +522,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using namespace caPixelDoublets;
     using namespace caHitNtupletGeneratorKernels;
 
-    auto nhits = hh.metadata().size();
+    auto nhits = hh.size();
     const auto maxDoublets = this->maxNumberOfDoublets_;
 #ifdef NTUPLE_DEBUG
     std::cout << "building Doublets out of " << nhits << " Hits" << std::endl;
@@ -583,7 +586,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   template <typename TrackerTraits>
-  void CAHitNtupletGeneratorKernels<TrackerTraits>::classifyTuples(const HitsConstView &hh,
+  void CAHitNtupletGeneratorKernels<TrackerTraits>::classifyTuples(const HitsMultiView &hh,
                                                                    TkSoAView &tracks_view,
                                                                    Queue &queue) {
     using namespace caHitNtupletGeneratorKernels;
@@ -593,7 +596,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::cout << "Starting CAHitNtupletGeneratorKernels<TrackerTraits>::classifyTuples" << std::endl;
 #endif
 
-    uint32_t nhits = hh.metadata().size();
+    uint32_t nhits = hh.size();
 
     auto blockSize = 64;
     auto const maxDoublets = this->maxNumberOfDoublets_;

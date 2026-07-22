@@ -28,7 +28,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   class CAFishbone {
   public:
     ALPAKA_FN_ACC void operator()(Acc2D const& acc,
-                                  HitsConstView hh,
+                                  caStructures::HitsMultiView hh,
                                   ::reco::CALayersSoAConstView const& ll,
                                   CACell<TrackerTraits>* cells,
                                   uint32_t const* __restrict__ nCells,
