@@ -35,6 +35,8 @@
 #include "Geometry/Records/interface/MTDTopologyRcd.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
+#include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
+
 
 // DetId
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
@@ -200,8 +202,8 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
               BTLDetId idB(detIdsB[0].first);
 
               auto [iphiA, ietaA] =
-                  topology->btlIndex(idA.geographicalId(BTLDetId::CrysLayout::v4).rawId());  //uint32_t
-              auto [iphiB, ietaB] = topology->btlIndex(idB.geographicalId(BTLDetId::CrysLayout::v4).rawId());
+                  topology->btlIndex(idA.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode())).rawId());  //uint32_t
+              auto [iphiB, ietaB] = topology->btlIndex(idB.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode())).rawId());
 
               if (iphiA != iphiB)
                 return iphiA < iphiB;
@@ -240,7 +242,7 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
       // retrieve detId from first hit
       BTLDetId detId = cluster->detIds_and_rows()[0].first;
       // retrieve GEOGRAPHICAL id
-      BTLDetId geoDetId = detId.geographicalId(BTLDetId::CrysLayout::v4);
+      BTLDetId geoDetId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
 
       clusterMap[geoDetId].push_back(cluster);
     }
@@ -301,7 +303,7 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
     LogDebug("MtdSimMergedClusterProducer") << "  Edge hits: col0=" << edgeHitIn0 << ", col15=" << edgeHitIn15;
 
     // Get topology indices - use geographicalId (module-level) with crystal layout
-    std::pair<uint32_t, uint32_t> indices = topology->btlIndex(cluId.geographicalId(BTLDetId::CrysLayout::v4).rawId());
+    std::pair<uint32_t, uint32_t> indices = topology->btlIndex(cluId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode())).rawId());
     uint32_t iphi = indices.first;
     uint32_t ieta = indices.second;
     LogDebug("MtdSimMergedClusterProducer") << "  BTL indices: iphi=" << iphi << ", ieta=" << ieta;
@@ -422,7 +424,7 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
                   << "  -> MERGING ETA neighbor: " << cluId.rawId() << " with " << adjDetId.rawId();
               int iphi_adj, ieta_adj;
               std::tie(iphi_adj, ieta_adj) =
-                  topology->btlIndex(adjDetId.geographicalId(BTLDetId::CrysLayout::v4).rawId());
+                  topology->btlIndex(adjDetId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode())).rawId());
               bool isBackscatterMergedcluster = mergedClusterClusters[0]->hitProdType() == 3;
               bool areBothBackscatter = isBackscatterMergedcluster && (adjCluster->hitProdType() == 3);
               bool areBothNotBackscatter = !isBackscatterMergedcluster && (adjCluster->hitProdType() != 3);
@@ -438,7 +440,7 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
             } else {
               int iphi_adj, ieta_adj;
               std::tie(iphi_adj, ieta_adj) =
-                  topology->btlIndex(adjDetId.geographicalId(BTLDetId::CrysLayout::v4).rawId());
+                  topology->btlIndex(adjDetId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode())).rawId());
 
               LogDebug("MtdSimMergedClusterProducer") << "    Not merging: no common ancestor found";
             }
@@ -511,7 +513,7 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
       if (!mergedClusterClusters.empty()) {
         DetId seedDetId = mergedClusterClusters.front()->detIds_and_rows()[0].first;
         BTLDetId seedBTL(seedDetId);
-        DetId seedGeoId = seedBTL.geographicalId(BTLDetId::CrysLayout::v4);
+        DetId seedGeoId = seedBTL.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
 
         const GeomDet* seedDet = geom.idToDetUnit(seedGeoId);
 
@@ -550,6 +552,7 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
       // add null reference
       simMergedCluster.addCluster(simLayerClusterRef, TrackingParticleRef());
     }
+    simMergedCluster.setSimPos(clusterPointer->simLCPos());
     outputClusters->push_back(simMergedCluster);
     LogDebug("MtdSimMergedClusterProducer")
         << "Created ETL MergedCluster from an ETL cluster"

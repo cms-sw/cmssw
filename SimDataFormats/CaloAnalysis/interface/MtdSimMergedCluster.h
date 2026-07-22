@@ -64,7 +64,7 @@ private:
   MtdSimLayerClusterRefVector clusters_;
   TrackingParticleRefVector trackingParticles_;
   TrackingParticleRef mainTrack_;
-  LocalPoint simMC_pos_;
+  LocalPoint simMC_pos_ = LocalPoint(0.f, 0.f, 0.f);
 };
 
 #endif

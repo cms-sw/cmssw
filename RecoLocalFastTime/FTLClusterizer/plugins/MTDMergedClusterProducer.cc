@@ -26,6 +26,8 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
+#include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
+
 
 #include <iostream>
 #include <vector>
@@ -56,7 +58,6 @@ private:
 
   bool areTimingCompatible(const FTLCluster* c1, const FTLCluster* c2);
   FTLMergedCluster mergeClusters(const std::vector<const FTLCluster*>& clusters,
-                                 const DetId& seedId,
                                  const MTDGeometry& geom,
                                  edm::Handle<FTLClusterCollection> btlClustersHandle);
 };
@@ -86,7 +87,6 @@ bool MTDMergedClusterProducer::areTimingCompatible(const FTLCluster* c1, const F
 }
 
 FTLMergedCluster MTDMergedClusterProducer::mergeClusters(const std::vector<const FTLCluster*>& clusters,
-                                                         const DetId& seedId,
                                                          const MTDGeometry& geom,
                                                          edm::Handle<FTLClusterCollection> mtdClustersHandle) {
   float totalEnergy = 0;
@@ -117,6 +117,7 @@ FTLMergedCluster MTDMergedClusterProducer::mergeClusters(const std::vector<const
       }
     }
   }
+  DetId mergedId = DetId(primary->id().rawId());
 
   // primary first, then the rest
   std::vector<const FTLCluster*> orderedClusters;
@@ -175,7 +176,6 @@ FTLMergedCluster MTDMergedClusterProducer::mergeClusters(const std::vector<const
           << "Unable to convert cluster DetId " << cluster->id().rawId() << " to GlobalPoint, geometry not available";
     }
   }
-
   float avgTime = 0.f;
   float avgTimeError = 0.f;
   if (totalEnergy > 0) {
@@ -192,14 +192,14 @@ FTLMergedCluster MTDMergedClusterProducer::mergeClusters(const std::vector<const
   // now to seed-local
   float avgX = 0;
   float avgY = 0;
-  const GeomDet* seedDet = geom.idToDetUnit(seedId);
+  const GeomDet* seedDet = geom.idToDetUnit(mergedId);
   if (seedDet && totalEnergy > 0) {
     LocalPoint lp = seedDet->surface().toLocal(avgGlobal);
     avgX = lp.x();  // along crystal (phi)
     avgY = lp.y();  // perpendicular to crystal (eta)
   } else {
     edm::LogWarning("MTDMergedClusterProducer") << "Unable to convert avgGlobal to seed-local coordinates for seedId "
-                                                << seedId.rawId() << " , geometry not available";
+                                                << mergedId.rawId() << " , geometry not available";
   }
 
   // errors:
@@ -266,7 +266,6 @@ FTLMergedCluster MTDMergedClusterProducer::mergeClusters(const std::vector<const
     avgYError = std::sqrt(weightedErrorY2) / totalEnergy;
   }
 
-  DetId mergedId = DetId(seedId.rawId());
   FTLMergedCluster mergedCluster(
       mergedId, totalEnergy, avgTime, avgTimeError, avgX, avgY, avgXError, avgYError);
 
@@ -322,8 +321,8 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
     std::sort(allClusters.begin(), allClusters.end(), [&topology](const FTLCluster* a, const FTLCluster* b) {
       BTLDetId idA(a->id());
       BTLDetId idB(b->id());
-      auto [iphiA, ietaA] = topology->btlIndex(idA.geographicalId(BTLDetId::CrysLayout::v4).rawId());
-      auto [iphiB, ietaB] = topology->btlIndex(idB.geographicalId(BTLDetId::CrysLayout::v4).rawId());
+      auto [iphiA, ietaA] = topology->btlIndex(idA.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode())).rawId());
+      auto [iphiB, ietaB] = topology->btlIndex(idB.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode())).rawId());
 
       if (iphiA != iphiB) {
         return iphiA < iphiB;
@@ -354,7 +353,7 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
       if ((ieta == halfTrayBTL_SMidx) ||
           (ieta ==
            fullTrayBTL_SMidx)) {  // Don't merge clusters in eta=0 due to gap in detectors, merging would be unphysical, just keep FTLClusters as they are. Also don't merge at the end of the trays, there is nothing to merge with
-        FTLMergedCluster mergedCluster = mergeClusters(mergedClusterClusters, cluId, geom, btlClustersHandle);
+        FTLMergedCluster mergedCluster = mergeClusters(mergedClusterClusters, geom, btlClustersHandle);
         mergedByDet[mergedCluster.id().rawId()].push_back(std::move(mergedCluster));
         continue;
       }
@@ -420,7 +419,7 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
       }
 
       // create mergedcluster from merged + leftover singles
-      FTLMergedCluster mergedCluster = mergeClusters(mergedClusterClusters, cluId, geom, btlClustersHandle);
+      FTLMergedCluster mergedCluster = mergeClusters(mergedClusterClusters, geom, btlClustersHandle);
       mergedByDet[mergedCluster.id().rawId()].push_back(std::move(mergedCluster));
     }
     for (auto const& entry : mergedByDet) {
@@ -451,7 +450,7 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
         if (cluster.energy() < energyThreshold_)
           continue;
         std::vector<const FTLCluster*> singleClusterVec = {&cluster};
-        FTLMergedCluster mergedCluster = mergeClusters(singleClusterVec, cluster.id(), geom, etlClustersHandle);
+        FTLMergedCluster mergedCluster = mergeClusters(singleClusterVec, geom, etlClustersHandle);
         etlByDet[mergedCluster.id().rawId()].push_back(std::move(mergedCluster));
       }
     }
