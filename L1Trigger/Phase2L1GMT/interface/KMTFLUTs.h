@@ -11,9 +11,11 @@ namespace Phase2L1GMT {
 
   class KMTFLUTs {
   public:
-    KMTFLUTs(const std::string &filename) {
+    KMTFLUTs(const std::string &filename, const std::string &ThetaFilename) {
       edm::FileInPath path(filename);
-      lutFile_ = new TFile(path.fullPath().c_str());
+      edm::FileInPath pathTheta(ThetaFilename);
+      lutFile_ = std::unique_ptr<TFile>{TFile::Open(path.fullPath().c_str())};
+      lutThetaFile_ = std::unique_ptr<TFile>(TFile::Open(pathTheta.fullPath().c_str()));
       lut_[3 * 64 + 8] = (TH1 *)lutFile_->Get("gain_8_3");
       lut_[2 * 64 + 8] = (TH1 *)lutFile_->Get("gain_8_2");
       lut_[2 * 64 + 12] = (TH1 *)lutFile_->Get("gain_12_2");
@@ -63,12 +65,28 @@ namespace Phase2L1GMT {
       lut2LL_[1 * 64 + 2] = (TH1 *)lutFile_->Get("gain2_2_1_LL");
 
       coarseEta_ = (TH1 *)lutFile_->Get("coarseETALUT");
+
+      lutTheta1D_[1 * 64 + 0] = (TH1 *)lutThetaFile_->Get("gain1D_0_1");
+      lutTheta1D_[1 * 64 + 2] = (TH1 *)lutThetaFile_->Get("gain1D_2_1");
+      lutTheta1D_[1 * 64 + 4] = (TH1 *)lutThetaFile_->Get("gain1D_4_1");
+      lutTheta1D_[1 * 64 + 6] = (TH1 *)lutThetaFile_->Get("gain1D_6_1");
+      lutTheta1D_[2 * 64 + 4] = (TH1 *)lutThetaFile_->Get("gain1D_4_2");
+      lutTheta1D_[3 * 64 + 0] = (TH1 *)lutThetaFile_->Get("gain1D_0_3");
+      lutTheta2D_[1 * 64 + 0] = (TH1 *)lutThetaFile_->Get("gain2D_0_1");
+      lutTheta2D_[1 * 64 + 2] = (TH1 *)lutThetaFile_->Get("gain2D_2_1");
+      lutTheta2D_[1 * 64 + 4] = (TH1 *)lutThetaFile_->Get("gain2D_4_1");
+      lutTheta2D_[1 * 64 + 6] = (TH1 *)lutThetaFile_->Get("gain2D_6_1");
+      lutTheta2D_[2 * 64 + 0] = (TH1 *)lutThetaFile_->Get("gain2D_0_2");
+      lutTheta2D_[2 * 64 + 4] = (TH1 *)lutThetaFile_->Get("gain2D_4_2");
+      lutTheta2D_[3 * 64 + 0] = (TH1 *)lutThetaFile_->Get("gain2D_0_3");
+      lutTheta1D11_[2 * 64 + 0] = (TH1 *)lutThetaFile_->Get("gain1D_0_2_phi1100");
+      lutTheta1D01_[2 * 64 + 0] = (TH1 *)lutThetaFile_->Get("gain1D_0_2_phi0100");
+      lutTheta1D10_[2 * 64 + 0] = (TH1 *)lutThetaFile_->Get("gain1D_0_2_phi1000");
     }
 
     ~KMTFLUTs() {
       lutFile_->Close();
-      if (lutFile_ != nullptr)
-        delete lutFile_;
+      lutThetaFile_->Close();
     }
 
     std::vector<float> trackGain(uint step, uint bitmask, uint K) {
@@ -110,12 +128,51 @@ namespace Phase2L1GMT {
       return uint((1 << 12) * coarseEta_->GetBinContent(coarseEta_->GetXaxis()->FindBin(mask)) / M_PI);
     }
 
-    TFile *lutFile_;
+    std::vector<float> trackGainTheta(uint step, uint bitmask, uint K, bool is2D) const {
+      std::vector<float> gain(4, 0.0);
+      const TH1 *h;
+      if (is2D) {
+        h = lutTheta2D_.at(64 * step + bitmask);
+      } else {
+        h = lutTheta1D_.at(64 * step + bitmask);
+      }
+      gain[0] = h->GetBinContent(K + 1);
+      gain[1] = h->GetBinContent(512 + K + 1);
+      gain[2] = h->GetBinContent(2 * 512 + K + 1);
+      gain[3] = h->GetBinContent(3 * 512 + K + 1);
+      return gain;
+    }
+
+    std::vector<float> trackGainTheta2(uint step, uint bitmask, uint phiBitmask, uint K) const {
+      std::vector<float> gain(4, 0.0);
+      const TH1 *h;
+      if (phiBitmask == 0b1100) {
+        h = lutTheta1D11_.at(64 * step + bitmask);
+      } else if (phiBitmask == 0b1000) {
+        h = lutTheta1D10_.at(64 * step + bitmask);
+      } else {
+        h = lutTheta1D01_.at(64 * step + bitmask);
+      }
+      gain[0] = h->GetBinContent(K + 1);
+      gain[1] = h->GetBinContent(512 + K + 1);
+      gain[2] = h->GetBinContent(2 * 512 + K + 1);
+      gain[3] = h->GetBinContent(3 * 512 + K + 1);
+      return gain;
+    }
+
+    std::unique_ptr<TFile> lutFile_;
+    std::unique_ptr<TFile> lutThetaFile_;
     std::map<uint, const TH1 *> lut_;
     std::map<uint, const TH1 *> lut2HH_;
     std::map<uint, const TH1 *> lut2LH_;
     std::map<uint, const TH1 *> lut2HL_;
     std::map<uint, const TH1 *> lut2LL_;
+
+    std::map<uint, const TH1 *> lutTheta1D_;
+    std::map<uint, const TH1 *> lutTheta2D_;
+    std::map<uint, const TH1 *> lutTheta1D11_;
+    std::map<uint, const TH1 *> lutTheta1D10_;
+    std::map<uint, const TH1 *> lutTheta1D01_;
     const TH1 *coarseEta_;
   };
 
