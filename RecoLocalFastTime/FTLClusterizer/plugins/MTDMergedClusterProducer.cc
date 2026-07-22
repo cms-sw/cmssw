@@ -268,7 +268,7 @@ FTLMergedCluster MTDMergedClusterProducer::mergeClusters(const std::vector<const
 
   DetId mergedId = DetId(seedId.rawId());
   FTLMergedCluster mergedCluster(
-      mergedId, totalEnergy, avgTime, avgTimeError, avgX, avgY, avgXError, avgYError, clusterRefs);
+      mergedId, totalEnergy, avgTime, avgTimeError, avgX, avgY, avgXError, avgYError);
 
   for (size_t i = 0; i < hitDetId.size(); i++) {
     mergedCluster.addHit(hitDetId[i], hitRow[i], hitCol[i], hitTime[i], hitTimeError[i], hitEnergy[i]);

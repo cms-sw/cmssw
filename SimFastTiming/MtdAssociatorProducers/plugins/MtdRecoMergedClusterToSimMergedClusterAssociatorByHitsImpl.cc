@@ -82,14 +82,11 @@ reco::MergedRecoToSimCollectionMtd MtdRecoMergedClusterToSimMergedClusterAssocia
             std::vector<uint64_t> simMergedClusHitIds;
             for (const auto& simLayerClus : simMergedClus.clusters()) {
               for (const auto& hit : simLayerClus->detIds_and_rows()) {
-                // Force the hit to map to the macroscopic module ID
                 uint32_t modId = geomTools_.sensorModuleId(hit.first);
                 
-                // Compress the row and column
                 uint8_t rowcol = static_cast<uint8_t>((std::clamp(static_cast<int>(hit.second.first), 0, 15) << 4) | 
                                                        std::clamp(static_cast<int>(hit.second.second), 0, 15));
                 
-                // Construct the 64-bit ID matching the Reco format
                 simMergedClusHitIds.push_back((static_cast<uint64_t>(modId) << 8) | static_cast<uint64_t>(rowcol));
               }
             }
@@ -160,14 +157,11 @@ reco::MergedSimToRecoCollectionMtd MtdRecoMergedClusterToSimMergedClusterAssocia
     std::vector<uint64_t> simMergedClusHitIds;
             for (const auto& simLayerClus : simMergedClus.clusters()) {
               for (const auto& hit : simLayerClus->detIds_and_rows()) {
-                // Force the hit to map to the macroscopic module ID
                 uint32_t modId = geomTools_.sensorModuleId(hit.first);
                 
-                // Compress the row and column
                 uint8_t rowcol = static_cast<uint8_t>((std::clamp(static_cast<int>(hit.second.first), 0, 15) << 4) | 
                                                        std::clamp(static_cast<int>(hit.second.second), 0, 15));
                 
-                // Construct the 64-bit ID matching the Reco format
                 simMergedClusHitIds.push_back((static_cast<uint64_t>(modId) << 8) | static_cast<uint64_t>(rowcol));
               }
             }
