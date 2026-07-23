@@ -250,7 +250,8 @@
 //  range    (int)         = sets the range for y-axis
 //                           if (range == 0) ylow = 0.8; yhigh = 1.2;
 //                           else if (range == 1) ylow = 0.5; yhigh = 1.5;
-//                           else if (range == 2) ylow = 0.0; yhigh = 3.0;
+//                           else if (range == 2) ylow = 0.0; yhigh = 2.5;
+//                           else if (range == 3) ylow = 0.0; yhigh = 3.0;
 //                           else ylow = 0.0; yhigh = 2.0;
 //////////////////////////////////////////////////////////////////////////////
 
@@ -2773,6 +2774,9 @@ void PlotHistCorrFactors(std::string infile1,
       yhigh = 1.5;
     } else if (range == 2) {
       ylow = 0.0;
+      yhigh = 2.5;
+    } else if (range == 3) {
+      ylow = 0.0;
       yhigh = 3.0;
     } else {
       ylow = 0.0;
@@ -3021,6 +3025,9 @@ void PlotHistCorr2Factors(std::string infile1,
       ylow = 0.5;
       yhigh = 1.5;
     } else if (range == 2) {
+      ylow = 0.0;
+      yhigh = 2.5;
+    } else if (range == 3) {
       ylow = 0.0;
       yhigh = 3.0;
     } else {
@@ -3279,6 +3286,9 @@ void PlotHistCorrDFactors(std::string infile1,
       ylow = 0.5;
       yhigh = 1.5;
     } else if (range == 2) {
+      ylow = 0.0;
+      yhigh = 2.5;
+    } else if (range == 3) {
       ylow = 0.0;
       yhigh = 3.0;
     } else {
@@ -5003,6 +5013,9 @@ void PlotHistCorrRatio(std::string infile1,
       ylow = 0.5;
       yhigh = 1.5;
     } else if (range == 2) {
+      ylow = 0.0;
+      yhigh = 2.5;
+    } else if (range == 3) {
       ylow = 0.0;
       yhigh = 3.0;
     } else {
