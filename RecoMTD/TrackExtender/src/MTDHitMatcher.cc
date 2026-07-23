@@ -82,15 +82,15 @@ namespace {
                   << std::setw(14) << est.second;
 
               mtd::TrackTofPidInfo tof = computeTrackTofPidInfo(lastpmag2,
-                                                                 std::abs(pl.second),
-                                                                 trs0,
-                                                                 hit.time(),
-                                                                 hit.timeError(),
-                                                                 t_vtx,
-                                                                 t_vtx_err,
-                                                                 false,
-                                                                 TofCalc::kMixd,
-                                                                 SigmaTofCalc::kMixd);
+                                                                std::abs(pl.second),
+                                                                trs0,
+                                                                hit.time(),
+                                                                hit.timeError(),
+                                                                t_vtx,
+                                                                t_vtx_err,
+                                                                false,
+                                                                TofCalc::kMixd,
+                                                                SigmaTofCalc::kMixd);
               MTDHitMatchingInfo mi;
               mi.hit = &hit;
               mi.estChi2 = est.second;
@@ -116,8 +116,8 @@ namespace mtd {
         mtdRecHitBuilder_(pset.getParameter<std::string>("MTDRecHitBuilder")),
         theEstimator_(std::make_unique<Chi2MeasurementEstimator>(pset.getParameter<double>("estimatorMaxChi2"),
                                                                  pset.getParameter<double>("estimatorMaxNSigma"))) {
-    hitBuilderToken_ = iC.esConsumes<TransientTrackingRecHitBuilder, TransientRecHitRecord>(
-        edm::ESInputTag("", mtdRecHitBuilder_));
+    hitBuilderToken_ =
+        iC.esConsumes<TransientTrackingRecHitBuilder, TransientRecHitRecord>(edm::ESInputTag("", mtdRecHitBuilder_));
   }
 
   void MTDHitMatcher::setServices(const edm::EventSetup& es) { hitbuilder_ = es.getHandle(hitBuilderToken_); }
@@ -134,31 +134,31 @@ namespace mtd {
   }
 
   MTDHitMatchResult MTDHitMatcher::matchBTL(const TrajectoryStateOnSurface& tsos,
-                                             const Trajectory& traj,
-                                             float pmag2,
-                                             float pathlength0,
-                                             const TrackSegments& trs0,
-                                             const MTDTrackingDetSetVector& hits,
-                                             const MTDDetLayerGeometry* geo,
-                                             const Propagator* prop,
-                                             const reco::BeamSpot& bs,
-                                             float vtxTime,
-                                             float vtxTimeError) const {
+                                            const Trajectory& traj,
+                                            float pmag2,
+                                            float pathlength0,
+                                            const TrackSegments& trs0,
+                                            const MTDTrackingDetSetVector& hits,
+                                            const MTDDetLayerGeometry* geo,
+                                            const Propagator* prop,
+                                            const reco::BeamSpot& bs,
+                                            float vtxTime,
+                                            float vtxTimeError) const {
     return matchLayers(
         geo->allBTLLayers(), tsos, traj, pmag2, pathlength0, trs0, hits, prop, bs, vtxTime, vtxTimeError);
   }
 
   MTDHitMatchResult MTDHitMatcher::matchETL(const TrajectoryStateOnSurface& tsos,
-                                             const Trajectory& traj,
-                                             float pmag2,
-                                             float pathlength0,
-                                             const TrackSegments& trs0,
-                                             const MTDTrackingDetSetVector& hits,
-                                             const MTDDetLayerGeometry* geo,
-                                             const Propagator* prop,
-                                             const reco::BeamSpot& bs,
-                                             float vtxTime,
-                                             float vtxTimeError) const {
+                                            const Trajectory& traj,
+                                            float pmag2,
+                                            float pathlength0,
+                                            const TrackSegments& trs0,
+                                            const MTDTrackingDetSetVector& hits,
+                                            const MTDDetLayerGeometry* geo,
+                                            const Propagator* prop,
+                                            const reco::BeamSpot& bs,
+                                            float vtxTime,
+                                            float vtxTimeError) const {
     // only propagate to the disk that's on the same side as the track
     std::vector<const DetLayer*> layers;
     for (const DetLayer* lay : geo->allETLLayers()) {
@@ -179,26 +179,24 @@ namespace mtd {
   }
 
   MTDHitMatchResult MTDHitMatcher::matchLayers(const std::vector<const DetLayer*>& layers,
-                                                const TrajectoryStateOnSurface& tsos,
-                                                const Trajectory& traj,
-                                                float pmag2,
-                                                float pathlength0,
-                                                const TrackSegments& trs0,
-                                                const MTDTrackingDetSetVector& hits,
-                                                const Propagator* prop,
-                                                const reco::BeamSpot& bs,
-                                                float vtxTime,
-                                                float vtxTimeError) const {
+                                               const TrajectoryStateOnSurface& tsos,
+                                               const Trajectory& traj,
+                                               float pmag2,
+                                               float pathlength0,
+                                               const TrackSegments& trs0,
+                                               const MTDTrackingDetSetVector& hits,
+                                               const Propagator* prop,
+                                               const reco::BeamSpot& bs,
+                                               float vtxTime,
+                                               float vtxTimeError) const {
     MTDHitMatchResult result;
     for (const DetLayer* ilay : layers) {
       if (ilay->isBarrel()) {
-        LogTrace("TrackExtenderWithMTD")
-            << "Hit search: BTL layer at R= "
-            << static_cast<const BarrelDetLayer*>(ilay)->specificSurface().radius();
+        LogTrace("TrackExtenderWithMTD") << "Hit search: BTL layer at R= "
+                                         << static_cast<const BarrelDetLayer*>(ilay)->specificSurface().radius();
       } else {
-        LogTrace("TrackExtenderWithMTD")
-            << "Hit search: ETL disk at Z = "
-            << static_cast<const ForwardDetLayer*>(ilay)->specificSurface().position().z();
+        LogTrace("TrackExtenderWithMTD") << "Hit search: ETL disk at Z = "
+                                         << static_cast<const ForwardDetLayer*>(ilay)->specificSurface().position().z();
       }
       fillMatchingHits(
           ilay, tsos, traj, pmag2, pathlength0, trs0, hits, prop, bs, vtxTime, vtxTimeError, result.hits, result.bestHit);
@@ -207,18 +205,18 @@ namespace mtd {
   }
 
   void MTDHitMatcher::fillMatchingHits(const DetLayer* ilay,
-                                        const TrajectoryStateOnSurface& tsos,
-                                        const Trajectory& traj,
-                                        float pmag2,
-                                        float pathlength0,
-                                        const TrackSegments& trs0,
-                                        const MTDTrackingDetSetVector& hits,
-                                        const Propagator* prop,
-                                        const reco::BeamSpot& bs,
-                                        float vtxTime,
-                                        float vtxTimeError,
-                                        TransientTrackingRecHit::ConstRecHitContainer& output,
-                                        MTDHitMatchingInfo& bestHit) const {
+                                       const TrajectoryStateOnSurface& tsos,
+                                       const Trajectory& traj,
+                                       float pmag2,
+                                       float pathlength0,
+                                       const TrackSegments& trs0,
+                                       const MTDTrackingDetSetVector& hits,
+                                       const Propagator* prop,
+                                       const reco::BeamSpot& bs,
+                                       float vtxTime,
+                                       float vtxTimeError,
+                                       TransientTrackingRecHit::ConstRecHitContainer& output,
+                                       MTDHitMatchingInfo& bestHit) const {
     std::set<MTDHitMatchingInfo> hitsInLayer;
     bool hitMatched = false;
 

@@ -57,10 +57,10 @@ using namespace reco;
 
 using mtd::c_cm_ns;
 using mtd::c_inv;
-using mtd::MTDHitMatchResult;
-using mtd::MTDHitMatcher;
 using mtd::computeTrackTofPidInfo;
+using mtd::MTDHitMatcher;
 using mtd::MTDHitMatchingInfo;
+using mtd::MTDHitMatchResult;
 using mtd::SigmaTofCalc;
 using mtd::TofCalc;
 using mtd::TrackSegments;
@@ -798,7 +798,8 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
           edm::LogError("TrackExtenderWithMTD")
               << "MTD tracking hits with zero time uncertainty: " << err1 << " " << err2;
         } else {
-          if ((tofInfo.dt - mtdhit2->time()) * (tofInfo.dt - mtdhit2->time()) < (err1 + err2) * matcher_.etlTimeChi2Cut()) {
+          if ((tofInfo.dt - mtdhit2->time()) * (tofInfo.dt - mtdhit2->time()) <
+              (err1 + err2) * matcher_.etlTimeChi2Cut()) {
             //
             // Subtract the ETL time of flight from the outermost measurement, and combine it in a weighted average with the innermost
             // the mass ambiguity related uncertainty on the time of flight is added as an additional uncertainty
