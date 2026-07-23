@@ -58,3 +58,21 @@ diff skipEvents_EDModules.log ${LOCAL_TEST_DIR}/unittest_output/skipEvents_EDMod
 
 grep '^[nN]' moduleAlloc.log | awk '{print $1,$2,$3,$4,$5,$6}' > skipEvents_ESModules.log
 diff skipEvents_ESModules.log ${LOCAL_TEST_DIR}/unittest_output/skipEvents_ESModules.log || die 'differences in skipEvents_ESModules' $?
+
+############### ExternalWork / Transformer / TransformAsync modules
+LD_PRELOAD="libPerfToolsAllocMonitorPreload.so" cmsRun ${LOCAL_TEST_DIR}/moduleAllocAcquireTransform_cfg.py || die 'Failure using moduleAllocAcquireTransform_cfg.py' $?
+
+grep '^[fF]' moduleAllocAcquireTransform.log | awk '{print $1,$2,$3,$4,$5,$6}' > acquireTransform_Transitions.log
+diff acquireTransform_Transitions.log ${LOCAL_TEST_DIR}/unittest_output/acquireTransform_Transitions.log || die 'differences in acquireTransform_Transitions' $?
+
+grep '^[mMaA]' moduleAllocAcquireTransform.log | awk '{print $1,$2,$3,$4,$5}' > acquireTransform_EDModules.log
+diff acquireTransform_EDModules.log ${LOCAL_TEST_DIR}/unittest_output/acquireTransform_EDModules.log || die 'differences in acquireTransform_EDModules' $?
+
+edmModuleAllocMonitorAnalyze.py -j moduleAllocAcquireTransform.log  > acquireTransform.json
+grep -A7 'cpptypes' acquireTransform.json | sort --ignore-leading-blanks | grep -v 'cpptypes' | grep -v '}' | sed 's/,//g' > acquireTransform_cpptypes.txt
+diff --ignore-all-space acquireTransform_cpptypes.txt ${LOCAL_TEST_DIR}/unittest_output/acquireTransform_cpptypes.txt || die 'differences in edmModuleAllocMonitorAnalyzer.py output for acquire+transform' $?
+
+edmModuleAllocJsonToCircles.py acquireTransform.json > acquireTransform.circles.json
+grep '"\(record\|type\|label\)": ".*",' acquireTransform.circles.json > acquireTransform.circles.txt
+# to be enabled later when the circles output is stable
+#diff acquireTransform.circles.txt ${LOCAL_TEST_DIR}/unittest_output/acquireTransform.circles.txt || die 'differences in edmModuleAllocJsonToCircles.py output' $?
