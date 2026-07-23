@@ -399,6 +399,7 @@
                                                                                                                        \
       /* Accessors for the const views for each block */                                                               \
       _ITERATE_ON_ALL(_DECLARE_ACCESSORS_CONST_VIEW_BLOCKS, ~, __VA_ARGS__)                                            \
+      ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_VIEW_METHODS, ~, __VA_ARGS__))                                      \
                                                                                                                        \
       private:                                                                                                         \
         _ITERATE_ON_ALL(_DECLARE_MEMBERS_CONST_VIEW_BLOCKS, ~, __VA_ARGS__)                                            \
@@ -481,6 +482,7 @@
                                                                                                                        \
       /* Accessors for the views for each block */                                                                     \
       _ITERATE_ON_ALL(_DECLARE_ACCESSORS_VIEW_BLOCKS, ~, __VA_ARGS__)                                                  \
+      ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_VIEW_METHODS, ~, __VA_ARGS__))                                            \
                                                                                                                        \
        /* Data members inherited from the ConstView */                                                                 \
     };                                                                                                                 \
