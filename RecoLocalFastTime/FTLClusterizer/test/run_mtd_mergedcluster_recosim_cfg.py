@@ -35,7 +35,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring("file:/eos/user/p/pakrap/MTD/CMSSW_15_0_0_pre2/src/Validation/MtdValidation/29706.0_SinglePiFlatPt0p7To10+Run4D110/1000evt/step3.root")    
+    fileNames = cms.untracked.vstring("file:step3.root")    
 )
 
 # Load SimMergedCluster producer

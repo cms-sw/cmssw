@@ -401,7 +401,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       }
 
       // Find the MTDTrackingRecHit corresponding to the cluster
-      MTDTrackingRecHit* comp(nullptr);
+      const MTDTrackingRecHit* comp(nullptr);
       bool matchClu = false;
 
       const auto& trkHits = mtdTrkHitHandle->find(detIdObject);
@@ -414,6 +414,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
                 << trkHit.localPositionError().xx() << "," << trkHit.localPositionError().yy() << " : " << trkHit.time()
                 << " : " << trkHit.timeError();
             matchClu = true;
+            comp = &trkHit; 
             break;
           }
         }
@@ -442,7 +443,6 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
           float simClusTime = (*simClusterRef).simTime();
           LocalPoint simClusLocalPos = (*simClusterRef).simPos();
           const auto& simClusGlobalPos = genericDet->toGlobal(simClusLocalPos);
-
           float time_res = cluster.time() - simClusTime;
           float x_res = global_point.x() - simClusGlobalPos.x();
           float y_res = global_point.y() - simClusGlobalPos.y();
@@ -455,7 +455,6 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
           meCluTPullvsEta_simLC_[iside]->Fill(simClusGlobalPos.eta(), time_res / cluster.timeError());
           meCluTPullvsE_simLC_[iside]->Fill(simClusEnergy, time_res / cluster.timeError());
-
           if (matchClu && comp != nullptr) {
             meCluXPull_simLC_[iside]->Fill(x_res / std::sqrt(comp->globalPositionError().cxx()));
             meCluYPull_simLC_[iside]->Fill(y_res / std::sqrt(comp->globalPositionError().cyy()));

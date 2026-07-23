@@ -116,7 +116,7 @@ std::vector<std::pair<float, LocalPoint>> MtdSimMergedCluster::hitTimesAndPositi
 }
 
 std::vector<uint64_t> MtdSimMergedCluster::hitUniqueIds()
-    const {  //unique ids, computed in the same way as in FTLMergedCluster, for all hits in the merged cluster
+    const {  //unique ids, computed in a similar way as in FTLMergedCluster, for all hits in the merged cluster, but pay attention to the detIds, they are the crystal detIds
 
   std::vector<uint64_t> uniqueIds;
   //consider all hits from all clusters in the merged cluster
