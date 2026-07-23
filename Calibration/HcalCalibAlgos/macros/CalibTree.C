@@ -192,17 +192,18 @@ void Run(const char *inFileName = "Silver.root",
 
 class PU_MLModel {
 public:
-  explicit PU_MLModel(const std::string& model_path) : env(ORT_LOGGING_LEVEL_WARNING, "cms"),
-						       sessionOptions(),
-						       session(nullptr),
-						       ort_allocator(),
-						       memory_info(Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault)) {
+  explicit PU_MLModel(const std::string &model_path)
+      : env(ORT_LOGGING_LEVEL_WARNING, "cms"),
+        sessionOptions(),
+        session(nullptr),
+        ort_allocator(),
+        memory_info(Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault)) {
     sessionOptions.SetIntraOpNumThreads(1);
     sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
 
     // Create session
     session = Ort::Session(env, model_path.c_str(), sessionOptions);
-    
+
     // Store names safely as std::string
     auto input_name_alloc = session.GetInputNameAllocated(0, ort_allocator);
     input_name = input_name_alloc.get();
@@ -211,15 +212,12 @@ public:
     output_name = output_name_alloc.get();
   }
 
-  float predict(const std::vector<float>& input_features) {
-    std::vector<int64_t> input_shape = {1,
-					static_cast<int64_t>(input_features.size()) };
+  float predict(const std::vector<float> &input_features) {
+    std::vector<int64_t> input_shape = {1, static_cast<int64_t>(input_features.size())};
 
-    std::vector<float> input_mean = {2.64722646f, 44.1643437f, 4.20268438f,
-				     4.43074415f, 2.27053123f, 65.45192583f};
+    std::vector<float> input_mean = {2.64722646f, 44.1643437f, 4.20268438f, 4.43074415f, 2.27053123f, 65.45192583f};
 
-    std::vector<float> input_std = {1.22767224f, 8.38649042f, 0.53096049f,
-				    0.70274144f, 0.24442579f, 40.77335786f};
+    std::vector<float> input_std = {1.22767224f, 8.38649042f, 0.53096049f, 0.70274144f, 0.24442579f, 40.77335786f};
 
     std::vector<float> normalized_features(input_features.size());
     for (size_t i = 0; i < input_features.size(); ++i) {
@@ -229,28 +227,22 @@ public:
     }
 
     Ort::Value input_tensor = Ort::Value::CreateTensor<float>(memory_info,
-							      const_cast<float*>(normalized_features.data()),
-							      normalized_features.size(),
-							      input_shape.data(),
-							      input_shape.size());
+                                                              const_cast<float *>(normalized_features.data()),
+                                                              normalized_features.size(),
+                                                              input_shape.data(),
+                                                              input_shape.size());
 
-    const char* input_names[]  = { input_name.c_str() };
-    const char* output_names[] = { output_name.c_str() };
+    const char *input_names[] = {input_name.c_str()};
+    const char *output_names[] = {output_name.c_str()};
 
-    auto output_tensors = session.Run (Ort::RunOptions{nullptr},
-				       input_names,
-				       &input_tensor,
-				       1,
-				       output_names,
-				       1);
+    auto output_tensors = session.Run(Ort::RunOptions{nullptr}, input_names, &input_tensor, 1, output_names, 1);
 
-    float* output_data = output_tensors.front().GetTensorMutableData<float>();
+    float *output_data = output_tensors.front().GetTensorMutableData<float>();
 
     float target_mean = 48.375240;
     float target_std = 10.280812;
-	
-	
-    return ((output_data[0]*target_std) + target_mean);
+
+    return ((output_data[0] * target_std) + target_mean);
   }
 
 private:
@@ -260,7 +252,7 @@ private:
 
   Ort::AllocatorWithDefaultOptions ort_allocator;
   Ort::MemoryInfo memory_info;
-  
+
   std::string input_name;
   std::string output_name;
 };
@@ -719,17 +711,20 @@ CalibTree::CalibTree(const char *dupFileName,
     if (cFactor_->absent())
       rcorForm_ = -1;
   } else if (rcorForm_ == 6) {
-  }
-  else {
+  } else {
     rcorForm_ = -1;
   }
   if (std::string(rbxFile) != "") {
     std::cout << "RBX File: " << rbxFile << std::endl;
     cSelect_ = new CalibSelectRBX(rbxFile, false);
   }
-  if (rcorForm_ == 6){
-    cPUMLFactorEB_ =  new PU_MLModel("/eos/user/d/dasgupsu/alcareco_treemaker/collision_13.6TeV/CMSSW_13_1_0_pre3/src/Calibration/HcalCalibAlgos/macros/checkpointsVF/model_best.onnx");
-    cPUMLFactorEE_ =  new PU_MLModel("/eos/user/d/dasgupsu/alcareco_treemaker/collision_13.6TeV/CMSSW_13_1_0_pre3/src/Calibration/HcalCalibAlgos/macros/checkpointsVF/model_best.onnx");
+  if (rcorForm_ == 6) {
+    cPUMLFactorEB_ = new PU_MLModel(
+        "/eos/user/d/dasgupsu/alcareco_treemaker/collision_13.6TeV/CMSSW_13_1_0_pre3/src/Calibration/HcalCalibAlgos/"
+        "macros/checkpointsVF/model_best.onnx");
+    cPUMLFactorEE_ = new PU_MLModel(
+        "/eos/user/d/dasgupsu/alcareco_treemaker/collision_13.6TeV/CMSSW_13_1_0_pre3/src/Calibration/HcalCalibAlgos/"
+        "macros/checkpointsVF/model_best.onnx");
   }
   if (thrForm_ > 0)
     cThr_ = new CalibThreshold(thrForm_);
@@ -930,14 +925,13 @@ Double_t CalibTree::Loop(int loop,
     bool selTrack = ((ietaTrack <= 0) || (abs(t_ieta) <= ietaTrack));
     if (!selTrack)
       continue;
-    
+
     if ((rcorForm_ == 3) && (cFactor_ != nullptr) && (cFactor_->absent(ientry)))
       continue;
-    
+
     if ((rcorForm_ == 6) && (cPUMLFactorEB_ == nullptr) && (cPUMLFactorEE_ == nullptr))
       continue;
-    
-    
+
     if (debug) {
       std::cout << "***Entry (Track) Number : " << ientry << std::endl;
       std::cout << "p/eHCal/eMipDR/nDets : " << t_p << "/" << t_eHcal << "/" << t_eMipDR << "/" << (*t_DetIds).size()
@@ -1597,7 +1591,7 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
   double ediff = (t_eHcal30 - t_eHcal10);
   double etot1 = t_eHcal10;
   double etot3 = t_eHcal30;
-  
+
   if (final) {
     etot = etot2 = etot1 = etot3 = 0;
     for (unsigned int idet = 0; idet < (*t_DetIds).size(); idet++) {
@@ -1676,20 +1670,17 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
     }
     ediff = etot3 - etot1;
   }
-  
+
   // PU correction only for loose isolation cut
   //std::vector<float> input_features = {ediff, t_nVtx, etot1, etot3, t_rhoh, etot};
   double ehcal;
   if (rcorForm_ == 6 && cPUMLFactorEB_ && cPUMLFactorEE_) {
-
-    std::vector<float> input_features = {
-      std::log1p(static_cast<float>(ediff)),
-      static_cast<float>(t_nVtx),
-      std::log1p(static_cast<float>(etot1)),
-      std::log1p(static_cast<float>(etot3)),
-      std::log1p(static_cast<float>(t_rhoh)),
-      static_cast<float>(etot)
-    };
+    std::vector<float> input_features = {std::log1p(static_cast<float>(ediff)),
+                                         static_cast<float>(t_nVtx),
+                                         std::log1p(static_cast<float>(etot1)),
+                                         std::log1p(static_cast<float>(etot3)),
+                                         std::log1p(static_cast<float>(t_rhoh)),
+                                         static_cast<float>(etot)};
 
     //std::cout<<ediff<<":"<<t_nVtx<<":"<<etot1<<":"<<etot3<<":"<<t_rhoh<<":"<<etot<<std::endl;
 
@@ -1697,19 +1688,16 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
       ehcal = cPUMLFactorEB_->predict(input_features);
     else
       ehcal = cPUMLFactorEE_->predict(input_features);
+  } else if (puCorr_ == 0) {
+    ehcal = etot;
+  } else if (puCorr_ < 0) {
+    ehcal = etot * puFactor(-puCorr_, t_ieta, pmom, etot, ediff);
+  } else {
+    ehcal = puFactorRho(puCorr_, t_ieta, t_rhoh, etot);
   }
-  else if (puCorr_ == 0) {
-     ehcal = etot;
-  }
-  else if (puCorr_ < 0) {
-     ehcal = etot * puFactor(-puCorr_, t_ieta, pmom, etot, ediff);
-  }
-  else {
-     ehcal = puFactorRho(puCorr_, t_ieta, t_rhoh, etot);
-  }
-  
+
   return CalibTree::energyCalor(etot, etot2, ehcal);
-  
+
   /*
   double ehcal = (((rcorForm_ == 3) && (cFactor_ != nullptr))
 		  //? (etot * cFactor_->getCorr(entry))
