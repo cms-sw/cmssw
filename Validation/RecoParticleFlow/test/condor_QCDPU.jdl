@@ -3,8 +3,8 @@ Universe = vanilla
 
 Executable = $ENV(CMSSW_BASE)/src/Validation/RecoParticleFlow/test/run_relval.sh
 Arguments = "QCDPU reco $(Process)"
-# When running in modes other than the default (default: phase1)
-#Arguments = "QCDPU reco $(Process) phase2-mlpf"
+# When running in modes other than the default (default: pf)
+#Arguments = "QCDPU reco $(Process) mlpf"
 
 Log = log/test.$(Cluster).log
 Output = log/test.out.$(Cluster).$(Process)
@@ -24,7 +24,7 @@ RequestCpus = 8
 +RunAsOwner = True
 +SleepSlot = True
 +InteractiveUser = true
-+SingularityImage = "/cvmfs/singularity.opensciencegrid.org/cmssw/cms:rhel8"
++SingularityImage = "/cvmfs/singularity.opensciencegrid.org/cmssw/cms:rhel9"
 +SingularityBindCVMFS = True
 run_as_owner = True
 

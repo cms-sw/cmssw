@@ -8,10 +8,10 @@ Set up the work area
 for lxplus with SLC8 (used for Run3 CMSSW releases)
 
 ~~~
-ssh -X username@lxplus8.cern.ch
-export SCRAM_ARCH=el8_amd64_gcc13
-cmsrel CMSSW_17_0_0_pre1
-cd CMSSW_17_0_0_pre1
+ssh -X username@lxplus9.cern.ch
+export SCRAM_ARCH=el9_amd64_gcc13
+cmsrel CMSSW_20_1_0_pre1
+cd CMSSW_20_1_0_pre1
 cmsenv
 ~~~
 
@@ -37,47 +37,30 @@ Create input file lists under test/tmp/das_cache
 ~~~
 cd test; python3 datasets.py; cd ..
 ~~~
-or
-~~~
-cd test; python3 datasets.py --phase phase2; cd ..
-~~~
 
 Proceed to RECO step, about 30 minutes
 
 This is necessary if you need to re-reco events to test introduced changes to PF reco.
 
-Note 1: the default era & condition is now set to Run3 2022. Change CONDITIONS and
-ERA in test/run_relval.sh when trying other era, before trying the above commands.
+Note 1: the default era & condition is now set to Run4.
 
 Note 2: the execution will fail if the destination directory (test/tmp/QCD etc.)
 already exists. Rename or remove existing conflicting directories from test/tmp.
 
-Note 3: by default, PHASE=phase1 (traditional/default pf for Run 3).
+Note 3: by default, PF=pf (traditional/default pf).
 
 ~~~
 make QCD_reco
 ~~~
 or
 ~~~
-make QCD_reco PHASE=phase1-mlpf
-~~~
-or
-~~~
-make QCD_reco PHASE=phase2
-~~~
-or
-~~~
-make QCD_reco PHASE=phase2-mlpf
+make QCD_reco PF=mlpf
 ~~~
 
 Now let's do the DQM step that takes a few minutes
 
 ~~~
 make QCD_dqm
-~~~
-or
-~~~
-make QCD_dqm PHASE=phase2
 ~~~
 
 Repeat for QCDPU & NuGunPU (make QCDPU_reco, make QCDPU_dqm etc.) or use CRAB
@@ -162,18 +145,8 @@ make dumpconf
 ~~~
 or
 ~~~
-make conf PHASE=phase1-mlpf
-make dumpconf PHASE=phase1
-~~~
-or
-~~~
-make conf PHASE=phase2
-make dumpconf PHASE=phase2
-~~~
-or
-~~~
-make conf PHASE=phase2-mlpf
-make dumpconf PHASE=phase2
+make conf PF=mlpf
+make dumpconf PF=mlpf
 ~~~
 then
 ~~~
@@ -197,7 +170,7 @@ python3 multicrab.py
 ~~~
 or
 ~~~
-python3 multicrab_phase2.py
+python3 multicrab.py --pset step3_mlpf_dump.py --workArea crab_projects_mlpf --gpu
 ~~~
 
 Once the jobs are done, move the step3_inMINIAODSIM root files
@@ -208,7 +181,7 @@ be included in the DQM step, so delete files you don't want to study.
 
 
 
-Note that the default era, condition, and samples are now set to 2021. Change CONDITIONS and ERA in test/run_relval.sh when trying other era, before trying the above commands. Also check (and if necessary, update) input samples and conf.Site.storageSite specified in $CMSSW_BASE/src/Validation/RecoParticleFlow/crab/multicrab.py (default storage site is T2_US_Caltech, but change it to your favorite site you have access to. use crab checkwrite --site=<site> to check your permission).
+Note that the default era, condition, and samples are now set to Run4. Change CONDITIONS and ERA in test/run_relval.sh when trying other era, before trying the above commands. Also check (and if necessary, update) input samples and conf.Site.storageSite specified in $CMSSW_BASE/src/Validation/RecoParticleFlow/crab/multicrab.py (default storage site is T2_US_Caltech, but change it to your favorite site you have access to. use crab checkwrite --site=<site> to check your permission).
 Take note that the CMSSW python3 configuration for running the RECO sequence is dumped into `crab/step3_dump.py`.
 
 
@@ -216,27 +189,23 @@ Take note that the CMSSW python3 configuration for running the RECO sequence is 
 
 ~~~
 cd $CMSSW_BASE/src/Validation/RecoParticleFlow/test/crab
-mkdir -p tmp/QCD; cd tmp/QCD
+mkdir -p QCD; cd QCD
 #(or
-mkdir -p tmp/QCDPU; cd tmp/QCDPU
-mkdir -p tmp/NuGunPU; cd tmp/NuGunPU
+mkdir -p QCDPU; cd QCDPU
+mkdir -p NuGunPU; cd NuGunPU
 #)
 ~~~
 
 # Make a text file for input files. For example:
 
 ~~~
-dasgoclient --query="file dataset=/RelValQCD_FlatPt_15_3000HS_14/CMSSW_11_0_0_patch1-110X_mcRun3_2021_realistic_v6-v1/MINIAODSIM" | sed 's/^/file:/' > step3_filelist.txt
-#(or
-dasgoclient --query="file dataset=/RelValQCD_Pt15To7000_Flat_14TeV/CMSSW_11_0_0-110X_mcRun4_realistic_v2_2026D49noPU-v1/MINIAODSIM" | sed 's/^/file:/' > step3_filelist.txt
-or using the list of files from your crab output areas.
-#)
+dasgoclient --query="file dataset=/RelValQCD_FlatPt_15_3000HS_14/CMSSW_20_0_0_pre1-150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/MINIAODSIM" | sed 's/^/file:/' > step3_filelist.txt
 cat step3_filelist.txt
 ~~~
 
 and run DQM modules based on the already-prepared filelist and produce DQM root files (so-called step5 & 6):
 ~~~
-$CMSSW_BASE/src/Validation/RecoParticleFlow/test/run_relval.sh [QCD|QCDPU|ZEEPU|ZMMPU|TenTauPU|NuGunPU] dqm2 0 [phase1|phase2]
+$CMSSW_BASE/src/Validation/RecoParticleFlow/test/run_relval.sh [QCD|QCDPU|ZEEPU|ZMMPU|TenTauPU|NuGunPU] dqm2 0
 ~~~
 
 # Make plots

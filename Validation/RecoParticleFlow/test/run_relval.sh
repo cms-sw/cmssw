@@ -18,38 +18,27 @@ if [ -z "$PERJOB" ]; then
     PERJOB=200
 fi
 
-PHASE=$4
-case "${PHASE}" in
-    phase1)
-        CONDITIONS="auto:phase1_2026_realistic"
-        ERA="Run3"
-        GEOM="DB:Extended"
-        CUSTOM=""
-	PHASE_Label=""
-        ;;
-    phase1-mlpf)
-        CONDITIONS="auto:phase1_2026_realistic"
-        ERA="Run3"
-        GEOM="DB:Extended"
-        CUSTOM="--procModifiers mlpf"
-	PHASE_Label=""
-        ;;
-    phase2)
+
+# Fallback to "pf" if $4 is empty or not provided
+PF="${4:-pf}"
+
+case "${PF}" in
+    pf)
         CONDITIONS="auto:phase2_realistic_T35"
         ERA="Phase2C22I13M9"
         GEOM="ExtendedRun4D121"
         CUSTOM="--customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000"
-	PHASE_Label="_phase2"
+	PF_Label=""
         ;;
-    phase2-mlpf)
+    mlpf)
         CONDITIONS="auto:phase2_realistic_T35"
         ERA="Phase2C22I13M9"
         GEOM="ExtendedRun4D121"
         CUSTOM="--customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000 --procModifiers mlpf"
-	PHASE_Label="_phase2"
+	PF_Label="_mlpf"
         ;;
     *)
-        echo "Error: Unknown PHASE='${PHASE}'. Must be one of: phase1, phase1-mlpf, phase2, phase2-mlpf"
+        echo "Error: Unknown PF='${PF}'. Must be one of: pf (default), mlpf"
         exit 1
         ;;
 esac
@@ -63,8 +52,8 @@ echo "CUSTOM=${CUSTOM}"
 NTHREADS=8
 
 #Argument parsing
-if [ "$#" -ne 4 ]; then
-    echo "Must pass exactly 4 arguments: run_relval.sh [QCD|QCDPU|ZEEPU|ZMMPU|TenTauPU|NuGunPU] [reco|dqm|dqm2] [njob] [phase1|phase2|phase1-mlpf]"
+if [ "$#" -lt 3 ] || [ "$#" -gt 4 ]; then
+    echo "Must pass exactly 4 arguments: run_relval.sh [QCD|QCDPU|ZEEPU|ZMMPU|TenTauPU|NuGunPU] [reco|dqm|dqm2] [njob] [pf|mlpf (optional, default: pf)]"
     exit 0
 fi
 
@@ -130,11 +119,8 @@ else
     exit 1
 fi
 
-#skip njob*perjob events
-SKIPEVENTS=$(($NJOB * $PERJOB))
-
 #Just print out environment last time for debugging
-echo $INPUT_FILELIST $NAME $STEP $SKIPEVENTS
+echo $INPUT_FILELIST $NAME $STEP
 #env
 
 echo $GEOM $CONDITIONS
@@ -148,7 +134,7 @@ if [ $STEP == "RECO" ]; then
 	FILENAME=`sed -n "${NJOB}p" $INPUT_FILELIST`
 	echo "FILENAME="$FILENAME
 
-	cmsDriver.py step3 --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,PAT --datatier MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent MINIAODSIM --geometry $GEOM --filein step2.root --fileout file:step3_inMINIAODSIM.root --no_exec --python_filename=step3${PHASE_Label}.py $CUSTOM
+	cmsDriver.py step3 --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,PAT --datatier MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent MINIAODSIM --geometry $GEOM --filein step2.root --fileout file:step3_inMINIAODSIM.root --no_exec --python_filename=step3${PF_Label}.py $CUSTOM
 
     else
 
@@ -167,7 +153,7 @@ if [ $STEP == "RECO" ]; then
 	echo "FILENAME="$FILENAME
 	#Run the actual CMS reco with particle flow.
 	echo "Running step RECO"
-	cmsDriver.py step3 --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,PAT --datatier MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent MINIAODSIM --geometry $GEOM --filein $FILENAME --fileout file:step3_inMINIAODSIM.root  --python_filename=step3${PHASE_Label}.py $CUSTOM  2>&1 | tee step3.log
+	cmsDriver.py step3 --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,PAT --datatier MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent MINIAODSIM --geometry $GEOM --filein $FILENAME --fileout file:step3_inMINIAODSIM.root  --python_filename=step3${PF_Label}.py $CUSTOM  2>&1 | tee step3.log
 
 	#NanoAOD
 	#On lxplus, this step takes about 1 minute / 1000 events
@@ -194,7 +180,7 @@ elif [ $STEP == "DQM" ]; then
     cmsDriver.py step6 --conditions $CONDITIONS -s HARVESTING:@pfDQM --era $ERA --filetype DQM --filein file:step5.root --fileout file:step6.root 2>&1 | tee step6.log
 
 elif [ $STEP == "DQM2" ]; then
-    echo "Running step DQM"
+    echo "Running step DQM from existing step3_filelist.txt"
 
     #Run the DQM sequences (PF DQM only)
     #override the filenames here as cmsDriver does not allow multiple input files and there is no easy way to merge EDM files
