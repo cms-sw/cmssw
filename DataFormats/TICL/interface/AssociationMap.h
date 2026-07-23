@@ -37,41 +37,33 @@ namespace ticl {
       }
     };
 
-    using OffsetsView = OffsetBufferLayout<>::template ViewTemplate<cms::soa::RestrictQualify::enabled, cms::soa::RangeChecking::disabled>;
-    using OffsetsConstView = OffsetBufferLayout<>::template ConstViewTemplate<cms::soa::RestrictQualify::enabled, cms::soa::RangeChecking::disabled>;
-
     GENERATE_SOA_BLOCKS(Layout,
                         SOA_BLOCK(content, ContentBuffersLayout),
                         SOA_BLOCK(offsets, OffsetsLayout),
                         SOA_VIEW_METHODS(
 							constexpr SOA_HOST_DEVICE auto operator[](TKey key) {
-                auto view = OffsetsView(this->offsets().metadata().size(), this->offsets().keys_offsets().data());
-
-							 auto offset = view[key].keys_offsets();
-							 auto size = this->count(key);
-							 return std::span<TMapped>{this->content().values().data() + offset, static_cast<std::size_t>(size)};
+							  const auto offset = this->offsets()[key].keys_offsets();
+							  const auto size = this->count(key);
+							  return std::span<TMapped>{this->content().values().data() + offset, static_cast<std::size_t>(size)};
 							}
 						),
                         SOA_CONST_VIEW_METHODS(
 							constexpr SOA_HOST_DEVICE auto operator[](TKey key) const {
-                auto view = OffsetsConstView(this->offsets().metadata().size(), this->offsets().keys_offsets().data());
-
-							 auto offset = view[key].keys_offsets();
-							 auto size = this->count(key);
-							 return std::span<const TMapped>{this->content().values().data() + offset, static_cast<std::size_t>(size)};
+                const auto offset = this->offsets()[key].keys_offsets();
+							  const auto size = this->count(key);
+							  return std::span<const TMapped>{this->content().values().data() + offset, static_cast<std::size_t>(size)};
 							}
 							constexpr SOA_HOST_DEVICE auto contains(TKey key) const {
-							return this->count(key) > 0;
+                return this->count(key) > 0;
 							}
 							constexpr SOA_HOST_DEVICE auto count(TKey key) const {
-                auto view = OffsetsConstView(this->offsets().metadata().size(), this->offsets().keys_offsets().data());
-							return view[key + 1].keys_offsets() - view[key].keys_offsets();
+                return this->offsets()[key + 1].keys_offsets() - this->offsets()[key].keys_offsets();
 							}
 							constexpr SOA_HOST_DEVICE auto keys() const {
-							return this->offsets().metadata().size() - 1;
+                return this->offsets().metadata().size() - 1;
 							}
 							constexpr SOA_HOST_DEVICE auto size() const {
-							return this->content().metadata().size();
+                return this->content().metadata().size();
 							}
 						)
     )
