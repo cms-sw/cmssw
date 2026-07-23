@@ -47,7 +47,7 @@ Note 1: the default era & condition is now set to Run4.
 Note 2: the execution will fail if the destination directory (test/tmp/QCD etc.)
 already exists. Rename or remove existing conflicting directories from test/tmp.
 
-Note 3: by default, PF=pf (traditional/default pf).
+Note 3: by default, PF=pf (traditional pf + PFTICL).
 
 ~~~
 make QCD_reco
@@ -166,11 +166,11 @@ Note that the datasets to run over are defined in the below script.
 Modify the "samples" -list there for changing datasets to process.
 
 ~~~
-python3 multicrab.py
+python3 multicrab.py --datasets QCD_noPU
 ~~~
 or
 ~~~
-python3 multicrab.py --pset step3_mlpf_dump.py --workArea crab_projects_mlpf --gpu
+python3 multicrab.py --pset step3_mlpf_dump.py --workArea crab_projects_mlpf --gpu --datasets QCD_noPU QCD_PU
 ~~~
 
 Once the jobs are done, move the step3_inMINIAODSIM root files

@@ -5,6 +5,15 @@ import os
 import json
 import argparse
 
+AVAILABLE_DATASETS = [
+    "QCD_noPU",
+    "QCD_PU",
+    "ZEE_PU",
+    "ZMM_PU",
+    "TenTau_PU",
+    "NuGun_PU"
+]
+
 #
 # add arguments
 parser = argparse.ArgumentParser()
@@ -23,8 +32,26 @@ parser.add_argument(
     action="store_true",
     help="Request GPU resources"
 )
+parser.add_argument(
+    "--datasets",
+    nargs="+",
+    default=["QCD_noPU"],
+    help="Datasets to submit (space-separated). "
+         "Available: " + " ".join(AVAILABLE_DATASETS)
+)
 args = parser.parse_args()
-    
+
+# validate input datasets
+invalid = [d for d in args.datasets if d not in AVAILABLE_DATASETS]
+if invalid:
+    parser.error(
+        "Invalid dataset(s): {}. Available datasets: {}".format(
+            ", ".join(invalid),
+            " ".join(AVAILABLE_DATASETS)
+        )
+    )
+
+# load datasets
 with open("../datasets.json") as f:
     dataset_configs = json.load(f)
 
@@ -37,8 +64,7 @@ def submit(config):
 samples = [
     (d["path"], d["name"])
     for d in dataset_configs
-    if d["name"] in ["QCD_PU"] # submit only QCD_noPU & QCD_PU
-    #if d["name"] in ["QCD_noPU", "QCD_PU"] # submit only QCD_noPU & QCD_PU
+    if d["name"] in args.datasets
 ]
 
 if __name__ == "__main__":
