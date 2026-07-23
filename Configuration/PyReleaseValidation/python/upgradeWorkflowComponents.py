@@ -1124,7 +1124,10 @@ class UpgradeWorkflow_mlpf(UpgradeWorkflow):
         if 'Reco' in step:
             stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return (fragment=="TTbar_14TeV" or fragment=="QCD_FlatPt_15_3000HS_14") and '2025PU' in key
+        return (
+            (fragment == "TTbar_14TeV" or fragment == "QCD_FlatPt_15_3000HS_14")
+            and ("Run4" in key or "2025" in key or "2026" in key)
+        )
 
 upgradeWFs['mlpf'] = UpgradeWorkflow_mlpf(
     steps = [
@@ -1132,12 +1135,14 @@ upgradeWFs['mlpf'] = UpgradeWorkflow_mlpf(
         'RecoFakeHLT',
         'RecoNano',
         'RecoNanoFakeHLT',
+        'RecoGlobal'
     ],
     PU = [
         'Reco',
         'RecoFakeHLT',
         'RecoNano',
         'RecoNanoFakeHLT',
+        'RecoGlobal'
     ],
     suffix = '_mlpf',
     offset = 0.13,
