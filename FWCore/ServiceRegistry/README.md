@@ -19,6 +19,7 @@ The naming of `ActivityRegistry` member objects, that are used for emitting the 
 The order of the signals in this list is an approximate order in which they would be emitted in a typical single-thread job. The order should be kept consistent with the `ActivityRegistry.h`. 
 
 
+
 ### Construction phase
 
 | Signal Type | Are Pre and Post guaranteed to be called in the same thread? | Short explanation |
@@ -34,7 +35,7 @@ The order of the signals in this list is an approximate order in which they woul
 | `{Pre,Post}FinishSchedule` | Yes | Emitted before and after finalizing the Schedule. |
 | `{Pre,Post}PrincipalsCreation` | Yes | Emitted before and after creating the Principals. |
 
-#### Startup phase
+### Startup phase
 
 | Signal Type | Are Pre and Post guaranteed to be called in the same thread? | Short explanation |
 |-------------|------------------------------------------------------------------|-------------------|
@@ -129,4 +130,4 @@ occur when accessing data from `edm::Ref`-style objects. |
 | `PreStreamEarlyTermination` | - | Emitted when an exception is thrown from any stream transition. |
 | `PreGlobalEarlyTermination` | - | Emitted when an exception is thrown from any global transition. |
 | `PreSourceEarlyTermination` | - | Emitted when an external termination request is received. |
-| `JobFailure` | | To be removed (only called from `FWCore/Services/test/servicesJobReport_t.cpp`) |
+| `JobFailure` | - | To be removed (only called from `FWCore/Services/test/servicesJobReport_t.cpp`) |
