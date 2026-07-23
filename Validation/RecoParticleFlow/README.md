@@ -10,8 +10,8 @@ for lxplus with SLC8 (used for Run3 CMSSW releases)
 ~~~
 ssh -X username@lxplus9.cern.ch
 export SCRAM_ARCH=el9_amd64_gcc13
-cmsrel CMSSW_20_1_0_pre1
-cd CMSSW_20_1_0_pre1
+cmsrel CMSSW_20_0_0_pre1
+cd CMSSW_20_0_0_pre1
 cmsenv
 ~~~
 
@@ -181,7 +181,7 @@ be included in the DQM step, so delete files you don't want to study.
 
 
 
-Note that the default era, condition, and samples are now set to Run4. Change CONDITIONS and ERA in test/run_relval.sh when trying other era, before trying the above commands. Also check (and if necessary, update) input samples and conf.Site.storageSite specified in $CMSSW_BASE/src/Validation/RecoParticleFlow/crab/multicrab.py (default storage site is T2_US_Caltech, but change it to your favorite site you have access to. use crab checkwrite --site=<site> to check your permission).
+Note that the default era, condition, and samples are now set to Run4. Change CONDITIONS and ERA in test/run_relval.sh when trying other era, before trying the above commands. Also check (and if necessary, update) input samples and conf.Site.storageSite specified in `$CMSSW_BASE/src/Validation/RecoParticleFlow/crab/multicrab.py` (default storage site is `T3_US_Baylor`, but change it to your favorite site you have access to. use `crab checkwrite --site=<site>` to check your permission).
 Take note that the CMSSW python3 configuration for running the RECO sequence is dumped into `crab/step3_dump.py`.
 
 
