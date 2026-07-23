@@ -75,6 +75,20 @@ from Validation.MtdValidation.MtdPostProcessor_cff import *
 
 postValidation_common = cms.Sequence()
 
+# Branch performance-plot harvesting (efficiency from the booked num/denom), gated by
+# enableTruth (Run4 .88 truth workflows). postValidation_common is the harvesting
+# member of the 'baseValidation' triplet that autoValidation['phase2Validation']
+# schedules - the counterpart of the baseCommon{PreValidation,Validation} hook in
+# globalValidation_cff. The .88 workflows therefore also apply enableTruth to the
+# HARVESTGlobal step (see Configuration/PyReleaseValidation). Import * so the
+# harvester modules are labelled when the process loads this cff; reco-side
+# harvesters stay opt-in (see truthGraphDQMHarvester_cff).
+from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
+from PhysicsTools.TruthInfo.truthGraphDQMHarvester_cff import *
+_postValidationCommonWithTruth = postValidation_common.copy()
+_postValidationCommonWithTruth += truthGraphDQMHarvesting
+enableTruth.toReplaceWith(postValidation_common, _postValidationCommonWithTruth)
+
 postValidation_trackingOnly = cms.Sequence(
       postProcessorTrackSequenceTrackingOnly
     + postProcessorVertexSequence

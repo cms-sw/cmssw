@@ -15,13 +15,13 @@
 
 class HGCalNeighbourFinder {
 public:
-  HGCalNeighbourFinder(const HGCalDDDConstants*);
+  HGCalNeighbourFinder(const HGCalDDDConstants&);
   ~HGCalNeighbourFinder() = default;
 
   std::vector<unsigned int> nearestNeighboursOfDetId(unsigned int) const;
 
 private:
-  const HGCalDDDConstants* hgc_;
+  const HGCalDDDConstants& hgc_;
 
   // The method edgeIndexForU:(int)iu andV:(int)iv density:(BOOL)HD
   // should not be a Public method in the CMSSW implemention

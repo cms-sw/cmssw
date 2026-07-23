@@ -8,8 +8,6 @@ LCToSCAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::LCToSCAssociatorByEnergySc
       caloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")),
       hits_token_(consumes<multiCollectionT>(ps.getParameter<edm::InputTag>("hits"))) {
-  rhtools_ = std::make_shared<hgcal::RecHitTools>();
-
   // Register the product
   produces<ticl::LayerClusterToSimClusterAssociatorT<CLUSTER>>();
 }
@@ -22,7 +20,8 @@ void LCToSCAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID
                                                                    edm::Event &iEvent,
                                                                    const edm::EventSetup &es) const {
   edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_);
-  rhtools_->setGeometry(*geom);
+  auto rhtools = std::make_shared<hgcal::RecHitTools>();
+  rhtools->setGeometry(*geom);
 
   if (!iEvent.getHandle(hitMap_) || !iEvent.getHandle(hits_token_)) {
     if (!iEvent.getHandle(hitMap_)) {
@@ -36,7 +35,7 @@ void LCToSCAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID
     const std::unordered_map<DetId, const unsigned int> hitMap;  // empty map
     const multiCollectionT hits;
     auto impl = std::make_unique<LCToSCAssociatorByEnergyScoreImplT<HIT, CLUSTER>>(
-        iEvent.productGetter(), hardScatterOnly_, rhtools_, &hitMap, hits);
+        iEvent.productGetter(), hardScatterOnly_, rhtools, &hitMap, hits);
     auto emptyAssociator = std::make_unique<ticl::LayerClusterToSimClusterAssociatorT<CLUSTER>>(std::move(impl));
     iEvent.put(std::move(emptyAssociator));
     return;
@@ -60,7 +59,7 @@ void LCToSCAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID
 
   const auto hitMap = &iEvent.get(hitMap_);
   auto impl = std::make_unique<LCToSCAssociatorByEnergyScoreImplT<HIT, CLUSTER>>(
-      iEvent.productGetter(), hardScatterOnly_, rhtools_, hitMap, hits);
+      iEvent.productGetter(), hardScatterOnly_, rhtools, hitMap, hits);
   auto toPut = std::make_unique<ticl::LayerClusterToSimClusterAssociatorT<CLUSTER>>(std::move(impl));
   iEvent.put(std::move(toPut));
 }

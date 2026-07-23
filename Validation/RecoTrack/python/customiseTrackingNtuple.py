@@ -179,7 +179,7 @@ def customiseTrackingNtupleHLT(process):
     return process
 
 def extendedContent(process):
-    process.trackingParticlesIntime.intimeOnly = True
+    process.trackingParticlesIntime.intimeOnly = False
     shTags = [process.simHitTPAssocProducer.simHitSrc]
     if _usePileupSimHits(process):
         shTags += [process.crossingFramePSimHitToPSimHits.src]

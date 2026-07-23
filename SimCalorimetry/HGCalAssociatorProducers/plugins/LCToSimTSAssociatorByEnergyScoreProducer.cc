@@ -25,14 +25,9 @@ public:
 
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometry_;
-  std::shared_ptr<hgcal::RecHitTools> rhtools_;
 };
 
-LCToSimTSAssociatorByEnergyScoreProducer::LCToSimTSAssociatorByEnergyScoreProducer(const edm::ParameterSet &ps)
-    : caloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
-  rhtools_ = std::make_shared<hgcal::RecHitTools>();
-
+LCToSimTSAssociatorByEnergyScoreProducer::LCToSimTSAssociatorByEnergyScoreProducer(const edm::ParameterSet &) {
   // Register the product
   produces<ticl::LayerClusterToSimTracksterAssociator>();
 }
@@ -41,10 +36,7 @@ LCToSimTSAssociatorByEnergyScoreProducer::~LCToSimTSAssociatorByEnergyScoreProdu
 
 void LCToSimTSAssociatorByEnergyScoreProducer::produce(edm::StreamID,
                                                        edm::Event &iEvent,
-                                                       const edm::EventSetup &es) const {
-  edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_);
-  rhtools_->setGeometry(*geom);
-
+                                                       const edm::EventSetup &) const {
   auto impl = std::make_unique<LCToSimTSAssociatorByEnergyScoreImpl>(iEvent.productGetter());
   auto toPut = std::make_unique<ticl::LayerClusterToSimTracksterAssociator>(std::move(impl));
   iEvent.put(std::move(toPut));

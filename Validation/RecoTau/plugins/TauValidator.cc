@@ -45,6 +45,8 @@ public:
                  const std::vector<int>& validCutIDs_wp,
                  bool use_raw,
                  bool use_wp);
+  template <typename T>
+  bool passPreSelectionCut(const T& tau, double ptMinCut, double etaMaxCut);
 
 private:
   edm::EDGetTokenT<reco::GenJetCollection> genTauToken_;
@@ -53,6 +55,11 @@ private:
   std::vector<edm::EDGetTokenT<reco::TauDiscriminatorContainer>> recoTauIDTokens_;
   std::vector<std::string> recoTauIDLabels_;
   edm::InputTag recoTauCollection;
+
+  double pTMinGenCut_;
+  double etaMaxGenCut_;
+  double pTMinRecoCut_;
+  double etaMaxRecoCut_;
 
   const std::unordered_map<std::string, std::tuple<unsigned, float, float>> histoVars = {
       {"pt", std::make_tuple(200, 0., 1000.)},
@@ -133,7 +140,7 @@ bool TauValidator::passIdCut(const std::vector<double> idValuesForTau,
         if (validCutIDs_wp[i] > static_cast<int>(wpValuesForTau[i].size())) {
           return false;
         }
-        if (wpValuesForTau[i][validCutIDs_wp[i]] == 0) {
+        if (!wpValuesForTau[i][validCutIDs_wp[i]]) {
           return false;  // Fails WP cut
         }
       }
@@ -142,6 +149,11 @@ bool TauValidator::passIdCut(const std::vector<double> idValuesForTau,
   }
 
   return false;
+}
+
+template <typename T>
+bool TauValidator::passPreSelectionCut(const T& tau, double ptMinCut, double etaMaxCut) {
+  return tau.pt() > ptMinCut && std::abs(tau.eta()) < etaMaxCut;
 }
 
 TauValidator::TauValidator(const edm::ParameterSet& iConfig) {
@@ -156,6 +168,12 @@ TauValidator::TauValidator(const edm::ParameterSet& iConfig) {
   } else {
     recoTauToken_ = consumes<reco::PFTauCollection>(recoTauCollection);
   }
+
+  ParameterSet presel = iConfig.getParameter<ParameterSet>("TauPreSelection");
+  pTMinGenCut_ = presel.getParameter<double>("PtMinGenCut");
+  etaMaxGenCut_ = presel.getParameter<double>("EtaMaxGenCut");
+  pTMinRecoCut_ = presel.getParameter<double>("PtMinRecoCut");
+  etaMaxRecoCut_ = presel.getParameter<double>("EtaMaxRecoCut");
 
   std::vector<edm::InputTag> idTags = iConfig.getParameter<std::vector<edm::InputTag>>("recoTauIDCollections");
   for (const auto& tag : idTags) {
@@ -199,8 +217,7 @@ void TauValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
         outFolder += "_" + recoTauIDLabels_[i] + std::to_string(cutIDs_wp[i]);
       }
     }
-  }
-  if (use_raw) {
+  } else if (use_raw) {
     outFolder += "/CutID";
     for (size_t i = 0; i < recoTauIDLabels_.size(); ++i) {
       if (cutIDs_raw[i] > 0) {
@@ -331,10 +348,16 @@ TauValidator::~TauValidator() = default;
 void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup) {
   // --------------------------------- Gen Taus --------------------------------
 
-  auto genTaus = mEvent.getHandle(genTauToken_);
-  if (!genTaus.isValid()) {
+  auto genTausBeforePreselection = mEvent.getHandle(genTauToken_);
+  if (!genTausBeforePreselection.isValid()) {
     LogDebug("TauValidator") << " Gen Tau collection not found while running TauValidator.cc ";
     return;
+  }
+  reco::GenJetCollection genTaus;
+  for (unsigned itau = 0; itau < genTausBeforePreselection->size(); ++itau) {
+    if (!passPreSelectionCut<reco::GenJet>(genTausBeforePreselection->at(itau), pTMinGenCut_, etaMaxGenCut_))
+      continue;
+    genTaus.push_back(genTausBeforePreselection->at(itau));
   }
 
   // std::cout << "Number of gen taus: " << genTaus->size() << std::endl; // [DEBUG]
@@ -382,7 +405,9 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
         idValuesForTau.push_back(disc.rawValues.empty() ? -1.0 : disc.rawValues[0]);
         wpValuesForTau.push_back(disc.workingPoints.empty() ? std::vector<bool>(1, false) : disc.workingPoints);
       }
-      if (applyIdCuts && !passIdCut(idValuesForTau, wpValuesForTau, validCutIDs_raw, validCutIDs_wp, use_raw, use_wp)) {
+      if ((applyIdCuts &&
+           !passIdCut(idValuesForTau, wpValuesForTau, validCutIDs_raw, validCutIDs_wp, use_raw, use_wp)) ||
+          !passPreSelectionCut<reco::PFTau>(recoTausTmp->at(itau), pTMinRecoCut_, etaMaxRecoCut_)) {
         continue;
       }
       recoTauIDValues.push_back(idValuesForTau);
@@ -406,7 +431,9 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
         idValuesForTau.push_back(disc.rawValues.empty() ? -1.0 : disc.rawValues[0]);
         wpValuesForTau.push_back(disc.workingPoints.empty() ? std::vector<bool>(1, false) : disc.workingPoints);
       }
-      if (applyIdCuts && !passIdCut(idValuesForTau, wpValuesForTau, validCutIDs_raw, validCutIDs_wp, use_raw, use_wp)) {
+      if ((applyIdCuts &&
+           !passIdCut(idValuesForTau, wpValuesForTau, validCutIDs_raw, validCutIDs_wp, use_raw, use_wp)) ||
+          !passPreSelectionCut<reco::PFTau>(tauFromPat, pTMinRecoCut_, etaMaxRecoCut_)) {
         continue;
       }
       recoTauIDValues.push_back(idValuesForTau);
@@ -420,16 +447,18 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
   // --------------------------------- Compute Metrics --------------------------------
 
   // Loop for efficiency
-  for (unsigned itau = 0; itau < genTaus->size(); ++itau) {
-    h_genTau_["pt"]->Fill(genTaus->at(itau).pt());
-    h_genTau_["eta"]->Fill(genTaus->at(itau).eta());
-    h_genTau_["phi"]->Fill(genTaus->at(itau).phi());
-    h_genTau_["mass"]->Fill(genTaus->at(itau).mass());
-    h2d_genTau_["pt_eta"]->Fill(genTaus->at(itau).pt(), genTaus->at(itau).eta());
-    h2d_genTau_["pt_phi"]->Fill(genTaus->at(itau).pt(), genTaus->at(itau).phi());
-    h2d_genTau_["pt_mass"]->Fill(genTaus->at(itau).pt(), genTaus->at(itau).mass());
-    h2d_genTau_["mass_eta"]->Fill(genTaus->at(itau).mass(), genTaus->at(itau).eta());
-    h2d_genTau_["mass_phi"]->Fill(genTaus->at(itau).mass(), genTaus->at(itau).phi());
+  for (unsigned itau = 0; itau < genTaus.size(); ++itau) {
+    reco::GenJet& genTau = genTaus[itau];
+
+    h_genTau_["pt"]->Fill(genTau.pt());
+    h_genTau_["eta"]->Fill(genTau.eta());
+    h_genTau_["phi"]->Fill(genTau.phi());
+    h_genTau_["mass"]->Fill(genTau.mass());
+    h2d_genTau_["pt_eta"]->Fill(genTau.pt(), genTau.eta());
+    h2d_genTau_["pt_phi"]->Fill(genTau.pt(), genTau.phi());
+    h2d_genTau_["pt_mass"]->Fill(genTau.pt(), genTau.mass());
+    h2d_genTau_["mass_eta"]->Fill(genTau.mass(), genTau.eta());
+    h2d_genTau_["mass_phi"]->Fill(genTau.mass(), genTau.phi());
 
     // Count how many reco taus are matched to the gen tau
     int nRecoMatchedToOneGen = 0;
@@ -437,13 +466,14 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
     float ResponsePt_bestDeltaR = 0.;
     float ResponseMass_bestDeltaR = 0.;
     for (unsigned jtau = 0; jtau < recoTaus.size(); ++jtau) {
-      float deltaRValue = deltaR(genTaus->at(itau), recoTaus.at(jtau));
+      reco::PFTau& recoTau = recoTaus[jtau];
+      float deltaRValue = deltaR(genTau, recoTau);
       if (deltaRValue < matchingDeltaR) {
         nRecoMatchedToOneGen++;
         if (deltaRValue < bestDeltaR) {
           bestDeltaR = deltaRValue;
-          ResponsePt_bestDeltaR = recoTaus.at(jtau).pt() / genTaus->at(itau).pt();
-          ResponseMass_bestDeltaR = recoTaus.at(jtau).mass() / genTaus->at(itau).mass();
+          ResponsePt_bestDeltaR = recoTau.pt() / genTau.pt();
+          ResponseMass_bestDeltaR = recoTau.mass() / genTau.mass();
         }
       }
     }
@@ -451,68 +481,69 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
     // Fill histograms for gen taus matched to at least one reco tau
     if (nRecoMatchedToOneGen > 0) {
       // Fill gen tau histograms for matched taus
-      h_genTauMatched_["pt"]->Fill(genTaus->at(itau).pt());
-      h_genTauMatched_["eta"]->Fill(genTaus->at(itau).eta());
-      h_genTauMatched_["phi"]->Fill(genTaus->at(itau).phi());
-      h_genTauMatched_["mass"]->Fill(genTaus->at(itau).mass());
-      h2d_genTauMatched_["pt_eta"]->Fill(genTaus->at(itau).pt(), genTaus->at(itau).eta());
-      h2d_genTauMatched_["pt_phi"]->Fill(genTaus->at(itau).pt(), genTaus->at(itau).phi());
-      h2d_genTauMatched_["pt_mass"]->Fill(genTaus->at(itau).pt(), genTaus->at(itau).mass());
-      h2d_genTauMatched_["mass_eta"]->Fill(genTaus->at(itau).mass(), genTaus->at(itau).eta());
-      h2d_genTauMatched_["mass_phi"]->Fill(genTaus->at(itau).mass(), genTaus->at(itau).phi());
+      h_genTauMatched_["pt"]->Fill(genTau.pt());
+      h_genTauMatched_["eta"]->Fill(genTau.eta());
+      h_genTauMatched_["phi"]->Fill(genTau.phi());
+      h_genTauMatched_["mass"]->Fill(genTau.mass());
+      h2d_genTauMatched_["pt_eta"]->Fill(genTau.pt(), genTau.eta());
+      h2d_genTauMatched_["pt_phi"]->Fill(genTau.pt(), genTau.phi());
+      h2d_genTauMatched_["pt_mass"]->Fill(genTau.pt(), genTau.mass());
+      h2d_genTauMatched_["mass_eta"]->Fill(genTau.mass(), genTau.eta());
+      h2d_genTauMatched_["mass_phi"]->Fill(genTau.mass(), genTau.phi());
       // Fill response histograms for matched taus
-      h2d_responsePt_["pt"]->Fill(genTaus->at(itau).pt(), ResponsePt_bestDeltaR);
-      h2d_responsePt_["eta"]->Fill(genTaus->at(itau).eta(), ResponsePt_bestDeltaR);
-      h2d_responsePt_["phi"]->Fill(genTaus->at(itau).phi(), ResponsePt_bestDeltaR);
-      h2d_responsePt_["mass"]->Fill(genTaus->at(itau).mass(), ResponsePt_bestDeltaR);
-      h2d_responseMass_["pt"]->Fill(genTaus->at(itau).pt(), ResponseMass_bestDeltaR);
-      h2d_responseMass_["eta"]->Fill(genTaus->at(itau).eta(), ResponseMass_bestDeltaR);
-      h2d_responseMass_["phi"]->Fill(genTaus->at(itau).phi(), ResponseMass_bestDeltaR);
-      h2d_responseMass_["mass"]->Fill(genTaus->at(itau).mass(), ResponseMass_bestDeltaR);
+      h2d_responsePt_["pt"]->Fill(genTau.pt(), ResponsePt_bestDeltaR);
+      h2d_responsePt_["eta"]->Fill(genTau.eta(), ResponsePt_bestDeltaR);
+      h2d_responsePt_["phi"]->Fill(genTau.phi(), ResponsePt_bestDeltaR);
+      h2d_responsePt_["mass"]->Fill(genTau.mass(), ResponsePt_bestDeltaR);
+      h2d_responseMass_["pt"]->Fill(genTau.pt(), ResponseMass_bestDeltaR);
+      h2d_responseMass_["eta"]->Fill(genTau.eta(), ResponseMass_bestDeltaR);
+      h2d_responseMass_["phi"]->Fill(genTau.phi(), ResponseMass_bestDeltaR);
+      h2d_responseMass_["mass"]->Fill(genTau.mass(), ResponseMass_bestDeltaR);
 
       if (nRecoMatchedToOneGen > 1) {
         // Fill gen tau histograms for multi-matched taus
-        h_genTauMultiMatched_["pt"]->Fill(genTaus->at(itau).pt());
-        h_genTauMultiMatched_["eta"]->Fill(genTaus->at(itau).eta());
-        h_genTauMultiMatched_["phi"]->Fill(genTaus->at(itau).phi());
-        h_genTauMultiMatched_["mass"]->Fill(genTaus->at(itau).mass());
-        h2d_genTauMultiMatched_["pt_eta"]->Fill(genTaus->at(itau).pt(), genTaus->at(itau).eta());
-        h2d_genTauMultiMatched_["pt_phi"]->Fill(genTaus->at(itau).pt(), genTaus->at(itau).phi());
-        h2d_genTauMultiMatched_["pt_mass"]->Fill(genTaus->at(itau).pt(), genTaus->at(itau).mass());
-        h2d_genTauMultiMatched_["mass_eta"]->Fill(genTaus->at(itau).mass(), genTaus->at(itau).eta());
-        h2d_genTauMultiMatched_["mass_phi"]->Fill(genTaus->at(itau).mass(), genTaus->at(itau).phi());
+        h_genTauMultiMatched_["pt"]->Fill(genTau.pt());
+        h_genTauMultiMatched_["eta"]->Fill(genTau.eta());
+        h_genTauMultiMatched_["phi"]->Fill(genTau.phi());
+        h_genTauMultiMatched_["mass"]->Fill(genTau.mass());
+        h2d_genTauMultiMatched_["pt_eta"]->Fill(genTau.pt(), genTau.eta());
+        h2d_genTauMultiMatched_["pt_phi"]->Fill(genTau.pt(), genTau.phi());
+        h2d_genTauMultiMatched_["pt_mass"]->Fill(genTau.pt(), genTau.mass());
+        h2d_genTauMultiMatched_["mass_eta"]->Fill(genTau.mass(), genTau.eta());
+        h2d_genTauMultiMatched_["mass_phi"]->Fill(genTau.mass(), genTau.phi());
       }
     }
   }
 
   // Loop for fake rate
   for (unsigned itau = 0; itau < recoTaus.size(); ++itau) {
-    h_recoTau_["pt"]->Fill(recoTaus.at(itau).pt());
-    h_recoTau_["eta"]->Fill(recoTaus.at(itau).eta());
-    h_recoTau_["phi"]->Fill(recoTaus.at(itau).phi());
-    h_recoTau_["mass"]->Fill(recoTaus.at(itau).mass());
-    h2d_recoTau_["pt_eta"]->Fill(recoTaus.at(itau).pt(), recoTaus.at(itau).eta());
-    h2d_recoTau_["pt_phi"]->Fill(recoTaus.at(itau).pt(), recoTaus.at(itau).phi());
-    h2d_recoTau_["pt_mass"]->Fill(recoTaus.at(itau).pt(), recoTaus.at(itau).mass());
-    h2d_recoTau_["mass_eta"]->Fill(recoTaus.at(itau).mass(), recoTaus.at(itau).eta());
-    h2d_recoTau_["mass_phi"]->Fill(recoTaus.at(itau).mass(), recoTaus.at(itau).phi());
+    reco::PFTau& recoTau = recoTaus[itau];
+    h_recoTau_["pt"]->Fill(recoTau.pt());
+    h_recoTau_["eta"]->Fill(recoTau.eta());
+    h_recoTau_["phi"]->Fill(recoTau.phi());
+    h_recoTau_["mass"]->Fill(recoTau.mass());
+    h2d_recoTau_["pt_eta"]->Fill(recoTau.pt(), recoTau.eta());
+    h2d_recoTau_["pt_phi"]->Fill(recoTau.pt(), recoTau.phi());
+    h2d_recoTau_["pt_mass"]->Fill(recoTau.pt(), recoTau.mass());
+    h2d_recoTau_["mass_eta"]->Fill(recoTau.mass(), recoTau.eta());
+    h2d_recoTau_["mass_phi"]->Fill(recoTau.mass(), recoTau.phi());
 
     if (plotId) {
       for (size_t i = 0; i < validRecoTauIDLabels.size(); ++i) {
         const double idRawValue = recoTauIDValues[itau][i];
         const std::string idName = "id" + validRecoTauIDLabels[i];
         h_recoTau_[idName]->Fill(idRawValue);
-        h2d_recoTau_[idName + "_pt"]->Fill(idRawValue, recoTaus.at(itau).pt());
-        h2d_recoTau_[idName + "_eta"]->Fill(idRawValue, recoTaus.at(itau).eta());
-        h2d_recoTau_[idName + "_phi"]->Fill(idRawValue, recoTaus.at(itau).phi());
-        h2d_recoTau_[idName + "_mass"]->Fill(idRawValue, recoTaus.at(itau).mass());
+        h2d_recoTau_[idName + "_pt"]->Fill(idRawValue, recoTau.pt());
+        h2d_recoTau_[idName + "_eta"]->Fill(idRawValue, recoTau.eta());
+        h2d_recoTau_[idName + "_phi"]->Fill(idRawValue, recoTau.phi());
+        h2d_recoTau_[idName + "_mass"]->Fill(idRawValue, recoTau.mass());
       }
     }
 
     // Count how many gen taus are matched to the reco tau
     int nGenMatchedToOneReco = 0;
-    for (unsigned jtau = 0; jtau < genTaus->size(); ++jtau) {
-      if (deltaR(genTaus->at(jtau), recoTaus.at(itau)) < matchingDeltaR) {
+    for (unsigned jtau = 0; jtau < genTaus.size(); ++jtau) {
+      if (deltaR(genTaus[jtau], recoTau) < matchingDeltaR) {
         nGenMatchedToOneReco++;
       }
     }
@@ -520,49 +551,49 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
     // Fill histograms for reco taus matched to at least one gen tau
     if (nGenMatchedToOneReco > 0) {
       // Fill reco tau histograms for matched taus
-      h_recoTauMatched_["pt"]->Fill(recoTaus.at(itau).pt());
-      h_recoTauMatched_["eta"]->Fill(recoTaus.at(itau).eta());
-      h_recoTauMatched_["phi"]->Fill(recoTaus.at(itau).phi());
-      h_recoTauMatched_["mass"]->Fill(recoTaus.at(itau).mass());
-      h2d_recoTauMatched_["pt_eta"]->Fill(recoTaus.at(itau).pt(), recoTaus.at(itau).eta());
-      h2d_recoTauMatched_["pt_phi"]->Fill(recoTaus.at(itau).pt(), recoTaus.at(itau).phi());
-      h2d_recoTauMatched_["pt_mass"]->Fill(recoTaus.at(itau).pt(), recoTaus.at(itau).mass());
-      h2d_recoTauMatched_["mass_eta"]->Fill(recoTaus.at(itau).mass(), recoTaus.at(itau).eta());
-      h2d_recoTauMatched_["mass_phi"]->Fill(recoTaus.at(itau).mass(), recoTaus.at(itau).phi());
+      h_recoTauMatched_["pt"]->Fill(recoTau.pt());
+      h_recoTauMatched_["eta"]->Fill(recoTau.eta());
+      h_recoTauMatched_["phi"]->Fill(recoTau.phi());
+      h_recoTauMatched_["mass"]->Fill(recoTau.mass());
+      h2d_recoTauMatched_["pt_eta"]->Fill(recoTau.pt(), recoTau.eta());
+      h2d_recoTauMatched_["pt_phi"]->Fill(recoTau.pt(), recoTau.phi());
+      h2d_recoTauMatched_["pt_mass"]->Fill(recoTau.pt(), recoTau.mass());
+      h2d_recoTauMatched_["mass_eta"]->Fill(recoTau.mass(), recoTau.eta());
+      h2d_recoTauMatched_["mass_phi"]->Fill(recoTau.mass(), recoTau.phi());
 
       if (plotId) {
         for (size_t i = 0; i < validRecoTauIDLabels.size(); ++i) {
           const double idRawValue = recoTauIDValues[itau][i];
           const std::string idName = "id" + validRecoTauIDLabels[i];
           h_recoTauMatched_[idName]->Fill(idRawValue);
-          h2d_recoTauMatched_[idName + "_pt"]->Fill(idRawValue, recoTaus.at(itau).pt());
-          h2d_recoTauMatched_[idName + "_eta"]->Fill(idRawValue, recoTaus.at(itau).eta());
-          h2d_recoTauMatched_[idName + "_phi"]->Fill(idRawValue, recoTaus.at(itau).phi());
-          h2d_recoTauMatched_[idName + "_mass"]->Fill(idRawValue, recoTaus.at(itau).mass());
+          h2d_recoTauMatched_[idName + "_pt"]->Fill(idRawValue, recoTau.pt());
+          h2d_recoTauMatched_[idName + "_eta"]->Fill(idRawValue, recoTau.eta());
+          h2d_recoTauMatched_[idName + "_phi"]->Fill(idRawValue, recoTau.phi());
+          h2d_recoTauMatched_[idName + "_mass"]->Fill(idRawValue, recoTau.mass());
         }
       }
 
       if (nGenMatchedToOneReco > 1) {
         // Fill reco tau histograms for multi-matched taus
-        h_recoTauMultiMatched_["pt"]->Fill(recoTaus.at(itau).pt());
-        h_recoTauMultiMatched_["eta"]->Fill(recoTaus.at(itau).eta());
-        h_recoTauMultiMatched_["phi"]->Fill(recoTaus.at(itau).phi());
-        h_recoTauMultiMatched_["mass"]->Fill(recoTaus.at(itau).mass());
-        h2d_recoTauMultiMatched_["pt_eta"]->Fill(recoTaus.at(itau).pt(), recoTaus.at(itau).eta());
-        h2d_recoTauMultiMatched_["pt_phi"]->Fill(recoTaus.at(itau).pt(), recoTaus.at(itau).phi());
-        h2d_recoTauMultiMatched_["pt_mass"]->Fill(recoTaus.at(itau).pt(), recoTaus.at(itau).mass());
-        h2d_recoTauMultiMatched_["mass_eta"]->Fill(recoTaus.at(itau).mass(), recoTaus.at(itau).eta());
-        h2d_recoTauMultiMatched_["mass_phi"]->Fill(recoTaus.at(itau).mass(), recoTaus.at(itau).phi());
+        h_recoTauMultiMatched_["pt"]->Fill(recoTau.pt());
+        h_recoTauMultiMatched_["eta"]->Fill(recoTau.eta());
+        h_recoTauMultiMatched_["phi"]->Fill(recoTau.phi());
+        h_recoTauMultiMatched_["mass"]->Fill(recoTau.mass());
+        h2d_recoTauMultiMatched_["pt_eta"]->Fill(recoTau.pt(), recoTau.eta());
+        h2d_recoTauMultiMatched_["pt_phi"]->Fill(recoTau.pt(), recoTau.phi());
+        h2d_recoTauMultiMatched_["pt_mass"]->Fill(recoTau.pt(), recoTau.mass());
+        h2d_recoTauMultiMatched_["mass_eta"]->Fill(recoTau.mass(), recoTau.eta());
+        h2d_recoTauMultiMatched_["mass_phi"]->Fill(recoTau.mass(), recoTau.phi());
 
         if (plotId) {
           for (size_t i = 0; i < validRecoTauIDLabels.size(); ++i) {
             const double idRawValue = recoTauIDValues[itau][i];
             const std::string idName = "id" + validRecoTauIDLabels[i];
             h_recoTauMultiMatched_[idName]->Fill(idRawValue);
-            h2d_recoTauMultiMatched_[idName + "_pt"]->Fill(idRawValue, recoTaus.at(itau).pt());
-            h2d_recoTauMultiMatched_[idName + "_eta"]->Fill(idRawValue, recoTaus.at(itau).eta());
-            h2d_recoTauMultiMatched_[idName + "_phi"]->Fill(idRawValue, recoTaus.at(itau).phi());
-            h2d_recoTauMultiMatched_[idName + "_mass"]->Fill(idRawValue, recoTaus.at(itau).mass());
+            h2d_recoTauMultiMatched_[idName + "_pt"]->Fill(idRawValue, recoTau.pt());
+            h2d_recoTauMultiMatched_[idName + "_eta"]->Fill(idRawValue, recoTau.eta());
+            h2d_recoTauMultiMatched_[idName + "_phi"]->Fill(idRawValue, recoTau.phi());
+            h2d_recoTauMultiMatched_[idName + "_mass"]->Fill(idRawValue, recoTau.mass());
           }
         }
       }
@@ -587,6 +618,14 @@ void TauValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   desc.add<double>("minDeltaR", 0.3);
   desc.add<std::string>("outFolder", "HLT/Tau/TauValidation");
   desc.addUntracked<bool>("isPatTaus", false);
+
+  edm::ParameterSetDescription ps_presel;
+  ps_presel.add<double>("PtMinGenCut", 0.);
+  ps_presel.add<double>("EtaMaxGenCut", 3.0);
+  ps_presel.add<double>("PtMinRecoCut", 20.);
+  ps_presel.add<double>("EtaMaxRecoCut", 3.);
+
+  desc.add<edm::ParameterSetDescription>("TauPreSelection", ps_presel);
   descriptions.addWithDefaultLabel(desc);
 }
 

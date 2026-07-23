@@ -26,6 +26,18 @@ namespace edm::stream::impl {
 #include "DataFormats/Histograms/interface/DQMToken.h"
 
 struct DQMEDAnalyzerGlobalCache {
+public:
+  void setTokensOnce(edm::EDPutTokenT<DQMToken> lumi, edm::EDPutTokenT<DQMToken> run) const {
+    std::scoped_lock lock(master_);
+    if (runToken_.isUninitialized()) {
+      lumiToken_ = lumi;
+      runToken_ = run;
+    }
+  }
+  edm::EDPutTokenT<DQMToken> lumiToken() const { return lumiToken_; }
+  edm::EDPutTokenT<DQMToken> runToken() const { return runToken_; }
+
+private:
   // slightly overkill for now, but we might want to putt the full DQMStore
   // here at some point.
   mutable std::mutex master_;
@@ -69,11 +81,7 @@ public:
     // we need to store the tokens here.
     // This also requires locking, since the streams will run in parallel.
     // See https://github.com/cms-sw/cmssw/issues/27291#issuecomment-505909101
-    auto lock = std::scoped_lock(globalCache()->master_);
-    if (globalCache()->runToken_.isUninitialized()) {
-      globalCache()->lumiToken_ = lumiToken_;
-      globalCache()->runToken_ = runToken_;
-    }
+    globalCache()->setTokensOnce(lumiToken_, runToken_);
   }
 
   void beginRun(edm::Run const& run, edm::EventSetup const& setup) final {
@@ -108,14 +116,14 @@ public:
   static void globalEndLuminosityBlockProduce(edm::LuminosityBlock& lumi,
                                               edm::EventSetup const& setup,
                                               LuminosityBlockContext const* context) {
-    lumi.emplace(context->global()->lumiToken_);
+    lumi.emplace(context->global()->lumiToken());
   }
 
   void endRun(edm::Run const& run, edm::EventSetup const& setup) final {
     edm::Service<DQMStore>()->leaveLumi(run.run(), /* lumi */ 0, meId());
   }
   static void globalEndRunProduce(edm::Run& run, edm::EventSetup const& setup, RunContext const* context) {
-    run.emplace<DQMToken>(context->global()->runToken_);
+    run.emplace<DQMToken>(context->global()->runToken());
   }
 
   static void globalEndJob(DQMEDAnalyzerGlobalCache const*) {}

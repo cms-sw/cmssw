@@ -114,7 +114,7 @@ Calorimeters:
 * C25: same as C18 but changing ebalgo.xml to make it more conformant with standard and removing overlaps
 * C26: HGCal (v19 version of HGCal geometry with calibration cells, nonzero cassette retraction, correct mousebite, guard ring, proper cell size) + Phase2 HCAL and EB
 * C27: HGCal (same as the v19 version which is in C26 but without internal cells in the Geant4 geometry definition) + Phase2 HCAL and EB
-* C28: HGCal (v19 version of HGCal geometry as in C22 but turning off all dead areas and gaps) + Phase2 HCAL and EB
+* C28: HGCal (v19 version of HGCal geometry as in C27 but turning off all dead areas and gaps) + Phase2 HCAL and EB
 
 Muon system:
 * M14: Phase2 muon system for TDR w/ GE2/1, GE0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1), 96 iRPC strips; no overlaps, MB4Shields with right value for YE3 size and Shield structure modified in muonYoke, changed number of strips and corrected eta partition size for GE21, a realistic support structure for GE0 and adjustment for boundaries, right front-back relation between alternate phi segments

@@ -991,8 +991,7 @@ REDIGIEventContent.inputCommands.append('drop *_randomEngineStateProducer_*_*')
 # MiniAOD is a bit special: the files tend to be so small that letting
 # ROOT automatically determine when to flush is a surprisingly big overhead.
 #
-from PhysicsTools.PatAlgos.slimming.slimming_cff import MicroEventContent,MicroEventContentMC,MicroEventContentGEN
-from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import MiniAODOverrideBranchesSplitLevel
+from PhysicsTools.PatAlgos.slimming.MicroEventContent_cff import MicroEventContent,MicroEventContentMC,MicroEventContentGEN,MiniAODOverrideBranchesSplitLevel
 
 MINIAODEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),

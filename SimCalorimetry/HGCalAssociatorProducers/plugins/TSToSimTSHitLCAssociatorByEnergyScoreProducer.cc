@@ -32,7 +32,6 @@ private:
   edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMap_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometry_;
   const bool hardScatterOnly_;
-  std::shared_ptr<hgcal::RecHitTools> rhtools_;
   std::vector<edm::InputTag> hits_label_;
   std::vector<edm::EDGetTokenT<std::vector<HIT>>> hits_token_;
 };
@@ -44,8 +43,6 @@ TSToSimTSHitLCAssociatorByEnergyScoreProducer<HIT>::TSToSimTSHitLCAssociatorByEn
       caloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")),
       hits_label_(ps.getParameter<std::vector<edm::InputTag>>("hits")) {
-  rhtools_ = std::make_shared<hgcal::RecHitTools>();
-
   for (auto &label : hits_label_) {
     hits_token_.push_back(consumes<std::vector<HIT>>(label));
   }
@@ -62,7 +59,8 @@ void TSToSimTSHitLCAssociatorByEnergyScoreProducer<HIT>::produce(edm::StreamID,
                                                                  edm::Event &iEvent,
                                                                  const edm::EventSetup &es) const {
   edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_);
-  rhtools_->setGeometry(*geom);
+  auto rhtools = std::make_shared<hgcal::RecHitTools>();
+  rhtools->setGeometry(*geom);
 
   std::vector<const HIT *> hits;
   for (auto &token : hits_token_) {
@@ -84,7 +82,7 @@ void TSToSimTSHitLCAssociatorByEnergyScoreProducer<HIT>::produce(edm::StreamID,
 
     const std::unordered_map<DetId, const unsigned int> hitMap;  // empty map
     auto impl = std::make_unique<TSToSimTSHitLCAssociatorByEnergyScoreImpl<HIT>>(
-        iEvent.productGetter(), hardScatterOnly_, rhtools_, &hitMap, hits);
+        iEvent.productGetter(), hardScatterOnly_, rhtools, &hitMap, hits);
     auto emptyAssociator = std::make_unique<ticl::TracksterToSimTracksterHitLCAssociator>(std::move(impl));
     iEvent.put(std::move(emptyAssociator));
     return;
@@ -92,7 +90,7 @@ void TSToSimTSHitLCAssociatorByEnergyScoreProducer<HIT>::produce(edm::StreamID,
 
   const auto hitMap = &iEvent.get(hitMap_);
   auto impl = std::make_unique<TSToSimTSHitLCAssociatorByEnergyScoreImpl<HIT>>(
-      iEvent.productGetter(), hardScatterOnly_, rhtools_, hitMap, hits);
+      iEvent.productGetter(), hardScatterOnly_, rhtools, hitMap, hits);
   auto toPut = std::make_unique<ticl::TracksterToSimTracksterHitLCAssociator>(std::move(impl));
   iEvent.put(std::move(toPut));
 }

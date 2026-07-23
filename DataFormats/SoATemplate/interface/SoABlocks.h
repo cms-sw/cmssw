@@ -278,7 +278,7 @@
     template <CMS_SOA_BYTE_SIZE_TYPE VIEW_ALIGNMENT = cms::soa::CacheLineSize::defaultSize,                            \
             bool VIEW_ALIGNMENT_ENFORCEMENT = cms::soa::AlignmentEnforcement::relaxed,                                 \
             bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::Default,                                                \
-            bool RANGE_CHECKING = cms::soa::RangeChecking::Default>                                                    \
+            cms::soa::RangeChecking::Mode RANGE_CHECKING = cms::soa::RangeChecking::Default>                           \
     struct ViewTemplateFreeParams;                                                                                     \
                                                                                                                        \
     /* Helper function to compute the total number of blocks */                                                        \
@@ -328,7 +328,8 @@
                                                                                                                        \
     _ITERATE_ON_ALL(_DECLARE_LAYOUTS_ACCESSORS, ~, __VA_ARGS__)                                                        \
                                                                                                                        \
-    template <std::size_t VIEW_ALIGNMENT, bool VIEW_ALIGNMENT_ENFORCEMENT, bool RESTRICT_QUALIFY, bool RANGE_CHECKING> \
+    template <std::size_t VIEW_ALIGNMENT, bool VIEW_ALIGNMENT_ENFORCEMENT,                                             \
+              bool RESTRICT_QUALIFY, cms::soa::RangeChecking::Mode RANGE_CHECKING>                                     \
     struct ConstViewTemplateFreeParams {                                                                               \
       using BOOST_PP_CAT(CLASS, _parametrized) = CLASS<VIEW_ALIGNMENT, VIEW_ALIGNMENT_ENFORCEMENT>;                    \
                                                                                                                        \
@@ -339,10 +340,10 @@
       using byte_size_type = cms::soa::byte_size_type;                                                                 \
       using AlignmentEnforcement = cms::soa::AlignmentEnforcement;                                                     \
                                                                                                                        \
-      template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, bool>                                                              \
+      template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, cms::soa::RangeChecking::Mode>                                     \
       friend struct ViewTemplateFreeParams;                                                                            \
                                                                                                                        \
-      template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, bool>                                                              \
+      template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, cms::soa::RangeChecking::Mode>                                     \
       friend struct ConstViewTemplateFreeParams;                                                                       \
                                                                                                                        \
       constexpr static byte_size_type defaultAlignment = cms::soa::CacheLineSize::defaultSize;                         \
@@ -351,7 +352,7 @@
       constexpr static byte_size_type conditionalAlignment =                                                           \
           alignmentEnforcement == AlignmentEnforcement::enforced ? alignment : 0;                                      \
       constexpr static bool restrictQualify = RESTRICT_QUALIFY;                                                        \
-      constexpr static bool rangeChecking = RANGE_CHECKING;                                                            \
+      constexpr static cms::soa::RangeChecking::Mode rangeChecking = RANGE_CHECKING;                                   \
       /* Helper/friend class allowing SoA by blocks ConstView introspection. */                                        \
       struct Metadata {                                                                                                \
         friend ConstViewTemplateFreeParams;                                                                            \
@@ -404,7 +405,7 @@
         std::array<size_type, blocksNumber> sizes_;                                                                    \
     };                                                                                                                 \
                                                                                                                        \
-    template <bool RESTRICT_QUALIFY, bool RANGE_CHECKING>                                                              \
+    template <bool RESTRICT_QUALIFY, cms::soa::RangeChecking::Mode RANGE_CHECKING>                                     \
     using ConstViewTemplate = ConstViewTemplateFreeParams<ALIGNMENT, ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY,          \
       RANGE_CHECKING>;                                                                                                 \
                                                                                                                        \
@@ -413,7 +414,7 @@
     template <CMS_SOA_BYTE_SIZE_TYPE VIEW_ALIGNMENT,                                                                   \
               bool VIEW_ALIGNMENT_ENFORCEMENT,                                                                         \
               bool RESTRICT_QUALIFY,                                                                                   \
-              bool RANGE_CHECKING>                                                                                     \
+              cms::soa::RangeChecking::Mode RANGE_CHECKING>                                                            \
       struct ViewTemplateFreeParams                                                                                    \
       : public ConstViewTemplateFreeParams<VIEW_ALIGNMENT, VIEW_ALIGNMENT_ENFORCEMENT,                                 \
                                            RESTRICT_QUALIFY, RANGE_CHECKING> {                                         \
@@ -432,9 +433,9 @@
       constexpr static byte_size_type conditionalAlignment =                                                           \
           alignmentEnforcement == AlignmentEnforcement::enforced ? alignment : 0;                                      \
       constexpr static bool restrictQualify = RESTRICT_QUALIFY;                                                        \
-      constexpr static bool rangeChecking = RANGE_CHECKING;                                                            \
+      constexpr static cms::soa::RangeChecking::Mode rangeChecking = RANGE_CHECKING;                                   \
                                                                                                                        \
-      template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, bool>                                                              \
+      template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, cms::soa::RangeChecking::Mode>                                     \
       friend struct ViewTemplateFreeParams;                                                                            \
       /* Helper/friend class allowing SoA by blocks View introspection. */                                             \
       struct Metadata {                                                                                                \
@@ -483,7 +484,7 @@
                                                                                                                        \
        /* Data members inherited from the ConstView */                                                                 \
     };                                                                                                                 \
-    template <bool RESTRICT_QUALIFY, bool RANGE_CHECKING>                                                              \
+    template <bool RESTRICT_QUALIFY, cms::soa::RangeChecking::Mode RANGE_CHECKING>                                     \
     using ViewTemplate = ViewTemplateFreeParams<ALIGNMENT, ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY, RANGE_CHECKING>;   \
     using View = ViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::Default>;                   \
                                                                                                                        \

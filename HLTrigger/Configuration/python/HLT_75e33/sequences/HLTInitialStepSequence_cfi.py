@@ -6,13 +6,13 @@ from ..modules.hltInitialStepMkFitSeeds_cfi import *
 from ..modules.hltInitialStepSeeds_cfi import *
 from ..modules.hltInitialStepTrackCandidates_cfi import *
 from ..modules.hltInitialStepTrackCandidatesMkFit_cfi import *
-from ..modules.hltInitialStepTrackCutClassifier_cfi import *
-from ..modules.hltInitialStepTrackSelectionHighPurity_cfi import *
 from ..modules.hltInitialStepTracks_cfi import *
 from ..modules.hltInitialStepTrajectorySeedsLST_cfi import *
 from ..modules.hltInitialStepTrajectorySeedsLSTTracks_cfi import *
 from ..modules.hltLST_cfi import *
 from ..sequences.HLTMkFitInputSequence_cfi import *
+from .HLTInitialStepHPSelectionSequence_cfi import *
+from .HLTInitialStepCutClassifierHPSelectionSequence_cfi import *
 
 HLTInitialStepSequence = cms.Sequence(
      hltInitialStepSeeds
@@ -24,8 +24,7 @@ HLTInitialStepSequence = cms.Sequence(
     +hltInitialStepTrackCandidatesMkFit
     +hltInitialStepTrackCandidates
     +hltInitialStepTracks
-    +hltInitialStepTrackCutClassifier
-    +hltInitialStepTrackSelectionHighPurity
+    +HLTInitialStepHPSelectionSequence
 )
 
 
@@ -84,8 +83,7 @@ _HLTInitialStepSequenceLST = cms.Sequence(
     +hltLST
     +hltInitialStepTrackCandidates
     +hltInitialStepTracks
-    +hltInitialStepTrackCutClassifier
-    +hltInitialStepTrackSelectionHighPurity
+    +HLTInitialStepHPSelectionSequence
 )
 
 from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
@@ -116,9 +114,18 @@ _HLTInitialStepSequenceMkFitFit = cms.Sequence(
     +hltInitialStepTrackCandidatesMkFit
     +hltInitialStepTrackCandidatesMkFitFit
     +hltInitialStepTracks
-    +hltInitialStepTrackCutClassifier
-    +hltInitialStepTrackSelectionHighPurity
+    +HLTInitialStepHPSelectionSequence
 )
 
 from Configuration.ProcessModifiers.trackingMkFitFit_cff import trackingMkFitFit
 trackingMkFitFit.toReplaceWith(HLTInitialStepSequence, _HLTInitialStepSequenceMkFitFit)
+
+_HLTInitialStepSequenceTrackCutClassifier = HLTInitialStepSequence.copyAndExclude([HLTInitialStepHPSelectionSequence]) 
+_HLTInitialStepSequenceTrackCutClassifier += HLTInitialStepCutClassifierHPSelectionSequence 
+
+_HLTInitialStepSequenceTrackCutClassifierMkFitFit = _HLTInitialStepSequenceMkFitFit.copyAndExclude([HLTInitialStepHPSelectionSequence])
+_HLTInitialStepSequenceTrackCutClassifierMkFitFit += HLTInitialStepCutClassifierHPSelectionSequence 
+
+from Configuration.ProcessModifiers.trackCutClassifier_cff import trackCutClassifier
+(trackCutClassifier & ~ngtScouting).toReplaceWith(HLTInitialStepSequence, _HLTInitialStepSequenceTrackCutClassifier)
+(trackCutClassifier & trackingMkFitFit & ~ngtScouting).toReplaceWith(HLTInitialStepSequence, _HLTInitialStepSequenceTrackCutClassifierMkFitFit)

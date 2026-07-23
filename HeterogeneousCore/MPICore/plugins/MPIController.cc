@@ -76,6 +76,11 @@ private:
   std::vector<std::vector<std::unique_ptr<MPIChannel>>> channels_;
   edm::EDPutTokenT<MPIToken> token_;
   Mode mode_;
+  // Set once beginJob() has sent the initial Connect message to all followers.
+  // Used to prevent the MPIController from hanging in it's destructor's
+  // MPI_Comm_disconnect() in the case some other module in the local process
+  // has crashed at construction time.
+  bool connected_ = false;
 };
 
 MPIController::MPIController(edm::ParameterSet const& config)
@@ -185,6 +190,12 @@ MPIController::MPIController(edm::ParameterSet const& config)
 }
 
 MPIController::~MPIController() {
+  if (!connected_) {
+    // Some module crashed at construction time. Return so that the error
+    // message can be printed.
+    return;
+  }
+
   // Disconnect the per-stream communicators.
   for (auto& channels : channels_) {
     for (auto& channel : channels) {
@@ -208,6 +219,7 @@ void MPIController::beginJob() {
   for (auto& follower : followers_) {
     follower.sendConnect();
   }
+  connected_ = true;
 
   /* is there a way to access all known process histories ?
   edm::ProcessHistoryRegistry const& registry = * edm::ProcessHistoryRegistry::instance();

@@ -1,4 +1,5 @@
 <use name="RecoMTD/DetLayers"/>
+<use name="RecoMTD/TimingTools"/>
 <use name="RecoMTD/Records"/>
 <use name="FWCore/Framework"/>
 <library file="TrackExtenderWithMTD.cc" name="RecoMTDTrackExtenderPlugins">

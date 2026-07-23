@@ -561,7 +561,8 @@ HLTGenValSourceTAU = cms.EDProducer("HLTGenValSource",
     ),
     hltPathsToCheck = cms.vstring(
         'HLT_DoubleMediumChargedIsoPFTauHPS40_eta2p1',
-        'HLT_DoubleMediumDeepTauPFTauHPS35_eta2p1'
+        'HLT_DoubleMediumDeepTauPFTauHPS35_eta2p1',
+        'HLT_LooseDeepTauPFTauHPS150_L2NN_eta2p1'
     ),
     hltProcessName = cms.string('HLT'),
     objType = cms.string('tauHAD'),
@@ -586,7 +587,7 @@ hltGenValSourceLabels = [
 for label in hltGenValSourceLabels:
     if label in globals():
         ngtScouting.toModify(globals()[label],
-                             hltPathsToCheck = ['DST_PFScouting'])
+                             hltPathsToCheck = ['DST_NGTScouting'])
 
 from RecoMET.Configuration.RecoGenMET_cff import genMetCalo,genMetTrue
 from RecoMET.Configuration.GenMETParticles_cff import genCandidatesForMET, genParticlesForMETAllVisible
