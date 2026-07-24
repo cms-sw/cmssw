@@ -1696,5 +1696,4 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
   }
 
   return CalibTree::energyCalor(etot, etot2, ehcal);
-
 }

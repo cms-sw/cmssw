@@ -1374,7 +1374,7 @@ void FitHistRBX(const char* infile, const char* outfile, std::string prefix, boo
   }
 }
 
-double ylowPlot (int range) {
+double ylowPlot(int range) {
   double ylow;
   if (range == 0) {
     ylow = 0.8;
@@ -1390,7 +1390,7 @@ double ylowPlot (int range) {
   return ylow;
 }
 
-double yhighPlot (int range) {
+double yhighPlot(int range) {
   double yhigh;
   if (range == 0) {
     yhigh = 1.2;
@@ -2798,7 +2798,8 @@ void PlotHistCorrFactors(std::string infile1,
     gStyle->SetFillColor(kWhite);
     gStyle->SetOptTitle(0);
     double ylow = ylowPlot(range);
-    double yhigh = yhighPlot(range);;
+    double yhigh = yhighPlot(range);
+    ;
     if ((!ratio) && drawStatBox) {
       gStyle->SetOptStat(10);
       gStyle->SetOptFit(10);
@@ -3035,7 +3036,8 @@ void PlotHistCorr2Factors(std::string infile1,
     gStyle->SetFillColor(kWhite);
     gStyle->SetOptTitle(0);
     double ylow = ylowPlot(range);
-    double yhigh = yhighPlot(range);;
+    double yhigh = yhighPlot(range);
+    ;
     if ((!ratio) && drawStatBox) {
       gStyle->SetOptStat(10);
       gStyle->SetOptFit(10);
@@ -3281,7 +3283,8 @@ void PlotHistCorrDFactors(std::string infile1,
     gStyle->SetFillColor(kWhite);
     gStyle->SetOptTitle(0);
     double ylow = ylowPlot(range);
-    double yhigh = yhighPlot(range);;
+    double yhigh = yhighPlot(range);
+    ;
     if ((!ratio) && drawStatBox) {
       gStyle->SetOptStat(10);
       gStyle->SetOptFit(10);
@@ -4993,7 +4996,8 @@ void PlotHistCorrRatio(std::string infile1,
       gStyle->SetOptFit(0);
     }
     double ylow = ylowPlot(range);
-    double yhigh = yhighPlot(range);;
+    double yhigh = yhighPlot(range);
+    ;
     int colors[7] = {1, 6, 4, 7, 2, 9, 3};
     int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
     int styles[7] = {2, 3, 1, 4, 1, 3, 2};
