@@ -11,14 +11,15 @@ sleep 60
 # Get the true PID of the server
 SERVER_PID=$(ps -e -o pid,cmd | grep "tritonserver" | grep -v "grep" | awk '{print $1}')
 
+echo "Server started with PID $SERVER_PID"
+
+ps aux | grep tritonserver
+
 if [ -z "$SERVER_PID" ]; then
     echo "Server process could not be started."
     exit 1
 fi
 
-echo "Server started with PID $SERVER_PID"
-
-ps aux | grep tritonserver
 
 # Start the client
 cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/tritonTest_cfg.py --maxEvents 100 --modules TritonIdentityProducer --models ragged_io --address server1 0.0.0.0 8011 --tries 10 --verbose &  
