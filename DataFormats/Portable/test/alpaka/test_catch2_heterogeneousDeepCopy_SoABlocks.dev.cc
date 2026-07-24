@@ -12,62 +12,72 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
+#include <algorithm>
+
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 
-constexpr float step = 0.01;
+GENERATE_SOA_LAYOUT(SoALayout1, SOA_COLUMN(int, column), SOA_EIGEN_COLUMN(Eigen::Vector3d, vector), SOA_SCALAR(int, id))
+GENERATE_SOA_LAYOUT(SoALayout2, SOA_COLUMN(int, column), SOA_EIGEN_COLUMN(Eigen::Vector3d, vector), SOA_SCALAR(int, id))
+GENERATE_SOA_LAYOUT(SoALayout3, SOA_COLUMN(int, column), SOA_EIGEN_COLUMN(Eigen::Vector3d, vector), SOA_SCALAR(int, id))
 
-GENERATE_SOA_LAYOUT(SoAPositionTemplate,
-                    SOA_COLUMN(float, x),
-                    SOA_COLUMN(float, y),
-                    SOA_COLUMN(float, z),
-                    SOA_SCALAR(int, detectorType))
+GENERATE_SOA_BLOCKS(BlocksTemplate, SOA_BLOCK(first, SoALayout1), SOA_BLOCK(second, SoALayout2))
+GENERATE_SOA_BLOCKS(NestedBlocksTemplate, SOA_BLOCK(blocks, BlocksTemplate), SOA_BLOCK(soa, SoALayout3))
 
-using SoAPosition = SoAPositionTemplate<>;
-using SoAPositionView = SoAPosition::View;
-using SoAPositionConstView = SoAPosition::ConstView;
+using BlocksSoA = BlocksTemplate<>;
+using BlocksView = BlocksSoA::View;
+using BlocksConstView = BlocksSoA::ConstView;
 
-GENERATE_SOA_LAYOUT(SoAPCATemplate,
-                    SOA_COLUMN(float, vector_1),
-                    SOA_COLUMN(float, vector_2),
-                    SOA_COLUMN(float, vector_3),
-                    SOA_EIGEN_COLUMN(Eigen::Vector3d, candidateDirection))
-
-using SoAPCA = SoAPCATemplate<>;
-using SoAPCAView = SoAPCA::View;
-using SoAPCAConstView = SoAPCA::ConstView;
-
-GENERATE_SOA_BLOCKS(SoAGenericBlocksTemplate, SOA_BLOCK(position, SoAPositionTemplate), SOA_BLOCK(pca, SoAPCATemplate))
-
-using SoAGenericBlocks = SoAGenericBlocksTemplate<>;
-using SoAGenericBlocksView = SoAGenericBlocks::View;
-using SoAGenericBlocksConstView = SoAGenericBlocks::ConstView;
+using NestedBlocksSoA = NestedBlocksTemplate<>;
+using NestedBlocksView = NestedBlocksSoA::View;
+using NestedBlocksConstView = NestedBlocksSoA::ConstView;
 
 // Fill SoAs
-struct FillSoAPosition {
-  ALPAKA_FN_ACC void operator()(Acc1D const& acc, SoAPositionView positionView) const {
-    if (cms::alpakatools::once_per_grid(acc))
-      positionView.detectorType() = 1;
+struct FillSoA {
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, NestedBlocksView view) const {
+    if (cms::alpakatools::once_per_grid(acc)) {
+      view.blocks().first().id() = 21;
+      view.blocks().second().id() = 42;
+      view.soa().id() = 666;
+    }
 
-    for (auto local_idx : cms::alpakatools::uniform_elements(acc, positionView.metadata().size())) {
-      positionView[local_idx].x() = static_cast<float>(local_idx);
-      positionView[local_idx].y() = static_cast<float>(local_idx) * 2.0f;
-      positionView[local_idx].z() = static_cast<float>(local_idx) * 3.0f;
+    for (auto i : cms::alpakatools::uniform_elements(acc, view.metadata().size()[0])) {
+      view.blocks().first()[i].column() = static_cast<int>(i);
+      view.blocks().first()[i].vector() = Eigen::Vector3d(i, i + 1, i + 2);
+    }
+
+    for (auto i : cms::alpakatools::uniform_elements(acc, view.metadata().size()[1])) {
+      view.blocks().second()[i].column() = static_cast<int>(i);
+      view.blocks().second()[i].vector() = Eigen::Vector3d(i, i + 1, i + 2);
+    }
+
+    for (auto i : cms::alpakatools::uniform_elements(acc, view.metadata().size()[2])) {
+      view.soa()[i].column() = static_cast<int>(i);
+      view.soa()[i].vector() = Eigen::Vector3d(i, i + 1, i + 2);
     }
   }
 };
 
-struct FillSoAPCA {
-  ALPAKA_FN_ACC void operator()(Acc1D const& acc, SoAPCAView pcaView) const {
-    for (auto local_idx : cms::alpakatools::uniform_elements(acc, pcaView.metadata().size())) {
-      pcaView[local_idx].vector_1() = 1.0f / step;
-      pcaView[local_idx].vector_2() = 2.0f / step;
-      pcaView[local_idx].vector_3() = 3.0f / step;
-      pcaView[local_idx].candidateDirection()(0) = 1.0f / step;
-      pcaView[local_idx].candidateDirection()(1) = 2.0f / step;
-      pcaView[local_idx].candidateDirection()(2) = 3.0f / step;
-    }
+void check(NestedBlocksConstView nestedBlocksConstView, BlocksConstView genericSoABlocksView) {
+  REQUIRE(nestedBlocksConstView.metadata().size()[0] == genericSoABlocksView.metadata().size()[0]);
+  REQUIRE(nestedBlocksConstView.metadata().size()[1] == genericSoABlocksView.metadata().size()[1]);
+  // Verify data
+  for (NestedBlocksSoA::size_type i = 0; i < genericSoABlocksView.metadata().size()[0]; ++i) {
+    auto nestedFirst = nestedBlocksConstView.blocks().first()[i];
+    auto first = genericSoABlocksView.first()[i];
+    REQUIRE(first.column() == nestedFirst.column());
+    REQUIRE(first.vector() == nestedFirst.vector());
   }
-};
+
+  for (NestedBlocksSoA::size_type i = 0; i < genericSoABlocksView.metadata().size()[0]; ++i) {
+    auto nestedSecond = nestedBlocksConstView.blocks().second()[i];
+    auto second = genericSoABlocksView.second()[i];
+    REQUIRE(second.column() == nestedSecond.column());
+    REQUIRE(second.vector() == nestedSecond.vector());
+  }
+
+  REQUIRE(nestedBlocksConstView.blocks().first().id() == genericSoABlocksView.first().id());
+  REQUIRE(nestedBlocksConstView.blocks().second().id() == genericSoABlocksView.second().id());
+}
 
 TEST_CASE("Heterogeneous Deep Copy SoABlocks") {
   auto const& devices = cms::alpakatools::devices<Platform>();
@@ -81,42 +91,149 @@ TEST_CASE("Heterogeneous Deep Copy SoABlocks") {
     std::cout << "Running on " << alpaka::getName(device) << std::endl;
     Queue queue(device);
 
-    // Number of elements
-    const int elemPos = 10;
-    const int elemPCA = 100;
+    std::array<NestedBlocksSoA::size_type, 3> sizes = {21, 45, 137};
 
-    PortableCollection<Device, SoAPosition> positionCollection(queue, elemPos);
-    PortableCollection<Device, SoAPCA> pcaCollection(queue, elemPCA);
-
-    // Portable Collection Views
-    SoAPositionView& positionCollectionView = positionCollection.view();
-    SoAPCAView& pcaCollectionView = pcaCollection.view();
+    PortableCollection<Device, NestedBlocksSoA> nestedBlocksCollection(queue, sizes);
+    NestedBlocksView nestedBlocksView = nestedBlocksCollection.view();
+    NestedBlocksConstView nestedBlocksConstView = nestedBlocksCollection.const_view();
 
     // fill up
     auto blockSize = 64;
-    auto numberOfBlocks = cms::alpakatools::divide_up_by(elemPos, blockSize);
-
+    NestedBlocksSoA::size_type largestSize = *std::max_element(sizes.begin(), sizes.end());
+    auto numberOfBlocks = cms::alpakatools::divide_up_by(largestSize, blockSize);
     const auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
 
-    alpaka::exec<Acc1D>(queue, workDiv, FillSoAPosition{}, positionCollectionView);
-
+    alpaka::exec<Acc1D>(queue, workDiv, FillSoA{}, nestedBlocksView);
     alpaka::wait(queue);
 
-    numberOfBlocks = cms::alpakatools::divide_up_by(elemPCA, blockSize);
+    PortableHostCollection<NestedBlocksSoA> h_nestedBlocksCollection(queue, sizes);
+    alpaka::memcpy(queue, h_nestedBlocksCollection.buffer(), nestedBlocksCollection.buffer());
 
-    const auto workDivPCA = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
+    SECTION("Deep copy the View host to host and device to device") {
+      BlocksView blocksView{nestedBlocksView.blocks().first(), nestedBlocksView.blocks().second()};
 
-    alpaka::exec<Acc1D>(queue, workDivPCA, FillSoAPCA{}, pcaCollectionView);
+      // Verify metadata
+      REQUIRE(blocksView.metadata().size()[0] == sizes[0]);
+      REQUIRE(blocksView.first().metadata().size() == sizes[0]);
+      REQUIRE(blocksView.metadata().size()[1] == sizes[1]);
+      REQUIRE(blocksView.second().metadata().size() == sizes[1]);
 
-    alpaka::wait(queue);
+      // Check for equality of memory addresses
+      REQUIRE(blocksView.first().metadata().addressOf_column() ==
+              nestedBlocksView.blocks().first().metadata().addressOf_column());
+      REQUIRE(blocksView.first().metadata().addressOf_vector() ==
+              nestedBlocksView.blocks().first().metadata().addressOf_vector());
+      REQUIRE(blocksView.second().metadata().addressOf_column() ==
+              nestedBlocksView.blocks().second().metadata().addressOf_column());
+      REQUIRE(blocksView.second().metadata().addressOf_vector() ==
+              nestedBlocksView.blocks().second().metadata().addressOf_vector());
 
-    // Build the View of the SoABlocks
-    SoAGenericBlocksView genericBlocksView{positionCollectionView, pcaCollectionView};
-
-    SECTION("Heterogeneous deep copy of the SoABlocks View") {
       // PortableCollection that will host the aggregated columns
-      PortableCollection<Device, SoAGenericBlocks> genericCollection(queue, elemPos, elemPCA);
-      genericCollection.deepCopy(queue, genericBlocksView);
+      PortableCollection<Device, BlocksSoA> blocksCollection(queue, sizes[0], sizes[1]);
+      blocksCollection.deepCopy(queue, blocksView);
+
+      BlocksView copiedBlocksView = blocksCollection.view();
+      REQUIRE(copiedBlocksView.first().metadata().addressOf_column() !=
+              nestedBlocksView.blocks().first().metadata().addressOf_column());
+      REQUIRE(copiedBlocksView.first().metadata().addressOf_vector() !=
+              nestedBlocksView.blocks().first().metadata().addressOf_vector());
+      REQUIRE(copiedBlocksView.second().metadata().addressOf_column() !=
+              nestedBlocksView.blocks().second().metadata().addressOf_column());
+      REQUIRE(copiedBlocksView.second().metadata().addressOf_vector() !=
+              nestedBlocksView.blocks().second().metadata().addressOf_vector());
+
+      PortableHostCollection<BlocksSoA> outputHost(cms::alpakatools::host(), sizes[0], sizes[1]);
+      alpaka::memcpy(queue, outputHost.buffer(), blocksCollection.buffer());
+      alpaka::wait(queue);
+
+      check(h_nestedBlocksCollection.const_view(), outputHost.const_view());
+    }
+
+    SECTION("Deep copy the ConstView host to host and device to device") {
+      BlocksConstView blocksConstView{nestedBlocksConstView.blocks().first(), nestedBlocksConstView.blocks().second()};
+
+      // Verify metadata
+      REQUIRE(blocksConstView.metadata().size()[0] == sizes[0]);
+      REQUIRE(blocksConstView.first().metadata().size() == sizes[0]);
+      REQUIRE(blocksConstView.metadata().size()[1] == sizes[1]);
+      REQUIRE(blocksConstView.second().metadata().size() == sizes[1]);
+
+      // Check for equality of memory addresses
+      REQUIRE(blocksConstView.first().metadata().addressOf_column() ==
+              nestedBlocksConstView.blocks().first().metadata().addressOf_column());
+      REQUIRE(blocksConstView.first().metadata().addressOf_vector() ==
+              nestedBlocksConstView.blocks().first().metadata().addressOf_vector());
+      REQUIRE(blocksConstView.second().metadata().addressOf_column() ==
+              nestedBlocksConstView.blocks().second().metadata().addressOf_column());
+      REQUIRE(blocksConstView.second().metadata().addressOf_vector() ==
+              nestedBlocksConstView.blocks().second().metadata().addressOf_vector());
+
+      // PortableCollection that will host the aggregated columns
+      PortableCollection<Device, BlocksSoA> blocksCollection(queue, sizes[0], sizes[1]);
+      blocksCollection.deepCopy(queue, blocksConstView);
+
+      BlocksConstView copiedBlocksConstView = blocksCollection.const_view();
+      REQUIRE(copiedBlocksConstView.first().metadata().addressOf_column() !=
+              nestedBlocksConstView.blocks().first().metadata().addressOf_column());
+      REQUIRE(copiedBlocksConstView.first().metadata().addressOf_vector() !=
+              nestedBlocksConstView.blocks().first().metadata().addressOf_vector());
+      REQUIRE(copiedBlocksConstView.second().metadata().addressOf_column() !=
+              nestedBlocksConstView.blocks().second().metadata().addressOf_column());
+      REQUIRE(copiedBlocksConstView.second().metadata().addressOf_vector() !=
+              nestedBlocksConstView.blocks().second().metadata().addressOf_vector());
+
+      PortableHostCollection<BlocksSoA> outputHost(cms::alpakatools::host(), sizes[0], sizes[1]);
+      alpaka::memcpy(queue, outputHost.buffer(), blocksCollection.buffer());
+      alpaka::wait(queue);
+
+      check(h_nestedBlocksCollection.const_view(), outputHost.const_view());
+    }
+
+    SECTION("Deep copy the ConstView device to host") {
+      BlocksConstView blocksConstView{nestedBlocksConstView.blocks().first(), nestedBlocksConstView.blocks().second()};
+
+      // PortableCollection that will host the aggregated columns
+      PortableHostCollection<BlocksSoA> blocksCollection(queue, sizes[0], sizes[1]);
+      blocksCollection.deepCopy(queue, blocksConstView);
+      alpaka::wait(queue);
+
+      BlocksConstView copiedBlocksConstView = blocksCollection.const_view();
+      REQUIRE(copiedBlocksConstView.first().metadata().addressOf_column() !=
+              nestedBlocksConstView.blocks().first().metadata().addressOf_column());
+      REQUIRE(copiedBlocksConstView.first().metadata().addressOf_vector() !=
+              nestedBlocksConstView.blocks().first().metadata().addressOf_vector());
+      REQUIRE(copiedBlocksConstView.second().metadata().addressOf_column() !=
+              nestedBlocksConstView.blocks().second().metadata().addressOf_column());
+      REQUIRE(copiedBlocksConstView.second().metadata().addressOf_vector() !=
+              nestedBlocksConstView.blocks().second().metadata().addressOf_vector());
+
+      check(h_nestedBlocksCollection.const_view(), blocksCollection.const_view());
+    }
+
+    SECTION("Deep copy the ConstView host to device") {
+      BlocksConstView blocksConstView{h_nestedBlocksCollection.const_view().blocks().first(),
+                                      h_nestedBlocksCollection.const_view().blocks().second()};
+
+      // PortableCollection that will host the aggregated columns
+      PortableCollection<Device, BlocksSoA> blocksCollection(queue, sizes[0], sizes[1]);
+      blocksCollection.deepCopy(queue, blocksConstView);
+      alpaka::wait(queue);
+
+      BlocksConstView copiedBlocksConstView = blocksCollection.const_view();
+      REQUIRE(copiedBlocksConstView.first().metadata().addressOf_column() !=
+              h_nestedBlocksCollection.const_view().blocks().first().metadata().addressOf_column());
+      REQUIRE(copiedBlocksConstView.first().metadata().addressOf_vector() !=
+              h_nestedBlocksCollection.const_view().blocks().first().metadata().addressOf_vector());
+      REQUIRE(copiedBlocksConstView.second().metadata().addressOf_column() !=
+              h_nestedBlocksCollection.const_view().blocks().second().metadata().addressOf_column());
+      REQUIRE(copiedBlocksConstView.second().metadata().addressOf_vector() !=
+              h_nestedBlocksCollection.const_view().blocks().second().metadata().addressOf_vector());
+
+      PortableHostCollection<BlocksSoA> outputHost(cms::alpakatools::host(), sizes[0], sizes[1]);
+      alpaka::memcpy(queue, outputHost.buffer(), blocksCollection.buffer());
+      alpaka::wait(queue);
+
+      check(h_nestedBlocksCollection.const_view(), outputHost.const_view());
     }
   }
 }

@@ -12,7 +12,7 @@
 
 namespace portablecollection {
 
-  template <int I, typename TQueue, typename Descriptor, typename ConstDescriptor>
+  template <std::size_t I, typename TQueue, typename Descriptor, typename ConstDescriptor>
   void deepCopyColumns(TQueue& queue, Descriptor& dest, ConstDescriptor const& src) {
     if constexpr (I < ConstDescriptor::num_cols) {
       assert(std::get<I>(dest.buff).size_bytes() == std::get<I>(src.buff).size_bytes());
@@ -25,7 +25,7 @@ namespace portablecollection {
   }
 
   // Helper function implementing the recursive deep copy for blocks
-  template <int I, typename TQueue, typename Descriptor, typename ConstDescriptor>
+  template <std::size_t I, typename TQueue, typename Descriptor, typename ConstDescriptor>
   void deepCopyBlocks(TQueue& queue, Descriptor& dest, ConstDescriptor const& src) {
     if constexpr (I < ConstDescriptor::blocksNumber) {
       deepCopyColumns<0>(queue, std::get<I>(dest.buff), std::get<I>(src.buff));
