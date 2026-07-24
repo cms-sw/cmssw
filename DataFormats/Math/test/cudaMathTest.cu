@@ -105,8 +105,8 @@ void go() {
   auto d_B = cms::cuda::make_device_unique<float[]>(numElements, nullptr);
   auto d_C = cms::cuda::make_device_unique<float[]>(numElements, nullptr);
 
-  cudaCheck(cudaMemcpy(d_A.get(), h_A.get(), size, cudaMemcpyHostToDevice));
-  cudaCheck(cudaMemcpy(d_B.get(), h_B.get(), size, cudaMemcpyHostToDevice));
+  CUDA_CHECK(cudaMemcpy(d_A.get(), h_A.get(), size, cudaMemcpyHostToDevice));
+  CUDA_CHECK(cudaMemcpy(d_B.get(), h_B.get(), size, cudaMemcpyHostToDevice));
   delta += (std::chrono::high_resolution_clock::now() - start);
   std::cout << "cuda alloc+copy took " << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count() << " ms"
             << std::endl;
@@ -131,7 +131,7 @@ void go() {
             << std::endl;
 
   delta -= (std::chrono::high_resolution_clock::now() - start);
-  cudaCheck(cudaMemcpy(h_C.get(), d_C.get(), size, cudaMemcpyDeviceToHost));
+  CUDA_CHECK(cudaMemcpy(h_C.get(), d_C.get(), size, cudaMemcpyDeviceToHost));
   delta += (std::chrono::high_resolution_clock::now() - start);
   std::cout << "cuda copy back took " << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count() << " ms"
             << std::endl;

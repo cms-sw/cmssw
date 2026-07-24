@@ -54,29 +54,29 @@ const pixelCPEforGPU::ParamsOnGPUT<TrackerTraits>* PixelCPEFast<TrackerTraits>::
   const auto& data = gpuData_.dataForCurrentDeviceAsync(cudaStream, [this](GPUData& data, cudaStream_t stream) {
     // and now copy to device...
 
-    cudaCheck(cudaMalloc((void**)&data.paramsOnGPU_h.m_commonParams, sizeof(pixelCPEforGPU::CommonParams)));
-    cudaCheck(cudaMalloc((void**)&data.paramsOnGPU_h.m_detParams,
+    CUDA_CHECK(cudaMalloc((void**)&data.paramsOnGPU_h.m_commonParams, sizeof(pixelCPEforGPU::CommonParams)));
+    CUDA_CHECK(cudaMalloc((void**)&data.paramsOnGPU_h.m_detParams,
                          this->detParamsGPU_.size() * sizeof(pixelCPEforGPU::DetParams)));
-    cudaCheck(cudaMalloc((void**)&data.paramsOnGPU_h.m_averageGeometry, sizeof(AverageGeometry)));
-    cudaCheck(cudaMalloc((void**)&data.paramsOnGPU_h.m_layerGeometry, sizeof(LayerGeometry)));
-    cudaCheck(cudaMalloc((void**)&data.paramsOnGPU_d, sizeof(ParamsOnGPU)));
-    cudaCheck(cudaMemcpyAsync(data.paramsOnGPU_d, &data.paramsOnGPU_h, sizeof(ParamsOnGPU), cudaMemcpyDefault, stream));
-    cudaCheck(cudaMemcpyAsync((void*)data.paramsOnGPU_h.m_commonParams,
+    CUDA_CHECK(cudaMalloc((void**)&data.paramsOnGPU_h.m_averageGeometry, sizeof(AverageGeometry)));
+    CUDA_CHECK(cudaMalloc((void**)&data.paramsOnGPU_h.m_layerGeometry, sizeof(LayerGeometry)));
+    CUDA_CHECK(cudaMalloc((void**)&data.paramsOnGPU_d, sizeof(ParamsOnGPU)));
+    CUDA_CHECK(cudaMemcpyAsync(data.paramsOnGPU_d, &data.paramsOnGPU_h, sizeof(ParamsOnGPU), cudaMemcpyDefault, stream));
+    CUDA_CHECK(cudaMemcpyAsync((void*)data.paramsOnGPU_h.m_commonParams,
                               &this->commonParamsGPU_,
                               sizeof(pixelCPEforGPU::CommonParams),
                               cudaMemcpyDefault,
                               stream));
-    cudaCheck(cudaMemcpyAsync((void*)data.paramsOnGPU_h.m_averageGeometry,
+    CUDA_CHECK(cudaMemcpyAsync((void*)data.paramsOnGPU_h.m_averageGeometry,
                               &this->averageGeometry_,
                               sizeof(AverageGeometry),
                               cudaMemcpyDefault,
                               stream));
-    cudaCheck(cudaMemcpyAsync((void*)data.paramsOnGPU_h.m_layerGeometry,
+    CUDA_CHECK(cudaMemcpyAsync((void*)data.paramsOnGPU_h.m_layerGeometry,
                               &this->layerGeometry_,
                               sizeof(LayerGeometry),
                               cudaMemcpyDefault,
                               stream));
-    cudaCheck(cudaMemcpyAsync((void*)data.paramsOnGPU_h.m_detParams,
+    CUDA_CHECK(cudaMemcpyAsync((void*)data.paramsOnGPU_h.m_detParams,
                               this->detParamsGPU_.data(),
                               this->detParamsGPU_.size() * sizeof(pixelCPEforGPU::DetParams),
                               cudaMemcpyDefault,
