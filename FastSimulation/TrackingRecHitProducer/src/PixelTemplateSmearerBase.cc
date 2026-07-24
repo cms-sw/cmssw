@@ -22,6 +22,7 @@
 /// #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"  // Keep... needed if we backport to CMSSW_9
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelPhase2Topology.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 
@@ -343,7 +344,25 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(const PSimHit& simHit
                        << "   cotalpha=" << cotalpha << ",  cotbeta=" << cotbeta;
 
   const PixelTopology* theSpecificTopology = &(detUnit->specificType().specificTopology());
-  const RectangularPixelTopology* rectPixelTopology = static_cast<const RectangularPixelTopology*>(theSpecificTopology);
+
+  //Casting to correct pixel topology for phase-1 and phase-2
+  GeomDetEnumerators::SubDetector sub = detUnit->subDetector();
+
+  bool isPhase2 = (sub == GeomDetEnumerators::P1PXB  || sub == GeomDetEnumerators::P1PXEC ||
+		   sub == GeomDetEnumerators::P2OTB  || sub == GeomDetEnumerators::P2OTEC);
+  
+  const PixelTopology* rectPixelTopology = nullptr;
+  
+  if (const auto* t = dynamic_cast<const RectangularPixelPhase2Topology*>(theSpecificTopology)) {
+    rectPixelTopology = t;
+  } else if (const auto* t = dynamic_cast<const RectangularPixelTopology*>(theSpecificTopology)) {
+    rectPixelTopology = t;
+  }
+
+  if (!rectPixelTopology) {
+    throw cms::Exception("LogicError") << "Unexpected pixel topology type";
+  }
+  
 
   const int nrows = theSpecificTopology->nrows();
   const int ncolumns = theSpecificTopology->ncolumns();

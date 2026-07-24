@@ -17,6 +17,7 @@ from FastSimulation.TrackingRecHitProducer.TrackingRecHitProducer_cfi import fas
 
 from FastSimulation.TrackingRecHitProducer.FastTrackerRecHitMatcher_cfi import fastMatchedTrackerRecHits
 import FastSimulation.Tracking.FastTrackerRecHitCombiner_cfi
+from FastSimulation.Tracking.FastTrackerRecHitCombiner_cfi import fastTrackerRecHitCombinations
 
 fastMatchedTrackerRecHitCombinations = FastSimulation.Tracking.FastTrackerRecHitCombiner_cfi.fastTrackerRecHitCombinations.clone(
     simHit2RecHitMap = cms.InputTag("fastMatchedTrackerRecHits","simHit2RecHitMap")
@@ -51,3 +52,17 @@ reconstruction_befmix = cms.Sequence(
     * MeasurementTrackerEvent
     * iterTracking
     )
+
+from Configuration.Eras.Modifier_phase2_fastSim_cff import phase2_fastSim
+
+# we do not require fastMatchedTrackerRecHits as there are no stereo strips in phase 2. All the glued detectors (PS and 2S) are treated as separate hits
+
+reconstruction_befmix_phase2 = cms.Sequence(
+    offlineBeamSpot
+    * fastTrackerRecHits
+    * fastTrackerRecHitCombinations
+    * MeasurementTrackerEvent
+    * iterTracking
+    )
+
+phase2_fastSim.toReplaceWith(reconstruction_befmix, reconstruction_befmix_phase2)
