@@ -17,6 +17,7 @@
 #include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include <cassert>
+#include <cmath>
 #include <cstdlib>
 #include <iomanip>
 #include <limits>
@@ -458,7 +459,15 @@ namespace edm {
     void formatDouble(double value, std::string& result) {
       {
         std::stringstream ss;
+        // a way to express inf and nan in valid python code
+        auto const special = std::isnan(value) or not std::isfinite(value);
+        if (special) {
+          ss << "float('";
+        }
         ss << std::setprecision(17) << value;
+        if (special) {
+          ss << "')";
+        }
         result = ss.str();
       }
       if (result.size() > 15 && std::string::npos != result.find('.')) {
@@ -487,7 +496,15 @@ namespace edm {
     void formatFloat(float value, std::string& result) {
       {
         std::stringstream ss;
+        // a way to express inf and nan in valid python code
+        auto const special = std::isnan(value) or not std::isfinite(value);
+        if (special) {
+          ss << "float('";
+        }
         ss << std::setprecision(std::numeric_limits<float>::max_digits10) << value;
+        if (special) {
+          ss << "')";
+        }
         result = ss.str();
       }
       if (result.size() > 7 && std::string::npos != result.find('.')) {
