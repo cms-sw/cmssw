@@ -107,7 +107,7 @@ public:
     Model(const std::string& path_ = "") : path(path_) {}
     //members
     std::string path;
-    std::unordered_set<std::string> servers;
+    std::set<std::string> servers;
     std::unordered_set<unsigned> modules;
     int refCount{0};  // for dynamic loading on fallback server
     bool isLoaded() const { return refCount > 0; }
