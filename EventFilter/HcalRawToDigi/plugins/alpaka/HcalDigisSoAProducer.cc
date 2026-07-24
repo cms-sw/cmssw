@@ -39,7 +39,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::EDPutTokenT<HostCollectionPhase1> digisF3HBToken_;
 
     struct ConfigParameters {
-      uint32_t maxChannelsF01HE, maxChannelsF5HB, maxChannelsF3HB;
+      uint32_t maxChannelsF5HB, maxChannelsF3HB;
     };
     ConfigParameters config_;
   };
