@@ -30,7 +30,6 @@ sleep 30
 # Kill the server
 echo "Killing server with PID $SERVER_PID"
 kill $SERVER_PID
-#echo "Server process with PID $SERVER_PID has been killed."
 
 # Wait for client process to complete
 wait
