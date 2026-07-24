@@ -239,8 +239,8 @@ public:
 
     float *output_data = output_tensors.front().GetTensorMutableData<float>();
 
-    float target_mean = 48.375240;
-    float target_std = 10.280812;
+    constexpr float target_mean = 48.375240;
+    constexpr float target_std = 10.280812;
 
     return ((output_data[0] * target_std) + target_mean);
   }
@@ -327,7 +327,7 @@ public:
   void makeplots(double rmin, double rmax, int ietaMax, bool useWeight, double fraction, bool debug, Long64_t nmax);
   void fitPol0(TH1D *hist, bool debug);
   void highEtaFactors(int ietaMax, bool debug);
-  energyCalor energyHcal(double pmom, const Long64_t &entry, bool final);
+  energyCalor energyHcal(double pmom, const Long64_t &entry, bool final, bool debug);
 
   TChain *fChain;  //!pointer to the analyzed TTree or TChain
   Int_t fCurrent;  //!current Tree number in a TChain
@@ -940,7 +940,7 @@ Double_t CalibTree::Loop(int loop,
     double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
     if (goodTrack(mipCut_)) {
       ++ntkgood;
-      CalibTree::energyCalor en = energyHcal(pmom, jentry, true);
+      CalibTree::energyCalor en = energyHcal(pmom, jentry, true, debug);
       double evWt = (useweight) ? t_EventWeight : 1.0;
       if (en.ehcal > 0.001) {
         double pufac = (en.Etot > 0) ? (en.ehcal / en.Etot) : 1.0;
@@ -1476,8 +1476,8 @@ void CalibTree::makeplots(
     }
     if (goodTrack(mipCut_)) {
       double pmom = (useGen_ && (t_gentrackP > 0)) ? t_gentrackP : t_p;
-      CalibTree::energyCalor en1 = energyHcal(pmom, jentry, false);
-      CalibTree::energyCalor en2 = energyHcal(pmom, jentry, true);
+      CalibTree::energyCalor en1 = energyHcal(pmom, jentry, false, debug);
+      CalibTree::energyCalor en2 = energyHcal(pmom, jentry, true, debug);
       if ((en1.ehcal > 0.001) && (en2.ehcal > 0.001)) {
         double evWt = (useweight) ? t_EventWeight : 1.0;
         double ratioi = en1.ehcal / (pmom - t_eMipDR);
@@ -1585,10 +1585,9 @@ void CalibTree::highEtaFactors(int ietaMax, bool debug) {
   }
 }
 
-CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry, bool final) {
+CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry, bool final, bool debug) {
   double etot = t_eHcal;
   double etot2 = t_eHcal;
-  double ediff = (t_eHcal30 - t_eHcal10);
   double etot1 = t_eHcal10;
   double etot3 = t_eHcal30;
 
@@ -1619,7 +1618,6 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
       }
     }
     // Now the outer cone
-    //double etot1(0), etot3(0);
     if (t_DetIds1 != 0 && t_DetIds3 != 0) {
       for (unsigned int idet = 0; idet < (*t_DetIds1).size(); idet++) {
         // Apply thresholds if necessary
@@ -1668,12 +1666,12 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
         }
       }
     }
-    ediff = etot3 - etot1;
   }
 
   // PU correction only for loose isolation cut
   //std::vector<float> input_features = {ediff, t_nVtx, etot1, etot3, t_rhoh, etot};
-  double ehcal;
+  double ediff = (etot3 - etot1);
+  double ehcal(0);
   if (rcorForm_ == 6 && cPUMLFactorEB_ && cPUMLFactorEE_) {
     std::vector<float> input_features = {std::log1p(static_cast<float>(ediff)),
                                          static_cast<float>(t_nVtx),
@@ -1682,7 +1680,8 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
                                          std::log1p(static_cast<float>(t_rhoh)),
                                          static_cast<float>(etot)};
 
-    //std::cout<<ediff<<":"<<t_nVtx<<":"<<etot1<<":"<<etot3<<":"<<t_rhoh<<":"<<etot<<std::endl;
+    if (debug)
+      std::cout << ediff << ":" << t_nVtx << ":" << etot1 << ":" << etot3 << ":" << t_rhoh << ":" << etot << std::endl;
 
     if (std::abs(t_ieta) <= 15)
       ehcal = cPUMLFactorEB_->predict(input_features);
@@ -1698,13 +1697,4 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
 
   return CalibTree::energyCalor(etot, etot2, ehcal);
 
-  /*
-  double ehcal = (((rcorForm_ == 3) && (cFactor_ != nullptr))
-		  //? (etot * cFactor_->getCorr(entry))
-		  ? ((std::abs(t_ieta) <= 15) ? cPUMLFactorEB_->predict(input_features) : cPUMLFactorEE_->predict(input_features))  
-		  : ((puCorr_ == 0) ? etot
-		     : ((puCorr_ < 0) ? (etot * puFactor(-puCorr_, t_ieta, pmom, etot, ediff))
-			: puFactorRho(puCorr_, t_ieta, t_rhoh, etot))));
-  return CalibTree::energyCalor(etot, etot2, ehcal);
-  */
 }
