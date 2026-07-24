@@ -1700,7 +1700,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     struct ConstDescriptor {                                                                                           \
       ConstDescriptor() = default;                                                                                     \
                                                                                                                        \
-      explicit ConstDescriptor(ConstView const& view)                                                                  \
+      explicit ConstDescriptor(ConstView const view)                                                                   \
           : buff{ _ITERATE_ON_ALL_COMMA(_ASSIGN_SPAN_TO_COLUMNS, ~, __VA_ARGS__)},                                     \
             parameterTypes{ _ITERATE_ON_ALL_COMMA(_ASSIGN_PARAMETER_TO_COLUMNS, ~, __VA_ARGS__)} {}                    \
                                                                                                                        \
@@ -1716,7 +1716,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     struct Descriptor {                                                                                                \
       Descriptor() = default;                                                                                          \
                                                                                                                        \
-      explicit Descriptor(View& view)                                                                                  \
+      explicit Descriptor(View view)                                                                                   \
           : buff{ _ITERATE_ON_ALL_COMMA(_ASSIGN_SPAN_TO_COLUMNS, ~, __VA_ARGS__)},                                     \
             parameterTypes{ _ITERATE_ON_ALL_COMMA(_ASSIGN_PARAMETER_TO_COLUMNS, ~, __VA_ARGS__)} {}                    \
                                                                                                                        \

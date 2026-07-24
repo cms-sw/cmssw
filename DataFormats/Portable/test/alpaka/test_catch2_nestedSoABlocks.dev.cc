@@ -20,33 +20,17 @@
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 using namespace Catch::Matchers;
 
-GENERATE_SOA_LAYOUT(SoALayout1, 
-                    SOA_COLUMN(int, column),
-                    SOA_EIGEN_COLUMN(Eigen::Vector3d, vector),
-                    SOA_SCALAR(int, id))
+GENERATE_SOA_LAYOUT(SoALayout1, SOA_COLUMN(int, column), SOA_EIGEN_COLUMN(Eigen::Vector3d, vector), SOA_SCALAR(int, id))
 
-GENERATE_SOA_LAYOUT(SoALayout2, 
-                    SOA_COLUMN(int, column),
-                    SOA_EIGEN_COLUMN(Eigen::Vector3d, vector),
-                    SOA_SCALAR(int, id))
+GENERATE_SOA_LAYOUT(SoALayout2, SOA_COLUMN(int, column), SOA_EIGEN_COLUMN(Eigen::Vector3d, vector), SOA_SCALAR(int, id))
 
-GENERATE_SOA_LAYOUT(SoALayout3, 
-                    SOA_COLUMN(int, column),
-                    SOA_EIGEN_COLUMN(Eigen::Vector3d, vector),
-                    SOA_SCALAR(int, id))
+GENERATE_SOA_LAYOUT(SoALayout3, SOA_COLUMN(int, column), SOA_EIGEN_COLUMN(Eigen::Vector3d, vector), SOA_SCALAR(int, id))
 
-GENERATE_SOA_LAYOUT(SoALayout4, 
-                    SOA_COLUMN(int, column),
-                    SOA_EIGEN_COLUMN(Eigen::Vector3d, vector),
-                    SOA_SCALAR(int, id))
+GENERATE_SOA_LAYOUT(SoALayout4, SOA_COLUMN(int, column), SOA_EIGEN_COLUMN(Eigen::Vector3d, vector), SOA_SCALAR(int, id))
 
-GENERATE_SOA_BLOCKS(BlocksTemplate,
-                    SOA_BLOCK(first, SoALayout1),
-                    SOA_BLOCK(second, SoALayout2))
+GENERATE_SOA_BLOCKS(BlocksTemplate, SOA_BLOCK(first, SoALayout1), SOA_BLOCK(second, SoALayout2))
 
-GENERATE_SOA_BLOCKS(SingleNestedBlocksTemplate,
-                    SOA_BLOCK(blocks, BlocksTemplate),
-                    SOA_BLOCK(soa, SoALayout3))
+GENERATE_SOA_BLOCKS(SingleNestedBlocksTemplate, SOA_BLOCK(blocks, BlocksTemplate), SOA_BLOCK(soa, SoALayout3))
 
 GENERATE_SOA_BLOCKS(DoubleNestedBlocksTemplate,
                     SOA_BLOCK(blocks, SingleNestedBlocksTemplate),
@@ -102,33 +86,33 @@ struct FillSoAs {
 };
 
 void checkNestedSoABlocks(const ConstView& view) {
-    REQUIRE(view.blocks().blocks().first().id() == view.metadata().size()[0]);
-    for (BlockSoA::size_type i = 0; i < view.metadata().size()[0]; ++i) {
-        const auto& element = view.blocks().blocks().first()[i];
-        REQUIRE(element.column() == static_cast<int>(i));
-        REQUIRE(element.vector().isApprox(Eigen::Vector3d(i, i + 1, i + 2)));
-    }
-    
-    REQUIRE(view.blocks().blocks().second().id() == view.metadata().size()[1]);
-    for (BlockSoA::size_type i = 0; i < view.metadata().size()[1]; ++i) {
-        const auto& element = view.blocks().blocks().second()[i];
-        REQUIRE(element.column() == static_cast<int>(i * 10));
-        REQUIRE(element.vector().isApprox(Eigen::Vector3d(i * 10, i * 10 + 1, i * 10 + 2)));
-    }
+  REQUIRE(view.blocks().blocks().first().id() == view.metadata().size()[0]);
+  for (BlockSoA::size_type i = 0; i < view.metadata().size()[0]; ++i) {
+    const auto& element = view.blocks().blocks().first()[i];
+    REQUIRE(element.column() == static_cast<int>(i));
+    REQUIRE(element.vector().isApprox(Eigen::Vector3d(i, i + 1, i + 2)));
+  }
 
-    REQUIRE(view.blocks().soa().id() == view.metadata().size()[2]);
-    for (BlockSoA::size_type i = 0; i < view.metadata().size()[2]; ++i) {
-        const auto& element = view.blocks().soa()[i];
-        REQUIRE(element.column() == static_cast<int>(i * 100));
-        REQUIRE(element.vector().isApprox(Eigen::Vector3d(i * 100, i * 100 + 1, i * 100 + 2)));
-    }
+  REQUIRE(view.blocks().blocks().second().id() == view.metadata().size()[1]);
+  for (BlockSoA::size_type i = 0; i < view.metadata().size()[1]; ++i) {
+    const auto& element = view.blocks().blocks().second()[i];
+    REQUIRE(element.column() == static_cast<int>(i * 10));
+    REQUIRE(element.vector().isApprox(Eigen::Vector3d(i * 10, i * 10 + 1, i * 10 + 2)));
+  }
 
-    REQUIRE(view.soa().id() == view.metadata().size()[3]);
-    for (BlockSoA::size_type i = 0; i < view.metadata().size()[3]; ++i) {
-        const auto& element = view.soa()[i];
-        REQUIRE(element.column() == static_cast<int>(i * 6654));
-        REQUIRE(element.vector().isApprox(Eigen::Vector3d(i * 6654, i * 6654 + 1, i * 6654 + 2)));
-    }
+  REQUIRE(view.blocks().soa().id() == view.metadata().size()[2]);
+  for (BlockSoA::size_type i = 0; i < view.metadata().size()[2]; ++i) {
+    const auto& element = view.blocks().soa()[i];
+    REQUIRE(element.column() == static_cast<int>(i * 100));
+    REQUIRE(element.vector().isApprox(Eigen::Vector3d(i * 100, i * 100 + 1, i * 100 + 2)));
+  }
+
+  REQUIRE(view.soa().id() == view.metadata().size()[3]);
+  for (BlockSoA::size_type i = 0; i < view.metadata().size()[3]; ++i) {
+    const auto& element = view.soa()[i];
+    REQUIRE(element.column() == static_cast<int>(i * 6654));
+    REQUIRE(element.vector().isApprox(Eigen::Vector3d(i * 6654, i * 6654 + 1, i * 6654 + 2)));
+  }
 }
 
 TEST_CASE("NestedSoABlocks minimal test") {
@@ -140,7 +124,6 @@ TEST_CASE("NestedSoABlocks minimal test") {
   }
 
   for (auto const& device : devices) {
-
     std::cout << "Running on " << alpaka::getName(device) << std::endl;
     Queue queue(device);
 
@@ -177,5 +160,4 @@ TEST_CASE("NestedSoABlocks minimal test") {
     ConstView constHostView = nestedBlocksHostCollection.const_view();
     checkNestedSoABlocks(constHostView);
   }
-
 }

@@ -170,6 +170,49 @@
               BOOST_PP_EXPAND(_ACCUMULATE_SOA_BLOCKS_SIZE_IMPL NAME))
 
 /*
+ * Assignment of spans to each block
+ */
+#define _ASSIGN_SPANS_TO_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
+  (typename LayoutFor<LAYOUT_NAME>::Descriptor(view.NAME()))
+
+#define _ASSIGN_SPANS_TO_BLOCKS(R, DATA, NAME)                                   \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
+              BOOST_PP_EMPTY(),                                                  \
+              BOOST_PP_EXPAND(_ASSIGN_SPANS_TO_BLOCKS_IMPL NAME))
+
+/*
+ * Assignment of const spans to each block
+ */
+#define _ASSIGN_CONST_SPANS_TO_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
+  (typename LayoutFor<LAYOUT_NAME>::ConstDescriptor(view.NAME()))
+
+#define _ASSIGN_CONST_SPANS_TO_BLOCKS(R, DATA, NAME)                             \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
+              BOOST_PP_EMPTY(),                                                  \
+              BOOST_PP_EXPAND(_ASSIGN_CONST_SPANS_TO_BLOCKS_IMPL NAME))
+
+/*
+ * Declaration of the descriptor by composition of descriptors of each block
+ */
+#define _DECLARE_DESCRIPTOR_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) (typename LayoutFor<LAYOUT_NAME>::Descriptor)
+
+#define _DECLARE_DESCRIPTOR_BLOCKS(R, DATA, NAME)                                \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
+              BOOST_PP_EMPTY(),                                                  \
+              BOOST_PP_EXPAND(_DECLARE_DESCRIPTOR_BLOCKS_IMPL NAME))
+
+/*
+ * Declaration of the const descriptor by composition of descriptors of each block
+ */
+#define _DECLARE_CONST_DESCRIPTOR_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
+  (typename LayoutFor<LAYOUT_NAME>::ConstDescriptor)
+
+#define _DECLARE_CONST_DESCRIPTOR_BLOCKS(R, DATA, NAME)                          \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
+              BOOST_PP_EMPTY(),                                                  \
+              BOOST_PP_EXPAND(_DECLARE_CONST_DESCRIPTOR_BLOCKS_IMPL NAME))
+
+/*
  * Computation of the block location in the memory layout (at SoA by blocks construction time)
  */
 #define _DECLARE_MEMBER_CONSTRUCTION_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME)                             \
@@ -512,9 +555,27 @@
     using ViewTemplate = ViewTemplateFreeParams<ALIGNMENT, ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY, RANGE_CHECKING>;   \
     using View = ViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::Default>;                   \
                                                                                                                        \
-    /* TODO: implement Descriptor and ConstDescriptor for Blocks to enable heterogeneous deepCopy */                   \
-    struct Descriptor;                                                                                                 \
-    struct ConstDescriptor;                                                                                            \
+    struct Descriptor {                                                                                                \
+      Descriptor() = default;                                                                                          \
+                                                                                                                       \
+      explicit Descriptor(View& view)                                                                                  \
+          : buff(std::make_tuple(_ITERATE_ON_ALL_COMMA(_ASSIGN_SPANS_TO_BLOCKS, ~, __VA_ARGS__))) {}                   \
+                                                                                                                       \
+      static constexpr size_type blocksNumber = std::tuple_size<std::tuple<                                            \
+                                         _ITERATE_ON_ALL_COMMA(_DECLARE_DESCRIPTOR_BLOCKS, ~, __VA_ARGS__)>>::value;   \
+      std::tuple< _ITERATE_ON_ALL_COMMA(_DECLARE_DESCRIPTOR_BLOCKS, ~, __VA_ARGS__)> buff;                             \
+    };                                                                                                                 \
+                                                                                                                       \
+    struct ConstDescriptor {                                                                                           \
+      ConstDescriptor() = default;                                                                                     \
+                                                                                                                       \
+      explicit ConstDescriptor(ConstView const& view)                                                                  \
+          : buff(std::make_tuple(_ITERATE_ON_ALL_COMMA(_ASSIGN_CONST_SPANS_TO_BLOCKS, ~, __VA_ARGS__))) {}             \
+                                                                                                                       \
+      static constexpr size_type blocksNumber = std::tuple_size<std::tuple<                                            \
+                                   _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_DESCRIPTOR_BLOCKS, ~, __VA_ARGS__)>>::value;   \
+      std::tuple< _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_DESCRIPTOR_BLOCKS, ~, __VA_ARGS__)> buff;                       \
+    };                                                                                                                 \
                                                                                                                        \
     /* Trivial constuctor */                                                                                           \
     CLASS()                                                                                                            \

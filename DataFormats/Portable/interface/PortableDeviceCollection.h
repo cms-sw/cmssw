@@ -128,13 +128,21 @@ public:
   }
 
   // Copy column by column heterogeneously for device to host/device data transfer.
-  // TODO: implement heterogeneous deepCopy for SoA blocks
   template <typename TQueue>
     requires(alpaka::isQueue<TQueue> && (!requires { Layout::blocksNumber; }))
   void deepCopy(TQueue& queue, ConstView const& view) {
     ConstDescriptor desc{view};
     Descriptor desc_{view_};
-    portablecollection::deepCopy<0>(queue, desc_, desc);
+    portablecollection::deepCopyColumns<0>(queue, desc_, desc);
+  }
+
+  // Copy block by block heterogeneously for device to host data transfer.
+  template <typename TQueue>
+    requires(alpaka::isQueue<TQueue> && (requires { Layout::blocksNumber; }))
+  void deepCopy(TQueue& queue, ConstView const& view) {
+    ConstDescriptor desc{view};
+    Descriptor desc_{view_};
+    portablecollection::deepCopyBlocks<0>(queue, desc_, desc);
   }
 
   // Either Layout::size_type for normal layouts or std::array<Layout::size_type, N> for SoABlocks layouts
