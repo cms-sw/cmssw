@@ -1,4 +1,5 @@
 <use name="CommonTools/Utils"/>
+<use name="CondFormats/HGCalObjects"/>
 <use name="DataFormats/CaloRecHit"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/GeometrySurface"/>
@@ -36,5 +37,19 @@
 <use name="fastjet"/>
 <use name="RecoEgamma/EgammaElectronAlgos"/> 
 <library file="*.cc" name="RecoHGCalTICLPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="alpaka/*.cc" name="RecoHGCalTICLPluginsPortable">
+  <use name="alpaka"/>
+  <use name="CondFormats/HGCalObjects"/>
+  <use name="DataFormats/DetId"/>
+  <use name="DataFormats/ForwardDetId"/>
+  <use name="Geometry/CaloGeometry"/>
+  <use name="Geometry/Records"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="RecoLocalCalo/HGCalRecAlgos"/>
+  <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
 </library>

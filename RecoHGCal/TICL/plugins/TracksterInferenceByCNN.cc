@@ -8,7 +8,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
 namespace ticl {
 
@@ -32,7 +32,7 @@ namespace ticl {
 
   void TracksterInferenceByCNN::runInference(const std::vector<reco::CaloCluster>& layerClusters,
                                              std::vector<Trackster>& tracksters,
-                                             const hgcal::RecHitTools& rhtools) const {
+                                             const ticlgeom::Tools& rhtools) const {
     if (!enabled_ || tracksters.empty()) {
       return;
     }

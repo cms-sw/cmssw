@@ -39,7 +39,7 @@ namespace ticl {
 
   void TracksterInferenceByPFN::runInference(const std::vector<reco::CaloCluster>& layerClusters,
                                              std::vector<Trackster>& tracksters,
-                                             const hgcal::RecHitTools& rhtools) const {
+                                             const ticlgeom::Tools& rhtools) const {
     if (!enabled_ || tracksters.empty()) {
       return;
     }
