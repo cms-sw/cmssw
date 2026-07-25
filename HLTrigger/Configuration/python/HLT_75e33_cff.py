@@ -47,6 +47,7 @@ fragment.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
 
 ### Actual changes on top of Phase2
 ### It could come from RecoTracker/IterativeTracking/InitialStep_cff.py
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltTiclGeom_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/initialStepChi2Est_cfi")
 ### It could come from RecoTracker/IterativeTracking/python/HighPtTripletStep_cff.py
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/highPtTripletStepChi2Est_cfi")
