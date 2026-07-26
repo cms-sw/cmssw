@@ -316,7 +316,7 @@ void BranchHGCalValidator::validate(Collection const& objects,
     // ratio - the reco ratio stays finite only because the extra cells lack RecHits).
     std::unordered_map<uint32_t, double> branchCellEnergy;
     double branchEnergy = 0.;
-    for (auto const& hit : hitIndex.subgraphHits(truth::HitChannel::HGCalCalo, particleId)) {
+    for (auto const& hit : hitIndex.subgraphHits(truth::HitChannel::Calo, particleId)) {
       branchCellEnergy[hit.detId] += hit.energy;
       branchEnergy += hit.energy;
     }
@@ -390,11 +390,11 @@ void BranchHGCalValidator::validate(Collection const& objects,
     if (!matches.empty()) {
       const float bestScore = matches.front().score;
       uint32_t tightest = matches.front().rootParticleId;
-      std::size_t tightestSize = hitIndex.subgraphHits(truth::HitChannel::HGCalCalo, tightest).size();
+      std::size_t tightestSize = hitIndex.subgraphHits(truth::HitChannel::Calo, tightest).size();
       for (auto const& m : matches) {
         if (m.score > bestScore)
           break;
-        const std::size_t size = hitIndex.subgraphHits(truth::HitChannel::HGCalCalo, m.rootParticleId).size();
+        const std::size_t size = hitIndex.subgraphHits(truth::HitChannel::Calo, m.rootParticleId).size();
         if (size < tightestSize) {
           tightestSize = size;
           tightest = m.rootParticleId;
@@ -425,7 +425,7 @@ void BranchHGCalValidator::validate(Collection const& objects,
       // Best Branch's purity / completeness / response vs the object.
       std::unordered_set<uint32_t> bestDetIds;
       double bestBranchEnergy = 0.;
-      for (auto const& hit : hitIndex.subgraphHits(truth::HitChannel::HGCalCalo, tightest)) {
+      for (auto const& hit : hitIndex.subgraphHits(truth::HitChannel::Calo, tightest)) {
         bestDetIds.insert(hit.detId);
         bestBranchEnergy += hit.energy;
       }
@@ -483,13 +483,13 @@ void BranchHGCalValidator::analyze(edm::Event const& event, edm::EventSetup cons
   const auto tidToParticle = buildTrackIdToParticle(graph, raw);
   truth::BranchHitAssociator assoc(hitIndex, {}, truth::BranchHitAssociator::Metric::SharedHits);
 
-  // Per-cell deposited (sim) energy = sum of every particle's direct HGCalCalo hits
+  // Per-cell deposited (sim) energy = sum of every particle's direct Calo hits
   // in that cell (each PCaloHit belongs to exactly one SimTrack), and per-cell
   // reconstructed energy from the RecHit collections; both keyed by DetId so the
   // raw response can normalise a Branch's energy by the object's own hit energy.
   std::unordered_map<uint32_t, float> cellSimEnergy;
   for (uint32_t p = 0; p < hitIndex.nParticles(); ++p)
-    for (auto const& hit : hitIndex.directHits(truth::HitChannel::HGCalCalo, p))
+    for (auto const& hit : hitIndex.directHits(truth::HitChannel::Calo, p))
       cellSimEnergy[hit.detId] += hit.energy;
   const auto recHitEnergyByDetId = collectRecHitEnergyByDetId(event);
 

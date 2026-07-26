@@ -20,10 +20,10 @@ namespace truth {
   // outer by detector radius. The value is the channel index and must stay stable;
   // code refers to channels by name, never by literal index.
   enum class HitChannel : uint8_t {
-    Tracker = 0,    // tracker PSimHits, energy = energyLoss, no recHit link
-    MTD = 1,        // MIP timing layer (BTL/ETL)
-    HGCalCalo = 2,  // calorimeter PCaloHits, recHit-mapped via the DetId->RecHit map
-    Muon = 3        // muon chambers (DT/CSC/RPC/GEM)
+    Tracker = 0,  // tracker PSimHits, energy = energyLoss, no recHit link
+    MTD = 1,      // MIP timing layer (BTL/ETL)
+    Calo = 2,  // all calorimeter PCaloHits (HGCAL endcap + ECAL barrel + HCAL), recHit-mapped via the DetId->RecHit map
+    Muon = 3   // muon chambers (DT/CSC/RPC/GEM)
   };
   inline constexpr std::size_t kNumHitChannels = 4;
 

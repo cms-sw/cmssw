@@ -44,6 +44,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
+#include <array>
+
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
@@ -64,6 +66,18 @@
 #include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 
 namespace {
+  // HGCAL Si ADC pulse shape (hgcROCParameters adcPulse), peak at index 2 = the
+  // in-time (BX0) readout sample. A hit at bunch crossing bx enters the BX0 sample
+  // with the pulse value at offset -bx from its peak, i.e. adcPulse[2 - bx], so
+  // out-of-time energy contributes to the digitized amplitude only through the small
+  // pulse tails. (Prototype: the SiPM HEback FE has a different shape; one shape is
+  // used here for all HGCal calo.)
+  constexpr std::array<float, 6> kAdcPulse{{0.00f, 0.017f, 0.817f, 0.163f, 0.003f, 0.000f}};
+  float pulseWeight(int bx) {
+    const int idx = 2 - bx;
+    return (idx >= 0 && idx < static_cast<int>(kAdcPulse.size())) ? kAdcPulse[idx] : 0.f;
+  }
+
   uint64_t packEventId(EncodedEventId const& id) {
     // EncodedEventId is a single uint32 rawId; use the typed accessor rather than a
     // byte copy so the key stays portable and cannot pick up a future member/padding.
@@ -142,6 +156,15 @@ private:
                  EncodedEventId const& eid,
                  std::vector<HitT>& out);
 
+  // Prototype energy-budget closure: sum this sub-event's HGCal calo hit energy per
+  // raw sim DetId, both raw and weighted by the ADC pulse shape at this bunch
+  // crossing (pulseWeight(bx)). Called for EVERY sub-event (signal + all bunch
+  // crossings, before the in-time keepBx filter), so the totals carry the
+  // out-of-time pileup the per-particle graph deliberately leaves out; the
+  // pulse-weighted total is the digitized-amplitude proxy that matches reco.
+  template <class EvT>
+  void accumulateCellEnergy(EvT const& ev, int bx);
+
   const edm::InputTag simTrackTag_;
   const edm::InputTag simVertexTag_;
   const edm::InputTag hepmc3Tag_;
@@ -155,6 +178,7 @@ private:
   const std::vector<int> pileupBunchCrossings_;
   const bool collapsePileupGen_;
   const bool collapseSignalGen_;
+  const bool computeCellEnergyBudget_;
 
   int pileupCount_ = 0;
   bool missingCaloHitsWarned_ = false;
@@ -171,6 +195,19 @@ private:
   std::vector<PSimHit> mergedTrackerHits_;
   std::vector<PSimHit> mergedMuonHits_;
   std::vector<PSimHit> mergedMtdHits_;
+
+  // Prototype: per-cell HGCal calorimeter energy summed over ALL bunch crossings
+  // (in-time + out-of-time), keyed by raw sim DetId. cellTotalEnergy_ is the raw
+  // sum; cellWeightedEnergy_ weights each hit by the ADC pulse shape at its bunch
+  // crossing (pulseWeight), so out-of-time enters only through the pulse tails and
+  // the total is a proxy for the digitized BX0 amplitude. The energy-budget closure:
+  // "untracked" = this total minus the energy on retained in-time truth branches.
+  std::unordered_map<uint32_t, float> cellTotalEnergy_;
+  std::unordered_map<uint32_t, float> cellWeightedEnergy_;
+  // In-time (bx 0) pulse-weighted energy per cell: the reference the in-time truth
+  // graph can track. A cell with all-bx energy but no in-time energy is pure
+  // out-of-time; a cell with no all-bx energy at all is pure noise.
+  std::unordered_map<uint32_t, float> cellInTimeEnergy_;
 
   std::vector<TruthGraph::NodeRef> nodes_;
   std::vector<int32_t> pdgId_;
@@ -203,7 +240,9 @@ TruthGraphAccumulator::TruthGraphAccumulator(edm::ParameterSet const& cfg,
       mtdHitTags_(cfg.getParameter<std::vector<edm::InputTag>>("mtdHits")),
       pileupBunchCrossings_(cfg.getParameter<std::vector<int>>("pileupBunchCrossings")),
       collapsePileupGen_(cfg.getParameter<bool>("collapsePileupGen")),
-      collapseSignalGen_(cfg.getParameter<bool>("collapseSignalGen")) {
+      collapseSignalGen_(cfg.getParameter<bool>("collapseSignalGen")),
+      computeCellEnergyBudget_(
+          cfg.existsAs<bool>("computeCellEnergyBudget") ? cfg.getParameter<bool>("computeCellEnergyBudget") : false) {
   producesCollector.produces<TruthGraph>();
   producesCollector.produces<std::vector<PCaloHit>>("mergedHGCHits");
   producesCollector.produces<std::vector<PCaloHit>>("mergedEcalHits");
@@ -211,6 +250,11 @@ TruthGraphAccumulator::TruthGraphAccumulator(edm::ParameterSet const& cfg,
   producesCollector.produces<std::vector<PSimHit>>("mergedTrackerHits");
   producesCollector.produces<std::vector<PSimHit>>("mergedMuonHits");
   producesCollector.produces<std::vector<PSimHit>>("mergedMtdHits");
+  if (computeCellEnergyBudget_) {
+    producesCollector.produces<std::vector<unsigned int>>("cellTotalDetId");
+    producesCollector.produces<std::vector<float>>("cellTotalEnergy");
+    producesCollector.produces<std::vector<float>>("cellInTimeEnergy");
+  }
   iC.consumes<edm::SimTrackContainer>(simTrackTag_);
   iC.consumes<edm::SimVertexContainer>(simVertexTag_);
   iC.mayConsume<edm::HepMC3Product>(hepmc3Tag_);
@@ -241,6 +285,9 @@ void TruthGraphAccumulator::initializeEvent(edm::Event const&, edm::EventSetup c
   edgeKinds_.clear();
   simVertexProcessType_.clear();
   simTrackBackscattered_.clear();
+  cellTotalEnergy_.clear();
+  cellWeightedEnergy_.clear();
+  cellInTimeEnergy_.clear();
 }
 
 void TruthGraphAccumulator::addSubEvent(std::vector<std::pair<int, int>> const& stableGen,
@@ -370,6 +417,27 @@ void TruthGraphAccumulator::addSubEventHits(EvT const& ev, EncodedEventId const&
   mergeHits(ev, mtdHitTags_, eid, mergedMtdHits_);
 }
 
+template <class EvT>
+void TruthGraphAccumulator::accumulateCellEnergy(EvT const& ev, int bx) {
+  // HGCal calorimeter only (the TICL-relevant calo) for this prototype, summed by
+  // raw sim DetId. hit.id() is the sim DetId, hit.energy() the deposited energy; the
+  // pulse-shape weight for this bunch crossing down-weights out-of-time deposits the
+  // way the shaper does.
+  const float w = pulseWeight(bx);
+  for (auto const& tag : caloHitTags_) {
+    edm::Handle<std::vector<PCaloHit>> hits;
+    ev.getByLabel(tag, hits);
+    if (!hits.isValid())
+      continue;
+    for (auto const& hit : *hits) {
+      cellTotalEnergy_[hit.id()] += hit.energy();
+      cellWeightedEnergy_[hit.id()] += hit.energy() * w;
+      if (bx == 0)
+        cellInTimeEnergy_[hit.id()] += hit.energy() * w;
+    }
+  }
+}
+
 void TruthGraphAccumulator::accumulate(edm::Event const& event, edm::EventSetup const&) {
   edm::Handle<edm::SimTrackContainer> tracks;
   edm::Handle<edm::SimVertexContainer> vertices;
@@ -383,10 +451,16 @@ void TruthGraphAccumulator::accumulate(edm::Event const& event, edm::EventSetup 
   const EncodedEventId sigEid(0, 0);
   addSubEvent(stableGen, *tracks, *vertices, sigEid);
   addSubEventHits(event, sigEid);
+  if (computeCellEnergyBudget_)
+    accumulateCellEnergy(event, 0);  // signal is in-time (bx 0)
 }
 
 void TruthGraphAccumulator::accumulate(PileUpEventPrincipal const& pep, edm::EventSetup const&, edm::StreamID const&) {
   const int bx = pep.bunchCrossing();
+  // Sum the per-cell energy over EVERY bunch crossing, before the in-time filter, so
+  // the budget total carries the out-of-time pileup the per-particle graph drops.
+  if (computeCellEnergyBudget_)
+    accumulateCellEnergy(pep, bx);
   if (!keepBx(bx))
     return;
 
@@ -452,6 +526,45 @@ void TruthGraphAccumulator::finalizeEvent(edm::Event& event, edm::EventSetup con
     throw cms::Exception("TruthGraphAccumulator") << "Produced TruthGraph is not consistent";
 
   event.put(std::move(out));
+
+  if (computeCellEnergyBudget_) {
+    // Compute before mergedCaloHits_ is moved below. Persist the pulse-weighted total
+    // (the digitized-amplitude proxy that matches reco); log the raw and the weighted
+    // out-of-time fraction so the pulse-shape suppression of out-of-time is visible.
+    auto detIds = std::make_unique<std::vector<unsigned int>>();
+    auto energies = std::make_unique<std::vector<float>>();
+    auto inTime = std::make_unique<std::vector<float>>();  // parallel to detIds
+    detIds->reserve(cellWeightedEnergy_.size());
+    energies->reserve(cellWeightedEnergy_.size());
+    inTime->reserve(cellWeightedEnergy_.size());
+    double allBxWeighted = 0.;
+    for (auto const& [detId, energy] : cellWeightedEnergy_) {
+      detIds->push_back(detId);
+      energies->push_back(energy);
+      auto const it = cellInTimeEnergy_.find(detId);
+      inTime->push_back(it == cellInTimeEnergy_.end() ? 0.f : it->second);
+      allBxWeighted += energy;
+    }
+    double allBxRaw = 0.;
+    for (auto const& [detId, energy] : cellTotalEnergy_)
+      allBxRaw += energy;
+    // In-time (bx 0) energy is what went into the kept merged collection; its
+    // digitized weight is pulseWeight(0).
+    double inTimeRaw = 0.;
+    for (auto const& hit : mergedCaloHits_)
+      inTimeRaw += hit.energy();
+    const double inTimeWeighted = inTimeRaw * pulseWeight(0);
+    const double untrackedRaw = allBxRaw - inTimeRaw;
+    const double untrackedWeighted = allBxWeighted - inTimeWeighted;
+    edm::LogPrint("TruthGraphAccumulator")
+        << "cell energy budget (HGCal): cells=" << cellWeightedEnergy_.size() << " | raw: allBx=" << allBxRaw
+        << " inTime=" << inTimeRaw << " untrackedFraction=" << (allBxRaw > 0. ? untrackedRaw / allBxRaw : 0.)
+        << " | pulse-weighted: allBx=" << allBxWeighted << " inTime=" << inTimeWeighted
+        << " untrackedFraction=" << (allBxWeighted > 0. ? untrackedWeighted / allBxWeighted : 0.);
+    event.put(std::move(detIds), "cellTotalDetId");
+    event.put(std::move(energies), "cellTotalEnergy");
+    event.put(std::move(inTime), "cellInTimeEnergy");
+  }
 
   event.put(std::make_unique<std::vector<PCaloHit>>(std::move(mergedCaloHits_)), "mergedHGCHits");
   event.put(std::make_unique<std::vector<PCaloHit>>(std::move(mergedEcalHits_)), "mergedEcalHits");

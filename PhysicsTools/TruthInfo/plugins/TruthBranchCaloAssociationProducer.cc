@@ -143,7 +143,7 @@ void TruthBranchCaloAssociationProducer::produce(edm::Event& event, edm::EventSe
   truth::BranchHitAssociator assoc(hitIndex,
                                    roots,
                                    truth::BranchHitAssociator::Metric::SharedEnergy,
-                                   truth::HitChannel::HGCalCalo,
+                                   truth::HitChannel::Calo,
                                    /*emptyRootsMeansAll=*/!restrictRoots);
 
   associate(event.get(caloParticleToken_), graph, assoc, "caloParticleToBranch", "branchToCaloParticle", event);

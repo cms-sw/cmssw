@@ -592,9 +592,9 @@ public:
 
       const bool hasHitInfo = hitIndex != nullptr && i < hitIndex->nParticles();
 
-      const auto directHits = hasHitInfo ? hitIndex->directHits(truth::HitChannel::HGCalCalo, i)
+      const auto directHits = hasHitInfo ? hitIndex->directHits(truth::HitChannel::Calo, i)
                                          : std::span<const truth::LogicalGraphHitIndex::Hit>();
-      const auto subgraphHits = hasHitInfo ? hitIndex->subgraphHits(truth::HitChannel::HGCalCalo, i)
+      const auto subgraphHits = hasHitInfo ? hitIndex->subgraphHits(truth::HitChannel::Calo, i)
                                            : std::span<const truth::LogicalGraphHitIndex::Hit>();
 
       const HitSummary directSummary = hasHitInfo ? summarizeHits(directHits, recHitEnergies) : HitSummary();

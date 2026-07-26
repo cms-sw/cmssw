@@ -29,10 +29,10 @@ namespace {
     b.setSimTrackForParticle(0, 0, 100);
     b.setSimTrackForParticle(1, 0, 101);
     b.addParticleChild(0, 1);
-    b.addHit(truth::HitChannel::HGCalCalo, 0, 100, 10, 1.0f, 0);
-    b.addHit(truth::HitChannel::HGCalCalo, 0, 100, 11, 1.0f, 0);
-    b.addHit(truth::HitChannel::HGCalCalo, 0, 101, 11, 1.0f, 0);
-    b.addHit(truth::HitChannel::HGCalCalo, 0, 101, 12, 2.0f, 0);
+    b.addHit(truth::HitChannel::Calo, 0, 100, 10, 1.0f, 0);
+    b.addHit(truth::HitChannel::Calo, 0, 100, 11, 1.0f, 0);
+    b.addHit(truth::HitChannel::Calo, 0, 101, 11, 1.0f, 0);
+    b.addHit(truth::HitChannel::Calo, 0, 101, 12, 2.0f, 0);
     return b.finish();
   }
 
@@ -43,7 +43,7 @@ namespace {
     b.setSimTrackForParticle(0, 0, 100);
     b.setSimTrackForParticle(1, 0, 101);
     b.addParticleChild(0, 1);
-    b.addHit(truth::HitChannel::HGCalCalo, 0, 100, 10, 1.0f, 0);  // calo channel
+    b.addHit(truth::HitChannel::Calo, 0, 100, 10, 1.0f, 0);  // calo channel
     b.addHit(truth::HitChannel::Tracker, 0, 100, 20, 1.0f);
     b.addHit(truth::HitChannel::Tracker, 0, 100, 21, 1.0f);
     b.addHit(truth::HitChannel::Tracker, 0, 101, 21, 1.0f);
@@ -145,7 +145,7 @@ void TestBranchHitAssociator::testTrackerChannel() {
   CPPUNIT_ASSERT(assoc.bestBranches(caloReco).empty());
   // ...and a calo associator ignores the tracker cells.
   truth::BranchHitAssociator caloAssoc(
-      index, {}, truth::BranchHitAssociator::Metric::SharedHits, truth::HitChannel::HGCalCalo);
+      index, {}, truth::BranchHitAssociator::Metric::SharedHits, truth::HitChannel::Calo);
   CPPUNIT_ASSERT(caloAssoc.bestBranches(reco).empty());
 }
 
@@ -159,7 +159,7 @@ void TestBranchHitAssociator::testEmptyRootsMatchNothingWhenRestricted() {
   truth::BranchHitAssociator restricted(index,
                                         {},
                                         truth::BranchHitAssociator::Metric::SharedEnergy,
-                                        truth::HitChannel::HGCalCalo,
+                                        truth::HitChannel::Calo,
                                         /*emptyRootsMeansAll=*/false);
   std::vector<truth::RecoHit> reco{{10, 1.0f, 1.0f}, {11, 2.0f, 1.0f}, {12, 2.0f, 1.0f}};
   CPPUNIT_ASSERT(restricted.bestBranches(reco).empty());

@@ -103,7 +103,7 @@ namespace {
     static constexpr truth::BranchHitAssociator::Metric metric() {
       return truth::BranchHitAssociator::Metric::SharedEnergy;
     }
-    static constexpr truth::HitChannel channel() { return truth::HitChannel::HGCalCalo; }
+    static constexpr truth::HitChannel channel() { return truth::HitChannel::Calo; }
     static double particleX(math::XYZTLorentzVectorD const& p) { return p.energy(); }
     static void fillDescriptions(edm::ParameterSetDescription& desc) {
       desc.add<edm::InputTag>("recoCollection", edm::InputTag("ticlTrackstersCLUE3DHigh"));
