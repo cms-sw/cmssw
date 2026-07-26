@@ -8,6 +8,7 @@
 #include <limits>
 #include <string>
 #include <cassert>
+#include <cmath>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/types.h"
@@ -63,6 +64,39 @@ namespace {
   void testbody(T value) {
     trackedTestbody<T>(value);
     untrackedTestbody<T>(value);
+  }
+
+  // NaN never compares equal to itself, so the equality-based testbody above
+  // cannot be used for it. Check instead that the round-trip preserves NaN-ness.
+  template <class T>
+  void testbodyNaN() {
+    T const nan = std::numeric_limits<T>::quiet_NaN();
+
+    edm::ParameterSet p1;
+    p1.template addParameter<T>("x", nan);
+    p1.registerIt();
+    REQUIRE(std::isnan(p1.template getParameter<T>("x")));
+    edm::ParameterSet p2(p1.toString());
+    REQUIRE(p1 == p2);
+    REQUIRE(std::isnan(p2.template getParameter<T>("x")));
+
+    edm::ParameterSet p3;
+    p3.template addUntrackedParameter<T>("x", nan);
+    REQUIRE(std::isnan(p3.template getUntrackedParameter<T>("x")));
+  }
+
+  template <class T>
+  void testbodyVectorNaN() {
+    std::vector<T> const v(1, std::numeric_limits<T>::quiet_NaN());
+
+    edm::ParameterSet p1;
+    p1.template addParameter<std::vector<T>>("x", v);
+    p1.registerIt();
+    edm::ParameterSet p2(p1.toString());
+    REQUIRE(p1 == p2);
+    auto const back = p2.template getParameter<std::vector<T>>("x");
+    REQUIRE(back.size() == 1);
+    REQUIRE(std::isnan(back[0]));
   }
 
   template <class T>
@@ -154,14 +188,54 @@ TEST_CASE("test ParameterSet", "[ParameterSet]") {
     testbody<double>(-0.0);
     testbody<double>(0.0);
     testbody<double>(1.25);
-    //testbody<double>(1.0/0.0);  // parameter set does not handle infinity?
-    //testbody<double>(0.0/0.0);  // parameter set does not handle NaN?
+    testbody<double>(std::numeric_limits<double>::infinity());
+    testbody<double>(-std::numeric_limits<double>::infinity());
+    testbodyNaN<double>();
     testbody<double>(-2.3456789e-231);
     testbody<double>(-2.3456789e231);
     testbody<double>(2.3456789e-231);
     testbody<double>(2.3456789e231);
+    testbody<double>(std::numeric_limits<double>::min());
+    testbody<double>(std::numeric_limits<double>::max());
+    testbody<double>(std::numeric_limits<double>::lowest());
+    // Subnormal values do not survive the round-trip: std::stod() reports ERANGE for a
+    // subnormal result, so edm::decode() fails on it. Smallest normal (double::min()) is fine.
     double oneThird = 1.0 / 3.0;
     testbody<double>(oneThird);
+
+    testbody<std::vector<double>>(std::vector<double>());
+    testbody<std::vector<double>>(std::vector<double>(1, oneThird));
+    testbody<std::vector<double>>(
+        std::vector<double>({std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity(), 0.0}));
+    testbodyVectorNaN<double>();
+  }
+
+  SECTION("float") {
+    testbody<float>(-1.25f);
+    testbody<float>(-0.0f);
+    testbody<float>(0.0f);
+    testbody<float>(1.25f);
+    testbody<float>(std::numeric_limits<float>::infinity());
+    testbody<float>(-std::numeric_limits<float>::infinity());
+    testbodyNaN<float>();
+    testbody<float>(-2.3456789e-31f);
+    testbody<float>(-2.3456789e31f);
+    testbody<float>(2.3456789e-31f);
+    testbody<float>(2.3456789e31f);
+    testbody<float>(std::numeric_limits<float>::min());
+    testbody<float>(std::numeric_limits<float>::max());
+    testbody<float>(std::numeric_limits<float>::lowest());
+    // Subnormal values do not survive the round-trip: std::stof() reports ERANGE for a
+    // subnormal result, so edm::decode() fails on it. Smallest normal (float::min()) is fine.
+    float oneThird = 1.0f / 3.0f;
+    testbody<float>(oneThird);
+
+    testbody<std::vector<float>>(std::vector<float>());
+    testbody<std::vector<float>>(std::vector<float>(1, oneThird));
+    testbody<std::vector<float>>(std::vector<float>({1.25f, -0.0f, std::numeric_limits<float>::max()}));
+    testbody<std::vector<float>>(
+        std::vector<float>({std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), 0.0f}));
+    testbodyVectorNaN<float>();
   }
 
   SECTION("edm::decode_vstring_extent") {
@@ -518,6 +592,50 @@ TEST_CASE("test ParameterSet", "[ParameterSet]") {
     REQUIRE(a1.getParameter<double>("x") == a2.getParameter<double>("x"));
   }
 
+  SECTION("floatEquality") {
+    edm::ParameterSet p1, p2, p3;
+    p1.addParameter<float>("x", 0.1f);
+    p2.addParameter<float>("x", 1.0e-1f);
+    p3.addParameter<float>("x", 0.100f);
+    p1.registerIt();
+    p2.registerIt();
+    p3.registerIt();
+    REQUIRE(p1 == p2);
+    REQUIRE(p1 == p3);
+    REQUIRE(p2 == p3);
+
+    REQUIRE(p1.toString() == p2.toString());
+    REQUIRE(p1.toString() == p3.toString());
+    REQUIRE(p2.toString() == p3.toString());
+  }
+
+  SECTION("floatIsDistinctFromDouble") {
+    // float and double parameters of the same name and value must not be
+    // interchangeable: the type is part of the encoding.
+    edm::ParameterSet f, d;
+    f.addParameter<float>("x", 0.5f);
+    d.addParameter<double>("x", 0.5);
+    f.registerIt();
+    d.registerIt();
+    REQUIRE(f.toString() != d.toString());
+    REQUIRE(f != d);
+    REQUIRE_THROWS_AS(f.getParameter<double>("x"), cms::Exception);
+    REQUIRE_THROWS_AS(d.getParameter<float>("x"), cms::Exception);
+  }
+
+  SECTION("negativeZeroFloat") {
+    edm::ParameterSet a1, a2;
+    a1.addParameter<float>("x", 0.0f);
+    a2.addParameter<float>("x", -0.0f);
+    a1.registerIt();
+    a2.registerIt();
+    // Negative and positive zero should be coded differently.
+    REQUIRE(a1.toString() != a2.toString());
+    REQUIRE(a1 != a2);
+    // Negative and positive zero should test equal.
+    REQUIRE(a1.getParameter<float>("x") == a2.getParameter<float>("x"));
+  }
+
   SECTION("id") {
     edm::ParameterSet a;
     a.registerIt();
@@ -645,6 +763,9 @@ TEST_CASE("test ParameterSet", "[ParameterSet]") {
 
     test_for_name<double>();
     test_for_name<std::vector<double>>();
+
+    test_for_name<float>();
+    test_for_name<std::vector<float>>();
 
     test_for_name<std::string>();
     test_for_name<std::vector<std::string>>();
