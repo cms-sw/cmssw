@@ -73,6 +73,24 @@
       [1]: 0
       [2]: 11
       [3]: 0.3
+    floatv1                 float                          1.17549435e-38
+    floatv2                 untracked float                0
+    floatv3                 untracked float                0.3
+    vfloatv1                vfloat                         empty
+    vfloatv2                vfloat                         (vector size = 1)
+      [0]: 1e+30
+    vfloatv3                vfloat                         (vector size = 2)
+      [0]: 1e+30
+      [1]: 0
+    vfloatv4                vfloat                         (vector size = 3)
+      [0]: 1e+30
+      [1]: 0
+      [2]: 11
+    vfloatv5                vfloat                         (vector size = 4)
+      [0]: 1e+30
+      [1]: 0
+      [2]: 11
+      [3]: 0.3
     boolv1                  bool                           True
     boolv2                  bool                           False
     stringv1                string                         'Hello'
@@ -663,6 +681,8 @@
         noDefault22 VLuminosityBlockRange optional none
         noDefault23 EventRange            optional none
         noDefault24 VEventRange           optional none
+        noDefault25 float                 optional none
+        noDefault26 vfloat                optional none
     Section 1.1.21 noDefaultPset4 PSet description:
         noDefault1  untracked int32                 optional none
         noDefault2  untracked vint32                optional none
@@ -688,6 +708,8 @@
         noDefault22 untracked VLuminosityBlockRange optional none
         noDefault23 untracked EventRange            optional none
         noDefault24 untracked VEventRange           optional none
+        noDefault25 untracked float                 optional none
+        noDefault26 untracked vfloat                optional none
     Section 1.1.22 plugin PSet description:
         There are multiple possible different descriptions for this ParameterSet
         because it will be used by a helper plugin object contained inside the top level

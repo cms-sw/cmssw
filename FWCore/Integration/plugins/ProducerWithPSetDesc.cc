@@ -222,6 +222,28 @@ namespace edmtest {
     REQUIRE(vdouble[2] == 11.0);
     REQUIRE(fabs(vdouble[3] - 0.3) < 0.0000001);
 
+    REQUIRE(ps.getParameter<float>("floatv1") == std::numeric_limits<float>::min());
+    REQUIRE(ps.getUntrackedParameter<float>("floatv2") == 0.0f);
+    REQUIRE(fabs(ps.getUntrackedParameter<float>("floatv3") - 0.3f) < 0.0000001);
+
+    std::vector<float> vfloat;
+    vfloat = ps.getParameter<std::vector<float>>("vfloatv1");
+    REQUIRE(vfloat.empty());
+    vfloat = ps.getParameter<std::vector<float>>("vfloatv2");
+    REQUIRE(vfloat[0] == 1e+30f);
+    vfloat = ps.getParameter<std::vector<float>>("vfloatv3");
+    REQUIRE(vfloat[0] == 1e+30f);
+    REQUIRE(vfloat[1] == 0.0f);
+    vfloat = ps.getParameter<std::vector<float>>("vfloatv4");
+    REQUIRE(vfloat[0] == 1e+30f);
+    REQUIRE(vfloat[1] == 0.0f);
+    REQUIRE(vfloat[2] == 11.0f);
+    vfloat = ps.getParameter<std::vector<float>>("vfloatv5");
+    REQUIRE(vfloat[0] == 1e+30f);
+    REQUIRE(vfloat[1] == 0.0f);
+    REQUIRE(vfloat[2] == 11.0f);
+    REQUIRE(fabs(vfloat[3] - 0.3f) < 0.0000001);
+
     REQUIRE(ps.getParameter<bool>("boolv1") == true);
     REQUIRE(ps.getParameter<bool>("boolv2") == false);
 
@@ -655,6 +677,21 @@ namespace edmtest {
       vdouble.push_back(0.3);
       iDesc.add<std::vector<double>>("vdoublev5", vdouble);
 
+      iDesc.add<float>("floatv1", std::numeric_limits<float>::min());
+      iDesc.addUntracked<float>("floatv2", 0.0f);
+      iDesc.addUntracked<float>("floatv3", 0.3f);
+
+      std::vector<float> vfloat;
+      iDesc.add<std::vector<float>>("vfloatv1", vfloat);
+      vfloat.push_back(1e+30f);
+      iDesc.add<std::vector<float>>("vfloatv2", vfloat);
+      vfloat.push_back(0.0f);
+      iDesc.add<std::vector<float>>("vfloatv3", vfloat);
+      vfloat.push_back(11.0f);
+      iDesc.add<std::vector<float>>("vfloatv4", vfloat);
+      vfloat.push_back(0.3f);
+      iDesc.add<std::vector<float>>("vfloatv5", vfloat);
+
       iDesc.add<bool>("boolv1", true);
       iDesc.add<bool>("boolv2", false);
 
@@ -1083,6 +1120,8 @@ namespace edmtest {
       noDefaultPset3.addOptional<std::vector<edm::LuminosityBlockRange>>("noDefault22");
       noDefaultPset3.addOptional<edm::EventRange>("noDefault23");
       noDefaultPset3.addOptional<std::vector<edm::EventRange>>("noDefault24");
+      noDefaultPset3.addOptional<float>("noDefault25");
+      noDefaultPset3.addOptional<std::vector<float>>("noDefault26");
 
       iDesc.add("noDefaultPset3", noDefaultPset3);
 
@@ -1112,6 +1151,8 @@ namespace edmtest {
       noDefaultPset4.addOptionalUntracked<std::vector<edm::LuminosityBlockRange>>("noDefault22");
       noDefaultPset4.addOptionalUntracked<edm::EventRange>("noDefault23");
       noDefaultPset4.addOptionalUntracked<std::vector<edm::EventRange>>("noDefault24");
+      noDefaultPset4.addOptionalUntracked<float>("noDefault25");
+      noDefaultPset4.addOptionalUntracked<std::vector<float>>("noDefault26");
 
       iDesc.add("noDefaultPset4", noDefaultPset4);
 
@@ -1200,6 +1241,8 @@ namespace edmtest {
       noDefaultPset1.add<std::vector<edm::LuminosityBlockRange>>("noDefault22");
       noDefaultPset1.add<edm::EventRange>("noDefault23");
       noDefaultPset1.add<std::vector<edm::EventRange>>("noDefault24");
+      noDefaultPset1.add<float>("noDefault25");
+      noDefaultPset1.add<std::vector<float>>("noDefault26");
 
       iDesc1.add("noDefaultPset1", noDefaultPset1);
 
@@ -1229,6 +1272,8 @@ namespace edmtest {
       noDefaultPset2.addUntracked<std::vector<edm::LuminosityBlockRange>>("noDefault22");
       noDefaultPset2.addUntracked<edm::EventRange>("noDefault23");
       noDefaultPset2.addUntracked<std::vector<edm::EventRange>>("noDefault24");
+      noDefaultPset2.addUntracked<float>("noDefault25");
+      noDefaultPset2.addUntracked<std::vector<float>>("noDefault26");
 
       iDesc1.add("noDefaultPset2", noDefaultPset2);
       descriptions.add("testLabel1", iDesc1);
