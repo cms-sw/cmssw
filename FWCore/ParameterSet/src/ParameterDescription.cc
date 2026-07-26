@@ -19,6 +19,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <iomanip>
+#include <limits>
 #include <ostream>
 #include <sstream>
 
@@ -478,6 +479,35 @@ namespace edm {
     void writeSingleValue<double>(std::ostream& os, double const& value, ValueFormat) {
       std::string sValue;
       formatDouble(value, sValue);
+      os << sValue;
+    }
+
+    // Same requirement as formatDouble above: the text written into the cfi
+    // must read back as the exact same value of type float.
+    void formatFloat(float value, std::string& result) {
+      {
+        std::stringstream ss;
+        ss << std::setprecision(std::numeric_limits<float>::max_digits10) << value;
+        result = ss.str();
+      }
+      if (result.size() > 7 && std::string::npos != result.find('.')) {
+        std::stringstream ss;
+        ss << std::setprecision(std::numeric_limits<float>::digits10) << value;
+        std::string resultLessPrecision = ss.str();
+
+        if (resultLessPrecision.size() < result.size() - 2) {
+          float test = std::strtof(resultLessPrecision.c_str(), nullptr);
+          if (test == value) {
+            result = resultLessPrecision;
+          }
+        }
+      }
+    }
+
+    template <>
+    void writeSingleValue<float>(std::ostream& os, float const& value, ValueFormat) {
+      std::string sValue;
+      formatFloat(value, sValue);
       os << sValue;
     }
 
