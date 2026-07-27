@@ -373,25 +373,25 @@ phase1Pixel.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
                 ),] + TrackerMaterialBlock.TrackerMaterial.EndcapLayers[4:]
         ))
 
-#new phase2 geometry
+#new simplified phase2 geometry - values for OTv800 and ITv702
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
     #The tracker layers
     BarrelLayers = cms.VPSet(
         ########### Beam Pipe ###########
-        #PIPE
+        #PIPE - same as phase-0 for now
         cms.PSet(
             radius = cms.untracked.double(2.90),
             limits = cms.untracked.vdouble(0.0, 28.3),
             thickness = cms.untracked.vdouble(0.0024),
             interactionModels = _trackerMaterialInteractionModels
         ),
-        ########### The Pixel Barrel layers 1-3 ###########
+        ########### The Pixel Barrel layers 1-4 ###########
         #PIXB1
         cms.PSet(
             radius = cms.untracked.double(3.000),
             limits = cms.untracked.vdouble(0.0, 19.7925),
-            thickness = cms.untracked.vdouble(0.0937),
+            thickness = cms.untracked.vdouble(0.02266),
             activeLayer = cms.untracked.string("BPix1"),
             interactionModels = _trackerMaterialInteractionModels
         ),
@@ -399,7 +399,7 @@ phase2_tracker.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
         cms.PSet(
             radius = cms.untracked.double(6.1500),
             limits = cms.untracked.vdouble(0.0, 19.7925),
-            thickness = cms.untracked.vdouble(0.0612),
+            thickness = cms.untracked.vdouble(0.02266),
             activeLayer = cms.untracked.string("BPix2"),
             interactionModels = _trackerMaterialInteractionModels
         ),
@@ -407,7 +407,7 @@ phase2_tracker.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
         cms.PSet(
             radius = cms.untracked.double(10.4500),
             limits = cms.untracked.vdouble(0.0, 20.0725),
-            thickness = cms.untracked.vdouble(0.0553),
+            thickness = cms.untracked.vdouble(0.02266),
             activeLayer = cms.untracked.string("BPix3"),
             interactionModels = _trackerMaterialInteractionModels
         ),
@@ -415,7 +415,7 @@ phase2_tracker.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
         cms.PSet(
             radius = cms.untracked.double(14.6500),                                                                                   
             limits = cms.untracked.vdouble(0.0, 20.0725),
-            thickness = cms.untracked.vdouble(0.0455),
+            thickness = cms.untracked.vdouble(0.02266),
             activeLayer = cms.untracked.string("BPix4"),
             interactionModels = _trackerMaterialInteractionModels
         ),
@@ -425,67 +425,55 @@ phase2_tracker.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
         cms.PSet(
             radius = cms.untracked.double(17.6),
             limits = cms.untracked.vdouble(0.0, 65.0),
-            thickness = cms.untracked.vdouble(0.0120275),
+            thickness = cms.untracked.vdouble(0.03428),
             interactionModels = _trackerMaterialInteractionModels
         ),
         ########### # Tracker Outer barrel layers 1-6 ###########
         #TOB1 - TBPS
         cms.PSet(
             radius = cms.untracked.double(24.9438),
-            #limits = cms.untracked.vdouble(0.0, 18.0, 30.0, 36.0, 46.0, 55.0, 112.737),
-            #thickness = cms.untracked.vdouble(0.021, 0.06, 0.03, 0.06, 0.03, 0.06),
-            limits = cms.untracked.vdouble(0.0, 16.000, 117.6760),
-            thickness = cms.untracked.vdouble(0.0848, 0.04212),
+            limits = cms.untracked.vdouble(0.0, 117.6760),
+            thickness = cms.untracked.vdouble(0.0357),
             activeLayer = cms.untracked.string("TOB1"),
             interactionModels = _trackerMaterialInteractionModels
         ),
-        #TOB2
+        #TOB2 - TBPS
         cms.PSet(
             radius = cms.untracked.double(37.1678),
-            #limits = cms.untracked.vdouble(0.0, 18.0, 30.0, 36.0, 46.0, 55.0, 112.737),            
-            #thickness = cms.untracked.vdouble(0.021, 0.06, 0.03, 0.06, 0.03, 0.06),
-            limits = cms.untracked.vdouble(0.0, 25.0, 117.6760),
-            thickness = cms.untracked.vdouble(0.0848, 0.04212),
+            limits = cms.untracked.vdouble(0.0, 117.6760),
+            thickness = cms.untracked.vdouble(0.0357),
             activeLayer = cms.untracked.string("TOB2"),
             interactionModels = _trackerMaterialInteractionModels
         ),
-        #TOB3
+        #TOB3 - TBPS
         cms.PSet(
             radius = cms.untracked.double(52.2700),
-            #limits = cms.untracked.vdouble(0.0, 18.0, 30.0, 36.0, 46.0, 55.0, 112.737),
-            #thickness = cms.untracked.vdouble(0.0154, 0.044, 0.022, 0.044, 0.022, 0.044),
-            limits = cms.untracked.vdouble(0.0, 34.0, 117.6760),
-            thickness = cms.untracked.vdouble(0.0600, 0.0145),
+            limits = cms.untracked.vdouble(0.0, 117.6760),
+            thickness = cms.untracked.vdouble(0.0357),
             activeLayer = cms.untracked.string("TOB3"),
             interactionModels = _trackerMaterialInteractionModels
         ),
         #TOB4 - TB2S
         cms.PSet(
             radius = cms.untracked.double(68.7000),
-            #limits = cms.untracked.vdouble(0.0, 18.0, 30.0, 36.0, 46.0, 55.0, 112.737),
-            #thickness = cms.untracked.vdouble(0.0154, 0.044, 0.022, 0.044, 0.022, 0.044),
             limits = cms.untracked.vdouble(0.0, 120.2910),
-            thickness = cms.untracked.vdouble(0.0166),
+            thickness = cms.untracked.vdouble(0.0147),
             activeLayer = cms.untracked.string("TOB4"),
             interactionModels = _trackerMaterialInteractionModels
         ),
-        #TOB5
+        #TOB5 - TB2S
         cms.PSet(
             radius = cms.untracked.double(86.0000),
-            #limits = cms.untracked.vdouble(0.0, 18.0, 30.0, 36.0, 46.0, 55.0, 112.737),
-            #thickness = cms.untracked.vdouble(0.0154, 0.044, 0.022, 0.044, 0.022, 0.044),
             limits = cms.untracked.vdouble(0.0, 120.3526),
-            thickness = cms.untracked.vdouble(0.0142),
+            thickness = cms.untracked.vdouble(0.0147),
             activeLayer = cms.untracked.string("TOB5"),
             interactionModels = _trackerMaterialInteractionModels
         ),
-        #TOB6
+        #TOB6 - TB2S
         cms.PSet(
             radius = cms.untracked.double(108.3000),
-            #limits = cms.untracked.vdouble(0.0, 18.0, 30.0, 36.0, 46.0, 55.0, 112.737),
-            #thickness = cms.untracked.vdouble(0.0154, 0.044, 0.022, 0.044, 0.022, 0.044),
             limits = cms.untracked.vdouble(0.0, 120.1877),
-            thickness = cms.untracked.vdouble(0.0156),
+            thickness = cms.untracked.vdouble(0.0147),
             activeLayer = cms.untracked.string("TOB6"),
             interactionModels = _trackerMaterialInteractionModels
         ),
@@ -495,33 +483,18 @@ phase2_tracker.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
         cms.PSet(
             radius = cms.untracked.double(120.0),
             limits = cms.untracked.vdouble(0.0, 299.9),
-            thickness = cms.untracked.vdouble(0.01805),
+            thickness = cms.untracked.vdouble(0.25195),
             interactionModels = _trackerMaterialInteractionModels
         ),
     ),
     
     EndcapLayers = cms.VPSet(
-        ########### Pixel Barrel Outside walls and cables (endcap) ###########
-        #PIXBOut4
-        # cms.PSet(
-        #     z = cms.untracked.double(28.7),
-        #     limits = cms.untracked.vdouble(4.2, 5.1, 7.1, 8.2, 10.0, 11.0, 11.9, 16.5),
-        #     thickness = cms.untracked.vdouble(0.100, 0.00, 0.108, 0.00, 0.112, 0.02, 0.04),
-        #     interactionModels = _trackerMaterialInteractionModels
-        # ),
-        #PIXBOut
-        #cms.PSet(
-        #    z = cms.untracked.double(28.8),
-        #    limits = cms.untracked.vdouble(3.8, 16.5),
-        #    thickness = cms.untracked.vdouble(0.012),
-        #    interactionModels = _trackerMaterialInteractionModels
-        #),
         ########### Forward Pixel layers 1-12 ###########
         #FPix1
         cms.PSet(
             z = cms.untracked.double(25.3000),
             limits = cms.untracked.vdouble(3.1000, 16.0883),
-            thickness = cms.untracked.vdouble(0.0500),
+            thickness = cms.untracked.vdouble(0.01929),
             activeLayer = cms.untracked.string("FPix1"),
             interactionModels = _trackerMaterialInteractionModels
         ),
@@ -529,7 +502,7 @@ phase2_tracker.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
         cms.PSet(
             z =	cms.untracked.double(32.2950),
             limits = cms.untracked.vdouble(3.1000, 16.0883),
-            thickness = cms.untracked.vdouble(0.0500),
+            thickness = cms.untracked.vdouble(0.01929),
             activeLayer = cms.untracked.string("FPix2"),
             interactionModels = _trackerMaterialInteractionModels
         ),
@@ -537,7 +510,7 @@ phase2_tracker.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
         cms.PSet(
             z =	cms.untracked.double(41.2230),
             limits = cms.untracked.vdouble(3.1000, 16.0883),
-            thickness = cms.untracked.vdouble(0.0500),
+            thickness = cms.untracked.vdouble(0.01929),
             activeLayer = cms.untracked.string("FPix3"),
             interactionModels = _trackerMaterialInteractionModels
         ),
@@ -545,7 +518,7 @@ phase2_tracker.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
         cms.PSet(
             z = cms.untracked.double(52.6200),
             limits = cms.untracked.vdouble(3.1000, 16.0883),
-            thickness = cms.untracked.vdouble(0.0500),
+            thickness = cms.untracked.vdouble(0.01929),
             activeLayer = cms.untracked.string("FPix4"),
             interactionModels = _trackerMaterialInteractionModels
         ),
@@ -553,7 +526,7 @@ phase2_tracker.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
         cms.PSet(
             z = cms.untracked.double(67.1680),
             limits = cms.untracked.vdouble(3.1000, 16.0883),
-            thickness = cms.untracked.vdouble(0.0500),
+            thickness = cms.untracked.vdouble(0.01929),
             activeLayer = cms.untracked.string("FPix5"),
             interactionModels = _trackerMaterialInteractionModels
         ),
@@ -561,7 +534,7 @@ phase2_tracker.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
         cms.PSet(
             z = cms.untracked.double(84.2380),
             limits = cms.untracked.vdouble(3.1000, 16.0883),
-            thickness = cms.untracked.vdouble(0.0500),
+            thickness = cms.untracked.vdouble(0.01929),
             activeLayer = cms.untracked.string("FPix6"),
             interactionModels = _trackerMaterialInteractionModels
         ),
@@ -569,19 +542,15 @@ phase2_tracker.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
         cms.PSet(
             z = cms.untracked.double(110.9420),
             limits = cms.untracked.vdouble(3.1000, 16.0883),
-            thickness = cms.untracked.vdouble(0.0500),
+            thickness = cms.untracked.vdouble(0.01929),
             activeLayer = cms.untracked.string("FPix7"),
             interactionModels = _trackerMaterialInteractionModels
         ),
-        #TEDD/TID Layer1
+        #TEDD/TID Layer1 - both TBPS and TB2S
         cms.PSet(
             z = cms.untracked.double(131.1800),
-            #limits = cms.untracked.vdouble(21.87, 24.0, 34.0, 39.0, 109.5),
-            #thickness = cms.untracked.vdouble(0.100, 0.040, 0.080, 0.050),
-
             limits = cms.untracked.vdouble(23.0, 65.0, 108.0),
-            thickness = cms.untracked.vdouble(0.0471, 0.0148),
-            
+            thickness = cms.untracked.vdouble(0.00863, 0.009506),
             activeLayer = cms.untracked.string("TID1"),
             interactionModels = _trackerMaterialInteractionModels
         ),
@@ -589,19 +558,15 @@ phase2_tracker.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
         cms.PSet(
             z = cms.untracked.double(139.7000),
             limits = cms.untracked.vdouble(3.1000, 16.0883),
-            thickness = cms.untracked.vdouble(0.0500),
+            thickness = cms.untracked.vdouble(0.01929),
             activeLayer = cms.untracked.string("FPix8"),
             interactionModels = _trackerMaterialInteractionModels
         ),
         #TEDD2/TID2                
         cms.PSet(
             z = cms.untracked.double(155.0000),
-            #limits = cms.untracked.vdouble(21.87, 24.0, 34.0, 39.0, 109.5),
-            #thickness = cms.untracked.vdouble(0.100, 0.040, 0.080, 0.050),
-
             limits = cms.untracked.vdouble(23.0, 65.0, 108.0),
-            thickness = cms.untracked.vdouble(0.0482, 0.0159),
-            
+            thickness = cms.untracked.vdouble(0.00863, 0.009506),
             activeLayer = cms.untracked.string("TID2"),
             interactionModels = _trackerMaterialInteractionModels
         ),
@@ -609,19 +574,15 @@ phase2_tracker.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
         cms.PSet(
             z = cms.untracked.double(175.0000),
             limits = cms.untracked.vdouble(6.2900, 25.4513),
-            thickness = cms.untracked.vdouble(0.0600),
+            thickness = cms.untracked.vdouble(0.01584),
             activeLayer = cms.untracked.string("FPix9"),
             interactionModels = _trackerMaterialInteractionModels
         ),
         #TEDD3/TID3
         cms.PSet(
             z = cms.untracked.double(185.3400),
-            #limits = cms.untracked.vdouble(33.18, 37.0, 44.0, 49.0, 109.5),
-            #thickness = cms.untracked.vdouble(0.100, 0.040, 0.080, 0.050),
-
             limits = cms.untracked.vdouble(32.0, 65.0, 108.0),
-            thickness = cms.untracked.vdouble(0.0438, 0.0158),
-            
+            thickness = cms.untracked.vdouble(0.00863, 0.009506),
             activeLayer = cms.untracked.string("TID3"),
             interactionModels = _trackerMaterialInteractionModels
         ),
@@ -629,19 +590,15 @@ phase2_tracker.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
         cms.PSet(
             z = cms.untracked.double(200.9590),
             limits = cms.untracked.vdouble(6.2900, 25.4513),
-            thickness = cms.untracked.vdouble(0.0600),
+            thickness = cms.untracked.vdouble(0.01584),
             activeLayer = cms.untracked.string("FPix10"),
             interactionModels = _trackerMaterialInteractionModels
         ), 
         #TEDD4/TID4
         cms.PSet(
             z = cms.untracked.double(221.6190),
-            #limits = cms.untracked.vdouble(33.18, 37.0, 40.0, 41.0, 46.0, 109.5),
-            #thickness = cms.untracked.vdouble(0.125, 0.030, 0.050, 0.070, 0.050),
-
             limits = cms.untracked.vdouble(32.0, 65.0, 108.0),
-            thickness = cms.untracked.vdouble(0.0446, 0.0160),
-            
+            thickness = cms.untracked.vdouble(0.00863, 0.009506),
             activeLayer = cms.untracked.string("TID4"),
             interactionModels = _trackerMaterialInteractionModels
         ),
@@ -649,7 +606,7 @@ phase2_tracker.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
         cms.PSet(
             z = cms.untracked.double(230.7690),
             limits = cms.untracked.vdouble(6.2900, 25.4513),
-            thickness = cms.untracked.vdouble(0.0600),
+            thickness = cms.untracked.vdouble(0.01584),
             activeLayer = cms.untracked.string("FPix11"),
             interactionModels = _trackerMaterialInteractionModels
         ),
@@ -657,62 +614,27 @@ phase2_tracker.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
         cms.PSet(
             z = cms.untracked.double(265.0000),
             limits = cms.untracked.vdouble(6.2900, 25.4513),
-            thickness = cms.untracked.vdouble(0.0600),
+            thickness = cms.untracked.vdouble(0.01584),
             activeLayer = cms.untracked.string("FPix12"),
             interactionModels = _trackerMaterialInteractionModels
         ),
         # TEDD5/TID5
         cms.PSet(
             z = cms.untracked.double(265.0001),
-            #limits = cms.untracked.vdouble(33.18, 37.0, 40.0, 41.0, 46.0, 109.5),
-            #thickness = cms.untracked.vdouble(0.125, 0.030, 0.050, 0.070, 0.050),
-
             limits = cms.untracked.vdouble(32.0, 65.0, 108.0),
-            thickness = cms.untracked.vdouble(0.0439, 0.0165),
-
+            thickness = cms.untracked.vdouble(0.00863, 0.009506),
             activeLayer = cms.untracked.string("TID5"),
             interactionModels = _trackerMaterialInteractionModels
         ),
-        ########### Pixel Endcap outside cables ###########
-        #PIXBOut6
-        #cms.PSet(
-        #    z = cms.untracked.double(65.1),
-        #    limits = cms.untracked.vdouble(6.5, 10.0, 11.0, 16.0, 17.61),
-        #    thickness = cms.untracked.vdouble(0.150, 0.325, 0.250, 0.175),
-        #    interactionModels = _trackerMaterialInteractionModels
-        # ),
-        ########### Tracker Inner Barrel Outside Cables and walls (endcap) ###########
-        #TIBEOut
-        # cms.PSet(
-        #     z = cms.untracked.double(74.0),
-        #     limits = cms.untracked.vdouble(22.5, 53.9),
-        #     thickness = cms.untracked.vdouble(0.130),
-        #     interactionModels = _trackerMaterialInteractionModels
-        #),
-        ########### Tracker Inner Disks Outside Cables and walls (endcap) ###########
-        #TIDEOut
-        # cms.PSet(
-        #     z = cms.untracked.double(108.0),
-        #     limits = cms.untracked.vdouble(22.0, 24.0, 47.5, 54.943),
-        #     thickness = cms.untracked.vdouble(0.111, 0.074, 0.185),
-        #    interactionModels = _trackerMaterialInteractionModels
-        #   ),
-        ########### Tracker Outer Barrel Outside Cables and walls (barrel and endcap) ###########
-        #TOBEOut
-        #cms.PSet(
-        #       z = cms.untracked.double(115.0),
-        #       limits = cms.untracked.vdouble(55.0, 60.0, 62.0, 78.0, 92.0, 111.0),
-        #       thickness = cms.untracked.vdouble(0.005, 0.009, 0.014, 0.016, 0.009),
-        #       interactionModels = _trackerMaterialInteractionModels
-        #   ),
+
         ########### Tracker Endcaps Outside Cables and walls (endcaps) ###########
-        #TEOut
-        #cms.PSet(
-        #    z = cms.untracked.double(303.0),
-        #    limits = cms.untracked.vdouble(4.42, 4.65, 4.84, 7.37, 10.99, 14.70, 16.24, 22.00, 28.50, 31.50, 36.0, 120.0),
-        #    thickness = cms.untracked.vdouble(3.935, 0.483, 0.127, 0.089, 0.069, 0.124, 1.47, 0.924, 0.693, 0.294, 0.336),
-        #    interactionModels = _trackerMaterialInteractionModels
-        #),
+        #TEOut - same as phase-0 for now
+        cms.PSet(
+            z = cms.untracked.double(303.0),
+            limits = cms.untracked.vdouble(4.42, 4.65, 4.84, 7.37, 10.99, 14.70, 16.24, 22.00, 28.50, 31.50, 36.0, 120.0),
+            thickness = cms.untracked.vdouble(3.935, 0.483, 0.127, 0.089, 0.069, 0.124, 1.47, 0.924, 0.693, 0.294, 0.336),
+            interactionModels = _trackerMaterialInteractionModels
+        ),
     ),
   )
 )
