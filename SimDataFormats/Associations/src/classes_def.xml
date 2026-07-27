@@ -7,8 +7,10 @@
   <class name="reco::MuonToTrackingParticleAssociator" persistent="false"/>
   <class name="edm::Wrapper<reco::MuonToTrackingParticleAssociator>" persistent="false"/>
 
-  <class name="reco::VertexToTrackingVertexAssociator" persistent="false"/>
-  <class name="edm::Wrapper<reco::VertexToTrackingVertexAssociator>" persistent="false"/>
+  <class name="reco::VertexToTrackingVertexAssociator<std::vector<reco::Vertex>>" persistent="false"/>
+  <class name="edm::Wrapper<reco::VertexToTrackingVertexAssociator<std::vector<reco::Vertex>>>" persistent="false"/>
+  <class name="reco::VertexToTrackingVertexAssociator<std::vector<reco::VertexCompositePtrCandidate>>" persistent="false"/>
+  <class name="edm::Wrapper<reco::VertexToTrackingVertexAssociator<std::vector<reco::VertexCompositePtrCandidate>>>" persistent="false"/>
 
   <class name="ticl::LayerClusterToCaloParticleAssociatorT<reco::CaloClusterCollection>" persistent="false"/>
   <class name="edm::Wrapper<ticl::LayerClusterToCaloParticleAssociatorT<reco::CaloClusterCollection>>" persistent="false"/>
@@ -94,7 +96,7 @@
   <class name="ticl::AssociationMap<ticl::oneToOneMapWithSharedEnergy, void, void >"/>
   <class name="edm::Wrapper<ticl::AssociationMap<ticl::oneToOneMapWithSharedEnergy, void, void > >"/>
 
-
+  <!-- For one-to-one map with reco::Vertex -->
   <class name="reco::VertexSimToRecoCollection" >
     <field name="transientMap_" transient="true"/>
   </class>
@@ -103,7 +105,33 @@
     <field name="transientMap_" transient="true"/>
   </class>
   <class name="edm::Wrapper<reco::VertexRecoToSimCollection>" />
-  
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<TrackingVertex> >,edm::RefToBaseProd<reco::Vertex> >" >
+    <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<edm::helpers::KeyVal<edm::RefProd<vector<TrackingVertex> >,edm::RefToBaseProd<reco::Vertex> >>" />
+  <class name="edm::helpers::KeyVal<edm::RefToBaseProd<reco::Vertex>, edm::RefProd<vector<TrackingVertex> > >" >
+    <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<edm::helpers::KeyVal<edm::RefToBaseProd<reco::Vertex>, edm::RefProd<vector<TrackingVertex> > >>" />  
+
+  <!-- For one-to-one map with reco::VertexCompositePtrCandidate -->
+  <class name="reco::VertexSimToRecoCollectionCPC" >
+    <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<reco::VertexSimToRecoCollectionCPC>" />
+  <class name="reco::VertexRecoToSimCollectionCPC" >
+    <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<reco::VertexRecoToSimCollectionCPC>" />
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<TrackingVertex> >,edm::RefToBaseProd<reco::VertexCompositePtrCandidate> >" >
+    <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<edm::helpers::KeyVal<edm::RefProd<vector<TrackingVertex> >,edm::RefToBaseProd<reco::VertexCompositePtrCandidate> >>" />
+  <class name="edm::helpers::KeyVal<edm::RefToBaseProd<reco::VertexCompositePtrCandidate>, edm::RefProd<vector<TrackingVertex> > >" >
+    <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<edm::helpers::KeyVal<edm::RefToBaseProd<reco::VertexCompositePtrCandidate>, edm::RefProd<vector<TrackingVertex> > >>" /> 
+
   
   <class name="ticl::SimToRecoCollectionT<reco::CaloClusterCollection>" >
     <field name="transientMap_" transient="true"/>
