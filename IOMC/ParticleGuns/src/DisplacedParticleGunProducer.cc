@@ -2,11 +2,10 @@
 #include <cmath>
 #include <memory>
 #include <numbers>
+#include <optional>
+#include <string>
 #include <utility>
 #include <vector>
-#include <string>
-#include <tuple>
-#include <optional>
 
 #include <CLHEP/Random/RandFlat.h>
 #include <CLHEP/Units/SystemOfUnits.h>
@@ -14,7 +13,6 @@
 #include "HepMC/GenEvent.h"
 
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -23,7 +21,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/isFinite.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
@@ -32,82 +29,506 @@ namespace edm {
 
   namespace {
 
-    // Hard-coded HGCAL CE-E back surface of layer 25/26
-    // or, equivalently, of front face of CE-E backplate absorber 1
-    // values in centimeters
-    constexpr double kCeeBackZ = 362.18;
-    constexpr double kCeeBackRMin = 31.36;
-    constexpr double kCeeBackRMax = 164.67;
+    enum class MagnitudeVariable { kEnergy, kPt };
+    enum class RadialDistribution { kUniformArea, kUniformRadius };
 
-    // Sample r uniformly in area between [rmin, rmax] (uniform point density)
-    double shootUniformDensity(CLHEP::HepRandomEngine* eng, double rmin, double rmax) {
-      const double r2 = CLHEP::RandFlat::shoot(eng, rmin * rmin, rmax * rmax);
-      return std::sqrt(r2);
+    MagnitudeVariable readMagnitudeVariable(const std::string& value) {
+      if (value == "energy") {
+        return MagnitudeVariable::kEnergy;
+      }
+      if (value == "pt") {
+        return MagnitudeVariable::kPt;
+      }
+      throw cms::Exception("DisplacedParticleGunProducer")
+          << "Momentum.Magnitude.Variable must be either 'energy' or 'pt', but is '" << value << "'.";
     }
 
-    // Sample r uniformly between [rmin, rmax]
-    double shootUniformR(CLHEP::HepRandomEngine* eng, double rmin, double rmax) {
-      return CLHEP::RandFlat::shoot(eng, rmin, rmax);
+    RadialDistribution readRadialDistribution(const std::string& value) {
+      if (value == "uniformArea") {
+        return RadialDistribution::kUniformArea;
+      }
+      if (value == "uniformRadius") {
+        return RadialDistribution::kUniformRadius;
+      }
+      throw cms::Exception("DisplacedParticleGunProducer")
+          << "Geometry.RadialDistribution must be either 'uniformArea' or 'uniformRadius', but is '" << value << "'.";
     }
 
-    // Ensure the particle hits HGCAL's CE-E back surface within [rMin; rMax]
-    bool hitsZPlaneWithinR(double x0,
-                           double y0,
-                           double z0,  // vertex coordinates
-                           double px,
-                           double py,
-                           double pz,  // particle momentum
-                           double zPlane,
-                           double rMin,
-                           double rMax,
-                           int verbose) {
-      const double t = (zPlane - z0) / pz;
-      if (t <= 0.0) {
-        return false;
+    struct MagnitudeParameters {
+      explicit MagnitudeParameters(const ParameterSet& pset)
+          : variable(readMagnitudeVariable(pset.getParameter<std::string>("Variable"))),
+            min(pset.getParameter<double>("Min")),
+            max(pset.getParameter<double>("Max")) {
+        if (max <= min) {
+          throw cms::Exception("DisplacedParticleGunProducer") << "Please fix Momentum.Magnitude.Min/Max.";
+        }
+        if (min <= 0.) {
+          throw cms::Exception("DisplacedParticleGunProducer") << "Momentum.Magnitude.Min must be positive.";
+        }
       }
 
-      // project (x, y) into the plane assuming straight trajectories
-      const double xHit = x0 + t * px;
-      const double yHit = y0 + t * py;
-      const double rHit = std::hypot(xHit, yHit);
+      MagnitudeVariable variable;
+      double min;
+      double max;
+    };
 
-      if (verbose > 0) {
-        std::cout << "hitsZPlaneWithin " << " | return=" << static_cast<int>(rHit >= rMin && rHit <= rMax)
-                  << " | rHit=" << rHit << ", rMin=" << rMin << ", rMax=" << rMax << ", t=" << t
-                  << ", zPlane=" << zPlane << ", z0=" << z0 << ", pz=" << pz << std::endl;
+    struct DirectionParameters {
+      explicit DirectionParameters(const ParameterSet& pset)
+          : thetaMin(pset.getParameter<double>("ThetaMin")),
+            thetaMax(pset.getParameter<double>("ThetaMax")),
+            phiMin(pset.getParameter<double>("PhiMin")),
+            phiMax(pset.getParameter<double>("PhiMax")) {
+        if (thetaMax <= thetaMin) {
+          throw cms::Exception("DisplacedParticleGunProducer") << "Please fix Momentum.Direction.ThetaMin/ThetaMax.";
+        }
+        if (phiMax <= phiMin) {
+          throw cms::Exception("DisplacedParticleGunProducer") << "Please fix Momentum.Direction.PhiMin/PhiMax.";
+        }
+        if (thetaMin < 0. || thetaMax >= std::numbers::pi / 2.) {
+          throw cms::Exception("DisplacedParticleGunProducer")
+              << "Momentum.Direction theta bounds must lie inside [0, pi/2).";
+        }
+        if (phiMin < -std::numbers::pi || phiMax > std::numbers::pi) {
+          throw cms::Exception("DisplacedParticleGunProducer")
+              << "Momentum.Direction phi bounds must lie inside [-pi, pi].";
+        }
       }
 
-      return (rHit >= rMin && rHit <= rMax);
-    }
+      double thetaMin;
+      double thetaMax;
+      double phiMin;
+      double phiMax;
+    };
 
-    // ensures theta is never too close to zero, which makes the computation of pz unstable
-    double pickSensibleTheta(CLHEP::HepRandomEngine* eng, double amin, double amax) {
-      double theta = 0.;
-      while (std::abs(theta) < 1e-6) {
-        theta = CLHEP::RandFlat::shoot(eng, amin, amax);
+    struct MomentumParameters {
+      explicit MomentumParameters(const ParameterSet& pset)
+          : magnitude(pset.getParameter<ParameterSet>("Magnitude")),
+            direction(pset.getParameter<ParameterSet>("Direction")) {}
+
+      MagnitudeParameters magnitude;
+      DirectionParameters direction;
+    };
+
+    struct PlaneParameters {
+      PlaneParameters(const ParameterSet& pset, double planeZ, const char* name)
+          : z(planeZ),
+            rMin(pset.getParameter<double>("RMin")),
+            rMax(pset.getParameter<double>("RMax")),
+            phiMin(pset.getParameter<double>("PhiMin")),
+            phiMax(pset.getParameter<double>("PhiMax")) {
+        if (rMax <= rMin) {
+          throw cms::Exception("DisplacedParticleGunProducer") << "Please fix Geometry." << name << ".RMin/RMax.";
+        }
+        if (rMin < 0.) {
+          throw cms::Exception("DisplacedParticleGunProducer") << "Geometry." << name << ".RMin must be nonnegative.";
+        }
+        if (phiMax <= phiMin) {
+          throw cms::Exception("DisplacedParticleGunProducer") << "Please fix Geometry." << name << ".PhiMin/PhiMax.";
+        }
+        if (phiMin < -std::numbers::pi || phiMax > std::numbers::pi) {
+          throw cms::Exception("DisplacedParticleGunProducer")
+              << "Geometry." << name << " phi bounds must lie inside [-pi, pi].";
+        }
       }
-      return theta;
+
+      PlaneParameters(const ParameterSet& pset, const char* name)
+          : PlaneParameters(pset, pset.getParameter<double>("Z"), name) {}
+
+      double z;
+      double rMin;
+      double rMax;
+      double phiMin;
+      double phiMax;
+    };
+
+    std::optional<PlaneParameters> readTarget(const ParameterSet& geometry) {
+      if (!geometry.existsAs<ParameterSet>("Target")) {
+        return std::nullopt;
+      }
+      return PlaneParameters(geometry.getParameter<ParameterSet>("Target"), "Target");
     }
 
-    std::tuple<double, double, double> computeMomentum(double pt, double theta, double phi) {
-      double px = pt * std::cos(phi);
-      double py = pt * std::sin(phi);
-      double pz = 0.;
-      if (std::abs(theta) < 1e-6) {
+    struct GeometryParameters {
+      explicit GeometryParameters(const ParameterSet& pset)
+          : radialDistribution(readRadialDistribution(pset.getParameter<std::string>("RadialDistribution"))),
+            origin(pset.getParameter<ParameterSet>("Origin"), 0., "Origin"),
+            production(pset.getParameter<ParameterSet>("Production"), "Production"),
+            target(readTarget(pset)) {
+        if (production.z <= origin.z) {
+          throw cms::Exception("DisplacedParticleGunProducer") << "Geometry.Production.Z must be greater than zero.";
+        }
+        if (target && target->z <= production.z) {
+          throw cms::Exception("DisplacedParticleGunProducer")
+              << "Geometry.Target.Z must be greater than Geometry.Production.Z.";
+        }
+        if (target) {
+          const double fraction = production.z / target->z;
+          const double largestReachableProductionRadius = (1. - fraction) * origin.rMax + fraction * target->rMax;
+          if (production.rMin > largestReachableProductionRadius) {
+            throw cms::Exception("DisplacedParticleGunProducer")
+                << "Geometry.Production radial range is unreachable between the configured Origin and Target caps.";
+          }
+        }
+      }
+
+      RadialDistribution radialDistribution;
+      PlaneParameters origin;
+      PlaneParameters production;
+      std::optional<PlaneParameters> target;
+    };
+
+    double getDistanceBetweenIntervals(double firstMin, double firstMax, double secondMin, double secondMax) {
+      if (firstMax < secondMin) {
+        return secondMin - firstMax;
+      }
+      if (secondMax < firstMin) {
+        return firstMin - secondMax;
+      }
+      return 0.;
+    }
+
+    bool isRadialRangeReachableForDirection(const PlaneParameters& initial,
+                                            const PlaneParameters& final,
+                                            const DirectionParameters& direction) {
+      const double deltaZ = std::abs(final.z - initial.z);
+      const double displacementMin = deltaZ * std::tan(direction.thetaMin);
+      const double displacementMax = deltaZ * std::tan(direction.thetaMax);
+      const double reachableRMin =
+          getDistanceBetweenIntervals(initial.rMin, initial.rMax, displacementMin, displacementMax);
+      const double reachableRMax = initial.rMax + displacementMax;
+      return final.rMax >= reachableRMin && final.rMin <= reachableRMax;
+    }
+
+    void validateRadialReachability(const PlaneParameters& initial,
+                                    const PlaneParameters& final,
+                                    const DirectionParameters& direction,
+                                    const char* initialName,
+                                    const char* finalName) {
+      if (!isRadialRangeReachableForDirection(initial, final, direction)) {
         throw cms::Exception("DisplacedParticleGunProducer")
-            << "Theta is too close to zero: " << theta << ". Unstable pz.";
+            << "Geometry." << finalName << " radial range is unreachable from Geometry." << initialName
+            << " within the theta range.";
+      }
+    }
+
+    struct ParticleGunParameters {
+      explicit ParticleGunParameters(const ParameterSet& pset)
+          : partId(pset.getParameter<int>("PartID")),
+            nParticles(pset.getParameter<int>("NParticles")),
+            momentum(pset.getParameter<ParameterSet>("Momentum")),
+            geometry(pset.getParameter<ParameterSet>("Geometry")),
+            maxSamplingAttempts(pset.getParameter<unsigned int>("MaxSamplingAttempts")) {
+        if (nParticles <= 0) {
+          throw cms::Exception("DisplacedParticleGunProducer") << "NParticles must be greater than zero.";
+        }
+        if (maxSamplingAttempts == 0) {
+          throw cms::Exception("DisplacedParticleGunProducer") << "MaxSamplingAttempts must be greater than zero.";
+        }
+        if (momentum.magnitude.variable == MagnitudeVariable::kPt && momentum.direction.thetaMin == 0.) {
+          throw cms::Exception("DisplacedParticleGunProducer")
+              << "Momentum.Direction.ThetaMin must be greater than zero when Momentum.Magnitude.Variable is 'pt'.";
+        }
+
+        validateRadialReachability(geometry.origin, geometry.production, momentum.direction, "Origin", "Production");
+        if (geometry.target) {
+          validateRadialReachability(geometry.origin, *geometry.target, momentum.direction, "Origin", "Target");
+          validateRadialReachability(geometry.production, *geometry.target, momentum.direction, "Production", "Target");
+        }
       }
 
-      pz = pt / std::abs(std::tan(theta));
+      int partId;
+      int nParticles;
+      MomentumParameters momentum;
+      GeometryParameters geometry;
+      unsigned int maxSamplingAttempts;
+    };
 
-      // shoot the particle along the same plane but in the negative theta direction
-      // reminder: theta is measured from the x axis in counter-clockwise fashion
-      if (theta < 0.) {
-        px = -px;
-        py = -py;
+    struct ProducerParameters {
+      explicit ProducerParameters(const ParameterSet& pset)
+          : particleGun(pset.getParameter<ParameterSet>("PGunParameters")),
+            verbosity(pset.getUntrackedParameter<int>("Verbosity", 0)) {}
+
+      ParticleGunParameters particleGun;
+      int verbosity;
+    };
+
+    struct Interval {
+      double min;
+      double max;
+    };
+
+    struct Point {
+      double x;
+      double y;
+      double z;
+    };
+
+    struct SampledDirection {
+      double theta;
+      double phi;
+      Point productionPoint;
+    };
+
+    struct FourMomentum {
+      double px;
+      double py;
+      double pz;
+      double energy;
+    };
+
+    struct ProductionVertex {
+      double x;
+      double y;
+      double z;
+      double time;
+    };
+
+    struct ResolvedParticle {
+      int pdgId;
+      FourMomentum momentum;
+      ProductionVertex vertex;
+    };
+
+    std::vector<Interval> intersectIntervals(const std::vector<Interval>& first, const std::vector<Interval>& second) {
+      std::vector<Interval> result;
+      for (const auto& left : first) {
+        for (const auto& right : second) {
+          const double min = std::max(left.min, right.min);
+          const double max = std::min(left.max, right.max);
+          if (min < max) {
+            result.push_back({min, max});
+          }
+        }
+      }
+      return result;
+    }
+
+    std::vector<Interval> subtractInterval(const Interval& allowed, const Interval& excluded) {
+      std::vector<Interval> result;
+
+      const double leftMax = std::min(allowed.max, excluded.min);
+      if (allowed.min < leftMax) {
+        result.push_back({allowed.min, leftMax});
       }
 
-      return {px, py, pz};
+      const double rightMin = std::max(allowed.min, excluded.max);
+      if (rightMin < allowed.max) {
+        result.push_back({rightMin, allowed.max});
+      }
+
+      return result;
+    }
+
+    std::optional<Interval> getQuadraticRoots(double a, double b, double c) {
+      const double discriminant = b * b - 4. * a * c;
+      if (discriminant <= 0.) {
+        return std::nullopt;
+      }
+
+      const double sqrtDiscriminant = std::sqrt(discriminant);
+      return Interval{(-b - sqrtDiscriminant) / (2. * a), (-b + sqrtDiscriminant) / (2. * a)};
+    }
+
+    std::vector<Interval> getAllowedSlopesForCap(const Point& originPoint,
+                                                 double momentumPhi,
+                                                 const PlaneParameters& cap) {
+      const double deltaZ = cap.z - originPoint.z;
+      const double a = deltaZ * deltaZ;
+      const double b = 2. * deltaZ * (originPoint.x * std::cos(momentumPhi) + originPoint.y * std::sin(momentumPhi));
+      const double c = originPoint.x * originPoint.x + originPoint.y * originPoint.y;
+
+      const auto outerRoots = getQuadraticRoots(a, b, c - cap.rMax * cap.rMax);
+      if (!outerRoots) {
+        return {};
+      }
+
+      const auto innerRoots = getQuadraticRoots(a, b, c - cap.rMin * cap.rMin);
+      if (!innerRoots) {
+        return {*outerRoots};
+      }
+
+      return subtractInterval(*outerRoots, *innerRoots);
+    }
+
+    std::vector<Interval> constrainSlopesToCap(const std::vector<Interval>& slopes,
+                                               const Point& originPoint,
+                                               double momentumPhi,
+                                               const PlaneParameters& cap) {
+      return intersectIntervals(slopes, getAllowedSlopesForCap(originPoint, momentumPhi, cap));
+    }
+
+    double sampleTheta(CLHEP::HepRandomEngine* engine, const std::vector<Interval>& slopes) {
+      double totalThetaLength = 0.;
+      for (const auto& slope : slopes) {
+        totalThetaLength += std::atan(slope.max) - std::atan(slope.min);
+      }
+
+      double offset = CLHEP::RandFlat::shoot(engine, 0., totalThetaLength);
+      for (const auto& slope : slopes) {
+        const double thetaMin = std::atan(slope.min);
+        const double length = std::atan(slope.max) - thetaMin;
+        if (offset <= length) {
+          return thetaMin + offset;
+        }
+        offset -= length;
+      }
+      return std::atan(slopes.back().max);
+    }
+
+    double sampleRadius(CLHEP::HepRandomEngine* engine, const PlaneParameters& plane, RadialDistribution distribution) {
+      if (distribution == RadialDistribution::kUniformArea) {
+        return std::sqrt(CLHEP::RandFlat::shoot(engine, plane.rMin * plane.rMin, plane.rMax * plane.rMax));
+      }
+      return CLHEP::RandFlat::shoot(engine, plane.rMin, plane.rMax);
+    }
+
+    Point projectToZ(const Point& sampled, double z, double momentumTheta, double momentumPhi) {
+      const double transverseDisplacement = (z - sampled.z) * std::tan(momentumTheta);
+      return {sampled.x + transverseDisplacement * std::cos(momentumPhi),
+              sampled.y + transverseDisplacement * std::sin(momentumPhi),
+              z};
+    }
+
+    bool isPhiWithin(double phi, double min, double max) { return phi >= min && phi <= max; }
+
+    bool doesCapContain(const Point& point, const PlaneParameters& cap) {
+      const double radius = std::hypot(point.x, point.y);
+      return radius >= cap.rMin && radius <= cap.rMax &&
+             isPhiWithin(std::atan2(point.y, point.x), cap.phiMin, cap.phiMax);
+    }
+
+    /**
+     * Return the HepMC time coordinate (c * time of flight) at the production point. The beam-spot-to-origin segment
+     * is traversed at the speed of light, while the origin-to-production segment uses the speed beta = |p| / E
+     * derived from the supplied momentum. Both path segments are assumed to be straight, so this only applies to
+     * uncharged particles in the detector's magnetic field.
+     */
+    double resolveTimeOfFlight(const Point& origin, const Point& production, const FourMomentum& momentum) {
+      const double beamSpotToOriginPathLength = std::hypot(origin.x, origin.y, origin.z);
+
+      const double deltaX = production.x - origin.x;
+      const double deltaY = production.y - origin.y;
+      const double deltaZ = production.z - origin.z;
+      const double originToProductionPathLength = std::hypot(deltaX, deltaY, deltaZ);
+
+      const double absoluteMomentum = std::hypot(momentum.px, momentum.py, momentum.pz);
+      return (beamSpotToOriginPathLength + originToProductionPathLength * momentum.energy / absoluteMomentum) *
+             CLHEP::cm;
+    }
+
+    std::optional<SampledDirection> sampleDirection(CLHEP::HepRandomEngine* engine,
+                                                    const ParticleGunParameters& parameters,
+                                                    const Point& originPoint) {
+      const auto& direction = parameters.momentum.direction;
+      const auto& geometry = parameters.geometry;
+
+      for (unsigned int attempt = 0; attempt < parameters.maxSamplingAttempts; ++attempt) {
+        const double phi = CLHEP::RandFlat::shoot(engine, direction.phiMin, direction.phiMax);
+        std::vector<Interval> allowedSlopes{{std::tan(direction.thetaMin), std::tan(direction.thetaMax)}};
+
+        allowedSlopes = constrainSlopesToCap(allowedSlopes, originPoint, phi, geometry.production);
+        if (geometry.target) {
+          allowedSlopes = constrainSlopesToCap(allowedSlopes, originPoint, phi, *geometry.target);
+        }
+        if (allowedSlopes.empty()) {
+          continue;
+        }
+
+        const double theta = sampleTheta(engine, allowedSlopes);
+        const Point productionPoint = projectToZ(originPoint, geometry.production.z, theta, phi);
+        if (!doesCapContain(productionPoint, geometry.production)) {
+          continue;
+        }
+
+        if (geometry.target) {
+          const Point targetPoint = projectToZ(originPoint, geometry.target->z, theta, phi);
+          if (!doesCapContain(targetPoint, *geometry.target)) {
+            continue;
+          }
+        }
+
+        return SampledDirection{theta, phi, productionPoint};
+      }
+
+      return std::nullopt;
+    }
+
+    void validateParticleCompatibility(const ParticleGunParameters& parameters, double mass, double charge) {
+      if (parameters.geometry.target && charge != 0.) {
+        throw cms::Exception("DisplacedParticleGunProducer")
+            << "Target constraints assume a straight trajectory and therefore require a neutral particle.";
+      }
+      const auto& magnitude = parameters.momentum.magnitude;
+      if (magnitude.variable == MagnitudeVariable::kEnergy && magnitude.min <= mass) {
+        throw cms::Exception("DisplacedParticleGunProducer")
+            << "Momentum.Magnitude.Min must be greater than the particle mass when Variable is 'energy'. Min="
+            << magnitude.min << " GeV, mass=" << mass << " GeV.";
+      }
+    }
+
+    ResolvedParticle resolveParticle(CLHEP::HepRandomEngine* engine,
+                                     const ParticleGunParameters& parameters,
+                                     double mass) {
+      const auto& magnitude = parameters.momentum.magnitude;
+      const auto& geometry = parameters.geometry;
+      const auto& origin = geometry.origin;
+
+      const double sampledR = sampleRadius(engine, origin, geometry.radialDistribution);
+      const double sampledSpatialPhi = CLHEP::RandFlat::shoot(engine, origin.phiMin, origin.phiMax);
+      const Point sampledOriginPoint{
+          sampledR * std::cos(sampledSpatialPhi), sampledR * std::sin(sampledSpatialPhi), origin.z};
+
+      const auto sampledDirection = sampleDirection(engine, parameters, sampledOriginPoint);
+      if (!sampledDirection) {
+        throw cms::Exception("DisplacedParticleGunProducer")
+            << "Failed to find a direction satisfying all configured caps after MaxSamplingAttempts="
+            << parameters.maxSamplingAttempts << ". Fixed sampled point: cap=Origin, R=" << sampledR
+            << " cm, phi=" << sampledSpatialPhi << ".";
+      }
+      const auto [theta, momentumPhi, productionPoint] = *sampledDirection;
+
+      const double sampledMagnitude = CLHEP::RandFlat::shoot(engine, magnitude.min, magnitude.max);
+      double pt = 0.;
+      double pz = 0.;
+      double energy = 0.;
+      if (magnitude.variable == MagnitudeVariable::kPt) {
+        pt = sampledMagnitude;
+        pz = pt / std::tan(theta);
+        energy = std::sqrt(pt * pt + pz * pz + mass * mass);
+      } else {
+        energy = sampledMagnitude;
+        const double momentum = std::sqrt(energy * energy - mass * mass);
+        pt = momentum * std::sin(theta);
+        pz = momentum * std::cos(theta);
+      }
+
+      const FourMomentum momentum{pt * std::cos(momentumPhi), pt * std::sin(momentumPhi), pz, energy};
+
+      const double time = resolveTimeOfFlight(sampledOriginPoint, productionPoint, momentum);
+
+      return {parameters.partId, momentum, {productionPoint.x, productionPoint.y, productionPoint.z, time}};
+    }
+
+    void appendParticleToGenEvent(HepMC::GenEvent& genEvent,
+                                  const ResolvedParticle& particle,
+                                  int barcode,
+                                  bool verbose) {
+      const auto& momentum = particle.momentum;
+      const auto& vertex = particle.vertex;
+
+      auto* genVertex = new HepMC::GenVertex(
+          HepMC::FourVector(vertex.x * CLHEP::cm, vertex.y * CLHEP::cm, vertex.z * CLHEP::cm, vertex.time));
+      auto* genParticle = new HepMC::GenParticle(
+          HepMC::FourVector(momentum.px, momentum.py, momentum.pz, momentum.energy), particle.pdgId, 1);
+      genParticle->suggest_barcode(barcode);
+
+      genVertex->add_particle_out(genParticle);
+      genEvent.add_vertex(genVertex);
+
+      if (verbose) {
+        genVertex->print();
+        genParticle->print();
+      }
     }
 
   }  // namespace
@@ -120,40 +541,14 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& es) const override;
+    void produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const override;
 
-    double fPtMin = 0.;
-    double fPtMax = 0.;
-    double fPhiMin = 0.;
-    double fPhiMax = 0.;
-    double fRMin = 0.;
-    double fRMax = 0.;
-    double fPhiVtxMin = 0.;
-    double fPhiVtxMax = 0.;
-    double fZVtx = 0.;
-    int fNParticles = 1;
-    int fPartID;
-    bool fUniformDensityInR = false;
-    unsigned int fMaxTries = 1000;
-
-    // If true: derive theta range from hard-coded HGCAL CE-E back surface envelope
-    //   (with R in [RMinBackSurfaceHGCAL, RMaxBackSurfaceHGCAL]) and vertex rho
-    // If false: sample theta uniformly in [MinTheta, MaxTheta]
-    bool fPointingToHGCAL = true;
-    bool fRestrictRInZPlaneAtZero = true;
-    double fRMinBackSurfaceHGCAL = kCeeBackRMin;
-    double fRMaxBackSurfaceHGCAL = kCeeBackRMax;
-    double fThetaMin = 0.;
-    double fThetaMax = 0.;
-    std::optional<double> fRMinAtZero = std::nullopt;
-    std::optional<double> fRMaxAtZero = std::nullopt;
-
+    const ProducerParameters fParameters;
     const ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> fPDGTableToken;
-    int fVerbosity = 0;
   };
 
   DisplacedParticleGunProducer::DisplacedParticleGunProducer(const ParameterSet& pset)
-      : fPDGTableToken(esConsumes<>()) {
+      : fParameters(pset), fPDGTableToken(esConsumes<>()) {
     Service<RandomNumberGenerator> rng;
     if (!rng.isAvailable()) {
       throw cms::Exception("Configuration")
@@ -162,257 +557,111 @@ namespace edm {
              "or remove the modules that require it.";
     }
 
-    const auto pgun = pset.getParameter<ParameterSet>("PGunParameters");
-
-    fPtMin = pgun.getParameter<double>("MinPt");
-    fPtMax = pgun.getParameter<double>("MaxPt");
-    fPhiMin = pgun.getParameter<double>("MinPhi");
-    fPhiMax = pgun.getParameter<double>("MaxPhi");
-    fThetaMin = pgun.getParameter<double>("MinTheta");
-    fThetaMax = pgun.getParameter<double>("MaxTheta");
-    fPhiVtxMin = pgun.getParameter<double>("MinVtxPhi");
-    fPhiVtxMax = pgun.getParameter<double>("MaxVtxPhi");
-    fRMin = pgun.getParameter<double>("RMin");
-    fRMax = pgun.getParameter<double>("RMax");
-    fZVtx = pgun.getParameter<double>("ZVtx");
-    fNParticles = pgun.getParameter<int>("NParticles");
-    fPartID = pgun.getParameter<int>("PartID");
-    fUniformDensityInR = pgun.getParameter<bool>("UniformDensityInR");
-    fMaxTries = pgun.getParameter<unsigned int>("MaxTries");
-    fVerbosity = pset.getUntrackedParameter<int>("Verbosity");
-    fPointingToHGCAL = pgun.getParameter<bool>("PointingToHGCAL");
-    fRestrictRInZPlaneAtZero = pgun.getParameter<bool>("RestrictRInZPlaneAtZero");
-
-    if (fRestrictRInZPlaneAtZero && !fPointingToHGCAL) {
-      throw cms::Exception("DisplacedParticleGunProducer")
-          << "Currently RestrictRInZPlaneAtZero only works if PointingToHGCAL is active.";
-    }
-
-    if (fPointingToHGCAL) {
-      fRMinBackSurfaceHGCAL = pgun.getParameter<double>("RMinBackSurfaceHGCAL");
-      fRMaxBackSurfaceHGCAL = pgun.getParameter<double>("RMaxBackSurfaceHGCAL");
-    }
-
-    if (fRestrictRInZPlaneAtZero) {
-      fRMinAtZero = pgun.getParameter<double>("RMinAtZero");
-      fRMaxAtZero = pgun.getParameter<double>("RMaxAtZero");
-      if (fRMaxAtZero <= fRMinAtZero) {
-        throw cms::Exception("DisplacedParticleGunProducer") << "Please fix RMaxAtZero/RMinAtZero";
-      }
-      if (fRMinAtZero < 0.) {
-        throw cms::Exception("DisplacedParticleGunProducer") << "RMinAtZero must be positive.";
-      }
-    }
-
-    if (fPtMax <= fPtMin) {
-      throw cms::Exception("DisplacedParticleGunProducer") << "Please fix MinPt/MaxPt";
-    }
-    if (fPhiMax <= fPhiMin) {
-      throw cms::Exception("DisplacedParticleGunProducer") << "Please fix MinPhi/MaxPhi";
-    }
-    if (fThetaMax <= fThetaMin) {
-      throw cms::Exception("DisplacedParticleGunProducer") << "Please ensure MinTheta <= MaxTheta.";
-    }
-    if (fPhiVtxMax <= fPhiVtxMin) {
-      throw cms::Exception("DisplacedParticleGunProducer") << "Please fix MinVtxPhi/MaxVtxPhi";
-    }
-    if (fRMax <= fRMin) {
-      throw cms::Exception("DisplacedParticleGunProducer") << "Please fix RMin/RMax";
-    }
-    if (fRestrictRInZPlaneAtZero && fPointingToHGCAL && fRMax > fRMaxAtZero && fRMax > fRMaxBackSurfaceHGCAL) {
-      throw cms::Exception("DisplacedParticleGunProducer")
-          << "There are values of R at z=" << fZVtx << "cm for which an intersection for R in [" << *fRMinAtZero << "; "
-          << *fRMaxAtZero << "]cm at z=0cm is impossible. Please update your configuration.";
-    }
-    if (fRMin < 0) {
-      throw cms::Exception("DisplacedParticleGunProducer") << "RMin must be positive.";
-    }
-    if (fMaxTries == 0) {
-      throw cms::Exception("DisplacedParticleGunProducer") << "MaxTries must be > 0";
-    }
-    if (fRMaxBackSurfaceHGCAL <= fRMinBackSurfaceHGCAL) {
-      throw cms::Exception("DisplacedParticleGunProducer")
-          << "Please ensure RMaxBackSurfaceHGCAL > RMinBackSurfaceHGCAL.";
-    }
-    if (fRMaxBackSurfaceHGCAL > kCeeBackRMax || fRMinBackSurfaceHGCAL < kCeeBackRMin) {
-      throw cms::Exception("DisplacedParticleGunProducer")
-          << "Please ensure RMaxBackSurfaceHGCAL <= kCeeBackRMax and RMinBackSurfaceHGCAL >= kCeeBackRMin.";
-    }
-
     produces<HepMCProduct>("unsmeared");
     produces<GenEventInfoProduct>();
   }
 
   void DisplacedParticleGunProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<bool>("AddAntiParticle", false);
-
     edm::ParameterSetDescription pgun;
 
-    // particle direction
-    pgun.add<double>("MinPt", 5.);
-    pgun.add<double>("MaxPt", 100.);
-    pgun.add<double>("MinPhi", -std::numbers::pi);
-    pgun.add<double>("MaxPhi", +std::numbers::pi);
+    edm::ParameterSetDescription magnitude;
+    magnitude.add<std::string>("Variable");
+    magnitude.add<double>("Min");
+    magnitude.add<double>("Max");
 
-    // vertex displacement (cm)
-    pgun.add<double>("RMin", 0.);
-    pgun.add<double>("RMax", 10.);
-    pgun.add<double>("MinVtxPhi", 0.);
-    pgun.add<double>("MaxVtxPhi", 2 * std::numbers::pi);
-    pgun.add<double>("ZVtx", 0.);
+    edm::ParameterSetDescription direction;
+    direction.add<double>("ThetaMin");
+    direction.add<double>("ThetaMax");
+    direction.add<double>("PhiMin");
+    direction.add<double>("PhiMax");
 
-    pgun.add<int>("NParticles", 1);
-    pgun.add<int>("PartID", 22);
+    edm::ParameterSetDescription momentum;
+    momentum.add<edm::ParameterSetDescription>("Magnitude", magnitude);
+    momentum.add<edm::ParameterSetDescription>("Direction", direction);
 
-    pgun.add<bool>("UniformDensityInR", false);
+    edm::ParameterSetDescription origin;
+    origin.add<double>("RMin");
+    origin.add<double>("RMax");
+    origin.add<double>("PhiMin");
+    origin.add<double>("PhiMax");
 
-    pgun.add<unsigned int>("MaxTries", 1000u);
+    edm::ParameterSetDescription production;
+    production.add<double>("Z");
+    production.add<double>("RMin");
+    production.add<double>("RMax");
+    production.add<double>("PhiMin");
+    production.add<double>("PhiMax");
 
-    // A particle shot at the extremities of the HGCAL surface will not traverse a substantial fraction of the detector.
-    // We use RMinBackSurfaceHGCAL and RMaxBackSurfaceHGCAL to expose only a given region of the HGCAL surface
-    // The default arguments correspond to the inner third of HGCAL's surface (R in ~[58.79, 91.58]cm).
-    // At (R=200,z=0)cm, an uncharged particle pointing to R=58.79cm at the HGCAL surface (the most extreme case) exits the calorimeter at the
-    //  back face of the CE-E, crossing all its layers.
-    // For R>200cm there is no guarantee all CE-E layers will be crossed, so a tighter R range might be needed.
-    // For z>0cm the angles will become more extreme, so a tighter R range might be needed.
-    // The above reasoning breaks for charged particles, since the bending under the magnetic filed can enormously extend the particle's reach.
-    pgun.add<bool>("PointingToHGCAL", true);
-    pgun.add<double>("RMinBackSurfaceHGCAL", 58.79);
-    pgun.add<double>("RMaxBackSurfaceHGCAL", 91.58);
-    pgun.add<double>("MinTheta", -std::numbers::pi / 2 + 1e-6);
-    pgun.add<double>("MaxTheta", std::numbers::pi / 2 - 1e-6);
+    edm::ParameterSetDescription target;
+    target.add<double>("Z");
+    target.add<double>("RMin");
+    target.add<double>("RMax");
+    target.add<double>("PhiMin");
+    target.add<double>("PhiMax");
 
-    pgun.add<bool>("RestrictRInZPlaneAtZero", true);
-    pgun.addOptionalNode(edm::ParameterDescription<double>("RMinAtZero", 0., true), true);
-    pgun.addOptionalNode(edm::ParameterDescription<double>("RMaxAtZero", 150., true), true);
+    edm::ParameterSetDescription geometry;
+    geometry.add<std::string>("RadialDistribution");
+    geometry.add<edm::ParameterSetDescription>("Origin", origin);
+    geometry.add<edm::ParameterSetDescription>("Production", production);
+    geometry.addOptional<edm::ParameterSetDescription>("Target", target);
+
+    pgun.add<int>("PartID");
+    pgun.add<int>("NParticles");
+    pgun.add<edm::ParameterSetDescription>("Momentum", momentum);
+    pgun.add<edm::ParameterSetDescription>("Geometry", geometry);
+    pgun.add<unsigned int>("MaxSamplingAttempts");
 
     desc.add<edm::ParameterSetDescription>("PGunParameters", pgun);
 
     desc.addUntracked<int>("Verbosity", 0);
-    desc.addUntracked<unsigned int>("firstRun", 1);
 
     descriptions.add("DisplacedParticleGunProducer", desc);
   }
 
-  void DisplacedParticleGunProducer::produce(edm::StreamID, edm::Event& e, const edm::EventSetup& es) const {
-    edm::Service<edm::RandomNumberGenerator> rng;
-    CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
-
-    if (fVerbosity > 0) {
+  void DisplacedParticleGunProducer::produce(edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
+    if (fParameters.verbosity > 0) {
       LogDebug("DisplacedParticleGunProducer")
           << " DisplacedParticleGunProducer : Begin New Event Generation" << std::endl;
     }
 
-    HepMC::GenEvent* fEvt = new HepMC::GenEvent();
+    const auto& particleGun = fParameters.particleGun;
+    edm::Service<edm::RandomNumberGenerator> rng;
+    CLHEP::HepRandomEngine* randomEngine = &rng->getEngine(event.streamID());
 
-    if (fPointingToHGCAL) {
-      if (kCeeBackZ <= fZVtx) {
-        throw cms::Exception("DisplacedParticleGunProducer")
-            << "Invalid hard-coded HGCAL surface envelope: "
-            << "kCeeBackZ = " << kCeeBackZ << "cm, fZVtx = " << fZVtx << " (check ZVtx).";
-      }
+    auto const& pdgTable = setup.getData(fPDGTableToken);
+    const HepPDT::ParticleData* pData = pdgTable.particle(HepPDT::ParticleID(std::abs(particleGun.partId)));
+    if (!pData) {
+      throw cms::Exception("DisplacedParticleGunProducer")
+          << "Particle ID " << particleGun.partId << " not found in PDG table";
     }
 
-    int barcode = 1;
+    const double mass = pData->mass().value();
+    validateParticleCompatibility(particleGun, mass, pData->charge());
 
-    for (int ip = 0; ip < fNParticles; ++ip) {
-      // --- Sample displaced vertex in transverse annulus (z fixed) ---
-      const double RVtx =
-          fUniformDensityInR ? shootUniformDensity(engine, fRMin, fRMax) : shootUniformR(engine, fRMin, fRMax);
-      const double phiVtx = CLHEP::RandFlat::shoot(engine, fPhiVtxMin, fPhiVtxMax);
-      const double xVtx = RVtx * std::cos(phiVtx);
-      const double yVtx = RVtx * std::sin(phiVtx);
+    HepMC::GenEvent* genEvent = new HepMC::GenEvent();
+    genEvent->set_event_number(event.id().event());
+    genEvent->set_signal_process_id(20);
 
-      auto const& pdgTable = es.getData(fPDGTableToken);
-      const HepPDT::ParticleData* pData = pdgTable.particle(HepPDT::ParticleID(std::abs(fPartID)));
-      if (!pData) {
-        throw cms::Exception("DisplacedParticleGunProducer") << "Particle ID " << fPartID << " not found in PDG table";
-      }
-      const double mass = pData->mass().value();
-
-      if (pData->charge() != 0 && fPointingToHGCAL) {
-        throw cms::Exception("DisplacedParticleGunProducer") << "The logic that points particles to HGCAL's CE-E back "
-                                                                "face assumes that particles move in straight lines.";
-      }
-
-      double theta = 0., px = 0., py = 0., pz = 0.;
-      double phi = phiVtx; /* the particle's direction has the same phi as its vertex, ie.,
-							  it moves on a 2D plane parallel to the z axis */
-      const double pt = CLHEP::RandFlat::shoot(engine, fPtMin, fPtMax);
-      if (fPointingToHGCAL) {
-        bool accepted = false;
-        for (unsigned int itry = 0; itry < fMaxTries; ++itry) {
-          theta = pickSensibleTheta(engine, fThetaMin, fThetaMax);
-          std::tie(px, py, pz) = computeMomentum(pt, theta, phi);
-          if (edm::isNotFinite(pz) || pz <= 0.0) {
-            continue;  // must go towards +z plane
-          }
-          if (fVerbosity > 0) {
-            std::cout << "phiVtx=" << phiVtx << ", RVtx=" << RVtx << ", pT=" << pt << ", theta=" << theta
-                      << ", phi=" << phi << std::endl;
-          }
-
-          bool checkBackSurface = hitsZPlaneWithinR(
-              xVtx, yVtx, fZVtx, px, py, pz, kCeeBackZ, fRMinBackSurfaceHGCAL, fRMaxBackSurfaceHGCAL, fVerbosity);
-          bool checkZero =
-              fRestrictRInZPlaneAtZero &&
-              hitsZPlaneWithinR(
-                  xVtx, yVtx, fZVtx, -px, -py, -pz, 0., fRMinAtZero.value(), fRMaxAtZero.value(), fVerbosity);
-          if (checkBackSurface && checkZero) {
-            accepted = true;
-            break;
-          }
-        }
-        if (!accepted) {
-          throw cms::Exception("DisplacedParticleGunProducer")
-              << "Failed to generate a particle intersecting HGCAL CE-E back surface after MaxTries=" << fMaxTries
-              << ". Vertex located at: (R=" << RVtx << "cm, phiVtx=" << phiVtx << ", z=" << fZVtx
-              << "cm). HGCAL band located at R in [" << fRMinBackSurfaceHGCAL << "; " << fRMaxBackSurfaceHGCAL
-              << "]cm at z=" << kCeeBackZ << "cm.";
-        }
-      } else {  // if (!fPointingToHGCAL)
-        theta = pickSensibleTheta(engine, fThetaMin, fThetaMax);
-        phi = CLHEP::RandFlat::shoot(engine, fPhiMin, fPhiMax);
-        std::tie(px, py, pz) = computeMomentum(pt, theta, phi);
-      }
-
-      const double p2 = px * px + py * py + pz * pz;
-      const double energy = std::sqrt(p2 + mass * mass);
-
-      HepMC::FourVector p(px, py, pz, energy);
-
-      HepMC::GenVertex* vtx =
-          new HepMC::GenVertex(HepMC::FourVector(xVtx * CLHEP::cm, yVtx * CLHEP::cm, fZVtx * CLHEP::cm, 0.0));
-
-      HepMC::GenParticle* part = new HepMC::GenParticle(p, fPartID, 1);
-      part->suggest_barcode(barcode++);
-
-      vtx->add_particle_out(part);
-      fEvt->add_vertex(vtx);
-
-      if (fVerbosity > 0) {
-        vtx->print();
-        part->print();
-      }
+    for (int particleIndex = 0; particleIndex < particleGun.nParticles; ++particleIndex) {
+      const ResolvedParticle particle = resolveParticle(randomEngine, particleGun, mass);
+      appendParticleToGenEvent(*genEvent, particle, particleIndex + 1, fParameters.verbosity > 0);
     }
 
-    fEvt->set_event_number(e.id().event());
-    fEvt->set_signal_process_id(20);
-
-    if (fVerbosity > 0) {
-      fEvt->print();
+    if (fParameters.verbosity > 0) {
+      genEvent->print();
     }
 
-    auto bProduct = std::make_unique<HepMCProduct>();
-    bProduct->addHepMCData(fEvt);
-    e.put(std::move(bProduct), "unsmeared");
+    auto hepMcProduct = std::make_unique<HepMCProduct>();
+    hepMcProduct->addHepMCData(genEvent);
+    event.put(std::move(hepMcProduct), "unsmeared");
 
-    auto genEventInfo = std::make_unique<GenEventInfoProduct>(fEvt);
-    e.put(std::move(genEventInfo));
+    auto genEventInfo = std::make_unique<GenEventInfoProduct>(genEvent);
+    event.put(std::move(genEventInfo));
 
-    if (fVerbosity > 0) {
-      std::cout << " DisplacedParticleGunProducer : Event Generation Done. " << std::endl;
+    if (fParameters.verbosity > 0) {
+      LogDebug("DisplacedParticleGunProducer")
+          << " DisplacedParticleGunProducer : Event Generation Done. " << std::endl;
     }
   }
 

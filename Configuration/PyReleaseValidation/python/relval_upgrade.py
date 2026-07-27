@@ -38,15 +38,15 @@ for year in upgradeKeys:
             for step in upgradeProperties[year][key]['ScenToRun']:
                 stepMaker = makeStepName
                 if 'Sim' in step and 'Fast' not in step and step != "Sim":
-                    if 'HLBeamSpot' in step:
+                    if 'DisplacedParticleGun' in frag:
+                        step = 'GenSimDisplaced'
+                    elif 'HLBeamSpot' in step:
                         if '14TeV' in frag:
                             step = 'GenSimHLBeamSpot14'
                         elif 'CloseBy' in frag or 'CE_E' in frag or 'CE_H' in frag:
                             step = 'GenSimHLBeamSpotCloseBy'
                     elif 'CloseBy' in frag or 'CE_E' in frag or 'CE_H' in frag:
                         step = 'GenSimCloseBy'
-                    elif 'DisplacedParticleGun' in frag:
-                        step = 'GenSimDisplaced'
                     stepMaker = makeStepNameSim
                 elif 'Gen' in step:
                     if 'HLBeamSpot' in step:
