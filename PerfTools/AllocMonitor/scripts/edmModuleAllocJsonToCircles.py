@@ -124,12 +124,12 @@ def processESModuleTransition(moduleLabel, moduleType, moduleInfo, moduleTransit
         }
 
 def processExternalWorkTransition(moduleLabel, moduleType, moduleInfo, moduleTransition):
-    """Process ExternalWork transitions - entries with acquire/produce activity
+    """Process ExternalWork transitions - entries with acquire/process activity
 
     Creates separate entries for each module+type+activity combination within the event transition.
-    The recordName is set to 'acquire' or 'produce' based on the activity.
+    The recordName is set to 'acquire' or 'process' based on the activity.
     """
-    activityToRecord = {"acquire": "acquire", "process": "produce"}
+    activityToRecord = {"acquire": "acquire", "process": "process"}
 
     # Group allocations by activity
     activityAllocations = {}
@@ -218,9 +218,9 @@ def formatToCircles(moduleTransitions):
                 for allocType in allocTypes:
                     modules_dict[displayKey][f"{allocType} {transType}"] = 0.0
 
-    # Initialize acquire/produce totals
+    # Initialize acquire/process totals
     for displayKey in all_module_keys:
-        if displayKey.recordName in ("acquire", "produce"):
+        if displayKey.recordName in ("acquire", "process"):
             for allocType in allocTypes:
                 doc["total"][f"{allocType} {displayKey.recordName}"] = 0
 
@@ -244,7 +244,7 @@ def formatToCircles(moduleTransitions):
                 divisor = max(ntransitions, 1)
 
                 metricSuffix = transitionType
-                if uniqueKey.recordName in ("acquire", "produce"):
+                if uniqueKey.recordName in ("acquire", "process"):
                     metricSuffix = uniqueKey.recordName
                 elif transitionType == EVENTSETUP_TRANSITION and uniqueKey.recordName:
                     metricSuffix = uniqueKey.recordName
@@ -280,8 +280,8 @@ def formatToCircles(moduleTransitions):
         moduleTypeVal = key.moduleType
         recordName = key.recordName
 
-        # For ExternalWork modules with acquire/produce record, use that record name for event count
-        if recordName in ("acquire", "produce"):
+        # For ExternalWork modules with acquire/process record, use that record name for event count
+        if recordName in ("acquire", "process"):
             eventKey = UniqueKey(moduleLabel, moduleTypeVal, recordName)
             eventCount = moduleTransitions['event'].get(eventKey, {}).get("nTransitions", 0)
         else:
