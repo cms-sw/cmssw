@@ -20,6 +20,8 @@
 
 #include <memory>
 #include <vector>
+#include <map>
+#include <optional>
 
 #include "oneapi/tbb/task_group.h"
 
@@ -37,11 +39,13 @@ namespace edm {
   class ServiceToken;
   class WaitingTaskHolder;
   class WaitingTaskList;
+  class EventSetupRecordIntervalFinder;
 
   namespace eventsetup {
 
     class EventSetupProvider;
-    class EventSetupRecordIOVQueue;
+    class EventSetupRecordIOVCoordinator;
+    class ESProductResolverProvider;
 
     class EventSetupsController {
     public:
@@ -60,18 +64,20 @@ namespace edm {
                                                        unsigned int maxConcurrentIOVs = 0,
                                                        bool dumpOptions = false);
 
+      //must be called after makeProvider and before any calls to eventSetupForInstanceAsync
+      void addExtra(std::shared_ptr<EventSetupRecordIntervalFinder> iFinder);
+      void addExtra(std::shared_ptr<eventsetup::ESProductResolverProvider> iProvider);
       void finishConfiguration();
 
-      // The main purpose of this function is to call eventSetupForInstanceAsync. It might
-      // be called immediately or we might need to wait until all the currently active
-      // IOVs end. If there is an exception, then a signal is emitted and the exception
+      // The main purpose of this function is to call eventSetupForInstanceAsync.
+      // If there is an exception, then a signal is emitted and the exception
       // is propagated.
-      void runOrQueueEventSetupForInstanceAsync(IOVSyncValue const&,
-                                                WaitingTaskHolder& taskToStartAfterIOVInit,
-                                                WaitingTaskList& endIOVWaitingTasks,
-                                                std::shared_ptr<const EventSetupImpl>&,
-                                                ActivityRegistry*,
-                                                ServiceToken const&);
+      void runEventSetupForInstanceAsync(IOVSyncValue const&,
+                                         WaitingTaskHolder& taskToStartAfterIOVInit,
+                                         WaitingTaskList& endIOVWaitingTasks,
+                                         std::shared_ptr<const EventSetupImpl>&,
+                                         ActivityRegistry*,
+                                         ServiceToken const&);
 
       // Pass in an IOVSyncValue to let the EventSetup system know which run and lumi
       // need to be processed and prepare IOVs for it (also could be a time or only a run).
@@ -92,8 +98,11 @@ namespace edm {
 
       bool mustFinishConfiguration() const { return mustFinishConfiguration_; }
 
+      void resetRecordPlusDependentRecords(EventSetupRecordKey const& recordKey);
+
     private:
-      void initializeEventSetupRecordIOVQueues();
+      void initializeEventSetupRecordIOVCoordinators(
+          std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordIntervalFinder>> const& iKeyToFinders);
 
       // ---------- member data --------------------------------
       propagate_const<std::shared_ptr<EventSetupProvider>> provider_;
@@ -101,9 +110,10 @@ namespace edm {
 
       // This data member is intentionally declared after provider_
       // It is important that this is destroyed first.
-      std::vector<propagate_const<std::unique_ptr<EventSetupRecordIOVQueue>>> eventSetupRecordIOVQueues_;
+      std::vector<propagate_const<std::unique_ptr<EventSetupRecordIOVCoordinator>>> eventSetupRecordIOVCoordinators_;
 
       ModuleTypeResolverMaker const* typeResolverMaker_ = nullptr;
+      std::optional<std::vector<std::shared_ptr<EventSetupRecordIntervalFinder>>> loadedFinders_;
 
       bool mustFinishConfiguration_ = true;
     };

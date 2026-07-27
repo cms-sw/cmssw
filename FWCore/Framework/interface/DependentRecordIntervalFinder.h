@@ -7,12 +7,12 @@
 //
 /**\class edm::eventsetup::DependentRecordIntervalFinder
 
- Description: Finds the intersection of the ValidityInterval for several Providers
+ Description: Finds the intersection of the ValidityInterval for several supporting Records.
 
  Usage:
     This class is used internally to a EventSetupRecordProvider which delivers a Record that is dependent on other Records.
 
-    If no Providers are given, then Finder will always report an invalid ValidityInterval for all IOVSyncValues
+    If no Supporters are given, then Finder will always report an invalid ValidityInterval for all IOVSyncValues
 
 */
 //
@@ -31,7 +31,7 @@
 // forward declarations
 namespace edm {
   namespace eventsetup {
-    class EventSetupRecordProvider;
+    class SupportingRecordIntervalFinderHelper;
 
     class DependentRecordIntervalFinder : public EventSetupRecordIntervalFinder {
     public:
@@ -41,12 +41,12 @@ namespace edm {
       ~DependentRecordIntervalFinder() override;
 
       // ---------- const member functions ---------------------
-      bool haveProviders() const { return !providers_.empty(); }
+      bool haveSupporters() const { return !supporters_.empty(); }
 
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      void addProviderWeAreDependentOn(std::shared_ptr<EventSetupRecordProvider>);
+      void addSupporter(SupportingRecordIntervalFinderHelper const&);
 
       void setAlternateFinder(std::shared_ptr<EventSetupRecordIntervalFinder>);
 
@@ -57,8 +57,8 @@ namespace edm {
       void doResetInterval(const eventsetup::EventSetupRecordKey&) override;
 
       // ---------- member data --------------------------------
-      typedef std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordProvider>>> Providers;
-      Providers providers_;
+      typedef std::vector<SupportingRecordIntervalFinderHelper> Supporters;
+      Supporters supporters_;
 
       edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>> alternate_;
       std::vector<ValidityInterval> previousIOVs_;
