@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/EDLooperBase.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/ComponentInterfaceHolder.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
@@ -203,17 +204,27 @@ namespace edm {
   }
 
   // ---------------------------------------------------------------
-  std::shared_ptr<EDLooperBase> fillLooper(eventsetup::EventSetupProvider& eventSetupProvider,
+  std::shared_ptr<EDLooperBase> fillLooper(eventsetup::EventSetupsController& controller,
                                            ParameterSet& params,
                                            std::vector<std::string> const& loopers) {
     std::shared_ptr<EDLooperBase> vLooper;
 
     assert(1 == loopers.size());
 
+    std::vector<std::shared_ptr<eventsetup::ESProductResolverProvider>> extraProviders;
+    std::vector<std::shared_ptr<EventSetupRecordIntervalFinder>> extraFinders;
     for (auto const& looperName : loopers) {
       ParameterSet* providerPSet = params.getPSetForUpdate(looperName);
       // Unlikely we would ever need the ModuleTypeResolver in Looper
-      vLooper = eventsetup::LooperFactory::get()->addTo(eventSetupProvider, *providerPSet, nullptr);
+      eventsetup::ComponentInterfaceHolder iInterfaceHolder;
+      vLooper = eventsetup::LooperFactory::get()->addTo(iInterfaceHolder, *providerPSet, nullptr);
+
+      if (iInterfaceHolder.finder()) {
+        controller.addExtra(iInterfaceHolder.finder());
+      }
+      if (iInterfaceHolder.provider()) {
+        controller.addExtra(iInterfaceHolder.provider());
+      }
     }
     return vLooper;
   }
@@ -460,7 +471,7 @@ namespace edm {
 
       // initialize the looper, if any
       if (!loopers.empty()) {
-        looper_ = fillLooper(*esp_, *parameterSet, loopers);
+        looper_ = fillLooper(*espController_, *parameterSet, loopers);
         looper_->setActionTable(items.act_table_.get());
         looper_->attachTo(*items.actReg_);
 
@@ -1011,7 +1022,12 @@ namespace edm {
 
   void EventProcessor::rewindInput() { sourceCoordinator_.rewind(); }
 
-  void EventProcessor::prepareForNextLoop() { looper_->prepareForNextLoop(esp_.get()); }
+  void EventProcessor::prepareForNextLoop() {
+    looper_->prepareForNextLoop();
+    for (auto const& key : looper_->modifyingRecords()) {
+      espController_->resetRecordPlusDependentRecords(key);
+    }
+  }
 
   bool EventProcessor::shouldWeCloseOutput() const { return schedule_->shouldWeCloseOutput(); }
 
@@ -1152,12 +1168,12 @@ namespace edm {
     auto runStatus = std::make_shared<RunProcessingStatus>(preallocations_.numberOfStreams(), iHolder);
 
     chain::first([this, &runStatus, iSync](auto nextTask) {
-      espController_->runOrQueueEventSetupForInstanceAsync(iSync,
-                                                           nextTask,
-                                                           runStatus->endIOVWaitingTasks(),
-                                                           runStatus->eventSetupImplPtr(),
-                                                           actReg_.get(),
-                                                           serviceToken_);
+      espController_->runEventSetupForInstanceAsync(iSync,
+                                                    nextTask,
+                                                    runStatus->endIOVWaitingTasks(),
+                                                    runStatus->eventSetupImplPtr(),
+                                                    actReg_.get(),
+                                                    serviceToken_);
     }) | chain::then([this, runStatus, iRunAux](std::exception_ptr const* iException, auto nextTask) {
       CMS_SA_ALLOW try {
         if (iException) {
@@ -1372,12 +1388,12 @@ namespace edm {
     }
 
     chain::first([this, &iRunStatus, &ts](auto nextTask) {
-      espController_->runOrQueueEventSetupForInstanceAsync(ts,
-                                                           nextTask,
-                                                           iRunStatus->endIOVWaitingTasksEndRun(),
-                                                           iRunStatus->eventSetupImplPtrEndRun(),
-                                                           actReg_.get(),
-                                                           serviceToken_);
+      espController_->runEventSetupForInstanceAsync(ts,
+                                                    nextTask,
+                                                    iRunStatus->endIOVWaitingTasksEndRun(),
+                                                    iRunStatus->eventSetupImplPtrEndRun(),
+                                                    actReg_.get(),
+                                                    serviceToken_);
     }) | chain::then([this, iRunStatus, iRunAuxiliary](std::exception_ptr const* iException, auto nextTask) {
       if (iException) {
         iRunStatus->setEndingEventSetupSucceeded(false);
@@ -1595,7 +1611,7 @@ namespace edm {
 
     auto status = std::make_shared<LuminosityBlockProcessingStatus>();
     chain::first([this, &iSync, &status](auto nextTask) {
-      espController_->runOrQueueEventSetupForInstanceAsync(
+      espController_->runEventSetupForInstanceAsync(
           iSync, nextTask, status->endIOVWaitingTasks(), status->eventSetupImplPtr(), actReg_.get(), serviceToken_);
     }) | chain::then([this, status, iRunStatus, iLumiAux](std::exception_ptr const* iException, auto nextTask) {
       CMS_SA_ALLOW try {
