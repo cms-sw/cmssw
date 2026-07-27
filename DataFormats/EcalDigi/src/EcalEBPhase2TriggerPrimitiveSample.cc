@@ -2,7 +2,7 @@
 #include <iostream>
 
 EcalEBPhase2TriggerPrimitiveSample::EcalEBPhase2TriggerPrimitiveSample() : theSample_(0) {}
-EcalEBPhase2TriggerPrimitiveSample::EcalEBPhase2TriggerPrimitiveSample(uint32_t data) : theSample_(data) {
+EcalEBPhase2TriggerPrimitiveSample::EcalEBPhase2TriggerPrimitiveSample(uint16_t data) : theSample_(data) {
   theSample_ = raw();
 }
 
