@@ -1,0 +1,6 @@
+    "allOfTheAboveAllocProducer": "allocMonTest::ExternalWorkTransformAllocProducer"
+    "externalWorkAllocProducer": "allocMonTest::ExternalWorkAllocProducer"
+    "out": "AsciiOutputModule"
+    "source": "EmptySource"
+    "transformAllocProducer": "allocMonTest::TransformAllocProducer"
+    "transformAsyncAllocProducer": "allocMonTest::TransformAsyncAllocProducer"
