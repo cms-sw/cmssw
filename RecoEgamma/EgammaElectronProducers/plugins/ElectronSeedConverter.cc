@@ -1,4 +1,6 @@
-#include <string>
+#include <vector>
+#include <utility>
+#include <algorithm>
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -32,13 +34,12 @@
 #include "TrackingTools/TrajectoryState/interface/ftsFromVertexToPoint.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
+#include "Geometry/CommonTopologies/interface/GeomDetEnumerators.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "TrackingTools/RecoGeometry/interface/RecoGeometryRecord.h"
 #include "TrackingTools/RecoGeometry/interface/GlobalDetLayerGeometry.h"
 
-constexpr float kElectronMass_ = 0.000511f;
 constexpr int kDoubletRejectionValidLayerThreshold = 4;
 
 class ElectronSeedConverter : public edm::global::EDProducer<> {
@@ -132,8 +133,10 @@ void ElectronSeedConverter::produce(edm::StreamID, edm::Event &event, const edm:
   auto const &navSchool = iSetup.getData(navSchoolToken_);
   auto const &detLayerGeom = iSetup.getData(detLayerGeomToken_);
 
-  PropagatorWithMaterial forwardPropagator(alongMomentum, kElectronMass_, &magField);
-  PropagatorWithMaterial backwardPropagator(oppositeToMomentum, kElectronMass_, &magField);
+  constexpr float kElectronMass = 0.000511f;
+
+  PropagatorWithMaterial forwardPropagator(alongMomentum, kElectronMass, &magField);
+  PropagatorWithMaterial backwardPropagator(oppositeToMomentum, kElectronMass, &magField);
 
   reco::ElectronSeedCollection eleSeeds;
 

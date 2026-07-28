@@ -46,7 +46,7 @@ namespace cms::alpakatools::math {
       }
     }
 
-    inline constexpr T norm2() const {
+    inline constexpr T r2() const {
       T res{0};
       CMS_UNROLL_LOOP
       for (int i = 0; i < 3; i++) {
@@ -55,7 +55,7 @@ namespace cms::alpakatools::math {
       return res;
     }
 
-    inline constexpr T partial_norm2() const {
+    inline constexpr T rho2() const {
       T res{0};
       CMS_UNROLL_LOOP
       for (int i = 0; i < 2; i++) {
@@ -74,27 +74,25 @@ namespace cms::alpakatools::math {
     }
 
     template <typename TAcc>
-    ALPAKA_FN_ACC T norm(const TAcc& acc) const {
-      const T nrm2 = norm2();
-      return alpaka::math::sqrt(acc, nrm2);
+    ALPAKA_FN_ACC T r(const TAcc& acc) const {
+      return alpaka::math::sqrt(acc, r2());
     }
 
     template <typename TAcc>
-    ALPAKA_FN_ACC T partial_norm(const TAcc& acc) const {
-      const T partial_nrm2 = partial_norm2();
-      return alpaka::math::sqrt(acc, partial_nrm2);
+    ALPAKA_FN_ACC T rho(const TAcc& acc) const {
+      return alpaka::math::sqrt(acc, rho2());
     }
 
     template <typename TAcc>
     ALPAKA_FN_ACC void normalize(const TAcc& acc) {
-      const T nrm = norm(acc);
+      const T mag = r(acc);
 
-      if (nrm == 0.)
+      if (mag == 0.)
         return;
 
       CMS_UNROLL_LOOP
       for (int i = 0; i < 3; i++) {
-        m_data[i] /= nrm;
+        m_data[i] /= mag;
       }
     }
 
