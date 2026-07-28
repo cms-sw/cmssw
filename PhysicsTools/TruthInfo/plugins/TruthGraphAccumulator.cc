@@ -30,6 +30,8 @@
 #include <cstdint>
 #include <cstring>
 #include <memory>
+#include <set>
+#include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -181,7 +183,10 @@ private:
   const bool computeCellEnergyBudget_;
 
   int pileupCount_ = 0;
-  bool missingCaloHitsWarned_ = false;
+  // Warn once PER COLLECTION, not once overall: a single shared flag reports only the
+  // first collection that goes missing and hides every later one, so a real premix
+  // problem in the calorimeter can be masked by an unrelated tracker collection.
+  std::set<std::string> missingHitsWarned_;
 
   // Merged calorimeter sim-hits across signal + kept pileup, each re-tagged with its
   // sub-event EncodedEventId so the (eventId,trackId) hit-index key resolves pileup
@@ -388,14 +393,15 @@ void TruthGraphAccumulator::mergeHits(EvT const& ev,
     edm::Handle<std::vector<HitT>> hits;
     ev.getByLabel(tag, hits);
     if (!hits.isValid()) {
-      // Under premixed pileup the pileup sim-hits are already digitized away, so every
-      // pileup handle is invalid and the merged collection ends up signal-only, silently
-      // reverting the pileup-aware truth to signal-only. Warn once.
-      if (!missingCaloHitsWarned_) {
+      // State the fact, then the two things that cause it. Naming premixing as THE cause
+      // is wrong and actively misleading: a collection configured here but absent from
+      // the running geometry, for instance the strip tracker under Run4, produces the
+      // same invalid handle and nothing is wrong.
+      if (missingHitsWarned_.insert(tag.encode()).second) {
         edm::LogWarning("TruthGraphAccumulator")
-            << "sim-hit collection " << tag.encode()
-            << " not found for a sub-event; pileup-aware truth needs classic (non-premixed) pileup.";
-        missingCaloHitsWarned_ = true;
+            << "sim-hit collection " << tag.encode() << " not found in a sub-event, so it contributes no truth hits."
+            << " Either this collection does not exist in the running geometry, or the pileup is premixed and its"
+            << " sim-hits were digitized away; pileup-aware truth needs classic (non-premixed) pileup.";
       }
       continue;
     }
