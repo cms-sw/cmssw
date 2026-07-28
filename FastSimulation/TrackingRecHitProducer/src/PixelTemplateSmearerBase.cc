@@ -346,13 +346,9 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(const PSimHit& simHit
   const PixelTopology* theSpecificTopology = &(detUnit->specificType().specificTopology());
 
   //Casting to correct pixel topology for phase-1 and phase-2
-  GeomDetEnumerators::SubDetector sub = detUnit->subDetector();
-
-  bool isPhase2 = (sub == GeomDetEnumerators::P1PXB  || sub == GeomDetEnumerators::P1PXEC ||
-		   sub == GeomDetEnumerators::P2OTB  || sub == GeomDetEnumerators::P2OTEC);
-  
   const PixelTopology* rectPixelTopology = nullptr;
-  
+
+  //Try phase-2 topology first, otherwise stick to phase-1.
   if (const auto* t = dynamic_cast<const RectangularPixelPhase2Topology*>(theSpecificTopology)) {
     rectPixelTopology = t;
   } else if (const auto* t = dynamic_cast<const RectangularPixelTopology*>(theSpecificTopology)) {
