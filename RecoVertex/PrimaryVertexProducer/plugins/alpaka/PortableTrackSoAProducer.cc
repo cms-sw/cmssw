@@ -115,11 +115,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       int32_t nTrueTracks = 0;
       for (int32_t idx = 0; idx < tsize_; idx++) {
         // Fill up the the Track SoA, weight doubles up as an isGood flag, as we compute it only for good tracks
-        double weight = convertTrack(tview[nTrueTracks],
-                                     sortedTracksPair[idx].second,
-                                     beamSpot,
-                                     sortedTracksPair[idx].first,
-                                     nTrueTracks);
+        double weight = convertTrack(
+            tview[nTrueTracks], sortedTracksPair[idx].second, beamSpot, sortedTracksPair[idx].first, nTrueTracks);
         if (weight > 0) {
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ALPAKA_PORTABLETRACKSOAPRODUCER
           printf("[PortableTrackSoAProducer::produce()] Add track at z=%1.5f \n",
@@ -171,10 +168,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::EDGetTokenT<::reco::BeamSpot> beamSpotToken_;
     device::EDPutToken<reco::TrackForVertexDeviceCollection> devicePutToken_;
     double convertTrack(reco::TrackForVertexHostCollection::View::element out,
-                               const ::reco::TransientTrack in,
-                               const ::reco::BeamSpot bs,
-                               int32_t idx,
-                               int32_t order);
+                        const ::reco::TransientTrack in,
+                        const ::reco::BeamSpot bs,
+                        int32_t idx,
+                        int32_t order) const;
     TrackFilterParametersForVertexing fParams;
   };  //PortableTrackSoAProducer declaration
 
@@ -182,7 +179,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                 const ::reco::TransientTrack in,
                                                 const ::reco::BeamSpot bs,
                                                 int32_t idx,
-                                                int32_t order) {
+                                                int32_t order) const {
     double weight = -1;
     // First check if it passes filters
     if ((in.stateAtBeamLine().transverseImpactParameter().significance() < fParams.maxSignificance) &&
@@ -219,8 +216,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // dz^2 + (bs*pt)^2*pz^2/pt^2 + vertexSize^2
       double oneoverdz2 = (out.dz2()) +
                           ((std::pow(bs.BeamWidthX() * out.px(), 2)) + (std::pow(bs.BeamWidthY() * out.py(), 2))) *
-                              std::pow(out.pz(), 2) /
-                              std::pow(momentum.perp2(), 2) +
+                              std::pow(out.pz(), 2) / std::pow(momentum.perp2(), 2) +
                           std::pow(fParams.vertexSize, 2);
       oneoverdz2 = 1. / oneoverdz2;
       out.oneoverdz2() = oneoverdz2;

@@ -11,6 +11,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::reco {
 
   using VertexDeviceCollection = PortableCollection<::reco::VertexSoA>;
 
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::reco
 
 #endif  // DataFormats_VertexSoA_interface_alpaka_VertexDeviceCollection_h

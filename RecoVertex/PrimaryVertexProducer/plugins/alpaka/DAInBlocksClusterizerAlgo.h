@@ -113,14 +113,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     int blockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];     // Block number inside grid
     int maxVerticesPerBlock = (int)1024 / alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(
                                               acc)[0u];  // Max vertices size is 1024 over number of blocks in grid
-    float zrange_min = 0.1;                            // Hard coded as in CPU version
+    float zrange_min = 0.1;                              // Hard coded as in CPU version
     for (int itrack = threadIdx + blockIdx * trackBlockSize; itrack < threadIdx + (blockIdx + 1) * trackBlockSize;
          itrack += blockSize) {
       // Based on current temperature (regularization term) and track position uncertainty, only keep relevant vertices
-      float zrange = alpaka::math::max(acc,cParams.zrange / alpaka::math::sqrt(acc,(beta)*tracks[itrack].oneoverdz2()), zrange_min);
+      float zrange = alpaka::math::max(
+          acc, cParams.zrange / alpaka::math::sqrt(acc, (beta)*tracks[itrack].oneoverdz2()), zrange_min);
       float zmin = tracks[itrack].z() - zrange;
       // First the lower bound
-      int kmin = alpaka::math::min(acc, (int)(maxVerticesPerBlock * blockIdx) + vertices.nV(blockIdx) - 1, tracks[itrack].kmin());
+      int kmin = alpaka::math::min(
+          acc, (int)(maxVerticesPerBlock * blockIdx) + vertices.nV(blockIdx) - 1, tracks[itrack].kmin());
       // If the vertex position in z is bigger than the minimum, go down through all vertices position until finding one that is too far
       if (vertices[vertices[kmin].order()].z() > zmin) {
         // i.e., while we find another vertex within range that is before the previous initial step
@@ -136,9 +138,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       // And now do the same for the upper bound
       double zmax = tracks[itrack].z() + zrange;
-      int kmax = alpaka::math::max(acc,0,
-                          alpaka::math::min(acc, maxVerticesPerBlock * blockIdx + (int)(vertices[blockIdx].nV()) - 1,
-                                   (int)(tracks[itrack].kmax()) - 1));
+      int kmax =
+          alpaka::math::max(acc,
+                            0,
+                            alpaka::math::min(acc,
+                                              maxVerticesPerBlock * blockIdx + (int)(vertices[blockIdx].nV()) - 1,
+                                              (int)(tracks[itrack].kmax()) - 1));
       // For corner cases in which we purged the first vertex, thus not properly updating kmax during purging
       while (vertices[kmax].order() == 9999)
         kmax++;
@@ -157,9 +162,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         tracks[itrack].kmin() = (int)kmin;
         tracks[itrack].kmax() = (int)kmax + 1;
       } else {  // Track goes to the most extreme cases if no associated one is found
-        tracks[itrack].kmin() = (int)alpaka::math::max(acc,maxVerticesPerBlock * blockIdx, (int)alpaka::math::min(acc, kmin, kmax));
-        tracks[itrack].kmax() = (int)alpaka::math::min(acc,(maxVerticesPerBlock * blockIdx) + (int)vertices[blockIdx].nV(),
-                                              (int)alpaka::math::max(acc,kmin, kmax) + 1);
+        tracks[itrack].kmin() =
+            (int)alpaka::math::max(acc, maxVerticesPerBlock * blockIdx, (int)alpaka::math::min(acc, kmin, kmax));
+        tracks[itrack].kmax() = (int)alpaka::math::min(acc,
+                                                       (maxVerticesPerBlock * blockIdx) + (int)vertices[blockIdx].nV(),
+                                                       (int)alpaka::math::max(acc, kmin, kmax) + 1);
       }
     }  //end for
     alpaka::syncBlockThreads(acc);
@@ -181,7 +188,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     int maxVerticesPerBlock = (int)1024 / alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(
                                               acc)[0u];  // Max vertices size is 1024 over number of blocks in grid
     // Initial partition function, really only used on the outlier rejection step to penalize
-    double Zinit = rho0 * alpaka::math::exp(acc,-(beta)*cParams.dzCutOff * cParams.dzCutOff);
+    double Zinit = rho0 * alpaka::math::exp(acc, -(beta)*cParams.dzCutOff * cParams.dzCutOff);
     for (int itrack = threadIdx + blockIdx * trackBlockSize; itrack < threadIdx + (blockIdx + 1) * trackBlockSize;
          itrack += blockSize) {
       double botrack_dz2 = -(beta)*tracks[itrack].oneoverdz2();
@@ -192,10 +199,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           continue;
         // Z_t = sum_v pho_v * e^{-beta*(z_t-z_v)/dz^2}, partition function of the track
         tracks[itrack].sum_Z() +=
-            vertices[ivertex].rho() * alpaka::math::exp(acc,botrack_dz2 * (tracks[itrack].z() - vertices[ivertex].z()) *
-                                          (tracks[itrack].z() - vertices[ivertex].z()));
+            vertices[ivertex].rho() * alpaka::math::exp(acc,
+                                                        botrack_dz2 * (tracks[itrack].z() - vertices[ivertex].z()) *
+                                                            (tracks[itrack].z() - vertices[ivertex].z()));
       }  //end vertex for
-      if (not(alpaka::math::isfinite(acc,tracks[itrack].sum_Z())))
+      if (not(alpaka::math::isfinite(acc, tracks[itrack].sum_Z())))
         tracks[itrack].sum_Z() = 0;
       if (tracks[itrack].sum_Z() > 1e-40) {  // If non-zero then the track has a non-trivial assignment to a vertex
         double sumw = tracks[itrack].weight() / (double)tracks[itrack].sum_Z();
@@ -562,7 +570,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       for (int icheck = maxVerticesPerBlock * blockIdx; icheck < maxVerticesPerBlock * (blockIdx + 1); icheck++) {
         if (not(vertices[icheck].isGood())) {
           nnew = icheck;
-          break; 
+          break;
         }
       }
       if (nnew == breaknnew)
@@ -814,8 +822,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       if (beta > cParams.Tmin) {
         int coolingsteps =
             1 - int(alpaka::math::log(acc, beta / cParams.Tmin) /
-                    alpaka::math::log(acc, cParams.coolingFactor));  // A tricky conversion to round the number of cooling steps
-        beta = alpaka::math::pow(acc,cParams.coolingFactor, coolingsteps) / cParams.Tmin;
+                    alpaka::math::log(
+                        acc, cParams.coolingFactor));  // A tricky conversion to round the number of cooling steps
+        beta = alpaka::math::pow(acc, cParams.coolingFactor, coolingsteps) / cParams.Tmin;
       } else {
         beta = cParams.coolingFactor / cParams.Tmin;
       }
@@ -841,7 +850,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     if (cParams.convergence_mode == 0) {
       delta_max = delta_highT;
     } else if (cParams.convergence_mode == 1) {
-      delta_max = cParams.delta_lowT / alpaka::math::sqrt(acc,alpaka::math::max(acc,beta, 1.0));
+      delta_max = cParams.delta_lowT / alpaka::math::sqrt(acc, alpaka::math::max(acc, beta, 1.0));
     }
     int maxIterations = 1000;
     set_vtx_range(acc, tracks, vertices, cParams, osumtkwt, beta, trackBlockSize);
@@ -913,7 +922,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                   int trackBlockSize) {
     // Perform cooling of the deterministic annealing
     int blockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];
-    double betafreeze = (1. / cParams.Tmin) * alpaka::math::sqrt(acc,cParams.coolingFactor);
+    double betafreeze = (1. / cParams.Tmin) * alpaka::math::sqrt(acc, cParams.coolingFactor);
     while (beta < betafreeze) {
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_CLUSTERIZERALGO
       if (once_per_block(acc)) {
@@ -1016,7 +1025,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     while (beta < 1. / cParams.Tpurge) {
       alpaka::syncBlockThreads(acc);
       if (once_per_block(acc)) {
-        beta = alpaka::math::min(acc,beta / cParams.coolingFactor, 1. / cParams.Tpurge);
+        beta = alpaka::math::min(acc, beta / cParams.coolingFactor, 1. / cParams.Tpurge);
       }
       alpaka::syncBlockThreads(acc);
       thermalize(acc, tracks, vertices, cParams, osumtkwt, beta, cParams.delta_lowT, rho0, trackBlockSize);
@@ -1033,7 +1042,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     while (beta < 1. / cParams.Tstop) {
       alpaka::syncBlockThreads(acc);
       if (once_per_block(acc)) {
-        beta = alpaka::math::min(acc,beta / cParams.coolingFactor, 1. / cParams.Tstop);
+        beta = alpaka::math::min(acc, beta / cParams.coolingFactor, 1. / cParams.Tstop);
       }
       alpaka::syncBlockThreads(acc);
       thermalize(acc, tracks, vertices, cParams, osumtkwt, beta, cParams.delta_lowT, rho0, trackBlockSize);

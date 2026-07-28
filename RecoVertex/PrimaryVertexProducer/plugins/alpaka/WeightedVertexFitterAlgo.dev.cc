@@ -269,7 +269,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               old_z,
               z);
 #endif
-          if ((alpaka::math::abs(acc,old_x - x) < precision) && (alpaka::math::abs(acc,old_y - y) < precision) && (alpaka::math::abs(acc,old_z - z) < precision))
+          if ((alpaka::math::abs(acc, old_x - x) < precision) && (alpaka::math::abs(acc, old_y - y) < precision) &&
+              (alpaka::math::abs(acc, old_z - z) < precision))
             break;  // If good enough, stop the iterations
         }  // end while
         // Assign everything back in global memory to get the fitted vertex!

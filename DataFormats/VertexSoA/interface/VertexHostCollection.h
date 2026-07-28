@@ -5,6 +5,6 @@
 #include "DataFormats/VertexSoA/interface/VertexSoA.h"
 
 namespace reco {
-    using VertexHostCollection = PortableHostCollection<VertexSoA>;
+  using VertexHostCollection = PortableHostCollection<VertexSoA>;
 }
 #endif  // DataFormats_VertexSoA_interface_VertexHostCollection_h

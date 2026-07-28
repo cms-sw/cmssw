@@ -33,9 +33,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
       int32_t overlapStart = blockOverlap * blockSize;
       // The accelerator has as much threads as blockSize, so each thread will enter once on each block
-      for (auto iNewTrack : uniform_elements(
-               acc,
-               blockSize)) {  
+      for (auto iNewTrack : uniform_elements(acc, blockSize)) {
         for (int32_t iblock = 0; iblock < nBlocks; iblock++) {  // Each thread will create -up to- one track per block
           int32_t oldIndex = (iblock * overlapStart) +
                              iNewTrack;  // I.e. first track in the block in which we are + thread in which we are
@@ -79,10 +77,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         trackInBlocks.nT() =
             (int32_t)(nBlocks * blockSize + nTOld -
                       blockOverlap * blockSize *
-                          alpaka::math::ceil(acc,
+                          alpaka::math::ceil(
+                              acc,
                               nTOld /
-                              (blockOverlap *
-                               blockSize)));  // The new number of tracks has to account for the fact that we overlapped
+                                  (blockOverlap *
+                                   blockSize)));  // The new number of tracks has to account for the fact that we overlapped
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCERPORTABLE_BLOCKALGO
         printf("[TracksForDAInBlocksAlgo::operator()] Set nTracks to %i\n", trackInBlocks.nT());
 #endif
