@@ -34,7 +34,7 @@ hltMtdTracksValid = _mtdTracksValid.clone(
     inputTagG = cms.InputTag('hltGeneralTracks'),
     inputTagT = cms.InputTag('hltTrackExtenderWithMTD'),
     inputTagV = cms.InputTag('hltOfflinePrimaryVertices4D'),
-    TPtoRecoTrackAssoc = cms.InputTag('tpToHLTphase2TrackAssociation'),
+    TPtoRecoTrackAssoc = cms.InputTag('tpToHLTGeneralTrackAssociation'),
     tp2SimAssociationMapTag = cms.InputTag('hltMtdSimLayerClusterToTPAssociation'),
     Sim2tpAssociationMapTag = cms.InputTag('hltMtdSimLayerClusterToTPAssociation'),
     r2sAssociationMapTag = cms.InputTag('hltMtdRecoClusterToSimLayerClusterAssociation'),
@@ -65,7 +65,7 @@ hltMtdTracksValid = _mtdTracksValid.clone(
 from Validation.MtdValidation.vertices4DValid_cff import vertices4DValid as _vertices4DValid
 hltVertices4DValid =  _vertices4DValid.clone(
     folder = cms.string('HLT/MTD/Vertices'),
-    TPtoRecoTrackAssoc = cms.InputTag('tpToHLTphase2TrackAssociation'),
+    TPtoRecoTrackAssoc = cms.InputTag('tpToHLTGeneralTrackAssociation'),
     TrackLabel = cms.InputTag('hltGeneralTracks'),
     mtdTracks = cms.InputTag('hltTrackExtenderWithMTD'),
     SimTag = cms.InputTag('mix', 'MergedTrackTruth'),

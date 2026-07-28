@@ -1,7 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 # Track associations
-from Validation.RecoTrack.associators_cff import hltTPClusterProducer, hltTrackAssociatorByHits, tpToHLTpixelTrackAssociation
+from Validation.RecoTrack.associators_cff import (
+    hltTPClusterProducer,
+    hltTrackAssociatorByHits,
+    tpToHLTGeneralTrackAssociation,
+    tpToHLTpixelTrackAssociation
+)
 
 # Vertex associators
 from SimTracker.VertexAssociation.vertexAssociatorByPositionAndTracksProducer_cfi import vertexAssociatorByPositionAndTracksProducer as _VertexAssociatorByPositionAndTracks
@@ -11,9 +16,6 @@ from SimTracker.VertexAssociation.secondaryVertexAssociatorByPositionAndTracks_c
 from SimTracker.VertexAssociation.vertexCompositePtrCandidateAssociatorEDProducer_cfi import vertexCompositePtrCandidateAssociatorEDProducer as _VertexAssociationCPC
 
 # -------------- PVs from hltGeneralTracks ---------------------------------------------------------------------------
-tpToHLTGeneralTrackAssociation = tpToHLTpixelTrackAssociation.clone(
-    label_tr = "hltGeneralTracks"
-)
 hltPVAssociatorByPositionAndTracks4GeneralTracks = _VertexAssociatorByPositionAndTracks.clone(
     trackAssociations = ["tpToHLTGeneralTrackAssociation"],
     sharedTrackFraction = 0.5, # requires optimization
