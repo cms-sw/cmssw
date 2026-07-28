@@ -5,7 +5,10 @@ from Validation.RecoTrack.associators_cff import hltTPClusterProducer, hltTrackA
 
 # Vertex associators
 from SimTracker.VertexAssociation.vertexAssociatorByPositionAndTracksProducer_cfi import vertexAssociatorByPositionAndTracksProducer as _VertexAssociatorByPositionAndTracks
+from SimTracker.VertexAssociation.secondaryVertexAssociatorByPositionAndTracks_cfi import secondaryVertexAssociatorByPositionAndTracksCPC as _SecondaryVertexAssociatorByPositionAndTracks
 
+# Vertex association producers
+from SimTracker.VertexAssociation.vertexCompositePtrCandidateAssociatorEDProducer_cfi import vertexCompositePtrCandidateAssociatorEDProducer as _VertexAssociationCPC
 
 # -------------- PVs from hltGeneralTracks ---------------------------------------------------------------------------
 tpToHLTGeneralTrackAssociation = tpToHLTpixelTrackAssociation.clone(
@@ -41,8 +44,19 @@ hltPVAssociatorByPositionAndTracks4pfMuonMergingTracks = _VertexAssociatorByPosi
     trackAssociations = ["tpToHLTpfMuonMergingTrackAssociation"]
 )
 
+# -------------- SVs from hltGeneralTracks ---------------------------------------------------------------------------
+hltSVAssociatorByPositionAndTracks4GeneralTracks = _SecondaryVertexAssociatorByPositionAndTracks.clone(
+    trackAssociations = ["tpToHLTGeneralTrackAssociation"]
+)
+hltSVAssociation = _VertexAssociationCPC.clone(
+    recoVertices = cms.InputTag("hltDeepInclusiveMergedVerticesPF"),
+    simVertices = cms.InputTag("mix", "MergedTrackTruth"),
+    associator = cms.InputTag("hltSVAssociatorByPositionAndTracks4GeneralTracks"),
+)
+
+
 # --------------------------------------------------------------------------------------------------------------------
-#   Association Tasks for PV validation
+#   Association Tasks for PV and SV validation
 # --------------------------------------------------------------------------------------------------------------------
 
 # PV validation association task
@@ -56,4 +70,11 @@ hltPVAssociationsTask = cms.Task(
     hltPVAssociatorByPositionAndTracks4pfMuonMergingTracks,
     tpToHLTGeneralTrackAssociation,
     hltPVAssociatorByPositionAndTracks4GeneralTracks,
+)
+
+# SV validation association task
+hltSVAssociationsTask = cms.Task(
+    tpToHLTGeneralTrackAssociation,
+    hltSVAssociatorByPositionAndTracks4GeneralTracks,
+    hltSVAssociation,
 )
