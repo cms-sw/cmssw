@@ -81,12 +81,12 @@ namespace {
   void dumpUsedMemory(T& log, int num) {
     auto const cachingDeviceAllocatorStatus = cms::cuda::deviceAllocatorStatus();
     int old = 0;
-    cudaCheck(cudaGetDevice(&old));
+    CUDA_CHECK(cudaGetDevice(&old));
     constexpr auto mbytes = 1 << 20;
     for (int i = 0; i < num; ++i) {
       size_t freeMemory, totalMemory;
-      cudaCheck(cudaSetDevice(i));
-      cudaCheck(cudaMemGetInfo(&freeMemory, &totalMemory));
+      CUDA_CHECK(cudaSetDevice(i));
+      CUDA_CHECK(cudaMemGetInfo(&freeMemory, &totalMemory));
       log << "\n"
           << i << ": " << (totalMemory - freeMemory) / mbytes << " MB used / " << totalMemory / mbytes << " MB total";
       auto found = cachingDeviceAllocatorStatus.find(i);
@@ -97,7 +97,7 @@ namespace {
             << (cached.live + cached.free) / mbytes << " MB total cached";
       }
     }
-    cudaCheck(cudaSetDevice(old));
+    CUDA_CHECK(cudaSetDevice(old));
   }
 }  // namespace
 

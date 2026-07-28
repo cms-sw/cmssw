@@ -13,7 +13,7 @@ TEST_CASE("memsetAsync", "[cudaMemTools]") {
   }
 
   cudaStream_t stream;
-  cudaCheck(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
+  CUDA_CHECK(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
 
   SECTION("Single element") {
     auto host_orig = cms::cuda::make_host_unique<int>(stream);
@@ -24,7 +24,7 @@ TEST_CASE("memsetAsync", "[cudaMemTools]") {
     cms::cuda::copyAsync(device, host_orig, stream);
     cms::cuda::memsetAsync(device, 0, stream);
     cms::cuda::copyAsync(host, device, stream);
-    cudaCheck(cudaStreamSynchronize(stream));
+    CUDA_CHECK(cudaStreamSynchronize(stream));
 
     REQUIRE(*host == 0);
   }
@@ -42,12 +42,12 @@ TEST_CASE("memsetAsync", "[cudaMemTools]") {
     cms::cuda::copyAsync(device, host_orig, N, stream);
     cms::cuda::memsetAsync(device, 0, N, stream);
     cms::cuda::copyAsync(host, device, N, stream);
-    cudaCheck(cudaStreamSynchronize(stream));
+    CUDA_CHECK(cudaStreamSynchronize(stream));
 
     for (int i = 0; i < N; ++i) {
       CHECK(host[i] == 0);
     }
   }
 
-  cudaCheck(cudaStreamDestroy(stream));
+  CUDA_CHECK(cudaStreamDestroy(stream));
 }
