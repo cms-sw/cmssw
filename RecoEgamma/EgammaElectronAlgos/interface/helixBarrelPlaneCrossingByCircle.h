@@ -76,15 +76,15 @@ namespace propagators {
     constexpr double straightLineCutoff = 1.e-7;
 
     const double abs_rho = alpaka::math::abs(acc, rho);
-    const double startingDir_2dnorm = startingPos.partial_norm(acc);
+    const double startingDir_rho = startingPos.rho(acc);
 
     auto compute_position = [&](const double s) -> Vec3d {
-      const double norm = startingDir.norm(acc);
-      const double scale = norm > 0. ? s / norm : 0.;  //that is, for "zero" vector this will be identity operation
+      const double mag = startingDir.r(acc);
+      const double scale = mag > 0. ? s / mag : 0.;  //that is, for "zero" vector this will be identity operation
       return cms::alpakatools::math::axpy(scale, startingDir, startingPos);
     };
 
-    if (abs_rho < straightLineCutoff && abs_rho * startingDir_2dnorm < straightLineCutoff) {
+    if (abs_rho < straightLineCutoff && abs_rho * startingDir_rho < straightLineCutoff) {
       // calculate path length
       const auto pz = plane.distanceFromPlaneVector(acc, startingDir);
 
@@ -101,7 +101,7 @@ namespace propagators {
       return;  // all needed data members have been set
     }
 
-    const double pt = startingDir.partial_norm(acc);
+    const double pt = startingDir.rho(acc);
 
     const double o = 1. / (pt * rho);
     const double theXCenter = startingPos[0] - startingDir[1] * o;
@@ -172,11 +172,11 @@ namespace propagators {
     if (!theSolExists)
       return;
 
-    const double scaled_dMag_rho = 0.5 * theD.norm(acc) * rho;  // theD.norm()
+    const double scaled_dMag_rho = 0.5 * theD.r(acc) * rho;  // theD.norm()
 
     double sinAlpha = scaled_dMag_rho;
 
-    const double ipabs = 1. / startingDir.norm(acc);
+    const double ipabs = 1. / startingDir.r(acc);
 
     const double sinTheta = pt * ipabs;
     const double cosTheta = startingDir[2] * ipabs;
