@@ -56,7 +56,7 @@ void setHipLimit(hipLimit_t limit, const char* name, size_t request) {
 #if HIP_VERSION >= 50400000
   // read the current device
   int device;
-  hipCheck(hipGetDevice(&device));
+  HIP_CHECK(hipGetDevice(&device));
   // try to set the requested limit
   auto result = hipDeviceSetLimit(limit, request);
   if (hipErrorUnsupportedLimit == result) {
@@ -101,19 +101,19 @@ ROCmService::ROCmService(edm::ParameterSet const& config) : verbose_(config.getU
 
   // AMD system driver version, e.g. 5.16.9.22.20 or 6.1.5
   char systemDriverVersion[256];
-  rsmiCheck(rsmi_init(0x00));
-  rsmiCheck(rsmi_version_str_get(RSMI_SW_COMP_DRIVER, systemDriverVersion, sizeof(systemDriverVersion) - 1));
-  rsmiCheck(rsmi_shut_down());
+  RSMI_CHECK(rsmi_init(0x00));
+  RSMI_CHECK(rsmi_version_str_get(RSMI_SW_COMP_DRIVER, systemDriverVersion, sizeof(systemDriverVersion) - 1));
+  RSMI_CHECK(rsmi_shut_down());
 
   // ROCm driver version, e.g. 11.4
   // the full version, like 11.4.1 or 11.4.100, is not reported
   int driverVersion = 0;
-  hipCheck(hipDriverGetVersion(&driverVersion));
+  HIP_CHECK(hipDriverGetVersion(&driverVersion));
 
   // ROCm runtime version, e.g. 11.4
   // the full version, like 11.4.1 or 11.4.108, is not reported
   int runtimeVersion = 0;
-  hipCheck(hipRuntimeGetVersion(&runtimeVersion));
+  HIP_CHECK(hipRuntimeGetVersion(&runtimeVersion));
 
   edm::LogInfo log("ROCmService");
   if (verbose_) {
@@ -146,7 +146,7 @@ ROCmService::ROCmService(edm::ParameterSet const& config) : verbose_(config.getU
     // read information about the compute device.
     // see the documentation of hipGetDeviceProperties() for more information.
     hipDeviceProp_t properties;
-    hipCheck(hipGetDeviceProperties(&properties, i));
+    HIP_CHECK(hipGetDeviceProperties(&properties, i));
     log << '\n' << "ROCm device " << i << ": " << properties.name;
     if (verbose_) {
       log << '\n';
@@ -182,15 +182,15 @@ ROCmService::ROCmService(edm::ParameterSet const& config) : verbose_(config.getU
     }
 
     // TODO if a device is in exclusive use, skip it and remove it from the list, instead of failing with an exception
-    hipCheck(hipSetDevice(i));
-    hipCheck(hipSetDeviceFlags(hipDeviceScheduleAuto | hipDeviceMapHost));
+    HIP_CHECK(hipSetDevice(i));
+    HIP_CHECK(hipSetDeviceFlags(hipDeviceScheduleAuto | hipDeviceMapHost));
 
     if (verbose_) {
       // read the free and total amount of memory available for allocation by the device, in bytes.
       // see the documentation of hipMemGetInfo() for more information.
       size_t freeMemory = 0;
       size_t totalMemory = 0;
-      hipCheck(hipMemGetInfo(&freeMemory, &totalMemory));
+      HIP_CHECK(hipMemGetInfo(&freeMemory, &totalMemory));
       log << "  memory: " << std::setw(6) << freeMemory / (1 << 20) << " MB free / " << std::setw(6)
           << totalMemory / (1 << 20) << " MB total\n";
       log << "  constant memory:             " << std::setw(8) << properties.totalConstMem / (1 << 10) << " kB\n";
@@ -225,7 +225,7 @@ ROCmService::ROCmService(edm::ParameterSet const& config) : verbose_(config.getU
     if (verbose_) {
       log << "ROCm flags\n";
       unsigned int flags;
-      hipCheck(hipGetDeviceFlags(&flags));
+      HIP_CHECK(hipGetDeviceFlags(&flags));
       switch (flags & hipDeviceScheduleMask) {
         case hipDeviceScheduleAuto:
           log << "  thread policy:                   default\n";
@@ -274,10 +274,10 @@ ROCmService::ROCmService(edm::ParameterSet const& config) : verbose_(config.getU
       size_t value;
       log << "ROCm limits\n";
 #if HIP_VERSION >= 50400000
-      hipCheck(hipDeviceGetLimit(&value, hipLimitStackSize));
+      HIP_CHECK(hipDeviceGetLimit(&value, hipLimitStackSize));
       log << "  stack size:                " << std::setw(10) << value / (1 << 10) << " kB\n";
 #endif
-      hipCheck(hipDeviceGetLimit(&value, hipLimitMallocHeapSize));
+      HIP_CHECK(hipDeviceGetLimit(&value, hipLimitMallocHeapSize));
       log << "  malloc heap size:          " << std::setw(10) << value / (1 << 20) << " MB\n";
     }
   }
@@ -300,12 +300,12 @@ ROCmService::ROCmService(edm::ParameterSet const& config) : verbose_(config.getU
 ROCmService::~ROCmService() {
   if (enabled_) {
     for (int i = 0; i < numberOfDevices_; ++i) {
-      hipCheck(hipSetDevice(i));
-      hipCheck(hipDeviceSynchronize());
+      HIP_CHECK(hipSetDevice(i));
+      HIP_CHECK(hipDeviceSynchronize());
       // Explicitly destroys and cleans up all resources associated with the current device in the
       // current process. Any subsequent API call to this device will reinitialize the device.
       // Useful to check for memory leaks.
-      hipCheck(hipDeviceReset());
+      HIP_CHECK(hipDeviceReset());
     }
   }
 }

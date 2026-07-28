@@ -14,7 +14,7 @@ TEST_CASE("HeterogeneousCore/CUDAUtilities testRequireCUDADevices", "[testRequir
     cms::cudatest::requireDevices();
 
     int devices = 0;
-    cudaCheck(cudaGetDeviceCount(&devices));
+    CUDA_CHECK(cudaGetDeviceCount(&devices));
 
     REQUIRE(devices > 0);
   }

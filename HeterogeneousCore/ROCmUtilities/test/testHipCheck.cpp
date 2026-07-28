@@ -9,8 +9,8 @@
 #include "HeterogeneousCore/ROCmUtilities/interface/hipCheck.h"
 
 TEST_CASE("HeterogeneousCore/ROCmUtilities testHipCheck", "[testHipCheck]") {
-  SECTION("Test hipCheck() API") {
-    REQUIRE_NOTHROW(hipCheck(hipSuccess));
-    REQUIRE_THROWS(hipCheck(hipErrorUnknown));
+  SECTION("Test HIP_CHECK() API") {
+    REQUIRE_NOTHROW(HIP_CHECK(hipSuccess));
+    REQUIRE_THROWS(HIP_CHECK(hipErrorUnknown));
   }
 }

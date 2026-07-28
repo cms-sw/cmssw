@@ -13,30 +13,30 @@ namespace cms::cudatest {
     float* in1_d;
     float* in2_d;
     float* out_d;
-    cudaCheck(cudaMalloc(&in1_d, size * sizeof(float)));
-    cudaCheck(cudaMalloc(&in2_d, size * sizeof(float)));
-    cudaCheck(cudaMalloc(&out_d, size * sizeof(float)));
+    CUDA_CHECK(cudaMalloc(&in1_d, size * sizeof(float)));
+    CUDA_CHECK(cudaMalloc(&in2_d, size * sizeof(float)));
+    CUDA_CHECK(cudaMalloc(&out_d, size * sizeof(float)));
 
     // copy the input data to the device
-    cudaCheck(cudaMemcpy(in1_d, in1_h, size * sizeof(float), cudaMemcpyHostToDevice));
-    cudaCheck(cudaMemcpy(in2_d, in2_h, size * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(in1_d, in1_h, size * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(in2_d, in2_h, size * sizeof(float), cudaMemcpyHostToDevice));
 
     // fill the output buffer with zeros
-    cudaCheck(cudaMemset(out_d, 0, size * sizeof(float)));
+    CUDA_CHECK(cudaMemset(out_d, 0, size * sizeof(float)));
 
     // launch the 1-dimensional kernel for vector addition
     wrapper_add_vectors_f(in1_d, in2_d, out_d, size);
 
     // copy the results from the device to the host
-    cudaCheck(cudaMemcpy(out_h, out_d, size * sizeof(float), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(out_h, out_d, size * sizeof(float), cudaMemcpyDeviceToHost));
 
     // wait for all the operations to complete
-    cudaCheck(cudaDeviceSynchronize());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
     // free the input and output buffers on the device
-    cudaCheck(cudaFree(in1_d));
-    cudaCheck(cudaFree(in2_d));
-    cudaCheck(cudaFree(out_d));
+    CUDA_CHECK(cudaFree(in1_d));
+    CUDA_CHECK(cudaFree(in2_d));
+    CUDA_CHECK(cudaFree(out_d));
   }
 
   void opaque_add_vectors_d(const double* in1_h, const double* in2_h, double* out_h, size_t size) {
@@ -44,30 +44,30 @@ namespace cms::cudatest {
     double* in1_d;
     double* in2_d;
     double* out_d;
-    cudaCheck(cudaMalloc(&in1_d, size * sizeof(double)));
-    cudaCheck(cudaMalloc(&in2_d, size * sizeof(double)));
-    cudaCheck(cudaMalloc(&out_d, size * sizeof(double)));
+    CUDA_CHECK(cudaMalloc(&in1_d, size * sizeof(double)));
+    CUDA_CHECK(cudaMalloc(&in2_d, size * sizeof(double)));
+    CUDA_CHECK(cudaMalloc(&out_d, size * sizeof(double)));
 
     // copy the input data to the device
-    cudaCheck(cudaMemcpy(in1_d, in1_h, size * sizeof(double), cudaMemcpyHostToDevice));
-    cudaCheck(cudaMemcpy(in2_d, in2_h, size * sizeof(double), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(in1_d, in1_h, size * sizeof(double), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(in2_d, in2_h, size * sizeof(double), cudaMemcpyHostToDevice));
 
     // fill the output buffer with zeros
-    cudaCheck(cudaMemset(out_d, 0, size * sizeof(double)));
+    CUDA_CHECK(cudaMemset(out_d, 0, size * sizeof(double)));
 
     // launch the 1-dimensional kernel for vector addition
     wrapper_add_vectors_d(in1_d, in2_d, out_d, size);
 
     // copy the results from the device to the host
-    cudaCheck(cudaMemcpy(out_h, out_d, size * sizeof(double), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(out_h, out_d, size * sizeof(double), cudaMemcpyDeviceToHost));
 
     // wait for all the operations to complete
-    cudaCheck(cudaDeviceSynchronize());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
     // free the input and output buffers on the device
-    cudaCheck(cudaFree(in1_d));
-    cudaCheck(cudaFree(in2_d));
-    cudaCheck(cudaFree(out_d));
+    CUDA_CHECK(cudaFree(in1_d));
+    CUDA_CHECK(cudaFree(in2_d));
+    CUDA_CHECK(cudaFree(out_d));
   }
 
 }  // namespace cms::cudatest

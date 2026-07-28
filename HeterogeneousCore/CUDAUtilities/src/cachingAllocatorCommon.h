@@ -23,15 +23,15 @@ namespace cms::cuda::allocator {
   inline size_t minCachedBytes() {
     size_t ret = std::numeric_limits<size_t>::max();
     int currentDevice;
-    cudaCheck(cudaGetDevice(&currentDevice));
+    CUDA_CHECK(cudaGetDevice(&currentDevice));
     const int numberOfDevices = deviceCount();
     for (int i = 0; i < numberOfDevices; ++i) {
       size_t freeMemory, totalMemory;
-      cudaCheck(cudaSetDevice(i));
-      cudaCheck(cudaMemGetInfo(&freeMemory, &totalMemory));
+      CUDA_CHECK(cudaSetDevice(i));
+      CUDA_CHECK(cudaMemGetInfo(&freeMemory, &totalMemory));
       ret = std::min(ret, static_cast<size_t>(maxCachedFraction * freeMemory));
     }
-    cudaCheck(cudaSetDevice(currentDevice));
+    CUDA_CHECK(cudaSetDevice(currentDevice));
     if (maxCachedBytes > 0) {
       ret = std::min(ret, maxCachedBytes);
     }

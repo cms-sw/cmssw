@@ -34,7 +34,7 @@ TEST_CASE("SoACustomizedMethods hip", "[SoACustomizedMethods][hip]") {
   const std::size_t bufferSize = SoA::computeDataSize(elems);
 
   std::byte* h_buf = nullptr;
-  hipCheck(hipHostMalloc(&h_buf, bufferSize));
+  HIP_CHECK(hipHostMalloc(&h_buf, bufferSize));
   SoA h_soahdLayout(h_buf, elems);
   SoAView h_view(h_soahdLayout);
   SoAConstView h_Constview(h_soahdLayout);
@@ -51,7 +51,7 @@ TEST_CASE("SoACustomizedMethods hip", "[SoACustomizedMethods][hip]") {
   h_view.detectorType() = 42;
 
   std::byte* d_buf = nullptr;
-  hipCheck(hipMalloc(&d_buf, bufferSize));
+  HIP_CHECK(hipMalloc(&d_buf, bufferSize));
   SoA d_soahdLayout(d_buf, elems);
   SoAView d_view(d_soahdLayout);
   SoAConstView d_Constview(d_soahdLayout);
@@ -64,18 +64,18 @@ TEST_CASE("SoACustomizedMethods hip", "[SoACustomizedMethods][hip]") {
   double* d_velocity_norms;
   double* d_times;
 
-  hipCheck(hipMalloc(&d_position_norms, elems * sizeof(float)));
-  hipCheck(hipMalloc(&d_velocity_norms, elems * sizeof(double)));
-  hipCheck(hipMalloc(&d_times, elems * sizeof(double)));
+  HIP_CHECK(hipMalloc(&d_position_norms, elems * sizeof(float)));
+  HIP_CHECK(hipMalloc(&d_velocity_norms, elems * sizeof(double)));
+  HIP_CHECK(hipMalloc(&d_times, elems * sizeof(double)));
 
   // Host → Device copy
-  hipCheck(hipMemcpy(d_buf, h_buf, bufferSize, hipMemcpyHostToDevice));
+  HIP_CHECK(hipMemcpy(d_buf, h_buf, bufferSize, hipMemcpyHostToDevice));
 
   SECTION("ConstView methods HIP") {
     calculateNorm<<<(elems + 255) / 256, 256>>>(d_Constview, d_position_norms, d_velocity_norms);
 
-    hipCheck(hipMemcpy(h_position_norms.data(), d_position_norms, elems * sizeof(float), hipMemcpyDeviceToHost));
-    hipCheck(hipMemcpy(h_velocity_norms.data(), d_velocity_norms, elems * sizeof(double), hipMemcpyDeviceToHost));
+    HIP_CHECK(hipMemcpy(h_position_norms.data(), d_position_norms, elems * sizeof(float), hipMemcpyDeviceToHost));
+    HIP_CHECK(hipMemcpy(h_velocity_norms.data(), d_velocity_norms, elems * sizeof(double), hipMemcpyDeviceToHost));
 
     // Check for the correctness of the square_norm() functions
     for (size_t i = 0; i < elems; i++) {
@@ -102,8 +102,8 @@ TEST_CASE("SoACustomizedMethods hip", "[SoACustomizedMethods][hip]") {
 
     checkNormalise<<<(elems + 255) / 256, 256>>>(d_view, d_times);
 
-    hipCheck(hipMemcpy(h_times.data(), d_times, elems * sizeof(double), hipMemcpyDeviceToHost));
-    hipCheck(hipMemcpy(h_buf, d_buf, bufferSize, hipMemcpyDeviceToHost));
+    HIP_CHECK(hipMemcpy(h_times.data(), d_times, elems * sizeof(double), hipMemcpyDeviceToHost));
+    HIP_CHECK(hipMemcpy(h_buf, d_buf, bufferSize, hipMemcpyDeviceToHost));
 
     // Check for the correctness of the time() function
     for (size_t i = 0; i < elems; i++) {
@@ -119,9 +119,9 @@ TEST_CASE("SoACustomizedMethods hip", "[SoACustomizedMethods][hip]") {
   }
 
   // ===== cleanup =====
-  hipCheck(hipFree(d_position_norms));
-  hipCheck(hipFree(d_velocity_norms));
-  hipCheck(hipFree(d_times));
-  hipCheck(hipFree(d_buf));
-  hipCheck(hipFreeHost(h_buf));
+  HIP_CHECK(hipFree(d_position_norms));
+  HIP_CHECK(hipFree(d_velocity_norms));
+  HIP_CHECK(hipFree(d_times));
+  HIP_CHECK(hipFree(d_buf));
+  HIP_CHECK(hipFreeHost(h_buf));
 }

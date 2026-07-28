@@ -173,7 +173,7 @@ int main() {
   testLayer();
 
   kernel_testLayer<<<1, 1>>>();
-  cudaCheck(cudaDeviceSynchronize());
+  CUDA_CHECK(cudaDeviceSynchronize());
 
   return 0;
 }
