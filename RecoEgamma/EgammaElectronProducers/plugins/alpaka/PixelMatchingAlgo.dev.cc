@@ -173,7 +173,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             Vec3d propagatedPos(0);
             Vec3d propagatedMom(0);
 
-            double rho = (c * bFieldFirst) / momentum.partial_norm(acc);
+            double rho = (c * bFieldFirst) / momentum.rho(acc);
 
             // Select propagator by detector ID: BPix -> barrel crossing, FPIX -> forward crossing
             egamma::Plane<typename Vec3d::value_type> plane(surfPosition, surfRotation);
@@ -197,7 +197,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             if (!theSolExists)
               continue;
 
-            propagatedMom *= momentum.norm(acc) / propagatedMom.norm(acc);
+            propagatedMom *= momentum.r(acc) / propagatedMom.r(acc);
 
             egamma::EleRelPointPairPortable<typename Vec3d::value_type> pair(hitPosition, propagatedPos, vertex);
 
@@ -224,7 +224,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             Vec3d position2(firstMatchFreeTraj.get_position());
             Vec3d momentum2(firstMatchFreeTraj.get_momentum());
 
-            rho = (c * bFieldHit0) / momentum2.partial_norm(acc);
+            rho = (c * bFieldHit0) / momentum2.rho(acc);
 
             theSolExists = false;
             propagatedPos = Vec3d(0);
@@ -251,7 +251,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             if (!theSolExists)
               continue;
 
-            propagatedMom *= momentum2.norm(acc) / propagatedMom.norm(acc);
+            propagatedMom *= momentum2.r(acc) / propagatedMom.r(acc);
 
             egamma::EleRelPointPairPortable<typename Vec3d::value_type> pair2(
                 hit2Position, propagatedPos, vertexUpdated);

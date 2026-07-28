@@ -41,26 +41,26 @@ namespace egamma {
     const Vec3d xdiff = cms::alpakatools::math::xmy(xmeas, xvert);  //= xmeas - xvert;
 
     // Normalize xdiff and scale by momentum to get the momentum vector
-    const T xdiff_norm = xdiff.norm(acc);
+    const T xdiff_mag = xdiff.r(acc);
 
     // Normalize xdiff and scale by momentum to get the momentum vector:
-    const T scale = momentum / xdiff_norm;
+    const T scale = momentum / xdiff_mag;
 
     const Vec3d mom = cms::alpakatools::math::ax(scale, xdiff);
 
     // Transverse momentum (perpendicular to the z-axis)
-    const T pt = mom.partial_norm(acc);
+    const T pt = mom.rho(acc);
     const T pz = mom[2];
 
     const T pxOld = mom[0];
     const T pyOld = mom[1];
 
     // Calculate the curvature (assuming charge is either +1 or -1)
-    const T curv = (BInTesla * 0.29979 * 0.01) / pt;
+    const T curv = (BInTesla * static_cast<T>(0.29979 * 0.01)) / pt;
 
     // Calculate the sine and cosine of the rotation angle
-    const T sa = 0.5 * xdiff.partial_norm(acc) * curv * static_cast<T>(charge);
-    const T ca = alpaka::math::sqrt(acc, 1. - sa * sa);
+    const T sa = static_cast<T>(0.5) * xdiff.rho(acc) * curv * static_cast<T>(charge);
+    const T ca = alpaka::math::sqrt(acc, static_cast<T>(1) - sa * sa);
 
     // Rotate momentum vector in the xy-plane
     const T pxNew = ca * pxOld + sa * pyOld;
