@@ -27,7 +27,7 @@
 #include "google/protobuf/message.h"
 #include "google/protobuf/message_lite.h"
 #include "google/protobuf/repeated_field.h"  // IWYU pragma: export
-#include "google/protobuf/extension_set.h"  // IWYU pragma: export
+#include "google/protobuf/extension_set.h"   // IWYU pragma: export
 #include "google/protobuf/unknown_field_set.h"
 // @@protoc_insertion_point(includes)
 
@@ -37,12 +37,12 @@
 #define PROTOBUF_INTERNAL_EXPORT_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto
 
 namespace google {
-namespace protobuf {
-namespace internal {
-template <typename T>
-::absl::string_view GetAnyMessageName();
-}  // namespace internal
-}  // namespace protobuf
+  namespace protobuf {
+    namespace internal {
+      template <typename T>
+      ::absl::string_view GetAnyMessageName();
+    }  // namespace internal
+  }  // namespace protobuf
 }  // namespace google
 
 // Internal implementation detail -- do not use these members.
@@ -50,749 +50,722 @@ struct TableStruct_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto {
   static const ::uint32_t offsets[];
 };
 extern "C" {
-extern const ::google::protobuf::internal::DescriptorTable descriptor_table_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto;
+extern const ::google::protobuf::internal::DescriptorTable
+    descriptor_table_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto;
 }  // extern "C"
 namespace dqmstorepb {
-class ROOTFilePB;
-struct ROOTFilePBDefaultTypeInternal;
-extern ROOTFilePBDefaultTypeInternal _ROOTFilePB_default_instance_;
-extern const ::google::protobuf::internal::ClassDataFull ROOTFilePB_class_data_;
-class ROOTFilePB_Histo;
-struct ROOTFilePB_HistoDefaultTypeInternal;
-extern ROOTFilePB_HistoDefaultTypeInternal _ROOTFilePB_Histo_default_instance_;
-extern const ::google::protobuf::internal::ClassDataFull ROOTFilePB_Histo_class_data_;
+  class ROOTFilePB;
+  struct ROOTFilePBDefaultTypeInternal;
+  extern ROOTFilePBDefaultTypeInternal _ROOTFilePB_default_instance_;
+  extern const ::google::protobuf::internal::ClassDataFull ROOTFilePB_class_data_;
+  class ROOTFilePB_Histo;
+  struct ROOTFilePB_HistoDefaultTypeInternal;
+  extern ROOTFilePB_HistoDefaultTypeInternal _ROOTFilePB_Histo_default_instance_;
+  extern const ::google::protobuf::internal::ClassDataFull ROOTFilePB_Histo_class_data_;
 }  // namespace dqmstorepb
 namespace google {
-namespace protobuf {
-}  // namespace protobuf
+  namespace protobuf {}  // namespace protobuf
 }  // namespace google
 
 namespace dqmstorepb {
 
-// ===================================================================
+  // ===================================================================
 
+  // -------------------------------------------------------------------
 
-// -------------------------------------------------------------------
-
-class ROOTFilePB_Histo final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:dqmstorepb.ROOTFilePB.Histo) */ {
- public:
-  inline ROOTFilePB_Histo() : ROOTFilePB_Histo(nullptr) {}
-  ~ROOTFilePB_Histo() PROTOBUF_FINAL;
+  class ROOTFilePB_Histo final : public ::google::protobuf::Message
+  /* @@protoc_insertion_point(class_definition:dqmstorepb.ROOTFilePB.Histo) */ {
+  public:
+    inline ROOTFilePB_Histo() : ROOTFilePB_Histo(nullptr) {}
+    ~ROOTFilePB_Histo() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(ROOTFilePB_Histo* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
-    SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(ROOTFilePB_Histo));
-  }
+    void operator delete(ROOTFilePB_Histo* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
+      SharedDtor(*msg);
+      ::google::protobuf::internal::SizedDelete(msg, sizeof(ROOTFilePB_Histo));
+    }
 #endif
 
-  template <typename = void>
-  explicit PROTOBUF_CONSTEXPR ROOTFilePB_Histo(::google::protobuf::internal::ConstantInitialized);
+    template <typename = void>
+    explicit PROTOBUF_CONSTEXPR ROOTFilePB_Histo(::google::protobuf::internal::ConstantInitialized);
 
-  inline ROOTFilePB_Histo(const ROOTFilePB_Histo& from) : ROOTFilePB_Histo(nullptr, from) {}
-  inline ROOTFilePB_Histo(ROOTFilePB_Histo&& from) noexcept
-      : ROOTFilePB_Histo(nullptr, ::std::move(from)) {}
-  inline ROOTFilePB_Histo& operator=(const ROOTFilePB_Histo& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline ROOTFilePB_Histo& operator=(ROOTFilePB_Histo&& from) noexcept {
-    if (this == &from) return *this;
-    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
-      InternalSwap(&from);
-    } else {
+    inline ROOTFilePB_Histo(const ROOTFilePB_Histo& from) : ROOTFilePB_Histo(nullptr, from) {}
+    inline ROOTFilePB_Histo(ROOTFilePB_Histo&& from) noexcept : ROOTFilePB_Histo(nullptr, ::std::move(from)) {}
+    inline ROOTFilePB_Histo& operator=(const ROOTFilePB_Histo& from) {
       CopyFrom(from);
+      return *this;
     }
-    return *this;
-  }
+    inline ROOTFilePB_Histo& operator=(ROOTFilePB_Histo&& from) noexcept {
+      if (this == &from)
+        return *this;
+      if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+        InternalSwap(&from);
+      } else {
+        CopyFrom(from);
+      }
+      return *this;
+    }
 
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
+    inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+      return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(
+          ::google::protobuf::UnknownFieldSet::default_instance);
+    }
+    inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+      return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+    }
 
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const ROOTFilePB_Histo& default_instance() {
-    return *reinterpret_cast<const ROOTFilePB_Histo*>(
-        &_ROOTFilePB_Histo_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages = 0;
-  friend void swap(ROOTFilePB_Histo& a, ROOTFilePB_Histo& b) { a.Swap(&b); }
-  inline void Swap(ROOTFilePB_Histo* PROTOBUF_NONNULL other) {
-    if (other == this) return;
-    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+    static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() { return GetDescriptor(); }
+    static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
+      return default_instance().GetMetadata().descriptor;
+    }
+    static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+      return default_instance().GetMetadata().reflection;
+    }
+    static const ROOTFilePB_Histo& default_instance() {
+      return *reinterpret_cast<const ROOTFilePB_Histo*>(&_ROOTFilePB_Histo_default_instance_);
+    }
+    static constexpr int kIndexInFileMessages = 0;
+    friend void swap(ROOTFilePB_Histo& a, ROOTFilePB_Histo& b) { a.Swap(&b); }
+    inline void Swap(ROOTFilePB_Histo* PROTOBUF_NONNULL other) {
+      if (other == this)
+        return;
+      if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+        InternalSwap(other);
+      } else {
+        ::google::protobuf::internal::GenericSwap(this, other);
+      }
+    }
+    void UnsafeArenaSwap(ROOTFilePB_Histo* PROTOBUF_NONNULL other) {
+      if (other == this)
+        return;
+      ABSL_DCHECK(GetArena() == other->GetArena());
       InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
     }
-  }
-  void UnsafeArenaSwap(ROOTFilePB_Histo* PROTOBUF_NONNULL other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
 
-  // implements Message ----------------------------------------------
+    // implements Message ----------------------------------------------
 
-  ROOTFilePB_Histo* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<ROOTFilePB_Histo>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const ROOTFilePB_Histo& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const ROOTFilePB_Histo& from) { ROOTFilePB_Histo::MergeImpl(*this, from); }
+    ROOTFilePB_Histo* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+      return ::google::protobuf::Message::DefaultConstruct<ROOTFilePB_Histo>(arena);
+    }
+    using ::google::protobuf::Message::CopyFrom;
+    void CopyFrom(const ROOTFilePB_Histo& from);
+    using ::google::protobuf::Message::MergeFrom;
+    void MergeFrom(const ROOTFilePB_Histo& from) { ROOTFilePB_Histo::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
-                        const ::google::protobuf::MessageLite& from_msg);
+    static void MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg);
 
   public:
-  bool IsInitialized() const {
-    return IsInitializedImpl(*this);
-  }
+    bool IsInitialized() const { return IsInitializedImpl(*this); }
 
   private:
-  static bool IsInitializedImpl(const MessageLite& msg);
+    static bool IsInitializedImpl(const MessageLite& msg);
 
   public:
-  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
-  #if defined(PROTOBUF_CUSTOM_VTABLE)
+    ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+#if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
-  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+    static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+    static ::uint8_t* PROTOBUF_NONNULL
+    _InternalSerialize(const ::google::protobuf::MessageLite& msg,
+                       ::uint8_t* PROTOBUF_NONNULL target,
+                       ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
 
   public:
-  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
-    return _InternalSerialize(*this, target, stream);
-  }
-  #else   // PROTOBUF_CUSTOM_VTABLE
-  ::size_t ByteSizeLong() const final;
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
-  #endif  // PROTOBUF_CUSTOM_VTABLE
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+    ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+    ::uint8_t* PROTOBUF_NONNULL
+    _InternalSerialize(::uint8_t* PROTOBUF_NONNULL target,
+                       ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+      return _InternalSerialize(*this, target, stream);
+    }
+#else   // PROTOBUF_CUSTOM_VTABLE
+    ::size_t ByteSizeLong() const final;
+    ::uint8_t* PROTOBUF_NONNULL
+    _InternalSerialize(::uint8_t* PROTOBUF_NONNULL target,
+                       ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+    int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  static void SharedDtor(MessageLite& self);
-  void InternalSwap(ROOTFilePB_Histo* PROTOBUF_NONNULL other);
- private:
-  template <typename T>
-  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "dqmstorepb.ROOTFilePB.Histo"; }
+    void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    static void SharedDtor(MessageLite& self);
+    void InternalSwap(ROOTFilePB_Histo* PROTOBUF_NONNULL other);
 
- protected:
-  explicit ROOTFilePB_Histo(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  ROOTFilePB_Histo(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const ROOTFilePB_Histo& from);
-  ROOTFilePB_Histo(
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, ROOTFilePB_Histo&& from) noexcept
-      : ROOTFilePB_Histo(arena) {
-    *this = ::std::move(from);
-  }
-  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
-  static void* PROTOBUF_NONNULL PlacementNew_(
-      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  static constexpr auto InternalNewImpl_();
+  private:
+    template <typename T>
+    friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
+    static ::absl::string_view FullMessageName() { return "dqmstorepb.ROOTFilePB.Histo"; }
 
- public:
-  static constexpr auto InternalGenerateClassData_();
+  protected:
+    explicit ROOTFilePB_Histo(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    ROOTFilePB_Histo(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const ROOTFilePB_Histo& from);
+    ROOTFilePB_Histo(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, ROOTFilePB_Histo&& from) noexcept
+        : ROOTFilePB_Histo(arena) {
+      *this = ::std::move(from);
+    }
+    const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+    static void* PROTOBUF_NONNULL PlacementNew_(const void* PROTOBUF_NONNULL,
+                                                void* PROTOBUF_NONNULL mem,
+                                                ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    static constexpr auto InternalNewImpl_();
 
-  ::google::protobuf::Metadata GetMetadata() const;
-  // nested types ----------------------------------------------------
+  public:
+    static constexpr auto InternalGenerateClassData_();
 
-  // accessors -------------------------------------------------------
-  enum : int {
-    kFullPathnameFieldNumber = 1,
-    kStreamedHistoFieldNumber = 3,
-    kSizeFieldNumber = 2,
-    kFlagsFieldNumber = 4,
+    ::google::protobuf::Metadata GetMetadata() const;
+    // nested types ----------------------------------------------------
+
+    // accessors -------------------------------------------------------
+    enum : int {
+      kFullPathnameFieldNumber = 1,
+      kStreamedHistoFieldNumber = 3,
+      kSizeFieldNumber = 2,
+      kFlagsFieldNumber = 4,
+    };
+    // required string full_pathname = 1;
+    bool has_full_pathname() const;
+    void clear_full_pathname();
+    const ::std::string& full_pathname() const;
+    template <typename Arg_ = const ::std::string&, typename... Args_>
+    void set_full_pathname(Arg_&& arg, Args_... args);
+    ::std::string* PROTOBUF_NONNULL mutable_full_pathname();
+    [[nodiscard]] ::std::string* PROTOBUF_NULLABLE release_full_pathname();
+    void set_allocated_full_pathname(::std::string* PROTOBUF_NULLABLE value);
+
+  private:
+    const ::std::string& _internal_full_pathname() const;
+    PROTOBUF_ALWAYS_INLINE void _internal_set_full_pathname(const ::std::string& value);
+    ::std::string* PROTOBUF_NONNULL _internal_mutable_full_pathname();
+
+  public:
+    // required bytes streamed_histo = 3;
+    bool has_streamed_histo() const;
+    void clear_streamed_histo();
+    const ::std::string& streamed_histo() const;
+    template <typename Arg_ = const ::std::string&, typename... Args_>
+    void set_streamed_histo(Arg_&& arg, Args_... args);
+    ::std::string* PROTOBUF_NONNULL mutable_streamed_histo();
+    [[nodiscard]] ::std::string* PROTOBUF_NULLABLE release_streamed_histo();
+    void set_allocated_streamed_histo(::std::string* PROTOBUF_NULLABLE value);
+
+  private:
+    const ::std::string& _internal_streamed_histo() const;
+    PROTOBUF_ALWAYS_INLINE void _internal_set_streamed_histo(const ::std::string& value);
+    ::std::string* PROTOBUF_NONNULL _internal_mutable_streamed_histo();
+
+  public:
+    // required uint32 size = 2;
+    bool has_size() const;
+    void clear_size();
+    ::uint32_t size() const;
+    void set_size(::uint32_t value);
+
+  private:
+    ::uint32_t _internal_size() const;
+    void _internal_set_size(::uint32_t value);
+
+  public:
+    // required uint32 flags = 4;
+    bool has_flags() const;
+    void clear_flags();
+    ::uint32_t flags() const;
+    void set_flags(::uint32_t value);
+
+  private:
+    ::uint32_t _internal_flags() const;
+    void _internal_set_flags(::uint32_t value);
+
+  public:
+    // @@protoc_insertion_point(class_scope:dqmstorepb.ROOTFilePB.Histo)
+  private:
+    class _Internal;
+    friend class ::google::protobuf::internal::TcParser;
+    static const ::google::protobuf::internal::TcParseTable<2, 4, 0, 49, 2> _table_;
+
+    friend class ::google::protobuf::MessageLite;
+    friend class ::google::protobuf::Arena;
+    template <typename T>
+    friend class ::google::protobuf::Arena::InternalHelper;
+    using InternalArenaConstructable_ = void;
+    using DestructorSkippable_ = void;
+    struct Impl_ {
+      inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+      inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                            ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+      inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                            ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+                            const Impl_& from,
+                            const ROOTFilePB_Histo& from_msg);
+      ::google::protobuf::internal::HasBits<1> _has_bits_;
+      ::google::protobuf::internal::CachedSize _cached_size_;
+      ::google::protobuf::internal::ArenaStringPtr full_pathname_;
+      ::google::protobuf::internal::ArenaStringPtr streamed_histo_;
+      ::uint32_t size_;
+      ::uint32_t flags_;
+      PROTOBUF_TSAN_DECLARE_MEMBER
+    };
+    union {
+      Impl_ _impl_;
+    };
+    friend struct ::TableStruct_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto;
   };
-  // required string full_pathname = 1;
-  bool has_full_pathname() const;
-  void clear_full_pathname() ;
-  const ::std::string& full_pathname() const;
-  template <typename Arg_ = const ::std::string&, typename... Args_>
-  void set_full_pathname(Arg_&& arg, Args_... args);
-  ::std::string* PROTOBUF_NONNULL mutable_full_pathname();
-  [[nodiscard]] ::std::string* PROTOBUF_NULLABLE release_full_pathname();
-  void set_allocated_full_pathname(::std::string* PROTOBUF_NULLABLE value);
 
-  private:
-  const ::std::string& _internal_full_pathname() const;
-  PROTOBUF_ALWAYS_INLINE void _internal_set_full_pathname(const ::std::string& value);
-  ::std::string* PROTOBUF_NONNULL _internal_mutable_full_pathname();
+  extern const ::google::protobuf::internal::ClassDataFull ROOTFilePB_Histo_class_data_;
+  // -------------------------------------------------------------------
 
+  class ROOTFilePB final : public ::google::protobuf::Message
+  /* @@protoc_insertion_point(class_definition:dqmstorepb.ROOTFilePB) */ {
   public:
-  // required bytes streamed_histo = 3;
-  bool has_streamed_histo() const;
-  void clear_streamed_histo() ;
-  const ::std::string& streamed_histo() const;
-  template <typename Arg_ = const ::std::string&, typename... Args_>
-  void set_streamed_histo(Arg_&& arg, Args_... args);
-  ::std::string* PROTOBUF_NONNULL mutable_streamed_histo();
-  [[nodiscard]] ::std::string* PROTOBUF_NULLABLE release_streamed_histo();
-  void set_allocated_streamed_histo(::std::string* PROTOBUF_NULLABLE value);
-
-  private:
-  const ::std::string& _internal_streamed_histo() const;
-  PROTOBUF_ALWAYS_INLINE void _internal_set_streamed_histo(const ::std::string& value);
-  ::std::string* PROTOBUF_NONNULL _internal_mutable_streamed_histo();
-
-  public:
-  // required uint32 size = 2;
-  bool has_size() const;
-  void clear_size() ;
-  ::uint32_t size() const;
-  void set_size(::uint32_t value);
-
-  private:
-  ::uint32_t _internal_size() const;
-  void _internal_set_size(::uint32_t value);
-
-  public:
-  // required uint32 flags = 4;
-  bool has_flags() const;
-  void clear_flags() ;
-  ::uint32_t flags() const;
-  void set_flags(::uint32_t value);
-
-  private:
-  ::uint32_t _internal_flags() const;
-  void _internal_set_flags(::uint32_t value);
-
-  public:
-  // @@protoc_insertion_point(class_scope:dqmstorepb.ROOTFilePB.Histo)
- private:
-  class _Internal;
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 4,
-                                   0, 49,
-                                   2>
-      _table_;
-
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-        const ROOTFilePB_Histo& from_msg);
-    ::google::protobuf::internal::HasBits<1> _has_bits_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
-    ::google::protobuf::internal::ArenaStringPtr full_pathname_;
-    ::google::protobuf::internal::ArenaStringPtr streamed_histo_;
-    ::uint32_t size_;
-    ::uint32_t flags_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto;
-};
-
-extern const ::google::protobuf::internal::ClassDataFull ROOTFilePB_Histo_class_data_;
-// -------------------------------------------------------------------
-
-class ROOTFilePB final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:dqmstorepb.ROOTFilePB) */ {
- public:
-  inline ROOTFilePB() : ROOTFilePB(nullptr) {}
-  ~ROOTFilePB() PROTOBUF_FINAL;
+    inline ROOTFilePB() : ROOTFilePB(nullptr) {}
+    ~ROOTFilePB() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(ROOTFilePB* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
-    SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(ROOTFilePB));
-  }
+    void operator delete(ROOTFilePB* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
+      SharedDtor(*msg);
+      ::google::protobuf::internal::SizedDelete(msg, sizeof(ROOTFilePB));
+    }
 #endif
 
-  template <typename = void>
-  explicit PROTOBUF_CONSTEXPR ROOTFilePB(::google::protobuf::internal::ConstantInitialized);
+    template <typename = void>
+    explicit PROTOBUF_CONSTEXPR ROOTFilePB(::google::protobuf::internal::ConstantInitialized);
 
-  inline ROOTFilePB(const ROOTFilePB& from) : ROOTFilePB(nullptr, from) {}
-  inline ROOTFilePB(ROOTFilePB&& from) noexcept
-      : ROOTFilePB(nullptr, ::std::move(from)) {}
-  inline ROOTFilePB& operator=(const ROOTFilePB& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline ROOTFilePB& operator=(ROOTFilePB&& from) noexcept {
-    if (this == &from) return *this;
-    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
-      InternalSwap(&from);
-    } else {
+    inline ROOTFilePB(const ROOTFilePB& from) : ROOTFilePB(nullptr, from) {}
+    inline ROOTFilePB(ROOTFilePB&& from) noexcept : ROOTFilePB(nullptr, ::std::move(from)) {}
+    inline ROOTFilePB& operator=(const ROOTFilePB& from) {
       CopyFrom(from);
+      return *this;
     }
-    return *this;
-  }
+    inline ROOTFilePB& operator=(ROOTFilePB&& from) noexcept {
+      if (this == &from)
+        return *this;
+      if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+        InternalSwap(&from);
+      } else {
+        CopyFrom(from);
+      }
+      return *this;
+    }
 
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
+    inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+      return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(
+          ::google::protobuf::UnknownFieldSet::default_instance);
+    }
+    inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+      return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+    }
 
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const ROOTFilePB& default_instance() {
-    return *reinterpret_cast<const ROOTFilePB*>(
-        &_ROOTFilePB_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages = 1;
-  friend void swap(ROOTFilePB& a, ROOTFilePB& b) { a.Swap(&b); }
-  inline void Swap(ROOTFilePB* PROTOBUF_NONNULL other) {
-    if (other == this) return;
-    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+    static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() { return GetDescriptor(); }
+    static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
+      return default_instance().GetMetadata().descriptor;
+    }
+    static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+      return default_instance().GetMetadata().reflection;
+    }
+    static const ROOTFilePB& default_instance() {
+      return *reinterpret_cast<const ROOTFilePB*>(&_ROOTFilePB_default_instance_);
+    }
+    static constexpr int kIndexInFileMessages = 1;
+    friend void swap(ROOTFilePB& a, ROOTFilePB& b) { a.Swap(&b); }
+    inline void Swap(ROOTFilePB* PROTOBUF_NONNULL other) {
+      if (other == this)
+        return;
+      if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+        InternalSwap(other);
+      } else {
+        ::google::protobuf::internal::GenericSwap(this, other);
+      }
+    }
+    void UnsafeArenaSwap(ROOTFilePB* PROTOBUF_NONNULL other) {
+      if (other == this)
+        return;
+      ABSL_DCHECK(GetArena() == other->GetArena());
       InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
     }
-  }
-  void UnsafeArenaSwap(ROOTFilePB* PROTOBUF_NONNULL other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
 
-  // implements Message ----------------------------------------------
+    // implements Message ----------------------------------------------
 
-  ROOTFilePB* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<ROOTFilePB>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const ROOTFilePB& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const ROOTFilePB& from) { ROOTFilePB::MergeImpl(*this, from); }
+    ROOTFilePB* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+      return ::google::protobuf::Message::DefaultConstruct<ROOTFilePB>(arena);
+    }
+    using ::google::protobuf::Message::CopyFrom;
+    void CopyFrom(const ROOTFilePB& from);
+    using ::google::protobuf::Message::MergeFrom;
+    void MergeFrom(const ROOTFilePB& from) { ROOTFilePB::MergeImpl(*this, from); }
 
   private:
-  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
-                        const ::google::protobuf::MessageLite& from_msg);
+    static void MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg);
 
   public:
-  bool IsInitialized() const {
-    return IsInitializedImpl(*this);
-  }
+    bool IsInitialized() const { return IsInitializedImpl(*this); }
 
   private:
-  static bool IsInitializedImpl(const MessageLite& msg);
+    static bool IsInitializedImpl(const MessageLite& msg);
 
   public:
-  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
-  #if defined(PROTOBUF_CUSTOM_VTABLE)
+    ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+#if defined(PROTOBUF_CUSTOM_VTABLE)
   private:
-  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+    static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+    static ::uint8_t* PROTOBUF_NONNULL
+    _InternalSerialize(const ::google::protobuf::MessageLite& msg,
+                       ::uint8_t* PROTOBUF_NONNULL target,
+                       ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
 
   public:
-  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
-    return _InternalSerialize(*this, target, stream);
-  }
-  #else   // PROTOBUF_CUSTOM_VTABLE
-  ::size_t ByteSizeLong() const final;
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
-  #endif  // PROTOBUF_CUSTOM_VTABLE
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+    ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+    ::uint8_t* PROTOBUF_NONNULL
+    _InternalSerialize(::uint8_t* PROTOBUF_NONNULL target,
+                       ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+      return _InternalSerialize(*this, target, stream);
+    }
+#else   // PROTOBUF_CUSTOM_VTABLE
+    ::size_t ByteSizeLong() const final;
+    ::uint8_t* PROTOBUF_NONNULL
+    _InternalSerialize(::uint8_t* PROTOBUF_NONNULL target,
+                       ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+    int GetCachedSize() const { return _impl_._cached_size_.Get(); }
 
   private:
-  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  static void SharedDtor(MessageLite& self);
-  void InternalSwap(ROOTFilePB* PROTOBUF_NONNULL other);
- private:
-  template <typename T>
-  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "dqmstorepb.ROOTFilePB"; }
+    void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    static void SharedDtor(MessageLite& self);
+    void InternalSwap(ROOTFilePB* PROTOBUF_NONNULL other);
 
- protected:
-  explicit ROOTFilePB(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  ROOTFilePB(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const ROOTFilePB& from);
-  ROOTFilePB(
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, ROOTFilePB&& from) noexcept
-      : ROOTFilePB(arena) {
-    *this = ::std::move(from);
-  }
-  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
-  static void* PROTOBUF_NONNULL PlacementNew_(
-      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  static constexpr auto InternalNewImpl_();
+  private:
+    template <typename T>
+    friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
+    static ::absl::string_view FullMessageName() { return "dqmstorepb.ROOTFilePB"; }
 
- public:
-  static constexpr auto InternalGenerateClassData_();
+  protected:
+    explicit ROOTFilePB(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    ROOTFilePB(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const ROOTFilePB& from);
+    ROOTFilePB(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, ROOTFilePB&& from) noexcept : ROOTFilePB(arena) {
+      *this = ::std::move(from);
+    }
+    const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+    static void* PROTOBUF_NONNULL PlacementNew_(const void* PROTOBUF_NONNULL,
+                                                void* PROTOBUF_NONNULL mem,
+                                                ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    static constexpr auto InternalNewImpl_();
 
-  ::google::protobuf::Metadata GetMetadata() const;
-  // nested types ----------------------------------------------------
-  using Histo = ROOTFilePB_Histo;
+  public:
+    static constexpr auto InternalGenerateClassData_();
 
-  // accessors -------------------------------------------------------
-  enum : int {
-    kHistoFieldNumber = 1,
+    ::google::protobuf::Metadata GetMetadata() const;
+    // nested types ----------------------------------------------------
+    using Histo = ROOTFilePB_Histo;
+
+    // accessors -------------------------------------------------------
+    enum : int {
+      kHistoFieldNumber = 1,
+    };
+    // repeated .dqmstorepb.ROOTFilePB.Histo histo = 1;
+    int histo_size() const;
+
+  private:
+    int _internal_histo_size() const;
+
+  public:
+    void clear_histo();
+    ::dqmstorepb::ROOTFilePB_Histo* PROTOBUF_NONNULL mutable_histo(int index);
+    ::google::protobuf::RepeatedPtrField<::dqmstorepb::ROOTFilePB_Histo>* PROTOBUF_NONNULL mutable_histo();
+
+  private:
+    const ::google::protobuf::RepeatedPtrField<::dqmstorepb::ROOTFilePB_Histo>& _internal_histo() const;
+    ::google::protobuf::RepeatedPtrField<::dqmstorepb::ROOTFilePB_Histo>* PROTOBUF_NONNULL _internal_mutable_histo();
+
+  public:
+    const ::dqmstorepb::ROOTFilePB_Histo& histo(int index) const;
+    ::dqmstorepb::ROOTFilePB_Histo* PROTOBUF_NONNULL add_histo();
+    const ::google::protobuf::RepeatedPtrField<::dqmstorepb::ROOTFilePB_Histo>& histo() const;
+    // @@protoc_insertion_point(class_scope:dqmstorepb.ROOTFilePB)
+  private:
+    class _Internal;
+    friend class ::google::protobuf::internal::TcParser;
+    static const ::google::protobuf::internal::TcParseTable<0, 1, 1, 0, 2> _table_;
+
+    friend class ::google::protobuf::MessageLite;
+    friend class ::google::protobuf::Arena;
+    template <typename T>
+    friend class ::google::protobuf::Arena::InternalHelper;
+    using InternalArenaConstructable_ = void;
+    using DestructorSkippable_ = void;
+    struct Impl_ {
+      inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+      inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                            ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+      inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                            ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+                            const Impl_& from,
+                            const ROOTFilePB& from_msg);
+      ::google::protobuf::RepeatedPtrField<::dqmstorepb::ROOTFilePB_Histo> histo_;
+      ::google::protobuf::internal::CachedSize _cached_size_;
+      PROTOBUF_TSAN_DECLARE_MEMBER
+    };
+    union {
+      Impl_ _impl_;
+    };
+    friend struct ::TableStruct_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto;
   };
-  // repeated .dqmstorepb.ROOTFilePB.Histo histo = 1;
-  int histo_size() const;
-  private:
-  int _internal_histo_size() const;
 
-  public:
-  void clear_histo() ;
-  ::dqmstorepb::ROOTFilePB_Histo* PROTOBUF_NONNULL mutable_histo(int index);
-  ::google::protobuf::RepeatedPtrField<::dqmstorepb::ROOTFilePB_Histo>* PROTOBUF_NONNULL mutable_histo();
+  extern const ::google::protobuf::internal::ClassDataFull ROOTFilePB_class_data_;
 
-  private:
-  const ::google::protobuf::RepeatedPtrField<::dqmstorepb::ROOTFilePB_Histo>& _internal_histo() const;
-  ::google::protobuf::RepeatedPtrField<::dqmstorepb::ROOTFilePB_Histo>* PROTOBUF_NONNULL _internal_mutable_histo();
-  public:
-  const ::dqmstorepb::ROOTFilePB_Histo& histo(int index) const;
-  ::dqmstorepb::ROOTFilePB_Histo* PROTOBUF_NONNULL add_histo();
-  const ::google::protobuf::RepeatedPtrField<::dqmstorepb::ROOTFilePB_Histo>& histo() const;
-  // @@protoc_insertion_point(class_scope:dqmstorepb.ROOTFilePB)
- private:
-  class _Internal;
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 1,
-                                   1, 0,
-                                   2>
-      _table_;
+  // ===================================================================
 
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-    inline explicit Impl_(
-        ::google::protobuf::internal::InternalVisibility visibility,
-        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-        const ROOTFilePB& from_msg);
-    ::google::protobuf::RepeatedPtrField< ::dqmstorepb::ROOTFilePB_Histo > histo_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_DQMServices_2fCore_2fsrc_2fROOTFilePB_2eproto;
-};
-
-extern const ::google::protobuf::internal::ClassDataFull ROOTFilePB_class_data_;
-
-// ===================================================================
-
-
-
-
-// ===================================================================
-
+  // ===================================================================
 
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
-// -------------------------------------------------------------------
+  // -------------------------------------------------------------------
 
-// ROOTFilePB_Histo
+  // ROOTFilePB_Histo
 
-// required string full_pathname = 1;
-inline bool ROOTFilePB_Histo::has_full_pathname() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
-  return value;
-}
-inline void ROOTFilePB_Histo::clear_full_pathname() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.full_pathname_.ClearToEmpty();
-  _impl_._has_bits_[0] &= ~0x00000001u;
-}
-inline const ::std::string& ROOTFilePB_Histo::full_pathname() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:dqmstorepb.ROOTFilePB.Histo.full_pathname)
-  return _internal_full_pathname();
-}
-template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void ROOTFilePB_Histo::set_full_pathname(Arg_&& arg, Args_... args) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.full_pathname_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:dqmstorepb.ROOTFilePB.Histo.full_pathname)
-}
-inline ::std::string* PROTOBUF_NONNULL ROOTFilePB_Histo::mutable_full_pathname()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::std::string* _s = _internal_mutable_full_pathname();
-  // @@protoc_insertion_point(field_mutable:dqmstorepb.ROOTFilePB.Histo.full_pathname)
-  return _s;
-}
-inline const ::std::string& ROOTFilePB_Histo::_internal_full_pathname() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.full_pathname_.Get();
-}
-inline void ROOTFilePB_Histo::_internal_set_full_pathname(const ::std::string& value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.full_pathname_.Set(value, GetArena());
-}
-inline ::std::string* PROTOBUF_NONNULL ROOTFilePB_Histo::_internal_mutable_full_pathname() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  return _impl_.full_pathname_.Mutable( GetArena());
-}
-inline ::std::string* PROTOBUF_NULLABLE ROOTFilePB_Histo::release_full_pathname() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:dqmstorepb.ROOTFilePB.Histo.full_pathname)
-  if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
-    return nullptr;
+  // required string full_pathname = 1;
+  inline bool ROOTFilePB_Histo::has_full_pathname() const {
+    bool value = (_impl_._has_bits_[0] & 0x00000001u) != 0;
+    return value;
   }
-  _impl_._has_bits_[0] &= ~0x00000001u;
-  auto* released = _impl_.full_pathname_.Release();
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
-    _impl_.full_pathname_.Set("", GetArena());
-  }
-  return released;
-}
-inline void ROOTFilePB_Histo::set_allocated_full_pathname(::std::string* PROTOBUF_NULLABLE value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000001u;
-  } else {
+  inline void ROOTFilePB_Histo::clear_full_pathname() {
+    ::google::protobuf::internal::TSanWrite(&_impl_);
+    _impl_.full_pathname_.ClearToEmpty();
     _impl_._has_bits_[0] &= ~0x00000001u;
   }
-  _impl_.full_pathname_.SetAllocated(value, GetArena());
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.full_pathname_.IsDefault()) {
-    _impl_.full_pathname_.Set("", GetArena());
+  inline const ::std::string& ROOTFilePB_Histo::full_pathname() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    // @@protoc_insertion_point(field_get:dqmstorepb.ROOTFilePB.Histo.full_pathname)
+    return _internal_full_pathname();
   }
-  // @@protoc_insertion_point(field_set_allocated:dqmstorepb.ROOTFilePB.Histo.full_pathname)
-}
+  template <typename Arg_, typename... Args_>
+  PROTOBUF_ALWAYS_INLINE void ROOTFilePB_Histo::set_full_pathname(Arg_&& arg, Args_... args) {
+    ::google::protobuf::internal::TSanWrite(&_impl_);
+    _impl_._has_bits_[0] |= 0x00000001u;
+    _impl_.full_pathname_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+    // @@protoc_insertion_point(field_set:dqmstorepb.ROOTFilePB.Histo.full_pathname)
+  }
+  inline ::std::string* PROTOBUF_NONNULL ROOTFilePB_Histo::mutable_full_pathname() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    ::std::string* _s = _internal_mutable_full_pathname();
+    // @@protoc_insertion_point(field_mutable:dqmstorepb.ROOTFilePB.Histo.full_pathname)
+    return _s;
+  }
+  inline const ::std::string& ROOTFilePB_Histo::_internal_full_pathname() const {
+    ::google::protobuf::internal::TSanRead(&_impl_);
+    return _impl_.full_pathname_.Get();
+  }
+  inline void ROOTFilePB_Histo::_internal_set_full_pathname(const ::std::string& value) {
+    ::google::protobuf::internal::TSanWrite(&_impl_);
+    _impl_._has_bits_[0] |= 0x00000001u;
+    _impl_.full_pathname_.Set(value, GetArena());
+  }
+  inline ::std::string* PROTOBUF_NONNULL ROOTFilePB_Histo::_internal_mutable_full_pathname() {
+    ::google::protobuf::internal::TSanWrite(&_impl_);
+    _impl_._has_bits_[0] |= 0x00000001u;
+    return _impl_.full_pathname_.Mutable(GetArena());
+  }
+  inline ::std::string* PROTOBUF_NULLABLE ROOTFilePB_Histo::release_full_pathname() {
+    ::google::protobuf::internal::TSanWrite(&_impl_);
+    // @@protoc_insertion_point(field_release:dqmstorepb.ROOTFilePB.Histo.full_pathname)
+    if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
+      return nullptr;
+    }
+    _impl_._has_bits_[0] &= ~0x00000001u;
+    auto* released = _impl_.full_pathname_.Release();
+    if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
+      _impl_.full_pathname_.Set("", GetArena());
+    }
+    return released;
+  }
+  inline void ROOTFilePB_Histo::set_allocated_full_pathname(::std::string* PROTOBUF_NULLABLE value) {
+    ::google::protobuf::internal::TSanWrite(&_impl_);
+    if (value != nullptr) {
+      _impl_._has_bits_[0] |= 0x00000001u;
+    } else {
+      _impl_._has_bits_[0] &= ~0x00000001u;
+    }
+    _impl_.full_pathname_.SetAllocated(value, GetArena());
+    if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.full_pathname_.IsDefault()) {
+      _impl_.full_pathname_.Set("", GetArena());
+    }
+    // @@protoc_insertion_point(field_set_allocated:dqmstorepb.ROOTFilePB.Histo.full_pathname)
+  }
 
-// required uint32 size = 2;
-inline bool ROOTFilePB_Histo::has_size() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
-  return value;
-}
-inline void ROOTFilePB_Histo::clear_size() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.size_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000004u;
-}
-inline ::uint32_t ROOTFilePB_Histo::size() const {
-  // @@protoc_insertion_point(field_get:dqmstorepb.ROOTFilePB.Histo.size)
-  return _internal_size();
-}
-inline void ROOTFilePB_Histo::set_size(::uint32_t value) {
-  _internal_set_size(value);
-  _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:dqmstorepb.ROOTFilePB.Histo.size)
-}
-inline ::uint32_t ROOTFilePB_Histo::_internal_size() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.size_;
-}
-inline void ROOTFilePB_Histo::_internal_set_size(::uint32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.size_ = value;
-}
+  // required uint32 size = 2;
+  inline bool ROOTFilePB_Histo::has_size() const {
+    bool value = (_impl_._has_bits_[0] & 0x00000004u) != 0;
+    return value;
+  }
+  inline void ROOTFilePB_Histo::clear_size() {
+    ::google::protobuf::internal::TSanWrite(&_impl_);
+    _impl_.size_ = 0u;
+    _impl_._has_bits_[0] &= ~0x00000004u;
+  }
+  inline ::uint32_t ROOTFilePB_Histo::size() const {
+    // @@protoc_insertion_point(field_get:dqmstorepb.ROOTFilePB.Histo.size)
+    return _internal_size();
+  }
+  inline void ROOTFilePB_Histo::set_size(::uint32_t value) {
+    _internal_set_size(value);
+    _impl_._has_bits_[0] |= 0x00000004u;
+    // @@protoc_insertion_point(field_set:dqmstorepb.ROOTFilePB.Histo.size)
+  }
+  inline ::uint32_t ROOTFilePB_Histo::_internal_size() const {
+    ::google::protobuf::internal::TSanRead(&_impl_);
+    return _impl_.size_;
+  }
+  inline void ROOTFilePB_Histo::_internal_set_size(::uint32_t value) {
+    ::google::protobuf::internal::TSanWrite(&_impl_);
+    _impl_.size_ = value;
+  }
 
-// required bytes streamed_histo = 3;
-inline bool ROOTFilePB_Histo::has_streamed_histo() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
-  return value;
-}
-inline void ROOTFilePB_Histo::clear_streamed_histo() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.streamed_histo_.ClearToEmpty();
-  _impl_._has_bits_[0] &= ~0x00000002u;
-}
-inline const ::std::string& ROOTFilePB_Histo::streamed_histo() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:dqmstorepb.ROOTFilePB.Histo.streamed_histo)
-  return _internal_streamed_histo();
-}
-template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void ROOTFilePB_Histo::set_streamed_histo(Arg_&& arg, Args_... args) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  _impl_.streamed_histo_.SetBytes(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:dqmstorepb.ROOTFilePB.Histo.streamed_histo)
-}
-inline ::std::string* PROTOBUF_NONNULL ROOTFilePB_Histo::mutable_streamed_histo()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::std::string* _s = _internal_mutable_streamed_histo();
-  // @@protoc_insertion_point(field_mutable:dqmstorepb.ROOTFilePB.Histo.streamed_histo)
-  return _s;
-}
-inline const ::std::string& ROOTFilePB_Histo::_internal_streamed_histo() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.streamed_histo_.Get();
-}
-inline void ROOTFilePB_Histo::_internal_set_streamed_histo(const ::std::string& value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  _impl_.streamed_histo_.Set(value, GetArena());
-}
-inline ::std::string* PROTOBUF_NONNULL ROOTFilePB_Histo::_internal_mutable_streamed_histo() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  return _impl_.streamed_histo_.Mutable( GetArena());
-}
-inline ::std::string* PROTOBUF_NULLABLE ROOTFilePB_Histo::release_streamed_histo() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:dqmstorepb.ROOTFilePB.Histo.streamed_histo)
-  if ((_impl_._has_bits_[0] & 0x00000002u) == 0) {
-    return nullptr;
+  // required bytes streamed_histo = 3;
+  inline bool ROOTFilePB_Histo::has_streamed_histo() const {
+    bool value = (_impl_._has_bits_[0] & 0x00000002u) != 0;
+    return value;
   }
-  _impl_._has_bits_[0] &= ~0x00000002u;
-  auto* released = _impl_.streamed_histo_.Release();
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
-    _impl_.streamed_histo_.Set("", GetArena());
-  }
-  return released;
-}
-inline void ROOTFilePB_Histo::set_allocated_streamed_histo(::std::string* PROTOBUF_NULLABLE value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000002u;
-  } else {
+  inline void ROOTFilePB_Histo::clear_streamed_histo() {
+    ::google::protobuf::internal::TSanWrite(&_impl_);
+    _impl_.streamed_histo_.ClearToEmpty();
     _impl_._has_bits_[0] &= ~0x00000002u;
   }
-  _impl_.streamed_histo_.SetAllocated(value, GetArena());
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.streamed_histo_.IsDefault()) {
-    _impl_.streamed_histo_.Set("", GetArena());
+  inline const ::std::string& ROOTFilePB_Histo::streamed_histo() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    // @@protoc_insertion_point(field_get:dqmstorepb.ROOTFilePB.Histo.streamed_histo)
+    return _internal_streamed_histo();
   }
-  // @@protoc_insertion_point(field_set_allocated:dqmstorepb.ROOTFilePB.Histo.streamed_histo)
-}
+  template <typename Arg_, typename... Args_>
+  PROTOBUF_ALWAYS_INLINE void ROOTFilePB_Histo::set_streamed_histo(Arg_&& arg, Args_... args) {
+    ::google::protobuf::internal::TSanWrite(&_impl_);
+    _impl_._has_bits_[0] |= 0x00000002u;
+    _impl_.streamed_histo_.SetBytes(static_cast<Arg_&&>(arg), args..., GetArena());
+    // @@protoc_insertion_point(field_set:dqmstorepb.ROOTFilePB.Histo.streamed_histo)
+  }
+  inline ::std::string* PROTOBUF_NONNULL ROOTFilePB_Histo::mutable_streamed_histo() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    ::std::string* _s = _internal_mutable_streamed_histo();
+    // @@protoc_insertion_point(field_mutable:dqmstorepb.ROOTFilePB.Histo.streamed_histo)
+    return _s;
+  }
+  inline const ::std::string& ROOTFilePB_Histo::_internal_streamed_histo() const {
+    ::google::protobuf::internal::TSanRead(&_impl_);
+    return _impl_.streamed_histo_.Get();
+  }
+  inline void ROOTFilePB_Histo::_internal_set_streamed_histo(const ::std::string& value) {
+    ::google::protobuf::internal::TSanWrite(&_impl_);
+    _impl_._has_bits_[0] |= 0x00000002u;
+    _impl_.streamed_histo_.Set(value, GetArena());
+  }
+  inline ::std::string* PROTOBUF_NONNULL ROOTFilePB_Histo::_internal_mutable_streamed_histo() {
+    ::google::protobuf::internal::TSanWrite(&_impl_);
+    _impl_._has_bits_[0] |= 0x00000002u;
+    return _impl_.streamed_histo_.Mutable(GetArena());
+  }
+  inline ::std::string* PROTOBUF_NULLABLE ROOTFilePB_Histo::release_streamed_histo() {
+    ::google::protobuf::internal::TSanWrite(&_impl_);
+    // @@protoc_insertion_point(field_release:dqmstorepb.ROOTFilePB.Histo.streamed_histo)
+    if ((_impl_._has_bits_[0] & 0x00000002u) == 0) {
+      return nullptr;
+    }
+    _impl_._has_bits_[0] &= ~0x00000002u;
+    auto* released = _impl_.streamed_histo_.Release();
+    if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
+      _impl_.streamed_histo_.Set("", GetArena());
+    }
+    return released;
+  }
+  inline void ROOTFilePB_Histo::set_allocated_streamed_histo(::std::string* PROTOBUF_NULLABLE value) {
+    ::google::protobuf::internal::TSanWrite(&_impl_);
+    if (value != nullptr) {
+      _impl_._has_bits_[0] |= 0x00000002u;
+    } else {
+      _impl_._has_bits_[0] &= ~0x00000002u;
+    }
+    _impl_.streamed_histo_.SetAllocated(value, GetArena());
+    if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.streamed_histo_.IsDefault()) {
+      _impl_.streamed_histo_.Set("", GetArena());
+    }
+    // @@protoc_insertion_point(field_set_allocated:dqmstorepb.ROOTFilePB.Histo.streamed_histo)
+  }
 
-// required uint32 flags = 4;
-inline bool ROOTFilePB_Histo::has_flags() const {
-  bool value = (_impl_._has_bits_[0] & 0x00000008u) != 0;
-  return value;
-}
-inline void ROOTFilePB_Histo::clear_flags() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.flags_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000008u;
-}
-inline ::uint32_t ROOTFilePB_Histo::flags() const {
-  // @@protoc_insertion_point(field_get:dqmstorepb.ROOTFilePB.Histo.flags)
-  return _internal_flags();
-}
-inline void ROOTFilePB_Histo::set_flags(::uint32_t value) {
-  _internal_set_flags(value);
-  _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:dqmstorepb.ROOTFilePB.Histo.flags)
-}
-inline ::uint32_t ROOTFilePB_Histo::_internal_flags() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.flags_;
-}
-inline void ROOTFilePB_Histo::_internal_set_flags(::uint32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.flags_ = value;
-}
+  // required uint32 flags = 4;
+  inline bool ROOTFilePB_Histo::has_flags() const {
+    bool value = (_impl_._has_bits_[0] & 0x00000008u) != 0;
+    return value;
+  }
+  inline void ROOTFilePB_Histo::clear_flags() {
+    ::google::protobuf::internal::TSanWrite(&_impl_);
+    _impl_.flags_ = 0u;
+    _impl_._has_bits_[0] &= ~0x00000008u;
+  }
+  inline ::uint32_t ROOTFilePB_Histo::flags() const {
+    // @@protoc_insertion_point(field_get:dqmstorepb.ROOTFilePB.Histo.flags)
+    return _internal_flags();
+  }
+  inline void ROOTFilePB_Histo::set_flags(::uint32_t value) {
+    _internal_set_flags(value);
+    _impl_._has_bits_[0] |= 0x00000008u;
+    // @@protoc_insertion_point(field_set:dqmstorepb.ROOTFilePB.Histo.flags)
+  }
+  inline ::uint32_t ROOTFilePB_Histo::_internal_flags() const {
+    ::google::protobuf::internal::TSanRead(&_impl_);
+    return _impl_.flags_;
+  }
+  inline void ROOTFilePB_Histo::_internal_set_flags(::uint32_t value) {
+    ::google::protobuf::internal::TSanWrite(&_impl_);
+    _impl_.flags_ = value;
+  }
 
-// -------------------------------------------------------------------
+  // -------------------------------------------------------------------
 
-// ROOTFilePB
+  // ROOTFilePB
 
-// repeated .dqmstorepb.ROOTFilePB.Histo histo = 1;
-inline int ROOTFilePB::_internal_histo_size() const {
-  return _internal_histo().size();
-}
-inline int ROOTFilePB::histo_size() const {
-  return _internal_histo_size();
-}
-inline void ROOTFilePB::clear_histo() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.histo_.Clear();
-}
-inline ::dqmstorepb::ROOTFilePB_Histo* PROTOBUF_NONNULL ROOTFilePB::mutable_histo(int index)
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable:dqmstorepb.ROOTFilePB.histo)
-  return _internal_mutable_histo()->Mutable(index);
-}
-inline ::google::protobuf::RepeatedPtrField<::dqmstorepb::ROOTFilePB_Histo>* PROTOBUF_NONNULL ROOTFilePB::mutable_histo()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:dqmstorepb.ROOTFilePB.histo)
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  return _internal_mutable_histo();
-}
-inline const ::dqmstorepb::ROOTFilePB_Histo& ROOTFilePB::histo(int index) const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:dqmstorepb.ROOTFilePB.histo)
-  return _internal_histo().Get(index);
-}
-inline ::dqmstorepb::ROOTFilePB_Histo* PROTOBUF_NONNULL ROOTFilePB::add_histo()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  ::dqmstorepb::ROOTFilePB_Histo* _add = _internal_mutable_histo()->Add();
-  // @@protoc_insertion_point(field_add:dqmstorepb.ROOTFilePB.histo)
-  return _add;
-}
-inline const ::google::protobuf::RepeatedPtrField<::dqmstorepb::ROOTFilePB_Histo>& ROOTFilePB::histo() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:dqmstorepb.ROOTFilePB.histo)
-  return _internal_histo();
-}
-inline const ::google::protobuf::RepeatedPtrField<::dqmstorepb::ROOTFilePB_Histo>&
-ROOTFilePB::_internal_histo() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.histo_;
-}
-inline ::google::protobuf::RepeatedPtrField<::dqmstorepb::ROOTFilePB_Histo>* PROTOBUF_NONNULL
-ROOTFilePB::_internal_mutable_histo() {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return &_impl_.histo_;
-}
+  // repeated .dqmstorepb.ROOTFilePB.Histo histo = 1;
+  inline int ROOTFilePB::_internal_histo_size() const { return _internal_histo().size(); }
+  inline int ROOTFilePB::histo_size() const { return _internal_histo_size(); }
+  inline void ROOTFilePB::clear_histo() {
+    ::google::protobuf::internal::TSanWrite(&_impl_);
+    _impl_.histo_.Clear();
+  }
+  inline ::dqmstorepb::ROOTFilePB_Histo* PROTOBUF_NONNULL ROOTFilePB::mutable_histo(int index)
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    // @@protoc_insertion_point(field_mutable:dqmstorepb.ROOTFilePB.histo)
+    return _internal_mutable_histo()->Mutable(index);
+  }
+  inline ::google::protobuf::RepeatedPtrField<::dqmstorepb::ROOTFilePB_Histo>* PROTOBUF_NONNULL
+  ROOTFilePB::mutable_histo() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    // @@protoc_insertion_point(field_mutable_list:dqmstorepb.ROOTFilePB.histo)
+    ::google::protobuf::internal::TSanWrite(&_impl_);
+    return _internal_mutable_histo();
+  }
+  inline const ::dqmstorepb::ROOTFilePB_Histo& ROOTFilePB::histo(int index) const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    // @@protoc_insertion_point(field_get:dqmstorepb.ROOTFilePB.histo)
+    return _internal_histo().Get(index);
+  }
+  inline ::dqmstorepb::ROOTFilePB_Histo* PROTOBUF_NONNULL ROOTFilePB::add_histo() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    ::google::protobuf::internal::TSanWrite(&_impl_);
+    ::dqmstorepb::ROOTFilePB_Histo* _add = _internal_mutable_histo()->Add();
+    // @@protoc_insertion_point(field_add:dqmstorepb.ROOTFilePB.histo)
+    return _add;
+  }
+  inline const ::google::protobuf::RepeatedPtrField<::dqmstorepb::ROOTFilePB_Histo>& ROOTFilePB::histo() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    // @@protoc_insertion_point(field_list:dqmstorepb.ROOTFilePB.histo)
+    return _internal_histo();
+  }
+  inline const ::google::protobuf::RepeatedPtrField<::dqmstorepb::ROOTFilePB_Histo>& ROOTFilePB::_internal_histo()
+      const {
+    ::google::protobuf::internal::TSanRead(&_impl_);
+    return _impl_.histo_;
+  }
+  inline ::google::protobuf::RepeatedPtrField<::dqmstorepb::ROOTFilePB_Histo>* PROTOBUF_NONNULL
+  ROOTFilePB::_internal_mutable_histo() {
+    ::google::protobuf::internal::TSanRead(&_impl_);
+    return &_impl_.histo_;
+  }
 
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
 #endif  // __GNUC__
 
-// @@protoc_insertion_point(namespace_scope)
+  // @@protoc_insertion_point(namespace_scope)
 }  // namespace dqmstorepb
-
 
 // @@protoc_insertion_point(global_scope)
 
