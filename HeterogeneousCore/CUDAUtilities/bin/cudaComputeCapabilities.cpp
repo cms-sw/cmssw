@@ -1,6 +1,7 @@
 // C/C++ standard headers
 #include <algorithm>
 #include <cstdlib>
+#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -10,17 +11,24 @@
 #include <vector>
 
 // CUDA headers
+#include <cuda.h>
 #include <cuda_runtime.h>
 
 // CMSSW headers
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/nvmlCheck.h"
+
+// local headers
 #include "isCudaDeviceSupported.h"
 
 namespace {
+
   // print a short usage message
   void printUsage(std::string_view name) {
-    std::cout << "Usage: " << name << " [--verbose|-v] [--help|-h]\n\n"
+    std::cout << "Usage: " << name << " [-u|--uuid] [-v|--verbose] [-h|--help]\n\n"
               << "Print the index, compute capability and name of each visible CUDA device.\n\n"
               << "Options:\n"
+              << "  -u, --uuid      print the device UUIDs instead of indices\n"
               << "  -v, --verbose   print detailed properties for each device\n"
               << "  -h, --help      print this help message and exit\n";
   }
@@ -33,6 +41,21 @@ namespace {
     out << std::hex << std::setfill('0') << std::setw(4) << properties.pciDomainID << ':' << std::setw(2)
         << properties.pciBusID << ':' << std::setw(2) << properties.pciDeviceID << ".0";
     return out.str();
+  }
+
+  // query the device UUID
+  std::string uuid(int device) {
+    CUdevice cu_device{};
+    CUDA_CHECK(cuDeviceGet(&cu_device, device));
+    CUuuid cu_uuid{};
+    CUDA_CHECK(cuDeviceGetUuid(&cu_uuid, cu_device));
+    nvmlUUID_t nv_uuid{.version = nvmlUUID_v1, .type = NVML_UUID_TYPE_BINARY, .value{.bytes{}}};
+    std::memcpy(nv_uuid.value.bytes, cu_uuid.bytes, NVML_DEVICE_UUID_BINARY_LEN);
+    nvmlDevice_t nv_device;
+    NVML_CHECK(nvmlDeviceGetHandleByUUIDV(&nv_uuid, &nv_device));
+    char uuid[NVML_DEVICE_UUID_V2_BUFFER_SIZE];
+    NVML_CHECK(nvmlDeviceGetUUID(nv_device, uuid, sizeof(uuid)));
+    return std::string(uuid);
   }
 
   // print the detailed properties of a device, indented under its summary line
@@ -60,6 +83,7 @@ namespace {
 
     std::vector<std::pair<std::string_view, std::string>> rows = {
         {"PCI device id:", pciId(properties)},
+        {"UUID:", uuid(device)},
         {"integrated:", value(yesno(properties.integrated))},
         {"total global memory:", value(properties.totalGlobalMem >> 20, " MiB")},
         {"L2 cache size:", value(properties.l2CacheSize >> 10, " KiB")},
@@ -95,18 +119,22 @@ namespace {
     }
 
     for (auto const& [label, text] : rows) {
-      std::cout << "        " << std::left << std::setw(static_cast<int>(labelWidth)) << label << "  " << std::right
+      std::cout << "    " << std::left << std::setw(static_cast<int>(labelWidth)) << label << "  " << std::right
                 << std::setw(static_cast<int>(valueWidth)) << text << "\n";
     }
+    std::cout << '\n';
   }
 }  // namespace
 
 int main(int argc, char** argv) {
+  bool useuuid = false;
   bool verbose = false;
   for (int i = 1; i < argc; ++i) {
     std::string arg = argv[i];
     if (arg == "--verbose" or arg == "-v") {
       verbose = true;
+    } else if (arg == "--uuid" or arg == "-u") {
+      useuuid = true;
     } else if (arg == "--help" or arg == "-h") {
       printUsage(argv[0]);
       return EXIT_SUCCESS;
@@ -117,18 +145,30 @@ int main(int argc, char** argv) {
     }
   }
 
-  int devices = 0;
-  cudaError_t status = cudaGetDeviceCount(&devices);
-  if (status != cudaSuccess) {
-    std::cerr << "cudaComputeCapabilities: " << cudaGetErrorString(status) << std::endl;
+  // initialise CUDA
+  CUresult status = cuInit(0);
+  if (status != CUDA_SUCCESS) {
+    const char* error;
+    CUDA_CHECK(cuGetErrorString(status, &error));
+    std::cerr << "cudaComputeCapabilities: " << error << '\n';
     return EXIT_FAILURE;
   }
+
+  // initialise NVML
+  NVML_CHECK(nvmlInitWithFlags(NVML_INIT_FLAG_NO_GPUS));
+
+  int devices = 0;
+  CUDA_CHECK(cudaGetDeviceCount(&devices));
 
   for (int i = 0; i < devices; ++i) {
     cudaDeviceProp properties;
     cudaGetDeviceProperties(&properties, i);
-    std::cout << std::setw(4) << i << "    " << std::setw(2) << properties.major << "." << properties.minor << "    "
-              << properties.name;
+    if (useuuid) {
+      std::cout << uuid(i);
+    } else {
+      std::cout << std::setw(4) << i;
+    }
+    std::cout << "    " << std::setw(2) << properties.major << "." << properties.minor << "    " << properties.name;
     if (not isCudaDeviceSupported(i)) {
       std::cout << " (unsupported)";
     }
@@ -138,6 +178,9 @@ int main(int argc, char** argv) {
       printDetails(i, properties);
     }
   }
+
+  // shut down NVML
+  NVML_CHECK(nvmlShutdown());
 
   return EXIT_SUCCESS;
 }
