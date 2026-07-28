@@ -220,6 +220,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                       int8_t* __restrict__ nLayers,
                                                       float* __restrict__ pt,
                                                       TmpTuple& tmpNtuplet,
+                                                      hindex_type* __restrict__ hits,
                                                       const unsigned int minHitsPerNtuplet,
                                                       const float preCurvature = kUninitializeCurvature) const {
       // the building process for a track ends if:
@@ -296,6 +297,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                nLayers,
                                                                pt,
                                                                tmpNtuplet,
+                                                               hits,
                                                                minHitsPerNtuplet,
                                                                thisCurvature);
           }
@@ -307,7 +309,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // if long enough save...
           if (nl >= minHitsPerNtuplet) {
             {
-              hindex_type hits[TrackerTraits::maxHitsOnTrack];  // maxHitsOnTracks takes fishbone hits into account
               uint32_t nh = 0U;
               uint32_t nfb = 0U;
               for (auto c : tmpNtuplet) {
