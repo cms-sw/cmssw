@@ -198,8 +198,7 @@ TEST_CASE("test ParameterSet", "[ParameterSet]") {
     testbody<double>(std::numeric_limits<double>::min());
     testbody<double>(std::numeric_limits<double>::max());
     testbody<double>(std::numeric_limits<double>::lowest());
-    // Subnormal values do not survive the round-trip: std::stod() reports ERANGE for a
-    // subnormal result, so edm::decode() fails on it. Smallest normal (double::min()) is fine.
+    testbody<double>(std::numeric_limits<double>::denorm_min());
     double oneThird = 1.0 / 3.0;
     testbody<double>(oneThird);
 
@@ -225,8 +224,7 @@ TEST_CASE("test ParameterSet", "[ParameterSet]") {
     testbody<float>(std::numeric_limits<float>::min());
     testbody<float>(std::numeric_limits<float>::max());
     testbody<float>(std::numeric_limits<float>::lowest());
-    // Subnormal values do not survive the round-trip: std::stof() reports ERANGE for a
-    // subnormal result, so edm::decode() fails on it. Smallest normal (float::min()) is fine.
+    testbody<float>(std::numeric_limits<float>::denorm_min());
     float oneThird = 1.0f / 3.0f;
     testbody<float>(oneThird);
 
