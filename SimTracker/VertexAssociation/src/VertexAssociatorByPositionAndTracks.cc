@@ -1,214 +1,414 @@
+#include <limits>
+
 #include <CLHEP/Units/SystemOfUnits.h>
-#include "SimTracker/VertexAssociation/interface/VertexAssociatorByPositionAndTracks.h"
-#include "SimTracker/VertexAssociation/interface/calculateVertexSharedTracks.h"
+
+#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-VertexAssociatorByPositionAndTracks::VertexAssociatorByPositionAndTracks(
+#include "SimTracker/VertexAssociation/interface/VertexAssociatorByPositionAndTracks.h"
+#include "SimTracker/VertexAssociation/interface/calculateVertexSharedTracks.h"
+
+// =============================================================================
+// Constructors
+// =============================================================================
+
+namespace {
+  void parseWeightMethod(const std::string &weightMethod,
+                         bool &useWeightPtSum2,
+                         bool &useWeightDzErr,
+                         bool &useNSharedTracks) {
+    if (weightMethod == "pt2")
+      useWeightPtSum2 = true;
+    else if (weightMethod == "dzError")
+      useWeightDzErr = true;
+    else if (weightMethod == "nSharedTracks")
+      useNSharedTracks = true;
+    else if (weightMethod != "none")
+      throw cms::Exception("Configuration")
+          << "VertexAssociatorByPositionAndTracks: Invalid weightMethod '" << weightMethod
+          << "' (should be 'none', 'pt2', 'dzError' or 'nSharedTracks')";
+  }
+}  // namespace
+
+template <typename VertexCollection>
+VertexAssociatorByPositionAndTracks<VertexCollection>::VertexAssociatorByPositionAndTracks(
     const edm::EDProductGetter *productGetter,
-    double absZ,
+    double sigmaX,
+    double sigmaY,
     double sigmaZ,
+    double absZ,
     double maxRecoZ,
-    double absT,
     double sigmaT,
+    double absT,
     double maxRecoT,
     double sharedTrackFraction,
-    const reco::RecoToSimCollection *trackRecoToSimAssociation,
-    const reco::SimToRecoCollection *trackSimToRecoAssociation,
-    const std::string &weightMethod)
+    RecoToSimCollectionVec trackRecoToSimAssociations,
+    SimToRecoCollectionVec trackSimToRecoAssociations,
+    const std::string &weightMethod,
+    bool filterSimVerticesForPVs)
     : productGetter_(productGetter),
-      absZ_(absZ),
-      sigmaZ_(sigmaZ),
-      maxRecoZ_(maxRecoZ),
-      absT_(absT),
-      sigmaT_(sigmaT),
-      maxRecoT_(maxRecoT),
+      sigmaX_(getValueIfEnable(sigmaX)),
+      sigmaY_(getValueIfEnable(sigmaY)),
+      sigmaZ_(getValueIfEnable(sigmaZ)),
+      absZ_(getValueIfEnable(absZ)),
+      maxRecoZ_(getValueIfEnable(maxRecoZ)),
+      sigmaT_(getValueIfEnable(sigmaT)),
+      absT_(getValueIfEnable(absT)),
+      maxRecoT_(getValueIfEnable(maxRecoT)),
       sharedTrackFraction_(sharedTrackFraction),
-      trackRecoToSimAssociation_(trackRecoToSimAssociation),
-      trackSimToRecoAssociation_(trackSimToRecoAssociation),
+      trackRecoToSimAssociations_(std::move(trackRecoToSimAssociations)),
+      trackSimToRecoAssociations_(std::move(trackSimToRecoAssociations)),
       useWeightPtSum2_(false),
-      useWeightDzErr_(false) {
-  if (weightMethod == "pt2")
-    useWeightPtSum2_ = true;
-  else if (weightMethod == "dzError")
-    useWeightDzErr_ = true;
-  else if (weightMethod != "none")
-    throw cms::Exception("Configuration") << "VertexAssociatorByPositionAndTracks: Invalid weightMethod '"
-                                          << weightMethod << "' (should be 'none', 'pt2' or 'dzError')";
+      useWeightDzErr_(false),
+      useNSharedTracks_(false),
+      filterSimVerticesForPVs_(filterSimVerticesForPVs) {
+  parseWeightMethod(weightMethod, useWeightPtSum2_, useWeightDzErr_, useNSharedTracks_);
 }
-VertexAssociatorByPositionAndTracks::VertexAssociatorByPositionAndTracks(
+
+template <typename VertexCollection>
+VertexAssociatorByPositionAndTracks<VertexCollection>::VertexAssociatorByPositionAndTracks(
     const edm::EDProductGetter *productGetter,
-    double absZ,
+    double sigmaX,
+    double sigmaY,
     double sigmaZ,
+    double absZ,
     double maxRecoZ,
     double sharedTrackFraction,
-    const reco::RecoToSimCollection *trackRecoToSimAssociation,
-    const reco::SimToRecoCollection *trackSimToRecoAssociation,
-    const std::string &weightMethod)
+    RecoToSimCollectionVec trackRecoToSimAssociations,
+    SimToRecoCollectionVec trackSimToRecoAssociations,
+    const std::string &weightMethod,
+    bool filterSimVerticesForPVs)
     : productGetter_(productGetter),
-      absZ_(absZ),
-      sigmaZ_(sigmaZ),
-      maxRecoZ_(maxRecoZ),
-      absT_(std::numeric_limits<double>::max()),
-      sigmaT_(std::numeric_limits<double>::max()),
-      maxRecoT_(std::numeric_limits<double>::max()),
+      sigmaX_(getValueIfEnable(sigmaX)),
+      sigmaY_(getValueIfEnable(sigmaY)),
+      sigmaZ_(getValueIfEnable(sigmaZ)),
+      absZ_(getValueIfEnable(absZ)),
+      maxRecoZ_(getValueIfEnable(maxRecoZ)),
+      sigmaT_(kCheckDisabled),
+      absT_(kCheckDisabled),
+      maxRecoT_(kCheckDisabled),
       sharedTrackFraction_(sharedTrackFraction),
-      trackRecoToSimAssociation_(trackRecoToSimAssociation),
-      trackSimToRecoAssociation_(trackSimToRecoAssociation),
+      trackRecoToSimAssociations_(std::move(trackRecoToSimAssociations)),
+      trackSimToRecoAssociations_(std::move(trackSimToRecoAssociations)),
       useWeightPtSum2_(false),
-      useWeightDzErr_(false) {
-  if (weightMethod == "pt2")
-    useWeightPtSum2_ = true;
-  else if (weightMethod == "dzError")
-    useWeightDzErr_ = true;
+      useWeightDzErr_(false),
+      useNSharedTracks_(false),
+      filterSimVerticesForPVs_(filterSimVerticesForPVs) {
+  parseWeightMethod(weightMethod, useWeightPtSum2_, useWeightDzErr_, useNSharedTracks_);
 }
 
-reco::VertexRecoToSimCollection VertexAssociatorByPositionAndTracks::associateRecoToSim(
-    const edm::Handle<edm::View<reco::Vertex>> &vCH, const edm::Handle<TrackingVertexCollection> &tVCH) const {
-  reco::VertexRecoToSimCollection ret(productGetter_);
+// =============================================================================
+// Private helpers — specialised per VertexType
+// =============================================================================
 
-  const edm::View<reco::Vertex> &recoVertices = *vCH;
+// -----------------------------------------------------------------------------
+// reco::Vertex specialisations
+// -----------------------------------------------------------------------------
+
+template <>
+bool VertexAssociatorByPositionAndTracks<std::vector<reco::Vertex>>::isRecoVertexInvalid(const reco::Vertex &vtx) const {
+  return vtx.isFake() || !vtx.isValid() || vtx.ndof() < 0.;
+}
+
+template <>
+double VertexAssociatorByPositionAndTracks<std::vector<reco::Vertex>>::recoVertexX(const reco::Vertex &vtx) const {
+  return vtx.x();
+}
+
+template <>
+double VertexAssociatorByPositionAndTracks<std::vector<reco::Vertex>>::recoVertexY(const reco::Vertex &vtx) const {
+  return vtx.y();
+}
+
+template <>
+double VertexAssociatorByPositionAndTracks<std::vector<reco::Vertex>>::recoVertexZ(const reco::Vertex &vtx) const {
+  return vtx.z();
+}
+
+template <>
+double VertexAssociatorByPositionAndTracks<std::vector<reco::Vertex>>::recoVertexXError(const reco::Vertex &vtx) const {
+  return vtx.xError();
+}
+
+template <>
+double VertexAssociatorByPositionAndTracks<std::vector<reco::Vertex>>::recoVertexYError(const reco::Vertex &vtx) const {
+  return vtx.yError();
+}
+
+template <>
+double VertexAssociatorByPositionAndTracks<std::vector<reco::Vertex>>::recoVertexZError(const reco::Vertex &vtx) const {
+  return vtx.zError();
+}
+
+template <>
+double VertexAssociatorByPositionAndTracks<std::vector<reco::Vertex>>::recoVertexT(const reco::Vertex &vtx) const {
+  return vtx.t();
+}
+
+template <>
+double VertexAssociatorByPositionAndTracks<std::vector<reco::Vertex>>::recoVertexTError(const reco::Vertex &vtx) const {
+  return vtx.tError();
+}
+
+// -----------------------------------------------------------------------------
+// reco::VertexCompositePtrCandidate specialisations
+// -----------------------------------------------------------------------------
+
+template <>
+bool VertexAssociatorByPositionAndTracks<std::vector<reco::VertexCompositePtrCandidate>>::isRecoVertexInvalid(
+    const reco::VertexCompositePtrCandidate &vtx) const {
+  // VertexCompositePtrCandidate has no isFake()/isValid() interface.
+  // Reject vertices with no daughters as a basic sanity check.
+  return vtx.numberOfDaughters() == 0;
+}
+
+template <>
+double VertexAssociatorByPositionAndTracks<std::vector<reco::VertexCompositePtrCandidate>>::recoVertexX(
+    const reco::VertexCompositePtrCandidate &vtx) const {
+  return vtx.vx();
+}
+
+template <>
+double VertexAssociatorByPositionAndTracks<std::vector<reco::VertexCompositePtrCandidate>>::recoVertexY(
+    const reco::VertexCompositePtrCandidate &vtx) const {
+  return vtx.vy();
+}
+
+template <>
+double VertexAssociatorByPositionAndTracks<std::vector<reco::VertexCompositePtrCandidate>>::recoVertexZ(
+    const reco::VertexCompositePtrCandidate &vtx) const {
+  return vtx.vz();
+}
+
+template <>
+double VertexAssociatorByPositionAndTracks<std::vector<reco::VertexCompositePtrCandidate>>::recoVertexXError(
+    const reco::VertexCompositePtrCandidate &vtx) const {
+  // vertexCovariance(i,j): indices 0=x, 1=y, 2=z
+  return std::sqrt(vtx.vertexCovariance(0, 0));
+}
+
+template <>
+double VertexAssociatorByPositionAndTracks<std::vector<reco::VertexCompositePtrCandidate>>::recoVertexYError(
+    const reco::VertexCompositePtrCandidate &vtx) const {
+  return std::sqrt(vtx.vertexCovariance(1, 1));
+}
+
+template <>
+double VertexAssociatorByPositionAndTracks<std::vector<reco::VertexCompositePtrCandidate>>::recoVertexZError(
+    const reco::VertexCompositePtrCandidate &vtx) const {
+  return std::sqrt(vtx.vertexCovariance(2, 2));
+}
+
+template <>
+double VertexAssociatorByPositionAndTracks<std::vector<reco::VertexCompositePtrCandidate>>::recoVertexT(
+    const reco::VertexCompositePtrCandidate & /*vtx*/) const {
+  // Timing is not available for VertexCompositePtrCandidate.
+  // Returning 0. disables the timing cut (consistent with reco::Vertex
+  // convention where t() == 0. signals no timing information).
+  return 0.;
+}
+
+template <>
+double VertexAssociatorByPositionAndTracks<std::vector<reco::VertexCompositePtrCandidate>>::recoVertexTError(
+    const reco::VertexCompositePtrCandidate & /*vtx*/) const {
+  return std::numeric_limits<double>::max();
+}
+
+// -----------------------------------------------------------------------------
+// shared implementation for both Vertex and VertexCompositePtrCandidate
+// -----------------------------------------------------------------------------
+
+template <typename VertexCollection>
+float VertexAssociatorByPositionAndTracks<VertexCollection>::sharedTrackFractionForVertex(
+    const VertexType &recoVertex, const TrackingVertex &simVertex) const {
+  auto sharedTracksAndFraction = calculateVertexSharedTracks(recoVertex, simVertex, trackRecoToSimAssociations_);
+  if (useWeightPtSum2_)
+    return sharedTracksAndFraction.sharedPt2Fraction_;
+  if (useWeightDzErr_)
+    return sharedTracksAndFraction.sharedDzErrFraction_;
+  if (useNSharedTracks_)
+    return sharedTracksAndFraction.nSharedTracks_;
+  return sharedTracksAndFraction.sharedTracksFraction_;
+}
+
+template <typename VertexCollection>
+auto VertexAssociatorByPositionAndTracks<VertexCollection>::makeVertexRef(
+    const edm::Handle<edm::View<VertexType>> &handle, size_t index) const {
+  return handle->refAt(index);
+}
+
+// =============================================================================
+// Association loops
+// =============================================================================
+
+template <typename VertexCollection>
+typename VertexAssociatorByPositionAndTracks<VertexCollection>::RecoToSimCollection
+VertexAssociatorByPositionAndTracks<VertexCollection>::associateRecoToSim(
+    const edm::Handle<edm::View<VertexType>> &vCH, const edm::Handle<TrackingVertexCollection> &tVCH) const {
+  RecoToSimCollection ret(productGetter_);
+
+  const edm::View<VertexType> &recoVertices = *vCH;
   const TrackingVertexCollection &simVertices = *tVCH;
 
   LogDebug("VertexAssociation") << "VertexAssociatorByPositionAndTracks::"
                                    "associateRecoToSim(): associating "
-                                << recoVertices.size() << " reco::Vertices to" << simVertices.size()
+                                << recoVertices.size() << " reco vertices to " << simVertices.size()
                                 << " TrackingVertices";
 
-  // filter sim PVs
-  std::vector<size_t> simPVindices;
-  simPVindices.reserve(recoVertices.size());
+  const bool useSigmaX = sigmaX_ != kCheckDisabled;
+  const bool useSigmaY = sigmaY_ != kCheckDisabled;
+
+  // Build the list of sim vertex indices to consider.
+  // For PV association (filterSimVerticesForPVs_=true) only the first
+  // TrackingVertex per in-time pileup event is kept.
+  // For SV association (filterSimVerticesForPVs_=false) all in-time
+  // TrackingVertices are considered.
+  std::vector<size_t> simIndicesToConsider;
+  simIndicesToConsider.reserve(simVertices.size());
   {
     int current_event = -1;
     for (size_t iSim = 0; iSim != simVertices.size(); ++iSim) {
       const TrackingVertex &simVertex = simVertices[iSim];
-
-      // Associate only to primary vertices of the in-time pileup
-      // events (BX=0, first vertex in each of the events)
       if (simVertex.eventId().bunchCrossing() != 0)
         continue;
-      if (simVertex.eventId().event() != current_event) {
-        current_event = simVertex.eventId().event();
-        simPVindices.push_back(iSim);
+      if (filterSimVerticesForPVs_) {
+        if (simVertex.eventId().event() != current_event) {
+          current_event = simVertex.eventId().event();
+          simIndicesToConsider.push_back(iSim);
+        }
+      } else {
+        simIndicesToConsider.push_back(iSim);
       }
     }
   }
 
   for (size_t iReco = 0; iReco != recoVertices.size(); ++iReco) {
-    const reco::Vertex &recoVertex = recoVertices[iReco];
+    const VertexType &recoVertex = recoVertices[iReco];
 
-    // skip fake vertices
-    if (std::abs(recoVertex.z()) > maxRecoZ_ || recoVertex.isFake() || !recoVertex.isValid() || recoVertex.ndof() < 0.)
+    if (isRecoVertexInvalid(recoVertex))
       continue;
 
-    LogTrace("VertexAssociation") << " reco::Vertex at Z " << recoVertex.z();
+    const double recoZ = recoVertexZ(recoVertex);
+    if (std::abs(recoZ) > maxRecoZ_)
+      continue;
 
-    for (const size_t iSim : simPVindices) {
+    LogTrace("VertexAssociation") << " RecoVertex at X,Y,Z " << recoVertexX(recoVertex) << ","
+                                  << recoVertexY(recoVertex) << "," << recoZ;
+
+    const double recoT = recoVertexT(recoVertex);
+    const bool useTiming = (absT_ != kCheckDisabled && recoT != 0.);
+
+    for (const size_t iSim : simIndicesToConsider) {
       const TrackingVertex &simVertex = simVertices[iSim];
-      LogTrace("VertexAssociation") << "  Considering TrackingVertex at Z " << simVertex.position().z();
 
-      //  recoVertex.t() == 0.  is a special value
-      // need to change this to std::numeric_limits<double>::max() or something
-      // more clear
-      const bool useTiming = (absT_ != std::numeric_limits<double>::max() && recoVertex.t() != 0.);
-      if (useTiming) {
-        LogTrace("VertexAssociation") << " and T " << recoVertex.t() * CLHEP::second << std::endl;
-      }
+      const double xdiff = useSigmaX ? std::abs(recoVertexX(recoVertex) - simVertex.position().x()) : 0.;
+      const double ydiff = useSigmaY ? std::abs(recoVertexY(recoVertex) - simVertex.position().y()) : 0.;
+      const double zdiff = std::abs(recoZ - simVertex.position().z());
+      const double tdiff = useTiming ? std::abs(recoT - simVertex.position().t() * CLHEP::second) : 0.;
 
-      const double tdiff = std::abs(recoVertex.t() - simVertex.position().t() * CLHEP::second);
-      const double zdiff = std::abs(recoVertex.z() - simVertex.position().z());
-      if (zdiff < absZ_ && zdiff / recoVertex.zError() < sigmaZ_ &&
-          (!useTiming || (tdiff < absT_ && tdiff / recoVertex.tError() < sigmaT_))) {
-        auto sharedTracksAndFraction = calculateVertexSharedTracks(recoVertex, simVertex, *trackRecoToSimAssociation_);
-        float fraction = sharedTracksAndFraction.sharedTracksFraction_;
-        if (useWeightPtSum2_)
-          fraction = sharedTracksAndFraction.sharedPt2Fraction_;
-        else if (useWeightDzErr_)
-          fraction = sharedTracksAndFraction.sharedDzErrFraction_;
+      if (useSigmaX && (xdiff / recoVertexXError(recoVertex) >= sigmaX_))
+        continue;
+      if (useSigmaY && (ydiff / recoVertexYError(recoVertex) >= sigmaY_))
+        continue;
+      if (zdiff >= absZ_ || zdiff / recoVertexZError(recoVertex) >= sigmaZ_)
+        continue;
+      if (useTiming && (tdiff >= absT_ || tdiff / recoVertexTError(recoVertex) >= sigmaT_))
+        continue;
 
-        if (sharedTrackFraction_ < 0 || fraction > sharedTrackFraction_) {
-          LogTrace("VertexAssociation") << "   Matched with significance " << zdiff / recoVertex.zError() << " "
-                                        << tdiff / recoVertex.tError() << " shared tracks "
-                                        << sharedTracksAndFraction.nSharedTracks_ << " reco Tracks "
-                                        << recoVertex.tracksSize() << " TrackingParticles "
-                                        << simVertex.nDaughterTracks();
+      const float fraction = sharedTrackFractionForVertex(recoVertex, simVertex);
+      if (sharedTrackFraction_ >= 0 && fraction < sharedTrackFraction_)
+        continue;
 
-          ret.insert(reco::VertexBaseRef(vCH, iReco), std::make_pair(TrackingVertexRef(tVCH, iSim), fraction));
-        }
-      }
+      LogTrace("VertexAssociation") << "   Matched at X,Y,Z=" << simVertex.position().x() << ","
+                                    << simVertex.position().y() << "," << simVertex.position().z()
+                                    << ": dZ significance " << zdiff / recoVertexZError(recoVertex)
+                                    << " shared track fraction " << fraction;
+
+      ret.insert(makeVertexRef(vCH, iReco), std::make_pair(TrackingVertexRef(tVCH, iSim), fraction));
     }
   }
 
   ret.post_insert();
 
-  LogDebug("VertexAssociation") << "VertexAssociatorByPositionAndTracks::associateRecoToSim(): finished";
+  LogTrace("VertexAssociation") << "VertexAssociatorByPositionAndTracks::associateRecoToSim(): finished";
 
   return ret;
 }
 
-reco::VertexSimToRecoCollection VertexAssociatorByPositionAndTracks::associateSimToReco(
-    const edm::Handle<edm::View<reco::Vertex>> &vCH, const edm::Handle<TrackingVertexCollection> &tVCH) const {
-  reco::VertexSimToRecoCollection ret(productGetter_);
+template <typename VertexCollection>
+typename VertexAssociatorByPositionAndTracks<VertexCollection>::SimToRecoCollection
+VertexAssociatorByPositionAndTracks<VertexCollection>::associateSimToReco(
+    const edm::Handle<edm::View<VertexType>> &vCH, const edm::Handle<TrackingVertexCollection> &tVCH) const {
+  SimToRecoCollection ret(productGetter_);
 
-  const edm::View<reco::Vertex> &recoVertices = *vCH;
+  const edm::View<VertexType> &recoVertices = *vCH;
   const TrackingVertexCollection &simVertices = *tVCH;
 
   LogDebug("VertexAssociation") << "VertexAssociatorByPositionAndTracks::"
                                    "associateSimToReco(): associating "
                                 << simVertices.size() << " TrackingVertices to " << recoVertices.size()
-                                << " reco::Vertices";
+                                << " reco vertices";
+
+  const bool useSigmaX = sigmaX_ != kCheckDisabled;
+  const bool useSigmaY = sigmaY_ != kCheckDisabled;
 
   int current_event = -1;
   for (size_t iSim = 0; iSim != simVertices.size(); ++iSim) {
     const TrackingVertex &simVertex = simVertices[iSim];
 
-    // Associate only primary vertices of the in-time pileup
-    // events (BX=0, first vertex in each of the events)
     if (simVertex.eventId().bunchCrossing() != 0)
       continue;
-    if (simVertex.eventId().event() != current_event) {
-      current_event = simVertex.eventId().event();
-    } else {
-      continue;
+
+    if (filterSimVerticesForPVs_) {
+      if (simVertex.eventId().event() != current_event) {
+        current_event = simVertex.eventId().event();
+      } else {
+        continue;
+      }
     }
 
-    LogTrace("VertexAssociation") << " TrackingVertex at Z " << simVertex.position().z();
+    LogTrace("VertexAssociation") << " TrackingVertex at X,Y,Z " << simVertex.position().x() << ","
+                                  << simVertex.position().y() << "," << simVertex.position().z();
 
     for (size_t iReco = 0; iReco != recoVertices.size(); ++iReco) {
-      const reco::Vertex &recoVertex = recoVertices[iReco];
+      const VertexType &recoVertex = recoVertices[iReco];
 
-      // skip fake vertices
-      if (std::abs(recoVertex.z()) > maxRecoZ_ || recoVertex.isFake() || !recoVertex.isValid() ||
-          recoVertex.ndof() < 0.)
+      if (isRecoVertexInvalid(recoVertex))
         continue;
 
-      LogTrace("VertexAssociation") << "  Considering reco::Vertex at Z " << recoVertex.z();
-      const bool useTiming = (absT_ != std::numeric_limits<double>::max() && recoVertex.t() != 0.);
-      if (useTiming) {
-        LogTrace("VertexAssociation") << " and T " << recoVertex.t() * CLHEP::second << std::endl;
-      }
+      const double recoZ = recoVertexZ(recoVertex);
+      if (std::abs(recoZ) > maxRecoZ_)
+        continue;
 
-      const double tdiff = std::abs(recoVertex.t() - simVertex.position().t() * CLHEP::second);
-      const double zdiff = std::abs(recoVertex.z() - simVertex.position().z());
-      if (zdiff < absZ_ && zdiff / recoVertex.zError() < sigmaZ_ &&
-          (!useTiming || (tdiff < absT_ && tdiff / recoVertex.tError() < sigmaT_))) {
-        auto sharedTracksAndFraction = calculateVertexSharedTracks(recoVertex, simVertex, *trackRecoToSimAssociation_);
-        float fraction = sharedTracksAndFraction.sharedTracksFraction_;
-        if (useWeightPtSum2_)
-          fraction = sharedTracksAndFraction.sharedPt2Fraction_;
-        else if (useWeightDzErr_)
-          fraction = sharedTracksAndFraction.sharedDzErrFraction_;
+      const double recoT = recoVertexT(recoVertex);
+      const bool useTiming = (absT_ != kCheckDisabled && recoT != 0.);
 
-        if (sharedTrackFraction_ < 0 || fraction > sharedTrackFraction_) {
-          LogTrace("VertexAssociation") << "   Matched with significance " << zdiff / recoVertex.zError() << " "
-                                        << tdiff / recoVertex.tError() << " shared tracks "
-                                        << sharedTracksAndFraction.nSharedTracks_ << " reco Tracks "
-                                        << recoVertex.tracksSize() << " TrackingParticles "
-                                        << simVertex.nDaughterTracks();
+      const double xdiff = useSigmaX ? std::abs(recoVertexX(recoVertex) - simVertex.position().x()) : 0.;
+      const double ydiff = useSigmaY ? std::abs(recoVertexY(recoVertex) - simVertex.position().y()) : 0.;
+      const double zdiff = std::abs(recoZ - simVertex.position().z());
+      const double tdiff = useTiming ? std::abs(recoT - simVertex.position().t() * CLHEP::second) : 0.;
 
-          ret.insert(TrackingVertexRef(tVCH, iSim), std::make_pair(reco::VertexBaseRef(vCH, iReco), fraction));
-        }
-      }
+      if (useSigmaX && (xdiff / recoVertexXError(recoVertex) >= sigmaX_))
+        continue;
+      if (useSigmaY && (ydiff / recoVertexYError(recoVertex) >= sigmaY_))
+        continue;
+      if (zdiff >= absZ_ || zdiff / recoVertexZError(recoVertex) >= sigmaZ_)
+        continue;
+      if (useTiming && (tdiff >= absT_ || tdiff / recoVertexTError(recoVertex) >= sigmaT_))
+        continue;
+
+      const float fraction = sharedTrackFractionForVertex(recoVertex, simVertex);
+      if (sharedTrackFraction_ >= 0 && fraction < sharedTrackFraction_)
+        continue;
+
+      LogTrace("VertexAssociation") << "   Matched: dZ significance " << zdiff / recoVertexZError(recoVertex)
+                                    << " shared track fraction " << fraction;
+
+      ret.insert(TrackingVertexRef(tVCH, iSim), std::make_pair(makeVertexRef(vCH, iReco), fraction));
     }
   }
 
@@ -218,3 +418,10 @@ reco::VertexSimToRecoCollection VertexAssociatorByPositionAndTracks::associateSi
 
   return ret;
 }
+
+// =============================================================================
+// Explicit instantiations
+// =============================================================================
+
+template class VertexAssociatorByPositionAndTracks<std::vector<reco::Vertex>>;
+template class VertexAssociatorByPositionAndTracks<std::vector<reco::VertexCompositePtrCandidate>>;
