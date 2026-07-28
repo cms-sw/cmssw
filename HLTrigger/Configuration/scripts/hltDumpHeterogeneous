@@ -1,0 +1,51 @@
+#! /usr/bin/env python3
+"""Dump a configuration reduced to its heterogeneous modules and their dependencies.
+
+Takes a full cmsDriver configuration and dumps a configuration containing only 
+heterogeneous modules (and the minimal subset of dependecies needed to run them).
+The configuration dump respects the input recipe including eras and process modifiers.
+The dependencies are collected by running a short cmsRun job (tracer) on the input
+configuration, which therefore has to be runnable.
+"""
+
+import sys
+import json
+import argparse
+
+from FWCore.ParameterSet.processFromFile import processFromFile
+from HLTrigger.Configuration.heterogeneousClosure import (reduceToHeterogeneous,
+                                                          buildFrameworkGraph,
+                                                          parseTracerLog)
+
+parser = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+parser.add_argument("filename",
+                    help="Python configuration file")
+parser.add_argument("--pathName", type=str, default="DST_HeterogeneousReco",
+                    help="Name of the new heterogeneous Path where modules will be scheduled. Default is 'DST_HeterogeneousReco'.")
+parser.add_argument("--manifest", type=str, default=None,
+                    help="Write to this file a JSON record of which modules were kept, why each dependency was pulled in, and which products are expected from the input file. Default is to not write a manifest.")
+parser.add_argument("-o", "--output", type=str, default=None,
+                    help="Save the configuration dump into this file. Default is to print the configuration dump to stdout.")
+parser.add_argument("configArgs",
+                    nargs=argparse.REMAINDER, help="arguments that will be passed to the Python configuration file.")
+
+options = parser.parse_args()
+
+tracerLog = buildFrameworkGraph(options.filename, options.configArgs)
+frameworkGraph = parseTracerLog(tracerLog)
+
+cmsProcess = processFromFile(options.filename, options.configArgs)
+manifest = reduceToHeterogeneous(cmsProcess, frameworkGraph, options.pathName)
+manifest["source"] = options.filename
+manifest["tracerLog"] = tracerLog
+
+if options.manifest is not None:
+    with open(options.manifest, "w") as f:
+        json.dump(manifest, f, indent=2, sort_keys=True)
+
+if options.output is not None:
+    with open(options.output, "w") as f:
+        f.write(cmsProcess.dumpPython())
+else:
+    print(cmsProcess.dumpPython())
