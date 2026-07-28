@@ -1,6 +1,8 @@
 #ifndef Validation_RecoVertex_SVEfficiencyEligibility_h
 #define Validation_RecoVertex_SVEfficiencyEligibility_h
 
+#include <cstdint>
+
 // =============================================================================
 // EfficiencyEligibility
 //
