@@ -229,6 +229,7 @@ namespace edmtest {
     std::vector<float> vfloat;
     vfloat = ps.getParameter<std::vector<float>>("vfloatv1");
     REQUIRE(vfloat.empty());
+    // vfloatv2 is also set through the DescriptionCloner, to the same value as the default
     vfloat = ps.getParameter<std::vector<float>>("vfloatv2");
     REQUIRE(vfloat[0] == 1e+30f);
     vfloat = ps.getParameter<std::vector<float>>("vfloatv3");
@@ -608,6 +609,10 @@ namespace edmtest {
       iDesc.addOptionalUntracked<int>("p_int_optuntracked", 7);
       iDesc.addOptional<int>("p_int_opt_nd");
       iDesc.addOptionalUntracked<int>("p_int_optuntracked_nd");
+      iDesc.addOptional<float>("p_float_opt_nd");
+      iDesc.addOptionalUntracked<float>("p_float_optuntracked_nd");
+      iDesc.addOptional<std::vector<float>>("p_vfloat_opt_nd");
+      iDesc.addOptionalUntracked<std::vector<float>>("p_vfloat_optuntracked_nd");
 
       std::vector<int> vint;
       iDesc.add<std::vector<int>>("vint1", vint);
@@ -1286,6 +1291,7 @@ namespace edmtest {
       {
         edm::DescriptionCloner cn;
         cn.set("p_int", 2147483647);
+        cn.set("vfloatv2", std::vector<float>({1e+30f}));
         descriptions.add("testProducerWithPsetDesc", cn);
       }
     }

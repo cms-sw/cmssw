@@ -43,6 +43,22 @@ configurations. The label below is used when generating the cfi file.
                         type: untracked int32 optional
                         default: none
 
+    p_float_opt_nd
+                        type: float optional
+                        default: none
+
+    p_float_optuntracked_nd
+                        type: untracked float optional
+                        default: none
+
+    p_vfloat_opt_nd
+                        type: vfloat optional
+                        default: none
+
+    p_vfloat_optuntracked_nd
+                        type: untracked vfloat optional
+                        default: none
+
     vint1
                         type: vint32 
                         default: empty
@@ -2474,4 +2490,9 @@ configurations. The label below is used when generating the cfi file.
     p_int
                         type: int32 
                         default: 2147483647
+
+    vfloatv2
+                        type: vfloat 
+                        default: (vector size = 1)
+                          [0]: 1e+30
 
