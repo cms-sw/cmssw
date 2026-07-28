@@ -6,6 +6,7 @@
 #include <cmath>
 #include <memory>
 #include <set>
+#include <unordered_set>
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -15,17 +16,17 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "Geometry/CommonTopologies/interface/GeomDetEnumerators.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "RecoTracker/PixelSeeding/interface/OrderedHitTriplet.h"
+#include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/CosmicGridTripletSeeder.h"
-
-//
-
 
 CosmicGridTripletSeeder::CosmicGridTripletSeeder(const edm::ParameterSet& iConfig)
     : vectorHitsToken_(mayConsume<VectorHitCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vectorHits"))),
@@ -36,6 +37,7 @@ CosmicGridTripletSeeder::CosmicGridTripletSeeder(const edm::ParameterSet& iConfi
       magfieldToken_(esConsumes(iConfig.getParameter<edm::ESInputTag>("MagneticFieldRecord"))),
       trackerToken_(esConsumes()),
       ttrhBuilderToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("TTRHBuilder")))),
+      writeTriplets_(iConfig.getParameter<bool>("writeTriplets")),
       nGridBinsX_(iConfig.getParameter<int>("nGridBinsX")),
       nGridBinsY_(iConfig.getParameter<int>("nGridBinsY")),
       nGridBinsZ_(iConfig.getParameter<int>("nGridBinsZ")),
@@ -44,9 +46,15 @@ CosmicGridTripletSeeder::CosmicGridTripletSeeder(const edm::ParameterSet& iConfi
       gridYmin_(iConfig.getParameter<double>("gridYmin")),
       gridYmax_(iConfig.getParameter<double>("gridYmax")),
       gridZmin_(iConfig.getParameter<double>("gridZmin")),
-      gridZmax_(iConfig.getParameter<double>("gridZmax")){
+      gridZmax_(iConfig.getParameter<double>("gridZmax")),
+      maxTripsPerSP_(iConfig.getParameter<int>("maxTripsPerSP")), 
+      maxSeedsPerSP_(iConfig.getParameter<int>("maxSeedsPerSP")), 
+      slopeCompatForVH_(iConfig.getParameter<double>("slopeCompatForVH")),
+      tryBothDirections_(iConfig.getParameter<bool>("tryBothDirections")){
   produces<TrajectorySeedCollection>();
-  produces<edm::OwnVector<TrackingRecHit>>();
+  if (writeTriplets_){
+    produces<edm::OwnVector<TrackingRecHit>>();
+  }
 
 }
 
@@ -59,6 +67,7 @@ void CosmicGridTripletSeeder::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.addUntracked<edm::InputTag>("PixelRecHits", edm::InputTag("siPixelRecHits"));
   desc.add<std::string>("TTRHBuilder", "WithTrackAngle");
   desc.add<edm::ESInputTag>("MagneticFieldRecord", edm::ESInputTag("", ""));
+  desc.add<bool>("writeTriplets",false);
   desc.add<int>("nGridBinsX",1);
   desc.add<int>("nGridBinsY",1);
   desc.add<int>("nGridBinsZ",1);
@@ -68,49 +77,75 @@ void CosmicGridTripletSeeder::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<double>("gridYmax",120);
   desc.add<double>("gridZmin",-280);
   desc.add<double>("gridZmax",280);
+  desc.add<int>("maxTripsPerSP",10);
+  desc.add<int>("maxSeedsPerSP",8);
+  desc.add<double>("slopeCompatForVH",0.15);
+  desc.add<bool>("tryBothDirections",true);
   descriptions.addWithDefaultLabel(desc);
-}
-
-std::pair<GlobalVector, int> CosmicGridTripletSeeder::pqFromHelixFit(const GlobalPoint& inner,
-                                                                     const GlobalPoint& middle,
-                                                                     const GlobalPoint& outer,
-                                                                     const MagneticField* magfield) const {
-  FastHelix helix(inner, middle, outer, magfield->nominalValue(), magfield);
-  FastCircle theCircle(inner, middle, outer);
-  double rho = theCircle.rho();
-  GlobalVector tesla = magfield->inTesla(middle);
-  double pt = 0.01 * rho * (0.3 * tesla.z());
-  double dx1 = outer.x() - theCircle.x0();
-  double dy1 = outer.y() - theCircle.y0();
-  double py = pt * dx1 / rho, px = -pt * dy1 / rho;
-  if (px * (middle.x() - outer.x()) + py * (middle.y() - outer.y()) < 0.) {
-    px *= -1.;
-    py *= -1.;
-  }
-  double dz = inner.z() - outer.z();
-  double sinphi = (dx1 * (inner.y() - theCircle.y0()) - dy1 * (inner.x() - theCircle.x0())) / (rho * rho);
-  double dphi = std::abs(std::asin(sinphi));
-  double pz = pt * dz / (dphi * rho);
-
-  int myq = ((theCircle.x0() * py - theCircle.y0() * px) / tesla.z()) > 0. ? +1 : -1;
-
-  return std::make_pair(GlobalVector(px, py, pz), myq);
-
 }
 
 CosmicGridTripletSeeder::TripletSeederEventState CosmicGridTripletSeeder::initEventState(const edm::EventSetup& c) const {
   auto magfield = &c.getData(magfieldToken_);
   auto tracker = &c.getData(trackerToken_);
   auto cloner = dynamic_cast<TkTransientTrackingRecHitBuilder const&>(c.getData(ttrhBuilderToken_)).cloner();
-
+  constexpr double g_muonMass = 0.1057;
   return TripletSeederEventState{CartesianSeedingGrid{nGridBinsX_, gridXmin_, gridXmax_, nGridBinsY_, gridYmin_, gridYmax_, nGridBinsZ_, gridZmin_, gridZmax_},
                                  {},
                                  magfield,
                                  tracker,
                                  cloner,
                                  std::make_unique<KFUpdator>(),
-                                 std::make_unique<PropagatorWithMaterial>(alongMomentum, 0.1057, magfield),
-                                 std::make_unique<PropagatorWithMaterial>(oppositeToMomentum, 0.1057, magfield)};
+                                 std::make_unique<PropagatorWithMaterial>(alongMomentum, g_muonMass, magfield),
+                                 std::make_unique<PropagatorWithMaterial>(oppositeToMomentum, g_muonMass, magfield)};
+}
+
+bool CosmicGridTripletSeeder::tripletOk(const TripletSeederEventState & state, const OrderedHitTriplet& trip) const{
+
+    // get the positions for triplet shape cleaning 
+    Global3DPoint top = trip.inner()->globalPosition();
+    Global3DPoint middle = trip.middle()->globalPosition();
+    Global3DPoint bottom = trip.outer()->globalPosition();
+
+    // veto "zigzag" in z 
+    if ((top.z() - middle.z()) * (middle.z() - bottom.z())  < 0 && std::abs(top.z() - bottom.z()) > 1.0) return false;
+
+    // veto "zigzag" in x 
+    if ((top.x() - middle.x()) * (middle.x() - bottom.x())  < 0 && std::abs(top.x() - bottom.x()) > 2.0) return false;
+
+    // x-y slope consistency checks
+
+    // get the local x-y slopes between pairs of consecutive SP 
+    double dxy_t = (top.x() - middle.x())/(top.y() - middle.y());  
+    double dxy_b = (middle.x() - bottom.x())/(middle.y() - bottom.y());
+    // center point estimated as mean between the adjacent segments 
+    double dxy_c = 0.5 * (dxy_t + dxy_b);
+    double dxy_vh_c = 0;
+    double dxy_vh_b = 0; 
+    double dxy_vh_t = 0; 
+        
+    // and, for vector hits (only used in the barrel), the measured slopes 
+    // on the hit itself 
+    const VectorHit* topVH = dynamic_cast<const VectorHit*>(trip.inner()); 
+    if (topVH) dxy_vh_t = topVH->globalDirectionVH().x() /  topVH->globalDirectionVH().y(); 
+
+    const VectorHit* centerVH = dynamic_cast<const VectorHit*>(trip.middle()); 
+    if (centerVH) dxy_vh_c = centerVH->globalDirectionVH().x() /  centerVH->globalDirectionVH().y(); 
+
+    const VectorHit* bottomVH = dynamic_cast<const VectorHit*>(trip.outer());
+    if (bottomVH) dxy_vh_b = bottomVH->globalDirectionVH().x() /  bottomVH->globalDirectionVH().y(); 
+
+    // now we require consistency between the VH and the estimate from neighbouring SP 
+    // for all cases where these are well-defined 
+    if (topVH     && std::abs(dxy_vh_t - dxy_t) > slopeCompatForVH_ * std::abs(std::max(dxy_vh_t,dxy_t))) return false; 
+    if (centerVH  && std::abs(dxy_vh_c - dxy_c) > slopeCompatForVH_ * std::abs(std::max(dxy_vh_c,dxy_c))) return false; 
+    if (bottomVH  && std::abs(dxy_vh_b - dxy_b) > slopeCompatForVH_ * std::abs(std::max(dxy_vh_b,dxy_b))) return false; 
+    
+    // check curvature estimate 
+    if (FastCircle(top, middle, bottom).rho() < 0.5 * ptMin_ / (0.003 * state.magfield->nominalValue())){
+      return false; 
+    }
+    return true; 
+
 }
 
 void CosmicGridTripletSeeder::produce(edm::Event& e, const edm::EventSetup& c) {
@@ -126,20 +161,22 @@ void CosmicGridTripletSeeder::produce(edm::Event& e, const edm::EventSetup& c) {
 
   // book the trajectory seed collection
   auto output = std::make_unique<TrajectorySeedCollection>();
-  auto outtriplets = std::make_unique<edm::OwnVector<TrackingRecHit>>();
 
   // and fit the triplets
   fitTriplets(state, triplets, *output);
 
-  for (auto & trip : triplets){
-    outtriplets->push_back(trip.inner()->cloneHit()); 
-    outtriplets->push_back(trip.middle()->cloneHit()); 
-    outtriplets->push_back(trip.outer()->cloneHit()); 
-  }
-
   // put our output on the store
   e.put(std::move(output));
-  e.put(std::move(outtriplets));
+  // optional triplet writing for debugging / perf validation 
+  if (writeTriplets_){
+    auto outtriplets = std::make_unique<edm::OwnVector<TrackingRecHit>>();
+    for (auto & trip : triplets){
+      outtriplets->push_back(trip.inner()->cloneHit()); 
+      outtriplets->push_back(trip.middle()->cloneHit()); 
+      outtriplets->push_back(trip.outer()->cloneHit()); 
+    }
+    e.put(std::move(outtriplets));
+  }
 }
 
 void CosmicGridTripletSeeder::populateGrid(const edm::Event& iEvent, CosmicGridTripletSeeder::TripletSeederEventState & state) const {
@@ -147,6 +184,7 @@ void CosmicGridTripletSeeder::populateGrid(const edm::Event& iEvent, CosmicGridT
   edm::Handle<Phase2TrackerRecHit1DCollectionNew> otHitCollection; 
   edm::Handle<SiStripMatchedRecHit2DCollection> matchedStripHits; 
   edm::Handle<SiStripRecHit2DCollection> rPhiStripHits; 
+  edm::Handle<SiPixelRecHitCollection> pixelHitCollection; 
 
   /// Treat the hit collections as optional, so that we can
   /// run with both the Run-3 and the Phase-2 detectors. 
@@ -156,7 +194,7 @@ void CosmicGridTripletSeeder::populateGrid(const edm::Event& iEvent, CosmicGridT
   bool hasRphiStrips = iEvent.getByToken(rPhiHitsToken_, rPhiStripHits );
 
   /// Pixels should be around in all detector geometries. 
-  const SiPixelRecHitCollection & pixelHitCollection = iEvent.get(pixelRecHitsToken_);
+  bool hasPixels = iEvent.getByToken(pixelRecHitsToken_, pixelHitCollection);
 
   std::set<const TrackingRecHit*> recHitsSeen{}; 
   std::vector<const VectorHit*> vhSeen{}; 
@@ -248,13 +286,16 @@ void CosmicGridTripletSeeder::populateGrid(const edm::Event& iEvent, CosmicGridT
   }
 
   /// step 3: Add pixel hits if desired  
-  for (auto  ds : pixelHitCollection){
-      for (const auto & pix : ds){
-        state.grid.addHit(&pix); 
-      }
+  if (hasPixels){
+    LogDebug("CosmicGridTrupletSeeder")<< "have Pixel hits "; 
+    for (auto  ds : *pixelHitCollection){
+        for (const auto & pix : ds){
+          state.grid.addHit(&pix); 
+        }
+    }
   }
 
-  // now sort all bins of the grid by ascending global y.
+  // now sort all bins of the grid by descending global y.
   state.grid.sort(); 
 
 }
@@ -267,12 +308,18 @@ void CosmicGridTripletSeeder::formTriplets(const CosmicGridTripletSeeder::Triple
       // loop rectangularily over the x-z grid 
       for (int xBin = 0; xBin < state.grid.nBinsX(); ++xBin){
         for (int zBin = 0; zBin < state.grid.nBinsZ(); ++zBin){
-          const auto & topCandidates = state.grid.getHits(xBin,yBin,zBin); 
-          if (topCandidates.empty()) continue;         
           formTriplets(xBin,yBin,zBin,state,found,trackUsage); 
         }
       }
     }
+    // sort by y-location of the lower hit, fall-back to upper if same 
+    std::sort(found.begin(),found.end(),[](const OrderedHitTriplet & t1, const OrderedHitTriplet & t2){
+      double ylow1 = t1.outer()->globalPosition().y();
+      double ylow2 = t2.outer()->globalPosition().y();
+      double ytop1 = t1.inner()->globalPosition().y();
+      double ytop2 = t2.inner()->globalPosition().y();
+      return (ylow1 == ylow2 ? ytop1 > ytop2 : ylow1 > ylow2); 
+    });
 }
 
 void CosmicGridTripletSeeder::formTriplets(int xBin,
@@ -284,43 +331,28 @@ void CosmicGridTripletSeeder::formTriplets(int xBin,
   const CartesianSeedingGrid& grid = state.grid;
 
   const auto& topHits = grid.getHits(xBin, yBin, zBin);
+  // do not run triplet formation on empty cells. 
+  if (topHits.empty()) return; 
 
   std::vector<const BaseTrackerRecHit *> hitCands; 
   hitCands.insert(hitCands.end(),topHits.begin(), topHits.end() ); 
 
-  for (int dxCenter = -1; dxCenter < 2; ++dxCenter) {
-    if (xBin + dxCenter < 0 || xBin + dxCenter >= grid.nBinsX())
-      continue;
-    for (int dzCenter = -1; dzCenter < 2; ++dzCenter) {
-      if (zBin + dzCenter < 0 || zBin + dzCenter >= grid.nBinsZ())
+  if (yBin > 0){
+    for (int dxCenter = -1; dxCenter < 2; ++dxCenter) {
+      if (xBin + dxCenter < 0 || xBin + dxCenter >= grid.nBinsX())
         continue;
-      // formTriplets(topHits, topHits, topHits, state, found, trackUsage);
-      if (yBin > 0){
+      for (int dzCenter = -1; dzCenter < 2; ++dzCenter) {
+        if (zBin + dzCenter < 0 || zBin + dzCenter >= grid.nBinsZ())
+          continue;
         const auto& middleHits = grid.getHits(xBin + dxCenter, yBin - 1, zBin + dzCenter);
         hitCands.insert(hitCands.end(),middleHits.begin(), middleHits.end() ); 
-        // // formTriplets(topHits, topHits, middleHits, state, found, trackUsage);
-        // // formTriplets(topHits, middleHits, middleHits, state, found, trackUsage);
-        // for (int dxBottom = -1; dxBottom < 2; ++dxBottom) {
-        //   if (xBin + dxCenter + dxBottom < 0 || xBin + dxCenter + dxBottom >= grid.nBinsX())
-        //     continue;
-        //   if ((dxCenter < 0 && dxBottom > 0) || (dxCenter > 0 && dxBottom < 0))
-        //     continue;
-        //   for (int dzBottom = -1; dzBottom < 2; ++dzBottom) {
-        //     if (zBin + dzCenter + dzBottom < 0 || zBin + dzCenter + dzBottom >= grid.nBinsZ())
-        //       continue;
-        //     if ((dzCenter < 0 && dzBottom > 0) || (dzCenter > 0 && dzBottom < 0))
-        //       continue;
-        //     if (yBin > 1){
-        //       const auto& bottomHits = grid.getHits(xBin + dxCenter + dxBottom, yBin - 2, zBin + dzCenter + dzBottom);
-        //       formTriplets(topHits, middleHits, bottomHits, state, found, trackUsage);
-        //     }
-        //   }
-        // }
       }
     }
   }
-  std::sort(hitCands.begin(),hitCands.end(),[](const BaseTrackerRecHit* h1, const BaseTrackerRecHit* h2){return h1->globalPosition().y() < h2->globalPosition().y(); });
-  formTriplets(hitCands, hitCands, hitCands, state, found, trackUsage);
+
+  std::sort(hitCands.begin(),hitCands.end(),[](const BaseTrackerRecHit* h1, const BaseTrackerRecHit* h2){return h1->globalPosition().y() > h2->globalPosition().y(); });
+
+  formTriplets(topHits, hitCands, hitCands, state, found, trackUsage);
 }
 
      /// get the triplets for one particular cell combination
@@ -330,32 +362,28 @@ void CosmicGridTripletSeeder::formTriplets(const std::vector<const BaseTrackerRe
                 const TripletSeederEventState & state,
                 std::vector<OrderedHitTriplet> & found, 
                 std::unordered_multiset<const BaseTrackerRecHit*> & trackUsage) const{
-
   for (const BaseTrackerRecHit* top : topCands){
-    if (trackUsage.count(top) > 12) continue; 
+    if (trackUsage.count(top) >maxTripsPerSP_) continue; 
     const auto & gTop = top->globalPosition(); 
-    for (const BaseTrackerRecHit* center: centerCands){
-      const auto & gCenter = center->globalPosition(); 
-      if (trackUsage.count(center) > 12) continue; 
-      for (const BaseTrackerRecHit* bottom: bottomCands){
-        const auto & gBottom = bottom->globalPosition(); 
-        if (trackUsage.count(bottom) > 12) continue; 
-        if (center == top || top == bottom || center == bottom) continue; 
-        if (top->sameDetModule(*bottom) || top->sameDetModule(*center) || center->sameDetModule(*bottom)) continue; 
-        if (gCenter.y() > gTop.y()) continue;
-        if (gBottom.y() > gCenter.y()) continue;
-        // veto "zigzag" in z 
-        if ((gTop.z() - gCenter.z()) * (gCenter.z() - gBottom.z())  < 0 && std::abs(gTop.z() - gBottom.z() > 1.0)) continue;
-        // veto "zigzag" in x 
-        if ((gTop.x() - gCenter.x()) * (gCenter.x() - gBottom.x())  < 0 && std::abs(gTop.x() - gBottom.x() > 1.0)) continue;
-        const VectorHit* cenVH = dynamic_cast<const VectorHit*>(center); 
-        if (cenVH){
-          double dydx = 0.5 * ((gTop.y() - gCenter.y())/(gTop.x() - gCenter.x()) + (gCenter.y() - gBottom.y())/(gCenter.x() - gBottom.x())); 
-          double dydx_vh = cenVH->globalDirectionVH().y() / cenVH->globalDirectionVH().x();
-          LogDebug("CosmicGridTripletSeeder") << " dydx from trip "<<dydx<<" and from vh "<<dydx_vh;
-        }
 
+    for (const BaseTrackerRecHit* center: centerCands){
+      if (trackUsage.count(center) >maxTripsPerSP_) continue; 
+      const auto & gCenter = center->globalPosition(); 
+
+      if ( gTop.y()   < gCenter.y()) continue;
+      if (top->sameDetModule(*center)) continue; 
+
+      for (const BaseTrackerRecHit* bottom: bottomCands){
+        if (trackUsage.count(bottom) >maxTripsPerSP_) continue; 
+        const auto & gBottom = bottom->globalPosition(); 
+
+        if (top == bottom || center == bottom) continue; 
+        if (top->sameDetModule(*bottom) || center->sameDetModule(*bottom)) continue; 
+        if ( gCenter.y() < gBottom.y()) continue;
+        
         OrderedHitTriplet ps (top, center, bottom);
+        if (!tripletOk(state,ps)) continue; 
+
         trackUsage.insert(top); 
         trackUsage.insert(center); 
         trackUsage.insert(bottom); 
@@ -366,54 +394,68 @@ void CosmicGridTripletSeeder::formTriplets(const std::vector<const BaseTrackerRe
 }
 /// fit the triplets with kalman into trajectory seeds
 void CosmicGridTripletSeeder::fitTriplets(const CosmicGridTripletSeeder::TripletSeederEventState & state, const std::vector<OrderedHitTriplet>& triplets, TrajectorySeedCollection & output) const {
+    std::unordered_multiset<const TrackingRecHit*> seedPerSP;
     for (const OrderedHitTriplet & trip : triplets ) {
-      fitTriplet(state, trip, output); 
+      if (   seedPerSP.count(trip.inner() ) >= maxSeedsPerSP_
+          || seedPerSP.count(trip.middle()) >= maxSeedsPerSP_
+          || seedPerSP.count(trip.outer() ) >= maxSeedsPerSP_
+      ) continue; 
+      fitTriplet(state, trip, output, seedPerSP, true); 
+      if (tryBothDirections_) fitTriplet(state, trip, output, seedPerSP,false); 
     }
 }
 
 /// fit of a single triplet into a trajectory seed 
-bool CosmicGridTripletSeeder::fitTriplet(const CosmicGridTripletSeeder::TripletSeederEventState & state, const OrderedHitTriplet& triplet, TrajectorySeedCollection & output) const {
+bool CosmicGridTripletSeeder::fitTriplet(const CosmicGridTripletSeeder::TripletSeederEventState & state, const OrderedHitTriplet& triplet, TrajectorySeedCollection & output, std::unordered_multiset<const TrackingRecHit*> & seedPerSP, bool goUp) const {
   typedef TrajectoryStateOnSurface TSOS;
 
-    OrderedHitTriplet trip = triplet;  
+    // arrange the triplet so that the hits appear in extrapolation order, with the *target hit* appearing first ("inner"). 
+    // NB: They initially come in the order "top - middle - bottom" (in global y) when passed to this method. 
+    OrderedHitTriplet tripToUse = goUp ? triplet : OrderedHitTriplet{triplet.outer(), triplet.middle(), triplet.inner()}; 
 
-    GlobalPoint inner =
-        state.tracker->idToDet((*(trip.inner())).geographicalId())->surface().toGlobal((*(trip.inner())).localPosition());
+    // top SP
+    GlobalPoint target =
+        state.tracker->idToDet((*(tripToUse.inner())).geographicalId())->surface().toGlobal((*(tripToUse.inner())).localPosition());
 
+    // middle SP
     GlobalPoint middle =
-        state.tracker->idToDet((*(trip.middle())).geographicalId())->surface().toGlobal((*(trip.middle())).localPosition());
+        state.tracker->idToDet((*(tripToUse.middle())).geographicalId())->surface().toGlobal((*(tripToUse.middle())).localPosition());
 
-    GlobalPoint outer =
-        state.tracker->idToDet((*(trip.outer())).geographicalId())->surface().toGlobal((*(trip.outer())).localPosition());
-    if ((outer.y() - inner.y()) * outer.y() < 0) {
-      std::swap(inner, outer);
-      trip = OrderedHitTriplet(trip.outer(), trip.middle(), trip.inner());
-    }
-    // First use FastHelix out of the box
-    std::pair<GlobalVector, int> pq = pqFromHelixFit(inner, middle, outer, state.magfield);
-    GlobalVector gv = pq.first;
-    float ch = pq.second;
-    float Mom = sqrt(gv.x() * gv.x() + gv.y() * gv.y() + gv.z() * gv.z());
+    // bottom SP 
+    GlobalPoint start =
+        state.tracker->idToDet((*(tripToUse.outer())).geographicalId())->surface().toGlobal((*(tripToUse.outer())).localPosition());
+
+    // Initial momentum estimate at the start point 
+    // using the fast helix helper.
+    // Note: arg order of FastHelix is "outer middle vertex",
+    // so we will get a momentum pointing *up* when targeting the top SP,
+    // and pointing down when targeting the bottom SP. 
+    FastHelix helix(target, middle, start, state.magfield->nominalValue(),state.magfield);
+
+    // extract momentum and charge - flip when needed to ensure a momentum 
+    // pointing down (cosmic trajectory)
+    GlobalVector  gv =  (goUp ? -1 : 1) * helix.stateAtVertex().momentum();  
+    float ch = (goUp ? -1 : 1) * helix.stateAtVertex().charge();
+    
+    // initial cleaning. 
+    float Mom = gv.mag();
     if (Mom > 1000000 || edm::isNotFinite(Mom)) {
       return false;
     }
-    if (gv.perp() < 0.5) {
+    if (gv.perp() < 0.5 * ptMin_) {
       return false;
     }
-    const Propagator *propagator = nullptr;
-    if ((outer.y() - inner.y()) > 0) {
-      propagator = state.thePropagatorAl.get();
-    } else {
-      gv = -1 * gv;
-      ch = -1. * ch;
-      propagator = state.thePropagatorOp.get();
-    }
-    if ((gv.z() * (outer.z() - inner.z()) > 0) && (fabs(outer.z() - inner.z()) > 5) && (fabs(gv.z()) > .01)) {
-    }
+
+    // Next use a KF to refine the parameter estimate.
+    // Propagate from the start to the target, and track
+    // relation to the momentum direction. 
+    const Propagator *propagator = goUp ? state.thePropagatorOp.get() : state.thePropagatorAl.get();
 
     edm::OwnVector<TrackingRecHit> hits;
     std::vector<const BaseTrackerRecHit*> seedHits;
-    for (const BaseTrackerRecHit* hit : {trip.outer(), trip.middle(), trip.inner()}){
+
+    // build our hit array in the order pointing towards the target ("inner")
+    for (const BaseTrackerRecHit* hit :{tripToUse.outer(), tripToUse.middle(), tripToUse.inner()}){
       const VectorHit* vh = dynamic_cast<const VectorHit*>(hit);
       if (vh){
         auto found = state.vhConstituents.find(vh);
@@ -431,20 +473,19 @@ bool CosmicGridTripletSeeder::fitTriplet(const CosmicGridTripletSeeder::TripletS
         seedHits.push_back(hit);
       }
     }
+    // re-sort, to account for the vector hit components being possibly out-of-order
     std::sort(seedHits.begin(),seedHits.end(),[&](const BaseTrackerRecHit* h1, const BaseTrackerRecHit* h2){
-      if (outer.y() > 0 ){
-        return h1->globalPosition().y() > h2->globalPosition().y();
-      }
-      else{
-        return h1->globalPosition().y() < h2->globalPosition().y();
-      }
+        return goUp ? h1->globalPosition().y() < h2->globalPosition().y() : h1->globalPosition().y() > h2->globalPosition().y();
     });
-    outer = seedHits.front()->globalPosition(); 
-    GlobalTrajectoryParameters Gtp(outer, gv, int(ch), state.magfield);
+
+    // starting parameters: Lowest point, estimated momentum from fast helix. 
+    GlobalPoint updatedStartPos = seedHits.front()->globalPosition(); 
+    GlobalTrajectoryParameters Gtp(updatedStartPos, gv, int(ch), state.magfield);
     FreeTrajectoryState CosmicSeed(Gtp, CurvilinearTrajectoryError(AlgebraicSymMatrix55(AlgebraicMatrixID())));
     CosmicSeed.rescaleError(100);
     TSOS propagated, updated;
-    bool fail = false;
+
+    // now incrementally propagate towards the target point
     for (size_t ih = 0; ih < seedHits.size(); ++ih) {
       if (ih == 0) {
         propagated = propagator->propagate(CosmicSeed, state.tracker->idToDet((*seedHits[ih]).geographicalId())->surface());
@@ -452,60 +493,42 @@ bool CosmicGridTripletSeeder::fitTriplet(const CosmicGridTripletSeeder::TripletS
         propagated = propagator->propagate(updated, state.tracker->idToDet((*seedHits[ih]).geographicalId())->surface());
       }
       if (!propagated.isValid()) {
-        fail = true;
-        break;
-      } else {
+        return false;
       }
+
+      // clone the hit based on the propagated state 
       SeedingHitSet::ConstRecHitPointer tthp = seedHits[ih];
       auto newtth = static_cast<SeedingHitSet::RecHitPointer>(state.cloner(*tthp, propagated));
       updated = state.theUpdator->update(propagated, *newtth);
       hits.push_back(newtth);
+
       if (!updated.isValid()) {
-        fail = true;
-        break;
-      } else {
+        return false;
       }
     }
-    if (!fail && updated.isValid() && (updated.globalMomentum().perp() < 2.5)) {
-      fail = true;
+    
+    // some more cleaning
+    if (updated.globalMomentum().perp() < ptMin_) {
+      return false;
     }
-    if (!fail && updated.isValid() && (updated.globalMomentum().mag() < 2.5)) {
-      fail = true;
+    if (updated.globalMomentum().mag() < ptMin_) {
+      return false;
     }
-    if (fail) return false; 
-    // if (!fail) {
-        // if (seedVerbosity_ > 2) {
-        //   std::cout << "Processing triplet "  << ", rescale error by " << rescaleError_
-        //             << ": state BEFORE rescaling " << updated;
-        //   std::cout << "    Cartesian error (X,P) before rescaling= \n"
-        //             << updated.cartesianError().matrix() << std::endl;
-        // }
-        // updated.rescaleError(100);
-      // }
-    //   if (true) {
-    //   std::cout << "Processed  triplet "  << ": success (saved as #" << output.size() << ") : " << inner << " + "
-    //             << middle << " + " << outer << std::endl;
-    //   std::cout << "    pt = " << updated.globalMomentum().perp() << "    eta = " << updated.globalMomentum().eta()
-    //             << "    phi = " << updated.globalMomentum().phi() << "    ch = " << updated.charge() << std::endl;
-    //   if (true) {
-    //     std::cout << "    State:" << updated;
-    //   } else {
-    //     std::cout << "    X  = " << updated.globalPosition() << ", P = " << updated.globalMomentum() << std::endl;
-    //   }
-    //   std::cout << "    Cartesian error (X,P) = \n" << updated.cartesianError().matrix() << std::endl;
-    // }   
+
     PTrajectoryStateOnDet const &PTraj = trajectoryStateTransform::persistentState(
         updated, hits.back().geographicalId().rawId());
-    
-    output.push_back(TrajectorySeed(PTraj, hits, ((outer.y() - inner.y() > 0) ? alongMomentum : oppositeToMomentum)));
 
+    // and build the final seed. 
+    output.push_back(TrajectorySeed(PTraj, hits, goUp ? oppositeToMomentum : alongMomentum ));
 
     if (output.size() > size_t(500)) {
       output.clear();
       edm::LogError("TooManySeeds") << "Found too many seeds, bailing out.\n";
       return false;
     }
+    seedPerSP.insert(triplet.inner());
+    seedPerSP.insert(triplet.middle());
+    seedPerSP.insert(triplet.outer());
 
     return true;
-
 }

@@ -134,6 +134,13 @@ private:
                        std::unordered_multiset<const BaseTrackerRecHit*> & trackUsage) const;
 
 
+     /// @brief Method apply quality cuts on a given triplet
+     /// Will check compatibility of points with a cosmic trajectory. 
+     /// @param state: Event state, containing the required event info such as field. 
+     /// @param triplet: The triplet to check 
+     bool tripletOk(const TripletSeederEventState & state, const OrderedHitTriplet& triplet) const;
+
+
      /// @brief Top-level method to fit the triplets into trajectorySeeds. 
      /// Will attempt, for each triplet, to check if it satisfies certain quality criteria and fit its 
      /// trajectory using a Kalman filter. 
@@ -149,14 +156,10 @@ private:
      /// @param state: Event state, containing the required event info such as field, propagators and updator. 
      /// @param triplet: The triplet to fit 
      /// @param output seed collection to push the successfully fit candidates into. 
+     /// @param seedPerSP: tracker to count accepted seeds using the same space-point 
+     /// @param goUp: If true, will put the seed state on the surface of the uppermost space point. Else on the lowest. 
      /// @return a bool indicating the success of the operation 
-     bool fitTriplet(const TripletSeederEventState & state, const OrderedHitTriplet& triplet, TrajectorySeedCollection & output) const;
-
-    /// helper borrowed from SimpleCosmicBONSeeder - possibly refactor into helper class for deployment
-    std::pair<GlobalVector, int> pqFromHelixFit(const GlobalPoint &inner,
-                                            const GlobalPoint &middle,
-                                            const GlobalPoint &outer,
-                                            const MagneticField* magfield) const; 
+     bool fitTriplet(const TripletSeederEventState & state, const OrderedHitTriplet& triplet, TrajectorySeedCollection & output, std::unordered_multiset<const TrackingRecHit*> & seedPerSP, bool goUp = false) const;
 
      /// data dependencies 
     edm::EDGetTokenT<VectorHitCollection> vectorHitsToken_;  // vector hit collection
@@ -176,6 +179,9 @@ private:
     // tools 
     const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> ttrhBuilderToken_;
 
+    // config for enabling triplet writing
+    bool writeTriplets_ = false; 
+
     // config parameters for the seeding grid 
     int nGridBinsX_ = 1;
     int nGridBinsY_ = 1;
@@ -189,6 +195,13 @@ private:
 
     double gridZmin_ = -280; 
     double gridZmax_ = 280; 
+
+    // algorithm tuning options
+    double ptMin_   = 1.0; 
+    std::size_t maxTripsPerSP_ = 24;     // max. triplets allowed per SP 
+    std::size_t maxSeedsPerSP_ = 8;      // max. seeds allowed per SP 
+    double slopeCompatForVH_ = 0.15;     // max. rel. difference in central dy/dx between triplet and vector hit estimate 
+    bool tryBothDirections_ = true;      // try both extrapolation directions when fitting the seed or just "upwards"
 
 
 };
