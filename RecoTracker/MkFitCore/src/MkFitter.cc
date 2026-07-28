@@ -256,6 +256,7 @@ namespace mkfit {
 #endif
       no_mat_effs.setVal(0);
       do_cpe.setVal(-1);
+      bool propHit = h == 0 ? false : true;  // just update when the position is already at the hit
 
       for (int i = 0; i < N_proc; ++i)  //loop over tracks in group
       {
@@ -347,7 +348,7 @@ namespace mkfit {
                                            outChi2,
                                            N_proc,
                                            *refit_flags,
-                                           true,
+                                           propHit,
                                            &no_mat_effs,
                                            &do_cpe,
                                            m_cpe_corr_func);
@@ -420,6 +421,7 @@ namespace mkfit {
 #endif
       no_mat_effs.setVal(0);
       do_cpe.setVal(-1);
+      bool propHit = h == 0 ? false : true;  // just update when the position is already at the hit
 
       for (int i = 0; i < N_proc; ++i)  //loop over tracks in group
       {
@@ -512,7 +514,7 @@ namespace mkfit {
                                            outChi2,
                                            N_proc,
                                            *refit_flags,
-                                           true,
+                                           propHit,
                                            &no_mat_effs,
                                            &do_cpe,
                                            m_cpe_corr_func);

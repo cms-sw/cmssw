@@ -105,10 +105,6 @@ private:
                          std::vector<int>& seedIndices,
                          std::vector<edm::OwnVector<TrackingRecHit>>& hitsVecs) const;
 
-  std::pair<TrajectoryStateOnSurface, const GeomDet*> convertInnermostState(const FreeTrajectoryState& fts,
-                                                                            const edm::OwnVector<TrackingRecHit>& hits,
-                                                                            const Propagator& propagatorAlong,
-                                                                            const Propagator& propagatorOpposite) const;
   float ptcorr(const float abstheta, const float pt) const;
 
   const edm::EDGetTokenT<MkFitEventOfHits> eventOfHitsToken_;
@@ -516,15 +512,21 @@ void MkFitOutputTrackConverter::convertCandidates(const MkFitOutputWrapper& mkFi
     // Error is only rescaled for candidates propagated to first layer;
     // otherwise, candidates undergo backwardFit where error is already rescaled
 
-    auto tsosDet = convertInnermostState(fts, recHits, propagatorAlong, propagatorOpposite);
+    auto detH0 = recHits[0].det();
 
-    if (!tsosDet.first.isValid()) {
+    if (detH0 == nullptr) {
+      edm::LogInfo("MkFitOutputTrackConverter")
+          << "Got nullptr from the first hit det() " << candIndex << " failed, ignoring the candidate";
+      continue;
+    }
+
+    auto tsosState = TrajectoryStateOnSurface(fts, detH0->surface());
+
+    if (!tsosState.isValid()) {
       edm::LogInfo("MkFitOutputTrackConverter")
           << "Backward fit of candidate " << candIndex << " failed, ignoring the candidate";
       continue;
     }
-
-    TrajectoryStateOnSurface tsosState = tsosDet.first;
 
     TSCBLBuilderNoMaterial tscblBuilder;
 
@@ -580,7 +582,7 @@ void MkFitOutputTrackConverter::convertCandidates(const MkFitOutputWrapper& mkFi
     for (auto it : innerCompLayers) {
       if (it->basicComponents().empty())
         continue;
-      auto const& detWithState = it->compatibleDets(tsosDet.first, propagatorOpposite, estimator);
+      auto const& detWithState = it->compatibleDets(tsosState, propagatorOpposite, estimator);
       if (detWithState.empty())
         continue;
       DetId id = detWithState.front().first->geographicalId();
@@ -598,8 +600,8 @@ void MkFitOutputTrackConverter::convertCandidates(const MkFitOutputWrapper& mkFi
     for (auto it : outerCompLayers) {
       if (it->basicComponents().empty())
         continue;
-      //tsosDet is innermost (not good, but does it mean anyhting is fully wrong?)
-      auto const& detWithState = it->compatibleDets(tsosDet.first, propagatorAlong, estimator);
+      //tsosState is innermost (not good, but does it mean anyhting is fully wrong?)
+      auto const& detWithState = it->compatibleDets(tsosState, propagatorAlong, estimator);
       if (detWithState.empty())
         continue;
       DetId id = detWithState.front().first->geographicalId();
@@ -619,27 +621,6 @@ void MkFitOutputTrackConverter::convertCandidates(const MkFitOutputWrapper& mkFi
     seedIndices.push_back(cand.label());
     hitsVecs.push_back(recHits);
   }
-}
-
-std::pair<TrajectoryStateOnSurface, const GeomDet*> MkFitOutputTrackConverter::convertInnermostState(
-    const FreeTrajectoryState& fts,
-    const edm::OwnVector<TrackingRecHit>& hits,
-    const Propagator& propagatorAlong,
-    const Propagator& propagatorOpposite) const {
-  auto det = hits[0].det();
-  if (det == nullptr) {
-    throw cms::Exception("LogicError") << "Got nullptr from the first hit det()";
-  }
-
-  const auto& firstHitSurface = det->surface();
-
-  auto tsosDouble = propagatorAlong.propagateWithPath(fts, firstHitSurface);
-  if (!tsosDouble.first.isValid()) {
-    LogDebug("MkFitOutputTrackConverter") << "Propagating to startingState along momentum failed, trying opposite next";
-    tsosDouble = propagatorOpposite.propagateWithPath(fts, firstHitSurface);
-  }
-
-  return std::make_pair(tsosDouble.first, det);
 }
 
 float MkFitOutputTrackConverter::ptcorr(const float abstheta, float pt) const {

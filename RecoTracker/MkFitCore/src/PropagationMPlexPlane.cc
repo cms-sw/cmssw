@@ -166,18 +166,16 @@ namespace {
     const MPF dx1 = inPar(0, 0) - outPar(0, 0);
     const MPF dx2 = inPar(1, 0) - outPar(1, 0);
     const MPF dx3 = inPar(2, 0) - outPar(2, 0);
-    MPF au = mpt::fast_isqrt(t11 * t11 + t12 * t12);
-    const MPF u11 = -au * t12;
-    const MPF u12 = au * t11;
+    const MPF u11 = -sinPin;
+    const MPF u12 = cosPin;
     const MPF v11 = -cosT * u12;
     const MPF v12 = cosT * u11;
-    const MPF v13 = t11 * u12 - t12 * u11;
-    au = mpt::fast_isqrt(t21 * t21 + t22 * t22);
-    const MPF u21 = -au * t22;
-    const MPF u22 = au * t21;
+    const MPF v13 = sinT;
+    const MPF u21 = -sinPout;
+    const MPF u22 = cosPout;
     const MPF v21 = -cosT * u22;
     const MPF v22 = cosT * u21;
-    const MPF v23 = t21 * u22 - t22 * u21;
+    const MPF v23 = sinT;
     // now prepare the transport matrix
     const MPF omcost = 1.f - cost;
     const MPF tmsint = theta - sint;
@@ -229,7 +227,7 @@ namespace {
         errorPropCurv(n, 3, 0) = secondOrder41 + (thirdOrder41 + fourthOrder41);
         const float temp3 = -t12[n] * v21[n] + t11[n] * v22[n];
         const float secondOrder51 = -0.5f * bF[n] * temp3 * s2;
-        const float temp4 = -t11[n] * v21[n] - t12[n] * v22[n] - cosT[n] * v23[n];
+        const float temp4 = -t11[n] * v21[n] - t12[n] * v22[n];
         const float thirdOrder51 = 1.f / 3 * h2 * s3 * qbp[n] * temp4;
         const float fourthOrder51 = 1.f / 8 * h3 * s4 * qbp2 * temp3;
         errorPropCurv(n, 4, 0) = secondOrder51 + (thirdOrder51 + fourthOrder51);
@@ -367,20 +365,16 @@ namespace {
              int q,
              float kinv) {
     const float A = delta0 * eta0 + delta1 * eta1 + delta2 * eta2;
-    const float ip = sinT * ipt;
-    const float p0[3] = {cosP / ipt, sinP / ipt, cosT / ip};
-    const float B = (p0[0] * eta0 + p0[1] * eta1 + p0[2] * eta2) * ip;
-    const float rho = kinv * ip;
-    const float C = -(eta0 * p0[1] - eta1 * p0[0]) * rho * 0.5f * ip;
-    const float sqb2m4ac = std::sqrt(B * B - 4.f * A * C);
-    const float s1 = (-B + sqb2m4ac) * 0.5f / C;
-    const float s2 = (-B - sqb2m4ac) * 0.5f / C;
+    const float p0[3] = {cosP * sinT, sinP * sinT, cosT};
+    const float B = (p0[0] * eta0 + p0[1] * eta1 + p0[2] * eta2);
+    const float rho = kinv * sinT * ipt;
+    const float C = -(eta0 * p0[1] - eta1 * p0[0]) * rho * 0.5f;
+    const float s1 = 2.f * A / (-B - std::copysign(std::sqrt(B * B - 4.f * A * C), B));
 #ifdef DEBUG
     if (debug)
-      std::cout << "A=" << A << " B=" << B << " C=" << C << " s1=" << s1 << " s2=" << s2 << std::endl;
+      std::cout << "A=" << A << " B=" << B << " C=" << C << " s1=" << s1 << std::endl;
 #endif
-    //take the closest
-    return (std::abs(s1) > std::abs(s2) ? s2 : s1);
+    return s1;
   }
 
   void helixAtPlane_impl(const MPlexLV& __restrict__ inPar,
