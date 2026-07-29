@@ -114,12 +114,13 @@ Calorimeters:
 * C25: same as C18 but changing ebalgo.xml to make it more conformant with standard and removing overlaps
 * C26: HGCal (v19 version of HGCal geometry with calibration cells, nonzero cassette retraction, correct mousebite, guard ring, proper cell size) + Phase2 HCAL and EB
 * C27: HGCal (same as the v19 version which is in C26 but without internal cells in the Geant4 geometry definition) + Phase2 HCAL and EB
-* C28: HGCal (v19 version of HGCal geometry as in C22 but turning off all dead areas and gaps) + Phase2 HCAL and EB
+* C28: HGCal (v19 version of HGCal geometry as in C27 but turning off all dead areas and gaps) + Phase2 HCAL and EB
 
 Muon system:
 * M14: Phase2 muon system for TDR w/ GE2/1, GE0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1), 96 iRPC strips; no overlaps, MB4Shields with right value for YE3 size and Shield structure modified in muonYoke, changed number of strips and corrected eta partition size for GE21, a realistic support structure for GE0 and adjustment for boundaries, right front-back relation between alternate phi segments
 * M15: same as M14 but removing overlaps in yoke, MB3, GE0 + adding DT shield
 * M16: same as M15 with reverting RPC endcap disk4 rotation
+* M17: same as M15 with the correct shape of GE0
 
 Fast Timing system:
 * I17: Fast Timing detector (LYSO barrel (bars along phi flat), silicon endcap), w/ passive materials, material adjustments, new ETL layout from post MTD TDR (2 sectors per disc face), updated sensor structure, disc z location and passive materials, addition of notch and revision of envelope, revised BTL with complete passive material description, BTL with one crystal thickness (type) only, ETL with LGAD split into two sensors
@@ -131,9 +132,11 @@ Fast Timing system:
 The script also handles the common and forward elements of the geometry:
 *  O9: detailed cavern description, changes for modified CALO region for endcap part, no overlaps inside the Muon System, new support structure, newer definition of calorimeter boundaries, support the additional notch in ETL
 * O10: same as O9 with changes needed to support the shields for DT
+* O11: same as O10 with changes needed to support the forward muon shield in F19
 
 * F8: modifications needed to accommodate detailed cavern, forward shield, HFNose; ZDC description is removed.
 * F9: same as F8 after removing overlap in rotated shield
+* F10: same as F9 after including the forward muon shield
 
 Several detector combinations have been generated:
 * D104 = T35+C22+M14+I17+O9+F8
@@ -149,3 +152,4 @@ Several detector combinations have been generated:
 * D123 = T35+C28+M16+I18+O11+F9
 * D124 = T35+C25+M16+I21+O10+F9
 * D125 = T35+C25+M16+I22+O10+F9
+* D126 = T37+C27+M17+I21+O11+F10

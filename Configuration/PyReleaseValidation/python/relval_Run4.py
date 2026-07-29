@@ -29,6 +29,7 @@ numWFIB.extend([34834.0]) #Run4D122
 numWFIB.extend([35234.0]) #Run4D123
 numWFIB.extend([35634.0]) #Run4D124
 numWFIB.extend([36034.0]) #Run4D125
+numWFIB.extend([37234.0]) #Run4D126
 
 #Run4 FS (TTbar)
 numWFIB.extend([36434.0]) #Run4D110
@@ -49,14 +50,13 @@ numWFIB.extend([prefixDet+61.0])   #Nu Gun
 numWFIB.extend([prefixDet+34.75])  #Timing menu
 numWFIB.extend([prefixDet+151.85]) #Heavy ion reconstruction
 #Default Phase-2 Det PU
-numWFIB.extend([prefixDet+234.0])     #standard PU	
-#numWFIB.extend([prefixDet+261.97])   #premixing stage1 (NuGun+PU)  COMMENT: reads old format file
-#numWFIB.extend([prefixDet+234.99])   #premixing combined stage1+stage2 ttbar+PU200  COMMENT: reads old format file
-#numWFIB.extend([prefixDet+234.999])  #premixing combined stage1+stage2 ttbar+PU50 for PR test  COMMENT: reads old format file
-#numWFIB.extend([prefixDet+234.21])   #prodlike PU  COMMENT: reads old format file
-#numWFIB.extend([prefixDet+234.9921]) #prodlike premix stage1+stage2  COMMENT: reads old format file
-#numWFIB.extend([prefixDet+234.114])  #PU, with 10% OT inefficiency  COMMENT: reads old format file
-#numWFIB.extend([prefixDet+234.711])  #LST tracking on CPU (initialStep+HighPtTripletStep only) COMMENT: reads old format file
+numWFIB.extend([prefixDet+261.97])   #premixing stage1 (NuGun+PU)
+numWFIB.extend([prefixDet+234.99])   #premixing combined stage1+stage2 ttbar+PU200
+numWFIB.extend([prefixDet+234.999])  #premixing combined stage1+stage2 ttbar+PU50 for PR test
+numWFIB.extend([prefixDet+234.21])   #prodlike PU
+numWFIB.extend([prefixDet+234.9921]) #prodlike premix stage1+stage2
+numWFIB.extend([prefixDet+234.114])  #PU, with 10% OT inefficiency
+numWFIB.extend([prefixDet+234.711])  #LST tracking on CPU (initialStep+HighPtTripletStep only)
 
 # Phase-2 HLT tests
 numWFIB.extend([prefixDet+34.7501]) # HLTTrackingOnly75e33
