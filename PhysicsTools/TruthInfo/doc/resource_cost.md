@@ -30,22 +30,38 @@ into RECO, so the DIGI and RECO byte counts are identical.
 | Scheme | branches | uncompressed kB/event | compressed kB/event |
 |---|---:|---:|---:|
 | Legacy: TrackingParticle, TrackingVertex, CaloParticle, SimCluster and their Refs | 14 | 1731.4 | 622.5 |
-| Graph: `TruthGraph`, `truth::Graph`, `truth::LogicalGraphHitIndex` | 3 | 1149.8 | 368.0 |
+| Graph, **default** hit index: `TruthGraph`, `truth::Graph`, `truth::LogicalGraphHitIndex` | 3 | 3304.2 | 611.3 |
+| Graph, **shared** hit index (`sharedSubgraphStore=True`, off by default) | 3 | 1149.8 | 368.3 |
 | Truth-branch association maps and their root/target index vectors | 23 | 168.8 | 25.1 |
-| **Graph total** | **26** | **1318.6** | **393.1** |
+| **Graph total, default index** | **26** | **3473.0** | **636.4** |
+| **Graph total, shared index** | **26** | **1318.6** | **393.4** |
 
 The legacy row is carried over unchanged: nothing in the graph work touches those
 collections. The graph and association rows were re-measured on the current build.
 
-Dropping the legacy collections and keeping the graph plus all four association working
-points saves **229.4 kB/event compressed, 37%** of the truth payload.
+State it plainly: **as shipped today the graph is not a saving.** Dropping the legacy
+collections and keeping the graph plus all four association working points costs
+**13.9 kB/event more, +2.2%**, because the graph carries the full signal GEN half and the
+default hit index stores a hit once per ancestor that contains it.
 
-The single largest graph branch is the hit index at 202.3 kB/event compressed. It is a
-separate product and can be dropped on its own; the two graph structures alone are
-165.7 kB/event.
+Turning on the shared hit index changes that to a **229.1 kB/event saving, 37%**, and it
+is measured, not projected: section 1.1 has the A/B and the correctness check. It is off
+by default only because the consumers of `LogicalGraphHitIndex::subgraphHits` have not
+been migrated to it yet (see section 5), not because of any doubt about the numbers.
 
-For context, the whole RECO event is 7991.4 kB/event compressed. Graph products are 4.9%
-of it, legacy truth 7.8%.
+!!! note "The chain is not bit-reproducible, so read the last digit as noise"
+    Two runs of the identical configuration differ in 64 of 1338 branches, HLT tracking
+    among them. `TruthGraph_mix` ranged 53793 to 56124 compressed bytes/event over four
+    runs, a 4.2% spread, so the graph row uses its mean of 54.9 kB/event. The hit index
+    and `truth::Graph` are stable to the byte, and so is everything derived from them.
+    Section 6 has the detail.
+
+The single largest graph branch is the hit index: 445.3 kB/event compressed by default,
+202.3 with the shared layout. It is a separate product and can be dropped on its own; the
+two graph structures alone are 166.0 kB/event.
+
+For context, the whole RECO event is 7991.4 kB/event compressed. Graph products are 8.0%
+of it by default and 4.9% with the shared index, legacy truth 7.8%.
 
 ### 1.1 What changed since the first version of this document
 
@@ -70,7 +86,14 @@ A/B on the same GEN-SIM, 10 events, compressed bytes/event of the three graph br
 | no GEN half, materialised index | 271013 | 92499 | 54037 | 417549 |
 | full GEN half, materialised index | 696729 | 126768 | 74681 | 898178 |
 | collapsed GEN half, materialised index | 445329 | 111070 | 55413 | 611812 |
-| **collapsed GEN half, shared index (current default)** | **202300** | **111070** | **54583** | **368000** |
+| collapsed GEN half, **shared** index (opt-in) | **202300** | 111070 | 54938 | **368308** |
+
+The third row is the **default** today. The fourth is what the shared index achieves and
+what the migration in section 5 would make the default.
+
+The `TruthGraph_mix` column carries the run-to-run spread noted above, so differences of
+about a kB in that column and in the total are not significant. The hit index column,
+which is what these variants are about, is stable to the byte.
 
 The materialised index stored a hit once per ancestor containing it: 26744 hits per event
 became 46259 stored entries even with no GEN half at all, and 1467228 with the full one.
@@ -176,7 +199,75 @@ the graph does not currently replace.
 **Raw SimTracks and SimVertices stay.** 529.8 kB/event compressed, written by the SIM
 step and consumed by both schemes.
 
-## 5. Not measured
+## 5. Blocking the shared hit index: `subgraphHits` consumers
+
+The shared layout is correct and measured, and it is off by default because of one API
+problem, not one physics problem.
+
+`LogicalGraphHitIndex::subgraphHits` returns a single span. In the shared layout a
+particle that carries hits owns exactly one slot range, so its span is fine, but a
+GEN-only particle owns several and the accessor returns an **empty** span. Nineteen call
+sites across seven files still use it and none of them expect that:
+
+- `BranchHGCalValidator.cc:393,397`, `BranchTrackingValidator.cc:162,166`,
+  `BranchTrackerReplacementValidator.cc:83,87`, `BranchTruthReplacementValidator.cc:152,156`
+  use `subgraphHits(...).size()` as a smallest-footprint tie-break between matches. A
+  GEN-only root reads as size 0 and therefore **wins** a tie-break meant to pick the
+  tightest branch, which inverts it.
+- `BranchHGCalValidator.cc:319,428`, `BranchTruthReplacementValidator.cc:119`,
+  `BranchRecoValidator.cc:134`, `TruthBranchRecoValidator.cc:322` and six sites in
+  `TruthLogicalGraphDumper.cc` read the hits or the count directly and would silently see
+  nothing for a GEN-only particle.
+
+The associator does reach GEN-only roots: `BranchHGCalValidator.cc:484` constructs
+`BranchHitAssociator` with an empty root list, and `emptyRootsMeansAll` defaults to true,
+so every particle is a candidate. `BranchHitAssociator` itself was migrated and is correct
+under both layouts; nothing else was.
+
+`appendSubgraphHits` is the accessor that is correct for every particle in both layouts.
+Migrating these sites is not mechanical: several want a coalesced per-cell energy, and the
+`.size()` tie-break needs a decision about whether the footprint is counted in distinct
+cells or in raw entries. It also changes validator output, so it needs an A/B against the
+published galleries. That is the work that stands between the measured 37% saving and it
+being the default.
+
+## 6. This chain is not bit-reproducible, and that is not a truth-graph property
+
+Read the byte counts in section 1 with this in mind. Two runs of the identical
+configuration, same input file, same host, one thread, do not write the same file:
+**64 of 1338 branches differ in compressed size**, and five of them differ uncompressed
+too, so the difference is real content and not just packing. The largest by absolute
+delta happens to be `TruthGraph_mix` (56123.9 against 55250.2 compressed bytes/event,
+uncompressed identical at 498985), but it is in company:
+
+| branch | compressed | uncompressed |
+|---|---|---|
+| `TruthGraph_mix` | 56123.9 -> 55250.2 | same |
+| `recoTrackExtras_hltGeneralTracks` | 46859.7 -> 46867.5 | differs |
+| `recoTracks_hltInitialStepTrackSelectionHighPurity` | 8934.8 -> 8937.2 | same |
+| `recoVertexs_hltOfflinePrimaryVertices` | 521.2 -> 519.8 | same |
+| `uints_hltPhase2PixelTracksCAExtension` | 525.9 -> 527.2 | same |
+
+HLT tracking output changing between identical runs is the root of most of this, and it
+is upstream of and independent of the truth graph.
+
+The part that matters here is that the truth **content** is reproducible. `truth::Graph`
+and `truth::LogicalGraphHitIndex` hash identically across the same runs, over the logical
+particle and vertex records, all eight CSR arrays, and every hit and offset of all four
+channels. Of `TruthGraph`'s own persisted arrays, `offsets`, `edges`, `edgeKind`,
+`pdgId`, `status`, `statusFlags`, `eventId`, `genEventOfNode`, `simVertexProcessType`,
+`simTrackBackscattered` and `simTrackToGen` are all identical run to run.
+
+One loose end specific to this package, worth a look but not a blocker:
+`TruthGraph_mix` is the one branch whose compressed size moves while its uncompressed
+size does not, which means same length and different bytes. `TruthGraph::NodeRef` is
+`{ NodeKind kind; int64_t key; }` with `NodeKind` a `uint8_t`, so it carries seven bytes
+of padding and the branch is written unsplit; uninitialised padding would produce exactly
+that signature without changing any value a consumer reads. This is a hypothesis, not a
+result: confirming it needs a C++-side dump of the raw buffer, because PyROOT cannot read
+the unsplit struct reliably, which is also why `kind` is excluded from the hashes above.
+
+## 7. Not measured
 
 - PU200, or any pileup at all. The DIGI log of this chain even warns that pileup-aware
   truth needs classic, non-premixed pileup. This matters most for the shared hit index:

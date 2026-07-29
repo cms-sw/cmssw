@@ -88,8 +88,22 @@ namespace truth {
 
     std::vector<LogicalGraphHitIndex::Hit> scratch;
     for (const uint32_t root : roots_) {
-      if (root < rootHitSlotOfRoot_.size())
-        rootHitSlotOfRoot_[root] = static_cast<uint32_t>(rootHitOffsets_.size() - 1);
+      if (root >= rootHitSlotOfRoot_.size())
+        continue;
+
+      // A root whose subgraph is a single one-slot range owns nothing but its own direct
+      // hits, and the builder already sorted and summed those per detId before writing
+      // them, so the persisted span is usable as it stands. Skipping the copy is what
+      // keeps the all-roots case affordable: leaves are most of the graph, and copying
+      // every one of them would rebuild in memory the aggregate this layout exists to
+      // not store.
+      const auto ranges = hitIndex_->subgraphRanges(root);
+      if (ranges.size() == 1 && ranges[0].slotCount == 1) {
+        rootHitSlotOfRoot_[root] = kPersistedSpan;
+        continue;
+      }
+
+      rootHitSlotOfRoot_[root] = static_cast<uint32_t>(rootHitOffsets_.size() - 1);
 
       scratch.clear();
       hitIndex_->appendSubgraphHits(channel_, root, scratch);
@@ -129,6 +143,8 @@ namespace truth {
     const uint32_t slot = rootHitSlotOfRoot_[rootId];
     if (slot == kNoRoot)
       return {};
+    if (slot == kPersistedSpan)
+      return hitIndex_->subgraphHits(channel_, rootId);
     const uint32_t begin = rootHitOffsets_[slot];
     const uint32_t end = rootHitOffsets_[slot + 1];
     return std::span<const LogicalGraphHitIndex::Hit>(rootHitStorage_.data() + begin, end - begin);

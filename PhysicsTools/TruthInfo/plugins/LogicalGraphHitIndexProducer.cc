@@ -283,13 +283,14 @@ void TruthLogicalGraphHitIndexProducer::fillDescriptions(edm::ConfigurationDescr
           "Apply HcalHitRelabeller to the HCAL simulation DetIds, which are in packed test numbering, so the index "
           "stores the reco HcalDetIds the association matches on. Affects the HCAL collections only.");
 
-  desc.add<bool>("sharedSubgraphStore", true)
+  desc.add<bool>("sharedSubgraphStore", false)
       ->setComment(
           "Store each hit once, ordered so that a particle's subtree is a contiguous range, instead of copying every "
-          "descendant's hits into each ancestor's aggregate. Subgraph spans are then in tree order rather than detId "
-          "order and repeat a detId hit by several descendants, so a consumer that needs per-cell energies coalesces "
-          "them. Set false to write the materialised layout, which is what indices written before this option exist "
-          "carry; reading either layout is automatic.");
+          "descendant's hits into each ancestor's aggregate, which cuts the index from 445 to 202 kB/event on ttbar. "
+          "Off by default until the consumers of LogicalGraphHitIndex::subgraphHits are migrated: that accessor "
+          "returns a single span, so under this layout it is empty for a GEN-only particle, whose subgraph spans "
+          "several ranges. Use appendSubgraphHits, which is correct for every particle in both layouts. Reading "
+          "either layout is automatic.");
 
   desc.add<edm::InputTag>("mtdSimLayerClusters", edm::InputTag("mix", "MergedMtdTruthLC"))
       ->setComment(

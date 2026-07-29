@@ -18,11 +18,11 @@ namespace truth {
 
   class LogicalGraphHitIndexBuilder {
   public:
-    // sharedSubgraphStore selects the shared layout described in LogicalGraphHitIndex,
-    // which is the one the producer writes by default: each hit is stored once, in an
-    // order that makes every subtree a contiguous range, instead of being copied into
-    // each ancestor's aggregate. False builds the materialised layout instead.
-    explicit LogicalGraphHitIndexBuilder(uint32_t nParticles, bool sharedSubgraphStore = true);
+    // sharedSubgraphStore selects the shared layout described in LogicalGraphHitIndex:
+    // each hit is stored once, in an order that makes every subtree a contiguous range,
+    // instead of being copied into each ancestor's aggregate. False, the default, builds
+    // the materialised layout.
+    explicit LogicalGraphHitIndexBuilder(uint32_t nParticles, bool sharedSubgraphStore = false);
 
     // trackId is event-local (each mixing sub-event reuses 1,2,3,...); it MUST be
     // namespaced by the packed EncodedEventId or signal and pileup collide.

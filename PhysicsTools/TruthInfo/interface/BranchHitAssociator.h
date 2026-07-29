@@ -120,8 +120,12 @@ namespace truth {
     // so these stay empty. CSR over roots_, in the order roots_ holds them.
     std::vector<uint32_t> rootHitOffsets_;
     std::vector<LogicalGraphHitIndex::Hit> rootHitStorage_;
-    std::vector<uint32_t> rootHitSlotOfRoot_;  // particle id -> position in roots_, or kNoRoot
+    // particle id -> position in rootHitOffsets_, or kNoRoot when the particle is not a
+    // candidate, or kPersistedSpan when the persisted span is already coalesced and no
+    // private copy was made.
+    std::vector<uint32_t> rootHitSlotOfRoot_;
     static constexpr uint32_t kNoRoot = std::numeric_limits<uint32_t>::max();
+    static constexpr uint32_t kPersistedSpan = kNoRoot - 1u;
   };
 
 }  // namespace truth
