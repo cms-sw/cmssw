@@ -23,6 +23,11 @@
 //        record. A selection preset seeded on a resonance pdgId needs this: the
 //        collapsed form has stable particles only and nothing to seed on.
 //
+//   collapseGenShower (default true): applies to the full chain above. The parton
+//        shower and the intermediate copies of a resonance are contracted away,
+//        keeping ancestry, so a resonance that appears several times is one node whose
+//        children are its decay products. See truth::collapseGenShower.
+//
 //   pileupBunchCrossings (default {0} = in-time pileup only): which bunch crossings
 //        to include for pileup.
 //
@@ -130,19 +135,28 @@ namespace {
   }
 
   // The full HepMC record for one sub-event, in the same flattened form
-  // TruthGraphProducer builds from an unmixed event.
+  // TruthGraphProducer builds from an unmixed event, optionally with the parton
+  // shower and the intermediate resonance copies contracted away.
   template <class EvT>
-  truth::GenBuild readFullGen(EvT const& ev, edm::InputTag const& hepmc3Tag, edm::InputTag const& hepmc2Tag) {
+  truth::GenBuild readFullGen(EvT const& ev,
+                              edm::InputTag const& hepmc3Tag,
+                              edm::InputTag const& hepmc2Tag,
+                              bool collapseShower,
+                              edm::SimTrackContainer const& tracks) {
+    truth::GenBuild gb;
     edm::Handle<edm::HepMC3Product> h3;
     if (ev.getByLabel(hepmc3Tag, h3) && h3.isValid() && h3->GetEvent() != nullptr) {
       HepMC3::GenEvent ev3;
       ev3.read_data(*h3->GetEvent());
-      return truth::buildFromHepMC3(ev3);
+      gb = truth::buildFromHepMC3(ev3);
+    } else {
+      edm::Handle<edm::HepMCProduct> h2;
+      if (ev.getByLabel(hepmc2Tag, h2) && h2.isValid() && h2->GetEvent() != nullptr)
+        gb = truth::buildFromHepMC2(*h2->GetEvent());
     }
-    edm::Handle<edm::HepMCProduct> h2;
-    if (ev.getByLabel(hepmc2Tag, h2) && h2.isValid() && h2->GetEvent() != nullptr)
-      return truth::buildFromHepMC2(*h2->GetEvent());
-    return {};
+    if (collapseShower && !gb.empty())
+      truth::collapseGenShower(gb, truth::simContinuedGenBarcodes(tracks));
+    return gb;
   }
 }  // namespace
 
@@ -204,6 +218,7 @@ private:
   const std::vector<int> pileupBunchCrossings_;
   const bool collapsePileupGen_;
   const bool collapseSignalGen_;
+  const bool collapseGenShower_;
   const bool computeCellEnergyBudget_;
 
   int pileupCount_ = 0;
@@ -277,6 +292,7 @@ TruthGraphAccumulator::TruthGraphAccumulator(edm::ParameterSet const& cfg,
       pileupBunchCrossings_(cfg.getParameter<std::vector<int>>("pileupBunchCrossings")),
       collapsePileupGen_(cfg.getParameter<bool>("collapsePileupGen")),
       collapseSignalGen_(cfg.getParameter<bool>("collapseSignalGen")),
+      collapseGenShower_(cfg.getParameter<bool>("collapseGenShower")),
       computeCellEnergyBudget_(
           cfg.existsAs<bool>("computeCellEnergyBudget") ? cfg.getParameter<bool>("computeCellEnergyBudget") : false) {
   producesCollector.produces<TruthGraph>();
@@ -564,7 +580,7 @@ void TruthGraphAccumulator::accumulate(edm::Event const& event, edm::EventSetup 
   if (collapseSignalGen_)
     stableGen = readStableGen(event, hepmc3Tag_, hepmc2Tag_);
   else
-    fullGen = readFullGen(event, hepmc3Tag_, hepmc2Tag_);
+    fullGen = readFullGen(event, hepmc3Tag_, hepmc2Tag_, collapseGenShower_, *tracks);
   const EncodedEventId sigEid(0, 0);
   addSubEvent(stableGen, &fullGen, *tracks, *vertices, sigEid, 0);
   addSubEventHits(event, sigEid);
@@ -593,7 +609,7 @@ void TruthGraphAccumulator::accumulate(PileUpEventPrincipal const& pep, edm::Eve
   if (collapsePileupGen_)
     stableGen = readStableGen(pep, hepmc3Tag_, hepmc2Tag_);
   else
-    fullGen = readFullGen(pep, hepmc3Tag_, hepmc2Tag_);
+    fullGen = readFullGen(pep, hepmc3Tag_, hepmc2Tag_, collapseGenShower_, *tracks);
 
   // Global counter across bunch crossings: EncodedEventId stores abs(bx), so a
   // per-bx counter would give (-1,1) and (+1,1) identical packed ids. A single

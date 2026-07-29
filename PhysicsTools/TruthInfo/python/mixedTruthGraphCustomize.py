@@ -86,6 +86,7 @@ def addTruthGraphAccumulator(process,
         pileupBunchCrossings=cms.vint32(*pileupBunchCrossings),
         collapsePileupGen=cms.bool(collapsePileupGen),
         collapseSignalGen=cms.bool(False),
+        collapseGenShower=cms.bool(True),
         # Prototype energy-budget closure: sum per-cell HGCal energy over ALL bunch
         # crossings (in-time + out-of-time) into cellTotalEnergy/cellTotalDetId, so
         # "untracked" energy (out-of-time pileup + dropped in-time) can be measured

@@ -49,6 +49,8 @@ truthGraphAccumulator = cms.PSet(
     collapsePileupGen=cms.bool(True),    # pileup keeps stable GEN particles only
     collapseSignalGen=cms.bool(False),   # signal keeps the full HepMC decay chain, which
                                          # selection presets seed on
+    collapseGenShower=cms.bool(True),    # contract the parton shower and the intermediate
+                                         # resonance copies out of that chain, keeping ancestry
 
     computeCellEnergyBudget=cms.bool(False),  # prototype energy-budget map, off by default
 )

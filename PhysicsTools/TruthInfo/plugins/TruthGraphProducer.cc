@@ -106,7 +106,8 @@ public:
         hepmc2Token_(mayConsume<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
         simTrackToken_(consumes<edm::SimTrackContainer>(cfg.getParameter<edm::InputTag>("simTracks"))),
         simVertexToken_(consumes<edm::SimVertexContainer>(cfg.getParameter<edm::InputTag>("simVertices"))),
-        addGenToSimEdges_(cfg.getParameter<bool>("addGenToSimEdges")) {
+        addGenToSimEdges_(cfg.getParameter<bool>("addGenToSimEdges")),
+        collapseGenShower_(cfg.getParameter<bool>("collapseGenShower")) {
     produces<TruthGraph>();
   }
 
@@ -127,6 +128,13 @@ public:
         ->setComment(
             "If true, add GenParticle -> SimTrack cross edges. The association is built only for primary "
             "SimTracks, interpreting SimTrack::genpartIndex() as a HepMC barcode.");
+
+    desc.add<bool>("collapseGenShower", true)
+        ->setComment(
+            "If true, contract the GEN parton shower and the intermediate copies of a resonance, keeping ancestry. "
+            "A GEN particle survives if a SimTrack continues it, or it is stable, or it is flagged isHardProcess, "
+            "or it is the last copy of something that is not a parton, diquark, string, cluster or beam "
+            "pseudoparticle.");
 
     descriptions.addWithDefaultLabel(desc);
   }
@@ -164,6 +172,9 @@ public:
         haveGen = true;
       }
     }
+
+    if (haveGen && collapseGenShower_)
+      truth::collapseGenShower(gb, truth::simContinuedGenBarcodes(simTracks));
 
     const uint32_t nSimVtx = static_cast<uint32_t>(simVertices.size());
     const uint32_t nSimTrk = static_cast<uint32_t>(simTracks.size());
@@ -608,6 +619,7 @@ private:
   edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken_;
 
   bool addGenToSimEdges_;
+  bool collapseGenShower_;
 };
 
 DEFINE_FWK_MODULE(TruthGraphProducer);

@@ -13,6 +13,7 @@
 
 #include <cstdint>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -54,6 +55,32 @@ namespace truth {
 
   [[nodiscard]] GenBuild buildFromHepMC2(HepMC::GenEvent const& ev);
   [[nodiscard]] GenBuild buildFromHepMC3(HepMC3::GenEvent const& ev);
+
+  // Contract the parton shower and the intermediate copies of a resonance away. A GEN
+  // particle survives if its barcode is in `simContinuedBarcodes` (some SimTrack
+  // continues it), or its status is 1, or it is flagged isHardProcess, or it is flagged
+  // isLastCopy and is not a parton, diquark, string, cluster or beam pseudoparticle.
+  // Ancestry is kept, not cut: every survivor is re-attached through its own production
+  // GenVertex to its nearest surviving ancestors, and a GenVertex survives only if it
+  // still produces a surviving particle.
+  //
+  // The isHardProcess and isLastCopy rules read the packed reco::GenStatusFlags, which
+  // only buildFromHepMC2 fills; on the HepMC3 path they are 0, so the keep set there
+  // degrades to the SIM-continued and status 1 particles.
+  void collapseGenShower(GenBuild& gb, std::unordered_set<int> const& simContinuedBarcodes);
+
+  // The barcodes some SimTrack continues, which is the input to the first keep rule
+  // above. Templated on the container so this header keeps its HepMC-only dependencies.
+  template <typename SimTrackContainerT>
+  [[nodiscard]] std::unordered_set<int> simContinuedGenBarcodes(SimTrackContainerT const& tracks) {
+    std::unordered_set<int> barcodes;
+    barcodes.reserve(tracks.size() * 2);
+    for (auto const& track : tracks) {
+      if (track.genpartIndex() != -1)
+        barcodes.insert(track.genpartIndex());
+    }
+    return barcodes;
+  }
 
 }  // namespace truth
 
