@@ -1,5 +1,5 @@
-#ifndef ClusterTask_H
-#define ClusterTask_H
+#ifndef DQM_EcalMonitorTasks_ClusterTask_h
+#define DQM_EcalMonitorTasks_ClusterTask_h
 
 #include "DQWorkerTask.h"
 
@@ -49,6 +49,7 @@ namespace ecaldqm {
     //    int ievt_;
     //    int massCalcPrescale_;
     bool doExtra_;
+    bool doEndcaps_;
     float energyThreshold_;
     float swissCrossMaxThreshold_;
     std::vector<std::string> egTriggerAlgos_;
@@ -65,22 +66,40 @@ namespace ecaldqm {
   inline bool ClusterTask::analyze(void const* _p, Collections _collection) {
     switch (_collection) {
       case kEBRecHit:
-      case kEERecHit:
         if (_p)
           runOnRecHits(*static_cast<EcalRecHitCollection const*>(_p), _collection);
         return true;
         break;
+      case kEERecHit:
+        if (doEndcaps_) {
+          if (_p)
+            runOnRecHits(*static_cast<EcalRecHitCollection const*>(_p), _collection);
+          return true;
+        }
+        break;
       case kEBBasicCluster:
-      case kEEBasicCluster:
         if (_p)
           runOnBasicClusters(*static_cast<edm::View<reco::CaloCluster> const*>(_p), _collection);
         return true;
         break;
+      case kEEBasicCluster:
+        if (doEndcaps_) {
+          if (_p)
+            runOnBasicClusters(*static_cast<edm::View<reco::CaloCluster> const*>(_p), _collection);
+          return true;
+        }
+        break;
       case kEBSuperCluster:
-      case kEESuperCluster:
         if (_p)
           runOnSuperClusters(*static_cast<reco::SuperClusterCollection const*>(_p), _collection);
         return true;
+        break;
+      case kEESuperCluster:
+        if (doEndcaps_) {
+          if (_p)
+            runOnSuperClusters(*static_cast<reco::SuperClusterCollection const*>(_p), _collection);
+          return true;
+        }
         break;
       default:
         break;

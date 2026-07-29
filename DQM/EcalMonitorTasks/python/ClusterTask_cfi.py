@@ -7,6 +7,7 @@ triggerTypes = cms.untracked.vstring('ECAL', 'HCAL', 'CSC', 'DT', 'RPC')
 ecalClusterTask = cms.untracked.PSet(
     params = cms.untracked.PSet(
         doExtra = cms.untracked.bool(True),
+        doEndcaps = cms.untracked.bool(True),
         energyThreshold = cms.untracked.double(energyThreshold),
         egTriggerAlgos = cms.untracked.vstring(
             "L1_SingleEG2",
@@ -573,3 +574,5 @@ ecalClusterTask = cms.untracked.PSet(
         )
     )
 )
+
+ecalClusterTaskPhase2 = ecalClusterTask.clone(params = dict(doExtra = False, doEndcaps = False))

@@ -58,6 +58,7 @@ _phase2_ecal_extraCommands = cms.PSet( # using PSet in order to potentially cust
 phase2_ecal_devel.toModify(SimCalorimetryFEVTDEBUG, outputCommands = SimCalorimetryFEVTDEBUG.outputCommands + _phase2_ecal_extraCommands.v)
 phase2_ecal_devel.toModify(SimCalorimetryPREMIX, outputCommands = SimCalorimetryPREMIX.outputCommands + _phase2_ecal_extraCommands.v)
 phase2_ecal_devel.toModify(SimCalorimetryRAW, outputCommands = SimCalorimetryRAW.outputCommands + _phase2_ecal_extraCommands.v)
+phase2_ecal_devel.toModify(SimCalorimetryRECO, outputCommands = SimCalorimetryRECO.outputCommands + _phase2_ecal_extraCommands.v)
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify( SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outputCommands: outputCommands.append('keep EBDigiCollectionPh2_mixData_*_*') )
