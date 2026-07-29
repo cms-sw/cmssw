@@ -319,15 +319,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }  // operator()
   };  // class FitVertices
 
-  WeightedVertexFitterAlgo::WeightedVertexFitterAlgo(Queue& queue){
-     // Set fitter parameters, nothing right now
+  WeightedVertexFitterAlgo::WeightedVertexFitterAlgo(Queue& queue) {
+    // Set fitter parameters, nothing right now
   }  // WeightedVertexFitterAlgo::WeightedVertexFitterAlgo
 
   void WeightedVertexFitterAlgo::fit(Queue& queue,
                                      const reco::TrackForVertexDeviceCollection& deviceTrack,
                                      reco::VertexDeviceCollection& deviceVertex,
                                      const BeamSpotDevice& deviceBeamSpot,
-				     const bool useBeamSpotConstraint) {
+                                     const bool useBeamSpotConstraint) {
     const int nVertexToFit =
         1024;  // Right now it executes for all 1024 vertex, even if vertex collection is empty (in which case the kernel passes)
     const int threadsPerBlock = 32;

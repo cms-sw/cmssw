@@ -23,7 +23,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       int blockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_CLUSTERIZERALGO
       if (once_per_block(acc)) {
-	int blockSize = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
+        int blockSize = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
         printf("[DAInBlocksClusterizerAlgo::operator()] Start clustering block %i\n", blockIdx);
         printf("[DAInBlocksClusterizerAlgo::operator()] Parameters blockSize %i, trackBlockSize %i\n",
                blockSize,
@@ -38,8 +38,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         osumtkwt = 0;
       }
       alpaka::syncBlockThreads(acc);
-      for (auto itrack : uniform_elements(acc, trackBlockSize)){
-        if (not(tracks[itrack+blockIdx*trackBlockSize].isGood()))
+      for (auto itrack : uniform_elements(acc, trackBlockSize)) {
+        if (not(tracks[itrack + blockIdx * trackBlockSize].isGood()))
           continue;
         double temp_weight = static_cast<double>(tracks[itrack].weight());
         alpaka::atomicAdd(acc, &osumtkwt, temp_weight, alpaka::hierarchy::Threads{});

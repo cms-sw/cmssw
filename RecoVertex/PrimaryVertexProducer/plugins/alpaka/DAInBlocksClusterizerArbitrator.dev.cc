@@ -76,15 +76,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     cms::alpakatools::radixSort<Acc1D, float, 2>(acc, z, orderedIndices, sws, vertices[0].nV());
     alpaka::syncBlockThreads(acc);
     // copy sorted vertices back to the SoA. We restrict our usage to the first vertices[0].nV() entries of the SoA
-    for (auto ivtx : uniform_elements(acc, vertices[0].nV())){
+    for (auto ivtx : uniform_elements(acc, vertices[0].nV())) {
       vertices[ivtx].z() = z[ivtx];
       vertices[ivtx].rho() = rho[ivtx];
       vertices[ivtx].order() = orderedIndices[ivtx];
       vertices[ivtx].isGood() = true;
     }
     // And invalidate the remaining part we won't use anymore, i.e. those between the last good vertex and the end
-    for (auto ivtx : uniform_elements(acc, maxVerticesInSoA-vertices[0].nV())) {
-      vertices[ivtx+vertices[0].nV()].isGood() = false;
+    for (auto ivtx : uniform_elements(acc, maxVerticesInSoA - vertices[0].nV())) {
+      vertices[ivtx + vertices[0].nV()].isGood() = false;
     }
     alpaka::syncBlockThreads(acc);
     double zrange_min = 0.1;
@@ -363,7 +363,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                             DAInBlocksClusterParameters const cParams,
                                             int32_t nBlocks,
                                             int32_t blockSize) {
-    const int blocks = divide_up_by(blockSize, blockSize);  
+    const int blocks = divide_up_by(blockSize, blockSize);
     alpaka::exec<Acc1D>(queue,
                         make_workdiv<Acc1D>(blocks, blockSize),
                         ArbitrateKernel{},

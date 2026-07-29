@@ -25,7 +25,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
            blockIdx,
            vertices[blockIdx].nV(),
            beta);
-    for (auto ivertexO : uniform_elements(acc, vertices[blockIdx].nV())){
+    for (auto ivertexO : uniform_elements(acc, vertices[blockIdx].nV())) {
       int ivertex = vertices[maxVerticesPerBlock * blockIdx + ivertexO].order();
       printf(
           "[DAInBlocksClusterizerAlgo::dump()] -- Block Idx %i, vertex %i in order %i: "
@@ -48,11 +48,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                           double& beta,
                                           int trackBlockSize) {
     // These updates the range of vertices associated to each track through the kmin/kmax variables
-    int blockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];     // Block number inside grid
+    int blockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];  // Block number inside grid
     int maxVerticesPerBlock = (int)1024 / alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(
                                               acc)[0u];  // Max vertices size is 1024 over number of blocks in grid
     double zrange_min = 0.1;                             // Hard coded as in CPU version
-    for (auto itrackO : uniform_elements(acc, trackBlockSize)){
+    for (auto itrackO : uniform_elements(acc, trackBlockSize)) {
       int itrack = itrackO + blockIdx * trackBlockSize;
       // Based on current temperature (regularization term) and track position uncertainty, only keep relevant vertices
       double zrange = alpaka::math::max(
@@ -120,12 +120,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                    bool updateTc,
                                    int trackBlockSize) {
     // Main function that updates the annealing parameters on each T step, computes all partition functions and so on
-    int blockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];     // Block number inside grid
+    int blockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];  // Block number inside grid
     int maxVerticesPerBlock = (int)1024 / alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(
                                               acc)[0u];  // Max vertices size is 1024 over number of blocks in grid
     // Initial partition function, really only used on the outlier rejection step to penalize
     double Zinit = rho0 * alpaka::math::exp(acc, -(beta)*cParams.dzCutOff * cParams.dzCutOff);
-    for (auto itrackO : uniform_elements(acc, trackBlockSize)){
+    for (auto itrackO : uniform_elements(acc, trackBlockSize)) {
       int itrack = itrackO + blockIdx * trackBlockSize;
       double botrack_dz2 = -(beta)*tracks[itrack].oneoverdz2();
       tracks[itrack].sum_Z() = Zinit;
@@ -165,7 +165,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }  //end track for
     alpaka::syncBlockThreads(acc);
     // After the track-vertex matrix assignment, we need to add up across vertices. This time, we use one thread per vertex
-    for (auto ivertexO : uniform_elements(acc, vertices[blockIdx].nV())){
+    for (auto ivertexO : uniform_elements(acc, vertices[blockIdx].nV())) {
       int ivertexC = maxVerticesPerBlock * blockIdx + ivertexO;
       int ivertex = vertices[ivertexC].order();
       float se = 0.;
@@ -213,9 +213,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
     if (nprev < 2)
       return;
-    for (auto ivertexO : uniform_elements(acc, vertices[blockIdx].nV())){
+    for (auto ivertexO : uniform_elements(acc, vertices[blockIdx].nV())) {
       int ivertex = vertices[maxVerticesPerBlock * blockIdx + ivertexO].order();
-      int ivertexnext = vertices[maxVerticesPerBlock * blockIdx+ ivertexO + 1].order();
+      int ivertexnext = vertices[maxVerticesPerBlock * blockIdx + ivertexO + 1].order();
       vertices[ivertex].aux1() = abs(vertices[ivertex].z() - vertices[ivertexnext].z());
     }
     alpaka::syncBlockThreads(acc);
@@ -246,10 +246,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       printf("[DAInBlocksClusterizerAlgo::merge()] BlockIdx %i, %i vertices to be merged\n", blockIdx, ncritical);
     }
 #endif
-    if (ncritical == 0 || maxVerticesPerBlock == nprev){
+    if (ncritical == 0 || maxVerticesPerBlock == nprev) {
       return;
-    }
-    else{ 
+    } else {
       // All threads are running the same code, to know when to exit
       if (ncritical == 0 || maxVerticesPerBlock == nprev)
         return;
@@ -310,7 +309,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           critical_index[resort]--;  // critical_index refers to the original vertices->order, so it needs to be updated
       }
       nprev = vertices[blockIdx].nV();  // And to the counter of previous vertices
-      for (auto itrackO : uniform_elements(acc, trackBlockSize)){
+      for (auto itrackO : uniform_elements(acc, trackBlockSize)) {
         int itrack = itrackO + blockIdx * trackBlockSize;
         if (tracks[itrack].kmax() > ivertexO + 1)
           tracks[itrack].kmax()--;
@@ -337,7 +336,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     double epsilon = 1e-3;
     int nprev = vertices[blockIdx].nV();
     // Set critical T for all vertices
-    for (auto ivertexO : uniform_elements(acc, vertices[blockIdx].nV())){
+    for (auto ivertexO : uniform_elements(acc, vertices[blockIdx].nV())) {
       int ivertex = vertices[maxVerticesPerBlock * blockIdx + ivertexO].order();
       double Tc = 2 * vertices[ivertex].swE() / vertices[ivertex].sw();
       vertices[ivertex].aux1() = Tc;
@@ -412,7 +411,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         w2 = 0.;
       }
       alpaka::syncBlockThreads(acc);
-      for (auto itrackO : uniform_elements(acc, trackBlockSize)){
+      for (auto itrackO : uniform_elements(acc, trackBlockSize)) {
         int itrack = itrackO + blockIdx * trackBlockSize;
         if (tracks[itrack].sum_Z() > 1e-40) {
           // winner-takes-all, usually overestimates splitting
@@ -535,7 +534,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
       alpaka::syncBlockThreads(acc);
       // Now, update kmin/kmax for all tracks
-      for (auto itrackO : uniform_elements(acc, trackBlockSize)){
+      for (auto itrackO : uniform_elements(acc, trackBlockSize)) {
         int itrack = itrackO + blockIdx * trackBlockSize;
         if (tracks[itrack].kmin() > ivertexO)
           tracks[itrack].kmin()++;
@@ -574,14 +573,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     int nprev = vertices[blockIdx].nV();
     // Reassign
     set_vtx_range(acc, tracks, vertices, cParams, osumtkwt, beta, trackBlockSize);
-    for (auto ivertexO : uniform_elements(acc, vertices[blockIdx].nV())){
+    for (auto ivertexO : uniform_elements(acc, vertices[blockIdx].nV())) {
       int ivertex = vertices[maxVerticesPerBlock * blockIdx + ivertexO].order();
       vertices[ivertex].aux1() = 0;  // sum of track-vertex probabilities
       vertices[ivertex].aux2() = 0;  // number of uniquely assigned tracks
     }
     alpaka::syncBlockThreads(acc);
     // Get quality of vertex in terms of #Tracks and sum of track probabilities
-    for (auto itrackO : uniform_elements(acc, trackBlockSize)){
+    for (auto itrackO : uniform_elements(acc, trackBlockSize)) {
       int itrack = itrackO + blockIdx * trackBlockSize;
       double track_aux1 = ((tracks[itrack].sum_Z() > eps) && (tracks[itrack].weight() > cParams.uniquetrkminp))
                               ? 1. / tracks[itrack].sum_Z()
@@ -607,11 +606,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     if (once_per_block(acc)) {
       double sumpmin = tracks.nT();
       k0 = maxVerticesPerBlock * blockIdx + nprev;
-      for (auto ivertexO : uniform_elements(acc, vertices[blockIdx].nV())){
+      for (auto ivertexO : uniform_elements(acc, vertices[blockIdx].nV())) {
         int ivertex = vertices[maxVerticesPerBlock * blockIdx + ivertexO].order();
         if ((vertices[ivertex].aux2() < nunique_min) && (vertices[ivertex].aux1() < sumpmin)) {
           sumpmin = vertices[ivertex].aux1();
-          k0 = maxVerticesPerBlock * blockIdx +ivertexO;
+          k0 = maxVerticesPerBlock * blockIdx + ivertexO;
         }
       }  // end vertex for
       if (k0 != (int)(maxVerticesPerBlock * blockIdx + nprev)) {
@@ -636,7 +635,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }  // end once_per_block
     alpaka::syncBlockThreads(acc);
     if (k0 != (int)(maxVerticesPerBlock * blockIdx + (int)nprev)) {
-      for (auto itrackO : uniform_elements(acc, trackBlockSize)){
+      for (auto itrackO : uniform_elements(acc, trackBlockSize)) {
         int itrack = itrackO + blockIdx * trackBlockSize;
         if (tracks[itrack].kmax() > k0)
           tracks[itrack].kmax()--;
@@ -660,8 +659,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     int blockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];
     int maxVerticesPerBlock = (int)1024 / alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
     vertices[blockIdx].nV() = 1;
-    for (auto ivertexO : uniform_elements(acc, maxVerticesPerBlock)){
-      int ivertex = ivertexO +  maxVerticesPerBlock * blockIdx;
+    for (auto ivertexO : uniform_elements(acc, maxVerticesPerBlock)) {
+      int ivertex = ivertexO + maxVerticesPerBlock * blockIdx;
       vertices[ivertex].sw() = 0.;
       vertices[ivertex].swE() = 0.;
       vertices[ivertex].z() = 0.;
@@ -677,7 +676,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     }  // end for
     alpaka::syncBlockThreads(acc);
-    for (auto itrackO : uniform_elements(acc, trackBlockSize)){
+    for (auto itrackO : uniform_elements(acc, trackBlockSize)) {
       int itrack = itrackO + blockIdx * trackBlockSize;
       // Tracks are associated to vertex in list kmin, kmin+1,... kmax-1, so this just assign all tracks to the vertex we just created
       tracks[itrack].kmin() = maxVerticesPerBlock * blockIdx;
@@ -695,7 +694,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // Computes first critical temperature
     int blockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];
     int maxVerticesPerBlock = (int)1024 / alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
-    for (auto itrackO : uniform_elements(acc, trackBlockSize)){
+    for (auto itrackO : uniform_elements(acc, trackBlockSize)) {
       int itrack = itrackO + blockIdx * trackBlockSize;
       if (not(tracks[itrack].isGood()))
         continue;
@@ -711,7 +710,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       znew = 0.;
     }
     alpaka::syncBlockThreads(acc);
-    for (auto itrackO : uniform_elements(acc, trackBlockSize)){
+    for (auto itrackO : uniform_elements(acc, trackBlockSize)) {
       int itrack = itrackO + blockIdx * trackBlockSize;
       if (not(tracks[itrack].isGood()))
         continue;
@@ -725,7 +724,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
     alpaka::syncBlockThreads(acc);
     // Now do a chi-2 like of all tracks and save it again in znew
-    for (auto itrackO : uniform_elements(acc, trackBlockSize)){
+    for (auto itrackO : uniform_elements(acc, trackBlockSize)) {
       int itrack = itrackO + blockIdx * trackBlockSize;
       if (not(tracks[itrack].isGood()))
         continue;

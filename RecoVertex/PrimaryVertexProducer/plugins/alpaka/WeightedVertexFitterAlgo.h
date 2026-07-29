@@ -20,7 +20,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
              const reco::TrackForVertexDeviceCollection& deviceTrack,
              reco::VertexDeviceCollection& deviceVertex,
              const BeamSpotDevice& deviceBeamSpot,
-	     const bool useBeamSpotConstraint);
+             const bool useBeamSpotConstraint);
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

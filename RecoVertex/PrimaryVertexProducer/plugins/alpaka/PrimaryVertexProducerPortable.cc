@@ -30,26 +30,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       blockSize_ = config.getParameter<int32_t>("blockSize");
       blockOverlap_ = config.getParameter<double>("blockOverlap");
       edm::ParameterSet tkClusConfig = config.getParameter<edm::ParameterSet>("TkClusParameters");
-      clusterParams_ = {
-          .Tmin = tkClusConfig.getParameter<double>("Tmin"),
-          .Tpurge = tkClusConfig.getParameter<double>("Tpurge"),
-          .Tstop = tkClusConfig.getParameter<double>("Tstop"),
-          .vertexSize = tkClusConfig.getParameter<double>("vertexSize"),
-          .coolingFactor =
-              tkClusConfig.getParameter<double>("coolingFactor"),
-          .d0CutOff = tkClusConfig.getParameter<double>("d0CutOff"),
-          .dzCutOff = tkClusConfig.getParameter<double>("dzCutOff"),
-          .uniquetrkweight =
-              tkClusConfig.getParameter<double>("uniquetrkweight"),
-          .uniquetrkminp =
-              tkClusConfig.getParameter<double>("uniquetrkminp"),
-          .zmerge = tkClusConfig.getParameter<double>("zmerge"),
-          .zrange = tkClusConfig.getParameter<double>("zrange"),
-          .convergence_mode =
-              tkClusConfig.getParameter<int>("convergence_mode"),
-          .delta_lowT = tkClusConfig.getParameter<double>("delta_lowT"),
-          .delta_highT =
-              tkClusConfig.getParameter<double>("delta_highT")};
+      clusterParams_ = {.Tmin = tkClusConfig.getParameter<double>("Tmin"),
+                        .Tpurge = tkClusConfig.getParameter<double>("Tpurge"),
+                        .Tstop = tkClusConfig.getParameter<double>("Tstop"),
+                        .vertexSize = tkClusConfig.getParameter<double>("vertexSize"),
+                        .coolingFactor = tkClusConfig.getParameter<double>("coolingFactor"),
+                        .d0CutOff = tkClusConfig.getParameter<double>("d0CutOff"),
+                        .dzCutOff = tkClusConfig.getParameter<double>("dzCutOff"),
+                        .uniquetrkweight = tkClusConfig.getParameter<double>("uniquetrkweight"),
+                        .uniquetrkminp = tkClusConfig.getParameter<double>("uniquetrkminp"),
+                        .zmerge = tkClusConfig.getParameter<double>("zmerge"),
+                        .zrange = tkClusConfig.getParameter<double>("zrange"),
+                        .convergence_mode = tkClusConfig.getParameter<int>("convergence_mode"),
+                        .delta_lowT = tkClusConfig.getParameter<double>("delta_lowT"),
+                        .delta_highT = tkClusConfig.getParameter<double>("delta_highT")};
       clusterParams_.uniquetrkminp = clusterParams_.uniquetrkminp * (1 - blockOverlap_);
       fitterParams_ = {
           .useBeamSpotConstraint =

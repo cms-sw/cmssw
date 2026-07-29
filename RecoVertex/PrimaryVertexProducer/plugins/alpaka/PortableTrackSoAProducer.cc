@@ -43,25 +43,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     double vertexSize;
     double d0CutOff;
     TrackFilterParametersForVertexing(edm::ParameterSet const& config) {
-              maxSignificance = config.getParameter<edm::ParameterSet>("TkFilterParameters")
-                                      .getParameter<double>("maxD0Significance");
-              maxdxyError =
-                   config.getParameter<double>("maxD0Error");
-              maxdzError =
-                   config.getParameter<double>("maxDzError");
-              minpAtIP = config.getParameter<double>("minPt");
-              maxetaAtIP =
-                   config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("maxEta");
-              maxchi2 = config.getParameter<double>("maxNormalizedChi2");
-              minpixelHits = config.getParameter<int>("minPixelLayersWithHits");
-              mintrackerHits = config.getParameter<int>("minSiliconLayersWithHits");
-              trackQuality = ::reco::TrackBase::undefQuality;
-              vertexSize = config.getParameter<double>("vertexSize");
-              d0CutOff = config.getParameter<double>("d0CutOff");
-	      std::string qualityClass = config.getParameter<std::string>("trackQuality");
-      	      if (qualityClass != "any" && qualityClass != "Any" && qualityClass != "ANY" && !(qualityClass.empty()))
-                trackQuality = ::reco::TrackBase::qualityByName(qualityClass);
-
+      maxSignificance =
+          config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("maxD0Significance");
+      maxdxyError = config.getParameter<double>("maxD0Error");
+      maxdzError = config.getParameter<double>("maxDzError");
+      minpAtIP = config.getParameter<double>("minPt");
+      maxetaAtIP = config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("maxEta");
+      maxchi2 = config.getParameter<double>("maxNormalizedChi2");
+      minpixelHits = config.getParameter<int>("minPixelLayersWithHits");
+      mintrackerHits = config.getParameter<int>("minSiliconLayersWithHits");
+      trackQuality = ::reco::TrackBase::undefQuality;
+      vertexSize = config.getParameter<double>("vertexSize");
+      d0CutOff = config.getParameter<double>("d0CutOff");
+      std::string qualityClass = config.getParameter<std::string>("trackQuality");
+      if (qualityClass != "any" && qualityClass != "Any" && qualityClass != "ANY" && !(qualityClass.empty()))
+        trackQuality = ::reco::TrackBase::qualityByName(qualityClass);
     }
   };
 
@@ -72,9 +68,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           theTTBToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
           trackToken_(consumes<::reco::TrackCollection>(config.getParameter<edm::InputTag>("TrackLabel"))),
           beamSpotToken_(consumes<::reco::BeamSpot>(config.getParameter<edm::InputTag>("BeamSpotLabel"))),
-	  token_(produces()),
-          params_(config.getParameter<edm::ParameterSet>("TkFilterParameters")){
-    }
+          token_(produces()),
+          params_(config.getParameter<edm::ParameterSet>("TkFilterParameters")) {}
 
     void produce(edm::StreamID sid, device::Event& iEvent, device::EventSetup const& iSetup) const override {
       // Get input collections from event
@@ -98,15 +93,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::vector<std::pair<std::pair<int32_t, float>, ::reco::TransientTrack>> sortedTracksPair;
       sortedTracksPair.reserve(tsize_);
       for (int32_t idx = 0; idx < tsize_; idx++) {
-        sortedTracksPair.emplace_back(std::make_pair(idx, (t_tks[idx].stateAtBeamLine().trackStateAtPCA()).position().z()) , t_tks[idx]);
+        sortedTracksPair.emplace_back(
+            std::make_pair(idx, (t_tks[idx].stateAtBeamLine().trackStateAtPCA()).position().z()), t_tks[idx]);
       }
 
       std::sort(sortedTracksPair.begin(),
                 sortedTracksPair.end(),
                 [](const std::pair<std::pair<int32_t, float>, ::reco::TransientTrack>& a,
                    const std::pair<std::pair<int32_t, float>, ::reco::TransientTrack>& b) -> bool {
-                  return a.first.second <
-                         b.first.second ;
+                  return a.first.second < b.first.second;
                 });
       // This will keep track of how many we actually copy to device, only those that pass filter
       int32_t nTrueTracks = 0;
