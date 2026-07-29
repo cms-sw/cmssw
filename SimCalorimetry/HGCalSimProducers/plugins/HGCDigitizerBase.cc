@@ -176,10 +176,10 @@ void HGCDigitizerBase::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& coll,
       //note that in this legacy case, gainIdx is kept at 0, fixed
       cce = (cce_.empty() ? 1.f : cce_[cell.thickness - 1]);
       noiseWidth = cell.size * noise_fC_[cell.thickness - 1];
-      //cell.thickness (1,2,3 for 120,200,300um) doubles as the MIP-charge scale
-      //of the threshold; HD 200um sensors (cell.thickness==4) carry the MIP
-      //charge of a 200um sensor, not four times that of 120um
-      const int mipScaleFactor = (cell.thickness == 4) ? 2 : cell.thickness;
+      //approximate more accurately the scaling from different depletion thicknesses
+      //index by cell.thickness-1 -> {HD120, LD200, LD300, HD200}
+      static constexpr float kMipScale[4] = {1.0f, 1.6f, 2.5f, 1.6f};
+      const float mipScaleFactor = kMipScale[cell.thickness - 1];
       thrADC =
           thresholdFollowsMIP_
               ? std::floor(mipScaleFactor * cce * myFEelectronics_->getADCThreshold() / myFEelectronics_->getADClsb())
