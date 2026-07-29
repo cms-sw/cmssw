@@ -46,8 +46,10 @@ truthGraphAccumulator = cms.PSet(
     muonHits=_tags("MuonDTHits", "MuonCSCHits", "MuonRPCHits", "MuonGEMHits", "MuonME0Hits"),
     mtdHits=_tags("FastTimerHitsBarrel", "FastTimerHitsEndcap"),
     pileupBunchCrossings=cms.vint32(0),   # in-time pileup for the per-particle graph
-    collapsePileupGen=cms.bool(True),
-    collapseSignalGen=cms.bool(False),
+    collapsePileupGen=cms.bool(True),    # pileup keeps stable GEN particles only
+    collapseSignalGen=cms.bool(False),   # signal keeps the full HepMC decay chain, which
+                                         # selection presets seed on
+
     computeCellEnergyBudget=cms.bool(False),  # prototype energy-budget map, off by default
 )
 
