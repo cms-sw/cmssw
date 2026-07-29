@@ -88,6 +88,11 @@ buffers of different sizes. The alignment is ensured to be the same for every bl
 mirroring the structure of the underlying structs. The blocks are built via composition and access to individual layouts 
 and views is provided by name.
 
+`SoABlocks` also have the possibility of generating methods for the `View` and `ConstView` classes using the macros `SOA_VIEW_METHODS`
+and `SOA_CONST_VIEW_METHODS`. Like the macros for the element methods, this can also be called only once, and if more methods
+have to be generated, they must be listed inside the same macro call. Since these methods can be called from the device,
+they must be prefixed with the `SOA_HOST_DEVICE` macro and, when possible, with the `constexpr` keyword.
+
 TODOs:
 - Add introspection utilities to print the structure and layout of a `SoABlocks` instance.
 - Implement support for heterogeneous `deepCopy()` operations between different but compatible `SoABlocks` configurations.
@@ -203,6 +208,43 @@ GENERATE_SOA_LAYOUT(SoATemplate,
 using SoA = SoATemplate<>;
 using SoAView = SoA::View;
 using SoAConstView = SoA::ConstView;
+```
+
+as well as methods that operate on the View:
+
+```C++
+GENERATE_SOA_LAYOUT(PositionLayout,
+                    SOA_COLUMN(float, x),
+                    SOA_COLUMN(float, y),
+                    SOA_COLUMN(float, z))
+
+GENERATE_SOA_LAYOUT(VelocityLayout,
+                    SOA_COLUMN(float, vx),
+                    SOA_COLUMN(float, vy),
+                    SOA_COLUMN(float, vz))
+
+GENERATE_SOA_BLOCKS(PointsLayout,
+                    SOA_BLOCK(position, PositionLayout),
+                    SOA_BLOCK(velocity, VelocityLayout),
+                    SOA_VIEW_METHODS(
+                        SOA_HOST_DEVICE void update_position(uint32_t i, float time) {
+                            auto pos = this->position()[i];
+                            auto vel = this->velocity()[i];
+                            pos.x() += vel.vx() * time;
+                            pos.y() += vel.vy() * time;
+                            pos.z() += vel.vz() * time;
+                        }
+                    ),
+                    SOA_CONST_VIEW_METHODS(
+                        SOA_HOST_DEVICE auto distance2(uint32_t i, uint32_t j) const {
+                            auto pi = this->position()[i];
+                            auto pj = this->position()[j];
+                            return (pi.x() - pj.x()) * (pi.x() - pj.x()) + 
+                                   (pi.y() - pj.y()) * (pi.y() - pj.y()) + 
+                                   (pi.z() - pj.z()) * (pi.z() - pj.z());
+                        }
+                    )
+)
 ```
 
 The buffer of the proper size is allocated, and the layout is populated with:
