@@ -525,7 +525,10 @@ bool CosmicGridTripletSeeder::fitTriplet(const CosmicGridTripletSeeder::TripletS
     } else {
       propagated = propagator->propagate(updated, state.tracker->idToDet((*seedHits[ih]).geographicalId())->surface());
     }
-    if (!propagated.isValid()) {
+    // Phase-2 can result in cases with a "valid" state that has NaN values in the momentum.
+    // This occurs in rare cases when all hits on the seed are on non-stereo 2S OT sensors.
+    // The KF can not use these, so we bail out as for invalid propagations.
+    if (!propagated.isValid() || std::isnan(propagated.globalMomentum().mag())) {
       return false;
     }
 
