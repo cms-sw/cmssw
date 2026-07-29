@@ -139,15 +139,8 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
         globalXY_endcap_->Fill(gx, gy);
         globalRZ_endcap_->Fill(gz, gr);
       }
-      // Workaround for filling histograms in both Ring<> and Wheel<>
-      bool isEndcap = (detId.subdetId() != PixelSubdetector::PixelBarrel);
-      for (int booking = 1; booking < 2 + isEndcap; booking++) {
-        // Will loop twice if the module is an EndCap module
-        // the default key divides endcaps into F/EPixs and Rings
-        // in second loop endcaps will be divided into F/EPix and Wheels
-        std::string folderkey = (booking == 2 ? phase2tkutil::getITHistoWheelId(detId, tTopo_, detPos.phi())
-                                              : phase2tkutil::getITHistoId(detId, tTopo_, detPos.phi()));
-
+      for (int fillingDepth = 1; fillingDepth < 6; fillingDepth++) {
+        std::string folderkey = phase2tkutil::getHistoId(detId, tTopo_, detPos.phi(), fillingDepth, false);
         auto local_mesIT = layerMEs_.find(folderkey);
         if (local_mesIT == layerMEs_.end())
           continue;
@@ -157,6 +150,10 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
         local_mes.ClusterSizeX->Fill(clusterItr.sizeX());
         local_mes.ClusterSizeY->Fill(clusterItr.sizeY());
         local_mes.ClusterCharge->Fill(clusterItr.charge());
+        /*
+	if (local_mes.testShell)
+          local_mes.testShell->Fill(clusterItr.size());
+	*/
 
         if (nClus == int(DSVItr.size())) {
           // Reached the end of clusters in this Det
@@ -172,7 +169,6 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
       }
     }
   }
-
   for (const auto& it : nClsmap) {
     if (layerMEs_.find(it.first) == layerMEs_.end())
       continue;
@@ -221,7 +217,7 @@ void Phase2ITMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
         continue;
       unsigned int detId_raw = det_u->geographicalId().rawId();
       GlobalPoint detPos = det_u->surface().toGlobal(Local2DPoint(0, 0));
-      edm::LogInfo("Phase2ITMonitorRecHit")
+      edm::LogInfo("Phase2ITMonitorCluster")
           << "Detid:" << detId_raw << "\tsubdet=" << det_u->subDetector()
           << "\t key=" << phase2tkutil::getITHistoId(detId_raw, tTopo_, detPos.phi()) << std::endl;
       bookLayerHistos(ibooker, detId_raw, top_folder);
@@ -233,19 +229,9 @@ void Phase2ITMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
 void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_id, std::string& subdir) {
   const GeomDet* geomDet = tkGeom_->idToDet(det_id);
   GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
-  // Workaround for booking same histogram for Ring<> and Wheel<>
-  bool isEndcap = (DetId(det_id).subdetId() != PixelSubdetector::PixelBarrel);
-  for (int booking = 1; booking < 2 + isEndcap; booking++) {
-    // Will loop twice if the module is an EndCap module
-    // By default, the "key" divides endcaps into F/Epix and Rings
-    // During first loop, the default key is used
-    // In the second loop, the Wheel key is used
-    // all layer-wise histograms will be booked in Wheels as well as Rings
-    std::string folderName = (booking == 2 ? phase2tkutil::getITHistoWheelId(det_id, tTopo_, detPos.phi())
-                                           : phase2tkutil::getITHistoId(det_id, tTopo_, detPos.phi()));
-
-    if (folderName.empty())
-      return;
+  for (int bookingDepth = 1; bookingDepth < 6; bookingDepth++) {
+    std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, false);
+    std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, true);
 
     std::map<std::string, ClusterMEs>::iterator pos = layerMEs_.find(folderName);
 
@@ -254,23 +240,29 @@ void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
       ibooker.setCurrentFolder(subdir + "/" + folderName);
 
       edm::LogInfo("Phase2ITMonitorCluster") << " Booking Histograms in: " << subdir + "/" + folderName;
-
       ClusterMEs local_mes;
 
-      local_mes.nClusters =
-          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NClustersLayer"), ibooker);
+      local_mes.nClusters = phase2tkutil::book1DFromPSetWithPosition(
+          config_.getParameter<edm::ParameterSet>("NClustersLayer"), ibooker, prettyName, true);
 
-      local_mes.ClusterSize =
-          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSize"), ibooker);
+      local_mes.ClusterSize = phase2tkutil::book1DFromPSetWithPosition(
+          config_.getParameter<edm::ParameterSet>("ClusterSize"), ibooker, prettyName, false);
 
-      local_mes.ClusterSizeX =
-          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSizeX"), ibooker);
+      local_mes.ClusterSizeX = phase2tkutil::book1DFromPSetWithPosition(
+          config_.getParameter<edm::ParameterSet>("ClusterSizeX"), ibooker, prettyName, false);
 
-      local_mes.ClusterSizeY =
-          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSizeY"), ibooker);
+      local_mes.ClusterSizeY = phase2tkutil::book1DFromPSetWithPosition(
+          config_.getParameter<edm::ParameterSet>("ClusterSizeY"), ibooker, prettyName, false);
 
-      local_mes.ClusterCharge =
-          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterCharge"), ibooker);
+      local_mes.ClusterCharge = phase2tkutil::book1DFromPSetWithPosition(
+          config_.getParameter<edm::ParameterSet>("ClusterCharge"), ibooker, prettyName, false);
+
+      /*
+      if (bookingDepth == 3) {
+        local_mes.testShell = phase2tkutil::book1DFromPSetWithPosition(
+            config_.getParameter<edm::ParameterSet>("testpset"), ibooker, prettyName, false);
+      }
+      */
 
       layerMEs_.emplace(folderName, local_mes);
     }
@@ -348,17 +340,17 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Num_Clusters_Layer");
-    psd0.add<std::string>("title", "NumberOfClusters;Number of Clusters;");
+    psd0.add<std::string>("title", "NumberOfClusters {};Number of Clusters;");
     psd0.add<double>("xmin", 0.0);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 20000.0);
+    psd0.add<double>("xmax", 300000.0);
     psd0.add<int>("NxBins", 150);
     desc.add<edm::ParameterSetDescription>("NClustersLayer", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Cluster_Charge");
-    psd0.add<std::string>("title", ";Cluster charge;");
+    psd0.add<std::string>("title", "Cluster charge {};Cluster charge;");
     psd0.add<double>("xmin", 0.);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 100000.);
@@ -368,7 +360,7 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Cluster_Size");
-    psd0.add<std::string>("title", ";Cluster size;");
+    psd0.add<std::string>("title", "Cluster size {};Cluster size;");
     psd0.add<double>("xmin", -0.5);
     psd0.add<double>("xmax", 30.5);
     psd0.add<int>("NxBins", 31);
@@ -378,7 +370,7 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Cluster_Size_Y");
-    psd0.add<std::string>("title", ";Cluster sizeY;");
+    psd0.add<std::string>("title", "Cluster size Y {};Cluster sizeY;");
     psd0.add<double>("xmin", -0.5);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 30.5);
@@ -388,7 +380,7 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Cluster_Size_X");
-    psd0.add<std::string>("title", ";Cluster sizeX;");
+    psd0.add<std::string>("title", "Cluster size X {};Cluster sizeX;");
     psd0.add<double>("xmin", -0.5);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 30.5);

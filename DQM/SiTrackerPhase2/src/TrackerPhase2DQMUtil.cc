@@ -23,6 +23,82 @@ std::string phase2tkutil::getITHistoId(uint32_t det_id, const TrackerTopology* t
   }
   return fname1.str();
 }
+
+std::string phase2tkutil::getHistoId(uint32_t det_id, const TrackerTopology* tTopo, float phi, int LEVEL, bool pretty) {
+  std::ostringstream foldername;
+  std::string Substructure, Side, Shell, TEDD;
+  int layer = -1, wheel = -1, ring = -1;
+  bool inner = (DetId(det_id).subdetId() == PixelSubdetector::PixelBarrel ||
+                DetId(det_id).subdetId() == PixelSubdetector::PixelEndcap);
+
+  if (DetId(det_id).subdetId() == PixelSubdetector::PixelBarrel ||
+      DetId(det_id).subdetId() == SiStripSubdetector::TOB) {
+    Substructure = (pretty ? "Barrel " : "Barrel/");
+    if (inner)
+      layer = tTopo->getITPixelLayerNumber(det_id);
+    else
+      layer = tTopo->getOTLayerNumber(det_id);
+  } else if (DetId(det_id).subdetId() == PixelSubdetector::PixelEndcap ||
+             DetId(det_id).subdetId() == SiStripSubdetector::TID) {
+    Substructure = (pretty ? "" : "Endcaps/");
+    if (inner) {
+      wheel = tTopo->pxfDisk(det_id);
+      ring = tTopo->pxfBlade(det_id);
+
+      if (wheel < 9)
+        Substructure.append(pretty ? "FPix " : "ForwardPix/");
+      else
+        Substructure.append(pretty ? "EPix " : "EndcapPix/");
+
+    } else {
+      int side = tTopo->tidSide(det_id);
+      Side = (pretty ? ((side == 1) ? "minus " : "plus ") : ((side == 1) ? "MINUS/" : "PLUS/"));
+      wheel = tTopo->tidWheel(det_id);
+      TEDD = (pretty ? (wheel < 3 ? "TEDD_1 " : "TEDD_2 ") : ((wheel < 3) ? "TEDD_1/" : "TEDD_2/"));
+      ring = tTopo->tidRing(det_id);
+    }
+  } else {  //unknown subdetector - should probably throw
+    return "ERROR";
+  }
+  if (inner) {
+    foldername << (pretty ? "IT " : "");
+    Shell = getITShell(det_id, tTopo, phi);
+    if (Shell.empty())  // unknown shell - maybe also throw
+      return "ERROR";
+  } else {
+    foldername << (pretty ? "OT " : "");
+  }
+
+  // TODO: Ladder and module names in the pretty string (they probably don't need their own folders)
+  //Ladder << "ladder" << ladder << "/"; maybe only for histogram names, not filenames
+
+  if (LEVEL > 1)  // Add Barrel/Endcap/Forward
+    foldername << Substructure;
+  if (LEVEL > 2) {  // If IT add shells, if OT sides
+    if (inner)
+      foldername << (pretty ? "shell " : "") << Shell << (pretty ? " " : "/");
+    else
+      foldername << Side;
+  }
+  if (LEVEL > 3) {
+    // Wheels (endcap only)
+    // TODO: A way to add Rings with no Wheels
+    if (DetId(det_id).subdetId() == PixelSubdetector::PixelEndcap)
+      foldername << "Wheel" << wheel << (pretty ? " " : "/");
+    if (DetId(det_id).subdetId() == SiStripSubdetector::TID)
+      foldername << TEDD << "Wheel" << wheel << (pretty ? " " : "/");
+  }
+  if (LEVEL > 4) {
+    // Layer/Ring
+    if (DetId(det_id).subdetId() == PixelSubdetector::PixelBarrel ||
+        DetId(det_id).subdetId() == SiStripSubdetector::TOB)
+      foldername << "Layer" << layer << (pretty ? " " : "/");
+    else
+      foldername << "Ring" << ring << (pretty ? " " : "/");
+  }
+  return foldername.str();
+}
+
 std::string phase2tkutil::getITHistoWheelId(uint32_t det_id, const TrackerTopology* tTopo, float phi) {
   std::string Side, Shell, Disc;
   std::ostringstream fname1;
@@ -113,6 +189,25 @@ MonitorElement* phase2tkutil::book1DFromPSet(const edm::ParameterSet& hpars, DQM
                           hpars.getParameter<int32_t>("NxBins"),
                           hpars.getParameter<double>("xmin"),
                           hpars.getParameter<double>("xmax"));
+  }
+  return temp;
+}
+
+MonitorElement* phase2tkutil::book1DFromPSetWithPosition(const edm::ParameterSet& hpars,
+                                                         DQMStore::IBooker& ibooker,
+                                                         std::string titleString,
+                                                         bool scale) {
+  MonitorElement* temp = nullptr;
+  if (hpars.getParameter<bool>("switch")) {
+    double xMax = hpars.getParameter<double>("xmax");
+    if (scale)
+      xMax = xMax / 5;
+    std::string title = std::vformat(hpars.getParameter<std::string>("title"), std::make_format_args(titleString));
+    temp = ibooker.book1D(hpars.getParameter<std::string>("name"),
+                          title,
+                          hpars.getParameter<int32_t>("NxBins"),
+                          hpars.getParameter<double>("xmin"),
+                          xMax);
   }
   return temp;
 }

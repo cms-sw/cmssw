@@ -15,11 +15,16 @@ namespace phase2tkutil {
   std::string getOTHistoId(uint32_t det_id, const TrackerTopology* tTopo);
   std::string getOTHistoWheelId(uint32_t det_id, const TrackerTopology* tTopo);
   std::string getITShell(uint32_t det_id, const TrackerTopology* tTopo, float phi);
+  std::string getHistoId(uint32_t det_id, const TrackerTopology* tTopo, float phi, int LEVEL, bool pretty);
 
   typedef dqm::reco::MonitorElement MonitorElement;
   typedef dqm::reco::DQMStore DQMStore;
 
   MonitorElement* book1DFromPSet(const edm::ParameterSet& hpars, DQMStore::IBooker& ibooker);
+  MonitorElement* book1DFromPSetWithPosition(const edm::ParameterSet& hpars,
+                                             DQMStore::IBooker& ibooker,
+                                             std::string titleString,
+                                             bool scale);
 
   MonitorElement* book2DFromPSet(const edm::ParameterSet& hpars, DQMStore::IBooker& ibooker);
 
