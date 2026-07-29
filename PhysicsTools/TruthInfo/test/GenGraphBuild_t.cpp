@@ -48,6 +48,8 @@ namespace {
     };
 
     const std::vector<Particle> particles = {
+        // A beam proton, as HepMC2 writes it: last copy, and NO production vertex.
+        {11, 2212, 4, kLastCopy, 0, -1},
         {1, 21, 21, kHardProcess, -1, -2},
         {2, 21, 21, kHardProcess, -1, -2},
         {3, 25, 22, kHardProcess, -2, -3},
@@ -69,7 +71,8 @@ namespace {
       gb.particlePdgIdByBarcode.emplace(p.barcode, p.pdgId);
       gb.particleStatusByBarcode.emplace(p.barcode, p.status);
       gb.particleStatusFlagsByBarcode.emplace(p.barcode, p.flags);
-      gb.vtxToPart.emplace_back(p.prodVertex, p.barcode);
+      if (p.prodVertex != 0)
+        gb.vtxToPart.emplace_back(p.prodVertex, p.barcode);
       if (p.endVertex != 0)
         gb.partToVtx.emplace_back(p.barcode, p.endVertex);
     }
@@ -99,6 +102,12 @@ namespace {
       if (withIncoming.count(vbc) == 0)
         vertexStack.push_back(vbc);
     }
+
+    // Mirror the callers: when no vertex is a source, the GenEvent node is attached to
+    // every vertex instead. A collider record always lands here, because the beam
+    // particles give the first vertex an incoming particle.
+    if (vertexStack.empty())
+      vertexStack.assign(gb.vtxBarcodes.begin(), gb.vtxBarcodes.end());
 
     std::unordered_set<int> seenParticles;
     std::unordered_set<int> seenVertices(vertexStack.begin(), vertexStack.end());
@@ -142,7 +151,7 @@ void TestGenGraphBuild::testKeptSet() {
   auto gb = buildRecord();
   truth::collapseGenShower(gb, {});
 
-  const std::vector<int> expected = {1, 2, 3, 5, 9, 10};
+  const std::vector<int> expected = {1, 2, 3, 5, 9, 10, 11};
   std::vector<int> kept = gb.partBarcodes;
   std::sort(kept.begin(), kept.end());
   CPPUNIT_ASSERT(kept == expected);
@@ -193,6 +202,11 @@ void TestGenGraphBuild::testContractedAncestry() {
   }
 }
 
+// The contraction must not COST reachability: a survivor that the source vertices could
+// reach before must still be reachable after. It cannot be asked to do better than the
+// record it is given. A beam particle has no production vertex in the HepMC record, so
+// nothing points at it and it is unreachable before the collapse as well; measured on
+// ttbar as exactly 2 unreachable GenParticles per event both before and after.
 void TestGenGraphBuild::testNoOrphans() {
   auto before = buildRecord();
   const auto reachableBefore = reachableParticles(before);
@@ -201,11 +215,24 @@ void TestGenGraphBuild::testNoOrphans() {
   truth::collapseGenShower(after, {});
   const auto reachableAfter = reachableParticles(after);
 
-  CPPUNIT_ASSERT(reachableAfter.size() == after.partBarcodes.size());
   for (int pbc : after.partBarcodes) {
-    CPPUNIT_ASSERT(reachableAfter.count(pbc) != 0);
-    CPPUNIT_ASSERT(reachableBefore.count(pbc) != 0);
+    if (reachableBefore.count(pbc) != 0) {
+      CPPUNIT_ASSERT(reachableAfter.count(pbc) != 0);
+    }
   }
+
+  // Everything the collapse kept and could reach is reachable, so the only survivors
+  // outside the reachable set are the ones the record itself never attached.
+  for (int pbc : after.partBarcodes) {
+    if (reachableAfter.count(pbc) == 0) {
+      CPPUNIT_ASSERT(reachableBefore.count(pbc) == 0);
+    }
+  }
+
+  // The beam particle of buildRecord() is exactly that case, so this test would pass
+  // vacuously if it ever stopped being kept.
+  CPPUNIT_ASSERT(contains(after.partBarcodes, 11));
+  CPPUNIT_ASSERT(reachableBefore.count(11) == 0);
 }
 
 // A SimTrack continuing a particle keeps it whatever its status and flags say, and the
@@ -224,5 +251,11 @@ void TestGenGraphBuild::testSimContinuationKeeps() {
   // only one of the two partons survived.
   CPPUNIT_ASSERT(hasParticleToVertex(gb, 6, -7));
   CPPUNIT_ASSERT(hasParticleToVertex(gb, 5, -7));
-  CPPUNIT_ASSERT(reachableParticles(gb).size() == gb.partBarcodes.size());
+
+  // Every survivor is reachable except the beam particle, which the record itself leaves
+  // without a production vertex. See testNoOrphans.
+  const auto reachable = reachableParticles(gb);
+  for (int pbc : gb.partBarcodes) {
+    CPPUNIT_ASSERT((reachable.count(pbc) != 0) == (pbc != 11));
+  }
 }
