@@ -7,7 +7,9 @@
 
 #include <array>
 #include <cstdint>
+#include <limits>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
@@ -16,7 +18,11 @@ namespace truth {
 
   class LogicalGraphHitIndexBuilder {
   public:
-    explicit LogicalGraphHitIndexBuilder(uint32_t nParticles);
+    // sharedSubgraphStore selects the shared layout described in LogicalGraphHitIndex,
+    // which is the one the producer writes by default: each hit is stored once, in an
+    // order that makes every subtree a contiguous range, instead of being copied into
+    // each ancestor's aggregate. False builds the materialised layout instead.
+    explicit LogicalGraphHitIndexBuilder(uint32_t nParticles, bool sharedSubgraphStore = true);
 
     // trackId is event-local (each mixing sub-event reuses 1,2,3,...); it MUST be
     // namespaced by the packed EncodedEventId or signal and pileup collide.
@@ -41,8 +47,14 @@ namespace truth {
 
     [[nodiscard]] LogicalGraphHitIndex finish();
 
+    // Whether finish() actually wrote the shared layout. False when it was not asked
+    // for, and also when it was asked for but the hit-carrying particles did not form
+    // a forest, in which case finish() falls back to the materialised layout.
+    [[nodiscard]] bool usedSharedStore() const { return usedSharedStore_; }
+
   private:
     using Hit = LogicalGraphHitIndex::Hit;
+    using SlotRange = LogicalGraphHitIndex::SlotRange;
 
     // Per-particle hits are accumulated as a flat, append-only list and coalesced
     // (summed per detId, sorted) lazily. This keeps the hot insertion path a
@@ -79,10 +91,40 @@ namespace truth {
                             std::vector<uint32_t>& offsets,
                             std::vector<Hit>& storage);
 
+    // Order the particles so that every subtree occupies consecutive slots, which is
+    // what lets a subgraph be a range of the single hit store. The tree is the SIM
+    // parentage alone: only particles with a SimTrack carry hits, and each of those has
+    // at most one parent that also has a SimTrack, whereas the GEN half above them is a
+    // DAG whose vertices have several incoming particles. Fills the DFS slot of every
+    // particle and the number of particles in its subtree.
+    // False when a hit-carrying particle has more than one hit-carrying parent, which
+    // the shared layout cannot represent; the outputs are then meaningless.
+    [[nodiscard]] bool buildDfsOrder(std::vector<uint32_t>& slotToParticle,
+                                     std::vector<uint32_t>& dfsPos,
+                                     std::vector<uint32_t>& subtreeCount) const;
+
+    // Slot ranges covering each particle's subgraph: one run for a hit-carrying
+    // particle, the merged union of the runs below it for a GEN-only particle.
+    void buildSubgraphRanges(std::vector<uint32_t> const& dfsPos,
+                             std::vector<uint32_t> const& subtreeCount,
+                             std::vector<uint32_t>& rangeOffsets,
+                             std::vector<SlotRange>& ranges) const;
+
+    [[nodiscard]] LogicalGraphHitIndex finishShared();
+    [[nodiscard]] LogicalGraphHitIndex finishMaterialised();
+
+    static constexpr uint32_t kNoParent = std::numeric_limits<uint32_t>::max();
+
     uint32_t nParticles_ = 0;
+    bool sharedSubgraphStore_ = false;
+    bool usedSharedStore_ = false;
 
     std::unordered_map<uint64_t, uint32_t> trackIdToParticle_;
     std::vector<std::vector<uint32_t>> children_;
+
+    // Whether a particle has a SimTrack, so it can carry hits and take part in the
+    // SIM parentage tree.
+    std::vector<uint8_t> hasSimTrack_;
 
     // [channel index][particle] -> direct hit list. Subgraph hits are aggregated
     // in finish().

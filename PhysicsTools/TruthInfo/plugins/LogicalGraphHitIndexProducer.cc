@@ -186,6 +186,7 @@ private:
   // HGCAL hexagon unpacking and the HCAL HcalHitRelabeller are selected independently.
   bool doHGCalRelabelling_ = true;
   bool doHcalRelabelling_ = true;
+  bool sharedSubgraphStore_ = false;
 };
 
 TruthLogicalGraphHitIndexProducer::TruthLogicalGraphHitIndexProducer(edm::ParameterSet const& cfg)
@@ -197,7 +198,8 @@ TruthLogicalGraphHitIndexProducer::TruthLogicalGraphHitIndexProducer(edm::Parame
       muonSimHitTags_(cfg.getParameter<std::vector<edm::InputTag>>("muonSimHitCollections")),
       geomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       doHGCalRelabelling_(cfg.getParameter<bool>("doHGCalRelabelling")),
-      doHcalRelabelling_(cfg.getParameter<bool>("doHcalRelabelling")) {
+      doHcalRelabelling_(cfg.getParameter<bool>("doHcalRelabelling")),
+      sharedSubgraphStore_(cfg.getParameter<bool>("sharedSubgraphStore")) {
   simHitTokens_.reserve(simHitTags_.size());
   for (auto const& tag : simHitTags_) {
     simHitTokens_.push_back(consumes<std::vector<PCaloHit>>(tag));
@@ -281,6 +283,14 @@ void TruthLogicalGraphHitIndexProducer::fillDescriptions(edm::ConfigurationDescr
           "Apply HcalHitRelabeller to the HCAL simulation DetIds, which are in packed test numbering, so the index "
           "stores the reco HcalDetIds the association matches on. Affects the HCAL collections only.");
 
+  desc.add<bool>("sharedSubgraphStore", true)
+      ->setComment(
+          "Store each hit once, ordered so that a particle's subtree is a contiguous range, instead of copying every "
+          "descendant's hits into each ancestor's aggregate. Subgraph spans are then in tree order rather than detId "
+          "order and repeat a detId hit by several descendants, so a consumer that needs per-cell energies coalesces "
+          "them. Set false to write the materialised layout, which is what indices written before this option exist "
+          "carry; reading either layout is automatic.");
+
   desc.add<edm::InputTag>("mtdSimLayerClusters", edm::InputTag("mix", "MergedMtdTruthLC"))
       ->setComment(
           "MtdSimLayerCluster collection (BTL/ETL); keyed by SimTrack trackId via particleId(). The signal "
@@ -305,7 +315,7 @@ void TruthLogicalGraphHitIndexProducer::produce(edm::StreamID, edm::Event& event
 
   LogicalGraphView graphView(graph);
 
-  truth::LogicalGraphHitIndexBuilder builder(graphView.nParticles());
+  truth::LogicalGraphHitIndexBuilder builder(graphView.nParticles(), sharedSubgraphStore_);
 
   fillTrackToParticleMap(graphView, rawGraph, builder);
 

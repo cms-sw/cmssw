@@ -6,6 +6,7 @@
 #define PhysicsTools_TruthInfo_interface_BranchHitAssociator_h
 
 #include <cstdint>
+#include <limits>
 #include <ranges>
 #include <span>
 #include <vector>
@@ -78,6 +79,10 @@ namespace truth {
     }
 
   private:
+    // Fill the coalesced per-root hit store used by the shared layout. A no-op for a
+    // materialised index, which already persists the coalesced spans.
+    void buildRootHits();
+
     [[nodiscard]] std::span<const LogicalGraphHitIndex::Hit> rootHits(uint32_t rootId) const;
 
     // Candidate roots whose subgraph touches a cell, by binary search; empty span
@@ -107,6 +112,16 @@ namespace truth {
     // score. Computed once with the inverted index so bestBranches() needs no
     // full branch-hit scan.
     std::vector<double> rootSelfEnergySq_;
+
+    // Shared layout only: the candidate roots' subgraph hits, coalesced here once at
+    // construction because the persisted store keeps them in tree order with a detId
+    // repeated per contributing descendant, while the merge-join below needs one
+    // ascending entry per detId. Materialised indices keep using the persisted spans,
+    // so these stay empty. CSR over roots_, in the order roots_ holds them.
+    std::vector<uint32_t> rootHitOffsets_;
+    std::vector<LogicalGraphHitIndex::Hit> rootHitStorage_;
+    std::vector<uint32_t> rootHitSlotOfRoot_;  // particle id -> position in roots_, or kNoRoot
+    static constexpr uint32_t kNoRoot = std::numeric_limits<uint32_t>::max();
   };
 
 }  // namespace truth

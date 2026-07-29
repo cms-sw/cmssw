@@ -27,17 +27,23 @@
   <class name="std::vector<truth::VertexData>"/>
   <class name="edm::Wrapper<truth::Graph>"/>
 
-  <class name="truth::LogicalGraphHitIndex" ClassVersion="3">
+  <class name="truth::LogicalGraphHitIndex" ClassVersion="4">
+    <version ClassVersion="4" checksum="1362593623"/>
     <version ClassVersion="3" checksum="1046280499"/>
   </class>
   <class name="truth::LogicalGraphHitIndex::Hit" ClassVersion="3">
     <version ClassVersion="3" checksum="611807671"/>
   </class>
   <class name="std::vector<truth::LogicalGraphHitIndex::Hit>"/>
-  <class name="truth::LogicalGraphHitIndex::Channel" ClassVersion="3">
+  <class name="truth::LogicalGraphHitIndex::Channel" ClassVersion="4">
+    <version ClassVersion="4" checksum="2575462028"/>
     <version ClassVersion="3" checksum="1904217884"/>
   </class>
   <class name="std::vector<truth::LogicalGraphHitIndex::Channel>"/>
+  <class name="truth::LogicalGraphHitIndex::SlotRange" ClassVersion="3">
+    <version ClassVersion="3" checksum="558917159"/>
+  </class>
+  <class name="std::vector<truth::LogicalGraphHitIndex::SlotRange>"/>
   <class name="edm::Wrapper<truth::LogicalGraphHitIndex>"/>
 
   <!-- The ticl::AssociationMap<mapWithSharedEnergyAndScore> (raw-index variant) and

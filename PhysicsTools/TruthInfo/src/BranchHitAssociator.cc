@@ -44,6 +44,8 @@ namespace truth {
       }
     }
 
+    buildRootHits();
+
     // Inverted index detId -> candidate roots, from each candidate's subgraph
     // hits. Built as a flat (detId, root) list, sorted, then packed CSR-style so
     // lookups are a binary search plus a contiguous root span (no hashing).
@@ -76,8 +78,60 @@ namespace truth {
     }
   }
 
+  void BranchHitAssociator::buildRootHits() {
+    if (!hitIndex_->sharedSubgraphStore())
+      return;
+
+    rootHitSlotOfRoot_.assign(hitIndex_->nParticles(), kNoRoot);
+    rootHitOffsets_.reserve(roots_.size() + 1);
+    rootHitOffsets_.push_back(0);
+
+    std::vector<LogicalGraphHitIndex::Hit> scratch;
+    for (const uint32_t root : roots_) {
+      if (root < rootHitSlotOfRoot_.size())
+        rootHitSlotOfRoot_[root] = static_cast<uint32_t>(rootHitOffsets_.size() - 1);
+
+      scratch.clear();
+      hitIndex_->appendSubgraphHits(channel_, root, scratch);
+
+      // Same rule the materialised layout applies when it aggregates: sort by detId
+      // and sum the energies of the entries that share one, so the merge-join sees a
+      // single ascending entry per cell. The valid recHit index wins over the invalid
+      // sentinel, which sorts last.
+      std::sort(scratch.begin(), scratch.end(), [](auto const& a, auto const& b) {
+        if (a.detId != b.detId)
+          return a.detId < b.detId;
+        return a.recHitIndex < b.recHitIndex;
+      });
+      std::size_t w = 0;
+      for (std::size_t r = 0; r < scratch.size(); ++r) {
+        if (w > 0 && scratch[w - 1].detId == scratch[r].detId) {
+          scratch[w - 1].energy += scratch[r].energy;
+          if (scratch[w - 1].recHitIndex == LogicalGraphHitIndex::Hit::kInvalidRecHitIndex)
+            scratch[w - 1].recHitIndex = scratch[r].recHitIndex;
+        } else {
+          scratch[w++] = scratch[r];
+        }
+      }
+      scratch.resize(w);
+
+      rootHitStorage_.insert(rootHitStorage_.end(), scratch.begin(), scratch.end());
+      rootHitOffsets_.push_back(static_cast<uint32_t>(rootHitStorage_.size()));
+    }
+  }
+
   std::span<const LogicalGraphHitIndex::Hit> BranchHitAssociator::rootHits(uint32_t rootId) const {
-    return hitIndex_->subgraphHits(channel_, rootId);
+    if (!hitIndex_->sharedSubgraphStore())
+      return hitIndex_->subgraphHits(channel_, rootId);
+
+    if (rootId >= rootHitSlotOfRoot_.size())
+      return {};
+    const uint32_t slot = rootHitSlotOfRoot_[rootId];
+    if (slot == kNoRoot)
+      return {};
+    const uint32_t begin = rootHitOffsets_[slot];
+    const uint32_t end = rootHitOffsets_[slot + 1];
+    return std::span<const LogicalGraphHitIndex::Hit>(rootHitStorage_.data() + begin, end - begin);
   }
 
   std::span<const uint32_t> BranchHitAssociator::rootsForCell(uint32_t detId) const {
