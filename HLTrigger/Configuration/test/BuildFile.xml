@@ -43,7 +43,7 @@
 <test name="test_PluginConfigValidationCoverage" command="python3
 							  ${CMSSW_BASE}/src/HLTrigger/Configuration/test/testPluginConfigValidationCoverage.py"/>
 
-<!-- unit tests of the heterogeneous configuration dumper, on a synthetic
-     configuration: they need no conditions, no input file and no menu -->
-<test name="test_heterogeneousClosure" command="python3
-						${CMSSW_BASE}/src/HLTrigger/Configuration/test/testHeterogeneousClosure.py"/>
+<!-- unit tests of the tagged module closure, on a synthetic configuration:
+     they need no conditions, no input file and no menu -->
+<test name="test_moduleClosure" command="python3
+					 ${CMSSW_BASE}/src/HLTrigger/Configuration/test/testModuleClosure.py"/>

@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-"""Unit tests for HLTrigger.Configuration.heterogeneousClosure.
+"""Unit tests for HLTrigger.Configuration.moduleClosure.
 
 Everything except the cmsRun job that produces the Tracer log is exercised here,
 on a Process and a Tracer log built by hand.  The tests therefore need neither
@@ -17,12 +17,21 @@ import unittest
 
 import FWCore.ParameterSet.Config as cms
 
-from HLTrigger.Configuration.heterogeneousClosure import (FrameworkGraph,
-                                                          ModuleGraph,
-                                                          collectInputTags,
-                                                          parseTracerLog,
-                                                          reduceToHeterogeneous,
-                                                          scheduledLabels)
+from HLTrigger.Configuration.moduleClosure import (DEFAULT_MODULE_TAGS,
+                                                   HLT_BEGIN_SEQUENCE,
+                                                   HLT_END_SEQUENCE,
+                                                   HLT_L1_FILTER,
+                                                   HLT_L1_FILTER_CFI,
+                                                   HLT_MENU,
+                                                   FrameworkGraph,
+                                                   ModuleGraph,
+                                                   _cfiObject,
+                                                   _cfiPackage,
+                                                   collectInputTags,
+                                                   hltStructure,
+                                                   parseTracerLog,
+                                                   reduceToTaggedModules,
+                                                   scheduledLabels)
 
 TRACER_LOG = """\
 some preamble the parser has to ignore
@@ -87,6 +96,9 @@ def buildProcess():
     process.unrelated = cms.EDProducer("Unrelated")
     # an @alpaka module the configuration does not schedule, so not a seed
     process.offClusters = cms.EDProducer("OffProducer@alpaka")
+    # a module of a different family, a seed only when that tag is asked for
+    process.customTagged = cms.EDProducer("CustomProducer@custom",
+                                          src=cms.InputTag("digis"))
 
     process.l1Seed = cms.EDFilter("L1Seed")
     process.l1tAlgoBlock = cms.EDProducer("L1AlgoProducer")
@@ -95,12 +107,14 @@ def buildProcess():
     process.topology = cms.ESProducer("TopologyESProducer")
     process.unused = cms.ESProducer("UnusedESProducer")
     process.alpakaES = cms.ESProducer("SomeESProducer@alpaka")
+    process.customES = cms.ESProducer("CustomESProducer@custom")
     process.emptySource = cms.ESSource("EmptyESSource")
 
     process.pSeed = cms.Path(process.l1Seed)
     process.pAlgo = cms.Path(process.l1tAlgoBlock)
     process.reco = cms.Path(process.digis + process.soaClusters +
-                            process.soaHits + process.legacyHits)
+                            process.soaHits + process.legacyHits +
+                            process.customTagged)
     process.other = cms.Path(process.unrelated)
     process.schedule = cms.Schedule(process.pSeed, process.pAlgo, process.reco,
                                     process.other, process.HLTriggerFinalPath,
@@ -193,7 +207,7 @@ class TestModuleGraph(unittest.TestCase):
         self.assertEqual(sorted(self.graph.seeds()), ["soaClusters", "soaHits"])
 
     def testUnscheduledAlpakaModuleIsNotASeed(self):
-        self.assertIn("offClusters", self.graph.alpakaModules())
+        self.assertIn("offClusters", self.graph.taggedModules())
         self.assertNotIn("offClusters", self.graph.seeds())
 
     def testClassify(self):
@@ -230,7 +244,7 @@ class TestModuleGraph(unittest.TestCase):
 class TestReduceToHeterogeneous(unittest.TestCase):
     def setUp(self):
         self.process = buildProcess()
-        self.manifest = reduceToHeterogeneous(self.process, FRAMEWORK)
+        self.manifest = reduceToTaggedModules(self.process, FRAMEWORK)
 
     def testPathIsTheHltStructureAroundTheSeeds(self):
         self.assertEqual(self.manifest["pathOrder"],
@@ -252,7 +266,8 @@ class TestReduceToHeterogeneous(unittest.TestCase):
         self.assertNotIn("soaClusters", task)
 
     def testModulesOutsideTheClosureAreDropped(self):
-        for label in ("legacyHits", "unrelated", "offClusters", "rawData"):
+        for label in ("legacyHits", "unrelated", "offClusters", "rawData",
+                      "customTagged"):
             self.assertFalse(hasattr(self.process, label),
                              "%s should have been pruned" % label)
 
@@ -271,11 +286,142 @@ class TestReduceToHeterogeneous(unittest.TestCase):
         self.assertIn("emptySource", self.manifest["droppedEventSetup"])
 
     def testManifestReportsUnscheduledAlpakaModules(self):
-        self.assertEqual(self.manifest["unscheduledAlpakaModules"], ["offClusters"])
+        self.assertEqual(self.manifest["unscheduledTaggedModules"], ["offClusters"])
 
     def testSeedsAreReported(self):
         self.assertEqual(sorted(seed["label"] for seed in self.manifest["seeds"]),
                          ["soaClusters", "soaHits"])
+
+
+class TestCustomModuleTag(unittest.TestCase):
+    """The same Process reduced around a different tag gives a different result."""
+
+    def setUp(self):
+        self.process = buildProcess()
+        self.manifest = reduceToTaggedModules(self.process, FRAMEWORK,
+                                              moduleTags=["@custom"])
+
+    def testTheTaggedModuleIsTheSeed(self):
+        self.assertEqual([seed["label"] for seed in self.manifest["seeds"]],
+                         ["customTagged"])
+        self.assertEqual(self.manifest["moduleTags"], ["@custom"])
+
+    def testItsOwnDependenciesAreKept(self):
+        self.assertIn("digis", [dep["label"] for dep in self.manifest["dependencies"]])
+        self.assertIn("rawData", [entry["label"] for entry in self.manifest["boundary"]])
+
+    def testTheAlpakaModulesAreDropped(self):
+        # they are not upstream of the seed, so nothing keeps them
+        for label in ("soaClusters", "soaHits"):
+            self.assertFalse(hasattr(self.process, label),
+                             "%s should have been pruned" % label)
+
+    def testOnlyTheAskedForTagIsKeptInTheEventSetup(self):
+        self.assertIn("customES", self.manifest["keptEventSetup"])
+        self.assertIn("alpakaES", self.manifest["droppedEventSetup"])
+
+
+class TestModuleTagMatching(unittest.TestCase):
+    """The tag is looked for anywhere in the C++ type, not only at its end."""
+
+    def setUp(self):
+        self.process = cms.Process("TAG")
+        self.process.source = cms.Source("EmptySource")
+        self.process.suffix = cms.EDProducer("HitProducer@alpaka")
+        self.process.middle = cms.EDProducer("PortableHitProducerPhase2")
+        self.process.plain = cms.EDProducer("PlainHitProducer")
+        self.process.p = cms.Path(self.process.suffix + self.process.middle +
+                                  self.process.plain)
+        self.process.schedule = cms.Schedule(self.process.p)
+
+    def graph(self, *moduleTags):
+        if not moduleTags:
+            return ModuleGraph(self.process, FrameworkGraph())
+        return ModuleGraph(self.process, FrameworkGraph(), moduleTags)
+
+    def testTheDefaultTagSelectsTheHeterogeneousModules(self):
+        self.assertEqual(self.graph().taggedModules(), ["suffix"])
+
+    def testAWordInTheMiddleOfTheTypeMatches(self):
+        self.assertEqual(self.graph("Portable").taggedModules(), ["middle"])
+
+    def testAWordSharedBySeveralTypesMatchesThemAll(self):
+        self.assertEqual(self.graph("HitProducer").taggedModules(),
+                         ["middle", "plain", "suffix"])
+
+    def testAWordThatIsNotThereMatchesNothing(self):
+        self.assertEqual(self.graph("Cuda").taggedModules(), [])
+
+
+class TestSeveralModuleTags(unittest.TestCase):
+    """Several tags select the union of the families they name."""
+
+    def setUp(self):
+        self.process = buildProcess()
+
+    def testTheDefaultIsTheHeterogeneousTagAlone(self):
+        self.assertEqual(tuple(DEFAULT_MODULE_TAGS), ("@alpaka",))
+
+    def testEitherTagMakesAModuleASeed(self):
+        graph = ModuleGraph(self.process, FRAMEWORK, ["@alpaka", "@custom"])
+        self.assertEqual(sorted(graph.seeds()),
+                         ["customTagged", "soaClusters", "soaHits"])
+
+    def testTheOrderOfTheTagsDoesNotMatter(self):
+        one = ModuleGraph(self.process, FRAMEWORK, ["@alpaka", "@custom"]).seeds()
+        other = ModuleGraph(self.process, FRAMEWORK, ["@custom", "@alpaka"]).seeds()
+        self.assertEqual(sorted(one), sorted(other))
+
+    def testATagMatchingNothingAddsNothing(self):
+        graph = ModuleGraph(self.process, FRAMEWORK, ["@alpaka", "@nothing"])
+        self.assertEqual(sorted(graph.seeds()), ["soaClusters", "soaHits"])
+
+    def testTheReductionKeepsBothFamilies(self):
+        manifest = reduceToTaggedModules(self.process, FRAMEWORK,
+                                         moduleTags=["@alpaka", "@custom"])
+        self.assertEqual(manifest["moduleTags"], ["@alpaka", "@custom"])
+        for label in ("soaClusters", "soaHits", "customTagged"):
+            self.assertIn(label, manifest["pathOrder"])
+        # the EventSetup modules of both families are kept whatever the graph says
+        self.assertIn("alpakaES", manifest["keptEventSetup"])
+        self.assertIn("customES", manifest["keptEventSetup"])
+
+
+class TestHltStructure(unittest.TestCase):
+    """The fixed HLT structure is derived from the cfi of the L1 accept filter."""
+
+    def testACfiNamesItsObjectAndItsMenu(self):
+        cfi = "Some.Package.Menu.modules.someModule_cfi"
+        self.assertEqual(_cfiObject(cfi), "someModule")
+        self.assertEqual(_cfiPackage(cfi), "Some.Package.Menu")
+
+    def testTheFilterLabelAndTheMenuComeFromThatCfi(self):
+        self.assertEqual(HLT_L1_FILTER, _cfiObject(HLT_L1_FILTER_CFI))
+        self.assertEqual(HLT_MENU, _cfiPackage(HLT_L1_FILTER_CFI))
+        self.assertTrue(HLT_L1_FILTER_CFI.startswith(HLT_MENU + "."))
+
+    def testWhatTheProcessHasIsUsedAsItIs(self):
+        process = buildProcess()
+        prologue, epilogue, finalPaths = hltStructure(process)
+        self.assertEqual([item.label_() for item in prologue],
+                         [HLT_BEGIN_SEQUENCE, HLT_L1_FILTER])
+        self.assertEqual([item.label_() for item in epilogue], [HLT_END_SEQUENCE])
+        self.assertEqual([item.label_() for item in finalPaths],
+                         ["HLTriggerFinalPath", "HLTAnalyzerEndpath"])
+        # the filter of the process, not one loaded over it from the menu
+        self.assertEqual(
+            process.hltL1GTAcceptFilter.algoBlocksTag.getModuleLabel(),
+            "l1tAlgoBlock")
+
+    def testWhatIsMissingIsLoadedFromTheMenu(self):
+        process = cms.Process("BARE")
+        process.source = cms.Source("EmptySource")
+        prologue, epilogue, finalPaths = hltStructure(process)
+        self.assertEqual([item.label_() for item in prologue],
+                         [HLT_BEGIN_SEQUENCE, HLT_L1_FILTER])
+        self.assertEqual([item.label_() for item in epilogue], [HLT_END_SEQUENCE])
+        # a process that has no bookkeeping paths simply gets none
+        self.assertEqual(finalPaths, [])
 
 
 class TestWithoutSeeds(unittest.TestCase):
@@ -285,7 +431,7 @@ class TestWithoutSeeds(unittest.TestCase):
         process.plain = cms.EDProducer("Plain")
         process.p = cms.Path(process.plain)
         process.schedule = cms.Schedule(process.p)
-        self.assertRaises(RuntimeError, reduceToHeterogeneous, process,
+        self.assertRaises(RuntimeError, reduceToTaggedModules, process,
                           FrameworkGraph())
 
 

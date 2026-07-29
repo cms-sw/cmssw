@@ -1,12 +1,14 @@
-"""Reduce a menu to the heterogeneous modules and everything needed to run them.
+"""Reduce a menu to a tagged family of modules and everything needed to run them.
 
-Given a full cmsDriver configuration, keep only the heterogeneous (@alpaka)
-modules that the configuration actually schedules, plus the smallest set of other
-modules, Paths and ESProducers needed to feed them, and drop everything else.
+Given a full cmsDriver configuration, keep only the modules whose C++ type carries
+one of a set of tags and that the configuration actually schedules, plus the
+smallest set of other modules, Paths and ESProducers needed to feed them, and drop
+everything else.  The tags default to '@alpaka' alone, which selects the
+heterogeneous modules, but nothing in the machinery depends on that value.
 
 Two rules define the result:
-- seed rule: a module is a seed if its type ends with '@alpaka' and the module is
-             scheduled in the input configuration. Testing against the schedule
+- seed rule: a module is a seed if one of the tags appears in its type and the
+             module is scheduled in the input configuration. Testing against the schedule
              rather than against the set of defined modules is what makes the
              result follow the eras and process modifiers of the input.
 
@@ -37,13 +39,44 @@ import tempfile
 
 import FWCore.ParameterSet.Config as cms
 
-ALPAKA_SUFFIX = "@alpaka"
+# A module is a seed when one of these appears in its C++ type. Nothing else about
+# the machinery is specific to heterogeneous modules: any word, or set of words, a
+# menu uses to mark a family of modules works the same way.
+DEFAULT_MODULE_TAGS = ("@alpaka",)
 
-# Fixed HLT structure
+
+def hasTag(component, moduleTags):
+    """Whether a module or an EventSetup component carries one of the tags.
+
+    A tag is looked for anywhere in the C++ type, not only at its end.  The default
+    '@alpaka' is a suffix the framework appends, so it selects exactly the
+    heterogeneous modules either way, while a word such as 'Portable' is found
+    wherever a type happens to carry it.  Several tags select the union of the
+    families they name.
+    """
+    return any(tag in component.type_() for tag in moduleTags)
+
+
+def _cfiObject(cfi):
+    """The name of the object a cfi provides, its file name without the _cfi suffix."""
+    name = cfi.rsplit(".", 1)[-1]
+    return name[:-len("_cfi")] if name.endswith("_cfi") else name
+
+
+def _cfiPackage(cfi):
+    """The menu package a cfi belongs to, dropping the subpackage and the file name."""
+    return cfi.rsplit(".", 2)[0]
+
+
+# The fixed HLT structure the seeds are wrapped in. Only the cfi of the L1 accept
+# filter is spelled out: the filter label is the object that cfi provides, and the
+# package holding it is the menu whose sequences the begin and end sequences are
+# taken from.
+HLT_L1_FILTER_CFI = "HLTrigger.Configuration.HLT_75e33.modules.hltL1GTAcceptFilter_cfi"
+HLT_L1_FILTER = _cfiObject(HLT_L1_FILTER_CFI)
+HLT_MENU = _cfiPackage(HLT_L1_FILTER_CFI)
 HLT_BEGIN_SEQUENCE = "HLTBeginSequence"
 HLT_END_SEQUENCE = "HLTEndSequence"
-HLT_L1_FILTER = "hltL1GTAcceptFilter"
-HLT_L1_FILTER_CFI = "HLTrigger.Configuration.HLT_75e33.modules.hltL1GTAcceptFilter_cfi"
 HLT_FINAL_PATHS = ("HLTriggerFinalPath", "HLTAnalyzerEndpath")
 
 
@@ -204,7 +237,7 @@ def buildFrameworkGraph(filename, configArgs=(), directory=None):
     started.
     """
     if directory is None:
-        directory = tempfile.mkdtemp(prefix="hltDumpHeterogeneous-")
+        directory = tempfile.mkdtemp(prefix="hltDumpTaggedModules-")
     log = os.path.join(directory, "tracer.log")
     job = os.path.join(directory, "tracer_cfg.py")
     with open(job, "w") as script:
@@ -229,8 +262,9 @@ def buildFrameworkGraph(filename, configArgs=(), directory=None):
 class ModuleGraph(object):
     """The data flow graph of the EDProducers and EDFilters of a Process."""
 
-    def __init__(self, process, frameworkGraph=None):
+    def __init__(self, process, frameworkGraph=None, moduleTags=DEFAULT_MODULE_TAGS):
         self.process = process
+        self.moduleTags = moduleTags
         self.scheduled = scheduledLabels(process)
         self.modules = {}
         self.modules.update(process.producers_())
@@ -245,14 +279,14 @@ class ModuleGraph(object):
             collectInputTags(module, label, tags)
             self._tags[label] = tags
 
-    def alpakaModules(self):
-        """All @alpaka EDProducers and EDFilters defined in the process."""
+    def taggedModules(self):
+        """All EDProducers and EDFilters of the process whose type carries the tag."""
         return sorted(label for label, module in self.modules.items()
-                      if module.type_().endswith(ALPAKA_SUFFIX))
+                      if hasTag(module, self.moduleTags))
 
     def seeds(self):
-        """The @alpaka modules this configuration schedules."""
-        return [label for label in self.alpakaModules() if label in self.scheduled]
+        """The tagged modules this configuration schedules."""
+        return [label for label in self.taggedModules() if label in self.scheduled]
 
     def _resolveAlias(self, label):
         """The parameter names of an EDAlias are the labels it aliases."""
@@ -357,48 +391,54 @@ def _modifierNames(process):
     return [names[id(modifier)] or type(modifier).__name__ for modifier in modifiers]
 
 
-def _moduleNamesOf(item):
+def moduleNamesOf(item):
     """The module labels of a Sequence or Path, or of a single module."""
     if hasattr(item, "moduleNames"):
         return set(item.moduleNames())
     return set([item.label_()])
 
 
+def _fromMenu(process, name, subpackage):
+    """The object called name, taken from the process or loaded from the menu.
+
+    Returns None when the process does not have it and the menu does not provide
+    it either, so that the reduction still works on a process that is not an HLT
+    menu.
+    """
+    if not hasattr(process, name):
+        try:
+            process.load("%s.%s.%s_cfi" % (HLT_MENU, subpackage, name))
+        except ImportError:
+            return None
+    return getattr(process, name, None)
+
+
 def hltStructure(process):
     """(prologue, epilogue, finalPaths) - the fixed HLT structure around the seeds.
 
-    The heterogeneous path should begin with HLTBeginSequence followed by the L1
-    accept filter and ends with HLTEndSequence, and the Schedule keeps the two HLT
-    bookkeeping paths.  The L1 filter is not part of the menu itself, so it is
-    imported from its cfi when the process does not already have it.
+    The Path begins with HLTBeginSequence followed by the L1 accept filter and
+    ends with HLTEndSequence, and the Schedule keeps the two HLT bookkeeping
+    paths.  Whatever the process does not already have is loaded from the menu,
+    since the L1 accept filter in particular is not part of the menu's own paths.
     """
-    prologue = []
-    if hasattr(process, HLT_BEGIN_SEQUENCE):
-        prologue.append(getattr(process, HLT_BEGIN_SEQUENCE))
-    if not hasattr(process, HLT_L1_FILTER):
-        try:
-            cfi = importlib.import_module(HLT_L1_FILTER_CFI)
-            setattr(process, HLT_L1_FILTER, getattr(cfi, HLT_L1_FILTER).clone())
-        except ImportError:
-            pass
-    if hasattr(process, HLT_L1_FILTER):
-        prologue.append(getattr(process, HLT_L1_FILTER))
-    epilogue = []
-    if hasattr(process, HLT_END_SEQUENCE):
-        epilogue.append(getattr(process, HLT_END_SEQUENCE))
+    prologue = [item for item in (_fromMenu(process, HLT_BEGIN_SEQUENCE, "sequences"),
+                                  _fromMenu(process, HLT_L1_FILTER, "modules"))
+                if item is not None]
+    epilogue = [item for item in [_fromMenu(process, HLT_END_SEQUENCE, "sequences")]
+                if item is not None]
     finalPaths = [getattr(process, name) for name in HLT_FINAL_PATHS
                   if hasattr(process, name)]
     return prologue, epilogue, finalPaths
 
 
-def pruneEventSetup(process, graph, keptModules):
+def pruneEventSetup(process, graph, keptModules, moduleTags=DEFAULT_MODULE_TAGS):
     """Drop the EventSetup modules none of the kept modules can reach.
 
     ESSources are dropped on the same rule as ESProducers, because an EmptyESSource
     whose Record nothing in the job consumes is a fatal configuration error.
-    @alpaka EventSetup modules are always kept: which backend flavour of one of
-    them is picked depends on the accelerator of the job that produced the graph,
-    while the reduced configuration is meant to run on any backend.
+    Tagged EventSetup modules are always kept: for @alpaka, which backend flavour
+    of one of them is picked depends on the accelerator of the job that produced
+    the graph, while the reduced configuration is meant to run on any backend.
     """
     needed = graph.eventSetupClosure(keptModules)
     dropped = []
@@ -406,7 +446,7 @@ def pruneEventSetup(process, graph, keptModules):
         for label, component in sorted(components.items()):
             # an unlabelled EventSetup module is known by its type instead
             if (label in needed or component.type_() in needed
-                    or component.type_().endswith(ALPAKA_SUFFIX)):
+                    or hasTag(component, moduleTags)):
                 continue
             dropped.append(label)
             delattr(process, label)
@@ -422,7 +462,8 @@ def pruneEventSetup(process, graph, keptModules):
     return sorted(dropped)
 
 
-def reduceToHeterogeneous(process, frameworkGraph, pathName="DST_HeterogeneousReco"):
+def reduceToTaggedModules(process, frameworkGraph, pathName="DST_HeterogeneousReco",
+                          moduleTags=DEFAULT_MODULE_TAGS):
     """Keep only the seeds and everything needed to run them; return a manifest.
 
     The process is modified in place: a new Path holding the HLT prologue, the
@@ -440,18 +481,18 @@ def reduceToHeterogeneous(process, frameworkGraph, pathName="DST_HeterogeneousRe
     # of the process and has its dependencies walked like any other module.
     prologue, epilogue, finalPaths = hltStructure(process)
 
-    graph = ModuleGraph(process, frameworkGraph)
+    graph = ModuleGraph(process, frameworkGraph, moduleTags)
     seeds = graph.seeds()
     if not seeds:
-        raise RuntimeError("this configuration schedules no @alpaka module, "
-                           "there is nothing to keep")
+        raise RuntimeError("this configuration schedules no module tagged %s, "
+                           "there is nothing to keep" % ", ".join(moduleTags))
 
     wrapper = set()
     for item in prologue + epilogue:
-        wrapper |= _moduleNamesOf(item)
+        wrapper |= moduleNamesOf(item)
     finalPathModules = set()
     for item in finalPaths:
-        finalPathModules |= _moduleNamesOf(item)
+        finalPathModules |= moduleNamesOf(item)
 
     # The prologue and the epilogue are scheduled whatever the seeds are, so their
     # dependencies belong to the closure.  The HLT bookkeeping paths are not
@@ -500,6 +541,7 @@ def reduceToHeterogeneous(process, frameworkGraph, pathName="DST_HeterogeneousRe
         "edmType": "EDFilter" if label in process.filters_() else "EDProducer"}
     manifest = {
         "process": process.name_(),
+        "moduleTags": list(moduleTags),
         "modifiers": _modifierNames(process),
         "path": pathName,
         "task": taskName,
@@ -521,7 +563,7 @@ def reduceToHeterogeneous(process, frameworkGraph, pathName="DST_HeterogeneousRe
                       "kind": entry["kind"],
                       "consumers": sorted({consumer for consumer, _ in entry["consumers"]})}
                      for label, entry in sorted(boundary.items())],
-        "unscheduledAlpakaModules": [label for label in graph.alpakaModules()
+        "unscheduledTaggedModules": [label for label in graph.taggedModules()
                                      if label not in graph.scheduled],
         "droppedPaths": droppedPaths,
     }
@@ -529,7 +571,8 @@ def reduceToHeterogeneous(process, frameworkGraph, pathName="DST_HeterogeneousRe
     # the EventSetup closure has to be taken over everything that survives, which
     # includes the modules of the Paths that are kept whole
     keptModules = set(provenance) | finalPathModules | keptPathModules
-    manifest["droppedEventSetup"] = pruneEventSetup(process, graph.framework, keptModules)
+    manifest["droppedEventSetup"] = pruneEventSetup(process, graph.framework,
+                                                    keptModules, moduleTags)
     manifest["keptEventSetup"] = sorted(list(process.es_producers_()) +
                                         list(process.es_sources_()))
 
