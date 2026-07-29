@@ -532,9 +532,9 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
 #ifdef EDM_ML_DEBUG
     LogDebug("MtdSimMergedClusterProducer")
         << "Created MergedCluster from " << mergedClusterClusters.size()
-        << " clusters: E=" << simMergedCluster.simEnergy() << " MeV, t=" << simMergedCluster.simTime() << " ns";
-  }
+        << " clusters: E=" << simMergedCluster.simEnergy() << " MeV, t=" << simMergedCluster.simTime() << " ns";  
 #endif
+  }
 
   // For ETL: copy paste of original MtdSimLayerClusters
   for (const auto* clusterPointer : allsimETLLClusters) {
