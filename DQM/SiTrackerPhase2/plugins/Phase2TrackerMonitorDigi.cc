@@ -176,6 +176,7 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
     const GeomDetUnit* gDetUnit = tkGeom_->idToDetUnit(detId);
     const GeomDet* geomDet = tkGeom_->idToDet(detId);
 
+    GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
     const Phase2TrackerGeomDetUnit* tkDetUnit = dynamic_cast<const Phase2TrackerGeomDetUnit*>(gDetUnit);
     int nRows = tkDetUnit->specificTopology().nrows();
     int nColumns = tkDetUnit->specificTopology().ncolumns();
@@ -185,7 +186,6 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
     int nDigi = 0;
     int row_last = -1;
     int col_last = -1;
-    bool isEndcap = (detId.subdetId() != PixelSubdetector::PixelBarrel);
     std::vector<Ph2DigiCluster> digiClusters;
     for (typename edm::DetSet<PixelDigi>::const_iterator di = DSViter->begin(); di != DSViter->end(); di++) {
       int col = di->column();  // column
@@ -223,12 +223,8 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
         col_last = col;
       }
 
-      // Workaround for filling histograms in both Ring<> and Wheel<>
-      for (int booking = 1; booking < 2 + isEndcap; booking++) {
-        // Will loop twice if the module is an EndCap module
-        // When wheel is false, the key divides endcaps into F/EPixs and Rings
-        // in second loop wheel will be true, so endcaps will be divided into F/EPix and Wheels
-        std::string key = (booking == 2 ? getHistoId(detId, pixelFlag_, true) : getHistoId(detId, pixelFlag_, false));
+      for (int fillingDepth = 1; fillingDepth < 6; fillingDepth++) {
+        std::string key = phase2tkutil::getHistoId(detId, tTopo_, detPos.phi(), fillingDepth, false);
         std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
 
         if (pos == layerMEs.end())
@@ -296,6 +292,7 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
 
     const GeomDetUnit* gDetUnit = tkGeom_->idToDetUnit(detId);
     const GeomDet* geomDet = tkGeom_->idToDet(detId);
+    GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
 
     const Phase2TrackerGeomDetUnit* tkDetUnit = dynamic_cast<const Phase2TrackerGeomDetUnit*>(gDetUnit);
     int module = tTopo_->module(detId);
@@ -358,14 +355,8 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
       if (CrackOverview)
         CrackOverview->Fill(module, layer + 0.05 - (module % 2 * 0.1));
 
-      // Workaround for filling layer histograms in both Ring<> and Wheel<>
-      bool isEndcap = (detId.subdetId() != SiStripSubdetector::TOB);
-      for (int booking = 1; booking < 2 + isEndcap; booking++) {
-        // Will loop twice if the module is an EndCap module
-        // When wheel is false, the key divides endcaps into TEDDs and Rings
-        // in second loop wheel will be true, so endcaps will be divided into TEDDs and Wheels
-        std::string key = (booking == 2 ? getHistoId(detId, pixelFlag_, true) : getHistoId(detId, pixelFlag_, false));
-
+      for (int fillingDepth = 1; fillingDepth < 6; fillingDepth++) {
+        std::string key = phase2tkutil::getHistoId(detId, tTopo_, detPos.phi(), fillingDepth, false);
         std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
         if (pos == layerMEs.end())
           continue;
@@ -513,17 +504,11 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
   if (layer < 0)
     return;
 
-  // Workaround for booking same histogram for Ring<> and Wheel<>
-  bool isEndcap = (DetId(det_id).subdetId() != SiStripSubdetector::TOB &&
-                   DetId(det_id).subdetId() != PixelSubdetector::PixelBarrel);
-  for (int booking = 1; booking < 2 + isEndcap; booking++) {
-    // Will loop twice if the module is an EndCap module
-    // By default, the "key" divides endcaps into F/Epix or TEDDs and Rings
-    // During first loop, the default key is used (wheel = false)
-    // In the second loop, the Wheel key is used
-    // all layer-wise histograms will be booked in Wheels as well as Rings
-    std::string key = (booking == 2 ? getHistoId(det_id, pixelFlag_, true) : getHistoId(det_id, pixelFlag_, false));
-
+  const GeomDet* geomDet = tkGeom_->idToDet(det_id);
+  GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
+  for (int bookingDepth = 1; bookingDepth < 6; bookingDepth++) {
+    std::string key = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, false);
+    std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, true);
     std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
 
     if (pos == layerMEs.end()) {
@@ -711,22 +696,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
       }
       layerMEs.insert(std::make_pair(key, local_mes));
     }
-  }
-}
-
-std::string Phase2TrackerMonitorDigi::getHistoId(uint32_t det_id, bool flag, bool wheel) {
-  if (flag) {
-    const GeomDet* geomDet = tkGeom_->idToDet(det_id);
-    GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
-    if (wheel)
-      return phase2tkutil::getITHistoWheelId(det_id, tTopo_, detPos.phi());
-    else
-      return phase2tkutil::getITHistoId(det_id, tTopo_, detPos.phi());
-  } else {
-    if (wheel)
-      return phase2tkutil::getOTHistoWheelId(det_id, tTopo_);
-    else
-      return phase2tkutil::getOTHistoId(det_id, tTopo_);
   }
 }
 
