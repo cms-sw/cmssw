@@ -30,21 +30,58 @@ into RECO, so the DIGI and RECO byte counts are identical.
 | Scheme | branches | uncompressed kB/event | compressed kB/event |
 |---|---:|---:|---:|
 | Legacy: TrackingParticle, TrackingVertex, CaloParticle, SimCluster and their Refs | 14 | 1731.4 | 622.5 |
-| Graph: `TruthGraph`, `truth::Graph`, `truth::LogicalGraphHitIndex` | 3 | 1564.3 | 415.4 |
-| Truth-branch association maps, 3 domains x 4 working points x 2 directions | 27 | 172.2 | 29.2 |
-| **Graph total** | **30** | **1736.5** | **444.6** |
+| Graph: `TruthGraph`, `truth::Graph`, `truth::LogicalGraphHitIndex` | 3 | 1149.8 | 368.0 |
+| Truth-branch association maps and their root/target index vectors | 23 | 168.8 | 25.1 |
+| **Graph total** | **26** | **1318.6** | **393.1** |
+
+The legacy row is carried over unchanged: nothing in the graph work touches those
+collections. The graph and association rows were re-measured on the current build.
 
 Dropping the legacy collections and keeping the graph plus all four association working
-points saves **177.9 kB/event compressed, 29%** of the truth payload. The four working
-points are a validation convenience: a production configuration with one working point
-would write about 7 kB/event of maps instead of 29, so the saving becomes about 32%.
+points saves **229.4 kB/event compressed, 37%** of the truth payload.
 
-The single largest graph branch is the hit index at 271.0 kB/event compressed. It is a
+The single largest graph branch is the hit index at 202.3 kB/event compressed. It is a
 separate product and can be dropped on its own; the two graph structures alone are
-144.4 kB/event.
+165.7 kB/event.
 
-For context, the whole RECO event is 8043.0 kB/event compressed. Graph products are 5.5%
-of it, legacy truth 7.7%.
+For context, the whole RECO event is 7991.4 kB/event compressed. Graph products are 4.9%
+of it, legacy truth 7.8%.
+
+### 1.1 What changed since the first version of this document
+
+Two things moved in opposite directions and the net is a saving.
+
+The graph now carries the **full signal GEN half**, contracted: the parton shower and the
+intermediate copies of a resonance are collapsed away by `truth::collapseGenShower`, so a
+resonance appearing several times is one node whose children are its decay products. That
+half did not exist when this document was first written.
+
+The hit index now uses the **shared subgraph store**. Each hit is written once, in an
+order that makes a particle's subtree a contiguous run of slots, so a subgraph is a set of
+ranges of that one store rather than a second materialised copy under every ancestor. A
+GEN-only particle sits above the SIM tree in a DAG, so it owns a merged set of runs rather
+than a single one; measured over 3 events, 1039 such particles need 2547 ranges, mean
+2.45, median 1, max 183.
+
+A/B on the same GEN-SIM, 10 events, compressed bytes/event of the three graph branches:
+
+| variant | hit index | `truth::Graph` | `TruthGraph_mix` | total |
+|---|---:|---:|---:|---:|
+| no GEN half, materialised index | 271013 | 92499 | 54037 | 417549 |
+| full GEN half, materialised index | 696729 | 126768 | 74681 | 898178 |
+| collapsed GEN half, materialised index | 445329 | 111070 | 55413 | 611812 |
+| **collapsed GEN half, shared index (current default)** | **202300** | **111070** | **54583** | **368000** |
+
+The materialised index stored a hit once per ancestor containing it: 26744 hits per event
+became 46259 stored entries even with no GEN half at all, and 1467228 with the full one.
+The shared store keeps the 26744. Reading is automatic in both layouts, which is what
+keeps every file written before this change readable.
+
+The cost is paid at query time: a range is in tree order and repeats a detId hit by
+several descendants, so a consumer that needs per-cell energies coalesces it.
+`BranchHitAssociator` does this once per candidate root at construction. Measured on the
+same 10 events, `allTrackToTruthBranchAssociators` goes from 10.1 to 12.2 ms/event and the
+whole RECO job from 692.5 to 694.9 ms/event, +0.3%.
 
 ### Cost per object
 
@@ -142,7 +179,13 @@ step and consumed by both schemes.
 ## 5. Not measured
 
 - PU200, or any pileup at all. The DIGI log of this chain even warns that pileup-aware
-  truth needs classic, non-premixed pileup.
+  truth needs classic, non-premixed pileup. This matters most for the shared hit index:
+  its saving comes from not duplicating a hit under every ancestor, and pileup changes
+  both the hit count and the shape of the ancestry.
+- The RECO-side associator numbers in section 3 predate the shared hit index. Section 1.1
+  gives the measured before/after for `allTrackToTruthBranchAssociators` on the same 10
+  events, but the per-module table in section 3 was not re-measured with the
+  FastTimerService.
 - Peak RSS. No log in this chain reports `SimpleMemoryCheck`, and no instrumentation was
   added. The memory figures above are the FastTimerService allocated-bytes counter.
 - The CPU split between `TruthGraphAccumulator` and the two legacy accumulators inside
@@ -156,8 +199,9 @@ step and consumed by both schemes.
 ## Summary
 
 On a no-pileup ttbar event, replacing the frozen truth objects with the graph and its
-associators is a **29% reduction of the persisted truth payload** (622.5 to
-444.6 kB/event compressed, or about 32% with a single working point), a **factor 2.9 less
-memory allocated during mixing** (29.1 to 9.9 MB/event), and a RECO-side association cost
-of 4.28 ms/event, 0.38% of the scheduled reconstruction. The DIGI-time accumulation step
-itself is not removed, and the pileup case is not yet measured.
+associators is a **37% reduction of the persisted truth payload** (622.5 to
+393.1 kB/event compressed), a **factor 2.9 less memory allocated during mixing** (29.1 to
+9.9 MB/event), and a RECO-side association cost of a few ms/event, well under 1% of the
+scheduled reconstruction. That is with the full signal GEN half included, which the
+legacy collections do not carry at all. The DIGI-time accumulation step itself is not
+removed, and the pileup case is not yet measured.
