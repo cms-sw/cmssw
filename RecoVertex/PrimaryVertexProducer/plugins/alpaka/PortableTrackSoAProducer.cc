@@ -8,7 +8,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/global/EDProducer.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -16,9 +16,9 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
 
 //#define DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ALPAKA_PORTABLETRACKSOAPRODUCER 0
 
@@ -42,6 +42,27 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ::reco::TrackBase::TrackQuality trackQuality;
     double vertexSize;
     double d0CutOff;
+    TrackFilterParametersForVertexing(edm::ParameterSet const& config) {
+              maxSignificance = config.getParameter<edm::ParameterSet>("TkFilterParameters")
+                                      .getParameter<double>("maxD0Significance");
+              maxdxyError =
+                   config.getParameter<double>("maxD0Error");
+              maxdzError =
+                   config.getParameter<double>("maxDzError");
+              minpAtIP = config.getParameter<double>("minPt");
+              maxetaAtIP =
+                   config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("maxEta");
+              maxchi2 = config.getParameter<double>("maxNormalizedChi2");
+              minpixelHits = config.getParameter<int>("minPixelLayersWithHits");
+              mintrackerHits = config.getParameter<int>("minSiliconLayersWithHits");
+              trackQuality = ::reco::TrackBase::undefQuality;
+              vertexSize = config.getParameter<double>("vertexSize");
+              d0CutOff = config.getParameter<double>("d0CutOff");
+	      std::string qualityClass = config.getParameter<std::string>("trackQuality");
+      	      if (qualityClass != "any" && qualityClass != "Any" && qualityClass != "ANY" && !(qualityClass.empty()))
+                trackQuality = ::reco::TrackBase::qualityByName(qualityClass);
+
+    }
   };
 
   class PortableTrackSoAProducer : public global::EDProducer<> {
@@ -51,32 +72,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           theTTBToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
           trackToken_(consumes<::reco::TrackCollection>(config.getParameter<edm::InputTag>("TrackLabel"))),
           beamSpotToken_(consumes<::reco::BeamSpot>(config.getParameter<edm::InputTag>("BeamSpotLabel"))),
-          fParams(
-              {.maxSignificance = config.getParameter<edm::ParameterSet>("TkFilterParameters")
-                                      .getParameter<double>("maxD0Significance"),
-               .maxdxyError =
-                   config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("maxD0Error"),
-               .maxdzError =
-                   config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("maxDzError"),
-               .minpAtIP = config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("minPt"),
-               .maxetaAtIP =
-                   config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("maxEta"),
-               .maxchi2 = config.getParameter<edm::ParameterSet>("TkFilterParameters")
-                              .getParameter<double>("maxNormalizedChi2"),
-               .minpixelHits = config.getParameter<edm::ParameterSet>("TkFilterParameters")
-                                   .getParameter<int>("minPixelLayersWithHits"),
-               .mintrackerHits = config.getParameter<edm::ParameterSet>("TkFilterParameters")
-                                     .getParameter<int>("minSiliconLayersWithHits"),
-               .trackQuality = ::reco::TrackBase::undefQuality,
-               .vertexSize =
-                   config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("vertexSize"),
-               .d0CutOff =
-                   config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("d0CutOff")}) {
-      devicePutToken_ = produces();
-      std::string qualityClass =
-          config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<std::string>("trackQuality");
-      if (qualityClass != "any" && qualityClass != "Any" && qualityClass != "ANY" && !(qualityClass.empty()))
-        fParams.trackQuality = ::reco::TrackBase::qualityByName(qualityClass);
+	  token_(produces()),
+          params_(config.getParameter<edm::ParameterSet>("TkFilterParameters")){
     }
 
     void produce(edm::StreamID sid, device::Event& iEvent, device::EventSetup const& iSetup) const override {
@@ -98,25 +95,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::vector<::reco::TransientTrack> t_tks = theB.build(tracks, beamSpot);
 
       // We want to keep track of the original reco::Track index to later redo the conversion back to reco::Vertex
-      std::vector<std::pair<int32_t, ::reco::TransientTrack>> sortedTracksPair;
+      std::vector<std::pair<std::pair<int32_t, float>, ::reco::TransientTrack>> sortedTracksPair;
       sortedTracksPair.reserve(tsize_);
       for (int32_t idx = 0; idx < tsize_; idx++) {
-        sortedTracksPair.emplace_back(idx, t_tks[idx]);
+        sortedTracksPair.emplace_back(std::make_pair(idx, (t_tks[idx].stateAtBeamLine().trackStateAtPCA()).position().z()) , t_tks[idx]);
       }
 
       std::sort(sortedTracksPair.begin(),
                 sortedTracksPair.end(),
-                [](const std::pair<int32_t, ::reco::TransientTrack>& a,
-                   const std::pair<int32_t, ::reco::TransientTrack>& b) -> bool {
-                  return (a.second.stateAtBeamLine().trackStateAtPCA()).position().z() <
-                         (b.second.stateAtBeamLine().trackStateAtPCA()).position().z();
+                [](const std::pair<std::pair<int32_t, float>, ::reco::TransientTrack>& a,
+                   const std::pair<std::pair<int32_t, float>, ::reco::TransientTrack>& b) -> bool {
+                  return a.first.second <
+                         b.first.second ;
                 });
       // This will keep track of how many we actually copy to device, only those that pass filter
       int32_t nTrueTracks = 0;
       for (int32_t idx = 0; idx < tsize_; idx++) {
         // Fill up the the Track SoA, weight doubles up as an isGood flag, as we compute it only for good tracks
         double weight = convertTrack(
-            tview[nTrueTracks], sortedTracksPair[idx].second, beamSpot, sortedTracksPair[idx].first, nTrueTracks);
+            tview[nTrueTracks], sortedTracksPair[idx].second, beamSpot, sortedTracksPair[idx].first.first, nTrueTracks);
         if (weight > 0) {
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ALPAKA_PORTABLETRACKSOAPRODUCER
           printf("[PortableTrackSoAProducer::produce()] Add track at z=%1.5f \n",
@@ -132,13 +129,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
              (int32_t)tracks->size(),
              nTrueTracks);
 #endif
-      // Create device collections and copy into device
-      reco::TrackForVertexDeviceCollection deviceTracks(iEvent.queue(), tsize_);
-
-      alpaka::memcpy(iEvent.queue(), deviceTracks.buffer(), hostTracks.buffer());
-
-      // And put into the event
-      iEvent.emplace(devicePutToken_, std::move(deviceTracks));
+      // Put into the event the host object, implicitly copied to device if not in CPU backend
+      iEvent.emplace(token_, std::move(hostTracks));
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -166,13 +158,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> theTTBToken_;
     edm::EDGetTokenT<::reco::TrackCollection> trackToken_;
     edm::EDGetTokenT<::reco::BeamSpot> beamSpotToken_;
-    device::EDPutToken<reco::TrackForVertexDeviceCollection> devicePutToken_;
     double convertTrack(reco::TrackForVertexHostCollection::View::element out,
                         const ::reco::TransientTrack in,
                         const ::reco::BeamSpot bs,
                         int32_t idx,
                         int32_t order) const;
-    TrackFilterParametersForVertexing fParams;
+    edm::EDPutTokenT<reco::TrackForVertexHostCollection> token_;
+    TrackFilterParametersForVertexing params_;
   };  //PortableTrackSoAProducer declaration
 
   double PortableTrackSoAProducer::convertTrack(reco::TrackForVertexHostCollection::View::element out,
@@ -182,22 +174,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                 int32_t order) const {
     double weight = -1;
     // First check if it passes filters
-    if ((in.stateAtBeamLine().transverseImpactParameter().significance() < fParams.maxSignificance) &&
-        (in.stateAtBeamLine().transverseImpactParameter().error() < fParams.maxdxyError) &&
-        (in.track().dzError() < fParams.maxdzError) &&
-        (in.impactPointState().globalMomentum().transverse() > fParams.minpAtIP) &&
-        (std::fabs(in.impactPointState().globalMomentum().eta()) < fParams.maxetaAtIP) &&
-        (in.normalizedChi2() < fParams.maxchi2) &&
-        (in.hitPattern().pixelLayersWithMeasurement() >= fParams.minpixelHits) &&
-        (in.hitPattern().trackerLayersWithMeasurement() >= fParams.mintrackerHits) &&
-        (in.track().quality(fParams.trackQuality) || (fParams.trackQuality == ::reco::TrackBase::undefQuality))) {
+    if ((in.stateAtBeamLine().transverseImpactParameter().significance() < params_.maxSignificance) &&
+        (in.stateAtBeamLine().transverseImpactParameter().error() < params_.maxdxyError) &&
+        (in.track().dzError() < params_.maxdzError) &&
+        (in.impactPointState().globalMomentum().transverse() > params_.minpAtIP) &&
+        (std::fabs(in.impactPointState().globalMomentum().eta()) < params_.maxetaAtIP) &&
+        (in.normalizedChi2() < params_.maxchi2) &&
+        (in.hitPattern().pixelLayersWithMeasurement() >= params_.minpixelHits) &&
+        (in.hitPattern().trackerLayersWithMeasurement() >= params_.mintrackerHits) &&
+        (in.track().quality(params_.trackQuality) || (params_.trackQuality == ::reco::TrackBase::undefQuality))) {
       weight = 1.;
-      if (fParams.d0CutOff > 0) {
+      if (params_.d0CutOff > 0) {
         // significance is measured in the transverse plane
         double significance = in.stateAtBeamLine().transverseImpactParameter().value() /
                               in.stateAtBeamLine().transverseImpactParameter().error();
         // weight is based on transverse displacement of the track
-        weight = 1. / (1. + exp(std::pow(significance, 2) - std::pow(fParams.d0CutOff, 2)));
+        weight = 1. / (1. + exp(std::pow(significance, 2) - std::pow(params_.d0CutOff, 2)));
       }
       // Just fill up variables
       auto position = in.stateAtBeamLine().trackStateAtPCA().position();
@@ -217,7 +209,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       double oneoverdz2 = (out.dz2()) +
                           ((std::pow(bs.BeamWidthX() * out.px(), 2)) + (std::pow(bs.BeamWidthY() * out.py(), 2))) *
                               std::pow(out.pz(), 2) / std::pow(momentum.perp2(), 2) +
-                          std::pow(fParams.vertexSize, 2);
+                          std::pow(params_.vertexSize, 2);
       oneoverdz2 = 1. / oneoverdz2;
       out.oneoverdz2() = oneoverdz2;
       out.dxy2AtIP() = std::pow(in.track().dxyError(), 2);

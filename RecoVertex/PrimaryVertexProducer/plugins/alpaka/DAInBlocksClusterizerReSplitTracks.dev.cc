@@ -1,4 +1,4 @@
-#include "DAInBlocksClusterizerAlgo.h"
+#include "DAInBlocksClusterizerAlgoKernels.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace cms::alpakatools;
@@ -11,7 +11,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC void operator()(const Acc1D& acc,
                                   reco::TrackForVertexDeviceCollection::View tracks,
                                   reco::VertexDeviceCollection::View vertices,
-                                  DAInBlocksClusterParameters const& cParams,
+                                  DAInBlocksClusterParameters const cParams,
                                   double* beta_,
                                   double* osumtkwt_,
                                   int trackBlockSize) const {
@@ -44,7 +44,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void DAInBlocksClusterizerAlgo::resplit_tracks(Queue& queue,
                                                  reco::TrackForVertexDeviceCollection& deviceTrack,
                                                  reco::VertexDeviceCollection& deviceVertex,
-                                                 DAInBlocksClusterParameters const& cParams,
+                                                 DAInBlocksClusterParameters const cParams,
                                                  int32_t nBlocks,
                                                  int32_t blockSize) {
     alpaka::exec<Acc1D>(queue,

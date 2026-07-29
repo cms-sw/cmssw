@@ -5,7 +5,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -20,7 +20,7 @@
    * - consuming set of reco::Tracks and portablevertex SoA
    * - produces a host reco::vertexCollection
  */
-class SoAToRecoVertexProducer : public edm::stream::EDProducer<> {
+class SoAToRecoVertexProducer : public edm::global::EDProducer<> {
 public:
   SoAToRecoVertexProducer(edm::ParameterSet const& config)
       : portableVertexToken_(consumes(config.getParameter<edm::InputTag>("soaVertex"))),
@@ -36,13 +36,13 @@ public:
   }
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   const edm::EDGetTokenT<reco::VertexHostCollection> portableVertexToken_;
   const edm::EDGetTokenT<reco::TrackCollection> recoTrackToken_;
   const edm::EDPutTokenT<reco::VertexCollection> recoVertexToken_;
 };
 
-void SoAToRecoVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SoAToRecoVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // Book inputs and space for outputs
   const reco::VertexHostCollection& hostVertex = iEvent.get(portableVertexToken_);
   const reco::VertexHostCollection::ConstView& hostVertexView = hostVertex.const_view();

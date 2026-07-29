@@ -15,14 +15,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class WeightedVertexFitterAlgo {
   public:
-    WeightedVertexFitterAlgo(Queue& queue, FitterParameters fPar);
+    WeightedVertexFitterAlgo(Queue& queue);
     void fit(Queue& queue,
              const reco::TrackForVertexDeviceCollection& deviceTrack,
              reco::VertexDeviceCollection& deviceVertex,
-             const BeamSpotDevice& deviceBeamSpot);
-
-  private:
-    cms::alpakatools::device_buffer<Device, bool> useBeamSpotConstraint;
+             const BeamSpotDevice& deviceBeamSpot,
+	     const bool useBeamSpotConstraint);
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

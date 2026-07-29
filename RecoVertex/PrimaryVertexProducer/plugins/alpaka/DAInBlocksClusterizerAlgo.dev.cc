@@ -1,4 +1,4 @@
-#include "DAInBlocksClusterizerAlgo.h"
+#include "DAInBlocksClusterizerAlgoKernels.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace cms::alpakatools;
@@ -11,7 +11,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC void operator()(const Acc1D& acc,
                                   reco::TrackForVertexDeviceCollection::View tracks,
                                   reco::VertexDeviceCollection::View vertices,
-                                  DAInBlocksClusterParameters const& cParams,
+                                  DAInBlocksClusterParameters const cParams,
                                   double* beta_,
                                   double* osumtkwt_,
                                   int trackBlockSize) const {
@@ -20,11 +20,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // tracks contains input track parameters and includes the track-vertex assignment modified during this kernel
       // vertices is filled up by this kernel with protocluster properties
       // beta_ and osumtkwt_ are used to pass the final values of beta and osumtkwt on each block to the next kernel
-      int blockSize = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
-      int threadIdx = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u];
       int blockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_CLUSTERIZERALGO
       if (once_per_block(acc)) {
+	int blockSize = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
         printf("[DAInBlocksClusterizerAlgo::operator()] Start clustering block %i\n", blockIdx);
         printf("[DAInBlocksClusterizerAlgo::operator()] Parameters blockSize %i, trackBlockSize %i\n",
                blockSize,
@@ -39,9 +38,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         osumtkwt = 0;
       }
       alpaka::syncBlockThreads(acc);
-      for (int itrack = threadIdx + blockIdx * trackBlockSize; itrack < threadIdx + (blockIdx + 1) * trackBlockSize;
-           itrack += blockSize) {
-        if (not(tracks[itrack].isGood()))
+      for (auto itrack : uniform_elements(acc, trackBlockSize)){
+        if (not(tracks[itrack+blockIdx*trackBlockSize].isGood()))
           continue;
         double temp_weight = static_cast<double>(tracks[itrack].weight());
         alpaka::atomicAdd(acc, &osumtkwt, temp_weight, alpaka::hierarchy::Threads{});
@@ -119,7 +117,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void DAInBlocksClusterizerAlgo::clusterize(Queue& queue,
                                              reco::TrackForVertexDeviceCollection& deviceTrack,
                                              reco::VertexDeviceCollection& deviceVertex,
-                                             DAInBlocksClusterParameters const& cParams,
+                                             DAInBlocksClusterParameters const cParams,
                                              int32_t nBlocks,
                                              int32_t blockSize) {
     alpaka::exec<Acc1D>(queue,

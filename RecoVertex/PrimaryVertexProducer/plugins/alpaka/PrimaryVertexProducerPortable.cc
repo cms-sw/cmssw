@@ -29,26 +29,27 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       devicePutToken_ = produces();
       blockSize_ = config.getParameter<int32_t>("blockSize");
       blockOverlap_ = config.getParameter<double>("blockOverlap");
+      edm::ParameterSet tkClusConfig = config.getParameter<edm::ParameterSet>("TkClusParameters");
       clusterParams_ = {
-          .Tmin = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("Tmin"),
-          .Tpurge = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("Tpurge"),
-          .Tstop = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("Tstop"),
-          .vertexSize = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("vertexSize"),
+          .Tmin = tkClusConfig.getParameter<double>("Tmin"),
+          .Tpurge = tkClusConfig.getParameter<double>("Tpurge"),
+          .Tstop = tkClusConfig.getParameter<double>("Tstop"),
+          .vertexSize = tkClusConfig.getParameter<double>("vertexSize"),
           .coolingFactor =
-              config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("coolingFactor"),
-          .d0CutOff = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("d0CutOff"),
-          .dzCutOff = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("dzCutOff"),
+              tkClusConfig.getParameter<double>("coolingFactor"),
+          .d0CutOff = tkClusConfig.getParameter<double>("d0CutOff"),
+          .dzCutOff = tkClusConfig.getParameter<double>("dzCutOff"),
           .uniquetrkweight =
-              config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("uniquetrkweight"),
+              tkClusConfig.getParameter<double>("uniquetrkweight"),
           .uniquetrkminp =
-              config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("uniquetrkminp"),
-          .zmerge = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("zmerge"),
-          .zrange = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("zrange"),
+              tkClusConfig.getParameter<double>("uniquetrkminp"),
+          .zmerge = tkClusConfig.getParameter<double>("zmerge"),
+          .zrange = tkClusConfig.getParameter<double>("zrange"),
           .convergence_mode =
-              config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<int>("convergence_mode"),
-          .delta_lowT = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("delta_lowT"),
+              tkClusConfig.getParameter<int>("convergence_mode"),
+          .delta_lowT = tkClusConfig.getParameter<double>("delta_lowT"),
           .delta_highT =
-              config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("delta_highT")};
+              tkClusConfig.getParameter<double>("delta_highT")};
       clusterParams_.uniquetrkminp = clusterParams_.uniquetrkminp * (1 - blockOverlap_);
       fitterParams_ = {
           .useBeamSpotConstraint =
@@ -82,8 +83,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // Need to have all vertex before arbitrating and deciding what we keep
       clusterizerKernel_.arbitrate(iEvent.queue(), tracksInBlocks, deviceVertex, clusterParams_, nBlocks, blockSize_);
       //// And then fit
-      WeightedVertexFitterAlgo fitterKernel_{iEvent.queue(), fitterParams_};
-      fitterKernel_.fit(iEvent.queue(), tracksInBlocks, deviceVertex, beamSpot);
+      WeightedVertexFitterAlgo fitterKernel_{iEvent.queue()};
+      fitterKernel_.fit(iEvent.queue(), tracksInBlocks, deviceVertex, beamSpot, fitterParams_.useBeamSpotConstraint);
       // Put the vertices in the event as a portable collection
       iEvent.emplace(devicePutToken_, std::move(deviceVertex));
     }

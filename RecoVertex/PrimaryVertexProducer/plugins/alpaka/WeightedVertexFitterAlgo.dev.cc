@@ -16,7 +16,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   const reco::TrackForVertexDeviceCollection::ConstView tracks,
                                   reco::VertexDeviceCollection::View vertices,
                                   BeamSpotPOD const* beamSpot,
-                                  bool* useBeamSpotConstraint) const {
+                                  bool useBeamSpotConstraint) const {
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_FITTERALGO
       if (once_per_block(acc)) {
         printf("[WeightedVertexFitterAlgo::FitVertices()] In Vertex 0, %i tracks\n", vertices[0].ntracks());
@@ -46,7 +46,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       float bserry = 0.;
       float bsx = 0.;
       float bsy = 0.;
-      if (*useBeamSpotConstraint) {
+      if (useBeamSpotConstraint) {
         bserrx = beamSpot->beamWidthX < precisionsq ? 1. / (precisionsq) : 1. / (beamSpot->beamWidthX);
         bserry = beamSpot->beamWidthY < precisionsq ? 1. / (precisionsq) : 1. / (beamSpot->beamWidthY);
         bsx = beamSpot->x;
@@ -319,16 +319,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }  // operator()
   };  // class FitVertices
 
-  WeightedVertexFitterAlgo::WeightedVertexFitterAlgo(Queue& queue, FitterParameters fPar)
-      : useBeamSpotConstraint(cms::alpakatools::make_device_buffer<bool>(queue)) {
-    // Set fitter parameters
-    alpaka::memset(queue, useBeamSpotConstraint, fPar.useBeamSpotConstraint);
+  WeightedVertexFitterAlgo::WeightedVertexFitterAlgo(Queue& queue){
+     // Set fitter parameters, nothing right now
   }  // WeightedVertexFitterAlgo::WeightedVertexFitterAlgo
 
   void WeightedVertexFitterAlgo::fit(Queue& queue,
                                      const reco::TrackForVertexDeviceCollection& deviceTrack,
                                      reco::VertexDeviceCollection& deviceVertex,
-                                     const BeamSpotDevice& deviceBeamSpot) {
+                                     const BeamSpotDevice& deviceBeamSpot,
+				     const bool useBeamSpotConstraint) {
     const int nVertexToFit =
         1024;  // Right now it executes for all 1024 vertex, even if vertex collection is empty (in which case the kernel passes)
     const int threadsPerBlock = 32;
@@ -339,6 +338,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         deviceTrack.view(),
                         deviceVertex.view(),
                         deviceBeamSpot.data(),
-                        useBeamSpotConstraint.data());
+                        useBeamSpotConstraint);
   }  // WeightedVertexFitterAlgo::fit
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
