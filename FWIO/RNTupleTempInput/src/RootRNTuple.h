@@ -210,6 +210,8 @@ namespace edm::rntuple_temp {
     unsigned long treeAutoFlush_ = 0;
     bool promptRead_;
     std::unique_ptr<RootDelayedReaderBase> rootDelayedReader_;
+    //set in getEntryForAllBranches which is protected by source serialization
+    CMS_SA_ALLOW mutable std::unique_ptr<ROOT::REntry> promptReadEntry_;
     std::variant<std::monostate,
                  ROOT::RNTupleView<edm::EventAuxiliary>,
                  ROOT::RNTupleView<edm::LuminosityBlockAuxiliary>,
