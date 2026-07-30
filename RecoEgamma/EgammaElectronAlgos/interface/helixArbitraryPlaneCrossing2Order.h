@@ -10,9 +10,9 @@
 #include <cmath>
 #include <cfloat>
 
-#include "DataFormats/EgammaReco/interface/alpaka/Phys3DVector.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/Phys3DVector.h"
 
-using Vec3d = cms::alpakatools::math::Phys3DVector<double>;
+using Vec3d = egamma::math::Phys3DVector<double>;
 
 namespace propagators {
 

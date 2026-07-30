@@ -3,9 +3,9 @@
 
 #include <cmath>
 
-#include <DataFormats/EgammaReco/interface/alpaka/Phys3DVector.h>
+#include <RecoEgamma/EgammaElectronAlgos/interface/Phys3DVector.h>
 
-using Vec3d = cms::alpakatools::math::Phys3DVector<double>;
+using Vec3d = egamma::math::Phys3DVector<double>;
 
 namespace egamma {
 
@@ -38,7 +38,7 @@ namespace egamma {
     using T = Vec3d::value_type;
     //
     // Calculate the difference between measurement and vertex positions
-    const Vec3d xdiff = cms::alpakatools::math::xmy(xmeas, xvert);  //= xmeas - xvert;
+    const Vec3d xdiff = xmeas - xvert;
 
     // Normalize xdiff and scale by momentum to get the momentum vector
     const T xdiff_mag = xdiff.r(acc);
@@ -46,7 +46,7 @@ namespace egamma {
     // Normalize xdiff and scale by momentum to get the momentum vector:
     const T scale = momentum / xdiff_mag;
 
-    const Vec3d mom = cms::alpakatools::math::ax(scale, xdiff);
+    const Vec3d mom = scale * xdiff;
 
     // Transverse momentum (perpendicular to the z-axis)
     const T pt = mom.rho(acc);
@@ -73,4 +73,4 @@ namespace egamma {
 
 }  // namespace egamma
 
-#endif  // RecoEgamma_EgammaElectronAlgos_interface_alpaka_ftsFromVertexToPointPortable_h
+#endif  // RecoEgamma_EgammaElectronAlgos_interface_ftsFromVertexToPointPortable_h

@@ -49,14 +49,6 @@ public:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const final;
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
-  inline FreeTrajectoryState ftsFromVertexToPoint(const GlobalPoint &point,
-                                                  const GlobalPoint &vertex,
-                                                  float energy,
-                                                  int charge,
-                                                  const MagneticField &magField) const {
-    return trackingTools::ftsFromVertexToPoint(magField, point, vertex, energy, charge);
-  }
-
 private:
   // Tokens
   const edm::EDGetTokenT<TrajectorySeedCollection> initialSeedsToken_;
@@ -235,7 +227,7 @@ int ElectronSeedConverter::getNrValidLayersAlongTraj(const TrajectorySeed &seed,
   const GlobalPoint vertex(vprim.x(), vprim.y(), zVertex);
 
   auto countLayersForCharge = [&](int charge) -> int {
-    auto fts = ftsFromVertexToPoint(recHit1.globalPosition(), vertex, energy, charge, magField);
+    auto fts = trackingTools::ftsFromVertexToPoint(magField, recHit1.globalPosition(), vertex, energy, charge);
 
     const TrajectoryStateOnSurface secondHitTS = forwardPropagator.propagate(fts, recHit2.det()->surface());
     if (!secondHitTS.isValid())
