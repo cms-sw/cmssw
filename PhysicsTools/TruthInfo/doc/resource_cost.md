@@ -18,9 +18,8 @@ Identical for every number in this document.
 | Steps | GEN,SIM then DIGI,L1,DIGI2RAW,HLT:@relvalRun4 then RAW2DIGI,L1Reco,RECO |
 | Host | AMD EPYC 9754, 1 thread, 1 stream |
 
-Everything here is NO PILEUP. PU200 is not measured and the ratios are expected to move
-there, because the legacy objects and the graph scale differently with the number of
-overlaid interactions.
+Sections 1 to 6 are NO PILEUP. Section 7 measures the event size at PU200, where the
+two schemes scale very differently; the CPU and memory numbers remain no-PU only.
 
 ## 1. Event size
 
@@ -249,12 +248,35 @@ that signature without changing any value a consumer reads. This is a hypothesis
 result: confirming it needs a C++-side dump of the raw buffer, because PyROOT cannot read
 the unsplit struct reliably, which is also why `kind` is excluded from the hashes above.
 
-## 7. Not measured
+## 7. Event size at PU200
 
-- PU200, or any pileup at all. The DIGI log of this chain even warns that pileup-aware
-  truth needs classic, non-premixed pileup. This matters most for the shared hit index:
-  its saving comes from not duplicating a hit under every ancestor, and pileup changes
-  both the hit count and the shape of the ancestry.
+Same signal process, same release and geometry, 10 events, classic mixing with an
+average of 200 minimum-bias interactions from a D122 truth-enabled library, default
+truth wiring, no selection preset. Compressed kB/event:
+
+| Scheme | kB/event | vs no pileup |
+|---|---:|---:|
+| Legacy: TrackingParticle, 2x TrackingVertex, 4x SimCluster, CaloParticle | 56717 | x91 |
+| Graph: `TruthGraph`, `truth::Graph`, `truth::LogicalGraphHitIndex` | 8791 | x24 |
+
+At PU200 the graph is **15.5% of the legacy truth payload**, a factor 6.5, against 59%
+with no pileup: the saving grows with pileup because the legacy objects re-embed their
+SimTrack copies and hit arrays per object and per collection, and pileup multiplies the
+objects, while the graph's topology stays CSR and its hits stay stored once. The shared
+hit index is 4762 kB/event of the graph total and remained the persisted layout in 10 of
+10 events, with no fallback and no degradation warnings.
+
+MTD legacy truth, which neither scheme replaces, is a further 9859 kB/event at PU200.
+
+The pileup GEN half is collapsed (`collapsePileupGen=True`): each pileup interaction
+carries one Interaction vertex, one UnderlyingEvent vertex holding its stable particles,
+and nothing else, so the graph cost of 200 extra interactions is dominated by their
+SIM tracks and hits, not their generator records.
+
+## 8. Not measured
+
+- CPU and allocated memory at PU200. Section 7 measures the event size there; the
+  accumulator A/B of section 2 and the RECO timings of section 3 are no-PU only.
 - The RECO-side associator numbers in section 3 predate the shared hit index. Section 1.1
   gives the measured before/after for `allTrackToTruthBranchAssociators` on the same 10
   events, but the per-module table in section 3 was not re-measured with the
@@ -277,4 +299,5 @@ associators is a **37% reduction of the persisted truth payload** (622.5 to
 9.9 MB/event), and a RECO-side association cost of a few ms/event, well under 1% of the
 scheduled reconstruction. That is with the full signal GEN half included, which the
 legacy collections do not carry at all. The DIGI-time accumulation step itself is not
-removed, and the pileup case is not yet measured.
+removed. At PU200 the size advantage grows to a factor 6.5 (section 7); the CPU and
+memory numbers remain no-PU only.
