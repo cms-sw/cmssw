@@ -47,6 +47,7 @@ HTXSFilter::~HTXSFilter() {
 // ------------ method called on each new Event  ------------
 bool HTXSFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
+  edm::LogWarning("HTXSFilter") << "HTXSFilter uses the (deprecated) Stage 1.1 flags to filter events. For Stage 1.2 flags, see HTXSStage1p2Filter." << std::endl;
   Handle<HTXS::HiggsClassification> cat;
   iEvent.getByToken(token_, cat);
   if (htxs_flags.empty()) {
