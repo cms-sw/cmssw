@@ -2138,6 +2138,11 @@ upgradeWFs['HLTTiming75e33Alpaka'].suffix = '_HLT75e33TimingAlpaka'
 upgradeWFs['HLTTiming75e33Alpaka'].offset = 0.751
 upgradeWFs['HLTTiming75e33Alpaka'].step2['--procModifiers'] = 'alpaka'
 
+upgradeWFs['HLTTiming75e33AlpakaEgammaSeeding'] = deepcopy(upgradeWFs['HLTTiming75e33Alpaka'])
+upgradeWFs['HLTTiming75e33AlpakaEgammaSeeding'].suffix = '_HLT75e33TimingAlpakaEgammaSeeding'
+upgradeWFs['HLTTiming75e33AlpakaEgammaSeeding'].offset = 0.7511
+upgradeWFs['HLTTiming75e33AlpakaEgammaSeeding'].step2['--procModifiers'] = 'alpaka,egammaPixelSeedingPortable'
+
 upgradeWFs['HLTTiming75e33LegacyTracking'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33LegacyTracking'].suffix = '_HLT75e33TimingLegacyTracking'
 upgradeWFs['HLTTiming75e33LegacyTracking'].offset = 0.753
