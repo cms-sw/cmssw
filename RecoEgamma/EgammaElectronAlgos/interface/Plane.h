@@ -2,14 +2,14 @@
 #define RecoEgamma_EgammaElectronAlgos_interface_Plane_h
 
 #include <cmath>
-#include "DataFormats/EgammaReco/interface/alpaka/Phys3DVector.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/Phys3DVector.h"
 
 namespace egamma {
 
   template <typename T = double>
   class Plane {
   public:
-    using Vec3 = cms::alpakatools::math::Phys3DVector<T>;
+    using Vec3 = math::Phys3DVector<T>;
 
     // Constructor
     ALPAKA_FN_HOST_ACC Plane(const Vec3& pos, const Vec3& rot) {
@@ -55,7 +55,7 @@ namespace egamma {
     // Fast access to distance from plane for a vector
     template <typename TAcc>
     ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE T distanceFromPlaneVector(TAcc const& acc, const Vec3& gv) const {
-      return cms::alpakatools::math::dot(rotation, gv);
+      return (rotation * gv);
     }
 
   private:
