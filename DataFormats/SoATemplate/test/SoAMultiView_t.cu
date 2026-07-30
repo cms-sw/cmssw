@@ -5,7 +5,7 @@
 #include <catch2/catch_all.hpp>
 
 #include "DataFormats/SoATemplate/interface/SoABlocks.h"
-#include "DataFormats/SoATemplate/interface/SoAMultiView.h"
+#include "DataFormats/SoATemplate/interface/SoAConstMultiView.h"
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
@@ -14,12 +14,13 @@ GENERATE_SOA_LAYOUT(SoAPositionTemplate,
                     SOA_COLUMN(float, x),
                     SOA_COLUMN(float, y),
                     SOA_COLUMN(float, z),
-                    SOA_SCALAR(int, detectorType))
+                    SOA_SCALAR(int, s1),
+                    SOA_SCALAR(float, s2))
 
 using SoAPosition = SoAPositionTemplate<>;
 using SoAPositionView = SoAPosition::View;
 using SoAPositionConstView = SoAPosition::ConstView;
-using SoAPositionMultiView = SoAMultiView<SoAPositionConstView, 5>;
+using SoAPositionMultiView = SoAConstMultiView<SoAPositionConstView, 5>;
 
 GENERATE_SOA_LAYOUT(SoAPCATemplate,
                     SOA_COLUMN(float, vector_1),
@@ -30,7 +31,7 @@ GENERATE_SOA_LAYOUT(SoAPCATemplate,
 using SoAPCA = SoAPCATemplate<>;
 using SoAPCAView = SoAPCA::View;
 using SoAPCAConstView = SoAPCA::ConstView;
-using SoAPCAMultiView = SoAMultiView<SoAPCAConstView, 5>;
+using SoAPCAMultiView = SoAConstMultiView<SoAPCAConstView, 5>;
 
 GENERATE_SOA_BLOCKS(SoABlocksTemplate, SOA_BLOCK(position, SoAPositionTemplate), SOA_BLOCK(pca, SoAPCATemplate))
 
@@ -42,8 +43,16 @@ __global__ void checkPositionMultiView(SoAPositionMultiView view, float* output)
   int i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i >= view.size())
     return;
+
+  // For s1 we take the sum of all s1 values in the view, for s2 we take the value from the first view
+  int s1 = 0;
+  for (int j = 0; j < view.numViews(); ++j) {
+    s1 += view.view(j).s1();
+  }
+  const float s2 = view.view(0).s2();
+
   auto si = view[i];
-  output[i] = si.x() * si.x() + si.y() * si.y() + si.z() * si.z();
+  output[i] = si.x() * si.x() + si.y() * si.y() + si.z() * si.z() + static_cast<float>(s1) + s2;
 }
 
 __global__ void checkPCAMultiView(SoAPCAMultiView view, float* output) {
@@ -55,7 +64,7 @@ __global__ void checkPCAMultiView(SoAPCAMultiView view, float* output) {
               static_cast<float>(si.candidateDirection().squaredNorm());
 }
 
-TEST_CASE("SoAMultiView") {
+TEST_CASE("SoAConstMultiViewCUDA") {
   std::array<cms::soa::size_type, 2> sizes1{{17, 23}};
   // buffer size
   const cms::soa::size_type bufferSize1 = SoA::computeDataSize(sizes1);
@@ -71,7 +80,8 @@ TEST_CASE("SoAMultiView") {
     h_view1.position()[i].y() = static_cast<float>(i) * 2.0f;
     h_view1.position()[i].z() = static_cast<float>(i) * 3.0f;
   }
-  h_view1.position().detectorType() = 42;
+  h_view1.position().s1() = 21;
+  h_view1.position().s2() = 21.23;
   for (cms::soa::size_type i = 0; i < sizes1[1]; i++) {
     h_view1.pca()[i].vector_1() = static_cast<float>(i);
     h_view1.pca()[i].vector_2() = static_cast<float>(i) * 2.0f;
@@ -93,13 +103,22 @@ TEST_CASE("SoAMultiView") {
     h_view2.position()[i].y() = static_cast<float>(i) * 11.0f;
     h_view2.position()[i].z() = static_cast<float>(i) * 12.0f;
   }
-  h_view2.position().detectorType() = 42;
+  h_view2.position().s1() = 42;
+  h_view2.position().s2() = 42.43;
   for (cms::soa::size_type i = 0; i < sizes2[1]; i++) {
     h_view2.pca()[i].vector_1() = static_cast<float>(i) * 17.0f;
     h_view2.pca()[i].vector_2() = static_cast<float>(i) * 18.0f;
     h_view2.pca()[i].vector_3() = static_cast<float>(i) * 19.0f;
     h_view2.pca()[i].candidateDirection() = Eigen::Vector3d(i * 111.0, i * 222.0, i * 333.0);
   }
+
+  // for the position multi view we restrict the iteration range for both views
+  std::vector<int> usedSizesForMultiview(5, 7);
+  std::vector<SoA> hostSoAs;
+  hostSoAs.push_back(h_soaLayout1);
+  hostSoAs.push_back(h_soaLayout2);
+  SoAPositionMultiView hostPositionMultiView(
+      hostSoAs, [](SoA layout) -> auto { return SoAPositionConstView(layout.position()); }, usedSizesForMultiview);
 
   std::byte* d_buf1 = nullptr;
   cudaCheck(cudaMalloc(&d_buf1, bufferSize1));
@@ -119,10 +138,17 @@ TEST_CASE("SoAMultiView") {
   deviceSoAs.push_back(d_soahdLayout2);
 
   // for the position multi view we restrict the iteration range for both views
-  std::vector<int> usedSizesForMultiview(5, 7);
   SoAPositionMultiView positionMultiView(
       deviceSoAs, [](SoA layout) -> auto { return SoAPositionConstView(layout.position()); }, usedSizesForMultiview);
   SoAPCAMultiView pcaMultiView(deviceSoAs, [](SoA layout) -> auto { return SoAPCAConstView(layout.pca()); });
+
+  REQUIRE(positionMultiView.size() == usedSizesForMultiview[0] + usedSizesForMultiview[1]);
+  REQUIRE(pcaMultiView.size() == sizes1[1] + sizes2[1]);
+  REQUIRE(hostPositionMultiView.size() == usedSizesForMultiview[0] + usedSizesForMultiview[1]);
+
+  REQUIRE(positionMultiView.numViews() == 2);
+  REQUIRE(pcaMultiView.numViews() == 2);
+  REQUIRE(hostPositionMultiView.numViews() == 2);
 
   float* d_outputPosition = nullptr;
   const cms::soa::size_type outputSizePosition = positionMultiView.size() * sizeof(float);
@@ -133,9 +159,14 @@ TEST_CASE("SoAMultiView") {
   cudaCheck(cudaMemcpy(h_outputPosition.data(), d_outputPosition, outputSizePosition, cudaMemcpyDeviceToHost));
 
   // check results
-  for (cms::soa::size_type i = 0; i < positionMultiView.size(); ++i) {
-    auto si = i < usedSizesForMultiview[0] ? h_view1.position()[i] : h_view2.position()[i - usedSizesForMultiview[0]];
-    const float expected = si.x() * si.x() + si.y() * si.y() + si.z() * si.z();
+  for (cms::soa::size_type i = 0; i < hostPositionMultiView.size(); ++i) {
+    int s1 = 0;
+    for (int j = 0; j < hostPositionMultiView.numViews(); ++j) {
+      s1 += hostPositionMultiView.view(j).s1();
+    }
+    auto const s2 = hostPositionMultiView.view(0).s2();
+    auto si = hostPositionMultiView[i];
+    const float expected = si.x() * si.x() + si.y() * si.y() + si.z() * si.z() + static_cast<float>(s1) + s2;
     REQUIRE(h_outputPosition[i] == Catch::Approx(expected).margin(1e-5));
   }
 
