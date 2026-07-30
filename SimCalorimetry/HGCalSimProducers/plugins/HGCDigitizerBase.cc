@@ -48,6 +48,12 @@ HGCDigitizerBase::HGCDigitizerBase(const edm::ParameterSet& ps)
   } else {
     noise_fC_.resize(4, 1.f);
   }
+
+  //per-thickness MIP-charge scale for the ZS threshold
+  //indexed by cell.thickness-1 -> {HD120, LD200, LD300, HD200})
+  const auto& mipScale = myCfg_.getParameter<std::vector<double>>("mipChargeScale");
+  mipChargeScale_ = std::vector<float>(mipScale.begin(), mipScale.end());
+
   if (myCfg_.existsAs<edm::ParameterSet>("ileakParam")) {
     scal_.setIleakParam(
         myCfg_.getParameter<edm::ParameterSet>("ileakParam").template getParameter<std::vector<double>>("ileakParam"));
@@ -176,10 +182,8 @@ void HGCDigitizerBase::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& coll,
       //note that in this legacy case, gainIdx is kept at 0, fixed
       cce = (cce_.empty() ? 1.f : cce_[cell.thickness - 1]);
       noiseWidth = cell.size * noise_fC_[cell.thickness - 1];
-      //approximate more accurately the scaling from different depletion thicknesses
-      //index by cell.thickness-1 -> {HD120, LD200, LD300, HD200}
-      static constexpr float kMipScale[4] = {1.0f, 1.6f, 2.5f, 1.6f};
-      const float mipScaleFactor = kMipScale[cell.thickness - 1];
+      //MIP-charge scale of the ZS threshold, per silicon thickness
+      const float mipScaleFactor = mipChargeScale_[cell.thickness - 1];
       thrADC =
           thresholdFollowsMIP_
               ? std::floor(mipScaleFactor * cce * myFEelectronics_->getADCThreshold() / myFEelectronics_->getADClsb())

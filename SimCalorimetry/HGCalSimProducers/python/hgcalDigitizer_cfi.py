@@ -189,6 +189,13 @@ hfnoseDigitizer = cms.PSet(
         )
     )
 
+# per-silicon-thickness MIP-charge scale of the ZS threshold {HD120, LD200, LD300, HD200}.
+#more accurate for V19
+for _dig in [hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer, hfnoseDigitizer]:
+    _dig.digiCfg.mipChargeScale = cms.vdouble(1.0, 2.0, 3.0, 2.0)
+phase2_hgcalV19.toModify(hgceeDigitizer.digiCfg, mipChargeScale = cms.vdouble(1.0, 1.6, 2.5, 1.6))
+phase2_hgcalV19.toModify(hgchefrontDigitizer.digiCfg, mipChargeScale = cms.vdouble(1.0, 1.6, 2.5, 1.6))
+
 # this bypasses the noise simulation
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 for _m in [hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer, hfnoseDigitizer]:
