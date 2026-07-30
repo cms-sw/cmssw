@@ -296,6 +296,8 @@ class ModuleData(object):
 
         return "{{ 'timeRange': {}, 'transition': {}, 'sync' :{}, 'activity':{}, 'alloc':{} }}".format(self.timeRange, self.transition, self.sync, self.activity, self.allocInfo)
     def syncToSimpleDict(self):
+        if isinstance(self.sync, int):
+            return {'run' : self.sync}
         if len(self.sync) == 0:
             return self.sync
         if len(self.sync) == 1:
@@ -471,15 +473,19 @@ class PreFrameworkTransitionParser (FrameworkTransitionParser):
         elif self.transition == Phase.Event:
             syncs.setStream(self.index, self.sync[0], self.sync[1], self.sync[2])
             isSourceTrans = True
+        elif self.transition == Phase.getNextTransition:
+            isSourceTrans = True
         elif self.transition == Phase.clearEvent:
             temp.insertTime("clearEvent", self.transition, self.index, 0, self.time)
         elif not transitionIsGlobal(self.index):
             syncs.setStream(self.index, self.sync[0], self.sync[1], self.sync[2])
         if isSourceTrans:
-            src = data.findLast("source", self.transition, self.index, Activity.process)
-            if src.sync != self.index:
-                raise RuntimeError("Framework and Source transitions do not have matching index: source {} framework {} for transition type {} at framework time {} and source time {}".format(src.sync, self.index, self.transition, self.time, src.timeRange))
-            src.sync = syncs.get(self.transition, self.index)
+            try:
+                src = data.findLast("source", self.transition, self.index, Activity.process)
+                src.sync = syncs.get(self.transition, self.index)
+            except KeyError:
+                sys.stderr.write("Framework and Source transitions do not have matching index:  framework {} for transition type {}  sync: {} at framework time {}\n".format( self.index, transitionName(self.transition), self.sync, self.time))
+                pass
     def jsonVisInfo(self,  data):
         if transitionIsGlobal(self.transition):
             index = 0
