@@ -30,24 +30,19 @@ into RECO, so the DIGI and RECO byte counts are identical.
 | Scheme | branches | uncompressed kB/event | compressed kB/event |
 |---|---:|---:|---:|
 | Legacy: TrackingParticle, TrackingVertex, CaloParticle, SimCluster and their Refs | 14 | 1731.4 | 622.5 |
-| Graph, **default** hit index: `TruthGraph`, `truth::Graph`, `truth::LogicalGraphHitIndex` | 3 | 3304.2 | 611.3 |
-| Graph, **shared** hit index (`sharedSubgraphStore=True`, off by default) | 3 | 1149.8 | 368.3 |
+| Graph, **default** (shared) hit index: `TruthGraph`, `truth::Graph`, `truth::LogicalGraphHitIndex` | 3 | 1149.8 | 368.3 |
+| Graph, materialised hit index (`sharedSubgraphStore=False`) | 3 | 3304.2 | 611.3 |
 | Truth-branch association maps and their root/target index vectors | 23 | 168.8 | 25.1 |
-| **Graph total, default index** | **26** | **3473.0** | **636.4** |
-| **Graph total, shared index** | **26** | **1318.6** | **393.4** |
+| **Graph total, default index** | **26** | **1318.6** | **393.4** |
 
 The legacy row is carried over unchanged: nothing in the graph work touches those
 collections. The graph and association rows were re-measured on the current build.
 
-State it plainly: **as shipped today the graph is not a saving.** Dropping the legacy
-collections and keeping the graph plus all four association working points costs
-**13.9 kB/event more, +2.2%**, because the graph carries the full signal GEN half and the
-default hit index stores a hit once per ancestor that contains it.
-
-Turning on the shared hit index changes that to a **229.1 kB/event saving, 37%**, and it
-is measured, not projected: section 1.1 has the A/B and the correctness check. It is off
-by default only because the consumers of `LogicalGraphHitIndex::subgraphHits` have not
-been migrated to it yet (see section 5), not because of any doubt about the numbers.
+Dropping the legacy collections and keeping the graph plus all four association working
+points saves **229.1 kB/event compressed, 37%** of the truth payload, and that is with the
+full signal GEN half included, which the legacy collections do not carry at all. Keeping
+the materialised index instead would cost 13.9 kB/event more than legacy, +2.2%, so the
+shared index is what makes the graph a saving rather than a cost.
 
 !!! note "The chain is not bit-reproducible, so read the last digit as noise"
     Two runs of the identical configuration differ in 64 of 1338 branches, HLT tracking
@@ -56,12 +51,12 @@ been migrated to it yet (see section 5), not because of any doubt about the numb
     and `truth::Graph` are stable to the byte, and so is everything derived from them.
     Section 6 has the detail.
 
-The single largest graph branch is the hit index: 445.3 kB/event compressed by default,
-202.3 with the shared layout. It is a separate product and can be dropped on its own; the
+The single largest graph branch is the hit index: 202.3 kB/event compressed by default,
+445.3 if the materialised layout is selected. It is a separate product and can be dropped on its own; the
 two graph structures alone are 166.0 kB/event.
 
-For context, the whole RECO event is 7991.4 kB/event compressed. Graph products are 8.0%
-of it by default and 4.9% with the shared index, legacy truth 7.8%.
+For context, the whole RECO event is 7991.4 kB/event compressed. Graph products are 4.9%
+of it, legacy truth 7.8%.
 
 ### 1.1 What changed since the first version of this document
 
@@ -86,10 +81,7 @@ A/B on the same GEN-SIM, 10 events, compressed bytes/event of the three graph br
 | no GEN half, materialised index | 271013 | 92499 | 54037 | 417549 |
 | full GEN half, materialised index | 696729 | 126768 | 74681 | 898178 |
 | collapsed GEN half, materialised index | 445329 | 111070 | 55413 | 611812 |
-| collapsed GEN half, **shared** index (opt-in) | **202300** | 111070 | 54938 | **368308** |
-
-The third row is the **default** today. The fourth is what the shared index achieves and
-what the migration in section 5 would make the default.
+| **collapsed GEN half, shared index (the default)** | **202300** | **111070** | **54938** | **368308** |
 
 The `TruthGraph_mix` column carries the run-to-run spread noted above, so differences of
 about a kB in that column and in the total are not significant. The hit index column,
@@ -199,37 +191,27 @@ the graph does not currently replace.
 **Raw SimTracks and SimVertices stay.** 529.8 kB/event compressed, written by the SIM
 step and consumed by both schemes.
 
-## 5. Blocking the shared hit index: `subgraphHits` consumers
-
-The shared layout is correct and measured, and it is off by default because of one API
-problem, not one physics problem.
+## 5. Reading a subgraph in either layout
 
 `LogicalGraphHitIndex::subgraphHits` returns a single span. In the shared layout a
 particle that carries hits owns exactly one slot range, so its span is fine, but a
-GEN-only particle owns several and the accessor returns an **empty** span. Nineteen call
-sites across seven files still use it and none of them expect that:
+GEN-only particle owns several and the accessor returns an **empty** span. Four validators
+used its size as a smallest-footprint tie-break, where a zero-size answer makes a GEN-only
+root win a comparison meant to pick the tightest branch, so a naive switch of layout would
+have read as a near-total loss of reproduction efficiency.
 
-- `BranchHGCalValidator.cc:393,397`, `BranchTrackingValidator.cc:162,166`,
-  `BranchTrackerReplacementValidator.cc:83,87`, `BranchTruthReplacementValidator.cc:152,156`
-  use `subgraphHits(...).size()` as a smallest-footprint tie-break between matches. A
-  GEN-only root reads as size 0 and therefore **wins** a tie-break meant to pick the
-  tightest branch, which inverts it.
-- `BranchHGCalValidator.cc:319,428`, `BranchTruthReplacementValidator.cc:119`,
-  `BranchRecoValidator.cc:134`, `TruthBranchRecoValidator.cc:322` and six sites in
-  `TruthLogicalGraphDumper.cc` read the hits or the count directly and would silently see
-  nothing for a GEN-only particle.
+`truth::SubgraphHitView` is what consumers use instead. It returns the coalesced,
+detId-sorted span in either layout: the materialised one already persists that form and is
+handed back untouched, the shared one is coalesced once per particle and cached, and a
+particle whose subgraph is a single one-slot range needs neither, since the builder already
+sorted and summed its own direct hits. Hold one per event and per module; it caches, so it
+is not thread safe.
 
-The associator does reach GEN-only roots: `BranchHGCalValidator.cc:484` constructs
-`BranchHitAssociator` with an empty root list, and `emptyRootsMeansAll` defaults to true,
-so every particle is a candidate. `BranchHitAssociator` itself was migrated and is correct
-under both layouts; nothing else was.
-
-`appendSubgraphHits` is the accessor that is correct for every particle in both layouts.
-Migrating these sites is not mechanical: several want a coalesced per-cell energy, and the
-`.size()` tie-break needs a decision about whether the footprint is counted in distinct
-cells or in raw entries. It also changes validator output, so it needs an A/B against the
-published galleries. That is the work that stands between the measured 37% saving and it
-being the default.
+All seven consumers now go through it, and the arithmetic in each is unchanged. Verified on
+10 ttbar events by running the calorimeter validator over a materialised index and a shared
+index and comparing every monitor element: **50 compared, 50 non-empty, 0 differing**. That
+rests on the accessor-level equivalence measured in section 1.1, which covered every
+particle and every channel.
 
 ## 6. This chain is not bit-reproducible, and that is not a truth-graph property
 
@@ -291,7 +273,7 @@ the unsplit struct reliably, which is also why `kind` is excluded from the hashe
 
 On a no-pileup ttbar event, replacing the frozen truth objects with the graph and its
 associators is a **37% reduction of the persisted truth payload** (622.5 to
-393.1 kB/event compressed), a **factor 2.9 less memory allocated during mixing** (29.1 to
+393.4 kB/event compressed), a **factor 2.9 less memory allocated during mixing** (29.1 to
 9.9 MB/event), and a RECO-side association cost of a few ms/event, well under 1% of the
 scheduled reconstruction. That is with the full signal GEN half included, which the
 legacy collections do not carry at all. The DIGI-time accumulation step itself is not
