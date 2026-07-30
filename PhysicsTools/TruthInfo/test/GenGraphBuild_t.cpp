@@ -134,6 +134,7 @@ class TestGenGraphBuild : public CppUnit::TestFixture {
   CPPUNIT_TEST(testContractedAncestry);
   CPPUNIT_TEST(testNoOrphans);
   CPPUNIT_TEST(testSimContinuationKeeps);
+  CPPUNIT_TEST(testNoStatusFlagsReportsDegraded);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -141,6 +142,7 @@ public:
   void testContractedAncestry();
   void testNoOrphans();
   void testSimContinuationKeeps();
+  void testNoStatusFlagsReportsDegraded();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestGenGraphBuild);
@@ -260,4 +262,18 @@ void TestGenGraphBuild::testSimContinuationKeeps() {
   for (int pbc : gb.partBarcodes) {
     CPPUNIT_ASSERT((reachable.count(pbc) != 0) == (pbc != 11));
   }
+}
+
+// Without packed status flags the isHardProcess and isLastCopy rules are dead: the
+// collapse must SAY so, and the keep set degrades to SIM-continued plus status 1.
+void TestGenGraphBuild::testNoStatusFlagsReportsDegraded() {
+  auto gb = buildRecord();
+  gb.particleStatusFlagsByBarcode.clear();
+
+  CPPUNIT_ASSERT(!truth::collapseGenShower(gb, std::unordered_set<int>{6}));
+
+  const std::vector<int> expected = {6, 9, 10};
+  std::vector<int> kept = gb.partBarcodes;
+  std::sort(kept.begin(), kept.end());
+  CPPUNIT_ASSERT(kept == expected);
 }

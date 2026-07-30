@@ -142,7 +142,8 @@ namespace {
                               edm::InputTag const& hepmc3Tag,
                               edm::InputTag const& hepmc2Tag,
                               bool collapseShower,
-                              edm::SimTrackContainer const& tracks) {
+                              edm::SimTrackContainer const& tracks,
+                              bool& degradedCollapseWarned) {
     truth::GenBuild gb;
     edm::Handle<edm::HepMC3Product> h3;
     if (ev.getByLabel(hepmc3Tag, h3) && h3.isValid() && h3->GetEvent() != nullptr) {
@@ -155,7 +156,10 @@ namespace {
         gb = truth::buildFromHepMC2(*h2->GetEvent());
     }
     if (collapseShower && !gb.empty()) {
-      if (!truth::collapseGenShower(gb, truth::simContinuedGenBarcodes(tracks))) {
+      // The degraded path is a property of the sample, not of one sub-event, so one
+      // warning per stream says everything 200 per event would.
+      if (!truth::collapseGenShower(gb, truth::simContinuedGenBarcodes(tracks)) && !degradedCollapseWarned) {
+        degradedCollapseWarned = true;
         edm::LogWarning("TruthGraphAccumulator")
             << "collapseGenShower ran on a GEN record with no packed status flags, which "
                "buildFromHepMC3 does not fill. The isHardProcess and isLastCopy keep rules "
@@ -234,6 +238,7 @@ private:
   // first collection that goes missing and hides every later one, so a real premix
   // problem in the calorimeter can be masked by an unrelated tracker collection.
   std::set<std::string> missingHitsWarned_;
+  bool degradedCollapseWarned_ = false;
 
   // Merged calorimeter sim-hits across signal + kept pileup, each re-tagged with its
   // sub-event EncodedEventId so the (eventId,trackId) hit-index key resolves pileup
@@ -475,6 +480,12 @@ void TruthGraphAccumulator::addSubEvent(std::vector<std::pair<int, int>> const& 
       }
     }
 
+    // Residual gap, shared with TruthGraphProducer so the two stay consistent: source
+    // counting is per undirected component, but reachability from the GenEvent node is
+    // DIRECTED. A component containing both a true source and a beam-fed branch would
+    // attach only the source and leave the branch unreachable. No current record mixes
+    // the two in one component: a collider record is wholly sourceless and a gun record
+    // wholly source-rooted.
     std::unordered_map<int, unsigned int> rootsInComponent;
     for (int vbc : fullGen->vtxBarcodes) {
       if (vtxIncoming[vbc] == 0)
@@ -631,7 +642,7 @@ void TruthGraphAccumulator::accumulate(edm::Event const& event, edm::EventSetup 
   if (collapseSignalGen_)
     stableGen = readStableGen(event, hepmc3Tag_, hepmc2Tag_);
   else
-    fullGen = readFullGen(event, hepmc3Tag_, hepmc2Tag_, collapseGenShower_, *tracks);
+    fullGen = readFullGen(event, hepmc3Tag_, hepmc2Tag_, collapseGenShower_, *tracks, degradedCollapseWarned_);
   const EncodedEventId sigEid(0, 0);
   addSubEvent(stableGen, &fullGen, *tracks, *vertices, sigEid, 0);
   addSubEventHits(event, sigEid);
@@ -660,7 +671,7 @@ void TruthGraphAccumulator::accumulate(PileUpEventPrincipal const& pep, edm::Eve
   if (collapsePileupGen_)
     stableGen = readStableGen(pep, hepmc3Tag_, hepmc2Tag_);
   else
-    fullGen = readFullGen(pep, hepmc3Tag_, hepmc2Tag_, collapseGenShower_, *tracks);
+    fullGen = readFullGen(pep, hepmc3Tag_, hepmc2Tag_, collapseGenShower_, *tracks, degradedCollapseWarned_);
 
   // Global counter across bunch crossings: EncodedEventId stores abs(bx), so a
   // per-bx counter would give (-1,1) and (+1,1) identical packed ids. A single

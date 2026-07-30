@@ -164,10 +164,16 @@ namespace truth {
           continue;
         }
 
-        // Second visit: a child still in progress is a cycle and contributes nothing.
+        // Second visit. A child still in progress is a cycle, and what lies beyond it is
+        // unknown at this point, so it must count as REACHING: memoizing 0 here would be
+        // wrong whenever the cycle has an exit to a SimTrack, and this function guards
+        // the layout, so it over-approximates. The cost of a false positive is a
+        // fallback to the materialised layout, which is always correct.
         uint8_t value = hasSimTrack_[particleId];
         for (const uint32_t child : children_[particleId]) {
-          if (child < nParticles_ && state[child] == 2 && reaches[child] != 0)
+          if (child >= nParticles_)
+            continue;
+          if (state[child] == 1 || (state[child] == 2 && reaches[child] != 0))
             value = 1;
         }
         reaches[particleId] = value;

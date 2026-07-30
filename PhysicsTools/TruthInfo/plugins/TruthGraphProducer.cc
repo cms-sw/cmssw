@@ -174,7 +174,9 @@ public:
     }
 
     if (haveGen && collapseGenShower_)
-      if (!truth::collapseGenShower(gb, truth::simContinuedGenBarcodes(simTracks))) {
+      if (!truth::collapseGenShower(gb, truth::simContinuedGenBarcodes(simTracks)) && !degradedCollapseWarned_) {
+        // Sample-level condition; once per stream is the whole message.
+        degradedCollapseWarned_ = true;
         edm::LogWarning("TruthGraphProducer")
             << "collapseGenShower ran on a GEN record with no packed status flags, which "
                "buildFromHepMC3 does not fill. The isHardProcess and isLastCopy keep rules "
@@ -440,6 +442,12 @@ public:
           ++it->second;
       }
 
+      // Residual gap, shared with TruthGraphAccumulator so the two stay consistent: source
+      // counting is per undirected component, but reachability from the GenEvent node is
+      // DIRECTED. A component containing both a true source and a beam-fed branch would
+      // attach only the source and leave the branch unreachable. No current record mixes
+      // the two in one component: a collider record is wholly sourceless and a gun record
+      // wholly source-rooted.
       std::vector<std::vector<int>> rootsByComp(nGenEvents);
       std::vector<std::vector<int>> allVtxByComp(nGenEvents);
 
@@ -627,6 +635,7 @@ private:
 
   bool addGenToSimEdges_;
   bool collapseGenShower_;
+  bool degradedCollapseWarned_ = false;
 };
 
 DEFINE_FWK_MODULE(TruthGraphProducer);

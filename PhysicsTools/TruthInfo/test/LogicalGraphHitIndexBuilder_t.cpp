@@ -26,6 +26,7 @@ class TestLogicalGraphHitIndexBuilder : public CppUnit::TestFixture {
   CPPUNIT_TEST(testSharedStoreKeepsEachHitOnce);
   CPPUNIT_TEST(testSharedStoreFallsBackWhenNotAForest);
   CPPUNIT_TEST(testSharedStoreFallsBackAcrossAGenOnlyChild);
+  CPPUNIT_TEST(testSharedStoreFallsBackAcrossAGenOnlyCycle);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -35,6 +36,7 @@ public:
   void testSharedStoreKeepsEachHitOnce();
   void testSharedStoreFallsBackWhenNotAForest();
   void testSharedStoreFallsBackAcrossAGenOnlyChild();
+  void testSharedStoreFallsBackAcrossAGenOnlyCycle();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestLogicalGraphHitIndexBuilder);
@@ -203,6 +205,35 @@ void TestLogicalGraphHitIndexBuilder::testSharedStoreFallsBackAcrossAGenOnlyChil
   CPPUNIT_ASSERT(!index.sharedSubgraphStore());
 
   // The grandparent still sees both cells, which is what the fallback protects.
+  auto sub = index.subgraphHits(truth::HitChannel::Calo, 0);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), sub.size());
+  CPPUNIT_ASSERT_EQUAL(uint32_t(10), sub[0].detId);
+  CPPUNIT_ASSERT_EQUAL(uint32_t(20), sub[1].detId);
+}
+
+// A GEN-only CYCLE between the hit-carrying parent and a hit-carrying descendant. The
+// closure walk must not memoize "reaches nothing" for a cycle member whose exit leads to
+// a SimTrack: a child still being computed counts as reaching, so the guard fires and the
+// builder falls back rather than answer a subgraph short of the descendant's hits.
+void TestLogicalGraphHitIndexBuilder::testSharedStoreFallsBackAcrossAGenOnlyCycle() {
+  truth::LogicalGraphHitIndexBuilder builder(4, /*sharedSubgraphStore=*/true);
+  builder.setSimTrackForParticle(0, 0, 100);
+  // particles 1 and 2 are GEN-only and form a cycle; the exit from 1 reaches particle 3.
+  builder.setSimTrackForParticle(3, 0, 103);
+  builder.addParticleChild(0, 2);
+  builder.addParticleChild(1, 2);
+  builder.addParticleChild(1, 3);
+  builder.addParticleChild(2, 1);
+
+  builder.addHit(truth::HitChannel::Calo, 0, 100, 10, 1.0f, 0);
+  builder.addHit(truth::HitChannel::Calo, 0, 103, 20, 2.0f, 1);
+
+  const auto index = builder.finish();
+
+  CPPUNIT_ASSERT(!builder.usedSharedStore());
+  CPPUNIT_ASSERT(!index.sharedSubgraphStore());
+
+  // The parent still sees the descendant's cell through the cycle.
   auto sub = index.subgraphHits(truth::HitChannel::Calo, 0);
   CPPUNIT_ASSERT_EQUAL(std::size_t(2), sub.size());
   CPPUNIT_ASSERT_EQUAL(uint32_t(10), sub[0].detId);
