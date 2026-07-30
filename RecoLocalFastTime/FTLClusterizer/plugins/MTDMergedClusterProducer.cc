@@ -31,8 +31,6 @@
 
 #include <iostream>
 #include <vector>
-#include <map>
-#include <set>
 #include <cmath>
 #include <limits>
 
@@ -302,7 +300,6 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
   auto btlOutput = std::make_unique<FTLMergedClusterCollection>();
   auto etlOutput = std::make_unique<FTLMergedClusterCollection>();
 
-  std::map<uint32_t, std::vector<FTLMergedCluster>> mergedByDet;
 
   if (!btlClustersHandle.isValid() || btlClustersHandle->empty()) {
     LogTrace("MTDMergedClusterProducer") << "No valid BTL clusters found in event " << e.id();
@@ -326,14 +323,11 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
         allClusters.push_back(&cluster);
       }
     }
-     
-    // sorting by rod and module
 
+    // sorting by rod and module
     std::sort(allClusters.begin(), allClusters.end(), [&topology](const FTLCluster* a, const FTLCluster* b) {
-      BTLDetId idA(a->id());
-      BTLDetId idB(b->id());
-      auto [iphiA, ietaA] = topology->btlIndex(idA.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode())).rawId());
-      auto [iphiB, ietaB] = topology->btlIndex(idB.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode())).rawId());
+      auto [iphiA, ietaA] = topology->btlIndex(a->id());
+      auto [iphiB, ietaB] = topology->btlIndex(b->id());
 
       if (iphiA != iphiB) { 
         return iphiA < iphiB;
@@ -353,7 +347,9 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
     uint32_t currentRawId = 0;
     std::unique_ptr<edmNew::DetSetVector<FTLMergedCluster>::FastFiller> filler;
     size_t index(0);
-    
+    std::vector<const FTLCluster*> mergedClusterClusters; 
+
+
     for (size_t i = 0; i < allClusters.size(); ++i) {
       const FTLCluster* cluster = allClusters[i];
       if (alreadyMergedThisCluster){
@@ -362,7 +358,7 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
       }
       
       BTLDetId cluId = cluster->id();
-      std::vector<const FTLCluster*> mergedClusterClusters = {cluster};
+      mergedClusterClusters.push_back(cluster);
 
       // Get topology indices
       std::pair<uint32_t, uint32_t> indices = topology->btlIndex(cluId.rawId());
@@ -425,6 +421,8 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
       LogDebug("MTDMergedClusterProducer") << "BTL merged cluster # " << std::setw(5) << index << " " << mergedCluster;
       filler->push_back(std::move(mergedCluster));
       index++;
+      mergedClusterClusters.clear();
+      
     }
     filler.reset();
 
