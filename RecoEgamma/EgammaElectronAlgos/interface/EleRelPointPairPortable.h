@@ -11,7 +11,6 @@
 //============================================================================
 
 namespace egamma {
-  using namespace cms::alpakatools;
 
   // Helper function to compute relative position
   template <typename T>
