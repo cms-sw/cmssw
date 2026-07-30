@@ -3,6 +3,15 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <condition_variable>
+
+#include <atomic>
+#include <map>
+#include <mutex>
+#include <thread>
+
+// tbb headers
+#include <tbb/concurrent_queue.h>
 
 // MPI headers
 #include <mpi.h>
@@ -53,6 +62,37 @@ private:
   bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType&) override;
   void produce(edm::Event&) override;
 
+  struct EventItem {
+    edm::EventAuxiliary aux;
+    // temporary value used to pass information from setRunAndEventInfo() to produce()
+    MPIChannel* channel = nullptr;
+  };
+
+  struct LumiQueue {
+    tbb::concurrent_queue<EventItem> events;
+    // set to true when LumiComplete received
+    std::atomic<bool> complete{false};
+  };
+
+  using RunLumi = std::pair<unsigned int, unsigned int>;
+
+  unsigned int nextThreadID_ = 0;
+  struct StreamWorker {
+    unsigned int thread_id;
+    // control channel used to receive stream transitions and event headers
+    std::unique_ptr<MPIChannel> ctrlStream;
+    std::vector<std::unique_ptr<MPIChannel>> dataChannels;
+    // dedicated receiver thread for this controller stream
+    std::thread thread;
+    std::atomic<bool> stop{false};
+  };
+
+  void startThread();
+  void receiverThreadsLoop(StreamWorker& worker);
+  void controlThreadLoop();
+  std::shared_ptr<LumiQueue> getOrCreateQueue(unsigned int run, unsigned int lumi);
+  void markLumiComplete(unsigned int run, unsigned int lumi);
+
   enum Mode { kInvalid = 0, kCommWorld, kIntercommunicator };
   static constexpr const char* ModeDescription[] = {"Invalid", "CommWorld", "Intercommunicator"};
   Mode parseMode(std::string const& label) {
@@ -67,14 +107,32 @@ private:
   char port_[MPI_MAX_PORT_NAME];
   MPI_Comm comm_ = MPI_COMM_NULL;
   MPIChannel controller_;
-  std::vector<std::unique_ptr<MPIChannel>> channels_;
+  std::vector<std::vector<std::unique_ptr<MPIChannel>>> channels_;
   edm::EDPutTokenT<MPIToken> token_;
   Mode mode_;
 
+  std::mutex historyMutex_;
   edm::ProcessHistory history_;
 
-  // temporary value used to pass information from setRunAndEventInfo() to produce()
   MPIChannel* channel_ = nullptr;
+
+  unsigned int nControllerStreams_{0};
+  // one per controller stream
+  std::vector<std::unique_ptr<StreamWorker>> workers_;
+  std::vector<std::unique_ptr<MPIChannel>> controllerChannels_;
+
+  // Per-(run,lumi) queues
+  std::map<RunLumi, std::shared_ptr<LumiQueue>> lumiQueues_;
+  std::mutex mapMutex_;
+  // wakes framework thread on new event or lumi completion
+  std::condition_variable mainCV_;
+  bool noMoreLumis_ = false;
+
+  // Control thread handle
+  std::thread controlThread_;
+
+  // Temporary storage for produce()
+  EventItem lastEventItem_;
 };
 
 MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescription const& desc)
@@ -189,16 +247,51 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
   EDM_MPI_Empty_t buffer;
   MPI_Recv(&buffer, 1, EDM_MPI_Empty, MPI_ANY_SOURCE, EDM_MPI_Connect, comm_, &status);
   edm::LogInfo("MPI") << "connected from " << status.MPI_SOURCE;
+
+  // Receive the number of streams that each follower process will handle
+  controller_.receiveStreamCount(nControllerStreams_);
+  edm::LogInfo("MPI") << "Source will handle " << nControllerStreams_ << " streams";
+
+  // Each controller stream gets an independent control channel plus one data
+  // channel per controller slot (WIP: fixed 3). The duplicated communicators allow different
+  // receiver threads to operate without sharing MPIChannel instances.
+  controllerChannels_.resize(nControllerStreams_);
+  channels_.resize(nControllerStreams_);
+  for (unsigned int slot = 0; slot < nControllerStreams_; ++slot) {
+    controllerChannels_[slot] = controller_.duplicate(slot);
+    channels_[slot].reserve(3);
+    for (int i = 0; i < 3; ++i) {
+      channels_[slot].emplace_back(controllerChannels_[slot]->duplicate(i));
+    }
+  }
+
+  // Start the control thread that handles BeginStream/Disconnect/LumiComplete
+  // messages that are global to the source rather than associated with a
+  // specific controller stream
+  controlThread_ = std::thread(&MPISource::controlThreadLoop, this);
 }
 
 MPISource::~MPISource() {
-  // Disconnect the communicators.
-  for (auto& channel : channels_) {
-    if (channel) {
-      channel->reset();
+  for (auto& worker : workers_) {
+    if (worker && worker->thread.joinable()) {
+      worker->stop = true;
+      worker->thread.join();
+    }
+    if (worker) {
+      if (worker->ctrlStream)
+        worker->ctrlStream->reset();
+      for (auto& c : worker->dataChannels) {
+        if (c)
+          c->reset();
+      }
     }
   }
-  controller_.reset();
+
+  // Stop control thread
+  if (controlThread_.joinable()) {
+    controlThread_.join();
+    controller_.reset();
+  }
 
   if (mode_ == kIntercommunicator) {
     // Close the intercommunicator.
@@ -214,15 +307,40 @@ MPISource::~MPISource() {
   }
 }
 
-//MPISource::ItemTypeInfo MPISource::getNextItemType() {
-bool MPISource::setRunAndEventInfo(edm::EventID& event,
-                                   edm::TimeValue_t& time,
-                                   edm::EventAuxiliary::ExperimentType& type) {
+void MPISource::controlThreadLoop() {
   while (true) {
     MPI_Status status;
     MPI_Message message;
-    MPI_Mprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, comm_, &message, &status);
+    controller_.probeAny(message, status);
     switch (status.MPI_TAG) {
+      // BeginStream message
+      case EDM_MPI_BeginStream: {
+        // receive the message header
+        EDM_MPI_Empty_t buf;
+        MPI_Mrecv(&buf, 1, EDM_MPI_Empty, &message, &status);
+
+        // launches a new worker thread
+        startThread();
+
+        // receive the next message
+        break;
+      }
+
+      // LumiBlockComplete message
+      case EDM_MPI_LuminosityBlockComplete: {
+        // receive the message header
+        EDM_MPI_LuminosityBlockAuxiliary_t buf;
+        MPI_Mrecv(&buf, 1, EDM_MPI_LuminosityBlockAuxiliary, &message, &status);
+
+        // mark the (run-lumi) LumiQueue as complete
+        edm::LuminosityBlockAuxiliary aux;
+        edmFromBuffer(buf, aux);
+        markLumiComplete(aux.run(), aux.luminosityBlock());
+
+        // receive the next message
+        break;
+      }
+
       // Connect message
       case EDM_MPI_Connect: {
         // receive the message header
@@ -232,42 +350,84 @@ bool MPISource::setRunAndEventInfo(edm::EventID& event,
         // the Connect message is unexpected here (see above)
         throw cms::Exception("InvalidValue")
             << "The MPISource has received an EDM_MPI_Connect message after the initial connection";
-        return false;
+        return;
       }
 
       // Disconnect message
       case EDM_MPI_Disconnect: {
         // receive the message header
-        EDM_MPI_Empty_t buffer;
-        MPI_Mrecv(&buffer, 1, EDM_MPI_Empty, &message, &status);
+        EDM_MPI_Empty_t buf;
+        MPI_Mrecv(&buf, 1, EDM_MPI_Empty, &message, &status);
+        {
+          std::lock_guard<std::mutex> lock(mapMutex_);
+          noMoreLumis_ = true;
+        }
+        mainCV_.notify_one();
 
-        // signal the end of the input data
-        return false;
+        // control thread done
+        return;
       }
 
-      // BeginStream message
-      case EDM_MPI_BeginStream: {
-        // receive the message header
-        EDM_MPI_Empty_t buffer;
-        MPI_Mrecv(&buffer, 1, EDM_MPI_Empty, &message, &status);
-
-        // receive the next message
-        break;
+      // unexpected message
+      default: {
+        throw cms::Exception("InvalidValue")
+            << "The MPISource has received an unknown message with tag " << status.MPI_TAG;
+        return;
       }
+    }
+  }
+}
 
-      // EndStream message
-      case EDM_MPI_EndStream: {
-        // receive the message header
-        EDM_MPI_Empty_t buffer;
-        MPI_Mrecv(&buffer, 1, EDM_MPI_Empty, &message, &status);
+void MPISource::startThread() {
+  workers_.push_back(std::make_unique<StreamWorker>());
+  StreamWorker& worker = *workers_.back();
 
-        // receive the next message
-        break;
-      }
+  worker.thread_id = nextThreadID_;
+  worker.ctrlStream = std::move(controllerChannels_[nextThreadID_]);
+  worker.dataChannels = std::move(channels_[nextThreadID_]);
+  worker.stop = false;
 
+  // Launch the thread that will run the worker loop
+  worker.thread = std::thread(&MPISource::receiverThreadsLoop, this, std::ref(worker));
+
+  // After this, channels_ is empty (ownership transferred to workers)
+  ++nextThreadID_;
+}
+
+std::shared_ptr<MPISource::LumiQueue> MPISource::getOrCreateQueue(unsigned int run, unsigned int lumi) {
+  // Caller must hold mapMutex_
+  RunLumi key{run, lumi};
+  auto it = lumiQueues_.find(key);
+  if (it != lumiQueues_.end())
+    return it->second;
+
+  auto q = std::make_shared<LumiQueue>();
+  lumiQueues_[key] = q;
+  return q;
+}
+
+void MPISource::markLumiComplete(unsigned int run, unsigned int lumi) {
+  std::lock_guard<std::mutex> lock(mapMutex_);
+  auto it = lumiQueues_.find({run, lumi});
+  if (it != lumiQueues_.end()) {
+    it->second->complete = true;
+    mainCV_.notify_one();
+  } else {
+    // create it to avoid missing the completion
+    auto q = std::make_shared<LumiQueue>();
+    q->complete = true;
+    lumiQueues_[{run, lumi}] = q;
+  }
+}
+
+void MPISource::receiverThreadsLoop(StreamWorker& worker) {
+  while (!worker.stop.load()) {
+    MPI_Status status;
+    MPI_Message message;
+    worker.ctrlStream->probeAny(message, status);
+    switch (status.MPI_TAG) {
       // BeginRun message
       case EDM_MPI_BeginRun: {
-        // receive the RunAuxiliary
         EDM_MPI_RunAuxiliary_t buffer;
         MPI_Mrecv(&buffer, 1, EDM_MPI_RunAuxiliary, &message, &status);
         // TODO this is currently not used
@@ -275,8 +435,9 @@ bool MPISource::setRunAndEventInfo(edm::EventID& event,
         edmFromBuffer(buffer, runAuxiliary);
 
         // receive the ProcessHistory
+        std::lock_guard<std::mutex> lock(historyMutex_);  // worker threads share history_
         history_.clear();
-        controller_.receiveProduct(0, history_);
+        worker.ctrlStream->receiveProduct(0, history_);
         history_.initializeTransients();
         /*
         if (processHistoryRegistryForUpdate().registerProcessHistory(history_)) {
@@ -300,12 +461,16 @@ bool MPISource::setRunAndEventInfo(edm::EventID& event,
 
       // BeginLuminosityBlock message
       case EDM_MPI_BeginLuminosityBlock: {
-        // receive the LuminosityBlockAuxiliary
         EDM_MPI_LuminosityBlockAuxiliary_t buffer;
         MPI_Mrecv(&buffer, 1, EDM_MPI_LuminosityBlockAuxiliary, &message, &status);
         // TODO this is currently not used
-        edm::LuminosityBlockAuxiliary luminosityBlockAuxiliary;
-        edmFromBuffer(buffer, luminosityBlockAuxiliary);
+        edm::LuminosityBlockAuxiliary aux;
+        edmFromBuffer(buffer, aux);
+        {
+          std::lock_guard<std::mutex> lk(mapMutex_);
+          getOrCreateQueue(aux.run(), aux.luminosityBlock());  // ensures it exists
+        }
+        mainCV_.notify_one();  // main thread may be waiting for a new lumi
 
         // receive the next message
         break;
@@ -317,6 +482,7 @@ bool MPISource::setRunAndEventInfo(edm::EventID& event,
         EDM_MPI_LuminosityBlockAuxiliary_t buffer;
         MPI_Mrecv(&buffer, 1, EDM_MPI_LuminosityBlockAuxiliary, &message, &status);
 
+        // Nothing else, LumiQueue closure handled by LumiComplete control message
         // receive the next message
         break;
       }
@@ -325,40 +491,119 @@ bool MPISource::setRunAndEventInfo(edm::EventID& event,
       case EDM_MPI_ProcessEvent: {
         // receive the EventAuxiliary
         edm::EventAuxiliary aux;
-        unsigned int slot;
-        status = controller_.receiveEvent(aux, slot, message);
+        unsigned int ctrlSlot;
+        worker.ctrlStream->receiveEvent(aux, ctrlSlot, message);
+        EventItem item;
+        item.aux = aux;
 
         // use the same communicator that the MPIController will use for this event
-        if (slot >= channels_.size()) {
-          channels_.resize(slot + 1);
-        }
-        if (not channels_[slot]) {
-          channels_[slot] = controller_.duplicate(slot);
-        }
-
-        // store the channel to use it in produce()
-        channel_ = channels_[slot].get();
+        item.channel = worker.dataChannels[ctrlSlot].get();
 
         // extract the rank of the other process (currently unused)
         int source = status.MPI_SOURCE;
         (void)source;
 
-        // fill the event details
-        event = aux.id();
-        time = aux.time().value();
-        type = aux.experimentType();
+        // get the current LumiQueue, or create it if it wasn't before
+        // push the EventItem in the tbb::concurrent_queue
+        std::shared_ptr<LumiQueue> q;
+        {
+          std::lock_guard<std::mutex> lk(mapMutex_);
+          q = getOrCreateQueue(aux.run(), aux.luminosityBlock());
+        }
+        q->events.push(std::move(item));
 
-        // signal a new event
-        return true;
+        mainCV_.notify_one();  // wake framework thread
+
+        // receive the next message
+        break;
+      }
+
+      // EndStream message
+      case EDM_MPI_EndStream: {
+        // receive the message header
+        EDM_MPI_Empty_t buf;
+        MPI_Mrecv(&buf, 1, EDM_MPI_Empty, &message, &status);
+
+        // stop the current worker thread, linked to the ended stream
+        worker.stop = true;
+
+        // receive the next message
+        break;
       }
 
       // unexpected message
       default: {
         throw cms::Exception("InvalidValue")
             << "The MPISource has received an unknown message with tag " << status.MPI_TAG;
-        return false;
+        return;
       }
     }
+  }
+}
+
+// Events are exposed to the framework (run-lumi) pair by (run-lumi) pair.
+// The ordered map guarantees that the lowest (run-lumi) is processed before
+// later luminosity blocks.
+// A lumi cannot be skipped merely because its queue is temporarily empty:
+// it must first be marked complete, otherwise more events may still arrive.
+bool MPISource::setRunAndEventInfo(edm::EventID& event,
+                                   edm::TimeValue_t& time,
+                                   edm::EventAuxiliary::ExperimentType& type) {
+  std::unique_lock<std::mutex> lock(mapMutex_);
+
+  while (true) {
+    // Wait until there is at least one lumi (with an event) or we know no more will come
+    mainCV_.wait(lock, [this] {
+      if (noMoreLumis_ && lumiQueues_.empty())
+        return true;
+      // Check if any lumi has an event or if any complete lumi exists that we can discard
+      for (const auto& pair : lumiQueues_) {
+        if (!pair.second->events.empty() || pair.second->complete)
+          return true;
+      }
+      return false;
+    });
+
+    if (noMoreLumis_ && lumiQueues_.empty()) {
+      return false;
+    }
+
+    // Find the first lumi (map gives ordered (run,lumi))
+    auto it = lumiQueues_.begin();
+    RunLumi currentKey = it->first;
+    std::shared_ptr<LumiQueue> currentQ = it->second;
+
+    // Try to pop an event
+    EventItem item;
+    if (currentQ->events.try_pop(item)) {
+      lastEventItem_ = std::move(item);
+
+      // store the channel to use it in produce()
+      channel_ = lastEventItem_.channel;
+
+      // fill the event details
+      event = lastEventItem_.aux.id();
+      time = lastEventItem_.aux.time().value();
+      type = lastEventItem_.aux.experimentType();
+
+      // If the queue is now empty and the lumi is complete, remove it
+      if (currentQ->complete && currentQ->events.empty()) {
+        lumiQueues_.erase(currentKey);
+      }
+      return true;
+    }
+
+    // No event popped. If the lumi is complete, discard it and retry
+    if (currentQ->complete) {
+      lumiQueues_.erase(currentKey);
+      continue;  // loop again immediately. Will pick next lumi
+    }
+
+    // Lumi is not complete and has no events, wait for more data.
+    // The condition variable will be signalled by worker threads when they push
+    // a new event or by the control thread when it marks this lumi complete
+    mainCV_.wait(lock, [&currentQ, this] { return !currentQ->events.empty() || currentQ->complete || noMoreLumis_; });
+    // After waking up, re-evaluate the state
   }
 }
 
