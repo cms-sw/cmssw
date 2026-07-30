@@ -42,6 +42,7 @@
 #include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
 
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
+#include "PhysicsTools/TruthInfo/interface/SubgraphHitView.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
 #include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
@@ -100,7 +101,7 @@ private:
   void validate(Collection const& objects,
                 truth::Graph const& graph,
                 TruthGraph const& raw,
-                truth::LogicalGraphHitIndex const& hitIndex,
+                truth::SubgraphHitView& hitIndex,
                 truth::BranchHitAssociator const& assoc,
                 std::unordered_map<uint32_t, uint32_t> const& tidToParticle,
                 std::unordered_map<uint32_t, float> const& cellSimEnergy,
@@ -274,7 +275,7 @@ template <class Collection>
 void BranchHGCalValidator::validate(Collection const& objects,
                                     truth::Graph const& graph,
                                     TruthGraph const& raw,
-                                    truth::LogicalGraphHitIndex const& hitIndex,
+                                    truth::SubgraphHitView& hitIndex,
                                     truth::BranchHitAssociator const& assoc,
                                     std::unordered_map<uint32_t, uint32_t> const& tidToParticle,
                                     std::unordered_map<uint32_t, float> const& cellSimEnergy,
@@ -478,10 +479,11 @@ std::unordered_map<uint32_t, float> BranchHGCalValidator::collectRecHitEnergyByD
 void BranchHGCalValidator::analyze(edm::Event const& event, edm::EventSetup const&) {
   auto const& graph = event.get(graphToken_);
   auto const& raw = event.get(rawToken_);
-  auto const& hitIndex = event.get(hitIndexToken_);
+  auto const& hitIndexProduct = event.get(hitIndexToken_);
+  truth::SubgraphHitView hitIndex(hitIndexProduct);
 
   const auto tidToParticle = buildTrackIdToParticle(graph, raw);
-  truth::BranchHitAssociator assoc(hitIndex, {}, truth::BranchHitAssociator::Metric::SharedHits);
+  truth::BranchHitAssociator assoc(hitIndexProduct, {}, truth::BranchHitAssociator::Metric::SharedHits);
 
   // Per-cell deposited (sim) energy = sum of every particle's direct Calo hits
   // in that cell (each PCaloHit belongs to exactly one SimTrack), and per-cell

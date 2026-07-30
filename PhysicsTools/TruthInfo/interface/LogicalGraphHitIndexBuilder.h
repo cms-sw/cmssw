@@ -20,9 +20,9 @@ namespace truth {
   public:
     // sharedSubgraphStore selects the shared layout described in LogicalGraphHitIndex:
     // each hit is stored once, in an order that makes every subtree a contiguous range,
-    // instead of being copied into each ancestor's aggregate. False, the default, builds
-    // the materialised layout.
-    explicit LogicalGraphHitIndexBuilder(uint32_t nParticles, bool sharedSubgraphStore = false);
+    // instead of being copied into each ancestor's aggregate. This is what the producer
+    // writes by default. False builds the materialised layout.
+    explicit LogicalGraphHitIndexBuilder(uint32_t nParticles, bool sharedSubgraphStore = true);
 
     // trackId is event-local (each mixing sub-event reuses 1,2,3,...); it MUST be
     // namespaced by the packed EncodedEventId or signal and pileup collide.

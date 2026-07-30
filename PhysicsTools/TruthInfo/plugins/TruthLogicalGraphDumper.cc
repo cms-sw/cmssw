@@ -26,6 +26,7 @@
 
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
+#include "PhysicsTools/TruthInfo/interface/SubgraphHitView.h"
 #include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 
 namespace {
@@ -455,7 +456,10 @@ public:
     if (useHitIndex_) {
       evt.getByToken(hitIndexToken_, hHitIndex);
     }
-    truth::LogicalGraphHitIndex const* hitIndex = hHitIndex.isValid() ? &(*hHitIndex) : nullptr;
+    std::optional<truth::SubgraphHitView> hitIndexView;
+    if (hHitIndex.isValid())
+      hitIndexView.emplace(*hHitIndex);
+    truth::SubgraphHitView* hitIndex = hitIndexView ? &(*hitIndexView) : nullptr;
 
     const std::vector<float> recHitEnergies = collectRecHitEnergies(evt);
 

@@ -41,6 +41,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
+#include "PhysicsTools/TruthInfo/interface/SubgraphHitView.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
 #include "PhysicsTools/TruthInfo/interface/RecoHitAdapters.h"
@@ -129,8 +130,8 @@ private:
     return std::abs(eta) >= minAbsEta_ && std::abs(eta) <= maxAbsEta_ && x >= minX_;
   }
   // Per-object span hits in the relevant channel (calo subgraph or tracker subgraph).
-  [[nodiscard]] std::span<const truth::LogicalGraphHitIndex::Hit> channelHits(
-      truth::LogicalGraphHitIndex const& hitIndex, uint32_t root) const {
+  [[nodiscard]] std::span<const truth::LogicalGraphHitIndex::Hit> channelHits(truth::SubgraphHitView& hitIndex,
+                                                                              uint32_t root) const {
     return hitIndex.subgraphHits(Traits::channel(), root);
   }
 
@@ -214,6 +215,7 @@ template <class Traits>
 void BranchRecoValidatorT<Traits>::analyze(edm::Event const& event, edm::EventSetup const&) {
   auto const& graph = event.get(graphToken_);
   auto const& hitIndex = event.get(hitIndexToken_);
+  truth::SubgraphHitView subgraphView(hitIndex);
 
   // Candidate / associator roots = the interesting particles (empty config -> all).
   std::vector<uint32_t> roots;
@@ -270,7 +272,7 @@ void BranchRecoValidatorT<Traits>::analyze(edm::Event const& event, edm::EventSe
            interestingPdgIds_.end();
   };
   for (uint32_t r = 0; r < nP; ++r) {
-    if (!considerRoot(r) || channelHits(hitIndex, r).empty())
+    if (!considerRoot(r) || channelHits(subgraphView, r).empty())
       continue;
     auto const& p = graph.particles()[r].momentum;
     const double eta = p.eta();
