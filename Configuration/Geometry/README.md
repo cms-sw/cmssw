@@ -153,3 +153,4 @@ Several detector combinations have been generated:
 * D124 = T35+C25+M16+I21+O10+F9
 * D125 = T35+C25+M16+I22+O10+F9
 * D126 = T37+C27+M17+I21+O11+F10
+* D126 = T35+C27+M17+I21+O11+F10
