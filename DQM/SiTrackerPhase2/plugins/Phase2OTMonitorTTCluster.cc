@@ -219,7 +219,7 @@ void Phase2OTMonitorTTCluster::bookHistograms(DQMStore::IBooker &iBooker,
   Cluster_OMem_Barrel = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Clusters_OMem_Barrel"), iBooker);
 
   // BW Endcap Summaries
-  iBooker.setCurrentFolder(topFolderName_ + "/EndCaps/MINUS/");
+  iBooker.setCurrentFolder(topFolderName_ + "/Endcaps/MINUS/");
   for (int i = 0; i < static_cast<int>(trklet::N_DISK); i++) {
     const std::string si = std::to_string(i + 1);
     Cluster_IMem_Endcap_Ring_Bw[i] =
@@ -229,7 +229,7 @@ void Phase2OTMonitorTTCluster::bookHistograms(DQMStore::IBooker &iBooker,
   }
 
   // FW Endcap Summaries
-  iBooker.setCurrentFolder(topFolderName_ + "/EndCaps/PLUS/");
+  iBooker.setCurrentFolder(topFolderName_ + "/Endcaps/PLUS/");
   for (int i = 0; i < static_cast<int>(trklet::N_DISK); i++) {
     const std::string si = std::to_string(i + 1);
     Cluster_IMem_Endcap_Ring_Fw[i] =
@@ -239,7 +239,7 @@ void Phase2OTMonitorTTCluster::bookHistograms(DQMStore::IBooker &iBooker,
   }
 
   // Endcap Summaries
-  iBooker.setCurrentFolder(topFolderName_ + "/EndCaps/");
+  iBooker.setCurrentFolder(topFolderName_ + "/Endcaps/");
   Cluster_IMem_Endcap_Disc =
       book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Clusters_IMem_Endcap_Disc"), iBooker);
   Cluster_OMem_Endcap_Disc =
@@ -254,11 +254,26 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
   edm::ParameterSetDescription desc;
 
   // NClusters
-  phase2tkutil::add1DDesc(
-      desc, "Num_L1Clusters_IMem_Barrel", "Num_L1Clusters_IMem_Barrel", "Barrel Layer", "# L1 Clusters", 7, 0.5, 7.5);
-  phase2tkutil::add1DDesc(
-      desc, "Num_L1Clusters_OMem_Barrel", "Num_L1Clusters_OMem_Barrel", "Barrel Layer", "# L1 Clusters", 7, 0.5, 7.5);
   phase2tkutil::add1DDesc(desc,
+                          "Num_L1Clusters_IMem_Barrel",
+                          "Num_L1Clusters_IMem_Barrel",
+                          "Num_L1Clusters_IMem_Barrel",
+                          "Barrel Layer",
+                          "# L1 Clusters",
+                          7,
+                          0.5,
+                          7.5);
+  phase2tkutil::add1DDesc(desc,
+                          "Num_L1Clusters_OMem_Barrel",
+                          "Num_L1Clusters_OMem_Barrel",
+                          "Num_L1Clusters_OMem_Barrel",
+                          "Barrel Layer",
+                          "# L1 Clusters",
+                          7,
+                          0.5,
+                          7.5);
+  phase2tkutil::add1DDesc(desc,
+                          "Num_L1Clusters_IMem_Endcap_Disc",
                           "Num_L1Clusters_IMem_Endcap_Disc",
                           "Num_L1Clusters_IMem_Endcap_Disc",
                           "Endcap Disc",
@@ -269,12 +284,14 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
   phase2tkutil::add1DDesc(desc,
                           "Num_L1Clusters_OMem_Endcap_Disc",
                           "Num_L1Clusters_OMem_Endcap_Disc",
+                          "Num_L1Clusters_OMem_Endcap_Disc",
                           "Endcap Disc",
                           "# L1 Clusters",
                           6,
                           0.5,
                           6.5);
   phase2tkutil::add1DDesc(desc,
+                          "Num_L1Clusters_IMem_Endcap_Ring",
                           "Num_L1Clusters_IMem_Endcap_Ring",
                           "Num_L1Clusters_IMem_Endcap_Ring",
                           "Endcap Ring",
@@ -283,6 +300,7 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
                           0.5,
                           16.5);
   phase2tkutil::add1DDesc(desc,
+                          "Num_L1Clusters_OMem_Endcap_Ring",
                           "Num_L1Clusters_OMem_Endcap_Ring",
                           "Num_L1Clusters_OMem_Endcap_Ring",
                           "Endcap Ring",
@@ -296,6 +314,7 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
     phase2tkutil::add1DDesc(desc,
                             "Num_L1Clusters_IMem_Disc_Fw_" + si,
                             "Num_L1Clusters_IMem_Disc+" + si,
+                            "Num_L1Clusters_IMem_Disc+" + si,
                             "Endcap Ring",
                             "# L1 Clusters",
                             16,
@@ -303,6 +322,7 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
                             16.5);
     phase2tkutil::add1DDesc(desc,
                             "Num_L1Clusters_IMem_Disc_Bw_" + si,
+                            "Num_L1Clusters_IMem_Disc-" + si,
                             "Num_L1Clusters_IMem_Disc-" + si,
                             "Endcap Ring",
                             "# L1 Clusters",
@@ -312,6 +332,7 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
     phase2tkutil::add1DDesc(desc,
                             "Num_L1Clusters_OMem_Disc_Fw_" + si,
                             "Num_L1Clusters_OMem_Disc+" + si,
+                            "Num_L1Clusters_OMem_Disc+" + si,
                             "Endcap Ring",
                             "# L1 Clusters",
                             16,
@@ -319,6 +340,7 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
                             16.5);
     phase2tkutil::add1DDesc(desc,
                             "Num_L1Clusters_OMem_Disc_Bw_" + si,
+                            "Num_L1Clusters_OMem_Disc-" + si,
                             "Num_L1Clusters_OMem_Disc-" + si,
                             "Endcap Ring",
                             "# L1 Clusters",
@@ -330,9 +352,11 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
   // Cluster properties
   phase2tkutil::add2DDesc(
       desc, "L1Cluster_W", "L1Cluster_W", "L1 Cluster Width", "Stack Member", 7, -0.5, 6.5, 2, -0.5, 1.5);
-  phase2tkutil::add1DDesc(desc, "L1Cluster_Eta", "L1Cluster_Eta", "#eta", "# L1 Clusters", 45, -5.0, 5.0);
-  phase2tkutil::add1DDesc(desc, "L1Cluster_Phi", "L1Cluster_Phi", "#phi", "# L1 Clusters", 60, -3.5, 3.5);
-  phase2tkutil::add1DDesc(desc, "L1Cluster_R", "L1Cluster_R", "R [cm]", "# L1 Clusters", 45, 0, 120);
+  phase2tkutil::add1DDesc(
+      desc, "L1Cluster_Eta", "L1Cluster_Eta", "L1Cluster_Eta", "#eta", "# L1 Clusters", 45, -5.0, 5.0);
+  phase2tkutil::add1DDesc(
+      desc, "L1Cluster_Phi", "L1Cluster_Phi", "L1Cluster_Phi", "#phi", "# L1 Clusters", 60, -3.5, 3.5);
+  phase2tkutil::add1DDesc(desc, "L1Cluster_R", "L1Cluster_R", "L1Cluster_R", "R [cm]", "# L1 Clusters", 45, 0, 120);
 
   // Position
   phase2tkutil::add2DDesc(desc,

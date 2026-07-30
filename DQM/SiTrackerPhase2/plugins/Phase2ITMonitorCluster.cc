@@ -273,16 +273,8 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   // clusterITMonitor
   edm::ParameterSetDescription desc;
   //Global Histos
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Num_Clusters");
-    psd0.add<std::string>("title", "NumberClusters;Number of Clusters;");
-    psd0.add<double>("xmin", 0.0);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 300000.0);
-    psd0.add<int>("NxBins", 150);
-    desc.add<edm::ParameterSetDescription>("GlobalNClusters", psd0);
-  }
+  phase2tkutil::add1DDesc(
+      desc, "GlobalNClusters", "Num_Clusters", "NumberClusters", "Number of clusters per event", "", 150, 0.0, 300000.0);
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Clusters_Global_Position_RZ_IT_barrel");
@@ -337,56 +329,22 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   //Local histos
   //Per layer/ring histos
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Num_Clusters_Layer");
-    psd0.add<std::string>("title", "NumberOfClusters {};Number of Clusters;");
-    psd0.add<double>("xmin", 0.0);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 300000.0);
-    psd0.add<int>("NxBins", 150);
-    desc.add<edm::ParameterSetDescription>("NClustersLayer", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Cluster_Charge");
-    psd0.add<std::string>("title", "Cluster charge {};Cluster charge;");
-    psd0.add<double>("xmin", 0.);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 100000.);
-    psd0.add<int>("NxBins", 100);
-    desc.add<edm::ParameterSetDescription>("ClusterCharge", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Cluster_Size");
-    psd0.add<std::string>("title", "Cluster size {};Cluster size;");
-    psd0.add<double>("xmin", -0.5);
-    psd0.add<double>("xmax", 30.5);
-    psd0.add<int>("NxBins", 31);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("ClusterSize", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Cluster_Size_Y");
-    psd0.add<std::string>("title", "Cluster size Y {};Cluster sizeY;");
-    psd0.add<double>("xmin", -0.5);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 30.5);
-    psd0.add<int>("NxBins", 31);
-    desc.add<edm::ParameterSetDescription>("ClusterSizeY", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Cluster_Size_X");
-    psd0.add<std::string>("title", "Cluster size X {};Cluster sizeX;");
-    psd0.add<double>("xmin", -0.5);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 30.5);
-    psd0.add<int>("NxBins", 31);
-    desc.add<edm::ParameterSetDescription>("ClusterSizeX", psd0);
-  }
+  phase2tkutil::add1DDesc(desc,
+                          "NClustersLayer",
+                          "Num_Clusters_Layer",
+                          "Number Of Clusters {}",
+                          "Number of Clusters per event",
+                          "",
+                          150,
+                          0.0,
+                          300000.0);
+  phase2tkutil::add1DDesc(
+      desc, "ClusterCharge", "Cluster_Charge", "Cluster charge {}", "Cluster charge", "", 100, 0.0, 100000.0);
+  phase2tkutil::add1DDesc(desc, "ClusterSize", "Cluster_Size", "Cluster size {}", "Cluster size", "", 31, -0.5, 30.5);
+  phase2tkutil::add1DDesc(
+      desc, "ClusterSizeY", "Cluster_Size_Y", "Cluster size Y {}", "Cluster sizeY", "", 31, -0.5, 30.5);
+  phase2tkutil::add1DDesc(
+      desc, "ClusterSizeX", "Cluster_Size_X", "Cluster size X {}", "Cluster sizeX", "", 31, -0.5, 30.5);
 
   desc.add<std::string>("TopFolderName", "InnerTracker");
   desc.add<edm::InputTag>("InnerPixelClusterSource", edm::InputTag("siPixelClusters"));

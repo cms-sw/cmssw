@@ -33,6 +33,7 @@ namespace phase2tkutil {
   void add1DDesc(edm::ParameterSetDescription& desc,
                  const std::string& psetKey,
                  const std::string& histName,
+                 const std::string& histTitle,
                  const std::string& xlabel,
                  const std::string& ylabel,
                  int nbins,

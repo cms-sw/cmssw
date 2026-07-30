@@ -244,6 +244,7 @@ MonitorElement* phase2tkutil::bookProfile1DFromPSet(const edm::ParameterSet& hpa
 void phase2tkutil::add1DDesc(edm::ParameterSetDescription& desc,
                              const std::string& psetKey,
                              const std::string& histName,
+                             const std::string& histTitle,
                              const std::string& xlabel,
                              const std::string& ylabel,
                              int nbins,
@@ -252,7 +253,7 @@ void phase2tkutil::add1DDesc(edm::ParameterSetDescription& desc,
   edm::ParameterSetDescription ps;
   ps.add<bool>("switch", true);
   ps.add<std::string>("name", histName);
-  ps.add<std::string>("title", histName + ";" + xlabel + ";" + ylabel);
+  ps.add<std::string>("title", histTitle + ";" + xlabel + ";" + ylabel);
   ps.add<int>("NxBins", nbins);
   ps.add<double>("xmin", xmin);
   ps.add<double>("xmax", xmax);

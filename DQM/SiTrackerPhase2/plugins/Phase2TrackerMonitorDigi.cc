@@ -569,8 +569,8 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
       // For outer tracker modules (S-type histograms)
       else {
         Parameters = config_.getParameter<edm::ParameterSet>("DigiOccupancySH");
-          local_mes.DigiOccupancyS =
-              phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DigiOccupancySH"), ibooker);
+        local_mes.DigiOccupancyS =
+            phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DigiOccupancySH"), ibooker);
         if (Parameters.getParameter<bool>("switch") && EtaParameters.getParameter<bool>("switch")) {
           local_mes.EtaOccupancyProfS = ibooker.bookProfile("Digi_Occupancy_vs_eta_S",
                                                             "Digi_Occupancy_vs_eta_S",
@@ -607,7 +607,7 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
 
       // Plots for P-type sensor (Pixel or P-side of PS module)
       if (isPtypeSensor) {
-	      Parameters = config_.getParameter<edm::ParameterSet>("DigiOccupancyPH");
+        Parameters = config_.getParameter<edm::ParameterSet>("DigiOccupancyPH");
         local_mes.DigiOccupancyP =
             phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DigiOccupancyPH"), ibooker);
         HistoName.str("");

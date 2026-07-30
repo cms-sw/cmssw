@@ -225,7 +225,7 @@ void Phase2ITMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
 // -- Book Layer Histograms
 void Phase2ITMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir) {
   const GeomDetUnit* geomDetUnit = tkGeom_->idToDetUnit(det_id);
-  GlobalPoint detPos = geomDetUnit->surface().toGlobal(Local2DPoint(0, 0));  
+  GlobalPoint detPos = geomDetUnit->surface().toGlobal(Local2DPoint(0, 0));
   for (int bookingDepth = 1; bookingDepth < 6; bookingDepth++) {
     std::string key = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, false);
     std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, true);
@@ -265,16 +265,8 @@ void Phase2ITMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned
 void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // rechitMonitorIT
   edm::ParameterSetDescription desc;
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Num_RecHits");
-    psd0.add<std::string>("title", "NumberRecHits;Number of RecHits;");
-    psd0.add<double>("xmin", 0.0);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 250000.0);
-    psd0.add<int>("NxBins", 250);
-    desc.add<edm::ParameterSetDescription>("GlobalNumberRecHits", psd0);
-  }
+  phase2tkutil::add1DDesc(
+      desc, "GlobalNumberRecHits", "Num_RecHits", "NumberRecHits", "Number of RecHits", "", 250, 0.0, 250000.0);
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "RecHit_Global_Position_RZ_IT_barrel");
@@ -328,56 +320,23 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
     desc.add<edm::ParameterSetDescription>("GlobalPositionXY_PXEC", psd0);
   }
   //Per layer/ring histos
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Num_RecHits_Per_Layer");
-    psd0.add<std::string>("title", "NumberRecHits {};Number of RecHits;");
-    psd0.add<double>("xmin", 0.0);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 150000.0);
-    psd0.add<int>("NxBins", 150);
-    desc.add<edm::ParameterSetDescription>("LocalNumberRecHits", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "RecHit_Size_X");
-    psd0.add<std::string>("title", "RecHit_SizeX {}; cluster size x;");
-    psd0.add<double>("xmin", -0.5);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 20.5);
-    psd0.add<int>("NxBins", 21);
-    desc.add<edm::ParameterSetDescription>("LocalClusterSizeX", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "RecHit_Size_Y");
-    psd0.add<std::string>("title", "RecHit_SizeY {};cluster size y;");
-    psd0.add<double>("xmin", -0.5);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 25.5);
-    psd0.add<int>("NxBins", 26);
-    desc.add<edm::ParameterSetDescription>("LocalClusterSizeY", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "RecHit_X");
-    psd0.add<std::string>("title", "RecHit_X {};RecHit position X dimension;");
-    psd0.add<double>("xmin", -2.5);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 2.5);
-    psd0.add<int>("NxBins", 100);
-    desc.add<edm::ParameterSetDescription>("RecHitPosX", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "RecHit_Y");
-    psd0.add<std::string>("title", "RecHit_Y {};RecHit position X dimension;");
-    psd0.add<double>("xmin", -2.5);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 2.5);
-    psd0.add<int>("NxBins", 100);
-    desc.add<edm::ParameterSetDescription>("RecHitPosY", psd0);
-  }
+  phase2tkutil::add1DDesc(desc,
+                          "LocalNumberRecHits",
+                          "Num_RecHits_Per_Layer",
+                          "NumberRecHits {}",
+                          "Number of RecHits",
+                          "",
+                          150,
+                          0.0,
+                          150000.0);
+  phase2tkutil::add1DDesc(
+      desc, "LocalClusterSizeX", "RecHit_Size_X", "RecHit_SizeX {}", "cluster size x", "", 21, -0.5, 20.5);
+  phase2tkutil::add1DDesc(
+      desc, "LocalClusterSizeY", "RecHit_Size_Y", "RecHit_SizeY {}", "cluster size y", "", 26, -0.5, 25.5);
+  phase2tkutil::add1DDesc(
+      desc, "RecHitPosX", "RecHit_X", "RecHit_X {}", "RecHit position X dimension", "", 100, -2.5, 2.5);
+  phase2tkutil::add1DDesc(
+      desc, "RecHitPosY", "RecHit_Y", "RecHit_Y {}", "RecHit position Y dimension", "", 100, -2.5, 2.5);
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "RecHit_X_error_Vs_eta");
