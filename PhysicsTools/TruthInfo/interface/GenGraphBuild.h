@@ -67,7 +67,12 @@ namespace truth {
   // The isHardProcess and isLastCopy rules read the packed reco::GenStatusFlags, which
   // only buildFromHepMC2 fills; on the HepMC3 path they are 0, so the keep set there
   // degrades to the SIM-continued and status 1 particles.
-  void collapseGenShower(GenBuild& gb, std::unordered_set<int> const& simContinuedBarcodes);
+  // Returns false when the record carried no packed status flags at all, which makes the
+  // isHardProcess and isLastCopy rules dead and degrades the keep set to the SIM-continued
+  // and status 1 particles. buildFromHepMC3 does not fill them, so that is the HepMC3
+  // path; the caller is expected to say so out loud rather than silently ship a keep set
+  // that drops every intermediate resonance.
+  [[nodiscard]] bool collapseGenShower(GenBuild& gb, std::unordered_set<int> const& simContinuedBarcodes);
 
   // The barcodes some SimTrack continues, which is the input to the first keep rule
   // above. Templated on the container so this header keeps its HepMC-only dependencies.

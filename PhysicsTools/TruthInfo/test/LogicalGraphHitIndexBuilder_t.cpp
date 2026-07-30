@@ -25,6 +25,7 @@ class TestLogicalGraphHitIndexBuilder : public CppUnit::TestFixture {
   CPPUNIT_TEST(testSubgraphDiamondCountsSharedDescendantOnce);
   CPPUNIT_TEST(testSharedStoreKeepsEachHitOnce);
   CPPUNIT_TEST(testSharedStoreFallsBackWhenNotAForest);
+  CPPUNIT_TEST(testSharedStoreFallsBackAcrossAGenOnlyChild);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -33,6 +34,7 @@ public:
   void testSubgraphDiamondCountsSharedDescendantOnce();
   void testSharedStoreKeepsEachHitOnce();
   void testSharedStoreFallsBackWhenNotAForest();
+  void testSharedStoreFallsBackAcrossAGenOnlyChild();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestLogicalGraphHitIndexBuilder);
@@ -178,4 +180,31 @@ void TestLogicalGraphHitIndexBuilder::testSharedStoreFallsBackWhenNotAForest() {
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), sub.size());
     CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, sub[0].energy, 1e-6);
   }
+}
+
+// A hit-carrying particle whose child carries no hits but whose grandchild does. The tree
+// is built from hasSimTrack-to-hasSimTrack edges, so the grandchild would land outside the
+// grandparent's subtree run and its hits would go missing from that subgraph. finish()
+// must fall back rather than answer short.
+void TestLogicalGraphHitIndexBuilder::testSharedStoreFallsBackAcrossAGenOnlyChild() {
+  truth::LogicalGraphHitIndexBuilder builder(3, /*sharedSubgraphStore=*/true);
+  builder.setSimTrackForParticle(0, 0, 100);
+  // particle 1 is GEN-only: no SimTrack, so it never carries hits itself.
+  builder.setSimTrackForParticle(2, 0, 102);
+  builder.addParticleChild(0, 1);
+  builder.addParticleChild(1, 2);
+
+  builder.addHit(truth::HitChannel::Calo, 0, 100, 10, 1.0f, 0);
+  builder.addHit(truth::HitChannel::Calo, 0, 102, 20, 2.0f, 1);
+
+  const auto index = builder.finish();
+
+  CPPUNIT_ASSERT(!builder.usedSharedStore());
+  CPPUNIT_ASSERT(!index.sharedSubgraphStore());
+
+  // The grandparent still sees both cells, which is what the fallback protects.
+  auto sub = index.subgraphHits(truth::HitChannel::Calo, 0);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), sub.size());
+  CPPUNIT_ASSERT_EQUAL(uint32_t(10), sub[0].detId);
+  CPPUNIT_ASSERT_EQUAL(uint32_t(20), sub[1].detId);
 }

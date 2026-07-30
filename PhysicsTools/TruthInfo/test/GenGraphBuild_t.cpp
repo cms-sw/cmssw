@@ -149,7 +149,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(TestGenGraphBuild);
 // the stable particles; the intermediate copy, the shower partons and the string go.
 void TestGenGraphBuild::testKeptSet() {
   auto gb = buildRecord();
-  truth::collapseGenShower(gb, {});
+  // buildRecord() sets packed status flags, so the flag-based keep rules are live.
+  CPPUNIT_ASSERT(truth::collapseGenShower(gb, {}));
 
   const std::vector<int> expected = {1, 2, 3, 5, 9, 10, 11};
   std::vector<int> kept = gb.partBarcodes;
@@ -175,7 +176,8 @@ void TestGenGraphBuild::testKeptSet() {
 // copy, and the stable particles hang off the last copy, through real vertices.
 void TestGenGraphBuild::testContractedAncestry() {
   auto gb = buildRecord();
-  truth::collapseGenShower(gb, {});
+  // buildRecord() sets packed status flags, so the flag-based keep rules are live.
+  CPPUNIT_ASSERT(truth::collapseGenShower(gb, {}));
 
   // 3 (hard process H) -> V-4 -> 5 (last copy H), the intermediate copy 4 gone.
   CPPUNIT_ASSERT(hasParticleToVertex(gb, 3, -4));
@@ -212,7 +214,7 @@ void TestGenGraphBuild::testNoOrphans() {
   const auto reachableBefore = reachableParticles(before);
 
   auto after = buildRecord();
-  truth::collapseGenShower(after, {});
+  CPPUNIT_ASSERT(truth::collapseGenShower(after, {}));
   const auto reachableAfter = reachableParticles(after);
 
   for (int pbc : after.partBarcodes) {
@@ -239,7 +241,7 @@ void TestGenGraphBuild::testNoOrphans() {
 // contraction then routes through it.
 void TestGenGraphBuild::testSimContinuationKeeps() {
   auto gb = buildRecord();
-  truth::collapseGenShower(gb, std::unordered_set<int>{6});
+  CPPUNIT_ASSERT(truth::collapseGenShower(gb, std::unordered_set<int>{6}));
 
   CPPUNIT_ASSERT(contains(gb.partBarcodes, 6));
   CPPUNIT_ASSERT(!contains(gb.partBarcodes, 7));

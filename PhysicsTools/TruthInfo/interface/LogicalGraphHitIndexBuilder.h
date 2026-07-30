@@ -97,8 +97,12 @@ namespace truth {
     // at most one parent that also has a SimTrack, whereas the GEN half above them is a
     // DAG whose vertices have several incoming particles. Fills the DFS slot of every
     // particle and the number of particles in its subtree.
-    // False when a hit-carrying particle has more than one hit-carrying parent, which
-    // the shared layout cannot represent; the outputs are then meaningless.
+    // Per particle, whether its descendant closure contains anything with a SimTrack.
+    [[nodiscard]] std::vector<uint8_t> closureReachesSimTrack() const;
+
+    // False when the hit-carrying particles do not form a forest the tree can carry,
+    // either because one has two hit-carrying parents or because one has a GEN-only
+    // child with hit-carrying descendants of its own; the outputs are then meaningless.
     [[nodiscard]] bool buildDfsOrder(std::vector<uint32_t>& slotToParticle,
                                      std::vector<uint32_t>& dfsPos,
                                      std::vector<uint32_t>& subtreeCount) const;

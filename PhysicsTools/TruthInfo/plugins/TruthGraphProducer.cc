@@ -174,7 +174,14 @@ public:
     }
 
     if (haveGen && collapseGenShower_)
-      truth::collapseGenShower(gb, truth::simContinuedGenBarcodes(simTracks));
+      if (!truth::collapseGenShower(gb, truth::simContinuedGenBarcodes(simTracks))) {
+        edm::LogWarning("TruthGraphProducer")
+            << "collapseGenShower ran on a GEN record with no packed status flags, which "
+               "buildFromHepMC3 does not fill. The isHardProcess and isLastCopy keep rules "
+               "are then dead and every intermediate resonance is dropped, so a selection "
+               "preset seeded on a resonance pdgId will match nothing. Set "
+               "collapseGenShower=False on a HepMC3 sample.";
+      }
 
     const uint32_t nSimVtx = static_cast<uint32_t>(simVertices.size());
     const uint32_t nSimTrk = static_cast<uint32_t>(simTracks.size());

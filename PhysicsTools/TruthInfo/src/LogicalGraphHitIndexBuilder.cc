@@ -137,6 +137,47 @@ namespace truth {
     }
   }
 
+  std::vector<uint8_t> LogicalGraphHitIndexBuilder::closureReachesSimTrack() const {
+    std::vector<uint8_t> reaches(nParticles_, 0);
+    std::vector<uint8_t> state(nParticles_, 0);  // 0 = new, 1 = in progress, 2 = done
+    std::vector<uint32_t> stack;
+
+    for (uint32_t seed = 0; seed < nParticles_; ++seed) {
+      if (state[seed] == 2)
+        continue;
+      stack.push_back(seed);
+
+      while (!stack.empty()) {
+        const uint32_t particleId = stack.back();
+
+        if (state[particleId] == 2) {
+          stack.pop_back();
+          continue;
+        }
+
+        if (state[particleId] == 0) {
+          state[particleId] = 1;
+          for (const uint32_t child : children_[particleId]) {
+            if (child < nParticles_ && state[child] == 0)
+              stack.push_back(child);
+          }
+          continue;
+        }
+
+        // Second visit: a child still in progress is a cycle and contributes nothing.
+        uint8_t value = hasSimTrack_[particleId];
+        for (const uint32_t child : children_[particleId]) {
+          if (child < nParticles_ && state[child] == 2 && reaches[child] != 0)
+            value = 1;
+        }
+        reaches[particleId] = value;
+        state[particleId] = 2;
+        stack.pop_back();
+      }
+    }
+    return reaches;
+  }
+
   bool LogicalGraphHitIndexBuilder::buildDfsOrder(std::vector<uint32_t>& slotToParticle,
                                                   std::vector<uint32_t>& dfsPos,
                                                   std::vector<uint32_t>& subtreeCount) const {
@@ -153,6 +194,10 @@ namespace truth {
     // a forest. A particle with two SimTrack parents would sit under one of them and be
     // missing from the other's run, so the layout cannot represent it and the caller
     // falls back to the materialised one.
+    // Whether a particle's descendant closure contains anything that carries hits. Used
+    // below to reject the one topology the tree cannot represent.
+    const std::vector<uint8_t> reachesSim = closureReachesSimTrack();
+
     std::vector<uint32_t> simParent(nParticles_, kNoParent);
     std::vector<std::vector<uint32_t>> simChildren(nParticles_);
     bool isForest = true;
@@ -160,8 +205,18 @@ namespace truth {
       if (hasSimTrack_[parent] == 0)
         continue;
       for (const uint32_t child : children_[parent]) {
-        if (child >= nParticles_ || hasSimTrack_[child] == 0)
+        if (child >= nParticles_)
           continue;
+        if (hasSimTrack_[child] == 0) {
+          // A GEN-only child that still has hit-carrying descendants would put them
+          // outside this parent's subtree run, since the tree is built from
+          // hasSimTrack-to-hasSimTrack edges only, and the parent's subgraph would come
+          // back short. No current sample does this, because a SIM-continued GEN
+          // particle is a status 1 leaf, but nothing enforces it.
+          if (reachesSim[child] != 0)
+            isForest = false;
+          continue;
+        }
         if (simParent[child] != kNoParent) {
           isForest = false;
           continue;

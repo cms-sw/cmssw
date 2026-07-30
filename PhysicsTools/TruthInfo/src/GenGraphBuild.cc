@@ -206,10 +206,12 @@ namespace truth {
     return gb;
   }
 
-  void collapseGenShower(GenBuild& gb, std::unordered_set<int> const& simContinuedBarcodes) {
+  bool collapseGenShower(GenBuild& gb, std::unordered_set<int> const& simContinuedBarcodes) {
     const uint32_t nPart = static_cast<uint32_t>(gb.partBarcodes.size());
     if (nPart == 0)
-      return;
+      return true;
+
+    const bool statusFlagsAvailable = !gb.particleStatusFlagsByBarcode.empty();
 
     std::unordered_map<int, uint32_t> indexOfBarcode;
     indexOfBarcode.reserve(nPart * 2);
@@ -352,6 +354,8 @@ namespace truth {
     gb.particleBarcodeByIndex = std::move(particleBarcodeByIndex);
     gb.vtxToPart = std::move(vtxToPart);
     gb.partToVtx = std::move(partToVtx);
+
+    return statusFlagsAvailable;
   }
 
 }  // namespace truth
