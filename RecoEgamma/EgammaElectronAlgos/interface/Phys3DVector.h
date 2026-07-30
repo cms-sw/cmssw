@@ -1,5 +1,5 @@
-#ifndef DataFormats_EgammaReco_interface_alpaka_Phys3DVector_h
-#define DataFormats_EgammaReco_interface_alpaka_Phys3DVector_h
+#ifndef RecoEgamma_EgammaElectronAlgos_interface_Phys3DVector_h
+#define RecoEgamma_EgammaElectronAlgos_interface_Phys3DVector_h
 
 #include <utility>
 
@@ -7,7 +7,10 @@
 
 #include "FWCore/Utilities/interface/CMSUnrollLoop.h"
 
-namespace cms::alpakatools::math {
+namespace egamma::math {
+
+  // Represents a vector in three-dimensional space, expressed using either
+  // Cartesian coordinates (x, y, z) or cylindrical coordinates (rho, z).	
 
   template <class T>
   class Phys3DVector {
@@ -18,7 +21,7 @@ namespace cms::alpakatools::math {
 
     Phys3DVector(const Phys3DVector<T>&) = default;
 
-    constexpr Phys3DVector(const T& value) : m_data{} {
+    constexpr Phys3DVector(const T value) : m_data{} {
       CMS_UNROLL_LOOP
       for (int i = 0; i < 3; i++) {
         m_data[i] = value;
@@ -101,7 +104,7 @@ namespace cms::alpakatools::math {
   };
 
   template <typename T>
-  inline constexpr Phys3DVector<T> ax(const T a, const Phys3DVector<T>& x) {
+  inline constexpr Phys3DVector<T> operator*(const T a, const Phys3DVector<T>& x) {
     Phys3DVector<T> res;
 
     CMS_UNROLL_LOOP
@@ -113,7 +116,7 @@ namespace cms::alpakatools::math {
   }
 
   template <typename T>
-  inline constexpr Phys3DVector<T> xmy(const Phys3DVector<T>& x, const Phys3DVector<T>& y) {
+  inline constexpr Phys3DVector<T> operator-(const Phys3DVector<T>& x, const Phys3DVector<T>& y) {
     Phys3DVector<T> res;
 
     CMS_UNROLL_LOOP
@@ -137,7 +140,7 @@ namespace cms::alpakatools::math {
   }
 
   template <typename T>
-  inline constexpr T dot(const Phys3DVector<T>& x, const Phys3DVector<T>& y) {
+  inline constexpr T operator*(const Phys3DVector<T>& x, const Phys3DVector<T>& y) {
     T res{0};
 
     CMS_UNROLL_LOOP
@@ -172,6 +175,6 @@ namespace cms::alpakatools::math {
     return res;
   }
 
-}  // namespace cms::alpakatools::math
+}  // namespace egamma::math
 
-#endif
+#endif // RecoEgamma_EgammaElectronAlgos_interface_Phys3DVector_h

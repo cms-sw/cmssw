@@ -9,9 +9,9 @@
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/Plane.h"
 
-#include "DataFormats/EgammaReco/interface/alpaka/Phys3DVector.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/Phys3DVector.h"
 
-using Vec3d = cms::alpakatools::math::Phys3DVector<double>;
+using Vec3d = egamma::math::Phys3DVector<double>;
 
 namespace propagators {
 
@@ -81,7 +81,7 @@ namespace propagators {
     auto compute_position = [&](const double s) -> Vec3d {
       const double mag = startingDir.r(acc);
       const double scale = mag > 0. ? s / mag : 0.;  //that is, for "zero" vector this will be identity operation
-      return cms::alpakatools::math::axpy(scale, startingDir, startingPos);
+      return egamma::math::axpy(scale, startingDir, startingPos);
     };
 
     if (abs_rho < straightLineCutoff && abs_rho * startingDir_rho < straightLineCutoff) {

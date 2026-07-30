@@ -1,9 +1,9 @@
-#ifndef DataFormats_EgammaReco_interface_EleRelPointPairPortable_h
-#define DataFormats_EgammaReco_interface_EleRelPointPairPortable_h
+#ifndef RecoEgamma_EgammaElectronAlgos_interface_EleRelPointPairPortable_h
+#define RecoEgamma_EgammaElectronAlgos_interface_EleRelPointPairPortable_h
 
 #include <cmath>
 #include <numbers>
-#include "DataFormats/EgammaReco/interface/alpaka/Phys3DVector.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/Phys3DVector.h"
 
 //==========================================================================
 // When wanting to compute and compare several characteristics of one or two
@@ -17,7 +17,7 @@ namespace egamma {
   template <typename T>
   constexpr auto relativePosition(const math::Phys3DVector<T>& point, const math::Phys3DVector<T>& origin)
       -> math::Phys3DVector<T> {
-    return math::xmy(point, origin);
+    return point - origin;
   }
 
   template <typename TAcc, typename T>
@@ -51,7 +51,7 @@ namespace egamma {
   template <typename T = double>
   class EleRelPointPairPortable {
   public:
-    using Vec3 = cms::alpakatools::math::Phys3DVector<T>;
+    using Vec3 = egamma::math::Phys3DVector<T>;
 
     // Constructor to compute relative points
     constexpr EleRelPointPairPortable(const Vec3& p1, const Vec3& p2, const Vec3& origin)
@@ -81,4 +81,4 @@ namespace egamma {
 
 }  // namespace egamma
 
-#endif  // DataFormats_EgammaReco_interface_EleRelPointPairPortable_h
+#endif  // RecoEgamma_EgammaElectronAlgos_interface_EleRelPointPairPortable_h
