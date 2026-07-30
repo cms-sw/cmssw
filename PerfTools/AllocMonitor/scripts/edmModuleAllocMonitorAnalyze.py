@@ -290,7 +290,8 @@ class ModuleData(object):
         self.allocInfo = allocInfo
         self.record = (recordName, callID)
     def __repr__(self):
-        if self.record[0]:
+        recordName, callID = self.record
+        if recordName or (callID is not None ):
             return "{{ 'timeRange': {}, 'transition': {}, 'sync' :{}, 'activity':{}, 'record': {{'name' : {}, 'callID' :{} }}, 'alloc':{} }}".format(self.timeRange, self.transition, self.sync, self.activity, self.record[0], self.record[1], self.allocInfo)
 
         return "{{ 'timeRange': {}, 'transition': {}, 'sync' :{}, 'activity':{}, 'alloc':{} }}".format(self.timeRange, self.transition, self.sync, self.activity, self.allocInfo)
@@ -303,8 +304,9 @@ class ModuleData(object):
             return {'run' : self.sync[0], 'lumi' : self.sync[1] }
         return {'run' : self.sync[0], 'lumi' : self.sync[1], 'event' : self.sync[2] }
     def toSimpleDict(self) :
-        if self.record[0]:
-            return {'timeRange': self.timeRange, 'transition': transitionName(self.transition), 'sync' : self.syncToSimpleDict(), 'activity' : activityName(self.activity), 'record' :{'name': self.record[0], 'callID' : self.record[1]}, 'alloc' : self.allocInfo.toSimpleDict() }
+        recordName, callID = self.record
+        if recordName or (callID is not None ):
+            return {'timeRange': self.timeRange, 'transition': transitionName(self.transition), 'sync' : self.syncToSimpleDict(), 'activity' : activityName(self.activity), 'record' :{'name': recordName, 'callID' : callID}, 'alloc' : self.allocInfo.toSimpleDict() }
         return {'timeRange': self.timeRange, 'transition': transitionName(self.transition), 'sync' : self.syncToSimpleDict(), 'activity': activityName(self.activity), 'alloc' : self.allocInfo.toSimpleDict() }
         
 class ModuleInfo(object):
@@ -736,7 +738,7 @@ class EDModuleTransitionParser(object):
         except KeyError as e:
             print(" time ", self.time, e)
             raise
-        data.insert( self.moduleInfo._name, self.moduleInfo._cpptype, start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , activity, self.allocInfo)
+        data.insert( self.moduleInfo._name, self.moduleInfo._cpptype, start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , activity, self.allocInfo, None, self.callID)
 
                 
 class PreEDModuleTransitionParser(EDModuleTransitionParser):
