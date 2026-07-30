@@ -5,7 +5,7 @@
 #include <catch2/catch_all.hpp>
 
 #include "DataFormats/SoATemplate/interface/SoABlocks.h"
-#include "DataFormats/SoATemplate/interface/SoAMultiView.h"
+#include "DataFormats/SoATemplate/interface/SoAConstMultiView.h"
 
 #include <hip/hip_runtime.h>
 #include "HeterogeneousCore/ROCmUtilities/interface/hipCheck.h"
@@ -21,7 +21,7 @@ GENERATE_SOA_LAYOUT(SoAPositionTemplate,
 using SoAPosition = SoAPositionTemplate<>;
 using SoAPositionView = SoAPosition::View;
 using SoAPositionConstView = SoAPosition::ConstView;
-using SoAPositionMultiView = SoAMultiView<SoAPositionConstView, 5>;
+using SoAPositionMultiView = SoAConstMultiView<SoAPositionConstView, 5>;
 
 GENERATE_SOA_LAYOUT(SoAPCATemplate,
                     SOA_COLUMN(float, vector_1),
@@ -32,7 +32,7 @@ GENERATE_SOA_LAYOUT(SoAPCATemplate,
 using SoAPCA = SoAPCATemplate<>;
 using SoAPCAView = SoAPCA::View;
 using SoAPCAConstView = SoAPCA::ConstView;
-using SoAPCAMultiView = SoAMultiView<SoAPCAConstView, 5>;
+using SoAPCAMultiView = SoAConstMultiView<SoAPCAConstView, 5>;
 
 GENERATE_SOA_BLOCKS(SoABlocksTemplate, SOA_BLOCK(position, SoAPositionTemplate), SOA_BLOCK(pca, SoAPCATemplate))
 
@@ -65,13 +65,13 @@ __global__ void checkPCAMultiView(SoAPCAMultiView view, float* output) {
               static_cast<float>(si.candidateDirection().squaredNorm());
 }
 
-TEST_CASE("SoAMultiView") {
+TEST_CASE("SoAConstMultiViewHIP") {
   std::array<cms::soa::size_type, 2> sizes1{{17, 23}};
   // buffer size
   const cms::soa::size_type bufferSize1 = SoA::computeDataSize(sizes1);
 
   std::byte* h_buf1 = nullptr;
-  hipCheck(hipHostMalloc(&h_buf1, bufferSize1));
+  HIP_CHECK(hipHostMalloc(&h_buf1, bufferSize1));
   SoA h_soaLayout1(h_buf1, sizes1);
   SoAView h_view1(h_soaLayout1);
 
@@ -81,8 +81,8 @@ TEST_CASE("SoAMultiView") {
     h_view1.position()[i].y() = static_cast<float>(i) * 2.0f;
     h_view1.position()[i].z() = static_cast<float>(i) * 3.0f;
   }
-  h_view1.position().s1() = 42;
-  h_view1.position().s2() = 42.43;
+  h_view1.position().s1() = 21;
+  h_view1.position().s2() = 21.23;
   for (cms::soa::size_type i = 0; i < sizes1[1]; i++) {
     h_view1.pca()[i].vector_1() = static_cast<float>(i);
     h_view1.pca()[i].vector_2() = static_cast<float>(i) * 2.0f;
@@ -94,7 +94,7 @@ TEST_CASE("SoAMultiView") {
 
   const cms::soa::size_type bufferSize2 = SoA::computeDataSize(sizes2);
   std::byte* h_buf2 = nullptr;
-  hipCheck(hipHostMalloc(&h_buf2, bufferSize2));
+  HIP_CHECK(hipHostMalloc(&h_buf2, bufferSize2));
   SoA h_soaLayout2(h_buf2, sizes2);
   SoAView h_view2(h_soaLayout2);
 
@@ -113,62 +113,70 @@ TEST_CASE("SoAMultiView") {
     h_view2.pca()[i].candidateDirection() = Eigen::Vector3d(i * 111.0, i * 222.0, i * 333.0);
   }
 
+  // for the position multi view we restrict the iteration range for both views
+  std::vector<int> usedSizesForMultiview(5, 7);
+  std::vector<SoA> hostSoAs;
+  hostSoAs.push_back(h_soaLayout1);
+  hostSoAs.push_back(h_soaLayout2);
+  SoAPositionMultiView hostPositionMultiView(
+      hostSoAs, [](SoA layout) -> auto { return SoAPositionConstView(layout.position()); }, usedSizesForMultiview);
+
   std::byte* d_buf1 = nullptr;
-  hipCheck(hipMalloc(&d_buf1, bufferSize1));
+  HIP_CHECK(hipMalloc(&d_buf1, bufferSize1));
   SoA d_soahdLayout1(d_buf1, sizes1);
   SoAConstView d_Constview(d_soahdLayout1);
 
   std::byte* d_buf2 = nullptr;
-  hipCheck(hipMalloc(&d_buf2, bufferSize2));
+  HIP_CHECK(hipMalloc(&d_buf2, bufferSize2));
   SoA d_soahdLayout2(d_buf2, sizes2);
   SoAConstView d_Constview2(d_soahdLayout2);
 
-  hipCheck(hipMemcpy(d_buf1, h_buf1, bufferSize1, hipMemcpyHostToDevice));
-  hipCheck(hipMemcpy(d_buf2, h_buf2, bufferSize2, hipMemcpyHostToDevice));
+  HIP_CHECK(hipMemcpy(d_buf1, h_buf1, bufferSize1, hipMemcpyHostToDevice));
+  HIP_CHECK(hipMemcpy(d_buf2, h_buf2, bufferSize2, hipMemcpyHostToDevice));
 
   std::vector<SoA> deviceSoAs;
   deviceSoAs.push_back(d_soahdLayout1);
   deviceSoAs.push_back(d_soahdLayout2);
 
-  // for the position multi view we restrict the iteration range for both views
-  std::vector<int> usedSizesForMultiview(5, 7);
   SoAPositionMultiView positionMultiView(
       deviceSoAs, [](SoA layout) -> auto { return SoAPositionConstView(layout.position()); }, usedSizesForMultiview);
   SoAPCAMultiView pcaMultiView(deviceSoAs, [](SoA layout) -> auto { return SoAPCAConstView(layout.pca()); });
 
   REQUIRE(positionMultiView.size() == usedSizesForMultiview[0] + usedSizesForMultiview[1]);
   REQUIRE(pcaMultiView.size() == sizes1[1] + sizes2[1]);
+  REQUIRE(hostPositionMultiView.size() == usedSizesForMultiview[0] + usedSizesForMultiview[1]);
 
   REQUIRE(positionMultiView.numViews() == 2);
   REQUIRE(pcaMultiView.numViews() == 2);
+  REQUIRE(hostPositionMultiView.numViews() == 2);
 
   float* d_outputPosition = nullptr;
   const cms::soa::size_type outputSizePosition = positionMultiView.size() * sizeof(float);
-  hipCheck(hipMalloc(&d_outputPosition, outputSizePosition));
+  HIP_CHECK(hipMalloc(&d_outputPosition, outputSizePosition));
   checkPositionMultiView<<<(positionMultiView.size() + 255) / 256, 256>>>(positionMultiView, d_outputPosition);
-  hipCheck(hipDeviceSynchronize());
+  HIP_CHECK(hipDeviceSynchronize());
   std::vector<float> h_outputPosition(positionMultiView.size());
-  hipCheck(hipMemcpy(h_outputPosition.data(), d_outputPosition, outputSizePosition, hipMemcpyDeviceToHost));
+  HIP_CHECK(hipMemcpy(h_outputPosition.data(), d_outputPosition, outputSizePosition, hipMemcpyDeviceToHost));
 
   // check results
-  for (cms::soa::size_type i = 0; i < positionMultiView.size(); ++i) {
+  for (cms::soa::size_type i = 0; i < hostPositionMultiView.size(); ++i) {
     int s1 = 0;
-    for (int j = 0; j < positionMultiView.numViews(); ++j) {
-      s1 += positionMultiView.view(j).s1();
+    for (int j = 0; j < hostPositionMultiView.numViews(); ++j) {
+      s1 += hostPositionMultiView.view(j).s1();
     }
-    auto si = i < usedSizesForMultiview[0] ? h_view1.position()[i] : h_view2.position()[i - usedSizesForMultiview[0]];
-    const float expected =
-        si.x() * si.x() + si.y() * si.y() + si.z() * si.z() + static_cast<float>(s1) + h_view1.position().s2();
+    auto const s2 = hostPositionMultiView.view(0).s2();
+    auto si = hostPositionMultiView[i];
+    const float expected = si.x() * si.x() + si.y() * si.y() + si.z() * si.z() + static_cast<float>(s1) + s2;
     REQUIRE(h_outputPosition[i] == Catch::Approx(expected).margin(1e-5));
   }
 
   float* d_outputPCA = nullptr;
   const cms::soa::size_type outputSizePCA = pcaMultiView.size() * sizeof(float);
-  hipCheck(hipMalloc(&d_outputPCA, outputSizePCA));
+  HIP_CHECK(hipMalloc(&d_outputPCA, outputSizePCA));
   checkPCAMultiView<<<(pcaMultiView.size() + 255) / 256, 256>>>(pcaMultiView, d_outputPCA);
-  hipCheck(hipDeviceSynchronize());
+  HIP_CHECK(hipDeviceSynchronize());
   std::vector<float> h_outputPCA(pcaMultiView.size());
-  hipCheck(hipMemcpy(h_outputPCA.data(), d_outputPCA, outputSizePCA, hipMemcpyDeviceToHost));
+  HIP_CHECK(hipMemcpy(h_outputPCA.data(), d_outputPCA, outputSizePCA, hipMemcpyDeviceToHost));
 
   // check results
   for (cms::soa::size_type i = 0; i < pcaMultiView.size(); ++i) {
@@ -178,9 +186,9 @@ TEST_CASE("SoAMultiView") {
     REQUIRE(h_outputPCA[i] == Catch::Approx(expected).margin(1e-5));
   }
 
-  hipCheck(hipFreeHost(h_buf1));
-  hipCheck(hipFreeHost(h_buf2));
-  hipCheck(hipFree(d_buf1));
-  hipCheck(hipFree(d_buf2));
-  hipCheck(hipFree(d_outputPosition));
+  HIP_CHECK(hipFreeHost(h_buf1));
+  HIP_CHECK(hipFreeHost(h_buf2));
+  HIP_CHECK(hipFree(d_buf1));
+  HIP_CHECK(hipFree(d_buf2));
+  HIP_CHECK(hipFree(d_outputPosition));
 }
