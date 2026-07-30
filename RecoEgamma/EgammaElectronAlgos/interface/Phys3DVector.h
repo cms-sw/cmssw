@@ -10,7 +10,7 @@
 namespace egamma::math {
 
   // Represents a vector in three-dimensional space, expressed using either
-  // Cartesian coordinates (x, y, z) or cylindrical coordinates (rho, z).	
+  // Cartesian coordinates (x, y, z) or cylindrical coordinates (rho, z).
 
   template <class T>
   class Phys3DVector {
@@ -177,4 +177,4 @@ namespace egamma::math {
 
 }  // namespace egamma::math
 
-#endif // RecoEgamma_EgammaElectronAlgos_interface_Phys3DVector_h
+#endif  // RecoEgamma_EgammaElectronAlgos_interface_Phys3DVector_h
