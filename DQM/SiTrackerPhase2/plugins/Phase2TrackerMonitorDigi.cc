@@ -532,63 +532,25 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
       std::ostringstream HistoName;
       DigiMEs local_mes;
 
-      edm::ParameterSet Parameters = config_.getParameter<edm::ParameterSet>("NumberOfDigisPerDetH");
+      edm::ParameterSet Parameters;
+
       edm::ParameterSet EtaParameters = config_.getParameter<edm::ParameterSet>("EtaH");
-      HistoName.str("");
-      HistoName << "Num_Digis_Per_Det";
-      if (Parameters.getParameter<bool>("switch"))
-        local_mes.NumberOfDigisPerDet = ibooker.book1D(HistoName.str(),
-                                                       HistoName.str(),
-                                                       Parameters.getParameter<int32_t>("Nbins"),
-                                                       Parameters.getParameter<double>("xmin"),
-                                                       Parameters.getParameter<double>("xmax"));
-
-      Parameters = config_.getParameter<edm::ParameterSet>("TotalNumberOfDigisPerLayerH");
-      HistoName.str("");
-      HistoName << "Num_Digis_Per_Layer";
-      if (Parameters.getParameter<bool>("switch"))
-        local_mes.TotalNumberOfDigisPerLayer = ibooker.book1D(HistoName.str(),
-                                                              HistoName.str(),
-                                                              Parameters.getParameter<int32_t>("Nbins"),
-                                                              Parameters.getParameter<double>("xmin"),
-                                                              Parameters.getParameter<double>("xmax"));
-
-      Parameters = config_.getParameter<edm::ParameterSet>("NumberOfHitDetsPerLayerH");
-      HistoName.str("");
-      HistoName << "Num_Digi_Hit_Detectors_Per_Layer";
-      if (Parameters.getParameter<bool>("switch"))
-        local_mes.NumberOfHitDetectorsPerLayer = ibooker.book1D(HistoName.str(),
-                                                                HistoName.str(),
-                                                                Parameters.getParameter<int32_t>("Nbins"),
-                                                                Parameters.getParameter<double>("xmin"),
-                                                                Parameters.getParameter<double>("xmax"));
+      local_mes.NumberOfDigisPerDet =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NumberOfDigisPerDetH"), ibooker);
+      local_mes.TotalNumberOfDigisPerLayer =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("TotalNumberOfDigisPerLayerH"), ibooker);
+      local_mes.NumberOfHitDetectorsPerLayer =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NumberOfHitDetsPerLayerH"), ibooker);
 
       // Plots only for the inner pixel
       if (pixelFlag_) {
-        Parameters = config_.getParameter<edm::ParameterSet>("ChargeXYMapH");
-        if (Parameters.getParameter<bool>("switch")) {
-          local_mes.ChargeXYMap = ibooker.book2D("Digi_Charge_XY",
-                                                 "Digi_Charge_XY",
-                                                 Parameters.getParameter<int32_t>("Nxbins"),
-                                                 Parameters.getParameter<double>("xmin"),
-                                                 Parameters.getParameter<double>("xmax"),
-                                                 Parameters.getParameter<int32_t>("Nybins"),
-                                                 Parameters.getParameter<double>("ymin"),
-                                                 Parameters.getParameter<double>("ymax"));
-          local_mes.ChargeXYMap->setAxisTitle("Row", 1);
-          local_mes.ChargeXYMap->setAxisTitle("Column", 2);
-        }
-        Parameters = config_.getParameter<edm::ParameterSet>("DigiChargeH");
-        if (Parameters.getParameter<bool>("switch")) {
-          local_mes.ChargeOfDigis = ibooker.book1D("Digi_Charge",
-                                                   "Digi_Charge",
-                                                   Parameters.getParameter<int32_t>("Nbins"),
-                                                   Parameters.getParameter<double>("xmin"),
-                                                   Parameters.getParameter<double>("xmax"));
-          local_mes.ChargeOfDigis->setAxisTitle("Digi charge [ADC]", 1);
-        }
+        local_mes.ChargeXYMap =
+            phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("ChargeXYMapH"), ibooker);
+        local_mes.ChargeOfDigis =
+            phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DigiChargeH"), ibooker);
         // For standalone clusteriser
         if (clsFlag_) {
+          Parameters = config_.getParameter<edm::ParameterSet>("DigiChargeH");
           edm::ParameterSet WidthParameters = config_.getParameter<edm::ParameterSet>("ClusterWidthH");
           if (Parameters.getParameter<bool>("switch") && WidthParameters.getParameter<bool>("switch")) {
             local_mes.ChargeOfDigisVsWidth = ibooker.book2D("Digi_Charge_vs_Width",
@@ -607,13 +569,8 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
       // For outer tracker modules (S-type histograms)
       else {
         Parameters = config_.getParameter<edm::ParameterSet>("DigiOccupancySH");
-        if (Parameters.getParameter<bool>("switch"))
-          local_mes.DigiOccupancyS = ibooker.book1D("Digi_Occupancy_S",
-                                                    "Digi_Occupancy_S",
-                                                    Parameters.getParameter<int32_t>("Nbins"),
-                                                    Parameters.getParameter<double>("xmin"),
-                                                    Parameters.getParameter<double>("xmax"));
-
+          local_mes.DigiOccupancyS =
+              phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DigiOccupancySH"), ibooker);
         if (Parameters.getParameter<bool>("switch") && EtaParameters.getParameter<bool>("switch")) {
           local_mes.EtaOccupancyProfS = ibooker.bookProfile("Digi_Occupancy_vs_eta_S",
                                                             "Digi_Occupancy_vs_eta_S",
@@ -650,14 +607,9 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
 
       // Plots for P-type sensor (Pixel or P-side of PS module)
       if (isPtypeSensor) {
-        Parameters = config_.getParameter<edm::ParameterSet>("DigiOccupancyPH");
-        if (Parameters.getParameter<bool>("switch"))
-          local_mes.DigiOccupancyP = ibooker.book1D("Digi_Occupancy_P",
-                                                    "Digi_Occupancy_P",
-                                                    Parameters.getParameter<int32_t>("Nbins"),
-                                                    Parameters.getParameter<double>("xmin"),
-                                                    Parameters.getParameter<double>("xmax"));
-
+	      Parameters = config_.getParameter<edm::ParameterSet>("DigiOccupancyPH");
+        local_mes.DigiOccupancyP =
+            phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DigiOccupancyPH"), ibooker);
         HistoName.str("");
         HistoName << "DigiOccupancyVsEtaP";
         if (Parameters.getParameter<bool>("switch") && EtaParameters.getParameter<bool>("switch")) {
@@ -675,24 +627,10 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
 
       // Plots for Standalone clusters (Can be switched on from configs)
       if (clsFlag_) {
-        Parameters = config_.getParameter<edm::ParameterSet>("NumberOfClustersPerDetH");
-        HistoName.str("");
-        HistoName << "Num_Clusters_Per_Det";
-        if (Parameters.getParameter<bool>("switch"))
-          local_mes.NumberOfClustersPerDet = ibooker.book1D(HistoName.str(),
-                                                            HistoName.str(),
-                                                            Parameters.getParameter<int32_t>("Nbins"),
-                                                            Parameters.getParameter<double>("xmin"),
-                                                            Parameters.getParameter<double>("xmax"));
-        Parameters = config_.getParameter<edm::ParameterSet>("ClusterWidthH");
-        if (Parameters.getParameter<bool>("switch")) {
-          local_mes.ClusterWidth = ibooker.book1D("Cluster_Width",
-                                                  "Cluster_Width",
-                                                  Parameters.getParameter<int32_t>("Nbins"),
-                                                  Parameters.getParameter<double>("xmin"),
-                                                  Parameters.getParameter<double>("xmax"));
-          local_mes.ClusterWidth->setAxisTitle("Cluster width", 1);
-        }
+        local_mes.NumberOfClustersPerDet =
+            phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NumberOfClustersPerDetH"), ibooker);
+        local_mes.ClusterWidth =
+            phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterWidthH"), ibooker);
       }
       layerMEs.insert(std::make_pair(key, local_mes));
     }

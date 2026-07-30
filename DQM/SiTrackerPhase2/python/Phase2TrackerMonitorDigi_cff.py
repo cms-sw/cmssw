@@ -6,13 +6,13 @@ pixDigiMon = digiMon.clone(
     StandAloneClusteriserFlag = False,
     TopFolderName = "InnerTracker",
     NumberOfDigisPerDetH = digiMon.NumberOfDigisPerDetH.clone(
-        Nbins = 500,
+        NxBins = 500,
         xmin = -0.5,
         xmax = 999.5,
         switch = True
     ),
     NumberOfClustersPerDetH = digiMon.NumberOfClustersPerDetH.clone(
-        Nbins = 200,
+        NxBins = 200,
         xmin = 0.0,
         xmax = 2000.,
         switch = True
