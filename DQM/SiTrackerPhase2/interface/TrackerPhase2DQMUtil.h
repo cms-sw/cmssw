@@ -27,6 +27,9 @@ namespace phase2tkutil {
                                              bool scale);
 
   MonitorElement* book2DFromPSet(const edm::ParameterSet& hpars, DQMStore::IBooker& ibooker);
+  MonitorElement* book2DFromPSetWithPosition(const edm::ParameterSet& hpars,
+                                             DQMStore::IBooker& ibooker,
+                                             std::string titleString);
 
   MonitorElement* bookProfile1DFromPSet(const edm::ParameterSet& hpars, DQMStore::IBooker& ibooker);
 
