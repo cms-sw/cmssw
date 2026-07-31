@@ -123,24 +123,25 @@ def processExternalWorkTransition(moduleLabel, moduleType, moduleInfo, moduleTra
     """Process ExternalWork transitions - entries with acquire/process activity
 
     Creates separate entries for each module+type+activity combination within the event transition.
-    The recordName is set to 'acquire' or 'process' based on the activity.
+    The recordName is set to 'acquire + callID' or 'process + callID' based on the activity.
     """
-    activityToRecord = {"acquire": "acquire", "process": "process"}
 
     # Group allocations by activity
     activityAllocations = {}
     for entry in moduleInfo:
+        callID = entry.get("callID", None)
+        # Check if the entry is for the "event" transition and doesn't have a "record" field
         if (entry.get("transition", None) == "event" and
             "record" not in entry):
             activity = entry.get("activity", "process")
+            activityKey = f"{activity} (callID {callID})"
             if activity not in activityAllocations:
-                activityAllocations[activity] = []
-            activityAllocations[activity].append(entry.get("alloc", {}))
+                activityAllocations[activityKey] = []
+            activityAllocations[activityKey].append(entry.get("alloc", {}))
 
     # Create separate entries for each activity
     for activity, allocs in activityAllocations.items():
-        if activity in activityToRecord:
-            recordName = activityToRecord[activity]
+            recordName = activity # Use activity as the record name for ExternalWork modules"
             uniqueKey = UniqueKey(moduleLabel, moduleType, recordName)
             moduleTransition[uniqueKey] = {
                 "cpptype": moduleType,
