@@ -83,16 +83,12 @@ def processModuleTransition(moduleLabel, moduleType, moduleInfo, transitionType,
     else:
         # Original processing for other modules/transitions
         for entry in moduleInfo:
-            entryTransition = entry.get("transition", None)
-            entryActivity = entry.get("activity", None)
-
-            if entryTransition == transitionType:
-                if (entryTransition == "event" and
-                    entryActivity in ("acquire", "process") and
-                    not ("record" in entry and "name" in entry["record"])):
-                    moduleTransition[moduleKey]["allocs"].append(entry.get("alloc", {}))
-                elif not ("record" in entry and "name" in entry["record"]):
-                    moduleTransition[moduleKey]["allocs"].append(entry.get("alloc", {}))
+            # Only process entries that match the transition type AND don't have record names
+            # (entries with record names are EventSetup only)
+            if (entry.get("transition", None) == transitionType and
+                not ("record" in entry and "name" in entry["record"]) and
+                entry.get("activity") == "process"):
+                moduleTransition[moduleKey]["allocs"].append(entry.get("alloc", {}))
 
     moduleTransition[moduleKey]["nTransitions"] = len(moduleTransition[moduleKey]["allocs"])
 
@@ -195,39 +191,42 @@ def formatToCircles(moduleTransitions):
                "unit": "kB"
             },
         ]
+    # The circles code uses the "events" field to normalize the values between files with different number of events
+    # Here we set it to 1 for the total events because the total is already normalized per transition
     doc["total"]["label"] = "Job"
     doc["total"]["type"] = "Job"
+    # Initialize totals for all transition types and allocation types
     for transType in transitionTypes:
         for allocType in allocTypes:
             doc["total"][f"{allocType} {transType}"] = 0
 
+    # First pass: collect all unique module keys across all transitions
     all_module_keys = set()
     for transitionType, moduleTransition in moduleTransitions.items():
         for uniqueKey in moduleTransition.keys():
             all_module_keys.add(uniqueKey)
 
+    # Initialize all modules with default values for all transitions
     for displayKey in all_module_keys:
         if displayKey not in modules_dict:
+            # UniqueKey namedtuple provides direct access to fields
             modules_dict[displayKey] = {
                 "label": displayKey.moduleLabel,
                 "type": displayKey.moduleType,
                 "record": displayKey.recordName
             }
 
+            # Initialize all transition metrics to zero
             for transType in transitionTypes:
                 for allocType in allocTypes:
                     modules_dict[displayKey][f"{allocType} {transType}"] = 0.0
 
-    # Initialize acquire/process totals
-    for displayKey in all_module_keys:
-        if displayKey.recordName in ("acquire", "process"):
-            for allocType in allocTypes:
-                doc["total"][f"{allocType} {displayKey.recordName}"] = 0
-
+    # Second pass: populate actual values
     for transitionType, moduleTransition in moduleTransitions.items():
         for uniqueKey, info in moduleTransition.items():
             allocs = info.get("allocs", [])
 
+            # Only update metrics if this module actually has data for this transition
             if uniqueKey in modules_dict:
                 added = 0
                 nAlloc = 0
@@ -241,29 +240,25 @@ def formatToCircles(moduleTransitions):
                     maxTemp += alloc.get("maxTemp", 0)
                     max1Alloc += alloc.get("max1Alloc", 0)
                 ntransitions = moduleTransitions[transitionType][uniqueKey].get("nTransitions", -1)
-                divisor = max(ntransitions, 1)
+                # Normalize by number of transitions if > 0, otherwise use raw values
+                divisor = max(ntransitions, 1)  # Avoid division by zero
 
-                metricSuffix = transitionType
-                if uniqueKey.recordName in ("acquire", "process"):
-                    metricSuffix = uniqueKey.recordName
-                elif transitionType == EVENTSETUP_TRANSITION and uniqueKey.recordName:
-                    metricSuffix = uniqueKey.recordName
-
-                modules_dict[uniqueKey][f"nAlloc {metricSuffix}"] = nAlloc / divisor
-                modules_dict[uniqueKey][f"nDealloc {metricSuffix}"] = nDealloc / divisor
-                modules_dict[uniqueKey][f"added {metricSuffix}"] = (added / divisor) / BYTES_TO_KB
-                modules_dict[uniqueKey][f"maxTemp {metricSuffix}"] = (maxTemp / divisor) / BYTES_TO_KB
-                modules_dict[uniqueKey][f"max1Alloc {metricSuffix}"] = (max1Alloc / divisor) / BYTES_TO_KB
-                doc["total"][f"nAlloc {metricSuffix}"] += modules_dict[uniqueKey][f"nAlloc {metricSuffix}"]
-                doc["total"][f"nDealloc {metricSuffix}"] += modules_dict[uniqueKey][f"nDealloc {metricSuffix}"]
-                doc["total"][f"maxTemp {metricSuffix}"] += modules_dict[uniqueKey][f"maxTemp {metricSuffix}"]
-                doc["total"][f"added {metricSuffix}"] += modules_dict[uniqueKey][f"added {metricSuffix}"]
-                doc["total"][f"max1Alloc {metricSuffix}"] += modules_dict[uniqueKey][f"max1Alloc {metricSuffix}"]
-
+                modules_dict[uniqueKey][f"nAlloc {transitionType}"] = nAlloc / divisor
+                modules_dict[uniqueKey][f"nDealloc {transitionType}"] = nDealloc / divisor
+                modules_dict[uniqueKey][f"added {transitionType}"] = (added / divisor) / BYTES_TO_KB
+                modules_dict[uniqueKey][f"maxTemp {transitionType}"] = (maxTemp / divisor) / BYTES_TO_KB
+                modules_dict[uniqueKey][f"max1Alloc {transitionType}"] = (max1Alloc / divisor) / BYTES_TO_KB
+                doc["total"][f"nAlloc {transitionType}"] += modules_dict[uniqueKey][f"nAlloc {transitionType}"]
+                doc["total"][f"nDealloc {transitionType}"] += modules_dict[uniqueKey][f"nDealloc {transitionType}"]
+                doc["total"][f"maxTemp {transitionType}"] += modules_dict[uniqueKey][f"maxTemp {transitionType}"]
+                doc["total"][f"added {transitionType}"] += modules_dict[uniqueKey][f"added {transitionType}"]
+                doc["total"][f"max1Alloc {transitionType}"] += modules_dict[uniqueKey][f"max1Alloc {transitionType}"]
     for key in sorted(modules_dict.keys()):
         module = modules_dict[key]
 
+        # Check if this is an empty entry (record="" and all allocations are zero)
         if module["record"] == "":
+            # Check if all allocation metrics are zero across all transition types
             hasNonZeroAllocations = False
             for transType in transitionTypes:
                 for allocType in allocTypes:
@@ -273,10 +268,15 @@ def formatToCircles(moduleTransitions):
                 if hasNonZeroAllocations:
                     break
 
+            # Skip this entry if no allocations and empty record
             if not hasNonZeroAllocations:
                 continue
 
+        # Use the module label from the UniqueKey namedtuple for event count lookup
         moduleLabel = key.moduleLabel
+        # Look for the corresponding regular module key for event transitions
+        eventKey = UniqueKey(moduleLabel, key.moduleType, "")
+        eventCount = moduleTransitions['event'].get(eventKey, {}).get("nTransitions", -1)
         moduleTypeVal = key.moduleType
         recordName = key.recordName
 
@@ -285,9 +285,11 @@ def formatToCircles(moduleTransitions):
             eventKey = UniqueKey(moduleLabel, moduleTypeVal, recordName)
             eventCount = moduleTransitions['event'].get(eventKey, {}).get("nTransitions", 0)
         else:
+             # Look for the corresponding regular module key for event transitions
             eventKey = UniqueKey(moduleLabel, moduleTypeVal, "")
             eventCount = moduleTransitions['event'].get(eventKey, {}).get("nTransitions", 0)
 
+        # Set events to 1 if it's 0 to prevent NaNs in Circles visualization
         module["transitions"] = max(eventCount, 1)
         doc["modules"].append(module)
 
@@ -303,6 +305,7 @@ def main(args):
         print(f"Error reading file: {e}", file=sys.stderr)
         sys.exit(1)
 
+    # Validate required fields
     if 'cpptypes' not in doc:
         print("Error: Missing 'cpptypes' field in input JSON", file=sys.stderr)
         sys.exit(1)
@@ -317,12 +320,16 @@ def main(args):
     for transition in transitionTypes:
         moduleTransition = dict()
         if transition == EVENTSETUP_TRANSITION:
+            # EventSetup transitions are handled differently - look for records with names
             for moduleLabel, moduleInfo in doc["modules"].items():
                 processESModuleTransition(moduleLabel, moduleTypes[moduleLabel], moduleInfo, moduleTransition)
         else:
+            # Process the "source" module
             processModuleTransition("source", moduleTypes["source"], doc["source"], transition, moduleTransition)
+            # Regular transition processing
             for moduleLabel, moduleInfo in doc["modules"].items():
                 moduleType = moduleTypes[moduleLabel]
+                # Add modules with ExternalWork or Transform to the set for special handling later
                 if "ExternalWork" in moduleType or "Transform" in moduleType:
                     externalWorkModules.add(moduleLabel)
                 processModuleTransition(moduleLabel, moduleType, moduleInfo, transition, moduleTransition)
