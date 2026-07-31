@@ -59,27 +59,23 @@ void MtdRecoClusterToSimLayerClusterAssociatorEDProducer::produce(edm::StreamID,
                                                                   edm::Event &iEvent,
                                                                   const edm::EventSetup &iSetup) const {
   using namespace edm;
+  auto theAssociator = iEvent.getHandle(associatorToken_);
+  auto btlRecoClusters = iEvent.getHandle(btlRecoClustersToken_);
+  auto etlRecoClusters = iEvent.getHandle(etlRecoClustersToken_);
+  auto simClusters = iEvent.getHandle(simClustersToken_);
 
-  edm::Handle<reco::MtdRecoClusterToSimLayerClusterAssociator> theAssociator;
-  iEvent.getByToken(associatorToken_, theAssociator);
+  auto r2s = std::make_unique<reco::RecoToSimCollectionMtd>();
+  auto s2r = std::make_unique<reco::SimToRecoCollectionMtd>();
 
-  edm::Handle<FTLClusterCollection> btlRecoClusters;
-  iEvent.getByToken(btlRecoClustersToken_, btlRecoClusters);
-
-  edm::Handle<FTLClusterCollection> etlRecoClusters;
-  iEvent.getByToken(etlRecoClustersToken_, etlRecoClusters);
-
-  edm::Handle<MtdSimLayerClusterCollection> simClusters;
-  iEvent.getByToken(simClustersToken_, simClusters);
-
-  // associate reco clus to sim layer clus
-  reco::RecoToSimCollectionMtd recoToSimColl =
-      theAssociator->associateRecoToSim(btlRecoClusters, etlRecoClusters, simClusters);
-  reco::SimToRecoCollectionMtd simToRecoColl =
-      theAssociator->associateSimToReco(btlRecoClusters, etlRecoClusters, simClusters);
-
-  auto r2s = std::make_unique<reco::RecoToSimCollectionMtd>(recoToSimColl);
-  auto s2r = std::make_unique<reco::SimToRecoCollectionMtd>(simToRecoColl);
+  if (btlRecoClusters.isValid() && etlRecoClusters.isValid()) {
+    // associate reco clus to sim layer clus
+    reco::RecoToSimCollectionMtd recoToSimColl =
+        theAssociator->associateRecoToSim(btlRecoClusters, etlRecoClusters, simClusters);
+    reco::SimToRecoCollectionMtd simToRecoColl =
+        theAssociator->associateSimToReco(btlRecoClusters, etlRecoClusters, simClusters);
+    *r2s = recoToSimColl;
+    *s2r = simToRecoColl;
+  }
 
   iEvent.put(std::move(r2s));
   iEvent.put(std::move(s2r));

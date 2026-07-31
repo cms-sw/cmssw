@@ -22,3 +22,13 @@ RecoLocalFastTimeFEVT = cms.PSet(
     )
 )
 RecoLocalFastTimeFEVT.outputCommands.extend(RecoLocalFastTimeRECO.outputCommands)
+
+#FEVTHLT content
+RecoLocalFastTimeFEVTHLT = cms.PSet(
+    outputCommands = cms.untracked.vstring(
+        'keep *_hltMtdRecHits_*_*',
+        'keep *_hltMtdClusters_*_*',
+        'keep *_hltMtdUncalibratedRecHits_*_*',
+        'keep *_hltMtdTrackingRecHits_*_*',
+    )
+)
