@@ -10,49 +10,9 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 
 #include <optional>
-
-namespace {
-  class TransformSignalSentry {
-  public:
-    TransformSignalSentry(edm::ActivityRegistry* a, edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc)
-        : a_(a), sc_(sc), mcc_(mcc) {
-      if (a_)
-        a_->preModuleTransformSignal_.emit(sc_, mcc_);
-    }
-    ~TransformSignalSentry() {
-      if (a_)
-        a_->postModuleTransformSignal_.emit(sc_, mcc_);
-    }
-
-  private:
-    edm::ActivityRegistry* a_;  // We do not use propagate_const because the registry itself is mutable.
-    edm::StreamContext const& sc_;
-    edm::ModuleCallingContext const& mcc_;
-  };
-
-  class TransformAcquiringSignalSentry {
-  public:
-    TransformAcquiringSignalSentry(edm::ActivityRegistry* a,
-                                   edm::StreamContext const& sc,
-                                   edm::ModuleCallingContext const& mcc)
-        : a_(a), sc_(sc), mcc_(mcc) {
-      if (a_)
-        a_->preModuleTransformAcquiringSignal_.emit(sc_, mcc_);
-    }
-    ~TransformAcquiringSignalSentry() {
-      if (a_)
-        a_->postModuleTransformAcquiringSignal_.emit(sc_, mcc_);
-    }
-
-  private:
-    edm::ActivityRegistry* a_;  // We do not use propagate_const because the registry itself is mutable.
-    edm::StreamContext const& sc_;
-    edm::ModuleCallingContext const& mcc_;
-  };
-
-}  // namespace
 
 namespace edm {
   void TransformerBase::registerTransformImp(
@@ -119,7 +79,14 @@ namespace edm {
           handle;
       //transform acquiring signal
       auto const& streamContext = *mcc.getStreamContext();
-      TransformAcquiringSignalSentry sentry(iAct, streamContext, mcc);
+      auto sentry = signalslot::make_sentry([iAct, &streamContext, &mcc]() {
+        if (iAct) {
+          iAct->postModuleTransformAcquiringSignal_.emit(streamContext, mcc);
+        }
+      });
+      if (iAct) {
+        iAct->preModuleTransformAcquiringSignal_.emit(streamContext, mcc);
+      }
       CMS_SA_ALLOW try {
         handle = iEvent.get(transformInfo_.get<kType>(iIndex), transformInfo_.get<kResolverIndex>(iIndex));
       } catch (...) {
@@ -137,10 +104,18 @@ namespace edm {
                 //transform signal
                 auto mcc = iEvent.moduleCallingContext();
                 auto const& streamContext = *mcc.getStreamContext();
-                TransformSignalSentry sentry(iAct, streamContext, mcc);
+                auto sentry = signalslot::make_sentry([iAct, &streamContext, &mcc]() {
+                  if (iAct) {
+                    iAct->postModuleTransformSignal_.emit(streamContext, mcc);
+                  }
+                });
+                if (iAct) {
+                  iAct->preModuleTransformSignal_.emit(streamContext, mcc);
+                }
                 iEvent.put(iBase.putTokenIndexToProductResolverIndex()[transformInfo_.get<kToken>(iIndex).index()],
                            transformInfo_.get<kTransform>(iIndex)(streamContext.streamID(), std::move(*cache)),
                            handle);
+                sentry.succeeded();
               }
             });
         WaitingTaskHolder wth(*iHolder.group(), nextTask);
@@ -155,6 +130,7 @@ namespace edm {
           wth.doneWaiting(std::current_exception());
         }
       }
+      sentry.succeeded();
     } else {
       CMS_SA_ALLOW try {
         auto handle = iEvent.get(transformInfo_.get<kType>(iIndex), transformInfo_.get<kResolverIndex>(iIndex));
@@ -163,10 +139,18 @@ namespace edm {
           std::any v = handle.wrapper();
           //transform signal
           auto const& streamContext = *mcc.getStreamContext();
-          TransformSignalSentry sentry(iAct, streamContext, mcc);
+          auto sentry = signalslot::make_sentry([iAct, &streamContext, &mcc]() {
+            if (iAct) {
+              iAct->postModuleTransformSignal_.emit(streamContext, mcc);
+            }
+          });
+          if (iAct) {
+            iAct->preModuleTransformSignal_.emit(streamContext, mcc);
+          }
           iEvent.put(iBase.putTokenIndexToProductResolverIndex()[transformInfo_.get<kToken>(iIndex).index()],
                      transformInfo_.get<kTransform>(iIndex)(streamContext.streamID(), std::move(v)),
                      handle);
+          sentry.succeeded();
         }
       } catch (...) {
         iHolder.doneWaiting(std::current_exception());

@@ -47,6 +47,7 @@
 #include "FWCore/Utilities/interface/FriendlyName.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/ReleaseVersion.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 #include "FWCore/Utilities/interface/stemFromPath.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
@@ -2189,19 +2190,17 @@ namespace edm {
                 ServiceRegistry::Operate operate(serviceToken);
                 std::unique_ptr<const std::set<ProductProvenance>> prov;
                 try {
+                  auto guard = signalslot::make_sentry([post, iContext]() {
+                    if (post) {
+                      post->emit(*(iContext->getStreamContext()), *iContext);
+                    }
+                  });
                   if (pre) {
                     pre->emit(*(iContext->getStreamContext()), *iContext);
                   }
                   prov = std::make_unique<const std::set<ProductProvenance>>(iThis->readProvenance(transitionIndex));
-                  if (post) {
-                    post->emit(*(iContext->getStreamContext()), *iContext);
-                  }
-
+                  guard.succeeded();
                 } catch (...) {
-                  if (post) {
-                    post->emit(*(iContext->getStreamContext()), *iContext);
-                  }
-
                   holder.doneWaiting(std::current_exception());
                   return;
                 }

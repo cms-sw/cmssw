@@ -3,6 +3,7 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Utilities/interface/Signal.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 
 #include <mutex>
 #include <cassert>
@@ -18,17 +19,16 @@ namespace edm {
                                                          EDProductGetter const* ep,
                                                          ModuleCallingContext const* mcc) {
     auto preSignal = preEventReadFromSourceSignal();
+    auto postSignal = postEventReadFromSourceSignal();
+
+    auto sentry = signalslot::make_sentry([mcc, postSignal]() {
+      if (mcc and postSignal) {
+        postSignal->emit(*(mcc->getStreamContext()), *mcc);
+      }
+    });
     if (mcc and preSignal) {
       preSignal->emit(*(mcc->getStreamContext()), *mcc);
     }
-    auto postSignal = postEventReadFromSourceSignal();
-
-    auto sentryCall = [&postSignal](ModuleCallingContext const* iContext) {
-      if (postSignal) {
-        postSignal->emit(*(iContext->getStreamContext()), *iContext);
-      }
-    };
-    std::unique_ptr<ModuleCallingContext const, decltype(sentryCall)> sentry(mcc, sentryCall);
 
     return getProduct_(k, ep);
   }

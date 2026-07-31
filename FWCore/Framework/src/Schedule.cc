@@ -37,6 +37,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
@@ -902,10 +903,10 @@ namespace edm {
                           ProcessBlockHelperBase const& processBlockHelperBase,
                           std::string const& iProcessName) {
     {
+      auto postGuard = signalslot::make_sentry([this]() { postModulesInitializationFinalizedSignal_.emit(); });
       preModulesInitializationFinalizedSignal_.emit();
-      auto post = [this](void*) { postModulesInitializationFinalizedSignal_.emit(); };
-      std::unique_ptr<void, decltype(post)> const postGuard(this, post);
       finishModulesInitialization(*moduleRegistry_, iRegistry, iESIndices, processBlockHelperBase, iProcessName);
+      postGuard.succeeded();
     }
     globalSchedule_->beginJob(*moduleRegistry_);
   }

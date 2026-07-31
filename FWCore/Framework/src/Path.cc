@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -306,6 +307,8 @@ namespace edm {
     // Caught exception is propagated via WaitingTaskList
     CMS_SA_ALLOW try {
       HLTPathStatus status(state_, failedModuleBitPosition);
+      auto guard = signalslot::make_sentry(
+          [this, iContext, &status]() { actReg_->postPathEventSignal_.emit(*iContext, pathContext_, status); });
 
       if (pathStatusInserter_) {  // pathStatusInserter is null for EndPaths
         pathStatusInserter_->setPathStatus(streamID, status);
@@ -318,7 +321,7 @@ namespace edm {
           iException = jException;
         }
       }
-      actReg_->postPathEventSignal_.emit(*iContext, pathContext_, status);
+      guard.succeeded();
     } catch (...) {
       if (not iException) {
         iException = std::current_exception();
