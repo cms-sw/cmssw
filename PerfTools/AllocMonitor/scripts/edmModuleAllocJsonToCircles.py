@@ -123,33 +123,47 @@ def processExternalWorkTransition(moduleLabel, moduleType, moduleInfo, moduleTra
     """Process ExternalWork transitions - entries with acquire/process activity
 
     Creates separate entries for each module+type+activity combination within the event transition.
-    The recordName is set to 'acquire + callID' or 'process + callID' based on the activity.
+    The recordName is set to 'callID:acquire' or 'callID:process' based on the activity.
     """
-
-    # Group allocations by activity
+    # Group allocations by activity and callID
     activityAllocations = {}
     for entry in moduleInfo:
-        callID = entry.get("callID", None)
+        callID = entry.get("callID", -1)
         # Check if the entry is for the "event" transition and doesn't have a "record" field
         if (entry.get("transition", None) == "event" and
             "record" not in entry):
             activity = entry.get("activity", "process")
-            activityKey = f"{activity} (callID {callID})"
             if activity not in activityAllocations:
-                activityAllocations[activityKey] = []
-            activityAllocations[activityKey].append(entry.get("alloc", {}))
+                activityAllocations[activity] = {}
+            if callID not in activityAllocations[activity]:
+                activityAllocations[activity][callID] = []
+            activityAllocations[activity][callID].append(entry.get("alloc", {}))
 
     # Create separate entries for each activity
-    for activity, allocs in activityAllocations.items():
-            recordName = activity # Use activity as the record name for ExternalWork modules"
-            uniqueKey = UniqueKey(moduleLabel, moduleType, recordName)
-            moduleTransition[uniqueKey] = {
-                "cpptype": moduleType,
-                "allocs": allocs,
-                "nTransitions": len(allocs),
-                "moduleLabel": moduleLabel,
-                "recordName": recordName
-            }
+    for activity, callID_allocs in activityAllocations.items():
+        if len(callID_allocs) == 1:
+            for callID, allocs in callID_allocs.items():
+                # use the activity as the record name
+                uniqueKey = UniqueKey(moduleLabel, moduleType, activity)
+                moduleTransition[uniqueKey] = {
+                    "cpptype": moduleType,
+                    "allocs": allocs,
+                    "nTransitions": len(allocs),
+                    "moduleLabel": moduleLabel,
+                    "recordName": activity
+                }
+        else:
+            for callID, allocs in callID_allocs.items():
+                # Create a unique record name based on the callID and activity
+                recordName = f"callID {callID}:{activity}"
+                uniqueKey = UniqueKey(moduleLabel, moduleType, recordName)
+                moduleTransition[uniqueKey] = {
+                    "cpptype": moduleType,
+                    "allocs": allocs,
+                    "nTransitions": len(allocs),
+                    "moduleLabel": moduleLabel,
+                    "recordName": recordName
+                }
 
 def formatToCircles(moduleTransitions):
     modules_dict = {}
