@@ -416,12 +416,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   template <typename TrackerTraits>
-  reco::TracksSoACollection CAHitNtupletGenerator<TrackerTraits>::makeTuplesAsync(HitsOnDevice const& hits_d,
-                                                                                  CAGeometryOnDevice const& geometry_d,
-                                                                                  float bfield,
-                                                                                  uint32_t nDoublets,
-                                                                                  uint32_t nTracks,
-                                                                                  Queue& queue) const {
+  reco::TracksSoACollection CAHitNtupletGenerator<TrackerTraits>::makeTuplesAsync(
+      HitsOnDeviceRefProdVector const& hitsRefProdVector,
+      CAGeometryOnDevice const& geometry_d,
+      float bfield,
+      uint32_t nDoublets,
+      uint32_t nTracks,
+      Queue& queue) const {
     using HelixFit = HelixFit<TrackerTraits>;
     using GPUKernels = CAHitNtupletGeneratorKernels<TrackerTraits>;
     using TrackHitSoA = ::reco::TrackHitSoA;
@@ -433,36 +434,54 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     auto tracks = trackCollection.view().tracks();
 
-    auto trackingHits = hits_d.view().trackingHits();
-    auto hitModules = hits_d.view().hitModules();
+    HitsMultiView trackingHits(
+        hitsRefProdVector, [](edm::RefProd<HitsOnDevice> hits) -> auto { return hits->const_view().trackingHits(); });
+
+    std::vector<int> hitModulesSizes;
+
+    // We need to encounter for the last hidden module
+    for (size_t i = 0; i < hitsRefProdVector.size(); ++i) {
+      int s = static_cast<int>(hitsRefProdVector[i]->nModules());
+      if (i + 1 < hitsRefProdVector.size()) {
+        hitModulesSizes.push_back(s);
+      } else {
+        hitModulesSizes.push_back(s + 1);
+      }
+    }
+    ModulesMultiView hitModules(
+        hitsRefProdVector,
+        [](edm::RefProd<HitsOnDevice> hits) -> auto { return hits->const_view().hitModules(); },
+        hitModulesSizes);
 
     auto layers = geometry_d.view().layers();
     auto graph = geometry_d.view().graph();
     auto modules = geometry_d.view().modules();
 
+    const uint32_t nHits = static_cast<uint32_t>(trackingHits.size());
+    const uint32_t offsetBPIX2 = static_cast<uint32_t>(hitsRefProdVector[0]->offsetBPIX2());
+
     // Don't bother if less than 2 this
-    if (trackingHits.metadata().size() < 2) {
+    if (trackingHits.size() < 2) {
       const auto device = alpaka::getDev(queue);
       auto ntracks_d = cms::alpakatools::make_device_view(device, tracks.nTracks());
       alpaka::memset(queue, ntracks_d, 0);
       return trackCollection;
     }
-    GPUKernels kernels(
-        m_params, hits_d.nHits(), hits_d.offsetBPIX2(), nDoublets, nTracks, layers.metadata().size(), queue);
+    GPUKernels kernels(m_params, nHits, offsetBPIX2, nDoublets, nTracks, layers.metadata().size(), queue);
 
     kernels.prepareHits(trackingHits, hitModules, layers, queue);
-    kernels.buildDoublets(trackingHits, graph, layers, hits_d.offsetBPIX2(), queue);
+    kernels.buildDoublets(trackingHits, graph, layers, offsetBPIX2, queue);
     kernels.launchKernels(
-        trackingHits, hits_d.offsetBPIX2(), layers.metadata().size(), trackCollection.view(), layers, graph, queue);
+        trackingHits, offsetBPIX2, layers.metadata().size(), trackCollection.view(), layers, graph, queue);
 
     HelixFit fitter(bfield, m_params.algoParams_.fitNas4_);
     fitter.allocate(kernels.tupleMultiplicity(), tracks, kernels.hitContainer());
     if (m_params.algoParams_.useRiemannFit_) {
       fitter.launchRiemannKernels(
-          trackingHits, modules, trackingHits.metadata().size(), TrackerTraits::maxNumberOfQuadruplets, queue);
+          trackingHits, modules, trackingHits.size(), TrackerTraits::maxNumberOfQuadruplets, queue);
     } else {
       fitter.launchBrokenLineKernels(
-          trackingHits, modules, trackingHits.metadata().size(), TrackerTraits::maxNumberOfQuadruplets, queue);
+          trackingHits, modules, trackingHits.size(), TrackerTraits::maxNumberOfQuadruplets, queue);
     }
     kernels.classifyTuples(trackingHits, tracks, queue);
 #ifdef GPU_DEBUG
