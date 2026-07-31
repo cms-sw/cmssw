@@ -87,9 +87,10 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
          )
 )
 
+_TkClusParametersPP = offlinePrimaryVertices.TkClusParameters.clone()
+
 from Configuration.Eras.Modifier_highBetaStar_cff import highBetaStar
-from Configuration.Eras.Modifier_run3_oxygen_cff import run3_oxygen
-(highBetaStar & ~run3_oxygen).toModify(offlinePrimaryVertices,
+highBetaStar.toModify(offlinePrimaryVertices,
     TkClusParameters = dict(
         TkDAClusParameters = dict(
             Tmin = 4.0,
@@ -140,6 +141,8 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(offlinePrimaryVertices,
                         TkFilterParameters = dict(maxEta = 4.0))
 
+_offlinePrimaryVerticesPP = offlinePrimaryVertices.clone(TkClusParameters = _TkClusParametersPP)
+
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 (pp_on_XeXe_2017 | pp_on_AA).toModify(offlinePrimaryVertices,
@@ -163,7 +166,7 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
                )
 )
 
-(highBetaStar & ~run3_oxygen).toModify(offlinePrimaryVertices,
+highBetaStar.toModify(offlinePrimaryVertices,
      TkFilterParameters = dict(
          maxNormalizedChi2 = 80.0,
          minPixelLayersWithHits = 1,
@@ -180,7 +183,7 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 )
 
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
-(highBetaStar & run3_upc & ~run3_oxygen).toModify(offlinePrimaryVertices,
+(highBetaStar & run3_upc).toModify(offlinePrimaryVertices,
     TkFilterParameters = dict(
         algorithm="filterWithThreshold",
         maxNormalizedChi2 = 80.0,
@@ -206,4 +209,11 @@ from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
         0: dict(chi2cutoff = 4.0, minNdof = -1.1),
         1: dict(chi2cutoff = 4.0, minNdof = -2.0),
     }
+)
+
+from Configuration.Eras.Modifier_run3_oxygen_cff import run3_oxygen
+(highBetaStar & run3_oxygen).toReplaceWith(offlinePrimaryVertices, _offlinePrimaryVerticesPP.clone(
+    TkFilterParameters = dict(
+        minSiliconLayersWithHits = 0,
+    ))
 )
