@@ -558,7 +558,7 @@
     struct Descriptor {                                                                                                \
       Descriptor() = default;                                                                                          \
                                                                                                                        \
-      explicit Descriptor(View& view)                                                                                  \
+      explicit Descriptor(View view)                                                                                  \
           : buff(std::make_tuple(_ITERATE_ON_ALL_COMMA(_ASSIGN_SPANS_TO_BLOCKS, ~, __VA_ARGS__))) {}                   \
                                                                                                                        \
       static constexpr size_type blocksNumber = std::tuple_size<std::tuple<                                            \
@@ -569,7 +569,7 @@
     struct ConstDescriptor {                                                                                           \
       ConstDescriptor() = default;                                                                                     \
                                                                                                                        \
-      explicit ConstDescriptor(ConstView const& view)                                                                  \
+      explicit ConstDescriptor(ConstView const view)                                                                  \
           : buff(std::make_tuple(_ITERATE_ON_ALL_COMMA(_ASSIGN_CONST_SPANS_TO_BLOCKS, ~, __VA_ARGS__))) {}             \
                                                                                                                        \
       static constexpr size_type blocksNumber = std::tuple_size<std::tuple<                                            \
