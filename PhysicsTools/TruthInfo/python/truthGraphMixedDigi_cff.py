@@ -73,6 +73,7 @@ truthLogicalGraphProducer = _truthLogicalGraphProducer.clone(
         cms.InputTag("mix", "mergedHcalHits"),
     ),
     trackerSimHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedTrackerHits")),
+    muonSimHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedMuonHits")),
 )
 
 truthLogicalGraphHitIndexProducer = _truthLogicalGraphHitIndexProducer.clone(

@@ -146,6 +146,7 @@ def buildCompactTruthAtDigi(process, includeTrackingHits=True):
         src=cms.InputTag("mix"),
         simHitCollections=caloSimHits,
         trackerSimHitCollections=trackerSimHits,
+        muonSimHitCollections=muonSimHits,
     )
 
     process.truthLogicalGraphHitIndexProducer = truthLogicalGraphHitIndexProducer.clone(
