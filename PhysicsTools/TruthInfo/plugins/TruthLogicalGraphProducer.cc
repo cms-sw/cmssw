@@ -688,6 +688,13 @@ public:
           if (nodeId < raw.genEventOfNode().size())
             p.genEvent = raw.genEventOfNode()[nodeId];
 
+          // The sub-event a particle belongs to must come from whichever side it has. A
+          // GEN-only particle has no SIM side to inherit it from, and eventId 0 means the
+          // signal interaction, so leaving it at the default silently promotes every
+          // pileup particle without a SimTrack to signal.
+          if (p.eventId == 0)
+            p.eventId = raw.nodeEventId(nodeId);
+
           if (p.pdgId == 0)
             p.pdgId = raw.nodePdgId(nodeId);
 
@@ -773,6 +780,11 @@ public:
 
           if (nodeId < raw.genEventOfNode().size())
             v.genEvent = raw.genEventOfNode()[nodeId];
+
+          // Same as for particles: a GEN-only vertex has no SIM side to take the
+          // sub-event id from, and the default reads as the signal interaction.
+          if (v.eventId == 0)
+            v.eventId = raw.nodeEventId(nodeId);
 
           if (haveGenPayload) {
             const int barcode = static_cast<int>(ref.key);
