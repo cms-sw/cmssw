@@ -57,7 +57,27 @@ two graph structures alone are 166.0 kB/event.
 For context, the whole RECO event is 7991.4 kB/event compressed. Graph products are 4.9%
 of it, legacy truth 7.8%.
 
-### 1.1 What changed since the first version of this document
+### 1.1 The table above predates the pruning-scope fix and is now an UNDERCOUNT
+
+The hitless-subgraph pruning used to be wired to the HGCAL endcap only, so every
+particle depositing solely in the ECAL/HCAL barrel, and under pileup every pileup
+charged particle, was pruned as hitless. The graph was smaller because it was wrong.
+
+Controlled A/B, same 10 ttbar events, same job, only the producer's sim-hit collections
+changed (compressed bytes per event):
+
+| branch | pruning on HGCAL only | pruning on the full detector |
+|---|---:|---:|
+| `TruthGraph` (`mix`) | 35264 | 34661 |
+| `truth::Graph` | 50570 | 128166 |
+| `truth::LogicalGraphHitIndex` | 116202 | 143477 |
+| **total** | **202037** | **306304** |
+
+The graph branch grows 2.5x because it now keeps the barrel particles it always should
+have kept. The table in section 1 was measured before this fix and must be re-measured
+on the reference conditions before any size claim is quoted from it again.
+
+### 1.2 What changed since the first version of this document
 
 Two things moved in opposite directions and the net is a saving.
 

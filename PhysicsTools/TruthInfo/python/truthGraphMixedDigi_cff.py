@@ -62,9 +62,17 @@ from Validation.Configuration.truthPrevalidation_cff import (
     truthLogicalGraphHitIndexProducer as _truthLogicalGraphHitIndexProducer,
 )
 
+# The hitless-subgraph pruning must see every detector the hit index reads, and read
+# the merged (signal+pileup) products: a calorimeter or a sub-event left out here has
+# its particles pruned as hitless even though the index would have given them hits.
 truthLogicalGraphProducer = _truthLogicalGraphProducer.clone(
     src=cms.InputTag("mix"),
-    simHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedHGCHits")),
+    simHitCollections=cms.VInputTag(
+        cms.InputTag("mix", "mergedHGCHits"),
+        cms.InputTag("mix", "mergedEcalHits"),
+        cms.InputTag("mix", "mergedHcalHits"),
+    ),
+    trackerSimHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedTrackerHits")),
 )
 
 truthLogicalGraphHitIndexProducer = _truthLogicalGraphHitIndexProducer.clone(

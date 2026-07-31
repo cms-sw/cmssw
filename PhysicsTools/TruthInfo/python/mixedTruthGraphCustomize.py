@@ -123,13 +123,6 @@ def buildCompactTruthAtDigi(process, includeTrackingHits=True):
         truthLogicalGraphHitIndexProducer,
     )
 
-    # Logical graph from the mixed raw graph; the hitless-subgraph pruning reads the
-    # merged HGCal sim-hits (else every pileup subgraph looks hitless and is pruned).
-    process.truthLogicalGraphProducer = truthLogicalGraphProducer.clone(
-        src=cms.InputTag("mix"),
-        simHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedHGCHits")),
-    )
-
     # Calorimeter simHits for the Calo channel: the merged (signal+pileup)
     # products the accumulator wrote, one per calo family for the per-collection
     # DetId relabelling (HGCAL unpack, HCAL HcalHitRelabeller, ECAL none).
@@ -145,6 +138,15 @@ def buildCompactTruthAtDigi(process, includeTrackingHits=True):
         subdetectors = ["Calo", "Tracker", "Muon"]
         trackerSimHits = cms.VInputTag(cms.InputTag("mix", "mergedTrackerHits"))
         muonSimHits = cms.VInputTag(cms.InputTag("mix", "mergedMuonHits"))
+
+    # Logical graph from the mixed raw graph. The hitless-subgraph pruning reads the
+    # same merged collections as the index below: a calorimeter or a sub-event left
+    # out here has its particles pruned as hitless even though they do carry hits.
+    process.truthLogicalGraphProducer = truthLogicalGraphProducer.clone(
+        src=cms.InputTag("mix"),
+        simHitCollections=caloSimHits,
+        trackerSimHitCollections=trackerSimHits,
+    )
 
     process.truthLogicalGraphHitIndexProducer = truthLogicalGraphHitIndexProducer.clone(
         src=cms.InputTag("truthLogicalGraphProducer"),
@@ -200,6 +202,9 @@ def customiseTruthReduced(process):
     idx = process.truthLogicalGraphHitIndexProducer
     idx.subdetectors = cms.vstring("Calo", "Muon")
     idx.trackerSimHitCollections = cms.VInputTag()
+    # The pruning's detector scope stays equal to the index's, otherwise it prunes on
+    # tracker hits that are no longer accumulated.
+    process.truthLogicalGraphProducer.trackerSimHitCollections = cms.VInputTag()
     return process
 
 
