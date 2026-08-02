@@ -1008,6 +1008,19 @@ namespace edm {
   }
 
   // ----------------------------------------------------------------------
+  // Float, vFloat
+
+  template <>
+  float ParameterSet::getParameter<float>(std::string const& name) const {
+    return retrieve(name).getFloat();
+  }
+
+  template <>
+  std::vector<float> ParameterSet::getParameter<std::vector<float> >(std::string const& name) const {
+    return retrieve(name).getVFloat();
+  }
+
+  // ----------------------------------------------------------------------
   // String, vString
 
   template <>
@@ -1311,6 +1324,32 @@ namespace edm {
   }
 
   // ----------------------------------------------------------------------
+  // Float, vFloat
+
+  template <>
+  float ParameterSet::getUntrackedParameter<float>(std::string const& name, float const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == nullptr ? defaultValue : entryPtr->getFloat();
+  }
+
+  template <>
+  float ParameterSet::getUntrackedParameter<float>(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getFloat();
+  }
+
+  template <>
+  std::vector<float> ParameterSet::getUntrackedParameter<std::vector<float> >(
+      std::string const& name, std::vector<float> const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVFloat();
+  }
+
+  template <>
+  std::vector<float> ParameterSet::getUntrackedParameter<std::vector<float> >(std::string const& name) const {
+    return getEntryPointerOrThrow_(name)->getVFloat();
+  }
+
+  // ----------------------------------------------------------------------
   // String, vString
 
   template <>
@@ -1587,6 +1626,19 @@ namespace edm {
   template <>
   std::vector<double> ParameterSet::getParameter<std::vector<double> >(char const* name) const {
     return retrieve(name).getVDouble();
+  }
+
+  // ----------------------------------------------------------------------
+  // Float, vFloat
+
+  template <>
+  float ParameterSet::getParameter<float>(char const* name) const {
+    return retrieve(name).getFloat();
+  }
+
+  template <>
+  std::vector<float> ParameterSet::getParameter<std::vector<float> >(char const* name) const {
+    return retrieve(name).getVFloat();
   }
 
   // ----------------------------------------------------------------------
@@ -1887,6 +1939,32 @@ namespace edm {
   template <>
   std::vector<double> ParameterSet::getUntrackedParameter<std::vector<double> >(char const* name) const {
     return getEntryPointerOrThrow_(name)->getVDouble();
+  }
+
+  // ----------------------------------------------------------------------
+  // Float, vFloat
+
+  template <>
+  float ParameterSet::getUntrackedParameter<float>(char const* name, float const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == nullptr ? defaultValue : entryPtr->getFloat();
+  }
+
+  template <>
+  float ParameterSet::getUntrackedParameter<float>(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getFloat();
+  }
+
+  template <>
+  std::vector<float> ParameterSet::getUntrackedParameter<std::vector<float> >(
+      char const* name, std::vector<float> const& defaultValue) const {
+    Entry const* entryPtr = retrieveUntracked(name);
+    return entryPtr == nullptr ? defaultValue : entryPtr->getVFloat();
+  }
+
+  template <>
+  std::vector<float> ParameterSet::getUntrackedParameter<std::vector<float> >(char const* name) const {
+    return getEntryPointerOrThrow_(name)->getVFloat();
   }
 
   // ----------------------------------------------------------------------
