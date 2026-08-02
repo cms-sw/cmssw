@@ -2253,16 +2253,16 @@ void PlotFiveHists(std::string infile,
       }
       pad->Update();
       if (save > 0) {
-	if (normalize)
-	  sprintf(name, "%sN.pdf", pad->GetName());
-	else
-	  sprintf(name, "%s.pdf", pad->GetName());
+        if (normalize)
+          sprintf(name, "%sN.pdf", pad->GetName());
+        else
+          sprintf(name, "%s.pdf", pad->GetName());
         pad->Print(name);
       } else if (save < 0) {
-	if (normalize)
-	  sprintf(name, "%sN.C", pad->GetName());
-	else
-	  sprintf(name, "%s.C", pad->GetName());
+        if (normalize)
+          sprintf(name, "%sN.C", pad->GetName());
+        else
+          sprintf(name, "%s.C", pad->GetName());
         pad->Print(name);
       }
     }
@@ -4066,15 +4066,15 @@ void PlotFourHists(std::string infile,
     pad->Update();
     if (save > 0) {
       if (normalize)
-	sprintf(name, "%sN.pdf", pad->GetName());
+        sprintf(name, "%sN.pdf", pad->GetName());
       else
-	sprintf(name, "%s.pdf", pad->GetName());
+        sprintf(name, "%s.pdf", pad->GetName());
       pad->Print(name);
     } else if (save < 0) {
       if (normalize)
-	sprintf(name, "%sN.C", pad->GetName());
+        sprintf(name, "%sN.C", pad->GetName());
       else
-	sprintf(name, "%s.C", pad->GetName());
+        sprintf(name, "%s.C", pad->GetName());
       pad->Print(name);
     }
   }
