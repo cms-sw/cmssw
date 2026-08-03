@@ -58,7 +58,6 @@ NanoGenTables = cms.Sequence(
 NanoHltTables = cms.Sequence(
     hltTriggerObjP4Table
     + hltVertexTable
-    + hltSecondaryVertexTable
     + hltPixelVertexTable
     + hltGeneralTrackTable
     + hltGeneralTrackExtTable
