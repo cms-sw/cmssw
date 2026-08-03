@@ -28,7 +28,6 @@
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
-
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -65,7 +64,6 @@ private:
   std::vector<float> hitEnergy;
   std::vector<float> hitTime;
   std::vector<float> hitTimeError;
-
 };
 
 MTDMergedClusterProducer::MTDMergedClusterProducer(const edm::ParameterSet& conf)
@@ -271,8 +269,7 @@ FTLMergedCluster MTDMergedClusterProducer::mergeClusters(const std::vector<const
     avgYError = std::sqrt(weightedErrorY2) / totalEnergy;
   }
 
-  FTLMergedCluster mergedCluster(
-      mergedId, totalEnergy, avgTime, avgTimeError, avgX, avgY, avgXError, avgYError);
+  FTLMergedCluster mergedCluster(mergedId, totalEnergy, avgTime, avgTimeError, avgX, avgY, avgXError, avgYError);
 
   for (size_t i = 0; i < hitDetId.size(); i++) {
     mergedCluster.addHit(hitDetId[i], hitRow[i], hitCol[i], hitTime[i], hitTimeError[i], hitEnergy[i]);
@@ -289,7 +286,7 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
   const MTDTopology* topology = topologyHandle.product();
 
   static constexpr uint32_t halfTrayBTL_SMidx = MTDTopology::BTLLayout::nBTLeta_ / 2;
-  
+
   edm::Handle<FTLClusterCollection> btlClustersHandle;
   edm::Handle<FTLClusterCollection> etlClustersHandle;
   e.getByToken(btlClustersToken_, btlClustersHandle);
@@ -299,7 +296,6 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
   auto btlOutput = std::make_unique<FTLMergedClusterCollection>();
   auto etlOutput = std::make_unique<FTLMergedClusterCollection>();
-
 
   if (!btlClustersHandle.isValid() || btlClustersHandle->empty()) {
     LogTrace("MTDMergedClusterProducer") << "No valid BTL clusters found in event " << e.id();
@@ -312,51 +308,54 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
     for (const auto& detSet : *btlClustersHandle) {
       totalClusters += detSet.size();
     }
-    std::vector<const FTLCluster*> allClusters;
-    allClusters.reserve(totalClusters);
-
-
+    std::vector<const FTLCluster*> internalClusters;
+    internalClusters.reserve(totalClusters);
+    std::vector<const FTLCluster*> edgeClusters;
+    
     for (const auto& detSet : *btlClustersHandle) {
       for (const auto& cluster : detSet) {
         if (cluster.energy() < energyThreshold_)
           continue;
-        allClusters.push_back(&cluster);
+        if (cluster.minHitCol() == 0 || cluster.maxHitCol() == 15){
+            edgeClusters.push_back(&cluster);
+          }else{
+            internalClusters.push_back(&cluster);
+          }
       }
     }
 
     // sorting by rod and module
-    std::sort(allClusters.begin(), allClusters.end(), [&topology](const FTLCluster* a, const FTLCluster* b) {
+    std::sort(edgeClusters.begin(), edgeClusters.end(), [&topology](const FTLCluster* a, const FTLCluster* b) {
       auto [iphiA, ietaA] = topology->btlIndex(a->id());
       auto [iphiB, ietaB] = topology->btlIndex(b->id());
 
-      if (iphiA != iphiB) { 
+      if (iphiA != iphiB) {
         return iphiA < iphiB;
       }
       if (ietaA != ietaB) {
         return ietaA < ietaB;
       }
-      if (ietaA < halfTrayBTL_SMidx){
+      if (ietaA < halfTrayBTL_SMidx) {
         return a->minHitCol() > b->minHitCol();
-      }else{
+      } else {
         return a->minHitCol() < b->minHitCol();
       }
     });
 
-    
     bool alreadyMergedThisCluster = false;
     uint32_t currentRawId = 0;
+    std::unordered_set<uint32_t> visitedRawIds;
     std::unique_ptr<edmNew::DetSetVector<FTLMergedCluster>::FastFiller> filler;
     size_t index(0);
-    std::vector<const FTLCluster*> mergedClusterClusters; 
+    std::vector<const FTLCluster*> mergedClusterClusters;
 
-
-    for (size_t i = 0; i < allClusters.size(); ++i) {
-      const FTLCluster* cluster = allClusters[i];
-      if (alreadyMergedThisCluster){
-        alreadyMergedThisCluster = false; 
+    for (size_t i = 0; i < edgeClusters.size(); ++i) {
+      const FTLCluster* cluster = edgeClusters[i];
+      if (alreadyMergedThisCluster) {
+        alreadyMergedThisCluster = false;
         continue;
       }
-      
+
       BTLDetId cluId = cluster->id();
       mergedClusterClusters.push_back(cluster);
 
@@ -365,66 +364,119 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
       //uint32_t iphi = indices.first;
       uint32_t ieta = indices.second;
       uint32_t iphi = indices.first;
-      
+
       bool hasEdgeHitCurrent = false;
-      if (ieta < halfTrayBTL_SMidx){
-        if (cluster->minHitCol() == 0){
+      if (ieta < halfTrayBTL_SMidx) {
+        if (cluster->minHitCol() == 0) {
           hasEdgeHitCurrent = true;
-        } 
-      }else if (ieta > halfTrayBTL_SMidx){
-        if (cluster->maxHitCol() == 15){
+        }
+      } else if (ieta > halfTrayBTL_SMidx) {
+        if (cluster->maxHitCol() == 15) {
           hasEdgeHitCurrent = true;
         }
       }
       // in the case ieta == halfTrayBTL_SMidx, merging would be unphysical due to gap in detectors, so we don't want to merge. In that case hasEdgeHitCurrent will be false.
 
-
-      if (hasEdgeHitCurrent){
+      if (hasEdgeHitCurrent) {
         bool hasEdgeHitNext = false;
-        if (i + 1 < allClusters.size()) {
-          const FTLCluster* nextCluster = allClusters[i + 1];
+        if (i + 1 < edgeClusters.size()) {
+          const FTLCluster* nextCluster = edgeClusters[i + 1];
           BTLDetId nextDetId = nextCluster->id();
           std::pair<uint32_t, uint32_t> next_indices = topology->btlIndex(nextDetId.rawId());
           uint32_t ietanext = next_indices.second;
           uint32_t iphinext = next_indices.first;
-          if (ieta == (ietanext - 1) && iphi == iphinext){
-            if (ieta < halfTrayBTL_SMidx){
-              if (nextCluster->maxHitCol() == 15){
+          if (ieta == (ietanext - 1) && iphi == iphinext) {
+            if (ieta < halfTrayBTL_SMidx) {
+              if (nextCluster->maxHitCol() == 15) {
                 hasEdgeHitNext = true;
               }
-            }else{
-              if (nextCluster->minHitCol() == 0){
+            } else {
+              if (nextCluster->minHitCol() == 0) {
                 hasEdgeHitNext = true;
               }
             }
           }
-          if (hasEdgeHitNext){
+          if (hasEdgeHitNext) {
             bool timeOk = areTimingCompatible(cluster, nextCluster);
             if (timeOk) {
               mergedClusterClusters.push_back(nextCluster);
               alreadyMergedThisCluster = true;
             }
+          }
         }
-      }
       }
 
       // create mergedcluster from merged (or from single cluster if no merge happened)
       FTLMergedCluster mergedCluster = mergeClusters(mergedClusterClusters, geom, btlClustersHandle);
       uint32_t clusterId = mergedCluster.id().rawId();
 
-      if (clusterId != currentRawId) {
+      if (clusterId != currentRawId) { //new detId? if yes we need to declare a new filler
+        visitedRawIds.insert(clusterId);
         //new filler when changning the rawId
         filler.reset();
         filler = std::make_unique<edmNew::DetSetVector<FTLMergedCluster>::FastFiller>(*btlOutput, clusterId);
         currentRawId = clusterId;
+        LogDebug("MTDMergedClusterProducer") << "BTL merged cluster # " << std::setw(5) << index << " " << mergedCluster;
+        filler->push_back(std::move(mergedCluster));
+        index++;
+        mergedClusterClusters.clear();
+
+        auto clustersInSameDetId = btlClustersHandle->find(clusterId); // see if there other (internal) clusters in the same detId. This needs to be done because you can only fill one detId once.
+        for (auto& clusterInSameDetId : *clustersInSameDetId) {
+          if ((clusterInSameDetId.maxHitCol() != 0) && (clusterInSameDetId.maxHitCol() != 15) ){
+            mergedClusterClusters.push_back(&clusterInSameDetId);
+            FTLMergedCluster mergedCluster = mergeClusters(mergedClusterClusters, geom, btlClustersHandle);
+            LogDebug("MTDMergedClusterProducer") << "BTL merged cluster # " << std::setw(5) << index << " " << mergedCluster;
+            filler->push_back(std::move(mergedCluster));
+            index++;
+            mergedClusterClusters.clear();
+          }
+        }
       }
+      else{ //filler is already declared and points to the same detId, just fill with the merged cluster
+        LogDebug("MTDMergedClusterProducer") << "BTL merged cluster # " << std::setw(5) << index << " " << mergedCluster;
+        filler->push_back(std::move(mergedCluster));
+        index++;
+        mergedClusterClusters.clear();
+      }
+    }
+    filler.reset();
+    
+    //loop on the internal clusters, the ones that do not get merged
+    currentRawId = 0; //keep track of the change in detId 
+    bool skippedThePreviousClus = false; //keep track if the previous cluster was skipped, because the detId was considered in the for loop above
+    for (size_t i = 0; i < internalClusters.size(); ++i) {
+      const FTLCluster* cluster = internalClusters[i];
+      uint32_t clusterId = cluster->id().rawId();
+
+      if (clusterId != currentRawId) {
+        currentRawId = clusterId;
+        if (visitedRawIds.count(clusterId)) { //check if the detId was already considered in the for loop above, if so, skip the filling for this detId
+          skippedThePreviousClus = true;
+          continue;
+        }else{
+          skippedThePreviousClus = false;
+        }
+        //new filler when changing the rawId
+        filler.reset();
+        filler = std::make_unique<edmNew::DetSetVector<FTLMergedCluster>::FastFiller>(*btlOutput, clusterId);
+        }
+      else{
+        if (skippedThePreviousClus){ //same detId as previous cluster, but this det was already considered in the for loop above -> skip
+          continue;
+        }
+      }
+
+      mergedClusterClusters.push_back(cluster);
+      FTLMergedCluster mergedCluster = mergeClusters(mergedClusterClusters, geom, btlClustersHandle);
       LogDebug("MTDMergedClusterProducer") << "BTL merged cluster # " << std::setw(5) << index << " " << mergedCluster;
       filler->push_back(std::move(mergedCluster));
       index++;
       mergedClusterClusters.clear();
-      
     }
     filler.reset();
+    
+
 
     LogTrace("MTDMergedClusterProducer") << "About to put " << btlOutput->size()
                                          << " BTL MergedCluster DetSets into event " << e.id() << std::endl;
