@@ -157,7 +157,7 @@
 //                               o =0/1 flag to plot basic set of histograms;
 //                               Default = 111
 //   save (int)                = flag to create or not save the plot in a file
-//                               (0 = no save, > 0 pdf file, < 0 hpg file)
+//                               (0 = no save, > 0 pdf file, < 0 jpg file)
 //
 //   outFileName (std::string)= name of the file containing saved tree
 //   pmin (double)            = minimum track momentum (40.0)
@@ -1598,7 +1598,10 @@ void PlotTheseHists(const char *name,
   texts.push_back(text2);
   double ymax(0.90), dy(0.12);
   char namex[100], namep[120];
-  sprintf(namep, "c_%s", name);
+  if (normalize)
+    sprintf(namep, "cN_%s", name);
+  else
+    sprintf(namep, "c_%s", name);
   double ymx0 = (ymax - dy * 2 - .01);
   TCanvas *pad = new TCanvas(namep, namep, 700, 500);
   TLegend *legend = new TLegend(0.64, ymx0 - 0.05 * 2, 0.89, ymx0);
