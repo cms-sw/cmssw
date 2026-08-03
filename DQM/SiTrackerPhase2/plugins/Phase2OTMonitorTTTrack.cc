@@ -311,8 +311,18 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
                           8,
                           0,
                           8);
-  phase2tkutil::add2DDesc(
-      desc, "L1Track_All_Eta_NStubs", "L1Track_All_Eta_NStubs", "#eta", "# L1 Stubs", 15, -3.0, 3.0, 5, 3, 8);
+  phase2tkutil::add2DDesc(desc,
+                          "L1Track_All_Eta_NStubs",
+                          "L1Track_All_Eta_NStubs",
+                          "L1Track_All_Eta_NStubs",
+                          "#eta",
+                          "# L1 Stubs",
+                          15,
+                          -3.0,
+                          3.0,
+                          5,
+                          3,
+                          8);
   phase2tkutil::add1DDesc(
       desc, "L1Track_All_Pt", "L1Track_All_Pt", "L1Track_All_Pt", "p_{T} [GeV]", "# L1 Tracks", 50, 0, 100);
   phase2tkutil::add1DDesc(
@@ -382,6 +392,7 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
   phase2tkutil::add2DDesc(desc,
                           "L1Track_All_Chi2Red_NStubs",
                           "L1Track_All_Chi2Red_NStubs",
+                          "L1Track_All_Chi2Red_NStubs",
                           "# L1 Stubs",
                           "L1 Track #chi^{2}/ndf",
                           5,
@@ -393,6 +404,7 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
   phase2tkutil::add2DDesc(desc,
                           "L1Track_All_Chi2Red_Eta",
                           "L1Track_All_Chi2Red_Eta",
+                          "L1Track_All_Chi2Red_Eta",
                           "#eta",
                           "L1 Track #chi^{2}/ndf",
                           15,
@@ -404,6 +416,7 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
   phase2tkutil::add2DDesc(desc,
                           "L1Track_All_Eta_BarrelStubs",
                           "L1Track_All_Eta_BarrelStubs",
+                          "L1Track_All_Eta_BarrelStubs",
                           "#eta",
                           "# L1 Barrel Stubs",
                           15,
@@ -412,8 +425,18 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
                           5,
                           3,
                           8);
-  phase2tkutil::add2DDesc(
-      desc, "L1Track_All_Eta_ECStubs", "L1Track_All_Eta_ECStubs", "#eta", "# L1 EC Stubs", 15, -3.0, 3.0, 5, 3, 8);
+  phase2tkutil::add2DDesc(desc,
+                          "L1Track_All_Eta_ECStubs",
+                          "L1Track_All_Eta_ECStubs",
+                          "L1Track_All_Eta_ECStubs",
+                          "#eta",
+                          "# L1 EC Stubs",
+                          15,
+                          -3.0,
+                          3.0,
+                          5,
+                          3,
+                          8);
 
   // HQ tracks
   phase2tkutil::add1DDesc(desc, "L1Track_HQ_N", "L1Track_HQ_N", "L1Track_HQ_N", "# L1 Tracks", "# Events", 100, 0, 399);
@@ -435,8 +458,18 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
                           8,
                           0,
                           8);
-  phase2tkutil::add2DDesc(
-      desc, "L1Track_HQ_Eta_NStubs", "L1Track_HQ_Eta_NStubs", "#eta", "# L1 Stubs", 15, -3.0, 3.0, 5, 3, 8);
+  phase2tkutil::add2DDesc(desc,
+                          "L1Track_HQ_Eta_NStubs",
+                          "L1Track_HQ_Eta_NStubs",
+                          "L1Track_HQ_Eta_NStubs",
+                          "#eta",
+                          "# L1 Stubs",
+                          15,
+                          -3.0,
+                          3.0,
+                          5,
+                          3,
+                          8);
   phase2tkutil::add1DDesc(
       desc, "L1Track_HQ_Pt", "L1Track_HQ_Pt", "L1Track_HQ_Pt", "p_{T} [GeV]", "# L1 Tracks", 50, 0, 100);
   phase2tkutil::add1DDesc(
@@ -506,6 +539,7 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
   phase2tkutil::add2DDesc(desc,
                           "L1Track_HQ_Chi2Red_NStubs",
                           "L1Track_HQ_Chi2Red_NStubs",
+                          "L1Track_HQ_Chi2Red_NStubs",
                           "# L1 Stubs",
                           "L1 Track #chi^{2}/ndf",
                           5,
@@ -517,6 +551,7 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
   phase2tkutil::add2DDesc(desc,
                           "L1Track_HQ_Chi2Red_Eta",
                           "L1Track_HQ_Chi2Red_Eta",
+                          "L1Track_HQ_Chi2Red_Eta",
                           "#eta",
                           "L1 Track #chi^{2}/ndf",
                           15,
@@ -528,6 +563,7 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
   phase2tkutil::add2DDesc(desc,
                           "L1Track_HQ_Eta_BarrelStubs",
                           "L1Track_HQ_Eta_BarrelStubs",
+                          "L1Track_HQ_Eta_BarrelStubs",
                           "#eta",
                           "# L1 Barrel Stubs",
                           15,
@@ -536,8 +572,18 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
                           5,
                           3,
                           8);
-  phase2tkutil::add2DDesc(
-      desc, "L1Track_HQ_Eta_ECStubs", "L1Track_HQ_Eta_ECStubs", "#eta", "# L1 EC Stubs", 15, -3.0, 3.0, 5, 3, 8);
+  phase2tkutil::add2DDesc(desc,
+                          "L1Track_HQ_Eta_ECStubs",
+                          "L1Track_HQ_Eta_ECStubs",
+                          "L1Track_HQ_Eta_ECStubs",
+                          "#eta",
+                          "# L1 EC Stubs",
+                          15,
+                          -3.0,
+                          3.0,
+                          5,
+                          3,
+                          8);
 
   desc.add<std::string>("TopFolderName", "TrackerPhase2OTL1Track");
   desc.add<edm::InputTag>("TTTracksTag", edm::InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"));

@@ -351,7 +351,7 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
 
   // Cluster properties
   phase2tkutil::add2DDesc(
-      desc, "L1Cluster_W", "L1Cluster_W", "L1 Cluster Width", "Stack Member", 7, -0.5, 6.5, 2, -0.5, 1.5);
+      desc, "L1Cluster_W", "L1Cluster_W", "L1Cluster_W", "L1 Cluster Width", "Stack Member", 7, -0.5, 6.5, 2, -0.5, 1.5);
   phase2tkutil::add1DDesc(
       desc, "L1Cluster_Eta", "L1Cluster_Eta", "L1Cluster_Eta", "#eta", "# L1 Clusters", 45, -5.0, 5.0);
   phase2tkutil::add1DDesc(
@@ -360,6 +360,7 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
 
   // Position
   phase2tkutil::add2DDesc(desc,
+                          "L1Cluster_Global_Position_Barrel_XY",
                           "L1Cluster_Global_Position_Barrel_XY",
                           "L1Cluster_Global_Position_Barrel_XY",
                           "L1 Cluster Barrel position x [cm]",
@@ -373,6 +374,7 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
   phase2tkutil::add2DDesc(desc,
                           "L1Cluster_Global_Position_Endcap_Fw_XY",
                           "L1Cluster_Global_Position_Endcap_Fw_XY",
+                          "L1Cluster_Global_Position_Endcap_Fw_XY",
                           "L1 Cluster Forward Endcap position x [cm]",
                           "L1 Cluster Forward Endcap position y [cm]",
                           960,
@@ -384,6 +386,7 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
   phase2tkutil::add2DDesc(desc,
                           "L1Cluster_Global_Position_Endcap_Bw_XY",
                           "L1Cluster_Global_Position_Endcap_Bw_XY",
+                          "L1Cluster_Global_Position_Endcap_Bw_XY",
                           "L1 Cluster Backward Endcap position x [cm]",
                           "L1 Cluster Backward Endcap position y [cm]",
                           960,
@@ -393,6 +396,7 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
                           -120,
                           120);
   phase2tkutil::add2DDesc(desc,
+                          "L1Cluster_Global_Position_RZ",
                           "L1Cluster_Global_Position_RZ",
                           "L1Cluster_Global_Position_RZ",
                           "L1 Cluster position z [cm]",

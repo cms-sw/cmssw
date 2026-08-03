@@ -281,6 +281,7 @@ void phase2tkutil::add1DDesc(edm::ParameterSetDescription& desc,
 void phase2tkutil::add2DDesc(edm::ParameterSetDescription& desc,
                              const std::string& psetKey,
                              const std::string& histName,
+                             const std::string& histTitle,
                              const std::string& xlabel,
                              const std::string& ylabel,
                              int nbx,
@@ -292,7 +293,7 @@ void phase2tkutil::add2DDesc(edm::ParameterSetDescription& desc,
   edm::ParameterSetDescription ps;
   ps.add<bool>("switch", true);
   ps.add<std::string>("name", histName);
-  ps.add<std::string>("title", histName + ";" + xlabel + ";" + ylabel);
+  ps.add<std::string>("title", histTitle + ";" + xlabel + ";" + ylabel);
   ps.add<int>("NxBins", nbx);
   ps.add<double>("xmin", xmin);
   ps.add<double>("xmax", xmax);
