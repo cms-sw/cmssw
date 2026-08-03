@@ -37,7 +37,7 @@ pixDigiMon = digiMon.clone(
     ),
     DigiChargeVsWidthH = digiMon.DigiChargeH.clone(
         name = "Digi_Charge_vs_Width",
-        title = "Digi Charge vs Width {};Digi charge [ADC];Digi Width",
+        title = "Digi Charge vs Width in {};Digi charge [ADC];Digi Width",
         NyBins = (digiMon.ClusterWidthH.NxBins),
         ymin = (digiMon.ClusterWidthH.xmin),
         ymax = (digiMon.ClusterWidthH.xmax),
@@ -45,7 +45,7 @@ pixDigiMon = digiMon.clone(
     ),
     DigiOccupancyVsEtaPH = digiMon.EtaH.clone(
         name = cms.string("Digi_Occupancy_Vs_Eta_P"),
-        title = cms.string("Digi occupancy vs #eta pixels {};#eta;"),
+        title = cms.string("Digi occupancy vs #eta of pixels in {};#eta;"),
         NyBins = digiMon.DigiOccupancyPH.NxBins,
         ymin = digiMon.DigiOccupancyPH.xmin,
         ymax = digiMon.DigiOccupancyPH.xmax,
@@ -77,7 +77,7 @@ otDigiMon = digiMon.clone(
     ),
     DigiChargeVsWidthH = digiMon.DigiChargeH.clone(
         name = "Digi_Charge_vs_Width",
-        title = "Digi Charge vs Width {};Digi charge [ADC];Digi Width",
+        title = "Digi Charge vs Width in {};Digi charge [ADC];Digi Width",
         NyBins = digiMon.ClusterWidthH.NxBins,
         ymin = digiMon.ClusterWidthH.xmin,
         ymax = digiMon.ClusterWidthH.xmax,
@@ -85,7 +85,7 @@ otDigiMon = digiMon.clone(
     ),
     DigiOccupancyVsEtaPH = digiMon.EtaH.clone(
         name = cms.string("Digi_Occupancy_Vs_Eta_P"),
-        title = cms.string("Digi occupancy vs #eta pixels {};#eta;"),
+        title = cms.string("Digi occupancy vs #eta of pixels in {};#eta;"),
         NyBins = (digiMon.DigiOccupancyPH.NxBins),
         ymin = (digiMon.DigiOccupancyPH.xmin),
         ymax = (digiMon.DigiOccupancyPH.xmax),
@@ -93,7 +93,7 @@ otDigiMon = digiMon.clone(
     ),
     DigiOccupancyVsEtaSH = digiMon.EtaH.clone(
         name = cms.string("Digi_Occupancy_Vs_Eta_S"),
-        title = cms.string("Digi occupancy vs #eta strips {};#eta;"),
+        title = cms.string("Digi occupancy vs #eta of strips in {};#eta;"),
         NyBins = (digiMon.DigiOccupancySH.NxBins),
         ymin = (digiMon.DigiOccupancySH.xmin),
         ymax = (digiMon.DigiOccupancySH.xmax),
@@ -101,7 +101,7 @@ otDigiMon = digiMon.clone(
     ),
     DigiFractionOverThresholdVsEtaH = digiMon.EtaH.clone(
         name = cms.string("Digis_Fraction_Over_Threshold_vs_eta"),
-        title = cms.string("Digi fraction over threshold vs #eta in {};#eta;"),
+        title = cms.string("Fraction of digis over threshold vs #eta in {};#eta;"),
         NyBins = (digiMon.NumberOfDigisPerDetH.NxBins),
         ymin = (digiMon.NumberOfDigisPerDetH.xmin),
         ymax = (digiMon.NumberOfDigisPerDetH.xmax),

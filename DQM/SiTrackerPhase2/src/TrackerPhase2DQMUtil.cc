@@ -259,6 +259,23 @@ MonitorElement* phase2tkutil::bookProfile1DFromPSet(const edm::ParameterSet& hpa
   return temp;
 }
 
+MonitorElement* phase2tkutil::bookProfile1DFromPSetWithPosition(const edm::ParameterSet& hpars,
+                                                                DQMStore::IBooker& ibooker,
+                                                                std::string titleString) {
+  MonitorElement* temp = nullptr;
+  if (hpars.getParameter<bool>("switch")) {
+    std::string title = std::vformat(hpars.getParameter<std::string>("title"), std::make_format_args(titleString));
+    temp = ibooker.bookProfile(hpars.getParameter<std::string>("name"),
+                               title,
+                               hpars.getParameter<int32_t>("NxBins"),
+                               hpars.getParameter<double>("xmin"),
+                               hpars.getParameter<double>("xmax"),
+                               hpars.getParameter<double>("ymin"),
+                               hpars.getParameter<double>("ymax"));
+  }
+  return temp;
+}
+
 void phase2tkutil::add1DDesc(edm::ParameterSetDescription& desc,
                              const std::string& psetKey,
                              const std::string& histName,

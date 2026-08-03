@@ -243,11 +243,11 @@ void Phase2ITMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned
       local_histos.posY = phase2tkutil::book1DFromPSetWithPosition(
           config_.getParameter<edm::ParameterSet>("RecHitPosY"), ibooker, prettyName, false);
 
-      local_histos.poserrX =
-          phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitPosErrorX_Eta"), ibooker);
+      local_histos.poserrX = phase2tkutil::bookProfile1DFromPSetWithPosition(
+          config_.getParameter<edm::ParameterSet>("RecHitPosErrorX_Eta"), ibooker, prettyName);
 
-      local_histos.poserrY =
-          phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitPosErrorY_Eta"), ibooker);
+      local_histos.poserrY = phase2tkutil::bookProfile1DFromPSetWithPosition(
+          config_.getParameter<edm::ParameterSet>("RecHitPosErrorY_Eta"), ibooker, prettyName);
 
       local_histos.clusterSizeX = phase2tkutil::book1DFromPSetWithPosition(
           config_.getParameter<edm::ParameterSet>("LocalClusterSizeX"), ibooker, prettyName, false);
@@ -319,27 +319,27 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   // Per layer/ring histos
   phase2tkutil::add1DDesc(desc,
                           "LocalNumberRecHits",
-                          "Num_RecHits_Per_Layer",
-                          "NumberRecHits {}",
+                          "Num_RecHits_Per_Event",
+                          "Number of RecHits per event in {}",
                           "Number of RecHits",
                           "",
                           150,
                           0.0,
                           150000.0);
   phase2tkutil::add1DDesc(
-      desc, "LocalClusterSizeX", "RecHit_Size_X", "RecHit_SizeX {}", "cluster size x", "", 21, -0.5, 20.5);
+      desc, "LocalClusterSizeX", "RecHit_Size_X", "RecHit_SizeX in {}", "cluster size x", "", 21, -0.5, 20.5);
   phase2tkutil::add1DDesc(
-      desc, "LocalClusterSizeY", "RecHit_Size_Y", "RecHit_SizeY {}", "cluster size y", "", 26, -0.5, 25.5);
+      desc, "LocalClusterSizeY", "RecHit_Size_Y", "RecHit_SizeY in {}", "cluster size y", "", 26, -0.5, 25.5);
   phase2tkutil::add1DDesc(
-      desc, "RecHitPosX", "RecHit_X", "RecHit_X {}", "RecHit position X dimension", "", 100, -2.5, 2.5);
+      desc, "RecHitPosX", "RecHit_X", "RecHit_X in {}", "RecHit position X dimension", "", 100, -2.5, 2.5);
   phase2tkutil::add1DDesc(
-      desc, "RecHitPosY", "RecHit_Y", "RecHit_Y {}", "RecHit position Y dimension", "", 100, -2.5, 2.5);
+      desc, "RecHitPosY", "RecHit_Y", "RecHit_Y in {}", "RecHit position Y dimension", "", 100, -2.5, 2.5);
 
   // 1DProfiles - 2D desc with NyBins = 0
   phase2tkutil::add2DDesc(desc,
                           "RecHitPosErrorX_Eta",
                           "RecHit_X_error_Vs_eta",
-                          "RecHit X error Vs eta {}",
+                          "RecHit X error Vs eta in {}",
                           "#eta",
                           "x error [#mum]",
                           82,
@@ -351,7 +351,7 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   phase2tkutil::add2DDesc(desc,
                           "RecHitPosErrorY_Eta",
                           "RecHit_Y_error_Vs_eta",
-                          "RecHit Y error Vs eta {}",
+                          "RecHit Y error Vs eta in {}",
                           "#eta",
                           "y error [#mum]",
                           82,

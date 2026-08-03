@@ -32,6 +32,9 @@ namespace phase2tkutil {
                                              std::string titleString);
 
   MonitorElement* bookProfile1DFromPSet(const edm::ParameterSet& hpars, DQMStore::IBooker& ibooker);
+  MonitorElement* bookProfile1DFromPSetWithPosition(const edm::ParameterSet& hpars,
+                                                    DQMStore::IBooker& ibooker,
+                                                    std::string titleString);
 
   void add1DDesc(edm::ParameterSetDescription& desc,
                  const std::string& psetKey,

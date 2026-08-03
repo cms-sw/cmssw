@@ -523,16 +523,16 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
       else {
         local_mes.DigiOccupancyS = phase2tkutil::book1DFromPSetWithPosition(
             config_.getParameter<edm::ParameterSet>("DigiOccupancySH"), ibooker, prettyName, false);
-        local_mes.EtaOccupancyProfS = phase2tkutil::bookProfile1DFromPSet(
-            config_.getParameter<edm::ParameterSet>("DigiOccupancyVsEtaSH"), ibooker);
+        local_mes.EtaOccupancyProfS = phase2tkutil::bookProfile1DFromPSetWithPosition(
+            config_.getParameter<edm::ParameterSet>("DigiOccupancyVsEtaSH"), ibooker, prettyName);
 
         // FracOfOverThresholdBits is only available for S-type sensor of PS module
         // For booking, just check a PS sensor exists. Must be filled in PS-S only
         if (isPtypeSensor) {
           local_mes.FractionOfOvTBits = phase2tkutil::book1DFromPSetWithPosition(
               config_.getParameter<edm::ParameterSet>("DigisOverThresholdH"), ibooker, prettyName, false);
-          local_mes.FractionOfOvTBitsVsEta = phase2tkutil::bookProfile1DFromPSet(
-              config_.getParameter<edm::ParameterSet>("DigiFractionOverThresholdVsEtaH"), ibooker);
+          local_mes.FractionOfOvTBitsVsEta = phase2tkutil::bookProfile1DFromPSetWithPosition(
+              config_.getParameter<edm::ParameterSet>("DigiFractionOverThresholdVsEtaH"), ibooker, prettyName);
         }
       }
 
@@ -540,8 +540,8 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
       if (isPtypeSensor) {
         local_mes.DigiOccupancyP = phase2tkutil::book1DFromPSetWithPosition(
             config_.getParameter<edm::ParameterSet>("DigiOccupancyPH"), ibooker, prettyName, false);
-        local_mes.EtaOccupancyProfP = phase2tkutil::bookProfile1DFromPSet(
-            config_.getParameter<edm::ParameterSet>("DigiOccupancyVsEtaPH"), ibooker);
+        local_mes.EtaOccupancyProfP = phase2tkutil::bookProfile1DFromPSetWithPosition(
+            config_.getParameter<edm::ParameterSet>("DigiOccupancyVsEtaPH"), ibooker, prettyName);
       }
 
       // Plots for Standalone clusters (Can be switched on from configs)
