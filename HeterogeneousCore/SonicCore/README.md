@@ -42,7 +42,7 @@ The python configuration for the producer should include a dedicated `PSet` for 
 process.MyProducer = cms.EDProducer("MyProducer",
     Client = cms.PSet(
         # necessary client options go here
-        mode = cms.string("Sync"),
+        mode = cms.string(""),
         Retry = cms.VPSet(
           cms.PSet(
             retryType = cms.string('RetrySameServerAction'),
@@ -104,6 +104,7 @@ The `SonicClient` has three available modes:
 * `PseudoAsync`: turns a synchronous, blocking call into an asynchronous, non-blocking call, by waiting for the result in a separate `std::thread`.
 
 `Async` is the most efficient, but can only be used if asynchronous, non-blocking calls are supported by the communication protocol in use.
+When a fallback CPU server is used, `Sync` mode is enforced to avoid contention, user's configuration of `mode` will be respected for other cases with `Async` mode as the default.
 
 In addition, as indicated, the input and output data types must be specified.
 (If both types are the same, only the input type needs to be specified.)
@@ -131,6 +132,12 @@ void MyClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
 
 As indicated, the `fillBasePSetDescription()` function should always be applied to the `descClient` object,
 to ensure that it includes the necessary parameters.
-(Calling `fillBasePSetDescription(descClient, false)` will omit the `Retry` parameter, disabling retries.)
+`Retry` is a vector of `PSet` with the parameters `retryType` and `allowedTries`.
+`retryType` is the action type that inherents from `RetryActionBase`.
+`allowedTries` is a parameter consumed by `RetrySameServerAction`.
+
+The default `Retry` action is a single `RetryFallbackServerAction`.
+To disable `Retry`, leave the `Retry` `VPSet` empty.
+
 
 Example client code can be found in the `interface` and `src` directories of the other Sonic packages in this repository.

@@ -9,12 +9,14 @@ void SonicClientBase::RetryDeleter::operator()(RetryActionBase* ptr) const { del
 SonicClientBase::SonicClientBase(const edm::ParameterSet& params,
                                  const std::string& debugName,
                                  const std::string& clientName)
-    : debugName_(debugName), clientName_(clientName), fullDebugName_(debugName_) {
+    : debugName_(debugName),
+      clientName_(clientName),
+      fullDebugName_(debugName_),
+      userMode_(params.getParameter<std::string>("mode")) {
   if (!clientName_.empty())
     fullDebugName_ += ":" + clientName_;
 
   const auto& retryPSetList = params.getParameter<std::vector<edm::ParameterSet>>("Retry");
-  std::string modeName(params.getParameter<std::string>("mode"));
 
   for (const auto& retryPSet : retryPSetList) {
     const std::string& actionType = retryPSet.getParameter<std::string>("retryType");
@@ -29,16 +31,20 @@ SonicClientBase::SonicClientBase(const edm::ParameterSet& params,
     }
   }
 
-  if (modeName == "Sync")
+  setUserMode(userMode_);
+}
+void SonicClientBase::setUserMode(const std::string& userMode) {
+  if (userMode == "Sync")
     setMode(SonicMode::Sync);
-  else if (modeName == "Async")
+  else if (userMode == "Async")
     setMode(SonicMode::Async);
-  else if (modeName == "PseudoAsync")
+  else if (userMode == "PseudoAsync")
+    setMode(SonicMode::PseudoAsync);
+  else if (userMode == "")
     setMode(SonicMode::PseudoAsync);
   else
-    throw cms::Exception("Configuration") << "Unknown mode for SonicClient: " << modeName;
+    throw cms::Exception("Configuration") << "Unknown mode for SonicClient: " << userMode;
 }
-
 void SonicClientBase::setMode(SonicMode mode) {
   if (dispatcher_ and mode_ == mode)
     return;
@@ -95,24 +101,10 @@ void SonicClientBase::finish(bool success, std::exception_ptr eptr) {
     reset();
 }
 
-void SonicClientBase::fillBasePSetDescription(edm::ParameterSetDescription& desc, bool allowRetry) {
+void SonicClientBase::fillBasePSetDescription(edm::ParameterSetDescription& desc) {
   //restrict allowed values
   desc.ifValue(edm::ParameterDescription<std::string>("mode", "PseudoAsync", true),
                edm::allowedValues<std::string>("Sync", "Async", "PseudoAsync"));
-  if (allowRetry) {
-    // Defines the structure of each entry in the VPSet
-    edm::ParameterSetDescription retryDesc;
-    retryDesc.add<std::string>("retryType", "RetrySameServerAction");
-    retryDesc.addUntracked<unsigned>("allowedTries", 0);
-
-    // Define a default retry action
-    edm::ParameterSet defaultRetry;
-    defaultRetry.addParameter<std::string>("retryType", "RetrySameServerAction");
-    defaultRetry.addUntrackedParameter<unsigned>("allowedTries", 0);
-
-    // Add the VPSet with the default retry action
-    desc.addVPSet("Retry", retryDesc, {defaultRetry});
-  }
   desc.add("sonicClientBase", desc);
   desc.addUntracked<bool>("verbose", false);
 }

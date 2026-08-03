@@ -44,9 +44,6 @@ def getParser():
 def getOptions(parser, verbose=False):
     options = parser.parse_args()
 
-def getOptions(parser, verbose=False):
-    options = parser.parse_args()
-
     if len(options.params) > 0:
         with open(options.params, 'r') as pfile:
             pdict = json.load(pfile)
