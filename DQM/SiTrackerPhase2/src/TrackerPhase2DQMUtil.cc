@@ -80,16 +80,22 @@ std::string phase2tkutil::getHistoId(uint32_t det_id, const TrackerTopology* tTo
     else
       foldername << Side;
   }
-  if (LEVEL > 3) {
+  if (LEVEL > 3 && LEVEL != 4) {
     // Wheels (endcap only)
-    // TODO: A way to add Rings with no Wheels
     if (DetId(det_id).subdetId() == PixelSubdetector::PixelEndcap)
       foldername << "Wheel" << wheel << (pretty ? " " : "/");
     if (DetId(det_id).subdetId() == SiStripSubdetector::TID)
       foldername << TEDD << "Wheel" << wheel << (pretty ? " " : "/");
   }
-  if (LEVEL > 4) {
-    // Layer/Ring
+  if (LEVEL == 4) {
+    // Rings (endcap only)
+    if (DetId(det_id).subdetId() == SiStripSubdetector::TID)
+      foldername << TEDD << "Ring" << ring << (pretty ? " " : "/");
+    if (DetId(det_id).subdetId() == PixelSubdetector::PixelEndcap)
+      foldername << "Ring" << ring << (pretty ? " " : "/");
+  }
+  if (LEVEL > 5) {
+    // Layer/Ring in Wheel
     if (DetId(det_id).subdetId() == PixelSubdetector::PixelBarrel ||
         DetId(det_id).subdetId() == SiStripSubdetector::TOB)
       foldername << "Layer" << layer << (pretty ? " " : "/");

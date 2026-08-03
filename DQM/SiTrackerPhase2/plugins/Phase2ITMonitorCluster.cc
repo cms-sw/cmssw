@@ -140,7 +140,7 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
         globalXY_endcap_->Fill(gx, gy);
         globalRZ_endcap_->Fill(gz, gr);
       }
-      for (int fillingDepth = 1; fillingDepth < 6; fillingDepth++) {
+      for (int fillingDepth = 1; fillingDepth <= 6; fillingDepth++) {
         std::string folderkey = phase2tkutil::getHistoId(detId, tTopo_, detPos.phi(), fillingDepth, false);
         auto local_mesIT = layerMEs_.find(folderkey);
         if (local_mesIT == layerMEs_.end())
@@ -226,7 +226,7 @@ void Phase2ITMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
 void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_id, std::string& subdir) {
   const GeomDet* geomDet = tkGeom_->idToDet(det_id);
   GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
-  for (int bookingDepth = 1; bookingDepth < 6; bookingDepth++) {
+  for (int bookingDepth = 1; bookingDepth <= 6; bookingDepth++) {
     std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, false);
     std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, true);
 

@@ -136,7 +136,7 @@ void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent) {
         globalXY_endcap_->Fill(gx, gy);
         globalRZ_endcap_->Fill(gz, gr);
       }
-      for (int fillingDepth = 1; fillingDepth < 6; fillingDepth++) {
+      for (int fillingDepth = 1; fillingDepth <= 6; fillingDepth++) {
         std::string key = phase2tkutil::getHistoId(detId.rawId(), tTopo_, detPos.phi(), fillingDepth, false);
 
         if (layerMEs_[key].clusterSizeX)
@@ -224,7 +224,7 @@ void Phase2ITMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
 void Phase2ITMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir) {
   const GeomDetUnit* geomDetUnit = tkGeom_->idToDetUnit(det_id);
   GlobalPoint detPos = geomDetUnit->surface().toGlobal(Local2DPoint(0, 0));
-  for (int bookingDepth = 1; bookingDepth < 6; bookingDepth++) {
+  for (int bookingDepth = 1; bookingDepth <= 6; bookingDepth++) {
     std::string key = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, false);
     std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, true);
 

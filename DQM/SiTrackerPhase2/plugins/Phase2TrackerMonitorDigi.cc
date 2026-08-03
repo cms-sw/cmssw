@@ -222,7 +222,7 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
         col_last = col;
       }
 
-      for (int fillingDepth = 1; fillingDepth < 6; fillingDepth++) {
+      for (int fillingDepth = 1; fillingDepth <= 6; fillingDepth++) {
         std::string key = phase2tkutil::getHistoId(detId, tTopo_, detPos.phi(), fillingDepth, false);
         std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
 
@@ -356,7 +356,7 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
       if (CrackOverview)
         CrackOverview->Fill(module, layer + 0.05 - (module % 2 * 0.1));
 
-      for (int fillingDepth = 1; fillingDepth < 6; fillingDepth++) {
+      for (int fillingDepth = 1; fillingDepth <= 6; fillingDepth++) {
         std::string key = phase2tkutil::getHistoId(detId, tTopo_, detPos.phi(), fillingDepth, false);
         std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
         if (pos == layerMEs.end())
@@ -482,7 +482,7 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
   const GeomDet* geomDet = tkGeom_->idToDet(det_id);
   GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
   TrackerGeometry::ModuleType moduleType = tkGeom_->getDetectorType(DetId(det_id));
-  for (int bookingDepth = 1; bookingDepth < 6; bookingDepth++) {
+  for (int bookingDepth = 1; bookingDepth <= 6; bookingDepth++) {
     std::string key = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, false);
     std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, true);
     std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
