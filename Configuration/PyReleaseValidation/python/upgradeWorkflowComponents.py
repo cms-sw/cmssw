@@ -100,7 +100,9 @@ upgradeKeys['Run4'] = [
     'Run4D121FSPU',
     'Run4D126',
     'Run4D126PU',
-     'Run4D121GenOnly',
+    'Run4D127',
+    'Run4D127PU',
+    'Run4D121GenOnly',
     'Run4D121SimOnGen',
 ]
 
@@ -3966,6 +3968,13 @@ upgradeProperties['Run4'] = {
         'Geom' : 'ExtendedRun4D126',
         'HLTmenu': '@relvalRun4',
         'GT' : 'auto:phase2_realistic_T37',
+        'Era' : 'Phase2C26I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    'Run4D127' : {
+        'Geom' : 'ExtendedRun4D127',
+        'HLTmenu': '@relvalRun4',
+        'GT' : 'auto:phase2_realistic_T35',
         'Era' : 'Phase2C26I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
