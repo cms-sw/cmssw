@@ -40,10 +40,11 @@ public:
   virtual void reset() {}
 
   //provide base params
-  static void fillBasePSetDescription(edm::ParameterSetDescription& desc, bool allowRetry = true);
+  static void fillBasePSetDescription(edm::ParameterSetDescription& desc);
 
 protected:
   void setMode(SonicMode mode);
+  void setUserMode(const std::string& userMode);
 
   virtual void evaluate() = 0;
 
@@ -70,6 +71,8 @@ protected:
 
   //for logging/debugging
   std::string debugName_, clientName_, fullDebugName_;
+  //remember what user set at config time
+  std::string userMode_;
 
   friend class SonicDispatcher;
   friend class SonicDispatcherPseudoAsync;
