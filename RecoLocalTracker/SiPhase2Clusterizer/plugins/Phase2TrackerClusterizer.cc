@@ -37,9 +37,12 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  // Declared first so that it is initialised before the algorithms that are built from it.
+  const unsigned int maxClusterSize_;
 #ifdef VERIFY_PH2_TK_CLUS
   std::unique_ptr<Phase2TrackerClusterizerAlgorithm> clusterizer_;
 #endif
+  Phase2TrackerClusterizerSequentialAlgorithm algo_;
   edm::EDGetTokenT<edm::DetSetVector<Phase2TrackerDigi> > token_;
 };
 
@@ -48,11 +51,12 @@ private:
      */
 
 Phase2TrackerClusterizer::Phase2TrackerClusterizer(edm::ParameterSet const& conf)
-    :
+    : maxClusterSize_(conf.getParameter<unsigned int>("maxClusterSize")),
 #ifdef VERIFY_PH2_TK_CLUS
-      clusterizer_(new Phase2TrackerClusterizerAlgorithm(conf.getParameter<unsigned int>("maxClusterSize"),
-                                                         conf.getParameter<unsigned int>("maxNumberClusters"))),
+      clusterizer_(
+          new Phase2TrackerClusterizerAlgorithm(maxClusterSize_, conf.getParameter<unsigned int>("maxNumberClusters"))),
 #endif
+      algo_(maxClusterSize_),
       token_(consumes<edm::DetSetVector<Phase2TrackerDigi> >(conf.getParameter<edm::InputTag>("src"))) {
   produces<Phase2TrackerCluster1DCollectionNew>();
 }
@@ -81,8 +85,7 @@ void Phase2TrackerClusterizer::produce(edm::Event& event, const edm::EventSetup&
     DetId detId(DSViter.detId());
 
     Phase2TrackerCluster1DCollectionNew::FastFiller clusters(*outputClusters, DSViter.detId());
-    Phase2TrackerClusterizerSequentialAlgorithm algo;
-    algo.clusterizeDetUnit(DSViter, clusters);
+    algo_.clusterizeDetUnit(DSViter, clusters);
     if (clusters.empty())
       clusters.abort();
 
@@ -149,8 +152,10 @@ void Phase2TrackerClusterizer::produce(edm::Event& event, const edm::EventSetup&
 
 void Phase2TrackerClusterizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<unsigned int>("maxClusterSize", 0);
-  desc.add<unsigned int>("maxNumberClusters", 0);
+  desc.add<unsigned int>("maxClusterSize", 0)
+      ->setComment("front end limit on the channels per cluster, longer runs are split; 0 disables it");
+  desc.add<unsigned int>("maxNumberClusters", 0)
+      ->setComment("limit on the clusters per module; only honoured under VERIFY_PH2_TK_CLUS");
   desc.add<edm::InputTag>("src", edm::InputTag("mix", "Tracker"));
   descriptions.add("default_phase2TrackerClusterizer", desc);
 }

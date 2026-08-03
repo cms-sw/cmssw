@@ -17,3 +17,9 @@
 <library file="ClustersValidation.cc" name="Phase2TrackerClusterizerValidation">
   <flags EDM_PLUGIN="1"/>
 </library>
+<library file="ClusterMergerComparison.cc" name="Phase2TrackerClusterMergerComparison">
+  <flags EDM_PLUGIN="1"/>
+</library>
+<bin name="testPhase2TrackerClusterMergerCatch2" file="test_catch2_*.cpp">
+  <use name="catch2"/>
+</bin>

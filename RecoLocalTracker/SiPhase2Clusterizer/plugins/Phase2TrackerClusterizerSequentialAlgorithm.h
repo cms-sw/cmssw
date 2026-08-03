@@ -8,8 +8,17 @@
 
 class Phase2TrackerClusterizerSequentialAlgorithm {
 public:
+  // maxClusterSize is the front end limit on the number of channels the readout puts in a
+  // single cluster: a longer run of hit channels comes out as several adjacent clusters,
+  // the first ones exactly maxClusterSize long. 0 means no limit.
+  explicit Phase2TrackerClusterizerSequentialAlgorithm(unsigned int maxClusterSize = 0)
+      : maxClusterSize_(maxClusterSize) {}
+
   inline void clusterizeDetUnit(const edm::DetSet<Phase2TrackerDigi>&,
                                 Phase2TrackerCluster1DCollectionNew::FastFiller&) const;
+
+private:
+  unsigned int maxClusterSize_;
 };
 
 void Phase2TrackerClusterizerSequentialAlgorithm::clusterizeDetUnit(
@@ -28,7 +37,9 @@ void Phase2TrackerClusterizerSequentialAlgorithm::clusterizeDetUnit(
     if (!(previous < digi))
       std::cout << "not ordered " << previous << ' ' << digi << std::endl;
 #endif
-    if (digi - previous == 1) {
+    // Once the open cluster has reached the front end limit the digi cannot go into it,
+    // so it opens the next one even though the two are adjacent.
+    if (digi - previous == 1 and (maxClusterSize_ == 0 or sizeCluster < maxClusterSize_)) {
       HIPbit |= digi.overThreshold();
       ++sizeCluster;
     } else {
