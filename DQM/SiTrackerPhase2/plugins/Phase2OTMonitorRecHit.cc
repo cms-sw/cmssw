@@ -270,114 +270,92 @@ void Phase2OTMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // rechitMonitorOT
   edm::ParameterSetDescription desc;
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Num_RecHits");
-    psd0.add<std::string>("title", ";Number of rechits per event;");
-    psd0.add<double>("xmin", 0.0);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 350000.0);
-    psd0.add<int>("NxBins", 150);
-    desc.add<edm::ParameterSetDescription>("GlobalNRecHits", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "RecHit_Global_Position_XY_P");
-    psd0.add<std::string>("title", "Global_RecHitPosition_XY_P;x [mm];y [mm];");
-    psd0.add<int>("NxBins", 1250);
-    psd0.add<double>("xmin", -1250.0);
-    psd0.add<double>("xmax", 1250.0);
-    psd0.add<int>("NyBins", 1250);
-    psd0.add<double>("ymin", -1250.0);
-    psd0.add<double>("ymax", 1250.0);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("GlobalPositionXY_P", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "RecHit_Global_Position_XY_S");
-    psd0.add<std::string>("title", "Global_RecHitPosition_XY_S;x [mm];y [mm];");
-    psd0.add<int>("NxBins", 1250);
-    psd0.add<double>("xmin", -1250.0);
-    psd0.add<double>("xmax", 1250.0);
-    psd0.add<int>("NyBins", 1250);
-    psd0.add<double>("ymin", -1250.0);
-    psd0.add<double>("ymax", 1250.0);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("GlobalPositionXY_S", psd0);
-  }
+  phase2tkutil::add1DDesc(
+      desc, "GlobalNRecHits", "Num_RecHits", "Number of rechits per event", "Number of rechits", "", 150, 0.0, 350000.0);
 
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "RecHit_Global_Position_RZ_P");
-    psd0.add<std::string>("title", "Global_RecHitPosition_RZ_P;z [mm];r [mm]");
-    psd0.add<int>("NxBins", 1500);
-    psd0.add<double>("xmin", -3000.0);
-    psd0.add<double>("xmax", 3000.0);
-    psd0.add<int>("NyBins", 1250);
-    psd0.add<double>("ymin", 0.0);
-    psd0.add<double>("ymax", 1250.0);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("GlobalPositionRZ_P", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "RecHit_Global_Position_RZ_S");
-    psd0.add<std::string>("title", "Global_RecHitPosition_RZ_S;z [mm];r [mm]");
-    psd0.add<int>("NxBins", 1500);
-    psd0.add<double>("xmin", -3000.0);
-    psd0.add<double>("xmax", 3000.0);
-    psd0.add<int>("NyBins", 1250);
-    psd0.add<double>("ymin", 0.0);
-    psd0.add<double>("ymax", 1250.0);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("GlobalPositionRZ_S", psd0);
-  }
+  phase2tkutil::add2DDesc(desc,
+                          "GlobalPositionXY_P",
+                          "RecHit_Global_Position_XY_P",
+                          "Global_RecHitPosition_XY_P",
+                          "x [mm]",
+                          "y [mm]",
+                          1250,
+                          -1250.0,
+                          1250.0,
+                          1250,
+                          -1250.0,
+                          1250.0);
+  phase2tkutil::add2DDesc(desc,
+                          "GlobalPositionXY_S",
+                          "RecHit_Global_Position_XY_S",
+                          "Global_RecHitPosition_XY_S",
+                          "x [mm]",
+                          "y [mm]",
+                          1250,
+                          -1250.0,
+                          1250.0,
+                          1250,
+                          -1250.0,
+                          1250.0);
+
+  phase2tkutil::add2DDesc(desc,
+                          "GlobalPositionRZ_P",
+                          "RecHit_Global_Position_RZ_P",
+                          "Global_RecHitPosition_RZ_P",
+                          "z [mm]",
+                          "r [mm]",
+                          1500,
+                          -3000.0,
+                          3000.0,
+                          1250,
+                          0.0,
+                          1250.0);
+  phase2tkutil::add2DDesc(desc,
+                          "GlobalPositionRZ_S",
+                          "RecHit_Global_Position_RZ_S",
+                          "Global_RecHitPosition_RZ_S",
+                          "z [mm]",
+                          "r [mm]",
+                          1500,
+                          -3000.0,
+                          3000.0,
+                          1250,
+                          0.0,
+                          1250.0);
+
   //Layer wise parameter
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Num_RecHits_Layer_P");
-    psd0.add<std::string>("title", "Number of RecHits per event in macro pixel sensors;");
-    psd0.add<double>("xmin", 0.0);
-    psd0.add<double>("xmax", 28000.0);
-    psd0.add<int>("NxBins", 150);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("NRecHitsLayer_P", psd0);
-  }
+  phase2tkutil::add1DDesc(desc,
+                          "NRecHitsLayer_P",
+                          "Num_RecHits_P",
+                          "Number of RecHits per event in pixels in {}",
+                          "Number of rechits",
+                          "",
+                          150,
+                          0.0,
+                          28000.0);
+  phase2tkutil::add1DDesc(desc,
+                          "NRecHitsLayer_S",
+                          "Num_RecHits_S",
+                          "Number of RecHits per event in strips in {}",
+                          "Number of rechits",
+                          "",
+                          150,
+                          0.0,
+                          28000.0);
 
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Num_RecHits_Layer_S");
-    psd0.add<std::string>("title", "Number of RecHits per event in strip sensors;");
-    psd0.add<double>("xmin", 0.0);
-    psd0.add<double>("xmax", 28000.0);
-    psd0.add<int>("NxBins", 150);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("NRecHitsLayer_S", psd0);
-  }
+  phase2tkutil::add1DDesc(desc,
+                          "RecHitSize_P",
+                          "RecHit_Size_P",
+                          "RecHit size in pixels in {}",
+                          "RecHit size (macro pixel)",
+                          "",
+                          31,
+                          -0.5,
+                          30.5);
+  phase2tkutil::add1DDesc(
+      desc, "RecHitSize_S", "RecHit_Size_S", "RecHit size in strips in {}", "RecHit size (strips)", "", 31, -0.5, 30.5);
 
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "RecHit_Size_P");
-    psd0.add<std::string>("title", "RecHit size in macro pixel sensors;RecHit size(macro pixel);");
-    psd0.add<double>("xmin", -0.5);
-    psd0.add<double>("xmax", 30.5);
-    psd0.add<int>("NxBins", 31);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("RecHitSize_P", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "RecHit_Size_S");
-    psd0.add<std::string>("title", "RecHit size in strip sensors;RecHit size(strips);");
-    psd0.add<double>("xmin", -0.5);
-    psd0.add<double>("xmax", 30.5);
-    psd0.add<int>("NxBins", 31);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("RecHitSize_S", psd0);
-  }
   desc.add<std::string>("TopFolderName", "OuterTracker");
   desc.add<bool>("Verbosity", false);
   desc.add<edm::InputTag>("rechitsSrc", edm::InputTag("siPhase2RecHits"));
