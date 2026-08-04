@@ -263,6 +263,17 @@ private:
       cms::perfetto::resetModuleContext();
       return;
     }
+    // Seed the throughput window with the start of the first event. At startup all streams
+    // finish their first (slow) event almost simultaneously, so a window of completion times
+    // alone spans only that tight burst and reports a spuriously high rate exactly when the
+    // job is at its slowest; anchored at the first event start the counter reads ~1/T(event)
+    // and ramps up honestly.
+    if (!throughputSeeded_.exchange(true, std::memory_order_relaxed)) {
+      timespec ts{};
+      clock_gettime(CLOCK_BOOTTIME, &ts);
+      std::scoped_lock lock(throughputMutex_);
+      completions_.push_back(int64_t(ts.tv_sec) * 1000000000LL + ts.tv_nsec);
+    }
     st.in_event = true;
     auto const& id = sc.eventID();
     st.eventId = id.event();
@@ -463,7 +474,8 @@ private:
 
   static constexpr std::size_t kThroughputWindow = 16;  // events in the rate window
   std::mutex throughputMutex_;
-  std::deque<int64_t> completions_;  // boottime ns of recent event completions
+  std::atomic<bool> throughputSeeded_{false};  // window anchored at the first event start
+  std::deque<int64_t> completions_;            // boottime ns of recent event completions
 };
 
 DEFINE_FWK_SERVICE(PerfettoTraceService);
