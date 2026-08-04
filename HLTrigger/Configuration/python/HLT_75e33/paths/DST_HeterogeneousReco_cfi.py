@@ -14,9 +14,8 @@ from ..modules.hltLST_cfi import hltLST
 from ..modules.hltPhase2OtRecHitsSoA_cfi import hltPhase2OtRecHitsSoA
 from ..modules.hltPhase2PixelRecHitsExtendedSoA_cfi import hltPhase2PixelRecHitsExtendedSoA
 from ..modules.hltPhase2PixelTracks_cfi import hltPhase2PixelTracks
-from ..modules.hltPhase2PixelTracksCAExtension_cfi import hltPhase2PixelTracksCAExtension
-from ..modules.hltPhase2PixelTracksCutClassifier_cfi import hltPhase2PixelTracksCutClassifier
 from ..modules.hltPhase2PixelTracksSoA_cfi import hltPhase2PixelTracksSoA
+from ..modules.hltPhase2PixelTrackTorchHighPuritySelector_cfi import hltPhase2PixelTrackTorchHighPuritySelector
 from ..modules.hltPhase2PixelVertices_cfi import hltPhase2PixelVertices
 #from ..modules.hltPhase2PixelVerticesSoA_cfi import hltPhase2PixelVerticesSoA
 from ..modules.hltPhase2SiPixelClustersSoA_cfi import hltPhase2SiPixelClustersSoA
@@ -25,7 +24,6 @@ from ..modules.hltSiPixelClusters_cfi import hltSiPixelClusters
 from ..modules.hltSiPixelRecHits_cfi import hltSiPixelRecHits
 from ..modules.hltSiPhase2Clusters_cfi import hltSiPhase2Clusters
 from ..modules.hltSiPhase2RecHits_cfi import hltSiPhase2RecHits
-
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
 
@@ -44,10 +42,9 @@ HLTLocalTrackerSequence = cms.Sequence(
 
 HLTPixelTrackingSequence = cms.Sequence(
     hltPhase2PixelTracksSoA
-    + hltPhase2PixelTracksCAExtension
-    + hltPhase2PixelVertices
-    + hltPhase2PixelTracksCutClassifier
+    + hltPhase2PixelTrackTorchHighPuritySelector
     + hltPhase2PixelTracks
+    + hltPhase2PixelVertices
     #+ hltExtendedPhase2PixelVerticesSoA # not yet ready
 )
 
