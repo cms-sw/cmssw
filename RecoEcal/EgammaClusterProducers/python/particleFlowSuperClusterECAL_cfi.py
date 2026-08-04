@@ -34,3 +34,11 @@ from Configuration.Eras.Modifier_run3_egamma_cff import run3_egamma
     uncertaintyKeyEB = 'pfscecal_ebUncertainty_offline_v2',
     regressionKeyEE  = 'pfscecal_eeCorrection_offline_v2',
     uncertaintyKeyEE = 'pfscecal_eeUncertainty_offline_v2'))
+
+from Configuration.ProcessModifiers.hiEGReg_cff import hiEGReg
+hiEGReg.toModify(particleFlowSuperClusterECAL, regressionConfig = dict(
+    rhoMaps = ["hiRhoForEGReg:mapEtaEdges", "hiRhoForEGReg:mapToRho"],
+    regressionKeyEB  = 'pfscecal_EBCorrection_HIN_offline',
+    uncertaintyKeyEB = 'pfscecal_EBUncertainty_HIN_offline',
+    regressionKeyEE  = 'pfscecal_EECorrection_HIN_offline',
+    uncertaintyKeyEE = 'pfscecal_EEUncertainty_HIN_offline'))
