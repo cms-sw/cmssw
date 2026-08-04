@@ -489,7 +489,7 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
 
   // Loop for efficiency
   for (unsigned itau = 0; itau < genTaus.size(); ++itau) {
-    reco::GenJet& genTau = genTaus[itau];
+    const auto& genTau = genTaus.at(itau);
 
     h_genTau_["pt"]->Fill(genTau.pt());
     h_genTau_["eta"]->Fill(genTau.eta());
@@ -502,8 +502,6 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
     h2d_genTau_["mass_phi"]->Fill(genTau.mass(), genTau.phi());
 
 
-    // For gentau decay modes:
-    const auto& genTau = genTaus->at(itau);
     const std::string genDM = JetMCTagUtils::genTauDecayMode(genTau);
     if (std::find(decayModes_.begin(), decayModes_.end(), genDM) == decayModes_.end()) {
       edm::LogWarning("TauValidator") << "Unexpected gen tau decay mode: '" << genDM << "'";
@@ -595,7 +593,7 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
 
   // Loop for fake rate
   for (unsigned itau = 0; itau < recoTaus.size(); ++itau) {
-    reco::PFTau& recoTau = recoTaus[itau];
+    const auto& recoTau = recoTaus.at(itau);
     h_recoTau_["pt"]->Fill(recoTau.pt());
     h_recoTau_["eta"]->Fill(recoTau.eta());
     h_recoTau_["phi"]->Fill(recoTau.phi());
@@ -607,7 +605,6 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
     h2d_recoTau_["mass_phi"]->Fill(recoTau.mass(), recoTau.phi());
 
     // For recotau decay modes:
-    const auto& recoTau = recoTaus.at(itau);
     const std::string recoDM = recoTauDecayModes[itau];
     if (std::find(decayModes_.begin(), decayModes_.end(), recoDM) == decayModes_.end()) {
       edm::LogWarning("TauValidator") << "Unexpected reco tau decay mode: '" << recoDM << "'";

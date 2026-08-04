@@ -23,7 +23,7 @@ Examples:
 
 This script overlays tau validation quantities split by decay mode.
 
-For DeltaR = 0.3, use the default TauValidation folder.
+For DeltaR = 0.1, use the default TauValidation folder.
 Do not use TauValidation_DeltaR unless you explicitly enabled the DeltaR scan sequence.
 COMMENT
 
@@ -54,7 +54,7 @@ MAKE_COMPARISON="${SCRIPT_DIR}/makeComparisonPlots.py"
 MAKE_TAU_VALIDATION="${SCRIPT_DIR}/makeTauValidationPlots.py"
 
 ENERGY_TEXT="Ten Tau | 14 TeV"
-LABEL_TEXT="${STEP} Tau validation, $\Delta R = 0.3$"
+LABEL_TEXT="${STEP} Tau validation, $\Delta R = 0.1$"
 
 if [ -n "$SUB_DIR" ]; then
     SELECTED_DIR="${BASE_DIR}/${SUB_DIR}"
@@ -396,7 +396,7 @@ echo "Selected DQM directory:"
 echo "$SELECTED_DIR"
 
 echo
-echo "Making decay-mode plots for ${STEP_UPPER}, DeltaR = 0.3"
+echo "Making decay-mode plots for ${STEP_UPPER}, DeltaR = 0.1"
 
 make_all_decaymode_summary_plots
 
