@@ -639,7 +639,7 @@ int main(int argc, char** argv) {
   if (argc > 3)
     nIters = std::stoi(argv[3]);
 
-  int threadsPerBlock = nClusters > 1024 ? 128 : nClusters;
+  int threadsPerBlock = nClusters > 512 ? 128 : nClusters;
 
   if (argc > 4) {
     threadsPerBlock = std::stoi(argv[4]);
