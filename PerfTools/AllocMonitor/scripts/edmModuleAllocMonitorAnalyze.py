@@ -307,10 +307,11 @@ class ModuleData(object):
         return {'run' : self.sync[0], 'lumi' : self.sync[1], 'event' : self.sync[2] }
     def toSimpleDict(self) :
         recordName, callID = self.record
-        if recordName and callID is not None :
+        if callID is not None:
+            trName = transitionName(self.transition)
+            if not recordName:
+                recordName = trName
             return {'timeRange': self.timeRange, 'transition': transitionName(self.transition), 'sync' : self.syncToSimpleDict(), 'activity' : activityName(self.activity), 'record' :{'name': recordName, 'callID' : callID}, 'alloc' : self.allocInfo.toSimpleDict() }
-        if not recordName and callID is not None:
-            return {'timeRange': self.timeRange, 'transition': transitionName(self.transition), 'sync' : self.syncToSimpleDict(), 'activity' : activityName(self.activity), 'callID' : callID, 'alloc' : self.allocInfo.toSimpleDict() }
         return {'timeRange': self.timeRange, 'transition': transitionName(self.transition), 'sync' : self.syncToSimpleDict(), 'activity': activityName(self.activity), 'alloc' : self.allocInfo.toSimpleDict() }
         
 class ModuleInfo(object):
@@ -468,10 +469,8 @@ class PreFrameworkTransitionParser (FrameworkTransitionParser):
             data.setStartTime(self.time)
         elif self.transition == Phase.globalBeginRun:
             syncs.setRun(self.index, self.sync[0])
-            isSourceTrans = True
         elif self.transition == Phase.globalBeginLumi:
             syncs.setLumi(self.index, self.sync[0], self.sync[1])
-            isSourceTrans = True
         elif self.transition == Phase.Event:
             syncs.setStream(self.index, self.sync[0], self.sync[1], self.sync[2])
             isSourceTrans = True
