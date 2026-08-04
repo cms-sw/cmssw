@@ -299,10 +299,9 @@ class ModuleData(object):
             'alloc': self.allocInfo
             }
         if callID is not None:
-            data['record'] = {}
+            data['record'] = {'callID': callID}
             if recordName is not None:
-                data['record']['name'] = self.record[0]
-            data['record']['callID'] = self.record[1]
+                data['record']['name'] = recordName
             if self.transition not in [Phase.beginProcessBlock, Phase.endProcessBlock, Phase.accessInputProcessBlock,
                                    Phase.globalBeginRun, Phase.globalEndRun, Phase.globalBeginLumi,
                                    Phase.globalEndLumi, Phase.streamBeginRun, Phase.streamEndRun,
