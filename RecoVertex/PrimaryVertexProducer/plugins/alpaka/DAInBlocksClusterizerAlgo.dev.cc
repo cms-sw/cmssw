@@ -1,4 +1,9 @@
-#include "DAInBlocksClusterizerAlgoKernels.h"
+#include "DAInBlocksClusterizerInitializers.h"
+#include "DAInBlocksClusterizerPrimitives.h"
+#include "DAInBlocksClusterizerMerge.h"
+#include "DAInBlocksClusterizerSplit.h"
+#include "DAInBlocksClusterizerThermalize.h"
+#include "DAInBlocksClusterizerCooling.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace cms::alpakatools;
@@ -38,11 +43,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         osumtkwt = 0;
       }
       alpaka::syncBlockThreads(acc);
-      for (auto itrack : uniform_elements(acc, trackBlockSize)) {
-        if (not(tracks[itrack + blockIdx * trackBlockSize].isGood()))
-          continue;
-        double temp_weight = static_cast<double>(tracks[itrack].weight());
-        alpaka::atomicAdd(acc, &osumtkwt, temp_weight, alpaka::hierarchy::Threads{});
+      for (int itrackO : uniform_elements(acc, round_up_by(trackBlockSize, alpaka::warp::getSize(acc)))) {
+        if (itrackO < trackBlockSize) {
+          unsigned int itrack = itrackO + blockIdx * trackBlockSize;
+          if (not(tracks[itrack].isGood()))
+            continue;
+          double temp_weight = static_cast<double>(tracks[itrack].weight());
+          alpaka::atomicAdd(acc, &osumtkwt, temp_weight, alpaka::hierarchy::Threads{});
+        }
       }
       alpaka::syncBlockThreads(acc);
       if (once_per_block(acc)) {

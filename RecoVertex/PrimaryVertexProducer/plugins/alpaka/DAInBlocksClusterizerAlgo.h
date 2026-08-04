@@ -1,11 +1,6 @@
 #ifndef RecoVertex_PrimaryVertexProducer_plugins_alpaka_DAInBlocksClusterizerAlgo_h
 #define RecoVertex_PrimaryVertexProducer_plugins_alpaka_DAInBlocksClusterizerAlgo_h
 
-// This header declares the host-callable public API of DAInBlocksClusterizerAlgo only, so it is
-// safe to include from plain host-compiled wrapper .cc files (e.g. PrimaryVertexProducerPortable.cc).
-// The device-only kernel-body implementation lives in DAInBlocksClusterizerAlgoKernels.h, which must
-// only be included from .dev.cc translation units (see that header for why).
-
 #include <alpaka/alpaka.hpp>
 
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"

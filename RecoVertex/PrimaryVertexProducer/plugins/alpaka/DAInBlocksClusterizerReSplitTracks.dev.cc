@@ -1,4 +1,8 @@
-#include "DAInBlocksClusterizerAlgoKernels.h"
+#include "DAInBlocksClusterizerPrimitives.h"
+#include "DAInBlocksClusterizerMerge.h"
+#include "DAInBlocksClusterizerSplit.h"
+#include "DAInBlocksClusterizerThermalize.h"
+#include "DAInBlocksClusterizerReSplit.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace cms::alpakatools;
