@@ -81,7 +81,7 @@ clean_libs() {
 #    rm *.tex
 #   rm aclocal.m4 ChangeLog depcomp install-sh libtool ltmain.sh missing
     rm aclocal.m4 ChangeLog depcomp install-sh ltmain.sh missing
-    rm AUTHORS COPYING INSTALL NEWS README 
+    rm AUTHORS COPYING INSTALL NEWS README
     rm -rf autom4te.cache
     find ./ -type f -name 'Makefile*' -exec rm -rf {} \;
     find ./ -type d -name '.deps'     -exec rm -rf {} \;
@@ -148,7 +148,7 @@ do
   \?)
     shift `expr $OPTIND - 1`
     if [ "$1" = "--help" ]; then print_help && exit 0;
-    else 
+    else
       echo -n "MakeSherpaLibs: error: unrecognized option "
       if [ $OPTARG != "-" ]; then echo "'-$OPTARG'. try '-h'"
       else echo "'$1'. try '-h'"
@@ -234,15 +234,15 @@ cd ${shrun}
 runfile="Run.dat"
 runcardfile=Run.dat_${prc}
 outflbs=sherpa_${prc}
-cardfile=${outflbs}_cards.tgz             # input card file (master -> libraries)
+cardfile=${outflbs}_cards_${SCRAM_ARCH}_${CMSSW_VERSION}.tgz             # input card file (master -> libraries)
 if [ "${lbo}" = "CRSS" ]; then
-  cardfile=${outflbs}_crdC.tgz
+  cardfile=${outflbs}_crdC_${SCRAM_ARCH}_${CMSSW_VERSION}.tgz
 elif [ "${lbo}" = "EVTS" ]; then
-  cardfile=${outflbs}_crdE.tgz
+  cardfile=${outflbs}_crdE_${SCRAM_ARCH}_${CMSSW_VERSION}.tgz
 fi
-libsfile=${outflbs}_libs.tgz              # output libs
-crssfile=${outflbs}_crss.tgz              # output cross sections
-evtsfile=${outflbs}_evts.tgz              # output events
+libsfile=${outflbs}_libs_${SCRAM_ARCH}_${CMSSW_VERSION}.tgz              # output libs
+crssfile=${outflbs}_crss_${SCRAM_ARCH}_${CMSSW_VERSION}.tgz              # output cross sections
+evtsfile=${outflbs}_evts_${SCRAM_ARCH}_${CMSSW_VERSION}.tgz              # output events
 if [ ! "${cfdc}" = "" ]; then
   cardfile=${cfdc}                        # custom input data card file
   echo " <I> using custom data card file: "${cardfile}
@@ -255,14 +255,14 @@ if [ ! "${cfcr}" = "" ]; then
   crssfile=${cfcr}                        # custom input cross section file
   echo " <I> using custom cross section file: "${crssfile}
 fi
-crdlfile=${outflbs}_crdL.tgz              # output cardfile (-> from library production)
-crdcfile=${outflbs}_crdC.tgz              # output cardfile (-> from cross section calculation)
-crdefile=${outflbs}_crdE.tgz              # output cardfile (-> from event generation)
-loglfile=${outflbs}_logL.tgz              # output messages (-> from library production)
-logcfile=${outflbs}_logC.tgz              # output messages (-> from cross section calculation)
-logefile=${outflbs}_logE.tgz              # output messages (-> from event generation)
+crdlfile=${outflbs}_crdL_${SCRAM_ARCH}_${CMSSW_VERSION}.tgz              # output cardfile (-> from library production)
+crdcfile=${outflbs}_crdC_${SCRAM_ARCH}_${CMSSW_VERSION}.tgz              # output cardfile (-> from cross section calculation)
+crdefile=${outflbs}_crdE_${SCRAM_ARCH}_${CMSSW_VERSION}.tgz              # output cardfile (-> from event generation)
+loglfile=${outflbs}_logL_${SCRAM_ARCH}_${CMSSW_VERSION}.tgz              # output messages (-> from library production)
+logcfile=${outflbs}_logC_${SCRAM_ARCH}_${CMSSW_VERSION}.tgz              # output messages (-> from cross section calculation)
+logefile=${outflbs}_logE_${SCRAM_ARCH}_${CMSSW_VERSION}.tgz              # output messages (-> from event generation)
 #
-gridfile=${outflbs}_migr.tgz              # multiple interactions phase-space grid
+gridfile=${outflbs}_migr_${SCRAM_ARCH}_${CMSSW_VERSION}.tgz              # multiple interactions phase-space grid
 #
 dir1="Process"                            # SHERPA process directory name
 dir2="Result"                             # SHERPA results directory name
@@ -537,7 +537,7 @@ if [ "${lbo}" == "LIBS" ] || [ "${lbo}" == "LBCR" ]; then
       nlines=200
 #      nphbw=`tail -${nlines} ${shrun}/${outflbs}_pass${lbo}.out | grep -c "has been written"`
 #      npasw=`tail -${nlines} ${shrun}/${outflbs}_pass${lbo}.out | grep -c "AMEGIC::Single_Process::WriteLibrary"`
-      npnlc=`tail -${nlines} ${shrun}/${outflbs}_pass${lbo}.out | grep -c "New libraries created. Please compile."` 
+      npnlc=`tail -${nlines} ${shrun}/${outflbs}_pass${lbo}.out | grep -c "New libraries created. Please compile."`
 #      if [ ${nphbw} -gt 0 ] || [ ${npasw} -gt 0 ] || [ ${npnlc} -gt 0 ] ; then
       if [ ${npnlc} -gt 0 ] ; then
         echo " <I> (AMEGIC) detected library writing: "${nphbw}" (HBW), "${npasw}" (ASW), "${npnlc}" (NLC)"
@@ -599,7 +599,7 @@ fi
 
 if [ "${lbo}" == "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
   touch ${crssfile}.tmp
-  find ./${dir2}/ -name '*'     > tmp.lst 
+  find ./${dir2}/ -name '*'     > tmp.lst
   if [ -e Result.db ]; then
     echo Result.db >> tmp.lst
   fi
