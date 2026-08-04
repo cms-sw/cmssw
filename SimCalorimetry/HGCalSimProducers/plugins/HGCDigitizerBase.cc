@@ -48,6 +48,12 @@ HGCDigitizerBase::HGCDigitizerBase(const edm::ParameterSet& ps)
   } else {
     noise_fC_.resize(4, 1.f);
   }
+
+  //per-thickness MIP-charge scale for the ZS threshold
+  //indexed by cell.thickness-1 -> {HD120, LD200, LD300, HD200})
+  const auto& mipScale = myCfg_.getParameter<std::vector<double>>("mipChargeScale");
+  mipChargeScale_ = std::vector<float>(mipScale.begin(), mipScale.end());
+
   if (myCfg_.existsAs<edm::ParameterSet>("ileakParam")) {
     scal_.setIleakParam(
         myCfg_.getParameter<edm::ParameterSet>("ileakParam").template getParameter<std::vector<double>>("ileakParam"));
@@ -176,10 +182,8 @@ void HGCDigitizerBase::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& coll,
       //note that in this legacy case, gainIdx is kept at 0, fixed
       cce = (cce_.empty() ? 1.f : cce_[cell.thickness - 1]);
       noiseWidth = cell.size * noise_fC_[cell.thickness - 1];
-      //cell.thickness (1,2,3 for 120,200,300um) doubles as the MIP-charge scale
-      //of the threshold; HD 200um sensors (cell.thickness==4) carry the MIP
-      //charge of a 200um sensor, not four times that of 120um
-      const int mipScaleFactor = (cell.thickness == 4) ? 2 : cell.thickness;
+      //MIP-charge scale of the ZS threshold, per silicon thickness
+      const float mipScaleFactor = mipChargeScale_[cell.thickness - 1];
       thrADC =
           thresholdFollowsMIP_
               ? std::floor(mipScaleFactor * cce * myFEelectronics_->getADCThreshold() / myFEelectronics_->getADClsb())
