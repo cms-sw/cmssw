@@ -469,12 +469,12 @@ class PreFrameworkTransitionParser (FrameworkTransitionParser):
             data.setStartTime(self.time)
         elif self.transition == Phase.globalBeginRun:
             syncs.setRun(self.index, self.sync[0])
+            isSourceTrans = True
         elif self.transition == Phase.globalBeginLumi:
             syncs.setLumi(self.index, self.sync[0], self.sync[1])
+            isSourceTrans = True
         elif self.transition == Phase.Event:
             syncs.setStream(self.index, self.sync[0], self.sync[1], self.sync[2])
-            isSourceTrans = True
-        elif self.transition == Phase.getNextTransition:
             isSourceTrans = True
         elif self.transition == Phase.clearEvent:
             temp.insertTime("clearEvent", self.transition, self.index, 0, self.time)
