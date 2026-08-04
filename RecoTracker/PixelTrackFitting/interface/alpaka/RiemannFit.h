@@ -608,7 +608,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::riemannFit {
 #endif
       {
         Eigen::Matrix<double, 1, 1> cm;
-        Eigen::Matrix<double, 1, 1> cm2;
+        // Eigen::Matrix<double, 1, 1> cm2;
         cm = mc.transpose() * vMat * mc;
         const double tempC2 = cm(0, 0);
         Matrix2Nd<N> tempVcsMat;
