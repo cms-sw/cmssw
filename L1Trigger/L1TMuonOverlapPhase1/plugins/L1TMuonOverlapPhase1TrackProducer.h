@@ -46,7 +46,7 @@ private:
 
   edm::ESGetToken<L1TMuonOverlapParams, L1TMuonOverlapParamsRcd> omtfParamsEsToken;
 
-  //needed for AngleConverterBase
+  //needed for OmtfAngleConverter
   MuonGeometryTokens muonGeometryTokens;
 
   ///needed by tools/CandidateSimMuonMatcher.h

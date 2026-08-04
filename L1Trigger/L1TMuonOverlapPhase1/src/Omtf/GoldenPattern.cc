@@ -11,8 +11,7 @@ int GoldenPattern::meanDistPhiValue(unsigned int iLayer, unsigned int iRefLayer,
 
 ////////////////////////////////////////////////////
 ////////////////////////////////////////////////////
-int GoldenPattern::propagateRefPhi(int phiRef, int etaRef, unsigned int iRefLayer) {
-  unsigned int iLayer = 2;  //MB2
+int GoldenPattern::propagateRefPhi(int phiRef, int etaRef, unsigned int iRefLayer, unsigned int iLayer) {
   return phiRef + meanDistPhi[iLayer][iRefLayer][0];
   //FIXME if the meanDistPhiAlpha is non-zero, then meanDistPhi is alone not good for propagation of the phi
   //other value should be used, or the ref_layer phiB should be included

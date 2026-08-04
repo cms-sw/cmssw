@@ -22,6 +22,8 @@
 #include "TH2.h"
 
 #include <functional>
+#include <vector>
+#include <cstdint>
 
 class TTree;
 
@@ -35,11 +37,16 @@ public:
   char muonCharge = 0;
   float muonDxy = 0;
   float muonRho = 0;
+  //pdgId in principle should be int
+  short parentPdgId = 0;
+  float vertexEta = 0;
+  float vertexPhi = 0;
 
   float omtfPt = 0, omtfEta = 0, omtfPhi = 0, omtfUPt = 0;
   char omtfCharge = 0;
   char omtfProcessor = 0;
   short omtfScore = 0;
+  short omtfRefHitPhi = 0;
 
   short omtfHwEta = 0;
 
@@ -62,15 +69,18 @@ public:
       struct {
         char layer;
         char quality;
-        char z;
+        char etaHw;
         char valid;
-        short eta;
+        short deltaR;
         short phiDist;
       };
     };
 
     ~Hit() {}
   };
+
+  // ensure the packed Hit view fits in the unsigned long rawData storage
+  static_assert(sizeof(Hit) <= sizeof(unsigned long), "OmtfEvent::Hit must fit into unsigned long rawData");
 
   std::vector<unsigned long> hits;
 };
@@ -88,10 +98,9 @@ public:
                                 const std::shared_ptr<OMTFinput>&,
                                 const AlgoMuons& algoCandidates,
                                 const AlgoMuons& gbCandidates,
-                                const std::vector<l1t::RegionalMuonCand>& candMuons) override;
+                                const FinalMuons& finalMuons) override;
 
-  void observeEventEnd(const edm::Event& iEvent,
-                       std::unique_ptr<l1t::RegionalMuonCandBxCollection>& finalCandidates) override;
+  void observeEventEnd(const edm::Event& iEvent, FinalMuons& finalMuons) override;
 
   void endJob() override;
 
@@ -109,11 +118,9 @@ private:
   TH1I* ptGenPos = nullptr;
   TH1I* ptGenNeg = nullptr;
 
-  std::vector<TH2*> hitVsPt;
+  //std::vector<TH2*> hitVsPt;
 
   bool dumpKilledOmtfCands = false;
-
-  bool usePropagation = false;
 };
 
 #endif /* L1T_OmtfP1_TOOLS_DATAROOTDUMPER2_H_ */

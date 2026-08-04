@@ -105,10 +105,8 @@ public:
                                             const std::vector<int>& extrapolatedPhi,
                                             const MuonStubPtr& refStub);
 
-  ///Propagate phi from given reference layer to MB2 or ME2
-  ///ME2 is used if eta of reference hit is larger than 1.1
-  ///expressed in integer MicroGMT scale: 1.1/2.61*240 = 101
-  virtual int propagateRefPhi(int phiRef, int etaRef, unsigned int iRefLayer) = 0;
+  ///Propagates phi from a given reference layer (iRefLayer) to a selected iLayer
+  virtual int propagateRefPhi(int phiRef, int etaRef, unsigned int iRefLayer, unsigned int iLayer) = 0;
 
   resultsArrayType& getResults() { return results; }
 

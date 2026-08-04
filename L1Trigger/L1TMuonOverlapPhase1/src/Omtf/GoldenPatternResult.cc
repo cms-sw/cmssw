@@ -35,16 +35,6 @@ void GoldenPatternResult::set(int refLayer_, int phi, int eta, int refHitPhi) {
   this->refHitPhi = refHitPhi;
 }
 
-void GoldenPatternResult::setStubResult(float pdfVal, bool valid, int pdfBin, int layer, MuonStubPtr stub) {
-  if (valid) {
-    //pdfSum and firedLayerBits is calculated in finaliseX()
-    firedLayerBits |= (1 << layer);
-  }
-  stubResults[layer] = StubResult(pdfVal, valid, pdfBin, layer, stub);
-
-  //stub result is added even thought it is not valid since this might be needed for debugging or optimization
-}
-
 void GoldenPatternResult::setStubResult(int layer, StubResult& stubResult) {
   if (stubResult.getValid()) {
     //pdfSum and firedLayerBits is calculated in finaliseX()
@@ -364,8 +354,8 @@ void GoldenPatternResult::finalise10() {
     //the efficiency difference between quality 8 and 12 seems to be at a level of 1-2%
     //but in the uGT menu e.g. the L1_DoubleMu0_Upt6_IP_Min1_Upt4 uses quality >= 0, so should be OK
 
-    //hard cut - the phiB of the refHit must fit to the pdfS
-    //but this cut has sometimes side effect: there can be a muon which has has pdfSum = 0 for every pattern,
+    //hard cut for the contstrainedPt - the phiB of the refHit must fit to the pdf
+    //but this cut has sometimes side effect: it can result in a muon which has pdfSum = 0 for every pattern,
     //then in the OMTFSorter<GoldenPatternType>::sortRefHitResults the first pattern that has FiredLayerCnt >= 3 is chosen
     //and not the one with highest pdfSum as it should be
     //TODO what should be done is to set the pt of such a muons to 0, but after the sorter.
