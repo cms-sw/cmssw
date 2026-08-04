@@ -291,13 +291,26 @@ class ModuleData(object):
         self.record = (recordName, callID)
     def __repr__(self):
         recordName, callID = self.record
-        if recordName or (callID is not None ):
-            return "{{ 'timeRange': {}, 'transition': {}, 'sync' :{}, 'activity':{}, 'record': {{'name' : {}, 'callID' :{} }}, 'alloc':{} }}".format(self.timeRange, self.transition, self.sync, self.activity, self.record[0], self.record[1], self.allocInfo)
+        data = {
+            'timeRange': self.timeRange,
+            'transition': self.transition,
+            'sync': self.sync,
+            'activity': self.activity,
+            'alloc': self.allocInfo
+            }
+        if callID is not None:
+            data['record'] = {}
+            if recordName is not None:
+                data['record']['name'] = self.record[0]
+            data['record']['callID'] = self.record[1]
+            if self.transition not in [Phase.beginProcessBlock, Phase.endProcessBlock, Phase.accessInputProcessBlock,
+                                   Phase.globalBeginRun, Phase.globalEndRun, Phase.globalBeginLumi,
+                                   Phase.globalEndLumi, Phase.streamBeginRun, Phase.streamEndRun,
+                                   Phase.streamBeginLumi, Phase.streamEndLumi, Phase.Event]:
+                del data['record']
+        return str(data).replace("'", "'")
 
-        return "{{ 'timeRange': {}, 'transition': {}, 'sync' :{}, 'activity':{}, 'alloc':{} }}".format(self.timeRange, self.transition, self.sync, self.activity, self.allocInfo)
     def syncToSimpleDict(self):
-        if isinstance(self.sync, int):
-            return {'run' : self.sync}
         if len(self.sync) == 0:
             return self.sync
         if len(self.sync) == 1:
@@ -307,13 +320,25 @@ class ModuleData(object):
         return {'run' : self.sync[0], 'lumi' : self.sync[1], 'event' : self.sync[2] }
     def toSimpleDict(self) :
         recordName, callID = self.record
+        result = {
+            'timeRange': self.timeRange,
+            'transition': transitionName(self.transition),
+            'sync': self.syncToSimpleDict(),
+            'activity': activityName(self.activity),
+            'alloc': self.allocInfo.toSimpleDict()
+            }
+
         if callID is not None:
-            trName = transitionName(self.transition)
-            if not recordName:
-                recordName = trName
-            return {'timeRange': self.timeRange, 'transition': transitionName(self.transition), 'sync' : self.syncToSimpleDict(), 'activity' : activityName(self.activity), 'record' :{'name': recordName, 'callID' : callID}, 'alloc' : self.allocInfo.toSimpleDict() }
-        return {'timeRange': self.timeRange, 'transition': transitionName(self.transition), 'sync' : self.syncToSimpleDict(), 'activity': activityName(self.activity), 'alloc' : self.allocInfo.toSimpleDict() }
-        
+            result['record'] = {'callID': callID}
+            if recordName is not None:
+                result['record']['name'] = recordName
+            if self.transition not in [Phase.beginProcessBlock, Phase.endProcessBlock, Phase.accessInputProcessBlock,
+                               Phase.globalBeginRun, Phase.globalEndRun, Phase.globalBeginLumi,
+                               Phase.globalEndLumi, Phase.streamBeginRun, Phase.streamEndRun,
+                               Phase.streamBeginLumi, Phase.streamEndLumi, Phase.Event]:
+                del result['record']
+        return result       
+
 class ModuleInfo(object):
     def __init__(self, name, cpptype):
         self._name = name
