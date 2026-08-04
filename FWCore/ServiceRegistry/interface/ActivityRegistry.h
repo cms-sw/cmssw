@@ -190,14 +190,6 @@ namespace edm {
     }
     AR_WATCH_USING_METHOD_1(watchPostESModuleConstruction)
 
-    /// signal is emitted after the ESModule is registered with EventSetupProvider
-    using PostESModuleRegistration = signalslot::Signal<void(eventsetup::ComponentDescription const&)>;
-    PostESModuleRegistration postESModuleRegistrationSignal_;
-    void watchPostESModuleRegistration(PostESModuleRegistration::slot_type const& iSlot) {
-      postESModuleRegistrationSignal_.connect(iSlot);
-    }
-    AR_WATCH_USING_METHOD_1(watchPostESModuleRegistration)
-
     using PreModulesAndSourceConstruction = signalslot::Signal<void()>;
     /// signal is emitted before the parallel section to construct ED modules and source
     PreModulesAndSourceConstruction preModulesAndSourceConstructionSignal_;

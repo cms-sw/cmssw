@@ -27,7 +27,6 @@ The order of the signals in this list is an approximate order in which they woul
 | `PostServicesConstruction` | - | Emitted after all services have been constructed. |
 | `{Pre,Post}EventSetupModulesConstruction` | Yes | Emitted before and after constructing EventSetup modules. |
 | `{Pre,Post}ESModuleConstruction` | Yes | Emitted before and after constructing an EventSetup module (ESProducer or ESSource). |
-| `PostESModuleRegistration` | - | Emitted after an ESModule provider has been registered with the EventSetupProvider. |
 | `{Pre,Post}ModulesAndSourceConstruction` | Yes | Emitted before and after concurrent construction of the Source and the EDModules. |
 | `{Pre,Post}SourceConstruction` | Yes | Emitted before and after construction of the Source. |
 | `{Pre,Post}OpenFile` | Yes | `PoolSource`, `EmbeddedRootSource`, `RNTupleTempSource`, and `EmbeddedRNTupleTempSource` emit these signals  before and after opening a new input file (either primary or secondary). Note that the first signal may be emitted during the Source construction, and the later signals after the `BeginProcessing`. |
