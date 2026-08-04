@@ -481,12 +481,10 @@ class PreFrameworkTransitionParser (FrameworkTransitionParser):
         elif not transitionIsGlobal(self.index):
             syncs.setStream(self.index, self.sync[0], self.sync[1], self.sync[2])
         if isSourceTrans:
-            try:
-                src = data.findLast("source", self.transition, self.index, Activity.process)
-                src.sync = syncs.get(self.transition, self.index)
-            except KeyError:
-                sys.stderr.write("Framework and Source transitions do not have matching index:  framework {} for transition type {}  sync: {} at framework time {}\n".format( self.index, transitionName(self.transition), self.sync, self.time))
-                pass
+            src = data.findLast("source", self.transition, self.index, Activity.process)
+            if src.sync != self.index:
+                raise RuntimeError("Framework and Source transitions do not have matching index: source {} framework {} for transition type {} at framework time {} and source time {}".format(src.sync, self.index, self.transition, self.time, src.timeRange))
+            src.sync = syncs.get(self.transition, self.index)
     def jsonVisInfo(self,  data):
         if transitionIsGlobal(self.transition):
             index = 0
