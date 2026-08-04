@@ -337,7 +337,7 @@ class ModuleData(object):
                                Phase.globalEndLumi, Phase.streamBeginRun, Phase.streamEndRun,
                                Phase.streamBeginLumi, Phase.streamEndLumi, Phase.Event]:
                 del result['record']
-        return result       
+        return result
 
 class ModuleInfo(object):
     def __init__(self, name, cpptype):
