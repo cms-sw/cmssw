@@ -1297,13 +1297,6 @@ namespace edm {
     }
     AR_WATCH_USING_METHOD_1(watchPreSourceEarlyTermination)
 
-    /// signal is emitted if event processing or end-of-job
-    /// processing fails with an uncaught exception.
-    typedef signalslot::Signal<void()> JobFailure;
-    JobFailure jobFailureSignal_;
-    void watchJobFailure(JobFailure::slot_type const& iSlot) { jobFailureSignal_.connect_front(iSlot); }
-    AR_WATCH_USING_METHOD_0(watchJobFailure)
-
     // ---------- member functions ---------------------------
 
     ///forwards our signals to slots connected to iOther

@@ -130,4 +130,3 @@ occur when accessing data from `edm::Ref`-style objects. |
 | `PreStreamEarlyTermination` | - | Emitted when an exception is thrown from any stream transition. |
 | `PreGlobalEarlyTermination` | - | Emitted when an exception is thrown from any global transition. |
 | `PreSourceEarlyTermination` | - | Emitted when an external termination request is received. |
-| `JobFailure` | - | To be removed (only called from `FWCore/Services/test/servicesJobReport_t.cpp`) |

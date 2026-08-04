@@ -59,25 +59,11 @@ void work()
   areg.postEndJobSignal_();
 }
 
-void fail()
-{
-  // Make the service.
-  edm::ParameterSet ps;
-  edm::ActivityRegistry areg;
-
-  edm::service::JobReportService jrs(ps, areg);
-  std::vector<edm::JobReport::Token> inputTokens;
-  std::vector<edm::JobReport::Token> outputTokens;
-
-  areg.jobFailureSignal_();
-}
-
 int main()
 {
   int rc = -1;
   try {
       work();
-      fail();
       rc = 0;
   }
 

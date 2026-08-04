@@ -222,7 +222,6 @@ namespace edm {
     preStreamEarlyTerminationSignal_.connect(std::cref(iOther.preStreamEarlyTerminationSignal_));
     preGlobalEarlyTerminationSignal_.connect(std::cref(iOther.preGlobalEarlyTerminationSignal_));
     preSourceEarlyTerminationSignal_.connect(std::cref(iOther.preSourceEarlyTerminationSignal_));
-    jobFailureSignal_.connect(std::cref(iOther.jobFailureSignal_));
   }
 
   void ActivityRegistry::copySlotsFrom(ActivityRegistry& iOther) {
@@ -395,6 +394,5 @@ namespace edm {
     copySlotsToFrom(preStreamEarlyTerminationSignal_, iOther.preStreamEarlyTerminationSignal_);
     copySlotsToFrom(preGlobalEarlyTerminationSignal_, iOther.preGlobalEarlyTerminationSignal_);
     copySlotsToFrom(preSourceEarlyTerminationSignal_, iOther.preSourceEarlyTerminationSignal_);
-    copySlotsToFromReverse(jobFailureSignal_, iOther.jobFailureSignal_);
   }
 }  // namespace edm
