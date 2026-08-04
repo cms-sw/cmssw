@@ -20,21 +20,16 @@ namespace phase2tkutil {
   typedef dqm::reco::MonitorElement MonitorElement;
   typedef dqm::reco::DQMStore DQMStore;
 
-  MonitorElement* book1DFromPSet(const edm::ParameterSet& hpars, DQMStore::IBooker& ibooker);
-  MonitorElement* book1DFromPSetWithPosition(const edm::ParameterSet& hpars,
-                                             DQMStore::IBooker& ibooker,
-                                             std::string titleString,
-                                             bool scale);
-
-  MonitorElement* book2DFromPSet(const edm::ParameterSet& hpars, DQMStore::IBooker& ibooker);
-  MonitorElement* book2DFromPSetWithPosition(const edm::ParameterSet& hpars,
-                                             DQMStore::IBooker& ibooker,
-                                             std::string titleString);
-
-  MonitorElement* bookProfile1DFromPSet(const edm::ParameterSet& hpars, DQMStore::IBooker& ibooker);
-  MonitorElement* bookProfile1DFromPSetWithPosition(const edm::ParameterSet& hpars,
-                                                    DQMStore::IBooker& ibooker,
-                                                    std::string titleString);
+  MonitorElement* book1DFromPSet(const edm::ParameterSet& hpars,
+                                 DQMStore::IBooker& ibooker,
+                                 std::string titleString = "",
+                                 bool scale = false);
+  MonitorElement* book2DFromPSet(const edm::ParameterSet& hpars,
+                                 DQMStore::IBooker& ibooker,
+                                 std::string titleString = "");
+  MonitorElement* bookProfile1DFromPSet(const edm::ParameterSet& hpars,
+                                        DQMStore::IBooker& ibooker,
+                                        std::string titleString = "");
 
   void add1DDesc(edm::ParameterSetDescription& desc,
                  const std::string& psetKey,

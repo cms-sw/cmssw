@@ -501,55 +501,55 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
 
       DigiMEs local_mes;
 
-      local_mes.NumberOfDigisPerDet = phase2tkutil::book1DFromPSetWithPosition(
-          config_.getParameter<edm::ParameterSet>("NumberOfDigisPerDetH"), ibooker, prettyName, false);
-      local_mes.TotalNumberOfDigisPerLayer = phase2tkutil::book1DFromPSetWithPosition(
-          config_.getParameter<edm::ParameterSet>("TotalNumberOfDigisPerLayerH"), ibooker, prettyName, false);
-      local_mes.NumberOfHitDetectorsPerLayer = phase2tkutil::book1DFromPSetWithPosition(
-          config_.getParameter<edm::ParameterSet>("NumberOfHitDetsPerLayerH"), ibooker, prettyName, false);
+      local_mes.NumberOfDigisPerDet = phase2tkutil::book1DFromPSet(
+          config_.getParameter<edm::ParameterSet>("NumberOfDigisPerDetH"), ibooker, prettyName);
+      local_mes.TotalNumberOfDigisPerLayer = phase2tkutil::book1DFromPSet(
+          config_.getParameter<edm::ParameterSet>("TotalNumberOfDigisPerLayerH"), ibooker, prettyName, true);
+      local_mes.NumberOfHitDetectorsPerLayer = phase2tkutil::book1DFromPSet(
+          config_.getParameter<edm::ParameterSet>("NumberOfHitDetsPerLayerH"), ibooker, prettyName, true);
 
       // Plots only for the inner pixel
       if (pixelFlag_) {
-        local_mes.ChargeXYMap = phase2tkutil::book2DFromPSetWithPosition(
-            config_.getParameter<edm::ParameterSet>("ChargeXYMapH"), ibooker, prettyName);
-        local_mes.ChargeOfDigis = phase2tkutil::book1DFromPSetWithPosition(
-            config_.getParameter<edm::ParameterSet>("DigiChargeH"), ibooker, prettyName, false);
+        local_mes.ChargeXYMap =
+            phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("ChargeXYMapH"), ibooker, prettyName);
+        local_mes.ChargeOfDigis =
+            phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DigiChargeH"), ibooker, prettyName);
         // For standalone clusteriser
         if (clsFlag_)
-          local_mes.ChargeOfDigisVsWidth = phase2tkutil::book2DFromPSetWithPosition(
+          local_mes.ChargeOfDigisVsWidth = phase2tkutil::book2DFromPSet(
               config_.getParameter<edm::ParameterSet>("DigiChargeVsWidthH"), ibooker, prettyName);
       }
       // For outer tracker modules (S-type histograms)
       else {
-        local_mes.DigiOccupancyS = phase2tkutil::book1DFromPSetWithPosition(
-            config_.getParameter<edm::ParameterSet>("DigiOccupancySH"), ibooker, prettyName, false);
-        local_mes.EtaOccupancyProfS = phase2tkutil::bookProfile1DFromPSetWithPosition(
+        local_mes.DigiOccupancyS = phase2tkutil::book1DFromPSet(
+            config_.getParameter<edm::ParameterSet>("DigiOccupancySH"), ibooker, prettyName);
+        local_mes.EtaOccupancyProfS = phase2tkutil::bookProfile1DFromPSet(
             config_.getParameter<edm::ParameterSet>("DigiOccupancyVsEtaSH"), ibooker, prettyName);
 
         // FracOfOverThresholdBits is only available for S-type sensor of PS module
         // For booking, just check a PS sensor exists. Must be filled in PS-S only
         if (isPtypeSensor) {
-          local_mes.FractionOfOvTBits = phase2tkutil::book1DFromPSetWithPosition(
-              config_.getParameter<edm::ParameterSet>("DigisOverThresholdH"), ibooker, prettyName, false);
-          local_mes.FractionOfOvTBitsVsEta = phase2tkutil::bookProfile1DFromPSetWithPosition(
+          local_mes.FractionOfOvTBits = phase2tkutil::book1DFromPSet(
+              config_.getParameter<edm::ParameterSet>("DigisOverThresholdH"), ibooker, prettyName);
+          local_mes.FractionOfOvTBitsVsEta = phase2tkutil::bookProfile1DFromPSet(
               config_.getParameter<edm::ParameterSet>("DigiFractionOverThresholdVsEtaH"), ibooker, prettyName);
         }
       }
 
       // Plots for P-type sensor (Pixel or P-side of PS module)
       if (isPtypeSensor) {
-        local_mes.DigiOccupancyP = phase2tkutil::book1DFromPSetWithPosition(
-            config_.getParameter<edm::ParameterSet>("DigiOccupancyPH"), ibooker, prettyName, false);
-        local_mes.EtaOccupancyProfP = phase2tkutil::bookProfile1DFromPSetWithPosition(
+        local_mes.DigiOccupancyP = phase2tkutil::book1DFromPSet(
+            config_.getParameter<edm::ParameterSet>("DigiOccupancyPH"), ibooker, prettyName);
+        local_mes.EtaOccupancyProfP = phase2tkutil::bookProfile1DFromPSet(
             config_.getParameter<edm::ParameterSet>("DigiOccupancyVsEtaPH"), ibooker, prettyName);
       }
 
       // Plots for Standalone clusters (Can be switched on from configs)
       if (clsFlag_) {
-        local_mes.NumberOfClustersPerDet = phase2tkutil::book1DFromPSetWithPosition(
-            config_.getParameter<edm::ParameterSet>("NumberOfClustersPerDetH"), ibooker, prettyName, false);
-        local_mes.ClusterWidth = phase2tkutil::book1DFromPSetWithPosition(
-            config_.getParameter<edm::ParameterSet>("ClusterWidthH"), ibooker, prettyName, false);
+        local_mes.NumberOfClustersPerDet = phase2tkutil::book1DFromPSet(
+            config_.getParameter<edm::ParameterSet>("NumberOfClustersPerDetH"), ibooker, prettyName);
+        local_mes.ClusterWidth =
+            phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterWidthH"), ibooker, prettyName);
       }
 
       layerMEs.insert(std::make_pair(key, local_mes));

@@ -187,28 +187,18 @@ std::string phase2tkutil::getITShell(uint32_t det_id, const TrackerTopology* tTo
 
 typedef dqm::reco::MonitorElement MonitorElement;
 typedef dqm::reco::DQMStore DQMStore;
-MonitorElement* phase2tkutil::book1DFromPSet(const edm::ParameterSet& hpars, DQMStore::IBooker& ibooker) {
-  MonitorElement* temp = nullptr;
-  if (hpars.getParameter<bool>("switch")) {
-    temp = ibooker.book1D(hpars.getParameter<std::string>("name"),
-                          hpars.getParameter<std::string>("title"),
-                          hpars.getParameter<int32_t>("NxBins"),
-                          hpars.getParameter<double>("xmin"),
-                          hpars.getParameter<double>("xmax"));
-  }
-  return temp;
-}
-
-MonitorElement* phase2tkutil::book1DFromPSetWithPosition(const edm::ParameterSet& hpars,
-                                                         DQMStore::IBooker& ibooker,
-                                                         std::string titleString,
-                                                         bool scale) {
+MonitorElement* phase2tkutil::book1DFromPSet(const edm::ParameterSet& hpars,
+                                             DQMStore::IBooker& ibooker,
+                                             std::string titleString,
+                                             bool scale) {
   MonitorElement* temp = nullptr;
   if (hpars.getParameter<bool>("switch")) {
     double xMax = hpars.getParameter<double>("xmax");
+    std::string title = hpars.getParameter<std::string>("title");
     if (scale)
       xMax = xMax / 5;
-    std::string title = std::vformat(hpars.getParameter<std::string>("title"), std::make_format_args(titleString));
+    if (!titleString.empty())
+      title = std::vformat(title, std::make_format_args(titleString));
     temp = ibooker.book1D(hpars.getParameter<std::string>("name"),
                           title,
                           hpars.getParameter<int32_t>("NxBins"),
@@ -218,27 +208,14 @@ MonitorElement* phase2tkutil::book1DFromPSetWithPosition(const edm::ParameterSet
   return temp;
 }
 
-MonitorElement* phase2tkutil::book2DFromPSet(const edm::ParameterSet& hpars, DQMStore::IBooker& ibooker) {
+MonitorElement* phase2tkutil::book2DFromPSet(const edm::ParameterSet& hpars,
+                                             DQMStore::IBooker& ibooker,
+                                             std::string titleString) {
   MonitorElement* temp = nullptr;
   if (hpars.getParameter<bool>("switch")) {
-    temp = ibooker.book2D(hpars.getParameter<std::string>("name"),
-                          hpars.getParameter<std::string>("title"),
-                          hpars.getParameter<int32_t>("NxBins"),
-                          hpars.getParameter<double>("xmin"),
-                          hpars.getParameter<double>("xmax"),
-                          hpars.getParameter<int32_t>("NyBins"),
-                          hpars.getParameter<double>("ymin"),
-                          hpars.getParameter<double>("ymax"));
-  }
-  return temp;
-}
-
-MonitorElement* phase2tkutil::book2DFromPSetWithPosition(const edm::ParameterSet& hpars,
-                                                         DQMStore::IBooker& ibooker,
-                                                         std::string titleString) {
-  MonitorElement* temp = nullptr;
-  if (hpars.getParameter<bool>("switch")) {
-    std::string title = std::vformat(hpars.getParameter<std::string>("title"), std::make_format_args(titleString));
+    std::string title = hpars.getParameter<std::string>("title");
+    if (!titleString.empty())
+      title = std::vformat(title, std::make_format_args(titleString));
     temp = ibooker.book2D(hpars.getParameter<std::string>("name"),
                           title,
                           hpars.getParameter<int32_t>("NxBins"),
@@ -251,26 +228,14 @@ MonitorElement* phase2tkutil::book2DFromPSetWithPosition(const edm::ParameterSet
   return temp;
 }
 
-MonitorElement* phase2tkutil::bookProfile1DFromPSet(const edm::ParameterSet& hpars, DQMStore::IBooker& ibooker) {
+MonitorElement* phase2tkutil::bookProfile1DFromPSet(const edm::ParameterSet& hpars,
+                                                    DQMStore::IBooker& ibooker,
+                                                    std::string titleString) {
   MonitorElement* temp = nullptr;
   if (hpars.getParameter<bool>("switch")) {
-    temp = ibooker.bookProfile(hpars.getParameter<std::string>("name"),
-                               hpars.getParameter<std::string>("title"),
-                               hpars.getParameter<int32_t>("NxBins"),
-                               hpars.getParameter<double>("xmin"),
-                               hpars.getParameter<double>("xmax"),
-                               hpars.getParameter<double>("ymin"),
-                               hpars.getParameter<double>("ymax"));
-  }
-  return temp;
-}
-
-MonitorElement* phase2tkutil::bookProfile1DFromPSetWithPosition(const edm::ParameterSet& hpars,
-                                                                DQMStore::IBooker& ibooker,
-                                                                std::string titleString) {
-  MonitorElement* temp = nullptr;
-  if (hpars.getParameter<bool>("switch")) {
-    std::string title = std::vformat(hpars.getParameter<std::string>("title"), std::make_format_args(titleString));
+    std::string title = hpars.getParameter<std::string>("title");
+    if (!titleString.empty())
+      title = std::vformat(title, std::make_format_args(titleString));
     temp = ibooker.bookProfile(hpars.getParameter<std::string>("name"),
                                title,
                                hpars.getParameter<int32_t>("NxBins"),

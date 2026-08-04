@@ -239,20 +239,20 @@ void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
       edm::LogInfo("Phase2ITMonitorCluster") << " Booking Histograms in: " << subdir + "/" + folderName;
       ClusterMEs local_mes;
 
-      local_mes.nClusters = phase2tkutil::book1DFromPSetWithPosition(
+      local_mes.nClusters = phase2tkutil::book1DFromPSet(
           config_.getParameter<edm::ParameterSet>("NClustersLayer"), ibooker, prettyName, true);
 
-      local_mes.ClusterSize = phase2tkutil::book1DFromPSetWithPosition(
-          config_.getParameter<edm::ParameterSet>("ClusterSize"), ibooker, prettyName, false);
+      local_mes.ClusterSize =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSize"), ibooker, prettyName);
 
-      local_mes.ClusterSizeX = phase2tkutil::book1DFromPSetWithPosition(
-          config_.getParameter<edm::ParameterSet>("ClusterSizeX"), ibooker, prettyName, false);
+      local_mes.ClusterSizeX =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSizeX"), ibooker, prettyName);
 
-      local_mes.ClusterSizeY = phase2tkutil::book1DFromPSetWithPosition(
-          config_.getParameter<edm::ParameterSet>("ClusterSizeY"), ibooker, prettyName, false);
+      local_mes.ClusterSizeY =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSizeY"), ibooker, prettyName);
 
-      local_mes.ClusterCharge = phase2tkutil::book1DFromPSetWithPosition(
-          config_.getParameter<edm::ParameterSet>("ClusterCharge"), ibooker, prettyName, false);
+      local_mes.ClusterCharge =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterCharge"), ibooker, prettyName);
 
       layerMEs_.emplace(folderName, local_mes);
     }

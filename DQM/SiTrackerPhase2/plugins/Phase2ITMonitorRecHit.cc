@@ -234,26 +234,26 @@ void Phase2ITMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned
       ibooker.setCurrentFolder(subdir + "/" + key);
       edm::LogInfo("Phase2ITMonitorRecHit") << " Booking Histograms in : " << (subdir + "/" + key);
 
-      local_histos.numberRecHits = phase2tkutil::book1DFromPSetWithPosition(
-          config_.getParameter<edm::ParameterSet>("LocalNumberRecHits"), ibooker, prettyName, false);
+      local_histos.numberRecHits = phase2tkutil::book1DFromPSet(
+          config_.getParameter<edm::ParameterSet>("LocalNumberRecHits"), ibooker, prettyName, true);
 
-      local_histos.posX = phase2tkutil::book1DFromPSetWithPosition(
-          config_.getParameter<edm::ParameterSet>("RecHitPosX"), ibooker, prettyName, false);
+      local_histos.posX =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitPosX"), ibooker, prettyName);
 
-      local_histos.posY = phase2tkutil::book1DFromPSetWithPosition(
-          config_.getParameter<edm::ParameterSet>("RecHitPosY"), ibooker, prettyName, false);
+      local_histos.posY =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitPosY"), ibooker, prettyName);
 
-      local_histos.poserrX = phase2tkutil::bookProfile1DFromPSetWithPosition(
+      local_histos.poserrX = phase2tkutil::bookProfile1DFromPSet(
           config_.getParameter<edm::ParameterSet>("RecHitPosErrorX_Eta"), ibooker, prettyName);
 
-      local_histos.poserrY = phase2tkutil::bookProfile1DFromPSetWithPosition(
+      local_histos.poserrY = phase2tkutil::bookProfile1DFromPSet(
           config_.getParameter<edm::ParameterSet>("RecHitPosErrorY_Eta"), ibooker, prettyName);
 
-      local_histos.clusterSizeX = phase2tkutil::book1DFromPSetWithPosition(
-          config_.getParameter<edm::ParameterSet>("LocalClusterSizeX"), ibooker, prettyName, false);
+      local_histos.clusterSizeX = phase2tkutil::book1DFromPSet(
+          config_.getParameter<edm::ParameterSet>("LocalClusterSizeX"), ibooker, prettyName);
 
-      local_histos.clusterSizeY = phase2tkutil::book1DFromPSetWithPosition(
-          config_.getParameter<edm::ParameterSet>("LocalClusterSizeY"), ibooker, prettyName, false);
+      local_histos.clusterSizeY = phase2tkutil::book1DFromPSet(
+          config_.getParameter<edm::ParameterSet>("LocalClusterSizeY"), ibooker, prettyName);
 
       layerMEs_.emplace(key, local_histos);
     }

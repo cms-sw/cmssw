@@ -11,7 +11,7 @@
 //
 // Author: Gabriel Ramirez
 // Date: May 23, 2020
-//
+// Date: August 2026 (modified by Lisa Juckett for folder restructure)
 #include <memory>
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
@@ -51,11 +51,9 @@ private:
   struct ClusterMEs {
     MonitorElement* nClusters_P = nullptr;
     MonitorElement* ClusterSize_P = nullptr;
-    MonitorElement* XYGlobalPositionMap_P = nullptr;
 
     MonitorElement* nClusters_S = nullptr;
     MonitorElement* ClusterSize_S = nullptr;
-    MonitorElement* XYGlobalPositionMap_S = nullptr;
 
     std::vector<MonitorElement*> PositionOfClusters_2S;
     std::vector<MonitorElement*> PositionOfClusters_2SLadder;
@@ -164,16 +162,8 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
         }
       }
 
-      // Workaround for filling same histogram for Ring<> and Wheel<>
-      bool isEndcap = (detId.subdetId() != SiStripSubdetector::TOB);
-      for (int booking = 1; booking < 2 + isEndcap; booking++) {
-        // Will loop twice if the module is an EndCap module
-        // By default, the "key" divides endcaps into TEDDs and Rings
-        // During first loop, the default key is used (wheel = false)
-        // In the second loop, the Wheel key is used
-        // all layer-wise histograms will be filled in Wheels as well as Rings
-        std::string folderkey =
-            (booking == 2 ? phase2tkutil::getOTHistoWheelId(detId, tTopo_) : phase2tkutil::getOTHistoId(detId, tTopo_));
+      for (int fillingDepth = 1; fillingDepth <= 6; fillingDepth++) {
+        std::string folderkey = phase2tkutil::getHistoId(detId, tTopo_, 0, fillingDepth, false);
 
         auto layerMEit = layerMEs_.find(folderkey);
         if (layerMEit == layerMEs_.end())
@@ -183,17 +173,13 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
         if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
           // Pixels
           local_mes.ClusterSize_P->Fill(clusterItr.size());
-          if (local_mes.XYGlobalPositionMap_P != nullptr)  //make this optional
-            local_mes.XYGlobalPositionMap_P->Fill(gx, gy);
         } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
           // Strips
           local_mes.ClusterSize_S->Fill(clusterItr.size());
-          if (local_mes.XYGlobalPositionMap_S != nullptr)  //make this optional
-            local_mes.XYGlobalPositionMap_S->Fill(gx, gy);
           if (mType == TrackerGeometry::ModuleType::Ph2SS) {
             if (module < local_mes.PositionOfClusters_2S.size() && local_mes.PositionOfClusters_2S[module])
               local_mes.PositionOfClusters_2S[module]->Fill(clusterItr.center(), topOrBottomColumn);
-            if (detId.subdetId() == SiStripSubdetector::TOB) {
+            if (detId.subdetId() == SiStripSubdetector::TOB && fillingDepth == 6) {
               if (local_mes.PositionOfClusters_2SLadder[ladder] != nullptr) {
                 int signedModule = module;
                 // CRACK has numbers 1 to 12 while Tracker has 1 to 24
@@ -315,21 +301,10 @@ void Phase2OTMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
 
 //////////////////Layer Histo/////////////////////////////////
 void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_id, std::string& subdir) {
-  // Workaround for booking same histogram for Ring<> and Wheel<>
-  bool isEndcap = (DetId(det_id).subdetId() != SiStripSubdetector::TOB);
-  for (int booking = 1; booking < 2 + isEndcap; booking++) {
-    // Will loop twice if the module is an EndCap module
-    // By default, the "key" divides endcaps into TEDDs and Rings
-    // During first loop, the default key is used (wheel = false)
-    // In the second loop, the Wheel key is used
-    // all layer-wise histograms will be booked in Wheels as well as Rings
-    std::string folderName =
-        (booking == 2 ? phase2tkutil::getOTHistoWheelId(det_id, tTopo_) : phase2tkutil::getOTHistoId(det_id, tTopo_));
+  for (int bookingDepth = 1; bookingDepth <= 6; bookingDepth++) {
+    std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, false);
+    std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, true);
 
-    if (folderName.empty()) {
-      edm::LogWarning("Phase2OTMonitorCluster") << ">>>> Invalid histo_id ";
-      return;
-    }
     if (layerMEs_.find(folderName) == layerMEs_.end()) {
       ibooker.cd();
       ibooker.setCurrentFolder(subdir + "/" + folderName);
@@ -337,14 +312,12 @@ void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
       ClusterMEs local_mes;
       TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(det_id);
       if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
-        local_mes.nClusters_P =
-            phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NClustersLayer_P"), ibooker);
+        local_mes.nClusters_P = phase2tkutil::book1DFromPSet(
+            config_.getParameter<edm::ParameterSet>("NClustersLayer_P"), ibooker, prettyName, true);
         local_mes.ClusterSize_P =
-            phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSize_P"), ibooker);
-        local_mes.XYGlobalPositionMap_P = phase2tkutil::book2DFromPSet(
-            config_.getParameter<edm::ParameterSet>("GlobalPositionXY_perlayer_P"), ibooker);
+            phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSize_P"), ibooker, prettyName);
       }
-      if (mType == TrackerGeometry::ModuleType::Ph2SS) {
+      if (mType == TrackerGeometry::ModuleType::Ph2SS && bookingDepth == 6) {
         //Book the right number of histograms per layer
         unsigned int nLadders = 0;
         unsigned int nModules = 0;
@@ -374,13 +347,12 @@ void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
 
         for (unsigned int ladderNum = 1; ladderNum <= nLadders; ladderNum++) {
           auto pos2SLadderPSet = config_.getParameter<edm::ParameterSet>("PositionOfClusters_2SLadder");
+          pos2SLadderPSet.addParameter<std::string>("name",
+                                                    "PositionOfOfflineClusters_2S_Lad" + std::to_string(ladderNum));
           pos2SLadderPSet.addParameter<std::string>(
-              "name",
-              "PositionOfOfflineClusters_2S_Lay" + std::to_string(theLayer) + "_Lad" + std::to_string(ladderNum));
-          pos2SLadderPSet.addParameter<std::string>("title",
-                                                    "PositionOfOfflineClusters_2S_Lay" + std::to_string(theLayer) +
-                                                        "_Lad" + std::to_string(ladderNum) + ";Module;Half-module;");
-          local_mes.PositionOfClusters_2SLadder[ladderNum] = phase2tkutil::book2DFromPSet(pos2SLadderPSet, ibooker);
+              "title", "PositionOfOfflineClusters_2S_Lad" + std::to_string(ladderNum) + "{};Module;Half-module;");
+          local_mes.PositionOfClusters_2SLadder[ladderNum] =
+              phase2tkutil::book2DFromPSet(pos2SLadderPSet, ibooker, prettyName);
           if (local_mes.PositionOfClusters_2SLadder[ladderNum] != nullptr) {
             local_mes.PositionOfClusters_2SLadder[ladderNum]->getTH2F()->SetStats(false);
             local_mes.PositionOfClusters_2SLadder[ladderNum]->setOption("z");
@@ -406,14 +378,11 @@ void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
         }
       }
 
-      local_mes.nClusters_S =
-          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NClustersLayer_S"), ibooker);
+      local_mes.nClusters_S = phase2tkutil::book1DFromPSet(
+          config_.getParameter<edm::ParameterSet>("NClustersLayer_S"), ibooker, prettyName, true);
 
       local_mes.ClusterSize_S =
-          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSize_S"), ibooker);
-
-      local_mes.XYGlobalPositionMap_S =
-          phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_perlayer_S"), ibooker);
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSize_S"), ibooker, prettyName);
 
       layerMEs_.emplace(folderName, local_mes);
     }  //if block layerME find
@@ -422,183 +391,135 @@ void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
 
 void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Num_Clusters");
-    psd0.add<std::string>("title", "Number of clusters;Number of clusters per event;");
-    psd0.add<double>("xmin", 0.0);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 350000.0);
-    psd0.add<int>("NxBins", 150);
-    desc.add<edm::ParameterSetDescription>("GlobalNClusters", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Crack_Overview_OTcluster");
-    psd0.add<std::string>("title", "Crack_Overview_clusters;Module;Layer");
-    psd0.add<double>("xmin", 0.0);
-    psd0.add<bool>("switch", false);
-    psd0.add<double>("xmax", 13.0);
-    psd0.add<double>("ymin", 0.0);
-    psd0.add<double>("ymax", 7.5);
-    desc.add<edm::ParameterSetDescription>("CrackOverview", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Cluster_Global_Position_XY_P");
-    psd0.add<std::string>("title", "Cluster Position XY P;Cluster position x [cm];Cluster position y [cm];");
-    psd0.add<int>("NxBins", 1250);
-    psd0.add<double>("xmin", -125.0);
-    psd0.add<double>("xmax", 125.0);
-    psd0.add<int>("NyBins", 1250);
-    psd0.add<double>("ymin", -125.0);
-    psd0.add<double>("ymax", 125.0);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("GlobalPositionXY_P", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Cluster_Global_Position_XY_S");
-    psd0.add<std::string>("title", "Cluster Position XY S;Cluster position x [cm];Cluster position y [cm];");
-    psd0.add<int>("NxBins", 1250);
-    psd0.add<double>("xmin", -125.0);
-    psd0.add<double>("xmax", 125.0);
-    psd0.add<int>("NyBins", 1250);
-    psd0.add<double>("ymin", -125.0);
-    psd0.add<double>("ymax", 125.0);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("GlobalPositionXY_S", psd0);
-  }
 
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Cluster_Global_Position_RZ_P");
-    psd0.add<std::string>("title", "Cluster Position RZ P;Cluster position z [cm];Cluster position #rho [cm]");
-    psd0.add<int>("NxBins", 1500);
-    psd0.add<double>("xmin", -300.0);
-    psd0.add<double>("xmax", 300.0);
-    psd0.add<int>("NyBins", 1250);
-    psd0.add<double>("ymin", 0.0);
-    psd0.add<double>("ymax", 125.0);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("GlobalPositionRZ_P", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Cluster_Global_Position_RZ_S");
-    psd0.add<std::string>("title", "Cluster Position RZ S;Cluster position z [cm];Cluster position #rho [cm]");
-    psd0.add<int>("NxBins", 1500);
-    psd0.add<double>("xmin", -300.0);
-    psd0.add<double>("xmax", 300.0);
-    psd0.add<int>("NyBins", 1250);
-    psd0.add<double>("ymin", 0.0);
-    psd0.add<double>("ymax", 125.0);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("GlobalPositionRZ_S", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Num_Clusters_Barrel");
-    psd0.add<std::string>("title", "Number of clusters per Barrel Layer;Barrel Layer;Number of clusters");
-    psd0.add<int>("NxBins", 7);
-    psd0.add<double>("xmin", 0.5);
-    psd0.add<double>("xmax", 7.5);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("NClusters_Barrel", psd0);
-  }
-  //Layer wise parameter
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Num_Clusters_Layer_P");
-    psd0.add<std::string>("title", "Number Of Clusters P Layer;Number of clusters per event (macro pixel sensor);");
-    psd0.add<double>("xmin", 0.0);
-    psd0.add<double>("xmax", 28000.0);
-    psd0.add<int>("NxBins", 150);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("NClustersLayer_P", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Num_Clusters_Layer_S");
-    psd0.add<std::string>("title", "Number Of Clusters S Layer;Number of clusters per event (strip sensor);");
-    psd0.add<double>("xmin", 0.0);
-    psd0.add<double>("xmax", 28000.0);
-    psd0.add<int>("NxBins", 150);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("NClustersLayer_S", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Cluster_Size_P");
-    psd0.add<std::string>("title", "Cluster Size P;Cluster size (macro pixel sensor);");
-    psd0.add<double>("xmin", -0.5);
-    psd0.add<double>("xmax", 30.5);
-    psd0.add<int>("NxBins", 31);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("ClusterSize_P", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Cluster_Size_S");
-    psd0.add<std::string>("title", "Cluster Size S;Cluster size (strip sensor);");
-    psd0.add<double>("xmin", -0.5);
-    psd0.add<double>("xmax", 30.5);
-    psd0.add<int>("NxBins", 31);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("ClusterSize_S", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Cluster_Position_XY_perLayer_P");
-    psd0.add<std::string>("title", "Cluster Position XY per Layer P;Cluster position x [cm];Cluster position y [cm];");
-    psd0.add<int>("NxBins", 1250);
-    psd0.add<double>("xmin", -125.0);
-    psd0.add<double>("xmax", 125.0);
-    psd0.add<int>("NyBins", 1250);
-    psd0.add<double>("ymin", -125.0);
-    psd0.add<double>("ymax", 125.0);
-    psd0.add<bool>("switch", false);
-    desc.add<edm::ParameterSetDescription>("GlobalPositionXY_perlayer_P", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Cluster_Position_XY_perLayer_S");
-    psd0.add<std::string>("title", "Cluster Position XY per Layer S;Cluster position x [cm];Cluster position y [cm];");
-    psd0.add<int>("NxBins", 1250);
-    psd0.add<double>("xmin", -125.0);
-    psd0.add<double>("xmax", 125.0);
-    psd0.add<int>("NyBins", 1250);
-    psd0.add<double>("ymin", -125.0);
-    psd0.add<double>("ymax", 125.0);
-    psd0.add<bool>("switch", false);
-    desc.add<edm::ParameterSetDescription>("GlobalPositionXY_perlayer_S", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Position_Clusters_2S_module");
-    psd0.add<std::string>("title", "Positions Of Clusters 2S_module;Strip;Half-module;");
-    psd0.add<int>("NxBins", 1016);
-    psd0.add<double>("xmin", 0.5);
-    psd0.add<double>("xmax", 1016.5);
-    psd0.add<int>("NyBins", 5);
-    psd0.add<double>("ymin", -2.5);
-    psd0.add<double>("ymax", 2.5);
-    psd0.add<bool>("switch", false);
-    desc.add<edm::ParameterSetDescription>("PositionOfClusters_2S", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Position_Clusters_2S_Ladder");
-    psd0.add<std::string>("title", "Positions Of Clusters 2S_Ladder;Module;Half-module;");
-    psd0.add<int>("NxBins", 25);
-    psd0.add<double>("xmin", -12.5);
-    psd0.add<double>("xmax", 12.5);
-    psd0.add<int>("NyBins", 5);
-    psd0.add<double>("ymin", -2.5);
-    psd0.add<double>("ymax", 2.5);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("PositionOfClusters_2SLadder", psd0);
-  }
+  // CRACK
+  phase2tkutil::add2DDesc(desc,
+                          "CrackOverview",
+                          "Crack_Overview_OT_Cluster",
+                          "Crack_Overview_OT_Clusters",
+                          "Module",
+                          "Layer",
+                          0,
+                          0.0,
+                          13.0,
+                          0,
+                          0.0,
+                          7.5);
+  phase2tkutil::add2DDesc(desc,
+                          "PositionOfClusters_2S",
+                          "Position_Clusters_2S_module",
+                          "Positions of clusters in 2S module",
+                          "Strip",
+                          "Half-module",
+                          1016,
+                          0.5,
+                          1016.5,
+                          5,
+                          -2.5,
+                          2.5);
+
+  // Global histos
+  phase2tkutil::add1DDesc(
+      desc, "GlobalNClusters", "Num_Clusters", "Number of clusters", "Number of clusters per event", "", 150, 0, 350000);
+  phase2tkutil::add1DDesc(desc,
+                          "NClusters_Barrel",
+                          "Num_Clusters_Barrel",
+                          "Number of clusters per Barrel Layer",
+                          "Barrel Layer",
+                          "Number of clusters",
+                          7,
+                          0.5,
+                          7.5);
+  phase2tkutil::add2DDesc(desc,
+                          "GlobalPositionXY_P",
+                          "Cluster_Global_Position_XY_P",
+                          "Cluster Position XY P",
+                          "Cluster position x [cm]",
+                          "Cluster position y [cm]",
+                          1250,
+                          -125.0,
+                          125.0,
+                          1250,
+                          -125.0,
+                          125.0);
+  phase2tkutil::add2DDesc(desc,
+                          "GlobalPositionXY_S",
+                          "Cluster_Global_Position_XY_S",
+                          "Cluster Position XY S",
+                          "Cluster position x [cm]",
+                          "Cluster position y [cm]",
+                          1250,
+                          -125.0,
+                          125.0,
+                          1250,
+                          -125.0,
+                          125.0);
+  phase2tkutil::add2DDesc(desc,
+                          "GlobalPositionRZ_P",
+                          "Cluster_Global_Position_RZ_P",
+                          "Cluster Position RZ P",
+                          "Cluster position z [cm]",
+                          "Cluster position #rho [cm]",
+                          1500,
+                          -300.0,
+                          300.0,
+                          1250,
+                          0.0,
+                          125.0);
+  phase2tkutil::add2DDesc(desc,
+                          "GlobalPositionRZ_S",
+                          "Cluster_Global_Position_RZ_S",
+                          "Cluster Position RZ S",
+                          "Cluster position z [cm]",
+                          "Cluster position #rho [cm]",
+                          1500,
+                          -300.0,
+                          300.0,
+                          1250,
+                          0.0,
+                          125.0);
+
+  //Layer wise histos
+  phase2tkutil::add1DDesc(desc,
+                          "NClustersLayer_P",
+                          "Num_Clusters_Layer_P",
+                          "Number Of Clusters in Pixels in {}",
+                          "Number of clusters per event (macro pixel sensor)",
+                          "",
+                          150,
+                          0.0,
+                          28000);
+  phase2tkutil::add1DDesc(desc,
+                          "NClustersLayer_S",
+                          "Num_Clusters_Layer_S",
+                          "Number Of Clusters in strips in {}",
+                          "Number of clusters per event (strip sensor)",
+                          "",
+                          150,
+                          0.0,
+                          28000);
+
+  phase2tkutil::add1DDesc(desc,
+                          "ClusterSize_P",
+                          "Cluster_Size_P",
+                          "Cluster Size in Pixels in {}",
+                          "Cluster size (macro pixel sensor)",
+                          "",
+                          31,
+                          -0.5,
+                          30.5);
+  phase2tkutil::add1DDesc(desc,
+                          "ClusterSize_S",
+                          "Cluster_Size_S",
+                          "Cluster Size in strips in {}",
+                          "Cluster size (strip sensor)",
+                          "",
+                          31,
+                          -0.5,
+                          30.5);
+
+  phase2tkutil::add2DDesc(
+      desc, "PositionOfClusters_2SLadder", "Position_Clusters_2S_Ladder", "", "", "", 25, -12.5, 12.5, 5, -2.5, 2.5);
 
   desc.add<std::string>("TopFolderName", "OuterTracker");
   desc.add<edm::InputTag>("clusterSrc", edm::InputTag("siPhase2Clusters"));

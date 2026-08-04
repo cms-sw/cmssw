@@ -7,6 +7,7 @@
 //
 // Author: Suvankar Roy Chowdhury
 // Date: March 2021
+// Date: August 2026 (modified by Lisa Juckett for dqm output folder restructure)
 //
 // system include files
 #include <memory>
@@ -110,7 +111,6 @@ Phase2OTMonitorRecHit::~Phase2OTMonitorRecHit() {
 void Phase2OTMonitorRecHit::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   tkGeom_ = &iSetup.getData(geomToken_);
   tTopo_ = &iSetup.getData(topoToken_);
-  ;
 }
 
 //
@@ -157,16 +157,8 @@ void Phase2OTMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
         globalXY_S_->Fill(gx, gy);
         globalRZ_S_->Fill(gz, gr);
       }
-      // Workaround for filling same histogram for Ring<> and Wheel<>
-      bool isEndcap = (detId.subdetId() != SiStripSubdetector::TOB);
-      for (int booking = 1; booking < 2 + isEndcap; booking++) {
-        // Will loop twice if the module is an EndCap module
-        // By default, the "key" divides endcaps into TEDDs and Rings
-        // During first loop, the default key is used (wheel = false)
-        // In the second loop, the Wheel key is used
-        // all layer-wise histograms will be filled in Wheels as well as Rings
-        std::string key =
-            (booking == 2 ? phase2tkutil::getOTHistoWheelId(detId, tTopo_) : phase2tkutil::getOTHistoId(detId, tTopo_));
+      for (int fillingDepth = 1; fillingDepth <= 6; fillingDepth++) {
+        std::string key = phase2tkutil::getHistoId(detId, tTopo_, 0.0, fillingDepth, false);
 
         if (mType == TrackerGeometry::ModuleType::Ph2PSP)
           layerMEs_[key].clusterSize_P->Fill(rechitIt->cluster()->size());
@@ -211,7 +203,6 @@ void Phase2OTMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
                                            edm::Run const& iRun,
                                            edm::EventSetup const& iSetup) {
   std::string top_folder = config_.getParameter<std::string>("TopFolderName");
-  //std::stringstream folder_name;
 
   ibooker.cd();
   edm::LogInfo("Phase2OTMonitorRecHit") << " Booking Histograms in : " << top_folder;
@@ -248,16 +239,9 @@ void Phase2OTMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
 // -- Book Layer Histograms
 //
 void Phase2OTMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir) {
-  // Workaround for booking same histogram for Ring<> and Wheel<>
-  bool isEndcap = (DetId(det_id).subdetId() != SiStripSubdetector::TOB);
-  for (int booking = 1; booking < 2 + isEndcap; booking++) {
-    // Will loop twice if the module is an EndCap module
-    // By default, the "key" divides endcaps into TEDDs and Rings
-    // During first loop, the default key is used (wheel = false)
-    // In the second loop, the Wheel key is used
-    // all layer-wise histograms will be booked in Wheels as well as Rings
-    std::string key =
-        (booking == 2 ? phase2tkutil::getOTHistoWheelId(det_id, tTopo_) : phase2tkutil::getOTHistoId(det_id, tTopo_));
+  for (int bookingDepth = 1; bookingDepth <= 6; bookingDepth++) {
+    std::string key = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, false);
+    std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, true);
 
     if (layerMEs_.find(key) == layerMEs_.end()) {
       ibooker.cd();
@@ -267,16 +251,16 @@ void Phase2OTMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned
       edm::LogInfo("Phase2OTMonitorRecHit") << " Booking Histograms in : " << key;
 
       if (tkGeom_->getDetectorType(det_id) == TrackerGeometry::ModuleType::Ph2PSP) {
-        local_histos.numberRecHits_P =
-            phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NRecHitsLayer_P"), ibooker);
+        local_histos.numberRecHits_P = phase2tkutil::book1DFromPSet(
+            config_.getParameter<edm::ParameterSet>("NRecHitsLayer_P"), ibooker, prettyName, true);
         local_histos.clusterSize_P =
-            phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitSize_P"), ibooker);
+            phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitSize_P"), ibooker, prettyName);
       }  //if block for P
 
-      local_histos.numberRecHits_S =
-          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NRecHitsLayer_S"), ibooker);
+      local_histos.numberRecHits_S = phase2tkutil::book1DFromPSet(
+          config_.getParameter<edm::ParameterSet>("NRecHitsLayer_S"), ibooker, prettyName, true);
       local_histos.clusterSize_S =
-          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitSize_S"), ibooker);
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitSize_S"), ibooker, prettyName);
 
       layerMEs_.insert(std::make_pair(key, local_histos));
     }
