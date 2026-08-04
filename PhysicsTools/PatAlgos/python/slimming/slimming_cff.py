@@ -124,7 +124,7 @@ _photonDRN.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), patPhotonsD
 from Configuration.Eras.Modifier_dedx_lfit_cff import dedx_lfit
 from PhysicsTools.PatAlgos.modules import DeDxEstimatorRekeyer
 dedxEstimator = DeDxEstimatorRekeyer()
-dedx_lfit.toModify(dedxEstimator, dedxEstimators = ["dedxPixelLikelihood", "dedxStripLikelihood", "dedxAllLikelihood"])
+dedx_lfit.toModify(dedxEstimator, dedxEstimators = ["dedxHarmonic2", "dedxPixelHarmonic2", "dedxPixelLikelihood", "dedxStripLikelihood", "dedxAllLikelihood"])
 dedx_lfit.toReplaceWith(slimmingTask, cms.Task(slimmingTask.copy(), dedxEstimator))
 
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc

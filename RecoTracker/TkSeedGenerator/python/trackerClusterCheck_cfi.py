@@ -43,3 +43,11 @@ from Configuration.Eras.Modifier_highBetaStar_cff import highBetaStar
                MaxNumberOfPixelClusters = 10000,
                MaxNumberOfStripClusters = 30000
                )
+
+from Configuration.Eras.Modifier_run3_oxygen_cff import run3_oxygen
+(highBetaStar & run3_oxygen).toModify(trackerClusterCheck,
+               doClusterCheck=True,
+               cut = "strip < 200000 && pixel < 20000",
+               MaxNumberOfPixelClusters = 20000,
+               MaxNumberOfStripClusters = 200000
+               )
