@@ -47,7 +47,7 @@ Muon system:
 * M14: Same as M10 with modified DTShield
 * M15: Same as M11 with modified DTShield
 * M16: Same as M15 with modified RPC, corrected for phi staggering and z-position
-* M17: Same as M17 where the shape of GE0 is correctd
+* M17: Same as M16 where the shape of GE0 is correctd
 
 PPS:
 * P7: 2021 baseline (after removing overlaps and using common materials whenever possible)
