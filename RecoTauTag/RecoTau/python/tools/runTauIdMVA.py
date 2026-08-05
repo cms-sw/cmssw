@@ -795,23 +795,11 @@ class TauIDEmbedder(object):
 
             from Configuration.ProcessModifiers.deepTauSonicTriton_cff import deepTauSonicTriton
             deepTauSonicTriton.toReplaceWith(_deepTauProducer, DeepTauIdSonicProducer.clone(
-                Client = cms.PSet(
-                  mode = cms.string('PseudoAsync'),
-                  Retry = cms.VPSet(
-                    cms.PSet(
-                      retryType = cms.string('RetrySameServerAction'),
-                      allowedTries = cms.untracked.uint32(0)
-                    )
-                  ),
-                  verbose = cms.untracked.bool(False),
+                Client = dict(
                   modelName = cms.string("deeptau_2017v2p1"),
                   modelVersion = cms.string(''),
                   modelConfigPath = cms.FileInPath("RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/deeptau_2017v2p1/config.pbtxt"),
-                  preferredServer = cms.untracked.string(''),
                   timeout = cms.untracked.uint32(300),
-                  useSharedMemory = cms.untracked.bool(True),
-                  compression = cms.untracked.string(''),
-                  outputs = cms.untracked.vstring()
                 ),
                 Prediscriminants = noPrediscriminants,
                 taus             = self.originalTauName,
@@ -852,23 +840,11 @@ class TauIDEmbedder(object):
 
             from Configuration.ProcessModifiers.deepTauSonicTriton_cff import deepTauSonicTriton
             deepTauSonicTriton.toReplaceWith(_deepTauProducer, DeepTauIdSonicProducer.clone(
-                Client = cms.PSet(
-                  mode = cms.string('PseudoAsync'),
-                  Retry = cms.VPSet(
-                    cms.PSet(
-                      retryType = cms.string('RetrySameServerAction'),
-                      allowedTries = cms.untracked.uint32(0)
-                    )
-                  ),
-                  verbose = cms.untracked.bool(False),
+                Client = dict(
                   modelName = cms.string("deeptau_2017v2p1"),
                   modelVersion = cms.string(''),
                   modelConfigPath = cms.FileInPath("RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/deeptau_2017v2p1/config.pbtxt"),
-                  preferredServer = cms.untracked.string(''),
                   timeout = cms.untracked.uint32(300),
-                  useSharedMemory = cms.untracked.bool(True),
-                  compression = cms.untracked.string(''),
-                  outputs = cms.untracked.vstring()
                 ),
                 Prediscriminants = noPrediscriminants,
                 taus             = self.originalTauName,
@@ -911,23 +887,11 @@ class TauIDEmbedder(object):
 
             from Configuration.ProcessModifiers.deepTauSonicTriton_cff import deepTauSonicTriton
             deepTauSonicTriton.toReplaceWith(_deepTauProducer, DeepTauIdSonicProducer.clone(
-                Client = cms.PSet(
-                  mode = cms.string('PseudoAsync'),
-                  Retry = cms.VPSet(
-                    cms.PSet(
-                      retryType = cms.string('RetrySameServerAction'),
-                      allowedTries = cms.untracked.uint32(0)
-                    )
-                  ),
-                  verbose = cms.untracked.bool(False),
+                Client = dict(
                   modelName = cms.string("deeptau_2018v2p5"),
                   modelVersion = cms.string(''),
                   modelConfigPath = cms.FileInPath("RecoTauTag/TrainingFiles/data/DeepTauIdSONIC/deeptau_2018v2p5/config.pbtxt"),
-                  preferredServer = cms.untracked.string(''),
                   timeout = cms.untracked.uint32(300),
-                  useSharedMemory = cms.untracked.bool(True),
-                  compression = cms.untracked.string(''),
-                  outputs = cms.untracked.vstring(),
                 ),
                 Prediscriminants                = noPrediscriminants,
                 taus                            = self.originalTauName,

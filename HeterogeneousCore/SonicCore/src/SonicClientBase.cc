@@ -40,7 +40,7 @@ void SonicClientBase::setUserMode(const std::string& userMode) {
     setMode(SonicMode::Async);
   else if (userMode == "PseudoAsync")
     setMode(SonicMode::PseudoAsync);
-  else if (userMode == "")
+  else if (userMode.empty())
     setMode(SonicMode::PseudoAsync);
   else
     throw cms::Exception("Configuration") << "Unknown mode for SonicClient: " << userMode;
@@ -103,8 +103,8 @@ void SonicClientBase::finish(bool success, std::exception_ptr eptr) {
 
 void SonicClientBase::fillBasePSetDescription(edm::ParameterSetDescription& desc) {
   //restrict allowed values
-  desc.ifValue(edm::ParameterDescription<std::string>("mode", "PseudoAsync", true),
-               edm::allowedValues<std::string>("Sync", "Async", "PseudoAsync"));
+  desc.ifValue(edm::ParameterDescription<std::string>("mode", "", true),
+               edm::allowedValues<std::string>("Sync", "Async", "PseudoAsync", ""));
   desc.add("sonicClientBase", desc);
   desc.addUntracked<bool>("verbose", false);
 }
