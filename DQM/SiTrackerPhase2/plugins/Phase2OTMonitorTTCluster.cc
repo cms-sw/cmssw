@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -57,16 +58,23 @@ public:
   void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
   // TTCluster stacks
-  MonitorElement *Cluster_IMem_Barrel = nullptr;
-  MonitorElement *Cluster_IMem_Endcap_Disc = nullptr;
-  MonitorElement *Cluster_IMem_Endcap_Ring = nullptr;
-  MonitorElement *Cluster_IMem_Endcap_Ring_Fw[trklet::N_DISK] = {};
-  MonitorElement *Cluster_IMem_Endcap_Ring_Bw[trklet::N_DISK] = {};
-  MonitorElement *Cluster_OMem_Barrel = nullptr;
-  MonitorElement *Cluster_OMem_Endcap_Disc = nullptr;
-  MonitorElement *Cluster_OMem_Endcap_Ring = nullptr;
-  MonitorElement *Cluster_OMem_Endcap_Ring_Fw[trklet::N_DISK] = {};
-  MonitorElement *Cluster_OMem_Endcap_Ring_Bw[trklet::N_DISK] = {};
+  MonitorElement *NClusters_Barrel = nullptr;
+  MonitorElement *NClusters_IMem_Barrel = nullptr;
+  MonitorElement *NClusters_OMem_Barrel = nullptr;
+
+private:
+  struct TTClusterMEs {
+    MonitorElement *NClusters = nullptr;
+    MonitorElement *NClustersIMem = nullptr;
+    MonitorElement *NClustersOMem = nullptr;
+    MonitorElement *NClustersByRing = nullptr;
+    MonitorElement *NClustersIMemByRing = nullptr;
+    MonitorElement *NClustersOMemByRing = nullptr;
+    MonitorElement *NClustersByWheel = nullptr;
+    MonitorElement *NClustersIMemByWheel = nullptr;
+    MonitorElement *NClustersOMemByWheel = nullptr;
+  };
+
   MonitorElement *Cluster_W = nullptr;
   MonitorElement *Cluster_Phi = nullptr;
   MonitorElement *Cluster_R = nullptr;
@@ -77,7 +85,11 @@ public:
   MonitorElement *Cluster_Endcap_Bw_XY = nullptr;
   MonitorElement *Cluster_RZ = nullptr;
 
-private:
+  void bookLayerHistos(DQMStore::IBooker &ibooker, uint32_t det_id, std::string &subdir);
+
+  std::map<std::string, TTClusterMEs> layerMEs_;
+  enum Level { OT = 1, SUBSTRUCTURE, ENDCAP_SIDE, ENDCAP_RING, ENDCAP_WHEEL, LAYER };
+
   edm::ParameterSet conf_;
   edm::EDGetTokenT<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>> tagTTClustersToken_;
   std::string topFolderName_;
@@ -126,12 +138,25 @@ void Phase2OTMonitorTTCluster::analyze(const edm::Event &iEvent, const edm::Even
   if (!Phase2TrackerDigiTTClusterHandle.isValid())
     return;
 
+  // Cluster counters
+  int nClusDet;
+  int nClusDetIMem;
+  int nClusDetOMem;
+  std::map<std::string, unsigned int> nClustersCounter;  //map of detidkey vs #cls
+  std::map<std::string, unsigned int> nClustersIMemCounter;
+  std::map<std::string, unsigned int> nClustersOMemCounter;
+
   for (inputIter = Phase2TrackerDigiTTClusterHandle->begin(); inputIter != Phase2TrackerDigiTTClusterHandle->end();
        ++inputIter) {
+    nClusDet = 0;
+    nClusDetIMem = 0;
+    nClusDetOMem = 0;
     for (contentIter = inputIter->begin(); contentIter != inputIter->end(); ++contentIter) {
       // Make reference cluster
       edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>> tempCluRef =
           edmNew::makeRefTo(Phase2TrackerDigiTTClusterHandle, contentIter);
+
+      nClusDet++;
 
       DetId detIdClu = tkGeom_->idToDet(tempCluRef->getDetId())->geographicalId();
       unsigned int memberClu = tempCluRef->getStackMember();
@@ -150,43 +175,86 @@ void Phase2OTMonitorTTCluster::analyze(const edm::Event &iEvent, const edm::Even
       Cluster_R->Fill(r);
       Cluster_RZ->Fill(z, r);
 
+      if (memberClu == 0)
+        nClusDetIMem++;
+      else
+        nClusDetOMem++;
+
       if (detIdClu.subdetId() == static_cast<int>(StripSubdetector::TOB))  // Phase 2 Outer Tracker Barrel
       {
         if (memberClu == 0)
-          Cluster_IMem_Barrel->Fill(tTopo_->layer(detIdClu));
+          NClusters_IMem_Barrel->Fill(tTopo_->layer(detIdClu));
         else
-          Cluster_OMem_Barrel->Fill(tTopo_->layer(detIdClu));
+          NClusters_OMem_Barrel->Fill(tTopo_->layer(detIdClu));
 
+        NClusters_Barrel->Fill(tTopo_->layer(detIdClu));
         Cluster_Barrel_XY->Fill(posClu.x(), posClu.y());
 
       }  // end if isBarrel
-      else if (detIdClu.subdetId() == static_cast<int>(StripSubdetector::TID))  // Phase 2 Outer Tracker Endcap
-      {
-        if (memberClu == 0) {
-          Cluster_IMem_Endcap_Disc->Fill(tTopo_->layer(detIdClu));  // returns wheel
-          Cluster_IMem_Endcap_Ring->Fill(tTopo_->tidRing(detIdClu));
-        } else {
-          Cluster_OMem_Endcap_Disc->Fill(tTopo_->layer(detIdClu));  // returns wheel
-          Cluster_OMem_Endcap_Ring->Fill(tTopo_->tidRing(detIdClu));
-        }
+      for (enum Level fillingDepth = OT; fillingDepth <= LAYER; fillingDepth = Level(fillingDepth + 1)) {
+        std::string folderKey = phase2tkutil::getHistoId(detIdClu, tTopo_, 0, fillingDepth, false);
+        auto layerMEiter = layerMEs_.find(folderKey);
+        if (layerMEiter == layerMEs_.end())
+          continue;
+        TTClusterMEs &local_mes = layerMEiter->second;
 
-        if (posClu.z() > 0) {
-          Cluster_Endcap_Fw_XY->Fill(posClu.x(), posClu.y());
-          if (memberClu == 0)
-            Cluster_IMem_Endcap_Ring_Fw[tTopo_->layer(detIdClu) - 1]->Fill(tTopo_->tidRing(detIdClu));
-          else
-            Cluster_OMem_Endcap_Ring_Fw[tTopo_->layer(detIdClu) - 1]->Fill(tTopo_->tidRing(detIdClu));
-        } else {
-          Cluster_Endcap_Bw_XY->Fill(posClu.x(), posClu.y());
-          if (memberClu == 0)
-            Cluster_IMem_Endcap_Ring_Bw[tTopo_->layer(detIdClu) - 1]->Fill(tTopo_->tidRing(detIdClu));
-          else
-            Cluster_OMem_Endcap_Ring_Bw[tTopo_->layer(detIdClu) - 1]->Fill(tTopo_->tidRing(detIdClu));
+        if (detIdClu.subdetId() == static_cast<int>(StripSubdetector::TID)) {
+          if (local_mes.NClustersByWheel)
+            local_mes.NClustersByWheel->Fill(tTopo_->tidWheel(detIdClu));
+          if (local_mes.NClustersByRing)
+            local_mes.NClustersByRing->Fill(tTopo_->tidRing(detIdClu));
+          if (memberClu == 0) {
+            if (local_mes.NClustersIMemByWheel)
+              local_mes.NClustersIMemByWheel->Fill(tTopo_->tidWheel(detIdClu));
+            if (local_mes.NClustersIMemByRing)
+              local_mes.NClustersIMemByRing->Fill(tTopo_->tidRing(detIdClu));
+          } else {
+            if (local_mes.NClustersOMemByWheel)
+              local_mes.NClustersOMemByWheel->Fill(tTopo_->tidWheel(detIdClu));
+            if (local_mes.NClustersOMemByRing)
+              local_mes.NClustersOMemByRing->Fill(tTopo_->tidRing(detIdClu));
+          }
         }
-
-      }  // end if isEndcap
+        if (nClusDet == int(inputIter->size())) {
+          // reached the end of clusters in this det
+          // fill things that need to be filled once per det
+          auto countAll = nClustersCounter.find(folderKey);
+          if (countAll == nClustersCounter.end())
+            nClustersCounter.emplace(folderKey, nClusDet);
+          else
+            countAll->second += nClusDet;
+          auto countIMem = nClustersIMemCounter.find(folderKey);
+          if (countIMem == nClustersIMemCounter.end())
+            nClustersIMemCounter.emplace(folderKey, nClusDetIMem);
+          else
+            countIMem->second += nClusDetIMem;
+          auto countOMem = nClustersOMemCounter.find(folderKey);
+          if (countOMem == nClustersOMemCounter.end())
+            nClustersOMemCounter.emplace(folderKey, nClusDetOMem);
+          else
+            countOMem->second += nClusDetOMem;
+        }
+      }  // end loop fillingDepth
     }  // end loop contentIter
   }  // end loop inputIter
+  for (const auto &it : nClustersCounter) {
+    if (layerMEs_.find(it.first) == layerMEs_.end())
+      continue;
+    if (layerMEs_[it.first].NClusters != nullptr)
+      layerMEs_[it.first].NClusters->Fill(it.second);
+  }
+  for (const auto &it : nClustersIMemCounter) {
+    if (layerMEs_.find(it.first) == layerMEs_.end())
+      continue;
+    if (layerMEs_[it.first].NClustersIMem != nullptr)
+      layerMEs_[it.first].NClustersIMem->Fill(it.second);
+  }
+  for (const auto &it : nClustersOMemCounter) {
+    if (layerMEs_.find(it.first) == layerMEs_.end())
+      continue;
+    if (layerMEs_[it.first].NClustersOMem != nullptr)
+      layerMEs_[it.first].NClustersOMem->Fill(it.second);
+  }
 }  // end of method
 
 // ------------ method called once each job just before starting event loop
@@ -215,39 +283,75 @@ void Phase2OTMonitorTTCluster::bookHistograms(DQMStore::IBooker &iBooker,
 
   // Barrel Summaries
   iBooker.setCurrentFolder(topFolderName_ + "/Barrel/");
-  Cluster_IMem_Barrel = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Clusters_IMem_Barrel"), iBooker);
-  Cluster_OMem_Barrel = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Clusters_OMem_Barrel"), iBooker);
+  NClusters_Barrel = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Clusters_Barrel"), iBooker);
+  NClusters_IMem_Barrel = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Clusters_IMem_Barrel"), iBooker);
+  NClusters_OMem_Barrel = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Clusters_OMem_Barrel"), iBooker);
 
-  // BW Endcap Summaries
-  iBooker.setCurrentFolder(topFolderName_ + "/Endcaps/MINUS/");
-  for (int i = 0; i < static_cast<int>(trklet::N_DISK); i++) {
-    const std::string si = std::to_string(i + 1);
-    Cluster_IMem_Endcap_Ring_Bw[i] =
-        book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Clusters_IMem_Disc_Bw_" + si), iBooker);
-    Cluster_OMem_Endcap_Ring_Bw[i] =
-        book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Clusters_OMem_Disc_Bw_" + si), iBooker);
+  //Now book layer wise histos
+  edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
+  if (theTkDigiGeomWatcher.check(es)) {
+    for (auto const &det_u : tkGeom_->detUnits()) {
+      //Always check TrackerNumberingBuilder before changing this part
+      //continue if Pixel
+      if ((det_u->subDetector() == GeomDetEnumerators::SubDetector::P2PXB ||
+           det_u->subDetector() == GeomDetEnumerators::SubDetector::P2PXEC))
+        continue;
+      unsigned int detId_raw = det_u->geographicalId().rawId();
+      edm::LogInfo("Phase2OTMonitorTTCluster")
+          << "Detid:" << detId_raw << "\tsubdet=" << det_u->subDetector()
+          << "\t key=" << phase2tkutil::getHistoId(detId_raw, tTopo_, 0.0, 6, false) << std::endl;
+      bookLayerHistos(iBooker, detId_raw, topFolderName_);
+    }
   }
+}
 
-  // FW Endcap Summaries
-  iBooker.setCurrentFolder(topFolderName_ + "/Endcaps/PLUS/");
-  for (int i = 0; i < static_cast<int>(trklet::N_DISK); i++) {
-    const std::string si = std::to_string(i + 1);
-    Cluster_IMem_Endcap_Ring_Fw[i] =
-        book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Clusters_IMem_Disc_Fw_" + si), iBooker);
-    Cluster_OMem_Endcap_Ring_Fw[i] =
-        book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Clusters_OMem_Disc_Fw_" + si), iBooker);
+//////////////////Layer Histo/////////////////////////////////
+void Phase2OTMonitorTTCluster::bookLayerHistos(DQMStore::IBooker &ibooker, uint32_t det_id, std::string &subdir) {
+  for (enum Level bookingDepth = OT; bookingDepth <= LAYER; bookingDepth = Level(bookingDepth + 1)) {
+    std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, false);
+    std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, true);
+
+    if (layerMEs_.find(folderName) == layerMEs_.end()) {
+      ibooker.cd();
+      ibooker.setCurrentFolder(subdir + "/" + folderName);
+      edm::LogInfo("Phase2OTMonitorTTCluster") << " Booking Histograms in: " << subdir + "/" + folderName;
+      TTClusterMEs local_mes;
+
+      // If this det is a barrel det AND bookingDepth is an endcap-only depth, DO NOT BOOK
+      if ((bookingDepth >= ENDCAP_SIDE && bookingDepth < LAYER) &&
+          DetId(det_id).subdetId() == static_cast<int>(StripSubdetector::TOB))
+        continue;
+
+      local_mes.NClusters = phase2tkutil::book1DFromPSet(
+          conf_.getParameter<edm::ParameterSet>("NClustersLayer"), ibooker, prettyName, true);
+      local_mes.NClustersIMem = phase2tkutil::book1DFromPSet(
+          conf_.getParameter<edm::ParameterSet>("NClustersIMemLayer"), ibooker, prettyName, true);
+      local_mes.NClustersOMem = phase2tkutil::book1DFromPSet(
+          conf_.getParameter<edm::ParameterSet>("NClustersOMemLayer"), ibooker, prettyName, true);
+
+      if (DetId(det_id).subdetId() == static_cast<int>(StripSubdetector::TID)) {
+        if (bookingDepth >= SUBSTRUCTURE && bookingDepth < LAYER) {
+          if (bookingDepth != ENDCAP_WHEEL) {
+            local_mes.NClustersByWheel = phase2tkutil::book1DFromPSet(
+                conf_.getParameter<edm::ParameterSet>("NClustersByWheel"), ibooker, prettyName);
+            local_mes.NClustersIMemByWheel = phase2tkutil::book1DFromPSet(
+                conf_.getParameter<edm::ParameterSet>("NClustersIMemByWheel"), ibooker, prettyName);
+            local_mes.NClustersOMemByWheel = phase2tkutil::book1DFromPSet(
+                conf_.getParameter<edm::ParameterSet>("NClustersOMemByWheel"), ibooker, prettyName);
+          }
+          if (bookingDepth != ENDCAP_RING) {
+            local_mes.NClustersByRing = phase2tkutil::book1DFromPSet(
+                conf_.getParameter<edm::ParameterSet>("NClustersByRing"), ibooker, prettyName);
+            local_mes.NClustersIMemByRing = phase2tkutil::book1DFromPSet(
+                conf_.getParameter<edm::ParameterSet>("NClustersIMemByRing"), ibooker, prettyName);
+            local_mes.NClustersOMemByRing = phase2tkutil::book1DFromPSet(
+                conf_.getParameter<edm::ParameterSet>("NClustersOMemByRing"), ibooker, prettyName);
+          }
+        }
+      }
+      layerMEs_.emplace(folderName, local_mes);
+    }
   }
-
-  // Endcap Summaries
-  iBooker.setCurrentFolder(topFolderName_ + "/Endcaps/");
-  Cluster_IMem_Endcap_Disc =
-      book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Clusters_IMem_Endcap_Disc"), iBooker);
-  Cluster_OMem_Endcap_Disc =
-      book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Clusters_OMem_Endcap_Disc"), iBooker);
-  Cluster_IMem_Endcap_Ring =
-      book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Clusters_IMem_Endcap_Ring"), iBooker);
-  Cluster_OMem_Endcap_Ring =
-      book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Clusters_OMem_Endcap_Ring"), iBooker);
 }
 
 void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -256,8 +360,8 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
   // NClusters
   phase2tkutil::add1DDesc(desc,
                           "Num_L1Clusters_IMem_Barrel",
-                          "Num_L1Clusters_IMem_Barrel",
-                          "Num_L1Clusters_IMem_Barrel",
+                          "Num_L1Clusters_IMem_Barrel_Layers",
+                          "Number of L1Clusters in inner member of modules in the barrel by layer",
                           "Barrel Layer",
                           "# L1 Clusters",
                           7,
@@ -265,89 +369,22 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
                           7.5);
   phase2tkutil::add1DDesc(desc,
                           "Num_L1Clusters_OMem_Barrel",
-                          "Num_L1Clusters_OMem_Barrel",
-                          "Num_L1Clusters_OMem_Barrel",
+                          "Num_L1Clusters_OMem_Barrel_Layers",
+                          "Number of L1Clusters in outer member of modules in the barrel by layer",
                           "Barrel Layer",
                           "# L1 Clusters",
                           7,
                           0.5,
                           7.5);
   phase2tkutil::add1DDesc(desc,
-                          "Num_L1Clusters_IMem_Endcap_Disc",
-                          "Num_L1Clusters_IMem_Endcap_Disc",
-                          "Num_L1Clusters_IMem_Endcap_Disc",
-                          "Endcap Disc",
+                          "Num_L1Clusters_Barrel",
+                          "Num_L1Clusters_Barrel_Layers",
+                          "Number of L1Clusters in the barrel by layer",
+                          "Barrel Layer",
                           "# L1 Clusters",
-                          6,
+                          7,
                           0.5,
-                          6.5);
-  phase2tkutil::add1DDesc(desc,
-                          "Num_L1Clusters_OMem_Endcap_Disc",
-                          "Num_L1Clusters_OMem_Endcap_Disc",
-                          "Num_L1Clusters_OMem_Endcap_Disc",
-                          "Endcap Disc",
-                          "# L1 Clusters",
-                          6,
-                          0.5,
-                          6.5);
-  phase2tkutil::add1DDesc(desc,
-                          "Num_L1Clusters_IMem_Endcap_Ring",
-                          "Num_L1Clusters_IMem_Endcap_Ring",
-                          "Num_L1Clusters_IMem_Endcap_Ring",
-                          "Endcap Ring",
-                          "# L1 Clusters",
-                          16,
-                          0.5,
-                          16.5);
-  phase2tkutil::add1DDesc(desc,
-                          "Num_L1Clusters_OMem_Endcap_Ring",
-                          "Num_L1Clusters_OMem_Endcap_Ring",
-                          "Num_L1Clusters_OMem_Endcap_Ring",
-                          "Endcap Ring",
-                          "# L1 Clusters",
-                          16,
-                          0.5,
-                          16.5);
-
-  for (int i = 1; i <= static_cast<int>(trklet::N_DISK); i++) {
-    const std::string si = std::to_string(i);
-    phase2tkutil::add1DDesc(desc,
-                            "Num_L1Clusters_IMem_Disc_Fw_" + si,
-                            "Num_L1Clusters_IMem_Disc+" + si,
-                            "Num_L1Clusters_IMem_Disc+" + si,
-                            "Endcap Ring",
-                            "# L1 Clusters",
-                            16,
-                            0.5,
-                            16.5);
-    phase2tkutil::add1DDesc(desc,
-                            "Num_L1Clusters_IMem_Disc_Bw_" + si,
-                            "Num_L1Clusters_IMem_Disc-" + si,
-                            "Num_L1Clusters_IMem_Disc-" + si,
-                            "Endcap Ring",
-                            "# L1 Clusters",
-                            16,
-                            0.5,
-                            16.5);
-    phase2tkutil::add1DDesc(desc,
-                            "Num_L1Clusters_OMem_Disc_Fw_" + si,
-                            "Num_L1Clusters_OMem_Disc+" + si,
-                            "Num_L1Clusters_OMem_Disc+" + si,
-                            "Endcap Ring",
-                            "# L1 Clusters",
-                            16,
-                            0.5,
-                            16.5);
-    phase2tkutil::add1DDesc(desc,
-                            "Num_L1Clusters_OMem_Disc_Bw_" + si,
-                            "Num_L1Clusters_OMem_Disc-" + si,
-                            "Num_L1Clusters_OMem_Disc-" + si,
-                            "Endcap Ring",
-                            "# L1 Clusters",
-                            16,
-                            0.5,
-                            16.5);
-  }
+                          7.5);
 
   // Cluster properties
   phase2tkutil::add2DDesc(
@@ -407,6 +444,94 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
                           900,
                           0,
                           120);
+
+  // Layer-wise params
+  // counts
+  phase2tkutil::add1DDesc(desc,
+                          "NClustersLayer",
+                          "Num_L1Clusters",
+                          "Number of L1Clusters in {} per event",
+                          "Number of clusters",
+                          "Number of events",
+                          100,
+                          0,
+                          3000000);
+  phase2tkutil::add1DDesc(desc,
+                          "NClustersIMemLayer",
+                          "Num_L1Clusters_IMem",
+                          "Number of L1Clusters in inner member of modules in {} per event",
+                          "Number of clusters",
+                          "Number of events",
+                          100,
+                          0,
+                          3000000);
+  phase2tkutil::add1DDesc(desc,
+                          "NClustersOMemLayer",
+                          "Num_L1Clusters_OMem",
+                          "Number of L1Clusters in outer member of modules in {} per event",
+                          "Number of clusters",
+                          "Number of events",
+                          100,
+                          0,
+                          3000000);
+
+  // endcap
+  phase2tkutil::add1DDesc(desc,
+                          "NClustersByWheel",
+                          "Num_L1Clusters_Wheels",
+                          "Number of L1Clusters in {} by wheel",
+                          "Wheel",
+                          "Number of clusters",
+                          6,
+                          0.5,
+                          6.5);
+  phase2tkutil::add1DDesc(desc,
+                          "NClustersIMemByWheel",
+                          "Num_L1Clusters_Wheels_IMem",
+                          "Number of L1Clusters in inner member of modules in {} by wheel",
+                          "Wheel",
+                          "Number of clusters",
+                          6,
+                          0.5,
+                          6.5);
+  phase2tkutil::add1DDesc(desc,
+                          "NClustersOMemByWheel",
+                          "Num_L1Clusters_Wheels_OMem",
+                          "Number of L1Clusters in inner member of modules in {} by wheel",
+                          "Wheel",
+                          "Number of clusters",
+                          6,
+                          0.5,
+                          6.5);
+
+  //wheel
+  phase2tkutil::add1DDesc(desc,
+                          "NClustersByRing",
+                          "Num_L1Clusters_Rings",
+                          "Number of L1Clusters in {} by ring",
+                          "Ring",
+                          "Number of clusters",
+                          16,
+                          0.5,
+                          16.5);
+  phase2tkutil::add1DDesc(desc,
+                          "NClustersIMemByRing",
+                          "Num_L1Clusters_Rings_IMem",
+                          "Number of L1Clusters in inner member of modules in {} by ring",
+                          "Ring",
+                          "Number of clusters",
+                          16,
+                          0.5,
+                          16.5);
+  phase2tkutil::add1DDesc(desc,
+                          "NClustersOMemByRing",
+                          "Num_L1Clusters_Rings_OMem",
+                          "Number of L1Clusters in outer member of modules in {} by ring",
+                          "Ring",
+                          "Number of clusters",
+                          16,
+                          0.5,
+                          16.5);
 
   desc.add<std::string>("TopFolderName", "OuterTracker");
   desc.add<edm::InputTag>("TTClusters", edm::InputTag("TTClustersFromPhase2TrackerDigis", "ClusterInclusive"));

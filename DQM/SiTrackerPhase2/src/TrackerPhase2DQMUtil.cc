@@ -40,7 +40,7 @@ std::string phase2tkutil::getHistoId(uint32_t det_id, const TrackerTopology* tTo
       layer = tTopo->getOTLayerNumber(det_id);
   } else if (DetId(det_id).subdetId() == PixelSubdetector::PixelEndcap ||
              DetId(det_id).subdetId() == SiStripSubdetector::TID) {
-    Substructure = (pretty ? "" : "Endcaps/");
+    Substructure = (pretty ? "endcap " : "Endcaps/");
     if (inner) {
       wheel = tTopo->pxfDisk(det_id);
       ring = tTopo->pxfBlade(det_id);
@@ -52,7 +52,7 @@ std::string phase2tkutil::getHistoId(uint32_t det_id, const TrackerTopology* tTo
 
     } else {
       int side = tTopo->tidSide(det_id);
-      Side = (pretty ? ((side == 1) ? "minus " : "plus ") : ((side == 1) ? "MINUS/" : "PLUS/"));
+      Side = (pretty ? ((side == 1) ? "side minus " : "side plus ") : ((side == 1) ? "MINUS/" : "PLUS/"));
       wheel = tTopo->tidWheel(det_id);
       TEDD = (pretty ? (wheel < 3 ? "TEDD_1 " : "TEDD_2 ") : ((wheel < 3) ? "TEDD_1/" : "TEDD_2/"));
       ring = tTopo->tidRing(det_id);
@@ -72,30 +72,39 @@ std::string phase2tkutil::getHistoId(uint32_t det_id, const TrackerTopology* tTo
   // TODO: Ladder and module names in the pretty string (they probably don't need their own folders)
   //Ladder << "ladder" << ladder << "/"; maybe only for histogram names, not filenames
 
-  if (LEVEL > 1)  // Add Barrel/Endcap/Forward
+  // LEVEL == 1: InnerTracker or OuterTracker
+  // LEVEL == 2: Barrel or Endcap or Forward(IT)
+  if (LEVEL > 1)
     foldername << Substructure;
-  if (LEVEL > 2) {  // If IT add shells, if OT sides
+  // LEVEL == 3: Barrel or Endcap Shells (IT), Endcap Sides (OT)
+  if (LEVEL > 2) {
     if (inner)
       foldername << (pretty ? "shell " : "") << Shell << (pretty ? " " : "/");
-    else
+    else if (DetId(det_id).subdetId() == SiStripSubdetector::TID)
       foldername << Side;
+    else
+      foldername << (pretty ? "" : "THIS_SHOULD_NOT_APPEAR_3/");
   }
-  if (LEVEL > 3 && LEVEL != 4) {
-    // Wheels (endcap only)
-    if (DetId(det_id).subdetId() == PixelSubdetector::PixelEndcap)
-      foldername << "Wheel" << wheel << (pretty ? " " : "/");
-    if (DetId(det_id).subdetId() == SiStripSubdetector::TID)
-      foldername << TEDD << "Wheel" << wheel << (pretty ? " " : "/");
-  }
+  // LEVEL == 4: Endcap rings
   if (LEVEL == 4) {
-    // Rings (endcap only)
     if (DetId(det_id).subdetId() == SiStripSubdetector::TID)
       foldername << TEDD << "Ring" << ring << (pretty ? " " : "/");
-    if (DetId(det_id).subdetId() == PixelSubdetector::PixelEndcap)
+    else if (DetId(det_id).subdetId() == PixelSubdetector::PixelEndcap)
       foldername << "Ring" << ring << (pretty ? " " : "/");
+    else
+      foldername << (pretty ? "" : "THIS_SHOULD_NOT_APPEAR_4/");
   }
+  // LEVEL == 5: Endcap wheels
+  if (LEVEL > 4) {
+    if (DetId(det_id).subdetId() == PixelSubdetector::PixelEndcap)
+      foldername << "Wheel" << wheel << (pretty ? " " : "/");
+    else if (DetId(det_id).subdetId() == SiStripSubdetector::TID)
+      foldername << TEDD << "Wheel" << wheel << (pretty ? " " : "/");
+    else
+      foldername << (pretty ? "" : "THIS_SHOULD_NOT_APPEAR_5/");
+  }
+  // LEVEL == 6: Barrel layers or endcap rings in wheels
   if (LEVEL > 5) {
-    // Layer/Ring in Wheel
     if (DetId(det_id).subdetId() == PixelSubdetector::PixelBarrel ||
         DetId(det_id).subdetId() == SiStripSubdetector::TOB)
       foldername << "Layer" << layer << (pretty ? " " : "/");
