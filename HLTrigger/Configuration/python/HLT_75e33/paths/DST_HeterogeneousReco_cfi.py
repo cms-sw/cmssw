@@ -44,7 +44,6 @@ HLTPixelTrackingSequence = cms.Sequence(
     hltPhase2PixelTracksSoA
     + hltPhase2PixelTrackTorchHighPuritySelector
     + hltPhase2PixelTracks
-    + hltPhase2PixelVertices
     #+ hltExtendedPhase2PixelVerticesSoA # not yet ready
 )
 
