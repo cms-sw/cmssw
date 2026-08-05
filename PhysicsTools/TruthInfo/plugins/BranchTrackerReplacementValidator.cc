@@ -28,6 +28,7 @@
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
 
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
+#include "PhysicsTools/TruthInfo/interface/SubgraphHitView.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
 #include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
@@ -75,7 +76,7 @@ namespace {
   }
 
   // tightest (smallest tracker subgraph) among the best-scoring matches.
-  int tightestBest(std::vector<truth::BranchMatch> const& matches, truth::LogicalGraphHitIndex const& hitIndex) {
+  int tightestBest(std::vector<truth::BranchMatch> const& matches, truth::SubgraphHitView& hitIndex) {
     if (matches.empty())
       return -1;
     const float best = matches.front().score;
@@ -98,6 +99,7 @@ void BranchTrackerReplacementValidator::analyze(edm::Event const& event, edm::Ev
   auto const& graph = event.get(graphToken_);
   auto const& raw = event.get(rawToken_);
   auto const& hitIndex = event.get(hitIndexToken_);
+  truth::SubgraphHitView subgraphView(hitIndex);
   auto const& tracks = event.get(trackToken_);
   auto const& clusterTP = event.get(clusterTPToken_);
 
@@ -117,7 +119,7 @@ void BranchTrackerReplacementValidator::analyze(edm::Event const& event, edm::Ev
     }
     int branchParticle = -1;
     if (!trackHits.empty())
-      branchParticle = tightestBest(assoc.bestBranches(std::span<const truth::RecoHit>(trackHits)), hitIndex);
+      branchParticle = tightestBest(assoc.bestBranches(std::span<const truth::RecoHit>(trackHits)), subgraphView);
 
     // TP side: shared clusters via ClusterTPAssociation -> dominant TP -> particle.
     auto clusters = track_associator::hitsToClusterRefs(track.recHitsBegin(), track.recHitsEnd());
