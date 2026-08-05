@@ -45,7 +45,7 @@ void EGammaPCAHelper::setRecHits(edm::Handle<HGCRecHitCollection> recHitHandleEE
   }
 }
 
-void EGammaPCAHelper::setRecHitTools(const hgcal::RecHitTools* recHitTools) {
+void EGammaPCAHelper::setRecHitTools(const ticlgeom::Tools* recHitTools) {
   recHitTools_ = recHitTools;
   maxlayer_ = recHitTools_->lastLayerBH();
 }

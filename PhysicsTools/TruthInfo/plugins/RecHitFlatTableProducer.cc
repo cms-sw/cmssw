@@ -6,13 +6,14 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/stream/moduleAbilities.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
 #include <vector>
@@ -25,7 +26,9 @@ public:
         rechits_tokens_{
             edm::vector_transform(params.getParameter<std::vector<edm::InputTag>>("label_rechits"),
                                   [this](const edm::InputTag& lab) { return consumes<HGCRecHitCollection>(lab); })},
-        caloGeometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()) {
+        ticlGeom_token_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
+        ticlGeomLookup_token_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
+        ticlGeomLayers_token_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", ""))) {
     produces<nanoaod::FlatTable>();
   }
 
@@ -70,8 +73,8 @@ public:
   }
 
   void beginRun(edm::Run const&, edm::EventSetup const& es) override {
-    edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_token_);
-    rhtools_.setGeometry(*geom);
+    rhtools_.setGeometry(
+        es.getData(ticlGeom_token_), es.getData(ticlGeomLookup_token_), es.getData(ticlGeomLayers_token_));
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -89,8 +92,10 @@ protected:
   //   const edm::EDGetTokenT<edm::View<pat::PackedGenParticle>> src_;
   const std::vector<edm::EDGetTokenT<HGCRecHitCollection>> rechits_tokens_;
 
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometry_token_;
-  hgcal::RecHitTools rhtools_;
+  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeom_token_;
+  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookup_token_;
+  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayers_token_;
+  ticlgeom::Tools rhtools_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

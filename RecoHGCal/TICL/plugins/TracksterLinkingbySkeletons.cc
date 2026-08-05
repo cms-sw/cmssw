@@ -96,7 +96,7 @@ void TracksterLinkingbySkeletons::buildLayers() {
 }
 
 void TracksterLinkingbySkeletons::initialize(const HGCalDDDConstants *hgcons,
-                                             const hgcal::RecHitTools rhtools,
+                                             const ticlgeom::Tools rhtools,
                                              const edm::ESHandle<MagneticField> bfieldH,
                                              const edm::ESHandle<Propagator> propH) {
   hgcons_ = hgcons;
@@ -126,7 +126,7 @@ std::array<ticl::Vector, 3> TracksterLinkingbySkeletons::findSkeletonNodes(
     float lower_percentage,
     float upper_percentage,
     const std::vector<reco::CaloCluster> &layerClusters,
-    const hgcal::RecHitTools &rhtools) {
+    const ticlgeom::Tools &rhtools) {
   auto const &vertices = trackster.vertices();
   auto const trackster_raw_energy = trackster.raw_energy();
   // sort vertices by layerId

@@ -44,7 +44,7 @@ template <typename TILES>
 PatternRecognitionbyCA<TILES>::~PatternRecognitionbyCA(){};
 
 template <typename TILES>
-void PatternRecognitionbyCA<TILES>::setGeometry(hgcal::RecHitTools const &rhtools) {
+void PatternRecognitionbyCA<TILES>::setGeometry(ticlgeom::Tools const &rhtools) {
   this->rhtools_ = &rhtools;
   this->geometryReady_ = true;
 }
