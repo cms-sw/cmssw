@@ -33,8 +33,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 #endif
 
-    for (unsigned int iv : uniform_elements(acc, round_up_by(maxVerticesInSoA,alpaka::warp::getSize(acc)))) {
-      if (iv < maxVerticesInSoA){
+    for (unsigned int iv : uniform_elements(acc, round_up_by(maxVerticesInSoA, alpaka::warp::getSize(acc)))) {
+      if (iv < maxVerticesInSoA) {
         if (vertices[iv].isGood()) {
           if ((vertices[iv].rho() > 10000) || (alpaka::math::abs(acc, vertices[iv].z()) > 30)) {
             vertices[iv].isGood() = false;
@@ -81,8 +81,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     cms::alpakatools::radixSort<Acc1D, float, 2>(acc, z, orderedIndices, sws, vertices[0].nV());
     alpaka::syncBlockThreads(acc);
     // copy sorted vertices back to the SoA. We restrict our usage to the first vertices[0].nV() entries of the SoA
-    for (int ivtx : uniform_elements(acc, round_up_by(vertices[0].nV(),alpaka::warp::getSize(acc)))) {
-      if (ivtx < vertices[0].nV()){
+    for (int ivtx : uniform_elements(acc, round_up_by(vertices[0].nV(), alpaka::warp::getSize(acc)))) {
+      if (ivtx < vertices[0].nV()) {
         vertices[ivtx].z() = z[ivtx];
         vertices[ivtx].rho() = rho[ivtx];
         vertices[ivtx].order() = orderedIndices[ivtx];
@@ -90,8 +90,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     }
     // And invalidate the remaining part we won't use anymore, i.e. those between the last good vertex and the end
-    for (unsigned int ivtx : uniform_elements(acc, round_up_by(maxVerticesInSoA - vertices[0].nV(),alpaka::warp::getSize(acc)))) {
-      if (ivtx < maxVerticesInSoA - vertices[0].nV()){
+    for (unsigned int ivtx :
+         uniform_elements(acc, round_up_by(maxVerticesInSoA - vertices[0].nV(), alpaka::warp::getSize(acc)))) {
+      if (ivtx < maxVerticesInSoA - vertices[0].nV()) {
         vertices[ivtx + vertices[0].nV()].isGood() = false;
       }
     }
@@ -105,8 +106,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 #endif
 
-    for (int itrack : uniform_elements(acc, round_up_by(tracks.nT(),alpaka::warp::getSize(acc)))) {
-      if (itrack < tracks.nT()){
+    for (int itrack : uniform_elements(acc, round_up_by(tracks.nT(), alpaka::warp::getSize(acc)))) {
+      if (itrack < tracks.nT()) {
         if (not(tracks[itrack].isGood()))
           continue;
         double zrange = alpaka::math::max(
@@ -158,8 +159,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     double mintrkweight_ = 0.5;
     double rho0 = vertices[0].nV() > 1 ? 1. / vertices[0].nV() : 1.;
     double z_sum_init = rho0 * alpaka::math::exp(acc, -(beta)*cParams.dzCutOff * cParams.dzCutOff);
-    for (int itrack : uniform_elements(acc, round_up_by(tracks.nT(),alpaka::warp::getSize(acc)))) {
-      if (itrack < tracks.nT()){
+    for (int itrack : uniform_elements(acc, round_up_by(tracks.nT(), alpaka::warp::getSize(acc)))) {
+      if (itrack < tracks.nT()) {
         int kmin = tracks[itrack].kmin();
         int kmax = tracks[itrack].kmax();
         double p_max = -1;
@@ -205,8 +206,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                              reco::VertexDeviceCollection::View vertices,
                                              DAInBlocksClusterParameters const cParams) {
     // First put the tracks in vertex SoA
-    for (int k : uniform_elements(acc, round_up_by(vertices[0].nV(), alpaka::warp::getSize(acc)))) { 
-      if (k < vertices[0].nV()){
+    for (int k : uniform_elements(acc, round_up_by(vertices[0].nV(), alpaka::warp::getSize(acc)))) {
+      if (k < vertices[0].nV()) {
         int ivertex = vertices[k].order();
         vertices[ivertex].ntracks() = 0;
         for (int itrack = 0; itrack < tracks.nT(); itrack += 1) {

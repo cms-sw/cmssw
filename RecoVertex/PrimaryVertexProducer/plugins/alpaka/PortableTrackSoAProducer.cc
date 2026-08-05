@@ -43,12 +43,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     double vertexSize;
     double d0CutOff;
     TrackFilterParametersForVertexing(edm::ParameterSet const& config) {
-      maxSignificance =
-          config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("maxD0Significance");
+      maxSignificance = config.getParameter<double>("maxD0Significance");
       maxdxyError = config.getParameter<double>("maxD0Error");
       maxdzError = config.getParameter<double>("maxDzError");
       minpAtIP = config.getParameter<double>("minPt");
-      maxetaAtIP = config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("maxEta");
+      maxetaAtIP = config.getParameter<double>("maxEta");
       maxchi2 = config.getParameter<double>("maxNormalizedChi2");
       minpixelHits = config.getParameter<int>("minPixelLayersWithHits");
       mintrackerHits = config.getParameter<int>("minSiliconLayersWithHits");

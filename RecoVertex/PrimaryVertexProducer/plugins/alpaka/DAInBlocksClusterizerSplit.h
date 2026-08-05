@@ -30,8 +30,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     double epsilon = 1e-3;
     int nprev = vertices[blockIdx].nV();
     // Set critical T for all vertices
-    for (int ivertexO : uniform_elements(acc, round_up_by(vertices[blockIdx].nV(),alpaka::warp::getSize(acc)))) {
-      if (ivertexO < vertices[blockIdx].nV()){
+    for (int ivertexO : uniform_elements(acc, round_up_by(vertices[blockIdx].nV(), alpaka::warp::getSize(acc)))) {
+      if (ivertexO < vertices[blockIdx].nV()) {
         int ivertex = vertices[maxVerticesPerBlock * blockIdx + ivertexO].order();
         double Tc = 2 * vertices[ivertex].swE() / vertices[ivertex].sw();
         vertices[ivertex].aux1() = Tc;
@@ -107,8 +107,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         w2 = 0.;
       }
       alpaka::syncBlockThreads(acc);
-      for (int itrackO : uniform_elements(acc, round_up_by(trackBlockSize,alpaka::warp::getSize(acc)))) {
-	if (itrackO < trackBlockSize){
+      for (int itrackO : uniform_elements(acc, round_up_by(trackBlockSize, alpaka::warp::getSize(acc)))) {
+        if (itrackO < trackBlockSize) {
           int itrack = itrackO + blockIdx * trackBlockSize;
           if (tracks[itrack].sum_Z() > 1e-40) {
             // winner-takes-all, usually overestimates splitting
@@ -123,7 +123,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             }
             // Recompute split vertex quantities
             double p = vertices[ivertex].rho() * tracks[itrack].weight() *
-                      exp(-(beta) * (tracks[itrack].z() - vertices[ivertex].z()) *
+                       exp(-(beta) * (tracks[itrack].z() - vertices[ivertex].z()) *
                            (tracks[itrack].z() - vertices[ivertex].z()) * tracks[itrack].oneoverdz2()) /
                        tracks[itrack].sum_Z();
             double w = p * tracks[itrack].oneoverdz2();
@@ -232,14 +232,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
       alpaka::syncBlockThreads(acc);
       // Now, update kmin/kmax for all tracks
-      for (int itrackO : uniform_elements(acc, round_up_by(trackBlockSize,alpaka::warp::getSize(acc)))) {
-	if (itrackO < trackBlockSize){
+      for (int itrackO : uniform_elements(acc, round_up_by(trackBlockSize, alpaka::warp::getSize(acc)))) {
+        if (itrackO < trackBlockSize) {
           int itrack = itrackO + blockIdx * trackBlockSize;
           if (tracks[itrack].kmin() > ivertexO)
             tracks[itrack].kmin()++;
           if ((tracks[itrack].kmax() >= ivertexO) || (tracks[itrack].kmax() == tracks[itrack].kmin()))
             tracks[itrack].kmax()++;
-	}
+        }
       }
       nprev = vertices[blockIdx].nV();
       if (once_per_block(acc)) {

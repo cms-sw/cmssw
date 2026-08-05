@@ -25,8 +25,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     int blockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];
     int maxVerticesPerBlock = (int)1024 / alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
     vertices[blockIdx].nV() = 1;
-    for (int ivertexO : uniform_elements(acc, round_up_by(maxVerticesPerBlock,alpaka::warp::getSize(acc)))) {
-      if (ivertexO < maxVerticesPerBlock){
+    for (int ivertexO : uniform_elements(acc, round_up_by(maxVerticesPerBlock, alpaka::warp::getSize(acc)))) {
+      if (ivertexO < maxVerticesPerBlock) {
         int ivertex = ivertexO + maxVerticesPerBlock * blockIdx;
         vertices[ivertex].sw() = 0.;
         vertices[ivertex].swE() = 0.;
@@ -44,8 +44,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     }  // end for
     alpaka::syncBlockThreads(acc);
-    for (int itrackO : uniform_elements(acc, round_up_by(trackBlockSize,alpaka::warp::getSize(acc)))) {
-      if (itrackO < trackBlockSize){
+    for (int itrackO : uniform_elements(acc, round_up_by(trackBlockSize, alpaka::warp::getSize(acc)))) {
+      if (itrackO < trackBlockSize) {
         int itrack = itrackO + blockIdx * trackBlockSize;
         // Tracks are associated to vertex in list kmin, kmin+1,... kmax-1, so this just assign all tracks to the vertex we just created
         tracks[itrack].kmin() = maxVerticesPerBlock * blockIdx;
@@ -64,8 +64,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // Computes first critical temperature
     int blockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];
     int maxVerticesPerBlock = (int)1024 / alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
-    for (int itrackO : uniform_elements(acc, round_up_by(trackBlockSize,alpaka::warp::getSize(acc)))) {
-      if (itrackO < trackBlockSize){
+    for (int itrackO : uniform_elements(acc, round_up_by(trackBlockSize, alpaka::warp::getSize(acc)))) {
+      if (itrackO < trackBlockSize) {
         int itrack = itrackO + blockIdx * trackBlockSize;
         if (not(tracks[itrack].isGood()))
           continue;
@@ -82,8 +82,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       znew = 0.;
     }
     alpaka::syncBlockThreads(acc);
-    for (int itrackO : uniform_elements(acc, round_up_by(trackBlockSize,alpaka::warp::getSize(acc)))) {
-      if (itrackO < trackBlockSize){
+    for (int itrackO : uniform_elements(acc, round_up_by(trackBlockSize, alpaka::warp::getSize(acc)))) {
+      if (itrackO < trackBlockSize) {
         int itrack = itrackO + blockIdx * trackBlockSize;
         if (not(tracks[itrack].isGood()))
           continue;
@@ -98,8 +98,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
     alpaka::syncBlockThreads(acc);
     // Now do a chi-2 like of all tracks and save it again in znew
-    for (int itrackO : uniform_elements(acc, round_up_by(trackBlockSize,alpaka::warp::getSize(acc)))) {
-      if (itrackO < trackBlockSize){
+    for (int itrackO : uniform_elements(acc, round_up_by(trackBlockSize, alpaka::warp::getSize(acc)))) {
+      if (itrackO < trackBlockSize) {
         int itrack = itrackO + blockIdx * trackBlockSize;
         if (not(tracks[itrack].isGood()))
           continue;

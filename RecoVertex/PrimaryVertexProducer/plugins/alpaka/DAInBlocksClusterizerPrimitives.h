@@ -16,7 +16,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Device functions //
   //////////////////////
 
-  #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_CLUSTERIZERALGO
+#ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_CLUSTERIZERALGO
   ALPAKA_FN_ACC static void dump(const Acc1D& acc, double& beta, reco::VertexDeviceCollection::View vertices) {
     int blockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];
     int maxVerticesPerBlock =
@@ -26,23 +26,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
            blockIdx,
            vertices[blockIdx].nV(),
            beta);
-    for (int ivertexO : uniform_elements(acc, round_up_by(vertices[blockIdx].nV(),alpaka::warp::getSize(acc)))) {
-      if (ivertexO < vertices[blockIdx].nV()){
+    for (int ivertexO : uniform_elements(acc, round_up_by(vertices[blockIdx].nV(), alpaka::warp::getSize(acc)))) {
+      if (ivertexO < vertices[blockIdx].nV()) {
         int ivertex = vertices[maxVerticesPerBlock * blockIdx + ivertexO].order();
         printf(
-          "[DAInBlocksClusterizerAlgo::dump()] -- Block Idx %i, vertex %i in order %i: "
-          "z=%1.5f,swE=%1.5f,sw=%1.5f,pk=%1.5f\n",
-          blockIdx,
-          ivertex,
-          ivertexO,
-          vertices[ivertex].z(),
-          vertices[ivertex].swE(),
-          vertices[ivertex].sw(),
-          vertices[ivertex].rho());
+            "[DAInBlocksClusterizerAlgo::dump()] -- Block Idx %i, vertex %i in order %i: "
+            "z=%1.5f,swE=%1.5f,sw=%1.5f,pk=%1.5f\n",
+            blockIdx,
+            ivertex,
+            ivertexO,
+            vertices[ivertex].z(),
+            vertices[ivertex].swE(),
+            vertices[ivertex].sw(),
+            vertices[ivertex].rho());
       }
     }
   }
-  #endif
+#endif
   ALPAKA_FN_ACC static void set_vtx_range(const Acc1D& acc,
                                           reco::TrackForVertexDeviceCollection::View tracks,
                                           reco::VertexDeviceCollection::View vertices,
@@ -56,11 +56,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                               acc)[0u];  // Max vertices size is 1024 over number of blocks in grid
     double zrange_min = 0.1;                             // Hard coded as in CPU version
     for (int itrackO : uniform_elements(acc, round_up_by(trackBlockSize, alpaka::warp::getSize(acc)))) {
-      if (itrackO <trackBlockSize){
+      if (itrackO < trackBlockSize) {
         int itrack = itrackO + blockIdx * trackBlockSize;
         // Based on current temperature (regularization term) and track position uncertainty, only keep relevant vertices
         double zrange = alpaka::math::max(
-          acc, cParams.zrange / alpaka::math::sqrt(acc, (beta)*tracks[itrack].oneoverdz2()), zrange_min);
+            acc, cParams.zrange / alpaka::math::sqrt(acc, (beta)*tracks[itrack].oneoverdz2()), zrange_min);
         double zmin = tracks[itrack].z() - zrange;
         // First the lower bound
         int kmin = alpaka::math::min(
@@ -81,11 +81,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // And now do the same for the upper bound
         double zmax = tracks[itrack].z() + zrange;
         int kmax =
-           alpaka::math::max(acc,
-                            0,
-                            alpaka::math::min(acc,
-                                              maxVerticesPerBlock * blockIdx + (int)(vertices[blockIdx].nV()) - 1,
-                                              (int)(tracks[itrack].kmax()) - 1));
+            alpaka::math::max(acc,
+                              0,
+                              alpaka::math::min(acc,
+                                                maxVerticesPerBlock * blockIdx + (int)(vertices[blockIdx].nV()) - 1,
+                                                (int)(tracks[itrack].kmax()) - 1));
         // For corner cases in which we purged the first vertex, thus not properly updating kmax during purging
         while (vertices[kmax].order() == 9999)
           kmax++;
@@ -106,9 +106,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         } else {  // Track goes to the most extreme cases if no associated one is found
           tracks[itrack].kmin() =
               (int)alpaka::math::max(acc, maxVerticesPerBlock * blockIdx, (int)alpaka::math::min(acc, kmin, kmax));
-          tracks[itrack].kmax() = (int)alpaka::math::min(acc,
-                                                         (maxVerticesPerBlock * blockIdx) + (int)vertices[blockIdx].nV(),
-                                                         (int)alpaka::math::max(acc, kmin, kmax) + 1);
+          tracks[itrack].kmax() =
+              (int)alpaka::math::min(acc,
+                                     (maxVerticesPerBlock * blockIdx) + (int)vertices[blockIdx].nV(),
+                                     (int)alpaka::math::max(acc, kmin, kmax) + 1);
         }
       }  //end for
     }
@@ -131,7 +132,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // Initial partition function, really only used on the outlier rejection step to penalize
     double Zinit = rho0 * alpaka::math::exp(acc, -(beta)*cParams.dzCutOff * cParams.dzCutOff);
     for (int itrackO : uniform_elements(acc, round_up_by(trackBlockSize, alpaka::warp::getSize(acc)))) {
-      if (itrackO < trackBlockSize){
+      if (itrackO < trackBlockSize) {
         int itrack = itrackO + blockIdx * trackBlockSize;
         double botrack_dz2 = -(beta)*tracks[itrack].oneoverdz2();
         tracks[itrack].sum_Z() = Zinit;
@@ -166,14 +167,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             } else {
               tracks[itrack].vert_swE()[ivertex] = 0;
             }
-         }  //end vertex for
+          }  //end vertex for
         }  //end if
       }
     }  //end track for
     alpaka::syncBlockThreads(acc);
     // After the track-vertex matrix assignment, we need to add up across vertices. This time, we use one thread per vertex
     for (int ivertexO : uniform_elements(acc, round_up_by(vertices[blockIdx].nV(), alpaka::warp::getSize(acc)))) {
-      if (ivertexO < vertices[blockIdx].nV()){
+      if (ivertexO < vertices[blockIdx].nV()) {
         int ivertexC = maxVerticesPerBlock * blockIdx + ivertexO;
         int ivertex = vertices[ivertexC].order();
         float se = 0.;

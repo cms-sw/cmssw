@@ -35,7 +35,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     if (nprev < 2)
       return;
     for (int ivertexO : uniform_elements(acc, round_up_by(vertices[blockIdx].nV(), alpaka::warp::getSize(acc)))) {
-      if (ivertexO < vertices[blockIdx].nV()){
+      if (ivertexO < vertices[blockIdx].nV()) {
         int ivertex = vertices[maxVerticesPerBlock * blockIdx + ivertexO].order();
         int ivertexnext = vertices[maxVerticesPerBlock * blockIdx + ivertexO + 1].order();
         vertices[ivertex].aux1() = abs(vertices[ivertex].z() - vertices[ivertexnext].z());
@@ -132,15 +132,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           critical_index[resort]--;  // critical_index refers to the original vertices->order, so it needs to be updated
       }
       nprev = vertices[blockIdx].nV();  // And to the counter of previous vertices
-      for (int itrackO : uniform_elements(acc, round_up_by(trackBlockSize,alpaka::warp::getSize(acc)))) {
-	if (itrackO < trackBlockSize){
+      for (int itrackO : uniform_elements(acc, round_up_by(trackBlockSize, alpaka::warp::getSize(acc)))) {
+        if (itrackO < trackBlockSize) {
           int itrack = itrackO + blockIdx * trackBlockSize;
           if (tracks[itrack].kmax() > ivertexO + 1)
             tracks[itrack].kmax()--;
           if ((tracks[itrack].kmin() > ivertexO) || ((tracks[itrack].kmax() < (tracks[itrack].kmin() + 1)) &&
                                                      (tracks[itrack].kmin() > maxVerticesPerBlock * blockIdx)))
             tracks[itrack].kmin()--;
-	}
+        }
       }
     }
     alpaka::syncBlockThreads(acc);
