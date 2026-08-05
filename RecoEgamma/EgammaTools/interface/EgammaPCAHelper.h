@@ -20,7 +20,7 @@
 #include "RecoEgamma/EgammaTools/interface/Spot.h"
 #include "RecoEgamma/EgammaTools/interface/LongDeps.h"
 #include "RecoEgamma/EgammaTools/interface/ShowerDepth.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 #include "Math/Transform3D.h"
 #include <unordered_map>
 
@@ -46,7 +46,7 @@ namespace hgcal {
     void setHitMap(const std::unordered_map<DetId, const unsigned int> *hitMap);
     const std::unordered_map<DetId, const unsigned int> *getHitMap() { return hitMap_; }
 
-    void setRecHitTools(const hgcal::RecHitTools *recHitTools);
+    void setRecHitTools(const ticlgeom::Tools *recHitTools);
     void setRecHits(edm::Handle<HGCRecHitCollection> recHitHandleEE,
                     edm::Handle<HGCRecHitCollection> recHitHandleFH,
                     edm::Handle<HGCRecHitCollection> recHitHandleBH);
@@ -102,7 +102,7 @@ namespace hgcal {
 
     // helper
     std::unique_ptr<TPrincipal> pca_;
-    const hgcal::RecHitTools *recHitTools_;
+    const ticlgeom::Tools *recHitTools_;
     ShowerDepth showerDepth_;
 
     std::vector<const HGCRecHit *> hits_;

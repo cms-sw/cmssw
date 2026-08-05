@@ -9,23 +9,26 @@
 #include <cassert>
 
 PositionAtECalEntranceComputer::PositionAtECalEntranceComputer(edm::ConsumesCollector&& cc, bool isPhase2)
-    : bField_esToken_(cc.esConsumes<MagneticField, IdealMagneticFieldRecord>()),
-      caloGeo_esToken_(cc.esConsumes<CaloGeometry, CaloGeometryRecord>()),
-      bField_z_(-1.),
-      isPhase2_(isPhase2) {}
+    : PositionAtECalEntranceComputer(cc, isPhase2) {}
 
 PositionAtECalEntranceComputer::PositionAtECalEntranceComputer(edm::ConsumesCollector& cc, bool isPhase2)
-    : bField_esToken_(cc.esConsumes<MagneticField, IdealMagneticFieldRecord>()),
-      caloGeo_esToken_(cc.esConsumes<CaloGeometry, CaloGeometryRecord>()),
-      bField_z_(-1.),
-      isPhase2_(isPhase2) {}
+    : bField_esToken_(cc.esConsumes<MagneticField, IdealMagneticFieldRecord>()), bField_z_(-1.), isPhase2_(isPhase2) {
+  // the TICLGeom products exist only in Phase2, and only the Phase2 branch of
+  // beginEvent reads them, so consume them only there
+  if (isPhase2_) {
+    ticlGeom_esToken_ = cc.esConsumes(edm::ESInputTag("", ""));
+    ticlGeomLookup_esToken_ = cc.esConsumes(edm::ESInputTag("", ""));
+    ticlGeomLayers_esToken_ = cc.esConsumes(edm::ESInputTag("", ""));
+  }
+}
 
 PositionAtECalEntranceComputer::~PositionAtECalEntranceComputer() {}
 
 void PositionAtECalEntranceComputer::beginEvent(const edm::EventSetup& es) {
   bField_z_ = es.getData(bField_esToken_).inTesla(GlobalPoint(0., 0., 0.)).z();
   if (isPhase2_) {
-    recHitTools_.setGeometry(es.getData(caloGeo_esToken_));
+    recHitTools_.setGeometry(
+        es.getData(ticlGeom_esToken_), es.getData(ticlGeomLookup_esToken_), es.getData(ticlGeomLayers_esToken_));
     hgcalFace_z_ = recHitTools_.getPositionLayer(1).z();  // HGCal 1st layer
   }
 }

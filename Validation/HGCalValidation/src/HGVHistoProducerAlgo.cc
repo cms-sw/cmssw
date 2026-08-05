@@ -3227,9 +3227,7 @@ double HGVHistoProducerAlgo::distance(const double x1,
   return std::sqrt(distance2(x1, y1, x2, y2));
 }
 
-void HGVHistoProducerAlgo::setRecHitTools(std::shared_ptr<hgcal::RecHitTools> recHitTools) {
-  recHitTools_ = recHitTools;
-}
+void HGVHistoProducerAlgo::setRecHitTools(std::shared_ptr<ticlgeom::Tools> recHitTools) { recHitTools_ = recHitTools; }
 
 DetId HGVHistoProducerAlgo::findmaxhit(const reco::CaloCluster& cluster,
                                        std::unordered_map<DetId, const unsigned int> const& hitMap,

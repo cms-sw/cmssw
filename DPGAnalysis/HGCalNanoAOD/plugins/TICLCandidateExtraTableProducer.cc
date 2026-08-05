@@ -11,7 +11,6 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "RecoHGCal/TICL/interface/TICLUtils.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"

@@ -29,6 +29,7 @@
 #include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
 
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
+#include "PhysicsTools/TruthInfo/interface/SubgraphHitView.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
 #include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
@@ -54,7 +55,7 @@ private:
   void validate(Collection const& objects,
                 truth::Graph const& graph,
                 TruthGraph const& raw,
-                truth::LogicalGraphHitIndex const& hitIndex,
+                truth::SubgraphHitView& hitIndex,
                 truth::BranchHitAssociator const& assoc,
                 std::unordered_map<uint32_t, uint32_t> const& tidToParticle,
                 Stats& stats);
@@ -97,7 +98,7 @@ template <class Collection>
 void BranchTruthReplacementValidator::validate(Collection const& objects,
                                                truth::Graph const& graph,
                                                TruthGraph const& raw,
-                                               truth::LogicalGraphHitIndex const& hitIndex,
+                                               truth::SubgraphHitView& hitIndex,
                                                truth::BranchHitAssociator const& assoc,
                                                std::unordered_map<uint32_t, uint32_t> const& tidToParticle,
                                                Stats& stats) {
@@ -116,7 +117,7 @@ void BranchTruthReplacementValidator::validate(Collection const& objects,
 
     // Branch subgraph calo hits for the mapped logical particle.
     std::unordered_set<uint32_t> branchDetIds;
-    for (auto const& hit : hitIndex.subgraphHits(truth::HitChannel::HGCalCalo, particleId))
+    for (auto const& hit : hitIndex.subgraphHits(truth::HitChannel::Calo, particleId))
       branchDetIds.insert(hit.detId);
 
     // Legacy object hits, and the reco-like hit list for the matcher.
@@ -149,11 +150,11 @@ void BranchTruthReplacementValidator::validate(Collection const& objects,
     if (!matches.empty()) {
       const float bestScore = matches.front().score;
       uint32_t tightest = matches.front().rootParticleId;
-      std::size_t tightestSize = hitIndex.subgraphHits(truth::HitChannel::HGCalCalo, tightest).size();
+      std::size_t tightestSize = hitIndex.subgraphHits(truth::HitChannel::Calo, tightest).size();
       for (auto const& m : matches) {
         if (m.score > bestScore)
           break;
-        const std::size_t size = hitIndex.subgraphHits(truth::HitChannel::HGCalCalo, m.rootParticleId).size();
+        const std::size_t size = hitIndex.subgraphHits(truth::HitChannel::Calo, m.rootParticleId).size();
         if (size < tightestSize) {
           tightestSize = size;
           tightest = m.rootParticleId;
@@ -168,12 +169,13 @@ void BranchTruthReplacementValidator::validate(Collection const& objects,
 void BranchTruthReplacementValidator::analyze(edm::Event const& event, edm::EventSetup const&) {
   auto const& graph = event.get(graphToken_);
   auto const& raw = event.get(rawToken_);
-  auto const& hitIndex = event.get(hitIndexToken_);
+  auto const& hitIndexProduct = event.get(hitIndexToken_);
+  truth::SubgraphHitView hitIndex(hitIndexProduct);
 
   const auto tidToParticle = buildTrackIdToParticle(graph, raw);
 
   // SharedHits metric: best branch = the one sharing the most calo cells.
-  truth::BranchHitAssociator assoc(hitIndex, {}, truth::BranchHitAssociator::Metric::SharedHits);
+  truth::BranchHitAssociator assoc(hitIndexProduct, {}, truth::BranchHitAssociator::Metric::SharedHits);
 
   validate(event.get(caloParticleToken_), graph, raw, hitIndex, assoc, tidToParticle, caloParticleStats_);
   validate(event.get(simClusterToken_), graph, raw, hitIndex, assoc, tidToParticle, simClusterStats_);

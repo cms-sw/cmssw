@@ -46,6 +46,26 @@ premix_stage2.toReplaceWith(pdigiTask_nogen, pdigiTask_nogen.copyAndExclude([add
 
 pdigiTask = cms.Task(pdigiTask_nogen, fixGenInfoTask, tpPruningTask)
 
+# enableTruth: build the pileup-aware logical graph + unresolved hit index right
+# after mixing (they consume the mix products and run at DIGI, triggered by the
+# truth output keeps). The accumulator itself is registered in the mixing digitizers
+# (SimGeneral/MixingModule/digitizers_cfi) under the same modifier.
+from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
+# Import the producers by name (not just the Task) so process.load labels them.
+from PhysicsTools.TruthInfo.truthGraphMixedDigi_cff import (
+    truthGraphMixedDigiTask,
+    truthLogicalGraphProducer,
+    truthLogicalGraphHitIndexProducer,
+)
+_pdigiTaskBase = pdigiTask.copy()  # base without the truth build (for the premix case)
+_pdigiTaskTruth = pdigiTask.copy()
+_pdigiTaskTruth.add(truthGraphMixedDigiTask)
+enableTruth.toReplaceWith(pdigiTask, _pdigiTaskTruth)
+# Premixing has no raw pileup g4SimHits, so the accumulator (and hence the graph +
+# index build) is dropped under premix even if enableTruth is on. Applied after the
+# enableTruth line, so it wins by code order.
+premix_stage2.toReplaceWith(pdigiTask, _pdigiTaskBase)
+
 doAllDigi = cms.Sequence(doAllDigiTask)
 pdigi = cms.Sequence(pdigiTask)
 pdigi_valid = cms.Sequence(pdigiTask)

@@ -1,9 +1,22 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
 <use name="DataFormats/HGCalReco"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/Math"/>
 <use name="SimDataFormats/CaloAnalysis"/>
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
+<use name="CondFormats/HGCalObjects"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="Geometry/Records"/>
 <flags EDM_PLUGIN="1"/>
 <library   file="*.cc" name="testRecoHGCalTICL"> </library>
+
+<library file="alpaka/*.cc" name="testRecoHGCalTICLPortable">
+  <use name="alpaka"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

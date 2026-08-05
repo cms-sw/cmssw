@@ -41,6 +41,7 @@
 
 <library file="alpaka/*.cc" name="RecoTrackerFinalTrackSelectorsAlpakaPlugins">
   <use name="alpaka"/>
+  <use name="xtd"/> 
   <use name="DataFormats/BeamSpot"/>
   <use name="DataFormats/Portable"/>
   <use name="DataFormats/SoATemplate"/>
@@ -51,4 +52,5 @@
   <use name="pytorch-cuda" for="alpaka/cuda"/>
   <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
+  <flags remove="1">ofast-flag</flags>
 </library>

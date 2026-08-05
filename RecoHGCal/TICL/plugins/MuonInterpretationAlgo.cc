@@ -23,7 +23,7 @@ MuonInterpretationAlgo::MuonInterpretationAlgo(const edm::ParameterSet &conf, ed
 MuonInterpretationAlgo::~MuonInterpretationAlgo() {}
 
 void MuonInterpretationAlgo::initialize(const HGCalDDDConstants *hgcons,
-                                        const hgcal::RecHitTools rhtools,
+                                        const ticlgeom::Tools rhtools,
                                         const edm::ESHandle<MagneticField> bfieldH,
                                         const edm::ESHandle<Propagator> propH) {
   hgcons_ = hgcons;

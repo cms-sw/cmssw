@@ -100,7 +100,9 @@ upgradeKeys['Run4'] = [
     'Run4D121FSPU',
     'Run4D126',
     'Run4D126PU',
-     'Run4D121GenOnly',
+    'Run4D127',
+    'Run4D127PU',
+    'Run4D121GenOnly',
     'Run4D121SimOnGen',
 ]
 
@@ -1015,12 +1017,12 @@ upgradeWFs['ticlv5_TrackLinkingGNN'].step4 = {'--procModifiers': 'ticlv5_TrackLi
 
 class UpgradeWorkflow_enableTruth(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        # enableTruth runs the truth-graph producers in RecoGlobal (step3) and,
-        # in GenSim (step1), keeps the full ancestor branch of every stored
-        # SimTrack (g4SimHits PersistencyEmin -> 0 via the modifier) so the
-        # truth graph stays connected to the generator. The Branch validators run
-        # in the RecoGlobal VALIDATION and their efficiency harvesting in
-        # HARVESTGlobal (step4), so the modifier must reach the harvesting step too.
+        # enableTruth runs the truth-graph producers in RecoGlobal (step3). The Branch
+        # validators run in the RecoGlobal VALIDATION and their efficiency harvesting
+        # in HARVESTGlobal (step4), so the modifier must reach the harvesting step too.
+        # GenSim (step1) needs no modifier: SimVertex ancestor reconnection
+        # (g4SimHits TrackingAction.ReconnectDroppedAncestors) is a baseline default,
+        # so the truth graph is connected to the generator in every sample.
         if 'GenSim' in step or 'RecoGlobal' in step or 'HARVESTGlobal' in step:
             stepDict[stepName][k] = deepcopy(stepDict[step][k])
 
@@ -3966,6 +3968,13 @@ upgradeProperties['Run4'] = {
         'Geom' : 'ExtendedRun4D126',
         'HLTmenu': '@relvalRun4',
         'GT' : 'auto:phase2_realistic_T37',
+        'Era' : 'Phase2C26I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    'Run4D127' : {
+        'Geom' : 'ExtendedRun4D127',
+        'HLTmenu': '@relvalRun4',
+        'GT' : 'auto:phase2_realistic_T35',
         'Era' : 'Phase2C26I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },

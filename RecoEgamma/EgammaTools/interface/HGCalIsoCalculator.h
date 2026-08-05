@@ -9,7 +9,7 @@
 #define RecoEgamma_EgammaTools_HGCalIsoCalculator_h
 
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterCollection.h"
 
@@ -54,7 +54,7 @@ public:
 
   void setMinDeltaR(const float dr) { mindr2_ = dr * dr; }
 
-  void setRecHitTools(const hgcal::RecHitTools* recHitTools) { rechittools_ = recHitTools; }
+  void setRecHitTools(const ticlgeom::Tools* recHitTools) { rechittools_ = recHitTools; }
 
   void setNRings(const size_t nrings);
 
@@ -75,7 +75,7 @@ private:
 
   float dr2_, mindr2_;
 
-  const hgcal::RecHitTools* rechittools_;
+  const ticlgeom::Tools* rechittools_;
   edm::Handle<HGCRecHitCollection> recHitsEE_;
   edm::Handle<HGCRecHitCollection> recHitsFH_;
   edm::Handle<HGCRecHitCollection> recHitsBH_;

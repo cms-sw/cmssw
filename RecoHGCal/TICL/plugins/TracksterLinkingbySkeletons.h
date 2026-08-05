@@ -8,7 +8,7 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 #include "RecoHGCal/TICL/interface/TracksterLinkingAlgoBase.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -38,7 +38,7 @@ namespace ticl {
                                                   float lower_percentage,
                                                   float upper_percentage,
                                                   const std::vector<reco::CaloCluster>& layerClusters,
-                                                  const hgcal::RecHitTools& rhtools);
+                                                  const ticlgeom::Tools& rhtools);
 
     bool areCompatible(const ticl::Trackster& myTrackster,
                        const ticl::Trackster& otherTrackster,
@@ -62,7 +62,7 @@ namespace ticl {
                           float proj_distance);
 
     void initialize(const HGCalDDDConstants* hgcons,
-                    const hgcal::RecHitTools rhtools,
+                    const ticlgeom::Tools rhtools,
                     const edm::ESHandle<MagneticField> bfieldH,
                     const edm::ESHandle<Propagator> propH) override;
 
@@ -121,7 +121,7 @@ namespace ticl {
     std::unique_ptr<GeomDet> firstDisk_[2];
     std::unique_ptr<GeomDet> interfaceDisk_[2];
 
-    hgcal::RecHitTools rhtools_;
+    ticlgeom::Tools rhtools_;
 
     edm::ESHandle<MagneticField> bfield_;
     edm::ESHandle<Propagator> propagator_;

@@ -8,44 +8,55 @@
 #include <cstdint>
 
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
+#include <map>
+#include <vector>
+
 #include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndexBuilder.h"
 
 // These tests lock in the layout property the Branch view relies on: a particle's
 // subgraph hits are a single contiguous std::span, sorted by detId, deduplicated
 // by detId with energy accumulated across the whole subtree. That makes a
-// Subtree branch's hits == subgraphHits(truth::HitChannel::HGCalCalo, root) with zero gather, and orders them
+// Subtree branch's hits == subgraphHits(truth::HitChannel::Calo, root) with zero gather, and orders them
 // for merge-join matching against reco objects.
 class TestLogicalGraphHitIndexBuilder : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(TestLogicalGraphHitIndexBuilder);
   CPPUNIT_TEST(testSubgraphHitsAreSortedContiguousAndAccumulated);
   CPPUNIT_TEST(testDirectHitsAreSortedByDetId);
   CPPUNIT_TEST(testSubgraphDiamondCountsSharedDescendantOnce);
+  CPPUNIT_TEST(testSharedStoreKeepsEachHitOnce);
+  CPPUNIT_TEST(testSharedStoreFallsBackWhenNotAForest);
+  CPPUNIT_TEST(testSharedStoreFallsBackAcrossAGenOnlyChild);
+  CPPUNIT_TEST(testSharedStoreFallsBackAcrossAGenOnlyCycle);
   CPPUNIT_TEST_SUITE_END();
 
 public:
   void testSubgraphHitsAreSortedContiguousAndAccumulated();
   void testDirectHitsAreSortedByDetId();
   void testSubgraphDiamondCountsSharedDescendantOnce();
+  void testSharedStoreKeepsEachHitOnce();
+  void testSharedStoreFallsBackWhenNotAForest();
+  void testSharedStoreFallsBackAcrossAGenOnlyChild();
+  void testSharedStoreFallsBackAcrossAGenOnlyCycle();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestLogicalGraphHitIndexBuilder);
 
 void TestLogicalGraphHitIndexBuilder::testSubgraphHitsAreSortedContiguousAndAccumulated() {
   // particle 0 (track 100) -> child particle 1 (track 101)
-  truth::LogicalGraphHitIndexBuilder builder(2);
+  truth::LogicalGraphHitIndexBuilder builder(2, /*sharedSubgraphStore=*/false);
   builder.setSimTrackForParticle(0, 0, 100);
   builder.setSimTrackForParticle(1, 0, 101);
   builder.addParticleChild(0, 1);
 
-  builder.addHit(truth::HitChannel::HGCalCalo, 0, 100, /*detId=*/10, /*energy=*/1.0f, /*recHitIndex=*/0);
-  builder.addHit(truth::HitChannel::HGCalCalo, 0, 100, /*detId=*/5, /*energy=*/2.0f, /*recHitIndex=*/1);
+  builder.addHit(truth::HitChannel::Calo, 0, 100, /*detId=*/10, /*energy=*/1.0f, /*recHitIndex=*/0);
+  builder.addHit(truth::HitChannel::Calo, 0, 100, /*detId=*/5, /*energy=*/2.0f, /*recHitIndex=*/1);
   builder.addHit(
-      truth::HitChannel::HGCalCalo, 0, 101, /*detId=*/10, /*energy=*/3.0f, /*recHitIndex=*/0);  // same detId as parent
-  builder.addHit(truth::HitChannel::HGCalCalo, 0, 101, /*detId=*/20, /*energy=*/1.5f, /*recHitIndex=*/2);
+      truth::HitChannel::Calo, 0, 101, /*detId=*/10, /*energy=*/3.0f, /*recHitIndex=*/0);  // same detId as parent
+  builder.addHit(truth::HitChannel::Calo, 0, 101, /*detId=*/20, /*energy=*/1.5f, /*recHitIndex=*/2);
 
   auto index = builder.finish();
 
-  auto sub = index.subgraphHits(truth::HitChannel::HGCalCalo, 0);
+  auto sub = index.subgraphHits(truth::HitChannel::Calo, 0);
   // subtree of 0 = {5, 10, 20}, with detId 10 accumulated across parent+child.
   CPPUNIT_ASSERT_EQUAL(std::size_t(3), sub.size());
   CPPUNIT_ASSERT_EQUAL(uint32_t(5), sub[0].detId);
@@ -58,21 +69,21 @@ void TestLogicalGraphHitIndexBuilder::testSubgraphHitsAreSortedContiguousAndAccu
     CPPUNIT_ASSERT(sub[i - 1].detId < sub[i].detId);
 
   // child subtree is just its own hits.
-  auto subChild = index.subgraphHits(truth::HitChannel::HGCalCalo, 1);
+  auto subChild = index.subgraphHits(truth::HitChannel::Calo, 1);
   CPPUNIT_ASSERT_EQUAL(std::size_t(2), subChild.size());
   CPPUNIT_ASSERT_EQUAL(uint32_t(10), subChild[0].detId);
   CPPUNIT_ASSERT_EQUAL(uint32_t(20), subChild[1].detId);
 }
 
 void TestLogicalGraphHitIndexBuilder::testDirectHitsAreSortedByDetId() {
-  truth::LogicalGraphHitIndexBuilder builder(1);
+  truth::LogicalGraphHitIndexBuilder builder(1, /*sharedSubgraphStore=*/false);
   builder.setSimTrackForParticle(0, 0, 7);
-  builder.addHit(truth::HitChannel::HGCalCalo, 0, 7, 30, 1.0f, 0);
-  builder.addHit(truth::HitChannel::HGCalCalo, 0, 7, 3, 1.0f, 1);
-  builder.addHit(truth::HitChannel::HGCalCalo, 0, 7, 17, 1.0f, 2);
+  builder.addHit(truth::HitChannel::Calo, 0, 7, 30, 1.0f, 0);
+  builder.addHit(truth::HitChannel::Calo, 0, 7, 3, 1.0f, 1);
+  builder.addHit(truth::HitChannel::Calo, 0, 7, 17, 1.0f, 2);
 
   auto index = builder.finish();
-  auto direct = index.directHits(truth::HitChannel::HGCalCalo, 0);
+  auto direct = index.directHits(truth::HitChannel::Calo, 0);
   CPPUNIT_ASSERT_EQUAL(std::size_t(3), direct.size());
   CPPUNIT_ASSERT_EQUAL(uint32_t(3), direct[0].detId);
   CPPUNIT_ASSERT_EQUAL(uint32_t(17), direct[1].detId);
@@ -84,7 +95,7 @@ void TestLogicalGraphHitIndexBuilder::testSubgraphDiamondCountsSharedDescendantO
   // 0 along two distinct paths; its hit must contribute to subgraphHits(0) exactly
   // once. (Regression: the old recursive child-subgraph merge summed it once per
   // path, since coalesce() sums equal detIds, doubling the energy.)
-  truth::LogicalGraphHitIndexBuilder builder(4);
+  truth::LogicalGraphHitIndexBuilder builder(4, /*sharedSubgraphStore=*/false);
   builder.setSimTrackForParticle(0, 0, 100);
   builder.setSimTrackForParticle(1, 0, 101);
   builder.setSimTrackForParticle(2, 0, 102);
@@ -94,12 +105,137 @@ void TestLogicalGraphHitIndexBuilder::testSubgraphDiamondCountsSharedDescendantO
   builder.addParticleChild(1, 3);
   builder.addParticleChild(2, 3);
 
-  builder.addHit(truth::HitChannel::HGCalCalo, 0, 103, /*detId=*/50, /*energy=*/2.0f, /*recHitIndex=*/0);
+  builder.addHit(truth::HitChannel::Calo, 0, 103, /*detId=*/50, /*energy=*/2.0f, /*recHitIndex=*/0);
 
   auto index = builder.finish();
 
-  auto sub = index.subgraphHits(truth::HitChannel::HGCalCalo, 0);
+  auto sub = index.subgraphHits(truth::HitChannel::Calo, 0);
   CPPUNIT_ASSERT_EQUAL(std::size_t(1), sub.size());
   CPPUNIT_ASSERT_EQUAL(uint32_t(50), sub[0].detId);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, sub[0].energy, 1e-6);  // counted once, not 4.0
+}
+
+// The shared layout stores every hit exactly once and answers a subgraph as a range of
+// that one store, so the range carries the same per-cell energy as the materialised
+// aggregate once the caller sums the entries that share a detId.
+void TestLogicalGraphHitIndexBuilder::testSharedStoreKeepsEachHitOnce() {
+  auto build = [](bool shared) {
+    truth::LogicalGraphHitIndexBuilder builder(2, shared);
+    builder.setSimTrackForParticle(0, 0, 100);
+    builder.setSimTrackForParticle(1, 0, 101);
+    builder.addParticleChild(0, 1);
+    builder.addHit(truth::HitChannel::Calo, 0, 100, 10, 1.0f, 0);
+    builder.addHit(truth::HitChannel::Calo, 0, 100, 5, 2.0f, 1);
+    builder.addHit(truth::HitChannel::Calo, 0, 101, 10, 3.0f, 0);
+    builder.addHit(truth::HitChannel::Calo, 0, 101, 20, 1.5f, 2);
+    return builder.finish();
+  };
+
+  const auto materialised = build(false);
+  const auto shared = build(true);
+
+  CPPUNIT_ASSERT(!materialised.sharedSubgraphStore());
+  CPPUNIT_ASSERT(shared.sharedSubgraphStore());
+
+  // Four hits went in. The materialised layout also keeps a second, aggregated copy;
+  // the shared one keeps no duplicate storage at all.
+  auto const& sharedChannel = shared.channel(truth::HitChannel::Calo);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(4), sharedChannel.directHits.size());
+  CPPUNIT_ASSERT(sharedChannel.subgraphHits.empty());
+  CPPUNIT_ASSERT(!materialised.channel(truth::HitChannel::Calo).subgraphHits.empty());
+
+  // Same physics content for the root's subgraph: detId 10 sums parent and child.
+  std::vector<truth::LogicalGraphHitIndex::Hit> hits;
+  shared.appendSubgraphHits(truth::HitChannel::Calo, 0, hits);
+  std::map<uint32_t, float> summed;
+  for (auto const& hit : hits)
+    summed[hit.detId] += hit.energy;
+
+  CPPUNIT_ASSERT_EQUAL(std::size_t(3), summed.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, summed[5], 1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(4.0, summed[10], 1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5, summed[20], 1e-6);
+}
+
+// A hit-carrying particle with two hit-carrying parents cannot be one contiguous run
+// under either of them, so finish() must fall back rather than answer a short subgraph.
+void TestLogicalGraphHitIndexBuilder::testSharedStoreFallsBackWhenNotAForest() {
+  truth::LogicalGraphHitIndexBuilder builder(4, /*sharedSubgraphStore=*/true);
+  builder.setSimTrackForParticle(0, 0, 100);
+  builder.setSimTrackForParticle(1, 0, 101);
+  builder.setSimTrackForParticle(2, 0, 102);
+  builder.setSimTrackForParticle(3, 0, 103);
+  builder.addParticleChild(0, 1);
+  builder.addParticleChild(0, 2);
+  builder.addParticleChild(1, 3);
+  builder.addParticleChild(2, 3);
+  builder.addHit(truth::HitChannel::Calo, 0, 103, 50, 2.0f, 0);
+
+  const auto index = builder.finish();
+
+  CPPUNIT_ASSERT(!builder.usedSharedStore());
+  CPPUNIT_ASSERT(!index.sharedSubgraphStore());
+
+  // Both parents of 3 still see its hit, which is what the fallback buys.
+  for (const uint32_t root : {0u, 1u, 2u}) {
+    auto sub = index.subgraphHits(truth::HitChannel::Calo, root);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), sub.size());
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, sub[0].energy, 1e-6);
+  }
+}
+
+// A hit-carrying particle whose child carries no hits but whose grandchild does. The tree
+// is built from hasSimTrack-to-hasSimTrack edges, so the grandchild would land outside the
+// grandparent's subtree run and its hits would go missing from that subgraph. finish()
+// must fall back rather than answer short.
+void TestLogicalGraphHitIndexBuilder::testSharedStoreFallsBackAcrossAGenOnlyChild() {
+  truth::LogicalGraphHitIndexBuilder builder(3, /*sharedSubgraphStore=*/true);
+  builder.setSimTrackForParticle(0, 0, 100);
+  // particle 1 is GEN-only: no SimTrack, so it never carries hits itself.
+  builder.setSimTrackForParticle(2, 0, 102);
+  builder.addParticleChild(0, 1);
+  builder.addParticleChild(1, 2);
+
+  builder.addHit(truth::HitChannel::Calo, 0, 100, 10, 1.0f, 0);
+  builder.addHit(truth::HitChannel::Calo, 0, 102, 20, 2.0f, 1);
+
+  const auto index = builder.finish();
+
+  CPPUNIT_ASSERT(!builder.usedSharedStore());
+  CPPUNIT_ASSERT(!index.sharedSubgraphStore());
+
+  // The grandparent still sees both cells, which is what the fallback protects.
+  auto sub = index.subgraphHits(truth::HitChannel::Calo, 0);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), sub.size());
+  CPPUNIT_ASSERT_EQUAL(uint32_t(10), sub[0].detId);
+  CPPUNIT_ASSERT_EQUAL(uint32_t(20), sub[1].detId);
+}
+
+// A GEN-only CYCLE between the hit-carrying parent and a hit-carrying descendant. The
+// closure walk must not memoize "reaches nothing" for a cycle member whose exit leads to
+// a SimTrack: a child still being computed counts as reaching, so the guard fires and the
+// builder falls back rather than answer a subgraph short of the descendant's hits.
+void TestLogicalGraphHitIndexBuilder::testSharedStoreFallsBackAcrossAGenOnlyCycle() {
+  truth::LogicalGraphHitIndexBuilder builder(4, /*sharedSubgraphStore=*/true);
+  builder.setSimTrackForParticle(0, 0, 100);
+  // particles 1 and 2 are GEN-only and form a cycle; the exit from 1 reaches particle 3.
+  builder.setSimTrackForParticle(3, 0, 103);
+  builder.addParticleChild(0, 2);
+  builder.addParticleChild(1, 2);
+  builder.addParticleChild(1, 3);
+  builder.addParticleChild(2, 1);
+
+  builder.addHit(truth::HitChannel::Calo, 0, 100, 10, 1.0f, 0);
+  builder.addHit(truth::HitChannel::Calo, 0, 103, 20, 2.0f, 1);
+
+  const auto index = builder.finish();
+
+  CPPUNIT_ASSERT(!builder.usedSharedStore());
+  CPPUNIT_ASSERT(!index.sharedSubgraphStore());
+
+  // The parent still sees the descendant's cell through the cycle.
+  auto sub = index.subgraphHits(truth::HitChannel::Calo, 0);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), sub.size());
+  CPPUNIT_ASSERT_EQUAL(uint32_t(10), sub[0].detId);
+  CPPUNIT_ASSERT_EQUAL(uint32_t(20), sub[1].detId);
 }

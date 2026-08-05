@@ -83,8 +83,8 @@ namespace {
 
   // Map a config channel name to its HitChannel; false if unknown.
   bool channelFromName(std::string const& name, truth::HitChannel& out) {
-    if (name == "HGCalCalo") {
-      out = truth::HitChannel::HGCalCalo;
+    if (name == "Calo") {
+      out = truth::HitChannel::Calo;
       return true;
     }
     if (name == "Tracker") {
@@ -182,7 +182,11 @@ private:
 
   std::array<bool, truth::kNumHitChannels> fillChannel_{};
 
+  // Sim-to-reco DetId conversion, one switch per calorimeter numbering scheme: the
+  // HGCAL hexagon unpacking and the HCAL HcalHitRelabeller are selected independently.
   bool doHGCalRelabelling_ = true;
+  bool doHcalRelabelling_ = true;
+  bool sharedSubgraphStore_ = false;
 };
 
 TruthLogicalGraphHitIndexProducer::TruthLogicalGraphHitIndexProducer(edm::ParameterSet const& cfg)
@@ -193,7 +197,9 @@ TruthLogicalGraphHitIndexProducer::TruthLogicalGraphHitIndexProducer(edm::Parame
       trackerSimHitTags_(cfg.getParameter<std::vector<edm::InputTag>>("trackerSimHitCollections")),
       muonSimHitTags_(cfg.getParameter<std::vector<edm::InputTag>>("muonSimHitCollections")),
       geomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
-      doHGCalRelabelling_(cfg.getParameter<bool>("doHGCalRelabelling")) {
+      doHGCalRelabelling_(cfg.getParameter<bool>("doHGCalRelabelling")),
+      doHcalRelabelling_(cfg.getParameter<bool>("doHcalRelabelling")),
+      sharedSubgraphStore_(cfg.getParameter<bool>("sharedSubgraphStore")) {
   simHitTokens_.reserve(simHitTags_.size());
   for (auto const& tag : simHitTags_) {
     simHitTokens_.push_back(consumes<std::vector<PCaloHit>>(tag));
@@ -235,9 +241,9 @@ void TruthLogicalGraphHitIndexProducer::fillDescriptions(edm::ConfigurationDescr
   desc.add<edm::InputTag>("rawSrc", edm::InputTag("truthGraphProducer"));
   desc.add<edm::InputTag>("recHitMap", edm::InputTag("detIdToRecHitMapProducer"));
 
-  desc.add<std::vector<std::string>>("subdetectors", {"HGCalCalo", "Tracker", "MTD", "Muon"})
+  desc.add<std::vector<std::string>>("subdetectors", {"Calo", "Tracker", "MTD", "Muon"})
       ->setComment(
-          "Detector channels to fill (subdetector selection): any of HGCalCalo, Tracker, MTD, Muon. Each reads its "
+          "Detector channels to fill (subdetector selection): any of Calo, Tracker, MTD, Muon. Each reads its "
           "own per-subdetector hit collections below; channels left out of this list stay empty in the index.");
 
   desc.add<std::vector<edm::InputTag>>("simHitCollections",
@@ -269,7 +275,22 @@ void TruthLogicalGraphHitIndexProducer::fillDescriptions(edm::ConfigurationDescr
       ->setComment("Muon-chamber PSimHit collections matched to particles via PSimHit::trackId()");
 
   desc.add<bool>("doHGCalRelabelling", true)
-      ->setComment("Convert old HGCAL simulation DetIds to reco DetIds before looking up recHits");
+      ->setComment(
+          "Convert old HGCAL simulation DetIds to reco DetIds before looking up recHits. No-op for the Run4 "
+          "geometries, whose HGCAL simulation DetId is already the reco DetId. Affects the HGCAL collections only.");
+  desc.add<bool>("doHcalRelabelling", true)
+      ->setComment(
+          "Apply HcalHitRelabeller to the HCAL simulation DetIds, which are in packed test numbering, so the index "
+          "stores the reco HcalDetIds the association matches on. Affects the HCAL collections only.");
+
+  desc.add<bool>("sharedSubgraphStore", true)
+      ->setComment(
+          "Store each hit once, ordered so that a particle's subtree is a contiguous range, instead of copying every "
+          "descendant's hits into each ancestor's aggregate, which cuts the index from 445 to 202 kB/event on ttbar. "
+          "LogicalGraphHitIndex::subgraphHits returns a single span, so under this layout it is empty for a "
+          "GEN-only particle, whose subgraph spans several ranges: a consumer that can be handed any particle uses "
+          "truth::SubgraphHitView, which is correct in both layouts. Set false to write the materialised layout. "
+          "Reading either layout is automatic.");
 
   desc.add<edm::InputTag>("mtdSimLayerClusters", edm::InputTag("mix", "MergedMtdTruthLC"))
       ->setComment(
@@ -295,12 +316,12 @@ void TruthLogicalGraphHitIndexProducer::produce(edm::StreamID, edm::Event& event
 
   LogicalGraphView graphView(graph);
 
-  truth::LogicalGraphHitIndexBuilder builder(graphView.nParticles());
+  truth::LogicalGraphHitIndexBuilder builder(graphView.nParticles(), sharedSubgraphStore_);
 
   fillTrackToParticleMap(graphView, rawGraph, builder);
 
   // Each subdetector channel is filled only when selected (see "subdetectors").
-  if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::HGCalCalo)])
+  if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::Calo)])
     fillSimHits(event, setup, builder, recHitMap);
   if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::Tracker)])
     fillTrackerSimHits(event, builder);
@@ -347,15 +368,20 @@ void TruthLogicalGraphHitIndexProducer::fillTrackToParticleMap(LogicalGraphView 
 RelabelContext TruthLogicalGraphHitIndexProducer::makeRelabelContext(edm::EventSetup const& setup) const {
   RelabelContext context;
 
-  if (!doHGCalRelabelling_)
+  if (!doHGCalRelabelling_ && !doHcalRelabelling_)
     return context;
 
   auto const& geom = setup.getData(geomToken_);
 
-  auto const* hcalGeometry = static_cast<HcalGeometry const*>(geom.getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
-  if (hcalGeometry != nullptr) {
-    context.hcalConstants = hcalGeometry->topology().dddConstants();
+  if (doHcalRelabelling_) {
+    auto const* hcalGeometry = static_cast<HcalGeometry const*>(geom.getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
+    if (hcalGeometry != nullptr) {
+      context.hcalConstants = hcalGeometry->topology().dddConstants();
+    }
   }
+
+  if (!doHGCalRelabelling_)
+    return context;
 
   auto const* eeGeometry =
       static_cast<HGCalGeometry const*>(geom.getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));
@@ -402,6 +428,12 @@ uint32_t TruthLogicalGraphHitIndexProducer::recoDetIdForSimHit(PCaloHit const& s
                                                                RelabelContext const& context) const {
   const uint32_t simId = simHit.id();
 
+  if (isHcalCollection) {
+    if (doHcalRelabelling_ && context.hcalConstants != nullptr)
+      return HcalHitRelabeller::relabel(simId, context.hcalConstants).rawId();
+    return simId;
+  }
+
   if (!doHGCalRelabelling_) {
     return simId;
   }
@@ -438,10 +470,6 @@ uint32_t TruthLogicalGraphHitIndexProducer::recoDetIdForSimHit(PCaloHit const& s
       return 0;
 
     return HGCalDetId(static_cast<ForwardSubdetector>(subdet), zp, layer, subsec, sec, cell).rawId();
-  }
-
-  if (isHcalCollection && context.hcalConstants != nullptr) {
-    return HcalHitRelabeller::relabel(simId, context.hcalConstants).rawId();
   }
 
   return simId;
@@ -487,7 +515,7 @@ void TruthLogicalGraphHitIndexProducer::fillSimHits(edm::Event& event,
         }
       }
 
-      builder.addHit(truth::HitChannel::HGCalCalo,
+      builder.addHit(truth::HitChannel::Calo,
                      simHit.eventId().rawId(),
                      static_cast<uint32_t>(geantTrackId),
                      detId,
