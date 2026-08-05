@@ -18,9 +18,10 @@ OutALCARECOTkAlHLTTracksZMuMu_noDrop = cms.PSet(
         'keep recoTrackExtras_ALCARECOTkAlHLTPixelZMuMuVertexTracks_*_*',
         'keep TrackingRecHitsOwned_ALCARECOTkAlHLTPixelZMuMuVertexTracks_*_*',
         'keep SiPixelClusteredmNewDetSetVector_ALCARECOTkAlHLTPixelZMuMuVertexTracks_*_*',
-	'keep *_hltVerticesPFFilter_*_*',
+	    'keep *_hltVerticesPFFilter_*_*',
         'keep *_hltOnlineBeamSpot_*_*',
-        'keep DCSRecord_onlineMetaDataDigis_*_*'
+        'keep DCSRecord_onlineMetaDataDigis_*_*',
+        'keep PixelFEDChanneledmNewDetSetVector_siPixelDigis_*_*'
     )
 )
 
