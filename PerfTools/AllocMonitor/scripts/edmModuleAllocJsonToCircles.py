@@ -346,16 +346,17 @@ def main(args):
             # Regular transition processing
             for moduleLabel, moduleInfo in doc["modules"].items():
                 moduleType = moduleTypes[moduleLabel]
-                processModuleTransition(moduleLabel, moduleType, moduleInfo, transition, moduleTransition)                            
-            for moduleLabel, moduleInfo in doc["modules"].items():
-                # If any module has event transitions with acquire/process activity and a callID in record, treat it as ExternalWork or Process module
-                if any(entry.get("transition") == "event" and \
-                       entry.get("record") is not None and \
-                       entry.get("record").get("name") is None and \
+                processModuleTransition(moduleLabel, moduleType, moduleInfo, transition, moduleTransition)
+            if transition == "event":                            
+                for moduleLabel, moduleInfo in doc["modules"].items():
+                    # If any module has event transitions with acquire/process activity and a callID in record, treat it as ExternalWork or Process module
+                    if any(entry.get("transition") == "event" and \
+                        entry.get("record") is not None and \
+                        entry.get("record").get("name") is None and \
                         entry["record"].get("callID") is not None and \
                         (entry.get("activity") == "acquire" or \
                         (entry.get("activity") == "process" and entry["record"].get("callID") != 0)) for entry in moduleInfo):
-                    processExternalWorkTransition(moduleLabel, moduleTypes[moduleLabel], moduleInfo, moduleTransition)
+                        processExternalWorkTransition(moduleLabel, moduleTypes[moduleLabel], moduleInfo, moduleTransition)
         moduleTransitions[transition] = moduleTransition
 
 
