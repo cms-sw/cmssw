@@ -1,50 +1,86 @@
-"""RECO-side customise for the pileup truth chain: build the merged (signal+pileup)
-logical graph from the MixingModule accumulator's raw TruthGraph (label mix) and
-resolve its SimHit associations against the mixed rechits. Pairs with
-mixedTruthGraphCustomize.addTruthGraphAccumulator at DIGI, giving a pileup-aware
-truth graph at RECO."""
+# Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
+# Part of the MC-truth-graph prototype - under heavy development, not yet open
+# to external contributions (see PhysicsTools/TruthInfo/README.md).
+
+"""RECO-step customise for the pileup truth chain in a split production.
+
+The stage-independent truth (logical graph + UNRESOLVED per-particle per-cell hit
+index + raw graph TruthGraph_mix) is built at the DIGI step by
+mixedTruthGraphCustomize.customiseTruthDigi, where the merged signal+pileup simHits
+are live, and arrives here through the DIGI-RAW input file. This step:
+
+  1. drops the signal-only truth (re)build that the enableTruth validation would
+     otherwise schedule at RECO (truthGraphProducer, truthLogicalGraphProducer,
+     detIdToRecHitMapProducer, truthLogicalGraphHitIndexProducer). With those modules
+     gone, the branch validators' and association producers' empty-process InputTags
+     resolve to the mixed products from the DIGI-RAW input instead of a signal-only
+     rebuild;
+  2. repoints the branch validators' rawSrc to the mixed raw graph (TruthGraph_mix,
+     label 'mix'); the association producers carry no rawSrc;
+  3. re-persists the truth into the RECO-tier output at the requested verbosity level.
+
+No rebuild and no simHits are needed here: the shared-energy association
+(BranchHitAssociator) matches by DetId, so the unresolved index is sufficient, and
+no validator or associator reads recHitIndex."""
 
 import FWCore.ParameterSet.Config as cms
 
+from PhysicsTools.TruthInfo.truthEventContent_cff import setTruthEventContent
 
-def customise(process):
-    from PhysicsTools.TruthInfo.truthGraphValidation_cff import (
-        truthLogicalGraphProducer,
-        detIdToRecHitMapProducer,
-        truthLogicalGraphHitIndexProducer,
-    )
-    # The merged raw TruthGraph comes from the mixing accumulator, not the
-    # standalone truthGraphProducer.
-    process.truthLogicalGraphProducer = truthLogicalGraphProducer.clone(
-        src=cms.InputTag("mix"),
-        # The hitless-subgraph pruning decides which SimTracks left a calo hit; feed it
-        # the merged (signal+pileup) HGCal sim-hits, else every pileup subgraph looks
-        # hitless (its hits are in mix:mergedHGCHits, not the signal-only g4SimHits) and
-        # is pruned, leaving pileup branches empty. Matches the hit index below.
-        simHitCollections=cms.VInputTag(cms.InputTag('mix', 'mergedHGCHits')),
-    )
-    process.detIdToRecHitMapProducer = detIdToRecHitMapProducer
-    # The hit index also reads the RAW merged graph (for trackId->node); point it at mix.
-    process.truthLogicalGraphHitIndexProducer = truthLogicalGraphHitIndexProducer.clone(
-        rawSrc=cms.InputTag('mix'),
-        # Read the merged (signal+pileup) HGCal sim-hits from the accumulator, each
-        # tagged with its sub-event EncodedEventId, instead of the signal-only
-        # g4SimHits (which lack pileup at RECO).
-        simHitCollections=cms.VInputTag(cms.InputTag('mix', 'mergedHGCHits')),
-    )
+# The signal-only truth (re)build modules that enableTruth would schedule at RECO.
+# In the mixed production these are already built at DIGI, so they must not run here.
+_signalOnlyBuildModules = [
+    'truthGraphProducer',
+    'truthLogicalGraphProducer',
+    'detIdToRecHitMapProducer',
+    'truthLogicalGraphHitIndexProducer',
+]
 
-    process.truthMixedRecoPath = cms.Path(
-        process.truthLogicalGraphProducer
-        + process.detIdToRecHitMapProducer
-        + process.truthLogicalGraphHitIndexProducer
-    )
-    process.schedule.append(process.truthMixedRecoPath)
+# Branch validators that read the raw graph via rawSrc (the association producers do
+# not); repointed to the mixed raw graph.
+_rawSrcConsumers = [
+    'branchHGCalValidator',
+    'branchTrackingValidator',
+]
 
-    for out in process.outputModules_().values():
-        out.outputCommands.extend([
-            "keep *_truthLogicalGraphProducer_*_*",
-        ])
-        # The hit index is an intermediate graph footprint, regenerable from the graph
-        # plus mix:mergedHGCHits; persisting it costs ~9.7 MB/event (subgraph-hit CSR
-        # over every retained pileup particle), so it is kept out of the event content.
+
+def _detachModule(process, name):
+    """Remove a module from every sequence/path/endpath/task and detach it from the
+    process, so it is neither scheduled nor an on-demand current-process product and
+    its label resolves to the input file's product."""
+    if not hasattr(process, name):
+        return
+    module = getattr(process, name)
+    containers = []
+    for accessor in ('sequences', 'paths', 'endpaths', 'tasks', 'finalpaths'):
+        holder = getattr(process, accessor, None)
+        if holder is not None:
+            containers.extend(holder.values())
+    for container in containers:
+        try:
+            container.remove(module)
+        except Exception:
+            pass
+    delattr(process, name)
+
+
+def customiseValidation(process):
+    """Point the RECO-side enableTruth validation at the DIGI-built mixed truth."""
+    for name in _signalOnlyBuildModules:
+        _detachModule(process, name)
+    for name in _rawSrcConsumers:
+        if hasattr(process, name):
+            getattr(process, name).rawSrc = cms.InputTag('mix')
+    return process
+
+
+def customiseContent(process, level='compact', includeTrackingHits=True):
+    """Persist the mixed truth into the RECO-tier output at the given level."""
+    return setTruthEventContent(process, level=level, includeTrackingHits=includeTrackingHits)
+
+
+def customise(process, level='compact', includeTrackingHits=True):
+    """RECO-step entry point: repoint validation to the mixed truth and persist it."""
+    process = customiseValidation(process)
+    process = customiseContent(process, level=level, includeTrackingHits=includeTrackingHits)
     return process

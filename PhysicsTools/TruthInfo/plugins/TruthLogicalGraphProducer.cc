@@ -323,12 +323,15 @@ public:
             cfg.getParameter<edm::ParameterSet>("postProcessing").getParameter<bool>("dropHitlessSimSubgraphs")),
         postProcessor_(truth::TruthLogicalGraphPostProcessor::configFromPSet(
             cfg.getParameter<edm::ParameterSet>("postProcessing"))) {
-    // The hitless-subgraph pruning needs to know which SimTracks left a calo or
-    // tracker sim-hit; consume the same collections the hit-index producer uses.
+    // The hitless-subgraph pruning needs to know which SimTracks left a sim-hit;
+    // consume the same collections the hit-index producer uses, on every channel it
+    // indexes. A channel missing here is silently turned into deleted truth.
     if (dropHitlessSimSubgraphs_) {
       for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("simHitCollections"))
         caloSimHitTokens_.push_back(consumes<std::vector<PCaloHit>>(tag));
       for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("trackerSimHitCollections"))
+        trackerSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
+      for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("muonSimHitCollections"))
         trackerSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
     }
 
@@ -377,6 +380,18 @@ public:
         ->setComment(
             "Tracker PSimHit collections used only to decide which SimTracks left a hit, for the "
             "postProcessing.dropHitlessSimSubgraphs pruning. Matched to particles via PSimHit::trackId().");
+
+    desc.add<std::vector<edm::InputTag>>("muonSimHitCollections",
+                                         {edm::InputTag("g4SimHits", "MuonDTHits"),
+                                          edm::InputTag("g4SimHits", "MuonCSCHits"),
+                                          edm::InputTag("g4SimHits", "MuonRPCHits"),
+                                          edm::InputTag("g4SimHits", "MuonGEMHits"),
+                                          edm::InputTag("g4SimHits", "MuonME0Hits")})
+        ->setComment(
+            "Muon-chamber PSimHit collections, same role as trackerSimHitCollections. Needed because the "
+            "hit index carries a Muon channel: a particle whose only hits are in the chambers, for instance "
+            "a punch-through secondary born past the calorimeters, would otherwise be pruned as hitless and "
+            "leave those indexed hits with no node.");
 
     desc.add<edm::ParameterSetDescription>("postProcessing", truth::TruthLogicalGraphPostProcessor::psetDescription())
         ->setComment("Logical graph post-processing configuration.");
@@ -673,6 +688,13 @@ public:
           if (nodeId < raw.genEventOfNode().size())
             p.genEvent = raw.genEventOfNode()[nodeId];
 
+          // The sub-event a particle belongs to must come from whichever side it has. A
+          // GEN-only particle has no SIM side to inherit it from, and eventId 0 means the
+          // signal interaction, so leaving it at the default silently promotes every
+          // pileup particle without a SimTrack to signal.
+          if (p.eventId == 0)
+            p.eventId = raw.nodeEventId(nodeId);
+
           if (p.pdgId == 0)
             p.pdgId = raw.nodePdgId(nodeId);
 
@@ -758,6 +780,11 @@ public:
 
           if (nodeId < raw.genEventOfNode().size())
             v.genEvent = raw.genEventOfNode()[nodeId];
+
+          // Same as for particles: a GEN-only vertex has no SIM side to take the
+          // sub-event id from, and the default reads as the signal interaction.
+          if (v.eventId == 0)
+            v.eventId = raw.nodeEventId(nodeId);
 
           if (haveGenPayload) {
             const int barcode = static_cast<int>(ref.key);

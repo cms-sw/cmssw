@@ -26,6 +26,7 @@
 
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
+#include "PhysicsTools/TruthInfo/interface/SubgraphHitView.h"
 #include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 
 namespace {
@@ -455,7 +456,10 @@ public:
     if (useHitIndex_) {
       evt.getByToken(hitIndexToken_, hHitIndex);
     }
-    truth::LogicalGraphHitIndex const* hitIndex = hHitIndex.isValid() ? &(*hHitIndex) : nullptr;
+    std::optional<truth::SubgraphHitView> hitIndexView;
+    if (hHitIndex.isValid())
+      hitIndexView.emplace(*hHitIndex);
+    truth::SubgraphHitView* hitIndex = hitIndexView ? &(*hitIndexView) : nullptr;
 
     const std::vector<float> recHitEnergies = collectRecHitEnergies(evt);
 
@@ -592,9 +596,9 @@ public:
 
       const bool hasHitInfo = hitIndex != nullptr && i < hitIndex->nParticles();
 
-      const auto directHits = hasHitInfo ? hitIndex->directHits(truth::HitChannel::HGCalCalo, i)
+      const auto directHits = hasHitInfo ? hitIndex->directHits(truth::HitChannel::Calo, i)
                                          : std::span<const truth::LogicalGraphHitIndex::Hit>();
-      const auto subgraphHits = hasHitInfo ? hitIndex->subgraphHits(truth::HitChannel::HGCalCalo, i)
+      const auto subgraphHits = hasHitInfo ? hitIndex->subgraphHits(truth::HitChannel::Calo, i)
                                            : std::span<const truth::LogicalGraphHitIndex::Hit>();
 
       const HitSummary directSummary = hasHitInfo ? summarizeHits(directHits, recHitEnergies) : HitSummary();

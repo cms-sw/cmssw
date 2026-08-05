@@ -699,6 +699,20 @@ FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_MergedTrackTruth_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_StripDigiSimLink_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')
 
+# MC-truth graph: under enableTruth, persist the compact truth (logical graph +
+# unresolved hit index + raw merged graph). Kept in FEVTDEBUGHLT (the DIGI-RAW and
+# RECO tier for Phase-2) so it bridges DIGI->RECO, and in RECOSIM for downstream.
+from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
+_truthKeeps = [
+    'keep *_truthLogicalGraphProducer_*_*',
+    'keep *_truthLogicalGraphHitIndexProducer_*_*',
+    'keep TruthGraph_mix_*_*',
+]
+enableTruth.toModify(FEVTDEBUGHLTEventContent,
+                     outputCommands=FEVTDEBUGHLTEventContent.outputCommands + _truthKeeps)
+enableTruth.toModify(RECOSIMEventContent,
+                     outputCommands=RECOSIMEventContent.outputCommands + _truthKeeps)
+
 from Configuration.ProcessModifiers.hltClusterSplitting_cff import hltClusterSplitting
 hltClusterSplitting.toModify(FEVTDEBUGHLTEventContent,
                               outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
