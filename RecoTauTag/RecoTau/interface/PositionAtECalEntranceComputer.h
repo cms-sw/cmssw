@@ -17,7 +17,7 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
 class MagneticField;
 class IdealMagneticFieldRecord;
@@ -35,10 +35,12 @@ public:
 
 private:
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bField_esToken_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeo_esToken_;
+  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeom_esToken_;
+  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookup_esToken_;
+  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayers_esToken_;
   double bField_z_;
   bool isPhase2_;
-  hgcal::RecHitTools recHitTools_;
+  ticlgeom::Tools recHitTools_;
   float hgcalFace_z_;
   static constexpr float ecalBarrelEndcapEtaBorder_ = 1.479;
   static constexpr float hgcalHfEtaBorder_ = 3.0;

@@ -32,7 +32,7 @@ PatternRecognitionbyFastJet<TILES>::PatternRecognitionbyFastJet(const edm::Param
       computeLocalTime_(conf.getParameter<bool>("computeLocalTime")){};
 
 template <typename TILES>
-void PatternRecognitionbyFastJet<TILES>::setGeometry(hgcal::RecHitTools const &rhtools) {
+void PatternRecognitionbyFastJet<TILES>::setGeometry(ticlgeom::Tools const &rhtools) {
   this->rhtools_ = &rhtools;
   this->geometryReady_ = true;
 }

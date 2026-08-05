@@ -19,7 +19,7 @@
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalLayerTiles.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalCLUEStrategy.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
 // C/C++ headers
 #include <string>

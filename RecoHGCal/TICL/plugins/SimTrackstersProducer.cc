@@ -33,7 +33,7 @@
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 #include "SimDataFormats/CaloAnalysis/interface/MtdSimTrackster.h"
 #include "SimDataFormats/CaloAnalysis/interface/MtdSimTracksterFwd.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/UniqueSimTrackId.h"
@@ -97,8 +97,10 @@ private:
   const edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>>
       associatorMapSimClusterToReco_token_;
   const edm::EDGetTokenT<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>> associatorMapCaloParticleToReco_token_;
-  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geom_token_;
-  hgcal::RecHitTools rhtools_;
+  const edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
+  const edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
+  const edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
+  ticlgeom::Tools rhtools_;
   const float fractionCut_;
   const float qualityCutTrack_;
   const edm::EDGetTokenT<std::vector<TrackingParticle>> trackingParticleToken_;
@@ -131,7 +133,9 @@ SimTrackstersProducer::SimTrackstersProducer(const edm::ParameterSet& ps)
           consumes(ps.getParameter<edm::InputTag>("layerClusterSimClusterAssociator"))),
       associatorMapCaloParticleToReco_token_(
           consumes(ps.getParameter<edm::InputTag>("layerClusterCaloParticleAssociator"))),
-      geom_token_(esConsumes()),
+      ticlGeomToken_(esConsumes(edm::ESInputTag("", ""))),
+      ticlGeomLookupToken_(esConsumes(edm::ESInputTag("", ""))),
+      ticlGeomLayersToken_(esConsumes(edm::ESInputTag("", ""))),
       fractionCut_(ps.getParameter<double>("fractionCut")),
       qualityCutTrack_(ps.getParameter<double>("qualityCutTrack")),
       trackingParticleToken_(
@@ -351,8 +355,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   const auto& simTrackToTPMap = evt.get(associationSimTrackToTPToken_);
   const auto& recoTracks = *recoTracks_h;
 
-  const auto& geom = es.getData(geom_token_);
-  rhtools_.setGeometry(geom);
+  rhtools_.setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
   const auto num_simclusters = simclusters.size();
   result->reserve(num_simclusters);  // Conservative size, will call shrink_to_fit later
   const auto num_caloparticles = caloparticles.size();

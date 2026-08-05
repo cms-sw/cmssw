@@ -75,7 +75,7 @@ TracksterLinkingbySuperClusteringDNN::TracksterLinkingbySuperClusteringDNN(const
 }
 
 void TracksterLinkingbySuperClusteringDNN::initialize(const HGCalDDDConstants* hgcons,
-                                                      const hgcal::RecHitTools rhtools,
+                                                      const ticlgeom::Tools rhtools,
                                                       const edm::ESHandle<MagneticField> bfieldH,
                                                       const edm::ESHandle<Propagator> propH) {}
 

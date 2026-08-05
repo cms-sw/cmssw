@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
@@ -67,7 +67,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
+  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
+  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   edm::InputTag lclTag_;
   edm::InputTag sclTag_;
   edm::InputTag rechitmapTag_;
@@ -114,7 +116,7 @@ protected:
 
 private:
   CaloParticleSelector cpSelector;
-  std::shared_ptr<hgcal::RecHitTools> tools_;
+  std::shared_ptr<ticlgeom::Tools> tools_;
   std::vector<int> particles_to_monitor_;
   unsigned totallayers_to_monitor_;
   std::string dirName_;
