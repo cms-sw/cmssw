@@ -26,16 +26,12 @@
 #include <sstream>
 
 namespace edm {
-  GlobalSchedule::GlobalSchedule(
-      std::shared_ptr<TriggerResultInserter> inserter,
-      std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
-      std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
-      std::shared_ptr<ModuleRegistry> modReg,
-      std::vector<edm::ModuleDescription const*> const& iModulesToUse,
-      PreallocationConfiguration const& prealloc,
-      ExceptionToActionTable const& actions,
-      std::shared_ptr<ActivityRegistry> areg,
-      ProcessContext const* processContext)
+  GlobalSchedule::GlobalSchedule(std::shared_ptr<ModuleRegistry> modReg,
+                                 std::vector<edm::ModuleDescription const*> const& iModulesToUse,
+                                 PreallocationConfiguration const& prealloc,
+                                 ExceptionToActionTable const& actions,
+                                 std::shared_ptr<ActivityRegistry> areg,
+                                 ProcessContext const* processContext)
       : actReg_(areg),
         processContext_(processContext),
         numberOfConcurrentLumis_(prealloc.numberOfLuminosityBlocks()),
@@ -52,27 +48,6 @@ namespace edm {
         (void)wm.getWorkerForModule(*module);
       }
     }
-    if (inserter) {
-      for (auto& wm : workerManagers_) {
-        (void)wm.getWorkerForModule(*inserter);
-      }
-    }
-
-    for (auto& pathStatusInserter : pathStatusInserters) {
-      std::shared_ptr<PathStatusInserter> inserterPtr = get_underlying(pathStatusInserter);
-
-      for (auto& wm : workerManagers_) {
-        (void)wm.getWorkerForModule(*inserterPtr);
-      }
-    }
-
-    for (auto& endPathStatusInserter : endPathStatusInserters) {
-      std::shared_ptr<EndPathStatusInserter> inserterPtr = get_underlying(endPathStatusInserter);
-      for (auto& wm : workerManagers_) {
-        (void)wm.getWorkerForModule(*inserterPtr);
-      }
-    }
-
   }  // GlobalSchedule::GlobalSchedule
 
   void GlobalSchedule::beginJob(ModuleRegistry& modReg) {

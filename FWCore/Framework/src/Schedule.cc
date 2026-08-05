@@ -286,15 +286,8 @@ namespace edm {
                                                                                processContext));
     }
 
-    globalSchedule_ = std::make_unique<GlobalSchedule>(resultsInserter(),
-                                                       pathStatusInserters_,
-                                                       endPathStatusInserters_,
-                                                       moduleRegistrySharedPtr(),
-                                                       builder.allNeededModules_,
-                                                       prealloc,
-                                                       actions,
-                                                       areg,
-                                                       processContext);
+    globalSchedule_ = std::make_unique<GlobalSchedule>(
+        moduleRegistrySharedPtr(), builder.allNeededModules_, prealloc, actions, areg, processContext);
   }
 
   void Schedule::finishSetup(ParameterSet& proc_pset,

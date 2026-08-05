@@ -40,9 +40,6 @@ namespace edm {
   class ExceptionCollector;
   class PreallocationConfiguration;
   class ModuleRegistry;
-  class TriggerResultInserter;
-  class PathStatusInserter;
-  class EndPathStatusInserter;
 
   namespace maker {
     class ModuleHolder;
@@ -55,10 +52,7 @@ namespace edm {
     using WorkerPtr = std::shared_ptr<Worker>;
     using Wokers = std::vector<Worker*>;
 
-    GlobalSchedule(std::shared_ptr<TriggerResultInserter> inserter,
-                   std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
-                   std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
-                   std::shared_ptr<ModuleRegistry> modReg,
+    GlobalSchedule(std::shared_ptr<ModuleRegistry> modReg,
                    std::vector<edm::ModuleDescription const*> const& modulesToUse,
                    PreallocationConfiguration const& prealloc,
                    ExceptionToActionTable const& actions,
