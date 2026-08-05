@@ -5,7 +5,6 @@ from RecoMET.METPUSubtraction.deepMETSonicProducer_cfi import deepMETSonicProduc
 deepMETSonicProducer = _deepMETSonicProducer.clone(
     Client = dict(
         timeout = 300,
-        mode = "Async",
         modelName = "deepmet",
         modelConfigPath = "RecoMET/METPUSubtraction/data/models/deepmet/config.pbtxt",
         # version "1" is the resolutionTune
