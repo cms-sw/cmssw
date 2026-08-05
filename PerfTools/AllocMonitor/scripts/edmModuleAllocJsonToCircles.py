@@ -104,7 +104,7 @@ def processESModuleTransition(moduleLabel, moduleType, moduleInfo, moduleTransit
         if "record" in entry and "name" in entry["record"]:
             activity = entry.get("activity", "process")
             callid = entry["record"].get("callID", None)
-            recordName = entry["record"]["name"]+f":{callid}" if callid is not None else entry["record"]["name"]
+            recordName = entry["record"]["name"]+f":{callid}" if callid is not None and callid != 0 else entry["record"]["name"]
             if recordName not in recordAllocations:
                 recordAllocations[recordName] = []
             recordAllocations[recordName].append(entry.get("alloc", {}))
@@ -145,7 +145,7 @@ def processExternalWorkTransition(moduleLabel, moduleType, moduleInfo, moduleTra
         if len(callID_allocs) == 1:
             for callID, allocs in callID_allocs.items():
                 # use the activity as the record name
-                recordName = f"callID {callID}:{activity}"
+                recordName = f"{activity}"
                 uniqueKey = UniqueKey(moduleLabel, moduleType, recordName)
                 moduleTransition[uniqueKey] = {
                     "cpptype": moduleType,
@@ -349,7 +349,12 @@ def main(args):
                 processModuleTransition(moduleLabel, moduleType, moduleInfo, transition, moduleTransition)                            
             for moduleLabel, moduleInfo in doc["modules"].items():
                 # If any module has event transitions with acquire/process activity and a callID in record, treat it as ExternalWork or Process module
-                if any(entry.get("transition") == "event" and entry.get("record") is not None and entry["record"].get("callID") is not None and (entry.get("activity") == "acquire" or entry.get("activity") == "process") for entry in moduleInfo):
+                if any(entry.get("transition") == "event" and \
+                       entry.get("record") is not None and \
+                       entry.get("record").get("name") is None and \
+                        entry["record"].get("callID") is not None and \
+                        (entry.get("activity") == "acquire" or \
+                        (entry.get("activity") == "process" and entry["record"].get("callID") != 0)) for entry in moduleInfo):
                     processExternalWorkTransition(moduleLabel, moduleTypes[moduleLabel], moduleInfo, moduleTransition)
         moduleTransitions[transition] = moduleTransition
 
