@@ -46,8 +46,8 @@ Muon system:
 * M13: Same as M9 with modified DTShield
 * M14: Same as M10 with modified DTShield
 * M15: Same as M11 with modified DTShield
-* M16: Same as M12 with unmounted GE11 for 2025
-* M17: Same as M16 where the list of unmounted GE11 is correctd
+* M16: Same as M15 with modified RPC, corrected for phi staggering and z-position
+* M17: Same as M16 where the shape of GE0 is correctd
 
 PPS:
 * P7: 2021 baseline (after removing overlaps and using common materials whenever possible)
@@ -153,3 +153,4 @@ Several detector combinations have been generated:
 * D124 = T35+C25+M16+I21+O10+F9
 * D125 = T35+C25+M16+I22+O10+F9
 * D126 = T37+C27+M17+I21+O11+F10
+* D127 = T35+C27+M17+I21+O11+F10

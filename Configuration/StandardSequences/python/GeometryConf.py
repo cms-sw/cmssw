@@ -120,4 +120,6 @@ GeometryConf={
     'DD4hepExtendedRun4D500' : 'DD4hepExtendedRun4D500,DD4hepExtendedRun4D500Reco',
     'ExtendedRun4D126' : 'ExtendedRun4D126,ExtendedRun4D126Reco',
     'DD4hepExtendedRun4D126' : 'DD4hepExtendedRun4D126,DD4hepExtendedRun4D126Reco',
+    'ExtendedRun4D127' : 'ExtendedRun4D127,ExtendedRun4D127Reco',
+    'DD4hepExtendedRun4D127' : 'DD4hepExtendedRun4D127,DD4hepExtendedRun4D127Reco',
 }
