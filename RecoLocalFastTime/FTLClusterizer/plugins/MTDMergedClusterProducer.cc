@@ -433,7 +433,7 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
           }
         }
       }
-      else{ //filler is already declared and points to the same detId, just fill with the merged cluster
+      else{ //filler is already declared and points to the same detId, just fill with the merged
         LogDebug("MTDMergedClusterProducer") << "BTL merged cluster # " << std::setw(5) << index << " " << mergedCluster;
         filler->push_back(std::move(mergedCluster));
         index++;
