@@ -13,7 +13,6 @@
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 #include "DataFormats/HGCalReco/interface/Common.h"
 

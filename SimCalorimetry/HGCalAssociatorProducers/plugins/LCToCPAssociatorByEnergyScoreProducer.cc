@@ -3,10 +3,14 @@
 #include <algorithm>
 #include <memory>
 
+#include "FWCore/Utilities/interface/ESInputTag.h"
+
 template <typename HIT, typename CLUSTER>
 LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::LCToCPAssociatorByEnergyScoreProducerT(const edm::ParameterSet &ps)
     : hitMap_(consumes<std::unordered_map<DetId, const unsigned int>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
-      caloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      ticlGeomToken_(esConsumes(edm::ESInputTag("", ""))),
+      ticlGeomLookupToken_(esConsumes(edm::ESInputTag("", ""))),
+      ticlGeomLayersToken_(esConsumes(edm::ESInputTag("", ""))),
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")),
       hits_token_(consumes<multiCollectionT>(ps.getParameter<edm::InputTag>("hits"))) {
   // Register the product
@@ -20,9 +24,8 @@ template <typename HIT, typename CLUSTER>
 void LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID,
                                                                    edm::Event &iEvent,
                                                                    const edm::EventSetup &es) const {
-  edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_);
-  auto rhtools = std::make_shared<hgcal::RecHitTools>();
-  rhtools->setGeometry(*geom);
+  auto rhtools_ = std::make_shared<ticlgeom::Tools>();
+  rhtools_->setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
 
   if (!iEvent.getHandle(hitMap_) || !iEvent.getHandle(hits_token_)) {
     if (!iEvent.getHandle(hitMap_)) {
@@ -36,7 +39,7 @@ void LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID
     const std::unordered_map<DetId, const unsigned int> hitMap;  // empty map
     const multiCollectionT hits;
     auto impl = std::make_unique<LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>>(
-        iEvent.productGetter(), hardScatterOnly_, rhtools, &hitMap, hits);
+        iEvent.productGetter(), hardScatterOnly_, rhtools_, &hitMap, hits);
     auto emptyAssociator = std::make_unique<ticl::LayerClusterToCaloParticleAssociatorT<CLUSTER>>(std::move(impl));
     iEvent.put(std::move(emptyAssociator));
     return;
@@ -60,7 +63,7 @@ void LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID
 
   const auto hitMap = &iEvent.get(hitMap_);
   auto impl = std::make_unique<LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>>(
-      iEvent.productGetter(), hardScatterOnly_, rhtools, hitMap, hits);
+      iEvent.productGetter(), hardScatterOnly_, rhtools_, hitMap, hits);
   auto toPut = std::make_unique<ticl::LayerClusterToCaloParticleAssociatorT<CLUSTER>>(std::move(impl));
   iEvent.put(std::move(toPut));
 }

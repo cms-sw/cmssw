@@ -4,7 +4,7 @@
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include <vector>
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
 namespace ticl {
   /**
@@ -22,7 +22,7 @@ namespace ticl {
                              const std::vector<reco::CaloCluster> &layerClusters,
                              const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
                              double z_limit_em,
-                             hgcal::RecHitTools const &rhTools,
+                             ticlgeom::Tools const &rhTools,
                              bool computeLocalTime = true,
                              bool energyWeight = true,
                              bool clean = false,
@@ -38,14 +38,14 @@ namespace ticl {
                                                const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
                                                size_t N);
 
-  inline unsigned getLayerFromLC(const reco::CaloCluster &LC, const hgcal::RecHitTools &rhtools) {
+  inline unsigned getLayerFromLC(const reco::CaloCluster &LC, const ticlgeom::Tools &rhtools) {
     return rhtools.getLayerWithOffset(LC.hitsAndFractions()[0].first);
   }
 
   // Sort the layer clusters in the given trackster in bins of layer. Returns : vector[index=layer, value=vector[LC index]]]
   inline std::vector<std::vector<unsigned>> sortByLayer(const Trackster &ts,
                                                         const std::vector<reco::CaloCluster> &layerClusters,
-                                                        const hgcal::RecHitTools &rhtools) {
+                                                        const ticlgeom::Tools &rhtools) {
     size_t N = ts.vertices().size();
 
     std::vector<std::vector<unsigned>> result;

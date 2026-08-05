@@ -19,7 +19,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 #include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
 
 // C/C++ headers
@@ -171,14 +171,14 @@ private:
     int clusterIndex;
     float sigmaNoise;
     float thickness;
-    const hgcal::RecHitTools *tools;
+    const ticlgeom::Tools *tools;
 
     Hexel(const HGCRecHit &hit,
           DetId id_in,
           bool isHalf,
           float sigmaNoise_in,
           float thickness_in,
-          const hgcal::RecHitTools *tools_in)
+          const ticlgeom::Tools *tools_in)
         : isHalfCell(isHalf),
           weight(0.),
           fraction(1.0),
