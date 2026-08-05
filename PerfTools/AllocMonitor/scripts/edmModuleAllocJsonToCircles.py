@@ -347,7 +347,7 @@ def main(args):
             for moduleLabel, moduleInfo in doc["modules"].items():
                 moduleType = moduleTypes[moduleLabel]
                 processModuleTransition(moduleLabel, moduleType, moduleInfo, transition, moduleTransition)
-            if transition == "event":                            
+            if transition == "event":
                 for moduleLabel, moduleInfo in doc["modules"].items():
                     # If any module has event transitions with acquire/process activity and a callID in record, treat it as ExternalWork or Process module
                     if any(entry.get("transition") == "event" and \
