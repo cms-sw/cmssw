@@ -3,6 +3,22 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsPSet
 from Validation.HGCalValidation.HGCalValidator_cff import hgcalValidator
 
+__all__ = [
+    "tracksterLabels",
+    "lcToCP_linking",
+    "simDict",
+    "TSbyHits_CP",
+    "TSbyLCs",
+    "TSbyLCs_CP",
+    "TSbyHits",
+    "variables",
+    "postProcessorHGCALlayerclusters",
+    "postProcessorHGCALsimclusters",
+    "postProcessorHGCALTracksters",
+    "postProcessorHGCALCandidates",
+]
+
+
 tracksterLabels = ticlIterLabelsPSet.labels.copy()
 tracksterLabels.extend(['ticlSimTracksters', 'ticlSimTracksters_fromCPs'])
 
@@ -51,22 +67,60 @@ postProcessorHGCALsimclusters = DQMEDHarvester('DQMGenericClient',
     verbose = cms.untracked.uint32(4))
 
 
-eff_tracksters = []
+trackster_ratios = []
 # Must be in sync with labels in HGVHistoProducerAlgo.cc
-simDict = {"SimTrackster_fromCP_byHits":"_byHits_CP", "SimTrackster_byLCs":"_byLCs", "SimTrackster_fromCP_byLCs":"_byLCs_CP", "SimTrackster_byHits":"_byHits"}
-metrics = {"purity":["Purity","_"], "effic":["Efficiency","Eff_"], "fake":["Fake Rate","_"], "duplicate":["Duplicate(Split)","Dup_"], "merge":["Merge Rate","Merge_"]}
-variables = {"eta":["#eta",""], "phi":["#phi",""], "energy":["energy"," [GeV]"], "pt":["p_{T}"," [GeV]"],
-             "R":["R"," [cm]"], "alpha":["#alpha"," [rad]"], "time":["time"," [ns]"]}
-for elem in simDict:
-    for m in list(metrics.keys())[:2]:
-        for v in variables:
-            V = v.capitalize()
-            eff_tracksters.extend([m+"_"+v+simDict[elem]+" 'Trackster "+metrics[m][0]+" vs "+variables[v][0]+"' Num"+metrics[m][1]+elem+"_"+V+" Denom_"+elem+"_"+V])
-    for m in list(metrics.keys())[2:]:
-        fakerate = " fake" if (m == "fake") else ""
-        for v in variables:
-            V = v.capitalize()
-            eff_tracksters.extend([m+"_"+v+simDict[elem]+" 'Trackster "+metrics[m][0]+" vs "+variables[v][0]+"' Num"+metrics[m][1]+"Trackster_"+V+simDict[elem]+" Denom_Trackster_"+V+simDict[elem]+fakerate])
+simDict = {
+    "SimTrackster_fromCP_byHits": "_byHits_CP",
+    "SimTrackster_byLCs": "_byLCs",
+    "SimTrackster_fromCP_byLCs": "_byLCs_CP",
+    "SimTrackster_byHits": "_byHits",
+}
+associations = {association: suffix.removeprefix("_") for association, suffix in simDict.items()}
+variables = {
+    "eta": "#eta",
+    "phi": "#phi",
+    "energy": "energy",
+    "pt": "p_{T}",
+    "R": "R",
+    "alpha": "#alpha",
+    "time": "time",
+}
+for association, association_suffix in associations.items():
+    for variable, variable_title in variables.items():
+        histogram_variable = variable.capitalize()
+        trackster_ratios.extend([
+            cms.untracked.PSet(
+                name=cms.untracked.string(f"purity_{variable}_{association_suffix}"),
+                title=cms.untracked.string(f"Trackster Purity vs {variable_title}"),
+                numerator=cms.untracked.string(f"Num_{association}_{histogram_variable}"),
+                denominator=cms.untracked.string(f"Denom_{association}_{histogram_variable}"),
+            ),
+            cms.untracked.PSet(
+                name=cms.untracked.string(f"effic_{variable}_{association_suffix}"),
+                title=cms.untracked.string(f"Trackster Efficiency vs {variable_title}"),
+                numerator=cms.untracked.string(f"NumEff_{association}_{histogram_variable}"),
+                denominator=cms.untracked.string(f"Denom_{association}_{histogram_variable}"),
+            ),
+            cms.untracked.PSet(
+                name=cms.untracked.string(f"duplicate_{variable}_{association_suffix}"),
+                title=cms.untracked.string(f"Trackster Duplicate(Split) vs {variable_title}"),
+                numerator=cms.untracked.string(f"NumDup_Trackster_{histogram_variable}_{association_suffix}"),
+                denominator=cms.untracked.string(f"Denom_{association}_{histogram_variable}"),
+            ),
+            cms.untracked.PSet(
+                name=cms.untracked.string(f"fake_{variable}_{association_suffix}"),
+                title=cms.untracked.string(f"Trackster Fake Rate vs {variable_title}"),
+                numerator=cms.untracked.string(f"Num_Trackster_{histogram_variable}_{association_suffix}"),
+                denominator=cms.untracked.string(f"Denom_Trackster_{histogram_variable}_{association_suffix}"),
+                typeName=cms.untracked.string("fake"),
+            ),
+            cms.untracked.PSet(
+                name=cms.untracked.string(f"merge_{variable}_{association_suffix}"),
+                title=cms.untracked.string(f"Trackster Merge Rate vs {variable_title}"),
+                numerator=cms.untracked.string(f"NumMerge_Trackster_{histogram_variable}_{association_suffix}"),
+                denominator=cms.untracked.string(f"Denom_Trackster_{histogram_variable}_{association_suffix}"),
+            ),
+        ])
 
 
 TSbyHits_CP = hgcalValidator.label_TSbyHitsCP.value()
@@ -85,7 +139,8 @@ subdirsTracksters.extend(prefix+iteration+'/'+TSbyHits for iteration in trackste
 
 postProcessorHGCALTracksters = DQMEDHarvester('DQMGenericClient',
   subDirs = cms.untracked.vstring(subdirsTracksters),
-  efficiency = cms.vstring(eff_tracksters),
+  efficiency = cms.vstring(),
+  efficiencySets = cms.untracked.VPSet(*trackster_ratios),
   resolution = cms.vstring(),
   cumulativeDists = cms.untracked.vstring(),
   noFlowDists = cms.untracked.vstring(),
@@ -99,26 +154,26 @@ subDirsCandidates = [prefix + hgcalValidator.ticlCandidates.value() + "/" + c fo
 eff_candidates = []
 
 for c in charged:
-    for var in variables.keys():
+    for variableName in variables:
         # efficiency
-        eff_candidates.append(f"eff_{c}_track_{var} '{c.replace('_', ' ')} candidates track efficiency vs {var}' num_track_cand_vs_{var}_{c} den_cand_vs_{var}_{c}")
-        eff_candidates.append(f"eff_{c}_pid_{var} '{c.replace('_', ' ')} candidates track + pid efficiency vs {var}' num_pid_cand_vs_{var}_{c} den_cand_vs_{var}_{c}")
-        eff_candidates.append(f"eff_{c}_energy_{var} '{c.replace('_', ' ')} candidates track + pid + energy efficiency vs {var}' num_energy_cand_vs_{var}_{c} den_cand_vs_{var}_{c}")
+        eff_candidates.append(f"eff_{c}_track_{variableName} '{c.replace('_', ' ')} candidates track efficiency vs {variableName}' num_track_cand_vs_{variableName}_{c} den_cand_vs_{variableName}_{c}")
+        eff_candidates.append(f"eff_{c}_pid_{variableName} '{c.replace('_', ' ')} candidates track + pid efficiency vs {variableName}' num_pid_cand_vs_{variableName}_{c} den_cand_vs_{variableName}_{c}")
+        eff_candidates.append(f"eff_{c}_energy_{variableName} '{c.replace('_', ' ')} candidates track + pid + energy efficiency vs {variableName}' num_energy_cand_vs_{variableName}_{c} den_cand_vs_{variableName}_{c}")
         # fake
-        eff_candidates.append(f"fake_{c}_track_{var} '{c.replace('_', ' ')} candidates track fake vs {var}' num_fake_track_cand_vs_{var}_{c} den_fake_cand_vs_{var}_{c}")
-        eff_candidates.append(f"fake_{c}_pid_{var} '{c.replace('_', ' ')} candidates pid fake vs {var}' num_fake_pid_cand_vs_{var}_{c} den_fake_cand_vs_{var}_{c}")
-        eff_candidates.append(f"fake_{c}_energy_{var} '{c.replace('_', ' ')} candidates energy fake vs {var}' num_fake_energy_cand_vs_{var}_{c} den_fake_cand_vs_{var}_{c}")
-        eff_candidates.append(f"fake_{c}_total_{var} '{c.replace('_', ' ')} candidates track + pid + energy fake vs {var}' num_fake_total_cand_vs_{var}_{c} den_fake_cand_vs_{var}_{c}")
+        eff_candidates.append(f"fake_{c}_track_{variableName} '{c.replace('_', ' ')} candidates track fake vs {variableName}' num_fake_track_cand_vs_{variableName}_{c} den_fake_cand_vs_{variableName}_{c}")
+        eff_candidates.append(f"fake_{c}_pid_{variableName} '{c.replace('_', ' ')} candidates pid fake vs {variableName}' num_fake_pid_cand_vs_{variableName}_{c} den_fake_cand_vs_{variableName}_{c}")
+        eff_candidates.append(f"fake_{c}_energy_{variableName} '{c.replace('_', ' ')} candidates energy fake vs {variableName}' num_fake_energy_cand_vs_{variableName}_{c} den_fake_cand_vs_{variableName}_{c}")
+        eff_candidates.append(f"fake_{c}_total_{variableName} '{c.replace('_', ' ')} candidates track + pid + energy fake vs {variableName}' num_fake_total_cand_vs_{variableName}_{c} den_fake_cand_vs_{variableName}_{c}")
 
 for n in neutrals:
-    for var in variables.keys():
+    for variableName in variables:
         # efficiency
-        eff_candidates.append(f"eff_{n}_pid_{var} '{n.replace('_', ' ')} candidates pid efficiency vs {var}' num_pid_cand_vs_{var}_{n} den_cand_vs_{var}_{n}")
-        eff_candidates.append(f"eff_{n}_energy_{var} '{n.replace('_', ' ')} candidates pid + energy efficiency vs {var}' num_energy_cand_vs_{var}_{n} den_cand_vs_{var}_{n}")
+        eff_candidates.append(f"eff_{n}_pid_{variableName} '{n.replace('_', ' ')} candidates pid efficiency vs {variableName}' num_pid_cand_vs_{variableName}_{n} den_cand_vs_{variableName}_{n}")
+        eff_candidates.append(f"eff_{n}_energy_{variableName} '{n.replace('_', ' ')} candidates pid + energy efficiency vs {variableName}' num_energy_cand_vs_{variableName}_{n} den_cand_vs_{variableName}_{n}")
         # fake
-        eff_candidates.append(f"fake_{n}_pid_{var} '{n.replace('_', ' ')} candidates pid fake vs {var}' num_fake_pid_cand_vs_{var}_{n} den_fake_cand_vs_{var}_{n}")
-        eff_candidates.append(f"fake_{n}_energy_{var} '{n.replace('_', ' ')} candidates energy fake vs {var}' num_fake_energy_cand_vs_{var}_{n} den_fake_cand_vs_{var}_{n}")
-        eff_candidates.append(f"fake_{n}_total_{var} '{n.replace('_', ' ')} candidates pid + energy fake vs {var}' num_fake_total_cand_vs_{var}_{n} den_fake_cand_vs_{var}_{n}")
+        eff_candidates.append(f"fake_{n}_pid_{variableName} '{n.replace('_', ' ')} candidates pid fake vs {variableName}' num_fake_pid_cand_vs_{variableName}_{n} den_fake_cand_vs_{variableName}_{n}")
+        eff_candidates.append(f"fake_{n}_energy_{variableName} '{n.replace('_', ' ')} candidates energy fake vs {variableName}' num_fake_energy_cand_vs_{variableName}_{n} den_fake_cand_vs_{variableName}_{n}")
+        eff_candidates.append(f"fake_{n}_total_{variableName} '{n.replace('_', ' ')} candidates pid + energy fake vs {variableName}' num_fake_total_cand_vs_{variableName}_{n} den_fake_cand_vs_{variableName}_{n}")
 
 
 postProcessorHGCALCandidates = DQMEDHarvester('DQMGenericClient',
