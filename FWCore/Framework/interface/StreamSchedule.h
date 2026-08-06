@@ -227,18 +227,17 @@ namespace edm {
 
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkersRuns() const { return workerManagerRuns_.allWorkers(); }
-    AllWorkers const& allWorkersLumisAndEvents() const { return workerManagerLumisAndEvents_.allWorkers(); }
+    AllWorkers const& allWorkersLumis() const { return workerManagerLumis_.allWorkers(); }
+    AllWorkers const& allWorkersEvents() const { return workerManagerEvents_.allWorkers(); }
 
-    AllWorkers const& unscheduledWorkersLumisAndEvents() const {
-      return workerManagerLumisAndEvents_.unscheduledWorkers();
-    }
+    AllWorkers const& unscheduledWorkersEvents() const { return workerManagerEvents_.unscheduledWorkers(); }
     unsigned int numberOfUnscheduledModules() const { return number_of_unscheduled_modules_; }
 
     StreamContext const& context() const { return streamContext_; }
 
   private:
     /// returns the action table
-    ExceptionToActionTable const& actionTable() const { return workerManagerLumisAndEvents_.actionTable(); }
+    ExceptionToActionTable const& actionTable() const { return workerManagerEvents_.actionTable(); }
 
     void resetAll();
 
@@ -267,7 +266,8 @@ namespace edm {
 
     std::vector<unsigned int> moduleBeginStreamFailed_;
     WorkerManager workerManagerRuns_;
-    WorkerManager workerManagerLumisAndEvents_;
+    WorkerManager workerManagerLumis_;
+    WorkerManager workerManagerEvents_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
 
     edm::propagate_const<TrigResPtr> results_;
@@ -341,7 +341,7 @@ namespace edm {
           // Caught exception is propagated via WaitingTaskHolder
           WorkerManager* workerManager = &workerManagerRuns_;
           if (T::branchType_ == InLumi) {
-            workerManager = &workerManagerLumisAndEvents_;
+            workerManager = &workerManagerLumis_;
           }
           CMS_SA_ALLOW try {
             preScheduleSignal<T>(&streamContext_);
