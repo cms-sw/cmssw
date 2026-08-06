@@ -190,14 +190,6 @@ namespace edm {
     }
     AR_WATCH_USING_METHOD_1(watchPostESModuleConstruction)
 
-    /// signal is emitted after the ESModule is registered with EventSetupProvider
-    using PostESModuleRegistration = signalslot::Signal<void(eventsetup::ComponentDescription const&)>;
-    PostESModuleRegistration postESModuleRegistrationSignal_;
-    void watchPostESModuleRegistration(PostESModuleRegistration::slot_type const& iSlot) {
-      postESModuleRegistrationSignal_.connect(iSlot);
-    }
-    AR_WATCH_USING_METHOD_1(watchPostESModuleRegistration)
-
     using PreModulesAndSourceConstruction = signalslot::Signal<void()>;
     /// signal is emitted before the parallel section to construct ED modules and source
     PreModulesAndSourceConstruction preModulesAndSourceConstructionSignal_;
@@ -1296,13 +1288,6 @@ namespace edm {
       preSourceEarlyTerminationSignal_.connect(iSlot);
     }
     AR_WATCH_USING_METHOD_1(watchPreSourceEarlyTermination)
-
-    /// signal is emitted if event processing or end-of-job
-    /// processing fails with an uncaught exception.
-    typedef signalslot::Signal<void()> JobFailure;
-    JobFailure jobFailureSignal_;
-    void watchJobFailure(JobFailure::slot_type const& iSlot) { jobFailureSignal_.connect_front(iSlot); }
-    AR_WATCH_USING_METHOD_0(watchJobFailure)
 
     // ---------- member functions ---------------------------
 
