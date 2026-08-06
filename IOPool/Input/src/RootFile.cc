@@ -2190,11 +2190,8 @@ namespace edm {
                 ServiceRegistry::Operate operate(serviceToken);
                 std::unique_ptr<const std::set<ProductProvenance>> prov;
                 try {
-                  auto guard = signalslot::make_sentry([post, iContext]() {
-                    if (post) {
-                      post->emit(*(iContext->getStreamContext()), *iContext);
-                    }
-                  });
+                  auto guard = signalslot::make_sentry_if(
+                      post, [post, iContext]() { post->emit(*(iContext->getStreamContext()), *iContext); });
                   if (pre) {
                     pre->emit(*(iContext->getStreamContext()), *iContext);
                   }

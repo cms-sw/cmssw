@@ -79,11 +79,8 @@ namespace edm {
           handle;
       //transform acquiring signal
       auto const& streamContext = *mcc.getStreamContext();
-      auto sentry = signalslot::make_sentry([iAct, &streamContext, &mcc]() {
-        if (iAct) {
-          iAct->postModuleTransformAcquiringSignal_.emit(streamContext, mcc);
-        }
-      });
+      auto sentry = signalslot::make_sentry_if(
+          iAct, [iAct, &streamContext, &mcc]() { iAct->postModuleTransformAcquiringSignal_.emit(streamContext, mcc); });
       if (iAct) {
         iAct->preModuleTransformAcquiringSignal_.emit(streamContext, mcc);
       }
@@ -104,10 +101,8 @@ namespace edm {
                 //transform signal
                 auto mcc = iEvent.moduleCallingContext();
                 auto const& streamContext = *mcc.getStreamContext();
-                auto sentry = signalslot::make_sentry([iAct, &streamContext, &mcc]() {
-                  if (iAct) {
-                    iAct->postModuleTransformSignal_.emit(streamContext, mcc);
-                  }
+                auto sentry = signalslot::make_sentry_if(iAct, [iAct, &streamContext, &mcc]() {
+                  iAct->postModuleTransformSignal_.emit(streamContext, mcc);
                 });
                 if (iAct) {
                   iAct->preModuleTransformSignal_.emit(streamContext, mcc);
@@ -139,11 +134,8 @@ namespace edm {
           std::any v = handle.wrapper();
           //transform signal
           auto const& streamContext = *mcc.getStreamContext();
-          auto sentry = signalslot::make_sentry([iAct, &streamContext, &mcc]() {
-            if (iAct) {
-              iAct->postModuleTransformSignal_.emit(streamContext, mcc);
-            }
-          });
+          auto sentry = signalslot::make_sentry_if(
+              iAct, [iAct, &streamContext, &mcc]() { iAct->postModuleTransformSignal_.emit(streamContext, mcc); });
           if (iAct) {
             iAct->preModuleTransformSignal_.emit(streamContext, mcc);
           }

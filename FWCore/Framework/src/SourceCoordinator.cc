@@ -104,11 +104,8 @@ namespace edm {
     if (sourceStatus_.needToAskSourceForNext()) {
       TerminationGuard sentry(earlyTerminationSignal_);
       {
-        auto guard = signalslot::make_sentry([this]() {
-          if (postSourceNextTransitionSignal_) {
-            postSourceNextTransitionSignal_->emit();
-          }
-        });
+        auto guard = signalslot::make_sentry_if(postSourceNextTransitionSignal_,
+                                                [this]() { postSourceNextTransitionSignal_->emit(); });
         if (preSourceNextTransitionSignal_) {
           preSourceNextTransitionSignal_->emit();
         }

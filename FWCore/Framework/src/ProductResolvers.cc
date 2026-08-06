@@ -178,12 +178,11 @@ namespace edm {
       if (!context) {
         context = CurrentModuleOnThread::getCurrentModuleOnThread();
       }
-      auto sentry = signalslot::make_sentry([this, context, branchType]() {
-        if (context and branchType == InEvent and aux_) {
-          aux_->postModuleDelayedGetSignal_.emit(*(context->getStreamContext()), *context);
-        }
+      bool const emitSignals = (context and branchType == InEvent and aux_);
+      auto sentry = signalslot::make_sentry_if(emitSignals, [this, context]() {
+        aux_->postModuleDelayedGetSignal_.emit(*(context->getStreamContext()), *context);
       });
-      if (context and branchType == InEvent and aux_) {
+      if (emitSignals) {
         aux_->preModuleDelayedGetSignal_.emit(*(context->getStreamContext()), *context);
       }
 
