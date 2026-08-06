@@ -100,9 +100,6 @@
 
 #define DECLARE_SIGNAL_WATCHER_TERMINATION_ORIGIN_SOURCE(signal) void pre##signal(edm::TerminationOrigin);
 
-// Useful for starting constructs using std::string::operator+() with a litteral string.
-using namespace std::string_literals;
-
 /**
  * @brief Base class for profiling services.
  * @tparam Backend The backend implementation class.
