@@ -8,7 +8,7 @@ BYTES_TO_KB = 1024
 EVENTSETUP_TRANSITION = "event setup"
 
 # Named tuple for unique module identification
-UniqueKey = namedtuple('UniqueKey', ['moduleLabel', 'moduleType', 'recordName'])
+UniqueKey = namedtuple('UniqueKey', ['moduleLabel', 'moduleType', 'recordName', 'callID'])
 
 transitionTypes = [
     "construction",
@@ -54,7 +54,7 @@ def processModuleTransition(moduleLabel, moduleType, moduleInfo, transitionType,
     For the "source" module and "event" transition, sum all alloc records with the same
     run, lumi, and event number.
     """
-    moduleKey = UniqueKey(moduleLabel, moduleType, "")
+    moduleKey = UniqueKey(moduleLabel, moduleType, "", None)
     moduleTransition[moduleKey] = {"cpptype": moduleType, "allocs": []}
 
     # Special handling for "source" module with "event" transition
@@ -98,28 +98,33 @@ def processESModuleTransition(moduleLabel, moduleType, moduleInfo, moduleTransit
     Creates unique entries for each module+type+record combination.
     """
     # Group allocations by record name
-    recordAllocations = {}
+    recordAllocations = dict()
     for entry in moduleInfo:
         # EventSetup entries are those with a "record" field containing "name"
         if "record" in entry and "name" in entry["record"]:
             activity = entry.get("activity", "process")
-            callid = entry["record"].get("callID", None)
-            recordName = entry["record"]["name"]+f":{callid}" if callid is not None and callid != 0 else entry["record"]["name"]
+            # Get the callID from the record, defaulting to -1 if not present
+            callid = entry["record"].get("callID", -1)
+            recordName = entry["record"]["name"]
             if recordName not in recordAllocations:
-                recordAllocations[recordName] = []
-            recordAllocations[recordName].append(entry.get("alloc", {}))
+                recordAllocations[recordName] = dict()
+            if callid not in recordAllocations[recordName].keys():
+                recordAllocations[recordName][callid] = []
+            recordAllocations[recordName][callid].append(entry.get("alloc", {}))
 
     # Create separate entries for each record
-    for recordName, allocs in recordAllocations.items():
+    for recordName, callID_allocs in recordAllocations.items():
+        for callID, allocs in callID_allocs.items():
         # Create unique key: module + type + record
-        uniqueKey = UniqueKey(moduleLabel, moduleType, recordName)
-        moduleTransition[uniqueKey] = {
-            "cpptype": moduleType,
-            "allocs": allocs,
-            "nTransitions": len(allocs),
-            "moduleLabel": moduleLabel,
-            "moduleType": moduleType,
-            "recordName": recordName
+            uniqueKey = UniqueKey(moduleLabel, moduleType, recordName, callID)
+            moduleTransition[uniqueKey] = {
+                "cpptype": moduleType,
+                "allocs": allocs,
+                "nTransitions": len(allocs),
+                "moduleLabel": moduleLabel,
+                "moduleType": moduleType,
+                "recordName": recordName,
+                "callID": callID
         }
 
 def processExternalWorkTransition(moduleLabel, moduleType, moduleInfo, moduleTransition):
@@ -141,30 +146,34 @@ def processExternalWorkTransition(moduleLabel, moduleType, moduleInfo, moduleTra
                 activityAllocations[activity][callID] = []
             activityAllocations[activity][callID].append(entry.get("alloc", {}))
     # Create separate entries for each activity
+    if len(activityAllocations) == 1 and "process" in activityAllocations.keys() and len(activityAllocations["process"]) == 1:
+        return  # Only one activity and it's "process" and there is only one callID, so its not an ExternalWork module, skip creating separate entries
     for activity, callID_allocs in activityAllocations.items():
         if len(callID_allocs) == 1:
             for callID, allocs in callID_allocs.items():
                 # use the activity as the record name
                 recordName = f"{activity}"
-                uniqueKey = UniqueKey(moduleLabel, moduleType, recordName)
+                uniqueKey = UniqueKey(moduleLabel, moduleType, recordName, callID)
                 moduleTransition[uniqueKey] = {
                     "cpptype": moduleType,
                     "allocs": allocs,
                     "nTransitions": len(allocs),
                     "moduleLabel": moduleLabel,
-                    "recordName": recordName
+                    "recordName": recordName,
+                    "callID": callID
                 }
         else:
             for callID, allocs in callID_allocs.items():
                 # Create a unique record name based on the callID and activity
                 recordName = f"callID {callID}:{activity}"
-                uniqueKey = UniqueKey(moduleLabel, moduleType, recordName)
+                uniqueKey = UniqueKey(moduleLabel, moduleType, recordName, callID)
                 moduleTransition[uniqueKey] = {
                     "cpptype": moduleType,
                     "allocs": allocs,
                     "nTransitions": len(allocs),
                     "moduleLabel": moduleLabel,
-                    "recordName": recordName
+                    "recordName": recordName,
+                    "callID": callID
                 }
 
 def formatToCircles(moduleTransitions):
@@ -230,7 +239,8 @@ def formatToCircles(moduleTransitions):
             modules_dict[displayKey] = {
                 "label": displayKey.moduleLabel,
                 "type": displayKey.moduleType,
-                "record": displayKey.recordName
+                "record": displayKey.recordName,
+                "callID": displayKey.callID
             }
 
             # Initialize all transition metrics to zero
@@ -292,18 +302,20 @@ def formatToCircles(moduleTransitions):
         # Use the module label from the UniqueKey namedtuple for event count lookup
         moduleLabel = key.moduleLabel
         # Look for the corresponding regular module key for event transitions
-        eventKey = UniqueKey(moduleLabel, key.moduleType, "")
+        # Use the fields from the UniqueKey namedtuple
+        eventKey = UniqueKey(moduleLabel, key.moduleType, key.recordName, key.callID)
         eventCount = moduleTransitions['event'].get(eventKey, {}).get("nTransitions", -1)
         moduleTypeVal = key.moduleType
         recordName = key.recordName
 
         # For ExternalWork modules with acquire/process record, use that record name for event count
         if recordName in ("acquire", "process"):
-            eventKey = UniqueKey(moduleLabel, moduleTypeVal, recordName)
+            # Use the fields from the UniqueKey namedtuple
+            eventKey = UniqueKey(moduleLabel, moduleTypeVal, key.recordName, key.callID)
             eventCount = moduleTransitions['event'].get(eventKey, {}).get("nTransitions", 0)
         else:
              # Look for the corresponding regular module key for event transitions
-            eventKey = UniqueKey(moduleLabel, moduleTypeVal, "")
+            eventKey = UniqueKey(moduleLabel, moduleTypeVal, key.recordName, key.callID)
             eventCount = moduleTransitions['event'].get(eventKey, {}).get("nTransitions", 0)
 
         # Set events to 1 if it's 0 to prevent NaNs in Circles visualization
@@ -355,7 +367,7 @@ def main(args):
                         entry.get("record").get("name") is None and \
                         entry["record"].get("callID") is not None and \
                         (entry.get("activity") == "acquire" or \
-                        (entry.get("activity") == "process" and entry["record"].get("callID") != 0)) for entry in moduleInfo):
+                        (entry.get("activity") == "process" and entry["record"].get("callID") is not None)) for entry in moduleInfo):
                         processExternalWorkTransition(moduleLabel, moduleTypes[moduleLabel], moduleInfo, moduleTransition)
         moduleTransitions[transition] = moduleTransition
 
