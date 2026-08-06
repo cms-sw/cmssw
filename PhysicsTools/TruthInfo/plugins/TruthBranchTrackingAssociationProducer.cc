@@ -44,7 +44,7 @@
 
 namespace {
   // Raw-index AssociationMap (object index -> [(branch id, sharedHits, score)]).
-  using BranchAssociationMap = ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore>;
+  using BranchAssociationMap = ticl::TICLAssociationMap<ticl::mapWithSharedEnergyAndScore>;
 }  // namespace
 
 class TruthBranchTrackingAssociationProducer : public edm::stream::EDProducer<> {
