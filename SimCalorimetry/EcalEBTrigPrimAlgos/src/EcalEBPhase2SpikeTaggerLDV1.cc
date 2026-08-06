@@ -58,12 +58,11 @@ float EcalEBPhase2SpikeTaggerLDV1::calcLD(std::vector<int> const& linInput) cons
   auto const sPlus1 = linInput[peakIdx_ + 1];
   auto const rPlus1 = sPlus1 / sMax;
 
-  return rPlus1 - calcRMinus1Poly(linInput);
+  return rPlus1 - calcRMinus1Poly(linInput, sMax);
 }
 
-float EcalEBPhase2SpikeTaggerLDV1::calcRMinus1Poly(std::vector<int> const& linInput) const {
+float EcalEBPhase2SpikeTaggerLDV1::calcRMinus1Poly(std::vector<int> const& linInput, float sMax) const {
   auto const sMinus1 = linInput[peakIdx_ - 1];
-  auto const sMax = static_cast<float>(linInput[peakIdx_]);
   auto const rMinus1 = sMinus1 / sMax;
   float rMinus1Pow = 1.;
   float rMinus1Poly = 0.;

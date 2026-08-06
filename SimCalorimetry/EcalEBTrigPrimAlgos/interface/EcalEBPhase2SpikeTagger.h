@@ -14,7 +14,11 @@
 class EcalEBPhase2SpikeTagger {
 public:
   EcalEBPhase2SpikeTagger(edm::ConsumesCollector &cc, bool debug) : debug_(debug), badXStatus_(nullptr) {};
-  virtual ~EcalEBPhase2SpikeTagger() {};
+  EcalEBPhase2SpikeTagger(const EcalEBPhase2SpikeTagger &) = delete;
+  EcalEBPhase2SpikeTagger &operator=(const EcalEBPhase2SpikeTagger &) = delete;
+  EcalEBPhase2SpikeTagger(EcalEBPhase2SpikeTagger &&) = delete;
+  EcalEBPhase2SpikeTagger &operator=(EcalEBPhase2SpikeTagger &&) = delete;
+  virtual ~EcalEBPhase2SpikeTagger() = default;
 
   virtual bool process(const std::vector<int> &linInput) = 0;
   virtual void getRecords(edm::EventSetup const &setup) = 0;

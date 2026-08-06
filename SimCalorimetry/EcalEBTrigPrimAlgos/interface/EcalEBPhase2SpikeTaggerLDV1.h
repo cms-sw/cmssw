@@ -27,7 +27,7 @@ private:
   std::shared_ptr<EcalEBPhase2TPGSpikeTaggerParamsHelper> spikeTaggerParamsHelper_;
 
   float calcLD(std::vector<int> const& linInput) const;
-  float calcRMinus1Poly(std::vector<int> const& linInput) const;
+  float calcRMinus1Poly(std::vector<int> const& linInput, float sMax) const;
 };
 
 #endif

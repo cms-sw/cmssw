@@ -37,17 +37,16 @@ EcalEBPhase2TrigPrimAlgo::EcalEBPhase2TrigPrimAlgo(int binofmax,
                                                    bool debug)
     : binOfMaximum_(binofmax),
       spikeTaggerParams_(spikeTaggerParams),
-      cc_(cc),
       debug_(debug)
 
 {
   maxNrSamples_ = ecalPh2::sampleSize;
 
-  eTTmapToken_ = cc_.esConsumes<edm::Transition::BeginRun>();
-  this->init();
+  eTTmapToken_ = cc.esConsumes<edm::Transition::BeginRun>();
+  this->init(cc);
 }
 
-void EcalEBPhase2TrigPrimAlgo::init() {
+void EcalEBPhase2TrigPrimAlgo::init(edm::ConsumesCollector &cc) {
   theMapping_ = new EcalElectronicsMapping();
   // initialise data structures
   initStructures(towerMapEB_);
@@ -70,7 +69,7 @@ void EcalEBPhase2TrigPrimAlgo::init() {
   EcalEBPhase2SpikeTaggerFactory spikeTaggerFactory;
   auto const stAlgoType(spikeTaggerParams_.getParameter<std::string>("algoType"));
   auto const stVersion(spikeTaggerParams_.getParameter<unsigned int>("version"));
-  spike_tagger_ = spikeTaggerFactory.create(stAlgoType, stVersion, cc_, debug_);
+  spike_tagger_ = spikeTaggerFactory.create(stAlgoType, stVersion, cc, debug_);
 }
 //----------------------------------------------------------------------
 

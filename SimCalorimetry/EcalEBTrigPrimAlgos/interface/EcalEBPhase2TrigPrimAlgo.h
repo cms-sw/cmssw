@@ -75,7 +75,7 @@ public:
 
 private:
   //old void init(const edm::EventSetup & setup);
-  void init();
+  void init(edm::ConsumesCollector &cc);
   template <class T>
   void initStructures(std::vector<std::vector<std::pair<int, std::vector<T> > > > &towMap);
   template <class T>
@@ -100,7 +100,6 @@ private:
   int binOfMaximum_;
   int maxNrSamples_;
   const edm::ParameterSet &spikeTaggerParams_;
-  edm::ConsumesCollector &cc_;
   bool debug_;
 
   int nrTowers_;  // nr of towers found by fillmap method
