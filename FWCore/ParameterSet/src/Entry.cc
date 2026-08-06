@@ -1217,7 +1217,33 @@ namespace edm {
       throwEntryError("vector<ParameterSet>", rep_);
     return val;
   }
+}  // namespace edm
 
+namespace {
+  // This function is a helper for V{Event,LuminosityBlock}{ID,Range}
+  // that are encoded as vector<string>
+  //
+  // F is a functor that returns a range
+  template <typename F>
+  void printVStringEncodedHelper(std::ostream& os, edm::Entry const& entry, F&& range) {
+    os << "{";
+    std::string_view start = "";
+    std::string_view const between(",");
+    std::string encoded;
+    for (auto const& element : range(entry)) {
+      // encode to
+      // - have more compact presentation instead of {Event,LuminosityBlock}ID's own operator<<()
+      // - avoid quotation marks from {Event,LuminosityBlock}Range's own operator<<()
+      encode(encoded, element);
+      os << start << encoded;
+      encoded.clear();
+      start = between;
+    }
+    os << "}";
+  }
+}  // namespace
+
+namespace edm {
   std::ostream& operator<<(std::ostream& os, Entry const& entry) {
     os << typeFromCode(entry.typeCode()) << " " << (entry.isTracked() ? "tracked " : "untracked ") << " = ";
 
@@ -1314,6 +1340,34 @@ namespace edm {
           start = between;
         }
         os << "}";
+        break;
+      }
+      case kTVEventID: {
+        // VEventID needs to be treated separately because it is encoded
+        // as vector<string> and each string element contains the
+        // encoded EventID
+        printVStringEncodedHelper(os, entry, [](edm::Entry const& e) { return e.getVEventID(); });
+        break;
+      }
+      case kTVLuminosityBlockID: {
+        // VLuminosityBlockID needs to be treated separately because it
+        // is encoded as vector<string> and each string element contains
+        // the encoded LuminosityBlockID
+        printVStringEncodedHelper(os, entry, [](edm::Entry const& e) { return e.getVLuminosityBlockID(); });
+        break;
+      }
+      case kTVEventRange: {
+        // VEventRange needs to be treated separately because it is
+        // encoded as vector<string> and each string element contains
+        // the encoded EventRange
+        printVStringEncodedHelper(os, entry, [](edm::Entry const& e) { return e.getVEventRange(); });
+        break;
+      }
+      case kTVLuminosityBlockRange: {
+        // VLuminosityBlockRange needs to be treated separately because
+        // it is encoded as vector<string> and each string element
+        // contains the encoded LuminosityBlockRange
+        printVStringEncodedHelper(os, entry, [](edm::Entry const& e) { return e.getVLuminosityBlockRange(); });
         break;
       }
       default: {
