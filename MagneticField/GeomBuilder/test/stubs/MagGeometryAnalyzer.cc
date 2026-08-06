@@ -47,6 +47,9 @@ void testMagGeometryAnalyzer::analyze(const edm::Event& event, const edm::EventS
   const VolumeBasedMagneticField* field = dynamic_cast<const VolumeBasedMagneticField*>(magfield.product());
   const MagGeometry* geom = field->field;
 
+  edm::LogVerbatim("MagGeometry") << "*** testMagGeometryAnalyzer called for B map with nominalValue: "
+                                  << field->nominalValue();
+
   // Test that findVolume succeeds for random points
   // This check is actually aleady covered by the standard regression.
   MagGeometryExerciser exe(geom);
