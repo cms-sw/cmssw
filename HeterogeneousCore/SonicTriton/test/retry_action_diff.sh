@@ -1,4 +1,5 @@
 #!/bin/bash
+LOCALTOP=$1
 
 # Start the server
 cmsTriton -v -P 8010 -n server1 -f -L -m /cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_15_1_0_pre6/external/el9_amd64_gcc12/data/HeterogeneousCore/SonicTriton/data/models/gat_test/config.pbtxt start &
@@ -20,7 +21,7 @@ if [ -z "$SERVER1_PID" ] || [ -z "$SERVER2_PID" ]; then
 fi
 
 # Start the client
-cmsRun tritonTest_cfg.py --maxEvents 100 --modules TritonIdentityProducer --models ragged_io  --address server1 0.0.0.0 8011 --address server2 0.0.0.0 8021 --retryAction diff --verbose &
+cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/tritonTest_cfg.py --maxEvents 100 --modules TritonIdentityProducer --models ragged_io  --address server1 0.0.0.0 8011 --address server2 0.0.0.0 8021 --retryAction diff --verbose &
 
 # Allow the client some time to run
 sleep 60
