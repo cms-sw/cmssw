@@ -85,6 +85,7 @@ private:
     MonitorElement* clusterSize_S = nullptr;
   };
   std::map<std::string, RecHitME> layerMEs_;
+  enum Level { OT = 1, SUBSTRUCTURE, ENDCAP_SIDE, ENDCAP_RING, ENDCAP_WHEEL, LAYER };
 };
 
 //
@@ -157,14 +158,16 @@ void Phase2OTMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
         globalXY_S_->Fill(gx, gy);
         globalRZ_S_->Fill(gz, gr);
       }
-      for (int fillingDepth = 1; fillingDepth <= 6; fillingDepth++) {
+      for (enum Level fillingDepth = OT; fillingDepth <= LAYER; fillingDepth = Level(fillingDepth + 1)) {
         std::string key = phase2tkutil::getHistoId(detId, tTopo_, 0.0, fillingDepth, false);
 
-        if (mType == TrackerGeometry::ModuleType::Ph2PSP)
-          layerMEs_[key].clusterSize_P->Fill(rechitIt->cluster()->size());
-        else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS)
-          layerMEs_[key].clusterSize_S->Fill(rechitIt->cluster()->size());
-
+        if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
+          if (layerMEs_[key].clusterSize_P)
+            layerMEs_[key].clusterSize_P->Fill(rechitIt->cluster()->size());
+        } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
+          if (layerMEs_[key].clusterSize_S)
+            layerMEs_[key].clusterSize_S->Fill(rechitIt->cluster()->size());
+        }
         if (nRechitsInDet == int(DSViter->size())) {
           // Reached the end of rechits in this Det
           // Fill any histos that should only be filled once per det
@@ -190,10 +193,12 @@ void Phase2OTMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
   numberRecHits_->Fill(nRechitsInEvent);
   //fill nRecHit counter per layer
   for (auto& lme : nrechitLayerMapP) {
-    layerMEs_[lme.first].numberRecHits_P->Fill(lme.second);
+    if (layerMEs_[lme.first].numberRecHits_P)
+      layerMEs_[lme.first].numberRecHits_P->Fill(lme.second);
   }
   for (auto& lme : nrechitLayerMapS) {
-    layerMEs_[lme.first].numberRecHits_S->Fill(lme.second);
+    if (layerMEs_[lme.first].numberRecHits_S)
+      layerMEs_[lme.first].numberRecHits_S->Fill(lme.second);
   }
 }
 //
@@ -239,7 +244,10 @@ void Phase2OTMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
 // -- Book Layer Histograms
 //
 void Phase2OTMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir) {
-  for (int bookingDepth = 1; bookingDepth <= 6; bookingDepth++) {
+  for (enum Level bookingDepth = OT; bookingDepth <= LAYER; bookingDepth = Level(bookingDepth + 1)) {
+    // If this det is a barrel det AND bookingDepth is an endcap-only depth, DO NOT BOOK
+    if ((bookingDepth >= ENDCAP_SIDE && bookingDepth < LAYER) && DetId(det_id).subdetId() == SiStripSubdetector::TOB)
+      continue;
     std::string key = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, false);
     std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, true);
 
@@ -252,13 +260,13 @@ void Phase2OTMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned
 
       if (tkGeom_->getDetectorType(det_id) == TrackerGeometry::ModuleType::Ph2PSP) {
         local_histos.numberRecHits_P = phase2tkutil::book1DFromPSet(
-            config_.getParameter<edm::ParameterSet>("NRecHitsLayer_P"), ibooker, prettyName, true);
+            config_.getParameter<edm::ParameterSet>("NRecHitsLayer_P"), ibooker, prettyName, bookingDepth);
         local_histos.clusterSize_P =
             phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitSize_P"), ibooker, prettyName);
       }  //if block for P
 
       local_histos.numberRecHits_S = phase2tkutil::book1DFromPSet(
-          config_.getParameter<edm::ParameterSet>("NRecHitsLayer_S"), ibooker, prettyName, true);
+          config_.getParameter<edm::ParameterSet>("NRecHitsLayer_S"), ibooker, prettyName, bookingDepth);
       local_histos.clusterSize_S =
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitSize_S"), ibooker, prettyName);
 
@@ -333,7 +341,7 @@ void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
                           "",
                           150,
                           0.0,
-                          28000.0);
+                          300000.0);
   phase2tkutil::add1DDesc(desc,
                           "NRecHitsLayer_S",
                           "Num_RecHits_S",
@@ -342,7 +350,7 @@ void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
                           "",
                           150,
                           0.0,
-                          28000.0);
+                          300000.0);
 
   phase2tkutil::add1DDesc(desc,
                           "RecHitSize_P",

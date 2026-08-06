@@ -17,6 +17,9 @@ pixDigiMon = digiMon.clone(
         xmax = 2000.,
         switch = True
     ),
+    NumberOfHitDetsPerLayerH = digiMon.NumberOfHitDetsPerLayerH.clone(
+        xmax = 5000
+    ),
     XYPositionMapH = digiMon.XYPositionMapH.clone(
         NxBins = 340,
         xmin = -30.,

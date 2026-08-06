@@ -71,6 +71,7 @@ private:
   void bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_it, std::string& subdir);
 
   std::map<std::string, ClusterMEs> layerMEs_;
+  enum Level { OT = 1, SUBSTRUCTURE, ENDCAP_SIDE, ENDCAP_RING, ENDCAP_WHEEL, LAYER };
 
   edm::ParameterSet config_;
   edm::EDGetTokenT<Phase2TrackerCluster1DCollectionNew> clustersToken_;
@@ -162,7 +163,7 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
         }
       }
 
-      for (int fillingDepth = 1; fillingDepth <= 6; fillingDepth++) {
+      for (enum Level fillingDepth = OT; fillingDepth <= LAYER; fillingDepth = Level(fillingDepth + 1)) {
         std::string folderkey = phase2tkutil::getHistoId(detId, tTopo_, 0, fillingDepth, false);
 
         auto layerMEit = layerMEs_.find(folderkey);
@@ -172,15 +173,17 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
 
         if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
           // Pixels
-          local_mes.ClusterSize_P->Fill(clusterItr.size());
+          if (local_mes.ClusterSize_P)
+            local_mes.ClusterSize_P->Fill(clusterItr.size());
         } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
           // Strips
-          local_mes.ClusterSize_S->Fill(clusterItr.size());
+          if (local_mes.ClusterSize_S)
+            local_mes.ClusterSize_S->Fill(clusterItr.size());
           if (mType == TrackerGeometry::ModuleType::Ph2SS) {
             if (module < local_mes.PositionOfClusters_2S.size() && local_mes.PositionOfClusters_2S[module])
               local_mes.PositionOfClusters_2S[module]->Fill(clusterItr.center(), topOrBottomColumn);
             if (detId.subdetId() == SiStripSubdetector::TOB && fillingDepth == 6) {
-              if (local_mes.PositionOfClusters_2SLadder[ladder] != nullptr) {
+              if (local_mes.PositionOfClusters_2SLadder[ladder]) {
                 int signedModule = module;
                 // CRACK has numbers 1 to 12 while Tracker has 1 to 24
                 // Adapt module numbers from 1 to 24 into -12 to +12
@@ -301,7 +304,11 @@ void Phase2OTMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
 
 //////////////////Layer Histo/////////////////////////////////
 void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_id, std::string& subdir) {
-  for (int bookingDepth = 1; bookingDepth <= 6; bookingDepth++) {
+  for (enum Level bookingDepth = OT; bookingDepth <= LAYER; bookingDepth = Level(bookingDepth + 1)) {
+    // If this det is a barrel det AND bookingDepth is an endcap-only depth, DO NOT BOOK
+    if ((bookingDepth >= ENDCAP_SIDE && bookingDepth < LAYER) && DetId(det_id).subdetId() == SiStripSubdetector::TOB)
+      continue;
+
     std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, false);
     std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, true);
 
@@ -310,10 +317,11 @@ void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
       ibooker.setCurrentFolder(subdir + "/" + folderName);
       edm::LogInfo("Phase2OTMonitorCluster") << " Booking Histograms in: " << subdir + "/" + folderName;
       ClusterMEs local_mes;
+
       TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(det_id);
       if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
         local_mes.nClusters_P = phase2tkutil::book1DFromPSet(
-            config_.getParameter<edm::ParameterSet>("NClustersLayer_P"), ibooker, prettyName, true);
+            config_.getParameter<edm::ParameterSet>("NClustersLayer_P"), ibooker, prettyName, bookingDepth);
         local_mes.ClusterSize_P =
             phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSize_P"), ibooker, prettyName);
       }
@@ -379,7 +387,7 @@ void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
       }
 
       local_mes.nClusters_S = phase2tkutil::book1DFromPSet(
-          config_.getParameter<edm::ParameterSet>("NClustersLayer_S"), ibooker, prettyName, true);
+          config_.getParameter<edm::ParameterSet>("NClustersLayer_S"), ibooker, prettyName, bookingDepth);
 
       local_mes.ClusterSize_S =
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSize_S"), ibooker, prettyName);
@@ -488,7 +496,7 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
                           "",
                           150,
                           0.0,
-                          28000);
+                          300000);
   phase2tkutil::add1DDesc(desc,
                           "NClustersLayer_S",
                           "Num_Clusters_Layer_S",
@@ -497,7 +505,7 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
                           "",
                           150,
                           0.0,
-                          28000);
+                          300000);
 
   phase2tkutil::add1DDesc(desc,
                           "ClusterSize_P",

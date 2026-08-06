@@ -323,11 +323,11 @@ void Phase2OTMonitorTTCluster::bookLayerHistos(DQMStore::IBooker &ibooker, uint3
         continue;
 
       local_mes.NClusters = phase2tkutil::book1DFromPSet(
-          conf_.getParameter<edm::ParameterSet>("NClustersLayer"), ibooker, prettyName, true);
+          conf_.getParameter<edm::ParameterSet>("NClustersLayer"), ibooker, prettyName, bookingDepth);
       local_mes.NClustersIMem = phase2tkutil::book1DFromPSet(
-          conf_.getParameter<edm::ParameterSet>("NClustersIMemLayer"), ibooker, prettyName, true);
+          conf_.getParameter<edm::ParameterSet>("NClustersIMemLayer"), ibooker, prettyName, bookingDepth);
       local_mes.NClustersOMem = phase2tkutil::book1DFromPSet(
-          conf_.getParameter<edm::ParameterSet>("NClustersOMemLayer"), ibooker, prettyName, true);
+          conf_.getParameter<edm::ParameterSet>("NClustersOMemLayer"), ibooker, prettyName, bookingDepth);
 
       if (DetId(det_id).subdetId() == static_cast<int>(StripSubdetector::TID)) {
         if (bookingDepth >= SUBSTRUCTURE && bookingDepth < LAYER) {
@@ -455,7 +455,7 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
                           "Number of events",
                           100,
                           0,
-                          3000000);
+                          300000);
   phase2tkutil::add1DDesc(desc,
                           "NClustersIMemLayer",
                           "Num_L1Clusters_IMem",
@@ -464,7 +464,7 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
                           "Number of events",
                           100,
                           0,
-                          3000000);
+                          300000);
   phase2tkutil::add1DDesc(desc,
                           "NClustersOMemLayer",
                           "Num_L1Clusters_OMem",
@@ -473,7 +473,7 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
                           "Number of events",
                           100,
                           0,
-                          3000000);
+                          300000);
 
   // endcap
   phase2tkutil::add1DDesc(desc,

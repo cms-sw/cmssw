@@ -14,7 +14,7 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
                             title  = cms.string("Number of digis per det per event in {}"),
                             NxBins = cms.int32(100),
                             xmin   = cms.double(-0.5),
-                            xmax   = cms.double(99.5),
+                            xmax   = cms.double(199.5),
                             switch = cms.bool(True)
                         ),
                         DigiOccupancySH = cms.PSet(
@@ -61,17 +61,17 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
                         TotalNumberOfDigisPerLayerH = cms.PSet(
                             name   = cms.string("Num_Digis_Per_Layer"),
                             title  = cms.string("Number of digis per event in {}"),
-                            NxBins = cms.int32(5000),
+                            NxBins = cms.int32(1000),
                             xmin   = cms.double(0.0),
-                            xmax   = cms.double(100000.0),
+                            xmax   = cms.double(1000000.0),
                             switch = cms.bool(True)
                         ),
                         NumberOfHitDetsPerLayerH = cms.PSet(
                             name   = cms.string("Num_Digi_Hit_Detectors_Per_Layer"),
                             title  = cms.string("Number of hit detectors with digis per event in {}"),
-                            NxBins = cms.int32(5000),
+                            NxBins = cms.int32(1000),
                             xmin   = cms.double(-0.5),
-                            xmax   = cms.double(2999.5),
+                            xmax   = cms.double(29999.5),
                             switch = cms.bool(True)
                         ),
                         NumberOfClustersPerDetH = cms.PSet(
@@ -79,7 +79,7 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
                             title  = cms.string("Number of clusters per det per event in {}"),
                             NxBins = cms.int32(100),
                             xmin   = cms.double(-0.5),
-                            xmax   = cms.double(99.5),
+                            xmax   = cms.double(199.5),
                             switch = cms.bool(True)
                         ),
                         ClusterWidthH = cms.PSet(
