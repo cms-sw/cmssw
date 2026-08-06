@@ -5,7 +5,11 @@
  */
 
 #include <fstream>
+#include <map>
+#include <memory>
 #include <optional>
+#include <tuple>
+#include <utility>
 #include <vector>
 #include <unordered_map>
 
@@ -34,6 +38,11 @@
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 
 struct HGVHistoProducerAlgoHistograms {
+  using RegisteredHistogram = std::pair<int, dqm::reco::MonitorElement*>;
+  using HistogramKey = std::tuple<int, int, int>;
+
+  std::map<HistogramKey, std::vector<RegisteredHistogram>> registeredTracksterHistograms;
+
   //Info
   //To be able to spot any issues both in -z and +z a layer id was introduced
   //that spans from 0 to 103 for hgcal_v9 geometry. The mapping for hgcal_v9 is:
@@ -159,20 +168,6 @@ struct HGVHistoProducerAlgoHistograms {
   std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_caloparticle2trackster[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_caloparticle2bestTrackster[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_energy_vs_score_caloparticle2bestTrackster2[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_num_trackster_eta[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_num_trackster_phi[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_num_trackster_en[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_num_trackster_pt[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_num_trackster_R[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_num_trackster_alpha[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_num_trackster_time[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_eta[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_phi[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_en[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_pt[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_R[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_alpha[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_time[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2caloparticle[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2bestCaloparticle[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2bestCaloparticle2[numberOfValidationTypes_];
@@ -183,41 +178,6 @@ struct HGVHistoProducerAlgoHistograms {
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2bestCaloparticle_vs_phi[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_assoc_vs_eta[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_caloparticle2trackster_assoc_vs_phi[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_eta[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_phi[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_en[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_pt[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_R[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_alpha[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_time[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_eta[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_phi[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_en[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_pt[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_R[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_alpha[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_time[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_eta[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_phi[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_en[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_pt[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_R[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_alpha[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_time[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_eta[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_phi[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_en[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_pt[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_R[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_alpha[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_time[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_eta[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_phi[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_en[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_pt[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_R[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_alpha[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_time[numberOfValidationTypes_];
   // Generic histograms
   std::vector<dqm::reco::MonitorElement*> h_tracksternum;
   std::vector<dqm::reco::MonitorElement*> h_conttracksternum;
@@ -258,7 +218,7 @@ public:
       ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>;
   using SimClusterToCaloParticleMap =
       ticl::AssociationMap<ticl::oneToOneMapWithFraction, std::vector<SimCluster>, std::vector<CaloParticle>>;
-  enum validationType { byHits_CP = 0, byLCs, byLCs_CP, byHits };
+  enum TracksterAssociationType { byHits_CP = 0, byLCs, byLCs_CP, byHits };
 
   HGVHistoProducerAlgo(const edm::ParameterSet& pset);
   ~HGVHistoProducerAlgo();
@@ -293,7 +253,10 @@ public:
 
   void bookTracksterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers);
 
-  void bookTracksterSTSHistos(DQMStore::IBooker& ibook, Histograms& histograms, const validationType valType);
+  void bookTracksterSTSHistos(DQMStore::IBooker& ibook,
+                              Histograms& histograms,
+                              const TracksterAssociationType associationType,
+                              int tracksterCollectionIndex);
 
   void layerClusters_to_CaloParticles(const Histograms& histograms,
                                       edm::Handle<reco::CaloClusterCollection> clusterHandle,
@@ -323,10 +286,10 @@ public:
       edm::MultiSpan<HGCRecHit> const& hits) const;
 
   void tracksters_to_SimTracksters_fp(const Histograms& histograms,
-                                      const int count,
+                                      const int tracksterCollectionIndex,
                                       const TracksterToTracksterMap& trackstersToSimTrackstersMap,
                                       const TracksterToTracksterMap& simTrackstersToTrackstersMap,
-                                      const validationType valType,
+                                      const TracksterAssociationType associationType,
                                       const SimClusterToCaloParticleMap& scToCpMap,
                                       const std::vector<CaloParticle>& cP,
                                       const std::vector<size_t>& cPIndices,
@@ -376,7 +339,7 @@ public:
       edm::MultiSpan<HGCRecHit> const& hits) const;
   void fill_cluster_histos(const Histograms& histograms, const int count, const reco::CaloCluster& cluster) const;
   void fill_trackster_histos(const Histograms& histograms,
-                             const int count,
+                             const int tracksterCollectionIndex,
                              const ticl::TracksterCollection& tracksters,
                              const reco::CaloClusterCollection& layerClusters,
                              const ticl::TracksterCollection& simTSs,
@@ -430,6 +393,8 @@ public:
   };
 
 private:
+  class HistogramBuilder;
+
   double getEta(double eta) const;
 
   std::shared_ptr<hgcal::RecHitTools> recHitTools_;
@@ -440,8 +405,6 @@ private:
                                                                  "SimTrackster Associated by LCs",
                                                                  "SimTrackster from CP Associated by LCs",
                                                                  "SimTrackster Associated by Hits"}};
-  // Must be in sync with labels in PostProcessorHGCAL_cfi.py
-  std::array<std::string, numberOfValidationTypes_> valSuffix_ = {{"_byHits_CP", "_byLCs", "_byLCs_CP", "_byHits"}};
 
   //private data members
   double minEta_, maxEta_;
@@ -524,6 +487,7 @@ private:
   int nintY_;
   double minZ_, maxZ_;
   int nintZ_;
+  std::unique_ptr<HistogramBuilder> histogramBuilder_;
 };
 
 #endif
