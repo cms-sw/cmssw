@@ -49,9 +49,7 @@ namespace edm {
   class GlobalSchedule {
   public:
     using vstring = std::vector<std::string>;
-    using AllWorkers = std::vector<Worker*>;
     using WorkerPtr = std::shared_ptr<Worker>;
-    using Wokers = std::vector<Worker*>;
 
     GlobalSchedule(std::shared_ptr<ModuleRegistry> modReg,
                    std::vector<edm::ModuleDescription const*> const& modulesToUse,
@@ -70,14 +68,6 @@ namespace edm {
     void beginJob(ModuleRegistry&);
     void endJob(ExceptionCollector& collector, ModuleRegistry&);
 
-    /// Return a vector allowing const access to all the
-    /// ModuleDescriptions for this GlobalSchedule.
-
-    /// *** N.B. *** Ownership of the ModuleDescriptions is *not*
-    /// *** passed to the caller. Do not call delete on these
-    /// *** pointers!
-    std::vector<ModuleDescription const*> getAllModuleDescriptions() const;
-
     /// Return whether each output module has reached its maximum count.
     bool terminate() const;
 
@@ -87,8 +77,8 @@ namespace edm {
     /// Delete the module with label iLabel
     void deleteModule(std::string const& iLabel);
 
-    /// returns the collection of pointers to workers
-    AllWorkers const& allWorkers() const { return workerManagers_[0].allWorkers(); }
+    std::vector<Worker*> const& lumisWorkers() const { return lumisManagers()[0].allWorkers(); }
+    std::vector<Worker*> const& runWorkers() const { return runManagers()[0].allWorkers(); }
 
   private:
     std::span<WorkerManager> lumisManagers() {
