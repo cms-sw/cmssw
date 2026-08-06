@@ -80,7 +80,6 @@ namespace {
 
       static constexpr roctx_range_id_t roctxInvalidRangeId = ~0ul;
 
-
     public:
       void startColorIn(const Domain& domain, const char* message, Color color, const char* where) {
         std::scoped_lock lock(mtx_);
