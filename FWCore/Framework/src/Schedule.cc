@@ -327,7 +327,7 @@ namespace edm {
     // At this point all ProductDescriptions are created. Mark now the
     // ones of unscheduled workers to be on-demand.
     {
-      auto const& unsched = streamSchedules_[0]->unscheduledWorkersLumisAndEvents();
+      auto const& unsched = streamSchedules_[0]->unscheduledWorkersEvents();
       if (not unsched.empty()) {
         std::set<std::string> unscheduledModules;
         std::transform(unsched.begin(),
