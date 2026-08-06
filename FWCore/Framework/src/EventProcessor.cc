@@ -2183,7 +2183,7 @@ namespace edm {
     ex << "The framework is configured to use at least two streams, but the following modules\n"
        << "require synchronizing on LuminosityBlock boundaries:";
     bool found = false;
-    for (auto worker : schedule_->allWorkers()) {
+    for (auto worker : schedule_->allWorkersLumis()) {
       if (worker->wantsGlobalLuminosityBlocks() and worker->globalLuminosityBlocksQueue()) {
         found = true;
         ex << "\n  " << worker->description()->moduleName() << " " << worker->description()->moduleLabel();
@@ -2199,7 +2199,7 @@ namespace edm {
 
   void EventProcessor::warnAboutModulesRequiringRunSynchronization() const {
     std::unique_ptr<LogSystem> s;
-    for (auto worker : schedule_->allWorkers()) {
+    for (auto worker : schedule_->allWorkersRun()) {
       if (worker->wantsGlobalRuns() and worker->globalRunsQueue()) {
         if (not s) {
           s = std::make_unique<LogSystem>("ModulesSynchingOnRuns");

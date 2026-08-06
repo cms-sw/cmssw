@@ -59,6 +59,13 @@ namespace edm {
       virtual Type moduleType() const = 0;
       virtual Concurrency moduleConcurrencyType() const = 0;
 
+      virtual bool wantsProcessBlocks() const noexcept = 0;
+      virtual bool wantsInputProcessBlocks() const noexcept = 0;
+      virtual bool wantsGlobalRuns() const noexcept = 0;
+      virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
+      virtual bool wantsStreamRuns() const noexcept = 0;
+      virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
+
       virtual void finishModuleInitialization(ModuleDescription const& iDesc,
                                               PreallocationConfiguration const& iPrealloc,
                                               SignallingProductRegistryFiller* iReg) = 0;
@@ -106,6 +113,13 @@ namespace edm {
       std::unique_ptr<Worker> makeWorker(ExceptionToActionTable const* actions) const final {
         return std::make_unique<edm::WorkerT<T>>(module(), moduleDescription(), actions);
       }
+
+      bool wantsProcessBlocks() const noexcept final { return m_mod->wantsProcessBlocks(); }
+      bool wantsInputProcessBlocks() const noexcept final { return m_mod->wantsInputProcessBlocks(); }
+      bool wantsGlobalRuns() const noexcept final { return m_mod->wantsGlobalRuns(); }
+      bool wantsGlobalLuminosityBlocks() const noexcept final { return m_mod->wantsGlobalLuminosityBlocks(); }
+      bool wantsStreamRuns() const noexcept final { return m_mod->wantsStreamRuns(); }
+      bool wantsStreamLuminosityBlocks() const noexcept final { return m_mod->wantsStreamLuminosityBlocks(); }
 
       static void finishModuleInitialization(T& iModule,
                                              ModuleDescription const& iDesc,
