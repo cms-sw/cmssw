@@ -14,7 +14,6 @@ namespace {
   public:
     // Forward definitions
     using Color = ProfilerServiceBase::Color;
-    static constexpr auto to_underlying = ProfilerServiceBase::to_underlying;
     using SpinLock = ProfilerServiceBase::SpinLock;
     class Range;
     class Domain;
@@ -81,46 +80,6 @@ namespace {
 
       static constexpr roctx_range_id_t roctxInvalidRangeId = ~0ul;
 
-      static constexpr std::array<uint32_t, 32> colorMap = {{
-          0x00000000,  // Black
-          // Red family
-          0x00880000,  // Red_Dark2
-          0x00cc0000,  // Red_Dark1
-          0x00ff0000,  // Red
-          0x00ff8080,  // Red_Light1
-          0x00ffcccc,  // Red_Light2
-          // Green family
-          0x00004400,  // Green_Dark2
-          0x00009900,  // Green_Dark1
-          0x0000ff00,  // Green
-          0x0099ff99,  // Green_Light1
-          0x00ccffcc,  // Green_Light2
-          // Blue family
-          0x00000077,  // Blue_Dark2
-          0x000000bb,  // Blue_Dark1
-          0x000000ff,  // Blue
-          0x009999ff,  // Blue_Light1
-          0x00ccccff,  // Blue_Light2
-          // Amber family
-          0x00886600,  // Amber_Dark2
-          0x00cc9900,  // Amber_Dark1
-          0x00ffbf00,  // Amber
-          0x00ffd966,  // Amber_Light1
-          0x00fff2cc,  // Amber_Light2
-          0x00ffffff,  // White
-          // Grey family
-          0x00404040,  // Grey_Dark2
-          0x00606060,  // Grey_Dark1
-          0x00808080,  // Grey
-          0x00a0a0a0,  // Grey_Light1
-          0x00c0c0c0,  // Grey_Light2
-          // Yellow family
-          0x00888800,  // Yellow_Dark2
-          0x00cccc00,  // Yellow_Dark1
-          0x00ffff00,  // Yellow
-          0x00ffff66,  // Yellow_Light1
-          0x00ffffcc   // Yellow_Light2
-      }};
 
     public:
       void startColorIn(const Domain& domain, const char* message, Color color, const char* where) {
