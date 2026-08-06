@@ -187,6 +187,13 @@ globalTransitions_ = {
 def transitionIsGlobal(transition):
     return transition in globalTransitions_;
 
+def transitionUseCallID(transition):
+    return transition in [Phase.beginProcessBlock, Phase.endProcessBlock, Phase.accessInputProcessBlock,
+                               Phase.globalBeginRun, Phase.globalEndRun, Phase.globalBeginLumi,
+                               Phase.globalEndLumi, Phase.streamBeginRun, Phase.streamEndRun,
+                               Phase.streamBeginLumi, Phase.streamEndLumi, Phase.Event]
+
+     
 def textPrefix_(time, indentLevel):
     #using 11 spaces for time should accomodate a job that runs 24 hrs
     return f'{time:>11} '+"++"*indentLevel
@@ -298,17 +305,14 @@ class ModuleData(object):
             'activity': self.activity,
             'alloc': self.allocInfo
             }
-        if callID is not None:
-            data['record'] = {}
-            if recordName is not None:
-                data['record']['name'] = self.record[0]
-            data['record']['callID'] = self.record[1]
-            if self.transition not in [Phase.beginProcessBlock, Phase.endProcessBlock, Phase.accessInputProcessBlock,
-                                   Phase.globalBeginRun, Phase.globalEndRun, Phase.globalBeginLumi,
-                                   Phase.globalEndLumi, Phase.streamBeginRun, Phase.streamEndRun,
-                                   Phase.streamBeginLumi, Phase.streamEndLumi, Phase.Event]:
-                del data['record']
-        return str(data).replace("'", "'")
+        data['record'] = {}
+        if callID is not None and transitionUseCallID(self.transition):
+            data['record']['callID'] = callID
+        if recordName is not None:
+            data['record']['name'] = recordName
+        if len(data['record']) == 0:
+            del data['record']
+        return data
 
     def syncToSimpleDict(self):
         if len(self.sync) == 0:
@@ -328,15 +332,13 @@ class ModuleData(object):
             'alloc': self.allocInfo.toSimpleDict()
             }
 
-        if callID is not None:
-            result['record'] = {'callID': callID}
-            if recordName is not None:
-                result['record']['name'] = recordName
-            if self.transition not in [Phase.beginProcessBlock, Phase.endProcessBlock, Phase.accessInputProcessBlock,
-                               Phase.globalBeginRun, Phase.globalEndRun, Phase.globalBeginLumi,
-                               Phase.globalEndLumi, Phase.streamBeginRun, Phase.streamEndRun,
-                               Phase.streamBeginLumi, Phase.streamEndLumi, Phase.Event]:
-                del result['record']
+        result['record'] = {}
+        if transitionUseCallID(self.transition) and callID is not None:
+            result['record']['callID'] = callID
+        if recordName is not None:
+            result['record']['name'] = recordName
+        if len(result['record']) == 0:
+            del result['record']
         return result
 
 class ModuleInfo(object):
