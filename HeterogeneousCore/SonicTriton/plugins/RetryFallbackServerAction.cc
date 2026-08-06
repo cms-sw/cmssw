@@ -12,12 +12,24 @@
 //   - The model must have a modelConfigPath / repository path known to
 //     TritonService so it can be loaded dynamically.
 
-#include "HeterogeneousCore/SonicTriton/interface/RetryFallbackServerAction.h"
+#include "HeterogeneousCore/SonicCore/interface/RetryActionBase.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonClient.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+class RetryFallbackServerAction : public RetryActionBase {
+public:
+  RetryFallbackServerAction(const edm::ParameterSet& conf, SonicClientBase* client);
+  ~RetryFallbackServerAction() override = default;
+
+  void retry() override;
+  void start() override;
+
+private:
+  unsigned tries_;
+};
 
 RetryFallbackServerAction::RetryFallbackServerAction(const edm::ParameterSet& conf, SonicClientBase* client)
     : RetryActionBase(conf, client) {}

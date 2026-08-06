@@ -15,6 +15,7 @@
 <bin file="test_RetryActionDiffServer.cc" name="TestHeterogeneousCoreSonicTritonRetryActionDiffServer">
   <use name="catch2"/>
   <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/PluginManager"/>
   <use name="HeterogeneousCore/SonicTriton"/>
 </bin>
 
