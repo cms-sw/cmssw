@@ -1,13 +1,17 @@
 <lcgdict>
 
+  <class name="reco::SuperClusterHostCollection" rntupleStreamerMode="true"/>
+  <!-- reco::SuperClusterHostCollection::Layout alias must be listed before the aliased-to type -->
+  <class name="reco::SuperClusterHostCollection::Layout"/>
   <class name="reco::SuperClusterSoA"/>
   <class name="reco::SuperClusterSoA::View"/>
-  <class name="reco::SuperClusterHostCollection"/>
   <class name="edm::Wrapper<reco::SuperClusterHostCollection>" splitLevel="0"/>
 
+  <class name="reco::ElectronSeedHostCollection" rntupleStreamerMode="true"/>
+  <!-- reco::ElectronSeedHostCollection::Layout alias must be listed before the aliased-to type -->
+  <class name="reco::ElectronSeedHostCollection::Layout"/>
   <class name="reco::ElectronSeedSoA"/>
   <class name="reco::ElectronSeedSoA::View"/>
-  <class name="reco::ElectronSeedHostCollection"/>
   <class name="edm::Wrapper<reco::ElectronSeedHostCollection>" splitLevel="0"/>
 
   <class name="edm::RefToBase<reco::io_v1::CaloCluster>"  rntupleStreamerMode="true"/>
