@@ -33,6 +33,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <span>
 #include "boost/range/adaptor/reversed.hpp"
 
 namespace edm {
@@ -90,6 +91,22 @@ namespace edm {
     AllWorkers const& allWorkers() const { return workerManagers_[0].allWorkers(); }
 
   private:
+    std::span<WorkerManager> lumisManagers() {
+      return std::span<WorkerManager>(workerManagers_).subspan(0, numberOfConcurrentLumis_);
+    }
+    std::span<WorkerManager const> lumisManagers() const {
+      return std::span<WorkerManager const>(workerManagers_).subspan(0, numberOfConcurrentLumis_);
+    }
+    std::span<WorkerManager> runManagers() {
+      return std::span<WorkerManager>(workerManagers_).subspan(numberOfConcurrentLumis_, numberOfConcurrentRuns_);
+    }
+    std::span<WorkerManager const> runManagers() const {
+      return std::span<WorkerManager const>(workerManagers_).subspan(numberOfConcurrentLumis_, numberOfConcurrentRuns_);
+    }
+    std::span<WorkerManager> processBlockManagers() {
+      return std::span<WorkerManager>(workerManagers_)
+          .subspan(numberOfConcurrentLumis_ + numberOfConcurrentRuns_, numberOfConcurrentProcessBlocks_);
+    }
     /// returns the action table
     ExceptionToActionTable const& actionTable() const { return workerManagers_[0].actionTable(); }
 
@@ -104,6 +121,10 @@ namespace edm {
                          bool cleaningUpAfterException,
                          std::exception_ptr&);
 
+    //the order of the workerManagers_ is as follows:
+    // 0 to numberOfConcurrentLumis_-1: for the concurrent lumis
+    // numberOfConcurrentLumis_ to numberOfConcurrentLumis_ + numberOfConcurrentRuns_-1: for the concurrent runs
+    // numberOfConcurrentLumis_ + numberOfConcurrentRuns_ to numberOfConcurrentLumis_ + numberOfConcurrentRuns_ + numberOfConcurrentProcessBlocks_-1: for the concurrent process blocks
     std::vector<WorkerManager> workerManagers_;
     std::vector<unsigned int> beginJobFailedForModule_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
@@ -150,12 +171,15 @@ namespace edm {
         preScheduleSignal<T>(globalContext.get(), token);
 
         unsigned int managerIndex = principal.index();
+        std::span<WorkerManager> managers;
         if constexpr (T::branchType_ == InRun) {
-          managerIndex += numberOfConcurrentLumis_;
+          managers = runManagers();
         } else if constexpr (T::branchType_ == InProcess) {
-          managerIndex += (numberOfConcurrentLumis_ + numberOfConcurrentRuns_);
+          managers = processBlockManagers();
+        } else {
+          managers = lumisManagers();
         }
-        WorkerManager& workerManager = workerManagers_[managerIndex];
+        WorkerManager& workerManager = managers[managerIndex];
         workerManager.resetAll();
 
         ParentContext parentContext(globalContext.get());
