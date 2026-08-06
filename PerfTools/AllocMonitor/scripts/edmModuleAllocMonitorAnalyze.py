@@ -881,7 +881,7 @@ class ESModuleTransitionParser(object):
         self.moduleInfo = esModuleInfos[self.moduleID]
         self.recordID = int(payload[3])
         if not self.recordID:
-            self.recordName = ''
+            self.recordName = None
         else:
             self.recordName = recordNames[self.recordID]
         self.callID = int(payload[4])
