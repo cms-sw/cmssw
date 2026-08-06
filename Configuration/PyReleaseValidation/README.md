@@ -96,9 +96,10 @@ The offsets currently in use are:
 * 0.24: 0 Tesla (Run-2, Run-3)
 * 0.31: Photon energy corrections with DRN architecture
 * 0.61: ECAL `phase2_ecal_devel` era, on CPU
-* 0.612: ECAL `phase2_ecal_devel` era, with automatic offload to GPU if available
+* 0.612: ECAL `phase2_ecal_devel` era, with Alpaka reconstruction
 * 0.6199: ECAL `phase2_ecal_devel` era, on CPU and with premixing stage1+stage2
-* 0.61299: ECAL `phase2_ecal_devel` era, with automatic offload to GPU if available and premixing stage1+stage2
+* 0.61299: ECAL `phase2_ecal_devel` era, with Alpaka reconstruction and premixing stage1+stage2
+* 0.622: ECAL `phase2_ecal_devel` era, with APD spike signals mixed into the ECAL digis and Alpaka reconstruction.
 * 0.631: ECAL component-method based digis
 * 0.632: ECAL component-method based finely-sampled waveforms
 * 0.633: ECAL phase2 Trigger Primitive
