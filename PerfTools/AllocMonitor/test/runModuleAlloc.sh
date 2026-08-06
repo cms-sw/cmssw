@@ -15,14 +15,14 @@ edmModuleAllocJsonToCircles.py moduleAlloc.json > moduleAlloc.circles.json
 grep '"\(record\|type\|label\)": ".*",' moduleAlloc.circles.json > circles.txt
 diff circles.txt ${LOCAL_TEST_DIR}/unittest_output/circles.txt || die 'differences in edmModuleAllocJsonToCircles.py output' $?
 
-grep '^[fF]' moduleAlloc.log | awk '{print $1,$2,$3,$4,$5,$6}' > allTransitions.log
+grep '^[fF]' moduleAlloc.log.orig | awk '{print $1,$2,$3,$4,$5,$6}' > allTransitions.log
 diff allTransitions.log ${LOCAL_TEST_DIR}/unittest_output/allTransitions.log || die 'differences in allTransitions' $?
 
-grep '^[mM]' moduleAlloc.log | awk '{print $1,$2,$3,$4,$5}' > allEDModules.log
+grep '^[mM]' moduleAlloc.log.orig | awk '{print $1,$2,$3,$4,$5}' > allEDModules.log
 diff allEDModules.log ${LOCAL_TEST_DIR}/unittest_output/allEDModules.log || die 'differences in allEDModules' $?
 
 
-grep '^[nN]' moduleAlloc.log | awk '{print $1,$2,$3,$4,$5,$6}' > allESModules.log
+grep '^[nN]' moduleAlloc.log.orig | awk '{print $1,$2,$3,$4,$5,$6}' > allESModules.log
 diff allESModules.log ${LOCAL_TEST_DIR}/unittest_output/allESModules.log || die 'differences in allESModules' $?
 
 ############### only 1 ED module kept
