@@ -81,6 +81,24 @@ TEST_CASE("edm::signalslot::SignalSentry", "[Signal]") {
     REQUIRE(value2 == 1);
   }
 
+  SECTION("sentryCallsSucceededManyTimesTest") {
+    edm::signalslot::Signal<void(int)> sig;
+
+    int value1 = 0;
+    sig.connect([&](int iValue) { value1 = iValue; });
+
+    int value2 = 0;
+    sig.connect([&](int iValue) { value2 = iValue; });
+
+    {
+      auto sentry = edm::signalslot::make_sentry([&]() { sig.emit(5); });
+      sentry.succeeded();
+      sentry.succeeded();  // not intended to be called more than once, but should behave well nevertheless
+    }
+    REQUIRE(value1 == 5);
+    REQUIRE(value2 == 5);
+  }
+
   SECTION("sentryExceptionTest") {
     edm::signalslot::Signal<void(int)> sig;
 
@@ -153,5 +171,29 @@ TEST_CASE("edm::signalslot::SignalSentry", "[Signal]") {
       REQUIRE(value2 == 5);
       REQUIRE(exceptionCaught == true);
     }
+  }
+
+  SECTION("sentryIfTest") {
+    edm::signalslot::Signal<void(int)> sig;
+
+    int value1 = 0;
+    sig.connect([&](int iValue) { value1 = iValue; });
+
+    int value2 = 0;
+    sig.connect([&](int iValue) { value2 = iValue; });
+
+    {
+      auto sentry = edm::signalslot::make_sentry_if(true, [&]() { sig.emit(5); });
+      sentry.succeeded();
+    }
+    REQUIRE(value1 == 5);
+    REQUIRE(value2 == 5);
+
+    {
+      auto sentry = edm::signalslot::make_sentry_if(false, [&]() { sig.emit(1); });
+      sentry.succeeded();
+    }
+    REQUIRE(value1 == 5);
+    REQUIRE(value2 == 5);
   }
 }

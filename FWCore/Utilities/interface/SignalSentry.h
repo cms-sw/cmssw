@@ -21,11 +21,15 @@ namespace edm::signalslot {
    * If the guarded operation throws an exception, the Signal is emitted from the destructor of the sentry, and any
    * exceptions from the Signal are ignored. This is the behavior also if the user forgets to call the succeeded()
    * method.
+   *
+   * The default constructor and make_sentry_if() can be used to create a sentry that emits the Signal only under
+   * certain condition.
    */
   template <typename F>
     requires std::is_invocable_v<F>
   class SignalSentry {
   public:
+    SignalSentry() = default;
     SignalSentry(F iFunc) : func_(std::move(iFunc)) {}
     SignalSentry(SignalSentry const&) = delete;
     SignalSentry& operator=(SignalSentry const&) = delete;
@@ -41,8 +45,10 @@ namespace edm::signalslot {
     }
 
     void succeeded() {
-      (*func_)();
-      func_.reset();
+      if (func_) {
+        (*func_)();
+        func_.reset();
+      }
     }
 
   private:
@@ -52,6 +58,14 @@ namespace edm::signalslot {
   template <typename F>
   auto make_sentry(F&& iFunc) {
     return SignalSentry<F>(std::forward<F>(iFunc));
+  }
+
+  template <typename F>
+  auto make_sentry_if(bool iCond, F&& iFunc) {
+    if (iCond) {
+      return SignalSentry<F>(std::forward<F>(iFunc));
+    }
+    return SignalSentry<F>();
   }
 }  // namespace edm::signalslot
 
