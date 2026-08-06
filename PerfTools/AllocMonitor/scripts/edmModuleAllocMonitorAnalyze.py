@@ -333,7 +333,7 @@ class ModuleData(object):
             }
 
         result['record'] = {}
-        if transitionUseCallID(self.transition) and callID is not None:
+        if callID is not None and transitionUseCallID(self.transition) :
             result['record']['callID'] = callID
         if recordName is not None:
             result['record']['name'] = recordName
