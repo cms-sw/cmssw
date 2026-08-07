@@ -4,6 +4,8 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 ----------------------------------------------------------------------*/
 
 #include "FWCore/AbstractServices/interface/TimingServiceBase.h"
+#include "FWCore/Concurrency/interface/ThreadsController.h"
+#include "FWCore/Concurrency/interface/setNThreads.h"
 #include "FWCore/Framework/interface/CmsRunParser.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Framework/interface/defaultCmsRunServices.h"
@@ -11,33 +13,35 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/Entry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/ThreadsInfo.h"
+#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/ServiceRegistry/interface/ServiceWrapper.h"
-#include "FWCore/Concurrency/interface/setNThreads.h"
-#include "FWCore/Concurrency/interface/ThreadsController.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
-#include "TError.h"
+#include "PyLikeParser.h"
 
-#include "oneapi/tbb/task_arena.h"
+#include <TError.h>
+
+#include <oneapi/tbb/task_arena.h>
 
 #include <cstring>
 #include <exception>
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <regex>
 #include <string>
 #include <vector>
 
@@ -85,6 +89,96 @@ namespace {
   };
 }  // namespace
 
+static std::string trim(std::string arg) {
+  size_t first = arg.find_first_not_of(' ');
+  size_t last = arg.find_last_not_of(' ');
+  if (first == std::string::npos) {
+    return "";
+  } else {
+    return arg.substr(first, (last - first + 1));
+  }
+}
+
+void parseProcessOption(edm::ParameterSet& options, std::string const& name, std::string const& value) {
+  if (options.exists(name)) {
+    // update the options from the arguments
+    edm::Entry const* entry = options.retrieveUntracked(name);
+    edm::PyLikeParser parser(value);
+    if (entry->typeName() == "bool") {
+      options.addUntrackedParameter<bool>(name, parser.parse<bool>());
+    } else if (entry->typeName() == "int32") {
+      options.addUntrackedParameter<int>(name, parser.parse<int>());
+    } else if (entry->typeName() == "uint32") {
+      options.addUntrackedParameter<unsigned int>(name, parser.parse<unsigned int>());
+    } else if (entry->typeName() == "int64") {
+      options.addUntrackedParameter<long long>(name, parser.parse<long long>());
+    } else if (entry->typeName() == "uint64") {
+      options.addUntrackedParameter<unsigned long long>(name, parser.parse<unsigned long long>());
+      /* float arguments are not yet supported by CMSSW
+    } else if (entry->typeName() == "float") {
+      options.addUntrackedParameter<float>(name, parser.parse<float>());
+      */
+    } else if (entry->typeName() == "double") {
+      options.addUntrackedParameter<double>(name, parser.parse<double>());
+    } else if (entry->typeName() == "string") {
+      options.addUntrackedParameter<std::string>(name, parser.parse<std::string>());
+      /* vbool arguments are not supported by CMSSW
+    } else if (entry->typeName() == "vbool") {
+      options.addUntrackedParameter<std::vector<bool>>(name, parser.parse_vector<bool>());
+      */
+    } else if (entry->typeName() == "vint32") {
+      options.addUntrackedParameter<std::vector<int>>(name, parser.parse_vector<int>());
+    } else if (entry->typeName() == "vuint32") {
+      options.addUntrackedParameter<std::vector<unsigned int>>(name, parser.parse_vector<unsigned int>());
+    } else if (entry->typeName() == "vint64") {
+      options.addUntrackedParameter<std::vector<long long>>(name, parser.parse_vector<long long>());
+    } else if (entry->typeName() == "vuint64") {
+      options.addUntrackedParameter<std::vector<unsigned long long>>(name, parser.parse_vector<unsigned long long>());
+      /* float arguments are not yet supported by CMSSW
+    } else if (entry->typeName() == "vfloat") {
+      options.addUntrackedParameter<std::vector<float>>(name, parser.parse_vector<float>());
+      */
+    } else if (entry->typeName() == "vdouble") {
+      options.addUntrackedParameter<std::vector<double>>(name, parser.parse_vector<double>());
+    } else if (entry->typeName() == "vstring") {
+      options.addUntrackedParameter<std::vector<std::string>>(name, parser.parse_vector<std::string>());
+    } else {
+      std::cerr << "cmsRun: error: unsupported option type \"" << entry->typeName() << "\".\n";
+      std::exit(static_cast<int>(edm::errors::CommandLineProcessing));
+    }
+  } else if (name == "sizeOfStackForThreadsInKB") {
+    // sizeOfStackForThreadsInKB is an optional parameter, so it may be missing from process.options;
+    // see Process.defaultOptions_() in FWCore/ParameterSet/python/Config.py
+    options.addUntrackedParameter<uint32_t>("sizeOfStackForThreadsInKB", std::stoul(value));
+  } else {
+    // "name" is not a valid process option
+    std::cerr << "cmsRun: error: \"" << name << "\" is not a valid process option.\n";
+    std::exit(static_cast<int>(edm::errors::CommandLineProcessing));
+  }
+}
+
+void setProcessOption(edm::ParameterSet& process, std::string const& name, std::string const& value) {
+  // read the options from the configuration
+  edm::ParameterSet options = process.getUntrackedParameterSet("options");
+
+  parseProcessOption(options, name, value);
+
+  // update the configuration with the updated options
+  process.insertParameterSet(true, "options", edm::ParameterSetEntry(options, false));
+}
+
+void setProcessOptions(edm::ParameterSet& process, std::unordered_map<std::string, std::string> const& values) {
+  // read the options from the configuration
+  edm::ParameterSet options = process.getUntrackedParameterSet("options");
+
+  for (auto& [name, value] : values) {
+    parseProcessOption(options, name, value);
+  }
+
+  // update the configuration with the updated options
+  process.insertParameterSet(true, "options", edm::ParameterSetEntry(options, false));
+}
+
 int main(int argc, const char* argv[]) {
   edm::TimingServiceBase::jobStarted();
 
@@ -93,8 +187,8 @@ int main(int argc, const char* argv[]) {
   bool alwaysAddContext = true;
   //Default to only use 1 thread. We define this early (before parsing the command line options
   // and python configuration) since the plugin system or message logger may be using TBB.
-  auto tsiPtr = std::make_unique<edm::ThreadsController>(edm::s_defaultNumberOfThreads,
-                                                         edm::s_defaultSizeOfStackForThreadsInKB * 1024);
+  unsigned int nThreads = edm::s_defaultNumberOfThreads;
+  auto tsiPtr = std::make_unique<edm::ThreadsController>(nThreads, edm::s_defaultSizeOfStackForThreadsInKB * 1024);
   std::shared_ptr<edm::Presence> theMessageServicePresence;
   std::unique_ptr<std::ofstream> jobReportStreamPtr;
   std::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::JobReport>> jobRep;
@@ -128,11 +222,14 @@ int main(int argc, const char* argv[]) {
       context = "Processing command line arguments";
       edm::CmsRunParser parser(argv[0]);
 
+      // Parse the command line options
       const auto& parserOutput = parser.parse(argc, argv);
-      //return with exit code from parser
-      if (edm::CmsRunParser::hasExit(parserOutput))
-        return edm::CmsRunParser::getExit(parserOutput);
-      auto vm = edm::CmsRunParser::getVM(parserOutput);
+
+      // If there was an error, exit with the error code from the parser
+      if (not parserOutput.has_value()) {
+        return parserOutput.error();
+      }
+      auto vm = parserOutput.value();
 
       std::string cmdString;
       std::string fileName;
@@ -212,43 +309,76 @@ int main(int argc, const char* argv[]) {
         throw e;
       }
 
-      // Determine the number of threads to use, and the per-thread stack size:
-      //   - from the command line
-      //   - from the "options" ParameterSet, if it exists
-      //   - from default values (currently, 1 thread and 10 MB)
+      // Determine the number of threads to use, and the per-thread stack size.
       //
+      // First, update the top level "options" ParameterSet based on
+      //   - the -o/--option command line options
+      //   - the -n/--numThreads and -s/--sizeOfStackForThreadsInKB obsolete command line options
+
+      // Parse the -o/--option command line options
+      std::unordered_map<std::string, std::string> processOptions;
+      if (vm.count(edm::CmsRunParser::kOptionOpt)) {
+        auto const& options = vm[edm::CmsRunParser::kOptionOpt].as<std::vector<std::string>>();
+        for (auto const& option : options) {
+          auto idx = option.find_first_of('=');
+          if (idx == option.npos) {
+            std::cerr << "cmsRun: error: invalid option '" << option
+                      << "', missing '=' separator between name and value.\n";
+            std::exit(static_cast<int>(edm::errors::CommandLineProcessing));
+          }
+          auto name = trim(option.substr(0, idx));
+          auto value = trim(option.substr(idx + 1));
+          processOptions[std::move(name)] = std::move(value);
+        }
+      }
+
+      // Parse the -n/--numThreads and -s/--sizeOfStackForThreadsInKB obsolete command line options
+      if (vm.count(edm::CmsRunParser::kNumberOfThreadsOpt)) {
+        /*
+        std::cerr << "cmsRun: the option\n"
+                  << "  cmsRun -n THREADS\n"
+                  << "is deprecated; please use\n"
+                  << "  cmsRun -o numberOfThreads=THREADS\n";
+        */
+        processOptions["numberOfThreads"] =
+            std::to_string(vm[edm::CmsRunParser::kNumberOfThreadsOpt].as<unsigned int>());
+      }
+      if (vm.count(edm::CmsRunParser::kSizeOfStackForThreadOpt)) {
+        /*
+        std::cerr << "cmsRun: the option\n"
+                  << "  cmsRun -s SIZE\n"
+                  << "is deprecated; please use\n"
+                  << "  cmsRun -o sizeOfStackForThreadsInKB=SIZE\n";
+        */
+        processOptions["sizeOfStackForThreadsInKB"] =
+            std::to_string(vm[edm::CmsRunParser::kSizeOfStackForThreadOpt].as<unsigned int>());
+      }
+
+      // Update the process.options ParameterSet from the command line options
+      std::shared_ptr<edm::ParameterSet> pset = processDesc->getProcessPSet();
+      setProcessOptions(*pset, processOptions);
+
+      // Then, determine the number of threads to use, and the per-thread stack size,
+      // based on the default values (currently, 1 thread and 10 MB) and the updated
+      // "options" top level ParameterSet.
+      context = "Setting up number of threads";
+
       // Since TBB has already been initialised with the default values, re-initialise
       // it only if different values are discovered.
-      //
-      // Finally, reflect the values being used in the "options" top level ParameterSet.
-      context = "Setting up number of threads";
-      unsigned int nThreads = 0;
       {
-        // check the "options" ParameterSet
-        std::shared_ptr<edm::ParameterSet> pset = processDesc->getProcessPSet();
         auto threadsInfo = threadOptions(*pset);
-
-        // check the command line options
-        if (vm.count(edm::CmsRunParser::kNumberOfThreadsOpt)) {
-          threadsInfo.nThreads_ = vm[edm::CmsRunParser::kNumberOfThreadsOpt].as<unsigned int>();
-        }
-        if (vm.count(edm::CmsRunParser::kSizeOfStackForThreadOpt)) {
-          threadsInfo.stackSize_ = vm[edm::CmsRunParser::kSizeOfStackForThreadOpt].as<unsigned int>();
-        }
-
         // if needed, re-initialise TBB
-        if (threadsInfo.nThreads_ != edm::s_defaultNumberOfThreads or
-            threadsInfo.stackSize_ != edm::s_defaultSizeOfStackForThreadsInKB) {
-          threadsInfo.nThreads_ = edm::setNThreads(threadsInfo.nThreads_, threadsInfo.stackSize_, tsiPtr);
+        if (threadsInfo.nThreads_ != nThreads or threadsInfo.stackSize_ != edm::s_defaultSizeOfStackForThreadsInKB) {
+          nThreads = edm::setNThreads(threadsInfo.nThreads_, threadsInfo.stackSize_, tsiPtr);
         }
-        nThreads = threadsInfo.nThreads_;
-
-        // update the numberOfThreads and sizeOfStackForThreadsInKB in the "options" ParameterSet
-        setThreadOptions(threadsInfo, *pset);
+        // if the process was configured to let TBB chose the number of threads, update
+        // the configuration with the chosen value.
+        if (threadsInfo.nThreads_ == 0) {
+          setProcessOption(*pset, "numberOfThreads", std::to_string(nThreads));
+        }
       }
 
       context = "Initializing default service configurations";
-
       // Default parameters will be used for the default services
       // if they are not overridden from the configuration files.
       processDesc->addServices(edm::defaultCmsRunServices());
