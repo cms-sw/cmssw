@@ -59,6 +59,11 @@ bool LHAupLesHouches::setEvent(int inProcId) {
   if (!hepeup.NUP)
     return false;
 
+  // Pass the hard-process initiator flavours and momentum fractions to
+  // Pythia, matching its native LHAupLHEF implementation.
+  const lhef::HEPRUP &heprup = *runInfo->getHEPRUP();
+  setIdX(hepeup.IDUP[0], hepeup.IDUP[1], hepeup.PUP[0][3] / heprup.EBMUP.first, hepeup.PUP[1][3] / heprup.EBMUP.second);
+
   setProcess(hepeup.IDPRUP, hepeup.XWGTUP, hepeup.SCALUP, hepeup.AQEDUP, hepeup.AQCDUP);
 
   const std::vector<float> &scales = event->scales();
