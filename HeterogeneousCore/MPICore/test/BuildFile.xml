@@ -33,6 +33,11 @@
 />
 
 <test
+  name="testMPISoADeviceTransfer"
+  command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_soa_device_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_soa_device_cfg.py"
+/>
+
+<test
   name="testMPIComplexTransfer"
   command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_complex_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_complex_cfg.py"
 />

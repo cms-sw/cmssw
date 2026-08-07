@@ -3,9 +3,9 @@
 #include <catch2/catch_all.hpp>
 
 #include <Eigen/Dense>
+#include <string>
 
 #include "DataFormats/AlpakaCommon/interface/alpaka/EDMetadata.h"
-#include "DataFormats/Common/interface/DeviceProduct.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Portable/interface/PortableCollection.h"
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
@@ -87,6 +87,7 @@ TEST_CASE("Test MemoryCopyTraits", "[MemoryCopyTraits]") {
     using PortableCollectionType = ::PortableCollection<Device, alpaka_portabletest::TestSoALayout<128, false>>;
     using DeviceProductType = detail::DeviceProductType<PortableCollectionType>;
     using PortableHostCollectionType = PortableHostCollection<alpaka_portabletest::TestSoALayout<128, false>>;
+    const std::string deviceProductTypeAlias = typeid(alpaka_portabletest::TestDeviceCollection).name();
     const int size = 10;
 
     for (auto const& device : devices) {
@@ -148,9 +149,8 @@ TEST_CASE("Test MemoryCopyTraits", "[MemoryCopyTraits]") {
       static_assert(::ngt::HasMemoryCopyTraits<PortableCollectionType>);
 
       // Get the Serialiser plugin for this type
-      std::string typeName = typeid(edm::DeviceProduct<PortableCollectionType>).name();
       std::unique_ptr<alpaka_ngt::SerialiserBase> serialiserSource{
-          alpaka_ngt::SerialiserFactoryDevice::get()->create(typeName)};
+          alpaka_ngt::SerialiserFactoryDevice::get()->create(deviceProductTypeAlias)};
 
       // Create a "reader" and a "writer", then clone via memory regions
       auto reader = serialiserSource->reader(*wb_original, *metadata);
@@ -188,6 +188,7 @@ TEST_CASE("Test MemoryCopyTraits", "[MemoryCopyTraits]") {
   SECTION("DeviceProduct<PortableDeviceObject>") {
     using DeviceObjectType = alpaka_portabletest::TestDeviceObject;
     using DeviceProductType = detail::DeviceProductType<DeviceObjectType>;
+    const std::string deviceProductTypeAlias = typeid(DeviceObjectType).name();
     const alpaka_portabletest::TestStruct testData{5.0, 12.0, 13.0, 42};
 
     for (auto const& device : devices) {
@@ -211,9 +212,8 @@ TEST_CASE("Test MemoryCopyTraits", "[MemoryCopyTraits]") {
       edm::WrapperBase const* wb = static_cast<const edm::WrapperBase*>(&wrapper);
 
       // Get the serialiser plugin
-      std::string typeName = typeid(edm::DeviceProduct<DeviceObjectType>).name();
       std::unique_ptr<alpaka_ngt::SerialiserBase> serialiser{
-          alpaka_ngt::SerialiserFactoryDevice::get()->create(typeName)};
+          alpaka_ngt::SerialiserFactoryDevice::get()->create(deviceProductTypeAlias)};
       REQUIRE(serialiser);
 
       // Read and write
@@ -254,6 +254,7 @@ TEST_CASE("Test MemoryCopyTraits", "[MemoryCopyTraits]") {
     using DeviceCollection2Type = alpaka_portabletest::TestDeviceCollection2;
     using DeviceProductType = detail::DeviceProductType<DeviceCollection2Type>;
     using HostCollection2Type = PortableHostCollection<alpaka_portabletest::TestSoABlocks2>;
+    const std::string deviceProductTypeAlias = typeid(DeviceCollection2Type).name();
     const int size1 = 7;
     const int size2 = 11;
 
@@ -291,9 +292,8 @@ TEST_CASE("Test MemoryCopyTraits", "[MemoryCopyTraits]") {
       edm::WrapperBase const* wb = static_cast<const edm::WrapperBase*>(&wrapper);
 
       // Get the serialiser plugin
-      std::string typeName = typeid(edm::DeviceProduct<DeviceCollection2Type>).name();
       std::unique_ptr<alpaka_ngt::SerialiserBase> serialiser{
-          alpaka_ngt::SerialiserFactoryDevice::get()->create(typeName)};
+          alpaka_ngt::SerialiserFactoryDevice::get()->create(deviceProductTypeAlias)};
       REQUIRE(serialiser);
 
       // Read and write

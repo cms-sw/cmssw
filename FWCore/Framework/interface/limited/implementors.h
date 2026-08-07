@@ -508,6 +508,29 @@ namespace edm {
               });
         }
 
+        // Overload for the registration at runtime of transformers for products
+        // whose type is not known at compile-time. Non templated on the product
+        // type.
+        template <typename P, typename F>
+        void registerTransformAsync(
+            edm::EDPutToken iToken, P iPre, F iF, edm::TypeID returnType, std::string productInstance) {
+          using CacheTypeT = decltype(iPre(std::declval<edm::StreamID>(),
+                                           std::declval<edm::WrapperBase const&>(),
+                                           std::declval<WaitingTaskWithArenaHolder>()));
+          TransformerBase::registerTransformAsyncImp(
+              *this,
+              iToken,
+              returnType,
+              std::move(productInstance),
+              [p = std::move(iPre)](
+                  edm::StreamID id, edm::WrapperBase const& iGotProduct, WaitingTaskWithArenaHolder iHolder) {
+                return std::any(p(id, iGotProduct, std::move(iHolder)));
+              },
+              [f = std::move(iF)](edm::StreamID id, std::any iCache) -> std::unique_ptr<edm::WrapperBase> {
+                return f(id, std::any_cast<CacheTypeT>(std::move(iCache)));
+              });
+        }
+
       private:
         size_t transformIndex_(edm::ProductDescription const& iBranch) const noexcept final {
           return TransformerBase::findMatchingIndex(*this, iBranch);
