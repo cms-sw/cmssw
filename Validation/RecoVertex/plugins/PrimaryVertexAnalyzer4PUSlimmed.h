@@ -178,7 +178,7 @@ private:
   edm::EDGetTokenT<TrackingVertexCollection> trackingVertexCollectionToken_;
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoAssociationToken_;
   edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimAssociationToken_;
-  edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator> vertexAssociatorToken_;
+  edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator<std::vector<reco::Vertex>>> vertexAssociatorToken_;
 
   std::vector<bool> errorPrintedForColl_;
 

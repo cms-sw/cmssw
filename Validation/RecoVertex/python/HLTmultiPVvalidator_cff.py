@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Validation.RecoVertex.PrimaryVertexAnalyzer4PUSlimmed_cfi import *
+from Validation.RecoVertex.associators_cff import *
 
 hltMultiPVanalysis = vertexAnalysis.clone(
     do_generic_sim_plots  = False,
@@ -8,36 +9,13 @@ hltMultiPVanalysis = vertexAnalysis.clone(
     root_folder           = "HLT/Vertexing/ValidationWRTsim",
     vertexRecoCollections = [""],
     trackAssociatorMap    = "trackingParticleRecoTrackAsssociation",
-    vertexAssociator      = "VertexAssociatorByPositionAndTracks"
-)
-
-from Validation.RecoTrack.associators_cff import hltTPClusterProducer, hltTrackAssociatorByHits, tpToHLTpixelTrackAssociation
-from SimTracker.VertexAssociation.VertexAssociatorByPositionAndTracks_cfi import VertexAssociatorByPositionAndTracks as _VertexAssociatorByPositionAndTracks
-vertexAssociatorByPositionAndTracks4pixelTracks = _VertexAssociatorByPositionAndTracks.clone(
-    trackAssociation = "tpToHLTpixelTrackAssociation",
-    sharedTrackFraction = -1, # requires optimization
-    weightMethod = "dzError",
-    sigmaZ = 10e6
-)
-
-hltOtherTPClusterProducer = hltTPClusterProducer.clone(
-    stripClusterOtherSrc = "hltSiStripRawToClustersFacilityOnDemand"
-)
-hltOtherTrackAssociatorByHits = hltTrackAssociatorByHits.clone(
-    cluster2TPSrc = cms.InputTag("hltOtherTPClusterProducer")
-)
-tpToHLTpfMuonMergingTrackAssociation = tpToHLTpixelTrackAssociation.clone(
-    label_tr = "hltPFMuonMerging",
-    associator = cms.InputTag('hltOtherTrackAssociatorByHits')
-)
-vertexAssociatorByPositionAndTracks4pfMuonMergingTracks = _VertexAssociatorByPositionAndTracks.clone(
-    trackAssociation = "tpToHLTpfMuonMergingTrackAssociation"
+    vertexAssociator      = "vertexAssociatorByPositionAndTracksProducer"
 )
 
 hltPixelPVanalysis = hltMultiPVanalysis.clone(
     do_generic_sim_plots  = True,
     trackAssociatorMap    = "tpToHLTpixelTrackAssociation",
-    vertexAssociator      = "vertexAssociatorByPositionAndTracks4pixelTracks",
+    vertexAssociator      = "hltPVAssociatorByPositionAndTracks4PixelTracks",
     vertexRecoCollections = (
         "hltPixelVertices",
         "hltTrimmedPixelVertices",
@@ -50,7 +28,7 @@ hltPixelPVanalysisReconstructable = hltMultiPVanalysis.clone(
     reco_tracks_for_reconstructable_simvertices = 1, #inclusive, below or equal discard sim vertex.
     root_folder           = "HLT/Vertexing/ValidationWRTReconstructableSim",
     trackAssociatorMap    = "tpToHLTpixelTrackAssociation",
-    vertexAssociator      = "vertexAssociatorByPositionAndTracks4pixelTracks",
+    vertexAssociator      = "hltPVAssociatorByPositionAndTracks4PixelTracks",
     vertexRecoCollections = (
         "hltPixelVertices",
         "hltTrimmedPixelVertices",
@@ -66,7 +44,7 @@ phase2_tracker.toModify(hltPixelPVanalysisReconstructable, _modifyPixelPVanalysi
 
 hltPVanalysis = hltMultiPVanalysis.clone(
     trackAssociatorMap = "tpToHLTpfMuonMergingTrackAssociation",
-    vertexAssociator   = "vertexAssociatorByPositionAndTracks4pfMuonMergingTracks",
+    vertexAssociator   = "hltPVAssociatorByPositionAndTracks4pfMuonMergingTracks",
     vertexRecoCollections   = (
     "hltVerticesPFFilter",
     #"hltFastPVPixelVertices"
@@ -79,44 +57,22 @@ hltPVanalysisReconstructable = hltMultiPVanalysis.clone(
     reco_tracks_for_reconstructable_simvertices = 1, #inclusive, below or equal discard sim vertex.
     root_folder           = "HLT/Vertexing/ValidationWRTReconstructableSim",
     trackAssociatorMap    = "tpToHLTpfMuonMergingTrackAssociation",
-    vertexAssociator      = "vertexAssociatorByPositionAndTracks4pfMuonMergingTracks",
+    vertexAssociator      = "hltPVAssociatorByPositionAndTracks4pfMuonMergingTracks",
     vertexRecoCollections = (
         "hltVerticesPFFilter",
     )
 )
 
-tpToHLTphase2TrackAssociation = tpToHLTpixelTrackAssociation.clone(
-    label_tr = "hltGeneralTracks"
-)
-vertexAssociatorByPositionAndTracks4phase2HLTTracks = _VertexAssociatorByPositionAndTracks.clone(
-    trackAssociation = "tpToHLTphase2TrackAssociation",
-    sharedTrackFraction = 0.5, # requires optimization
-    weightMethod = "dzError",
-    sigmaZ = 10e6
-)
-
 def _modifyFullPVanalysisForPhase2(pvanalysis):
     pvanalysis.vertexRecoCollections = ["hltOfflinePrimaryVertices"]
-    pvanalysis.trackAssociatorMap = "tpToHLTphase2TrackAssociation"
-    pvanalysis.vertexAssociator   = "vertexAssociatorByPositionAndTracks4phase2HLTTracks"
+    pvanalysis.trackAssociatorMap = "tpToHLTGeneralTrackAssociation"
+    pvanalysis.vertexAssociator   = "hltPVAssociatorByPositionAndTracks4GeneralTracks"
 
 phase2_tracker.toModify(hltPVanalysis, _modifyFullPVanalysisForPhase2)
 phase2_tracker.toModify(hltPVanalysisReconstructable, _modifyFullPVanalysisForPhase2)
-
-hltMultiPVAssociations = cms.Task(
-    hltOtherTPClusterProducer,
-    hltTrackAssociatorByHits,
-    hltOtherTrackAssociatorByHits,
-    tpToHLTpixelTrackAssociation,
-    vertexAssociatorByPositionAndTracks4pixelTracks,
-    tpToHLTpfMuonMergingTrackAssociation,
-    vertexAssociatorByPositionAndTracks4pfMuonMergingTracks,
-    tpToHLTphase2TrackAssociation,
-    vertexAssociatorByPositionAndTracks4phase2HLTTracks
-)
 
 hltMultiPVValidation = cms.Sequence(hltPixelPVanalysis +
                                     hltPixelPVanalysisReconstructable +
                                     hltPVanalysis +
                                     hltPVanalysisReconstructable,
-                                    hltMultiPVAssociations)
+                                    hltPVAssociationsTask)

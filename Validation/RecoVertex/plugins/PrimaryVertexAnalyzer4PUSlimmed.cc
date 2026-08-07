@@ -1,4 +1,4 @@
-#include "Validation/RecoVertex/interface/PrimaryVertexAnalyzer4PUSlimmed.h"
+#include "PrimaryVertexAnalyzer4PUSlimmed.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -55,7 +55,7 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(const edm::Para
           consumes<reco::SimToRecoCollection>(iConfig.getUntrackedParameter<edm::InputTag>("trackAssociatorMap"))),
       recoToSimAssociationToken_(
           consumes<reco::RecoToSimCollection>(iConfig.getUntrackedParameter<edm::InputTag>("trackAssociatorMap"))),
-      vertexAssociatorToken_(consumes<reco::VertexToTrackingVertexAssociator>(
+      vertexAssociatorToken_(consumes<reco::VertexToTrackingVertexAssociator<std::vector<reco::Vertex>>>(
           iConfig.getUntrackedParameter<edm::InputTag>("vertexAssociator"))),
       nPUbins_(iConfig.getParameter<unsigned int>("nPUbins")),
       maxEta_(iConfig.getParameter<double>("maxEta")),
@@ -1219,13 +1219,14 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent, const ed
     edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed") << "recoToSimH is not valid";
 
   // Vertex associator
-  edm::Handle<reco::VertexToTrackingVertexAssociator> vertexAssociatorH;
+  edm::Handle<reco::VertexToTrackingVertexAssociator<std::vector<reco::Vertex>>> vertexAssociatorH;
   iEvent.getByToken(vertexAssociatorToken_, vertexAssociatorH);
   if (!vertexAssociatorH.isValid()) {
     edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed") << "vertexAssociatorH is not valid";
     return;
   }
-  const reco::VertexToTrackingVertexAssociator& vertexAssociator = *(vertexAssociatorH.product());
+  const reco::VertexToTrackingVertexAssociator<std::vector<reco::Vertex>>& vertexAssociator =
+      *(vertexAssociatorH.product());
 
   std::vector<simPrimaryVertex> simpv;  // a list of simulated primary
                                         // MC vertices
@@ -1420,3 +1421,6 @@ void PrimaryVertexAnalyzer4PUSlimmed::computePairDistance(const T& collection, M
     }
   }
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PrimaryVertexAnalyzer4PUSlimmed);
