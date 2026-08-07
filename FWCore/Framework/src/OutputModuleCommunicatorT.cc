@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/global/OutputModuleBase.h"
 #include "FWCore/Framework/interface/one/OutputModuleBase.h"
 #include "FWCore/Framework/interface/limited/OutputModuleBase.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace {
@@ -88,11 +89,12 @@ namespace edm {
         ParentContext parentContext(&globalContext);
         ModuleCallingContext mcc(desc);
         ModuleContextSentry moduleContextSentry(&mcc, parentContext);
+        auto sentry = signalslot::make_sentry([activityRegistry, &globalContext, &mcc]() {
+          activityRegistry->postModuleWriteProcessBlockSignal_.emit(globalContext, mcc);
+        });
         activityRegistry->preModuleWriteProcessBlockSignal_.emit(globalContext, mcc);
-        auto sentry(make_sentry(activityRegistry, [&globalContext, &mcc](ActivityRegistry* ar) {
-          ar->postModuleWriteProcessBlockSignal_.emit(globalContext, mcc);
-        }));
         mod.doWriteProcessBlock(processBlockPrincipal, &mcc);
+        sentry.succeeded();
       } catch (...) {
         ex = std::current_exception();
       }
@@ -130,11 +132,12 @@ namespace edm {
         ParentContext parentContext(&globalContext);
         ModuleCallingContext mcc(desc);
         ModuleContextSentry moduleContextSentry(&mcc, parentContext);
+        auto sentry = signalslot::make_sentry([activityRegistry, &globalContext, &mcc]() {
+          activityRegistry->postModuleWriteRunSignal_.emit(globalContext, mcc);
+        });
         activityRegistry->preModuleWriteRunSignal_.emit(globalContext, mcc);
-        auto sentry(make_sentry(activityRegistry, [&globalContext, &mcc](ActivityRegistry* ar) {
-          ar->postModuleWriteRunSignal_.emit(globalContext, mcc);
-        }));
         mod.doWriteRun(rp, &mcc, mergeableRunProductMetadata);
+        sentry.succeeded();
       } catch (...) {
         ex = std::current_exception();
       }
@@ -164,11 +167,12 @@ namespace edm {
         ParentContext parentContext(&globalContext);
         ModuleCallingContext mcc(desc);
         ModuleContextSentry moduleContextSentry(&mcc, parentContext);
+        auto sentry = signalslot::make_sentry([activityRegistry, &globalContext, &mcc]() {
+          activityRegistry->postModuleWriteLumiSignal_.emit(globalContext, mcc);
+        });
         activityRegistry->preModuleWriteLumiSignal_.emit(globalContext, mcc);
-        auto sentry(make_sentry(activityRegistry, [&globalContext, &mcc](ActivityRegistry* ar) {
-          ar->postModuleWriteLumiSignal_.emit(globalContext, mcc);
-        }));
         mod.doWriteLuminosityBlock(lbp, &mcc);
+        sentry.succeeded();
       } catch (...) {
         ex = std::current_exception();
       }

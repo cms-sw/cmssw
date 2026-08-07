@@ -17,27 +17,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
 #include <cassert>
 namespace {
-  struct SourceNextGuard {
-    SourceNextGuard(edm::ActivityRegistry::PreSourceNextTransition* iPre,
-                    edm::ActivityRegistry::PostSourceNextTransition* iPost)
-        : signal_(iPost) {
-      if (iPre) {
-        iPre->emit();
-      }
-    }
-    ~SourceNextGuard() noexcept(false) {
-      if (signal_)
-        signal_->emit();
-    }
-    edm::ActivityRegistry::PostSourceNextTransition* signal_;
-  };
-
   struct TerminationGuard {
     TerminationGuard(edm::ActivityRegistry::PreSourceEarlyTermination* iSignal) : signal_(iSignal) {}
     void completedSuccessfully() { signal_ = nullptr; }
@@ -118,7 +104,11 @@ namespace edm {
     if (sourceStatus_.needToAskSourceForNext()) {
       TerminationGuard sentry(earlyTerminationSignal_);
       {
-        SourceNextGuard guard(preSourceNextTransitionSignal_, postSourceNextTransitionSignal_);
+        auto guard = signalslot::make_sentry_if(postSourceNextTransitionSignal_,
+                                                [this]() { postSourceNextTransitionSignal_->emit(); });
+        if (preSourceNextTransitionSignal_) {
+          preSourceNextTransitionSignal_->emit();
+        }
         //For now, do nothing with InputSource::IsSynchronize
         InputSource::ItemTypeInfo itemTypeInfo;
         do {
@@ -133,6 +123,7 @@ namespace edm {
           sourceStatus_.setLuminosityBlockAuxiliary(*input_->luminosityBlockAuxiliary());
           sourceStatus_.setReducedProcessHistoryID(input_->reducedProcessHistoryID());
         }
+        guard.succeeded();
       }
       sentry.completedSuccessfully();
 

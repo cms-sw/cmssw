@@ -344,7 +344,7 @@ namespace edm {
     void watchPostModuleDestruction(PostModuleDestruction::slot_type const& iSlot) {
       postModuleDestructionSignal_.connect_front(iSlot);
     }
-    // WARNING - ModuleDescription is not in fixed place.  See note M above.
+    // WARNING - ModuleDescription IS NOT in fixed place.  See note M above.
     AR_WATCH_USING_METHOD_1(watchPostModuleDestruction)
 
     /// signal is emitted just before the EventSetup configuration has been finalized
