@@ -25,6 +25,15 @@ public:
     edm::Service<TritonService> ts;
     const std::string& modelName = client_->modelName();
 
+    // Dynamic load/unload is only supported on the fallback server (see TritonService),
+    // so pin the connection there explicitly rather than relying on preferredServer/SITECONF-based
+    // discovery, which could otherwise resolve this client to a different (remote) server than the
+    // one being loaded/unloaded below. Done once per stream, on first acquire() (module construction
+    // is too early: the fallback server may still be starting up as part of framework setup).
+    if (!fallbackPinned_.exchange(true)) {
+      client_->switchToFallback();
+    }
+
     // Test dynamic loading and unloading
     if (testConcurrency_) {
       // Stress test with multiple rapid load/unload cycles
@@ -51,14 +60,21 @@ public:
       edm::LogInfo("DynamicModelLoadingProducer") << "Single unload: " << (unloadResult ? "success" : "failed");
     }
 
-    // Fill dummy input - use actual input from the model (gat_test expects "x" input)
-    // This is just to satisfy the base class requirements, not for actual inference
-    auto& input_x = iInput.at("x");
-    auto data_x = input_x.allocate<float>();
-    // Minimal dummy data
-    (*data_x)[0] = std::vector<float>{1.0f};
+    // Fill dummy inputs - gat_test requires both "x__0" (node features) and "edgeindex__1"
+    // (edge list); this is just to satisfy the base class requirements, not for actual inference.
+    auto& input_x = iInput.at("x__0");
     input_x.setShape(0, 1, 0);
+    auto data_x = input_x.allocate<float>();
+    // Minimal dummy data: a single node
+    (*data_x)[0] = std::vector<float>{1.0f};
     input_x.toServer(data_x);
+
+    auto& input_edge = iInput.at("edgeindex__1");
+    input_edge.setShape(1, 1, 0);
+    auto data_edge = input_edge.allocate<int64_t>();
+    // Minimal dummy data: a single self-loop edge on the one node above
+    (*data_edge)[0] = std::vector<int64_t>{0, 0};
+    input_edge.toServer(data_edge);
   }
 
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup, Output const& iOutput) override {
@@ -77,6 +93,7 @@ public:
 private:
   int loadUnloadCycles_;
   bool testConcurrency_;
+  std::atomic<bool> fallbackPinned_{false};
   edm::EDPutTokenT<edmtest::IntProduct> putToken_;
 };
 
