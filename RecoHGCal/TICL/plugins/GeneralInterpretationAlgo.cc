@@ -110,8 +110,8 @@ void GeneralInterpretationAlgo::findTrackstersInWindow(const edm::MultiSpan<Trac
         for (const unsigned &t_i : in_tile) {
           // calculate actual distances of tracksters to the seed for a more accurate cut
           const auto dPhi = reco::deltaPhi(tracksterPropPoints[t_i].Phi(), seed_phi);
-          auto sep2 = (tracksterPropPoints[t_i].Eta() - seed_eta) * (tracksterPropPoints[t_i].Eta() - seed_eta) +
-                      dPhi * dPhi;
+          auto sep2 =
+              (tracksterPropPoints[t_i].Eta() - seed_eta) * (tracksterPropPoints[t_i].Eta() - seed_eta) + dPhi * dPhi;
           if (sep2 < delta2) {
             in_delta.push_back(t_i);
             // distances2.push_back(sep2);
