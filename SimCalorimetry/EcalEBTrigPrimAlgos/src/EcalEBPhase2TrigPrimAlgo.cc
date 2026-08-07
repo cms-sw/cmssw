@@ -9,6 +9,7 @@
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 
 #include "SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBPhase2TrigPrimAlgo.h"
+#include "SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBPhase2SpikeTaggerFactory.h"
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame_Ph2.h"
@@ -30,21 +31,22 @@ const unsigned int EcalEBPhase2TrigPrimAlgo::nrSamples_ =
     ecalPh2::sampleSize;  // set to 16 samples, might change (less than 16) in the future
 const unsigned int EcalEBPhase2TrigPrimAlgo::maxNrTowers_ = 2448;  // number of towers in EB
 
-EcalEBPhase2TrigPrimAlgo::EcalEBPhase2TrigPrimAlgo(const EcalTrigTowerConstituentsMap *eTTmap,
-                                                   const CaloGeometry *theGeometry,
-                                                   int binofmax,
+EcalEBPhase2TrigPrimAlgo::EcalEBPhase2TrigPrimAlgo(int binofmax,
+                                                   const edm::ParameterSet &spikeTaggerParams,
+                                                   edm::ConsumesCollector &cc,
                                                    bool debug)
-    : eTTmap_(eTTmap),
-      theGeometry_(theGeometry),
-      binOfMaximum_(binofmax),
+    : binOfMaximum_(binofmax),
+      spikeTaggerParams_(spikeTaggerParams),
       debug_(debug)
 
 {
   maxNrSamples_ = ecalPh2::sampleSize;
-  this->init();
+
+  eTTmapToken_ = cc.esConsumes<edm::Transition::BeginRun>();
+  this->init(cc);
 }
 
-void EcalEBPhase2TrigPrimAlgo::init() {
+void EcalEBPhase2TrigPrimAlgo::init(edm::ConsumesCollector &cc) {
   theMapping_ = new EcalElectronicsMapping();
   // initialise data structures
   initStructures(towerMapEB_);
@@ -61,10 +63,13 @@ void EcalEBPhase2TrigPrimAlgo::init() {
   outTime_.resize(maxNrSamples_);
 
   //
-
   time_reconstructor_ = new EcalEBPhase2TimeReconstructor(debug_);
   time_out_.resize(maxNrSamples_);
-  spike_tagger_ = new EcalEBPhase2SpikeTagger(debug_);
+
+  EcalEBPhase2SpikeTaggerFactory spikeTaggerFactory;
+  auto const stAlgoType(spikeTaggerParams_.getParameter<std::string>("algoType"));
+  auto const stVersion(spikeTaggerParams_.getParameter<unsigned int>("version"));
+  spike_tagger_ = spikeTaggerFactory.create(stAlgoType, stVersion, cc, debug_);
 }
 //----------------------------------------------------------------------
 
@@ -72,9 +77,13 @@ EcalEBPhase2TrigPrimAlgo::~EcalEBPhase2TrigPrimAlgo() {
   delete linearizer_;
   delete amplitude_reconstructor_;
   delete time_reconstructor_;
-  delete spike_tagger_;
   delete tpFormatter_;
   delete theMapping_;
+}
+
+void EcalEBPhase2TrigPrimAlgo::getRecords(edm::EventSetup const &setup) {
+  eTTmap_ = &setup.getData(eTTmapToken_);
+  spike_tagger_->getRecords(setup);
 }
 
 void EcalEBPhase2TrigPrimAlgo::run(EBDigiCollectionPh2 const *digi, EcalEBPhase2TrigPrimDigiCollection &result) {
@@ -174,10 +183,8 @@ void EcalEBPhase2TrigPrimAlgo::run(EBDigiCollectionPh2 const *digi, EcalEBPhase2
         }
 
         // call spike finder right after the linearizer
-        this->getSpikeTagger()->setParameters(dataFrames[iXstal].id(), ecaltpPed_, ecaltpLin_, ecaltpgBadX_);
-        bool isASpike = this->getSpikeTagger()->process(lin_out_);
-
-        //if (!isASpike) {
+        this->getSpikeTagger()->setParameters(dataFrames[iXstal].id(), ecaltpgBadX_);
+        auto const isASpike = this->getSpikeTagger()->process(lin_out_);
 
         // Call the amplitude reconstructor
         this->getAmplitudeFinder()->setParameters(myid.rawId(), ecaltpgAmplWeightMap_, ecaltpgWeightGroup_);
@@ -248,8 +255,6 @@ void EcalEBPhase2TrigPrimAlgo::run(EBDigiCollectionPh2 const *digi, EcalEBPhase2
           }
           LogDebug("") << std::endl;
         }
-
-        // } not a spike
 
         // create the final TP samples
         int etInADC = 0;
