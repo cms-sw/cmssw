@@ -9,6 +9,7 @@
 #include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "FWCore/Framework/interface/OccurrenceForOutput.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 class OrbitTableOutputBranches {
 public:
