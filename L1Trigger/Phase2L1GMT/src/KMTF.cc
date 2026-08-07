@@ -72,74 +72,80 @@ std::pair<std::vector<l1t::KMTFTrack>, std::vector<l1t::KMTFTrack> > KMTF::proce
   }
 
   bool pre_patterns = (verbose_ > 1) && ((Nstubs4 + Nstubs3 + Nstubs2 + Nstubs1) > 2);
-
   //OK now process the data almost as in hardware
   for (unsigned int i = 0; i < 32; ++i) {
     //print the stubs taking into account
 
-    bool patterns = pre_patterns && ((i < Nstubs4) || (i < Nstubs3) || (i << Nstubs2));
+    bool patterns = pre_patterns && ((i < Nstubs4) || (i < Nstubs3) || (i < Nstubs2));
 
     if (patterns) {
       edm::LogInfo("KMTF") << "KMTFPattern " << std::flush;
       if (i < Nstubs4)
         edm::LogInfo("KMTF") << stubs4[0]->coord1() << " " << stubs4[0]->coord2() << " " << stubs4[0]->quality() << " "
-                             << " 1 " << stubs4[0]->kmtf_address() << " 0 " << std::flush;
+                             << " 1 " << stubs4[0]->kmtf_address() << " 0 " << stubs4[0]->eta1() << " "
+                             << stubs4[0]->eta2() << " " << (stubs4[0]->etaQuality() > 0 ? 1 : 0) << " " << std::flush;
       else
-        edm::LogInfo("KMTF") << "0 0 0 0 511 0 " << std::flush;
+        edm::LogInfo("KMTF") << "0 0 0 0 511 0 0 0 0 " << std::flush;
 
       if (i < Nstubs3) {
         for (const auto& s : stubs3) {
           edm::LogInfo("KMTF") << "" << s->coord1() << " " << s->coord2() << " " << s->quality() << " 1 "
-                               << s->kmtf_address() << " 0 " << std::flush;
+                               << s->kmtf_address() << " 0 " << s->eta1() << " " << s->eta2() << " "
+                               << (s->etaQuality() > 0 ? 1 : 0) << " " << std::flush;
         }
         //pad with zeros
         for (unsigned int j = stubs3.size(); j < 32; ++j) {
-          edm::LogInfo("KMTF") << "0 0 0 0 511 0 " << std::flush;
+          edm::LogInfo("KMTF") << "0 0 0 0 511 0 0 0 0 " << std::flush;
         }
       } else {
         for (unsigned int j = stubs3.size(); j < 32; ++j) {
-          edm::LogInfo("KMTF") << "0 0 0 0 511 0 " << std::flush;
+          edm::LogInfo("KMTF") << "0 0 0 0 511 0 0 0 0 " << std::flush;
         }
         for (const auto& s : stubs3) {
           edm::LogInfo("KMTF") << "" << s->coord1() << " " << s->coord2() << " " << s->quality() << " 1 "
-                               << s->kmtf_address() << " 0 " << std::flush;
+                               << s->kmtf_address() << " 0 " << s->eta1() << " " << s->eta2() << " "
+                               << (s->etaQuality() > 0 ? 1 : 0) << " " << std::flush;
         }
       }
 
       if (i < Nstubs2) {
         for (const auto& s : stubs2) {
           edm::LogInfo("KMTF") << "" << s->coord1() << " " << s->coord2() << " " << s->quality() << " 1 "
-                               << s->kmtf_address() << " 0 " << std::flush;
+                               << s->kmtf_address() << " 0 " << s->eta1() << " " << s->eta2() << " "
+                               << (s->etaQuality() > 0 ? 1 : 0) << " " << std::flush;
         }
         //pad with zeros
         for (unsigned int j = stubs2.size(); j < 32; ++j) {
-          edm::LogInfo("KMTF") << "0 0 0 0 511 0 " << std::flush;
+          edm::LogInfo("KMTF") << "0 0 0 0 511 0 0 0 0 " << std::flush;
         }
       } else {
         for (unsigned int j = stubs2.size(); j < 32; ++j) {
-          edm::LogInfo("KMTF") << "0 0 0 0 511 0 " << std::flush;
+          edm::LogInfo("KMTF") << "0 0 0 0 511 0 0 0 0 " << std::flush;
         }
         for (const auto& s : stubs2) {
           edm::LogInfo("KMTF") << s->coord1() << " " << s->coord2() << " " << s->quality() << " 1 " << s->kmtf_address()
-                               << " 0 " << std::flush;
+                               << " 0 " << s->eta1() << " " << s->eta2() << " " << (s->etaQuality() > 0 ? 1 : 0) << " "
+                               << std::flush;
         }
       }
       if (i < Nstubs1) {
         for (const auto& s : stubs1) {
           edm::LogInfo("KMTF") << s->coord1() << " " << s->coord2() << " " << s->quality() << " 1 " << s->kmtf_address()
-                               << " 0 " << std::flush;
+                               << " 0 " << s->eta1() << " " << s->eta2() << " " << (s->etaQuality() > 0 ? 1 : 0) << " "
+                               << std::flush;
         }
         //pad with zeros
         for (unsigned int j = stubs1.size(); j < 32; ++j) {
-          edm::LogInfo("KMTF") << "0 0 0 0 511 0 " << std::flush;
+          edm::LogInfo("KMTF") << "0 0 0 0 511 0 0 0 0 " << std::flush;
         }
       } else {
         for (unsigned int j = stubs1.size(); j < 32; ++j) {
-          edm::LogInfo("KMTF") << "0 0 0 0 511 0 " << std::flush;
+          edm::LogInfo("KMTF") << "0 0 0 0 511 0 0 0 0 " << std::flush;
         }
         for (const auto& s : stubs1) {
           edm::LogInfo("KMTF") << s->coord1() << " " << s->coord2() << " " << s->quality() << " 1 " << s->kmtf_address()
-                               << " 0 " << std::flush;
+                               << " 0 " << s->eta1() << " " << s->eta2() << " " << (s->etaQuality() > 0 ? 1 : 0) << " "
+                               << std::flush;
         }
       }
     }
@@ -162,23 +168,24 @@ std::pair<std::vector<l1t::KMTFTrack>, std::vector<l1t::KMTFTrack> > KMTF::proce
         if (tracks.first.id() & 0x1)
           edm::LogInfo("KMTF") << "1 " << (tracks.first.curvatureAtVertex() < 0 ? 1 : 0) << " "
                                << tracks.first.ptPrompt() << " " << tracks.first.phiAtMuon() / (1 << 5) << " "
-                               << tracks.first.coarseEta() << " " << int(tracks.first.dxy() * ap_ufixed<8, 1>(1.606))
-                               << " " << tracks.first.rankPrompt() << " " << std::flush;
-
+                               << int(round(tracks.first.eta() / (M_PI / (1 << 12)))) << " "
+                               << int(tracks.first.dxy() * ap_ufixed<8, 1>(1.606)) << " " << tracks.first.rankPrompt()
+                               << " " << tracks.first.zPosition() << " " << tracks.first.kSlope() << " " << std::flush;
         else
-          edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 " << std::flush;
+          edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 0 0 " << std::flush;
         if (tracks.second.id() & 0x2)
-          edm::LogInfo("KMTF") << "1 " << (tracks.second.curvatureAtVertex() < 0 ? 1 : 0) << " "
+          edm::LogInfo("KMTF") << "1 " << (tracks.second.curvatureAtMuon() < 0 ? 1 : 0) << " "
                                << tracks.second.ptDisplaced() << " " << tracks.second.phiAtMuon() / (1 << 5) << " "
-                               << tracks.second.coarseEta() << " " << int(tracks.second.dxy() * ap_ufixed<8, 1>(1.606))
-                               << " " << tracks.second.rankDisp() << " " << std::flush;
-
+                               << int(round(tracks.second.eta() / (M_PI / (1 << 12)))) << " "
+                               << int(tracks.second.dxy() * ap_ufixed<8, 1>(1.606)) << " " << tracks.second.rankDisp()
+                               << " " << tracks.second.zPosition() << " " << tracks.second.kSlope() << " "
+                               << std::flush;
         else
-          edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 " << std::flush;
+          edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 0 0 " << std::flush;
       }
     } else if (patterns) {
-      edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 " << std::flush;
-      edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 " << std::flush;
+      edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 0 0 " << std::flush;
+      edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 0 0 " << std::flush;
     }
 
     if (i < Nstubs3) {
@@ -196,23 +203,26 @@ std::pair<std::vector<l1t::KMTFTrack>, std::vector<l1t::KMTFTrack> > KMTF::proce
         if (tracks.first.id() & 0x1)
           edm::LogInfo("KMTF") << "1 " << (tracks.first.curvatureAtVertex() < 0 ? 1 : 0) << " "
                                << tracks.first.ptPrompt() << " " << tracks.first.phiAtMuon() / (1 << 5) << " "
-                               << tracks.first.coarseEta() << " " << int(tracks.first.dxy() * ap_ufixed<8, 1>(1.606))
-                               << " " << tracks.first.rankPrompt() << " " << std::flush;
+                               << int(round(tracks.first.eta() / (M_PI / (1 << 12)))) << " "
+                               << int(tracks.first.dxy() * ap_ufixed<8, 1>(1.606)) << " " << tracks.first.rankPrompt()
+                               << " " << tracks.first.zPosition() << " " << tracks.first.kSlope() << " " << std::flush;
 
         else
-          edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 " << std::flush;
+          edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 0 0 " << std::flush;
         if (tracks.second.id() & 0x2)
-          edm::LogInfo("KMTF") << "1 " << (tracks.second.curvatureAtVertex() < 0 ? 1 : 0) << " "
+          edm::LogInfo("KMTF") << "1 " << (tracks.second.curvatureAtMuon() < 0 ? 1 : 0) << " "
                                << tracks.second.ptDisplaced() << " " << tracks.second.phiAtMuon() / (1 << 5) << " "
-                               << tracks.second.coarseEta() << " " << int(tracks.second.dxy() * ap_ufixed<8, 1>(1.606))
-                               << " " << tracks.second.rankDisp() << " " << std::flush;
+                               << int(round(tracks.second.eta() / (M_PI / (1 << 12)))) << " "
+                               << int(tracks.second.dxy() * ap_ufixed<8, 1>(1.606)) << " " << tracks.second.rankDisp()
+                               << " " << tracks.second.zPosition() << " " << tracks.second.kSlope() << " "
+                               << std::flush;
 
         else
-          edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 " << std::flush;
+          edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 0 0 " << std::flush;
       }
     } else if (patterns) {
-      edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 " << std::flush;
-      edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 " << std::flush;
+      edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 0 0 " << std::flush;
+      edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 0 0 " << std::flush;
     }
     if (i < Nstubs2) {
       l1t::MuonStubRefVector stubs_proc;
@@ -227,22 +237,25 @@ std::pair<std::vector<l1t::KMTFTrack>, std::vector<l1t::KMTFTrack> > KMTF::proce
         if (tracks.first.id() & 0x1)
           edm::LogInfo("KMTF") << "1 " << (tracks.first.curvatureAtVertex() < 0 ? 1 : 0) << " "
                                << tracks.first.ptPrompt() << " " << tracks.first.phiAtMuon() / (1 << 5) << " "
-                               << tracks.first.coarseEta() << " " << int(tracks.first.dxy() * ap_ufixed<8, 1>(1.606))
-                               << " " << tracks.first.rankPrompt() << " " << std::flush;
+                               << int(round(tracks.first.eta() / (M_PI / (1 << 12)))) << " "
+                               << int(tracks.first.dxy() * ap_ufixed<8, 1>(1.606)) << " " << tracks.first.rankPrompt()
+                               << " " << tracks.first.zPosition() << " " << tracks.first.kSlope() << " " << std::flush;
 
         else
-          edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 " << std::flush;
+          edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 0 0 " << std::flush;
         if (tracks.second.id() & 0x2)
-          edm::LogInfo("KMTF") << "1 " << (tracks.second.curvatureAtVertex() < 0 ? 1 : 0) << " "
+          edm::LogInfo("KMTF") << "1 " << (tracks.second.curvatureAtMuon() < 0 ? 1 : 0) << " "
                                << tracks.second.ptDisplaced() << " " << tracks.second.phiAtMuon() / (1 << 5) << " "
-                               << tracks.second.coarseEta() << " " << int(tracks.second.dxy() * ap_ufixed<8, 1>(1.606))
-                               << " " << tracks.second.rankDisp();
+                               << int(round(tracks.second.eta() / (M_PI / (1 << 12)))) << " "
+                               << int(tracks.second.dxy() * ap_ufixed<8, 1>(1.606)) << " " << tracks.second.rankDisp()
+                               << " " << tracks.second.zPosition() << " " << tracks.second.kSlope() << " "
+                               << std::flush;
         else
-          edm::LogInfo("KMTF") << "0 0 0 0 0 0 0" << std::flush;
+          edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 0 0 " << std::flush;
       }
     } else if (patterns) {
-      edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 " << std::flush;
-      edm::LogInfo("KMTF") << "0 0 0 0 0 0 0";
+      edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 0 0 " << std::flush;
+      edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 0 0";
     }
     //Now the shift register emulation in C_++
     if (stubs4.size() > 1) {
@@ -301,6 +314,8 @@ void KMTF::overlapCleanTrack(l1t::KMTFTrack& source, const l1t::KMTFTrack& other
   int id2 = vertex ? other.id() & 0x1 : other.id() & 0x2;
   bool keep = true;
   unsigned int pattern = 0;
+  unsigned int thetaPattern = 0;
+
   if (id1 == 0)
     keep = false;
   else if (id1 != 0 && id2 != 0) {
@@ -320,10 +335,13 @@ void KMTF::overlapCleanTrack(l1t::KMTFTrack& source, const l1t::KMTFTrack& other
     if (ok) {
       stubs.push_back(s1);
       pattern = pattern | (1 << (s1->depthRegion() - 1));
+      if (s1->depthRegion() != 4 && s1->etaQuality() > 0)
+        thetaPattern |= (1 << (s1->depthRegion() - 1));
     }
   }
   source.setStubs(stubs);
   source.setHitPattern(pattern);
+  source.setThetaDigiPattern(thetaPattern);
 }
 
 std::vector<l1t::KMTFTrack> KMTF::cleanRegion(const std::vector<l1t::KMTFTrack>& tracks2,
