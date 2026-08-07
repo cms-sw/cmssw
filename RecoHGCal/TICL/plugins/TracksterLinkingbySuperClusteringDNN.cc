@@ -52,17 +52,17 @@ TracksterLinkingbySuperClusteringDNN::TracksterLinkingbySuperClusteringDNN(const
     : TracksterLinkingAlgoBase(ps, iC, onnxRuntime),
       dnnInputs_(makeSuperclusteringDNNInputFromString(ps.getParameter<std::string>("dnnInputsVersion"))),
       inferenceBatchSize_(ps.getParameter<unsigned int>("inferenceBatchSize")),
-      nnWorkingPoint_(ps.getParameter<double>("nnWorkingPoint")),
-      deltaEtaWindow_(ps.getParameter<double>("deltaEtaWindow")),
-      deltaPhiWindow_(ps.getParameter<double>("deltaPhiWindow")),
-      seedPtThreshold_(ps.getParameter<double>("seedPtThreshold")),
-      candidateEnergyThreshold_(ps.getParameter<double>("candidateEnergyThreshold")),
-      explVarRatioCut_energyBoundary_(ps.getParameter<double>("explVarRatioCut_energyBoundary")),
-      explVarRatioMinimum_lowEnergy_(ps.getParameter<double>("explVarRatioMinimum_lowEnergy")),
-      explVarRatioMinimum_highEnergy_(ps.getParameter<double>("explVarRatioMinimum_highEnergy")),
+      nnWorkingPoint_(ps.getParameter<float>("nnWorkingPoint")),
+      deltaEtaWindow_(ps.getParameter<float>("deltaEtaWindow")),
+      deltaPhiWindow_(ps.getParameter<float>("deltaPhiWindow")),
+      seedPtThreshold_(ps.getParameter<float>("seedPtThreshold")),
+      candidateEnergyThreshold_(ps.getParameter<float>("candidateEnergyThreshold")),
+      explVarRatioCut_energyBoundary_(ps.getParameter<float>("explVarRatioCut_energyBoundary")),
+      explVarRatioMinimum_lowEnergy_(ps.getParameter<float>("explVarRatioMinimum_lowEnergy")),
+      explVarRatioMinimum_highEnergy_(ps.getParameter<float>("explVarRatioMinimum_highEnergy")),
       filterByTracksterPID_(ps.getParameter<bool>("filterByTracksterPID")),
       tracksterPIDCategoriesToFilter_(ps.getParameter<std::vector<int>>("tracksterPIDCategoriesToFilter")),
-      PIDThreshold_(ps.getParameter<double>("PIDThreshold")) {
+      PIDThreshold_(ps.getParameter<float>("PIDThreshold")) {
   const auto model = ps.getParameter<std::string>("onnxModelPath");
   if (model.empty()) {
     throw cms::Exception("Configuration")
@@ -340,27 +340,27 @@ void TracksterLinkingbySuperClusteringDNN::fillPSetDescription(edm::ParameterSet
           "Size of inference batches fed to DNN. Increasing it should produce faster inference but higher memory "
           "usage. "
           "Has no physics impact.");
-  desc.add<double>("nnWorkingPoint")
+  desc.add<float>("nnWorkingPoint")
       ->setComment("Working point of DNN (in [0, 1]). DNN score above WP will attempt to supercluster.");
-  desc.add<double>("deltaEtaWindow", 0.1)
+  desc.add<float>("deltaEtaWindow", 0.1)
       ->setComment(
           "Size of delta eta window to consider for superclustering. Seed-candidate pairs outside this window "
           "are not considered for DNN inference.");
-  desc.add<double>("deltaPhiWindow", 0.5)
+  desc.add<float>("deltaPhiWindow", 0.5)
       ->setComment(
           "Size of delta phi window to consider for superclustering. Seed-candidate pairs outside this window "
           "are not considered for DNN inference.");
-  desc.add<double>("seedPtThreshold", 4.)
+  desc.add<float>("seedPtThreshold", 4.)
       ->setComment("Minimum transverse energy of trackster to be considered as seed of a supercluster");
-  desc.add<double>("candidateEnergyThreshold", 2.)
+  desc.add<float>("candidateEnergyThreshold", 2.)
       ->setComment("Minimum energy of trackster to be considered as candidate for superclustering");
-  desc.add<double>("explVarRatioCut_energyBoundary", 50.)
+  desc.add<float>("explVarRatioCut_energyBoundary", 50.)
       ->setComment("Boundary energy between low and high energy explVarRatio cut threshold");
-  desc.add<double>("explVarRatioMinimum_lowEnergy", 0.92)
+  desc.add<float>("explVarRatioMinimum_lowEnergy", 0.92)
       ->setComment(
           "Cut on explained variance ratio of tracksters to be considered as candidate, "
           "for trackster raw_energy < explVarRatioCut_energyBoundary");
-  desc.add<double>("explVarRatioMinimum_highEnergy", 0.95)
+  desc.add<float>("explVarRatioMinimum_highEnergy", 0.95)
       ->setComment(
           "Cut on explained variance ratio of tracksters to be considered as candidate, "
           "for trackster raw_energy > explVarRatioCut_energyBoundary");
@@ -369,5 +369,5 @@ void TracksterLinkingbySuperClusteringDNN::fillPSetDescription(edm::ParameterSet
           "tracksterPIDCategoriesToFilter",
           {static_cast<int>(Trackster::ParticleType::photon), static_cast<int>(Trackster::ParticleType::electron)})
       ->setComment("List of PID particle types (ticl::Trackster::ParticleType enum) to consider for PID filtering");
-  desc.add<double>("PIDThreshold", 0.8)->setComment("PID score threshold");
+  desc.add<float>("PIDThreshold", 0.8)->setComment("PID score threshold");
 }

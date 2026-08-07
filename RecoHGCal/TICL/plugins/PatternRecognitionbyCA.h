@@ -52,16 +52,16 @@ namespace ticl {
     const unsigned int shower_start_max_layer_;
     const unsigned int min_layers_per_trackster_;
     const std::vector<int> filter_on_categories_;
-    const double pid_threshold_;
-    const double energy_em_over_total_threshold_;
-    const double max_longitudinal_sigmaPCA_;
+    const float pid_threshold_;
+    const float energy_em_over_total_threshold_;
+    const float max_longitudinal_sigmaPCA_;
     const int min_clusters_per_ntuplet_;
     const float max_delta_time_;
     const std::string eidInputName_;
     const std::string eidOutputNameEnergy_;
     const std::string eidOutputNameId_;
     const bool computeLocalTime_;
-    const std::vector<double> siblings_maxRSquared_;
+    const std::vector<float> siblings_maxRSquared_;
   };
 
 }  // namespace ticl

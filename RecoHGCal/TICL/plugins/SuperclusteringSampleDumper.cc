@@ -84,13 +84,13 @@ SuperclusteringSampleDumper::SuperclusteringSampleDumper(const edm::ParameterSet
     : tracksters_clue3d_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("tracksters"))),
       tsRecoToSimCP_token_(
           consumes<ticl::RecoToSimCollectionSimTracksters>(ps.getParameter<edm::InputTag>("recoToSimAssociatorCP"))),
-      deltaEtaWindow_(ps.getParameter<double>("deltaEtaWindow")),
-      deltaPhiWindow_(ps.getParameter<double>("deltaPhiWindow")),
-      seedPtThreshold_(ps.getParameter<double>("seedPtThreshold")),
-      candidateEnergyThreshold_(ps.getParameter<double>("candidateEnergyThreshold")),
-      explVarRatioCut_energyBoundary_(ps.getParameter<double>("explVarRatioCut_energyBoundary")),
-      explVarRatioMinimum_lowEnergy_(ps.getParameter<double>("explVarRatioMinimum_lowEnergy")),
-      explVarRatioMinimum_highEnergy_(ps.getParameter<double>("explVarRatioMinimum_highEnergy")),
+      deltaEtaWindow_(ps.getParameter<float>("deltaEtaWindow")),
+      deltaPhiWindow_(ps.getParameter<float>("deltaPhiWindow")),
+      seedPtThreshold_(ps.getParameter<float>("seedPtThreshold")),
+      candidateEnergyThreshold_(ps.getParameter<float>("candidateEnergyThreshold")),
+      explVarRatioCut_energyBoundary_(ps.getParameter<float>("explVarRatioCut_energyBoundary")),
+      explVarRatioMinimum_lowEnergy_(ps.getParameter<float>("explVarRatioMinimum_lowEnergy")),
+      explVarRatioMinimum_highEnergy_(ps.getParameter<float>("explVarRatioMinimum_highEnergy")),
       eventId_(),
       dnnInput_(makeSuperclusteringDNNInputFromString(ps.getParameter<std::string>("dnnInputsVersion"))),
       features_(dnnInput_->featureCount()) {
@@ -294,25 +294,25 @@ void SuperclusteringSampleDumper::fillDescriptions(edm::ConfigurationDescription
       ->setComment(
           "DNN inputs version tag. Defines which set of features is fed to the DNN. Must match with the actual DNN.");
   // Cuts are intentionally looser than those used for inference in TracksterLinkingBySuperClustering.cpp
-  desc.add<double>("deltaEtaWindow", 0.2)
+  desc.add<float>("deltaEtaWindow", 0.2)
       ->setComment(
           "Size of delta eta window to consider for superclustering. Seed-candidate pairs outside this window "
           "are not considered for DNN inference.");
-  desc.add<double>("deltaPhiWindow", 0.7)
+  desc.add<float>("deltaPhiWindow", 0.7)
       ->setComment(
           "Size of delta phi window to consider for superclustering. Seed-candidate pairs outside this window "
           "are not considered for DNN inference.");
-  desc.add<double>("seedPtThreshold", 3.)
+  desc.add<float>("seedPtThreshold", 3.)
       ->setComment("Minimum transverse momentum of trackster to be considered as seed of a supercluster");
-  desc.add<double>("candidateEnergyThreshold", 1.5)
+  desc.add<float>("candidateEnergyThreshold", 1.5)
       ->setComment("Minimum energy of trackster to be considered as candidate for superclustering");
-  desc.add<double>("explVarRatioCut_energyBoundary", 50.)
+  desc.add<float>("explVarRatioCut_energyBoundary", 50.)
       ->setComment("Boundary energy between low and high energy explVarRatio cut threshold");
-  desc.add<double>("explVarRatioMinimum_lowEnergy", 0.85)
+  desc.add<float>("explVarRatioMinimum_lowEnergy", 0.85)
       ->setComment(
           "Cut on explained variance ratio of tracksters to be considered as candidate, "
           "for trackster raw_energy < explVarRatioCut_energyBoundary");
-  desc.add<double>("explVarRatioMinimum_highEnergy", 0.9)
+  desc.add<float>("explVarRatioMinimum_highEnergy", 0.9)
       ->setComment(
           "Cut on explained variance ratio of tracksters to be considered as candidate, "
           "for trackster raw_energy > explVarRatioCut_energyBoundary");

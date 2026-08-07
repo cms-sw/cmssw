@@ -28,7 +28,7 @@ namespace ticl {
     std::vector<std::string> inputNames_;
     std::vector<std::string> outputNames_;
 
-    double eidMinClusterEnergy_;
+    float eidMinClusterEnergy_;
     int eidNLayers_;
     int eidNClusters_;
     int doPID_;
