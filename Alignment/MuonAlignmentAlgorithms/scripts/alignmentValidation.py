@@ -6,7 +6,10 @@ import optparse
 
 from mutypes import *
 
-execfile("plotscripts.py")
+# execfile("plotscripts.py")
+exec(open("./plotscripts.py").read())
+# from plotscripts import *
+print("plotscripts.py loaded")
 
 ROOT.gROOT.SetBatch(1);
 
@@ -297,7 +300,7 @@ def isFileUnderDir(dir_name, file_name):
 
 
 # to time saving of plots
-def saveAs(nm): 
+def saveAs(nm):
     t1 = time.time()
     ddt[15] += 1
     c1.SaveAs(nm)
@@ -377,7 +380,7 @@ def doMapPlotsDT(dt_basedir, tfiles_plotting):
     of x, y, dxdz, dydz vs. z (y and dydz only for stations 1-3)
     made for all stations
 
-    Interface: may be arranged into station(1 .. 4) map 
+    Interface: may be arranged into station(1 .. 4) map
     It could be incorporated into an EXTENDED general DT chambers map (extended by adding an
     identifier "ALL" in column1 for wheel number)."""
 
@@ -436,7 +439,7 @@ def doMapPlotsDT(dt_basedir, tfiles_plotting):
             label = "DTvsz_st%ssecALL" % (station[1])
             htitle = "station %s" % (station[1])
 
-            print(label, end=' ') 
+            print(label, end=' ')
             mapplot(tfiles_plotting, label, "x", window=10., title=htitle, peaksbins=2)
             c1.SaveAs(pdir+'map_DTvsz_all_x.png')
             mapplot(tfiles_plotting, label, "dxdz", window=10., title=htitle, peaksbins=2)
@@ -546,7 +549,7 @@ def doCurvaturePlotsDT(dt_basedir, tfiles_plotting):
     station 1 only!
     sector in "01", ..., "12"
 
-    "param" may be one of 
+    "param" may be one of
       "deltax" (Delta x position residuals),
       "deltadxdz" (Delta (dx/dz) angular residuals),
       "curverr" (Delta x * d(Delta q/pT)/d(Delta x) = Delta q/pT in the absence of misalignment) - not necessary
@@ -696,7 +699,7 @@ def doSegDiffPlotsCSC(csc_basedir, tfiles_plotting, iter_reports):
     rphi vs qpt, rphi for positive, rphi for negative ("csc_resid")
     drphidz vs qpt, drphidz for positive, drphidz for negative ("csc_slope")
     done for ME1-ME2, ME2-ME3, and ME3-ME4 stations combinations with
-      endcap "m" or "p" 
+      endcap "m" or "p"
       ring 1 or 2
       chamber 1-18 (r1) or 1-36 (r2)
     note: there's no ME3-ME4 plots for R2
@@ -717,10 +720,10 @@ def doSegDiffPlotsCSC(csc_basedir, tfiles_plotting, iter_reports):
                     qcount += 1
                     schamber = "%02d" % ichamber
                     pdir = csc_basedir+'/'+iendcap[0]+'/'+istation[1]+'/'+iring[1]+'/'+schamber+'/'
-                    segdiff(tfiles_plotting, "csc_resid", dstations, 
+                    segdiff(tfiles_plotting, "csc_resid", dstations,
                             endcap=iendcap[1], ring=int(iring[1]), chamber=ichamber, window=15.)
                     c1.SaveAs(pdir + 'segdif_csc_resid.png')
-                    segdiff(tfiles_plotting, "csc_slope", dstations, 
+                    segdiff(tfiles_plotting, "csc_slope", dstations,
                             endcap=iendcap[1], ring=int(iring[1]), chamber=ichamber, window=15.)
                     c1.SaveAs(pdir + 'segdif_csc_slope.png')
 
@@ -731,9 +734,9 @@ def doSegDiffPlotsCSC(csc_basedir, tfiles_plotting, iter_reports):
   dxdz vs phi of pair ("csc_slope")
   contains plots for two (or one for ME4-ME3) rings
   done for ME1-ME2, ME2-ME3, and ME3-ME4 stations combinations with
-    endcap "m" or "p" 
-  
-  Interface: could be accessed by clicking on ME station boxes, but only for stations 2-4 
+    endcap "m" or "p"
+
+  Interface: could be accessed by clicking on ME station boxes, but only for stations 2-4
   (e.g., station 2 would provide ME1-ME2 plots)."""
 
     qcount = 0
@@ -909,7 +912,7 @@ def createCanvasToIDList(fname="canvas2id_list.js"):
 
 def idsForFile(dir_name, file_name):
     '''Recursively looks for file named file_name under dir_name directory
-    and fill the list with dir names converted to IDs 
+    and fill the list with dir names converted to IDs
     '''
     id_list = []
     for f in os.listdir(dir_name):
@@ -921,7 +924,7 @@ def idsForFile(dir_name, file_name):
         elif os.path.isdir(dirfile):
             #print "Accessing directory:", dirfile
             ids = idsForFile(dirfile, file_name)
-            if (len(ids)>0): 
+            if (len(ids)>0):
                 id_list.extend(ids)
     return id_list
 
@@ -973,7 +976,7 @@ if not SINGLE_ITERATION:
     if os.access(fname+".root",os.F_OK):
         iter1_tfile = ROOT.TFile(fname+".root")
     if os.access(fname+"_report.py",os.F_OK):
-        execfile(fname+"_report.py")
+        exec(open(fname+"_report.py").read())
         iter1_reports = reports
 
 fname = options.inputDir+'/'+options.iN+'/'+iNprefix
@@ -993,7 +996,7 @@ if DO_MAP or DO_SEGDIFF or DO_CURVATURE: tfilesN_plotting.append(ROOT.TFile(fnam
 if os.access(fname+".root",os.F_OK):
     iterN_tfile = ROOT.TFile(fname+".root")
 if os.access(fname+"_report.py",os.F_OK):
-    execfile(fname+"_report.py")
+    exec(open(fname+"_report.py").read())
     iterN_reports = reports
 
 if DO_MAP:
