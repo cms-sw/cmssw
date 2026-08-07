@@ -40,7 +40,11 @@ public:
   virtual void reset() {}
 
   //provide base params
-  static void fillBasePSetDescription(edm::ParameterSetDescription& desc);
+  //defaultRetryType: retryType used for the default entry of the "Retry" VPSet.
+  //Clients that need a different default (e.g. TritonClient) can override it here,
+  //since only one place may declare "Retry" on a given ParameterSetDescription.
+  static void fillBasePSetDescription(edm::ParameterSetDescription& desc,
+                                      const std::string& defaultRetryType = "RetrySameServerAction");
 
 protected:
   void setMode(SonicMode mode);

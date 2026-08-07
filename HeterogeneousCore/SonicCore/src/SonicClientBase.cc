@@ -101,10 +101,24 @@ void SonicClientBase::finish(bool success, std::exception_ptr eptr) {
     reset();
 }
 
-void SonicClientBase::fillBasePSetDescription(edm::ParameterSetDescription& desc) {
+void SonicClientBase::fillBasePSetDescription(edm::ParameterSetDescription& desc, const std::string& defaultRetryType) {
   //restrict allowed values
   desc.ifValue(edm::ParameterDescription<std::string>("mode", "", true),
                edm::allowedValues<std::string>("Sync", "Async", "PseudoAsync", ""));
+
+  // Defines the structure of each entry in the VPSet
+  edm::ParameterSetDescription retryDesc;
+  retryDesc.add<std::string>("retryType", defaultRetryType);
+  retryDesc.addUntracked<unsigned>("allowedTries", 0);  //used by RetrySameServerAction only
+
+  // Define a default retry action
+  edm::ParameterSet defaultRetry;
+  defaultRetry.addParameter<std::string>("retryType", defaultRetryType);
+  defaultRetry.addUntrackedParameter<unsigned>("allowedTries", 0);
+
+  // Add the VPSet with the default retry action
+  desc.addVPSet("Retry", retryDesc, {defaultRetry});
+
   desc.add("sonicClientBase", desc);
   desc.addUntracked<bool>("verbose", false);
 }

@@ -676,7 +676,7 @@ void TritonClient::switchToFallback() {
 //for fillDescriptions
 void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   edm::ParameterSetDescription descClient;
-  fillBasePSetDescription(descClient);
+  fillBasePSetDescription(descClient, "RetryFallbackServerAction");
   descClient.add<std::string>("modelName");
   descClient.add<std::string>("modelVersion", "");
   descClient.add<edm::FileInPath>("modelConfigPath");
@@ -688,19 +688,6 @@ void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   descClient.addUntracked<bool>("useSharedMemory", true);
   descClient.addUntracked<std::string>("compression", "");
   descClient.addUntracked<std::vector<std::string>>("outputs", {});
-
-  // Defines the structure of each entry in the VPSet (must have a retryType)
-  edm::ParameterSetDescription retryDesc;
-  retryDesc.add<std::string>("retryType", "RetryFallbackServerAction");
-  retryDesc.addUntracked<unsigned>("allowedTries", 0);  //used by RetrySameServerAction only
-
-  // Define a default retry action
-  edm::ParameterSet defaultRetry;
-  defaultRetry.addParameter<std::string>("retryType", "RetryFallbackServerAction");
-  defaultRetry.addUntrackedParameter<unsigned>("allowedTries", 0);
-
-  // Add the VPSet with the default retry action
-  descClient.addVPSet("Retry", retryDesc, {defaultRetry});
 
   iDesc.add<edm::ParameterSetDescription>("Client", descClient);
 }
