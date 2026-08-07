@@ -82,8 +82,6 @@ std::string phase2tkutil::getHistoId(uint32_t det_id, const TrackerTopology* tTo
       foldername << (pretty ? "shell " : "") << Shell << (pretty ? " " : "/");
     else if (DetId(det_id).subdetId() == SiStripSubdetector::TID)
       foldername << Side;
-    else
-      foldername << (pretty ? "" : "THIS_SHOULD_NOT_APPEAR_3/");
   }
   // LEVEL == 4: Endcap rings
   if (LEVEL == 4) {
@@ -91,8 +89,6 @@ std::string phase2tkutil::getHistoId(uint32_t det_id, const TrackerTopology* tTo
       foldername << TEDD << "Ring" << ring << (pretty ? " " : "/");
     else if (DetId(det_id).subdetId() == PixelSubdetector::PixelEndcap)
       foldername << "Ring" << ring << (pretty ? " " : "/");
-    else
-      foldername << (pretty ? "" : "THIS_SHOULD_NOT_APPEAR_4/");
   }
   // LEVEL == 5: Endcap wheels
   if (LEVEL > 4) {
@@ -100,8 +96,6 @@ std::string phase2tkutil::getHistoId(uint32_t det_id, const TrackerTopology* tTo
       foldername << "Wheel" << wheel << (pretty ? " " : "/");
     else if (DetId(det_id).subdetId() == SiStripSubdetector::TID)
       foldername << TEDD << "Wheel" << wheel << (pretty ? " " : "/");
-    else
-      foldername << (pretty ? "" : "THIS_SHOULD_NOT_APPEAR_5/");
   }
   // LEVEL == 6: Barrel layers or endcap rings in wheels
   if (LEVEL > 5) {
@@ -199,13 +193,12 @@ typedef dqm::reco::DQMStore DQMStore;
 MonitorElement* phase2tkutil::book1DFromPSet(const edm::ParameterSet& hpars,
                                              DQMStore::IBooker& ibooker,
                                              std::string titleString,
-                                             bool scale) {
+                                             int scale) {
   MonitorElement* temp = nullptr;
   if (hpars.getParameter<bool>("switch")) {
     double xMax = hpars.getParameter<double>("xmax");
     std::string title = hpars.getParameter<std::string>("title");
-    if (scale)
-      xMax = xMax / 5;
+    xMax = xMax / scale;
     if (!titleString.empty())
       title = std::vformat(title, std::make_format_args(titleString));
     temp = ibooker.book1D(hpars.getParameter<std::string>("name"),

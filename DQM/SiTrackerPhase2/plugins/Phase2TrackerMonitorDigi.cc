@@ -94,6 +94,7 @@ private:
 
   const edm::ParameterSet config_;
   std::map<std::string, DigiMEs> layerMEs;
+  enum Level { ITOT = 1, SUBSTRUCTURE, SHELL_SIDE, ENDCAP_RING, ENDCAP_WHEEL, LAYER };
   const bool pixelFlag_;
   const bool clsFlag_;
   const std::string geomType_;
@@ -221,11 +222,15 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
         row_last = row;
         col_last = col;
       }
+      // Fill layer histograms
+      for (enum Level fillingDepth = ITOT; fillingDepth <= LAYER; fillingDepth = Level(fillingDepth + 1)) {
+        // Skip filling for barrel detIds on endcap-only depths
+        if ((fillingDepth == ENDCAP_RING || fillingDepth == ENDCAP_WHEEL) &&
+            DetId(detId).subdetId() == PixelSubdetector::PixelBarrel)
+          continue;
 
-      for (int fillingDepth = 1; fillingDepth <= 6; fillingDepth++) {
         std::string key = phase2tkutil::getHistoId(detId, tTopo_, detPos.phi(), fillingDepth, false);
         std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
-
         if (pos == layerMEs.end())
           continue;
         DigiMEs& local_mes = pos->second;
@@ -247,6 +252,7 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
           local_mes.nHitDetsPerLayer++;
           if (local_mes.NumberOfDigisPerDet)
             local_mes.NumberOfDigisPerDet->Fill(nDigi);
+
           float occupancy = 1.0;
           if (nRows * nColumns > 0)
             occupancy = nDigi * 1.0 / (nRows * nColumns);
@@ -256,7 +262,6 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
             if (local_mes.EtaOccupancyProfP)
               local_mes.EtaOccupancyProfP->Fill(gp.eta(), occupancy);
           }
-
           if (local_mes.DigiOccupancyP)
             local_mes.DigiOccupancyP->Fill(occupancy);
         }
@@ -356,7 +361,11 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
       if (CrackOverview)
         CrackOverview->Fill(module, layer + 0.05 - (module % 2 * 0.1));
 
-      for (int fillingDepth = 1; fillingDepth <= 6; fillingDepth++) {
+      // Fill layer histograms
+      for (enum Level fillingDepth = ITOT; fillingDepth <= LAYER; fillingDepth = Level(fillingDepth + 1)) {
+        // Skip filling for barrel detIds on endcap-only depths
+        if ((fillingDepth >= SHELL_SIDE && fillingDepth < LAYER) && DetId(detId).subdetId() == SiStripSubdetector::TOB)
+          continue;
         std::string key = phase2tkutil::getHistoId(detId, tTopo_, detPos.phi(), fillingDepth, false);
         std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
         if (pos == layerMEs.end())
@@ -482,7 +491,15 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
   const GeomDet* geomDet = tkGeom_->idToDet(det_id);
   GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
   TrackerGeometry::ModuleType moduleType = tkGeom_->getDetectorType(DetId(det_id));
-  for (int bookingDepth = 1; bookingDepth <= 6; bookingDepth++) {
+  for (enum Level bookingDepth = ITOT; bookingDepth <= LAYER; bookingDepth = Level(bookingDepth + 1)) {
+    // If this is a barrel det and bookingDepth is an endcap-only depth skip booking
+    if (pixelFlag_ && ((bookingDepth == ENDCAP_RING || bookingDepth == ENDCAP_WHEEL) &&
+                       DetId(det_id).subdetId() == PixelSubdetector::PixelBarrel))
+      continue;
+    if (!pixelFlag_ &&
+        ((bookingDepth >= SHELL_SIDE && bookingDepth < LAYER) && DetId(det_id).subdetId() == SiStripSubdetector::TOB))
+      continue;
+
     std::string key = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, false);
     std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, true);
     std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
@@ -504,9 +521,9 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
       local_mes.NumberOfDigisPerDet = phase2tkutil::book1DFromPSet(
           config_.getParameter<edm::ParameterSet>("NumberOfDigisPerDetH"), ibooker, prettyName);
       local_mes.TotalNumberOfDigisPerLayer = phase2tkutil::book1DFromPSet(
-          config_.getParameter<edm::ParameterSet>("TotalNumberOfDigisPerLayerH"), ibooker, prettyName, true);
+          config_.getParameter<edm::ParameterSet>("TotalNumberOfDigisPerLayerH"), ibooker, prettyName, bookingDepth);
       local_mes.NumberOfHitDetectorsPerLayer = phase2tkutil::book1DFromPSet(
-          config_.getParameter<edm::ParameterSet>("NumberOfHitDetsPerLayerH"), ibooker, prettyName, true);
+          config_.getParameter<edm::ParameterSet>("NumberOfHitDetsPerLayerH"), ibooker, prettyName, bookingDepth);
 
       // Plots only for the inner pixel
       if (pixelFlag_) {
