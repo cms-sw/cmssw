@@ -3,9 +3,11 @@
 
 #include "FWCore/Framework/interface/data_default_record_trait.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 
 #include <vector>
+#include <sstream>
 #include <string>
 
 namespace trackerTFP {
@@ -25,7 +27,7 @@ namespace trackerTFP {
       std::vector<int> linkMappingOut_;
     };
     Demonstrator() {}
-    Demonstrator(const Config& iConfig, const tt::Setup* setup);
+    Demonstrator(const Config& iConfig, const trackerDTC::Setup* setup);
     ~Demonstrator() = default;
     // plays input through modelsim and compares result with output
     bool analyze(const std::vector<std::vector<tt::Frame>>& input,
@@ -75,6 +77,6 @@ namespace trackerTFP {
 
 }  // namespace trackerTFP
 
-EVENTSETUP_DATA_DEFAULT_RECORD(trackerTFP::Demonstrator, tt::SetupRcd);
+EVENTSETUP_DATA_DEFAULT_RECORD(trackerTFP::Demonstrator, trackerDTC::SetupRcd);
 
 #endif

@@ -1,10 +1,9 @@
 #ifndef L1Trigger_TrackerTFP_HoughTransform_h
 #define L1Trigger_TrackerTFP_HoughTransform_h
 
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 #include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 #include <vector>
 #include <deque>
@@ -14,7 +13,7 @@ namespace trackerTFP {
   // Class to find initial rough candidates in r-phi in a region
   class HoughTransform {
   public:
-    HoughTransform(const tt::Setup* setup,
+    HoughTransform(const Setup* setup,
                    const DataFormats* dataFormats,
                    const LayerEncoding* layerEncoding,
                    std::vector<StubHT>& stubs);
@@ -33,7 +32,7 @@ namespace trackerTFP {
     //
     bool noTrack(const TTBV& pattern, int zT) const;
     // provides run-time constants
-    const tt::Setup* setup_;
+    const Setup* setup_;
     // provides dataformats
     const DataFormats* dataFormats_;
     //

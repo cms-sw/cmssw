@@ -23,6 +23,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 # load code that associates stubs with mctruth
 process.load( 'SimTracker.TrackTriggerAssociation.StubAssociator_cff' )
+# load code that analyzes mc truth
+process.load( 'L1Trigger.TrackTrigger.AnalyzerMC_cff' )
 # load code that produces DTCStubs
 process.load( 'L1Trigger.TrackerDTC.DTC_cff' )
 # load code that analyzes DTCStubs
@@ -35,11 +37,9 @@ process.load( 'L1Trigger.TrackFindingTracklet.Analyzer_cff' )
 process.load( 'L1Trigger.TrackFindingTracklet.Producer_cff' )
 from L1Trigger.TrackFindingTracklet.Customize_cff import *
 fwConfig( process )
-oldKFConfig( process )
-process.l1tTTTracksFromTrackletEmulation.readMoreMcTruth = False
 
 # build schedule
-process.mc       = cms.Sequence( process.StubAssociator                             )
+process.mc       = cms.Sequence( process.StubAssociator  + process.AnalyzerMC       )
 process.dtc      = cms.Sequence( process.ProducerDTC     + process.AnalyzerDTC      )
 process.tracklet = cms.Sequence( process.L1THybridTracks + process.AnalyzerTracklet )
 process.tm       = cms.Sequence( process.ProducerTM      + process.AnalyzerTM       )
@@ -47,7 +47,7 @@ process.dr       = cms.Sequence( process.ProducerDR      + process.AnalyzerDR   
 process.kf       = cms.Sequence( process.ProducerKF      + process.AnalyzerKF       )
 process.tq       = cms.Sequence( process.ProducerTQ      + process.AnalyzerTQ       )
 process.tfp      = cms.Sequence( process.ProducerTFP     + process.AnalyzerTFP      )
-process.tt       = cms.Path( process.mc + process.dtc + process.tracklet + process.tm + process.dr + process.kf + process.tq + process.tfp )
+process.tt       = cms.Path( process.mc + process.dtc + process.tracklet + process.tm + process.dr + process.AnalyzerTB + process.kf + process.tq + process.tfp )
 process.schedule = cms.Schedule( process.tt )
 
 # create options
@@ -58,10 +58,13 @@ options = VarParsing.VarParsing( 'analysis' )
 #from MCsamples.Scripts.getCMSlocaldata_cfi import *
 #from MCsamples.RelVal_1260_D88.PU200_TTbar_14TeV_cfi import *
 #inputMC = getCMSdataFromCards()
-Samples = ["/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/00c7f40e-b44e-4eea-a86b-def8f7d82b0e.root"]
+Samples = [
+  "/store/relval/CMSSW_15_1_0_pre5/RelValTTbar_14TeV_TuneCP5/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_RV269_Run4D110_PU-v2/2590000/0f0bcfd3-dafe-4dda-8d39-9765f6eae68e.root",
+]
+#Samples = ["/store/trimmed.root"]
 options.register( 'inputMC', Samples, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed" )
 # specify number of events to process.
-options.register( 'Events',100,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Number of Events to analyze" )
+options.register( 'Events',-1,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Number of Events to analyze" )
 options.parseArguments()
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
@@ -69,7 +72,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.Even
 process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring( options.inputMC ),
-  #skipEvents = cms.untracked.uint32( 3537 ),
+  #skipEvents = cms.untracked.uint32( 1 ),
   secondaryFileNames = cms.untracked.vstring(),
   duplicateCheckMode = cms.untracked.string( 'noDuplicateCheck' )
 )
@@ -81,9 +84,16 @@ process.TFileService = cms.Service( "TFileService", fileName = cms.string( "Hist
 if ( False ):
   process.out = cms.OutputModule (
     "PoolOutputModule",
-    fileName = cms.untracked.string("L1Tracks.root"),
+    fileName = cms.untracked.string("TrackletTracks.root"),
     fastCloning = cms.untracked.bool( False ),
-    outputCommands = cms.untracked.vstring('drop *', 'keep *_TTTrack*_*_*', 'keep *_TTStub*_*_*' )
+    outputCommands = process.RAWSIMEventContent.outputCommands,
   )
+  process.out.outputCommands.append('drop  *')
+  process.out.outputCommands.append('keep  *_TTStubsFromPhase2TrackerDigis_ClusterAccepted_*')
+  process.out.outputCommands.append('keep  *_TTStubsFromPhase2TrackerDigis_StubAccepted_*')
+  process.out.outputCommands.append('keep  *_Cleaner_*_*')
+  process.out.outputCommands.append('keep  *_StubAssociator_*_*')
+  process.out.outputCommands.append('keep  *_ProducerDTC_*_*')
+  process.out.outputCommands.append('keep  *_l1tTTTracksFromTrackletEmulation_*_*')
   process.FEVToutput_step = cms.EndPath( process.out )
   process.schedule.append( process.FEVToutput_step )

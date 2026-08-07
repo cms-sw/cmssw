@@ -36,7 +36,7 @@ namespace trklet {
     void execute(std::vector<Track>& outputtracks, unsigned int iSector);
 
   private:
-    double getPhiRes(Tracklet* curTracklet, const Stub* curStub) const;
+    double getPhiRes(const Tracklet* curTracklet, const Stub* curStub) const;
     bool isSeedingStub(int, int, int) const;
     std::string l1tinfo(const L1TStub*, std::string) const;
     std::pair<int, int> findLayerDisk(const Stub*) const;
@@ -58,14 +58,25 @@ namespace trklet {
     std::vector<unsigned int> findOverlapPhiBins(const Tracklet* trk) const;
     // sort the tracklets into the correct bin by comparing the overlap rinv bin(s) the tracklets are in to the current bin
     bool isTrackInBin(const std::vector<unsigned int>& vec, unsigned int num) const;
+    // makes CompareAll comparison into a function to make code more readable
+    void doCompareAll(const std::vector<std::pair<int, int>>& stubsTrk1,
+                      const std::vector<std::pair<int, int>>& stubsTrk2,
+                      bool layerArr[],
+                      unsigned int& nShareLay) const;
+    // makes CompareBest comaprison into a function to make code more readable
+    void doCompareBest(const std::vector<std::pair<int, int>>& stubsTrk,
+                       const std::vector<const Stub*>& fullStubslistsTrk,
+                       const Tracklet* sortedinputtracklets,
+                       int layStubidsTrk[]) const;
 
     std::vector<Track*> inputtracks_;
     std::vector<std::vector<const Stub*>> inputstublists_;
     std::vector<std::vector<std::pair<int, int>>> inputstubidslists_;
     std::vector<std::vector<std::pair<int, int>>> mergedstubidslists_;
-    std::vector<TrackFitMemory*> inputtrackfits_;
+    std::vector<const TrackFitMemory*> inputTrkFitMems_;
     std::vector<Tracklet*> inputtracklets_;
-    std::vector<CleanTrackMemory*> outputtracklets_;
+    std::vector<CleanTrackMemory*> outputCleanTrkMems_;
+    double phiSec_;  // phi of sector.
   };
 
 };  // namespace trklet

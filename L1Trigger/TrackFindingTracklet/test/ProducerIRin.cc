@@ -10,8 +10,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
-#include "L1Trigger/TrackFindingTracklet/interface/ChannelAssignment.h"
+#include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Setup.h"
 
 #include <string>
 #include <vector>
@@ -39,15 +39,11 @@ namespace trklet {
     // ED output token for stubs
     edm::EDPutTokenT<tt::StreamsStub> edPutTokenStubs_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
-    // ChannelAssignment token
-    edm::ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
     // configuration
     edm::ParameterSet iConfig_;
     // helper class to store configurations
-    const tt::Setup* setup_;
-    // helper class to assign stubs to channel
-    const ChannelAssignment* channelAssignment_;
+    const Setup* setup_;
     // map of used tfp channels
     std::vector<int> channelEncoding_;
   };
@@ -59,8 +55,7 @@ namespace trklet {
     edGetTokenTTDTC_ = consumes<TTDTC>(inputTag);
     edPutTokenStubs_ = produces<tt::StreamsStub>(branchStubs);
     // book ES products
-    esGetTokenSetup_ = esConsumes<tt::Setup, tt::SetupRcd, edm::Transition::BeginRun>();
-    esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, edm::Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes<Setup, trackerDTC::SetupRcd, edm::Transition::BeginRun>();
     // initial ES products
     setup_ = nullptr;
   }
@@ -68,9 +63,6 @@ namespace trklet {
   void ProducerIRin::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
     // helper class to store configurations
     setup_ = &iSetup.getData(esGetTokenSetup_);
-    channelAssignment_ = const_cast<ChannelAssignment*>(&iSetup.getData(esGetTokenChannelAssignment_));
-    // map of used tfp channels
-    channelEncoding_ = channelAssignment_->channelEncoding();
   }
 
   void ProducerIRin::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {

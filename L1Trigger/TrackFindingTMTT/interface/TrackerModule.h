@@ -23,8 +23,6 @@ namespace tmtt {
 
   class TrackerModule {
   public:
-    enum BarrelModuleType { tiltedMinusZ = 1, tiltedPlusZ = 2, flat = 3 };
-
     // Info used to define firmware module type.
     struct ModuleTypeCfg {
       std::vector<double> pitchVsType;
