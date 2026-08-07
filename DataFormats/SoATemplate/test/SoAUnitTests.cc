@@ -16,6 +16,11 @@ GENERATE_SOA_LAYOUT(SimpleLayoutTemplate,
 
 using SimpleLayout = SimpleLayoutTemplate<>;
 
+namespace {
+  template <typename TView>
+  concept Immutable = requires(TView view) { requires !requires { view[0] = decltype(view[0]){}; }; };
+}  // namespace
+
 TEST_CASE("SoATemplate") {
   // number of elements
   const std::size_t slSize = 10;
@@ -165,5 +170,19 @@ TEST_CASE("SoATemplate") {
     // Check for under- and overflow in the element accessors
     REQUIRE_THROWS_WITH(slcv.x(underflow), Catch::Matchers::ContainsSubstring("at file"));
     REQUIRE_THROWS_WITH(slcv.x(overflow), Catch::Matchers::ContainsSubstring("at file"));
+  }
+
+  SECTION("Check immutability of ConstView") {
+    using ConstView =
+        SimpleLayout::ConstViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::extended>;
+    static_assert(Immutable<ConstView>);
+  }
+
+  SECTION("Check views conversions") {
+    using ConstView =
+        SimpleLayout::ConstViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::extended>;
+    using View = SimpleLayout::ViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::extended>;
+    static_assert(std::convertible_to<View, ConstView>);
+    static_assert(!std::convertible_to<ConstView, View>);
   }
 }
