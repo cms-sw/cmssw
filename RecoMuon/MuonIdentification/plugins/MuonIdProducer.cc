@@ -131,8 +131,8 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
     produces<reco::IsoDepositMap>(jetDepositName_);
   }
 
-  inputCollectionLabels_ = iConfig.getParameter<std::vector<edm::InputTag> >("inputCollectionLabels");
-  const auto inputCollectionTypes = iConfig.getParameter<std::vector<std::string> >("inputCollectionTypes");
+  inputCollectionLabels_ = iConfig.getParameter<std::vector<edm::InputTag>>("inputCollectionLabels");
+  const auto inputCollectionTypes = iConfig.getParameter<std::vector<std::string>>("inputCollectionTypes");
   if (inputCollectionLabels_.size() != inputCollectionTypes.size())
     throw cms::Exception("ConfigurationError")
         << "Number of input collection labels is different from number of types. "
@@ -151,7 +151,7 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
   }
   if (fillGlobalTrackQuality_) {
     const auto& glbQualTag = iConfig.getParameter<edm::InputTag>("globalTrackQualityInputTag");
-    glbQualToken_ = consumes<edm::ValueMap<reco::MuonQuality> >(glbQualTag);
+    glbQualToken_ = consumes<edm::ValueMap<reco::MuonQuality>>(glbQualTag);
   }
 
   if (fillTrackerKink_) {
@@ -1198,9 +1198,9 @@ void MuonIdProducer::fillArbitrationInfo(reco::MuonCollection* pOutputMuons, uns
   //
   // apply segment flags
   //
-  std::vector<std::pair<reco::MuonChamberMatch*, reco::MuonSegmentMatch*> > chamberPairs;  // for chamber segment sorting
-  std::vector<std::pair<reco::MuonChamberMatch*, reco::MuonSegmentMatch*> > stationPairs;  // for station segment sorting
-  std::vector<std::pair<reco::MuonChamberMatch*, reco::MuonSegmentMatch*> >
+  std::vector<std::pair<reco::MuonChamberMatch*, reco::MuonSegmentMatch*>> chamberPairs;  // for chamber segment sorting
+  std::vector<std::pair<reco::MuonChamberMatch*, reco::MuonSegmentMatch*>> stationPairs;  // for station segment sorting
+  std::vector<std::pair<reco::MuonChamberMatch*, reco::MuonSegmentMatch*>>
       arbitrationPairs;  // for muon segment arbitration
 
   // muonIndex1
@@ -1525,7 +1525,55 @@ bool MuonIdProducer::checkLinks(const reco::MuonTrackLinks* links) const {
 
 void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.setAllowAnything();
+
+  desc.add<double>("minPt", 0.5);
+  desc.add<double>("minP", 2.5);
+  desc.add<double>("minPCaloMuon", 1e9);
+  desc.add<int>("minNumberOfMatches", 1);
+  desc.add<bool>("addExtraSoftMuons", false);
+  desc.add<double>("maxAbsEta", 3.0);
+
+  desc.add<double>("maxAbsDx", 3.0);
+  desc.add<double>("maxAbsDy", 9999.0);
+  desc.add<double>("maxAbsPullX", 3.0);
+  desc.add<double>("maxAbsPullY", 9999.0);
+
+  desc.add<bool>("fillCaloCompatibility", true);
+  desc.add<bool>("fillEnergy", true);
+  desc.add<bool>("fillMatching", true);
+  desc.add<bool>("fillIsolation", true);
+  desc.add<bool>("writeIsoDeposits", false);
+  desc.add<bool>("fillGlobalTrackQuality", false);
+  desc.add<bool>("fillGlobalTrackRefits", true);
+  desc.add<bool>("debugWithTruthMatching", false);
+
+  desc.add<double>("ptThresholdToFillCandidateP4WithGlobalFit", 200.0);
+  desc.add<double>("sigmaThresholdToFillCandidateP4WithGlobalFit", 2.0);
+
+  desc.add<double>("minCaloCompatibility", 0.6);
+
+  desc.add<bool>("runArbitrationCleaner", true);
+
+  desc.add<std::vector<edm::InputTag>>("inputCollectionLabels",
+                                       std::vector<edm::InputTag>{edm::InputTag("generalTracks"),
+                                                                  edm::InputTag("globalMuons"),
+                                                                  edm::InputTag("standAloneMuons", "UpdatedAtVtx"),
+                                                                  edm::InputTag("standAloneMuons"),
+                                                                  edm::InputTag("tevMuons", "firstHit"),
+                                                                  edm::InputTag("tevMuons", "picky"),
+                                                                  edm::InputTag("tevMuons", "dyt")});
+  desc.add<std::vector<std::string>>(
+      "inputCollectionTypes",
+      std::vector<std::string>{
+          "inner tracks", "links", "outer tracks", "outer tracks", "tev firstHit", "tev picky", "tev dyt"});
+
+  desc.add<std::string>("trackDepositName", "tracker");
+  desc.add<std::string>("ecalDepositName", "ecal");
+  desc.add<std::string>("hcalDepositName", "hcal");
+  desc.add<std::string>("hoDepositName", "ho");
+  desc.add<std::string>("jetDepositName", "jets");
+
+  desc.add<edm::InputTag>("globalTrackQualityInputTag", edm::InputTag("globalTrackQualityInputTag"));
 
   desc.add<bool>("arbitrateTrackerMuons", false);
   desc.add<bool>("storeCrossedHcalRecHits", false);
@@ -1538,6 +1586,34 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 
   edm::ParameterSetDescription descTrkAsoPar;
   descTrkAsoPar.add<edm::InputTag>("GEMSegmentCollectionLabel", edm::InputTag("gemSegments"));
+  descTrkAsoPar.add<edm::InputTag>("CaloTowerCollectionLabel", edm::InputTag("towerMaker"));
+  descTrkAsoPar.add<edm::InputTag>("DTRecSegment4DCollectionLabel", edm::InputTag("hltDt4DSegments"));
+  descTrkAsoPar.add<edm::InputTag>("CSCSegmentCollectionLabel", edm::InputTag("hltCscSegments"));
+  descTrkAsoPar.add<edm::InputTag>("EBRecHitCollectionLabel", edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
+  descTrkAsoPar.add<edm::InputTag>("EERecHitCollectionLabel", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
+  descTrkAsoPar.add<edm::InputTag>("HBHERecHitCollectionLabel", edm::InputTag("hbhereco"));
+  descTrkAsoPar.add<edm::InputTag>("HORecHitCollectionLabel", edm::InputTag("horeco"));
+  descTrkAsoPar.add<bool>("accountForTrajectoryChangeCalo", true);
+  descTrkAsoPar.add<double>("dREcal", 9999.0);
+  descTrkAsoPar.add<double>("dREcalPreselection", 0.05);
+  descTrkAsoPar.add<double>("dRHcal", 9999.0);
+  descTrkAsoPar.add<double>("dRHcalPreselection", 0.2);
+  descTrkAsoPar.add<double>("dRMuon", 9999.0);
+  descTrkAsoPar.add<double>("dRMuonPreselection", 0.2);
+  descTrkAsoPar.add<double>("dRPreshowerPreselection", 0.2);
+  descTrkAsoPar.add<double>("muonMaxDistanceSigmaX", 0.0);
+  descTrkAsoPar.add<double>("muonMaxDistanceSigmaY", 0.0);
+  descTrkAsoPar.add<double>("muonMaxDistanceX", 5.0);
+  descTrkAsoPar.add<double>("muonMaxDistanceY", 5.0);
+  descTrkAsoPar.add<bool>("propagateAllDirections", true);
+  descTrkAsoPar.add<double>("trajectoryUncertaintyTolerance", -1.0);
+  descTrkAsoPar.add<bool>("truthMatch", false);
+  descTrkAsoPar.add<bool>("useCalo", false);
+  descTrkAsoPar.add<bool>("useEcal", true);
+  descTrkAsoPar.add<bool>("useHO", true);
+  descTrkAsoPar.add<bool>("useHcal", true);
+  descTrkAsoPar.add<bool>("useMuon", true);
+  descTrkAsoPar.add<bool>("usePreshower", false);
   descTrkAsoPar.add<edm::InputTag>("ME0SegmentCollectionLabel", edm::InputTag("me0Segments"));
   descTrkAsoPar.add<bool>("useGEM", false);
   descTrkAsoPar.add<bool>("useME0", false);
@@ -1545,16 +1621,27 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descTrkAsoPar.add<edm::InputTag>("RPCHitCollectionLabel", edm::InputTag("rpcRecHits"));
   descTrkAsoPar.add<edm::InputTag>("GEMHitCollectionLabel", edm::InputTag("gemRecHits"));
   descTrkAsoPar.add<edm::InputTag>("ME0HitCollectionLabel", edm::InputTag("me0RecHits"));
-  descTrkAsoPar.setAllowAnything();
   desc.add<edm::ParameterSetDescription>("TrackAssociatorParameters", descTrkAsoPar);
 
   edm::ParameterSetDescription descJet;
-  descJet.setAllowAnything();
   descJet.add<edm::ParameterSetDescription>("TrackAssociatorParameters", descTrkAsoPar);
+  descJet.add<std::string>("ComponentName", "JetExtractor");
+  descJet.add<double>("DR_Max", 1.0);
+  descJet.add<double>("DR_Veto", 0.1);
+  descJet.add<bool>("ExcludeMuonVeto", true);
+  descJet.add<edm::InputTag>("JetCollectionLabel", edm::InputTag("ak4CaloJets"));
+  descJet.addUntracked<bool>("PrintTimeReport", false);
+  descJet.add<std::string>("PropagatorName", "SteppingHelixPropagatorAny");
+  descJet.add<double>("Threshold", 5.0);
+
+  edm::ParameterSetDescription descServicePar;
+  descServicePar.addUntracked<std::vector<std::string>>("Propagators", {"SteppingHelixPropagatorAny"});
+  descServicePar.add<bool>("RPCLayers", false);
+  descServicePar.addUntracked<bool>("UseMuonNavigation", false);
+  descJet.add<edm::ParameterSetDescription>("ServiceParameters", descServicePar);
   desc.add<edm::ParameterSetDescription>("JetExtractorPSet", descJet);
 
   edm::ParameterSetDescription descCalo;
-  descCalo.setAllowAnything();
   descCalo.add<edm::ParameterSetDescription>("TrackAssociatorParameters", descTrkAsoPar);
   descCalo.add<bool>("UseEcalRecHitsFlag", false);
   descCalo.add<bool>("UseHcalRecHitsFlag", false);
@@ -1563,7 +1650,153 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descCalo.add<bool>("HcalCutsFromDB", false);
   descCalo.add<int>("MaxSeverityHB", 9);
   descCalo.add<int>("MaxSeverityHE", 9);
+  descCalo.add<bool>("CenterConeOnCalIntersection", false);
+  descCalo.add<std::string>("ComponentName", "CaloExtractorByAssociator");
+  descCalo.add<double>("DR_Max", 0.5);
+  descCalo.add<double>("DR_Veto_E", 0.07);
+  descCalo.add<double>("DR_Veto_H", 0.1);
+  descCalo.add<double>("DR_Veto_HO", 0.1);
+  descCalo.add<std::vector<std::string>>("DepositInstanceLabels", {"ecal", "hcal", "ho"});
+  descCalo.addUntracked<std::string>("DepositLabel", "Cal");
+  descCalo.add<double>("NoiseTow_EB", 0.04);
+  descCalo.add<double>("NoiseTow_EE", 0.15);
+  descCalo.add<double>("Noise_EB", 0.025);
+  descCalo.add<double>("Noise_EE", 0.1);
+  descCalo.add<double>("Noise_HB", 0.2);
+  descCalo.add<double>("Noise_HE", 0.2);
+  descCalo.add<double>("Noise_HO", 0.2);
+  descCalo.addUntracked<bool>("PrintTimeReport", false);
+  descCalo.add<std::string>("PropagatorName", "SteppingHelixPropagatorAny");
+
+  edm::ParameterSetDescription descCaloServicePar;
+  descCaloServicePar.addUntracked<std::vector<std::string>>("Propagators", {"SteppingHelixPropagatorAny"});
+  descCaloServicePar.add<bool>("RPCLayers", false);
+  descCaloServicePar.addUntracked<bool>("UseMuonNavigation", false);
+  descCalo.add<edm::ParameterSetDescription>("ServiceParameters", descCaloServicePar);
+  descCalo.add<double>("Threshold_E", 0.025);
+  descCalo.add<double>("Threshold_H", 0.5);
+  descCalo.add<double>("Threshold_HO", 0.5);
+  descCalo.add<bool>("UseRecHitsFlag", false);
   desc.add<edm::ParameterSetDescription>("CaloExtractorPSet", descCalo);
+
+  edm::ParameterSetDescription descMuonCalo;
+  descMuonCalo.add<edm::FileInPath>(
+      "PionTemplateFileName",
+      edm::FileInPath("RecoMuon/MuonIdentification/data/MuID_templates_pions_lowPt_3_1_norm.root"));
+  descMuonCalo.add<edm::FileInPath>(
+      "MuonTemplateFileName",
+      edm::FileInPath("RecoMuon/MuonIdentification/data/MuID_templates_muons_lowPt_3_1_norm.root"));
+  descMuonCalo.add<double>("delta_eta", 0.02);
+  descMuonCalo.add<double>("delta_phi", 0.02);
+  descMuonCalo.add<bool>("allSiPMHO", false);
+  desc.add<edm::ParameterSetDescription>("MuonCaloCompatibility", descMuonCalo);
+
+  edm::ParameterSetDescription descShowerDigi;
+  descShowerDigi.add<double>("digiMaxDistanceX", 25.0);
+  descShowerDigi.add<edm::InputTag>("dtDigiCollectionLabel", edm::InputTag("muonDTDigis"));
+  descShowerDigi.add<edm::InputTag>("cscDigiCollectionLabel", edm::InputTag("muonCSCDigis", "MuonCSCStripDigi"));
+  desc.add<edm::ParameterSetDescription>("ShowerDigiFillerParameters", descShowerDigi);
+
+  edm::ParameterSetDescription descMatchParameters;
+  descMatchParameters.add<edm::InputTag>("DTsegments", edm::InputTag("hltDt4DSegments"));
+  descMatchParameters.add<double>("DTradius", 0.01);
+  descMatchParameters.add<edm::InputTag>("CSCsegments", edm::InputTag("hltCscSegments"));
+  descMatchParameters.add<edm::InputTag>("RPChits", edm::InputTag("hltRpcRecHits"));
+  descMatchParameters.add<bool>("TightMatchDT", false);
+  descMatchParameters.add<bool>("TightMatchCSC", true);
+
+  edm::ParameterSetDescription descDTTimingServiceParameters;
+  descDTTimingServiceParameters.addUntracked<std::vector<std::string>>(
+      "Propagators", {"SteppingHelixPropagatorAny", "PropagatorWithMaterial", "PropagatorWithMaterialOpposite"});
+  descDTTimingServiceParameters.add<bool>("RPCLayers", true);
+
+  edm::ParameterSetDescription descDTTimingParameters;
+  descDTTimingParameters.add<edm::ParameterSetDescription>("ServiceParameters", descDTTimingServiceParameters);
+  descDTTimingParameters.add<edm::InputTag>("DTsegments", edm::InputTag("hltDt4DSegments"));
+  descDTTimingParameters.add<edm::ParameterSetDescription>("MatchParameters", descMatchParameters);
+  descDTTimingParameters.add<double>("PruneCut", 5.0);
+  descDTTimingParameters.add<double>("DTTimeOffset", 0.0);
+  descDTTimingParameters.add<double>("HitError", 2.8);
+  descDTTimingParameters.add<int>("HitsMin", 3);
+  descDTTimingParameters.add<bool>("UseSegmentT0", false);
+  descDTTimingParameters.add<bool>("DoWireCorr", true);
+  descDTTimingParameters.add<bool>("DropTheta", true);
+  descDTTimingParameters.add<bool>("RequireBothProjections", false);
+  descDTTimingParameters.add<bool>("debug", false);
+
+  edm::ParameterSetDescription descCSCTimingServiceParameters;
+  descCSCTimingServiceParameters.addUntracked<std::vector<std::string>>(
+      "Propagators", {"SteppingHelixPropagatorAny", "PropagatorWithMaterial", "PropagatorWithMaterialOpposite"});
+  descCSCTimingServiceParameters.add<bool>("RPCLayers", true);
+
+  edm::ParameterSetDescription descCSCTimingParameters;
+  descCSCTimingParameters.add<edm::ParameterSetDescription>("ServiceParameters", descCSCTimingServiceParameters);
+  descCSCTimingParameters.add<edm::InputTag>("CSCsegments", edm::InputTag("hltCscSegments"));
+  descCSCTimingParameters.add<edm::ParameterSetDescription>("MatchParameters", descMatchParameters);
+  descCSCTimingParameters.add<double>("PruneCut", 9.0);
+  descCSCTimingParameters.add<double>("CSCStripTimeOffset", 0.0);
+  descCSCTimingParameters.add<double>("CSCWireTimeOffset", 0.0);
+  descCSCTimingParameters.add<double>("CSCTimeOffset", 0.0);
+  descCSCTimingParameters.add<double>("CSCStripError", 7.0);
+  descCSCTimingParameters.add<double>("CSCWireError", 8.6);
+  descCSCTimingParameters.add<bool>("UseStripTime", true);
+  descCSCTimingParameters.add<bool>("UseWireTime", true);
+  descCSCTimingParameters.add<bool>("debug", false);
+
+  edm::ParameterSetDescription descTimingFiller;
+  descTimingFiller.add<edm::ParameterSetDescription>("DTTimingParameters", descDTTimingParameters);
+  descTimingFiller.add<edm::ParameterSetDescription>("CSCTimingParameters", descCSCTimingParameters);
+  descTimingFiller.add<edm::ParameterSetDescription>("MatchParameters", descMatchParameters);
+  descTimingFiller.add<double>("EcalEnergyCut", 0.4);
+  descTimingFiller.add<double>("ErrorDT", 6.0);
+  descTimingFiller.add<double>("ErrorCSC", 7.4);
+  descTimingFiller.add<double>("ErrorEB", 2.085);
+  descTimingFiller.add<double>("ErrorEE", 6.95);
+  descTimingFiller.add<bool>("UseDT", true);
+  descTimingFiller.add<bool>("UseCSC", true);
+  descTimingFiller.add<bool>("UseECAL", false);
+  desc.add<edm::ParameterSetDescription>("TimingFillerParameters", descTimingFiller);
+
+  edm::ParameterSetDescription descTrackExtractor;
+  descTrackExtractor.add<double>("Diff_z", 0.2);
+  descTrackExtractor.add<edm::InputTag>("inputTrackCollection", edm::InputTag("generalTracks"));
+  descTrackExtractor.add<edm::InputTag>("BeamSpotLabel", edm::InputTag("offlineBeamSpot"));
+  descTrackExtractor.add<std::string>("ComponentName", "TrackExtractor");
+  descTrackExtractor.add<double>("DR_Max", 0.5);
+  descTrackExtractor.add<double>("Diff_r", 0.1);
+  descTrackExtractor.add<double>("Chi2Prob_Min", -1.0);
+  descTrackExtractor.add<double>("DR_Veto", 0.01);
+  descTrackExtractor.add<unsigned int>("NHits_Min", 0);
+  descTrackExtractor.add<double>("Chi2Ndof_Max", 1e+64);
+  descTrackExtractor.add<double>("Pt_Min", -1.0);
+  descTrackExtractor.addUntracked<std::string>("DepositLabel", "");
+  descTrackExtractor.add<std::string>("BeamlineOption", "BeamSpotFromEvent");
+  desc.add<edm::ParameterSetDescription>("TrackExtractorPSet", descTrackExtractor);
+
+  edm::ParameterSetDescription descTrackerKink;
+  descTrackerKink.add<bool>("usePosition", true);
+  descTrackerKink.add<bool>("diagonalOnly", false);
+  descTrackerKink.add<bool>("DoPredictionsOnly", false);
+  descTrackerKink.add<std::string>("Fitter", "KFFitterForRefitInsideOut");
+  descTrackerKink.add<std::string>("TrackerRecHitBuilder", "WithAngleAndTemplate");
+  descTrackerKink.add<std::string>("Smoother", "KFSmootherForRefitInsideOut");
+  descTrackerKink.add<std::string>("MuonRecHitBuilder", "MuonRecHitBuilder");
+  descTrackerKink.add<std::string>("MTDRecHitBuilder", "MTDRecHitBuilder");
+  descTrackerKink.add<std::string>("RefitDirection", "alongMomentum");
+  descTrackerKink.add<bool>("RefitRPCHits", true);
+  descTrackerKink.add<std::string>("Propagator", "SmartPropagatorAnyRKOpposite");
+  desc.add<edm::ParameterSetDescription>("TrackerKinkFinderParameters", descTrackerKink);
+  desc.add<bool>("fillTrackerKink", true);
+
+  edm::ParameterSetDescription descArbitrationCleaner;
+  descArbitrationCleaner.add<bool>("ME1a", true);
+  descArbitrationCleaner.add<bool>("Overlap", true);
+  descArbitrationCleaner.add<bool>("Clustering", true);
+  descArbitrationCleaner.add<double>("OverlapDPhi", 0.0786);
+  descArbitrationCleaner.add<double>("OverlapDTheta", 0.02);
+  descArbitrationCleaner.add<double>("ClusterDPhi", 0.6);
+  descArbitrationCleaner.add<double>("ClusterDTheta", 0.02);
+  desc.add<edm::ParameterSetDescription>("arbitrationCleanerOptions", descArbitrationCleaner);
 
   descriptions.addDefault(desc);
 }
