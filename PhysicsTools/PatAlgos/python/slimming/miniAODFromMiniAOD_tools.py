@@ -412,9 +412,22 @@ def miniAODFromMiniAOD_customizeCommon(process):
       process, task
     )
 
+    from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import patMuons as _patMuons
+    addToProcessAndTask("slimmedMuonsUpdatedMini2MiniIDs", cms.EDProducer("PATMuonUpdater",
+        src = cms.InputTag("slimmedMuonsUpdatedPuppiIsolation"),
+        vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
+        beamspot = cms.InputTag("offlineBeamSpot"),
+        computeMiniIso = cms.bool(False),
+        fixDxySign = cms.bool(False),
+        recomputeMuonBasicSelectors = cms.bool(True),
+        recomputeSoftMuonMvaRun3 = cms.bool(True),
+        softMvaRun3Model = _patMuons.softMvaRun3Model,
+      ),
+      process, task
+    )
 
     addToProcessAndTask("slimmedMuons", cms.EDProducer("PATMuonCandidatesRekeyer",
-        src = cms.InputTag("slimmedMuonsUpdatedPuppiIsolation"),
+        src = cms.InputTag("slimmedMuonsUpdatedMini2MiniIDs"),
         packedPFCandidatesNew = cms.InputTag("packedPFCandidates", processName=cms.InputTag.currentProcess()),
       ),
       process, task
