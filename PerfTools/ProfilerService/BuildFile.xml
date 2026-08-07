@@ -1,0 +1,10 @@
+<export>
+  <use name="boost"/>
+  <use name="fmt" />
+  <use name="tbb"/>
+  <use name="DataFormats/Provenance"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ServiceRegistry"/>
+</export>
+
