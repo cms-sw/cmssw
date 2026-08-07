@@ -8,6 +8,19 @@
 #include "SoACommon.h"
 #include "SoALayout.h"
 
+// clang-format off
+#define _DECLARE_SOA_BLOCKS_STREAM_INFO_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME)                   \
+  _soa_impl_os << BOOST_PP_CAT(NAME, _);                                                      \
+  _soa_impl_offset += LayoutFor<LAYOUT_NAME>::computeDataSize(                                \
+      cms::soa::detail::extractSegment<LayoutFor<LAYOUT_NAME>, blocksNumber>(sizes_, index)); \
+  index += cms::soa::detail::nBlocks<LayoutFor<LAYOUT_NAME>>();
+// clang-format on
+
+#define _DECLARE_SOA_BLOCKS_STREAM_INFO(R, DATA, NAME)                           \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
+              BOOST_PP_EMPTY(),                                                  \
+              BOOST_PP_EXPAND(_DECLARE_SOA_BLOCKS_STREAM_INFO_IMPL NAME))
+
 /*
  * Declare accessors for the View of each block
  */
@@ -347,6 +360,23 @@
             bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::Default,                                                \
             cms::soa::RangeChecking::Mode RANGE_CHECKING = cms::soa::RangeChecking::Default>                           \
     struct ViewTemplateFreeParams;                                                                                     \
+                                                                                                                       \
+    SOA_HOST_ONLY                                                                                                      \
+    void soaToStreamInternal(std::ostream & _soa_impl_os) const {                                                      \
+      _soa_impl_os << #CLASS "([";                                                                                     \
+      for (auto it = sizes_.begin(); it != sizes_.end(); ++it) {                                                       \
+          if (it != sizes_.begin()) {_soa_impl_os << ", ";}                                                            \
+          _soa_impl_os << *it;                                                                                         \
+      }                                                                                                                \
+      _soa_impl_os << "] elements, in " << blocksNumber << " blocks, byte alignement= " << alignment << "): \n";       \
+      _soa_impl_os << "  sizeof(" #CLASS "): " << sizeof(CLASS) << "\n";                                               \
+      _soa_impl_os << "  The " << blocksNumber << " blocks are:\n\n";                                                  \
+      byte_size_type _soa_impl_offset = 0;                                                                             \
+      size_type index = 0;                                                                                             \
+      _ITERATE_ON_ALL(_DECLARE_SOA_BLOCKS_STREAM_INFO, ~, __VA_ARGS__)                                                 \
+      _soa_impl_os << "Final offset of all blocks = " << _soa_impl_offset << " computeDataSize(...): "                 \
+      << computeDataSize(sizes_) << "\n\n";                                                                            \
+    }                                                                                                                  \
                                                                                                                        \
     /* Helper function to compute the total number of blocks */                                                        \
     static constexpr size_type computeBlocksNumber() {                                                                 \
