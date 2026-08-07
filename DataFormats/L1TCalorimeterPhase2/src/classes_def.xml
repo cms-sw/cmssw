@@ -19,7 +19,8 @@
   <class name="l1tp2::CaloJetsCollection" />
   <class name="edm::Wrapper<l1tp2::CaloJetsCollection>" />
 
-  <class name="l1tp2::CaloPFCluster"  ClassVersion="3">
+  <class name="l1tp2::CaloPFCluster"  ClassVersion="4">
+   <version ClassVersion="4" checksum="2604608790"/>
          <version ClassVersion="3" checksum="2155055229"/>
   </class>
   <class name="std::vector<l1tp2::CaloPFCluster>" />
@@ -74,6 +75,18 @@
   <class name="l1tp2::Phase2L1CaloJetCollection" />
   <class name="edm::Wrapper<l1tp2::Phase2L1CaloJetCollection>" />
 
+  <class name="l1tp2::DigitizedL1CaloJet"  ClassVersion="5">
+      <version ClassVersion="5" checksum="2456665692"/>
+  </class>
+  <class name="std::vector<l1tp2::DigitizedL1CaloJet>" />
+  <class name="l1tp2::DigitizedL1CaloJetCollection" />
+  <class name="edm::Wrapper<l1tp2::DigitizedL1CaloJetCollection>" />
+
+  <class name="l1tp2::DigitizedCaloToCorrelatorTM18"  ClassVersion="10">
+	  <version ClassVersion="10" checksum="222187906"/>
+  </class>
+  <class name="l1tp2::DigitizedCaloToCorrelatorCollectionTM18" />
+  <class name="edm::Wrapper<l1tp2::DigitizedCaloToCorrelatorCollectionTM18>" />
   
 </lcgdict>
 
