@@ -1,3 +1,4 @@
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "RecoHGCal/TICL/interface/TICLInterpretationAlgoBase.h"
 #include "RecoHGCal/TICL/interface/TICLUtils.h"
 #include "RecoHGCal/TICL/plugins/GeneralInterpretationAlgo.h"
@@ -108,8 +109,9 @@ void GeneralInterpretationAlgo::findTrackstersInWindow(const edm::MultiSpan<Trac
         const auto &in_tile = tile[tile.globalBin(eta_i, (phi_i % TileConstants::nPhiBins))];
         for (const unsigned &t_i : in_tile) {
           // calculate actual distances of tracksters to the seed for a more accurate cut
+          const auto dPhi = reco::deltaPhi(tracksterPropPoints[t_i].Phi(), seed_phi);
           auto sep2 = (tracksterPropPoints[t_i].Eta() - seed_eta) * (tracksterPropPoints[t_i].Eta() - seed_eta) +
-                      (tracksterPropPoints[t_i].Phi() - seed_phi) * (tracksterPropPoints[t_i].Phi() - seed_phi);
+                      dPhi * dPhi;
           if (sep2 < delta2) {
             in_delta.push_back(t_i);
             // distances2.push_back(sep2);
