@@ -9,18 +9,18 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/FixedQueueEDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 #include "PhysicsTools/PyTorchAlpaka/interface/TensorCollection.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/alpaka/AlpakaModel.h"
+#include "PhysicsTools/PyTorchAlpaka/interface/alpaka/PyTorchEDProducer.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  class TrackTorchClassifierAlpaka : public stream::FixedQueueEDProducer<> {
+  class TrackTorchClassifierAlpaka : public stream::PyTorchEDProducer<> {
   public:
     TrackTorchClassifierAlpaka(const edm::ParameterSet& iConfig)
-        : FixedQueueEDProducer<>(iConfig),
+        : PyTorchEDProducer<>(iConfig),
           featuresInput_token_(consumes(iConfig.getParameter<edm::InputTag>("features"))),
           scoresPut_token_{produces()},
           model_(iConfig.getParameter<edm::FileInPath>("modelPath").fullPath()) {}
@@ -68,9 +68,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       iEvent.emplace(scoresPut_token_, std::move(scores_device));
     }
 
-    void beginStream(edm::StreamID sid, Queue queue) override {
+    void beginStreamHook(edm::StreamID /*sid*/, Queue queue) override {
       // Warmup the model with dummy data
-      const int warmupBatchSize = 4992;
+      constexpr int warmupBatchSize = 4992;
       // Allocate dummy input and output tensors on the device
       auto features = TrackFeaturesDeviceCollection(queue, warmupBatchSize);
       auto scores_device = TrackScoresDeviceCollection(queue, warmupBatchSize);

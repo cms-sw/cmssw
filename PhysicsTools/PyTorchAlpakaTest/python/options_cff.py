@@ -36,6 +36,12 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--useCMSSWAllocator",
+        action="store_true",
+        help="Use the CMSSW device caching allocator for PyTorch"
+    )
+
+    parser.add_argument(
         "-ts", "--totalSize",
         type=int,
         default=35,

@@ -1,0 +1,14 @@
+<library file="alpaka/PyTorchAlpakaService.cc" name="PhysicsToolsPyTorchAlpakaServicePlugins">
+  <use name="alpaka"/>
+  <use name="pytorch"/>
+  <use name="pytorch-cuda" for="alpaka/cuda"/>
+  <use name="pytorch-rocm" for="alpaka/rocm"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="HeterogeneousCore/AlpakaServices"/>
+  <use name="PhysicsTools/PyTorchAlpaka"/>
+  <flags EDM_PLUGIN="1"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</library>
