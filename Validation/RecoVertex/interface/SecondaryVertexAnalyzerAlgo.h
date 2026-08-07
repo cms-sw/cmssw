@@ -92,8 +92,9 @@ public:
   struct Config {
     std::string rootFolder;
     bool verbose;
-    bool doGenericSimPlots;  // book/fill collection-independent sim plots
-    bool doPerPdgPlots;      // book per-b/c/other efficiency breakdowns
+    bool ignoreMissingCollections;  // if true, skip reco vertex collections not present in the event (no warning)
+    bool doGenericSimPlots;         // book/fill collection-independent sim plots
+    bool doPerPdgPlots;             // book per-b/c/other efficiency breakdowns
 
     // Signal selection cuts applied to build signalSimSVs_.
     // Each cut is individually suppressed for the monitoring bundle
@@ -161,6 +162,12 @@ public:
 
   /// Fill generic SimVertex histograms (collection-independent, filled once per event).
   void fillEventTruthHistograms() { fillGenericSimVertexHistograms(); };
+
+  /// Log a message at Info (HLT) or Warning (offline) depending on configuration.
+  void logMissing(const std::string &msg) const;
+
+  /// Return the ignoreMissingCollections configuration value.
+  bool ignoreMissingCollections() const { return cfg_.ignoreMissingCollections; }
 
 private:
   // =========================================================================

@@ -20,7 +20,8 @@ hltPVAssociatorByPositionAndTracks4GeneralTracks = _VertexAssociatorByPositionAn
     trackAssociations = ["tpToHLTGeneralTrackAssociation"],
     sharedTrackFraction = 0.5, # requires optimization
     weightMethod = "dzError",
-    sigmaZ = 10e6
+    sigmaZ = 10e6,
+    ignoreMissingAssociations = True
 )
 
 # -------------- PVs from hltPixelTracks -----------------------------------------------------------------------------
@@ -28,7 +29,8 @@ hltPVAssociatorByPositionAndTracks4PixelTracks = _VertexAssociatorByPositionAndT
     trackAssociations = ["tpToHLTpixelTrackAssociation"],
     sharedTrackFraction = -1, # requires optimization
     weightMethod = "dzError",
-    sigmaZ = 10e6
+    sigmaZ = 10e6,
+    ignoreMissingAssociations = True
 )
 
 # -------------- PVs from hltPFMuonMerging ---------------------------------------------------------------------------
@@ -43,12 +45,14 @@ tpToHLTpfMuonMergingTrackAssociation = tpToHLTpixelTrackAssociation.clone(
     associator = cms.InputTag('hltOtherTrackAssociatorByHits')
 )
 hltPVAssociatorByPositionAndTracks4pfMuonMergingTracks = _VertexAssociatorByPositionAndTracks.clone(
-    trackAssociations = ["tpToHLTpfMuonMergingTrackAssociation"]
+    trackAssociations = ["tpToHLTpfMuonMergingTrackAssociation"],
+    ignoreMissingAssociations = True
 )
 
 # -------------- SVs from hltGeneralTracks ---------------------------------------------------------------------------
 hltSVAssociatorByPositionAndTracks4GeneralTracks = _SecondaryVertexAssociatorByPositionAndTracks.clone(
-    trackAssociations = ["tpToHLTGeneralTrackAssociation"]
+    trackAssociations = ["tpToHLTGeneralTrackAssociation"],
+    ignoreMissingAssociations = True
 )
 hltSVAssociation = _VertexAssociationCPC.clone(
     recoVertices = cms.InputTag("hltDeepInclusiveMergedVerticesPF"),

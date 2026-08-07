@@ -50,6 +50,8 @@ public:
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
+  void logMissing(const std::string &msg) const;
+
   // Associator configuration — constants, safe to store as member data
   const double sigmaX_;
   const double sigmaY_;
@@ -62,6 +64,8 @@ private:
   const double sharedTrackFraction_;
   const bool filterSimVerticesForPVs_;
   const std::string weightMethod_;
+
+  const bool ignoreMissingAssociations_;
 
   // One token pair per track collection. The i-th RecoToSim token and the
   // i-th SimToReco token must cover the same underlying track collection.
@@ -86,7 +90,8 @@ VertexAssociatorByPositionAndTracksProducerBase<VertexCollection>::VertexAssocia
       maxRecoT_(config.getParameter<double>("maxRecoT")),
       sharedTrackFraction_(config.getParameter<double>("sharedTrackFraction")),
       filterSimVerticesForPVs_(config.getParameter<bool>("filterSimVerticesForPVs")),
-      weightMethod_(config.getParameter<std::string>("weightMethod")) {
+      weightMethod_(config.getParameter<std::string>("weightMethod")),
+      ignoreMissingAssociations_(config.getUntrackedParameter<bool>("ignoreMissingAssociations")) {
   const auto trackAssociationTags = config.getParameter<std::vector<edm::InputTag>>("trackAssociations");
 
   if (trackAssociationTags.empty())
@@ -125,11 +130,11 @@ void VertexAssociatorByPositionAndTracksProducerBase<VertexCollection>::produce(
     iEvent.getByToken(trackSimToRecoTokens_[i], simToRecoH);
 
     if (!recoToSimH.isValid() || !simToRecoH.isValid()) {
-      edm::LogWarning("VertexAssociatorByPositionAndTracksProducer")
-          << "Track association collection at index " << i
-          << " is not available in the event — skipping this collection.";
+      logMissing("Track association collection at index " + std::to_string(i) +
+                 " is not available in the event — skipping this collection.");
       anyInvalid = true;
-      continue;
+      if (ignoreMissingAssociations_)
+        continue;
     }
 
     recoToSimMaps.push_back(recoToSimH.product());
@@ -137,15 +142,15 @@ void VertexAssociatorByPositionAndTracksProducerBase<VertexCollection>::produce(
   }
 
   if (recoToSimMaps.empty()) {
-    edm::LogWarning("VertexAssociatorByPositionAndTracksProducer")
-        << "No valid track association collections found — associator not produced.";
-    return;
+    logMissing("No valid track association collections found — associator not produced.");
+    if (ignoreMissingAssociations_)
+      return;
   }
 
   if (anyInvalid) {
-    edm::LogWarning("VertexAssociatorByPositionAndTracksProducer")
-        << "Some track association collections were missing; proceeding with " << recoToSimMaps.size() << " of "
-        << trackRecoToSimTokens_.size() << " configured collections.";
+    logMissing("Some track association collections were missing; proceeding with " +
+               std::to_string(recoToSimMaps.size()) + " of " + std::to_string(trackRecoToSimTokens_.size()) +
+               " configured collections.");
   }
 
   // Construct the associator. The negative-value sentinel convention is handled
@@ -208,8 +213,23 @@ void VertexAssociatorByPositionAndTracksProducerBase<VertexCollection>::fillDesc
       ->setComment(
           "If true, only the first TrackingVertex per in-time pileup event (BX=0) "
           "is considered as a sim candidate. Set to true for PV, false for SV.");
+  desc.addUntracked<bool>("ignoreMissingAssociations", false)
+      ->setComment("If true, skip/ignore track associations not present in the event (just info, no warning).");
 
   descriptions.addWithDefaultLabel(desc);
+}
+
+// =============================================================================
+// logMissing
+// =============================================================================
+
+template <typename VertexCollection>
+void VertexAssociatorByPositionAndTracksProducerBase<VertexCollection>::logMissing(const std::string &msg) const {
+  if (ignoreMissingAssociations_) {
+    edm::LogInfo("VertexAssociatorByPositionAndTracksProducer") << msg;
+  } else {
+    edm::LogWarning("VertexAssociatorByPositionAndTracksProducer") << msg;
+  }
 }
 
 // =============================================================================

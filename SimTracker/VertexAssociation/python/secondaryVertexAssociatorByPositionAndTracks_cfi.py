@@ -13,6 +13,7 @@ secondaryVertexAssociatorByPositionAndTracks = cms.EDProducer("VertexAssociatorB
     sharedTrackFraction = cms.double(2),
     filterSimVerticesForPVs = cms.bool(False),
     weightMethod = cms.string('nSharedTracks'),
+    ignoreMissingAssociations = cms.untracked.bool(False),
     trackAssociations = cms.VInputTag(cms.InputTag('trackingParticleRecoTrackAsssociation'))
 )
 
@@ -29,5 +30,6 @@ secondaryVertexAssociatorByPositionAndTracksCPC = cms.EDProducer("VertexAssociat
     sharedTrackFraction = cms.double(2),
     filterSimVerticesForPVs = cms.bool(False),
     weightMethod = cms.string('nSharedTracks'),
+    ignoreMissingAssociations = cms.untracked.bool(False),
     trackAssociations = cms.VInputTag(cms.InputTag('trackingParticleRecoTrackAsssociation'))
 )

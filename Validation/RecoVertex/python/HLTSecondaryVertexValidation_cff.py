@@ -6,6 +6,7 @@ from Validation.RecoVertex.associators_cff import hltSVAssociationsTask
 hltSecondaryVertexValidator = secondaryVertexAnalyzerCPC.clone(
     rootFolder = 'HLT/SecondaryVertices/Validation',
     verbose = False,
+    ignoreMissingCollections = True,
     doGenericSimPlots = True,
     doPerPdgPlots = True,
     recoVertexCollections = ["hltDeepInclusiveMergedVerticesPF"],

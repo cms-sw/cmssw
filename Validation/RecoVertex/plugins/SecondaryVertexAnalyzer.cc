@@ -104,6 +104,7 @@ SecondaryVertexAnalyzerBase<VertexCollection>::SecondaryVertexAnalyzerBase(const
       algo_(SecondaryVertexAnalyzerAlgo::Config{
           pset.getUntrackedParameter<std::string>("rootFolder", "Validation/Vertices/Secondary"),
           pset.getUntrackedParameter<bool>("verbose", false),
+          pset.getUntrackedParameter<bool>("ignoreMissingCollections", false),
           pset.getUntrackedParameter<bool>("doGenericSimPlots", true),
           pset.getUntrackedParameter<bool>("doPerPdgPlots", true),
           pset.getParameter<double>("minDecayLength"),
@@ -164,17 +165,14 @@ void SecondaryVertexAnalyzerBase<VertexCollection>::analyze(const edm::Event &iE
 
   edm::Handle<TrackingVertexCollection> simVertices;
   iEvent.getByToken(simVertexToken_, simVertices);
-  if (!simVertices.isValid()) {
-    edm::LogWarning("SecondaryVertexAnalyzer") << "TrackingVertexCollection not available — skipping event.";
-    return;
-  }
 
   edm::Handle<reco::SimToRecoCollection> trackSimToRecoHandle;
   iEvent.getByToken(trackSimToRecoToken_, trackSimToRecoHandle);
   reco::SimToRecoCollection trackSimToReco;
   if (!trackSimToRecoHandle.isValid()) {
-    edm::LogWarning("SecondaryVertexAnalyzer") << "Track SimToRecoCollection not available — cannot evaluate actual "
-                                                  "reconstructability of SVs from given track collection.";
+    algo_.logMissing(
+        "Track SimToRecoCollection not available — cannot evaluate actual reconstructability of SVs from given track "
+        "collection.");
   } else {
     trackSimToReco = *trackSimToRecoHandle;
   }
@@ -196,14 +194,9 @@ void SecondaryVertexAnalyzerBase<VertexCollection>::analyze(const edm::Event &iE
     iEvent.getByToken(associatorTokens_[i], associator);
 
     if (!recoVertices.isValid()) {
-      edm::LogWarning("SecondaryVertexAnalyzer")
-          << "Reco vertex collection '" << recoVertexTags_[i].label() << "' not available — skipping.";
-      continue;
-    }
-    if (!associator.isValid()) {
-      edm::LogWarning("SecondaryVertexAnalyzer")
-          << "VertexToTrackingVertexAssociator for '" << recoVertexTags_[i].label() << "' not available — skipping.";
-      continue;
+      algo_.logMissing("Reco vertex collection '" + recoVertexTags_[i].label() + "' not available — skipping.");
+      if (algo_.ignoreMissingCollections())
+        continue;
     }
 
     // Associate SimVertices <-> RecoVertices
@@ -229,6 +222,10 @@ void SecondaryVertexAnalyzerBase<VertexCollection>::fillDescriptions(edm::Config
   desc.addUntracked<std::string>("rootFolder", "Validation/Vertices/Secondary")
       ->setComment("DQM root folder for all histograms.");
   desc.addUntracked<bool>("verbose", false);
+  desc.addUntracked<bool>("ignoreMissingCollections", false)
+      ->setComment(
+          "If true, skip reco vertex collections not present in the event (no warning). If false, throw an "
+          "exception.");
   desc.addUntracked<bool>("doGenericSimPlots", true)
       ->setComment(
           "Book and fill collection-independent sim vertex plots (decay length spectrum, mother PDG distribution, "

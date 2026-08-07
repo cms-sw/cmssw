@@ -22,6 +22,17 @@ using namespace dqm::booking;
 SecondaryVertexAnalyzerAlgo::SecondaryVertexAnalyzerAlgo(const Config &cfg) : cfg_(cfg) {}
 
 // =============================================================================
+// Message logging
+// =============================================================================
+
+void SecondaryVertexAnalyzerAlgo::logMissing(const std::string &msg) const {
+  if (cfg_.ignoreMissingCollections)
+    edm::LogInfo("SecondaryVertexAnalyzer") << msg;
+  else
+    edm::LogWarning("SecondaryVertexAnalyzer") << msg;
+};
+
+// =============================================================================
 // isEligibleForEff
 // =============================================================================
 
@@ -174,8 +185,8 @@ void SecondaryVertexAnalyzerAlgo::setPrimaryVertex(const edm::Handle<reco::Verte
     return;
   }
 
-  edm::LogWarning("SecondaryVertexAnalyzer") << "Primary vertex collection missing or empty — "
-                                                "falling back to detector center for decay length calculations.";
+  logMissing(
+      "Primary vertex collection missing or empty — falling back to detector center for decay length calculations.");
 
   // Fallback: detector center, zero uncertainty.
   // reco::Vertex(position, error, chi2, ndof, size) — a minimal fake vertex.
