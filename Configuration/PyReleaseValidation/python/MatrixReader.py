@@ -102,23 +102,24 @@ class MatrixReader(object):
 
     def makeCmd(self, step):
 
-        cmd = ''
+        cmd = []
         cfg = None
         input = None
         for k,v in step.items():
             if 'no_exec' in k : continue  # we want to really run it ...
-            if k.lower() == 'cfg':
+            klow = k.lower()
+            if klow == 'cfg':
                 cfg = v
                 continue # do not append to cmd, return separately
-            if k.lower() == 'input':
-                input = v 
+            if klow == 'input':
+                input = v
                 continue # do not append to cmd, return separately
-            
+
             #chain the configs
             #if k.lower() == '--python':
             #    v = 'step%d_%s'%(index,v)
-            cmd += ' ' + k + ' ' + str(v)
-        return cfg, input, cmd
+            cmd.append(' ' + k + ' ' + str(v))
+        return cfg, input, ''.join(cmd)
     
     def makeStep(self,step,overrides):
         from Configuration.PyReleaseValidation.relval_steps import merge
@@ -203,6 +204,9 @@ With --checkInputs option this throws an error.
                     self.relvalModule.steps,
                     [(x,refRel) for x in self.relvalModule.baseDataSetRelease]
                     )
+
+        useIBEos = os.getenv("CMSSW_USE_IBEOS","false")=="true"
+        madeCmds = {}
 
         for num, wfInfo in self.relvalModule.workflows.items():
             commands=[]
@@ -295,8 +299,16 @@ With --checkInputs option this throws an error.
                     from Configuration.PyReleaseValidation.relval_steps import merge
                     copyStep=merge(addCom+[self.makeStep(self.relvalModule.steps[stepName],stepOverrides)])
                     cfg, input, opts = self.makeCmd(copyStep)
-                else:
+                elif stepOverrides:
                     cfg, input, opts = self.makeCmd(self.makeStep(self.relvalModule.steps[stepName],stepOverrides))
+                else:
+                    # without overrides a step yields the same command in every
+                    # workflow that runs it
+                    made = madeCmds.get(stepName)
+                    if made is None:
+                        made = self.makeCmd(self.relvalModule.steps[stepName])
+                        madeCmds[stepName] = made
+                    cfg, input, opts = made
 
                 if input and cfg :
                     msg = "FATAL ERROR: found both cfg and input for workflow "+str(num)+' step '+stepName
@@ -322,7 +334,7 @@ With --checkInputs option this throws an error.
                     if self.wm and self.revertDqmio=='yes':
                         cmd=cmd.replace('DQMIO','DQM')
                         cmd=cmd.replace('--filetype DQM','')
-                    if os.getenv("CMSSW_USE_IBEOS","false")=="true":
+                    if useIBEos:
                         cmd="export CMSSW_USE_IBEOS=true; "+cmd
                 commands.append(cmd)
                 ranStepList.append(stepName)
