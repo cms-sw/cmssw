@@ -145,8 +145,8 @@ With --checkInputs option this throws an error.
 =============================================================================
                              """.format(sys._getframe(1).f_lineno - 1,wf[0],wf))    
 
-    def readMatrix(self, fileNameIn, useInput=None, refRel=None, fromScratch=None):
-        
+    def readMatrix(self, fileNameIn, useInput=None, refRel=None, fromScratch=None, selected=None):
+
         prefix = self.filesPrefMap[fileNameIn]
         
         print("processing", fileNameIn)
@@ -210,6 +210,10 @@ With --checkInputs option this throws an error.
         madeCmds = {}
 
         for num, wfInfo in self.relvalModule.workflows.items():
+            # an unselected workflow is still read when -i rewrites its step list,
+            # because that list can be shared with a selected workflow
+            if selected is not None and num not in selected and num not in fromInput:
+                continue
             commands=[]
             wfName = wfInfo[0]
             stepList = wfInfo[1]
@@ -270,6 +274,9 @@ With --checkInputs option this throws an error.
                             stepList.pop(0)
                         #print "\t\tmod",stepList
                         break
+
+            if selected is not None and num not in selected:
+                continue
 
             for (stepI,step) in enumerate(stepList):
                 stepName=step
@@ -534,7 +541,9 @@ With --checkInputs option this throws an error.
 
         return
 
-    def prepare(self, useInput=None, refRel='', fromScratch=None):
+    # selected: the workflow numbers to expand, None for all of them
+    def prepare(self, useInput=None, refRel='', fromScratch=None, selected=None):
+        selected = set(selected) if selected else None
         
         for matrixFile in self.files:
             if self.what != 'all' and not any('_'+el in matrixFile for el in self.what.split(",")):
@@ -545,13 +554,13 @@ With --checkInputs option this throws an error.
                 continue
             
             try:
-                self.readMatrix(matrixFile, useInput, refRel, fromScratch)
+                self.readMatrix(matrixFile, useInput, refRel, fromScratch, selected)
                 if self.checkInputs:
                     self.verifyDefaultInputs()
             except Exception as e:
                 print("ERROR reading file:", matrixFile, str(e))
                 raise
-            
+
             try:
                 self.createWorkFlows(matrixFile)
             except Exception as e:

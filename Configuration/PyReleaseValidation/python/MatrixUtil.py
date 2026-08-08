@@ -28,7 +28,82 @@ class DeferredFragmentStep(tuple):
         return step
 
 #the class to collect all possible steps
+# the upgrade matrix holds some two million fragment steps grouped in about 180
+# families, one family per step name spanning every fragment and every upgrade key.
+# every name a family defines ends in '_'+family, so a name identifies its own family,
+# and a family is built the first time one of its names is asked for. anything that
+# walks the whole dictionary builds every family first.
 class Steps(dict):
+    def __init__(self,*args,**kwargs):
+        dict.__init__(self,*args,**kwargs)
+        self.familyBuilder = None
+        self.pendingFamilies = {}
+        self.familiesByTail = {}
+        self.buildingFamily = False
+
+    def deferFamily(self,family,rows):
+        self.pendingFamilies[family] = rows
+        self.familiesByTail.setdefault(family.rsplit('_',1)[-1],[]).append(family)
+
+    def buildFamily(self,rows):
+        self.buildingFamily = True
+        try:
+            for row in rows:
+                self.familyBuilder(*row)
+        finally:
+            self.buildingFamily = False
+
+    def buildFamiliesFor(self,name):
+        # build every pending family that could define name; True when one was built
+        if not self.pendingFamilies or not isinstance(name,str):
+            return False
+        if name.endswith('INPUT'):
+            name = name[:-len('INPUT')]
+        built = False
+        for family in self.familiesByTail.get(name.rsplit('_',1)[-1],()):
+            if not name.endswith('_'+family):
+                continue
+            rows = self.pendingFamilies.pop(family,None)
+            if rows is not None:
+                self.buildFamily(rows)
+                built = True
+        return built
+
+    def buildAllFamilies(self):
+        while self.pendingFamilies:
+            family = next(iter(self.pendingFamilies))
+            self.buildFamily(self.pendingFamilies.pop(family))
+
+    def __missing__(self,key):
+        if self.buildFamiliesFor(key):
+            return dict.__getitem__(self,key)
+        raise KeyError(key)
+
+    def __contains__(self,key):
+        if dict.__contains__(self,key):
+            return True
+        # while a family is being built its own names are new, and the only other
+        # membership test made there is for a name that belongs to no family
+        if self.buildingFamily:
+            return False
+        return self.buildFamiliesFor(key) and dict.__contains__(self,key)
+
+    def __iter__(self):
+        self.buildAllFamilies()
+        return dict.__iter__(self)
+
+    def __len__(self):
+        self.buildAllFamilies()
+        return dict.__len__(self)
+
+    def keys(self):
+        self.buildAllFamilies()
+        return dict.keys(self)
+
+    def __reversed__(self):
+        self.buildAllFamilies()
+        return dict.__reversed__(self)
+
     def __setitem__(self,key,value):
         if key in self:
             print("ERROR in Step")
@@ -56,6 +131,7 @@ class Steps(dict):
 
     # the dict methods below would otherwise hand out unexpanded steps
     def expandAll(self):
+        self.buildAllFamilies()
         for key,value in dict.items(self):
             if type(value) is DeferredFragmentStep:
                 dict.__setitem__(self,key,value.expand())
@@ -94,6 +170,22 @@ class Steps(dict):
         self.expandAll()
         return dict.__ror__(self,other)
 
+    def __ior__(self,other):
+        self.update(other)
+        return self
+
+    # a name must not be added while its family is pending, or building the family
+    # later would find it already defined
+    def update(self,*args,**kwargs):
+        other = dict(*args,**kwargs)
+        for key in other:
+            self.buildFamiliesFor(key)
+        dict.update(self,other)
+
+    def __delitem__(self,key):
+        self.buildFamiliesFor(key)
+        dict.__delitem__(self,key)
+
     def setdefault(self,key,default=None):
         if key in self:
             return self[key]
@@ -107,6 +199,7 @@ class Steps(dict):
         return dict.pop(self,key,*default)
 
     def popitem(self):
+        self.buildAllFamilies()
         key,value = dict.popitem(self)
         if type(value) is DeferredFragmentStep:
             value = value.expand()
