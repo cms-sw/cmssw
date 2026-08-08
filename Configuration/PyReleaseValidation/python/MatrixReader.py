@@ -28,6 +28,9 @@ class MatrixReader(object):
         
         self.noRun = opt.noRun
         self.checkInputs = opt.checkInputs
+        # -l restricts the expansion to the requested workflows; the listing, the
+        # runner and the wmagent injection all act on that same selection
+        self.selected = set(opt.testList) if opt.testList else None
         return
 
     def reset(self, what='all'):
@@ -144,8 +147,8 @@ With --checkInputs option this throws an error.
 =============================================================================
                              """.format(sys._getframe(1).f_lineno - 1,wf[0],wf))    
 
-    def readMatrix(self, fileNameIn, useInput=None, refRel=None, fromScratch=None):
-        
+    def readMatrix(self, fileNameIn, useInput=None, refRel=None, fromScratch=None, selected=None):
+
         prefix = self.filesPrefMap[fileNameIn]
         
         print("processing", fileNameIn)
@@ -209,6 +212,8 @@ With --checkInputs option this throws an error.
         madeCmds = {}
 
         for num, wfInfo in self.relvalModule.workflows.items():
+            if selected is not None and num not in selected:
+                continue
             commands=[]
             wfName = wfInfo[0]
             stepList = wfInfo[1]
@@ -538,13 +543,13 @@ With --checkInputs option this throws an error.
                 continue
             
             try:
-                self.readMatrix(matrixFile, useInput, refRel, fromScratch)
+                self.readMatrix(matrixFile, useInput, refRel, fromScratch, self.selected)
                 if self.checkInputs:
                     self.verifyDefaultInputs()
             except Exception as e:
                 print("ERROR reading file:", matrixFile, str(e))
                 raise
-            
+
             try:
                 self.createWorkFlows(matrixFile)
             except Exception as e:
