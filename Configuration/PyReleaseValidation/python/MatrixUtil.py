@@ -1,3 +1,4 @@
+import copy
 import os
 import subprocess
 
@@ -7,11 +8,25 @@ class Matrix(dict):
             print("ERROR in Matrix")
             print("overwriting",key,"not allowed")
         else:
-            self.update({float(key):WF(float(key),value)})
+            num=float(key)
+            dict.__setitem__(self,num,WF(num,value))
 
     def addOverride(self,key,override):
         self[key].addOverride(override)
             
+# a fragment step, held as (cfg, howMuch, base) and turned into its dictionary the
+# first time it is read; the upgrade matrix holds a couple of million of them and a
+# run reads a few percent
+class DeferredFragmentStep(tuple):
+    __slots__ = ()
+    # same result, same key order, as merge([{'cfg':cfg},howMuch,base])
+    def expand(self):
+        cfg,howMuch,base = self
+        step = copy.copy(base)
+        step.update(howMuch)
+        step['cfg'] = cfg
+        return step
+
 #the class to collect all possible steps
 class Steps(dict):
     def __setitem__(self,key,value):
@@ -21,9 +36,81 @@ class Steps(dict):
             import sys
             sys.exit(-9)
         else:
-            self.update({key:value})
+            dict.__setitem__(self,key,value)
             # make the python file named <step>.py
             #if not '--python' in value:                self[key].update({'--python':'%s.py'%(key,)})
+
+    def __getitem__(self,key):
+        value=dict.__getitem__(self,key)
+        if type(value) is DeferredFragmentStep:
+            value=value.expand()
+            dict.__setitem__(self,key,value)
+        return value
+
+    # dict.get would bypass __getitem__ and hand out an unexpanded step
+    def get(self,key,default=None):
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
+    # the dict methods below would otherwise hand out unexpanded steps
+    def expandAll(self):
+        for key,value in dict.items(self):
+            if type(value) is DeferredFragmentStep:
+                dict.__setitem__(self,key,value.expand())
+
+    def values(self):
+        self.expandAll()
+        return dict.values(self)
+
+    def items(self):
+        self.expandAll()
+        return dict.items(self)
+
+    def __repr__(self):
+        self.expandAll()
+        return dict.__repr__(self)
+
+    def __eq__(self,other):
+        self.expandAll()
+        if isinstance(other,Steps):
+            other.expandAll()
+        return dict.__eq__(self,other)
+
+    def __ne__(self,other):
+        result = self.__eq__(other)
+        return result if result is NotImplemented else not result
+
+    def copy(self):
+        self.expandAll()
+        return dict.copy(self)
+
+    def __or__(self,other):
+        self.expandAll()
+        return dict.__or__(self,other)
+
+    def __ror__(self,other):
+        self.expandAll()
+        return dict.__ror__(self,other)
+
+    def setdefault(self,key,default=None):
+        if key in self:
+            return self[key]
+        return dict.setdefault(self,key,default)
+
+    def pop(self,key,*default):
+        if key in self:
+            value = self[key]
+            dict.__delitem__(self,key)
+            return value
+        return dict.pop(self,key,*default)
+
+    def popitem(self):
+        key,value = dict.popitem(self)
+        if type(value) is DeferredFragmentStep:
+            value = value.expand()
+        return key,value
 
     def overwrite(self,keypair):
         value=self[keypair[1]]
@@ -210,23 +297,14 @@ class InputInfo(object):
 
     
 # merge dictionaries, with priority on the [0] index
+# the result keeps the type and the key order of the last item, extended with the
+# keys each earlier item adds, and the value of the earliest item that defines a key
 def merge(dictlist,TELL=False):
-    import copy
-    last=len(dictlist)-1
-    if TELL: print(last,dictlist)
-    if last==0:
-        # ONLY ONE ITEM LEFT
-        return copy.copy(dictlist[0])
-    else:
-        reducedlist=dictlist[0:max(0,last-1)]
-        if TELL: print(reducedlist)
-        # make a copy of the last item
-        d=copy.copy(dictlist[last])
-        # update with the last but one item
-        d.update(dictlist[last-1])
-        # and recursively do the rest
-        reducedlist.append(d)
-        return merge(reducedlist,TELL)
+    if TELL: print(len(dictlist)-1,dictlist)
+    d=copy.copy(dictlist[-1])
+    for i in range(len(dictlist)-2,-1,-1):
+        d.update(dictlist[i])
+    return d
 
 def remove(d,key,TELL=False):
     import copy
