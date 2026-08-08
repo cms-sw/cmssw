@@ -1,3 +1,4 @@
+import copy
 import os
 import subprocess
 
@@ -7,13 +8,106 @@ class Matrix(dict):
             print("ERROR in Matrix")
             print("overwriting",key,"not allowed")
         else:
-            self.update({float(key):WF(float(key),value)})
+            num=float(key)
+            dict.__setitem__(self,num,WF(num,value))
 
     def addOverride(self,key,override):
         self[key].addOverride(override)
             
+# a fragment step, held as (cfg, howMuch, base) and turned into its dictionary the
+# first time it is read; the upgrade matrix holds a couple of million of them and a
+# run reads a few percent
+class DeferredFragmentStep(tuple):
+    __slots__ = ()
+    # same result, same key order, as merge([{'cfg':cfg},howMuch,base])
+    def expand(self):
+        cfg,howMuch,base = self
+        step = copy.copy(base)
+        step.update(howMuch)
+        step['cfg'] = cfg
+        return step
+
 #the class to collect all possible steps
+# the upgrade matrix holds some two million fragment steps grouped in about 180
+# families, one family per step name spanning every fragment and every upgrade key.
+# every name a family defines ends in '_'+family, so a name identifies its own family,
+# and a family is built the first time one of its names is asked for. anything that
+# walks the whole dictionary builds every family first.
 class Steps(dict):
+    def __init__(self,*args,**kwargs):
+        dict.__init__(self,*args,**kwargs)
+        self.familyBuilder = None
+        self.pendingFamilies = {}
+        self.familiesByTail = {}
+        self.buildingFamily = False
+
+    def deferFamily(self,family,rows):
+        self.pendingFamilies[family] = rows
+        self.familiesByTail.setdefault(family.rsplit('_',1)[-1],[]).append(family)
+
+    def buildFamily(self,rows):
+        self.buildingFamily = True
+        try:
+            for row in rows:
+                self.familyBuilder(*row)
+        finally:
+            self.buildingFamily = False
+
+    def buildFamiliesFor(self,name):
+        # build every pending family that could define name; True when one was built
+        if not self.pendingFamilies:
+            return False
+        if name.endswith('INPUT'):
+            name = name[:-len('INPUT')]
+        built = False
+        for family in self.familiesByTail.get(name.rsplit('_',1)[-1],()):
+            if not name.endswith('_'+family):
+                continue
+            rows = self.pendingFamilies.pop(family,None)
+            if rows is not None:
+                self.buildFamily(rows)
+                built = True
+        return built
+
+    def buildAllFamilies(self):
+        while self.pendingFamilies:
+            family = next(iter(self.pendingFamilies))
+            self.buildFamily(self.pendingFamilies.pop(family))
+
+    def __missing__(self,key):
+        if self.buildFamiliesFor(key):
+            return dict.__getitem__(self,key)
+        raise KeyError(key)
+
+    def __contains__(self,key):
+        if dict.__contains__(self,key):
+            return True
+        # while a family is being built its own names are new, and the only other
+        # membership test made there is for a name that belongs to no family
+        if self.buildingFamily:
+            return False
+        return self.buildFamiliesFor(key) and dict.__contains__(self,key)
+
+    def __iter__(self):
+        self.buildAllFamilies()
+        return dict.__iter__(self)
+
+    def __len__(self):
+        self.buildAllFamilies()
+        return dict.__len__(self)
+
+    def keys(self):
+        self.buildAllFamilies()
+        return dict.keys(self)
+
+    def values(self):
+        self.buildAllFamilies()
+        return dict.values(self)
+
+    def items(self):
+        self.buildAllFamilies()
+        return dict.items(self)
+
     def __setitem__(self,key,value):
         if key in self:
             print("ERROR in Step")
@@ -21,9 +115,23 @@ class Steps(dict):
             import sys
             sys.exit(-9)
         else:
-            self.update({key:value})
+            dict.__setitem__(self,key,value)
             # make the python file named <step>.py
             #if not '--python' in value:                self[key].update({'--python':'%s.py'%(key,)})
+
+    def __getitem__(self,key):
+        value=dict.__getitem__(self,key)
+        if type(value) is DeferredFragmentStep:
+            value=value.expand()
+            dict.__setitem__(self,key,value)
+        return value
+
+    # dict.get would bypass __getitem__ and hand out an unexpanded step
+    def get(self,key,default=None):
+        try:
+            return self[key]
+        except KeyError:
+            return default
 
     def overwrite(self,keypair):
         value=self[keypair[1]]
@@ -210,23 +318,14 @@ class InputInfo(object):
 
     
 # merge dictionaries, with priority on the [0] index
+# the result keeps the type and the key order of the last item, extended with the
+# keys each earlier item adds, and the value of the earliest item that defines a key
 def merge(dictlist,TELL=False):
-    import copy
-    last=len(dictlist)-1
-    if TELL: print(last,dictlist)
-    if last==0:
-        # ONLY ONE ITEM LEFT
-        return copy.copy(dictlist[0])
-    else:
-        reducedlist=dictlist[0:max(0,last-1)]
-        if TELL: print(reducedlist)
-        # make a copy of the last item
-        d=copy.copy(dictlist[last])
-        # update with the last but one item
-        d.update(dictlist[last-1])
-        # and recursively do the rest
-        reducedlist.append(d)
-        return merge(reducedlist,TELL)
+    if TELL: print(len(dictlist)-1,dictlist)
+    d=copy.copy(dictlist[-1])
+    for i in range(len(dictlist)-2,-1,-1):
+        d.update(dictlist[i])
+    return d
 
 def remove(d,key,TELL=False):
     import copy

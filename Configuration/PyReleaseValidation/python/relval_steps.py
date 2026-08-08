@@ -2,7 +2,7 @@ import sys
 from copy import deepcopy
 from functools import partial
 
-from .MatrixUtil import Steps, merge, remove, Kby, Mby, genvalid, InputInfo, selectedLS, stCond
+from .MatrixUtil import Steps, DeferredFragmentStep, merge, remove, Kby, Mby, genvalid, InputInfo, selectedLS, stCond
 
 from Configuration.HLT.autoHLT import autoHLT
 from Configuration.AlCa.autoPCL import autoPCL
@@ -5046,55 +5046,68 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
             # in case special WF has PU-specific changes: apply *after* basic PU step is created
             specialWF.setupPU(upgradeStepDict, k, upgradeProperties[year][k])
-    
-for step in upgradeStepDict.keys():
+
+allUpgradeKeys = [key for year in upgradeKeys for key in upgradeKeys[year]]
+# whether a key can recycle a GEN-SIM input depends on the key alone
+recyclingKeys = [key for key in allUpgradeKeys if "Run4"+defaultRun4Geometry in key and 'FS' not in key and defaultDataSets[key] != '']
+
+# all the steps one fragment contributes to one step name; every name it defines ends in
+# '_'+step, which is what lets Steps build a step name's family on demand
+def makeFragmentSteps(step,stepDict,isPremix,isHybridPU,istepDict,frag,info):
+    fragName=frag[:-4]
+    howMuch=info.howMuch
+    for key in allUpgradeKeys:
+        k=fragName+'_'+key+'_'+step
+        if key in stepDict:
+            if stepDict[key] is None:
+                steps[k]=None
+            elif isPremix:
+                # Include premixing stage1 only for SingleNu, use special step name
+                if not 'SingleNu' in frag:
+                    continue
+                stepKey = 'PREMIX_'+key+'_'+step
+                howMuch = Kby(100,100)
+                steps[stepKey]=merge([ {'--evt_type':frag},howMuch,stepDict[key]])
+            else:
+                steps[k]=DeferredFragmentStep((frag,howMuch,stepDict[key]))
+                #get inputs in case of -i...but no need to specify in great detail
+                #however, there can be a conflict of beam spots but this is lost in the dataset name
+                #so please be careful
+                #  pre-Run4 input recycling is DISABLED
+                if key in recyclingKeys and 'FastSim' not in k:
+                    s=fragName+'_'+key
+                    if s+'INPUT' not in steps and s in baseDataSetReleaseBetter and \
+                      (istepDict is None or key not in istepDict or istepDict[key] is not None):
+                        steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
+                # begin COMMENT: reads old format file 
+                #    else: #For FastSim to recycle GEN
+                #        steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN'%(baseDataSetReleaseBetter[s],),location='STD')}
+                # end COMMENT: reads old format file 
+                # this condition is checked here to avoid skipping the creation of default steps for other fragments
+                if isHybridPU:
+                    # minbias fastsim for PU mixing
+                    if not 'MinBias_14TeV' in frag:
+                        continue
+                    stepKey = 'HYBRID_'+key+'_'+step
+                    howMuch = Kby(100,100)
+                    steps[stepKey]=merge([ {'--evt_type':frag},howMuch,stepDict[key]])
+
+steps.familyBuilder = makeFragmentSteps
+
+for step,stepDict in upgradeStepDict.items():
     # we need to do this for each fragment
     if ('Sim' in step and ('Fast' not in step and step != 'Sim')) or ('Premix' in step) or ('Sim' not in step and 'Gen' in step):
-        for frag,info in upgradeFragments.items():
-            howMuch=info.howMuch
-            for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
-                k=frag[:-4]+'_'+key+'_'+step
-                if step in upgradeStepDict and key in upgradeStepDict[step]:
-                    if upgradeStepDict[step][key] is None:
-                        steps[k]=None
-                    elif 'Premix' in step:
-                        # Include premixing stage1 only for SingleNu, use special step name
-                        if not 'SingleNu' in frag:
-                            continue
-                        stepKey = 'PREMIX_'+key+'_'+step
-                        howMuch = Kby(100,100)
-                        steps[stepKey]=merge([ {'--evt_type':frag},howMuch,upgradeStepDict[step][key]])
-                    else:
-                        steps[k]=merge([ {'cfg':frag},howMuch,upgradeStepDict[step][key]])
-                        #get inputs in case of -i...but no need to specify in great detail
-                        #however, there can be a conflict of beam spots but this is lost in the dataset name
-                        #so please be careful
-                        s=frag[:-4]+'_'+key
-                        # exclude upgradeKeys without input dataset, and special WFs that disable reuse
-                        istep = step+preventReuseKeyword
-
-                        if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '' and \
-                          (istep not in upgradeStepDict or key not in upgradeStepDict[istep] or upgradeStepDict[istep][key] is not None) and "Run4"+defaultRun4Geometry in key:
-                          #  pre-Run4 input recycling is DISABLED
-                           if 'FS' not in key: #For FullSim
-                               steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
-                        # begin COMMENT: reads old format file 
-                        #    else: #For FastSim to recycle GEN
-                        #        steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN'%(baseDataSetReleaseBetter[s],),location='STD')}
-                        # end COMMENT: reads old format file 
-                        # this condition is checked here to avoid skipping the creation of default steps for other fragments
-                        if 'HybridPU' in step:
-                            # minbias fastsim for PU mixing
-                            if not 'MinBias_14TeV' in frag:
-                                continue
-                            stepKey = 'HYBRID_'+key+'_'+step
-                            howMuch = Kby(100,100)
-                            steps[stepKey]=merge([ {'--evt_type':frag},howMuch,upgradeStepDict[step][key]])
+        # exclude special WFs that disable reuse
+        istepDict = upgradeStepDict.get(step+preventReuseKeyword)
+        isPremix = 'Premix' in step
+        isHybridPU = 'HybridPU' in step
+        steps.deferFamily(step,[(step,stepDict,isPremix,isHybridPU,istepDict,frag,info)
+                                for frag,info in upgradeFragments.items()])
     else:
-        for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
-            k=step+'_'+key
-            if step in upgradeStepDict and key in upgradeStepDict[step]:
-                if upgradeStepDict[step][key] is None:
+        for key in allUpgradeKeys:
+            if key in stepDict:
+                k=step+'_'+key
+                if stepDict[key] is None:
                     steps[k]=None
                 else:
-                    steps[k]=merge([upgradeStepDict[step][key]])
+                    steps[k]=merge([stepDict[key]])
