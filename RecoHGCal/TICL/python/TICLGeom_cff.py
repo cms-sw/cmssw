@@ -59,19 +59,10 @@ ticlGeomWithBarrelLookupESProducer = ticlGeomLookupESProducer.clone(
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 phase2_hfnose.toModify(ticlGeomESProducer, detectors = ['HGCal', 'HFNose'])
 
-# These are @alpaka EventSetup producers, so they can only be scheduled in a
-# process that has the Alpaka backends loaded. Attach them only under the
-# phase2_hgcal era (which always sets up Alpaka), so they never leak into
-# FastSim, Run 2 or Run 3 processes that load the HGCal local reco cff.
-from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-
-
-def _addTICLGeomToReco(process):
-    process.ticlGeomESProducer = ticlGeomESProducer
-    process.ticlGeomLookupESProducer = ticlGeomLookupESProducer
-    process.ticlGeomLayersESProducer = ticlGeomLayersESProducer
-    process.ticlGeomWithBarrelESProducer = ticlGeomWithBarrelESProducer
-    process.ticlGeomWithBarrelLookupESProducer = ticlGeomWithBarrelLookupESProducer
-
-
-addTICLGeomToReco = phase2_hgcal.makeProcessModifier(_addTICLGeomToReco)
+# These are @alpaka EventSetup producers, so they must only reach a process that
+# loads the Alpaka accelerator. RecoLocalCalo/Configuration/hgcalLocalReco_cff
+# adds them to the HGCal reco Task, so their EventSetup modules are instantiated
+# only when that Task is scheduled, i.e. when HGCal local reco actually runs
+# (which is where the accelerator is present). Processes that only load the reco
+# sequence without scheduling it, such as FastSim or the tracker geometry dumps,
+# never instantiate them.
