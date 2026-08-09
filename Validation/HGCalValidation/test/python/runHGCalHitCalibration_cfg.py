@@ -63,7 +63,6 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
-process.load("RecoHGCal.TICL.TICLGeom_cff")
 process.load('Validation.HGCalValidation.hgcalHitCalibration_cfi')
 
 process.TFileService = cms.Service("TFileService",

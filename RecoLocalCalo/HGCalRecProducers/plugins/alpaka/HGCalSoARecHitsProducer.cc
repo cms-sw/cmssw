@@ -11,7 +11,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -29,11 +29,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           nonAgedNoises_(config.getParameter<std::vector<double>>("noises")),
           dEdXweights_(config.getParameter<std::vector<double>>("dEdXweights")),
           thicknessCorrection_(config.getParameter<std::vector<double>>("thicknessCorrection")),
-          ticlGeomToken_(consumesCollector().esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-          ticlGeomLookupToken_(
-              consumesCollector().esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-          ticlGeomLayersToken_(
-              consumesCollector().esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+          caloGeomToken_(consumesCollector().esConsumes<CaloGeometry, CaloGeometryRecord>()),
           hits_token_(consumes<HGCRecHitCollection>(config.getParameter<edm::InputTag>("recHits"))),
           deviceToken_{produces()} {}
 
@@ -42,8 +38,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void produce(device::Event& iEvent, device::EventSetup const& iSetup) override {
       edm::Handle<HGCRecHitCollection> hits_h;
 
-      rhtools_.setGeometry(
-          iSetup.getData(ticlGeomToken_), iSetup.getData(ticlGeomLookupToken_), iSetup.getData(ticlGeomLayersToken_));
+      edm::ESHandle<CaloGeometry> geom = iSetup.getHandle(caloGeomToken_);
+      rhtools_.setGeometry(*geom);
       maxlayer_ = rhtools_.lastLayer(isNose_);
 
       hits_h = iEvent.getHandle(hits_token_);
@@ -170,10 +166,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::vector<std::vector<double>> thresholds_;
     std::vector<std::vector<double>> v_sigmaNoise_;
 
-    ticlgeom::Tools rhtools_;
-    edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-    edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-    edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
+    hgcal::RecHitTools rhtools_;
+    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
     edm::EDGetTokenT<HGCRecHitCollection> hits_token_;
     device::EDPutToken<HGCalSoARecHitsDeviceCollection> const deviceToken_;
 

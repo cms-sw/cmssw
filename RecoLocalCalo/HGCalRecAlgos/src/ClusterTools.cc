@@ -24,9 +24,7 @@ ClusterTools::ClusterTools(const edm::ParameterSet& conf, edm::ConsumesCollector
       bhtok(sumes.consumes<HGCRecHitCollection>(conf.getParameter<edm::InputTag>("HGCBHInput"))),
       hitMapToken_(sumes.consumes<std::unordered_map<DetId, const unsigned int>>(
           conf.getParameter<edm::InputTag>("hgcalHitMap"))),
-      ticlGeomToken_{sumes.esConsumes(edm::ESInputTag("", ""))},
-      ticlGeomLookupToken_{sumes.esConsumes(edm::ESInputTag("", ""))},
-      ticlGeomLayersToken_{sumes.esConsumes(edm::ESInputTag("", ""))} {}
+      caloGeometryToken_{sumes.esConsumes()} {}
 
 void ClusterTools::getEvent(const edm::Event& ev) {
   eerh_ = &ev.get(eetok);
@@ -39,9 +37,7 @@ void ClusterTools::getEvent(const edm::Event& ev) {
   rechitSpan_->add(*bhrh_);
 }
 
-void ClusterTools::getEventSetup(const edm::EventSetup& es) {
-  rhtools_.setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
-}
+void ClusterTools::getEventSetup(const edm::EventSetup& es) { rhtools_.setGeometry(es.getData(caloGeometryToken_)); }
 
 float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) const {
   float energy = 0.f, energyHad = 0.f;

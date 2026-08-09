@@ -1,4 +1,3 @@
-<use name="CondFormats/HGCalObjects"/>
 <use name="DataFormats/ForwardDetId"/>
 <use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/ParticleFlowCandidate"/>

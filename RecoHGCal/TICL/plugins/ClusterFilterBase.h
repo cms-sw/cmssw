@@ -6,7 +6,7 @@
 
 #include "DataFormats/HGCalReco/interface/Common.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 #include <memory>
 #include <vector>
@@ -22,7 +22,7 @@ namespace ticl {
 
     virtual void filter(const std::vector<reco::CaloCluster>& layerClusters,
                         std::vector<float>& layerClustersMask,
-                        ticlgeom::Tools& rhtools) const = 0;
+                        hgcal::RecHitTools& rhtools) const = 0;
   };
 }  // namespace ticl
 

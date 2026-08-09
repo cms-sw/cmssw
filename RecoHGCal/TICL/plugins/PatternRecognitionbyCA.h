@@ -6,7 +6,7 @@
 #include <memory>  // unique_ptr
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "HGCGraph.h"
 
 namespace ticl {
@@ -30,7 +30,7 @@ namespace ticl {
                                      const edm::ProductID& collectionID) const;
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
-    void setGeometry(ticlgeom::Tools const& rhtools) override;
+    void setGeometry(hgcal::RecHitTools const& rhtools) override;
 
   private:
     void mergeTrackstersTRK(const std::vector<Trackster>&,

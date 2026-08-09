@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 
 class HGCalRecHitWorkerSimple : public HGCalRecHitWorkerBaseClass {
@@ -32,9 +32,6 @@ protected:
   enum detectortype { hgcee = 1, hgcfh = 2, hgcbh = 3, hgchfnose = 4 };
 
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
-  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> ee_geometry_token_;
   edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> hef_geometry_token_;
   edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> hfnose_geometry_token_;
@@ -71,7 +68,7 @@ protected:
   int deltasi_index_regemfac_;
   std::vector<float> weights_, weightsNose_;
   std::unique_ptr<HGCalRecHitSimpleAlgo> rechitMaker_;
-  std::unique_ptr<ticlgeom::Tools> tools_;
+  std::unique_ptr<hgcal::RecHitTools> tools_;
 
   hgcalsimclustertime::ComputeClusterTime timeEstimatorSi_;
 };

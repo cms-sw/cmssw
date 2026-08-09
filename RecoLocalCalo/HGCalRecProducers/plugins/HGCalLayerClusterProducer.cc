@@ -25,7 +25,6 @@
 
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalLayerClusterAlgoFactory.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
@@ -79,10 +78,8 @@ private:
   // for calculate position
   std::vector<double> thresholdW0_;
   double positionDeltaRho2_;
-  ticlgeom::Tools rhtools_;
-  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
+  hgcal::RecHitTools rhtools_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
   const bool calculatePositionInAlgo_;
 #if DEBUG_CLUSTERS_ALPAKA
   std::string moduleLabel_;
@@ -120,11 +117,7 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
       detector_(ps.getParameter<std::string>("detector")),  // one of EE, FH, BH, HFNose
       timeClname_(ps.getParameter<std::string>("timeClname")),
       hitsTime_(ps.getParameter<unsigned int>("nHitsTime")),
-      ticlGeomToken_(consumesCollector().esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-      ticlGeomLookupToken_(
-          consumesCollector().esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-      ticlGeomLayersToken_(
-          consumesCollector().esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+      caloGeomToken_(consumesCollector().esConsumes<CaloGeometry, CaloGeometryRecord>()),
       calculatePositionInAlgo_(ps.getParameter<bool>("calculatePositionInAlgo")) {
 #if DEBUG_CLUSTERS_ALPAKA
   moduleLabel_ = ps.getParameter<std::string>("@module_label");
@@ -249,7 +242,8 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
   std::unique_ptr<std::vector<reco::BasicCluster>> clusters(new std::vector<reco::BasicCluster>);
 
-  rhtools_.setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
+  edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeomToken_);
+  rhtools_.setGeometry(*geom);
   algo_->getEventSetup(es, rhtools_);
 
   //make a map detid-rechit

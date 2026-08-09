@@ -26,7 +26,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 #include <map>
 #include <array>
@@ -48,15 +48,13 @@ private:
 
   edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMap_;
   edm::EDGetTokenT<std::vector<CaloParticle>> caloParticles_;
-  const edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  const edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  const edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
   std::vector<edm::InputTag> hits_label;
   std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hits_token_;
 
   int debug_;
   bool filterOnEnergyAndCaloP_;
-  ticlgeom::Tools recHitTools_;
+  hgcal::RecHitTools recHitTools_;
   std::vector<HGCRecHit> hits_;
 
   MonitorElement* eta1_;
@@ -81,9 +79,7 @@ private:
 };
 
 HGCalShowerSeparation::HGCalShowerSeparation(const edm::ParameterSet& iConfig)
-    : ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-      ticlGeomLookupToken_(esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-      ticlGeomLayersToken_(esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+    : tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       debug_(iConfig.getParameter<int>("debug")),
       filterOnEnergyAndCaloP_(iConfig.getParameter<bool>("filterOnEnergyAndCaloP")) {
   auto hitMapInputTag = iConfig.getParameter<edm::InputTag>("hitMapTag");
@@ -158,8 +154,7 @@ void HGCalShowerSeparation::bookHistograms(DQMStore::IBooker& ibooker, edm::Run 
 }
 
 void HGCalShowerSeparation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  recHitTools_.setGeometry(
-      iSetup.getData(ticlGeomToken_), iSetup.getData(ticlGeomLookupToken_), iSetup.getData(ticlGeomLayersToken_));
+  recHitTools_.setGeometry(iSetup.getData(tok_geom_));
 
   for (auto& token : hits_token_) {
     edm::Handle<HGCRecHitCollection> hits_handle;

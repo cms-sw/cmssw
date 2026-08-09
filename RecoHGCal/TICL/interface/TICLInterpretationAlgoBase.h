@@ -16,7 +16,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "DataFormats/HGCalReco/interface/Common.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -94,7 +94,7 @@ namespace ticl {
                                 std::vector<bool>& maskedTracksters) = 0;
 
     virtual void initialize(const HGCalDDDConstants* hgcons,
-                            const ticlgeom::Tools rhtools,
+                            const hgcal::RecHitTools rhtools,
                             const edm::ESHandle<MagneticField> bfieldH,
                             const edm::ESHandle<Propagator> propH) = 0;
 

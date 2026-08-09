@@ -12,7 +12,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 class TICLLayerTileProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
@@ -25,10 +25,8 @@ public:
 private:
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_HFNose_token_;
-  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
-  ticlgeom::Tools rhtools_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
+  hgcal::RecHitTools rhtools_;
   std::string detector_;
   bool doNose_;
   bool doBarrel_;
@@ -36,11 +34,7 @@ private:
 
 TICLLayerTileProducer::TICLLayerTileProducer(const edm::ParameterSet &ps)
     : detector_(ps.getParameter<std::string>("detector")) {
-  ticlGeomToken_ = esConsumes<TICLGeomHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""));
-  ticlGeomLookupToken_ =
-      esConsumes<TICLGeomLookupHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""));
-  ticlGeomLayersToken_ =
-      esConsumes<TICLGeomLayersHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""));
+  geometry_token_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
 
   doNose_ = (detector_ == "HFNose");
   doBarrel_ = (detector_ == "Barrel");
@@ -59,7 +53,8 @@ TICLLayerTileProducer::TICLLayerTileProducer(const edm::ParameterSet &ps)
 }
 
 void TICLLayerTileProducer::beginRun(edm::Run const &, edm::EventSetup const &es) {
-  rhtools_.setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
+  edm::ESHandle<CaloGeometry> geom = es.getHandle(geometry_token_);
+  rhtools_.setGeometry(*geom);
 }
 
 void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {

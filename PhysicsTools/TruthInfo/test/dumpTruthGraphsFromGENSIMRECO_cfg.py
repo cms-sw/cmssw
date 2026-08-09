@@ -257,8 +257,6 @@ process.truthLogicalGraphDumper = cms.EDAnalyzer(
 
 
 process.load("PhysicsTools.TruthInfo.recHitTable_cfi")
-# recHitTable reads the TICL geometry SoAs from the EventSetup
-process.load("RecoHGCal.TICL.TICLGeom_cff")
 
 # Barrel/forward calorimeter PFRecHits as a separate NanoAOD collection.
 # HGCal rechits stay in recHitTable above. NOTE: the offline (RECO) PFRecHit

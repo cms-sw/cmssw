@@ -18,7 +18,7 @@
 
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalLayerTiles.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"

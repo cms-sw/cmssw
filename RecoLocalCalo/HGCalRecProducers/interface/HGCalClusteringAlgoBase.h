@@ -9,7 +9,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
@@ -66,7 +66,7 @@ public:
   virtual hgcal_clustering::Density getDensity() { return {}; };        //implementation is in some child class
   virtual void getEventSetupPerAlgorithm(const edm::EventSetup &es) {}  //implementation is in some child class
 
-  inline void getEventSetup(const edm::EventSetup &es, ticlgeom::Tools rhtools) {
+  inline void getEventSetup(const edm::EventSetup &es, hgcal::RecHitTools rhtools) {
     rhtools_ = rhtools;
     maxlayer_ = rhtools_.lastLayer(isNose_);
     lastLayerEE_ = rhtools_.lastLayerEE(isNose_);
@@ -99,7 +99,7 @@ protected:
   // The vector of clusters
   std::vector<reco::BasicCluster> clusters_v_;
 
-  ticlgeom::Tools rhtools_;
+  hgcal::RecHitTools rhtools_;
 
   // The algo id
   reco::CaloCluster::AlgoId algoId_;

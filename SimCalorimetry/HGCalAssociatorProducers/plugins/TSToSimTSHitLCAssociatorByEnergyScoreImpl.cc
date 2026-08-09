@@ -8,7 +8,7 @@ template <typename HIT>
 TSToSimTSHitLCAssociatorByEnergyScoreImpl<HIT>::TSToSimTSHitLCAssociatorByEnergyScoreImpl(
     edm::EDProductGetter const& productGetter,
     bool hardScatterOnly,
-    std::shared_ptr<ticlgeom::Tools> recHitTools,
+    std::shared_ptr<hgcal::RecHitTools> recHitTools,
     const std::unordered_map<DetId, const unsigned int>* hitMap,
     std::vector<const HIT*>& hits)
     : hardScatterOnly_(hardScatterOnly),

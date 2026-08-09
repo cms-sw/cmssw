@@ -8,7 +8,7 @@
 #include <memory>  // shared_ptr
 
 #include "SimDataFormats/Associations/interface/LayerClusterToSimTracksterAssociator.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticleFwd.h"

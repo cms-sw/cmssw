@@ -48,7 +48,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
@@ -74,10 +74,8 @@ private:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
   // ----------member data ---------------------------
-  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
-  ticlgeom::Tools rhtools_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+  hgcal::RecHitTools rhtools_;
   const std::string nameDetector_;
   const edm::EDGetTokenT<HGCRecHitCollection> recHitSource_;
   const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tok_hgcaldd_;
@@ -621,9 +619,7 @@ HGCalMTRecoStudy::HGCalMTRecoStudy(const edm::ParameterSet &iConfig)
     iepB1[i] = 0;
   }
 
-  ticlGeomToken_ = esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""));
-  ticlGeomLookupToken_ = esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", ""));
-  ticlGeomLayersToken_ = esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""));
+  caloGeomToken_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 }
 
 //
@@ -633,8 +629,8 @@ HGCalMTRecoStudy::HGCalMTRecoStudy(const edm::ParameterSet &iConfig)
 // ------------ method called for each event  ------------
 void HGCalMTRecoStudy::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   using namespace edm;
-  rhtools_.setGeometry(
-      iSetup.getData(ticlGeomToken_), iSetup.getData(ticlGeomLookupToken_), iSetup.getData(ticlGeomLayersToken_));
+  const CaloGeometry &geomCalo = iSetup.getData(caloGeomToken_);
+  rhtools_.setGeometry(geomCalo);
 
   int verbosity_ = 0;
   double ElossLayer0[47], ElossLayer1[47];

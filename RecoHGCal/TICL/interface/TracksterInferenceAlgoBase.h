@@ -9,7 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #include "RecoHGCal/TICL/interface/TICLONNXGlobalCache.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 namespace ticl {
 
@@ -37,7 +37,7 @@ namespace ticl {
     // Build minibatches internally.
     virtual void runInference(const std::vector<reco::CaloCluster>& layerClusters,
                               std::vector<Trackster>& tracksters,
-                              const ticlgeom::Tools& rhtools) const = 0;
+                              const hgcal::RecHitTools& rhtools) const = 0;
 
     static void fillPSetDescription(edm::ParameterSetDescription& desc) { desc.add<int>("algo_verbosity", 0); }
 

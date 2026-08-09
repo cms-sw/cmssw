@@ -142,7 +142,7 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(const TILES &tiles,
 }
 
 template <typename TILES>
-void PatternRecognitionbyCLUE3D<TILES>::setGeometry(ticlgeom::Tools const &rhtools) {
+void PatternRecognitionbyCLUE3D<TILES>::setGeometry(hgcal::RecHitTools const &rhtools) {
   // Non-owning pointer: valid because TrackstersProducer owns rhtools_ for the module lifetime (per stream).
   this->rhtools_ = &rhtools;
 

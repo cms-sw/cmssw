@@ -6,7 +6,7 @@
 #include <memory>  // unique_ptr
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 // fwd declaration
 
@@ -31,7 +31,7 @@ namespace ticl {
                 std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
-    void setGeometry(ticlgeom::Tools const& rhtools) override;
+    void setGeometry(hgcal::RecHitTools const& rhtools) override;
 
   private:
     const double antikt_radius_;

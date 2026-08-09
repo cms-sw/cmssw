@@ -45,7 +45,6 @@ process.load('Configuration.Geometry.GeometryExtendedRun4D49Reco_cff')
 process.load('HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA_cfi')
 process.load('RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi')
 process.load('SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi')
-process.load("RecoHGCal.TICL.TICLGeom_cff")
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')

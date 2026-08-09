@@ -26,7 +26,7 @@
 #include "RecoHGCal/TICL/interface/TracksterInferenceAlgoFactory.h"
 #include "RecoHGCal/TICL/plugins/PatternRecognitionPluginFactory.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 using namespace ticl;
 
@@ -43,8 +43,8 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   void beginRun(const edm::Run&, const edm::EventSetup& es) override {
-    rhtools_.setGeometry(
-        es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
+    const auto& geom = es.getData(geometry_token_);
+    rhtools_.setGeometry(geom);
 
     // Configure the pattern recognition plugin once per run/IOV.
     if (doNose_) {
@@ -78,10 +78,8 @@ private:
 
   ticl::Trackster::IterationIndex iterIndex_ = ticl::Trackster::IterationIndex(0);
 
-  const edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  const edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  const edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
-  ticlgeom::Tools rhtools_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
+  hgcal::RecHitTools rhtools_;
   const std::string itername_;
 };
 
@@ -98,12 +96,7 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, ticl::TICLON
           consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("time_layerclusters"))),
       seeding_regions_token_(
           consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seeding_regions"))),
-      ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord, edm::Transition::BeginRun>(
-          edm::ESInputTag("", doBarrel_ ? "withBarrel" : ""))),
-      ticlGeomLookupToken_(esConsumes<TICLGeomLookupHost, CaloGeometryRecord, edm::Transition::BeginRun>(
-          edm::ESInputTag("", doBarrel_ ? "withBarrel" : ""))),
-      ticlGeomLayersToken_(
-          esConsumes<TICLGeomLayersHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
+      geometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
       itername_(ps.getParameter<std::string>("itername")) {
   const auto plugin = ps.getParameter<std::string>("patternRecognitionBy");
   const auto pluginPSet = ps.getParameter<edm::ParameterSet>("pluginPatternRecognitionBy" + plugin);

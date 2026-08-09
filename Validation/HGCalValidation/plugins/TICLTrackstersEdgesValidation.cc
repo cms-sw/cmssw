@@ -17,7 +17,7 @@
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 using namespace ticl;
 
@@ -64,22 +64,18 @@ private:
                   Histograms_TICLTrackstersEdgesValidation const&) const override;
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&, Histograms_TICLTrackstersEdgesValidation&) const override;
 
-  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
   std::string folder_;
   std::vector<std::string> trackstersCollectionsNames_;
   std::vector<edm::EDGetTokenT<std::vector<Trackster>>> tracksterTokens_;
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> layerClustersToken_;
   edm::EDGetTokenT<std::vector<TICLSeedingRegion>> ticlSeedingGlobalToken_;
   edm::EDGetTokenT<std::vector<TICLSeedingRegion>> ticlSeedingTrkToken_;
-  mutable ticlgeom::Tools rhtools_;
+  mutable hgcal::RecHitTools rhtools_;
 };
 
 TICLTrackstersEdgesValidation::TICLTrackstersEdgesValidation(const edm::ParameterSet& iConfig)
-    : ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-      ticlGeomLookupToken_(esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-      ticlGeomLayersToken_(esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+    : caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       folder_(iConfig.getParameter<std::string>("folder")) {
   tracksterTokens_ = edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag>>("tracksterCollections"),
                                            [this](edm::InputTag const& tag) {
@@ -311,8 +307,8 @@ void TICLTrackstersEdgesValidation::bookHistograms(DQMStore::IBooker& ibook,
 void TICLTrackstersEdgesValidation::dqmBeginRun(edm::Run const& run,
                                                 edm::EventSetup const& iSetup,
                                                 Histograms_TICLTrackstersEdgesValidation& histograms) const {
-  rhtools_.setGeometry(
-      iSetup.getData(ticlGeomToken_), iSetup.getData(ticlGeomLookupToken_), iSetup.getData(ticlGeomLayersToken_));
+  edm::ESHandle<CaloGeometry> geom = iSetup.getHandle(caloGeomToken_);
+  rhtools_.setGeometry(*geom);
 }
 
 void TICLTrackstersEdgesValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

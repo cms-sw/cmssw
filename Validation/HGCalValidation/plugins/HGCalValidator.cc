@@ -63,9 +63,7 @@ namespace {
 }  // namespace
 
 HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
-    : ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-      ticlGeomLookupToken_(esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-      ticlGeomLayersToken_(esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+    : caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       label_lcl(pset.getParameter<edm::InputTag>("label_lcl")),
       label_tst(pset.getParameter<std::vector<edm::InputTag>>("label_tst")),
       allTracksterTracksterAssociatorsLabels_(
@@ -177,7 +175,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
                                     pset.getParameter<bool>("notConvertedOnlyCP"),
                                     pset.getParameter<std::vector<int>>("pdgIdCP"));
 
-  tools_ = std::make_shared<ticlgeom::Tools>();
+  tools_ = std::make_shared<hgcal::RecHitTools>();
 
   particles_to_monitor_ = pset.getParameter<std::vector<int>>("pdgIdCP");
   totallayers_to_monitor_ = pset.getParameter<int>("totallayers_to_monitor");
@@ -396,8 +394,8 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   event.getByToken(simTrackstersMap_, simTrackstersMapHandle);
   const std::map<uint, std::vector<uint>>& cpToSc_SimTrackstersMap = *simTrackstersMapHandle;
 
-  tools_->setGeometry(
-      setup.getData(ticlGeomToken_), setup.getData(ticlGeomLookupToken_), setup.getData(ticlGeomLayersToken_));
+  edm::ESHandle<CaloGeometry> geom = setup.getHandle(caloGeomToken_);
+  tools_->setGeometry(*geom);
   histoProducerAlgo_->setRecHitTools(tools_);
 
   edm::Handle<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>> simtorecoCollectionH;

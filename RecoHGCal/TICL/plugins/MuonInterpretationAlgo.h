@@ -46,7 +46,7 @@ namespace ticl {
                         std::vector<bool> &maskedTracksters) override;
 
     void initialize(const HGCalDDDConstants *hgcons,
-                    const ticlgeom::Tools rhtools,
+                    const hgcal::RecHitTools rhtools,
                     const edm::ESHandle<MagneticField> bfieldH,
                     const edm::ESHandle<Propagator> propH) override;
 
@@ -66,7 +66,7 @@ namespace ticl {
     const std::string onnx_model_path_;
 
     const HGCalDDDConstants *hgcons_;
-    ticlgeom::Tools rhtools_;
+    hgcal::RecHitTools rhtools_;
     edm::ESHandle<MagneticField> bfield_;
     edm::ESHandle<Propagator> propagator_;
   };

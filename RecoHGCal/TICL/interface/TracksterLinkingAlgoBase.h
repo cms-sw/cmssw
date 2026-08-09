@@ -20,7 +20,7 @@
 #include "DataFormats/Common/interface/MultiSpan.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
 namespace edm {
@@ -67,7 +67,7 @@ namespace ticl {
                                 std::vector<std::vector<unsigned int>>& linkedTracksterIdToInputTracksterId) = 0;
 
     virtual void initialize(const HGCalDDDConstants* hgcons,
-                            const ticlgeom::Tools rhtools,
+                            const hgcal::RecHitTools rhtools,
                             const edm::ESHandle<MagneticField> bfieldH,
                             const edm::ESHandle<Propagator> propH) = 0;
 

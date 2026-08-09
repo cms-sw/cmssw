@@ -63,9 +63,7 @@ bool assignTracksterMaps(const edm::Handle<std::vector<ticl::Trackster>>& tracks
 }
 
 BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
-    : ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-      ticlGeomLookupToken_(esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-      ticlGeomLayersToken_(esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+    : caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       lclTag_(pset.getParameter<edm::InputTag>("lclTag")),
       sclTag_(pset.getParameter<edm::InputTag>("sclTag")),
       rechitmapTag_(pset.getParameter<edm::InputTag>("rechitmapTag")),
@@ -159,7 +157,7 @@ BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
                                     pset.getParameter<bool>("notConvertedOnlyCP"),
                                     pset.getParameter<std::vector<int>>("pdgIdCP"));
 
-  tools_ = std::make_shared<ticlgeom::Tools>();
+  tools_ = std::make_shared<hgcal::RecHitTools>();
 
   particles_to_monitor_ = pset.getParameter<std::vector<int>>("pdgIdCP");
   totallayers_to_monitor_ = pset.getParameter<int>("totallayers_to_monitor");
@@ -339,8 +337,8 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
 
   std::vector<CaloParticle> const& caloParticles = *caloParticleHandle;
 
-  tools_->setGeometry(
-      setup.getData(ticlGeomToken_), setup.getData(ticlGeomLookupToken_), setup.getData(ticlGeomLayersToken_));
+  edm::ESHandle<CaloGeometry> geom = setup.getHandle(caloGeomToken_);
+  tools_->setGeometry(*geom);
   histoProducerAlgo_->setRecHitTools(tools_);
 
   std::vector<ticl::RecoToSimCollectionT<reco::CaloClusterCollection>> recSimColl;

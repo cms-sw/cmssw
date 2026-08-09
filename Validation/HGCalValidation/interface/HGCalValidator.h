@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
@@ -75,9 +75,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
-  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
   edm::InputTag label_lcl;
   std::vector<edm::InputTag> label_tst;
   std::vector<edm::InputTag> allTracksterTracksterAssociatorsLabels_;
@@ -125,7 +123,7 @@ protected:
 
 private:
   CaloParticleSelector cpSelector;
-  std::shared_ptr<ticlgeom::Tools> tools_;
+  std::shared_ptr<hgcal::RecHitTools> tools_;
   std::map<double, double> cumulative_material_budget;
   std::vector<int> particles_to_monitor_;
   unsigned totallayers_to_monitor_;

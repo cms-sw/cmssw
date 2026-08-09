@@ -21,7 +21,7 @@
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
@@ -403,7 +403,7 @@ public:
   double distance2(const double x1, const double y1, const double x2, const double y2) const;
   double distance(const double x1, const double y1, const double x2, const double y2) const;
 
-  void setRecHitTools(std::shared_ptr<ticlgeom::Tools> recHitTools);
+  void setRecHitTools(std::shared_ptr<hgcal::RecHitTools> recHitTools);
 
   DetId findmaxhit(const reco::CaloCluster& cluster,
                    std::unordered_map<DetId, const unsigned int> const&,
@@ -432,7 +432,7 @@ public:
 private:
   double getEta(double eta) const;
 
-  std::shared_ptr<ticlgeom::Tools> recHitTools_;
+  std::shared_ptr<hgcal::RecHitTools> recHitTools_;
   constexpr static int numberOfValidationTypes_ = 4;
   std::array<std::string, numberOfValidationTypes_> ref_ = {
       {"SimTrackster_fromCP_byHits", "SimTrackster_byLCs", "SimTrackster_fromCP_byLCs", "SimTrackster_byHits"}};

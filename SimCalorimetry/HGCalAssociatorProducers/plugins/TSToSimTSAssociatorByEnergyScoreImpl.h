@@ -8,7 +8,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 #include "SimDataFormats/Associations/interface/TracksterToSimTracksterAssociator.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
 namespace edm {
@@ -68,7 +68,7 @@ class TSToSimTSAssociatorByEnergyScoreImpl : public ticl::TracksterToSimTrackste
 public:
   explicit TSToSimTSAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
                                                 bool,
-                                                std::shared_ptr<ticlgeom::Tools>,
+                                                std::shared_ptr<hgcal::RecHitTools>,
                                                 const std::unordered_map<DetId, const unsigned int> *,
                                                 std::vector<const HGCRecHit *> &hits);
 
@@ -84,7 +84,7 @@ public:
 
 private:
   const bool hardScatterOnly_;
-  std::shared_ptr<ticlgeom::Tools> recHitTools_;
+  std::shared_ptr<hgcal::RecHitTools> recHitTools_;
   const std::unordered_map<DetId, const unsigned int> *hitMap_;
   std::vector<const HGCRecHit *> hits_;
   unsigned layers_;

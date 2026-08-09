@@ -29,7 +29,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 //
 // class declaration
@@ -53,10 +53,8 @@ private:
   const edm::InputTag tracks_;
   const edm::InputTag caloParticles_;
   const edm::InputTag layerClusters_;
-  ticlgeom::Tools rhtools_;
-  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
+  hgcal::RecHitTools rhtools_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometry_token_;
   edm::EDGetTokenT<std::vector<ticl::Trackster>> trackstersMergeToken_;
   edm::EDGetTokenT<std::vector<reco::Track>> tracksToken_;
   edm::EDGetTokenT<std::vector<CaloParticle>> caloParticlesToken_;
@@ -68,11 +66,7 @@ TiclDebugger::TiclDebugger(const edm::ParameterSet& iConfig)
       tracks_(iConfig.getParameter<edm::InputTag>("tracks")),
       caloParticles_(iConfig.getParameter<edm::InputTag>("caloParticles")),
       layerClusters_(iConfig.getParameter<edm::InputTag>("layerClusters")),
-      ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
-      ticlGeomLookupToken_(
-          esConsumes<TICLGeomLookupHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
-      ticlGeomLayersToken_(
-          esConsumes<TICLGeomLayersHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))) {
+      caloGeometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()) {
   edm::ConsumesCollector&& iC = consumesCollector();
   trackstersMergeToken_ = iC.consumes<std::vector<ticl::Trackster>>(trackstersMerge_);
   tracksToken_ = iC.consumes<std::vector<reco::Track>>(tracks_);
@@ -178,7 +172,7 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
                                        trackster.vertex_multiplicity().size()
                                 << std::endl;
     LogVerbatim("TICLDebugger") << " link connections: " << trackster.edges().size() << std::endl;
-    auto dumpLayerCluster = [&layerClusters](ticlgeom::Tools const& rhtools, int cluster_idx) {
+    auto dumpLayerCluster = [&layerClusters](hgcal::RecHitTools const& rhtools, int cluster_idx) {
       auto const& cluster = layerClusters[cluster_idx];
       const auto firstHitDetId = cluster.hitsAndFractions()[0].first;
       int layers = rhtools.lastLayer();
@@ -217,7 +211,8 @@ void TiclDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 }
 
 void TiclDebugger::beginRun(edm::Run const&, edm::EventSetup const& es) {
-  rhtools_.setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
+  const CaloGeometry& geom = es.getData(caloGeometry_token_);
+  rhtools_.setGeometry(geom);
 }
 
 void TiclDebugger::beginJob() {}

@@ -6,7 +6,7 @@
 
 #include "RecoHGCal/TICL/interface/TracksterInferenceAlgoBase.h"
 #include "RecoHGCal/TICL/interface/TICLONNXGlobalCache.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
 // TracksterInferenceByDNN.h
@@ -19,7 +19,7 @@ namespace ticl {
 
     void runInference(const std::vector<reco::CaloCluster>& layerClusters,
                       std::vector<Trackster>& tracksters,
-                      const ticlgeom::Tools& rhtools) const override;
+                      const hgcal::RecHitTools& rhtools) const override;
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 

@@ -29,7 +29,7 @@ namespace ticl {
     ~LinkingAlgoByDirectionGeometric() override;
 
     void initialize(const HGCalDDDConstants *hgcons,
-                    const ticlgeom::Tools rhtools,
+                    const hgcal::RecHitTools rhtools,
                     const edm::ESHandle<MagneticField> bfieldH,
                     const edm::ESHandle<Propagator> propH) override;
 
@@ -97,7 +97,7 @@ namespace ticl {
     std::unique_ptr<GeomDet> firstDisk_[2];
     std::unique_ptr<GeomDet> interfaceDisk_[2];
 
-    ticlgeom::Tools rhtools_;
+    hgcal::RecHitTools rhtools_;
 
     edm::ESHandle<MagneticField> bfield_;
     edm::ESHandle<Propagator> propagator_;

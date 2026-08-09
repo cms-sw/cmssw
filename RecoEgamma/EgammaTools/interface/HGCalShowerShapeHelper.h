@@ -26,7 +26,7 @@
 #include "FWCore/Utilities/interface/Transition.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 class HGCalShowerShapeHelper {
   // Good to filter/compute/store this stuff beforehand as they are common to the shower shape variables.
@@ -71,7 +71,7 @@ public:
 
   class ShowerShapeCalc {
   public:
-    ShowerShapeCalc(std::shared_ptr<const ticlgeom::Tools> recHitTools,
+    ShowerShapeCalc(std::shared_ptr<const hgcal::RecHitTools> recHitTools,
                     std::shared_ptr<const std::unordered_map<uint32_t, const reco::PFRecHit *> > pfRecHitPtrMap,
                     const std::vector<std::pair<DetId, float> > &hitsAndFracs,
                     const double rawEnergy,
@@ -95,7 +95,7 @@ public:
     void setFilteredHitsAndFractions(const std::vector<std::pair<DetId, float> > &hitsAndFracs);
     void setLayerWiseInfo();
 
-    std::shared_ptr<const ticlgeom::Tools> recHitTools_;
+    std::shared_ptr<const hgcal::RecHitTools> recHitTools_;
     std::shared_ptr<const std::unordered_map<uint32_t, const reco::PFRecHit *> > pfRecHitPtrMap_;
     double rawEnergy_;
 
@@ -126,11 +126,7 @@ public:
 
   template <edm::Transition tr = edm::Transition::Event>
   void setTokens(edm::ConsumesCollector consumesCollector) {
-    ticlGeomToken_ = consumesCollector.esConsumes<TICLGeomHost, CaloGeometryRecord, tr>(edm::ESInputTag("", ""));
-    ticlGeomLookupToken_ =
-        consumesCollector.esConsumes<TICLGeomLookupHost, CaloGeometryRecord, tr>(edm::ESInputTag("", ""));
-    ticlGeomLayersToken_ =
-        consumesCollector.esConsumes<TICLGeomLayersHost, CaloGeometryRecord, tr>(edm::ESInputTag("", ""));
+    caloGeometryToken_ = consumesCollector.esConsumes<CaloGeometry, CaloGeometryRecord, tr>();
   }
 
   void initPerSetup(const edm::EventSetup &iSetup);
@@ -156,10 +152,8 @@ public:
 private:
   void setPFRecHitPtrMap(const std::vector<reco::PFRecHit> &recHits);
 
-  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
-  std::shared_ptr<ticlgeom::Tools> recHitTools_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  std::shared_ptr<hgcal::RecHitTools> recHitTools_;
   std::shared_ptr<std::unordered_map<uint32_t, const reco::PFRecHit *> > pfRecHitPtrMap_;
 };
 

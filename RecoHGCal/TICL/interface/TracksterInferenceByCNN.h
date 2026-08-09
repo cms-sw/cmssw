@@ -8,8 +8,8 @@
 #include <string>
 #include <vector>
 
-namespace ticlgeom {
-  class Tools;
+namespace hgcal {
+  class RecHitTools;
 }
 
 namespace ticl {
@@ -22,7 +22,7 @@ namespace ticl {
 
     void runInference(const std::vector<reco::CaloCluster>& layerClusters,
                       std::vector<Trackster>& tracksters,
-                      const ticlgeom::Tools& rhtools) const override;
+                      const hgcal::RecHitTools& rhtools) const override;
 
   private:
     std::vector<std::string> inputNames_;

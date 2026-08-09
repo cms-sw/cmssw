@@ -5,11 +5,6 @@ from RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi import *
 
 from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cff import recHitMapProducer
 
-# TICLGeom SoA geometry EventSetup producers (RecHitTools replacement); the
-# import registers a phase2_hgcal process modifier that attaches the @alpaka
-# producers, so they reach only Phase2 processes, never FastSim or Run 2/3
-from RecoHGCal.TICL.TICLGeom_cff import addTICLGeomToReco
-
 # patch particle flow clusters for HGC into local reco sequence
 # (for now until global reco is going with some sort of clustering)
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHGC_cfi import *

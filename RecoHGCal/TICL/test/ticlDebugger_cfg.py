@@ -17,7 +17,6 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.load("RecoHGCal.TICL.TICLGeom_cff")
 process.load("RecoHGCal.TICL.ticlDebugger_cfi")
 process.load("SimGeneral.Debugging.caloParticleDebugger_cfi")
 

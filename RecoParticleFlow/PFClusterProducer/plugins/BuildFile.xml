@@ -2,7 +2,6 @@
   <use name="CondFormats/HcalObjects"/>
   <use name="CondFormats/EcalObjects"/>
   <use name="CondFormats/DataRecord"/>
-  <use name="CondFormats/HGCalObjects"/>
   <use name="DataFormats/Common"/>
   <use name="DataFormats/EcalDetId"/>
   <use name="DataFormats/EcalRecHit"/>
@@ -26,7 +25,6 @@
   <use name="CondFormats/HcalObjects"/>
   <use name="CondFormats/EcalObjects"/>
   <use name="CondFormats/DataRecord"/>
-  <use name="CondFormats/HGCalObjects"/>
   <use name="DataFormats/EcalDetId"/>
   <use name="DataFormats/EcalRecHit"/>
   <use name="DataFormats/HcalDetId"/>

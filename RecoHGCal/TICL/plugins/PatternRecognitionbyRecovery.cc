@@ -21,7 +21,7 @@ PatternRecognitionbyRecovery<TILES>::PatternRecognitionbyRecovery(const edm::Par
     : PatternRecognitionAlgoBaseT<TILES>(conf, iC) {}
 
 template <typename TILES>
-void PatternRecognitionbyRecovery<TILES>::setGeometry(ticlgeom::Tools const &rhtools) {
+void PatternRecognitionbyRecovery<TILES>::setGeometry(hgcal::RecHitTools const &rhtools) {
   this->rhtools_ = &rhtools;
   z_limit_em_ = std::abs(this->rhtools_->getPositionLayer(this->rhtools_->lastLayerEE(false), false).z());
   this->geometryReady_ = true;
