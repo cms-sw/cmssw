@@ -204,9 +204,24 @@ namespace truth {
     // below to reject the one topology the tree cannot represent.
     const std::vector<uint8_t> reachesSim = closureReachesSimTrack();
 
+    // The tree edge is hasSimTrack to NEAREST hit-carrying descendant, walking THROUGH
+    // any GEN-only nodes between them. A decay in flight puts a GEN-only record between
+    // two SIM particles, and central heavy-ion events do this at scale: 71 such bridges
+    // in one Hydjet event, none in pp samples. Treating the bridge as a forest violation
+    // sent every such event to the materialised fallback, whose per-ancestor hit
+    // duplication turned a 30 MB graph into an index above ROOT's 1 GiB single-object
+    // limit and killed the output module (cms-sw/cmssw#51638). The GEN-only bridge
+    // itself owns no slots, and its subgraph is the union of its descendants' runs,
+    // which buildSubgraphRanges already computes for every GEN-only node.
     std::vector<uint32_t> simParent(nParticles_, kNoParent);
     std::vector<std::vector<uint32_t>> simChildren(nParticles_);
     bool isForest = true;
+    std::vector<uint32_t> bridgeStack;
+    // Visited mask for the bridge walk, undone after each parent: GEN-only nodes can
+    // form a CYCLE (testSharedStoreFallsBackAcrossAGenOnlyCycle builds one), and a walk
+    // without the mask never terminates on it.
+    std::vector<uint8_t> bridgeSeen(nParticles_, 0);
+    std::vector<uint32_t> bridgeVisited;
     for (uint32_t parent = 0; parent < nParticles_; ++parent) {
       if (hasSimTrack_[parent] == 0)
         continue;
@@ -214,13 +229,41 @@ namespace truth {
         if (child >= nParticles_)
           continue;
         if (hasSimTrack_[child] == 0) {
-          // A GEN-only child that still has hit-carrying descendants would put them
-          // outside this parent's subtree run, since the tree is built from
-          // hasSimTrack-to-hasSimTrack edges only, and the parent's subgraph would come
-          // back short. No current sample does this, because a SIM-continued GEN
-          // particle is a status 1 leaf, but nothing enforces it.
-          if (reachesSim[child] != 0)
-            isForest = false;
+          if (reachesSim[child] == 0)
+            continue;
+          // Walk through the GEN-only bridge to its first hit-carrying descendants and
+          // attach them to this parent directly.
+          bridgeStack.push_back(child);
+          bridgeSeen[child] = 1;
+          bridgeVisited.push_back(child);
+          while (!bridgeStack.empty() && isForest) {
+            const uint32_t bridge = bridgeStack.back();
+            bridgeStack.pop_back();
+            for (const uint32_t below : children_[bridge]) {
+              if (below >= nParticles_)
+                continue;
+              if (hasSimTrack_[below] == 0) {
+                if (reachesSim[below] != 0 && bridgeSeen[below] == 0) {
+                  bridgeStack.push_back(below);
+                  bridgeSeen[below] = 1;
+                  bridgeVisited.push_back(below);
+                }
+                continue;
+              }
+              if (simParent[below] != kNoParent) {
+                // Reachable through two bridges or two parents: not a tree.
+                if (simParent[below] != parent)
+                  isForest = false;
+                continue;
+              }
+              simParent[below] = parent;
+              simChildren[parent].push_back(below);
+            }
+          }
+          bridgeStack.clear();
+          for (const uint32_t visited : bridgeVisited)
+            bridgeSeen[visited] = 0;
+          bridgeVisited.clear();
           continue;
         }
         if (simParent[child] != kNoParent) {

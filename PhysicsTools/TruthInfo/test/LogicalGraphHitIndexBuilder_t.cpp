@@ -189,6 +189,12 @@ void TestLogicalGraphHitIndexBuilder::testSharedStoreFallsBackWhenNotAForest() {
 // grandparent's subtree run and its hits would go missing from that subgraph. finish()
 // must fall back rather than answer short.
 void TestLogicalGraphHitIndexBuilder::testSharedStoreFallsBackAcrossAGenOnlyChild() {
+  // REQUIRED: a SIM to GEN-only to SIM sandwich stays on the SHARED store. This is a
+  // decay in flight, and central heavy-ion events carry it at scale: 71 bridges in one
+  // Hydjet event. Falling back to the materialised layout there duplicated every hit
+  // per ancestor and produced an index above ROOT's 1 GiB single-object limit
+  // (cms-sw/cmssw#51638). The bridge is walked through, so the grandparent's subgraph
+  // still sees everything below it and the GEN-only node keeps its own union view.
   truth::LogicalGraphHitIndexBuilder builder(3, /*sharedSubgraphStore=*/true);
   builder.setSimTrackForParticle(0, 0, 100);
   // particle 1 is GEN-only: no SimTrack, so it never carries hits itself.
@@ -201,14 +207,28 @@ void TestLogicalGraphHitIndexBuilder::testSharedStoreFallsBackAcrossAGenOnlyChil
 
   const auto index = builder.finish();
 
-  CPPUNIT_ASSERT(!builder.usedSharedStore());
-  CPPUNIT_ASSERT(!index.sharedSubgraphStore());
+  CPPUNIT_ASSERT(builder.usedSharedStore());
+  CPPUNIT_ASSERT(index.sharedSubgraphStore());
 
-  // The grandparent still sees both cells, which is what the fallback protects.
-  auto sub = index.subgraphHits(truth::HitChannel::Calo, 0);
-  CPPUNIT_ASSERT_EQUAL(std::size_t(2), sub.size());
-  CPPUNIT_ASSERT_EQUAL(uint32_t(10), sub[0].detId);
-  CPPUNIT_ASSERT_EQUAL(uint32_t(20), sub[1].detId);
+  // The grandparent sees both cells: its subtree run walked THROUGH the bridge.
+  {
+    auto sub = index.subgraphHits(truth::HitChannel::Calo, 0);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(2), sub.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t(10), sub[0].detId);
+    CPPUNIT_ASSERT_EQUAL(uint32_t(20), sub[1].detId);
+  }
+  // The GEN-only bridge sees exactly its own descendant's cell.
+  {
+    auto sub = index.subgraphHits(truth::HitChannel::Calo, 1);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), sub.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t(20), sub[0].detId);
+  }
+  // And the leaf sees itself alone.
+  {
+    auto sub = index.subgraphHits(truth::HitChannel::Calo, 2);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), sub.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t(20), sub[0].detId);
+  }
 }
 
 // A GEN-only CYCLE between the hit-carrying parent and a hit-carrying descendant. The
@@ -230,10 +250,13 @@ void TestLogicalGraphHitIndexBuilder::testSharedStoreFallsBackAcrossAGenOnlyCycl
 
   const auto index = builder.finish();
 
-  CPPUNIT_ASSERT(!builder.usedSharedStore());
-  CPPUNIT_ASSERT(!index.sharedSubgraphStore());
+  // The bridge walk visits each GEN-only node once, so a cycle terminates and the SIM
+  // exit is attached under the one SIM parent: representable, so the SHARED store holds.
+  CPPUNIT_ASSERT(builder.usedSharedStore());
+  CPPUNIT_ASSERT(index.sharedSubgraphStore());
 
-  // The parent still sees the descendant's cell through the cycle.
+  // The parent still sees the descendant's cell through the cycle, which was always the
+  // required behaviour; only the layout that provides it changed.
   auto sub = index.subgraphHits(truth::HitChannel::Calo, 0);
   CPPUNIT_ASSERT_EQUAL(std::size_t(2), sub.size());
   CPPUNIT_ASSERT_EQUAL(uint32_t(10), sub[0].detId);
