@@ -156,7 +156,13 @@ baseCommonValidation = cms.Sequence()
 # no raw pileup SimTracks, so the accumulator and the DIGI build are dropped and the
 # truth products do not exist downstream. Revert to the truth-free sequences there,
 # after the enableTruth lines, so the later statement wins.
-_baseCommonPreValidationNoTruth = baseCommonPreValidation.copy()
+# Public truth-free copy: the detector-only assemblies below must use THIS one. The
+# truth association producers consume generalTracks, the pixel clusters and the HGCal
+# and PF rechits, none of which a detector-only reconstruction makes, so attaching the
+# truth to baseCommonPreValidation itself would fail those workflows with
+# ProductNotFound at the first event.
+baseCommonPreValidationNoTruth = baseCommonPreValidation.copy()
+_baseCommonPreValidationNoTruth = baseCommonPreValidationNoTruth
 _baseCommonValidationNoTruth = baseCommonValidation.copy()
 
 _baseCommonPreValidationWithTruth = baseCommonPreValidation.copy()
@@ -207,8 +213,10 @@ globalValidationTaus = cms.Sequence(
 
 # ECAL local reconstruction
 globalPrevalidationECAL = cms.Sequence()
+# baseCommonPreValidationNoTruth, not baseCommonPreValidation: ECAL-only reconstruction
+# has no generalTracks and no HGCal rechits for the truth association to consume.
 globalPrevalidationECALOnly = cms.Sequence(
-      baseCommonPreValidation
+      baseCommonPreValidationNoTruth
     + globalPrevalidationECAL
 )
 
@@ -238,8 +246,9 @@ phase2_ecalTP_devel.toReplaceWith(ecalTPsValidationSequence, ecalTPsValidationSe
 # HCAL local reconstruction
 globalPrevalidationHCAL = cms.Sequence()
 
+# Same as the ECAL-only case above: no tracks, no truth association inputs.
 globalPrevalidationHCALOnly = cms.Sequence(
-      baseCommonPreValidation
+      baseCommonPreValidationNoTruth
     + globalPrevalidationHCAL
 )
 
