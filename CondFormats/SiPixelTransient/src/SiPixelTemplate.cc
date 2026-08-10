@@ -4047,6 +4047,7 @@ void SiPixelTemplate::vavilov_pars(double& mpv, double& sigma, double& kappa)
 
   cotalpha0 = thePixelTemp_[index_id_].enty[0].cotalpha;
   // stabilize output (see interpolate1d)
+  // arg = cotb_current_ * cotb_current_ + cota_current_ * cota_current_ - cotalpha0 * cotalpha0;
   arg = std::fma(-cotalpha0, cotalpha0, std::fma(cotb_current_, cotb_current_, cota_current_ * cota_current_));
   if (arg < 0.f)
     arg = 0.f;
@@ -4132,7 +4133,8 @@ void SiPixelTemplate::vavilov2_pars(double& mpv, double& sigma, double& kappa)
 
   cotalpha0 = thePixelTemp_[index_id_].enty[0].cotalpha;
   // stabilize output (see interpolate1d)
-  arg = std::fma(cotb_current_, cotb_current_, cota_current_ * cota_current_) - cotalpha0 * cotalpha0;
+  // arg = cotb_current_ * cotb_current_ + cota_current_ * cota_current_ - cotalpha0 * cotalpha0;
+  arg = std::fma(-cotalpha0, cotalpha0, std::fma(cotb_current_, cotb_current_, cota_current_ * cota_current_));
   if (arg < 0.f)
     arg = 0.f;
   cotb = std::sqrt(arg);
