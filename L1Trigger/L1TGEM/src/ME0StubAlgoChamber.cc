@@ -54,7 +54,7 @@ std::vector<std::vector<ME0StubPrimitive>> l1t::me0::crossPartitionCancellation(
   for (int prtIdx = 1; prtIdx < static_cast<int>(segments.size()); prtIdx += 2) {
     for (int segIdx = 0; segIdx < static_cast<int>(segments[prtIdx].size()); ++segIdx) {
       ME0StubPrimitive seg = segments[prtIdx][segIdx];
-      if (seg.layerCount() == 0)
+      if (seg.layerCount() == 0 || seg.patternId() == 0)
         continue;
       for (int segAboveIdx = 0; segAboveIdx < static_cast<int>(segments[prtIdx - 1].size()); ++segAboveIdx) {
         ME0StubPrimitive segAbove = segments[prtIdx - 1][segAboveIdx];
@@ -77,7 +77,7 @@ std::vector<std::vector<ME0StubPrimitive>> l1t::me0::crossPartitionCancellation(
   for (int prtIdx = 1; prtIdx < static_cast<int>(segRealKilled.size()); prtIdx += 2) {
     for (int segIdx = 0; segIdx < static_cast<int>(segRealKilled[prtIdx].size()); ++segIdx) {
       ME0StubPrimitive seg = segRealKilled[prtIdx][segIdx];
-      if (seg.layerCount() == 0)
+      if (seg.layerCount() == 0 || seg.patternId() == 0)
         continue;
       for (int segAboveIdx = 0; segAboveIdx < static_cast<int>(segRealKilled[prtIdx - 1].size()); ++segAboveIdx) {
         ME0StubPrimitive segAbove = segRealKilled[prtIdx - 1][segAboveIdx];

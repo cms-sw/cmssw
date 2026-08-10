@@ -76,7 +76,7 @@ void ME0StubBuilder::build(const GEMPadDigiCollection* padDigis, ME0StubCollecti
   config.deghostPost = deghostPost_;
   config.groupWidth = groupWidth_;
   config.ghostWidth = ghostWidth_;
-  config.xPartitionEnabled = xPartitionEnabled_;
+  config.xPartitionEnabled = true; // always true for current implementation, can be changed in the future if needed
   config.enableNonPointing = enableNonPointing_;
   config.crossPartitionSegmentWidth = crossPartitionSegmentWidth_;
   config.clearanceWidth = clearanceWidth_;
