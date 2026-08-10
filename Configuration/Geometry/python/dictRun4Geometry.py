@@ -3,7 +3,7 @@ maxSections = 5
 commonDict = {
     "abbrev" : "O",
     "name" : "common",
-    "default" : 10,
+    "default" : 11,
     "O9" : {
         1 : [
             'Geometry/CMSCommonData/data/materials/2021/v1/materials.xml',
@@ -279,7 +279,7 @@ trackerDict = {
 caloDict = {
     "abbrev" : "C",
     "name" : "calo",
-    "default" : 25,
+    "default" : 27,
     "C18" : {
         1 : [
             'Geometry/EcalCommonData/data/eregalgo/2030/v2/eregalgo.xml',
@@ -1085,7 +1085,7 @@ muonDict = {
 forwardDict = {
     "abbrev" : "F",
     "name" : "forward",
-    "default" : 9,
+    "default" : 10,
     "F8" : {
         1 : [
             'Geometry/ForwardCommonData/data/forwardshield/2030/v4/forwardshield.xml',
@@ -1160,7 +1160,7 @@ forwardDict = {
 timingDict = {
     "abbrev" : "I",
     "name" : "timing",
-    "default" : 18,
+    "default" : 21,
     "I17" : {
         1 : [
            'Geometry/MTDCommonData/data/mtdMaterial/v3/mtdMaterial.xml',
