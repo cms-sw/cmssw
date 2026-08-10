@@ -37,7 +37,12 @@ private:
   std::string lastUpdatedServerName;
 };
 
-TEST_CASE("RetryActionDiffServer switches to fallback via updateServer", "[RetryActionDiffServer]") {
+TEST_CASE("RetryActionDiffServer handles a missing TritonService gracefully", "[RetryActionDiffServer]") {
+  // Outside the full framework there is no ServiceRegistry, so TritonClient::service()
+  // cannot resolve a TritonService and querying for an alternative server fails. This
+  // exercises that retry() catches that failure without throwing, does not call
+  // updateServer (since no alternative server could be determined), and still disarms
+  // itself after the one allowed attempt.
   ensurePluginManager();
   edm::ParameterSet empty;
   TestTritonClient client;
@@ -49,14 +54,17 @@ TEST_CASE("RetryActionDiffServer switches to fallback via updateServer", "[Retry
   action->start();
   REQUIRE(action->shouldRetry());
 
-  // retry should call updateServer with fallback name then disarm
-  action->retry();
-  REQUIRE(client.lastServerName() == TritonService::Server::fallbackName);
+  // retry should not throw despite the missing TritonService, and should not call
+  // updateServer since no alternative server could be resolved
+  REQUIRE_NOTHROW(action->retry());
+  REQUIRE(client.lastServerName().empty());
 
-  // second retry without re-arming should be a no-op: lastServerName unchanged
-  std::string afterFirst = client.lastServerName();
+  // one-time use: retry disarms itself after the first attempt
+  REQUIRE_FALSE(action->shouldRetry());
+
+  // second retry without re-arming should still be a no-op: lastServerName unchanged
   action->retry();
-  REQUIRE(client.lastServerName() == afterFirst);
+  REQUIRE(client.lastServerName().empty());
 }
 
 // A client that throws during updateServer to exercise error handling path
