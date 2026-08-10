@@ -16,9 +16,7 @@ HGCalEgammaIDHelper::HGCalEgammaIDHelper(const edm::ParameterSet& iConfig, edm::
   recHitsFH_ = iC.consumes<HGCRecHitCollection>(fhRecHitInputTag_);
   recHitsBH_ = iC.consumes<HGCRecHitCollection>(bhRecHitInputTag_);
   hitMap_ = iC.consumes<std::unordered_map<DetId, const unsigned int>>(hitMapInputTag_);
-  ticlGeomToken_ = iC.esConsumes(edm::ESInputTag("", ""));
-  ticlGeomLookupToken_ = iC.esConsumes(edm::ESInputTag("", ""));
-  ticlGeomLayersToken_ = iC.esConsumes(edm::ESInputTag("", ""));
+  caloGeometry_ = iC.esConsumes();
   pcaHelper_.setdEdXWeights(dEdXWeights_);
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
 }
@@ -28,8 +26,7 @@ void HGCalEgammaIDHelper::eventInit(const edm::Event& iEvent, const edm::EventSe
   auto recHitHandleFH = iEvent.getHandle(recHitsFH_);
   auto recHitHandleBH = iEvent.getHandle(recHitsBH_);
 
-  recHitTools_.setGeometry(
-      iSetup.getData(ticlGeomToken_), iSetup.getData(ticlGeomLookupToken_), iSetup.getData(ticlGeomLayersToken_));
+  recHitTools_.setGeometry(iSetup.getData(caloGeometry_));
   pcaHelper_.setRecHitTools(&recHitTools_);
   isoHelper_.setRecHitTools(&recHitTools_);
   pcaHelper_.setHitMap(&iEvent.get(hitMap_));

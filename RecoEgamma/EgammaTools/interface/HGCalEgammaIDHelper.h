@@ -25,7 +25,6 @@
 
 #include "RecoEgamma/EgammaTools/interface/EgammaPCAHelper.h"
 #include "RecoEgamma/EgammaTools/interface/LongDeps.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 #include <vector>
 #include "HGCalIsoCalculator.h"
 
@@ -82,10 +81,8 @@ private:
   edm::EDGetTokenT<HGCRecHitCollection> recHitsFH_;
   edm::EDGetTokenT<HGCRecHitCollection> recHitsBH_;
   edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMap_;
-  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
-  ticlgeom::Tools recHitTools_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometry_;
+  hgcal::RecHitTools recHitTools_;
   bool debug_;
 };
 

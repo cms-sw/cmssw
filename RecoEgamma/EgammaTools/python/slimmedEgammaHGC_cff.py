@@ -5,6 +5,12 @@ from RecoEgamma.EgammaTools.hgcalElectronIDValueMap_cff import hgcalElectronIDVa
 from PhysicsTools.PatAlgos.PATElectronProducer_cfi import PATElectronProducer
 from PhysicsTools.PatAlgos.slimming.slimmedElectrons_cfi import slimmedElectrons
 from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cff import recHitMapProducer
+# TICLGeom SoA geometry EventSetup producers consumed by the HGCal electron and
+# photon ID (HGCalEgammaIDHelper); added to the task below so they are present
+# when this slimming runs in a standalone PAT job, not only when RECO is scheduled
+from RecoHGCal.TICL.TICLGeom_cff import (ticlGeomESProducer,
+                                         ticlGeomLookupESProducer,
+                                         ticlGeomLayersESProducer)
 
 hgcElectronID = hgcalElectronIDValueMap.clone(
     electrons = "cleanedEcalDrivenGsfElectronsHGC",
@@ -113,5 +119,8 @@ slimmedPhotonsHGCTask = cms.Task(
 slimmedEgammaHGCTask = cms.Task(
     recHitMapProducer,
     slimmedElectronsHGCTask,
-    slimmedPhotonsHGCTask
+    slimmedPhotonsHGCTask,
+    ticlGeomESProducer,
+    ticlGeomLookupESProducer,
+    ticlGeomLayersESProducer
 )
