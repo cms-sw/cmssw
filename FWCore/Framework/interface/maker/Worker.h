@@ -601,13 +601,18 @@ namespace edm {
                        StreamID,
                        EventTransitionInfo const& info,
                        ActivityRegistry* actReg,
-                       ModuleCallingContext const* mcc,
+                       ModuleCallingContext* mcc,
                        Arg::Context const* context) {
         //Want postDoEvent to be called after signals are sent.
         auto postSentry = make_sentry(iWorker, [&](auto* worker) { worker->postDoEvent(info.principal()); });
         ModuleSignalSentry<Arg> signalSentry(actReg, context, mcc);
         signalSentry.preModuleSignal();
-        auto returnValue = iWorker->implDo(info, mcc);
+        bool returnValue;
+        {
+          ModuleCallingContextSentry mccSentry(*mcc);
+          returnValue = iWorker->implDo(info, mcc);
+          mccSentry.finished(returnValue);
+        }
         signalSentry.postModuleSignal();
         return returnValue;
       }

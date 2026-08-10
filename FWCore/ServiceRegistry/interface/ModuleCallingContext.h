@@ -35,8 +35,11 @@ namespace edm {
     typedef ParentContext::Type Type;
 
     enum class State {
-      kPrefetching,  // prefetching products before starting to run
-      kRunning,      // module actually running
+      kPrefetching,     // prefetching products before starting to run
+      kRunning,         // module actually running
+      kFinishedPassed,  // finished and gave the transition a pass result
+      kFinishedFailed,  // finished and gave the transition a fail result
+      kException,       // finished and threw an exception
       kInvalid
     };
 
@@ -90,6 +93,23 @@ namespace edm {
     ParentContext parent_;
     std::uintptr_t id_;
     State state_;
+  };
+
+  struct ModuleCallingContextSentry {
+    explicit ModuleCallingContextSentry(ModuleCallingContext& mcc) noexcept : mcc_(mcc) {}
+    ~ModuleCallingContextSentry() noexcept {
+      if (mcc_.state() != ModuleCallingContext::State::kFinishedPassed and
+          mcc_.state() != ModuleCallingContext::State::kFinishedFailed) {
+        mcc_.setState(ModuleCallingContext::State::kException);
+      }
+    }
+    void finished(bool passed) noexcept {
+      mcc_.setState(passed ? ModuleCallingContext::State::kFinishedPassed
+                           : ModuleCallingContext::State::kFinishedFailed);
+    }
+
+  private:
+    ModuleCallingContext& mcc_;
   };
 
   void exceptionContext(cms::Exception&, ModuleCallingContext const&);
