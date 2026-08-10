@@ -199,9 +199,7 @@ namespace edm {
 
   template <typename T>
   inline bool WorkerT<T>::implDo(EventTransitionInfo const& info, ModuleCallingContext const* mcc) {
-    EventPrincipal const& ep = info.principal();
-    std::shared_ptr<Worker> sentry(this, [&ep](Worker* obj) { obj->postDoEvent(ep); });
-    return module_->doEvent(info, activityRegistry(), mcc);
+    return module_->doEvent(info,  mcc);
   }
 
   template <typename T>

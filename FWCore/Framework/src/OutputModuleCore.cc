@@ -31,7 +31,6 @@
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-#include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -256,10 +255,8 @@ namespace edm {
     }
 
     bool OutputModuleCore::doEvent_(EventTransitionInfo const& info,
-                                    ActivityRegistry* act,
                                     ModuleCallingContext const* mcc) {
       {
-        EventSignalsSentry sentry(act, mcc);
         EventForOutput e(info, moduleDescription_, mcc);
         e.setConsumer(this);
         write(e);

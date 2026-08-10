@@ -65,7 +65,7 @@ namespace edm {
       using ProducingModuleAdaptorBase<EDFilterBase>::commit;
 
     private:
-      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
 
       void doAcquire(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*, WaitingTaskHolder&&);
 

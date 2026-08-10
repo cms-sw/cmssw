@@ -54,6 +54,7 @@ the worker is reset().
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
 #include "FWCore/Utilities/interface/Transition.h"
+#include "FWCore/Utilities/interface/make_sentry.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -599,11 +600,16 @@ namespace edm {
       static bool call(Worker* iWorker,
                        StreamID,
                        EventTransitionInfo const& info,
-                       ActivityRegistry* /* actReg */,
+                       ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
-                       Arg::Context const* /* context*/) {
-        //Signal sentry is handled by the module
-        return iWorker->implDo(info, mcc);
+                       Arg::Context const* context) {
+        //Want postDoEvent to be called after signals are sent.
+        auto postSentry = make_sentry(iWorker, [&](auto* worker) { worker->postDoEvent(info.principal()); });
+        ModuleSignalSentry<Arg> signalSentry(actReg, context, mcc);
+        signalSentry.preModuleSignal();
+        auto returnValue = iWorker->implDo(info, mcc);
+        signalSentry.postModuleSignal();
+        return returnValue;
       }
       static void esPrefetchAsync(Worker* worker,
                                   WaitingTaskHolder waitingTask,

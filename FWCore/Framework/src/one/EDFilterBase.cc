@@ -21,7 +21,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
-#include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/EventForTransformer.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
@@ -48,9 +47,7 @@ namespace edm {
     EDFilterBase::~EDFilterBase() {}
 
     bool EDFilterBase::doEvent(EventTransitionInfo const& info,
-                               ActivityRegistry* act,
                                ModuleCallingContext const* mcc) {
-      EventSignalsSentry sentry(act, mcc);
       Event e(info, moduleDescription_, mcc);
       e.setConsumer(this);
       e.setProducer(this, &previousParentage_);

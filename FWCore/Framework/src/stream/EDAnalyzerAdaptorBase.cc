@@ -27,7 +27,6 @@
 #include "FWCore/ServiceRegistry/interface/ModuleConsumesInfo.h"
 
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
-#include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 
 using namespace edm::stream;
@@ -155,12 +154,10 @@ std::vector<edm::ModuleConsumesMinimalESInfo> EDAnalyzerAdaptorBase::moduleConsu
 }
 
 bool EDAnalyzerAdaptorBase::doEvent(EventTransitionInfo const& info,
-                                    ActivityRegistry* act,
                                     ModuleCallingContext const* mcc) {
   EventPrincipal const& ep = info.principal();
   assert(ep.streamID() < m_streamModules.size());
   auto mod = m_streamModules[ep.streamID()];
-  EventSignalsSentry sentry(act, mcc);
   Event e(ep, moduleDescription_, mcc);
   e.setConsumer(mod);
   ESParentContext parentC(mcc);

@@ -22,7 +22,6 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/global/EDProducerBase.h"
 #include "FWCore/Framework/src/EventAcquireSignalsSentry.h"
-#include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
@@ -54,9 +53,7 @@ namespace edm {
     EDProducerBase::~EDProducerBase() {}
 
     bool EDProducerBase::doEvent(EventTransitionInfo const& info,
-                                 ActivityRegistry* act,
                                  ModuleCallingContext const* mcc) {
-      EventSignalsSentry sentry(act, mcc);
       Event e(info, moduleDescription_, mcc);
       e.setConsumer(this);
       const auto streamIndex = e.streamID().value();
