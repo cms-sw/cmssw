@@ -54,6 +54,7 @@ private:
     MonitorElement* ClusterSizeX = nullptr;
     MonitorElement* ClusterSizeY = nullptr;
     MonitorElement* ClusterCharge = nullptr;
+    unsigned int clusterCounter{0};
   };
 
   MonitorElement* numberClusters_;
@@ -65,6 +66,7 @@ private:
   void bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_it, std::string& subdir);
 
   std::map<std::string, ClusterMEs> layerMEs_;
+  enum Level { IT = 1, SUBSTRUCTURE, SHELL, ENDCAP_RING, ENDCAP_WHEEL, LAYER };
   edm::ParameterSet config_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> itPixelClusterToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
@@ -107,8 +109,6 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
     return;
   }
 
-  // Number of clusters
-  std::map<std::string, unsigned int> nClsmap;
   unsigned int nclusGlobal = 0;
   for (const auto& DSVItr : *itPixelClusterHandle) {
     uint32_t rawid(DSVItr.detId());
@@ -121,7 +121,6 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
       continue;
     GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
     nclusGlobal += DSVItr.size();
-    int nClus = 0;
     for (const auto& clusterItr : DSVItr) {
       MeasurementPoint mpCluster(clusterItr.x(), clusterItr.y());
       Local3DPoint localPosCluster = geomDetUnit->topology().localPosition(mpCluster);
@@ -130,7 +129,6 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
       double gy = globalPosCluster.y() * 10.;
       double gz = globalPosCluster.z() * 10.;
       double gr = globalPosCluster.perp() * 10.;
-      nClus++;
 
       // Fill non-layer histos
       if (geomDetUnit->subDetector() == GeomDetEnumerators::SubDetector::P2PXB) {
@@ -140,7 +138,11 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
         globalXY_endcap_->Fill(gx, gy);
         globalRZ_endcap_->Fill(gz, gr);
       }
-      for (int fillingDepth = 1; fillingDepth <= 6; fillingDepth++) {
+      for (enum Level fillingDepth = IT; fillingDepth <= LAYER; fillingDepth = Level(fillingDepth + 1)) {
+        // Skip filling for barrel detIds on endcap-only depths
+        if ((fillingDepth == ENDCAP_RING || fillingDepth == ENDCAP_WHEEL) &&
+            DetId(detId).subdetId() == PixelSubdetector::PixelBarrel)
+          continue;
         std::string folderkey = phase2tkutil::getHistoId(detId, tTopo_, detPos.phi(), fillingDepth, false);
         auto local_mesIT = layerMEs_.find(folderkey);
         if (local_mesIT == layerMEs_.end())
@@ -151,25 +153,15 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
         local_mes.ClusterSizeX->Fill(clusterItr.sizeX());
         local_mes.ClusterSizeY->Fill(clusterItr.sizeY());
         local_mes.ClusterCharge->Fill(clusterItr.charge());
-
-        if (nClus == int(DSVItr.size())) {
-          // Reached the end of clusters in this Det
-          // Fill any histos that should only be filled once per det
-
-          // initialize the nhit counters if they don't exist for this layer
-          auto counterDet = nClsmap.find(folderkey);
-          if (counterDet == nClsmap.end()) {
-            nClsmap.emplace(folderkey, DSVItr.size());
-          } else
-            counterDet->second += DSVItr.size();
-        }
+        local_mes.clusterCounter++;
       }
     }
   }
-  for (const auto& it : nClsmap) {
-    if (layerMEs_.find(it.first) == layerMEs_.end())
-      continue;
-    layerMEs_[it.first].nClusters->Fill(it.second);
+  for (const auto& it : layerMEs_) {
+    ClusterMEs local_mes = it.second;
+    if (local_mes.nClusters)
+      local_mes.nClusters->Fill(local_mes.clusterCounter);
+    local_mes.clusterCounter = 0;
   }
   numberClusters_->Fill(nclusGlobal);  //global histo of #clusters
 }
@@ -226,7 +218,12 @@ void Phase2ITMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
 void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_id, std::string& subdir) {
   const GeomDet* geomDet = tkGeom_->idToDet(det_id);
   GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
-  for (int bookingDepth = 1; bookingDepth <= 6; bookingDepth++) {
+  for (enum Level bookingDepth = IT; bookingDepth <= LAYER; bookingDepth = Level(bookingDepth + 1)) {
+    // Skip booking for barrel det_ids in endcap-only depths
+    if ((bookingDepth == ENDCAP_RING || bookingDepth == ENDCAP_WHEEL) &&
+        DetId(det_id).subdetId() == PixelSubdetector::PixelBarrel)
+      continue;
+
     std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, false);
     std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, true);
 
@@ -240,7 +237,7 @@ void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
       ClusterMEs local_mes;
 
       local_mes.nClusters = phase2tkutil::book1DFromPSet(
-          config_.getParameter<edm::ParameterSet>("NClustersLayer"), ibooker, prettyName, true);
+          config_.getParameter<edm::ParameterSet>("NClustersLayer"), ibooker, prettyName, bookingDepth);
 
       local_mes.ClusterSize =
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSize"), ibooker, prettyName);
@@ -317,21 +314,42 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   //Per layer/ring histos
   phase2tkutil::add1DDesc(desc,
                           "NClustersLayer",
-                          "Num_Clusters_Layer",
+                          "Num_Clusters_Per_Event",
                           "Number Of Clusters per event in {}",
                           "Number of Clusters per event",
-                          "",
+                          "Number of events",
                           150,
                           0.0,
-                          300000.0);
+                          250000.0);
+  phase2tkutil::add1DDesc(desc,
+                          "ClusterCharge",
+                          "Cluster_Charge",
+                          "Cluster charge in {}",
+                          "Cluster charge",
+                          "Number of clusters",
+                          100,
+                          0.0,
+                          100000.0);
   phase2tkutil::add1DDesc(
-      desc, "ClusterCharge", "Cluster_Charge", "Cluster charge in {}", "Cluster charge", "", 100, 0.0, 100000.0);
-  phase2tkutil::add1DDesc(
-      desc, "ClusterSize", "Cluster_Size", "Cluster size in {}", "Cluster size", "", 31, -0.5, 30.5);
-  phase2tkutil::add1DDesc(
-      desc, "ClusterSizeY", "Cluster_Size_Y", "Cluster size Y in {}", "Cluster sizeY", "", 31, -0.5, 30.5);
-  phase2tkutil::add1DDesc(
-      desc, "ClusterSizeX", "Cluster_Size_X", "Cluster size X in {}", "Cluster sizeX", "", 31, -0.5, 30.5);
+      desc, "ClusterSize", "Cluster_Size", "Cluster size in {}", "Cluster size", "Number of clusters", 31, -0.5, 30.5);
+  phase2tkutil::add1DDesc(desc,
+                          "ClusterSizeY",
+                          "Cluster_Size_Y",
+                          "Cluster size Y in {}",
+                          "Cluster size Y",
+                          "Number of clusters",
+                          31,
+                          -0.5,
+                          30.5);
+  phase2tkutil::add1DDesc(desc,
+                          "ClusterSizeX",
+                          "Cluster_Size_X",
+                          "Cluster size X in {}",
+                          "Cluster size X",
+                          "Number of clusters",
+                          31,
+                          -0.5,
+                          30.5);
 
   desc.add<std::string>("TopFolderName", "InnerTracker");
   desc.add<edm::InputTag>("InnerPixelClusterSource", edm::InputTag("siPixelClusters"));
