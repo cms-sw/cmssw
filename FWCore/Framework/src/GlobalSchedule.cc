@@ -36,8 +36,8 @@ namespace edm {
         processContext_(processContext),
         numberOfConcurrentLumis_(prealloc.numberOfLuminosityBlocks()),
         numberOfConcurrentRuns_(prealloc.numberOfRuns()) {
-    unsigned int nManagers =
-        prealloc.numberOfLuminosityBlocks() + prealloc.numberOfRuns() + numberOfConcurrentProcessBlocks_;
+    unsigned int nManagers = prealloc.numberOfLuminosityBlocks() + prealloc.numberOfRuns() +
+                             numberOfConcurrentProcessBlocks_ + numberOfConcurrentInputProcessBlocks_;
     workerManagers_.reserve(nManagers);
     for (unsigned int i = 0; i < nManagers; ++i) {
       workerManagers_.emplace_back(modReg, areg, actions);
@@ -46,7 +46,7 @@ namespace edm {
       //side effect keeps this module around
       auto mod = modReg->getExistingModule(module->moduleLabel());
       assert(mod);
-      if (mod->wantsProcessBlocks() or mod->wantsInputProcessBlocks()) {
+      if (mod->wantsProcessBlocks()) {
         for (auto& wm : processBlockManagers()) {
           (void)wm.getWorkerForModule(*module);
         }
@@ -58,6 +58,11 @@ namespace edm {
       }
       if (mod->wantsGlobalLuminosityBlocks()) {
         for (auto& wm : lumisManagers()) {
+          (void)wm.getWorkerForModule(*module);
+        }
+      }
+      if (mod->wantsInputProcessBlocks()) {
+        for (auto& wm : inputProcessBlockManagers()) {
           (void)wm.getWorkerForModule(*module);
         }
       }
