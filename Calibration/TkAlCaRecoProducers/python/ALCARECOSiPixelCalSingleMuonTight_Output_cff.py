@@ -11,7 +11,8 @@ OutALCARECOSiPixelCalSingleMuonTight_noDrop = cms.PSet(
         'keep *_*riggerResults_*_HLT',
         'keep *_*closebyPixelClusters*_*_*',
         'keep *_*trackDistances*_*_*',
-        'keep PileupSummaryInfos_addPileupInfo_*_*'
+        'keep PileupSummaryInfos_addPileupInfo_*_*',
+        'keep PixelFEDChanneledmNewDetSetVector_siPixelDigis_*_*'
      )
 )
 OutALCARECOSiPixelCalSingleMuonTight=OutALCARECOSiPixelCalSingleMuonTight_noDrop.clone()
