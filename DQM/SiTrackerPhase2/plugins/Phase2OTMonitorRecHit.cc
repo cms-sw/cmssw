@@ -83,6 +83,8 @@ private:
     MonitorElement* numberRecHits_S = nullptr;
     MonitorElement* clusterSize_P = nullptr;
     MonitorElement* clusterSize_S = nullptr;
+    unsigned int recHitCounter_P = 0;
+    unsigned int recHitCounter_S = 0;
   };
   std::map<std::string, RecHitME> layerMEs_;
   enum Level { OT = 1, SUBSTRUCTURE, ENDCAP_SIDE, ENDCAP_RING, ENDCAP_WHEEL, LAYER };
@@ -122,8 +124,6 @@ void Phase2OTMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
   const auto& rechits = iEvent.getHandle(tokenRecHitsOT_);
   if (!rechits.isValid())
     return;
-  std::map<std::string, unsigned int> nrechitLayerMapP;
-  std::map<std::string, unsigned int> nrechitLayerMapS;
   unsigned long int nRechitsInEvent = 0;
   // Loop over modules
   Phase2TrackerRecHit1DCollectionNew::const_iterator DSViter;
@@ -159,31 +159,19 @@ void Phase2OTMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
         globalRZ_S_->Fill(gz, gr);
       }
       for (enum Level fillingDepth = OT; fillingDepth <= LAYER; fillingDepth = Level(fillingDepth + 1)) {
+        // Skip filling for barrel detIds on endcap-only depths
+        if ((fillingDepth >= ENDCAP_SIDE && fillingDepth < LAYER) && DetId(detId).subdetId() == SiStripSubdetector::TOB)
+          continue;
         std::string key = phase2tkutil::getHistoId(detId, tTopo_, 0.0, fillingDepth, false);
 
         if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
           if (layerMEs_[key].clusterSize_P)
             layerMEs_[key].clusterSize_P->Fill(rechitIt->cluster()->size());
+          layerMEs_[key].recHitCounter_P++;
         } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
           if (layerMEs_[key].clusterSize_S)
             layerMEs_[key].clusterSize_S->Fill(rechitIt->cluster()->size());
-        }
-        if (nRechitsInDet == int(DSViter->size())) {
-          // Reached the end of rechits in this Det
-          // Fill any histos that should only be filled once per det
-          if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
-            if (nrechitLayerMapP.find(key) == nrechitLayerMapP.end()) {
-              nrechitLayerMapP.insert(std::make_pair(key, DSViter->size()));
-            } else {
-              nrechitLayerMapP[key] += DSViter->size();
-            }
-          } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
-            if (nrechitLayerMapS.find(key) == nrechitLayerMapS.end()) {
-              nrechitLayerMapS.insert(std::make_pair(key, DSViter->size()));
-            } else {
-              nrechitLayerMapS[key] += DSViter->size();
-            }
-          }
+          layerMEs_[key].recHitCounter_S++;
         }
       }
     }  //end loop over rechits of a detId
@@ -192,13 +180,14 @@ void Phase2OTMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
   //fill nRecHits per event
   numberRecHits_->Fill(nRechitsInEvent);
   //fill nRecHit counter per layer
-  for (auto& lme : nrechitLayerMapP) {
-    if (layerMEs_[lme.first].numberRecHits_P)
-      layerMEs_[lme.first].numberRecHits_P->Fill(lme.second);
-  }
-  for (auto& lme : nrechitLayerMapS) {
-    if (layerMEs_[lme.first].numberRecHits_S)
-      layerMEs_[lme.first].numberRecHits_S->Fill(lme.second);
+  for (auto& lme : layerMEs_) {
+    RecHitME local_mes = lme.second;
+    if (local_mes.numberRecHits_P)
+      local_mes.numberRecHits_P->Fill(local_mes.recHitCounter_P);
+    local_mes.recHitCounter_P = 0;
+    if (local_mes.numberRecHits_S)
+      local_mes.numberRecHits_S->Fill(local_mes.recHitCounter_S);
+    local_mes.recHitCounter_S = 0;
   }
 }
 //

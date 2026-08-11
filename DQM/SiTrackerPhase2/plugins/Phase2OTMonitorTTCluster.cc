@@ -73,6 +73,9 @@ private:
     MonitorElement *NClustersByWheel = nullptr;
     MonitorElement *NClustersIMemByWheel = nullptr;
     MonitorElement *NClustersOMemByWheel = nullptr;
+    unsigned int clusterCounter = 0;
+    unsigned int clusterCounterIMem = 0;
+    unsigned int clusterCounterOMem = 0;
   };
 
   MonitorElement *Cluster_W = nullptr;
@@ -138,25 +141,12 @@ void Phase2OTMonitorTTCluster::analyze(const edm::Event &iEvent, const edm::Even
   if (!Phase2TrackerDigiTTClusterHandle.isValid())
     return;
 
-  // Cluster counters
-  int nClusDet;
-  int nClusDetIMem;
-  int nClusDetOMem;
-  std::map<std::string, unsigned int> nClustersCounter;  //map of detidkey vs #cls
-  std::map<std::string, unsigned int> nClustersIMemCounter;
-  std::map<std::string, unsigned int> nClustersOMemCounter;
-
   for (inputIter = Phase2TrackerDigiTTClusterHandle->begin(); inputIter != Phase2TrackerDigiTTClusterHandle->end();
        ++inputIter) {
-    nClusDet = 0;
-    nClusDetIMem = 0;
-    nClusDetOMem = 0;
     for (contentIter = inputIter->begin(); contentIter != inputIter->end(); ++contentIter) {
       // Make reference cluster
       edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>> tempCluRef =
           edmNew::makeRefTo(Phase2TrackerDigiTTClusterHandle, contentIter);
-
-      nClusDet++;
 
       DetId detIdClu = tkGeom_->idToDet(tempCluRef->getDetId())->geographicalId();
       unsigned int memberClu = tempCluRef->getStackMember();
@@ -175,11 +165,6 @@ void Phase2OTMonitorTTCluster::analyze(const edm::Event &iEvent, const edm::Even
       Cluster_R->Fill(r);
       Cluster_RZ->Fill(z, r);
 
-      if (memberClu == 0)
-        nClusDetIMem++;
-      else
-        nClusDetOMem++;
-
       if (detIdClu.subdetId() == static_cast<int>(StripSubdetector::TOB))  // Phase 2 Outer Tracker Barrel
       {
         if (memberClu == 0)
@@ -192,11 +177,21 @@ void Phase2OTMonitorTTCluster::analyze(const edm::Event &iEvent, const edm::Even
 
       }  // end if isBarrel
       for (enum Level fillingDepth = OT; fillingDepth <= LAYER; fillingDepth = Level(fillingDepth + 1)) {
+        // Skip filling for barrel detIds on endcap-only depths
+        if ((fillingDepth >= ENDCAP_SIDE && fillingDepth < LAYER) &&
+            DetId(detIdClu).subdetId() == SiStripSubdetector::TOB)
+          continue;
         std::string folderKey = phase2tkutil::getHistoId(detIdClu, tTopo_, 0, fillingDepth, false);
         auto layerMEiter = layerMEs_.find(folderKey);
         if (layerMEiter == layerMEs_.end())
           continue;
         TTClusterMEs &local_mes = layerMEiter->second;
+
+        local_mes.clusterCounter++;
+        if (memberClu == 0)
+          local_mes.clusterCounterIMem++;
+        else
+          local_mes.clusterCounterOMem++;
 
         if (detIdClu.subdetId() == static_cast<int>(StripSubdetector::TID)) {
           if (local_mes.NClustersByWheel)
@@ -215,45 +210,20 @@ void Phase2OTMonitorTTCluster::analyze(const edm::Event &iEvent, const edm::Even
               local_mes.NClustersOMemByRing->Fill(tTopo_->tidRing(detIdClu));
           }
         }
-        if (nClusDet == int(inputIter->size())) {
-          // reached the end of clusters in this det
-          // fill things that need to be filled once per det
-          auto countAll = nClustersCounter.find(folderKey);
-          if (countAll == nClustersCounter.end())
-            nClustersCounter.emplace(folderKey, nClusDet);
-          else
-            countAll->second += nClusDet;
-          auto countIMem = nClustersIMemCounter.find(folderKey);
-          if (countIMem == nClustersIMemCounter.end())
-            nClustersIMemCounter.emplace(folderKey, nClusDetIMem);
-          else
-            countIMem->second += nClusDetIMem;
-          auto countOMem = nClustersOMemCounter.find(folderKey);
-          if (countOMem == nClustersOMemCounter.end())
-            nClustersOMemCounter.emplace(folderKey, nClusDetOMem);
-          else
-            countOMem->second += nClusDetOMem;
-        }
       }  // end loop fillingDepth
     }  // end loop contentIter
   }  // end loop inputIter
-  for (const auto &it : nClustersCounter) {
-    if (layerMEs_.find(it.first) == layerMEs_.end())
-      continue;
-    if (layerMEs_[it.first].NClusters != nullptr)
-      layerMEs_[it.first].NClusters->Fill(it.second);
-  }
-  for (const auto &it : nClustersIMemCounter) {
-    if (layerMEs_.find(it.first) == layerMEs_.end())
-      continue;
-    if (layerMEs_[it.first].NClustersIMem != nullptr)
-      layerMEs_[it.first].NClustersIMem->Fill(it.second);
-  }
-  for (const auto &it : nClustersOMemCounter) {
-    if (layerMEs_.find(it.first) == layerMEs_.end())
-      continue;
-    if (layerMEs_[it.first].NClustersOMem != nullptr)
-      layerMEs_[it.first].NClustersOMem->Fill(it.second);
+  for (const auto &it : layerMEs_) {
+    TTClusterMEs local_mes = it.second;
+    if (local_mes.NClusters)
+      local_mes.NClusters->Fill(local_mes.clusterCounter);
+    local_mes.clusterCounter = 0;
+    if (local_mes.NClustersIMem)
+      local_mes.NClustersIMem->Fill(local_mes.clusterCounterIMem);
+    local_mes.clusterCounterIMem = 0;
+    if (local_mes.NClustersOMem)
+      local_mes.NClustersOMem->Fill(local_mes.clusterCounterOMem);
+    local_mes.clusterCounterOMem = 0;
   }
 }  // end of method
 

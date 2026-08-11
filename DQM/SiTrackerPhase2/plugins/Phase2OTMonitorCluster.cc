@@ -57,6 +57,8 @@ private:
 
     std::vector<MonitorElement*> PositionOfClusters_2S;
     std::vector<MonitorElement*> PositionOfClusters_2SLadder;
+    unsigned int clusterCounterP = 0;
+    unsigned int clusterCounterS = 0;
   };
   MonitorElement* numberClusters_;
   MonitorElement* globalXY_P_;
@@ -113,11 +115,7 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
     return;
   }
 
-  // Number of clusters
-  std::map<std::string, unsigned int> nClustersCounter_P;  //map of detidkey vs #cls
-  std::map<std::string, unsigned int> nClustersCounter_S;  //map of detidkey vs #cls
-  unsigned int nClusGlobal = 0;                            //global counter
-  int nClusDet = 0;                                        //det counter
+  unsigned int nClusGlobal = 0;  //global number of clusters counter
   for (const auto& DSVItr : *clusterHandle) {
     // Getting the id of detector unit
     uint32_t rawid(DSVItr.detId());
@@ -128,7 +126,6 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
 
     TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(detId);
     nClusGlobal += DSVItr.size();
-    nClusDet = 0;
 
     for (const auto& clusterItr : DSVItr) {
       MeasurementPoint mpCluster(clusterItr.center(), clusterItr.column() + 0.5);
@@ -141,7 +138,6 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
       unsigned int module = tTopo_->module(rawid);
       unsigned int ladder = tTopo_->tobRod(rawid);
       int topOrBottomColumn = 0;
-      nClusDet++;
 
       // CRACK is viewed from behind, so to align plots with what is seen in real life, modules are flipped
       if (crackOverview_)
@@ -164,6 +160,9 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
       }
 
       for (enum Level fillingDepth = OT; fillingDepth <= LAYER; fillingDepth = Level(fillingDepth + 1)) {
+        // Skip filling for barrel detIds on endcap-only depths
+        if ((fillingDepth >= ENDCAP_SIDE && fillingDepth < LAYER) && DetId(detId).subdetId() == SiStripSubdetector::TOB)
+          continue;
         std::string folderkey = phase2tkutil::getHistoId(detId, tTopo_, 0, fillingDepth, false);
 
         auto layerMEit = layerMEs_.find(folderkey);
@@ -175,10 +174,12 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
           // Pixels
           if (local_mes.ClusterSize_P)
             local_mes.ClusterSize_P->Fill(clusterItr.size());
+          local_mes.clusterCounterP++;
         } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
           // Strips
           if (local_mes.ClusterSize_S)
             local_mes.ClusterSize_S->Fill(clusterItr.size());
+          local_mes.clusterCounterS++;
           if (mType == TrackerGeometry::ModuleType::Ph2SS) {
             if (module < local_mes.PositionOfClusters_2S.size() && local_mes.PositionOfClusters_2S[module])
               local_mes.PositionOfClusters_2S[module]->Fill(clusterItr.center(), topOrBottomColumn);
@@ -194,41 +195,18 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
             }
           }
         }
-        if (nClusDet == int(DSVItr.size())) {
-          // Reached the end of clusters in this Det
-          // Fill anything that should only be filled once per det
-
-          // initialize the nhit counters if they don't exist for this layer
-          //the check on the detId is needed to avoid checking at the filling stage
-          if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
-            auto counterDet = nClustersCounter_P.find(folderkey);
-            if (counterDet == nClustersCounter_P.end())
-              nClustersCounter_P.emplace(folderkey, DSVItr.size());
-            else
-              counterDet->second += DSVItr.size();
-          } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
-            auto counterDet = nClustersCounter_S.find(folderkey);
-            if (counterDet == nClustersCounter_S.end())
-              nClustersCounter_S.emplace(folderkey, DSVItr.size());
-            else
-              counterDet->second += DSVItr.size();
-          }
-        }
       }
     }
   }
   // After all clusters in event are processed
-  for (const auto& it : nClustersCounter_P) {
-    if (layerMEs_.find(it.first) == layerMEs_.end())
-      continue;
-    if (layerMEs_[it.first].nClusters_P != nullptr)  //this check should not be required though
-      layerMEs_[it.first].nClusters_P->Fill(it.second);
-  }
-  for (const auto& it : nClustersCounter_S) {
-    if (layerMEs_.find(it.first) == layerMEs_.end())
-      continue;
-    if (layerMEs_[it.first].nClusters_S != nullptr)  //this check should not be required though
-      layerMEs_[it.first].nClusters_S->Fill(it.second);
+  for (const auto& it : layerMEs_) {
+    ClusterMEs local_mes = it.second;
+    if (local_mes.nClusters_P)
+      local_mes.nClusters_P->Fill(local_mes.clusterCounterP);
+    local_mes.clusterCounterP = 0;
+    if (local_mes.nClusters_S)
+      local_mes.nClusters_S->Fill(local_mes.clusterCounterS);
+    local_mes.clusterCounterS = 0;
   }
   numberClusters_->Fill(nClusGlobal);
 }
