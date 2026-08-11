@@ -4,6 +4,7 @@ from PhysicsTools.JetMCAlgos.AK4GenJetFlavourInfos_cfi import *
 from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import *
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.genparticles_cff import *
+from PhysicsTools.NanoAOD.genVertex_cff import *
 from PhysicsTools.NanoAOD.jetMC_cff import *
 from PhysicsTools.NanoAOD.taus_cff import *
 from PhysicsTools.PatAlgos.slimming.genParticles_cff import *
@@ -39,6 +40,7 @@ NanoGenTables = cms.Sequence(
     + prunedGenParticles
     + finalGenParticles
     + genParticleTable
+    + genVertexTable
     + genParticlesForJetsNoNu
     + ak4GenJetsNoNu
     + selectedHadronsAndPartonsForGenJetsFlavourInfos
@@ -155,6 +157,9 @@ def hltNanoCustomize(process):
         # process.genJetTable.cut = "pt > 10"
         # process.genJetFlavourTable.deltaR = 0.3
         process.genParticleTable.externalVariables = cms.PSet() # remove iso as external variable from PhysicsTools/NanoAOD/python/genparticles_cff.py:37 (hopefully temporarily)
+        process.genParticleTable.variables.vx = Var("vx", float, precision=10, doc="x coordinate of production vertex")
+        process.genParticleTable.variables.vy = Var("vy", float, precision=10, doc="y coordinate of production vertex")
+        process.genParticleTable.variables.vz = Var("vz", float, precision=16, doc="z coordinate of production vertex")
         process.NANOAODSIMoutput.outputCommands.append(
             "keep nanoaodFlatTable_*Table*_*_*"
         )
