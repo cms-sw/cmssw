@@ -41,7 +41,9 @@ public:
       algoId_ = reco::CaloCluster::hfnose;
     } else if (detector_ == "EE") {
       algoId_ = reco::CaloCluster::hgcal_em;
-    } else {  //for FH or BH
+    } else if (detector_ == "BH") {
+      algoId_ = reco::CaloCluster::hgcal_scintillator;
+    } else {  //for FH
       algoId_ = reco::CaloCluster::hgcal_had;
     }
 
@@ -160,7 +162,7 @@ public:
     desc.add<std::string>("timeClname", "timeLayerCluster");
     desc.ifValue(edm::ParameterDescription<std::string>(
                      "detector", "EE", true, edm::Comment("the HGCAL component used to create clusters.")),
-                 edm::allowedValues<std::string>("EE", "FH"));
+                 edm::allowedValues<std::string>("EE", "FH", "BH", "HFNose"));
     descriptions.addWithDefaultLabel(desc);
   }
 

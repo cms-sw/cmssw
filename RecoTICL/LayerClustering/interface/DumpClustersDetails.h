@@ -60,7 +60,8 @@ namespace hgcalUtils {
           auto sorted = i.hitsAndFractions();  // copy...
           std::stable_sort(std::begin(sorted), std::end(sorted), sortByDetId);
           for (auto const& c : sorted) {
-            outfile << fmt::format(" ({}, {:.{}f})", c.first, c.second, std::numeric_limits<float>::max_digits10);
+            outfile << fmt::format(
+                " ({}, {:.{}f})", c.first.rawId(), c.second, std::numeric_limits<float>::max_digits10);
           }  // loop on hits and fractions
         } else {
           outfile << fmt::format(" ({} cells)", i.hitsAndFractions().size());
@@ -136,7 +137,7 @@ namespace hgcalUtils {
                    (cellSoAV.dim2()),
                    std::numeric_limits<float>::max_digits10,
                    cellSoAV.layer(),
-                   (cellSoAV.weight()),
+                   (cellSoAV.energy()),
                    std::numeric_limits<float>::max_digits10,
                    (cellSoAV.sigmaNoise()),
                    std::numeric_limits<float>::max_digits10,
