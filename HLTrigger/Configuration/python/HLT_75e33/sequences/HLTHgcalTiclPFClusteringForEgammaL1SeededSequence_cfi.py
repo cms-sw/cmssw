@@ -3,10 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from ..modules.hltFilteredLayerClustersCLUE3DHighL1Seeded_cfi import *
 from ..modules.hltHgcalDigis_cfi import *
 from ..modules.hltHgcalDigisL1Seeded_cfi import *
-from ..modules.hltHgcalLayerClustersEEL1Seeded_cfi import *
-from ..modules.hltHgcalLayerClustersHSciL1Seeded_cfi import *
-from ..modules.hltHgcalLayerClustersHSiL1Seeded_cfi import *
 from ..modules.hltMergeLayerClustersL1Seeded_cfi import *
+from ..sequences.HLTHgcalLayerClustersL1SeededSequence_cfi import *
 from ..modules.hltHGCalRecHitL1Seeded_cfi import *
 from ..modules.hltHGCalUncalibRecHitL1Seeded_cfi import *
 from ..modules.hltL1TEGammaHGCFilteredCollectionProducer_cfi import *
@@ -30,9 +28,7 @@ _HgcalLocalRecoL1SeededSequence = cms.Sequence(hltHgcalDigis+
                                                hltHGCalRecHitL1Seeded+
                                                hltParticleFlowRecHitHGCL1Seeded+
                                                hltRechitInRegionsHGCAL+
-                                               hltHgcalLayerClustersEEL1Seeded+
-                                               hltHgcalLayerClustersHSciL1Seeded+
-                                               hltHgcalLayerClustersHSiL1Seeded+
+                                               HLTHgcalLayerClustersL1SeededSequence+
                                                hltMergeLayerClustersL1Seeded)
 
 _HgcalTICLPatternRecognitionL1SeededSequence = cms.Sequence(hltFilteredLayerClustersCLUE3DHighL1Seeded+
@@ -72,9 +68,7 @@ _HgcalLocalRecoL1SeededSequence_barrel = cms.Sequence(
     hltHGCalRecHitL1Seeded+
     hltParticleFlowRecHitHGCL1Seeded+
     hltRechitInRegionsHGCAL+
-    hltHgcalLayerClustersEEL1Seeded+
-    hltHgcalLayerClustersHSciL1Seeded+
-    hltHgcalLayerClustersHSiL1Seeded+
+    HLTHgcalLayerClustersL1SeededSequence+
     hltBarrelLayerClustersEBL1Seeded+
     hltMergeLayerClustersL1Seeded
 ) 

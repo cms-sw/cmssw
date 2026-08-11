@@ -12,5 +12,5 @@ EERecHitGPUProd = cms.EDProducer('EERecHitGPU',
                                  HGCEE_isSiFE   = HGCalRecHit.__dict__['HGCEE_isSiFE'],
                                  HGCEE_noise_fC = HGCalRecHit.__dict__['HGCEE_noise_fC'],
                                  HGCEE_cce      = HGCalRecHit.__dict__['HGCEE_cce'],
-                                 rcorr          = cms.vdouble( HGCalRecHit.__dict__['thicknessCorrection'][0:3] ),
+                                 rcorr          = cms.vfloat( HGCalRecHit.__dict__['thicknessCorrection'][0:3] ),
                                  weights        = HGCalRecHit.__dict__['layerWeights'] )

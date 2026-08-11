@@ -12,5 +12,5 @@ HEFRecHitGPUProd = cms.EDProducer('HEFRecHitGPU',
                                   HGCHEF_isSiFE   = HGCalRecHit.__dict__['HGCHEF_isSiFE'],
                                   HGCHEF_noise_fC = HGCalRecHit.__dict__['HGCHEF_noise_fC'],
                                   HGCHEF_cce      = HGCalRecHit.__dict__['HGCHEF_cce'],
-                                  rcorr           = cms.vdouble( HGCalRecHit.__dict__['thicknessCorrection'][3:6] ),
+                                  rcorr           = cms.vfloat( HGCalRecHit.__dict__['thicknessCorrection'][3:6] ),
                                   weights         = HGCalRecHit.__dict__['layerWeights'] )

@@ -21,6 +21,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
              const unsigned int numer_of_clusters,
              float thresholdW0,
              float positionDeltaRho2,
+             const bool isScintillator,
              const HGCalSoARecHitsDeviceCollection::ConstView input_rechits_soa,
              const HGCalSoARecHitsExtraDeviceCollection::ConstView input_clusters_soa,
              reco::CaloClusterDeviceCollection::View outputs,
