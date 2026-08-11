@@ -4805,6 +4805,11 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     upgradeStepDict['GenSimHLBeamSpot14'][k] = deepcopy(upgradeStepDict['GenSimHLBeamSpot'][k])
     upgradeStepDict['GenSimHLBeamSpot14'][k]['--conditions'] = gt
 
+    upgradeStepDict['GenSimHLBeamSpotLHE14'][k] = deepcopy(upgradeStepDict['GenSimHLBeamSpot14'][k])
+    upgradeStepDict['GenSimHLBeamSpotLHE14'][k]['-s'] = 'LHE,GEN,SIM'
+    upgradeStepDict['GenSimHLBeamSpotLHE14'][k]['--datatier'] = 'GEN-SIM,LHE'
+    upgradeStepDict['GenSimHLBeamSpotLHE14'][k]['--eventcontent'] = 'FEVTDEBUG,LHE'
+
     upgradeStepDict['GenSimHLBeamSpotCloseBy'][k] = upgradeStepDict['GenSimCloseBy'][k]
     
     upgradeStepDict['Sim'][k] = {'-s' : 'SIM',

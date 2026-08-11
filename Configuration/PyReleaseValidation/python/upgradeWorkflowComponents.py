@@ -230,6 +230,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'GenSimCloseBy',
         'GenSimHLBeamSpot',
         'GenSimHLBeamSpot14',
+        'GenSimHLBeamSpotLHE14',
         'GenSimHLBeamSpotCloseBy',
         'Digi',
         'DigiNoHLT',
@@ -3409,6 +3410,30 @@ upgradeWFs['Phase2_HeavyIon'] = UpgradeWorkflow_Phase2_HeavyIon(
     offset = 0.85,
 )
 
+class UpgradeWorkflow_DYTauLTauH(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if stepDict[step][k] is not None:
+            if 'GenSimHLBeamSpot14' in step:
+                # use GenSimHLBeamSpotLHE14 content (LHE,GEN,SIM) for LHE-based fragments
+                stepDict[stepName][k] = merge([{}, stepDict['GenSimHLBeamSpotLHE14'][k]])
+            else:
+                stepDict[stepName][k] = merge([{}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return ('DYto2TautoETauh' in fragment or 'DYto2TautoMuTauh' in fragment) and 'Run4' in key
+
+upgradeWFs['DYTauLTauH'] = UpgradeWorkflow_DYTauLTauH(
+    steps = [
+        'GenSimHLBeamSpot14',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HARVESTGlobal',
+        'ALCAPhase2',
+    ],
+    PU = [],
+    suffix = '_DYTauLTauH',
+    offset = 0.86,
+)
+
 # check for duplicates in offsets or suffixes
 offsets  = [specialWF.offset for specialType,specialWF in upgradeWFs.items()]
 suffixes = [specialWF.suffix for specialType,specialWF in upgradeWFs.items()]
@@ -3994,6 +4019,8 @@ upgradeFragments = OrderedDict([
     ('Hydjet_Quenched_MinBias_5020GeV_cfi', UpgradeFragment(U2000by1,'HydjetQMinBias_5020GeV')),
     ('Hydjet_Quenched_MinBias_5362GeV_cfi', UpgradeFragment(U2000by1,'HydjetQMinBias_5362GeV')),
     ('Hydjet_Quenched_MinBias_5519GeV_cfi', UpgradeFragment(U2000by1,'HydjetQMinBias_5519GeV')),
+    ('Configuration/Generator/python/DYto2TautoETauh_BinMLL50_TuneCP5_14TeV_madgraphMLM_pythia8_cfi.py', UpgradeFragment(Kby(9,100),'DYto2TautoETauh_M_50_14TeV')),
+    ('Configuration/Generator/python/DYto2TautoMuTauh_BinMLL50_TuneCP5_14TeV_madgraphMLM_pythia8_cfi.py', UpgradeFragment(Kby(9,100),'DYto2TautoMuTauh_M_50_14TeV')),
     ('SingleMuPt15Eta0_0p4_cfi', UpgradeFragment(Kby(9,100),'SingleMuPt15Eta0p_0p4')),
     ('CloseByPGun_Barrel_Front_cfi', UpgradeFragment(Kby(9,100),'CloseByPGun_Barrel_Front')),
 ])
