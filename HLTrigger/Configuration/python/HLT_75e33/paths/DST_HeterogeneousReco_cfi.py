@@ -6,6 +6,26 @@ from ..modules.hltHgcalDigis_cfi import hltHgcalDigis
 from ..modules.hltHgcalSoALayerClustersProducer_cfi import hltHgcalSoALayerClustersProducer
 from ..modules.hltHgcalSoARecHitsLayerClustersProducer_cfi import hltHgcalSoARecHitsLayerClustersProducer
 from ..modules.hltHgcalSoARecHitsProducer_cfi import hltHgcalSoARecHitsProducer
+from ..modules.hltHGCalRecHitL1Seeded_cfi import hltHGCalRecHitL1Seeded
+from ..modules.hltHGCalUncalibRecHitL1Seeded_cfi import hltHGCalUncalibRecHitL1Seeded
+from ..modules.hltHgcalDigisL1Seeded_cfi import hltHgcalDigisL1Seeded
+from ..modules.hltHgcalSoALayerClustersProducerHSci_cfi import hltHgcalSoALayerClustersProducerHSci
+from ..modules.hltHgcalSoALayerClustersProducerHSciL1Seeded_cfi import hltHgcalSoALayerClustersProducerHSciL1Seeded
+from ..modules.hltHgcalSoALayerClustersProducerHSi_cfi import hltHgcalSoALayerClustersProducerHSi
+from ..modules.hltHgcalSoALayerClustersProducerHSiL1Seeded_cfi import hltHgcalSoALayerClustersProducerHSiL1Seeded
+from ..modules.hltHgcalSoALayerClustersProducerL1Seeded_cfi import hltHgcalSoALayerClustersProducerL1Seeded
+from ..modules.hltHgcalSoARecHitsLayerClustersProducerHSci_cfi import hltHgcalSoARecHitsLayerClustersProducerHSci
+from ..modules.hltHgcalSoARecHitsLayerClustersProducerHSciL1Seeded_cfi import hltHgcalSoARecHitsLayerClustersProducerHSciL1Seeded
+from ..modules.hltHgcalSoARecHitsLayerClustersProducerHSi_cfi import hltHgcalSoARecHitsLayerClustersProducerHSi
+from ..modules.hltHgcalSoARecHitsLayerClustersProducerHSiL1Seeded_cfi import hltHgcalSoARecHitsLayerClustersProducerHSiL1Seeded
+from ..modules.hltHgcalSoARecHitsLayerClustersProducerL1Seeded_cfi import hltHgcalSoARecHitsLayerClustersProducerL1Seeded
+from ..modules.hltHgcalSoARecHitsProducerHSci_cfi import hltHgcalSoARecHitsProducerHSci
+from ..modules.hltHgcalSoARecHitsProducerHSciL1Seeded_cfi import hltHgcalSoARecHitsProducerHSciL1Seeded
+from ..modules.hltHgcalSoARecHitsProducerHSi_cfi import hltHgcalSoARecHitsProducerHSi
+from ..modules.hltHgcalSoARecHitsProducerHSiL1Seeded_cfi import hltHgcalSoARecHitsProducerHSiL1Seeded
+from ..modules.hltHgcalSoARecHitsProducerL1Seeded_cfi import hltHgcalSoARecHitsProducerL1Seeded
+from ..modules.hltL1TEGammaHGCFilteredCollectionProducer_cfi import hltL1TEGammaHGCFilteredCollectionProducer
+from ..modules.hltRechitInRegionsHGCAL_cfi import hltRechitInRegionsHGCAL
 from ..modules.hltInputLST_cfi import hltInputLST
 from ..modules.hltInitialStepSeeds_cfi import hltInitialStepSeeds
 from ..modules.hltInitialStepTrajectorySeedsLST_cfi import hltInitialStepTrajectorySeedsLST
@@ -32,8 +52,6 @@ from ..modules.hltEleSeedsTrackingRegionsL1Seeded_cfi import hltEleSeedsTracking
 from ..modules.hltFilteredLayerClustersCLUE3DHighL1Seeded_cfi import hltFilteredLayerClustersCLUE3DHighL1Seeded
 from ..modules.hltHcalDigis_cfi import hltHcalDigis
 from ..modules.hltHgcalDigisL1Seeded_cfi import hltHgcalDigisL1Seeded
-from ..modules.hltHgcalLayerClustersHSciL1Seeded_cfi import hltHgcalLayerClustersHSciL1Seeded
-from ..modules.hltHgcalLayerClustersHSiL1Seeded_cfi import hltHgcalLayerClustersHSiL1Seeded
 from ..modules.hltL1TEGammaFilteredCollectionProducer_cfi import hltL1TEGammaFilteredCollectionProducer
 from ..modules.hltL1TEGammaHGCFilteredCollectionProducer_cfi import hltL1TEGammaHGCFilteredCollectionProducer
 from ..modules.hltParticleFlowRecHitECALL1Seeded_cfi import hltParticleFlowRecHitECALL1Seeded
@@ -62,7 +80,6 @@ from ..modules.hltElePixelSeedsTripletsL1Seeded_cfi import hltElePixelSeedsTripl
 from ..modules.hltEgammaHoverEL1Seeded_cfi import hltEgammaHoverEL1Seeded
 from ..modules.hltParticleFlowSuperClusterECALL1Seeded_cfi import hltParticleFlowSuperClusterECALL1Seeded
 from ..modules.hltElePixelSeedsCombinedL1Seeded_cfi import hltElePixelSeedsCombinedL1Seeded
-from ..modules.hltHgcalLayerClustersEEL1Seeded_cfi import hltHgcalLayerClustersEEL1Seeded
 from ..modules.hltMergeLayerClustersL1Seeded_cfi import hltMergeLayerClustersL1Seeded
 from ..modules.hltTiclEGammaSuperClusterProducerL1Seeded_cfi import hltTiclEGammaSuperClusterProducerL1Seeded
 from ..modules.hltEgammaCandidatesL1Seeded_cfi import hltEgammaCandidatesL1Seeded
@@ -111,8 +128,31 @@ HLTHeterogeneousHGCalRecoSequence = cms.Sequence(
     + hltHGCalUncalibRecHit
     + hltHGCalRecHit
     + hltHgcalSoARecHitsProducer
+    + hltHgcalSoARecHitsProducerHSi
+    + hltHgcalSoARecHitsProducerHSci
     + hltHgcalSoARecHitsLayerClustersProducer
+    + hltHgcalSoARecHitsLayerClustersProducerHSi
+    + hltHgcalSoARecHitsLayerClustersProducerHSci
     + hltHgcalSoALayerClustersProducer
+    + hltHgcalSoALayerClustersProducerHSi
+    + hltHgcalSoALayerClustersProducerHSci
+)
+
+HLTHeterogeneousHGCalRecoL1SeededSequence = cms.Sequence(
+    hltL1TEGammaHGCFilteredCollectionProducer
+    + hltHgcalDigisL1Seeded
+    + hltHGCalUncalibRecHitL1Seeded
+    + hltHGCalRecHitL1Seeded
+    + hltRechitInRegionsHGCAL
+    + hltHgcalSoARecHitsProducerL1Seeded
+    + hltHgcalSoARecHitsProducerHSiL1Seeded
+    + hltHgcalSoARecHitsProducerHSciL1Seeded
+    + hltHgcalSoARecHitsLayerClustersProducerL1Seeded
+    + hltHgcalSoARecHitsLayerClustersProducerHSiL1Seeded
+    + hltHgcalSoARecHitsLayerClustersProducerHSciL1Seeded
+    + hltHgcalSoALayerClustersProducerL1Seeded
+    + hltHgcalSoALayerClustersProducerHSiL1Seeded
+    + hltHgcalSoALayerClustersProducerHSciL1Seeded
 )
 
 HLTHeterogeneousEgammaRecoSequence = cms.Sequence(
@@ -121,9 +161,6 @@ HLTHeterogeneousEgammaRecoSequence = cms.Sequence(
     + hltHGCalUncalibRecHitL1Seeded
     + hltHGCalRecHitL1Seeded
     + hltRechitInRegionsHGCAL
-    + hltHgcalLayerClustersEEL1Seeded
-    + hltHgcalLayerClustersHSiL1Seeded
-    + hltHgcalLayerClustersHSciL1Seeded
     + hltMergeLayerClustersL1Seeded
     + hltTiclLayerTileProducerL1Seeded
     + hltTiclSeedingL1
@@ -176,6 +213,7 @@ DST_HeterogeneousReco = cms.Path(
     + HLTPixelTrackingSequence
     + HLTLSTSequence
     + HLTHeterogeneousHGCalRecoSequence
+    + HLTHeterogeneousHGCalRecoL1SeededSequence
     + HLTHeterogeneousEgammaRecoSequence
     + HLTEndSequence
 )

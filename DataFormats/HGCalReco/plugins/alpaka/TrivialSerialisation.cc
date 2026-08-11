@@ -1,11 +1,8 @@
-#include "DataFormats/HGCalReco/interface/HGCalSoAClustersHostCollection.h"
 #include "DataFormats/HGCalReco/interface/HGCalSoARecHitsExtraHostCollection.h"
 #include "DataFormats/HGCalReco/interface/HGCalSoARecHitsHostCollection.h"
-#include "DataFormats/HGCalReco/interface/alpaka/HGCalSoAClustersDeviceCollection.h"
 #include "DataFormats/HGCalReco/interface/alpaka/HGCalSoARecHitsExtraDeviceCollection.h"
 #include "DataFormats/HGCalReco/interface/alpaka/HGCalSoARecHitsDeviceCollection.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/alpaka/SerialiserFactoryDevice.h"
 
-DEFINE_TRIVIAL_SERIALISER_PORTABLE_PLUGIN(HGCalSoAClustersHostCollection, HGCalSoAClustersDeviceCollection);
 DEFINE_TRIVIAL_SERIALISER_PORTABLE_PLUGIN(HGCalSoARecHitsExtraHostCollection, HGCalSoARecHitsExtraDeviceCollection);
 DEFINE_TRIVIAL_SERIALISER_PORTABLE_PLUGIN(HGCalSoARecHitsHostCollection, HGCalSoARecHitsDeviceCollection);

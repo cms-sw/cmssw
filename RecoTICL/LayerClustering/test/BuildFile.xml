@@ -2,3 +2,20 @@
   <use name="RecoTICL/LayerClustering"/>
   <use name="catch2"/>
 </bin>
+
+<library file="TestHGCalLayerClusters.cc" name="testRecoTICLLayerClusteringPlugins">
+  <use name="DataFormats/CaloRecHit"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/DetId"/>
+  <use name="DataFormats/EgammaReco"/>
+  <use name="DataFormats/HGCalReco"/>
+  <use name="DataFormats/Math"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="RecoLocalCalo/HGCalRecProducers"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<!-- the layer clustering and the legacy conversion of known rechits, on the CPU -->
+<test name="testHGCalLayerClusters" command="testHGCalLayerClusters.sh"/>
