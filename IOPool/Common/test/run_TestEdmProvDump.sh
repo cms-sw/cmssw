@@ -61,4 +61,9 @@ run testEdmProvDumpMerge_cfg.py --process "FINAL" --file split1.root --file spli
 
 compareProv "--showAllModules --showTopLevelPSets" merged_final.root provdump_complex_final.log
 
+
+## One module with all parameters
+run testEdmProvDumpPSet_cfg.py
+compareProv "" testEdmProvDumpPSet.root provdump_pset.log
+
 exit 0
