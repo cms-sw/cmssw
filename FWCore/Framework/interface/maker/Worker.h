@@ -204,24 +204,9 @@ namespace edm {
     virtual Types moduleType() const = 0;
     virtual ConcurrencyTypes moduleConcurrencyType() const = 0;
 
-    void clearCounters() noexcept {
-      timesRun_.store(0, std::memory_order_release);
-      timesVisited_.store(0, std::memory_order_release);
-      timesPassed_.store(0, std::memory_order_release);
-      timesFailed_.store(0, std::memory_order_release);
-      timesExcept_.store(0, std::memory_order_release);
-    }
-
     void addedToPath() noexcept { ++numberOfPathsOn_; }
     //NOTE: calling state() is done to force synchronization across threads
-    int timesRun() const noexcept { return timesRun_.load(std::memory_order_acquire); }
-    int timesVisited() const noexcept { return timesVisited_.load(std::memory_order_acquire); }
-    int timesPassed() const noexcept { return timesPassed_.load(std::memory_order_acquire); }
-    int timesFailed() const noexcept { return timesFailed_.load(std::memory_order_acquire); }
-    int timesExcept() const noexcept { return timesExcept_.load(std::memory_order_acquire); }
     State state() const noexcept { return state_; }
-
-    int timesPass() const noexcept { return timesPassed(); }  // for backward compatibility only - to be removed soon
 
     virtual bool hasAccumulator() const noexcept = 0;
 
@@ -290,29 +275,17 @@ namespace edm {
                                 bool isTryToContinue) const noexcept;
     void checkForShouldTryToContinue(ModuleDescription const&);
 
-    template <bool IS_EVENT>
     bool setPassed() {
-      if (IS_EVENT) {
-        timesPassed_.fetch_add(1, std::memory_order_relaxed);
-      }
       state_ = Pass;
       return true;
     }
 
-    template <bool IS_EVENT>
     bool setFailed() {
-      if (IS_EVENT) {
-        timesFailed_.fetch_add(1, std::memory_order_relaxed);
-      }
       state_ = Fail;
       return false;
     }
 
-    template <bool IS_EVENT>
     std::exception_ptr setException(std::exception_ptr iException) {
-      if (IS_EVENT) {
-        timesExcept_.fetch_add(1, std::memory_order_relaxed);
-      }
       cached_exception_ = iException;  // propagate_const<T> has no reset() function
       state_ = Exception;
       return cached_exception_;
@@ -567,11 +540,6 @@ namespace edm {
       ParentContext const m_parentContext;
     };
 
-    std::atomic<int> timesRun_;
-    std::atomic<int> timesVisited_;
-    std::atomic<int> timesPassed_;
-    std::atomic<int> timesFailed_;
-    std::atomic<int> timesExcept_;
     std::atomic<State> state_;
     int numberOfPathsOn_;
     std::atomic<int> numberOfPathsLeftToRun_;
@@ -1008,9 +976,6 @@ namespace edm {
     bool workStarted = workStarted_.compare_exchange_strong(expected, true);
 
     waitingTasks_.add(task);
-    if constexpr (T::isEvent_) {
-      timesVisited_.fetch_add(1, std::memory_order_relaxed);
-    }
 
     if (workStarted) {
       moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching, parentContext, nullptr);
@@ -1093,11 +1058,11 @@ namespace edm {
     if (iEPtr) {
       if (shouldRethrowException(iEPtr, parentContext, T::isEvent_, shouldTryToContinue_)) {
         exceptionPtr = iEPtr;
-        setException<T::isEvent_>(exceptionPtr);
+        setException(exceptionPtr);
         shouldRun = false;
       } else {
         if (not shouldTryToContinue_) {
-          setPassed<T::isEvent_>();
+          setPassed();
           shouldRun = false;
         }
       }
@@ -1184,9 +1149,6 @@ namespace edm {
     //  ++timesVisited_;
     //}
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-    if constexpr (T::isEvent_) {
-      timesRun_.fetch_add(1, std::memory_order_relaxed);
-    }
 
     bool rc = true;
     try {
@@ -1195,19 +1157,19 @@ namespace edm {
             this, streamID, transitionInfo, actReg_.get(), &moduleCallingContext_, context);
 
         if (rc) {
-          setPassed<T::isEvent_>();
+          setPassed();
         } else {
-          setFailed<T::isEvent_>();
+          setFailed();
         }
       });
     } catch (cms::Exception& ex) {
       edm::exceptionContext(ex, moduleCallingContext_);
       if (shouldRethrowException(std::current_exception(), parentContext, T::isEvent_, shouldTryToContinue_)) {
         assert(not cached_exception_);
-        setException<T::isEvent_>(std::current_exception());
+        setException(std::current_exception());
         std::rethrow_exception(cached_exception_);
       } else {
-        rc = setPassed<T::isEvent_>();
+        rc = setPassed();
       }
     }
 
@@ -1219,7 +1181,6 @@ namespace edm {
                                                StreamID streamID,
                                                ParentContext const& parentContext,
                                                typename T::Context const* context) noexcept {
-    timesVisited_.fetch_add(1, std::memory_order_relaxed);
     std::exception_ptr prefetchingException;  // null because there was no prefetching to do
     return runModuleAfterAsyncPrefetch<T>(prefetchingException, transitionInfo, streamID, parentContext, context);
   }

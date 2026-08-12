@@ -69,6 +69,7 @@
 #include "FWCore/Framework/interface/GlobalSchedule.h"
 #include "FWCore/Framework/interface/StreamSchedule.h"
 #include "FWCore/Framework/interface/SystemTimeKeeper.h"
+#include "FWCore/Framework/interface/SystemTriggerReportKeeper.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
@@ -321,6 +322,7 @@ namespace edm {
     PreallocationConfiguration preallocConfig_;
 
     edm::propagate_const<std::unique_ptr<SystemTimeKeeper>> summaryTimeKeeper_;
+    edm::propagate_const<std::unique_ptr<SystemTriggerReportKeeper>> summaryTriggerResultsKeeper_;
 
     std::vector<std::string> const* pathNames_;
     std::vector<std::string> const* endPathNames_;
