@@ -66,8 +66,7 @@ namespace edm {
     //
     EDProducerAdaptorBase::EDProducerAdaptorBase() {}
 
-    bool EDProducerAdaptorBase::doEvent(EventTransitionInfo const& info,
-                                        ModuleCallingContext const* mcc) {
+    bool EDProducerAdaptorBase::doEvent(EventTransitionInfo const& info, ModuleCallingContext const* mcc) {
       EventPrincipal const& ep = info.principal();
       assert(ep.streamID() < m_streamModules.size());
       auto mod = m_streamModules[ep.streamID()];
@@ -83,13 +82,11 @@ namespace edm {
     }
 
     void EDProducerAdaptorBase::doAcquire(EventTransitionInfo const& info,
-                                          ActivityRegistry* act,
                                           ModuleCallingContext const* mcc,
                                           WaitingTaskHolder&& holder) {
       EventPrincipal const& ep = info.principal();
       assert(ep.streamID() < m_streamModules.size());
       auto mod = m_streamModules[ep.streamID()];
-      EventAcquireSignalsSentry sentry(act, mcc);
       Event e(ep, moduleDescription(), mcc);
       e.setConsumer(mod);
       e.setProducerForAcquire(mod, nullptr, mod->gotBranchIDsFromAcquire_);

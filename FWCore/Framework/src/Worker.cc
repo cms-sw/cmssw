@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/src/EventAcquireSignalsSentry.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
@@ -237,10 +238,12 @@ namespace edm {
                           ParentContext const& parentContext,
                           WaitingTaskHolder holder) {
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
+    EventAcquireSignalsSentry sentry(activityRegistry(), &moduleCallingContext_);
     try {
       convertException::wrap([&]() { this->implDoAcquire(info, &moduleCallingContext_, std::move(holder)); });
     } catch (cms::Exception& ex) {
       edm::exceptionContext(ex, moduleCallingContext_);
+      moduleCallingContext_.setState(ModuleCallingContext::State::kException);
       if (shouldRethrowException(std::current_exception(), parentContext, true, shouldTryToContinue_)) {
         throw;
       }

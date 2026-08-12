@@ -74,7 +74,7 @@ namespace edm {
 
     private:
       bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
-      void doAcquire(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*, WaitingTaskHolder&&);
+      void doAcquire(EventTransitionInfo const&, ModuleCallingContext const*, WaitingTaskHolder&&);
       void doTransformAsync(WaitingTaskHolder iTask,
                             size_t iTransformIndex,
                             EventPrincipal const& iEvent,

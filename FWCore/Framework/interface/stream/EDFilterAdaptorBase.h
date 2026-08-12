@@ -35,7 +35,6 @@
 namespace edm {
 
   class ModuleCallingContext;
-  class ActivityRegistry;
 
   namespace maker {
     template <typename T>
@@ -67,7 +66,7 @@ namespace edm {
     private:
       bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
 
-      void doAcquire(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*, WaitingTaskHolder&&);
+      void doAcquire(EventTransitionInfo const&, ModuleCallingContext const*, WaitingTaskHolder&&);
 
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder,
