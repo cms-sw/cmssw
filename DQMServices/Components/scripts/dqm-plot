@@ -992,6 +992,7 @@ class DQMPlotter:
         rebin=None,
         clamp_yerrors=False,
         multiply_x_values=None,
+        source=None,
     ):
         """
         Create comparison plot with ratio panel.
@@ -1118,8 +1119,8 @@ class DQMPlotter:
         ax_main.set_ylabel(ylabel, fontsize=label_size if ytitle_fontsize is None else ytitle_fontsize)
 
         ha = "right"
-        # args.source is None in --operation mode; guard before indexing it.
-        if args.source and "KindOfSignalPV" in args.source[0][0]:
+        # source is None in --operation mode; guard before indexing it.
+        if source and "KindOfSignalPV" in source[0][0]:
             if rebin != None:
                 bin_labels = ['PV not Reco', 'PV Reco\nas Leading', 'PV Reco\nnot as Leading']
                 ha = "center"
@@ -2026,4 +2027,5 @@ if __name__ == "__main__":
         multiply_x_values=args.multiply_x_values,
         hline=args.hline,
         debug=args.debug,
+        source=args.source,
     )
