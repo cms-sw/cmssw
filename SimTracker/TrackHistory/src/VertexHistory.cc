@@ -24,7 +24,7 @@ VertexHistory::VertexHistory(const edm::ParameterSet &config, edm::ConsumesColle
   if (enableRecoToSim_ or enableSimToReco_) {
     collector.consumes<edm::View<reco::Vertex>>(vertexProducer_);
     collector.consumes<TrackingVertexCollection>(trackingTruth_);
-    collector.consumes<reco::VertexToTrackingVertexAssociator>(vertexAssociator_);
+    collector.consumes<reco::VertexToTrackingVertexAssociator<std::vector<reco::Vertex>>>(vertexAssociator_);
   }
 
   quality_ = 0.;
@@ -49,7 +49,7 @@ void VertexHistory::newEvent(const edm::Event &event, const edm::EventSetup &set
     event.getByLabel(trackingTruth_, TVCollection);
 
     // Get the track associator
-    edm::Handle<reco::VertexToTrackingVertexAssociator> vertexAssociator;
+    edm::Handle<reco::VertexToTrackingVertexAssociator<std::vector<reco::Vertex>>> vertexAssociator;
     event.getByLabel(vertexAssociator_, vertexAssociator);
 
     if (enableRecoToSim_) {

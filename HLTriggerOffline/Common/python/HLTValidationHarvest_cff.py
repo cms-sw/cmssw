@@ -11,6 +11,7 @@ from HLTriggerOffline.Exotica.hltExoticaPostProcessors_cff import *
 from HLTriggerOffline.SMP.HLTSMPPostVal_cff import *
 from Validation.RecoTrack.HLTpostProcessorTracker_cfi import *
 from Validation.RecoVertex.HLTpostProcessorVertex_cfi import *
+from Validation.RecoVertex.HLTSecondaryVertexPostProcessor_cff import *
 #from HLTriggerOffline.Common.PostProcessorExample_cfi import *
 from HLTriggerOffline.Common.HLTValidationQT_cff import *
 from HLTriggerOffline.Btag.HltBtagPostValidation_cff import *
@@ -24,6 +25,7 @@ hltpostvalidation = cms.Sequence(
     postProcessorHLTtrackingSequence
     +postProcessorHLTvertexing
     +postProcessorHLTvertexingReconstructableSim
+    +HLTSecondaryVertexPostProcessorSequence
     +HLTMuonPostVal
     +HLTTauPostVal
     +EgammaPostVal

@@ -16,7 +16,7 @@
 //
 //
 
-#include "Validation/RecoVertex/interface/V0Validator.h"
+#include "V0Validator.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 typedef std::vector<TrackingVertex> TrackingVertexCollection;
@@ -443,4 +443,5 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 }
 
 // define this as a plug-in
-// DEFINE_FWK_MODULE(V0Validator);
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(V0Validator);
