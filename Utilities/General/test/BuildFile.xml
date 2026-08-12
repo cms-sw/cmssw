@@ -18,6 +18,6 @@
   <else/>
   <test name="CudaGCCSupport" command="echo ERROR: Unsupported GCC version; exit 1"/>
   <test name="dummy-test" command="true">
-    <use name="cuda"/>
+    <use name="cuda-gcc-support"/>
   </test>
 </iftool>
