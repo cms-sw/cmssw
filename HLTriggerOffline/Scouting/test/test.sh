@@ -31,7 +31,7 @@ from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProduce
 process.hltOnlineBeamSpot = _onlineBeamSpotProducer.clone()
 process.scoutingCollectionMonitor.onlineMetaDataDigis = "hltOnlineMetaDataDigis"
 process.scoutingCollectionMonitor.onlyScouting = True
-process.dqmoffline_step = cms.EndPath(process.hltOnlineBeamSpot+process.hltScoutingCollectionMonitor+process.hltScoutingTrackMonitor)
+process.dqmoffline_step = cms.EndPath(process.hltOnlineBeamSpot+process.hltScoutingCollectionMonitor+process.hltScoutingTrackMonitor+process.recoTrackFromScoutingMonitorSequence)
 @EOF
 
 cmsRun dqm.py >& dqm.log
