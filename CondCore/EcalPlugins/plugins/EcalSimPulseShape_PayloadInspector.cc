@@ -30,18 +30,18 @@ namespace {
       unsigned int run = std::get<0>(iov);
       TProfile *barrel, *endcap, *apd;
       int EBnbin = 0, EEnbin = 0, APDnbin = 0;
-      double EBxmax, EExmax, APDxmax, EBth, EEth, APDth;
+      double EBxmax, EExmax, APDxmax, EBth, EEth, APDth, time;
       if (payload.get()) {
         EBth = (*payload).barrel_thresh;
         EEth = (*payload).endcap_thresh;
         APDth = (*payload).apd_thresh;
-        double time = (*payload).time_interval;
+        time = (*payload).time_interval;
         std::vector<double> EBshape = (*payload).barrel_shape;
         std::vector<double> EEshape = (*payload).endcap_shape;
         std::vector<double> APDshape = (*payload).apd_shape;
         EBnbin = EBshape.size();
         EBxmax = EBnbin * time;
-        EEnbin = EBshape.size();
+        EEnbin = EEshape.size();
         EExmax = EEnbin * time;
         APDnbin = APDshape.size();
         APDxmax = APDnbin * time;
@@ -51,7 +51,10 @@ namespace {
 		  << " shape size barrel " << EBnbin << " endcap " << EEnbin << " apd " << APDnbin
 		  << std::endl; */
         barrel = new TProfile("EBshape", "", EBnbin, 0, EBxmax);
-        endcap = new TProfile("EEshape", "", EEnbin, 0, EExmax);
+        // For Phase 2 tags the EE pulse could be empty
+        if (EEnbin > 0) {
+          endcap = new TProfile("EEshape", "", EEnbin, 0, EExmax);
+        }
         apd = new TProfile("APDshape", "", APDnbin, 0, APDxmax);
         for (int s = 0; s < EBnbin; s++) {
           double val = EBshape[s];
@@ -78,7 +81,7 @@ namespace {
       t1.SetTextSize(0.05);
       t1.DrawLatex(0.5, 0.96, Form("Sim Pulse Shape, IOV %i", run));
 
-      if (EBnbin == EEnbin && EBnbin == APDnbin) {
+      if ((EBnbin == EEnbin || EEnbin == 0) && EBnbin == APDnbin) {
         TPad *pad = new TPad("p_0", "p_0", 0.0, 0.0, 1.0, 0.95);
         pad->Draw();
         pad->cd();
@@ -95,18 +98,25 @@ namespace {
         EBMarker->Draw();
         t1.SetTextAlign(12);
         t1.DrawLatex(0.59, 0.85, Form("EB pulse, threshold %f", EBth));
+        t1.DrawLatex(0.59, 0.64, Form("Time interval %f ns", time));
+        t1.DrawLatex(0.59, 0.57, Form("%u samples", EBnbin));
 
-        endcap->SetMarkerColor(kRed);
-        endcap->SetMarkerStyle(24);
-        //	endcap->SetMarkerSize(0.5);
-        endcap->Draw("PSAME");
-        TMarker *EEMarker = new TMarker(0.58, 0.78, 24);
-        EEMarker->SetNDC();
-        EEMarker->SetMarkerSize(1.0);
-        EEMarker->SetMarkerColor(kRed);
-        EEMarker->Draw();
-        t1.SetTextColor(kRed);
-        t1.DrawLatex(0.59, 0.78, Form("EE pulse, threshold %f", EEth));
+        if (EEnbin > 0) {
+          endcap->SetMarkerColor(kRed);
+          endcap->SetMarkerStyle(24);
+          //	endcap->SetMarkerSize(0.5);
+          endcap->Draw("PSAME");
+          TMarker *EEMarker = new TMarker(0.58, 0.78, 24);
+          EEMarker->SetNDC();
+          EEMarker->SetMarkerSize(1.0);
+          EEMarker->SetMarkerColor(kRed);
+          EEMarker->Draw();
+          t1.SetTextColor(kRed);
+          t1.DrawLatex(0.59, 0.78, Form("EE pulse, threshold %f", EEth));
+        } else {
+          t1.SetTextColor(kRed);
+          t1.DrawLatex(0.59, 0.78, "No EE pulse");
+        }
 
         apd->SetMarkerColor(kBlue);
         apd->SetMarkerStyle(24);
@@ -141,20 +151,27 @@ namespace {
         EBMarker->SetMarkerColor(kBlack);
         t1.SetTextAlign(12);
         t1.DrawLatex(0.59, 0.80, Form("EB pulse, threshold %f", EBth));
+        t1.DrawLatex(0.59, 0.73, Form("Time interval %f ns, %u samples", time, EBnbin));
 
         pad[1]->cd();
-        endcap->SetMarkerStyle(24);
-        endcap->SetMarkerColor(kRed);
-        endcap->Draw("P");
-        endcap->SetXTitle("time (ns)");
-        endcap->SetYTitle("normalized amplitude (ADC#)");
-        TMarker *EEMarker = new TMarker(0.58, 0.8, 24);
-        EEMarker->SetNDC();
-        EEMarker->Draw();
-        EEMarker->SetMarkerSize(1.0);
-        EEMarker->SetMarkerColor(kRed);
-        t1.SetTextColor(kRed);
-        t1.DrawLatex(0.59, 0.80, Form("EE pulse, threshold %f", EEth));
+        if (EEnbin > 0) {
+          endcap->SetMarkerStyle(24);
+          endcap->SetMarkerColor(kRed);
+          endcap->Draw("P");
+          endcap->SetXTitle("time (ns)");
+          endcap->SetYTitle("normalized amplitude (ADC#)");
+          TMarker *EEMarker = new TMarker(0.58, 0.8, 24);
+          EEMarker->SetNDC();
+          EEMarker->Draw();
+          EEMarker->SetMarkerSize(1.0);
+          EEMarker->SetMarkerColor(kRed);
+          t1.SetTextColor(kRed);
+          t1.DrawLatex(0.59, 0.80, Form("EE pulse, threshold %f", EEth));
+          t1.DrawLatex(0.59, 0.73, Form("Time interval %f ns, %u samples", time, EEnbin));
+        } else {
+          t1.SetTextColor(kRed);
+          t1.DrawLatex(0.4, 0.5, "No EE pulse");
+        }
 
         pad[2]->cd();
         apd->SetMarkerStyle(24);
@@ -169,6 +186,7 @@ namespace {
         APDMarker->SetMarkerColor(kBlue);
         t1.SetTextColor(kBlue);
         t1.DrawLatex(0.59, 0.80, Form("APD pulse, threshold %f", APDth));
+        t1.DrawLatex(0.59, 0.73, Form("Time interval %f ns, %u samples", time, APDnbin));
       }
       std::string ImageName(m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
