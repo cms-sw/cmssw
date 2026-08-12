@@ -426,7 +426,7 @@ namespace edm {
       areg->watchPostModuleEvent(triggerResultsKeeperPtr, &SystemTriggerReportKeeper::stopModuleEvent);
       areg->watchPreModuleEventAcquire(timeKeeperPtr, &SystemTimeKeeper::restartModuleEvent);
       areg->watchPostModuleEventAcquire(timeKeeperPtr, &SystemTimeKeeper::stopModuleEvent);
-      //TODO: results should be updated after acquire in case of exception.
+      areg->watchPostModuleEventAcquire(triggerResultsKeeperPtr, &SystemTriggerReportKeeper::checkModuleAcquire);
       areg->watchPreModuleEventDelayedGet(timeKeeperPtr, &SystemTimeKeeper::pauseModuleEvent);
       areg->watchPostModuleEventDelayedGet(timeKeeperPtr, &SystemTimeKeeper::restartModuleEvent);
 

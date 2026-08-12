@@ -44,9 +44,9 @@ namespace edm {
   class SystemTriggerReportKeeper {
   public:
     SystemTriggerReportKeeper(unsigned int iNumStreams,
-                               std::vector<const ModuleDescription*> const& iModules,
-                               service::TriggerNamesService const& iNameService,
-                               ProcessContext const* iProcessContext);
+                              std::vector<const ModuleDescription*> const& iModules,
+                              service::TriggerNamesService const& iNameService,
+                              ProcessContext const* iProcessContext);
 
     SystemTriggerReportKeeper(const SystemTriggerReportKeeper&) = delete;
     SystemTriggerReportKeeper& operator=(const SystemTriggerReportKeeper&) = delete;
@@ -61,6 +61,7 @@ namespace edm {
     void stopPath(StreamContext const&, PathContext const&, HLTPathStatus const&);
 
     void stopModuleEvent(StreamContext const&, ModuleCallingContext const&);
+    void checkModuleAcquire(StreamContext const&, ModuleCallingContext const&);
 
     struct ModuleInPathStatus {
       unsigned int m_timesVisited = 0;
@@ -77,7 +78,7 @@ namespace edm {
     };
 
     struct ModuleStatus {
-      unsigned int m_timesRun = 0;  //TODO if acquire throws, still should mark as run
+      unsigned int m_timesRun = 0;
       unsigned int m_timesPassed = 0;
       unsigned int m_timesFailed = 0;
       unsigned int m_timesExcept = 0;

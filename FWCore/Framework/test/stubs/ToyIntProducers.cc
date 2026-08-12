@@ -103,6 +103,27 @@ namespace edmtest {
 
   //--------------------------------------------------------------------
   //
+  // throws an exception.
+  // Announces an IntProduct but does not produce one;
+  // every call to FailingProducer::produce throws a cms exception
+  //
+  class FailingInAcquireProducer : public edm::global::EDProducer<edm::ExternalWork> {
+  public:
+    explicit FailingInAcquireProducer(edm::ParameterSet const& /*p*/) { produces<IntProduct>(); }
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+
+    void acquire(edm::StreamID, edm::Event const&, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder ) const override;
+  };
+
+  void FailingInAcquireProducer::produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const {}
+  void FailingInAcquireProducer::acquire(edm::StreamID, edm::Event const&, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder ) const {
+    // We throw an edm exception with a configurable action.
+    throw edm::Exception(edm::errors::NotFound) << "Intentional 'NotFound' exception for testing purposes\n";
+  }
+
+
+  //--------------------------------------------------------------------
+  //
   // Announces an IntProduct but does not produce one;
   // every call to NonProducer::produce does nothing.
   //
@@ -1083,6 +1104,7 @@ using edmtest::TransientIntProducerEndProcessBlock;
 DEFINE_FWK_MODULE(FailingProducer);
 DEFINE_FWK_MODULE(edmtest::FailingInLumiProducer);
 DEFINE_FWK_MODULE(edmtest::FailingInRunProducer);
+DEFINE_FWK_MODULE(edmtest::FailingInAcquireProducer);
 DEFINE_FWK_MODULE(NonProducer);
 DEFINE_FWK_MODULE(IntProducer);
 DEFINE_FWK_MODULE(IntOneSharedProducer);

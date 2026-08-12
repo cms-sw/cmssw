@@ -170,6 +170,15 @@ void SystemTriggerReportKeeper::stopModuleEvent(StreamContext const& iStream, Mo
   }
 }
 
+void SystemTriggerReportKeeper::checkModuleAcquire(StreamContext const& iStream,
+                                                     ModuleCallingContext const& iModule) {
+  if (iModule.state()== ModuleCallingContext::State::kException and checkBounds(iModule.moduleDescription()->id())) {
+    auto& mod = m_streamModuleStatus[iStream.streamID().value()][iModule.moduleDescription()->id() - m_minModuleID];
+    ++(mod.m_timesRun);
+    ++(mod.m_timesExcept);
+  }
+}
+
 static void fillPathSummary(unsigned int iStartIndex,
                             unsigned int iEndIndex,
                             std::vector<std::string> const& iPathNames,
