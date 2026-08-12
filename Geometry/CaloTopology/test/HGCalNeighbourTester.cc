@@ -72,8 +72,9 @@ HGCalNeighbourTester::HGCalNeighbourTester(const edm::ParameterSet &iC)
       tok_hgcal_{esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag{"", nameDetector_})},
       dets_((nameDetector_ == "HGCalEESensitive") ? DetId::HGCalEE : DetId::HGCalHSi) {
-  edm::LogVerbatim("HGCalGeom") << "Test neighbours of cells for " << nameDetector_ << " with inputs from " << fileName_;
-  
+  edm::LogVerbatim("HGCalGeom") << "Test neighbours of cells for " << nameDetector_ << " with inputs from "
+                                << fileName_;
+
   if (!fileName_.empty()) {
     edm::FileInPath filetmp("Geometry/CaloTopology/data/" + fileName_);
     std::string fileName = filetmp.fullPath();
@@ -84,22 +85,22 @@ HGCalNeighbourTester::HGCalNeighbourTester(const edm::ParameterSet &iC)
       char buffer[80];
       while (fInput.getline(buffer, 80)) {
         std::vector<std::string> items = HGCalGeomUtils::splitString(std::string(buffer));
-	if (items.size() == 5) {
-	  int layer = std::atoi(items[0].c_str());
-	  int waferU = std::atoi(items[1].c_str());
-	  int waferV = std::atoi(items[2].c_str());
-	  int cellU = std::atoi(items[3].c_str());
-	  int cellV = std::atoi(items[4].c_str());
-	  DetId id1 = HGCSiliconDetId(dets_, 1, 0, layer, waferU, waferV, cellU, cellV);
-	  detIds_.emplace_back(id1);
-	  DetId id2 = HGCSiliconDetId(dets_,-1, 0, layer, waferU, waferV, cellU, cellV);
-	  detIds_.emplace_back(id2);
-	}
+        if (items.size() == 5) {
+          int layer = std::atoi(items[0].c_str());
+          int waferU = std::atoi(items[1].c_str());
+          int waferV = std::atoi(items[2].c_str());
+          int cellU = std::atoi(items[3].c_str());
+          int cellV = std::atoi(items[4].c_str());
+          DetId id1 = HGCSiliconDetId(dets_, 1, 0, layer, waferU, waferV, cellU, cellV);
+          detIds_.emplace_back(id1);
+          DetId id2 = HGCSiliconDetId(dets_, -1, 0, layer, waferU, waferV, cellU, cellV);
+          detIds_.emplace_back(id2);
+        }
       }
       fInput.close();
     }
-  }  
-  
+  }
+
   if (detIds_.empty()) {
     edm::LogVerbatim("HGCalGeom") << "It will test all valid ids for " << dets_ << " skipping " << nskip_ << " entries";
   } else {
@@ -131,12 +132,12 @@ void HGCalNeighbourTester::beginRun(edm::Run const &iRun, edm::EventSetup const 
       static constexpr uint32_t mask = 0xFFFFFF;
       std::vector<DetId> allIds = geom->getValidDetIds(dets_);
       for (auto const &id : detIds_) {
-	for (auto const &idz : allIds) {
-	  if ((id & mask) == (idz & mask)) {
-	    detIds.emplace_back(idz);
-	    break;
-	  }
-	}
+        for (auto const &idz : allIds) {
+          if ((id & mask) == (idz & mask)) {
+            detIds.emplace_back(idz);
+            break;
+          }
+        }
       }
       nskip = 1;
     }
