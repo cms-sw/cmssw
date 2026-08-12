@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from FastSimulation.Event.ParticleFilter_cfi import  ParticleFilterBlock
 from FastSimulation.SimplifiedGeometryPropagator.TrackerMaterial_cfi import TrackerMaterialBlock
+from FastSimulation.SimplifiedGeometryPropagator.MTDMaterial_cfi import MTDMaterialBlock
 from FastSimulation.SimplifiedGeometryPropagator.CaloMaterial_cfi import CaloMaterialBlock # Hack to interface "old" calorimetry with "new" propagation in tracker
 from FastSimulation.Calorimetry.Calorimetry_cff import *
 from FastSimulation.MaterialEffects.MaterialEffects_cfi import *
@@ -11,6 +12,7 @@ fastSimProducer = cms.EDProducer(
     src = cms.InputTag("generatorSmeared"),
     particleFilter =  ParticleFilterBlock.ParticleFilter,
     trackerDefinition = TrackerMaterialBlock.TrackerMaterial,
+    mtdDefinition = MTDMaterialBlock.MTDMaterial,
     simulateCalorimetry = cms.bool(True),
     simulateMuons = cms.bool(True),
     useFastSimDecayer = cms.bool(False),
@@ -79,7 +81,14 @@ fastSimProducer = cms.EDProducer(
                 className = cms.string("fastsim::TrackerSimHitProducer"),
                 minMomentumCut = cms.double(0.1),
                 doHitsFromInboundParticles = cms.bool(False), # Track reconstruction not possible for those particles so hits do not have to be simulated
-                ),    
+                ), 
+            mtdSimHits = cms.PSet(
+                className = cms.string("fastsim::MTDSimHitProducer"),
+                btlRadius     = cms.double(115.8),
+                btlHalfLength = cms.double(260.),
+                etlRMin       = cms.double(31.),
+                etlRMax       = cms.double(120.),
+                ),
         ),
     Calorimetry = FamosCalorimetryBlock.Calorimetry,
     MaterialEffectsForMuonsInECAL = MaterialEffectsForMuonsInECALBlock.MaterialEffectsForMuonsInECAL,

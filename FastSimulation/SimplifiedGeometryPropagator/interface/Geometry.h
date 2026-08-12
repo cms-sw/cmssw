@@ -1,5 +1,5 @@
-#ifndef FASTSIM_GEOMETRY_H
-#define FASTSIM_GEOMETRY_H
+#ifndef Fastsim_SimplifiedGeometryPropagator_Geometry_h
+#define Fastsim_SimplifiedGeometryPropagator_Geometry_h
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/ForwardSimplifiedGeometry.h"
@@ -11,13 +11,18 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "RecoMTD/Records/interface/MTDRecoGeometryRecord.h"
 
 ///////////////////////////////////////////////
 // Author: L. Vanelderen, S. Kurz
 // Date: 29 May 2017
+//
+// Revision: modified for MTD by H. Jeong at Aug 2026
 //////////////////////////////////////////////////////////
 
 #include <vector>
+
+class MTDDetLayerGeometry;
 
 namespace fastsim {
   struct GeometryConsumer {
@@ -25,7 +30,9 @@ namespace fastsim {
 
     const bool useFixedMagneticFieldZ;
     const bool useTrackerRecoGeometryRecord;
+    const bool useMTDRecoGeometryRecord;
     edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> geometricSearchTrackerESToken;
+    edm::ESGetToken<MTDDetLayerGeometry, MTDRecoGeometryRecord> mtdDetLayerGeometryESToken;
     edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldESToken;
   };
 
@@ -153,6 +160,7 @@ namespace fastsim {
         ownedMagneticField_;  //!< Needed to create a uniform magnetic field if speciefied in config
 
     const GeometricSearchTracker* geometricSearchTracker_;  //! The tracker geometry
+    const MTDDetLayerGeometry* mtdDetLayerGeometry_;        //! The MTD geometry
     const MagneticField* magneticField_;                    //!< The magnetic field
     const double fixedMagneticFieldZ_;  //!< Use a uniform magnetic field or non-uniform from MagneticFieldRecord
     const std::vector<edm::ParameterSet>

@@ -10,6 +10,8 @@
 <use name="MagneticField/Records"/>
 <use name="RecoTracker/Record"/>
 <use name="RecoTracker/TkDetLayers"/>
+<use name="RecoMTD/DetLayers"/>
+<use name="RecoMTD/Records"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="GeneratorInterface/Pythia8Interface"/>
 <use name="pythia8"/>

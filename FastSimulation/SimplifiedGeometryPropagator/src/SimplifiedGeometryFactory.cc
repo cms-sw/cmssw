@@ -5,6 +5,7 @@
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/BarrelSimplifiedGeometry.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/ForwardSimplifiedGeometry.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include <TH1F.h>
@@ -14,27 +15,31 @@
 #include <iterator>
 
 fastsim::SimplifiedGeometryFactory::SimplifiedGeometryFactory(const GeometricSearchTracker *geometricSearchTracker,
+                                                              const MTDDetLayerGeometry *mtdDetLayerGeometry,
                                                               const MagneticField &magneticField,
                                                               const std::vector<std::string> &interactionModelNames,
                                                               double magneticFieldHistMaxR,
                                                               double magneticFieldHistMaxZ)
     : geometricSearchTracker_(geometricSearchTracker),
+      mtdDetLayerGeometry_(mtdDetLayerGeometry),
       magneticField_(&magneticField),
       interactionModelNames_(&interactionModelNames),
       magneticFieldHistMaxR_(magneticFieldHistMaxR),
       magneticFieldHistMaxZ_(magneticFieldHistMaxZ) {
-  // naming convention for barrel DetLayer lists
-  barrelDetLayersMap_["BPix"] = &geometricSearchTracker_->pixelBarrelLayers();
-  barrelDetLayersMap_["TIB"] = &geometricSearchTracker_->tibLayers();
-  barrelDetLayersMap_["TOB"] = &geometricSearchTracker_->tobLayers();
+  if (geometricSearchTracker_) {
+    // naming convention for barrel DetLayer lists
+    barrelDetLayersMap_["BPix"] = &geometricSearchTracker_->pixelBarrelLayers();
+    barrelDetLayersMap_["TIB"] = &geometricSearchTracker_->tibLayers();
+    barrelDetLayersMap_["TOB"] = &geometricSearchTracker_->tobLayers();
 
-  // naming convention for forward DetLayer lists
-  forwardDetLayersMap_["negFPix"] = &geometricSearchTracker_->negPixelForwardLayers();
-  forwardDetLayersMap_["posFPix"] = &geometricSearchTracker_->posPixelForwardLayers();
-  forwardDetLayersMap_["negTID"] = &geometricSearchTracker_->negTidLayers();
-  forwardDetLayersMap_["posTID"] = &geometricSearchTracker_->posTidLayers();
-  forwardDetLayersMap_["negTEC"] = &geometricSearchTracker_->negTecLayers();
-  forwardDetLayersMap_["posTEC"] = &geometricSearchTracker_->posTecLayers();
+    // naming convention for forward DetLayer lists
+    forwardDetLayersMap_["negFPix"] = &geometricSearchTracker_->negPixelForwardLayers();
+    forwardDetLayersMap_["posFPix"] = &geometricSearchTracker_->posPixelForwardLayers();
+    forwardDetLayersMap_["negTID"] = &geometricSearchTracker_->negTidLayers();
+    forwardDetLayersMap_["posTID"] = &geometricSearchTracker_->posTidLayers();
+    forwardDetLayersMap_["negTEC"] = &geometricSearchTracker_->negTecLayers();
+    forwardDetLayersMap_["posTEC"] = &geometricSearchTracker_->posTecLayers();
+  }
 }
 
 std::unique_ptr<fastsim::BarrelSimplifiedGeometry> fastsim::SimplifiedGeometryFactory::createBarrelSimplifiedGeometry(
@@ -109,6 +114,39 @@ std::unique_ptr<fastsim::SimplifiedGeometry> fastsim::SimplifiedGeometryFactory:
         << "Cannot extract a " << (isForward ? "position" : "radius") << " for this "
         << (isForward ? "forward" : "barrel") << " layer:\n"
         << cfgString;
+  }
+
+  // -----------------------------
+  // MTD: when not activeLayer, but mtdDetLayerGeometry_,
+  // Find the nearest MTD DetLayer by z or radius which was decided above
+  // -----------------------------
+  if (detLayer == nullptr && mtdDetLayerGeometry_) {
+    if (isForward) {
+      // ETL: find the nearest ETL DetLayer by z
+      const auto &etlLayers =
+          isOnPositiveSide ? mtdDetLayerGeometry_->allForwardLayers() : mtdDetLayerGeometry_->allBackwardLayers();
+      double minDist = std::numeric_limits<double>::max();
+      for (const DetLayer *l : etlLayers) {
+        double lz = static_cast<const ForwardDetLayer *>(l)->surface().position().z();
+        double dist = std::abs(std::abs(lz) - std::abs(position));
+        if (dist < minDist) {
+          minDist = dist;
+          detLayer = l;
+        }
+      }
+    } else {
+      // BTL: find the nearest ETL DetLayer by radius
+      const auto &btlLayers = mtdDetLayerGeometry_->allBTLLayers();
+      double minDist = std::numeric_limits<double>::max();
+      for (const DetLayer *l : btlLayers) {
+        double lr = static_cast<const BarrelDetLayer *>(l)->specificSurface().radius();
+        double dist = std::abs(lr - position);
+        if (dist < minDist) {
+          minDist = dist;
+          detLayer = l;
+        }
+      }
+    }
   }
 
   // -----------------------------
