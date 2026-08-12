@@ -1,4 +1,4 @@
-#include "Validation/RecoVertex/interface/TrackParameterAnalyzer.h"
+#include "TrackParameterAnalyzer.h"
 
 //system includes
 #include <memory>
@@ -244,3 +244,6 @@ void TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
     }
   }
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TrackParameterAnalyzer);
