@@ -97,6 +97,11 @@ namespace edm {
       return std::span<WorkerManager>(workerManagers_)
           .subspan(numberOfConcurrentLumis_ + numberOfConcurrentRuns_, numberOfConcurrentProcessBlocks_);
     }
+    std::span<WorkerManager> inputProcessBlockManagers() {
+      return std::span<WorkerManager>(workerManagers_)
+          .subspan(numberOfConcurrentLumis_ + numberOfConcurrentRuns_ + numberOfConcurrentProcessBlocks_,
+                   numberOfConcurrentInputProcessBlocks_);
+    }
     /// returns the action table
     ExceptionToActionTable const& actionTable() const { return workerManagers_[0].actionTable(); }
 
@@ -127,6 +132,7 @@ namespace edm {
     unsigned int numberOfConcurrentLumis_;
     unsigned int numberOfConcurrentRuns_;
     static constexpr unsigned int numberOfConcurrentProcessBlocks_ = 1;
+    static constexpr unsigned int numberOfConcurrentInputProcessBlocks_ = 1;
   };
 
   template <typename T>
@@ -165,7 +171,11 @@ namespace edm {
         if constexpr (T::branchType_ == InRun) {
           managers = runManagers();
         } else if constexpr (T::branchType_ == InProcess) {
-          managers = processBlockManagers();
+          if constexpr (T::transition_ == Transition::AccessInputProcessBlock) {
+            managers = inputProcessBlockManagers();
+          } else {
+            managers = processBlockManagers();
+          }
         } else {
           managers = lumisManagers();
         }
