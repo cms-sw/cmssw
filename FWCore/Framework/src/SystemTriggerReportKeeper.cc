@@ -238,7 +238,13 @@ void SystemTriggerReportKeeper::fillTriggerReport(TriggerReport& rep) const {
       for (auto const& path : stream) {
         unsigned int modIndex = 0;
         for (auto const& mod : path.m_moduleStatus) {
-          visited[m_modulesOnPaths[pathIndex][modIndex]] += mod.m_timesVisited;
+          auto label = m_modulesOnPaths[pathIndex][modIndex];
+          //remove any attributes from the label
+          if (not label.empty() and (not std::isalpha(label[0]) and label[0] != '_')) {
+            label = label.substr(1);
+          }
+          visited[label] += mod.m_timesVisited;
+
           ++modIndex;
         }
         ++pathIndex;
