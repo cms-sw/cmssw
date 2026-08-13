@@ -4706,7 +4706,7 @@ defaultDataSets['2025FS']='CMSSW_13_0_11-130X_mcRun3_2023_realistic_withEarly202
 defaultRun4Geometry = 'D127'
 defaultDataSets['Run4D110']='CMSSW_15_1_0_pre5-150X_mcRun4_realistic_v1_STD_RegeneratedGS_Run4D110_noPU-v'
 defaultDataSets['Run4D121']='CMSSW_20_0_0_pre1-150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v'
-defaultDataSets['Run4D127']=''
+defaultDataSets['Run4D127']='CMSSW_20_0_0-150X_mcRun4_realistic_v1_STD_D127_GSOnly_noPU_Inputs-v'
 
 ## HIN
 defaultDataSets['2023HIN']='CCMSSW_14_1_0-PU_140X_mcRun3_2023_realistic_HI_v4_STD_2023HIN_PU-v'
