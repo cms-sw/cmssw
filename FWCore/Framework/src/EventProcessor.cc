@@ -72,6 +72,7 @@
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
@@ -111,18 +112,6 @@ namespace {
   private:
     edm::SerialTaskQueue& queue_;
   };
-
-  template <typename T>
-    requires std::is_invocable_v<T>
-  struct Guard {
-    Guard(T&& signal) : final_(std::forward<T>(signal)) {}
-    ~Guard() { final_(); }
-    T final_;
-  };
-  template <typename T>
-  Guard<T> makeGuard(T&& signal) {
-    return Guard{std::forward<T>(signal)};
-  }
 }  // namespace
 
 namespace edm {
@@ -184,15 +173,15 @@ namespace edm {
                                   common.maxSecondsUntilRampdown_,
                                   allocations);
 
-    areg->preSourceConstructionSignal_.emit(md);
     std::unique_ptr<InputSource> input;
     try {
-      //even if we have an exception, send the signal
-      std::shared_ptr<int> sentry(nullptr, [areg, &md](void*) { areg->postSourceConstructionSignal_.emit(md); });
       convertException::wrap([&]() {
+        auto sentry = signalslot::make_sentry([areg, &md]() { areg->postSourceConstructionSignal_.emit(md); });
+        areg->preSourceConstructionSignal_.emit(md);
         input = InputSourceFactory::get()->makeInputSource(*main_input, isdesc);
         input->preEventReadFromSourceSignal_.connect(std::cref(areg->preEventReadFromSourceSignal_));
         input->postEventReadFromSourceSignal_.connect(std::cref(areg->postEventReadFromSourceSignal_));
+        sentry.succeeded();
       });
     } catch (cms::Exception& iException) {
       std::ostringstream ost;
@@ -461,12 +450,14 @@ namespace edm {
       std::shared_ptr<CommonParams> common(items.initMisc(*parameterSet));
 
       // intialize the event setup provider
-      items.actReg_->preEventSetupModulesConstructionSignal_.emit();
       {
-        auto guard = makeGuard([&items]() { items.actReg_->postEventSetupModulesConstructionSignal_.emit(); });
+        auto guard =
+            signalslot::make_sentry([&items]() { items.actReg_->postEventSetupModulesConstructionSignal_.emit(); });
+        items.actReg_->preEventSetupModulesConstructionSignal_.emit();
         ParameterSet const& eventSetupPset(optionsPset.getUntrackedParameterSet("eventSetup"));
         esp_ = espController_->makeProvider(
             *parameterSet, items.actReg_.get(), &eventSetupPset, maxConcurrentIOVs, dumpOptions);
+        guard.succeeded();
       }
 
       // initialize the looper, if any
@@ -499,8 +490,9 @@ namespace edm {
         auto sourceID = ModuleDescription::getUniqueID();
 
         {
+          auto guard =
+              signalslot::make_sentry([&items]() { items.actReg_->postModulesAndSourceConstructionSignal_.emit(); });
           items.actReg_->preModulesAndSourceConstructionSignal_.emit();
-          auto guard = makeGuard([&items]() { items.actReg_->postModulesAndSourceConstructionSignal_.emit(); });
 
           group.run([&, this]() {
             // initialize the Schedule
@@ -525,15 +517,17 @@ namespace edm {
 
           group.wait();
           sourceCoordinator_.setSource(std::move(input));
+          guard.succeeded();
         }
 
         items.preg()->addFromInput(sourceCoordinator_.productRegistry());
         {
+          auto guard = signalslot::make_sentry([&items]() { items.actReg_->postFinishScheduleSignal_.emit(); });
           items.actReg_->preFinishScheduleSignal_.emit();
-          auto guard = makeGuard([&items]() { items.actReg_->postFinishScheduleSignal_.emit(); });
           auto const& tns = ServiceRegistry::instance().get<service::TriggerNamesService>();
           schedule_ = items.finishSchedule(
               std::move(*madeModules), *parameterSet, tns, preallocations_, &processContext_, *processBlockHelper_);
+          guard.succeeded();
         }
       }
 
@@ -556,8 +550,8 @@ namespace edm {
       }
 
       {
+        auto guard = signalslot::make_sentry([this]() { actReg_->postPrincipalsCreationSignal_.emit(); });
         actReg_->prePrincipalsCreationSignal_.emit();
-        auto guard = makeGuard([this]() { actReg_->postPrincipalsCreationSignal_.emit(); });
         principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
         for (auto index : std::views::iota(0U, preallocations_.numberOfStreams())) {
           // Reusable event principal
@@ -569,6 +563,7 @@ namespace edm {
                                                      index,
                                                      &*processBlockHelper_);
           principalCache_.insert(std::move(ep));
+          guard.succeeded();
         }
 
         for (auto index : std::views::iota(0U, preallocations_.numberOfRuns())) {
@@ -652,8 +647,8 @@ namespace edm {
 
     PathsAndConsumesOfModules pathsAndConsumesOfModules;
     {
+      auto guard = signalslot::make_sentry([this]() { actReg_->postScheduleConsistencyCheckSignal_.emit(); });
       actReg_->preScheduleConsistencyCheckSignal_.emit();
-      auto guard = makeGuard([this]() { actReg_->postScheduleConsistencyCheckSignal_.emit(); });
       pathsAndConsumesOfModules.initialize(schedule_.get(), preg());
 
       // Note: all these may throw
@@ -692,6 +687,7 @@ namespace edm {
       if (preallocations_.numberOfRuns() > 1) {
         warnAboutModulesRequiringRunSynchronization();
       }
+      guard.succeeded();
     }
 
     //NOTE:  This implementation assumes 'Job' means one call
@@ -709,9 +705,10 @@ namespace edm {
     //   looper_->beginOfJob(es);
     //}
     {
+      auto guard = signalslot::make_sentry([this]() { actReg_->postEventSetupConfigurationFinalizedSignal_.emit(); });
       actReg_->preEventSetupConfigurationFinalizedSignal_.emit();
-      auto guard = makeGuard([this]() { actReg_->postEventSetupConfigurationFinalizedSignal_.emit(); });
       espController_->finishConfiguration();
+      guard.succeeded();
     }
     eventsetup::ESRecordsToProductResolverIndices esRecordsToProductResolverIndices = esp_->recordsToResolverIndices();
 
@@ -874,9 +871,8 @@ namespace edm {
 
     // make the services available
     ServiceRegistry::Operate operate(serviceToken_);
+    auto guard = signalslot::make_sentry([this]() { actReg_->endProcessingSignal_.emit(); });
     actReg_->beginProcessingSignal_.emit();
-    auto endSignal = [](ActivityRegistry* iReg) { iReg->endProcessingSignal_.emit(); };
-    std::unique_ptr<ActivityRegistry, decltype(endSignal)> guard(actReg_.get(), endSignal);
     try {
       FilesProcessor fp(fileModeNoMerge_);
       convertException::wrap([&]() {
@@ -933,6 +929,7 @@ namespace edm {
       }
       throw;
     }
+    guard.succeeded();
     return epSuccess;
   }
 
@@ -969,17 +966,19 @@ namespace edm {
 
   void EventProcessor::openOutputFiles() {
     if (fileBlockValid()) {
-      auto guard = makeGuard([this]() { actReg_->postOpenOutputFilesSignal_.emit(); });
+      auto guard = signalslot::make_sentry([this]() { actReg_->postOpenOutputFilesSignal_.emit(); });
       actReg_->preOpenOutputFilesSignal_.emit();
       schedule_->openOutputFiles(*fb_);
+      guard.succeeded();
     }
   }
 
   void EventProcessor::closeOutputFiles() {
     {
-      auto guard = makeGuard([this]() { actReg_->postCloseOutputFilesSignal_.emit(); });
+      auto guard = signalslot::make_sentry([this]() { actReg_->postCloseOutputFilesSignal_.emit(); });
       actReg_->preCloseOutputFilesSignal_.emit();
       schedule_->closeOutputFiles();
+      guard.succeeded();
     }
     processBlockHelper_->clearAfterOutputFilesClose();
   }
@@ -2072,18 +2071,6 @@ namespace edm {
     iHolder.group()->run([this, iHolder, iStreamIndex]() { processEventAsyncImpl(iHolder, iStreamIndex); });
   }
 
-  namespace {
-    struct ClearEventGuard {
-      ClearEventGuard(edm::ActivityRegistry& iReg, edm::StreamContext const& iContext)
-          : act_(iReg), context_(iContext) {
-        iReg.preClearEventSignal_.emit(iContext);
-      }
-      ~ClearEventGuard() { act_.postClearEventSignal_.emit(context_); }
-      edm::ActivityRegistry& act_;
-      edm::StreamContext const& context_;
-    };
-  }  // namespace
-
   void EventProcessor::processEventAsyncImpl(WaitingTaskHolder iHolder, unsigned int iStreamIndex) {
     auto pep = &(principalCache_.eventPrincipal(iStreamIndex));
 
@@ -2125,8 +2112,11 @@ namespace edm {
                                   pep->luminosityBlockPrincipal().index(),
                                   pep->time(),
                                   &processContext_);
-      ClearEventGuard guard(*this->actReg_.get(), streamContext);
+      auto guard =
+          signalslot::make_sentry([this, &streamContext]() { actReg_->postClearEventSignal_.emit(streamContext); });
+      actReg_->preClearEventSignal_.emit(streamContext);
       pep->clearEventPrincipal();
+      guard.succeeded();
     }) | runLast(iHolder);
   }
 
