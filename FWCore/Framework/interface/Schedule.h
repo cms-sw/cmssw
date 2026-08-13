@@ -286,7 +286,9 @@ namespace edm {
                                edm::ProductRegistry const& preg);
 
     /// returns the collection of pointers to workers
-    AllWorkers const& allWorkers() const;
+    AllWorkers const& allWorkersEvents() const;
+    AllWorkers const& allWorkersRun() const;
+    AllWorkers const& allWorkersLumis() const;
 
     ModuleRegistry const& moduleRegistry() const { return *moduleRegistry_; }
 
