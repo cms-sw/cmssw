@@ -45,9 +45,9 @@ namespace {
 // constructors and destructor
 //
 SystemTriggerReportKeeper::SystemTriggerReportKeeper(unsigned int iNumStreams,
-                                                       std::vector<const ModuleDescription*> const& iModules,
-                                                       service::TriggerNamesService const& iNamesService,
-                                                       ProcessContext const* iProcessContext)
+                                                     std::vector<const ModuleDescription*> const& iModules,
+                                                     service::TriggerNamesService const& iNamesService,
+                                                     ProcessContext const* iProcessContext)
     : m_streamPathStatus(iNumStreams), m_modules(iModules), m_processContext(iProcessContext), m_minModuleID(0) {
   std::sort(m_modules.begin(), m_modules.end(), lessModuleDescription);
   if (not m_modules.empty()) {
@@ -111,7 +111,7 @@ void SystemTriggerReportKeeper::removeModuleIfExists(ModuleDescription const& mo
 }
 
 SystemTriggerReportKeeper::PathStatus& SystemTriggerReportKeeper::pathStatus(StreamContext const& iStream,
-                                                                               PathContext const& iPath) {
+                                                                             PathContext const& iPath) {
   unsigned int offset = 0;
   if (iPath.isEndPath()) {
     offset = m_endPathOffset;
@@ -127,29 +127,33 @@ inline bool SystemTriggerReportKeeper::checkBounds(unsigned int id) const {
 }
 
 void SystemTriggerReportKeeper::stopPath(StreamContext const& iStream,
-                                          PathContext const& iPath,
-                                          HLTPathStatus const& iStatus) {
+                                         PathContext const& iPath,
+                                         HLTPathStatus const& iStatus) {
   if (m_processContext == iStream.processContext()) {
     auto& pStatus = pathStatus(iStream, iPath);
 
     if (iStatus.accept()) {
       ++pStatus.m_timesPassed;
-    } else if (iStatus.wasrun()) {
-      ++pStatus.m_timesFailed;
     } else if (iStatus.error()) {
       ++pStatus.m_timesExcept;
+    } else if (iStatus.wasrun()) {
+      ++pStatus.m_timesFailed;
     }
     ++pStatus.m_timesRun;
 
     //mark all modules up to and including the decision module as being visited
     auto& modsOnPath = pStatus.m_moduleStatus;
-    for (unsigned int i = 0; i < iStatus.index() + 1; ++i) {
+    assert(iStatus.index() < modsOnPath.size());
+    for (unsigned int i = 0; i < iStatus.index(); ++i) {
       ++modsOnPath[i].m_timesVisited;
       ++modsOnPath[i].m_timesPassed;
     }
+    ++modsOnPath[iStatus.index()].m_timesVisited;
     if (iStatus.error()) {
       ++modsOnPath[iStatus.index()].m_timesExcept;
-    } else if (not iStatus.accept() and iStatus.wasrun()) {
+    } else if (iStatus.accept()) {
+      ++modsOnPath[iStatus.index()].m_timesPassed;
+    } else if (iStatus.wasrun()) {
       ++modsOnPath[iStatus.index()].m_timesFailed;
     }
   }
@@ -170,9 +174,8 @@ void SystemTriggerReportKeeper::stopModuleEvent(StreamContext const& iStream, Mo
   }
 }
 
-void SystemTriggerReportKeeper::checkModuleAcquire(StreamContext const& iStream,
-                                                     ModuleCallingContext const& iModule) {
-  if (iModule.state()== ModuleCallingContext::State::kException and checkBounds(iModule.moduleDescription()->id())) {
+void SystemTriggerReportKeeper::checkModuleAcquire(StreamContext const& iStream, ModuleCallingContext const& iModule) {
+  if (iModule.state() == ModuleCallingContext::State::kException and checkBounds(iModule.moduleDescription()->id())) {
     auto& mod = m_streamModuleStatus[iStream.streamID().value()][iModule.moduleDescription()->id() - m_minModuleID];
     ++(mod.m_timesRun);
     ++(mod.m_timesExcept);
@@ -191,28 +194,30 @@ static void fillPathSummary(unsigned int iStartIndex,
     for (unsigned int index = iStartIndex; index < iEndIndex; ++index, ++it) {
       assert(it != iSummary.end());
       assert(index < stream.size());
-      auto const& pathTiming = stream[index];
+      auto const& pathStatus = stream[index];
       assert(index < iPathNames.size());
       it->name = iPathNames[index];
       it->bitPosition = index - iStartIndex;
-      if (not pathTiming.m_moduleStatus.empty()) {
-        it->timesRun += pathTiming.m_moduleStatus[0].m_timesVisited;
-        it->timesPassed += pathTiming.m_moduleStatus[0].m_timesPassed;
-        it->timesFailed += pathTiming.m_moduleStatus[0].m_timesFailed;
-        it->timesExcept += pathTiming.m_moduleStatus[0].m_timesExcept;
+      if (not pathStatus.m_moduleStatus.empty()) {
+        it->timesRun += pathStatus.m_timesRun;
+        it->timesPassed += pathStatus.m_timesPassed;
+        it->timesFailed += pathStatus.m_timesFailed;
+        it->timesExcept += pathStatus.m_timesExcept;
       }
       if (it->moduleInPathSummaries.empty()) {
-        it->moduleInPathSummaries.resize(pathTiming.m_moduleStatus.size());
+        it->moduleInPathSummaries.resize(pathStatus.m_moduleStatus.size());
       }
-      for (unsigned int modIndex = 0; modIndex < pathTiming.m_moduleStatus.size(); ++modIndex) {
-        assert(modIndex < pathTiming.m_moduleStatus.size());
-        auto const& modStatus = pathTiming.m_moduleStatus[modIndex];
+      for (unsigned int modIndex = 0; modIndex < pathStatus.m_moduleStatus.size(); ++modIndex) {
+        assert(modIndex < pathStatus.m_moduleStatus.size());
+        auto const& modStatus = pathStatus.m_moduleStatus[modIndex];
         assert(modIndex < it->moduleInPathSummaries.size());
         auto& modSummary = it->moduleInPathSummaries[modIndex];
+        modSummary.bitPosition = modIndex;
         if (modSummary.moduleLabel.empty()) {
           assert(index < iModulesOnPaths.size());
           assert(modIndex < iModulesOnPaths[index].size());
-          modSummary.moduleLabel = iModulesOnPaths[index][modIndex];
+          auto modLabel = iModulesOnPaths[index][modIndex];
+          modSummary.moduleLabel = modLabel;
         }
         modSummary.timesVisited += modStatus.m_timesVisited;
         modSummary.timesPassed += modStatus.m_timesPassed;
@@ -253,6 +258,7 @@ void SystemTriggerReportKeeper::fillTriggerReport(TriggerReport& rep) const {
       outMod.timesExcept = 0;
       auto moduleId = mod->id() - m_minModuleID;
       for (auto const& stream : m_streamModuleStatus) {
+        assert(moduleId < stream.size());
         auto const& status = stream[moduleId];
         outMod.timesRun += status.m_timesRun;
         outMod.timesPassed += status.m_timesPassed;
