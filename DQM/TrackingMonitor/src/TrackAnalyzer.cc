@@ -1169,10 +1169,12 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   auto pt = track.pt();
   auto phi = track.phi();
   // double eta   = track.eta();
-  auto phiIn = track.innerPosition().phi();
-  auto etaIn = track.innerPosition().eta();
-  auto phiOut = track.outerPosition().phi();
-  auto etaOut = track.outerPosition().eta();
+  const bool hasExtra = track.extra().isAvailable();
+
+  const float phiIn = hasExtra ? track.innerPosition().phi() : track.phi();
+  const float etaIn = hasExtra ? track.innerPosition().eta() : track.eta();
+  const float phiOut = hasExtra ? track.outerPosition().phi() : track.phi();
+  const float etaOut = hasExtra ? track.outerPosition().eta() : track.eta();
 
   int nRecHits = track.hitPattern().numberOfAllHits(reco::HitPattern::TRACK_HITS);
   int nValidRecHits = track.numberOfValidHits();
