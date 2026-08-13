@@ -130,17 +130,17 @@ def _modifyForPPonAAandNotPhase2(producer):
 
 from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtension
 phase2CAExtension.toReplaceWith(pixelTracksAlpaka,_pixelTracksAlpakaPhase2Extended.clone(
-    pixelRecHitsSoA = "siPixelRecHitsPreSplittingAlpaka",
+    pixelRecHitSrc = "siPixelRecHitsPreSplittingAlpaka",
     trackerRecHitsSoA = "phase2OTRecHitsSoAConverter"
 ))
 
 # pixel tracks SoA producer on the cpu, for validation
 pixelTracksAlpakaSerial = makeSerialClone(pixelTracksAlpaka,
-    pixelRecHitsSoA = 'siPixelRecHitsPreSplittingAlpakaSerial'
+    pixelRecHitSrc = 'siPixelRecHitsPreSplittingAlpakaSerial'
 )
 
 phase2CAExtension.toModify(pixelTracksAlpakaSerial,
-                           pixelRecHitsSoA = 'siPixelRecHitsExtendedPreSplittingAlpakaSerial'
+                           pixelRecHitSrc = 'siPixelRecHitsExtendedPreSplittingAlpakaSerial'
                            )
 
 # legacy pixel tracks from SoA
