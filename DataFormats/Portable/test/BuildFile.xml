@@ -58,7 +58,9 @@
   <flags ALPAKA_BACKENDS="1"/>
 </bin>
 
-<bin name="TestDataFormatsPortableMultiView" file="alpaka/test_soamultiview.dev.cc">
+<bin name="TestDataFormatsPortableMultiView" file="alpaka/test_catch2_SoAConstMultiView.dev.cc">
+  <use name="catch2"/>
+  <use name="eigen"/>
   <use name="DataFormats/Portable"/>
   <use name="DataFormats/SoATemplate"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>

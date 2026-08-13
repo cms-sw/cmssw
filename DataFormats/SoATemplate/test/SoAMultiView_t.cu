@@ -113,7 +113,7 @@ TEST_CASE("SoAConstMultiViewCUDA") {
   }
 
   // for the position multi view we restrict the iteration range for both views
-  std::vector<int> usedSizesForMultiview(5, 7);
+  std::vector<int> usedSizesForMultiview{5, 7};
   std::vector<SoA> hostSoAs;
   hostSoAs.push_back(h_soaLayout1);
   hostSoAs.push_back(h_soaLayout2);

@@ -208,13 +208,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(1, ll.metadata().size() - 1);
     alpaka::exec<Acc1D>(queue, workDiv1D, SetHitsLayerStart{}, mm, ll, this->device_layerStarts_->data());
 
-    auto accessor = [] ALPAKA_FN_ACC(auto const &v) { return v.iphi(); };
+    auto accessor_iphi = [] ALPAKA_FN_ACC(auto const &v) { return v.iphi(); };
 
     cms::alpakatools::fillManyFromVector<Acc1D>(device_hitPhiHist_->data(),
                                                 device_hitPhiView_,
                                                 TrackerTraits::numberOfLayers,  // could be ll.metadata().size() - 1
                                                 hh,
-                                                accessor,
+                                                accessor_iphi,
                                                 this->device_layerStarts_->data(),
                                                 static_cast<uint32_t>(hh.size()),
                                                 static_cast<uint32_t>(256),

@@ -125,7 +125,7 @@ TEST_CASE("PortableSoAConstMultiView") {
     }
 
     // for the position multi view we restrict the iteration range for both views
-    std::vector<int> offsetsPositionMultiView(sizes1[0] / 3, sizes1[1] / 2);
+    std::vector<int> offsetsPositionMultiView{sizes1[0] / 3, sizes1[1] / 2};
 
     std::vector<std::reference_wrapper<const PortableHostCollection<SoA>>> hostCollections;
     hostCollections.emplace_back(hostCollection1);

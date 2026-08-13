@@ -17,7 +17,7 @@
  * `SoAConstMultiView` stores multiple ConstViews within an `std::array`, 
  * accompanied by an offset array to enable access via a global index. 
  * An `SoAConstMultiView` can be passed directly by value to kernels without 
- * requiring device memory copies. As the SoASoAConstMultiView accepts only ConstViews, 
+ * requiring device memory copies. As the SoAConstMultiView accepts only ConstViews, 
  * it supports read-only access to the underlying data.
  *
  * Since the underlying SoA memories are not contiguous, cacheline inefficiencies 
@@ -41,7 +41,7 @@ public:
 
   SoAConstMultiView() = default;
 
-  template <std::ranges::input_range Collections>
+  template <std::ranges::sized_range Collections>
   explicit SoAConstMultiView(Collections const& collections) {
     for (const auto& collection : collections) {
       ConstView view = collection.const_view();
@@ -49,16 +49,19 @@ public:
     }
   }
 
-  template <std::ranges::input_range Collections>
+  template <std::ranges::sized_range Collections>
   explicit SoAConstMultiView(Collections const& collections, std::span<const size_type> sizes) {
+    assert(std::ranges::size(collections) == sizes.size() &&
+           "The number of sizes must match the number of collections");
     for (const auto& collection : collections) {
       ConstView view = collection.const_view();
       assert(n_ < static_cast<size_type>(sizes.size()) && "More collections provided than sizes");
       addView(view, sizes[n_]);
     }
+    assert(n_ == static_cast<size_type>(sizes.size()));
   }
 
-  template <std::ranges::input_range Collections, typename Getter>
+  template <std::ranges::sized_range Collections, typename Getter>
     requires IsValidAViewGetter<Collections, Getter, ConstView>
   explicit SoAConstMultiView(Collections const& collections, Getter getter) {
     for (const auto& collection : collections) {
@@ -67,13 +70,16 @@ public:
     }
   }
 
-  template <std::ranges::input_range Collections, typename Getter>
+  template <std::ranges::sized_range Collections, typename Getter>
     requires IsValidAViewGetter<Collections, Getter, ConstView>
   explicit SoAConstMultiView(Collections const& collections, Getter getter, std::span<const size_type> sizes) {
+    assert(std::ranges::size(collections) == sizes.size() &&
+           "The number of sizes must match the number of collections");
     for (const auto& collection : collections) {
       assert(n_ < static_cast<size_type>(sizes.size()) && "More collections provided than sizes");
       addView(std::invoke(getter, collection), sizes[n_]);
     }
+    assert(n_ == static_cast<size_type>(sizes.size()));
   }
 
   void addView(ConstView view, const size_type size) {
