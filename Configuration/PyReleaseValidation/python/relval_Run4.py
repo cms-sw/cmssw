@@ -31,6 +31,7 @@ numWFIB.extend([35634.0]) #Run4D124
 numWFIB.extend([36034.0]) #Run4D125
 numWFIB.extend([37234.0]) #Run4D126
 numWFIB.extend([37634.0]) #Run4D127
+numWFIB.extend([38034.0]) #Run4D128
 
 #Run4 FS (TTbar)
 numWFIB.extend([36434.0]) #Run4D110
