@@ -1,22 +1,19 @@
 #ifndef FWCore_Framework_SystemTriggerResultsKeeper_h
 #define FWCore_Framework_SystemTriggerResultsKeeper_h
-// -*- C++ -*-
 //
 // Package:     FWCore/Framework
 // Class  :     SystemTriggerReportKeeper
 //
 /**\class SystemTriggerReportKeeper SystemTriggerReportKeeper.h "SystemTriggerReportKeeper.h"
 
- Description: Runs timers for system components
+ Description: Accumulate results needed for generating the system trigger report.
 
  Usage:
-    This class is used to keep the results that is used to generate
- the system trigger report.
+    Used internally by the framework when `wantSummary` is set to true in the configuration.
 
 */
 //
 // Original Author:  Chris Jones
-//         Created:  Mon, 07 Jul 2014 14:37:31 GMT
 //
 
 // system include files

@@ -103,6 +103,11 @@ namespace edm {
         mcc_.setState(ModuleCallingContext::State::kException);
       }
     }
+    ModuleCallingContextSentry(ModuleCallingContextSentry const&) = delete;
+    ModuleCallingContextSentry& operator=(ModuleCallingContextSentry const&) = delete;
+    ModuleCallingContextSentry(ModuleCallingContextSentry&&) = delete;
+    ModuleCallingContextSentry& operator=(ModuleCallingContextSentry&&) = delete;
+
     void finished(bool passed) noexcept {
       mcc_.setState(passed ? ModuleCallingContext::State::kFinishedPassed
                            : ModuleCallingContext::State::kFinishedFailed);

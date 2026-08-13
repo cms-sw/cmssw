@@ -102,8 +102,6 @@ SystemTriggerReportKeeper::SystemTriggerReportKeeper(unsigned int iNumStreams,
 // member functions
 //
 void SystemTriggerReportKeeper::removeModuleIfExists(ModuleDescription const& module) {
-  // The deletion of a module is signaled to all (Sub)Processes, even
-  // though the module exists in only one of them.
   auto found = std::lower_bound(m_modules.begin(), m_modules.end(), &module, lessModuleDescription);
   if (*found == &module) {
     m_modules.erase(found);
@@ -234,7 +232,7 @@ void SystemTriggerReportKeeper::fillTriggerReport(TriggerReport& rep) const {
     auto& summary = rep.workerSummaries;
     summary.resize(m_modules.size());
     //Figure out how often a module was visited
-    std::map<std::string, unsigned int> visited;
+    std::unordered_map<std::string, unsigned int> visited;
     for (auto const& stream : m_streamPathStatus) {
       unsigned int pathIndex = 0;
       for (auto const& path : stream) {
