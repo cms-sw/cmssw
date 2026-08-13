@@ -287,15 +287,8 @@ namespace edm {
                                                                                processContext));
     }
 
-    globalSchedule_ = std::make_unique<GlobalSchedule>(resultsInserter(),
-                                                       pathStatusInserters_,
-                                                       endPathStatusInserters_,
-                                                       moduleRegistrySharedPtr(),
-                                                       builder.allNeededModules_,
-                                                       prealloc,
-                                                       actions,
-                                                       areg,
-                                                       processContext);
+    globalSchedule_ = std::make_unique<GlobalSchedule>(
+        moduleRegistrySharedPtr(), builder.allNeededModules_, prealloc, actions, areg, processContext);
   }
 
   void Schedule::finishSetup(ParameterSet& proc_pset,
@@ -411,7 +404,7 @@ namespace edm {
 
     if (wantSummary_) {
       std::vector<const ModuleDescription*> modDesc;
-      const auto& workers = allWorkers();
+      const auto& workers = allWorkersEvents();
       modDesc.reserve(workers.size());
 
       std::transform(workers.begin(),
@@ -934,7 +927,7 @@ namespace edm {
                               const SignallingProductRegistryFiller& iRegistry,
                               eventsetup::ESRecordsToProductResolverIndices const& iIndices) {
     Worker* found = nullptr;
-    for (auto const& worker : allWorkers()) {
+    for (auto const& worker : allWorkersEvents()) {
       if (worker->description()->moduleLabel() == iLabel) {
         found = worker;
         break;
@@ -1002,7 +995,9 @@ namespace edm {
     moduleRegistry_->forAllModuleHolders([&](auto const* iHolder) { result.push_back(&iHolder->moduleDescription()); });
     return result;
   }
-  Schedule::AllWorkers const& Schedule::allWorkers() const { return globalSchedule_->allWorkers(); }
+  Schedule::AllWorkers const& Schedule::allWorkersEvents() const { return streamSchedules_[0]->allWorkersEvents(); }
+  Schedule::AllWorkers const& Schedule::allWorkersRun() const { return globalSchedule_->runWorkers(); }
+  Schedule::AllWorkers const& Schedule::allWorkersLumis() const { return globalSchedule_->lumisWorkers(); }
 
   void Schedule::convertCurrentProcessAlias(std::string const& processName) {
     moduleRegistry_->forAllModuleHolders([&](auto& iHolder) { iHolder->convertCurrentProcessAlias(processName); });

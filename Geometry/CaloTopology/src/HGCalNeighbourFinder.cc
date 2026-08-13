@@ -2,7 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 constexpr int densityNumberLD = 8;
 constexpr int densityNumberHD = 12;
