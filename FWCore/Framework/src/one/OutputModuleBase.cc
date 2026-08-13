@@ -59,8 +59,7 @@ namespace edm {
       core::OutputModuleCore::doBeginJob_();
     }
 
-    bool OutputModuleBase::doEvent(EventTransitionInfo const& info,
-                                   ModuleCallingContext const* mcc) {
+    bool OutputModuleBase::doEvent(EventTransitionInfo const& info, ModuleCallingContext const* mcc) {
       {
         core::OutputModuleCore::doEvent_(info, mcc);
       }

@@ -153,8 +153,7 @@ std::vector<edm::ModuleConsumesMinimalESInfo> EDAnalyzerAdaptorBase::moduleConsu
   return m_streamModules[0]->moduleConsumesMinimalESInfos();
 }
 
-bool EDAnalyzerAdaptorBase::doEvent(EventTransitionInfo const& info,
-                                    ModuleCallingContext const* mcc) {
+bool EDAnalyzerAdaptorBase::doEvent(EventTransitionInfo const& info, ModuleCallingContext const* mcc) {
   EventPrincipal const& ep = info.principal();
   assert(ep.streamID() < m_streamModules.size());
   auto mod = m_streamModules[ep.streamID()];

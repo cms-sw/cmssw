@@ -153,13 +153,13 @@ namespace edm {
       case ModuleCallingContext::State::kRunning:
         os << "Running";
         break;
-        case ModuleCallingContext::State::kFinishedPassed:
+      case ModuleCallingContext::State::kFinishedPassed:
         os << "Passed";
         break;
-        case ModuleCallingContext::State::kFinishedFailed:
+      case ModuleCallingContext::State::kFinishedFailed:
         os << "Failed";
         break;
-        case ModuleCallingContext::State::kException:
+      case ModuleCallingContext::State::kException:
         os << "Exception";
         break;
     }

@@ -254,8 +254,7 @@ namespace edm {
       return s.wantEvent(e);
     }
 
-    bool OutputModuleCore::doEvent_(EventTransitionInfo const& info,
-                                    ModuleCallingContext const* mcc) {
+    bool OutputModuleCore::doEvent_(EventTransitionInfo const& info, ModuleCallingContext const* mcc) {
       {
         EventForOutput e(info, moduleDescription_, mcc);
         e.setConsumer(this);

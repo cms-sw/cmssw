@@ -112,15 +112,20 @@ namespace edmtest {
     explicit FailingInAcquireProducer(edm::ParameterSet const& /*p*/) { produces<IntProduct>(); }
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
-    void acquire(edm::StreamID, edm::Event const&, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder ) const override;
+    void acquire(edm::StreamID,
+                 edm::Event const&,
+                 edm::EventSetup const&,
+                 edm::WaitingTaskWithArenaHolder) const override;
   };
 
   void FailingInAcquireProducer::produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const {}
-  void FailingInAcquireProducer::acquire(edm::StreamID, edm::Event const&, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder ) const {
+  void FailingInAcquireProducer::acquire(edm::StreamID,
+                                         edm::Event const&,
+                                         edm::EventSetup const&,
+                                         edm::WaitingTaskWithArenaHolder) const {
     // We throw an edm exception with a configurable action.
     throw edm::Exception(edm::errors::NotFound) << "Intentional 'NotFound' exception for testing purposes\n";
   }
-
 
   //--------------------------------------------------------------------
   //

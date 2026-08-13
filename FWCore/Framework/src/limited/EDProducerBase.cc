@@ -51,8 +51,7 @@ namespace edm {
 
     EDProducerBase::~EDProducerBase() {}
 
-    bool EDProducerBase::doEvent(EventTransitionInfo const& info,
-                                 ModuleCallingContext const* mcc) {
+    bool EDProducerBase::doEvent(EventTransitionInfo const& info, ModuleCallingContext const* mcc) {
       Event e(info, moduleDescription_, mcc);
       e.setConsumer(this);
       const auto streamIndex = e.streamID().value();

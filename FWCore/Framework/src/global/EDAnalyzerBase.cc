@@ -46,8 +46,7 @@ namespace edm {
 
     EDAnalyzerBase::~EDAnalyzerBase() {}
 
-    bool EDAnalyzerBase::doEvent(EventTransitionInfo const& info,
-                                 ModuleCallingContext const* mcc) {
+    bool EDAnalyzerBase::doEvent(EventTransitionInfo const& info, ModuleCallingContext const* mcc) {
       Event e(info, moduleDescription_, mcc);
       e.setConsumer(this);
       ESParentContext parentC(mcc);
