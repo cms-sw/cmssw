@@ -438,16 +438,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         hitsRefProdVector, [](edm::RefProd<HitsOnDevice> hits) -> auto { return hits->const_view().trackingHits(); });
 
     std::vector<int> hitModulesSizes;
-
-    // We need to encounter for the last hidden module
-    for (size_t i = 0; i < hitsRefProdVector.size(); ++i) {
-      int s = static_cast<int>(hitsRefProdVector[i]->nModules());
-      if (i + 1 < hitsRefProdVector.size()) {
-        hitModulesSizes.push_back(s);
-      } else {
-        hitModulesSizes.push_back(s + 1);
-      }
+    for (const auto& hit : hitsRefProdVector) {
+      hitModulesSizes.push_back(static_cast<int>(hit->nModules()));
     }
+
+    // We need to encounter for the last hidden module, so we add 1 to the last element of hitModulesSizes
+    if (!hitModulesSizes.empty()) {
+      ++hitModulesSizes.back();
+    }
+
     ModulesMultiView hitModules(
         hitsRefProdVector,
         [](edm::RefProd<HitsOnDevice> hits) -> auto { return hits->const_view().hitModules(); },

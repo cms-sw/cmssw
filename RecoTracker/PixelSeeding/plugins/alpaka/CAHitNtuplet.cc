@@ -351,14 +351,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenField_;
-    std::optional<device::EDGetToken<HitsOnDevice>> pixelRecHitToken_;
-    std::optional<device::EDGetToken<HitsOnDevice>> trackerRecHitToken_;
+    const device::EDGetToken<HitsOnDevice> pixelRecHitToken_;
+    device::EDGetToken<HitsOnDevice> trackerRecHitToken_;
     const device::EDPutToken<TkSoADevice> tokenTrack_;
 
     const ::reco::FormulaEvaluator maxNumberOfDoublets_;
     const ::reco::FormulaEvaluator maxNumberOfTuples_;
 
     Algo deviceAlgo_;
+
+    bool usePhase2_ = false;
   };
 
   template <typename TrackerTraits>
@@ -366,16 +368,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                         const ::reco::CAGeometryParams* iCache)
       : EDProducer(iConfig),
         tokenField_(esConsumes()),
+        pixelRecHitToken_(consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
         tokenTrack_(produces()),
         maxNumberOfDoublets_(iConfig.getParameter<std::string>("maxNumberOfDoublets")),
         maxNumberOfTuples_(iConfig.getParameter<std::string>("maxNumberOfTuples")),
         deviceAlgo_(iConfig) {
-    if (iConfig.exists("pixelRecHitsSoA")) {
-      pixelRecHitToken_ = consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitsSoA"));
-    }
-
-    if (iConfig.exists("trackerRecHitsSoA")) {
-      trackerRecHitToken_ = consumes(iConfig.getParameter<edm::InputTag>("trackerRecHitsSoA"));
+    auto trackerRecHitsSoAInputTag = iConfig.getParameter<edm::InputTag>("trackerRecHitsSoA");
+    if (!trackerRecHitsSoAInputTag.label().empty()) {
+      trackerRecHitToken_ = consumes(trackerRecHitsSoAInputTag);
+      usePhase2_ = true;
     }
     iCache->tokenGeometry_ = esConsumes<edm::Transition::BeginRun>();
     iCache->tokenTopology_ = esConsumes<edm::Transition::BeginRun>();
@@ -385,8 +386,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void CAHitNtupletAlpaka<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
 
-    desc.add<edm::InputTag>("pixelRecHitsSoA", edm::InputTag("siPixelRecHitsPreSplittingAlpaka"));
-    desc.add<edm::InputTag>("trackerRecHitsSoA", edm::InputTag("phase2OTRecHitsSoAConverter"));
+    desc.add<edm::InputTag>("pixelRecHitSrc", edm::InputTag("siPixelRecHitsPreSplittingAlpaka"));
+    desc.add<edm::InputTag>("trackerRecHitsSoA", edm::InputTag(""));
 
     Algo::fillPSetDescription(desc);
     descriptions.addWithDefaultLabel(desc);
@@ -397,15 +398,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto bf = 1. / es.getData(tokenField_).inverseBzAtOriginInGeV();
 
     auto const& geometry = runCache()->get(iEvent.queue());
+    const auto& pixColl = iEvent.get(pixelRecHitToken_);
 
     HitsOnDeviceRefProdVector hitsCollections;
-    if (pixelRecHitToken_) {
-      const auto& pixColl = iEvent.get(*pixelRecHitToken_);
-      hitsCollections.push_back(edm::RefProd<HitsOnDevice>(&pixColl));
-    }
+    hitsCollections.push_back(edm::RefProd<HitsOnDevice>(&pixColl));
 
-    if (trackerRecHitToken_) {
-      const auto& trkColl = iEvent.get(*trackerRecHitToken_);
+    if (usePhase2_) {
+      const auto& trkColl = iEvent.get(trackerRecHitToken_);
       hitsCollections.push_back(edm::RefProd<HitsOnDevice>(&trkColl));
     }
 
