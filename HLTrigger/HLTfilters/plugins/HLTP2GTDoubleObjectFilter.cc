@@ -126,11 +126,20 @@ bool HLTP2GTDoubleObjectFilter::hltFilter(edm::Event& iEvent,
 
     const auto& objs = it->second.trigObjects();
 
-    for (const auto& r1 : objs) {
+    for (std::size_t i = 0; i < objs.size(); ++i) {
+      const auto& r1 = objs[i];
       if (!cfg.coll1.accepts(*r1))
         continue;
-      for (const auto& r2 : objs) {
-        if (r1 == r2)
+      for (std::size_t j = 0; j < objs.size(); ++j) {
+        if (j == i)
+          continue;  // always skip self
+        const auto& r2 = objs[j];
+        // When r1 and r2 come from the same underlying product they are
+        // interchangeable as coll1/coll2 candidates, so (i,j) and (j,i)
+        // would be duplicates.  Enforce i < j in that case only.
+        // For refs from different products both orderings are distinct
+        // (e.g. barrel jet + forward jet) and must both be tested.
+        if (r1.id() == r2.id() && j < i)
           continue;
         if (!cfg.coll2.accepts(*r2))
           continue;
