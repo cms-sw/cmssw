@@ -187,6 +187,13 @@ globalTransitions_ = {
 def transitionIsGlobal(transition):
     return transition in globalTransitions_;
 
+def transitionUseCallID(transition):
+    return transition in [Phase.beginProcessBlock, Phase.endProcessBlock, Phase.accessInputProcessBlock,
+                               Phase.globalBeginRun, Phase.globalEndRun, Phase.globalBeginLumi,
+                               Phase.globalEndLumi, Phase.streamBeginRun, Phase.streamEndRun,
+                               Phase.streamBeginLumi, Phase.streamEndLumi, Phase.Event]
+
+     
 def textPrefix_(time, indentLevel):
     #using 11 spaces for time should accomodate a job that runs 24 hrs
     return f'{time:>11} '+"++"*indentLevel
@@ -290,10 +297,22 @@ class ModuleData(object):
         self.allocInfo = allocInfo
         self.record = (recordName, callID)
     def __repr__(self):
-        if self.record[0]:
-            return "{{ 'timeRange': {}, 'transition': {}, 'sync' :{}, 'activity':{}, 'record': {{'name' : {}, 'callID' :{} }}, 'alloc':{} }}".format(self.timeRange, self.transition, self.sync, self.activity, self.record[0], self.record[1], self.allocInfo)
+        recordName, callID = self.record
+        data = {
+            'timeRange': self.timeRange,
+            'transition': self.transition,
+            'sync': self.sync,
+            'activity': self.activity,
+            'alloc': self.allocInfo
+            }
+        if callID is not None:
+            data['record'] = {}
+            if transitionUseCallID(self.transition):
+                data['record']['callID'] = callID
+            if recordName is not None:
+                data['record']['name'] = recordName
+        return data
 
-        return "{{ 'timeRange': {}, 'transition': {}, 'sync' :{}, 'activity':{}, 'alloc':{} }}".format(self.timeRange, self.transition, self.sync, self.activity, self.allocInfo)
     def syncToSimpleDict(self):
         if len(self.sync) == 0:
             return self.sync
@@ -303,10 +322,23 @@ class ModuleData(object):
             return {'run' : self.sync[0], 'lumi' : self.sync[1] }
         return {'run' : self.sync[0], 'lumi' : self.sync[1], 'event' : self.sync[2] }
     def toSimpleDict(self) :
-        if self.record[0]:
-            return {'timeRange': self.timeRange, 'transition': transitionName(self.transition), 'sync' : self.syncToSimpleDict(), 'activity' : activityName(self.activity), 'record' :{'name': self.record[0], 'callID' : self.record[1]}, 'alloc' : self.allocInfo.toSimpleDict() }
-        return {'timeRange': self.timeRange, 'transition': transitionName(self.transition), 'sync' : self.syncToSimpleDict(), 'activity': activityName(self.activity), 'alloc' : self.allocInfo.toSimpleDict() }
-        
+        recordName, callID = self.record
+        result = {
+            'timeRange': self.timeRange,
+            'transition': transitionName(self.transition),
+            'sync': self.syncToSimpleDict(),
+            'activity': activityName(self.activity),
+            'alloc': self.allocInfo.toSimpleDict()
+            }
+
+        if callID is not None:
+            result['record'] = {}
+            if transitionUseCallID(self.transition) :
+                result['record']['callID'] = callID
+            if recordName is not None:
+                result['record']['name'] = recordName
+        return result
+
 class ModuleInfo(object):
     def __init__(self, name, cpptype):
         self._name = name
@@ -736,7 +768,7 @@ class EDModuleTransitionParser(object):
         except KeyError as e:
             print(" time ", self.time, e)
             raise
-        data.insert( self.moduleInfo._name, self.moduleInfo._cpptype, start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , activity, self.allocInfo)
+        data.insert( self.moduleInfo._name, self.moduleInfo._cpptype, start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , activity, self.allocInfo, None, self.callID)
 
                 
 class PreEDModuleTransitionParser(EDModuleTransitionParser):
@@ -847,7 +879,7 @@ class ESModuleTransitionParser(object):
         self.moduleInfo = esModuleInfos[self.moduleID]
         self.recordID = int(payload[3])
         if not self.recordID:
-            self.recordName = ''
+            self.recordName = None
         else:
             self.recordName = recordNames[self.recordID]
         self.callID = int(payload[4])
