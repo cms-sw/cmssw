@@ -1,10 +1,10 @@
 // -*- C++ -*-
 //
 // Package:    HGCalGeometry
-// Class:      HGCalNeighbourTester
+// Class:      HGCalNeighbourVerify
 //
-/**\class HGCalNeighbourTester HGCalNeighbourTester.cc
- test/HGCalNeighbourTester.cc
+/**\class HGCalNeighbourVerify HGCalNeighbourVerify.cc
+ test/HGCalNeighbourVerify.cc
 
  Description: <one line class summary>
 
@@ -18,8 +18,6 @@
 //
 
 // system include files
-#include <fstream>
-#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -31,7 +29,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/transform.h"
@@ -44,10 +41,10 @@
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-class HGCalNeighbourTester : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+class HGCalNeighbourVerify : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
-  explicit HGCalNeighbourTester(const edm::ParameterSet &);
-  ~HGCalNeighbourTester() override = default;
+  explicit HGCalNeighbourVerify(const edm::ParameterSet &);
+  ~HGCalNeighbourVerify() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   void beginJob() override {}
@@ -58,100 +55,76 @@ public:
 
 private:
   const std::string nameDetector_;
-  const std::string fileName_;
-  const int nskip_;
+  uint32_t idUV_;
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tok_hgcal_;
   const DetId::Detector dets_;
-  std::vector<DetId> detIds_;
 };
 
-HGCalNeighbourTester::HGCalNeighbourTester(const edm::ParameterSet &iC)
+HGCalNeighbourVerify::HGCalNeighbourVerify(const edm::ParameterSet &iC)
     : nameDetector_(iC.getParameter<std::string>("nameDetector")),
-      fileName_(iC.getParameter<std::string>("fileName")),
-      nskip_(iC.getParameter<int>("nSkip")),
+      idUV_(0),
       tok_hgcal_{esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag{"", nameDetector_})},
       dets_((nameDetector_ == "HGCalEESensitive") ? DetId::HGCalEE : DetId::HGCalHSi) {
-  edm::LogVerbatim("HGCalGeom") << "Test neighbours of cells for " << nameDetector_ << " with inputs from "
-                                << fileName_;
+  int32_t waferU = iC.getParameter<int>("waferU");
+  int32_t waferV = iC.getParameter<int>("waferV");
+  int32_t cellU = iC.getParameter<int>("cellU");
+  int32_t cellV = iC.getParameter<int>("cellV");
+  int32_t waferUabs(std::abs(waferU)), waferVabs(std::abs(waferV));
+  int32_t waferUsign = (waferU >= 0) ? 0 : 1;
+  int32_t waferVsign = (waferV >= 0) ? 0 : 1;
+  idUV_ |= (((cellU & HGCSiliconDetId::kHGCalCellUMask) << HGCSiliconDetId::kHGCalCellUOffset) |
+            ((cellV & HGCSiliconDetId::kHGCalCellVMask) << HGCSiliconDetId::kHGCalCellVOffset) |
+            ((waferUabs & HGCSiliconDetId::kHGCalWaferUMask) << HGCSiliconDetId::kHGCalWaferUOffset) |
+            ((waferUsign & HGCSiliconDetId::kHGCalWaferUSignMask) << HGCSiliconDetId::kHGCalWaferUSignOffset) |
+            ((waferVabs & HGCSiliconDetId::kHGCalWaferVMask) << HGCSiliconDetId::kHGCalWaferVOffset) |
+            ((waferVsign & HGCSiliconDetId::kHGCalWaferVSignMask) << HGCSiliconDetId::kHGCalWaferVSignOffset));
 
-  if (!fileName_.empty()) {
-    edm::FileInPath filetmp("Geometry/CaloTopology/data/" + fileName_);
-    std::string fileName = filetmp.fullPath();
-    std::ifstream fInput(fileName.c_str());
-    if (!fInput.good()) {
-      edm::LogVerbatim("HGCalGeom") << "Cannot open file " << fileName;
-    } else {
-      char buffer[80];
-      while (fInput.getline(buffer, 80)) {
-        std::vector<std::string> items = HGCalGeomUtils::splitString(std::string(buffer));
-        if (items.size() == 5) {
-          int layer = std::atoi(items[0].c_str());
-          int waferU = std::atoi(items[1].c_str());
-          int waferV = std::atoi(items[2].c_str());
-          int cellU = std::atoi(items[3].c_str());
-          int cellV = std::atoi(items[4].c_str());
-          DetId id1 = HGCSiliconDetId(dets_, 1, 0, layer, waferU, waferV, cellU, cellV);
-          detIds_.emplace_back(id1);
-          DetId id2 = HGCSiliconDetId(dets_, -1, 0, layer, waferU, waferV, cellU, cellV);
-          detIds_.emplace_back(id2);
-        }
-      }
-      fInput.close();
-    }
-  }
-
-  if (detIds_.empty()) {
-    edm::LogVerbatim("HGCalGeom") << "It will test all valid ids for " << dets_ << " skipping " << nskip_ << " entries";
-  } else {
-    edm::LogVerbatim("HGCalGeom") << "It will test for " << detIds_.size() << " cells from  " << fileName_;
-  }
+  edm::LogVerbatim("HGCalGeom") << "Test neighbours of cell (" << cellU << ", " << cellV << ") in wafer (" << waferU
+                                << ", " << waferV << " for " << nameDetector_ << " given by " << std::hex << idUV_
+                                << std::dec;
 }
 
-void HGCalNeighbourTester::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void HGCalNeighbourVerify::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("nameDetector", "HGCalHESiliconSensitive");
-  desc.add<std::string>("fileName", "D120NE.txt");
-  desc.add<int>("nSkip", 1000);
-  descriptions.add("hgcalNeighbourTester", desc);
+  desc.add<int>("waferU", 2);
+  desc.add<int>("waferV", 0);
+  desc.add<int>("cellU", 10);
+  desc.add<int>("cellV", 0);
+  descriptions.add("hgcalNeighbourVerify", desc);
 }
 
 // ------------ method called to produce the data  ------------
-void HGCalNeighbourTester::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup) {
+void HGCalNeighbourVerify::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup) {
   //initiating hgc Geometry
   edm::LogVerbatim("HGCalGeom") << "Tries to initialize HGCalGeometry and HGCalDDDConstants for " << nameDetector_;
   const edm::ESHandle<HGCalGeometry> &hgcGeom = iSetup.getHandle(tok_hgcal_);
   if (hgcGeom.isValid()) {
     const HGCalGeometry *geom = hgcGeom.product();
     edm::LogVerbatim("HGCalGeom") << "Loaded HGCalDDConstants for " << nameDetector_;
+    std::vector<DetId> detIdx = geom->getValidDetIds(dets_);
+    edm::LogVerbatim("HGCalGeom") << "Gets " << detIdx.size() << " valid ID's for detector " << dets_;
     std::vector<DetId> detIds;
-    uint32_t nskip(nskip_);
-    if (detIds_.empty()) {
-      detIds = geom->getValidDetIds(dets_);
-    } else {
-      static constexpr uint32_t mask = 0xFFFFFF;
-      std::vector<DetId> allIds = geom->getValidDetIds(dets_);
-      for (auto const &id : detIds_) {
-        for (auto const &idz : allIds) {
-          if ((id & mask) == (idz & mask)) {
-            detIds.emplace_back(idz);
-            break;
-          }
-        }
-      }
-      nskip = 1;
+    static constexpr uint32_t mask1 = 0xFFFFF;
+    for (unsigned int k = 0; k < detIdx.size(); ++k) {
+      if (((detIdx[k].rawId()) & mask1) == idUV_)
+        detIds.emplace_back(detIdx[k]);
     }
     edm::LogVerbatim("HGCalGeom") << "Gets " << detIds.size() << " valid ID's for detector " << dets_;
+    for (unsigned int k = 0; k < detIds.size(); ++k)
+      edm::LogVerbatim("HGCalGeom") << " [" << k << "] " << HGCSiliconDetId(detIds[k]);
     std::unique_ptr<HGCalNeighbourFinder> finder =
         std::make_unique<HGCalNeighbourFinder>(geom->topology().dddConstants());
-    for (unsigned int k = 0; k < detIds.size(); k += nskip) {
+    for (unsigned int k = 0; k < detIds.size(); ++k) {
       HGCSiliconDetId id(detIds[k]);
       std::vector<uint32_t> ids = finder->nearestNeighboursOfDetId(id.rawId());
       unsigned int nn(0);
       for (auto const &idZ : ids)
         if (idZ != 0)
           ++nn;
-      edm::LogVerbatim("HGCalGeom") << "[" << k << "] Layer " << id.layer() << " Wafer " << id.waferU() << ":"
+      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << id.det() << " Type " << id.type() << " z "
+                                    << id.zside() << " Layer " << id.layer() << " Wafer " << id.waferU() << ":"
                                     << id.waferV() << " Cell " << id.cellU() << ":" << id.cellV() << " has " << nn
                                     << " neighbours:";
       unsigned int k1(0);
@@ -170,4 +143,4 @@ void HGCalNeighbourTester::beginRun(edm::Run const &iRun, edm::EventSetup const 
 }
 
 // define this as a plug-in
-DEFINE_FWK_MODULE(HGCalNeighbourTester);
+DEFINE_FWK_MODULE(HGCalNeighbourVerify);
