@@ -104,12 +104,10 @@ namespace edm {
   }
 
   template <typename T>
-  void OutputModuleCommunicatorT<T>::writeRunAsync(
-      WaitingTaskHolder iTask,
-      edm::RunPrincipal const& rp,
-      ProcessContext const* processContext,
-      ActivityRegistry* activityRegistry,
-      MergeableRunProductMetadata const* mergeableRunProductMetadata) noexcept {
+  void OutputModuleCommunicatorT<T>::writeRunAsync(WaitingTaskHolder iTask,
+                                                   edm::RunPrincipal const& rp,
+                                                   ProcessContext const* processContext,
+                                                   ActivityRegistry* activityRegistry) noexcept {
     auto token = ServiceRegistry::instance().presentToken();
     GlobalContext globalContext(GlobalContext::Transition::kWriteRun,
                                 LuminosityBlockID(rp.run(), 0),
@@ -117,14 +115,7 @@ namespace edm {
                                 LuminosityBlockIndex::invalidLuminosityBlockIndex(),
                                 rp.endTime(),
                                 processContext);
-    auto t = [&mod = module(),
-              &rp,
-              globalContext,
-              token,
-              desc = &description(),
-              activityRegistry,
-              mergeableRunProductMetadata,
-              iTask]() mutable {
+    auto t = [&mod = module(), &rp, globalContext, token, desc = &description(), activityRegistry, iTask]() mutable {
       std::exception_ptr ex;
       // Caught exception is propagated via WaitingTaskHolder
       CMS_SA_ALLOW try {
@@ -136,7 +127,7 @@ namespace edm {
           activityRegistry->postModuleWriteRunSignal_.emit(globalContext, mcc);
         });
         activityRegistry->preModuleWriteRunSignal_.emit(globalContext, mcc);
-        mod.doWriteRun(rp, &mcc, mergeableRunProductMetadata);
+        mod.doWriteRun(rp, &mcc);
         sentry.succeeded();
       } catch (...) {
         ex = std::current_exception();

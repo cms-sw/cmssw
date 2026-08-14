@@ -51,7 +51,6 @@ namespace edm {
   class ExceptionCollector;
   class ExceptionToActionTable;
   class BranchIDListHelper;
-  class MergeableRunProductMetadata;
   class EDLooperBase;
   class HistoryAppender;
   class ProcessDesc;
@@ -231,7 +230,7 @@ namespace edm {
     void endUnfinishedLumi(bool cleaningUpAfterException);
     using ProcessBlockType = PrincipalCache::ProcessBlockType;
     void writeProcessBlockAsync(WaitingTaskHolder, ProcessBlockType);
-    void writeRunAsync(WaitingTaskHolder, RunPrincipal const&, MergeableRunProductMetadata const*);
+    void writeRunAsync(WaitingTaskHolder, RunPrincipal const&);
     void clearRunPrincipal(RunProcessingStatus&);
     void writeLumiAsync(WaitingTaskHolder, LuminosityBlockPrincipal&);
     void clearLumiPrincipal(LuminosityBlockProcessingStatus&);

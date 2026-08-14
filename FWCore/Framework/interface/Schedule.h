@@ -108,7 +108,6 @@ namespace edm {
   class BranchIDListHelper;
   class EventTransitionInfo;
   class ExceptionCollector;
-  class MergeableRunProductMetadata;
   class OutputModuleCommunicator;
   class SignallingProductRegistryFiller;
   class PreallocationConfiguration;
@@ -184,11 +183,7 @@ namespace edm {
                         ActivityRegistry*);
 
     // Write the run
-    void writeRunAsync(WaitingTaskHolder iTask,
-                       RunPrincipal const& rp,
-                       ProcessContext const*,
-                       ActivityRegistry*,
-                       MergeableRunProductMetadata const*);
+    void writeRunAsync(WaitingTaskHolder iTask, RunPrincipal const& rp, ProcessContext const*, ActivityRegistry*);
 
     void writeProcessBlockAsync(WaitingTaskHolder iTask,
                                 ProcessBlockPrincipal const&,
