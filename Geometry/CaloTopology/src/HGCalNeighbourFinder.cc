@@ -162,7 +162,10 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
   int edgeIndex = edgeIndexForU(iu, iv, HD);
   bool partialWafer = hgc_.waferPartial(layer, waferU, waferV);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalNeighbourFinder:nearestNeighbour:input Layer:waferU:waderV:cellU:cellV|HD|edge|partial|placement " << layer << "|" << waferU << ":" << waferV << "|" << iu << "|" << iv << "|" << HD << "|" << edgeIndex << "|" << partialWafer << "|" << hgc_.placementIndex(id);
+  edm::LogVerbatim("HGCalGeom")
+      << "HGCalNeighbourFinder:nearestNeighbour:input Layer:waferU:waderV:cellU:cellV|HD|edge|partial|placement "
+      << layer << "|" << waferU << ":" << waferV << "|" << iu << "|" << iv << "|" << HD << "|" << edgeIndex << "|"
+      << partialWafer << "|" << hgc_.placementIndex(id);
 #endif
 
   if (edgeIndex < 0) {  // Cell is not on the edge of a wafer (~80% of cells)
@@ -188,17 +191,18 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
       detIdVec[5] = (((detId) & (~(iuMask | ivMask))) | (iu - 1) | ((iv) << ivShift));
       nn = 6;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "HGCalNeighbourFinder:FullWafer:nn  6 Masjs " << std::hex << iuMask << ":" << ivMask << " Shifts " << ivShift << std::dec;
+      edm::LogVerbatim("HGCalGeom") << "HGCalNeighbourFinder:FullWafer:nn  6 Masjs " << std::hex << iuMask << ":"
+                                    << ivMask << " Shifts " << ivShift << std::dec;
 #endif
     }
 #ifdef EDM_ML_DEBUG
     HGCSiliconDetId idx(detId);
-    edm::LogVerbatim("HGCalGeom") << "Core: Layer " << idx.layer() << " Wafer " << idx.waferU() << ":"
-				    << idx.waferV() << " Cell " << idx.cellU() << ":" << idx.cellV();
+    edm::LogVerbatim("HGCalGeom") << "Core: Layer " << idx.layer() << " Wafer " << idx.waferU() << ":" << idx.waferV()
+                                  << " Cell " << idx.cellU() << ":" << idx.cellV();
     for (int k = 0; k < nn; ++k) {
       HGCSiliconDetId idx(detIdVec[k]);
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] Layer " << idx.layer() << " Wafer " << idx.waferU() << ":"
-				    << idx.waferV() << " Cell " << idx.cellU() << ":" << idx.cellV();
+                                    << idx.waferV() << " Cell " << idx.cellU() << ":" << idx.cellV();
     }
 #endif
   } else {  // Cell is on the edge
