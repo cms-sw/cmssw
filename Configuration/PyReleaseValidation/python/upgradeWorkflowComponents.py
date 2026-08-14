@@ -102,10 +102,10 @@ upgradeKeys['Run4'] = [
     'Run4D126PU',
     'Run4D127',
     'Run4D127PU',
-    'Run4D128',
-    'Run4D128PU',
     'Run4D121GenOnly',
     'Run4D121SimOnGen',
+    'Run4D128',
+    'Run4D128PU',
 ]
 
 # pre-generation of WF numbers
