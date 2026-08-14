@@ -1,11 +1,11 @@
 ###############################################################################
 # Way to use this:
 #   cmsRun testHGCalNeighbour_cfg.py geometry=D120 detector=HGCalEESensitive
-#                                    nSkip=100
+#                                    fName=D120NE.txt
 #
 #   Options for geometry D120, D122
 #           for detector HGCalEESensitive, HGCalHESiliconSensitive
-#           for nSkip 1, 10, 100, 1000, 10000
+#           for fName D120NE.txt, D120NH.txt
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -25,11 +25,11 @@ options.register('detector',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: HGCalEESensitive, HGCalHESiliconSensitive")
-options.register('nSkip',
-                 10000,
+options.register('fName',
+                 "D120NE.txt",
                  VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.float,
-                 "Test every N IDs: 1, 10, 100, 1000, 10000")
+                 VarParsing.VarParsing.varType.string,
+                 "Use input file: D120NE.txt, D120NH.txt")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -42,12 +42,12 @@ print(options)
 geomName = "Run4" + options.geometry
 geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 detector = options.detector
-nskip    = int(options.nSkip)
+fName   = options.fName
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
 print("Geometry file: ", geomFile)
 print("Detector:      ", detector)
-print("Skip:          ", nskip)
+print("fName:         ", fName)
 
 process = cms.Process('HGCNeighbour',ERA)
 
@@ -91,7 +91,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.hgcalNeighbourTester.nameDetector = detector
-process.hgcalNeighbourTester.fileName     = ""
-process.hgcalNeighbourTester.nSkip        = nskip
+process.hgcalNeighbourTester.fileName     = fName
+process.hgcalNeighbourTester.nSkip        = 1
 
 process.p1 = cms.Path(process.generator*process.hgcalNeighbourTester)
