@@ -4,16 +4,41 @@
 // Package:     Services
 // Class  :     JobReport
 //
+/**\class JobReportService JobReportService.h FWCore/Services/src/JobReportService.h
+
+Description: A service that collections job handling information.
+
+Usage:
+The JobReport service collects 'job handling' information (currently
+file handling) from several sources, collates the information, and
+at appropriate intervales, reports the information to the job report,
+through the MessageLogger.
+
+*/
+
 //
 // Original Author:  Marc Paterno
 //
 
-#include "FWCore/Services/src/JobReportService.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 namespace edm {
   namespace service {
+    class JobReportService : public JobReport {
+    public:
+      JobReportService(ParameterSet const& ps, ActivityRegistry& reg);
+      ~JobReportService();
+
+      void postEndJob();
+
+      void frameworkShutdownOnFailure();
+
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    };
 
     JobReportService::~JobReportService() {}
 
@@ -44,3 +69,9 @@ namespace edm {
     }
   }  // namespace service
 }  // namespace edm
+
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+using edm::service::JobReportService;
+
+typedef edm::serviceregistry::AllArgsMaker<edm::JobReport, JobReportService> JobReportMaker;
+DEFINE_FWK_SERVICE_MAKER(JobReportService, JobReportMaker);
