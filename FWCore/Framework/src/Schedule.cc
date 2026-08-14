@@ -789,8 +789,7 @@ namespace edm {
   void Schedule::writeRunAsync(WaitingTaskHolder task,
                                RunPrincipal const& rp,
                                ProcessContext const* processContext,
-                               ActivityRegistry* activityRegistry,
-                               MergeableRunProductMetadata const* mergeableRunProductMetadata) {
+                               ActivityRegistry* activityRegistry) {
     auto token = ServiceRegistry::instance().presentToken();
     GlobalContext globalContext(GlobalContext::Transition::kWriteRun,
                                 LuminosityBlockID(rp.run(), 0),
@@ -808,7 +807,7 @@ namespace edm {
       CMS_SA_ALLOW try { activityRegistry->preGlobalWriteRunSignal_.emit(globalContext); } catch (...) {
       }
       for (auto& c : all_output_communicators_) {
-        c->writeRunAsync(nextTask, rp, processContext, activityRegistry, mergeableRunProductMetadata);
+        c->writeRunAsync(nextTask, rp, processContext, activityRegistry);
       }
     }) | chain::then(doCleanup([activityRegistry, globalContext, token]() {
       //services can depend on other services

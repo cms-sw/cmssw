@@ -224,7 +224,7 @@ namespace {
             doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
             oneapi::tbb::task_group group;
             edm::FinalWaitingTask task{group};
-            iComm->writeRunAsync(edm::WaitingTaskHolder(group, &task), *m_rp, nullptr, &activityRegistry, nullptr);
+            iComm->writeRunAsync(edm::WaitingTaskHolder(group, &task), *m_rp, nullptr, &activityRegistry);
             task.wait();
           };
 

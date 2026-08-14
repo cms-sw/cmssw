@@ -1484,7 +1484,7 @@ namespace edm {
         ifThen(didGlobalBeginSucceed && endingEventSetupSucceeded,
                [this, mergeableRunProductMetadata, &runPrincipal = runPrincipal](auto nextTask) {
                  mergeableRunProductMetadata->preWriteRun();
-                 writeRunAsync(nextTask, runPrincipal, mergeableRunProductMetadata);
+                 writeRunAsync(nextTask, runPrincipal);
                }) |
         then([status = std::move(iRunStatus),
               this,
@@ -1922,13 +1922,11 @@ namespace edm {
         task, principalCache_.processBlockPrincipal(processBlockType), &processContext_, actReg_.get());
   }
 
-  void EventProcessor::writeRunAsync(WaitingTaskHolder task,
-                                     RunPrincipal const& runPrincipal,
-                                     MergeableRunProductMetadata const* mergeableRunProductMetadata) {
+  void EventProcessor::writeRunAsync(WaitingTaskHolder task, RunPrincipal const& runPrincipal) {
     if (runPrincipal.shouldWriteRun() != RunPrincipal::kNo) {
       ServiceRegistry::Operate op(serviceToken_);
       // Don't move task because the lifetime of the task should be greater than the lifetime of the Operate object
-      schedule_->writeRunAsync(task, runPrincipal, &processContext_, actReg_.get(), mergeableRunProductMetadata);
+      schedule_->writeRunAsync(task, runPrincipal, &processContext_, actReg_.get());
     }
   }
 
