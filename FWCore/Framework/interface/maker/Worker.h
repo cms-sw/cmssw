@@ -126,6 +126,7 @@ namespace edm {
     virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
     virtual bool wantsStreamRuns() const noexcept = 0;
     virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
+    virtual bool wantsWrites() const noexcept = 0;
 
     //returns non-nullptr if the module can only process one Run at a time
     virtual SerialTaskQueue* globalRunsQueue() = 0;
