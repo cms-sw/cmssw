@@ -22,6 +22,33 @@ function compareProv {
     diff ${LOCAL_TEST_DIR}/unit_test_outputs/$LOG $LOG  || die "comparing $LOG" $?
 }
 
+# Some outputs may legitimately match one of several reference files, e.g.
+# because a FileInPath target resolves differently (and, in turn, some PSet
+# ids that are hashed from it differ) depending on whether the source package
+# providing the file is checked out in the local developer area or only
+# available from the release area. compareProvAny accepts a list of candidate
+# reference file names and passes if the actual output matches any of them.
+function compareProvAny {
+    OPTIONS=$1
+    FILE=$2
+    LOG=$3
+    shift 3
+    REFS=("$@")
+
+    edmProvDump $OPTIONS $FILE | grep -v -E "$CHANGINGPARTS" > $LOG || die "edmProvDump $OPTIONS $FILE" $?
+
+    for REF in "${REFS[@]}"; do
+        if diff ${LOCAL_TEST_DIR}/unit_test_outputs/$REF $LOG > /dev/null 2>&1; then
+            return 0
+        fi
+    done
+
+    echo "Output $LOG did not match any of: ${REFS[*]}"
+    echo "--- Diff against first candidate (${REFS[0]}) for inspection ---"
+    diff ${LOCAL_TEST_DIR}/unit_test_outputs/${REFS[0]} $LOG
+    die "comparing $LOG" 1
+}
+
 ## Simple case
 run testEdmProvDump_cfg.py > testEdmProvDump.log
 compareProv "" testEdmProvDump.root provdump_simple_default.log
@@ -64,6 +91,7 @@ compareProv "--showAllModules --showTopLevelPSets" merged_final.root provdump_co
 
 ## One module with all parameters
 run testEdmProvDumpPSet_cfg.py
-compareProv "" testEdmProvDumpPSet.root provdump_pset.log
+compareProvAny "" testEdmProvDumpPSet.root provdump_pset.log \
+    provdump_pset_fiplocal.log provdump_pset_fiprelease.log
 
 exit 0
