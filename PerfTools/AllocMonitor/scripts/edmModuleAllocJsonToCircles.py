@@ -2,13 +2,14 @@
 import json
 import sys
 from collections import namedtuple
+import collections
 
 # Constants
 BYTES_TO_KB = 1024
 EVENTSETUP_TRANSITION = "event setup"
 
 # Named tuple for unique module identification
-UniqueKey = namedtuple('UniqueKey', ['moduleLabel', 'moduleType', 'recordName'])
+UniqueKey = namedtuple('UniqueKey', ['moduleLabel', 'moduleType', 'recordName', 'callID'])
 
 transitionTypes = [
     "construction",
@@ -50,13 +51,13 @@ def processModuleTransition(moduleLabel, moduleType, moduleInfo, transitionType,
     Any missing field defaults to 0.
 
     Note: Entries with record names are excluded as they belong to EventSetup transition only.
-    
-    For the "source" module and "event" transition, sum all alloc records with the same 
+
+    For the "source" module and "event" transition, sum all alloc records with the same
     run, lumi, and event number.
     """
-    moduleKey = UniqueKey(moduleLabel, moduleType, "")
+    moduleKey = UniqueKey(moduleLabel, moduleType, "", None)
     moduleTransition[moduleKey] = {"cpptype": moduleType, "allocs": []}
-    
+
     # Special handling for "source" module with "event" transition
     if moduleLabel == "source" and transitionType == "event":
         # Group entries by (run, lumi, event)
@@ -69,7 +70,7 @@ def processModuleTransition(moduleLabel, moduleType, moduleInfo, transitionType,
                 if key not in event_groups:
                     event_groups[key] = []
                 event_groups[key].append(entry.get("alloc", {}))
-        
+
         # Sum allocations for each event group
         for event_key, allocs in event_groups.items():
             summed_alloc = {
@@ -89,7 +90,7 @@ def processModuleTransition(moduleLabel, moduleType, moduleInfo, transitionType,
                 not ("record" in entry and "name" in entry["record"]) and
                 entry.get("activity") == "process"):
                 moduleTransition[moduleKey]["allocs"].append(entry.get("alloc", {}))
-    
+
     moduleTransition[moduleKey]["nTransitions"] = len(moduleTransition[moduleKey]["allocs"])
 
 def processESModuleTransition(moduleLabel, moduleType, moduleInfo, moduleTransition):
@@ -98,26 +99,74 @@ def processESModuleTransition(moduleLabel, moduleType, moduleInfo, moduleTransit
     Creates unique entries for each module+type+record combination.
     """
     # Group allocations by record name
-    recordAllocations = {}
+    recordAllocations = collections.defaultdict(lambda: collections.defaultdict(list))
     for entry in moduleInfo:
         # EventSetup entries are those with a "record" field containing "name"
         if "record" in entry and "name" in entry["record"]:
+            # Get the callID from the record, defaulting to -1 if not present
+            callid = entry["record"].get("callID", -1)
             recordName = entry["record"]["name"]
-            if recordName not in recordAllocations:
-                recordAllocations[recordName] = []
-            recordAllocations[recordName].append(entry.get("alloc", {}))
+            recordAllocations[recordName][callid].append(entry.get("alloc", {}))
 
     # Create separate entries for each record
-    for recordName, allocs in recordAllocations.items():
+    for recordName, callID_allocs in recordAllocations.items():
+        for callID, allocs in callID_allocs.items():
         # Create unique key: module + type + record
-        uniqueKey = UniqueKey(moduleLabel, moduleType, recordName)
-        moduleTransition[uniqueKey] = {
-            "cpptype": moduleType,
-            "allocs": allocs,
-            "nTransitions": len(allocs),
-            "moduleLabel": moduleLabel,
-            "recordName": recordName
+            uniqueKey = UniqueKey(moduleLabel, moduleType, recordName, callID)
+            moduleTransition[uniqueKey] = {
+                "cpptype": moduleType,
+                "allocs": allocs,
+                "nTransitions": len(allocs),
+                "moduleLabel": moduleLabel,
+                "moduleType": moduleType,
+                "recordName": recordName,
+                "callID": callID
         }
+
+def isEventActivity(entry, activityTypes):
+    if isinstance(activityTypes, str):
+        activityTypes = [activityTypes]
+    return (
+        entry.get("transition") == "event"
+        and "record" in entry
+        and "name" not in entry["record"]
+        and "callID" in entry["record"]
+        and entry.get("activity") in activityTypes
+    )
+
+
+def processExternalWorkTransition(moduleLabel, moduleType, moduleInfo, moduleTransition):
+    """Process ExternalWork and Transformer transitions - entries with acquire/process activity
+
+    Creates separate entries for each module+type+activity combination within the event transition.
+    The recordName is set to 'callID:acquire' or 'callID:process' based on the activity.
+    """
+    # Group allocations by activity and callID
+    activityAllocations = collections.defaultdict(lambda : collections.defaultdict(list))
+    for entry in moduleInfo:
+        activity = entry.get("activity")
+        if isEventActivity(entry, ["acquire", "process"]):
+            callID = entry["record"]["callID"]
+            activityAllocations[activity][callID].append(entry.get("alloc", {}))
+
+    # Create separate entries for each activity
+    for activity, callID_allocs in activityAllocations.items():
+        for callID, allocs in callID_allocs.items():
+            if len(callID_allocs) == 1:
+                # If there's only one callID for this activity, use the activity as the record name
+                recordName = activity
+            else:
+                # Create a unique record name based on the callID and activity
+                recordName = f"callID {callID}:{activity}"
+            uniqueKey = UniqueKey(moduleLabel, moduleType, recordName, callID)
+            moduleTransition[uniqueKey] = {
+                "cpptype": moduleType,
+                "allocs": allocs,
+                "nTransitions": len(allocs),
+                "moduleLabel": moduleLabel,
+                "recordName": recordName,
+                "callID": callID
+                }
 
 def formatToCircles(moduleTransitions):
     modules_dict = {}
@@ -182,7 +231,8 @@ def formatToCircles(moduleTransitions):
             modules_dict[displayKey] = {
                 "label": displayKey.moduleLabel,
                 "type": displayKey.moduleType,
-                "record": displayKey.recordName
+                "record": displayKey.recordName,
+                "callID": displayKey.callID
             }
 
             # Initialize all transition metrics to zero
@@ -224,7 +274,7 @@ def formatToCircles(moduleTransitions):
                 doc["total"][f"max1Alloc {transitionType}"] += modules_dict[uniqueKey][f"max1Alloc {transitionType}"]
     for key in sorted(modules_dict.keys()):
         module = modules_dict[key]
- 
+
         # Check if this is an empty entry (record="" and all allocations are zero)
         if module["record"] == "":
             # Check if all allocation metrics are zero across all transition types
@@ -244,8 +294,10 @@ def formatToCircles(moduleTransitions):
         # Use the module label from the UniqueKey namedtuple for event count lookup
         moduleLabel = key.moduleLabel
         # Look for the corresponding regular module key for event transitions
-        eventKey = UniqueKey(moduleLabel, key.moduleType, "")
+        # Use the fields from the UniqueKey namedtuple
+        eventKey = UniqueKey(moduleLabel, key.moduleType, key.recordName, key.callID)
         eventCount = moduleTransitions['event'].get(eventKey, {}).get("nTransitions", -1)
+
         # Set events to 1 if it's 0 to prevent NaNs in Circles visualization
         module["transitions"] = max(eventCount, 1)
         doc["modules"].append(module)
@@ -272,6 +324,7 @@ def main(args):
 
     moduleTypes = doc['cpptypes']
     moduleTransitions = dict()
+
     for transition in transitionTypes:
         moduleTransition = dict()
         if transition == EVENTSETUP_TRANSITION:
@@ -283,8 +336,18 @@ def main(args):
             processModuleTransition("source", moduleTypes["source"], doc["source"], transition, moduleTransition)
             # Regular transition processing
             for moduleLabel, moduleInfo in doc["modules"].items():
-                processModuleTransition(moduleLabel, moduleTypes[moduleLabel], moduleInfo, transition, moduleTransition)
+                eventCallIDs = {
+                    entry["record"]["callID"]
+                    for entry in moduleInfo
+                    if isEventActivity(entry, "process")
+                }
+                hasAcquire = any(isEventActivity(entry, "acquire") for entry in moduleInfo)
+                if transition == "event" and (hasAcquire or len(eventCallIDs) > 1):
+                    processExternalWorkTransition(moduleLabel, moduleTypes[moduleLabel], moduleInfo, moduleTransition)
+                else:
+                    processModuleTransition(moduleLabel, moduleTypes[moduleLabel], moduleInfo, transition, moduleTransition)
         moduleTransitions[transition] = moduleTransition
+
 
     json.dump(formatToCircles(moduleTransitions), sys.stdout, indent=2)
 
