@@ -54,6 +54,7 @@ namespace edm {
     bool wantsGlobalLuminosityBlocks() const noexcept final;
     bool wantsStreamRuns() const noexcept final;
     bool wantsStreamLuminosityBlocks() const noexcept final;
+    bool wantsWrites() const noexcept final;
 
     SerialTaskQueue* globalRunsQueue() final;
     SerialTaskQueue* globalLuminosityBlocksQueue() final;

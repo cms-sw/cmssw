@@ -155,6 +155,23 @@ namespace edm {
   }
 
   template <typename T>
+  bool WorkerT<T>::wantsWrites() const noexcept {
+    return false;
+  }
+  template <>
+  bool WorkerT<edm::global::OutputModuleBase>::wantsWrites() const noexcept {
+    return true;
+  }
+  template <>
+  bool WorkerT<edm::one::OutputModuleBase>::wantsWrites() const noexcept {
+    return true;
+  }
+  template <>
+  bool WorkerT<edm::limited::OutputModuleBase>::wantsWrites() const noexcept {
+    return true;
+  }
+
+  template <typename T>
   SerialTaskQueue* WorkerT<T>::globalRunsQueue() {
     return nullptr;
   }
