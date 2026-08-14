@@ -131,7 +131,7 @@ void HGCalNeighbourCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &
       for (auto const &idZ : ids)
         if (idZ != 0)
           ++nn;
-      st1 << "[" << k << "]" << id << " with " << nn << " neighbours:";
+      st1 << "[" << k << "]" << id << " Valid flag " << geom->valid(detIds_[k]) << " with " << nn << " neighbours:";
       for (auto &idx : ids) {
         if (idx != 0)
           st1 << "(" << HGCSiliconDetId(idx).waferU() << "," << HGCSiliconDetId(idx).waferV() << ","
