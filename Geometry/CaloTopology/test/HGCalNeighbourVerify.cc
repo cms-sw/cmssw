@@ -123,10 +123,9 @@ void HGCalNeighbourVerify::beginRun(edm::Run const &iRun, edm::EventSetup const 
       for (auto const &idZ : ids)
         if (idZ != 0)
           ++nn;
-      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << id.det() << " Type " << id.type() << " z "
-                                    << id.zside() << " Layer " << id.layer() << " Wafer " << id.waferU() << ":"
-                                    << id.waferV() << " Cell " << id.cellU() << ":" << id.cellV() << " has " << nn
-                                    << " neighbours:";
+      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << id.det() << " Type " << id.type() << " z " << id.zside()
+                                    << " Layer " << id.layer() << " Wafer " << id.waferU() << ":" << id.waferV()
+                                    << " Cell " << id.cellU() << ":" << id.cellV() << " has " << nn << " neighbours:";
       unsigned int k1(0);
       for (auto const &idZ : ids) {
         if (idZ != 0) {
