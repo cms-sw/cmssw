@@ -10,10 +10,23 @@
 
 #include "CLUEAlgoAlpaka.h"
 
+#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace cms::alpakatools;
   using namespace hgcal::constants;
+
+  namespace {
+    // CLUE's per-event scratch follows the same allocation policy as the rest of
+    // the reconstruction
+    struct ScratchAllocator {
+      template <typename TElem, typename TIdx, typename TQueue, typename TExtent>
+      ALPAKA_FN_HOST auto allocate(TQueue& queue, TExtent const& extent) const {
+        return cms::alpakatools::make_device_buffer<TElem[]>(queue, alpaka::getWidth(extent));
+      }
+    };
+  }  // namespace
 
   void HGCalLayerClustersAlgoWrapper::run(Queue& queue,
                                           const unsigned int size,
@@ -25,19 +38,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     CLUEAlgoAlpaka<ALPAKA_ACCELERATOR_NAMESPACE::Acc1D, Queue, HGCalSiliconTilesConstants, kHGCalLayers> algoStandalone(
         queue, dc, kappa, outlierDeltaFactor, false);
 
-    algoStandalone.makeClustersCMSSW(size,
-                                     inputs.dim1().data(),
-                                     inputs.dim2().data(),
-                                     inputs.layer().data(),
-                                     inputs.energy().data(),
-                                     inputs.sigmaNoise().data(),
-                                     inputs.detid().data(),
-                                     outputs.rho().data(),
-                                     outputs.delta().data(),
-                                     outputs.nearestHigher().data(),
-                                     outputs.clusterIndex().data(),
-                                     outputs.isSeed().data(),
-                                     &outputs.numberOfClustersScalar());
+    algoStandalone.template makeClustersCMSSW<ScratchAllocator>(size,
+                                                                inputs.dim1().data(),
+                                                                inputs.dim2().data(),
+                                                                inputs.layer().data(),
+                                                                inputs.energy().data(),
+                                                                inputs.sigmaNoise().data(),
+                                                                inputs.detid().data(),
+                                                                outputs.rho().data(),
+                                                                outputs.delta().data(),
+                                                                outputs.nearestHigher().data(),
+                                                                outputs.clusterIndex().data(),
+                                                                outputs.isSeed().data(),
+                                                                &outputs.numberOfClustersScalar());
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
