@@ -7,7 +7,7 @@ from DQM.SiTrackerPhase2.Phase2OTMonitorCluster_cff import *
 from DQM.SiTrackerPhase2.Phase2OTMonitorVectorHits_cff import *
 #L1 
 from DQM.SiTrackerPhase2.Phase2OTMonitorTTTrack_cfi import *
-from DQM.SiTrackerPhase2.Phase2OTMonitorTTStub_cfi import *
+from DQM.SiTrackerPhase2.Phase2OTMonitorTTStub_cff import *
 from DQM.SiTrackerPhase2.Phase2OTMonitorTTCluster_cfi import *
 
 trackerphase2DQMSource = cms.Sequence( pixDigiMon 
@@ -17,7 +17,7 @@ trackerphase2DQMSource = cms.Sequence( pixDigiMon
                                        + rechitMonitorOT
                                        + clusterMonitorOT
                                        + Phase2OTMonitorTTCluster
-                                       + Phase2OTMonitorTTStub
+                                       + TTStubMonitor
                                        + Phase2OTMonitorTTTrack
 )
 

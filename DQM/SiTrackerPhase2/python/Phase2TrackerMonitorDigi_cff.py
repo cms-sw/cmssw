@@ -142,6 +142,38 @@ CRACKDigiMon = digiMon.clone(
     ),
     TotalNumberOfDigisPerLayerH = digiMon.TotalNumberOfDigisPerLayerH.clone(
         xmax = 100
+    ),
+    DigiChargeVsWidthH = digiMon.DigiChargeH.clone(
+        name = "Digi_Charge_vs_Width",
+        title = "Digi Charge vs Width in {};Digi charge [ADC];Digi Width",
+        NyBins = digiMon.ClusterWidthH.NxBins,
+        ymin = digiMon.ClusterWidthH.xmin,
+        ymax = digiMon.ClusterWidthH.xmax,
+        switch = (digiMon.DigiChargeH.switch and digiMon.ClusterWidthH.switch)
+    ),
+    DigiOccupancyVsEtaPH = digiMon.EtaH.clone(
+        name = cms.string("Digi_Occupancy_Vs_Eta_P"),
+        title = cms.string("Digi occupancy vs #eta of pixels in {};#eta;"),
+        NyBins = (digiMon.DigiOccupancyPH.NxBins),
+        ymin = (digiMon.DigiOccupancyPH.xmin),
+        ymax = (digiMon.DigiOccupancyPH.xmax),
+        switch = (digiMon.DigiOccupancyPH.switch and digiMon.EtaH.switch)
+    ),
+    DigiOccupancyVsEtaSH = digiMon.EtaH.clone(
+        name = cms.string("Digi_Occupancy_Vs_Eta_S"),
+        title = cms.string("Digi occupancy vs #eta of strips in {};#eta;"),
+        NyBins = (digiMon.DigiOccupancySH.NxBins),
+        ymin = (digiMon.DigiOccupancySH.xmin),
+        ymax = (digiMon.DigiOccupancySH.xmax),
+        switch = (digiMon.DigiOccupancySH.switch and digiMon.EtaH.switch)
+    ),
+    DigiFractionOverThresholdVsEtaH = digiMon.EtaH.clone(
+        name = cms.string("Digis_Fraction_Over_Threshold_vs_eta"),
+        title = cms.string("Fraction of digis over threshold vs #eta in {};#eta;"),
+        NyBins = (digiMon.NumberOfDigisPerDetH.NxBins),
+        ymin = (digiMon.NumberOfDigisPerDetH.xmin),
+        ymax = (digiMon.NumberOfDigisPerDetH.xmax),
+        switch = (digiMon.NumberOfDigisPerDetH.switch and digiMon.EtaH.switch)
     )
 )
 
