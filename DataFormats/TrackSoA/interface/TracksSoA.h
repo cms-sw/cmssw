@@ -29,9 +29,16 @@ namespace reco {
                       SOA_EIGEN_COLUMN(Vector5f, state),
                       SOA_EIGEN_COLUMN(Vector15f, covariance),
                       SOA_SCALAR(int, nTracks),
-                      SOA_COLUMN(uint32_t, hitOffsets))
+                      SOA_COLUMN(uint32_t, hitOffsets),
+                      // Fitted degrees of freedom (2 * measurements-in-fit - 5, outlier drops
+                      // included; 0 = never fitted).
+                      SOA_COLUMN(int8_t, ndof))
 
-  GENERATE_SOA_LAYOUT(TrackHitsLayout, SOA_COLUMN(uint32_t, id), SOA_COLUMN(uint32_t, detId))
+  // attached: 0 = hit found by the CA, 1 = hit attached to the track after the CA.
+  GENERATE_SOA_LAYOUT(TrackHitsLayout,
+                      SOA_COLUMN(uint32_t, id),
+                      SOA_COLUMN(uint32_t, detId),
+                      SOA_COLUMN(uint8_t, attached))
 
   GENERATE_SOA_BLOCKS(TrackBlocksLayout, SOA_BLOCK(tracks, TrackLayout), SOA_BLOCK(trackHits, TrackHitsLayout))
 

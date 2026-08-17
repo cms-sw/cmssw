@@ -10,6 +10,7 @@
 
 #include "HeterogeneousCore/AlpakaInterface/interface/AtomicPairCounter.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/FlexiStorage.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/prefixScan.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
@@ -96,20 +97,15 @@ namespace cms::alpakatools {
       content[w - 1] = j;
     }
 
-    // this MUST BE DONE in a single block (or in two kernels!)
-    struct zeroAndInit {
+    // Header fields only, written by a single thread. The offsets are not touched here: launchZero
+    // zeroes them with a memset.
+    struct initHeader {
       template <alpaka::concepts::Acc TAcc>
       ALPAKA_FN_ACC void operator()(const TAcc &acc, View view) const {
-        ALPAKA_ASSERT_ACC((1 == alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0]));
-        ALPAKA_ASSERT_ACC((0 == alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0]));
-        auto h = view.assoc;
-        if (cms::alpakatools::once_per_block(acc)) {
+        if (cms::alpakatools::once_per_grid(acc)) {
+          auto h = view.assoc;
           h->psws = 0;
           h->initStorage(view);
-        }
-        alpaka::syncBlockThreads(acc);
-        for (size_type i : cms::alpakatools::independent_group_elements(acc, h->totOnes())) {
-          h->off[i] = 0;
         }
       }
     };
@@ -131,10 +127,25 @@ namespace cms::alpakatools {
         ALPAKA_ASSERT_ACC(view.offSize > 0);
       }
       if constexpr (!requires_single_thread_per_block_v<TAcc>) {
-        auto nthreads = 1024;
-        auto nblocks = 1;  // MUST BE ONE as memory is initialize in thread 0 (alternative is two kernels);
-        auto workDiv = cms::alpakatools::make_workdiv<TAcc>(nblocks, nthreads);
-        alpaka::exec<TAcc>(queue, workDiv, zeroAndInit{}, view);
+        // The offsets are zeroed with a memset rather than a kernel: a single-block kernel would
+        // zero several MB on one SM, while the memset runs at device bandwidth.
+        Counter *offStorage = view.offStorage;
+        size_type nOff = ctNOnes();
+        if constexpr (ctNOnes() == kDynamicSize) {
+          nOff = view.offSize;
+        } else {
+          // Static ONES: the offsets live inside the object itself, at the fixed offset
+          // launchFinalize also uses.
+          offStorage =
+              reinterpret_cast<Counter *>(reinterpret_cast<char *>(view.assoc) + offsetof(OneToManyAssocBase, off));
+        }
+        ALPAKA_ASSERT_ACC(offStorage);
+        auto offView = cms::alpakatools::make_device_view(alpaka::getDev(queue), offStorage, nOff);
+        alpaka::memset(queue, offView, 0);
+        // The remaining header fields still need a device write; this launch writes only *this
+        // members, never an off[i], so it does not race with the memset.
+        auto workDiv = cms::alpakatools::make_workdiv<TAcc>(1u, 1u);
+        alpaka::exec<TAcc>(queue, workDiv, initHeader{}, view);
       } else {
         auto h = view.assoc;
         ALPAKA_ASSERT_ACC(h);
@@ -176,6 +187,14 @@ namespace cms::alpakatools {
       auto c = apc.inc_add(acc, n);
       if (c.first >= this->nOnes())  // overflow!
         return kOverflow;
+      if (c.second + n > this->capacity()) {  // content buffer overflow!
+        printf("Warning!!!! bulkFill content overflow (offset %d + n %d > capacity %d)!\n",
+               static_cast<int>(c.second),
+               static_cast<int>(n),
+               static_cast<int>(this->capacity()));
+        this->off[c.first] = c.second;  // plug hole: off[k] set so size(k-1) is correct
+        return kOverflow;
+      }
       this->off[c.first] = c.second;
       for (size_type j = 0; j < n; ++j)
         this->content[c.second + j] = v[j];
