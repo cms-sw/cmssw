@@ -185,7 +185,7 @@ StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1000010
     ProcessContext: TEST cf65ff121f7d0ed0d094247b80407269
-ModuleCallingContext state = Running
+ModuleCallingContext state = Passed
     moduleDescription: Module type=IntProducer, Module label=one, Parameter Set ID=dd3aecb8f6531b74585c9fe89286679e
     ModuleCallingContext state = Prefetching
     moduleDescription: Module type=AddIntsProducer, Module label=result1, Parameter Set ID=a4c4af74ab2a1941c344d96177883bfc
@@ -299,7 +299,7 @@ StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1000020
     ProcessContext: TEST cf65ff121f7d0ed0d094247b80407269
-ModuleCallingContext state = Running
+ModuleCallingContext state = Passed
     moduleDescription: Module type=IntProducer, Module label=one, Parameter Set ID=dd3aecb8f6531b74585c9fe89286679e
     ModuleCallingContext state = Prefetching
     moduleDescription: Module type=AddIntsProducer, Module label=result1, Parameter Set ID=a4c4af74ab2a1941c344d96177883bfc
@@ -413,7 +413,7 @@ StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1000030
     ProcessContext: TEST cf65ff121f7d0ed0d094247b80407269
-ModuleCallingContext state = Running
+ModuleCallingContext state = Passed
     moduleDescription: Module type=IntProducer, Module label=one, Parameter Set ID=dd3aecb8f6531b74585c9fe89286679e
     ModuleCallingContext state = Prefetching
     moduleDescription: Module type=AddIntsProducer, Module label=result1, Parameter Set ID=a4c4af74ab2a1941c344d96177883bfc

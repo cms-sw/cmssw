@@ -127,7 +127,7 @@ namespace edm {
 
       void doBeginJob_();
       void doEndJob();
-      bool doEvent_(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent_(EventTransitionInfo const&, ModuleCallingContext const*);
       void doBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
       void doAccessInputProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}
       void doEndProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) {}

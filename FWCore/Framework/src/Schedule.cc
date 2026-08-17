@@ -415,13 +415,19 @@ namespace edm {
       // propagate_const<T> has no reset() function
       summaryTimeKeeper_ = std::make_unique<SystemTimeKeeper>(prealloc.numberOfStreams(), modDesc, tns, processContext);
       auto timeKeeperPtr = summaryTimeKeeper_.get();
+      summaryTriggerResultsKeeper_ =
+          std::make_unique<SystemTriggerReportKeeper>(prealloc.numberOfStreams(), modDesc, tns, processContext);
+      auto triggerResultsKeeperPtr = summaryTriggerResultsKeeper_.get();
 
       areg->watchPreModuleDestruction(timeKeeperPtr, &SystemTimeKeeper::removeModuleIfExists);
+      areg->watchPreModuleDestruction(triggerResultsKeeperPtr, &SystemTriggerReportKeeper::removeModuleIfExists);
 
       areg->watchPreModuleEvent(timeKeeperPtr, &SystemTimeKeeper::startModuleEvent);
       areg->watchPostModuleEvent(timeKeeperPtr, &SystemTimeKeeper::stopModuleEvent);
+      areg->watchPostModuleEvent(triggerResultsKeeperPtr, &SystemTriggerReportKeeper::stopModuleEvent);
       areg->watchPreModuleEventAcquire(timeKeeperPtr, &SystemTimeKeeper::restartModuleEvent);
       areg->watchPostModuleEventAcquire(timeKeeperPtr, &SystemTimeKeeper::stopModuleEvent);
+      areg->watchPostModuleEventAcquire(triggerResultsKeeperPtr, &SystemTriggerReportKeeper::checkModuleAcquire);
       areg->watchPreModuleEventDelayedGet(timeKeeperPtr, &SystemTimeKeeper::pauseModuleEvent);
       areg->watchPostModuleEventDelayedGet(timeKeeperPtr, &SystemTimeKeeper::restartModuleEvent);
 
@@ -430,12 +436,10 @@ namespace edm {
 
       areg->watchPrePathEvent(timeKeeperPtr, &SystemTimeKeeper::startPath);
       areg->watchPostPathEvent(timeKeeperPtr, &SystemTimeKeeper::stopPath);
+      areg->watchPostPathEvent(triggerResultsKeeperPtr, &SystemTriggerReportKeeper::stopPath);
 
       areg->watchPostBeginJob(timeKeeperPtr, &SystemTimeKeeper::startProcessingLoop);
       areg->watchPreEndJob(timeKeeperPtr, &SystemTimeKeeper::stopProcessingLoop);
-      //areg->preModuleEventSignal_.connect([timeKeeperPtr](StreamContext const& iContext, ModuleCallingContext const& iMod) {
-      //timeKeeperPtr->startModuleEvent(iContext,iMod);
-      //});
     }
 
   }  // Schedule::Schedule
@@ -1038,6 +1042,7 @@ namespace edm {
     for (auto& s : streamSchedules_) {
       s->getTriggerReport(rep);
     }
+    summaryTriggerResultsKeeper_->fillTriggerReport(rep);
     sort_all(rep.workerSummaries);
   }
 

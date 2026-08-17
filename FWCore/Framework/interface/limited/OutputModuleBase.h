@@ -66,7 +66,7 @@ namespace edm {
       void doBeginStream(StreamID id) { doBeginStream_(id); }
       void doEndStream(StreamID id) { doEndStream_(id); }
 
-      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder,
                                                     ModuleCallingContext const&,

@@ -65,19 +65,7 @@ namespace edm {
     int bitPosition() const { return bitpos_; }
     std::string const& name() const { return pathContext_.pathName(); }
 
-    void clearCounters();
-
-    int timesRun() const { return timesRun_; }
-    int timesPassed() const { return timesPassed_; }
-    int timesFailed() const { return timesFailed_; }
-    int timesExcept() const { return timesExcept_; }
-    //int abortWorker() const { return abortWorker_; }
-
     size_type size() const { return workers_.size(); }
-    int timesVisited(size_type i) const { return workers_.at(i).timesVisited(); }
-    int timesPassed(size_type i) const { return workers_.at(i).timesPassed(); }
-    int timesFailed(size_type i) const { return workers_.at(i).timesFailed(); }
-    int timesExcept(size_type i) const { return workers_.at(i).timesExcept(); }
     Worker const* getWorker(size_type i) const { return workers_.at(i).getWorker(); }
     unsigned int bitPosition(size_type i) const { return workers_.at(i).bitPosition(); }
 
@@ -86,11 +74,6 @@ namespace edm {
     void setPathStatusInserter(PathStatusInserter* pathStatusInserter, Worker* pathStatusInserterWorker);
 
   private:
-    int timesRun_;
-    int timesPassed_;
-    int timesFailed_;
-    int timesExcept_;
-    //int abortWorker_;
     std::atomic<bool> printedException_ = false;
     //When an exception happens, it is possible for multiple modules in a path to fail
     // and then try to change the state concurrently.
@@ -125,7 +108,6 @@ namespace edm {
                                  PathContext const&);
     void threadsafe_setFailedModuleInfo(int nwrwue, bool iExceptionHappened);
     void recordStatus(int nwrwue, hlt::HLTState state);
-    void updateCounters(hlt::HLTState state);
 
     void finished(std::exception_ptr, StreamContext const*, EventTransitionInfo const&, StreamID const&);
 

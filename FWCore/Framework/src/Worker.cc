@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/src/EventAcquireSignalsSentry.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
@@ -18,12 +19,7 @@
 namespace edm {
 
   Worker::Worker(ModuleDescription const& iMD, ExceptionToActionTable const* iActions)
-      : timesRun_(0),
-        timesVisited_(0),
-        timesPassed_(0),
-        timesFailed_(0),
-        timesExcept_(0),
-        state_(Ready),
+      : state_(Ready),
         numberOfPathsOn_(0),
         numberOfPathsLeftToRun_(0),
         moduleCallingContext_(&iMD),
@@ -96,8 +92,7 @@ namespace edm {
           try {
             bool selected = convertException::wrap([&]() {
               if (not implDoPrePrefetchSelection(id, *iPrincipal, &moduleCallingContext_)) {
-                timesRun_.fetch_add(1, std::memory_order_relaxed);
-                setPassed<true>();
+                setPassed();
                 waitingTasks_.doneWaiting(nullptr);
                 //TBB requires that destroyed tasks have count 0
                 if (0 == successTask->decrement_ref_count()) {
@@ -113,7 +108,7 @@ namespace edm {
 
           } catch (cms::Exception& e) {
             edm::exceptionContext(e, moduleCallingContext_);
-            setException<true>(std::current_exception());
+            setException(std::current_exception());
             waitingTasks_.doneWaiting(std::current_exception());
             //TBB requires that destroyed tasks have count 0
             if (0 == successTask->decrement_ref_count()) {
@@ -243,12 +238,13 @@ namespace edm {
                           ParentContext const& parentContext,
                           WaitingTaskHolder holder) {
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
+    EventAcquireSignalsSentry sentry(activityRegistry(), &moduleCallingContext_);
     try {
       convertException::wrap([&]() { this->implDoAcquire(info, &moduleCallingContext_, std::move(holder)); });
     } catch (cms::Exception& ex) {
       edm::exceptionContext(ex, moduleCallingContext_);
+      moduleCallingContext_.setState(ModuleCallingContext::State::kException);
       if (shouldRethrowException(std::current_exception(), parentContext, true, shouldTryToContinue_)) {
-        timesRun_.fetch_add(1, std::memory_order_relaxed);
         throw;
       }
     }

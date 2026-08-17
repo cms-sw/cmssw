@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
-#include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
@@ -48,10 +47,7 @@ namespace edm {
       callWhenNewProductsRegistered_ = func;
     }
 
-    bool EDAnalyzerBase::doEvent(EventTransitionInfo const& info,
-                                 ActivityRegistry* act,
-                                 ModuleCallingContext const* mcc) {
-      EventSignalsSentry sentry(act, mcc);
+    bool EDAnalyzerBase::doEvent(EventTransitionInfo const& info, ModuleCallingContext const* mcc) {
       Event e(info, moduleDescription_, mcc);
       e.setConsumer(this);
       e.setSharedResourcesAcquirer(&resourcesAcquirer_);
