@@ -1,3 +1,5 @@
+#include <iomanip>
+
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -22,9 +24,11 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
 #include <cstdint>
+#include <limits>
 #include <vector>
 
 //#define HITS_DEBUG
+// #define P_HIT_POSITION_DEBUG  // Compare P-hit positions with PS stub positions
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -216,6 +220,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             hit.clusterSizeX() = -1;
             hit.clusterSizeY() = -1;
             hit.detectorIndex() = modulesInPixel_ + offset;
+            // Not a stub: reco::isStub() tests dPhiDrError() >= 0.
+            hit.dPhiDr() = 0.f;
+            hit.dPhiDrError() = -1.f;
+            hit.lowerHitIdx() = std::numeric_limits<uint32_t>::max();
+            hit.stubFlags() = 0;
+#ifdef P_HIT_POSITION_DEBUG
+            double r = sqrt(gx * gx + gy * gy);
+            edm::LogPrint("Phase2OTRecHitsSoAConverter")
+                << "P_HIT detId=" << detId << " idx=" << idx << " x=" << std::fixed << std::setprecision(6) << gx
+                << " y=" << gy << " z=" << gz << " r=" << std::setprecision(4) << r << " iphi=" << hit.iphi()
+                << " xerrLocal=" << std::scientific << std::setprecision(4) << hit.xerrLocal()
+                << " yerrLocal=" << hit.yerrLocal() << " moduleOffset=" << offset;
+#endif
             LogDebug("Phase2OTRecHitsSoAConverter")
                 << "Local (x, y) with (xx, yy) --> (" << recHit.localPosition().x() << ", "
                 << recHit.localPosition().y() << ") with (" << recHit.localPositionError().xx() << ", "

@@ -11,6 +11,7 @@
 <library file="alpaka/*.cc" name="RecoLocalTrackerSiPixelRecHitsPluginsPortable">
   <use name="alpaka"/>
   <use name="DataFormats/Portable"/>
+  <use name="Geometry/CommonTopologies"/>
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <flags ALPAKA_BACKENDS="1"/>

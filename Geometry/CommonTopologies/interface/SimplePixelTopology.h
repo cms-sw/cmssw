@@ -248,8 +248,16 @@ namespace phase2PixelTopology {
   constexpr int nPairsTot = nPairsPix + nPairsOT;  // total number of layer pairs for extended CA
 
   constexpr uint16_t nModulesPix = 4000;                      // pixel modules
-  constexpr uint16_t nModulesOT = 2872;                       // considered OT modules
+  constexpr uint16_t nModulesOT = 2872;                       // considered OT modules (barrel only)
   constexpr uint16_t nModulesTot = nModulesPix + nModulesOT;  // total number of modules for extended CA
+
+  // Module counts for Phase2OTStubs (with barrel + both disk sides)
+  // OT barrel: 7288 modules, OT backward disks: 2956, OT forward disks: 2956
+  constexpr uint32_t nModulesOTBarrel = 7288;
+  constexpr uint32_t nModulesOTBackward = 2956;
+  constexpr uint32_t nModulesOTForward = 2956;
+  constexpr uint32_t nModulesOTStubs = nModulesOTBarrel + nModulesOTBackward + nModulesOTForward;  // 13200
+  constexpr uint32_t nModulesTotStubs = nModulesPix + nModulesOTStubs;                             // 17200
 
   constexpr int nStartingPairs = 24;  // number of layer pairs to start Ntuplet-building from
 
@@ -442,6 +450,9 @@ namespace phase2PixelTopology {
       0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,  // Pixel layers
       0.003, 0.003, 0.003                                                                  // OT layers
   };
+
+  // Extended arrays for Phase2OTStubs (54 layers: 28 pixel + 6 OT barrel + 20 OT disks)
+  constexpr uint32_t nLayersPhase2OTStubs = 54;
 
   // -------------------------------------------------------------------------------------------------------
   // Deprecated arrays only used in the CUDA version (values have no meaning in alpaka or anywhere else):
@@ -653,6 +664,18 @@ namespace pixelTopology {
     static constexpr float avgCellsPerHit = 17.;
     static constexpr float avgCellsPerCell = 0.5;
     static constexpr float avgTracksPerCell = 0.09;
+  };
+
+  struct Phase2OTStubs : public Phase2OT {
+    // Suffix appended to the default name of the modules templated on this topology, so that the pixel
+    // cluster parameter estimator of this chain gets its own event setup product.
+    static constexpr char const *nameModifier = "Phase2OTStubs";
+
+    // Extended Phase-2 configuration using OT stubs (barrel + disks) instead of P-side hits
+    // CA layers: 28 pixel + 6 OT barrel + 10 OT disks (5 per side) = 44 total
+    static constexpr uint32_t numberOfLayers = phase2PixelTopology::nLayersPhase2OTStubs;
+    // Total modules: 4000 pixel + 13200 OT (7288 barrel + 2956 backward + 2956 forward)
+    static constexpr uint32_t numberOfModules = phase2PixelTopology::nModulesTotStubs;
   };
 
   struct Phase1 {
