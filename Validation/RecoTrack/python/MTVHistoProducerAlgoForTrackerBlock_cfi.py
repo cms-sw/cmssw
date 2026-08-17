@@ -26,6 +26,8 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     maxEta = cms.double(2.5),
     nintEta = cms.int32(50),
     useFabsEta = cms.bool(False),
+    # detailed pull diagnostics: pull vs nhits / vs reported error / vs sim value
+    doDetailedPullPlots = cms.bool(False),
     #
     minPt = cms.double(0.1),
     maxPt = cms.double(1000),
@@ -166,3 +168,6 @@ from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_la
 #phase2_timing_layer.toModify(MTVHistoProducerAlgoForTrackerBlock, dict(doMTDPlots = True) )
 phase2_timing_layer.toModify(MTVHistoProducerAlgoForTrackerBlock, _modifyForPhase2wMTD)
 
+
+from Configuration.ProcessModifiers.phase2CAStubs_cff import phase2CAStubs
+phase2CAStubs.toModify(MTVHistoProducerAlgoForTrackerBlock, doDetailedPullPlots = True)
