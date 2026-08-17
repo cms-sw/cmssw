@@ -188,6 +188,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ~CAHitNtupletGeneratorKernels() = default;
 
     TupleMultiplicity const* tupleMultiplicity() const { return device_tupleMultiplicity_->data(); }
+    // Finalized (prefix-scanned) per-N-bin cumulative offsets of the tuple-multiplicity assoc:
+    // off[b] = number of fitted tuples with selected-hit count < b, so bin [nHitsL,nHitsH] holds
+    // off[nHitsH+1]-off[nHitsL] tuples (== the totTK Kernel_BLFastFit breaks on). maxHitsOnTrack+2
+    // valid entries. Surfaced for the main-fit chunk+bin-aware launch elision:
+    // one D2H of this small array tells the host each bin's population without a census kernel.
+    GenericContainerOffsets const* tupleMultiplicityOffsets() const { return device_tupleMultiplicityOffsets_->data(); }
     HitContainer const* hitContainer() const { return device_hitContainer_->data(); }
     PhiBinner const* hitPhiHist() const { return device_hitPhiHist_->data(); }
     HitToCell const* hitToCell() const { return device_hitToCell_->data(); }

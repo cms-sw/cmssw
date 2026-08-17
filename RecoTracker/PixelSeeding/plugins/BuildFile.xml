@@ -43,8 +43,12 @@
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="RecoLocalTracker/Records"/>
   <use name="RecoLocalTracker/SiPixelRecHits"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
   <!-- work around for cms-sw/cmssw#45179 -->
   <use name="no-array-bounds-flag" for="alpaka/serial"/>
+  <!-- nvcc 13.3: threaded split compilation makes the device link fail intermittently with
+       "nvlink fatal : Internal error: unexpected reloc (target: sm_100)"; a single partition is deterministic. -->
+  <flags CUDA_FLAGS="--split-compile=1 -t 1"/>
   <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
 </library>

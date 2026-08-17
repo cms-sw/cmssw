@@ -26,13 +26,19 @@ namespace caStructures {
 
     // Algorithm Parameters
     // NOTE: minHitsPerNtuplet_ is compared against the number of LAYERS in the ntuplet
-    // (CACell::find_ntuplets); the historical name is kept because it is the name of the
-    // configuration parameter set by every deployed menu.
+    // (CACell::find_ntuplets); the name is kept because it is the name of the configuration
+    // parameter set by the menus.
     uint16_t minHitsPerNtuplet_;
     uint16_t minHitsForSharingCut_;
 
     // Flags
     bool useRiemannFit_;
+    // Enables the broken-line fit corrections (material partition and rigid-node guard, Karimaki Fisher
+    // basis, pion 1/beta, trapezoid quadrature, 3x3 covariance blend; see the header comment of
+    // RecoTracker/PixelTrackFitting/interface/alpaka/BrokenLine.h). Read only by the CA main fit.
+    // Positional struct: keep this slot in the same
+    // order as the makeCommonParams initializer in CAHitNtupletGenerator.cc.
+    bool useFitCorrections_;
     bool fitNas4_;
     bool earlyFishbone_;
     bool lateFishbone_;

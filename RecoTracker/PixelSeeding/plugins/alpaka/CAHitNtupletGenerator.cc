@@ -307,8 +307,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           ->setComment("Maximum number of hits in a tuple to clean also if the shared hit is on bpx1");
 
       desc.add<bool>("fitNas4", false)->setComment("fit only 4 hits out of N");
+      desc.add<bool>("verboseBLFit", false)
+          ->setComment("one-shot device dump of the first fitted tracks at the end of each BL-fit launch (debug)");
 
       desc.add<bool>("useRiemannFit", false)->setComment("true for Riemann, false for BrokenLine");
+      desc.add<bool>("useFitCorrections", kStubs)
+          ->setComment(
+              "Correctness package of the factorized fast BrokenLine fit. true applies it as ONE unit: "
+              "one thin scatterer per gap charged at that gap's arrival node (with the rigid-node guard for "
+              "a material-free gap), the Karimaki-consistent Fisher basis in the covariance blend, the pion "
+              "1/beta factor and no pt cap in the scattering variance, trapezoid quadrature in the material "
+              "line integral, and the covariance blend completed to the full 3x3; false is the plain "
+              "upstream algebra. It is the CA main fit's own material model, so the merger's General Broken "
+              "Lines refit and the extender walk are unaffected. It moves the whole "
+              "emitted covariance and the chi2, so every covariance-derived input of the high-purity "
+              "selector shifts and covPhiDxy changes sign on part of the population: the selector's working "
+              "point is NOT comparable across this switch, and flipping it requires retraining the selector. "
+              "MUST agree with the merger's extPredFitCorrections. Defaults to true on Phase2OTStubs and "
+              "false on every other topology.");
       desc.add<bool>("doSharedHitCut", true)->setComment("Sharing hit nTuples cleaning");
       desc.add<bool>("dupPassThrough", false)->setComment("Do not reject duplicate");
       desc.add<bool>("useSimpleTripletCleaner", true)->setComment("use alternate implementation");
@@ -362,6 +378,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           // Flags
           .useRiemannFit_ = cfg.getParameter<bool>("useRiemannFit"),
+          .useFitCorrections_ = cfg.getParameter<bool>("useFitCorrections"),
           .fitNas4_ = cfg.getParameter<bool>("fitNas4"),
           .earlyFishbone_ = cfg.getParameter<bool>("earlyFishbone"),
           .lateFishbone_ = cfg.getParameter<bool>("lateFishbone"),
@@ -441,7 +458,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   CAHitNtupletGenerator<TrackerTraits>::CAHitNtupletGenerator(const edm::ParameterSet& cfg)
       : m_params(makeCommonParams(cfg),
-                 TopologyCuts<TrackerTraits>::makeQualityCuts(cfg.getParameterSet("trackQualityCuts"))) {
+                 TopologyCuts<TrackerTraits>::makeQualityCuts(cfg.getParameterSet("trackQualityCuts"))),
+        m_verboseBLDump(cfg.getParameter<bool>("verboseBLFit")) {
 #ifdef DUMP_GPU_TK_TUPLES
     printf("TK: %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n",
            "tid",
@@ -595,11 +613,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       float bfield,
       uint32_t nDoublets,
       uint32_t nTracks,
-      Queue& queue) const {
+      Queue& queue,
+      const float* rhoMapDevice) const {
     using GPUKernels = CAHitNtupletGeneratorKernels<TrackerTraits>;
 
     PendingTuples pending;
     pending.bfield = bfield;
+    pending.rhoMapDevice = rhoMapDevice;
     pending.maxTuples = nTracks;
     pending.maxDoublets = nDoublets;
 
@@ -708,6 +728,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       kernels.allocateAfterNtuplets(0u, queue);
     }
 
+    // Seam readback: one async D2H of the tuple-multiplicity per-N-bin offsets into the pinned
+    // pending buffer. No wait here -- the framework's acquire->produce boundary guarantees the
+    // copy has landed before finishTuplesAsync consumes it (both fit passes then run with the
+    // launch-elision information for free; see HelixFit::setHostTupleMultiplicityOffsets).
+    if (const uint32_t* offDev = kernels.tupleMultiplicityOffsets(); offDev != nullptr) {
+      constexpr uint32_t kNOff = TrackerTraits::maxHitsOnTrack + 2u;
+      pending.offsetsHost.emplace(cms::alpakatools::make_host_buffer<uint32_t[]>(queue, std::size_t(kNOff)));
+      auto offSrc = cms::alpakatools::make_device_view(queue, const_cast<uint32_t*>(offDev), std::size_t(kNOff));
+      alpaka::memcpy(queue, *pending.offsetsHost, offSrc);
+    }
     pending.built = true;
     return pending;
   }
@@ -745,11 +775,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const float bfield = pending.bfield;
 
     HelixFit fitter(bfield, m_params.algoParams_.fitNas4_);
+    fitter.setVerboseDump(m_verboseBLDump);
+    fitter.setMaterialMap(pending.rhoMapDevice);  // device BLMaterialMap (EventSetup condition)
     fitter.allocate(kernels.tupleMultiplicity(), tracks, kernels.hitContainer());
+    // The per-N-bin offsets were read back once in beginTuplesAsync and have landed (framework
+    // seam); the fit consumes the host values -- zero fit-side readbacks or waits. If the
+    // container was absent, fall back to the cap-bounded fit (no elision).
+    if (pending.offsetsHost)
+      fitter.setHostTupleMultiplicityOffsets(pending.offsetsHost->data());
     if (m_params.algoParams_.useRiemannFit_) {
       fitter.launchRiemannKernels(
           trackingHits, modules, trackingHits.size(), TrackerTraits::maxNumberOfQuadruplets, queue);
     } else {
+      // The CA main fit is the factorized fast BrokenLine fit (circle+line, 5 params + factorized cov +
+      // chi2), one launchBrokenLineKernels call for every CA iteration and every topology. The fit's
+      // per-tuple work bound is the runtime tuple capacity nTracks (the
+      // per-event cap the tuple containers are sized to), not the compile-time maxNumberOfQuadruplets:
+      // tuple ids are always < nTracks, so the extra chunks the launcher would iterate over with the
+      // compile-time cap could only launch empty kernels.
+      fitter.setFitCorrections(m_params.algoParams_.useFitCorrections_);
       fitter.launchBrokenLineKernels(trackingHits, modules, trackingHits.size(), nTracks, queue);
     }
     kernels.classifyTuples(trackingHits, tracks, queue);

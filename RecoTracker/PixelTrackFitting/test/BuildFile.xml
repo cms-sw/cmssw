@@ -21,6 +21,7 @@
 
 <bin file="testFits.cpp" name="testBrokenLineFit">
   <use name="eigen"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
   <flags CXXFLAGS="-g -DUSE_BL"/>
 </bin>
 
@@ -38,6 +39,7 @@
 <bin file="PixelTrackFits.cc" name="PixelTrackBrokenLineFit">
   <use name="eigen"/>
   <use name="root"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
   <flags CXXFLAGS="-DEIGEN_NO_DEBUG -DUSE_BL"/>
 </bin>
 
@@ -47,7 +49,7 @@
   <flags CXXFLAGS="-g"/>
 </bin>
 
-<bin file="testEigenJacobian.cpp">  
+<bin file="testEigenJacobian.cpp">
   <use name="eigen"/>
   <use name="DataFormats/GeometrySurface"/>
   <use name="MagneticField/Engine"/>
@@ -55,3 +57,4 @@
   <use name="TrackingTools/TrajectoryParametrization"/>
   <flags CXXFLAGS="-g"/>
 </bin>
+
