@@ -22,3 +22,7 @@ from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2
 hltPhase2LegacyTracking.toModify(hltInitialStepSeeds,
     includeFourthHit = False
 )
+
+from Configuration.ProcessModifiers.phase2CAVectorHits_cff import phase2CAVectorHits
+# Vector-hit-expanded pixel tracks carry OT rechits of every vector hit; seed from pixel hits only.
+phase2CAVectorHits.toModify(hltInitialStepSeeds, removeOTRechits = True)

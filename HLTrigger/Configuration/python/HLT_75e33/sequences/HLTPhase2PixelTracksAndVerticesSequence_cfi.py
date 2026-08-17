@@ -67,3 +67,32 @@ _HLTPhase2PixelTracksAndVerticesSequenceLegacy = cms.Sequence(
     +HLTPhase2PixelVertexingSequence
 )
 hltPhase2LegacyTracking.toReplaceWith(HLTPhase2PixelTracksAndVerticesSequence, _HLTPhase2PixelTracksAndVerticesSequenceLegacy)
+
+# Vector-hit-based tracking sequence with OT vector hits.
+# Note: the SerialSync and vertex-trimming arms are NOT vector-hit-aware.
+from ..modules.hltPixelSeedingOTRecHitsSoA_cfi import hltPixelSeedingOTRecHitsSoA
+from ..modules.hltPhase2OTVectorHitsSoA_cfi import hltPhase2OTVectorHitsSoA
+from ..modules.hltSiPixelClusters_cfi import hltSiPixelClusters
+from ..modules.hltSiPixelRecHits_cfi import hltSiPixelRecHits
+
+_HLTPhase2PixelTracksAndVerticesSequenceCAVectorHits = cms.Sequence(
+    HLTBeamSpotSequence
+    +hltPhase2PixelTracksAndHighPtStepTrackingRegions # needed by highPtTripletStep iteration
+    +hltPhase2PixelFitterByHelixProjections # Currently needed by tracker muons
+    +hltPhase2PixelTrackFilterByKinematics  # Currently needed by tracker muons
+    +hltSiPixelClusters                     # legacy pixel clusters for the legacy rechits
+    +hltSiPixelRecHits                      # legacy pixel rechits for the legacy converter
+    +hltPixelSeedingOTRecHitsSoA
+    +hltPhase2OTVectorHitsSoA
+    +hltPhase2PixelTracksSoA                     # vector hit CA via the modifier (label preserved)
+    +hltPhase2PixelTrackTorchHighPuritySelector  # forest selector via the modifier (label preserved)
+    +hltPhase2PixelTracks
+    +HLTPhase2PixelVertexingSequence
+)
+
+from Configuration.ProcessModifiers.phase2CAVectorHits_cff import phase2CAVectorHits
+from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
+(phase2CAVectorHits | ngtScouting).toReplaceWith(
+    HLTPhase2PixelTracksAndVerticesSequence,
+    _HLTPhase2PixelTracksAndVerticesSequenceCAVectorHits
+)

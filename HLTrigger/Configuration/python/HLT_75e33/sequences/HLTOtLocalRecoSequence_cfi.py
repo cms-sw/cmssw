@@ -19,4 +19,5 @@ _HLTOtLocalRecoSequenceWithHits = cms.Sequence(hltMeasurementTrackerEvent
 # Restore the OT rechits that hltPhase2LegacyTracking removes: the CA extension and the vector hit chain need them.
 from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtension
 from Configuration.ProcessModifiers.phase2CAVectorHits_cff import phase2CAVectorHits
-(phase2CAExtension | phase2CAVectorHits).toReplaceWith(HLTOtLocalRecoSequence, _HLTOtLocalRecoSequenceWithHits)
+from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
+(phase2CAExtension | phase2CAVectorHits | ngtScouting).toReplaceWith(HLTOtLocalRecoSequence, _HLTOtLocalRecoSequenceWithHits)
