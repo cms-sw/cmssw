@@ -79,20 +79,20 @@ The order of the signals in this list is an approximate order in which they woul
 | `{Pre,Post}ModuleGlobalBeginLumi` | Yes | Emitted before and after each EDModule's global `beginLuminosityBlock()` method is called on a specific stream. |
 | `{Pre,Post}StreamBeginLumi` | No | Emitted before and after running the stream `BeginLuminosityBlock` transition for all modules on a specific stream. |
 | `{Pre,Post}ModuleStreamBeginLumi` | Yes | Emitted before and after each EDModule's stream `beginLuminosityBlock()` method is called on a specific stream. |
-|||
+||||
 | `{Pre,Post}SourceEvent` | Yes | Emitted before and after the `InputSource` reads an `Event` (effectively the metadata). The `PoolSource` and `RNTupleTempSource` emit these signals also when they read an `Event` for the secondary input. |
 | `{Pre,Post}Event` | No | Emitted before and after running the `Event` transition for all modules on a specific stream. |
 | `{Pre,Post}EventReadFromSource` | Yes | `PoolSource`, `EmbeddedRootSource`,  `RNTupleTempSource`, and `EmbeddedRNTupleTempSource` emit these signals before and after reading event provenance and event data products via the delayed reading. In case of prompt reading, the signals are emitted when the data products are retrieved from the cache of the prompt reader. `RepeatingCachedRootSource` emits these signal when retrieving event data products from its cache. |
 | `{Pre,Post}PathEvent` | No | Emitted before and after processing a Path for an Event. |
 | `{Pre,Post}ModuleEventPrefetching` | No | Emitted before and after each module's prefetching of data products needed by the EDModule for an Event. |
 | `{Pre,Post}ModuleEventAcquire` | Yes | Emitted before and after each ExternalWork-using EDModule's `acquire()` method. |
-| `{Pre,Post}ModuleEventDelayedGet` | Yes | Emitted before and after an EDModule performs a delayed get operation to retrieve a data product. This can only | `{Pre,Post}ModuleEvent` | Yes | Emitted before and after running each EDModule's Event processing method (e.g., `produce()`, `filter()`, `analyze()`). |
+| `{Pre,Post}ModuleEventDelayedGet` | Yes | Emitted before and after an EDModule performs a delayed get operation to retrieve a data product. This can only occur when accessing data from `edm::Ref`-style objects. |
+| `{Pre,Post}ModuleEvent` | Yes | Emitted before and after running each EDModule's Event processing method (e.g., `produce()`, `filter()`, `analyze()`). |
 | `{Pre,Post}ModuleTransformPrefetching` | No | Emitted before and after each Transformer-using EDModule's prefetching of data products needed by the transformer. |
 | `{Pre,Post}ModuleTransformAcquiring` | Yes | Emitted before and after each Transformer-using EDModules' `transformAsync`'s "acquire" function. |
 | `{Pre,Post}ModuleTransform` | Yes | Emitted before and after each Transformer-using EDModules's `transform` function. |
-occur when accessing data from `edm::Ref`-style objects. |
 | `{Pre,Post}ClearEvent` | Yes | Emitted before and after deleting the Event data products after the Event has been processed. Note that data products deleted early are not signalled. |
-|||
+||||
 | `{Pre,Post}StreamEndLumi` | No | Emitted before and after running the stream `EndLuminosityBlock` transition for all modules on a specific stream. |
 | `{Pre,Post}ModuleStreamEndLumi` | Yes | Emitted before and after each EDModule's stream `endLuminosityBlock()` method is called on a specific stream. |
 | `{Pre,Post}GlobalEndLumi` | No | Emitted before and after running the global `EndLuminosityBlock` transition for all modules. |
