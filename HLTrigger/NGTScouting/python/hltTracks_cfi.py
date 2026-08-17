@@ -102,14 +102,21 @@ hltPixelTrackRecHitsTable = cms.EDProducer("HLTTracksRecHitsTableProducer",
                                            tableName = cms.string("hltPixelTrackRecHits"),
                                            skipNonExistingSrc = cms.bool(True),
                                            tracksSrc = cms.InputTag("hltPhase2PixelTracks"),
-                                           maxRecHits = cms.uint32(16),
+                                           # the stub chain puts up to 19 recHits on a pixel track
+                                           maxRecHits = cms.uint32(19),
                                            precision = cms.int32(7)
 )
 
-# TrackingParticle <-> hltGeneralTracks NanoAOD tables (Phase-2 HLT
-# validation). The underlying TrackAssociatorEDProducer is
-# `tpToHltGeneralTrackAssociation` and is assumed to be already present in the
-# process.
+# Flat table of the pixel-track SoA; added to NanoPixelTables under phase2CAStubs.
+hltPixelTrackSoATable = cms.EDProducer(
+    "HLTPixelTrackSoATableProducer",
+    src = cms.InputTag("hltPhase2PixelTrackTorchHighPuritySelector"),
+    name = cms.string("PixelTrackSoA"),
+    doc  = cms.string("Pixel tracks from TrackSoA")
+)
+
+# TrackingParticle <-> hltGeneralTracks NanoAOD tables (Phase-2 HLT validation).
+# tpToHltGeneralTrackAssociation must already be present in the process.
 from SimTracker.TrackAssociation.trackingParticleRecoTrackAssociationTables_cff import (
     trackingParticleRecoTrackAssociationTable,
     recoTrackTrackingParticleAssociationTable,

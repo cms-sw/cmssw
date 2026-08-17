@@ -24,3 +24,9 @@ def _addProcessCPEsAlpaka(process):
 
 modifyConfigurationForAlpakaCPEs_ = alpaka.makeProcessModifier(_addProcessCPEsAlpaka)
 
+def _addProcessCPEsAlpakaPhase2OTStubs(process):
+    process.load("RecoLocalTracker.SiPixelRecHits.pixelCPEFastParamsESProducerAlpakaPhase2OTStubs_cfi")
+
+from Configuration.ProcessModifiers.phase2CAStubs_cff import phase2CAStubs
+modifyConfigurationForAlpakaCPEsPhase2OTStubs_ = (alpaka & phase2CAStubs).makeProcessModifier(_addProcessCPEsAlpakaPhase2OTStubs)
+
