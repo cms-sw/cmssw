@@ -18,6 +18,7 @@ fragment.load("RecoLocalTracker/Phase2TrackerRecHits/Phase2StripCPEESProducer_cf
 fragment.load("RecoLocalTracker/SiPixelRecHits/PixelCPEGeneric_cfi")
 fragment.load("RecoTracker/PixelTrackFitting/pixelTrackCleanerBySharedHits_cfi")
 fragment.load("RecoTracker/PixelLowPtUtilities/ClusterShapeHitFilterESProducer_cfi")
+fragment.load("RecoTracker/PixelSeeding/stackedModuleGeometryESProducer_cfi")
 fragment.load("RecoTracker/FinalTrackSelectors/trackAlgoPriorityOrder_cfi")
 fragment.load("RecoTracker/MeasurementDet/MeasurementTrackerESProducer_cfi")
 fragment.load("RecoTracker/TkNavigation/NavigationSchoolESProducer_cfi")

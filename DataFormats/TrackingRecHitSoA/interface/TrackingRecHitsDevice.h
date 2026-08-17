@@ -63,18 +63,38 @@ namespace reco {
     uint32_t nModules() const { return static_cast<uint32_t>(this->view().hitModules().metadata().size() - 1); }
 
     int32_t offsetBPIX2() const { return offsetBPIX2_; }
+    uint32_t offsetStubs() const { return offsetStubs_; }
+    // Set the two cached offsets from values known on the host (no transfer); use updateFromDevice()
+    // when the SoA scalars were written by a kernel.
+    void setOffsets(int32_t offsetBPIX2, uint32_t offsetStubs) {
+      offsetBPIX2_ = offsetBPIX2;
+      offsetStubs_ = offsetStubs;
+    }
 
-    // asynchronously update the information cached within the class itself from the information on the device
+    // Update the two cached offsets from the SoA scalars on the device. Blocking: the copies are
+    // staged through pinned host buffers (a direct copy into the pageable members would synchronise
+    // per copy) and followed by a single wait before the members are assigned.
     template <typename TQueue>
     void updateFromDevice(TQueue queue) {
-      auto off_h = cms::alpakatools::make_host_view(offsetBPIX2_);
-      auto off_d = cms::alpakatools::make_device_view(queue, this->view().trackingHits().offsetBPIX2());
-      alpaka::memcpy(queue, off_h, off_d);
+      auto offBPIX2_h = cms::alpakatools::make_host_buffer<int32_t>(queue);
+      auto offStubs_h = cms::alpakatools::make_host_buffer<uint32_t>(queue);
+
+      auto offBPIX2_d = cms::alpakatools::make_device_view(queue, this->view().trackingHits().offsetBPIX2());
+      alpaka::memcpy(queue, offBPIX2_h, offBPIX2_d);
+
+      auto offStubs_d = cms::alpakatools::make_device_view(queue, this->view().trackingHits().offsetStubs());
+      alpaka::memcpy(queue, offStubs_h, offStubs_d);
+
+      alpaka::wait(queue);
+      offsetBPIX2_ = *offBPIX2_h.data();
+      offsetStubs_ = *offStubs_h.data();
     }
 
   private:
     // offsetBPIX2 is used on host functions so is useful to have it also stored in the class and not only in the layout
     int32_t offsetBPIX2_ = 0;
+    // offsetStubs marks the start of stub-derived hits in the merged collection
+    uint32_t offsetStubs_ = 0;
   };
 }  // namespace reco
 

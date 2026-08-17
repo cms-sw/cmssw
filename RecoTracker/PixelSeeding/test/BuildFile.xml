@@ -1,3 +1,31 @@
+<library file="OTStubAnalyzer.cc" name="RecoTrackerPixelSeedingOTStubAnalyzer">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/Math"/>
+  <use name="DataFormats/TrackingRecHitSoA"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="RecoTracker/PixelSeeding"/>
+  <use name="RecoTracker/Record"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="OTStubNtupleAnalyzer.cc" name="RecoTrackerPixelSeedingOTStubNtupleAnalyzer">
+  <use name="root"/>
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/TrackingRecHitSoA"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="RecoTracker/PixelSeeding"/>
+  <use name="RecoTracker/Record"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <library file="HitTripletProducer.cc" name="HitTripletProducer">
   <use name="boost"/>
   <use name="root"/>
