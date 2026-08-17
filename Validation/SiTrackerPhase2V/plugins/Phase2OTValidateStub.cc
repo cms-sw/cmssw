@@ -313,10 +313,6 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
       //  tempStubRef->getDetId() gives the stackDetId, not rawId
       DetId detIdStub = tkGeom_->idToDet((tempStubRef->clusterRef(0))->getDetId())->geographicalId();
 
-      /// Get trigger displacement/offset
-      // double rawBend = tempStubRef->rawBend();
-      // double bendOffset = tempStubRef->bendOffset();
-
       /// Define position stub by position inner cluster
       MeasurementPoint mp = (tempStubRef->clusterRef(0))->findAverageLocalCoordinates();
       const GeomDet* theGeomDet = tkGeom_->idToDet(detIdStub);

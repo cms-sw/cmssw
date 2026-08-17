@@ -50,10 +50,14 @@ namespace cms::alpakatools {
       assert(deviceData.nHits() == hostData.nHits());
       assert(deviceData.nModules() == hostData.nModules());
       assert(deviceData.offsetBPIX2() == hostData.offsetBPIX2());
+      assert(deviceData.offsetStubs() == hostData.offsetStubs());
 #endif
 
       return hostData;
     }
+
+    // No postCopy needed - host data is already synchronized
+    static void postCopy(reco::TrackingRecHitHost&) {}
   };
 
   template <>
@@ -79,6 +83,7 @@ namespace cms::alpakatools {
       assert(deviceData.nHits() == hostData.nHits());
       assert(deviceData.nModules() == hostData.nModules());
       assert(deviceData.offsetBPIX2() == hostData.offsetBPIX2());
+      assert(deviceData.offsetStubs() == hostData.offsetStubs());
 #endif
       return deviceData;
     }

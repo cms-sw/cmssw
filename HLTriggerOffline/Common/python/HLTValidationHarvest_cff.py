@@ -75,10 +75,23 @@ mtd_at_hlt.toModify(
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toReplaceWith(hltpostvalidation, _phase2_hltpostvalidation)
 
+# Add VectorHitStyle stub harvesting when phase2CAStubs modifier is active
+from Configuration.ProcessModifiers.phase2CAStubs_cff import phase2CAStubs
+from Validation.SiTrackerPhase2V.Phase2OTHarvestVectorHitStyleStub_cfi import *
+_phase2_hltpostvalidation_stubs = _phase2_hltpostvalidation.copy()
+_phase2_hltpostvalidation_stubs += postProcessorHLTVHStubsSequence
+(phase2_common & phase2CAStubs).toReplaceWith(hltpostvalidation, _phase2_hltpostvalidation_stubs)
+
 _phase2_hltpostvalidation_WithBarrel = _phase2_hltpostvalidation.copy()
 _phase2_hltpostvalidation_WithBarrel += barrelValidatorPostProcessor
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 ticl_barrel.toReplaceWith(hltpostvalidation, _phase2_hltpostvalidation_WithBarrel)
+
+# ticl_barrel replaces the sequence built above, so the two-modifier case needs its own arm
+_phase2_hltpostvalidation_stubs_WithBarrel = _phase2_hltpostvalidation_stubs.copy()
+_phase2_hltpostvalidation_stubs_WithBarrel += barrelValidatorPostProcessor
+(phase2_common & phase2CAStubs & ticl_barrel).toReplaceWith(hltpostvalidation,
+                                                            _phase2_hltpostvalidation_stubs_WithBarrel)
 
 # fastsim customs
 from Configuration.Eras.Modifier_fastSim_cff import fastSim

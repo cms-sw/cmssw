@@ -200,6 +200,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               hits[h].xerrLocal() = clusParams.xerr[ic] * clusParams.xerr[ic] + cpeParams->detParams(me).apeXX;
               hits[h].yerrLocal() = clusParams.yerr[ic] * clusParams.yerr[ic] + cpeParams->detParams(me).apeYY;
 
+              // Outer-tracker stub columns, set to their invalid values: a pixel hit is not a stub, and
+              // reco::isStub() tests dPhiDrError() >= 0.
+              hits[h].dPhiDr() = 0.f;
+              hits[h].dPhiDrError() = -1.f;
+              hits[h].lowerHitIdx() = std::numeric_limits<uint32_t>::max();
+              hits[h].stubFlags() = 0;
+
               // global coordinates and phi computation
               float xg, yg, zg;
               cpeParams->detParams(me).frame.toGlobal(xl, yl, xg, yg, zg);
