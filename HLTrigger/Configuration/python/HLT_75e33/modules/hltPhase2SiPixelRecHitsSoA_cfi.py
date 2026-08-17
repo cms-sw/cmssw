@@ -11,6 +11,7 @@ hltPhase2SiPixelRecHitsSoA = cms.EDProducer('SiPixelRecHitAlpakaPhase2@alpaka',
 
 # Same pixel hits, with errors from per-module genError parameters instead of the cluster-size table.
 from Configuration.ProcessModifiers.phase2CAStubs_cff import phase2CAStubs
+from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
 _hltPhase2SiPixelRecHitsSoAWithStubs = cms.EDProducer('SiPixelRecHitAlpakaPhase2OTStubs@alpaka',
     beamSpot = cms.InputTag('hltPhase2OnlineBeamSpotDevice'),
     src = cms.InputTag('hltPhase2SiPixelClustersSoA'),
@@ -19,4 +20,4 @@ _hltPhase2SiPixelRecHitsSoAWithStubs = cms.EDProducer('SiPixelRecHitAlpakaPhase2
     # autoselect the alpaka backend
     alpaka = cms.untracked.PSet(backend = cms.untracked.string(''))
 )
-phase2CAStubs.toReplaceWith(hltPhase2SiPixelRecHitsSoA, _hltPhase2SiPixelRecHitsSoAWithStubs)
+(phase2CAStubs | ngtScouting).toReplaceWith(hltPhase2SiPixelRecHitsSoA, _hltPhase2SiPixelRecHitsSoAWithStubs)

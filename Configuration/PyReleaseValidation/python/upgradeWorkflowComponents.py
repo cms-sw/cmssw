@@ -1600,59 +1600,61 @@ upgradeWFs['PatatrackPixelOnlyAlpakaProfiling'] = PatatrackWorkflow(
 )
 
 
-# Pixel-only triplets workflow running on GPU (optional)
+# Pixel-only workflow running the Phase-2 pixel CA extended to outer-tracker stubs on GPU (optional)
 #  - Pixel-only reconstruction with Alpaka, with standard and CPUvsGPU DQM and validation
 #  - harvesting for CPUvsGPU validation
 
-upgradeWFs['PatatrackPixelOnlyTripletsAlpaka'] = PatatrackWorkflow(
+upgradeWFs['PatatrackPixelOnlyCAStubsAlpaka'] = PatatrackWorkflow(
     digi = {
-        '--procModifiers': 'alpaka',
+        '--procModifiers': 'alpaka,phase2CAStubs',
         '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
     },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM+@hltGPUvsCPU',
-        '--procModifiers': 'alpaka',
-        '--customise' : 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets,HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling'
+        '--procModifiers': 'alpaka,phase2CAStubs',
+        '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling'
     },
     harvest = {
-        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@hltGPUvsCPU'
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@hltGPUvsCPU',
+        '--procModifiers': 'phase2CAStubs',
     },
-    suffix = 'Patatrack_PixelOnlyTripletsAlpaka',
+    suffix = 'Patatrack_PixelOnlyCAStubsAlpaka',
     offset = 0.406,
 )
 
-# Pixel-only triplets workflow running on GPU (optional)
+# Pixel-only CA-with-stubs workflow running on GPU (optional), alpakaValidation variant
 #  - Pixel-only reconstruction with Alpaka, with standard and CPUvsGPU DQM and validation
 #  - harvesting for CPUvsGPU validation
 
-upgradeWFs['PatatrackPixelOnlyTripletsAlpakaValidation'] = PatatrackWorkflow(
+upgradeWFs['PatatrackPixelOnlyCAStubsAlpakaValidation'] = PatatrackWorkflow(
     digi = { 
-        '--procModifiers': 'alpaka',
+        '--procModifiers': 'alpaka,phase2CAStubs',
         '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
     },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM+@hltGPUvsCPU',
-        '--procModifiers': 'alpakaValidation',
-        '--customise' : 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets,HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling'
+        '--procModifiers': 'alpakaValidation,phase2CAStubs',
+        '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling'
     },
     harvest = {
-        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@hltGPUvsCPU'
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@hltGPUvsCPU',
+        '--procModifiers': 'phase2CAStubs',
     },
-    suffix = 'Patatrack_PixelOnlyTripletsAlpaka_Validation',
+    suffix = 'Patatrack_PixelOnlyCAStubsAlpaka_Validation',
     offset = 0.407,
 )
 
-upgradeWFs['PatatrackPixelOnlyTripletsAlpakaProfiling'] = PatatrackWorkflow(
+upgradeWFs['PatatrackPixelOnlyCAStubsAlpakaProfiling'] = PatatrackWorkflow(
     digi = { 
-        '--procModifiers': 'alpaka',
+        '--procModifiers': 'alpaka,phase2CAStubs',
     },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly',
-        '--procModifiers': 'alpaka',
-        '--customise' : 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets,RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'
+        '--procModifiers': 'alpaka,phase2CAStubs',
+        '--customise' : 'RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'
     },
     harvest = None,
-    suffix = 'Patatrack_PixelOnlyTripletsAlpaka_Profiling',
+    suffix = 'Patatrack_PixelOnlyCAStubsAlpaka_Profiling',
     offset = 0.408,
 )
 
@@ -2039,6 +2041,22 @@ upgradeWFs['HLTTiming75e33TiclBarrel'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33TiclBarrel'].suffix = '_HLT75e33TimingTiclBarrel'
 upgradeWFs['HLTTiming75e33TiclBarrel'].offset = 0.758
 upgradeWFs['HLTTiming75e33TiclBarrel'].step2['--procModifiers'] = 'ticl_barrel'
+
+# Stub-based CA tracking workflow
+upgradeWFs['HLTTiming75e33CAStubs'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33CAStubs'].suffix = '_HLT75e33TimingCAStubs'
+upgradeWFs['HLTTiming75e33CAStubs'].offset = 0.7512
+upgradeWFs['HLTTiming75e33CAStubs'].step2['--procModifiers'] = 'phase2CAStubs'
+upgradeWFs['HLTTiming75e33CAStubs'].step3['--procModifiers'] = 'phase2CAStubs'
+
+# Truth-matched stubs workflow (overlay on phase2CAStubs)
+upgradeWFs['HLTTiming75e33CATrueStubs'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33CATrueStubs'].suffix = '_HLT75e33TimingCATrueStubs'
+upgradeWFs['HLTTiming75e33CATrueStubs'].offset = 0.7513
+upgradeWFs['HLTTiming75e33CATrueStubs'].step2['--procModifiers'] = 'phase2CAStubs,phase2CATrueStubs'
+upgradeWFs['HLTTiming75e33CATrueStubs'].step2['--accelerators'] = 'cpu'
+upgradeWFs['HLTTiming75e33CATrueStubs'].step3['--procModifiers'] = 'phase2CAStubs,phase2CATrueStubs'
+upgradeWFs['HLTTiming75e33CATrueStubs'].step3['--accelerators'] = 'cpu'
 
 class UpgradeWorkflow_HLTPhase2_WithNano(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):

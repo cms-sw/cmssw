@@ -5,6 +5,7 @@
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/Scouting"/>
+<use name="DataFormats/TrackSoA"/>
 <use name="DataFormats/StdDictionaries"/>
 <use name="DataFormats/VertexReco"/>
 <use name="FWCore/Common"/>
