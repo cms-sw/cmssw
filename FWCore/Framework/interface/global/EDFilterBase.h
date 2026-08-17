@@ -73,8 +73,8 @@ namespace edm {
       virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
 
     private:
-      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
-      void doAcquire(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*, WaitingTaskHolder&&);
+      bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
+      void doAcquire(EventTransitionInfo const&, ModuleCallingContext const*, WaitingTaskHolder&&);
       void doTransformAsync(WaitingTaskHolder iTask,
                             size_t iTransformIndex,
                             EventPrincipal const& iEvent,

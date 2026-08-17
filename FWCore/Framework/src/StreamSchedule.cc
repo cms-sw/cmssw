@@ -54,22 +54,6 @@ namespace edm {
         func(*begin, *out);
     }
 
-    // Function template that takes a sequence 'from', a sequence
-    // 'to', and a callable object 'func'. It and applies
-    // transform_into to fill the 'to' sequence with the values
-    // calcuated by the callable object, taking care to fill the
-    // outupt only if all calls succeed.
-    template <typename FROM, typename TO, typename FUNC>
-    void fill_summary(FROM const& from, TO& to, FUNC func) {
-      if (to.size() != from.size()) {
-        TO temp(from.size());
-        transform_into(from.begin(), from.end(), temp.begin(), func);
-        to.swap(temp);
-      } else {
-        transform_into(from.begin(), from.end(), to.begin(), func);
-      }
-    }
-
     class BeginStreamTraits {
     public:
       static void preScheduleSignal(ActivityRegistry* activityRegistry, StreamContext const* streamContext) {
@@ -846,65 +830,15 @@ namespace edm {
     }
   }
 
-  static void fillModuleInPathSummary(Path const& path, size_t which, ModuleInPathSummary& sum) {
-    sum.timesVisited += path.timesVisited(which);
-    sum.timesPassed += path.timesPassed(which);
-    sum.timesFailed += path.timesFailed(which);
-    sum.timesExcept += path.timesExcept(which);
-    sum.moduleLabel = path.getWorker(which)->description()->moduleLabel();
-    sum.bitPosition = path.bitPosition(which);
-  }
-
-  static void fillPathSummary(Path const& path, PathSummary& sum) {
-    sum.name = path.name();
-    sum.bitPosition = path.bitPosition();
-    sum.timesRun += path.timesRun();
-    sum.timesPassed += path.timesPassed();
-    sum.timesFailed += path.timesFailed();
-    sum.timesExcept += path.timesExcept();
-
-    Path::size_type sz = path.size();
-    if (sum.moduleInPathSummaries.empty()) {
-      std::vector<ModuleInPathSummary> temp(sz);
-      for (size_t i = 0; i != sz; ++i) {
-        fillModuleInPathSummary(path, i, temp[i]);
-      }
-      sum.moduleInPathSummaries.swap(temp);
-    } else {
-      assert(sz == sum.moduleInPathSummaries.size());
-      for (size_t i = 0; i != sz; ++i) {
-        fillModuleInPathSummary(path, i, sum.moduleInPathSummaries[i]);
-      }
-    }
-  }
-
-  static void fillWorkerSummaryAux(Worker const& w, WorkerSummary& sum) {
-    sum.timesVisited += w.timesVisited();
-    sum.timesRun += w.timesRun();
-    sum.timesPassed += w.timesPassed();
-    sum.timesFailed += w.timesFailed();
-    sum.timesExcept += w.timesExcept();
-    sum.moduleLabel = w.description()->moduleLabel();
-  }
-
-  static void fillWorkerSummary(Worker const* pw, WorkerSummary& sum) { fillWorkerSummaryAux(*pw, sum); }
-
   void StreamSchedule::getTriggerReport(TriggerReport& rep) const {
     rep.eventSummary.totalEvents += totalEvents();
     rep.eventSummary.totalEventsPassed += totalEventsPassed();
     rep.eventSummary.totalEventsFailed += totalEventsFailed();
-
-    fill_summary(trig_paths_, rep.trigPathSummaries, &fillPathSummary);
-    fill_summary(end_paths_, rep.endPathSummaries, &fillPathSummary);
-    fill_summary(allWorkersEvents(), rep.workerSummaries, &fillWorkerSummary);
   }
 
   void StreamSchedule::clearCounters() {
     using std::placeholders::_1;
     total_events_ = total_passed_ = 0;
-    for_all(trig_paths_, std::bind(&Path::clearCounters, _1));
-    for_all(end_paths_, std::bind(&Path::clearCounters, _1));
-    for_all(allWorkersEvents(), std::bind(&Worker::clearCounters, _1));
   }
 
   void StreamSchedule::resetAll() { results_->reset(); }

@@ -74,7 +74,7 @@ namespace edm {
       void callWhenNewProductsRegistered(std::function<void(ProductDescription const&)> const& func);
 
     private:
-      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder,
                                                     ModuleCallingContext const&,
