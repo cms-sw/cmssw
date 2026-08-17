@@ -712,6 +712,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const device::EDGetToken<HitsOnDevice> pixelRecHitToken_;
     device::EDGetToken<HitsOnDevice> trackerRecHitToken_;
     const device::EDPutToken<TkSoADevice> tokenTrack_;
+#ifdef CA_TRIPLET_DUMP
+    // Per-built-triplet training-dataset product (one row per built triplet, valid rows = view().nValid()).
+    // Only registered/emitted in CA_TRIPLET_DUMP builds; production builds carry nothing.
+    const device::EDPutToken<TripletDumpSoACollection> tokenTripletDump_;
+#endif
 
     const ::reco::FormulaEvaluator maxNumberOfDoublets_;
     const ::reco::FormulaEvaluator maxNumberOfTuples_;
@@ -735,6 +740,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         tokenField_(esConsumes()),
         pixelRecHitToken_(consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
         tokenTrack_(produces()),
+#ifdef CA_TRIPLET_DUMP
+        tokenTripletDump_(produces()),
+#endif
         maxNumberOfDoublets_(iConfig.getParameter<std::string>("maxNumberOfDoublets")),
         maxNumberOfTuples_(iConfig.getParameter<std::string>("maxNumberOfTuples")),
         minNumberOfDoublets_(iConfig.getParameter<uint32_t>("minNumberOfDoublets")),
@@ -844,6 +852,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto ntracks_d = cms::alpakatools::make_device_view(queue, tracks.view().tracks().nTracks());
       alpaka::memset(queue, ntracks_d, 0);
       iEvent.emplace(tokenTrack_, std::move(tracks));
+#ifdef CA_TRIPLET_DUMP
+      // No CA was run -> no triplets; still emit an empty (0-row) dump so the product is present.
+      iEvent.emplace(tokenTripletDump_, TripletDumpSoACollection(queue, 0u));
+#endif
       return;
     }
 
@@ -863,6 +875,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     iEvent.emplace(tokenTrack_,
                    deviceAlgo_.finishTuplesAsync(std::move(*pending_), hitsCollections, geometry, iEvent.queue()));
     pending_.reset();
+
+#ifdef CA_TRIPLET_DUMP
+    // Emit the per-built-triplet dump that finishTuplesAsync stashed in the generator. The collection
+    // is sized to the full triplet capacity; valid rows are [0, view().nValid()). If the event was
+    // too sparse to allocate the dump (e.g. <2 hits), emplace an empty (0-row) collection so the
+    // product is always present.
+    if (deviceAlgo_.tripletDumpBuffer().has_value()) {
+      iEvent.emplace(tokenTripletDump_, std::move(*deviceAlgo_.tripletDumpBuffer()));
+      deviceAlgo_.tripletDumpBuffer().reset();
+    } else {
+      iEvent.emplace(tokenTripletDump_, TripletDumpSoACollection(iEvent.queue(), 0u));
+    }
+#endif
   }
 
   using CAHitNtupletAlpakaPhase1 = CAHitNtupletAlpaka<pixelTopology::Phase1>;

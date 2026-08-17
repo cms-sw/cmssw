@@ -51,6 +51,20 @@ namespace caStructures {
     bool doFastDuplicateRemover_;
     bool doEarlyDuplicateRemover_;
 
+    // Inline per-triplet DNN gate (Phase2OTStubs only): when enabled, an MLP with compile-time
+    // weights (CATripletDNN.h) scores EVERY accepted triplet in Kernel_connect -- pixel-only
+    // (nStubs==0, sentinel stub features) and stub-containing alike -- and rejects those below
+    // tripletDNNThreshold_ (negative => the threshold compiled into the weight header).
+    bool useTripletDNN_;
+    float tripletDNNThreshold_;
+
+    // Classify-embedded track classifier (Phase2OTStubs only): when enabled, an MLP with
+    // compile-time weights (CATrackDNN.h) scores each fitted candidate in Kernel_classifyTracks
+    // and its score REPLACES the chi2-based strict->tight promotion (trackDNNThreshold_
+    // negative => the threshold compiled into the weight header).
+    bool useTrackDNN_;
+    float trackDNNThreshold_;
+
     // Device-memory allocation strategy (see CAHitNtupletGeneratorKernels)
     bool delayAllocations_;    // Defer cell-derived + hit->track buffers until their real size is known
     bool countDoubletsFirst_;  // Run a count-only doublet pass to size simpleCells/hitToCellStorage exactly

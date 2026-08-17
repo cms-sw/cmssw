@@ -30,6 +30,8 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "RecoTracker/PixelSeeding/interface/CAPairSoA.h"
+// Type defined unconditionally (zero memory); the TripletDumpSoAView kernel arg + writes are #ifdef'd.
+#include "RecoTracker/PixelSeeding/interface/TripletDumpSoA.h"
 #include "RecoTracker/PixelSeeding/interface/CircleEq.h"
 #include "RecoTracker/PixelSeeding/interface/CATrackFeatures.h"
 #include "CAFitHitSelection.h"
@@ -38,6 +40,7 @@
 #include "CACell.h"
 #include "CAHitNtupletGeneratorKernels.h"
 #include "CAStructures.h"
+#include "CATrackDNN.h"
 #include "CATripletCuts.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
@@ -781,6 +784,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   HitsMultiView hh,
                                   reco::CAGraphSoAConstView cc,
                                   reco::CATripletCutsSoAConstView tripletCuts,
+                                  bool useTripletDNN,
+                                  float tripletDNNThreshold,
+#ifdef CA_TRIPLET_DUMP
+                                  caStructures::TripletDumpSoAView tripletDump,  // per-triplet feature capture
+#endif
                                   caStructures::CAPairSoAView cn,
                                   CACell<TrackerTraits> *cells,
                                   uint32_t const *nCells,
@@ -829,9 +837,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
           auto &innerCell = cells[iCellIndex];
           float curvature = 0.f;
 
-          // apply compatibility cuts for this triplet (innerCell, outerCell)
-          // cc (CA layer-pair graph) is threaded in so the CA_TRIPLET_DUMP dataset
-          // row can emit the per-hit CA layer ids; it is unused when the dump is off.
+          // apply compatibility cuts for this triplet (innerCell, outerCell); cc (CA layer-pair graph)
+          // supplies the per-hit CA layer ids for the DNN layer-gap features and the CA_TRIPLET_DUMP row
+#ifdef CA_TRIPLET_DUMP
+          float dumpFeat[18] =
+              {};  // accept() fills 18 BASE DNN features; written to SoA below (zero-init defense-in-depth)
+          float dumpScore = -1.f;  // accept() fills the in-kernel DNN score (consistency check)
+#endif
           if (TripletCuts<TrackerTraits>::accept(acc,
                                                  innerCell,
                                                  outerCell,
@@ -841,6 +853,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                                  tripletVectorCutsCol,
                                                  tripletCuts[innerCell.layerPairId()],
                                                  cc,
+                                                 useTripletDNN,
+                                                 tripletDNNThreshold,
+#ifdef CA_TRIPLET_DUMP
+                                                 dumpFeat,
+                                                 &dumpScore,
+#endif
                                                  pipelineCounters)) {
             auto t_ind = alpaka::atomicAdd(acc, nTrips, 1u, alpaka::hierarchy::Blocks{});
 
@@ -867,6 +885,41 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
               alpaka::atomicSub(acc, nTrips, 1u, alpaka::hierarchy::Blocks{});
               break;
             }
+
+#ifdef CA_TRIPLET_DUMP
+            // Per-built-triplet training row: 18 BASE features (from accept) + the three merged-hit
+            // indices (truth join key) + CA layers (layGap derived). t_ind < maxTriplets
+            // guaranteed by the guard above; the SoA is sized like cn (tripletsN_).
+            {
+              auto row = tripletDump[t_ind];
+              row.absCurvature() = dumpFeat[0];
+              row.tipTimesCurvature() = dumpFeat[1];
+              row.dca() = dumpFeat[2];
+              row.curvatureStubs() = dumpFeat[3];
+              row.curvatureStubsErrSquared() = dumpFeat[4];
+              row.curvature13() = dumpFeat[5];
+              row.dPhi12() = dumpFeat[6];
+              row.dPhi13() = dumpFeat[7];
+              row.dPhi23() = dumpFeat[8];
+              row.dr12() = dumpFeat[9];
+              row.dr13() = dumpFeat[10];
+              row.r1() = dumpFeat[11];
+              row.r2() = dumpFeat[12];
+              row.r3() = dumpFeat[13];
+              row.z1() = dumpFeat[14];
+              row.z2() = dumpFeat[15];
+              row.z3() = dumpFeat[16];
+              row.nStubs() = dumpFeat[17];
+              row.curvature() = curvature;  // SIGNED (Kernel_connect local, by-ref from accept); for derived feats
+              row.lay1() = int32_t(innerCell.innerLayer(cc));
+              row.lay2() = int32_t(outerCell.innerLayer(cc));
+              row.lay3() = int32_t(outerCell.outerLayer(cc));
+              row.h1() = uint32_t(innerCell.inner_hit_id());
+              row.h2() = uint32_t(outerCell.inner_hit_id());
+              row.h3() = uint32_t(outerCell.outer_hit_id());
+              row.inKernelScore() = dumpScore;
+            }
+#endif
 
             // One bin per cell (bin = iCellIndex). The non-layer-skipping vs
             // layer-skipping distinction is encoded in bit 31 of the stored
@@ -1252,7 +1305,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   TkSoAView tracks_view,
                                   HitContainer const *__restrict__ foundNtuplets,
                                   HitsMultiView hh,
-                                  QualityCuts<TrackerTraits> cuts) const {
+                                  QualityCuts<TrackerTraits> cuts,
+                                  bool useTrackDNN,
+                                  float trackDNNThreshold) const {
 #if defined(NTUPLE_DEBUG) || defined(FIT_DEBUG)
       // Counters for diagnostic output
       uint32_t nTracks = 0;
@@ -1296,6 +1351,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         for (int i = 0; i < 5; ++i) {
           isNaN |= edm::isNotFinite(tracks_view[it].state()(i));
         }
+        // FIT-FAILURE RULE: a non-finite chi2 IS a failed fit, exactly like a non-finite parameter,
+        // and no track whose fit failed may be promoted. The test must be explicit because every
+        // promotion gate downstream is an FP comparison written in the REJECTING sense --
+        // QualityCuts::strictCut returns `chi2 >= maxChi2`, the stub-curvature walk tests
+        // `chi2Stub > cut` -- and a comparison with a NaN operand is false, so a NaN chi2 would PASS
+        // them all. edm::isNotFinite is a bit-pattern test on the exponent field, so it keeps
+        // working under -Ofast / -ffinite-math-only, where an `x != x` idiom would be folded away.
+        isNaN |= edm::isNotFinite(tracks_view[it].chi2());
         // state(2) is the (finite) inverse pt: an exactly-zero value from a straight-line or
         // numerically-degenerate fit maps to an infinite momentum in the host local-to-global
         // transform, so treat it as bad here too and never promote such a track
@@ -1335,13 +1398,77 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         if constexpr (std::is_same_v<pixelTopology::Phase2OTStubs, TrackerTraits>) {
           const auto nHitsTot = hh.size();
 
+          // ---- classify-embedded track classifier --------------------------------------
+          // When enabled, the MLP score REPLACES the chi2-based strict->tight decision (both the
+          // strictCut fit-chi2 gate AND the ntuplet-wide stub-consistency demotion below); the
+          // fit chi2 and chi2Stub stay INPUTS of the network (feat[0], feat[8]). So once the DNN
+          // decides a track we SKIP the stub-consistency walk entirely -- it only fed
+          // maxNtupletStubChi2, whose verdict the score overwrites, so it would be wasted work. Feature
+          // ORDER mirrors test/models/train_disp_nano.py FEATS (documented in CATrackDNNWeights.h).
+          bool dnnHandled = false;
+          if (useTrackDNN) {
+            // Single-source feature fill (RecoTracker/PixelSeeding/interface/CATrackFeatures.h),
+            // producing values identical to the host-side CA-features nano table producer's. On a
+            // corrupt/short hit list fill() returns false -> fall through to the chi2-based path.
+            float feat[caTrackFeatures::kNFeat];
+            static_assert(caTrackFeatures::kNFeat == caTrackDNN::kNFeat, "feature ABI mismatch");
+            const bool featOk = caTrackFeatures::fill(foundNtuplets->begin(it),
+                                                      foundNtuplets->end(it),
+                                                      hh,
+                                                      nHitsTot,
+                                                      float(tracks_view[it].nLayers()),
+                                                      tracks_view[it].chi2(),
+                                                      feat,
+                                                      /*rzKappaOut=*/nullptr);
+            // FIT-FAILURE RULE, gate half. This DNN gate REPLACED the classical `chi2 < maxChi2`
+            // promotion, which rejected a failed fit as a side effect of NaN comparing false. The
+            // network gives nothing for free: a non-finite input propagates through the MLP, and
+            // the resulting score compared the wrong way round would promote the track. So the
+            // finiteness of the network INPUTS is established BEFORE the network is evaluated --
+            // never relying on a NaN surviving the sigmoid -- and a track with any non-finite
+            // feature stays Quality::bad (quality() was optimistically set to strict above, so it
+            // is written back explicitly). feat[0] is the fit chi2, already covered by the guard
+            // at the top of the loop; this covers every other quantity the fill produced.
+            bool featFinite = featOk;
+            for (int k = 0; featFinite && k < int(caTrackFeatures::kNFeat); ++k)
+              featFinite = !edm::isNotFinite(feat[k]);
+            if (featOk && !featFinite) {
+#if defined(NTUPLE_DEBUG) || defined(FIT_DEBUG)
+              nNaN++;
+#endif
+              tracks_view[it].quality() = Quality::bad;
+              continue;
+            }
+            if (featOk) {
+              // Stage-1 high-recall loose->tight selector: a single threshold. The model retains
+              // real/loose efficiency to large displacement; dedicated displaced fake rejection
+              // belongs to a downstream selector.
+              const float defThr = caTrackDNN::kDefaultThreshold;
+              const float dnnThr = (trackDNNThreshold < 0.f) ? defThr : trackDNNThreshold;
+              const float dnnScore = caTrackDNN_eval::score(feat);
+              // PROMOTING form on purpose: `score >= threshold` is the decision to PROMOTE and the
+              // rejection is its negation, never `if (score < thr) reject`. Under -Ofast
+              // (-ffinite-math-only) the compiler may assume no NaN operand and rewrite a rejecting
+              // predicate into its finite-arithmetic complement, which would let a NaN score take
+              // the promoting branch; in this form the default is "do not promote", so anything the
+              // comparison cannot decide stays rejected.
+              const bool dnnPromote = (dnnScore >= dnnThr);
+              failChi2 = !dnnPromote;
+              dnnHandled = true;
+            }
+          }
+
           // Ntuplet-wide stub-curvature consistency: inverse-variance-weighted reduced chi2 of
           // ALL per-stub curvatures on the track around their common weighted mean (same kappa as
           // CATripletCuts). A real track's stubs agree; a combinatorial chain admitted by the
           // relaxed displaced DCA does not -> demote it below `tight`. Skipped when the DNN already
           // decided (its score subsumes this), so this is the non-DNN / fill-failed fallback;
           // CA_CHI2_DUMP forces it for the calibration printout.
+#ifdef CA_CHI2_DUMP
           const bool computeStubChi2 = true;
+#else
+          const bool computeStubChi2 = !dnnHandled;
+#endif
           if (computeStubChi2) {
             int nStubK = 0;
             float sumW = 0.f, sumWK = 0.f, sumWK2 = 0.f;
@@ -1368,8 +1495,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
             float chi2Stub = -1.f;
             if (nStubK >= 3 && sumW > 0.f) {
               chi2Stub = (sumWK2 - sumWK * sumWK / sumW) / float(nStubK - 1);
-              if (cuts.maxNtupletStubChi2 >= 0.f && chi2Stub > cuts.maxNtupletStubChi2)
-                failChi2 = true;
+              if (!dnnHandled && cuts.maxNtupletStubChi2 >= 0.f) {
+                // Same discipline as the DNN gate: the KEEP decision is the positive comparison
+                // (`chi2Stub <= cut` -> keep), so a non-finite chi2Stub -- which a degenerate stub
+                // set can produce -- falls to the demoting side instead of sailing through the
+                // negated `chi2Stub > cut` test. The explicit isNotFinite keeps that true under
+                // -Ofast, where the comparison alone would not be trustworthy.
+                const bool stubConsistent = !edm::isNotFinite(chi2Stub) && (chi2Stub <= cuts.maxNtupletStubChi2);
+                if (!stubConsistent)
+                  failChi2 = true;
+              }
             }
 #ifdef CA_CHI2_DUMP
             // Per-track calibration dump: fit chi2 vs ntuplet-wide stub consistency.

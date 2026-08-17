@@ -4,10 +4,17 @@
 #include <alpaka/alpaka.hpp>
 #include <cmath>
 
+#include "FWCore/Utilities/interface/isFinite.h"  // bit-pattern finiteness test for the DNN-gate inputs
 #include "RecoTracker/PixelSeeding/interface/CircleEq.h"
 #include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 #include "CACell.h"
 #include "CAPipelineCounters.h"
+#include "CATripletDNN.h"  // inline per-triplet DNN gate (compile-time weights)
+
+// CA_TRIPLET_DUMP (built-triplet dataset dump, the truth-labeled DNN training input) is toggled in
+// this minimal header so the producer side can see it without pulling in this device header. It
+// must stay commented out in production.
+#include "CATripletDumpMacro.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
@@ -248,6 +255,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // topology: its threshold is anchored at the triplet's innermost layer -- see the cut itself.
         reco::CATripletCutsSoAConstView::const_element tripletInnerPairCutsCol,
         [[maybe_unused]] reco::CAGraphSoAConstView cc,
+        [[maybe_unused]] bool useTripletDNN,
+        [[maybe_unused]] float tripletDNNThreshold,
+#ifdef CA_TRIPLET_DUMP
+        // out: the 18 BASE DNN features, filled (in DNN-block formulas, so training==deployment)
+        // when the triplet is accepted; written into the TripletDump SoA at t_ind by Kernel_connect.
+        float* __restrict__ dumpFeat,
+        // out: the IN-KERNEL DNN score score(feat) for this triplet (in-kernel-vs-offline
+        // consistency check); computed regardless of the gate in dump builds, -1 if not computed.
+        float* __restrict__ dumpScore,
+#endif
         uint32_t* __restrict__ pipelineCounters) {
 #ifdef CA_PIPELINE_COUNTERS
       // set up the pipeline counter
@@ -402,6 +419,142 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
             return false;
           }
+        }
+
+#ifdef CA_TRIPLET_DUMP
+        // Per-BUILT-triplet dataset row (truth-labeled DNN training input), filled once per triplet
+        // that passed ALL TripletCuts, from inside the Phase2OTStubs branch where the full stub
+        // feature vector is in scope. The 18 BASE DNN features go into the out-param in the EXACT
+        // DNN-block formulas, so the training set matches what CATripletDNN evaluates at deployment;
+        // their order is BASE_FEATURES in test/models/train_triplet_dnn.py and the DERIVED features
+        // are recomputed offline from these + lay1/2/3. Kernel_connect writes the row (+ the three
+        // merged-hit indices h1/h2/h3, the truth join key, + layers + iter) into the TripletDump SoA.
+        {
+          const float dcaDump = (absCurvature > 0.f) ? tipTimesCurvature / absCurvature : 0.f;
+          const float dPhiDr13Dump = dPhi13 / dr13;
+          const float rmidDump = 0.5f * (r1 + r3);
+          const float conv2Dump = 1.f + rmidDump * rmidDump * dPhiDr13Dump * dPhiDr13Dump;
+          const float curvature13Dump = dPhiDr13Dump / std::sqrt(conv2Dump);
+          dumpFeat[0] = absCurvature;
+          dumpFeat[1] = tipTimesCurvature;
+          dumpFeat[2] = dcaDump;
+          dumpFeat[3] = curvatureStubs;
+          dumpFeat[4] = curvatureStubsErrSquared;
+          dumpFeat[5] = curvature13Dump;
+          dumpFeat[6] = dPhi12;
+          dumpFeat[7] = dPhi13;
+          dumpFeat[8] = dPhi23;
+          dumpFeat[9] = dr12;
+          dumpFeat[10] = dr13;
+          dumpFeat[11] = r1;
+          dumpFeat[12] = r2;
+          dumpFeat[13] = r3;
+          dumpFeat[14] = z1;
+          dumpFeat[15] = z2;
+          dumpFeat[16] = z3;
+          dumpFeat[17] = float(nStubs);
+        }
+#endif
+
+        // ----------------------------------------------------------------------------
+        // Inline per-triplet DNN gate (optional; compile-time weights in CATripletDNNWeights.h,
+        // evaluated by CATripletDNN.h). Rejects accepted triplets whose DNN score < threshold; with
+        // useTripletDNN off the block is a no-op and the cut ladder alone decides.
+        // In a CA_TRIPLET_DUMP build the reject below is compiled out, so accept() returns true for every
+        // cut-accepted triplet whatever useTripletDNN and whichever model is compiled in. That keeps the
+        // training set unbiased: gating the dump on the compiled-in model would only ever show the next
+        // DNN that model's own accepted subset. The score is still captured (dumpScore) so the in-kernel
+        // evaluation can be cross-checked against the offline one.
+        // Feature vector = 18 raw quantities + 11 derived (pulls/residuals/log
+        // compressions/layer gaps): order AND formulas (incl. the 1e-12 eps
+        // conventions) MUST match add_derived() + BASE_FEATURES/DERIVED in
+        // RecoTracker/PixelSeeding/test/train_triplet_dnn_v2.py.
+        // Gate regime: when the in-kernel DNN is on it gates EVERY triplet, pixel-only (nStubs==0, via
+        // the sentinel features above) and stub-containing alike. One model covers both
+        // regimes (nStubs is a feature); a retrained bank inherits this contract because the dump path
+        // that produced its training rows is the same one.
+        bool runDnnBlock = useTripletDNN;
+#ifdef CA_TRIPLET_DUMP
+        runDnnBlock = true;  // dump build: always evaluate the score to capture it (consistency check)
+#endif
+        if (runDnnBlock) {
+          static_assert(caTripletDNN::kNFeat == 29, "feature vector size must match the trained MLP");
+          constexpr float kEps = 1e-12f;
+          const float dcaDnn = (absCurvature > 0.f) ? tipTimesCurvature / absCurvature : 0.f;
+          const float dPhiDr13Dnn = dPhi13 / dr13;
+          const float rmidDnn = 0.5f * (r1 + r3);
+          const float conv2Dnn = 1.f + rmidDnn * rmidDnn * dPhiDr13Dnn * dPhiDr13Dnn;
+          const float curvature13Dnn = dPhiDr13Dnn / std::sqrt(conv2Dnn);
+          // derived features (each a handful of FLOPs vs the ~6k-MAC MLP evaluation)
+          const float stubCirclePull =
+              (curvatureStubs - curvature) / std::sqrt(std::max(curvatureStubsErrSquared, kEps));
+          const float stubCircleRatio = curvatureStubs / (std::abs(curvature) + kEps);
+          const float curv13Resid = curvature13Dnn - curvature;
+          const float rzResid = z2 - (z1 + (r2 - r1) * (z3 - z1) / (dr13 + kEps));
+          const float cotTheta = (z3 - z1) / (dr13 + kEps);
+          const float dPhiRatio = dPhi12 / ((dPhi23 >= 0.f) ? (dPhi23 + kEps) : (dPhi23 - kEps));
+          const float logAbsCurv = std::log1p(absCurvature * 1e3f);
+          const float logErrSq = std::log1p(curvatureStubsErrSquared * 1e6f);
+          const float logDca = std::log1p(std::abs(dcaDnn));
+          const float layGap12 = float(int(outerCell.innerLayer(cc)) - int(innerCell.innerLayer(cc)));
+          const float layGap23 = float(int(outerCell.outerLayer(cc)) - int(outerCell.innerLayer(cc)));
+          const float feat[caTripletDNN::kNFeat] = {absCurvature,
+                                                    tipTimesCurvature,
+                                                    dcaDnn,
+                                                    curvatureStubs,
+                                                    curvatureStubsErrSquared,
+                                                    curvature13Dnn,
+                                                    dPhi12,
+                                                    dPhi13,
+                                                    dPhi23,
+                                                    dr12,
+                                                    dr13,
+                                                    r1,
+                                                    r2,
+                                                    r3,
+                                                    z1,
+                                                    z2,
+                                                    z3,
+                                                    static_cast<float>(nStubs),
+                                                    stubCirclePull,
+                                                    stubCircleRatio,
+                                                    curv13Resid,
+                                                    rzResid,
+                                                    cotTheta,
+                                                    dPhiRatio,
+                                                    logAbsCurv,
+                                                    logErrSq,
+                                                    logDca,
+                                                    layGap12,
+                                                    layGap23};
+          // NaN discipline, triplet half -- the same rule the track-level gate in
+          // Kernel_classifyTracks follows: a non-finite quantity must never DECIDE anything. The
+          // finiteness of the network INPUTS is established here, BEFORE the score is used, rather
+          // than trusting a NaN to survive the MLP and the sigmoid and then to lose a comparison.
+          // edm::isNotFinite is a bit-pattern test on the exponent field, so it stays valid under
+          // -Ofast / -ffinite-math-only. 29 exponent tests against a ~6k-MAC evaluation: free.
+          bool featFinite = true;
+          for (int k = 0; featFinite && k < int(caTripletDNN::kNFeat); ++k)
+            featFinite = !edm::isNotFinite(feat[k]);
+          const float dnnScore = caTripletDNN_eval::score(feat);
+#ifdef CA_TRIPLET_DUMP
+          if (dumpScore)
+            *dumpScore = dnnScore;  // capture the in-kernel score for the offline-vs-in-kernel check
+          // dump build: reject compiled out so every cut-accepted triplet is dumped (see the note above).
+#else
+          const float defThr = caTripletDNN::kDefaultThreshold;
+          const float thr = (tripletDNNThreshold >= 0.f) ? tripletDNNThreshold : defThr;
+          // PROMOTING form on purpose: `score >= threshold` on finite inputs is the decision to
+          // ACCEPT the triplet, and the reject is its negation -- never `if (score < thr) return
+          // false`. Under -Ofast (-ffinite-math-only) the compiler may assume no NaN operand and
+          // rewrite a rejecting predicate into its finite-arithmetic complement, which would let a
+          // NaN score walk through the gate; in this form the default is "do not accept", so
+          // anything the comparison cannot decide stays rejected. The CA_TRIPLET_DUMP early return
+          // above is untouched, so the training dump keeps seeing every cut-accepted triplet.
+          const bool dnnAccept = featFinite && (dnnScore >= thr);
+          if (useTripletDNN && !dnnAccept)
+            return false;
+#endif
         }
       }
 
