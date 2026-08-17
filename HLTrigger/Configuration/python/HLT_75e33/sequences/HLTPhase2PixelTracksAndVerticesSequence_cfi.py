@@ -82,3 +82,33 @@ _HLTPhase2PixelTracksAndVerticesSequenceLegacyPatatrack = cms.Sequence(
     HLTPhase2PixelTracksAndVerticesSequence,
     _HLTPhase2PixelTracksAndVerticesSequenceLegacyPatatrack
 )
+
+# Stub-based tracking sequence with OT stubs.
+# Note: the SerialSync and vertex-trimming arms are NOT stub-aware.
+from ..modules.hltPixelSeedingOTRecHitsSoA_cfi import hltPixelSeedingOTRecHitsSoA
+from ..modules.hltOTStubProducer_cfi import hltOTStubProducer
+from ..modules.hltPhase2PixelRecHitsStubsMerger_cfi import hltPhase2PixelRecHitsStubsMerger
+from ..modules.hltSiPixelClusters_cfi import hltSiPixelClusters
+from ..modules.hltSiPixelRecHits_cfi import hltSiPixelRecHits
+
+_HLTPhase2PixelTracksAndVerticesSequenceCAStubs = cms.Sequence(
+    HLTBeamSpotSequence
+    +hltPhase2PixelTracksAndHighPtStepTrackingRegions # needed by highPtTripletStep iteration
+    +hltPhase2PixelFitterByHelixProjections # Currently needed by tracker muons
+    +hltPhase2PixelTrackFilterByKinematics  # Currently needed by tracker muons
+    +hltSiPixelClusters                     # legacy pixel clusters for the legacy rechits
+    +hltSiPixelRecHits                      # legacy pixel rechits for the legacy converter
+    +hltPixelSeedingOTRecHitsSoA
+    +hltOTStubProducer
+    +hltPhase2PixelRecHitsStubsMerger
+    +hltPhase2PixelTracksSoA                     # stub CA via the modifier (label preserved)
+    +hltPhase2PixelTrackTorchHighPuritySelector  # forest selector via the modifier (label preserved)
+    +hltPhase2PixelTracks
+    +HLTPhase2PixelVertexingSequence
+)
+
+from Configuration.ProcessModifiers.phase2CAStubs_cff import phase2CAStubs
+phase2CAStubs.toReplaceWith(
+    HLTPhase2PixelTracksAndVerticesSequence,
+    _HLTPhase2PixelTracksAndVerticesSequenceCAStubs
+)

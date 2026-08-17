@@ -339,3 +339,7 @@ def _exclude_OT_layers(hltPhase2PixelTracksSoA, layers_to_exclude = [28, 29, 30]
     hltPhase2PixelTracksSoA.geometry.ptCuts[:] = [hltPhase2PixelTracksSoA.geometry.ptCuts[i] for i in keep_indices]
 
 #print("Using {} pair connections: {}".format(len(hltPhase2PixelTracksSoA.geometry.pairGraph) // 2, hltPhase2PixelTracksSoA.geometry.pairGraph))
+
+from Configuration.ProcessModifiers.phase2CAStubs_cff import phase2CAStubs
+from .hltPhase2PixelTracksSoAWithStubs_cfi import hltPhase2PixelTracksSoAWithStubs as _hltPhase2PixelTracksSoAWithStubs
+phase2CAStubs.toReplaceWith(hltPhase2PixelTracksSoA, _hltPhase2PixelTracksSoAWithStubs)

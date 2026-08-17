@@ -5,4 +5,7 @@
 #include "DataFormats/TrackSoA/interface/TracksSoA.h"
 #include "DataFormats/TrackSoA/interface/TracksHost.h"
 
+#include "DataFormats/TrackSoA/interface/PixelTrackSoATab.h"
+#include <vector>
+
 #endif  // DataFormats_TrackSoA_src_classes_h

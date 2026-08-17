@@ -95,6 +95,20 @@ NanoPixelTables = cms.Sequence(
     + hltPixelTrackRecHitsTable
 )
 
+# The pixel-track SoA table is added only under phase2CAStubs; its source producer
+# is scheduled here since nothing but this table consumes it.
+from Configuration.ProcessModifiers.phase2CAStubs_cff import phase2CAStubs
+from HLTrigger.Configuration.HLT_75e33.modules.hltPhase2PixelTrackSoATableProducer_cfi import hltPhase2PixelTrackSoATableProducer
+_NanoPixelTablesCAStubs = cms.Sequence(
+    pixelTrackAssoc
+    + hltPixelTrackTable
+    + hltPixelTrackExtTable
+    + hltPixelTrackRecHitsTable
+    + hltPhase2PixelTrackSoATableProducer
+    + hltPixelTrackSoATable
+)
+phase2CAStubs.toReplaceWith(NanoPixelTables, _NanoPixelTablesCAStubs)
+
 # Store variables and associators for validation purposes
 NanoValTables = cms.Sequence(
     hltTiclAssociationsTableSequence

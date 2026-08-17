@@ -22,3 +22,7 @@ from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2
 hltPhase2LegacyTracking.toModify(hltInitialStepSeeds,
     includeFourthHit = False
 )
+
+from Configuration.ProcessModifiers.phase2CAStubs_cff import phase2CAStubs
+# Stub-expanded pixel tracks carry OT rechits of every stub; seed from pixel hits only.
+phase2CAStubs.toModify(hltInitialStepSeeds, removeOTRechits = True)

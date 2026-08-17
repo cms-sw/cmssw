@@ -35,3 +35,7 @@ _hltPhase2PixelTracksLegacyPatatrack = cms.EDProducer("PixelTrackProducerFromSoA
     requireQuadsFromConsecutiveLayers = cms.bool(True)
 )
 (hltPhase2LegacyTracking & hltPhase2LegacyTrackingPatatrackQuads).toReplaceWith(hltPhase2PixelTracks, _hltPhase2PixelTracksLegacyPatatrack)
+
+from Configuration.ProcessModifiers.phase2CAStubs_cff import phase2CAStubs
+from .hltPhase2PixelTracksWithStubs_cfi import hltPhase2PixelTracksWithStubs as _hltPhase2PixelTracksWithStubs
+phase2CAStubs.toReplaceWith(hltPhase2PixelTracks, _hltPhase2PixelTracksWithStubs)

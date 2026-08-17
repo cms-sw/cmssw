@@ -102,14 +102,44 @@ hltPixelTrackRecHitsTable = cms.EDProducer("HLTTracksRecHitsTableProducer",
                                            tableName = cms.string("hltPixelTrackRecHits"),
                                            skipNonExistingSrc = cms.bool(True),
                                            tracksSrc = cms.InputTag("hltPhase2PixelTracks"),
-                                           maxRecHits = cms.uint32(16),
+                                           # the stub chain puts up to 19 recHits on a pixel track
+                                           maxRecHits = cms.uint32(19),
                                            precision = cms.int32(7)
 )
 
-# TrackingParticle <-> hltGeneralTracks NanoAOD tables (Phase-2 HLT
-# validation). The underlying TrackAssociatorEDProducer is
-# `tpToHltGeneralTrackAssociation` and is assumed to be already present in the
-# process.
+# Flat table of the pixel-track SoA; added to NanoPixelTables under phase2CAStubs.
+hltPixelTrackSoATable = cms.EDProducer(
+    "SimplePixelTrackSoATabFlatTableProducer",
+    src = cms.InputTag("hltPhase2PixelTrackSoATableProducer"),
+    name = cms.string("PixelTrackSoA"),
+    doc  = cms.string("Pixel tracks from TrackSoA"),
+    singleton = cms.bool(False),
+    extension = cms.bool(False),
+    variables = cms.PSet(
+        chi2 = Var("chi2()", "float"),
+        dzError = Var("dzError()", "float"),
+        dxyError = Var("dxyError()", "float"),
+        eta = Var("eta()","float"),
+        nHits  = Var("nHits()","float"),
+        phi = Var("phi()","float"),
+        phiError = Var("phiError()","float"),
+        pt = Var("pt()","float"),
+        qOverPtError = Var("qOverPtError()","float"),
+        qOverPt = Var("qOverPt()","float"),  # signed q/pT (state(2)); the quantity compatible() gates on
+        charge = Var("charge()","float"),    # charge sign (+1/-1/0) = sign(state(2))
+        dzBS = Var("dzBS()","float"),
+        dxyBS = Var("dxyBS()","float"),
+        nLayers = Var("nLayers()","float"),
+        cotThetaError = Var("cotThetaError()","float"),
+        covCotThetaDz = Var("covCotThetaDz()","float"),
+        covDxyQOverPt = Var("covDxyQOverPt()","float"),
+        covPhiDxy = Var("covPhiDxy()","float"),
+        covPhiQOverPt = Var("covPhiQOverPt()","float")
+    )
+)
+
+# TrackingParticle <-> hltGeneralTracks NanoAOD tables (Phase-2 HLT validation).
+# tpToHltGeneralTrackAssociation must already be present in the process.
 from SimTracker.TrackAssociation.trackingParticleRecoTrackAssociationTables_cff import (
     trackingParticleRecoTrackAssociationTable,
     recoTrackTrackingParticleAssociationTable,
