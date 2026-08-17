@@ -3,6 +3,9 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include <optional>
+#include <memory>
+
 #include "DataFormats/Common/interface/RefProdVector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
@@ -15,6 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "RecoTracker/PixelSeeding/interface/alpaka/CAGeometrySoACollection.h"
 
 #include "CACell.h"
@@ -59,12 +63,63 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // void beginJob();
     // void endJob();
 
-    TkSoADevice makeTuplesAsync(HitsOnDeviceRefProdVector const& hitsRefProdVector,
-                                CAGeometryOnDevice const& params_d,
-                                float bfield,
-                                uint32_t maxDoublets,
-                                uint32_t maxTuples,
-                                Queue& queue) const;
+    // The producer builds the CA ntuplets, runs the broken-line fit and selects high-purity tracks.
+    // It does not consume the outer-tracker or stacked-sensor products.
+    //
+    // Acquire/produce split (stream::SynchronizingEDProducer): the producer calls beginTuplesAsync
+    // in acquire() -- hit prep, doublets, CA kernels, and one async D2H of the tuple-multiplicity
+    // per-N-bin offsets -- and finishTuplesAsync in produce() -- both fit passes (consuming the
+    // landed offsets host-side, see HelixFit::setHostTupleMultiplicityOffsets), tuple
+    // classification and the product. The framework's acquire->produce boundary waits for the copy
+    // in its async callback instead of on a TBB thread. State crossing the boundary lives in
+    // PendingTuples, a member of the producer.
+    struct PendingTuples {
+      // unique_ptr, not optional: the kernels object is not move-constructible (reference +
+      // const members), and PendingTuples must move across the acquire->produce seam.
+      std::unique_ptr<CAHitNtupletGeneratorKernels<TrackerTraits>> kernels;
+      std::optional<TkSoADevice> tracks;
+      // Pinned host mirror of the 5-word extraStorage counter block, enqueued async in
+      // beginTuplesAsync when delayAllocations is on and landed by the same seam guarantee.
+      // Word [0] is the tuple AtomicPairCounter; finishTuplesAsync decodes it to size the
+      // hit->track storage without any host wait.
+      std::optional<cms::alpakatools::host_buffer<cms::alpakatools::AtomicPairCounter::DoubleWord[]>> countsHost;
+      uint32_t maxTuples = 0;
+      uint32_t maxDoublets = 0;
+      float bfield = 0.f;
+      bool built = false;  // false = early-out (too few hits): tracks holds the empty collection
+    };
+
+    PendingTuples beginTuplesAsync(HitsOnDeviceRefProdVector const& hitsRefProdVector,
+                                   CAGeometryOnDevice const& params_d,
+                                   float bfield,
+                                   uint32_t maxDoublets,
+                                   uint32_t maxTuples,
+                                   Queue& queue) const;
+
+    TkSoADevice finishTuplesAsync(PendingTuples&& pending,
+                                  HitsOnDeviceRefProdVector const& hitsRefProdVector,
+                                  CAGeometryOnDevice const& params_d,
+                                  Queue& queue) const;
+
+    // Always-on overflow surfacing, independent of doStats_: the capacity guards in the build
+    // kernels truncate silently, so without this a shortfall leaves no trace in production.
+    // Per-stream persistent device accumulator (kOvfWords words, layout in
+    // Kernel_overflowSentinel; slots 0-5 in use, 6-7 reserved), armed into each event's kernels
+    // object, plus a pinned host mirror refreshed by an async D2H enqueued after classifyTuples
+    // (where the sentinel is launched). No wait: by endStream every event queue has drained, so
+    // the mirror holds the final totals.
+    //
+    // The mirror carries two slots and each event writes the one its parity selects. Consecutive
+    // events of a stream run on different queues, so their copies can be in flight at the same
+    // time; alternating slots keeps two overlapping copies from writing the same bytes.
+    // reportOverflows() takes the element-wise maximum of the two slots, which is exact because
+    // the device counters only ever grow.
+    // Mutable for the same reason as phiBinnerOut_: beginTuplesAsync/finishTuplesAsync are const.
+    static constexpr uint32_t kOvfWords = 8u;
+    mutable std::optional<cms::alpakatools::device_buffer<Device, uint32_t[]>> ovfAccum_;
+    mutable std::optional<cms::alpakatools::host_buffer<uint32_t[]>> ovfHost_;
+    mutable uint32_t ovfSlot_ = 0;
+    void reportOverflows(std::string const& moduleLabel) const;
 
   private:
     Params m_params;

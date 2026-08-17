@@ -81,6 +81,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template class PixelRecHitKernel<pixelTopology::Phase1>;
     template class PixelRecHitKernel<pixelTopology::Phase2>;
     template class PixelRecHitKernel<pixelTopology::HIonPhase1>;
+    template class PixelRecHitKernel<pixelTopology::Phase2OTStubs>;
 
   }  // namespace pixelgpudetails
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

@@ -70,7 +70,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         for (unsigned int i = 0; i < hitsInFit; ++i) {
           auto hit = hitId[i];
           float ge[6];
-          cm.detFrame(hh[hit].detectorIndex()).toGlobal(hh[hit].xerrLocal(), 0, hh[hit].yerrLocal(), ge);
+
+          cm.innerSensorFrame(hh[hit].detectorIndex()).toGlobal(hh[hit].xerrLocal(), 0, hh[hit].yerrLocal(), ge);
+
           hits.col(i) << hh[hit].xGlobal(), hh[hit].yGlobal(), hh[hit].zGlobal();
           hits_ge.col(i) << ge[0], ge[1], ge[2], ge[3], ge[4], ge[5];
         }
@@ -201,6 +203,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   };
 
+  // Do NOT call hv.offsetStubs() from host - that would dereference device memory and segfault!
   template <typename TrackerTraits>
   void HelixFit<TrackerTraits>::launchRiemannKernels(const caStructures::HitsMultiView &hv,
                                                      const ::reco::CAModulesConstView &cm,
@@ -266,7 +269,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           circle_fit_resultsDevice_,
                           offset);
 
-      // quads
+      // quadruplets
       alpaka::exec<Acc1D>(queue,
                           workDivQuadsPenta,
                           Kernel_FastFit<4, TrackerTraits>{},
@@ -390,6 +393,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template class HelixFit<pixelTopology::Phase1>;
   template class HelixFit<pixelTopology::Phase2>;
   template class HelixFit<pixelTopology::Phase2OT>;
+  template class HelixFit<pixelTopology::Phase2OTStubs>;
   template class HelixFit<pixelTopology::HIonPhase1>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
