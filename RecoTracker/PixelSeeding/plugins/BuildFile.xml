@@ -1,5 +1,6 @@
 <use name="ofast-flag"/>
 <use name="CommonTools/RecoAlgos"/>
+<use name="CommonTools/Utils"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
@@ -14,10 +15,19 @@
 
 <library file="alpaka/*.cc" name="RecoTrackerPixelSeedingPortable">
   <use name="alpaka"/>
+  <use name="DataFormats/BeamSpot"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/Math"/>
   <use name="DataFormats/Portable"/>
   <use name="DataFormats/TrackSoA"/>
   <use name="DataFormats/TrackingRecHitSoA"/>
+  <use name="DataFormats/TrackerCommon"/>
+  <use name="DataFormats/TrackerRecHit2D"/>
+  <use name="FWCore/MessageLogger"/>
   <use name="FWCore/Utilities"/>
+  <use name="Geometry/CommonTopologies"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/TrackerGeometryBuilder"/>
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="RecoLocalTracker/Records"/>
