@@ -259,7 +259,7 @@ StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 1
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 5000001
     ProcessContext: PROD2 9a42d7e4995aeb2a3c9d04a3ef0f3879
-ModuleCallingContext state = Running
+ModuleCallingContext state = Passed
     moduleDescription: Module type=IntProducer, Module label=intProducer, Parameter Set ID=b4b90439a3015d748c803aa5c60a25d3
     PlaceInPathContext 0
     PathContext: pathName = p pathID = 0
@@ -405,7 +405,7 @@ StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 2
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 10000001
     ProcessContext: PROD2 9a42d7e4995aeb2a3c9d04a3ef0f3879
-ModuleCallingContext state = Running
+ModuleCallingContext state = Passed
     moduleDescription: Module type=IntProducer, Module label=intProducer, Parameter Set ID=b4b90439a3015d748c803aa5c60a25d3
     PlaceInPathContext 0
     PathContext: pathName = p pathID = 0
@@ -551,7 +551,7 @@ StreamContext: StreamID = 0 transition = Event
     run: 1 lumi: 1 event: 3
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 15000001
     ProcessContext: PROD2 9a42d7e4995aeb2a3c9d04a3ef0f3879
-ModuleCallingContext state = Running
+ModuleCallingContext state = Passed
     moduleDescription: Module type=IntProducer, Module label=intProducer, Parameter Set ID=b4b90439a3015d748c803aa5c60a25d3
     PlaceInPathContext 0
     PathContext: pathName = p pathID = 0

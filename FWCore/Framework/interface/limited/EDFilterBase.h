@@ -77,7 +77,7 @@ namespace edm {
       LimitedTaskQueue& queue() { return queue_; }
 
     private:
-      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
       void doTransformAsync(WaitingTaskHolder iTask,
                             size_t iTransformIndex,
                             EventPrincipal const& iEvent,

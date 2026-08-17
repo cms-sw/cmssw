@@ -26,11 +26,7 @@ namespace edm {
              std::shared_ptr<ActivityRegistry> areg,
              StreamContext const* streamContext,
              PathContext::PathType pathType)
-      : timesRun_(),
-        timesPassed_(),
-        timesFailed_(),
-        timesExcept_(),
-        failedModuleIndex_(workers.size()),
+      : failedModuleIndex_(workers.size()),
         state_(hlt::Ready),
         bitpos_(bitpos),
         trptr_(trptr),
@@ -47,11 +43,7 @@ namespace edm {
   }
 
   Path::Path(Path const& r)
-      : timesRun_(r.timesRun_),
-        timesPassed_(r.timesPassed_),
-        timesFailed_(r.timesFailed_),
-        timesExcept_(r.timesExcept_),
-        failedModuleIndex_(r.failedModuleIndex_),
+      : failedModuleIndex_(r.failedModuleIndex_),
         state_(r.state_),
         bitpos_(r.bitpos_),
         trptr_(r.trptr_),
@@ -165,29 +157,6 @@ namespace edm {
     }
   }
 
-  void Path::updateCounters(hlt::HLTState state) {
-    switch (state) {
-      case hlt::Pass: {
-        ++timesPassed_;
-        break;
-      }
-      case hlt::Fail: {
-        ++timesFailed_;
-        break;
-      }
-      case hlt::Exception: {
-        ++timesExcept_;
-      }
-      default:;
-    }
-  }
-
-  void Path::clearCounters() {
-    using std::placeholders::_1;
-    timesRun_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
-    for_all(workers_, std::bind(&WorkerInPath::clearCounters, _1));
-  }
-
   void Path::setEarlyDeleteHelpers(std::map<const Worker*, EarlyDeleteHelper*> const& iWorkerToDeleter) {
     for (unsigned int index = 0; index != size(); ++index) {
       auto found = iWorkerToDeleter.find(getWorker(index));
@@ -209,7 +178,6 @@ namespace edm {
                                         StreamContext const* iStreamContext) {
     waitingTasks_.reset();
     modulesToRun_ = workers_.size();
-    ++timesRun_;
     waitingTasks_.add(iTask);
     printedException_ = false;
     if (actReg_) {
@@ -301,7 +269,6 @@ namespace edm {
                       StreamContext const* iContext,
                       EventTransitionInfo const& iInfo,
                       StreamID const& streamID) {
-    updateCounters(state_);
     auto failedModuleBitPosition = bitPosition(failedModuleIndex_);
     recordStatus(failedModuleBitPosition, state_);
     // Caught exception is propagated via WaitingTaskList

@@ -126,7 +126,7 @@ namespace edm {
       void deleteModulesEarly();
 
     private:
-      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
       void doPreallocate(PreallocationConfiguration const&);
       virtual void preallocRuns(unsigned int) {}
       virtual void preallocLumis(unsigned int) {}
