@@ -45,10 +45,13 @@
   <use name="DataFormats/BeamSpot"/>
   <use name="DataFormats/Portable"/>
   <use name="DataFormats/SoATemplate"/>
+  <use name="DataFormats/TrackSoA"/>
+  <use name="DataFormats/TrackingRecHitSoA"/>
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="PhysicsTools/PyTorch"/>
   <use name="PhysicsTools/PyTorchAlpaka"/>
+  <use name="RecoTracker/PixelSeeding"/>
   <use name="pytorch-cuda" for="alpaka/cuda"/>
   <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>

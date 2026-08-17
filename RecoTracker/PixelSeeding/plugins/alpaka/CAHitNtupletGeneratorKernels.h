@@ -24,6 +24,11 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 #include "RecoTracker/PixelSeeding/interface/alpaka/CAPairSoACollection.h"
+// Type defined unconditionally (zero memory: just the layout + an empty std::optional below);
+// the actual device buffer is allocated only under #ifdef CA_TRIPLET_DUMP (see the .dev.cc).
+#include "RecoTracker/PixelSeeding/interface/alpaka/TripletDumpSoACollection.h"
+// CA_TRIPLET_DUMP toggle (minimal header) -- needed for the #ifdef'd dump-buffer accessor below.
+#include "CATripletDumpMacro.h"
 // CA_SIZING_DUMP toggle (minimal header) -- the per-event demand dump of every sized container.
 #include "CASizingDumpMacro.h"
 
@@ -210,6 +215,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     CellToCell const* cellToCell() const { return device_cellToNeighbors_->data(); }
     CellToTrack const* cellToTrack() const { return device_cellToTracks_->data(); }
 
+#ifdef CA_TRIPLET_DUMP
+    // Accessor for the per-built-triplet dump buffer so the generator can move it out of this
+    // kernels object before it is destroyed. Only present in CA_TRIPLET_DUMP builds.
+    std::optional<TripletDumpSoACollection>& tripletDumpBuffer() { return device_tripletDump_; }
+#endif
+
     void prepareHits(const HitsMultiView& hh,
                      const ModulesMultiView& mm,
                      const ::reco::CALayersSoAConstView& ll,
@@ -385,6 +396,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     std::optional<CAPairSoACollection> deviceTriplets_;
     std::optional<CAPairSoACollection> deviceTracksCells_;
+
+    // Per-built-triplet training-dataset capture. The std::optional is empty (zero memory) unless
+    // CA_TRIPLET_DUMP is on, where it is allocated (sized like deviceTriplets_, tripletsN_) and
+    // written by Kernel_connect at the t_ind append, then emitted as the 'Triplet' nano table.
+    std::optional<TripletDumpSoACollection> device_tripletDump_;
 
 #ifdef CA_PIPELINE_COUNTERS
     // Pipeline stage counters for diagnostic funnel

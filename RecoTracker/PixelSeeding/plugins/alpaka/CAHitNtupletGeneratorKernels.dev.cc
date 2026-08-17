@@ -474,6 +474,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     tracksCellsN_ = nCellsToTracks;
     deviceTriplets_ = CAPairSoACollection(queue, tripletsN_);
     deviceTracksCells_ = CAPairSoACollection(queue, tracksCellsN_);
+#ifdef CA_TRIPLET_DUMP
+    device_tripletDump_ = TripletDumpSoACollection(queue, tripletsN_);
+#endif
   }
 
   template <typename TrackerTraits>
@@ -688,6 +691,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         hh,
                         cc,
                         tripletCuts,
+                        this->m_params.algoParams_.useTripletDNN_,
+                        this->m_params.algoParams_.tripletDNNThreshold_,
+#ifdef CA_TRIPLET_DUMP
+                        this->device_tripletDump_->view(),
+#endif
                         this->deviceTriplets_->view(),
                         this->device_simpleCells_->data(),
                         this->device_nCells_->data(),
@@ -697,6 +705,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         this->pipelineCountersPtr());
 
     CellToCell::template launchFinalize<Acc1D>(this->device_cellToNeighborsView_, queue);
+
+#ifdef CA_TRIPLET_DUMP
+    // Stamp the valid-row count into the dump SoA scalar (== *device_nTriplets_, the number of rows
+    // Kernel_connect actually wrote). Device->device copy on the same queue; the host consumer reads
+    // view().nValid() to know how many of the full-capacity rows are valid. Zero footprint when off.
+    alpaka::memcpy(queue,
+                   cms::alpakatools::make_device_view(queue, this->device_tripletDump_->view().nValid()),
+                   cms::alpakatools::make_device_view(queue, *this->device_nTriplets_->data()));
+#endif
 
 #ifdef GPU_DEBUG
     alpaka::wait(queue);
@@ -1201,7 +1218,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         tracks_view,
                         this->device_hitContainer_->data(),
                         hh,
-                        this->m_params.qualityCuts_);
+                        this->m_params.qualityCuts_,
+                        this->m_params.algoParams_.useTrackDNN_,
+                        this->m_params.algoParams_.trackDNNThreshold_);
 #ifdef GPU_DEBUG
     alpaka::wait(queue);
     std::cout << "Kernel_classifyTracks -> done!" << std::endl;

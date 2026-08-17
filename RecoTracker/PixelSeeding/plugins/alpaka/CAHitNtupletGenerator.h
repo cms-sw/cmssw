@@ -23,6 +23,7 @@
 
 #include "CACell.h"
 #include "CAHitNtupletGeneratorKernels.h"
+#include "CATripletDumpMacro.h"  // CA_TRIPLET_DUMP toggle for the #ifdef'd dump member/accessor below
 #include "HelixFit.h"
 
 namespace edm {
@@ -126,6 +127,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     mutable std::optional<cms::alpakatools::host_buffer<uint32_t[]>> ovfHost_;
     mutable uint32_t ovfSlot_ = 0;
     void reportOverflows(std::string const& moduleLabel) const;
+
+#ifdef CA_TRIPLET_DUMP
+    // Per-built-triplet training-dataset capture surfaced out of finishTuplesAsync: the kernels
+    // object that owns the buffer lives in PendingTuples and is destroyed with it, so
+    // finishTuplesAsync moves the kernels' device_tripletDump_ into here before returning; the
+    // producer then moves it out and emplaces it as the 'Triplet' nano product. Mutable because
+    // finishTuplesAsync is const. Empty/zero footprint when CA_TRIPLET_DUMP is off (the whole
+    // member is compiled out).
+    mutable std::optional<TripletDumpSoACollection> device_tripletDump_;
+    std::optional<TripletDumpSoACollection>& tripletDumpBuffer() const { return device_tripletDump_; }
+#endif
 
   private:
     Params m_params;
