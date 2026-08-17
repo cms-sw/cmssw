@@ -27,9 +27,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   template <typename TrackerTraits>
   class CAFishbone {
   public:
+    using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
     ALPAKA_FN_ACC void operator()(Acc2D const& acc,
-                                  caStructures::HitsMultiView hh,
+                                  HitsMultiView hh,
                                   ::reco::CALayersSoAConstView const& ll,
+                                  ::reco::CAGraphSoAConstView const& cc,
                                   CACell<TrackerTraits>* cells,
                                   uint32_t const* __restrict__ nCells,
                                   HitToCell const* __restrict__ outerHitHisto,
@@ -41,7 +44,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       for (uint32_t idy : cms::alpakatools::uniform_elements_y(acc, outerHits)) {
         uint32_t size = outerHitHisto->size(idy);
 #ifdef GPU_DEBUG
-        printf("fishbone ---> outersize %d - ", idy, size);
+        printf("fishbone ---> idy %d outersize %d - ", idy, size);
 #endif
         if (size < 2)
           continue;
@@ -54,18 +57,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
         auto xo = c0.outer_x(hh);
         auto yo = c0.outer_y(hh);
         auto zo = c0.outer_z(hh);
-        auto const lo = c0.outerLayer();
+        auto const lo = c0.outerLayer(cc);
         auto const threshold = ll[lo].fishboneCut();
         //printf("first cell %d xo %.2f yo %.2f zo %.2f - ",bin[0],c0.outer_x(hh),c0.outer_y(hh),c0.outer_z(hh));ve
 
 #ifdef GPU_DEBUG
         for (auto idx = 0u; idx < size; idx++) {
           unsigned int otherCell = bin[idx];
-          printf("vc[0] %d idx %d vc[idx] %d otherCell %d \n", vc[0], idx, vc[idx], otherCell);
+          printf("bin[0] %d idx %d bin[idx] %d otherCell %d \n", bin[0], idx, bin[idx], otherCell);
         }
 #endif
         for (uint32_t ic : cms::alpakatools::independent_group_elements_x(acc, size)) {
-          //printf("cell0 = %d ci = %d\n",bin[0],bin[ic]);
           unsigned int otherCell = bin[ic];
           auto& ci = cells[otherCell];
           if (ci.unused())
@@ -73,7 +75,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
           if (checkTrack && cellTracksHisto->size(otherCell) == 0)
             continue;
 
-          auto const li = ci.innerLayer();
+          auto const l1 = ci.innerLayer(cc);
 
           for (auto jc = ic + 1; jc < size; ++jc) {
             unsigned int nextCell = bin[jc];
@@ -82,11 +84,69 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
               continue;
             if (checkTrack && cellTracksHisto->size(nextCell) == 0)
               continue;
+#ifdef GPU_DEBUG
+            printf("xx = %.2f yo = %.2f zo = %.2f xi = %.2f yi = %.2f zi = %.2f xj = %.2f yj = %.2f zj = %.2f\n",
+                   xo,
+                   yo,
+                   zo,
+                   ci.inner_x(hh),
+                   ci.inner_y(hh),
+                   ci.inner_z(hh),
+                   cj.inner_x(hh),
+                   cj.inner_y(hh),
+                   cj.inner_z(hh));
+#endif
 
-            if (ci.inner_detIndex(hh) == cj.inner_detIndex(hh))
-              continue;
+            // Same detector module check with special handling for vector hits
+            if (ci.inner_detIndex(hh) == cj.inner_detIndex(hh)) {
+              // Two vector hits on the same module are duplicates only if they were built from the same
+              // lower cluster, i.e. the same lowerHitIdx: one measurement paired with two different
+              // clusters on the other sensor. The rule is the same for PS and 2S stacks (lowerHitIdx
+              // is published for both).
+              if constexpr (std::is_same_v<pixelTopology::Phase2OTVectorHits, TrackerTraits>) {
+                auto innerHitI = ci.inner_hit_id();
+                auto innerHitJ = cj.inner_hit_id();
+                // Check if both inner hits are vector hits
+                if (isVectorHit(hh, innerHitI) && isVectorHit(hh, innerHitJ)) {
+                  auto lowerHitI = hh.vectorHit(innerHitI).lowerHitIdx();
+                  auto lowerHitJ = hh.vectorHit(innerHitJ).lowerHitIdx();
+                  // If different lower hits (different P-hits on same module), skip
+                  // These are not duplicates - they represent different physical P-hits
+                  if (lowerHitI != lowerHitJ) {
+                    continue;
+                  }
 
-            bool sameLayer = (cj.innerLayer() == li);
+                  // Same lower hit: these are duplicate vector hits from the same P-hit
+                  // Check which vector hit dPhiDr is more compatible with the doublet
+                  auto iphio = ci.outer_iphi(hh);
+                  auto iphii = ci.inner_iphi(hh);
+                  auto ro = ci.outer_r(hh);
+                  auto ri = ci.inner_r(hh);
+                  float dphi = short2phi(iphio - iphii);
+                  float dr = ro - ri;
+                  auto dPhiDiffI = std::abs(dphi - dr * ci.inner_dPhiDr(hh));
+                  auto dPhiDiffJ = std::abs(dphi - dr * cj.inner_dPhiDr(hh));
+
+                  // keep the one that agrees better (smaller abs dPhiDiff)
+                  // and kill the other cell
+                  // Note: we also don't remember the other cell as a fishbone in the CACell because
+                  //       the killed cell probably had a fake vector hit (worse alignment)
+                  if (dPhiDiffI < dPhiDiffJ)
+                    cj.kill();
+                  else
+                    ci.kill();
+                }
+                // continue since vector hits are fully dealt with above
+                // and if one is no vector hit we don't want to remove any
+                continue;
+
+              } else {
+                // Other topologies: cells whose inner hits sit on the same module are never compared
+                continue;
+              }
+            }
+
+            bool sameLayer = (cj.innerLayer(cc) == l1);
             if (checkSameLayerOnly && !(sameLayer))
               continue;
 
@@ -111,18 +171,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
             float n2 = x2 * x2 + y2 * y2 + z2 * z2;
 
             auto cos12 = x1 * x2 + y1 * y2 + z1 * z2;
-#ifdef GPU_DEBUG
-            printf("xo = %.2f yo = %.2f zo = %.2f xa = %.2f ya = %.2f za = %.2f xb = %.2f yb = %.2f zb = %.2f\n",
-                   xo,
-                   yo,
-                   zo,
-                   ca.inner_x(hh),
-                   ca.inner_y(hh),
-                   ca.inner_z(hh),
-                   cb.inner_x(hh),
-                   cb.inner_y(hh),
-                   cb.inner_z(hh));
-#endif
 
             if (cos12 * cos12 >= threshold * (n1 * n2)) {
               // alligned:  kill farthest (prefer consecutive layers)
