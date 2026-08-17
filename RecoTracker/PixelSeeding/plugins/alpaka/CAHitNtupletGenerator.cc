@@ -309,7 +309,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       desc.add<bool>("fitNas4", false)->setComment("fit only 4 hits out of N");
       desc.add<bool>("verboseBLFit", false)
           ->setComment("one-shot device dump of the first fitted tracks at the end of each BL-fit launch (debug)");
-
       desc.add<bool>("useRiemannFit", false)->setComment("true for Riemann, false for BrokenLine");
       desc.add<bool>("useFitCorrections", kStubs)
           ->setComment(
@@ -333,6 +332,38 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               "Disable the triplet cleaner entirely.");  // FIXME this should be implemented as an automatic check (simple if) that disables if minHitsPerNtuplet > 3
       desc.add<bool>("doFastDuplicateRemover", true)->setComment("Disable the fastDuplicateRemover");
       desc.add<bool>("doEarlyDuplicateRemover", true)->setComment("Disable the earlyDuplicateRemover");
+
+      // Inline per-triplet DNN gate (Phase2OTStubs only)
+      desc.add<bool>("useTripletDNN", kStubs)
+          ->setComment(
+              "Enable the inline per-triplet DNN gate (CATripletDNN.h, weights compiled into the plugin) "
+              "on triplets accepted by the cut ladder in Kernel_connect. It suppresses combinatorial "
+              "triplets before they are grown into tracks, at the cost of one small MLP evaluation per "
+              "accepted triplet; false leaves the cut ladder as the only selection. Phase2OTStubs only "
+              "(true there by default, false on every other topology).");
+      desc.add<double>("tripletDNNThreshold", -1.0)
+          ->setComment(
+              "DNN gate threshold: a triplet is kept iff its score >= threshold. Negative selects the "
+              "threshold shipped with the SELECTED bank's weights (its kDefaultThreshold, the recall point "
+              "that bank was trained for; the bank follows iterationName). Raise it to reject more "
+              "combinatorial triplets at the cost of "
+              "real-triplet recall; lower it to keep more.");
+      // Classify-embedded track classifier (Phase2OTStubs only)
+      desc.add<bool>("useTrackDNN", kStubs)
+          ->setComment(
+              "Enable the track classifier embedded in Kernel_classifyTracks (CATrackDNN.h, weights "
+              "compiled into the plugin): its score replaces the chi2-based promotion of a track from "
+              "loose to tight, which keeps efficiency on displaced tracks that a chi2 cut alone loses. "
+              "false restores the chi2 gate. Phase2OTStubs only (true there by default, false on every "
+              "other topology).");
+      desc.add<double>("trackDNNThreshold", -1.0)
+          ->setComment(
+              "Threshold of the loose->tight track classifier: a candidate is promoted to tight iff its "
+              "score >= threshold. Negative selects the threshold shipped with the SELECTED bank's weights "
+              "(its kDefaultThreshold, the high-recall point that bank was trained for; the bank follows "
+              "iterationName). Keep it "
+              "low to retain efficiency here; fake rejection for displaced tracks is the job of the "
+              "separate post-reco high-purity selector, not of this gate.");
 
       // Device-memory allocation strategy
       desc.add<bool>("useExactAllocations", false)
@@ -390,6 +421,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           .doTripletCleaner_ = cfg.getParameter<bool>("doTripletCleaner"),
           .doFastDuplicateRemover_ = cfg.getParameter<bool>("doFastDuplicateRemover"),
           .doEarlyDuplicateRemover_ = cfg.getParameter<bool>("doEarlyDuplicateRemover"),
+
+          // Inline triplet DNN gate (scores every accepted triplet)
+          .useTripletDNN_ = cfg.getParameter<bool>("useTripletDNN"),
+          .tripletDNNThreshold_ = (float)cfg.getParameter<double>("tripletDNNThreshold"),
+
+          // Classify-embedded track classifier (loose/tight selector)
+          .useTrackDNN_ = cfg.getParameter<bool>("useTrackDNN"),
+          .trackDNNThreshold_ = (float)cfg.getParameter<double>("trackDNNThreshold"),
 
           // Allocation strategy: the single useExactAllocations switch drives both internal modes --
           // the deferred demand-based allocations (delayAllocations_) and the count-only doublet pass
@@ -836,6 +875,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           dumpNCellTracks,
           kernels.tracksCellsN());
     }
+#endif
+
+#ifdef CA_TRIPLET_DUMP
+    // Surface the per-built-triplet dump out of the (function-local) kernels object before it is
+    // destroyed: move its device buffer into the generator member so the producer can emplace it.
+    // nValid was already stamped device-side in Kernel_connect; the buffer is sized to the full
+    // triplet capacity (tripletsN_). Empty/zero footprint when CA_TRIPLET_DUMP is off.
+    device_tripletDump_ = std::move(kernels.tripletDumpBuffer());
 #endif
 
 #ifdef GPU_DEBUG
