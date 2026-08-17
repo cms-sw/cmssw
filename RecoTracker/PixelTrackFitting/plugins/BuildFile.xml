@@ -5,3 +5,16 @@
   <use name="RecoTracker/PixelTrackFitting"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="alpaka/*.cc" name="RecoTrackerPixelTrackFittingPluginsPortable">
+  <use name="alpaka"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="Geometry/Records"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
+  <use name="RecoTracker/Record"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

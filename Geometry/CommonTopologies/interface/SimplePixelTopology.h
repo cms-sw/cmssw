@@ -221,9 +221,8 @@ namespace phase1PixelTopology {
   HOST_DEVICE_CONSTANT float maxDR[nPairs] = {
       20., 9., 9., 20., 7., 7., 5., 5., 20., 6., 6., 5., 5., 20., 20., 9., 9., 9., 9.};
 
-  // Beam-spot compatibility cut (transverse impact parameter, cm), one entry per layer pair.
-  // Each pair carries the value belonging to its inner layer: pairs whose inner hit is on BPIX1
-  // get the tight 0.15 cm, every other pair 0.25 cm.
+  // Beam-spot compatibility cut (transverse impact parameter, cm), one entry per layer pair,
+  // carrying the value of the pair's inner layer.
   HOST_DEVICE_CONSTANT float maxDCA[nPairs] = {
       0.15,
       0.15,
@@ -246,8 +245,8 @@ namespace phase1PixelTopology {
       0.25  // Jumping Forward
   };
 
-  // Tolerance of the RZ-alignment test applied to triplets, one entry per layer pair.
-  // Each pair carries the value belonging to its inner layer: barrel layers 0.002, forward layers 0.003.
+  // Tolerance of the r-z alignment test applied to triplets, one entry per layer pair,
+  // carrying the value of the pair's inner layer.
   HOST_DEVICE_CONSTANT float maxRZTolerance[nPairs] = {
       0.002,
       0.002,
@@ -270,9 +269,8 @@ namespace phase1PixelTopology {
       0.003  // Jumping Forward
   };
 
-  // Per-LAYER form of the two triplet cuts, kept because it is the form of the `geometry` PSet
-  // (caDCACuts / caThetaCuts). The per-layer-pair tables above are the internal form the CA SoA
-  // consumes; the producer broadcasts these onto them (value of the pair's own inner layer).
+  // Per-layer form of the two triplet cuts (the `geometry` PSet form caDCACuts / caThetaCuts);
+  // the producer broadcasts each layer's value onto the pairs whose inner layer it is.
   HOST_DEVICE_CONSTANT float dcaCuts[numberOfLayers] = {0.15, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25};
 
   HOST_DEVICE_CONSTANT float thetaCuts[numberOfLayers] = {
@@ -325,8 +323,6 @@ namespace phase2PixelTopology {
   constexpr uint16_t nModulesOT = 2872;                       // considered OT modules (barrel only)
   constexpr uint16_t nModulesTot = nModulesPix + nModulesOT;  // total number of modules for extended CA
 
-  // Module counts for Phase2OTStubs (with barrel + both disk sides)
-  // OT barrel: 7288 modules, OT backward disks: 2956, OT forward disks: 2956
   constexpr uint32_t nModulesOTBarrel = 7288;
   constexpr uint32_t nModulesOTBackward = 2956;
   constexpr uint32_t nModulesOTForward = 2956;
@@ -547,9 +543,8 @@ namespace phase2PixelTopology {
       12.5, 12.5                     // OT to OT
   };
 
-  // Beam-spot compatibility cut (transverse impact parameter, cm), one entry per layer pair.
-  // Each pair carries the value belonging to its inner layer: BPIX1 0.15, BPIX2 0.25, BPIX3/BPIX4 0.20,
-  // all remaining pixel layers 0.25, OT layers 0.10.
+  // Beam-spot compatibility cut (transverse impact parameter, cm), one entry per layer pair,
+  // carrying the value of the pair's inner layer.
   HOST_DEVICE_CONSTANT float maxDCA[nPairsTot] = {
       0.15, 0.15, 0.15, 0.15, 0.15, 0.15,        // starting on BPIX1
       0.25, 0.25, 0.25, 0.25, 0.25, 0.25,        // starting on BPIX2
@@ -567,9 +562,8 @@ namespace phase2PixelTopology {
       0.10, 0.10                     // OT to OT
   };
 
-  // Tolerance of the RZ-alignment test applied to triplets, one entry per layer pair.
-  // Each pair carries the value belonging to its inner layer: pixel barrel layers 0.002,
-  // all remaining pixel layers and the OT layers 0.003.
+  // Tolerance of the r-z alignment test applied to triplets, one entry per layer pair,
+  // carrying the value of the pair's inner layer.
   HOST_DEVICE_CONSTANT float maxRZTolerance[nPairsTot] = {
       0.002, 0.002, 0.002, 0.002, 0.002, 0.002,         // starting on BPIX1
       0.002, 0.002, 0.002, 0.002, 0.002, 0.002,         // starting on BPIX2
@@ -590,56 +584,23 @@ namespace phase2PixelTopology {
   // Layer count of the Phase2OTStubs topology: 28 pixel + 6 OT barrel + 20 OT disk layers (10 per side)
   constexpr uint32_t nLayersPhase2OTStubs = 54;
 
-  // =====================================================================================================
-  // Default CA graph and cuts of the stub-seeded topology (Phase2OTStubs).
-  //
-  // The tables below mirror, entry for entry and in the same pair order, the deployed configuration
-  // HLTrigger/Configuration/python/HLT_75e33/modules/hltPhase2PixelTracksSoAWithStubs_cfi.py
-  // (its `layers` and `layerPairs` tables, with layersToExclude = []). CAHitNtupletGenerator::fillDescriptions
-  // derives every default of the `geometry` PSet from them, so the compiled-in defaults are the working point
-  // of the HLT menu. Regenerate them from the cfi rather than editing them by hand.
-  //
-  // Layer numbering (54 CA layers, inside-out):
-  //   0-27:  pixel layers, as in Phase2 (0-3 barrel, 4-15 forward disks, 16-27 backward disks)
-  //   28-33: OT barrel layers 1-6 (28-30 PS, 31-33 2S)
-  //   34-43: OT disks 1-5 at z > 0, each disk as a PS layer (even id) followed by a 2S layer (odd id)
-  //   44-53: OT disks 1-5 at z < 0, with the same PS/2S alternation
-  //
-  // The 112 pairs, in table order (the same index ranges label every per-pair table below):
-  //   0-14     pixel-only pairs, as in Phase2OT
-  //   15-17    pixel barrel L3 -> OT barrel L1, three z windows (central, backward, forward)
-  //   18       pixel barrel L4 -> OT barrel L1
-  //   19-23    pixel forward disks 1-5 -> OT barrel L1
-  //   24-28    pixel backward disks 1-5 -> OT barrel L1
-  //   29-49    pixel forward disk chain, as in Phase2OT
-  //   50-70    pixel backward disk chain, as in Phase2OT
-  //   71-75    OT barrel chain L1 -> L6
-  //   76-78    OT barrel PS L1-L3 -> forward disk 1, PS layer (34)
-  //   79-80    OT barrel PS L3 -> disk 1 2S layer, forward (35) and backward (45)
-  //   81-82    OT barrel 2S L4-L5 -> forward disk 1, 2S layer (35)
-  //   83-85    OT barrel PS L1-L3 -> backward disk 1, PS layer (44)
-  //   86-87    OT barrel 2S L4-L5 -> backward disk 1, 2S layer (45)
-  //   88-95    forward disks: PS chain and PS -> 2S links, alternating
-  //   96-99    forward disks: 2S chain
-  //   100-107  backward disks: PS chain and PS -> 2S links, alternating
-  //   108-111  backward disks: 2S chain
-  //
-  // nPairsPhase2OTStubs is the compile-time upper bound on the number of layer pairs: it sizes the
-  // shared-memory array innerLayerCumulativeSize[TrackerTraits::nPairs] (CAPixelDoubletsAlgos.h) and
-  // the per-pair default arrays below, and it must stay >= the pair count supplied at run time, since
-  // nothing asserts on that indexing. nDefaultPairsPhase2OTStubs is the number of pairs the tables
-  // spell out (Phase2OTStubs::nPairsForQuadruplets, the length of the fillDescriptions defaults); the
-  // entries from there up to the bound are zero-initialized and never read.
-  // =====================================================================================================
+  // Default CA graph and cuts of the stub-seeded topology (Phase2OTStubs), the defaults
+  // CAHitNtupletGenerator::fillDescriptions publishes for the `geometry` PSet: the working point of
+  // hltPhase2PixelTracksSoAWithStubs_cfi.py. Layer numbering (54 CA layers,
+  // inside-out): 0-27 pixel (0-3 barrel, 4-15 forward, 16-27 backward disks); 28-33 OT barrel 1-6 (28-30 PS,
+  // 31-33 2S); 34-43 OT disks 1-5 at z > 0 (PS layer, then 2S layer); 44-53 the same at z < 0.
+  // nPairsPhase2OTStubs bounds the pair count at compile time (sizes innerLayerCumulativeSize in
+  // CAPixelDoubletsAlgos.h and the per-pair tables; must stay >= the run-time pair count, not asserted);
+  // nDefaultPairsPhase2OTStubs is the number of pairs spelled out, the rest is zero-initialized and never read.
   constexpr int nPairsPhase2OTStubs = 128;
   constexpr int nDefaultPairsPhase2OTStubs = 112;
   static_assert(nDefaultPairsPhase2OTStubs <= nPairsPhase2OTStubs,
                 "the Phase2OTStubs default graph must fit in the per-pair tables");
   constexpr int nStartingPairsPhase2OTStubs = 23;  // pairs flagged in startingPairsPhase2OTStubs
 
-  // Per-pair form of the two triplet cuts, geometry.caDCACutsPerPair (beam-spot compatibility) and
-  // geometry.caThetaCutsPerPair (r-z alignment tolerance): the form the CA SoA consumes and the deployed
-  // configuration sets. On every pair they replace the per-layer dcaCutsPhase2OTStubs / thetaCutsPhase2OTStubs.
+  // Per-pair form of the two triplet cuts: geometry.caDCACutsPerPair (beam-spot compatibility, cm)
+  // and geometry.caThetaCutsPerPair (r-z alignment tolerance). On every pair they replace the per-layer
+  // dcaCutsPhase2OTStubs / thetaCutsPhase2OTStubs.
   HOST_DEVICE_CONSTANT float maxDCAPhase2OTStubs[nPairsPhase2OTStubs] = {
       0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.2,   // 0-7 pixel-only, as Phase2OT
       0.25, 0.25, 0.25, 0.25, 0.2,  0.25, 0.25,        // 8-14
@@ -690,7 +651,7 @@ namespace phase2PixelTopology {
       0.096,   0.1312,  0.1312, 0.18                                       // 108-111 bwd disks 2S chain
   };
 
-  // The CA graph (geometry.pairGraph): (inner, outer) layer of every pair, in cfi order.
+  // The CA graph (geometry.pairGraph): (inner, outer) layer of every pair.
   HOST_DEVICE_CONSTANT uint8_t layerPairsPhase2OTStubs[2 * nPairsPhase2OTStubs] = {
       0,  1,  0,  2,  0,  4,  0,  5,  0,  16, 0,  17, 1,  2,  1,  3,   // pairs 0-7: pixel-only, as Phase2OT
       1,  4,  1,  5,  1,  16, 1,  17, 2,  3,  2,  4,  2,  16,          // pairs 8-14
@@ -717,7 +678,7 @@ namespace phase2PixelTopology {
   };
 
   // Starting-pair flags (geometry.startingPairs lists the ids of the flagged pairs), sized to this
-  // topology's own pair bound so that fillDescriptions can scan nPairsForQuadruplets entries in bounds.
+  // topology's own pair bound so fillDescriptions scans nPairsForQuadruplets entries in bounds.
   HOST_DEVICE_CONSTANT uint8_t startingPairsPhase2OTStubs[nPairsPhase2OTStubs] = {
       1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0,                    // 0-14 pixel-only, as Phase2OT
       0, 0, 0,                                                        // 15-17 PXB3 -> OTB1 (cen/bwd/fwd)
@@ -764,7 +725,7 @@ namespace phase2PixelTopology {
       0, 0, 0, 0               // 108-111 bwd disks 2S chain
   };
 
-  // Phi cuts for the layer pairs (geometry.phiCuts)
+  // geometry.phiCuts
   HOST_DEVICE_CONSTANT int16_t maxDPhiPhase2OTStubs[nPairsPhase2OTStubs] = {
       350,  600,  450,  522,  450,  522,  400,  650,   // 0-7 pixel-only, as Phase2OT
       500,  730,  500,  730,  350,  400,  400,         // 8-14
@@ -894,7 +855,7 @@ namespace phase2PixelTopology {
       105,   105,   105,   105                                 // 108-111 bwd disks 2S chain
   };
 
-  // Max dr between the two hits, per pair (geometry.maxDR)
+  // geometry.maxDR
   HOST_DEVICE_CONSTANT float maxDRPhase2OTStubs[nPairsPhase2OTStubs] = {
       5.0,   10.0,  8.5,   5.0,   8.5,   5.0,   7.0,  10.0,   // 0-7 pixel-only, as Phase2OT
       8.5,   10.0,  8.5,   10.0,  7.0,   7.0,   7.0,          // 8-14
@@ -920,7 +881,7 @@ namespace phase2PixelTopology {
       10000, 10000, 10000, 10000                              // 108-111 bwd disks 2S chain
   };
 
-  // Min dz between the two hits, per pair (geometry.minDZ)
+  // geometry.minDZ
   HOST_DEVICE_CONSTANT float minDZPhase2OTStubs[nPairsPhase2OTStubs] = {
       -16.0,  -16.0,  0.0,    0.0,    -25.0,  -25.0,  -13.0,  -17.0,   // 0-7 pixel-only, as Phase2OT
       0.0,    0.0,    -19.0,  -21.0,  -9.0,   0.0,    -13.0,           // 8-14
@@ -946,7 +907,7 @@ namespace phase2PixelTopology {
       -10000, -10000, -10000, -10000                                   // 108-111 bwd disks 2S chain
   };
 
-  // Max dz between the two hits, per pair (geometry.maxDZ)
+  // geometry.maxDZ
   HOST_DEVICE_CONSTANT float maxDZPhase2OTStubs[nPairsPhase2OTStubs] = {
       16.0,  16.0,  25.0,  25.0,  0.0,   0.0,   13.0,  17.0,   // 0-7 pixel-only, as Phase2OT
       19.0,  21.0,  0.0,   0.0,   9.0,   13.0,  0.0,           // 8-14
@@ -972,8 +933,8 @@ namespace phase2PixelTopology {
       10000, 10000, 10000, 10000                               // 108-111 bwd disks 2S chain
   };
 
-  // pT cuts for the layer pairs (geometry.ptCuts), in double: the producer turns the cut into a radius
-  // before rounding to float, where 0.6f would not give the radius of 0.6.
+  // geometry.ptCuts, in double: the producer turns the cut into a radius before rounding to float,
+  // where 0.6f would not give the radius of 0.6.
   HOST_DEVICE_CONSTANT double minPtPhase2OTStubs[nPairsPhase2OTStubs] = {
       0.7,  0.8,  0.6,  0.85, 0.6,  0.85, 0.85, 0.85,  // 0-7 pixel-only, as Phase2OT
       0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,        // 8-14
@@ -999,8 +960,7 @@ namespace phase2PixelTopology {
       0.85, 0.85, 0.85, 0.85                           // 108-111 bwd disks 2S chain
   };
 
-  // z0 cuts for the layer pairs: the per-pair form of the scalar cellZ0Cut (geometry.cellZ0CutPerPair),
-  // replacing it on every pair
+  // Per-pair form of the scalar cellZ0Cut (geometry.cellZ0CutPerPair), replacing it on every pair.
   HOST_DEVICE_CONSTANT float maxZ0Phase2OTStubs[nPairsPhase2OTStubs] = {
       13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0,  // 0-7 pixel-only, as Phase2OT
       13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0,        // 8-14
@@ -1130,9 +1090,8 @@ namespace phase2PixelTopology {
       0.05, 0.05, 0.05, 0.05                           // 108-111 bwd disks 2S chain
   };
 
-  // Per-LAYER form of the two triplet cuts, kept because it is the form of the `geometry` PSet
-  // (caDCACuts / caThetaCuts). The per-layer-pair tables above are the internal form the CA SoA
-  // consumes; the producer broadcasts these onto them (value of the pair's own inner layer).
+  // Per-layer form of the two triplet cuts (the `geometry` PSet form caDCACuts / caThetaCuts);
+  // the producer broadcasts each layer's value onto the pairs whose inner layer it is.
   HOST_DEVICE_CONSTANT float dcaCuts[nLayersTot] = {
       0.15,  //BPix1
       0.25, 0.20, 0.20, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
@@ -1147,12 +1106,8 @@ namespace phase2PixelTopology {
       0.003, 0.003, 0.003                                                                  // OT layers
   };
 
-  // Same, for the 54 CA layers of the stub-seeded topology (28 pixel + 6 OT barrel + 10 forward
-  // + 10 backward OT disks). The pixel block repeats the values above; the OT layers carry the
-  // looser OT settings. Sized exactly nLayersPhase2OTStubs so fillDescriptions never reads past
-  // the topology's own layer count. The deployed configuration leaves geometry.caDCACuts and
-  // geometry.caThetaCuts at these defaults and overrides both on every pair through the
-  // "...PerPair" vectors (maxDCAPhase2OTStubs / maxRZTolerancePhase2OTStubs above).
+  // Same, for the 54 CA layers of the stub-seeded topology. Sized exactly nLayersPhase2OTStubs so
+  // fillDescriptions never reads past the topology's own layer count.
   HOST_DEVICE_CONSTANT float dcaCutsPhase2OTStubs[nLayersPhase2OTStubs] = {
       0.15,  //BPix1
       0.25, 0.20, 0.20, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
@@ -1356,8 +1311,7 @@ namespace phase1HIonPixelTopology {
                                                                     phi0p09,
                                                                     phi0p09};
 
-  // Per-LAYER form of the two triplet cuts (see the pp Phase-1 namespace). Kept for the `geometry`
-  // PSet form; note that, as upstream, the HIonPhase1 traits alias the pp Phase-1 tables.
+  // Per-layer form of the two triplet cuts; HIonPhase1 aliases the pp Phase-1 tables.
   HOST_DEVICE_CONSTANT float dcaCuts[phase1PixelTopology::numberOfLayers] = {
       0.05, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
 
@@ -1369,8 +1323,7 @@ namespace phase1HIonPixelTopology {
 namespace pixelTopology {
 
   struct Phase2 {
-    // Cluster-size window defaults of the SimDoublets validation (upstream values; the CA reads its
-    // own configuration parameters instead).
+    // Cluster-size window defaults of the SimDoublets validation; the CA reads its own parameters.
     static constexpr int maxDYsize12 = 12;
     static constexpr int maxDYsize = 10;
     static constexpr int maxDYPred = 24;
@@ -1385,6 +1338,11 @@ namespace pixelTopology {
     static constexpr uint32_t maxFishboneHitsPerTrack = 8;
     static constexpr uint32_t maxHitsOnTrack = maxLayersPerTrack + maxFishboneHitsPerTrack;
     static constexpr uint32_t maxHitsOnTrackForFullFit = 6;
+    // Hit cap of the Riemann fit, independent of maxHitsOnTrackForFullFit: it sizes the Riemann
+    // hit/geometry buffers and the N of its kernel instantiations, so the BrokenLine/GBL cap can move
+    // per topology without instantiating the large-frame Riemann kernels at a higher N. Tracks above
+    // it are fit with their first maxHitsOnTrackForRiemannFit hits.
+    static constexpr uint32_t maxHitsOnTrackForRiemannFit = 6;
     static constexpr uint32_t avgHitsPerTrack = 7;
     static constexpr uint32_t maxCellsPerHit = 256;
     static constexpr uint32_t avgTracksPerHit = 10;
@@ -1437,6 +1395,9 @@ namespace pixelTopology {
     static constexpr int nStartingPairs = phase2PixelTopology::nStartingPairs;
 
     static constexpr uint16_t numberOfModules = phase2PixelTopology::nModulesPix;
+    // Pixel-module count regardless of how many outer-tracker modules a derived topology adds; sizes
+    // pixel-only conditions such as the CPE parameters.
+    static constexpr uint16_t numberOfPixelModules = phase2PixelTopology::nModulesPix;
 
     // 1000 bins < 1024 bins (10 bits) must be:
     // - < 32*32 (warpSize*warpSize for block prefix scan for CUDA)
@@ -1496,7 +1457,7 @@ namespace pixelTopology {
     // vector parameters (doublet linking)
     static constexpr float const *maxRZTolerance = phase2PixelTopology::maxRZTolerance;
     static constexpr float const *maxDCA = phase2PixelTopology::maxDCA;
-    // per-LAYER form of the two cuts above (the `geometry` PSet form)
+    // per-layer form of the two cuts above (the `geometry` PSet form)
     static constexpr float const *thetaCuts = phase2PixelTopology::thetaCuts;
     static constexpr float const *dcaCuts = phase2PixelTopology::dcaCuts;
     // Deprecated arrays only used in the CUDA version
@@ -1546,10 +1507,12 @@ namespace pixelTopology {
     static constexpr float const *maxDCurv = phase2PixelTopology::maxDCurvPhase2OT;
     static constexpr float const *floorDCurv = phase2PixelTopology::floorDCurvPhase2OT;
     static constexpr float const *fishboneCuts = phase2PixelTopology::fishboneCutsPhase2OT;
+
+    static constexpr uint32_t maxHitsOnTrackForRiemannFit = 6;
   };
 
   struct Phase2OTStubs : public Phase2OT {
-    // Suffix appended to the default name of the modules templated on this topology, so that the pixel
+    // Suffix appended to the default name of the modules templated on this topology, so the pixel
     // cluster parameter estimator of this chain gets its own event setup product.
     static constexpr char const *nameModifier = "Phase2OTStubs";
 
@@ -1559,25 +1522,21 @@ namespace pixelTopology {
     // Total modules: 4000 pixel + 13200 OT (7288 barrel + 2956 backward + 2956 forward)
     static constexpr uint32_t numberOfModules = phase2PixelTopology::nModulesTotStubs;
 
-    // Layer pairs: nPairs is the compile-time bound (it sizes the per-pair tables and the doublet
-    // kernel's shared memory), nPairsForQuadruplets the number of pairs the default tables spell out,
-    // i.e. the length of the fillDescriptions defaults; see nPairsPhase2OTStubs for the details.
+    // nPairs is the compile-time bound (it sizes the per-pair tables and the doublet kernel's shared
+    // memory), nPairsForQuadruplets the number of pairs the default tables spell out.
     static constexpr int nPairs = phase2PixelTopology::nPairsPhase2OTStubs;
     static constexpr int nPairsForQuadruplets = phase2PixelTopology::nDefaultPairsPhase2OTStubs;
     static constexpr int nStartingPairs = phase2PixelTopology::nStartingPairsPhase2OTStubs;
 
-    // Override layer pair arrays to use extended versions
     static constexpr uint8_t const *layerPairs = phase2PixelTopology::layerPairsPhase2OTStubs;
 
-    // Override cut arrays to use extended versions (per-pair triplet cuts)
     static constexpr float const *maxRZTolerance = phase2PixelTopology::maxRZTolerancePhase2OTStubs;
     static constexpr float const *maxDCA = phase2PixelTopology::maxDCAPhase2OTStubs;
-    // per-LAYER form of the two cuts above (the `geometry` PSet form), sized to this topology's
-    // own layer count
+    // per-layer form of the two cuts above, sized to this topology's own layer count
     static constexpr float const *thetaCuts = phase2PixelTopology::thetaCutsPhase2OTStubs;
     static constexpr float const *dcaCuts = phase2PixelTopology::dcaCutsPhase2OTStubs;
-    // Starting-pair flags sized to THIS topology's pair bound: nPairs exceeds nPairsTot, so the
-    // inherited Phase2 array would be read past its end when fillDescriptions scans the flags.
+    // Starting-pair flags sized to this topology's own pair bound: nPairs exceeds nPairsTot, so the
+    // inherited Phase2 array would be read past its end.
     static constexpr uint8_t const *startingPairs = phase2PixelTopology::startingPairsPhase2OTStubs;
     static constexpr uint8_t const *skipsLayers = phase2PixelTopology::skipsLayersPhase2OTStubs;
 
@@ -1586,7 +1545,7 @@ namespace pixelTopology {
     static constexpr int minInnerSizeB2 = 14;
     static constexpr int maxDSizeB1 = 15;
     static constexpr int maxDSize = 20;
-    // Override cut arrays to use extended versions (per-pair cuts)
+    // vector parameters (doublet building)
     static constexpr int16_t const *maxDPhi = phase2PixelTopology::maxDPhiPhase2OTStubs;
     static constexpr float const *minInner = phase2PixelTopology::minInnerPhase2OTStubs;
     static constexpr float const *maxInner = phase2PixelTopology::maxInnerPhase2OTStubs;
@@ -1609,22 +1568,26 @@ namespace pixelTopology {
     static constexpr float const *floorDCurv = phase2PixelTopology::floorDCurvPhase2OTStubs;
     static constexpr float const *fishboneCuts = phase2PixelTopology::fishboneCutsPhase2OTStubs;
 
-    // Capacities for pixel+OT tracking, sized with a 10-50% margin above the peak occupancy of
-    // ttbar PU200 events.
+    // Capacities for pixel+OT tracking, 10-50% above the peak occupancy of ttbar PU200 events.
     static constexpr uint32_t maxNumberOfDoublets = 8 * 1024 * 1024;
     static constexpr uint32_t maxNumOfActiveDoublets = maxNumberOfDoublets / 8;
     static constexpr uint32_t maxNumberOfTuples = 512 * 1024;
     static constexpr uint32_t avgHitsPerTrack = 10;  // pixel+OT tracks have ~7 hits on average, up to ~14
     static constexpr uint32_t maxHitsForContainers = avgHitsPerTrack * maxNumberOfTuples;
     static constexpr uint32_t maxNumberOfQuadruplets = maxNumberOfTuples;
-    static constexpr float avgCellsPerHit = 23.;  // ~12% margin over peak ratio 20.6
+    static constexpr float avgCellsPerHit = 23.;
     static constexpr float avgCellsPerCell = 0.0984;
     static constexpr float avgTracksPerCell = 0.0997;
+
+    static constexpr uint32_t maxHitsOnTrackForFullFit = 10;
+    // The Riemann cap stays at 6: decoupled from maxHitsOnTrackForFullFit so that raising the
+    // BrokenLine/GBL cap does not instantiate the Riemann kernels at a higher N (Kernel_CircleFit is
+    // the largest per-thread frame in the plugin).
+    static constexpr uint32_t maxHitsOnTrackForRiemannFit = 6;
   };
 
   struct Phase1 {
-    // Cluster-size window defaults of the SimDoublets validation (upstream values; the CA reads its
-    // own configuration parameters instead).
+    // Cluster-size window defaults of the SimDoublets validation; the CA reads its own parameters.
     static constexpr int maxDYsize12 = 28;
     static constexpr int maxDYsize = 20;
     static constexpr int maxDYPred = 20;
@@ -1639,6 +1602,8 @@ namespace pixelTopology {
     static constexpr uint32_t maxFishboneHitsPerTrack = 2;
     static constexpr uint32_t maxHitsOnTrack = maxLayersPerTrack + maxFishboneHitsPerTrack;
     static constexpr uint32_t maxHitsOnTrackForFullFit = 6;
+    // Hit cap of the Riemann fit, independent of maxHitsOnTrackForFullFit.
+    static constexpr uint32_t maxHitsOnTrackForRiemannFit = 6;
     static constexpr uint32_t avgHitsPerTrack = 5;
     static constexpr uint32_t maxCellsPerHit = 256;
     static constexpr uint32_t avgTracksPerHit = 6;
@@ -1689,6 +1654,8 @@ namespace pixelTopology {
     static constexpr int nStartingPairs = phase1PixelTopology::nStartingPairs;
 
     static constexpr uint16_t numberOfModules = phase1PixelTopology::numberOfModules;
+    // Pixel-module count; equals numberOfModules for pixel-only topologies.
+    static constexpr uint16_t numberOfPixelModules = phase1PixelTopology::numberOfModules;
 
     static constexpr uint16_t numRowsInRoc = 80;
     static constexpr uint16_t numColsInRoc = 52;
@@ -1782,7 +1749,7 @@ namespace pixelTopology {
     // vector parameters (doublet linking)
     static constexpr float const *maxRZTolerance = phase1PixelTopology::maxRZTolerance;
     static constexpr float const *maxDCA = phase1PixelTopology::maxDCA;
-    // per-LAYER form of the two cuts above (the `geometry` PSet form)
+    // per-layer form of the two cuts above (the `geometry` PSet form)
     static constexpr float const *thetaCuts = phase1PixelTopology::thetaCuts;
     static constexpr float const *dcaCuts = phase1PixelTopology::dcaCuts;
     // Deprecated arrays only used in the CUDA version
@@ -1822,8 +1789,7 @@ namespace pixelTopology {
     static constexpr int16_t const *maxDPhi = phase1PixelTopology::maxDPhi;
     static constexpr float const *maxRZTolerance = phase1PixelTopology::maxRZTolerance;
     static constexpr float const *maxDCA = phase1PixelTopology::maxDCA;
-    // per-LAYER form of the two cuts above (the `geometry` PSet form). As upstream, HIon uses the
-    // pp Phase-1 tables here.
+    // per-layer form of the two cuts above; HIon uses the pp Phase-1 tables.
     static constexpr float const *thetaCuts = phase1PixelTopology::thetaCuts;
     static constexpr float const *dcaCuts = phase1PixelTopology::dcaCuts;
   };

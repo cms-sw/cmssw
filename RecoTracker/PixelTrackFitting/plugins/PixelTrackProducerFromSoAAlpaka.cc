@@ -844,11 +844,17 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     // ndof: upstream's hit-count convention (2 * nhits - 5) on every path that does not expand stubs.
     // Stub-expanded tracks (expandStubs_, the stubs arm only) carry both outer-tracker rechits of every
     // stub in `hits` while the fit used one position per stub, so there ndof counts the positions the
-    // fit used: min(nHits, maxHitsOnTrackForFullFit), nHits being the SoA count (each stub once).
+    // fit used.
     int ndof = 2 * int(hits.size()) - 5;
     if (expandStubs_) {
-      constexpr int maxHitsOnTrackForFullFit = 6;  // must match the TrackerTraits value
+      constexpr int maxHitsOnTrackForFullFit = 6;  // fallback only, see below
       ndof = 2 * std::min(nHits, maxHitsOnTrackForFullFit) - 5;
+      // The fit kernel stamps the degrees of freedom of the positions it actually fitted (2N-5 for the
+      // N <= maxHitsOnTrackForFullFit positions used, 10 for Phase2OTStubs) into the SoA; prefer it so
+      // the legacy track carries the honest chi2/ndof.
+      const int ndofSoA = tsoa.view().tracks()[it].ndof();
+      if (ndofSoA > 0)
+        ndof = ndofSoA;
     }
     chi2 = chi2 * ndof;
     GlobalPoint vv = gp.position();
