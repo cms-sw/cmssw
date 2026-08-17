@@ -78,6 +78,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // const members), and PendingTuples must move across the acquire->produce seam.
       std::unique_ptr<CAHitNtupletGeneratorKernels<TrackerTraits>> kernels;
       std::optional<TkSoADevice> tracks;
+      // Pinned host mirror of the tuple-multiplicity per-N-bin offsets; filled by one async D2H
+      // enqueued at the end of beginTuplesAsync. The framework seam guarantees it has landed
+      // before finishTuplesAsync runs.
+      std::optional<cms::alpakatools::host_buffer<uint32_t[]>> offsetsHost;
       // Pinned host mirror of the 5-word extraStorage counter block, enqueued async in
       // beginTuplesAsync when delayAllocations is on and landed by the same seam guarantee.
       // Word [0] is the tuple AtomicPairCounter; finishTuplesAsync decodes it to size the
@@ -86,6 +90,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       uint32_t maxTuples = 0;
       uint32_t maxDoublets = 0;
       float bfield = 0.f;
+      const float* rhoMapDevice = nullptr;
       bool built = false;  // false = early-out (too few hits): tracks holds the empty collection
     };
 
@@ -94,7 +99,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                    float bfield,
                                    uint32_t maxDoublets,
                                    uint32_t maxTuples,
-                                   Queue& queue) const;
+                                   Queue& queue,
+                                   const float* rhoMapDevice) const;
 
     TkSoADevice finishTuplesAsync(PendingTuples&& pending,
                                   HitsOnDeviceRefProdVector const& hitsRefProdVector,
@@ -123,6 +129,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     Params m_params;
+    // One-shot post-fit device dump of the first fitted tracks (HelixFit::setVerboseDump). Config: verboseBLFit.
+    bool m_verboseBLDump;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

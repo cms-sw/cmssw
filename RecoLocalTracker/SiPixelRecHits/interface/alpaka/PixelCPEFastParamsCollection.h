@@ -22,6 +22,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using PixelCPEFastParamsPhase1 = PixelCPEFastParams<pixelTopology::Phase1>;
   using PixelCPEFastParamsHIonPhase1 = PixelCPEFastParams<pixelTopology::HIonPhase1>;
   using PixelCPEFastParamsPhase2 = PixelCPEFastParams<pixelTopology::Phase2>;
+  using PixelCPEFastParamsPhase2OTStubs = PixelCPEFastParams<pixelTopology::Phase2OTStubs>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 

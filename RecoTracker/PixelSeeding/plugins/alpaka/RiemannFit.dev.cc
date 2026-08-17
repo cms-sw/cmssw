@@ -1,4 +1,9 @@
+// #define FIT_DEBUG
 #include <cstdint>
+
+#if defined(FIT_DEBUG) || defined(GPU_DEBUG)
+#include <iostream>
+#endif
 
 #include <alpaka/alpaka.hpp>
 
@@ -203,7 +208,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   };
 
-  // Do NOT call hv.offsetStubs() from host - that would dereference device memory and segfault!
+  // hv.offsetStubs() must not be called here: on the host it dereferences device memory.
   template <typename TrackerTraits>
   void HelixFit<TrackerTraits>::launchRiemannKernels(const caStructures::HitsMultiView &hv,
                                                      const ::reco::CAModulesConstView &cm,
@@ -212,16 +217,35 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                      Queue &queue) {
     assert(tuples_);
 
+#if defined(FIT_DEBUG) || defined(GPU_DEBUG)
+    alpaka::wait(queue);
+    std::cout << "FIT_DEBUG: launchRiemannKernels (stubs) - maxNumberOfTuples=" << maxNumberOfTuples
+              << " maxNumberOfConcurrentFits=" << maxNumberOfConcurrentFits_ << " bField=" << bField_ << std::endl;
+    std::cout << "FIT_DEBUG: TrackerTraits::maxHitsOnTrack=" << TrackerTraits::maxHitsOnTrack << std::endl;
+#endif
+
     auto blockSize = 64;
     auto numberOfBlocks = (maxNumberOfConcurrentFits_ + blockSize - 1) / blockSize;
     const auto workDivTriplets = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
     const auto workDivQuadsPenta = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks / 4, blockSize);
 
-    //  Fit internals
+    // maxN is the Riemann fit's own hit cap, decoupled from maxHitsOnTrackForFullFit: it sizes the
+    // hit/geometry buffers below and is the largest N at which the Riemann kernels are instantiated.
+    // Tracks with more hits are fit with their first maxN hits.
+    constexpr auto maxN = TrackerTraits::maxHitsOnTrackForRiemannFit;
+    static_assert(3 <= TrackerTraits::maxHitsOnTrackForRiemannFit &&
+                      TrackerTraits::maxHitsOnTrackForRiemannFit <= TrackerTraits::maxHitsOnTrack,
+                  "maxHitsOnTrackForRiemannFit must be a valid tuple multiplicity: >= the 3-hit minimum fit and "
+                  "<= the largest multiplicity a tuple can have");
+    // Invariant of the ladder below: multiplicities 3, 4 and 5 are fit exactly, the cap bin and every
+    // larger multiplicity with the first maxN hits. That covers every populated bin only for a cap of 6.
+    static_assert(maxN == 6,
+                  "the explicit 3/4/5-hit ladder below leaves bins 6..maxN-1 unfitted for a cap != 6: "
+                  "generalize the ladder before changing maxHitsOnTrackForRiemannFit");
     auto hitsDevice = cms::alpakatools::make_device_buffer<double[]>(
-        queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix3xNd<4>) / sizeof(double));
+        queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix3xNd<maxN>) / sizeof(double));
     auto hits_geDevice = cms::alpakatools::make_device_buffer<float[]>(
-        queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix6x4f) / sizeof(float));
+        queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix6xNf<maxN>) / sizeof(float));
     auto fast_fit_resultsDevice = cms::alpakatools::make_device_buffer<double[]>(
         queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Vector4d) / sizeof(double));
     auto circle_fit_resultsDevice_holder =
@@ -308,14 +332,93 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           circle_fit_resultsDevice_,
                           offset);
 
-      if (fitNas4_) {
-        // penta
+      // quintuplets
+      alpaka::exec<Acc1D>(queue,
+                          workDivQuadsPenta,
+                          Kernel_FastFit<5, TrackerTraits>{},
+                          tuples_,
+                          tupleMultiplicity_,
+                          5,
+                          hv,
+                          cm,
+                          hitsDevice.data(),
+                          hits_geDevice.data(),
+                          fast_fit_resultsDevice.data(),
+                          offset);
+
+      alpaka::exec<Acc1D>(queue,
+                          workDivQuadsPenta,
+                          Kernel_CircleFit<5, TrackerTraits>{},
+                          tupleMultiplicity_,
+                          5,
+                          bField_,
+                          hitsDevice.data(),
+                          hits_geDevice.data(),
+                          fast_fit_resultsDevice.data(),
+                          circle_fit_resultsDevice_,
+                          offset);
+
+      alpaka::exec<Acc1D>(queue,
+                          workDivQuadsPenta,
+                          Kernel_LineFit<5, TrackerTraits>{},
+                          tupleMultiplicity_,
+                          5,
+                          bField_,
+                          outputSoa_,
+                          hitsDevice.data(),
+                          hits_geDevice.data(),
+                          fast_fit_resultsDevice.data(),
+                          circle_fit_resultsDevice_,
+                          offset);
+
+      // the cap bin (maxN hits) - fit all maxN hits
+      alpaka::exec<Acc1D>(queue,
+                          workDivQuadsPenta,
+                          Kernel_FastFit<maxN, TrackerTraits>{},
+                          tuples_,
+                          tupleMultiplicity_,
+                          maxN,
+                          hv,
+                          cm,
+                          hitsDevice.data(),
+                          hits_geDevice.data(),
+                          fast_fit_resultsDevice.data(),
+                          offset);
+
+      alpaka::exec<Acc1D>(queue,
+                          workDivQuadsPenta,
+                          Kernel_CircleFit<maxN, TrackerTraits>{},
+                          tupleMultiplicity_,
+                          maxN,
+                          bField_,
+                          hitsDevice.data(),
+                          hits_geDevice.data(),
+                          fast_fit_resultsDevice.data(),
+                          circle_fit_resultsDevice_,
+                          offset);
+
+      alpaka::exec<Acc1D>(queue,
+                          workDivQuadsPenta,
+                          Kernel_LineFit<maxN, TrackerTraits>{},
+                          tupleMultiplicity_,
+                          maxN,
+                          bField_,
+                          outputSoa_,
+                          hitsDevice.data(),
+                          hits_geDevice.data(),
+                          fast_fit_resultsDevice.data(),
+                          circle_fit_resultsDevice_,
+                          offset);
+
+      // Above the cap: fit the first maxN hits. Bin index range maxN+1 .. maxHitsOnTrack-1, the same
+      // upper bound the BrokenLine ladder uses.
+      for (uint32_t nHits = maxN + 1; nHits < TrackerTraits::maxHitsOnTrack; ++nHits) {
         alpaka::exec<Acc1D>(queue,
                             workDivQuadsPenta,
-                            Kernel_FastFit<4, TrackerTraits>{},
+                            Kernel_FastFit<maxN, TrackerTraits>{},
                             tuples_,
                             tupleMultiplicity_,
-                            5,
+                            nHits,
                             hv,
                             cm,
                             hitsDevice.data(),
@@ -325,9 +428,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         alpaka::exec<Acc1D>(queue,
                             workDivQuadsPenta,
-                            Kernel_CircleFit<4, TrackerTraits>{},
+                            Kernel_CircleFit<maxN, TrackerTraits>{},
                             tupleMultiplicity_,
-                            5,
+                            nHits,
                             bField_,
                             hitsDevice.data(),
                             hits_geDevice.data(),
@@ -337,48 +440,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         alpaka::exec<Acc1D>(queue,
                             workDivQuadsPenta,
-                            Kernel_LineFit<4, TrackerTraits>{},
+                            Kernel_LineFit<maxN, TrackerTraits>{},
                             tupleMultiplicity_,
-                            5,
-                            bField_,
-                            outputSoa_,
-                            hitsDevice.data(),
-                            hits_geDevice.data(),
-                            fast_fit_resultsDevice.data(),
-                            circle_fit_resultsDevice_,
-                            offset);
-      } else {
-        // penta all 5
-        alpaka::exec<Acc1D>(queue,
-                            workDivQuadsPenta,
-                            Kernel_FastFit<5, TrackerTraits>{},
-                            tuples_,
-                            tupleMultiplicity_,
-                            5,
-                            hv,
-                            cm,
-                            hitsDevice.data(),
-                            hits_geDevice.data(),
-                            fast_fit_resultsDevice.data(),
-                            offset);
-
-        alpaka::exec<Acc1D>(queue,
-                            workDivQuadsPenta,
-                            Kernel_CircleFit<5, TrackerTraits>{},
-                            tupleMultiplicity_,
-                            5,
-                            bField_,
-                            hitsDevice.data(),
-                            hits_geDevice.data(),
-                            fast_fit_resultsDevice.data(),
-                            circle_fit_resultsDevice_,
-                            offset);
-
-        alpaka::exec<Acc1D>(queue,
-                            workDivQuadsPenta,
-                            Kernel_LineFit<5, TrackerTraits>{},
-                            tupleMultiplicity_,
-                            5,
+                            nHits,
                             bField_,
                             outputSoa_,
                             hitsDevice.data(),

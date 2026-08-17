@@ -1,261 +1,98 @@
-// #define BROKENLINE_DEBUG
-// #define BL_DUMP_HITS
-// #define GPU_DEBUG
-#include <cstdint>
-
-#include <alpaka/alpaka.hpp>
-
-#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
-#include "RecoTracker/PixelTrackFitting/interface/alpaka/BrokenLine.h"
-
-#include "HelixFit.h"
-
-using OutputSoAView = reco::TrackSoAView;
-using TupleMultiplicity = caStructures::GenericContainer;
-using Tuples = caStructures::SequentialContainer;
+// Orchestration TU of the SPLIT BrokenLine fit build. The heavy per-N device kernels
+// (Kernel_BLFit + the fast-fit kernels) and the per-N launcher helper
+// runMainBin live in BrokenLineFitKernels.h and are explicitly instantiated in the
+// disjoint-N BrokenLineFit_*.dev.cc TUs; here they are extern-template calls only. This file
+// keeps the light launcher orchestration (HelixFit members), the debug dump
+// kernel, and the HelixFit explicit instantiations. The split is a build-time division only: the
+// launches keep the same order, arguments and grids they would have in a single TU.
+#include "BrokenLineFitKernels.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  template <int N>
-  class Kernel_BLFastFit {
+  // CUDA block dimension of the FIT work divisions. Launch dimension only: the
+  // fit kernels are grid-stride loops that break on the invalid-tkid sentinel, so no fitted lane and no
+  // fitted value depends on it. 32 is the L1-pressure optimum of this solver.
+  inline constexpr uint32_t kFitBlock = 32u;
+
+  // -------------------------------------------------------------------------
+  // Debug dump of the first N fitted tracks (BL output) -- gated by the
+  // HelixFit::setVerboseDump switch.  Converts the internal 5-parameter state
+  // (phi0, d0, kappa, cotTheta, z0) into more readable pT [GeV] and eta so
+  // the singleMu sample's reconstructed muon is identifiable at a glance.
+  // pT = 0.003 * B[T] / |kappa[1/cm]|     (charge sign carried in kappa)
+  // eta = asinh(cotTheta)
+  // -------------------------------------------------------------------------
+  class Kernel_BLFitDump {
   public:
-    ALPAKA_FN_ACC void operator()(Acc1D const &acc,
-                                  Tuples const *__restrict__ foundNtuplets,
-                                  TupleMultiplicity const *__restrict__ tupleMultiplicity,
-                                  caStructures::HitsMultiView hh,
-                                  ::reco::CAModulesConstView cm,
-                                  typename caStructures::tindex_type *__restrict__ ptkids,
-                                  double *__restrict__ phits,
-                                  float *__restrict__ phits_ge,
-                                  double *__restrict__ pfast_fit,
-                                  uint32_t nHitsL,
-                                  uint32_t nHitsH,
-                                  int32_t offset) const {
-      constexpr uint32_t hitsInFit = N;
-      constexpr auto invalidTkId = std::numeric_limits<typename caStructures::tindex_type>::max();
-
-      ALPAKA_ASSERT_ACC(hitsInFit <= nHitsL);
-      ALPAKA_ASSERT_ACC(nHitsL <= nHitsH);
-      ALPAKA_ASSERT_ACC(phits);
-      ALPAKA_ASSERT_ACC(pfast_fit);
-      ALPAKA_ASSERT_ACC(foundNtuplets);
-      ALPAKA_ASSERT_ACC(tupleMultiplicity);
-
-      // look in bin for this hit multiplicity
-      int totTK = tupleMultiplicity->end(nHitsH) - tupleMultiplicity->begin(nHitsL);
-      ALPAKA_ASSERT_ACC(totTK <= int(tupleMultiplicity->size()));
-      ALPAKA_ASSERT_ACC(totTK >= 0);
-
-#ifdef BROKENLINE_DEBUG
-      if (cms::alpakatools::once_per_grid(acc)) {
-        printf("%d total Ntuple\n", tupleMultiplicity->size());
-        printf("%d Ntuple of size %d/%d for %d hits to fit\n", totTK, nHitsL, nHitsH, hitsInFit);
-      }
-#endif
-      const auto nt = riemannFit::maxNumberOfConcurrentFits;
-      for (auto local_idx : cms::alpakatools::uniform_elements(acc, nt)) {
-        auto tuple_idx = local_idx + offset;
-        if ((int)tuple_idx >= totTK) {
-          ptkids[local_idx] = invalidTkId;
-          break;
-        }
-        // get it from the ntuple container (one to one to helix)
-        auto tkid = *(tupleMultiplicity->begin(nHitsL) + tuple_idx);
-        ALPAKA_ASSERT_ACC(tkid < foundNtuplets->nOnes());
-
-        ptkids[local_idx] = tkid;
-
-        auto nHits = foundNtuplets->size(tkid);
-
-        ALPAKA_ASSERT_ACC(nHits >= nHitsL);
-        ALPAKA_ASSERT_ACC(nHits <= nHitsH);
-
-        riemannFit::Map3xNd<N> hits(phits + local_idx);
-        riemannFit::Map4d fast_fit(pfast_fit + local_idx);
-        riemannFit::Map6xNf<N> hits_ge(phits_ge + local_idx);
-
-#ifdef BL_DUMP_HITS
-        auto &&done = alpaka::declareSharedVar<int, __COUNTER__>(acc);
-        done = 0;
-        alpaka::syncBlockThreads(acc);
-        bool dump =
-            (foundNtuplets->size(tkid) == 5 && 0 == alpaka::atomicAdd(acc, &done, 1, alpaka::hierarchy::Blocks{}));
-#endif
-
-        // Prepare data structure
-        auto const *hitId = foundNtuplets->begin(tkid);
-
-        // #define YERR_FROM_DC
-#ifdef YERR_FROM_DC
-        // try to compute more precise error in y
-        auto dx = hh[hitId[hitsInFit - 1]].xGlobal() - hh[hitId[0]].xGlobal();
-        auto dy = hh[hitId[hitsInFit - 1]].yGlobal() - hh[hitId[0]].yGlobal();
-        auto dz = hh[hitId[hitsInFit - 1]].zGlobal() - hh[hitId[0]].zGlobal();
-        float ux, uy, uz;
-#endif
-
-        float incr = std::max(1.f, float(nHits) / float(hitsInFit));
-        float n = 0;
-        for (uint32_t i = 0; i < hitsInFit; ++i) {
-          int j = int(n + 0.5f);  // round
-          if (hitsInFit - 1 == i)
-            j = nHits - 1;  // force last hit to ensure max lever arm.
-          ALPAKA_ASSERT_ACC(j < int(nHits));
-          n += incr;
-          auto hit = hitId[j];
-          float ge[6];
-
-#ifdef YERR_FROM_DC
-          auto const &dp = cm->detParams(hh[hit].detectorIndex());
-          auto status = hh[hit].chargeAndStatus().status;
-          int qbin = CPEFastParametrisation::kGenErrorQBins - 1 - status.qBin;
-          ALPAKA_ASSERT_ACC(qbin >= 0 && qbin < 5);
-          bool nok = (status.isBigY | status.isOneY);
-          // compute cotanbeta and use it to recompute error
-          dp.frame.rotation().multiply(dx, dy, dz, ux, uy, uz);
-          auto cb = std::abs(uy / uz);
-          int bin =
-              int(cb * (float(phase1PixelTopology::pixelThickess) / float(phase1PixelTopology::pixelPitchY)) * 8.f) - 4;
-          int low_value = 0;
-          int high_value = CPEFastParametrisation::kNumErrorBins - 1;
-          // return estimated bin value truncated to [0, 15]
-          bin = std::clamp(bin, low_value, high_value);
-          float yerr = dp.sigmay[bin] * 1.e-4f;  // toCM
-          yerr *= dp.yfact[qbin];                // inflate
-          yerr *= yerr;
-          yerr += dp.apeYY;
-          yerr = nok ? hh[hit].yerrLocal() : yerr;
-          dp.frame.toGlobal(hh[hit].xerrLocal(), 0, yerr, ge);
-#else
-          auto const &frame = cm.detFrame(hh[hit].detectorIndex());
-          frame.toGlobal(hh[hit].xerrLocal(), 0, hh[hit].yerrLocal(), ge);
-#endif
-
-#ifdef BL_DUMP_HITS
-          bool dump = foundNtuplets->size(tkid) >= 4;
-          if (dump) {
-            printf("Track local_id %d tkid: %d Hit %d on det: %d\nGlobal: hits.col(%d) << x: %f,y: %f, r(%f),z: %f\n",
-                   local_idx,
-                   tkid,
-                   hit,
-                   hh[hit].detectorIndex(),
-                   i,
-                   hh[hit].xGlobal(),
-                   hh[hit].yGlobal(),
-                   sqrt(hh[hit].xGlobal() * hh[hit].xGlobal() + hh[hit].yGlobal() * hh[hit].yGlobal()),
-                   hh[hit].zGlobal());
-            printf("Local Error(%d): x2: %e, x[um]: %e, y2: %e, y[um]: %e\n",
-                   i,
-                   hh[hit].xerrLocal(),
-                   1.e4 * sqrt(hh[hit].xerrLocal()),
-                   hh[hit].yerrLocal(),
-                   1.e4 * sqrt(hh[hit].yerrLocal()));
-            printf("Error: hits_ge.col(%d) x[um]: %e, y[um]: %e, z[um]: %e\n",
-                   i,
-                   1.e4 * sqrt(ge[0]),
-                   1.e4 * sqrt(ge[2]),
-                   1.e4 * sqrt(ge[5]));
-            printf("Error: hits_ge.col(%d) << %e,%e,%e,%e,%e,%e\n", i, ge[0], ge[1], ge[2], ge[3], ge[4], ge[5]);
-          }
-#endif
-
-          hits.col(i) << hh[hit].xGlobal(), hh[hit].yGlobal(), hh[hit].zGlobal();
-          hits_ge.col(i) << ge[0], ge[1], ge[2], ge[3], ge[4], ge[5];
-        }
-        brokenline::fastFit(acc, hits, fast_fit);
-#if 0
-      printf("Fast Fit: %f, %f, %f, %f\n", fast_fit(0), fast_fit(1), fast_fit(2), fast_fit(3));
-#endif
-
-#ifdef BROKENLINE_DEBUG
-        // any NaN value should cause the track to be rejected at a later stage
-        ALPAKA_ASSERT_ACC(not alpaka::math::isnan(acc, fast_fit(0)));
-        ALPAKA_ASSERT_ACC(not alpaka::math::isnan(acc, fast_fit(1)));
-        ALPAKA_ASSERT_ACC(not alpaka::math::isnan(acc, fast_fit(2)));
-        ALPAKA_ASSERT_ACC(not alpaka::math::isnan(acc, fast_fit(3)));
-#endif
+    // tagId is an integer rendered inline so different fit invocations can be told apart in the log. Set it via
+    // HelixFit::setVerboseDump(true) and the per-call argument. Passing only integers/floats keeps the kernel
+    // portable (no host-string pointers crossing the host/device boundary).
+    Kernel_BLFitDump(uint32_t n, float bField, uint32_t tagId) : nToPrint_(n), bField_(bField), tagId_(tagId) {}
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, ::reco::TrackSoAView tracks) const {
+      if (alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0] != 0)
+        return;
+      const uint32_t total = uint32_t(std::max(0, tracks.nTracks()));
+      const uint32_t cap = (nToPrint_ < total) ? nToPrint_ : total;
+      printf("[BL-fit tag=%u] post-fit dump: nTracks=%u, showing first %u\n", tagId_, total, cap);
+      for (uint32_t i = 0; i < cap; ++i) {
+        const float phi0 = tracks[i].state()(0);
+        const float d0 = tracks[i].state()(1);
+        // state(2) is 1/pT in 1/GeV (CMSSW BL convention; see TracksSoA.h).
+        // pT[GeV] = 1 / |state(2)|.  Sign of state(2) carries the charge.
+        const float invPt = tracks[i].state()(2);
+        const float cotTheta = tracks[i].state()(3);
+        const float z0 = tracks[i].state()(4);
+        const float absInvPt = std::abs(invPt);
+        const float pT = (absInvPt > 1.e-9f) ? (1.f / absInvPt) : 1.e9f;
+        const float charge = (invPt >= 0.f) ? +1.f : -1.f;
+        const float eta = std::asinh(cotTheta);
+        const float chi2 = tracks[i].chi2();
+        const int q = int(tracks[i].quality());
+        // Reported track uncertainties: covariance() is the packed Vector15f; idx 0 = sigma^2(phi),
+        // idx 5 = sigma^2(d0)=sigma^2(dxy) (see DataFormats/TrackSoA/interface/TracksSoA.h).
+        const float sdxy = 1.e4f * std::sqrt(std::abs(float(tracks[i].covariance()(5))));  // um
+        const float sphi = std::sqrt(std::abs(float(tracks[i].covariance()(0))));          // rad
+        // longitudinal: cov(14)=var(Zip=z0)=var(dz), cov(12)=var(cotTheta) (see TracksSoA copyFromCircle).
+        const float sdz = 1.e4f * std::sqrt(std::abs(float(tracks[i].covariance()(14))));  // um, sigma(dz)
+        const float scot = std::sqrt(std::abs(float(tracks[i].covariance()(12))));         // sigma(cotTheta)
+        printf(
+            "[BL-fit tag=%u] i=%u q=%d chi2=%.3f phi0=%.4f d0=%.5f invPt=%.6f cotTheta=%.4f z0=%.4f "
+            "-> pT=%.3f GeV q=%+0.0f eta=%.4f  sigma(dxy)=%.2f um sigma(phi)=%.5f rad  sigma(dz)=%.2f um "
+            "sigma(cotTheta)=%.6f\n",
+            tagId_,
+            i,
+            q,
+            chi2,
+            phi0,
+            d0,
+            invPt,
+            cotTheta,
+            z0,
+            pT,
+            charge,
+            eta,
+            sdxy,
+            sphi,
+            sdz,
+            scot);
       }
     }
+
+  private:
+    uint32_t nToPrint_;
+    float bField_;
+    uint32_t tagId_;
   };
 
-  template <int N, typename TrackerTraits>
-  struct Kernel_BLFit {
-  public:
-    ALPAKA_FN_ACC void operator()(Acc1D const &acc,
-                                  TupleMultiplicity const *__restrict__ tupleMultiplicity,
-                                  double bField,
-                                  OutputSoAView results_view,
-                                  typename caStructures::tindex_type const *__restrict__ ptkids,
-                                  double *__restrict__ phits,
-                                  float *__restrict__ phits_ge,
-                                  double *__restrict__ pfast_fit) const {
-      ALPAKA_ASSERT_ACC(results_view.pt().data());
-      ALPAKA_ASSERT_ACC(results_view.eta().data());
-      ALPAKA_ASSERT_ACC(results_view.chi2().data());
-      ALPAKA_ASSERT_ACC(pfast_fit);
-
-      constexpr auto invalidTkId = std::numeric_limits<typename caStructures::tindex_type>::max();
-
-      // same as above...
-      // look in bin for this hit multiplicity
-      const auto nt = riemannFit::maxNumberOfConcurrentFits;
-      for (auto local_idx : cms::alpakatools::uniform_elements(acc, nt)) {
-        if (invalidTkId == ptkids[local_idx])
-          break;
-        auto tkid = ptkids[local_idx];
-
-        ALPAKA_ASSERT_ACC(tkid < tupleMultiplicity->capacity());
-
-        riemannFit::Map3xNd<N> hits(phits + local_idx);
-        riemannFit::Map4d fast_fit(pfast_fit + local_idx);
-        riemannFit::Map6xNf<N> hits_ge(phits_ge + local_idx);
-
-        brokenline::PreparedBrokenLineData<N> data;
-
-        brokenline::karimaki_circle_fit circle;
-        riemannFit::LineFit line;
-
-        brokenline::prepareBrokenLineData(acc, hits, fast_fit, bField, data);
-        brokenline::lineFit(acc, hits_ge, fast_fit, bField, data, line);
-        brokenline::circleFit(acc, hits, hits_ge, fast_fit, bField, data, circle);
-
-        reco::copyFromCircle(results_view, circle.par, circle.cov, line.par, line.cov, 1.f / float(bField), tkid);
-        results_view[tkid].pt() = float(bField) / float(std::abs(circle.par(2)));
-        results_view[tkid].eta() = alpaka::math::asinh(acc, line.par(0));
-        results_view[tkid].chi2() = (circle.chi2 + line.chi2) / (2 * N - 5);
-
-#ifdef BROKENLINE_DEBUG
-        if (!(circle.chi2 >= 0) || !(line.chi2 >= 0))
-          printf("kernelBLFit failed! %f/%f\n", circle.chi2, line.chi2);
-        printf("kernelBLFit size %d for %d hits of tkid %d circle.par(0,1,2): %f,%f,%f\n",
-               N,
-               N,
-               tkid,
-               circle.par(0),
-               circle.par(1),
-               circle.par(2));
-        printf("kernelBLHits line.par(0,1): %d %f,%f\n", tkid, line.par(0), line.par(1));
-        printf("kernelBLHits chi2_circle: %f chi2_line: %f, cov(0-3)_circle: %e, %e, %e cov(1-2)_line %e,%e\n",
-               circle.chi2,
-               line.chi2,
-               circle.cov(0, 0),
-               circle.cov(1, 1),
-               circle.cov(2, 2),
-               line.cov(0, 0),
-               line.cov(1, 1));
-#endif
-      }
-    }
-  };
-
+  // The CA main fit: one full sweep of the N-binned BLFastFit+BLFit kernels, i.e. the factorized fast
+  // BrokenLine fit (circle + line), for every CA iteration and every topology. It has ONE linearization,
+  // so it is a single sweep with no re-linearization reference buffer.
   template <typename TrackerTraits>
-  void HelixFit<TrackerTraits>::launchBrokenLineKernels(const caStructures::HitsMultiView &hv,
-                                                        const ::reco::CAModulesConstView &cm,
+  void HelixFit<TrackerTraits>::launchBrokenLineKernels(const caStructures::HitsMultiView& hv,
+                                                        const ::reco::CAModulesConstView& cm,
                                                         uint32_t hitsInFit,
                                                         uint32_t maxNumberOfTuples,
-                                                        Queue &queue) {
+                                                        Queue& queue) {
     ALPAKA_ASSERT_ACC(tuples_);
 
 #ifdef GPU_DEBUG
@@ -263,168 +100,149 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::cout << "Starting HelixFit<TrackerTraits>::launchBrokenLineKernels" << std::endl;
 #endif
 
-    uint32_t blockSize = 64;
-    uint32_t numberOfBlocks = cms::alpakatools::divide_up_by(maxNumberOfConcurrentFits_, blockSize);
-    const WorkDiv1D workDivTriplets = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
-    const WorkDiv1D workDivQuadsPenta = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks / 4, blockSize);
-
+    // Main-fit block dimension: kFitBlock. Launch
+    // dimension only -- the fast-fit and fit kernels are grid-stride loops with the invalid-tkid break,
+    // so the fitted-lane set and every fitted value are independent of it.
+    const uint32_t blockSize = kFitBlock;
+    // The launch grid sizes off maxNumberOfTuples, the host-known per-event tuple capacity (the
+    // hit-count-scaled cap the CA sizes its tuple/multiplicity containers to; not a device readback). The
+    // exact per-N-bin population lives only device-side (tupleMultiplicity); a tighter trim would need a
+    // further D2H sync, which this path does not take. Grid sizing cannot move a result: the grid-stride
+    // loop plus the invalid-tkid break make the fitted-lane set independent of the grid size.
     //  Fit internals
     auto tkidDevice =
         cms::alpakatools::make_device_buffer<typename caStructures::tindex_type[]>(queue, maxNumberOfConcurrentFits_);
+    constexpr auto maxN = TrackerTraits::maxHitsOnTrackForFullFit;
     auto hitsDevice = cms::alpakatools::make_device_buffer<double[]>(
-        queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix3xNd<6>) / sizeof(double));
+        queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix3xNd<maxN>) / sizeof(double));
     auto hits_geDevice = cms::alpakatools::make_device_buffer<float[]>(
-        queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix6xNf<6>) / sizeof(float));
+        queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix6xNf<maxN>) / sizeof(float));
     auto fast_fit_resultsDevice = cms::alpakatools::make_device_buffer<double[]>(
         queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Vector4d) / sizeof(double));
+    // Per-fit fit-solver scratch of the factorized fit: prepared-data + shared band block + helper vectors
+    // per lane, in an [element][lane] layout whose stride is the concurrent-fit count, so it is allocated
+    // at maxNumberOfConcurrentFits_ lanes (like the input buffers). 233 doubles/lane at maxN=10.
+    constexpr int kScratchPerFit = brokenline::kLegacyFitScratchDoubles<int(maxN)>;
+    auto gblScratchDevice = cms::alpakatools::make_device_buffer<double[]>(
+        queue, std::size_t(maxNumberOfConcurrentFits_) * std::size_t(kScratchPerFit));
+    // Per-N launch state for the extern-template runMainBin helpers (see BrokenLineFitKernels.h).
+    // The per-N (fast-fit + fit) launches live in runMainBin<N,TrackerTraits>, explicitly instantiated in
+    // the BrokenLineFit_*.dev.cc N-range TUs so nvcc compiles the heavy per-N kernels in parallel.
+    const BLMainLaunchCtx<TrackerTraits> ctx{queue,
+                                             tuples_,
+                                             tupleMultiplicity_,
+                                             hv,
+                                             cm,
+                                             outputSoa_,
+                                             bField_,
+                                             rhoMap_,
+                                             tkidDevice.data(),
+                                             hitsDevice.data(),
+                                             hits_geDevice.data(),
+                                             fast_fit_resultsDevice.data(),
+                                             gblScratchDevice.data(),
+                                             s_2sYVarScale,
+                                             fitCorrections_};
 
-    for (uint32_t offset = 0; offset < maxNumberOfTuples; offset += maxNumberOfConcurrentFits_) {
+    // Chunk+bin-aware main-fit launch elision, driven by the tuple-multiplicity per-N-bin offsets:
+    // (a) stop the chunk loop at the runtime fitted population and (b) elide any N-bin whose population
+    // the chunk base offset already covers. Both are exactly the on-device no-op the launched kernel
+    // would have performed (each thread's tuple_idx >= totTK on the first lane -> writes the invalid
+    // sentinel and breaks -> no SoA write), so the collapse cannot move a result. Without it the offset
+    // loop chunks the hit-scaled tuple cap and launches every N-bin in every chunk.
+    constexpr uint32_t kNOff = TrackerTraits::maxHitsOnTrack + 2u;  // == the offsets buffer length
+    uint32_t offHost[kNOff] = {0};
+    bool skipEmpty = false;
+    uint32_t chunkBound = maxNumberOfTuples;  // no offsets available: iterate the full hit-scaled cap
+    if (hostTupleMultiplicityOffsets_ != nullptr) {
+      // The caller (the producer's acquire) already read the offsets back with one async D2H and the
+      // framework's acquire->produce boundary guarantees it has landed -- consuming the host values
+      // here costs no memcpy and no wait. off[b] is the same array Kernel_BLFastFit reads for
+      // totTK = off[nHitsH+1]-off[nHitsL], so the host populations are exactly what the on-device
+      // break condition sees; nothing is re-derived here.
+      for (uint32_t b = 0; b < kNOff; ++b)
+        offHost[b] = hostTupleMultiplicityOffsets_[b];
+      skipEmpty = true;
+      // Total fitted population off[maxHitsOnTrack]-off[3] (tuples with selected-hit count in
+      // [3, maxHitsOnTrack-1]) is an upper bound on any single N-bin's population, so a loop bounded by
+      // it runs at least as many stride chunks as the largest bin needs; the per-bin gate elides the
+      // rest. In practice this population is well below the stride, so the loop collapses to one chunk.
+      const uint32_t lo = offHost[3];
+      const uint32_t hi = offHost[TrackerTraits::maxHitsOnTrack];
+      chunkBound = (hi > lo) ? (hi - lo) : 0u;
+    }
+    // Per-(N-bin, chunk) launch gate. A bin holding off[nHitsH+1]-off[nHitsL] tuples has NO work once the
+    // chunk base offset reaches that count (Kernel_BLFastFit breaks on the first lane, Kernel_BLFit breaks
+    // on the invalid sentinel -> zero SoA writes), so eliding the launch changes nothing.
+    auto runBinGated = [&](auto Ntag, WorkDiv1D const& wd, uint32_t nHitsL, uint32_t nHitsH, uint32_t baseOffset) {
+      constexpr int Nv = decltype(Ntag)::value;
+      if (skipEmpty && baseOffset >= (offHost[nHitsH + 1u] - offHost[nHitsL]))
+        return;
+      runMainBin<Nv, TrackerTraits>(ctx, wd, nHitsL, nHitsH, baseOffset);
+    };
+
+    for (uint32_t offset = 0; offset < chunkBound; offset += maxNumberOfConcurrentFits_) {
+      // Size THIS chunk's grid from the remaining host-known tuple capacity. A full chunk
+      // (>= a lane count of tuples still to come) takes the full 128-block triplet / 32-block quad-penta
+      // grid; the last chunk -- and, when maxNumberOfTuples < the lane count, the only chunk -- trims to
+      // divide_up(remaining). Grid-stride (uniform_elements over the lane stride) + the invalid-tkid break
+      // make the fitted-lane set, and its values, independent of the block count. numberOfBlocks is >= 1
+      // (remaining >= 1 while the loop runs); the quad-penta count is floored at 1 so its /4 never
+      // collapses to a 0-block launch.
+      const uint32_t chunkFits = std::min<uint32_t>(maxNumberOfConcurrentFits_, maxNumberOfTuples - offset);
+      const uint32_t numberOfBlocks = cms::alpakatools::divide_up_by(chunkFits, blockSize);
+      const WorkDiv1D workDivTriplets = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
+      const WorkDiv1D workDivQuadsPenta =
+          cms::alpakatools::make_workdiv<Acc1D>(std::max<uint32_t>(1u, numberOfBlocks / 4), blockSize);
       // fit triplets
-
-      alpaka::exec<Acc1D>(queue,
-                          workDivTriplets,
-                          Kernel_BLFastFit<3>{},
-                          tuples_,
-                          tupleMultiplicity_,
-                          hv,
-                          cm,
-                          tkidDevice.data(),
-                          hitsDevice.data(),
-                          hits_geDevice.data(),
-                          fast_fit_resultsDevice.data(),
-                          3,
-                          3,
-                          offset);
+      runBinGated(std::integral_constant<int, 3>{}, workDivTriplets, 3u, 3u, offset);
 #ifdef GPU_DEBUG
       alpaka::wait(queue);
-      std::cout << "Kernel_BLFastFit(3) -> done! " << std::endl;
-#endif
-      alpaka::exec<Acc1D>(queue,
-                          workDivTriplets,
-                          Kernel_BLFit<3, TrackerTraits>{},
-                          tupleMultiplicity_,
-                          bField_,
-                          outputSoa_,
-                          tkidDevice.data(),
-                          hitsDevice.data(),
-                          hits_geDevice.data(),
-                          fast_fit_resultsDevice.data());
-#ifdef GPU_DEBUG
-      alpaka::wait(queue);
-      std::cout << "Kernel_BLFit(3) -> done! " << std::endl;
+      std::cout << "Kernel_BLFastFit(3) and Kernel_BLFit(3) -> done! " << std::endl;
 #endif
 
       if (fitNas4_) {
         // fit all as 4
-        riemannFit::rolling_fits<4, TrackerTraits::maxHitsOnTrack, 1>([this,
-                                                                       &hv,
-                                                                       &cm,
-                                                                       &tkidDevice,
-                                                                       &hitsDevice,
-                                                                       &hits_geDevice,
-                                                                       &fast_fit_resultsDevice,
-                                                                       &offset,
-                                                                       &queue,
-                                                                       &workDivQuadsPenta](auto i) {
-          alpaka::exec<Acc1D>(queue,
-                              workDivQuadsPenta,
-                              Kernel_BLFastFit<4>{},
-                              tuples_,
-                              tupleMultiplicity_,
-                              hv,
-                              cm,
-                              tkidDevice.data(),
-                              hitsDevice.data(),
-                              hits_geDevice.data(),
-                              fast_fit_resultsDevice.data(),
-                              4,
-                              4,
-                              offset);
-
-          alpaka::exec<Acc1D>(queue,
-                              workDivQuadsPenta,
-                              Kernel_BLFit<4, TrackerTraits>{},
-                              tupleMultiplicity_,
-                              bField_,
-                              outputSoa_,
-                              tkidDevice.data(),
-                              hitsDevice.data(),
-                              hits_geDevice.data(),
-                              fast_fit_resultsDevice.data());
-        });
-      } else {
-        riemannFit::rolling_fits<4, TrackerTraits::maxHitsOnTrackForFullFit, 1>([this,
-                                                                                 &hv,
-                                                                                 &cm,
-                                                                                 &tkidDevice,
-                                                                                 &hitsDevice,
-                                                                                 &hits_geDevice,
-                                                                                 &fast_fit_resultsDevice,
-                                                                                 &offset,
-                                                                                 &queue,
-                                                                                 &workDivQuadsPenta](auto i) {
-          alpaka::exec<Acc1D>(queue,
-                              workDivQuadsPenta,
-                              Kernel_BLFastFit<i>{},
-                              tuples_,
-                              tupleMultiplicity_,
-                              hv,
-                              cm,
-                              tkidDevice.data(),
-                              hitsDevice.data(),
-                              hits_geDevice.data(),
-                              fast_fit_resultsDevice.data(),
-                              i,
-                              i,
-                              offset);
-
-          alpaka::exec<Acc1D>(queue,
-                              workDivQuadsPenta,
-                              Kernel_BLFit<i, TrackerTraits>{},
-                              tupleMultiplicity_,
-                              bField_,
-                              outputSoa_,
-                              tkidDevice.data(),
-                              hitsDevice.data(),
-                              hits_geDevice.data(),
-                              fast_fit_resultsDevice.data());
-#ifdef GPU_DEBUG
-          alpaka::wait(queue);
-          std::cout << "Kernel_BLFastFit(" << i << ") and Kernel_BLFit(" << i << ") -> done! " << std::endl;
-#endif
-        });
+        riemannFit::rolling_fits<4, TrackerTraits::maxHitsOnTrack, 1>(
+            [&runBinGated, &offset, &workDivQuadsPenta](auto i) {
+              (void)i;
+              runBinGated(std::integral_constant<int, 4>{}, workDivQuadsPenta, 4u, 4u, offset);
+            });
 
         static_assert(TrackerTraits::maxHitsOnTrackForFullFit < TrackerTraits::maxHitsOnTrack);
 
         //Fit all the rest using the maximum from previous call
-        alpaka::exec<Acc1D>(queue,
-                            workDivQuadsPenta,
-                            Kernel_BLFastFit<TrackerTraits::maxHitsOnTrackForFullFit>{},
-                            tuples_,
-                            tupleMultiplicity_,
-                            hv,
-                            cm,
-                            tkidDevice.data(),
-                            hitsDevice.data(),
-                            hits_geDevice.data(),
-                            fast_fit_resultsDevice.data(),
-                            TrackerTraits::maxHitsOnTrackForFullFit,
-                            TrackerTraits::maxHitsOnTrack - 1,
-                            offset);
+        runBinGated(std::integral_constant<int, int(TrackerTraits::maxHitsOnTrackForFullFit)>{},
+                    workDivQuadsPenta,
+                    TrackerTraits::maxHitsOnTrackForFullFit,
+                    TrackerTraits::maxHitsOnTrack - 1,
+                    offset);
+      } else {
+        // Rolling fits for multiplicities 4 to maxHitsOnTrackForFullFit
+        riemannFit::rolling_fits<4, TrackerTraits::maxHitsOnTrackForFullFit, 1>(
+            [&runBinGated, &offset, &workDivQuadsPenta](auto i) {
+              constexpr int Nv = decltype(i)::value;
+              runBinGated(i, workDivQuadsPenta, uint32_t(Nv), uint32_t(Nv), offset);
+            });
 
-        alpaka::exec<Acc1D>(queue,
-                            workDivQuadsPenta,
-                            Kernel_BLFit<TrackerTraits::maxHitsOnTrackForFullFit, TrackerTraits>{},
-                            tupleMultiplicity_,
-                            bField_,
-                            outputSoa_,
-                            tkidDevice.data(),
-                            hitsDevice.data(),
-                            hits_geDevice.data(),
-                            fast_fit_resultsDevice.data());
+        static_assert(TrackerTraits::maxHitsOnTrackForFullFit < TrackerTraits::maxHitsOnTrack);
+
+        // Fit all the rest using maxHitsOnTrackForFullFit hits
+        runBinGated(std::integral_constant<int, int(TrackerTraits::maxHitsOnTrackForFullFit)>{},
+                    workDivQuadsPenta,
+                    TrackerTraits::maxHitsOnTrackForFullFit,
+                    TrackerTraits::maxHitsOnTrack - 1,
+                    offset);
       }
-
     }  // loop on concurrent fits
+
+    if (verboseDump_) {
+      // tag=1 -> post-fit dump of the main-fit launch
+      alpaka::exec<Acc1D>(queue,
+                          cms::alpakatools::make_workdiv<Acc1D>(1u, 1u),
+                          Kernel_BLFitDump{verboseDumpN_, bField_, 1u},
+                          outputSoa_);
+    }
   }
 
   template class HelixFit<pixelTopology::Phase1>;
