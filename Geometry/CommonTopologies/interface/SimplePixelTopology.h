@@ -161,9 +161,29 @@ namespace phase1PixelTopology {
       4, 6, 7, 9                     // Jumping Forward (19)
   };
 
-  HOST_DEVICE_CONSTANT uint8_t startingPairs[nStartingPairs] = {0, 1, 2};
+  HOST_DEVICE_CONSTANT uint8_t startingPairs[nPairs] = {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
   HOST_DEVICE_CONSTANT int16_t phicuts[nPairs]{phi0p05,
+                                               phi0p07,
+                                               phi0p07,
+                                               phi0p05,
+                                               phi0p06,
+                                               phi0p06,
+                                               phi0p05,
+                                               phi0p05,
+                                               phi0p06,
+                                               phi0p06,
+                                               phi0p06,
+                                               phi0p05,
+                                               phi0p05,
+                                               phi0p05,
+                                               phi0p05,
+                                               phi0p05,
+                                               phi0p05,
+                                               phi0p05,
+                                               phi0p05};
+
+  HOST_DEVICE_CONSTANT int16_t maxDPhi[nPairs]{phi0p05,
                                                phi0p07,
                                                phi0p07,
                                                phi0p05,
@@ -194,11 +214,65 @@ namespace phase1PixelTopology {
       -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100, -100};
   HOST_DEVICE_CONSTANT float maxDZ[nPairs] = {
       100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100};
-  HOST_DEVICE_CONSTANT float ptCuts[nPairs] = {
+  HOST_DEVICE_CONSTANT float minPt[nPairs] = {
       0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
+  HOST_DEVICE_CONSTANT float maxZ0[nPairs] = {
+      12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5};
   HOST_DEVICE_CONSTANT float maxDR[nPairs] = {
       20., 9., 9., 20., 7., 7., 5., 5., 20., 6., 6., 5., 5., 20., 20., 9., 9., 9., 9.};
 
+  // Beam-spot compatibility cut (transverse impact parameter, cm), one entry per layer pair.
+  // Each pair carries the value belonging to its inner layer: pairs whose inner hit is on BPIX1
+  // get the tight 0.15 cm, every other pair 0.25 cm.
+  HOST_DEVICE_CONSTANT float maxDCA[nPairs] = {
+      0.15,
+      0.15,
+      0.15,  // BPIX1
+      0.25,
+      0.25,
+      0.25,  // BPIX2
+      0.25,
+      0.25,  // FPIX1
+      0.25,
+      0.25,
+      0.25,
+      0.25,
+      0.25,  // BPIX3 & FPIX2
+      0.15,
+      0.25,  // Jumping Barrel
+      0.15,
+      0.15,  // Jumping Forward (BPIX1,FPIX2)
+      0.25,
+      0.25  // Jumping Forward
+  };
+
+  // Tolerance of the RZ-alignment test applied to triplets, one entry per layer pair.
+  // Each pair carries the value belonging to its inner layer: barrel layers 0.002, forward layers 0.003.
+  HOST_DEVICE_CONSTANT float maxRZTolerance[nPairs] = {
+      0.002,
+      0.002,
+      0.002,  // BPIX1
+      0.002,
+      0.002,
+      0.002,  // BPIX2
+      0.003,
+      0.003,  // FPIX1
+      0.002,
+      0.002,
+      0.002,
+      0.003,
+      0.003,  // BPIX3 & FPIX2
+      0.002,
+      0.002,  // Jumping Barrel
+      0.002,
+      0.002,  // Jumping Forward (BPIX1,FPIX2)
+      0.003,
+      0.003  // Jumping Forward
+  };
+
+  // Per-LAYER form of the two triplet cuts, kept because it is the form of the `geometry` PSet
+  // (caDCACuts / caThetaCuts). The per-layer-pair tables above are the internal form the CA SoA
+  // consumes; the producer broadcasts these onto them (value of the pair's own inner layer).
   HOST_DEVICE_CONSTANT float dcaCuts[numberOfLayers] = {0.15, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25};
 
   HOST_DEVICE_CONSTANT float thetaCuts[numberOfLayers] = {
@@ -281,10 +355,29 @@ namespace phase2PixelTopology {
       28, 29, 29, 30                           // OT to OT (73)
   };
 
-  HOST_DEVICE_CONSTANT uint8_t startingPairs[nStartingPairs] = {0,  1,  2,  3,  4,  5,  6,  8,  10, 12, 15, 17,
-                                                                19, 21, 23, 25, 27, 36, 38, 40, 42, 44, 46, 48};
+  HOST_DEVICE_CONSTANT uint8_t startingPairs[nPairsTot] = {
+      1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  };
 
   HOST_DEVICE_CONSTANT int16_t phicuts[nPairsTot]{
+      350,  600,  450,  522,  450,  522,       // BPIX1
+      400,  650,  500,  730,  500,  730,       // BPIX2
+      350,  400,  400,                         // BPIX3
+      300,  522,  300,  522,  250,  522, 250,  // forward endcap
+      522,  250,  522,  300,  522,  240, 650,  // forward endcap
+      300,  200,  220,  250,  250,  250, 250,  // forward endcap
+      300,  522,  300,  522,  250,  522, 250,  // backward endcap
+      522,  250,  522,  300,  522,  240, 650,  // backward endcap
+      300,  200,  220,  250,  250,  250, 250,  // backward endcap
+
+      1200, 1200, 1200, 1000,        // barrel to OT
+      1000, 1000, 1000, 1000, 850,   // forward endcap to OT
+      1000, 1000, 1000, 1000, 1000,  // backward endcap to OT
+      1100, 1250                     // OT to OT
+  };
+
+  HOST_DEVICE_CONSTANT int16_t maxDPhi[nPairsTot]{
       350,  600,  450,  522,  450,  522,       // BPIX1
       400,  650,  500,  730,  500,  730,       // BPIX2
       350,  400,  400,                         // BPIX3
@@ -420,7 +513,7 @@ namespace phase2PixelTopology {
       50.0,  40.0                         // OT to OT
   };
 
-  HOST_DEVICE_CONSTANT float ptCuts[nPairsTot] = {
+  HOST_DEVICE_CONSTANT float minPt[nPairsTot] = {
       0.85, 0.85, 0.85, 0.85, 0.85, 0.85,        // BPIX1
       0.85, 0.85, 0.85, 0.85, 0.85, 0.85,        // BPIX2
       0.85, 0.85, 0.85,                          // BPIX3
@@ -437,6 +530,480 @@ namespace phase2PixelTopology {
       0.85, 0.85                     // OT to OT
   };
 
+  HOST_DEVICE_CONSTANT float maxZ0[nPairsTot] = {
+      12.5, 12.5, 12.5, 12.5, 12.5, 12.5,        // BPIX1
+      12.5, 12.5, 12.5, 12.5, 12.5, 12.5,        // BPIX2
+      12.5, 12.5, 12.5,                          // BPIX3
+      12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5,  // forward endcap
+      12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5,  // forward endcap
+      12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5,  // forward endcap
+      12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5,  // backward endcap
+      12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5,  // backward endcap
+      12.5, 12.5, 12.5, 12.5, 12.5, 12.5, 12.5,  // backward endcap
+
+      12.5, 12.5, 12.5, 12.5,        // barrel to OT
+      12.5, 12.5, 12.5, 12.5, 12.5,  // forward endcap to OT
+      12.5, 12.5, 12.5, 12.5, 12.5,  // backward endcap to OT
+      12.5, 12.5                     // OT to OT
+  };
+
+  // Beam-spot compatibility cut (transverse impact parameter, cm), one entry per layer pair.
+  // Each pair carries the value belonging to its inner layer: BPIX1 0.15, BPIX2 0.25, BPIX3/BPIX4 0.20,
+  // all remaining pixel layers 0.25, OT layers 0.10.
+  HOST_DEVICE_CONSTANT float maxDCA[nPairsTot] = {
+      0.15, 0.15, 0.15, 0.15, 0.15, 0.15,        // starting on BPIX1
+      0.25, 0.25, 0.25, 0.25, 0.25, 0.25,        // starting on BPIX2
+      0.20, 0.20, 0.20,                          // starting on BPIX3
+      0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,  // forward endcap
+      0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,  // forward endcap
+      0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,  // forward endcap
+      0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,  // backward endcap
+      0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,  // backward endcap
+      0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,  // backward endcap
+
+      0.20, 0.20, 0.20, 0.20,        // barrel to OT
+      0.25, 0.25, 0.25, 0.25, 0.25,  // forward endcap to OT
+      0.25, 0.25, 0.25, 0.25, 0.25,  // backward endcap to OT
+      0.10, 0.10                     // OT to OT
+  };
+
+  // Tolerance of the RZ-alignment test applied to triplets, one entry per layer pair.
+  // Each pair carries the value belonging to its inner layer: pixel barrel layers 0.002,
+  // all remaining pixel layers and the OT layers 0.003.
+  HOST_DEVICE_CONSTANT float maxRZTolerance[nPairsTot] = {
+      0.002, 0.002, 0.002, 0.002, 0.002, 0.002,         // starting on BPIX1
+      0.002, 0.002, 0.002, 0.002, 0.002, 0.002,         // starting on BPIX2
+      0.002, 0.002, 0.002,                              // starting on BPIX3
+      0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,  // forward endcap
+      0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,  // forward endcap
+      0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,  // forward endcap
+      0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,  // backward endcap
+      0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,  // backward endcap
+      0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,  // backward endcap
+
+      0.002, 0.002, 0.002, 0.002,         // barrel to OT
+      0.003, 0.003, 0.003, 0.003, 0.003,  // forward endcap to OT
+      0.003, 0.003, 0.003, 0.003, 0.003,  // backward endcap to OT
+      0.003, 0.003                        // OT to OT
+  };
+
+  // Layer count of the Phase2OTStubs topology: 28 pixel + 6 OT barrel + 20 OT disk layers (10 per side)
+  constexpr uint32_t nLayersPhase2OTStubs = 54;
+
+  // =====================================================================================================
+  // Default CA graph and cuts of the stub-seeded topology (Phase2OTStubs).
+  //
+  // The tables below mirror, entry for entry and in the same pair order, the deployed configuration
+  // HLTrigger/Configuration/python/HLT_75e33/modules/hltPhase2PixelTracksSoAWithStubs_cfi.py
+  // (its `layerPairs` table, with layersToExclude = []). CAHitNtupletGenerator::fillDescriptions derives
+  // the defaults of the `geometry` PSet (pairGraph, startingPairs, phiCuts, ptCuts, minInner, maxInner,
+  // minOuter, maxOuter, maxDR, minDZ, maxDZ) from them, so the compiled-in defaults describe the same
+  // graph as the HLT menu. Regenerate them from the cfi rather than editing them by hand.
+  //
+  // Layer numbering (54 CA layers, inside-out):
+  //   0-27:  pixel layers, as in Phase2 (0-3 barrel, 4-15 forward disks, 16-27 backward disks)
+  //   28-33: OT barrel layers 1-6 (28-30 PS, 31-33 2S)
+  //   34-43: OT disks 1-5 at z > 0, each disk as a PS layer (even id) followed by a 2S layer (odd id)
+  //   44-53: OT disks 1-5 at z < 0, with the same PS/2S alternation
+  //
+  // The 112 pairs, in table order (the same index ranges label every per-pair table below):
+  //   0-14     pixel-only pairs, as in Phase2OT
+  //   15-17    pixel barrel L3 -> OT barrel L1, three z windows (central, backward, forward)
+  //   18       pixel barrel L4 -> OT barrel L1
+  //   19-23    pixel forward disks 1-5 -> OT barrel L1
+  //   24-28    pixel backward disks 1-5 -> OT barrel L1
+  //   29-49    pixel forward disk chain, as in Phase2OT
+  //   50-70    pixel backward disk chain, as in Phase2OT
+  //   71-75    OT barrel chain L1 -> L6
+  //   76-78    OT barrel PS L1-L3 -> forward disk 1, PS layer (34)
+  //   79-80    OT barrel PS L3 -> disk 1 2S layer, forward (35) and backward (45)
+  //   81-82    OT barrel 2S L4-L5 -> forward disk 1, 2S layer (35)
+  //   83-85    OT barrel PS L1-L3 -> backward disk 1, PS layer (44)
+  //   86-87    OT barrel 2S L4-L5 -> backward disk 1, 2S layer (45)
+  //   88-95    forward disks: PS chain and PS -> 2S links, alternating
+  //   96-99    forward disks: 2S chain
+  //   100-107  backward disks: PS chain and PS -> 2S links, alternating
+  //   108-111  backward disks: 2S chain
+  //
+  // nPairsPhase2OTStubs is the compile-time upper bound on the number of layer pairs: it sizes the
+  // shared-memory array innerLayerCumulativeSize[TrackerTraits::nPairs] (CAPixelDoubletsAlgos.h) and
+  // the per-pair default arrays below, and it must stay >= the pair count supplied at run time, since
+  // nothing asserts on that indexing. nDefaultPairsPhase2OTStubs is the number of pairs the tables
+  // spell out (Phase2OTStubs::nPairsForQuadruplets, the length of the fillDescriptions defaults); the
+  // entries from there up to the bound are zero-initialized and never read.
+  // =====================================================================================================
+  constexpr int nPairsPhase2OTStubs = 128;
+  constexpr int nDefaultPairsPhase2OTStubs = 112;
+  static_assert(nDefaultPairsPhase2OTStubs <= nPairsPhase2OTStubs,
+                "the Phase2OTStubs default graph must fit in the per-pair tables");
+  constexpr int nStartingPairsPhase2OTStubs = 23;  // pairs flagged in startingPairsPhase2OTStubs
+
+  // Per-pair form of the two triplet cuts, geometry.caDCACutsPerPair (beam-spot compatibility) and
+  // geometry.caThetaCutsPerPair (r-z alignment tolerance): the form the CA SoA consumes and the deployed
+  // configuration sets. Both are optional parameters without a default, so fillDescriptions does not
+  // read these tables; the per-layer defaults it does read are dcaCutsPhase2OTStubs / thetaCutsPhase2OTStubs.
+  HOST_DEVICE_CONSTANT float maxDCAPhase2OTStubs[nPairsPhase2OTStubs] = {
+      0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.2,   // 0-7 pixel-only, as Phase2OT
+      0.25, 0.25, 0.25, 0.25, 0.2,  0.25, 0.25,        // 8-14
+      0.5,  0.5,  0.5,                                 // 15-17 PXB3 -> OTB1 (cen/bwd/fwd)
+      0.5,                                             // 18 PXB4 -> OTB1
+      0.5,  0.5,  0.5,  0.5,  0.5,                     // 19-23 fwd PXD1-5 -> OTB1
+      0.5,  0.5,  0.5,  0.5,  0.5,                     // 24-28 bwd PXD1-5 -> OTB1
+      0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,  // 29-36 fwd pixel disks
+      0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.4,   // 37-44
+      0.4,  0.25, 0.4,  0.4,  0.4,                     // 45-49
+      0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,  // 50-57 bwd pixel disks
+      0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.4,   // 58-65
+      0.4,  0.25, 0.4,  0.4,  0.4,                     // 66-70
+      0.5,  2,    2,    2,    0.5,                     // 71-75 OT barrel chain
+      3,    3,    3,                                   // 76-78 OTB PS -> fwd D1 PS
+      5,    5,                                         // 79-80 OTB3 -> D1 2S (fwd, bwd)
+      5,    5,                                         // 81-82 OTB 2S -> fwd D1 2S
+      3,    3,    3,                                   // 83-85 OTB PS -> bwd D1 PS
+      5,    5,                                         // 86-87 OTB 2S -> bwd D1 2S
+      3,    5,    3,    5,    3,    5,    0.65, 3,     // 88-95 fwd disks PS chain, PS->2S
+      5,    5,    5,    5,                             // 96-99 fwd disks 2S chain
+      3,    5,    3,    5,    3,    5,    0.65, 3,     // 100-107 bwd disks PS chain, PS->2S
+      5,    5,    5,    5                              // 108-111 bwd disks 2S chain
+  };
+
+  HOST_DEVICE_CONSTANT float maxRZTolerancePhase2OTStubs[nPairsPhase2OTStubs] = {
+      0.002,   0.002,   0.002,  0.002,   0.002,  0.002,   0.002, 0.002,    // 0-7 pixel-only, as Phase2OT
+      0.002,   0.002,   0.002,  0.002,   0.002,  0.002,   0.002,           // 8-14
+      0.002,   0.002,   0.002,                                             // 15-17 PXB3 -> OTB1 (cen/bwd/fwd)
+      0.002,                                                               // 18 PXB4 -> OTB1
+      0.003,   0.003,   0.003,  0.003,   0.003,                            // 19-23 fwd PXD1-5 -> OTB1
+      0.003,   0.003,   0.003,  0.003,   0.003,                            // 24-28 bwd PXD1-5 -> OTB1
+      0.003,   0.003,   0.003,  0.003,   0.003,  0.003,   0.003, 0.003,    // 29-36 fwd pixel disks
+      0.003,   0.003,   0.003,  0.003,   0.003,  0.003,   0.003, 0.003,    // 37-44
+      0.003,   0.003,   0.003,  0.003,   0.003,                            // 45-49
+      0.003,   0.003,   0.003,  0.003,   0.003,  0.003,   0.003, 0.003,    // 50-57 bwd pixel disks
+      0.003,   0.003,   0.003,  0.003,   0.003,  0.003,   0.003, 0.003,    // 58-65
+      0.003,   0.003,   0.003,  0.003,   0.003,                            // 66-70
+      0.005,   0.005,   0.0365, 0.0886,  0.0902,                           // 71-75 OT barrel chain
+      0.005,   0.005,   0.005,                                             // 76-78 OTB PS -> fwd D1 PS
+      0.03712, 0.03712,                                                    // 79-80 OTB3 -> D1 2S (fwd, bwd)
+      0.06984, 0.096,                                                      // 81-82 OTB 2S -> fwd D1 2S
+      0.005,   0.005,   0.005,                                             // 83-85 OTB PS -> bwd D1 PS
+      0.06984, 0.06984,                                                    // 86-87 OTB 2S -> bwd D1 2S
+      0.02,    0.1312,  0.02,   0.06984, 0.02,   0.05096, 0.02,  0.05096,  // 88-95 fwd disks PS chain, PS->2S
+      0.1312,  0.1312,  0.1312, 0.3392,                                    // 96-99 fwd disks 2S chain
+      0.02,    0.05096, 0.02,   0.06984, 0.02,   0.05096, 0.02,  0.06984,  // 100-107 bwd disks PS chain, PS->2S
+      0.096,   0.1312,  0.1312, 0.18                                       // 108-111 bwd disks 2S chain
+  };
+
+  // The CA graph (geometry.pairGraph): (inner, outer) layer of every pair, in cfi order.
+  HOST_DEVICE_CONSTANT uint8_t layerPairsPhase2OTStubs[2 * nPairsPhase2OTStubs] = {
+      0,  1,  0,  2,  0,  4,  0,  5,  0,  16, 0,  17, 1,  2,  1,  3,   // pairs 0-7: pixel-only, as Phase2OT
+      1,  4,  1,  5,  1,  16, 1,  17, 2,  3,  2,  4,  2,  16,          // pairs 8-14
+      2,  28, 2,  28, 2,  28,                                          // pairs 15-17: PXB3 -> OTB1 (cen/bwd/fwd)
+      3,  28,                                                          // pair 18: PXB4 -> OTB1
+      4,  28, 5,  28, 6,  28, 7,  28, 8,  28,                          // pairs 19-23: fwd PXD1-5 -> OTB1
+      16, 28, 17, 28, 18, 28, 19, 28, 20, 28,                          // pairs 24-28: bwd PXD1-5 -> OTB1
+      4,  5,  4,  6,  5,  6,  5,  7,  6,  7,  6,  8,  7,  8,  7,  9,   // pairs 29-36: fwd pixel disks
+      8,  9,  8,  10, 9,  10, 9,  11, 10, 11, 10, 12, 11, 12, 11, 13,  // pairs 37-44
+      11, 14, 11, 15, 12, 13, 13, 14, 14, 15,                          // pairs 45-49
+      16, 17, 16, 18, 17, 18, 17, 19, 18, 19, 18, 20, 19, 20, 19, 21,  // pairs 50-57: bwd pixel disks
+      20, 21, 20, 22, 21, 22, 21, 23, 22, 23, 22, 24, 23, 24, 23, 25,  // pairs 58-65
+      23, 26, 23, 27, 24, 25, 25, 26, 26, 27,                          // pairs 66-70
+      28, 29, 29, 30, 30, 31, 31, 32, 32, 33,                          // pairs 71-75: OT barrel chain
+      28, 34, 29, 34, 30, 34,                                          // pairs 76-78: OTB PS -> fwd D1 PS
+      30, 35, 30, 45,                                                  // pairs 79-80: OTB3 -> D1 2S (fwd, bwd)
+      31, 35, 32, 35,                                                  // pairs 81-82: OTB 2S -> fwd D1 2S
+      28, 44, 29, 44, 30, 44,                                          // pairs 83-85: OTB PS -> bwd D1 PS
+      31, 45, 32, 45,                                                  // pairs 86-87: OTB 2S -> bwd D1 2S
+      34, 36, 34, 37, 36, 38, 36, 39, 38, 40, 38, 41, 40, 42, 40, 43,  // pairs 88-95: fwd disks PS chain, PS->2S
+      35, 37, 37, 39, 39, 41, 41, 43,                                  // pairs 96-99: fwd disks 2S chain
+      44, 46, 44, 47, 46, 48, 46, 49, 48, 50, 48, 51, 50, 52, 50, 53,  // pairs 100-107: bwd disks PS chain, PS->2S
+      45, 47, 47, 49, 49, 51, 51, 53                                   // pairs 108-111: bwd disks 2S chain
+  };
+
+  // Starting-pair flags (geometry.startingPairs lists the ids of the flagged pairs), sized to this
+  // topology's own pair bound so that fillDescriptions can scan nPairsForQuadruplets entries in bounds.
+  HOST_DEVICE_CONSTANT uint8_t startingPairsPhase2OTStubs[nPairsPhase2OTStubs] = {
+      1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0,                    // 0-14 pixel-only, as Phase2OT
+      0, 0, 0,                                                        // 15-17 PXB3 -> OTB1 (cen/bwd/fwd)
+      0,                                                              // 18 PXB4 -> OTB1
+      0, 0, 0, 0, 0,                                                  // 19-23 fwd PXD1-5 -> OTB1
+      0, 0, 0, 0, 0,                                                  // 24-28 bwd PXD1-5 -> OTB1
+      1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,  // 29-49 fwd pixel disks
+      1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,  // 50-70 bwd pixel disks
+      0, 0, 0, 0, 0,                                                  // 71-75 OT barrel chain
+      0, 0, 0,                                                        // 76-78 OTB PS -> fwd D1 PS
+      0, 0,                                                           // 79-80 OTB3 -> D1 2S (fwd, bwd)
+      0, 0,                                                           // 81-82 OTB 2S -> fwd D1 2S
+      0, 0, 0,                                                        // 83-85 OTB PS -> bwd D1 PS
+      0, 0,                                                           // 86-87 OTB 2S -> bwd D1 2S
+      0, 0, 0, 0, 0, 0, 0, 0,                                         // 88-95 fwd disks PS chain, PS->2S
+      0, 0, 0, 0,                                                     // 96-99 fwd disks 2S chain
+      0, 0, 0, 0, 0, 0, 0, 0,                                         // 100-107 bwd disks PS chain, PS->2S
+      0, 0, 0, 0                                                      // 108-111 bwd disks 2S chain
+  };
+
+  // Phi cuts for the layer pairs (geometry.phiCuts)
+  HOST_DEVICE_CONSTANT int16_t maxDPhiPhase2OTStubs[nPairsPhase2OTStubs] = {
+      350,  600,  450,  522,  450,  522,  400,  650,   // 0-7 pixel-only, as Phase2OT
+      500,  730,  500,  730,  350,  400,  400,         // 8-14
+      1200, 1200, 1200,                                // 15-17 PXB3 -> OTB1 (cen/bwd/fwd)
+      1000,                                            // 18 PXB4 -> OTB1
+      1000, 1000, 1000, 1000, 1000,                    // 19-23 fwd PXD1-5 -> OTB1
+      1000, 1000, 1000, 1000, 1000,                    // 24-28 bwd PXD1-5 -> OTB1
+      300,  522,  300,  522,  250,  522,  250,  522,   // 29-36 fwd pixel disks
+      250,  522,  300,  522,  240,  650,  300,  200,   // 37-44
+      220,  250,  250,  250,  250,                     // 45-49
+      300,  522,  300,  522,  250,  522,  250,  522,   // 50-57 bwd pixel disks
+      250,  522,  300,  522,  240,  650,  300,  200,   // 58-65
+      220,  250,  250,  250,  250,                     // 66-70
+      1100, 1250, 1250, 2000, 2000,                    // 71-75 OT barrel chain
+      1600, 1700, 2000,                                // 76-78 OTB PS -> fwd D1 PS
+      1000, 1000,                                      // 79-80 OTB3 -> D1 2S (fwd, bwd)
+      1000, 1000,                                      // 81-82 OTB 2S -> fwd D1 2S
+      2500, 2500, 2000,                                // 83-85 OTB PS -> bwd D1 PS
+      1000, 1000,                                      // 86-87 OTB 2S -> bwd D1 2S
+      2500, 1000, 2500, 1000, 2500, 1000, 2500, 1000,  // 88-95 fwd disks PS chain, PS->2S
+      1000, 1000, 1000, 1000,                          // 96-99 fwd disks 2S chain
+      2500, 1000, 2500, 1000, 2500, 1000, 2500, 1000,  // 100-107 bwd disks PS chain, PS->2S
+      1000, 1000, 1000, 1000                           // 108-111 bwd disks 2S chain
+  };
+
+  // Min inner-hit coordinate, z (barrel) or r (disk), per pair (geometry.minInner)
+  HOST_DEVICE_CONSTANT float minInnerPhase2OTStubs[nPairsPhase2OTStubs] = {
+      -17.0, -14.0, 3.0,    7.0,    -10000, -10000, -17.0,  -15.0,  // 0-7 pixel-only, as Phase2OT
+      6.0,   9.0,   -10000, -10000, -18.0,  11.0,   -10000,         // 8-14
+      -10,   -20,   10,                                             // 15-17 PXB3 -> OTB1 (cen/bwd/fwd)
+      -20,                                                          // 18 PXB4 -> OTB1
+      11.6,  11.6,  11.6,   11.8,   0,                              // 19-23 fwd PXD1-5 -> OTB1
+      11.6,  11.6,  11.6,   11.8,   0,                              // 24-28 bwd PXD1-5 -> OTB1
+      0,     0,     0,      0,      0,      0,      0,      0,      // 29-36 fwd pixel disks
+      0,     0,     0,      0,      0,      12.5,   0,      0,      // 37-44
+      0,     0,     0,      0,      0,                              // 45-49
+      0,     0,     0,      0,      0,      0,      0,      0,      // 50-57 bwd pixel disks
+      0,     0,     0,      0,      0,      12.5,   0,      0,      // 58-65
+      0,     0,     0,      0,      0,                              // 66-70
+      -1200, -1200, -10000, -10000, -10000,                         // 71-75 OT barrel chain
+      40,    80,    100,                                            // 76-78 OTB PS -> fwd D1 PS
+      80,    -108,                                                  // 79-80 OTB3 -> D1 2S (fwd, bwd)
+      90,    101,                                                   // 81-82 OTB 2S -> fwd D1 2S
+      -130,  -130,  -130,                                           // 83-85 OTB PS -> bwd D1 PS
+      -116,  -116,                                                  // 86-87 OTB 2S -> bwd D1 2S
+      20,    45,    20,     45,     20,     20,     20,     20,     // 88-95 fwd disks PS chain, PS->2S
+      55,    55,    55,     55,                                     // 96-99 fwd disks 2S chain
+      20,    45,    20,     45,     20,     45,     20,     45,     // 100-107 bwd disks PS chain, PS->2S
+      55,    55,    55,     55                                      // 108-111 bwd disks 2S chain
+  };
+
+  // Max inner-hit coordinate, z (barrel) or r (disk), per pair (geometry.maxInner)
+  HOST_DEVICE_CONSTANT float maxInnerPhase2OTStubs[nPairsPhase2OTStubs] = {
+      17.0,  14.0,  10000, 10000, -3.0,  -7.0,  17.0,  15.0,  // 0-7 pixel-only, as Phase2OT
+      10000, 10000, -6.0,  -9.0,  18.0,  10000, -11.0,        // 8-14
+      10,    -10,   20,                                       // 15-17 PXB3 -> OTB1 (cen/bwd/fwd)
+      20,                                                     // 18 PXB4 -> OTB1
+      10000, 10000, 10000, 10000, 10000,                      // 19-23 fwd PXD1-5 -> OTB1
+      10000, 10000, 10000, 10000, 10000,                      // 24-28 bwd PXD1-5 -> OTB1
+      14.0,  14.0,  13.0,  13.0,  13.0,  13.0,  13.0,  13.0,  // 29-36 fwd pixel disks
+      13.0,  13.0,  13.0,  13.0,  13.0,  16.5,  16.5,  6.0,   // 37-44
+      4.6,   6.0,   22.5,  22.5,  22.5,                       // 45-49
+      14.0,  14.0,  13.0,  13.0,  13.0,  13.0,  13.0,  13.0,  // 50-57 bwd pixel disks
+      13.0,  13.0,  13.0,  13.0,  13.0,  16.5,  16.5,  6.0,   // 58-65
+      4.6,   6.0,   22.5,  22.5,  22.5,                       // 66-70
+      1200,  1200,  10000, 10000, 10000,                      // 71-75 OT barrel chain
+      130,   130,   130,                                      // 76-78 OTB PS -> fwd D1 PS
+      108,   -80,                                             // 79-80 OTB3 -> D1 2S (fwd, bwd)
+      116,   116,                                             // 81-82 OTB 2S -> fwd D1 2S
+      -40,   -80,   -100,                                     // 83-85 OTB PS -> bwd D1 PS
+      -90,   -99,                                             // 86-87 OTB 2S -> bwd D1 2S
+      115,   72,    115,   72,    115,   115,   115,   115,   // 88-95 fwd disks PS chain, PS->2S
+      105,   105,   105,   105,                               // 96-99 fwd disks 2S chain
+      115,   72,    115,   72,    115,   72,    115,   72,    // 100-107 bwd disks PS chain, PS->2S
+      105,   105,   105,   105                                // 108-111 bwd disks 2S chain
+  };
+
+  // Min outer-hit coordinate, z (barrel) or r (disk), per pair (geometry.minOuter)
+  HOST_DEVICE_CONSTANT float minOuterPhase2OTStubs[nPairsPhase2OTStubs] = {
+      -10000, -10000, 0,      0,      0,      0,    -10000, -10000,  // 0-7 pixel-only, as Phase2OT
+      6.5,    6.5,    6.5,    6.5,    -10000, 11.7, 11.7,            // 8-14
+      -30.0,  -50.0,  25.0,                                          // 15-17 PXB3 -> OTB1 (cen/bwd/fwd)
+      -45.0,                                                         // 18 PXB4 -> OTB1
+      30.0,   40.0,   55.0,   70.0,   80.0,                          // 19-23 fwd PXD1-5 -> OTB1
+      -57.5,  -80.0,  -95.0,  -110.0, -10000,                        // 24-28 bwd PXD1-5 -> OTB1
+      3.5,    3.5,    3.5,    3.5,    3.5,    3.5,  3.5,    3.5,     // 29-36 fwd pixel disks
+      3.5,    3.5,    4.0,    4.0,    3.5,    20.0, 6.0,    0,       // 37-44
+      0,      0,      7.0,    7.0,    7.0,                           // 45-49
+      3.5,    3.5,    3.5,    3.5,    3.5,    3.5,  3.5,    3.5,     // 50-57 bwd pixel disks
+      3.5,    3.5,    4.0,    4.0,    3.5,    20.0, 6.0,    0,       // 58-65
+      0,      0,      7.0,    7.0,    7.0,                           // 66-70
+      -10000, -10000, -10000, -10000, -10000,                        // 71-75 OT barrel chain
+      20,     30,     50,                                            // 76-78 OTB PS -> fwd D1 PS
+      50,     50,                                                    // 79-80 OTB3 -> D1 2S (fwd, bwd)
+      60,     80,                                                    // 81-82 OTB 2S -> fwd D1 2S
+      20,     30,     50,                                            // 83-85 OTB PS -> bwd D1 PS
+      60,     80,                                                    // 86-87 OTB 2S -> bwd D1 2S
+      20,     55,     20,     55,     20,     20,   20,     20,      // 88-95 fwd disks PS chain, PS->2S
+      55,     55,     55,     55,                                    // 96-99 fwd disks 2S chain
+      20,     55,     20,     55,     20,     55,   20,     55,      // 100-107 bwd disks PS chain, PS->2S
+      55,     55,     55,     55                                     // 108-111 bwd disks 2S chain
+  };
+
+  // Max outer-hit coordinate, z (barrel) or r (disk), per pair (geometry.maxOuter)
+  HOST_DEVICE_CONSTANT float maxOuterPhase2OTStubs[nPairsPhase2OTStubs] = {
+      10000, 10000, 12.0,  10000, 12.0,  10000, 10000, 10000,  // 0-7 pixel-only, as Phase2OT
+      10000, 10000, 10000, 10000, 10000, 10000, 10000,         // 8-14
+      30.0,  -25.0, 50.0,                                      // 15-17 PXB3 -> OTB1 (cen/bwd/fwd)
+      45.0,                                                    // 18 PXB4 -> OTB1
+      57.5,  70.0,  95.0,  110.0, 10000,                       // 19-23 fwd PXD1-5 -> OTB1
+      -30.0, -40.0, -55.0, -70.0, -80.0,                       // 24-28 bwd PXD1-5 -> OTB1
+      10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000,  // 29-36 fwd pixel disks
+      10000, 10000, 10000, 10000, 10000, 10000, 21.0,  7.5,    // 37-44
+      7.5,   10000, 10000, 10000, 10000,                       // 45-49
+      10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000,  // 50-57 bwd pixel disks
+      10000, 10000, 10000, 10000, 10000, 10000, 21.0,  7.5,    // 58-65
+      7.5,   10000, 10000, 10000, 10000,                       // 66-70
+      10000, 10000, 10000, 10000, 10000,                       // 71-75 OT barrel chain
+      40,    60,    80,                                        // 76-78 OTB PS -> fwd D1 PS
+      80,    80,                                               // 79-80 OTB3 -> D1 2S (fwd, bwd)
+      110,   110,                                              // 81-82 OTB 2S -> fwd D1 2S
+      40,    60,    80,                                        // 83-85 OTB PS -> bwd D1 PS
+      110,   110,                                              // 86-87 OTB 2S -> bwd D1 2S
+      115,   105,   115,   105,   115,   115,   115,   115,    // 88-95 fwd disks PS chain, PS->2S
+      105,   105,   105,   105,                                // 96-99 fwd disks 2S chain
+      115,   105,   115,   105,   115,   105,   115,   105,    // 100-107 bwd disks PS chain, PS->2S
+      105,   105,   105,   105                                 // 108-111 bwd disks 2S chain
+  };
+
+  // Max dr between the two hits, per pair (geometry.maxDR)
+  HOST_DEVICE_CONSTANT float maxDRPhase2OTStubs[nPairsPhase2OTStubs] = {
+      5.0,   10.0,  8.5,   5.0,   8.5,   5.0,   7.0,  10.0,   // 0-7 pixel-only, as Phase2OT
+      8.5,   10.0,  8.5,   10.0,  7.0,   7.0,   7.0,          // 8-14
+      10000, 10000, 10000,                                    // 15-17 PXB3 -> OTB1 (cen/bwd/fwd)
+      10000,                                                  // 18 PXB4 -> OTB1
+      16.0,  16.0,  16.0,  16.0,  14.0,                       // 19-23 fwd PXD1-5 -> OTB1
+      16.0,  16.0,  16.0,  16.0,  14.0,                       // 24-28 bwd PXD1-5 -> OTB1
+      4.5,   9.0,   4.5,   9.0,   4.5,   9.0,   4.5,  8.0,    // 29-36 fwd pixel disks
+      4.0,   8.0,   4.5,   8.0,   4.0,   10.0,  5.0,  3.0,    // 37-44
+      3.0,   4.0,   4.0,   4.0,   3.5,                        // 45-49
+      4.5,   9.0,   4.5,   9.0,   4.5,   9.0,   4.5,  8.0,    // 50-57 bwd pixel disks
+      4.0,   8.0,   4.5,   8.0,   4.0,   10.0,  5.0,  3.0,    // 58-65
+      3.0,   4.0,   4.0,   4.0,   3.5,                        // 66-70
+      10000, 10000, 10000, 10000, 10000,                      // 71-75 OT barrel chain
+      10000, 10000, 10000,                                    // 76-78 OTB PS -> fwd D1 PS
+      10000, 10000,                                           // 79-80 OTB3 -> D1 2S (fwd, bwd)
+      10000, 10000,                                           // 81-82 OTB 2S -> fwd D1 2S
+      10000, 10000, 10000,                                    // 83-85 OTB PS -> bwd D1 PS
+      10000, 10000,                                           // 86-87 OTB 2S -> bwd D1 2S
+      60.0,  10000, 60.0,  10000, 60.0,  60.0,  60.0, 60.0,   // 88-95 fwd disks PS chain, PS->2S
+      10000, 10000, 10000, 10000,                             // 96-99 fwd disks 2S chain
+      60.0,  10000, 60.0,  10000, 60.0,  10000, 60.0, 10000,  // 100-107 bwd disks PS chain, PS->2S
+      10000, 10000, 10000, 10000                              // 108-111 bwd disks 2S chain
+  };
+
+  // Min dz between the two hits, per pair (geometry.minDZ)
+  HOST_DEVICE_CONSTANT float minDZPhase2OTStubs[nPairsPhase2OTStubs] = {
+      -16.0,  -16.0,  0.0,    0.0,    -25.0,  -25.0,  -13.0,  -17.0,   // 0-7 pixel-only, as Phase2OT
+      0.0,    0.0,    -19.0,  -21.0,  -9.0,   0.0,    -13.0,           // 8-14
+      -15.0,  -35.0,  10.0,                                            // 15-17 PXB3 -> OTB1 (cen/bwd/fwd)
+      -22.0,                                                           // 18 PXB4 -> OTB1
+      5.0,    5.0,    5.0,    15.0,   25.0,                            // 19-23 fwd PXD1-5 -> OTB1
+      -32.5,  -50.0,  -50.0,  -70.0,  -70.0,                           // 24-28 bwd PXD1-5 -> OTB1
+      -10000, -10000, -10000, -10000, -10000, -10000, -10000, -10000,  // 29-36 fwd pixel disks
+      -10000, -10000, -10000, -10000, -10000, -10000, -10000, -10000,  // 37-44
+      -10000, -10000, -10000, -10000, -10000,                          // 45-49
+      -10000, -10000, -10000, -10000, -10000, -10000, -10000, -10000,  // 50-57 bwd pixel disks
+      -10000, -10000, -10000, -10000, -10000, -10000, -10000, -10000,  // 58-65
+      -10000, -10000, -10000, -10000, -10000,                          // 66-70
+      -50.0,  -40.0,  -30.0,  -30.0,  -25.0,                           // 71-75 OT barrel chain
+      -10000, -10000, -10000,                                          // 76-78 OTB PS -> fwd D1 PS
+      -10000, -10000,                                                  // 79-80 OTB3 -> D1 2S (fwd, bwd)
+      -10000, -10000,                                                  // 81-82 OTB 2S -> fwd D1 2S
+      -10000, -10000, -10000,                                          // 83-85 OTB PS -> bwd D1 PS
+      -10000, -10000,                                                  // 86-87 OTB 2S -> bwd D1 2S
+      15.0,   -10000, 15.0,   -10000, 15.0,   15.0,   15.0,   15.0,    // 88-95 fwd disks PS chain, PS->2S
+      -10000, -10000, -10000, -10000,                                  // 96-99 fwd disks 2S chain
+      -50.0,  -10000, -50.0,  -10000, -50.0,  -10000, -50.0,  -10000,  // 100-107 bwd disks PS chain, PS->2S
+      -10000, -10000, -10000, -10000                                   // 108-111 bwd disks 2S chain
+  };
+
+  // Max dz between the two hits, per pair (geometry.maxDZ)
+  HOST_DEVICE_CONSTANT float maxDZPhase2OTStubs[nPairsPhase2OTStubs] = {
+      16.0,  16.0,  25.0,  25.0,  0.0,   0.0,   13.0,  17.0,   // 0-7 pixel-only, as Phase2OT
+      19.0,  21.0,  0.0,   0.0,   9.0,   13.0,  0.0,           // 8-14
+      15.0,  -10.0, 35.0,                                      // 15-17 PXB3 -> OTB1 (cen/bwd/fwd)
+      22.0,                                                    // 18 PXB4 -> OTB1
+      32.5,  50.0,  50.0,  70.0,  70.0,                        // 19-23 fwd PXD1-5 -> OTB1
+      -5.0,  -5.0,  -5.0,  -15.0, -25.0,                       // 24-28 bwd PXD1-5 -> OTB1
+      10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000,  // 29-36 fwd pixel disks
+      10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000,  // 37-44
+      10000, 10000, 10000, 10000, 10000,                       // 45-49
+      10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000,  // 50-57 bwd pixel disks
+      10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000,  // 58-65
+      10000, 10000, 10000, 10000, 10000,                       // 66-70
+      50.0,  40.0,  30.0,  30.0,  25.0,                        // 71-75 OT barrel chain
+      10000, 10000, 10000,                                     // 76-78 OTB PS -> fwd D1 PS
+      10000, 10000,                                            // 79-80 OTB3 -> D1 2S (fwd, bwd)
+      10000, 10000,                                            // 81-82 OTB 2S -> fwd D1 2S
+      10000, 10000, 10000,                                     // 83-85 OTB PS -> bwd D1 PS
+      10000, 10000,                                            // 86-87 OTB 2S -> bwd D1 2S
+      50.0,  10000, 50.0,  10000, 50.0,  50.0,  50.0,  50.0,   // 88-95 fwd disks PS chain, PS->2S
+      10000, 10000, 10000, 10000,                              // 96-99 fwd disks 2S chain
+      -15.0, 10000, -15.0, 10000, -15.0, 10000, -15.0, 10000,  // 100-107 bwd disks PS chain, PS->2S
+      10000, 10000, 10000, 10000                               // 108-111 bwd disks 2S chain
+  };
+
+  // pT cuts for the layer pairs (geometry.ptCuts)
+  HOST_DEVICE_CONSTANT float minPtPhase2OTStubs[nPairsPhase2OTStubs] = {
+      0.7,  0.8,  0.6,  0.85, 0.6,  0.85, 0.85, 0.85,  // 0-7 pixel-only, as Phase2OT
+      0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,        // 8-14
+      2.0,  0.85, 0.85,                                // 15-17 PXB3 -> OTB1 (cen/bwd/fwd)
+      0.85,                                            // 18 PXB4 -> OTB1
+      0.85, 0.85, 0.85, 0.85, 0.85,                    // 19-23 fwd PXD1-5 -> OTB1
+      0.85, 0.85, 0.85, 0.85, 0.85,                    // 24-28 bwd PXD1-5 -> OTB1
+      0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,  // 29-36 fwd pixel disks
+      0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,  // 37-44
+      0.85, 0.85, 0.85, 0.85, 0.85,                    // 45-49
+      0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,  // 50-57 bwd pixel disks
+      0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,  // 58-65
+      0.85, 0.85, 0.85, 0.85, 0.85,                    // 66-70
+      0.85, 0.85, 0.85, 0.85, 0.85,                    // 71-75 OT barrel chain
+      0.85, 0.85, 0.85,                                // 76-78 OTB PS -> fwd D1 PS
+      0.85, 0.85,                                      // 79-80 OTB3 -> D1 2S (fwd, bwd)
+      0.85, 0.85,                                      // 81-82 OTB 2S -> fwd D1 2S
+      0.85, 0.85, 0.85,                                // 83-85 OTB PS -> bwd D1 PS
+      0.85, 0.85,                                      // 86-87 OTB 2S -> bwd D1 2S
+      0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,  // 88-95 fwd disks PS chain, PS->2S
+      0.85, 0.85, 0.85, 0.85,                          // 96-99 fwd disks 2S chain
+      0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85,  // 100-107 bwd disks PS chain, PS->2S
+      0.85, 0.85, 0.85, 0.85                           // 108-111 bwd disks 2S chain
+  };
+
+  // z0 cuts for the layer pairs: the per-pair form of the scalar cellZ0Cut (geometry.cellZ0CutPerPair,
+  // an optional parameter without a default, so this table is not read by fillDescriptions)
+  HOST_DEVICE_CONSTANT float maxZ0Phase2OTStubs[nPairsPhase2OTStubs] = {
+      13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0,  // 0-7 pixel-only, as Phase2OT
+      13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0,        // 8-14
+      13.0, 13.0, 13.0,                                // 15-17 PXB3 -> OTB1 (cen/bwd/fwd)
+      13.0,                                            // 18 PXB4 -> OTB1
+      13.0, 13.0, 13.0, 13.0, 13.0,                    // 19-23 fwd PXD1-5 -> OTB1
+      13.0, 13.0, 13.0, 13.0, 13.0,                    // 24-28 bwd PXD1-5 -> OTB1
+      13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0,  // 29-36 fwd pixel disks
+      13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0,  // 37-44
+      13.0, 13.0, 13.0, 13.0, 13.0,                    // 45-49
+      13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0,  // 50-57 bwd pixel disks
+      13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0, 13.0,  // 58-65
+      13.0, 13.0, 13.0, 13.0, 13.0,                    // 66-70
+      13.0, 13.0, 24.0, 30.0, 30.0,                    // 71-75 OT barrel chain
+      13.0, 13.0, 13.0,                                // 76-78 OTB PS -> fwd D1 PS
+      22.0, 22.0,                                      // 79-80 OTB3 -> D1 2S (fwd, bwd)
+      34.0, 46.0,                                      // 81-82 OTB 2S -> fwd D1 2S
+      13.0, 13.0, 13.0,                                // 83-85 OTB PS -> bwd D1 PS
+      35.0, 40.0,                                      // 86-87 OTB 2S -> bwd D1 2S
+      18.0, 42.0, 18.0, 47.0, 18.0, 47.0, 16.0, 48.0,  // 88-95 fwd disks PS chain, PS->2S
+      47,   47,   45,   47,                            // 96-99 fwd disks 2S chain
+      18.0, 41.0, 18.0, 47.0, 18.0, 46.0, 15.0, 47.0,  // 100-107 bwd disks PS chain, PS->2S
+      47,   47,   45,   47                             // 108-111 bwd disks 2S chain
+  };
+
+  // Per-LAYER form of the two triplet cuts, kept because it is the form of the `geometry` PSet
+  // (caDCACuts / caThetaCuts). The per-layer-pair tables above are the internal form the CA SoA
+  // consumes; the producer broadcasts these onto them (value of the pair's own inner layer).
   HOST_DEVICE_CONSTANT float dcaCuts[nLayersTot] = {
       0.15,  //BPix1
       0.25, 0.20, 0.20, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
@@ -451,8 +1018,29 @@ namespace phase2PixelTopology {
       0.003, 0.003, 0.003                                                                  // OT layers
   };
 
-  // Extended arrays for Phase2OTStubs (54 layers: 28 pixel + 6 OT barrel + 20 OT disks)
-  constexpr uint32_t nLayersPhase2OTStubs = 54;
+  // Same, for the 54 CA layers of the stub-seeded topology (28 pixel + 6 OT barrel + 10 forward
+  // + 10 backward OT disks). The pixel block repeats the values above; the OT layers carry the
+  // looser OT settings. Sized exactly nLayersPhase2OTStubs so fillDescriptions never reads past
+  // the topology's own layer count. The deployed configuration leaves geometry.caDCACuts and
+  // geometry.caThetaCuts at these defaults and overrides both on every pair through the
+  // "...PerPair" vectors (maxDCAPhase2OTStubs / maxRZTolerancePhase2OTStubs above).
+  HOST_DEVICE_CONSTANT float dcaCutsPhase2OTStubs[nLayersPhase2OTStubs] = {
+      0.15,  //BPix1
+      0.25, 0.20, 0.20, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
+      0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,  // Pixel layers (28)
+      0.10, 0.10, 0.10, 0.10, 0.10, 0.10,                                            // OT barrel layers (6)
+      0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10,                    // OT forward disks (10)
+      0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10                     // OT backward disks (10)
+  };
+
+  HOST_DEVICE_CONSTANT float thetaCutsPhase2OTStubs[nLayersPhase2OTStubs] = {
+      0.002, 0.002, 0.002, 0.002,  // BPix
+      0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,
+      0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,  // Pixel layers (28)
+      0.003, 0.003, 0.003, 0.003, 0.003, 0.003,                                            // OT barrel layers (6)
+      0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003,                // OT forward disks (10)
+      0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003, 0.003                 // OT backward disks (10)
+  };
 
   // -------------------------------------------------------------------------------------------------------
   // Deprecated arrays only used in the CUDA version (values have no meaning in alpaka or anywhere else):
@@ -490,7 +1078,7 @@ namespace phase1HIonPixelTopology {
 
   constexpr uint32_t maxNumClustersPerModules = 2048;
 
-  HOST_DEVICE_CONSTANT int16_t phicuts[phase1PixelTopology::nPairs]{phi0p09,
+  HOST_DEVICE_CONSTANT int16_t maxDPhi[phase1PixelTopology::nPairs]{phi0p09,
                                                                     phi0p09,
                                                                     phi0p09,
                                                                     phi0p09,
@@ -510,6 +1098,8 @@ namespace phase1HIonPixelTopology {
                                                                     phi0p09,
                                                                     phi0p09};
 
+  // Per-LAYER form of the two triplet cuts (see the pp Phase-1 namespace). Kept for the `geometry`
+  // PSet form; note that, as upstream, the HIonPhase1 traits alias the pp Phase-1 tables.
   HOST_DEVICE_CONSTANT float dcaCuts[phase1PixelTopology::numberOfLayers] = {
       0.05, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1};
 
@@ -521,6 +1111,11 @@ namespace phase1HIonPixelTopology {
 namespace pixelTopology {
 
   struct Phase2 {
+    // Cluster-size window defaults of the SimDoublets validation (upstream values; the CA reads its
+    // own configuration parameters instead).
+    static constexpr int maxDYsize12 = 12;
+    static constexpr int maxDYsize = 10;
+    static constexpr int maxDYPred = 24;
     // types
     using hindex_type = uint32_t;  // FIXME from siPixelRecHitsHeterogeneousProduct
     using tindex_type = uint32_t;  // for tuples
@@ -619,11 +1214,11 @@ namespace pixelTopology {
     static constexpr uint8_t const *layerPairs = phase2PixelTopology::layerPairs;
     static constexpr uint8_t const *startingPairs = phase2PixelTopology::startingPairs;
     // scalar parameters (doublet building)
-    static constexpr int minYsizeB1 = 20;
-    static constexpr int minYsizeB2 = 18;
-    static constexpr int maxDYsize12 = 12;
-    static constexpr int maxDYsize = 10;
-    static constexpr int maxDYPred = 24;
+    static constexpr int minInnerSizeB1 = 20;
+    static constexpr int minInnerSizeB2 = 18;
+    static constexpr int maxDSizeB1 = 12;
+    static constexpr int maxDSize = 10;
+    static constexpr int maxDSizePred = 24;
     static constexpr float cellZ0Cut = 12.5;
     // vector parameters (doublet building)
     static constexpr float const *minInner = phase2PixelTopology::minInner;
@@ -633,13 +1228,17 @@ namespace pixelTopology {
     static constexpr float const *maxDR = phase2PixelTopology::maxDR;
     static constexpr float const *minDZ = phase2PixelTopology::minDZ;
     static constexpr float const *maxDZ = phase2PixelTopology::maxDZ;
-    static constexpr int16_t const *phicuts = phase2PixelTopology::phicuts;
-    static constexpr float const *ptCuts = phase2PixelTopology::ptCuts;
+    static constexpr int16_t const *maxDPhi = phase2PixelTopology::maxDPhi;
+    static constexpr float const *minPt = phase2PixelTopology::minPt;
+    static constexpr float const *maxZ0 = phase2PixelTopology::maxZ0;
     // scalar parameters (doublet linking)
     // p [GeV/c] = B [T] * R [m] * 0.3 (factor from conversion from J to GeV and q = e = 1.6 * 10e-19 C)
     // 87 cm/GeV = 1/(3.8T * 0.3)
-    static constexpr float hardCurvCut = 0.01425;  // corresponds to 800 MeV in 3.8T.
+    static constexpr float maxCurv = 0.01425;  // corresponds to 800 MeV in 3.8T.
     // vector parameters (doublet linking)
+    static constexpr float const *maxRZTolerance = phase2PixelTopology::maxRZTolerance;
+    static constexpr float const *maxDCA = phase2PixelTopology::maxDCA;
+    // per-LAYER form of the two cuts above (the `geometry` PSet form)
     static constexpr float const *thetaCuts = phase2PixelTopology::thetaCuts;
     static constexpr float const *dcaCuts = phase2PixelTopology::dcaCuts;
     // Deprecated arrays only used in the CUDA version
@@ -672,13 +1271,63 @@ namespace pixelTopology {
     static constexpr char const *nameModifier = "Phase2OTStubs";
 
     // Extended Phase-2 configuration using OT stubs (barrel + disks) instead of P-side hits
-    // CA layers: 28 pixel + 6 OT barrel + 10 OT disks (5 per side) = 44 total
+    // CA layers: 28 pixel + 6 OT barrel + 20 OT disk layers (10 per side) = 54 total
     static constexpr uint32_t numberOfLayers = phase2PixelTopology::nLayersPhase2OTStubs;
     // Total modules: 4000 pixel + 13200 OT (7288 barrel + 2956 backward + 2956 forward)
     static constexpr uint32_t numberOfModules = phase2PixelTopology::nModulesTotStubs;
+
+    // Layer pairs: nPairs is the compile-time bound (it sizes the per-pair tables and the doublet
+    // kernel's shared memory), nPairsForQuadruplets the number of pairs the default tables spell out,
+    // i.e. the length of the fillDescriptions defaults; see nPairsPhase2OTStubs for the details.
+    static constexpr int nPairs = phase2PixelTopology::nPairsPhase2OTStubs;
+    static constexpr int nPairsForQuadruplets = phase2PixelTopology::nDefaultPairsPhase2OTStubs;
+    static constexpr int nStartingPairs = phase2PixelTopology::nStartingPairsPhase2OTStubs;
+
+    // Override layer pair arrays to use extended versions
+    static constexpr uint8_t const *layerPairs = phase2PixelTopology::layerPairsPhase2OTStubs;
+
+    // Override cut arrays to use extended versions (per-pair triplet cuts)
+    static constexpr float const *maxRZTolerance = phase2PixelTopology::maxRZTolerancePhase2OTStubs;
+    static constexpr float const *maxDCA = phase2PixelTopology::maxDCAPhase2OTStubs;
+    // per-LAYER form of the two cuts above (the `geometry` PSet form), sized to this topology's
+    // own layer count
+    static constexpr float const *thetaCuts = phase2PixelTopology::thetaCutsPhase2OTStubs;
+    static constexpr float const *dcaCuts = phase2PixelTopology::dcaCutsPhase2OTStubs;
+    // Starting-pair flags sized to THIS topology's pair bound: nPairs exceeds nPairsTot, so the
+    // inherited Phase2 array would be read past its end when fillDescriptions scans the flags.
+    static constexpr uint8_t const *startingPairs = phase2PixelTopology::startingPairsPhase2OTStubs;
+
+    // Override cut arrays to use extended versions (per-pair cuts)
+    static constexpr int16_t const *maxDPhi = phase2PixelTopology::maxDPhiPhase2OTStubs;
+    static constexpr float const *minInner = phase2PixelTopology::minInnerPhase2OTStubs;
+    static constexpr float const *maxInner = phase2PixelTopology::maxInnerPhase2OTStubs;
+    static constexpr float const *minOuter = phase2PixelTopology::minOuterPhase2OTStubs;
+    static constexpr float const *maxOuter = phase2PixelTopology::maxOuterPhase2OTStubs;
+    static constexpr float const *maxDR = phase2PixelTopology::maxDRPhase2OTStubs;
+    static constexpr float const *minDZ = phase2PixelTopology::minDZPhase2OTStubs;
+    static constexpr float const *maxDZ = phase2PixelTopology::maxDZPhase2OTStubs;
+    static constexpr float const *minPt = phase2PixelTopology::minPtPhase2OTStubs;
+    static constexpr float const *maxZ0 = phase2PixelTopology::maxZ0Phase2OTStubs;
+
+    // Capacities for pixel+OT tracking, sized with a 10-50% margin above the peak occupancy of
+    // ttbar PU200 events.
+    static constexpr uint32_t maxNumberOfDoublets = 8 * 1024 * 1024;
+    static constexpr uint32_t maxNumOfActiveDoublets = maxNumberOfDoublets / 8;
+    static constexpr uint32_t maxNumberOfTuples = 512 * 1024;
+    static constexpr uint32_t avgHitsPerTrack = 10;  // pixel+OT tracks have ~7 hits on average, up to ~14
+    static constexpr uint32_t maxHitsForContainers = avgHitsPerTrack * maxNumberOfTuples;
+    static constexpr uint32_t maxNumberOfQuadruplets = maxNumberOfTuples;
+    static constexpr float avgCellsPerHit = 23.;    // ~12% margin over peak ratio 20.6
+    static constexpr float avgCellsPerCell = 0.3;   // ~32% margin over peak ratio 0.23
+    static constexpr float avgTracksPerCell = 0.2;  // ~46% margin over peak ratio 0.14
   };
 
   struct Phase1 {
+    // Cluster-size window defaults of the SimDoublets validation (upstream values; the CA reads its
+    // own configuration parameters instead).
+    static constexpr int maxDYsize12 = 28;
+    static constexpr int maxDYsize = 20;
+    static constexpr int maxDYPred = 20;
     // types
     using hindex_type = uint32_t;  // FIXME from siPixelRecHitsHeterogeneousProduct
     using tindex_type = uint16_t;  // for tuples
@@ -809,11 +1458,11 @@ namespace pixelTopology {
     static constexpr uint8_t const *layerPairs = phase1PixelTopology::layerPairs;
     static constexpr uint8_t const *startingPairs = phase1PixelTopology::startingPairs;
     // scalar parameters (doublet building)
-    static constexpr int minYsizeB1 = 1;
-    static constexpr int minYsizeB2 = 1;
-    static constexpr int maxDYsize12 = 28;
-    static constexpr int maxDYsize = 20;
-    static constexpr int maxDYPred = 20;
+    static constexpr int minInnerSizeB1 = 1;
+    static constexpr int minInnerSizeB2 = 1;
+    static constexpr int maxDSizeB1 = 28;
+    static constexpr int maxDSize = 20;
+    static constexpr int maxDSizePred = 20;
     static constexpr float cellZ0Cut = 12.5;
     // vector parameters (doublet building)
     static constexpr float const *minInner = phase1PixelTopology::minInner;
@@ -823,13 +1472,17 @@ namespace pixelTopology {
     static constexpr float const *maxDR = phase1PixelTopology::maxDR;
     static constexpr float const *minDZ = phase1PixelTopology::minDZ;
     static constexpr float const *maxDZ = phase1PixelTopology::maxDZ;
-    static constexpr int16_t const *phicuts = phase1PixelTopology::phicuts;
-    static constexpr float const *ptCuts = phase1PixelTopology::ptCuts;
+    static constexpr int16_t const *maxDPhi = phase1PixelTopology::maxDPhi;
+    static constexpr float const *minPt = phase1PixelTopology::minPt;
+    static constexpr float const *maxZ0 = phase1PixelTopology::maxZ0;
     // scalar parameters (doublet linking)
     // p [GeV/c] = B [T] * R [m] * 0.3 (factor from conversion from J to GeV and q = e = 1.6 * 10e-19 C)
     // 87 cm/GeV = 1/(3.8T * 0.3)
-    static constexpr float hardCurvCut = 1.f / (0.35 * 87.f);  // corresponds to 350 MeV in 3.8T.
+    static constexpr float maxCurv = 1.f / (0.35 * 87.f);  // corresponds to 350 MeV in 3.8T.
     // vector parameters (doublet linking)
+    static constexpr float const *maxRZTolerance = phase1PixelTopology::maxRZTolerance;
+    static constexpr float const *maxDCA = phase1PixelTopology::maxDCA;
+    // per-LAYER form of the two cuts above (the `geometry` PSet form)
     static constexpr float const *thetaCuts = phase1PixelTopology::thetaCuts;
     static constexpr float const *dcaCuts = phase1PixelTopology::dcaCuts;
     // Deprecated arrays only used in the CUDA version
@@ -866,7 +1519,11 @@ namespace pixelTopology {
     static constexpr char const *nameModifier = "HIonPhase1";
 
     // specified vector cuts for HIon
-    static constexpr int16_t const *phicuts = phase1PixelTopology::phicuts;
+    static constexpr int16_t const *maxDPhi = phase1PixelTopology::maxDPhi;
+    static constexpr float const *maxRZTolerance = phase1PixelTopology::maxRZTolerance;
+    static constexpr float const *maxDCA = phase1PixelTopology::maxDCA;
+    // per-LAYER form of the two cuts above (the `geometry` PSet form). As upstream, HIon uses the
+    // pp Phase-1 tables here.
     static constexpr float const *thetaCuts = phase1PixelTopology::thetaCuts;
     static constexpr float const *dcaCuts = phase1PixelTopology::dcaCuts;
   };

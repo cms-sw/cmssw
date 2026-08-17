@@ -1,7 +1,13 @@
 #ifndef RecoTracker_PixelSeeding_plugins_alpaka_CAStructures_h
 #define RecoTracker_PixelSeeding_plugins_alpaka_CAStructures_h
 
+#include <cmath>
+#include <cstdint>
+
+#include <alpaka/alpaka.hpp>
+
 #include "DataFormats/SoATemplate/interface/SoAConstMultiView.h"
+#include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/SimpleVector.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/VecArray.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
@@ -19,19 +25,11 @@ namespace caStructures {
     float avgTracksPerCell_;
 
     // Algorithm Parameters
+    // NOTE: minHitsPerNtuplet_ is compared against the number of LAYERS in the ntuplet
+    // (CACell::find_ntuplets); the historical name is kept because it is the name of the
+    // configuration parameter set by every deployed menu.
     uint16_t minHitsPerNtuplet_;
     uint16_t minHitsForSharingCut_;
-    float ptmin_;
-    float hardCurvCut_;
-    float cellZ0Cut_;
-
-    // Pixel Cluster Cut Params
-    float dzdrFact_;  // from dz/dr to "DY"
-    int16_t minYsizeB1_;
-    int16_t minYsizeB2_;
-    int16_t maxDYsize12_;
-    int16_t maxDYsize_;
-    int16_t maxDYPred_;
 
     // Flags
     bool useRiemannFit_;
@@ -46,6 +44,17 @@ namespace caStructures {
     bool doTripletCleaner_;
     bool doFastDuplicateRemover_;
     bool doEarlyDuplicateRemover_;
+
+    // Device-memory allocation strategy (see CAHitNtupletGeneratorKernels)
+    bool delayAllocations_;    // Defer cell-derived + hit->track buffers until their real size is known
+    bool countDoubletsFirst_;  // Run a count-only doublet pass to size simpleCells/hitToCellStorage exactly
+
+    // CA fast-duplicate / shared-hit parameter-cov gate width. Two tracks are declared duplicates when
+    // every fitted param p satisfies dp^2 <= fastDupNSigma2_*(cov_i+cov_j) (Kernel_fastDuplicateRemover
+    // and Kernel_rejectDuplicate, five-parameter compatibility check). A width in units of the fitted
+    // covariance: lowering it tightens the gate (fewer merges), raising it merges more aggressively.
+    // The Phase-1 specializations of those kernels keep their own hard-wired nSigma2Phase1 constant.
+    float fastDupNSigma2_;
   };
 
   // Hits data formats

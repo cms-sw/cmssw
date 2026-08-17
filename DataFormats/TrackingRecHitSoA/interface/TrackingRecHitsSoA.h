@@ -3,6 +3,7 @@
 
 #include <Eigen/Dense>
 
+#include "DataFormats/SoATemplate/interface/SoAConstMultiView.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "DataFormats/SoATemplate/interface/SoABlocks.h"
 #include "DataFormats/TrackingRecHitSoA/interface/SiPixelHitStatus.h"
@@ -85,6 +86,14 @@ namespace reco {
   using AverageGeometryConstView = AverageGeometrySoA::ConstView;
 
   ALPAKA_FN_HOST_ACC inline bool isStub(const TrackingRecHitConstView &hits, int32_t i) {
+    return hits[i].dPhiDrError() >= 0.f;
+  }
+
+  // Same predicate for the SoAConstMultiView the CA kernels see the hits through (for the
+  // Phase2OTStubs topology the merged pixel+stub collection is the MultiView's only view, so the
+  // global index is the merged-collection index and the semantics are identical).
+  template <cms::soa::size_type MaxSize>
+  ALPAKA_FN_HOST_ACC inline bool isStub(const SoAConstMultiView<TrackingRecHitConstView, MaxSize> &hits, int32_t i) {
     return hits[i].dPhiDrError() >= 0.f;
   }
 
