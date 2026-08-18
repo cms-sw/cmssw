@@ -209,7 +209,8 @@ TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps, const 
   }
 
   produces<std::vector<TICLCandidate>>();
-
+  produces<std::vector<std::vector<unsigned int>>>("linkedTracksters");
+  
   // New trackster collection after linking
   produces<std::vector<Trackster>>();
 
@@ -376,7 +377,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
   // muon), or a rejection (kMuonRejected: the trajectory points to a shower).
   std::vector<bool> maskedInputTracksters(generalTrackstersSpan.size(), false);
   muonInterpretationAlgo_->makeCandidates(
-      muonInput, inputTiming_h, *resultTracksters, muonInTrackIndices, maskedInputTracksters);
+      muonInput, inputTiming_h, *resultTracksters, muonInTrackIndices, maskedInputTracksters, *linkedResultTracksters);
 
   // A track the muon pass rejected is not a muon: route it back to the general pass so
   // it is reconstructed there (and no muon candidate is built for it below).
@@ -396,7 +397,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
                                                                        tracks_h,
                                                                        generalTrackMask);
   generalInterpretationAlgo_->makeCandidates(
-      input, inputTiming_h, *resultTracksters, trackstersInTrackIndices, maskedInputTracksters);
+					     input, inputTiming_h, *resultTracksters, trackstersInTrackIndices, maskedInputTracksters, *linkedResultTracksters);
 
   assignPCAtoTracksters(*resultTracksters,
                         layerClusters,
@@ -411,7 +412,8 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
 
   std::vector<bool> maskTracksters(resultTracksters->size(), true);
   edm::OrphanHandle<std::vector<Trackster>> resultTracksters_h = evt.put(std::move(resultTracksters));
-
+  auto linkedTracksters = std::make_unique<std::vector<std::vector<unsigned int>>>();
+  
   // Muon candidates: energy from the track momentum (pdgId 13), attaching the MIP
   // trackster the muon pass associated (if any) and masking it so it is not re-emitted.
   for (size_t iTrack = 0; iTrack < tracks.size(); ++iTrack) {
@@ -440,6 +442,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
       if (tracksterId != -1 and !maskTracksters.empty()) {
         auto tracksterPtr = edm::Ptr<Trackster>(resultTracksters_h, tracksterId);
         TICLCandidate chargedCandidate(trackPtr, tracksterPtr);
+	linkedTracksters->push_back((*linkedResultTracksters)[tracksterId]);
         resultCandidates->push_back(chargedCandidate);
         maskTracksters[tracksterId] = false;
       }
@@ -452,6 +455,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
       edm::Ptr<Trackster> tracksterPtr(resultTracksters_h, iTrackster);
       edm::Ptr<reco::Track> trackPtr;
       TICLCandidate neutralCandidate(trackPtr, tracksterPtr);
+      linkedTracksters->push_back((*linkedResultTracksters)[iTrackster]);
       resultCandidates->push_back(neutralCandidate);
     }
   }
@@ -511,6 +515,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
   assignTimeToCandidates(*resultCandidates, tracks_h, inputTimingView, getPathLength);
 
   evt.put(std::move(resultCandidates));
+  evt.put(std::move(linkedTracksters), "linkedTracksters");
 }
 
 template <typename F>

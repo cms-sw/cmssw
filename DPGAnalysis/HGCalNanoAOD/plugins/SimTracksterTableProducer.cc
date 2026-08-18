@@ -48,6 +48,7 @@ private:
     const size_t nSimTracksters = simTrackstersHandle.isValid() ? simTrackstersHandle->size() : 0;
 
     static constexpr float default_value = std::numeric_limits<float>::quiet_NaN();
+    static constexpr int default_int_value = -1;
 
     std::vector<float> boundaryX(nSimTracksters, default_value);
     std::vector<float> boundaryY(nSimTracksters, default_value);
@@ -61,6 +62,8 @@ private:
     std::vector<float> simTime(nSimTracksters, default_value);
     std::vector<float> genPt(nSimTracksters, default_value);
     std::vector<float> mass(nSimTracksters, default_value);
+    std::vector<int> caloParticleIdx(nSimTracksters, default_int_value);
+    std::vector<int> isPU(nSimTracksters, default_int_value);
 
     if ((simTrackstersHandle.isValid() && caloParticlesHandle.isValid() && simClustersHandle.isValid() &&
          cpToSCMapHandle.isValid()) ||
@@ -71,7 +74,7 @@ private:
       const auto& cpToSCMap = *cpToSCMapHandle;
 
       //utility lambda for filling vectors
-      auto fillVectors = [&](const auto& obj, size_t iSim, float time) {
+      auto fillVectors = [&](const auto& obj, size_t iSim, float time, int cpIdx) {
         const auto& simTrack = obj.g4Tracks()[0];
         const auto caloPt = obj.pt();
         const auto simHitSumEnergy = obj.simEnergy();
@@ -90,6 +93,12 @@ private:
         simEnergy[iSim] = simHitSumEnergy;
         genPt[iSim] = caloPt;
         mass[iSim] = caloMass;
+
+        // PU flag: a non-zero event/bunch-crossing on the
+        // seed g4Track means the CaloParticle/SimCluster came from a pileup interaction.
+        isPU[iSim] = (simTrack.eventId().event() != 0 || simTrack.eventId().bunchCrossing() != 0) ? 1 : 0;
+
+        caloParticleIdx[iSim] = cpIdx;
       };
 
       for (size_t iSim = 0; iSim < simTracksters.size(); ++iSim) {
@@ -97,19 +106,22 @@ private:
         float time = default_value;
 
         if (simT.seedID() == caloParticlesHandle.id()) {
+          const int cpIdx = static_cast<int>(simT.seedIndex());
           const auto& cp = caloParticles[simT.seedIndex()];
           time = cp.simTime();
-          fillVectors(cp, iSim, time);
+          fillVectors(cp, iSim, time, cpIdx);
         } else {
           const auto& sc = simClusters[simT.seedIndex()];
+          int cpIdx = default_int_value;
           //SCtoCP map not availalbe, use CPtoSC map instead
-          for (const auto& [cpIdx, scVec] : cpToSCMap) {
+          for (const auto& [cpIdxCandidate, scVec] : cpToSCMap) {
             if (std::ranges::find(scVec, simT.seedIndex()) != scVec.end()) {
-              time = caloParticles[cpIdx].simTime();
+              cpIdx = static_cast<int>(cpIdxCandidate);
+              time = caloParticles[cpIdxCandidate].simTime();
               break;  //dont need to check further
             }
           }
-          fillVectors(sc, iSim, time);
+          fillVectors(sc, iSim, time, cpIdx);
         }
       }
     }
@@ -125,7 +137,7 @@ private:
     simTrackstersTable->addColumn<float>(
         "boundaryEta", boundaryEta, "CaloVolume boundary pseudorapidity of associated Simobject", precision_);
     simTrackstersTable->addColumn<float>(
-        "boundaryPhi", boundaryEta, "CaloVolume boundary phi of associated Simobject", precision_);
+        "boundaryPhi", boundaryPhi, "CaloVolume boundary phi of associated Simobject", precision_);
     simTrackstersTable->addColumn<float>(
         "boundaryPx", boundaryPx, "X component of momentum at CaloVolume boundary of associated Simobject", precision_);
     simTrackstersTable->addColumn<float>(
@@ -135,6 +147,10 @@ private:
     simTrackstersTable->addColumn<float>("simTime", simTime, "Sim-Time of simulated object [ns]", precision_);
     simTrackstersTable->addColumn<float>("genPt", genPt, "Gen-pT associated with SimObject", precision_);
     simTrackstersTable->addColumn<float>("mass", mass, "mass associated with SimObject", precision_);
+    simTrackstersTable->addColumn<int>(
+        "caloParticleIdx", caloParticleIdx, "Index of the parent CaloParticle in the CaloParticle collection");
+    simTrackstersTable->addColumn<int>(
+        "isPU", isPU, "PU flag of the associated Simobject: 1 = pileup (non-zero event/bx), 0 = otherwise");
 
     event.put(std::move(simTrackstersTable), tableName_);
   }
