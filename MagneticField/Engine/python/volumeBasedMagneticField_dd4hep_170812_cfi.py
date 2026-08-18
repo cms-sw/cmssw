@@ -1,18 +1,15 @@
 """
-This cfi contains everything needed to use the VolumeBased magnetic field engine version 160812.
+Set up the MF map, model version 170812.
 
-MF geometry is read from xml files using DDD.
+MF geometry is read from xml files using DD4hep.
 PLEASE DO NOT USE THIS DIRECTLY.
-Always use the standard sequence: Configuration.StandardSequences.MagneticField_cff
+Always use the standard sequence Configuration.StandardSequences.MagneticField_cff
 """
 
 import FWCore.ParameterSet.Config as cms
 
-from MagneticField.GeomBuilder.MFDDDGeometry_160812_cff import MFDDDGeometry as magfield
 
-# avoid interference with EmptyESSource in uniformMagneticField.cfi
-es_prefer_magfield = cms.ESPrefer("XMLIdealGeometryESSource","magfield")
-
+from MagneticField.GeomBuilder.MFDD4hepGeometry_160812_cff import *
 
 ParametrizedMagneticFieldProducer = cms.ESProducer("ParametrizedMagneticFieldProducer",
     version = cms.string('OAE_1103l_071212'),
@@ -23,16 +20,15 @@ ParametrizedMagneticFieldProducer = cms.ESProducer("ParametrizedMagneticFieldPro
 )
 
 
-VBFConfig_160812 = cms.PSet (
+VBFConfig_170812 = cms.PSet (
     useParametrizedTrackerField = cms.bool(True),
     label = cms.untracked.string(''),
     paramLabel = cms.string('parametrizedField'),
-    version = cms.string('grid_160812_3_8t'),
+    version = cms.string('grid_170812_3_8t'),
     geometryVersion = cms.int32(160812),
     debugBuilder = cms.untracked.bool(False),
     scalingVolumes = cms.vint32(),
     scalingFactors = cms.vdouble(),
-
 
     gridFiles = cms.VPSet(
 #           ### Specs for using specific tables for every volume
@@ -69,21 +65,27 @@ VBFConfig_160812 = cms.PSet (
 )
 
 
-VolumeBasedMagneticFieldESProducer = cms.ESProducer("VolumeBasedMagneticFieldESProducer",
-    VBFConfig_160812,
+VolumeBasedMagneticFieldESProducer = cms.ESProducer("DD4hep_VolumeBasedMagneticFieldESProducer",
+    VBFConfig_170812,
+    appendToDataLabel = cms.string(''),
 )
 
 
 ### To set a different nominal map, set the following in your .py:
 
+### 3.5T
+#VolumeBasedMagneticFieldESProducer.version = cms.string('grid_170812_3_5t')
+#ParametrizedMagneticFieldProducer.parameters.BValue = cms.string('3_5T')
+
 ### 3T
-#VolumeBasedMagneticFieldESProducer.version = cms.string('grid_160812_3t')
+#VolumeBasedMagneticFieldESProducer.version = cms.string('grid_170812_3t')
 #ParametrizedMagneticFieldProducer.parameters.BValue = cms.string('3_0T')
 
-### 3.5T
-#VolumeBasedMagneticFieldESProducer.version = cms.string('grid_160812_3_5t')
-#ParametrizedMagneticFieldProducer.parameters.BValue = cms.string('3_5T')
+### 2T
+#VolumeBasedMagneticFieldESProducer.version = cms.string('grid_170812_2t')
+#ParametrizedMagneticFieldProducer.parameters.BValue = cms.string('2_0T')
 
 
 ### Run I, 3.8T
-#VolumeBasedMagneticFieldESProducer.version = cms.string('grid_160812_3_8t_Run1')
+#VolumeBasedMagneticFieldESProducer.version = cms.string('grid_170812_3_8t_Run1')
+
