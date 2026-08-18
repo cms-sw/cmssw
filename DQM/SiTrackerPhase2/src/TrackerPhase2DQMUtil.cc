@@ -1,29 +1,14 @@
 #include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
 
-std::string phase2tkutil::getITHistoId(uint32_t det_id, const TrackerTopology* tTopo, float phi) {
-  std::string Side, Shell, Disc;
-  std::ostringstream fname1;
-  Shell = getITShell(det_id, tTopo, phi);
-  if (Shell.empty())
-    return "";
-  int layer = tTopo->getITPixelLayerNumber(det_id);
-  if (layer < 0)
-    return "";
-  if (layer < 100) {
-    fname1 << "Barrel/";
-    fname1 << Shell << "/";
-    fname1 << "Layer" << layer;
-    fname1 << "";
-  } else {
-    int disc = tTopo->pxfDisk(det_id);
-    Disc = (disc < 9) ? "ForwardPix" : "EndcapPix";
-    fname1 << "/Endcaps/" << Disc << "/" << Shell << "/";
-    int ring = tTopo->pxfBlade(det_id);
-    fname1 << "Ring" << ring;
-  }
-  return fname1.str();
-}
-
+// Unified folder getter for IT and OT
+// Gets the geographical information in either filepath or "pretty" format
+// Uses the LEVEL to figure out which information to include
+// LEVEL == 1: InnerTracker or OuterTracker (if LEVEL == 0, this is the behaviour)
+// LEVEL == 2: Barrel or Endcap or Forward(IT)
+// LEVEL == 3: Barrel or Endcap Shells (IT), Endcap Sides (OT)
+// LEVEL == 4: Endcap rings
+// LEVEL == 5: Endcap wheels
+// LEVEL == 6: Barrel layers or endcap rings in wheels
 std::string phase2tkutil::getHistoId(uint32_t det_id, const TrackerTopology* tTopo, float phi, int LEVEL, bool pretty) {
   std::ostringstream foldername;
   std::string Substructure, Side, Shell, TEDD;
@@ -60,44 +45,38 @@ std::string phase2tkutil::getHistoId(uint32_t det_id, const TrackerTopology* tTo
   } else {  //unknown subdetector - should probably throw
     return "ERROR";
   }
+
   if (inner) {
     foldername << (pretty ? "IT " : "");
     Shell = getITShell(det_id, tTopo, phi);
-    if (Shell.empty())  // unknown shell - maybe also throw
-      return "ERROR";
   } else {
     foldername << (pretty ? "OT " : "");
   }
 
-  // TODO: Ladder and module names in the pretty string (they probably don't need their own folders)
-  //Ladder << "ladder" << ladder << "/"; maybe only for histogram names, not filenames
-
-  // LEVEL == 1: InnerTracker or OuterTracker
-  // LEVEL == 2: Barrel or Endcap or Forward(IT)
   if (LEVEL > 1)
     foldername << Substructure;
-  // LEVEL == 3: Barrel or Endcap Shells (IT), Endcap Sides (OT)
+
   if (LEVEL > 2) {
     if (inner)
       foldername << (pretty ? "shell " : "") << Shell << (pretty ? " " : "/");
     else if (DetId(det_id).subdetId() == SiStripSubdetector::TID)
       foldername << Side;
   }
-  // LEVEL == 4: Endcap rings
+
   if (LEVEL == 4) {
     if (DetId(det_id).subdetId() == SiStripSubdetector::TID)
       foldername << TEDD << "Ring" << ring << (pretty ? " " : "/");
     else if (DetId(det_id).subdetId() == PixelSubdetector::PixelEndcap)
       foldername << "Ring" << ring << (pretty ? " " : "/");
   }
-  // LEVEL == 5: Endcap wheels
+
   if (LEVEL > 4) {
     if (DetId(det_id).subdetId() == PixelSubdetector::PixelEndcap)
       foldername << "Wheel" << wheel << (pretty ? " " : "/");
     else if (DetId(det_id).subdetId() == SiStripSubdetector::TID)
       foldername << TEDD << "Wheel" << wheel << (pretty ? " " : "/");
   }
-  // LEVEL == 6: Barrel layers or endcap rings in wheels
+
   if (LEVEL > 5) {
     if (DetId(det_id).subdetId() == PixelSubdetector::PixelBarrel ||
         DetId(det_id).subdetId() == SiStripSubdetector::TOB)
@@ -108,73 +87,11 @@ std::string phase2tkutil::getHistoId(uint32_t det_id, const TrackerTopology* tTo
   return foldername.str();
 }
 
-std::string phase2tkutil::getITHistoWheelId(uint32_t det_id, const TrackerTopology* tTopo, float phi) {
-  std::string Side, Shell, Disc;
-  std::ostringstream fname1;
-  int layer = tTopo->getITPixelLayerNumber(det_id);
-  if (layer < 100) {  //This should ALWAYS be an endcap or forward histo
-    return "";
-  } else {
-    int disc = tTopo->pxfDisk(det_id);
-    Disc = (disc < 9) ? "ForwardPix" : "EndcapPix";
-    Shell = getITShell(det_id, tTopo, phi);
-    if (Shell.empty())
-      return "";
-    fname1 << "/Endcaps/" << Disc << "/" << Shell << "/" << "Wheel" << disc;
-  }
-  return fname1.str();
-}
-
-std::string phase2tkutil::getOTHistoId(uint32_t det_id, const TrackerTopology* tTopo) {
-  std::string Disc, Side;
-  std::ostringstream fname1;
-  int layer = tTopo->getOTLayerNumber(det_id);
-
-  if (layer < 0)
-    return "";
-  if (layer < 100) {
-    fname1 << "Barrel/";
-    fname1 << "Layer" << layer;
-    fname1 << "";
-  } else {
-    fname1 << "Endcaps/";
-    int side = tTopo->tidSide(det_id);
-    Side = (side == 1) ? "MINUS" : "PLUS";
-    fname1 << Side << "/";
-    int disc = tTopo->tidWheel(det_id);
-    Disc = (disc < 3) ? "TEDD_1" : "TEDD_2";
-    fname1 << Disc << "/";
-    int ring = tTopo->tidRing(det_id);
-    fname1 << "Ring" << ring;
-  }
-  return fname1.str();
-}
-
-std::string phase2tkutil::getOTHistoWheelId(uint32_t det_id, const TrackerTopology* tTopo) {
-  std::string Disc, Side;
-  std::ostringstream fname1;
-  int layer = tTopo->getOTLayerNumber(det_id);
-
-  if (layer < 100) {  //This should ALWAYS be an endcap histo
-    return "";
-  } else {
-    fname1 << "Endcaps/";
-    int side = tTopo->tidSide(det_id);
-    Side = (side == 1) ? "MINUS" : "PLUS";
-    fname1 << Side << "/";
-    int disc = tTopo->tidWheel(det_id);
-    Disc = (disc < 3) ? "TEDD_1" : "TEDD_2";
-    fname1 << Disc << "/";
-    fname1 << "Wheel" << disc;
-  }
-  return fname1.str();
-}
-
 std::string phase2tkutil::getITShell(uint32_t det_id, const TrackerTopology* tTopo, float phi) {
   std::string Side, Inner;
   std::ostringstream shellname;
   int layer = tTopo->getITPixelLayerNumber(det_id);
-  if (layer < 100) {  // Barrel
+  if (DetId(det_id).subdetId() == PixelSubdetector::PixelBarrel) {
     if (layer % 2 == 0)
       Side = (tTopo->module(det_id) <= 5) ? "m" : "p";
     else

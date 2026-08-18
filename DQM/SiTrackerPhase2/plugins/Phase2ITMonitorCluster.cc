@@ -200,7 +200,7 @@ void Phase2ITMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
       GlobalPoint detPos = det_u->surface().toGlobal(Local2DPoint(0, 0));
       edm::LogInfo("Phase2ITMonitorCluster")
           << "Detid:" << detId_raw << "\tsubdet=" << det_u->subDetector()
-          << "\t key=" << phase2tkutil::getITHistoId(detId_raw, tTopo_, detPos.phi()) << std::endl;
+          << "\t key=" << phase2tkutil::getHistoId(detId_raw, tTopo_, detPos.phi(), LAYER, false) << std::endl;
       bookLayerHistos(ibooker, detId_raw, top_folder);
     }
   }
