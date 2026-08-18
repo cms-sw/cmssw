@@ -376,23 +376,30 @@ namespace cms::alpakatools {
       for (auto iBlock = begin; iBlock != end; ++iBlock) {
         if ((reuseSameQueueAllocations_ and (*block.queue == *(iBlock->second.queue))) or
             alpaka::isComplete(*(iBlock->second.event))) {
-          // associate the cached buffer to the new queue
-          auto queue = std::move(*(block.queue));
-          // TODO cache (or remove) the debug information and use std::move()
-          block = iBlock->second;
-          block.queue = std::move(queue);
+          // take ownership of the cached block, so that a failure below cannot leave a block that
+          // has been moved from inside the cache
+          auto node = cachedBlocks_.extract(iBlock);
+          BlockDescriptor& cached = node.mapped();
+          cachedBytes_.free -= cached.bytes;
+
+          // the queue and the event of the cached block, for the debug message below
+          auto const* previousQueue = cached.queue->m_spQueueImpl.get();
+          auto const* previousEvent = cached.event->m_spEventImpl.get();
+
+          // take the buffer and the event from the cached block. The queue, the bin and the
+          // requested size stay those of this allocation.
+          block.buffer = std::move(cached.buffer);
+          block.event = std::move(cached.event);
+          block.bytes = cached.bytes;
 
           // if the new queue is on different device than the old event, create a new event
           if (block.device() != alpaka::getDev(*(block.event))) {
             block.event = Event{block.device()};
           }
 
-          // insert the cached block into the live blocks
-          // TODO cache (or remove) the debug information and use std::move()
-          liveBlocks_[block.buffer->data()] = block;
+          liveBlocks_.insert_or_assign(block.buffer->data(), block);
 
           // update the accounting information
-          cachedBytes_.free -= block.bytes;
           cachedBytes_.live += block.bytes;
           cachedBytes_.requested += block.requested;
 
@@ -401,13 +408,11 @@ namespace cms::alpakatools {
             out << "\t" << deviceType_ << " " << alpaka::getName(device_) << " reused cached block at "
                 << block.buffer->data() << " (" << block.bytes << " bytes) for queue "
                 << block.queue->m_spQueueImpl.get() << ", event " << block.event->m_spEventImpl.get()
-                << " (previously associated with queue " << iBlock->second.queue->m_spQueueImpl.get() << " , event "
-                << iBlock->second.event->m_spEventImpl.get() << ")." << std::endl;
+                << " (previously associated with queue " << previousQueue << " , event " << previousEvent << ")."
+                << std::endl;
             std::cout << out.str() << std::endl;
           }
 
-          // remove the reused block from the list of cached blocks
-          cachedBlocks_.erase(iBlock);
           return true;
         }
       }
