@@ -35,17 +35,25 @@ public:
     const auto& tracks = *tracksH;
     const auto& muons = *muonsH;
 
-    std::vector<int> isMuonV; isMuonV.reserve(tracks.size());
-    std::vector<int> isTrackerMuonV; isTrackerMuonV.reserve(tracks.size());
-    std::vector<int> muonDtV; muonDtV.reserve(tracks.size());
-    std::vector<int> muonCscV; muonCscV.reserve(tracks.size());
-    std::vector<int> muonTypeV; muonTypeV.reserve(tracks.size());
+    std::vector<int> isMuonV;
+    isMuonV.reserve(tracks.size());
+    std::vector<int> isTrackerMuonV;
+    isTrackerMuonV.reserve(tracks.size());
+    std::vector<int> muonDtV;
+    muonDtV.reserve(tracks.size());
+    std::vector<int> muonCscV;
+    muonCscV.reserve(tracks.size());
+    std::vector<int> muonTypeV;
+    muonTypeV.reserve(tracks.size());
 
     for (size_t i = 0; i < tracks.size(); ++i) {
       reco::TrackRef tref(tracksH, i);
       int muId = -1;
       for (size_t im = 0; im < muons.size(); ++im) {
-        if (muons[im].track().isNonnull() && muons[im].track() == tref) { muId = (int)im; break; }
+        if (muons[im].track().isNonnull() && muons[im].track() == tref) {
+          muId = (int)im;
+          break;
+        }
       }
       if (muId == -1) {
         isMuonV.push_back(-1);
@@ -72,27 +80,32 @@ public:
 
     auto vm_isMuon = std::make_unique<edm::ValueMap<int>>();
     edm::ValueMap<int>::Filler f_isMuon(*vm_isMuon);
-    f_isMuon.insert(tracksH, isMuonV.begin(), isMuonV.end()); f_isMuon.fill();
+    f_isMuon.insert(tracksH, isMuonV.begin(), isMuonV.end());
+    f_isMuon.fill();
     evt.put(std::move(vm_isMuon), "isMuon");
 
     auto vm_isTracker = std::make_unique<edm::ValueMap<int>>();
     edm::ValueMap<int>::Filler f_isTracker(*vm_isTracker);
-    f_isTracker.insert(tracksH, isTrackerMuonV.begin(), isTrackerMuonV.end()); f_isTracker.fill();
+    f_isTracker.insert(tracksH, isTrackerMuonV.begin(), isTrackerMuonV.end());
+    f_isTracker.fill();
     evt.put(std::move(vm_isTracker), "isTrackerMuon");
 
     auto vm_dt = std::make_unique<edm::ValueMap<int>>();
     edm::ValueMap<int>::Filler f_dt(*vm_dt);
-    f_dt.insert(tracksH, muonDtV.begin(), muonDtV.end()); f_dt.fill();
+    f_dt.insert(tracksH, muonDtV.begin(), muonDtV.end());
+    f_dt.fill();
     evt.put(std::move(vm_dt), "muonDtHits");
 
     auto vm_csc = std::make_unique<edm::ValueMap<int>>();
     edm::ValueMap<int>::Filler f_csc(*vm_csc);
-    f_csc.insert(tracksH, muonCscV.begin(), muonCscV.end()); f_csc.fill();
+    f_csc.insert(tracksH, muonCscV.begin(), muonCscV.end());
+    f_csc.fill();
     evt.put(std::move(vm_csc), "muonCscHits");
 
     auto vm_type = std::make_unique<edm::ValueMap<int>>();
     edm::ValueMap<int>::Filler f_type(*vm_type);
-    f_type.insert(tracksH, muonTypeV.begin(), muonTypeV.end()); f_type.fill();
+    f_type.insert(tracksH, muonTypeV.begin(), muonTypeV.end());
+    f_type.fill();
     evt.put(std::move(vm_type), "muonType");
   }
 

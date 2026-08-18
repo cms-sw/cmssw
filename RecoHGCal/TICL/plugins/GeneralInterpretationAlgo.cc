@@ -198,7 +198,7 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
                                                std::vector<Trackster> &resultTracksters,
                                                std::vector<int> &resultCandidate,
                                                std::vector<bool> &maskedTracksters,
-					       std::vector<std::vector<unsigned int>> &linkedResultTracksters) {
+                                               std::vector<std::vector<unsigned int>> &linkedResultTracksters) {
   bool useMTDTiming = inputTiming_h.isValid();
   const auto tkH = input.tracksHandle;
   const auto maskTracks = input.maskedTracks;
@@ -380,7 +380,7 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
         auto tracksterId = trackstersInTrackIndices[iTrack][0];
         resultCandidate[iTrack] = resultTracksters.size();
         resultTracksters.push_back(input.tracksters[tracksterId]);
-	linkedResultTracksters.push_back(trackstersInTrackIndices[iTrack]);
+        linkedResultTracksters.push_back(trackstersInTrackIndices[iTrack]);
       } else {
         // in this case mergeTracksters() clears the pid probabilities and the regressed energy is not set
         // TODO: fix probabilities when CNN will be splitted

@@ -22,7 +22,7 @@ namespace ticl {
                         std::vector<Trackster> &resultTracksters,
                         std::vector<int> &resultCandidate,
                         std::vector<bool> &maskedTracksters,
-			std::vector<std::vector<unsigned int>> &linkedResultTracksters) override;
+                        std::vector<std::vector<unsigned int>> &linkedResultTracksters) override;
 
     void initialize(const HGCalDDDConstants *hgcons,
                     const ticlgeom::Tools rhtools,

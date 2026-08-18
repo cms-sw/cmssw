@@ -30,15 +30,14 @@ public:
         tracksters_token_(consumes<std::vector<ticl::Trackster>>(params.getParameter<edm::InputTag>("tracksters"))),
         tracks_token_(consumes<std::vector<reco::Track>>(params.getParameter<edm::InputTag>("tracks"))),
         hasLinkedTracksters_(params.existsAs<edm::InputTag>("linkedTracksters")),
-        linkedTracksters_token_(
-            hasLinkedTracksters_ ? consumes<std::vector<std::vector<unsigned int>>>(
-                                        params.getParameter<edm::InputTag>("linkedTracksters"))
-                                  : edm::EDGetTokenT<std::vector<std::vector<unsigned int>>>()),
+        linkedTracksters_token_(hasLinkedTracksters_ ? consumes<std::vector<std::vector<unsigned int>>>(
+                                                           params.getParameter<edm::InputTag>("linkedTracksters"))
+                                                     : edm::EDGetTokenT<std::vector<std::vector<unsigned int>>>()),
         hasPUInfo_(params.existsAs<edm::InputTag>("caloParticles") &&
                    params.existsAs<edm::InputTag>("caloParticleToSimClustersMap")),
-        caloParticles_token_(hasPUInfo_ ? consumes<std::vector<CaloParticle>>(
-                                               params.getParameter<edm::InputTag>("caloParticles"))
-                                         : edm::EDGetTokenT<std::vector<CaloParticle>>()),
+        caloParticles_token_(
+            hasPUInfo_ ? consumes<std::vector<CaloParticle>>(params.getParameter<edm::InputTag>("caloParticles"))
+                       : edm::EDGetTokenT<std::vector<CaloParticle>>()),
         caloParticleToSimClustersMap_token_(
             hasPUInfo_ ? consumes<std::map<uint, std::vector<uint>>>(
                              params.getParameter<edm::InputTag>("caloParticleToSimClustersMap"))
@@ -126,8 +125,8 @@ public:
     // linkedTracksters (pre-merge trackster links)
     if (hasLinkedTracksters_) {
       out->addColumn<uint16_t>("nLinkedTracksters",
-                                std::vector<uint16_t>(table_size, 0),
-                                "Number of Tracksters linked to candidate before final linking/merging");
+                               std::vector<uint16_t>(table_size, 0),
+                               "Number of Tracksters linked to candidate before final linking/merging");
 
       auto linkedTable = std::make_unique<nanoaod::FlatTable>(0, "linkedTracksters", false, false);
       std::vector<uint32_t> emptyLinkedIdx;
@@ -157,12 +156,12 @@ public:
       iEvent.put(std::move(gsfTrackIdxsTable), this->name_ + "GsfTrackIdxs");
     }
 
-    // isPU (sim candidates only); 
+    // isPU (sim candidates only);
     if (hasPUInfo_) {
       out->addColumn<int>("isPU",
-                           std::vector<int>(table_size, -1),
-                           "PU flag of the candidate's parent CaloParticle: 1 = pileup (non-zero event/bx), 0 = "
-                           "otherwise, -1 = unresolved");
+                          std::vector<int>(table_size, -1),
+                          "PU flag of the candidate's parent CaloParticle: 1 = pileup (non-zero event/bx), 0 = "
+                          "otherwise, -1 = unresolved");
     }
 
     if (out->nColumns() > 0) {
@@ -361,7 +360,7 @@ public:
         }
       }
 
-      // linked tracksters (pre-merge links), 
+      // linked tracksters (pre-merge links),
       // linkedTracksters[i] holds the trackster indices linked to candidate i
       // before the final linking/merging step. Not available/meaningful for sim candidates.
       if (hasLinkedTracksters_ && linkedTracksters_h.isValid() && i < linkedTracksters_h->size()) {
@@ -390,7 +389,7 @@ public:
       }
 
       // isPU: resolve the parent CaloParticle from the first constituent Trackster's
-      // seedID/seedIndex, then read its g4Track eventId/bunchCrossing 
+      // seedID/seedIndex, then read its g4Track eventId/bunchCrossing
       if (hasPUInfo_) {
         int puFlag = -1;
         if (caloParticles_h.isValid() && cpToSCMap_h.isValid() && !children.empty()) {
@@ -460,9 +459,8 @@ public:
     // linkedTracksters output: count column on the main table + flattened sub-table.
     // Only emitted for instances configured with linkedTracksters (reco)
     if (hasLinkedTracksters_) {
-      out->addColumn<uint16_t>("nLinkedTracksters",
-                                linkedCounts,
-                                "Number of Tracksters linked to candidate before final linking/merging");
+      out->addColumn<uint16_t>(
+          "nLinkedTracksters", linkedCounts, "Number of Tracksters linked to candidate before final linking/merging");
 
       auto linkedTable =
           std::make_unique<nanoaod::FlatTable>(linkedTracksterIndices.size(), "linkedTracksters", false, false);
@@ -474,8 +472,7 @@ public:
     // Full track-index / GSF-track-index lists: count columns on the main table + flattened
     // sub-tables, always emitted (see constructor comment). Product names are prefixed with
     // this->name_ so the reco and sim module instances never collide.
-    out->addColumn<uint16_t>(
-        "nTrackIdxs", trackIdxCounts, "Number of generalTracks associated with candidate");
+    out->addColumn<uint16_t>("nTrackIdxs", trackIdxCounts, "Number of generalTracks associated with candidate");
     {
       auto trackIdxsTable =
           std::make_unique<nanoaod::FlatTable>(allTrackIndices.size(), this->name_ + "TrackIdxs", false, false);
@@ -484,8 +481,7 @@ public:
       iEvent.put(std::move(trackIdxsTable), this->name_ + "TrackIdxs");
     }
 
-    out->addColumn<uint16_t>(
-        "nGsfTrackIdxs", gsfTrackIdxCounts, "Number of GSFTracks associated with candidate");
+    out->addColumn<uint16_t>("nGsfTrackIdxs", gsfTrackIdxCounts, "Number of GSFTracks associated with candidate");
     {
       auto gsfTrackIdxsTable =
           std::make_unique<nanoaod::FlatTable>(allGsfTrackIndices.size(), this->name_ + "GsfTrackIdxs", false, false);
@@ -497,8 +493,10 @@ public:
     // isPU output: one scalar per candidate, directly on the extension table.
     // Only emitted for instances configured with caloParticles + caloParticleToSimClustersMap (sim).
     if (hasPUInfo_) {
-      out->addColumn<int>(
-          "isPU", isPU, "PU flag of the candidate's parent CaloParticle: 1 = pileup (non-zero event/bx), 0 = otherwise, -1 = unresolved");
+      out->addColumn<int>("isPU",
+                          isPU,
+                          "PU flag of the candidate's parent CaloParticle: 1 = pileup (non-zero event/bx), 0 = "
+                          "otherwise, -1 = unresolved");
     }
 
     if (out->nColumns() > 0) {
@@ -519,8 +517,7 @@ public:
     desc.add<edm::InputTag>("tracksters", edm::InputTag("ticlTrackstersCLUE3DHigh"));
     desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
     desc.addOptional<edm::InputTag>("linkedTracksters")
-        ->setComment(
-            "Pre-merge/pre-linking Trackster links (reco TICLCandidates only, e.g. ");
+        ->setComment("Pre-merge/pre-linking Trackster links (reco TICLCandidates only, e.g. ");
     desc.addOptional<edm::InputTag>("caloParticles")
         ->setComment(
             "CaloParticle collection (sim candidates only), used together with "

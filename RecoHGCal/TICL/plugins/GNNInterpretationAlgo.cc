@@ -333,7 +333,7 @@ void GNNInterpretationAlgo::makeCandidates(const Inputs& input,
                                            std::vector<Trackster>& resultTracksters,
                                            std::vector<int>& resultCandidate,
                                            std::vector<bool>& maskedTracksters,
-					   std::vector<std::vector<unsigned int>> &linkedResultTracksters) {
+                                           std::vector<std::vector<unsigned int>>& linkedResultTracksters) {
   const auto& tracks = *input.tracksHandle;
   const auto& maskTracks = input.maskedTracks;
   const auto& tracksters = input.tracksters;
@@ -527,7 +527,7 @@ void GNNInterpretationAlgo::makeCandidates(const Inputs& input,
   }
   // Build output tracksters
   linkedResultTracksters.reserve(input.tracksters.size());
-  
+
   for (unsigned trkId = 0; trkId < trackToTracksters.size(); ++trkId) {
     if (trackToTracksters[trkId].empty())
       continue;
