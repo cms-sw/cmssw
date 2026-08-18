@@ -5,7 +5,6 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-//#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #include "RecoParticleFlow/PFProducer/interface/MLPFModel.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
@@ -13,7 +12,6 @@
 #include "HeterogeneousCore/SonicTriton/interface/TritonEDProducer.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonData.h"
 
-// using namespace cms::Ort;
 class MLPFSONICProducer : public TritonEDProducer<> {
 public:
   explicit MLPFSONICProducer(const edm::ParameterSet &);
