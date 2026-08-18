@@ -181,7 +181,9 @@ MagVolume const* MagGeometry::findVolume1(const GlobalPoint& gp, double toleranc
 }
 
 // Use hierarchical structure for fast lookup.
-MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, double tolerance) const {
+MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp,
+                                         double tolerance,
+                                         std::optional<bool> isInBarrel) const {
   // Clear volume cache if this is a new instance
   if (me_ != localInstance) {
     LogTrace("MagGeometry_cache") << "*** In MagGeometry::findVolume resetting cache: me=" << me_
@@ -194,8 +196,10 @@ MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, double tolerance
     return lastVolume;
   }
 
+  bool inBarrel_ = isInBarrel.value_or(inBarrel(gp));
+
   MagVolume const* result = nullptr;
-  if (inBarrel(gp)) {  // Barrel
+  if (inBarrel_) {
     double aRsq = gp.perp2();
     int bin = theBarrelBinFinder->binIndex(aRsq);
 
@@ -221,11 +225,15 @@ MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, double tolerance
   }
 
   if (result == nullptr && tolerance < 0.0001) {
-    // If search fails, retry with a 300 micron tolerance.
-    // This is a hack for thin gaps on air-iron boundaries,
-    // which will not be present anymore once surfaces are matched.
+    // If search fails, retry with a 300 micron tolerance,
+    // to account for thin gaps on air-iron boundaries in the MF geometry.
     LogTrace("MagGeometry") << "Increasing the tolerance to 0.03" << endl;
-    result = findVolume(gp, 0.03);
+    result = findVolume(gp, 0.03, inBarrel_);
+    // Last fall-back for extremely rare cases due to numerical accuracy the barrel-endcap split
+    if (result == nullptr) {
+      LogTrace("MagGeometry") << "B/E fallback" << endl;
+      result = findVolume(gp, 0.03, !inBarrel_);
+    }
   }
 
   if (cacheLastVolume)
