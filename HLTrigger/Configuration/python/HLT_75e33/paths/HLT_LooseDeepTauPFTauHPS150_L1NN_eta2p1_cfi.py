@@ -19,7 +19,7 @@ from ..modules.hltAK4PFJetsForTaus_cfi import *
 from ..modules.hltHpsSelectedPFTauLooseTauWPDeepTau_cfi import *
 from ..modules.hltHpsPFTau150LooseTauWPDeepTau_cfi import *
 
-HLT_LooseDeepTauPFTauHPS150_L2NN_eta2p1 = cms.Path(
+HLT_LooseDeepTauPFTauHPS150_L1NN_eta2p1 = cms.Path(
     HLTBeginSequence 
     + hltL1SingleNNTau150                              
     + HLTRawToDigiSequence 
