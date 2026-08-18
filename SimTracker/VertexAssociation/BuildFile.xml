@@ -1,6 +1,7 @@
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/VertexReco"/>
+<use name="DataFormats/PatCandidates"/>
 <use name="SimDataFormats/Associations"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
