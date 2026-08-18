@@ -67,7 +67,6 @@ private:
   float chi2_;            //< Chi2 of the pulse
   //< Out-Of-Time reconstructed amplitude, one for each active BX, from readout sample 0 to 9
   float OOTamplitudes_[EcalDataFrame::MAXSAMPLES];
-  float OOTchi2_;   //< Out-Of-Time Chi2
   uint32_t flags_;  //< flag to be propagated to RecHit
   uint32_t aux_;    //< aux word; first 8 bits contain time (jitter) error
   DetId id_;        //< Detector ID
