@@ -56,10 +56,6 @@ clusterMonitorCRACK = Phase2OTMonitorCluster.clone(
         ymin = cms.double(0.0),
         ymax = cms.double(60.0)
     ),
-    GlobalNClusters = Phase2OTMonitorCluster.GlobalNClusters.clone(
-        xmax = cms.double(50.0),
-        NxBins = cms.int32(50)
-    ),
     NClustersLayer_S = Phase2OTMonitorCluster.NClustersLayer_S.clone(
         xmax = cms.double(50.0),
         NxBins = cms.int32(50)

@@ -456,7 +456,7 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
   // Layer histos
   phase2tkutil::add1DDesc(desc,
                           "NStubsLayer",
-                          "Num_L1Stubs_per_event",
+                          "Num_L1Stubs_Per_Event",
                           "Number of L1Stubs in {} per event",
                           "Number of stubs",
                           "Number of events",

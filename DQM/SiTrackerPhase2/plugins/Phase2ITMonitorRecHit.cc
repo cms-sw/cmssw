@@ -64,7 +64,6 @@ private:
   const TrackerGeometry* tkGeom_ = nullptr;
   const TrackerTopology* tTopo_ = nullptr;
   static constexpr float million = 1e6;
-  MonitorElement* numberRecHits_;
   MonitorElement* globalXY_barrel_;
   MonitorElement* globalXY_endcap_;
   MonitorElement* globalRZ_barrel_;
@@ -104,7 +103,6 @@ void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent) {
   const auto& rechits = iEvent.getHandle(tokenRecHitsIT_);
   if (!rechits.isValid())
     return;
-  unsigned long int nRechitsInEvent = 0;
   // Loop over modules
   for (const auto& DSViter : *rechits) {
     // Get the detector id
@@ -116,14 +114,11 @@ void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent) {
       continue;
 
     GlobalPoint detPos = geomDetunit->surface().toGlobal(Local2DPoint(0, 0));
-    nRechitsInEvent += DSViter.size();
-    int nRecHits = 0;
     //loop over rechits for a single detId
     for (const auto& rechit : DSViter) {
       LocalPoint lp = rechit.localPosition();
       Global3DPoint globalPos = geomDetunit->surface().toGlobal(lp);
       float eta = geomDetunit->surface().toGlobal(lp).eta();
-      nRecHits++;
       //in mm
       double gx = globalPos.x() * 10.;
       double gy = globalPos.y() * 10.;
@@ -160,11 +155,9 @@ void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent) {
       }  // End layer ME filling loop
     }  //end loop over rechits of a detId
   }  //End loop over DetSetVector
-  //fill nRecHits per event
-  numberRecHits_->Fill(nRechitsInEvent);
   //fill nRecHit counter per layer
-  for (const auto& lme : layerMEs_) {
-    RecHitME local_mes = lme.second;
+  for (auto& lme : layerMEs_) {
+    RecHitME& local_mes = lme.second;
     if (local_mes.numberRecHits)
       local_mes.numberRecHits->Fill(local_mes.recHitCounter);
     local_mes.recHitCounter = 0;
@@ -181,14 +174,9 @@ void Phase2ITMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
                                            edm::EventSetup const& iSetup) {
   std::string top_folder = config_.getParameter<std::string>("TopFolderName");
   ibooker.cd();
-  edm::LogInfo("Phase2ITMonitorRecHit") << " Booking Histograms in : " << top_folder;
   std::string dir = top_folder;
-  ibooker.setCurrentFolder(dir);
-  //Global histos for IT
-  numberRecHits_ =
-      phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalNumberRecHits"), ibooker);
-
   ibooker.setCurrentFolder(dir + "/Positions");
+  edm::LogInfo("Phase2ITMonitorRecHit") << " Booking Histograms in : " << top_folder << "/Positions";
   globalXY_barrel_ =
       phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_PXB"), ibooker);
 

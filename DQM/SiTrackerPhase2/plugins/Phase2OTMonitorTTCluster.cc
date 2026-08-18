@@ -213,8 +213,8 @@ void Phase2OTMonitorTTCluster::analyze(const edm::Event &iEvent, const edm::Even
       }  // end loop fillingDepth
     }  // end loop contentIter
   }  // end loop inputIter
-  for (const auto &it : layerMEs_) {
-    TTClusterMEs local_mes = it.second;
+  for (auto &it : layerMEs_) {
+    TTClusterMEs &local_mes = it.second;
     if (local_mes.NClusters)
       local_mes.NClusters->Fill(local_mes.clusterCounter);
     local_mes.clusterCounter = 0;
@@ -419,7 +419,7 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
   // counts
   phase2tkutil::add1DDesc(desc,
                           "NClustersLayer",
-                          "Num_L1Clusters",
+                          "Num_L1Clusters_Per_Event",
                           "Number of L1Clusters in {} per event",
                           "Number of clusters",
                           "Number of events",

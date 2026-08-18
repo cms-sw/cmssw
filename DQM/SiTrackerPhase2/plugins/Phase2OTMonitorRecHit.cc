@@ -71,7 +71,6 @@ private:
   const TrackerGeometry* tkGeom_ = nullptr;
   const TrackerTopology* tTopo_ = nullptr;
 
-  MonitorElement* numberRecHits_ = nullptr;
   MonitorElement* globalXY_P_ = nullptr;
   MonitorElement* globalRZ_P_ = nullptr;
   MonitorElement* globalXY_S_ = nullptr;
@@ -124,7 +123,6 @@ void Phase2OTMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
   const auto& rechits = iEvent.getHandle(tokenRecHitsOT_);
   if (!rechits.isValid())
     return;
-  unsigned long int nRechitsInEvent = 0;
   // Loop over modules
   Phase2TrackerRecHit1DCollectionNew::const_iterator DSViter;
   for (DSViter = rechits->begin(); DSViter != rechits->end(); ++DSViter) {
@@ -137,12 +135,9 @@ void Phase2OTMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
       continue;
     // determine the detector we are in
     TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(detId);
-    nRechitsInEvent += DSViter->size();
-    int nRechitsInDet = 0;
     edmNew::DetSet<Phase2TrackerRecHit1D>::const_iterator rechitIt;
     //loop over rechits for a single detId
     for (rechitIt = DSViter->begin(); rechitIt != DSViter->end(); ++rechitIt) {
-      nRechitsInDet++;
       LocalPoint lp = rechitIt->localPosition();
       Global3DPoint globalPos = geomDetunit->surface().toGlobal(lp);
       //in mm
@@ -177,11 +172,9 @@ void Phase2OTMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
     }  //end loop over rechits of a detId
   }  //End loop over DetSetVector
 
-  //fill nRecHits per event
-  numberRecHits_->Fill(nRechitsInEvent);
   //fill nRecHit counter per layer
   for (auto& lme : layerMEs_) {
-    RecHitME local_mes = lme.second;
+    RecHitME& local_mes = lme.second;
     if (local_mes.numberRecHits_P)
       local_mes.numberRecHits_P->Fill(local_mes.recHitCounter_P);
     local_mes.recHitCounter_P = 0;
@@ -203,8 +196,6 @@ void Phase2OTMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
   ibooker.setCurrentFolder(top_folder);
 
   //Global histos for OT
-  numberRecHits_ = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalNRecHits"), ibooker);
-
   ibooker.setCurrentFolder(top_folder + "/Positions/");
 
   globalXY_P_ = phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_P"), ibooker);
@@ -268,9 +259,6 @@ void Phase2OTMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  phase2tkutil::add1DDesc(
-      desc, "GlobalNRecHits", "Num_RecHits", "Number of rechits per event", "Number of rechits", "", 150, 0.0, 350000.0);
-
   phase2tkutil::add2DDesc(desc,
                           "GlobalPositionXY_P",
                           "RecHit_Global_Position_XY_P",
@@ -324,19 +312,19 @@ void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   //Layer wise parameter
   phase2tkutil::add1DDesc(desc,
                           "NRecHitsLayer_P",
-                          "Num_RecHits_P",
+                          "Num_RecHits_Per_Event_P",
                           "Number of RecHits per event in pixels in {}",
                           "Number of rechits",
-                          "",
+                          "Number of events",
                           150,
                           0.0,
                           300000.0);
   phase2tkutil::add1DDesc(desc,
                           "NRecHitsLayer_S",
-                          "Num_RecHits_S",
+                          "Num_RecHits_Per_Event_S",
                           "Number of RecHits per event in strips in {}",
                           "Number of rechits",
-                          "",
+                          "Number of events",
                           150,
                           0.0,
                           300000.0);

@@ -60,7 +60,6 @@ private:
     unsigned int clusterCounterP = 0;
     unsigned int clusterCounterS = 0;
   };
-  MonitorElement* numberClusters_;
   MonitorElement* globalXY_P_;
   MonitorElement* globalRZ_P_;
   MonitorElement* globalXY_S_;
@@ -115,7 +114,6 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
     return;
   }
 
-  unsigned int nClusGlobal = 0;  //global number of clusters counter
   for (const auto& DSVItr : *clusterHandle) {
     // Getting the id of detector unit
     uint32_t rawid(DSVItr.detId());
@@ -125,7 +123,6 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
       continue;
 
     TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(detId);
-    nClusGlobal += DSVItr.size();
 
     for (const auto& clusterItr : DSVItr) {
       MeasurementPoint mpCluster(clusterItr.center(), clusterItr.column() + 0.5);
@@ -199,8 +196,8 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
     }
   }
   // After all clusters in event are processed
-  for (const auto& it : layerMEs_) {
-    ClusterMEs local_mes = it.second;
+  for (auto& it : layerMEs_) {
+    ClusterMEs& local_mes = it.second;
     if (local_mes.nClusters_P)
       local_mes.nClusters_P->Fill(local_mes.clusterCounterP);
     local_mes.clusterCounterP = 0;
@@ -208,7 +205,6 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
       local_mes.nClusters_S->Fill(local_mes.clusterCounterS);
     local_mes.clusterCounterS = 0;
   }
-  numberClusters_->Fill(nClusGlobal);
 }
 
 //
@@ -221,8 +217,6 @@ void Phase2OTMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
   ibooker.cd();
   ibooker.setCurrentFolder(top_folder);
   edm::LogInfo("Phase2OTMonitorCluster") << " Booking Histograms in: " << top_folder;
-
-  numberClusters_ = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalNClusters"), ibooker);
 
   edm::ParameterSet Parameters = config_.getParameter<edm::ParameterSet>("CrackOverview");
   if (Parameters.getParameter<bool>("switch")) {
@@ -283,7 +277,7 @@ void Phase2OTMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
 //////////////////Layer Histo/////////////////////////////////
 void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_id, std::string& subdir) {
   for (enum Level bookingDepth = OT; bookingDepth <= LAYER; bookingDepth = Level(bookingDepth + 1)) {
-    // If this det is a barrel det AND bookingDepth is an endcap-only depth, DO NOT BOOK
+    // Skip booking if barrel det and endcap-only depth
     if ((bookingDepth >= ENDCAP_SIDE && bookingDepth < LAYER) && DetId(det_id).subdetId() == SiStripSubdetector::TOB)
       continue;
 
@@ -404,9 +398,6 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
                           -2.5,
                           2.5);
 
-  // Global histos
-  phase2tkutil::add1DDesc(
-      desc, "GlobalNClusters", "Num_Clusters", "Number of clusters", "Number of clusters per event", "", 150, 0, 350000);
   phase2tkutil::add1DDesc(desc,
                           "NClusters_Barrel",
                           "Num_Clusters_Barrel",
@@ -468,7 +459,7 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   //Layer wise histos
   phase2tkutil::add1DDesc(desc,
                           "NClustersLayer_P",
-                          "Num_Clusters_Layer_P",
+                          "Num_Clusters_Per_Event_P",
                           "Number Of Clusters in Pixels in {}",
                           "Number of clusters per event (macro pixel sensor)",
                           "",
@@ -477,7 +468,7 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
                           300000);
   phase2tkutil::add1DDesc(desc,
                           "NClustersLayer_S",
-                          "Num_Clusters_Layer_S",
+                          "Num_Clusters_Per_Event_S",
                           "Number Of Clusters in strips in {}",
                           "Number of clusters per event (strip sensor)",
                           "",

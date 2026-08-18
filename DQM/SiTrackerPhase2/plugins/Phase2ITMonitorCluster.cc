@@ -57,7 +57,6 @@ private:
     unsigned int clusterCounter{0};
   };
 
-  MonitorElement* numberClusters_;
   MonitorElement* globalXY_barrel_;
   MonitorElement* globalXY_endcap_;
   MonitorElement* globalRZ_barrel_;
@@ -109,7 +108,6 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
     return;
   }
 
-  unsigned int nclusGlobal = 0;
   for (const auto& DSVItr : *itPixelClusterHandle) {
     uint32_t rawid(DSVItr.detId());
     DetId detId(rawid);
@@ -120,7 +118,6 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
     if (!geomDetUnit)
       continue;
     GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
-    nclusGlobal += DSVItr.size();
     for (const auto& clusterItr : DSVItr) {
       MeasurementPoint mpCluster(clusterItr.x(), clusterItr.y());
       Local3DPoint localPosCluster = geomDetUnit->topology().localPosition(mpCluster);
@@ -157,13 +154,12 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
       }
     }
   }
-  for (const auto& it : layerMEs_) {
-    ClusterMEs local_mes = it.second;
+  for (auto& it : layerMEs_) {
+    ClusterMEs& local_mes = it.second;
     if (local_mes.nClusters)
       local_mes.nClusters->Fill(local_mes.clusterCounter);
     local_mes.clusterCounter = 0;
   }
-  numberClusters_->Fill(nclusGlobal);  //global histo of #clusters
 }
 
 //
@@ -177,13 +173,9 @@ void Phase2ITMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
 
   ibooker.cd();
   folder_name << top_folder << "/";
-  ibooker.setCurrentFolder(folder_name.str());
-
+  ibooker.setCurrentFolder(folder_name.str() + "/Positions");
   edm::LogInfo("Phase2ITMonitorCluster") << " Booking Histograms in: " << folder_name.str();
 
-  numberClusters_ = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalNClusters"), ibooker);
-
-  ibooker.setCurrentFolder(folder_name.str() + "/Positions");
   globalXY_barrel_ =
       phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_PXB"), ibooker);
 
@@ -260,8 +252,6 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   // clusterITMonitor
   edm::ParameterSetDescription desc;
   //Global Histos
-  phase2tkutil::add1DDesc(
-      desc, "GlobalNClusters", "Num_Clusters", "NumberClusters", "Number of clusters per event", "", 150, 0.0, 300000.0);
   phase2tkutil::add2DDesc(desc,
                           "GlobalPositionRZ_PXB",
                           "Clusters_Global_Position_RZ_IT_barrel",
