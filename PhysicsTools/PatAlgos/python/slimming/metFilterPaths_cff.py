@@ -10,6 +10,7 @@ from RecoMET.METFilters.metFilters_cff import chargedHadronTrackResolutionFilter
 from RecoMET.METFilters.metFilters_cff import BadChargedCandidateFilter, BadPFMuonFilter, BadPFMuonDzFilter #2016 post-ICHEPversion
 from RecoMET.METFilters.metFilters_cff import BadChargedCandidateSummer16Filter, BadPFMuonSummer16Filter #2016 ICHEP version
 from RecoMET.METFilters.metFilters_cff import hfNoisyHitsFilter
+from RecoMET.METFilters.metFilters_cff import hcalBadDigiFilter
 
 # individual filters
 Flag_HBHENoiseFilter = cms.Path(HBHENoiseFilterResultProducer * HBHENoiseFilter)
@@ -37,6 +38,7 @@ Flag_BadChargedCandidateSummer16Filter = cms.Path(BadChargedCandidateSummer16Fil
 Flag_BadPFMuonSummer16Filter = cms.Path(BadPFMuonSummer16Filter)
 Flag_BadPFMuonDzFilter  = cms.Path(BadPFMuonDzFilter)
 Flag_hfNoisyHitsFilter  = cms.Path(hfNoisyHitsFilter)
+Flag_hcalBadDigiFilter  = cms.Path(hcalBadDigiFilter)
 
 # and the sub-filters
 Flag_trkPOG_manystripclus53X = cms.Path(~manystripclus53X)
@@ -103,6 +105,7 @@ metFilterPathsTask = cms.Task(
     BadPFMuonFilter,
     BadPFMuonDzFilter,
     hfNoisyHitsFilter,
+    hcalBadDigiFilter,
     BadChargedCandidateSummer16Filter,
     BadPFMuonSummer16Filter
 )
