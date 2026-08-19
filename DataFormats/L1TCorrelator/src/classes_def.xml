@@ -13,6 +13,7 @@
   </class>
   <class name="std::vector<l1t::io_v1::TkEm>"/>
   <class name="edm::Wrapper<std::vector<l1t::io_v1::TkEm> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<l1t::io_v1::TkElectron>,l1t::io_v1::TkElectron>"/>
   <class name="edm::Ref<std::vector<l1t::io_v1::TkEm>,l1t::io_v1::TkEm,edm::refhelper::FindUsingAdvance<std::vector<l1t::io_v1::TkEm>,l1t::io_v1::TkEm> >"/>
   <class name="std::vector<edm::Ref<std::vector<l1t::io_v1::TkEm>,l1t::io_v1::TkEm,edm::refhelper::FindUsingAdvance<std::vector<l1t::io_v1::TkEm>,l1t::io_v1::TkEm> > >"/>
   <class name="edm::RefProd<l1t::TkEmCollection>" />

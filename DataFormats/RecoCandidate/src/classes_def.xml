@@ -28,6 +28,9 @@
     <!-- <field name="fixed_" transient="true"/> -->
   </class>
 
+  <class name="std::pair<reco::isodeposit::Direction::Distance,float>"/>
+  <class name="std::map<reco::isodeposit::Direction::Distance,float>"/>
+
   <class name="std::vector<reco::io_v1::RecoChargedCandidate>"/>
   <class name="edm::Wrapper<std::vector<reco::io_v1::RecoChargedCandidate> >"/>
   <class name="edm::Ref<std::vector<reco::io_v1::RecoChargedCandidate>,reco::io_v1::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::RecoChargedCandidate>,reco::io_v1::RecoChargedCandidate> >"/>

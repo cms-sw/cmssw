@@ -1,5 +1,6 @@
 <lcgdict>
 
+  <class name="std::vector<reco::io_v1::ElectronSeed::PMVars>"/>	
   <class name="edm::RefToBase<reco::io_v1::CaloCluster>"  rntupleStreamerMode="true"/>
   <class name="edm::reftobase::BaseHolder<reco::io_v1::CaloCluster>"/>
   <class name="edm::reftobase::IndirectHolder<reco::io_v1::CaloCluster>" />
