@@ -166,29 +166,29 @@ steps['NANO_data10.6ul18v2'] = merge([{'--era': 'Run2_2018,run2_nanoAOD_106Xv2',
 ################################################################
 # Run2UL re-MINI/NANO
 ## below: nano steps in current release, using MINI redone with the current release, either from AOD or MINIAOD
-steps['NANO_mc_UL16APVreMINI'] = merge([{'--era': 'Run2_2016_HIPM',
+steps['NANO_mc_UL16APVreMINI'] = merge([{'--era': 'Run2_2016_HIPM,run2_nanoAOD_from_m2m_106Xv2',
                                          '--conditions': 'auto:run2_mc_pre_vfp'},
                                         _NANO_mc])
 steps['NANO_mc_UL16reMINI'] = merge([{'--era': 'Run2_2016',
                                       '--conditions': 'auto:run2_mc'},
                                      _NANO_mc])
-steps['NANO_mc_UL17reMINI'] = merge([{'--era': 'Run2_2017',
+steps['NANO_mc_UL17reMINI'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_from_m2m_106Xv2',
                                       '--conditions': 'auto:phase1_2017_realistic'},
                                      _NANO_mc])
-steps['NANO_mc_UL18reMINI'] = merge([{'--era': 'Run2_2018',
+steps['NANO_mc_UL18reMINI'] = merge([{'--era': 'Run2_2018,run2_nanoAOD_from_m2m_106Xv2',
                                       '--conditions': 'auto:phase1_2018_realistic'},
                                      _NANO_mc])
 
-steps['NANO_data_UL16APVreMINI'] = merge([{'--era': 'Run2_2016_HIPM',
+steps['NANO_data_UL16APVreMINI'] = merge([{'--era': 'Run2_2016_HIPM,run2_nanoAOD_from_m2m_106Xv2',
                                          '--conditions': 'auto:run2_data'},
                                           _NANO_data])
-steps['NANO_data_UL16reMINI'] = merge([{'--era': 'Run2_2016',
+steps['NANO_data_UL16reMINI'] = merge([{'--era': 'Run2_2016,run2_nanoAOD_from_m2m_106Xv2',
                                       '--conditions': 'auto:run2_data'},
                                        _NANO_data])
-steps['NANO_data_UL17reMINI'] = merge([{'--era': 'Run2_2017',
+steps['NANO_data_UL17reMINI'] = merge([{'--era': 'Run2_2017,run2_nanoAOD_from_m2m_106Xv2',
                                       '--conditions': 'auto:run2_data'},
                                        _NANO_data])
-steps['NANO_data_UL18reMINI'] = merge([{'--era': 'Run2_2018',
+steps['NANO_data_UL18reMINI'] = merge([{'--era': 'Run2_2018,run2_nanoAOD_from_m2m_106Xv2',
                                       '--conditions': 'auto:run2_data'},
                                        _NANO_data])
 
