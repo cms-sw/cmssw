@@ -58,8 +58,8 @@ NanoGenTables = cms.Sequence(
 
 # Store hlt objects for NGT scouting
 NanoHltTables = cms.Sequence(
-    hltTriggerObjP4Table
-    + hltVertexTable
+    #hltTriggerObjP4Table
+    hltVertexTable
     + hltPixelVertexTable
     + hltGeneralTrackTable
     + hltGeneralTrackExtTable
@@ -70,8 +70,8 @@ NanoHltTables = cms.Sequence(
     + hltMuonTable
     + hltPFCandidateTable
     + hltJetTable
-    + hltTauTable
-    + hltTauExtTable
+    #+ hltTauTable
+    #+ hltTauExtTable
     + METTable
     + HTTable
 )
