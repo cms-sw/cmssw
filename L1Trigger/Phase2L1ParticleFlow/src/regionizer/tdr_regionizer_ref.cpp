@@ -12,22 +12,24 @@ l1ct::TDRRegionizerEmulator::TDRRegionizerEmulator(const edm::ParameterSet& iCon
                             iConfig.getParameter<uint32_t>("nCalo"),
                             iConfig.getParameter<uint32_t>("nEmCalo"),
                             iConfig.getParameter<uint32_t>("nMu"),
-                            iConfig.getParameter<uint32_t>("nClocks"),
-                            iConfig.getParameter<std::vector<int32_t>>("bigRegionEdges"),
-                            iConfig.getParameter<bool>("doSort")) {
+                            iConfig.getUntrackedParameter<bool>("debug_tk"),
+                            iConfig.getUntrackedParameter<bool>("debug_calo"),
+                            iConfig.getUntrackedParameter<bool>("debug_emcalo"),
+                            iConfig.getUntrackedParameter<bool>("debug_mu")) {
   debug_ = iConfig.getUntrackedParameter<bool>("debug");
 }
 
 edm::ParameterSetDescription l1ct::TDRRegionizerEmulator::getParameterSetDescription() {
   edm::ParameterSetDescription description;
-  description.add<uint32_t>("nClocks", 162);
   description.add<uint32_t>("nTrack", 22);
   description.add<uint32_t>("nCalo", 15);
   description.add<uint32_t>("nEmCalo", 12);
   description.add<uint32_t>("nMu", 2);
-  description.add<bool>("doSort", false);
-  description.add<std::vector<int32_t>>("bigRegionEdges", {-560, -80, 400, -560});
   description.addUntracked<bool>("debug", false);
+  description.addUntracked<bool>("debug_tk", false);
+  description.addUntracked<bool>("debug_calo", false);
+  description.addUntracked<bool>("debug_emcalo", false);
+  description.addUntracked<bool>("debug_mu", false);
   return description;
 }
 #endif
@@ -36,22 +38,20 @@ l1ct::TDRRegionizerEmulator::TDRRegionizerEmulator(uint32_t ntk,
                                                    uint32_t ncalo,
                                                    uint32_t nem,
                                                    uint32_t nmu,
-                                                   uint32_t nclocks,
-                                                   std::vector<int32_t> bigRegionEdges,
-                                                   bool dosort)
+                                                   bool debug_tk,
+                                                   bool debug_calo,
+                                                   bool debug_emcalo,
+                                                   bool debug_mu)
     : RegionizerEmulator(),
       ntk_(ntk),
       ncalo_(ncalo),
       nem_(nem),
       nmu_(nmu),
-      nclocks_(nclocks),
-      bigRegionEdges_(bigRegionEdges),
-      dosort_(dosort),
-      netaInBR_(6),
-      nphiInBR_(3),
-      init_(false) {
-  nBigRegions_ = bigRegionEdges_.size() - 1;
-}
+      init_(false),
+      tkRegionizers_(ntk, debug_tk),
+      hadCaloRegionizers_(ncalo, debug_calo),
+      emCaloRegionizers_(nem, debug_emcalo),
+      muRegionizers_(nmu, debug_mu) {}
 
 l1ct::TDRRegionizerEmulator::~TDRRegionizerEmulator() {}
 
@@ -63,47 +63,20 @@ void l1ct::TDRRegionizerEmulator::initSectorsAndRegions(const RegionizerDecodedI
   assert(!init_);
   init_ = true;
 
-  for (unsigned int i = 0; i < nBigRegions_; i++) {
-    tkRegionizers_.emplace_back(
-        netaInBR_, nphiInBR_, ntk_, bigRegionEdges_[i], bigRegionEdges_[i + 1], nclocks_, 1, false);
-    hadCaloRegionizers_.emplace_back(
-        netaInBR_, nphiInBR_, ncalo_, bigRegionEdges_[i], bigRegionEdges_[i + 1], nclocks_ / 3, 1, false);  // TM6
-    emCaloRegionizers_.emplace_back(
-        netaInBR_, nphiInBR_, nem_, bigRegionEdges_[i], bigRegionEdges_[i + 1], nclocks_ / 3, 1, false);  // TM6
-    muRegionizers_.emplace_back(
-        netaInBR_, nphiInBR_, nmu_, bigRegionEdges_[i], bigRegionEdges_[i + 1], nclocks_, 1, false);
-  }
-
   if (debug_) {
     dbgCout() << "in.track.size() = " << in.track.size() << std::endl;
     dbgCout() << "in.hadcalo.size() = " << in.hadcalo.size() << std::endl;
     dbgCout() << "in.emcalo.size() = " << in.emcalo.size() << std::endl;
   }
 
-  if (ntk_) {
-    for (unsigned int i = 0; i < nBigRegions_; i++) {
-      tkRegionizers_[i].initSectors(in.track);
-      tkRegionizers_[i].initRegions(out);
-    }
-  }
-  if (ncalo_) {
-    for (unsigned int i = 0; i < nBigRegions_; i++) {
-      hadCaloRegionizers_[i].initSectors(in.hadcalo);
-      hadCaloRegionizers_[i].initRegions(out);
-    }
-  }
-  if (nem_) {
-    for (unsigned int i = 0; i < nBigRegions_; i++) {
-      emCaloRegionizers_[i].initSectors(in.emcalo);
-      emCaloRegionizers_[i].initRegions(out);
-    }
-  }
-  if (nmu_) {
-    for (unsigned int i = 0; i < nBigRegions_; i++) {
-      muRegionizers_[i].initSectors(in.muon);
-      muRegionizers_[i].initRegions(out);
-    }
-  }
+  tkRegionizers_.initSectors(in.track);
+  tkRegionizers_.initRegions(out);
+  hadCaloRegionizers_.initSectors(in.hadcalo);
+  hadCaloRegionizers_.initRegions(out);
+  emCaloRegionizers_.initSectors(in.emcalo);
+  emCaloRegionizers_.initRegions(out);
+  muRegionizers_.initSectors(in.muon);
+  muRegionizers_.initRegions(out);
 }
 
 void l1ct::TDRRegionizerEmulator::run(const RegionizerDecodedInputs& in, std::vector<PFInputRegion>& out) {
@@ -115,41 +88,33 @@ void l1ct::TDRRegionizerEmulator::run(const RegionizerDecodedInputs& in, std::ve
     initSectorsAndRegions(in, out);
   }
 
-  for (unsigned int ie = 0; ie < nBigRegions_; ie++) {
-    //add objects from link
-    tkRegionizers_[ie].reset();
-    tkRegionizers_[ie].fillBuffers(in.track);
-    tkRegionizers_[ie].run();
+  //add objects from link
+  tkRegionizers_.fillBuffers(in.track);
+  tkRegionizers_.run();
 
-    emCaloRegionizers_[ie].reset();
-    emCaloRegionizers_[ie].fillBuffers(in.emcalo);
-    emCaloRegionizers_[ie].run();
+  emCaloRegionizers_.fillBuffers(in.emcalo);
+  emCaloRegionizers_.run();
 
-    hadCaloRegionizers_[ie].reset();
-    hadCaloRegionizers_[ie].fillBuffers(in.hadcalo);
-    hadCaloRegionizers_[ie].run();
+  hadCaloRegionizers_.fillBuffers(in.hadcalo);
+  hadCaloRegionizers_.run();
 
-    muRegionizers_[ie].reset();
-    muRegionizers_[ie].fillBuffers(in.muon);
-    muRegionizers_[ie].run();
+  muRegionizers_.fillBuffers(in.muon);
+  muRegionizers_.run();
+
+  auto trackSRs = tkRegionizers_.smallRegions();
+  auto emCaloSRs = emCaloRegionizers_.smallRegions();
+  auto hadCaloSRs = hadCaloRegionizers_.smallRegions();
+  auto muSRs = muRegionizers_.smallRegions();
+
+  for (size_t sr = 0; sr < trackSRs.size(); sr++) {
+    out[sr].track = trackSRs[sr];
+    out[sr].emcalo = emCaloSRs[sr];
+    out[sr].hadcalo = hadCaloSRs[sr];
+    out[sr].muon = muSRs[sr];
   }
 
-  for (unsigned int ie = 0; ie < nBigRegions_; ie++) {
-    auto regionTrackMap = tkRegionizers_[ie].fillRegions(dosort_);
-    for (auto& pr : regionTrackMap) {
-      out[pr.first].track = pr.second;
-    }
-    auto regionEmCaloMap = emCaloRegionizers_[ie].fillRegions(dosort_);
-    for (auto& pr : regionEmCaloMap) {
-      out[pr.first].emcalo = pr.second;
-    }
-    auto regionHadCaloMap = hadCaloRegionizers_[ie].fillRegions(dosort_);
-    for (auto& pr : regionHadCaloMap) {
-      out[pr.first].hadcalo = pr.second;
-    }
-    auto regionMuMap = muRegionizers_[ie].fillRegions(dosort_);
-    for (auto& pr : regionMuMap) {
-      out[pr.first].muon = pr.second;
-    }
-  }
+  tkRegionizers_.clearSmallRegions();
+  emCaloRegionizers_.clearSmallRegions();
+  hadCaloRegionizers_.clearSmallRegions();
+  muRegionizers_.clearSmallRegions();
 }
