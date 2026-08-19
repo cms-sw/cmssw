@@ -9,6 +9,8 @@
  *  \author Emmanuele Salvati
  *  \date   2013, Jul 12
  *
+ *  Simplified Ian Tomalin (2026)
+ *
  */
 
 #ifndef L1_TRACK_TRIGGER_CLUSTER_FORMAT_H
@@ -28,7 +30,8 @@ class TTCluster {
 public:
   /// Constructors
   TTCluster();
-  TTCluster(std::vector<T> aHits, DetId aDetId, unsigned int aStackMember, bool storeLocal);
+  TTCluster(const std::vector<T>& aHits, const DetId& aDetId, unsigned int aStackMember);
+  TTCluster(const DetId& aDetId, unsigned int aStackMember, const Phase2TrackerDigi& firstDigi, unsigned int width);
 
   /// Destructor
   ~TTCluster();
@@ -36,41 +39,52 @@ public:
   /// Data members:   getABC( ... )
   /// Helper methods: findABC( ... )
 
-  /// Hits in the Cluster
-  std::vector<T> getHits() const { return theHits; }
-  void setHits(std::vector<T> aHits) { theHits = aHits; }
-
-  /// Detector element
-  DetId getDetId() const { return theDetId; }
-  void setDetId(DetId aDetId) { theDetId = aDetId; }
+  /// Detector module & which of two sensors inside it.
+  const DetId& getDetId() const { return theDetId; }
   unsigned int getStackMember() const { return theStackMember; }
-  void setStackMember(unsigned int aStackMember) { theStackMember = aStackMember; }
 
-  /// Rows and columns to get rid of Digi collection
-  std::vector<int> findRows() const;
-  std::vector<int> findCols() const;
-  void setCoordinates(std::vector<int> a, std::vector<int> b) {
-    theRows = a;
-    theCols = b;
-  }
-  std::vector<int> getRows() const { return theRows; }
-  std::vector<int> getCols() const { return theCols; }
+  // In CMSSW, (rows,cols) are in (r-phi,r-z), whereas FE chip spec doc has
+  // opposite convention. These vectors have same size.
+  const std::vector<int>& getRows() const { return theRows; }
+  const std::vector<int>& getCols() const { return theCols; }
+
+  unsigned int getNumHits() const { return theRows.size(); }
 
   /// Cluster width
   unsigned int findWidth() const;
 
-  /// Single hit coordinates
-  /// Average cluster coordinates
+  /// First row (i.e. in r-phi) in cluster.
+  unsigned int findFirstRow() const;
+
+  // Encoded channel number of hit j in cluster.
+  uint16_t getChannel(unsigned int j) const {
+    assert(j < theRows.size());
+    // TO FIX: Take const here from Phase2TrackerDigi.
+    return theRows[j] | theCols[j] << 10;
+  }
+
+  /// Individual hit (i.e. digi) coordinates (in units of pitch)
   MeasurementPoint findHitLocalCoordinates(unsigned int hitIdx) const;
+  /// Twice inweighted centroid (in r-phi units of pitch)
+  unsigned int     twiceCentroid() {return (2*findFirstRow() + findWidth() - 1);}
+  /// Average cluster coordinates (in units of pitch)
   MeasurementPoint findAverageLocalCoordinates() const;
   MeasurementPoint findAverageLocalCoordinatesCentered() const;
+
+  bool operator==(const TTCluster<T>& other) const;
 
   /// Information
   std::string print(unsigned int i = 0) const;
 
 private:
+  /// Set rows and columns to get rid of Digi collection
+  /// Old code
+  void setRowsCols(const std::vector<T>& aHits);
+  /// New code -- knows clustering done only in r-phi
+  void setRowsCols(const Phase2TrackerDigi& firstDigi, unsigned int width);
+
+private:
   /// Data members
-  std::vector<T> theHits;
   DetId theDetId;
   unsigned int theStackMember;
 
@@ -86,32 +100,28 @@ private:
  *           in the source file.
  */
 
-/// Default Constructor
-/// NOTE: to be used with setSomething(...) methods
+/// Null Constructor
 template <typename T>
-TTCluster<T>::TTCluster() {
-  /// Set default data members
-  theHits.clear();
-  theDetId = 0;
-  theStackMember = 0;
+TTCluster<T>::TTCluster() : theDetId(0), theStackMember(0) {}
 
-  theRows.clear();
-  theCols.clear();
+/// Old Constructor
+template <typename T>
+TTCluster<T>::TTCluster(const std::vector<T>& aHits, const DetId& aDetId, unsigned int aStackMember)
+    : theDetId(aDetId), theStackMember(aStackMember) {
+  // Set theRows & theCols in cluster
+  this->setRowsCols(aHits);
 }
 
-/// Another Constructor
+/// New Constructor
 template <typename T>
-TTCluster<T>::TTCluster(std::vector<T> aHits, DetId aDetId, unsigned int aStackMember, bool storeLocal) {
-  /// Set data members
-  this->setHits(aHits);
-  this->setDetId(aDetId);
-  this->setStackMember(aStackMember);
-
-  theRows.clear();
-  theCols.clear();
-  if (storeLocal) {
-    this->setCoordinates(this->findRows(), this->findCols());
-  }
+TTCluster<T>::TTCluster(const DetId& aDetId,
+                        unsigned int aStackMember,
+                        const Phase2TrackerDigi& firstDigi,
+                        unsigned int width)
+    : theDetId(aDetId), theStackMember(aStackMember) {
+  // Set theRows & theCols in cluster
+  // FIX -- Replace theRows & theCols data members by firstDigi & width.
+  this->setRowsCols(firstDigi, width);
 }
 
 /// Destructor
@@ -120,36 +130,46 @@ TTCluster<T>::~TTCluster() {}
 
 /// Cluster width
 template <>
-unsigned int TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findWidth() const;
+unsigned int TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi>>::findWidth() const;
 
 /// Single hit coordinates
 /// Average cluster coordinates
 template <>
-MeasurementPoint TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findHitLocalCoordinates(
+MeasurementPoint TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi>>::findHitLocalCoordinates(
     unsigned int hitIdx) const;
 
 template <>
 MeasurementPoint
-TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findAverageLocalCoordinates() const;
+TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi>>::findAverageLocalCoordinates() const;
 
-/// Operations with coordinates stored locally
 template <typename T>
-std::vector<int> TTCluster<T>::findRows() const {
-  std::vector<int> temp;
-  return temp;
+void TTCluster<T>::setRowsCols(const std::vector<T>& aHits) {}
+
+template <>
+void TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi>>::setRowsCols(
+    const std::vector<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi>>& aHits);
+
+/// Store coordinates locally -- New code -- knows clustering done only in r-phi
+template <typename T>
+void TTCluster<T>::setRowsCols(const Phase2TrackerDigi& firstDigi, unsigned int width) {
+  theRows.reserve(width);
+  theCols.reserve(width);
+
+  unsigned int firstRow = firstDigi.row();
+  unsigned int col = firstDigi.column();
+  for (unsigned int i = 0; i < width; i++) {
+    theRows.push_back(firstRow + i);
+    // FIX: Replace theCols data member with single number.
+    theCols.push_back(col);
+  }
 }
 
 template <typename T>
-std::vector<int> TTCluster<T>::findCols() const {
-  std::vector<int> temp;
-  return temp;
+bool TTCluster<T>::operator==(const TTCluster<T>& other) const {
+  bool same = (theRows == other.getRows() && theCols == other.getCols() && theDetId == other.getDetId() &&
+               theStackMember == other.getStackMember());
+  return same;
 }
-
-template <>
-std::vector<int> TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findRows() const;
-
-template <>
-std::vector<int> TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findCols() const;
 
 /// Information
 template <typename T>
@@ -163,7 +183,7 @@ std::string TTCluster<T>::print(unsigned int i) const {
   output << padding << "TTCluster:\n";
   padding += '\t';
   output << padding << "DetId: " << theDetId.rawId() << '\n';
-  output << padding << "member: " << theStackMember << ", cluster size: " << theHits.size() << '\n';
+  output << padding << "member: " << theStackMember << ", cluster size: " << this->getNumHits() << '\n';
   return output.str();
 }
 
