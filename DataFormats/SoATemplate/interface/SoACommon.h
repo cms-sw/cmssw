@@ -837,7 +837,7 @@ namespace cms::soa {
     static constexpr byte_size_type defaultSize = NvidiaGPU;
   };
 
-    // Proxy structs for SoA-like accessors with AoS layout
+  // Proxy structs for SoA-like accessors with AoS layout
   template <auto Member, class ValueElement>
   struct ColumnProxy {
     using value_element = ValueElement;
@@ -986,24 +986,6 @@ namespace cms::soa::detail {
                   << std::endl;
       soa_impl_offset += cms::soa::alignSize(size, alignment) * T::RowsAtCompileTime * T::ColsAtCompileTime;
     }
-  };
-
-  template <typename ColumnType>
-  struct AccumulateAoSByteSizes;
-
-  template <typename T>
-  struct AccumulateAoSByteSizes<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::scalar, T>> {
-    cms::soa::byte_size_type operator()() const { return sizeof(T); }
-  };
-
-  template <typename T>
-  struct AccumulateAoSByteSizes<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::column, T>> {
-    cms::soa::byte_size_type operator()() const { return 0; }
-  };
-
-  template <typename T>
-  struct AccumulateAoSByteSizes<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::eigen, T>> {
-    cms::soa::byte_size_type operator()() const { return 0; }
   };
 
   // Helper struct for computing the pitch of each column
