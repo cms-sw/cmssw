@@ -44,15 +44,25 @@ namespace lst {
                       SOA_COLUMN(float, noShiftedDphiChanges),
 #endif
                       SOA_COLUMN(unsigned int, connectedMax),
-                      SOA_COLUMN(unsigned int, connectedT3sMax))
+                      SOA_COLUMN(unsigned int, connectedT3sMax),
+                      SOA_COLUMN(unsigned int, connectedT5s0Max),
+                      SOA_COLUMN(unsigned int, connectedT5s1Max))
 
   GENERATE_SOA_LAYOUT(MiniDoubletsOccupancySoALayout,
                       SOA_COLUMN(unsigned int, nMDs),
                       SOA_COLUMN(unsigned int, totOccupancyMDs))
 
+  GENERATE_SOA_LAYOUT(QuintupletsRangesSoALayout, SOA_COLUMN(uint32_t, offset), SOA_COLUMN(uint32_t, n));
+
+  using QuintupletsRangesSoA = QuintupletsRangesSoALayout<>;
+  using QuintupletsRanges = QuintupletsRangesSoA::View;
+  using QuintupletsRangesConst = QuintupletsRangesSoA::ConstView;
+
   GENERATE_SOA_BLOCKS(MiniDoubletsSoABlocksLayout,
                       SOA_BLOCK(miniDoublets, MiniDoubletsSoALayout),
-                      SOA_BLOCK(miniDoubletsOccupancy, MiniDoubletsOccupancySoALayout))
+                      SOA_BLOCK(miniDoubletsOccupancy, MiniDoubletsOccupancySoALayout),
+                      SOA_BLOCK(quintupletsRangesByMD0, QuintupletsRangesSoALayout),
+                      SOA_BLOCK(quintupletsRangesByMD1, QuintupletsRangesSoALayout))
 
   using MiniDoubletsSoA = MiniDoubletsSoALayout<>;
   using MiniDoubletsOccupancySoA = MiniDoubletsOccupancySoALayout<>;
