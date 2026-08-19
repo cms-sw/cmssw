@@ -66,7 +66,7 @@ public:
   /// Individual hit (i.e. digi) coordinates (in units of pitch)
   MeasurementPoint findHitLocalCoordinates(unsigned int hitIdx) const;
   /// Twice inweighted centroid (in r-phi units of pitch)
-  unsigned int     twiceCentroid() {return (2*findFirstRow() + findWidth() - 1);}
+  unsigned int twiceCentroid() { return (2 * findFirstRow() + findWidth() - 1); }
   /// Average cluster coordinates (in units of pitch)
   MeasurementPoint findAverageLocalCoordinates() const;
   MeasurementPoint findAverageLocalCoordinatesCentered() const;

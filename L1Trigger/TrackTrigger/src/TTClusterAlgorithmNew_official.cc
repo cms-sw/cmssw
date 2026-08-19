@@ -5,29 +5,23 @@
 
 //--- Top-level of clustering algo
 
-void TTClusterAlgorithmNew_official::clusterizeDetUnit(
-    const edm::DetSet<Phase2TrackerDigi>& digis,
-    TTClusterDetSetVec::FastFiller& clusters) const {
-
+void TTClusterAlgorithmNew_official::clusterizeDetUnit(const edm::DetSet<Phase2TrackerDigi>& digis,
+                                                       TTClusterDetSetVec::FastFiller& clusters) const {
   if (digis.empty())
     return;
-  
+
   if (enableClusterVetoes_ && isPSp_) {
     this->algoWithVetoes(digis, clusters);
   } else {
     this->algo(digis, clusters);
   }
-  
 }
-
 
 //--- Simple clustering algo matching that in all FE electronics,
 //--- except for case of PS-p sensors, where it misses the cluster vetoes.
 
-void TTClusterAlgorithmNew_official::algo(
-    const edm::DetSet<Phase2TrackerDigi>& digis,
-    TTClusterDetSetVec::FastFiller& clusters) const {
-
+void TTClusterAlgorithmNew_official::algo(const edm::DetSet<Phase2TrackerDigi>& digis,
+                                          TTClusterDetSetVec::FastFiller& clusters) const {
   auto di = digis.begin();
 
   unsigned int widthCluster = 1;
@@ -46,16 +40,15 @@ void TTClusterAlgorithmNew_official::algo(
 
     constexpr unsigned int rowsPerMPA = 120;
 
-    const bool diffMPAchips = isPSp_ && (digi.row()/rowsPerMPA != previous.row()/rowsPerMPA);
+    const bool diffMPAchips = isPSp_ && (digi.row() / rowsPerMPA != previous.row() / rowsPerMPA);
 
     if (digi - previous == 1 && not diffMPAchips) {
       // Same column, adjacent row: extend the cluster (in r-phi).
       ++widthCluster;
-      
+
     } else {
-      
       // Finish the current cluster.
-      
+
       if (widthCluster <= maxClusterWidth_) {
         clusters.push_back(TTCluster<Ref_Phase2TrackerDigi_>(detId_, upperSensor_, firstDigi, widthCluster));
       }
@@ -74,16 +67,13 @@ void TTClusterAlgorithmNew_official::algo(
   }
 }
 
-
 //--- Complex clustering algo matching that in all FE electronics.
 //--- It correctly describes the cluster vetoes of the PS-p sensors.
 //--- (It also gives correct results for PS-s and 2S sensors,
 //---  but for them, it is unnecessarily complex & CPU intensive.)
 
-void TTClusterAlgorithmNew_official::algoWithVetoes(
-    const edm::DetSet<Phase2TrackerDigi>& digis,
-    TTClusterDetSetVec::FastFiller& clusters) const {
-  
+void TTClusterAlgorithmNew_official::algoWithVetoes(const edm::DetSet<Phase2TrackerDigi>& digis,
+                                                    TTClusterDetSetVec::FastFiller& clusters) const {
   struct BufferedCluster {
     TTCluster<Ref_Phase2TrackerDigi_> cluster;
     unsigned int twiceCentroid;
@@ -92,18 +82,17 @@ void TTClusterAlgorithmNew_official::algoWithVetoes(
 
   struct BufferedColumn {
     std::vector<BufferedCluster> clusters;
-    unsigned int ID = 99999; // number of the column
+    unsigned int ID = 99999;  // number of the column
   };
 
   // These contain last three columns processed that contained clusters.
   BufferedColumn twoColumnsAgo;
   BufferedColumn previousColumn;
   BufferedColumn currentColumn;
-  
+
   //--------------------------------------------------------------------
-  
-  auto makeBufferedCluster = [&](const Phase2TrackerDigi& firstDigi,
-                                 unsigned int widthCluster) {
+
+  auto makeBufferedCluster = [&](const Phase2TrackerDigi& firstDigi, unsigned int widthCluster) {
     unsigned int firstRow = firstDigi.row();
 
     // The centroid is:
@@ -114,21 +103,19 @@ void TTClusterAlgorithmNew_official::algoWithVetoes(
     // compared exactly, without floating point.
     unsigned int twiceCentroid = 2 * firstRow + widthCluster - 1;
 
-    return BufferedCluster{
-      TTCluster<Ref_Phase2TrackerDigi_>(detId_, upperSensor_, firstDigi, widthCluster),      
-      twiceCentroid
-    };
+    return BufferedCluster{TTCluster<Ref_Phase2TrackerDigi_>(detId_, upperSensor_, firstDigi, widthCluster),
+                           twiceCentroid};
   };
 
   // Add clusters in a column to output collection
-  
+
   auto outputColumn = [&](BufferedColumn& column) {
     for (const auto& b : column.clusters) {
       if (!b.veto)
         clusters.push_back(b.cluster);
     }
   };
-  
+
   // Compare the last two columns with the new column.
   //
   // A pair of equal centroid rows means that the cluster in the
@@ -136,37 +123,32 @@ void TTClusterAlgorithmNew_official::algoWithVetoes(
   //
   // Three equal centroid rows in consecutive columns means that
   // all three clusters are vetoed.
-  auto processNewColumn = [&](BufferedColumn& oldest,
-                              BufferedColumn& previous,
-                              BufferedColumn& current) {
-
+  auto processNewColumn = [&](BufferedColumn& oldest, BufferedColumn& previous, BufferedColumn& current) {
     // Cluster veto logic is only used by the MPA chip (PS-p sensors).
-    //     b) If two PS-p clusters in neighbouring columns (r-z) have 
+    //     b) If two PS-p clusters in neighbouring columns (r-z) have
     //        the same row (r-phi) centroid, the one with higher column
     //         number is vetoed.
-    //     c) If >= 3 PS-p clusters in neighbouring columns (r-z) have 
-    //        the same row (r-phi) centroid, all these clusters are 
+    //     c) If >= 3 PS-p clusters in neighbouring columns (r-z) have
+    //        the same row (r-phi) centroid, all these clusters are
     //        vetoed.
 
     // Small complication -- PS-p modules have 32 columns, with 16
     // read out by MPA chips at each end of module. The veto conditions
     // only apply to columns read out from the same end.
- 
-    
-    if (enableClusterVetoes_ && isPSp_) {
 
+    if (enableClusterVetoes_ && isPSp_) {
       constexpr unsigned int numColsPerEnd = 16;
-      const bool currEnd = (current.ID  < numColsPerEnd);
+      const bool currEnd = (current.ID < numColsPerEnd);
       const bool prevEnd = (previous.ID < numColsPerEnd);
-      const bool oldEnd  = (oldest.ID   < numColsPerEnd);
-      
+      const bool oldEnd = (oldest.ID < numColsPerEnd);
+
       // Identify clusters with same centroid position in neighbouring columns,
       // using fact that within a row, clusters are ordered by position,
-      // so as to save CPU by not using a triple nested loop. 
-      
+      // so as to save CPU by not using a triple nested loop.
+
       auto curr_clus = current.clusters.begin();
       auto prev_clus = previous.clusters.begin();
-      auto old_clus  = oldest.clusters.begin();
+      auto old_clus = oldest.clusters.begin();
       if (current.ID == previous.ID + 1 && currEnd == prevEnd) {
         // We have 2 neighbouring columns
         while (curr_clus != current.clusters.end() && prev_clus != previous.clusters.end()) {
@@ -181,14 +163,13 @@ void TTClusterAlgorithmNew_official::algoWithVetoes(
             } else {
               prev_clus->veto = true;
             }
-              
+
             if (current.ID == oldest.ID + 2 && currEnd == oldEnd) {
               // We have 3 neighbouring columns
-              while (old_clus != oldest.clusters.end() &&
-                     old_clus->twiceCentroid < curr_clus->twiceCentroid) old_clus++;
-              
-              if (old_clus != oldest.clusters.end() &&
-                  old_clus->twiceCentroid == curr_clus->twiceCentroid) {
+              while (old_clus != oldest.clusters.end() && old_clus->twiceCentroid < curr_clus->twiceCentroid)
+                old_clus++;
+
+              if (old_clus != oldest.clusters.end() && old_clus->twiceCentroid == curr_clus->twiceCentroid) {
                 // Three-column veto: all three clusters are vetoed.
                 old_clus->veto = true;
                 prev_clus->veto = true;
@@ -196,18 +177,18 @@ void TTClusterAlgorithmNew_official::algoWithVetoes(
               }
             }
             curr_clus++;
-            prev_clus++;              
+            prev_clus++;
           }
         }
-      }   
+      }
     }
-    
+
     // -- OUTPUT CLUSTERS of oldest column, since no new column can veto them.
     outputColumn(oldest);
   };
 
   //--------------------------------------------------------------------
-  
+
   auto di = digis.begin();
 
   unsigned int widthCluster = 1;
@@ -228,16 +209,15 @@ void TTClusterAlgorithmNew_official::algoWithVetoes(
 
     constexpr unsigned int rowsPerMPA = 120;
 
-    const bool diffMPAchips = isPSp_ && (digi.row()/rowsPerMPA != previous.row()/rowsPerMPA);
+    const bool diffMPAchips = isPSp_ && (digi.row() / rowsPerMPA != previous.row() / rowsPerMPA);
 
     if (digi - previous == 1 && not diffMPAchips) {
       // Same column, adjacent row: extend the cluster (in r-phi).
       ++widthCluster;
-      
+
     } else {
-      
       // Finish the current cluster.
-      
+
       if (widthCluster <= maxClusterWidth_) {
         currentColumn.clusters.push_back(makeBufferedCluster(firstDigi, widthCluster));
       }
@@ -251,7 +231,7 @@ void TTClusterAlgorithmNew_official::algoWithVetoes(
 
         twoColumnsAgo = std::move(previousColumn);
         previousColumn = std::move(currentColumn);
-        
+
         currentColumn.ID = digi.column();
         currentColumn.clusters.clear();
       }
@@ -276,6 +256,6 @@ void TTClusterAlgorithmNew_official::algoWithVetoes(
   // -- OUTPUT CLUSTERS of final 2 columns, as not yet output,
   // -- and no further columns can veto them.
 
-  outputColumn(previousColumn);  
-  outputColumn(currentColumn);  
+  outputColumn(previousColumn);
+  outputColumn(currentColumn);
 }

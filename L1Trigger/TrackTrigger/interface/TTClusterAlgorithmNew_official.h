@@ -25,7 +25,6 @@
  *  \date Aug. 2026
  */
 
-
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
@@ -35,28 +34,29 @@
 
 class TTClusterAlgorithmNew_official {
 public:
-  
-  TTClusterAlgorithmNew_official(unsigned int maxClusterWidth, bool enableClusterVetoes, const DetId& detId, bool upperSensor, bool isPSp) : maxClusterWidth_(maxClusterWidth), enableClusterVetoes_(enableClusterVetoes), detId_(detId), upperSensor_(upperSensor), isPSp_(isPSp) {} 
+  TTClusterAlgorithmNew_official(
+      unsigned int maxClusterWidth, bool enableClusterVetoes, const DetId& detId, bool upperSensor, bool isPSp)
+      : maxClusterWidth_(maxClusterWidth),
+        enableClusterVetoes_(enableClusterVetoes),
+        detId_(detId),
+        upperSensor_(upperSensor),
+        isPSp_(isPSp) {}
 
   // Top-level of clustering algo
-  void clusterizeDetUnit(const edm::DetSet<Phase2TrackerDigi>& digis,
-                         TTClusterDetSetVec::FastFiller& clusters) const;
+  void clusterizeDetUnit(const edm::DetSet<Phase2TrackerDigi>& digis, TTClusterDetSetVec::FastFiller& clusters) const;
 
 private:
-
   // Algo implmentation WITHOUT PS-p specific cluster vetoes
-  void algo(const edm::DetSet<Phase2TrackerDigi>& digis,
-            TTClusterDetSetVec::FastFiller& clusters) const;
+  void algo(const edm::DetSet<Phase2TrackerDigi>& digis, TTClusterDetSetVec::FastFiller& clusters) const;
 
   // Algo implmentation WITH PS-p specific cluster vetoes
-  void algoWithVetoes(const edm::DetSet<Phase2TrackerDigi>& digis,
-            TTClusterDetSetVec::FastFiller& clusters) const;
+  void algoWithVetoes(const edm::DetSet<Phase2TrackerDigi>& digis, TTClusterDetSetVec::FastFiller& clusters) const;
 
 private:
   // Clustering algo cfg
   unsigned int maxClusterWidth_;
   bool enableClusterVetoes_;
-  
+
   // Info about this tracker module
   DetId detId_;
   bool upperSensor_;

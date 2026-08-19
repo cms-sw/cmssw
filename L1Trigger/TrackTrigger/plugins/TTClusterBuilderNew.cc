@@ -48,7 +48,7 @@ public:
 
 private:
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken;
-  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken;  
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken;
   edm::EDGetTokenT<edm::DetSetVector<Phase2TrackerDigi> > token_;
 
   unsigned int maxClusterWidth_;
@@ -74,7 +74,6 @@ TTClusterBuilderNew::TTClusterBuilderNew(edm::ParameterSet const& conf) {
      */
 
 void TTClusterBuilderNew::produce(edm::Event& event, const edm::EventSetup& iSetup) {
-
   // Retrieve tracker topology from geometry
   const TrackerTopology* const tTopo = &iSetup.getData(tTopoToken);
   const TrackerGeometry* const tGeom = &iSetup.getData(tGeomToken);
@@ -84,20 +83,20 @@ void TTClusterBuilderNew::produce(edm::Event& event, const edm::EventSetup& iSet
   event.getByToken(token_, digis);
 
   auto outputClusters = std::make_unique<TTClusterDetSetVec>();
-  
+
   // Loop over the tracker modules
   for (const auto& DSViter : *digis) {
     const DetId detId(DSViter.detId());
     const bool upperSensor = not tTopo->isLower(detId);
-    const bool isPSp = (tGeom->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP);    
+    const bool isPSp = (tGeom->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP);
 
     // Define utility for adding clusters to output collection.
     TTClusterDetSetVec::FastFiller clusters(*outputClusters, DSViter.detId());
-    
+
     // Create & run clustering algorithm
     //const Phase2TrackerClusterizerSequentialAlgorithm algo(maxClusterWidth_, detId, upperSensor, isPSp);
-    TTClusterAlgorithmNew_official algo(maxClusterWidth_, enableClusterVetoes_, detId, upperSensor, isPSp);    
-    
+    TTClusterAlgorithmNew_official algo(maxClusterWidth_, enableClusterVetoes_, detId, upperSensor, isPSp);
+
     algo.clusterizeDetUnit(DSViter, clusters);
     if (clusters.empty())
       clusters.abort();
