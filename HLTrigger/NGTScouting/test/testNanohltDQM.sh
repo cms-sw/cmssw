@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # input source
-UNITFILE="/store/relval/CMSSW_16_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_STD_Run4D110_PU-v1/2580000/025e04e8-4d2a-4d31-abb9-fb5f2280ea8f.root"
+UNITFILE="/store/relval/CMSSW_20_0_0_pre1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_STD_D121_RegeneratedGS_PU-v1/2590000/0033230b-a131-453a-95c0-fe14d5027d1f.root"
 LOCALPATH='/eos/cms/store/relval/CMSSW_16_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_STD_Run4D110_PU-v1/2580000/'
 
 if [[ "$1" == "unitTest" ]]; then
