@@ -213,8 +213,7 @@ steps['scoutingNANO_monitor_data12.4'] = merge([{'-s': 'NANO:@ScoutMonitor'},
 # 13.0 workflows
 steps['TTbarMINIAOD13.0'] = {'INPUT': InputInfo(
     location='STD', dataSet='/TTtoLNu2Q_TuneCP5_13p6TeV_powheg-pythia8/Run3Summer23MiniAODv4-130X_mcRun3_2023_realistic_v14-v2/MINIAODSIM')}
-steps['M2M_mc13.0s23'] = merge([{'--era': 'Run3', '--conditions': 'auto:phase1_2023_realistic', '--procModifier': 'run3_miniAOD_miniAODpre142X'},
-                             steps['M2M_mc10.6ul18']])
+steps['M2M_mc13.0s23'] = merge([_MINI_from_MINI, {'--era': 'Run3', '--conditions': 'auto:phase1_2023_realistic', '--procModifier' : 'run3_miniAOD_miniAODpre142X'}])
 steps['NANO_mc13.0'] = merge([{'--era': 'Run3,run3_nanoAOD_pre142X', '--conditions': 'auto:phase1_2023_realistic'},
                               _NANO_mc])
 ## below: nano steps in current release, using MINI redone with the current release, either from AOD or MINIAOD
