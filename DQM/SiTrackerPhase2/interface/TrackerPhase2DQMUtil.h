@@ -11,6 +11,8 @@
 namespace phase2tkutil {
 
   std::string getITShell(uint32_t det_id, const TrackerTopology* tTopo, float phi);
+  int getITSignedModule(uint32_t det_id, const TrackerTopology* tTopo, float phi);
+  int getITSignedLadder(uint32_t det_id, const TrackerTopology* tTopo, float phi);
   std::string getHistoId(uint32_t det_id, const TrackerTopology* tTopo, float phi, int LEVEL, bool pretty);
 
   typedef dqm::reco::MonitorElement MonitorElement;

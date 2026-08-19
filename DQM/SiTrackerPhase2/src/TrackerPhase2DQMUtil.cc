@@ -105,6 +105,45 @@ std::string phase2tkutil::getITShell(uint32_t det_id, const TrackerTopology* tTo
   return shellname.str();
 }
 
+int phase2tkutil::getITSignedModule(uint32_t det_id, const TrackerTopology* tTopo, float phi) {
+  int signedModule;
+  int module = tTopo->module(det_id);
+  int layer = tTopo->getITPixelLayerNumber(det_id);
+  if (layer % 2 == 0)
+    signedModule = (module <= 5 ? module - 6 : module - 5);
+  else
+    signedModule = (module <= 4 ? module - 5 : module - 4);
+
+  return signedModule;
+}
+
+int phase2tkutil::getITSignedLadder(uint32_t det_id, const TrackerTopology* tTopo, float phi) {
+  int signedLadder;
+  int ladder = tTopo->pxbLadder(det_id);
+  int layer = tTopo->getITPixelLayerNumber(det_id);
+  if (std::abs(phi) > 3.1415 / 2) {  // Outer shell
+    if (layer == 1)
+      signedLadder = ladder - 10;
+    if (layer == 2)
+      signedLadder = ladder - 19;
+    if (layer == 3)
+      signedLadder = ladder - 16;
+    if (layer == 4)
+      signedLadder = ladder - 22;
+  } else {  // Inner shell
+    if (layer == 1)
+      signedLadder = (ladder > 9 ? ladder - 9 : ladder + 3);
+    if (layer == 2)
+      signedLadder = (ladder > 18 ? ladder - 18 : ladder + 6);
+    if (layer == 3)
+      signedLadder = (ladder > 15 ? ladder - 15 : ladder + 5);
+    if (layer == 4)
+      signedLadder = (ladder > 21 ? ladder - 21 : ladder + 7);
+  }
+
+  return signedLadder;
+}
+
 typedef dqm::reco::MonitorElement MonitorElement;
 typedef dqm::reco::DQMStore DQMStore;
 MonitorElement* phase2tkutil::book1DFromPSet(const edm::ParameterSet& hpars,
