@@ -192,6 +192,8 @@ namespace {
   struct TestFixture {
     std::map<Trans, std::function<void(edm::Worker*, edm::maker::ModuleHolder*, edm::OutputModuleCommunicator*)>>
         m_transToFunc;
+    std::map<Trans, std::optional<unsigned int>> m_transToWorkerIndex;
+    unsigned int m_numWorkerIdices = 0;
 
     edm::ProcessConfiguration m_procConfig;
     edm::PreallocationConfiguration m_preallocConfig;
@@ -254,6 +256,7 @@ namespace {
             edm::FileBlock fb;
             iHolder->respondToOpenInputFile(fb);
           };
+      m_transToWorkerIndex[Trans::kGlobalOpenInputFile] = std::nullopt;
 
       m_transToFunc[Trans::kGlobalBeginRun] =
           [this](edm::Worker* iBase, edm::maker::ModuleHolder*, edm::OutputModuleCommunicator*) {
@@ -264,6 +267,8 @@ namespace {
             edm::RunTransitionInfo info(*m_rp, m_es);
             doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
           };
+      m_transToWorkerIndex[Trans::kGlobalBeginRun] = m_numWorkerIdices;
+      ++m_numWorkerIdices;
 
       m_transToFunc[Trans::kGlobalBeginLuminosityBlock] =
           [this](edm::Worker* iBase, edm::maker::ModuleHolder*, edm::OutputModuleCommunicator*) {
@@ -274,6 +279,8 @@ namespace {
             edm::LumiTransitionInfo info(*m_lbp, m_es);
             doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
           };
+      m_transToWorkerIndex[Trans::kGlobalBeginLuminosityBlock] = m_numWorkerIdices;
+      ++m_numWorkerIdices;
 
       m_transToFunc[Trans::kEvent] =
           [this](edm::Worker* iBase, edm::maker::ModuleHolder*, edm::OutputModuleCommunicator*) {
@@ -284,6 +291,8 @@ namespace {
             edm::EventTransitionInfo info(*m_ep, m_es);
             doWork<Traits>(iBase, info, s_streamID0, parentContext);
           };
+      m_transToWorkerIndex[Trans::kEvent] = m_numWorkerIdices;
+      ++m_numWorkerIdices;
 
       m_transToFunc[Trans::kGlobalEndLuminosityBlock] =
           [this](edm::Worker* iBase, edm::maker::ModuleHolder*, edm::OutputModuleCommunicator* iComm) {
@@ -298,6 +307,7 @@ namespace {
             iComm->writeLumiAsync(edm::WaitingTaskHolder(group, &task), *m_lbp, nullptr, &activityRegistry);
             task.wait();
           };
+      m_transToWorkerIndex[Trans::kGlobalEndLuminosityBlock] = m_transToWorkerIndex[Trans::kGlobalBeginLuminosityBlock];
 
       m_transToFunc[Trans::kGlobalEndRun] =
           [this](edm::Worker* iBase, edm::maker::ModuleHolder*, edm::OutputModuleCommunicator* iComm) {
@@ -312,12 +322,13 @@ namespace {
             iComm->writeRunAsync(edm::WaitingTaskHolder(group, &task), *m_rp, nullptr, &activityRegistry);
             task.wait();
           };
-
+      m_transToWorkerIndex[Trans::kGlobalEndRun] = m_transToWorkerIndex[Trans::kGlobalBeginRun];
       m_transToFunc[Trans::kGlobalCloseInputFile] =
           [](edm::Worker* iBase, edm::maker::ModuleHolder* iHolder, edm::OutputModuleCommunicator*) {
             edm::FileBlock fb;
             iHolder->respondToCloseInputFile(fb);
           };
+      m_transToWorkerIndex[Trans::kGlobalCloseInputFile] = std::nullopt;
 
       // We want to create the TriggerNamesService because it is used in
       // the tests.  We do that here, but first we need to build a minimal
@@ -369,12 +380,20 @@ namespace {
     oneapi::tbb::global_control control(oneapi::tbb::global_control::max_allowed_parallelism, 1);
 
     iMod->doPreallocate(m_preallocConfig);
-    edm::WorkerT<edm::one::OutputModuleBase> w{iMod, m_desc, m_params.actions_};
+    //add an extra one to handle the case where a transition is not handled by any worker
+    std::vector<std::unique_ptr<edm::Worker>> workers(m_numWorkerIdices + 1);
+    for (auto& worker : workers) {
+      worker = std::make_unique<edm::WorkerT<edm::one::OutputModuleBase>>(iMod, m_desc, m_params.actions_);
+    }
     edm::maker::ModuleHolderT<edm::one::OutputModuleBase> h(iMod);
     h.beginJob();
     edm::OutputModuleCommunicatorT<edm::one::OutputModuleBase> comm(iMod.get());
     for (auto& keyVal : m_transToFunc) {
-      testTransition(iMod, &w, &h, &comm, keyVal.first, iExpect, keyVal.second);
+      edm::Worker* w = workers.back().get();
+      if (m_transToWorkerIndex[keyVal.first].has_value()) {
+        w = workers[m_transToWorkerIndex[keyVal.first].value()].get();
+      }
+      testTransition(iMod, w, &h, &comm, keyVal.first, iExpect, keyVal.second);
     }
   }
 
