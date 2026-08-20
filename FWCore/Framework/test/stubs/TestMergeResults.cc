@@ -222,7 +222,7 @@ namespace edmtest {
           consumes<edmtest::ThingWithIsEqual, edm::InRun>(edm::InputTag{"makeThingToBeDropped", "beginRun", "PROD"});
     }
     for (auto const& parent : expectedParents_) {
-      parentTokenMap_.try_emplace(parent, mayConsume<edmtest::Thing>(edm::InputTag{parent, "event", "PROD"}));
+      parentTokenMap_.try_emplace(parent, consumes<edmtest::Thing>(edm::InputTag{parent, "event", "PROD"}));
     }
     if (expectedDroppedEvent1_.size() > droppedIndex1_) {
       assert(expectedDroppedEvent1_.size() == expectedDroppedEvent1NEvents_.size());
