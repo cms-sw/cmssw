@@ -7,25 +7,14 @@
 #include <queue>
 #include <utility>
 
+#include "PhysicsTools/TruthInfo/interface/TruthLevels.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 namespace {
 
-  bool isNeutrino(int32_t pdgId) {
-    const int32_t id = std::abs(pdgId);
-    return id == 12 || id == 14 || id == 16;
-  }
+  using truth::isInvisible;
 
-  // Ordinary hadron whose quark content includes `flavor` (5 = b, 4 = c).
-  bool hadronHasQuark(int32_t pdgId, int32_t flavor) {
-    const int32_t id = std::abs(pdgId);
-    if (id < 100 || id >= 1000000000)
-      return false;
-    const int32_t nq1 = (id / 1000) % 10;
-    const int32_t nq2 = (id / 100) % 10;
-    const int32_t nq3 = (id / 10) % 10;
-    return nq1 == flavor || nq2 == flavor || nq3 == flavor;
-  }
+  using truth::hadronHasQuark;
 
   // Mirror of TruthGraphProducer::packEventId, which memcpys the EncodedEventId
   // bytes into the low word of a uint64_t. Decode into a trivial uint32_t and
@@ -157,7 +146,7 @@ namespace truth {
   math::XYZTLorentzVectorD Branch::visibleP4() const {
     math::XYZTLorentzVectorD sum;
     for (auto const& leaf : stableLeaves()) {
-      if (!isNeutrino(leaf.pdgId()))
+      if (!isInvisible(leaf.pdgId()))
         sum += leaf.momentum();
     }
     return sum;
