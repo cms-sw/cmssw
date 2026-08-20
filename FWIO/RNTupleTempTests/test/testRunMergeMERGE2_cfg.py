@@ -16,6 +16,14 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(33)
 )
 
+#Contents of files
+#testRunMerge0.root "PROD" [run:100, lumi:100, ev:100]
+#testRunMerge1.root  "PROD" [run:1,lumi:1, ev:11-20]
+#testRunMerge2extra.root  "PROD" & "EXTRA" [run:1, lumi:1, ev:21-25] [run:2,lumi:1, ev:1-5]
+#testRunMerge3extra.root  "PROD" and "EXTRA" [run:1, lumi:1, ev:1-10]
+#testRunMerge4.root  "PROD" [run:11, lumi:1, ev:1]
+#testRunMerge5.root  "PROD" [run:11-21, lumi:2-4, ev:1-9]
+
 process.source = cms.Source("RNTupleTempSource",
     fileNames = cms.untracked.vstring(
         'file:testRunMerge0.root', 
@@ -134,6 +142,9 @@ process.out = cms.OutputModule("RNTupleTempOutputModule",
         'drop *_J_*_*'
     )
 )
+
+#Contents of files
+#testRunMergeMERGE2.root  "PROD", "EXTRA" & "MERGE" [run:100, lumi:100, ev:100]&[run:1, lumi:1, ev:1-25]&[run:2, lumi:1, ev:1-5]&[run:11, lumi:1, ev:1-2]
 
 process.checker = cms.OutputModule("GetProductCheckerOutputModule")
 
