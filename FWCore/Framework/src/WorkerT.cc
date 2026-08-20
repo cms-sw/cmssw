@@ -524,6 +524,26 @@ namespace edm {
   }
 
   template <typename T>
+  inline bool WorkerT<T>::implDoWrite(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    return true;
+  }
+  template<>
+  inline bool WorkerT<edm::one::OutputModuleBase>::implDoWrite(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    module_->doWriteRun(info.principal(), mcc);
+    return true;
+  }
+  template<>
+  inline bool WorkerT<edm::global::OutputModuleBase>::implDoWrite(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    module_->doWriteRun(info.principal(), mcc);
+    return true;
+  }
+  template<>
+  inline bool WorkerT<edm::limited::OutputModuleBase>::implDoWrite(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    module_->doWriteRun(info.principal(), mcc);
+    return true;
+  }
+
+  template <typename T>
   inline bool WorkerT<T>::implDoBegin(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
     module_->doBeginLuminosityBlock(info, mcc);
     return true;
@@ -574,6 +594,27 @@ namespace edm {
     module_->doEndLuminosityBlock(info, mcc);
     return true;
   }
+
+    template <typename T>
+  inline bool WorkerT<T>::implDoWrite(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    return true;
+  }
+  template<>
+  inline bool WorkerT<edm::one::OutputModuleBase>::implDoWrite(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    module_->doWriteLuminosityBlock(info.principal(), mcc);
+    return true;
+  }
+  template<>
+  inline bool WorkerT<edm::global::OutputModuleBase>::implDoWrite(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    module_->doWriteLuminosityBlock(info.principal(), mcc);
+    return true;
+  }
+  template<>
+  inline bool WorkerT<edm::limited::OutputModuleBase>::implDoWrite(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    module_->doWriteLuminosityBlock(info.principal(), mcc);
+    return true;
+  }
+
 
   template <typename T>
   template <typename D>

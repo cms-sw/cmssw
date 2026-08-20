@@ -108,7 +108,7 @@ namespace edm {
                                                    edm::RunPrincipal const& rp,
                                                    ProcessContext const* processContext,
                                                    ActivityRegistry* activityRegistry) noexcept {
-    auto token = ServiceRegistry::instance().presentToken();
+  /*  auto token = ServiceRegistry::instance().presentToken();
     GlobalContext globalContext(GlobalContext::Transition::kWriteRun,
                                 LuminosityBlockID(rp.run(), 0),
                                 rp.index(),
@@ -135,6 +135,7 @@ namespace edm {
       iTask.doneWaiting(ex);
     };
     async(module(), *iTask.group(), std::move(t));
+    */
   }
 
   template <typename T>
@@ -142,6 +143,7 @@ namespace edm {
                                                     edm::LuminosityBlockPrincipal const& lbp,
                                                     ProcessContext const* processContext,
                                                     ActivityRegistry* activityRegistry) noexcept {
+                                                      /*
     auto token = ServiceRegistry::instance().presentToken();
     GlobalContext globalContext(GlobalContext::Transition::kWriteLuminosityBlock,
                                 lbp.id(),
@@ -170,6 +172,7 @@ namespace edm {
       iTask.doneWaiting(ex);
     };
     async(module(), *iTask.group(), std::move(t));
+    */
   }
 
   template <typename T>
