@@ -28,9 +28,6 @@
     <!-- <field name="fixed_" transient="true"/> -->
   </class>
 
-  <class name="std::pair<reco::isodeposit::Direction::Distance,float>"/>
-  <class name="std::map<reco::isodeposit::Direction::Distance,float>"/>
-
   <class name="std::vector<reco::io_v1::RecoChargedCandidate>"/>
   <class name="edm::Wrapper<std::vector<reco::io_v1::RecoChargedCandidate> >"/>
   <class name="edm::Ref<std::vector<reco::io_v1::RecoChargedCandidate>,reco::io_v1::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::RecoChargedCandidate>,reco::io_v1::RecoChargedCandidate> >"/>
@@ -128,6 +125,9 @@
    <version ClassVersion="3" checksum="4179939266"/>
   </class>
   <class name="std::multimap<reco::io_v1::IsoDeposit::Direction::Distance,float>"/>
+
+  <class name="std::pair<reco::isodeposit::Direction::Distance,float>"/>
+  <class name="std::map<reco::isodeposit::Direction::Distance,float>"/>
 
   <class name="edm::ValueMap<reco::io_v1::IsoDeposit>::const_iterator">
     <field name="values_" transient="true"/>

@@ -1,6 +1,5 @@
 <lcgdict>
 
-  <class name="std::vector<reco::io_v1::ElectronSeed::PMVars>"/>	
   <class name="edm::RefToBase<reco::io_v1::CaloCluster>"  rntupleStreamerMode="true"/>
   <class name="edm::reftobase::BaseHolder<reco::io_v1::CaloCluster>"/>
   <class name="edm::reftobase::IndirectHolder<reco::io_v1::CaloCluster>" />
@@ -95,6 +94,7 @@
   </class>
 
   <class name="std::vector<reco::io_v1::ElectronSeed>"/>
+  <class name="std::vector<reco::io_v1::ElectronSeed::PMVars>"/>
   <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::ElectronSeed>,reco::io_v1::ElectronSeed>"/>
   <class name="edm::Ref<std::vector<reco::io_v1::ElectronSeed>,reco::io_v1::ElectronSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::ElectronSeed>,reco::io_v1::ElectronSeed> >"/>
   <class name="edm::RefProd<std::vector<reco::io_v1::ElectronSeed> >"/>
