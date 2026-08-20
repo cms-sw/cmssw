@@ -98,7 +98,7 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
                         ),
                         DigisOverThresholdH = cms.PSet(
                             name   = cms.string("Digis_Fraction_Over_Threshold"),
-                            title  = cms.string("Fraction of digis over HIP threshold in {};Fraction of digis in event;"),
+                            title  = cms.string("Fraction of digis over HIP threshold in {};Fraction of digis in det;"),
                             NxBins = cms.int32(11),
                             xmin   = cms.double(-0.05),
                             xmax   = cms.double(1.05),
