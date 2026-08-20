@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 import os
+import sys
 
 from HeterogeneousCore.Common.PlatformStatus import PlatformStatus
 
@@ -31,6 +32,10 @@ class ProcessAcceleratorCUDA(cms.ProcessAccelerator):
             if not hasattr(process.MessageLogger, "CUDAService"):
                 process.MessageLogger.CUDAService = cms.untracked.PSet()
 
+            # Configure Open MPI 5 to use the CUDA accelerator framework
+            if os.environ['OMPI_MCA_accelerator'] == 'null':
+                os.environ['OMPI_MCA_accelerator'] = 'cuda'
+
         else:
             # Make sure the CUDAService is not loaded
             if hasattr(process, "CUDAService"):
@@ -40,6 +45,12 @@ class ProcessAcceleratorCUDA(cms.ProcessAccelerator):
             if hasattr(process.MessageLogger, "CUDAService"):
                 del process.MessageLogger.CUDAService
 
+            # Configure Open MPI 5 to not use the CUDA accelerator framework
+            if 'cuda' in os.environ['OMPI_MCA_accelerator']:
+                mpiacc = os.environ['OMPI_MCA_accelerator'].split(',')
+                mpiacc = [ acc for acc in mpiacc if acc != 'cuda' ] or [ 'null' ]
+                os.environ['OMPI_MCA_accelerator'] = ','.join(mpiacc)
+                print(f"The 'cuda' accelerator is disabled, 'OMPI_MCA_accelerator' has been set to '{','.join(mpiacc)}'", file=sys.stderr)
 
 # Ensure this module is kept in the configuration when dumping it
 cms.specialImportRegistry.registerSpecialImportForType(ProcessAcceleratorCUDA, "from HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA import ProcessAcceleratorCUDA")
