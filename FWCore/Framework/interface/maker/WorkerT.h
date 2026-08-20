@@ -104,10 +104,12 @@ namespace edm {
     bool implDoStreamBegin(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) override;
     bool implDoStreamEnd(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) override;
     bool implDoEnd(RunTransitionInfo const&, ModuleCallingContext const*) override;
+    bool implDoWrite(RunTransitionInfo const&, ModuleCallingContext const*) override;
     bool implDoBegin(LumiTransitionInfo const&, ModuleCallingContext const*) override;
     bool implDoStreamBegin(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) override;
     bool implDoStreamEnd(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) override;
     bool implDoEnd(LumiTransitionInfo const&, ModuleCallingContext const*) override;
+    bool implDoWrite(LumiTransitionInfo const&, ModuleCallingContext const*) override;
     TaskQueueAdaptor serializeRunModule() override;
 
     void itemsToGet(BranchType branchType, std::vector<ProductResolverIndexAndSkipBit>& indexes) const override {

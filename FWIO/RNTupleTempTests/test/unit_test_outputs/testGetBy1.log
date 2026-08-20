@@ -1047,6 +1047,7 @@ GlobalContext: transition = EndLuminosityBlock
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
     ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
+++++++++ starting: prefetching before processing global end LuminosityBlock for module: label = 'out' id = 7
 ++++++++ starting: prefetching before processing global end LuminosityBlock for module: label = 'a3' id = 6
 ++++++++ starting: prefetching before processing global end LuminosityBlock for module: label = 'a2' id = 5
 ++++++++ starting: prefetching before processing global end LuminosityBlock for module: label = 'a1' id = 4
@@ -1103,6 +1104,9 @@ ModuleCallingContext state = Running
 ++++++++ finished: prefetching before processing global end LuminosityBlock for module: label = 'a3' id = 6
 ++++++ starting: global end lumi for module: label = 'a3' id = 6
 ++++++ finished: global end lumi for module: label = 'a3' id = 6
+++++++++ finished: prefetching before processing global end LuminosityBlock for module: label = 'out' id = 7
+++++++ starting: write lumi for module: label = 'out' id = 7
+++++++ finished: write lumi for module: label = 'out' id = 7
 ++++ finished: global end lumi: run = 1 lumi = 1 time = 1
 GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
@@ -1115,8 +1119,6 @@ GlobalContext: transition = WriteLuminosityBlock
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
     ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
-++++++ starting: write lumi for module: label = 'out' id = 7
-++++++ finished: write lumi for module: label = 'out' id = 7
 ++++ finished: global write lumi: run = 1 lumi = 1 time = 1
 GlobalContext: transition = WriteLuminosityBlock
     run: 1 luminosityBlock: 1
@@ -1141,6 +1143,7 @@ GlobalContext: transition = EndRun
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
     ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
+++++++++ starting: prefetching before processing global end Run for module: label = 'out' id = 7
 ++++++++ starting: prefetching before processing global end Run for module: label = 'a3' id = 6
 ++++++++ starting: prefetching before processing global end Run for module: label = 'a2' id = 5
 ++++++++ starting: prefetching before processing global end Run for module: label = 'a1' id = 4
@@ -1197,6 +1200,9 @@ ModuleCallingContext state = Running
 ++++++++ finished: prefetching before processing global end Run for module: label = 'a3' id = 6
 ++++++ starting: global end run for module: label = 'a3' id = 6
 ++++++ finished: global end run for module: label = 'a3' id = 6
+++++++++ finished: prefetching before processing global end Run for module: label = 'out' id = 7
+++++++ starting: write run for module: label = 'out' id = 7
+++++++ finished: write run for module: label = 'out' id = 7
 ++++ finished: global end run 1 : time = 15000001
 GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0
@@ -1209,8 +1215,6 @@ GlobalContext: transition = WriteRun
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
     ProcessContext: PROD1 cf8fb4a5e3c9a108eac33826b2a17969
 
-++++++ starting: write run for module: label = 'out' id = 7
-++++++ finished: write run for module: label = 'out' id = 7
 ++++ finished: global write run 1 : time = 15000001
 GlobalContext: transition = WriteRun
     run: 1 luminosityBlock: 0

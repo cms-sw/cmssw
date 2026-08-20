@@ -55,6 +55,7 @@ the worker is reset().
 #include "FWCore/Utilities/interface/ESIndices.h"
 #include "FWCore/Utilities/interface/Transition.h"
 #include "FWCore/Utilities/interface/make_sentry.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -243,10 +244,12 @@ namespace edm {
     virtual bool implDoStreamBegin(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoStreamEnd(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoEnd(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoWrite(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoBegin(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoStreamBegin(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoStreamEnd(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoEnd(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoWrite(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
 
     void resetModuleDescription(ModuleDescription const*);
 
@@ -672,16 +675,24 @@ namespace edm {
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
+        //NOTE: should write be called even if end is not?
+        bool returnValue = true;
         if (iWorker->beginSucceeded_) {
           iWorker->beginSucceeded_ = false;
 
           ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
           cpp.preModuleSignal();
-          auto returnValue = iWorker->implDoEnd(info, mcc);
+          returnValue = iWorker->implDoEnd(info, mcc);
           cpp.postModuleSignal();
-          return returnValue;
         }
-        return true;
+        if (iWorker->wantsWrites()) {
+          auto sentry = signalslot::make_sentry(
+              [actReg, context, mcc]() { actReg->postModuleWriteRunSignal_.emit(*context, *mcc); });
+          actReg->preModuleWriteRunSignal_.emit(*context, *mcc);
+          returnValue = iWorker->implDoWrite(info, mcc);
+          sentry.succeeded();
+        }
+        return returnValue;
       }
       static void esPrefetchAsync(Worker* worker,
                                   WaitingTaskHolder waitingTask,
@@ -690,7 +701,9 @@ namespace edm {
                                   Transition transition) noexcept {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
-      static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsGlobalRuns(); }
+      static bool wantsTransition(Worker const* iWorker) noexcept {
+        return iWorker->wantsGlobalRuns() or iWorker->wantsWrites();
+      }
       static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
       static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept { return nullptr; }
       static SerialTaskQueue* enableGlobalQueue(Worker* iWorker) noexcept { return iWorker->globalRunsQueue(); }
@@ -800,16 +813,23 @@ namespace edm {
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
+        bool returnValue = true;
         if (iWorker->beginSucceeded_) {
           iWorker->beginSucceeded_ = false;
-
           ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
           cpp.preModuleSignal();
-          auto returnValue = iWorker->implDoEnd(info, mcc);
+          returnValue = iWorker->implDoEnd(info, mcc);
           cpp.postModuleSignal();
-          return returnValue;
         }
-        return true;
+        //NOTE: should write be called even if end is not?
+        if (iWorker->wantsWrites()) {
+          auto sentry = signalslot::make_sentry(
+              [actReg, context, &mcc]() { actReg->postModuleWriteLumiSignal_.emit(*context, *mcc); });
+          actReg->preModuleWriteLumiSignal_.emit(*context, *mcc);
+          iWorker->implDoWrite(info, mcc);
+          sentry.succeeded();
+        }
+        return returnValue;
       }
       static void esPrefetchAsync(Worker* worker,
                                   WaitingTaskHolder waitingTask,
@@ -818,7 +838,9 @@ namespace edm {
                                   Transition transition) noexcept {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
-      static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsGlobalLuminosityBlocks(); }
+      static bool wantsTransition(Worker const* iWorker) noexcept {
+        return iWorker->wantsGlobalLuminosityBlocks() or iWorker->wantsWrites();
+      }
       static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
       static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept { return nullptr; }
       static SerialTaskQueue* enableGlobalQueue(Worker* iWorker) noexcept {

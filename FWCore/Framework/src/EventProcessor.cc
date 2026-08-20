@@ -1464,10 +1464,11 @@ namespace edm {
 
     MergeableRunProductMetadata* mergeableRunProductMetadata = runPrincipal.mergeableRunProductMetadata();
     using namespace edm::waiting_task::chain;
-    chain::first([this, &runPrincipal, &es, cleaningUpAfterException, endingEventSetupSucceeded](auto nextTask) {
+    chain::first([this, &runPrincipal, &es, cleaningUpAfterException, endingEventSetupSucceeded, mergeableRunProductMetadata](auto nextTask) {
       if (endingEventSetupSucceeded) {
         RunTransitionInfo transitionInfo(runPrincipal, es);
         using Traits = OccurrenceTraits<RunPrincipal, TransitionActionGlobalEnd>;
+        mergeableRunProductMetadata->preWriteRun();
         schedule_->processOneGlobalAsync<Traits>(
             std::move(nextTask), transitionInfo, serviceToken_, cleaningUpAfterException);
       }
@@ -1483,7 +1484,6 @@ namespace edm {
                }) |
         ifThen(didGlobalBeginSucceed && endingEventSetupSucceeded,
                [this, mergeableRunProductMetadata, &runPrincipal = runPrincipal](auto nextTask) {
-                 mergeableRunProductMetadata->preWriteRun();
                  writeRunAsync(nextTask, runPrincipal);
                }) |
         then([status = std::move(iRunStatus),
