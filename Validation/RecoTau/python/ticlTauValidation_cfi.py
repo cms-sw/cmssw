@@ -3,7 +3,7 @@ from Validation.RecoTau.ticlTauValidator_cfi import ticlTauValidator as _ticlTau
 
 # RECO: default
 recoTiclTauValidator = _ticlTauValidator.clone(
-    TauProducer = cms.InputTag("hpsPFTauProducer")
+    TauProducer = cms.InputTag("hpsPFTauProducer"),
     folder = cms.string("Tau/ticlTauValidator"),
 )
 
@@ -15,11 +15,9 @@ hltTiclTauValidator = _ticlTauValidator.clone(
     pf          = cms.InputTag("hltParticleFlowTmp"),
     pfTmpBarrel = cms.InputTag("hltParticleFlowTmpBarrel"),
     jets        = cms.InputTag("hltAK4PFJets"),
-    ticlCandidates = cms.InputTag("hltTiclTrackstersMerge"),
     simTICLCandidates = cms.InputTag("hltTiclSimTracksters"),
     simTracksters = cms.InputTag("hltTiclSimTracksters","fromCPs"),
     ticlCandidates = cms.InputTag("hltTiclCandidate"),
-    simTracksters  = cms.InputTag("hltTiclSimTracksters","fromCPs"),
     simToRecoTracksterAssocByLCs = cms.InputTag(
         "hltAllTrackstersToSimTrackstersAssociationsByLCs",
         "hltTiclSimTrackstersfromCPsTohltTiclCandidate"
