@@ -158,7 +158,7 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
           local_mes.XY_byWheel->Fill(gx, gy);
         if (local_mes.ClusterPos_Mod_Ladder)
           local_mes.ClusterPos_Mod_Ladder->Fill(signedModule, signedLadder);
-        if (layer > 0)
+        if (!local_mes.ClusterPos_BLayer_Mod_Ladder.empty())
           if (local_mes.ClusterPos_BLayer_Mod_Ladder[layer - 1])
             local_mes.ClusterPos_BLayer_Mod_Ladder[layer - 1]->Fill(signedModule, signedLadder);
 
@@ -243,7 +243,6 @@ void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
 
       edm::LogInfo("Phase2ITMonitorCluster") << " Booking Histograms in: " << subdir + "/" + folderName;
       ClusterMEs local_mes;
-      local_mes.ClusterPos_BLayer_Mod_Ladder.resize(4, nullptr);
 
       local_mes.nClusters = phase2tkutil::book1DFromPSet(
           config_.getParameter<edm::ParameterSet>("NClustersLayer"), ibooker, prettyName, bookingDepth);
@@ -277,6 +276,7 @@ void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
           local_mes.ClusterPos_Mod_Ladder = phase2tkutil::book2DFromPSet(posModuleLadderParams, ibooker, prettyName);
         }
         if (bookingDepth == SUBSTRUCTURE) {
+          local_mes.ClusterPos_BLayer_Mod_Ladder.resize(4, nullptr);
           for (int layer = 1; layer <= 4; layer++) {
             unsigned int nLadders = 0;
             TrackerGeometry::DetIdContainer theDetIds = tkGeom_->detIds();

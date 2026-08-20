@@ -55,8 +55,8 @@ private:
     MonitorElement* nClusters_S = nullptr;
     MonitorElement* ClusterSize_S = nullptr;
 
-    std::vector<MonitorElement*> PositionOfClusters_2S;
-    std::vector<MonitorElement*> PositionOfClusters_2SLadder;
+    std::vector<MonitorElement*> PositionOfClusters_2S;        // CRACK ONLY
+    std::vector<MonitorElement*> PositionOfClusters_2SLadder;  // Barrel and LAYER only
     unsigned int clusterCounterP = 0;
     unsigned int clusterCounterS = 0;
   };
@@ -178,16 +178,18 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
             local_mes.ClusterSize_S->Fill(clusterItr.size());
           local_mes.clusterCounterS++;
           if (mType == TrackerGeometry::ModuleType::Ph2SS) {
-            if (module < local_mes.PositionOfClusters_2S.size() && local_mes.PositionOfClusters_2S[module])
-              local_mes.PositionOfClusters_2S[module]->Fill(clusterItr.center(), topOrBottomColumn);
-            if (detId.subdetId() == SiStripSubdetector::TOB && fillingDepth == 6) {
-              if (local_mes.PositionOfClusters_2SLadder[ladder]) {
+            if (!local_mes.PositionOfClusters_2S.empty())
+              if (local_mes.PositionOfClusters_2S[module])
+                local_mes.PositionOfClusters_2S[module - 1]->Fill(clusterItr.center(), topOrBottomColumn);
+
+            if (!local_mes.PositionOfClusters_2SLadder.empty()) {
+              if (local_mes.PositionOfClusters_2SLadder[ladder - 1]) {
                 int signedModule = module;
                 // CRACK has numbers 1 to 12 while Tracker has 1 to 24
                 // Adapt module numbers from 1 to 24 into -12 to +12
                 if (!crackOverview_)
                   signedModule = module <= 12 ? module - 13 : module - 12;
-                local_mes.PositionOfClusters_2SLadder[ladder]->Fill(signedModule, topOrBottomColumn);
+                local_mes.PositionOfClusters_2SLadder[ladder - 1]->Fill(signedModule, topOrBottomColumn);
               }
             }
           }
@@ -321,39 +323,31 @@ void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
         }
 
         //Book the histograms
-        local_mes.PositionOfClusters_2SLadder.resize(nLadders + 1, nullptr);
+        local_mes.PositionOfClusters_2SLadder.resize(nLadders, nullptr);
         auto pos2SModulePSet = config_.getParameter<edm::ParameterSet>("PositionOfClusters_2S");
         if (pos2SModulePSet.getParameter<bool>("switch"))
-          local_mes.PositionOfClusters_2S.resize(nModules + 1, nullptr);
+          local_mes.PositionOfClusters_2S.resize(nModules, nullptr);
 
         for (unsigned int ladderNum = 1; ladderNum <= nLadders; ladderNum++) {
           auto pos2SLadderPSet = config_.getParameter<edm::ParameterSet>("PositionOfClusters_2SLadder");
-          pos2SLadderPSet.addParameter<std::string>("name",
-                                                    "PositionOfOfflineClusters_2S_Lad" + std::to_string(ladderNum));
+          pos2SLadderPSet.addParameter<std::string>("name", "Position_Of_Clusters_2S_Lad_" + std::to_string(ladderNum));
           pos2SLadderPSet.addParameter<std::string>(
-              "title", "PositionOfOfflineClusters_2S_Lad" + std::to_string(ladderNum) + "{};Module;Half-module;");
-          local_mes.PositionOfClusters_2SLadder[ladderNum] =
+              "title",
+              "Position Of Clusters in 2S modules in {} ladder " + std::to_string(ladderNum) + ";Module;Half-module;");
+          local_mes.PositionOfClusters_2SLadder[ladderNum - 1] =
               phase2tkutil::book2DFromPSet(pos2SLadderPSet, ibooker, prettyName);
-          if (local_mes.PositionOfClusters_2SLadder[ladderNum] != nullptr) {
-            local_mes.PositionOfClusters_2SLadder[ladderNum]->getTH2F()->SetStats(false);
-            local_mes.PositionOfClusters_2SLadder[ladderNum]->setOption("z");
-          }
           if (pos2SModulePSet.getParameter<bool>("switch")) {
             for (unsigned int moduleNum = 1; moduleNum <= nModules; moduleNum++) {
               auto pos2SModulePSet = config_.getParameter<edm::ParameterSet>("PositionOfClusters_2S");
-              pos2SModulePSet.addParameter<std::string>("name",
-                                                        "PositionOfOfflineClusters_2S_Lay" + std::to_string(theLayer) +
-                                                            "_Lad" + std::to_string(ladderNum) + "_Mod" +
-                                                            std::to_string(moduleNum));
+              pos2SModulePSet.addParameter<std::string>(
+                  "name",
+                  "Position_Of_Clusters_2S_Lad_" + std::to_string(ladderNum) + "_Mod_" + std::to_string(moduleNum));
               pos2SModulePSet.addParameter<std::string>("title",
-                                                        "PositionOfOfflineClusters_2S_Lay" + std::to_string(theLayer) +
-                                                            "_Lad" + std::to_string(ladderNum) + "_Mod" +
+                                                        "Position Of Clusters in 2S modules in {} ladder " +
+                                                            std::to_string(ladderNum) + " module " +
                                                             std::to_string(moduleNum) + ";Strip;Half-module;");
-              local_mes.PositionOfClusters_2S[moduleNum] = phase2tkutil::book2DFromPSet(pos2SModulePSet, ibooker);
-              if (local_mes.PositionOfClusters_2S[moduleNum] != nullptr) {
-                local_mes.PositionOfClusters_2S[moduleNum]->getTH2F()->SetStats(false);
-                local_mes.PositionOfClusters_2S[moduleNum]->setOption("z");
-              }
+              local_mes.PositionOfClusters_2S[moduleNum - 1] =
+                  phase2tkutil::book2DFromPSet(pos2SModulePSet, ibooker, prettyName);
             }
           }
         }

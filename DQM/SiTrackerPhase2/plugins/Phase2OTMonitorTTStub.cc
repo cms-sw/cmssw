@@ -427,7 +427,7 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
 
   // Barrel Histos
   phase2tkutil::add1DDesc(
-      desc, "Num_L1Stubs_Barrel", "Num_L1Stubs_Barrel", "Num_L1Stubs_Barrel", "Barrel Layer", "# L1 Stubs", 7, 0.5, 7.5);
+      desc, "Num_L1Stubs_Barrel", "Num_L1Stubs_Barrel", "Num_L1Stubs_Barrel", "Barrel Layer", "# L1 Stubs", 6, 0.5, 6.5);
   phase2tkutil::add2DDesc(desc,
                           "L1Stub_Width_Barrel",
                           "L1Stub_Width_Barrel",
@@ -448,7 +448,7 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
                           "Trigger Offset",
                           6,
                           0.5,
-                          5.5,
+                          6.5,
                           43,
                           -10.75,
                           10.75);
@@ -500,7 +500,7 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
                           "L1Stub width in {} by wheel",
                           "Wheel",
                           "Displacement - Offset",
-                          6,
+                          5,
                           0.5,
                           5.5,
                           43,
@@ -525,7 +525,7 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
                           "L1Stub offset in {} by wheel",
                           "Wheel",
                           "Trigger Offset",
-                          6,
+                          5,
                           0.5,
                           5.5,
                           43,
