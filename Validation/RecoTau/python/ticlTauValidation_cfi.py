@@ -3,7 +3,8 @@ from Validation.RecoTau.ticlTauValidator_cfi import ticlTauValidator as _ticlTau
 
 # RECO: default
 recoTiclTauValidator = _ticlTauValidator.clone(
-    folder = cms.string("RecoTauV/ticlTauValidator")
+    folder = cms.string("RecoTauV/ticlTauValidator"),
+    TauProducer = cms.InputTag("hpsPFTauProducer")
 )
 
 # HLT
@@ -16,12 +17,13 @@ hltTiclTauValidator = _ticlTauValidator.clone(
     jets        = cms.InputTag("hltAK4PFJets"),
     ticlCandidates = cms.InputTag("hltTiclTrackstersMerge"),
     simTICLCandidates = cms.InputTag("hltTiclSimTracksters"),
+    simTracksters = cms.InputTag("hltTiclSimTracksters","fromCPs"),
     simToRecoTracksterAssocByLCs =
         cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs",
-                        "hltTiclSimTrackstersTohltTiclTrackstersMerge"),
+                        "hltTiclSimTrackstersfromCPsTohltTiclTrackstersMerge"),
     recoToSimTracksterAssocByLCs =
         cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs",
-                        "hltTiclTrackstersMergeTohltTiclSimTracksters"),
+                        "hltTiclTrackstersMergeTohltTiclSimTrackstersfromCPs"),
     genVisTaus = cms.InputTag("genVisTaus"),
     genParticles = cms.InputTag("genParticles"),
     maxAssocScore = 0.6,
@@ -32,8 +34,8 @@ ticl_v5.toModify(hltTiclTauValidator,
     ticlCandidates = cms.InputTag("hltTiclCandidate"),
     simToRecoTracksterAssocByLCs =
         cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs",
-                        "hltTiclSimTrackstersTohltTiclCandidate"),
+                        "hltTiclSimTrackstersfromCPsTohltTiclCandidate"),
     recoToSimTracksterAssocByLCs =
         cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs",
-                        "hltTiclCandidateTohltTiclSimTracksters"),
+                        "hltTiclCandidateTohltTiclSimTrackstersfromCPs"),
 )
