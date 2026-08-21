@@ -91,7 +91,8 @@ namespace ticl {
                                 edm::Handle<MtdHostCollection> inputTiming_h,
                                 std::vector<Trackster>& resultTracksters,
                                 std::vector<int>& resultCandidate,
-                                std::vector<bool>& maskedTracksters) = 0;
+                                std::vector<bool>& maskedTracksters,
+                                std::vector<std::vector<unsigned int>>& linkedResultTracksters) = 0;
 
     virtual void initialize(const HGCalDDDConstants* hgcons,
                             const ticlgeom::Tools rhtools,
