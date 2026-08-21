@@ -63,7 +63,7 @@ private:
     std::vector<float> genPt(nSimTracksters, default_value);
     std::vector<float> mass(nSimTracksters, default_value);
     std::vector<int> caloParticleIdx(nSimTracksters, default_int_value);
-    std::vector<int> isPU(nSimTracksters, default_int_value);
+    std::vector<int8_t> isPU(nSimTracksters, default_int_value);
 
     if ((simTrackstersHandle.isValid() && caloParticlesHandle.isValid() && simClustersHandle.isValid() &&
          cpToSCMapHandle.isValid()) ||

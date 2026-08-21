@@ -9,7 +9,7 @@ hgcalGenPartTable = cms.EDProducer(
     src=cms.InputTag("genParticles"),
     cut=cms.string("status==1 && pt > 0.5"),  # stable gen particles with pT > 0.5
     name=cms.string("HGCalGenPart"),
-    doc=cms.string("Gen particles for HGCAL studies"),
+    doc=cms.string("Gen particles information"),
     singleton=cms.bool(False),
     variables=cms.PSet(
         pt=Var("pt", "float", doc="gen particle pT"),
