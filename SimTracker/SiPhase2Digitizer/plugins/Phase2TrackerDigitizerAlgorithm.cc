@@ -648,7 +648,7 @@ void Phase2TrackerDigitizerAlgorithm::add_cross_talk(const Phase2TrackerGeomDetU
 //
 // ======================================================================
 void Phase2TrackerDigitizerAlgorithm::add_noisy_channels(const Phase2TrackerGeomDetUnit* ph2det,
-                                                         float thePixelThreshold) {
+                                                         float channelThreshold) {
   auto detID = ph2det->geographicalId().rawId();
   auto& theSignal = _signal[detID];  // Caller ensures existence of detID
   const Phase2TrackerTopology* topol = &ph2det->specificTopology();
@@ -656,22 +656,22 @@ void Phase2TrackerDigitizerAlgorithm::add_noisy_channels(const Phase2TrackerGeom
   auto numColumns = topol->ncolumns();  // det module number of cols&rows
   auto numRows = topol->nrows();
 
-  auto numberOfPixels = numRows * numColumns;
-  std::map<int, float, std::less<int> > otherPixels;
+  auto numberOfChannels = numRows * numColumns;
+  std::map<int, float, std::less<int> > noisyChannels;
 
-  theNoiser_->generate(numberOfPixels,
-                       thePixelThreshold,     //thr. in un. of nois
+  theNoiser_->generate(numberOfChannels,
+                       channelThreshold,      //thr. in unit of noise
                        theNoiseInElectrons_,  // noise in elec.
-                       otherPixels,
+                       noisyChannels,
                        rengine_);
 
   LogDebug("Phase2TrackerDigitizerAlgorithm")
       << " Add noisy channels " << numRows << " " << numColumns << " " << theNoiseInElectrons_ << " "
-      << theThresholdInE_Endcap_ << "  " << theThresholdInE_Barrel_ << " " << numberOfPixels << " "
-      << otherPixels.size();
+      << theThresholdInE_Endcap_ << "  " << theThresholdInE_Barrel_ << " " << numberOfChannels << " "
+      << noisyChannels.size();
 
   // Add noisy channels
-  for (auto const& el : otherPixels) {
+  for (auto const& el : noisyChannels) {
     int iy = el.first / numRows;
     if (iy < 0 || iy > numColumns - 1)
       LogWarning("Phase2TrackerDigitizerAlgorithm") << " error in iy " << iy;
@@ -685,15 +685,13 @@ void Phase2TrackerDigitizerAlgorithm::add_noisy_channels(const Phase2TrackerGeom
     LogDebug("Phase2TrackerDigitizerAlgorithm")
         << " Storing noise = " << el.first << " " << el.second << " " << ix << " " << iy << " " << chan;
 
-    // -- TODO --
-    if (theSignal[chan] == 0)
-      theSignal[chan] = digitizerUtility::Ph2Amplitude(el.second, nullptr, -1.);
+    theSignal.try_emplace(chan, el.second, nullptr, -1.);
   }
 }
 // ============================================================================
 //
 // Simulate the readout inefficiencies.
-// Delete a selected number of single pixels, dcols and rocs.
+// Delete a selected number of channels
 void Phase2TrackerDigitizerAlgorithm::channel_inefficiency(const SubdetEfficiencies& eff,
                                                            const Phase2TrackerGeomDetUnit* ph2det,
                                                            const TrackerTopology* tTopo) {
@@ -717,7 +715,7 @@ void Phase2TrackerDigitizerAlgorithm::channel_inefficiency(const SubdetEfficienc
 
   LogDebug("Phase2TrackerDigitizerAlgorithm") << " enter channel_inefficiency " << subdetEfficiency;
 
-  // Now loop again over pixels to kill some of them.
+  // Now loop again over channels to kill some of them.
   // Loop over hits, amplitude in electrons, channel = coded row,col
   for (auto& [chan, sig_data] : theSignal) {
     float rand = rengine_->flat();
@@ -746,9 +744,9 @@ void Phase2TrackerDigitizerAlgorithm::initializeEvent(CLHEP::HepRandomEngine& en
 // =======================================================================================
 //
 // Set the drift direction accoring to the Bfield in local det-unit frame
-// Works for both barrel and forward pixels.
+// Works for both barrel and forward sub-detectors.
 // Replace the sign convention to fit M.Swartz's formulaes.
-// Configurations for barrel and foward pixels possess different tanLorentzAngleperTesla
+// Configurations for barrel and foward sub-detectors possess different tanLorentzAngleperTesla
 // parameter value
 
 LocalVector Phase2TrackerDigitizerAlgorithm::driftDirection(const Phase2TrackerGeomDetUnit* ph2det,
@@ -816,7 +814,7 @@ LocalVector Phase2TrackerDigitizerAlgorithm::driftDirection(const Phase2TrackerG
 void Phase2TrackerDigitizerAlgorithm::channel_inefficiency_db(uint32_t detID) {
   auto& theSignal = _signal[detID];  // Caller ensures existence of detID
 
-  // Loop over hit pixels, amplitude in electrons, channel = coded row,col
+  // Loop over hit channels, amplitude in electrons, channel = coded row,col
   for (auto& [chan, sig_data] : theSignal) {
     std::pair<int, int> ip;
     if (pixelFlag_)
@@ -856,7 +854,7 @@ void Phase2TrackerDigitizerAlgorithm::module_killing_conf(uint32_t detID) {
     if (pixelFlag_)
       ip = PixelDigi::channelToPixel(chan);
     else
-      ip = Phase2TrackerDigi::channelToPixel(chan);  //get pixel pos
+      ip = Phase2TrackerDigi::channelToPixel(chan);
 
     if (Module == "whole" || (Module == "tbmA" && ip.first >= 80 && ip.first <= 159) ||
         (Module == "tbmB" && ip.first <= 79))
@@ -880,15 +878,13 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
                                                std::map<int, digitizerUtility::DigiSimInfo>& digi_map,
                                                const TrackerTopology* tTopo) {
   auto detID = ph2det->geographicalId().rawId();
-
   auto [it, inserted] = _signal.try_emplace(detID);
+
+  bool doDigitize = true;
   if (!checkAllModulesForNoisyChannels_ && inserted)
+    doDigitize = false;
+  if (!doDigitize)
     return;
-
-  //  auto it = _signal.find(detID);
-
-  //  if (!checkAllModulesForNoisyChannels_ && (it == _signal.end()))
-  //    return;
 
   const auto& theSignal = it->second;
   auto Sub_detid = DetId(detID).subdetId();

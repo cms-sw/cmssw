@@ -44,7 +44,7 @@ PSSDigitizerAlgorithm::PSSDigitizerAlgorithm(const edm::ParameterSet& conf, edm:
                                     << "threshold in electron Endcap = " << theThresholdInE_Endcap_
                                     << "threshold in electron Barrel = " << theThresholdInE_Barrel_ << " "
                                     << theElectronPerADC_ << " " << theAdcFullScale_ << " The delta cut-off is set to "
-                                    << tMax_ << " Cchannel inefficiency flag " << addChannelInefficiency_;
+                                    << tMax_ << " channel inefficiency flag " << addChannelInefficiency_;
 }
 PSSDigitizerAlgorithm::~PSSDigitizerAlgorithm() { LogDebug("PSSDigitizerAlgorithm") << "Algorithm deleted"; }
 //

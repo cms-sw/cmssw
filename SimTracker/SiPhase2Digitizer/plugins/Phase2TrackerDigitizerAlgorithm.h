@@ -68,9 +68,9 @@ public:
   virtual void accumulateSimHits(const PSimHit& hit,
                                  const size_t hitInex,
                                  const uint32_t tofBin,
-                                 const Phase2TrackerGeomDetUnit* pixdet,
+                                 const Phase2TrackerGeomDetUnit* ph2det,
                                  const GlobalVector& bfield);
-  virtual void digitize(const Phase2TrackerGeomDetUnit* pixdet,
+  virtual void digitize(const Phase2TrackerGeomDetUnit* ph2det,
                         std::map<int, digitizerUtility::DigiSimInfo>& digi_map,
                         const TrackerTopology* tTopo);
   virtual bool select_hit(const PSimHit& hit, double tCorr, double& sigScale) const { return true; }
@@ -191,21 +191,21 @@ protected:
   virtual std::vector<digitizerUtility::EnergyDepositUnit> primary_ionization(const PSimHit& hit) const;
   virtual std::vector<digitizerUtility::SignalPoint> drift(
       const PSimHit& hit,
-      const Phase2TrackerGeomDetUnit* pixdet,
+      const Phase2TrackerGeomDetUnit* ph2det,
       const GlobalVector& bfield,
       const std::vector<digitizerUtility::EnergyDepositUnit>& ionization_points) const;
   virtual void induce_signal(const PSimHit& hit,
                              const size_t hIndex,
                              const uint32_t tofBin,
-                             const Phase2TrackerGeomDetUnit* pixdet,
+                             const Phase2TrackerGeomDetUnit* ph2det,
                              const std::vector<digitizerUtility::SignalPoint>& collection_points);
   virtual std::vector<float> fluctuateEloss(
       int particleId, float momentum, float eloss, float length, int NumberOfSegments) const;
-  virtual void add_noise(const Phase2TrackerGeomDetUnit* pixdet);
-  virtual void add_cross_talk(const Phase2TrackerGeomDetUnit* pixdet);
-  virtual void add_noisy_channels(const Phase2TrackerGeomDetUnit* pixdet, float thePixelThreshold);
+  virtual void add_noise(const Phase2TrackerGeomDetUnit* ph2det);
+  virtual void add_cross_talk(const Phase2TrackerGeomDetUnit* ph2det);
+  virtual void add_noisy_channels(const Phase2TrackerGeomDetUnit* ph2det, float channelThreshold);
   virtual void channel_inefficiency(const SubdetEfficiencies& eff,
-                                    const Phase2TrackerGeomDetUnit* pixdet,
+                                    const Phase2TrackerGeomDetUnit* ph2det,
                                     const TrackerTopology* tTopo);
 
   virtual void channel_inefficiency_db(uint32_t detID);
@@ -213,14 +213,14 @@ protected:
   // access to the gain calibration payloads in the db. Only gets initialized if check_dead_pixels_ is set to true.
   const std::unique_ptr<SiPixelGainCalibrationOfflineSimService> theSiPixelGainCalibrationService_;
 
-  LocalVector driftDirection(const Phase2TrackerGeomDetUnit* pixdet,
+  LocalVector driftDirection(const Phase2TrackerGeomDetUnit* ph2det,
                              const GlobalVector& bfield,
                              const DetId& detId) const;
 
   // remove dead modules using the list in the configuration file PixelDigi_cfi.py
   virtual void module_killing_conf(uint32_t detID);
   // remove dead modules uisng the list in the DB
-  virtual void module_killing_DB(const Phase2TrackerGeomDetUnit* pixdet) = 0;
+  virtual void module_killing_DB(const Phase2TrackerGeomDetUnit* ph2det) = 0;
 
   const SubdetEfficiencies subdetEfficiencies_;
   float calcQ(float x);

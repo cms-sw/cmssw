@@ -144,7 +144,6 @@ namespace cms {
         auto rawId = det_u->geographicalId().rawId();
         if (DetId(rawId).det() == DetId::Detector::Tracker) {
           const Phase2TrackerGeomDetUnit* ph2det = dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u);
-          //assert(ph2det);
           detectorUnits_.try_emplace(rawId, ph2det);
         }
       }
@@ -181,9 +180,6 @@ namespace cms {
       edm::InputTag tag(hitsProducer_, v);
       iEvent.getByLabel(tag, simHits);
       if (simHits.isValid()) {
-        //edm::EDGetTokenT< std::vector<PSimHit> > simHitToken_(consumes< std::vector<PSimHit>(tag));
-        //iEvent.getByToken(simHitToken_, simHits);
-
         uint32_t tofBin = PixelDigiSimLink::LowTof;
         if (v.find(std::string("HighTof")) != std::string::npos)
           tofBin = PixelDigiSimLink::HighTof;
@@ -283,9 +279,8 @@ namespace cms {
           const auto& ip = PixelDigi::channelToPixel(chan);
           collector.data.emplace_back(ip.first, ip.second, info.sig_tot);
           for (auto const& sim_p : info.simInfoList) {  // vector<pair>
-            float v = sim_p.first;
             digitizerUtility::SimHitInfo* p = sim_p.second;
-            linkcollector.data.emplace_back(chan, p->trackId(), p->hitIndex(), p->tofBin(), p->eventId(), v);
+            linkcollector.data.emplace_back(chan, p->trackId(), p->hitIndex(), p->tofBin(), p->eventId(), sim_p.first);
           }
         }
         if (!collector.data.empty())
@@ -340,9 +335,8 @@ namespace cms {
         for (auto const& [chan, info] : digi_map) {
           addToCollector(collector, chan, info);
           for (auto const& sim_p : info.simInfoList) {
-            float v = sim_p.first;
             digitizerUtility::SimHitInfo* p = sim_p.second;
-            linkcollector.data.emplace_back(chan, p->trackId(), p->hitIndex(), p->tofBin(), p->eventId(), v);
+            linkcollector.data.emplace_back(chan, p->trackId(), p->hitIndex(), p->tofBin(), p->eventId(), sim_p.first);
           }
         }
 
