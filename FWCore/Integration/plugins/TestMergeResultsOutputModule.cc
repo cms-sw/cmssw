@@ -176,8 +176,8 @@ namespace edmtest {
 
   TestMergeResultsOutputModule::TestMergeResultsOutputModule(edm::ParameterSet const& ps)
       : edm::one::OutputModuleBase(ps),
-      edm::one::OutputModule<>(ps),
-      expectedBeginRunProd_(ps.getUntrackedParameter<std::vector<int>>("expectedBeginRunProd")),
+        edm::one::OutputModule<>(ps),
+        expectedBeginRunProd_(ps.getUntrackedParameter<std::vector<int>>("expectedBeginRunProd")),
         expectedEndRunProd_(ps.getUntrackedParameter<std::vector<int>>("expectedEndRunProd")),
         expectedBeginLumiProd_(ps.getUntrackedParameter<std::vector<int>>("expectedBeginLumiProd")),
         expectedEndLumiProd_(ps.getUntrackedParameter<std::vector<int>>("expectedEndLumiProd")),
@@ -220,7 +220,7 @@ namespace edmtest {
     assert(w_thingWithIsEqual.hasIsProductEqual());
     assert(!w_thingWithIsEqual.hasSwap());
 
-    if (expectedDroppedEvent_.size() > 0) {
+    if (!expectedDroppedEvent_.empty()) {
       eventDroppedIsEqualToken_ =
           consumes<edmtest::ThingWithIsEqual>(edm::InputTag{"makeThingToBeDropped", "event", "PROD"});
       eventDroppedMergeToken_ =
@@ -392,7 +392,7 @@ namespace edmtest {
     if (verbose_)
       edm::LogInfo("TestMergeResults") << "analyze";
 
-    if (expectedDroppedEvent_.size() > 0) {
+    if (!expectedDroppedEvent_.empty()) {
       h_thingWithIsEqual = e.getHandle(eventDroppedIsEqualToken_);
       assert(h_thingWithIsEqual->a == expectedDroppedEvent_[0]);
 
@@ -617,15 +617,16 @@ namespace edmtest {
     }
   }
 
-  void TestMergeResultsOutputModule::checkExpectedRunProducts(unsigned int index,
-                                                  std::vector<int> const& expectedValues,
-                                                  edm::EDGetTokenT<edmtest::Thing> const& thingToken,
-                                                  edm::EDGetTokenT<edmtest::ThingWithMerge> const& mergeToken,
-                                                  edm::EDGetTokenT<edmtest::ThingWithIsEqual> const& isEqualToken,
-                                                  edm::InputTag const& tag,
-                                                  char const* functionName,
-                                                  edm::RunForOutput const& run,
-                                                  std::vector<int> const& expectedValueImproperlyMerged) {
+  void TestMergeResultsOutputModule::checkExpectedRunProducts(
+      unsigned int index,
+      std::vector<int> const& expectedValues,
+      edm::EDGetTokenT<edmtest::Thing> const& thingToken,
+      edm::EDGetTokenT<edmtest::ThingWithMerge> const& mergeToken,
+      edm::EDGetTokenT<edmtest::ThingWithIsEqual> const& isEqualToken,
+      edm::InputTag const& tag,
+      char const* functionName,
+      edm::RunForOutput const& run,
+      std::vector<int> const& expectedValueImproperlyMerged) {
     if ((index + 2) < expectedValues.size()) {
       int expected = expectedValues[index];
       if (expected != 0) {
@@ -680,15 +681,16 @@ namespace edmtest {
     }
   }
 
-  void TestMergeResultsOutputModule::checkExpectedLumiProducts(unsigned int index,
-                                                   std::vector<int> const& expectedValues,
-                                                   edm::EDGetTokenT<edmtest::Thing> const& thingToken,
-                                                   edm::EDGetTokenT<edmtest::ThingWithMerge> const& mergeToken,
-                                                   edm::EDGetTokenT<edmtest::ThingWithIsEqual> const& isEqualToken,
-                                                   edm::InputTag const& tag,
-                                                   char const* functionName,
-                                                   edm::LuminosityBlockForOutput const& lumi,
-                                                   std::vector<int> const& expectedValueImproperlyMerged) {
+  void TestMergeResultsOutputModule::checkExpectedLumiProducts(
+      unsigned int index,
+      std::vector<int> const& expectedValues,
+      edm::EDGetTokenT<edmtest::Thing> const& thingToken,
+      edm::EDGetTokenT<edmtest::ThingWithMerge> const& mergeToken,
+      edm::EDGetTokenT<edmtest::ThingWithIsEqual> const& isEqualToken,
+      edm::InputTag const& tag,
+      char const* functionName,
+      edm::LuminosityBlockForOutput const& lumi,
+      std::vector<int> const& expectedValueImproperlyMerged) {
     if ((index + 2) < expectedValues.size()) {
       int expected = expectedValues[index];
       if (expected != 0) {
@@ -744,12 +746,12 @@ namespace edmtest {
   }
 
   void TestMergeResultsOutputModule::reportProblem(int line,
-                                       char const* whichFunction,
-                                       char const* type,
-                                       edm::InputTag const& tag,
-                                       int expectedValue,
-                                       int actualValue,
-                                       bool unexpectedImproperlyMergedValue) {
+                                                   char const* whichFunction,
+                                                   char const* type,
+                                                   edm::InputTag const& tag,
+                                                   int expectedValue,
+                                                   int actualValue,
+                                                   bool unexpectedImproperlyMergedValue) {
     ++problemCount_;
     edm::LogError("TestMergeResults") << "Error while testing merging of run/lumi products in TestMergeResults.cc:"
                                       << line << "\n"

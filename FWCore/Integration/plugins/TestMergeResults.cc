@@ -220,7 +220,7 @@ namespace edmtest {
     assert(w_thingWithIsEqual.hasIsProductEqual());
     assert(!w_thingWithIsEqual.hasSwap());
 
-    if (expectedDroppedEvent_.size() > 0) {
+    if (!expectedDroppedEvent_.empty()) {
       eventDroppedIsEqualToken_ =
           consumes<edmtest::ThingWithIsEqual>(edm::InputTag{"makeThingToBeDropped", "event", "PROD"});
       eventDroppedMergeToken_ =
@@ -392,7 +392,7 @@ namespace edmtest {
     if (verbose_)
       edm::LogInfo("TestMergeResults") << "analyze";
 
-    if (expectedDroppedEvent_.size() > 0) {
+    if (!expectedDroppedEvent_.empty()) {
       h_thingWithIsEqual = e.getHandle(eventDroppedIsEqualToken_);
       assert(h_thingWithIsEqual->a == expectedDroppedEvent_[0]);
 
@@ -435,7 +435,7 @@ namespace edmtest {
       // There ought to be a get that uses the BranchID as an argument, but
       // there is not at the moment so we get the Provenance first and use that
       // find the actual parent
-      edm::Provenance prov = e.getProvenance(actualParentBranchID);
+      const edm::Provenance& prov = e.getProvenance(actualParentBranchID);
       assert(expectedParent == prov.moduleLabel());
       auto tokenIt = parentTokenMap_.find(prov.moduleLabel());
       assert(tokenIt != parentTokenMap_.end());
