@@ -194,7 +194,7 @@ def add_edit_args(parser, model_info):
             kwargs = dict(type=json.loads,
                 help="provide {} values in json format".format(field["type"])
             )
-            edit = edit_msg
+            editor = edit_msg
         action = group.add_argument(argname, **kwargs)
         if val_type is not None: action.val_type = val_type
         dests[action.dest] = editor
