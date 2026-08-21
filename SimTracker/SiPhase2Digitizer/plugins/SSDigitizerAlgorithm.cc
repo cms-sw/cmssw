@@ -196,7 +196,7 @@ bool SSDigitizerAlgorithm::isAboveThreshold(const digitizerUtility::SimHitInfo* 
 //
 void SSDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomDetUnit* ph2det) {
   auto detId = ph2det->geographicalId().rawId();
-  auto& theSignal = _signal[detId]; // Caller ensures detId exists
+  auto& theSignal = _signal[detId];  // Caller ensures detId exists
 
   SiStripBadStrip::Range range = badChannelPayload_->getRange(detId);
   for (std::vector<unsigned int>::const_iterator badChannel = range.first; badChannel != range.second; ++badChannel) {

@@ -104,7 +104,7 @@ void PixelDigitizerAlgorithm::add_cross_talk(const Phase2TrackerGeomDetUnit* pix
     return;
 
   auto detID = pixdet->geographicalId().rawId();
-  auto& theSignal = _signal[detID]; // Caller ensures detId exists
+  auto& theSignal = _signal[detID];  // Caller ensures detId exists
   signal_map_type signalNew;
 
   auto numRows = topol->nrows();
@@ -131,38 +131,39 @@ void PixelDigitizerAlgorithm::add_cross_talk(const Phase2TrackerGeomDetUnit* pix
       int chanXtalkPrev = pixelFlag_ ? PixelDigi::pixelToChannel(XtalkPrev.first, XtalkPrev.second)
                                      : Phase2TrackerDigi::pixelToChannel(XtalkPrev.first, XtalkPrev.second);
       (hitChan.first % 2 == 1)
-	? signalNew.try_emplace(chanXtalkPrev, signalInElectrons_even_row_Xtalk_next_row, nullptr, -1.0)
-	: signalNew.try_emplace(chanXtalkPrev,signalInElectrons_odd_row_Xtalk_next_row, nullptr, -1.0);
+          ? signalNew.try_emplace(chanXtalkPrev, signalInElectrons_even_row_Xtalk_next_row, nullptr, -1.0)
+          : signalNew.try_emplace(chanXtalkPrev, signalInElectrons_odd_row_Xtalk_next_row, nullptr, -1.0);
     }
     if (hitChan.first < numRows - 1) {
       auto XtalkNext = std::make_pair(hitChan.first + 1, hitChan.second);
       int chanXtalkNext = pixelFlag_ ? PixelDigi::pixelToChannel(XtalkNext.first, XtalkNext.second)
                                      : Phase2TrackerDigi::pixelToChannel(XtalkNext.first, XtalkNext.second);
       (hitChan.first % 2 == 1)
-	? signalNew.try_emplace(chanXtalkNext, signalInElectrons_odd_row_Xtalk_next_row, nullptr, -1.0)
-	: signalNew.try_emplace(chanXtalkNext, signalInElectrons_even_row_Xtalk_next_row, nullptr, -1.0);
+          ? signalNew.try_emplace(chanXtalkNext, signalInElectrons_odd_row_Xtalk_next_row, nullptr, -1.0)
+          : signalNew.try_emplace(chanXtalkNext, signalInElectrons_even_row_Xtalk_next_row, nullptr, -1.0);
     }
-    
+
     if (hitChan.second != 0) {
       auto XtalkPrev = std::make_pair(hitChan.first, hitChan.second - 1);
       int chanXtalkPrev = pixelFlag_ ? PixelDigi::pixelToChannel(XtalkPrev.first, XtalkPrev.second)
                                      : Phase2TrackerDigi::pixelToChannel(XtalkPrev.first, XtalkPrev.second);
       (hitChan.second % 2 == 1)
-	? signalNew.try_emplace(chanXtalkPrev, signalInElectrons_even_column_Xtalk_next_column, nullptr, -1.0)
-        : signalNew.try_emplace(chanXtalkPrev, signalInElectrons_odd_column_Xtalk_next_column, nullptr, -1.0);
+          ? signalNew.try_emplace(chanXtalkPrev, signalInElectrons_even_column_Xtalk_next_column, nullptr, -1.0)
+          : signalNew.try_emplace(chanXtalkPrev, signalInElectrons_odd_column_Xtalk_next_column, nullptr, -1.0);
     }
     if (hitChan.second < numColumns - 1) {
       auto XtalkNext = std::make_pair(hitChan.first, hitChan.second + 1);
       int chanXtalkNext = pixelFlag_ ? PixelDigi::pixelToChannel(XtalkNext.first, XtalkNext.second)
                                      : Phase2TrackerDigi::pixelToChannel(XtalkNext.first, XtalkNext.second);
       (hitChan.second % 2 == 1)
-        ? signalNew.try_emplace(chanXtalkNext, signalInElectrons_odd_column_Xtalk_next_column, nullptr, -1.0)
-        : signalNew.try_emplace(chanXtalkNext, signalInElectrons_even_column_Xtalk_next_column, nullptr, -1.0);
+          ? signalNew.try_emplace(chanXtalkNext, signalInElectrons_odd_column_Xtalk_next_column, nullptr, -1.0)
+          : signalNew.try_emplace(chanXtalkNext, signalInElectrons_even_column_Xtalk_next_column, nullptr, -1.0);
     }
   }
   for (auto const& [chan, sig_data] : signalNew) {
     auto [it, inserted] = theSignal.try_emplace(chan, sig_data.ampl(), nullptr, -1.0);
-    if (!inserted) it->second += sig_data.ampl();
+    if (!inserted)
+      it->second += sig_data.ampl();
   }
 }
 

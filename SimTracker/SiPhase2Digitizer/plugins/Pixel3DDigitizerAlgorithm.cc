@@ -317,7 +317,8 @@ std::vector<digitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::driftFor3D
         << " [electrons], Electrons after loss/diff= " << energyOnCollector << " [electrons] ";
     // Load the Charge distribution parameters
     // XXX -- probably makes no sense the SignalPoint anymore...
-    collection_points.emplace_back(current_pixel_int.first, current_pixel_int.second, 0.0, 0.0, hit.tof(), energyOnCollector);
+    collection_points.emplace_back(
+        current_pixel_int.first, current_pixel_int.second, 0.0, 0.0, hit.tof(), energyOnCollector);
   }
 
   return collection_points;
@@ -335,11 +336,11 @@ void Pixel3DDigitizerAlgorithm::induce_signal(const PSimHit& hit,
   // X  - Rows, Left-Right
   // Y  - Columns, Down-Up
   const auto detId = pixdet->geographicalId().rawId();
-  
-  // Accumulated signal at each channel of this detector 
-  auto [it, inserted] = _signal.try_emplace(detId); // Adding detId as a key in _signal
+
+  // Accumulated signal at each channel of this detector
+  auto [it, inserted] = _signal.try_emplace(detId);  // Adding detId as a key in _signal
   auto& the_signal = it->second;
-  
+
   // Choose the proper pixel-to-channel converter
   std::function<int(int, int)> pixelToChannel =
       pixelFlag_ ? PixelDigi::pixelToChannel
@@ -351,10 +352,12 @@ void Pixel3DDigitizerAlgorithm::induce_signal(const PSimHit& hit,
     const int channel = pixelToChannel(pt.position().x(), pt.position().y());
 
     float corr_time = hit.tof() - pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv;
-    auto ph2ampl = (makeDigiSimLinks_) ? digitizerUtility::Ph2Amplitude(pt.amplitude(), &hit, pt.amplitude(), corr_time, hitIndex, tofBin)
+    auto ph2ampl = (makeDigiSimLinks_) ? digitizerUtility::Ph2Amplitude(
+                                             pt.amplitude(), &hit, pt.amplitude(), corr_time, hitIndex, tofBin)
                                        : digitizerUtility::Ph2Amplitude(pt.amplitude(), nullptr, pt.amplitude());
     auto [it, inserted] = the_signal.try_emplace(channel, std::move(ph2ampl));
-    if (!inserted) it->second += ph2ampl; // key exists
+    if (!inserted)
+      it->second += ph2ampl;  // key exists
 
     LogDebug("Pixel3DDigitizerAlgorithm")
         << " Induce charge at row,col:" << pt.position() << " N_electrons:" << pt.amplitude() << " [Channel:" << channel

@@ -205,8 +205,8 @@ protected:
   virtual void add_cross_talk(const Phase2TrackerGeomDetUnit* pixdet);
   virtual void add_noisy_channels(const Phase2TrackerGeomDetUnit* pixdet, float thePixelThreshold);
   virtual void channel_inefficiency(const SubdetEfficiencies& eff,
-                                  const Phase2TrackerGeomDetUnit* pixdet,
-                                  const TrackerTopology* tTopo);
+                                    const Phase2TrackerGeomDetUnit* pixdet,
+                                    const TrackerTopology* tTopo);
 
   virtual void channel_inefficiency_db(uint32_t detID);
 
