@@ -75,7 +75,7 @@ inline SharedTracksAndFractions calculateVertexSharedTracks(
 // reco::VertexCompositePtrCandidate overloads
 //
 // Track extraction from candidate daughters is done via dynamic_cast
-// (reco::PFCandidate on RECO/AOD, pat::PackedCandidate on MiniAOD).
+// (reco::PFCandidate on RECO/AOD).
 // Daughters from which no track can be recovered (neutral particles) are
 // excluded from both numerator and denominator — they carry no tracking
 // information and should not penalise the shared-track fraction.
