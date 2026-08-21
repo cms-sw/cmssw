@@ -39,7 +39,7 @@
 
 namespace {
   // Raw-index AssociationMap (object index -> [(branch id, sharedEnergy, score)]).
-  using BranchAssociationMap = ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore>;
+  using BranchAssociationMap = ticl::TICLAssociationMap<ticl::mapWithSharedEnergyAndScore>;
 }  // namespace
 
 class TruthBranchCaloAssociationProducer : public edm::stream::EDProducer<> {
