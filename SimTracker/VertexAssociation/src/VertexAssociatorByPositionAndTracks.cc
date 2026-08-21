@@ -3,7 +3,6 @@
 #include <CLHEP/Units/SystemOfUnits.h>
 
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
