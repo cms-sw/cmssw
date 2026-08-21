@@ -330,6 +330,9 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       double m = mySimP4.M();
       double rbeta = sqrt(1 + m * m / (pavg * pavg)) / 29.98;
       double dtof = pathLength * rbeta;
+      // GEMDigitizer need the eloss information.
+      // The muon mass negligible when we calculate the energya. So energy loss is assumed as the momentum difference.
+      double eloss = pi - pf;
 
 #ifdef FAMOS_DEBUG
       std::cout << "Propagated to next surface... path length = " << pathLength << " cm, dTOF = " << dtof << " ns"
@@ -384,7 +387,6 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
               if (random.flatShoot() < theDTHitIneff)
                 continue;
 
-              double eloss = 0;
               double pz = fabs(lmom.z());
               LocalPoint entry = lpos - 0.5 * thickness * lmom / pz;
               LocalPoint exit = lpos + 0.5 * thickness * lmom / pz;
@@ -439,7 +441,6 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
             if (random.flatShoot() < theCSCHitIneff)
               continue;
 
-            double eloss = 0;
             double pz = fabs(lmom.z());
             LocalPoint entry = lpos - 0.5 * thickness * lmom / pz;
             LocalPoint exit = lpos + 0.5 * thickness * lmom / pz;
@@ -478,7 +479,6 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
             double thickness = det->surface().bounds().thickness();
             LocalVector lmom = det->toLocal(GlobalVector(crossing.direction(path.second)));
             lmom = lmom.unit() * propagatedState.localMomentum().mag();
-            double eloss = 0;
             double pz = fabs(lmom.z());
             LocalPoint entry = lpos - 0.5 * thickness * lmom / pz;
             LocalPoint exit = lpos + 0.5 * thickness * lmom / pz;
@@ -516,7 +516,6 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
             double thickness = det->surface().bounds().thickness();
             LocalVector lmom = det->toLocal(GlobalVector(crossing.direction(path.second)));
             lmom = lmom.unit() * propagatedState.localMomentum().mag();
-            double eloss = 0;
             double pz = fabs(lmom.z());
             LocalPoint entry = lpos - 0.5 * thickness * lmom / pz;
             LocalPoint exit = lpos + 0.5 * thickness * lmom / pz;
