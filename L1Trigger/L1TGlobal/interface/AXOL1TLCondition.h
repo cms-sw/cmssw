@@ -14,6 +14,7 @@
 
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
+#include "DataFormats/L1TGlobal/interface/AXOL1TLScore.h"
 
 #include "hls4ml/emulator.h"
 
@@ -28,10 +29,6 @@ namespace l1t {
 
   // class declaration
   class AXOL1TLCondition : public ConditionEvaluation {
-  private:
-    //total # inputs in vector is (4+10+4+1)*3 = 57
-    static constexpr unsigned int NInputs = 57;
-
   public:
     /// constructors
     ///     default
@@ -73,7 +70,7 @@ namespace l1t {
 
     inline hls4mlEmulator::ModelLoader const& model_loader() const { return m_model_loader; }
 
-    const std::array<float, NInputs>& getLastInputs() const { return m_lastInputs_; }
+    const std::array<float, AXOL1TLScore::kNInputs>& getLastInputs() const { return m_lastInputs_; }
 
   private:
     /// copy function for copy constructor and operator=
@@ -90,7 +87,7 @@ namespace l1t {
     hls4mlEmulator::ModelLoader m_model_loader;
     std::shared_ptr<hls4mlEmulator::Model> m_model;
 
-    mutable std::array<float, NInputs> m_lastInputs_{};
+    mutable std::array<float, AXOL1TLScore::kNInputs> m_lastInputs_{};
 
     ///axo score for possible score saving
     mutable float m_savedscore;
