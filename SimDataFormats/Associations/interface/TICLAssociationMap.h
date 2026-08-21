@@ -152,9 +152,9 @@ namespace ticl {
   using oneToOneMapWithSharedEnergy = std::vector<AssociationElement<SharedEnergyType>>;
   using oneToOneMapWithSharedEnergyAndScore = std::vector<AssociationElement<std::pair<SharedEnergyType, float>>>;
 
-  // AssociationMap class templated on MapType
+  // TICLAssociationMap class templated on MapType
   template <typename MapType, typename Collection1 = void, typename Collection2 = void>
-  class AssociationMap {
+  class TICLAssociationMap {
   private:
     MapType map_;
 
@@ -173,13 +173,13 @@ namespace ticl {
     using V = typename Traits::ValueType;
     using Type = MapType;
     static constexpr bool is_one_to_one = Traits::is_one_to_one;
-    AssociationMap() : collectionRefProds() {}
+    TICLAssociationMap() : collectionRefProds() {}
 
     // Constructor for generic use
     template <typename C1 = Collection1,
               typename C2 = Collection2,
               typename std::enable_if_t<std::is_void_v<C1> && std::is_void_v<C2>, int> = 0>
-    AssociationMap(const unsigned int size1 = 0) {
+    TICLAssociationMap(const unsigned int size1 = 0) {
       map_.resize(size1);
     }
 
@@ -187,7 +187,7 @@ namespace ticl {
     template <typename C1 = Collection1,
               typename C2 = Collection2,
               typename std::enable_if_t<!std::is_void_v<C1> && !std::is_void_v<C2>, int> = 0>
-    AssociationMap(const edm::RefProd<C1>& id1, const edm::RefProd<C2>& id2, const edm::Event& event)
+    TICLAssociationMap(const edm::RefProd<C1>& id1, const edm::RefProd<C2>& id2, const edm::Event& event)
         : collectionRefProds(std::make_pair(id1, id2)) {
       resize(event);
     }
@@ -196,7 +196,7 @@ namespace ticl {
     template <typename C1 = Collection1,
               typename C2 = Collection2,
               typename std::enable_if_t<!std::is_void_v<C1> && !std::is_void_v<C2>, int> = 0>
-    AssociationMap(const edm::Handle<C1>& handle1, const edm::Handle<C2>& handle2, const edm::Event& event)
+    TICLAssociationMap(const edm::Handle<C1>& handle1, const edm::Handle<C2>& handle2, const edm::Event& event)
         : collectionRefProds(std::make_pair(edm::RefProd<C1>(handle1), edm::RefProd<C2>(handle2))) {
       resize(event);
     }
@@ -320,7 +320,7 @@ namespace ticl {
     const auto& at(unsigned int index1) const {
       const auto& elem = map_.at(index1);
       if (!elem.isValid()) {
-        throw std::out_of_range("Attempted to access an unset element in AssociationMap. Element index: " +
+        throw std::out_of_range("Attempted to access an unset element in TICLAssociationMap. Element index: " +
                                 std::to_string(index1));
       }
       return elem;
@@ -329,7 +329,7 @@ namespace ticl {
     auto& at(unsigned int index1) {
       auto& elem = map_.at(index1);
       if (!elem.isValid()) {
-        throw std::out_of_range("Attempted to access an unset element in AssociationMap. Element index: " +
+        throw std::out_of_range("Attempted to access an unset element in TICLAssociationMap. Element index: " +
                                 std::to_string(index1));
       }
       return elem;
