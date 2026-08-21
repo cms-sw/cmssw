@@ -25,6 +25,14 @@ namespace {
   concept Immutable = requires(TView view) { requires !requires { view[0] = decltype(view[0]){}; }; };
 }  // namespace
 
+// Check access operator of columns
+template <typename T>
+concept CanAssignX = requires(T view) {
+  view[0].x() = 1.0;
+  view.x(0) = 1.0;
+  view.x()[0] = 1.0;
+};
+
 TEST_CASE("SoATemplate") {
   // number of elements
   const std::size_t slSize = 10;
@@ -188,7 +196,30 @@ TEST_CASE("SoATemplate") {
   SECTION("Check immutability of ConstView") {
     using ConstView =
         SimpleLayout::ConstViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::extended>;
+
+    // check that the ConstView itself is mutable
+    STATIC_REQUIRE(std::is_assignable_v<ConstView &, ConstView>);
+
+    // check the returned element from the ConstView is immutable
+    using ConstElement = decltype(std::declval<ConstView &>()[0]);
+    STATIC_REQUIRE(std::is_const_v<std::remove_reference_t<ConstElement>>);
     static_assert(Immutable<ConstView>);
+
+    // check that we can not assign to the column x
+    STATIC_REQUIRE_FALSE(CanAssignX<ConstView>);
+  }
+
+  SECTION("Check mutability of View") {
+    using View = SimpleLayout::ViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::extended>;
+    // check that the View itself is mutable
+    STATIC_REQUIRE(std::is_assignable_v<View &, View>);
+
+    // check the returned element from the View is immutable
+    using Element = decltype(std::declval<View &>()[0]);
+    STATIC_REQUIRE_FALSE(std::is_const_v<std::remove_reference_t<Element>>);
+
+    // check that we can assign to the column x
+    STATIC_REQUIRE(CanAssignX<View>);
   }
 
   SECTION("Check views conversions") {
