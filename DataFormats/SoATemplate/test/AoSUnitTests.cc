@@ -7,6 +7,8 @@
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
+#include <type_traits>
+
 GENERATE_SOA_LAYOUT(SoATemplate,
                     SOA_SCALAR(int8_t, s1),
                     SOA_COLUMN(float, f1),
@@ -32,6 +34,26 @@ GENERATE_SOA_LAYOUT(SoATemplateOnlyScalars,
 using SoAOnlyScalars = SoATemplateOnlyScalars<>;
 using SoAViewOnlyScalar = SoAOnlyScalars::View;
 using SoAConstViewOnlyScalar = SoAOnlyScalars::ConstView;
+
+// Check access operator of columns
+template <typename T>
+concept CanAssignF1 = requires(T view) {
+  view[0].f1() = 1.0;
+  view.f1(0) = 1.0;
+  view.f1()[0] = 1.0;
+};
+
+// Check access operator of EIGEN columns
+template <typename T>
+concept CanAssignCandidateDirection = requires(T view) {
+  view[0].candidateDirection() = Eigen::Vector3d(1.0, 0.0, 0.0);
+  view.candidateDirection(0) = Eigen::Vector3d(1.0, 0.0, 0.0);
+  view.candidateDirection()[0] = Eigen::Vector3d(1.0, 0.0, 0.0);
+};
+
+// Check access operator of Scalar
+template <typename T>
+concept CanAssignS1 = requires(T view) { view.s1() = static_cast<int8_t>(1); };
 
 TEST_CASE("AoS Unit Tests") {
   // common number of elements for the SoAs
@@ -91,6 +113,8 @@ TEST_CASE("AoS Unit Tests") {
     // Check that the data is the same in the SoA and AoS views
     REQUIRE(soaConstView.metadata().size() == aosConstView.metadata().size());
     REQUIRE(elems == aosConstView.metadata().size());
+    REQUIRE(soaConstView.metadata().size() == aosView.metadata().size());
+    REQUIRE(elems == aosView.metadata().size());
 
     for (size_t i = 0; i < elems; i++) {
       auto element = aosConstView[i];
@@ -100,12 +124,9 @@ TEST_CASE("AoS Unit Tests") {
 
       REQUIRE(element.i1() == static_cast<int8_t>(i));
 
-      REQUIRE_THAT(element.candidateDirection()(0),
-                   Catch::Matchers::WithinAbs(static_cast<double>(i) + 0.3, 1.e-6));
-      REQUIRE_THAT(element.candidateDirection()(1),
-                   Catch::Matchers::WithinAbs(static_cast<double>(i) + 0.4, 1.e-6));
-      REQUIRE_THAT(element.candidateDirection()(2),
-                   Catch::Matchers::WithinAbs(static_cast<double>(i) + 0.5, 1.e-6));
+      REQUIRE_THAT(element.candidateDirection()(0), Catch::Matchers::WithinAbs(static_cast<double>(i) + 0.3, 1.e-6));
+      REQUIRE_THAT(element.candidateDirection()(1), Catch::Matchers::WithinAbs(static_cast<double>(i) + 0.4, 1.e-6));
+      REQUIRE_THAT(element.candidateDirection()(2), Catch::Matchers::WithinAbs(static_cast<double>(i) + 0.5, 1.e-6));
 
       REQUIRE(element.i2() == static_cast<int64_t>(i) * 4269420666);
 
@@ -137,7 +158,9 @@ TEST_CASE("AoS Unit Tests") {
     REQUIRE_THAT(aosConstView.s4(),
                  Catch::Matchers::WithinAbs(static_cast<double>((int64_t(1) << 42) + 8.52516352), 1.e-6));
     REQUIRE(std::string(aosConstView.s5()) == "Testing");
+  }
 
+  SECTION("AoS View check range checking") {
     const int underflow = -1;
     const int overflow = aosConstView.metadata().size();
     // Check for under-and overflow in the row accessor
@@ -155,7 +178,6 @@ TEST_CASE("AoS Unit Tests") {
     REQUIRE_THROWS_AS(aosConstView.candidateDirection(underflow), std::out_of_range);
     REQUIRE_THROWS_AS(aosConstView.candidateDirection(overflow), std::out_of_range);
 
-
     // Check for under-and overflow in the row accessor
     REQUIRE_THROWS_AS(aosView[underflow], std::out_of_range);
     REQUIRE_THROWS_AS(aosView[overflow], std::out_of_range);
@@ -169,6 +191,34 @@ TEST_CASE("AoS Unit Tests") {
     REQUIRE_THROWS_AS(aosView.i2(overflow), std::out_of_range);
     REQUIRE_THROWS_AS(aosView.candidateDirection(underflow), std::out_of_range);
     REQUIRE_THROWS_AS(aosView.candidateDirection(overflow), std::out_of_range);
+  }
+
+  SECTION("AoS ConstView check immutability") {
+    // check that the ConstView itself is mutable
+    STATIC_REQUIRE(std::is_assignable_v<SoA::AoSWrapper::ConstView &, SoA::AoSWrapper::ConstView>);
+
+    // check the returned element from the ConstView is immutable
+    using ConstElement = decltype(std::declval<SoA::AoSWrapper::ConstView &>()[0]);
+    STATIC_REQUIRE(std::is_const_v<std::remove_reference_t<ConstElement>>);
+
+    // check that the underlying data is mutable through the view
+    STATIC_REQUIRE_FALSE(CanAssignF1<SoA::AoSWrapper::ConstView>);
+    STATIC_REQUIRE_FALSE(CanAssignCandidateDirection<SoA::AoSWrapper::ConstView>);
+    STATIC_REQUIRE_FALSE(CanAssignS1<SoA::AoSWrapper::ConstView>);
+  }
+
+  SECTION("AoS View check mutability") {
+    // check that the View itself is mutable
+    STATIC_REQUIRE(std::is_assignable_v<SoA::AoSWrapper::View &, SoA::AoSWrapper::View>);
+
+    // check the returned element from the View is mutable
+    using Element = decltype(std::declval<SoA::AoSWrapper::View &>()[0]);
+    STATIC_REQUIRE_FALSE(std::is_const_v<std::remove_reference_t<Element>>);
+
+    // check that the underlying data is immutable through the const view
+    STATIC_REQUIRE(CanAssignF1<SoA::AoSWrapper::View>);
+    STATIC_REQUIRE(CanAssignCandidateDirection<SoA::AoSWrapper::View>);
+    STATIC_REQUIRE(CanAssignS1<SoA::AoSWrapper::View>);
   }
 
   SECTION("AoS test memory layout") {
@@ -207,7 +257,7 @@ TEST_CASE("AoS Unit Tests") {
       REQUIRE_THAT(candidateDirection1, Catch::Matchers::WithinAbs(static_cast<double>(i) + 0.4, 1.e-6));
       REQUIRE_THAT(candidateDirection2, Catch::Matchers::WithinAbs(static_cast<double>(i) + 0.5, 1.e-6));
 
-      REQUIRE(i2 ==static_cast<int64_t>(i) * 4269420666);
+      REQUIRE(i2 == static_cast<int64_t>(i) * 4269420666);
     }
 
     // Scalar values are appended at the end of the AoS buffer, this is checked here
@@ -300,10 +350,9 @@ TEST_CASE("AoS Unit Tests Scalar only") {
   SoAOnlyScalars::AoSWrapper::View aosView{aos};
   SoAOnlyScalars::AoSWrapper::ConstView aosConstView{aos};
 
-  for (size_t i = 0; i < elems; i++){
+  for (size_t i = 0; i < elems; i++) {
     aosView.transpose(soaConstView, i);
   }
-    
 
   REQUIRE(aosConstView.s1() == 100);
   REQUIRE_THAT(aosConstView.s2(), Catch::Matchers::WithinAbs(42.42f, 1.e-6));
