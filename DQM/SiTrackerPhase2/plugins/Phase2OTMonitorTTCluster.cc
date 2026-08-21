@@ -176,6 +176,13 @@ void Phase2OTMonitorTTCluster::analyze(const edm::Event &iEvent, const edm::Even
         Cluster_Barrel_XY->Fill(posClu.x(), posClu.y());
 
       }  // end if isBarrel
+      else  // Phase 2 Outer Tracker Endcap
+      {
+        if (posClu.z() > 0)
+          Cluster_Endcap_Fw_XY->Fill(posClu.x(), posClu.y());
+        else
+          Cluster_Endcap_Bw_XY->Fill(posClu.x(), posClu.y());
+      }
       for (enum Level fillingDepth = OT; fillingDepth <= LAYER; fillingDepth = Level(fillingDepth + 1)) {
         // Skip filling for barrel detIds on endcap-only depths
         if ((fillingDepth >= ENDCAP_SIDE && fillingDepth < LAYER) &&
@@ -467,7 +474,7 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
   phase2tkutil::add1DDesc(desc,
                           "NClustersOMemByWheel",
                           "Num_L1Clusters_Wheels_OMem",
-                          "Number of L1Clusters in inner member of modules in {} by wheel",
+                          "Number of L1Clusters in outer member of modules in {} by wheel",
                           "Wheel",
                           "Number of clusters",
                           6,

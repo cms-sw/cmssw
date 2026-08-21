@@ -144,6 +144,10 @@ int phase2tkutil::getITSignedLadder(uint32_t det_id, const TrackerTopology* tTop
   return signedLadder;
 }
 
+int phase2tkutil::getITSignedWheel(uint32_t det_id, const TrackerTopology* tTopo) {
+  return (tTopo->tidSide(det_id) == 1 ? -tTopo->pxfDisk(det_id) : tTopo->pxfDisk(det_id));
+}
+
 typedef dqm::reco::MonitorElement MonitorElement;
 typedef dqm::reco::DQMStore DQMStore;
 MonitorElement* phase2tkutil::book1DFromPSet(const edm::ParameterSet& hpars,

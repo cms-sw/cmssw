@@ -56,7 +56,7 @@ private:
     MonitorElement* ClusterCharge = nullptr;
     unsigned int clusterCounter{0};
     MonitorElement* ClusterPos_Mod_Ladder = nullptr;            // Only in Barrel and LAYER
-    MonitorElement* XY_byWheel = nullptr;                       // Only in ENDCAP_WHEEL
+    std::vector<MonitorElement*> XY_byWheel;                    // Only in Endcap and SUBSTRUCTURE
     std::vector<MonitorElement*> ClusterPos_BLayer_Mod_Ladder;  // Only in Barrel and SUBSTRUCTURE
   };
 
@@ -121,7 +121,7 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
     if (!geomDetUnit)
       continue;
     GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
-    int signedModule = 0, signedLadder = 0, layer = 0;
+    int signedModule = 0, signedLadder = 0, signedWheel = 0, layer = 0;
     for (const auto& clusterItr : DSVItr) {
       MeasurementPoint mpCluster(clusterItr.x(), clusterItr.y());
       Local3DPoint localPosCluster = geomDetUnit->topology().localPosition(mpCluster);
@@ -142,6 +142,8 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
       } else if (geomDetUnit->subDetector() == GeomDetEnumerators::SubDetector::P2PXEC) {
         globalXY_endcap_->Fill(gx, gy);
         globalRZ_endcap_->Fill(gz, gr);
+        // get values for endcap
+        signedWheel = phase2tkutil::getITSignedWheel(detId, tTopo_);
       }
       for (enum Level fillingDepth = IT; fillingDepth <= LAYER; fillingDepth = Level(fillingDepth + 1)) {
         // Skip filling for barrel detIds on endcap-only depths
@@ -154,8 +156,9 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
           continue;
         ClusterMEs& local_mes = local_mesIT->second;
 
-        if (local_mes.XY_byWheel)
-          local_mes.XY_byWheel->Fill(gx, gy);
+        if (!local_mes.XY_byWheel.empty())
+          if (local_mes.XY_byWheel[signedWheel + 12])  // -12 to +12 -> 0 to 24
+            local_mes.XY_byWheel[signedWheel + 12]->Fill(gx, gy);
         if (local_mes.ClusterPos_Mod_Ladder)
           local_mes.ClusterPos_Mod_Ladder->Fill(signedModule, signedLadder);
         if (!local_mes.ClusterPos_BLayer_Mod_Ladder.empty())
@@ -269,7 +272,7 @@ void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
               nLadders = std::max(nLadders, tTopo_->pxbLadder(detid));
           }
           edm::ParameterSet posModuleLadderParams =
-              config_.getParameter<edm::ParameterSet>("Pos_Mod_Ladder_Layer" + std::to_string(layer));
+              config_.getParameter<edm::ParameterSet>("Pos_Signed_Modules_and_Ladders");
           posModuleLadderParams.addParameter<int32_t>("NyBins", nLadders + 1);
           posModuleLadderParams.addParameter<double>("ymax", nLadders / 2 + 0.5);
           posModuleLadderParams.addParameter<double>("ymin", -(nLadders / 2 + 0.5));
@@ -285,7 +288,12 @@ void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
                 nLadders = std::max(nLadders, tTopo_->pxbLadder(detid));
             }
             edm::ParameterSet posModuleLadderParams =
-                config_.getParameter<edm::ParameterSet>("Pos_Mod_Ladder_Barrel" + std::to_string(layer));
+                config_.getParameter<edm::ParameterSet>("Pos_Signed_Modules_and_Ladders");
+            posModuleLadderParams.addParameter<std::string>(
+                "name", "Num_Clusters_Module_Ladders_Layer_" + std::to_string(layer));
+            posModuleLadderParams.addParameter<std::string>("title",
+                                                            "Number of clusters by module and ladder in {} layer " +
+                                                                std::to_string(layer) + ";Signed Module;Signed Ladder");
             posModuleLadderParams.addParameter<int32_t>("NyBins", nLadders + 1);
             posModuleLadderParams.addParameter<double>("ymax", nLadders / 2 + 0.5);
             posModuleLadderParams.addParameter<double>("ymin", -(nLadders / 2 + 0.5));
@@ -293,10 +301,24 @@ void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
                 phase2tkutil::book2DFromPSet(posModuleLadderParams, ibooker, prettyName);
           }
         }
-      }
-      if (bookingDepth == ENDCAP_WHEEL) {
-        local_mes.XY_byWheel =
-            phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("XY_byWheel"), ibooker, prettyName);
+      } else {  // Endcaps
+        if (bookingDepth == SUBSTRUCTURE) {
+          bool isFPix = (tTopo_->pxfDisk(det_id) < 9);
+          edm::ParameterSet XYWheelParams;
+          local_mes.XY_byWheel.resize(25, nullptr);
+          if (isFPix)
+            XYWheelParams = config_.getParameter<edm::ParameterSet>("XY_byWheel_FPix");
+          else
+            XYWheelParams = config_.getParameter<edm::ParameterSet>("XY_byWheel_EPix");
+          for (int wheel = (isFPix ? -8 : -12); wheel <= (isFPix ? 8 : 12); wheel++) {
+            if (!(wheel == 0 || (!isFPix && std::abs(wheel) < 9))) {
+              XYWheelParams.addParameter<std::string>("name", "Cluster_XY_Wheel_" + std::to_string(wheel));
+              XYWheelParams.addParameter<std::string>(
+                  "title", "XY position of clusters in {} wheel " + std::to_string(wheel) + ";x [mm];y [mm]");
+              local_mes.XY_byWheel[wheel + 12] = phase2tkutil::book2DFromPSet(XYWheelParams, ibooker, prettyName);
+            }
+          }
+        }
       }
       layerMEs_.emplace(folderName, local_mes);
     }
@@ -396,46 +418,44 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
                           -0.5,
                           30.5);
   phase2tkutil::add2DDesc(desc,
-                          "XY_byWheel",
-                          "Cluster_XY_Wheel",
-                          "XY position of clusters in {}",
+                          "XY_byWheel_EPix",
+                          "Cluster_XY_Wheel_",
+                          "XY position of clusters in {} wheel ",
                           "x [mm]",
                           "y [mm]",
-                          600,
+                          300,
                           -300.0,
                           300.0,
-                          600,
+                          300,
                           -300.0,
                           300.0);
-  for (int layer = 1; layer <= 4; layer++) {
-    // nLadders per layer done at booking stage
-    // Ladders and modules booked at LAYER level
-    phase2tkutil::add2DDesc(desc,
-                            "Pos_Mod_Ladder_Layer" + std::to_string(layer),
-                            "Num_Clusters_Modules_Ladders",
-                            "Number of Clusters by Module and Ladder number in {}",
-                            "Signed Module",
-                            "Signed Ladder",
-                            11,
-                            -5.5,
-                            5.5,
-                            2,
-                            0.5,
-                            2.5);
-    // Signed module and ladder booked at SUBSTRUCTURE level
-    phase2tkutil::add2DDesc(desc,
-                            "Pos_Mod_Ladder_Barrel" + std::to_string(layer),
-                            "Cluster_Signed_Module_Ladder_Layer_" + std::to_string(layer),
-                            "Number of Clusters by Module and Ladder number in {} layer " + std::to_string(layer),
-                            "Signed Module",
-                            "Signed Ladder",
-                            11,
-                            -5.5,
-                            5.5,
-                            2,
-                            0.5,
-                            2.5);
-  }
+  phase2tkutil::add2DDesc(desc,
+                          "XY_byWheel_FPix",
+                          "Cluster_XY_Wheel_",
+                          "XY position of clusters in {} wheel ",
+                          "x [mm]",
+                          "y [mm]",
+                          200,
+                          -200.0,
+                          200.0,
+                          200,
+                          -200.0,
+                          200.0);
+
+  // Map of signed Ladders and signed modules
+  // y-axis should be replaced at booking stage with nLadders
+  phase2tkutil::add2DDesc(desc,
+                          "Pos_Signed_Modules_and_Ladders",
+                          "Num_Clusters_Modules_Ladders",
+                          "Number of Clusters by Module and Ladder number in {}",
+                          "Signed Module",
+                          "Signed Ladder",
+                          11,
+                          -5.5,
+                          5.5,
+                          2,
+                          0.5,
+                          2.5);
 
   desc.add<std::string>("TopFolderName", "InnerTracker");
   desc.add<edm::InputTag>("InnerPixelClusterSource", edm::InputTag("siPixelClusters"));
