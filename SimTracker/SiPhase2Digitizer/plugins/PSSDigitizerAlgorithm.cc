@@ -44,7 +44,7 @@ PSSDigitizerAlgorithm::PSSDigitizerAlgorithm(const edm::ParameterSet& conf, edm:
                                     << "threshold in electron Endcap = " << theThresholdInE_Endcap_
                                     << "threshold in electron Barrel = " << theThresholdInE_Barrel_ << " "
                                     << theElectronPerADC_ << " " << theAdcFullScale_ << " The delta cut-off is set to "
-                                    << tMax_ << " pix-inefficiency " << addPixelInefficiency_;
+                                    << tMax_ << " Cchannel inefficiency flag " << addChannelInefficiency_;
 }
 PSSDigitizerAlgorithm::~PSSDigitizerAlgorithm() { LogDebug("PSSDigitizerAlgorithm") << "Algorithm deleted"; }
 //
@@ -65,11 +65,9 @@ bool PSSDigitizerAlgorithm::isAboveThreshold(const digitizerUtility::SimHitInfo*
 //
 // -- Read Bad Channels from the Condidion DB and kill channels/module accordingly
 //
-void PSSDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomDetUnit* pixdet) {
-  uint32_t detId = pixdet->geographicalId().rawId();
-
-  signal_map_type& theSignal = _signal[detId];
-  signal_map_type signalNew;
+void PSSDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomDetUnit* ph2det) {
+  auto detId = ph2det->geographicalId().rawId();
+  auto& theSignal = _signal[detId]; // Caller ensures detId exists
 
   SiStripBadStrip::Range range = badChannelPayload_->getRange(detId);
   for (std::vector<unsigned int>::const_iterator badChannel = range.first; badChannel != range.second; ++badChannel) {
@@ -77,10 +75,9 @@ void PSSDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomDetUnit* pi
     const auto& channelRange = badChannelPayload_->decodePhase2(*badChannel).range;
 
     for (int index = 0; index < channelRange; index++) {
-      for (auto& s : theSignal) {
-        auto& channel = s.first;
+      for (auto& [channel, sig_data] : theSignal) {
         if (channel == firstStrip + index)
-          s.second.set(0.);
+          sig_data.set(0.);
       }
     }
   }
