@@ -406,7 +406,6 @@ namespace edmtest {
       ++droppedIndex1EventCount_;
       if (droppedIndex1EventCount_ > expectedDroppedEvent1NEvents_[droppedIndex1_]) {
         ++droppedIndex1_;
-        std::cout << "advance " << droppedIndex1_ << std::endl;
         droppedIndex1EventCount_ = 1;
       }
       assert(droppedIndex1_ < expectedDroppedEvent1_.size());
@@ -772,20 +771,23 @@ namespace edmtest {
                                        int actualValue,
                                        bool unexpectedImproperlyMergedValue) {
     ++problemCount_;
-    std::cerr << "Error while testing merging of run/lumi products in TestMergeResults.cc:" << line << "\n"
-              << "In function " << whichFunction << " looking for product of type " << type << "\n"
-              << tag << std::endl;
+    edm::LogError("TestMergeResults") << "Error while testing merging of run/lumi products in TestMergeResults.cc:"
+                                      << line << "\n"
+                                      << "In function " << whichFunction << " looking for product of type " << type
+                                      << "\n"
+                                      << tag;
     if (unexpectedImproperlyMergedValue) {
-      std::cerr << "Unexpected value of knownImproperlyMerged from provenance" << std::endl;
+      edm::LogError("TestMergeResults") << "Unexpected value of knownImproperlyMerged from provenance";
     } else {
-      std::cerr << "Expected value = " << expectedValue << " actual value = " << actualValue << std::endl;
+      edm::LogError("TestMergeResults") << "Expected value = " << expectedValue << " actual value = " << actualValue;
     }
   }
 
   void TestMergeResults::reportProblem(int line, std::string const& message) {
     ++problemCount_;
-    std::cerr << "Error while testing merging of run/lumi products in TestMergeResults.cc:" << line << "\n"
-              << message << std::endl;
+    edm::LogError("TestMergeResults") << "Error while testing merging of run/lumi products in TestMergeResults.cc:"
+                                      << line << "\n"
+                                      << message;
   }
 }  // namespace edmtest
 
