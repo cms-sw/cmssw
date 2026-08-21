@@ -1,3 +1,4 @@
+#include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/allowedValues.h"
@@ -28,6 +29,19 @@
 namespace tc = triton::client;
 
 namespace {
+  // Minimal ParameterSet to satisfy SonicClientBase requirements during unit tests
+  edm::ParameterSet makeMinimalSonicParamsForTest() {
+    edm::ParameterSet params;
+    params.addParameter<std::string>("mode", "PseudoAsync");
+
+    edm::ParameterSet defaultRetry;
+    defaultRetry.addParameter<std::string>("retryType", "RetrySameServerAction");
+    defaultRetry.addUntrackedParameter<unsigned>("allowedTries", 0u);
+    std::vector<edm::ParameterSet> retryVec{defaultRetry};
+    params.addParameter<std::vector<edm::ParameterSet>>("Retry", retryVec);
+
+    return params;
+  }
   grpc_compression_algorithm getCompressionAlgo(const std::string& name) {
     if (name.empty() or name.compare("none") == 0)
       return grpc_compression_algorithm::GRPC_COMPRESS_NONE;
@@ -61,7 +75,7 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
       useSharedMemory_(params.getUntrackedParameter<bool>("useSharedMemory")),
       compressionAlgo_(getCompressionAlgo(params.getUntrackedParameter<std::string>("compression"))) {
   options_.emplace_back(params.getParameter<std::string>("modelName"));
-  //get appropriate server for this model
+
   edm::Service<TritonService> ts;
 
   // We save the token to be able to notify the service in case of an exception in the evaluate method.
@@ -70,21 +84,8 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
   // create the context.
   token_ = edm::ServiceRegistry::instance().presentToken();
 
-  const auto& server =
-      ts->serverInfo(options_[0].model_name_, params.getUntrackedParameter<std::string>("preferredServer"));
-  serverType_ = server.type;
-  edm::LogInfo("TritonDiscovery") << debugName_ << " assigned server: " << server.url;
-  //enforce sync mode for fallback CPU server to avoid contention
-  //todo: could enforce async mode otherwise (unless mode was specified by user?)
-  if (serverType_ == TritonServerType::LocalCPU)
-    setMode(SonicMode::Sync);
-  isLocal_ = serverType_ == TritonServerType::LocalCPU or serverType_ == TritonServerType::LocalGPU;
-
-  //connect to the server
-  TRITON_THROW_IF_ERROR(
-      tc::InferenceServerGrpcClient::Create(&client_, server.url, false, server.useSsl, server.sslOptions),
-      "TritonClient(): unable to create inference context",
-      localService());
+  //Connect to server
+  updateServer(params.getUntrackedParameter<std::string>("preferredServer"));
 
   //set options
   options_[0].model_version_ = params.getParameter<std::string>("modelVersion");
@@ -344,6 +345,22 @@ bool TritonClient::handle_exception(F&& call) {
   }
 }
 
+template <typename F>
+bool TritonClient::handle_exception_holder(edm::WaitingTaskWithArenaHolder& fh, F&& call) {
+  CMS_SA_ALLOW try {
+    call();
+    return true;
+  } catch (TritonException& e) {
+    e.convertToWarning();
+    inferSuccess_ = false;
+    fh.doneWaiting(nullptr);  // retryable: schedules finish(false) on TBB
+    return false;
+  } catch (...) {
+    fh.doneWaiting(std::current_exception());  // non-retryable
+    return false;
+  }
+}
+
 const TritonService* TritonClient::service() const {
   edm::ServiceRegistry::Operate op(token_);
   edm::Service<TritonService> ts;
@@ -377,7 +394,7 @@ void TritonClient::getResults(const std::vector<std::shared_ptr<tc::InferResult>
 //default case for sync and pseudo async
 void TritonClient::evaluate() {
   //undo previous signal from TritonException
-  if (tries_ > 0) {
+  if (totalTries_ > 0) {
     // If we are retrying then the evaluate method is called outside the frameworks TBB thread pool.
     // So we need to setup the service token for the current thread to access the service registry.
     edm::ServiceRegistry::Operate op(token_);
@@ -437,50 +454,67 @@ void TritonClient::evaluate() {
     return;
 
   if (mode_ == SonicMode::Async) {
-    //non-blocking call
-    success = handle_exception([&]() {
-      TRITON_THROW_IF_ERROR(client_->AsyncInferMulti(
-                                [start_status, this](std::vector<tc::InferResult*> resultsTmp) {
-                                  //immediately convert to shared_ptr
-                                  const auto& results = convertToShared(resultsTmp);
-                                  //check results
-                                  for (auto ptr : results) {
-                                    auto success = handle_exception([&]() {
-                                      TRITON_THROW_IF_ERROR(
-                                          ptr->RequestStatus(), "evaluate(): unable to get result(s)", localService());
-                                    });
-                                    if (!success)
-                                      return;
-                                  }
+    // Reset before each inference attempt: false=retryable/not-yet-succeeded.
+    // The callback sets this to true on success before calling doneWaiting(nullptr).
+    // If the launch throws (lambda destroyed inside AsyncInferMulti), the holder destructor
+    // calls doneWaiting(nullptr) with inferSuccess_=false -> finish(false) [retryable] on TBB.
+    inferSuccess_ = false;
 
-                                  if (verbose()) {
-                                    inference::ModelStatistics end_status;
-                                    auto success = handle_exception([&]() { end_status = getServerSideStatus(); });
-                                    if (!success)
-                                      return;
-
-                                    const auto& stats = summarizeServerStats(start_status, end_status);
-                                    reportServerSideStats(stats);
-                                  }
-
-                                  //check result
-                                  auto success = handle_exception([&]() { getResults(results); });
-                                  if (!success)
-                                    return;
-
-                                  //finish
-                                  finish(true);
-                                },
-                                options_,
-                                inputsTriton,
-                                outputsTriton,
-                                headers_,
-                                compressionAlgo_),
-                            "evaluate(): unable to launch async run",
-                            localService());
+    // Create holder[finish]: when doneWaiting() is called, finish() is scheduled as a TBB task
+    // so retry logic (finish->retry->updateServer) never runs on the gRPC callback thread.
+    auto* finishTask = edm::make_waiting_task([this](std::exception_ptr const* excptr) {
+      if (excptr)
+        finish(false, *excptr);  // non-retryable exception
+      else
+        finish(inferSuccess_.load());  // true=success, false=retryable failure
     });
-    if (!success)
-      return;
+    edm::WaitingTaskWithArenaHolder finishHolder(*holder_->group(), finishTask);
+
+    // Launch async inference.
+    // On TritonException: fh destructor (in destroyed lambda) calls doneWaiting(nullptr)
+    // → schedules finish(false) [retryable] on TBB. Do NOT call finish() directly here.
+    CMS_SA_ALLOW try {
+      TRITON_THROW_IF_ERROR(
+          client_->AsyncInferMulti(
+              [start_status, fh = std::move(finishHolder), this](std::vector<tc::InferResult*> resultsTmp) mutable {
+                //immediately convert to shared_ptr
+                const auto& results = convertToShared(resultsTmp);
+                //check results
+                for (auto ptr : results) {
+                  auto ok = handle_exception_holder(fh, [&]() {
+                    TRITON_THROW_IF_ERROR(ptr->RequestStatus(), "evaluate(): unable to get result(s)", localService());
+                  });
+                  if (!ok)
+                    return;
+                }
+
+                if (verbose()) {
+                  inference::ModelStatistics end_status;
+                  auto ok = handle_exception_holder(fh, [&]() { end_status = getServerSideStatus(); });
+                  if (!ok)
+                    return;
+                  const auto& stats = summarizeServerStats(start_status, end_status);
+                  reportServerSideStats(stats);
+                }
+
+                auto ok = handle_exception_holder(fh, [&]() { getResults(results); });
+                if (!ok)
+                  return;
+
+                inferSuccess_ = true;
+                fh.doneWaiting(nullptr);  // success: schedules finish(true) on TBB
+              },
+              options_,
+              inputsTriton,
+              outputsTriton,
+              headers_,
+              compressionAlgo_),
+          "evaluate(): unable to launch async run",
+          localService());
+    } catch (TritonException& e) {
+      e.convertToWarning();
+      // fh destructor already called doneWaiting(nullptr) -> finish(false) scheduled on TBB
+    }
   } else {
     //blocking call
     std::vector<tc::InferResult*> resultsTmp;
@@ -582,10 +616,67 @@ inference::ModelStatistics TritonClient::getServerSideStatus() const {
   return inference::ModelStatistics{};
 }
 
+void TritonClient::updateServer(const std::string& serverName) {
+  //get appropriate server for this model
+  auto ts = service();
+
+  const auto& serverMap = ts->resolveServer(options_[0].model_name_, serverName);
+
+  const auto& server = serverMap.second;
+
+  //update server name
+  serverName_ = serverMap.first;
+
+  serverType_ = server.type;
+  edm::LogInfo("TritonDiscovery") << debugName_ << " assigned server: " << server.url;
+
+  //enforce sync mode for fallback CPU server to avoid contention
+  if (serverType_ == TritonServerType::LocalCPU)
+    setMode(SonicMode::Sync);
+  else {
+    if (userMode_.empty())
+      // No config from user, default to async for any server type other than localCPU
+      setMode(SonicMode::Async);
+    else {
+      //User configured specific mode for non localCPU server
+      setUserMode(userMode_);
+    }
+  }
+  isLocal_ = serverType_ == TritonServerType::LocalCPU or serverType_ == TritonServerType::LocalGPU;
+
+  // updateServer() is always called from a TBB thread (via finish() -> retry() -> updateServer()),
+  // so it is safe to destroy the old gRPC client immediately.
+  client_.reset();
+
+  //connect to the server
+  TRITON_THROW_IF_ERROR(
+      tc::InferenceServerGrpcClient::Create(&client_, server.url, false, server.useSsl, server.sslOptions),
+      "TritonClient(): unable to create inference context",
+      localService());
+}
+
+void TritonClient::switchToFallback() {
+  edm::ServiceRegistry::Operate op(token_);
+  edm::Service<TritonService> ts;
+
+  // Start the fallback server if it has not been started yet (idempotent).
+  ts->startFallbackServer();
+  if (!ts->fallbackStarted())
+    throw TritonException("LocalFailure")
+        << "TritonClient::switchToFallback: fallback server is not available "
+           "(check that TritonService fallback.enable = True and a model path is configured)";
+
+  // Dynamically load this client's model onto the fallback server.
+  ts->loadModel(options_[0].model_name_);
+
+  // Re-point the gRPC connection at the fallback server.
+  updateServer(TritonService::Server::fallbackName);
+}
+
 //for fillDescriptions
 void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   edm::ParameterSetDescription descClient;
-  fillBasePSetDescription(descClient);
+  fillBasePSetDescription(descClient, "RetryFallbackServerAction");
   descClient.add<std::string>("modelName");
   descClient.add<std::string>("modelVersion", "");
   descClient.add<edm::FileInPath>("modelConfigPath");
@@ -597,5 +688,9 @@ void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   descClient.addUntracked<bool>("useSharedMemory", true);
   descClient.addUntracked<std::string>("compression", "");
   descClient.addUntracked<std::vector<std::string>>("outputs", {});
+
   iDesc.add<edm::ParameterSetDescription>("Client", descClient);
 }
+
+//constructor for testing
+TritonClient::TritonClient() : SonicClient(makeMinimalSonicParamsForTest(), "TritonClient_test", "TritonClient") {}

@@ -24,16 +24,11 @@ pfParticleNetJetTags = boostedJetONNXJetTagsProducer.clone(
 particleNetSonicTriton.toReplaceWith(pfParticleNetJetTags, _particleNetSonicJetTagsProducer.clone(
     src = 'pfParticleNetTagInfos',
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetAK8/General/V01/preprocess.json',
-    Client = cms.PSet(
+    Client = dict(
         timeout = cms.untracked.uint32(300),
-        mode = cms.string("Async"),
         modelName = cms.string("particlenet"),
         modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particlenet/config.pbtxt"),
-        modelVersion = cms.string(""),
-        verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(0),
-        useSharedMemory = cms.untracked.bool(True),
-        compression = cms.untracked.string(""),
+        modelVersion = cms.string("")
     ),
     flav_names = pfParticleNetJetTags.flav_names,
 ))
@@ -57,14 +52,11 @@ pfMassDecorrelatedParticleNetJetTags = boostedJetONNXJetTagsProducer.clone(
 particleNetSonicTriton.toReplaceWith(pfMassDecorrelatedParticleNetJetTags, _particleNetSonicJetTagsProducer.clone(
     src = 'pfParticleNetTagInfos',
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetAK8/MD-2prong/V01/preprocess.json',
-    Client = cms.PSet(
+    Client = dict(
         timeout = cms.untracked.uint32(300),
         modelName = cms.string("particlenet_AK8_MD-2prong"),
-        mode = cms.string("Async"),
         modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particlenet_AK8_MD-2prong/config.pbtxt"),
-        modelVersion = cms.string(""),
-        verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(0),
+        modelVersion = cms.string("")
     ),
     flav_names = pfMassDecorrelatedParticleNetJetTags.flav_names,
 ))
@@ -87,14 +79,11 @@ pfParticleNetMassRegressionJetTags = boostedJetONNXJetTagsProducer.clone(
 particleNetSonicTriton.toReplaceWith(pfParticleNetMassRegressionJetTags, _particleNetSonicJetTagsProducer.clone(
     src = 'pfParticleNetTagInfos',
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetAK8/MassRegression/V01/preprocess.json',
-    Client = cms.PSet(
+    Client = dict(
         timeout = cms.untracked.uint32(300),
         modelName = cms.string("particlenet_AK8_MassRegression"),
-        mode = cms.string("Async"),
         modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particlenet_AK8_MassRegression/config.pbtxt"),
-        modelVersion = cms.string(""),
-        verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(0),
+        modelVersion = cms.string("")
     ),
     flav_names = pfParticleNetMassRegressionJetTags.flav_names,
 ))

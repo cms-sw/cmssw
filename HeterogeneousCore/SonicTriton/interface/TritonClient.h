@@ -3,11 +3,13 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "HeterogeneousCore/SonicCore/interface/SonicClient.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonData.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonService.h"
 
+#include <atomic>
 #include <map>
 #include <vector>
 #include <string>
@@ -52,11 +54,18 @@ public:
   bool isLocal() const { return isLocal_; }
   const TritonService* service() const;
   const TritonService* localService() const;
+  std::string modelName() const { return options_[0].model_name_; }
+  std::string serverName() const { return serverName_; }
+  virtual void updateServer(const std::string& serverName);
+  virtual void switchToFallback();
 
   //for fillDescriptions
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
 protected:
+  // Protected default constructor for unit testing (no framework services)
+  TritonClient();
+
   //helpers
   bool noOuterDim() const { return noOuterDim_; }
   unsigned outerDim() const { return outerDim_; }
@@ -65,6 +74,8 @@ protected:
   void evaluate() override;
   template <typename F>
   bool handle_exception(F&& call);
+  template <typename F>
+  bool handle_exception_holder(edm::WaitingTaskWithArenaHolder& fh, F&& call);
 
   void reportServerSideStats(const ServerSideStats& stats) const;
   ServerSideStats summarizeServerStats(const inference::ModelStatistics& start_status,
@@ -83,6 +94,7 @@ protected:
   bool useSharedMemory_;
   TritonServerType serverType_;
   bool isLocal_;
+  std::string serverName_;
   grpc_compression_algorithm compressionAlgo_;
   triton::client::Headers headers_;
 
@@ -90,6 +102,7 @@ protected:
   //stores timeout, model name and version
   std::vector<triton::client::InferOptions> options_;
   edm::ServiceToken token_;
+  std::atomic<bool> inferSuccess_{true};
 
 private:
   friend TritonInputData;
