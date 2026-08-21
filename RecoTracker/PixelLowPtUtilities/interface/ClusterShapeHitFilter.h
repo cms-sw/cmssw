@@ -17,6 +17,7 @@
 #include <utility>
 #include <unordered_map>
 #include <cstring>
+#include <vector>
 
 /*****************************************************************************/
 class PixelKeys {
@@ -155,8 +156,18 @@ public:
     const PixelGeomDetUnit* det;
     unsigned short part;
     unsigned short layer;
+    bool applyShapeCut;
     std::pair<float, float> drift;
     std::pair<float, float> cotangent;
+  };
+
+  // BPix region where the pixel shape cut is not applied.
+  // "layers" must not be empty
+  // empty "ladders" or "modules" means "any" on the specfied layer(s)
+  struct BPixShapeCutRegion {
+    std::vector<unsigned int> layers;
+    std::vector<unsigned int> ladders;
+    std::vector<unsigned int> modules;
   };
 
   struct StripData {
@@ -175,7 +186,8 @@ public:
                         const SiPixelLorentzAngle* theSiPixelLorentzAngle_,
                         const SiStripLorentzAngle* theSiStripLorentzAngle_,
                         const std::string& pixelShapeFile_,
-                        const std::string& pixelShapeFileL1_);
+                        const std::string& pixelShapeFileL1_,
+                        const std::vector<BPixShapeCutRegion>& noBPixShapeCutRegions_ = {});
 
   ~ClusterShapeHitFilter();
 
@@ -260,6 +272,7 @@ private:
   void loadPixelLimits(std::string const& file, PixelLimits* plim);
   void loadStripLimits();
   void fillPixelData();
+  bool isBPixShapeCutDisabled(DetId id) const;
   void fillStripData();
 
   std::pair<float, float> getCotangent(const PixelGeomDetUnit* pixelDet) const;
@@ -276,6 +289,8 @@ private:
 
   const SiPixelLorentzAngle* theSiPixelLorentzAngle;
   const SiStripLorentzAngle* theSiStripLorentzAngle;
+
+  const std::vector<BPixShapeCutRegion> noBPixShapeCutRegions;
 
   std::unordered_map<unsigned int, PixelData> pixelData;
   std::unordered_map<unsigned int, StripData> stripData;

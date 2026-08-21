@@ -23,10 +23,18 @@
 
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 
+#include <algorithm>
 #include <fstream>
 #include <cassert>
 
 using namespace std;
+
+namespace {
+  // an empty selection matches any value
+  bool matches(const std::vector<unsigned int>& values, unsigned int value) {
+    return values.empty() || std::find(values.begin(), values.end(), value) != values.end();
+  }
+}  // namespace
 
 /*****************************************************************************/
 ClusterShapeHitFilter::ClusterShapeHitFilter(const TrackerGeometry* theTracker_,
@@ -35,12 +43,14 @@ ClusterShapeHitFilter::ClusterShapeHitFilter(const TrackerGeometry* theTracker_,
                                              const SiPixelLorentzAngle* theSiPixelLorentzAngle_,
                                              const SiStripLorentzAngle* theSiStripLorentzAngle_,
                                              const std::string& pixelShapeFile_,
-                                             const std::string& pixelShapeFileL1_)
+                                             const std::string& pixelShapeFileL1_,
+                                             const std::vector<BPixShapeCutRegion>& noBPixShapeCutRegions_)
     : theTracker(theTracker_),
       theTkTopol(theTkTopol_),
       theMagneticField(theMagneticField_),
       theSiPixelLorentzAngle(theSiPixelLorentzAngle_),
-      theSiStripLorentzAngle(theSiStripLorentzAngle_) {
+      theSiStripLorentzAngle(theSiStripLorentzAngle_),
+      noBPixShapeCutRegions(noBPixShapeCutRegions_) {
   // Load pixel limits
   loadPixelLimits(pixelShapeFile_, pixelLimits);
   loadPixelLimits(pixelShapeFileL1_, pixelLimitsL1);
@@ -113,7 +123,18 @@ void ClusterShapeHitFilter::loadStripLimits() {
   LogTrace("MinBiasTracking|ClusterShapeHitFilter") << " [ClusterShapeHitFilter] strip-cluster-width filter loaded";
 }
 
+bool ClusterShapeHitFilter::isBPixShapeCutDisabled(DetId id) const {
+  for (auto const& region : noBPixShapeCutRegions)
+    if (matches(region.layers, theTkTopol->pxbLayer(id)) && matches(region.ladders, theTkTopol->pxbLadder(id)) &&
+        matches(region.modules, theTkTopol->pxbModule(id)))
+      return true;
+
+  return false;
+}
+
 void ClusterShapeHitFilter::fillPixelData() {
+  unsigned int nDisabled = 0;
+
   //barrel
   for (auto det : theTracker->detsPXB()) {
     // better not to fail..
@@ -123,8 +144,11 @@ void ClusterShapeHitFilter::fillPixelData() {
       pd.det = pixelDet;
       pd.part = 0;
       pd.layer = theTkTopol->pxbLayer(pixelDet->geographicalId());
+      pd.applyShapeCut = !isBPixShapeCutDisabled(pixelDet->geographicalId());
       pd.cotangent = getCotangent(pixelDet);
       pd.drift = getDrift(pixelDet);
+      if (!pd.applyShapeCut)
+        nDisabled++;
     }
   }
 
@@ -137,9 +161,14 @@ void ClusterShapeHitFilter::fillPixelData() {
     pd.det = pixelDet;
     pd.part = 1;
     pd.layer = 0;
+    pd.applyShapeCut = true;
     pd.cotangent = getCotangent(pixelDet);
     pd.drift = getDrift(pixelDet);
   }
+
+  if (!noBPixShapeCutRegions.empty())
+    edm::LogInfo("ClusterShapeHitFilter")
+        << " [ClusterShapeHitFilter] pixel shape cut disabled for " << nDisabled << " BPix modules";
 }
 
 void ClusterShapeHitFilter::fillStripData() {
@@ -292,6 +321,8 @@ bool ClusterShapeHitFilter::isCompatible(const SiPixelRecHit& recHit,
     return true;
 
   const PixelData& pd = getpd(recHit, ipd);
+  if (!pd.applyShapeCut)
+    return true;
 
   int part;
   ClusterData::ArrayType meas;
