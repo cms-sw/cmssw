@@ -24,7 +24,7 @@ from IOPool.Input.modules import PoolSource
 process.source = PoolSource(fileNames = [f"file:{f}" for f in args.inputFiles])
 
 if args.useOutputModule:
-    from FWCore.Framework.modules import TestMergeResultsOutputModule
+    from FWCore.Integration.modules import TestMergeResultsOutputModule
     process.test = TestMergeResultsOutputModule(
         expectedBeginRunProd = args.expectedBeginRunProd,
         expectedEndRunProd = args.expectedEndRunProd,

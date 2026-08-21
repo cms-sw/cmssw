@@ -48,7 +48,7 @@ process.source = RNTupleTempSource(
 from FWIO.RNTupleTempOutput.modules import RNTupleTempOutputModule
 process.out = RNTupleTempOutputModule(fileName = 'testRunMergeRecombined1.root')
 
-from FWCore.Framework.modules import TestMergeResults
+from FWCore.Integration.modules import TestMergeResults
 process.test = TestMergeResults(
 
     #   Check to see that the value we read matches what we know

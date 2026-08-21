@@ -48,7 +48,7 @@ process.source = PoolSource(
 from IOPool.Output.modules import PoolOutputModule
 process.out = PoolOutputModule(fileName = 'testRunMergeRecombined1.root')
 
-from FWCore.Framework.modules import TestMergeResults
+from FWCore.Integration.modules import TestMergeResults
 process.test = TestMergeResults(
 
     #   Check to see that the value we read matches what we know
