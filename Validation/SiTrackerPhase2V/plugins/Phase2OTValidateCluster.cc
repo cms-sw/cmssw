@@ -187,7 +187,7 @@ void Phase2OTValidateCluster::fillOTHistos(const edm::Event& iEvent,
       continue;
     TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(detId);
 
-    std::string folderkey = phase2tkutil::getOTHistoId(detId, tTopo_);
+    std::string folderkey = phase2tkutil::getHistoId(detId, tTopo_, 0.0, 6, false);
     for (const auto& clusterItr : DSVItr) {
       MeasurementPoint mpCluster(clusterItr.center(), clusterItr.column() + 0.5);
       Local3DPoint localPosCluster = geomDetUnit->topology().localPosition(mpCluster);
@@ -309,7 +309,7 @@ void Phase2OTValidateCluster::bookHistograms(DQMStore::IBooker& ibooker,
 
 //////////////////Layer Histo/////////////////////////////////
 void Phase2OTValidateCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_id, const std::string& subdir) {
-  std::string folderName = phase2tkutil::getOTHistoId(det_id, tTopo_);
+  std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, 6, false);
   if (folderName.empty()) {
     edm::LogWarning("Phase2OTValidateCluster") << ">>>> Invalid histo_id ";
     return;
