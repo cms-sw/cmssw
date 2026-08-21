@@ -1283,9 +1283,8 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
               BOOST_PP_EMPTY(),                                                             \
               BOOST_PP_EXPAND(_DECLARE_VIEW_SOA_ACCESSOR_IMPL TYPE_NAME))
 
-// ============================================== AoS Macros ===========================================================
 /**
- * Declare the accessors for the AoS element 
+ * Declare an accessors for the AoS element of the SoA
  */
 // clang-format off
 #define _DECLARE_VALUE_ELEMENT_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                         \
@@ -1293,9 +1292,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       /* Scalar */                                                                                      \
       ,                                                                                                 \
       /* Column */                                                                                      \
-      SOA_HOST_DEVICE SOA_INLINE CPP_TYPE& NAME() { return BOOST_PP_CAT(NAME, _); },                    \
+      SOA_HOST_DEVICE SOA_INLINE auto& NAME() { return BOOST_PP_CAT(NAME, _); },                        \
       /* Eigen column */                                                                                \
-      SOA_HOST_DEVICE SOA_INLINE CPP_TYPE& NAME() { return BOOST_PP_CAT(NAME, _); })
+      SOA_HOST_DEVICE SOA_INLINE auto& NAME() { return BOOST_PP_CAT(NAME, _); })
 // clang-format on
 
 #define _DECLARE_VALUE_ELEMENT_ACCESSORS(R, DATA, TYPE_NAME)                                \
@@ -1304,17 +1303,17 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
               BOOST_PP_EXPAND(_DECLARE_VALUE_ELEMENT_ACCESSORS_IMPL TYPE_NAME))
 
 /**
- * Declare the const accessors for the AoS element 
+ * Declare the const accessors for the AoS element of the SoA
  */
 // clang-format off
-#define _DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                        \
-  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                \
-      /* Scalar */                                                                                           \
-      ,                                                                                                      \
-      /* Column */                                                                                           \
-      SOA_HOST_DEVICE SOA_INLINE std::add_const_t<CPP_TYPE>& NAME() const { return BOOST_PP_CAT(NAME, _); }, \
-      /* Eigen column */                                                                                     \
-      SOA_HOST_DEVICE SOA_INLINE std::add_const_t<CPP_TYPE>& NAME() const { return BOOST_PP_CAT(NAME, _); })
+#define _DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)        \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                \
+      /* Scalar */                                                                           \
+      ,                                                                                      \
+      /* Column */                                                                           \
+      SOA_HOST_DEVICE SOA_INLINE const auto& NAME() const { return BOOST_PP_CAT(NAME, _); }, \
+      /* Eigen column */                                                                     \
+      SOA_HOST_DEVICE SOA_INLINE const auto& NAME() const { return BOOST_PP_CAT(NAME, _); })
 // clang-format on
 
 #define _DECLARE_VALUE_ELEMENT_CONST_ACCESSORS(R, DATA, TYPE_NAME)                          \
@@ -1341,26 +1340,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
               BOOST_PP_EMPTY(),                                                             \
               BOOST_PP_EXPAND(_DECLARE_ELEMENT_PARAMS_IMPL TYPE_NAME))
 
-/**
- * Declare the const accessors for the AoS scalars
- */
-// clang-format off
-#define _DECLARE_AOS_CONSTVIEW_SCALAR_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                       \
-  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                \
-      /* Scalar */                                                                                           \
-      SOA_HOST_DEVICE SOA_INLINE std::add_const_t<CPP_TYPE>& NAME() const { return *BOOST_PP_CAT(NAME, _); } \
-      ,                                                                                                      \
-      /* Column */                                                                                           \
-      ,                                                                                                      \
-      /* Eigen column */                                                                                     \
-  )
-// clang-format on
-
-#define _DECLARE_AOS_CONSTVIEW_SCALAR_ACCESSORS(R, DATA, TYPE_NAME)                         \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
-              BOOST_PP_EXPAND(_DECLARE_AOS_CONSTVIEW_SCALAR_ACCESSORS_IMPL TYPE_NAME))
-
+// ============================================== AoS Macros ===========================================================
 /**
  * Declare the AoS scalars as data members
  */
@@ -1388,7 +1368,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 #define _DECLARE_SCALAR_MEMBERS_AOS_CONSTVIEW_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)        \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                               \
       /* Scalar */                                                                          \
-      std::add_const_t<CPP_TYPE>* BOOST_PP_CAT(NAME, _) = nullptr;                          \
+      CPP_TYPE* BOOST_PP_CAT(NAME, _) = nullptr;                                            \
       ,                                                                                     \
       /* Column */                                                                          \
       ,                                                                                     \
@@ -1400,26 +1380,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
               BOOST_PP_EMPTY(),                                                             \
               BOOST_PP_EXPAND(_DECLARE_SCALAR_MEMBERS_AOS_CONSTVIEW_IMPL TYPE_NAME))
-
-/**
- * Default construct AoSView scalars
- */
-// clang-format off
-#define _DEFAULT_CONSTVIEW_AOS_SCALARS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)               \
-  _SWITCH_ON_TYPE(VALUE_TYPE,                                                               \
-      /* Scalar */                                                                          \
-      (BOOST_PP_CAT(NAME, _){nullptr})                                                      \
-      ,                                                                                     \
-       /* Column */                                                                         \
-      ,                                                                                     \
-      /* Eigen column */                                                                    \
-  )
-// clang-format on
-
-#define _DEFAULT_CONSTVIEW_AOS_SCALARS(R, DATA, TYPE_NAME)                                  \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
-              BOOST_PP_EXPAND(_DEFAULT_CONSTVIEW_AOS_SCALARS_IMPL TYPE_NAME))
 
 /**
  * Construct AoSView scalars from AoS Layout
@@ -1448,7 +1408,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 #define _ACCUMULATE_AOS_SCALARS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                      \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                               \
       /* Scalar */                                                                          \
-      _soa_impl_ret += sizeof(CPP_TYPE);                                                    \
+      _aos_impl_ret += sizeof(CPP_TYPE);                                                    \
       ,                                                                                     \
       /* Column */                                                                          \
       ,                                                                                     \
@@ -1468,8 +1428,8 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 #define _ASSIGN_AOS_SCALAR_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                   \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                               \
       /* Scalar */                                                                          \
-      BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(mem);                             \
-      mem += sizeof(CPP_TYPE);                                                              \
+      BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(_aos_impl_curMem);                \
+      _aos_impl_curMem += sizeof(CPP_TYPE);                                                 \
       ,                                                                                     \
        /* Column */                                                                         \
       ,                                                                                     \
@@ -1508,36 +1468,26 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 #define _DECLARE_AOS_VIEW_CONST_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                       \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
-      SOA_HOST_DEVICE SOA_INLINE std::add_const_t<CPP_TYPE>& NAME() const { return *BOOST_PP_CAT(NAME, _); }           \
+      SOA_HOST_DEVICE SOA_INLINE const auto& NAME() const { return *BOOST_PP_CAT(NAME, _); }                           \
       ,                                                                                                                \
       /* Column */                                                                                                     \
-      SOA_HOST_DEVICE SOA_INLINE typename cms::soa::AoSConstMember<&value_element::BOOST_PP_CAT(NAME, _)>::template    \
-        AoSElement<value_element>::ConstColumn NAME() const                                                            \
-          { return typename cms::soa::AoSConstMember<&value_element::BOOST_PP_CAT(NAME, _)>::template                  \
-            AoSElement<value_element>::ConstColumn(aos_, elements_); }                                                 \
+      SOA_HOST_DEVICE SOA_INLINE auto NAME() const {                                                                   \
+        return ConstColumn<&value_element::BOOST_PP_CAT(NAME, _)>(aos_, elements_);                                    \
+      }                                                                                                                \
+                                                                                                                       \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
-      std::add_const_t<CPP_TYPE>& NAME(cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) const {         \
-        if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                            \
-          if (index.value_ >= elements_ or index.value_ < 0)                                                           \
-            SOA_THROW_OUT_OF_RANGE("Out of range index in AoS immutable " #NAME "(size_type index)",                   \
-              index, elements_)                                                                                        \
-        }                                                                                                              \
-        return aos_[index.value_].NAME();                                                                              \
+      const auto& NAME(cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) const {                         \
+        return (*this)[index].NAME();                                                                                  \
       }                                                                                                                \
       ,                                                                                                                \
       /* Eigen column */                                                                                               \
-      SOA_HOST_DEVICE SOA_INLINE typename cms::soa::AoSConstMember<&value_element::BOOST_PP_CAT(NAME, _)>::template    \
-        AoSElement<value_element>::ConstColumn NAME() const                                                            \
-          { return typename cms::soa::AoSConstMember<&value_element::BOOST_PP_CAT(NAME, _)>::template                  \
-              AoSElement<value_element>::ConstColumn(aos_, elements_); }                                               \
+      SOA_HOST_DEVICE SOA_INLINE auto NAME() const {                                                                   \
+        return ConstColumn<&value_element::BOOST_PP_CAT(NAME, _)>(aos_, elements_);                                    \
+      }                                                                                                                \
+                                                                                                                       \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
-      std::add_const_t<CPP_TYPE>& NAME(cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) const {         \
-        if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                            \
-          if (index.value_ >= elements_ or index.value_ < 0)                                                           \
-            SOA_THROW_OUT_OF_RANGE("Out of range index in AoS immutable " #NAME "(size_type index)",                   \
-              index, elements_)                                                                                        \
-        }                                                                                                              \
-        return aos_[index.value_].NAME();                                                                              \
+      const auto& NAME(cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) const {                         \
+        return (*this)[index].NAME();                                                                                  \
       }                                                                                                                \
   )
 
@@ -1553,36 +1503,24 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 #define _DECLARE_AOS_VIEW_SCALAR_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                      \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
-      SOA_HOST_DEVICE SOA_INLINE CPP_TYPE& NAME() { return const_cast<CPP_TYPE&>(*base_type::BOOST_PP_CAT(NAME, _)); } \
+      SOA_HOST_DEVICE SOA_INLINE auto& NAME() { return *this->BOOST_PP_CAT(NAME, _); }                                 \
       ,                                                                                                                \
       /* Column */                                                                                                     \
-      SOA_HOST_DEVICE SOA_INLINE typename cms::soa::AoSMember<&value_element::BOOST_PP_CAT(NAME, _)>::template         \
-        AoSElement<value_element>::Column NAME()                                                                       \
-          { return typename cms::soa::AoSMember<&value_element::BOOST_PP_CAT(NAME, _)>::template                       \
-            AoSElement<value_element>::Column(cms::soa::non_const_ptr(base_type::aos_), base_type::elements_); }       \
+      SOA_HOST_DEVICE SOA_INLINE auto NAME() {                                                                         \
+        return Column<&value_element::BOOST_PP_CAT(NAME, _)>(base_type::aos_, base_type::elements_);                   \
+      }                                                                                                                \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
-      CPP_TYPE& NAME(cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) {                                 \
-        if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                            \
-          if (index.value_ >= base_type::elements_ or index.value_ < 0)                                                \
-            SOA_THROW_OUT_OF_RANGE("Out of range index in AoS mutable " #NAME "(size_type index)",                     \
-              index, base_type::elements_)                                                                             \
-        }                                                                                                              \
-        return const_cast<CPP_TYPE&>(base_type::aos_[index.value_].NAME());                                            \
+      auto& NAME(cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) {                                     \
+        return (*this)[index].NAME();                                                                                  \
       }                                                                                                                \
       ,                                                                                                                \
       /* Eigen column */                                                                                               \
-      SOA_HOST_DEVICE SOA_INLINE typename cms::soa::AoSMember<&value_element::BOOST_PP_CAT(NAME, _)>::template         \
-        AoSElement<value_element>::Column NAME()                                                                       \
-          { return typename cms::soa::AoSMember<&value_element::BOOST_PP_CAT(NAME, _)>::template                       \
-            AoSElement<value_element>::Column(cms::soa::non_const_ptr(base_type::aos_), base_type::elements_); }       \
+      SOA_HOST_DEVICE SOA_INLINE auto NAME() {                                                                         \
+        return Column<&value_element::BOOST_PP_CAT(NAME, _)>(base_type::aos_, base_type::elements_);                   \
+      }                                                                                                                \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
-      CPP_TYPE& NAME(cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) {                                 \
-        if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                            \
-          if (index.value_ >= base_type::elements_ or index.value_ < 0)                                                \
-            SOA_THROW_OUT_OF_RANGE("Out of range index in AoS mutable " #NAME "(size_type index)",                     \
-              index, base_type::elements_)                                                                             \
-        }                                                                                                              \
-        return const_cast<CPP_TYPE&>(base_type::aos_[index.value_].NAME());                                            \
+      auto& NAME(cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) {                                     \
+        return (*this)[index].NAME();                                                                                  \
       }                                                                                                                \
   )
 
@@ -1898,30 +1836,32 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         _ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER, ~, __VA_ARGS__)                                      \
       };                                                                                                               \
                                                                                                                        \
-        SOA_HOST_DEVICE SOA_INLINE                                                                                     \
-        const_element operator[](cms::soa::detail::IndexWithSourceLocation<rangeChecking> _soa_impl_index) const {     \
-          if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                          \
-            if (_soa_impl_index.value_ >= elements_ or _soa_impl_index.value_ < 0)                                     \
-              SOA_THROW_OUT_OF_RANGE("Out of range index in ConstViewTemplateFreeParams " #CLASS "::operator[]",       \
-                _soa_impl_index, elements_)                                                                            \
-          }                                                                                                            \
-          return const_element{_soa_impl_index.value_                                                                  \
-             _APPEND_COMMA(_ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__))                   \
-          };                                                                                                           \
+      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
+      const const_element operator[](cms::soa::detail::IndexWithSourceLocation<rangeChecking> _soa_impl_index) const { \
+        if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                            \
+          if (_soa_impl_index.value_ >= elements_ or _soa_impl_index.value_ < 0)                                       \
+            SOA_THROW_OUT_OF_RANGE("Out of range index in ConstViewTemplateFreeParams " #CLASS "::operator[]",         \
+              _soa_impl_index, elements_)                                                                              \
         }                                                                                                              \
+        return const_element{                                                                                          \
+          _soa_impl_index.value_, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__)       \
+        };                                                                                                             \
+      }                                                                                                                \
                                                                                                                        \
-        /* const accessors */                                                                                          \
-        _ITERATE_ON_ALL(_DECLARE_VIEW_SOA_CONST_ACCESSOR, ~, __VA_ARGS__)                                              \
-        ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_VIEW_METHODS, ~, __VA_ARGS__))                                    \
+      /* const accessors */                                                                                            \
+      _ITERATE_ON_ALL(_DECLARE_VIEW_SOA_CONST_ACCESSOR, ~, __VA_ARGS__)                                                \
+      ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_VIEW_METHODS, ~, __VA_ARGS__))                                      \
+      /* const accessors */                                                                                            \
+      _ITERATE_ON_ALL(_DECLARE_VIEW_SOA_CONST_ACCESSOR, ~, __VA_ARGS__)                                                \
                                                                                                                        \
-        /* dump the SoA internal structure */                                                                          \
-        template <typename T>                                                                                          \
-        SOA_HOST_ONLY friend void dump();                                                                              \
+      /* dump the SoA internal structure */                                                                            \
+      template <typename T>                                                                                            \
+      SOA_HOST_ONLY friend void dump();                                                                                \
                                                                                                                        \
-        private:                                                                                                       \
-          size_type elements_ = 0;                                                                                     \
-          _ITERATE_ON_ALL(_DECLARE_CONST_VIEW_SOA_MEMBER, ~, __VA_ARGS__)                                              \
-      };                                                                                                               \
+      private:                                                                                                         \
+        size_type elements_ = 0;                                                                                       \
+        _ITERATE_ON_ALL(_DECLARE_CONST_VIEW_SOA_MEMBER, ~, __VA_ARGS__)                                                \
+    };                                                                                                                 \
                                                                                                                        \
     template <bool RESTRICT_QUALIFY, cms::soa::RangeChecking::Mode RANGE_CHECKING>                                     \
     using ConstViewTemplate = ConstViewTemplateFreeParams<ALIGNMENT, ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY,          \
@@ -2134,30 +2074,25 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
     /* Helper function used by caller to externally allocate the storage */                                            \
     static constexpr byte_size_type computeDataSize(size_type elements) {                                              \
-      byte_size_type _soa_impl_ret = elements * sizeof(typename CLASS::Metadata::value_element);                       \
+      byte_size_type _aos_impl_ret = elements * sizeof(typename CLASS::Metadata::value_element);                       \
       _ITERATE_ON_ALL(_ACCUMULATE_AOS_SCALARS, ~, __VA_ARGS__)                                                         \
-      return _soa_impl_ret;                                                                                            \
+      return _aos_impl_ret;                                                                                            \
     }                                                                                                                  \
                                                                                                                        \
     /* Default constructor */                                                                                          \
-    AoSWrapper()                                                                                                       \
-    : mem_{nullptr},                                                                                                   \
-      byteSize_{0},                                                                                                    \
-      elements_{0},                                                                                                    \
-      aos_{nullptr}                                                                                                    \
-      BOOST_PP_IF(BOOST_PP_SEQ_SIZE(_ITERATE_ON_ALL(_DEFAULT_CONSTVIEW_AOS_SCALARS, ~, __VA_ARGS__)),                  \
-        BOOST_PP_COMMA, BOOST_PP_EMPTY)()                                                                              \
-        BOOST_PP_TUPLE_ENUM(BOOST_PP_IF(                                                                               \
-          BOOST_PP_SEQ_SIZE(_ITERATE_ON_ALL(_DEFAULT_CONSTVIEW_AOS_SCALARS, ~, __VA_ARGS__) ),                         \
-          (_ITERATE_ON_ALL_COMMA(_DEFAULT_CONSTVIEW_AOS_SCALARS, ~, __VA_ARGS__)),                                     \
-          ())) {}                                                                                                      \
+    AoSWrapper() = default;                                                                                            \
                                                                                                                        \
     /* Standard constructor for the PortableCollections */                                                             \
-    AoSWrapper(std::byte* mem, size_type elements) : mem_{mem}, elements_{elements} {                                  \
-      aos_ = reinterpret_cast<typename CLASS::Metadata::value_element*>(mem);                                          \
-      mem += elements * sizeof(typename CLASS::Metadata::value_element);                                               \
+    AoSWrapper(std::byte* mem, size_type elements)                                                                     \
+      : mem_{mem},                                                                                                     \
+        byteSize_{computeDataSize(elements)},                                                                          \
+        elements_{elements},                                                                                           \
+        aos_{reinterpret_cast<typename CLASS::Metadata::value_element*>(mem)} {                                        \
+      auto _aos_impl_curMem = mem_;                                                                                    \
+      _aos_impl_curMem += elements * sizeof(typename CLASS::Metadata::value_element);                                  \
       _ITERATE_ON_ALL(_ASSIGN_AOS_SCALAR_MEMBERS, ~, __VA_ARGS__)                                                      \
-      byteSize_ = computeDataSize(elements);                                                                           \
+      if (mem_ + byteSize_ != _aos_impl_curMem)                                                                        \
+        cms::soa::detail::throwRuntimeError("In " #CLASS "::AoSWrapper: unexpected end pointer.");                     \
     }                                                                                                                  \
                                                                                                                        \
    /**                                                                                                                 \
@@ -2183,14 +2118,15 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     };                                                                                                                 \
                                                                                                                        \
     friend AoSMetadata;                                                                                                \
-                                                                                                                       \
     SOA_HOST_DEVICE SOA_INLINE const AoSMetadata metadata() const { return AoSMetadata(*this); }                       \
-    SOA_HOST_DEVICE SOA_INLINE AoSMetadata metadata() { return AoSMetadata(*this); }                                   \
+                                                                                                                       \
     template <cms::soa::RangeChecking::Mode RANGE_CHECKING>                                                            \
     struct ConstViewTemplate {                                                                                         \
       friend CLASS::AoSWrapper;                                                                                        \
       using SoAMetadata = typename CLASS::Metadata;                                                                    \
       using value_element = typename SoAMetadata::value_element;                                                       \
+      template <auto Member>                                                                                           \
+      using ConstColumn = typename cms::soa::AoSConstMember<Member>::template AoSElement<value_element>::ConstColumn;  \
       constexpr static cms::soa::RangeChecking::Mode rangeChecking = RANGE_CHECKING;                                   \
       constexpr static bool isSoA = AoSWrapper::isSoA;                                                                 \
                                                                                                                        \
@@ -2252,7 +2188,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
       private:                                                                                                         \
           size_type elements_ = 0;                                                                                     \
-          value_element const* aos_ EDM_REFLEX_SIZE(elements_) = nullptr;                                              \
+          value_element* aos_ = nullptr;                                                                               \
           _ITERATE_ON_ALL(_DECLARE_SCALAR_MEMBERS_AOS_CONSTVIEW, ~, __VA_ARGS__)                                       \
     };                                                                                                                 \
     using ConstView = ConstViewTemplate<cms::soa::RangeChecking::Default>;                                             \
@@ -2263,31 +2199,20 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       using base_type = ConstViewTemplate<RANGE_CHECKING>;                                                             \
       using SoAMetadata = typename CLASS::Metadata;                                                                    \
       using value_element = typename SoAMetadata::value_element;                                                       \
+      template <auto Member>                                                                                           \
+      using Column = typename cms::soa::AoSMember<Member>::template AoSElement<value_element>::Column;                 \
       constexpr static cms::soa::RangeChecking::Mode rangeChecking = RANGE_CHECKING;                                   \
-                                                                                                                       \
-      /**                                                                                                              \
-       * Helper/friend class allowing AoS introspection.                                                               \
-       */                                                                                                              \
-       struct AoSMetadata {                                                                                            \
-        friend ViewTemplate;                                                                                           \
-        SOA_HOST_DEVICE SOA_INLINE size_type size() const { return parent_.elements_; }                                \
-                                                                                                                       \
-        /* Forbid copying to avoid const correctness evasion */                                                        \
-        AoSMetadata& operator=(const AoSMetadata&) = delete;                                                           \
-        AoSMetadata(const AoSMetadata&) = delete;                                                                      \
-                                                                                                                       \
-      private:                                                                                                         \
-        SOA_HOST_DEVICE SOA_INLINE AoSMetadata(const ViewTemplate& _soa_impl_parent)                                   \
-        : parent_(_soa_impl_parent) {}                                                                                 \
-        const ViewTemplate& parent_;                                                                                   \
-      };                                                                                                               \
-      SOA_HOST_DEVICE SOA_INLINE const AoSMetadata metadata() const { return AoSMetadata(*this); }                     \
-      SOA_HOST_DEVICE SOA_INLINE AoSMetadata metadata() { return AoSMetadata(*this); }                                 \
                                                                                                                        \
       using base_type::operator[];                                                                                     \
                                                                                                                        \
-      SOA_HOST_DEVICE SOA_INLINE value_element& operator[] (size_type index) {                                         \
-        return const_cast<value_element&>(base_type::operator[](index));                                               \
+      SOA_HOST_DEVICE SOA_INLINE                                                                                       \
+      value_element& operator[] (cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) {                     \
+        if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                            \
+          if (index.value_ >= this->elements_ or index.value_ < 0)                                                     \
+            SOA_THROW_OUT_OF_RANGE("Out of range index in AoS ViewTemplate" #CLASS "::operator[]",                     \
+              index, this->elements_)                                                                                  \
+        }                                                                                                              \
+        return this->aos_[index.value_];                                                                               \
       }                                                                                                                \
                                                                                                                        \
       /* Using the const accessors of the View */                                                                      \
@@ -2346,12 +2271,12 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     }                                                                                                                  \
                                                                                                                        \
     private:                                                                                                           \
-        /* Data members */                                                                                             \
-        std::byte* mem_ = nullptr;                                                                                     \
-        size_type byteSize_;                                                                                           \
-        size_type elements_;                                                                                           \
-        CLASS::Metadata::value_element* aos_ = nullptr;                                                                \
-        _ITERATE_ON_ALL(_DECLARE_SCALAR_MEMBERS_AOS, ~, __VA_ARGS__)                                                   \
+      /* Data members */                                                                                               \
+      std::byte* mem_ EDM_REFLEX_TRANSIENT = nullptr;                                                                  \
+      byte_size_type byteSize_ EDM_REFLEX_TRANSIENT = 0;                                                               \
+      size_type elements_ = 0;                                                                                         \
+      CLASS::Metadata::value_element* aos_ = nullptr;                                                                  \
+      _ITERATE_ON_ALL(_DECLARE_SCALAR_MEMBERS_AOS, ~, __VA_ARGS__)                                                     \
   };                                                                                                                   \
                                                                                                                        \
     /* Helper struct to loop over the columns without using name for non-mutable data */                               \
