@@ -27,6 +27,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <cassert>
@@ -39,6 +40,9 @@
 namespace edm {
   class EventSetup;
 }
+
+// Captures the call site line number and forwards it (as the first argument) to reportProblem().
+#define REPORT_PROBLEM(...) reportProblem(__LINE__, __VA_ARGS__)
 
 namespace edmtest {
 
@@ -76,12 +80,15 @@ namespace edmtest {
                                   edm::Run const& run,
                                   std::vector<int> const& expectedValueImproperlyMerged);
 
-    void abortWithMessage(char const* whichFunction,
-                          char const* type,
-                          edm::InputTag const& tag,
-                          int expectedValue,
-                          int actualValue,
-                          bool unexpectedImproperlyMergedValue = false) const;
+    void reportProblem(int line,
+                       char const* whichFunction,
+                       char const* type,
+                       edm::InputTag const& tag,
+                       int expectedValue,
+                       int actualValue,
+                       bool unexpectedImproperlyMergedValue = false);
+
+    void reportProblem(int line, std::string const& message);
 
     std::vector<int> const expectedBeginRunProd_;
     std::vector<int> const expectedEndRunProd_;
@@ -113,6 +120,7 @@ namespace edmtest {
     unsigned int droppedIndex1_ = 0;
     int droppedIndex1EventCount_ = 0;
     unsigned int processHistoryIndex_ = 0;
+    unsigned int problemCount_ = 0;
 
     edm::Handle<edmtest::Thing> h_thing;
     edm::Handle<edmtest::ThingWithMerge> h_thingWithMerge;
@@ -625,6 +633,9 @@ namespace edmtest {
   void TestMergeResults::endJob() {
     if (verbose_)
       edm::LogInfo("TestMergeResults") << "endJob";
+    if (problemCount_ > 0) {
+      throw cms::Exception("TestMergeResults") << problemCount_ << " problem(s) found, see messages above.";
+    }
   }
 
   void TestMergeResults::checkExpectedRunProducts(unsigned int index,
@@ -641,11 +652,11 @@ namespace edmtest {
       if (expected != 0) {
         h_thing = run.getHandle(thingToken);
         if (h_thing->a != expected) {
-          abortWithMessage(functionName, "Thing", tag, expected, h_thing->a);
+          REPORT_PROBLEM(functionName, "Thing", tag, expected, h_thing->a);
         }
         if (index < expectedValueImproperlyMerged.size()) {
           if ((expectedValueImproperlyMerged[index] != 0) != h_thing.provenance()->knownImproperlyMerged()) {
-            abortWithMessage(functionName, "Thing", tag, 0, 0, true);
+            REPORT_PROBLEM(functionName, "Thing", tag, 0, 0, true);
           }
         }
       }
@@ -654,18 +665,18 @@ namespace edmtest {
       if (expected != 0) {
         h_thingWithMerge = run.getHandle(mergeToken);
         if (h_thingWithMerge->a != expected) {
-          abortWithMessage(functionName, "ThingWithMerge", tag, expected, h_thingWithMerge->a);
+          REPORT_PROBLEM(functionName, "ThingWithMerge", tag, expected, h_thingWithMerge->a);
         }
         if (index + 1 < expectedValueImproperlyMerged.size()) {
           if ((expectedValueImproperlyMerged[index + 1] != 0) !=
               h_thingWithMerge.provenance()->knownImproperlyMerged()) {
-            abortWithMessage(functionName, "ThingWithMerge", tag, 0, 0, true);
+            REPORT_PROBLEM(functionName, "ThingWithMerge", tag, 0, 0, true);
           }
         }
         if (!h_thingWithMerge.provenance()->productDescription().isMergeable()) {
-          std::cerr << "TestMergeResults::checkExpectedRunProducts isMergeable from ProductDescription returns\n"
-                    << "unexpected value for ThingWithMerge type." << std::endl;
-          abort();
+          REPORT_PROBLEM(
+              "TestMergeResults::checkExpectedRunProducts isMergeable from ProductDescription returns "
+              "unexpected value for ThingWithMerge type.");
         }
       }
 
@@ -673,18 +684,18 @@ namespace edmtest {
       if (expected != 0) {
         h_thingWithIsEqual = run.getHandle(isEqualToken);
         if (h_thingWithIsEqual->a != expected) {
-          abortWithMessage(functionName, "ThingWithIsEqual", tag, expected, h_thingWithIsEqual->a);
+          REPORT_PROBLEM(functionName, "ThingWithIsEqual", tag, expected, h_thingWithIsEqual->a);
         }
         if (index + 2 < expectedValueImproperlyMerged.size()) {
           if ((expectedValueImproperlyMerged[index + 2] != 0) !=
               h_thingWithIsEqual.provenance()->knownImproperlyMerged()) {
-            abortWithMessage(functionName, "ThingWithIsEqual", tag, 0, 0, true);
+            REPORT_PROBLEM(functionName, "ThingWithIsEqual", tag, 0, 0, true);
           }
         }
         if (h_thingWithIsEqual.provenance()->productDescription().isMergeable()) {
-          std::cerr << "TestMergeResults::checkExpectedRunProducts isMergeable from ProductDescription returns\n"
-                    << "unexpected value for ThingWithIsEqual type." << std::endl;
-          abort();
+          REPORT_PROBLEM(
+              "TestMergeResults::checkExpectedRunProducts isMergeable from ProductDescription returns "
+              "unexpected value for ThingWithIsEqual type.");
         }
       }
     }
@@ -704,11 +715,11 @@ namespace edmtest {
       if (expected != 0) {
         h_thing = lumi.getHandle(thingToken);
         if (h_thing->a != expected) {
-          abortWithMessage(functionName, "Thing", tag, expected, h_thing->a);
+          REPORT_PROBLEM(functionName, "Thing", tag, expected, h_thing->a);
         }
         if (index < expectedValueImproperlyMerged.size()) {
           if ((expectedValueImproperlyMerged[index] != 0) != h_thing.provenance()->knownImproperlyMerged()) {
-            abortWithMessage(functionName, "Thing", tag, 0, 0, true);
+            REPORT_PROBLEM(functionName, "Thing", tag, 0, 0, true);
           }
         }
       }
@@ -717,18 +728,18 @@ namespace edmtest {
       if (expected != 0) {
         h_thingWithMerge = lumi.getHandle(mergeToken);
         if (h_thingWithMerge->a != expected) {
-          abortWithMessage(functionName, "ThingWithMerge", tag, expected, h_thingWithMerge->a);
+          REPORT_PROBLEM(functionName, "ThingWithMerge", tag, expected, h_thingWithMerge->a);
         }
         if (index + 1 < expectedValueImproperlyMerged.size()) {
           if ((expectedValueImproperlyMerged[index + 1] != 0) !=
               h_thingWithMerge.provenance()->knownImproperlyMerged()) {
-            abortWithMessage(functionName, "ThingWithMerge", tag, 0, 0, true);
+            REPORT_PROBLEM(functionName, "ThingWithMerge", tag, 0, 0, true);
           }
         }
         if (!h_thingWithMerge.provenance()->productDescription().isMergeable()) {
-          std::cerr << "TestMergeResults::checkExpectedLumiProducts isMergeable from ProductDescription returns\n"
-                    << "unexpected value for ThingWithMerge type." << std::endl;
-          abort();
+          REPORT_PROBLEM(
+              "TestMergeResults::checkExpectedLumiProducts isMergeable from ProductDescription returns "
+              "unexpected value for ThingWithMerge type.");
         }
       }
 
@@ -736,30 +747,32 @@ namespace edmtest {
       if (expected != 0) {
         h_thingWithIsEqual = lumi.getHandle(isEqualToken);
         if (h_thingWithIsEqual->a != expected) {
-          abortWithMessage(functionName, "ThingWithIsEqual", tag, expected, h_thingWithIsEqual->a);
+          REPORT_PROBLEM(functionName, "ThingWithIsEqual", tag, expected, h_thingWithIsEqual->a);
         }
         if (index + 2 < expectedValueImproperlyMerged.size()) {
           if ((expectedValueImproperlyMerged[index + 2] != 0) !=
               h_thingWithIsEqual.provenance()->knownImproperlyMerged()) {
-            abortWithMessage(functionName, "ThingWithIsEqual", tag, 0, 0, true);
+            REPORT_PROBLEM(functionName, "ThingWithIsEqual", tag, 0, 0, true);
           }
         }
         if (h_thingWithIsEqual.provenance()->productDescription().isMergeable()) {
-          std::cerr << "TestMergeResults::checkExpectedLumiProducts isMergeable from ProductDescription returns\n"
-                    << "unexpected value for ThingWithIsEqual type." << std::endl;
-          abort();
+          REPORT_PROBLEM(
+              "TestMergeResults::checkExpectedLumiProducts isMergeable from ProductDescription returns "
+              "unexpected value for ThingWithIsEqual type.");
         }
       }
     }
   }
 
-  void TestMergeResults::abortWithMessage(char const* whichFunction,
-                                          char const* type,
-                                          edm::InputTag const& tag,
-                                          int expectedValue,
-                                          int actualValue,
-                                          bool unexpectedImproperlyMergedValue) const {
-    std::cerr << "Error while testing merging of run/lumi products in TestMergeResults.cc\n"
+  void TestMergeResults::reportProblem(int line,
+                                       char const* whichFunction,
+                                       char const* type,
+                                       edm::InputTag const& tag,
+                                       int expectedValue,
+                                       int actualValue,
+                                       bool unexpectedImproperlyMergedValue) {
+    ++problemCount_;
+    std::cerr << "Error while testing merging of run/lumi products in TestMergeResults.cc:" << line << "\n"
               << "In function " << whichFunction << " looking for product of type " << type << "\n"
               << tag << std::endl;
     if (unexpectedImproperlyMergedValue) {
@@ -767,7 +780,12 @@ namespace edmtest {
     } else {
       std::cerr << "Expected value = " << expectedValue << " actual value = " << actualValue << std::endl;
     }
-    abort();
+  }
+
+  void TestMergeResults::reportProblem(int line, std::string const& message) {
+    ++problemCount_;
+    std::cerr << "Error while testing merging of run/lumi products in TestMergeResults.cc:" << line << "\n"
+              << message << std::endl;
   }
 }  // namespace edmtest
 
