@@ -1,6 +1,5 @@
 #include "SimTracker/VertexAssociation/interface/calculateVertexSharedTracks.h"
 
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 // =============================================================================
@@ -10,25 +9,13 @@
 namespace {
 
   /// Extract a TrackRef from a reco::Candidate daughter.
-  /// Tries reco::PFCandidate (RECO/AOD) then pat::PackedCandidate (MiniAOD).
+  /// Tries reco::PFCandidate (RECO/AOD).
   /// Returns an invalid TrackRef for neutral or unresolvable daughters.
-  ///
-  /// Note on MiniAOD: pat::PackedCandidate::bestTrack() returns a raw pointer
-  /// to an embedded track that cannot be wrapped into a persistent TrackRef
-  /// usable by the standard track associators. Such daughters are therefore
-  /// treated as unresolvable and excluded from the shared-track calculation.
-  /// TODO: investigate transient TrackRef construction from packed track
-  /// collection to enable full track-content association on MiniAOD.
   reco::TrackRef extractTrackRef(const reco::Candidate &cand) {
     if (const auto *pfc = dynamic_cast<const reco::PFCandidate *>(&cand))
       return pfc->trackRef();
-
-    if (const auto *pkd = dynamic_cast<const pat::PackedCandidate *>(&cand)) {
-      (void)pkd;  // suppress unused-variable warning pending the TODO above
+    else
       return reco::TrackRef();
-    }
-
-    return reco::TrackRef();
   }
 
   /// Collect all recoverable TrackRefs from a VertexCompositePtrCandidate.
