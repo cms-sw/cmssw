@@ -67,12 +67,15 @@ for filePath in options.inputFiles:
 
 process = cms.Process("GTTFileWriter")
 
-process.load('Configuration.Geometry.GeometryExtendedRun4D88Reco_cff')
-process.load('Configuration.Geometry.GeometryExtendedRun4D88_cff')
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+#process.load('Configuration.Geometry.GeometryExtended2026D110Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D110_cff')
+#process.load('Configuration.Geometry.GeometryExtendedRun4D88Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtendedRun4D88_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '140X_mcRun4_realistic_v4', '')
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.source = cms.Source("PoolSource",
@@ -92,8 +95,10 @@ process.load('L1Trigger.L1TTrackMatch.l1tTrackVertexAssociationProducer_cfi')
 process.load('L1Trigger.L1TTrackMatch.l1tTrackJetsEmulation_cfi')
 process.load('L1Trigger.L1TTrackMatch.l1tTrackerEmuHTMiss_cfi')
 process.load('L1Trigger.L1TTrackMatch.l1tTrackerEmuEtMiss_cfi')
+process.load('L1Trigger.L1TTrackMatch.l1tTrackTripletEmulation_cfi')
 process.load('L1Trigger.DemonstratorTools.l1tGTTFileWriter_cfi')
 process.load('L1Trigger.DemonstratorTools.l1tGTTFileReader_cfi')
+
 
 process.l1tGTTFileReader.processOutputToCorrelator = cms.bool((options.vertices in ['load', 'overwrite']))
 process.l1tGTTFileReader.processInputTracks = cms.bool((options.tracks in ['load', 'overwrite']))
@@ -137,6 +142,41 @@ process.l1tTrackVertexAssociationProducerForJets.cutSet = cms.PSet(
     deltaZMaxEtaBounds = cms.vdouble(0.0, 0.7, 1.0, 1.2, 1.6, 2.0, 2.4), # these values define the bin boundaries in |eta|
     deltaZMax = cms.vdouble(0.37, 0.50, 0.60, 0.75, 1.00, 1.60), # delta z must be less than these values, there will be one less value here than in deltaZMaxEtaBounds, [cm]
 )
+
+# Disable all cuts for comparison between trk triplet EM and FW 
+process.l1tTrackTripletEmulation.trk1_ptMin = -1.0
+process.l1tTrackTripletEmulation.trk1_absEtaMax = 10e7
+process.l1tTrackTripletEmulation.trk1_mvaMin = -1.0
+process.l1tTrackTripletEmulation.trk1_nstubMin = -1
+process.l1tTrackTripletEmulation.trk1_dzMax = 10e7
+process.l1tTrackTripletEmulation.trk2_ptMin = -1.0
+process.l1tTrackTripletEmulation.trk2_absEtaMax = 10e7
+process.l1tTrackTripletEmulation.trk2_mvaMin = -1.0
+process.l1tTrackTripletEmulation.trk2_nstubMin = -1
+process.l1tTrackTripletEmulation.trk2_dzMax = 10e7
+process.l1tTrackTripletEmulation.trk3_ptMin = -1.0
+process.l1tTrackTripletEmulation.trk3_absEtaMax = 10e7
+process.l1tTrackTripletEmulation.trk3_mvaMin = -1.0
+process.l1tTrackTripletEmulation.trk3_nstubMin = 0
+process.l1tTrackTripletEmulation.trk3_dzMax = 10e7
+process.l1tTrackTripletEmulation.triplet_massMin = -1.0
+process.l1tTrackTripletEmulation.triplet_massMax = 10e7
+process.l1tTrackTripletEmulation.triplet_absEtaMin = -1.0
+process.l1tTrackTripletEmulation.triplet_absEtaMax = 10e7
+process.l1tTrackTripletEmulation.triplet_ptMin = -1.0
+process.l1tTrackTripletEmulation.triplet_ptMax = 10e7
+process.l1tTrackTripletEmulation.triplet_absCharge = -1
+process.l1tTrackTripletEmulation.triplet_massOverflow = 1000
+process.l1tTrackTripletEmulation.pair1_massMin = -1
+process.l1tTrackTripletEmulation.pair1_massMax = 10e7
+process.l1tTrackTripletEmulation.pair2_massMin = -1
+process.l1tTrackTripletEmulation.pair2_massMax = 10e7
+# Turn off min and max delta Z cuts between triplet track pairs
+process.l1tTrackTripletEmulation.pair1_dzMin = -1
+process.l1tTrackTripletEmulation.pair1_dzMax = 10e7
+process.l1tTrackTripletEmulation.pair2_dzMin = -1
+process.l1tTrackTripletEmulation.pair2_dzMax = 10e7
+
 process.l1tTrackerEmuHTMiss.debug = (options.debug > 0)
 
 #Disable internal track selection
@@ -164,6 +204,7 @@ process.l1tGTTFileWriter.vertexAssociatedTracks = cms.untracked.InputTag("l1tTra
 process.l1tGTTFileWriter.jets = cms.untracked.InputTag("l1tTrackJetsEmulation","L1TrackJets")
 process.l1tGTTFileWriter.htmiss = cms.untracked.InputTag("l1tTrackerEmuHTMiss", "L1TrackerEmuHTMiss")
 process.l1tGTTFileWriter.etmiss = cms.untracked.InputTag("l1tTrackerEmuEtMiss", "L1TrackerEmuEtMiss")
+process.l1tGTTFileWriter.triplets = cms.untracked.InputTag("l1tTrackTripletEmulation", "L1TrackTripletWord")
 process.l1tGTTFileWriter.outputCorrelatorFilename = cms.untracked.string("L1GTTOutputToCorrelatorFile")
 process.l1tGTTFileWriter.outputGlobalTriggerFilename = cms.untracked.string("L1GTTOutputToGlobalTriggerFile")
 process.l1tGTTFileWriter.selectedTracksFilename = cms.untracked.string("L1GTTSelectedTracksFile")
@@ -187,5 +228,6 @@ process.p.associate(cms.Task(process.l1tGTTInputProducer,
                              process.l1tTrackSelectionProducerForEtMiss,
                              process.l1tTrackVertexAssociationProducerForEtMiss,
                              process.l1tTrackerEmuEtMiss,
+                             process.l1tTrackTripletEmulation,
                          )
                 )
