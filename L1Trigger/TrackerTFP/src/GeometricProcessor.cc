@@ -8,7 +8,7 @@
 
 namespace trackerTFP {
 
-  GeometricProcessor::GeometricProcessor(const tt::Setup* setup,
+  GeometricProcessor::GeometricProcessor(const Setup* setup,
                                          const DataFormats* dataFormats,
                                          const LayerEncoding* layerEncoding,
                                          std::vector<StubGP>& stubs)
@@ -70,8 +70,8 @@ namespace trackerTFP {
           output.push_back(nullptr);
       }
       // truncate if desired
-      if (setup_->enableTruncation() && static_cast<int>(output.size()) > setup_->numFramesHigh())
-        output.resize(setup_->numFramesHigh());
+      if (setup_->enableTruncation() && static_cast<int>(output.size()) > setup_->numFrames())
+        output.resize(setup_->numFrames());
       // remove all gaps between end and last stub
       for (auto it = output.end(); it != output.begin();)
         it = (*--it) ? output.begin() : output.erase(it);
@@ -85,16 +85,16 @@ namespace trackerTFP {
     const DataFormat& dfCot = dataFormats_->format(Variable::cot, Process::gp);
     const DataFormat& dfR = dataFormats_->format(Variable::r, Process::gp);
     const DataFormat& dfL = dataFormats_->format(Variable::layer, Process::gp);
-    const double cot = dfCot.digi(dfZT.floating(zT) / setup_->chosenRofZ());
+    const double cot = dfCot.digi(dfZT.floating(zT) / setup_->regChosenRofZ());
     // determine kf layer id
     const std::vector<int>& le = layerEncoding_->layerEncoding(zT);
     const int layerId = setup_->layerId(stub.frame().first);
     const auto it = std::find(le.begin(), le.end(), layerId);
-    const int kfLayerId = std::min(static_cast<int>(std::distance(le.begin(), it)), setup_->numLayers() - 1);
+    const int kfLayerId = std::min(static_cast<int>(std::distance(le.begin(), it)), setup_->sysNumLayer() - 1);
     // create data fields
     const double r = stub.r();
     const double phi = stub.phi() - dfPhiT.floating(phiT);
-    const double z = stub.z() - (stub.r() + dfR.digi(setup_->chosenRofPhi())) * cot;
+    const double z = stub.z() - (stub.r() + dfR.digi(setup_->regChosenRofPhi())) * cot;
     TTBV layer(kfLayerId, dfL.width());
     if (stub.layer()[4]) {  // barrel
       layer.set(5);

@@ -5,12 +5,14 @@
  *  \author Nicola Pozzobon
  *  \author Emmanuele Salvati
  *  \date   2013, Jul 12
+ *  Updated Ian Tomalin
+ *  \date   2026
  *
  */
 
 #include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
 
-/// Cluster width
+/// Cluster width in r-phi plane
 template <>
 unsigned int TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findWidth() const {
   int rowMin = 99999999;
@@ -31,6 +33,27 @@ unsigned int TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2Trac
   return abs(rowMax - rowMin + 1);  /// This takes care of 1-Pixel clusters
 }
 
+/// Cluster width in r-z plane
+template <>
+unsigned int TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findWidthCols() const {
+  int colMin = 99999999;
+  int colMax = 0;
+  /// this is only the actual size in RPhi
+  for (unsigned int i = 0; i < theHits.size(); i++) {
+    int col = 0;
+    if (this->getCols().empty()) {
+      col = theHits[i]->column();
+    } else {
+      col = this->getCols()[i];
+    }
+    if (col < colMin)
+      colMin = col;
+    if (col > colMax)
+      colMax = col;
+  }
+  return abs(colMax - colMin + 1);  /// This takes care of 1-Pixel clusters
+}
+
 /// Get hit local coordinates
 template <>
 MeasurementPoint TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findHitLocalCoordinates(
@@ -48,10 +71,11 @@ MeasurementPoint TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2
   }
 }
 
-/// Unweighted average local cluster coordinates
+/// Unweighted average local cluster coordinates, using edge of the strips
 template <>
 MeasurementPoint
-TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findAverageLocalCoordinates() const {
+TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findAverageLocalCoordinates(
+    bool outFE) const {
   double averageCol = 0.0;
   double averageRow = 0.0;
 
@@ -74,36 +98,25 @@ TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::f
       averageRow /= theHits.size();
     }
   }
+
+  if (outFE) {
+    // TO DO: Check if FE electronics floors or rounds.
+    averageRow = rowGranularityFE * std::floor(averageRow / rowGranularityFE);
+    averageCol = colGranularityFE * std::floor(averageCol / colGranularityFE);
+  }
+
   return MeasurementPoint(averageRow, averageCol);
 }
 
 /// Unweighted average local cluster coordinates, using center of the strips
 template <>
-MeasurementPoint TTCluster<
-    edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findAverageLocalCoordinatesCentered() const {
-  double averageCol = 0.0;
-  double averageRow = 0.0;
-
-  /// Loop over the hits and calculate the average coordinates
-  if (!theHits.empty()) {
-    if (this->getRows().empty() || this->getCols().empty()) {
-      typename std::vector<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::const_iterator hitIter;
-      for (hitIter = theHits.begin(); hitIter != theHits.end(); hitIter++) {
-        averageCol += (*hitIter)->column() + 0.5;
-        averageRow += (*hitIter)->row() + 0.5;
-      }
-      averageCol /= theHits.size();
-      averageRow /= theHits.size();
-    } else {
-      for (unsigned int j = 0; j < theHits.size(); j++) {
-        averageCol += theCols[j] + 0.5;
-        averageRow += theRows[j] + 0.5;
-      }
-      averageCol /= theHits.size();
-      averageRow /= theHits.size();
-    }
-  }
-  return MeasurementPoint(averageRow, averageCol);
+MeasurementPoint
+TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findAverageLocalCoordinatesCentered(
+    bool outFE) const {
+  // Get cluster coords from edge of strips and then offset by 0.5 strips.
+  // (This is unbiased for any subsequent coordinate calculation).
+  MeasurementPoint m = this->findAverageLocalCoordinates(outFE);
+  return MeasurementPoint(m.x() + 0.5, m.y() + 0.5);
 }
 
 /// Coordinates stored locally
