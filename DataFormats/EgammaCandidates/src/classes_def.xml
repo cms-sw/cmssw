@@ -59,6 +59,7 @@
 
   <class name="std::vector<reco::io_v1::Photon>"/>
   <class name="edm::Wrapper<std::vector<reco::io_v1::Photon> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<vector<reco::io_v1::Photon>,reco::io_v1::Photon>"/>
   <class name="edm::Ref<std::vector<reco::io_v1::Photon>,reco::io_v1::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Photon>,reco::io_v1::Photon> >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::io_v1::Photon>,reco::io_v1::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Photon>,reco::io_v1::Photon> > >"/>
   <class name="edm::RefProd<std::vector<reco::io_v1::Photon> >"/>
