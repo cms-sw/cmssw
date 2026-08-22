@@ -595,13 +595,18 @@ namespace edm {
     } catch (...) {
       //in case of an exception, make sure Services are available
       // during the following destructors
-      espController_ = nullptr;
-      esp_ = nullptr;
-      schedule_ = nullptr;
-      sourceCoordinator_.releaseSource();
-      looper_ = nullptr;
-      actReg_ = nullptr;
-      throw;
+      auto expt = std::current_exception();
+      try {
+        espController_ = nullptr;
+        esp_ = nullptr;
+        schedule_ = nullptr;
+        sourceCoordinator_.releaseSource();
+        looper_ = nullptr;
+        actReg_ = nullptr;
+      } catch (...) {
+        // ignore any exceptions from destructors
+      }
+      std::rethrow_exception(expt);
     }
   }
 
@@ -1202,6 +1207,7 @@ namespace edm {
                     //handle exception from readRunAsync
                     WaitingTaskHolder copyHolder(nextTask);
                     copyHolder.doneWaiting(*iException);
+                    runStatus->setStopBeforeProcessingRun(true);
                     releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus);
                   }
                 }) |
@@ -1642,7 +1648,7 @@ namespace edm {
                   if (iException) {
                     //deal with possible failure from readLumiAsync
                     releaseLumiResourcesAfterFailure(*status);
-                    nextTask.doneWaiting(*iException);
+                    nextTask.presetTaskAsFailed(*iException);
                     endRunAsync(iRunStatus, std::nullopt, nextTask);
                     return;
                   }
@@ -1673,6 +1679,12 @@ namespace edm {
                   looper_->doBeginLuminosityBlock(
                       *(status->lumiPrincipal()), status->eventSetupImpl(), &processContext_);
                 }) | then([this, status, iRunStatus](std::exception_ptr const* iException, auto holder) mutable {
+                  if (not iRunStatus->globalEndRunHolder().hasTask()) {
+                    //endRun has already be run
+                    assert(iException);
+                    holder.doneWaiting(*iException);
+                    return;
+                  }
                   status->setGlobalEndRunHolder(iRunStatus->globalEndRunHolder());
 
                   if (iException) {
