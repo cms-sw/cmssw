@@ -4,8 +4,10 @@
 #include <ap_int.h>
 #include <vector>
 
+#ifdef CMSSW_GIT_HASH
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterCorrelator.h"
+#endif
 
 namespace l1tp2 {
 
@@ -17,14 +19,13 @@ namespace l1tp2 {
     // Constants
     static constexpr float LSB_PT = 0.5;  // 0.5 GeV
 
-    // start of the unused bits
-    static constexpr int n_bits_unused_start = 52;
-
+#ifdef CMSSW_GIT_HASH
     // Reference to the original float cluster
     edm::Ref<l1tp2::CaloCrystalClusterCollection> clusterRef_;
 
     // reference to the original digitized cluster (before duplication in the output links)
     edm::Ref<l1tp2::DigitizedClusterCorrelatorCollection> digiClusterRef_;
+#endif
 
   public:
     GCTEmDigiCluster() { clusterData = 0; }
@@ -32,94 +33,72 @@ namespace l1tp2 {
     GCTEmDigiCluster(ap_uint<64> data) { clusterData = data; }
 
     GCTEmDigiCluster(ap_uint<12> pt,
-                     int etaCr,
-                     int phiCr,
-                     ap_uint<4> hoe,
-                     ap_uint<2> hoeFlag,
-                     ap_uint<3> iso,
-                     ap_uint<2> isoFlag,
-                     ap_uint<6> fb,
+                     ap_uint<7> eta,
+                     ap_int<7> phi,
+                     ap_uint<6> hoe,
+                     ap_uint<6> iso,
+                     ap_uint<6> shape,
+                     ap_uint<3> wp,
                      ap_uint<5> timing,
-                     ap_uint<2> shapeFlag,
-                     ap_uint<2> brems) {
-      // To use .range() we need an ap class member
-      ap_uint<64> temp_data;
-      ap_uint<7> etaCrDigitized = abs(etaCr);
-      ap_int<7> phiCrDigitized = phiCr;
-
-      temp_data.range(11, 0) = pt.range();
-      temp_data.range(18, 12) = etaCrDigitized.range();
-      temp_data.range(25, 19) = phiCrDigitized.range();
-      temp_data.range(29, 26) = hoe.range();
-      temp_data.range(31, 30) = hoeFlag.range();
-      temp_data.range(34, 32) = iso.range();
-      temp_data.range(36, 35) = isoFlag.range();
-      temp_data.range(42, 37) = fb.range();
-      temp_data.range(47, 43) = timing.range();
-      temp_data.range(49, 48) = shapeFlag.range();
-      temp_data.range(51, 50) = brems.range();
-
-      clusterData = temp_data;
+                     ap_uint<2> brems,
+                     ap_uint<10> spare) {
+      clusterData = ((ap_uint<64>)pt) | (((ap_uint<64>)eta) << 12) | (((ap_uint<64>)(phi & 0x7F)) << 19) |
+                    (((ap_uint<64>)hoe) << 26) | (((ap_uint<64>)iso) << 32) | (((ap_uint<64>)shape) << 38) |
+                    (((ap_uint<64>)wp) << 44) | (((ap_uint<64>)timing) << 47) | (((ap_uint<64>)brems << 52)) |
+                    (((ap_uint<64>)spare << 54));
     }
 
+#ifdef CMSSW_GIT_HASH
     // Setters
     void setRef(const edm::Ref<l1tp2::CaloCrystalClusterCollection>& clusterRef) { clusterRef_ = clusterRef; }
 
     void setDigiRef(const edm::Ref<l1tp2::DigitizedClusterCorrelatorCollection>& digiClusterRef) {
       digiClusterRef_ = digiClusterRef;
     }
+#endif
 
     // Getters
     ap_uint<64> data() const { return clusterData; }
 
     // Other getters
     float ptLSB() const { return LSB_PT; }
-    ap_uint<12> pt() const { return data().range(11, 0); }
+    ap_uint<12> pt() const { return (clusterData & 0xFFF); }
     float ptFloat() const { return pt() * ptLSB(); }
 
     // crystal eta (unsigned, 7 bits), starting at 0 at real eta = 0, and increasing in the direction of larger abs(real eta)
     // to convert to real eta, need to know which link this cluster is in
-    int eta() const { return (ap_uint<7>)data().range(18, 12); }
+    ap_uint<7> eta() const { return ((clusterData >> 12) & 0x7F); }
 
     // crystal phi (signed, 7 bits), relative to center of the SLR
     // to convert to real phi, need to know which SLR this cluster is in
-    int phi() const { return (ap_int<7>)data().range(25, 19); }
+    ap_int<7> phi() const { return ((clusterData >> 19) & 0x7F); }
 
-    // HoE value and flag: not defined yet in the emulator
-    ap_uint<4> hoe() const { return data().range(29, 26); }
-    ap_uint<2> hoeFlag() const { return data().range(31, 30); }
+    // HoE value: not defined for EG cluster
+    ap_uint<6> hoe() const { return ((clusterData >> 26) & 0x3F); }
 
-    // Raw isolation sum: not saved in the emulator
-    ap_uint<3> iso() const { return data().range(34, 32); }
+    // Raw isolation sum
+    ap_uint<6> iso() const { return ((clusterData >> 32) & 0x3F); }
 
-    // iso flag: two bits, least significant bit is the standalone WP (true or false), second bit is the looseTk WP (true or false)
-    // e.g. 0b01 : standalone iso flag passed, loose Tk iso flag did not pass
-    ap_uint<2> isoFlags() const { return data().range(36, 35); }
-    bool passes_iso() const { return (isoFlags() & 0x1); }         // standalone iso WP
-    bool passes_looseTkiso() const { return (isoFlags() & 0x2); }  // loose Tk iso WP
+    // Shape information: et2x5/et5x5 normalized to 0x3F
+    ap_uint<6> shape() const { return ((clusterData >> 38) & 0x3F); }
 
-    // fb and timing: not saved in the current emulator
-    ap_uint<6> fb() const { return data().range(42, 37); }
-    ap_uint<5> timing() const { return data().range(47, 43); }
+    // Working points: bit 0 standaloneWP, bit 1 looseL1TkMatchWP, bit 2 photonWP
+    ap_uint<3> wp() const { return ((clusterData >> 44) & 0x7); }
 
-    // shower shape shape flag: two bits, least significant bit is the standalone WP, second bit is the looseTk WP
-    // e.g. 0b01 : standalone shower shape flag passed, loose Tk shower shape flag did not pass
-    ap_uint<2> shapeFlags() const { return data().range(49, 48); }
+    ap_uint<5> timing() const { return ((clusterData >> 47) & 0x1F); }
 
-    bool passes_ss() const { return (shapeFlags() & 0x1); }         // standalone shower shape WP
-    bool passes_looseTkss() const { return (shapeFlags() & 0x2); }  // loose Tk shower shape WP
+    // Brem information from RCT
+    ap_uint<2> brems() const { return ((clusterData >> 52) & 0x3); }
 
-    // brems: not saved in the current emulator
-    ap_uint<2> brems() const { return data().range(51, 50); }
+    // Encoding region information
+    ap_uint<10> spare() const { return ((clusterData >> 54) & 0x3FF); }
 
-    // Check that unused bits are zero
-    const int unusedBitsStart() const { return n_bits_unused_start; }
-    bool passNullBitsCheck(void) const { return ((data() >> unusedBitsStart()) == 0); }
-
+#ifdef CMSSW_GIT_HASH
     // Get the underlying float cluster
     const edm::Ref<l1tp2::CaloCrystalClusterCollection>& clusterRef() const { return clusterRef_; }
     // Get the underlying digitized cluster (before duplication and zero-padding)
     const edm::Ref<l1tp2::DigitizedClusterCorrelatorCollection>& digiClusterRef() const { return digiClusterRef_; }
+#endif
   };
 
   // Collection typedefs

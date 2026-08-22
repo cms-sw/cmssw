@@ -91,22 +91,24 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
     cms::Exception("Phase2L1CaloPFClusterEmulator") << "Failed to get towers from caloTowerCollection!";
 
   float GCTintTowers[nTowerEta][nTowerPhi];
+  float GCTintTowersEcal[nTowerEta][nTowerPhi];
   float realEta[nTowerEta][nTowerPhi];
   float realPhi[nTowerEta][nTowerPhi];
   for (const l1tp2::CaloTower& i : *caloTowerCollection) {
     int ieta = i.towerIEta();
     int iphi = i.towerIPhi();
-    GCTintTowers[ieta][iphi] = i.ecalTowerEt();
+    GCTintTowers[ieta][iphi] = i.ecalTowerEt() + i.hcalTowerEt();
+    GCTintTowersEcal[ieta][iphi] = i.ecalTowerEt();
     realEta[ieta][iphi] = i.towerEta();
     realPhi[ieta][iphi] = i.towerPhi();
   }
 
-  float regions[nSLR][nTowerEtaSLR][nTowerPhiSLR];
+  std::pair<float, float> regions[nSLR][nTowerEtaSLR][nTowerPhiSLR];
 
   for (int ieta = 0; ieta < nTowerEtaSLR; ieta++) {
     for (int iphi = 0; iphi < nTowerPhiSLR; iphi++) {
       for (int k = 0; k < nSLR; k++) {
-        regions[k][ieta][iphi] = 0.;
+        regions[k][ieta][iphi] = std::make_pair(0., 0.);
       }
     }
   }
@@ -117,28 +119,34 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
     for (int iphi = 0; iphi < nTowerPhiSLR; iphi++) {
       if (ieta > 1) {
         if (iphi > 1)
-          regions[0][ieta][iphi] = GCTintTowers[ieta - 2][iphi - 2];
+          regions[0][ieta][iphi] =
+              std::make_pair(GCTintTowers[ieta - 2][iphi - 2], GCTintTowersEcal[ieta - 2][iphi - 2]);
         for (int k = 1; k < 17; k++) {
-          regions[k * 2][ieta][iphi] = GCTintTowers[ieta - 2][iphi + k * 4 - 2];
+          regions[k * 2][ieta][iphi] =
+              std::make_pair(GCTintTowers[ieta - 2][iphi + k * 4 - 2], GCTintTowersEcal[ieta - 2][iphi + k * 4 - 2]);
         }
         if (iphi < 6)
-          regions[34][ieta][iphi] = GCTintTowers[ieta - 2][iphi + 66];
+          regions[34][ieta][iphi] =
+              std::make_pair(GCTintTowers[ieta - 2][iphi + 66], GCTintTowersEcal[ieta - 2][iphi + 66]);
       }
       if (ieta < 19) {
         if (iphi > 1)
-          regions[1][ieta][iphi] = GCTintTowers[ieta + 15][iphi - 2];
+          regions[1][ieta][iphi] =
+              std::make_pair(GCTintTowers[ieta + 15][iphi - 2], GCTintTowersEcal[ieta + 15][iphi - 2]);
         for (int k = 1; k < 17; k++) {
-          regions[k * 2 + 1][ieta][iphi] = GCTintTowers[ieta + 15][iphi + k * 4 - 2];
+          regions[k * 2 + 1][ieta][iphi] =
+              std::make_pair(GCTintTowers[ieta + 15][iphi + k * 4 - 2], GCTintTowersEcal[ieta + 15][iphi + k * 4 - 2]);
         }
         if (iphi < 6)
-          regions[35][ieta][iphi] = GCTintTowers[ieta + 15][iphi + 66];
+          regions[35][ieta][iphi] =
+              std::make_pair(GCTintTowers[ieta + 15][iphi + 66], GCTintTowersEcal[ieta + 15][iphi + 66]);
       }
     }
   }
 
-  float temporary[nTowerEtaSLR][nTowerPhiSLR];
+  std::pair<float, float> temporary[nTowerEtaSLR][nTowerPhiSLR];
   int etaoffset = 0;
-  int phioffset = 0;
+  int phioffset = -2;
 
   //Use same code from firmware for finding clusters
   for (int k = 0; k < nSLR; k++) {
@@ -148,7 +156,7 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
       }
     }
     if (k % 2 == 0)
-      etaoffset = 0;
+      etaoffset = -2;
     else
       etaoffset = nTowerEta / 2 - 2;
     if (k > 1 && k % 2 == 0)
@@ -162,19 +170,21 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
       int gctphi = tempPfclusters.GCTpfclusters[i].phi;
       float towereta = realEta[gcteta][gctphi];
       float towerphi = realPhi[gcteta][gctphi];
-      l1tp2::CaloPFCluster l1CaloPFCluster;
-      l1CaloPFCluster.setClusterEt(tempPfclusters.GCTpfclusters[i].et);
-      l1CaloPFCluster.setClusterIEta(gcteta);
-      l1CaloPFCluster.setClusterIPhi(gctphi);
-      l1CaloPFCluster.setClusterEta(towereta);
-      l1CaloPFCluster.setClusterPhi(towerphi);
+      reco::Particle::PolarLorentzVector clusterP4(tempPfclusters.GCTpfclusters[i].et, towereta, towerphi, 0);
+      l1tp2::CaloPFCluster l1CaloPFCluster(clusterP4,
+                                           tempPfclusters.GCTpfclusters[i].et,
+                                           tempPfclusters.GCTpfclusters[i].ecal,
+                                           gcteta,
+                                           gctphi,
+                                           towereta,
+                                           towerphi);
       pfclusterCands->push_back(l1CaloPFCluster);
     }
   }
 
   edm::Handle<HcalTrigPrimDigiCollection> hfHandle;
   if (!iEvent.getByToken(hfToken_, hfHandle))
-    edm::LogError("Phase2L1CaloJetEmulator") << "Failed to get HcalTrigPrimDigi for HF!";
+    edm::LogError("Phase2L1CaloPFClusterEmulator") << "Failed to get HcalTrigPrimDigi for HF!";
   iEvent.getByToken(hfToken_, hfHandle);
 
   float hfTowers[2 * nHfEta][nHfPhi];  // split 12 -> 24
@@ -298,6 +308,7 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
       float towerphi = hfPhi[hfeta][hfphi];
       l1tp2::CaloPFCluster l1CaloPFCluster;
       l1CaloPFCluster.setClusterEt(tempPfclustersHF.GCTpfclusters[i].et);
+      l1CaloPFCluster.setEcalEt(0.);
       l1CaloPFCluster.setClusterIEta(hfeta);
       l1CaloPFCluster.setClusterIPhi(hfphi);
       l1CaloPFCluster.setClusterEta(towereta);
