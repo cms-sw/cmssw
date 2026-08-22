@@ -61,7 +61,10 @@
 #include "RecoMuon/MuonIdentification/interface/MuonIdTruthInfo.h"
 #include "RecoMuon/MuonIdentification/interface/MuonArbitrationMethods.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "DataFormats/GEMRecHit/interface/GEMRecHit.h"
+#include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 
 class MuonMesh;
 class MuonKinkFinder;
@@ -227,6 +230,9 @@ private:
 
   bool isPhase2_;
   bool debugWithTruthMatching_;
+
+  double dxNorm_;
+  double dDphiDzNorm_;
 
   edm::Handle<reco::TrackCollection> innerTrackCollectionHandle_;
   edm::Handle<reco::TrackCollection> outerTrackCollectionHandle_;
