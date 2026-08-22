@@ -12,6 +12,9 @@ process.options = cms.untracked.PSet(
   Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
 
+#Contents of files
+#testRunMerge2.root  "PROD" [run:1, lumi:1, ev:21-25] [run:2,lumi:1, ev:1-5]
+
 process.source = cms.Source("RNTupleTempSource",
     fileNames = cms.untracked.vstring('file:testRunMerge2.root')
 )
@@ -24,6 +27,8 @@ process.dependsOnThingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer
 process.out = cms.OutputModule("RNTupleTempOutputModule",
     fileName = cms.untracked.string('testRunMerge2extra.root')
 )
+#Contents of files
+#testRunMerge2extra.root  "PROD" & "EXTRA" [run:1, lumi:1, ev:21-25] [run:2,lumi:1, ev:1-5]
 
 process.path1 = cms.Path(process.thingWithMergeProducer *
                          process.dependsOnThingWithMergeProducer)
