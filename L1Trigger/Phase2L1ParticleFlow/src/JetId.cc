@@ -73,17 +73,17 @@ float JetId::EvaluateNN() {
   return outputs[0].matrix<float>()(0, 0);
 }  //end EvaluateNN
 
-ap_fixed<16, 6> JetId::EvaluateNNFixed() {
-  ap_fixed<16, 6> modelInput[140] = {};
+ap_fixed<14, 8, AP_TRN, AP_SAT, 0> JetId::EvaluateNNFixed() {
+  ap_fixed<12, 6, AP_TRN, AP_SAT, 0> modelInput[130] = {};
   for (unsigned int i = 0; i < NNvectorVar_.size(); i++) {
     modelInput[i] = NNvectorVar_[i];
   }
-  ap_fixed<16, 6> modelResult[1] = {-1};
+  ap_fixed<14, 8, AP_TRN, AP_SAT, 0> modelResult[1] = {-1};
 
   modelRef_->prepare_input(modelInput);
   modelRef_->predict();
   modelRef_->read_result(modelResult);
-  ap_fixed<16, 6> modelResult_ = modelResult[0];
+  ap_fixed<14, 8, AP_TRN, AP_SAT, 0> modelResult_ = modelResult[0];
   return modelResult_;
 }  //end EvaluateNNFixed
 
@@ -152,5 +152,6 @@ ap_fixed<16, 6> JetId::computeFixed(const l1t::PFJet &iJet, float vz, bool useRa
     }
   }
   setNNVectorVar();
+
   return EvaluateNNFixed();
 }
