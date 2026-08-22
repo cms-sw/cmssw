@@ -19,8 +19,10 @@
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
 #include <cmath>
+#include <map>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <unordered_set>
 #include <vector>
 
@@ -478,6 +480,8 @@ struct HGCalMixRotatedFineCassette {
                    int absType,
                    bool fine) {
     cms::DDNamespace ns(ctxt, e, true);
+    int placementCopy(-1);
+    // Use unique temporary copy numbers for a shared volume; restore the original name and copy number after placement.
 
     // Make the top part first
     for (unsigned int ly = 0; ly < layerTypeTop_.size(); ++ly) {
@@ -578,10 +582,7 @@ struct HGCalMixRotatedFineCassette {
 #endif
           std::string name = namesTop_[ii] + "L" + std::to_string(copy) + "F" + std::to_string(k);
           ++k;
-          dd4hep::Solid solid = dd4hep::Tube(r1, r2, hthickl, phi1, phi2);
-          ns.addSolidNS(ns.prepend(name), solid);
-          dd4hep::Volume glog1 = dd4hep::Volume(solid.name(), solid, matter1);
-          ns.addVolumeNS(glog1);
+          dd4hep::Volume glog1 = topVolume(ns, name, matter1, r1, r2, hthickl, phi1, phi2);
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: " << glog1.name() << " Tubs made of "
                                         << matter1.name() << " of dimensions " << cms::convert2mm(r1) << ", "
@@ -589,7 +590,9 @@ struct HGCalMixRotatedFineCassette {
                                         << convertRadToDeg(phi1) << ", " << convertRadToDeg(phi2);
 #endif
           dd4hep::Position tran(0, 0, zpos);
-          glog.placeVolume(glog1, copy, tran);
+          auto placed = glog.placeVolume(glog1, placementCopy--, tran);
+          placed->SetName((ns.prepend(name) + "_" + std::to_string(copy)).c_str());
+          placed->SetNumber(copy);
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Position " << glog1.name() << " number "
                                         << copy << " in " << glog.name() << " at (0,0," << cms::convert2mm(zpos)
@@ -694,10 +697,7 @@ struct HGCalMixRotatedFineCassette {
 #endif
         std::string name = namesTop_[ii] + "L" + std::to_string(copy) + "F" + std::to_string(k);
         ++k;
-        dd4hep::Solid solid = dd4hep::Tube(r1, r2, hthickl, phi1, phi2);
-        ns.addSolidNS(ns.prepend(name), solid);
-        dd4hep::Volume glog1 = dd4hep::Volume(solid.name(), solid, matter1);
-        ns.addVolumeNS(glog1);
+        dd4hep::Volume glog1 = topVolume(ns, name, matter1, r1, r2, hthickl, phi1, phi2);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: " << glog1.name() << " Tubs made of "
                                       << matter1.name() << " of dimensions " << cms::convert2mm(r1) << ", "
@@ -705,7 +705,9 @@ struct HGCalMixRotatedFineCassette {
                                       << convertRadToDeg(phi1) << ", " << convertRadToDeg(phi2);
 #endif
         dd4hep::Position tran(0, 0, zpos);
-        glog.placeVolume(glog1, copy, tran);
+        auto placed = glog.placeVolume(glog1, placementCopy--, tran);
+        placed->SetName((ns.prepend(name) + "_" + std::to_string(copy)).c_str());
+        placed->SetNumber(copy);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: Position " << glog1.name() << " number "
                                       << copy << " in " << glog.name() << " at (0,0," << cms::convert2mm(zpos)
@@ -873,6 +875,25 @@ struct HGCalMixRotatedFineCassette {
     }
   }
 
+  dd4hep::Volume topVolume(cms::DDNamespace& ns,
+                           const std::string& name,
+                           const dd4hep::Material& material,
+                           double r1,
+                           double r2,
+                           double halfThickness,
+                           double phi1,
+                           double phi2) {
+    auto [entry, inserted] =
+        topVolumes_.try_emplace(std::make_tuple(std::string(material.name()), r1, r2, halfThickness, phi1, phi2));
+    if (inserted) {
+      dd4hep::Solid solid = dd4hep::Tube(r1, r2, halfThickness, phi1, phi2);
+      ns.addSolidNS(ns.prepend(name), solid);
+      entry->second = dd4hep::Volume(solid.name(), solid, material);
+      ns.addVolumeNS(entry->second);
+    }
+    return entry->second;
+  }
+
   void testCassetteShift() {
     for (unsigned int k = 0; k < layers_.size(); ++k) {
       int layer = k + 1;
@@ -959,7 +980,9 @@ struct HGCalMixRotatedFineCassette {
   std::vector<double> cassetteShiftScnt_;  // Shifts of the cassetes for scintillators
   std::string nameSpace_;                  // Namespace of this and ALL sub-parts
   std::unordered_set<int> copies_;         // List of copy #'s
-  int forFireworks_;                       // 0 for standard run 1 for fireworks
+  // Reuse top passive volumes with identical material and shape.
+  std::map<std::tuple<std::string, double, double, double, double, double>, dd4hep::Volume> topVolumes_;
+  int forFireworks_;  // 0 for standard run 1 for fireworks
   double alpha_, cosAlpha_;
   static constexpr double tol0_ = 0.0001 * dd4hep::mm;
   static constexpr double tol1_ = 0.01 * dd4hep::mm;
