@@ -201,7 +201,7 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
                   << "the thickness " << thick << " for DetId " << maxEnergyDetId.rawId() << " is not within the size "
                   << thresholdW0_.size();
             }
-            float Wi = std::max(thresholdW0_[thick] + std::log(cellsOnLayer.weight[cellIdx] / energy), 0.);
+            float Wi = std::max(thresholdW0_[thick] + std::log(cellsOnLayer.weight[cellIdx] / energy), 0.f);
             if (std::isnan(Wi)) {
               throw cms::Exception("HGCalClusterNan")
                   << "The weight for cell " << cellIdx << " is a nan. The values in the calculation are weight "
@@ -255,7 +255,7 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
 template <typename T, typename STRATEGY>
 void HGCalCLUEAlgoT<T, STRATEGY>::calculateLocalDensity(const T& lt,
                                                         const unsigned int layerId,
-                                                        const std::vector<double>& deltas_c,
+                                                        const std::vector<float>& deltas_c,
                                                         HGCalSiliconStrategy strategy) {
   auto& cellsOnLayer = cells_[layerId];
   unsigned int numberOfCells = cellsOnLayer.detid.size();
@@ -287,7 +287,7 @@ void HGCalCLUEAlgoT<T, STRATEGY>::calculateLocalDensity(const T& lt,
 template <typename T, typename STRATEGY>
 void HGCalCLUEAlgoT<T, STRATEGY>::calculateLocalDensity(const T& lt,
                                                         const unsigned int layerId,
-                                                        const std::vector<double>& deltas_c,
+                                                        const std::vector<float>& deltas_c,
                                                         HGCalScintillatorStrategy strategy) {
   auto& cellsOnLayer = cells_[layerId];
   unsigned int numberOfCells = cellsOnLayer.detid.size();
@@ -355,7 +355,7 @@ void HGCalCLUEAlgoT<T, STRATEGY>::calculateLocalDensity(const T& lt,
 template <typename T, typename STRATEGY>
 void HGCalCLUEAlgoT<T, STRATEGY>::calculateLocalDensity(const T& lt,
                                                         const unsigned int layerId,
-                                                        const std::vector<double>& deltas_c) {
+                                                        const std::vector<float>& deltas_c) {
   if constexpr (std::is_same_v<STRATEGY, HGCalSiliconStrategy>) {
     calculateLocalDensity(lt, layerId, deltas_c, HGCalSiliconStrategy());
   } else {
@@ -366,7 +366,7 @@ void HGCalCLUEAlgoT<T, STRATEGY>::calculateLocalDensity(const T& lt,
 template <typename T, typename STRATEGY>
 void HGCalCLUEAlgoT<T, STRATEGY>::calculateDistanceToHigher(const T& lt,
                                                             const unsigned int layerId,
-                                                            const std::vector<double>& deltas_o) {
+                                                            const std::vector<float>& deltas_o) {
   auto& cellsOnLayer = cells_[layerId];
   unsigned int numberOfCells = cellsOnLayer.detid.size();
 
@@ -434,8 +434,8 @@ void HGCalCLUEAlgoT<T, STRATEGY>::calculateDistanceToHigher(const T& lt,
 
 template <typename T, typename STRATEGY>
 int HGCalCLUEAlgoT<T, STRATEGY>::findAndAssignClusters(const unsigned int layerId,
-                                                       const std::vector<double>& deltas_seed,
-                                                       const std::vector<double>& deltas_o) {
+                                                       const std::vector<float>& deltas_seed,
+                                                       const std::vector<float>& deltas_o) {
   // this is called once per layer and endcap...
   // so when filling the cluster temporary vector of Hexels we resize each time
   // by the number  of clusters found. This is always equal to the number of
