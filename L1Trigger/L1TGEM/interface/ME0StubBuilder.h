@@ -21,12 +21,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-class ME0StubAlgorithmBase;
-
 class ME0StubBuilder {
 public:
   explicit ME0StubBuilder(const edm::ParameterSet&);
-  ~ME0StubBuilder();
+  ~ME0StubBuilder() = default;
 
   void build(const GEMPadDigiCollection* padDigis, ME0StubCollection& oc);
 
@@ -45,11 +43,16 @@ private:
   bool xPartitionEnabled_;
   bool enableNonPointing_;
   int32_t crossPartitionSegmentWidth_;
+  int32_t clearanceWidth_;
   int32_t numOutputs_;
   bool checkIds_;
   int32_t edgeDistance_;
   int32_t numOr_;
   double mseThreshold_;
+  double bendAngleCut_;
+  int32_t BXWindow_;
+  bool enablePeaking_;
+  bool debug_ = false;
 };
 
 #endif
