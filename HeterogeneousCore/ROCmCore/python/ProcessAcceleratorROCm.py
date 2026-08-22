@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 import os
+import sys
 
 from HeterogeneousCore.Common.PlatformStatus import PlatformStatus
 
@@ -31,6 +32,10 @@ class ProcessAcceleratorROCm(cms.ProcessAccelerator):
             if not hasattr(process.MessageLogger, "ROCmService"):
                 process.MessageLogger.ROCmService = cms.untracked.PSet()
 
+            # Configure Open MPI 5 to use the ROCm accelerator framework
+            if os.environ['OMPI_MCA_accelerator'] == 'null':
+                os.environ['OMPI_MCA_accelerator'] = 'rocm'
+
         else:
             # Make sure the ROCmService is not loaded
             if hasattr(process, "ROCmService"):
@@ -40,6 +45,12 @@ class ProcessAcceleratorROCm(cms.ProcessAccelerator):
             if hasattr(process.MessageLogger, "ROCmService"):
                 del process.MessageLogger.ROCmService
 
+            # Configure Open MPI 5 to not use the ROCm accelerator framework
+            if 'rocm' in os.environ['OMPI_MCA_accelerator']:
+                mpiacc = os.environ['OMPI_MCA_accelerator'].split(',')
+                mpiacc = [ acc for acc in mpiacc if acc != 'rocm' ] or [ 'null' ]
+                os.environ['OMPI_MCA_accelerator'] = ','.join(mpiacc)
+                print(f"The 'rocm' accelerator is disabled, 'OMPI_MCA_accelerator' has been set to '{','.join(mpiacc)}'", file=sys.stderr)
 
 # Ensure this module is kept in the configuration when dumping it
 cms.specialImportRegistry.registerSpecialImportForType(ProcessAcceleratorROCm, "from HeterogeneousCore.ROCmCore.ProcessAcceleratorROCm import ProcessAcceleratorROCm")
