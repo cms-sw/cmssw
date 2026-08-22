@@ -101,9 +101,6 @@ In addition to those fully parametrized templates, two further levels of paramet
 mirroring the structure of the underlying structs. The blocks are built via composition, 
 and access to individual layouts and views is provided by name.
 
-TODOs:
-- Add introspection utilities to print the structure and layout of a `SoABlocks` instance.
-
 [An example of utilization is shown below.](#examples)
 
 ## ROOT serialization and de-serialization
@@ -367,6 +364,10 @@ blocksView.scalars().id() = 42;
 blocksView.scalars().type() = 1;
 blocksView.scalars().energy() = 100.0f;
 
+// SoALayouts support introspection.
+// Outputs all blocks contained in the SoABlocks layout,
+// including the size of each column in bytes and its associated padding.
+std::cout << blocks;
 ```
                    
 ## Current status and further improvements
