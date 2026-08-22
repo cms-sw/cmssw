@@ -139,7 +139,8 @@ bool MuonResidualsBfieldAngleFitter::fit(Alignable *ali) {
     high.push_back(0.);
   }
 
-  return dofit(&MuonResidualsBfieldAngleFitter_FCN, parNum, parName, start, step, low, high);
+  std::string chamber_id = "NULL";
+  return dofit(&MuonResidualsBfieldAngleFitter_FCN, parNum, parName, start, step, low, high, chamber_id);
 }
 
 double MuonResidualsBfieldAngleFitter::plot(std::string name, TFileDirectory *dir, Alignable *ali) {
