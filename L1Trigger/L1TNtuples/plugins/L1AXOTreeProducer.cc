@@ -98,11 +98,9 @@ void L1AXOTreeProducer::analyze(edm::Event const &event, edm::EventSetup const &
     }
 
   } else {
-    edm::LogWarning("MissingProduct")
-      << "AXOL1TLScoreBxCollection not found for run " << event.id().run()
-      << ", luminosity block " << event.id().luminosityBlock()
-      << ", event " << event.id().event()
-      << ". Branches will be filled with zero values.";
+    edm::LogWarning("MissingProduct") << "AXOL1TLScoreBxCollection not found for run " << event.id().run()
+                                      << ", luminosity block " << event.id().luminosityBlock() << ", event "
+                                      << event.id().event() << ". Branches will be filled with zero values.";
 
     anomaly_score = 0.f;
     for (unsigned int i = 0; i < AXOL1TLScore::kNInputs; ++i) {
