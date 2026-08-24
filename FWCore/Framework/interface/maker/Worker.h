@@ -685,7 +685,8 @@ namespace edm {
           returnValue = iWorker->implDoEnd(info, mcc);
           cpp.postModuleSignal();
         }
-        if (iWorker->wantsWrites()) {
+        //The existence of noRunLumiSort option can shouldWriteRun() to retur kNo.
+        if (iWorker->wantsWrites() and info.principal().shouldWriteRun() != edm::RunPrincipal::ShouldWriteRun::kNo) {
           auto sentry = signalslot::make_sentry(
               [actReg, context, mcc]() { actReg->postModuleWriteRunSignal_.emit(*context, *mcc); });
           actReg->preModuleWriteRunSignal_.emit(*context, *mcc);
@@ -822,7 +823,9 @@ namespace edm {
           cpp.postModuleSignal();
         }
         //NOTE: should write be called even if end is not?
-        if (iWorker->wantsWrites()) {
+        //The existence of noRunLumiSort option can shouldWriteRun() to retur kNo.
+        if (iWorker->wantsWrites() and
+            info.principal().shouldWriteLumi() != edm::LuminosityBlockPrincipal::ShouldWriteLumi::kNo) {
           auto sentry = signalslot::make_sentry(
               [actReg, context, &mcc]() { actReg->postModuleWriteLumiSignal_.emit(*context, *mcc); });
           actReg->preModuleWriteLumiSignal_.emit(*context, *mcc);
