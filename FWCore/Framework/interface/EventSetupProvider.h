@@ -31,7 +31,6 @@
 namespace edm {
   class ActivityRegistry;
   class EventSetupImpl;
-  class EventSetupRecordIntervalFinder;
   class IOVSyncValue;
 
   namespace eventsetup {
@@ -56,29 +55,20 @@ namespace edm {
       EventSetupProvider(EventSetupProvider const&) = delete;
       EventSetupProvider const& operator=(EventSetupProvider const&) = delete;
 
-      ~EventSetupProvider();
-
       std::set<ComponentDescription> resolverProviderDescriptions() const;
 
       ESRecordsToProductResolverIndices recordsToResolverIndices() const;
 
-      ///Set the validity intervals in all EventSetupRecordProviders
-      void setAllValidityIntervals(const IOVSyncValue& iValue);
-
-      std::shared_ptr<const EventSetupImpl> eventSetupForInstance(IOVSyncValue const&, bool& newEventSetupImpl);
+      std::shared_ptr<EventSetupImpl> cachedEventSetup(bool newEventSetupImpl);
 
       EventSetupImpl const& eventSetupImpl() const { return *eventSetupImpl_; }
 
       void add(std::shared_ptr<ESProductResolverProvider>);
-      void add(std::shared_ptr<EventSetupRecordIntervalFinder>);
 
-      void finishConfiguration(NumberOfConcurrentIOVs const&);
+      void finishConfiguration(std::set<EventSetupRecordKey> const& finderRecords, NumberOfConcurrentIOVs const&);
 
       ///Used when we need to force a Record to reset all its resolvers
-      void resetRecordPlusDependentRecords(EventSetupRecordKey const&);
-
-      ///Used when testing that all code properly updates on IOV changes of all Records
-      void forceCacheClear();
+      std::vector<EventSetupRecordKey> resetRecordPlusDependentRecords(EventSetupRecordKey const&);
 
       void updateLookup();
 
@@ -90,7 +80,7 @@ namespace edm {
 
       void fillRecordsNotAllowingConcurrentIOVs(std::set<EventSetupRecordKey>& recordsNotAllowingConcurrentIOVs) const;
 
-      void fillKeys(std::set<EventSetupRecordKey>& keys) const;
+      std::set<EventSetupRecordKey> keys() const;
 
       EventSetupRecordProvider* tryToGetRecordProvider(const EventSetupRecordKey& iKey);
       EventSetupRecordProvider const* tryToGetRecordProvider(const EventSetupRecordKey& iKey) const;
@@ -118,9 +108,7 @@ namespace edm {
       propagate_const<std::shared_ptr<EventSetupImpl>> eventSetupImpl_;
 
       // The following are all used only during initialization and then cleared.
-
       std::unique_ptr<PreferredProviderInfo> preferredProviderInfo_;
-      std::unique_ptr<std::vector<std::shared_ptr<EventSetupRecordIntervalFinder>>> finders_;
       std::unique_ptr<std::vector<std::shared_ptr<ESProductResolverProvider>>> dataProviders_;
       std::unique_ptr<std::map<EventSetupRecordKey, std::map<DataKey, ComponentDescription>>> recordToPreferred_;
     };

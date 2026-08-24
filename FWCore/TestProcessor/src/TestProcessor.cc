@@ -107,8 +107,8 @@ namespace edm {
 
       if (not iConfig.esProduceEntries().empty()) {
         esHelper_ = std::make_unique<EventSetupTestHelper>(iConfig.esProduceEntries());
-        esp_->add(std::dynamic_pointer_cast<eventsetup::ESProductResolverProvider>(esHelper_));
-        esp_->add(std::dynamic_pointer_cast<EventSetupRecordIntervalFinder>(esHelper_));
+        espController_->addExtra(std::dynamic_pointer_cast<eventsetup::ESProductResolverProvider>(esHelper_));
+        espController_->addExtra(std::dynamic_pointer_cast<EventSetupRecordIntervalFinder>(esHelper_));
       }
 
       auto tempReg = items.preg();

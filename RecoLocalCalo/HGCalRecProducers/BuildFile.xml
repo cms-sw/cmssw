@@ -1,4 +1,5 @@
 <use name="clhep"/>
+<use name="CondFormats/HGCalObjects"/>
 <use name="DataFormats/HGCRecHit"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>

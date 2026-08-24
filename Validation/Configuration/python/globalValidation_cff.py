@@ -9,6 +9,7 @@ from Validation.RecoTrack.SiTrackingRecHitsValid_cff import *
 from Validation.RecoTrack.TrackValidation_cff import *
 from Validation.EcalHits.ecalSimHitsValidationSequence_cff import *
 from Validation.EcalDigis.ecalDigisValidationSequence_cff import *
+from Validation.EcalTriggerPrimitives.ecalTPsValidationSequence_cff import *
 from Validation.EcalRecHits.ecalRecHitsValidationSequence_cff import *
 from Validation.EcalClusters.ecalClustersValidationSequence_cff import *
 from Validation.HcalHits.SimHitsValidationSequence_cff import *
@@ -49,18 +50,32 @@ from Validation.Configuration.mtdSimValid_cff import *
 from Validation.Configuration.ecalSimValid_cff import *
 from Validation.SiTrackerPhase2V.Phase2TrackerValidationFirstStep_cff import *
 
+
 # filter/producer "pre-" sequence for globalValidation
 globalPrevalidationTracking = cms.Sequence(
     simHitTPAssocProducer
   * tracksValidation
   * vertexValidation
 )
+
+
 globalPrevalidation = cms.Sequence(
     globalPrevalidationTracking
   * photonPrevalidationSequence
   #* produceDenoms
   * prebTagSequenceMC
 )
+
+from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+# The truth Branch validation is wired into the baseCommon{PreValidation,Validation}
+# sequences below (after they are defined): the monolithic globalPrevalidation /
+# globalValidation are NOT in the Phase-2 autoValidation assembly, so attaching there
+# would silently never run for the Run4 truth workflows. The truth graph + hit index
+# are built at DIGI (mixing accumulator chain) under enableTruth, so truthPrevalidation
+# is deliberately NOT imported here (importing its signal-only build producers would
+# attach them to the RECO process and shadow the DIGI-built products).
+from PhysicsTools.TruthInfo.truthGraphValidation_cff import *
 
 # filter/producer "pre-" sequence for validation_preprod
 preprodPrevalidation = cms.Sequence(
@@ -74,6 +89,7 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + trackingRecHitsValid
                                  + ecalSimHitsValidationSequence
                                  + ecalDigisValidationSequence
+                                 + ecalTPsValidationSequence
                                  + ecalRecHitsValidationSequence
                                  + ecalClustersValidationSequence
                                  + hcalSimHitsValidationSequence
@@ -110,7 +126,7 @@ fastSim.toReplaceWith(globalValidation, globalValidation.copyAndExclude([
     trackerHitsValidation, trackerDigisValidation, trackerRecHitsValidation, trackingRecHitsValid,
     # the following depends on crossing frame of ecal simhits, which is a bit hard to implement in the fastsim workflow
     # besides: is this cross frame doing something, or is it a relic from the past?
-    ecalDigisValidationSequence, ecalRecHitsValidationSequence
+    ecalDigisValidationSequence, ecalTPsValidationSequence, ecalRecHitsValidationSequence
 ]))
 
 #lite tracking validator to be used in the Validation matrix
@@ -126,6 +142,38 @@ from Validation.Configuration.me0SimValid_cff import *
 
 baseCommonPreValidation = cms.Sequence(cms.SequencePlaceholder("mix"))
 baseCommonValidation = cms.Sequence()
+
+# Branch performance-plot validation, gated by enableTruth, which the Run4 eras apply
+# from Phase2C17I13M9 onwards (the .88 workflow variant applies it explicitly on top of
+# a non-truth era). baseCommon{PreValidation,Validation} are part of the 'baseValidation'
+# triplet that autoValidation['phase2Validation'] always schedules, so this is the
+# Phase-2 entry point: the truth-graph + association EDProducers run in the
+# prevalidation Path, the DQM analyzers in the validation EndPath. The matching
+# harvesting is attached to postValidation_common in postValidation_cff. The
+# reco-side eff/fake/merge/duplicate validators stay opt-in (antichain caveat, see
+# truthGraphValidation_cff).
+# premix_stage2 keeps enableTruth (it comes from the era) but the premixed pileup has
+# no raw pileup SimTracks, so the accumulator and the DIGI build are dropped and the
+# truth products do not exist downstream. Revert to the truth-free sequences there,
+# after the enableTruth lines, so the later statement wins.
+# Public truth-free copy: the detector-only assemblies below must use THIS one. The
+# truth association producers consume generalTracks, the pixel clusters and the HGCal
+# and PF rechits, none of which a detector-only reconstruction makes, so attaching the
+# truth to baseCommonPreValidation itself would fail those workflows with
+# ProductNotFound at the first event.
+baseCommonPreValidationNoTruth = baseCommonPreValidation.copy()
+_baseCommonPreValidationNoTruth = baseCommonPreValidationNoTruth
+_baseCommonValidationNoTruth = baseCommonValidation.copy()
+
+_baseCommonPreValidationWithTruth = baseCommonPreValidation.copy()
+_baseCommonPreValidationWithTruth += truthGraphValidationProducers
+enableTruth.toReplaceWith(baseCommonPreValidation, _baseCommonPreValidationWithTruth)
+premix_stage2.toReplaceWith(baseCommonPreValidation, _baseCommonPreValidationNoTruth)
+
+_baseCommonValidationWithTruth = baseCommonValidation.copy()
+_baseCommonValidationWithTruth += truthGraphValidationAnalyzers
+enableTruth.toReplaceWith(baseCommonValidation, _baseCommonValidationWithTruth)
+premix_stage2.toReplaceWith(baseCommonValidation, _baseCommonValidationNoTruth)
 
 # Tracking-only validation
 globalPrevalidationTrackingOnly = cms.Sequence(
@@ -165,14 +213,17 @@ globalValidationTaus = cms.Sequence(
 
 # ECAL local reconstruction
 globalPrevalidationECAL = cms.Sequence()
+# baseCommonPreValidationNoTruth, not baseCommonPreValidation: ECAL-only reconstruction
+# has no generalTracks and no HGCal rechits for the truth association to consume.
 globalPrevalidationECALOnly = cms.Sequence(
-      baseCommonPreValidation
+      baseCommonPreValidationNoTruth
     + globalPrevalidationECAL
 )
 
 globalValidationECAL = cms.Sequence(
       ecalSimHitsValidationSequence
     + ecalDigisValidationSequence
+    + ecalTPsValidationSequence
     + ecalRecHitsValidationSequence
     + ecalClustersValidationSequence
 )
@@ -180,6 +231,7 @@ globalValidationECAL = cms.Sequence(
 globalValidationECALOnly = cms.Sequence(
       ecalSimHitsValidationSequence
     + ecalDigisValidationSequence
+    + ecalTPsValidationSequence
     + ecalRecHitsValidationSequence
     + pfClusterCaloOnlyValidationSequence
 )
@@ -188,12 +240,15 @@ phase2_ecal_devel.toReplaceWith(ecalSimHitsValidationSequence, ecalSimHitsValida
 phase2_ecal_devel.toReplaceWith(ecalDigisValidationSequence, ecalDigisValidationSequencePhase2)
 phase2_ecal_devel.toReplaceWith(ecalRecHitsValidationSequence, ecalRecHitsValidationSequencePhase2)
 phase2_ecal_devel.toReplaceWith(pfClusterCaloOnlyValidationSequence, ecalClustersValidationSequence)
+from Configuration.Eras.Modifier_phase2_ecalTP_devel_cff import phase2_ecalTP_devel
+phase2_ecalTP_devel.toReplaceWith(ecalTPsValidationSequence, ecalTPsValidationSequencePhase2)
 
 # HCAL local reconstruction
 globalPrevalidationHCAL = cms.Sequence()
 
+# Same as the ECAL-only case above: no tracks, no truth association inputs.
 globalPrevalidationHCALOnly = cms.Sequence(
-      baseCommonPreValidation
+      baseCommonPreValidationNoTruth
     + globalPrevalidationHCAL
 )
 

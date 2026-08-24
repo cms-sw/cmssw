@@ -69,6 +69,7 @@ private:
   edm::EDGetTokenT<std::vector<reco::Vertex>> pvToken_;
   edm::EDGetTokenT<reco::CaloJetCollection> caloJetsToken_;
   edm::EDGetTokenT<reco::PFJetCollection> pfJetsToken_;
+  edm::EDGetTokenT<reco::JPTJetCollection> jptJetsToken_;
   edm::EDGetTokenT<reco::GenJetCollection> genJetsToken_;
   edm::EDGetTokenT<GenEventInfoProduct> evtToken_;
   edm::EDGetTokenT<pat::JetCollection> patJetsToken_;
@@ -306,6 +307,7 @@ private:
   bool isCaloJet;
   bool isPFJet;
   bool isMiniAODJet;
+  bool isJPTJet;
   bool isHLT_;
 };
 

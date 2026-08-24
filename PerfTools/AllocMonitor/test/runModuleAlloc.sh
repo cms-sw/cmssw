@@ -5,8 +5,9 @@ function die { echo $1: status $2 ;  exit $2; }
 LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
 LD_PRELOAD="libPerfToolsAllocMonitorPreload.so" cmsRun ${LOCAL_TEST_DIR}/moduleAlloc_cfg.py || die 'Failure using moduleAlloc_cfg.py' $?
+mv moduleAlloc.log moduleAlloc.log.orig
 
-edmModuleAllocMonitorAnalyze.py -j moduleAlloc.log  > moduleAlloc.json
+edmModuleAllocMonitorAnalyze.py -j moduleAlloc.log.orig  > moduleAlloc.json
 grep -A9 'cpptypes' moduleAlloc.json | sort --ignore-leading-blanks | grep -v 'cpptypes' | grep -v '}' | sed 's/,//g' > cpptypes.txt
 diff --ignore-all-space cpptypes.txt ${LOCAL_TEST_DIR}/unittest_output/cpptypes.txt || die 'differences in edmModuleAllocMonitorAnalyzer.py output' $?
 
@@ -14,47 +15,65 @@ edmModuleAllocJsonToCircles.py moduleAlloc.json > moduleAlloc.circles.json
 grep '"\(record\|type\|label\)": ".*",' moduleAlloc.circles.json > circles.txt
 diff circles.txt ${LOCAL_TEST_DIR}/unittest_output/circles.txt || die 'differences in edmModuleAllocJsonToCircles.py output' $?
 
-grep '^[fF]' moduleAlloc.log | awk '{print $1,$2,$3,$4,$5,$6}' > allTransitions.log
+grep '^[fF]' moduleAlloc.log.orig | awk '{print $1,$2,$3,$4,$5,$6}' > allTransitions.log
 diff allTransitions.log ${LOCAL_TEST_DIR}/unittest_output/allTransitions.log || die 'differences in allTransitions' $?
 
-grep '^[mM]' moduleAlloc.log | awk '{print $1,$2,$3,$4,$5}' > allEDModules.log
+grep '^[mM]' moduleAlloc.log.orig | awk '{print $1,$2,$3,$4,$5}' > allEDModules.log
 diff allEDModules.log ${LOCAL_TEST_DIR}/unittest_output/allEDModules.log || die 'differences in allEDModules' $?
 
 
-grep '^[nN]' moduleAlloc.log | awk '{print $1,$2,$3,$4,$5,$6}' > allESModules.log
+grep '^[nN]' moduleAlloc.log.orig | awk '{print $1,$2,$3,$4,$5,$6}' > allESModules.log
 diff allESModules.log ${LOCAL_TEST_DIR}/unittest_output/allESModules.log || die 'differences in allESModules' $?
-
 
 ############### only 1 ED module kept
 LD_PRELOAD="libPerfToolsAllocMonitorPreload.so" cmsRun ${LOCAL_TEST_DIR}/moduleAlloc_cfg.py --edmodule || die 'Failure using moduleAlloc_cfg.py --edmodule' $?
-
-grep '^[mM]' moduleAlloc.log | awk '{print $1,$2,$3,$4,$5}' > only_ed_EDModules.log
+mv moduleAlloc.log moduleAlloc.log.edmodule
+grep '^[mM]' moduleAlloc.log.edmodule | awk '{print $1,$2,$3,$4,$5}' > only_ed_EDModules.log
 diff only_ed_EDModules.log ${LOCAL_TEST_DIR}/unittest_output/only_ed_EDModules.log || die 'differences in only_ed_EDModules' $?
 
 
-grep '^[nN]' moduleAlloc.log | awk '{print $1,$2,$3,$4,$5,$6}' > only_ed_ESModules.log
-diff only_ed_ESModules.log ${LOCAL_TEST_DIR}/unittest_output/only_ed_ESModules.log || die 'differences in only_ed_ESModules' $?
 
+grep '^[nN]' moduleAlloc.log.edmodule | awk '{print $1,$2,$3,$4,$5,$6}' > only_ed_ESModules.log
+diff only_ed_ESModules.log ${LOCAL_TEST_DIR}/unittest_output/only_ed_ESModules.log || die 'differences in only_ed_ESModules' $?
 
 ############### only 1 ES module kept
 LD_PRELOAD="libPerfToolsAllocMonitorPreload.so" cmsRun ${LOCAL_TEST_DIR}/moduleAlloc_cfg.py --esmodule || die 'Failure using moduleAlloc_cfg.py --esmodule' $?
-
-grep '^[mM]' moduleAlloc.log | awk '{print $1,$2,$3,$4,$5}' > only_es_EDModules.log
+mv moduleAlloc.log moduleAlloc.log.esmodule
+grep '^[mM]' moduleAlloc.log.esmodule | awk '{print $1,$2,$3,$4,$5}' > only_es_EDModules.log
 diff only_es_EDModules.log ${LOCAL_TEST_DIR}/unittest_output/only_es_EDModules.log || die 'differences in only_es_EDModules' $?
 
 
-grep '^[nN]' moduleAlloc.log | awk '{print $1,$2,$3,$4,$5,$6}' > only_es_ESModules.log
+
+grep '^[nN]' moduleAlloc.log.esmodule | awk '{print $1,$2,$3,$4,$5,$6}' > only_es_ESModules.log
 diff only_es_ESModules.log ${LOCAL_TEST_DIR}/unittest_output/only_es_ESModules.log || die 'differences in only_es_ESModules' $?
 
 ############## skip events
 LD_PRELOAD="libPerfToolsAllocMonitorPreload.so" cmsRun ${LOCAL_TEST_DIR}/moduleAlloc_cfg.py --skipEvents || die 'Failure using moduleAlloc_cfg.py --skipEvents' $?
-
-grep '^[fF]' moduleAlloc.log | awk '{print $1,$2,$3,$4,$5,$6}' > skipEvents_Transitions.log
+mv moduleAlloc.log moduleAlloc.log.skipEvents
+grep '^[fF]' moduleAlloc.log.skipEvents | awk '{print $1,$2,$3,$4,$5,$6}' > skipEvents_Transitions.log
 diff skipEvents_Transitions.log ${LOCAL_TEST_DIR}/unittest_output/skipEvents_Transitions.log || die 'differences in skipEvents_Transitions' $?
 
-grep '^[mM]' moduleAlloc.log | awk '{print $1,$2,$3,$4,$5}' > skipEvents_EDModules.log
+grep '^[mM]' moduleAlloc.log.skipEvents | awk '{print $1,$2,$3,$4,$5}' > skipEvents_EDModules.log
 diff skipEvents_EDModules.log ${LOCAL_TEST_DIR}/unittest_output/skipEvents_EDModules.log || die 'differences in skipEvents_EDModules' $?
 
 
-grep '^[nN]' moduleAlloc.log | awk '{print $1,$2,$3,$4,$5,$6}' > skipEvents_ESModules.log
+grep '^[nN]' moduleAlloc.log.skipEvents | awk '{print $1,$2,$3,$4,$5,$6}' > skipEvents_ESModules.log
 diff skipEvents_ESModules.log ${LOCAL_TEST_DIR}/unittest_output/skipEvents_ESModules.log || die 'differences in skipEvents_ESModules' $?
+
+############### ExternalWork / Transformer / TransformAsync modules
+LD_PRELOAD="libPerfToolsAllocMonitorPreload.so" cmsRun ${LOCAL_TEST_DIR}/moduleAllocAcquireTransform_cfg.py || die 'Failure using moduleAllocAcquireTransform_cfg.py' $?
+
+grep '^[fF]' moduleAllocAcquireTransform.log | awk '{print $1,$2,$3,$4,$5,$6}' > acquireTransform_Transitions.log
+diff acquireTransform_Transitions.log ${LOCAL_TEST_DIR}/unittest_output/acquireTransform_Transitions.log || die 'differences in acquireTransform_Transitions' $?
+
+grep '^[mMaA]' moduleAllocAcquireTransform.log | awk '{print $1,$2,$3,$4,$5}' > acquireTransform_EDModules.log
+diff acquireTransform_EDModules.log ${LOCAL_TEST_DIR}/unittest_output/acquireTransform_EDModules.log || die 'differences in acquireTransform_EDModules' $?
+
+edmModuleAllocMonitorAnalyze.py -j moduleAllocAcquireTransform.log  > acquireTransform.json
+grep -A7 'cpptypes' acquireTransform.json | sort --ignore-leading-blanks | grep -v 'cpptypes' | grep -v '}' | sed 's/,//g' > acquireTransform_cpptypes.txt
+diff --ignore-all-space acquireTransform_cpptypes.txt ${LOCAL_TEST_DIR}/unittest_output/acquireTransform_cpptypes.txt || die 'differences in edmModuleAllocMonitorAnalyzer.py output for acquire+transform' $?
+
+edmModuleAllocJsonToCircles.py acquireTransform.json > acquireTransform.circles.json
+grep '"\(record\|type\|label\)": ".*",' acquireTransform.circles.json > acquireTransform.circles.txt
+# to be enabled later when the circles output is stable
+#diff acquireTransform.circles.txt ${LOCAL_TEST_DIR}/unittest_output/acquireTransform.circles.txt || die 'differences in edmModuleAllocJsonToCircles.py output' $?

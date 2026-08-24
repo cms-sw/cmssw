@@ -91,6 +91,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.hgcalNeighbourTester.nameDetector = detector
+process.hgcalNeighbourTester.fileName     = ""
 process.hgcalNeighbourTester.nSkip        = nskip
 
 process.p1 = cms.Path(process.generator*process.hgcalNeighbourTester)

@@ -14,6 +14,7 @@
 
 // system include files
 #include <map>
+#include <unordered_map>
 #include <vector>
 
 // user include files
@@ -86,6 +87,22 @@ public:
 
   void setLHCTransportLink(const edm::LHCTransportLinkContainer* thisLHCTlink) { theLHCTlink = thisLHCTlink; }
 
+  // When true, the production vertex of a stored track whose immediate parent was
+  // *not* persisted (e.g. a sub-PersistencyEmin intermediate) is reattached to the
+  // nearest stored ancestor instead of being left parent-less (parentIndex = -1).
+  // This keeps the SimTrack/SimVertex history connected to the generator at a high
+  // PersistencyEmin, at the cost of collapsing the dropped intermediate nodes.
+  void setReconnectDroppedAncestors(bool v) { m_reconnectDroppedAncestors = v; }
+
+  // Pure, unit-testable core of buildDroppedAncestorRedirect(): for each stored
+  // track whose immediate parent is not in the stored set, walk the full
+  // trackID -> parentID map (parentOfAll) up to the nearest stored ancestor and
+  // record trackID -> ancestorTrackID. Primaries (parentID <= 0) and tracks whose
+  // immediate parent is already stored get no entry; walks are capped to guard
+  // against a malformed parent loop.
+  static std::unordered_map<int, int> computeDroppedAncestorRedirect(
+      const std::vector<std::pair<int, int> >& storedTracks, const std::unordered_map<int, int>& parentOfAll);
+
   // stop default
   SimTrackManager(const SimTrackManager&) = delete;
   const SimTrackManager& operator=(const SimTrackManager&) = delete;
@@ -93,6 +110,10 @@ public:
 private:
   void saveTrackAndItsBranch(TrackWithHistory*);
   int getOrCreateVertex(TrackWithHistory*, int);
+  // For each stored track whose immediate parent was dropped, precompute the
+  // trackID of its nearest stored ancestor (walking the full idsave parent map).
+  // Called from storeTracks() before idsave is consumed, only when enabled.
+  void buildDroppedAncestorRedirect();
   void cleanVertexMap();
   void reallyStoreTracks();
   void fillMotherList();
@@ -116,6 +137,16 @@ private:
   std::vector<std::pair<int, int> > ancestorList;
   std::vector<std::pair<int, math::XYZVectorD> > m_endPoints;
   std::vector<TrackWithHistory*> m_trackContainer;
+
+  bool m_reconnectDroppedAncestors{false};
+  // Complete trackID -> immediate parentID map for every simulated track of the
+  // event (filled in addTrack when enabled). idsave is consumed per primary by
+  // fillMotherList(), so this independent copy is needed to walk the full parent
+  // chain at storeTracks() time. Cleared per event in reset().
+  std::unordered_map<int, int> m_parentOfAll;
+  // stored-track trackID -> nearest stored-ancestor trackID, only for tracks whose
+  // immediate parent was dropped (filled by buildDroppedAncestorRedirect()).
+  std::unordered_map<int, int> m_droppedParentRedirect;
 };
 
 class trkIDLess {

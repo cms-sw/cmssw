@@ -20,6 +20,8 @@
 
 // system include files
 #include <functional>
+#include <iosfwd>
+#include <format>
 
 // user include files
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -36,6 +38,8 @@ namespace edm {
     explicit IOVSyncValue(const Timestamp& iTime);
     IOVSyncValue(const EventID& iID, const Timestamp& iTime);
 
+    friend std::ostream& operator<<(std::ostream& oStream, IOVSyncValue const& iIOV);
+    friend struct std::formatter<edm::IOVSyncValue>;
     // ---------- const member functions ---------------------
     const EventID& eventID() const { return eventID_; }
     LuminosityBlockNumber_t luminosityBlockNumber() const { return eventID_.luminosityBlock(); }
@@ -102,7 +106,31 @@ namespace edm {
     bool haveID_;
     bool haveTime_;
   };
-
+  std::ostream& operator<<(std::ostream& oStream, IOVSyncValue const& iIOV);
 }  // namespace edm
+
+template <>
+struct std::formatter<edm::IOVSyncValue> : std::formatter<std::string_view> {
+  auto format(const edm::IOVSyncValue& syncValue, auto& ctx) {
+    std::string temp;
+    if (syncValue.haveID_ && syncValue.haveTime_) {
+      std::format_to(std::back_inserter(temp),
+                     "IOVSyncValue{{ EventID{{{}, {}, {}}}, Timestamp{{{}}} }}",
+                     syncValue.eventID_.run(),
+                     syncValue.eventID_.luminosityBlock(),
+                     syncValue.eventID_.event(),
+                     syncValue.time_.unixTime());
+    } else if (syncValue.haveID_) {
+      std::format_to(std::back_inserter(temp),
+                     "IOVSyncValue{{ EventID{{{}, {}, {}}} }}",
+                     syncValue.eventID_.run(),
+                     syncValue.eventID_.luminosityBlock(),
+                     syncValue.eventID_.event());
+    } else if (syncValue.haveTime_) {
+      std::format_to(std::back_inserter(temp), "IOVSyncValue{{ Timestamp{{{}}} }}", syncValue.time_.unixTime());
+    }
+    return std::formatter<std::string_view>::format(temp, ctx);
+  }
+};
 
 #endif

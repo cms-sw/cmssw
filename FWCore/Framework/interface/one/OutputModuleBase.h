@@ -60,7 +60,7 @@ namespace edm {
       void doPreallocate(PreallocationConfiguration const&);
 
       void doBeginJob();
-      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
 
       void configure(OutputModuleDescription const& desc);
 

@@ -1,5 +1,5 @@
 <!-- test access to EDM files used in HLT-AddOnTests and HLT-Validation tests -->
-<!-- <test name="testAccessToEDMInputsOfHLTTests" command="testAccessToEDMInputsOfHLTTests.sh"/> COMMENT: reads old format files -->
+<test name="testAccessToEDMInputsOfHLTTests" command="testAccessToEDMInputsOfHLTTests.sh"/>
 
 <!-- test script hltPrintMenuVersions
      enabled only for the x86-64 architecture, because the python module cx_Oracle
@@ -42,3 +42,12 @@
 <!-- test script to check the configuration validaiton coverage -->
 <test name="test_PluginConfigValidationCoverage" command="python3
 							  ${CMSSW_BASE}/src/HLTrigger/Configuration/test/testPluginConfigValidationCoverage.py"/>
+
+<!-- unit tests of the tagged module closure, on a synthetic configuration:
+     they need no conditions, no input file and no menu -->
+<test name="test_moduleClosure" command="python3
+					 ${CMSSW_BASE}/src/HLTrigger/Configuration/test/testModuleClosure.py"/>
+
+<!-- check that DST_HeterogeneousReco lists the heterogeneous content of the menu -->
+<test name="test_heterogeneousMenu" command="python3
+					     ${CMSSW_BASE}/src/HLTrigger/Configuration/test/testHeterogeneousMenu.py"/>

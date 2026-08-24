@@ -75,7 +75,7 @@ namespace edm {
       virtual SerialTaskQueue* globalLuminosityBlocksQueue();
 
     private:
-      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder,
                                                     ModuleCallingContext const&,

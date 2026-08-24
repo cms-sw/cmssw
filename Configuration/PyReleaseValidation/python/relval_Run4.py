@@ -12,7 +12,7 @@ workflows = Matrix()
 from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgrade_workflows
 
 #just define all of them
-prefixDet = 34400 #update this line when change the default version
+prefixDet = 37600 #update this line when change the default version
 
 #Run4 WFs to run in IB (TTbar)
 numWFIB = []
@@ -30,6 +30,8 @@ numWFIB.extend([35234.0]) #Run4D123
 numWFIB.extend([35634.0]) #Run4D124
 numWFIB.extend([36034.0]) #Run4D125
 numWFIB.extend([37234.0]) #Run4D126
+numWFIB.extend([37634.0]) #Run4D127
+numWFIB.extend([38434.0]) #Run4D128
 
 #Run4 FS (TTbar)
 numWFIB.extend([36434.0]) #Run4D110

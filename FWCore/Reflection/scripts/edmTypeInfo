@@ -1,0 +1,52 @@
+#! /usr/bin/env python3
+
+import os
+import sys
+import ROOT
+
+ROOT.gSystem.Load("libFWCoreReflection.so")
+ROOT.gInterpreter.Declare('#include "FWCore/Reflection/interface/TypeWithDict.h"')
+
+def usage(name):
+    print(f"""Usage: edmTypeInfo [options] [types]
+Resolve C++ types to the full C++ type name, friendly class name, and mangled name.
+
+Options:
+  -h, --help                 display this help and exit
+  -v, --version              print version information and exit
+
+
+Resolve each C++ type name in "types" to its actual definition based on its ROOT dictionary, taking into account type aliases and the use of ALPAKA_ACCELERATOR_NAMESPACE.
+For each type print the full c++ name, the friendly class name, and the mangled name.
+""")
+
+
+def version(name):
+    print('edmTypeInfo : %s' % os.environ.get('CMSSW_VERSION'))
+
+def resolve(name):
+    type = ROOT.edm.TypeWithDict.byName(name)
+    if (type):
+        print(f'`{name}` resolves to `{type.name()}`')
+        print(f'  with friendly class name `{type.friendlyClassName()}`')
+        print(f'  with type info `{type.typeInfo().name()}`')
+    else:
+        print(f'`{name}` does not resolve to any type known to ROOT')
+    print()
+
+
+if '-h' in sys.argv[1:] or '--help' in sys.argv[1:]:
+    usage(sys.argv[0])
+    sys.exit(0)
+
+if '-v' in sys.argv[1:] or '--version' in sys.argv[1:]:
+    version(sys.argv[0])
+    sys.exit(0)
+
+for name in sys.argv[1:]:
+    if 'ALPAKA_ACCELERATOR_NAMESPACE' in name:
+        for ns in 'alpaka_serial_sync', 'alpaka_cuda_async', 'alpaka_rocm_async':
+            ns_name = name.replace('ALPAKA_ACCELERATOR_NAMESPACE', ns)
+            resolve(ns_name)
+    else:
+        resolve(name)

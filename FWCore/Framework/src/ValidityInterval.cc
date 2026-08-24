@@ -14,6 +14,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ValidityInterval.h"
+#include <ostream>
 
 namespace edm {
   //
@@ -73,4 +74,8 @@ namespace edm {
     return s_invalid;
   }
 
+  std::ostream& operator<<(std::ostream& oStream, ValidityInterval const& iInterval) {
+    oStream << "ValidityInterval{" << iInterval.first() << ", " << iInterval.last() << "}";
+    return oStream;
+  }
 }  // namespace edm

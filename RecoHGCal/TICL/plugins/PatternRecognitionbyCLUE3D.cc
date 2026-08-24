@@ -142,7 +142,7 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(const TILES &tiles,
 }
 
 template <typename TILES>
-void PatternRecognitionbyCLUE3D<TILES>::setGeometry(hgcal::RecHitTools const &rhtools) {
+void PatternRecognitionbyCLUE3D<TILES>::setGeometry(ticlgeom::Tools const &rhtools) {
   // Non-owning pointer: valid because TrackstersProducer owns rhtools_ for the module lifetime (per stream).
   this->rhtools_ = &rhtools;
 
@@ -233,8 +233,12 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     // radius. On the other hand, while averaging the x and y radius, we would
     // end up dividing by 2. Hence we omit the value here and in the average
     // below, too.
-    float radius_x = sqrt((sum_sqr_x - (sum_x * sum_x) * invClsize) * invClsize);
-    float radius_y = sqrt((sum_sqr_y - (sum_y * sum_y) * invClsize) * invClsize);
+    // Clamp the variance at zero: for point-like multi-cell clusters the
+    // difference can cancel slightly below zero in floating point, and the
+    // sqrt of a negative value yields a NaN radius whose comparisons are
+    // all false downstream (seed and density decisions).
+    float radius_x = sqrt(std::max(0.f, (sum_sqr_x - (sum_x * sum_x) * invClsize) * invClsize));
+    float radius_y = sqrt(std::max(0.f, (sum_sqr_y - (sum_y * sum_y) * invClsize) * invClsize));
     if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
       edm::LogVerbatim("PatternRecognitionbyCLUE3D")
           << "cluster rx: " << std::setw(5) << radius_x << ", ry: " << std::setw(5) << radius_y

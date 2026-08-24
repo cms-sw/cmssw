@@ -11,6 +11,7 @@
 #include "FWCore/ParameterSet/src/split.h"
 #include "FWCore/Utilities/interface/Parse.h"
 #include <cctype>
+#include <charconv>
 #include <cstdlib>
 #include <limits>
 #include <sstream>
@@ -428,6 +429,25 @@ bool edm::encode(std::string& to, std::vector<unsigned long long> const& from) {
 // Double
 // ----------------------------------------------------------------------
 
+namespace {
+  // The std::from_chars handles subnormals better than std::stod/std::stof.
+  template <typename T>
+  bool decodeFloatingPoint(T& to, std::string_view from) {
+    // std::from_chars accepts neither leading whitespace nor a leading '+',
+    // so strip them to keep the earlier behaviour.
+    while (!from.empty() && std::isspace(static_cast<unsigned char>(from.front()))) {
+      from.remove_prefix(1);
+    }
+    if (!from.empty() && from.front() == '+') {
+      from.remove_prefix(1);
+    }
+    auto const* const first = from.data();
+    auto const* const last = first + from.size();
+    // Trailing characters after a valid number are ignored to be compatible with earlier behavior.
+    return std::from_chars(first, last, to).ec == std::errc();
+  }
+}  // namespace
+
 bool edm::decode(double& to, std::string_view from) {
   if (from == "NaN") {
     to = std::numeric_limits<double>::quiet_NaN();
@@ -440,13 +460,7 @@ bool edm::decode(double& to, std::string_view from) {
   }
 
   else {
-    try {
-      // std::cerr << "from:" << from << std::endl;
-      to = std::stod(std::string(from));
-      // std::cerr << "to:" << to << std::endl;
-    } catch (const std::exception&) {
-      return false;
-    }
+    return decodeFloatingPoint(to, from);
   }
   return true;
 }
@@ -497,6 +511,74 @@ bool edm::encode(std::string& to, std::vector<double> const& from) {
   to += '}';
   return true;
 }  // encode from vector<double>
+
+// ----------------------------------------------------------------------
+// Float
+// ----------------------------------------------------------------------
+
+bool edm::decode(float& to, std::string_view from) {
+  if (from == "NaN") {
+    to = std::numeric_limits<float>::quiet_NaN();
+  } else if (from == "+inf" || from == "inf") {
+    to = std::numeric_limits<float>::has_infinity ? std::numeric_limits<float>::infinity()
+                                                  : std::numeric_limits<float>::max();
+  } else if (from == "-inf") {
+    to = std::numeric_limits<float>::has_infinity ? -std::numeric_limits<float>::infinity()
+                                                  : -std::numeric_limits<float>::max();
+  }
+
+  else {
+    return decodeFloatingPoint(to, from);
+  }
+  return true;
+}
+
+// ----------------------------------------------------------------------
+
+bool edm::encode(std::string& to, float from) {
+  std::ostringstream ost;
+  ost.precision(std::numeric_limits<float>::max_digits10);
+  ost << from;
+  if (!ost)
+    return false;
+  to = ost.str();
+  return true;
+}
+
+// ----------------------------------------------------------------------
+// vFloat
+// ----------------------------------------------------------------------
+
+bool edm::decode(std::vector<float>& to, std::string_view from) {
+  to.clear();
+  to.reserve(std::count(from.begin(), from.end(), ','));
+  return split(from, '{', ',', '}', [&to](auto t) {
+    float val;
+    if (!decode(val, t))
+      return false;
+    to.push_back(val);
+    return true;
+  });
+}  // decode to vector<float>
+
+// ----------------------------------------------------------------------
+
+bool edm::encode(std::string& to, std::vector<float> const& from) {
+  to = "{";
+
+  std::string converted;
+  for (std::vector<float>::const_iterator b = from.begin(), e = from.end(); b != e; ++b) {
+    if (!encode(converted, *b))
+      return false;
+
+    if (b != from.begin())
+      to += ",";
+    to += converted;
+  }
+
+  to += '}';
+  return true;
+}  // encode from vector<float>
 
 // ----------------------------------------------------------------------
 // String

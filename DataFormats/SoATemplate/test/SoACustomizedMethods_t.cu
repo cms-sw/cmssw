@@ -32,7 +32,7 @@ TEST_CASE("SoACustomizedMethods CUDA", "[SoACustomizedMethods][cuda]") {
   const std::size_t bufferSize = SoA::computeDataSize(elems);
 
   std::byte* h_buf = nullptr;
-  cudaCheck(cudaMallocHost(&h_buf, bufferSize));
+  CUDA_CHECK(cudaMallocHost(&h_buf, bufferSize));
   SoA h_soahdLayout(h_buf, elems);
   SoAView h_view(h_soahdLayout);
   SoAConstView h_Constview(h_soahdLayout);
@@ -49,7 +49,7 @@ TEST_CASE("SoACustomizedMethods CUDA", "[SoACustomizedMethods][cuda]") {
   h_view.detectorType() = 42;
 
   std::byte* d_buf = nullptr;
-  cudaCheck(cudaMalloc(&d_buf, bufferSize));
+  CUDA_CHECK(cudaMalloc(&d_buf, bufferSize));
   SoA d_soahdLayout(d_buf, elems);
   SoAView d_view(d_soahdLayout);
   SoAConstView d_Constview(d_soahdLayout);
@@ -62,18 +62,18 @@ TEST_CASE("SoACustomizedMethods CUDA", "[SoACustomizedMethods][cuda]") {
   double* d_velocity_norms;
   double* d_times;
 
-  cudaCheck(cudaMalloc(&d_position_norms, elems * sizeof(float)));
-  cudaCheck(cudaMalloc(&d_velocity_norms, elems * sizeof(double)));
-  cudaCheck(cudaMalloc(&d_times, elems * sizeof(double)));
+  CUDA_CHECK(cudaMalloc(&d_position_norms, elems * sizeof(float)));
+  CUDA_CHECK(cudaMalloc(&d_velocity_norms, elems * sizeof(double)));
+  CUDA_CHECK(cudaMalloc(&d_times, elems * sizeof(double)));
 
   // Host → Device copy
-  cudaCheck(cudaMemcpy(d_buf, h_buf, bufferSize, cudaMemcpyHostToDevice));
+  CUDA_CHECK(cudaMemcpy(d_buf, h_buf, bufferSize, cudaMemcpyHostToDevice));
 
   SECTION("ConstView methods CUDA") {
     calculateNorm<<<(elems + 255) / 256, 256>>>(d_Constview, d_position_norms, d_velocity_norms);
 
-    cudaCheck(cudaMemcpy(h_position_norms.data(), d_position_norms, elems * sizeof(float), cudaMemcpyDeviceToHost));
-    cudaCheck(cudaMemcpy(h_velocity_norms.data(), d_velocity_norms, elems * sizeof(double), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(h_position_norms.data(), d_position_norms, elems * sizeof(float), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(h_velocity_norms.data(), d_velocity_norms, elems * sizeof(double), cudaMemcpyDeviceToHost));
 
     // Check for the correctness of the square_norm() functions
     for (size_t i = 0; i < elems; i++) {
@@ -100,8 +100,8 @@ TEST_CASE("SoACustomizedMethods CUDA", "[SoACustomizedMethods][cuda]") {
 
     checkNormalise<<<(elems + 255) / 256, 256>>>(d_view, d_times);
 
-    cudaCheck(cudaMemcpy(h_times.data(), d_times, elems * sizeof(double), cudaMemcpyDeviceToHost));
-    cudaCheck(cudaMemcpy(h_buf, d_buf, bufferSize, cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(h_times.data(), d_times, elems * sizeof(double), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(h_buf, d_buf, bufferSize, cudaMemcpyDeviceToHost));
 
     // Check for the correctness of the time() function
     for (size_t i = 0; i < elems; i++) {
@@ -117,9 +117,9 @@ TEST_CASE("SoACustomizedMethods CUDA", "[SoACustomizedMethods][cuda]") {
   }
 
   // ===== cleanup =====
-  cudaCheck(cudaFree(d_position_norms));
-  cudaCheck(cudaFree(d_velocity_norms));
-  cudaCheck(cudaFree(d_times));
-  cudaCheck(cudaFree(d_buf));
-  cudaCheck(cudaFreeHost(h_buf));
+  CUDA_CHECK(cudaFree(d_position_norms));
+  CUDA_CHECK(cudaFree(d_velocity_norms));
+  CUDA_CHECK(cudaFree(d_times));
+  CUDA_CHECK(cudaFree(d_buf));
+  CUDA_CHECK(cudaFreeHost(h_buf));
 }

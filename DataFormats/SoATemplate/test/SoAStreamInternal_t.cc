@@ -40,7 +40,7 @@ TEST_CASE("Stream SoA") {
 
   std::ostringstream expected;
   expected << "SoATemplate(32 elements, byte alignement= 64, @" << static_cast<void *>(slBuffer.get()) << "): \n"
-           << "  sizeof(SoATemplate): 176\n"
+           << "  sizeof(SoATemplate): 200\n"
            << " Column x at offset 0 has size 256 and padding 0\n"
            << " Column y at offset 256 has size 256 and padding 0\n"
            << " Column z at offset 512 has size 256 and padding 0\n"
