@@ -818,7 +818,7 @@ class PostEDModuleAcquireParser(EDModuleTransitionParser):
     def jsonVisInfo(self,  data):
         if self._moduleCentric:
             #inject an external work at end of the same slot to guarantee module run is in that slot
-            return self._postJsonVis( data, jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, callID=self.callID, activity=Activity.externalWork, start=self.time))
+            return self._postJsonVis(data, self.allocInfo, injectAfter=jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, callID=self.callID, activity=Activity.externalWork, start=self.time))
         return self._postJsonVis(data, self.allocInfo)
     def jsonInfo(self, syncs, temp, data):
         #some cases acquire and produce are in the log in the wrong order
@@ -1456,6 +1456,8 @@ class TestModuleCommand(unittest.TestCase):
              f'F {Phase.Event} 1 1 1 2 {incr(t)}',
              f'N {Phase.Event} 0 1 1 0 {incr(t)}',
              f'n {Phase.Event} 0 1 1 0 {incr(t)} 6 5 30 0 100 80',
+             f'A {Phase.Event} 0 1 0 {incr(t)}',
+             f'a {Phase.Event} 0 1 0 {incr(t)} 2 1 10 0 20 15',
              f'M {Phase.Event} 0 1 0 {incr(t)}',
              f'M {Phase.Event} 1 1 0 {incr(t)}',
              f'm {Phase.Event} 1 1 0 {incr(t)} 3 2 20 0 50 25',
@@ -1499,12 +1501,12 @@ class TestModuleCommand(unittest.TestCase):
         j = jsonInfo(parser, False)
         self.assertEqual(len(j.data()),3) 
         self.assertEqual(len(j.data()["source"]), 10)
-        self.assertEqual(len(j.data()["Module"]), 8)
+        self.assertEqual(len(j.data()["Module"]), 9)
         self.assertEqual(len(j.data()["ESModule"]), 1)
     def testJsonTemporal(self):
         parser = ModuleAllocCompactFileParser(self.tracerFile, True)
         j = jsonInfo(parser, True)
-        self.assertEqual(len(j.data()),19)
+        self.assertEqual(len(j.data()),20)
     def testSortBy(self):
         parser = ModuleAllocCompactFileParser(self.tracerFile, True)
         d = sortByAttribute(parser, 'maxTemp')
@@ -1526,7 +1528,7 @@ class TestModuleCommand(unittest.TestCase):
         self.assertEqual(len(j["transitions"][0]["slots"][1]), 4)
         self.assertEqual(len(j["transitions"][1]["slots"]), 2)
         self.assertEqual(len(j["transitions"][1]["slots"][0]), 5)
-        self.assertEqual(len(j["transitions"][1]["slots"][1]), 3)
+        self.assertEqual(len(j["transitions"][1]["slots"][1]), 4)
         self.assertEqual(len(j["transitions"][2]["slots"]), 2)
         self.assertEqual(len(j["transitions"][2]["slots"][0]), 5)
         self.assertEqual(len(j["transitions"][2]["slots"][1]), 2)
@@ -1549,7 +1551,7 @@ class TestModuleCommand(unittest.TestCase):
         self.assertEqual(len(j["transitions"][2]["slots"]), 1)
         self.assertEqual(len(j["transitions"][2]["slots"][0]), 5)
         self.assertEqual(len(j["transitions"][4]["slots"]), 2)
-        self.assertEqual(len(j["transitions"][4]["slots"][0]), 7)
+        self.assertEqual(len(j["transitions"][4]["slots"][0]), 9)
         self.assertEqual(len(j["transitions"][4]["slots"][1]), 1)
         self.assertTrue(j["transitions"][4]["slots"][1][-1]['finish'] != 0.0)
         self.assertEqual(len(j["transitions"][5]["slots"]), 1)
