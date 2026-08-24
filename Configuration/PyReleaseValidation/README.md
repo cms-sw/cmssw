@@ -69,6 +69,7 @@ The offsets currently in use are:
 * 0.758 HLT phase-2 timing menu ticl_barrel variant
 * 0.759: HLT phase-2 menu, with NANO:@Phase2HLT
 * 0.7591: HLT phase-2 menu, with NANO:@Phase2HLTVal
+* 0.7592: HLT phase-2 menu, with NANO:@Phase2HLTVal
 * 0.76: HLT phase-2 reduced menu, with DIGI step
 * 0.77: HLT phase-2 NGT Scouting menu
 * 0.771: HLT phase-2 NGT Scouting menu, Alpaka, TICL-Barrel
