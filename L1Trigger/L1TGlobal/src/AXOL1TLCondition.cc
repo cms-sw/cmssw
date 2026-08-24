@@ -152,7 +152,7 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   inputtype fillzero = 0.0;
 
   //AD vector declaration, will fill later
-  inputtype ADModelInput[NInputs] = {};
+  inputtype ADModelInput[AXOL1TLScore::kNInputs] = {};
 
   //initializing vector by type for my sanity
   inputtype MuInput[MuVecSize];
@@ -177,7 +177,7 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   std::fill(MuInput, MuInput + MuVecSize, fillzero);
   std::fill(JetInput, JetInput + JVecSize, fillzero);
   std::fill(EgammaInput, EgammaInput + EGVecSize, fillzero);
-  std::fill(ADModelInput, ADModelInput + NInputs, fillzero);
+  std::fill(ADModelInput, ADModelInput + AXOL1TLScore::kNInputs, fillzero);
 
   //then fill the object vectors
   //NOTE assume candidates are already sorted by pt
@@ -263,7 +263,7 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   //save score to class variable in case score saving needed
   setScore(score);
 
-  for (unsigned int i = 0; i < NInputs; ++i) {
+  for (unsigned int i = 0; i < AXOL1TLScore::kNInputs; ++i) {
     m_lastInputs_[i] = ADModelInput[i].to_float();
   }
 
