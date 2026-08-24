@@ -109,8 +109,8 @@ NanoValTables = cms.Sequence(
 
 # NGT Scouting Nano flavour (NANO:@NGTScouting)
 dstNanoFlavour = cms.Sequence(
-    dstTriggerAcceptFilter
-    + NanoHltTables
+    #dstTriggerAcceptFilter +
+    NanoHltTables
 )
 
 # NGT Scouting Nano flavour with MC/HGCal info (NANO:@NGTScoutingVal)
