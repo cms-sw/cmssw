@@ -42,13 +42,19 @@ process.mpiController1 = MPIController(
 process.sender1 = MPISender(
     upstream = "mpiController1",
     instance = 11,
-    products = [ "edmEventID_ids__*" ]
+    products = [ dict(
+        type = "edm::EventID",
+        name = 'ids'
+    )]
 )
 
 process.othersender1 = MPISender(
     upstream = "mpiController1",
     instance = 12,
-    products = [ "edmEventID_ids__*" ]
+    products = [ dict(
+        type = "edm::EventID",
+        name = 'ids'
+    )]
 )
 
 process.receiver1 = MPIReceiver(
@@ -84,7 +90,10 @@ process.mpiController2 = MPIController(
 process.sender2 = MPISender(
     upstream = "mpiController2",
     instance = 21,
-    products = [ "edmEventID_ids__*" ]
+    products = [ dict(
+        type = "edm::EventID",
+        name = 'ids'
+    )]
 )
 
 process.receiver2 = MPIReceiver(

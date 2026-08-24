@@ -53,13 +53,19 @@ process.initialcheck = cms.EDAnalyzer("edmtest::EventIDValidator",
 process.sender = MPISender(
     upstream = "mpiController",
     instance = 42,
-    products = [ "edmEventID_ids__*" ]
+    products = [ dict(
+        type = "edm::EventID",
+        name = "ids"
+    )]
 )
 
 process.othersender = MPISender(
     upstream = "mpiController",
     instance = 19,
-    products = [ "edmEventID_ids__*" ]
+    products = [ dict(
+        type = "edm::EventID",
+        name = "ids"
+    )]
 )
 
 process.receiver = MPIReceiver(
