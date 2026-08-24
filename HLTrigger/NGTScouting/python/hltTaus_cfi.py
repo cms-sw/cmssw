@@ -23,8 +23,8 @@ hltTauTable = cms.EDProducer("SimplePFTauCandidateFlatTableProducer",
         pdgId = Var("pdgId", int, doc='PDG identifier'),
         #dz = Var("?leadChargedHadrCand.isNonnull() && leadChargedHadrCand.isAvailable()?leadChargedHadrCand.bestTrack.dz:-999", float, doc='dz of the leading charged hadron candidate best track'),
         #dzError = Var("?leadChargedHadrCand.isNonnull() && leadChargedHadrCand.isAvailable()?leadChargedHadrCand.bestTrack.dzError:-999",float, doc='dz error of the leading charged hadron candidate best track'),
-        dz = Var("? leadPFCand.isNonnull && leadPFCand.isAvailable && leadPFCand.trackRef.isNonnull && leadPFCand.trackRef.isAvailable ? leadPFCand.trackRef.dz : -999 ",float, doc='lead PF Candidate dz'),
-        dzError = Var("? leadPFCand.isNonnull && leadPFCand.isAvailable && leadPFCand.trackRef.isNonnull && leadPFCand.trackRef.isAvailable ? leadPFCand.trackRef.dzError : -999 ",float, doc='lead PF Candidate dz Error'),
+        #dz = Var("? leadPFCand.isNonnull && leadPFCand.isAvailable && leadPFCand.trackRef.isNonnull && leadPFCand.trackRef.isAvailable ? leadPFCand.trackRef.dz : -999 ",float, doc='lead PF Candidate dz'),
+        #dzError = Var("? leadPFCand.isNonnull && leadPFCand.isAvailable && leadPFCand.trackRef.isNonnull && leadPFCand.trackRef.isAvailable ? leadPFCand.trackRef.dzError : -999 ",float, doc='lead PF Candidate dz Error'),
         decayMode = Var("decayMode", int, doc='tau decay mode'),
         # source: DataFormats/TauReco/interface/PFTau.h
         ## variables available in PF tau

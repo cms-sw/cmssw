@@ -1,6 +1,9 @@
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
 #include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -68,6 +71,11 @@ private:
     std::vector<float> secondaryVertex_y(nTaus, default_value);
     std::vector<float> secondaryVertex_z(nTaus, default_value);
 
+    // lead PF candidate track dz/dzError (wrt beamline) - see the isAvailable()
+    // guard below; leadPFCand()'s internal cast is unsafe to call unconditionally
+    std::vector<float> dz(nTaus, default_value);
+    std::vector<float> dzError(nTaus, default_value);
+
     if (tausHandle.isValid() || !(this->skipNonExistingSrc_)) {
       const auto& tausProductId = tausHandle.id();
       const auto& tausIPHandle = event.getHandle(tauIPToken_);
@@ -113,6 +121,25 @@ private:
         } else {
           edm::LogWarning("HLTTauExtraTableProducer") << " Invalid handle for Tau IP input collection";
         }
+
+        // lead PF candidate track dz/dzError.
+        // leadCand() is a raw, stored CandidatePtr - isNonnull()/isAvailable() on it
+        // are safe (no product resolution). leadPFCand() internally casts leadCand()
+        // to a PFCandidatePtr via an AtomicPtrCache and unconditionally resolves the
+        // referenced product to do so - only call it once availability is confirmed.
+        if (const auto* pfTau = dynamic_cast<const reco::PFTau*>(&tausHandle->at(tau_index))) {
+          const reco::CandidatePtr& leadCandPtr = pfTau->leadCand();
+          if (leadCandPtr.isNonnull() && leadCandPtr.isAvailable()) {
+            const reco::PFCandidatePtr leadPFCandPtr = pfTau->leadPFCand();
+            if (leadPFCandPtr.isNonnull()) {
+              const reco::TrackRef& trackRef = leadPFCandPtr->trackRef();
+              if (trackRef.isNonnull() && trackRef.isAvailable()) {
+                dz[tau_index] = trackRef->dz();
+                dzError[tau_index] = trackRef->dzError();
+              }
+            }
+          }
+        }
       }
     } else {
       edm::LogWarning("HLTTauExtraTableProducer") << " Invalid handle for PFTau candidate input collection";
@@ -121,6 +148,8 @@ private:
     auto tauTable = std::make_unique<nanoaod::FlatTable>(nTaus, tableName_, /*singleton*/ false, /*extension*/ true);
     tauTable->addColumn<float>("dxy", dxy, "tau transverse impact parameter", precision_);
     tauTable->addColumn<float>("dxy_error", dxy_error, " dxy_error ", precision_);
+    tauTable->addColumn<float>("dz", dz, "dz of the lead PF candidate track wrt the beamline", precision_);
+    tauTable->addColumn<float>("dzError", dzError, "dz uncertainty of the lead PF candidate track", precision_);
     tauTable->addColumn<float>("ip3d", ip3d, " ip3d ", precision_);
     tauTable->addColumn<float>("ip3d_error", ip3d_error, " ip3d_error ", precision_);
     tauTable->addColumn<float>("hasSecondaryVertex", hasSecondaryVertex, " hasSecondaryVertex ", precision_);
