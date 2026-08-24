@@ -14,7 +14,9 @@
 // (interestingPdgIds, empty = all) that carry hits in the relevant channel and pass
 // a kinematic selection; the harvester (DQMGenericClient) forms the ratios.
 
+#include <algorithm>
 #include <cstdint>
+#include <cstdlib>
 #include <span>
 #include <string>
 #include <unordered_map>
@@ -143,8 +145,8 @@ private:
   const double minX_;
   const double minAbsEta_;
   const double maxAbsEta_;
-  const double matchThreshold_;
-  const double mergeThreshold_;
+  const float matchThreshold_;
+  const float mergeThreshold_;
   Traits traits_;
 
   // Truth (sim) side, vs eta and vs x.
@@ -164,11 +166,22 @@ private:
   MonitorElement* purity_ = nullptr;
 };
 
+namespace {
+  // Particle selection is by |pdgId|, so one entry covers particle and antiparticle.
+  std::vector<int> absPdgIds(std::vector<int> ids) {
+    for (int& id : ids)
+      id = std::abs(id);
+    std::sort(ids.begin(), ids.end());
+    ids.erase(std::unique(ids.begin(), ids.end()), ids.end());
+    return ids;
+  }
+}  // namespace
+
 template <class Traits>
 BranchRecoValidatorT<Traits>::BranchRecoValidatorT(edm::ParameterSet const& cfg)
     : graphToken_(consumes<truth::Graph>(cfg.getParameter<edm::InputTag>("src"))),
       hitIndexToken_(consumes<truth::LogicalGraphHitIndex>(cfg.getParameter<edm::InputTag>("hitIndex"))),
-      interestingPdgIds_(cfg.getParameter<std::vector<int>>("interestingPdgIds")),
+      interestingPdgIds_(absPdgIds(cfg.getParameter<std::vector<int>>("interestingPdgIds"))),
       folder_(cfg.getParameter<std::string>("folder")),
       xName_(cfg.getParameter<std::string>("xName")),
       xTitle_(cfg.getParameter<std::string>("xTitle")),
@@ -176,8 +189,8 @@ BranchRecoValidatorT<Traits>::BranchRecoValidatorT(edm::ParameterSet const& cfg)
       minX_(cfg.getParameter<double>("minX")),
       minAbsEta_(cfg.getParameter<double>("minAbsEta")),
       maxAbsEta_(cfg.getParameter<double>("maxAbsEta")),
-      matchThreshold_(cfg.getParameter<double>("matchThreshold")),
-      mergeThreshold_(cfg.getParameter<double>("mergeThreshold")),
+      matchThreshold_(cfg.getParameter<float>("matchThreshold")),
+      mergeThreshold_(cfg.getParameter<float>("mergeThreshold")),
       traits_(cfg, consumesCollector()) {}
 
 template <class Traits>
@@ -219,8 +232,8 @@ void BranchRecoValidatorT<Traits>::analyze(edm::Event const& event, edm::EventSe
   std::vector<uint32_t> roots;
   if (!interestingPdgIds_.empty()) {
     for (uint32_t i = 0; i < graph.nParticles(); ++i) {
-      const int pdgId = graph.particles()[i].pdgId;
-      if (std::find(interestingPdgIds_.begin(), interestingPdgIds_.end(), pdgId) != interestingPdgIds_.end())
+      const int pdgId = std::abs(graph.particles()[i].pdgId);
+      if (std::binary_search(interestingPdgIds_.begin(), interestingPdgIds_.end(), pdgId))
         roots.push_back(i);
     }
   }
@@ -234,19 +247,16 @@ void BranchRecoValidatorT<Traits>::analyze(edm::Event const& event, edm::EventSe
     recoDenomEta_->Fill(obj.eta);
     recoDenomX_->Fill(obj.x);
 
-    double objWeight = 0.;
-    for (auto const& h : obj.hits)
-      objWeight += static_cast<double>(h.fraction) * h.energy;
-    if (objWeight <= 0.)
-      objWeight = 1.;
-
     auto matches = assoc.bestBranches(std::span<const truth::RecoHit>(obj.hits));
-    const double bestPurity = matches.empty() ? 0. : matches.front().sharedEnergy / objWeight;
+    // Reco purity is one minus the RECO-normalised score, whatever the metric: the
+    // shared quantity itself is a cell count for the tracker and an energy for the
+    // calorimeter, so it carries no common denominator this validator could apply.
+    const float bestPurity = matches.empty() ? 0.f : 1.f - matches.front().score;
     purity_->Fill(bestPurity);
 
     int sharedBranches = 0;
     for (auto const& m : matches)
-      if (m.sharedEnergy / objWeight >= mergeThreshold_)
+      if (1.f - m.score >= mergeThreshold_)
         ++sharedBranches;
     if (sharedBranches >= 2) {
       mergeNumEta_->Fill(obj.eta);
@@ -266,8 +276,8 @@ void BranchRecoValidatorT<Traits>::analyze(edm::Event const& event, edm::EventSe
   auto considerRoot = [&](uint32_t r) {
     if (interestingPdgIds_.empty())
       return true;
-    return std::find(interestingPdgIds_.begin(), interestingPdgIds_.end(), graph.particles()[r].pdgId) !=
-           interestingPdgIds_.end();
+    return std::binary_search(
+        interestingPdgIds_.begin(), interestingPdgIds_.end(), std::abs(graph.particles()[r].pdgId));
   };
   for (uint32_t r = 0; r < nP; ++r) {
     if (!considerRoot(r) || channelHits(subgraphView, r).empty())
@@ -298,7 +308,7 @@ void BranchRecoValidatorT<Traits>::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<edm::InputTag>("src", edm::InputTag("truthLogicalGraphProducer"));
   desc.add<edm::InputTag>("hitIndex", edm::InputTag("truthLogicalGraphHitIndexProducer"));
   desc.add<std::vector<int>>("interestingPdgIds", {})
-      ->setComment("Restrict the branch side to these PDG ids (empty = all branches).");
+      ->setComment("Restrict the branch side to these |PDG ids| (empty = all branches).");
   desc.add<std::string>("folder", "BranchValidator/Reco");
   desc.add<std::string>("xName", "pt")->setComment("Second-axis ME name suffix (e.g. pt or energy).");
   desc.add<std::string>("xTitle", "p_{T} [GeV]");
@@ -306,8 +316,8 @@ void BranchRecoValidatorT<Traits>::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<double>("minX", 0.);
   desc.add<double>("minAbsEta", 0.);
   desc.add<double>("maxAbsEta", 3.0);
-  desc.add<double>("matchThreshold", 0.5)->setComment("Min best-branch purity for a reco object to count as matched.");
-  desc.add<double>("mergeThreshold", 0.3)
+  desc.add<float>("matchThreshold", 0.5f)->setComment("Min best-branch purity for a reco object to count as matched.");
+  desc.add<float>("mergeThreshold", 0.3f)
       ->setComment("Min shared fraction for a branch to count toward a merge (>=2 -> merged reco object).");
   Traits::fillDescriptions(desc);
   descriptions.addWithDefaultLabel(desc);
