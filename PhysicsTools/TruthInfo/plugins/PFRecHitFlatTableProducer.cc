@@ -1,6 +1,4 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-// Part of the MC-truth-graph prototype - under heavy development, not yet open
-// to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 // Author: Felice Pantaleo - CERN
 // Flat-table dump of reco::PFRecHit collections (barrel/forward calorimeters:

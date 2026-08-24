@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 # Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-# Part of the MC-truth-graph prototype - under heavy development, not yet open
-# to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 """Unit tests for the per-process truth-graph selection presets."""
 
