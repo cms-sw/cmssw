@@ -399,9 +399,9 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
                           "Number of clusters per Barrel Layer",
                           "Barrel Layer",
                           "Number of clusters",
-                          7,
+                          6,
                           0.5,
-                          7.5);
+                          6.5);
   phase2tkutil::add2DDesc(desc,
                           "GlobalPositionXY_P",
                           "Cluster_Global_Position_XY_P",

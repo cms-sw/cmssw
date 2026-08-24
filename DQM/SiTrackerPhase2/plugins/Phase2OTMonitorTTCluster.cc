@@ -337,31 +337,31 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
   // NClusters
   phase2tkutil::add1DDesc(desc,
                           "Num_L1Clusters_IMem_Barrel",
-                          "Num_L1Clusters_IMem_Barrel_Layers",
+                          "Num_L1Clusters_IMem_Barrel",
                           "Number of L1Clusters in inner member of modules in the barrel by layer",
                           "Barrel Layer",
                           "# L1 Clusters",
-                          7,
+                          6,
                           0.5,
-                          7.5);
+                          6.5);
   phase2tkutil::add1DDesc(desc,
                           "Num_L1Clusters_OMem_Barrel",
-                          "Num_L1Clusters_OMem_Barrel_Layers",
+                          "Num_L1Clusters_OMem_Barrel",
                           "Number of L1Clusters in outer member of modules in the barrel by layer",
                           "Barrel Layer",
                           "# L1 Clusters",
-                          7,
+                          6,
                           0.5,
-                          7.5);
+                          6.5);
   phase2tkutil::add1DDesc(desc,
                           "Num_L1Clusters_Barrel",
-                          "Num_L1Clusters_Barrel_Layers",
+                          "Num_L1Clusters_Barrel",
                           "Number of L1Clusters in the barrel by layer",
                           "Barrel Layer",
                           "# L1 Clusters",
-                          7,
+                          6,
                           0.5,
-                          7.5);
+                          6.5);
 
   // Cluster properties
   phase2tkutil::add2DDesc(

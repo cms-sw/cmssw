@@ -206,25 +206,24 @@ void Phase2OTMonitorTTStub::analyze(const edm::Event &iEvent, const edm::EventSe
 
         local_mes.stubCounter++;
 
-        if (detIdStub.subdetId() == static_cast<int>(StripSubdetector::TID)) {
-          if (local_mes.NStubsByWheel)
-            local_mes.NStubsByWheel->Fill(wheel);
-          if (local_mes.NStubsByRing)
-            local_mes.NStubsByRing->Fill(ring);
-          if (local_mes.StubOffsetByWheel)
-            local_mes.StubOffsetByWheel->Fill(wheel, bendOffset);
-          if (local_mes.StubOffsetByRing)
-            local_mes.StubOffsetByRing->Fill(ring, bendOffset);
-          if (local_mes.StubWidthByWheel)
-            local_mes.StubWidthByWheel->Fill(wheel, rawBend - bendOffset);
-          if (local_mes.StubWidthByRing)
-            local_mes.StubWidthByRing->Fill(ring, rawBend - bendOffset);
-        }
+        if (local_mes.NStubsByWheel)
+          local_mes.NStubsByWheel->Fill(wheel);
+        if (local_mes.NStubsByRing)
+          local_mes.NStubsByRing->Fill(ring);
+        if (local_mes.StubOffsetByWheel)
+          local_mes.StubOffsetByWheel->Fill(wheel, bendOffset);
+        if (local_mes.StubOffsetByRing)
+          local_mes.StubOffsetByRing->Fill(ring, bendOffset);
+        if (local_mes.StubWidthByWheel)
+          local_mes.StubWidthByWheel->Fill(wheel, rawBend - bendOffset);
+        if (local_mes.StubWidthByRing)
+          local_mes.StubWidthByRing->Fill(ring, rawBend - bendOffset);
+
       }  // end loop fillingDepth
     }  // end loop contentIter
   }  // end loop inputIter
-  for (const auto &it : layerMEs_) {
-    TTStubMEs local_mes = it.second;
+  for (auto &it : layerMEs_) {
+    TTStubMEs &local_mes = it.second;
     if (local_mes.NStubs)
       local_mes.NStubs->Fill(local_mes.stubCounter);
     local_mes.stubCounter = 0;
@@ -462,7 +461,7 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
                           "Number of events",
                           100,
                           0,
-                          300000);
+                          50000);
   phase2tkutil::add1DDesc(desc,
                           "NStubsByWheel",
                           "Num_L1Stubs_Wheels",
