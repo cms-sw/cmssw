@@ -1,0 +1,23 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/VertexReco"/>
+<use name="DataFormats/CaloRecHit"/>
+<use name="DataFormats/HGCalReco"/>
+<use name="SimDataFormats/Associations"/>
+<use name="SimDataFormats/TruthInfo"/>
+<use name="PhysicsTools/TruthInfo"/>
+
+<library file="AllRecoToTruthBranchAssociatorsProducer.cc" name="TruthGraphAssociatorProducersPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="TruthBranchAssociationDumper.cc" name="TruthBranchAssociationDumperPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="TruthBranchTargetsProducer.cc" name="TruthBranchTargetsProducerPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
