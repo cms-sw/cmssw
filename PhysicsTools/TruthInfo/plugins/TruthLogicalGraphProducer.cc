@@ -22,6 +22,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
+#include <sstream>
 #include <vector>
 
 #include "FWCore/Framework/interface/Event.h"
@@ -36,6 +37,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
+
+#include "PhysicsTools/TruthInfo/interface/TruthLevels.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
@@ -59,6 +62,41 @@
 #include "PhysicsTools/TruthInfo/interface/TruthLogicalGraphPostProcessor.h"
 
 namespace {
+
+  // Append a standalone particle carrying LevelFlag::Signal, for a sample whose generator
+  // never wrote the resonance. It has no edges, so the CSR offset arrays only need one
+  // more entry each, repeating the final offset. Its momentum is the sum of the
+  // hard-process legs, which is the closest thing to the resonance the record still has.
+  void addSyntheticSignalNode(truth::Graph& graph) {
+    truth::ParticleData synthetic;
+    // The ROLE is the marker. Empty genNode/simNode would not do: connector particles
+    // have exactly the same empty fields and the same status 0, so inferring "synthetic"
+    // from them cannot tell a stand-in from a connector.
+    synthetic.role = static_cast<uint8_t>(truth::ParticleRole::SignalStandIn);
+    synthetic.genNode = -1;
+    synthetic.simNode = -1;
+    synthetic.status = 0;
+    synthetic.pdgId = 0;
+    // The hard-process legs, computed from levelAntichain directly: LevelFlag::HardProcess
+    // is not stamped yet at this point, since fillLevelFlags runs only on the finished
+    // graph.
+    math::XYZTLorentzVectorD sum(0., 0., 0., 0.);
+    for (const uint32_t id : truth::levelAntichain(graph, truth::Level::HardProcess)) {
+      if (id < graph.nParticles()) {
+        sum += graph.particles()[id].momentum;
+      }
+    }
+    synthetic.momentum = sum;
+    synthetic.setLevel(truth::LevelFlag::Signal);
+
+    graph.particles().push_back(synthetic);
+    // A particle with no production and no decay vertex: both offset arrays grow by one
+    // entry repeating the last, which is what "empty range" means in this CSR layout.
+    auto& decayOff = graph.particleToDecayVertexOffsets();
+    auto& prodOff = graph.particleToProductionVertexOffsets();
+    decayOff.push_back(decayOff.empty() ? 0 : decayOff.back());
+    prodOff.push_back(prodOff.empty() ? 0 : prodOff.back());
+  }
 
   struct DSU {
     std::vector<int> parent;
@@ -317,6 +355,7 @@ public:
         hepmc3Token_(mayConsume<edm::HepMC3Product>(cfg.getParameter<edm::InputTag>("genEventHepMC3"))),
         hepmc2Token_(mayConsume<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
         mergeGenSimVertices_(cfg.getParameter<bool>("mergeGenSimVertices")),
+        verbosity_(cfg.getUntrackedParameter<unsigned>("verbosity")),
         dropHitlessSimSubgraphs_(
             cfg.getParameter<edm::ParameterSet>("postProcessing").getParameter<bool>("dropHitlessSimSubgraphs")),
         postProcessor_(truth::TruthLogicalGraphPostProcessor::configFromPSet(
@@ -345,6 +384,9 @@ public:
     desc.add<edm::InputTag>("genEventHepMC3", edm::InputTag("generatorSmeared"));
     desc.add<edm::InputTag>("genEventHepMC", edm::InputTag("generatorSmeared"));
 
+    desc.addUntracked<unsigned>("verbosity", 0)
+        ->setComment(
+            "Above 0, log the particle and vertex counts and the size of each level antichain, once per event");
     desc.add<bool>("mergeGenSimVertices", true)
         ->setComment(
             "If true, merge production GenVertex and SimVertex only for locally one-to-one matches induced by "
@@ -972,6 +1014,61 @@ public:
 
     *out = postProcessor_.process(std::move(*out), particleDirectHit);
 
+    // Record the seed species the selection ran with, so LevelFlag::Signal stays
+    // re-derivable by a reader that has only the graph.
+    out->signalSeedPdgIds() = postProcessor_.config().seedPdgIds;
+    out->reconstructablePdgIds() = postProcessor_.config().reconstructablePdgIds;
+    out->seedHadronFlavors() = postProcessor_.config().seedHadronFlavors;
+
+    // If the generator never wrote the resonance, stand one in for it so the signal level
+    // is answerable for every sample rather than only the resonant ones. Marked
+    // synthetic: no GEN and no SIM back-reference, and status 0, which no generator
+    // particle carries. It is an accounting object, not truth, and nothing may read its
+    // four-momentum as a generator quantity.
+    //
+    // The full-graph preset is spelled seedPdgIds = {0}, and that means NO SELECTION, not
+    // "a resonance the generator failed to write". No real particle carries pdgId 0, so
+    // nothing can ever match it and the fallback would stand a resonance in on EVERY
+    // event of every unselected sample. Treat {0} exactly as filterGraphBySelection
+    // already treats it, as the escape hatch that asks for the whole graph.
+    if (truth::seedsNameAResonance(out->signalSeedPdgIds(), out->seedHadronFlavors())) {
+      const bool haveSignal = std::any_of(out->particles().begin(), out->particles().end(), [](auto const& p) {
+        return p.isAtLevel(truth::LevelFlag::Signal);
+      });
+      if (!haveSignal) {
+        addSyntheticSignalNode(*out);
+        edm::LogWarning("TruthLogicalGraphProducer")
+            << "no particle matched the configured signal seeds; added a synthetic signal node standing for the "
+               "hard-process legs, pt "
+            << out->particles().back().momentum.pt()
+            << ". Its momentum is their sum and is NOT a generator quantity; a pt of exactly 0 means the sample has "
+               "no hard-process legs either.";
+      }
+    }
+
+    // Stamp level membership last, on the finished graph: the antichain reduction walks
+    // ancestors and descendants, so anything earlier would classify a graph that the
+    // post-processor is still rewriting.
+    truth::fillLevelFlags(*out);
+
+    if (verbosity_ > 0) {
+      std::ostringstream levels;
+      for (const truth::Level level : truth::kAllLevels) {
+        const truth::LevelFlag flag = truth::levelFlagOf(level);
+        std::size_t n = 0;
+        for (auto const& particle : out->particles()) {
+          n += particle.isAtLevel(flag) ? 1 : 0;
+        }
+        levels << "  " << truth::levelName(level) << " " << n << "\n";
+      }
+      edm::LogVerbatim("TruthLogicalGraphProducer")
+          << "truth graph: " << out->nParticles() << " particles, " << out->nVertices()
+          << " vertices\nlevel membership (antichain sizes):\n"
+          << levels.str();
+    }
+
+    // Checked on the graph that is actually produced, after the synthetic node and the
+    // level stamping, so a future mutation between here and the put cannot slip past it.
     if (!out->isConsistent()) {
       throw cms::Exception("TruthLogicalGraphProducer") << "Produced truth::Graph is not consistent";
     }
@@ -989,6 +1086,7 @@ private:
   std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> trackerSimHitTokens_;
 
   bool mergeGenSimVertices_;
+  unsigned verbosity_ = 0;
   bool dropHitlessSimSubgraphs_;
   truth::TruthLogicalGraphPostProcessor postProcessor_;
 };

@@ -41,6 +41,14 @@ namespace truth {
     // every B species. OR-ed with seedPdgIds.
     std::vector<int32_t> seedHadronFlavors;
 
+    // Species a detector reconstructs as an OBJECT although they decay, so the walk from
+    // the signal down to its reconstructable products stops there and labels them. pi0 is
+    // the case that motivates it: it decays to two photons at once, but the analysis
+    // reconstructs the pi0. An intermediate resonance the detector never sees as an
+    // object, an a1 or a rho, is deliberately absent so the walk passes through it; add
+    // its pdg id here to label it instead.
+    std::vector<int32_t> reconstructablePdgIds;
+
     // For each selected root, keep this many generations of ancestors above it
     // as context only: the ancestors and connecting vertices are kept, but not
     // their other descendants.
@@ -118,6 +126,10 @@ namespace truth {
 
     static edm::ParameterSetDescription psetDescription();
     static LogicalGraphPostProcessingConfig configFromPSet(edm::ParameterSet const& pset);
+
+    // The configuration this instance runs with, so a caller can record the seed
+    // species on the graph and keep LevelFlag::Signal re-derivable.
+    [[nodiscard]] LogicalGraphPostProcessingConfig const& config() const { return config_; }
 
     // particleDirectHit[i] != 0 marks logical particle i as carrying at least one
     // positive-energy calorimeter or tracker sim-hit on its own SimTrack. It must

@@ -32,6 +32,10 @@ class TestTruthGraphSelections(unittest.TestCase):
             "SingleMuPt10_Eta2p85": [13, -13],
             "SingleGammaPt35": [22],
             "SinglePiE50HCAL": [211, -211],
+            # The neutral pion must not fall through to the charged-pion token: a
+            # pi0 gun seeds 111, so the pi0 is Signal and, being reconstructable,
+            # its own one-object leg.
+            "SinglePi0E10_pythia8_cfi": [111],
             "FourMuPt_1_200": [13, -13],
             "CloseByParticle_Photon": [22],
             "CE_E_Front_300um": [0],  # configurable species -> full graph fallback

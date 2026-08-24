@@ -24,7 +24,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
@@ -115,6 +117,7 @@ public:
   explicit TruthGraphTopologyChecker(edm::ParameterSet const&);
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
   void analyzeRaw(TruthGraph const&);
@@ -149,7 +152,15 @@ private:
 TruthGraphTopologyChecker::TruthGraphTopologyChecker(edm::ParameterSet const& cfg)
     : rawToken_(consumes<TruthGraph>(cfg.getParameter<edm::InputTag>("rawSrc"))),
       logicalToken_(consumes<truth::Graph>(cfg.getParameter<edm::InputTag>("src"))),
-      failOnViolations_(cfg.getUntrackedParameter<bool>("failOnViolations", false)) {}
+      failOnViolations_(cfg.getUntrackedParameter<bool>("failOnViolations")) {}
+
+void TruthGraphTopologyChecker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("rawSrc", edm::InputTag("truthGraphProducer"));
+  desc.add<edm::InputTag>("src", edm::InputTag("truthLogicalGraphProducer"));
+  desc.addUntracked<bool>("failOnViolations", false);
+  descriptions.addWithDefaultLabel(desc);
+}
 
 void TruthGraphTopologyChecker::analyze(edm::Event const& event, edm::EventSetup const&) {
   ++nEvents_;

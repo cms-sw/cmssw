@@ -298,8 +298,7 @@ public:
   explicit TruthGraphDumper(const edm::ParameterSet& cfg)
       : token_(consumes<TruthGraph>(cfg.getParameter<edm::InputTag>("src"))),
         dotFile_(cfg.getParameter<std::string>("dotFile")),
-        maxNodes_(cfg.getParameter<unsigned>("maxNodes")),
-        maxEdgesPerNode_(cfg.getParameter<unsigned>("maxEdgesPerNode")),
+
         simTracksToken_(mayConsume<edm::SimTrackContainer>(cfg.getParameter<edm::InputTag>("simTracks"))),
         simVerticesToken_(mayConsume<edm::SimVertexContainer>(cfg.getParameter<edm::InputTag>("simVertices"))),
         hepmc2Token_(mayConsume<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
@@ -309,8 +308,6 @@ public:
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("src", edm::InputTag("truthGraphProducer"));
     desc.add<std::string>("dotFile", "truthgraph.dot");
-    desc.add<unsigned>("maxNodes", 5000)->setComment("Truncate to keep DOT manageable");
-    desc.add<unsigned>("maxEdgesPerNode", 200)->setComment("Truncate fanout per node");
 
     desc.add<edm::InputTag>("simTracks", edm::InputTag("g4SimHits"))
         ->setComment("SimTrackContainer (optional, used to enrich SimTrack nodes)");
@@ -401,7 +398,7 @@ public:
     os << "  rankdir=LR;\n";
     os << "  node [fontsize=10];\n";
 
-    const uint32_t n = std::min<uint32_t>(g.nNodes(), maxNodes_);
+    const uint32_t n = g.nNodes();
 
     // nodes
     for (uint32_t i = 0; i < n; ++i) {
@@ -627,16 +624,12 @@ public:
     for (uint32_t src = 0; src < n; ++src) {
       const uint32_t b = g.edgeBegin(src);
       const uint32_t e = g.edgeEnd(src);
-
-      unsigned kept = 0;
       for (uint32_t pos = b; pos < e; ++pos) {
         const uint32_t dst = g.edges()[pos];
         if (dst >= n)
           continue;
         os << "  n" << src << " -> n" << dst << edgeAttrs(static_cast<TruthGraph::EdgeKind>(g.edgeKind()[pos]))
            << ";\n";
-        if (++kept >= maxEdgesPerNode_)
-          break;
       }
     }
 
@@ -647,8 +640,6 @@ public:
 private:
   edm::EDGetTokenT<TruthGraph> token_;
   std::string dotFile_;
-  unsigned maxNodes_;
-  unsigned maxEdgesPerNode_;
 
   edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
   edm::EDGetTokenT<edm::SimVertexContainer> simVerticesToken_;
