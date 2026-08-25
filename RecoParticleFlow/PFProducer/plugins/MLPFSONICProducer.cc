@@ -57,7 +57,7 @@ void MLPFSONICProducer::acquire(edm::Event const &iEvent, edm::EventSetup const 
     }
     selected_elements_.push_back(pelem);
   }
-  std::cout << "filled selected_elements." << std::endl;
+  edm::LogInfo("MLPFSONICProducer") << "filled selected_elements." << std::endl;
   // Total Number of selected_elements
   unsigned int num_elements_total = selected_elements_.size();
 
@@ -101,7 +101,7 @@ void MLPFSONICProducer::acquire(edm::Event const &iEvent, edm::EventSetup const 
   vdata2 = inputs[0];
   data1.toServer(tdata1);
   data2.toServer(tdata2);
-  std::cout << "check-point Producer-143_tensorsize_" << tensor_size << std::endl;
+  edm::LogInfo("MLPFSONICProducer") << "check-point Producer-143_tensorsize_" << tensor_size << std::endl;
 }
 void MLPFSONICProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup, Output const &iOutput) {
   using namespace reco::mlpf;
@@ -117,9 +117,9 @@ void MLPFSONICProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
   // Total Number of selected_elements
   unsigned int num_elements_total = selected_elements_.size();
   unsigned int tensor_size = num_elements_total;
-  std::cout << "check-point pid-161_" << output_pid[0][0] << "__" << output_pid[0][1] << "__" << output_pid[0][2]
+  edm::LogInfo("MLPFSONICProducer") << "check-point pid-161_" << output_pid[0][0] << "__" << output_pid[0][1] << "__" << output_pid[0][2]
             << std::endl;
-  std::cout << "check-point p4-162_" << output_p4[0][0] << "__" << output_p4[0][1] << "__" << output_p4[0][2]
+  edm::LogInfo("MLPFSONICProducer") << "check-point p4-162_" << output_p4[0][0] << "__" << output_p4[0][1] << "__" << output_p4[0][2]
             << std::endl;
   std::vector<reco::PFCandidate> pOutputCandidateCollection;
   for (size_t ielem = 0; ielem < num_elements_total; ielem++) {
