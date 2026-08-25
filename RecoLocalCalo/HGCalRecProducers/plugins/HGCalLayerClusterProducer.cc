@@ -77,8 +77,8 @@ private:
   unsigned int hitsTime_;
 
   // for calculate position
-  std::vector<double> thresholdW0_;
-  double positionDeltaRho2_;
+  std::vector<float> thresholdW0_;
+  float positionDeltaRho2_;
   ticlgeom::Tools rhtools_;
   edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
   edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
@@ -140,8 +140,8 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
     algo_ = HGCalLayerClusterAlgoFactory::get()->create(pluginPSet.getParameter<std::string>("type"), pluginPSet);
     algo_->setAlgoId(algoId_);
   }
-  thresholdW0_ = pluginPSet.getParameter<std::vector<double>>("thresholdW0");
-  positionDeltaRho2_ = pluginPSet.getParameter<double>("positionDeltaRho2");
+  thresholdW0_ = pluginPSet.getParameter<std::vector<float>>("thresholdW0");
+  positionDeltaRho2_ = pluginPSet.getParameter<float>("positionDeltaRho2");
 
   produces<std::vector<float>>("InitialLayerClustersMask");
   produces<std::vector<reco::BasicCluster>>();
@@ -198,7 +198,7 @@ math::XYZPoint HGCalLayerClusterProducer::calculatePosition(
       if ((d1 * d1 + d2 * d2) > positionDeltaRho2_)
         continue;
 
-      float Wi = std::max(thresholdW0_[thick] + std::log(rechit->energy() / total_weight), 0.);
+      float Wi = std::max(thresholdW0_[thick] + std::log(rechit->energy() / total_weight), 0.f);
       x += position.x() * Wi;
       y += position.y() * Wi;
       total_weight_log += Wi;

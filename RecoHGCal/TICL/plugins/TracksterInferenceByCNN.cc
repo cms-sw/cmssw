@@ -16,7 +16,7 @@ namespace ticl {
       : TracksterInferenceAlgoBase(conf, cache),
         inputNames_(conf.getParameter<std::vector<std::string>>("inputNames")),
         outputNames_(conf.getParameter<std::vector<std::string>>("outputNames")),
-        eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),
+        eidMinClusterEnergy_(conf.getParameter<float>("eid_min_cluster_energy")),
         eidNLayers_(conf.getParameter<int>("eid_n_layers")),
         eidNClusters_(conf.getParameter<int>("eid_n_clusters")),
         doPID_(conf.getParameter<int>("doPID")),
@@ -141,7 +141,7 @@ namespace ticl {
     iDesc.add<std::vector<std::string>>("inputNames", {"input"});
     iDesc.add<std::vector<std::string>>("outputNames", {"pid_output"});
 
-    iDesc.add<double>("eid_min_cluster_energy", 1.0);
+    iDesc.add<float>("eid_min_cluster_energy", 1.0);
     iDesc.add<int>("eid_n_layers", 50);
     iDesc.add<int>("eid_n_clusters", 10);
     iDesc.add<int>("doPID", 1);
