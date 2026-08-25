@@ -41,7 +41,7 @@ namespace edm {
     }
 
     void setSource(std::unique_ptr<InputSource> input) { input_ = std::move(input); }
-    void releaseSource() { input_ = nullptr; }
+    void releaseSource() { delete edm::get_underlying_safe(input_).release(); /*unique_ptr::op= is noexcept*/ }
     ProductRegistry const& productRegistry() const { return input_->productRegistry(); }
     void beginJob(ProductRegistry const&);
     void endJob();
