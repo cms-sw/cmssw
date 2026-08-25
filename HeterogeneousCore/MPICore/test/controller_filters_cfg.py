@@ -42,7 +42,10 @@ process.eventIDProducer = cms.EDProducer("edmtest::EventIDProducer")
 process.sender = MPISender(
     upstream = "mpiController",
     instance = 42,
-    products = [ "edmEventID_eventIDProducer__*" ]
+    products = [ dict(
+        type = "edm::EventID",
+        name = 'eventIDProducer'
+    )]
 )
 
 # Receive a PathStateToken back from the Follower. This token will be present if

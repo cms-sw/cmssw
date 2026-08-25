@@ -65,19 +65,21 @@ def create_remote_process(local_process, modules_to_run, remote_process_name, lo
 def is_device_product(prod):
     return prod["type"].startswith("edm::DeviceProduct")
 
-def make_sender_patterns(module_name, products):
-    patterns = []
+def make_sender_psets(products):
+    psets = []
 
     for p in products:
         if is_device_product(p):
             continue
 
-        friendly_type_name = p["friendly_type_name"]
-        label = p["product_instance"]
+        psets.append(
+            cms.PSet(
+                type=cms.string(p["type"]),
+                name=cms.InputTag(p["module"])
+            )
+        )
 
-        patterns.append(f"{friendly_type_name}_{module_name}_{label}_*")
-
-    return patterns
+    return cms.VPSet(*psets)
 
 
 def make_receiver_psets(products):
@@ -126,7 +128,6 @@ def replace_module(process, name, new_module):
 
 
 def create_sender(
-    module_name,
     products,
     instance,
     sender_upstream,
@@ -135,14 +136,14 @@ def create_sender(
     """
     Add MPISender for one module.
     """
-    sender_products = make_sender_patterns(module_name, products)
+    sender_products = make_sender_psets(products)
 
     if path_state_capture is not None:
         sender = cms.EDProducer(
             "MPISender",
             upstream=cms.InputTag(sender_upstream),
             instance=cms.int32(instance),
-            products=cms.vstring(*sender_products),
+            products=cms.VPSet(*sender_products),
             activity=cms.InputTag(path_state_capture),
         )
     else:
@@ -150,7 +151,7 @@ def create_sender(
             "MPISender",
             upstream=cms.InputTag(sender_upstream),
             instance=cms.int32(instance),
-            products=cms.vstring(*sender_products),
+            products=cms.VPSet(*sender_products),
         )
 
     return sender
@@ -168,14 +169,14 @@ def create_group_sender(
     """
     sender_products = []
     for offloaded_module in group:
-        sender_products.extend(make_sender_patterns(offloaded_module, all_products[offloaded_module]))
+        sender_products.extend(make_sender_psets(all_products[offloaded_module]))
 
     if path_state_capture is not None:
         sender = cms.EDProducer(
             "MPISender",
             upstream=cms.InputTag(upstream_module),
             instance=cms.int32(instance),
-            products=cms.vstring(*sender_products),
+            products=cms.VPSet(*sender_products),
             activity=cms.InputTag(path_state_capture),
         )
     else:
@@ -183,7 +184,7 @@ def create_group_sender(
             "MPISender",
             upstream=cms.InputTag(upstream_module),
             instance=cms.int32(instance),
-            products=cms.vstring(*sender_products),
+            products=cms.VPSet(*sender_products),
         )
 
     return sender
