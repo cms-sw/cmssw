@@ -223,10 +223,125 @@ TEST_CASE("SoATemplate") {
   }
 
   SECTION("Check views conversions") {
-    using ConstView =
-        SimpleLayout::ConstViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::extended>;
-    using View = SimpleLayout::ViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::extended>;
-    static_assert(std::convertible_to<View, ConstView>);
-    static_assert(!std::convertible_to<ConstView, View>);
+    using CVE_D =
+        SimpleLayout::ConstViewTemplate<cms::soa::RestrictQualify::enabled, cms::soa::RangeChecking::disabled>;
+    using CVE_E = SimpleLayout::ConstViewTemplate<cms::soa::RestrictQualify::enabled, cms::soa::RangeChecking::enabled>;
+    using CVE_X =
+        SimpleLayout::ConstViewTemplate<cms::soa::RestrictQualify::enabled, cms::soa::RangeChecking::extended>;
+
+    using CVD_D =
+        SimpleLayout::ConstViewTemplate<cms::soa::RestrictQualify::disabled, cms::soa::RangeChecking::disabled>;
+    using CVD_E =
+        SimpleLayout::ConstViewTemplate<cms::soa::RestrictQualify::disabled, cms::soa::RangeChecking::enabled>;
+    using CVD_X =
+        SimpleLayout::ConstViewTemplate<cms::soa::RestrictQualify::disabled, cms::soa::RangeChecking::extended>;
+
+    using VE_D = SimpleLayout::ViewTemplate<cms::soa::RestrictQualify::enabled, cms::soa::RangeChecking::disabled>;
+    using VE_E = SimpleLayout::ViewTemplate<cms::soa::RestrictQualify::enabled, cms::soa::RangeChecking::enabled>;
+    using VE_X = SimpleLayout::ViewTemplate<cms::soa::RestrictQualify::enabled, cms::soa::RangeChecking::extended>;
+
+    using VD_D = SimpleLayout::ViewTemplate<cms::soa::RestrictQualify::disabled, cms::soa::RangeChecking::disabled>;
+    using VD_E = SimpleLayout::ViewTemplate<cms::soa::RestrictQualify::disabled, cms::soa::RangeChecking::enabled>;
+    using VD_X = SimpleLayout::ViewTemplate<cms::soa::RestrictQualify::disabled, cms::soa::RangeChecking::extended>;
+
+    // View -> View
+    static_assert(std::convertible_to<VE_D, VE_E>);
+    static_assert(std::convertible_to<VE_D, VE_X>);
+    static_assert(std::convertible_to<VE_D, VD_D>);
+    static_assert(std::convertible_to<VE_D, VD_E>);
+    static_assert(std::convertible_to<VE_D, VD_X>);
+
+    // View -> ConstView
+    static_assert(std::convertible_to<VE_D, CVE_D>);
+    static_assert(std::convertible_to<VE_D, CVE_E>);
+    static_assert(std::convertible_to<VE_D, CVE_X>);
+    static_assert(std::convertible_to<VE_D, CVD_D>);
+    static_assert(std::convertible_to<VE_D, CVD_E>);
+    static_assert(std::convertible_to<VE_D, CVD_X>);
+
+    static_assert(std::convertible_to<VE_E, CVE_D>);
+    static_assert(std::convertible_to<VE_E, CVE_E>);
+    static_assert(std::convertible_to<VE_E, CVE_X>);
+    static_assert(std::convertible_to<VE_E, CVD_D>);
+    static_assert(std::convertible_to<VE_E, CVD_E>);
+    static_assert(std::convertible_to<VE_E, CVD_X>);
+
+    static_assert(std::convertible_to<VE_X, CVE_D>);
+    static_assert(std::convertible_to<VE_X, CVE_E>);
+    static_assert(std::convertible_to<VE_X, CVE_X>);
+    static_assert(std::convertible_to<VE_X, CVD_D>);
+    static_assert(std::convertible_to<VE_X, CVD_E>);
+    static_assert(std::convertible_to<VE_X, CVD_X>);
+
+    static_assert(std::convertible_to<VD_D, CVE_D>);
+    static_assert(std::convertible_to<VD_D, CVE_E>);
+    static_assert(std::convertible_to<VD_D, CVE_X>);
+    static_assert(std::convertible_to<VD_D, CVD_D>);
+    static_assert(std::convertible_to<VD_D, CVD_E>);
+    static_assert(std::convertible_to<VD_D, CVD_X>);
+
+    static_assert(std::convertible_to<VD_E, CVE_D>);
+    static_assert(std::convertible_to<VD_E, CVE_E>);
+    static_assert(std::convertible_to<VD_E, CVE_X>);
+    static_assert(std::convertible_to<VD_E, CVD_D>);
+    static_assert(std::convertible_to<VD_E, CVD_E>);
+    static_assert(std::convertible_to<VD_E, CVD_X>);
+
+    static_assert(std::convertible_to<VD_X, CVE_D>);
+    static_assert(std::convertible_to<VD_X, CVE_E>);
+    static_assert(std::convertible_to<VD_X, CVE_X>);
+    static_assert(std::convertible_to<VD_X, CVD_D>);
+    static_assert(std::convertible_to<VD_X, CVD_E>);
+    static_assert(std::convertible_to<VD_X, CVD_X>);
+
+    // ConstView -> ConstView
+    static_assert(std::convertible_to<CVE_D, CVE_E>);
+    static_assert(std::convertible_to<CVE_D, CVE_X>);
+    static_assert(std::convertible_to<CVE_D, CVD_D>);
+    static_assert(std::convertible_to<CVE_D, CVD_E>);
+    static_assert(std::convertible_to<CVE_D, CVD_X>);
+
+    // ConstView -> View
+    static_assert(!std::convertible_to<CVE_D, VE_D>);
+    static_assert(!std::convertible_to<CVE_D, VE_E>);
+    static_assert(!std::convertible_to<CVE_D, VE_X>);
+    static_assert(!std::convertible_to<CVE_D, VD_D>);
+    static_assert(!std::convertible_to<CVE_D, VD_E>);
+    static_assert(!std::convertible_to<CVE_D, VD_X>);
+
+    static_assert(!std::convertible_to<CVE_E, VE_D>);
+    static_assert(!std::convertible_to<CVE_E, VE_E>);
+    static_assert(!std::convertible_to<CVE_E, VE_X>);
+    static_assert(!std::convertible_to<CVE_E, VD_D>);
+    static_assert(!std::convertible_to<CVE_E, VD_E>);
+    static_assert(!std::convertible_to<CVE_E, VD_X>);
+
+    static_assert(!std::convertible_to<CVE_X, VE_D>);
+    static_assert(!std::convertible_to<CVE_X, VE_E>);
+    static_assert(!std::convertible_to<CVE_X, VE_X>);
+    static_assert(!std::convertible_to<CVE_X, VD_D>);
+    static_assert(!std::convertible_to<CVE_X, VD_E>);
+    static_assert(!std::convertible_to<CVE_X, VD_X>);
+
+    static_assert(!std::convertible_to<CVD_D, VE_D>);
+    static_assert(!std::convertible_to<CVD_D, VE_E>);
+    static_assert(!std::convertible_to<CVD_D, VE_X>);
+    static_assert(!std::convertible_to<CVD_D, VD_D>);
+    static_assert(!std::convertible_to<CVD_D, VD_E>);
+    static_assert(!std::convertible_to<CVD_D, VD_X>);
+
+    static_assert(!std::convertible_to<CVD_E, VE_D>);
+    static_assert(!std::convertible_to<CVD_E, VE_E>);
+    static_assert(!std::convertible_to<CVD_E, VE_X>);
+    static_assert(!std::convertible_to<CVD_E, VD_D>);
+    static_assert(!std::convertible_to<CVD_E, VD_E>);
+    static_assert(!std::convertible_to<CVD_E, VD_X>);
+
+    static_assert(!std::convertible_to<CVD_X, VE_D>);
+    static_assert(!std::convertible_to<CVD_X, VE_E>);
+    static_assert(!std::convertible_to<CVD_X, VE_X>);
+    static_assert(!std::convertible_to<CVD_X, VD_D>);
+    static_assert(!std::convertible_to<CVD_X, VD_E>);
+    static_assert(!std::convertible_to<CVD_X, VD_X>);
   }
 }

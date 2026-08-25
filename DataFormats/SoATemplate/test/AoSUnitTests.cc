@@ -221,6 +221,50 @@ TEST_CASE("AoS Unit Tests") {
     STATIC_REQUIRE(CanAssignS1<SoA::AoSWrapper::View>);
   }
 
+  SECTION("Check views conversions") {
+    using AoSViewR_disabled = SoA::AoSWrapper::ViewTemplate<cms::soa::RangeChecking::disabled>;
+    using AoSViewR_enabled = SoA::AoSWrapper::ViewTemplate<cms::soa::RangeChecking::enabled>;
+    using AoSViewR_extended = SoA::AoSWrapper::ViewTemplate<cms::soa::RangeChecking::extended>;
+
+    using AoSConstViewR_disabled = SoA::AoSWrapper::ConstViewTemplate<cms::soa::RangeChecking::disabled>;
+    using AoSConstViewR_enabled = SoA::AoSWrapper::ConstViewTemplate<cms::soa::RangeChecking::enabled>;
+    using AoSConstViewR_extended = SoA::AoSWrapper::ConstViewTemplate<cms::soa::RangeChecking::extended>;
+
+    // View -> View should be convertible for all variants
+    static_assert(std::convertible_to<AoSViewR_disabled, AoSViewR_enabled>);
+    static_assert(std::convertible_to<AoSViewR_disabled, AoSViewR_extended>);
+
+    // View -> ConstView should be convertible for all variants
+    static_assert(std::convertible_to<AoSViewR_disabled, AoSConstViewR_disabled>);
+    static_assert(std::convertible_to<AoSViewR_disabled, AoSConstViewR_enabled>);
+    static_assert(std::convertible_to<AoSViewR_disabled, AoSConstViewR_extended>);
+
+    static_assert(std::convertible_to<AoSViewR_enabled, AoSConstViewR_disabled>);
+    static_assert(std::convertible_to<AoSViewR_enabled, AoSConstViewR_enabled>);
+    static_assert(std::convertible_to<AoSViewR_enabled, AoSConstViewR_extended>);
+
+    static_assert(std::convertible_to<AoSViewR_extended, AoSConstViewR_disabled>);
+    static_assert(std::convertible_to<AoSViewR_extended, AoSConstViewR_enabled>);
+    static_assert(std::convertible_to<AoSViewR_extended, AoSConstViewR_extended>);
+
+    // ConstView -> ConstView should be convertible for all variants
+    static_assert(std::convertible_to<AoSConstViewR_disabled, AoSConstViewR_enabled>);
+    static_assert(std::convertible_to<AoSConstViewR_disabled, AoSConstViewR_extended>);
+
+    // ConstView -> View should never be convertible for any variant
+    static_assert(!std::convertible_to<AoSConstViewR_disabled, AoSViewR_disabled>);
+    static_assert(!std::convertible_to<AoSConstViewR_disabled, AoSViewR_enabled>);
+    static_assert(!std::convertible_to<AoSConstViewR_disabled, AoSViewR_extended>);
+
+    static_assert(!std::convertible_to<AoSConstViewR_enabled, AoSViewR_disabled>);
+    static_assert(!std::convertible_to<AoSConstViewR_enabled, AoSViewR_enabled>);
+    static_assert(!std::convertible_to<AoSConstViewR_enabled, AoSViewR_extended>);
+
+    static_assert(!std::convertible_to<AoSConstViewR_extended, AoSViewR_disabled>);
+    static_assert(!std::convertible_to<AoSConstViewR_extended, AoSViewR_enabled>);
+    static_assert(!std::convertible_to<AoSConstViewR_extended, AoSViewR_extended>);
+  }
+
   SECTION("AoS test memory layout") {
     // Check that the AoS memory layout is as expected
     const auto stride = sizeof(SoA::Metadata::value_element);
