@@ -49,7 +49,7 @@ void MLPFSONICProducer::acquire(edm::Event const &iEvent, edm::EventSetup const 
   const auto &gsfElectrons = iEvent.get(gsfElectrons_);
 
   selected_elements_.clear();
-  for (const auto* pelem : all_elements) {
+  for (const auto *pelem : all_elements) {
     if (pelem->type() == reco::PFBlockElement::PS1 || pelem->type() == reco::PFBlockElement::PS2 ||
         pelem->type() == reco::PFBlockElement::BREM) {
       continue;
