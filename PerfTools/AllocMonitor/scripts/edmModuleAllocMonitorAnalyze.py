@@ -203,31 +203,31 @@ class AllocInfo(object):
     """Container for memory allocation information from CMSSW module transitions.
     
     Attributes:
-        nAllocs: Number of memory allocations
-        nDeallocs: Number of memory deallocations  
+        nAlloc: Number of memory allocations
+        nDealloc: Number of memory deallocations
         added: Net memory added (in bytes)
         minTemp: Minimum temporary memory usage
         maxTemp: Maximum temporary memory usage
         max1Alloc: Largest single allocation
     """
     def __init__(self,payload):
-        self.nAllocs = int(payload[0])
-        self.nDeallocs = int(payload[1])
+        self.nAlloc = int(payload[0])
+        self.nDealloc = int(payload[1])
         self.added = int(payload[2])
         self.minTemp = int(payload[3])
         self.maxTemp = int(payload[4])
         self.max1Alloc = int(payload[5])
     def inject(self, transition):
-        transition["nAllocs"]=self.nAllocs
-        transition["nDeallocs"]=self.nDeallocs
+        transition["nAlloc"]=self.nAlloc
+        transition["nDealloc"]=self.nDealloc
         transition["added"]=self.added
         transition["minTemp"]=self.minTemp
         transition["maxTemp"]=self.maxTemp
         transition["max1Alloc"]=self.max1Alloc
     def __repr__(self):
-        return "{{'nAlloc': {}, 'nDealloc': {}, 'added': {}, 'minTemp': {}, 'maxTemp': {}, 'max1Alloc': {} }}".format(self.nAllocs, self.nDeallocs, self.added, self.minTemp, self.maxTemp, self.max1Alloc)
+        return "{{'nAlloc': {}, 'nDealloc': {}, 'added': {}, 'minTemp': {}, 'maxTemp': {}, 'max1Alloc': {} }}".format(self.nAlloc, self.nDealloc, self.added, self.minTemp, self.maxTemp, self.max1Alloc)
     def toSimpleDict(self):
-        return {'nAlloc' : self.nAllocs, 'nDealloc' :self.nDeallocs, 'added' : self.added, 'minTemp' : self.minTemp, 'maxTemp' : self.maxTemp, 'max1Alloc' : self.max1Alloc }
+        return {'nAlloc' : self.nAlloc, 'nDealloc' :self.nDealloc, 'added' : self.added, 'minTemp' : self.minTemp, 'maxTemp' : self.maxTemp, 'max1Alloc' : self.max1Alloc }
         
 class SyncValues(object):
     def __init__(self):
@@ -1078,6 +1078,8 @@ def textOutput( parser ):
     for p in parser.processingSteps():
         print(p.text(context))
 
+kSummaryFields = ("nAlloc", "nDealloc", "added", "minTemp", "maxTemp", "max1Alloc")
+
 def summaryData( parser ):
     """Return an ordered summary of averaged alloc info.
     Structure:
@@ -1161,16 +1163,12 @@ def summaryData( parser ):
                 infos = groups[(transition, activity, record)]
                 n = len(infos)
                 avg = {}
-                for field, attr in (("nAlloc","nAllocs"), ("nDealloc","nDeallocs"),
-                                    ("added","added"), ("minTemp","minTemp"),
-                                    ("maxTemp","maxTemp"), ("max1Alloc","max1Alloc")):
-                    avg[field] = int(round(sum(getattr(i, attr) for i in infos) / n))
+                for field in kSummaryFields:
+                    avg[field] = int(round(sum(getattr(i, field) for i in infos) / n))
                 activities.append((activityName(activity), record, n, avg))
             transitions.append((transitionName(transition), activities))
         result.append((label, transitions))
     return result
-
-kSummaryFields = ("nAlloc", "nDealloc", "added", "minTemp", "maxTemp", "max1Alloc")
 
 def summaryOutput( parser, field=None ):
     """Print the per-module/per-transition/per-activity averaged summary.
@@ -1780,7 +1778,7 @@ if __name__=="__main__":
     parser.add_argument('-s', '--sortBy',
                         default = '',
                         type = str,
-                        help="sort modules by attribute. Allowed values 'nAllocs', 'nDeallocs', 'added', 'minTemp', 'maxTemp', and 'max1Alloc'")
+                        help="sort modules by attribute. Allowed values 'nAlloc', 'nDealloc', 'added', 'minTemp', 'maxTemp', and 'max1Alloc'")
 #    parser.add_argument('-w', '--web',
 #                        action='store_true',
 #                        help='''Writes data.js file that can be used with the web based inspector. To use, copy directory ${CMSSW_RELEASE_BASE}/src/FWCore/Services/template/web to a web accessible area and move data.js into that directory.''')
