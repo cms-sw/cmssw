@@ -21,24 +21,24 @@ PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &c
       promoteEmptyRegionToTrackster_(conf.getParameter<bool>("promoteEmptyRegionToTrackster")),
       out_in_dfs_(conf.getParameter<bool>("out_in_dfs")),
       max_out_in_hops_(conf.getParameter<int>("max_out_in_hops")),
-      min_cos_theta_(conf.getParameter<double>("min_cos_theta")),
-      min_cos_pointing_(conf.getParameter<double>("min_cos_pointing")),
+      min_cos_theta_(conf.getParameter<float>("min_cos_theta")),
+      min_cos_pointing_(conf.getParameter<float>("min_cos_pointing")),
       root_doublet_max_distance_from_seed_squared_(
-          conf.getParameter<double>("root_doublet_max_distance_from_seed_squared")),
-      etaLimitIncreaseWindow_(conf.getParameter<double>("etaLimitIncreaseWindow")),
+          conf.getParameter<float>("root_doublet_max_distance_from_seed_squared")),
+      etaLimitIncreaseWindow_(conf.getParameter<float>("etaLimitIncreaseWindow")),
       skip_layers_(conf.getParameter<int>("skip_layers")),
       max_missing_layers_in_trackster_(conf.getParameter<int>("max_missing_layers_in_trackster")),
       check_missing_layers_(max_missing_layers_in_trackster_ < 100),
       shower_start_max_layer_(conf.getParameter<int>("shower_start_max_layer")),
       min_layers_per_trackster_(conf.getParameter<int>("min_layers_per_trackster")),
       filter_on_categories_(conf.getParameter<std::vector<int>>("filter_on_categories")),
-      pid_threshold_(conf.getParameter<double>("pid_threshold")),
-      energy_em_over_total_threshold_(conf.getParameter<double>("energy_em_over_total_threshold")),
-      max_longitudinal_sigmaPCA_(conf.getParameter<double>("max_longitudinal_sigmaPCA")),
+      pid_threshold_(conf.getParameter<float>("pid_threshold")),
+      energy_em_over_total_threshold_(conf.getParameter<float>("energy_em_over_total_threshold")),
+      max_longitudinal_sigmaPCA_(conf.getParameter<float>("max_longitudinal_sigmaPCA")),
       min_clusters_per_ntuplet_(min_layers_per_trackster_),
-      max_delta_time_(conf.getParameter<double>("max_delta_time")),
+      max_delta_time_(conf.getParameter<float>("max_delta_time")),
       computeLocalTime_(conf.getParameter<bool>("computeLocalTime")),
-      siblings_maxRSquared_(conf.getParameter<std::vector<double>>("siblings_maxRSquared")){};
+      siblings_maxRSquared_(conf.getParameter<std::vector<float>>("siblings_maxRSquared")){};
 
 template <typename TILES>
 PatternRecognitionbyCA<TILES>::~PatternRecognitionbyCA(){};
@@ -285,22 +285,21 @@ void PatternRecognitionbyCA<TILES>::fillPSetDescription(edm::ParameterSetDescrip
   iDesc.add<bool>("promoteEmptyRegionToTrackster", false);
   iDesc.add<bool>("out_in_dfs", true);
   iDesc.add<int>("max_out_in_hops", 10);
-  iDesc.add<double>("min_cos_theta", 0.915);
-  iDesc.add<double>("min_cos_pointing", -1.);
-  iDesc.add<double>("root_doublet_max_distance_from_seed_squared", 9999);
-  iDesc.add<double>("etaLimitIncreaseWindow", 2.1);
+  iDesc.add<float>("min_cos_theta", 0.915);
+  iDesc.add<float>("min_cos_pointing", -1.);
+  iDesc.add<float>("root_doublet_max_distance_from_seed_squared", 9999);
+  iDesc.add<float>("etaLimitIncreaseWindow", 2.1);
   iDesc.add<int>("skip_layers", 0);
   iDesc.add<int>("max_missing_layers_in_trackster", 9999);
   iDesc.add<int>("shower_start_max_layer", 9999)->setComment("make default such that no filtering is applied");
   iDesc.add<int>("min_layers_per_trackster", 10);
   iDesc.add<std::vector<int>>("filter_on_categories", {0});
-  iDesc.add<double>("pid_threshold", 0.)->setComment("make default such that no filtering is applied");
-  iDesc.add<double>("energy_em_over_total_threshold", -1.)
-      ->setComment("make default such that no filtering is applied");
-  iDesc.add<double>("max_longitudinal_sigmaPCA", 9999);
-  iDesc.add<double>("max_delta_time", 3.)->setComment("nsigma");
+  iDesc.add<float>("pid_threshold", 0.)->setComment("make default such that no filtering is applied");
+  iDesc.add<float>("energy_em_over_total_threshold", -1.)->setComment("make default such that no filtering is applied");
+  iDesc.add<float>("max_longitudinal_sigmaPCA", 9999);
+  iDesc.add<float>("max_delta_time", 3.)->setComment("nsigma");
   iDesc.add<bool>("computeLocalTime", true);
-  iDesc.add<std::vector<double>>("siblings_maxRSquared", {6e-4, 6e-4, 6e-4});
+  iDesc.add<std::vector<float>>("siblings_maxRSquared", {6e-4, 6e-4, 6e-4});
 }
 
 template class ticl::PatternRecognitionbyCA<TICLLayerTiles>;

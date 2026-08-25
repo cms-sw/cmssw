@@ -34,7 +34,7 @@ namespace ticl {
     void setGeometry(ticlgeom::Tools const& rhtools) override;
 
   private:
-    const double antikt_radius_;
+    const float antikt_radius_;
     const int minNumLayerCluster_;
     const bool computeLocalTime_;
 
