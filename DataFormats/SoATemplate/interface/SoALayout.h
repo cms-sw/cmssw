@@ -1382,6 +1382,18 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
               BOOST_PP_EXPAND(_DECLARE_SCALAR_MEMBERS_AOS_CONSTVIEW_IMPL TYPE_NAME))
 
 /**
+ * Either emit a comma and the list of scalars or nothing if the list is empty
+ */
+// clang-format off              
+#define _EMIT_AOS_SCALARS_IMPL(SIZE, SEQ)                    \
+  BOOST_PP_IF(SIZE, BOOST_PP_COMMA, BOOST_PP_EMPTY)()        \
+  BOOST_PP_IF(SIZE, BOOST_PP_SEQ_ENUM, BOOST_PP_EAT)(SEQ)
+// clang-format on
+
+#define _EMIT_AOS_SCALARS(SEQ)                               \
+  _EMIT_AOS_SCALARS_IMPL(BOOST_PP_SEQ_SIZE(SEQ), SEQ)
+
+/**
  * Construct AoSView scalars from AoS Layout
  */
 // clang-format off
@@ -1400,6 +1412,26 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
               BOOST_PP_EMPTY(),                                                             \
               BOOST_PP_EXPAND(_INSTANTIATE_CONSTVIEW_AOS_SCALARS_IMPL TYPE_NAME))
+
+/**
+ * Construct AoSView scalars from AoS Layout
+ */
+// clang-format off
+#define _DECLARE_AOS_VIEW_OTHER_MEMBER_LIST_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)           \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                \
+      /* Scalar */                                                                           \
+      (other.BOOST_PP_CAT(NAME, _))                                                          \
+      ,                                                                                      \
+       /* Column */                                                                          \
+       ,                                                                                     \
+      /* Eigen column */                                                                     \
+  )
+// clang-format on
+
+#define _DECLARE_AOS_VIEW_OTHER_MEMBER_LIST(R, DATA, TYPE_NAME)                              \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),  \
+              BOOST_PP_EMPTY(),                                                              \
+              BOOST_PP_EXPAND(_DECLARE_AOS_VIEW_OTHER_MEMBER_LIST_IMPL TYPE_NAME))
 
 /**
  * Computation of the scalar size for AoS size computation
@@ -1472,7 +1504,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       ,                                                                                                                \
       /* Column */                                                                                                     \
       SOA_HOST_DEVICE SOA_INLINE auto NAME() const {                                                                   \
-        return ConstColumn<&value_element::BOOST_PP_CAT(NAME, _)>(aos_, elements_);                                    \
+        return ConstColumn<&const_element::BOOST_PP_CAT(NAME, _)>(aos_, elements_);                                    \
       }                                                                                                                \
                                                                                                                        \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
@@ -1482,7 +1514,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       ,                                                                                                                \
       /* Eigen column */                                                                                               \
       SOA_HOST_DEVICE SOA_INLINE auto NAME() const {                                                                   \
-        return ConstColumn<&value_element::BOOST_PP_CAT(NAME, _)>(aos_, elements_);                                    \
+        return ConstColumn<&const_element::BOOST_PP_CAT(NAME, _)>(aos_, elements_);                                    \
       }                                                                                                                \
                                                                                                                        \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
@@ -2124,9 +2156,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     struct ConstViewTemplate {                                                                                         \
       friend CLASS::AoSWrapper;                                                                                        \
       using SoAMetadata = typename CLASS::Metadata;                                                                    \
-      using value_element = typename SoAMetadata::value_element;                                                       \
+      using const_element = typename SoAMetadata::value_element;                                                       \
       template <auto Member>                                                                                           \
-      using ConstColumn = typename cms::soa::AoSConstMember<Member>::template AoSElement<value_element>::ConstColumn;  \
+      using ConstColumn = typename cms::soa::AoSConstMember<Member>::template AoSElement<const_element>::ConstColumn;  \
       constexpr static cms::soa::RangeChecking::Mode rangeChecking = RANGE_CHECKING;                                   \
       constexpr static bool isSoA = AoSWrapper::isSoA;                                                                 \
                                                                                                                        \
@@ -2149,7 +2181,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       SOA_HOST_DEVICE SOA_INLINE const AoSMetadata metadata() const { return AoSMetadata(*this); }                     \
                                                                                                                        \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
-      const value_element& operator[] (cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) const {         \
+      const const_element& operator[] (cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) const {         \
         if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                            \
           if (index.value_ >= elements_ or index.value_ < 0)                                                           \
             SOA_THROW_OUT_OF_RANGE("Out of range index in AoS ConstViewTemplate" #CLASS "::operator[]",                \
@@ -2166,7 +2198,18 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
       /* Copiable */                                                                                                   \
       ConstViewTemplate(ConstViewTemplate const&) = default;                                                           \
+      /* Copy constructor for other parameters */                                                                      \
+      template <cms::soa::RangeChecking::Mode OTHER_RANGE_CHECKING>                                                    \
+      ConstViewTemplate(ConstViewTemplate<OTHER_RANGE_CHECKING> const& other)                                          \
+        : ConstViewTemplate{other.elements_,                                                                           \
+                            other.aos_                                                                                 \
+                            _EMIT_AOS_SCALARS(_ITERATE_ON_ALL(_DECLARE_AOS_VIEW_OTHER_MEMBER_LIST, ~, __VA_ARGS__))} {}\
+                                                                                                                       \
       ConstViewTemplate& operator=(ConstViewTemplate const&) = default;                                                \
+      template <cms::soa::RangeChecking::Mode OTHER_RANGE_CHECKING>                                                    \
+      ConstViewTemplate& operator=(ConstViewTemplate<OTHER_RANGE_CHECKING> const& other) {                             \
+        *this = other;                                                                                                 \
+      }                                                                                                                \
                                                                                                                        \
       /* Movable */                                                                                                    \
       ConstViewTemplate(ConstViewTemplate &&) = default;                                                               \
@@ -2179,16 +2222,11 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       SOA_HOST_ONLY ConstViewTemplate(const CLASS::AoSWrapper& layout)                                                 \
       : elements_{layout.elements_},                                                                                   \
         aos_{layout.aos_}                                                                                              \
-        BOOST_PP_IF(BOOST_PP_SEQ_SIZE(_ITERATE_ON_ALL(_INSTANTIATE_CONSTVIEW_AOS_SCALARS, ~, __VA_ARGS__)),            \
-                    BOOST_PP_COMMA, BOOST_PP_EMPTY)()                                                                  \
-        BOOST_PP_TUPLE_ENUM(BOOST_PP_IF(                                                                               \
-          BOOST_PP_SEQ_SIZE(_ITERATE_ON_ALL(_INSTANTIATE_CONSTVIEW_AOS_SCALARS, ~, __VA_ARGS__) ),                     \
-          (_ITERATE_ON_ALL_COMMA(_INSTANTIATE_CONSTVIEW_AOS_SCALARS, ~, __VA_ARGS__)),                                 \
-          ())) {}                                                                                                      \
+        _EMIT_AOS_SCALARS(_ITERATE_ON_ALL(_INSTANTIATE_CONSTVIEW_AOS_SCALARS, ~, __VA_ARGS__)) {}                      \
                                                                                                                        \
       private:                                                                                                         \
           size_type elements_ = 0;                                                                                     \
-          value_element* aos_ = nullptr;                                                                               \
+          const_element* aos_ = nullptr;                                                                               \
           _ITERATE_ON_ALL(_DECLARE_SCALAR_MEMBERS_AOS_CONSTVIEW, ~, __VA_ARGS__)                                       \
     };                                                                                                                 \
     using ConstView = ConstViewTemplate<cms::soa::RangeChecking::Default>;                                             \
@@ -2225,7 +2263,17 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
       /* Copiable */                                                                                                   \
       ViewTemplate(ViewTemplate const&) = default;                                                                     \
+      /* Copy constructor for other parameters */                                                                      \
+      template <cms::soa::RangeChecking::Mode OTHER_RANGE_CHECKING>                                                    \
+      ViewTemplate(ViewTemplate<OTHER_RANGE_CHECKING> const& other)                                                    \
+        : ViewTemplate{other.elements_,                                                                                \
+                       other.aos_                                                                                      \
+                       _EMIT_AOS_SCALARS(_ITERATE_ON_ALL(_DECLARE_AOS_VIEW_OTHER_MEMBER_LIST, ~, __VA_ARGS__))} {}     \
       ViewTemplate& operator=(ViewTemplate const&) = default;                                                          \
+      template <cms::soa::RangeChecking::Mode OTHER_RANGE_CHECKING>                                                    \
+      ViewTemplate& operator=(ViewTemplate<OTHER_RANGE_CHECKING> const& other) {                                       \
+        static_cast<base_type>(*this) = static_cast<base_type>(other);                                                 \
+      }                                                                                                                \
                                                                                                                        \
       /* Movable */                                                                                                    \
       ViewTemplate(ViewTemplate &&) = default;                                                                         \
