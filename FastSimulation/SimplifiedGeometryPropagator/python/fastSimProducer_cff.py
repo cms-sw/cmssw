@@ -12,7 +12,10 @@ fastSimProducer = cms.EDProducer(
     src = cms.InputTag("generatorSmeared"),
     particleFilter =  ParticleFilterBlock.ParticleFilter,
     trackerDefinition = TrackerMaterialBlock.TrackerMaterial,
-    mtdDefinition = MTDMaterialBlock.MTDMaterial,
+    mtdDefinition = cms.PSet(
+        BarrelLayers = cms.PSet(),
+        EndcapLayers = cms.PSet(),
+    ),
     simulateCalorimetry = cms.bool(True),
     simulateMuons = cms.bool(True),
     useFastSimDecayer = cms.bool(False),
@@ -81,13 +84,6 @@ fastSimProducer = cms.EDProducer(
                 className = cms.string("fastsim::TrackerSimHitProducer"),
                 minMomentumCut = cms.double(0.1),
                 doHitsFromInboundParticles = cms.bool(False), # Track reconstruction not possible for those particles so hits do not have to be simulated
-                ), 
-            mtdSimHits = cms.PSet(
-                className = cms.string("fastsim::MTDSimHitProducer"),
-                btlRadius     = cms.double(115.8),
-                btlHalfLength = cms.double(260.),
-                etlRMin       = cms.double(31.),
-                etlRMax       = cms.double(120.),
                 ),
         ),
     Calorimetry = FamosCalorimetryBlock.Calorimetry,
@@ -98,3 +94,17 @@ fastSimProducer = cms.EDProducer(
 
 from Configuration.Eras.Modifier_phase2_fastSim_cff import phase2_fastSim
 phase2_fastSim.toModify(fastSimProducer, simulateCalorimetry = False)
+
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(fastSimProducer,
+    mtdDefinition = MTDMaterialBlock.MTDMaterial,
+)
+phase2_timing_layer.toModify(fastSimProducer.interactionModels,
+    mtdSimHits = cms.PSet(
+        className = cms.string("fastsim::MTDSimHitProducer"),
+        btlRadius     = cms.double(115.8),
+        btlHalfLength = cms.double(260.),
+        etlRMin       = cms.double(31.),
+        etlRMax       = cms.double(120.),
+    )
+)
