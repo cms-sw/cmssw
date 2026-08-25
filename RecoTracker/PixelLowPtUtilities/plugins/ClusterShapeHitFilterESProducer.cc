@@ -15,6 +15,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 class ClusterShapeHitFilterESProducer : public edm::ESProducer {
 public:
@@ -39,16 +40,37 @@ private:
 
   const std::string pixelShapeFile;
   const std::string pixelShapeFileL1;
+  const std::vector<ClusterShapeHitFilter::BPixShapeCutRegion> noBPixShapeCutRegions_;
   const float minGoodPixelCharge_, minGoodStripCharge_;
   const bool isPhase2_;
   const bool cutOnPixelCharge_, cutOnStripCharge_;
   const bool cutOnPixelShape_, cutOnStripShape_;
 };
 
+namespace {
+  std::vector<ClusterShapeHitFilter::BPixShapeCutRegion> getNoBPixShapeCutRegions(const edm::ParameterSet& iConfig) {
+    std::vector<ClusterShapeHitFilter::BPixShapeCutRegion> regions;
+    for (const auto& pset : iConfig.getParameter<std::vector<edm::ParameterSet>>("noBPixShapeCutRegions")) {
+      auto const& layers = pset.getParameter<std::vector<unsigned int>>("layers");
+      if (layers.empty())
+        throw cms::Exception("Configuration")
+            << "ClusterShapeHitFilterESProducer: empty 'layers' in a noBPixShapeCutRegions entry; at least one BPix "
+               "layer must be given, while empty 'ladders' and 'modules' mean 'any'";
+
+      regions.push_back({layers,
+                         pset.getParameter<std::vector<unsigned int>>("ladders"),
+                         pset.getParameter<std::vector<unsigned int>>("modules")});
+    }
+
+    return regions;
+  }
+}  // namespace
+
 /*****************************************************************************/
 ClusterShapeHitFilterESProducer::ClusterShapeHitFilterESProducer(const edm::ParameterSet& iConfig)
     : pixelShapeFile(iConfig.getParameter<std::string>("PixelShapeFile")),
       pixelShapeFileL1(iConfig.getParameter<std::string>("PixelShapeFileL1")),
+      noBPixShapeCutRegions_(getNoBPixShapeCutRegions(iConfig)),
       minGoodPixelCharge_(0),
       minGoodStripCharge_(clusterChargeCut(iConfig)),
       isPhase2_(iConfig.getParameter<bool>("isPhase2")),
@@ -87,7 +109,8 @@ ClusterShapeHitFilterESProducer::ReturnType ClusterShapeHitFilterESProducer::pro
                                                                                 &iRecord.get(pixelToken_),
                                                                                 theSiStripLorentzAngle,
                                                                                 pixelShapeFile,
-                                                                                pixelShapeFileL1));
+                                                                                pixelShapeFileL1,
+                                                                                noBPixShapeCutRegions_));
 
   aFilter->setShapeCuts(cutOnPixelShape_, cutOnStripShape_);
   aFilter->setChargeCuts(cutOnPixelCharge_, minGoodPixelCharge_, cutOnStripCharge_, minGoodStripCharge_);
@@ -103,6 +126,13 @@ void ClusterShapeHitFilterESProducer::fillDescriptions(edm::ConfigurationDescrip
   desc.add<bool>("isPhase2", false);
   desc.add<bool>("doPixelShapeCut", true);
   desc.add<bool>("doStripShapeCut", true);
+
+  edm::ParameterSetDescription region;
+  region.add<std::vector<unsigned int>>("layers");       // mandatory non-empty
+  region.add<std::vector<unsigned int>>("ladders", {});  // empty means all ladders for given layer(s)
+  region.add<std::vector<unsigned int>>("modules", {});  // empty means all modules for given layer(s)
+  desc.addVPSet("noBPixShapeCutRegions", region, {});
+
   desc.add<edm::ParameterSetDescription>("clusterChargeCut", getConfigurationDescription4CCC(CCC::kNone));
   descriptions.addWithDefaultLabel(desc);
 }
