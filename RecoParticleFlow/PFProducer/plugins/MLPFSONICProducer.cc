@@ -26,41 +26,11 @@ private:
   const edm::EDPutTokenT<reco::PFCandidateCollection> pfCandidatesPutToken_;
   const edm::EDGetTokenT<edm::View<reco::GsfElectron>> gsfElectrons_;
   const edm::EDGetTokenT<reco::PFBlockCollection> inputTagBlocks_;
+  std::vector<const reco::PFBlockElement *> selected_elements_;
   std::vector<std::string> input_names_;
   std::vector<std::string> output_names_;
   // Declare inputs as a private member variable
   std::vector<std::vector<float>> inputs;
-};
-
-class SelectedElementsManager {
-public:
-  static SelectedElementsManager &getInstance() {
-    static SelectedElementsManager instance;  // Single instance for the program
-    return instance;
-  }
-
-  void fill(const std::vector<const reco::PFBlockElement *> &all_elements) {
-    selected_elements_.clear();
-
-    for (const auto *pelem : all_elements) {
-      if (pelem->type() == reco::PFBlockElement::PS1 || pelem->type() == reco::PFBlockElement::PS2 ||
-          pelem->type() == reco::PFBlockElement::BREM) {
-        continue;
-      }
-      selected_elements_.push_back(pelem);
-    }
-  }
-
-  const std::vector<const reco::PFBlockElement *> &get() const { return selected_elements_; }
-
-private:
-  SelectedElementsManager() = default;
-  ~SelectedElementsManager() = default;
-
-  SelectedElementsManager(const SelectedElementsManager &) = delete;
-  SelectedElementsManager &operator=(const SelectedElementsManager &) = delete;
-
-  std::vector<const reco::PFBlockElement *> selected_elements_;
 };
 
 MLPFSONICProducer::MLPFSONICProducer(const edm::ParameterSet &iConfig)
@@ -79,11 +49,17 @@ void MLPFSONICProducer::acquire(edm::Event const &iEvent, edm::EventSetup const 
 
   const auto &gsfElectrons = iEvent.get(gsfElectrons_);
 
-  SelectedElementsManager::getInstance().fill(all_elements);  // Fill data once
+  selected_elements_.clear();
+  for (const auto* pelem : all_elements) {
+    if (pelem->type() == reco::PFBlockElement::PS1 || pelem->type() == reco::PFBlockElement::PS2 ||
+        pelem->type() == reco::PFBlockElement::BREM) {
+      continue;
+    }
+    selected_elements_.push_back(pelem);
+  }
   std::cout << "filled selected_elements." << std::endl;
-  const auto &selected_elements = SelectedElementsManager::getInstance().get();
   // Total Number of selected_elements
-  unsigned int num_elements_total = selected_elements.size();
+  unsigned int num_elements_total = selected_elements_.size();
 
   const auto tensor_size = num_elements_total;
 
@@ -102,7 +78,7 @@ void MLPFSONICProducer::acquire(edm::Event const &iEvent, edm::EventSetup const 
   data2.setShape(0, tensor_size);
   auto tdata1 = data1.allocate<float>(true);
   auto tdata2 = data2.allocate<float>(true);
-  for (const auto *pelem : selected_elements) {
+  for (const auto *pelem : selected_elements_) {
     if (ielem > tensor_size) {
       continue;
     }
@@ -138,9 +114,8 @@ void MLPFSONICProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
   const auto &output_binary = output1.fromServer<float>();
   const auto &output_pid = output2.fromServer<float>();
   const auto &output_p4 = output3.fromServer<float>();
-  const auto &selected_elements = SelectedElementsManager::getInstance().get();
   // Total Number of selected_elements
-  unsigned int num_elements_total = selected_elements.size();
+  unsigned int num_elements_total = selected_elements_.size();
   unsigned int tensor_size = num_elements_total;
   std::cout << "check-point pid-161_" << output_pid[0][0] << "__" << output_pid[0][1] << "__" << output_pid[0][2]
             << std::endl;
@@ -149,7 +124,7 @@ void MLPFSONICProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
   std::vector<reco::PFCandidate> pOutputCandidateCollection;
   for (size_t ielem = 0; ielem < num_elements_total; ielem++) {
     std::vector<float> pred_id_probas(pdgid_encoding.size(), 0.0);
-    const reco::PFBlockElement *elem = selected_elements[ielem];
+    const reco::PFBlockElement *elem = selected_elements_[ielem];
     const auto logit_no_ptcl = output_binary[0][ielem * 2 + 0];
     const auto logit_ptcl = output_binary[0][ielem * 2 + 1];
 
@@ -205,7 +180,7 @@ void MLPFSONICProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
       pred_e = exp(pred_e) * inputs[0][ielem * NUM_ELEMENT_FEATURES + 5];
 
       auto cand = makeCandidate(pred_pid, pred_charge, pred_pt, pred_eta, pred_sin_phi, pred_cos_phi, pred_e);
-      setCandidateRefs(cand, selected_elements, ielem);
+      setCandidateRefs(cand, selected_elements_, ielem);
       pOutputCandidateCollection.push_back(cand);
     }
   }  //end loop of elements
