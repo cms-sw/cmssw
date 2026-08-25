@@ -85,12 +85,12 @@ namespace edm {
 
   void ThrowingSource::readLuminosityBlock_(LuminosityBlockPrincipal& lb) {
     if (whenToThrow_ == kReadLumi)
-      throw cms::Exception("TestThrow") << "ThrowingSource::beginLuminosityBlock";
+      throw cms::Exception("TestThrow") << "ThrowingSource::readLuminosityBlock_";
   }
 
   void ThrowingSource::readRun_(RunPrincipal& run) {
     if (whenToThrow_ == kReadRun)
-      throw cms::Exception("TestThrow") << "ThrowingSource::beginRun";
+      throw cms::Exception("TestThrow") << "ThrowingSource::readRun_";
   }
 
   std::shared_ptr<FileBlock> ThrowingSource::readFile_() {
