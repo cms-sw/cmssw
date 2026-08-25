@@ -29,7 +29,6 @@ private:
   std::vector<const reco::PFBlockElement *> selected_elements_;
   std::vector<std::string> input_names_;
   std::vector<std::string> output_names_;
-  // Declare inputs as a private member variable
   std::vector<std::vector<float>> inputs;
 };
 
@@ -57,11 +56,8 @@ void MLPFSONICProducer::acquire(edm::Event const &iEvent, edm::EventSetup const 
     }
     selected_elements_.push_back(pelem);
   }
-  edm::LogInfo("MLPFSONICProducer") << "filled selected_elements." << std::endl;
-  // Total Number of selected_elements
-  unsigned int num_elements_total = selected_elements_.size();
 
-  const auto tensor_size = num_elements_total;
+  const auto tensor_size = selected_elements_.size();
 
   //Fill the input tensor (batch, elems, features) = (1, tensor_size, NUM_ELEMENT_FEATURES)
   inputs.resize(2);
@@ -101,7 +97,6 @@ void MLPFSONICProducer::acquire(edm::Event const &iEvent, edm::EventSetup const 
   vdata2 = inputs[0];
   data1.toServer(tdata1);
   data2.toServer(tdata2);
-  edm::LogInfo("MLPFSONICProducer") << "check-point Producer-143_tensorsize_" << tensor_size << std::endl;
 }
 void MLPFSONICProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup, Output const &iOutput) {
   using namespace reco::mlpf;
@@ -114,15 +109,8 @@ void MLPFSONICProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
   const auto &output_binary = output1.fromServer<float>();
   const auto &output_pid = output2.fromServer<float>();
   const auto &output_p4 = output3.fromServer<float>();
-  // Total Number of selected_elements
-  unsigned int num_elements_total = selected_elements_.size();
-  unsigned int tensor_size = num_elements_total;
-  edm::LogInfo("MLPFSONICProducer") << "check-point pid-161_" << output_pid[0][0] << "__" << output_pid[0][1] << "__" << output_pid[0][2]
-            << std::endl;
-  edm::LogInfo("MLPFSONICProducer") << "check-point p4-162_" << output_p4[0][0] << "__" << output_p4[0][1] << "__" << output_p4[0][2]
-            << std::endl;
   std::vector<reco::PFCandidate> pOutputCandidateCollection;
-  for (size_t ielem = 0; ielem < num_elements_total; ielem++) {
+  for (size_t ielem = 0; ielem < selected_elements_.size(); ielem++) {
     std::vector<float> pred_id_probas(pdgid_encoding.size(), 0.0);
     const reco::PFBlockElement *elem = selected_elements_[ielem];
     const auto logit_no_ptcl = output_binary[0][ielem * 2 + 0];
