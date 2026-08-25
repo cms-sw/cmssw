@@ -18,24 +18,24 @@ using namespace ticl;
 template <typename TILES>
 PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::ParameterSet &conf, edm::ConsumesCollector iC)
     : PatternRecognitionAlgoBaseT<TILES>(conf, iC),
-      criticalDensity_(conf.getParameter<std::vector<double>>("criticalDensity")),
-      criticalSelfDensity_(conf.getParameter<std::vector<double>>("criticalSelfDensity")),
+      criticalDensity_(conf.getParameter<std::vector<float>>("criticalDensity")),
+      criticalSelfDensity_(conf.getParameter<std::vector<float>>("criticalSelfDensity")),
       densitySiblingLayers_(conf.getParameter<std::vector<int>>("densitySiblingLayers")),
-      densityEtaPhiDistanceSqr_(conf.getParameter<std::vector<double>>("densityEtaPhiDistanceSqr")),
-      densityXYDistanceSqr_(conf.getParameter<std::vector<double>>("densityXYDistanceSqr")),
-      kernelDensityFactor_(conf.getParameter<std::vector<double>>("kernelDensityFactor")),
+      densityEtaPhiDistanceSqr_(conf.getParameter<std::vector<float>>("densityEtaPhiDistanceSqr")),
+      densityXYDistanceSqr_(conf.getParameter<std::vector<float>>("densityXYDistanceSqr")),
+      kernelDensityFactor_(conf.getParameter<std::vector<float>>("kernelDensityFactor")),
       densityOnSameLayer_(conf.getParameter<bool>("densityOnSameLayer")),
       nearestHigherOnSameLayer_(conf.getParameter<bool>("nearestHigherOnSameLayer")),
       useAbsoluteProjectiveScale_(conf.getParameter<bool>("useAbsoluteProjectiveScale")),
       useClusterDimensionXY_(conf.getParameter<bool>("useClusterDimensionXY")),
       rescaleDensityByZ_(conf.getParameter<bool>("rescaleDensityByZ")),
-      criticalEtaPhiDistance_(conf.getParameter<std::vector<double>>("criticalEtaPhiDistance")),
-      criticalXYDistance_(conf.getParameter<std::vector<double>>("criticalXYDistance")),
+      criticalEtaPhiDistance_(conf.getParameter<std::vector<float>>("criticalEtaPhiDistance")),
+      criticalXYDistance_(conf.getParameter<std::vector<float>>("criticalXYDistance")),
       criticalZDistanceLyr_(conf.getParameter<std::vector<int>>("criticalZDistanceLyr")),
-      outlierMultiplier_(conf.getParameter<std::vector<double>>("outlierMultiplier")),
+      outlierMultiplier_(conf.getParameter<std::vector<float>>("outlierMultiplier")),
       minNumLayerCluster_(conf.getParameter<std::vector<int>>("minNumLayerCluster")),
       doPidCut_(conf.getParameter<bool>("doPidCut")),
-      cutHadProb_(conf.getParameter<double>("cutHadProb")),
+      cutHadProb_(conf.getParameter<float>("cutHadProb")),
       computeLocalTime_(conf.getParameter<bool>("computeLocalTime")),
       usePCACleaning_(conf.getParameter<bool>("usePCACleaning")){};
 template <typename TILES>
@@ -772,17 +772,17 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDescription &iDesc) {
   iDesc.add<int>("algo_verbosity", 0);
-  iDesc.add<std::vector<double>>("criticalDensity", {4, 4, 4})->setComment("in GeV");
-  iDesc.add<std::vector<double>>("criticalSelfDensity", {0.15, 0.15, 0.15} /* roughly 1/(densitySiblingLayers+1) */)
+  iDesc.add<std::vector<float>>("criticalDensity", {4, 4, 4})->setComment("in GeV");
+  iDesc.add<std::vector<float>>("criticalSelfDensity", {0.15, 0.15, 0.15} /* roughly 1/(densitySiblingLayers+1) */)
       ->setComment("Minimum ratio of self_energy/local_density to become a seed.");
   iDesc.add<std::vector<int>>("densitySiblingLayers", {3, 3, 3})
       ->setComment(
           "inclusive, layers to consider while computing local density and searching for nearestHigher higher");
-  iDesc.add<std::vector<double>>("densityEtaPhiDistanceSqr", {0.0008, 0.0008, 0.0008})
+  iDesc.add<std::vector<float>>("densityEtaPhiDistanceSqr", {0.0008, 0.0008, 0.0008})
       ->setComment("in eta,phi space, distance to consider for local density");
-  iDesc.add<std::vector<double>>("densityXYDistanceSqr", {3.24, 3.24, 3.24})
+  iDesc.add<std::vector<float>>("densityXYDistanceSqr", {3.24, 3.24, 3.24})
       ->setComment("in cm, distance on the transverse plane to consider for local density");
-  iDesc.add<std::vector<double>>("kernelDensityFactor", {0.2, 0.2, 0.2})
+  iDesc.add<std::vector<float>>("kernelDensityFactor", {0.2, 0.2, 0.2})
       ->setComment("Kernel factor to be applied to other LC while computing the local density");
   iDesc.add<bool>("densityOnSameLayer", false);
   iDesc.add<bool>("nearestHigherOnSameLayer", false)
@@ -797,17 +797,17 @@ void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDes
       ->setComment(
           "Rescale local density by the extension of the Z 'volume' explored. The transvere dimension is, at present, "
           "fixed and factored out.");
-  iDesc.add<std::vector<double>>("criticalEtaPhiDistance", {0.025, 0.025, 0.025})
+  iDesc.add<std::vector<float>>("criticalEtaPhiDistance", {0.025, 0.025, 0.025})
       ->setComment("Minimal distance in eta,phi space from nearestHigher to become a seed");
-  iDesc.add<std::vector<double>>("criticalXYDistance", {1.8, 1.8, 1.8})
+  iDesc.add<std::vector<float>>("criticalXYDistance", {1.8, 1.8, 1.8})
       ->setComment("Minimal distance in cm on the XY plane from nearestHigher to become a seed");
   iDesc.add<std::vector<int>>("criticalZDistanceLyr", {5, 5, 5})
       ->setComment("Minimal distance in layers along the Z axis from nearestHigher to become a seed");
-  iDesc.add<std::vector<double>>("outlierMultiplier", {2, 2, 2})
+  iDesc.add<std::vector<float>>("outlierMultiplier", {2, 2, 2})
       ->setComment("Minimal distance in transverse space from nearestHigher to become an outlier");
   iDesc.add<std::vector<int>>("minNumLayerCluster", {2, 2, 2})->setComment("Not Inclusive");
   iDesc.add<bool>("doPidCut", false);
-  iDesc.add<double>("cutHadProb", 0.5);
+  iDesc.add<float>("cutHadProb", 0.5);
   iDesc.add<bool>("computeLocalTime", true);
   iDesc.add<bool>("usePCACleaning", true)->setComment("Enable PCA cleaning algorithm");
 }
