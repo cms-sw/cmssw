@@ -79,12 +79,13 @@ from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 def _fastSimDigisGEM(process):
     from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliasesGEM
     loadDigiAliasesGEM(process)
-modifyDigi_fastSimDigisGEM = (fastSim & (run2_GEM_2017 | run3_GEM)).makeProcessModifier(_fastSimDigisGEM)
+modifyDigi_fastSimDigisGEM = (fastSim & (run2_GEM_2017 | run3_GEM) & ~premix_stage1).makeProcessModifier(_fastSimDigisGEM)
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 def _fastSimDigisHGCal(process):
     from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliasesHGCal
-modifyDigi_fastSimDigisHGCal = (fastSim & phase2_hgcal).makeProcessModifier(_fastSimDigisHGCal)
+    loadDigiAliasesHGCal(process)
+modifyDigi_fastSimDigisHGCal = (fastSim & phase2_hgcal & ~premix_stage1).makeProcessModifier(_fastSimDigisHGCal)
 
 #phase 2 common mods
 def _modifyEnableHcalHardcode( theProcess ):
