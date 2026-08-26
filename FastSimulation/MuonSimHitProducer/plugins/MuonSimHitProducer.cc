@@ -64,6 +64,7 @@ private:
   const GEMGeometry* gemGeom;
   const Propagator* propagatorWithMaterial;
   std::unique_ptr<Propagator> propagatorWithoutMaterial;
+  bool enableGEM;
 
   std::unique_ptr<MaterialEffects> theMaterialEffects;
 
@@ -100,7 +101,7 @@ private:
   const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeometryESToken_;
   const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeometryESToken_;
   const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeometryESToken_;
-  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeometryESToken_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeometryESToken_;
   const edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> particleDataTableESToken_;
 };
 
@@ -113,12 +114,15 @@ private:
 MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig)
     : theEstimator(iConfig.getParameter<double>("Chi2EstimatorCut")),
       propagatorWithoutMaterial(nullptr),
+      enableGEM(iConfig.getParameter<bool>("enableGEM")),
       magneticFieldESToken_(esConsumes<edm::Transition::BeginRun>()),
       dtGeometryESToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "MisAligned"))),
       cscGeometryESToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "MisAligned"))),
       rpcGeometryESToken_(esConsumes<edm::Transition::BeginRun>()),
-      gemGeometryESToken_(esConsumes<edm::Transition::BeginRun>()),
       particleDataTableESToken_(esConsumes()) {
+  if (enableGEM)
+    gemGeometryESToken_ = esConsumes<edm::Transition::BeginRun>();
+
   // Read relevant parameters
   readParameters(iConfig.getParameter<edm::ParameterSet>("MUONS"),
                  iConfig.getParameter<edm::ParameterSet>("TRACKS"),
@@ -130,7 +134,8 @@ MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig)
   produces<edm::PSimHitContainer>("MuonCSCHits");
   produces<edm::PSimHitContainer>("MuonDTHits");
   produces<edm::PSimHitContainer>("MuonRPCHits");
-  produces<edm::PSimHitContainer>("MuonGEMHits");
+  if (enableGEM)
+    produces<edm::PSimHitContainer>("MuonGEMHits");
 
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters, consumesCollector(), MuonServiceProxy::UseEventSetupIn::Run);
@@ -147,7 +152,8 @@ void MuonSimHitProducer::beginRun(edm::Run const& run, const edm::EventSetup& es
   dtGeom = &es.getData(dtGeometryESToken_);
   cscGeom = &es.getData(cscGeometryESToken_);
   rpcGeom = &es.getData(rpcGeometryESToken_);
-  gemGeom = &es.getData(gemGeometryESToken_);
+  if (enableGEM)
+    gemGeom = &es.getData(gemGeometryESToken_);
 
   bool duringEvent = false;
   theService->update(es, duringEvent);
@@ -490,7 +496,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
                 entry, exit, lmom.mag(), tof + dtof, eloss, pid, id, trkid, lmom.theta(), lmom.phi(), processType);
             theRPCHits.push_back(hit);
           }
-        } else if (gd->subDetector() == GeomDetEnumerators::GEM) {
+        } else if (gd->subDetector() == GeomDetEnumerators::GEM and enableGEM) {
           GEMDetId id(gd->geographicalId());
           const GEMChamber* chamber = gemGeom->chamber(id);
           std::vector<const GEMEtaPartition*> etaPart = chamber->etaPartitions();
@@ -552,11 +558,13 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   }
   iEvent.put(std::move(prpc), "MuonRPCHits");
 
-  std::unique_ptr<edm::PSimHitContainer> pgem(new edm::PSimHitContainer);
-  for (std::vector<PSimHit>::const_iterator i = theGEMHits.begin(); i != theGEMHits.end(); i++) {
-    pgem->push_back(*i);
+  if (enableGEM) {
+    std::unique_ptr<edm::PSimHitContainer> pgem(new edm::PSimHitContainer);
+    for (std::vector<PSimHit>::const_iterator i = theGEMHits.begin(); i != theGEMHits.end(); i++) {
+      pgem->push_back(*i);
+    }
+    iEvent.put(std::move(pgem), "MuonGEMHits");
   }
-  iEvent.put(std::move(pgem), "MuonGEMHits");
 }
 
 void MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons,
