@@ -595,13 +595,23 @@ namespace edm {
     } catch (...) {
       //in case of an exception, make sure Services are available
       // during the following destructors
+      auto expt = std::current_exception();
+      auto noexception = [](auto&& f) {
+        try {
+          f();
+        } catch (...) {
+          // ignore any exception
+        }
+      };
+      // If an exception happens during assignment, terminate will be called anyway
       espController_ = nullptr;
       esp_ = nullptr;
       schedule_ = nullptr;
-      sourceCoordinator_.releaseSource();
+      noexception([&]() { sourceCoordinator_.releaseSource(); });
       looper_ = nullptr;
       actReg_ = nullptr;
-      throw;
+      ;
+      std::rethrow_exception(expt);
     }
   }
 
@@ -610,12 +620,25 @@ namespace edm {
     ServiceToken token = getToken();
     ServiceRegistry::Operate op(token);
 
+    auto noexception = [](auto&& f) {
+      try {
+        f();
+      } catch (cms::Exception& ex) {
+        std::cerr << "Exception during EventProcessor destruction: " << ex.what() << std::endl;
+      } catch (std::exception& ex) {
+        std::cerr << "Exception during EventProcessor destruction: " << ex.what() << std::endl;
+      } catch (...) {
+        std::cerr << "Unknown exception during EventProcessor destruction" << std::endl;
+      }
+    };
+
     // manually destroy all these thing that may need the services around
     // propagate_const<T> has no reset() function
+    // If an exception happens during assignment, terminate will be called anyway
     espController_ = nullptr;
     esp_ = nullptr;
     schedule_ = nullptr;
-    sourceCoordinator_.releaseSource();
+    noexception([&]() { sourceCoordinator_.releaseSource(); });
     looper_ = nullptr;
     actReg_ = nullptr;
 
@@ -1202,6 +1225,7 @@ namespace edm {
                     //handle exception from readRunAsync
                     WaitingTaskHolder copyHolder(nextTask);
                     copyHolder.doneWaiting(*iException);
+                    runStatus->setStopBeforeProcessingRun(true);
                     releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus);
                   }
                 }) |
@@ -1642,7 +1666,7 @@ namespace edm {
                   if (iException) {
                     //deal with possible failure from readLumiAsync
                     releaseLumiResourcesAfterFailure(*status);
-                    nextTask.doneWaiting(*iException);
+                    nextTask.presetTaskAsFailed(*iException);
                     endRunAsync(iRunStatus, std::nullopt, nextTask);
                     return;
                   }
@@ -1673,6 +1697,12 @@ namespace edm {
                   looper_->doBeginLuminosityBlock(
                       *(status->lumiPrincipal()), status->eventSetupImpl(), &processContext_);
                 }) | then([this, status, iRunStatus](std::exception_ptr const* iException, auto holder) mutable {
+                  if (not iRunStatus->globalEndRunHolder().hasTask()) {
+                    //endRun has already been run
+                    assert(iException);
+                    holder.doneWaiting(*iException);
+                    return;
+                  }
                   status->setGlobalEndRunHolder(iRunStatus->globalEndRunHolder());
 
                   if (iException) {
