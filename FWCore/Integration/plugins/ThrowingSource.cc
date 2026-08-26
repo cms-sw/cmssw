@@ -3,55 +3,61 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Sources/interface/ProducerSourceBase.h"
+#include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
+#include "FWCore/Sources/interface/IDGeneratorSourceBase.h"
 namespace edm {
-  class ThrowingSource : public ProducerSourceBase {
+  class ThrowingSource final : public IDGeneratorSourceBase<InputSource> {
   public:
     explicit ThrowingSource(ParameterSet const&, InputSourceDescription const&);
-    ~ThrowingSource() noexcept(false) override;
+    ~ThrowingSource() noexcept(false) final;
 
-    void beginJob(ProductRegistry const&) override;
-    void endJob() override;
-    void beginLuminosityBlock(edm::LuminosityBlock&) override;
-    void beginRun(edm::Run&) override;
-    std::shared_ptr<edm::FileBlock> readFile_() override;
-    void closeFile_() override;
-    std::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() override;
-    std::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
-    void readEvent_(edm::EventPrincipal&) override;
+    void beginJob(ProductRegistry const&) final;
+    void endJob() final;
+    void readRun_(RunPrincipal& runPrincipal) final;
+    void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) final;
+    std::shared_ptr<edm::FileBlock> readFile_() final;
+    void closeFile_() final;
+    std::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() final;
+    std::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() final;
+    void readEvent_(edm::EventPrincipal&) final;
+
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
     enum {
-      kDoNotThrow = 0,
-      kConstructor = 1,
-      kBeginJob = 2,
-      kBeginRun = 3,
-      kBeginLumi = 4,
-      kEndLumi = 5,
-      kEndRun = 6,
-      kEndJob = 7,
-      kGetNextItemType = 8,
-      kReadEvent = 9,
-      kReadLuminosityBlockAuxiliary = 10,
-      kReadRunAuxiliary = 11,
-      kReadFile = 12,
-      kCloseFile = 13,
-      kDestructor = 14
+      kDoNotThrow,
+      kConstructor,
+      kReadFile,
+      kBeginJob,
+      kGetNextItemType,
+      kReadRunAuxiliary,
+      kReadRun,
+      kReadLuminosityBlockAuxiliary,
+      kReadLumi,
+      kReadEvent,
+      kCloseFile,
+      kEndJob,
+      kDestructor
     };
-    bool setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType) override;
-    void produce(Event&) override;
+    bool setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType) final;
 
     // To test exception throws from sources
     int whenToThrow_;
   };
 
   ThrowingSource::ThrowingSource(ParameterSet const& pset, InputSourceDescription const& desc)
-      : ProducerSourceBase(pset, desc, false),
+      : IDGeneratorSourceBase<InputSource>(pset, desc, false),
         whenToThrow_(pset.getUntrackedParameter<int>("whenToThrow", kDoNotThrow)) {
     if (whenToThrow_ == kConstructor)
       throw cms::Exception("TestThrow") << "ThrowingSource constructor";
+  }
+
+  void ThrowingSource::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    IDGeneratorSourceBase<InputSource>::fillDescription(desc);
+    desc.addUntracked<int>("whenToThrow", kDoNotThrow);
+    descriptions.addDefault(desc);
   }
 
   ThrowingSource::~ThrowingSource() noexcept(false) {
@@ -59,9 +65,13 @@ namespace edm {
       throw cms::Exception("TestThrow") << "ThrowingSource destructor";
   }
 
-  bool ThrowingSource::setRunAndEventInfo(EventID&, TimeValue_t&, edm::EventAuxiliary::ExperimentType&) { return true; }
-
-  void ThrowingSource::produce(edm::Event&) {}
+  //Called from IDGeneratorSourceBase::getNextItemType
+  bool ThrowingSource::setRunAndEventInfo(EventID&, TimeValue_t&, edm::EventAuxiliary::ExperimentType&) {
+    if (whenToThrow_ == kGetNextItemType) {
+      throw cms::Exception("TestThrow") << "ThrowingSource::getNextItemType";
+    }
+    return true;
+  }
 
   void ThrowingSource::beginJob(edm::ProductRegistry const&) {
     if (whenToThrow_ == kBeginJob)
@@ -73,14 +83,14 @@ namespace edm {
       throw cms::Exception("TestThrow") << "ThrowingSource::endJob";
   }
 
-  void ThrowingSource::beginLuminosityBlock(LuminosityBlock& lb) {
-    if (whenToThrow_ == kBeginLumi)
-      throw cms::Exception("TestThrow") << "ThrowingSource::beginLuminosityBlock";
+  void ThrowingSource::readLuminosityBlock_(LuminosityBlockPrincipal& lb) {
+    if (whenToThrow_ == kReadLumi)
+      throw cms::Exception("TestThrow") << "ThrowingSource::readLuminosityBlock_";
   }
 
-  void ThrowingSource::beginRun(Run& run) {
-    if (whenToThrow_ == kBeginRun)
-      throw cms::Exception("TestThrow") << "ThrowingSource::beginRun";
+  void ThrowingSource::readRun_(RunPrincipal& run) {
+    if (whenToThrow_ == kReadRun)
+      throw cms::Exception("TestThrow") << "ThrowingSource::readRun_";
   }
 
   std::shared_ptr<FileBlock> ThrowingSource::readFile_() {
