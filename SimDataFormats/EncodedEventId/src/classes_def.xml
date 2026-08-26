@@ -3,4 +3,5 @@
    <version ClassVersion="3" checksum="541119857"/>
   </class>
   <class name="std::vector<EncodedEventId>"/>
+  <class name="std::pair<unsigned int,EncodedEventId>"/>
 </lcgdict>

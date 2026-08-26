@@ -7,6 +7,7 @@
   <class name="std::vector<const io_v1::PSimHit*>"/>
   <class name="edm::RefProd<std::vector<io_v1::PSimHit> >"/>
   <class name="edm::Ref<std::vector<io_v1::PSimHit>,io_v1::PSimHit,edm::refhelper::FindUsingAdvance<std::vector<io_v1::PSimHit>,io_v1::PSimHit> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<vector<io_v1::PSimHit>,io_v1::PSimHit >" />
 
   <class name="edm::reftobase::BaseHolder<io_v1::PSimHit>"/>
   <class name="edm::reftobase::Holder<io_v1::PSimHit,edm::Ref<std::vector<io_v1::PSimHit>,io_v1::PSimHit,edm::refhelper::FindUsingAdvance<std::vector<io_v1::PSimHit>,io_v1::PSimHit> > >"/>
