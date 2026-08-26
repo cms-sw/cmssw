@@ -176,15 +176,6 @@ namespace edm {
     void beginStream(unsigned int streamID);
     void endStream(unsigned int streamID, ExceptionCollector& collector, std::mutex& collectorMutex) noexcept;
 
-    // Write the luminosity block
-    void writeLumiAsync(WaitingTaskHolder iTask,
-                        LuminosityBlockPrincipal const& lbp,
-                        ProcessContext const*,
-                        ActivityRegistry*);
-
-    // Write the run
-    void writeRunAsync(WaitingTaskHolder iTask, RunPrincipal const& rp, ProcessContext const*, ActivityRegistry*);
-
     void writeProcessBlockAsync(WaitingTaskHolder iTask,
                                 ProcessBlockPrincipal const&,
                                 ProcessContext const*,

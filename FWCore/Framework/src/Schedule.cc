@@ -786,38 +786,6 @@ namespace edm {
     for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::openFile, _1, std::cref(fb)));
   }
 
-  void Schedule::writeRunAsync(WaitingTaskHolder task,
-                               RunPrincipal const& rp,
-                               ProcessContext const* processContext,
-                               ActivityRegistry* activityRegistry) {
-    auto token = ServiceRegistry::instance().presentToken();
-    GlobalContext globalContext(GlobalContext::Transition::kWriteRun,
-                                LuminosityBlockID(rp.run(), 0),
-                                rp.index(),
-                                LuminosityBlockIndex::invalidLuminosityBlockIndex(),
-                                rp.endTime(),
-                                processContext);
-
-    using namespace edm::waiting_task;
-    chain::first([&](auto nextTask) {
-      //services can depend on other services
-      ServiceRegistry::Operate op(token);
-
-      // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
-      CMS_SA_ALLOW try { activityRegistry->preGlobalWriteRunSignal_.emit(globalContext); } catch (...) {
-      }
-      for (auto& c : all_output_communicators_) {
-        c->writeRunAsync(nextTask, rp, processContext, activityRegistry);
-      }
-    }) | chain::then(doCleanup([activityRegistry, globalContext, token]() {
-      //services can depend on other services
-      ServiceRegistry::Operate op(token);
-
-      activityRegistry->postGlobalWriteRunSignal_.emit(globalContext);
-    })) |
-        chain::runLast(task);
-  }
-
   void Schedule::writeProcessBlockAsync(WaitingTaskHolder task,
                                         ProcessBlockPrincipal const& pbp,
                                         ProcessContext const* processContext,
@@ -846,35 +814,6 @@ namespace edm {
       activityRegistry->postWriteProcessBlockSignal_.emit(globalContext);
     })) |
         chain::runLast(std::move(task));
-  }
-
-  void Schedule::writeLumiAsync(WaitingTaskHolder task,
-                                LuminosityBlockPrincipal const& lbp,
-                                ProcessContext const* processContext,
-                                ActivityRegistry* activityRegistry) {
-    auto token = ServiceRegistry::instance().presentToken();
-    GlobalContext globalContext(GlobalContext::Transition::kWriteLuminosityBlock,
-                                lbp.id(),
-                                lbp.runPrincipal().index(),
-                                lbp.index(),
-                                lbp.beginTime(),
-                                processContext);
-
-    using namespace edm::waiting_task;
-    chain::first([&](auto nextTask) {
-      ServiceRegistry::Operate op(token);
-      CMS_SA_ALLOW try { activityRegistry->preGlobalWriteLumiSignal_.emit(globalContext); } catch (...) {
-      }
-      for (auto& c : all_output_communicators_) {
-        c->writeLumiAsync(nextTask, lbp, processContext, activityRegistry);
-      }
-    }) | chain::then(doCleanup([activityRegistry, globalContext, token]() {
-      //services can depend on other services
-      ServiceRegistry::Operate op(token);
-
-      activityRegistry->postGlobalWriteLumiSignal_.emit(globalContext);
-    })) |
-        chain::runLast(task);
   }
 
   bool Schedule::shouldWeCloseOutput() const {

@@ -107,9 +107,6 @@ namespace edmtest {
     iRegistry.watchPreModuleGlobalEndLumi(this, &TestServiceOne::preModuleGlobalEndLumi);
     iRegistry.watchPostModuleGlobalEndLumi(this, &TestServiceOne::postModuleGlobalEndLumi);
 
-    iRegistry.watchPreGlobalWriteLumi(this, &TestServiceOne::preGlobalWriteLumi);
-    iRegistry.watchPostGlobalWriteLumi(this, &TestServiceOne::postGlobalWriteLumi);
-
     iRegistry.watchPreStreamBeginRun(this, &TestServiceOne::preStreamBeginRun);
     iRegistry.watchPostStreamBeginRun(this, &TestServiceOne::postStreamBeginRun);
     iRegistry.watchPreStreamEndRun(this, &TestServiceOne::preStreamEndRun);
@@ -129,9 +126,6 @@ namespace edmtest {
     iRegistry.watchPostModuleGlobalBeginRun(this, &TestServiceOne::postModuleGlobalBeginRun);
     iRegistry.watchPreModuleGlobalEndRun(this, &TestServiceOne::preModuleGlobalEndRun);
     iRegistry.watchPostModuleGlobalEndRun(this, &TestServiceOne::postModuleGlobalEndRun);
-
-    iRegistry.watchPreGlobalWriteRun(this, &TestServiceOne::preGlobalWriteRun);
-    iRegistry.watchPostGlobalWriteRun(this, &TestServiceOne::postGlobalWriteRun);
   }
 
   void TestServiceOne::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
