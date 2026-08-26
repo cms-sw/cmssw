@@ -230,9 +230,7 @@ namespace edm {
     void endUnfinishedLumi(bool cleaningUpAfterException);
     using ProcessBlockType = PrincipalCache::ProcessBlockType;
     void writeProcessBlockAsync(WaitingTaskHolder, ProcessBlockType);
-    void writeRunAsync(WaitingTaskHolder, RunPrincipal const&);
     void clearRunPrincipal(RunProcessingStatus&);
-    void writeLumiAsync(WaitingTaskHolder, LuminosityBlockPrincipal&);
     void clearLumiPrincipal(LuminosityBlockProcessingStatus&);
 
     bool shouldWeStop() const;
