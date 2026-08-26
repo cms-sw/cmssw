@@ -106,16 +106,16 @@ namespace fastsim {
   /// Register the SimHit collection
   ////////////////////////////////////////////////////////////////////////////////
   void MTDSimHitProducer::registerProducts(edm::ProducesCollector producesCollector) const {
-    producesCollector.produces<edm::PSimHitContainer>("FastSimMTDBarrel");
-    producesCollector.produces<edm::PSimHitContainer>("FastSimMTDEndcap");
+    producesCollector.produces<edm::PSimHitContainer>("FastTimerHitsBarrel");
+    producesCollector.produces<edm::PSimHitContainer>("FastTimerHitsEndcap");
   }
 
   ////////////////////////////////////////////////////////////////////////////////
   /// Store the SimHit collection
   ////////////////////////////////////////////////////////////////////////////////
   void MTDSimHitProducer::storeProducts(edm::Event& iEvent) {
-    iEvent.put(std::move(btlHits_), "FastSimMTDBarrel");
-    iEvent.put(std::move(etlHits_), "FastSimMTDEndcap");
+    iEvent.put(std::move(btlHits_), "FastTimerHitsBarrel");
+    iEvent.put(std::move(etlHits_), "FastTimerHitsEndcap");
     btlHits_ = std::make_unique<edm::PSimHitContainer>();
     etlHits_ = std::make_unique<edm::PSimHitContainer>();
   }
