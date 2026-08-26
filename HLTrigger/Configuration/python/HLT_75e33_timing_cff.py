@@ -295,7 +295,6 @@ fragment.schedule = cms.Schedule(*[
     #fragment.L1T_DoubleNNTau52,
     #fragment.L1T_SingleNNTau150,
 
-    fragment.HLT_LooseDeepTauPFTauHPS150_L1NN_eta2p1,
     fragment.HLT_DoubleMediumPFPuppiParTTauh30_eta2p1,
 
     fragment.HLTriggerFinalPath,
