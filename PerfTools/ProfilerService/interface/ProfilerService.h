@@ -263,10 +263,6 @@ public:
 
   DECLARE_SIGNAL_WATCHER_COMPONENT_DESCRIPTION(ESModuleConstruction)
 
-  /******** ES module context signals *********************************************/
-
-  void postESModuleRegistration(edm::eventsetup::ComponentDescription const&);
-
   /******** ES IOV sync signals **********************************************/
 
   void esSyncIOVQueuing(edm::IOVSyncValue const&);
@@ -488,8 +484,6 @@ ProfilerService<Backend>::ProfilerService(edm::ParameterSet const& config, edm::
   REGISTER_SIGNAL_WATCHER(BeginStream)
   REGISTER_SIGNAL_WATCHER(EndStream)
 
-  registry.watchJobFailure(this, &ProfilerService::jobFailure);
-
   REGISTER_SIGNAL_WATCHER(SourceNextTransition)
 
   // these signal pair are guaranteed to be called by the same thread
@@ -552,9 +546,6 @@ ProfilerService<Backend>::ProfilerService(edm::ParameterSet const& config, edm::
 
   // these signal pair are guaranteed to be called by the same thread
   REGISTER_SIGNAL_WATCHER(ESModuleConstruction)
-
-  // ES signal watchers
-  registry.watchPostESModuleRegistration(this, &ProfilerService::postESModuleRegistration);
 
   // ES IOV sync signals
   registry.watchESSyncIOVQueuing(this, &ProfilerService::esSyncIOVQueuing);
@@ -1056,8 +1047,6 @@ void ProfilerService<Backend>::lookupInitializationComplete(edm::PathsAndConsume
 DEFINE_STREAM_SIGNAL_WATCHER(BeginStream, Color::Grey)
 DEFINE_STREAM_SIGNAL_WATCHER(EndStream, Color::Grey)
 
-DEFINE_GLOBAL_MARK(jobFailure, Color::Red)
-
 /******** Source transition signal implementations *************************************/
 
 DEFINE_GLOBAL_SIGNAL_WATCHER(SourceNextTransition, Color::Yellow, true)
@@ -1225,14 +1214,6 @@ DEFINE_GLOBAL_MODULE_SIGNAL_WATCHER(ModuleWriteLumi, Color::Amber)
 /******** ES module signal implementations *************************************/
 
 DEFINE_ES_CONSTRUCTION_SIGNAL_WATCHER(ESModuleConstruction, Color::Blue_Light2)
-
-template <class Backend>
-void ProfilerService<Backend>::postESModuleRegistration(
-    edm::eventsetup::ComponentDescription const& componentDescription) {
-  auto const& label = componentDescription.label_;
-  auto const& msg = label + " " + "ESModuleReRegistration";
-  Backend::mark(global_domain_, msg.c_str(), Color::Blue_Light2);
-}
 
 template <class Backend>
 void ProfilerService<Backend>::preESModulePrefetching(edm::eventsetup::EventSetupRecordKey const& iKey,
