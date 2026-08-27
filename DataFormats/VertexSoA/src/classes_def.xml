@@ -3,7 +3,6 @@
   <!-- reco::ZVertexHost::Layout must be listed before the aliased-to type see #48824 -->
   <class name="reco::ZVertexHost::Layout"/>
   <class name="reco::ZVertexBlocks"/>
-  <class name="reco::ZVertexBlocks::View"/>
 
   <class name="reco::ZVertexLayout<128, false>"/>
   <class name="reco::ZVertexTracksLayout<128, false>"/>

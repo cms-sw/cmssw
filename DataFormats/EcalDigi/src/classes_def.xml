@@ -142,7 +142,6 @@
    <!-- ::Layout alias must be listed before the aliased-to type -->
    <class name="EcalDigiHostCollection::Layout"/>
    <class name="EcalDigiSoA"/>
-   <class name="EcalDigiSoA::View"/>
    <class name="EcalDigiHostCollection" rntupleStreamerMode="true"/>
    <class name="edm::Wrapper<EcalDigiHostCollection>" splitLevel="0"/>
 
@@ -150,7 +149,6 @@
    <!-- ::Layout alias must be listed before the aliased-to type -->
    <class name="EcalDigiPhase2HostCollection::Layout"/>
    <class name="EcalDigiPhase2SoA"/>
-   <class name="EcalDigiPhase2SoA::View"/>
    <class name="EcalDigiPhase2HostCollection" rntupleStreamerMode="true"/>
    <class name="edm::Wrapper<EcalDigiPhase2HostCollection>" splitLevel="0"/>
 </lcgdict>

@@ -3,7 +3,6 @@
   <!-- PortableHostCollection<SiPixelDigisSoA>::Layout must be listed before the aliased-to type -->
   <class name="PortableHostCollection<SiPixelDigisSoA>::Layout"/>
   <class name="SiPixelDigisSoA"/>
-  <class name="SiPixelDigisSoA::View"/>
   <class name="SiPixelDigisHost"/>
   <class name="edm::Wrapper<SiPixelDigisHost>" splitLevel="0"/>
 
@@ -11,7 +10,6 @@
   <!-- PortableHostCollection<SiPixelDigiErrorsSoA>::Layout must be listed before the aliased-to type -->
   <class name="PortableHostCollection<SiPixelDigiErrorsSoA>::Layout"/>
   <class name="SiPixelDigiErrorsSoA"/>
-  <class name="SiPixelDigiErrorsSoA::View"/>
   <class name="SiPixelDigiErrorsHost"/>
   <class name="edm::Wrapper<SiPixelDigiErrorsHost>" splitLevel="0"/>
 </lcgdict>

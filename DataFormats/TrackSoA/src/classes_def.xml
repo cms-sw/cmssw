@@ -3,7 +3,6 @@
   <!-- reco::TracksHost::Layout must be listed before the aliased-to type see #48824 -->
   <class name="reco::TracksHost::Layout"/>
   <class name="reco::TrackBlocks"/>
-  <class name="reco::TrackBlocks::View"/>
   
   <class name="reco::TrackLayout<128, false>"/>
   <class name="reco::TrackHitsLayout<128, false>"/>
