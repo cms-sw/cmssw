@@ -85,11 +85,11 @@ TEST_CASE("Stream SoA") {
 
   std::ostringstream expectedBlocks;
   expectedBlocks << "SoABlocksTemplate([42, 66] elements, in 2 blocks, byte alignement= 128): \n"
-                 << "  sizeof(SoABlocksTemplate): 240\n"
+                 << "  sizeof(SoABlocksTemplate): 264\n"
                  << "  The 2 blocks are:\n\n"
 
                  << "SoATemplate(42 elements, byte alignement= 128, @" << blocks.metadata().addressOf_soa() << "): \n"
-                 << "  sizeof(SoATemplate): 176\n"
+                 << "  sizeof(SoATemplate): 200\n"
                  << " Column x at offset 0 has size 336 and padding 48\n"
                  << " Column y at offset 384 has size 336 and padding 48\n"
                  << " Column z at offset 768 has size 336 and padding 48\n"
