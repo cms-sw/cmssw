@@ -46,16 +46,6 @@ namespace edm {
                                 ProcessContext const*,
                                 ActivityRegistry*) noexcept override;
 
-    void writeRunAsync(WaitingTaskHolder iTask,
-                       edm::RunPrincipal const& rp,
-                       ProcessContext const*,
-                       ActivityRegistry*) noexcept override;
-
-    void writeLumiAsync(WaitingTaskHolder iTask,
-                        edm::LuminosityBlockPrincipal const& lbp,
-                        ProcessContext const*,
-                        ActivityRegistry*) noexcept override;
-
     ///\return true if OutputModule has reached its limit on maximum number of events it wants to see
     bool limitReached() const override;
 
