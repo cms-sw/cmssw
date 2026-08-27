@@ -14,13 +14,6 @@
 // Known latent bugs in FileInPath whose tests are excluded from the
 // default run (see main()) because they either hang or abort:
 //
-// 1. Non-terminating branch-path loop (FileInPath.cc:388-390): when
-//    initialize_() finds a file via a search-path element whose ancestors
-//    never match localTop_/releaseTop_/dataTop_, the loop
-//        for (path br = pathPrefix.parent_path();
-//             !weakly_canonical(br).string().empty();
-//             br = br.parent_path())
-//    never terminates, because parent_path() of "/" is "/" forever.
 // 2. p /= relative with an absolute relative path (FileInPath.cc:85):
 //    std::filesystem::operator/=  discards the prefix when the right-hand
 //    side is an absolute path, so FileInPath("/etc/passwd") bypasses the
@@ -95,8 +88,7 @@ namespace {
   // Note on the "data" layout: CMSSW_DATA_PATH is <root>/data, but the
   // search-path element used to locate data files is <root>/data/repo (one
   // level below), exactly mirroring how the local/release areas use "/src"
-  // as the level below CMSSW_BASE/CMSSW_RELEASE_BASE. This extra level is
-  // required to avoid latent bug 1 (see file header).
+  // as the level below CMSSW_BASE/CMSSW_RELEASE_BASE.
   void buildLocalTree(fs::path const& root) {
     writeFile(root / "local/src/Sub/Pack/data/file.txt", "local file\n");
     writeFile(root / "local/src/Sub/Pack/data/both.txt", "local both\n");
@@ -154,10 +146,7 @@ namespace {
     } else if (scenario == "noData") {
       // CMSSW_DATA_PATH unset, but the data directory is still reachable
       // via the search path. The file is found (locateFile() succeeds),
-      // but since dataTop_ is empty, the "if (!dataTop_.empty())" branch in
-      // the branch-path loop can never match; with no top to match at all
-      // (localTop_ and releaseTop_ are also unrelated to this branch), the
-      // loop runs forever (latent bug 1, see file header).
+      // but since dataTop_ is empty, it won't match and will throw an exception.
       buildLocalTree(testRoot);
       setEnvOrUnset("CMSSW_BASE", paths.local.string());
       setEnvOrUnset("CMSSW_RELEASE_BASE", paths.release.string());
@@ -603,10 +592,11 @@ TEST_CASE("lookupDisabled: null char* does not throw", "[lookupDisabled]") {
   REQUIRE(fip.location() == edm::FileInPath::Unknown);
 }
 
-// --- latent bug 1 scenario: noData ---
-TEST_CASE("noData: file is found but location() hangs", "[noData]") {
-  edm::FileInPath fip("Sub/Pack/data/dat.txt");
-  (void)fip;
+TEST_CASE("noData: file is found CMSSW_SEARCH_PATH, but element is not in any of the known search areas", "[noData]") {
+  REQUIRE_THROWS_WITH(
+      edm::FileInPath("Sub/Pack/data/dat.txt"),
+      Catch::Matchers::ContainsSubstring("edm::FileInPath found file Sub/Pack/data/dat.txt in search path element") &&
+          Catch::Matchers::ContainsSubstring("but that element is not in any of the known search"));
 }
 
 // --- latent bug 2 scenario: absolutePath ---
