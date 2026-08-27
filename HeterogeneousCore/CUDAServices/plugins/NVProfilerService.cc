@@ -1,6 +1,5 @@
 #include <cuda_profiler_api.h>
 #include <nvtx3/nvToolsExt.h>
-#include <nvtx3/nvtx3.hpp>
 
 #include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 

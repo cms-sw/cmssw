@@ -19,6 +19,8 @@
 #include <tbb/concurrent_queue.h>
 #include <tbb/concurrent_unordered_map.h>
 #include <tbb/concurrent_vector.h>
+#include <tbb/spin_mutex.h>
+#include <tbb/spin_rw_mutex.h>
 
 #include "FWCore/ServiceRegistry/interface/ESModuleCallingContext.h"
 
@@ -69,7 +71,7 @@ public:
     Yellow_Light2
   };
 
-  static size_t to_underlying(Color c) noexcept { return static_cast<std::size_t>(c); }
+  static std::size_t to_underlying(Color c) noexcept { return static_cast<std::size_t>(c); }
 
   // Switch color to amber, but keep the same relative darkness/lightness level.
   static Color to_highlighted(Color c) noexcept {
@@ -86,70 +88,16 @@ public:
     return Color::Amber;  // singletons (Black / White)
   }
 
-  /**
-    * @brief Abstract color enumeration the derived classes can translate (or disregard).
-    */
-  class SpinLock {
-  public:
-    SpinLock() = default;
-    SpinLock(const SpinLock&) = delete;
-    SpinLock& operator=(const SpinLock&) = delete;
-    SpinLock(SpinLock&&) = delete;
-
-    void lock() {
-      while (flag_.test_and_set(std::memory_order_acquire))
-        ;
-    }
-
-    void unlock() { flag_.clear(std::memory_order_release); }
-
-  private:
-    std::atomic_flag flag_;
-  };
-
-  /// @brief Reader-writer spinlock.
-  /// Compatible with std::lock_guard (exclusive) and std::shared_lock (shared).
-  /// state_ == 0  : unlocked
-  /// state_ == -1 : write-locked
-  /// state_ >  0  : N concurrent readers
-  class RWSpinLock {
-  public:
-    // Exclusive (write) access — use with std::lock_guard
-    void lock() {
-      int expected = 0;
-      while (
-          !state_.compare_exchange_weak(expected, kWriteLocked, std::memory_order_acquire, std::memory_order_relaxed)) {
-        expected = 0;
-      }
-    }
-
-    void unlock() { state_.store(0, std::memory_order_release); }
-
-    // Shared (read) access — use with std::shared_lock
-    void lock_shared() {
-      while (true) {
-        int val = state_.load(std::memory_order_relaxed);
-        if (val >= 0 &&
-            state_.compare_exchange_weak(val, val + 1, std::memory_order_acquire, std::memory_order_relaxed)) {
-          return;
-        }
-      }
-    }
-
-    void unlock_shared() { state_.fetch_sub(1, std::memory_order_release); }
-
-  private:
-    static constexpr int kWriteLocked = -1;
-    std::atomic<int> state_{0};
-  };
+  using SpinLock = tbb::spin_mutex;
+  using RWSpinLock = tbb::spin_rw_mutex;
 
   template <typename Range>
   class RangePool {
   public:
     RangePool() : next_allocation_size_(kInitialAllocationSize) { allocateUnlocked_(kInitialAllocationSize); }
 
-    size_t acquireSlot() {
-      size_t slot = 0;
+    std::size_t acquireSlot() {
+      std::size_t slot = 0;
       bool got_slot = free_slots_.try_pop(slot);
       while (not got_slot) {
         std::lock_guard<SpinLock> guard(mutex_);
@@ -160,25 +108,25 @@ public:
       return slot;
     }
 
-    void releaseSlot(size_t slot) { free_slots_.push(slot); }
+    void releaseSlot(std::size_t slot) { free_slots_.push(slot); }
 
-    Range& at(size_t slot) { return ranges_[slot]; }
+    Range& at(std::size_t slot) { return ranges_[slot]; }
 
   private:
-    static constexpr size_t kInitialAllocationSize = 16;
+    static constexpr std::size_t kInitialAllocationSize = 16;
 
-    void allocateUnlocked_(size_t count) {
+    void allocateUnlocked_(std::size_t count) {
       auto const begin = ranges_.size();
       ranges_.grow_by(count);
-      for (size_t index = begin; index < begin + count; ++index) {
+      for (std::size_t index = begin; index < begin + count; ++index) {
         free_slots_.push(index);
       }
     }
 
     SpinLock mutex_;
-    size_t next_allocation_size_;
+    std::size_t next_allocation_size_;
     tbb::concurrent_vector<Range> ranges_;
-    tbb::concurrent_queue<size_t> free_slots_;
+    tbb::concurrent_queue<std::size_t> free_slots_;
   };
 
   template <typename Backend, typename Range, typename Domain, typename... KeyArgs>
@@ -305,7 +253,7 @@ public:
     RWSpinLock mutex_;
     RangePool<Range>& range_pool_;
     bool show_detailed_info_;
-    tbb::concurrent_unordered_map<Key, size_t, boost::hash<Key>> in_flight_;
+    tbb::concurrent_unordered_map<Key, std::size_t, boost::hash<Key>> in_flight_;
   };
 };
 
