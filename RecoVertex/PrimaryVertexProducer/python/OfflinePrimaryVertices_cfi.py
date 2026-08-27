@@ -216,6 +216,11 @@ from Configuration.Eras.Modifier_run3_oxygen_cff import run3_oxygen
     TkFilterParameters = dict(
         algorithm="filterWithThreshold",
         minSiliconLayersWithHits = 0,
+        maxDzError = 3.0,
         numTracksThreshold = cms.int32(3),
-    ))
+    ),
+    vertexCollections = {
+        0: dict(chi2cutoff = 4.0, minNdof = -1.1),
+        1: dict(chi2cutoff = 4.0, minNdof = -2.0),
+    })
 )
