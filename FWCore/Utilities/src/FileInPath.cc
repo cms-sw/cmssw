@@ -97,6 +97,13 @@ namespace {
     }
     return true;
   }
+
+  // Return true if 'path' begins with 'prefix'
+  bool pathBeginsWith(std::filesystem::path const& path, std::filesystem::path const& prefix) {
+    // lexically_relative() prepends ".." components whenever 'path' has to go up and out of 'prefix'.
+    auto const rel = path.lexically_relative(prefix);
+    return !rel.empty() && rel.begin()->string() != "..";
+  }
 }  // namespace
 
 namespace edm {
@@ -383,41 +390,29 @@ namespace edm {
               << "\nrelativePath() is: " << relativePath_ << "\npath prefix is: " << pathPrefix.string() << '\n';
         }
 
-        // From the current path element, find the branch path (basically the path minus the
-        // last directory, e.g. /src or /share):
-        for (std::filesystem::path br = pathPrefix.parent_path();
-             !std::filesystem::weakly_canonical(br).string().empty();
-             br = br.parent_path()) {
-          if (!localTop_.empty()) {
-            // Create a path object for our local path LOCALTOP:
-            std::filesystem::path local_(localTop_);
-            // If the branch path matches the local path, the file was found locally:
-            if (br == local_) {
-              location_ = Local;
-              return;
-            }
-          }
-
-          if (!releaseTop_.empty()) {
-            // Create a path object for our release path RELEASETOP:
-            std::filesystem::path release_(releaseTop_);
-            // If the branch path matches the release path, the file was found in the release:
-            if (br == release_) {
-              location_ = Release;
-              return;
-            }
-          }
-
-          if (!dataTop_.empty()) {
-            // Create a path object for our data path DATATOP:
-            std::filesystem::path data_(dataTop_);
-            // If the branch path matches the data path, the file was found in the data area:
-            if (br == data_) {
-              location_ = Data;
-              return;
-            }
-          }
+        // Determine which search area the current path element belongs to:
+        if (!localTop_.empty() && pathBeginsWith(pathPrefix, std::filesystem::path(localTop_))) {
+          location_ = Local;
+          return;
         }
+
+        if (!releaseTop_.empty() && pathBeginsWith(pathPrefix, std::filesystem::path(releaseTop_))) {
+          location_ = Release;
+          return;
+        }
+
+        if (!dataTop_.empty() && pathBeginsWith(pathPrefix, std::filesystem::path(dataTop_))) {
+          location_ = Data;
+          return;
+        }
+
+        throw edm::Exception(edm::errors::FileInPathError)
+            << "edm::FileInPath found file " << relativePath_ << " in search path element " << pathPrefix.string()
+            << ", but that element is not in any of the known search areas.\n"
+            << "Known search areas are:\n"
+            << "  Local area:   " << localTop_ << "\n"
+            << "  Release area: " << releaseTop_ << "\n"
+            << "  Data area:    " << dataTop_ << "\n";
       }
     }
 

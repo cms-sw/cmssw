@@ -36,7 +36,7 @@
 -->
 <test name="TestFWCoreUtilitiesFileInPath"
       command="testFWCoreUtilitiesFileInPath ${value}"
-      foreach="local,noRelease,sameTops,symlink,emptySearchPath,lookupDisabled,emptyPathElement">
+      foreach="local,noRelease,sameTops,symlink,emptySearchPath,lookupDisabled,emptyPathElement,noData">
   <flags PRE_TEST="testFWCoreUtilitiesFileInPath"/>
 </test>
 
