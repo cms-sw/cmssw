@@ -16,7 +16,7 @@
 
       <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<io_v1::L2MuonTrajectorySeed> >, edm::RefProd<std::vector<io_v1::L2MuonTrajectorySeed> > >"/>
       <class name="edm::OneToMany<std::vector<io_v1::L2MuonTrajectorySeed>,std::vector<io_v1::L2MuonTrajectorySeed>,unsigned int >" />
-	<class name="edm::AssociationMap<edm::OneToMany<std::vector<io_v1::L2MuonTrajectorySeed>,std::vector<io_v1::L2MuonTrajectorySeed>, unsigned int > >">
+      <class name="edm::AssociationMap<edm::OneToMany<std::vector<io_v1::L2MuonTrajectorySeed>,std::vector<io_v1::L2MuonTrajectorySeed>, unsigned int > >">
         <field name="transientMap_" transient="true"/>
       </class>
 
