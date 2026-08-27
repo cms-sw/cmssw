@@ -50,7 +50,7 @@ namespace ROOT {
     // build the read rules
     std::vector<ROOT::Internal::TSchemaHelper> readrules(1);
     ROOT::Internal::TSchemaHelper &rule = readrules[0];
-    rule.fTarget = "buffer_,layout_,view_";
+    rule.fTarget = "layout_";
     rule.fSourceClass = type;
     rule.fSource = type + "::Layout layout_;";
     rule.fCode = type + "::ROOTReadStreamer(newObj, onfile.layout_)";
