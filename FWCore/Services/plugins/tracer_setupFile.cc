@@ -878,9 +878,7 @@ namespace edm::service::tracer {
       iRegistry.watchPreGlobalBeginRun(preGlobal);
       iRegistry.watchPreGlobalBeginLumi(preGlobal);
       iRegistry.watchPreGlobalEndLumi(preGlobal);
-      iRegistry.watchPreGlobalWriteLumi(preGlobal);
       iRegistry.watchPreGlobalEndRun(preGlobal);
-      iRegistry.watchPreGlobalWriteRun(preGlobal);
     }
     {
       auto postGlobal = [logFile, beginTime](GlobalContext const& gc) {
@@ -900,9 +898,7 @@ namespace edm::service::tracer {
       iRegistry.watchPostGlobalBeginRun(postGlobal);
       iRegistry.watchPostGlobalBeginLumi(postGlobal);
       iRegistry.watchPostGlobalEndLumi(postGlobal);
-      iRegistry.watchPostGlobalWriteLumi(postGlobal);
       iRegistry.watchPostGlobalEndRun(postGlobal);
-      iRegistry.watchPostGlobalWriteRun(postGlobal);
     }
     {
       auto preStream = [logFile, beginTime](StreamContext const& sc) {
@@ -1166,10 +1162,8 @@ namespace edm::service::tracer {
         << "# clearEvent               " << Phase::clearEvent << "\n"
         << "# streamEndLumi            " << Phase::streamEndLumi << "\n"
         << "# globalEndLumi            " << Phase::globalEndLumi << "\n"
-        << "# globalWriteLumi          " << Phase::globalWriteLumi << "\n"
         << "# streamEndRun             " << Phase::streamEndRun << "\n"
         << "# globalEndRun             " << Phase::globalEndRun << "\n"
-        << "# globalWriteRun           " << Phase::globalWriteRun << "\n"
         << "# endProcessBlock          " << Phase::endProcessBlock << "\n"
         << "# writeProcessBlock        " << Phase::writeProcessBlock << "\n"
         << "# endStream                " << Phase::endStream << "\n"
