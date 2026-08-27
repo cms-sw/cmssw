@@ -25,6 +25,42 @@ diff allEDModules.log ${LOCAL_TEST_DIR}/unittest_output/allEDModules.log || die 
 grep '^[nN]' moduleAlloc.log.orig | awk '{print $1,$2,$3,$4,$5,$6}' > allESModules.log
 diff allESModules.log ${LOCAL_TEST_DIR}/unittest_output/allESModules.log || die 'differences in allESModules' $?
 
+# per-transition trace output
+edmModuleAllocMonitorAnalyze.py --trace moduleAlloc.log.orig > moduleAlloc.trace.txt || die 'Failure using --trace' $?
+grep -q 'starting action: .* during construction : id=' moduleAlloc.trace.txt || die 'trace missing construction action' $?
+grep -q 'starting: begin job : id=' moduleAlloc.trace.txt || die 'trace missing begin job' $?
+grep -q 'during event : id=' moduleAlloc.trace.txt || die 'trace missing event' $?
+
+# per-module/per-transition/per-activity averaged summary
+edmModuleAllocMonitorAnalyze.py moduleAlloc.log.orig > moduleAlloc.summary.txt || die 'Failure using default summary' $?
+grep -q '^Module label source,'            moduleAlloc.summary.txt || die 'summary missing source' $?
+grep -q '^Module label thingProducer,'     moduleAlloc.summary.txt || die 'summary missing thingProducer' $?
+grep -q '^Module label Thing,'             moduleAlloc.summary.txt || die 'summary missing Thing' $?
+grep -q '^Module label WhatsItESProducer,' moduleAlloc.summary.txt || die 'summary missing ES module' $?
+grep -Eq '^ +event$'             moduleAlloc.summary.txt || die 'summary missing event transition' $?
+grep -Eq '^ +process \(.*calls\)$' moduleAlloc.summary.txt || die 'summary missing calls note' $?
+grep -Eq '^ +nAlloc '            moduleAlloc.summary.txt || die 'summary missing nAlloc avg' $?
+grep -Eq '^ +nAlloc .* max1Alloc [0-9-]+$' moduleAlloc.summary.txt || die 'summary fields not on one row' $?
+# EventSetup modules are split per record/callID
+grep -Eq '^ +process record GadgetRcd callID 0 (.*)$' moduleAlloc.summary.txt || die 'summary missing ES record callID 0' $?
+grep -Eq '^ +process record GadgetRcd callID 4 (.*)$' moduleAlloc.summary.txt || die 'summary missing ES record callID 4' $?
+
+# --summaryField restricts the summary to a single quantity
+edmModuleAllocMonitorAnalyze.py --summaryField max1Alloc moduleAlloc.log.orig > moduleAlloc.summary.max1Alloc.txt || die 'Failure using --summaryField max1Alloc' $?
+grep -Eq '^ +max1Alloc [0-9-]+$' moduleAlloc.summary.max1Alloc.txt || die '--summaryField max1Alloc missing max1Alloc line' $?
+grep -Eq '^ +nAlloc '           moduleAlloc.summary.max1Alloc.txt && die '--summaryField max1Alloc unexpectedly printed nAlloc' 1
+grep -Eq '^ +nDealloc '         moduleAlloc.summary.max1Alloc.txt && die '--summaryField max1Alloc unexpectedly printed nDealloc' 1
+grep -Eq '^ +added '            moduleAlloc.summary.max1Alloc.txt && die '--summaryField max1Alloc unexpectedly printed added' 1
+grep -Eq '^ +minTemp '          moduleAlloc.summary.max1Alloc.txt && die '--summaryField max1Alloc unexpectedly printed minTemp' 1
+grep -Eq '^ +maxTemp '          moduleAlloc.summary.max1Alloc.txt && die '--summaryField max1Alloc unexpectedly printed maxTemp' 1
+
+# an unknown --summaryField value must be rejected by argparse
+if edmModuleAllocMonitorAnalyze.py --summaryField bogus moduleAlloc.log.orig > /dev/null 2>summaryField_bad.log; then
+  die '--summaryField bogus unexpectedly succeeded' 1
+fi
+grep -q 'invalid choice' summaryField_bad.log || die '--summaryField bogus did not report invalid choice' $?
+
+
 ############### only 1 ED module kept
 LD_PRELOAD="libPerfToolsAllocMonitorPreload.so" cmsRun ${LOCAL_TEST_DIR}/moduleAlloc_cfg.py --edmodule || die 'Failure using moduleAlloc_cfg.py --edmodule' $?
 mv moduleAlloc.log moduleAlloc.log.edmodule
@@ -77,3 +113,21 @@ edmModuleAllocJsonToCircles.py acquireTransform.json > acquireTransform.circles.
 grep '"\(record\|type\|label\)": ".*",' acquireTransform.circles.json > acquireTransform.circles.txt
 # to be enabled later when the circles output is stable
 #diff acquireTransform.circles.txt ${LOCAL_TEST_DIR}/unittest_output/acquireTransform.circles.txt || die 'differences in edmModuleAllocJsonToCircles.py output' $?
+
+# summary must expose non-process (acquire) activities on the event transition
+edmModuleAllocMonitorAnalyze.py moduleAllocAcquireTransform.log > acquireTransform.summary.txt || die 'Failure using default summary for acquire+transform' $?
+grep -q '^Module label externalWorkAllocProducer,'   acquireTransform.summary.txt || die 'summary missing externalWork module' $?
+grep -q '^Module label transformAsyncAllocProducer,' acquireTransform.summary.txt || die 'summary missing transformAsync module' $?
+grep -Eq '^ +event$'        acquireTransform.summary.txt || die 'summary missing event transition' $?
+grep -Eq '^ +acquire (.*)$' acquireTransform.summary.txt || die 'summary missing acquire activity' $?
+grep -Eq '^ +process (.*)$' acquireTransform.summary.txt || die 'summary missing process activity' $?
+# ED module (Transform/TransformAsync/ExternalWork) callID must be split, not averaged together
+grep -Eq '^ +process callID 1 (.*)$' acquireTransform.summary.txt || die 'summary missing ED module process callID 1' $?
+grep -Eq '^ +process callID 2 (.*)$' acquireTransform.summary.txt || die 'summary missing ED module process callID 2' $?
+grep -Eq '^ +acquire callID 2 (.*)$' acquireTransform.summary.txt || die 'summary missing ED module acquire callID 2' $?
+# transformAllocProducer has 3 callID-only process lines (1, 2, 3); the
+# 'process' activities for the event transition must be listed with
+# ascending callID even though the underlying trace order is 1, 3, 2.
+awk '/^Module label transformAllocProducer/{p=1} p&&/^[a-zA-Z]/&&!/^Module label transformAllocProducer/{p=0} p&&/^ +process callID [0-9]+ /{print $3}' acquireTransform.summary.txt > transformAllocProducer_callIDs.txt
+printf '1\n2\n3\n' > transformAllocProducer_callIDs_expected.txt
+diff transformAllocProducer_callIDs.txt transformAllocProducer_callIDs_expected.txt || die 'transformAllocProducer process callIDs not sorted ascending' $?
