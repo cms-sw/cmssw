@@ -12,6 +12,8 @@
   <use name="catch2"/>
 </bin>
 
+<test name="TestPerfToolsModuleAllocMonitorAnalyze" command="edmModuleAllocMonitorAnalyze.py -T"/>
+
 <ifrelease name="!ASAN">
   <bin file="test_proxies.cc" name="testAllocMonitorPreload">
     <use name="PerfTools/AllocMonitor"/>
