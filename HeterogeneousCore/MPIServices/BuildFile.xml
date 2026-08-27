@@ -1,4 +1,5 @@
 <use name="mpi"/>
+<use name="rootrio"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
 <export>

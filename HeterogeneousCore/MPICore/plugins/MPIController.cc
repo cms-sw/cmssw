@@ -33,6 +33,7 @@
 #include "HeterogeneousCore/MPICore/interface/MPIToken.h"
 #include "HeterogeneousCore/MPICore/interface/messages.h"
 #include "HeterogeneousCore/MPIServices/interface/MPIService.h"
+#include "HeterogeneousCore/MPIServices/interface/MPIConsistencyChecker.h"
 
 /* MPIController class
  *
@@ -76,6 +77,7 @@ private:
   std::vector<std::vector<std::unique_ptr<MPIChannel>>> channels_;
   edm::EDPutTokenT<MPIToken> token_;
   Mode mode_;
+  std::string module_label_;
   // Set once beginJob() has sent the initial Connect message to all followers.
   // Used to prevent the MPIController from hanging in it's destructor's
   // MPI_Comm_disconnect() in the case some other module in the local process
@@ -85,7 +87,8 @@ private:
 
 MPIController::MPIController(edm::ParameterSet const& config)
     : token_(produces<MPIToken>()),
-      mode_(parseMode(config.getUntrackedParameter<std::string>("mode")))  //
+      mode_(parseMode(config.getUntrackedParameter<std::string>("mode"))),
+      module_label_(config.getParameter<std::string>("@module_label"))  //
 {
   // Make sure that MPI is initialised.
   MPIService::required();
@@ -153,6 +156,7 @@ MPIController::MPIController(edm::ParameterSet const& config)
       followers_.emplace_back(comm, follower);
       channels_.emplace_back();
     }
+
   } else if (mode_ == kIntercommunicator) {
     // Use an intercommunicator to let two groups of processes communicate with each other.
     // The current implementation supports only two processes: one controller and one source.
@@ -187,6 +191,10 @@ MPIController::MPIController(edm::ParameterSet const& config)
     throw edm::Exception(edm::errors::Configuration)
         << "Invalid mode \"" << config.getUntrackedParameter<std::string>("mode") << "\"";
   }
+
+  // Record the controller name to reconstruct paths for MPI configuration consistency validation
+  edm::Service<MPIConsistencyChecker> module_info_service;
+  module_info_service->registerMPIPathOrigin(module_label_);
 }
 
 MPIController::~MPIController() {
@@ -228,6 +236,15 @@ void MPIController::beginJob() {
     edm::LogInfo("MPI") << keyval.first << ": " << keyval.second;
   }
   */
+
+  edm::Service<MPIConsistencyChecker> module_info_service;
+  module_info_service->reconstructMPIPaths();
+  std::vector<char> buffer;
+  module_info_service->getSerializedMPIModuleInfo(buffer, module_label_);
+  for (auto& follower : followers_) {
+    // transmit the information about the MPI senders and receivers in the current path
+    follower.sendModulesInfo(buffer);
+  }
 }
 
 void MPIController::endJob() {

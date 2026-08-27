@@ -7,6 +7,7 @@ process.options.numberOfStreams = 4
 process.options.wantSummary = False
 
 process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
+process.load("HeterogeneousCore.MPIServices.MPIConsistencyChecker_cfi")
 
 # needed for MPIReceiverPortable and the automatic device-to-host conversion
 process.load("Configuration.StandardSequences.Accelerators_cff")

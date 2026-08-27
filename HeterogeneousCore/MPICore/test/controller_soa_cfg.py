@@ -22,6 +22,7 @@ process.MessageLogger.cerr.MPI = cms.untracked.PSet(
 )
 
 process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
+process.load("HeterogeneousCore.MPIServices.MPIConsistencyChecker_cfi")
 
 # produce and send a portable object, a portable collection, and some portable multicollections
 process.load("Configuration.StandardSequences.Accelerators_cff")
@@ -65,7 +66,7 @@ process.sender = MPISender(
     ),
     dict(
         type = "ushort",
-        name = 'producePortableObjects@backend'
+        name = 'producePortableObjects:backend'
     )]
 )
 
@@ -93,7 +94,7 @@ process.senderNoTrivialSerialisation = MPISender(
     ),
     dict(
         type = "ushort",
-        name = 'producePortableObjects@backend'
+        name = 'producePortableObjects:backend'
     )]
 )
 

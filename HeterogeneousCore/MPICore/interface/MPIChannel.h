@@ -209,6 +209,9 @@ public:
     }
   }
 
+  // send/receive information about the MPI modules in the current process
+  void sendModulesInfo(std::vector<char> const& buffer);
+
 private:
   // serialize an EDM object to a simplified representation that can be transmitted as an MPI message
   void edmToBuffer_(EDM_MPI_RunAuxiliary_t& buffer, edm::RunAuxiliary const& aux);
