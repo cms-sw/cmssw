@@ -2,10 +2,14 @@
 // ----------------------------------------------------------------------
 
 #include <atomic>
-#include <cstdlib>
-#include <vector>
 #include <cassert>
+#include <cstdlib>
 #include <filesystem>
+#include <iostream>
+#include <mutex>
+#include <ranges>
+#include <syncstream>
+#include <vector>
 
 #include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -58,21 +62,19 @@ namespace {
     return path.substr(0, actualSize);
   }
 
-  std::string removeSymLinksTokens(std::string const& envName) {
+  std::vector<std::filesystem::path> removeSymLinksTokens(std::string const& envName) {
     char const* const var = std::getenv(envName.c_str());
     if (var == nullptr) {
-      return std::string();
+      return {};
     }
-    std::string theSearchPath;
-    typedef std::vector<std::string> stringvec_t;
-    stringvec_t pathElements = edm::tokenize(std::string(var), ":");
+    auto pathElements = edm::tokenize(std::string(var), ":");
+    std::vector<std::filesystem::path> ret;
+    ret.reserve(pathElements.size());
     for (auto& element : pathElements) {
       edm::resolveSymbolicLinks(element);
-      if (!theSearchPath.empty())
-        theSearchPath += ":";
-      theSearchPath += element;
+      ret.emplace_back(element);
     }
-    return theSearchPath;
+    return ret;
   }
 
   // Check for existence of a file for the given relative path and
@@ -141,7 +143,6 @@ namespace edm {
     localTop_.swap(other.localTop_);
     releaseTop_.swap(other.releaseTop_);
     dataTop_.swap(other.dataTop_);
-    searchPath_.swap(other.searchPath_);
   }
 
   const std::string& FileInPath::relativePath() const { return relativePath_; }
@@ -327,18 +328,13 @@ namespace edm {
   }
 
   //------------------------------------------------------------
-  std::string const& FileInPath::searchPath() {
-    static std::string const s_searchPath = removeSymLinksTokens(PathVariableName);
+  std::vector<std::filesystem::path> const& FileInPath::searchPath() {
+    static std::vector<std::filesystem::path> const s_searchPath = removeSymLinksTokens(PathVariableName);
     return s_searchPath;
   }
   //------------------------------------------------------------
 
   void FileInPath::getEnvironment() {
-    searchPath_ = searchPath();
-    if (searchPath_.empty()) {
-      throw edm::Exception(edm::errors::FileInPathError) << PathVariableName << " must be defined\n";
-    }
-
     static std::string const releaseTop = removeSymLinksSrc(RELEASETOP);
     releaseTop_ = releaseTop;
 
@@ -347,6 +343,29 @@ namespace edm {
 
     static std::string const dataTop = removeSymLinks(DATATOP);
     dataTop_ = dataTop;
+
+    static std::once_flag s_onceFlag;
+    std::call_once(s_onceFlag, [this]() {
+      auto const& searchPathElements = searchPath();
+      if (searchPathElements.empty()) {
+        throw edm::Exception(edm::errors::FileInPathError) << PathVariableName << " must be defined\n";
+      }
+      auto filtered = searchPathElements | std::views::filter([this](std::filesystem::path const& s) {
+                        return !s.empty() && !pathBeginsWith(s, std::filesystem::path(releaseTop_)) &&
+                               !pathBeginsWith(s, std::filesystem::path(localTop_)) &&
+                               !pathBeginsWith(s, std::filesystem::path(dataTop_));
+                      }) |
+                      std::views::transform([](std::filesystem::path const& s) { return s.string(); });
+      std::vector<std::string> const notFound(filtered.begin(), filtered.end());
+      if (!notFound.empty()) {
+        std::osyncstream ss(std::cerr);
+        ss << "Warning: The following elements of $" << PathVariableName << " are not in any of the $" << LOCALTOP
+           << ", $" << RELEASETOP << ", or $" << DATATOP << " areas:\n";
+        for (const auto& element : notFound) {
+          ss << " " << element << "\n";
+        }
+      }
+    });
 
     if (releaseTop_.empty()) {
       // RELEASETOP was not set.  This means that the environment is set
@@ -369,18 +388,13 @@ namespace edm {
     }
 
     // Find the file, based on the value of searchPath.
-    typedef std::vector<std::string> stringvec_t;
-    stringvec_t pathElements = tokenize(searchPath_, ":");
-    for (auto const& element : pathElements) {
-      // Set the path to the current element of CMSSW_SEARCH_PATH:
-      std::filesystem::path pathPrefix(element);
-
+    // Iterate over every element of CMSSW_SEARCH_PATH
+    for (auto const& pathPrefix : searchPath()) {
       // Does the a file exist? locateFile throws is it finds
       // something goofy.
       if (locateFile(pathPrefix, relativePath_)) {
         // Convert relative path to canonical form, and save it.
         relativePath_ = std::filesystem::path(relativePath_).lexically_normal().string();
-        //std::filesystem::path(relativePath_).normalize().string();
 
         // Save the absolute path.
         canonicalFilename_ = std::filesystem::absolute(pathPrefix / relativePath_).string();
@@ -429,12 +443,7 @@ namespace edm {
 
   std::string FileInPath::findFile(const std::string& iFileName) {
     // Find the file, based on the value of path variable.
-    auto pathElements = tokenize(searchPath(), ":");
-    for (auto const& element : pathElements) {
-      // Set the boost::fs path to the current element of
-      // CMSSW_SEARCH_PATH:
-      std::filesystem::path pathPrefix(element);
-
+    for (auto const& pathPrefix : searchPath()) {
       // Does the a file exist? locateFile throws is it finds
       // something goofy.
       if (locateFile(pathPrefix, iFileName)) {
