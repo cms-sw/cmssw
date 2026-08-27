@@ -101,13 +101,11 @@ In addition to those fully parametrized templates, two further levels of paramet
 mirroring the structure of the underlying structs. The blocks are built via composition, 
 and access to individual layouts and views is provided by name.
 
-`SoABlocks` also have the possibility of generating methods for the `View` and `ConstView` classes using the macros `SOA_VIEW_METHODS`
-and `SOA_CONST_VIEW_METHODS`. Like the macros for the element methods, this can also be called only once, and if more methods
+`SoABlocks` also have the possibility of generating methods for the `View` and `ConstView` classes 
+using the macros `SOA_VIEW_METHODS` and `SOA_CONST_VIEW_METHODS`. 
+Like the macros for the element methods, this can also be called only once, and if more methods
 have to be generated, they must be listed inside the same macro call. Since these methods can be called from the device,
 they must be prefixed with the `SOA_HOST_DEVICE` macro and, when possible, with the `constexpr` keyword.
-
-TODOs:
-- Add introspection utilities to print the structure and layout of a `SoABlocks` instance.
 
 [An example of utilization is shown below.](#examples)
 
@@ -409,6 +407,10 @@ blocksView.scalars().id() = 42;
 blocksView.scalars().type() = 1;
 blocksView.scalars().energy() = 100.0f;
 
+// SoALayouts support introspection.
+// Outputs all blocks contained in the SoABlocks layout,
+// including the size of each column in bytes and its associated padding.
+std::cout << blocks;
 ```
                    
 ## Current status and further improvements
