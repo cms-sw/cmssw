@@ -228,7 +228,7 @@ run_benchmark() {
 	    --event-skip 100 \
 	    --event-resolution 10 \
 	    --debug-logs \
-	    -k Phase2Timing_resources.json \
+	    -k resources.json \
 	    -- ${cfg} > "$TMP_LOG_FILE" 2>&1 &
 
 	local PID=$!
@@ -328,13 +328,13 @@ run_benchmark() {
 	    --event-skip 100 \
 	    --event-resolution 10 \
 	    --debug-logs \
-	    -k Phase2Timing_resources.json \
+	    -k resources.json \
 	    -- ${cfg} | tee "${logdir}/output.log"
     fi
 
     check_logs_for_errors || exit 1
 
-    mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json > "${output_json}"
+    mergeResourcesJson.py logs/step*/pid*/resources.json > "${output_json}"
 }
 
 ############################
@@ -352,7 +352,7 @@ run_phase2_gpu() {
 
     run_benchmark \
 	"Phase2_L1P2GT_HLT.py" \
-	"Phase2Timing_resources.json"
+	"resources.json"
 
     if [[ -e "$(dirname $0)/augmentResources.py" ]]; then
 	python3 $(dirname $0)/augmentResources.py
@@ -370,7 +370,7 @@ run_phase2_cpu() {
 
     run_benchmark \
 	"Phase2_L1P2GT_HLT_OnCPU.py" \
-	"Phase2Timing_resources_OnCPU.json"
+	"resources_OnCPU.json"
 }
 
 run_ngt_scouting() {
@@ -384,7 +384,7 @@ run_ngt_scouting() {
 
     run_benchmark \
 	"NGTScouting_L1P2GT_HLT.py" \
-	"Phase2Timing_resources_NGT.json"
+	"resources_NGT.json"
 }
 
 ############################
