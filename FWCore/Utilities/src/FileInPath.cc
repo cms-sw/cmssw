@@ -384,7 +384,11 @@ namespace edm {
 
   void FileInPath::initialize_() {
     if (relativePath_.empty()) {
-      throw edm::Exception(edm::errors::FileInPathError) << "Relative path must not be empty\n";
+      throw edm::Exception(edm::errors::FileInPathError) << "Relative path must not be empty";
+    }
+    if (std::filesystem::path(relativePath_).is_absolute()) {
+      throw edm::Exception(edm::errors::FileInPathError)
+          << "The path must be relative, not absolute: " << relativePath_;
     }
 
     // Find the file, based on the value of searchPath.
