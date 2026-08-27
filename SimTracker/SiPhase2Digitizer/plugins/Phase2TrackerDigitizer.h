@@ -76,7 +76,7 @@ namespace cms {
     enum class AlgorithmType { InnerPixel, InnerPixel3D, PixelinPS, StripinPS, TwoStrip, Unknown };
     AlgorithmType getAlgoType(uint32_t idet);
 
-    void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >, size_t globalSimHitIndex, const uint32_t tofBin);
+    void accumulateSimHits(edm::Handle<std::vector<PSimHit> >, size_t hitContainerIndexOffset, const uint32_t tofBin);
     void addPixelCollection(edm::Event& iEvent, const edm::EventSetup& iSetup, const bool ot_analog);
 
     // Templated for premixing
@@ -102,7 +102,7 @@ namespace cms {
     const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
     const TrackerGeometry* pDD_ = nullptr;
     const MagneticField* pSetup_ = nullptr;
-    std::map<uint32_t, const Phase2TrackerGeomDetUnit*> detectorUnits_;
+    std::unordered_map<uint32_t, const Phase2TrackerGeomDetUnit*> detectorUnits_;
     const TrackerTopology* tTopo_ = nullptr;
     edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher_;
     const bool isOuterTrackerReadoutAnalog_;
