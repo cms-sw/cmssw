@@ -38,12 +38,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torch {
                  cms::torch::alpakatools::TensorCollection<Queue> &inputs,
                  cms::torch::alpakatools::TensorCollection<Queue> &outputs,
                  std::optional<::torch::Dtype> dtype = std::nullopt) {
-#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
-      inputs.copy(queue, cms::torch::alpakatools::detail::MemcpyKind::DeviceToHost);
-      outputs.copy(queue, cms::torch::alpakatools::detail::MemcpyKind::DeviceToHost);
-#else
       inputs.copy(queue, cms::torch::alpakatools::detail::MemcpyKind::DeviceToDevice);
-#endif  // ALPAKA_ACC_GPU_HIP_ENABLED
       cms::torch::alpakatools::QueueGuard<Queue> guard(queue);
       if (cms::torch::alpakatools::getDevice(queue) != this->Model::device()) {
         to(queue, dtype);
@@ -56,10 +51,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torch {
       } else {
         cms::torch::alpakatools::detail::convertOutput(outputs, device_) = model_.forward(input_tensor).toTensor();
       }
-
-#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
-      outputs.copy(queue, cms::torch::alpakatools::detail::MemcpyKind::HostToDevice);
-#endif  // ALPAKA_ACC_GPU_HIP_ENABLED
     }
 
     // Move model to specified device memory space and with the specified dtype. Async load (in default stream if not overridden by the caller)
@@ -69,12 +60,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torch {
         this->Model::to(cms::torch::alpakatools::getDevice(dev), false, dtype);
         return;
       }
-#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
-      // ROCm/HIP not yet directly supported → fallback to CPU inference
-      this->Model::to(cms::torch::alpakatools::getDevice(dev), false, dtype);
-      return;
-#endif  // ALPAKA_ACC_GPU_HIP_ENABLED
-      // CUDA → keep async execution
+
       this->Model::to(cms::torch::alpakatools::getDevice(dev), true, dtype);
     }
 
