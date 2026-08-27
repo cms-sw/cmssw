@@ -18,6 +18,7 @@ namespace pat {
     edm::EDGetTokenT<std::vector<pat::PackedCandidate>> candsToken_;
 
     bool updatePuppiWeights_;
+    bool updatePuppiWeightNoLep_;
     edm::EDGetTokenT<edm::ValueMap<float>> puppiWeightToken_;
     edm::EDGetTokenT<edm::ValueMap<float>> puppiWeightNoLepToken_;
   };
@@ -28,6 +29,7 @@ using namespace pat;
 PATPackedCandidateUpdater::PATPackedCandidateUpdater(const edm::ParameterSet& iConfig)
     : candsToken_(consumes<std::vector<pat::PackedCandidate>>(iConfig.getParameter<edm::InputTag>("src"))),
       updatePuppiWeights_(iConfig.getParameter<bool>("updatePuppiWeights")),
+      updatePuppiWeightNoLep_(iConfig.getParameter<bool>("updatePuppiWeightNoLep")),
       puppiWeightToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("puppiWeight"))),
       puppiWeightNoLepToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("puppiWeightNoLep"))) {
   produces<std::vector<pat::PackedCandidate>>();
@@ -41,7 +43,8 @@ void PATPackedCandidateUpdater::produce(edm::Event& iEvent, const edm::EventSetu
   edm::Handle<edm::ValueMap<float>> puppiWeightNoLep;
   if (updatePuppiWeights_) {
     iEvent.getByToken(puppiWeightToken_, puppiWeight);
-    iEvent.getByToken(puppiWeightNoLepToken_, puppiWeightNoLep);
+    if (updatePuppiWeightNoLep_)
+      iEvent.getByToken(puppiWeightNoLepToken_, puppiWeightNoLep);
   }
 
   auto outPtrP = std::make_unique<std::vector<pat::PackedCandidate>>();
@@ -56,7 +59,8 @@ void PATPackedCandidateUpdater::produce(edm::Event& iEvent, const edm::EventSetu
 
     if (updatePuppiWeights_) {
       float puppiWeightVal = (*puppiWeight)[pkref];
-      float puppiWeightNoLepVal = (*puppiWeightNoLep)[pkref];
+      float puppiWeightNoLepVal =
+          updatePuppiWeightNoLep_ ? (*puppiWeightNoLep)[pkref] : (*cands)[ic].puppiWeightNoLep();
       outPtrP->back().setPuppiWeight(puppiWeightVal, puppiWeightNoLepVal);
     }
   }
