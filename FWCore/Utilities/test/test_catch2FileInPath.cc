@@ -14,10 +14,6 @@
 // Known latent bugs in FileInPath whose tests are excluded from the
 // default run (see main()) because they either hang or abort:
 //
-// 2. p /= relative with an absolute relative path (FileInPath.cc:85):
-//    std::filesystem::operator/=  discards the prefix when the right-hand
-//    side is an absolute path, so FileInPath("/etc/passwd") bypasses the
-//    search path entirely, then hits bug 1 and hangs.
 // 3. Empty search-path element (edm::tokenize keeps empty tokens): a
 //    CMSSW_SEARCH_PATH like "a::b" yields an empty path prefix, which
 //    resolves the relative path against the current working directory
@@ -205,16 +201,7 @@ namespace {
                         (paths.data / "repo").string());
       edm::FileInPath::disableFileLookup();
     } else if (scenario == "absolutePath") {
-      // Latent bug 2 (see file header): std::filesystem::path::operator/=
-      // discards the left-hand side when the right-hand side is absolute,
-      // so passing an absolute relativePath_ bypasses the search path
-      // entirely: whatever the search-path element is, locateFile() ends
-      // up testing the absolute path itself. To actually reach bug 1 (the
-      // non-terminating branch-path loop) rather than accidentally
-      // matching a top on the very first iteration, the search-path
-      // element used here ("<root>/unrelated/dir") must not be, nor have
-      // as an ancestor, localTop_/releaseTop_/dataTop_ -- so the tops are
-      // deliberately set to paths that share no prefix with it.
+      // Absolute path leads to an exception
       fs::create_directories(testRoot / "unrelated/dir");
       fs::create_directories(testRoot / "tops/local");
       fs::create_directories(testRoot / "tops/release");
@@ -599,15 +586,9 @@ TEST_CASE("noData: file is found CMSSW_SEARCH_PATH, but element is not in any of
           Catch::Matchers::ContainsSubstring("but that element is not in any of the known search"));
 }
 
-// --- latent bug 2 scenario: absolutePath ---
 TEST_CASE("absolutePath: absolute relativePath_ bypasses the search path and hangs", "[absolutePath]") {
-  // Any absolute path that exists is enough to reach locateFile()'s
-  // exists() check; /etc/passwd is used only as an example of an absolute
-  // path that is virtually always present on a POSIX system used to build
-  // and run CMSSW.
-  //edm::FileInPath fip("/etc/passwd");
-  edm::FileInPath fip((fs::current_path() / "fip_absolutePath/absolutePath.txt").string());
-  (void)fip;
+  REQUIRE_THROWS_WITH(edm::FileInPath((fs::current_path() / "fip_absolutePath/absolutePath.txt").string()),
+                      Catch::Matchers::ContainsSubstring("The path must be relative, not absolute:"));
 }
 
 // --- latent bug 3 scenario: emptyPathElement ---
