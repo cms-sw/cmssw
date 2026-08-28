@@ -62,7 +62,15 @@ process.source = cms.Source("PoolSource",
                                 '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/0abaf7aa-c2ec-4bcb-96f1-d22d5c7bd937.root',
                                 '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/053a2340-040a-4be4-b335-7f546f24bab6.root',
                                 '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/cf187c8c-96e7-4949-9a75-67d4b7696cf8.root',
-                                '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/0c2bfdc1-278c-4e60-8fa1-2ef58cc3a35b.root'))
+                                '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/0c2bfdc1-278c-4e60-8fa1-2ef58cc3a35b.root'),
+                            # Workaround after renaming SimDataFormats' ticl::AssociationMap
+                            # TODO: revert after new relvals
+                            inputCommands = cms.untracked.vstring([
+                                "keep *",
+                                "drop ticlFractionTypeticlAssociationElementsSimClustersCaloParticlesticlAssociationMap_*_*_*",
+                                "drop ticlSharedEnergyTypefloatstdpairticlAssociationElementssticlTrackstersticlTrackstersticlAssociationMap_*_*_*",
+                            ])
+                            )
                         
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(options.maxEvents)
