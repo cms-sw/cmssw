@@ -10,7 +10,7 @@
   <class name="reco::TrackingRecHitHost"  rntupleStreamerMode="true"/>
   <class name="edm::Wrapper<reco::TrackingRecHitHost>" splitLevel="0"/>
 
-  <class name="reco::TrackingBlocksLayout<128,false>::ViewTemplateFreeParams<128,false,true,cms::soa::RangeChecking::Mode::Enabled >" />
+  <class name="reco::TrackingBlocksLayout<128,false>::View" />
 
   <class name="SiPixelHitStatus"/>
   <class name="SiPixelHitStatusAndCharge"/>
