@@ -14,16 +14,6 @@
 // Known latent bugs in FileInPath whose tests are excluded from the
 // default run (see main()) because they either hang or abort:
 //
-// 3. Empty search-path element (edm::tokenize keeps empty tokens): a
-//    CMSSW_SEARCH_PATH like "a::b" yields an empty path prefix, which
-//    resolves the relative path against the current working directory
-//    instead of a proper prefix. Unlike bugs 1, 2 and 4, this does NOT
-//    hang: an empty path's parent_path()/weakly_canonical() are also
-//    empty, so the branch-path loop runs zero iterations. The file is
-//    genuinely found on disk, but the loop never assigns location_, so
-//    initialize_() silently discards the match and moves on (ending, in
-//    this test, in the generic not-found throw). See the "emptyPathElement"
-//    scenario, which is a normal (non-[hang]) test.
 // 4. assert() in removeSymLinksSrc (FileInPath.cc:57): if $CMSSW_BASE/src is
 //    a symlink to a directory not literally named "src", the resolved path
 //    no longer ends in "/src" and the assert fires (or, with NDEBUG,
@@ -212,28 +202,16 @@ namespace {
       setEnvOrUnset("CMSSW_DATA_PATH", (testRoot / "tops/data").string());
       setEnvOrUnset("CMSSW_SEARCH_PATH", (testRoot / "unrelated/dir").string());
     } else if (scenario == "emptyPathElement") {
-      // Latent bug 3 (see file header): edm::tokenize keeps empty tokens,
-      // so CMSSW_SEARCH_PATH=":" tokenizes into two empty path-prefix
-      // elements (edm::tokenize("a::b", ":") == {"a", "", "b"}, so
-      // tokenize(":", ":") == {"", ""}).
+      // edm::tokenize keeps empty tokens, so CMSSW_SEARCH_PATH=":" tokenizes into two empty path-prefix elements
+      // (edm::tokenize("a::b", ":") == {"a", "", "b"}, so tokenize(":", ":") == {"", ""}).
       //
-      // This does NOT actually hang, unlike bugs 1, 2 and 4: for an empty
-      // path prefix, parent_path() and weakly_canonical() are also empty,
-      // so the branch-path loop's condition
-      // (!weakly_canonical(br).string().empty()) is already false on the
-      // very first check, and the loop runs zero iterations instead of
-      // looping forever. Since it never assigns location_ or returns,
-      // initialize_() simply moves on to the next path element (also
-      // empty here), and once all elements are exhausted, it throws the
-      // generic "file not found" exception -- even though locateFile()
-      // genuinely found the file relative to the current working
-      // directory just before discarding that result.
+      // E.g. LD_LIBRARY_PATH an empty element is treated as "current working directory", and this behavior comes out
+      // naturally with std::filesystem as well. The empty search element does not match to any of the
+      // {local,release,data} areas, so it gets treated as "not found".
       //
-      // The marker file must be written directly under the process's
-      // current working directory (not under testRoot), because an empty
-      // path prefix means locateFile()'s "p /= relative" leaves p equal to
-      // the bare relative path, which the OS then resolves against the
-      // CWD.
+      // The marker file must be written directly under the process's current working directory (not under testRoot),
+      // because an empty path prefix means locateFile()'s "p /= relative" leaves p equal to the bare relative path,
+      // which the OS then resolves against the CWD.
       fs::path marker = fs::current_path() / "fip_emptyPathElement_marker.txt";
       writeFile(marker, "found via empty search-path element\n");
 
@@ -591,9 +569,11 @@ TEST_CASE("absolutePath: absolute relativePath_ bypasses the search path and han
                       Catch::Matchers::ContainsSubstring("The path must be relative, not absolute:"));
 }
 
-// --- latent bug 3 scenario: emptyPathElement ---
-TEST_CASE("emptyPathElement: file found via CWD is nonetheless reported as not found", "[emptyPathElement]") {
-  REQUIRE_THROWS_AS(edm::FileInPath("fip_emptyPathElement_marker.txt"), edm::Exception);
+TEST_CASE("emptyPathElement: file that would be in CWD is nonetheless reported as not found", "[emptyPathElement]") {
+  REQUIRE_THROWS_WITH(
+      edm::FileInPath("fip_emptyPathElement_marker.txt"),
+      Catch::Matchers::ContainsSubstring("edm::FileInPath found file fip_emptyPathElement_marker.txt in search path "
+                                         "element '', but that element is not in any of the known search areas."));
 }
 
 // --- latent bug 4 scenario: symlinkAssert ---
