@@ -1813,7 +1813,7 @@ namespace edm {
       using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalEnd>;
       schedule_->processOneGlobalAsync<Traits>(
           std::move(nextTask), transitionInfo, serviceToken_, cleaningUpAfterException);
-    }) | then([this, didGlobalBeginSucceed, &lumiPrincipal = lp](auto nextTask) {
+    }) | then([didGlobalBeginSucceed, &lumiPrincipal = lp](auto nextTask) {
       //Only call writeLumi if beginLumi succeeded
       if (didGlobalBeginSucceed) {
         lumiPrincipal.runPrincipal().mergeableRunProductMetadata()->writeLumi(lumiPrincipal.luminosityBlock());
