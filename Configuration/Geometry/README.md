@@ -100,7 +100,7 @@ The Phase 2 geometries are automatically created using the script [generateRun4G
 Different versions of various subdetectors can be combined. The available versions are:
 
 Tracker:
-* T35: Phase2 tilted tracker. Outer Tracker (v8.0.0), Inner Tracker (v7.0.2): Based on (v6.1.5), but with (more realistic) 3D sensors in TBPX L1. The outer radius of the tracker volume is reduced to avoid a clash with the BTL geometry. Modified Tracker volume so that it touches CALO on the outer side and BeamPipe on the inner side
+* T35: Phase2 tilted tracker. Outer Tracker (v8.0.0), Inner Tracker (v7.1.1): Based on (v6.1.5), but with (more realistic) 3D sensors in TBPX L1. The outer radius of the tracker volume is reduced to avoid a clash with the BTL geometry. Modified Tracker volume so that it touches CALO on the outer side and BeamPipe on the inner side
 * T36: OT (v8.0.6): increased (smallDelta +300 micron) inter-ladder radial spacing TB2S. IT (v7.4.1): TBPX as in T35 with 0.4 mm gap between Z+ and Z-
 * T37: OT (v8.0.6): increased (smallDelta +300 micron) inter-ladder radial spacing TB2S. IT (v7.4.2): TBPX as in T35 with 0.7+0.4+0.7 mm gap between Z+ and Z-
 * T38: OT (v8.0.6): increased (smallDelta +300 micron) inter-ladder radial spacing TB2S. IT (v7.4.4): TBPX as in T35 with 1.3+0.4+1.3 mm gap between Z+ and Z-
