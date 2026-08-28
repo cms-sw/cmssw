@@ -114,8 +114,7 @@ void HGCalNeighbourVerify::beginRun(edm::Run const &iRun, edm::EventSetup const 
     edm::LogVerbatim("HGCalGeom") << "Gets " << detIds.size() << " valid ID's for detector " << dets_;
     for (unsigned int k = 0; k < detIds.size(); ++k)
       edm::LogVerbatim("HGCalGeom") << " [" << k << "] " << HGCSiliconDetId(detIds[k]);
-    std::unique_ptr<HGCalNeighbourFinder> finder =
-        std::make_unique<HGCalNeighbourFinder>(geom->topology().dddConstants());
+    std::unique_ptr<HGCalNeighbourFinder> finder = std::make_unique<HGCalNeighbourFinder>(geom);
     for (unsigned int k = 0; k < detIds.size(); ++k) {
       HGCSiliconDetId id(detIds[k]);
       std::vector<uint32_t> ids = finder->nearestNeighboursOfDetId(id.rawId());
