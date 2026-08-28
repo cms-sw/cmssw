@@ -10,14 +10,6 @@
 // environment variables are set with setenv()/unsetenv() before any
 // FileInPath is constructed, and are never inherited from the surrounding
 // shell (see main() below).
-//
-// Known latent bugs in FileInPath whose tests are excluded from the
-// default run (see main()) because they either hang or abort:
-//
-// 4. assert() in removeSymLinksSrc (FileInPath.cc:57): if $CMSSW_BASE/src is
-//    a symlink to a directory not literally named "src", the resolved path
-//    no longer ends in "/src" and the assert fires (or, with NDEBUG,
-//    substr() silently truncates).
 
 #include "catch2/catch_all.hpp"
 
@@ -220,12 +212,7 @@ namespace {
       setEnvOrUnset("CMSSW_RELEASE_BASE", paths.release.string());
       setEnvOrUnset("CMSSW_DATA_PATH", paths.data.string());
       setEnvOrUnset("CMSSW_SEARCH_PATH", ":");
-    } else if (scenario == "symlinkAssert") {
-      // Latent bug 4 (see file header): $CMSSW_BASE/src is a symlink to a
-      // directory not literally named "src" ("notsrc" here). After
-      // resolveSymbolicLinks(), the resulting path no longer ends in
-      // "/src", so the assert() in removeSymLinksSrc fires (or, built
-      // with NDEBUG, substr() silently truncates the path instead).
+    } else if (scenario == "symlinkException") {
       fs::path notSrc = testRoot / "local/notsrc";
       writeFile(notSrc / "Sub/Pack/data/file.txt", "local file\n");
       fs::create_directory_symlink(notSrc, testRoot / "local/src");
@@ -576,10 +563,12 @@ TEST_CASE("emptyPathElement: file that would be in CWD is nonetheless reported a
                                          "element '', but that element is not in any of the known search areas."));
 }
 
-// --- latent bug 4 scenario: symlinkAssert ---
-TEST_CASE("symlinkAssert: CMSSW_BASE/src symlinked to a non-'src' directory aborts", "[symlinkAssert]") {
-  edm::FileInPath fip("Sub/Pack/data/file.txt");
-  (void)fip;
+TEST_CASE("symlinkException: CMSSW_BASE/src symlinked to a non-'src' directory throws an exception",
+          "[symlinkException]") {
+  REQUIRE_THROWS_WITH(
+      edm::FileInPath("Sub/Pack/data/file.txt"),
+      Catch::Matchers::ContainsSubstring("CMSSW_BASE/src is a symbolic link to a directory not literally "
+                                         "named 'src'"));
 }
 
 int main(int argc, char* argv[]) {

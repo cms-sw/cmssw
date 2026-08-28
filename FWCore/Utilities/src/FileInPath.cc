@@ -2,7 +2,6 @@
 // ----------------------------------------------------------------------
 
 #include <atomic>
-#include <cassert>
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
@@ -58,7 +57,10 @@ namespace {
     std::string path = var + src;
     edm::resolveSymbolicLinks(path);
     size_t actualSize = path.size() - src.size();
-    assert(path.substr(actualSize, src.size()) == src);
+    if (path.substr(actualSize, src.size()) != src) {
+      throw edm::Exception(edm::errors::FileInPathError)
+          .format("{}/src is a symbolic link to a directory not literally named 'src': {}\n", envName, path);
+    }
     return path.substr(0, actualSize);
   }
 

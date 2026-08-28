@@ -25,18 +25,9 @@
   <flags NO_TESTRUN="1"/>
 </bin>
 
-<!--
-  "noData", "absolutePath" and "symlinkAssert" are deliberately not in this
-  list: each has only [hang]-tagged test case(s) (see
-  test_catch2FileInPath.cc), so with the default "~[hang]" filter Catch2
-  finds zero matching tests and exits with its "no tests ran" code. They
-  can still be run manually, e.g.:
-    testFWCoreUtilitiesFileInPath noData
-  with an explicit "[hang]" filter added in main(), under `timeout`.
--->
 <test name="TestFWCoreUtilitiesFileInPath"
       command="testFWCoreUtilitiesFileInPath ${value}"
-      foreach="local,noRelease,sameTops,symlink,emptySearchPath,lookupDisabled,emptyPathElement,noData,absolutePath">
+      foreach="local,noRelease,sameTops,symlink,emptySearchPath,lookupDisabled,emptyPathElement,noData,absolutePath,symlinkException">
   <flags PRE_TEST="testFWCoreUtilitiesFileInPath"/>
 </test>
 
