@@ -2139,6 +2139,90 @@ upgradeWFs['L1NGTScoutingWithNanoValid'].step2['--datatier'] += ',GEN-SIM-DIGI-R
 upgradeWFs['L1NGTScoutingWithNanoValid'].step2['--procModifiers'] += ',nano_l1_hlt'
 upgradeWFs['L1NGTScoutingWithNanoValid'].step2['--eventcontent'] += ',FEVTDEBUGHLT'
 
+class UpgradeWorkflow_HLTPhase2_WithNanoAndDQM(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        # skip ALCA and HLT-only steps
+        if ('ALCA' in step) or ('HLT' in step):
+            stepDict[stepName][k] = None
+        elif 'DigiTrigger' in step:
+            # Add the aging customization
+            mergedStep = merge([self.step2, stepDict[step][k]])
+            if '--customise' in mergedStep:
+                mergedStep['--customise'] += ',SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000'
+            else:
+                mergedStep['--customise'] = 'SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000'
+            stepDict[stepName][k] = mergedStep
+        elif step == 'RecoGlobal':
+            # replace default RECO+MiniAOD+DQM with NANO+DQM production
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        elif 'HARVESTGlobal' in step:
+            # real harvesting, reading back the DQM output of step3
+            stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
+        else:
+            stepDict[stepName][k] = merge([stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and 'Run4' in key
+
+upgradeWFs['HLTPhase2WithNanoAndDQM'] = UpgradeWorkflow_HLTPhase2_WithNanoAndDQM(
+    steps = [
+        'Reco',
+        'RecoGlobal',
+        'RecoNano',
+        'DigiTrigger',
+        'ALCA',
+        'ALCAPhase2',
+        'RecoGlobalFakeHLT',
+        'HLT75e33',
+        'HARVESTGlobal',
+        'HARVESTGlobalFakeHLT',
+    ],
+    PU = [
+        'Reco',
+        'RecoGlobal',
+        'RecoNano',
+        'DigiTrigger',
+        'ALCA',
+        'ALCAPhase2',
+        'RecoGlobalFakeHLT',
+        'HLT75e33',
+        'HARVESTGlobal',
+        'HARVESTGlobalFakeHLT',
+    ],
+    suffix = '_HLTPhase2WithNanoAndDQM',
+    offset = 0.7592,
+)
+upgradeWFs['HLTPhase2WithNanoAndDQM'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:@relvalRun4',
+    '--datatier':'GEN-SIM-DIGI-RAW',
+    '--eventcontent':'FEVTDEBUGHLT'
+}
+
+upgradeWFs['HLTPhase2WithNanoAndDQM'].step3 = {
+    '-s':'NANO:@Phase2HLT,DQM:@nanohltDQM',
+    '--datatier':'NANOAODSIM,DQMIO',
+    '--eventcontent':'NANOAODSIM,DQMIO'
+}
+
+upgradeWFs['HLTPhase2WithNanoAndDQM'].step4 = {
+    '-s':'HARVESTING:@nanohltDQM',
+    '--filetype':'DQM'
+}
+
+upgradeWFs['NGTScoutingWithNanoAndDQM'] = deepcopy(upgradeWFs['HLTPhase2WithNanoAndDQM'])
+upgradeWFs['NGTScoutingWithNanoAndDQM'].suffix = '_NGTScoutingWithNanoAndDQM'
+upgradeWFs['NGTScoutingWithNanoAndDQM'].offset = 0.7721
+upgradeWFs['NGTScoutingWithNanoAndDQM'].step2['-s'] = upgradeWFs['NGTScoutingWithNanoAndDQM'].step2['-s'].replace(
+    'HLT:@relvalRun4', 'HLT:@relvalRun4_scouting'
+)
+
+upgradeWFs['NGTScoutingWithNanoAndDQM'].step2['--procModifiers'] = 'alpaka,ngtScouting'
+
+upgradeWFs['NGTScoutingWithNanoAndDQM'].step3['-s'] =  upgradeWFs['NGTScoutingWithNanoAndDQM'].step3['-s'].replace(
+    'NANO:@Phase2HLT,DQM:@nanohltDQM', 'NANO:@NGTScouting,DQM:@nanohltDQM'
+)
+
+upgradeWFs['NGTScoutingWithNanoAndDQM'].step3['--procModifiers'] = 'ngtScouting'
+
 class UpgradeWorkflow_HLTwDIGI75e33(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'DigiTrigger' in step:

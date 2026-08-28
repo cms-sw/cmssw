@@ -76,9 +76,11 @@ numWFIB.extend([prefixDet+34.757])  # HLTTiming75e33, MkFitFit
 numWFIB.extend([prefixDet+34.758])  # HLTTiming75e33, ticl_barrel
 numWFIB.extend([prefixDet+34.759])  # HLT75e33 + NANO
 numWFIB.extend([prefixDet+34.7591]) # HLT75e33 + NANO (including validation)
+numWFIB.extend([prefixDet+34.7592]) # HLT75e33 + NANO (with separate DQM step)
 numWFIB.extend([prefixDet+34.77])   # NGTScouting
 numWFIB.extend([prefixDet+34.771])  # NGTScouting + alpaka + TICL-Barrel
 numWFIB.extend([prefixDet+34.772])  # NGTScouting + NANO
+numWFIB.extend([prefixDet+34.7721]) # NGTScouting + NANO (with separate DQM step)
 numWFIB.extend([prefixDet+34.773])  # NGTScouting + NANO (including validation)
 numWFIB.extend([prefixDet+34.774])  # NGTScouting + NANO containing both L1 and HLT objects (including validation)
 numWFIB.extend([prefixDet+34.775])  # NGTScouting + Phase2CAExtension&LSTT5 as GeneralTracks
