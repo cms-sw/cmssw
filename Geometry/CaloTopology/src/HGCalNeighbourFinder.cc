@@ -25,7 +25,8 @@ constexpr int dvCell[6] = {-1, -1, 0, +1, +1, 0};
 constexpr int duWaf[6] = {0, +1, +1, 0, -1, -1};
 constexpr int dvWaf[6] = {-1, 0, +1, +1, 0, -1};
 
-HGCalNeighbourFinder::HGCalNeighbourFinder(const HGCalGeometry* hgc) : geom_(hgc), hgc_(hgc->topology().dddConstants()) {
+HGCalNeighbourFinder::HGCalNeighbourFinder(const HGCalGeometry* hgc)
+    : geom_(hgc), hgc_(hgc->topology().dddConstants()) {
   /* ----------------------------------------
      Fill the edgeIndex -> iu,iv mappings
      ---------------------------------------- */
@@ -254,8 +255,8 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
     st1 << "HGCalNeighbourFinder: Found " << nn << " candidates: ";
     for (int k = 0; k < nn; ++k) {
       if (detIdVec[k] != 0) {
-	HGCSiliconDetId id(detIdVec[k]);
-	st1 << " [" << k << "] (" << id.waferU() << "," << id.waferV() << ";" << id.cellU() << "," << id.cellV() << ")";
+        HGCSiliconDetId id(detIdVec[k]);
+        st1 << " [" << k << "] (" << id.waferU() << "," << id.waferV() << ";" << id.cellU() << "," << id.cellV() << ")";
       }
     }
     edm::LogVerbatim("HGCalGeom") << st1.str();
