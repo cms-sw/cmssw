@@ -27,7 +27,7 @@
 
 <test name="TestFWCoreUtilitiesFileInPath"
       command="testFWCoreUtilitiesFileInPath ${value}"
-      foreach="local,noRelease,sameTops,symlink,emptySearchPath,lookupDisabled,emptyPathElement,noData,absolutePath,symlinkException">
+      foreach="local,noRelease,sameTops,symlink,emptySearchPath,lookupDisabled,emptyPathElement,noData,absolutePath,symlinkException,noTops,strayPathElement,elementIsTop,trailingSlashTop">
   <flags PRE_TEST="testFWCoreUtilitiesFileInPath"/>
 </test>
 
