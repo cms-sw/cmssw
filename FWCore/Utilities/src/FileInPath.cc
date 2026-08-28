@@ -350,19 +350,24 @@ namespace edm {
       if (searchPathElements.empty()) {
         throw edm::Exception(edm::errors::FileInPathError) << PathVariableName << " must be defined\n";
       }
-      auto filtered = searchPathElements | std::views::filter([this](std::filesystem::path const& s) {
-                        return !s.empty() && !pathBeginsWith(s, std::filesystem::path(releaseTop_)) &&
-                               !pathBeginsWith(s, std::filesystem::path(localTop_)) &&
-                               !pathBeginsWith(s, std::filesystem::path(dataTop_));
-                      }) |
-                      std::views::transform([](std::filesystem::path const& s) { return s.string(); });
+      // Empty elements get treated as "not matched"
+      std::filesystem::path const localTopPath(localTop_);
+      std::filesystem::path const releaseTopPath(releaseTop_);
+      std::filesystem::path const dataTopPath(dataTop_);
+      auto filtered =
+          searchPathElements |
+          std::views::filter([&localTopPath, &releaseTopPath, &dataTopPath](std::filesystem::path const& s) {
+            return not pathBeginsWith(s, releaseTopPath) && not pathBeginsWith(s, localTopPath) &&
+                   not pathBeginsWith(s, dataTopPath);
+          }) |
+          std::views::transform([](std::filesystem::path const& s) { return s.string(); });
       std::vector<std::string> const notFound(filtered.begin(), filtered.end());
       if (!notFound.empty()) {
         std::osyncstream ss(std::cerr);
         ss << "Warning: The following elements of $" << PathVariableName << " are not in any of the $" << LOCALTOP
            << ", $" << RELEASETOP << ", or $" << DATATOP << " areas:\n";
         for (const auto& element : notFound) {
-          ss << " " << element << "\n";
+          ss << " '" << element << "'\n";
         }
       }
     });
@@ -425,8 +430,8 @@ namespace edm {
         }
 
         throw edm::Exception(edm::errors::FileInPathError)
-            << "edm::FileInPath found file " << relativePath_ << " in search path element " << pathPrefix.string()
-            << ", but that element is not in any of the known search areas.\n"
+            << "edm::FileInPath found file " << relativePath_ << " in search path element '" << pathPrefix.string()
+            << "', but that element is not in any of the known search areas.\n"
             << "Known search areas are:\n"
             << "  Local area:   " << localTop_ << "\n"
             << "  Release area: " << releaseTop_ << "\n"
