@@ -49,9 +49,8 @@ public:
     iEvent.getByToken(ori_packed_cands_token_, ori_packed_cands);
 
     auto rekey = [&](pat::PackedCandidateRef const& ref) {
-      return (ref.isNonnull() && ref.id() == ori_packed_cands.id())
-                 ? pat::PackedCandidateRef(packed_cands, ref.key())
-                 : ref;
+      return (ref.isNonnull() && ref.id() == ori_packed_cands.id()) ? pat::PackedCandidateRef(packed_cands, ref.key())
+                                                                    : ref;
     };
 
     for (const auto& track : *input_tracks) {
