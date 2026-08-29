@@ -80,17 +80,27 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // BLMaterialMap condition (copied to the device once per IOV). Set before launchBrokenLineKernels;
     // it is forwarded into Kernel_BLFit and read by prepareBrokenLineData/segmentXX0. Not owned.
     void setMaterialMap(const float *rhoMap) { rhoMap_ = rhoMap; }
+    // Device pointer to the normalized (Bz,Br) r-z field map (blBFieldMap::kNValues floats), provided by
+    // the EventSetup BLBFieldMap condition. When set, the fit uses a per-track hit-averaged effective
+    // field (blEffectiveBField) in the curvature->pT conversion and in the MS/dE/dx momentum; when null
+    // the fit uses the scalar bField at the origin everywhere. Not owned. Read by the CA main fit
+    // (Kernel_BLFit) only under fitCorrections_: the Highland
+    // variance the material map feeds is divided by a momentum that only the true bending field gives,
+    // so the field belongs to the same correctness package as the material map.
+    // Set by the producers that run the fit.
+    void setBFieldMap(const float *bMap) { bMap_ = bMap; }
     // Host copy of the tuple-multiplicity assoc's finalized per-N-bin cumulative offsets (see
-    // CAHitNtupletGeneratorKernels::tupleMultiplicityOffsets), already read back by the caller (the
-    // producer's acquire/produce seam does one async D2H and the framework guarantees it has
-    // landed). Optional: when set, launchBrokenLineKernels uses each N-bin's population to drive the
-    // chunk+bin-aware launch elision, with no D2H and no host wait of its own. Left null, the
-    // elision no-ops and the fit runs to the cap -- which is what the merger refit path does.
-    // Not owned; must stay valid for the duration of the fit launch.
+    // CAHitNtupletGeneratorKernels::tupleMultiplicityOffsets), already read back by the caller at the
+    // producer's acquire/produce boundary. Optional: when set, launchBrokenLineKernels uses each N-bin's
+    // population to elide empty chunk/bin launches, with no D2H and no host wait of its own. Left null,
+    // the elision no-ops and the fit runs to the cap. Not owned; must stay valid
+    // for the duration of the fit launch.
     void setHostTupleMultiplicityOffsets(const uint32_t *off) { hostTupleMultiplicityOffsets_ = off; }
     // Fit correctness package (producer parameter useFitCorrections; see the block at the head of
-    // RecoTracker/PixelTrackFitting/interface/alpaka/BrokenLine.h). Read only by the CA main fit; the
-    // merger's GBL refit has its own scattering model and ignores it.
+    // RecoTracker/PixelTrackFitting/interface/alpaka/BrokenLine.h). Read only by the CA main fit. It also
+    // gates the CA main fit's use
+    // of the (Bz,Br) map set by setBFieldMap (see there): on, the fit's material AND its bending field are
+    // the measured ones; off, the flat 0.06/16 material and the origin scalar field, i.e. upstream.
     void setFitCorrections(bool on) { fitCorrections_ = on; }
 
     // Enable a one-shot device-side dump of the first N fitted tracks at the
@@ -128,6 +138,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     OutputSoAView outputSoa_;
     float bField_;
     const float *rhoMap_ = nullptr;  // BL material-map device grid (EventSetup condition; not owned)
+    const float *bMap_ = nullptr;    // normalized (Bz,Br) r-z field map (EventSetup condition; not owned)
     bool fitCorrections_ = false;    // CA main fit's correctness package (useFitCorrections)
     // Tuple-multiplicity per-N-bin cumulative offsets, pre-read by the caller into host memory (see
     // setHostTupleMultiplicityOffsets). Not owned; null means the fit runs to the cap.

@@ -39,6 +39,8 @@
 #include "RecoTracker/PixelSeeding/interface/alpaka/CAGeometrySoACollection.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/BLMaterialMapCollection.h"
 #include "RecoTracker/Record/interface/BLMaterialMapRecord.h"
+#include "RecoTracker/PixelTrackFitting/interface/alpaka/BLBFieldMapCollection.h"
+#include "RecoTracker/Record/interface/BLBFieldMapRecord.h"
 #include "RecoTracker/PixelSeeding/interface/CAGeometryHost.h"
 #include "RecoTracker/PixelSeeding/interface/StackedModuleGeometryHost.h"
 #include "RecoTracker/PixelSeeding/interface/alpaka/StackedModuleGeometrySoACollection.h"
@@ -704,11 +706,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenField_;
-    // The BL-fit material map. The fit reads it only under useFitCorrections, so
-    // it is consumed only then: the other topologies (Run 3 pixel tracks in particular) run in menus
-    // that do not provide this record.
+    // The BL-fit material map and the (Bz,Br) r-z field map. The fit reads them only under useFitCorrections, so
+    // they are consumed only then: the other topologies (Run 3 pixel tracks in particular) run in menus
+    // that do not provide these records.
     bool useFitCorrections_ = false;
     device::ESGetToken<BLMaterialMap, BLMaterialMapRecord> tokenBLMaterialMap_;
+    device::ESGetToken<BLBFieldMap, BLBFieldMapRecord> tokenBLBFieldMap_;
     const device::EDGetToken<HitsOnDevice> pixelRecHitToken_;
     device::EDGetToken<HitsOnDevice> trackerRecHitToken_;
     const device::EDPutToken<TkSoADevice> tokenTrack_;
@@ -756,6 +759,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     useFitCorrections_ = iConfig.getParameter<bool>("useFitCorrections");
     if (useFitCorrections_) {
       tokenBLMaterialMap_ = esConsumes();
+      tokenBLBFieldMap_ = esConsumes();
     }
     iCache->tokenGeometry_ = esConsumes<edm::Transition::BeginRun>();
     iCache->tokenTopology_ = esConsumes<edm::Transition::BeginRun>();
@@ -782,9 +786,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // later point when their producing queue may already be recycled.
     pending_.reset();
     auto bf = 1. / es.getData(tokenField_).inverseBzAtOriginInGeV();
-    // BL-fit Geant4 material map, resident on the device as an EventSetup portable condition (copied once
-    // per IOV). On the serial/CPU backend data() points at the host buffer.
+    // BL-fit Geant4 material map and (Bz,Br)/Bz(0,0) r-z field map, device-resident EventSetup portable
+    // conditions (copied once per IOV; on the serial backend data() points at the host buffer). Both are
+    // consumed and read only under useFitCorrections; null otherwise (the fit's scalar-field, flat-material
+    // path).
     const float* rhoMapDevice = useFitCorrections_ ? es.getData(tokenBLMaterialMap_).data() : nullptr;
+    const float* bMapDevice = useFitCorrections_ ? es.getData(tokenBLBFieldMap_).data() : nullptr;
 
     auto const& geometry = runCache()->geometry_.get(iEvent.queue());
     const auto& pixColl = iEvent.get(pixelRecHitToken_);
@@ -839,7 +846,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // tuple-multiplicity offsets. No blocking wait anywhere: the framework's seam runs
     // produce only after this queue has drained.
     pending_ = deviceAlgo_.beginTuplesAsync(
-        hitsCollections, geometry, bf, maxDoublets, maxTuples, iEvent.queue(), rhoMapDevice);
+        hitsCollections, geometry, bf, maxDoublets, maxTuples, iEvent.queue(), rhoMapDevice, bMapDevice);
   }
 
   template <typename TrackerTraits>
