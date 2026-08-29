@@ -240,9 +240,10 @@ phase2CAStubs.toReplaceWith(pixelTracksTask, cms.Task(
     pixelTracks)
 )
 
-# event setup of the stub CA: stacked-module geometry and material map of the BrokenLine fit
+# event setup of the stub CA: stacked-module geometry, material and field maps of the BrokenLine fit
 def _addProcessESPhase2CAStubs(process):
     process.load("RecoTracker.PixelSeeding.stackedModuleGeometryESProducer_cfi")
     process.load("RecoTracker.PixelTrackFitting.blMaterialMapESProducerAlpaka_cfi")
+    process.load("RecoTracker.PixelTrackFitting.blbFieldMapESProducerAlpaka_cfi")
 
 modifyConfigurationForPhase2CAStubs_ = (alpaka & phase2CAStubs).makeProcessModifier(_addProcessESPhase2CAStubs)

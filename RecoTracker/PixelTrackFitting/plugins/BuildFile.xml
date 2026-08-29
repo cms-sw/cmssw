@@ -13,6 +13,8 @@
   <use name="Geometry/Records"/>
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="MagneticField/Engine"/>
+  <use name="MagneticField/Records"/>
   <use name="RecoTracker/PixelTrackFitting"/>
   <use name="RecoTracker/Record"/>
   <flags ALPAKA_BACKENDS="1"/>
