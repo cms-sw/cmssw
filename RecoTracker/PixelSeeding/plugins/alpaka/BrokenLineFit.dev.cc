@@ -1,18 +1,17 @@
 // Orchestration TU of the SPLIT BrokenLine fit build. The heavy per-N device kernels
-// (Kernel_BLFit + the fast-fit kernels) and the per-N launcher helper
-// runMainBin live in BrokenLineFitKernels.h and are explicitly instantiated in the
+// (Kernel_BLFit + fast-fit kernels) and the per-N launcher helpers
+// live in BrokenLineFitKernels.h and are explicitly instantiated in the
 // disjoint-N BrokenLineFit_*.dev.cc TUs; here they are extern-template calls only. This file
 // keeps the light launcher orchestration (HelixFit members), the debug dump
 // kernel, and the HelixFit explicit instantiations. The split is a build-time division only: the
 // launches keep the same order, arguments and grids they would have in a single TU.
 #include "BrokenLineFitKernels.h"
+#include <optional>  // fused-ladder partition tables, allocated only on the fused arm
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  // CUDA block dimension of the FIT work divisions. Launch dimension only: the
-  // fit kernels are grid-stride loops that break on the invalid-tkid sentinel, so no fitted lane and no
-  // fitted value depends on it. 32 is the L1-pressure optimum of this solver.
-  inline constexpr uint32_t kFitBlock = 32u;
+  // kFitBlock, the block dimension of the fit work divisions, lives in BrokenLineFitKernels.h next
+  // to the fused main-fit ladder, whose bin <-> lane partition is expressed in units of it.
 
   // -------------------------------------------------------------------------
   // Debug dump of the first N fitted tracks (BL output) -- gated by the
@@ -86,7 +85,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   // The CA main fit: one full sweep of the N-binned BLFastFit+BLFit kernels, i.e. the factorized fast
   // BrokenLine fit (circle + line), for every CA iteration and every topology. It has ONE linearization,
-  // so it is a single sweep with no re-linearization reference buffer.
+  // so it is a single sweep with no phase split and no re-linearization reference buffer.
   template <typename TrackerTraits>
   void HelixFit<TrackerTraits>::launchBrokenLineKernels(const caStructures::HitsMultiView& hv,
                                                         const ::reco::CAModulesConstView& cm,
@@ -119,12 +118,45 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix6xNf<maxN>) / sizeof(float));
     auto fast_fit_resultsDevice = cms::alpakatools::make_device_buffer<double[]>(
         queue, maxNumberOfConcurrentFits_ * sizeof(riemannFit::Vector4d) / sizeof(double));
-    // Per-fit fit-solver scratch of the factorized fit: prepared-data + shared band block + helper vectors
+    // Per-fit solver scratch of the factorized fit: prepared-data + shared band block + helper vectors
     // per lane, in an [element][lane] layout whose stride is the concurrent-fit count, so it is allocated
-    // at maxNumberOfConcurrentFits_ lanes (like the input buffers). 233 doubles/lane at maxN=10.
+    // at maxNumberOfConcurrentFits_ lanes (like the input buffers).
     constexpr int kScratchPerFit = brokenline::kLegacyFitScratchDoubles<int(maxN)>;
     auto gblScratchDevice = cms::alpakatools::make_device_buffer<double[]>(
         queue, std::size_t(maxNumberOfConcurrentFits_) * std::size_t(kScratchPerFit));
+    // The per-bin ladder is the fitNas4 arm: that mode launches the N=4 bin once per rolling index and
+    // then the tail bin, which is not a partition, so it cannot be expressed as a fused launch. It is also
+    // what keeps runMainBin<N, TrackerTraits> (and the per-N Kernel_BLFastFit / Kernel_BLFit
+    // instantiations of the split TUs) referenced.
+    const bool serialLadder = fitNas4_;
+
+    // Dynamic-partition bookkeeping of the fused ladder (see the block comment at the head of
+    // BrokenLineFitKernels.h). One uint32 allocation holding, in order: the per-bin round cursor
+    // [0, kNBins), the per-bin {firstLane, nLanes, tupleBase} ranges, and the per-block
+    // {bin, firstLane, endLane} dispatch table (a few kB, caching-allocator backed). No memset:
+    // Kernel_BLMainLaneRanges writes every word it later reads (the cursor on the first round, the ranges
+    // and the block map on every round). The per-bin ladder never touches it.
+    constexpr uint32_t kNBins = kMainNBins<TrackerTraits>;
+    constexpr uint32_t kFusedBlk = kMainFusedBlocks<TrackerTraits>;
+    constexpr uint32_t kPartWords = kNBins + kMainRangeStride * kNBins + kMainBlockMapStride * kFusedBlk;
+    // Allocated only on the fused arm, so the per-bin ladder keeps its own allocation sequence: the
+    // caching allocator hands out blocks in call order, and an extra allocation would change which block
+    // every later allocation of the event gets.
+    std::optional<decltype(cms::alpakatools::make_device_buffer<uint32_t[]>(queue, kPartWords))> partDevice;
+    uint32_t* pCursor = nullptr;
+    uint32_t* pRange = nullptr;
+    uint32_t* pBlockMap = nullptr;
+    if (!serialLadder) {
+      partDevice.emplace(cms::alpakatools::make_device_buffer<uint32_t[]>(queue, kPartWords));
+      pCursor = partDevice->data();
+      pRange = pCursor + kNBins;
+      pBlockMap = pRange + kMainRangeStride * kNBins;
+    }
+    // Fused grid: kMainFusedBlocks blocks of kFitBlock, the width that covers EVERY partition the
+    // per-event populations can produce. Fixed and host-known; the device table says which blocks are
+    // live and on which bin.
+    const WorkDiv1D workDivFused = cms::alpakatools::make_workdiv<Acc1D>(kFusedBlk, kFitBlock);
+
     // Per-N launch state for the extern-template runMainBin helpers (see BrokenLineFitKernels.h).
     // The per-N (fast-fit + fit) launches live in runMainBin<N,TrackerTraits>, explicitly instantiated in
     // the BrokenLineFit_*.dev.cc N-range TUs so nvcc compiles the heavy per-N kernels in parallel.
@@ -136,13 +168,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                              outputSoa_,
                                              bField_,
                                              rhoMap_,
+                                             bMap_,
                                              tkidDevice.data(),
                                              hitsDevice.data(),
                                              hits_geDevice.data(),
                                              fast_fit_resultsDevice.data(),
                                              gblScratchDevice.data(),
-                                             s_2sYVarScale,
-                                             fitCorrections_};
+                                             fitCorrections_,
+                                             pRange,
+                                             pBlockMap,
+                                             workDivFused};
 
     // Chunk+bin-aware main-fit launch elision, driven by the tuple-multiplicity per-N-bin offsets:
     // (a) stop the chunk loop at the runtime fitted population and (b) elide any N-bin whose population
@@ -181,7 +216,32 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       runMainBin<Nv, TrackerTraits>(ctx, wd, nHitsL, nHitsH, baseOffset);
     };
 
-    for (uint32_t offset = 0; offset < chunkBound; offset += maxNumberOfConcurrentFits_) {
+    if (!serialLadder) {
+      // The fused ladder. Per round: 1 range kernel + 1 fused fast fit + 1 fused fit, instead of the
+      // per-bin ladder's 2 * kMainNBins launches per chunk. One round seats maxNumberOfConcurrentFits_
+      // tuples and the demand can never exceed the population chunkBound counts, so
+      // ceil(chunkBound / maxNumberOfConcurrentFits_) rounds always drain it and no tuple is left unfit.
+      // chunkBound == 0 (no fitted population) runs zero rounds.
+      const uint32_t nRounds = cms::alpakatools::divide_up_by(chunkBound, maxNumberOfConcurrentFits_);
+      for (uint32_t round = 0; round < nRounds; ++round) {
+        // The DYNAMIC PARTITION: prefix-sum the per-bin populations (read straight off
+        // tupleMultiplicity -- no count kernel, no readback, no sync) into lane ranges and the
+        // block -> bin dispatch table.
+        alpaka::exec<Acc1D>(queue,
+                            cms::alpakatools::make_workdiv<Acc1D>(1u, 1u),
+                            Kernel_BLMainLaneRanges<TrackerTraits>{},
+                            tupleMultiplicity_,
+                            pCursor,
+                            pRange,
+                            pBlockMap,
+                            maxNumberOfConcurrentFits_,
+                            /*firstRound=*/round == 0u);
+        runMainFusedFast<TrackerTraits>(ctx);
+        runMainFusedFit<TrackerTraits>(ctx);
+      }
+    }
+
+    for (uint32_t offset = 0; serialLadder && offset < chunkBound; offset += maxNumberOfConcurrentFits_) {
       // Size THIS chunk's grid from the remaining host-known tuple capacity. A full chunk
       // (>= a lane count of tuples still to come) takes the full 128-block triplet / 32-block quad-penta
       // grid; the last chunk -- and, when maxNumberOfTuples < the lane count, the only chunk -- trims to

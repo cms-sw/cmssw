@@ -653,12 +653,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       uint32_t nDoublets,
       uint32_t nTracks,
       Queue& queue,
-      const float* rhoMapDevice) const {
+      const float* rhoMapDevice,
+      const float* bMapDevice) const {
     using GPUKernels = CAHitNtupletGeneratorKernels<TrackerTraits>;
 
     PendingTuples pending;
     pending.bfield = bfield;
     pending.rhoMapDevice = rhoMapDevice;
+    pending.bMapDevice = bMapDevice;
     pending.maxTuples = nTracks;
     pending.maxDoublets = nDoublets;
 
@@ -817,6 +819,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     HelixFit fitter(bfield, m_params.algoParams_.fitNas4_);
     fitter.setVerboseDump(m_verboseBLDump);
     fitter.setMaterialMap(pending.rhoMapDevice);  // device BLMaterialMap (EventSetup condition)
+    // Device BLBFieldMap: the (Bz,Br) r-z condition, queried through blEffectiveBField. Read by the fit
+    // only under useFitCorrections (see
+    // HelixFit::setBFieldMap and Kernel_BLFit::bMap_); otherwise inert.
+    fitter.setBFieldMap(pending.bMapDevice);
     fitter.allocate(kernels.tupleMultiplicity(), tracks, kernels.hitContainer());
     // The per-N-bin offsets were read back once in beginTuplesAsync and have landed (framework
     // seam); the fit consumes the host values -- zero fit-side readbacks or waits. If the
