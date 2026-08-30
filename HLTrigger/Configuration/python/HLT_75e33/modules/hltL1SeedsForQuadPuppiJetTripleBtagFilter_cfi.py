@@ -43,10 +43,10 @@ hltL1PuppiHT400 = cms.EDFilter("HLTP2GTSingleObjectFilter",
     minN             = cms.uint32(1),
     l1GTAlgos = cms.VPSet(
         cms.PSet(
-            name       = cms.string("pPuppiHT400"),
+            name       = cms.string("pPuppiHT400_pQuadJet70_55_40_40"),
             collection = cms.PSet(
                 objectType = cms.string("CL2HtSum"),
-                minPt      = cms.double(400.),
+                minPt      = cms.double(0.),
                 maxAbsEta  = cms.double(1e9),   # HT sums have no eta
             ),
         ),
@@ -69,26 +69,26 @@ hltL1QuadJet70554040 = cms.EDFilter("HLTP2GTQuadObjectFilter",
     l1GTAlgoBlockTag = cms.InputTag("l1tGTAlgoBlockProducer"),
     l1GTAlgos = cms.VPSet(
         cms.PSet(
-            name = cms.string("pQuadJet70_55_40_40"),
+            name = cms.string("pPuppiHT400_pQuadJet70_55_40_40"),
             collection1 = cms.PSet(
                 objectType = cms.string("CL2JetsSC4"),
-                minPt      = cms.double(70.),
-                maxAbsEta  = cms.double(2.4),
+                minPt      = cms.double(0.),
+                maxAbsEta  = cms.double(99.),
             ),
             collection2 = cms.PSet(
                 objectType = cms.string("CL2JetsSC4"),
-                minPt      = cms.double(55.),
-                maxAbsEta  = cms.double(2.4),
+                minPt      = cms.double(0.),
+                maxAbsEta  = cms.double(99.),
             ),
             collection3 = cms.PSet(
                 objectType = cms.string("CL2JetsSC4"),
-                minPt      = cms.double(40.),
-                maxAbsEta  = cms.double(2.4),
+                minPt      = cms.double(0.),
+                maxAbsEta  = cms.double(99.),
             ),
             collection4 = cms.PSet(
                 objectType = cms.string("CL2JetsSC4"),
-                minPt      = cms.double(40.),
-                maxAbsEta  = cms.double(2.4),
+                minPt      = cms.double(0.),
+                maxAbsEta  = cms.double(99.),
             ),
             cuts12 = _noPairCuts,
             cuts13 = _noPairCuts,
