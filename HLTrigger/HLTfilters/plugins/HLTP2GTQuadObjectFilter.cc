@@ -57,8 +57,7 @@ class HLTP2GTQuadObjectFilter : public HLTFilter {
 public:
   explicit HLTP2GTQuadObjectFilter(const edm::ParameterSet&);
   static void fillDescriptions(edm::ConfigurationDescriptions&);
-  bool hltFilter(edm::Event&, const edm::EventSetup&,
-                 trigger::TriggerFilterObjectWithRefs&) const override;
+  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs&) const override;
 
 private:
   struct AlgoConfig {
@@ -161,44 +160,66 @@ bool HLTP2GTQuadObjectFilter::hltFilter(edm::Event& iEvent,
 
     for (std::size_t i = 0; i < objs.size(); ++i) {
       const auto& r1 = objs[i];
-      if (!cfg.coll1.accepts(*r1)) continue;
+      if (!cfg.coll1.accepts(*r1))
+        continue;
 
       for (std::size_t j = 0; j < objs.size(); ++j) {
-        if (j == i) continue;
-        // Dedup (1,2): same product -> keep i < j only
-        if (r1.id() == objs[j].id() && j < i) continue;
+        if (j == i)
+          continue;
+        // For each pair of roles, suppress the reverse-index duplicate only
+        // when the two CollectionSpecs are fully identical (same objectType,
+        // minPt, maxAbsEta) AND the refs come from the same product.
+        // If the specs differ — e.g. coll1 has minPt=70 and coll2 has
+        // minPt=55 — the two assignments are physically distinct and both
+        // orderings must be tested.  Applying index ordering in that case
+        // is the bug that causes events accepted by the L1 to be lost.
+        if (cfg.coll1 == cfg.coll2 && r1.id() == objs[j].id() && j < i)
+          continue;
         const auto& r2 = objs[j];
-        if (!cfg.coll2.accepts(*r2)) continue;
-        if (!cfg.cuts12.accepts(*r1, *r2)) continue;
+        if (!cfg.coll2.accepts(*r2))
+          continue;
+        if (!cfg.cuts12.accepts(*r1, *r2))
+          continue;
 
         for (std::size_t k = 0; k < objs.size(); ++k) {
-          if (k == i || k == j) continue;
-          // Dedup (1,3) and (2,3) independently
-          if (r1.id() == objs[k].id() && k < i) continue;
-          if (r2.id() == objs[k].id() && k < j) continue;
+          if (k == i || k == j)
+            continue;
+          if (cfg.coll1 == cfg.coll3 && r1.id() == objs[k].id() && k < i)
+            continue;
+          if (cfg.coll2 == cfg.coll3 && r2.id() == objs[k].id() && k < j)
+            continue;
           const auto& r3 = objs[k];
-          if (!cfg.coll3.accepts(*r3)) continue;
-          if (!cfg.cuts13.accepts(*r1, *r3)) continue;
-          if (!cfg.cuts23.accepts(*r2, *r3)) continue;
+          if (!cfg.coll3.accepts(*r3))
+            continue;
+          if (!cfg.cuts13.accepts(*r1, *r3))
+            continue;
+          if (!cfg.cuts23.accepts(*r2, *r3))
+            continue;
 
           for (std::size_t l = 0; l < objs.size(); ++l) {
-            if (l == i || l == j || l == k) continue;
-            // Dedup (1,4), (2,4), (3,4) independently
-            if (r1.id() == objs[l].id() && l < i) continue;
-            if (r2.id() == objs[l].id() && l < j) continue;
-            if (r3.id() == objs[l].id() && l < k) continue;
+            if (l == i || l == j || l == k)
+              continue;
+            if (cfg.coll1 == cfg.coll4 && r1.id() == objs[l].id() && l < i)
+              continue;
+            if (cfg.coll2 == cfg.coll4 && r2.id() == objs[l].id() && l < j)
+              continue;
+            if (cfg.coll3 == cfg.coll4 && r3.id() == objs[l].id() && l < k)
+              continue;
             const auto& r4 = objs[l];
-            if (!cfg.coll4.accepts(*r4)) continue;
-            if (!cfg.cuts14.accepts(*r1, *r4)) continue;
-            if (!cfg.cuts24.accepts(*r2, *r4)) continue;
-            if (!cfg.cuts34.accepts(*r3, *r4)) continue;
+            if (!cfg.coll4.accepts(*r4))
+              continue;
+            if (!cfg.cuts14.accepts(*r1, *r4))
+              continue;
+            if (!cfg.cuts24.accepts(*r2, *r4))
+              continue;
+            if (!cfg.cuts34.accepts(*r3, *r4))
+              continue;
 
             LogDebug("HLTP2GTQuadObjectFilter")
-                << "  accepted quad: "
-                << hltp2gt::objectTypeName(r1->objectType()) << " pT=" << r1->pt()
-                << "  x  " << hltp2gt::objectTypeName(r2->objectType()) << " pT=" << r2->pt()
-                << "  x  " << hltp2gt::objectTypeName(r3->objectType()) << " pT=" << r3->pt()
-                << "  x  " << hltp2gt::objectTypeName(r4->objectType()) << " pT=" << r4->pt();
+                << "  accepted quad: " << hltp2gt::objectTypeName(r1->objectType()) << " pT=" << r1->pt() << "  x  "
+                << hltp2gt::objectTypeName(r2->objectType()) << " pT=" << r2->pt() << "  x  "
+                << hltp2gt::objectTypeName(r3->objectType()) << " pT=" << r3->pt() << "  x  "
+                << hltp2gt::objectTypeName(r4->objectType()) << " pT=" << r4->pt();
 
             if (saveTags()) {
               hltp2gt::addCollectionTagOnce(r1, iEvent, filterproduct, lastTag);
@@ -226,8 +247,7 @@ bool HLTP2GTQuadObjectFilter::hltFilter(edm::Event& iEvent,
     filterproduct.addObject(hltp2gt::triggerTypeForP2GT(ref->objectType()), ref);
 
   const bool pass = !matched1.empty();
-  LogDebug("HLTP2GTQuadObjectFilter")
-      << "found " << matched1.size() << " quads, result=" << pass;
+  LogDebug("HLTP2GTQuadObjectFilter") << "found " << matched1.size() << " quads, result=" << pass;
   return pass;
 }
 

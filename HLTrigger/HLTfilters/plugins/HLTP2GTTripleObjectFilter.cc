@@ -54,8 +54,7 @@ class HLTP2GTTripleObjectFilter : public HLTFilter {
 public:
   explicit HLTP2GTTripleObjectFilter(const edm::ParameterSet&);
   static void fillDescriptions(edm::ConfigurationDescriptions&);
-  bool hltFilter(edm::Event&, const edm::EventSetup&,
-                 trigger::TriggerFilterObjectWithRefs&) const override;
+  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs&) const override;
 
 private:
   struct AlgoConfig {
@@ -139,32 +138,40 @@ bool HLTP2GTTripleObjectFilter::hltFilter(edm::Event& iEvent,
 
     for (std::size_t i = 0; i < objs.size(); ++i) {
       const auto& r1 = objs[i];
-      if (!cfg.coll1.accepts(*r1)) continue;
+      if (!cfg.coll1.accepts(*r1))
+        continue;
       for (std::size_t j = 0; j < objs.size(); ++j) {
-        if (j == i) continue;
+        if (j == i)
+          continue;
         const auto& r2 = objs[j];
         // Suppress the (j,i) duplicate only when r1 and r2 come from the
         // same underlying product.  Different products (e.g. barrel vs
         // forward jets with the same ObjectType) must both be tested.
-        if (r1.id() == r2.id() && j < i) continue;
-        if (!cfg.coll2.accepts(*r2)) continue;
-        if (!cfg.cuts12.accepts(*r1, *r2)) continue;
+        if (r1.id() == r2.id() && j < i)
+          continue;
+        if (!cfg.coll2.accepts(*r2))
+          continue;
+        if (!cfg.cuts12.accepts(*r1, *r2))
+          continue;
         for (std::size_t k = 0; k < objs.size(); ++k) {
-          if (k == i || k == j) continue;
+          if (k == i || k == j)
+            continue;
           const auto& r3 = objs[k];
           // Apply the same per-pair ProductID deduplication for (1,3) and (2,3).
-          if (r1.id() == r3.id() && k < i) continue;
-          if (r2.id() == r3.id() && k < j) continue;
-          if (!cfg.coll3.accepts(*r3)) continue;
-          if (!cfg.cuts13.accepts(*r1, *r3)) continue;
-          if (!cfg.cuts23.accepts(*r2, *r3)) continue;
+          if (r1.id() == r3.id() && k < i)
+            continue;
+          if (r2.id() == r3.id() && k < j)
+            continue;
+          if (!cfg.coll3.accepts(*r3))
+            continue;
+          if (!cfg.cuts13.accepts(*r1, *r3))
+            continue;
+          if (!cfg.cuts23.accepts(*r2, *r3))
+            continue;
 
           LogDebug("HLTP2GTTripleObjectFilter")
-              << "  accepted triple: "
-              << hltp2gt::objectTypeName(r1->objectType()) << " pT=" << r1->pt()
-              << "  x  "
-              << hltp2gt::objectTypeName(r2->objectType()) << " pT=" << r2->pt()
-              << "  x  "
+              << "  accepted triple: " << hltp2gt::objectTypeName(r1->objectType()) << " pT=" << r1->pt() << "  x  "
+              << hltp2gt::objectTypeName(r2->objectType()) << " pT=" << r2->pt() << "  x  "
               << hltp2gt::objectTypeName(r3->objectType()) << " pT=" << r3->pt();
 
           if (saveTags()) {
@@ -188,8 +195,7 @@ bool HLTP2GTTripleObjectFilter::hltFilter(edm::Event& iEvent,
     filterproduct.addObject(hltp2gt::triggerTypeForP2GT(ref->objectType()), ref);
 
   const bool pass = !matched1.empty();
-  LogDebug("HLTP2GTTripleObjectFilter")
-      << "found " << matched1.size() << " triples, result=" << pass;
+  LogDebug("HLTP2GTTripleObjectFilter") << "found " << matched1.size() << " triples, result=" << pass;
   return pass;
 }
 

@@ -223,6 +223,10 @@ namespace hltp2gt {
       return c.objectType() == objectType && c.pt() >= minPt && std::abs(c.eta()) <= maxAbsEta;
     }
 
+    bool operator==(const CollectionSpec& o) const {
+      return objectType == o.objectType && minPt == o.minPt && maxAbsEta == o.maxAbsEta;
+    }
+
     static void fillDescription(edm::ParameterSetDescription& desc, const std::string& defaultType = "CL2Taus") {
       desc.add<std::string>("objectType", defaultType);
       desc.add<double>("minPt", 0.0);
