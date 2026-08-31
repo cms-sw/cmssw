@@ -49,6 +49,53 @@ print("label rendering check OK")
 PYEOF
 [ $? -eq 0 ] || die "axis-label mathtext rendering check failed" 1
 
+# Unit checks for the --overlay comma-separated file-index syntax. These run
+# without the remote DQM file.
+python3 - <<'PYEOF'
+import importlib.machinery, importlib.util, shutil, matplotlib
+matplotlib.use("Agg")
+loader = importlib.machinery.SourceFileLoader("dqmplot", shutil.which("dqm-plot"))
+m = importlib.util.module_from_spec(importlib.util.spec_from_loader("dqmplot", loader))
+loader.exec_module(m)
+p = m.DQMPlotter()
+
+# --overlay: comma-separated file indices in a single @ selector.
+# 'collA@1,2:collB@2,3' overlays collA from files 1 and 2 with collB from
+# files 2 and 3, producing series in file-major order.
+jobs = p._parse_overlay_groups(["collA@1,2:collB@2,3"], 3)
+assert len(jobs) == 1, jobs
+j = jobs[0]
+assert j["patterns"] == ["collA", "collB"], j["patterns"]
+assert j["file_patterns"][0] == ["collA"], j["file_patterns"][0]
+assert j["file_patterns"][1] == ["collA", "collB"], j["file_patterns"][1]
+assert j["file_patterns"][2] == ["collB"], j["file_patterns"][2]
+
+# Backward compatibility: no @ selector overlays every file.
+jobs = p._parse_overlay_groups(["collA:collB"], 2)
+assert jobs[0]["file_patterns"] == [["collA", "collB"], ["collA", "collB"]], jobs[0]
+
+# A single 1-based index still resolves to that one file only.
+jobs = p._parse_overlay_groups(["collA@1:collB@2"], 2)
+assert jobs[0]["file_patterns"] == [["collA"], ["collB"]], jobs[0]
+
+# Out-of-range indices must be rejected.
+try:
+    p._parse_overlay_groups(["collA@1,9:collB@2"], 2)
+    raise AssertionError("out-of-range file index not rejected")
+except ValueError as e:
+    assert "out of range" in str(e), str(e)
+
+# Non-numeric selectors must be rejected.
+try:
+    p._parse_overlay_groups(["collA@x"], 2)
+    raise AssertionError("invalid file selector not rejected")
+except ValueError as e:
+    assert "invalid file selector" in str(e), str(e)
+
+print("overlay unit checks OK")
+PYEOF
+[ $? -eq 0 ] || die "overlay unit checks failed" 1
+
 COMMMAND=`xrdfs cms-xrd-global.cern.ch locate ${REMOTE}${DQMFILE}`
 STATUS=$?
 echo "xrdfs command status = "$STATUS
@@ -77,6 +124,25 @@ if [ $STATUS -eq 0 ]; then
         -l "File 1,File 2" -o plots_overlay_perfile ./${DQMFILE} ./${DQMFILE}
     ls plots_overlay_perfile/overlay/hltMergedWrtHighPurity+hltMergedWrtHighPurityPV/*.png >/dev/null 2>&1 \
         || die 'per-file --overlay did not create overlay/<collections>/ plots' 1
+
+    # New --overlay comma-separated file-index syntax: bind one collection to
+    # a comma-separated list of 1-based file indices within a single @selector.
+    # '...@1,2' overlays that collection from both files at once, equivalent to
+    # the backward-compatible form without an @ selector here (two files).
+    run_plot "comma-index --overlay" \
+        -n 4 -s "${SRC}" \
+        --overlay "hltMergedWrtHighPurity@1,2:hltMergedWrtHighPurityPV@1,2" \
+        -l "File 1,File 2" -o plots_overlay_comma ./${DQMFILE} ./${DQMFILE}
+    ls plots_overlay_comma/overlay/hltMergedWrtHighPurity+hltMergedWrtHighPurityPV/*.png >/dev/null 2>&1 \
+        || die 'comma-index --overlay did not create overlay/<collections>/ plots' 1
+
+    # Out-of-range comma index must be rejected with a non-zero exit code.
+    dqm-plot -n 4 -s "${SRC}" \
+        --overlay "hltMergedWrtHighPurity@1,9:hltMergedWrtHighPurityPV@2" \
+        -l "File 1,File 2" -o plots_overlay_badidx ./${DQMFILE} ./${DQMFILE} \
+        > dqm-plot-badidx.log 2>&1
+    [ $? -ne 0 ] && grep -q "out of range" dqm-plot-badidx.log \
+        || die 'out-of-range comma file index was not rejected' 1
 
     # --overlay-legend / --overlay-legend-title customise the overlay legend.
     run_plot "--overlay-legend" \

@@ -803,12 +803,15 @@ class DQMPlotter:
         Each --overlay value is one job. A job is a colon-separated list of
         specs; each spec is 'collections[@file]', where collections is a
         comma-separated list of collection patterns and the optional @file
-        selector is a 1-based file index or '*' (all files, the default).
+        selector is a 1-based file index, a comma-separated list of 1-based
+        file indices, or '*' (all files, the default).
 
         Backward compatible: '--overlay collA:collB' has no @ selectors, so
         both collections are overlaid from every file, exactly as before.
         The new form '--overlay collA,collB@1:collC@2' overlays collA and
         collB from file 1 together with collC from file 2.
+        '--overlay collA@1,2:collB@2,3' overlays collA from files 1 and 2
+        together with collB from files 2 and 3.
 
         Args:
             overlay_specs: List of --overlay strings (one per --overlay flag)
@@ -841,18 +844,19 @@ class DQMPlotter:
                     targets = range(n_files)
                 else:
                     try:
-                        idx = int(file_sel)
+                        targets = [int(x.strip()) - 1 for x in file_sel.split(",") if x.strip()]
                     except ValueError:
                         raise ValueError(
                             f"--overlay: invalid file selector '@{file_sel}' in '{spec}' "
-                            "(use a 1-based file index or '*')."
+                            "(use a 1-based file index, a comma-separated list of "
+                            "indices, or '*')."
                         )
-                    if not 1 <= idx <= n_files:
-                        raise ValueError(
-                            f"--overlay: file index {idx} in '{spec}' is out of range "
-                            f"(1..{n_files})."
-                        )
-                    targets = [idx - 1]
+                    for idx in targets:
+                        if not 0 <= idx < n_files:
+                            raise ValueError(
+                                f"--overlay: file index {idx + 1} in '{spec}' is out of "
+                                f"range (1..{n_files})."
+                            )
 
                 for collection in collection_list:
                     if collection not in patterns:
