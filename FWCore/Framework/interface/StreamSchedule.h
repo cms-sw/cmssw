@@ -264,10 +264,21 @@ namespace edm {
 
     void handleException(StreamContext const&, bool cleaningUpAfterException, std::exception_ptr&) const noexcept;
 
+    template <typename TI>
+    WorkerManager<TI>& workerManagers() {
+      if constexpr (std::is_same_v<TI, RunTransitionInfo>) {
+        return workerManagerRuns_;
+      } else if constexpr (std::is_same_v<TI, LumiTransitionInfo>) {
+        return workerManagerLumis_;
+      } else {
+        return workerManagerEvents_;
+      }
+    }
+
     std::vector<unsigned int> moduleBeginStreamFailed_;
-    WorkerManager workerManagerRuns_;
-    WorkerManager workerManagerLumis_;
-    WorkerManager workerManagerEvents_;
+    WorkerManager<RunTransitionInfo> workerManagerRuns_;
+    WorkerManager<LumiTransitionInfo> workerManagerLumis_;
+    WorkerManager<EventTransitionInfo> workerManagerEvents_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
 
     edm::propagate_const<TrigResPtr> results_;
@@ -339,13 +350,10 @@ namespace edm {
           auto token = weakToken.lock();
           ServiceRegistry::Operate op(token);
           // Caught exception is propagated via WaitingTaskHolder
-          WorkerManager* workerManager = &workerManagerRuns_;
-          if (T::branchType_ == InLumi) {
-            workerManager = &workerManagerLumis_;
-          }
+          auto& workerManager = workerManagers<typename T::TransitionInfoType>();
           CMS_SA_ALLOW try {
             preScheduleSignal<T>(&streamContext_);
-            workerManager->resetAll();
+            workerManager.resetAll();
           } catch (...) {
             // Just remember the exception at this point,
             // let the destructor of h call doneWaiting() so the
@@ -354,7 +362,8 @@ namespace edm {
             return;
           }
 
-          workerManager->processOneOccurrenceAsync<T>(h, info, token, streamID_, &streamContext_, &streamContext_);
+          workerManager.template processOneOccurrenceAsync<T>(
+              h, info, token, streamID_, &streamContext_, &streamContext_);
         });
 
     if (streamID_.value() == 0) {

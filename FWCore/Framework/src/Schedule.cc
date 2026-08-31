@@ -939,7 +939,7 @@ namespace edm {
   }
   Schedule::AllWorkers const& Schedule::allWorkersEvents() const { return streamSchedules_[0]->allWorkersEvents(); }
   Schedule::AllWorkers const& Schedule::allWorkersRun() const { return globalSchedule_->runWorkers(); }
-  Schedule::AllWorkers const& Schedule::allWorkersLumis() const { return globalSchedule_->lumisWorkers(); }
+  Schedule::AllWorkers const& Schedule::allWorkersLumis() const { return globalSchedule_->lumiWorkers(); }
 
   void Schedule::convertCurrentProcessAlias(std::string const& processName) {
     moduleRegistry_->forAllModuleHolders([&](auto& iHolder) { iHolder->convertCurrentProcessAlias(processName); });

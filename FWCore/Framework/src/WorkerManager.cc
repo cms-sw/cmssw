@@ -12,16 +12,18 @@
 
 namespace edm {
   // -----------------------------
-  WorkerManager::WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
-                               std::shared_ptr<ActivityRegistry> areg,
-                               ExceptionToActionTable const& actions)
+  template <typename TI>
+  WorkerManager<TI>::WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
+                                   std::shared_ptr<ActivityRegistry> areg,
+                                   ExceptionToActionTable const& actions)
       : workerReg_(areg, modReg),
         actionTable_(&actions),
         allWorkers_(),
         unscheduled_(*areg),
         lastSetupEventPrincipal_(nullptr) {}  // WorkerManager::WorkerManager
 
-  void WorkerManager::deleteModuleIfExists(std::string const& moduleLabel) {
+  template <typename TI>
+  void WorkerManager<TI>::deleteModuleIfExists(std::string const& moduleLabel) {
     auto worker = workerReg_.get(moduleLabel);
     if (worker != nullptr) {
       auto eraseBeg = std::remove(allWorkers_.begin(), allWorkers_.end(), worker);
@@ -31,7 +33,8 @@ namespace edm {
     }
   }
 
-  Worker* WorkerManager::getWorkerForExistingModule(std::string const& label) {
+  template <typename TI>
+  Worker* WorkerManager<TI>::getWorkerForExistingModule(std::string const& label) {
     auto worker = workerReg_.getWorkerFromExistingModule(label, actionTable_);
     if (nullptr != worker) {
       addToAllWorkers(worker);
@@ -39,7 +42,8 @@ namespace edm {
     return worker;
   }
 
-  void WorkerManager::addToUnscheduledWorkers(ModuleDescription const& iDescription) {
+  template <typename TI>
+  void WorkerManager<TI>::addToUnscheduledWorkers(ModuleDescription const& iDescription) {
     auto newWorker = workerReg_.getWorkerFromExistingModule(iDescription.moduleLabel(), actionTable_);
     assert(nullptr != newWorker);
     assert(newWorker->moduleType() == Worker::kProducer || newWorker->moduleType() == Worker::kFilter);
@@ -48,15 +52,20 @@ namespace edm {
     addToAllWorkers(newWorker);
   }
 
-  void WorkerManager::resetAll() { for_all(allWorkers_, std::bind(&Worker::reset, std::placeholders::_1)); }
+  template <typename TI>
+  void WorkerManager<TI>::resetAll() {
+    for_all(allWorkers_, std::bind(&Worker::reset, std::placeholders::_1));
+  }
 
-  void WorkerManager::addToAllWorkers(Worker* w) {
+  template <typename TI>
+  void WorkerManager<TI>::addToAllWorkers(Worker* w) {
     if (!search_all(allWorkers_, w)) {
       allWorkers_.push_back(w);
     }
   }
 
-  void WorkerManager::setupResolvers(Principal& ep) {
+  template <typename TI>
+  void WorkerManager<TI>::setupResolvers(Principal& ep) {
     this->resetAll();
     if (&ep != lastSetupEventPrincipal_) {
       UnscheduledConfigurator config(allWorkers_.begin(), allWorkers_.end(), &(unscheduled_.auxiliary()));
@@ -65,8 +74,13 @@ namespace edm {
     }
   }
 
-  void WorkerManager::setupOnDemandSystem(EventTransitionInfo const& info) {
+  template <typename TI>
+  void WorkerManager<TI>::setupOnDemandSystem(EventTransitionInfo const& info) {
     unscheduled_.setEventTransitionInfo(info);
   }
 
+  template class WorkerManager<RunTransitionInfo>;
+  template class WorkerManager<LumiTransitionInfo>;
+  template class WorkerManager<EventTransitionInfo>;
+  template class WorkerManager<ProcessBlockTransitionInfo>;
 }  // namespace edm
