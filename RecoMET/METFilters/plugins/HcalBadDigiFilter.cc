@@ -40,11 +40,9 @@
 #include "DataFormats/METReco/interface/HcalPhase1FlagLabels.h"
 
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
+#include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalChannelProperties.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalChannelPropertiesRecord.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 //
 // class declaration
 //
@@ -64,8 +62,7 @@ private:
   bool filter(edm::Event&, const edm::EventSetup&) override;
   EDGetTokenT<HcalUnpackerReport> unpackerReportLabel_;
   EDGetTokenT<HBHERecHitCollection> hbheRecHitsLabel_;
-  ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
-  ESGetToken<HcalChannelPropertiesVec, HcalChannelPropertiesRecord> propertiesToken_;
+  ESGetToken<HcalChannelQuality, HcalChannelQualityRcd> chQualityToken_;
 
   const uint32_t maxBadChannels_;
   const vector<string> listOfFlags_;
@@ -81,8 +78,7 @@ private:
 HcalBadDigiFilter::HcalBadDigiFilter(const edm::ParameterSet& iConfig)
     : unpackerReportLabel_(consumes<HcalUnpackerReport>(iConfig.getParameter<edm::InputTag>("unpackerReportLabel"))),
       hbheRecHitsLabel_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheRecHitsLabel"))),
-      htopoToken_(esConsumes<HcalTopology, HcalRecNumberingRecord>()),
-      propertiesToken_(esConsumes<HcalChannelPropertiesVec, HcalChannelPropertiesRecord>()),
+      chQualityToken_(esConsumes<HcalChannelQuality, HcalChannelQualityRcd>(edm::ESInputTag("", "withTopo"))),
       maxBadChannels_(iConfig.getParameter<uint32_t>("maxBadChannels")),
       listOfFlags_(iConfig.getParameter<std::vector<std::string>>("listOfFlags")),
       minRecHitEnergies_(iConfig.getParameter<std::vector<double>>("minRecHitEnergies")),
@@ -132,17 +128,17 @@ bool HcalBadDigiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
     return true;  // for most events, this is the case.
 
   //ignore channels that are already known as bad in DB, if they exist in detId_badChn list
-  const HcalTopology& htopo = iSetup.getData(htopoToken_);
-  const HcalChannelPropertiesVec& prop = iSetup.getData(propertiesToken_);
+  const HcalChannelQuality& chQuality = iSetup.getData(chQualityToken_);
   vector<DetId> detId_badChnupdated;
   for (const auto& it : detId_badChn) {
     const HcalDetId cell = HcalDetId(it);
     const HcalSubdetector subdet = cell.subdet();
     if (!(subdet == HcalSubdetector::HcalBarrel || subdet == HcalSubdetector::HcalEndcap))
       continue;
-    const HcalChannelProperties& properties = prop.at(htopo.detId2denseId(cell));
-    if (properties.taggedBadByDb) {
-      continue;
+    if (chQuality.exists(cell)) {
+      const HcalChannelStatus cs = *chQuality.getValues(cell);
+      if (cs.isBitSet(HcalChannelStatus::HcalCellMask) || cs.isBitSet(HcalChannelStatus::HcalCellDead))
+        continue;
     }
     detId_badChnupdated.push_back(it);
   }
