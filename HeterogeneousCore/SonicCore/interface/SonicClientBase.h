@@ -16,7 +16,7 @@
 
 enum class SonicMode { Sync = 1, Async = 2, PseudoAsync = 3 };
 
-class RetryActionBase;
+class SonicRetryActionBase;
 
 class SonicClientBase {
 public:
@@ -44,7 +44,7 @@ public:
   //Clients that need a different default (e.g. TritonClient) can override it here,
   //since only one place may declare "Retry" on a given ParameterSetDescription.
   static void fillBasePSetDescription(edm::ParameterSetDescription& desc,
-                                      const std::string& defaultRetryType = "RetrySameServerAction");
+                                      const std::string& defaultRetryType = "SonicRetrySameServerAction");
 
 protected:
   void setMode(SonicMode mode);
@@ -67,10 +67,10 @@ protected:
 
   // Use a unique_ptr with a custom deleter to avoid incomplete type issues
   struct RetryDeleter {
-    void operator()(RetryActionBase* ptr) const;
+    void operator()(SonicRetryActionBase* ptr) const;
   };
 
-  using RetryActionPtr = std::unique_ptr<RetryActionBase, RetryDeleter>;
+  using RetryActionPtr = std::unique_ptr<SonicRetryActionBase, RetryDeleter>;
   std::vector<RetryActionPtr> retryActions_;
 
   //for logging/debugging
@@ -80,7 +80,7 @@ protected:
 
   friend class SonicDispatcher;
   friend class SonicDispatcherPseudoAsync;
-  friend class RetryActionBase;
+  friend class SonicRetryActionBase;
 };
 
 #endif

@@ -35,7 +35,7 @@ namespace {
     params.addParameter<std::string>("mode", "PseudoAsync");
 
     edm::ParameterSet defaultRetry;
-    defaultRetry.addParameter<std::string>("retryType", "RetrySameServerAction");
+    defaultRetry.addParameter<std::string>("retryType", "SonicRetrySameServerAction");
     defaultRetry.addUntrackedParameter<unsigned>("allowedTries", 0u);
     std::vector<edm::ParameterSet> retryVec{defaultRetry};
     params.addParameter<std::vector<edm::ParameterSet>>("Retry", retryVec);
@@ -676,7 +676,7 @@ void TritonClient::switchToFallback() {
 //for fillDescriptions
 void TritonClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   edm::ParameterSetDescription descClient;
-  fillBasePSetDescription(descClient, "RetryFallbackServerAction");
+  fillBasePSetDescription(descClient, "TritonRetryFallbackServerAction");
   descClient.add<std::string>("modelName");
   descClient.add<std::string>("modelVersion", "");
   descClient.add<edm::FileInPath>("modelConfigPath");

@@ -1,5 +1,5 @@
-#ifndef HeterogeneousCore_SonicCore_RetryActionBase
-#define HeterogeneousCore_SonicCore_RetryActionBase
+#ifndef HeterogeneousCore_SonicCore_SonicRetryActionBase
+#define HeterogeneousCore_SonicCore_SonicRetryActionBase
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -8,10 +8,10 @@
 #include <string>
 
 // Base class for retry actions
-class RetryActionBase {
+class SonicRetryActionBase {
 public:
-  RetryActionBase(const edm::ParameterSet& conf, SonicClientBase* client);
-  virtual ~RetryActionBase() = default;
+  SonicRetryActionBase(const edm::ParameterSet& conf, SonicClientBase* client);
+  virtual ~SonicRetryActionBase() = default;
 
   bool shouldRetry() const { return shouldRetry_; }  // Getter for shouldRetry_
 
@@ -22,14 +22,13 @@ protected:
   void eval();                // interface for calling evaluate in client
   void finish(bool success);  // interface for calling finish directly in client
 
-protected:
   SonicClientBase* client_;
   bool shouldRetry_;  // Flag to track if further retries should happen
 };
 
 // Define the factory for creating retry actions
 using RetryActionFactory =
-    edmplugin::PluginFactory<RetryActionBase*(const edm::ParameterSet&, SonicClientBase* client)>;
+    edmplugin::PluginFactory<SonicRetryActionBase*(const edm::ParameterSet&, SonicClientBase* client)>;
 
 #endif
 

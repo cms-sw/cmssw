@@ -45,7 +45,7 @@ process.MyProducer = cms.EDProducer("MyProducer",
         mode = cms.string(""),
         Retry = cms.VPSet(
           cms.PSet(
-            retryType = cms.string('RetrySameServerAction'),
+            retryType = cms.string('SonicRetrySameServerAction'),
             allowedTries = cms.untracked.uint32(0)
           )
         )
@@ -133,10 +133,10 @@ void MyClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
 As indicated, the `fillBasePSetDescription()` function should always be applied to the `descClient` object,
 to ensure that it includes the necessary parameters.
 `Retry` is a vector of `PSet` with the parameters `retryType` and `allowedTries`.
-`retryType` is the action type that inherents from `RetryActionBase`.
-`allowedTries` is a parameter consumed by `RetrySameServerAction`.
+`retryType` is the action type that inherents from `SonicRetryActionBase`.
+`allowedTries` is a parameter consumed by `SonicRetrySameServerAction`.
 
-The default `Retry` action is a single `RetryFallbackServerAction`.
+The default `Retry` action is a single `TritonRetryFallbackServerAction`.
 To disable `Retry`, leave the `Retry` `VPSet` empty.
 
 

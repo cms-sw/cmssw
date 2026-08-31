@@ -3,7 +3,7 @@
 
 #include "HeterogeneousCore/SonicTriton/interface/TritonClient.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonService.h"
-#include "HeterogeneousCore/SonicCore/interface/RetryActionBase.h"
+#include "HeterogeneousCore/SonicCore/interface/SonicRetryActionBase.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
@@ -37,7 +37,8 @@ private:
   std::string lastUpdatedServerName;
 };
 
-TEST_CASE("RetryActionDiffServer handles a missing TritonService gracefully", "[RetryActionDiffServer]") {
+TEST_CASE("TritonRetryActionDifferentServer handles a missing TritonService gracefully",
+          "[TritonRetryActionDifferentServer]") {
   // Outside the full framework there is no ServiceRegistry, so TritonClient::service()
   // cannot resolve a TritonService and querying for an alternative server fails. This
   // exercises that retry() catches that failure without throwing, does not call
@@ -47,8 +48,8 @@ TEST_CASE("RetryActionDiffServer handles a missing TritonService gracefully", "[
   edm::ParameterSet empty;
   TestTritonClient client;
 
-  auto action =
-      RetryActionFactory::get()->create("RetryActionDiffServer", empty, static_cast<SonicClientBase*>(&client));
+  auto action = RetryActionFactory::get()->create(
+      "TritonRetryActionDifferentServer", empty, static_cast<SonicClientBase*>(&client));
 
   // start should arm the action
   action->start();
@@ -77,12 +78,13 @@ protected:
   void evaluate() override {}
 };
 
-TEST_CASE("RetryActionDiffServer catches exceptions from updateServer", "[RetryActionDiffServer]") {
+TEST_CASE("TritonRetryActionDifferentServer catches exceptions from updateServer",
+          "[TritonRetryActionDifferentServer]") {
   ensurePluginManager();
   edm::ParameterSet empty;
   ThrowingTritonClient client;
-  auto action =
-      RetryActionFactory::get()->create("RetryActionDiffServer", empty, static_cast<SonicClientBase*>(&client));
+  auto action = RetryActionFactory::get()->create(
+      "TritonRetryActionDifferentServer", empty, static_cast<SonicClientBase*>(&client));
   action->start();
 
   // Should not throw despite client throwing internally; action disarms afterward

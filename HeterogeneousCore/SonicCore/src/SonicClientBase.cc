@@ -1,10 +1,10 @@
 #include "HeterogeneousCore/SonicCore/interface/SonicClientBase.h"
-#include "HeterogeneousCore/SonicCore/interface/RetryActionBase.h"
+#include "HeterogeneousCore/SonicCore/interface/SonicRetryActionBase.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/allowedValues.h"
 
 // Custom deleter implementation
-void SonicClientBase::RetryDeleter::operator()(RetryActionBase* ptr) const { delete ptr; }
+void SonicClientBase::RetryDeleter::operator()(SonicRetryActionBase* ptr) const { delete ptr; }
 
 SonicClientBase::SonicClientBase(const edm::ParameterSet& params,
                                  const std::string& debugName,
@@ -109,7 +109,7 @@ void SonicClientBase::fillBasePSetDescription(edm::ParameterSetDescription& desc
   // Defines the structure of each entry in the VPSet
   edm::ParameterSetDescription retryDesc;
   retryDesc.add<std::string>("retryType", defaultRetryType);
-  retryDesc.addUntracked<unsigned>("allowedTries", 0);  //used by RetrySameServerAction only
+  retryDesc.addUntracked<unsigned>("allowedTries", 0);  //used by SonicRetrySameServerAction only
 
   // Define a default retry action
   edm::ParameterSet defaultRetry;

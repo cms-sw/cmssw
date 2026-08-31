@@ -12,7 +12,7 @@
   <use name="DataFormats/TestObjects"/>
 </library>
 
-<bin file="test_RetryActionDiffServer.cc" name="TestHeterogeneousCoreSonicTritonRetryActionDiffServer">
+<bin file="test_TritonRetryActionDifferentServer.cc" name="TestHeterogeneousCoreSonicTritonRetryActionDiffServer">
   <use name="catch2"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/PluginManager"/>
