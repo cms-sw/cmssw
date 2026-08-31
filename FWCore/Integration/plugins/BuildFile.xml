@@ -132,10 +132,13 @@
     <use name="clhep"/>
   </library>
 
-  <library file="TransformIntProducer.cc, TransformIntStreamProducer.cc, TransformAsyncIntProducer.cc, TransformAsyncIntStreamProducer.cc" name = "FWCoreIntegrationTransformIntProducer">
+  <library file="TransformIntProducer.cc, TransformIntStreamProducer.cc, TransformIntLimitedProducer.cc, TransformAsyncIntProducer.cc, TransformAsyncIntStreamProducer.cc, TransformAsyncIntUntypedProducer.cc, TransformAsyncIntStreamUntypedProducer.cc, TransformAsyncIntLimitedProducer.cc, TransformAsyncIntLimitedUntypedProducer.cc" name = "FWCoreIntegrationTransformIntProducer">
     <flags EDM_PLUGIN="1"/>
+    <use name="DataFormats/Common"/>
+    <use name="DataFormats/TestObjects"/>
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/Utilities"/>
   </library>
 
 </environment>

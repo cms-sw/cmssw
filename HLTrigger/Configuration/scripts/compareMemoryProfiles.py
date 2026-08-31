@@ -19,8 +19,8 @@ Features
 Example
 -------
 python3 compareMemoryProfiles.py \
-    gpu_memory_HLTTimingNewBaseline_16j_16t_16s.csv \
-    gpu_memory_HLTTimingCurrent_16j_16t_16s.csv \
+    --file1 gpu_memory_HLTTimingNewBaseline_16j_16t_16s.csv \
+    --file2 gpu_memory_HLTTimingCurrent_16j_16t_16s.csv \
     --label1 NewBaseline \
     --label2 Current \
     --cms-label "PR Testing"
@@ -28,7 +28,7 @@ python3 compareMemoryProfiles.py \
 Typical CMSSW integration usage
 -------------------------------
 python3 compareMemoryProfiles.py \
-    baseline.csv current.csv \
+    --file1 baseline.csv --file2 current.csv \
     --output gpu_memory_PR_comparison \
     --no-show
 """
@@ -286,14 +286,22 @@ if __name__ == "__main__":
         description="CMS-style hardware memory comparison plotter"
     )
 
+    # NOTE: file1/file2 are named (not positional) options on purpose.
+    # With positional args, a caller that places another option
+    # (e.g. --label1 VALUE) between file1 and file2 on the command
+    # line causes argparse to split them into separate token "runs"
+    # and mis-bind both positionals to the first run, silently
+    # dropping file2 as "unrecognized arguments". Named flags are
+    # immune to this since argparse matches them independent of
+    # position.
     parser.add_argument(
-        "file1",
+        "--file1",
+        required=True,
         help="First input CSV file",
     )
 
     parser.add_argument(
-        "file2",
-        nargs="?",
+        "--file2",
         help="Second input CSV file (optional)",
     )
 

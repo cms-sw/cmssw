@@ -30,7 +30,6 @@
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/EventSetupsController.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
-#include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/ensureAvailableAccelerators.h"
 #include "FWCore/Framework/interface/makeModuleTypeResolverMaker.h"
@@ -565,7 +564,7 @@ namespace edm {
           //The data product was not set so we need to
           // tell the ProductResolver not to wait
           auto r = pep->getProductResolver(p.first.branchID());
-          dynamic_cast<ProductPutterBase const*>(r)->putProduct(std::unique_ptr<WrapperBase>());
+          r->putProduct(std::unique_ptr<WrapperBase>());
         }
       }
 
