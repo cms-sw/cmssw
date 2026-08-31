@@ -77,33 +77,44 @@ namespace edm {
     /// Delete the module with label iLabel
     void deleteModule(std::string const& iLabel);
 
-    std::vector<Worker*> const& lumisWorkers() const { return lumisManagers()[0].allWorkers(); }
+    std::vector<Worker*> const& lumiWorkers() const { return lumiManagers()[0].allWorkers(); }
     std::vector<Worker*> const& runWorkers() const { return runManagers()[0].allWorkers(); }
 
   private:
-    std::span<WorkerManager> lumisManagers() {
-      return std::span<WorkerManager>(workerManagers_).subspan(0, numberOfConcurrentLumis_);
+    std::span<WorkerManager<LumiTransitionInfo>> lumiManagers() {
+      return std::span<WorkerManager<LumiTransitionInfo>>(lumiWorkerManagers_);
     }
-    std::span<WorkerManager const> lumisManagers() const {
-      return std::span<WorkerManager const>(workerManagers_).subspan(0, numberOfConcurrentLumis_);
+    std::span<WorkerManager<LumiTransitionInfo> const> lumiManagers() const {
+      return std::span<WorkerManager<LumiTransitionInfo> const>(lumiWorkerManagers_);
     }
-    std::span<WorkerManager> runManagers() {
-      return std::span<WorkerManager>(workerManagers_).subspan(numberOfConcurrentLumis_, numberOfConcurrentRuns_);
+    std::span<WorkerManager<RunTransitionInfo>> runManagers() {
+      return std::span<WorkerManager<RunTransitionInfo>>(runWorkerManagers_);
     }
-    std::span<WorkerManager const> runManagers() const {
-      return std::span<WorkerManager const>(workerManagers_).subspan(numberOfConcurrentLumis_, numberOfConcurrentRuns_);
+    std::span<WorkerManager<RunTransitionInfo> const> runManagers() const {
+      return std::span<WorkerManager<RunTransitionInfo> const>(runWorkerManagers_);
     }
-    std::span<WorkerManager> processBlockManagers() {
-      return std::span<WorkerManager>(workerManagers_)
-          .subspan(numberOfConcurrentLumis_ + numberOfConcurrentRuns_, numberOfConcurrentProcessBlocks_);
+    std::span<WorkerManager<ProcessBlockTransitionInfo>> processBlockManagers() {
+      return std::span<WorkerManager<ProcessBlockTransitionInfo>>(&processBlockWorkerManager_,1);
     }
-    std::span<WorkerManager> inputProcessBlockManagers() {
-      return std::span<WorkerManager>(workerManagers_)
-          .subspan(numberOfConcurrentLumis_ + numberOfConcurrentRuns_ + numberOfConcurrentProcessBlocks_,
-                   numberOfConcurrentInputProcessBlocks_);
+    std::span<WorkerManager<ProcessBlockTransitionInfo>> inputProcessBlockManagers() {
+      return std::span<WorkerManager<ProcessBlockTransitionInfo>>(&inputProcessBlockWorkerManager_,1);
     }
     /// returns the action table
-    ExceptionToActionTable const& actionTable() const { return workerManagers_[0].actionTable(); }
+    ExceptionToActionTable const& actionTable() const { return lumiWorkerManagers_[0].actionTable(); }
+
+    template <typename TI, bool INPUT>
+    std::span<WorkerManager<TI>> workerManagers() {
+      if constexpr (std::is_same_v<TI, LumiTransitionInfo>) {
+        return lumiManagers();
+      } else if constexpr (std::is_same_v<TI, RunTransitionInfo>) {
+        return runManagers();
+      } else {
+        if constexpr (INPUT) {
+          return inputProcessBlockManagers();
+        }
+        return processBlockManagers();
+      }
+    }
 
     template <typename T>
     void preScheduleSignal(GlobalContext const*, ServiceToken const&);
@@ -116,23 +127,14 @@ namespace edm {
                          bool cleaningUpAfterException,
                          std::exception_ptr&);
 
-    //the order of the workerManagers_ is as follows:
-    // 0 to numberOfConcurrentLumis_-1: for the concurrent lumis
-    // numberOfConcurrentLumis_ to numberOfConcurrentLumis_ + numberOfConcurrentRuns_-1: for the concurrent runs
-    // numberOfConcurrentLumis_ + numberOfConcurrentRuns_ to numberOfConcurrentLumis_ + numberOfConcurrentRuns_ + numberOfConcurrentProcessBlocks_-1: for the concurrent process blocks
-    std::vector<WorkerManager> workerManagers_;
+    std::vector<WorkerManager<LumiTransitionInfo>> lumiWorkerManagers_;
+    std::vector<WorkerManager<RunTransitionInfo>> runWorkerManagers_;
+    WorkerManager<ProcessBlockTransitionInfo> processBlockWorkerManager_;
+    WorkerManager<ProcessBlockTransitionInfo> inputProcessBlockWorkerManager_;
     std::vector<unsigned int> beginJobFailedForModule_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     std::vector<edm::propagate_const<WorkerPtr>> extraWorkers_;
     ProcessContext const* processContext_;
-
-    // The next 3 variables use the same naming convention, even though we have no intention
-    // to ever have concurrent ProcessBlocks. They are all related to the number of
-    // WorkerManagers needed for global transitions.
-    unsigned int numberOfConcurrentLumis_;
-    unsigned int numberOfConcurrentRuns_;
-    static constexpr unsigned int numberOfConcurrentProcessBlocks_ = 1;
-    static constexpr unsigned int numberOfConcurrentInputProcessBlocks_ = 1;
   };
 
   template <typename T>
@@ -167,19 +169,9 @@ namespace edm {
         preScheduleSignal<T>(globalContext.get(), token);
 
         unsigned int managerIndex = principal.index();
-        std::span<WorkerManager> managers;
-        if constexpr (T::branchType_ == InRun) {
-          managers = runManagers();
-        } else if constexpr (T::branchType_ == InProcess) {
-          if constexpr (T::transition_ == Transition::AccessInputProcessBlock) {
-            managers = inputProcessBlockManagers();
-          } else {
-            managers = processBlockManagers();
-          }
-        } else {
-          managers = lumisManagers();
-        }
-        WorkerManager& workerManager = managers[managerIndex];
+        auto managers =
+            workerManagers<typename T::TransitionInfoType, T::transition_ == Transition::AccessInputProcessBlock>();
+        auto& workerManager = managers[managerIndex];
         workerManager.resetAll();
 
         ParentContext parentContext(globalContext.get());

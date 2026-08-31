@@ -32,15 +32,17 @@ namespace edm {
                                  ExceptionToActionTable const& actions,
                                  std::shared_ptr<ActivityRegistry> areg,
                                  ProcessContext const* processContext)
-      : actReg_(areg),
-        processContext_(processContext),
-        numberOfConcurrentLumis_(prealloc.numberOfLuminosityBlocks()),
-        numberOfConcurrentRuns_(prealloc.numberOfRuns()) {
-    unsigned int nManagers = prealloc.numberOfLuminosityBlocks() + prealloc.numberOfRuns() +
-                             numberOfConcurrentProcessBlocks_ + numberOfConcurrentInputProcessBlocks_;
-    workerManagers_.reserve(nManagers);
-    for (unsigned int i = 0; i < nManagers; ++i) {
-      workerManagers_.emplace_back(modReg, areg, actions);
+      : processBlockWorkerManager_(modReg, areg, actions),
+        inputProcessBlockWorkerManager_(modReg, areg, actions),
+        actReg_(areg),
+        processContext_(processContext) {
+    runWorkerManagers_.reserve(prealloc.numberOfRuns());
+    for (unsigned int i = 0; i < prealloc.numberOfRuns(); ++i) {
+      runWorkerManagers_.emplace_back(modReg, areg, actions);
+    }
+    lumiWorkerManagers_.reserve(prealloc.numberOfLuminosityBlocks());
+    for (unsigned int i = 0; i < prealloc.numberOfLuminosityBlocks(); ++i) {
+      lumiWorkerManagers_.emplace_back(modReg, areg, actions);
     }
     for (auto const& module : iModulesToUse) {
       //side effect keeps this module around
@@ -57,7 +59,7 @@ namespace edm {
         }
       }
       if (mod->wantsGlobalLuminosityBlocks() or mod->wantsWrites()) {
-        for (auto& wm : lumisManagers()) {
+        for (auto& wm : lumiManagers()) {
           (void)wm.getWorkerForModule(*module);
         }
       }
@@ -132,19 +134,33 @@ namespace edm {
     }
   }
 
-  void GlobalSchedule::replaceModule(maker::ModuleHolder* iMod, std::string const& iLabel) {
-    Worker* found = nullptr;
-    for (auto& wm : workerManagers_) {
-      for (auto const& worker : wm.allWorkers()) {
-        if (worker->description()->moduleLabel() == iLabel) {
-          found = worker;
-          break;
+  namespace {
+    template <typename T, std::size_t U>
+    bool replaceWorkerByLabel(std::span<WorkerManager<T>, U> workerManagers,
+                              maker::ModuleHolder* iMod,
+                              std::string const& iLabel) {
+      bool returnValue = false;
+      for (auto& wm : workerManagers) {
+        for (auto const& worker : wm.allWorkers()) {
+          if (worker->description()->moduleLabel() == iLabel) {
+            iMod->replaceModuleFor(worker);
+            returnValue = true;
+            break;
+          }
         }
       }
-      if (nullptr == found) {
-        return;
-      }
-      iMod->replaceModuleFor(found);
+      return returnValue;
+    }
+  }  // namespace
+  void GlobalSchedule::replaceModule(maker::ModuleHolder* iMod, std::string const& iLabel) {
+    bool found = false;
+
+    found |= replaceWorkerByLabel(runManagers(), iMod, iLabel);
+    found |= replaceWorkerByLabel(lumiManagers(), iMod, iLabel);
+    found |= replaceWorkerByLabel(processBlockManagers(), iMod, iLabel);
+    found |= replaceWorkerByLabel(inputProcessBlockManagers(), iMod, iLabel);
+    if (not found) {
+      return;
     }
     auto sentry = make_sentry(
         iMod, [&](auto const* mod) { beginJobFailedForModule_.emplace_back(mod->moduleDescription().id()); });
@@ -153,9 +169,14 @@ namespace edm {
   }
 
   void GlobalSchedule::deleteModule(std::string const& iLabel) {
-    for (auto& wm : workerManagers_) {
+    for (auto& wm : runWorkerManagers_) {
       wm.deleteModuleIfExists(iLabel);
     }
+    for (auto& wm : lumiWorkerManagers_) {
+      wm.deleteModuleIfExists(iLabel);
+    }
+    processBlockWorkerManager_.deleteModuleIfExists(iLabel);
+    inputProcessBlockWorkerManager_.deleteModuleIfExists(iLabel);
   }
 
   void GlobalSchedule::handleException(GlobalContext const* globalContext,
