@@ -803,18 +803,12 @@ namespace dqm::implementation {
     });
     ar.watchPostGlobalEndRun([this](edm::GlobalContext const& gc) {
       this->leaveLumi(gc.luminosityBlockID().run(), /* lumi */ 0, /* moduleID */ 0);
+      this->cleanupLumi(gc.luminosityBlockID().run(), 0);
     });
     ar.watchPostGlobalEndLumi([this](edm::GlobalContext const& gc) {
       this->leaveLumi(gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock(), /* moduleID */ 0);
-    });
-
-    // Trigger cleanup after writing. This is needed for all modules; we can
-    // only run the cleanup after all output modules have run.
-    ar.watchPostGlobalWriteLumi([this](edm::GlobalContext const& gc) {
       this->cleanupLumi(gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock());
     });
-    ar.watchPostGlobalWriteRun(
-        [this](edm::GlobalContext const& gc) { this->cleanupLumi(gc.luminosityBlockID().run(), 0); });
 
     // no cleanup at end of job, we don't really need it.
   }
