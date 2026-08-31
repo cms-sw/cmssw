@@ -44,7 +44,8 @@ void MuonInterpretationAlgo::makeCandidates(const Inputs &input,
                                             edm::Handle<MtdHostCollection> /*inputTiming_h*/,
                                             std::vector<Trackster> &resultTracksters,
                                             std::vector<int> &resultCandidate,
-                                            std::vector<bool> &maskedTracksters) {
+                                            std::vector<bool> &maskedTracksters,
+                                            std::vector<std::vector<unsigned int>> &linkedResultTracksters) {
   const auto &tracks = *input.tracksHandle;
   const auto &maskTracks = input.maskedTracks;
   const auto &tracksters = input.tracksters;
