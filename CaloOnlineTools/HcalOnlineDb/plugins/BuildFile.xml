@@ -1,5 +1,4 @@
 <use name="CalibCalorimetry/CaloTPG"/>
-<use name="CalibCalorimetry/HcalTPGAlgos"/>
 <use name="CalibFormats/CaloTPG"/>
 <use name="CalibFormats/HcalObjects"/>
 <use name="CaloOnlineTools/HcalOnlineDb"/>
