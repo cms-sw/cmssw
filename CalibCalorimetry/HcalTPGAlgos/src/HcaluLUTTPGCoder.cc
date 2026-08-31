@@ -1,33 +1,47 @@
-#include <iostream>
-#include <fstream>
-#include <cmath>
-#include <string>
-#include <algorithm>
+#include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentCorrection.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalSiPMnonlinearity.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/HcaluLUTTPGCoder.h"
-#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
+#include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
+#include "CondFormats/HcalObjects/interface/HcalL1TriggerObject.h"
+#include "CondFormats/HcalObjects/interface/HcalLutMetadata.h"
+#include "CondFormats/HcalObjects/interface/HcalPedestal.h"
+#include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
+#include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
+#include "CondFormats/HcalObjects/interface/HcalSiPMCharacteristics.h"
+#include "CondFormats/HcalObjects/interface/HcalSiPMParameter.h"
+#include "CondFormats/HcalObjects/interface/HcalTPChannelParameter.h"
+#include "CondFormats/HcalObjects/interface/HcalTPParameters.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalQIENum.h"
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "DataFormats/HcalDigi/interface/QIE11DataFrame.h"
-#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondFormats/HcalObjects/interface/HcalL1TriggerObjects.h"
-#include "CondFormats/HcalObjects/interface/HcalL1TriggerObject.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalSiPMnonlinearity.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentCorrection.h"
-#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
-#include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
+
+#include <algorithm>
+#include <bitset>
+#include <cassert>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <fstream>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 const float HcaluLUTTPGCoder::lsb_ = 1. / 16;
 
@@ -115,8 +129,6 @@ void HcaluLUTTPGCoder::init(const HcalTopology* top, const HcalElectronicsMap* e
   sizeZDC_ = 2 * 9;
   size_t nluts = (size_t)(sizeHB_ + sizeHE_ + sizeHF_ + sizeZDC_ * 2 + 1);
   inputLUT_ = std::vector<HcaluLUTTPGCoder::Lut>(nluts);
-  gain_ = std::vector<float>(nluts, 0.);
-  ped_ = std::vector<float>(nluts, 0.);
   make_cosh_ieta_map();
 }
 
@@ -128,7 +140,7 @@ void HcaluLUTTPGCoder::compress(const IntegerCaloSamples& ics,
 
 HcaluLUTTPGCoder::~HcaluLUTTPGCoder() {}
 
-int HcaluLUTTPGCoder::getLUTId(HcalSubdetector id, int ieta, int iphi, int depth) const {
+int HcaluLUTTPGCoder::getLUTId(const HcalSubdetector& id, int ieta, int iphi, int depth) const {
   int retval(0);
   if (id == HcalBarrel) {
     retval = (depth - 1) + maxDepthHB_ * (iphi - 1);
@@ -182,145 +194,7 @@ int HcaluLUTTPGCoder::getLUTId(const HcalZDCDetId& detid) const {
   }
 }
 
-void HcaluLUTTPGCoder::update(const char* filename, bool appendMSB) {
-  std::ifstream file(filename, std::ios::in);
-  assert(file.is_open());
-
-  std::vector<HcalSubdetector> subdet;
-  std::string buffer;
-
-  // Drop first (comment) line
-  std::getline(file, buffer);
-  std::getline(file, buffer);
-
-  unsigned int index = buffer.find('H', 0);
-  while (index < buffer.length()) {
-    std::string subdetStr = buffer.substr(index, 2);
-    if (subdetStr == "HB")
-      subdet.push_back(HcalBarrel);
-    else if (subdetStr == "HE")
-      subdet.push_back(HcalEndcap);
-    else if (subdetStr == "HF")
-      subdet.push_back(HcalForward);
-    //TODO Check subdet
-    //else exception
-    index += 2;
-    index = buffer.find('H', index);
-  }
-
-  // Get upper/lower ranges for ieta/iphi/depth
-  size_t nCol = subdet.size();
-  assert(nCol > 0);
-
-  std::vector<int> ietaU;
-  std::vector<int> ietaL;
-  std::vector<int> iphiU;
-  std::vector<int> iphiL;
-  std::vector<int> depU;
-  std::vector<int> depL;
-  std::vector<Lut> lutFromFile(nCol);
-  LutElement lutValue;
-
-  for (size_t i = 0; i < nCol; ++i) {
-    int ieta;
-    file >> ieta;
-    ietaL.push_back(ieta);
-  }
-
-  for (size_t i = 0; i < nCol; ++i) {
-    int ieta;
-    file >> ieta;
-    ietaU.push_back(ieta);
-  }
-
-  for (size_t i = 0; i < nCol; ++i) {
-    int iphi;
-    file >> iphi;
-    iphiL.push_back(iphi);
-  }
-
-  for (size_t i = 0; i < nCol; ++i) {
-    int iphi;
-    file >> iphi;
-    iphiU.push_back(iphi);
-  }
-
-  for (size_t i = 0; i < nCol; ++i) {
-    int dep;
-    file >> dep;
-    depL.push_back(dep);
-  }
-
-  for (size_t i = 0; i < nCol; ++i) {
-    int dep;
-    file >> dep;
-    depU.push_back(dep);
-  }
-
-  // Read Lut Entry
-  for (size_t i = 0; file >> lutValue; i = (i + 1) % nCol) {
-    lutFromFile[i].push_back(lutValue);
-  }
-
-  // Check lut size
-  for (size_t i = 0; i < nCol; ++i)
-    assert(lutFromFile[i].size() == INPUT_LUT_SIZE);
-
-  for (size_t i = 0; i < nCol; ++i) {
-    for (int ieta = ietaL[i]; ieta <= ietaU[i]; ++ieta) {
-      for (int iphi = iphiL[i]; iphi <= iphiU[i]; ++iphi) {
-        for (int depth = depL[i]; depth <= depU[i]; ++depth) {
-          HcalDetId id(subdet[i], ieta, iphi, depth);
-          if (!topo_->valid(id))
-            continue;
-
-          int lutId = getLUTId(id);
-          for (size_t adc = 0; adc < INPUT_LUT_SIZE; ++adc) {
-            if (appendMSB) {
-              // Append FG bit LUT to MSB
-              // MSB = Most Significant Bit = bit 10
-              // Overwrite bit 10
-              LutElement msb = (lutFromFile[i][adc] != 0 ? QIE8_LUT_MSB : 0);
-              inputLUT_[lutId][adc] = (msb | (inputLUT_[lutId][adc] & QIE8_LUT_BITMASK));
-            } else
-              inputLUT_[lutId][adc] = lutFromFile[i][adc];
-          }  // for adc
-        }  // for depth
-      }  // for iphi
-    }  // for ieta
-  }  // for nCol
-}
-
-void HcaluLUTTPGCoder::updateXML(const char* filename) {
-  LutXml* _xml = new LutXml(filename);
-  _xml->create_lut_map(emap_);
-  HcalSubdetector subdet[3] = {HcalBarrel, HcalEndcap, HcalForward};
-  for (int ieta = -HcalDetId::kHcalEtaMask2; ieta <= (int)(HcalDetId::kHcalEtaMask2); ++ieta) {
-    for (unsigned int iphi = 0; iphi <= HcalDetId::kHcalPhiMask2; ++iphi) {
-      for (unsigned int depth = 1; depth < HcalDetId::kHcalDepthMask2; ++depth) {
-        for (int isub = 0; isub < 3; ++isub) {
-          HcalDetId detid(subdet[isub], ieta, iphi, depth);
-          if (!topo_->valid(detid))
-            continue;
-          int id = getLUTId(subdet[isub], ieta, iphi, depth);
-          std::vector<unsigned int>* lut = _xml->getLutFast(detid);
-          if (lut == nullptr)
-            throw cms::Exception("PROBLEM: No inputLUT_ in xml file for ") << detid << std::endl;
-          if (lut->size() != UPGRADE_LUT_SIZE)
-            throw cms::Exception("PROBLEM: Wrong inputLUT_ size in xml file for ") << detid << std::endl;
-          Lut& lutRaw = inputLUT_[id];
-          lutRaw.resize(UPGRADE_LUT_SIZE, 0);
-          for (unsigned int i = 0; i < UPGRADE_LUT_SIZE; ++i)
-            inputLUT_[id][i] = (LutElement)lut->at(i);
-        }
-      }
-    }
-  }
-  delete _xml;
-  XMLProcessor::getInstance()->terminate();
-}
-
-double HcaluLUTTPGCoder::cosh_ieta(int ieta, int depth, HcalSubdetector subdet) {
+double HcaluLUTTPGCoder::cosh_ieta(int ieta, int depth, const HcalSubdetector& subdet) {
   // ieta = 28 and 29 are both associated with trigger tower 28
   // so special handling is required. HF ieta=29 channels included in TT30
   // are already handled correctly in cosh_ieta_
@@ -519,8 +393,6 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
         status = myL1TObj->getFlag();
       }  // LUTGenerationMode_
 
-      ped_[lutId] = ped;
-      gain_[lutId] = gain;
       bool isMasked = ((status & bitToMask_) > 0);
       float rcalib = meta->getRCalib();
 
@@ -701,8 +573,6 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
         status = myL1TObj->getFlag();
       }  // LUTGenerationMode_
 
-      ped_[lutId] = ped;
-      gain_[lutId] = gain;
       bool isMasked = ((status & bitToMask_) > 0);
       float rcalib = meta->getRCalib();
 
@@ -785,7 +655,7 @@ void HcaluLUTTPGCoder::adc2Linear(const QIE11DataFrame& df, IntegerCaloSamples& 
   }
 }
 
-unsigned short HcaluLUTTPGCoder::adc2Linear(HcalQIESample sample, HcalDetId id) const {
+unsigned short HcaluLUTTPGCoder::adc2Linear(const HcalQIESample& sample, const HcalDetId& id) const {
   int lutId = getLUTId(id);
   return ((inputLUT_.at(lutId)).at(sample.adc()) & QIE8_LUT_BITMASK);
 }
@@ -802,22 +672,12 @@ std::vector<unsigned short> HcaluLUTTPGCoder::group0FGbits(const QIE11DataFrame&
   return group0LLPbits;
 }
 
-float HcaluLUTTPGCoder::getLUTPedestal(HcalDetId id) const {
-  int lutId = getLUTId(id);
-  return ped_.at(lutId);
-}
-
-float HcaluLUTTPGCoder::getLUTGain(HcalDetId id) const {
-  int lutId = getLUTId(id);
-  return gain_.at(lutId);
-}
-
-std::vector<unsigned short> HcaluLUTTPGCoder::getLinearizationLUT(HcalDetId id) const {
+std::vector<unsigned short> HcaluLUTTPGCoder::getLinearizationLUT(const HcalDetId& id) const {
   int lutId = getLUTId(id);
   return inputLUT_.at(lutId);
 }
 
-std::vector<unsigned short> HcaluLUTTPGCoder::getLinearizationLUT(HcalZDCDetId id, bool ootpu_lut) const {
+std::vector<unsigned short> HcaluLUTTPGCoder::getLinearizationLUT(const HcalZDCDetId& id, bool ootpu_lut) const {
   int lutId = getLUTId(id);
   if (ootpu_lut)
     return inputLUT_.at(lutId + sizeZDC_);

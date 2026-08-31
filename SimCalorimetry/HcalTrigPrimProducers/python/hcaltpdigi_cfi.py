@@ -2,13 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 from CalibCalorimetry.CaloTPG.tpScales_cff import tpScales
 
-LSParameter =cms.untracked.PSet(
-HcalFeatureHFEMBit= cms.bool(False),
-Min_Long_Energy= cms.double(10),#makes a cut based on energy deposited in short vrs long
-    Min_Short_Energy= cms.double(10),
-    Long_vrs_Short_Slope= cms.double(100.2),
-    Long_Short_Offset= cms.double(10.1))
-
+LSParameter = cms.untracked.PSet(
+    HcalFeatureHFEMBit = cms.bool(False),
+    Min_Long_Energy = cms.double(10),#makes a cut based on energy deposited in short vrs long
+    Min_Short_Energy = cms.double(10),
+    Long_vrs_Short_Slope = cms.double(100.2),
+    Long_Short_Offset = cms.double(10.1)
+)
 
 simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     peakFilter = cms.bool(True),
@@ -110,14 +110,6 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
 
     applySaturationFix = cms.bool(False), # Apply the TP energy saturation fix for Peak Finder Algorithm only for Run3 
 
-    # parameters = cms.untracked.PSet(
-    #     FGVersionHBHE=cms.uint32(0),
-    #     TDCMask=cms.uint64(0xFFFFFFFFFFFFFFFF),
-    #     ADCThreshold=cms.uint32(0),
-    #     FGThreshold=cms.uint32(12)
-    # ),
-
-    #vdouble weights = { -1, -1, 1, 1} //low lumi algo
     # Input digi label (_must_ be without zero-suppression!)
     inputLabel = cms.VInputTag(cms.InputTag('simHcalUnsuppressedDigis'),
                                cms.InputTag('simHcalUnsuppressedDigis')),
