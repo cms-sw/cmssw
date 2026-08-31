@@ -55,7 +55,7 @@ public:
   const TritonService* service() const;
   const TritonService* localService() const;
   std::string modelName() const { return options_[0].model_name_; }
-  std::string serverName() const { return serverName_; }
+  std::string const& serverName() const { return serverName_; }
   virtual void updateServer(const std::string& serverName);
   virtual void switchToFallback();
 

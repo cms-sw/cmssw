@@ -2,8 +2,8 @@
 LOCALTOP=$1
 
 # Start the server
-cmsTriton -v -P 8010 -n server1 -f -L -m /cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_15_1_0_pre6/external/el9_amd64_gcc12/data/HeterogeneousCore/SonicTriton/data/models/gat_test/config.pbtxt start &
-cmsTriton -v -P 8020 -n server2 -f -L -m /cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_15_1_0_pre6/external/el9_amd64_gcc12/data/HeterogeneousCore/SonicTriton/data/models/gat_test/config.pbtxt start &
+cmsTriton -v -P 8010 -n server1 -f -L -m $(edmFileInPath HeterogeneousCore/SonicTriton/data/models/gat_test/config.pbtxt) start &
+cmsTriton -v -P 8020 -n server2 -f -L -m $(edmFileInPath HeterogeneousCore/SonicTriton/data/models/gat_test/config.pbtxt) start &
 
 # Sleep to allow the server to initialize
 sleep 60

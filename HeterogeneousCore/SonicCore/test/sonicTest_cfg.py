@@ -26,7 +26,7 @@ process.dummySync = _moduleClass(_moduleName,
         fails = cms.uint32(0),
         Retry = cms.VPSet(
           cms.PSet(
-            retryType = cms.string('RetrySameServerAction'),
+            retryType = cms.string('SonicRetrySameServerAction'),
             allowedTries = cms.untracked.uint32(0)
           )
         )
@@ -42,7 +42,7 @@ process.dummyPseudoAsync = _moduleClass(_moduleName,
         fails = cms.uint32(0),
         Retry = cms.VPSet(
           cms.PSet(
-            retryType = cms.string('RetrySameServerAction'),
+            retryType = cms.string('SonicRetrySameServerAction'),
             allowedTries = cms.untracked.uint32(0)
           )
         )
@@ -59,7 +59,7 @@ process.dummyAsync = _moduleClass(_moduleName,
         fails = cms.uint32(0),
         Retry = cms.VPSet(
           cms.PSet(
-            retryType = cms.string('RetrySameServerAction'),
+            retryType = cms.string('SonicRetrySameServerAction'),
             allowedTries = cms.untracked.uint32(0)
           )
         )
@@ -72,7 +72,7 @@ process.dummySyncRetry = process.dummySync.clone(
         fails = 1,
         Retry = cms.VPSet(
           cms.PSet(
-            retryType = cms.string('RetrySameServerAction'),
+            retryType = cms.string('SonicRetrySameServerAction'),
             allowedTries = cms.untracked.uint32(2)
           )
         )
@@ -86,7 +86,7 @@ process.dummyPseudoAsyncRetry = process.dummyPseudoAsync.clone(
         fails = 1,
         Retry = cms.VPSet(
           cms.PSet(
-            retryType = cms.string('RetrySameServerAction'),
+            retryType = cms.string('SonicRetrySameServerAction'),
             allowedTries = cms.untracked.uint32(2)
           )
         )
@@ -100,7 +100,7 @@ process.dummyAsyncRetry = process.dummyAsync.clone(
         Retry = cms.VPSet(
           cms.PSet(
             allowedTries = cms.untracked.uint32(2),
-            retryType = cms.string('RetrySameServerAction')
+            retryType = cms.string('SonicRetrySameServerAction')
           )
         )
     )

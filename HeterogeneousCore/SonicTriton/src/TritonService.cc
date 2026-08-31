@@ -141,7 +141,7 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
         edm::LogInfo("TritonService") << "Server " << serverName << ": url = " << server.url
                                       << ", version = " << serverMetaResponse.version();
       else
-        edm::LogInfo("TritonService") << "unable to get metadata for " + serverName + " (" + server.url + ")"
+        edm::LogInfo("TritonService") << "unable to get metadata for " + serverName + " (" + server.url + ") "
                                       << err.Message();
     }
 
