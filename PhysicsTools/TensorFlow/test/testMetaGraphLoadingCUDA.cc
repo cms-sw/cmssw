@@ -79,7 +79,7 @@ process.add_(cms.Service('CUDAService'))
   scale.scalar<float>()() = 1.0;
 
   std::vector<tensorflow::Tensor> outputs;
-  tensorflow::Status status = session2->Run({{"input", input}, {"scale", scale}}, {"output"}, {}, &outputs);
+  absl::Status status = session2->Run({{"input", input}, {"scale", scale}}, {"output"}, {}, &outputs);
   if (!status.ok()) {
     std::cout << status.ToString() << std::endl;
     CPPUNIT_ASSERT(false);
