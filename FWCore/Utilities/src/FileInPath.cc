@@ -407,8 +407,8 @@ namespace edm {
         // Convert relative path to canonical form, and save it.
         relativePath_ = std::filesystem::path(relativePath_).lexically_normal().string();
 
-        // Save the absolute path.
-        canonicalFilename_ = std::filesystem::absolute(pathPrefix / relativePath_).string();
+        // Save the absolute path. Resolve also any .. or . in the path.
+        canonicalFilename_ = std::filesystem::canonical(pathPrefix / relativePath_).string();
         if (canonicalFilename_.empty()) {
           throw edm::Exception(edm::errors::FileInPathError)
               << "fullPath is empty"
@@ -416,24 +416,25 @@ namespace edm {
         }
 
         // Determine which search area the current path element belongs to:
-        if (!localTop_.empty() && pathBeginsWith(pathPrefix, std::filesystem::path(localTop_))) {
+        if (!localTop_.empty() && pathBeginsWith(canonicalFilename_, std::filesystem::path(localTop_))) {
           location_ = Local;
           return;
         }
 
-        if (!releaseTop_.empty() && pathBeginsWith(pathPrefix, std::filesystem::path(releaseTop_))) {
+        if (!releaseTop_.empty() && pathBeginsWith(canonicalFilename_, std::filesystem::path(releaseTop_))) {
           location_ = Release;
           return;
         }
 
-        if (!dataTop_.empty() && pathBeginsWith(pathPrefix, std::filesystem::path(dataTop_))) {
+        if (!dataTop_.empty() && pathBeginsWith(canonicalFilename_, std::filesystem::path(dataTop_))) {
           location_ = Data;
           return;
         }
 
         throw edm::Exception(edm::errors::FileInPathError)
             << "edm::FileInPath found file " << relativePath_ << " in search path element '" << pathPrefix.string()
-            << "', but that element is not in any of the known search areas.\n"
+            << "', but the resulting absolute path '" << canonicalFilename_
+            << "' is not in any of the known search areas.\n"
             << "Known search areas are:\n"
             << "  Local area:   " << localTop_ << "\n"
             << "  Release area: " << releaseTop_ << "\n"

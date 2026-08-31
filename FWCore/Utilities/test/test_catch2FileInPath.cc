@@ -15,12 +15,6 @@
 // A test that references an issue number below asserts the CURRENT behaviour;
 // if the issue is fixed, update the test in the same commit.
 //
-//  3. Defect: locateFile() is called with the RAW relative path
-//     (FileInPath.cc:406) and normalisation happens only afterwards
-//     (FileInPath.cc:408), while the location test inspects the search-path
-//     element rather than the resolved file (FileInPath.cc:419-431). A relative
-//     path with enough ".." components therefore names a file outside every
-//     top, yet is still classified and serialised.
 //  4. Defect: read() assigns location_ (FileInPath.cc:220) before the stream
 //     state is checked (FileInPath.cc:230), so a truncated-but-non-empty record
 //     leaves the object internally inconsistent rather than untouched. Same in
@@ -407,27 +401,9 @@ TEST_CASE("Relative path is normalised", "[local]") {
 }
 
 TEST_CASE("Relative path with .. escapes every top", "[local]") {
-  // Issue 3: locateFile() is called with the RAW relative path, and the
-  // location test inspects the search-path element (which is inside
-  // localTop_) rather than the resolved file. A relative path with enough
-  // ".." components therefore names a file outside every top, yet is still
-  // classified as Local and serialised without complaint.
-  edm::FileInPath fip("Sub/Pack/../../../../outside.txt");
-
-  REQUIRE(fip.relativePath() == "../../outside.txt");  // lexically_normal
-  // std::filesystem::absolute() does not normalise away the ".." components.
-  REQUIRE(fip.fullPath() == (g_paths.local / "src/../../outside.txt").string());
-  REQUIRE(fip.location() == edm::FileInPath::Local);
-
-  std::ostringstream os;
-  fip.write(os);
-  REQUIRE(os.str() == "V001 ../../outside.txt 1 /src/../../outside.txt");
-
-  // The clean round-trip is the point: nothing detects the escape.
-  edm::FileInPath fip2;
-  std::istringstream is(os.str());
-  fip2.read(is);
-  REQUIRE(fip2.fullPath() == fip.fullPath());
+  REQUIRE_THROWS_WITH(edm::FileInPath("Sub/Pack/../../../../outside.txt"),
+                      Catch::Matchers::ContainsSubstring("but the resulting absolute path") and
+                          Catch::Matchers::ContainsSubstring("/outside.txt' is not in any of the known search areas"));
 }
 
 TEST_CASE("const char* ctor matches std::string ctor", "[local]") {
@@ -1219,8 +1195,8 @@ TEST_CASE("lookupDisabled: write/read of an Unknown object with a relative path"
 TEST_CASE("noData: file is found CMSSW_SEARCH_PATH, but element is not in any of the known search areas", "[noData]") {
   REQUIRE_THROWS_WITH(
       edm::FileInPath("Sub/Pack/data/dat.txt"),
-      Catch::Matchers::ContainsSubstring("edm::FileInPath found file Sub/Pack/data/dat.txt in search path element") &&
-          Catch::Matchers::ContainsSubstring("but that element is not in any of the known search"));
+      Catch::Matchers::ContainsSubstring("edm::FileInPath found file Sub/Pack/data/dat.txt in search path element") and
+          Catch::Matchers::ContainsSubstring("is not in any of the known search areas"));
 }
 
 TEST_CASE("noData: read() of a Data record throws naming CMSSW_DATA_PATH", "[noData]") {
@@ -1246,7 +1222,7 @@ TEST_CASE("emptyPathElement: file that would be in CWD is nonetheless reported a
   REQUIRE_THROWS_WITH(
       edm::FileInPath("fip_emptyPathElement_marker.txt"),
       Catch::Matchers::ContainsSubstring("edm::FileInPath found file fip_emptyPathElement_marker.txt in search path "
-                                         "element '', but that element is not in any of the known search areas."));
+                                         "element '', but the resulting absolute path '"));
 }
 
 TEST_CASE("emptyPathElement: empty search-path element is reported as ''", "[emptyPathElement]") {
