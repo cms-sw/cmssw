@@ -5,6 +5,9 @@
 <use name="DataFormats/NanoAOD"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/StdDictionaries"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/MuonReco"/>
+<use name="RecoParticleFlow/PFProducer"/>
 <use name="SimDataFormats/CaloAnalysis"/>
 <use name="FWCore/Common"/>
 <use name="FWCore/Framework"/>
