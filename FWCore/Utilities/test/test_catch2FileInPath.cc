@@ -15,12 +15,6 @@
 // A test that references an issue number below asserts the CURRENT behaviour;
 // if the issue is fixed, update the test in the same commit.
 //
-//  3. Defect: locateFile() is called with the RAW relative path
-//     (FileInPath.cc:406) and normalisation happens only afterwards
-//     (FileInPath.cc:408), while the location test inspects the search-path
-//     element rather than the resolved file (FileInPath.cc:419-431). A relative
-//     path with enough ".." components therefore names a file outside every
-//     top, yet is still classified and serialised.
 //  4. Defect: read() assigns location_ (FileInPath.cc:220) before the stream
 //     state is checked (FileInPath.cc:230), so a truncated-but-non-empty record
 //     leaves the object internally inconsistent rather than untouched. Same in
@@ -268,6 +262,31 @@ namespace {
       setEnvOrUnset("CMSSW_RELEASE_BASE", paths.release.string());
       setEnvOrUnset("CMSSW_DATA_PATH", linkData.string());
       setEnvOrUnset("CMSSW_SEARCH_PATH", (linkLocal / "src").string() + ":" + linkSearch.string());
+    } else if (scenario == "symlinkInside") {
+      // Symlinks inside a search path element to elsewhere are allowed
+      fs::path real = testRoot / "real/local/src/Sub";
+      writeFile(real / "Pack/data/file.txt", "local file via symlink\n");
+      fs::path realData = testRoot / "real/data/repo/Sub";
+      writeFile(realData / "Pack/data/dat.txt", "data file via symlink\n");
+
+      fs::path linkLocalBase = testRoot / "link_local";
+      fs::path linkLocal = linkLocalBase / "src/Sub";
+      fs::create_directories(linkLocal.parent_path());
+      fs::create_directory_symlink(real, linkLocal);
+      fs::path linkDataBase = testRoot / "link_data";
+      fs::path linkData = linkDataBase / "repo/Sub";
+      fs::create_directories(linkData.parent_path());
+      fs::create_directory_symlink(testRoot / realData, linkData);
+
+      paths.local = linkLocalBase;
+      paths.data = linkDataBase;
+
+      // CMSSW_RELEASE_BASE must be set to a *different* top than
+      // CMSSW_BASE
+      setEnvOrUnset("CMSSW_BASE", linkLocalBase.string());
+      setEnvOrUnset("CMSSW_RELEASE_BASE", paths.release.string());
+      setEnvOrUnset("CMSSW_DATA_PATH", linkDataBase.string());
+      setEnvOrUnset("CMSSW_SEARCH_PATH", (linkLocalBase / "src").string() + ":" + (linkDataBase / "repo").string());
     } else if (scenario == "emptySearchPath") {
       // CMSSW_SEARCH_PATH unset: getEnvironment() must throw before any
       // file lookup is attempted.
@@ -407,27 +426,9 @@ TEST_CASE("Relative path is normalised", "[local]") {
 }
 
 TEST_CASE("Relative path with .. escapes every top", "[local]") {
-  // Issue 3: locateFile() is called with the RAW relative path, and the
-  // location test inspects the search-path element (which is inside
-  // localTop_) rather than the resolved file. A relative path with enough
-  // ".." components therefore names a file outside every top, yet is still
-  // classified as Local and serialised without complaint.
-  edm::FileInPath fip("Sub/Pack/../../../../outside.txt");
-
-  REQUIRE(fip.relativePath() == "../../outside.txt");  // lexically_normal
-  // std::filesystem::absolute() does not normalise away the ".." components.
-  REQUIRE(fip.fullPath() == (g_paths.local / "src/../../outside.txt").string());
-  REQUIRE(fip.location() == edm::FileInPath::Local);
-
-  std::ostringstream os;
-  fip.write(os);
-  REQUIRE(os.str() == "V001 ../../outside.txt 1 /src/../../outside.txt");
-
-  // The clean round-trip is the point: nothing detects the escape.
-  edm::FileInPath fip2;
-  std::istringstream is(os.str());
-  fip2.read(is);
-  REQUIRE(fip2.fullPath() == fip.fullPath());
+  REQUIRE_THROWS_WITH(edm::FileInPath("Sub/Pack/../../../../outside.txt"),
+                      Catch::Matchers::ContainsSubstring("but the resulting absolute path") and
+                          Catch::Matchers::ContainsSubstring("/outside.txt' is not in any of the known search areas"));
 }
 
 TEST_CASE("const char* ctor matches std::string ctor", "[local]") {
@@ -1156,6 +1157,28 @@ TEST_CASE("symlink: data file resolves through CMSSW_DATA_PATH and search-path s
   REQUIRE(fip.fullPath() == (g_paths.data / "repo/Sub/Pack/data/dat.txt").string());
 }
 
+TEST_CASE("symlinkInside: fullPath resolves through CMSSW_BASE symlink", "[symlinkInside]") {
+  // g_paths.local is a path that contains subdirectories that are symlinks elsewhere
+  // fullPath() must match it, proving that those symlinks are not resolved in the lookup
+  edm::FileInPath fip("Sub/Pack/data/file.txt");
+  REQUIRE(fip.location() == edm::FileInPath::Local);
+  REQUIRE(fip.fullPath() == (g_paths.local / "src/Sub/Pack/data/file.txt").string());
+}
+
+TEST_CASE("symlinkInside: write succeeds through the resolved local top", "[symlinkInside]") {
+  edm::FileInPath fip("Sub/Pack/data/file.txt");
+  std::ostringstream os;
+  fip.write(os);
+  REQUIRE(os.str().find("V001") != std::string::npos);
+  REQUIRE(os.str().find(g_paths.local.string()) == std::string::npos);
+}
+
+TEST_CASE("symlinkInside: data file resolves through CMSSW_DATA_PATH and search-path symlinks", "[symlinkInside]") {
+  edm::FileInPath fip("Sub/Pack/data/dat.txt");
+  REQUIRE(fip.location() == edm::FileInPath::Data);
+  REQUIRE(fip.fullPath() == (g_paths.data / "repo/Sub/Pack/data/dat.txt").string());
+}
+
 TEST_CASE("emptySearchPath: every ctor throws naming CMSSW_SEARCH_PATH", "[emptySearchPath]") {
   auto matchesSearchPath = Catch::Matchers::ContainsSubstring("CMSSW_SEARCH_PATH");
   SECTION("default ctor") { REQUIRE_THROWS_WITH(edm::FileInPath{}, matchesSearchPath); }
@@ -1229,8 +1252,8 @@ TEST_CASE("lookupDisabled: write/read of an Unknown object with a relative path"
 TEST_CASE("noData: file is found CMSSW_SEARCH_PATH, but element is not in any of the known search areas", "[noData]") {
   REQUIRE_THROWS_WITH(
       edm::FileInPath("Sub/Pack/data/dat.txt"),
-      Catch::Matchers::ContainsSubstring("edm::FileInPath found file Sub/Pack/data/dat.txt in search path element") &&
-          Catch::Matchers::ContainsSubstring("but that element is not in any of the known search"));
+      Catch::Matchers::ContainsSubstring("edm::FileInPath found file Sub/Pack/data/dat.txt in search path element") and
+          Catch::Matchers::ContainsSubstring("is not in any of the known search areas"));
 }
 
 TEST_CASE("noData: read() of a Data record throws naming CMSSW_DATA_PATH", "[noData]") {
@@ -1256,7 +1279,7 @@ TEST_CASE("emptyPathElement: file that would be in CWD is nonetheless reported a
   REQUIRE_THROWS_WITH(
       edm::FileInPath("fip_emptyPathElement_marker.txt"),
       Catch::Matchers::ContainsSubstring("edm::FileInPath found file fip_emptyPathElement_marker.txt in search path "
-                                         "element '', but that element is not in any of the known search areas."));
+                                         "element '', but the resulting absolute path '"));
 }
 
 TEST_CASE("emptyPathElement: empty search-path element is reported as ''", "[emptyPathElement]") {
