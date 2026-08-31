@@ -453,6 +453,13 @@ namespace edm {
   void FileInPath::disableFileLookup() { s_fileLookupDisabled = true; }
 
   std::string FileInPath::findFile(const std::string& iFileName) {
+    if (iFileName.empty()) {
+      throw edm::Exception(edm::errors::FileInPathError) << "Relative path must not be empty";
+    }
+    if (std::filesystem::path(iFileName).is_absolute()) {
+      throw edm::Exception(edm::errors::FileInPathError) << "The path must be relative, not absolute: " << iFileName;
+    }
+
     // Find the file, based on the value of path variable.
     for (auto const& pathPrefix : searchPath()) {
       // Does the a file exist? locateFile throws is it finds

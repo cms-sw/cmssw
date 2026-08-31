@@ -15,14 +15,6 @@
 // A test that references an issue number below asserts the CURRENT behaviour;
 // if the issue is fixed, update the test in the same commit.
 //
-//  1. Defect: FileInPath::findFile() (FileInPath.cc:455-466) lacks the
-//     absolute-path guard that initialize_() has (FileInPath.cc:396-399).
-//     locateFile()'s "p /= relative" (FileInPath.cc:89) discards the prefix for
-//     an absolute argument, so findFile("/etc/passwd") bypasses
-//     CMSSW_SEARCH_PATH entirely and returns the argument.
-//  2. Poor diagnostic: findFile("") makes locateFile() test the search-path
-//     directory itself, so it reports "is a directory, not a file" instead of
-//     the ctor's clearer "Relative path must not be empty".
 //  3. Defect: locateFile() is called with the RAW relative path
 //     (FileInPath.cc:406) and normalisation happens only afterwards
 //     (FileInPath.cc:408), while the location test inspects the search-path
@@ -860,29 +852,15 @@ TEST_CASE("findFile", "[local]") {
     REQUIRE_THROWS_WITH(edm::FileInPath::findFile("Sub/Pack/data/link.txt"),
                         Catch::Matchers::ContainsSubstring("is a symbolic link, not a file"));
   }
-}
-
-TEST_CASE("findFile with an absolute path bypasses the search path", "[local]") {
-  // Issue 1: findFile() lacks the absolute-path guard that initialize_() has,
-  // so an absolute argument is returned verbatim even though its directory is
-  // on no search-path element.
-  std::string const outside = (g_paths.root / "outside.txt").string();
-  std::string found = edm::FileInPath::findFile(outside);
-  REQUIRE(found == outside);
-
-  // Contrast: the ctor rejects the very same absolute path outright.
-  REQUIRE_THROWS_WITH(edm::FileInPath(outside),
-                      Catch::Matchers::ContainsSubstring("The path must be relative, not absolute:"));
-}
-
-TEST_CASE("findFile with an empty path reports a directory", "[local]") {
-  // Issue 2: findFile("") makes locateFile() test the search-path directory
-  // itself, so it reports "is a directory, not a file" instead of the ctor's
-  // clearer "Relative path must not be empty".
-  REQUIRE_THROWS_WITH(edm::FileInPath::findFile(""), Catch::Matchers::ContainsSubstring("is a directory, not a file"));
-
-  // Contrast: the ctor gives the clearer message.
-  REQUIRE_THROWS_WITH(edm::FileInPath(""), Catch::Matchers::ContainsSubstring("Relative path must not be empty"));
+  SECTION("absolute path throws an exception") {
+    std::string const outside = (g_paths.root / "outside.txt").string();
+    REQUIRE_THROWS_WITH(edm::FileInPath::findFile(outside),
+                        Catch::Matchers::ContainsSubstring("The path must be relative, not absolute:"));
+  }
+  SECTION("empty path throws an exception") {
+    REQUIRE_THROWS_WITH(edm::FileInPath::findFile(""),
+                        Catch::Matchers::ContainsSubstring("Relative path must not be empty"));
+  }
 }
 
 TEST_CASE("not-found message re-reads the live environment", "[local]") {
