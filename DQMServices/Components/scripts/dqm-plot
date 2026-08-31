@@ -992,6 +992,9 @@ class DQMPlotter:
         hline=None,
         ytitle_ratio_fontsize=None,
         ratio_label=None,
+        xlabels_rotation=45,
+        xlabels_ha="right",
+        bin_labels_override=None,
         complement=False,
         rebin=None,
         clamp_yerrors=False,
@@ -1110,6 +1113,15 @@ class DQMPlotter:
                 )
                 all_ratios.extend(valid_ratios)
 
+        # Explicit user-supplied bin labels override the ones extracted from the
+        # histogram (which may be absent or numeric)
+        if bin_labels_override is not None:
+            bin_labels = [
+                lab.replace("\\n", "\n").strip()
+                for lab in bin_labels_override.split(",")
+            ]
+            has_labels = True
+
         # Styling for main plot
         # Calculate visible label length by removing LaTeX notation for sizing
         visible_ylabel = re.sub(r"\$[^$]*\$", "X", ylabel)
@@ -1122,20 +1134,13 @@ class DQMPlotter:
         ax_main.set_xlabel(xlabel, fontsize=label_size if xtitle_fontsize is None else xtitle_fontsize)
         ax_main.set_ylabel(ylabel, fontsize=label_size if ytitle_fontsize is None else ytitle_fontsize)
 
-        ha = "right"
-        # source is None in --operation mode; guard before indexing it.
-        if source and "KindOfSignalPV" in source[0][0]:
-            if rebin != None:
-                bin_labels = ['PV not Reco', 'PV Reco\nas Leading', 'PV Reco\nnot as Leading']
-                ha = "center"
-                
         if has_labels: # Set custom labels if available
             ax_main.set_xticks(
                 ref_centers,
                 bin_labels,
                 size="small" if len(bin_labels) < 10 else "xx-small",
-                rotation=45,
-                ha=ha,
+                rotation=xlabels_rotation,
+                ha=xlabels_ha,
                 va="top",
             )
             ax_main.tick_params(axis="x", which="minor", bottom=False)
@@ -1192,8 +1197,8 @@ class DQMPlotter:
                     ref_centers,
                     bin_labels,
                     size="small" if len(bin_labels) < 10 else "xx-small",
-                    rotation=0,
-                    ha="center",
+                    rotation=xlabels_rotation,
+                    ha=xlabels_ha,
                     va="top",
                 )
                 ax_ratio.tick_params(axis="x", which="minor", bottom=False)
@@ -1775,6 +1780,28 @@ if __name__ == "__main__":
         "(place them first, or after a '--' separator)."
     )
     parser.add_argument(
+        '--xlabels-rotation', type=float, required=False, default=45,
+        help="Rotation angle (degrees) of the bin labels on the x axis of "
+        "both the main and ratio plots. Set to 0 for horizontal labels. "
+        "Default: 45."
+    )
+    parser.add_argument(
+        '--xlabels-ha', type=str, required=False, default="right",
+        choices=["left", "center", "right"],
+        help="Horizontal alignment of the bin labels on the x axis of both "
+        "the main and ratio plots ('left', 'center', or 'right'). "
+        "Default: right."
+    )
+    parser.add_argument(
+        '--bin-labels', type=str, required=False, default=None,
+        help="Override the per-bin x-axis labels with a comma-separated list "
+        "(e.g. --bin-labels \"PV not Reco,PV Reco as Leading,PV Reco not as "
+        "Leading\"). Use the literal '\\n' sequence in a label to insert a "
+        "line break. The number of labels must match the number of bins. "
+        "Pass the value as a single quoted shell argument so the trailing "
+        "positional ROOT files are not swallowed by this option."
+    )
+    parser.add_argument(
         "--histograms",
         action="store_true",
         help="Plot histograms instead of points (default: points with error bars).",
@@ -1915,6 +1942,17 @@ if __name__ == "__main__":
             "ROOT files with '--' (e.g. '... --ratio-label -- file1.root file2.root')."
         )
 
+    # '--bin-labels' takes a single value; if it accidentally consumed an input
+    # ROOT file, flag it clearly instead of silently dropping that file.
+    if args.bin_labels is not None and (
+        args.bin_labels.endswith(".root") or os.path.exists(args.bin_labels)
+    ):
+        parser.error(
+            f"--bin-labels consumed '{args.bin_labels}', which looks like an input "
+            "file. Quote the comma-separated label list, or separate the ROOT "
+            "files with '--' (e.g. '... --bin-labels -- file1.root file2.root')."
+        )
+
     if args.legend is not None:
         # --legend is a single comma-separated string, e.g. -l "File 1,File 2".
         args.legend = [entry.strip() for entry in args.legend.split(",")]
@@ -2013,6 +2051,9 @@ if __name__ == "__main__":
         ylim=args.ylim,
         ylim_ratio=args.ylim_ratio,
         ytitle_ratio_fontsize=args.ytitle_ratio_fontsize,
+        xlabels_rotation=args.xlabels_rotation,
+        xlabels_ha=args.xlabels_ha,
+        bin_labels_override=args.bin_labels,
         ratio_label=args.ratio_label,
         plot_histograms=args.histograms,
         save_as_pdf=args.pdf,
