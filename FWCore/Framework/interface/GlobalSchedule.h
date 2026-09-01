@@ -94,26 +94,28 @@ namespace edm {
       return std::span<WorkerManager<RunTransitionInfo> const>(runWorkerManagers_);
     }
     std::span<WorkerManager<ProcessBlockTransitionInfo>> processBlockManagers() {
-      return std::span<WorkerManager<ProcessBlockTransitionInfo>>(&processBlockWorkerManager_,1);
+      return std::span<WorkerManager<ProcessBlockTransitionInfo>>(&processBlockWorkerManager_, 1);
     }
-    std::span<WorkerManager<ProcessBlockTransitionInfo>> inputProcessBlockManagers() {
-      return std::span<WorkerManager<ProcessBlockTransitionInfo>>(&inputProcessBlockWorkerManager_,1);
+    std::span<WorkerManager<InputProcessBlockTransitionInfo>> inputProcessBlockManagers() {
+      return std::span<WorkerManager<InputProcessBlockTransitionInfo>>(&inputProcessBlockWorkerManager_, 1);
     }
     /// returns the action table
     ExceptionToActionTable const& actionTable() const { return lumiWorkerManagers_[0].actionTable(); }
 
-    template <typename TI, bool INPUT>
+    template <typename TI>
     std::span<WorkerManager<TI>> workerManagers() {
       if constexpr (std::is_same_v<TI, LumiTransitionInfo>) {
         return lumiManagers();
       } else if constexpr (std::is_same_v<TI, RunTransitionInfo>) {
         return runManagers();
-      } else {
-        if constexpr (INPUT) {
-          return inputProcessBlockManagers();
-        }
+      } else if constexpr (std::is_same_v<TI, InputProcessBlockTransitionInfo>) {
+        return inputProcessBlockManagers();
+      } else if constexpr (std::is_same_v<TI, ProcessBlockTransitionInfo>) {
         return processBlockManagers();
+      } else {
+        static_assert(false, "Unsupported transition info type");
       }
+      return {};
     }
 
     template <typename T>
@@ -130,7 +132,7 @@ namespace edm {
     std::vector<WorkerManager<LumiTransitionInfo>> lumiWorkerManagers_;
     std::vector<WorkerManager<RunTransitionInfo>> runWorkerManagers_;
     WorkerManager<ProcessBlockTransitionInfo> processBlockWorkerManager_;
-    WorkerManager<ProcessBlockTransitionInfo> inputProcessBlockWorkerManager_;
+    WorkerManager<InputProcessBlockTransitionInfo> inputProcessBlockWorkerManager_;
     std::vector<unsigned int> beginJobFailedForModule_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     std::vector<edm::propagate_const<WorkerPtr>> extraWorkers_;
@@ -169,8 +171,7 @@ namespace edm {
         preScheduleSignal<T>(globalContext.get(), token);
 
         unsigned int managerIndex = principal.index();
-        auto managers =
-            workerManagers<typename T::TransitionInfoType, T::transition_ == Transition::AccessInputProcessBlock>();
+        auto managers = workerManagers<typename T::TransitionInfoType>();
         auto& workerManager = managers[managerIndex];
         workerManager.resetAll();
 

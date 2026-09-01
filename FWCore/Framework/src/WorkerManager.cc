@@ -83,4 +83,5 @@ namespace edm {
   template class WorkerManager<LumiTransitionInfo>;
   template class WorkerManager<EventTransitionInfo>;
   template class WorkerManager<ProcessBlockTransitionInfo>;
+  template class WorkerManager<InputProcessBlockTransitionInfo>;
 }  // namespace edm

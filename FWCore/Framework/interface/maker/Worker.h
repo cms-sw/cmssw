@@ -911,7 +911,7 @@ namespace edm {
       using Arg = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionProcessBlockInput>;
       static bool call(Worker* iWorker,
                        StreamID,
-                       ProcessBlockTransitionInfo const& info,
+                       InputProcessBlockTransitionInfo const& info,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
@@ -921,8 +921,11 @@ namespace edm {
         cpp.postModuleSignal();
         return returnValue;
       }
-      static void esPrefetchAsync(
-          Worker*, WaitingTaskHolder, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) noexcept {}
+      static void esPrefetchAsync(Worker*,
+                                  WaitingTaskHolder,
+                                  ServiceToken const&,
+                                  InputProcessBlockTransitionInfo const&,
+                                  Transition) noexcept {}
       static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsInputProcessBlocks(); }
       static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
       static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept { return nullptr; }
