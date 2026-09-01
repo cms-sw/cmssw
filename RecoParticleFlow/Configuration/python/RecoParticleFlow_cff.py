@@ -101,16 +101,11 @@ mlpf.toReplaceWith(particleFlowTmp, mlpfProducer)
 from Configuration.ProcessModifiers.MLPFSonicTriton_cff import MLPFSonicTriton
 from RecoParticleFlow.PFProducer.mlpfsonicProducer_cfi import mlpfsonicProducer
 MLPFSonicTriton.toReplaceWith(particleFlowTmp, mlpfsonicProducer.clone(
-    Client = cms.PSet(
+    Client = dict(
         timeout = cms.untracked.uint32(300),
-        mode = cms.string("Async"),
         modelName = cms.string("MLPF"),
         modelConfigPath = cms.FileInPath("RecoParticleFlow/PFProducer/data/models/MLPF/config.pbtxt"),
         modelVersion = cms.string(""),
-        verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(0),
-        useSharedMemory = cms.untracked.bool(True),
-        compression = cms.untracked.string(""),
     ),
 ))
 
