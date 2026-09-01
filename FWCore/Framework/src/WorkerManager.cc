@@ -1,4 +1,6 @@
 #include "FWCore/Framework/interface/WorkerManager.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionPhaseTypes.h"
 #include "UnscheduledConfigurator.h"
 
 #include "FWCore/Framework/interface/maker/Worker.h"
@@ -12,18 +14,18 @@
 
 namespace edm {
   // -----------------------------
-  template <typename TI>
-  WorkerManager<TI>::WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
-                                   std::shared_ptr<ActivityRegistry> areg,
-                                   ExceptionToActionTable const& actions)
+  template <typename TI, typename TP>
+  WorkerManager<TI, TP>::WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
+                                       std::shared_ptr<ActivityRegistry> areg,
+                                       ExceptionToActionTable const& actions)
       : workerReg_(areg, modReg),
         actionTable_(&actions),
         allWorkers_(),
         unscheduled_(*areg),
         lastSetupEventPrincipal_(nullptr) {}  // WorkerManager::WorkerManager
 
-  template <typename TI>
-  void WorkerManager<TI>::deleteModuleIfExists(std::string const& moduleLabel) {
+  template <typename TI, typename TP>
+  void WorkerManager<TI, TP>::deleteModuleIfExists(std::string const& moduleLabel) {
     auto worker = workerReg_.get(moduleLabel);
     if (worker != nullptr) {
       auto eraseBeg = std::remove(allWorkers_.begin(), allWorkers_.end(), worker);
@@ -33,8 +35,8 @@ namespace edm {
     }
   }
 
-  template <typename TI>
-  Worker* WorkerManager<TI>::getWorkerForExistingModule(std::string const& label) {
+  template <typename TI, typename TP>
+  Worker* WorkerManager<TI, TP>::getWorkerForExistingModule(std::string const& label) {
     auto worker = workerReg_.getWorkerFromExistingModule(label, actionTable_);
     if (nullptr != worker) {
       addToAllWorkers(worker);
@@ -42,8 +44,8 @@ namespace edm {
     return worker;
   }
 
-  template <typename TI>
-  void WorkerManager<TI>::addToUnscheduledWorkers(ModuleDescription const& iDescription) {
+  template <typename TI, typename TP>
+  void WorkerManager<TI, TP>::addToUnscheduledWorkers(ModuleDescription const& iDescription) {
     auto newWorker = workerReg_.getWorkerFromExistingModule(iDescription.moduleLabel(), actionTable_);
     assert(nullptr != newWorker);
     assert(newWorker->moduleType() == Worker::kProducer || newWorker->moduleType() == Worker::kFilter);
@@ -52,20 +54,20 @@ namespace edm {
     addToAllWorkers(newWorker);
   }
 
-  template <typename TI>
-  void WorkerManager<TI>::resetAll() {
+  template <typename TI, typename TP>
+  void WorkerManager<TI, TP>::resetAll() {
     for_all(allWorkers_, std::bind(&Worker::reset, std::placeholders::_1));
   }
 
-  template <typename TI>
-  void WorkerManager<TI>::addToAllWorkers(Worker* w) {
+  template <typename TI, typename TP>
+  void WorkerManager<TI, TP>::addToAllWorkers(Worker* w) {
     if (!search_all(allWorkers_, w)) {
       allWorkers_.push_back(w);
     }
   }
 
-  template <typename TI>
-  void WorkerManager<TI>::setupResolvers(Principal& ep) {
+  template <typename TI, typename TP>
+  void WorkerManager<TI, TP>::setupResolvers(Principal& ep) {
     this->resetAll();
     if (&ep != lastSetupEventPrincipal_) {
       UnscheduledConfigurator config(allWorkers_.begin(), allWorkers_.end(), &(unscheduled_.auxiliary()));
@@ -74,14 +76,16 @@ namespace edm {
     }
   }
 
-  template <typename TI>
-  void WorkerManager<TI>::setupOnDemandSystem(EventTransitionInfo const& info) {
+  template <typename TI, typename TP>
+  void WorkerManager<TI, TP>::setupOnDemandSystem(EventTransitionInfo const& info) {
     unscheduled_.setEventTransitionInfo(info);
   }
 
-  template class WorkerManager<RunTransitionInfo>;
-  template class WorkerManager<LumiTransitionInfo>;
-  template class WorkerManager<EventTransitionInfo>;
-  template class WorkerManager<ProcessBlockTransitionInfo>;
-  template class WorkerManager<InputProcessBlockTransitionInfo>;
+  template class WorkerManager<RunTransitionInfo, TransitionPhaseGlobal>;
+  template class WorkerManager<LumiTransitionInfo, TransitionPhaseGlobal>;
+  template class WorkerManager<RunTransitionInfo, TransitionPhaseStream>;
+  template class WorkerManager<LumiTransitionInfo, TransitionPhaseStream>;
+  template class WorkerManager<EventTransitionInfo, TransitionPhaseStream>;
+  template class WorkerManager<ProcessBlockTransitionInfo, TransitionPhaseGlobal>;
+  template class WorkerManager<InputProcessBlockTransitionInfo, TransitionPhaseGlobal>;
 }  // namespace edm
