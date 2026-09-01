@@ -16,9 +16,7 @@
   <class name="l1t::io_v1::P2GTCandidate::Optional<int>"/>
   <class name="l1t::io_v1::P2GTCandidate::Optional<double>"/>
   <class name="l1t::io_v1::P2GTCandidate" ClassVersion="4">
-    <!-- TODO: checksum below is a placeholder; recompute with scripts/edmCheckClassVersion
-         (or let CI report the correct value) once this can be built. -->
-    <version ClassVersion="4" checksum="0"/>
+    <version ClassVersion="4" checksum="3737213310"/>
     <version ClassVersion="3" checksum="1444610149"/>
   </class>
   <class name="l1t::P2GTCandidateCollection"/>
