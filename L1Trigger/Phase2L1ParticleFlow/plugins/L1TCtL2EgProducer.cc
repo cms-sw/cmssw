@@ -402,13 +402,17 @@ void L1TCtL2EgProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Ev
     inPtrnWrt_->addEvent(inData);
   }
 
-  std::vector<EGIsoObjEmu> out_photons_emu;
-  std::vector<EGIsoEleObjEmu> sorted_eles_emu;
-  std::vector<EGIsoEleObjEmu> out_eles_emu;
-  l2egsorter.run(*regions, out_photons_emu, sorted_eles_emu);
+  for (auto &region : *regions) {
+    std::vector<EGIsoEleObjEmu> regressed_eles;
+    l2tkeleregression.run(region.egelectron, regressed_eles);
+    region.egelectron.swap(regressed_eles);
+  }
 
-  // Apply electron regression
-  l2tkeleregression.run(sorted_eles_emu, out_eles_emu);
+  // The electron regression break the ordering of the electrons
+  // L2EgSorterEmulator::run() runs the regional padding and sorting before running the global merge
+  std::vector<EGIsoObjEmu> out_photons_emu;
+  std::vector<EGIsoEleObjEmu> out_eles_emu;
+  l2egsorter.run(*regions, out_photons_emu, out_eles_emu);
 
   // PUPPI isolation
   auto &pfObjs = iEvent.get(pfObjsToken_);
