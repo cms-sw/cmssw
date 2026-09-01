@@ -115,6 +115,7 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
         if (status == fKill) {
           step->AddTotalEnergyDeposit(track->GetKineticEnergy());
           secit = sec->erase(secit);
+          delete track;
         } else {
           ++secit;
         }
