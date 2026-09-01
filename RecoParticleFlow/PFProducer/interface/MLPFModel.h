@@ -183,7 +183,21 @@ namespace reco::mlpf {
 
   template <typename T>
   reco::PFCandidate makeCandidate(const std::vector<std::vector<float>>& inputs,
-                                  const std::vector<T>& output_p4,
+                                  const T& output_p4,
+                                  const size_t elem_idx,
+                                  int pred_pid,
+                                  const reco::PFBlockElement* elem);
+
+  extern template
+  reco::PFCandidate makeCandidate(const std::vector<std::vector<float>>& inputs,
+                                  const std::vector<float>& output_p4,
+                                  const size_t elem_idx,
+                                  int pred_pid,
+                                  const reco::PFBlockElement* elem);
+
+  extern template
+  reco::PFCandidate makeCandidate(const std::vector<std::vector<float>>& inputs,
+                                  const std::span<const float>& output_p4,
                                   const size_t elem_idx,
                                   int pred_pid,
                                   const reco::PFBlockElement* elem);

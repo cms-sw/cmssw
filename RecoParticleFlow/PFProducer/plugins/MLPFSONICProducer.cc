@@ -131,7 +131,7 @@ void MLPFSONICProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
     }
     //a particle was predicted for this PFElement, otherwise it was a spectator
     if (pred_pid != 0) {
-      auto cand = makeCandidate(inputs, output_p4, ielem, pred_pid, elem);
+      auto cand = makeCandidate(inputs, output_p4[0], ielem, pred_pid, elem);
       setCandidateRefs(cand, selected_elements_, ielem);
       pOutputCandidateCollection.push_back(cand);
     }
