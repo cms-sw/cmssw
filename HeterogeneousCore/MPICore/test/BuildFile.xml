@@ -61,3 +61,8 @@
   name="testMPITooManyStreams"
   command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_too_many_streams_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_too_many_streams_cfg.py"
 />
+
+<test
+  name="testMPITransientProduct"
+  command="testMPITransientProduct.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_transient_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_transient_cfg.py"
+/>
