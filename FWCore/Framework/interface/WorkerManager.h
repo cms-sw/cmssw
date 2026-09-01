@@ -91,7 +91,7 @@ namespace edm {
   private:
     Worker* getWorkerForExistingModule(std::string const& label);
 
-    WorkerRegistry workerReg_;
+    WorkerRegistry<TI, TP> workerReg_;
     ExceptionToActionTable const* actionTable_;
     AllWorkers allWorkers_;
     UnscheduledCallProducer unscheduled_;

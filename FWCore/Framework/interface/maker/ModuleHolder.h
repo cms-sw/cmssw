@@ -25,6 +25,8 @@
 #include "FWCore/Framework/interface/maker/WorkerT.h"
 #include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/interface/OutputModuleCommunicator.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionPhaseTypes.h"
 
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
@@ -47,7 +49,9 @@ namespace edm {
     public:
       ModuleHolder() = default;
       virtual ~ModuleHolder() {}
-      virtual std::unique_ptr<Worker> makeWorker(ExceptionToActionTable const* actions) const = 0;
+      virtual std::unique_ptr<Worker> makeWorker(ExceptionToActionTable const* actions,
+                                                 TransitionInfoKey key,
+                                                 TransitionPhaseType phase) const = 0;
 
       virtual ModuleDescription const& moduleDescription() const = 0;
       virtual std::vector<ModuleConsumesInfo> moduleConsumesInfos() const = 0;
@@ -59,6 +63,31 @@ namespace edm {
       virtual Type moduleType() const = 0;
       virtual Concurrency moduleConcurrencyType() const = 0;
 
+      bool wantsTransition(TransitionInfoKey key, TransitionPhaseType phase) const noexcept {
+        if (key == edm::RunTransitionInfo::key()) {
+          if (phase == TransitionPhaseType::Global) {
+            return wantsGlobalRuns() or wantsWrites();
+          }
+          return wantsStreamRuns();
+        }
+        if (key == edm::LumiTransitionInfo::key()) {
+          if (phase == TransitionPhaseType::Global) {
+            return wantsGlobalLuminosityBlocks() or wantsWrites();
+          }
+          return wantsStreamLuminosityBlocks();
+        }
+        if (key == edm::ProcessBlockTransitionInfo::key()) {
+          return (phase == TransitionPhaseType::Global) and wantsProcessBlocks();
+        }
+        if (key == edm::InputProcessBlockTransitionInfo::key()) {
+          return (phase == TransitionPhaseType::Global) and wantsInputProcessBlocks();
+        }
+        if (key == edm::EventTransitionInfo::key()) {
+          return true;
+        }
+        assert(false);
+        return false;
+      }
       virtual bool wantsProcessBlocks() const noexcept = 0;
       virtual bool wantsInputProcessBlocks() const noexcept = 0;
       virtual bool wantsGlobalRuns() const noexcept = 0;
@@ -111,7 +140,9 @@ namespace edm {
         assert(nullptr != w);
         w->setModule(m_mod);
       }
-      std::unique_ptr<Worker> makeWorker(ExceptionToActionTable const* actions) const final {
+      std::unique_ptr<Worker> makeWorker(ExceptionToActionTable const* actions,
+                                         TransitionInfoKey key,
+                                         TransitionPhaseType phase) const final {
         return std::make_unique<edm::WorkerT<T>>(module(), moduleDescription(), actions);
       }
 
