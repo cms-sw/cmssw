@@ -25,7 +25,7 @@ namespace edm {
     class ESRecordsToProductResolverIndices;
   }
 
-  template <typename TI>
+  template <typename TI, typename TP>
   class WorkerManager {
   public:
     typedef std::vector<Worker*> AllWorkers;
@@ -41,18 +41,24 @@ namespace edm {
     void addToUnscheduledWorkers(ModuleDescription const& iDescription);
 
     template <typename T, typename U>
-      requires std::is_same_v<TI, typename T::TransitionInfoType>
+      requires std::is_same_v<TI, typename T::TransitionInfoType> &&
+               std::is_same_v<typename TP::ContextType, typename T::Context>
     void processOneOccurrenceAsync(WaitingTaskHolder,
                                    TI&,
                                    ServiceToken const&,
                                    StreamID,
-                                   typename T::Context const* topContext,
+                                   typename TP::ContextType const* topContext,
                                    U const* context) noexcept;
 
     template <typename T>
-      requires std::is_same_v<TI, typename T::TransitionInfoType>
-    void processAccumulatorsAsync(
-        WaitingTaskHolder, TI const&, ServiceToken const&, StreamID, ParentContext const&, typename T::Context const*);
+      requires std::is_same_v<TI, typename T::TransitionInfoType> &&
+               std::is_same_v<typename TP::ContextType, typename T::Context>
+    void processAccumulatorsAsync(WaitingTaskHolder,
+                                  TI const&,
+                                  ServiceToken const&,
+                                  StreamID,
+                                  ParentContext const&,
+                                  typename TP::ContextType const*);
 
     void setupResolvers(Principal& principal);
     void setupOnDemandSystem(EventTransitionInfo const&);
@@ -92,15 +98,16 @@ namespace edm {
     void const* lastSetupEventPrincipal_;
   };
 
-  template <typename TI>
+  template <typename TI, typename TP>
   template <typename T, typename U>
-    requires std::is_same_v<TI, typename T::TransitionInfoType>
-  void WorkerManager<TI>::processOneOccurrenceAsync(WaitingTaskHolder task,
-                                                    TI& info,
-                                                    ServiceToken const& token,
-                                                    StreamID streamID,
-                                                    typename T::Context const* topContext,
-                                                    U const* context) noexcept {
+    requires std::is_same_v<TI, typename T::TransitionInfoType> &&
+             std::is_same_v<typename TP::ContextType, typename T::Context>
+  void WorkerManager<TI, TP>::processOneOccurrenceAsync(WaitingTaskHolder task,
+                                                        TI& info,
+                                                        ServiceToken const& token,
+                                                        StreamID streamID,
+                                                        typename TP::ContextType const* topContext,
+                                                        U const* context) noexcept {
     static_assert(!T::isEvent_);
 
     // Spawn them in reverse order. At least in the single threaded case that makes
@@ -123,15 +130,16 @@ namespace edm {
     }
   }
 
-  template <typename TI>
+  template <typename TI, typename TP>
   template <typename T>
-    requires std::is_same_v<TI, typename T::TransitionInfoType>
-  void WorkerManager<TI>::processAccumulatorsAsync(WaitingTaskHolder task,
-                                                   TI const& info,
-                                                   ServiceToken const& token,
-                                                   StreamID streamID,
-                                                   ParentContext const& parentContext,
-                                                   typename T::Context const* context) {
+    requires std::is_same_v<TI, typename T::TransitionInfoType> &&
+             std::is_same_v<typename TP::ContextType, typename T::Context>
+  void WorkerManager<TI, TP>::processAccumulatorsAsync(WaitingTaskHolder task,
+                                                       TI const& info,
+                                                       ServiceToken const& token,
+                                                       StreamID streamID,
+                                                       ParentContext const& parentContext,
+                                                       typename TP::ContextType const* context) {
     unscheduled_.runAccumulatorsAsync<T>(std::move(task), info, token, streamID, parentContext, context);
   }
 }  // namespace edm

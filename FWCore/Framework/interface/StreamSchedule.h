@@ -61,6 +61,7 @@
 #include "FWCore/Framework/interface/WorkerManager.h"
 #include "FWCore/Framework/interface/Path.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionPhaseTypes.h"
 #include "FWCore/Framework/interface/ModuleInPath.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/Framework/interface/EarlyDeleteHelper.h"
@@ -265,7 +266,9 @@ namespace edm {
     void handleException(StreamContext const&, bool cleaningUpAfterException, std::exception_ptr&) const noexcept;
 
     template <typename TI>
-    WorkerManager<TI>& workerManagers() {
+    using StreamWorkerManager = WorkerManager<TI, TransitionPhaseStream>;
+    template <typename TI>
+    StreamWorkerManager<TI>& workerManagers() {
       if constexpr (std::is_same_v<TI, RunTransitionInfo>) {
         return workerManagerRuns_;
       } else if constexpr (std::is_same_v<TI, LumiTransitionInfo>) {
@@ -276,9 +279,9 @@ namespace edm {
     }
 
     std::vector<unsigned int> moduleBeginStreamFailed_;
-    WorkerManager<RunTransitionInfo> workerManagerRuns_;
-    WorkerManager<LumiTransitionInfo> workerManagerLumis_;
-    WorkerManager<EventTransitionInfo> workerManagerEvents_;
+    StreamWorkerManager<RunTransitionInfo> workerManagerRuns_;
+    StreamWorkerManager<LumiTransitionInfo> workerManagerLumis_;
+    StreamWorkerManager<EventTransitionInfo> workerManagerEvents_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
 
     edm::propagate_const<TrigResPtr> results_;

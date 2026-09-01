@@ -10,6 +10,8 @@
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionPhaseTypes.h"
 #include "FWCore/Framework/interface/WorkerManager.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
@@ -50,6 +52,8 @@ namespace edm {
   public:
     using vstring = std::vector<std::string>;
     using WorkerPtr = std::shared_ptr<Worker>;
+    template <typename TI>
+    using GlobalWorkerManager = WorkerManager<TI, TransitionPhaseGlobal>;
 
     GlobalSchedule(std::shared_ptr<ModuleRegistry> modReg,
                    std::vector<edm::ModuleDescription const*> const& modulesToUse,
@@ -81,29 +85,29 @@ namespace edm {
     std::vector<Worker*> const& runWorkers() const { return runManagers()[0].allWorkers(); }
 
   private:
-    std::span<WorkerManager<LumiTransitionInfo>> lumiManagers() {
-      return std::span<WorkerManager<LumiTransitionInfo>>(lumiWorkerManagers_);
+    std::span<GlobalWorkerManager<LumiTransitionInfo>> lumiManagers() {
+      return std::span<GlobalWorkerManager<LumiTransitionInfo>>(lumiWorkerManagers_);
     }
-    std::span<WorkerManager<LumiTransitionInfo> const> lumiManagers() const {
-      return std::span<WorkerManager<LumiTransitionInfo> const>(lumiWorkerManagers_);
+    std::span<GlobalWorkerManager<LumiTransitionInfo> const> lumiManagers() const {
+      return std::span<GlobalWorkerManager<LumiTransitionInfo> const>(lumiWorkerManagers_);
     }
-    std::span<WorkerManager<RunTransitionInfo>> runManagers() {
-      return std::span<WorkerManager<RunTransitionInfo>>(runWorkerManagers_);
+    std::span<GlobalWorkerManager<RunTransitionInfo>> runManagers() {
+      return std::span<GlobalWorkerManager<RunTransitionInfo>>(runWorkerManagers_);
     }
-    std::span<WorkerManager<RunTransitionInfo> const> runManagers() const {
-      return std::span<WorkerManager<RunTransitionInfo> const>(runWorkerManagers_);
+    std::span<GlobalWorkerManager<RunTransitionInfo> const> runManagers() const {
+      return std::span<GlobalWorkerManager<RunTransitionInfo> const>(runWorkerManagers_);
     }
-    std::span<WorkerManager<ProcessBlockTransitionInfo>> processBlockManagers() {
-      return std::span<WorkerManager<ProcessBlockTransitionInfo>>(&processBlockWorkerManager_, 1);
+    std::span<GlobalWorkerManager<ProcessBlockTransitionInfo>> processBlockManagers() {
+      return std::span<GlobalWorkerManager<ProcessBlockTransitionInfo>>(&processBlockWorkerManager_, 1);
     }
-    std::span<WorkerManager<InputProcessBlockTransitionInfo>> inputProcessBlockManagers() {
-      return std::span<WorkerManager<InputProcessBlockTransitionInfo>>(&inputProcessBlockWorkerManager_, 1);
+    std::span<GlobalWorkerManager<InputProcessBlockTransitionInfo>> inputProcessBlockManagers() {
+      return std::span<GlobalWorkerManager<InputProcessBlockTransitionInfo>>(&inputProcessBlockWorkerManager_, 1);
     }
     /// returns the action table
     ExceptionToActionTable const& actionTable() const { return lumiWorkerManagers_[0].actionTable(); }
 
     template <typename TI>
-    std::span<WorkerManager<TI>> workerManagers() {
+    std::span<GlobalWorkerManager<TI>> workerManagers() {
       if constexpr (std::is_same_v<TI, LumiTransitionInfo>) {
         return lumiManagers();
       } else if constexpr (std::is_same_v<TI, RunTransitionInfo>) {
@@ -129,10 +133,10 @@ namespace edm {
                          bool cleaningUpAfterException,
                          std::exception_ptr&);
 
-    std::vector<WorkerManager<LumiTransitionInfo>> lumiWorkerManagers_;
-    std::vector<WorkerManager<RunTransitionInfo>> runWorkerManagers_;
-    WorkerManager<ProcessBlockTransitionInfo> processBlockWorkerManager_;
-    WorkerManager<InputProcessBlockTransitionInfo> inputProcessBlockWorkerManager_;
+    std::vector<GlobalWorkerManager<LumiTransitionInfo>> lumiWorkerManagers_;
+    std::vector<GlobalWorkerManager<RunTransitionInfo>> runWorkerManagers_;
+    GlobalWorkerManager<ProcessBlockTransitionInfo> processBlockWorkerManager_;
+    GlobalWorkerManager<InputProcessBlockTransitionInfo> inputProcessBlockWorkerManager_;
     std::vector<unsigned int> beginJobFailedForModule_;
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     std::vector<edm::propagate_const<WorkerPtr>> extraWorkers_;

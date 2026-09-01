@@ -136,7 +136,7 @@ namespace edm {
 
   namespace {
     template <typename T, std::size_t U>
-    bool replaceWorkerByLabel(std::span<WorkerManager<T>, U> workerManagers,
+    bool replaceWorkerByLabel(std::span<WorkerManager<T, edm::TransitionPhaseGlobal>, U> workerManagers,
                               maker::ModuleHolder* iMod,
                               std::string const& iLabel) {
       bool returnValue = false;
