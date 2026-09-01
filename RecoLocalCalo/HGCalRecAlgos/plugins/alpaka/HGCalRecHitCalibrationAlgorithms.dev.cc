@@ -135,7 +135,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   HGCalSoARecHitsDeviceCollection::View recHits,
                                   HGCalDigiDevice::ConstView digis,
                                   HGCalCalibParamDevice::ConstView calibs,
-                                  HGCalMappingCellParamDevice::ConstView maps,
+                                  HGCalMappingCellParamDevice::ConstView cell_maps,
                                   HGCalDenseIndexInfoDevice::ConstView index) const {
       auto time_average = [&](float time_surr, float time_calib, float energy_surr, float energy_calib) {
         bool is_time_surr(time_surr > 0);
@@ -149,6 +149,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       };
 
       for (auto idx : uniform_elements(acc, digis.metadata().size())) {
+
+        auto cellIndex = index[idx].cellInfoIdx();
+
+        //only applies to Si
+        bool isSiPM(cell_maps[cellIndex].isSiPM());
+        if(isSiPM) continue;
+        
         auto calib = calibs[idx];
         bool calibvalid = calib.valid();
         auto digi = digis[idx];
@@ -158,9 +165,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         bool isToAavailable((digiflags != ::hgcal::DIGI_FLAG::ZS_ToA) &&
                             (digiflags != ::hgcal::DIGI_FLAG::ZS_ToA_ADCm1));
 
-        auto cellIndex = index[idx].cellInfoIdx();
-        bool isCalibCell(maps[cellIndex].iscalib());
-        int offset = maps[cellIndex].caliboffset();  // calibration-to-surrounding cell offset
+        bool isCalibCell(cell_maps[cellIndex].iscalib());
+        int offset = cell_maps[cellIndex].caliboffset();  // calibration-to-surrounding cell offset
         bool is_surr_cell((offset != 0) && isAvailable && isCalibCell);
 
         // effectively operate only on the cell that surrounds the calibration cells
@@ -243,10 +249,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   int32_t* __restrict__ nsel,
                                   int32_t* __restrict__ sidx,
                                   HGCalSoARecHitsDeviceCollection::ConstView recHits,
+                                  HGCalMappingCellParamDevice::ConstView cell_maps,
+                                  HGCalDenseIndexInfoDevice::ConstView index,
                                   double k_noise = 0.) const {
       for (auto idx : uniform_elements(acc, recHits.metadata().size())) {
-        if (!recHits[idx].flags() && recHits[idx].energy() > k_noise * recHits[idx].sigmaNoise() &&
-            recHits[idx].layer() != 0)
+        //quality + ZS cuts + connected (non-calib) channel
+        auto cellIndex = index[idx].cellInfoIdx();
+        if(!recHits[idx].flags() && recHits[idx].energy() > k_noise * recHits[idx].sigmaNoise() && cell_maps[cellIndex].t()>0)
           sidx[alpaka::atomicAdd(acc, nsel, 1)] = idx;
       }
     }
@@ -271,7 +280,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       HGCalDigiHost const& host_digis,
       HGCalCalibParamDevice const& device_calib,
       HGCalMappingModuleParamDevice const& device_mapmod,
-      HGCalMappingCellParamDevice const& device_mapping,
+      HGCalMappingCellParamDevice const& device_cell_mapping,
       HGCalDenseIndexInfoDevice const& device_index,
       double k_noise) const {
     LogDebug("HGCalRecHitCalibrationAlgorithms") << "\n\nINFO -- Start of calibrate\n\n" << std::endl;
@@ -319,7 +328,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         device_recHits.view(),
                         device_digis.const_view(),
                         device_calib.const_view(),
-                        device_mapping.const_view(),
+                        device_cell_mapping.const_view(),
                         device_index.const_view());
     alpaka::exec<Acc1D>(queue,
                         grid,
@@ -329,8 +338,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         device_index.const_view());
 
     // select rec hits
-    alpaka::exec<Acc1D>(
-        queue, grid, HGCalRecHitCalibrationKernel_countRecHits{}, nsel, sidx, device_recHits.const_view(), k_noise);
+    alpaka::exec<Acc1D>(queue,
+                        grid,
+                        HGCalRecHitCalibrationKernel_countRecHits{},
+                        nsel,
+                        sidx,
+                        device_recHits.const_view(),
+                        device_cell_mapping.const_view(),
+                        device_index.const_view(),
+                        k_noise);
 
     return device_recHits;
   }

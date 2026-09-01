@@ -10,11 +10,12 @@
 
 namespace hgcaldigi {
 
-  namespace FEDUnpackingFlags {
+  namespace FEDUnpackingFlags {  // NOTE: the FED flag is uint16_t, so all bits are defined
     constexpr uint8_t NormalUnpacking = 0, GenericUnpackError = 1, ErrorSLinkHeader = 2, ErrorPayload = 3,
                       ErrorCaptureBlockHeader = 4, ActiveCaptureBlockFlags = 5, ErrorECONDHeader = 6,
                       ECONDPayloadLengthOverflow = 7, ECONDPayloadLengthMismatch = 8, ErrorSLinkTrailer = 9,
-                      EarlySLinkEnd = 10, GenericUnpackWarning = 11;
+                      EarlySLinkEnd = 10, GenericUnpackWarning = 11, InvalidMetaData = 12, EventMismatch = 13,
+                      OrbitMismatch = 14, BunchMismatch = 15;
   }  // namespace FEDUnpackingFlags
 
   inline constexpr bool isNotNormalFED(uint16_t fedUnpackingFlag) {
@@ -49,6 +50,18 @@ namespace hgcaldigi {
   }
   inline constexpr bool hasEarlySLinkEnd(uint16_t fedUnpackingFlag) {
     return ((fedUnpackingFlag >> FEDUnpackingFlags::EarlySLinkEnd) & 0x1);
+  }
+  inline constexpr bool hasInvalidMetadata(uint16_t fedUnpackingFlag) {
+    return ((fedUnpackingFlag >> FEDUnpackingFlags::InvalidMetaData) & 0x1);
+  }
+  inline constexpr bool hasEventMismatch(uint16_t fedUnpackingFlag) {
+    return ((fedUnpackingFlag >> FEDUnpackingFlags::EventMismatch) & 0x1);
+  }
+  inline constexpr bool hasOrbitMismatch(uint16_t fedUnpackingFlag) {
+    return ((fedUnpackingFlag >> FEDUnpackingFlags::OrbitMismatch) & 0x1);
+  }
+  inline constexpr bool hasBunchMismatch(uint16_t fedUnpackingFlag) {
+    return ((fedUnpackingFlag >> FEDUnpackingFlags::BunchMismatch) & 0x1);
   }
 
   GENERATE_SOA_LAYOUT(HGCalFEDPacketInfoSoALayout,
