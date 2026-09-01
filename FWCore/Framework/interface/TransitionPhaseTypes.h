@@ -13,11 +13,14 @@ namespace edm {
   class GlobalContext;
   class StreamContext;
 
+  enum class TransitionPhaseType { Global, Stream };
   struct TransitionPhaseGlobal {
     using ContextType = GlobalContext;
+    static constexpr TransitionPhaseType value = TransitionPhaseType::Global;
   };
   struct TransitionPhaseStream {
     using ContextType = StreamContext;
+    static constexpr TransitionPhaseType value = TransitionPhaseType::Stream;
   };
 }  // namespace edm
 
