@@ -675,7 +675,6 @@ namespace edm {
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
-        //NOTE: should write be called even if end is not?
         bool returnValue = true;
         if (iWorker->beginSucceeded_) {
           iWorker->beginSucceeded_ = false;
@@ -822,8 +821,7 @@ namespace edm {
           returnValue = iWorker->implDoEnd(info, mcc);
           cpp.postModuleSignal();
         }
-        //NOTE: should write be called even if end is not?
-        //The existence of noRunLumiSort option can shouldWriteRun() to retur kNo.
+        //The existence of noRunLumiSort option can cause shouldWriteRun() to return kNo.
         if (iWorker->wantsWrites() and
             info.principal().shouldWriteLumi() != edm::LuminosityBlockPrincipal::ShouldWriteLumi::kNo) {
           auto sentry = signalslot::make_sentry(
