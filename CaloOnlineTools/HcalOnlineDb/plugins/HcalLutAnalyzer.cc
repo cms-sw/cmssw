@@ -1,11 +1,11 @@
 // -*- C++ -*-
 //
-// Package:    Test/HcalLutAnalyzer
+// Package:    CaloOnlineTools/HcalOnlineDb
 // Class:      HcalLutAnalyzer
 //
-/**\class HcalLutAnalyzer HcalLutAnalyzer.cc Test/HcalLutAnalyzer/plugins/HcalLutAnalyzer.cc
+/**\class HcalLutAnalyzer HcalLutAnalyzer.cc CaloOnlineTools/HcalOnlineDb/plugins/HcalLutAnalyzer.cc
 
- Description: [one line class summary]
+ Description: Plots input conditions and output LUTs as a function of ieta/iphi/depth
 
  Implementation:
      [Notes on implementation]
@@ -14,38 +14,44 @@
 // Original Author:  Aleko Khukhunaishvili
 //         Created:  Fri, 21 Jul 2017 08:42:05 GMT
 //
-//
 
-// system include files
-#include <memory>
-#include <iostream>
-#include <fstream>
-
-// user include files
+#include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
-#include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
-#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "TString.h"
-#include "TH1D.h"
+#include "TCanvas.h"
 #include "TH2D.h"
 #include "TProfile.h"
-#include "TCanvas.h"
 #include "TROOT.h"
+#include "TString.h"
 #include "TStyle.h"
 #include "TSystem.h"
+
+#include <cassert>
+#include <cmath>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <sstream>
+#include <string>
+#include <vector>
 
 class HcalLutAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
@@ -73,18 +79,18 @@ private:
   double Pmax;
 
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
-  edm::ESGetToken<HcalElectronicsMap, HcalDbRecord> tok_emap_;
+  edm::ESGetToken<HcalElectronicsMap, HcalElectronicsMapRcd> tok_emap_;
 };
 
 HcalLutAnalyzer::HcalLutAnalyzer(const edm::ParameterSet& iConfig) {
   inputDir = iConfig.getParameter<std::string>("inputDir");
   plotsDir = iConfig.getParameter<std::string>("plotsDir");
-  tags_ = iConfig.getParameter<std::vector<std::string> >("tags");
-  quality_ = iConfig.getParameter<std::vector<std::string> >("quality");
-  pedestals_ = iConfig.getParameter<std::vector<std::string> >("pedestals");
-  effpedestals_ = iConfig.getParameter<std::vector<std::string> >("effpedestals");
-  gains_ = iConfig.getParameter<std::vector<std::string> >("gains");
-  respcorrs_ = iConfig.getParameter<std::vector<std::string> >("respcorrs");
+  tags_ = iConfig.getParameter<std::vector<std::string>>("tags");
+  quality_ = iConfig.getParameter<std::vector<std::string>>("quality");
+  pedestals_ = iConfig.getParameter<std::vector<std::string>>("pedestals");
+  effpedestals_ = iConfig.getParameter<std::vector<std::string>>("effpedestals");
+  gains_ = iConfig.getParameter<std::vector<std::string>>("gains");
+  respcorrs_ = iConfig.getParameter<std::vector<std::string>>("respcorrs");
 
   Zmin = iConfig.getParameter<double>("Zmin");
   Zmax = iConfig.getParameter<double>("Zmax");
@@ -94,12 +100,10 @@ HcalLutAnalyzer::HcalLutAnalyzer(const edm::ParameterSet& iConfig) {
   Pmax = iConfig.getParameter<double>("Pmax");
 
   tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
-  tok_emap_ = esConsumes<HcalElectronicsMap, HcalDbRecord>();
+  tok_emap_ = esConsumes<HcalElectronicsMap, HcalElectronicsMapRcd>();
 }
 
 void HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
-  using namespace std;
-
   const HcalTopology* topology = &iSetup.getData(tok_htopo_);
   const HcalElectronicsMap* electronicsMap = &iSetup.getData(tok_emap_);
 
@@ -214,7 +218,7 @@ void HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) 
 
   unsigned long int iraw;
   int ieta, iphi, idep;
-  string det, base;
+  std::string det, base;
   float val1, val2, val3, val4;
   float wid1, wid2, wid3, wid4;
   char buffer[1024];
@@ -360,6 +364,9 @@ void HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) 
   for (const auto& xml2 : xmls2) {
     HcalGenericDetId detid(xml2.first);
 
+    if (detid.null() or detid.isHcalZDCDetId())
+      continue;
+
     if (detid.genericSubdet() == HcalGenericDetId::HcalGenTriggerTower) {
       HcalTrigTowerDetId tid(detid.rawId());
       if (!topology->validHT(tid))
@@ -388,6 +395,9 @@ void HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) 
   for (const auto& xml1 : xmls1) {
     HcalGenericDetId detid(xml1.first);
     const auto& lut1 = xml1.second;
+
+    if (detid.null() or detid.isHcalZDCDetId())
+      continue;
 
     if (detid.genericSubdet() == HcalGenericDetId::HcalGenTriggerTower) {
       HcalTrigTowerDetId tid(detid.rawId());
@@ -611,7 +621,27 @@ void HcalLutAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) 
 
 void HcalLutAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+  std::vector<std::string> runs = {"0", "999999"};
+  std::vector<std::string> tags = {"tag1", "tag2"};
+  desc.add<std::string>("inputDir", "conditions")->setComment("Directory containing conditions dumped to txt files");
+  desc.add<std::string>("plotsDir", "conditions/Figures")->setComment("Directory to write out ROOT files and plots");
+  desc.add<std::vector<std::string>>("tags", tags)
+      ->setComment("Tag names for referencing corresponding LUT inputs and outputs");
+  desc.add<std::vector<std::string>>("quality", runs)
+      ->setComment("Run numbers (IOV) of dumped HcalChannelQuality to analyze");
+  desc.add<std::vector<std::string>>("pedestals", runs)
+      ->setComment("Run numbers (IOV) of dumped HcalPedestals to analyze");
+  desc.add<std::vector<std::string>>("effpedestals", runs)
+      ->setComment("Run numbers (IOV) of dumped HcalEffectivePedestals to analyze");
+  desc.add<std::vector<std::string>>("gains", runs)->setComment("Run numbers (IOV) of dumped HcalGains to analyze");
+  desc.add<std::vector<std::string>>("respcorrs", runs)
+      ->setComment("Run numbers (IOV) of dumped HcalRespCorrs to analyze");
+  desc.add<double>("Zmin", 0.)->setComment("Z-axis minimum for 2D histogram");
+  desc.add<double>("Zmax", 10.)->setComment("Z-axis maximum for 2D histogram");
+  desc.add<double>("Ymin", 0.7)->setComment("Y-axis minimum for 2D histogram");
+  desc.add<double>("Ymax", 1.3)->setComment("Y-axis maximum for 2D histogram");
+  desc.add<double>("Pmin", 0.9)->setComment("Z-axis minimum for 2D histogram of a ratio");
+  desc.add<double>("Pmax", 1.1)->setComment("Z-axis maximum for 2D histogram of a ratio");
   descriptions.addDefault(desc);
 }
 

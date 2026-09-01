@@ -35,8 +35,6 @@ enum EDM_MPI_MessageTag {
 inline constexpr int EDM_MPI_MessageTagWidth_ = 256;
 static_assert(EDM_MPI_MessageTagCount_ <= EDM_MPI_MessageTagWidth_);
 
-extern MPI_Datatype EDM_MPI_MessageType[EDM_MPI_MessageTagCount_];
-
 /* Common header for EDM MPI messages, containing
  *   - the message type (to allow decoding the message further)
  */
