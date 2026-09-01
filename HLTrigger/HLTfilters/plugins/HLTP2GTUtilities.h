@@ -223,6 +223,54 @@ namespace hltp2gt {
       return c.objectType() == objectType && c.pt() >= minPt && std::abs(c.eta()) <= maxAbsEta;
     }
 
+    // Same logic as accepts() but emits one edm::LogPrint line per candidate
+    // describing exactly which cut failed (or that it passed).  Activated by
+    // the debugAccepts parameter on HLTP2GTSingleObjectFilter.
+    bool acceptsWithDebug(const l1t::P2GTCandidate& c, const std::string& algoName) const {
+      const char* typeName = objectTypeName(objectType);
+
+      if (c.objectType() != objectType) {
+        std::cout << "HLTP2GTUtilities"
+                  << "[" << algoName << "] REJECT objectType mismatch:"
+                  << " candidate=" << objectTypeName(c.objectType()) << " expected=" << typeName << std::endl;
+        return false;
+      } else {
+        std::cout << "HLTP2GTUtilities"
+                  << "[" << algoName << "] ACCEPT objectType:"
+                  << " candidate=" << objectTypeName(c.objectType()) << " expected=" << typeName << std::endl;
+      }
+
+      const double absEta = std::abs(c.eta());
+      if (absEta > maxAbsEta) {
+        std::cout << "HLTP2GTUtilities"
+                  << "[" << algoName << "] REJECT " << typeName << " |eta|=" << absEta << " > maxAbsEta=" << maxAbsEta
+                  << std::endl;
+        return false;
+      } else {
+        std::cout << "HLTP2GTUtilities"
+                  << "[" << algoName << "] ACCEPT " << typeName << " |eta|=" << absEta << " < maxAbsEta=" << maxAbsEta
+                  << std::endl;
+      }
+
+      const double value = c.pt();
+      const auto& hWpT = c.hwPT();
+
+      if (value < minPt) {
+        std::cout << "HLTP2GTUtilities"
+                  << "[" << algoName << "] REJECT " << typeName << " pT =" << value << " < minPt=" << minPt
+                  << "(hW pT:)" << hWpT << std::endl;
+        return false;
+      } else {
+        std::cout << "HLTP2GTUtilities"
+                  << "[" << algoName << "] ACCEPT " << typeName << " pT =" << value << " > minPt=" << minPt
+                  << "(hW pT:)" << hWpT << std::endl;
+      }
+
+      std::cout << "HLTP2GTUtilities" << "[" << algoName << "] ACCEPT " << typeName << "pT=" << value
+                << " >= minPt=" << minPt << std::endl;
+      return true;
+    }
+
     bool operator==(const CollectionSpec& o) const {
       return objectType == o.objectType && minPt == o.minPt && maxAbsEta == o.maxAbsEta;
     }
