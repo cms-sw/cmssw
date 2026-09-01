@@ -83,6 +83,19 @@ namespace edm {
     ProcessBlockPrincipal* processBlockPrincipal_ = nullptr;
   };
 
+  class InputProcessBlockTransitionInfo {
+  public:
+    InputProcessBlockTransitionInfo() {}
+
+    InputProcessBlockTransitionInfo(ProcessBlockPrincipal& iPrincipal) : processBlockPrincipal_(&iPrincipal) {}
+
+    ProcessBlockPrincipal& principal() { return *processBlockPrincipal_; }
+    ProcessBlockPrincipal const& principal() const { return *processBlockPrincipal_; }
+
+  private:
+    ProcessBlockPrincipal* processBlockPrincipal_ = nullptr;
+  };
+
 };  // namespace edm
 
 #endif

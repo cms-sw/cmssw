@@ -446,7 +446,7 @@ namespace edm {
   class OccurrenceTraits<ProcessBlockPrincipal, TransitionActionProcessBlockInput> {
   public:
     using MyPrincipal = ProcessBlockPrincipal;
-    using TransitionInfoType = ProcessBlockTransitionInfo;
+    using TransitionInfoType = InputProcessBlockTransitionInfo;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InProcess;
     static bool constexpr isEvent_ = false;

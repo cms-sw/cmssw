@@ -1085,7 +1085,7 @@ namespace edm {
       using Traits = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionProcessBlockInput>;
       FinalWaitingTask globalWaitTask{taskGroup_};
 
-      ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
+      InputProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
       schedule_->processOneGlobalAsync<Traits>(
           WaitingTaskHolder(taskGroup_, &globalWaitTask), transitionInfo, serviceToken_);
 
