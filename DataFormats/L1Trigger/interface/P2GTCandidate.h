@@ -99,6 +99,7 @@ namespace l1t {
       void setHwEta(hwEta_t hwEta) { hwEta_ = hwEta.to_int(); }
       void setHwZ0(hwZ0_t hwZ0) { hwZ0_ = hwZ0.to_int(); }
       void setHwIsolationPT(hwIsolationPT_t hwIso) { hwIsolationPT_ = hwIso.to_int(); }
+      void setIsolationPT(double isolationPT) { isolationPT_ = isolationPT; }
       void setHwQualityFlags(hwQualityFlags_t hwQualityFlags) { hwQualityFlags_ = hwQualityFlags.to_int(); }
       void setHwQualityScore(hwQualityScore_t hwQualityScore) { hwQualityScore_ = hwQualityScore.to_int(); }
       void setHwCharge(hwCharge_t hwCharge) { hwCharge_ = hwCharge.to_int(); }
@@ -109,6 +110,7 @@ namespace l1t {
       void setHwSeed_pT(hwSeed_pT_t hwSeed_pT) { hwSeed_pT_ = hwSeed_pT.to_int(); }
       void setHwSeed_z0(hwSeed_z0_t hwSeed_z0) { hwSeed_z0_ = hwSeed_z0.to_int(); }
       void setHwScalarSumPT(hwScalarSumPT_t hwScalarSumPT) { hwScalarSumPT_ = hwScalarSumPT.to_int(); }
+      void setScalarSumPT(double scalarSumPT) { scalarSumPT_ = scalarSumPT; }
       void setHwNumber_of_tracks(hwNumber_of_tracks_t hwNumber_of_tracks) {
         hwNumber_of_tracks_ = hwNumber_of_tracks.to_int();
       }
@@ -159,6 +161,13 @@ namespace l1t {
           throw std::invalid_argument("Object doesn't have isolationPT");
         }
         return static_cast<int>(hwIsolationPT_);
+      }
+
+      double isolationPT() const {
+        if (!isolationPT_) {
+          throw std::invalid_argument("Object doesn't have isolationPT");
+        }
+        return isolationPT_;
       }
 
       hwQualityFlags_t hwQualityFlags() const {
@@ -229,6 +238,13 @@ namespace l1t {
           throw std::invalid_argument("Object doesn't have scalarSumPT");
         }
         return static_cast<int>(hwScalarSumPT_);
+      }
+
+      double scalarSumPT() const {
+        if (!scalarSumPT_) {
+          throw std::invalid_argument("Object doesn't have scalarSumPT");
+        }
+        return scalarSumPT_;
       }
 
       hwNumber_of_tracks_t hwNumber_of_tracks() const {
@@ -320,12 +336,20 @@ namespace l1t {
                objectType_ == CL2JetsSC4 || objectType_ == CL2JetsSC8;
       }
 
+      bool isEtSum() const { return objectType_ == GCTEtSum || objectType_ == GTTEtSum || objectType_ == CL2EtSum; }
+
+      bool isHtSum() const {
+        return objectType_ == GCTHtSum || objectType_ == GTTPromptHtSum || objectType_ == GTTDisplacedHtSum ||
+               objectType_ == CL2HtSum;
+      }
+
     private:
       Optional<int> hwPT_;
       Optional<int> hwPhi_;
       Optional<int> hwEta_;
       Optional<int> hwZ0_;
       Optional<int> hwIsolationPT_;
+      Optional<double> isolationPT_;
       Optional<int> hwQualityFlags_;
       Optional<int> hwQualityScore_;
       Optional<int> hwCharge_;
@@ -336,6 +360,7 @@ namespace l1t {
       Optional<int> hwSeed_pT_;
       Optional<int> hwSeed_z0_;
       Optional<int> hwScalarSumPT_;
+      Optional<double> scalarSumPT_;
       Optional<int> hwNumber_of_tracks_;
       Optional<int> hwNumber_of_displaced_tracks_;
 
