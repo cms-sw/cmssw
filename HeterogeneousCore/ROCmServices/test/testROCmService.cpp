@@ -6,7 +6,7 @@
 
 #include <hip/hip_runtime.h>
 
-#include <fmt/core.h>
+#include <fmt/format.h>
 
 #include <catch2/catch_all.hpp>
 
