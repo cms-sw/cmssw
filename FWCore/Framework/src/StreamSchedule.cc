@@ -179,11 +179,14 @@ namespace edm {
     }
 
     for (auto const& worker : allWorkersEvents()) {
-      if (worker->wantsStreamLuminosityBlocks()) {
-        (void)workerManagerLumis_.getWorkerForModule(*worker->description());
+      auto desc = worker->description();
+      assert(desc);
+      auto mod = modReg->getExistingModule(desc->moduleLabel());
+      if (mod->wantsTransition(LumiTransitionInfo::key(), TransitionPhaseStream::value)) {
+        (void)workerManagerLumis_.getWorkerForModule(*desc);
       }
-      if (worker->wantsStreamRuns()) {
-        (void)workerManagerRuns_.getWorkerForModule(*worker->description());
+      if (mod->wantsTransition(RunTransitionInfo::key(), TransitionPhaseStream::value)) {
+        (void)workerManagerRuns_.getWorkerForModule(*desc);
       }
     }
 
