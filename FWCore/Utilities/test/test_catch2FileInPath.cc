@@ -15,10 +15,6 @@
 // A test that references an issue number below asserts the CURRENT behaviour;
 // if the issue is fixed, update the test in the same commit.
 //
-//  4. Defect: read() assigns location_ (FileInPath.cc:220) before the stream
-//     state is checked (FileInPath.cc:230), so a truncated-but-non-empty record
-//     leaves the object internally inconsistent rather than untouched. Same in
-//     readFromParameterSetBlob() (FileInPath.cc:291 vs :298).
 //  5. Defect: the not-found message re-reads the LIVE environment with
 //     std::getenv (FileInPath.cc:449) instead of the cached searchPath(). If
 //     CMSSW_SEARCH_PATH was unset after the search path was cached, this is a
@@ -34,19 +30,6 @@
 //  9. Asymmetry: readFromParameterSetBlob() degrades gracefully for a missing
 //     local or release top (@LOCAL / @RELEASE, FileInPath.cc:302-311) but still
 //     throws for a missing data top (FileInPath.cc:325-327).
-// 10. Defect (worse than Issue 4): for a truncated-but-non-empty record, the
-//     failed extraction into "int loc" (FileInPath.cc:219) or "bool local"
-//     (FileInPath.cc:213/:284) leaves that local variable UNINITIALISED, not
-//     value-initialised to 0 as one might expect: the preceding extraction
-//     already left the stream at eofbit (not failbit), so the sentry for the
-//     next ">>" fails before std::num_get/do_get ever runs and the output
-//     argument is left untouched. location_ is then set from this
-//     indeterminate value, which is itself UB to read back via location()
-//     (confirmed with UBSan: "load of value ..., which is not a valid value
-//     for type 'LocationCode'"). Do not assert a specific location_/loc value
-//     for these cases; only assert what is well-defined (whether
-//     relativePath_ was overwritten, and that read()/readFromParameterSetBlob()
-//     report failure via the stream state).
 
 #include "catch2/catch_all.hpp"
 
@@ -666,28 +649,12 @@ TEST_CASE("read() from a failing stream leaves the object untouched", "[local]")
   REQUIRE(fip.location() == locBefore);
 }
 
-TEST_CASE("read() of a truncated record leaves relativePath/fullPath unchanged but corrupts location_", "[local]") {
-  // Issue 4 (read() assigns location_ before the stream state is checked) and
-  // Issue 10 (that assignment reads an uninitialised local when the failure
-  // happens on the extraction feeding it). We deliberately do NOT assert a
-  // specific location() value in these cases: unlike the plan's original
-  // assumption, the failed extraction leaves "int loc" / "bool local"
-  // (FileInPath.cc:218/:212) genuinely uninitialised rather than
-  // value-initialised to 0 - the preceding extraction already left the stream
-  // at eofbit (not failbit), so std::num_get::do_get's sentry fails before
-  // touching the output argument at all. location_ is then set from
-  // indeterminate stack contents, which is UB to even read back (confirmed
-  // with UBSan: "load of value ..., which is not a valid value for type
-  // 'LocationCode'"), and differs between optimisation levels in practice.
-  // What IS well-defined, and what these tests pin, is that relativePath_ and
-  // canonicalFilename_ are left exactly as they were: both branches of read()
-  // only reach "relativePath_ = relname;" (FileInPath.cc:232) after the
-  // "if (!is) return;" check at FileInPath.cc:230, so a failure anywhere
-  // before that point skips the assignment entirely.
+TEST_CASE("read() of a truncated record leaves the object completely untouched", "[local]") {
   SECTION("current format, missing location field") {
     edm::FileInPath fip("Sub/Pack/data/file.txt");
     std::string const relBefore = fip.relativePath();
     std::string const fullBefore = fip.fullPath();
+    auto const locBefore = fip.location();
 
     std::istringstream is("V001 Sub/Pack/data/file.txt");
     fip.read(is);
@@ -695,11 +662,13 @@ TEST_CASE("read() of a truncated record leaves relativePath/fullPath unchanged b
     REQUIRE(is.fail());
     REQUIRE(fip.relativePath() == relBefore);
     REQUIRE(fip.fullPath() == fullBefore);
+    REQUIRE(fip.location() == locBefore);
   }
   SECTION("legacy format, bare relative path only") {
     edm::FileInPath fip("Sub/Pack/data/file.txt");
     std::string const relBefore = fip.relativePath();
     std::string const fullBefore = fip.fullPath();
+    auto const locBefore = fip.location();
 
     std::istringstream is("someRelPath");
     fip.read(is);
@@ -707,11 +676,13 @@ TEST_CASE("read() of a truncated record leaves relativePath/fullPath unchanged b
     REQUIRE(is.fail());
     REQUIRE(fip.relativePath() == relBefore);
     REQUIRE(fip.fullPath() == fullBefore);
+    REQUIRE(fip.location() == locBefore);
   }
   SECTION("readFromParameterSetBlob equivalent of the current-format case") {
     edm::FileInPath fip;
     std::string const relBefore = fip.relativePath();
     std::string const fullBefore = fip.fullPath();
+    auto const locBefore = fip.location();
 
     std::istringstream is("V001 Sub/Pack/data/file.txt");
     fip.readFromParameterSetBlob(is);
@@ -719,6 +690,7 @@ TEST_CASE("read() of a truncated record leaves relativePath/fullPath unchanged b
     REQUIRE(is.fail());
     REQUIRE(fip.relativePath() == relBefore);
     REQUIRE(fip.fullPath() == fullBefore);
+    REQUIRE(fip.location() == locBefore);
   }
 }
 
