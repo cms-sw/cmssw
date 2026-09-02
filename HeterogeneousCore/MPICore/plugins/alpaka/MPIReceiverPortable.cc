@@ -33,6 +33,8 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/MPICore/interface/MPIChannel.h"
 #include "HeterogeneousCore/MPICore/interface/MPIToken.h"
+#include "HeterogeneousCore/MPICore/interface/MutableOnceFlag.h"
+#include "HeterogeneousCore/MPIServices/interface/MPIConsistencyChecker.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/AnyBuffer.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/SerialiserBase.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/SerialiserFactory.h"
@@ -45,10 +47,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   // Inherit from ProducerBase. This is so we have access to the EDMetadata,
   // which we need for synchronization
-  class MPIReceiverPortable : public ProducerBase<edm::stream::EDProducer, edm::ExternalWork> {
+  class MPIReceiverPortable
+      : public ProducerBase<edm::stream::EDProducer, edm::ExternalWork, edm::GlobalCache<MutableOnceFlag>> {
   public:
-    MPIReceiverPortable(edm::ParameterSet const& config)
-        : ProducerBase<edm::stream::EDProducer, edm::ExternalWork>(config),
+    MPIReceiverPortable(edm::ParameterSet const& config, MutableOnceFlag const* cache)
+        : ProducerBase<edm::stream::EDProducer, edm::ExternalWork, edm::GlobalCache<MutableOnceFlag>>(config),
           upstream_(consumes<MPIToken>(config.getParameter<edm::InputTag>("upstream"))),
           token_(this->producesCollector().template produces<MPIToken>()),
           instance_(config.getParameter<int32_t>("instance")) {
@@ -238,7 +241,29 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         products_.emplace_back(std::move(entry));
       }
+
+      // record information about this receiver for configuration consistency check
+      edm::Service<MPIConsistencyChecker> module_info_service;
+      std::vector<std::string> product_types;
+      product_types.reserve(products_.size());
+      for (auto const& entry : products_) {
+        product_types.push_back(entry.typeName);
+      }
+      std::string module_label = config.getParameter<std::string>("@module_label");
+      std::string upstream_label = config.getParameter<edm::InputTag>("upstream").label();
+      if (cache == nullptr) {
+        throw cms::Exception("MPIReceiverPortable") << "MPIReceiverPortable's global cache is null";
+      }
+      std::call_once(cache->information_recorded_flag, [&]() {
+        module_info_service->recordMPIModuleInfo(false, module_label, upstream_label, this->instance_, product_types);
+      });
     }
+
+    static std::unique_ptr<MutableOnceFlag> initializeGlobalCache(edm::ParameterSet const&) {
+      return std::make_unique<MutableOnceFlag>();
+    }
+
+    static void globalEndJob(MutableOnceFlag const*) {}
 
     void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
       // reset the metadata that could have been left behind by a previous event
