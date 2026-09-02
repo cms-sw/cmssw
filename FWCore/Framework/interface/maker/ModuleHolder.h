@@ -151,7 +151,6 @@ namespace edm {
         return {};
       }
 
-
       static void finishModuleInitialization(T& iModule,
                                              ModuleDescription const& iDesc,
                                              PreallocationConfiguration const& iPrealloc,
