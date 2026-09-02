@@ -31,6 +31,7 @@
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
@@ -49,34 +50,38 @@
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
+#include <cmath>
+
 class MuonSimHitProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit MuonSimHitProducer(const edm::ParameterSet&);
 
 private:
-  MuonServiceProxy* theService;
-  Chi2MeasurementEstimator theEstimator;
+  static constexpr double c_cm_ns_ = 29.98;
 
-  const MagneticField* magfield;
-  const DTGeometry* dtGeom;
-  const CSCGeometry* cscGeom;
-  const RPCGeometry* rpcGeom;
-  const GEMGeometry* gemGeom;
-  const Propagator* propagatorWithMaterial;
-  std::unique_ptr<Propagator> propagatorWithoutMaterial;
-  bool enableGEM;
+  std::unique_ptr<MuonServiceProxy> theService_;
+  Chi2MeasurementEstimator theEstimator_;
 
-  std::unique_ptr<MaterialEffects> theMaterialEffects;
+  const MagneticField* magfield_;
+  const DTGeometry* dtGeom_;
+  const CSCGeometry* cscGeom_;
+  const RPCGeometry* rpcGeom_;
+  const GEMGeometry* gemGeom_;
+  const Propagator* propagatorWithMaterial_;
+  std::unique_ptr<Propagator> propagatorWithoutMaterial_;
+  bool enableGEM_;
+
+  std::unique_ptr<MaterialEffects> theMaterialEffects_;
 
   void beginRun(edm::Run const& run, const edm::EventSetup& es) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   void readParameters(const edm::ParameterSet&, const edm::ParameterSet&, const edm::ParameterSet&);
 
   // Parameters to emulate the muonSimHit association inefficiency due to delta's
-  double kDT;
-  double fDT;
-  double kCSC;
-  double fCSC;
+  double kDT_;
+  double fDT_;
+  double kCSC_;
+  double fCSC_;
 
   /// Simulate material effects in iron (dE/dx, multiple scattering)
   void applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
@@ -90,38 +95,38 @@ private:
   bool doL1_, doL3_, doGL_;
 
   // tags
-  edm::InputTag simMuonLabel;
-  edm::InputTag simVertexLabel;
+  edm::InputTag simMuonLabel_;
+  edm::InputTag simVertexLabel_;
 
   // tokens
-  edm::EDGetTokenT<std::vector<SimTrack> > simMuonToken;
-  edm::EDGetTokenT<std::vector<SimVertex> > simVertexToken;
+  edm::EDGetTokenT<std::vector<SimTrack>> simMuonToken_;
+  edm::EDGetTokenT<std::vector<SimVertex>> simVertexToken_;
 
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldESToken_;
-  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeometryESToken_;
-  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeometryESToken_;
-  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeometryESToken_;
-  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemGeometryESToken_;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> DTGeometryESToken_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> CSCGeometryESToken_;
+  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> RPCGeometryESToken_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> GEMGeometryESToken_;
   const edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> particleDataTableESToken_;
 };
 
 //for debug only
-//#define FAMOS_DEBUG
+//#define EDM_ML_DEBUG
 
 //
 // constructors and destructor
 //
 MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig)
-    : theEstimator(iConfig.getParameter<double>("Chi2EstimatorCut")),
-      propagatorWithoutMaterial(nullptr),
-      enableGEM(iConfig.getParameter<bool>("enableGEM")),
+    : theEstimator_(iConfig.getParameter<double>("Chi2EstimatorCut")),
+      propagatorWithoutMaterial_(nullptr),
+      enableGEM_(iConfig.getParameter<bool>("enableGEM")),
       magneticFieldESToken_(esConsumes<edm::Transition::BeginRun>()),
-      dtGeometryESToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "MisAligned"))),
-      cscGeometryESToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "MisAligned"))),
-      rpcGeometryESToken_(esConsumes<edm::Transition::BeginRun>()),
+      DTGeometryESToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "MisAligned"))),
+      CSCGeometryESToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "MisAligned"))),
+      RPCGeometryESToken_(esConsumes<edm::Transition::BeginRun>()),
       particleDataTableESToken_(esConsumes()) {
-  if (enableGEM)
-    gemGeometryESToken_ = esConsumes<edm::Transition::BeginRun>();
+  if (enableGEM_)
+    GEMGeometryESToken_ = esConsumes<edm::Transition::BeginRun>();
 
   // Read relevant parameters
   readParameters(iConfig.getParameter<edm::ParameterSet>("MUONS"),
@@ -134,36 +139,37 @@ MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig)
   produces<edm::PSimHitContainer>("MuonCSCHits");
   produces<edm::PSimHitContainer>("MuonDTHits");
   produces<edm::PSimHitContainer>("MuonRPCHits");
-  if (enableGEM)
+  if (enableGEM_)
     produces<edm::PSimHitContainer>("MuonGEMHits");
 
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
-  theService = new MuonServiceProxy(serviceParameters, consumesCollector(), MuonServiceProxy::UseEventSetupIn::Run);
+  theService_ = std::make_unique<MuonServiceProxy>(
+      serviceParameters, consumesCollector(), MuonServiceProxy::UseEventSetupIn::Run);
 
   // consumes
-  simMuonToken = consumes<std::vector<SimTrack> >(simMuonLabel);
-  simVertexToken = consumes<std::vector<SimVertex> >(simVertexLabel);
+  simMuonToken_ = consumes<std::vector<SimTrack>>(simMuonLabel_);
+  simVertexToken_ = consumes<std::vector<SimVertex>>(simVertexLabel_);
 }
 
 // ---- method called once each job just before starting event loop ----
 void MuonSimHitProducer::beginRun(edm::Run const& run, const edm::EventSetup& es) {
   //services
-  magfield = &es.getData(magneticFieldESToken_);
-  dtGeom = &es.getData(dtGeometryESToken_);
-  cscGeom = &es.getData(cscGeometryESToken_);
-  rpcGeom = &es.getData(rpcGeometryESToken_);
-  if (enableGEM)
-    gemGeom = &es.getData(gemGeometryESToken_);
+  magfield_ = &es.getData(magneticFieldESToken_);
+  dtGeom_ = &es.getData(DTGeometryESToken_);
+  cscGeom_ = &es.getData(CSCGeometryESToken_);
+  rpcGeom_ = &es.getData(RPCGeometryESToken_);
+  if (enableGEM_)
+    gemGeom_ = &es.getData(GEMGeometryESToken_);
 
   bool duringEvent = false;
-  theService->update(es, duringEvent);
+  theService_->update(es, duringEvent);
 
   // A few propagators
-  propagatorWithMaterial = &(*(theService->propagator("SteppingHelixPropagatorAny")));
-  propagatorWithoutMaterial.reset(propagatorWithMaterial->clone());
+  propagatorWithMaterial_ = &(*(theService_->propagator("SteppingHelixPropagatorAny")));
+  propagatorWithoutMaterial_.reset(propagatorWithMaterial_->clone());
   SteppingHelixPropagator* SHpropagator =
-      dynamic_cast<SteppingHelixPropagator*>(propagatorWithoutMaterial.get());  // Beuark!
-  SHpropagator->setMaterialMode(true);                                          // switches OFF material effects;
+      dynamic_cast<SteppingHelixPropagator*>(propagatorWithoutMaterial_.get());  // Beuark!
+  SHpropagator->setMaterialMode(true);                                           // switches OFF material effects;
 }
 
 //
@@ -179,22 +185,18 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   MuonPatternRecoDumper dumper;
 
-  edm::Handle<std::vector<SimTrack> > simMuons;
-  edm::Handle<std::vector<SimVertex> > simVertices;
-  std::vector<PSimHit> theCSCHits;
-  std::vector<PSimHit> theDTHits;
-  std::vector<PSimHit> theRPCHits;
-  std::vector<PSimHit> theGEMHits;
+  edm::Handle<std::vector<SimTrack>> simMuons;
+  edm::Handle<std::vector<SimVertex>> simVertices;
+  auto theCSCHits = std::make_unique<edm::PSimHitContainer>();
+  auto theDTHits = std::make_unique<edm::PSimHitContainer>();
+  auto theRPCHits = std::make_unique<edm::PSimHitContainer>();
+  auto theGEMHits = std::make_unique<edm::PSimHitContainer>();
 
-  DirectMuonNavigation navigation(theService->detLayerGeometry());
-  iEvent.getByToken(simMuonToken, simMuons);
-  iEvent.getByToken(simVertexToken, simVertices);
+  DirectMuonNavigation navigation(theService_->detLayerGeometry());
+  iEvent.getByToken(simMuonToken_, simMuons);
+  iEvent.getByToken(simVertexToken_, simVertices);
 
-  for (unsigned int itrk = 0; itrk < simMuons->size(); itrk++) {
-    const SimTrack& mySimTrack = (*simMuons)[itrk];
-    math::XYZTLorentzVector mySimP4(
-        mySimTrack.momentum().x(), mySimTrack.momentum().y(), mySimTrack.momentum().z(), mySimTrack.momentum().t());
-
+  for (const auto& mySimTrack : *simMuons) {
     // Decaying hadrons are now in the list, and so are their muon daughter
     // Ignore the hadrons here.
     int pid = mySimTrack.type();
@@ -205,21 +207,21 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     int ivert = mySimTrack.vertIndex();
     if (ivert >= 0) {
       t0 = (*simVertices)[ivert].position().t();
-      GlobalPoint xyzzy((*simVertices)[ivert].position().x(),
-                        (*simVertices)[ivert].position().y(),
-                        (*simVertices)[ivert].position().z());
-      initialPosition = xyzzy;
+      initialPosition = GlobalPoint((*simVertices)[ivert].position().x(),
+                                    (*simVertices)[ivert].position().y(),
+                                    (*simVertices)[ivert].position().z());
     }
     //
     //  Presumably t0 has dimensions of cm if not mm?
     //  Convert to ns for internal calculations.
     //  I wonder where we should get c from?
     //
-    double tof = t0 / 29.98;
+    double tof = t0 / c_cm_ns_;
 
-#ifdef FAMOS_DEBUG
+#ifdef EDM_ML_DEBUG
     std::cout << " ===> MuonSimHitProducer::reconstruct() found SIMTRACK - pid = " << pid;
-    std::cout << " : pT = " << mySimP4.Pt() << ", eta = " << mySimP4.Eta() << ", phi = " << mySimP4.Phi() << std::endl;
+    std::cout << " : pT = " << mySimTrack.momentum().Pt() << ", eta = " << mySimTrack.momentum().Eta()
+              << ", phi = " << mySimTrack.momentum().Phi() << std::endl;
 #endif
 
     //
@@ -238,9 +240,9 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     //  will be rather seldom...  May as well ignore the mass too.
     //
     GlobalVector dtracker = startingPosition - initialPosition;
-    tof += dtracker.mag() / 29.98;
+    tof += dtracker.mag() / c_cm_ns_;
 
-#ifdef FAMOS_DEBUG
+#ifdef EDM_ML_DEBUG
     std::cout << " the Muon START position " << startingPosition << std::endl;
     std::cout << " the Muon START momentum " << startingMomentum << std::endl;
 #endif
@@ -252,41 +254,35 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     GlobalVector zAxis = startingMomentum.unit();
     GlobalVector yAxis(zAxis.y(), -zAxis.x(), 0);
     GlobalVector xAxis = yAxis.cross(zAxis);
-    Surface::RotationType rot = Surface::RotationType(xAxis, yAxis, zAxis);
+    Surface::RotationType rot(xAxis, yAxis, zAxis);
     PlaneBuilder::ReturnType startingPlane = pb.plane(startingPosition, rot);
-    GlobalTrajectoryParameters gtp(startingPosition, startingMomentum, (int)mySimTrack.charge(), magfield);
+    GlobalTrajectoryParameters gtp(startingPosition, startingMomentum, (int)mySimTrack.charge(), magfield_);
     TrajectoryStateOnSurface startingState(gtp, *startingPlane);
 
-    std::vector<const DetLayer*> navLayers;
-    if (fabs(startingState.globalMomentum().eta()) > 4.5) {
-      navLayers = navigation.compatibleEndcapLayers(*(startingState.freeState()), alongMomentum);
-    } else {
-      navLayers = navigation.compatibleLayers(*(startingState.freeState()), alongMomentum);
-    }
-    /*
-    edm::ESHandle<Propagator> propagator =
-      theService->propagator("SteppingHelixPropagatorAny");
-    */
+    const std::vector<const DetLayer*>& navLayers =
+        (std::abs(startingState.globalMomentum().eta()) > 4.5)
+            ? navigation.compatibleEndcapLayers(*(startingState.freeState()), alongMomentum)
+            : navigation.compatibleLayers(*(startingState.freeState()), alongMomentum);
 
     if (navLayers.empty())
       continue;
 
-#ifdef FAMOS_DEBUG
+#ifdef EDM_ML_DEBUG
     std::cout << "Found " << navLayers.size() << " compatible DetLayers..." << std::endl;
 #endif
 
     TrajectoryStateOnSurface propagatedState = startingState;
     for (unsigned int ilayer = 0; ilayer < navLayers.size(); ilayer++) {
-#ifdef FAMOS_DEBUG
+#ifdef EDM_ML_DEBUG
       std::cout << "Propagating to layer " << ilayer << " " << dumper.dumpLayer(navLayers[ilayer]) << std::endl;
 #endif
 
-      std::vector<DetWithState> comps =
-          navLayers[ilayer]->compatibleDets(propagatedState, *propagatorWithMaterial, theEstimator);
+      const std::vector<DetWithState>& comps =
+          navLayers[ilayer]->compatibleDets(propagatedState, *propagatorWithMaterial_, theEstimator_);
       if (comps.empty())
         continue;
 
-#ifdef FAMOS_DEBUG
+#ifdef EDM_ML_DEBUG
       std::cout << "Propagating " << propagatedState << std::endl;
 #endif
 
@@ -296,7 +292,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       // Propagate with material effects (dE/dx average only)
       SteppingHelixStateInfo shsStart(*(propagatedState.freeTrajectoryState()));
       SteppingHelixStateInfo shsDest;
-      ((const SteppingHelixPropagator*)propagatorWithMaterial)
+      ((const SteppingHelixPropagator*)propagatorWithMaterial_)
           ->propagate(shsStart, navLayers[ilayer]->surface(), shsDest);
       std::pair<TrajectoryStateOnSurface, double> next(shsDest.getStateOnSurface(navLayers[ilayer]->surface()),
                                                        shsDest.path());
@@ -312,7 +308,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       // Now propagate without dE/dx (average)
       // [To add the dE/dx fluctuations to the actual dE/dx]
       std::pair<TrajectoryStateOnSurface, double> nextNoMaterial =
-          propagatorWithoutMaterial->propagateWithPath(propagatedState, navLayers[ilayer]->surface());
+          propagatorWithoutMaterial_->propagateWithPath(propagatedState, navLayers[ilayer]->surface());
 
       // Update the propagated state
       propagatedState = next.first;
@@ -321,7 +317,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       // Insert dE/dx fluctuations and multiple scattering
       // Skip this step if nextNoMaterial.first is not valid
       // This happens rarely (~0.02% of ttbar events)
-      if (theMaterialEffects && nextNoMaterial.first.isValid())
+      if (theMaterialEffects_ && nextNoMaterial.first.isValid())
         applyMaterialEffects(propagatedState, nextNoMaterial.first, radPath, &random, *pdg);
       // Check that the 'shaken' propagatedState is still valid, otherwise continue
       if (!propagatedState.isValid())
@@ -333,14 +329,14 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       //  muon chambers.
       //
       double pavg = 0.5 * (pi + pf);
-      double m = mySimP4.M();
-      double rbeta = sqrt(1 + m * m / (pavg * pavg)) / 29.98;
+      double m2 = mySimTrack.momentum().M2();
+      double rbeta = sqrt(1 + m2 / (pavg * pavg)) / c_cm_ns_;
       double dtof = pathLength * rbeta;
       // GEMDigitizer need the eloss information.
       // The muon mass negligible when we calculate the energya. So energy loss is assumed as the momentum difference.
       double eloss = pi - pf;
 
-#ifdef FAMOS_DEBUG
+#ifdef EDM_ML_DEBUG
       std::cout << "Propagated to next surface... path length = " << pathLength << " cm, dTOF = " << dtof << " ns"
                 << std::endl;
 #endif
@@ -351,24 +347,24 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
         const GeomDet* gd = comps[icomp].first;
         if (gd->subDetector() == GeomDetEnumerators::DT) {
           DTChamberId id(gd->geographicalId());
-          const DTChamber* chamber = dtGeom->chamber(id);
-          std::vector<const DTSuperLayer*> superlayer = chamber->superLayers();
+          const DTChamber* chamber = dtGeom_->chamber(id);
+          const std::vector<const DTSuperLayer*>& superlayer = chamber->superLayers();
           for (unsigned int isl = 0; isl < superlayer.size(); isl++) {
-            std::vector<const DTLayer*> layer = superlayer[isl]->layers();
+            const std::vector<const DTLayer*>& layer = superlayer[isl]->layers();
             for (unsigned int ilayer = 0; ilayer < layer.size(); ilayer++) {
               DTLayerId lid = layer[ilayer]->id();
-#ifdef FAMOS_DEBUG
+#ifdef EDM_ML_DEBUG
               std::cout << "    Extrapolated to DT (" << lid.wheel() << "," << lid.station() << "," << lid.sector()
                         << "," << lid.superlayer() << "," << lid.layer() << ")" << std::endl;
 #endif
 
-              const GeomDetUnit* det = dtGeom->idToDetUnit(lid);
+              const GeomDetUnit* det = dtGeom_->idToDetUnit(lid);
 
               HelixArbitraryPlaneCrossing crossing(propagatedState.globalPosition().basicVector(),
                                                    propagatedState.globalMomentum().basicVector(),
                                                    propagatedState.transverseCurvature(),
                                                    anyDirection);
-              std::pair<bool, double> path = crossing.pathLength(det->surface());
+              const std::pair<bool, double>& path = crossing.pathLength(det->surface());
               if (!path.first)
                 continue;
               LocalPoint lpos = det->toLocal(GlobalPoint(crossing.position(path.second)));
@@ -389,40 +385,39 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
               // Factor that takes into account the (rec)hits lost because of delta's, etc.:
               // (Not fully satisfactory patch, but it seems to work...)
               double pmu = lmom.mag();
-              double theDTHitIneff = pmu > 0 ? exp(kDT * log(pmu) + fDT) : 0.;
+              double theDTHitIneff = pmu > 0 ? exp(kDT_ * log(pmu) + fDT_) : 0.;
               if (random.flatShoot() < theDTHitIneff)
                 continue;
 
-              double pz = fabs(lmom.z());
+              double pz = std::abs(lmom.z());
               LocalPoint entry = lpos - 0.5 * thickness * lmom / pz;
               LocalPoint exit = lpos + 0.5 * thickness * lmom / pz;
               double dtof = path.second * rbeta;
               int trkid = mySimTrack.trackId();
               unsigned int id = wid.rawId();
               short unsigned int processType = 2;
-              PSimHit hit(
+              theDTHits->emplace_back(
                   entry, exit, lmom.mag(), tof + dtof, eloss, pid, id, trkid, lmom.theta(), lmom.phi(), processType);
-              theDTHits.push_back(hit);
             }
           }
         } else if (gd->subDetector() == GeomDetEnumerators::CSC) {
           CSCDetId id(gd->geographicalId());
-          const CSCChamber* chamber = cscGeom->chamber(id);
-          std::vector<const CSCLayer*> layers = chamber->layers();
+          const CSCChamber* chamber = cscGeom_->chamber(id);
+          const std::vector<const CSCLayer*>& layers = chamber->layers();
           for (unsigned int ilayer = 0; ilayer < layers.size(); ilayer++) {
             CSCDetId lid = layers[ilayer]->id();
 
-#ifdef FAMOS_DEBUG
+#ifdef EDM_ML_DEBUG
             std::cout << "    Extrapolated to CSC (" << lid.endcap() << "," << lid.ring() << "," << lid.station() << ","
                       << lid.layer() << ")" << std::endl;
 #endif
 
-            const GeomDetUnit* det = cscGeom->idToDetUnit(lid);
+            const GeomDetUnit* det = cscGeom_->idToDetUnit(lid);
             HelixArbitraryPlaneCrossing crossing(propagatedState.globalPosition().basicVector(),
                                                  propagatedState.globalMomentum().basicVector(),
                                                  propagatedState.transverseCurvature(),
                                                  anyDirection);
-            std::pair<bool, double> path = crossing.pathLength(det->surface());
+            const std::pair<bool, double>& path = crossing.pathLength(det->surface());
             if (!path.first)
               continue;
             LocalPoint lpos = det->toLocal(GlobalPoint(crossing.position(path.second)));
@@ -440,43 +435,42 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
             // Factor that takes into account the (rec)hits lost because of delta's, etc.:
             // (Not fully satisfactory patch, but it seems to work...)
             double pmu = lmom.mag();
-            double theCSCHitIneff = pmu > 0 ? exp(kCSC * log(pmu) + fCSC) : 0.;
+            double theCSCHitIneff = pmu > 0 ? exp(kCSC_ * log(pmu) + fCSC_) : 0.;
             // Take into account the different geometry in ME11:
             if (id.station() == 1 && id.ring() == 1)
               theCSCHitIneff = theCSCHitIneff * 0.442;
             if (random.flatShoot() < theCSCHitIneff)
               continue;
 
-            double pz = fabs(lmom.z());
+            double pz = std::abs(lmom.z());
             LocalPoint entry = lpos - 0.5 * thickness * lmom / pz;
             LocalPoint exit = lpos + 0.5 * thickness * lmom / pz;
             double dtof = path.second * rbeta;
             int trkid = mySimTrack.trackId();
             unsigned int id = lid.rawId();
             short unsigned int processType = 2;
-            PSimHit hit(
+            theCSCHits->emplace_back(
                 entry, exit, lmom.mag(), tof + dtof, eloss, pid, id, trkid, lmom.theta(), lmom.phi(), processType);
-            theCSCHits.push_back(hit);
           }
         } else if (gd->subDetector() == GeomDetEnumerators::RPCBarrel ||
                    gd->subDetector() == GeomDetEnumerators::RPCEndcap) {
           RPCDetId id(gd->geographicalId());
-          const RPCChamber* chamber = rpcGeom->chamber(id);
-          std::vector<const RPCRoll*> roll = chamber->rolls();
+          const RPCChamber* chamber = rpcGeom_->chamber(id);
+          const std::vector<const RPCRoll*>& roll = chamber->rolls();
           for (unsigned int iroll = 0; iroll < roll.size(); iroll++) {
             RPCDetId rid = roll[iroll]->id();
 
-#ifdef FAMOS_DEBUG
+#ifdef EDM_ML_DEBUG
             std::cout << "    Extrapolated to RPC (" << rid.ring() << "," << rid.station() << "," << rid.sector() << ","
                       << rid.subsector() << "," << rid.layer() << "," << rid.roll() << ")" << std::endl;
 #endif
 
-            const GeomDetUnit* det = rpcGeom->idToDetUnit(rid);
+            const GeomDetUnit* det = rpcGeom_->idToDetUnit(rid);
             HelixArbitraryPlaneCrossing crossing(propagatedState.globalPosition().basicVector(),
                                                  propagatedState.globalMomentum().basicVector(),
                                                  propagatedState.transverseCurvature(),
                                                  anyDirection);
-            std::pair<bool, double> path = crossing.pathLength(det->surface());
+            const std::pair<bool, double>& path = crossing.pathLength(det->surface());
             if (!path.first)
               continue;
             LocalPoint lpos = det->toLocal(GlobalPoint(crossing.position(path.second)));
@@ -485,35 +479,34 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
             double thickness = det->surface().bounds().thickness();
             LocalVector lmom = det->toLocal(GlobalVector(crossing.direction(path.second)));
             lmom = lmom.unit() * propagatedState.localMomentum().mag();
-            double pz = fabs(lmom.z());
+            double pz = std::abs(lmom.z());
             LocalPoint entry = lpos - 0.5 * thickness * lmom / pz;
             LocalPoint exit = lpos + 0.5 * thickness * lmom / pz;
             double dtof = path.second * rbeta;
             int trkid = mySimTrack.trackId();
             unsigned int id = rid.rawId();
             short unsigned int processType = 2;
-            PSimHit hit(
+            theRPCHits->emplace_back(
                 entry, exit, lmom.mag(), tof + dtof, eloss, pid, id, trkid, lmom.theta(), lmom.phi(), processType);
-            theRPCHits.push_back(hit);
           }
-        } else if (gd->subDetector() == GeomDetEnumerators::GEM and enableGEM) {
+        } else if (gd->subDetector() == GeomDetEnumerators::GEM and enableGEM_) {
           GEMDetId id(gd->geographicalId());
-          const GEMChamber* chamber = gemGeom->chamber(id);
-          std::vector<const GEMEtaPartition*> etaPart = chamber->etaPartitions();
+          const GEMChamber* chamber = gemGeom_->chamber(id);
+          const std::vector<const GEMEtaPartition*>& etaPart = chamber->etaPartitions();
           for (unsigned int ieta = 0; ieta < etaPart.size(); ieta++) {
             GEMDetId rid = etaPart[ieta]->id();
 
-#ifdef FAMOS_DEBUG
+#ifdef EDM_ML_DEBUG
             std::cout << "    Extrapolated to GEM (" << rid.ring() << "," << rid.station() << "," << rid.chamber()
                       << "," << rid.layer() << "," << rid.ieta() << ")" << std::endl;
 #endif
 
-            const GeomDetUnit* det = gemGeom->idToDetUnit(rid);
+            const GeomDetUnit* det = gemGeom_->idToDetUnit(rid);
             HelixArbitraryPlaneCrossing crossing(propagatedState.globalPosition().basicVector(),
                                                  propagatedState.globalMomentum().basicVector(),
                                                  propagatedState.transverseCurvature(),
                                                  anyDirection);
-            std::pair<bool, double> path = crossing.pathLength(det->surface());
+            const std::pair<bool, double>& path = crossing.pathLength(det->surface());
             if (!path.first)
               continue;
             LocalPoint lpos = det->toLocal(GlobalPoint(crossing.position(path.second)));
@@ -522,84 +515,56 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
             double thickness = det->surface().bounds().thickness();
             LocalVector lmom = det->toLocal(GlobalVector(crossing.direction(path.second)));
             lmom = lmom.unit() * propagatedState.localMomentum().mag();
-            double pz = fabs(lmom.z());
+            double pz = std::abs(lmom.z());
             LocalPoint entry = lpos - 0.5 * thickness * lmom / pz;
             LocalPoint exit = lpos + 0.5 * thickness * lmom / pz;
             double dtof = path.second * rbeta;
             int trkid = mySimTrack.trackId();
             unsigned int id = rid.rawId();
             short unsigned int processType = 2;
-            PSimHit hit(
+            theGEMHits->emplace_back(
                 entry, exit, lmom.mag(), tof + dtof, eloss, pid, id, trkid, lmom.theta(), lmom.phi(), processType);
-            theGEMHits.push_back(hit);
           }
         } else {
-          std::cout << "Extrapolated to unknown subdetector '" << gd->subDetector() << "'..." << std::endl;
+          edm::LogWarning("FastSimulation/MuonSimHitProducer")
+              << "Extrapolated to unknown subdetector '" << gd->subDetector();
         }
       }
     }
   }
 
-  std::unique_ptr<edm::PSimHitContainer> pcsc(new edm::PSimHitContainer);
-  for (std::vector<PSimHit>::const_iterator i = theCSCHits.begin(); i != theCSCHits.end(); i++) {
-    pcsc->push_back(*i);
-  }
-  iEvent.put(std::move(pcsc), "MuonCSCHits");
-
-  std::unique_ptr<edm::PSimHitContainer> pdt(new edm::PSimHitContainer);
-  for (std::vector<PSimHit>::const_iterator i = theDTHits.begin(); i != theDTHits.end(); i++) {
-    pdt->push_back(*i);
-  }
-  iEvent.put(std::move(pdt), "MuonDTHits");
-
-  std::unique_ptr<edm::PSimHitContainer> prpc(new edm::PSimHitContainer);
-  for (std::vector<PSimHit>::const_iterator i = theRPCHits.begin(); i != theRPCHits.end(); i++) {
-    prpc->push_back(*i);
-  }
-  iEvent.put(std::move(prpc), "MuonRPCHits");
-
-  if (enableGEM) {
-    std::unique_ptr<edm::PSimHitContainer> pgem(new edm::PSimHitContainer);
-    for (std::vector<PSimHit>::const_iterator i = theGEMHits.begin(); i != theGEMHits.end(); i++) {
-      pgem->push_back(*i);
-    }
-    iEvent.put(std::move(pgem), "MuonGEMHits");
-  }
+  iEvent.put(std::move(theCSCHits), "MuonCSCHits");
+  iEvent.put(std::move(theDTHits), "MuonDTHits");
+  iEvent.put(std::move(theRPCHits), "MuonRPCHits");
+  if (enableGEM_)
+    iEvent.put(std::move(theGEMHits), "MuonGEMHits");
 }
 
 void MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons,
                                         const edm::ParameterSet& fastTracks,
                                         const edm::ParameterSet& matEff) {
   // Muons
-  std::string _simModuleLabel = fastMuons.getParameter<std::string>("simModuleLabel");
-  std::string _simModuleProcess = fastMuons.getParameter<std::string>("simModuleProcess");
-  simMuonLabel = edm::InputTag(_simModuleLabel, _simModuleProcess);
-  simVertexLabel = edm::InputTag(_simModuleLabel);
+  const std::string& _simModuleLabel = fastMuons.getParameter<std::string>("simModuleLabel");
+  const std::string& _simModuleProcess = fastMuons.getParameter<std::string>("simModuleProcess");
+  simMuonLabel_ = edm::InputTag(_simModuleLabel, _simModuleProcess);
+  simVertexLabel_ = edm::InputTag(_simModuleLabel);
 
-  std::vector<double> simHitIneffDT = fastMuons.getParameter<std::vector<double> >("simHitDTIneffParameters");
-  std::vector<double> simHitIneffCSC = fastMuons.getParameter<std::vector<double> >("simHitCSCIneffParameters");
-  kDT = simHitIneffDT[0];
-  fDT = simHitIneffDT[1];
-  kCSC = simHitIneffCSC[0];
-  fCSC = simHitIneffCSC[1];
+  const std::vector<double>& simHitIneffDT_ = fastMuons.getParameter<std::vector<double>>("simHitDTIneffParameters");
+  const std::vector<double>& simHitIneffCSC_ = fastMuons.getParameter<std::vector<double>>("simHitCSCIneffParameters");
+  kDT_ = simHitIneffDT_[0];
+  fDT_ = simHitIneffDT_[1];
+  kCSC_ = simHitIneffCSC_[0];
+  fCSC_ = simHitIneffCSC_[1];
 
   // Tracks
   fullPattern_ = fastTracks.getUntrackedParameter<bool>("FullPatternRecognition");
 
-  // The following should be on LogInfo
-  //  std::cout << " MUON SIM HITS: FastSimulation parameters " << std::endl;
-  //  std::cout << " ============================================== " << std::endl;
-  //  if ( fullPattern_ )
-  //    std::cout << " The FULL pattern recognition option is turned ON" << std::endl;
-  //  else
-  //    std::cout << " The FAST tracking option is turned ON" << std::endl;
-
   // Material Effects
-  theMaterialEffects = nullptr;
+  theMaterialEffects_ = nullptr;
   if (matEff.getParameter<bool>("PairProduction") || matEff.getParameter<bool>("Bremsstrahlung") ||
       matEff.getParameter<bool>("MuonBremsstrahlung") || matEff.getParameter<bool>("EnergyLoss") ||
       matEff.getParameter<bool>("MultipleScattering"))
-    theMaterialEffects = std::make_unique<MaterialEffects>(matEff);
+    theMaterialEffects_ = std::make_unique<MaterialEffects>(matEff);
 }
 
 void MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
@@ -608,20 +573,20 @@ void MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWith
                                               RandomEngineAndDistribution const* random,
                                               HepPDT::ParticleDataTable const& table) {
   // The energy loss simulator
-  EnergyLossSimulator* energyLoss = theMaterialEffects->energyLossSimulator();
+  EnergyLossSimulator* energyLoss = theMaterialEffects_->energyLossSimulator();
 
   // The multiple scattering simulator
-  MultipleScatteringSimulator* multipleScattering = theMaterialEffects->multipleScatteringSimulator();
+  MultipleScatteringSimulator* multipleScattering = theMaterialEffects_->multipleScatteringSimulator();
 
   // The Muon Bremsstrahlung simulator
-  MuonBremsstrahlungSimulator* bremsstrahlung = theMaterialEffects->muonBremsstrahlungSimulator();
+  MuonBremsstrahlungSimulator* bremsstrahlung = theMaterialEffects_->muonBremsstrahlungSimulator();
 
   // Initialize the Particle position, momentum and energy
   const Surface& nextSurface = tsos.surface();
   GlobalPoint gPos = energyLoss ? tsos.globalPosition() : tsosWithdEdx.globalPosition();
   GlobalVector gMom = energyLoss ? tsos.globalMomentum() : tsosWithdEdx.globalMomentum();
-  double mu = 0.1056583692;
-  double en = std::sqrt(gMom.mag2() + mu * mu);
+  double mu2 = std::pow(0.1056583692, 2);
+  double en = std::sqrt(gMom.mag2() + mu2);
 
   // And now create the Particle
   XYZTLorentzVector position(gPos.x(), gPos.y(), gPos.z(), 0.);
@@ -635,7 +600,7 @@ void MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWith
     // (for corrections once fluctuations are applied)
     GlobalPoint gPosWithdEdx = tsosWithdEdx.globalPosition();
     GlobalVector gMomWithdEdx = tsosWithdEdx.globalMomentum();
-    double enWithdEdx = std::sqrt(gMomWithdEdx.mag2() + mu * mu);
+    double enWithdEdx = std::sqrt(gMomWithdEdx.mag2() + mu2);
     XYZTLorentzVector deltaPos(
         gPosWithdEdx.x() - gPos.x(), gPosWithdEdx.y() - gPos.y(), gPosWithdEdx.z() - gPos.z(), 0.);
     XYZTLorentzVector deltaMom(
@@ -652,14 +617,14 @@ void MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWith
     // Particle momentum & position after energy loss + fluctuation
     XYZTLorentzVector theNewMomentum = theMuon.particle().momentum() + energyLoss->deltaMom() + fac * deltaMom;
     XYZTLorentzVector theNewPosition = theMuon.particle().vertex() + fac * deltaPos;
-    fac = (theNewMomentum.E() * theNewMomentum.E() - mu * mu) / theNewMomentum.Vect().Mag2();
+    fac = (theNewMomentum.E() * theNewMomentum.E() - mu2) / theNewMomentum.Vect().Mag2();
     fac = fac > 0. ? std::sqrt(fac) : 1E-9;
     theMuon.particle().setMomentum(
         theNewMomentum.Px() * fac, theNewMomentum.Py() * fac, theNewMomentum.Pz() * fac, theNewMomentum.E());
     theMuon.particle().setVertex(theNewPosition);
   }
 
-  // Does the actual mutliple scattering
+  // Does the actual multiple scattering
   if (multipleScattering) {
     // Pass the vector normal to the "next" surface
     GlobalVector normal = nextSurface.tangentPlane(tsos.globalPosition())->normalVector();
@@ -677,7 +642,7 @@ void MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWith
   // Fill the propagated state
   GlobalPoint propagatedPosition(theMuon.particle().X(), theMuon.particle().Y(), theMuon.particle().Z());
   GlobalVector propagatedMomentum(theMuon.particle().Px(), theMuon.particle().Py(), theMuon.particle().Pz());
-  GlobalTrajectoryParameters propagatedGtp(propagatedPosition, propagatedMomentum, (int)charge, magfield);
+  GlobalTrajectoryParameters propagatedGtp(propagatedPosition, propagatedMomentum, (int)charge, magfield_);
   tsosWithdEdx = TrajectoryStateOnSurface(propagatedGtp, nextSurface);
 }
 
