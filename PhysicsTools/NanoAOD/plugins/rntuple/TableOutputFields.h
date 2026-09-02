@@ -23,11 +23,12 @@ namespace flattablefield {
   unsigned int columnIndex(const nanoaod::FlatTable& table, const std::string& columnName);
 }  // namespace flattablefield
 
-// One FlatTable column written as its own top-level RNTuple field. Fields are held by base class
-// pointer so that a table's columns live in a single vector whatever their types.
+// One FlatTable column written as its own top-level RNTuple field.
 class FlatTableFieldBase {
 public:
   virtual ~FlatTableFieldBase() = default;
+  // Point the entry at this field's value; see RNTupleFieldPtr::bind.
+  virtual void bind(ROOT::REntry& entry) const = 0;
   // Copy one row of this field's column into the RNTuple entry.
   virtual void fillRow(const nanoaod::FlatTable& table, std::size_t row) = 0;
 };
@@ -40,6 +41,7 @@ public:
     auto [name, doc] = flattablefield::nameAndDoc(table, i);
     m_field = RNTupleFieldPtr<T>(name, doc, model);
   }
+  void bind(ROOT::REntry& entry) const override { m_field.bind(entry); }
   void fillRow(const nanoaod::FlatTable& table, std::size_t row) override {
     m_field.fill(table.columnData<T>(flattablefield::columnIndex(table, m_columnName))[row]);
   }
@@ -54,6 +56,8 @@ private:
 class FlatTableVectorFieldBase {
 public:
   virtual ~FlatTableVectorFieldBase() = default;
+  // Point the entry at this field's value; see RNTupleFieldPtr::bind.
+  virtual void bind(ROOT::REntry& entry) const = 0;
   // Copy this field's whole column into the RNTuple entry.
   virtual void fillColumn(const nanoaod::FlatTable& table) = 0;
 };
@@ -66,6 +70,7 @@ public:
     auto [name, doc] = flattablefield::nameAndDoc(table, i);
     m_field = RNTupleFieldPtr<std::vector<T>>(name, doc, model);
   }
+  void bind(ROOT::REntry& entry) const override { m_field.bind(entry); }
   void fillColumn(const nanoaod::FlatTable& table) override {
     auto column = table.columnData<T>(flattablefield::columnIndex(table, m_columnName));
     m_buffer.assign(column.begin(), column.end());
@@ -83,6 +88,7 @@ public:
   TableOutputFields() = default;
   explicit TableOutputFields(const edm::EDGetToken& token) : m_token(token) {}
   void createFields(const edm::OccurrenceForOutput& event, ROOT::RNTupleModel& model);
+  void bind(ROOT::REntry& entry) const;
   void fillEntry(const nanoaod::FlatTable& table, std::size_t i);
   const edm::EDGetToken& getToken() const;
   edm::Handle<nanoaod::FlatTable> getTable(const edm::OccurrenceForOutput& event) const;
@@ -97,6 +103,7 @@ public:
   TableOutputVectorFields() = default;
   explicit TableOutputVectorFields(const edm::EDGetToken& token) : m_token(token) {}
   void createFields(const edm::OccurrenceForOutput& event, ROOT::RNTupleModel& model);
+  void bind(ROOT::REntry& entry) const;
   void fill(const edm::OccurrenceForOutput& event);
 
 private:
@@ -115,7 +122,8 @@ public:
   // * m_main not null
   // * m_collectionName not empty
   void createFields(const edm::OccurrenceForOutput& event, ROOT::RNTupleModel& eventModel);
-  void bindBuffer(ROOT::RNTupleModel& eventModel);
+  void addProjections(ROOT::RNTupleModel& eventModel) const;
+  void bind(ROOT::REntry& entry) const;
   void fill(const edm::OccurrenceForOutput& event);
   bool hasMainTable() const;
   const std::string& getCollectionName() const;
@@ -125,6 +133,8 @@ private:
   std::vector<edm::Handle<nanoaod::FlatTable>> getTables(const edm::OccurrenceForOutput& event) const;
 
   std::string m_collectionName;
+  // Taken from the main table: a singleton is written as a record rather than a vector of one.
+  bool m_singleton = false;
   std::unique_ptr<RNTupleCollection> m_collection;
   TableOutputFields m_main;
   std::vector<TableOutputFields> m_extensions;
@@ -134,7 +144,10 @@ class TableCollectionSet {
 public:
   void add(const edm::EDGetToken& table_token, const nanoaod::FlatTable& table);
   void createFields(const edm::OccurrenceForOutput& event, ROOT::RNTupleModel& eventModel);
-  void bindBuffers(ROOT::RNTupleModel& eventModel);
+  // Add the flat TTree-style aliases of every collection member: Muon_pt beside Muon.pt. The
+  // top-level fields are already flat and have nothing to project.
+  void addProjections(ROOT::RNTupleModel& eventModel) const;
+  void bind(ROOT::REntry& entry) const;
   void fill(const edm::OccurrenceForOutput& event);
 
 private:

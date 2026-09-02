@@ -26,19 +26,53 @@ namespace {
   }
 }  // anonymous namespace
 
-void LumiNTuple::createFields(TFile& file) {
+void LumiNTuple::registerCounterTableToken(const edm::EDGetToken& token) { m_counterTableTokens.push_back(token); }
+
+void LumiNTuple::registerFlatTableToken(const edm::EDGetToken& token) { m_flatTableTokens.push_back(token); }
+
+void LumiNTuple::createFields(const edm::LuminosityBlockForOutput& iLumi, TFile& file) {
   auto model = RNTupleModel::Create();
   m_run = RNTupleFieldPtr<std::uint32_t>("run", "", *model);
   m_luminosityBlock = RNTupleFieldPtr<std::uint32_t>("luminosityBlock", "", *model);
+
+  edm::Handle<nanoaod::MergeableCounterTable> counterTableHandle;
+  for (const auto& token : m_counterTableTokens) {
+    iLumi.getByToken(token, counterTableHandle);
+    m_counterTables.emplace_back(*counterTableHandle, *model);
+  }
+
+  edm::Handle<nanoaod::FlatTable> flatTableHandle;
+  for (const auto& token : m_flatTableTokens) {
+    iLumi.getByToken(token, flatTableHandle);
+    m_flatTables.add(token, *flatTableHandle);
+  }
+  m_flatTables.createFields(iLumi, *model);
+  if (m_flatProjections) {
+    m_flatTables.addProjections(*model);
+  }
+
+  // Collection buffers can only be bound once the schema is frozen, and the writer takes ownership
+  // of the model, so this has to happen here rather than after Append().
+  model->Freeze();
+  m_flatTables.bind(model->GetDefaultEntry());
   m_ntuple = RNTupleWriter::Append(std::move(model), "LuminosityBlocks", file, writeOptions(file));
 }
 
-void LumiNTuple::fill(const edm::LuminosityBlockID& id, TFile& file) {
+void LumiNTuple::fill(const edm::LuminosityBlockForOutput& iLumi, TFile& file) {
   if (!m_ntuple) {
-    createFields(file);
+    createFields(iLumi, file);
   }
-  m_run.fill(id.run());
-  m_luminosityBlock.fill(id.value());
+  m_run.fill(iLumi.id().run());
+  m_luminosityBlock.fill(iLumi.id().value());
+
+  edm::Handle<nanoaod::MergeableCounterTable> counterTableHandle;
+  for (std::size_t i = 0; i < m_counterTableTokens.size(); i++) {
+    iLumi.getByToken(m_counterTableTokens[i], counterTableHandle);
+    m_counterTables[i].fill(*counterTableHandle);
+  }
+
+  m_flatTables.fill(iLumi);
+
   m_ntuple->Fill();
 }
 
@@ -64,7 +98,13 @@ void RunNTuple::createFields(const edm::RunForOutput& iRun, TFile& file) {
     m_flatTables.add(token, *flatTableHandle);
   }
   m_flatTables.createFields(iRun, *model);
+  if (m_flatProjections) {
+    m_flatTables.addProjections(*model);
+  }
 
+  // See LumiNTuple::createFields for why the bind sits between the freeze and the Append().
+  model->Freeze();
+  m_flatTables.bind(model->GetDefaultEntry());
   m_ntuple = RNTupleWriter::Append(std::move(model), "Runs", file, writeOptions(file));
 }
 

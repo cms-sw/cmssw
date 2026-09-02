@@ -40,6 +40,12 @@ void TableOutputFields::createFields(const edm::OccurrenceForOutput& event, RNTu
   }
 }
 
+void TableOutputFields::bind(ROOT::REntry& entry) const {
+  for (const auto& field : m_fields) {
+    field->bind(entry);
+  }
+}
+
 void TableOutputFields::fillEntry(const nanoaod::FlatTable& table, std::size_t i) {
   for (auto& field : m_fields) {
     field->fillRow(table, i);
@@ -69,6 +75,12 @@ void TableOutputVectorFields::createFields(const edm::OccurrenceForOutput& event
   }
 }
 
+void TableOutputVectorFields::bind(ROOT::REntry& entry) const {
+  for (const auto& field : m_fields) {
+    field->bind(entry);
+  }
+}
+
 void TableOutputVectorFields::fill(const edm::OccurrenceForOutput& event) {
   edm::Handle<nanoaod::FlatTable> handle;
   event.getByToken(m_token, handle);
@@ -90,6 +102,7 @@ void TableCollection::add(const edm::EDGetToken& table_token, const nanoaod::Fla
   if (hasMainTable()) {
     throw cms::Exception("LogicError", "Trying to save multiple main tables for " + m_collectionName + "\n");
   }
+  m_singleton = table.singleton();
   m_main = TableOutputFields(table_token);
 }
 
@@ -105,10 +118,13 @@ std::vector<edm::Handle<nanoaod::FlatTable>> TableCollection::getTables(const ed
 
 void TableCollection::createFields(const edm::OccurrenceForOutput& event, RNTupleModel& eventModel) {
   auto tables = getTables(event);
-  m_collection = std::make_unique<RNTupleCollection>(m_collectionName, tables.front()->doc(), tables, eventModel);
+  m_collection =
+      std::make_unique<RNTupleCollection>(m_collectionName, tables.front()->doc(), tables, eventModel, m_singleton);
 }
 
-void TableCollection::bindBuffer(RNTupleModel& eventModel) { m_collection->bindBuffer(eventModel); }
+void TableCollection::addProjections(RNTupleModel& eventModel) const { m_collection->addProjections(eventModel); }
+
+void TableCollection::bind(ROOT::REntry& entry) const { m_collection->bindBuffer(entry); }
 
 void TableCollection::fill(const edm::OccurrenceForOutput& event) {
   auto tables = getTables(event);
@@ -171,9 +187,21 @@ void TableCollectionSet::createFields(const edm::OccurrenceForOutput& event, RNT
   }
 }
 
-void TableCollectionSet::bindBuffers(RNTupleModel& eventModel) {
-  for (auto& collection : m_collections) {
-    collection.bindBuffer(eventModel);
+void TableCollectionSet::addProjections(RNTupleModel& eventModel) const {
+  for (const auto& collection : m_collections) {
+    collection.addProjections(eventModel);
+  }
+}
+
+void TableCollectionSet::bind(ROOT::REntry& entry) const {
+  for (const auto& collection : m_collections) {
+    collection.bind(entry);
+  }
+  for (const auto& fields : m_singletonFields) {
+    fields.bind(entry);
+  }
+  for (const auto& fields : m_vectorFields) {
+    fields.bind(entry);
   }
 }
 
