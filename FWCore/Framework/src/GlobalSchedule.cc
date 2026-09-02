@@ -48,22 +48,22 @@ namespace edm {
       //side effect keeps this module around
       auto mod = modReg->getExistingModule(module->moduleLabel());
       assert(mod);
-      if (mod->wantsProcessBlocks()) {
+      if (mod->wantsTransition(ProcessBlockTransitionInfo::key(), TransitionPhaseGlobal::value)) {
         for (auto& wm : processBlockManagers()) {
           (void)wm.getWorkerForModule(*module);
         }
       }
-      if (mod->wantsGlobalRuns() or mod->wantsWrites()) {
+      if (mod->wantsTransition(RunTransitionInfo::key(), TransitionPhaseGlobal::value)) {
         for (auto& wm : runManagers()) {
           (void)wm.getWorkerForModule(*module);
         }
       }
-      if (mod->wantsGlobalLuminosityBlocks() or mod->wantsWrites()) {
+      if (mod->wantsTransition(LumiTransitionInfo::key(), TransitionPhaseGlobal::value)) {
         for (auto& wm : lumiManagers()) {
           (void)wm.getWorkerForModule(*module);
         }
       }
-      if (mod->wantsInputProcessBlocks()) {
+      if (mod->wantsTransition(InputProcessBlockTransitionInfo::key(), TransitionPhaseGlobal::value)) {
         for (auto& wm : inputProcessBlockManagers()) {
           (void)wm.getWorkerForModule(*module);
         }

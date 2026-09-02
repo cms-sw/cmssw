@@ -89,13 +89,6 @@ namespace edm {
         assert(false);
         return false;
       }
-      virtual bool wantsProcessBlocks() const noexcept = 0;
-      virtual bool wantsInputProcessBlocks() const noexcept = 0;
-      virtual bool wantsGlobalRuns() const noexcept = 0;
-      virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
-      virtual bool wantsStreamRuns() const noexcept = 0;
-      virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
-      virtual bool wantsWrites() const noexcept = 0;
 
       virtual void finishModuleInitialization(ModuleDescription const& iDesc,
                                               PreallocationConfiguration const& iPrealloc,
@@ -128,6 +121,14 @@ namespace edm {
       virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
       virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
       virtual void implRespondToCloseOutputFile() = 0;
+
+      virtual bool wantsProcessBlocks() const noexcept = 0;
+      virtual bool wantsInputProcessBlocks() const noexcept = 0;
+      virtual bool wantsGlobalRuns() const noexcept = 0;
+      virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
+      virtual bool wantsStreamRuns() const noexcept = 0;
+      virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
+      virtual bool wantsWrites() const noexcept = 0;
     };
 
     template <typename T>
@@ -144,16 +145,12 @@ namespace edm {
       std::unique_ptr<Worker> makeWorker(ExceptionToActionTable const* actions,
                                          TransitionInfoKey key,
                                          TransitionPhaseType phase) const final {
-        return std::make_unique<edm::WorkerT<T>>(module(), moduleDescription(), actions);
+        if (wantsTransition(key, phase)) {
+          return std::make_unique<edm::WorkerT<T>>(module(), moduleDescription(), actions);
+        }
+        return {};
       }
 
-      bool wantsProcessBlocks() const noexcept final { return m_mod->wantsProcessBlocks(); }
-      bool wantsInputProcessBlocks() const noexcept final { return m_mod->wantsInputProcessBlocks(); }
-      bool wantsGlobalRuns() const noexcept final { return m_mod->wantsGlobalRuns(); }
-      bool wantsGlobalLuminosityBlocks() const noexcept final { return m_mod->wantsGlobalLuminosityBlocks(); }
-      bool wantsStreamRuns() const noexcept final { return m_mod->wantsStreamRuns(); }
-      bool wantsStreamLuminosityBlocks() const noexcept final { return m_mod->wantsStreamLuminosityBlocks(); }
-      bool wantsWrites() const noexcept final { return m_mod->wantsWrites(); }
 
       static void finishModuleInitialization(T& iModule,
                                              ModuleDescription const& iDesc,
@@ -196,6 +193,14 @@ namespace edm {
       }
 
     private:
+      bool wantsProcessBlocks() const noexcept final { return m_mod->wantsProcessBlocks(); }
+      bool wantsInputProcessBlocks() const noexcept final { return m_mod->wantsInputProcessBlocks(); }
+      bool wantsGlobalRuns() const noexcept final { return m_mod->wantsGlobalRuns(); }
+      bool wantsGlobalLuminosityBlocks() const noexcept final { return m_mod->wantsGlobalLuminosityBlocks(); }
+      bool wantsStreamRuns() const noexcept final { return m_mod->wantsStreamRuns(); }
+      bool wantsStreamLuminosityBlocks() const noexcept final { return m_mod->wantsStreamLuminosityBlocks(); }
+      bool wantsWrites() const noexcept final { return m_mod->wantsWrites(); }
+
       void implRespondToOpenInputFile(FileBlock const& fb) final;
       void implRespondToCloseInputFile(FileBlock const& fb) final;
       void implRespondToCloseOutputFile() final;
