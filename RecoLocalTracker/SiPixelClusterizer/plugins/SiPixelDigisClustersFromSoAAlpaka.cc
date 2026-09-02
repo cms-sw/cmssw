@@ -179,6 +179,18 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
     // from clusters killed by charge cut
     if (digisView[i].clus() == pixelClustering::invalidModuleId)
       continue;
+    // from pixels dropped by the maxPixInModule protection: they keep a valid module id and a
+    // cluster id equal to their digi index. Skipping them here is what keeps the out-of-range
+    // cluster id from indexing outside of the `aclusters` buffer below.
+    if (digisView[i].moduleId() == pixelClustering::invalidModuleId)
+      continue;
+    // unexpected out-of-range value
+    if (digisView[i].clus() >= static_cast<int>(TrackerTraits::maxNumClustersPerModules)) {
+      edm::LogError("SiPixelDigisClustersFromSoAAlpaka")
+          << "Skipping pixel digi with out-of-range cluster id " << digisView[i].clus()
+          << " (>= " << TrackerTraits::maxNumClustersPerModules << ") in module " << digisView[i].rawIdArr();
+      continue;
+    }
 
 #ifdef EDM_ML_DEBUG
     assert(digisView[i].rawIdArr() > 109999);
