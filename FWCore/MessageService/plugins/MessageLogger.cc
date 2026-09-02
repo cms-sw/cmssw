@@ -220,113 +220,115 @@ namespace edm {
         setMaxLoggedErrorsSummaryIndicies(iBounds.maxNumberOfStreams());
       });
 
-      iRegistry.watchPostBeginJob(this, &MessageLogger::postBeginJob);
-      iRegistry.watchPreEndJob(this, &MessageLogger::preEndJob);
-      iRegistry.watchPostEndJob(this, &MessageLogger::postEndJob);
+      if (iPS.getUntrackedParameter<bool>("useContext", true)) {
+        iRegistry.watchPostBeginJob(this, &MessageLogger::postBeginJob);
+        iRegistry.watchPreEndJob(this, &MessageLogger::preEndJob);
+        iRegistry.watchPostEndJob(this, &MessageLogger::postEndJob);
 
-      iRegistry.watchPreModuleConstruction(this, &MessageLogger::preModuleConstruction);
-      iRegistry.watchPostModuleConstruction(this, &MessageLogger::postModuleConstruction);
-      // change log 3
+        iRegistry.watchPreModuleConstruction(this, &MessageLogger::preModuleConstruction);
+        iRegistry.watchPostModuleConstruction(this, &MessageLogger::postModuleConstruction);
+        // change log 3
 
-      iRegistry.watchPreSourceConstruction(this, &MessageLogger::preSourceConstruction);
-      iRegistry.watchPostSourceConstruction(this, &MessageLogger::postSourceConstruction);
-      // change log 3
+        iRegistry.watchPreSourceConstruction(this, &MessageLogger::preSourceConstruction);
+        iRegistry.watchPostSourceConstruction(this, &MessageLogger::postSourceConstruction);
+        // change log 3
 
-      iRegistry.watchPreModuleDestruction(this, &MessageLogger::preModuleDestruction);
-      iRegistry.watchPostModuleDestruction(this, &MessageLogger::postModuleDestruction);
+        iRegistry.watchPreModuleDestruction(this, &MessageLogger::preModuleDestruction);
+        iRegistry.watchPostModuleDestruction(this, &MessageLogger::postModuleDestruction);
 
-      iRegistry.watchPreModuleEvent(this, &MessageLogger::preModuleEvent);
-      iRegistry.watchPostModuleEvent(this, &MessageLogger::postModuleEvent);
+        iRegistry.watchPreModuleEvent(this, &MessageLogger::preModuleEvent);
+        iRegistry.watchPostModuleEvent(this, &MessageLogger::postModuleEvent);
 
-      iRegistry.watchPreModuleEventAcquire(this, &MessageLogger::preModuleEventAcquire);
-      iRegistry.watchPostModuleEventAcquire(this, &MessageLogger::postModuleEventAcquire);
+        iRegistry.watchPreModuleEventAcquire(this, &MessageLogger::preModuleEventAcquire);
+        iRegistry.watchPostModuleEventAcquire(this, &MessageLogger::postModuleEventAcquire);
 
-      iRegistry.watchPreSourceEvent(this, &MessageLogger::preSourceEvent);
-      iRegistry.watchPostSourceEvent(this, &MessageLogger::postSourceEvent);
-      // change log 14:
-      iRegistry.watchPreSourceRun([this](RunIndex) { preSourceRunLumi(); });
-      iRegistry.watchPostSourceRun([this](RunIndex) { postSourceRunLumi(); });
-      iRegistry.watchPreSourceLumi([this](LuminosityBlockIndex) { preSourceRunLumi(); });
-      iRegistry.watchPostSourceLumi([this](LuminosityBlockIndex) { postSourceRunLumi(); });
-      iRegistry.watchPreOpenFile(this, &MessageLogger::preFile);
-      iRegistry.watchPostOpenFile(this, &MessageLogger::postFile);
-      iRegistry.watchPreCloseFile(this, &MessageLogger::preFileClose);
-      iRegistry.watchPostCloseFile(this, &MessageLogger::postFile);
+        iRegistry.watchPreSourceEvent(this, &MessageLogger::preSourceEvent);
+        iRegistry.watchPostSourceEvent(this, &MessageLogger::postSourceEvent);
+        // change log 14:
+        iRegistry.watchPreSourceRun([this](RunIndex) { preSourceRunLumi(); });
+        iRegistry.watchPostSourceRun([this](RunIndex) { postSourceRunLumi(); });
+        iRegistry.watchPreSourceLumi([this](LuminosityBlockIndex) { preSourceRunLumi(); });
+        iRegistry.watchPostSourceLumi([this](LuminosityBlockIndex) { postSourceRunLumi(); });
+        iRegistry.watchPreOpenFile(this, &MessageLogger::preFile);
+        iRegistry.watchPostOpenFile(this, &MessageLogger::postFile);
+        iRegistry.watchPreCloseFile(this, &MessageLogger::preFileClose);
+        iRegistry.watchPostCloseFile(this, &MessageLogger::postFile);
 
-      // change log 13:
-      // change log 15
-      iRegistry.watchPreModuleBeginJob(this, &MessageLogger::preModuleBeginJob);
-      iRegistry.watchPostModuleBeginJob(this, &MessageLogger::postModuleBeginJob);
-      iRegistry.watchPreModuleEndJob(this, &MessageLogger::preModuleEndJob);
-      iRegistry.watchPostModuleEndJob(this, &MessageLogger::postModuleEndJob);
+        // change log 13:
+        // change log 15
+        iRegistry.watchPreModuleBeginJob(this, &MessageLogger::preModuleBeginJob);
+        iRegistry.watchPostModuleBeginJob(this, &MessageLogger::postModuleBeginJob);
+        iRegistry.watchPreModuleEndJob(this, &MessageLogger::preModuleEndJob);
+        iRegistry.watchPostModuleEndJob(this, &MessageLogger::postModuleEndJob);
 
-      iRegistry.watchPreModuleBeginStream(this, &MessageLogger::preModuleBeginStream);
-      iRegistry.watchPostModuleBeginStream(this, &MessageLogger::postModuleBeginStream);
-      iRegistry.watchPreModuleEndStream(this, &MessageLogger::preModuleEndStream);
-      iRegistry.watchPostModuleEndStream(this, &MessageLogger::postModuleEndStream);
+        iRegistry.watchPreModuleBeginStream(this, &MessageLogger::preModuleBeginStream);
+        iRegistry.watchPostModuleBeginStream(this, &MessageLogger::postModuleBeginStream);
+        iRegistry.watchPreModuleEndStream(this, &MessageLogger::preModuleEndStream);
+        iRegistry.watchPostModuleEndStream(this, &MessageLogger::postModuleEndStream);
 
-      iRegistry.watchPreModuleStreamBeginRun(this, &MessageLogger::preModuleStreamBeginRun);
-      iRegistry.watchPostModuleStreamBeginRun(this, &MessageLogger::postModuleStreamBeginRun);
-      iRegistry.watchPreModuleStreamEndRun(this, &MessageLogger::preModuleStreamEndRun);
-      iRegistry.watchPostModuleStreamEndRun(this, &MessageLogger::postModuleStreamEndRun);
-      iRegistry.watchPreModuleStreamBeginLumi(this, &MessageLogger::preModuleStreamBeginLumi);
-      iRegistry.watchPostModuleStreamBeginLumi(this, &MessageLogger::postModuleStreamBeginLumi);
-      iRegistry.watchPreModuleStreamEndLumi(this, &MessageLogger::preModuleStreamEndLumi);
-      iRegistry.watchPostModuleStreamEndLumi(this, &MessageLogger::postModuleStreamEndLumi);
+        iRegistry.watchPreModuleStreamBeginRun(this, &MessageLogger::preModuleStreamBeginRun);
+        iRegistry.watchPostModuleStreamBeginRun(this, &MessageLogger::postModuleStreamBeginRun);
+        iRegistry.watchPreModuleStreamEndRun(this, &MessageLogger::preModuleStreamEndRun);
+        iRegistry.watchPostModuleStreamEndRun(this, &MessageLogger::postModuleStreamEndRun);
+        iRegistry.watchPreModuleStreamBeginLumi(this, &MessageLogger::preModuleStreamBeginLumi);
+        iRegistry.watchPostModuleStreamBeginLumi(this, &MessageLogger::postModuleStreamBeginLumi);
+        iRegistry.watchPreModuleStreamEndLumi(this, &MessageLogger::preModuleStreamEndLumi);
+        iRegistry.watchPostModuleStreamEndLumi(this, &MessageLogger::postModuleStreamEndLumi);
 
-      iRegistry.watchPreModuleBeginProcessBlock(this, &MessageLogger::preModuleBeginProcessBlock);
-      iRegistry.watchPostModuleBeginProcessBlock(this, &MessageLogger::postModuleBeginProcessBlock);
-      iRegistry.watchPreModuleAccessInputProcessBlock(this, &MessageLogger::preModuleAccessInputProcessBlock);
-      iRegistry.watchPostModuleAccessInputProcessBlock(this, &MessageLogger::postModuleAccessInputProcessBlock);
-      iRegistry.watchPreModuleEndProcessBlock(this, &MessageLogger::preModuleEndProcessBlock);
-      iRegistry.watchPostModuleEndProcessBlock(this, &MessageLogger::postModuleEndProcessBlock);
+        iRegistry.watchPreModuleBeginProcessBlock(this, &MessageLogger::preModuleBeginProcessBlock);
+        iRegistry.watchPostModuleBeginProcessBlock(this, &MessageLogger::postModuleBeginProcessBlock);
+        iRegistry.watchPreModuleAccessInputProcessBlock(this, &MessageLogger::preModuleAccessInputProcessBlock);
+        iRegistry.watchPostModuleAccessInputProcessBlock(this, &MessageLogger::postModuleAccessInputProcessBlock);
+        iRegistry.watchPreModuleEndProcessBlock(this, &MessageLogger::preModuleEndProcessBlock);
+        iRegistry.watchPostModuleEndProcessBlock(this, &MessageLogger::postModuleEndProcessBlock);
 
-      iRegistry.watchPreModuleGlobalBeginRun(this, &MessageLogger::preModuleGlobalBeginRun);
-      iRegistry.watchPostModuleGlobalBeginRun(this, &MessageLogger::postModuleGlobalBeginRun);
-      iRegistry.watchPreModuleGlobalEndRun(this, &MessageLogger::preModuleGlobalEndRun);
-      iRegistry.watchPostModuleGlobalEndRun(this, &MessageLogger::postModuleGlobalEndRun);
-      iRegistry.watchPreModuleWriteRun(this, &MessageLogger::preModuleWriteRun);
-      iRegistry.watchPostModuleWriteRun(this, &MessageLogger::postModuleWriteRun);
-      iRegistry.watchPreModuleGlobalBeginLumi(this, &MessageLogger::preModuleGlobalBeginLumi);
-      iRegistry.watchPostModuleGlobalBeginLumi(this, &MessageLogger::postModuleGlobalBeginLumi);
-      iRegistry.watchPreModuleGlobalEndLumi(this, &MessageLogger::preModuleGlobalEndLumi);
-      iRegistry.watchPostModuleGlobalEndLumi(this, &MessageLogger::postModuleGlobalEndLumi);
-      iRegistry.watchPreModuleWriteLumi(this, &MessageLogger::preModuleWriteLumi);
-      iRegistry.watchPostModuleWriteLumi(this, &MessageLogger::postModuleWriteLumi);
+        iRegistry.watchPreModuleGlobalBeginRun(this, &MessageLogger::preModuleGlobalBeginRun);
+        iRegistry.watchPostModuleGlobalBeginRun(this, &MessageLogger::postModuleGlobalBeginRun);
+        iRegistry.watchPreModuleGlobalEndRun(this, &MessageLogger::preModuleGlobalEndRun);
+        iRegistry.watchPostModuleGlobalEndRun(this, &MessageLogger::postModuleGlobalEndRun);
+        iRegistry.watchPreModuleWriteRun(this, &MessageLogger::preModuleWriteRun);
+        iRegistry.watchPostModuleWriteRun(this, &MessageLogger::postModuleWriteRun);
+        iRegistry.watchPreModuleGlobalBeginLumi(this, &MessageLogger::preModuleGlobalBeginLumi);
+        iRegistry.watchPostModuleGlobalBeginLumi(this, &MessageLogger::postModuleGlobalBeginLumi);
+        iRegistry.watchPreModuleGlobalEndLumi(this, &MessageLogger::preModuleGlobalEndLumi);
+        iRegistry.watchPostModuleGlobalEndLumi(this, &MessageLogger::postModuleGlobalEndLumi);
+        iRegistry.watchPreModuleWriteLumi(this, &MessageLogger::preModuleWriteLumi);
+        iRegistry.watchPostModuleWriteLumi(this, &MessageLogger::postModuleWriteLumi);
 
-      iRegistry.watchPreEvent(this, &MessageLogger::preEvent);
-      iRegistry.watchPostEvent(this, &MessageLogger::postEvent);
+        iRegistry.watchPreEvent(this, &MessageLogger::preEvent);
+        iRegistry.watchPostEvent(this, &MessageLogger::postEvent);
 
-      iRegistry.watchPreStreamBeginRun(this, &MessageLogger::preStreamBeginRun);
-      iRegistry.watchPostStreamBeginRun(this, &MessageLogger::postStreamBeginRun);
-      iRegistry.watchPreStreamEndRun(this, &MessageLogger::preStreamEndRun);
-      iRegistry.watchPostStreamEndRun(this, &MessageLogger::postStreamEndRun);
-      iRegistry.watchPreStreamBeginLumi(this, &MessageLogger::preStreamBeginLumi);
-      iRegistry.watchPostStreamBeginLumi(this, &MessageLogger::postStreamBeginLumi);
-      iRegistry.watchPreStreamEndLumi(this, &MessageLogger::preStreamEndLumi);
-      iRegistry.watchPostStreamEndLumi(this, &MessageLogger::postStreamEndLumi);
+        iRegistry.watchPreStreamBeginRun(this, &MessageLogger::preStreamBeginRun);
+        iRegistry.watchPostStreamBeginRun(this, &MessageLogger::postStreamBeginRun);
+        iRegistry.watchPreStreamEndRun(this, &MessageLogger::preStreamEndRun);
+        iRegistry.watchPostStreamEndRun(this, &MessageLogger::postStreamEndRun);
+        iRegistry.watchPreStreamBeginLumi(this, &MessageLogger::preStreamBeginLumi);
+        iRegistry.watchPostStreamBeginLumi(this, &MessageLogger::postStreamBeginLumi);
+        iRegistry.watchPreStreamEndLumi(this, &MessageLogger::preStreamEndLumi);
+        iRegistry.watchPostStreamEndLumi(this, &MessageLogger::postStreamEndLumi);
 
-      iRegistry.watchPreBeginProcessBlock(this, &MessageLogger::preBeginProcessBlock);
-      iRegistry.watchPostBeginProcessBlock(this, &MessageLogger::postBeginProcessBlock);
-      iRegistry.watchPreAccessInputProcessBlock(this, &MessageLogger::preAccessInputProcessBlock);
-      iRegistry.watchPostAccessInputProcessBlock(this, &MessageLogger::postAccessInputProcessBlock);
-      iRegistry.watchPreEndProcessBlock(this, &MessageLogger::preEndProcessBlock);
-      iRegistry.watchPostEndProcessBlock(this, &MessageLogger::postEndProcessBlock);
+        iRegistry.watchPreBeginProcessBlock(this, &MessageLogger::preBeginProcessBlock);
+        iRegistry.watchPostBeginProcessBlock(this, &MessageLogger::postBeginProcessBlock);
+        iRegistry.watchPreAccessInputProcessBlock(this, &MessageLogger::preAccessInputProcessBlock);
+        iRegistry.watchPostAccessInputProcessBlock(this, &MessageLogger::postAccessInputProcessBlock);
+        iRegistry.watchPreEndProcessBlock(this, &MessageLogger::preEndProcessBlock);
+        iRegistry.watchPostEndProcessBlock(this, &MessageLogger::postEndProcessBlock);
 
-      iRegistry.watchPreGlobalBeginRun(this, &MessageLogger::preGlobalBeginRun);
-      iRegistry.watchPostGlobalBeginRun(this, &MessageLogger::postGlobalBeginRun);
-      iRegistry.watchPreGlobalEndRun(this, &MessageLogger::preGlobalEndRun);
-      iRegistry.watchPostGlobalEndRun(this, &MessageLogger::postGlobalEndRun);
-      iRegistry.watchPreGlobalBeginLumi(this, &MessageLogger::preGlobalBeginLumi);
-      iRegistry.watchPostGlobalBeginLumi(this, &MessageLogger::postGlobalBeginLumi);
-      iRegistry.watchPreGlobalEndLumi(this, &MessageLogger::preGlobalEndLumi);
-      iRegistry.watchPostGlobalEndLumi(this, &MessageLogger::postGlobalEndLumi);
+        iRegistry.watchPreGlobalBeginRun(this, &MessageLogger::preGlobalBeginRun);
+        iRegistry.watchPostGlobalBeginRun(this, &MessageLogger::postGlobalBeginRun);
+        iRegistry.watchPreGlobalEndRun(this, &MessageLogger::preGlobalEndRun);
+        iRegistry.watchPostGlobalEndRun(this, &MessageLogger::postGlobalEndRun);
+        iRegistry.watchPreGlobalBeginLumi(this, &MessageLogger::preGlobalBeginLumi);
+        iRegistry.watchPostGlobalBeginLumi(this, &MessageLogger::postGlobalBeginLumi);
+        iRegistry.watchPreGlobalEndLumi(this, &MessageLogger::preGlobalEndLumi);
+        iRegistry.watchPostGlobalEndLumi(this, &MessageLogger::postGlobalEndLumi);
 
-      iRegistry.watchPrePathEvent(this, &MessageLogger::prePathEvent);
-      iRegistry.watchPostPathEvent(this, &MessageLogger::postPathEvent);
+        iRegistry.watchPrePathEvent(this, &MessageLogger::prePathEvent);
+        iRegistry.watchPostPathEvent(this, &MessageLogger::postPathEvent);
 
-      iRegistry.watchPreESModule(this, &MessageLogger::preESModule);
-      iRegistry.watchPostESModule(this, &MessageLogger::postESModule);
+        iRegistry.watchPreESModule(this, &MessageLogger::preESModule);
+        iRegistry.watchPostESModule(this, &MessageLogger::postESModule);
+      }
 
       MessageDrop* messageDrop = MessageDrop::instance();
       nonModule_debugEnabled = messageDrop->debugEnabled;
