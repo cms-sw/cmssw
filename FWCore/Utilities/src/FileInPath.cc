@@ -200,6 +200,7 @@ namespace edm {
     std::string vsn;
     std::string relname;
     std::string canFilename;
+    LocationCode loc = Unknown;
 #if 1
     // This #if needed for backward compatibility
     // for files written before CMSSW_1_5_0_pre3.
@@ -209,16 +210,16 @@ namespace edm {
     bool oldFormat = (version != vsn);
     if (oldFormat) {
       relname = vsn;
-      bool local;
+      bool local = false;
       is >> local;
-      location_ = (local ? Local : Release);
+      loc = (local ? Local : Release);
       is >> canFilename;
     } else {
       // Current format
-      int loc;
-      is >> relname >> loc;
-      location_ = static_cast<FileInPath::LocationCode>(loc);
-      if (location_ != Unknown) {
+      int locInt = 0;
+      is >> relname >> locInt;
+      loc = static_cast<FileInPath::LocationCode>(locInt);
+      if (loc != Unknown) {
         is >> canFilename;
       } else if (relname == "@") {
         relname = "";
@@ -229,7 +230,9 @@ namespace edm {
 #endif
     if (!is)
       return;
+    // Commit to member state only now that the whole record was read successfully.
     relativePath_ = relname;
+    location_ = loc;
     if (location_ == Local) {
       if (localTop_.empty()) {
         throw edm::Exception(edm::errors::FileInPathError) << "Environment Variable " << LOCALTOP << " is not set.\n"
@@ -274,22 +277,23 @@ namespace edm {
     std::string vsn;
     std::string relname;
     std::string canFilename;
+    LocationCode loc = Unknown;
     is >> vsn;
     if (!is)
       return;
     bool oldFormat = (version != vsn);
     if (oldFormat) {
       relname = vsn;
-      bool local;
+      bool local = false;
       is >> local;
-      location_ = (local ? Local : Release);
+      loc = (local ? Local : Release);
       is >> canFilename;
     } else {
       // Current format
-      int loc;
-      is >> relname >> loc;
-      location_ = static_cast<FileInPath::LocationCode>(loc);
-      if (location_ != Unknown) {
+      int locInt = 0;
+      is >> relname >> locInt;
+      loc = static_cast<FileInPath::LocationCode>(locInt);
+      if (loc != Unknown) {
         is >> canFilename;
       } else if (relname == "@") {
         relname = "";
@@ -297,7 +301,9 @@ namespace edm {
     }
     if (!is)
       return;
+    // Commit to member state only now that the whole record was read successfully.
     relativePath_ = relname;
+    location_ = loc;
     if (location_ == Local) {
       if (localTop_.empty()) {
         localTop_ = "@LOCAL";
