@@ -35,7 +35,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
-#include "Geometry/CaloTopology/interface/HGCalNeighbourFinder.h"
+#include "Geometry/HGCalGeometry/interface/HGCalNeighbourFinder.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomUtils.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"

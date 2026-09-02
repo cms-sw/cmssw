@@ -1,4 +1,4 @@
-#include "Geometry/CaloTopology/interface/HGCalNeighbourFinder.h"
+#include "Geometry/HGCalGeometry/interface/HGCalNeighbourFinder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
 
