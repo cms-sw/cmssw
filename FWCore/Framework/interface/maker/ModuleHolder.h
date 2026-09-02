@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/OutputModuleCommunicator.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/TransitionPhaseTypes.h"
+#include "FWCore/Framework/interface/maker/ModuleAttributes.h"
 
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
@@ -57,8 +58,8 @@ namespace edm {
       virtual std::vector<ModuleConsumesInfo> moduleConsumesInfos() const = 0;
       virtual std::vector<ModuleConsumesMinimalESInfo> moduleConsumesMinimalESInfos() const = 0;
 
-      enum class Type { kAnalyzer, kFilter, kProducer, kOutputModule };
-      enum class Concurrency { kGlobal, kLimited, kOne, kStream };
+      using Type = edm::modules::Type;
+      using Concurrency = edm::modules::Concurrency;
 
       virtual Type moduleType() const = 0;
       virtual Concurrency moduleConcurrencyType() const = 0;

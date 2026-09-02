@@ -48,7 +48,7 @@ namespace edm {
   void WorkerManager<TI, TP>::addToUnscheduledWorkers(ModuleDescription const& iDescription) {
     auto newWorker = workerReg_.getWorkerFromExistingModule(iDescription.moduleLabel(), actionTable_);
     assert(nullptr != newWorker);
-    assert(newWorker->moduleType() == Worker::kProducer || newWorker->moduleType() == Worker::kFilter);
+    assert(newWorker->moduleType() == Worker::Types::kProducer || newWorker->moduleType() == Worker::Types::kFilter);
     unscheduled_.addWorker(newWorker);
     //add to list so it gets reset each new event
     addToAllWorkers(newWorker);
