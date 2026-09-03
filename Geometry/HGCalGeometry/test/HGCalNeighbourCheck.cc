@@ -43,7 +43,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeomUtils.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
-#include "Geometry/CaloTopology/interface/HGCalNeighbourFinder.h"
+#include "Geometry/HGCalGeometry/interface/HGCalNeighbourFinder.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 class HGCalNeighbourCheck : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
@@ -75,7 +75,7 @@ HGCalNeighbourCheck::HGCalNeighbourCheck(const edm::ParameterSet &iC)
   edm::LogVerbatim("HGCalGeom") << "Test validity of cells for " << nameDetector_ << " with inputs from " << fileName_;
 
   if (!fileName_.empty()) {
-    edm::FileInPath filetmp("Geometry/CaloTopology/data/" + fileName_);
+    edm::FileInPath filetmp("Geometry/HGCalGeometry/data/" + fileName_);
     std::string fileName = filetmp.fullPath();
     std::ifstream fInput(fileName.c_str());
     if (!fInput.good()) {
@@ -121,8 +121,7 @@ void HGCalNeighbourCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &
       detIds_ = geom->getValidDetIds(dets_);
       edm::LogVerbatim("HGCalGeom") << "Gets " << detIds_.size() << " valid ID's for detector " << dets_;
     }
-    std::unique_ptr<HGCalNeighbourFinder> finder =
-        std::make_unique<HGCalNeighbourFinder>(geom->topology().dddConstants());
+    std::unique_ptr<HGCalNeighbourFinder> finder = std::make_unique<HGCalNeighbourFinder>(geom);
     for (unsigned int k = 0; k < detIds_.size(); ++k) {
       std::ostringstream st1;
       HGCSiliconDetId id(detIds_[k]);

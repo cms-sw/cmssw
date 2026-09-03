@@ -9,18 +9,20 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
 #include <vector>
 
 class HGCalNeighbourFinder {
 public:
-  HGCalNeighbourFinder(const HGCalDDDConstants&);
+  HGCalNeighbourFinder(const HGCalGeometry*);
   ~HGCalNeighbourFinder() = default;
 
   std::vector<uint32_t> nearestNeighboursOfDetId(uint32_t) const;
 
 private:
+  const HGCalGeometry* geom_;
   const HGCalDDDConstants& hgc_;
 
   // The method edgeIndexForU:(int)iu andV:(int)iv density:(BOOL)HD
