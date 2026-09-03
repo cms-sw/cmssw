@@ -133,10 +133,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // from the event. This typeID is the product type wrapped in
           // edm::DeviceProduct, and includes the alpaka device.
           edm::TypeID typeID{deviceSerialiser->productTypeID()};
-          hasDeviceProducts_ = true;
+          hasPortableProducts_ = true;
           entry.typeID = typeID;
           entry.token = this->consumes(edm::TypeToGet{typeID, edm::PRODUCT_TYPE}, src);
-          entry.deviceSerialiser = std::move(deviceSerialiser);
+          entry.portableSerialiser = std::move(deviceSerialiser);
 
           LogDebug("MPISenderPortable") << "send device type \"" << typeID << "\" (" << type << "), label \""
                                         << src.label() << "\" instance \"" << src.instance()
@@ -146,20 +146,37 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           continue;
         }
 
-        // Check 2: Lookup a host serialiser registered in the host
-        // SerialiserFactory.
+        // Check 2: type is a host type. Lookup a host serialiser and a portable
+        // serialiser for this host type. If both found, prefer the portable
+        // serialiser.
         edm::TypeWithDict twd = edm::TypeWithDict::byName(bareType);
+        std::unique_ptr<ngt::SerialiserBase> portableSerialiser;
         std::unique_ptr<::ngt::SerialiserBase> hostSerialiser;
 
-        LogDebug("MPISenderPortable") << "looking for host serialiser for type \"" << type << "\"";
+        LogDebug("MPISenderPortable") << "looking for a serialiser for the host type \"" << type << "\"";
         if (bool(twd)) {
+          portableSerialiser = ngt::SerialiserFactoryDevice::get()->tryToCreate(twd.typeInfo().name());
           hostSerialiser = ::ngt::SerialiserFactory::get()->tryToCreate(twd.typeInfo().name());
         }
-        if (hostSerialiser) {
-          LogDebug("MPISenderPortable") << "found host serialiser for type \"" << type << "\"";
+
+        // The equality "edm::TypeID{portableSerialiser->productTypeID()} ==
+        // edm::TypeID{twd.typeInfo()}" holds only on the serial CPU backend, where
+        // DeviceProductType<TYPE_DEVICE> == TYPE_DEVICE == TYPE_HOST
+        bool const portableSerialiserForAHostType =
+            portableSerialiser and bool(twd) and
+            edm::TypeID{portableSerialiser->productTypeID()} == edm::TypeID{twd.typeInfo()};
+
+        if (portableSerialiserForAHostType or hostSerialiser) {
+          LogDebug("MPISenderPortable")
+              << "found a serialiser (host serialiser or portable serialiser) for host type \"" << type << "\"";
           entry.typeID = edm::TypeID{twd.typeInfo()};
           entry.token = this->consumes(edm::TypeToGet{entry.typeID, edm::PRODUCT_TYPE}, src);
-          entry.hostSerialiser = std::move(hostSerialiser);
+          if (portableSerialiserForAHostType) {
+            hasPortableProducts_ = true;
+            entry.portableSerialiser = std::move(portableSerialiser);
+          } else {
+            entry.hostSerialiser = std::move(hostSerialiser);
+          }
 
           LogDebug("MPISenderPortable") << "send host type \"" << entry.typeID << "\" (" << type << "), label \""
                                         << src.label() << "\" instance \"" << src.instance()
@@ -232,11 +249,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto toBeSent = std::make_shared<DataToBeSent>();
       toBeSent->pendingRegions.reserve(productCount);
 
-      // The EDMetadata the device serialisers need to access a device product T
-      // from its wrapped form.
-      std::shared_ptr<EDMetadata> deviceMetadata;
-      if (hasDeviceProducts_) {
-        deviceMetadata = std::make_shared<EDMetadata>(detail::chooseDevice(event.streamID()));
+      // The EDMetadata the portable serialisers need to access a device product
+      // T from its wrapped form.
+      std::shared_ptr<EDMetadata> portableMetadata;
+      if (hasPortableProducts_) {
+        portableMetadata = std::make_shared<EDMetadata>(detail::chooseDevice(event.streamID()));
       }
 
       for (auto const& entry : products_) {
@@ -254,9 +271,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         if (handle.isValid()) {
           edm::WrapperBase const* wrapper = handle.product();
           // extract memory regions
-          if (entry.deviceSerialiser) {
-            // If the product is on device
-            auto reader = entry.deviceSerialiser->reader(*wrapper, *deviceMetadata);
+          if (entry.portableSerialiser) {
+            auto reader = entry.portableSerialiser->reader(*wrapper, *portableMetadata);
             ::ngt::AnyBuffer buffer = reader->parameters();
             productMetadata->addTrivialCopy(buffer.data(), buffer.size_bytes());
             toBeSent->pendingRegions.push_back(reader->regions());
@@ -290,22 +306,27 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       // Lambda that waits for device work and the metadata send, then sends
       // all data products, to be passed to runAsync.
-      auto sendData =
-          [token, instance = instance_, productMetadata, productMetadataRequest, toBeSent, isActive, deviceMetadata]() {
-            if (deviceMetadata) {
-              alpaka::wait(deviceMetadata->queue());
-            }
-            MPIChannel::waitMetadata(*productMetadataRequest);
-            if (isActive) {
-              if (toBeSent->rootBuffer)
-                token.channel()->sendBuffer(toBeSent->rootBuffer->Buffer(),
-                                            toBeSent->rootBuffer->Length(),
-                                            instance,
-                                            EDM_MPI_SendSerializedProduct);
-              for (auto const& regions : toBeSent->pendingRegions)
-                token.channel()->sendTrivialCopyProduct(instance, regions);
-            }
-          };
+      auto sendData = [token,
+                       instance = instance_,
+                       productMetadata,
+                       productMetadataRequest,
+                       toBeSent,
+                       isActive,
+                       portableMetadata]() {
+        if (portableMetadata) {
+          alpaka::wait(portableMetadata->queue());
+        }
+        MPIChannel::waitMetadata(*productMetadataRequest);
+        if (isActive) {
+          if (toBeSent->rootBuffer)
+            token.channel()->sendBuffer(toBeSent->rootBuffer->Buffer(),
+                                        toBeSent->rootBuffer->Length(),
+                                        instance,
+                                        EDM_MPI_SendSerializedProduct);
+          for (auto const& regions : toBeSent->pendingRegions)
+            token.channel()->sendTrivialCopyProduct(instance, regions);
+        }
+      };
 
       edm::Service<edm::Async> asyncService;
       asyncService->runAsync(
@@ -363,7 +384,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       edm::EDGetToken token;
 
       std::unique_ptr<::ngt::SerialiserBase> hostSerialiser;
-      std::unique_ptr<ngt::SerialiserBase> deviceSerialiser;
+      std::unique_ptr<ngt::SerialiserBase> portableSerialiser;
       edm::TypeWithDict wrappedType;
     };
 
@@ -371,7 +392,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::EDPutTokenT<MPIToken> const token_;
     std::vector<Entry> products_;
     int32_t const instance_;
-    bool hasDeviceProducts_ = false;
+    bool hasPortableProducts_ = false;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
