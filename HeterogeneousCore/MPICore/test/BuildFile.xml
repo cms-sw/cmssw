@@ -35,7 +35,10 @@
 <test
   name="testMPISoADeviceTransfer"
   command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_soa_device_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_soa_device_cfg.py"
-/>
+>
+  <use name="alpaka"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</test>
 
 <test
   name="testMPIComplexTransfer"
