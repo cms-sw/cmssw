@@ -3116,7 +3116,7 @@ class UpgradeWorkflowHybridPU(UpgradeWorkflow):
             if not stepNameS1 in stepDict: stepDict[stepNameS1] = {}
             stepDict[stepNameS1][k] = merge([{
                 '--fast': '',
-                '--era': stepDict[stepName][k]['--era']+'_FastSim',
+                '--era': stepDict[stepName][k]['--era'],
                 '--eventcontent': 'FASTPU',
                 '--processName': 'FASTSIM',
             }, d])
