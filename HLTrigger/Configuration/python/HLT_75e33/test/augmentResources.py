@@ -1,7 +1,7 @@
 import json
 
-input_file = 'Phase2Timing_resources.json'
-output_file = 'Phase2Timing_resources_abs.json'
+input_file = 'resources.json'
+output_file = 'resources_abs.json'
 
 orig = json.load(open(input_file,'r'))
 
