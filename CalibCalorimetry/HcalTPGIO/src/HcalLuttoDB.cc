@@ -45,7 +45,7 @@ using namespace edm;
 using namespace std;
 #include <iostream>
 #include <fstream>
-#include "md5.h"
+#include <edm_md5.h>
 
 //
 // class decleration
@@ -174,16 +174,16 @@ void HcalLuttoDB::writeoutlut1(HcalDetId id,
 
   os << " <Parameter name='GENERALIZEDINDEX' type='int'>" << generalizedIndex << "</Parameter>" << std::endl;
   // do checksum
-  md5_state_t md5er;
-  md5_byte_t digest[16];
+  edm_md5::md5_state_t md5er;
+  edm_md5::md5_byte_t digest[16];
   unsigned char tool[2];
-  md5_init(&md5er);
+  edm_md5::md5_init(&md5er);
   for (int i = 0; i < 128; i++) {
     tool[0] = lut[i] & 0xFF;
     tool[1] = (lut[i] >> 8) & 0xFF;
-    md5_append(&md5er, tool, 2);
+    edm_md5::md5_append(&md5er, tool, 2);
   }
-  md5_finish(&md5er, digest);
+  edm_md5::md5_finish(&md5er, digest);
   os << " <Parameter name='CHECKSUM' type='string'>";
   for (int i = 0; i < 16; i++)
     os << std::hex << (((int)(digest[i])) & 0xFF);
@@ -229,11 +229,11 @@ void HcalLuttoDB::writeoutlut2(HcalTrigTowerDetId id,
   os << " <Parameter name='GENERALIZEDINDEX' type='int'>" << generalizedIndex << "</Parameter>" << std::endl;
 
   // do checksum
-  md5_state_t md5er;
-  md5_byte_t digest[16];
-  md5_init(&md5er);
-  md5_append(&md5er, &(lut[0]), 1024);
-  md5_finish(&md5er, digest);
+  edm_md5::md5_state_t md5er;
+  edm_md5::md5_byte_t digest[16];
+  edm_md5::md5_init(&md5er);
+  edm_md5::md5_append(&md5er, &(lut[0]), 1024);
+  edm_md5::md5_finish(&md5er, digest);
   os << " <Parameter name='CHECKSUM' type='string'>";
   for (int i = 0; i < 16; i++)
     os << std::hex << (((int)(digest[i])) & 0xFF);
