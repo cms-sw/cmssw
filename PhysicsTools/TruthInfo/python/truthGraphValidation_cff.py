@@ -1,6 +1,4 @@
 # Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-# Part of the MC-truth-graph prototype - under heavy development, not yet open
-# to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 # Branch performance-plot validation: the truth-graph producers, the Branch<->reco
 # association maps, and the DQM analyzers that turn them into plots comparing the

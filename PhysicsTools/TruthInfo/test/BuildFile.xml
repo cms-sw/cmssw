@@ -29,6 +29,12 @@
   <use name="cppunit"/>
 </bin>
 
+<bin name="LevelFlags_t" file="LevelFlags_t.cpp">
+  <use name="PhysicsTools/TruthInfo"/>
+  <use name="SimDataFormats/TruthInfo"/>
+  <use name="cppunit"/>
+</bin>
+
 <bin name="BranchSelector_t" file="BranchSelector_t.cpp">
   <use name="PhysicsTools/TruthInfo"/>
   <use name="SimDataFormats/TruthInfo"/>
