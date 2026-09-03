@@ -149,13 +149,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       };
 
       for (auto idx : uniform_elements(acc, digis.metadata().size())) {
-
         auto cellIndex = index[idx].cellInfoIdx();
 
         //only applies to Si
         bool isSiPM(cell_maps[cellIndex].isSiPM());
-        if(isSiPM) continue;
-        
+        if (isSiPM)
+          continue;
+
         auto calib = calibs[idx];
         bool calibvalid = calib.valid();
         auto digi = digis[idx];
@@ -255,7 +255,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       for (auto idx : uniform_elements(acc, recHits.metadata().size())) {
         //quality + ZS cuts + connected (non-calib) channel
         auto cellIndex = index[idx].cellInfoIdx();
-        if(!recHits[idx].flags() && recHits[idx].energy() > k_noise * recHits[idx].sigmaNoise() && cell_maps[cellIndex].t()>0)
+        if (!recHits[idx].flags() && recHits[idx].energy() > k_noise * recHits[idx].sigmaNoise() &&
+            cell_maps[cellIndex].t() > 0)
           sidx[alpaka::atomicAdd(acc, nsel, 1)] = idx;
       }
     }

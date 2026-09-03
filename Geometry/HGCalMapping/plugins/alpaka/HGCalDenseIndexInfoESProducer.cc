@@ -91,13 +91,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             const HGCalGeometry* hgcal_geom =
                 static_cast<const HGCalGeometry*>(geo.getSubdetectorGeometry(det, subdet));
             if (hgcal_geom == nullptr) {
-              throw cms::Exception("HGCalDenseIndexInfoESProducer") << "Unable to find geometry for detid=0x" << std::hex << detid;
+              throw cms::Exception("HGCalDenseIndexInfoESProducer")
+                  << "Unable to find geometry for detid=0x" << std::hex << detid;
             }
 
             //CE-H has a layer offset in the DetId include it to get the layer number correctly
             auto layerOffset = hgcal_geom->topology().dddConstants().getLayerOffset();
-            if(layerOffset>0) layerOffset-=1;
-            
+            if (layerOffset > 0)
+              layerOffset -= 1;
+
             //get the offset to start reading the cell info from sequential
             uint32_t cellInfoOffset = cellIndexer.offsets_[typeidx];
 
@@ -142,7 +144,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 row.y() = position.y();
                 row.z() = position.z();
                 row.eta() = position.eta();
-                row.phi() = position.phi();               
+                row.phi() = position.phi();
               }
             }  // end cell loop
 
