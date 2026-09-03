@@ -644,6 +644,25 @@ namespace cms::soa {
           IF_COLUMN,                                                       \
           BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_EIGEN_COLUMN), IF_EIGEN_COLUMN, BOOST_PP_EMPTY())))
 
+#define _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE, CODE) BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_SCALAR), CODE, )
+
+#define _APPLY_FOR_NON_SCALAR(VALUE_TYPE, CODE) BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_SCALAR), , CODE)
+
+/* Produces text input token if input sequence is not empty */
+#define _APPEND_TOKEN_1(PARAM_NAME)
+#define _APPEND_TOKEN_0(PARAM_NAME) PARAM_NAME
+#define _APPEND_TOKEN(SEQ, PARAM_NAME) BOOST_PP_CAT(_APPEND_TOKEN_, BOOST_PP_IS_EMPTY(SEQ))(PARAM_NAME)
+
+/* Appends comma if input sequence is not empty */
+#define _APPEND_COMMA_1(SEQ)
+#define _APPEND_COMMA_0(SEQ) , BOOST_PP_SEQ_ENUM(SEQ)
+#define _APPEND_COMMA(SEQ) BOOST_PP_CAT(_APPEND_COMMA_, BOOST_PP_IS_EMPTY(SEQ))(SEQ)
+
+/* Appends list initializer token ":" if input sequence is not empty */
+#define _APPEND_LIST_INIT_1(SEQ)
+#define _APPEND_LIST_INIT_0(SEQ) : BOOST_PP_SEQ_ENUM(SEQ)
+#define _APPEND_LIST_INIT(SEQ) BOOST_PP_CAT(_APPEND_LIST_INIT_, BOOST_PP_IS_EMPTY(SEQ))(SEQ)
+
 namespace cms::soa {
 
   /* Column accessors: templates implementing the global accesors (soa::x() and soa::x(index) */
