@@ -58,27 +58,6 @@ alpakaValidationHLT.toReplaceWith(HLTPhase2PixelTracksAndVerticesSequenceSerialS
     )
 )
 
-
-from ..modules.hltPhase2TrimmedPixelVertices_cfi import hltPhase2TrimmedPixelVertices
-_HLTPhase2PixelTracksAndVerticesSequenceTrimming = cms.Sequence(
-    HLTBeamSpotSequence
-    +hltPhase2PixelFitterByHelixProjections
-    +hltPhase2PixelTrackFilterByKinematics
-    +hltPhase2OtRecHitsSoA
-    +hltPhase2PixelRecHitsExtendedSoA
-    +hltPhase2PixelTracksSoA
-    +hltPhase2PixelTrackTorchHighPuritySelector
-    +hltPhase2PixelTracks
-    +HLTPhase2PixelVertexingSequence
-    +hltPhase2TrimmedPixelVertices
-)
-
-from Configuration.ProcessModifiers.phase2_hlt_vertexTrimming_cff import phase2_hlt_vertexTrimming
-phase2_hlt_vertexTrimming.toReplaceWith(
-    HLTPhase2PixelTracksAndVerticesSequence,
-    _HLTPhase2PixelTracksAndVerticesSequenceTrimming
-)
-
 from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
 _HLTPhase2PixelTracksAndVerticesSequenceLegacy = cms.Sequence(
     hltPhase2PixelTracksSeedLayers

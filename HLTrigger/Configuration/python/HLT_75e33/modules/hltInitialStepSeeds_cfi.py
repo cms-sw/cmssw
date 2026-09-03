@@ -22,6 +22,3 @@ from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2
 hltPhase2LegacyTracking.toModify(hltInitialStepSeeds,
     includeFourthHit = False
 )
-
-from Configuration.ProcessModifiers.phase2_hlt_vertexTrimming_cff import phase2_hlt_vertexTrimming
-phase2_hlt_vertexTrimming.toModify(hltInitialStepSeeds, InputVertexCollection = "hltPhase2TrimmedPixelVertices")

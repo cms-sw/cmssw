@@ -2033,11 +2033,6 @@ upgradeWFs['HLTTiming75e33LST'].suffix = '_HLT75e33TimingLST'
 upgradeWFs['HLTTiming75e33LST'].offset = 0.755
 upgradeWFs['HLTTiming75e33LST'].step2['--procModifiers'] = 'trackingLST'
 
-upgradeWFs['HLTTiming75e33TrimmedTracking'] = deepcopy(upgradeWFs['HLTTiming75e33'])
-upgradeWFs['HLTTiming75e33TrimmedTracking'].suffix = '_HLT75e33TimingTrimmedTracking'
-upgradeWFs['HLTTiming75e33TrimmedTracking'].offset = 0.756
-upgradeWFs['HLTTiming75e33TrimmedTracking'].step2['--procModifiers'] = 'phase2_hlt_vertexTrimming'
-
 upgradeWFs['HLTTiming75e33MkFitFit'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33MkFitFit'].suffix = '_HLT75e33TimingMkFitFit'
 upgradeWFs['HLTTiming75e33MkFitFit'].offset = 0.757
