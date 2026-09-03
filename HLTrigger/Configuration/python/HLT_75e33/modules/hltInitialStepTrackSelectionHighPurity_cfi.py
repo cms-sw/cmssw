@@ -4,9 +4,9 @@ hltInitialStepTrackSelectionHighPurity = cms.EDProducer("TrackCollectionFilterCl
     copyExtras = cms.untracked.bool(True),
     copyTrajectories = cms.untracked.bool(False),
     minQuality = cms.string('highPurity'),
-    originalMVAVals = cms.InputTag("hltInitialStepTrackCutClassifier","MVAValues"),
-    originalQualVals = cms.InputTag("hltInitialStepTrackCutClassifier","QualityMasks"),
-    originalSource = cms.InputTag("hltInitialStepTrackTorchClassifierOutput")
+    originalMVAVals = cms.InputTag("hltInitialStepTrackTorchClassifierOutput","MVAValues"),
+    originalQualVals = cms.InputTag("hltInitialStepTrackTorchClassifierOutput","QualityMasks"),
+    originalSource = cms.InputTag("hltInitialStepTracks")
 )
 
 from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
