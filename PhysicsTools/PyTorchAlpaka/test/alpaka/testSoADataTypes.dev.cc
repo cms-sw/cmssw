@@ -155,9 +155,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
       CPPUNIT_ASSERT(view[i].a()(2) - tensors[3].toTensor()[i][0][2].item<double>() < tol);
       CPPUNIT_ASSERT(view[i].a()(0) - tensors[3].toTensor()[i][0][0].item<double>() > -tol);
       CPPUNIT_ASSERT(view[i].a()(1) - tensors[3].toTensor()[i][0][1].item<double>() > -tol);
-      if (view[i].a()(2) - tensors[3].toTensor()[i][0][2].item<double>() < -tol)
-        std::cout << view[i].a()(2) << " " << tensors[3].toTensor()[i][0][2].item<double>() << " "
-                  << view[i].a()(2) - tensors[3].toTensor()[i][0][2].item<double>() << " " << -tol << std::endl;
       CPPUNIT_ASSERT(view[i].a()(2) - tensors[3].toTensor()[i][0][2].item<double>() > -tol);
 
       CPPUNIT_ASSERT(view[i].b()(0) - tensors[3].toTensor()[i][1][0].item<double>() < tol);
