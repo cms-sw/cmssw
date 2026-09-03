@@ -4,7 +4,7 @@
 #                                         detector=HGCalEESensitive
 #
 #   Options for geometry D120, D122
-#           for fileIn D120E.txt, D120H.txt D120E.txt,  ""
+#           for fileIn D120NE0.txt, D120NH0.txt,  ""
 #           for detector HGCalEESensitive, HGCalHESiliconSensitive
 #
 ###############################################################################
@@ -21,10 +21,10 @@ options.register('geometry',
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: D120, D122")
 options.register('fileIn',
-                 "D120E.txt",
+                 "D120NE0.txt",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "Input File name: D120E.txt, D120H.txt, ''")
+                  "Input File name: D120NE0.txt, D120NH0.txt, ''")
 options.register('detector',
                  "HGCalEESensitive",
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -55,7 +55,7 @@ process.load(geomFile)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Services_cff')
-process.load('Geometry.CaloTopology.hgcalNeighbourCheck_cfi')
+process.load('Geometry.HGCalGeometry.hgcalNeighbourCheck_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')

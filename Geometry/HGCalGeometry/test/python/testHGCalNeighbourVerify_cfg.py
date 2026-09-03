@@ -1,11 +1,10 @@
 ###############################################################################
 # Way to use this:
 #   cmsRun testHGCalNeighbour_cfg.py geometry=D120 detector=HGCalEESensitive
-#                                    fName=D120NE.txt
+#                                    waferU=2 waderV=0 cellU=10 cellV=0
 #
 #   Options for geometry D120, D122
 #           for detector HGCalEESensitive, HGCalHESiliconSensitive
-#           for fName D120NE.txt, D120NH.txt
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -25,11 +24,22 @@ options.register('detector',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: HGCalEESensitive, HGCalHESiliconSensitive")
-options.register('fName',
-                 "D120NE.txt",
+options.register('waferU',
+                 2,
                  VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.string,
-                 "Use input file: D120NE.txt, D120NH.txt")
+                 VarParsing.VarParsing.varType.float)
+options.register('waferV',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.float)
+options.register('cellU',
+                 10,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.float)
+options.register('cellV',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.float)
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -42,12 +52,18 @@ print(options)
 geomName = "Run4" + options.geometry
 geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 detector = options.detector
-fName   = options.fName
+waferU   = int(options.waferU)
+waferV   = int(options.waferV)
+cellU    = int(options.cellU)
+cellV    = int(options.cellV)
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
 print("Geometry file: ", geomFile)
 print("Detector:      ", detector)
-print("fName:         ", fName)
+print("WaferU:        ", waferU)
+print("WaferV:        ", waferV)
+print("CellU:         ", cellU)
+print("CellV:         ", cellV)
 
 process = cms.Process('HGCNeighbour',ERA)
 
@@ -55,7 +71,7 @@ process.load(geomFile)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Services_cff')
-process.load('Geometry.CaloTopology.hgcalNeighbourTester_cfi')
+process.load('Geometry.HGCalGeometry.hgcalNeighbourVerify_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -90,8 +106,10 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.hgcalNeighbourTester.nameDetector = detector
-process.hgcalNeighbourTester.fileName     = fName
-process.hgcalNeighbourTester.nSkip        = 1
+process.hgcalNeighbourVerify.nameDetector = detector
+process.hgcalNeighbourVerify.waferU       = waferU
+process.hgcalNeighbourVerify.waferV       = waferV
+process.hgcalNeighbourVerify.cellU        = cellU
+process.hgcalNeighbourVerify.cellV        = cellV
 
-process.p1 = cms.Path(process.generator*process.hgcalNeighbourTester)
+process.p1 = cms.Path(process.generator*process.hgcalNeighbourVerify)
