@@ -1,6 +1,8 @@
 <use name="mpi"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
+<use name="HeterogeneousCore/CUDAServices"/>
+<use name="HeterogeneousCore/ROCmServices"/>
 <export>
   <lib name="1"/>
 </export>

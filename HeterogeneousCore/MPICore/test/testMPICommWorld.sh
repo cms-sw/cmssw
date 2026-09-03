@@ -29,9 +29,14 @@ for CFG in "$@"; do
   CONFIGS+=($(realpath "$CFG"))
 done
 
-# The CM pml leads to silent communication failures on some machines.
-# Until this is understood and fixed, keep it disabled.
-export OMPI_MCA_pml='^cm'
+# Select the UCX as OpenMPI's PML.
+export OMPI_MCA_pml=ucx
+
+# Prevent OMPI from aborting when none of the default OpenMPI pml_ucx_tls
+# (ompi_info --param pml ucx --level 9 | grep -i tls) is found. Allow it to
+# fallback to other pmls instead, so that tests can run on machines where the
+# default pml_ucx_tls are not available.
+export OMPI_MCA_pml_ucx_tls=any
 
 # Build the mpirun command line
 CMD="-n 1 cmsRun ${CONFIGS[0]}" 

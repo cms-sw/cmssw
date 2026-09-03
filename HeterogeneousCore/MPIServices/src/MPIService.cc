@@ -13,7 +13,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 #include "HeterogeneousCore/MPIServices/interface/MPIService.h"
+#include "HeterogeneousCore/ROCmServices/interface/ROCmInterface.h"
 
 namespace {
 
@@ -45,6 +47,17 @@ MPIService::MPIService(edm::ParameterSet const& config) {
    *
    * See https://github.com/open-mpi/ompi/blob/v4.1.0/README .
    */
+
+  // If a CUDAService or a ROCmService is configured for this job, construct it
+  // now, before the MPIService is constructed. This is to make sure the
+  // MPIService is destroyed (and MPI_Finalize() is called) *before* the
+  // CUDAService/ROCmService destructors are called (specifically, before
+  // cudaDeviceReset()/hipDeviceReset() are called). Otherwise MPI_Finalize()
+  // would segfault on nodes with AMD GPUs.
+  edm::Service<CUDAInterface> cuda;
+  cuda.isAvailable();
+  edm::Service<ROCmInterface> rocm;
+  rocm.isAvailable();
 
   // set the pmix_server_uri MCA parameter if specified in the configuration and not already set in the environment
   if (config.existsAs<std::string>("pmix_server_uri", false)) {
