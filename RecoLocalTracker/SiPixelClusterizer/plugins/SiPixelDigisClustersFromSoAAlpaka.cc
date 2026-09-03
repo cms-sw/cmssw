@@ -80,6 +80,7 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
 
   const auto& ttopo = iSetup.getData(topoToken_);
   constexpr auto maxModules = TrackerTraits::numberOfModules;
+  constexpr int32_t maxNumClustersPerModules = TrackerTraits::maxNumClustersPerModules;
 
   std::unique_ptr<edm::DetSetVector<PixelDigi>> outputDigis;
   if (produceDigis_)
@@ -111,6 +112,13 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
     if (digisView[i].clus() < 0) {
       edm::LogError("SiPixelDigisClustersFromSoAAlpaka")
           << "Skipping pixel digi with unexpected invalid cluster id " << digisView[i].clus();
+      continue;
+    }
+    // unexpected out-of-range value: it would index outside of the `aclusters` buffer below
+    if (digisView[i].clus() >= maxNumClustersPerModules) {
+      edm::LogError("SiPixelDigisClustersFromSoAAlpaka")
+          << "Skipping pixel digi with out-of-range cluster id " << digisView[i].clus()
+          << " (>= " << maxNumClustersPerModules << ") in module " << digisView[i].rawIdArr();
       continue;
     }
 
@@ -189,6 +197,13 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
     if (digisView[i].clus() < 0) {
       edm::LogError("SiPixelDigisClustersFromSoAAlpaka")
           << "Skipping pixel digi with unexpected invalid cluster id " << digisView[i].clus();
+      continue;
+    }
+    // unexpected out-of-range value: it would index outside of the `aclusters` buffer below
+    if (digisView[i].clus() >= maxNumClustersPerModules) {
+      edm::LogError("SiPixelDigisClustersFromSoAAlpaka")
+          << "Skipping pixel digi with out-of-range cluster id " << digisView[i].clus()
+          << " (>= " << maxNumClustersPerModules << ") in module " << digisView[i].rawIdArr();
       continue;
     }
 
