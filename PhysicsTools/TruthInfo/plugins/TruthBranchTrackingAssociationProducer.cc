@@ -1,6 +1,4 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-// Part of the MC-truth-graph prototype - under heavy development, not yet open
-// to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 // Builds TICL-style AssociationMaps between reco tracks and the truth::Branch
 // graph, the tracker counterpart of TruthBranchCaloAssociationProducer. Unlike the
