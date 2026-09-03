@@ -64,12 +64,8 @@ namespace {
     return path.substr(0, actualSize);
   }
 
-  std::vector<std::filesystem::path> removeSymLinksTokens(std::string const& envName) {
-    char const* const var = std::getenv(envName.c_str());
-    if (var == nullptr) {
-      return {};
-    }
-    auto pathElements = edm::tokenize(std::string(var), ":");
+  std::vector<std::filesystem::path> removeSymLinksTokens(std::string const& envValue) {
+    auto pathElements = edm::tokenize(envValue, ":");
     std::vector<std::filesystem::path> ret;
     ret.reserve(pathElements.size());
     for (auto& element : pathElements) {
@@ -336,8 +332,19 @@ namespace edm {
   }
 
   //------------------------------------------------------------
+  std::string const& searchPathValue() {
+    static std::string const s_searchPathValue = []() {
+      char const* const var = std::getenv(PathVariableName.c_str());
+      if (var == nullptr) {
+        return std::string();
+      }
+      return std::string(var);
+    }();
+    return s_searchPathValue;
+  }
+
   std::vector<std::filesystem::path> const& FileInPath::searchPath() {
-    static std::vector<std::filesystem::path> const s_searchPath = removeSymLinksTokens(PathVariableName);
+    static std::vector<std::filesystem::path> const s_searchPath = removeSymLinksTokens(searchPathValue());
     return s_searchPath;
   }
   //------------------------------------------------------------
@@ -453,8 +460,8 @@ namespace edm {
     throw edm::Exception(edm::errors::FileInPathError)
         << "edm::FileInPath unable to find file " << relativePath_ << " anywhere in the search path."
         << "\nThe search path is defined by: " << PathVariableName << "\n${" << PathVariableName
-        << "} is: " << std::getenv(PathVariableName.c_str())
-        << "\nCurrent directory is: " << std::filesystem::current_path().string() << "\n";
+        << "} is: " << searchPathValue() << "\nCurrent directory is: " << std::filesystem::current_path().string()
+        << "\n";
   }
 
   void FileInPath::disableFileLookup() { s_fileLookupDisabled = true; }

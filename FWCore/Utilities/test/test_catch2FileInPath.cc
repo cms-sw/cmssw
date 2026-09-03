@@ -15,11 +15,6 @@
 // A test that references an issue number below asserts the CURRENT behaviour;
 // if the issue is fixed, update the test in the same commit.
 //
-//  5. Defect: the not-found message re-reads the LIVE environment with
-//     std::getenv (FileInPath.cc:449) instead of the cached searchPath(). If
-//     CMSSW_SEARCH_PATH was unset after the search path was cached, this is a
-//     null char const* insertion, which sets badbit on the exception's stream
-//     and silently truncates the rest of the message.
 //  7. Inconsistency: write() uses a raw string-prefix test
 //     (canonicalFilename_.find(top) != 0, FileInPath.cc:168/:179/:190) while
 //     initialize_() uses the component-wise pathBeginsWith(). The two disagree
@@ -811,25 +806,17 @@ TEST_CASE("findFile", "[local]") {
   }
 }
 
-TEST_CASE("not-found message re-reads the live environment", "[local]") {
-  // Issue 5: the not-found message re-reads the LIVE environment with
-  // std::getenv (FileInPath.cc:449) instead of the cached searchPath(). Once
-  // CMSSW_SEARCH_PATH is unset, std::getenv() returns a null char const*;
-  // operator<<(std::ostream&, char const*) sets badbit on that (libstdc++
-  // ostream:669-678), so everything appended after the getenv() call is
-  // silently dropped from the exception message. The EnvGuard restore must
-  // survive a failing REQUIRE below, hence RAII rather than a manual setenv
-  // at the end.
+TEST_CASE("ensure manipulating CMSSW_SEARCH_PATH later does not impact FileInPath behavior", "[local]") {
   EnvGuard guard("CMSSW_SEARCH_PATH");
   edm::FileInPath warm("Sub/Pack/data/file.txt");  // ensure searchPath() is cached
   unsetenv("CMSSW_SEARCH_PATH");
 
-  // Lookups themselves are unaffected because the search path is cached in a
-  // static; only the diagnostic message is corrupted.
+  // Lookups themselves are assumed to be unaffected because the search path is cached
+  // There was a later std::getenv() in this exception message
   REQUIRE_THROWS_WITH(edm::FileInPath("Sub/Pack/data/nope.txt"),
                       Catch::Matchers::ContainsSubstring("unable to find file") &&
                           Catch::Matchers::ContainsSubstring("${CMSSW_SEARCH_PATH} is: ") &&
-                          !Catch::Matchers::ContainsSubstring("Current directory is"));
+                          Catch::Matchers::ContainsSubstring("Current directory is"));
 }
 
 TEST_CASE("noRelease: local files report Release", "[noRelease]") {
