@@ -1,7 +1,23 @@
+// ---------------------------------------------------------------------------
+// Calorimeter-face vertex support for FastSim (CloseByParticleGun).
+//
+//  Author : Sitian Qian
+//  Date   : 21 Aug 2026 (implementation and validation),
+//           04 Sep 2026 (pull-request preparation)
+//
+//  The design follows Jan Eysermans' HGCAL FastSim demonstrator
+//  (CMSSW_11_3_0_pre3, 2021): primaries born on the calorimeter face
+//  are handed straight to the calorimetry step instead of being
+//  rejected by the tracker-volume vertex gate. Both switches default
+//  to off, so every existing configuration is unchanged.
+// ---------------------------------------------------------------------------
+
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/ParticleFilter.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/Particle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "vdt/vdtMath.h"
+
+#include <cmath>
 
 fastsim::ParticleFilter::ParticleFilter(const edm::ParameterSet& cfg) {
   // Charged particles must have pt greater than chargedPtMin [GeV]
@@ -26,6 +42,11 @@ fastsim::ParticleFilter::ParticleFilter(const edm::ParameterSet& cfg) {
   // Particles must have vertex inside the tracker
   vertexRMax2_ = 129.0 * 129.0;
   vertexZMax_ = 303.353;
+
+  // Opt-in for CloseByParticleGun-style studies: accept primaries born in the
+  // calorimeter region. existsAs-guarded so the many configs that build this
+  // PSet without the flag keep working unchanged.
+  acceptCaloVertices_ = cfg.existsAs<bool>("acceptCaloVertices") && cfg.getParameter<bool>("acceptCaloVertices");
 }
 
 bool fastsim::ParticleFilter::accepts(const fastsim::Particle& particle) const {
@@ -53,7 +74,13 @@ bool fastsim::ParticleFilter::accepts(const fastsim::Particle& particle) const {
     }
   }
 
-  // particles must have vertex in volume of tracker
+  // particles must have vertex in volume of tracker -- or, when opted in for
+  // calo-face guns, in the calorimeter region: those particles never see the
+  // tracker and FastSimProducer hands them directly to the CalorimetryManager.
+  if (acceptCaloVertices_ && !acceptsVtx(particle.position()) &&
+      particle.position().Perp2() < caloVertexRMax2_ && std::abs(particle.position().Z()) < caloVertexZMax_) {
+    return acceptsEn(particle);
+  }
   return acceptsVtx(particle.position()) && acceptsEn(particle);
   //return (acceptsVtx(particle.position()) || particle.momentum().Pz()*particle.momentum().Pz()/particle.momentum().P2() > (vdt::fast_exp(2.*3.0)-1.) / (vdt::fast_exp(2.*3.0)+1.)*(vdt::fast_exp(2.*3.0)-1.) / (vdt::fast_exp(2.*3.0)+1.)) && acceptsEn(particle);
 }

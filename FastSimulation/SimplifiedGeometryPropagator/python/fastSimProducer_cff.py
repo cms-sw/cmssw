@@ -17,6 +17,11 @@ fastSimProducer = cms.EDProducer(
     verboseDecayer = cms.bool(False),
     caloDefinition = CaloMaterialBlock.CaloMaterial, #  Hack to interface "old" calorimetry with "new" propagation in tracker
     beamPipeRadius = cms.double(3.),
+    # CloseByParticleGun support: when > 0 [cm], a primary accepted via
+    # particleFilter.acceptCaloVertices is moved backwards along its momentum by
+    # this distance before the calo-layer navigation, so a vertex sitting on or
+    # just past the entrance layer is still picked up. 0 disables the shift.
+    caloVertexBackupDistance = cms.double(0.),
     deltaRchargedMother = cms.double(0.02), # Maximum angle to associate a charged daughter to a charged mother (mostly done to associate muons to decaying pions)
     interactionModels = cms.PSet(
             pairProduction = cms.PSet(
@@ -83,4 +88,10 @@ fastSimProducer = cms.EDProducer(
 )
 
 from Configuration.Eras.Modifier_phase2_fastSim_cff import phase2_fastSim
-phase2_fastSim.toModify(fastSimProducer, simulateCalorimetry = False)
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+
+# Phase-2 calorimetry used to be switched off wholesale because the Run-2 endcap
+# ECAL/preshower geometry it assumed is null in Phase-2 and the job segfaulted.
+# With the HGCAL path in place (HGCAL entrance layers, onHGCal dispatch, and the
+# null-geometry guards in Calorimeter/CaloGeometryHelper) it can stay on.
+(phase2_fastSim & ~phase2_hgcal).toModify(fastSimProducer, simulateCalorimetry = False)

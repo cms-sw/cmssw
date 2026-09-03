@@ -1,3 +1,17 @@
+// ---------------------------------------------------------------------------
+// Calorimeter-face vertex support for FastSim (CloseByParticleGun).
+//
+//  Author : Sitian Qian
+//  Date   : 21 Aug 2026 (implementation and validation),
+//           04 Sep 2026 (pull-request preparation)
+//
+//  The design follows Jan Eysermans' HGCAL FastSim demonstrator
+//  (CMSSW_11_3_0_pre3, 2021): primaries born on the calorimeter face
+//  are handed straight to the calorimetry step instead of being
+//  rejected by the tracker-volume vertex gate. Both switches default
+//  to off, so every existing configuration is unchanged.
+// ---------------------------------------------------------------------------
+
 // system include files
 #include <memory>
 #include <string>
@@ -29,6 +43,7 @@
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/SimplifiedGeometry.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/Decayer.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/LayerNavigator.h"
+#include "FastSimulation/SimplifiedGeometryPropagator/interface/Constants.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/Particle.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/ParticleFilter.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/InteractionModel.h"
@@ -169,6 +184,15 @@ private:
   bool simulateMuons_;
   bool useFastSimDecayer_;
 
+  //! CloseByParticleGun support: a primary born at the calorimeter face (let
+  //! through by ParticleFilter's acceptCaloVertices) may sit exactly on or just
+  //! past the first calo layer, where the layer navigator can no longer reach
+  //! it. When > 0 [cm], such particles are translated backwards along their
+  //! momentum by this distance (time adjusted) before the calo navigation, so
+  //! the standard entrance-layer machinery applies unchanged. Opt-in; inert for
+  //! particles that were propagated through the tracker.
+  double caloVertexBackupDistance_ = 0.;
+
   std::vector<std::string> interactionModelNames_;  //!< All defined interaction model names
   static const std::string MESSAGECATEGORY;         //!< Category of debugging messages ("FastSimulation")
   const edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> particleDataTableESToken_;
@@ -196,6 +220,9 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
       useFastSimDecayer_(iConfig.getParameter<bool>("useFastSimDecayer")),
       interactionModelNames_(iConfig.getParameter<edm::ParameterSet>("interactionModels").getParameterNames()),
       particleDataTableESToken_(esConsumes()) {
+  if (iConfig.existsAs<double>("caloVertexBackupDistance")) {
+    caloVertexBackupDistance_ = iConfig.getParameter<double>("caloVertexBackupDistance");
+  }
   //----------------
   // define interaction models (temp instance just to register products below)
   //---------------
@@ -217,6 +244,10 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
   produces<edm::PCaloHitContainer>("EcalHitsEE");
   produces<edm::PCaloHitContainer>("EcalHitsES");
   produces<edm::PCaloHitContainer>("HcalHits");
+  // Phase-2 HGCAL. The instance label matches FullSim g4SimHits so HGCDigitizer
+  // consumes it unchanged; empty unless HGCAL simulation is configured.
+  produces<edm::PCaloHitContainer>("HGCHitsEE");
+  produces<edm::PCaloHitContainer>("HGCHitsHEfront");
   produces<edm::SimTrackContainer>("MuonSimTracks");
 }
 
@@ -282,7 +313,10 @@ void FastSimProducer::produce(edm::StreamID id, edm::Event& iEvent, const edm::E
     // The condition below (R<128, z<302) makes sure that the particle geometrically is outside the tracker boundaries
     // -----------------------------
 
-    if (particle->position().Perp2() < caloBoundaryPerp2_ && std::abs(particle->position().Z()) < caloBoundaryZ_) {
+    const bool startedInsideTracker =
+        particle->position().Perp2() < caloBoundaryPerp2_ && std::abs(particle->position().Z()) < caloBoundaryZ_;
+
+    if (startedInsideTracker) {
       // move the particle through the layers
       fastsim::LayerNavigator layerNavigator(geometries->geometry);
       const fastsim::SimplifiedGeometry* layer = nullptr;
@@ -363,6 +397,25 @@ void FastSimProducer::produce(edm::StreamID id, edm::Event& iEvent, const edm::E
     if (particle->position().Perp2() >= caloBoundaryPerp2_ || std::abs(particle->position().Z()) >= caloBoundaryZ_) {
       LogDebug(MESSAGECATEGORY) << "\n   moving particle to calorimetry: " << *particle;
 
+      // CloseByParticleGun support: a primary born at the calo face can sit
+      // exactly on (or epsilon past) the first calo layer, which the navigator
+      // below can then never reach. Translate it backwards along its momentum
+      // so it approaches the entrance layer like any propagated particle. The
+      // straight line is exact for the intended field-off use, and the time is
+      // shifted consistently so hit times stay right.
+      if (caloVertexBackupDistance_ > 0. && !startedInsideTracker) {
+        const double p = particle->momentum().P();
+        if (p > 0.) {
+          const double beta = p / particle->momentum().E();
+          const double d = caloVertexBackupDistance_;
+          particle->position() -= math::XYZTLorentzVector(d * particle->momentum().Px() / p,
+                                                          d * particle->momentum().Py() / p,
+                                                          d * particle->momentum().Pz() / p,
+                                                          d / (fastsim::Constants::speedOfLight * beta));
+          LogDebug(MESSAGECATEGORY) << "   calo-face vertex moved back " << d << " cm: " << *particle;
+        }
+      }
+
       // create FSimTrack (this is the object the old propagation uses)
       createFSimTrack(particle.get(), &particleManager, pdt, myFSimTracks, geometries, state);
       // particle was decayed
@@ -408,6 +461,8 @@ void FastSimProducer::produce(edm::StreamID id, edm::Event& iEvent, const edm::E
   iEvent.put(std::move(caloProducts->hitsEE), "EcalHitsEE");
   iEvent.put(std::move(caloProducts->hitsES), "EcalHitsES");
   iEvent.put(std::move(caloProducts->hitsHCAL), "HcalHits");
+  iEvent.put(std::move(caloProducts->hitsHGCEE), "HGCHitsEE");
+  iEvent.put(std::move(caloProducts->hitsHGCHEfront), "HGCHitsHEfront");
   iEvent.put(std::move(caloProducts->tracksMuon), "MuonSimTracks");
 }
 
@@ -467,6 +522,10 @@ void FastSimProducer::createFSimTrack(fastsim::Particle* particle,
         if (!myFSimTrack.onVFcal()) {
           myFSimTrack.setVFcal(PP, 0);
         }
+      } else if (caloLayer->getCaloType() == fastsim::SimplifiedGeometry::HGCAL) {
+        if (!myFSimTrack.onHGCal()) {
+          myFSimTrack.setHGCal(PP, 0);
+        }
       }
 
       // not necessary to continue propagation
@@ -525,6 +584,14 @@ void FastSimProducer::createFSimTrack(fastsim::Particle* particle,
     if (caloLayer->getCaloType() == fastsim::SimplifiedGeometry::VFCAL) {
       if (!myFSimTrack.onVFcal()) {
         myFSimTrack.setVFcal(PP, abs(success));
+      }
+    }
+
+    // Phase-2: HGCAL replaces the endcap ECAL. The layer is only present when the
+    // HGCAL entrance layers are configured, so this is inert in Run-2/3 geometries.
+    if (caloLayer->getCaloType() == fastsim::SimplifiedGeometry::HGCAL) {
+      if (!myFSimTrack.onHGCal()) {
+        myFSimTrack.setHGCal(PP, abs(success));
       }
     }
 
