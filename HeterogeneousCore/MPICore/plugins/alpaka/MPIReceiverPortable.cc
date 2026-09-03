@@ -126,7 +126,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         if (deviceSerialiser) {
           edm::TypeID typeID{deviceSerialiser->productTypeID()};
-          hasDeviceProducts_ = true;
+          hasPortableProducts_ = true;
 
           LogDebug("MPIReceiverPortable") << "found device serialiser for type \"" << type << "\"";
 
@@ -143,7 +143,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             LogDebug("MPIReceiverPortable") << "No D to H transform found for type \"" << type << "\"";
             entry.token = this->producesCollector().template produces<edm::Transition::Event>(typeID, produceInstance);
           }
-          entry.deviceSerialiser = std::move(deviceSerialiser);
+          entry.portableSerialiser = std::move(deviceSerialiser);
 
           LogDebug("MPIReceiverPortable") << "receive device type \"" << typeID << "\" (" << type << ") for instance \""
                                           << produceInstance << "\" over MPI channel instance " << instance_;
@@ -152,41 +152,62 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           continue;
         }
 
-        // Check 2: "type" could be a host type alias "T" for which a host
-        // serialiser (and perhaps a portable serialiser for the H->D transform)
-        // exists.
+        // Check 2: type is a host type. Lookup a host serialiser and a portable
+        // serialiser for this host type. If both found, prefer the portable
+        // serialiser.
         edm::TypeWithDict twd = edm::TypeWithDict::byName(bareType);
-        std::unique_ptr<ngt::SerialiserBase> portableSerialiser;
-        std::unique_ptr<::ngt::SerialiserBase> hostSerialiser;
-        LogDebug("MPIReceiverPortable") << "looking for host serialiser for type \"" << type << "\"";
-        if (bool(twd)) {
-          portableSerialiser = ngt::SerialiserFactoryDevice::get()->tryToCreate(twd.typeInfo().name());
-          hostSerialiser = ::ngt::SerialiserFactory::get()->tryToCreate(twd.typeInfo().name());
-        }
+        LogDebug("MPIReceiverPortable") << "looking for serialiser for host type \"" << type << "\"";
+        if (twd) {
+          edm::TypeID const typeID{twd.typeInfo()};
+          std::unique_ptr<ngt::SerialiserBase> portableSerialiser =
+              ngt::SerialiserFactoryDevice::get()->tryToCreate(twd.typeInfo().name());
+          std::unique_ptr<::ngt::SerialiserBase> hostSerialiser =
+              ::ngt::SerialiserFactory::get()->tryToCreate(twd.typeInfo().name());
 
-        if (hostSerialiser && bool(twd)) {
-          edm::TypeID typeID{twd.typeInfo()};
-          LogDebug("MPIReceiverPortable") << "found host serialiser for type \"" << type << "\"";
+          // The equality "edm::TypeID{portableSerialiser->productTypeID()} ==
+          // typeID" holds only on the serial CPU backend, where
+          // DeviceProductType<TYPE_DEVICE> == TYPE_DEVICE == TYPE_HOST
+          if (portableSerialiser and edm::TypeID{portableSerialiser->productTypeID()} == typeID) {
+            LogDebug("MPIReceiverPortable")
+                << "using portable serialiser as host serialiser for type \"" << type << "\"";
 
-          if (portableSerialiser && portableSerialiser->hasCopyToDevice()) {
-            LogDebug("MPIReceiverPortable") << "Registering H to D transform for type \"" << type << "\"";
-            // Register the H to D transform
-            entry.token = this->produces(produceInstance)
-                              .produces(edm::TypeID{portableSerialiser->hostProductTypeID()},
-                                        edm::TypeID{portableSerialiser->productTypeID()},
-                                        portableSerialiser->preTransformHtoD(),
-                                        portableSerialiser->transformHtoD());
-          } else {
-            LogDebug("MPIReceiverPortable") << "No H to D transform found for type \"" << type << "\"";
+            hasPortableProducts_ = true;
             entry.token = this->producesCollector().template produces<edm::Transition::Event>(typeID, produceInstance);
+            entry.portableSerialiser = std::move(portableSerialiser);
+
+            LogDebug("MPIReceiverPortable") << "receive host type \"" << typeID << "\" (" << type << ") for instance \""
+                                            << produceInstance << "\" over MPI channel instance " << instance_;
+
+            products_.emplace_back(std::move(entry));
+            continue;
           }
-          entry.hostSerialiser = std::move(hostSerialiser);
 
-          LogDebug("MPIReceiverPortable") << "receive host type \"" << typeID << "\" (" << type << ") for instance \""
-                                          << produceInstance << "\" over MPI channel instance " << instance_;
+          // Fall back to the host serialiser, using the portable one (if any)
+          // for the H->D transform.
+          if (hostSerialiser) {
+            LogDebug("MPIReceiverPortable") << "found host serialiser for type \"" << type << "\"";
 
-          products_.emplace_back(std::move(entry));
-          continue;
+            if (portableSerialiser and portableSerialiser->hasCopyToDevice()) {
+              LogDebug("MPIReceiverPortable") << "Registering H to D transform for type \"" << type << "\"";
+              // Register the H to D transform
+              entry.token = this->produces(produceInstance)
+                                .produces(edm::TypeID{portableSerialiser->hostProductTypeID()},
+                                          edm::TypeID{portableSerialiser->productTypeID()},
+                                          portableSerialiser->preTransformHtoD(),
+                                          portableSerialiser->transformHtoD());
+            } else {
+              LogDebug("MPIReceiverPortable") << "No H to D transform found for type \"" << type << "\"";
+              entry.token =
+                  this->producesCollector().template produces<edm::Transition::Event>(typeID, produceInstance);
+            }
+            entry.hostSerialiser = std::move(hostSerialiser);
+
+            LogDebug("MPIReceiverPortable") << "receive host type \"" << typeID << "\" (" << type << ") for instance \""
+                                            << produceInstance << "\" over MPI channel instance " << instance_;
+
+            products_.emplace_back(std::move(entry));
+            continue;
+          }
         }
 
         // Check 3: Fall back to ROOT serialisation, if a ROOT dictionary is
@@ -251,7 +272,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
       // reset the metadata that could have been left behind by a previous event
       metadata_.reset();
-      if (hasDeviceProducts_) {
+      if (hasPortableProducts_) {
         metadata_ = std::make_shared<EDMetadata>(detail::chooseDevice(event.streamID()));
       }
 
@@ -280,7 +301,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   token.channel()->receiveSerializedBuffer(instance_, receivedProductMetadata_->serializedBufferSize());
             }
 
-            struct PendingDeviceWriter {
+            struct PendingPortableWriter {
               size_t index;
               std::unique_ptr<ngt::WriterBase> writer;
             };
@@ -290,7 +311,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             };
 
             std::vector<MPI_Request> requests;
-            std::vector<PendingDeviceWriter> pendingDeviceWriters;
+            std::vector<PendingPortableWriter> pendingPortableWriters;
             std::vector<PendingHostWriter> pendingHostWriters;
 
             for (size_t i = 0; i < products_.size(); ++i) {
@@ -328,21 +349,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               // ProductMetadata::Kind::TrivialCopy, and thus a serialiser (host
               // or device) should exist for them.
 
-              if (entry.deviceSerialiser) {
-                auto writer = entry.deviceSerialiser->writer();
+              if (entry.portableSerialiser) {
+                auto writer = entry.portableSerialiser->writer();
                 ::ngt::AnyBuffer buffer = writer->uninitialized_parameters();
                 if (buffer.size_bytes() != product_meta.sizeMeta) {
                   throw cms::Exception("MPIReceiverPortable")
-                      << "Buffer size mismatch for device product '" << entry.typeName << "': deviceSerialiser expects "
-                      << buffer.size_bytes() << " bytes of metadata, but sender sent " << product_meta.sizeMeta
-                      << " bytes.";
+                      << "Buffer size mismatch for portable product '" << entry.typeName
+                      << "': portableSerialiser expects " << buffer.size_bytes()
+                      << " bytes of metadata, but sender sent " << product_meta.sizeMeta << " bytes.";
                 }
                 std::memcpy(buffer.data(), product_meta.trivialCopyOffset, product_meta.sizeMeta);
 
                 writer->initialize(metadata_->queue(), buffer);
                 asyncWorkLaunched_ = true;
                 token.channel()->receiveInitializedTrivialCopyAsync(instance_, *writer, requests);
-                pendingDeviceWriters.push_back({i, std::move(writer)});
+                pendingPortableWriters.push_back({i, std::move(writer)});
               } else {
                 // Host path: allocate host buffer, then post a non-blocking receive.
                 auto writer = entry.hostSerialiser->writer();
@@ -364,7 +385,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             // Wait for all non-blocking receives to complete.
             MPIChannel::waitAll(requests);
 
-            for (auto& pending : pendingDeviceWriters) {
+            for (auto& pending : pendingPortableWriters) {
               pending.writer->finalize();
               receivedWrappers_[pending.index] = pending.writer->get(metadata_);
             }
@@ -448,7 +469,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     struct Entry {
       std::string typeName;  // type name from config, for logging
       edm::EDPutToken token;
-      std::unique_ptr<ngt::SerialiserBase> deviceSerialiser;
+      std::unique_ptr<ngt::SerialiserBase> portableSerialiser;
       std::unique_ptr<::ngt::SerialiserBase> hostSerialiser;
       edm::TypeWithDict wrappedType;
     };
@@ -459,7 +480,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     int32_t const instance_;
     edm::EDPutTokenT<edm::PathStateToken> pathStateToken_;
     bool const activity_;
-    bool hasDeviceProducts_ = false;
+    bool hasPortableProducts_ = false;
 
     std::shared_ptr<ProductMetadataBuilder> receivedProductMetadata_;
     std::vector<std::unique_ptr<edm::WrapperBase>> receivedWrappers_;

@@ -39,10 +39,14 @@ process.producePortableObjects = cms.EDProducer("TestAlpakaProducer@alpaka",
     )
 )
 
+# a host product with no device counterpart, serialised through ROOT
+process.ids = cms.EDProducer("edmtest::EventIDProducer")
+
 process.sender = cms.EDProducer("MPISenderPortable@alpaka",
     upstream = cms.InputTag("mpiController"),
     instance = cms.int32(42),
     products = cms.VPSet(
+        # various device products
         cms.PSet(
             type = cms.string("ALPAKA_ACCELERATOR_NAMESPACE::portabletest::TestDeviceObject"),
             name = cms.InputTag("producePortableObjects", ""),
@@ -59,11 +63,27 @@ process.sender = cms.EDProducer("MPISenderPortable@alpaka",
             type = cms.string("ALPAKA_ACCELERATOR_NAMESPACE::portabletest::TestDeviceCollection3"),
             name = cms.InputTag("producePortableObjects", ""),
         ),
+        # a host product with a portable trivial serialiser
+        cms.PSet(
+            type = cms.string("portabletest::TestHostCollection"),
+            name = cms.InputTag("producePortableObjects", ""),
+        ),
+        # a host product with a non-portable trivial serialiser
+        cms.PSet(
+            type = cms.string("ushort"),
+            name = cms.InputTag("producePortableObjects", "backend"),
+        ),
+        # a host product with no trivial serialiser
+        cms.PSet(
+            type = cms.string("edm::EventID"),
+            name = cms.InputTag("ids", ""),
+        ),
     )
 )
 
 process.pathSoA = cms.Path(
     process.mpiController +
     process.producePortableObjects +
+    process.ids +
     process.sender
 )
