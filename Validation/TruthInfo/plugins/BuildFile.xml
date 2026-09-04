@@ -18,6 +18,10 @@
 <use name="PhysicsTools/TruthInfo"/>
 <use name="Validation/TruthInfo"/>
 
+<library file="TruthBranchRecoValidator.cc" name="ValidationTruthInfoPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <library file="BranchHGCalValidator.cc" name="BranchHGCalValidatorPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
