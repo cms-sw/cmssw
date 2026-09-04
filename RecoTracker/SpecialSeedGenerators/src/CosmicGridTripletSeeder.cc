@@ -238,7 +238,6 @@ void CosmicGridTripletSeeder::populateGrid(const edm::Event& iEvent,
           if (vh->sharesInput(&otHit, TrackingRecHit::some)) {
             unique = false;
             state.vhConstituents[vh].push_back(&otHit);
-            break;
           }
         }
         if (!unique) {
