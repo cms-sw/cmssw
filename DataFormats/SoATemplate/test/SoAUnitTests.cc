@@ -64,8 +64,8 @@ TEST_CASE("SoATemplate") {
       auto slcvi = slcv[i];
 
       // check that SCALAR accessors are not available an SoA element
-      STATIC_REQUIRE(![]<typename T>(T& x) { return requires { x.s(); }; }(slvi));
-      STATIC_REQUIRE(![]<typename T>(T& x) { return requires { x.s(); }; }(slcvi));
+      STATIC_REQUIRE(![](auto& x) { return requires { x.s(); }; }(slvi));
+      STATIC_REQUIRE(![](auto& x) { return requires { x.s(); }; }(slcvi));
 
       REQUIRE(slvi.x() == x);
       REQUIRE(slvi.y() == y);
