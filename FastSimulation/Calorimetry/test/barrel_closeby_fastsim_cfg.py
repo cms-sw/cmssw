@@ -33,25 +33,28 @@ Note on the gun: this release (20_1) carries the ip==0 guard in
 CloseByParticleGunProducer, so the first particle's phi is NOT shifted by
 Delta/R -- the 14_0 samples were (phi 1.68299 instead of 1.57).
 
-Run:  cmsRun hgcal_closeby_fastsim_cfg.py [maxEvents=N] [energy=50] [pdgid=22]
+Run:  cmsRun hgcal_closeby_fastsim_cfg.py -- --maxEvents N --energy 50 --pdgid 22
 """
 
 import math
 
 import FWCore.ParameterSet.Config as cms
-import FWCore.ParameterSet.VarParsing as VarParsing
-
 from Configuration.Eras.Era_Phase2C17I13M9_FastSim_cff import Phase2C17I13M9_FastSim
 
-opts = VarParsing.VarParsing('analysis')
-opts.register('energy', 50.0, VarParsing.VarParsing.multiplicity.singleton,
-              VarParsing.VarParsing.varType.float, 'gun energy [GeV]')
-opts.register('pdgid', 22, VarParsing.VarParsing.multiplicity.singleton,
-              VarParsing.VarParsing.varType.int, 'particle id: 22 photon, 211 pion')
-opts.register('seed', 12345, VarParsing.VarParsing.multiplicity.singleton,
-              VarParsing.VarParsing.varType.int, 'RNG seed (must differ per batch job)')
-opts.setDefault('maxEvents', 20)
-opts.parseArguments()
+import argparse
+import sys
+
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--maxEvents', type=int, default=20,
+                    help='number of events')
+parser.add_argument('--energy', type=float, default=50.0,
+                    help='gun energy [GeV]')
+parser.add_argument('--pdgid', type=int, default=22,
+                    help='particle id: 22 photon, 211 pion')
+parser.add_argument('--seed', type=int, default=12345,
+                    help='RNG seed (must differ per batch job)')
+opts, _ = parser.parse_known_args()
+
 
 process = cms.Process('HGCALFS', Phase2C17I13M9_FastSim)
 
