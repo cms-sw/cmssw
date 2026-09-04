@@ -1,10 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("MPIController")
+process = cms.Process("ConfigA")
 
 process.options.numberOfThreads = 4
 process.options.numberOfStreams = 4
-# MPIController supports a single concurrent LuminosityBlock
 process.options.numberOfConcurrentLuminosityBlocks = 1
 process.options.numberOfConcurrentRuns = 1
 process.options.wantSummary = False
@@ -29,7 +28,7 @@ from HeterogeneousCore.MPICore.modules import *
 
 process.mpiController = MPIController(
     mode = 'CommWorld',
-    followerProcessName = 'Follower'
+    followerProcessName = 'ConfigB'
 )
 
 process.ids = cms.EDProducer("edmtest::EventIDProducer")
@@ -47,26 +46,4 @@ process.sender = MPISender(
     )]
 )
 
-process.othersender = MPISender(
-    upstream = "mpiController",
-    instance = 19,
-    products = [ dict(
-        type = "edm::EventID",
-        name = 'ids'
-    )]
-)
-
-process.receiver = MPIReceiver(
-    upstream = "othersender",   # guarantees that this module will only run after "othersender" has run
-    instance = 99,
-    products = [ dict(
-        type = "edm::EventID",
-        label = ""
-    )]
-)
-
-process.finalcheck = cms.EDAnalyzer("edmtest::EventIDValidator",
-    source = cms.untracked.InputTag('receiver')
-)
-
-process.path = cms.Path(process.mpiController + process.ids + process.initialcheck + process.sender + process.othersender + process.receiver + process.finalcheck)
+process.path = cms.Path(process.mpiController + process.ids + process.initialcheck + process.sender)

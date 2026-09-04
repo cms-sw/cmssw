@@ -16,6 +16,7 @@ process.source = cms.Source("EmptySource")
 process.maxEvents.input = 10
 
 process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
+process.load("HeterogeneousCore.MPIServices.MPIConsistencyChecker_cfi")
 
 # produce and send device collections
 process.load("Configuration.StandardSequences.Accelerators_cff")
