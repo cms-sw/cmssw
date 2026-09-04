@@ -1,0 +1,15 @@
+<use name="DQMServices/Core"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/VertexReco"/>
+<use name="DataFormats/HGCalReco"/>
+<use name="SimDataFormats/Associations"/>
+<use name="SimDataFormats/TruthInfo"/>
+<use name="PhysicsTools/TruthInfo"/>
+<use name="Validation/TruthInfo"/>
+
+<library file="TruthBranchRecoValidator.cc" name="ValidationTruthInfoPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
