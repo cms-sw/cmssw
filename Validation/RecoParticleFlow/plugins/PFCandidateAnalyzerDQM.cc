@@ -15,6 +15,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -43,7 +44,10 @@ protected:
 private:
   //from config file
   edm::InputTag PFCandTag;
-  edm::EDGetTokenT<edm::View<pat::PackedCandidate>> PFCandToken;
+  // reco::Candidate rather than pat::PackedCandidate: the analyzer only uses
+  // pt/eta/phi/charge/pdgId, all on the base class, and PackedCandidate derives
+  // from it.  This lets the same module run on HLT reco::PFCandidate input.
+  edm::EDGetTokenT<edm::View<reco::Candidate>> PFCandToken;
   std::vector<double> etabins;
   std::map<std::string, MonitorElement*> me;
 
@@ -53,7 +57,7 @@ private:
 // constructor
 PFCandidateAnalyzerDQM::PFCandidateAnalyzerDQM(const edm::ParameterSet& iConfig) {
   PFCandTag = iConfig.getParameter<edm::InputTag>("PFCandType");
-  PFCandToken = consumes<edm::View<pat::PackedCandidate>>(PFCandTag);
+  PFCandToken = consumes<edm::View<reco::Candidate>>(PFCandTag);
   etabins = iConfig.getParameter<std::vector<double>>("etabins");
 
   //create map of pdgId
@@ -110,7 +114,7 @@ void PFCandidateAnalyzerDQM::bookHistograms(DQMStore::IBooker& booker, edm::Run 
 
 void PFCandidateAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //retrieve
-  edm::Handle<edm::View<pat::PackedCandidate>> pfHandle;
+  edm::Handle<edm::View<reco::Candidate>> pfHandle;
   iEvent.getByToken(PFCandToken, pfHandle);
 
   if (!pfHandle.isValid()) {
