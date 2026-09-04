@@ -26,6 +26,8 @@ process.trackerGeometry.applyAlignment = cms.bool(False)
 
 # Canonical truth-graph + Branch-validator modules (single source of truth).
 process.load("PhysicsTools.TruthInfo.truthGraphValidation_cff")
+# The build producers: truthGraphValidation_cff deliberately does not define them
+process.load("Validation.Configuration.truthPrevalidation_cff")
 
 process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(args.maxevts))
 process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring(args.inputFile))

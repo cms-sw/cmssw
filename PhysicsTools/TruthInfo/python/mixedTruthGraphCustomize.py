@@ -93,9 +93,9 @@ def addTruthGraphAccumulator(process,
     )
 
     # Persistence is owned by truthEventContent_cff (the compact/full verbosity
-    # levels), applied via customiseTruthDigi. The accumulator products
-    # (TruthGraph_mix, mix:merged*Hits) are kept only at the 'full' level; the
-    # compact default persists the graph + unresolved index built below instead.
+    # levels), applied via customiseTruthDigi. Both levels keep the raw
+    # TruthGraph_mix (the validators read it as rawSrc); the merged sim-hit
+    # collections (mix:merged*Hits) are kept only at the 'full' level.
     return process
 
 
