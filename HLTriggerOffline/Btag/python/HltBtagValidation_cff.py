@@ -99,3 +99,76 @@ fastSim.toModify(HltVertexValidationVertices, SimVertexCollection = "fastSimProd
     #    cms.InputTag("hltVerticesPF"), 
     #)
 
+#Including phase2 conditions
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+
+triggerConditions_phase2 = cms.vstring(
+    "HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepCSV_2p4* OR HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepFlavour_2p4* OR HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepFlavour_2p4* OR HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepFlavour_2p4*")
+
+phase2_common.toModify(hltBtagTriggerSelection,
+                       triggerConditions = triggerConditions_phase2)
+
+HLTPathNames_phase2 = cms.vstring(
+    'HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepCSV_2p4',
+    'HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepFlavour_2p4',
+    'HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepFlavour_2p4',
+    'HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepFlavour_2p4'
+)
+
+phase2_common.toModify(hltbTagValidation,
+                       HLTPathNames = HLTPathNames_phase2)
+
+phase2_common.toModify(HltVertexValidationVertices,
+                       HLTPathNames = HLTPathNames_phase2)
+
+phase2_common.toModify(
+    HltVertexValidationVertices,
+    Vertex = cms.VInputTag(
+            cms.InputTag("hltOfflinePrimaryVertices","","HLT"),
+    )
+)
+
+phase2_common.toModify(
+    hltbTagValidation,
+    isPhase2 = cms.bool(True),
+    L1Seeds = cms.VPSet(
+        cms.PSet(seeds = cms.vstring("pDoublePuppiJet112_112")),
+        cms.PSet(seeds = cms.vstring("pPuppiHT400", "pQuadJet70_55_40_40")),
+        cms.PSet(seeds = cms.vstring("pPuppiHT400", "pQuadJet70_55_40_40")),
+        cms.PSet(seeds = cms.vstring("pDoublePuppiJet112_112"))
+    ),
+    JetTag = cms.VInputTag(
+        cms.InputTag("hltDeepCombinedSecondaryVertexBJetTagsPFPuppiModEta2p4","probb"),
+        cms.InputTag("hltPfDeepFlavourJetTagsModEta2p4","probb"),
+        cms.InputTag("hltPfDeepFlavourJetTagsModEta2p4","probb"),
+        cms.InputTag("hltPfDeepFlavourJetTagsModEta2p4","probb")
+    ),
+    PathFilters = cms.VPSet(
+        cms.PSet(filters = cms.vstring(
+            "hltDoublePFPuppiJets128MaxEta2p4",
+            "hltDoublePFPuppiJets128Eta2p4MaxDeta1p6",
+            "hltBTagPFPuppiDeepCSV0p865DoubleEta2p4"
+        )),
+        cms.PSet(filters = cms.vstring(
+            "hltPFPuppiCentralJetQuad30MaxEta2p4",
+            "hlt1PFPuppiCentralJet75MaxEta2p4",
+            "hlt2PFPuppiCentralJet60MaxEta2p4",
+            "hlt3PFPuppiCentralJet45MaxEta2p4",
+            "hlt4PFPuppiCentralJet40MaxEta2p4",
+            "hltPFPuppiCentralJetsQuad30HT330MaxEta2p4",
+            "hltBTagPFPuppiDeepFlavour0p275Eta2p4TripleEta2p4"
+        )),
+        cms.PSet(filters = cms.vstring(
+            "hltPFPuppiCentralJetQuad30MaxEta2p4",
+            "hlt1PFPuppiCentralJet70MaxEta2p4",
+            "hlt2PFPuppiCentralJet40MaxEta2p4",
+            "hltPFPuppiCentralJetsQuad30HT200MaxEta2p4",
+            "hltBTagPFPuppiDeepFlavour0p375Eta2p4TripleEta2p4"
+        )),
+        cms.PSet(filters = cms.vstring(
+            "hltDoublePFPuppiJets128MaxEta2p4",
+            "hltDoublePFPuppiJets128Eta2p4MaxDeta1p6",
+            "hltBTagPFPuppiDeepFlavour0p935DoubleEta2p4"
+        ))
+    )
+)
