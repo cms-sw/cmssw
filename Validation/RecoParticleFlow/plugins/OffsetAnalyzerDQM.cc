@@ -8,6 +8,8 @@
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include <SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h>
 
 #include <vector>
@@ -91,14 +93,23 @@ private:
   edm::EDGetTokenT<edm::View<reco::Vertex>> pvToken;
   edm::EDGetTokenT<edm::View<PileupSummaryInfo>> muToken;
   edm::EDGetTokenT<edm::View<pat::PackedCandidate>> pfToken;
+  // AOD/HLT input: reco::PFCandidate carries trackRef(), which is what the
+  // reco path needs to decide PV attachment; pat::PackedCandidate instead
+  // carries a precomputed fromPV().  Exactly one of the two is consumed.
+  edm::EDGetTokenT<edm::View<reco::PFCandidate>> pfRecoToken;
+  const bool useAOD_;
 };
 
-OffsetAnalyzerDQM::OffsetAnalyzerDQM(const edm::ParameterSet& iConfig) {
+OffsetAnalyzerDQM::OffsetAnalyzerDQM(const edm::ParameterSet& iConfig)
+    : useAOD_(iConfig.getParameter<bool>("useAOD")) {
   offsetPlotBaseName = iConfig.getParameter<std::string>("offsetPlotBaseName");
 
   pvToken = consumes<edm::View<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("pvTag"));
   muToken = consumes<edm::View<PileupSummaryInfo>>(iConfig.getParameter<edm::InputTag>("muTag"));
-  pfToken = consumes<edm::View<pat::PackedCandidate>>(iConfig.getParameter<edm::InputTag>("pfTag"));
+  if (useAOD_)
+    pfRecoToken = consumes<edm::View<reco::PFCandidate>>(iConfig.getParameter<edm::InputTag>("pfTag"));
+  else
+    pfToken = consumes<edm::View<pat::PackedCandidate>>(iConfig.getParameter<edm::InputTag>("pfTag"));
 
   etabins = iConfig.getParameter<std::vector<double>>("etabins");
   pftypes = iConfig.getParameter<std::vector<std::string>>("pftypes");
@@ -154,6 +165,14 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //npv//
   edm::Handle<edm::View<reco::Vertex>> vertexHandle;
   iEvent.getByToken(pvToken, vertexHandle);
+  // Offline the vertex collection always exists. At HLT it does not: products
+  // are made inside filtered paths, so in an event where no relevant path ran
+  // the collection is simply absent. Dereferencing then throws ProductNotFound
+  // and kills the job, so skip the event instead.
+  if (!vertexHandle.isValid()) {
+    edm::LogInfo("OffsetAnalyzerDQM") << "no vertex collection in this event; skipping";
+    return;
+  }
 
   unsigned int nPVall = vertexHandle->size();
   bool isGoodPV[nPVall];
@@ -202,48 +221,64 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
     m_pftype_etaE[pftype].assign(nEta, 0.0);
 
   //pf particles//
+  //
+  // Two input types are supported.  MiniAOD gives pat::PackedCandidate, which
+  // carries fromPV() directly.  AOD/HLT gives reco::PFCandidate, where PV
+  // attachment has to be decided by matching the candidate track against the
+  // tracks fitted to a good primary vertex.  The second path is the one the
+  // original code sketched in the commented ////AOD//// block below.
+  auto fillCandidate = [&](double eta, int pdg, double et, auto isAttachedToPV) {
+    int etaIndex = getEtaIndex(eta);
+    std::string pftype = pdgMap[abs(pdg)];
+    if (etaIndex == -1 || pftype.empty())
+      return;
+    if (pftype == "chm" && !isAttachedToPV())
+      pftype = "chu";  //unmatched charged hadron
+    m_pftype_etaE[pftype][etaIndex] += et;
+  };
+
+  if (useAOD_) {
+    edm::Handle<edm::View<reco::PFCandidate>> pfRecoHandle;
+    iEvent.getByToken(pfRecoToken, pfRecoHandle);
+    if (!pfRecoHandle.isValid()) {
+      edm::LogInfo("OffsetAnalyzerDQM") << "no PF candidate collection in this event; skipping";
+      return;
+    }
+
+    for (unsigned int i = 0, n = pfRecoHandle->size(); i < n; i++) {
+      const auto& cand = pfRecoHandle->at(i);
+      fillCandidate(cand.eta(), cand.pdgId(), cand.et(), [&]() {
+        reco::TrackRef candTrkRef(cand.trackRef());
+        if (candTrkRef.isNull())
+          return false;
+        for (auto ipv = vertexHandle->begin(), endpv = vertexHandle->end(); ipv != endpv; ++ipv) {
+          if (ipv->isFake() || ipv->ndof() < 4 || std::abs(ipv->z()) > 24)
+            continue;
+          for (auto ivtrk = ipv->tracks_begin(), endvtrk = ipv->tracks_end(); ivtrk != endvtrk; ++ivtrk) {
+            if (ivtrk->castTo<reco::TrackRef>() == candTrkRef)
+              return true;
+          }
+        }
+        return false;
+      });
+    }
+  } else {
   edm::Handle<edm::View<pat::PackedCandidate>> pfHandle;
   iEvent.getByToken(pfToken, pfHandle);
 
   for (unsigned int i = 0, n = pfHandle->size(); i < n; i++) {
     const auto& cand = pfHandle->at(i);
-
-    int etaIndex = getEtaIndex(cand.eta());
-    std::string pftype = pdgMap[abs(cand.pdgId())];
-    if (etaIndex == -1 || pftype.empty())
-      continue;
-
-    if (pftype == "chm") {  //check charged hadrons ONLY
-      bool attached = false;
-
-      for (unsigned int ipv = 0; ipv < nPVall && !attached; ipv++) {
+    // MiniAOD path: PV attachment is precomputed in fromPV(), 3 == used in fit.
+    fillCandidate(cand.eta(), cand.pdgId(), cand.et(), [&]() {
+      for (unsigned int ipv = 0; ipv < nPVall; ipv++) {
         if (isGoodPV[ipv] && cand.fromPV(ipv) == 3)
-          attached = true;  //pv used in fit
+          return true;
       }
-      if (!attached)
-        pftype = "chu";  //unmatched charged hadron
-    }
-    ////AOD////
-    /*
-        reco::TrackRef candTrkRef( cand.trackRef() );
-        if ( pftype == "chm" && !candTrkRef.isNull() ) { //check charged hadrons ONLY
-            bool attached = false;
-
-            for (auto ipv=vertexHandle->begin(), endpv=vertexHandle->end(); ipv != endpv && !attached; ++ipv) {
-                if ( !ipv->isFake() && ipv->ndof() >= 4 && fabs(ipv->z()) < 24 ) { //must be attached to a good pv
-
-                    for(auto ivtrk=ipv->tracks_begin(), endvtrk=ipv->tracks_end(); ivtrk != endvtrk && !attached; ++ivtrk) {
-                        reco::TrackRef pvTrkRef(ivtrk->castTo<reco::TrackRef>());
-                        if (pvTrkRef == candTrkRef) attached = true;
-                    }
-                }
-            }
-            if (!attached) pftype = "chu"; //unmatched charged hadron
-        }
-*/
-    ///////////
-    m_pftype_etaE[pftype][etaIndex] += cand.et();
+      return false;
+    });
   }
+
+  }  // end packed-candidate branch
 
   for (const auto& pair : m_pftype_etaE) {
     std::string pftype = pair.first;
