@@ -24,6 +24,7 @@
 #include <string>
 #include <vector>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
 #include "SimDataFormats/TruthInfo/interface/Particle.h"
@@ -584,6 +585,76 @@ namespace truth {
     throw cms::Exception("TruthLevels") << "level " << static_cast<int>(level) << " has no row in kLevelTable";
   }
 
+  // The particles that lie on a directed cycle, walking particle to child. Empty on a
+  // well-formed graph.
+  //
+  // A cycle is not a shape the levels can describe. dropCoveredMembers marks the closure
+  // of a level's members and then erases every member the closure reached; on a cycle a
+  // member reaches ITSELF, so the level erases its own members and comes out empty or
+  // thinned. The count is what a consumer sees, and an empty level is indistinguishable
+  // from "the event has none of these", so the condition has to be reported rather than
+  // inferred. One pass, O(nParticles + nEdges), iterative because a shower chain is deep
+  // enough to overflow the stack.
+  [[nodiscard]] inline std::vector<uint32_t> particlesOnCycles(Graph const& graph) {
+    enum : uint8_t { kUnseen = 0, kOnStack = 1, kDone = 2 };
+    const uint32_t nParticles = graph.nParticles();
+    std::vector<uint8_t> state(nParticles, kUnseen);
+    std::vector<uint32_t> onCycle;
+    // (particle, index of the next child to visit) so the walk can resume after a child.
+    std::vector<std::pair<uint32_t, std::size_t>> stack;
+    std::vector<uint32_t> children;
+
+    auto childrenOf = [&graph](uint32_t id, std::vector<uint32_t>& out) {
+      out.clear();
+      for (const uint32_t vertexId : graph.decayVertices(id)) {
+        if (vertexId >= graph.nVertices()) {
+          continue;
+        }
+        for (const uint32_t child : graph.outgoingParticles(vertexId)) {
+          out.push_back(child);
+        }
+      }
+    };
+
+    for (uint32_t root = 0; root < nParticles; ++root) {
+      if (state[root] != kUnseen) {
+        continue;
+      }
+      stack.emplace_back(root, 0);
+      state[root] = kOnStack;
+      while (!stack.empty()) {
+        auto& [id, next] = stack.back();
+        childrenOf(id, children);
+        if (next >= children.size()) {
+          state[id] = kDone;
+          stack.pop_back();
+          continue;
+        }
+        const uint32_t child = children[next];
+        ++next;
+        if (child >= nParticles) {
+          continue;
+        }
+        if (state[child] == kOnStack) {
+          // Back edge: the child reaches itself through the particles above it on the
+          // stack, so the whole loop is named, not only the point the walk re-entered.
+          for (auto it = stack.rbegin(); it != stack.rend(); ++it) {
+            onCycle.push_back(it->first);
+            if (it->first == child) {
+              break;
+            }
+          }
+        } else if (state[child] == kUnseen) {
+          state[child] = kOnStack;
+          stack.emplace_back(child, 0);
+        }
+      }
+    }
+    std::sort(onCycle.begin(), onCycle.end());
+    onCycle.erase(std::unique(onCycle.begin(), onCycle.end()), onCycle.end());
+    return onCycle;
+  }
+
   // Stamp every particle with the levels it belongs to. Call once, on the COMPLETE graph:
   // levelAntichain walks ancestors and descendants, so a graph still being assembled
   // gives an antichain of whatever existed at the time.
@@ -594,9 +665,7 @@ namespace truth {
   inline void fillLevelFlags(Graph& graph) {
     // Preconditions, because the walks below index the CSR arrays directly: the graph
     // must be shaped (Graph::isConsistent) and acyclic. A short offset array aborts the
-    // job with a bare std::out_of_range and no module context. A cycle makes every member
-    // of a level cover every other, which empties that level with no diagnostic.
-    // TruthGraphTopologyChecker counts cycles in a job.
+    // job with a bare std::out_of_range and no module context.
     if (graph.nParticles() == 0) {
       return;
     }
@@ -605,6 +674,15 @@ namespace truth {
       throw cms::Exception("TruthLevels")
           << "fillLevelFlags needs CSR offsets of size nParticles + 1 (" << graph.nParticles() + 1 << "), found "
           << graph.particleToDecayVertexOffsets().size() << " and " << graph.particleToProductionVertexOffsets().size();
+    }
+    // A cycle thins or empties the levels it touches, and the result reads as a normal
+    // event, so it is announced. The stamping continues: the levels a cycle does not
+    // reach stay correct, and dropping every level would lose more than it protects.
+    if (const std::vector<uint32_t> cyclic = particlesOnCycles(graph); !cyclic.empty()) {
+      edm::LogWarning("TruthLevels") << cyclic.size() << " particles lie on a directed cycle, first at id "
+                                     << cyclic.front() << " (pdgId " << graph.particles()[cyclic.front()].pdgId
+                                     << "). A level whose members a cycle reaches erases them and comes out "
+                                        "empty or thinned, so treat the level counts of this event as unreliable.";
     }
     // Clear only the bits this function owns. LevelFlag::Signal is set upstream, by the
     // selection post-processing that knows the seed species, and clearing it here would

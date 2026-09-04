@@ -240,6 +240,9 @@ class LevelFlags_t : public CppUnit::TestFixture {
   CPPUNIT_TEST(testReconstructableFinalStateNeedsNoSignal);
   CPPUNIT_TEST(testBeautyAndCharmAreSeparateLevels);
   CPPUNIT_TEST(testEmptyGraphStampsNothing);
+  CPPUNIT_TEST(testAcyclicGraphReportsNoCycle);
+  CPPUNIT_TEST(testCycleIsReported);
+  CPPUNIT_TEST(testCycleDoesNotStopStamping);
   CPPUNIT_TEST(testLevelTableIsTheSingleSource);
   CPPUNIT_TEST_SUITE_END();
 
@@ -580,6 +583,71 @@ public:
     }
     truth::fillLevelFlags(g);
     CPPUNIT_ASSERT_EQUAL(uint32_t{0}, g.nParticles());
+  }
+
+  // A well-formed graph reports no cycle, and the walk terminates on a graph where one
+  // particle has several parents and several children.
+  void testAcyclicGraphReportsNoCycle() {
+    truth::Graph decay = buildDecay();
+    CPPUNIT_ASSERT(truth::particlesOnCycles(decay).empty());
+    truth::Graph tausAndPi0 = buildTausAndPi0();
+    CPPUNIT_ASSERT(truth::particlesOnCycles(tausAndPi0).empty());
+    truth::Graph empty;
+    CPPUNIT_ASSERT(truth::particlesOnCycles(empty).empty());
+  }
+
+  // REQUIRED: a directed cycle is reported by id, and every particle on it is named.
+  // The levels cannot describe a cycle, so the caller must be able to see one.
+  //   p0 -> v0 -> p1 -> v1 -> p2 -> v2 -> p0
+  void testCycleIsReported() {
+    GraphBuilder b(3, 3);
+    for (uint32_t i = 0; i < 3; ++i) {
+      auto& p = b.graph.particles()[i];
+      p.genNode = 100 + static_cast<int32_t>(i);
+      p.pdgId = 211;
+      p.status = 2;
+      b.addDecay(i, i);
+      b.addProduction(i, (i + 1) % 3);
+    }
+    truth::Graph g = b.finish();
+
+    const std::vector<uint32_t> onCycle = truth::particlesOnCycles(g);
+    CPPUNIT_ASSERT_EQUAL(std::size_t{3}, onCycle.size());
+    for (uint32_t i = 0; i < 3; ++i) {
+      CPPUNIT_ASSERT(std::find(onCycle.begin(), onCycle.end(), i) != onCycle.end());
+    }
+  }
+
+  // A cycle that hangs off an acyclic chain names only the particles on the cycle, and
+  // stamping still runs, so the levels a cycle does not reach stay usable.
+  void testCycleDoesNotStopStamping() {
+    // p0 (hard process) decays at v0 to p1; p1 -> v1 -> p2 -> v2 -> p1 is the cycle.
+    GraphBuilder b(3, 3);
+    auto& seed = b.graph.particles()[0];
+    seed.genNode = 100;
+    seed.pdgId = 6;
+    seed.status = 2;
+    seed.statusFlags = truth::detail::kIsHardProcess;
+    for (uint32_t i = 1; i < 3; ++i) {
+      auto& p = b.graph.particles()[i];
+      p.genNode = 100 + static_cast<int32_t>(i);
+      p.pdgId = 211;
+      p.status = 2;
+    }
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addDecay(1, 1);
+    b.addProduction(1, 2);
+    b.addDecay(2, 2);
+    b.addProduction(2, 1);
+    truth::Graph g = b.finish();
+
+    const std::vector<uint32_t> onCycle = truth::particlesOnCycles(g);
+    CPPUNIT_ASSERT_EQUAL(std::size_t{2}, onCycle.size());
+    CPPUNIT_ASSERT(std::find(onCycle.begin(), onCycle.end(), 0u) == onCycle.end());
+
+    truth::fillLevelFlags(g);
+    CPPUNIT_ASSERT_EQUAL(uint32_t{3}, g.nParticles());
   }
 
   // A SIM continuation is transport, not decay. The TenTau topology that exposed it:
