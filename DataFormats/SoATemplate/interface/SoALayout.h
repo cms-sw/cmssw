@@ -723,7 +723,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 /**
  * Generator of parameters for (const) element subclass (expanded comma separated).
  */
-#define _DECLARE_CONST_VIEW_ELEMENT_VALUE_ARG_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)        \
+#define _DECLARE_CONST_VIEW_ELEMENT_VALUE_ARG_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
   _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (const typename BOOST_PP_CAT(Metadata::ParametersTypeOf_, NAME)::ConstType NAME))
 
 #define _DECLARE_CONST_VIEW_ELEMENT_VALUE_ARG(R, DATA, TYPE_NAME)                           \
@@ -784,7 +784,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
 /**
  * Parameters passed to const element subclass constructor in operator[]
  */
-#define _DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)      \
+#define _DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
   _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (BOOST_PP_CAT(NAME, Parameters_)))
 
 #define _DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL(R, DATA, TYPE_NAME)                         \
@@ -1068,8 +1068,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
  * Generator of parameters for (non-const) element subclass (expanded comma separated).
  */
 #define _DECLARE_VIEW_ELEMENT_VALUE_ARG_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
-  _APPLY_FOR_NON_SCALAR(VALUE_TYPE,                                            \
-  (typename BOOST_PP_CAT(Metadata::ParametersTypeOf_, NAME) NAME))
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (typename BOOST_PP_CAT(Metadata::ParametersTypeOf_, NAME) NAME))
 
 #define _DECLARE_VIEW_ELEMENT_VALUE_ARG(R, DATA, TYPE_NAME)                                 \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
@@ -1112,7 +1111,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
               BOOST_PP_EXPAND(_TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT_IMPL TYPE_NAME))
 
 /**
- * Declaration of the private members of the const element subclass
+ * Declaration of the private members of the element subclass
  */
 // clang-format off
 #define _DECLARE_VIEW_ELEMENT_VALUE_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                    \
@@ -1134,9 +1133,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
  * The use of const_cast (inside cms::soa::non_const_ptr) is safe because the constructor of a View binds only to
  * non-const arguments.
  */
-#define _DECLARE_VIEW_ELEMENT_CONSTR_CALL_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)          \
-  _APPLY_FOR_NON_SCALAR(VALUE_TYPE,                                                       \
-    (cms::soa::const_cast_SoAParametersImpl(base_type::BOOST_PP_CAT(NAME, Parameters_))))
+#define _DECLARE_VIEW_ELEMENT_CONSTR_CALL_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE,                                              \
+                        (cms::soa::const_cast_SoAParametersImpl(base_type::BOOST_PP_CAT(NAME, Parameters_))))
 
 #define _DECLARE_VIEW_ELEMENT_CONSTR_CALL(R, DATA, TYPE_NAME)                               \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
@@ -1491,7 +1490,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
         ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_METHODS, ~, __VA_ARGS__))                                         \
                                                                                                                        \
-        _APPEND_TOKEN(_ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER, ~, __VA_ARGS__), private:)             \
+        _APPEND_TOKEN(_ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER, ~, __VA_ARGS__), _PRIVATE_ACCESS)      \
         _ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER, ~, __VA_ARGS__)                                      \
       };                                                                                                               \
                                                                                                                        \
@@ -1656,10 +1655,10 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       /* AoS-like accessor (mutable) */                                                                                \
       struct element {                                                                                                 \
         SOA_HOST_DEVICE SOA_INLINE                                                                                     \
-        element(size_type                                                  \
-                _APPEND_TOKEN(_ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_VALUE_ARG, ~, __VA_ARGS__), _soa_impl_index)      \
-                _APPEND_COMMA(_ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_VALUE_ARG, ~, __VA_ARGS__)))                                \
-                _APPEND_LIST_INIT(_ITERATE_ON_ALL(_DECLARE_VIEW_ELEM_MEMBER_INIT, _soa_impl_index, __VA_ARGS__)) {}                   \
+        element(size_type                                                                                              \
+                _APPEND_TOKEN(_ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_VALUE_ARG, ~, __VA_ARGS__), _soa_impl_index)       \
+                _APPEND_COMMA(_ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_VALUE_ARG, ~, __VA_ARGS__)))                       \
+                _APPEND_LIST_INIT(_ITERATE_ON_ALL(_DECLARE_VIEW_ELEM_MEMBER_INIT, _soa_impl_index, __VA_ARGS__)) {}    \
         SOA_HOST_DEVICE SOA_INLINE                                                                                     \
         element& operator=(const element& _soa_impl_other) {                                                           \
           _ITERATE_ON_ALL(_DECLARE_VIEW_ELEMENT_VALUE_COPY, ~, __VA_ARGS__)                                            \

@@ -648,6 +648,9 @@ namespace cms::soa {
 
 #define _APPLY_FOR_NON_SCALAR(VALUE_TYPE, CODE) BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_SCALAR), , CODE)
 
+// private access specifier for SoA classes, to be used in macros, using it directly would break clang-format
+#define _PRIVATE_ACCESS private:
+
 /* Produces text input token if input sequence is not empty */
 #define _APPEND_TOKEN_1(PARAM_NAME)
 #define _APPEND_TOKEN_0(PARAM_NAME) PARAM_NAME
