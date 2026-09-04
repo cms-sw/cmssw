@@ -20,7 +20,7 @@
 class DDExpandedView;
 class MagVolume6Faces;
 
-class MagGeoBuilderFromDDD::volumeHandle : public magneticfield::BaseVolumeHandle {
+class magneticfield::MagGeoBuilderFromDDD::volumeHandle : public magneticfield::BaseVolumeHandle {
 public:
   volumeHandle(const DDExpandedView& fv, bool expand2Pi = false, bool debugVal = false);
 

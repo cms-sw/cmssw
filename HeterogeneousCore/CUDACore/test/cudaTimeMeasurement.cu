@@ -549,8 +549,8 @@ Timing cudaTimePart0(Timing &timing, Vectors &vect, Pointers &dvect, int size) {
   for (int i = 0; i < averg; i++) {
     std::fill(vect.vect3Gpu.begin(), vect.vect3Gpu.end(), 0);  //clear each value of vector's elements
 
-    cudaCheck(cudaEventCreate(&timing.start));  //inialize Event.
-    cudaCheck(cudaEventCreate(&timing.stop));
+    CUDA_CHECK(cudaEventCreate(&timing.start));  //inialize Event.
+    CUDA_CHECK(cudaEventCreate(&timing.stop));
 
     ////////////////////////// Copy From Host To Device //////////////////////////////////
     timing.copyToDevice[0] = std::chrono::steady_clock::now();  //get current tick time  in monotonic point.
@@ -562,7 +562,7 @@ Timing cudaTimePart0(Timing &timing, Vectors &vect, Pointers &dvect, int size) {
     blocks = std::min(blocks, 8);  // Number 8 is least number can be got from lowest Nevedia GPUs.
 
     ////////////////////////// CAll Device Kernel //////////////////////////////////
-    cudaCheck(cudaEventRecord(timing.start));
+    CUDA_CHECK(cudaEventRecord(timing.start));
     timing.operationOnDeviceByHost[0] = std::chrono::steady_clock::now();
 
     addVectorsGpu<<<blocks, threads>>>(vect.vect1.data(),
@@ -570,11 +570,11 @@ Timing cudaTimePart0(Timing &timing, Vectors &vect, Pointers &dvect, int size) {
                                        vect.vect3Gpu.data(),
                                        sizeOfVector,
                                        task);  //call device function to add two vectors and save into vect3Gpu.
-    cudaCheck(cudaGetLastError());
+    CUDA_CHECK(cudaGetLastError());
 
-    cudaCheck(cudaDeviceSynchronize());
+    CUDA_CHECK(cudaDeviceSynchronize());
     timing.operationOnDeviceByHost[1] = std::chrono::steady_clock::now();
-    cudaCheck(cudaEventRecord(timing.stop));
+    CUDA_CHECK(cudaEventRecord(timing.stop));
 
     ////////////////////////// Copy From Device To Host //////////////////////////////////
     timing.copyToHost[0] = std::chrono::steady_clock::now();
@@ -585,8 +585,8 @@ Timing cudaTimePart0(Timing &timing, Vectors &vect, Pointers &dvect, int size) {
 
     calculateTimeDuration(timing, i);
 
-    cudaCheck(cudaEventDestroy(timing.start));
-    cudaCheck(cudaEventDestroy(timing.stop));
+    CUDA_CHECK(cudaEventDestroy(timing.start));
+    CUDA_CHECK(cudaEventDestroy(timing.stop));
   }
 
   //////////////////// End Average //////////////////////
@@ -607,24 +607,24 @@ Timing cudaTimePart0(Timing &timing, Vectors &vect, Pointers &dvect, int size) {
 Timing cudaTimePart1(Timing &timing, Vectors &vect, Pointers &dvect, int size, int startSave) {
   std::cout << "\nCudaMalloc is applied Part 1.\n";
   timing.partChosen = 1;
-  cudaCheck(
+  CUDA_CHECK(
       cudaMalloc((void **)&dvect.dVect1, size));  //allocate memory space for vector in the global memory of the Device.
-  cudaCheck(cudaMalloc((void **)&dvect.dVect2, size));
-  cudaCheck(cudaMalloc((void **)&dvect.dVect3, size));
+  CUDA_CHECK(cudaMalloc((void **)&dvect.dVect2, size));
+  CUDA_CHECK(cudaMalloc((void **)&dvect.dVect3, size));
 
   //////////// Start Average From Here /////////////////////
   for (int i = 0; i < averg; i++) {
     std::fill(vect.vect3Gpu.begin(), vect.vect3Gpu.end(), 0);
 
-    cudaCheck(cudaEventCreate(&timing.start));  //inialize Event.
-    cudaCheck(cudaEventCreate(&timing.stop));
+    CUDA_CHECK(cudaEventCreate(&timing.start));  //inialize Event.
+    CUDA_CHECK(cudaEventCreate(&timing.stop));
 
     ////////////////////////// Copy From Host To Device //////////////////////////////////
     timing.copyToDevice[0] = std::chrono::steady_clock::now();  //get current tick time  in monotonic point.
 
-    cudaCheck(cudaMemcpy(
+    CUDA_CHECK(cudaMemcpy(
         dvect.dVect1, vect.vect1.data(), size, cudaMemcpyHostToDevice));  //copy random vector from host to device.
-    cudaCheck(cudaMemcpy(dvect.dVect2, vect.vect2.data(), size, cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(dvect.dVect2, vect.vect2.data(), size, cudaMemcpyHostToDevice));
 
     timing.copyToDevice[1] = std::chrono::steady_clock::now();  //get current tick time  in monotonic point.
 
@@ -633,7 +633,7 @@ Timing cudaTimePart1(Timing &timing, Vectors &vect, Pointers &dvect, int size, i
     blocks = std::min(blocks, 8);  // Number 8 is least number can be got from lowest Nevedia GPUs.
 
     ////////////////////////// CAll Device Kernel //////////////////////////////////
-    cudaCheck(cudaEventRecord(timing.start));
+    CUDA_CHECK(cudaEventRecord(timing.start));
     timing.operationOnDeviceByHost[0] = std::chrono::steady_clock::now();
 
     addVectorsGpu<<<blocks, threads>>>(dvect.dVect1,
@@ -641,17 +641,17 @@ Timing cudaTimePart1(Timing &timing, Vectors &vect, Pointers &dvect, int size, i
                                        dvect.dVect3,
                                        sizeOfVector,
                                        task);  //call device function to add two vectors and save into vect3Gpu.
-    cudaCheck(cudaGetLastError());
+    CUDA_CHECK(cudaGetLastError());
 
-    cudaCheck(cudaDeviceSynchronize());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
     timing.operationOnDeviceByHost[1] = std::chrono::steady_clock::now();
-    cudaCheck(cudaEventRecord(timing.stop));
+    CUDA_CHECK(cudaEventRecord(timing.stop));
 
     ////////////////////////// Copy From Device To Host //////////////////////////////////
     timing.copyToHost[0] = std::chrono::steady_clock::now();
 
-    cudaCheck(cudaMemcpy(
+    CUDA_CHECK(cudaMemcpy(
         vect.vect3Gpu.data(),
         dvect.dVect3,
         size,
@@ -661,8 +661,8 @@ Timing cudaTimePart1(Timing &timing, Vectors &vect, Pointers &dvect, int size, i
 
     calculateTimeDuration(timing, i);
 
-    cudaCheck(cudaEventDestroy(timing.start));
-    cudaCheck(cudaEventDestroy(timing.stop));
+    CUDA_CHECK(cudaEventDestroy(timing.start));
+    CUDA_CHECK(cudaEventDestroy(timing.stop));
   }
 
   //////////////////// End Average //////////////////////
@@ -677,9 +677,9 @@ Timing cudaTimePart1(Timing &timing, Vectors &vect, Pointers &dvect, int size, i
       std::cout << "\nThe File is saved successfuly.\n";
     }
   }
-  cudaCheck(cudaFree(dvect.dVect1));
-  cudaCheck(cudaFree(dvect.dVect2));
-  cudaCheck(cudaFree(dvect.dVect3));
+  CUDA_CHECK(cudaFree(dvect.dVect1));
+  CUDA_CHECK(cudaFree(dvect.dVect2));
+  CUDA_CHECK(cudaFree(dvect.dVect3));
 
   return timing;
 }
@@ -691,14 +691,14 @@ Timing cudaTimePart2(Timing &timing, Vectors &vect, int size) {
   for (int i = 0; i < averg; i++) {
     std::fill(vect.vect3Gpu.begin(), vect.vect3Gpu.end(), 0);
 
-    cudaCheck(cudaEventCreate(&timing.start));  //inialize Event.
-    cudaCheck(cudaEventCreate(&timing.stop));
+    CUDA_CHECK(cudaEventCreate(&timing.start));  //inialize Event.
+    CUDA_CHECK(cudaEventCreate(&timing.stop));
 
     timing.copyToDevice[0] = std::chrono::steady_clock::now();  //get current tick time  in monotonic point.
 
-    cudaCheck(cudaHostRegister(vect.vect1.data(), size, cudaHostRegisterDefault));
-    cudaCheck(cudaHostRegister(vect.vect2.data(), size, cudaHostRegisterDefault));
-    cudaCheck(cudaHostRegister(vect.vect3Gpu.data(), size, cudaHostRegisterDefault));
+    CUDA_CHECK(cudaHostRegister(vect.vect1.data(), size, cudaHostRegisterDefault));
+    CUDA_CHECK(cudaHostRegister(vect.vect2.data(), size, cudaHostRegisterDefault));
+    CUDA_CHECK(cudaHostRegister(vect.vect3Gpu.data(), size, cudaHostRegisterDefault));
 
     timing.copyToDevice[1] = std::chrono::steady_clock::now();  //get current tick time  in monotonic point.
 
@@ -707,8 +707,8 @@ Timing cudaTimePart2(Timing &timing, Vectors &vect, int size) {
     blocks = std::min(blocks, 8);  // Number 8 is least number can be got from lowest Nevedia GPUs.
 
     timing.operationOnDeviceByHost[0] = std::chrono::steady_clock::now();
-    cudaCheck(cudaEventRecord(timing.start));
-    cudaCheck(cudaEventSynchronize(
+    CUDA_CHECK(cudaEventRecord(timing.start));
+    CUDA_CHECK(cudaEventSynchronize(
         timing.start));  //If the cudaEventBlockingSync flag has not been set, then the CPU thread will busy-wait until the event has been completed by the GPU.
 
     addVectorsGpu<<<blocks, threads>>>(vect.vect1.data(),
@@ -716,26 +716,26 @@ Timing cudaTimePart2(Timing &timing, Vectors &vect, int size) {
                                        vect.vect3Gpu.data(),
                                        sizeOfVector,
                                        task);  //call device function to add two vectors and save into vect3Gpu.
-    cudaCheck(cudaGetLastError());
+    CUDA_CHECK(cudaGetLastError());
 
-    cudaCheck(cudaDeviceSynchronize());
-    cudaCheck(cudaEventRecord(timing.stop));
-    cudaCheck(cudaEventSynchronize(timing.stop));
+    CUDA_CHECK(cudaDeviceSynchronize());
+    CUDA_CHECK(cudaEventRecord(timing.stop));
+    CUDA_CHECK(cudaEventSynchronize(timing.stop));
 
     timing.operationOnDeviceByHost[1] = std::chrono::steady_clock::now();
 
     timing.copyToHost[0] = std::chrono::steady_clock::now();
 
-    cudaCheck(cudaHostUnregister(vect.vect1.data()));
-    cudaCheck(cudaHostUnregister(vect.vect2.data()));
-    cudaCheck(cudaHostUnregister(vect.vect3Gpu.data()));
+    CUDA_CHECK(cudaHostUnregister(vect.vect1.data()));
+    CUDA_CHECK(cudaHostUnregister(vect.vect2.data()));
+    CUDA_CHECK(cudaHostUnregister(vect.vect3Gpu.data()));
 
     timing.copyToHost[1] = std::chrono::steady_clock::now();
 
     calculateTimeDuration(timing, i);
 
-    cudaCheck(cudaEventDestroy(timing.start));
-    cudaCheck(cudaEventDestroy(timing.stop));
+    CUDA_CHECK(cudaEventDestroy(timing.start));
+    CUDA_CHECK(cudaEventDestroy(timing.stop));
   }
   //////////////////// End Average //////////////////////
   bool test = 0;
@@ -759,21 +759,21 @@ Timing cudaTimePart3(Timing &timing, Vectors &vect, Pointers &dvect, int size) {
   std::cout << "\nCudaMallocHost is applied Part 3.\n";
   timing.partChosen = 3;
 
-  cudaCheck(cudaMallocHost((void **)&dvect.dVect1, size));  //allocate memory space for vector in the host memory.
-  cudaCheck(cudaMallocHost((void **)&dvect.dVect2, size));
-  cudaCheck(cudaMallocHost((void **)&dvect.dVect3, size));
+  CUDA_CHECK(cudaMallocHost((void **)&dvect.dVect1, size));  //allocate memory space for vector in the host memory.
+  CUDA_CHECK(cudaMallocHost((void **)&dvect.dVect2, size));
+  CUDA_CHECK(cudaMallocHost((void **)&dvect.dVect3, size));
 
   //////////// Start Average From Here /////////////////////
   for (int i = 0; i < averg; i++) {
     std::fill(vect.vect3Gpu.begin(), vect.vect3Gpu.end(), 0);
 
-    cudaCheck(cudaEventCreate(&timing.start));  //inialize Event.
-    cudaCheck(cudaEventCreate(&timing.stop));
+    CUDA_CHECK(cudaEventCreate(&timing.start));  //inialize Event.
+    CUDA_CHECK(cudaEventCreate(&timing.stop));
 
     timing.copyToDevice[0] = std::chrono::steady_clock::now();  //get current tick time  in monotonic point.
 
-    cudaCheck(cudaMemcpy(dvect.dVect1, vect.vect1.data(), size, cudaMemcpyHostToDevice));
-    cudaCheck(cudaMemcpy(dvect.dVect2, vect.vect2.data(), size, cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(dvect.dVect1, vect.vect1.data(), size, cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(dvect.dVect2, vect.vect2.data(), size, cudaMemcpyHostToDevice));
 
     timing.copyToDevice[1] = std::chrono::steady_clock::now();  //get current tick time  in monotonic point.
 
@@ -782,8 +782,8 @@ Timing cudaTimePart3(Timing &timing, Vectors &vect, Pointers &dvect, int size) {
     blocks = std::min(blocks, 8);  // Number 8 is least number can be got from lowest Nevedia GPUs.
 
     timing.operationOnDeviceByHost[0] = std::chrono::steady_clock::now();
-    cudaCheck(cudaEventRecord(timing.start));
-    cudaCheck(cudaEventSynchronize(
+    CUDA_CHECK(cudaEventRecord(timing.start));
+    CUDA_CHECK(cudaEventSynchronize(
         timing.start));  //Waits for an event to complete.If the cudaEventBlockingSync flag has not been set, then the CPU thread will busy-wait until the event has been completed by the GPU.
 
     addVectorsGpu<<<blocks, threads>>>(dvect.dVect1,
@@ -791,25 +791,25 @@ Timing cudaTimePart3(Timing &timing, Vectors &vect, Pointers &dvect, int size) {
                                        dvect.dVect3,
                                        sizeOfVector,
                                        task);  //call device function to add two vectors and save into vect3Gpu.
-    cudaCheck(cudaGetLastError());
+    CUDA_CHECK(cudaGetLastError());
 
-    cudaCheck(cudaDeviceSynchronize());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
-    cudaCheck(cudaEventRecord(timing.stop));
-    cudaCheck(cudaEventSynchronize(timing.stop));
+    CUDA_CHECK(cudaEventRecord(timing.stop));
+    CUDA_CHECK(cudaEventSynchronize(timing.stop));
 
     timing.operationOnDeviceByHost[1] = std::chrono::steady_clock::now();
 
     timing.copyToHost[0] = std::chrono::steady_clock::now();
 
-    cudaCheck(cudaMemcpy(vect.vect3Gpu.data(), dvect.dVect3, size, cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(vect.vect3Gpu.data(), dvect.dVect3, size, cudaMemcpyDeviceToHost));
 
     timing.copyToHost[1] = std::chrono::steady_clock::now();
 
     calculateTimeDuration(timing, i);
 
-    cudaCheck(cudaEventDestroy(timing.start));
-    cudaCheck(cudaEventDestroy(timing.stop));
+    CUDA_CHECK(cudaEventDestroy(timing.start));
+    CUDA_CHECK(cudaEventDestroy(timing.stop));
   }
   //////////////////// End Average //////////////////////
   bool test = 0;
@@ -825,9 +825,9 @@ Timing cudaTimePart3(Timing &timing, Vectors &vect, Pointers &dvect, int size) {
       std::cout << "\nThe File is saved successfuly.\n";
     }
   }
-  cudaCheck(cudaFreeHost(dvect.dVect1));
-  cudaCheck(cudaFreeHost(dvect.dVect2));
-  cudaCheck(cudaFreeHost(dvect.dVect3));
+  CUDA_CHECK(cudaFreeHost(dvect.dVect1));
+  CUDA_CHECK(cudaFreeHost(dvect.dVect2));
+  CUDA_CHECK(cudaFreeHost(dvect.dVect3));
   return timing;
 }
 Timing cudaTimePart4(Timing &timing, Vectors &vect, Pointers &dvect, int size) {
@@ -835,28 +835,28 @@ Timing cudaTimePart4(Timing &timing, Vectors &vect, Pointers &dvect, int size) {
   timing.partChosen = 4;
 
   //Using cudaMallocHost for pinning Vector Memory.
-  cudaCheck(cudaMallocHost((void **)&dvect.dVect1, size));  //allocate memory inside the host and pinned that memory.
-  cudaCheck(cudaMallocHost((void **)&dvect.dVect2, size));
-  cudaCheck(cudaMallocHost((void **)&dvect.dVect3, size));
+  CUDA_CHECK(cudaMallocHost((void **)&dvect.dVect1, size));  //allocate memory inside the host and pinned that memory.
+  CUDA_CHECK(cudaMallocHost((void **)&dvect.dVect2, size));
+  CUDA_CHECK(cudaMallocHost((void **)&dvect.dVect3, size));
 
-  cudaCheck(cudaMalloc((void **)&dvect.dVect1Extra, size));  //Allocate memory inside the device.
-  cudaCheck(cudaMalloc((void **)&dvect.dVect2Extra, size));
-  cudaCheck(cudaMalloc((void **)&dvect.dVect3Extra, size));
+  CUDA_CHECK(cudaMalloc((void **)&dvect.dVect1Extra, size));  //Allocate memory inside the device.
+  CUDA_CHECK(cudaMalloc((void **)&dvect.dVect2Extra, size));
+  CUDA_CHECK(cudaMalloc((void **)&dvect.dVect3Extra, size));
 
   //////////// Start Average From Here /////////////////////
   for (int i = 0; i < averg; i++) {
     std::fill(vect.vect3Gpu.begin(), vect.vect3Gpu.end(), 0);
 
-    cudaCheck(cudaEventCreate(&timing.start));  //inialize Event.
-    cudaCheck(cudaEventCreate(&timing.stop));
+    CUDA_CHECK(cudaEventCreate(&timing.start));  //inialize Event.
+    CUDA_CHECK(cudaEventCreate(&timing.stop));
 
     timing.copyToDevice[0] = std::chrono::steady_clock::now();  //get current tick time  in monotonic point.
 
     memcpy(dvect.dVect1, vect.vect1.data(), size);  //Copy from vector host to pinned buffer Host.
     memcpy(dvect.dVect2, vect.vect2.data(), size);
 
-    cudaCheck(cudaMemcpy(dvect.dVect1Extra, dvect.dVect1, size, cudaMemcpyHostToDevice));
-    cudaCheck(cudaMemcpy(dvect.dVect2Extra, dvect.dVect2, size, cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(dvect.dVect1Extra, dvect.dVect1, size, cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(dvect.dVect2Extra, dvect.dVect2, size, cudaMemcpyHostToDevice));
 
     timing.copyToDevice[1] = std::chrono::steady_clock::now();  //get current tick time  in monotonic point.
 
@@ -865,8 +865,8 @@ Timing cudaTimePart4(Timing &timing, Vectors &vect, Pointers &dvect, int size) {
     blocks = std::min(blocks, 8);  // Number 8 is least number can be got from lowest Nevedia GPUs.
 
     timing.operationOnDeviceByHost[0] = std::chrono::steady_clock::now();
-    cudaCheck(cudaEventRecord(timing.start));
-    cudaCheck(cudaEventSynchronize(
+    CUDA_CHECK(cudaEventRecord(timing.start));
+    CUDA_CHECK(cudaEventSynchronize(
         timing.start));  //Waits for an event to complete.If the cudaEventBlockingSync flag has not been set, then the CPU thread will busy-wait until the event has been completed by the GPU.
 
     addVectorsGpu<<<blocks, threads>>>(dvect.dVect1Extra,
@@ -874,25 +874,25 @@ Timing cudaTimePart4(Timing &timing, Vectors &vect, Pointers &dvect, int size) {
                                        dvect.dVect3Extra,
                                        sizeOfVector,
                                        task);  //call device function to add two vectors and save into vect3Gpu.
-    cudaCheck(cudaGetLastError());
+    CUDA_CHECK(cudaGetLastError());
 
-    cudaCheck(cudaDeviceSynchronize());
-    cudaCheck(cudaEventRecord(timing.stop));
-    cudaCheck(cudaEventSynchronize(timing.stop));
+    CUDA_CHECK(cudaDeviceSynchronize());
+    CUDA_CHECK(cudaEventRecord(timing.stop));
+    CUDA_CHECK(cudaEventSynchronize(timing.stop));
 
     timing.operationOnDeviceByHost[1] = std::chrono::steady_clock::now();
 
     timing.copyToHost[0] = std::chrono::steady_clock::now();
 
-    cudaCheck(cudaMemcpy(dvect.dVect3, dvect.dVect3Extra, size, cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(dvect.dVect3, dvect.dVect3Extra, size, cudaMemcpyDeviceToHost));
     memcpy(vect.vect3Gpu.data(), dvect.dVect3, size);  //copy pinned host buffer to vector host.
 
     timing.copyToHost[1] = std::chrono::steady_clock::now();
 
     calculateTimeDuration(timing, i);
 
-    cudaCheck(cudaEventDestroy(timing.start));
-    cudaCheck(cudaEventDestroy(timing.stop));
+    CUDA_CHECK(cudaEventDestroy(timing.start));
+    CUDA_CHECK(cudaEventDestroy(timing.stop));
   }
   //////////////////// End Average //////////////////////
   bool test = 0;
@@ -908,12 +908,12 @@ Timing cudaTimePart4(Timing &timing, Vectors &vect, Pointers &dvect, int size) {
     }
   }
 
-  cudaCheck(cudaFreeHost(dvect.dVect1));
-  cudaCheck(cudaFreeHost(dvect.dVect2));
-  cudaCheck(cudaFreeHost(dvect.dVect3));
-  cudaCheck(cudaFree(dvect.dVect1Extra));
-  cudaCheck(cudaFree(dvect.dVect2Extra));
-  cudaCheck(cudaFree(dvect.dVect3Extra));
+  CUDA_CHECK(cudaFreeHost(dvect.dVect1));
+  CUDA_CHECK(cudaFreeHost(dvect.dVect2));
+  CUDA_CHECK(cudaFreeHost(dvect.dVect3));
+  CUDA_CHECK(cudaFree(dvect.dVect1Extra));
+  CUDA_CHECK(cudaFree(dvect.dVect2Extra));
+  CUDA_CHECK(cudaFree(dvect.dVect3Extra));
 
   return timing;
 }
@@ -922,28 +922,28 @@ Timing cudaTimePart5(Timing &timing, Vectors &vect, Pointers &dvect, int size) {
   std::cout << "\nCudaHostRegister is applied Part 5.\n";
   timing.partChosen = 5;
 
-  cudaCheck(
+  CUDA_CHECK(
       cudaMalloc((void **)&dvect.dVect1, size));  //allocate memory space for vector in the global memory of the Device.
-  cudaCheck(cudaMalloc((void **)&dvect.dVect2, size));
-  cudaCheck(cudaMalloc((void **)&dvect.dVect3, size));
+  CUDA_CHECK(cudaMalloc((void **)&dvect.dVect2, size));
+  CUDA_CHECK(cudaMalloc((void **)&dvect.dVect3, size));
 
   //////////// Start Average From Here /////////////////////
   for (int i = 0; i < averg; i++) {
     std::fill(vect.vect3Gpu.begin(), vect.vect3Gpu.end(), 0);
 
-    cudaCheck(cudaEventCreate(&timing.start));  //inialize Event.
-    cudaCheck(cudaEventCreate(&timing.stop));
+    CUDA_CHECK(cudaEventCreate(&timing.start));  //inialize Event.
+    CUDA_CHECK(cudaEventCreate(&timing.stop));
 
     timing.copyToDevice[0] = std::chrono::steady_clock::now();  //get current tick time  in monotonic point.
-    cudaCheck(cudaHostRegister(vect.vect1.data(), size, cudaHostRegisterDefault));
-    cudaCheck(cudaHostRegister(vect.vect2.data(), size, cudaHostRegisterDefault));
-    cudaCheck(cudaHostRegister(vect.vect3Gpu.data(), size, cudaHostRegisterDefault));
+    CUDA_CHECK(cudaHostRegister(vect.vect1.data(), size, cudaHostRegisterDefault));
+    CUDA_CHECK(cudaHostRegister(vect.vect2.data(), size, cudaHostRegisterDefault));
+    CUDA_CHECK(cudaHostRegister(vect.vect3Gpu.data(), size, cudaHostRegisterDefault));
 
-    cudaCheck(cudaMemcpy(dvect.dVect1,
-                         vect.vect1.data(),
-                         size,
-                         cudaMemcpyHostToDevice));  //copy pinned vector in the host to buffer in the device.
-    cudaCheck(cudaMemcpy(dvect.dVect2, vect.vect2.data(), size, cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(dvect.dVect1,
+                          vect.vect1.data(),
+                          size,
+                          cudaMemcpyHostToDevice));  //copy pinned vector in the host to buffer in the device.
+    CUDA_CHECK(cudaMemcpy(dvect.dVect2, vect.vect2.data(), size, cudaMemcpyHostToDevice));
 
     timing.copyToDevice[1] = std::chrono::steady_clock::now();  //get current tick time  in monotonic point.
 
@@ -952,8 +952,8 @@ Timing cudaTimePart5(Timing &timing, Vectors &vect, Pointers &dvect, int size) {
     blocks = std::min(blocks, 8);  // Number 8 is least number can be got from lowest Nevedia GPUs.
 
     timing.operationOnDeviceByHost[0] = std::chrono::steady_clock::now();
-    cudaCheck(cudaEventRecord(timing.start));
-    cudaCheck(cudaEventSynchronize(
+    CUDA_CHECK(cudaEventRecord(timing.start));
+    CUDA_CHECK(cudaEventSynchronize(
         timing.start));  //If the cudaEventBlockingSync flag has not been set, then the CPU thread will busy-wait until the event has been completed by the GPU.
 
     addVectorsGpu<<<blocks, threads>>>(dvect.dVect1,
@@ -961,30 +961,30 @@ Timing cudaTimePart5(Timing &timing, Vectors &vect, Pointers &dvect, int size) {
                                        dvect.dVect3,
                                        sizeOfVector,
                                        task);  //call device function to add two vectors and save into vect3Gpu.
-    cudaCheck(cudaGetLastError());
+    CUDA_CHECK(cudaGetLastError());
 
-    cudaCheck(cudaDeviceSynchronize());
-    cudaCheck(cudaEventRecord(timing.stop));
-    cudaCheck(cudaEventSynchronize(timing.stop));
+    CUDA_CHECK(cudaDeviceSynchronize());
+    CUDA_CHECK(cudaEventRecord(timing.stop));
+    CUDA_CHECK(cudaEventSynchronize(timing.stop));
 
     timing.operationOnDeviceByHost[1] = std::chrono::steady_clock::now();
 
     timing.copyToHost[0] = std::chrono::steady_clock::now();
 
-    cudaCheck(cudaMemcpy(vect.vect3Gpu.data(),
-                         dvect.dVect3,
-                         size,
-                         cudaMemcpyDeviceToHost));  //copy  buffer in the device to pinned vector in the host.
-    cudaCheck(cudaHostUnregister(vect.vect1.data()));
-    cudaCheck(cudaHostUnregister(vect.vect2.data()));
-    cudaCheck(cudaHostUnregister(vect.vect3Gpu.data()));
+    CUDA_CHECK(cudaMemcpy(vect.vect3Gpu.data(),
+                          dvect.dVect3,
+                          size,
+                          cudaMemcpyDeviceToHost));  //copy  buffer in the device to pinned vector in the host.
+    CUDA_CHECK(cudaHostUnregister(vect.vect1.data()));
+    CUDA_CHECK(cudaHostUnregister(vect.vect2.data()));
+    CUDA_CHECK(cudaHostUnregister(vect.vect3Gpu.data()));
 
     timing.copyToHost[1] = std::chrono::steady_clock::now();
 
     calculateTimeDuration(timing, i);
 
-    cudaCheck(cudaEventDestroy(timing.start));
-    cudaCheck(cudaEventDestroy(timing.stop));
+    CUDA_CHECK(cudaEventDestroy(timing.start));
+    CUDA_CHECK(cudaEventDestroy(timing.stop));
   }
   //////////////////// End Average //////////////////////
   bool test = 0;
@@ -1000,8 +1000,8 @@ Timing cudaTimePart5(Timing &timing, Vectors &vect, Pointers &dvect, int size) {
       std::cout << "\nThe File is saved successfuly.\n";
     }
   }
-  cudaCheck(cudaFree(dvect.dVect1));
-  cudaCheck(cudaFree(dvect.dVect2));
-  cudaCheck(cudaFree(dvect.dVect3));
+  CUDA_CHECK(cudaFree(dvect.dVect1));
+  CUDA_CHECK(cudaFree(dvect.dVect2));
+  CUDA_CHECK(cudaFree(dvect.dVect3));
   return timing;
 }

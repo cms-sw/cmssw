@@ -5,6 +5,9 @@ from DPGAnalysis.HGCalNanoAOD.hgcalTracksters_cfi import *
 from DPGAnalysis.HGCalNanoAOD.hgcalTICLCandidates_cfi import *
 from DPGAnalysis.HGCalNanoAOD.hgcalTICLSuperClusters_cfi import *
 from DPGAnalysis.HGCalNanoAOD.hgcalLayerClusters_cfi import *
+from DPGAnalysis.HGCalNanoAOD.hgcalGeneralTracks_cfi import *
+from DPGAnalysis.HGCalNanoAOD.hgcalGSFTracks_cfi import *
+from DPGAnalysis.HGCalNanoAOD.hgcalGen_cfi import *
 
 ######################################
 # Offline HGCAL NanoAOD Tables
@@ -14,6 +17,8 @@ OfflineHGCalTables = cms.Sequence(
     hgcalTrackstersTableSequence
     + ticlCandidateTable
     + ticlCandidateExtraTable
+    + hgcalGeneralTracksTableSequence
+    + hgcalGSFTracksTableSequence
 )
 
 # Store additional validation objects 
@@ -23,6 +28,7 @@ OfflineHGCalValidationTables = cms.Sequence(
     + ticlSimCandidateTable
     + ticlSimCandidateExtraTable
     + hgcalLayerClustersTableSequence
+    + hgcalGenSequence
 )
 
 ######################################
@@ -45,6 +51,11 @@ def hgcalNanoCustomize(process):
     Customization function for offline HGCAL NanoAOD.
     This function is called when producing NanoAOD with HGCAL content.
     """
+    # The candidate extra table propagates tracks to the HGCAL surfaces: a NANO-only
+    # job does not schedule the reconstruction, so the propagator EventSetup modules
+    # (TrackingComponentsRecord) must be loaded explicitly.
+    process.load("TrackingTools.MaterialEffects.MaterialPropagator_cfi")
+    process.load("TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi")
     if hasattr(process, "NANOAODSIMoutput"):
         process.NANOAODSIMoutput.outputCommands.append(
             "keep nanoaodFlatTable_*Table*_*_*"

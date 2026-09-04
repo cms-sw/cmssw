@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include "SimDataFormats/Associations/interface/TracksterToSimTracksterHitLCAssociator.h"
 #include "TSToSimTSHitLCAssociatorByEnergyScoreImpl.h"
@@ -30,9 +31,10 @@ public:
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
   edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMap_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometry_;
+  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
+  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
+  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   const bool hardScatterOnly_;
-  std::shared_ptr<hgcal::RecHitTools> rhtools_;
   std::vector<edm::InputTag> hits_label_;
   std::vector<edm::EDGetTokenT<std::vector<HIT>>> hits_token_;
 };
@@ -41,11 +43,11 @@ template <typename HIT>
 TSToSimTSHitLCAssociatorByEnergyScoreProducer<HIT>::TSToSimTSHitLCAssociatorByEnergyScoreProducer(
     const edm::ParameterSet &ps)
     : hitMap_(consumes<std::unordered_map<DetId, const unsigned int>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
-      caloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      ticlGeomToken_(esConsumes(edm::ESInputTag("", ""))),
+      ticlGeomLookupToken_(esConsumes(edm::ESInputTag("", ""))),
+      ticlGeomLayersToken_(esConsumes(edm::ESInputTag("", ""))),
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")),
       hits_label_(ps.getParameter<std::vector<edm::InputTag>>("hits")) {
-  rhtools_ = std::make_shared<hgcal::RecHitTools>();
-
   for (auto &label : hits_label_) {
     hits_token_.push_back(consumes<std::vector<HIT>>(label));
   }
@@ -61,8 +63,8 @@ template <typename HIT>
 void TSToSimTSHitLCAssociatorByEnergyScoreProducer<HIT>::produce(edm::StreamID,
                                                                  edm::Event &iEvent,
                                                                  const edm::EventSetup &es) const {
-  edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_);
-  rhtools_->setGeometry(*geom);
+  auto rhtools_ = std::make_shared<ticlgeom::Tools>();
+  rhtools_->setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
 
   std::vector<const HIT *> hits;
   for (auto &token : hits_token_) {

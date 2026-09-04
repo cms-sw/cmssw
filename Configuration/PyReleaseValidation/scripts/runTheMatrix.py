@@ -129,14 +129,14 @@ if __name__ == '__main__':
         'phase2' : [
             ###### MC (generated from scratch or from RelVals)
             # Phase2
-            prefixDet+34.0,	# RelValTTbar_14TeV                     phase2_realistic_T35        ExtendedRun4D121         (Phase-2 baseline)
-            prefixDet+234.0,	# RelValTTbar_14TeV                     phase2_realistic_T35        ExtendedRun4D121         AVE_200_BX_25ns	(Phase-2 baseline with PU) 
-            prefixDet+34.911,	# TTbar_14TeV_TuneCP5                   phase2_realistic_T35        DD4hepExtendedRun4D121   DD4Hep (HLLHC14TeV BeamSpot)
-            #prefixDet+234.999, # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T35        ExtendedRun4D121         AVE_50_BX_25ns_m3p3 COMMENT: reads old format file
-            prefixDet+96.0,    # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T35        ExtendedRun4D121
-            prefixDet+100.0,   # RelValCloseByPGun_CE_H_Coarse_Scint   phase2_realistic_T35        ExtendedRun4D121
-            #23234.0,   # Need new workflow with HFNose
-            prefixDet+34.75,   # RelValTTbar_14TeV                     phase2_realistic_T35        ExtendedRun4D121         (Phase-2 baseline -  but using timing menu, and only up to step 2)
+            prefixDet+34.0,	# RelValTTbar_14TeV                     phase2_realistic_T35        ExtendedRun4D127         (Phase-2 baseline)
+            prefixDet+234.0,	# RelValTTbar_14TeV                     phase2_realistic_T35        ExtendedRun4D127         AVE_200_BX_25ns	(Phase-2 baseline with PU) 
+            prefixDet+34.911,	# TTbar_14TeV_TuneCP5                   phase2_realistic_T35        DD4hepExtendedRun4D127   DD4Hep (HLLHC14TeV BeamSpot)
+            #prefixDet+234.999, # RelValTTbar_14TeV (PREMIX)            phase2_realistic_T35        ExtendedRun4D127         AVE_50_BX_25ns_m3p3 COMMENT: reads old format file
+            prefixDet+96.0,     # RelValCloseByPGun_CE_E_Front_120um    phase2_realistic_T35        ExtendedRun4D127
+            prefixDet+100.0,    # RelValCloseByPGun_CE_H_Coarse_Scint   phase2_realistic_T35        ExtendedRun4D127
+            #23234.0,           # Need new workflow with HFNose
+            prefixDet+34.75,    # RelValTTbar_14TeV                     phase2_realistic_T35        ExtendedRun4D127         (Phase-2 baseline -  but using timing menu, and only up to step 2)
         ],
 
         'heavyIons' : [
@@ -166,9 +166,11 @@ if __name__ == '__main__':
                      prefixDet+34.758,   # HLT phase-2 timing menu ticl_barrel variant
                      prefixDet+34.759,   # HLT phase-2 menu, with NANO:@Phase2HLT
                      prefixDet+34.7591,  # HLT phase-2 menu, with NANO:@Phase2HLTVal
+                     prefixDet+34.7592,  # HLT phase-2 menu, with NANO:@Phase2HLT + DQM
                      prefixDet+34.77,    # HLT phase-2 NGT Scouting menu
                      prefixDet+34.771,   # HLT phase-2 NGT Scouting menu, Alpaka, TICL-Barrel
                      prefixDet+34.772,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
+                     prefixDet+34.7721,  # HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting + DQM
                      prefixDet+34.773,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
                      prefixDet+34.774,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal+@Phase2L1DPGwithGen
                      prefixDet+34.775],  # HLT phase-2 NGT Scouting menu, Phase2CAExtension&LSTT5 as GeneralTracks

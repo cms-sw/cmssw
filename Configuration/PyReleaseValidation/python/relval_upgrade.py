@@ -38,7 +38,9 @@ for year in upgradeKeys:
             for step in upgradeProperties[year][key]['ScenToRun']:
                 stepMaker = makeStepName
                 if 'Sim' in step and 'Fast' not in step and step != "Sim":
-                    if 'HLBeamSpot' in step:
+                    if 'DisplacedParticleGun' in frag:
+                        step = 'GenSimDisplaced'
+                    elif 'HLBeamSpot' in step:
                         if '14TeV' in frag:
                             step = 'GenSimHLBeamSpot14'
                         elif 'CloseBy' in frag or 'CE_E' in frag or 'CE_H' in frag:
@@ -51,7 +53,7 @@ for year in upgradeKeys:
                         if '14TeV' in frag:
                             step = 'GenHLBeamSpot14'
                     stepMaker = makeStepNameSim
-                
+
                 if 'HARVEST' in step: hasHarvest = True
                 for specialType,specialWF in upgradeWFs.items():
                     if notForGenOnly(key,specialType): ## we don't need all the flavors for the GEN

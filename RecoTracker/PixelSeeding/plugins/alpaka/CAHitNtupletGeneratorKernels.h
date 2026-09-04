@@ -201,6 +201,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     PhiBinnerView device_hitPhiView_;
     std::optional<cms::alpakatools::device_buffer<Device, hindex_type[]>> device_layerStarts_;
 
+    // Scratch int32 mirror of the track quality used by the duplicate-removal kernels to make them
+    // order/backend independent. The cell-parallel fast remover accumulates demotions here via atomicMin
+    // and copies them back; the track-parallel hit-based removers instead use it as a frozen read-only
+    // quality snapshot while each thread writes its own track's quality directly. See the helper kernels
+    // Kernel_snapshotQuality / Kernel_applyQuality in CAHitNtupletGeneratorKernelsImpl.h
+    std::optional<cms::alpakatools::device_buffer<Device, int32_t[]>> device_qualityScratch_;
+
     // Cells-> Neighbor Cells
     DeviceGenericContainerBuffer device_cellToNeighbors_;
     DeviceGenericStorageBuffer device_cellToNeighborsStorage_;

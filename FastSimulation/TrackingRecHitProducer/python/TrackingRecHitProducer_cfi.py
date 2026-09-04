@@ -72,19 +72,19 @@ PluginsPhase2=pixelPluginsPhase2.copy()
 # Configure strip tracker Gaussian-smearing plugins:
 trackerStripGaussianResolutionsPhase2={
     "TID": {
-        1: cms.double(0.00262),
-        2: cms.double(0.00354),
-        3: cms.double(0.00391),
-        4: cms.double(0.00391),
-        5: cms.double(0.00391)
+        1: cms.double(0.00204),
+        2: cms.double(0.00204),
+        3: cms.double(0.00204),
+        4: cms.double(0.00204),
+        5: cms.double(0.00204)
     },
     "TOB": {
-        1: cms.double(0.00461),
-        2: cms.double(0.00458),
-        3: cms.double(0.00488),
-        4: cms.double(0.00491),
-        5: cms.double(0.00293),
-        6: cms.double(0.00299)
+        1: cms.double(0.00204),
+        2: cms.double(0.00204),
+        3: cms.double(0.00204),
+        4: cms.double(0.00184),
+        5: cms.double(0.00184),
+        6: cms.double(0.00184)
     }
 }
 

@@ -94,7 +94,7 @@ namespace tensorflow {
 
   MetaGraphDef* loadMetaGraphDef(const std::string& exportDir, const std::string& tag, Options& options) {
     // objects to load the graph
-    Status status;
+    absl::Status status;
     RunOptions runOptions;
     SavedModelBundle bundle;
 
@@ -118,7 +118,7 @@ namespace tensorflow {
 
   GraphDef* loadGraphDef(const std::string& pbFile) {
     // objects to load the graph
-    Status status;
+    absl::Status status;
 
     // load it
     GraphDef* graphDef = new GraphDef();
@@ -140,7 +140,7 @@ namespace tensorflow {
 
   Session* createSession(Options& options) {
     // objects to create the session
-    Status status;
+    absl::Status status;
 
     // create a new, empty session
     Session* session = nullptr;
@@ -166,7 +166,7 @@ namespace tensorflow {
     Session* session = createSession(options);
 
     // add the graph def from the meta graph
-    Status status;
+    absl::Status status;
     status = session->Create(metaGraphDef->graph_def());
     if (!status.ok()) {
       throw cms::Exception("InvalidMetaGraphDef")
@@ -219,7 +219,7 @@ namespace tensorflow {
     Session* session = createSession(options);
 
     // add the graph def
-    Status status;
+    absl::Status status;
     status = session->Create(*graphDef);
 
     // check for success
@@ -236,7 +236,7 @@ namespace tensorflow {
     }
 
     // close and delete the session
-    Status status = session->Close();
+    absl::Status status = session->Close();
     delete session;
 
     // reset the pointer
@@ -285,7 +285,7 @@ namespace tensorflow {
       return;
 
     // run and check the status
-    Status status = session->Run(runOptions, inputs, outputNames, {}, outputs, nullptr, threadPoolOptions);
+    absl::Status status = session->Run(runOptions, inputs, outputNames, {}, outputs, nullptr, threadPoolOptions);
     if (!status.ok()) {
       throw cms::Exception("InvalidRun") << "error while running session: " << status.ToString();
     }

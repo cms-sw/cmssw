@@ -132,6 +132,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif  // PIXVERTEX_DEBUG_PRODUCE
       const auto maxTracks = tracks_view.metadata().size();
       reco::ZVertexSoACollection vertices(queue, maxVertices, maxTracks);
+      vertices.zeroInitialise(queue);
       auto data = vertices.view().zvertex();
       auto trkdata = vertices.view().zvertexTracks();
 

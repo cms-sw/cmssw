@@ -81,7 +81,8 @@ namespace cms::soa {
         cms::soa::SoAParameters_ColumnType<cms::soa::SoAColumnType::scalar>::DataType<CPP_TYPE>;                       \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       BOOST_PP_CAT(ParametersTypeOf_, NAME) BOOST_PP_CAT(parametersOf_, NAME)() const {                                \
-        return  BOOST_PP_CAT(ParametersTypeOf_, NAME) (parent_.BOOST_PP_CAT(NAME, _));                                 \
+        return  BOOST_PP_CAT(ParametersTypeOf_, NAME)                                                                  \
+                (reinterpret_cast<cms::soa::detail::EnumTraits<CPP_TYPE>::type*>(parent_.BOOST_PP_CAT(NAME, _)));      \
       },                                                                                                               \
       /* Column */                                                                                                     \
       constexpr static cms::soa::SoAColumnType BOOST_PP_CAT(ColumnTypeOf_, NAME) = cms::soa::SoAColumnType::column;    \
@@ -89,7 +90,8 @@ namespace cms::soa {
         cms::soa::SoAParameters_ColumnType<cms::soa::SoAColumnType::column>::DataType<CPP_TYPE>;                       \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       BOOST_PP_CAT(ParametersTypeOf_, NAME) BOOST_PP_CAT(parametersOf_, NAME)() const {                                \
-        return  BOOST_PP_CAT(ParametersTypeOf_, NAME) (parent_.BOOST_PP_CAT(NAME, _));                                 \
+        return  BOOST_PP_CAT(ParametersTypeOf_, NAME)                                                                  \
+                (reinterpret_cast<cms::soa::detail::EnumTraits<CPP_TYPE>::type*>(parent_.BOOST_PP_CAT(NAME, _)));      \
       },                                                                                                               \
       /* Eigen column */                                                                                               \
       constexpr static cms::soa::SoAColumnType BOOST_PP_CAT(ColumnTypeOf_, NAME) = cms::soa::SoAColumnType::eigen;     \
@@ -244,6 +246,8 @@ namespace cms::soa {
       (BOOST_PP_CAT(NAME, ElementsWithPadding_){_soa_impl_other.BOOST_PP_CAT(NAME, ElementsWithPadding_)})             \
       (BOOST_PP_CAT(NAME, _){_soa_impl_other.BOOST_PP_CAT(NAME, _)})                                                   \
       (BOOST_PP_CAT(NAME, Stride_){_soa_impl_other.BOOST_PP_CAT(NAME, Stride_)})                                       \
+      (BOOST_PP_CAT(NAME, Rows_){_soa_impl_other.BOOST_PP_CAT(NAME, Rows_)})                                           \
+      (BOOST_PP_CAT(NAME, Cols_){_soa_impl_other.BOOST_PP_CAT(NAME, Cols_)})                                           \
   )
 // clang-format on
 
@@ -263,6 +267,8 @@ namespace cms::soa {
       BOOST_PP_CAT(NAME, ElementsWithPadding_) = _soa_impl_other.BOOST_PP_CAT(NAME, ElementsWithPadding_);             \
       BOOST_PP_CAT(NAME, _) = _soa_impl_other.BOOST_PP_CAT(NAME, _);                                                   \
       BOOST_PP_CAT(NAME, Stride_) = _soa_impl_other.BOOST_PP_CAT(NAME, Stride_);                                       \
+      BOOST_PP_CAT(NAME, Rows_) = _soa_impl_other.BOOST_PP_CAT(NAME, Rows_);                                           \
+      BOOST_PP_CAT(NAME, Cols_) = _soa_impl_other.BOOST_PP_CAT(NAME, Cols_);                                           \
   )
 // clang-format on
 
@@ -365,11 +371,11 @@ namespace cms::soa {
 #define _ASSIGN_SOA_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                            \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
-      BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(_soa_impl_curMem);                                           \
+      BOOST_PP_CAT(NAME, _) = reinterpret_cast<cms::soa::detail::EnumTraits<CPP_TYPE>::value_type*>(_soa_impl_curMem); \
       _soa_impl_curMem += cms::soa::alignSize(sizeof(CPP_TYPE), alignment);                                            \
       ,                                                                                                                \
       /* Column */                                                                                                     \
-      BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(_soa_impl_curMem);                                           \
+      BOOST_PP_CAT(NAME, _) = reinterpret_cast<cms::soa::detail::EnumTraits<CPP_TYPE>::value_type*>(_soa_impl_curMem); \
       _soa_impl_curMem += cms::soa::alignSize(elements_ * sizeof(CPP_TYPE), alignment);                                \
       ,                                                                                                                \
       /* Eigen column */                                                                                               \
@@ -377,6 +383,8 @@ namespace cms::soa {
         / sizeof(CPP_TYPE::Scalar);                                                                                    \
       BOOST_PP_CAT(NAME, ElementsWithPadding_) = BOOST_PP_CAT(NAME, Stride_)                                           \
         *  CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime;                                                  \
+      BOOST_PP_CAT(NAME, Rows_) = CPP_TYPE::RowsAtCompileTime;                                                         \
+      BOOST_PP_CAT(NAME, Cols_) = CPP_TYPE::ColsAtCompileTime;                                                         \
       BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE::Scalar*>(_soa_impl_curMem);                                   \
       _soa_impl_curMem += cms::soa::alignSize(elements_ * sizeof(CPP_TYPE::Scalar), alignment)                         \
         * CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime;                                                   \
@@ -461,17 +469,46 @@ namespace cms::soa {
  */
 // clang-format off
 #define _STREAMER_READ_SOA_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                          \
-    _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                        \
-      /* Scalar */                                                                                                     \
-      memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _), sizeof(CPP_TYPE));                                   \
-      ,                                                                                                                \
-      /* Column */                                                                                                     \
-      memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _), sizeof(CPP_TYPE) * onfile.elements_);                \
-      ,                                                                                                                \
-      /* Eigen column */                                                                                               \
-      memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _),                                                      \
-        sizeof(CPP_TYPE::Scalar) * BOOST_PP_CAT(NAME, ElementsWithPadding_));                                          \
-    )
+    if (onfile.BOOST_PP_CAT(NAME, _) != nullptr) {                                                                     \
+      _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                      \
+        /* Scalar */                                                                                                   \
+        memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _), sizeof(CPP_TYPE));                                 \
+        ,                                                                                                              \
+        /* Column */                                                                                                   \
+        memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _), sizeof(CPP_TYPE) * onfile.elements_);              \
+        ,                                                                                                              \
+        /* Eigen column */                                                                                             \
+        const int rows = onfile.BOOST_PP_CAT(NAME, Rows_);                                                             \
+        const int cols = onfile.BOOST_PP_CAT(NAME, Cols_);                                                             \
+        if((rows * cols) > 0 && (rows != CPP_TYPE::RowsAtCompileTime || cols != CPP_TYPE::ColsAtCompileTime)){         \
+          cms::soa::detail::throwRuntimeError(("Incompatible eigen column dimensions. On file: "                       \
+                                               + std::to_string(rows) + "x" + std::to_string(cols) + ", expected: "    \
+                                               + std::to_string(CPP_TYPE::RowsAtCompileTime) + "x"                     \
+                                               + std::to_string(CPP_TYPE::ColsAtCompileTime)).c_str());                \
+        }                                                                                                              \
+        if(BOOST_PP_CAT(NAME, Stride_) == onfile.BOOST_PP_CAT(NAME, Stride_)) {                                        \
+          memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _),                                                  \
+                 sizeof(CPP_TYPE::Scalar) * BOOST_PP_CAT(NAME, ElementsWithPadding_));                                 \
+        } else {                                                                                                       \
+          for (int i = 0; i < CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime; ++i) {                        \
+            memcpy(BOOST_PP_CAT(NAME, _) + i * BOOST_PP_CAT(NAME, Stride_),                                            \
+                   onfile.BOOST_PP_CAT(NAME, _) + i * onfile.BOOST_PP_CAT(NAME, Stride_),                              \
+                   sizeof(CPP_TYPE::Scalar) * onfile.elements_);                                                       \
+          }                                                                                                            \
+        }                                                                                                              \
+      )                                                                                                                \
+    } else {                                                                                                           \
+      _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                      \
+        /* Scalar */                                                                                                   \
+        memset(BOOST_PP_CAT(NAME, _), 0x00, sizeof(CPP_TYPE));                                                         \
+        ,                                                                                                              \
+        /* Column */                                                                                                   \
+        memset(BOOST_PP_CAT(NAME, _), 0x00, sizeof(CPP_TYPE) * onfile.elements_);                                      \
+        ,                                                                                                              \
+        /* Eigen column */                                                                                             \
+        memset(BOOST_PP_CAT(NAME, _), 0x00, sizeof(CPP_TYPE::Scalar) * BOOST_PP_CAT(NAME, ElementsWithPadding_));      \
+      )                                                                                                                \
+    }
 // clang-format on
 
 #define _STREAMER_READ_SOA_DATA_MEMBER(R, DATA, TYPE_NAME)                                  \
@@ -483,15 +520,17 @@ namespace cms::soa {
 #define _DECLARE_SOA_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
 _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                            \
   /* Scalar */                                                                                                         \
-  CPP_TYPE* BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(scalar_) = nullptr;                                                  \
+  cms::soa::detail::EnumTraits<CPP_TYPE>::value_type* BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(scalar_) = nullptr;        \
   ,                                                                                                                    \
   /* Column */                                                                                                         \
-  CPP_TYPE * BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(elements_) = nullptr;                                               \
+  cms::soa::detail::EnumTraits<CPP_TYPE>::value_type* BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(elements_) = nullptr;      \
   ,                                                                                                                    \
   /* Eigen column */                                                                                                   \
   size_type BOOST_PP_CAT(NAME, ElementsWithPadding_) = 0; /* For ROOT serialization */                                 \
   CPP_TYPE::Scalar * BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(BOOST_PP_CAT(NAME, ElementsWithPadding_)) = nullptr;        \
   byte_size_type BOOST_PP_CAT(NAME, Stride_) = 0;                                                                      \
+  int BOOST_PP_CAT(NAME, Rows_) = 0;                                                                                   \
+  int BOOST_PP_CAT(NAME, Cols_) = 0;                                                                                   \
 )
 // clang-format on
 
@@ -797,16 +836,16 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
                  template RestrictQualifier<restrictQualify>::ParamReturnType                                        \
-  NAME(size_type _soa_impl_index) const {                                                                            \
-    if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
-      if (_soa_impl_index >= elements_ or _soa_impl_index < 0)                                                       \
+  NAME(cms::soa::detail::IndexWithSourceLocation<rangeChecking> _soa_impl_index) const {                             \
+    if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                              \
+      if (_soa_impl_index.value_ >= elements_ or _soa_impl_index.value_ < 0)                                         \
         SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #NAME "(size_type index)",                           \
           _soa_impl_index, elements_)                                                                                \
     }                                                                                                                \
     return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                         \
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
-                template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(NAME, Parameters_))(_soa_impl_index);       \
+                template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(NAME, Parameters_))(_soa_impl_index.value_);\
   }                                                                                                                  \
   ,                                                                                                                  \
   /* Column */                                                                                                       \
@@ -826,9 +865,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
                  template RestrictQualifier<restrictQualify>::ParamReturnType                                        \
-  NAME(size_type _soa_impl_index) const {                                                                            \
-    if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
-      if (_soa_impl_index >= elements_ or _soa_impl_index < 0)                                                       \
+  NAME(cms::soa::detail::IndexWithSourceLocation<rangeChecking> _soa_impl_index) const {                             \
+    if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                              \
+      if (_soa_impl_index.value_ >= elements_ or _soa_impl_index.value_ < 0)                                         \
         SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #NAME "(size_type index)",                           \
           _soa_impl_index, elements_)                                                                                \
     }                                                                                                                \
@@ -836,7 +875,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
                 template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(NAME, Parameters_),                         \
-                    elements_)(_soa_impl_index);                                                                     \
+                    elements_)(_soa_impl_index.value_);                                                              \
   }                                                                                                                  \
   ,                                                                                                                  \
   /* Eigen column */                                                                                                 \
@@ -859,9 +898,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
                  template RestrictQualifier<restrictQualify>::ParamReturnType                                        \
-  NAME(size_type _soa_impl_index) const {                                                                            \
-    if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
-      if (_soa_impl_index >= elements_ or _soa_impl_index < 0)                                                       \
+  NAME(cms::soa::detail::IndexWithSourceLocation<rangeChecking> _soa_impl_index) const {                             \
+    if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                              \
+      if (_soa_impl_index.value_ >= elements_ or _soa_impl_index.value_ < 0)                                         \
         SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #NAME "(size_type index)",                           \
           _soa_impl_index, elements_)                                                                                \
     }                                                                                                                \
@@ -871,7 +910,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                 template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(NAME, Parameters_),                         \
                         cms::soa::alignSize(elements_ * sizeof(CPP_TYPE::Scalar), alignment) /                       \
                             sizeof(CPP_TYPE::Scalar) * CPP_TYPE::RowsAtCompileTime *                                 \
-                                CPP_TYPE::ColsAtCompileTime)(_soa_impl_index);                                       \
+                                CPP_TYPE::ColsAtCompileTime)(_soa_impl_index.value_);                                \
   }                                                                                                                  \
 )
 // clang-format on
@@ -1154,9 +1193,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
                  template RestrictQualifier<restrictQualify>::ParamReturnType                                        \
-  NAME(size_type _soa_impl_index) {                                                                                  \
-    if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
-      if (_soa_impl_index >= base_type::elements_ or _soa_impl_index < 0)                                            \
+  NAME(cms::soa::detail::IndexWithSourceLocation<rangeChecking> _soa_impl_index) {                                   \
+    if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                              \
+      if (_soa_impl_index.value_ >= base_type::elements_ or _soa_impl_index.value_ < 0)                              \
         SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #NAME "(size_type index)",                           \
           _soa_impl_index, base_type::elements_)                                                                     \
     }                                                                                                                \
@@ -1164,7 +1203,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
                 template RestrictQualifier<restrictQualify>(cms::soa::const_cast_SoAParametersImpl(                  \
-                    base_type:: BOOST_PP_CAT(NAME, Parameters_)))(_soa_impl_index);                                  \
+                    base_type:: BOOST_PP_CAT(NAME, Parameters_)))(_soa_impl_index.value_);                           \
   }                                                                                                                  \
   ,                                                                                                                  \
   /* Column */                                                                                                       \
@@ -1185,9 +1224,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
                  template RestrictQualifier<restrictQualify>::ParamReturnType                                        \
-  NAME(size_type _soa_impl_index) {                                                                                  \
-    if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
-      if (_soa_impl_index >= base_type::elements_ or _soa_impl_index < 0)                                            \
+  NAME(cms::soa::detail::IndexWithSourceLocation<rangeChecking> _soa_impl_index) {                                   \
+    if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                              \
+      if (_soa_impl_index.value_ >= base_type::elements_ or _soa_impl_index.value_ < 0)                              \
         SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #NAME "(size_type index)",                           \
           _soa_impl_index, base_type::elements_)                                                                     \
     }                                                                                                                \
@@ -1195,7 +1234,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
                 template RestrictQualifier<restrictQualify>(cms::soa::const_cast_SoAParametersImpl(                  \
-                    base_type:: BOOST_PP_CAT(NAME, Parameters_)), base_type::elements_)(_soa_impl_index);            \
+                    base_type:: BOOST_PP_CAT(NAME, Parameters_)), base_type::elements_)(_soa_impl_index.value_);     \
   }                                                                                                                  \
   ,                                                                                                                  \
   /* Eigen column */                                                                                                 \
@@ -1219,9 +1258,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
                  template RestrictQualifier<restrictQualify>::ParamReturnType                                        \
-  NAME(size_type _soa_impl_index) {                                                                                  \
-    if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
-      if (_soa_impl_index >= base_type::elements_ or _soa_impl_index < 0)                                            \
+  NAME(cms::soa::detail::IndexWithSourceLocation<rangeChecking> _soa_impl_index) {                                   \
+    if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                              \
+      if (_soa_impl_index.value_ >= base_type::elements_ or _soa_impl_index.value_ < 0)                              \
         SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #NAME "(size_type index)",                           \
           _soa_impl_index, base_type::elements_)                                                                     \
     }                                                                                                                \
@@ -1232,7 +1271,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                     base_type:: BOOST_PP_CAT(NAME, Parameters_)),                                                    \
                         cms::soa::alignSize(base_type::elements_ * sizeof(CPP_TYPE::Scalar), alignment) /            \
                             sizeof(CPP_TYPE::Scalar) * CPP_TYPE::RowsAtCompileTime *                                 \
-                                CPP_TYPE::ColsAtCompileTime)(_soa_impl_index);                                       \
+                                CPP_TYPE::ColsAtCompileTime)(_soa_impl_index.value_);                                \
   }                                                                                                                  \
 )
 // clang-format on
@@ -1241,12 +1280,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
               BOOST_PP_EMPTY(),                                                             \
               BOOST_PP_EXPAND(_DECLARE_VIEW_SOA_ACCESSOR_IMPL TYPE_NAME))
-
-#ifdef DEBUG
-#define _DO_RANGECHECK true
-#else
-#define _DO_RANGECHECK false
-#endif
 
 /*
  * A macro defining a SoA layout (collection of scalars and columns of equal lengths)
@@ -1281,7 +1314,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     template <CMS_SOA_BYTE_SIZE_TYPE VIEW_ALIGNMENT = cms::soa::CacheLineSize::defaultSize,                            \
             bool VIEW_ALIGNMENT_ENFORCEMENT = cms::soa::AlignmentEnforcement::relaxed,                                 \
             bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::Default,                                                \
-            bool RANGE_CHECKING = cms::soa::RangeChecking::Default>                                                    \
+            cms::soa::RangeChecking::Mode RANGE_CHECKING = cms::soa::RangeChecking::Default>                           \
     struct ViewTemplateFreeParams;                                                                                     \
                                                                                                                        \
     /* dump the SoA internal structure */                                                                              \
@@ -1355,7 +1388,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     template <CMS_SOA_BYTE_SIZE_TYPE VIEW_ALIGNMENT,                                                                   \
               bool VIEW_ALIGNMENT_ENFORCEMENT,                                                                         \
               bool RESTRICT_QUALIFY,                                                                                   \
-              bool RANGE_CHECKING>                                                                                     \
+              cms::soa::RangeChecking::Mode RANGE_CHECKING>                                                            \
     struct ConstViewTemplateFreeParams {                                                                               \
       /* these could be moved to an external type trait to free up the symbol names */                                 \
       using self_type = ConstViewTemplateFreeParams;                                                                   \
@@ -1364,10 +1397,10 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       using byte_size_type = cms::soa::byte_size_type;                                                                 \
       using AlignmentEnforcement = cms::soa::AlignmentEnforcement;                                                     \
                                                                                                                        \
-      template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, bool>                                                              \
+      template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, cms::soa::RangeChecking::Mode>                                     \
       friend struct ViewTemplateFreeParams;                                                                            \
                                                                                                                        \
-      template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, bool>                                                              \
+      template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, cms::soa::RangeChecking::Mode>                                     \
       friend struct ConstViewTemplateFreeParams;                                                                       \
                                                                                                                        \
       /* For CUDA applications, we align to the 128 bytes of the cache lines.                                          \
@@ -1380,7 +1413,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       constexpr static byte_size_type conditionalAlignment =                                                           \
           alignmentEnforcement == AlignmentEnforcement::enforced ? alignment : 0;                                      \
       constexpr static bool restrictQualify = RESTRICT_QUALIFY;                                                        \
-      constexpr static bool rangeChecking = RANGE_CHECKING;                                                            \
+      constexpr static cms::soa::RangeChecking::Mode rangeChecking = RANGE_CHECKING;                                   \
                                                                                                                        \
       /**                                                                                                              \
        * Helper/friend class allowing SoA introspection.                                                               \
@@ -1446,7 +1479,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       template <CMS_SOA_BYTE_SIZE_TYPE OTHER_VIEW_ALIGNMENT,                                                           \
                 bool OTHER_VIEW_ALIGNMENT_ENFORCEMENT,                                                                 \
                 bool OTHER_RESTRICT_QUALIFY,                                                                           \
-                bool OTHER_RANGE_CHECKING>                                                                             \
+                cms::soa::RangeChecking::Mode OTHER_RANGE_CHECKING>                                                    \
       ConstViewTemplateFreeParams(ConstViewTemplateFreeParams<OTHER_VIEW_ALIGNMENT,                                    \
         OTHER_VIEW_ALIGNMENT_ENFORCEMENT, OTHER_RESTRICT_QUALIFY, OTHER_RANGE_CHECKING> const& other)                  \
         : ConstViewTemplateFreeParams{other.elements_,                                                                 \
@@ -1462,7 +1495,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       template <CMS_SOA_BYTE_SIZE_TYPE OTHER_VIEW_ALIGNMENT,                                                           \
           bool OTHER_VIEW_ALIGNMENT_ENFORCEMENT,                                                                       \
           bool OTHER_RESTRICT_QUALIFY,                                                                                 \
-          bool OTHER_RANGE_CHECKING>                                                                                   \
+          cms::soa::RangeChecking::Mode OTHER_RANGE_CHECKING>                                                          \
       ConstViewTemplateFreeParams& operator=(ConstViewTemplateFreeParams<OTHER_VIEW_ALIGNMENT,                         \
           OTHER_VIEW_ALIGNMENT_ENFORCEMENT, OTHER_RESTRICT_QUALIFY, OTHER_RANGE_CHECKING> const& other)                \
           { *this = other; }                                                                                           \
@@ -1489,14 +1522,14 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       };                                                                                                               \
                                                                                                                        \
         SOA_HOST_DEVICE SOA_INLINE                                                                                     \
-        const_element operator[](size_type _soa_impl_index) const {                                                    \
-          if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                           \
-            if (_soa_impl_index >= elements_ or _soa_impl_index < 0)                                                   \
+        const_element operator[](cms::soa::detail::IndexWithSourceLocation<rangeChecking> _soa_impl_index) const {     \
+          if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                          \
+            if (_soa_impl_index.value_ >= elements_ or _soa_impl_index.value_ < 0)                                     \
               SOA_THROW_OUT_OF_RANGE("Out of range index in ConstViewTemplateFreeParams " #CLASS "::operator[]",       \
                 _soa_impl_index, elements_)                                                                            \
           }                                                                                                            \
           return const_element{                                                                                        \
-            _soa_impl_index, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__)            \
+            _soa_impl_index.value_, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__)     \
           };                                                                                                           \
         }                                                                                                              \
                                                                                                                        \
@@ -1512,7 +1545,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           _ITERATE_ON_ALL(_DECLARE_CONST_VIEW_SOA_MEMBER, ~, __VA_ARGS__)                                              \
       };                                                                                                               \
                                                                                                                        \
-    template <bool RESTRICT_QUALIFY, bool RANGE_CHECKING>                                                              \
+    template <bool RESTRICT_QUALIFY, cms::soa::RangeChecking::Mode RANGE_CHECKING>                                     \
     using ConstViewTemplate = ConstViewTemplateFreeParams<ALIGNMENT, ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY,          \
       RANGE_CHECKING>;                                                                                                 \
                                                                                                                        \
@@ -1521,7 +1554,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     template <CMS_SOA_BYTE_SIZE_TYPE VIEW_ALIGNMENT,                                                                   \
               bool VIEW_ALIGNMENT_ENFORCEMENT,                                                                         \
               bool RESTRICT_QUALIFY,                                                                                   \
-              bool RANGE_CHECKING>                                                                                     \
+              cms::soa::RangeChecking::Mode RANGE_CHECKING>                                                            \
       struct ViewTemplateFreeParams                                                                                    \
       : public ConstViewTemplateFreeParams<VIEW_ALIGNMENT, VIEW_ALIGNMENT_ENFORCEMENT,                                 \
                                            RESTRICT_QUALIFY, RANGE_CHECKING> {                                         \
@@ -1544,9 +1577,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       constexpr static byte_size_type conditionalAlignment =                                                           \
           alignmentEnforcement == AlignmentEnforcement::enforced ? alignment : 0;                                      \
       constexpr static bool restrictQualify = RESTRICT_QUALIFY;                                                        \
-      constexpr static bool rangeChecking = RANGE_CHECKING;                                                            \
+      constexpr static cms::soa::RangeChecking::Mode rangeChecking = RANGE_CHECKING;                                   \
                                                                                                                        \
-      template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, bool>                                                              \
+      template <CMS_SOA_BYTE_SIZE_TYPE, bool, bool, cms::soa::RangeChecking::Mode>                                     \
       friend struct ViewTemplateFreeParams;                                                                            \
                                                                                                                        \
       /**                                                                                                              \
@@ -1619,7 +1652,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       template <CMS_SOA_BYTE_SIZE_TYPE OTHER_VIEW_ALIGNMENT,                                                           \
                 bool OTHER_VIEW_ALIGNMENT_ENFORCEMENT,                                                                 \
                 bool OTHER_RESTRICT_QUALIFY,                                                                           \
-                bool OTHER_RANGE_CHECKING>                                                                             \
+                cms::soa::RangeChecking::Mode OTHER_RANGE_CHECKING>                                                    \
       ViewTemplateFreeParams(ViewTemplateFreeParams<OTHER_VIEW_ALIGNMENT, OTHER_VIEW_ALIGNMENT_ENFORCEMENT,            \
                                                     OTHER_RESTRICT_QUALIFY, OTHER_RANGE_CHECKING> const& other)        \
       : base_type{other.elements_,                                                                                     \
@@ -1629,7 +1662,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       template <CMS_SOA_BYTE_SIZE_TYPE OTHER_VIEW_ALIGNMENT,                                                           \
                 bool OTHER_VIEW_ALIGNMENT_ENFORCEMENT,                                                                 \
                 bool OTHER_RESTRICT_QUALIFY,                                                                           \
-                bool OTHER_RANGE_CHECKING>                                                                             \
+                cms::soa::RangeChecking::Mode OTHER_RANGE_CHECKING>                                                    \
       ViewTemplateFreeParams& operator=(ViewTemplateFreeParams<OTHER_VIEW_ALIGNMENT,                                   \
         OTHER_VIEW_ALIGNMENT_ENFORCEMENT, OTHER_RESTRICT_QUALIFY, OTHER_RANGE_CHECKING> const& other)                  \
           { static_cast<base_type>(*this) = static_cast<base_type>(other); }                                           \
@@ -1676,13 +1709,15 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       };                                                                                                               \
                                                                                                                        \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
-      element operator[](size_type _soa_impl_index) {                                                                  \
-        if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                             \
-          if (_soa_impl_index >= base_type::elements_ or _soa_impl_index < 0)                                          \
+      element operator[](cms::soa::detail::IndexWithSourceLocation<rangeChecking> _soa_impl_index) {                   \
+        if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                            \
+          if (_soa_impl_index.value_ >= base_type::elements_ or _soa_impl_index.value_ < 0)                            \
             SOA_THROW_OUT_OF_RANGE("Out of range index in ViewTemplateFreeParams" #CLASS "::operator[]",               \
               _soa_impl_index, base_type::elements_)                                                                   \
         }                                                                                                              \
-        return element{_soa_impl_index, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__)};     \
+        return element{                                                                                                \
+          _soa_impl_index.value_, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__)             \
+        };                                                                                                             \
       }                                                                                                                \
                                                                                                                        \
       /* inherit const accessors from ConstView */                                                                     \
@@ -1695,7 +1730,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       SOA_HOST_ONLY friend void dump();                                                                                \
     };                                                                                                                 \
                                                                                                                        \
-    template <bool RESTRICT_QUALIFY, bool RANGE_CHECKING>                                                              \
+    template <bool RESTRICT_QUALIFY, cms::soa::RangeChecking::Mode RANGE_CHECKING>                                     \
     using ViewTemplate = ViewTemplateFreeParams<ALIGNMENT, ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY, RANGE_CHECKING>;   \
                                                                                                                        \
     using View = ViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::Default>;                   \
@@ -1704,7 +1739,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     struct ConstDescriptor {                                                                                           \
       ConstDescriptor() = default;                                                                                     \
                                                                                                                        \
-      explicit ConstDescriptor(ConstView const& view)                                                                  \
+      explicit ConstDescriptor(ConstView const view)                                                                   \
           : buff{ _ITERATE_ON_ALL_COMMA(_ASSIGN_SPAN_TO_COLUMNS, ~, __VA_ARGS__)},                                     \
             parameterTypes{ _ITERATE_ON_ALL_COMMA(_ASSIGN_PARAMETER_TO_COLUMNS, ~, __VA_ARGS__)} {}                    \
                                                                                                                        \
@@ -1720,7 +1755,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     struct Descriptor {                                                                                                \
       Descriptor() = default;                                                                                          \
                                                                                                                        \
-      explicit Descriptor(View& view)                                                                                  \
+      explicit Descriptor(View view)                                                                                   \
           : buff{ _ITERATE_ON_ALL_COMMA(_ASSIGN_SPAN_TO_COLUMNS, ~, __VA_ARGS__)},                                     \
             parameterTypes{ _ITERATE_ON_ALL_COMMA(_ASSIGN_PARAMETER_TO_COLUMNS, ~, __VA_ARGS__)} {}                    \
                                                                                                                        \
@@ -1760,7 +1795,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     }                                                                                                                  \
                                                                                                                        \
     /* Helper to implement View as derived from ConstView in SoABlocks implementation */                               \
-    template <bool RESTRICT_QUALIFY, bool RANGE_CHECKING>                                                              \
+    template <bool RESTRICT_QUALIFY, cms::soa::RangeChecking::Mode RANGE_CHECKING>                                     \
     SOA_HOST_DEVICE SOA_INLINE static ViewTemplate<RESTRICT_QUALIFY, RANGE_CHECKING> const_cast_View(                  \
       ConstViewTemplate<RESTRICT_QUALIFY, RANGE_CHECKING> const& view)  {                                              \
       return ViewTemplate<RESTRICT_QUALIFY, RANGE_CHECKING>{                                                           \

@@ -219,6 +219,13 @@ namespace io_v1 {
 
     /** create a Geographical DetId for Tracking **/
     BTLDetId geographicalId(CrysLayout lay) const;
+
+    // provide the raw BTLDetId of a module given the raw BTLDetId of one of its crystals
+    // avoid using constructors, just replacing the crystal bit field with the default value assigned to the module
+    static inline uint32_t rawGeoId(uint32_t id, CrysLayout lay) {
+      return (lay == CrysLayout::v4) ? ((id & ~kBTLCrystalMask) | (kCrystalsPerModuleV2 & kBTLCrystalMask))
+                                     : ((id & ~kBTLoldCrystalMask) | (kCrystalsPerModuleV2 & kBTLoldCrystalMask));
+    }
   };
 
   std::ostream& operator<<(std::ostream&, const BTLDetId&);

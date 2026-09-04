@@ -11,7 +11,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -23,13 +23,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           initialized_(false),
           isNose_(detector_ == "HFNose"),
           maxNumberOfThickIndices_(config.getParameter<unsigned>("maxNumberOfThickIndices")),
-          fcPerEle_(config.getParameter<double>("fcPerEle")),
-          ecut_(config.getParameter<double>("ecut")),
-          fcPerMip_(config.getParameter<std::vector<double>>("fcPerMip")),
-          nonAgedNoises_(config.getParameter<std::vector<double>>("noises")),
-          dEdXweights_(config.getParameter<std::vector<double>>("dEdXweights")),
-          thicknessCorrection_(config.getParameter<std::vector<double>>("thicknessCorrection")),
-          caloGeomToken_(consumesCollector().esConsumes<CaloGeometry, CaloGeometryRecord>()),
+          fcPerEle_(config.getParameter<float>("fcPerEle")),
+          ecut_(config.getParameter<float>("ecut")),
+          fcPerMip_(config.getParameter<std::vector<float>>("fcPerMip")),
+          nonAgedNoises_(config.getParameter<std::vector<float>>("noises")),
+          dEdXweights_(config.getParameter<std::vector<float>>("dEdXweights")),
+          thicknessCorrection_(config.getParameter<std::vector<float>>("thicknessCorrection")),
+          ticlGeomToken_(consumesCollector().esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+          ticlGeomLookupToken_(
+              consumesCollector().esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+          ticlGeomLayersToken_(
+              consumesCollector().esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
           hits_token_(consumes<HGCRecHitCollection>(config.getParameter<edm::InputTag>("recHits"))),
           deviceToken_{produces()} {}
 
@@ -38,8 +42,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void produce(device::Event& iEvent, device::EventSetup const& iSetup) override {
       edm::Handle<HGCRecHitCollection> hits_h;
 
-      edm::ESHandle<CaloGeometry> geom = iSetup.getHandle(caloGeomToken_);
-      rhtools_.setGeometry(*geom);
+      rhtools_.setGeometry(
+          iSetup.getData(ticlGeomToken_), iSetup.getData(ticlGeomLookupToken_), iSetup.getData(ticlGeomLayersToken_));
       maxlayer_ = rhtools_.lastLayer(isNose_);
 
       hits_h = iEvent.getHandle(hits_token_);
@@ -140,12 +144,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       desc.add<std::string>("detector", "EE")->setComment("options EE, FH, BH,  HFNose; other value defaults to EE");
       desc.add<edm::InputTag>("recHits", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
       desc.add<unsigned int>("maxNumberOfThickIndices", 6);
-      desc.add<double>("fcPerEle", 0.00016020506);
-      desc.add<std::vector<double>>("fcPerMip");
-      desc.add<std::vector<double>>("thicknessCorrection");
-      desc.add<std::vector<double>>("noises");
-      desc.add<std::vector<double>>("dEdXweights");
-      desc.add<double>("ecut", 3.);
+      desc.add<float>("fcPerEle", 0.00016020506);
+      desc.add<std::vector<float>>("fcPerMip");
+      desc.add<std::vector<float>>("thicknessCorrection");
+      desc.add<std::vector<float>>("noises");
+      desc.add<std::vector<float>>("dEdXweights");
+      desc.add<float>("ecut", 3.);
       descriptions.addWithDefaultLabel(desc);
     }
 
@@ -157,17 +161,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     unsigned int maxlayer_;
     int deltasi_index_regemfac_;
     double sciThicknessCorrection_;
-    double fcPerEle_;
-    double ecut_;
-    std::vector<double> fcPerMip_;
-    std::vector<double> nonAgedNoises_;
-    std::vector<double> dEdXweights_;
-    std::vector<double> thicknessCorrection_;
+    float fcPerEle_;
+    float ecut_;
+    std::vector<float> fcPerMip_;
+    std::vector<float> nonAgedNoises_;
+    std::vector<float> dEdXweights_;
+    std::vector<float> thicknessCorrection_;
     std::vector<std::vector<double>> thresholds_;
     std::vector<std::vector<double>> v_sigmaNoise_;
 
-    hgcal::RecHitTools rhtools_;
-    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+    ticlgeom::Tools rhtools_;
+    edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
+    edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
+    edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
     edm::EDGetTokenT<HGCRecHitCollection> hits_token_;
     device::EDPutToken<HGCalSoARecHitsDeviceCollection> const deviceToken_;
 

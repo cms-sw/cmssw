@@ -1,0 +1,100 @@
+TrigReport ---------- Event  Summary ------------
+TrigReport Events total = 99 passed = 99 failed = 0
+TrigReport ---------- Path   Summary ------------
+TrigReport  Trig Bit#   Executed     Passed     Failed      Error Name
+TrigReport     1    0         99         96          3          0 p1b
+TrigReport     1    1         99         98          1          0 p2b
+TrigReport     1    2         99         91          8          0 p3b
+TrigReport     1    3         99         69         30          0 p4b
+TrigReport     1    4         99         29         70          0 p5b
+TrigReport     1    5         99         87         12          0 p6b
+TrigReport     1    6         99          3         96          0 pVisitTest
+TrigReport -------End-Path   Summary ------------
+TrigReport  Trig Bit#   Executed     Passed     Failed      Error Name
+TrigReport     0    0         99         99          0          0 e1
+TrigReport     0    1         99         99          0          0 e3
+TrigReport     0    2         99         99          0          0 e4
+TrigReport     0    3         99         99          0          0 e5
+TrigReport     0    4         99         99          0          0 e6
+TrigReport ---------- Modules in Path: p1b ------------
+TrigReport  Trig Bit#    Visited     Passed     Failed      Error Name
+TrigReport     1    0         99         96          3          0 !f1
+TrigReport     1    1         96         96          0          0 m1b
+TrigReport ---------- Modules in Path: p2b ------------
+TrigReport  Trig Bit#    Visited     Passed     Failed      Error Name
+TrigReport     1    0         99         98          1          0 !f2
+TrigReport     1    1         98         98          0          0 m2b
+TrigReport ---------- Modules in Path: p3b ------------
+TrigReport  Trig Bit#    Visited     Passed     Failed      Error Name
+TrigReport     1    0         99         91          8          0 !f3
+TrigReport     1    1         91         91          0          0 m3b
+TrigReport ---------- Modules in Path: p4b ------------
+TrigReport  Trig Bit#    Visited     Passed     Failed      Error Name
+TrigReport     1    0         99         69         30          0 !f4
+TrigReport     1    1         69         69          0          0 m4b
+TrigReport ---------- Modules in Path: p5b ------------
+TrigReport  Trig Bit#    Visited     Passed     Failed      Error Name
+TrigReport     1    0         99         29         70          0 !f5
+TrigReport     1    1         29         29          0          0 m5b
+TrigReport ---------- Modules in Path: p6b ------------
+TrigReport  Trig Bit#    Visited     Passed     Failed      Error Name
+TrigReport     1    0         99         87         12          0 !f6
+TrigReport     1    1         87         87          0          0 m6b
+TrigReport ---------- Modules in Path: pVisitTest ------------
+TrigReport  Trig Bit#    Visited     Passed     Failed      Error Name
+TrigReport     1    0         99          3         96          0 f1
+TrigReport ------ Modules in End-Path: e1 ------------
+TrigReport  Trig Bit#    Visited     Passed     Failed      Error Name
+TrigReport     0    0         99         99          0          0 a1
+TrigReport ------ Modules in End-Path: e3 ------------
+TrigReport  Trig Bit#    Visited     Passed     Failed      Error Name
+TrigReport     0    0         99         99          0          0 outp1b
+TrigReport     0    1         99         99          0          0 outp2b
+TrigReport     0    2         99         99          0          0 outp3b
+TrigReport     0    3         99         99          0          0 outp8b
+TrigReport ------ Modules in End-Path: e4 ------------
+TrigReport  Trig Bit#    Visited     Passed     Failed      Error Name
+TrigReport     0    0         99         99          0          0 outp4
+TrigReport     0    1         99         99          0          0 outp5
+TrigReport ------ Modules in End-Path: e5 ------------
+TrigReport  Trig Bit#    Visited     Passed     Failed      Error Name
+TrigReport     0    0         99         99          0          0 outp6
+TrigReport ------ Modules in End-Path: e6 ------------
+TrigReport  Trig Bit#    Visited     Passed     Failed      Error Name
+TrigReport     0    0         99         99          0          0 outp7
+TrigReport ---------- Module Summary ------------
+TrigReport    Visited   Executed     Passed     Failed      Error Name
+TrigReport         99         99         99          0          0 TriggerResults
+TrigReport         99         99         99          0          0 a1
+TrigReport         99         99         99          0          0 e1
+TrigReport         99         99         99          0          0 e3
+TrigReport         99         99         99          0          0 e4
+TrigReport         99         99         99          0          0 e5
+TrigReport         99         99         99          0          0 e6
+TrigReport        198         99          3         96          0 f1
+TrigReport         99         99          1         98          0 f2
+TrigReport         99         99          8         91          0 f3
+TrigReport         99         99         30         69          0 f4
+TrigReport         99         99         70         29          0 f5
+TrigReport         99         99         12         87          0 f6
+TrigReport         96         96         96          0          0 m1b
+TrigReport         98         98         98          0          0 m2b
+TrigReport         91         91         91          0          0 m3b
+TrigReport         69         69         69          0          0 m4b
+TrigReport         29         29         29          0          0 m5b
+TrigReport         87         87         87          0          0 m6b
+TrigReport         99         96         96          0          0 outp1b
+TrigReport         99         98         98          0          0 outp2b
+TrigReport         99         69         69          0          0 outp3b
+TrigReport         99         99         99          0          0 outp4
+TrigReport         99          0          0          0          0 outp5
+TrigReport         99         99         99          0          0 outp6
+TrigReport         99         99         99          0          0 outp7
+TrigReport         99         70         70          0          0 outp8b
+TrigReport         99         99         99          0          0 p1b
+TrigReport         99         99         99          0          0 p2b
+TrigReport         99         99         99          0          0 p3b
+TrigReport         99         99         99          0          0 p4b
+TrigReport         99         99         99          0          0 p5b
+TrigReport         99         99         99          0          0 p6b
+TrigReport         99         99         99          0          0 pVisitTest

@@ -62,6 +62,13 @@
   <use name="DataFormats/SoATemplate"/>
 </bin>
 
+<bin file="SoAGenericNestedBlocksView_t.cc" name="SoAGenericNestedBlocks_t">
+  <use name="boost"/>
+  <use name="catch2"/>
+  <use name="eigen"/>
+  <use name="DataFormats/SoATemplate"/>
+</bin>
+
 <bin file="SoAGenericBlocksView_t.cc" name="SoAGenericBlocks_t">
   <use name="boost"/>
   <use name="catch2"/>

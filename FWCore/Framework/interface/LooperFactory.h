@@ -39,7 +39,7 @@
 // user include files
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/ComponentFactory.h"
-#include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/ComponentInterfaceHolder.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
 
 // forward declarations
@@ -53,7 +53,7 @@ namespace edm {
 
     namespace looper {
       template <class T>
-      void addProviderTo(EventSetupProvider& iProvider,
+      void addProviderTo(ComponentInterfaceHolder& iInterfaceHolder,
                          std::shared_ptr<T> iComponent,
                          const ESProductResolverProvider*) {
         std::shared_ptr<ESProductResolverProvider> pProvider(iComponent);
@@ -65,15 +65,17 @@ namespace edm {
           description.label_ = "";
         }
         pProvider->setDescription(description);
-        iProvider.add(pProvider);
+        iInterfaceHolder.setProvider(pProvider);
       }
       template <class T>
-      void addProviderTo(EventSetupProvider& /* iProvider */, std::shared_ptr<T> /*iComponent*/, const void*) {
+      void addProviderTo(ComponentInterfaceHolder& /* iInterfaceHolder */,
+                         std::shared_ptr<T> /*iComponent*/,
+                         const void*) {
         //do nothing
       }
 
       template <class T>
-      void addFinderTo(EventSetupProvider& iProvider,
+      void addFinderTo(ComponentInterfaceHolder& iInterfaceHolder,
                        std::shared_ptr<T> iComponent,
                        const EventSetupRecordIntervalFinder*) {
         std::shared_ptr<EventSetupRecordIntervalFinder> pFinder(iComponent);
@@ -87,10 +89,12 @@ namespace edm {
         }
         pFinder->setDescriptionForFinder(description);
 
-        iProvider.add(pFinder);
+        iInterfaceHolder.setFinder(pFinder);
       }
       template <class T>
-      void addFinderTo(EventSetupProvider& /* iProvider */, std::shared_ptr<T> /*iComponent*/, const void*) {
+      void addFinderTo(ComponentInterfaceHolder& /* iInterfaceHolder */,
+                       std::shared_ptr<T> /*iComponent*/,
+                       const void*) {
         //do nothing
       }
     }  // namespace looper
@@ -99,10 +103,10 @@ namespace edm {
       static std::string name();
       static std::string const& baseType();
       template <class T>
-      static void addTo(EventSetupProvider& iProvider, std::shared_ptr<T> iComponent) {
+      static void addTo(ComponentInterfaceHolder& iInterfaceHolder, std::shared_ptr<T> iComponent) {
         //a looper does not always have to be a provider or a finder
-        looper::addProviderTo(iProvider, iComponent, static_cast<const T*>(nullptr));
-        looper::addFinderTo(iProvider, iComponent, static_cast<const T*>(nullptr));
+        looper::addProviderTo(iInterfaceHolder, iComponent, static_cast<const T*>(nullptr));
+        looper::addFinderTo(iInterfaceHolder, iComponent, static_cast<const T*>(nullptr));
       }
     };
     template <class TType>

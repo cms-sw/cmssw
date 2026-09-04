@@ -280,5 +280,7 @@ phase2_hgcalV16.toModify(HGCalRecHit,
 
 phase2_hgcalV19.toModify(HGCalRecHit, 
                          thicknessCorrection = [0.75, 0.76, 0.75, 0.76, 0.85, 0.85, 0.84, 0.85] , 
+                         #four silicon categories per section in v19: CE-H offset moves from 3 to 4
+                         deltasi_index_regemfac = 4,
                          sciThicknessCorrection =  0.69,
                          layerWeights = dEdX_v19.weights) 

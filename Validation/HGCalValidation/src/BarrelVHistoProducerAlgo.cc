@@ -2179,7 +2179,7 @@ double BarrelVHistoProducerAlgo::distance(const double x1,
   return std::sqrt(distance2(x1, y1, x2, y2));
 }
 
-void BarrelVHistoProducerAlgo::setRecHitTools(std::shared_ptr<hgcal::RecHitTools> recHitTools) {
+void BarrelVHistoProducerAlgo::setRecHitTools(std::shared_ptr<ticlgeom::Tools> recHitTools) {
   recHitTools_ = recHitTools;
 }
 

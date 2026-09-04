@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.Configuration.CaloTriggerPrimitives_cff import *
 from L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Summary_cfi import *
 from L1Trigger.L1TCaloLayer1.simCaloStage2Layer1Digis_cfi import *
 from DQM.L1TMonitor.L1TCaloLayer1Summary_cfi import *

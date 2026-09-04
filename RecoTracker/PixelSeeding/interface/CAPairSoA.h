@@ -9,6 +9,7 @@
 
 namespace caStructures {
 
+  // pair of indices
   GENERATE_SOA_LAYOUT(CAPairLayout, SOA_COLUMN(uint32_t, inner), SOA_COLUMN(uint32_t, outer))
 
   using CAPairSoA = CAPairLayout<>;

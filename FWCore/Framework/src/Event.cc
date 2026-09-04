@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
-#include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -100,7 +99,7 @@ namespace edm {
   }
 
   EventPrincipal const& Event::eventPrincipal() const {
-    return dynamic_cast<EventPrincipal const&>(provRecorder_.principal());
+    return static_cast<EventPrincipal const&>(provRecorder_.principal());
   }
 
   EDProductGetter const& Event::productGetter() const { return provRecorder_.principal(); }
@@ -170,7 +169,7 @@ namespace edm {
       for (auto index : iShouldPut) {
         auto resolver = p.getProductResolverByIndex(index);
         if (not resolver->productResolved()) {
-          dynamic_cast<ProductPutterBase const*>(resolver)->putProduct(std::unique_ptr<WrapperBase>());
+          resolver->putProduct(std::unique_ptr<WrapperBase>());
         }
       }
     }

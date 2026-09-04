@@ -4,6 +4,11 @@ process = cms.Process("TEST")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.cerr.threshold = 'ERROR'
 
+
+#Contents of files
+#testRunMerge1.root  "PROD" [run:1,lumi:1, ev:11-20]
+#testRunMerge2.root  "PROD" [run:1, lumi:1, ev:21-25] [run:2,lumi:1, ev:1-5]
+
 from FWIO.RNTupleTempInput.modules import RNTupleTempSource
 process.source = RNTupleTempSource(
     fileNames = [

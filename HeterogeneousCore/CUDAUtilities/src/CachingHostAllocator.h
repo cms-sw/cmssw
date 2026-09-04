@@ -319,7 +319,7 @@ namespace notcub {
       int device = INVALID_DEVICE_ORDINAL;
       cudaError_t error = cudaSuccess;
 
-      cudaCheck(error = cudaGetDevice(&device));
+      CUDA_CHECK(error = cudaGetDevice(&device));
 
       // Create a block descriptor for the requested allocation
       bool found = false;
@@ -356,10 +356,10 @@ namespace notcub {
             search_key.associated_stream = active_stream;
             if (search_key.device != device) {
               // If "associated" device changes, need to re-create the event on the right device
-              cudaCheck(error = cudaSetDevice(search_key.device));
-              cudaCheck(error = cudaEventDestroy(search_key.ready_event));
-              cudaCheck(error = cudaSetDevice(device));
-              cudaCheck(error = cudaEventCreateWithFlags(&search_key.ready_event, cudaEventDisableTiming));
+              CUDA_CHECK(error = cudaSetDevice(search_key.device));
+              CUDA_CHECK(error = cudaEventDestroy(search_key.ready_event));
+              CUDA_CHECK(error = cudaSetDevice(device));
+              CUDA_CHECK(error = cudaEventCreateWithFlags(&search_key.ready_event, cudaEventDisableTiming));
               search_key.device = device;
             }
 
@@ -452,11 +452,11 @@ namespace notcub {
             return error;
 
           // Try to allocate again
-          cudaCheck(error = cudaHostAlloc(&search_key.d_ptr, search_key.bytes, cudaHostAllocDefault));
+          CUDA_CHECK(error = cudaHostAlloc(&search_key.d_ptr, search_key.bytes, cudaHostAllocDefault));
         }
 
         // Create ready event
-        cudaCheck(error = cudaEventCreateWithFlags(&search_key.ready_event, cudaEventDisableTiming));
+        CUDA_CHECK(error = cudaEventCreateWithFlags(&search_key.ready_event, cudaEventDisableTiming));
 
         // Insert into live blocks
         mutex_locker.lock();
@@ -532,14 +532,14 @@ namespace notcub {
         }
       }
 
-      cudaCheck(error = cudaGetDevice(&entrypoint_device));
+      CUDA_CHECK(error = cudaGetDevice(&entrypoint_device));
       if (entrypoint_device != search_key.device) {
-        cudaCheck(error = cudaSetDevice(search_key.device));
+        CUDA_CHECK(error = cudaSetDevice(search_key.device));
       }
 
       if (recached) {
         // Insert the ready event in the associated stream (must have current device set properly)
-        cudaCheck(error = cudaEventRecord(search_key.ready_event, search_key.associated_stream));
+        CUDA_CHECK(error = cudaEventRecord(search_key.ready_event, search_key.associated_stream));
       }
 
       // Unlock
@@ -547,8 +547,8 @@ namespace notcub {
 
       if (!recached) {
         // Free the allocation from the runtime and cleanup the event.
-        cudaCheck(error = cudaFreeHost(d_ptr));
-        cudaCheck(error = cudaEventDestroy(search_key.ready_event));
+        CUDA_CHECK(error = cudaFreeHost(d_ptr));
+        CUDA_CHECK(error = cudaEventDestroy(search_key.ready_event));
 
         if (debug)
           printf(
@@ -566,7 +566,7 @@ namespace notcub {
 
       // Reset device
       if ((entrypoint_device != INVALID_DEVICE_ORDINAL) && (entrypoint_device != search_key.device)) {
-        cudaCheck(error = cudaSetDevice(entrypoint_device));
+        CUDA_CHECK(error = cudaSetDevice(entrypoint_device));
       }
 
       return error;
@@ -625,7 +625,7 @@ namespace notcub {
 
       // Attempt to revert back to entry-point device if necessary
       if (entrypoint_device != INVALID_DEVICE_ORDINAL) {
-        cudaCheck(error = cudaSetDevice(entrypoint_device));
+        CUDA_CHECK(error = cudaSetDevice(entrypoint_device));
       }
 
       return error;

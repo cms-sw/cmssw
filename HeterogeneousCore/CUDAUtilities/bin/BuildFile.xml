@@ -1,5 +1,6 @@
 <iftool name="cuda-gcc-support">
   <use name="cuda"/>
+  <use name="cuda-nvml"/>
   <bin name="cudaComputeCapabilities" file="cudaComputeCapabilities.cpp isCudaDeviceSupported.cu"/>
   <bin name="cudaIsEnabled" file="cudaIsEnabled.cpp isCudaDeviceSupported.cu"/>
 <else/>

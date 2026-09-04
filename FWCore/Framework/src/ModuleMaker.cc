@@ -8,6 +8,7 @@
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <sstream>
@@ -80,22 +81,15 @@ namespace edm {
 
     ModuleDescription md = createModuleDescription(p);
     std::shared_ptr<maker::ModuleHolder> module;
-    bool postCalled = false;
     try {
       convertException::wrap([&]() {
+        auto guard = signalslot::make_sentry([&post, &md]() { post.emit(md); });
         pre.emit(md);
         module = makeModule(*(p.pset_));
         module->finishModuleInitialization(md, *p.preallocate_, p.reg_);
-        // if exception then post will be called in the catch block
-        postCalled = true;
-        post.emit(md);
+        guard.succeeded();
       });
     } catch (cms::Exception& iException) {
-      if (!postCalled) {
-        CMS_SA_ALLOW try { post.emit(md); } catch (...) {
-          // If post throws an exception ignore it because we are already handling another exception
-        }
-      }
       throwConfigurationException(md, iException);
     }
     return module;

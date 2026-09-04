@@ -57,7 +57,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 namespace cms {
-
   Phase2TrackerDigitizer::Phase2TrackerDigitizer(const edm::ParameterSet& iConfig,
                                                  edm::ProducesCollector producesCollector,
                                                  edm::ConsumesCollector& iC)
@@ -99,33 +98,26 @@ namespace cms {
   }
 
   Phase2TrackerDigitizer::~Phase2TrackerDigitizer() {}
-  void Phase2TrackerDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits,
-                                                   size_t globalSimHitIndex,
-                                                   const uint32_t tofBin) {
-    if (hSimHits.isValid()) {
-      std::set<uint32_t> detIds;
-      auto const& simHits = *(hSimHits.product());
-      for (auto it = std::begin(simHits), itEnd = std::end(simHits); it != itEnd; ++it, ++globalSimHitIndex) {
-        uint32_t detId_raw = (*it).detUnitId();
-        auto fiter = detectorUnits_.find(detId_raw);
-        if (fiter == detectorUnits_.end())
-          continue;
+  void Phase2TrackerDigitizer::accumulateSimHits(edm::Handle<std::vector<PSimHit> > hSimHits,
+                                                 size_t hitContainerIndexOffset,
+                                                 const uint32_t tofBin) {
+    size_t hitIndex = hitContainerIndexOffset;
+    auto const& simHits = *(hSimHits.product());
+    for (auto it = std::begin(simHits); it != std::end(simHits); ++it, ++hitIndex) {
+      auto& hit = (*it);
+      auto detId_raw = hit.detUnitId();
+      if (auto fiter = detectorUnits_.find(detId_raw); fiter != detectorUnits_.end()) {
+        const Phase2TrackerGeomDetUnit* phase2det = fiter->second;
 
-        if (detIds.insert(detId_raw).second) {
-          // The insert succeeded, so this detector element has not yet been processed.
-          const Phase2TrackerGeomDetUnit* phase2det = fiter->second;
+        // access to magnetic field in global coordinates
+        GlobalVector bfield = pSetup_->inTesla(phase2det->surface().position());
+        LogDebug("Phase2TrackerDigitizer") << "B-field(T) at " << phase2det->surface().position()
+                                           << " (cm): " << pSetup_->inTesla(phase2det->surface().position());
 
-          // access to magnetic field in global coordinates
-          GlobalVector bfield = pSetup_->inTesla(phase2det->surface().position());
-          LogDebug("PixelDigitizer") << "B-field(T) at " << phase2det->surface().position()
-                                     << " (cm): " << pSetup_->inTesla(phase2det->surface().position());
-
-          auto kiter = algomap_.find(getAlgoType(detId_raw));
-          if (kiter != algomap_.end())
-            kiter->second->accumulateSimHits(it, itEnd, globalSimHitIndex, tofBin, phase2det, bfield);
-          else
-            edm::LogInfo("Phase2TrackerDigitizer") << "Unsupported algorithm: ";
-        }
+        if (auto kiter = algomap_.find(getAlgoType(detId_raw)); kiter != algomap_.end())
+          kiter->second->accumulateSimHits(hit, hitIndex, tofBin, phase2det, bfield);
+        else
+          edm::LogInfo("Phase2TrackerDigitizer") << "Unsupported algorithm: ";
       }
     }
   }
@@ -149,21 +141,20 @@ namespace cms {
       ModuleTypeCache().swap(moduleTypeCache_);
       detectorUnits_.clear();
       for (auto const& det_u : pDD_->detUnits()) {
-        uint32_t rawId = det_u->geographicalId().rawId();
+        auto rawId = det_u->geographicalId().rawId();
         if (DetId(rawId).det() == DetId::Detector::Tracker) {
-          const Phase2TrackerGeomDetUnit* pixdet = dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u);
-          assert(pixdet);
-          detectorUnits_.emplace(rawId, pixdet);
+          const Phase2TrackerGeomDetUnit* ph2det = dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u);
+          detectorUnits_.try_emplace(rawId, ph2det);
         }
       }
     }
 
     // Must initialize all the algorithms
-    for (auto const& el : algomap_) {
+    for (const auto& [type, algo] : algomap_) {
       if (first_)
-        el.second->init(iSetup);
+        algo->init(iSetup);
 
-      el.second->initializeEvent(rng->getEngine(e.streamID()));
+      algo->initializeEvent(rng->getEngine(e.streamID()));
     }
     first_ = false;
     // Make sure that the first crossing processed starts indexing the sim hits from zero.
@@ -188,29 +179,27 @@ namespace cms {
       edm::Handle<std::vector<PSimHit> > simHits;
       edm::InputTag tag(hitsProducer_, v);
       iEvent.getByLabel(tag, simHits);
+      if (simHits.isValid()) {
+        uint32_t tofBin = PixelDigiSimLink::LowTof;
+        if (v.find(std::string("HighTof")) != std::string::npos)
+          tofBin = PixelDigiSimLink::HighTof;
+        accumulateSimHits(simHits, crossingSimHitIndexOffset_[tag.encode()], tofBin);
+        // Now that the hits have been processed, I'll add the amount of hits in this crossing on to
+        // the global counter. Next time accumulateStripHits() is called it will count the sim hits
+        // as though they were on the end of this collection.
+        // Note that this is only used for creating digi-sim links (if configured to do so).
 
-      //edm::EDGetTokenT< std::vector<PSimHit> > simHitToken_(consumes< std::vector<PSimHit>(tag));
-      //iEvent.getByToken(simHitToken_, simHits);
-
-      uint32_t tofBin = PixelDigiSimLink::LowTof;
-      if (v.find(std::string("HighTof")) != std::string::npos)
-        tofBin = PixelDigiSimLink::HighTof;
-      accumulatePixelHits(simHits, crossingSimHitIndexOffset_[tag.encode()], tofBin);
-      // Now that the hits have been processed, I'll add the amount of hits in this crossing on to
-      // the global counter. Next time accumulateStripHits() is called it will count the sim hits
-      // as though they were on the end of this collection.
-      // Note that this is only used for creating digi-sim links (if configured to do so).
-      if (simHits.isValid())
         crossingSimHitIndexOffset_[tag.encode()] += simHits->size();
+      }
     }
   }
 
   // For premixing
   void Phase2TrackerDigitizer::loadAccumulator(const std::map<uint32_t, std::map<int, float> >& accumulator) {
-    for (const auto& detMap : accumulator) {
-      AlgorithmType algoType = getAlgoType(detMap.first);
+    for (const auto& [detID, value] : accumulator) {
+      AlgorithmType algoType = getAlgoType(detID);
       auto& algo = *(algomap_.at(algoType));
-      algo.loadAccumulator(detMap.first, detMap.second);
+      algo.loadAccumulator(detID, value);
     }
   }
 
@@ -227,8 +216,7 @@ namespace cms {
   Phase2TrackerDigitizer::AlgorithmType Phase2TrackerDigitizer::getAlgoType(uint32_t detId_raw) {
     // get mType either from the geometry or from our cache (faster)
     TrackerGeometry::ModuleType mType = TrackerGeometry::ModuleType::UNKNOWN;
-    auto itr = moduleTypeCache_.find(detId_raw);
-    if (itr != moduleTypeCache_.end()) {
+    if (auto itr = moduleTypeCache_.find(detId_raw); itr != moduleTypeCache_.end()) {
       mType = itr->second;
     } else {
       mType = pDD_->getDetectorType(DetId(detId_raw));
@@ -276,38 +264,30 @@ namespace cms {
     std::vector<edm::DetSet<PixelDigi> > digiVector;
     std::vector<edm::DetSet<PixelDigiSimLink> > digiLinkVector;
     for (auto const& det_u : pDD_->detUnits()) {
-      uint32_t rawId = det_u->geographicalId().rawId();
+      auto rawId = det_u->geographicalId().rawId();
       auto algotype = getAlgoType(rawId);
-      auto fiter = algomap_.find(algotype);
-      if (fiter == algomap_.end())
-        continue;
+      if (auto fiter = algomap_.find(algotype); fiter != algomap_.end()) {
+        // Decide if we want analog readout for Outer Tracker.
+        if (!ot_analog && algotype != AlgorithmType::InnerPixel && algotype != AlgorithmType::InnerPixel3D)
+          continue;
 
-      // Decide if we want analog readout for Outer Tracker.
-      if (!ot_analog && algotype != AlgorithmType::InnerPixel && algotype != AlgorithmType::InnerPixel3D)
-        continue;
-
-      std::map<int, digitizerUtility::DigiSimInfo> digi_map;
-      fiter->second->digitize(dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u), digi_map, tTopo_);
-
-      edm::DetSet<PixelDigi> collector(rawId);
-      edm::DetSet<PixelDigiSimLink> linkcollector(rawId);
-      for (auto const& digi_p : digi_map) {
-        digitizerUtility::DigiSimInfo info = digi_p.second;
-        const auto& ip = PixelDigi::channelToPixel(digi_p.first);
-        collector.data.emplace_back(ip.first, ip.second, info.sig_tot);
-        for (auto const& sim_p : info.simInfoList) {
-          linkcollector.data.emplace_back(digi_p.first,
-                                          sim_p.second->trackId(),
-                                          sim_p.second->hitIndex(),
-                                          sim_p.second->tofBin(),
-                                          sim_p.second->eventId(),
-                                          sim_p.first);
+        std::map<int, digitizerUtility::DigiSimInfo> digi_map;
+        fiter->second->digitize(dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u), digi_map, tTopo_);
+        edm::DetSet<PixelDigi> collector(rawId);
+        edm::DetSet<PixelDigiSimLink> linkcollector(rawId);
+        for (auto const& [chan, info] : digi_map) {
+          const auto& ip = PixelDigi::channelToPixel(chan);
+          collector.data.emplace_back(ip.first, ip.second, info.sig_tot);
+          for (auto const& sim_p : info.simInfoList) {  // vector<pair>
+            digitizerUtility::SimHitInfo* p = sim_p.second;
+            linkcollector.data.emplace_back(chan, p->trackId(), p->hitIndex(), p->tofBin(), p->eventId(), sim_p.first);
+          }
         }
+        if (!collector.data.empty())
+          digiVector.push_back(std::move(collector));
+        if (!linkcollector.data.empty())
+          digiLinkVector.push_back(std::move(linkcollector));
       }
-      if (!collector.data.empty())
-        digiVector.push_back(std::move(collector));
-      if (!linkcollector.data.empty())
-        digiLinkVector.push_back(std::move(linkcollector));
     }
 
     // Step C: create collection with the cache vector of DetSet
@@ -342,37 +322,30 @@ namespace cms {
     std::vector<edm::DetSet<DigiType> > digiVector;
     std::vector<edm::DetSet<PixelDigiSimLink> > digiLinkVector;
     for (auto const& det_u : pDD_->detUnits()) {
-      uint32_t rawId = det_u->geographicalId().rawId();
+      auto rawId = det_u->geographicalId().rawId();
       auto algotype = getAlgoType(rawId);
 
-      auto fiter = algomap_.find(algotype);
-      if (fiter == algomap_.end() || algotype == AlgorithmType::InnerPixel || algotype == AlgorithmType::InnerPixel3D)
-        continue;
+      if (auto fiter = algomap_.find(algotype); (fiter != algomap_.end() && algotype != AlgorithmType::InnerPixel &&
+                                                 algotype != AlgorithmType::InnerPixel3D)) {
+        std::map<int, digitizerUtility::DigiSimInfo> digi_map;
+        fiter->second->digitize(dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u), digi_map, tTopo_);
 
-      std::map<int, digitizerUtility::DigiSimInfo> digi_map;
-      fiter->second->digitize(dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u), digi_map, tTopo_);
-
-      edm::DetSet<DigiType> collector(rawId);
-      edm::DetSet<PixelDigiSimLink> linkcollector(rawId);
-      for (auto const& digi_p : digi_map) {
-        digitizerUtility::DigiSimInfo info = digi_p.second;
-        addToCollector(collector, digi_p.first, info);
-        for (auto const& sim_p : info.simInfoList) {
-          linkcollector.data.emplace_back(digi_p.first,
-                                          sim_p.second->trackId(),
-                                          sim_p.second->hitIndex(),
-                                          sim_p.second->tofBin(),
-                                          sim_p.second->eventId(),
-                                          sim_p.first);
+        edm::DetSet<DigiType> collector(rawId);
+        edm::DetSet<PixelDigiSimLink> linkcollector(rawId);
+        for (auto const& [chan, info] : digi_map) {
+          addToCollector(collector, chan, info);
+          for (auto const& sim_p : info.simInfoList) {
+            digitizerUtility::SimHitInfo* p = sim_p.second;
+            linkcollector.data.emplace_back(chan, p->trackId(), p->hitIndex(), p->tofBin(), p->eventId(), sim_p.first);
+          }
         }
+
+        if (!collector.data.empty())
+          digiVector.push_back(std::move(collector));
+        if (!linkcollector.data.empty())
+          digiLinkVector.push_back(std::move(linkcollector));
       }
-
-      if (!collector.data.empty())
-        digiVector.push_back(std::move(collector));
-      if (!linkcollector.data.empty())
-        digiLinkVector.push_back(std::move(linkcollector));
     }
-
     // Step C: create collection with the cache vector of DetSet
     auto output = std::make_unique<edm::DetSetVector<DigiType> >(digiVector);
     auto outputlink = std::make_unique<edm::DetSetVector<PixelDigiSimLink> >(digiLinkVector);

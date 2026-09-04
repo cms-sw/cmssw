@@ -124,6 +124,10 @@ protected:
   //noise level (used if scaleByDose=False)
   std::vector<float> noise_fC_;
 
+  //per-thickness MIP-charge scale for the ZS threshold
+  //indexed by cell.thickness-1 -> {HD120, LD200, LD300, HD200}
+  std::vector<float> mipChargeScale_;
+
   //charge collection efficiency (used if scaleByDose=False)
   std::vector<double> cce_;
 
