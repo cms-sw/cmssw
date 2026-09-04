@@ -5,7 +5,8 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/Utilities/interface/mplVector.h"
 
-// EventSetup record for the BL-fit axial-field shape map s(z)=B(z)/B(0), keyed to the MagneticField IOV.
+// EventSetup record for the BL-fit normalized (Bz,Br) r-z field map (interface/BLBFieldMap.h), sampled from
+// the MagneticField product and keyed to its IOV.
 class BLBFieldMapRecord
     : public edm::eventsetup::DependentRecordImplementation<BLBFieldMapRecord,
                                                             edm::mpl::Vector<IdealMagneticFieldRecord> > {};

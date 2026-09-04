@@ -58,3 +58,26 @@
   <flags CXXFLAGS="-g"/>
 </bin>
 
+
+<!-- Regeneration of the compiled-in material table (blMaterialMap/blMaterialMapRun.sh): needs step trees as
+     arguments; NO_TESTRUN skips the argument-less runtests. -->
+<bin file="blMaterialMap/blMaterialMapBuild.cc" name="blMaterialMapBuild">
+  <use name="root"/>
+  <flags NO_TESTRUN="1"/>
+</bin>
+
+<!-- Checks the two EventSetup maps the fits read against their sources (blMapsCheck_cfg.py). -->
+<library file="BLMapsCheck.cc" name="RecoTrackerPixelTrackFittingTestBLMapsCheck">
+  <use name="DataFormats/GeometryVector"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="MagneticField/Engine"/>
+  <use name="MagneticField/Records"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
+  <use name="RecoTracker/Record"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+<test name="testBLMapsCheck" command="cmsRun ${LOCALTOP}/src/RecoTracker/PixelTrackFitting/test/blMapsCheck_cfg.py"/>
