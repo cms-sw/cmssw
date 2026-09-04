@@ -100,6 +100,7 @@ class TestBranch : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(TestBranch);
   CPPUNIT_TEST(testClosures);
   CPPUNIT_TEST(testKinematics);
+  CPPUNIT_TEST(testTruncatedClosureKinematics);
   CPPUNIT_TEST(testTaggingAndProvenance);
   CPPUNIT_TEST(testRelations);
   CPPUNIT_TEST(testInvalidViews);
@@ -108,6 +109,7 @@ class TestBranch : public CppUnit::TestFixture {
 public:
   void testClosures();
   void testKinematics();
+  void testTruncatedClosureKinematics();
   void testTaggingAndProvenance();
   void testRelations();
   void testInvalidViews();
@@ -151,6 +153,31 @@ void TestBranch::testKinematics() {
   // visible excludes the neutrino (30).
   CPPUNIT_ASSERT_DOUBLES_EQUAL(55.0, top.visibleEnergy(), 1e-6);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(30.0, top.invisibleEnergy(), 1e-6);
+}
+
+// REQUIRED: a truncated closure carries the momentum of the particle it stopped at.
+// The frontier, not the graph leaves, is the summation set, so no particle is counted
+// together with its own ancestor and none of a stopped branch goes missing.
+void TestBranch::testTruncatedClosureKinematics() {
+  auto g = buildTtbarLike();
+
+  // UntilPdgId({511}) stops at the B0 (18), keeping mu+ (40) and nu_mu (30) whole.
+  // The B0's own daughters are not members, so the B0 carries their momentum.
+  truth::Branch untilB(&g, 0, truth::ClosureSpec::untilPdgId({511}));
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(88.0, untilB.energy(), 1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(58.0, untilB.visibleEnergy(), 1e-6);
+
+  // DepthN(1) keeps top, W+ and b; the frontier is W+ (80) and b (20), never the top.
+  truth::Branch depth1(&g, 0, truth::ClosureSpec::depth(1));
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(100.0, depth1.energy(), 1e-6);
+
+  // A root with no member descendant is its own frontier.
+  truth::Branch justTheTop(&g, 0, truth::ClosureSpec::depth(0));
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(100.0, justTheTop.energy(), 1e-6);
+
+  // The full subtree and the stable-leaves closure keep the final-state answer.
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(85.0, truth::Branch(&g, 0).energy(), 1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(85.0, truth::Branch(&g, 0, truth::ClosureSpec::stableLeaves()).energy(), 1e-6);
 }
 
 void TestBranch::testTaggingAndProvenance() {

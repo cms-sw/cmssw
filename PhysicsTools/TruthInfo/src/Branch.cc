@@ -136,18 +136,32 @@ namespace truth {
     return out;
   }
 
+  std::vector<uint32_t> Branch::frontier() const {
+    std::vector<uint32_t> ids = traverse();
+    if (ids.empty())
+      return ids;
+    // The members no other member covers, so each particle of the branch is counted
+    // once and none of its own ancestors is counted with it. On a Subtree branch these
+    // are the final-state leaves. On a TRUNCATED branch they are the particles the
+    // closure stopped at, which is the whole point: an UntilPdgId({111}) branch stops at
+    // the pi0, whose photons are not members, so the pi0 itself carries the momentum.
+    dropCoveredMembers(*graph_, ids, /*keepDeepest=*/true);
+    return ids;
+  }
+
   math::XYZTLorentzVectorD Branch::p4() const {
     math::XYZTLorentzVectorD sum;
-    for (auto const& leaf : stableLeaves())
-      sum += leaf.momentum();
+    for (uint32_t id : frontier())
+      sum += graph_->particles()[id].momentum;
     return sum;
   }
 
   math::XYZTLorentzVectorD Branch::visibleP4() const {
     math::XYZTLorentzVectorD sum;
-    for (auto const& leaf : stableLeaves()) {
-      if (!isInvisible(leaf.pdgId()))
-        sum += leaf.momentum();
+    for (uint32_t id : frontier()) {
+      auto const& particle = graph_->particles()[id];
+      if (!isInvisible(particle.pdgId))
+        sum += particle.momentum;
     }
     return sum;
   }

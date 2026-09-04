@@ -54,7 +54,12 @@ namespace truth {
     [[nodiscard]] std::vector<Particle> members() const;
     [[nodiscard]] std::vector<Particle> stableLeaves() const;
 
-    // Kinematics, summed over the stable final-state leaves.
+    // The members no other member covers: the final-state leaves of a full subtree, or
+    // the particles the closure stopped at when it truncates.
+    [[nodiscard]] std::vector<uint32_t> frontier() const;
+
+    // Kinematics, summed over the frontier, so a truncated closure counts the particle
+    // it stopped at and never counts a particle together with its own ancestor.
     [[nodiscard]] math::XYZTLorentzVectorD p4() const;
     [[nodiscard]] math::XYZTLorentzVectorD visibleP4() const;  // excludes neutrinos
     [[nodiscard]] double energy() const { return p4().energy(); }
