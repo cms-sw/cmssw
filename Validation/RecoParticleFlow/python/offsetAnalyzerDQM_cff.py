@@ -64,6 +64,9 @@ def createTH1DVPSet():
 
 offsetAnalyzerDQM = DQMEDAnalyzer("OffsetAnalyzerDQM",
                                       
+    # False: MiniAOD pat::PackedCandidate input (fromPV available)
+    # True : AOD/HLT reco::PFCandidate input (PV attachment from trackRef)
+    useAOD = cms.bool(False),
     pvTag = cms.InputTag('offlineSlimmedPrimaryVertices'),
     muTag = cms.InputTag('slimmedAddPileupInfo'),
     pfTag = cms.InputTag('packedPFCandidates'),
