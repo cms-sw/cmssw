@@ -1490,7 +1490,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
         ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_METHODS, ~, __VA_ARGS__))                                         \
                                                                                                                        \
-        _APPEND_TOKEN(_ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER, ~, __VA_ARGS__), _PRIVATE_ACCESS)      \
+        private:                                                                                                       \
         _ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER, ~, __VA_ARGS__)                                      \
       };                                                                                                               \
                                                                                                                        \
