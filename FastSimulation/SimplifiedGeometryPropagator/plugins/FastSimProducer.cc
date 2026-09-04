@@ -43,9 +43,9 @@
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/SimplifiedGeometry.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/Decayer.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/LayerNavigator.h"
-#include "FastSimulation/SimplifiedGeometryPropagator/interface/Constants.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/Particle.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/ParticleFilter.h"
+#include "FastSimulation/SimplifiedGeometryPropagator/interface/Constants.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/InteractionModel.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/InteractionModelFactory.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/ParticleManager.h"
@@ -184,6 +184,9 @@ private:
   bool simulateMuons_;
   bool useFastSimDecayer_;
 
+  std::vector<std::string> interactionModelNames_;  //!< All defined interaction model names
+  static const std::string MESSAGECATEGORY;         //!< Category of debugging messages ("FastSimulation")
+  const edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> particleDataTableESToken_;
   //! CloseByParticleGun support: a primary born at the calorimeter face (let
   //! through by ParticleFilter's acceptCaloVertices) may sit exactly on or just
   //! past the first calo layer, where the layer navigator can no longer reach
@@ -193,9 +196,6 @@ private:
   //! particles that were propagated through the tracker.
   double caloVertexBackupDistance_ = 0.;
 
-  std::vector<std::string> interactionModelNames_;  //!< All defined interaction model names
-  static const std::string MESSAGECATEGORY;         //!< Category of debugging messages ("FastSimulation")
-  const edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> particleDataTableESToken_;
   static constexpr double caloBoundaryPerp2_ = 128. * 128.;
   static constexpr double caloBoundaryZ_ = 302.;
   static constexpr double minParticleLifetime_ = 1E-10;
@@ -244,10 +244,6 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
   produces<edm::PCaloHitContainer>("EcalHitsEE");
   produces<edm::PCaloHitContainer>("EcalHitsES");
   produces<edm::PCaloHitContainer>("HcalHits");
-  // Phase-2 HGCAL. The instance label matches FullSim g4SimHits so HGCDigitizer
-  // consumes it unchanged; empty unless HGCAL simulation is configured.
-  produces<edm::PCaloHitContainer>("HGCHitsEE");
-  produces<edm::PCaloHitContainer>("HGCHitsHEfront");
   produces<edm::SimTrackContainer>("MuonSimTracks");
 }
 
@@ -461,8 +457,6 @@ void FastSimProducer::produce(edm::StreamID id, edm::Event& iEvent, const edm::E
   iEvent.put(std::move(caloProducts->hitsEE), "EcalHitsEE");
   iEvent.put(std::move(caloProducts->hitsES), "EcalHitsES");
   iEvent.put(std::move(caloProducts->hitsHCAL), "HcalHits");
-  iEvent.put(std::move(caloProducts->hitsHGCEE), "HGCHitsEE");
-  iEvent.put(std::move(caloProducts->hitsHGCHEfront), "HGCHitsHEfront");
   iEvent.put(std::move(caloProducts->tracksMuon), "MuonSimTracks");
 }
 
@@ -522,10 +516,6 @@ void FastSimProducer::createFSimTrack(fastsim::Particle* particle,
         if (!myFSimTrack.onVFcal()) {
           myFSimTrack.setVFcal(PP, 0);
         }
-      } else if (caloLayer->getCaloType() == fastsim::SimplifiedGeometry::HGCAL) {
-        if (!myFSimTrack.onHGCal()) {
-          myFSimTrack.setHGCal(PP, 0);
-        }
       }
 
       // not necessary to continue propagation
@@ -584,14 +574,6 @@ void FastSimProducer::createFSimTrack(fastsim::Particle* particle,
     if (caloLayer->getCaloType() == fastsim::SimplifiedGeometry::VFCAL) {
       if (!myFSimTrack.onVFcal()) {
         myFSimTrack.setVFcal(PP, abs(success));
-      }
-    }
-
-    // Phase-2: HGCAL replaces the endcap ECAL. The layer is only present when the
-    // HGCAL entrance layers are configured, so this is inert in Run-2/3 geometries.
-    if (caloLayer->getCaloType() == fastsim::SimplifiedGeometry::HGCAL) {
-      if (!myFSimTrack.onHGCal()) {
-        myFSimTrack.setHGCal(PP, abs(success));
       }
     }
 

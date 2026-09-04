@@ -88,10 +88,4 @@ fastSimProducer = cms.EDProducer(
 )
 
 from Configuration.Eras.Modifier_phase2_fastSim_cff import phase2_fastSim
-from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-
-# Phase-2 calorimetry used to be switched off wholesale because the Run-2 endcap
-# ECAL/preshower geometry it assumed is null in Phase-2 and the job segfaulted.
-# With the HGCAL path in place (HGCAL entrance layers, onHGCal dispatch, and the
-# null-geometry guards in Calorimeter/CaloGeometryHelper) it can stay on.
-(phase2_fastSim & ~phase2_hgcal).toModify(fastSimProducer, simulateCalorimetry = False)
+phase2_fastSim.toModify(fastSimProducer, simulateCalorimetry = False)
