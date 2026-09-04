@@ -33,10 +33,9 @@ Note on the gun: this release (20_1) carries the ip==0 guard in
 CloseByParticleGunProducer, so the first particle's phi is NOT shifted by
 Delta/R -- the 14_0 samples were (phi 1.68299 instead of 1.57).
 
-Run:  cmsRun hgcal_closeby_fastsim_cfg.py -- --maxEvents N --energy 50 --pdgid 22
+Run:  cmsRun barrel_closeby_fastsim_cfg.py -- --maxEvents N --energy 50 --pdgid 22
 """
 
-import math
 
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Phase2C17I13M9_FastSim_cff import Phase2C17I13M9_FastSim
@@ -81,7 +80,6 @@ process.RandomNumberGeneratorService = cms.Service(
 
 # Vertex ON the ECAL barrel face: just outside the tracker volume
 # (r = 129 cm), central rapidity, momentum radially outward (Pointing).
-_z0 = 0.0
 _r0 = 130.0
 
 process.generator = cms.EDProducer(
