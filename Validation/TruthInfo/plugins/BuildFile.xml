@@ -18,6 +18,10 @@
 <use name="PhysicsTools/TruthInfo"/>
 <use name="Validation/TruthInfo"/>
 
+<library file="TruthBranchRecoValidator.cc" name="ValidationTruthInfoPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <library file="TruthBranchCaloAssociationProducer.cc" name="TruthBranchCaloAssociationProducerPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
