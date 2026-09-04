@@ -1,16 +1,16 @@
 #include "L1Trigger/L1TGEM/interface/ME0StubFit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-double l1t::me0::reciprocal6(int n) {
-  if (n >= 1 && n <= 6) {
-    return RECIP6[n - 1];
+double l1t::me0::reciprocal(int n) {
+  if (n >= 1 && n <= 2047) {
+    return l1t::me0::RECIP[n - 1];
   } else {
     return 0.0;  // or throw an exception
   }
 }
-double l1t::me0::reciprocal(int n) {
-  if (n >= 1 && n <= 2047) {
-    return RECIP[n - 1];
+double l1t::me0::reciprocal6(int n) {
+  if (n >= 1 && n <= 6) {
+    return l1t::me0::RECIP[n - 1];
   } else {
     return 0.0;  // or throw an exception
   }
