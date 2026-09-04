@@ -77,8 +77,8 @@ bool fastsim::ParticleFilter::accepts(const fastsim::Particle& particle) const {
   // particles must have vertex in volume of tracker -- or, when opted in for
   // calo-face guns, in the calorimeter region: those particles never see the
   // tracker and FastSimProducer hands them directly to the CalorimetryManager.
-  if (acceptCaloVertices_ && !acceptsVtx(particle.position()) &&
-      particle.position().Perp2() < caloVertexRMax2_ && std::abs(particle.position().Z()) < caloVertexZMax_) {
+  if (acceptCaloVertices_ && !acceptsVtx(particle.position()) && particle.position().Perp2() < caloVertexRMax2_ &&
+      std::abs(particle.position().Z()) < caloVertexZMax_) {
     return acceptsEn(particle);
   }
   return acceptsVtx(particle.position()) && acceptsEn(particle);
