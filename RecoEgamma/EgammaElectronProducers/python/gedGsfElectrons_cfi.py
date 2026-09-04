@@ -44,8 +44,9 @@ gedGsfElectronsTmp = ecalDrivenGsfElectrons.clone(
 
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-pp_on_AA.toModify(gedGsfElectronsTmp.preselection, minSCEtBarrel = 15.0)
-pp_on_AA.toModify(gedGsfElectronsTmp.preselection, minSCEtEndcaps = 15.0)
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+(pp_on_AA & ~run3_common).toModify(gedGsfElectronsTmp.preselection, minSCEtBarrel = 15.0)
+(pp_on_AA & ~run3_common).toModify(gedGsfElectronsTmp.preselection, minSCEtEndcaps = 15.0)
 
 from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
 egamma_lowPt_exclusive.toModify(gedGsfElectronsTmp.preselection,
@@ -55,7 +56,6 @@ egamma_lowPt_exclusive.toModify(gedGsfElectronsTmp, applyPreselection = False)
 
 
 # Activate the Egamma PFID dnn only for Run3
-from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(gedGsfElectronsTmp.EleDNNPFid,
     enabled = True
 )
