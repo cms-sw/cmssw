@@ -136,8 +136,8 @@ branchTracksterRecoValidator = DQMEDAnalyzer(
 
 # Split views for wiring into the release validation: the EDProducers (truth graph,
 # hit index, association maps) run in the prevalidation Path, the DQM analyzers in
-# the validation EndPath. truthGraphValidationSequence (above) keeps both together
-# for the standalone single-file drivers in test/.
+# the validation EndPath. The standalone single-file drivers in test/ load the
+# signal-only build producers from Validation.Configuration.truthPrevalidation_cff.
 # Under enableTruth the logical graph and the hit index are built at the DIGI step
 # by the mixing accumulator chain (PhysicsTools/TruthInfo/truthGraphMixedDigi_cff),
 # and arrive at RECO through the input file. So the RECO prevalidation runs only the
