@@ -43,6 +43,21 @@ process.receiver = cms.EDProducer("MPIReceiverPortable@alpaka",
             type = cms.string("ALPAKA_ACCELERATOR_NAMESPACE::portabletest::TestDeviceCollection3"),
             src = cms.InputTag("", ""),
         ),
+        # a host product with a portable trivial serialiser
+        cms.PSet(
+            type = cms.string("portabletest::TestHostCollection"),
+            src = cms.InputTag("hostPortable", ""),
+        ),
+        # a host product with a non-portable trivial serialiser
+        cms.PSet(
+            type = cms.string("ushort"),
+            src = cms.InputTag("hostTrivial", ""),
+        ),
+        # a host product with no trivial serialiser, falling back to ROOT
+        cms.PSet(
+            type = cms.string("edm::EventID"),
+            src = cms.InputTag("hostRoot", ""),
+        ),
     )
 )
 
@@ -54,8 +69,18 @@ process.validatePortableObject = cms.EDAnalyzer("TestAlpakaObjectAnalyzer",
     source = cms.InputTag("receiver")
 )
 
+process.validateReceived = cms.EDAnalyzer("GenericConsumer",
+    eventProducts = cms.untracked.vstring("receiver")
+)
+
+process.validateEventId = cms.EDAnalyzer("edmtest::EventIDValidator",
+    source = cms.untracked.InputTag("receiver", "hostRoot")
+)
+
 process.pathSoA = cms.Path(
     process.receiver +
     process.validatePortableCollections +
-    process.validatePortableObject
+    process.validatePortableObject +
+    process.validateReceived +
+    process.validateEventId
 )
