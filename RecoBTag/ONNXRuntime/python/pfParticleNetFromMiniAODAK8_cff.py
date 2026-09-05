@@ -26,16 +26,11 @@ pfParticleNetFromMiniAODAK8JetTags = boostedJetONNXJetTagsProducer.clone(
 particleNetSonicTriton.toReplaceWith(pfParticleNetFromMiniAODAK8JetTags, _particleNetSonicJetTagsProducer.clone(
     src = 'pfParticleNetFromMiniAODAK8TagInfos',
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK8/preprocess.json',
-    Client = cms.PSet(
+    Client = dict(
         timeout = cms.untracked.uint32(300),
-        mode = cms.string("Async"),
         modelName = cms.string("particleNetFromMiniAODAK8"),
         modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particleNetFromMiniAODAK8/config.pbtxt"),
-        modelVersion = cms.string(""),
-        verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(0),
-        useSharedMemory = cms.untracked.bool(True),
-        compression = cms.untracked.string(""),
+        modelVersion = cms.string("")
     ),
     flav_names = pfParticleNetFromMiniAODAK8JetTags.flav_names,
 ))
