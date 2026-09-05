@@ -12,8 +12,9 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "SimTracker/TrackTriggerAssociation/interface/StubAssociation.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "SimDataFormats/Associations/interface/StubAssociation.h"
+#include "L1Trigger/TrackTrigger/interface/Associator.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 
 #include <TProfile.h>
@@ -50,10 +51,10 @@ namespace trackerTFP {
                     int channel) const;
     //
     void associate(const std::vector<std::vector<TTStubRef>>& tracks,
-                   const tt::StubAssociation* ass,
+                   const tt::Associator& ass,
                    std::set<TPPtr>& tps,
                    int& sum,
-                   bool perfect = true) const;
+                   bool perfect = false) const;
     // ED input token of stubs
     edm::EDGetTokenT<tt::StreamsStub> edGetTokenStubs_;
     // ED input token of tracks
@@ -63,11 +64,13 @@ namespace trackerTFP {
     // ED input token of TTStubRef to recontructable TPPtr association
     edm::EDGetTokenT<tt::StubAssociation> edGetTokenReconstructable_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
+    // Associator token
+    edm::ESGetToken<tt::Associator, trackerDTC::SetupRcd> esGetTokenAssociator_;
     // DataFormats token
-    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, trackerDTC::SetupRcd> esGetTokenDataFormats_;
     // stores, calculates and provides run-time constants
-    const tt::Setup* setup_ = nullptr;
+    const Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats_ = nullptr;
     // enables analyze of TPs
@@ -104,6 +107,7 @@ namespace trackerTFP {
     // book ES products
     esGetTokenSetup_ = esConsumes<edm::Transition::BeginRun>();
     esGetTokenDataFormats_ = esConsumes<edm::Transition::BeginRun>();
+    esGetTokenAssociator_ = esConsumes();
     // log config
     log_.setf(std::ios::fixed, std::ios::floatfield);
     log_.precision(4);
@@ -147,16 +151,12 @@ namespace trackerTFP {
     iEvent.getByToken<tt::StreamsTrack>(edGetTokenTracks_, handleTracks);
     const tt::StreamsTrack& acceptedTracks = *handleTracks;
     // read in MCTruth
-    const tt::StubAssociation* selection = nullptr;
-    const tt::StubAssociation* reconstructable = nullptr;
+    tt::Associator selection = iSetup.getData(esGetTokenAssociator_);
+    tt::Associator reconstructable = iSetup.getData(esGetTokenAssociator_);
     if (useMCTruth_) {
-      edm::Handle<tt::StubAssociation> handleSelection;
-      iEvent.getByToken<tt::StubAssociation>(edGetTokenSelection_, handleSelection);
-      selection = handleSelection.product();
-      prof_->Fill(9, selection->numTPs());
-      edm::Handle<tt::StubAssociation> handleReconstructable;
-      iEvent.getByToken<tt::StubAssociation>(edGetTokenReconstructable_, handleReconstructable);
-      reconstructable = handleReconstructable.product();
+      selection.consume(iEvent.get(edGetTokenSelection_));
+      reconstructable.consume(iEvent.get(edGetTokenReconstructable_));
+      prof_->Fill(9, selection.numTPs());
     }
     // analyze ht products and associate found tracks with reconstrucable TrackingParticles
     std::set<TPPtr> tpPtrs;
@@ -164,7 +164,7 @@ namespace trackerTFP {
     std::set<TPPtr> tpPtrsMax;
     int allMatched(0);
     int allTracks(0);
-    for (int region = 0; region < setup_->numRegions(); region++) {
+    for (int region = 0; region < setup_->sysNumRegion(); region++) {
       const int offset = region * dataFormats_->numChannel(Process::dr);
       int nStubs(0);
       int nTracks(0);
@@ -181,9 +181,9 @@ namespace trackerTFP {
         if (!useMCTruth_)
           continue;
         int tmp(0);
-        associate(tracks, selection, tpPtrsSelection, tmp);
-        associate(tracks, reconstructable, tpPtrs, allMatched, false);
-        associate(tracks, selection, tpPtrsMax, tmp, false);
+        associate(tracks, selection, tpPtrsSelection, tmp, true);
+        associate(tracks, reconstructable, tpPtrs, allMatched, true);
+        associate(tracks, selection, tpPtrsMax, tmp);
         const int size = acceptedTracks[offset + channel].size();
         hisChannel_->Fill(size);
         profChannel_->Fill(channel, size);
@@ -243,7 +243,7 @@ namespace trackerTFP {
                               const tt::StreamsStub& streamsStubs,
                               std::vector<std::vector<TTStubRef>>& tracks,
                               int channel) const {
-    const int offset = channel * setup_->numLayers();
+    const int offset = channel * setup_->sysNumLayer();
     const tt::StreamTrack& streamTrack = streamsTrack[channel];
     const int numTracks =
         std::accumulate(streamTrack.begin(), streamTrack.end(), 0, [](int sum, const tt::FrameTrack& frame) {
@@ -255,7 +255,7 @@ namespace trackerTFP {
       if (frameTrack.first.isNull())
         continue;
       std::deque<TTStubRef> stubs;
-      for (int layer = 0; layer < setup_->numLayers(); layer++) {
+      for (int layer = 0; layer < setup_->sysNumLayer(); layer++) {
         const tt::FrameStub& stub = streamsStubs[offset + layer][frame];
         if (stub.first.isNonnull())
           stubs.push_back(stub.first);
@@ -266,12 +266,12 @@ namespace trackerTFP {
 
   //
   void AnalyzerDR::associate(const std::vector<std::vector<TTStubRef>>& tracks,
-                             const tt::StubAssociation* ass,
+                             const tt::Associator& ass,
                              std::set<TPPtr>& tps,
                              int& sum,
                              bool perfect) const {
     for (const std::vector<TTStubRef>& ttStubRefs : tracks) {
-      const std::vector<TPPtr>& tpPtrs = perfect ? ass->associateFinal(ttStubRefs) : ass->associate(ttStubRefs);
+      const std::vector<TPPtr>& tpPtrs = perfect ? ass.associateFinal(ttStubRefs) : ass.associate(ttStubRefs);
       if (tpPtrs.empty())
         continue;
       sum++;

@@ -50,7 +50,8 @@ void TTStubAssociator<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
     if (not ttStubHandle->empty()) {
       for (const auto& gd : theTrackerGeom->dets()) {
         DetId detid = gd->geographicalId();
-        if (detid.subdetId() != StripSubdetector::TOB && detid.subdetId() != StripSubdetector::TID)
+        if (detid.subdetId() != Phase2Tracker::Subdetector::Barrel &&
+            detid.subdetId() != Phase2Tracker::Subdetector::Endcap)
           continue;  // only run on OT
 
         if (!tTopo->isLower(detid))

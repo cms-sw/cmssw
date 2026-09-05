@@ -9,19 +9,17 @@
 
 namespace trackerTFP {
 
-  TrackFindingProcessor::TrackFindingProcessor(const tt::Setup* setup,
-                                               const DataFormats* dataFormats,
-                                               const TrackQuality* trackQuality)
-      : setup_(setup), dataFormats_(dataFormats), trackQuality_(trackQuality) {
-    bfield_ = setup_->bField();
+  TrackFindingProcessor::TrackFindingProcessor(const Setup* setup, const DataFormats* dataFormats)
+      : setup_(setup), dataFormats_(dataFormats) {
+    bfield_ = setup_->sysBField();
   }
 
   //
-  TrackFindingProcessor::Track::Track(const tt::FrameTrack& frameTrack,
-                                      const tt::Frame& frameTQ,
+  TrackFindingProcessor::Track::Track(const tt::FrameTrack& frameTrackKF,
+                                      const tt::FrameTrack& frameTrackTQ,
                                       const std::vector<TTStubRef>& ttStubRefs,
-                                      const TrackQuality* tq)
-      : ttTrackRef_(frameTrack.first), ttStubRefs_(ttStubRefs), valid_(true) {
+                                      const DataFormats* df)
+      : ttTrackRef_(frameTrackKF.first), ttStubRefs_(ttStubRefs), valid_(true) {
     partials_.reserve(partial_in);
     const double rangeInvR = -2. * TTTrack_TrackWord::minRinv;
     const double rangePhi0 = -2. * TTTrack_TrackWord::minPhi0;
@@ -33,82 +31,88 @@ namespace trackerTFP {
     const double baseCot = rangeCot / std::pow(2., TTTrack_TrackWord::TrackBitWidths::kTanlSize);
     const double baseZ0 = rangeZ0 / std::pow(2., TTTrack_TrackWord::TrackBitWidths::kZ0Size);
     const double baseD0 = rangeD0 / std::pow(2., TTTrack_TrackWord::TrackBitWidths::kD0Size);
-    const int nLayers = TTTrack_TrackWord::TrackBitWidths::kHitPatternSize;
-    const TTBV other_MVAs = TTBV(0, 2 * TTTrack_TrackWord::TrackBitWidths::kMVAQualitySize);
-    const TTBV chi2bend = TTBV(0, TTTrack_TrackWord::TrackBitWidths::kBendChi2Size);
-    const TTBV valid = TTBV(1, TTTrack_TrackWord::TrackBitWidths::kValidSize);
     // convert bits into nice formats
-    const DataFormats* df = tq->dataFormats();
-    const tt::Setup* setup = df->setup();
-    const TrackDR trackDR(frameTrack, df);
-    inv2R_ = trackDR.inv2R();
-    phiT_ = trackDR.phiT();
-    cot_ = trackDR.cot();
-    zT_ = trackDR.zT();
-    const double d0 = std::max(std::min(ttTrackRef_->d0(), -TTTrack_TrackWord::minD0), TTTrack_TrackWord::minD0);
-    TTBV ttBV = TTBV(frameTQ);
-    tq->format(VariableTQ::chi2rz).extract(ttBV, chi2rz_);
-    tq->format(VariableTQ::chi2rphi).extract(ttBV, chi2rphi_);
-    mva_ = TTBV(ttBV, numBinsMVA_).val();
-    ttBV >>= numBinsMVA_;
-    hitPattern_ = ttBV;
-    channel_ = cot_ < 0. ? 0 : 1;
-    // convert nice formats into bits
-    const double z0 = zT_ - cot_ * setup->chosenRofZ();
-    const double phi0 = phiT_ - inv2R_ * setup->chosenRofPhi();
-    double invR = -2. * inv2R_;
-    if (invR < TTTrack_TrackWord::minRinv)
-      invR = TTTrack_TrackWord::minRinv + df->format(Variable::inv2R, Process::dr).base();
-    else if (invR > -TTTrack_TrackWord::minRinv)
-      invR = -TTTrack_TrackWord::minRinv - df->format(Variable::inv2R, Process::dr).base();
-    const double chi2rphi = chi2rphi_ / (hitPattern_.count() - 2);
-    const double chi2rz = chi2rz_ / (hitPattern_.count() - 2);
-    int chi2rphiBin(-1);
+    const Setup* setup = df->setup();
+    const TrackKF trackKF(frameTrackKF, df);
+    invR_ = -2. * trackKF.inv2R();
+    cot_ = trackKF.cot();
+    d0_ = ttTrackRef_->d0();
+    const TrackTQ trackTQ(frameTrackTQ, df);
+    mva_ = trackTQ.mva();
+    channel_ = cot_ < 0. ? 1 : 0;
+    z0_ = df->format(Variable::zT, Process::kf)
+              .digi(trackKF.zT() - cot_ * df->format(Variable::r, Process::kf).digi(setup->regChosenRofZ()));
+    phi0_ = df->format(Variable::phiT, Process::kf)
+                .digi(trackKF.phiT() -
+                      trackKF.inv2R() * df->format(Variable::r, Process::kf).digi(setup->regChosenRofPhi()));
+    // base transforms
+    invR_ = tt::redigi(invR_, 2. * df->format(Variable::inv2R, Process::kf).base(), baseInvR, setup->widthDSPbu());
+    phi0_ = tt::redigi(phi0_, df->format(Variable::phiT, Process::kf).base(), basePhi0, setup->widthDSPbu());
+    cot_ = tt::redigi(cot_, df->format(Variable::cot, Process::kf).base(), baseCot, setup->widthDSPbu());
+    z0_ = tt::redigi(z0_, df->format(Variable::zT, Process::kf).base(), baseZ0, setup->widthDSPbu());
+    chi20_ = trackTQ.chi20();
+    chi21_ = trackTQ.chi21();
+    // bin chi2s
+    const int dof = (trackTQ.hitPattern().count() - 2);
+    chi20bin_ = -1;
     for (double d : TTTrack_TrackWord::chi2RPhiBins)
-      if (chi2rphi >= d)
-        chi2rphiBin++;
+      if (chi20_ >= d * dof)
+        chi20bin_++;
       else
         break;
-    int chi2rzBin(-1);
+    chi21bin_ = -1;
     for (double d : TTTrack_TrackWord::chi2RZBins)
-      if (chi2rz >= d)
-        chi2rzBin++;
+      if (chi21_ >= d * dof)
+        chi21bin_++;
       else
         break;
-    if (std::abs(invR) > rangeInvR / 2.)
+    // check ranges
+    if (std::abs(invR_) > rangeInvR / 2.)
       valid_ = false;
-    if (std::abs(phi0) > rangePhi0 / 2.)
+    if (std::abs(phi0_) > rangePhi0 / 2.)
       valid_ = false;
     if (std::abs(cot_) > rangeCot / 2.)
       valid_ = false;
-    if (std::abs(z0) > rangeZ0 / 2.)
+    if (std::abs(z0_) > rangeZ0 / 2.)
       valid_ = false;
-    if (std::abs(d0) > rangeD0 / 2.)
+    if (std::abs(d0_) > rangeD0 / 2.)
       valid_ = false;
     if (!valid_)
       return;
-    const TTBV MVA_quality(mva_, TTTrack_TrackWord::TrackBitWidths::kMVAQualitySize);
-    const TTBV hit_pattern(hitPattern_.resize(nLayers).val(), nLayers);
-    const TTBV D0(d0, baseD0, TTTrack_TrackWord::TrackBitWidths::kD0Size, true);
-    const TTBV Chi2rz(chi2rzBin, TTTrack_TrackWord::TrackBitWidths::kChi2RZSize);
-    const TTBV Z0(z0, baseZ0, TTTrack_TrackWord::TrackBitWidths::kZ0Size, true);
+    // create bit vectors
+    std::string hitPattern = trackTQ.hitPattern().str();
+    std::reverse(hitPattern.begin(), hitPattern.end());
+    // Drop outermost (8th) track layer, as data format foresees only 7 bits.
+    hitPattern.erase(0, 1);
+    hitPattern_ = TTBV(hitPattern);
+    const TTBV other = TTBV(0, 2 * TTTrack_TrackWord::TrackBitWidths::kMVAQualitySize);
+    const TTBV chi2bend = TTBV(0, TTTrack_TrackWord::TrackBitWidths::kBendChi2Size);
+    const TTBV d0(0., baseD0, TTTrack_TrackWord::TrackBitWidths::kD0Size, true);
+    const TTBV valid = TTBV(1, TTTrack_TrackWord::TrackBitWidths::kValidSize);
+    const TTBV mva(mva_, TTTrack_TrackWord::TrackBitWidths::kMVAQualitySize);
+    const TTBV chi21(chi21bin_, TTTrack_TrackWord::TrackBitWidths::kChi2RZSize);
+    const TTBV z0(z0_, baseZ0, TTTrack_TrackWord::TrackBitWidths::kZ0Size, true);
     const TTBV tanL(cot_, baseCot, TTTrack_TrackWord::TrackBitWidths::kTanlSize, true);
-    const TTBV Chi2rphi(chi2rphiBin, TTTrack_TrackWord::TrackBitWidths::kChi2RPhiSize);
-    const TTBV Phi0(phi0, basePhi0, TTTrack_TrackWord::TrackBitWidths::kPhiSize, true);
-    const TTBV InvR(invR, baseInvR, TTTrack_TrackWord::TrackBitWidths::kRinvSize, true);
-    partials_.emplace_back((valid + InvR + Phi0 + Chi2rphi).str());
-    partials_.emplace_back((tanL + Z0 + Chi2rz).str());
-    partials_.emplace_back((D0 + chi2bend + hit_pattern + MVA_quality + other_MVAs).str());
+    const TTBV chi20(chi20bin_, TTTrack_TrackWord::TrackBitWidths::kChi2RPhiSize);
+    const TTBV phi0(phi0_, basePhi0, TTTrack_TrackWord::TrackBitWidths::kPhiSize, true);
+    const TTBV invR(invR_, baseInvR, TTTrack_TrackWord::TrackBitWidths::kRinvSize, true);
+    // create partial tt track words
+    partials_.emplace_back((valid + invR + phi0 + chi20).str());
+    partials_.emplace_back((tanL + z0 + chi21).str());
+    partials_.emplace_back((d0 + chi2bend + hitPattern_ + mva + other).str());
   }
 
   // fill output products
-  void TrackFindingProcessor::produce(const tt::StreamsTrack& inputs,
+  void TrackFindingProcessor::produce(const tt::StreamsTrack& tracks,
                                       const tt::StreamsStub& stubs,
                                       tt::TTTracks& ttTracks,
                                       tt::StreamsTrack& outputs) {
     // organize input tracks
     std::vector<std::deque<Track*>> streams(outputs.size());
-    consume(inputs, stubs, streams);
+    consume(tracks, stubs, streams);
+    // cycle event, remove all gaps
+    for (std::deque<Track*>& stream : streams)
+      stream.erase(std::remove(stream.begin(), stream.end(), nullptr), stream.end());
     // emualte data format f/w
     produce(streams, outputs);
     // produce TTTracks
@@ -124,29 +128,29 @@ namespace trackerTFP {
     auto valid = [](int sum, const tt::FrameTrack& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
     for (const tt::StreamTrack& tracks : inputs)
       nTracks += std::accumulate(tracks.begin(), tracks.end(), 0, valid);
-    tracks_.reserve(nTracks);
+    tracks_.reserve(nTracks / 2);
     // convert input data
-    for (int region = 0; region < setup_->numRegions(); region++) {
+    for (int region = 0; region < setup_->sysNumRegion(); region++) {
       const int offsetTQ = region * setup_->tqNumChannel();
       const int offsetTFP = region * setup_->tfpNumChannel();
-      const int offsetStub = region * setup_->numLayers();
-      const tt::StreamTrack& streamDR = inputs[offsetTQ];
+      const int offsetStub = region * setup_->sysNumLayer();
+      const tt::StreamTrack& streamKF = inputs[offsetTQ + 0];
       const tt::StreamTrack& streamTQ = inputs[offsetTQ + 1];
       for (int channel = 0; channel < setup_->tfpNumChannel(); channel++)
-        outputs[offsetTFP + channel] = std::deque<Track*>(streamDR.size(), nullptr);
-      for (int frame = 0; frame < static_cast<int>(streamDR.size()); frame++) {
-        const tt::FrameTrack& frameTrack = streamDR[frame];
-        const tt::Frame& frameTQ = streamTQ[frame].second;
-        if (frameTrack.first.isNull())
+        outputs[offsetTFP + channel] = std::deque<Track*>(streamKF.size(), nullptr);
+      for (int frame = 0; frame < static_cast<int>(streamKF.size()); frame++) {
+        const tt::FrameTrack& frameTrackKF = streamKF[frame];
+        const tt::FrameTrack& frameTrackTQ = streamTQ[frame];
+        if (frameTrackKF.first.isNull())
           continue;
         std::vector<TTStubRef> ttStubRefs;
-        ttStubRefs.reserve(setup_->numLayers());
-        for (int layer = 0; layer < setup_->numLayers(); layer++) {
+        ttStubRefs.reserve(setup_->sysNumLayer());
+        for (int layer = 0; layer < setup_->sysNumLayer(); layer++) {
           const TTStubRef& ttStubRef = stubs[offsetStub + layer][frame].first;
           if (ttStubRef.isNonnull())
             ttStubRefs.push_back(ttStubRef);
         }
-        tracks_.emplace_back(frameTrack, frameTQ, ttStubRefs, trackQuality_);
+        tracks_.emplace_back(frameTrackKF, frameTrackTQ, ttStubRefs, dataFormats_);
         Track& track = tracks_.back();
         outputs[offsetTFP + track.channel_][frame] = track.valid_ ? &track : nullptr;
       }
@@ -161,6 +165,7 @@ namespace trackerTFP {
 
   // emualte data format f/w
   void TrackFindingProcessor::produce(std::vector<std::deque<Track*>>& inputs, tt::StreamsTrack& outputs) const {
+    // send 2 tracks overs 3 clock ticks
     for (int channel = 0; channel < static_cast<int>(inputs.size()); channel++) {
       std::deque<Track*>& input = inputs[channel];
       std::deque<PartialFrameTrack> stack;
@@ -186,9 +191,9 @@ namespace trackerTFP {
         }
         frame.second = ttBV.bs();
       }
-      // perorm truncation
-      if (setup_->enableTruncation() && static_cast<int>(output.size()) > setup_->numFramesIOHigh())
-        output.resize(setup_->numFramesIOHigh());
+      // perform truncation
+      if (setup_->enableTruncation() && static_cast<int>(output.size()) > setup_->sysNumFrames())
+        output.resize(setup_->sysNumFrames());
       outputs[channel] = tt::StreamTrack(output.begin(), output.end());
     }
   }
@@ -209,25 +214,25 @@ namespace trackerTFP {
       }
     }
     // convert input TTTrackRefs into output TTTracks
-    const DataFormat& dfZT = dataFormats_->format(Variable::zT, Process::gp);
     outputs.reserve(ttTrackRefs.size());
     for (const TTTrackRef& ttTrackRef : ttTrackRefs) {
       auto match = [&ttTrackRef](const Track& track) { return track.ttTrackRef_ == ttTrackRef; };
       const auto it = std::find_if(tracks_.begin(), tracks_.end(), match);
       // TTTrack conversion
       const int region = ttTrackRef->phiSector();
-      const double aRinv = -2. * it->inv2R_;
-      const double aphi = tt::deltaPhi(it->phiT_ - it->inv2R_ * setup_->chosenRofPhi() + region * setup_->baseRegion());
+      const double aRinv = it->invR_;
+      const double aphi = tt::deltaPhi(it->phi0_ + region * setup_->regRangePhiT());
       const double aTanLambda = it->cot_;
-      const double az0 = it->zT_ - it->cot_ * setup_->chosenRofZ();
-      const double ad0 = -ttTrackRef->d0();
-      const double aChi2xyfit = it->chi2rphi_;
-      const double aChi2zfit = it->chi2rz_;
+      const double az0 = it->z0_;
+      const double ad0 = it->d0_;
+      const double aChi2xyfit = it->chi20_;
+      const double aChi2zfit = it->chi21_;
       const double trkMVA1 = (TTTrack_TrackWord::tqMVABins[it->mva_]);
       static constexpr double trkMVA2 = 0.;
       static constexpr double trkMVA3 = 0.;
       const unsigned int aHitpattern = it->hitPattern_.val();
       const unsigned int nPar = ttTrackRef->nFitPars();
+      const float dummy = -99.;
       outputs.emplace_back(aRinv,
                            aphi,
                            aTanLambda,
@@ -240,14 +245,16 @@ namespace trackerTFP {
                            trkMVA3,
                            aHitpattern,
                            nPar,
-                           bfield_);
+                           bfield_,
+                           region,
+                           ttTrackRef->etaSector(),
+                           dummy,
+                           ttTrackRef->trackSeedType());
       TTTrack<Ref_Phase2TrackerDigi_>& ttTrack = outputs.back();
-      ttTrack.setPhiSector(region);
-      ttTrack.setEtaSector(dfZT.toUnsigned(dfZT.integer(it->zT_)));
-      ttTrack.setTrackSeedType(ttTrackRef->trackSeedType());
       ttTrack.setStubRefs(it->ttStubRefs_);
       ttTrack.setChi2BendRed(StubPtConsistency::getConsistency(
           ttTrack, setup_->trackerGeometry(), setup_->trackerTopology(), bfield_, nPar));
+      ttTrack.setTrackWordBits();
     }
   }
 

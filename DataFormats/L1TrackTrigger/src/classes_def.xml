@@ -24,8 +24,9 @@
   <class name="edm::Wrapper<vector<edm::Ref<vector<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > > > > >" />
   <class name="edm::RefVector<std::vector<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >,TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >,edm::refhelper::FindUsingAdvance<std::vector<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >,TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > > >" />
   <class name="edm::Wrapper<edm::RefVector<std::vector<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >,TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > >,edm::refhelper::FindUsingAdvance<std::vector<TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > >,TTTrack<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>,Phase2TrackerDigi,edm::refhelper::FindForDetSetVector<Phase2TrackerDigi> > > > > >" />
-  <class name="TTTrack_TrackWord" ClassVersion="3">
-   <version ClassVersion="3" checksum="133238749"/>
+  <class name="TTTrack_TrackWord" ClassVersion="4">
+   <version ClassVersion="4" checksum="133238749"/>
+   <version ClassVersion="3" checksum="4186150061"/>
   </class>
   <class name="std::vector<TTTrack_TrackWord>"/>
   <class name="edm::Wrapper<std::vector<TTTrack_TrackWord> >"/>
@@ -47,5 +48,8 @@
   <class name="edm::Wrapper<tt::TTTrackRefMap>"/>
   <class name="TTDTC"/>
   <class name="edm::Wrapper<TTDTC>"/>
+  <!--class name="std::vector<ROOT::Math::SMatrix<float,5,5,ROOT::Math::MatRepSym<float,5> > >"/-->
+  <!--class name="std::vector<ROOT::Math::SMatrix<float,5u,5u,ROOT::Math::MatRepSym<float,5u> > >"/-->
+  <!--class name="TMatrixTSym<float>"/-->
 </lcgdict>
 

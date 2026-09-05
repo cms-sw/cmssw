@@ -79,6 +79,7 @@ namespace tmtt {
       // Get track helix params.
       TVectorD trackPars = trackParams(cand);
       double d0 = (nHelixPar_ == 5) ? trackPars[D0] : 0.;
+      TMatrixD trackCov = trackParamsCov(cand);
 
       L1fittedTrack fitTrk(settings_,
                            &l1track3D,
@@ -89,6 +90,7 @@ namespace tmtt {
                            trackPars[PHI0],
                            trackPars[Z0],
                            trackPars[T],
+                           trackCov,
                            cand->chi2rphi(),
                            cand->chi2rz(),
                            nHelixPar_);
