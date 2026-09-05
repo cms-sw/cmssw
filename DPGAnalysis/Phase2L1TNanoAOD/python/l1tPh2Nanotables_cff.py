@@ -593,7 +593,11 @@ p2L1TablesTask = cms.Task(
     caloTauTable,
     nnCaloTauTable,
     nnPuppiTauTable,
-    hpsTauTable,
+    # hpsTauTable is intentionally not scheduled: it reads l1tHPSPFTauProducerPuppi,
+    # which is no longer part of the L1 menu (only the non-Puppi l1tHPSPFTauProducer is
+    # in the Phase-2 SimL1Emulator sequence). Keeping it here makes every workflow that
+    # runs this task abort with ProductNotFound for l1t::HPSPFTau. The producer config
+    # above is kept so the table can be re-enabled if the collection comes back.
     # GTT
     vtxTable,
     dispVtxTable,

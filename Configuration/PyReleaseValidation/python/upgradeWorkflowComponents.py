@@ -2327,10 +2327,24 @@ upgradeWFs['L1Complete'] = UpgradeWorkflow_L1Complete(
     offset = 0.78
 )
 
+class UpgradeWorkflow_L1CompleteNano(UpgradeWorkflow_HLT75e33Timing):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        # step2 of these workflows runs no VALIDATION/DQM sequence and writes only
+        # FEVTDEBUGHLT and/or NANOAODSIM, so step2_inDQM.root is never produced. The
+        # HARVESTING step inherited from the HLTTiming75e33 template can therefore only
+        # fail with a FileOpenError; drop it rather than schedule it.
+        if 'HARVEST' in step:
+            stepDict[stepName][k] = None
+        else:
+            super().setup_(step, stepName, stepDict, k, properties)
+
 # use HLTTiming75e33 template as it skips the steps after DIGI
-upgradeWFs['L1CompleteWithNano'] = deepcopy(upgradeWFs['HLTTiming75e33'])
-upgradeWFs['L1CompleteWithNano'].suffix = '_L1CompleteWithNano'
-upgradeWFs['L1CompleteWithNano'].offset = 0.781
+upgradeWFs['L1CompleteWithNano'] = UpgradeWorkflow_L1CompleteNano(
+    steps = deepcopy(upgradeWFs['HLTTiming75e33'].steps),
+    PU = deepcopy(upgradeWFs['HLTTiming75e33'].PU),
+    suffix = '_L1CompleteWithNano',
+    offset = 0.781,
+)
 upgradeWFs['L1CompleteWithNano'].step2 = {
     '-s': 'DIGI:pdigi_valid,L1,L1TrackTrigger,L1P2GT,DIGI2RAW,HLT:@relvalRun4,NANO:@Phase2L1DPG',
     '--datatier':'GEN-SIM-DIGI-RAW,NANOAODSIM',
