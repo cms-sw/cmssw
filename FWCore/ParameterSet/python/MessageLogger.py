@@ -55,6 +55,7 @@ MessageLogger = Service("MessageLogger",
     suppressInfo = untracked.vstring(),
     suppressDebug = untracked.vstring(),
     debugModules = untracked.vstring(),
+    useContext = untracked.bool(True),
     cout = _destination_no_stat.clone(
         enable = untracked.bool(False)
         ),
