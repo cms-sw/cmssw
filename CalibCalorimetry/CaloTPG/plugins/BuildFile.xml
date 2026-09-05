@@ -1,4 +1,14 @@
 <use name="CalibCalorimetry/CaloTPG"/>
+<use name="CalibFormats/CaloTPG"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/HcalObjects"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/CaloTopology"/>
+<use name="Geometry/HcalTowerAlgo"/>
+<use name="Geometry/Records"/>
 <library file="*.cc" name="CalibCalorimetryCaloTPGPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

@@ -1,8 +1,15 @@
-<use name="FWCore/Framework"/>
+<use name="CalibCalorimetry/HcalTPGAlgos"/>
 <use name="CalibFormats/CaloTPG"/>
+<use name="CalibFormats/HcalObjects"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/HcalObjects"/>
+<use name="DataFormats/EcalDetId"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
 <use name="Geometry/CaloTopology"/>
 <use name="Geometry/HcalTowerAlgo"/>
-<use name="CalibCalorimetry/HcalTPGAlgos"/>
+<use name="Geometry/Records"/>
 <export>
   <lib name="1"/>
 </export>
