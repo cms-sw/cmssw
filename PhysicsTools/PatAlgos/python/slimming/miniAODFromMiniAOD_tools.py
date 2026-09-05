@@ -14,9 +14,11 @@ def miniAODFromMiniAOD_customizeCommon(process):
     ###########################################################################
     # Update packedPFCandidates with the recomputed puppi weights
     ###########################################################################
+    # puppiWeightNoLep is kept as in the input: NanoAOD muon PNet reads it off the candidate
     addToProcessAndTask("packedPFCandidates", cms.EDProducer("PATPackedCandidateUpdater",
         src = cms.InputTag("packedPFCandidates", processName=cms.InputTag.skipCurrentProcess()),
         updatePuppiWeights = cms.bool(True),
+        updatePuppiWeightNoLep = cms.bool(False),
         puppiWeight = cms.InputTag("packedpuppi"),
         puppiWeightNoLep = cms.InputTag("packedpuppiNoLep"),
       ),
@@ -159,13 +161,18 @@ def miniAODFromMiniAOD_customizeCommon(process):
 
         return process
 
-    # FIXME: this probably needs to be era dependent, but all enabled for now
+    # Preserve input MiniAOD DeepJet and CHS ParticleNet values consumed by NanoAOD unless they are recomputed.
+    # Keep other taggers enabled so updateJetCollection refreshes CHS JECs used by PATTauHybridProducer.
+    from Configuration.ProcessModifiers.run2_miniAOD_miniAODUL_cff import run2_miniAOD_miniAODUL as _run2_miniAOD_miniAODUL
     m2m_addDeepInfoAK4CHS_switch = cms.PSet(
         m2m_addDeepBTag_switch = cms.untracked.bool(True),
-        m2m_addDeepFlavourTag_switch = cms.untracked.bool(True),
-        m2m_addParticleNet_switch = cms.untracked.bool(True),
+        m2m_addDeepFlavourTag_switch = cms.untracked.bool(False),
+        m2m_addParticleNet_switch = cms.untracked.bool(False),
         m2m_addRobustParTAK4Tag_switch = cms.untracked.bool(True),
         m2m_addUnifiedParTAK4Tag_switch = cms.untracked.bool(True)
+    )
+    _run2_miniAOD_miniAODUL.toModify(
+        m2m_addDeepInfoAK4CHS_switch, m2m_addParticleNet_switch = True
     )
     _m2m_addDeepInfoAK4CHS(process,
                            addDeepBTag = m2m_addDeepInfoAK4CHS_switch.m2m_addDeepBTag_switch,
@@ -468,15 +475,39 @@ def miniAODFromMiniAOD_customizeCommon(process):
     )
 
 
+    # packedCandsOri is what tells a packedPFCandidates reference from a lostTracks
+    # one: only the former is replaced by this process, and only it may be rekeyed.
     addToProcessAndTask("isolatedTracks", cms.EDProducer("PATIsolatedTrackRekeyer",
         src = cms.InputTag("isolatedTracks", processName=cms.InputTag.skipCurrentProcess()),
         packedCands = cms.InputTag("packedPFCandidates",processName=cms.InputTag.currentProcess()),
-        lostTrackCands = cms.InputTag("lostTracks",processName=cms.InputTag.skipCurrentProcess()),
-
+        packedCandsOri = cms.InputTag("packedPFCandidates",processName=cms.InputTag.skipCurrentProcess()),
       ),
       process, task
     )
 
+    # CandPtrProjector vetoes by Ptr identity, so a veto pointing at a rekeyed
+    # collection never matches candidates from the original packedPFCandidates
+    # and the vetoed objects survive.
+    _rekeyed = set(m for m in process.producers.keys()
+                   if getattr(process, m).type_().endswith('Rekeyer'))
+
+    def _projectsOriginalCands(tag, depth=0):
+        label = tag.getModuleLabel()
+        if depth > 20 or not hasattr(process, label) \
+           or getattr(process, label).type_() != 'CandPtrProjector':
+            return tag.getProcessName() == cms.InputTag.skipCurrentProcess()
+        return _projectsOriginalCands(getattr(process, label).src, depth + 1)
+
+    for mod in process.producers.keys():
+        module = getattr(process, mod)
+        if module.type_() != 'CandPtrProjector' or not hasattr(module, 'veto'):
+            continue
+        if not _projectsOriginalCands(module.src):
+            continue
+        if module.veto.getModuleLabel() in _rekeyed and module.veto.getProcessName() == '':
+            module.veto = cms.InputTag(module.veto.getModuleLabel(),
+                                       module.veto.getProductInstanceLabel(),
+                                       cms.InputTag.skipCurrentProcess())
 
     _modified_run2_task = task.copyAndExclude([getattr(process,thisone) for thisone in ['slimmedDisplacedMuons']])
     from PhysicsTools.PatAlgos.patRefitVertexProducer_cfi import patRefitVertexProducer
