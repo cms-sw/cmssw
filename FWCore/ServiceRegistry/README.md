@@ -97,13 +97,11 @@ The order of the signals in this list is an approximate order in which they woul
 | `{Pre,Post}ModuleStreamEndLumi` | Yes | Emitted before and after each EDModule's stream `endLuminosityBlock()` method is called on a specific stream. |
 | `{Pre,Post}GlobalEndLumi` | No | Emitted before and after running the global `EndLuminosityBlock` transition for all modules. |
 | `{Pre,Post}ModuleGlobalEndLumi` | Yes | Emitted before and after each EDModule's global `endLuminosityBlock()` method is called.  |
-| `{Pre,Post}GlobalWriteLumi` | No | Emitted before and after the OutputModules write the data of a LuminosityBock. |
 | `{Pre,Post}ModuleWriteLumi` | Yes | Emitted before and after each OutputModule's `doWriteLuminosityBlock()` method, that writes LuminosityBlock data to output. |
 | `{Pre,Post}StreamEndRun` | No | Emitted before and after running the stream `EndRun`  transition for all modules on a specific stream.  |
 | `{Pre,Post}ModuleStreamEndRun` | Yes | Emitted before and after each EDModule's stream `endRun()` method is called on a specific stream. |
 | `{Pre,Post}GlobalEndRun` | No | Emitted before and after runninge the global `EndRun` transition for all modules. |
 | `{Pre,Post}ModuleGlobalEndRun` | Yes | Emitted before and after each EDModule's global `endRun()` method is called. |
-| `{Pre,Post}GlobalWriteRun` | No | Emitted before and after the OutputModules write the data of a Run. |
 | `{Pre,Post}ModuleWriteRun` | Yes | Emitted before and after each OutputModule's `doWriteRun()` method, that writes Run data to output. |
 | `{Pre,Post}WriteProcessBlock` | No | Emitted before and after OutputModules write the data of a ProcessBlock. |
 | `{Pre,Post}ModuleWriteProcessBlock` | Yes | Emitted before and after each OutputModule's `doWriteProcessBlock()` method, that writes ProcessBlock data to output. |

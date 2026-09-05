@@ -208,10 +208,6 @@ namespace {
             iBase->setActivityRegistry(m_actReg);
             edm::LumiTransitionInfo info(*m_lbp, m_es);
             doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
-            oneapi::tbb::task_group group;
-            edm::FinalWaitingTask task{group};
-            iComm->writeLumiAsync(edm::WaitingTaskHolder(group, &task), *m_lbp, nullptr, &activityRegistry);
-            task.wait();
           };
 
       m_transToFunc[Trans::kGlobalEndRun] =
@@ -222,10 +218,6 @@ namespace {
             iBase->setActivityRegistry(m_actReg);
             edm::RunTransitionInfo info(*m_rp, m_es);
             doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
-            oneapi::tbb::task_group group;
-            edm::FinalWaitingTask task{group};
-            iComm->writeRunAsync(edm::WaitingTaskHolder(group, &task), *m_rp, nullptr, &activityRegistry, nullptr);
-            task.wait();
           };
 
       m_transToFunc[Trans::kGlobalCloseInputFile] =

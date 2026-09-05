@@ -47,8 +47,9 @@ namespace edm {
           std::vector<std::string> const& iDefaultOutputCommands = ProductSelectorRules::defaultSelectionStrings());
 
       //Output modules always need writeRun and writeLumi to be called
-      bool wantsGlobalRuns() const noexcept { return true; }
-      bool wantsGlobalLuminosityBlocks() const noexcept { return true; }
+      static constexpr bool wantsGlobalRuns() noexcept { return true; }
+      static constexpr bool wantsGlobalLuminosityBlocks() noexcept { return true; }
+      static constexpr bool wantsWrites() noexcept { return true; }
       virtual bool wantsProcessBlocks() const noexcept = 0;
       virtual bool wantsInputProcessBlocks() const noexcept = 0;
       virtual bool wantsStreamRuns() const noexcept = 0;
