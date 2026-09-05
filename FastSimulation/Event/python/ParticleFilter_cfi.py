@@ -16,6 +16,12 @@ ParticleFilterBlock = cms.PSet(
         # half-length of the ECAL endcap inner surface
         zMax = cms.double(317.),
         # List of invisible particles (abs of pdgid)
-        invisibleParticles = cms.vint32()
+        invisibleParticles = cms.vint32(),
+        # Opt-in for CloseByParticleGun-style studies: also accept primaries
+        # whose vertex lies outside the tracker volume but inside the
+        # calorimeter region (r < 400 cm, |z| < 600 cm). Such particles skip
+        # the tracker propagation and go straight to the CalorimetryManager.
+        # Pair with fastSimProducer.caloVertexBackupDistance.
+        acceptCaloVertices = cms.bool(False)
         )
     )

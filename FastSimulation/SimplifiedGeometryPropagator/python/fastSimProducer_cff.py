@@ -17,6 +17,11 @@ fastSimProducer = cms.EDProducer(
     verboseDecayer = cms.bool(False),
     caloDefinition = CaloMaterialBlock.CaloMaterial, #  Hack to interface "old" calorimetry with "new" propagation in tracker
     beamPipeRadius = cms.double(3.),
+    # CloseByParticleGun support: when > 0 [cm], a primary accepted via
+    # particleFilter.acceptCaloVertices is moved backwards along its momentum by
+    # this distance before the calo-layer navigation, so a vertex sitting on or
+    # just past the entrance layer is still picked up. 0 disables the shift.
+    caloVertexBackupDistance = cms.double(0.),
     deltaRchargedMother = cms.double(0.02), # Maximum angle to associate a charged daughter to a charged mother (mostly done to associate muons to decaying pions)
     interactionModels = cms.PSet(
             pairProduction = cms.PSet(

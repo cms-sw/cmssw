@@ -3,6 +3,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "vdt/vdtMath.h"
 
+#include <cmath>
+
 fastsim::ParticleFilter::ParticleFilter(const edm::ParameterSet& cfg) {
   // Charged particles must have pt greater than chargedPtMin [GeV]
   double chargedPtMin = cfg.getParameter<double>("chargedPtMin");
@@ -26,6 +28,11 @@ fastsim::ParticleFilter::ParticleFilter(const edm::ParameterSet& cfg) {
   // Particles must have vertex inside the tracker
   vertexRMax2_ = 129.0 * 129.0;
   vertexZMax_ = 303.353;
+
+  // Opt-in for CloseByParticleGun-style studies: accept primaries born in the
+  // calorimeter region. existsAs-guarded so the many configs that build this
+  // PSet without the flag keep working unchanged.
+  acceptCaloVertices_ = cfg.existsAs<bool>("acceptCaloVertices") && cfg.getParameter<bool>("acceptCaloVertices");
 }
 
 bool fastsim::ParticleFilter::accepts(const fastsim::Particle& particle) const {
@@ -53,7 +60,13 @@ bool fastsim::ParticleFilter::accepts(const fastsim::Particle& particle) const {
     }
   }
 
-  // particles must have vertex in volume of tracker
+  // particles must have vertex in volume of tracker -- or, when opted in for
+  // calo-face guns, in the calorimeter region: those particles never see the
+  // tracker and FastSimProducer hands them directly to the CalorimetryManager.
+  if (acceptCaloVertices_ && !acceptsVtx(particle.position()) && particle.position().Perp2() < caloVertexRMax2_ &&
+      std::abs(particle.position().Z()) < caloVertexZMax_) {
+    return acceptsEn(particle);
+  }
   return acceptsVtx(particle.position()) && acceptsEn(particle);
   //return (acceptsVtx(particle.position()) || particle.momentum().Pz()*particle.momentum().Pz()/particle.momentum().P2() > (vdt::fast_exp(2.*3.0)-1.) / (vdt::fast_exp(2.*3.0)+1.)*(vdt::fast_exp(2.*3.0)-1.) / (vdt::fast_exp(2.*3.0)+1.)) && acceptsEn(particle);
 }

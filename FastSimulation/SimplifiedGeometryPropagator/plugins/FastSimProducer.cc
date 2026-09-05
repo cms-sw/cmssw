@@ -1,4 +1,3 @@
-// system include files
 #include <memory>
 #include <string>
 
@@ -31,6 +30,7 @@
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/LayerNavigator.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/Particle.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/ParticleFilter.h"
+#include "FastSimulation/SimplifiedGeometryPropagator/interface/Constants.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/InteractionModel.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/InteractionModelFactory.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/ParticleManager.h"
@@ -172,6 +172,15 @@ private:
   std::vector<std::string> interactionModelNames_;  //!< All defined interaction model names
   static const std::string MESSAGECATEGORY;         //!< Category of debugging messages ("FastSimulation")
   const edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> particleDataTableESToken_;
+  //! CloseByParticleGun support: a primary born at the calorimeter face (let
+  //! through by ParticleFilter's acceptCaloVertices) may sit exactly on or just
+  //! past the first calo layer, where the layer navigator can no longer reach
+  //! it. When > 0 [cm], such particles are translated backwards along their
+  //! momentum by this distance (time adjusted) before the calo navigation, so
+  //! the standard entrance-layer machinery applies unchanged. Opt-in; inert for
+  //! particles that were propagated through the tracker.
+  double caloVertexBackupDistance_ = 0.;
+
   static constexpr double caloBoundaryPerp2_ = 128. * 128.;
   static constexpr double caloBoundaryZ_ = 302.;
   static constexpr double minParticleLifetime_ = 1E-10;
@@ -196,6 +205,9 @@ FastSimProducer::FastSimProducer(const edm::ParameterSet& iConfig)
       useFastSimDecayer_(iConfig.getParameter<bool>("useFastSimDecayer")),
       interactionModelNames_(iConfig.getParameter<edm::ParameterSet>("interactionModels").getParameterNames()),
       particleDataTableESToken_(esConsumes()) {
+  if (iConfig.existsAs<double>("caloVertexBackupDistance")) {
+    caloVertexBackupDistance_ = iConfig.getParameter<double>("caloVertexBackupDistance");
+  }
   //----------------
   // define interaction models (temp instance just to register products below)
   //---------------
@@ -282,7 +294,10 @@ void FastSimProducer::produce(edm::StreamID id, edm::Event& iEvent, const edm::E
     // The condition below (R<128, z<302) makes sure that the particle geometrically is outside the tracker boundaries
     // -----------------------------
 
-    if (particle->position().Perp2() < caloBoundaryPerp2_ && std::abs(particle->position().Z()) < caloBoundaryZ_) {
+    const bool startedInsideTracker =
+        particle->position().Perp2() < caloBoundaryPerp2_ && std::abs(particle->position().Z()) < caloBoundaryZ_;
+
+    if (startedInsideTracker) {
       // move the particle through the layers
       fastsim::LayerNavigator layerNavigator(geometries->geometry);
       const fastsim::SimplifiedGeometry* layer = nullptr;
@@ -362,6 +377,25 @@ void FastSimProducer::produce(edm::StreamID id, edm::Event& iEvent, const edm::E
 
     if (particle->position().Perp2() >= caloBoundaryPerp2_ || std::abs(particle->position().Z()) >= caloBoundaryZ_) {
       LogDebug(MESSAGECATEGORY) << "\n   moving particle to calorimetry: " << *particle;
+
+      // CloseByParticleGun support: a primary born at the calo face can sit
+      // exactly on (or epsilon past) the first calo layer, which the navigator
+      // below can then never reach. Translate it backwards along its momentum
+      // so it approaches the entrance layer like any propagated particle. The
+      // straight line is exact for the intended field-off use, and the time is
+      // shifted consistently so hit times stay right.
+      if (caloVertexBackupDistance_ > 0. && !startedInsideTracker) {
+        const double p = particle->momentum().P();
+        if (p > 0.) {
+          const double beta = p / particle->momentum().E();
+          const double d = caloVertexBackupDistance_;
+          particle->position() -= math::XYZTLorentzVector(d * particle->momentum().Px() / p,
+                                                          d * particle->momentum().Py() / p,
+                                                          d * particle->momentum().Pz() / p,
+                                                          d / (fastsim::Constants::speedOfLight * beta));
+          LogDebug(MESSAGECATEGORY) << "   calo-face vertex moved back " << d << " cm: " << *particle;
+        }
+      }
 
       // create FSimTrack (this is the object the old propagation uses)
       createFSimTrack(particle.get(), &particleManager, pdt, myFSimTracks, geometries, state);

@@ -55,6 +55,14 @@ namespace fastsim {
     double vertexRMax2_;              //!< Radius^2 of tracker volume
     double vertexZMax_;               //!< Z of tracker volume
     std::vector<int> skipParticles_;  //!< List of invisible particles (neutrinos are excluded by default)
+
+    //! Opt-in: also accept primaries whose vertex lies OUTSIDE the tracker
+    //! volume but inside the calorimeter region (CloseByParticleGun studies).
+    //! Such particles skip the tracker propagation entirely and are handed
+    //! straight to the CalorimetryManager by FastSimProducer.
+    bool acceptCaloVertices_ = false;
+    static constexpr double caloVertexRMax2_ = 400. * 400.;  //!< [cm^2]
+    static constexpr double caloVertexZMax_ = 600.;          //!< [cm]
   };
 }  // namespace fastsim
 
