@@ -70,8 +70,6 @@ truthGraphDumper = cms.EDAnalyzer(
     "TruthGraphDumper",
     src=cms.InputTag("truthGraphProducer"),
     dotFile=cms.string("truthgraph.dot"), # output file
-    maxNodes=cms.uint32(20000),
-    maxEdgesPerNode=cms.uint32(50),
     simTracks=cms.InputTag("g4SimHits"),
     simVertices=cms.InputTag("g4SimHits"),
     genEventHepMC=cms.InputTag("generatorSmeared"),
@@ -99,15 +97,6 @@ truthLogicalGraphDumper = cms.EDAnalyzer(
     ),
 
     dotFile=cms.string("truthlogicalgraph.dot"), # output file
-
-    maxParticles=cms.uint32(20000),
-    maxVertices=cms.uint32(20000),
-    maxEdgesPerNode=cms.uint32(300),
-
-    hideLargeSimSourceVertices=cms.bool(True),
-    largeSimSourceVertexMinOutgoing=cms.uint32(50),
-
-    hideZeroSimHitSubgraphs=cms.bool(True),
 )
 
 truthGraphPrevalidation = cms.Sequence(

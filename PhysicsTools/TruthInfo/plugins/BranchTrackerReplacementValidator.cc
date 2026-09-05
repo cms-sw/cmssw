@@ -17,7 +17,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -36,6 +38,7 @@ public:
   explicit BranchTrackerReplacementValidator(edm::ParameterSet const&);
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
   const edm::EDGetTokenT<truth::Graph> graphToken_;
@@ -57,6 +60,16 @@ BranchTrackerReplacementValidator::BranchTrackerReplacementValidator(edm::Parame
       hitIndexToken_(consumes<truth::LogicalGraphHitIndex>(cfg.getParameter<edm::InputTag>("hitIndex"))),
       trackToken_(consumes<edm::View<reco::Track>>(cfg.getParameter<edm::InputTag>("tracks"))),
       clusterTPToken_(consumes<ClusterTPAssociation>(cfg.getParameter<edm::InputTag>("clusterTPMap"))) {}
+
+void BranchTrackerReplacementValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src", edm::InputTag("truthLogicalGraphProducer"));
+  desc.add<edm::InputTag>("rawSrc", edm::InputTag("truthGraphProducer"));
+  desc.add<edm::InputTag>("hitIndex", edm::InputTag("truthLogicalGraphHitIndexProducer"));
+  desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("clusterTPMap", edm::InputTag("tpClusterProducer"));
+  descriptions.addWithDefaultLabel(desc);
+}
 
 namespace {
   std::unordered_map<uint32_t, uint32_t> buildTrackIdToParticle(truth::Graph const& graph, TruthGraph const& raw) {
