@@ -289,6 +289,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     // Check if tensor list built correctly
     SoAHostCollection hostCollection(queue, batch_size);
     ::alpaka::memcpy(queue, hostCollection.buffer(), deviceCollection.buffer());
+    ::alpaka::wait(queue);
     check(hostCollection.view(), tensors);
   };
 
