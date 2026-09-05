@@ -18,3 +18,8 @@ phase2_common.toModify( simMuonGEMDigis, instLumi = 5)
 from Configuration.ProcessModifiers.fastSimPU_cff import fastSimPU
 fastSimPU.toModify(simMuonGEMDigis,
                    inputCollectionPU = cms.string('MuonSimHitsMuonGEMHits'))
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(simMuonGEMDigis,
+                 inputCollection = cms.string('MuonSimHitsMuonGEMHits'),
+                 inputCollectionPU = cms.string('MuonSimHitsMuonGEMHits'))
