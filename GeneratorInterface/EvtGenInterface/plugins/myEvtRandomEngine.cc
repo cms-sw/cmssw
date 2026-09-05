@@ -30,6 +30,10 @@ double myEvtRandomEngine::random() {
   return the_engine->flat();
 }
 
+void myEvtRandomEngine::setSeed(unsigned long int seed) { m_lastSeed = seed; }
+
+unsigned long int myEvtRandomEngine::lastSeed() const { return m_lastSeed; }
+
 void myEvtRandomEngine::throwNullPtr() const {
   throw edm::Exception(edm::errors::LogicError) << "The EvtGen code attempted to a generate random number while\n"
                                                 << "the engine pointer was null. This might mean that the code\n"
