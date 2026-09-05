@@ -27,6 +27,7 @@ the worker is reset().
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/maker/WorkerParams.h"
 #include "FWCore/Framework/interface/maker/ModuleSignalSentry.h"
+#include "FWCore/Framework/interface/maker/ModuleAttributes.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
@@ -55,6 +56,7 @@ the worker is reset().
 #include "FWCore/Utilities/interface/ESIndices.h"
 #include "FWCore/Utilities/interface/Transition.h"
 #include "FWCore/Utilities/interface/make_sentry.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -87,8 +89,8 @@ namespace edm {
   class Worker {
   public:
     enum State { Ready, Pass, Fail, Exception };
-    enum Types { kAnalyzer, kFilter, kProducer, kOutputModule };
-    enum ConcurrencyTypes { kGlobal, kLimited, kOne, kStream };
+    using Types = edm::modules::Type;
+    using ConcurrencyTypes = edm::modules::Concurrency;
     struct TaskQueueAdaptor {
       SerialTaskQueueChain* serial_ = nullptr;
       LimitedTaskQueue* limited_ = nullptr;
@@ -126,6 +128,7 @@ namespace edm {
     virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
     virtual bool wantsStreamRuns() const noexcept = 0;
     virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
+    virtual bool wantsWrites() const noexcept = 0;
 
     //returns non-nullptr if the module can only process one Run at a time
     virtual SerialTaskQueue* globalRunsQueue() = 0;
@@ -242,10 +245,12 @@ namespace edm {
     virtual bool implDoStreamBegin(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoStreamEnd(StreamID, RunTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoEnd(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoWrite(RunTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoBegin(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoStreamBegin(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoStreamEnd(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
     virtual bool implDoEnd(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
+    virtual bool implDoWrite(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
 
     void resetModuleDescription(ModuleDescription const*);
 
@@ -671,16 +676,25 @@ namespace edm {
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
+        //NOTE: should write be called even if end is not?
+        bool returnValue = true;
         if (iWorker->beginSucceeded_) {
           iWorker->beginSucceeded_ = false;
 
           ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
           cpp.preModuleSignal();
-          auto returnValue = iWorker->implDoEnd(info, mcc);
+          returnValue = iWorker->implDoEnd(info, mcc);
           cpp.postModuleSignal();
-          return returnValue;
         }
-        return true;
+        //The existence of noRunLumiSort option can shouldWriteRun() to retur kNo.
+        if (iWorker->wantsWrites() and info.principal().shouldWriteRun() != edm::RunPrincipal::ShouldWriteRun::kNo) {
+          auto sentry = signalslot::make_sentry(
+              [actReg, context, mcc]() { actReg->postModuleWriteRunSignal_.emit(*context, *mcc); });
+          actReg->preModuleWriteRunSignal_.emit(*context, *mcc);
+          returnValue = iWorker->implDoWrite(info, mcc);
+          sentry.succeeded();
+        }
+        return returnValue;
       }
       static void esPrefetchAsync(Worker* worker,
                                   WaitingTaskHolder waitingTask,
@@ -689,7 +703,9 @@ namespace edm {
                                   Transition transition) noexcept {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
-      static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsGlobalRuns(); }
+      static bool wantsTransition(Worker const* iWorker) noexcept {
+        return iWorker->wantsGlobalRuns() or iWorker->wantsWrites();
+      }
       static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
       static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept { return nullptr; }
       static SerialTaskQueue* enableGlobalQueue(Worker* iWorker) noexcept { return iWorker->globalRunsQueue(); }
@@ -799,16 +815,25 @@ namespace edm {
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
+        bool returnValue = true;
         if (iWorker->beginSucceeded_) {
           iWorker->beginSucceeded_ = false;
-
           ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
           cpp.preModuleSignal();
-          auto returnValue = iWorker->implDoEnd(info, mcc);
+          returnValue = iWorker->implDoEnd(info, mcc);
           cpp.postModuleSignal();
-          return returnValue;
         }
-        return true;
+        //NOTE: should write be called even if end is not?
+        //The existence of noRunLumiSort option can shouldWriteRun() to retur kNo.
+        if (iWorker->wantsWrites() and
+            info.principal().shouldWriteLumi() != edm::LuminosityBlockPrincipal::ShouldWriteLumi::kNo) {
+          auto sentry = signalslot::make_sentry(
+              [actReg, context, &mcc]() { actReg->postModuleWriteLumiSignal_.emit(*context, *mcc); });
+          actReg->preModuleWriteLumiSignal_.emit(*context, *mcc);
+          iWorker->implDoWrite(info, mcc);
+          sentry.succeeded();
+        }
+        return returnValue;
       }
       static void esPrefetchAsync(Worker* worker,
                                   WaitingTaskHolder waitingTask,
@@ -817,7 +842,9 @@ namespace edm {
                                   Transition transition) noexcept {
         worker->esPrefetchAsync(waitingTask, info.eventSetupImpl(), transition, token);
       }
-      static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsGlobalLuminosityBlocks(); }
+      static bool wantsTransition(Worker const* iWorker) noexcept {
+        return iWorker->wantsGlobalLuminosityBlocks() or iWorker->wantsWrites();
+      }
       static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
       static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept { return nullptr; }
       static SerialTaskQueue* enableGlobalQueue(Worker* iWorker) noexcept {
@@ -887,7 +914,7 @@ namespace edm {
       using Arg = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionProcessBlockInput>;
       static bool call(Worker* iWorker,
                        StreamID,
-                       ProcessBlockTransitionInfo const& info,
+                       InputProcessBlockTransitionInfo const& info,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
@@ -897,8 +924,11 @@ namespace edm {
         cpp.postModuleSignal();
         return returnValue;
       }
-      static void esPrefetchAsync(
-          Worker*, WaitingTaskHolder, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) noexcept {}
+      static void esPrefetchAsync(Worker*,
+                                  WaitingTaskHolder,
+                                  ServiceToken const&,
+                                  InputProcessBlockTransitionInfo const&,
+                                  Transition) noexcept {}
       static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsInputProcessBlocks(); }
       static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
       static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept { return nullptr; }

@@ -1085,7 +1085,7 @@ namespace edm {
       using Traits = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionProcessBlockInput>;
       FinalWaitingTask globalWaitTask{taskGroup_};
 
-      ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
+      InputProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
       schedule_->processOneGlobalAsync<Traits>(
           WaitingTaskHolder(taskGroup_, &globalWaitTask), transitionInfo, serviceToken_);
 
@@ -1464,14 +1464,17 @@ namespace edm {
 
     MergeableRunProductMetadata* mergeableRunProductMetadata = runPrincipal.mergeableRunProductMetadata();
     using namespace edm::waiting_task::chain;
-    chain::first([this, &runPrincipal, &es, cleaningUpAfterException, endingEventSetupSucceeded](auto nextTask) {
-      if (endingEventSetupSucceeded) {
-        RunTransitionInfo transitionInfo(runPrincipal, es);
-        using Traits = OccurrenceTraits<RunPrincipal, TransitionActionGlobalEnd>;
-        schedule_->processOneGlobalAsync<Traits>(
-            std::move(nextTask), transitionInfo, serviceToken_, cleaningUpAfterException);
-      }
-    }) |
+    chain::first(
+        [this, &runPrincipal, &es, cleaningUpAfterException, endingEventSetupSucceeded, mergeableRunProductMetadata](
+            auto nextTask) {
+          if (endingEventSetupSucceeded) {
+            RunTransitionInfo transitionInfo(runPrincipal, es);
+            using Traits = OccurrenceTraits<RunPrincipal, TransitionActionGlobalEnd>;
+            mergeableRunProductMetadata->preWriteRun();
+            schedule_->processOneGlobalAsync<Traits>(
+                std::move(nextTask), transitionInfo, serviceToken_, cleaningUpAfterException);
+          }
+        }) |
         ifThen(looper_ && endingEventSetupSucceeded,
                [this, &runPrincipal, &es](auto nextTask) {
                  looper_->prefetchAsync(std::move(nextTask), serviceToken_, Transition::EndRun, runPrincipal, es);
@@ -1480,11 +1483,6 @@ namespace edm {
                [this, &runPrincipal, &es](auto nextTask) {
                  ServiceRegistry::Operate operate(serviceToken_);
                  looper_->doEndRun(runPrincipal, es, &processContext_);
-               }) |
-        ifThen(didGlobalBeginSucceed && endingEventSetupSucceeded,
-               [this, mergeableRunProductMetadata, &runPrincipal = runPrincipal](auto nextTask) {
-                 mergeableRunProductMetadata->preWriteRun();
-                 writeRunAsync(nextTask, runPrincipal, mergeableRunProductMetadata);
                }) |
         then([status = std::move(iRunStatus),
               this,
@@ -1815,10 +1813,10 @@ namespace edm {
       using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalEnd>;
       schedule_->processOneGlobalAsync<Traits>(
           std::move(nextTask), transitionInfo, serviceToken_, cleaningUpAfterException);
-    }) | then([this, didGlobalBeginSucceed, &lumiPrincipal = lp](auto nextTask) {
+    }) | then([didGlobalBeginSucceed, &lumiPrincipal = lp](auto nextTask) {
       //Only call writeLumi if beginLumi succeeded
       if (didGlobalBeginSucceed) {
-        writeLumiAsync(std::move(nextTask), lumiPrincipal);
+        lumiPrincipal.runPrincipal().mergeableRunProductMetadata()->writeLumi(lumiPrincipal.luminosityBlock());
       }
     }) | ifThen(looper_, [this, &lp, &es](auto nextTask) {
       looper_->prefetchAsync(std::move(nextTask), serviceToken_, Transition::EndLuminosityBlock, lp, es);
@@ -1922,31 +1920,9 @@ namespace edm {
         task, principalCache_.processBlockPrincipal(processBlockType), &processContext_, actReg_.get());
   }
 
-  void EventProcessor::writeRunAsync(WaitingTaskHolder task,
-                                     RunPrincipal const& runPrincipal,
-                                     MergeableRunProductMetadata const* mergeableRunProductMetadata) {
-    if (runPrincipal.shouldWriteRun() != RunPrincipal::kNo) {
-      ServiceRegistry::Operate op(serviceToken_);
-      // Don't move task because the lifetime of the task should be greater than the lifetime of the Operate object
-      schedule_->writeRunAsync(task, runPrincipal, &processContext_, actReg_.get(), mergeableRunProductMetadata);
-    }
-  }
-
   void EventProcessor::clearRunPrincipal(RunProcessingStatus& iStatus) {
     iStatus.runPrincipal()->setShouldWriteRun(RunPrincipal::kUninitialized);
     iStatus.runPrincipal()->clearPrincipal();
-  }
-
-  void EventProcessor::writeLumiAsync(WaitingTaskHolder task, LuminosityBlockPrincipal& lumiPrincipal) {
-    using namespace edm::waiting_task;
-    if (lumiPrincipal.shouldWriteLumi() != LuminosityBlockPrincipal::kNo) {
-      chain::first([&](auto nextTask) {
-        ServiceRegistry::Operate op(serviceToken_);
-
-        lumiPrincipal.runPrincipal().mergeableRunProductMetadata()->writeLumi(lumiPrincipal.luminosityBlock());
-        schedule_->writeLumiAsync(nextTask, lumiPrincipal, &processContext_, actReg_.get());
-      }) | chain::lastTask(std::move(task));
-    }
   }
 
   void EventProcessor::clearLumiPrincipal(LuminosityBlockProcessingStatus& iStatus) {

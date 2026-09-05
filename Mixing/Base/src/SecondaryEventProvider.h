@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/WorkerManager.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/TransitionPhaseTypes.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
 
 #include <memory>
@@ -51,7 +52,15 @@ namespace edm {
     std::unique_ptr<ExceptionToActionTable> exceptionToActionTable_;
     std::shared_ptr<ModuleRegistry> moduleRegistry_;
     std::shared_ptr<ActivityRegistry> activityRegistry_;
-    WorkerManager workerManager_;
+    template <typename TI>
+    using GlobalWorkerManager = WorkerManager<TI, TransitionPhaseGlobal>;
+    template <typename TI>
+    using StreamWorkerManager = WorkerManager<TI, TransitionPhaseStream>;
+    GlobalWorkerManager<RunTransitionInfo> runWorkerManager_;
+    StreamWorkerManager<RunTransitionInfo> runStreamWorkerManager_;
+    GlobalWorkerManager<LumiTransitionInfo> lumiWorkerManager_;
+    StreamWorkerManager<LumiTransitionInfo> lumiStreamWorkerManager_;
+    StreamWorkerManager<EventTransitionInfo> eventWorkerManager_;
     std::vector<unsigned int> modulesThatFailed_;
   };
 }  // namespace edm

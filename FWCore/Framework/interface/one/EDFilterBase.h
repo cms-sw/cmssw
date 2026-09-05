@@ -70,6 +70,7 @@ namespace edm {
       virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
       bool wantsStreamRuns() const noexcept { return false; }
       bool wantsStreamLuminosityBlocks() const noexcept { return false; };
+      constexpr static bool wantsWrites() noexcept { return false; }
 
       virtual SerialTaskQueue* globalRunsQueue();
       virtual SerialTaskQueue* globalLuminosityBlocksQueue();

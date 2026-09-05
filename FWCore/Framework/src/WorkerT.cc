@@ -155,6 +155,23 @@ namespace edm {
   }
 
   template <typename T>
+  bool WorkerT<T>::wantsWrites() const noexcept {
+    return false;
+  }
+  template <>
+  bool WorkerT<edm::global::OutputModuleBase>::wantsWrites() const noexcept {
+    return true;
+  }
+  template <>
+  bool WorkerT<edm::one::OutputModuleBase>::wantsWrites() const noexcept {
+    return true;
+  }
+  template <>
+  bool WorkerT<edm::limited::OutputModuleBase>::wantsWrites() const noexcept {
+    return true;
+  }
+
+  template <typename T>
   SerialTaskQueue* WorkerT<T>::globalRunsQueue() {
     return nullptr;
   }
@@ -507,6 +524,29 @@ namespace edm {
   }
 
   template <typename T>
+  inline bool WorkerT<T>::implDoWrite(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    return true;
+  }
+  template <>
+  inline bool WorkerT<edm::one::OutputModuleBase>::implDoWrite(RunTransitionInfo const& info,
+                                                               ModuleCallingContext const* mcc) {
+    module_->doWriteRun(info.principal(), mcc);
+    return true;
+  }
+  template <>
+  inline bool WorkerT<edm::global::OutputModuleBase>::implDoWrite(RunTransitionInfo const& info,
+                                                                  ModuleCallingContext const* mcc) {
+    module_->doWriteRun(info.principal(), mcc);
+    return true;
+  }
+  template <>
+  inline bool WorkerT<edm::limited::OutputModuleBase>::implDoWrite(RunTransitionInfo const& info,
+                                                                   ModuleCallingContext const* mcc) {
+    module_->doWriteRun(info.principal(), mcc);
+    return true;
+  }
+
+  template <typename T>
   inline bool WorkerT<T>::implDoBegin(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
     module_->doBeginLuminosityBlock(info, mcc);
     return true;
@@ -555,6 +595,29 @@ namespace edm {
   template <typename T>
   inline bool WorkerT<T>::implDoEnd(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
     module_->doEndLuminosityBlock(info, mcc);
+    return true;
+  }
+
+  template <typename T>
+  inline bool WorkerT<T>::implDoWrite(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    return true;
+  }
+  template <>
+  inline bool WorkerT<edm::one::OutputModuleBase>::implDoWrite(LumiTransitionInfo const& info,
+                                                               ModuleCallingContext const* mcc) {
+    module_->doWriteLuminosityBlock(info.principal(), mcc);
+    return true;
+  }
+  template <>
+  inline bool WorkerT<edm::global::OutputModuleBase>::implDoWrite(LumiTransitionInfo const& info,
+                                                                  ModuleCallingContext const* mcc) {
+    module_->doWriteLuminosityBlock(info.principal(), mcc);
+    return true;
+  }
+  template <>
+  inline bool WorkerT<edm::limited::OutputModuleBase>::implDoWrite(LumiTransitionInfo const& info,
+                                                                   ModuleCallingContext const* mcc) {
+    module_->doWriteLuminosityBlock(info.principal(), mcc);
     return true;
   }
 
@@ -609,130 +672,130 @@ namespace edm {
 
   template <>
   Worker::Types WorkerT<edm::one::EDProducerBase>::moduleType() const {
-    return Worker::kProducer;
+    return Worker::Types::kProducer;
   }
   template <>
   Worker::Types WorkerT<edm::one::EDFilterBase>::moduleType() const {
-    return Worker::kFilter;
+    return Worker::Types::kFilter;
   }
   template <>
   Worker::Types WorkerT<edm::one::EDAnalyzerBase>::moduleType() const {
-    return Worker::kAnalyzer;
+    return Worker::Types::kAnalyzer;
   }
   template <>
   Worker::Types WorkerT<edm::one::OutputModuleBase>::moduleType() const {
-    return Worker::kOutputModule;
+    return Worker::Types::kOutputModule;
   }
 
   template <>
   Worker::Types WorkerT<edm::global::EDProducerBase>::moduleType() const {
-    return Worker::kProducer;
+    return Worker::Types::kProducer;
   }
   template <>
   Worker::Types WorkerT<edm::global::EDFilterBase>::moduleType() const {
-    return Worker::kFilter;
+    return Worker::Types::kFilter;
   }
   template <>
   Worker::Types WorkerT<edm::global::EDAnalyzerBase>::moduleType() const {
-    return Worker::kAnalyzer;
+    return Worker::Types::kAnalyzer;
   }
   template <>
   Worker::Types WorkerT<edm::global::OutputModuleBase>::moduleType() const {
-    return Worker::kOutputModule;
+    return Worker::Types::kOutputModule;
   }
 
   template <>
   Worker::Types WorkerT<edm::limited::EDProducerBase>::moduleType() const {
-    return Worker::kProducer;
+    return Worker::Types::kProducer;
   }
   template <>
   Worker::Types WorkerT<edm::limited::EDFilterBase>::moduleType() const {
-    return Worker::kFilter;
+    return Worker::Types::kFilter;
   }
   template <>
   Worker::Types WorkerT<edm::limited::EDAnalyzerBase>::moduleType() const {
-    return Worker::kAnalyzer;
+    return Worker::Types::kAnalyzer;
   }
   template <>
   Worker::Types WorkerT<edm::limited::OutputModuleBase>::moduleType() const {
-    return Worker::kOutputModule;
+    return Worker::Types::kOutputModule;
   }
 
   template <>
   Worker::Types WorkerT<edm::stream::EDProducerAdaptorBase>::moduleType() const {
-    return Worker::kProducer;
+    return Worker::Types::kProducer;
   }
   template <>
   Worker::Types WorkerT<edm::stream::EDFilterAdaptorBase>::moduleType() const {
-    return Worker::kFilter;
+    return Worker::Types::kFilter;
   }
   template <>
   Worker::Types WorkerT<edm::stream::EDAnalyzerAdaptorBase>::moduleType() const {
-    return Worker::kAnalyzer;
+    return Worker::Types::kAnalyzer;
   }
 
   template <>
   Worker::ConcurrencyTypes WorkerT<edm::one::EDProducerBase>::moduleConcurrencyType() const {
-    return Worker::kOne;
+    return Worker::ConcurrencyTypes::kOne;
   }
   template <>
   Worker::ConcurrencyTypes WorkerT<edm::one::EDFilterBase>::moduleConcurrencyType() const {
-    return Worker::kOne;
+    return Worker::ConcurrencyTypes::kOne;
   }
   template <>
   Worker::ConcurrencyTypes WorkerT<edm::one::EDAnalyzerBase>::moduleConcurrencyType() const {
-    return Worker::kOne;
+    return Worker::ConcurrencyTypes::kOne;
   }
   template <>
   Worker::ConcurrencyTypes WorkerT<edm::one::OutputModuleBase>::moduleConcurrencyType() const {
-    return Worker::kOne;
+    return Worker::ConcurrencyTypes::kOne;
   }
 
   template <>
   Worker::ConcurrencyTypes WorkerT<edm::global::EDProducerBase>::moduleConcurrencyType() const {
-    return Worker::kGlobal;
+    return Worker::ConcurrencyTypes::kGlobal;
   }
   template <>
   Worker::ConcurrencyTypes WorkerT<edm::global::EDFilterBase>::moduleConcurrencyType() const {
-    return Worker::kGlobal;
+    return Worker::ConcurrencyTypes::kGlobal;
   }
   template <>
   Worker::ConcurrencyTypes WorkerT<edm::global::EDAnalyzerBase>::moduleConcurrencyType() const {
-    return Worker::kGlobal;
+    return Worker::ConcurrencyTypes::kGlobal;
   }
   template <>
   Worker::ConcurrencyTypes WorkerT<edm::global::OutputModuleBase>::moduleConcurrencyType() const {
-    return Worker::kGlobal;
+    return Worker::ConcurrencyTypes::kGlobal;
   }
 
   template <>
   Worker::ConcurrencyTypes WorkerT<edm::limited::EDProducerBase>::moduleConcurrencyType() const {
-    return Worker::kLimited;
+    return Worker::ConcurrencyTypes::kLimited;
   }
   template <>
   Worker::ConcurrencyTypes WorkerT<edm::limited::EDFilterBase>::moduleConcurrencyType() const {
-    return Worker::kLimited;
+    return Worker::ConcurrencyTypes::kLimited;
   }
   template <>
   Worker::ConcurrencyTypes WorkerT<edm::limited::EDAnalyzerBase>::moduleConcurrencyType() const {
-    return Worker::kLimited;
+    return Worker::ConcurrencyTypes::kLimited;
   }
   template <>
   Worker::ConcurrencyTypes WorkerT<edm::limited::OutputModuleBase>::moduleConcurrencyType() const {
-    return Worker::kLimited;
+    return Worker::ConcurrencyTypes::kLimited;
   }
 
   template <>
   Worker::ConcurrencyTypes WorkerT<edm::stream::EDProducerAdaptorBase>::moduleConcurrencyType() const {
-    return Worker::kStream;
+    return Worker::ConcurrencyTypes::kStream;
   }
   template <>
   Worker::ConcurrencyTypes WorkerT<edm::stream::EDFilterAdaptorBase>::moduleConcurrencyType() const {
-    return Worker::kStream;
+    return Worker::ConcurrencyTypes::kStream;
   }
   template <>
   Worker::ConcurrencyTypes WorkerT<edm::stream::EDAnalyzerAdaptorBase>::moduleConcurrencyType() const {
-    return Worker::kStream;
+    return Worker::ConcurrencyTypes::kStream;
   }
 
   //Explicitly instantiate our needed templates to avoid having the compiler

@@ -267,18 +267,12 @@ namespace edm {
 
   void MockEventProcessor::endUnfinishedRun(bool) {
     endRun();
-    if (didGlobalBeginRunSucceed_) {
-      writeRun();
-    }
     clearRunPrincipal();
   }
 
   void MockEventProcessor::endUnfinishedLumi(bool) {
     if (lumiStatus_) {
       endLumi();
-      if (didGlobalBeginLumiSucceed_) {
-        writeLumi();
-      }
       clearLumiPrincipal();
     }
   }
@@ -306,15 +300,9 @@ namespace edm {
     return currentLumiNumber_;
   }
 
-  void MockEventProcessor::writeRun() { output_ << "\twriteRun " << currentRunNumber_ << "\n"; }
-
   void MockEventProcessor::clearRunPrincipal() {
     output_ << "\tclearRunPrincipal " << currentRunNumber_ << "\n";
     didGlobalBeginRunSucceed_ = false;
-  }
-
-  void MockEventProcessor::writeLumi() {
-    output_ << "\twriteLumi " << currentRunNumber_ << "/" << currentLumiNumber_ << "\n";
   }
 
   void MockEventProcessor::clearLumiPrincipal() {
