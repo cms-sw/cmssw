@@ -14,6 +14,7 @@ namespace l1tp2 {
     CaloPFCluster()
         : l1t::L1Candidate(),
           clusterEt_(0.),
+          ecalEt_(0.),
           clusterIEta_(-99),
           clusterIPhi_(-99),
           clusterEta_(-99.),
@@ -21,23 +22,27 @@ namespace l1tp2 {
 
     CaloPFCluster(const PolarLorentzVector& p4,
                   float clusterEt,
+                  float ecalEt,
                   int clusterIEta,
                   int clusterIPhi,
                   float clusterEta,
                   float clusterPhi)
         : l1t::L1Candidate(p4),
           clusterEt_(clusterEt),
+          ecalEt_(ecalEt),
           clusterIEta_(clusterIEta),
           clusterIPhi_(clusterIPhi),
           clusterEta_(clusterEta),
           clusterPhi_(clusterPhi) {}
 
     inline float clusterEt() const { return clusterEt_; };
+    inline float ecalEt() const { return ecalEt_; };
     inline int clusterIEta() const { return clusterIEta_; };
     inline int clusterIPhi() const { return clusterIPhi_; };
     inline float clusterEta() const { return clusterEta_; };
     inline float clusterPhi() const { return clusterPhi_; };
     void setClusterEt(float clusterEtIn) { clusterEt_ = clusterEtIn; };
+    void setEcalEt(float ecalEtIn) { ecalEt_ = ecalEtIn; };
     void setClusterIEta(int clusterIEtaIn) { clusterIEta_ = clusterIEtaIn; };
     void setClusterIPhi(int clusterIPhiIn) { clusterIPhi_ = clusterIPhiIn; };
     void setClusterEta(float clusterEtaIn) { clusterEta_ = clusterEtaIn; };
@@ -46,6 +51,8 @@ namespace l1tp2 {
   private:
     // ET
     float clusterEt_;
+    // ECAL ET
+    float ecalEt_;
     // GCT ieta
     int clusterIEta_;
     // GCT iphi
