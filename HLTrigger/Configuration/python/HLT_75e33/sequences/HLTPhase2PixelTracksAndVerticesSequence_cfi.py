@@ -3,7 +3,6 @@ from HeterogeneousCore.AlpakaCore.functions import makeSerialClone
 
 from ..modules.hltPhase2OtRecHitsSoA_cfi import hltPhase2OtRecHitsSoA
 from ..modules.hltPhase2PixelFitterByHelixProjections_cfi import hltPhase2PixelFitterByHelixProjections
-from ..modules.hltPhase2PixelRecHitsExtendedSoA_cfi import hltPhase2PixelRecHitsExtendedSoA
 from ..modules.hltPhase2PixelTrackFilterByKinematics_cfi import hltPhase2PixelTrackFilterByKinematics
 from ..modules.hltPhase2PixelTracks_cfi import hltPhase2PixelTracks
 from ..modules.hltPhase2PixelTracksAndHighPtStepTrackingRegions_cfi import hltPhase2PixelTracksAndHighPtStepTrackingRegions
@@ -21,7 +20,6 @@ HLTPhase2PixelTracksAndVerticesSequence = cms.Sequence(
     +hltPhase2PixelFitterByHelixProjections # Currently needed by tracker muons
     +hltPhase2PixelTrackFilterByKinematics  # Currently needed by tracker muons
     +hltPhase2OtRecHitsSoA
-    +hltPhase2PixelRecHitsExtendedSoA
     +hltPhase2PixelTracksSoA
     +hltPhase2PixelTrackTorchHighPuritySelector
     +hltPhase2PixelTracks
@@ -50,7 +48,6 @@ alpakaValidationHLT.toReplaceWith(HLTPhase2PixelTracksAndVerticesSequenceSerialS
         +hltPhase2PixelFitterByHelixProjections # needed by tracker muons
         +hltPhase2PixelTrackFilterByKinematics  # needed by tracker muons
         +hltPhase2OtRecHitsSoA
-        +hltPhase2PixelRecHitsExtendedSoA
         +hltPhase2PixelTracksSoASerialSync
         +hltPhase2PixelTrackTorchHighPuritySelectorSerialSync
         +hltPhase2PixelTracksSerialSync
@@ -65,7 +62,6 @@ _HLTPhase2PixelTracksAndVerticesSequenceTrimming = cms.Sequence(
     +hltPhase2PixelFitterByHelixProjections
     +hltPhase2PixelTrackFilterByKinematics
     +hltPhase2OtRecHitsSoA
-    +hltPhase2PixelRecHitsExtendedSoA
     +hltPhase2PixelTracksSoA
     +hltPhase2PixelTrackTorchHighPuritySelector
     +hltPhase2PixelTracks

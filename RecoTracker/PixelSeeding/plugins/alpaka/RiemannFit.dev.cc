@@ -27,7 +27,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   Tuples const *__restrict__ foundNtuplets,
                                   TupleMultiplicity const *__restrict__ tupleMultiplicity,
                                   uint32_t nHits,
-                                  ::reco::TrackingRecHitConstView hh,
+                                  caStructures::HitsMultiView hh,
                                   ::reco::CAModulesConstView cm,
                                   double *__restrict__ phits,
                                   float *__restrict__ phits_ge,
@@ -70,7 +70,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         for (unsigned int i = 0; i < hitsInFit; ++i) {
           auto hit = hitId[i];
           float ge[6];
-          cm.detFrame(hh.detectorIndex(hit)).toGlobal(hh[hit].xerrLocal(), 0, hh[hit].yerrLocal(), ge);
+          cm.detFrame(hh[hit].detectorIndex()).toGlobal(hh[hit].xerrLocal(), 0, hh[hit].yerrLocal(), ge);
           hits.col(i) << hh[hit].xGlobal(), hh[hit].yGlobal(), hh[hit].zGlobal();
           hits_ge.col(i) << ge[0], ge[1], ge[2], ge[3], ge[4], ge[5];
         }
@@ -202,7 +202,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };
 
   template <typename TrackerTraits>
-  void HelixFit<TrackerTraits>::launchRiemannKernels(const ::reco::TrackingRecHitConstView &hv,
+  void HelixFit<TrackerTraits>::launchRiemannKernels(const caStructures::HitsMultiView &hv,
                                                      const ::reco::CAModulesConstView &cm,
                                                      uint32_t nhits,
                                                      uint32_t maxNumberOfTuples,
