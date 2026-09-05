@@ -71,7 +71,6 @@ numWFIB.extend([prefixDet+34.7522]) # HLTTiming75e33, mtd_at_hlt
 numWFIB.extend([prefixDet+34.753])  # HLTTiming75e33, legacy tracking
 numWFIB.extend([prefixDet+34.754])  # HLTTiming75e33, legacy tracking with Patatrack quads
 numWFIB.extend([prefixDet+34.755])  # HLTTiming75e33, trackingLST
-numWFIB.extend([prefixDet+34.756])  # HLTTiming75e33, phase2_hlt_vertexTrimming
 numWFIB.extend([prefixDet+34.757])  # HLTTiming75e33, MkFitFit
 numWFIB.extend([prefixDet+34.758])  # HLTTiming75e33, ticl_barrel
 numWFIB.extend([prefixDet+34.759])  # HLT75e33 + NANO

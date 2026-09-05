@@ -64,7 +64,6 @@ The offsets currently in use are:
 * 0.753: HLT phase-2 timing menu legacy tracking
 * 0.754: HLT phase-2 timing menu legacy tracking with Patatrack quads
 * 0.755: HLT phase-2 timing menu LST building variant
-* 0.756 HLT phase-2 timing menu trimmed tracking
 * 0.757: HLT phase-2 timing menu mkFitFit variant
 * 0.758 HLT phase-2 timing menu ticl_barrel variant
 * 0.759: HLT phase-2 menu, with NANO:@Phase2HLT

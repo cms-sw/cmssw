@@ -161,7 +161,6 @@ if __name__ == '__main__':
                      prefixDet+34.753,   # HLT phase-2 timing menu legacy tracking
                      prefixDet+34.754,   # HLT phase-2 timing menu legacy tracking with Patatrack quads
                      prefixDet+34.755,   # HLT phase-2 timing menu LST building variant
-                     prefixDet+34.756,   # HLT phase-2 timing menu trimmed tracking
                      prefixDet+34.757,   # HLT phase-2 timing menu mkFit fitting variant
                      prefixDet+34.758,   # HLT phase-2 timing menu ticl_barrel variant
                      prefixDet+34.759,   # HLT phase-2 menu, with NANO:@Phase2HLT
