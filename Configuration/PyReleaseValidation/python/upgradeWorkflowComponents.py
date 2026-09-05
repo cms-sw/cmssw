@@ -2477,6 +2477,21 @@ upgradeWFs['ecalDevelAlpaka'] = UpgradeWorkflow_ecalDevel(
     offset = 0.612,
 )
 
+# ECAL Phase 2 workflow with APD spikes added to the digis and reconstruction with Alpaka
+upgradeWFs['ecalDevelSpikesAlpaka'] = UpgradeWorkflow_ecalDevel(
+    digi = {
+        '--procModifiers': 'ecal_addspikes',
+        '--custom_conditions': 'EcalSimPulseShapes_TB2025_v1,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+    },
+    reco = {
+        '--procModifiers': 'alpaka',
+        '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
+        '--custom_conditions': 'EcalSimPulseShapes_TB2025_v1,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+    },
+    suffix = '_ecalDevelSpikesAlpaka',
+    offset = 0.622,
+)
+
 # ECAL Phase 2 workflow with Alpaka reconstruction and PU from premix
 class UpgradeWorkflowPremix_ecalDevel(UpgradeWorkflow):
     def __init__(self, digi = {}, reco = {}, harvest = {}, **kwargs):
