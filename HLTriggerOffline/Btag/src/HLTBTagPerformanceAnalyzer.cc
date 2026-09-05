@@ -1,6 +1,7 @@
 #include "HLTriggerOffline/Btag/interface/HLTBTagPerformanceAnalyzer.h"
 #include <algorithm>
 #include <set>
+#include "FWCore/Common/interface/TriggerNames.h"
 
 using namespace edm;
 using namespace reco;
@@ -91,6 +92,23 @@ HLTBTagPerformanceAnalyzer::HLTBTagPerformanceAnalyzer(const edm::ParameterSet &
   //        (edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfosCalo"));
   shallowTagInfosTokenPf_ =
       consumes<std::vector<reco::ShallowTagInfo>>(edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfos"));
+
+  // phase2-only config
+  isPhase2_ = iConfig.existsAs<bool>("isPhase2") ? iConfig.getParameter<bool>("isPhase2") : false;
+  if (isPhase2_) {
+    if (iConfig.existsAs<std::vector<edm::ParameterSet>>("L1Seeds")) {
+      auto l1SeedsCfg = iConfig.getParameter<std::vector<edm::ParameterSet>>("L1Seeds");
+      for (auto const &ps : l1SeedsCfg)
+        l1Seeds_.push_back(ps.getParameter<std::vector<std::string>>("seeds"));
+    }
+
+    if (iConfig.existsAs<std::vector<edm::ParameterSet>>("PathFilters")) {
+      auto pathFiltersCfg = iConfig.getParameter<std::vector<edm::ParameterSet>>("PathFilters");
+      for (auto const &ps : pathFiltersCfg)
+        pathFilters_.push_back(ps.getParameter<std::vector<std::string>>("filters"));
+    }
+  }
+
   m_mcPartons = consumes<JetFlavourMatchingCollection>(iConfig.getParameter<InputTag>("mcPartons"));
   hltPathNames_ = iConfig.getParameter<std::vector<std::string>>("HLTPathNames");
   edm::ParameterSet mc = iConfig.getParameter<edm::ParameterSet>("mcFlavours");
@@ -131,6 +149,10 @@ void HLTBTagPerformanceAnalyzer::dqmBeginRun(const edm::Run &iRun, const edm::Ev
   const std::vector<std::string> &allHltPathNames = hltConfigProvider_.triggerNames();
 
   // fill hltPathIndexs_ with the trigger number of each hltPathNames_
+  if (isPhase2_) {  // phase-2 only: allow dqmBeginRun to be re-entered
+    hltPathIndexs_.clear();
+    _isfoundHLTs.clear();
+  }
   for (size_t trgs = 0; trgs < hltPathNames_.size(); trgs++) {
     unsigned int found = 1;
     int it_mem = -1;
@@ -188,7 +210,7 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event &iEvent, const edm::Ev
     JetTagMap JetTag;
     if (!_isfoundHLTs[ind])
       continue;  // if the hltPath is not in the event, skip the event
-    if (!triggerResults.accept(hltPathIndexs_[ind]))
+    if (!isPhase2_ && !triggerResults.accept(hltPathIndexs_[ind]))
       continue;  // if the hltPath was not accepted skip the event
 
     // get JetTagCollection
@@ -208,27 +230,77 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event &iEvent, const edm::Ev
       }
     else {
       edm::LogInfo("NoCollection") << "Collection " << JetTagCollection_Label[ind] << " ==> not found";
-      return;
+      if (isPhase2_)
+        continue;  // phase-2 only: drop this path, keep analysing the others
+      return;      // original behaviour
     }
+
+    bool passFullPath = triggerResults.accept(hltPathIndexs_[ind]);
+
     // fill Inputs for All
-    if (shallowTagInfosPf.isValid()) {
-      for (auto &info : *(shallowTagInfosPf)) {
-        TaggingVariableList vars = info.taggingVariables();
-        for (auto entry = vars.begin(); entry != vars.end(); ++entry) {
-          if (keepSet.find(TaggingVariableTokens[entry->first]) !=
-              keepSet.end()) {  // if Input name in defined list to keep
-            try {
-              H1_.at(ind)[TaggingVariableTokens[entry->first]]->Fill(std::fmax(0.0, entry->second));
-            } catch (const std::exception &e) {
+    if (!isPhase2_) {  // inputs are not booked for phase-2
+      if (shallowTagInfosPf.isValid()) {
+        for (auto &info : *(shallowTagInfosPf)) {
+          TaggingVariableList vars = info.taggingVariables();
+          for (auto entry = vars.begin(); entry != vars.end(); ++entry) {
+            if (keepSet.find(TaggingVariableTokens[entry->first]) !=
+                keepSet.end()) {  // if Input name in defined list to keep
+              try {
+                H1_.at(ind)[TaggingVariableTokens[entry->first]]->Fill(std::fmax(0.0, entry->second));
+              } catch (const std::exception &e) {
+                continue;
+              }
+            } else
               continue;
-            }
-          } else
-            continue;
+          }
+        }
+      } else {
+        edm::LogInfo("NoCollection") << "No shallowTagInfosPf collection";
+      }
+    }
+
+    // phase2-only filter monitoring
+    bool passL1Seed = false;
+    std::vector<bool> passFilters;
+    std::vector<bool> validFilters;
+    bool passAllFilters = false;
+
+    if (isPhase2_) {
+      const edm::TriggerNames &trigNames = iEvent.triggerNames(triggerResults);
+      passL1Seed = true;
+      if (ind < l1Seeds_.size() && !l1Seeds_[ind].empty()) {
+        for (const auto &l1name : l1Seeds_[ind]) {
+          unsigned int idx = trigNames.triggerIndex(l1name);
+          bool thisPass = (idx < triggerResults.size() && triggerResults.accept(idx));
+          passL1Seed = passL1Seed && thisPass;
+        }
+      } else {
+        passL1Seed = false;
+      }
+
+      if (ind < pathFilters_.size()) {
+        passFilters.assign(pathFilters_[ind].size(), false);
+        validFilters.assign(pathFilters_[ind].size(), false);
+
+        // a filter passed iff it ran before the module that stopped the path,
+        // or the path was accepted (in which case every filter on it passed)
+        const unsigned int lastRun = triggerResults.index(hltPathIndexs_[ind]);
+        const unsigned int nMod = hltConfigProvider_.size(hltPathIndexs_[ind]);
+        for (size_t ifilt = 0; ifilt < pathFilters_[ind].size(); ++ifilt) {
+          const unsigned int mIdx = hltConfigProvider_.moduleIndex(hltPathIndexs_[ind], pathFilters_[ind][ifilt]);
+          if (mIdx < nMod) {
+            validFilters[ifilt] = true;
+            passFilters[ifilt] = passFullPath || (mIdx < lastRun);
+          }
+        }
+
+        passAllFilters = !passFilters.empty();
+        for (size_t ifilt = 0; ifilt < passFilters.size(); ++ifilt) {
+          passAllFilters = passAllFilters && validFilters[ifilt] && passFilters[ifilt];
         }
       }
-    } else {
-      edm::LogInfo("NoCollection") << "No shallowTagInfosPf collection";
     }
+
     // fill tagging
     for (auto &BtagJT : JetTag) {
       std::map<HCALSpecials, bool> inmodule;
@@ -236,60 +308,134 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event &iEvent, const edm::Ev
       inmodule[HEP18] = (BtagJT.first->phi() >= -0.52) && (BtagJT.first->phi() < -0.17) && (BtagJT.first->eta() > 1.3);
       inmodule[HEM17] = (BtagJT.first->phi() >= -0.87) && (BtagJT.first->phi() < -0.52) && (BtagJT.first->eta() < -1.3);
 
-      // fill 1D btag plot for 'all'
-      H1_.at(ind)[JetTagCollection_Label[ind]]->Fill(std::fmax(0.0, BtagJT.second));
-      for (const auto &i : HCALSpecialsNames) {
-        if (inmodule[i.first])
-          H1mod_.at(ind)[JetTagCollection_Label[ind]][i.first]->Fill(std::fmax(0.0, BtagJT.second));
+      // original final full-path plots
+      if (passFullPath) {
+        // fill 1D btag plot for 'all'
+        H1_.at(ind)[JetTagCollection_Label[ind]]->Fill(std::fmax(0.0, BtagJT.second));
+        if (!isPhase2_) {
+          for (const auto &i : HCALSpecialsNames) {
+            if (inmodule[i.first])
+              H1mod_.at(ind)[JetTagCollection_Label[ind]][i.first]->Fill(std::fmax(0.0, BtagJT.second));
+          }
+        }
+
+        if (MCOK) {
+          int m = closestJet(BtagJT.first, *h_mcPartons, m_mcRadius);
+          unsigned int flavour = (m != -1) ? abs((*h_mcPartons)[m].second.getFlavour()) : 0;
+          for (unsigned int i = 0; i < m_mcLabels.size(); ++i) {
+            std::string flavour_str = m_mcLabels[i];
+            flavours_t flav_collection = m_mcFlavours[i];
+            auto it = std::find(flav_collection.begin(), flav_collection.end(), flavour);
+            if (it == flav_collection.end())
+              continue;
+            std::string label = JetTagCollection_Label[ind] + "__";
+            label += flavour_str;
+            H1_.at(ind)[label]->Fill(std::fmax(0.0, BtagJT.second));  // fill 1D btag plot for 'b,c,uds'
+            if (!isPhase2_) {
+              for (const auto &j : HCALSpecialsNames) {
+                if (inmodule[j.first])
+                  H1mod_.at(ind)[label][j.first]->Fill(
+                      std::fmax(0.0, BtagJT.second));  // fill 1D btag plot for 'b,c,uds' in
+                                                       // modules (HEP17 etc.)
+              }
+            }
+            label = JetTagCollection_Label[ind] + "___";
+            label += flavour_str;
+            std::string labelEta = label;
+            std::string labelPhi = label;
+            std::string labelEtaPhi = label;
+            std::string labelEtaPhi_threshold = label;
+            label += "_disc_pT";
+            H2_.at(ind)[label]->Fill(std::fmax(0.0, BtagJT.second),
+                                     BtagJT.first->pt());  // fill 2D btag, jetPt plot for 'b,c,uds'
+            if (!isPhase2_) {
+              for (const auto &j : HCALSpecialsNames) {
+                if (inmodule[j.first])
+                  H2mod_.at(ind)[label][j.first]->Fill(std::fmax(0.0, BtagJT.second), BtagJT.first->pt());
+              }
+            }
+            labelEta += "_disc_eta";
+            H2Eta_.at(ind)[labelEta]->Fill(std::fmax(0.0, BtagJT.second),
+                                           BtagJT.first->eta());  // fill 2D btag, jetEta plot for 'b,c,uds'
+            labelPhi += "_disc_phi";
+            H2Phi_.at(ind)[labelPhi]->Fill(std::fmax(0.0, BtagJT.second),
+                                           BtagJT.first->phi());  // fill 2D btag, jetPhi plot for 'b,c,uds'
+            labelEtaPhi += "_eta_phi";
+            H2EtaPhi_.at(ind)[labelEtaPhi]->Fill(BtagJT.first->eta(),
+                                                 BtagJT.first->phi());  // fill 2D btag, jetPhi plot for 'b,c,uds'
+            labelEtaPhi_threshold += "_eta_phi_disc05";
+            if (BtagJT.second > 0.5) {
+              H2EtaPhi_threshold_.at(ind)[labelEtaPhi_threshold]->Fill(
+                  BtagJT.first->eta(),
+                  BtagJT.first->phi());  // fill 2D btag, jetPhi plot for 'b,c,uds'
+            }
+          }  /// for flavour
+        }  /// if MCOK
+      }  /// if passFullPath
+
+      // phase2-only isolated histograms
+      if (isPhase2_ && passL1Seed) {
+        H1Iso_.at(ind)["L1"]->Fill(std::fmax(0.0, BtagJT.second));
+
+        if (MCOK) {
+          int m = closestJet(BtagJT.first, *h_mcPartons, m_mcRadius);
+          unsigned int flavour = (m != -1) ? abs((*h_mcPartons)[m].second.getFlavour()) : 0;
+
+          for (unsigned int i = 0; i < m_mcLabels.size(); ++i) {
+            const std::string flavour_str = m_mcLabels[i];
+            const flavours_t flav_collection = m_mcFlavours[i];
+            auto it = std::find(flav_collection.begin(), flav_collection.end(), flavour);
+            if (it == flav_collection.end())
+              continue;
+
+            const std::string key = "L1__" + flavour_str;
+            H1Iso_.at(ind)[key]->Fill(std::fmax(0.0, BtagJT.second));
+          }
+        }
+
+        for (size_t ifilt = 0; ifilt < passFilters.size(); ++ifilt) {
+          if (passFilters[ifilt]) {
+            const std::string key = "L1__" + pathFilters_[ind][ifilt];
+            H1Iso_.at(ind)[key]->Fill(std::fmax(0.0, BtagJT.second));
+
+            if (MCOK) {
+              int m = closestJet(BtagJT.first, *h_mcPartons, m_mcRadius);
+              unsigned int flavour = (m != -1) ? abs((*h_mcPartons)[m].second.getFlavour()) : 0;
+
+              for (unsigned int i = 0; i < m_mcLabels.size(); ++i) {
+                const std::string flavour_str = m_mcLabels[i];
+                const flavours_t flav_collection = m_mcFlavours[i];
+                auto it = std::find(flav_collection.begin(), flav_collection.end(), flavour);
+                if (it == flav_collection.end())
+                  continue;
+
+                const std::string flavKey = "L1__" + pathFilters_[ind][ifilt] + "__" + flavour_str;
+                H1Iso_.at(ind)[flavKey]->Fill(std::fmax(0.0, BtagJT.second));
+              }
+            }
+          }
+        }
+
+        if (passAllFilters) {
+          H1Iso_.at(ind)["L1__ALL"]->Fill(std::fmax(0.0, BtagJT.second));
+
+          if (MCOK) {
+            int m = closestJet(BtagJT.first, *h_mcPartons, m_mcRadius);
+            unsigned int flavour = (m != -1) ? abs((*h_mcPartons)[m].second.getFlavour()) : 0;
+
+            for (unsigned int i = 0; i < m_mcLabels.size(); ++i) {
+              const std::string flavour_str = m_mcLabels[i];
+              const flavours_t flav_collection = m_mcFlavours[i];
+              auto it = std::find(flav_collection.begin(), flav_collection.end(), flavour);
+              if (it == flav_collection.end())
+                continue;
+
+              const std::string key = "L1__ALL__" + flavour_str;
+              H1Iso_.at(ind)[key]->Fill(std::fmax(0.0, BtagJT.second));
+            }
+          }
+        }
       }
-      if (MCOK) {
-        int m = closestJet(BtagJT.first, *h_mcPartons, m_mcRadius);
-        unsigned int flavour = (m != -1) ? abs((*h_mcPartons)[m].second.getFlavour()) : 0;
-        for (unsigned int i = 0; i < m_mcLabels.size(); ++i) {
-          std::string flavour_str = m_mcLabels[i];
-          flavours_t flav_collection = m_mcFlavours[i];
-          auto it = std::find(flav_collection.begin(), flav_collection.end(), flavour);
-          if (it == flav_collection.end())
-            continue;
-          std::string label = JetTagCollection_Label[ind] + "__";
-          label += flavour_str;
-          H1_.at(ind)[label]->Fill(std::fmax(0.0, BtagJT.second));  // fill 1D btag plot for 'b,c,uds'
-          for (const auto &j : HCALSpecialsNames) {
-            if (inmodule[j.first])
-              H1mod_.at(ind)[label][j.first]->Fill(
-                  std::fmax(0.0, BtagJT.second));  // fill 1D btag plot for 'b,c,uds' in
-                                                   // modules (HEP17 etc.)
-          }
-          label = JetTagCollection_Label[ind] + "___";
-          label += flavour_str;
-          std::string labelEta = label;
-          std::string labelPhi = label;
-          std::string labelEtaPhi = label;
-          std::string labelEtaPhi_threshold = label;
-          label += "_disc_pT";
-          H2_.at(ind)[label]->Fill(std::fmax(0.0, BtagJT.second),
-                                   BtagJT.first->pt());  // fill 2D btag, jetPt plot for 'b,c,uds'
-          for (const auto &j : HCALSpecialsNames) {
-            if (inmodule[j.first])
-              H2mod_.at(ind)[label][j.first]->Fill(std::fmax(0.0, BtagJT.second), BtagJT.first->pt());
-          }
-          labelEta += "_disc_eta";
-          H2Eta_.at(ind)[labelEta]->Fill(std::fmax(0.0, BtagJT.second),
-                                         BtagJT.first->eta());  // fill 2D btag, jetEta plot for 'b,c,uds'
-          labelPhi += "_disc_phi";
-          H2Phi_.at(ind)[labelPhi]->Fill(std::fmax(0.0, BtagJT.second),
-                                         BtagJT.first->phi());  // fill 2D btag, jetPhi plot for 'b,c,uds'
-          labelEtaPhi += "_eta_phi";
-          H2EtaPhi_.at(ind)[labelEtaPhi]->Fill(BtagJT.first->eta(),
-                                               BtagJT.first->phi());  // fill 2D btag, jetPhi plot for 'b,c,uds'
-          labelEtaPhi_threshold += "_eta_phi_disc05";
-          if (BtagJT.second > 0.5) {
-            H2EtaPhi_threshold_.at(ind)[labelEtaPhi_threshold]->Fill(
-                BtagJT.first->eta(),
-                BtagJT.first->phi());  // fill 2D btag, jetPhi plot for 'b,c,uds'
-          }
-        }  /// for flavour
-      }  /// if MCOK
     }  /// for BtagJT
   }  // for triggers
 }
@@ -316,6 +462,8 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
     H2Phi_.push_back(std::map<std::string, MonitorElement *>());
     H2EtaPhi_.push_back(std::map<std::string, MonitorElement *>());
     H2EtaPhi_threshold_.push_back(std::map<std::string, MonitorElement *>());
+    if (isPhase2_)
+      H1Iso_.push_back(std::map<std::string, MonitorElement *>());
     ibooker.setCurrentFolder(dqmFolder);
 
     // book 1D btag plot for 'all'
@@ -323,45 +471,90 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
       H1_.back()[JetTagCollection_Label[ind]] = ibooker.book1D(
           JetTagCollection_Label[ind] + "_all", JetTagCollection_Label[ind] + "_all", btagBins, btagL, btagU);
       H1_.back()[JetTagCollection_Label[ind]]->setAxisTitle(JetTagCollection_Label[ind] + "discriminant", 1);
+
       // Input storing
-      ibooker.setCurrentFolder(dqmFolder + "/inputs");
-      ibooker.setCurrentFolder(dqmFolder + "/inputs/Jet");
-      for (int i = 0; i < 100; i++) {
-        if (keepSetJet.find(TaggingVariableTokens[i]) != keepSetJet.end()) {  // if input name in defined set
-          std::string inpt = TaggingVariableTokens[i];
-          H1_.back()[inpt] = ibooker.book1D(inpt, inpt, 105, -5, 100.);
-          H1_.back()[inpt]->setAxisTitle(inpt, 1);
-        } else
-          continue;
+      if (!isPhase2_) {
+        ibooker.setCurrentFolder(dqmFolder + "/inputs");
+        ibooker.setCurrentFolder(dqmFolder + "/inputs/Jet");
+        for (int i = 0; i < 100; i++) {
+          if (keepSetJet.find(TaggingVariableTokens[i]) != keepSetJet.end()) {  // if input name in defined set
+            std::string inpt = TaggingVariableTokens[i];
+            H1_.back()[inpt] = ibooker.book1D(inpt, inpt, 105, -5, 100.);
+            H1_.back()[inpt]->setAxisTitle(inpt, 1);
+          } else
+            continue;
+        }
+        ibooker.setCurrentFolder(dqmFolder + "/inputs/Track");
+        for (int i = 0; i < 100; i++) {
+          if (keepSetTrack.find(TaggingVariableTokens[i]) != keepSetTrack.end()) {  // if input name in defined set
+            std::string inpt = TaggingVariableTokens[i];
+            H1_.back()[inpt] = ibooker.book1D(inpt, inpt, 105, -5, 100.);
+            H1_.back()[inpt]->setAxisTitle(inpt, 1);
+          } else
+            continue;
+        }
+        ibooker.setCurrentFolder(dqmFolder + "/inputs/Vertex");
+        for (int i = 0; i < 100; i++) {
+          if (keepSetVtx.find(TaggingVariableTokens[i]) != keepSetVtx.end()) {  // if input name in defined set
+            std::string inpt = TaggingVariableTokens[i];
+            H1_.back()[inpt] = ibooker.book1D(inpt, inpt, 105, -5, 100.);
+            H1_.back()[inpt]->setAxisTitle(inpt, 1);
+          } else
+            continue;
+        }
+
+        for (const auto &i : HCALSpecialsNames) {
+          ibooker.setCurrentFolder(dqmFolder + "/" + i.second);
+          H1mod_.back()[JetTagCollection_Label[ind]][i.first] = ibooker.book1D(
+              JetTagCollection_Label[ind] + "_all", JetTagCollection_Label[ind] + "_all", btagBins, btagL, btagU);
+          H1mod_.back()[JetTagCollection_Label[ind]][i.first]->setAxisTitle(
+              JetTagCollection_Label[ind] + "discriminant", 1);
+        }
+        ibooker.setCurrentFolder(dqmFolder);
       }
-      ibooker.setCurrentFolder(dqmFolder + "/inputs/Track");
-      for (int i = 0; i < 100; i++) {
-        if (keepSetTrack.find(TaggingVariableTokens[i]) != keepSetTrack.end()) {  // if input name in defined set
-          std::string inpt = TaggingVariableTokens[i];
-          H1_.back()[inpt] = ibooker.book1D(inpt, inpt, 105, -5, 100.);
-          H1_.back()[inpt]->setAxisTitle(inpt, 1);
-        } else
-          continue;
-      }
-      ibooker.setCurrentFolder(dqmFolder + "/inputs/Vertex");
-      for (int i = 0; i < 100; i++) {
-        if (keepSetVtx.find(TaggingVariableTokens[i]) != keepSetVtx.end()) {  // if input name in defined set
-          std::string inpt = TaggingVariableTokens[i];
-          H1_.back()[inpt] = ibooker.book1D(inpt, inpt, 105, -5, 100.);
-          H1_.back()[inpt]->setAxisTitle(inpt, 1);
-        } else
-          continue;
+    }
+
+    // phase2-only isolated histograms
+    if (isPhase2_) {
+      ibooker.setCurrentFolder(dqmFolder + "/filters");
+      H1Iso_.back()["L1"] = ibooker.book1D("L1", "L1", btagBins, btagL, btagU);
+      H1Iso_.back()["L1"]->setAxisTitle("disc", 1);
+
+      for (unsigned int i = 0; i < m_mcLabels.size(); ++i) {
+        const std::string flavour = m_mcLabels[i];
+        const std::string key = "L1__" + flavour;
+        H1Iso_.back()[key] = ibooker.book1D(key, key, btagBins, btagL, btagU);
+        H1Iso_.back()[key]->setAxisTitle("disc", 1);
       }
 
-      for (const auto &i : HCALSpecialsNames) {
-        ibooker.setCurrentFolder(dqmFolder + "/" + i.second);
-        H1mod_.back()[JetTagCollection_Label[ind]][i.first] = ibooker.book1D(
-            JetTagCollection_Label[ind] + "_all", JetTagCollection_Label[ind] + "_all", btagBins, btagL, btagU);
-        H1mod_.back()[JetTagCollection_Label[ind]][i.first]->setAxisTitle(JetTagCollection_Label[ind] + "discriminant",
-                                                                          1);
+      if (ind < pathFilters_.size()) {
+        for (const auto &filterLabel : pathFilters_[ind]) {
+          const std::string key = "L1__" + filterLabel;
+          H1Iso_.back()[key] = ibooker.book1D(key, key, btagBins, btagL, btagU);
+          H1Iso_.back()[key]->setAxisTitle("disc", 1);
+
+          for (unsigned int i = 0; i < m_mcLabels.size(); ++i) {
+            const std::string flavour = m_mcLabels[i];
+            const std::string flavKey = "L1__" + filterLabel + "__" + flavour;
+            H1Iso_.back()[flavKey] = ibooker.book1D(flavKey, flavKey, btagBins, btagL, btagU);
+            H1Iso_.back()[flavKey]->setAxisTitle("disc", 1);
+          }
+        }
       }
+
+      H1Iso_.back()["L1__ALL"] = ibooker.book1D("L1__ALL", "L1__ALL", btagBins, btagL, btagU);
+      H1Iso_.back()["L1__ALL"]->setAxisTitle("disc", 1);
+
+      for (unsigned int i = 0; i < m_mcLabels.size(); ++i) {
+        const std::string flavour = m_mcLabels[i];
+        const std::string key = "L1__ALL__" + flavour;
+        H1Iso_.back()[key] = ibooker.book1D(key, key, btagBins, btagL, btagU);
+        H1Iso_.back()[key]->setAxisTitle("disc", 1);
+      }
+
       ibooker.setCurrentFolder(dqmFolder);
     }
+
     int nBinsPt = 60;
     double pTmin = 30;
     double pTMax = 330;
@@ -387,11 +580,13 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
         H1_.back()[label] = ibooker.book1D(
             label, Form("%s %s", JetTagCollection_Label[ind].c_str(), flavour.c_str()), btagBins, btagL, btagU);
         H1_.back()[label]->setAxisTitle("disc", 1);
-        for (const auto &j : HCALSpecialsNames) {
-          ibooker.setCurrentFolder(dqmFolder + "/" + j.second);
-          H1mod_.back()[label][j.first] = ibooker.book1D(
-              label, Form("%s %s", JetTagCollection_Label[ind].c_str(), flavour.c_str()), btagBins, btagL, btagU);
-          H1mod_.back()[label][j.first]->setAxisTitle("disc", 1);
+        if (!isPhase2_) {
+          for (const auto &j : HCALSpecialsNames) {
+            ibooker.setCurrentFolder(dqmFolder + "/" + j.second);
+            H1mod_.back()[label][j.first] = ibooker.book1D(
+                label, Form("%s %s", JetTagCollection_Label[ind].c_str(), flavour.c_str()), btagBins, btagL, btagU);
+            H1mod_.back()[label][j.first]->setAxisTitle("disc", 1);
+          }
         }
         ibooker.setCurrentFolder(dqmFolder);
         label = JetTagCollection_Label[ind] + "___";
@@ -409,11 +604,13 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
         H2_.back()[label] = ibooker.book2D(label, label, btagBins, btagL, btagU, nBinsPt, pTmin, pTMax);
         H2_.back()[label]->setAxisTitle("pT", 2);
         H2_.back()[label]->setAxisTitle("disc", 1);
-        for (const auto &j : HCALSpecialsNames) {
-          ibooker.setCurrentFolder(dqmFolder + "/" + j.second);
-          H2mod_.back()[label][j.first] = ibooker.book2D(label, label, btagBins, btagL, btagU, nBinsPt, pTmin, pTMax);
-          H2mod_.back()[label][j.first]->setAxisTitle("pT", 2);
-          H2mod_.back()[label][j.first]->setAxisTitle("disc", 1);
+        if (!isPhase2_) {
+          for (const auto &j : HCALSpecialsNames) {
+            ibooker.setCurrentFolder(dqmFolder + "/" + j.second);
+            H2mod_.back()[label][j.first] = ibooker.book2D(label, label, btagBins, btagL, btagU, nBinsPt, pTmin, pTMax);
+            H2mod_.back()[label][j.first]->setAxisTitle("pT", 2);
+            H2mod_.back()[label][j.first]->setAxisTitle("disc", 1);
+          }
         }
         ibooker.setCurrentFolder(dqmFolder);
         H2Eta_.back()[labelEta] = ibooker.book2D(labelEta, labelEta, btagBins, btagL, btagU, nBinsEta, etamin, etaMax);

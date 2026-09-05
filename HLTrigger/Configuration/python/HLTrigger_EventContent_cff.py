@@ -302,6 +302,8 @@ HLTDebugRAW = cms.PSet(
 HLTDebugFEVT = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
+        'keep *_hltPfDeepFlavourJetTagsModEta2p4_*_*',
+        'keep *_hltDeepCombinedSecondaryVertexBJetTagsPFPuppiModEta2p4_*_*',
         'keep *RecHit*_hltSiPixelRecHitsSoASerialSync_*_*',
         'keep *RecHit*_hltSiPixelRecHitsSoA_*_*',
         'keep *_hltAK4CaloJetsCorrectedIDPassed_*_*',

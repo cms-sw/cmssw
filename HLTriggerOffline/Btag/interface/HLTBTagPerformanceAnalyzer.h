@@ -74,6 +74,11 @@ private:
   //                shallowTagInfosCalo;
   edm::Handle<std::vector<reco::ShallowTagInfo>> shallowTagInfosPf;
 
+  // phase2-only configuration
+  bool isPhase2_;
+  std::vector<std::vector<std::string>> l1Seeds_;
+  std::vector<std::vector<std::string>> pathFilters_;
+
   /// other class variable
   std::vector<bool> _isfoundHLTs;
   std::vector<int> hltPathIndexs_;
@@ -100,6 +105,9 @@ private:
   std::vector<std::map<std::string, MonitorElement *>> H2EtaPhi_;
   std::vector<std::map<std::string, MonitorElement *>> H2EtaPhi_threshold_;
   std::vector<std::map<std::string, MonitorElement *>> H2Phi_;
+
+  // phase2-only histograms
+  std::vector<std::map<std::string, MonitorElement *>> H1Iso_;
 
   // Other variables
   edm::EDConsumerBase::Labels label;
