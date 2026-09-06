@@ -7,7 +7,6 @@
 
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/prefixScan.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/radixSort.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
 #include "FWCore/Utilities/interface/isFinite.h"
@@ -53,7 +52,6 @@ static constexpr auto kCovDzDz = 14;              // (4,4)
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using PixelTrackFeaturesSoAView = PixelTrackFeaturesSoA::View;
-  using TrackHitSoA = ::reco::TrackHitSoA;
 
   // ------------------------------------------------------------------------------
 

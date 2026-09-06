@@ -177,9 +177,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // linear cut
       return std::abs(outerCurvature - innerCurvature) >
              maxDCurv * (std::abs(innerCurvature + outerCurvature)) + dCurv0;
-      // sqrt cut
-      // return (outerCurvature - innerCurvature) * (outerCurvature - innerCurvature) >
-      //        maxDCurv * (std::abs(innerCurvature + outerCurvature)) + dCurv0;
     }
 
     // trying to free the track building process from hardcoded layers, leaving

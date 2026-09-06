@@ -68,7 +68,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
         }
 #endif
         for (uint32_t ic : cms::alpakatools::independent_group_elements_x(acc, size)) {
-          //printf("cell0 = %d ci = %d\n",bin[0],bin[ic]);
           unsigned int otherCell = bin[ic];
           auto& ci = cells[otherCell];
           if (ci.unused())
