@@ -5,7 +5,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 // Trigger
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -14,12 +16,12 @@
 // Vertex
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include <SimDataFormats/Vertex/interface/SimVertex.h>
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
 
 // DQM services
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include "FWCore/Utilities/interface/transform.h"
 
@@ -33,7 +35,8 @@
 class HLTVertexPerformanceAnalyzer : public DQMEDAnalyzer {
 public:
   explicit HLTVertexPerformanceAnalyzer(const edm::ParameterSet &);
-  ~HLTVertexPerformanceAnalyzer() override;
+  ~HLTVertexPerformanceAnalyzer() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
   void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
 
 private:
