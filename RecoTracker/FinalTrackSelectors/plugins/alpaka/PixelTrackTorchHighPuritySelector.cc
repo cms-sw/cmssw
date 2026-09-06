@@ -11,9 +11,6 @@
  * Input: TracksSoA (pixel tracks + hit associations), TrackingRecHitsSoA + OTRecHitsSoA
  * (the latter only when useHitFeatures = true).
  *
- * Pipeline: TracksSoA -> CA preselection -> feature extraction -> Torch inference ->
- * score filtering -> output TrackSoA compaction.
- *
  * Torch inference: track tensor [maxPreselectedTracks, N_track_features], padding slots 0-filled.
  */
 
@@ -47,8 +44,6 @@
 #include "PhysicsTools/PyTorchAlpaka/interface/TensorCollection.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/alpaka/AlpakaModel.h"
 
-// #define PIXEL_TRACK_HP_DEBUG
-
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   /// Input/output tensors associated to a single inference batch.
@@ -61,7 +56,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using TkSoADevice = reco::TracksSoACollection;
     using HitsOnDevice = reco::TrackingRecHitsSoACollection;
     using OTHitsOnDevice = reco::OTRecHitsSoACollection;
-    using TrackHitSoA = ::reco::TrackHitSoA;
 
   public:
     explicit PixelTrackTorchHighPuritySelector(const edm::ParameterSet&);
@@ -71,10 +65,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void produce(device::Event&, const device::EventSetup&) override;
     void beginStream(edm::StreamID /*sid*/, Queue queue) override;
 
-    /// Registers the "track_features" input block of `tc` for batch `i_batch`: the contiguous
-    /// prefix run of PixelTrackFeaturesSoA the model consumes (17 fit/cov columns, plus the 14
-    /// hit/stub columns when useHitFeatures). Order must match the TorchScript model input schema.
-    /// Used by both warm-up and per-event passes.
+    /// Registers the "track_features" input block of `tc` for batch `i_batch`: the prefix of
+    /// PixelTrackFeaturesSoA the model consumes (17 fit/cov columns, plus the 14 hit/stub columns when
+    /// useHitFeatures). The order must match the TorchScript model input schema.
     template <typename TRecord>
     static void addTrackFeatures(cms::torch::alpakatools::TensorCollection<Queue>& tc,
                                  int i_batch,
@@ -137,8 +130,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     }
 
-    /// Inference dtype, shared by the warm-up and the per-event forward passes: the FIRST forward
-    /// is what moves (and casts) the model to the device, so the two must agree.
+    /// Inference dtype, shared by the warm-up and the per-event forward passes: the first forward moves
+    /// and casts the model to the device, so the two must agree.
     std::optional<::torch::Dtype> inferenceDtype() const {
       return inferenceHalf_ ? std::optional<::torch::Dtype>{::torch::kHalf} : std::nullopt;
     }
@@ -154,16 +147,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // scoreThreshold at |dxyBS|>=dxyRampKnee. scoreThresholdLowDxy < 0 disables it (flat threshold).
     const double scoreThresholdLowDxy_;
     const double dxyRampKnee_;
-    // Hit/stub features: when true, the 14 CA hit/stub features are appended to the 17 fit/cov
-    // features -> the enriched 31-feature model. False selects the plain 17-feature path. The
-    // merged-hits product is consumed ONLY when enabled.
+    // When true, the 14 CA hit/stub features are appended to the 17 fit/cov features, for the enriched
+    // 31-feature model; the merged-hits product is consumed only then.
     const bool useHitFeatures_;
-    // forward(dtype) casts the WHOLE model. kHalf is fine for the MLP but BREAKS a tree model
-    // (casts its int64 index buffers to half). inferenceHalf=false -> no cast -> native fp32.
+    // forward(dtype) casts the whole model: kHalf is fine for the MLP but breaks a tree model, whose
+    // int64 index buffers must not be cast. inferenceHalf = false leaves the model in fp32.
     const bool inferenceHalf_;
     device::EDGetToken<HitsOnDevice> mergedHitsToken_;
-    // Raw OT-rechit SoA, so the hit-feature walk can resolve the bit30-tagged raw-OT ids a track
-    // may carry. Consumed only when useHitFeatures_ (same guard as mergedHitsToken_).
+    // Raw OT-rechit SoA, so the hit-feature walk can resolve the bit30-tagged raw-OT ids a track may
+    // carry. Consumed only when useHitFeatures_.
     device::EDGetToken<OTHitsOnDevice> otRecHitsSoAToken_;
     torch::AlpakaModel model_;
     const int batchSize_;
@@ -261,25 +253,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     PixelTrackFeaturesOnDevice trackFeatures(queue, maxPreselectedTracks_);
     PixelTrackScoresOnDevice trackScoresOnDevice(queue, maxPreselectedTracks_);
 
-    // Optional debug definitions
-#ifdef PIXEL_TRACK_HP_DEBUG
-    auto h_nPreselectedTracks = cms::alpakatools::make_host_buffer<int>(queue);
-    auto h_nSelectedTracks = cms::alpakatools::make_host_buffer<int>(queue);
-    auto nPreselectedTracks = 0;
-    auto nSelectedTracks = 0;
-    // Helper to copy the number of kept tracks back to host (debug only)
-    auto fetchNumPreselectedTracks = [&]() {
-      alpaka::memcpy(queue, h_nPreselectedTracks, d_nPreselectedTracks);
-      alpaka::wait(queue);
-      return *h_nPreselectedTracks;
-    };
-    auto fetchNumSelectedTracks = [&]() {
-      alpaka::memcpy(queue, h_nSelectedTracks, d_nSelectedTracks);
-      alpaka::wait(queue);
-      return *h_nSelectedTracks;
-    };
-#endif
-
     // 1. CA-based preselection of tracks
     //  Launch first kernel to look which tracks need to be filtered out
     //  based on quality criteria from the CA
@@ -293,13 +266,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                          alpaka::getPtrNative(d_preselectionOffsets),
                          alpaka::getPtrNative(d_nPreselectedTracks));
 
-#ifdef PIXEL_TRACK_HP_DEBUG
-    nPreselectedTracks = fetchNumPreselectedTracks();
-    std::cout << "PixelTrackTorchHighPuritySelector::Prefiltered tracks=" << nPreselectedTracks << "\n";
-#endif
-
-    // 2. Feature extraction. The merged TrackingRecHitsSoA is needed ONLY for the hit/stub
-    // features (when enabled); otherwise pass a null view + nHitsTot=0.
+    // 2. Feature extraction. The merged TrackingRecHitsSoA is needed only for the hit/stub features;
+    // otherwise pass a null view and nHitsTot = 0.
     ::reco::TrackingRecHitConstView mergedHitsView{};
     int nHitsTot = 0;
     // OT-rechit view for resolving tagged OT extras (empty view + 0 when not needed).
@@ -365,11 +333,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                       alpaka::getPtrNative(d_nSelectedTracks),
                       alpaka::getPtrNative(d_selectedTrackHitOffsets));
 
-#ifdef PIXEL_TRACK_HP_DEBUG
-    nSelectedTracks = fetchNumSelectedTracks();
-    std::cout << "PixelTrackTorchHighPuritySelector::Filtered tracks=" << nSelectedTracks << "\n";
-#endif
-
     auto tracks_out = launchProduceOutputTracks(queue,
                                                 maxPreselectedTracks_,
                                                 avgHitsPerTrack_,
@@ -392,24 +355,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<edm::FileInPath>("model");
     desc.add<double>("scoreThreshold", 0.5);
     desc.add<int>("batchSize", 10);
-    // dxy-aware threshold ramp: scoreThresholdLowDxy<0 disables it (flat scoreThreshold). When
-    // >=0, the cut ramps from scoreThresholdLowDxy at |dxyBS|=0 to scoreThreshold at
-    // |dxyBS|>=dxyRampKnee[cm] -- a more aggressive cut at low reco displacement.
+    // dxy-aware threshold ramp: the cut goes from scoreThresholdLowDxy at |dxyBS| = 0 to
+    // scoreThreshold at |dxyBS| >= dxyRampKnee [cm]. scoreThresholdLowDxy < 0 disables it.
     desc.add<double>("scoreThresholdLowDxy", -1.0);
     desc.add<double>("dxyRampKnee", 2.0);
-    // Hit/stub features (enriched model). Default false = 17-feature path.
-    // mergedHitsSrc is the merged TrackingRecHitsSoA the CA indexed -- only consumed when useHitFeatures=true.
+    // Hit/stub features (enriched model); mergedHitsSrc is the merged TrackingRecHitsSoA the CA indexed,
+    // consumed only when useHitFeatures is true.
     desc.add<bool>("useHitFeatures", false);
     desc.add<edm::InputTag>("mergedHitsSrc", {"hltPhase2PixelRecHitsStubsMerger"});
-    // Raw OT-rechit SoA (only consumed when useHitFeatures=true): resolves the bit30-tagged
-    // raw-OT hit ids so OT-extended tracks are scored on their full hit content.
+    // Raw OT-rechit SoA, consumed only when useHitFeatures is true: resolves the bit30-tagged raw-OT hit
+    // ids so OT-extended tracks are scored on their full hit content.
     desc.add<edm::InputTag>("otRecHitsSoASrc", {"hltPixelSeedingOTRecHitsSoA"});
-    // inferenceHalf=false keeps the model in fp32 (required for a tree/Hummingbird model whose
-    // int index buffers must not be cast to half); true = the fp16 path used by the MLP models.
+    // inferenceHalf = false keeps the model in fp32, required for a tree model whose int index buffers
+    // must not be cast to half; true selects the fp16 path used by the MLP models.
     desc.add<bool>("inferenceHalf", true);
     descriptions.addWithDefaultLabel(desc);
   }
-};  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
 DEFINE_FWK_ALPAKA_MODULE(PixelTrackTorchHighPuritySelector);
