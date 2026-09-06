@@ -1139,9 +1139,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
     for (u_int i = 0; i < n; i++) {
       r_u(i) = weights(i) * zInSZplane(i);
     }
-#ifdef CPP_DUMP
-    std::cout << "CU4\n" << matrixC_u(weights, sTotal, varBeta) << std::endl;
-#endif
     // Solve the NxN pentadiagonal line normal matrix with the O(N) root-free LDLt band factor (no border: the
     // line has no curvature parameter), reusing the shared band block's Mb. lineFit runs before circleFit, so Mb
     // is free here; circleFit rebuilds it afterwards. laneStride is the raw band arrays' [element][lane] stride.
@@ -1212,41 +1209,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
                              varBeta(i);
     }
   }
-
-  /*!
-    \brief Helix fit by three step:
-    -fast pre-fit (see Fast_fit() for further info); \n
-    -circle fit of the hits projected in the transverse plane by Broken Line algorithm (see BL_Circle_fit() for further info); \n
-    -line fit of the hits projected on the (pre-fitted) cilinder surface by Broken Line algorithm (see BL_Line_fit() for further info); \n
-    Points must be passed ordered (from inner to outer layer).
-    
-    \param hits Matrix3xNd hits coordinates in this form: \n
-    |x1|x2|x3|...|xn| \n
-    |y1|y2|y3|...|yn| \n
-    |z1|z2|z3|...|zn|
-    \param hits_cov Matrix3Nd covariance matrix in this form (()->cov()): \n
-    |(x1,x1)|(x2,x1)|(x3,x1)|(x4,x1)|.|(y1,x1)|(y2,x1)|(y3,x1)|(y4,x1)|.|(z1,x1)|(z2,x1)|(z3,x1)|(z4,x1)| \n
-    |(x1,x2)|(x2,x2)|(x3,x2)|(x4,x2)|.|(y1,x2)|(y2,x2)|(y3,x2)|(y4,x2)|.|(z1,x2)|(z2,x2)|(z3,x2)|(z4,x2)| \n
-    |(x1,x3)|(x2,x3)|(x3,x3)|(x4,x3)|.|(y1,x3)|(y2,x3)|(y3,x3)|(y4,x3)|.|(z1,x3)|(z2,x3)|(z3,x3)|(z4,x3)| \n
-    |(x1,x4)|(x2,x4)|(x3,x4)|(x4,x4)|.|(y1,x4)|(y2,x4)|(y3,x4)|(y4,x4)|.|(z1,x4)|(z2,x4)|(z3,x4)|(z4,x4)| \n
-    .       .       .       .       . .       .       .       .       . .       .       .       .       . \n
-    |(x1,y1)|(x2,y1)|(x3,y1)|(x4,y1)|.|(y1,y1)|(y2,y1)|(y3,x1)|(y4,y1)|.|(z1,y1)|(z2,y1)|(z3,y1)|(z4,y1)| \n
-    |(x1,y2)|(x2,y2)|(x3,y2)|(x4,y2)|.|(y1,y2)|(y2,y2)|(y3,x2)|(y4,y2)|.|(z1,y2)|(z2,y2)|(z3,y2)|(z4,y2)| \n
-    |(x1,y3)|(x2,y3)|(x3,y3)|(x4,y3)|.|(y1,y3)|(y2,y3)|(y3,x3)|(y4,y3)|.|(z1,y3)|(z2,y3)|(z3,y3)|(z4,y3)| \n
-    |(x1,y4)|(x2,y4)|(x3,y4)|(x4,y4)|.|(y1,y4)|(y2,y4)|(y3,x4)|(y4,y4)|.|(z1,y4)|(z2,y4)|(z3,y4)|(z4,y4)| \n
-    .       .       .    .          . .       .       .       .       . .       .       .       .       . \n
-    |(x1,z1)|(x2,z1)|(x3,z1)|(x4,z1)|.|(y1,z1)|(y2,z1)|(y3,z1)|(y4,z1)|.|(z1,z1)|(z2,z1)|(z3,z1)|(z4,z1)| \n
-    |(x1,z2)|(x2,z2)|(x3,z2)|(x4,z2)|.|(y1,z2)|(y2,z2)|(y3,z2)|(y4,z2)|.|(z1,z2)|(z2,z2)|(z3,z2)|(z4,z2)| \n
-    |(x1,z3)|(x2,z3)|(x3,z3)|(x4,z3)|.|(y1,z3)|(y2,z3)|(y3,z3)|(y4,z3)|.|(z1,z3)|(z2,z3)|(z3,z3)|(z4,z3)| \n
-    |(x1,z4)|(x2,z4)|(x3,z4)|(x4,z4)|.|(y1,z4)|(y2,z4)|(y3,z4)|(y4,z4)|.|(z1,z4)|(z2,z4)|(z3,z4)|(z4,z4)|
-    \param bField magnetic field in the center of the detector in Gev/cm/c, in order to perform the p_t calculation.
-    
-    \warning see BL_Circle_fit(), BL_Line_fit() and Fast_fit() warnings.
-    
-    \bug see BL_Circle_fit(), BL_Line_fit() and Fast_fit() bugs.
-    
-    \return (phi,Tip,p_t,cot(theta)),Zip), their covariance matrix and the chi2's of the circle and line fits.
-  */
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline
 

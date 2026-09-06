@@ -134,7 +134,6 @@ namespace phase1PixelTopology {
   constexpr uint32_t numberOfLayers = 10;
   constexpr int nPairs = 13 + 2 + 4;
   constexpr uint16_t numberOfModules = 1856;
-  constexpr int nStartingPairs = 3;  // number of layer pairs to start Ntuplet-building from
 
   constexpr uint32_t maxNumClustersPerModules = 1024;
 
@@ -328,8 +327,6 @@ namespace phase2PixelTopology {
   constexpr uint32_t nModulesOTForward = 2956;
   constexpr uint32_t nModulesOTStubs = nModulesOTBarrel + nModulesOTBackward + nModulesOTForward;  // 13200
   constexpr uint32_t nModulesTotStubs = nModulesPix + nModulesOTStubs;                             // 17200
-
-  constexpr int nStartingPairs = 24;  // number of layer pairs to start Ntuplet-building from
 
   constexpr uint16_t numberOfModules = nModulesPix;
   constexpr uint32_t maxNumClustersPerModules = 1024;
@@ -595,7 +592,6 @@ namespace phase2PixelTopology {
   constexpr int nDefaultPairsPhase2OTStubs = 112;
   static_assert(nDefaultPairsPhase2OTStubs <= nPairsPhase2OTStubs,
                 "the Phase2OTStubs default graph must fit in the per-pair tables");
-  constexpr int nStartingPairsPhase2OTStubs = 23;  // pairs flagged in startingPairsPhase2OTStubs
 
   // Per-pair form of the two triplet cuts: geometry.caDCACutsPerPair (beam-spot compatibility, cm)
   // and geometry.caThetaCutsPerPair (r-z alignment tolerance). Both are optional parameters without
@@ -1131,7 +1127,6 @@ namespace pixelTopology {
     static constexpr int nPairsFarForwards = nPairsMinimal + 8;    // include barrel "jumping" layer pairs
     static constexpr int nPairs = phase2PixelTopology::nPairsPix;  // include far forward layer pairs
     static constexpr int nPairsForQuadruplets = nPairs;
-    static constexpr int nStartingPairs = phase2PixelTopology::nStartingPairs;
 
     static constexpr uint16_t numberOfModules = phase2PixelTopology::nModulesPix;
     // Pixel-module count regardless of how many outer-tracker modules a derived topology adds; sizes
@@ -1240,7 +1235,6 @@ namespace pixelTopology {
     // memory), nPairsForQuadruplets the number of pairs the default tables spell out.
     static constexpr int nPairs = phase2PixelTopology::nPairsPhase2OTStubs;
     static constexpr int nPairsForQuadruplets = phase2PixelTopology::nDefaultPairsPhase2OTStubs;
-    static constexpr int nStartingPairs = phase2PixelTopology::nStartingPairsPhase2OTStubs;
 
     static constexpr uint8_t const *layerPairs = phase2PixelTopology::layerPairsPhase2OTStubs;
 
@@ -1347,7 +1341,6 @@ namespace pixelTopology {
     static constexpr int nPairsForQuadruplets = 13;                     // quadruplets require hits in all layers
     static constexpr int nPairsForTriplets = nPairsForQuadruplets + 2;  // include barrel "jumping" layer pairs
     static constexpr int nPairs = nPairsForTriplets + 4;                // include forward "jumping" layer pairs
-    static constexpr int nStartingPairs = phase1PixelTopology::nStartingPairs;
 
     static constexpr uint16_t numberOfModules = phase1PixelTopology::numberOfModules;
     // Pixel-module count; equals numberOfModules for pixel-only topologies.

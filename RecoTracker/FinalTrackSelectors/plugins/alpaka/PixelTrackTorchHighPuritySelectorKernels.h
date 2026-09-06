@@ -1,5 +1,5 @@
-#ifndef PixelTrackTorchHighPuritySelectorKernels_h
-#define PixelTrackTorchHighPuritySelectorKernels_h
+#ifndef RecoTracker_FinalTrackSelectors_plugins_alpaka_PixelTrackTorchHighPuritySelectorKernels_h
+#define RecoTracker_FinalTrackSelectors_plugins_alpaka_PixelTrackTorchHighPuritySelectorKernels_h
 
 #include <alpaka/alpaka.hpp>
 
@@ -84,4 +84,4 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                       uint32_t* selectedCounts = nullptr);
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
-#endif
+#endif  // RecoTracker_FinalTrackSelectors_plugins_alpaka_PixelTrackTorchHighPuritySelectorKernels_h

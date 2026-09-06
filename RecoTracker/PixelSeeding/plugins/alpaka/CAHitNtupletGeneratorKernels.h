@@ -200,7 +200,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // one D2H of this small array tells the host each bin's population without a census kernel.
     GenericContainerOffsets const* tupleMultiplicityOffsets() const { return device_tupleMultiplicityOffsets_->data(); }
     HitContainer const* hitContainer() const { return device_hitContainer_->data(); }
-    PhiBinner const* hitPhiHist() const { return device_hitPhiHist_->data(); }
     HitToCell const* hitToCell() const { return device_hitToCell_->data(); }
 
     // Pipeline counter pointer: returns device pointer when enabled, nullptr otherwise
