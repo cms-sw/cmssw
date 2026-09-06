@@ -80,7 +80,7 @@ void Phase2OTValidateRecHitBase::fillOTRecHitHistos(const PSimHit* simhitClosest
   if (lperr.xx())
     pullx = (dx) / std::sqrt(lperr.xx());
   if (lperr.yy())
-    pully = (dx) / std::sqrt(lperr.yy());
+    pully = (dy) / std::sqrt(lperr.yy());
   float eta = geomDetunit->surface().toGlobal(lp).eta();
   float phi = geomDetunit->surface().toGlobal(lp).phi();
   float dphi = phi - geomDetunit->surface().toGlobal(simlp).phi();
