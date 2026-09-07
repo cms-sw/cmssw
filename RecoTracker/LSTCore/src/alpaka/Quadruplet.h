@@ -593,6 +593,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           if (triplets.connectedLSMax()[innerTripletIndex] == 0)
             continue;
           // partOf{PT5, T5, PT3} is implicit, see CountTripletLSConnectionsT
+          // Triplets admitted only by the widened pointing bound are used only in quintuplets.
+          if (triplets.flags()[innerTripletIndex] & kT3LoosePointing)
+            continue;
 
           const auto innerT3LS2Index = segIdx[innerTripletIndex][1];
 
@@ -615,6 +618,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               continue;  //don't create T4s for T3s accounted in T5s
             if (triplets.partOfPT3()[outerTripletIndex])
               continue;  //don't create T4s for T3s accounted in pT3s
+            // Triplets admitted only by the widened pointing bound are used only in quintuplets.
+            if (triplets.flags()[outerTripletIndex] & kT3LoosePointing)
+              continue;
 
             // If densely connected, do not attempt parallel processing to avoid truncation
             if (ReduceMem || nInnerTriplets >= kNTripletThreshold || nOuterTriplets >= kNTripletThreshold) {
@@ -871,6 +877,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             continue;  //don't create T4s for T3s accounted in T5s
           if (partOfPT3[innerTripletIndex])
             continue;  //don't create T4s for T3s accounted in pT3s
+          // Triplets admitted only by the widened pointing bound are used only in quintuplets.
+          if (triplets.flags()[innerTripletIndex] & kT3LoosePointing)
+            continue;
 
           const uint16_t lowerModule2 = lmIdx[innerTripletIndex][1];
           const unsigned int nOuterTriplets = tripletsOcc.nTriplets()[lowerModule2];
@@ -884,6 +893,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           const auto outerOffset = tripletsRangesBySegment.offset()[secondSegIdx];
           for (unsigned int outerIndex : cms::alpakatools::uniform_elements_x(acc, nOuterTripletsByLS)) {
             const unsigned int outerTripletIndex = tripletsBySegment.tripletIndex()[outerOffset + outerIndex];
+            // Triplets admitted only by the widened pointing bound are used only in quintuplets.
+            if (triplets.flags()[outerTripletIndex] & kT3LoosePointing)
+              continue;
 
             if (partOfPT5[outerTripletIndex])
               continue;  //don't create T4s for T3s accounted in pT5s

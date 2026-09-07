@@ -29,9 +29,10 @@ namespace lst {
 #ifdef CUT_VALUE_DEBUG
                       SOA_COLUMN(float, betaInCut),
 #endif
-                      SOA_COLUMN(bool, partOfPT5),   // is it used in a pT5
-                      SOA_COLUMN(bool, partOfT5),    // is it used in a T5
-                      SOA_COLUMN(bool, partOfPT3));  // is it used in a pT3
+                      SOA_COLUMN(bool, partOfPT5),  // is it used in a pT5
+                      SOA_COLUMN(bool, partOfT5),   // is it used in a T5
+                      SOA_COLUMN(bool, partOfPT3),  // is it used in a pT3
+                      SOA_COLUMN(uint8_t, flags));  // T3Flag bits
 
   using TripletsSoA = TripletsSoALayout<>;
   using Triplets = TripletsSoA::View;
