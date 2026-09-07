@@ -127,13 +127,13 @@ namespace egamma::math {
     return res;
   }
 
-  template <typename T>
-  inline constexpr Phys3DVector<T> axpy(const T a, const Phys3DVector<T>& x, const Phys3DVector<T>& y) {
+  template <typename TAcc, typename T>
+  inline constexpr Phys3DVector<T> axpy(TAcc const& acc, const T a, const Phys3DVector<T>& x, const Phys3DVector<T>& y) {
     Phys3DVector<T> res;
 
     CMS_UNROLL_LOOP
     for (int i = 0; i < 3; i++) {
-      res[i] = a * x[i] + y[i];
+      res[i] = alpaka::math::fma(acc, a, x[i], y[i]);
     }
 
     return res;

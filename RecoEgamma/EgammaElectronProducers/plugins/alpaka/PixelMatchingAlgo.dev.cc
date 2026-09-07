@@ -9,7 +9,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/ftsFromVertexToPointPortable.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/FreeTrajectoryState.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/helixBarrelPlaneCrossingByCircle.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/helixArbitraryPlaneCrossing.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/helixForwardPlaneCrossing.h"
