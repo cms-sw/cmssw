@@ -1545,8 +1545,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                               outerRadius,
                                               bridgeRadius,
                                               dnnScore);
-    tightCutFlag = tightCutFlag and inference;  // T5-in-TC cut
-    if (!inference)                             // T5-building cut
+    if (!inference)  // T5-building cut
       return false;
 
     if (not runQuintupletdBetaAlgoSelector(acc,
@@ -1610,6 +1609,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                f,
                                tightCutFlag))
       return false;
+
+    // Promoted on the tight r-z flag or on the score above the 93% working point, binned on the layer-2 anchor eta.
+    const unsigned int layer2MDIndex = (modules.layers()[lowerModuleIndex1] == 1) ? secondMDIndex : firstMDIndex;
+    const float absEta = alpaka::math::abs(acc, mds.anchorEta()[layer2MDIndex]);
+    const uint8_t ptIndex = (innerRadius * k2Rinv1GeVf * 2 > 5.0f);
+    const uint8_t etaBin = (absEta > 2.5f) ? (dnn::kEtaBins - 1) : static_cast<unsigned int>(absEta / dnn::kEtaSize);
+    tightCutFlag = tightCutFlag || dnnScore >= dnn::t5dnn::kWp93[ptIndex][etaBin];
 
     lst::t5embdnn::runEmbed(acc,
                             mds,
