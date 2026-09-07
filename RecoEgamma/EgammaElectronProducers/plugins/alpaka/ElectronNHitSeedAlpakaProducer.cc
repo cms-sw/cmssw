@@ -6,6 +6,8 @@
 // pixel seeds has been matched to a SC
 //*******************************************************************************
 
+#include <utility>
+
 #include <Eigen/Core>
 
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -37,6 +39,7 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/moveToDeviceAsync.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/global/EDProducer.h"
 
 #include "PixelMatchingAlgo.h"
@@ -55,8 +58,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           superClustersTokens_(consumes(pset.getParameter<edm::InputTag>("superClusters"))) {}
 
     void produce(edm::StreamID sid, device::Event& event, device::EventSetup const& iSetup) const override {
-      auto vprim_ = event.get(beamSpotToken_).position();
-      GlobalPoint vprim(vprim_.x(), vprim_.y(), vprim_.z());
+      auto const& vprim = event.get(beamSpotToken_).position();
       Vector3d vertex{vprim.x(), vprim.y(), vprim.z()};
 
       const std::vector<reco::SuperClusterRef>& superClusterRefVec = event.get(superClustersTokens_);
@@ -98,9 +100,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         const auto& rot0 = recHit0.det()->surface().rotation().z();
         viewSeeds[i].hit0detectorID() = (recHit0.geographicalId().subdetId() == PixelSubdetector::PixelBarrel) ? 1 : 0;
         viewSeeds[i].hit0isValid() = recHit0.isValid();
-        viewSeeds[i].hit0Pos() = Eigen::Vector3d(pos0.x(), pos0.y(), pos0.z());
-        viewSeeds[i].surf0Pos() = Eigen::Vector3d(surf0.x(), surf0.y(), surf0.z());
-        viewSeeds[i].surf0Rot() = Eigen::Vector3d(rot0.x(), rot0.y(), rot0.z());
+        viewSeeds[i].hit0Pos() = Eigen::Vector3f(pos0.x(), pos0.y(), pos0.z());
+        viewSeeds[i].surf0Pos() = Eigen::Vector3f(surf0.x(), surf0.y(), surf0.z());
+        viewSeeds[i].surf0Rot() = Eigen::Vector3f(rot0.x(), rot0.y(), rot0.z());
 
         // Hit 1
         ++hitIt;
@@ -110,9 +112,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         const auto& rot1 = recHit1.det()->surface().rotation().z();
         viewSeeds[i].hit1detectorID() = (recHit1.geographicalId().subdetId() == PixelSubdetector::PixelBarrel) ? 1 : 0;
         viewSeeds[i].hit1isValid() = recHit1.isValid();
-        viewSeeds[i].hit1Pos() = Eigen::Vector3d(pos1.x(), pos1.y(), pos1.z());
-        viewSeeds[i].surf1Pos() = Eigen::Vector3d(surf1.x(), surf1.y(), surf1.z());
-        viewSeeds[i].surf1Rot() = Eigen::Vector3d(rot1.x(), rot1.y(), rot1.z());
+        viewSeeds[i].hit1Pos() = Eigen::Vector3f(pos1.x(), pos1.y(), pos1.z());
+        viewSeeds[i].surf1Pos() = Eigen::Vector3f(surf1.x(), surf1.y(), surf1.z());
+        viewSeeds[i].surf1Rot() = Eigen::Vector3f(rot1.x(), rot1.y(), rot1.z());
 
         // Hit 2
         if (initialSeedRef.nHits() > 2) {
@@ -124,9 +126,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           viewSeeds[i].hit2detectorID() =
               (recHit2.geographicalId().subdetId() == PixelSubdetector::PixelBarrel) ? 1 : 0;
           viewSeeds[i].hit2isValid() = recHit2.isValid();
-          viewSeeds[i].hit2Pos() = Eigen::Vector3d(pos2.x(), pos2.y(), pos2.z());
-          viewSeeds[i].surf2Pos() = Eigen::Vector3d(surf2.x(), surf2.y(), surf2.z());
-          viewSeeds[i].surf2Rot() = Eigen::Vector3d(rot2.x(), rot2.y(), rot2.z());
+          viewSeeds[i].hit2Pos() = Eigen::Vector3f(pos2.x(), pos2.y(), pos2.z());
+          viewSeeds[i].surf2Pos() = Eigen::Vector3f(surf2.x(), surf2.y(), surf2.z());
+          viewSeeds[i].surf2Rot() = Eigen::Vector3f(rot2.x(), rot2.y(), rot2.z());
         } else {
           // Zero initialization
           viewSeeds[i].hit2Pos().setZero();
@@ -138,11 +140,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         ++i;
       }
 
-      // Create device products & copy to device
-      reco::SuperClusterDeviceCollection deviceProductSCs{event.queue(), superClusterCollectionSize};
-      reco::ElectronSeedDeviceCollection deviceProductSeeds{event.queue(), seedCollectionSize};
-      alpaka::memcpy(event.queue(), deviceProductSCs.buffer(), hostProductSCs.buffer());
-      alpaka::memcpy(event.queue(), deviceProductSeeds.buffer(), hostProductSeeds.buffer());
+      // Move the host products to the device; on a host backend this is a no-op
+      auto deviceProductSCs = cms::alpakatools::moveToDeviceAsync(event.queue(), std::move(hostProductSCs));
+      auto deviceProductSeeds = cms::alpakatools::moveToDeviceAsync(event.queue(), std::move(hostProductSeeds));
 
       algo_.matchSeeds(event.queue(), deviceProductSeeds, deviceProductSCs, vertex(0), vertex(1), vertex(2));
 

@@ -5,12 +5,15 @@
 #ifndef RecoEgamma_EgammaElectronAlgos_interface_helixArbitraryPlaneCrossing_h
 #define RecoEgamma_EgammaElectronAlgos_interface_helixArbitraryPlaneCrossing_h
 
-#include <alpaka/alpaka.hpp>
-#include <cmath>
-#include <utility>
-#include <iostream>
 #include <atomic>
+#include <cmath>
+#include <iostream>
+#include <utility>
 
+#include <alpaka/alpaka.hpp>
+
+#include "RecoEgamma/EgammaElectronAlgos/interface/Phys3DVector.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/Plane.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/helixArbitraryPlaneCrossing2Order.h"
 
 namespace propagators {

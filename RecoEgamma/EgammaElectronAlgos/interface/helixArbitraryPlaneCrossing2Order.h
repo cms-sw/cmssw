@@ -5,12 +5,14 @@
 #ifndef RecoEgamma_EgammaElectronAlgos_interface_helixArbitraryPlaneCrossing2Order_h
 #define RecoEgamma_EgammaElectronAlgos_interface_helixArbitraryPlaneCrossing2Order_h
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/Plane.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/helixBarrelPlaneCrossingByCircle.h"
-#include <cmath>
 #include <cfloat>
+#include <cmath>
+
+#include <alpaka/alpaka.hpp>
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/Phys3DVector.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/Plane.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/helixBarrelPlaneCrossingByCircle.h"
 
 using Vec3d = egamma::math::Phys3DVector<double>;
 
