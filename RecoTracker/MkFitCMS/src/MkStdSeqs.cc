@@ -576,10 +576,10 @@ namespace mkfit {
                 sharedFirst += 1;
 
               if ((sharedCount - sharedFirst) >= ((minFoundHits - sharedFirst) * fraction))
-                continue;
+                break;
             }
             if ((sharedCount - sharedFirst) >= ((minFoundHits - sharedFirst) * fraction))
-              continue;
+              break;
           }
 
           //selection here - 11percent fraction of shared hits to label a duplicate
@@ -606,10 +606,12 @@ namespace mkfit {
       // configured drth_* value at pT = ptScaleRef and decreasing until pT = ptScaleMax.
       // Outside [ptScaleRef, ptScaleMax] the scaling saturates (flat), so the threshold
       // never grows above drth_* and never shrinks past its pT = ptScaleMax value.
-      constexpr float ptScaleRef = 5.0f;    // [GeV] pT where sqrt(maxdR) == drth_*
-      constexpr float ptScaleMax = 500.0f;  // [GeV] pT beyond which scaling saturates
-      constexpr float invptScaleRef = 1.0f / ptScaleRef;
-      constexpr float scaleFloor = ptScaleRef / ptScaleMax;          // = 0.01 --> staturation of pT-scaling
+      constexpr float ptScaleRef = 5.0f;                  // [GeV] pT where sqrt(maxdR) == drth_*
+      constexpr float ptScaleMax = 500.0f;                // [GeV] pT beyond which scaling saturates
+      constexpr float invptScaleRef = 1.0f / ptScaleRef;  // 0.2 = 1/5 GeV
+      constexpr float invptScaleMax = 1.0f / ptScaleMax;  // 0.002 = 1/500 GeV
+
+      // Hard pT cut(s): for leading (trailing) track pT > hard (soft) cut, disable duplicate cleaning
       constexpr float ptScaleHard = 10.0f;                           // [GeV] hard pT cut
       constexpr float invptScaleHard = 1.0f / ptScaleHard;           // hard 1/pT cut
       constexpr float invptScaleSoft = 1.0f / (0.9f * ptScaleHard);  // soft 1/pT cut --> 90% of hard pT cut
@@ -621,7 +623,7 @@ namespace mkfit {
       std::vector<float> ctheta(ntracks);
       for (auto itrack = 0U; itrack < ntracks; itrack++) {
         auto &trk = tracks[itrack];
-        ctheta[itrack] = 1.f / std::tan(trk.theta());
+        ctheta[itrack] = 1.f / vdt::fast_tanf(trk.theta());
       }
 
       float phi1, invpt1, dctheta, ctheta1, dphi, dr2;
@@ -648,7 +650,7 @@ namespace mkfit {
           float invpt2 = track2.invpT();
           const float invptPairMin = std::min(invpt1, invpt2);  // 1/pT of the hardest track
           const float ptScale =
-              std::clamp(invptPairMin * ptScaleRef, scaleFloor, 1.0f);  // 1 at pT<=5, ->0.01 at 500 GeV
+              ptScaleRef * std::clamp(invptPairMin, invptScaleMax, invptScaleRef);  // 1 at pT<=5, ->0.01 at 500 GeV
           const float ptScale2 = ptScale * ptScale;
           const float w = std::max(ptScale, wFloor);  // window scale, floored for geometry safety
 
@@ -710,10 +712,10 @@ namespace mkfit {
                 sharedFirst += 1;
 
               if ((sharedCount - sharedFirst) >= ((minFoundHits - sharedFirst) * fraction))
-                continue;
+                break;
             }
             if ((sharedCount - sharedFirst) >= ((minFoundHits - sharedFirst) * fraction))
-              continue;
+              break;
           }
 
           //selection here - 11percent fraction of shared hits to label a duplicate
