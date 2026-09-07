@@ -12,13 +12,6 @@
 
 namespace egamma {
 
-  // Helper function to compute relative position
-  template <typename T>
-  constexpr auto relativePosition(const math::Phys3DVector<T>& point, const math::Phys3DVector<T>& origin)
-      -> math::Phys3DVector<T> {
-    return point - origin;
-  }
-
   template <typename TAcc, typename T>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE auto relative_eta(TAcc const& acc,
                                                         const math::Phys3DVector<T>& p,
@@ -54,7 +47,7 @@ namespace egamma {
 
     // Constructor to compute relative points
     constexpr EleRelPointPairPortable(const Vec3& p1, const Vec3& p2, const Vec3& origin)
-        : relP1(relativePosition(p1, origin)), relP2(relativePosition(p2, origin)) {}
+        : relP1(p1 - origin), relP2(p2 - origin) {}
 
     // Calculate differences
     //constexpr auto dEta() const { return relative_eta(relP1, relP2); }

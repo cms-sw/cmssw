@@ -2,35 +2,43 @@
  Description: Function to propagate from a point to a plane on the GPU
 */
 
-#ifndef RecoEgamma_EgammaElectronAlgos_interface_helixBarrelPlaneCrossing_h
-#define RecoEgamma_EgammaElectronAlgos_interface_helixBarrelPlaneCrossing_h
+#ifndef RecoEgamma_EgammaElectronAlgos_interface_helixBarrelPlaneCrossingByCircle_h
+#define RecoEgamma_EgammaElectronAlgos_interface_helixBarrelPlaneCrossingByCircle_h
 
 #include <cmath>
+#include <limits>
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/Plane.h"
+#include <alpaka/alpaka.hpp>
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/Phys3DVector.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/Plane.h"
 
+// Kept for the other propagator headers and their users, which still name the
+// double precision instantiation explicitly.
 using Vec3d = egamma::math::Phys3DVector<double>;
 
 namespace propagators {
 
+  // The floating point type is generic: instantiate with double or float.
+  template <typename T>
+  using Vec3 = egamma::math::Phys3DVector<T>;
+
   enum class PropagationDirection { alongMomentum, oppositeToMomentum, anyDirection, invalidDirection };
 
-  template <PropagationDirection propDir>
-  constexpr Vec3d chooseSolution(const Vec3d& d1,
-                                 const Vec3d& d2,
-                                 const Vec3d& startingPos,
-                                 const Vec3d& startingDir,
-                                 int& theActualDir,
-                                 bool& theSolExists) {
-    Vec3d theD;
+  template <PropagationDirection propDir, typename T>
+  constexpr Vec3<T> chooseSolution(const Vec3<T>& d1,
+                                   const Vec3<T>& d2,
+                                   const Vec3<T>& startingPos,
+                                   const Vec3<T>& startingDir,
+                                   int& theActualDir,
+                                   bool& theSolExists) {
+    Vec3<T> theD;
 
-    const double momProj1 = startingDir[0] * d1[0] + startingDir[1] * d1[1];
-    const double momProj2 = startingDir[0] * d2[0] + startingDir[1] * d2[1];
+    const T momProj1 = startingDir[0] * d1[0] + startingDir[1] * d1[1];
+    const T momProj2 = startingDir[0] * d2[0] + startingDir[1] * d2[1];
 
-    const double d1_norm2 = d1[0] * d1[0] + d1[1] * d1[1] + d1[2] * d1[2];
-    const double d2_norm2 = d2[0] * d2[0] + d2[1] * d2[1] + d2[2] * d2[2];
+    const T d1_norm2 = d1[0] * d1[0] + d1[1] * d1[1] + d1[2] * d1[2];
+    const T d2_norm2 = d2[0] * d2[0] + d2[1] * d2[1] + d2[2] * d2[2];
 
     const bool selection_flag = d1_norm2 < d2_norm2;
 
@@ -45,7 +53,7 @@ namespace propagators {
         theActualDir = (momProj2 > 0) ? 1 : -1;
       }
     } else {
-      constexpr double propSign = (propDir == PropagationDirection::alongMomentum) ? 1 : -1;
+      constexpr T propSign = (propDir == PropagationDirection::alongMomentum) ? 1 : -1;
       if (momProj1 * momProj2 < 0) {
         theD = (momProj1 * propSign > 0) ? d1 : d2;
         theActualDir = propSign;
@@ -60,28 +68,30 @@ namespace propagators {
     return theD;
   }
 
-  template <typename TAcc, PropagationDirection propDir>
+  template <typename TAcc, PropagationDirection propDir, typename T>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void helixBarrelPlaneCrossing(TAcc const& acc,
-                                                                    const Vec3d& startingPos,
-                                                                    const Vec3d& startingDir,
-                                                                    const double rho,
-                                                                    Vec3d& surfPosition,
-                                                                    Vec3d& surfRotation,
+                                                                    const Vec3<T>& startingPos,
+                                                                    const Vec3<T>& startingDir,
+                                                                    const T rho,
+                                                                    Vec3<T>& surfPosition,
+                                                                    Vec3<T>& surfRotation,
                                                                     bool& theSolExists,
-                                                                    Vec3d& position,
-                                                                    Vec3d& direction,
-                                                                    double& s) {
-    const egamma::Plane<typename Vec3d::value_type> plane(surfPosition, surfRotation);
+                                                                    Vec3<T>& position,
+                                                                    Vec3<T>& direction,
+                                                                    T& s) {
+    const egamma::Plane<T> plane(surfPosition, surfRotation);
 
-    constexpr double straightLineCutoff = 1.e-7;
+    constexpr T straightLineCutoff = static_cast<T>(1.e-7);
+    constexpr T eps = std::numeric_limits<T>::epsilon();
 
-    const double abs_rho = alpaka::math::abs(acc, rho);
-    const double startingDir_rho = startingPos.rho(acc);
+    const T abs_rho = alpaka::math::abs(acc, rho);
+    const T startingDir_rho = startingPos.rho(acc);
 
-    auto compute_position = [&](const double s) -> Vec3d {
-      const double mag = startingDir.r(acc);
-      const double scale = mag > 0. ? s / mag : 0.;  //that is, for "zero" vector this will be identity operation
-      return egamma::math::axpy(scale, startingDir, startingPos);
+    auto compute_position = [&](const T s) -> Vec3<T> {
+      const T mag = startingDir.r(acc);
+      const T scale =
+          mag > eps ? s / mag : static_cast<T>(0.);  //that is, for "zero" vector this will be identity operation
+      return egamma::math::axpy(acc, scale, startingDir, startingPos);
     };
 
     if (abs_rho < straightLineCutoff && abs_rho * startingDir_rho < straightLineCutoff) {
@@ -101,25 +111,25 @@ namespace propagators {
       return;  // all needed data members have been set
     }
 
-    const double pt = startingDir.rho(acc);
+    const T pt = startingDir.rho(acc);
 
-    const double o = 1. / (pt * rho);
-    const double theXCenter = startingPos[0] - startingDir[1] * o;
-    const double theYCenter = startingPos[1] + startingDir[0] * o;
+    const T o = static_cast<T>(1.) / (pt * rho);
+    const T theXCenter = startingPos[0] - startingDir[1] * o;
+    const T theYCenter = startingPos[1] + startingDir[0] * o;
 
     // This is default when there curvature is non zero
-    const Vec3d n = plane.normalVector();
+    const Vec3<T> n = plane.normalVector();
 
-    const double distToPlane = -plane.localZ(startingPos);
+    const T distToPlane = -plane.localZ(startingPos);
 
-    const double nx = n[0];
-    const double ny = n[1];
+    const T nx = n[0];
+    const T ny = n[1];
 
-    const double distCx = startingPos[0] - theXCenter;
-    const double distCy = startingPos[1] - theYCenter;
+    const T distCx = startingPos[0] - theXCenter;
+    const T distCy = startingPos[1] - theYCenter;
 
-    double nfac, dfac;
-    double A, B, C;
+    T nfac, dfac;
+    T A, B, C;
     bool solveForX;
 
     if (alpaka::math::abs(acc, nx) > alpaka::math::abs(acc, ny)) {
@@ -127,43 +137,43 @@ namespace propagators {
       nfac = ny / nx;
       dfac = distToPlane / nx;
       B = distCy - nfac * distCx;  // only part of B
-      C = (2. * distCx + dfac) * dfac;
+      C = (static_cast<T>(2.) * distCx + dfac) * dfac;
     } else {
       solveForX = true;
       nfac = nx / ny;
       dfac = distToPlane / ny;
       B = distCx - nfac * distCy;  // only part of B
-      C = (2. * distCy + dfac) * dfac;
+      C = (static_cast<T>(2.) * distCy + dfac) * dfac;
     }
 
     B -= nfac * dfac;
-    B *= 2;  // the rest of B
-    A = 1. + nfac * nfac;
+    B *= static_cast<T>(2);  // the rest of B
+    A = static_cast<T>(1.) + nfac * nfac;
 
     // Check solution existence first:
-    const double D = B * B - 4 * A * C;
+    const T D = B * B - static_cast<T>(4) * A * C;
 
     if (D < 0) {
       theSolExists = false;
       return;
     }
 
-    const double Q = (-0.5 * (B + alpaka::math::copysign(acc, alpaka::math::sqrt(acc, D), B)));
+    const T Q = (-static_cast<T>(0.5) * (B + alpaka::math::copysign(acc, alpaka::math::sqrt(acc, D), B)));
 
-    const double first = Q / A;
-    const double second = C / Q;
+    const T first = Q / A;
+    const T second = C / Q;
 
-    Vec3d d1, d2;
+    Vec3<T> d1, d2;
 
     if (solveForX) {
-      d1 = Vec3d(first, dfac - nfac * first, 0.0);
-      d2 = Vec3d(second, dfac - nfac * second, 0.0);
+      d1 = Vec3<T>(first, dfac - nfac * first, static_cast<T>(0.));
+      d2 = Vec3<T>(second, dfac - nfac * second, static_cast<T>(0.));
     } else {
-      d1 = Vec3d(dfac - nfac * first, first, 0.0);
-      d2 = Vec3d(dfac - nfac * second, second, 0.0);
+      d1 = Vec3<T>(dfac - nfac * first, first, static_cast<T>(0.));
+      d2 = Vec3<T>(dfac - nfac * second, second, static_cast<T>(0.));
     }
 
-    Vec3d theD;
+    Vec3<T> theD;
 
     int theActualDir;
 
@@ -172,36 +182,38 @@ namespace propagators {
     if (!theSolExists)
       return;
 
-    const double scaled_dMag_rho = 0.5 * theD.r(acc) * rho;  // theD.norm()
+    const T scaled_dMag_rho = static_cast<T>(0.5) * theD.r(acc) * rho;  // theD.norm()
 
-    double sinAlpha = scaled_dMag_rho;
+    T sinAlpha = scaled_dMag_rho;
 
-    const double ipabs = 1. / startingDir.r(acc);
+    const T ipabs = static_cast<T>(1.) / startingDir.r(acc);
 
-    const double sinTheta = pt * ipabs;
-    const double cosTheta = startingDir[2] * ipabs;
+    const T sinTheta = pt * ipabs;
+    const T cosTheta = startingDir[2] * ipabs;
 
-    if (alpaka::math::abs(acc, sinAlpha) > 1.0)
-      sinAlpha = alpaka::math::copysign(acc, 1.0, sinAlpha);
+    if (alpaka::math::abs(acc, sinAlpha) > static_cast<T>(1.))
+      sinAlpha = alpaka::math::copysign(acc, static_cast<T>(1.), sinAlpha);
 
     // Path length
-    s = theActualDir * 2.0 * alpaka::math::asin(acc, sinAlpha) / (rho * sinTheta);
+    s = theActualDir * static_cast<T>(2.) * alpaka::math::asin(acc, sinAlpha) / (rho * sinTheta);
 
     // Position
-    position = Vec3d(startingPos[0] + theD[0], startingPos[1] + theD[1], startingPos[2] + s * cosTheta);
+    position = Vec3<T>(startingPos[0] + theD[0], startingPos[1] + theD[1], startingPos[2] + s * cosTheta);
 
     // Direction
-    const double tmp = s >= 0 ? scaled_dMag_rho : -scaled_dMag_rho;
-    const double tmp2 = tmp * tmp;
+    const T tmp = s >= 0 ? scaled_dMag_rho : -scaled_dMag_rho;
+    const T tmp2 = tmp * tmp;
 
-    const double sinPhi = (1. < tmp2) ? 0. : 2.0 * tmp * alpaka::math::sqrt(acc, 1. - tmp2);
-    const double cosPhi = 1.0 - 2.0 * tmp2;
+    const T sinPhi = (static_cast<T>(1.) < tmp2)
+                         ? static_cast<T>(0.)
+                         : static_cast<T>(2.) * tmp * alpaka::math::sqrt(acc, static_cast<T>(1.) - tmp2);
+    const T cosPhi = static_cast<T>(1.) - static_cast<T>(2.) * tmp2;
 
-    direction = Vec3d(startingDir[0] * cosPhi - startingDir[1] * sinPhi,
-                      startingDir[0] * sinPhi + startingDir[1] * cosPhi,
-                      startingDir[2]);
+    direction = Vec3<T>(startingDir[0] * cosPhi - startingDir[1] * sinPhi,
+                        startingDir[0] * sinPhi + startingDir[1] * cosPhi,
+                        startingDir[2]);
   }
 
 }  // namespace propagators
 
-#endif  // RecoEgamma_EgammaElectronAlgos_interface_helixBarrelPlaneCrossing_h
+#endif  // RecoEgamma_EgammaElectronAlgos_interface_helixBarrelPlaneCrossingByCircle_h
