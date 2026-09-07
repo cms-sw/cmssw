@@ -230,94 +230,45 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           float eta1 = __H2F(quintuplets.eta()[iT5]);
           float phi1 = __H2F(quintuplets.phi()[iT5]);
 
-          float iEmbedT5[Params_T5::kEmbed];
-          CMS_UNROLL_LOOP for (unsigned k = 0; k < Params_T5::kEmbed; ++k) {
-            iEmbedT5[k] = quintuplets.t5Embed()[iT5][k];
-          }
-
-          // Pre-load T5 hits and iT5-only dup-cleaning constants outside the jx loop.
+          // Pre-load T5 hits outside the jx loop.
           unsigned int iT5Hits[Params_T5::kHits];
           CMS_UNROLL_LOOP for (int i = 0; i < Params_T5::kHits; ++i) { iT5Hits[i] = quintuplets.hitIndices()[iT5][i]; }
-          // Longer (extended) T5s get a tighter cut: 3x smaller d2 and 6 (vs 4) shared OT hits.
-          const bool isExtT5 = quintuplets.nLayers()[iT5] > Params_T5::kBaseLayers;
-          const float d2Lo = isExtT5 ? 0.03f : 0.1f;
-          const float d2Hi = isExtT5 ? 0.3f : 1.0f;
-          const int otThresh = isExtT5 ? 6 : 4;
+          // A pixel object deletes a quintuplet only on shared outer-tracker hits.
+          constexpr int otThresh = 4;
 
           // Cross-clean against both pT5s and pT3s
           for (unsigned int jx : cms::alpakatools::uniform_elements_x(acc, loop_bound)) {
             const bool isPT5 = (jx < nPT5);
-            const unsigned int ptidx = isPT5 ? 0u : (jx - nPT5);
+            const unsigned int ptidx = isPT5 ? jx : (jx - nPT5);
+            const float eta2 = __H2F(isPT5 ? pixelQuintuplets.eta()[ptidx] : pixelTriplets.eta()[ptidx]);
+            const float phi2 = __H2F(isPT5 ? pixelQuintuplets.phi()[ptidx] : pixelTriplets.phi()[ptidx]);
+            if (alpaka::math::abs(acc, eta1 - eta2) >= 0.15f ||
+                alpaka::math::abs(acc, cms::alpakatools::deltaPhi(acc, phi1, phi2)) >= 0.15f)
+              continue;
+            // Only a promoted (!isDup) pixel object may delete.
+            if (isPT5 ? pixelQuintuplets.isDup()[ptidx] : pixelTriplets.isDup()[ptidx])
+              continue;
 
-            float eta2, phi2;
-            if (isPT5) {
-              eta2 = __H2F(pixelQuintuplets.eta()[jx]);
-              phi2 = __H2F(pixelQuintuplets.phi()[jx]);
-            } else {
-              eta2 = __H2F(pixelTriplets.eta()[ptidx]);
-              phi2 = __H2F(pixelTriplets.phi()[ptidx]);
-            }
-
-            float dEta = alpaka::math::abs(acc, eta1 - eta2);
-            float dPhi = cms::alpakatools::deltaPhi(acc, phi1, phi2);
-            float dR2 = dEta * dEta + dPhi * dPhi;
-
-            if (isPT5) {
-              unsigned int jT5 = pixelQuintuplets.quintupletIndices()[jx];
-              float d2 = 0.f;
-              // Compute distance-squared between the two t5 embeddings.
-              CMS_UNROLL_LOOP for (unsigned k = 0; k < Params_T5::kEmbed; ++k) {
-                float df = iEmbedT5[k] - quintuplets.t5Embed()[jT5][k];
-                d2 += df * df;
-              }
-
-              if ((dR2 < 0.02f && d2 < d2Lo) || (dR2 < 1e-3f && d2 < d2Hi)) {
-                quintuplets.isDup()[iT5] |= 4;
-              } else if (dEta < 0.15f && alpaka::math::abs(acc, dPhi) < 0.15f) {
-                // OT hit matching: T5 hits vs pT5 OT hits
-                int nOTMatched = 0;
-                for (int i = 0; i < Params_T5::kHits; ++i) {
-                  unsigned int hitI = iT5Hits[i];
-                  if (hitI == lst::kTCEmptyHitIdx)
-                    continue;
-                  for (int j = Params_pLS::kHits; j < Params_pT5::kHits; ++j) {
-                    unsigned int pT5Hit = pixelQuintuplets.hitIndices()[jx][j];
-                    if (pT5Hit == lst::kTCEmptyHitIdx)
-                      continue;
-                    if (hitI == pT5Hit) {
-                      nOTMatched++;
-                      break;
-                    }
-                  }
+            unsigned int const* ptHits =
+                isPT5 ? pixelQuintuplets.hitIndices()[ptidx].data() : pixelTriplets.hitIndices()[ptidx].data();
+            const int nPtHits = isPT5 ? Params_pT5::kHits : Params_pT3::kHits;
+            // Shared outer-tracker hits: the pixel object's hits after its pLS slots.
+            int nOTMatched = 0;
+            for (int i = 0; i < Params_T5::kHits; ++i) {
+              const unsigned int hitI = iT5Hits[i];
+              if (hitI == lst::kTCEmptyHitIdx)
+                continue;
+              for (int j = Params_pLS::kHits; j < nPtHits; ++j) {
+                if (ptHits[j] == hitI) {
+                  nOTMatched++;
+                  break;
                 }
-                if (nOTMatched >= otThresh)
-                  quintuplets.isDup()[iT5] |= 4;
               }
-            } else if (dR2 < 1e-3f) {
+            }
+            if (nOTMatched >= otThresh) {
               quintuplets.isDup()[iT5] |= 4;
-            } else if (dEta < 0.15f && alpaka::math::abs(acc, dPhi) < 0.15f) {
-              // OT hit matching: T5 hits vs pT3 OT hits (same extended logic as pT5 path)
-              int nOTMatched = 0;
-              for (int i = 0; i < Params_T5::kHits; ++i) {
-                unsigned int hitI = iT5Hits[i];
-                if (hitI == lst::kTCEmptyHitIdx)
-                  continue;
-                for (int j = Params_pLS::kHits; j < Params_pT3::kHits; ++j) {
-                  unsigned int pT3Hit = pixelTriplets.hitIndices()[ptidx][j];
-                  if (pT3Hit == lst::kTCEmptyHitIdx)
-                    continue;
-                  if (hitI == pT3Hit) {
-                    nOTMatched++;
-                    break;
-                  }
-                }
-              }
-              if (nOTMatched >= otThresh)
-                quintuplets.isDup()[iT5] |= 4;
-            }
-
-            if (quintuplets.isDup()[iT5])
               break;
+            }
           }
         }
       }
