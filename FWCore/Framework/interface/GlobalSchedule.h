@@ -182,6 +182,7 @@ namespace edm {
         ParentContext parentContext(globalContext.get());
         // make sure the ProductResolvers know about their
         // workers to allow proper data dependency handling
+        workerManager.resetAll();
         workerManager.setupResolvers(transitionInfo.principal());
 
         auto& aw = workerManager.allWorkers();

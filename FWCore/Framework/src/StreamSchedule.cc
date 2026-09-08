@@ -575,6 +575,7 @@ namespace edm {
       // Data dependencies need to be set up before marking empty
       // (End)Paths complete in case something consumes the status of
       // the empty (EndPath)
+      workerManagerEvents_.resetAll();
       workerManagerEvents_.setupResolvers(ep);
       workerManagerEvents_.setupOnDemandSystem(info);
 

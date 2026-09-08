@@ -100,7 +100,6 @@ namespace edm {
 
   template <typename TI, typename TP>
   void WorkerManagerCore<TI, TP>::setupResolvers(Principal& ep, UnscheduledAuxiliary const* aux) {
-    this->resetAll();
     if (&ep != lastSetupPrincipal_) {
       UnscheduledConfigurator config(allWorkers().begin(), allWorkers().end(), aux);
       ep.setupUnscheduled(config);
