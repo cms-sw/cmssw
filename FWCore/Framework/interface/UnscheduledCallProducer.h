@@ -64,15 +64,15 @@ namespace edm {
     const_iterator end() const { return unscheduledWorkers_.end(); }
     worker_container const& workers() const { return unscheduledWorkers_; }
 
-    template <typename T>
     void runAccumulatorsAsync(WaitingTaskHolder task,
-                              typename T::TransitionInfoType const& info,
+                              EventTransitionInfo const& info,
                               ServiceToken const& token,
                               StreamID streamID,
                               ParentContext const& parentContext,
-                              typename T::Context const* context) noexcept {
+                              StreamContext const* context) noexcept {
       for (auto worker : accumulatorWorkers_) {
-        worker->doWorkAsync<T>(task, info, token, streamID, parentContext, context);
+        worker->doWorkAsync<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
+            task, info, token, streamID, parentContext, context);
       }
     }
 

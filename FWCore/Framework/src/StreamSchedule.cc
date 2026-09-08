@@ -658,7 +658,7 @@ namespace edm {
       }
 
       ParentContext parentContext(&streamContext_);
-      workerManagerEvents_.processAccumulatorsAsync<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
+      workerManagerEvents_.processAccumulatorsAsync(
           hAllPathsDone, info, serviceToken, streamID_, parentContext, &streamContext_);
     } catch (...) {
       iTask.doneWaiting(std::current_exception());

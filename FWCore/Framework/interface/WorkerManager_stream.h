@@ -81,9 +81,6 @@ namespace edm {
     void addToUnscheduledWorkers(ModuleDescription const& iDescription);
 
     //ONLY CALLED FOR EVENT TRANSITION
-    template <typename T>
-      requires std::is_same_v<EventTransitionInfo, typename T::TransitionInfoType> &&
-               std::is_same_v<typename TransitionPhaseStream::ContextType, typename T::Context>
     void processAccumulatorsAsync(WaitingTaskHolder task,
                                   EventTransitionInfo const& info,
                                   ServiceToken const& token,
@@ -91,7 +88,7 @@ namespace edm {
                                   ParentContext const& parentContext,
                                   StreamContext const* context) {
       {
-        unscheduled_.runAccumulatorsAsync<T>(std::move(task), info, token, streamID, parentContext, context);
+        unscheduled_.runAccumulatorsAsync(std::move(task), info, token, streamID, parentContext, context);
       }
     }
     //ONLY CALLED BY EVENTS
