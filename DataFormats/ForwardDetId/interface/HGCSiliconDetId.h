@@ -159,7 +159,7 @@ public:
             ((waferVsign & kHGCalWaferVSignMask) << kHGCalWaferVSignOffset));
     return id0;
   }
-  
+
   // get trigger cell u,v
   constexpr int32_t triggerCellU() const {
     int32_t N = ((type() == HGCalHD120) || (type() == HGCalHD200)) ? HGCalHighDensityN : HGCalLowDensityN;

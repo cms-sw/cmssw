@@ -51,9 +51,9 @@ std::vector<std::string> splitString(const std::string& fLine) {
 }
 
 int main() {
-
   std::string fname("D120.txt");
-  std::cout << "Test change wafer u, v coorinates for HGCSiliconDetId with inputs from " << fname << std::endl << std::endl;
+  std::cout << "Test change wafer u, v coorinates for HGCSiliconDetId with inputs from " << fname << std::endl
+            << std::endl;
 
   if (!fname.empty()) {
     edm::FileInPath filetmp("DataFormats/ForwardDetId/data/" + fname);
@@ -66,8 +66,8 @@ int main() {
       while (fInput.getline(buffer, 80)) {
         std::vector<std::string> items = splitString(std::string(buffer));
         if (items.size() == 9) {
-	  DetId::Detector det = static_cast<DetId::Detector>(std::atoi(items[0].c_str()));
-	  int32_t type = std::atoi(items[1].c_str());
+          DetId::Detector det = static_cast<DetId::Detector>(std::atoi(items[0].c_str()));
+          int32_t type = std::atoi(items[1].c_str());
           int32_t layer = std::atoi(items[2].c_str());
           int32_t waferU = std::atoi(items[3].c_str());
           int32_t waferV = std::atoi(items[4].c_str());
@@ -77,7 +77,8 @@ int main() {
           int32_t waferNU = std::atoi(items[7].c_str());
           int32_t waferNV = std::atoi(items[8].c_str());
           uint32_t id2 = HGCSiliconDetId::waferUVset(id1.rawId(), waferNU, waferNV);
-	  std::cout << "Modify wafer coordinates of " << id1 << " with (" << waferNU << ", " << waferNV << ") to get " << HGCSiliconDetId(id2) << std::endl;
+          std::cout << "Modify wafer coordinates of " << id1 << " with (" << waferNU << ", " << waferNV << ") to get "
+                    << HGCSiliconDetId(id2) << std::endl;
         }
       }
       fInput.close();
