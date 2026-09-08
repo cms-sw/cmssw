@@ -29,6 +29,7 @@
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/Framework/interface/ProcessBlockForOutput.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
@@ -284,10 +285,8 @@ namespace edm {
       writeProcessBlock(pb);
     }
 
-    void OutputModuleCore::doWriteRun(RunPrincipal const& rp,
-                                      ModuleCallingContext const* mcc,
-                                      MergeableRunProductMetadata const* mrpm) {
-      RunForOutput r(rp, moduleDescription_, mcc, true, mrpm);
+    void OutputModuleCore::doWriteRun(RunPrincipal const& rp, ModuleCallingContext const* mcc) {
+      RunForOutput r(rp, moduleDescription_, mcc, true, rp.mergeableRunProductMetadata());
       r.setConsumer(this);
       writeRun(r);
     }
