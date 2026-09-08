@@ -57,8 +57,7 @@ reco::MergedRecoToSimCollectionMtd MtdRecoMergedClusterToSimMergedClusterAssocia
         std::vector<MtdSimMergedClusterRef> simClusterRefs;
 
         LogDebug("MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl")
-            << "RecoCluster: " << recoMergedClusterRef.key()
-            << " with size=" << recoMergedClus.size();
+            << "RecoCluster: " << recoMergedClusterRef.key() << " with size=" << recoMergedClus.size();
 
         LogDebug("MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl")
             << "Reco cluster : " << recoMergedClus.id();
@@ -83,17 +82,18 @@ reco::MergedRecoToSimCollectionMtd MtdRecoMergedClusterToSimMergedClusterAssocia
             for (const auto& simLayerClus : simMergedClus.clusters()) {
               for (const auto& hit : simLayerClus->detIds_and_rows()) {
                 uint32_t modId = geomTools_.sensorModuleId(hit.first);
-                
-                uint8_t rowcol = static_cast<uint8_t>((std::clamp(static_cast<int>(hit.second.first), 0, 15) << 4) | 
-                                                       std::clamp(static_cast<int>(hit.second.second), 0, 15));
-                
+
+                uint8_t rowcol = static_cast<uint8_t>((std::clamp(static_cast<int>(hit.second.first), 0, 15) << 4) |
+                                                      std::clamp(static_cast<int>(hit.second.second), 0, 15));
+
                 simMergedClusHitIds.push_back((static_cast<uint64_t>(modId) << 8) | static_cast<uint64_t>(rowcol));
               }
             }
-            
+
             // Ensure the generated list is sorted for std::set_intersection
             std::sort(simMergedClusHitIds.begin(), simMergedClusHitIds.end());
-            simMergedClusHitIds.erase(std::unique(simMergedClusHitIds.begin(), simMergedClusHitIds.end()), simMergedClusHitIds.end());
+            simMergedClusHitIds.erase(std::unique(simMergedClusHitIds.begin(), simMergedClusHitIds.end()),
+                                      simMergedClusHitIds.end());
 
             // -- Get shared hits
             std::vector<uint64_t> sharedHitIds;
@@ -105,9 +105,9 @@ reco::MergedRecoToSimCollectionMtd MtdRecoMergedClusterToSimMergedClusterAssocia
                                   simMergedClusHitIds.end(),
                                   std::back_inserter(sharedHitIds));
 
-            if (sharedHitIds.empty()){
+            if (sharedHitIds.empty()) {
               continue;
-              }
+            }
 
             // -- If the sim and reco clusters have common hits, fill the std:vector of sim clusters refs
             if (!sharedHitIds.empty()) {
@@ -153,22 +153,22 @@ reco::MergedSimToRecoCollectionMtd MtdRecoMergedClusterToSimMergedClusterAssocia
        simMergedClusIt++) {
     const auto& simMergedClus = *simMergedClusIt;
 
-    
     std::vector<uint64_t> simMergedClusHitIds;
-            for (const auto& simLayerClus : simMergedClus.clusters()) {
-              for (const auto& hit : simLayerClus->detIds_and_rows()) {
-                uint32_t modId = geomTools_.sensorModuleId(hit.first);
-                
-                uint8_t rowcol = static_cast<uint8_t>((std::clamp(static_cast<int>(hit.second.first), 0, 15) << 4) | 
-                                                       std::clamp(static_cast<int>(hit.second.second), 0, 15));
-                
-                simMergedClusHitIds.push_back((static_cast<uint64_t>(modId) << 8) | static_cast<uint64_t>(rowcol));
-              }
-            }
-            
-            // Ensure the generated list is sorted for std::set_intersection
-            std::sort(simMergedClusHitIds.begin(), simMergedClusHitIds.end());
-            simMergedClusHitIds.erase(std::unique(simMergedClusHitIds.begin(), simMergedClusHitIds.end()), simMergedClusHitIds.end());
+    for (const auto& simLayerClus : simMergedClus.clusters()) {
+      for (const auto& hit : simLayerClus->detIds_and_rows()) {
+        uint32_t modId = geomTools_.sensorModuleId(hit.first);
+
+        uint8_t rowcol = static_cast<uint8_t>((std::clamp(static_cast<int>(hit.second.first), 0, 15) << 4) |
+                                              std::clamp(static_cast<int>(hit.second.second), 0, 15));
+
+        simMergedClusHitIds.push_back((static_cast<uint64_t>(modId) << 8) | static_cast<uint64_t>(rowcol));
+      }
+    }
+
+    // Ensure the generated list is sorted for std::set_intersection
+    std::sort(simMergedClusHitIds.begin(), simMergedClusHitIds.end());
+    simMergedClusHitIds.erase(std::unique(simMergedClusHitIds.begin(), simMergedClusHitIds.end()),
+                              simMergedClusHitIds.end());
 
     std::vector<DetId> simMergedClusDetIds = simMergedClus.detIds();
     for (size_t i = 0; i < simMergedClusDetIds.size(); ++i) {
@@ -202,7 +202,7 @@ reco::MergedSimToRecoCollectionMtd MtdRecoMergedClusterToSimMergedClusterAssocia
             std::vector<uint64_t> sharedHitIds;
             std::sort(simMergedClusHitIds.begin(), simMergedClusHitIds.end());
             std::sort(recoMergedClusHitIds.begin(), recoMergedClusHitIds.end());
-          
+
             std::set_intersection(simMergedClusHitIds.begin(),
                                   simMergedClusHitIds.end(),
                                   recoMergedClusHitIds.begin(),

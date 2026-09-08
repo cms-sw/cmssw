@@ -414,7 +414,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
                 << trkHit.localPositionError().xx() << "," << trkHit.localPositionError().yy() << " : " << trkHit.time()
                 << " : " << trkHit.timeError();
             matchClu = true;
-            comp = &trkHit; 
+            comp = &trkHit;
             break;
           }
         }

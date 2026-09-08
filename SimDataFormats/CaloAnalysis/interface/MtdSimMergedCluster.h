@@ -27,7 +27,7 @@ public:
 
   void addCluster(const MtdSimLayerClusterRef& clusterRef, const TrackingParticleRef& tpRef);
 
-  /// Time of the earliest cluster
+  /// energy-weighted average of composing cluster times
   float simTime() const;
 
   /// Position of the earliest cluster

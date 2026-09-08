@@ -67,10 +67,10 @@ std::vector<DetId> MtdSimMergedCluster::detIds() const {
   std::vector<DetId> ids;
   for (const auto& clu : clusters_) {
     const auto& clusterDetIds_and_rows = clu->detIds_and_rows();
-   for (const auto& hit : clusterDetIds_and_rows) {
+    for (const auto& hit : clusterDetIds_and_rows) {
       // hit.first contains the valid 32-bit DetId
       DetId id(hit.first);
-      
+
       // Add it to the vector if it is not already present
       if (std::find(ids.begin(), ids.end(), id) == ids.end()) {
         ids.push_back(id);

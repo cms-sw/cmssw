@@ -311,16 +311,16 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
     std::vector<const FTLCluster*> internalClusters;
     internalClusters.reserve(totalClusters);
     std::vector<const FTLCluster*> edgeClusters;
-    
+
     for (const auto& detSet : *btlClustersHandle) {
       for (const auto& cluster : detSet) {
         if (cluster.energy() < energyThreshold_)
           continue;
-        if (cluster.minHitCol() == 0 || cluster.maxHitCol() == 15){
-            edgeClusters.push_back(&cluster);
-          }else{
-            internalClusters.push_back(&cluster);
-          }
+        if (cluster.minHitCol() == 0 || cluster.maxHitCol() == 15) {
+          edgeClusters.push_back(&cluster);
+        } else {
+          internalClusters.push_back(&cluster);
+        }
       }
     }
 
@@ -410,59 +410,63 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
       FTLMergedCluster mergedCluster = mergeClusters(mergedClusterClusters, geom, btlClustersHandle);
       uint32_t clusterId = mergedCluster.id().rawId();
 
-      if (clusterId != currentRawId) { //new detId? if yes we need to declare a new filler
+      if (clusterId != currentRawId) {  //new detId? if yes we need to declare a new filler
         visitedRawIds.insert(clusterId);
         //new filler when changning the rawId
         filler.reset();
         filler = std::make_unique<edmNew::DetSetVector<FTLMergedCluster>::FastFiller>(*btlOutput, clusterId);
         currentRawId = clusterId;
-        LogDebug("MTDMergedClusterProducer") << "BTL merged cluster # " << std::setw(5) << index << " " << mergedCluster;
+        LogDebug("MTDMergedClusterProducer")
+            << "BTL merged cluster # " << std::setw(5) << index << " " << mergedCluster;
         filler->push_back(std::move(mergedCluster));
         index++;
         mergedClusterClusters.clear();
 
-        auto clustersInSameDetId = btlClustersHandle->find(clusterId); // see if there other (internal) clusters in the same detId. This needs to be done because you can only fill one detId once.
+        auto clustersInSameDetId = btlClustersHandle->find(
+            clusterId);  // see if there other (internal) clusters in the same detId. This needs to be done because you can only fill one detId once.
         for (auto& clusterInSameDetId : *clustersInSameDetId) {
-          if ((clusterInSameDetId.maxHitCol() != 0) && (clusterInSameDetId.maxHitCol() != 15) ){
+          if ((clusterInSameDetId.maxHitCol() != 0) && (clusterInSameDetId.maxHitCol() != 15)) {
             mergedClusterClusters.push_back(&clusterInSameDetId);
             FTLMergedCluster mergedCluster = mergeClusters(mergedClusterClusters, geom, btlClustersHandle);
-            LogDebug("MTDMergedClusterProducer") << "BTL merged cluster # " << std::setw(5) << index << " " << mergedCluster;
+            LogDebug("MTDMergedClusterProducer")
+                << "BTL merged cluster # " << std::setw(5) << index << " " << mergedCluster;
             filler->push_back(std::move(mergedCluster));
             index++;
             mergedClusterClusters.clear();
           }
         }
-      }
-      else{ //filler is already declared and points to the same detId, just fill with the merged
-        LogDebug("MTDMergedClusterProducer") << "BTL merged cluster # " << std::setw(5) << index << " " << mergedCluster;
+      } else {  //filler is already declared and points to the same detId, just fill with the merged
+        LogDebug("MTDMergedClusterProducer")
+            << "BTL merged cluster # " << std::setw(5) << index << " " << mergedCluster;
         filler->push_back(std::move(mergedCluster));
         index++;
         mergedClusterClusters.clear();
       }
     }
     filler.reset();
-    
+
     //loop on the internal clusters, the ones that do not get merged
-    currentRawId = 0; //keep track of the change in detId 
-    bool skippedThePreviousClus = false; //keep track if the previous cluster was skipped, because the detId was considered in the for loop above
+    currentRawId = 0;  //keep track of the change in detId
+    bool skippedThePreviousClus =
+        false;  //keep track if the previous cluster was skipped, because the detId was considered in the for loop above
     for (size_t i = 0; i < internalClusters.size(); ++i) {
       const FTLCluster* cluster = internalClusters[i];
       uint32_t clusterId = cluster->id().rawId();
 
       if (clusterId != currentRawId) {
         currentRawId = clusterId;
-        if (visitedRawIds.count(clusterId)) { //check if the detId was already considered in the for loop above, if so, skip the filling for this detId
+        if (visitedRawIds.count(
+                clusterId)) {  //check if the detId was already considered in the for loop above, if so, skip the filling for this detId
           skippedThePreviousClus = true;
           continue;
-        }else{
+        } else {
           skippedThePreviousClus = false;
         }
         //new filler when changing the rawId
         filler.reset();
         filler = std::make_unique<edmNew::DetSetVector<FTLMergedCluster>::FastFiller>(*btlOutput, clusterId);
-        }
-      else{
-        if (skippedThePreviousClus){ //same detId as previous cluster, but this det was already considered in the for loop above -> skip
+      } else {
+        if (skippedThePreviousClus) {  //same detId as previous cluster, but this det was already considered in the for loop above -> skip
           continue;
         }
       }
@@ -475,8 +479,6 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
       mergedClusterClusters.clear();
     }
     filler.reset();
-    
-
 
     LogTrace("MTDMergedClusterProducer") << "About to put " << btlOutput->size()
                                          << " BTL MergedCluster DetSets into event " << e.id() << std::endl;

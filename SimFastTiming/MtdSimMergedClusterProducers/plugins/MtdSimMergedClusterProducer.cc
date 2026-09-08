@@ -128,8 +128,8 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
 
   edm::Handle<MtdSimLayerClusterCollection> simLClusters;
   iEvent.getByToken(mtdSimLayerClustersToken_, simLClusters);
-  
-    struct TPRefHash {
+
+  struct TPRefHash {
     std::size_t operator()(const TrackingParticleRef& ref) const {
       // Extract the unique index of the particle in the collection and hash it
       return std::hash<size_t>()(ref.key());
@@ -146,9 +146,9 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
     }
 
     TrackingParticleRef current = tp;
-    
+
     // Use unordered_set to avoid heap-allocation thrashing for the infinite loop check
-    std::unordered_set<TrackingParticleRef, TPRefHash> visited; 
+    std::unordered_set<TrackingParticleRef, TPRefHash> visited;
 
     while (true) {
       if (visited.count(current)) {
@@ -158,13 +158,13 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
 
       const auto& parentVertices = current->parentVertex();
       if (parentVertices.isNull() || !parentVertices.isAvailable()) {
-        break; 
+        break;
       }
       const auto& parentTracks = parentVertices->sourceTracks();
       if (parentTracks.empty()) {
-        break; 
+        break;
       }
-      
+
       current = parentTracks[0];
 
       // SHORTCUT: If our parent is already in the cache, we don't need to traverse the rest of the tree
@@ -178,10 +178,6 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
     ancestorCache[tp] = current;
     return current;
   };
-
-
-  
-
 
   LogDebug("MtdSimMergedClusterProducer") << "Total TrackingParticles: " << trackingParticles->size();
 
@@ -212,10 +208,8 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
               BTLDetId idA(detIdsA[0].first);
               BTLDetId idB(detIdsB[0].first);
 
-              auto [iphiA, ietaA] = topology->btlIndex(
-                  idA.geographicalId(crysLayout).rawId());  //uint32_t
-              auto [iphiB, ietaB] = topology->btlIndex(
-                  idB.geographicalId(crysLayout).rawId());
+              auto [iphiA, ietaA] = topology->btlIndex(idA.geographicalId(crysLayout).rawId());  //uint32_t
+              auto [iphiB, ietaB] = topology->btlIndex(idB.geographicalId(crysLayout).rawId());
 
               if (iphiA != iphiB)
                 return iphiA < iphiB;
@@ -246,7 +240,6 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
               }
             });
 
-  
   // Now, construct cluster map from ordered collection
   std::unordered_map<uint32_t, std::vector<const MtdSimLayerCluster*>> clusterMap;
 
@@ -259,7 +252,6 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
     }
   }
 
-  
   LogDebug("MtdSimMergedClusterProducer")
       << "Found " << clusterMap.size() << " MTD SimLayerClusters above energy threshold";
 
@@ -289,23 +281,24 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
     // iterate over detIds_and_rows:
     LogDebug("MtdSimMergedClusterProducer") << "Iterating over " << cluster.detIds_and_rows().size() << " cluster hits";
     auto detids_and_rows_ = cluster.detIds_and_rows();
-    auto [lowest_col_, highest_col_] = std::minmax_element(detids_and_rows_.begin(), detids_and_rows_.end(), [](auto const& x, auto const& y) {
-                return x.second.second < y.second.second;
-              });
-      
-      uint8_t lowest_col = lowest_col_->second.second;
-      uint8_t highest_col = highest_col_->second.second;
+    auto [lowest_col_, highest_col_] =
+        std::minmax_element(detids_and_rows_.begin(), detids_and_rows_.end(), [](auto const& x, auto const& y) {
+          return x.second.second < y.second.second;
+        });
 
-      if (lowest_col == 0) {
-        edgeHitIn0 = true;
-      } else if (highest_col == 15) {
-        edgeHitIn15 = true;
-      }
+    uint8_t lowest_col = lowest_col_->second.second;
+    uint8_t highest_col = highest_col_->second.second;
+
+    if (lowest_col == 0) {
+      edgeHitIn0 = true;
+    } else if (highest_col == 15) {
+      edgeHitIn15 = true;
+    }
 
     LogDebug("MtdSimMergedClusterProducer") << "  Edge hits: col0=" << edgeHitIn0 << ", col15=" << edgeHitIn15;
 
     uint32_t thisCluIdRaw = cluId.geographicalId(crysLayout).rawId();
-    
+
     // Get topology indices - use geographicalId (module-level) with crystal layout
     std::pair<uint32_t, uint32_t> indices = topology->btlIndex(thisCluIdRaw);
     uint32_t iphi = indices.first;
@@ -323,7 +316,9 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
     // MERGING IN SAME SM + NEXT SM IN ETA DIRECTION
     std::vector<int> etaOffsets = {1, 0};
     for (int etaOffset : etaOffsets) {
-      if ((hasEdgeHitCurrent) || etaOffset == 0) { // if there is an edge hit, we can merge in eta direction +1, otherwise only same-SM merging. 
+      if ((hasEdgeHitCurrent) ||
+          etaOffset ==
+              0) {  // if there is an edge hit, we can merge in eta direction +1, otherwise only same-SM merging.
         if ((ieta == halfTrayBTL_SMidx) && etaOffset == 1) {
           continue;  // skip merging across the eta=0 gap
         }
@@ -332,9 +327,9 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
           adjDetIdRaw = topology->btlidFromIndex(iphi, ieta + etaOffset);
           LogDebug("MtdSimMergedClusterProducer")
               << "    Checking adjacent detId at index (" << iphi << ", " << ieta + etaOffset << "): " << adjDetIdRaw;
-          if (adjDetIdRaw == 0) //at the end of the tray in eta direction
+          if (adjDetIdRaw == 0)  //at the end of the tray in eta direction
             continue;
-        } else { //etaOffset == 0, same-SM merging
+        } else {  //etaOffset == 0, same-SM merging
           adjDetIdRaw = thisCluIdRaw;
         }
 
@@ -346,25 +341,25 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
 
         // Iterate over all clusters at this DetId
         for (const MtdSimLayerCluster* adjCluster : it->second) {
-          
-          if (adjCluster == &cluster) { //skip same cluster in SM
+          if (adjCluster == &cluster) {  //skip same cluster in SM
             continue;
           }
-          if (processedClusters.count(adjCluster)) { //skip already processed clusters
+          if (processedClusters.count(adjCluster)) {  //skip already processed clusters
             LogDebug("MtdSimMergedClusterProducer") << "Cluster found but already processed";
             continue;
           }
 
           LogDebug("MtdSimMergedClusterProducer") << "Found cluster at " << adjDetIdRaw;
-          
+
           // Check for opposite edge hit
           bool hasOppositeEdgeHit = false;
           auto adj_detids_and_rows_ = adjCluster->detIds_and_rows();
-    
-          auto [adj_lowest_col_,adj_highest_col_] = std::minmax_element(adj_detids_and_rows_.begin(), adj_detids_and_rows_.end(), [](auto const& x, auto const& y) {
+
+          auto [adj_lowest_col_, adj_highest_col_] = std::minmax_element(
+              adj_detids_and_rows_.begin(), adj_detids_and_rows_.end(), [](auto const& x, auto const& y) {
                 return x.second.second < y.second.second;
               });
-          
+
           uint8_t adj_lowest_col = adj_lowest_col_->second.second;
           uint8_t adj_highest_col = adj_highest_col_->second.second;
 
@@ -373,8 +368,8 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
                !positiveZ)) {  //check if there is an edge hit in the neighbouring cluster
             hasOppositeEdgeHit = true;
           }
-          bool areClustersOverlapping = false; 
-          if (etaOffset == 0){
+          bool areClustersOverlapping = false;
+          if (etaOffset == 0) {
             int clu_len = highest_col - lowest_col + 1;
 
             bool isLeftEdgeOverlapping =
@@ -382,7 +377,7 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
                 (abs(highest_col - adj_lowest_col) <= clu_len);  // equality includes adjacent clusters
             bool isRightEdgeOverlapping =
                 (abs(adj_highest_col - highest_col) <= clu_len) && (abs(lowest_col - adj_highest_col) <= clu_len);
-              areClustersOverlapping = isLeftEdgeOverlapping || isRightEdgeOverlapping;
+            areClustersOverlapping = isLeftEdgeOverlapping || isRightEdgeOverlapping;
           }
 
           if ((hasEdgeHitCurrent && hasOppositeEdgeHit) || (areClustersOverlapping)) {
@@ -421,7 +416,7 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
                   }
                   if (hasCommonAncestor)
                     break;
-                } 
+                }
               }
             }
             if (hasCommonAncestor || areBothDirectfromSameTP) {
