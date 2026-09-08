@@ -71,7 +71,7 @@ namespace edm {
                               ParentContext const& parentContext,
                               StreamContext const* context) noexcept {
       for (auto worker : accumulatorWorkers_) {
-        worker->doWorkAsync<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
+        worker->doWorkAsync<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>>(
             task, info, token, streamID, parentContext, context);
       }
     }

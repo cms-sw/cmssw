@@ -34,10 +34,10 @@ namespace edm {
                                                           ExceptionToActionTable const& actions)
       : WorkerManagerCore<TI, TransitionPhaseStream>(modReg, areg, actions) {}
 
-  WorkerManager<EventTransitionInfo, TransitionPhaseStream>::WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
+  WorkerManager<EventTransitionInfo, TransitionPhaseGlobal>::WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
                                                                            std::shared_ptr<ActivityRegistry> areg,
                                                                            ExceptionToActionTable const& actions)
-      : WorkerManagerCore<EventTransitionInfo, TransitionPhaseStream>(modReg, areg, actions),
+      : WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal>(modReg, areg, actions),
         unscheduled_(*areg) {}  // WorkerManager::WorkerManager
 
   template <typename TI, typename TP>
@@ -60,8 +60,8 @@ namespace edm {
     (void)WorkerManagerCore<TI, TransitionPhaseGlobal>::deleteModuleIfExists(moduleLabel);
   }
 
-  void WorkerManager<EventTransitionInfo, TransitionPhaseStream>::deleteModuleIfExists(std::string const& moduleLabel) {
-    auto worker = WorkerManagerCore<EventTransitionInfo, TransitionPhaseStream>::deleteModuleIfExists(moduleLabel);
+  void WorkerManager<EventTransitionInfo, TransitionPhaseGlobal>::deleteModuleIfExists(std::string const& moduleLabel) {
+    auto worker = WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal>::deleteModuleIfExists(moduleLabel);
     if (worker != nullptr) {
       unscheduled_.removeWorker(worker);
     }
@@ -76,7 +76,7 @@ namespace edm {
     return worker;
   }
 
-  void WorkerManager<EventTransitionInfo, TransitionPhaseStream>::addToUnscheduledWorkers(
+  void WorkerManager<EventTransitionInfo, TransitionPhaseGlobal>::addToUnscheduledWorkers(
       ModuleDescription const& iDescription) {
     auto newWorker = this->getWorkerForExistingModuleUnattached(iDescription.moduleLabel());
     assert(nullptr != newWorker);
@@ -117,11 +117,11 @@ namespace edm {
     this->setupResolvers(ep, nullptr);
   }
 
-  void WorkerManager<EventTransitionInfo, TransitionPhaseStream>::setupResolvers(Principal& ep) {
+  void WorkerManager<EventTransitionInfo, TransitionPhaseGlobal>::setupResolvers(Principal& ep) {
     this->setupResolvers(ep, &(unscheduled_.auxiliary()));
   }
 
-  void WorkerManager<EventTransitionInfo, TransitionPhaseStream>::setupOnDemandSystem(EventTransitionInfo const& info) {
+  void WorkerManager<EventTransitionInfo, TransitionPhaseGlobal>::setupOnDemandSystem(EventTransitionInfo const& info) {
     unscheduled_.setEventTransitionInfo(info);
   }
 
@@ -129,7 +129,7 @@ namespace edm {
   template class WorkerManagerCore<LumiTransitionInfo, TransitionPhaseGlobal>;
   template class WorkerManagerCore<RunTransitionInfo, TransitionPhaseStream>;
   template class WorkerManagerCore<LumiTransitionInfo, TransitionPhaseStream>;
-  template class WorkerManagerCore<EventTransitionInfo, TransitionPhaseStream>;
+  template class WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal>;
   template class WorkerManagerCore<ProcessBlockTransitionInfo, TransitionPhaseGlobal>;
   template class WorkerManagerCore<InputProcessBlockTransitionInfo, TransitionPhaseGlobal>;
 
@@ -137,7 +137,7 @@ namespace edm {
   template class WorkerManager<LumiTransitionInfo, TransitionPhaseGlobal>;
   template class WorkerManager<RunTransitionInfo, TransitionPhaseStream>;
   template class WorkerManager<LumiTransitionInfo, TransitionPhaseStream>;
-  template class WorkerManager<EventTransitionInfo, TransitionPhaseStream>;
+  template class WorkerManager<EventTransitionInfo, TransitionPhaseGlobal>;
   template class WorkerManager<ProcessBlockTransitionInfo, TransitionPhaseGlobal>;
   template class WorkerManager<InputProcessBlockTransitionInfo, TransitionPhaseGlobal>;
 }  // namespace edm

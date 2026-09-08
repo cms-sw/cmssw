@@ -59,52 +59,6 @@ namespace edm {
 
     void deleteModuleIfExists(std::string const& moduleLabel);
   };
-
-  template <>
-  class WorkerManager<EventTransitionInfo, TransitionPhaseStream>
-      : private WorkerManagerCore<EventTransitionInfo, TransitionPhaseStream> {
-  public:
-    WorkerManager(WorkerManager&&) = default;
-
-    WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
-                  std::shared_ptr<ActivityRegistry> actReg,
-                  ExceptionToActionTable const& actions);
-
-    using WorkerManagerCore<EventTransitionInfo, TransitionPhaseStream>::allWorkers;
-    using WorkerManagerCore<EventTransitionInfo, TransitionPhaseStream>::addToAllWorkers;
-    using WorkerManagerCore<EventTransitionInfo, TransitionPhaseStream>::getWorkerForModule;
-    using WorkerManagerCore<EventTransitionInfo, TransitionPhaseStream>::actionTable;
-    using WorkerManagerCore<EventTransitionInfo, TransitionPhaseStream>::setupResolvers;
-    using WorkerManagerCore<EventTransitionInfo, TransitionPhaseStream>::resetAll;
-    using AllWorkers = typename WorkerManagerCore<EventTransitionInfo, TransitionPhaseStream>::AllWorkers;
-    //ONLY USED BY EVENTS
-    void addToUnscheduledWorkers(ModuleDescription const& iDescription);
-
-    //ONLY CALLED FOR EVENT TRANSITION
-    void processAccumulatorsAsync(WaitingTaskHolder task,
-                                  EventTransitionInfo const& info,
-                                  ServiceToken const& token,
-                                  StreamID streamID,
-                                  ParentContext const& parentContext,
-                                  StreamContext const* context) {
-      {
-        unscheduled_.runAccumulatorsAsync(std::move(task), info, token, streamID, parentContext, context);
-      }
-    }
-    //ONLY CALLED BY EVENTS
-    void setupOnDemandSystem(EventTransitionInfo const&);
-
-    //used by all but specialized for events
-    void setupResolvers(Principal& principal);
-
-    void deleteModuleIfExists(std::string const& moduleLabel);
-
-    //ONLY CALLED BY EVENTS
-    AllWorkers const& unscheduledWorkers() const { return unscheduled_.workers(); }
-
-  private:
-    UnscheduledCallProducer unscheduled_;
-  };
 }  // namespace edm
 
 #endif

@@ -282,7 +282,7 @@ namespace edm {
       }
       if (pathStatusInserterWorker_) {
         std::exception_ptr jException =
-            pathStatusInserterWorker_->runModuleDirectly<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
+            pathStatusInserterWorker_->runModuleDirectly<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>>(
                 iInfo, streamID, ParentContext(iContext), iContext);
         if (jException && not iException) {
           iException = jException;
@@ -315,7 +315,7 @@ namespace edm {
                                             std::exception_ptr const* iException) {
         this->workerFinished(iException, lastModuleIndex, info, weakToken.lock(), iID, iContext, iGroup);
       });
-      workers_[lastModuleIndex].runWorkerAsync<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
+      workers_[lastModuleIndex].runWorkerAsync<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>>(
           WaitingTaskHolder(iGroup, nextTask), iInfo, iToken, iID, iContext);
     }
   }

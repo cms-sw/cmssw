@@ -565,7 +565,7 @@ namespace edm {
     CMS_SA_ALLOW try {
       this->resetAll();
 
-      using Traits = OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>;
+      using Traits = OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>;
 
       Traits::setStreamContext(streamContext_, ep);
       //a service may want to communicate with another service
@@ -584,7 +584,7 @@ namespace edm {
         pathStatusInserters[empty_trig_path]->setPathStatus(streamID_, hltPathStatus);
         std::exception_ptr except =
             pathStatusInserterWorkers_[empty_trig_path]
-                ->runModuleDirectly<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
+                ->runModuleDirectly<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>>(
                     info, streamID_, ParentContext(&streamContext_), &streamContext_);
         if (except) {
           iTask.doneWaiting(except);
@@ -595,7 +595,7 @@ namespace edm {
         for (int empty_end_path : empty_end_paths_) {
           std::exception_ptr except =
               endPathStatusInserterWorkers_[empty_end_path]
-                  ->runModuleDirectly<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
+                  ->runModuleDirectly<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>>(
                       info, streamID_, ParentContext(&streamContext_), &streamContext_);
           if (except) {
             iTask.doneWaiting(except);
@@ -694,7 +694,7 @@ namespace edm {
         //Even if there was an exception, we need to allow results inserter
         // to run since some module may be waiting on its results.
         ParentContext parentContext(&streamContext_);
-        using Traits = OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>;
+        using Traits = OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>;
 
         auto expt = results_inserter_->runModuleDirectly<Traits>(info, streamID_, parentContext, &streamContext_);
         if (expt) {
@@ -723,7 +723,7 @@ namespace edm {
   }
 
   std::exception_ptr StreamSchedule::finishProcessOneEvent(std::exception_ptr iExcept) {
-    using Traits = OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>;
+    using Traits = OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>;
 
     if (iExcept) {
       //add context information to the exception and print message
