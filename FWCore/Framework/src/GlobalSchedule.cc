@@ -51,12 +51,12 @@ namespace edm {
           (void)wm.getWorkerForModule(*module);
         }
       }
-      if (mod->wantsGlobalRuns()) {
+      if (mod->wantsGlobalRuns() or mod->wantsWrites()) {
         for (auto& wm : runManagers()) {
           (void)wm.getWorkerForModule(*module);
         }
       }
-      if (mod->wantsGlobalLuminosityBlocks()) {
+      if (mod->wantsGlobalLuminosityBlocks() or mod->wantsWrites()) {
         for (auto& wm : lumisManagers()) {
           (void)wm.getWorkerForModule(*module);
         }

@@ -1,8 +1,7 @@
 #ifndef FWCore_Utilities_Digest_h
 #define FWCore_Utilities_Digest_h
 
-#include "md5.h"
-
+#include <edm_md5.h>
 #include <iosfwd>
 #include <string>
 #include <string_view>
@@ -59,7 +58,7 @@ namespace cms {
     MD5Result digest();
 
   private:
-    md5_state_t state_;
+    edm_md5::md5_state_t state_;
   };
 }  // namespace cms
 
