@@ -118,7 +118,7 @@ int phase2tkutil::getITSignedModule(uint32_t det_id, const TrackerTopology* tTop
 }
 
 int phase2tkutil::getITSignedLadder(uint32_t det_id, const TrackerTopology* tTopo, float phi) {
-  int signedLadder;
+  int signedLadder = 0;
   int ladder = tTopo->pxbLadder(det_id);
   int layer = tTopo->getITPixelLayerNumber(det_id);
   if (std::abs(phi) > 3.1415 / 2) {  // Outer shell
