@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/TransitionPhaseTypes.h"
-#include "FWCore/Framework/interface/WorkerManager.h"
+#include "FWCore/Framework/interface/WorkerManager_global.h"
 #include "FWCore/Framework/interface/maker/Worker.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"

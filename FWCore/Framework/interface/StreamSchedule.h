@@ -58,7 +58,7 @@
 #include "FWCore/Framework/interface/ExceptionHelpers.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
-#include "FWCore/Framework/interface/WorkerManager.h"
+#include "FWCore/Framework/interface/WorkerManager_stream.h"
 #include "FWCore/Framework/interface/Path.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/TransitionPhaseTypes.h"
