@@ -152,41 +152,41 @@ namespace cms {
   // Digest
   //
 
-  Digest::Digest() : state_() { md5_init(&state_); }
+  Digest::Digest() : state_() { edm_md5::md5_init(&state_); }
 
   Digest::Digest(std::string const& s) : state_() {
-    md5_init(&state_);
+    edm_md5::md5_init(&state_);
     this->append(s);
   }
 
   Digest::Digest(std::string_view v) : state_() {
-    md5_init(&state_);
+    edm_md5::md5_init(&state_);
     this->append(v);
   }
 
   Digest::Digest(const char* s) : state_() {
-    md5_init(&state_);
+    edm_md5::md5_init(&state_);
     this->append(s, strlen(s));
   }
 
   void Digest::append(std::string const& s) {
-    const md5_byte_t* data = reinterpret_cast<const md5_byte_t*>(s.data());
-    md5_append(&state_, data, s.size());
+    const edm_md5::md5_byte_t* data = reinterpret_cast<const edm_md5::md5_byte_t*>(s.data());
+    edm_md5::md5_append(&state_, data, s.size());
   }
 
   void Digest::append(std::string_view v) {
-    const md5_byte_t* data = reinterpret_cast<const md5_byte_t*>(v.data());
-    md5_append(&state_, data, v.size());
+    const edm_md5::md5_byte_t* data = reinterpret_cast<const edm_md5::md5_byte_t*>(v.data());
+    edm_md5::md5_append(&state_, data, v.size());
   }
 
   void Digest::append(const char* s, size_t size) {
-    const md5_byte_t* data = reinterpret_cast<const md5_byte_t*>(s);
-    md5_append(&state_, data, size);
+    const edm_md5::md5_byte_t* data = reinterpret_cast<const edm_md5::md5_byte_t*>(s);
+    edm_md5::md5_append(&state_, data, size);
   }
 
   MD5Result Digest::digest() {
     MD5Result aDigest;
-    md5_finish(&state_, aDigest.bytes.data());
+    edm_md5::md5_finish(&state_, aDigest.bytes.data());
     return aDigest;
   }
 }  // namespace cms
