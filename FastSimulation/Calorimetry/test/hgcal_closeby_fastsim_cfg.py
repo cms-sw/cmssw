@@ -6,24 +6,22 @@
 #           04 Sep 2026 (pull-request preparation)
 #
 #  Design inspired by Jan Eysermans' HGCAL FastSim demonstrator
-#  (CMSSW_11_3_0_pre3, 2021). Defaults keep the new switches off.
+#  (CMSSW_11_3_0_pre3, 2021). Calorimeter-region vertices are accepted by
+#  default; the navigation backup remains opt-in.
 # ---------------------------------------------------------------------------
 
 """
 CloseByParticleGun + FastSim: particles fired FROM the CE-E face.
 
-Stock FastSim cannot do this at all: ParticleFilter rejects any primary whose
-vertex is outside the tracker volume (r < 129, |z| < 303.353), so a gun vertex
-at z = 321 produced zero SimTracks. Two opt-in switches fix it:
+FastSim accepts particles produced outside the tracker and within the
+calorimeter region by default. However, a particle starting exactly on (or just
+past) the HGCAL entrance layer cannot be reached by the forward-only layer
+navigator. The backup distance configured below moves the navigation starting
+point backwards along the particle momentum so that the standard machinery can
+pick up the entrance layer and hand the particle to the CalorimetryManager.
 
-  * particleFilter.acceptCaloVertices = True   -- accept calo-region vertices
-  * fastSimProducer.caloVertexBackupDistance   -- move the particle back along
-    its momentum before the calo-layer navigation, so a vertex sitting exactly
-    on (or epsilon past) the HGCAL entrance layer is still picked up by the
-    standard machinery and handed to the CalorimetryManager.
-
-The particle never sees the tracker; it goes straight to the calorimetry, which
-is Jan's original design for calo-face guns.
+The particle never sees the tracker; it goes straight to calorimetry, which is
+Jan's original design for calorimeter-face guns.
 
 Field-off on purpose: the parametrization was derived field-free and a straight
 back-shift is exact only without a field.
@@ -41,7 +39,6 @@ import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Phase2C17I13M9_FastSim_cff import Phase2C17I13M9_FastSim
 
 import argparse
-import sys
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--maxEvents', type=int, default=20,
@@ -115,8 +112,7 @@ process.load('Configuration.StandardSequences.VtxSmearedNoSmear_cff')
 process.generatorSmeared = cms.EDProducer('GeneratorSmearedProducer')
 process.load('FastSimulation.SimplifiedGeometryPropagator.fastSimProducer_cff')
 
-# The two opt-in switches this test exists for.
-process.fastSimProducer.particleFilter.acceptCaloVertices = cms.bool(True)
+# Move the navigation starting point just in front of the CE-E face.
 process.fastSimProducer.caloVertexBackupDistance = cms.double(5.0)  # cm
 
 process.load('RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi')

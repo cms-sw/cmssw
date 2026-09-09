@@ -172,11 +172,11 @@ private:
   std::vector<std::string> interactionModelNames_;  //!< All defined interaction model names
   static const std::string MESSAGECATEGORY;         //!< Category of debugging messages ("FastSimulation")
   const edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> particleDataTableESToken_;
-  //! CloseByParticleGun support: a primary born at the calorimeter face (let
-  //! through by ParticleFilter's acceptCaloVertices) may sit exactly on or just
-  //! past the first calo layer, where the layer navigator can no longer reach
-  //! it. When > 0 [cm], such particles are translated backwards along their
-  //! momentum by this distance (time adjusted) before the calo navigation, so
+  //! CloseByParticleGun support: a particle born at the calorimeter face may
+  //! sit exactly on or just past the first calorimeter layer, where the layer
+  //! navigator can no longer reach it. When > 0 [cm], such particles are
+  //! translated backwards along their momentum by this distance (time adjusted)
+  //! before the calorimeter navigation, so
   //! the standard entrance-layer machinery applies unchanged. Opt-in; inert for
   //! particles that were propagated through the tracker.
   double caloVertexBackupDistance_ = 0.;

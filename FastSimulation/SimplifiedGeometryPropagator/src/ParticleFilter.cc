@@ -29,9 +29,9 @@ fastsim::ParticleFilter::ParticleFilter(const edm::ParameterSet& cfg) {
   vertexRMax2_ = 129.0 * 129.0;
   vertexZMax_ = 303.353;
 
-  // Opt-in for CloseByParticleGun-style studies: accept primaries born in the
-  // calorimeter region. existsAs-guarded so the many configs that build this
-  // PSet without the flag keep working unchanged.
+  // The standard configuration accepts particles born in the calorimeter
+  // region. Keep the existsAs guard so configurations without the new
+  // parameter retain the historical behavior.
   acceptCaloVertices_ = cfg.existsAs<bool>("acceptCaloVertices") && cfg.getParameter<bool>("acceptCaloVertices");
 }
 
@@ -60,9 +60,9 @@ bool fastsim::ParticleFilter::accepts(const fastsim::Particle& particle) const {
     }
   }
 
-  // particles must have vertex in volume of tracker -- or, when opted in for
-  // calo-face guns, in the calorimeter region: those particles never see the
-  // tracker and FastSimProducer hands them directly to the CalorimetryManager.
+  // Particles must have a vertex in the tracker volume or, when configured, in
+  // the calorimeter region. The latter skip tracker propagation and are handed
+  // directly to the CalorimetryManager.
   if (acceptCaloVertices_ && !acceptsVtx(particle.position()) && particle.position().Perp2() < caloVertexRMax2_ &&
       std::abs(particle.position().Z()) < caloVertexZMax_) {
     return acceptsEn(particle);
