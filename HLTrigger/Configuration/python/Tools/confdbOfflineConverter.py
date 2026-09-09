@@ -100,10 +100,6 @@ class OfflineConverter:
 
         if self.proxy:
             self.proxy_connect_args = ('--dbproxy', '--dbproxyport', self.proxyPort, '--dbproxyhost', self.proxyHost)
-            temp_connect = []
-            for entry in self.connect:
-                temp_connect.append(entry.replace(key,item))
-            self.connect  = tuple(temp_connect)
         else:
             self.proxy_connect_args = ()
 
