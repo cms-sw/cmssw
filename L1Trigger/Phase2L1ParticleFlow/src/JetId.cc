@@ -121,7 +121,7 @@ float JetId::compute(const l1t::PFJet &iJet, float vz, bool useRawPt) {
   return EvaluateNN();
 }
 
-ap_fixed<16, 6> JetId::computeFixed(const l1t::PFJet &iJet, float vz, bool useRawPt) {
+ap_fixed<14, 8, AP_TRN, AP_SAT, 0> JetId::computeFixed(const l1t::PFJet &iJet, float vz, bool useRawPt) {
   for (int i0 = 0; i0 < fNParticles_; i0++) {
     fPt_.get()[i0] = 0;
     fEta_.get()[i0] = 0;
