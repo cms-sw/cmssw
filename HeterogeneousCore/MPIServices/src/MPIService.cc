@@ -15,7 +15,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 #include "HeterogeneousCore/MPIServices/interface/MPIService.h"
+#include "HeterogeneousCore/ROCmServices/interface/ROCmInterface.h"
 
 namespace {
   // list the MPI thread support levels
@@ -52,6 +54,23 @@ MPIService::MPIService(edm::ParameterSet const& config, edm::ActivityRegistry& i
       [this](edm::GlobalContext const&, edm::TerminationOrigin) { abortOnError_("PreGlobalEarlyTermination"); });
   iRegistry.watchPreStreamEarlyTermination(
       [this](edm::StreamContext const&, edm::TerminationOrigin) { abortOnError_("PreStreamEarlyTermination"); });
+
+  // If a CUDAService or a ROCmService is configured for this job, construct it
+  // now, before the MPIService is constructed. This is to make sure the
+  // MPIService is destructed (and MPI_Finalize() is called) *before* the
+  // CUDAService/ROCmService destructors are called (specifically, before
+  // cudaDeviceReset()/hipDeviceReset() are called). Otherwise MPI_Finalize()
+  // would segfault on nodes with AMD GPUs.
+  //
+  // Triggering the construction of the cuda and rocm services is the purpose of
+  // the isAvailable() call below.
+  //
+  // Note that the MPIService does not require a ROCmService nor a CUDAService
+  // to run.
+  edm::Service<CUDAInterface> cuda;
+  cuda.isAvailable();
+  edm::Service<ROCmInterface> rocm;
+  rocm.isAvailable();
 
   // set the pmix_server_uri MCA parameter if specified in the configuration and not already set in the environment
   if (config.existsAs<std::string>("pmix_server_uri", false)) {
