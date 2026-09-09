@@ -54,23 +54,6 @@ namespace cms::torch::alpakatools::detail {
     bool is_scalar_;
   };
 
-  inline size_t num_spanned_elements(const Dims& dims,
-                                     const int total_size,
-                                     const size_t alignment,
-                                     const size_t bytes) {
-    // Returns the number of memory elements spanned by the tensor.
-
-    if (dims.volume() == 0 || dims.batch_size() == 0)
-      return 0;
-    if (dims.is_scalar())
-      return 1;
-
-    const auto padded_column_size = static_cast<size_t>(num_elements_per_column(total_size, alignment, bytes));
-    const auto offset_to_last_column = static_cast<size_t>(dims.volume() - 1) * padded_column_size;
-
-    return offset_to_last_column + static_cast<size_t>(dims.batch_size());
-  }
-
   template <typename TQueue>
     requires alpaka::isQueue<TQueue>
   class ITensorHandle {
@@ -93,6 +76,19 @@ namespace cms::torch::alpakatools::detail {
     virtual void* data() = 0;
   };
 
+  // helper to construct the CopyLayout struct
+  inline CopyLayout copy_layout(const Dims& dims, const int total_size, const size_t alignment, const size_t bytes) {
+    const bool scalar = dims.is_scalar();
+
+    const int source_rows = scalar ? 1 : total_size;
+    const int copied_rows = scalar ? (dims.batch_size() == 0 ? 0 : 1) : dims.batch_size();
+
+    return {.columns = scalar ? 1u : static_cast<size_t>(dims.volume()),
+            .rows_per_column = static_cast<size_t>(copied_rows),
+            .source_stride = static_cast<size_t>(num_elements_per_column(source_rows, alignment, bytes)),
+            .destination_stride = static_cast<size_t>(num_elements_per_column(copied_rows, alignment, bytes))};
+  }
+
   // TODO: handle case when user register only one column:
   // e.g. .register_tensor("test", soa.pt()); (stride should be [1] instead of e.g. [1, 32])
   template <typename TQueue, typename T>
@@ -111,16 +107,15 @@ namespace cms::torch::alpakatools::detail {
           data_(data),
           total_size_(total_size),
           dims_(batch_size, dims, is_scalar),
-          policy_(data, num_spanned_elements(dims_, total_size_, alignment_, bytes_)) {
+          policy_(data, copy_layout(dims_, total_size_, alignment_, bytes_)) {
       init_sizes();
-      init_strides();
     }
 
     size_t alignment() const override { return alignment_; }
     size_t bytes() const override { return bytes_; }
     ::torch::ScalarType type() const override { return get_type<T>(); }
 
-    std::vector<long int> strides() const override { return strides_; }
+    std::vector<long int> strides() const override { return get_exposed_strides(); }
     std::vector<long int> sizes() const override { return sizes_; }
 
     // propagate iterator from Dims
@@ -142,36 +137,35 @@ namespace cms::torch::alpakatools::detail {
       }
     }
 
-    void init_strides() {
-      int N = dims_.size() + 1;
-      strides_ = std::vector<long int>(N);
+    std::vector<long int> get_exposed_strides() const {
+      const auto is_const_view = std::is_const_v<T>;
 
-      int per_bunch = alignment_ / bytes_;
-      int bunches = (total_size_ + per_bunch - 1) / per_bunch;
+      const int N = dims_.size() + 1;
+      auto exposed_strides = std::vector<long int>(N);
 
       // base stride initialization
-      if (!dims_.is_scalar())
-        strides_[0] = 1;
-      else {
-        // no tensor dimensions (scalar case)
-        strides_[0] = 0;
-        bunches = 1;
-      }
+      // no tensor dimensions in scalar case
+      exposed_strides[0] = dims_.is_scalar() ? 0 : 1;
 
       // stride for the second dimension (or first available)
+      // If the view is constant --> a copy is triggered --> use destination_stride
+      // If the view is mutable --> no copy triggered --> use source_stride
       int stride_index = std::min(2, N - 1);
-      strides_[stride_index] = bunches * per_bunch;
+      exposed_strides[stride_index] =
+          is_const_view ? policy_.getCopyLayout().destination_stride : policy_.getCopyLayout().source_stride;
 
       // column-major layout (Eigen style)
       if (N > 2) {
         for (int i = 3; i < N; ++i)
-          strides_[i] = strides_[i - 1] * dims_[i - 2];
+          exposed_strides[i] = exposed_strides[i - 1] * dims_[i - 2];
         // stride for the "batch" dimension
-        strides_[1] = strides_[N - 1] * dims_[N - 2];
+        exposed_strides[1] = exposed_strides[N - 1] * dims_[N - 2];
         // 1D column
         if (dims_[0] == 1)
-          strides_.erase(strides_.begin() + 1);
+          exposed_strides.erase(exposed_strides.begin() + 1);
       }
+
+      return exposed_strides;
     }
 
     const size_t alignment_;
@@ -180,7 +174,6 @@ namespace cms::torch::alpakatools::detail {
     const int total_size_;
     const Dims dims_;
 
-    std::vector<long int> strides_;
     std::vector<long int> sizes_;
 
     // workaround until pytorch COW Tensors is implemented

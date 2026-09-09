@@ -7,13 +7,13 @@ This package extends the PyTorch implementation and enables seamless integration
 All Pytorch based modules should add `PyTorchService` to disable internal torchlib threading. It enforces single-threaded execution on CPU backends.
 
 Examples demonstrating the interoperability of PyTorch with Alpaka in the CMSSW environment can be found in the [PyTorchAlpakaTest](../PyTorchAlpakaTest) directory. The basic test pipeline includes:
-- *SimpleNet* composed with few Dense layers, that operate on SoA style portable data structures
 - *SimpleNet* composed with few Dense layers, that operate on SoA style portable data structures. It provides also an example for Runtime FP16 conversion.
 - *SimpleNetMiniBatch*, providing and example of inference perfomed in mini-batches
 - *MaskedNet* shows how to use multiple input data with `Eigen::Vector` and `SOA_SCALAR`
 - *TinyResNet* emulate more complex scenario with `Eigen::Matrix` and how one can implement image-like Tensor implementation
 - *TinyResNetMiniBatch* to test the inference in mini-batches in a more complex scenario 
-- *MulitHeadNet* handle networks that return more than one output tensor 
+- *MultiHeadNet* handle networks that return more than one output tensor
+- *TrackHitDeepSet* shows how to register tensors from SoAs with different numbers of elements
 
 ## Model behavior
 
@@ -29,9 +29,9 @@ The interface provides a converter to dynamically wrap SoA data into one or more
 **Due to the lack of const correctness ensured by PyTorch, `const` data is currently being copied.**
 
 ### TensorCollection
-The structural information of the inputs/outputs SoA are stored in an `TensorCollection`. Which is a high level object to register column lists from which tensors are created
+The structural information of the inputs/outputs SoA are stored in a `TensorCollection`. Which is a high level object to register column lists from which tensors are created
 
-The `TensorCollection` can be defined by first initializing the object and then adding data blocks with `add` to the internal metadata. Each registered tensor is transformed into a PyTorch tensor (without taking ownership) whose size and type are derived from the columns provided.
+Default-construct a `TensorCollection` and add data blocks with `add` to its internal metadata. Each registered tensor is transformed into a PyTorch tensor (without taking ownership) whose size and type are derived from the columns provided. Each `add` uses the size of its own SoA, so one collection can hold tensors with different numbers of elements.
 
 For two example SoAs Templates, which are stored in PortableCollections, columns can be added to `TensorCollection`, by using the Metarecords implementation of SoAs.
 
@@ -63,16 +63,16 @@ auto result_records = deviceResultCollection.view().records();
 - **For each function call** of `add` (i.e. one tensor), **add the columns** that should be merged into a single tensor. The datatypes must be the same, and the columns must be contiguous. This means, only columns that are defined directly after each other in the SoA layout can be used for the same tensor. However, not all columns of an SoA have to be used. Only those mentioned in the `registry_tensor` are selected for the tensor creation. Any holes in contiguity created by the alignment are automatically taken care of by the stride calculation.
 
 **IMPORTANT:** continuity of memory is a strict requirement!
-```
-TensorCollection input(total_size);
+```cpp
+TensorCollection<Queue> input;
 input.add<SoA>("eigen_vector", records.a(), records.b());
 input.add<SoA>("eigen_matrix", records.c());
 input.add<SoA>("column", records.x(), records.y(), records.z());
 input.add<SoA>("scalar", records.type());
 input.change_order({"column", "scalar", "eigen_matrix", "eigen_vector"});
 
-TensorCollection output(total_size);
-output.add<SoA>("result", result_view.cluster());
+TensorCollection<Queue> output;
+output.add<SoA_Result>("result", result_records.cluster());
 ```
 
 <!-- For Eigen columns, if only a single Vector/Matrix is provided for the tensor, is provided, as if each vector dimension is a column. This means size of tensor is (nElements, dimension) instead of (nElements, 1, dimension). -->
@@ -85,20 +85,39 @@ More examples about usage can be found in [PyTorchAlpakaTest](../PyTorchAlpakaTe
 
 ### Batching semantics
 
-When using batched inference, `TensorCollection` is constructed with `(total_size, total_size)` and internally manages batch offsets.
+For batched inference, use `BatchedTensorCollection<Queue>` for the inputs and outputs. Register each tensor once with `addBatched()`, passing a positive batch size for columns that should be sliced. The slice offset is computed relative to the size of that SoA, and the final batch can contain fewer elements. Use `add()` to pass the full SoA to every batch. The `AlpakaModel::forward()` overload creates the per-batch `TensorCollection`s and runs inference for each batch.
 
-**IMPORTANT:** the batchsize should be chosen carefully in order to respect the alignment (typically a multiple of 32). Otherwise, an assert will be trigged.
+For example, a model can receive one batch of tracks while also receiving all hits and a hit-to-track mapping, even when the track and hit SoAs have different sizes:
 
-The `batch_id` passed to `add()` selects which batch slice is exposed to the model.
+```cpp
+BatchedTensorCollection<Queue> inputs;
+BatchedTensorCollection<Queue> outputs;
 
-Runtime checks are performed to ensure:
-- valid batch indices
-- consistency between batch size and total size
-- memory contiguity between columns
+inputs.addBatched<portabletest::ParticleSoA>(
+    "track_features", batch_size,
+    track_records.pt(), track_records.eta(), track_records.phi());
+inputs.add<portabletest::HitSoA>(
+    "hit_features", hit_records.x(), hit_records.y(), hit_records.z());
+inputs.add<portabletest::HitToTrackSoA>(
+    "hit_to_track", hit_to_track_records.trackIndex());
+inputs.addBatched<portabletest::TrackBeginSoA>(
+    "track_begin", 1, track_begin_records.trackBegin());
+inputs.add<portabletest::HitSoA>(
+    "hit_scale", hit_records.hitScale());
 
-These checks rely on `assert`.
+outputs.addBatched<portabletest::SimpleNetSoA>(
+    "regression_head", batch_size,
+    output_records.reco_pt());
 
-Look at [SimpleNetMiniBatch](PhysicsTools/PyTorchAlpakaTest/plugins/alpaka/SimpleNetMiniBatch.cc) to have an example.
+model.forward(queue, inputs, outputs);
+```
+
+Within each collection, all sliced registrations must imply the same number of batches: `ceil(SoA size / batch size)`. Full registrations do not determine the count when that collection also contains a sliced registration. The current `forward()` implementation requires the input and output collections to return equal counts.
+An `SOA_SCALAR` must be registered with `add()`.
+
+For manual batching, `TensorCollection::add()` accepts a `TensorSlice{batch_id, batch_size}`. Calls without a slice expose the full SoA.
+
+Look at [SimpleNetMiniBatch](../PyTorchAlpakaTest/plugins/alpaka/SimpleNetMiniBatch.cc) for a batched example and [TrackHitDeepSet](../PyTorchAlpakaTest/plugins/alpaka/TrackHitDeepSet.cc) for SoAs with different sizes.
 
 ## FP16 Inference Support
 
@@ -114,14 +133,14 @@ In this case, you just need to pass `torch::kHalf` to the forward call; the mode
 GENERATE_SOA_LAYOUT(SimpleNetLayout, SOA_COLUMN(float, reco_pt))
 GENERATE_SOA_LAYOUT(ParticleLayout, SOA_COLUMN(float, pt), SOA_COLUMN(float, eta), SOA_COLUMN(float, phi))
 
-TensorCollection<Queue> inputs(batch_size);
+TensorCollection<Queue> inputs;
 inputs.add<ParticleSoA>(
     "particles",
     input_records.pt(),
     input_records.eta(),
     input_records.phi()
 );
-TensorCollection<Queue> outputs(batch_size);
+TensorCollection<Queue> outputs;
 outputs.add<SimpleNetSoA>("regression_head", output_records.reco_pt());
 
 // Runtime FP16 inference
@@ -131,7 +150,6 @@ model.forward(queue, inputs, outputs, torch::kHalf);
 FP16 and FP32 outputs may differ slightly due to reduced precision and floating-point accumulation effects. Users are encouraged to check the output compatibility.
 
 ## Limitations
-- Currently the `ROCmAsync` backend does not support convolution kernels.
 - Const correctness and thread-safety relies on `torch::from_blob()` mechanism which currently does not ensure that data will not be modified internally. There is ongoing work to support COW tensors but until this support will be integrated in mainstream PyTorch the provided solution materialises (copies) the tensors if passed registry points to `const` memory. For more information please check [Const correctness and thread-safety of torch::from_blob with external memory](https://discuss.pytorch.org/t/const-correctness-and-thread-safety-of-torch-from-blob-with-external-memory/223521) and [pytorch:#97856](https://github.com/pytorch/pytorch/issues/97856)
 - For multi output branch models the intermediate copy of output is done, so there is no "true" no-copy mechanism under the hood.
 - AOT support is under active development and subject to changes that obey CMSSW releasing rules.
