@@ -6,7 +6,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 // DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -27,7 +29,8 @@
 class HLTBTagHarvestingAnalyzer : public DQMEDHarvester {
 public:
   explicit HLTBTagHarvestingAnalyzer(const edm::ParameterSet &);
-  ~HLTBTagHarvestingAnalyzer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  ~HLTBTagHarvestingAnalyzer() override = default;
 
   void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
   TH1F calculateEfficiency1D(
