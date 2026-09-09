@@ -371,18 +371,32 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   };
 
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE int nSharedHitsT4(unsigned int const* __restrict__ t4Hits,
+                                                   unsigned int const* __restrict__ otherHits,
+                                                   int nOtherHits) {
+    // Every quadruplet hit slot is filled, so no empty-slot check.
+    static_assert(Params_T4::kHits == 8);
+    int nShared = 0;
+    for (int i = 0; i < Params_T4::kHits; ++i) {
+      for (int j = 0; j < nOtherHits; ++j) {
+        if (otherHits[j] == t4Hits[i]) {
+          nShared++;
+          break;
+        }
+      }
+    }
+    return nShared;
+  }
+
   struct CrossCleanT4 {
     ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
                                   Quadruplets quadruplets,
                                   QuadrupletsOccupancyConst quadrupletsOccupancy,
-                                  PixelQuintupletsConst pixelQuintuplets,
                                   PixelTripletsConst pixelTriplets,
                                   QuintupletsConst quintuplets,
                                   TrackCandidatesBase candsBase,
                                   TrackCandidatesExtended candsExtended,
-                                  MiniDoubletsConst mds,
-                                  SegmentsConst segments,
                                   TripletsConst triplets,
                                   ObjectRangesConst ranges) const {
       for (int lowmod : cms::alpakatools::uniform_elements_z(acc, modules.nLowerModules())) {
@@ -397,90 +411,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           if (quadruplets.isDup()[iT4])
             continue;
 
-          // Cross cleaning step
-          float eta1 = __H2F(quadruplets.eta()[iT4]);
-          float phi1 = __H2F(quadruplets.phi()[iT4]);
+          unsigned int const* t4Hits = quadruplets.hitIndices()[iT4].data();
 
           unsigned int nTrackCandidates = candsBase.nTrackCandidates();
           for (unsigned int trackCandidateIndex : cms::alpakatools::uniform_elements_x(acc, nTrackCandidates)) {
             short type = candsBase.trackCandidateType()[trackCandidateIndex];
             unsigned int outerTrackletIdx = candsExtended.objectIndices()[trackCandidateIndex][1];
-            if (type == LSTObjType::T5) {
-              unsigned int quintupletIndex = outerTrackletIdx;  // T5 index
-              uint16_t t5_lowerModIdx1 = quintuplets.lowerModuleIndices()[quintupletIndex][0];
-              short layer2_adjustment = 1;
-              short layer3_adjustment;
-              int layer = modules.layers()[t5_lowerModIdx1];
-              if (layer == 1) {
-                layer3_adjustment = 1;
-              } else {
-                layer3_adjustment = 0;
-              }
-              int innerTripletIndex = quintuplets.tripletIndices()[quintupletIndex][0];
-              float phi2 =
-                  mds.anchorPhi()[segments.mdIndices()[triplets.segmentIndices()[innerTripletIndex][layer3_adjustment]]
-                                                      [layer2_adjustment]];
-              float eta2 =
-                  mds.anchorEta()[segments.mdIndices()[triplets.segmentIndices()[innerTripletIndex][layer3_adjustment]]
-                                                      [layer2_adjustment]];
-              float dEta = alpaka::math::abs(acc, eta1 - eta2);
-              float dPhi = cms::alpakatools::deltaPhi(acc, phi1, phi2);
-
-              float dR2 = dEta * dEta + dPhi * dPhi;
-              if (dR2 < 1e-3f) {
+            // Deleted when a promoted candidate owns three of its hits, or two for a pixel quintuplet.
+            const int minShared = (type == LSTObjType::pT5) ? 2 : 3;
+            if (type == LSTObjType::T5 || type == LSTObjType::pT5) {
+              unsigned int const* t5Hits = quintuplets.hitIndices()[outerTrackletIdx].data();
+              if (nSharedHitsT4(t4Hits, t5Hits, Params_T5::kHits) >= minShared)
                 quadruplets.isDup()[iT4] = true;
-              }
-            }
-            if (type == LSTObjType::pT3) {
-              int pT3Index = outerTrackletIdx;
-              uint16_t pT3_lowerModIdx1 = pixelTriplets.lowerModuleIndices()[pT3Index][0];
-              short layer2_adjustment = 1;
-              short layer3_adjustment;
-              int layer = modules.layers()[pT3_lowerModIdx1];
-              if (layer == 1) {
-                layer3_adjustment = 1;
-              } else {
-                layer3_adjustment = 0;
-              }
-              int innerTripletIndex = pixelTriplets.tripletIndices()[pT3Index];
-              float phi2 =
-                  mds.anchorPhi()[segments.mdIndices()[triplets.segmentIndices()[innerTripletIndex][layer3_adjustment]]
-                                                      [layer2_adjustment]];
-              float eta2 =
-                  mds.anchorEta()[segments.mdIndices()[triplets.segmentIndices()[innerTripletIndex][layer3_adjustment]]
-                                                      [layer2_adjustment]];
-              float dEta = alpaka::math::abs(acc, eta1 - eta2);
-              float dPhi = cms::alpakatools::deltaPhi(acc, phi1, phi2);
-
-              float dR2 = dEta * dEta + dPhi * dPhi;
-              if (dR2 < 1e-3f)
+            } else if (type == LSTObjType::pT3) {
+              int innerTripletIndex = pixelTriplets.tripletIndices()[outerTrackletIdx];
+              unsigned int const* t3Hits = triplets.hitIndices()[innerTripletIndex].data();
+              if (nSharedHitsT4(t4Hits, t3Hits, Params_T3::kHits) >= minShared)
                 quadruplets.isDup()[iT4] = true;
-            }
-            if (type == LSTObjType::pT5) {
-              unsigned int quintupletIndex = outerTrackletIdx;
-              uint16_t t5_lowerModIdx1 = quintuplets.lowerModuleIndices()[quintupletIndex][0];
-              short layer2_adjustment = 1;
-              short layer3_adjustment;
-              int layer = modules.layers()[t5_lowerModIdx1];
-              if (layer == 1) {
-                layer3_adjustment = 1;
-              } else {
-                layer3_adjustment = 0;
-              }
-              int innerTripletIndex = quintuplets.tripletIndices()[quintupletIndex][0];
-              float phi2 =
-                  mds.anchorPhi()[segments.mdIndices()[triplets.segmentIndices()[innerTripletIndex][layer3_adjustment]]
-                                                      [layer2_adjustment]];
-              float eta2 =
-                  mds.anchorEta()[segments.mdIndices()[triplets.segmentIndices()[innerTripletIndex][layer3_adjustment]]
-                                                      [layer2_adjustment]];
-              float dEta = alpaka::math::abs(acc, eta1 - eta2);
-              float dPhi = cms::alpakatools::deltaPhi(acc, phi1, phi2);
-
-              float dR2 = dEta * dEta + dPhi * dPhi;
-              if (dR2 < 1e-3f) {
-                quadruplets.isDup()[iT4] = true;
-              }
             }
           }
         }

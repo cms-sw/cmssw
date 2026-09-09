@@ -76,6 +76,39 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return d;
   }
 
+  // True if a flat-barrel mini-doublet's two-hit direction is off the triplet circle's tangent by 6 sigma or more.
+  template <alpaka::concepts::Acc TAcc>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool t3MdDirectionFail(TAcc const& acc,
+                                                        ModulesConst modules,
+                                                        MiniDoubletsConst mds,
+                                                        const uint16_t* lowerModuleIndices,
+                                                        const unsigned int* mdIndices) {
+    float ax[Params_T3::kLayers], ay[Params_T3::kLayers];
+    for (int i = 0; i < Params_T3::kLayers; ++i) {
+      ax[i] = mds.anchorX()[mdIndices[i]];
+      ay[i] = mds.anchorY()[mdIndices[i]];
+    }
+    for (int i = 0; i < Params_T3::kLayers; ++i) {
+      const uint16_t lowerModuleIndex = lowerModuleIndices[i];
+      if (modules.subdets()[lowerModuleIndex] != Barrel || modules.sides()[lowerModuleIndex] != Center)
+        continue;
+      // Tangent at anchor i of the circle through the three anchors, by inversion about anchor i.
+      const int j = (i + 1) % Params_T3::kLayers, k = (i + 2) % Params_T3::kLayers;
+      const float ajx = ax[j] - ax[i], ajy = ay[j] - ay[i], akx = ax[k] - ax[i], aky = ay[k] - ay[i];
+      const float invj = 1.f / (ajx * ajx + ajy * ajy), invk = 1.f / (akx * akx + aky * aky);
+      const float tx = ajx * invj - akx * invk, ty = ajy * invj - aky * invk;
+      const float dx = mds.outerX()[mdIndices[i]] - ax[i];
+      const float dy = mds.outerY()[mdIndices[i]] - ay[i];
+      // Distance of the outer hit from the tangent line.
+      const float offset = alpaka::math::abs(acc, dx * ty - dy * tx) / alpaka::math::sqrt(acc, tx * tx + ty * ty);
+      const float width = (modules.moduleType()[lowerModuleIndex] == PS) ? kWidthPS : kWidth2S;
+      // Two-hit resolution: width * sqrt(2 / 12).
+      if (offset >= 6.f * width * 0.40824829f)
+        return true;
+    }
+    return false;
+  }
+
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addTripletToMemory(ModulesConst modules,
                                                          MiniDoubletsConst mds,
                                                          SegmentsConst segments,
@@ -601,7 +634,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             acc, &tripletsOccupancy.nTriplets()[innerInnerLowerModuleIndex], 1u, alpaka::hierarchy::Threads{});
         unsigned int tripletIndex = ranges.tripletModuleIndices()[innerInnerLowerModuleIndex] + tripletModuleIndex;
 
-        const uint8_t flags = loosePointing ? kT3LoosePointing : 0;
+        const uint16_t lowerModuleIndices[] = {
+            innerInnerLowerModuleIndex, middleLowerModuleIndex, outerOuterLowerModuleIndex};
+        const unsigned int mdIndices[] = {segments.mdIndices()[innerSegmentIndex][0],
+                                          segments.mdIndices()[innerSegmentIndex][1],
+                                          segments.mdIndices()[outerSegmentIndex][1]};
+        uint8_t flags = loosePointing ? kT3LoosePointing : 0;
+        if (t3MdDirectionFail(acc, modules, mds, lowerModuleIndices, mdIndices))
+          flags |= kT3MdDirectionFail;
         addTripletToMemory(modules,
                            mds,
                            segments,
