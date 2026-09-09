@@ -86,10 +86,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             uint32_t detid = module_row.detid();
 
             //get the appropriate geometry
-            DetId::Detector det = DetId(detid).det();
+            DetId::Detector det = isSiPM ? DetId::Detector::HGCalHSc : DetId(detid).det();
             int subdet = ForwardSubdetector::ForwardEmpty;
             const HGCalGeometry* hgcal_geom =
                 static_cast<const HGCalGeometry*>(geo.getSubdetectorGeometry(det, subdet));
+            if (hgcal_geom == nullptr) {
+              throw cms::Exception("HGCalDenseIndexInfoESProducer")
+                  << "Unable to find geometry for detid=0x" << std::hex << detid;
+            }
+
+            //CE-H has a layer offset in the DetId include it to get the layer number correctly
+            auto layerOffset = hgcal_geom->topology().dddConstants().getLayerOffset();
+            if (layerOffset > 0)
+              layerOffset -= 1;
 
             //get the offset to start reading the cell info from sequential
             uint32_t cellInfoOffset = cellIndexer.offsets_[typeidx];
@@ -123,26 +132,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                     module_row.celltype(),
                                                                     cell_row.i1(),
                                                                     cell_row.i2());
-                  row.layer() = HGCScintillatorDetId(row.detid()).layer();
+                  row.layer() = HGCScintillatorDetId(row.detid()).layer() + layerOffset;
                 } else {
                   row.detid() = module_row.detid() + cell_row.detid();
-                  row.layer() = HGCSiliconDetId(row.detid()).layer();
+                  row.layer() = HGCSiliconDetId(row.detid()).layer() + layerOffset;
                 }
 
                 //assign position from geometry
-                row.x() = 0;
-                row.y() = 0;
-                row.z() = 0;
-                row.eta() = 0;
-                row.phi() = 0;
-                if (hgcal_geom != nullptr) {
-                  GlobalPoint position = hgcal_geom->getPosition(row.detid());
-                  row.x() = position.x();
-                  row.y() = position.y();
-                  row.z() = position.z();
-                  row.eta() = position.eta();
-                  row.phi() = position.phi();
-                }
+                GlobalPoint position = hgcal_geom->getPosition(row.detid());
+                row.x() = position.x();
+                row.y() = position.y();
+                row.z() = position.z();
+                row.eta() = position.eta();
+                row.phi() = position.phi();
               }
             }  // end cell loop
 
