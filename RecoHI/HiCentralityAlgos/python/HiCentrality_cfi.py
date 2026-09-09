@@ -48,7 +48,7 @@ from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
 )
 
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
-run3_common.toModify(hiCentrality, srcZDChits = "zdcrecoRun3",lowGainZDC = False)
+run3_common.toModify(hiCentrality, lowGainZDC = False)
 
 from Configuration.ProcessModifiers.phase2_pp_on_AA_cff import phase2_pp_on_AA
 phase2_pp_on_AA.toModify(hiCentrality,

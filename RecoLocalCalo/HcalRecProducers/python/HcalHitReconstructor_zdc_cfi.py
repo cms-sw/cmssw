@@ -29,4 +29,6 @@ zdcreco = cms.EDProducer(
     saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127))
     ) # zdcreco
 
-
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+from RecoLocalCalo.HcalRecProducers.zdcrecoRun3_cfi import zdcrecoRun3 as _zdcrecoRun3
+run3_common.toReplaceWith(zdcreco, _zdcrecoRun3.clone())
