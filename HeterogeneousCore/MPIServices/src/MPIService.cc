@@ -11,12 +11,13 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "HeterogeneousCore/MPIServices/interface/MPIService.h"
 
 namespace {
-
   // list the MPI thread support levels
   const char* const mpi_thread_support_level[] = {
       "MPI_THREAD_SINGLE",      // only one thread will execute (the process is single-threaded)
@@ -27,7 +28,7 @@ namespace {
 
 }  // namespace
 
-MPIService::MPIService(edm::ParameterSet const& config) {
+MPIService::MPIService(edm::ParameterSet const& config, edm::ActivityRegistry& iRegistry) {
   /* As of Open MPI 4.1.0, `MPI_THREAD_MULTIPLE` is supported by the following transports:
    *   - the `ob1` PML, with the following BTLs:
    *       - `self`
@@ -45,6 +46,12 @@ MPIService::MPIService(edm::ParameterSet const& config) {
    *
    * See https://github.com/open-mpi/ompi/blob/v4.1.0/README .
    */
+  iRegistry.watchPreSourceEarlyTermination(
+      [this](edm::TerminationOrigin) { abortOnError_("PreSourceEarlyTermination"); });
+  iRegistry.watchPreGlobalEarlyTermination(
+      [this](edm::GlobalContext const&, edm::TerminationOrigin) { abortOnError_("PreGlobalEarlyTermination"); });
+  iRegistry.watchPreStreamEarlyTermination(
+      [this](edm::StreamContext const&, edm::TerminationOrigin) { abortOnError_("PreStreamEarlyTermination"); });
 
   // set the pmix_server_uri MCA parameter if specified in the configuration and not already set in the environment
   if (config.existsAs<std::string>("pmix_server_uri", false)) {
@@ -88,11 +95,19 @@ MPIService::MPIService(edm::ParameterSet const& config) {
 }
 
 MPIService::~MPIService() {
-  // Finalize MPI execution environment if the program finished correctly
-  // Otherwise let it proceed naturally (this way original error will be printed)
-  if (std::uncaught_exceptions() == 0) {
-    MPI_Finalize();
-  }
+  // Finalize MPI execution environment
+  MPI_Finalize();
+}
+
+void MPIService::abortOnError_(std::string const& termination_type) {
+  // Clean exit involves several blocking synchronisation calls in the destructors, which hang because the error is not yet propagated to the other processes.
+  // The hang might also occur when failing process is inside a blocking Wait() to send or receive a ususal message.
+  // Doing a flag check would solve the problem for deadlocks in the first case, but in the second case process might be already inside a Wait() call when the error occurs, therefore flag check would not help in this scenario.
+  // As we don't have any recovery mechanisms anyway, it's better to simply abort the MPI job immediately to avoid deadlocks and other issues.
+  edm::LogError("MPIService") << "MPIService: " << termination_type
+                              << " event occured, Aborting MPI to avoid possible synchronization issues..."
+                              << std::endl;
+  MPI_Abort(MPI_COMM_WORLD, edm::errors::ExternalFailure);
 }
 
 void MPIService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
