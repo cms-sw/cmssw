@@ -285,13 +285,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       residual4_linear = residual4_linear * 100;
 
       rzChiSquared = 12 * (residual4_linear * residual4_linear);
-      return rzChiSquared < 5.839f;
+      return rzChiSquared < 11.678f;
     }
     float eta1 = alpaka::math::abs(acc, mds.anchorEta()[firstMDIndex]);
     uint8_t bin_index = (eta1 > 2.5f) ? (25 - 1) : static_cast<unsigned int>(eta1 / 0.1f);
-    float chi2_cuts[] = {31.5082, 24.5654, 28.9223, 35.5906, 32.0746, 22.6416, 39.1476, 41.0791, 30.2745,
-                         40.2882, 31.2135, 17.8911, 9.0297,  7.6862,  2.7591,  5.0587,  6.4014,  3.7348,
-                         4.4768,  5.3087,  15.4535, 14.1107, 23.2778, 18.3643, 26.3276};
+    float chi2_cuts[] = {63.0164, 49.1308, 57.8446, 71.1812, 64.1492, 45.2832, 78.2952, 82.1582, 60.5490,
+                         80.5764, 62.4270, 35.7822, 18.0594, 15.3724, 5.5182,  10.1174, 12.8028, 7.4696,
+                         8.9536,  10.6174, 30.9070, 28.2214, 46.5556, 36.7286, 52.6552};
     return rzChiSquared < chi2_cuts[bin_index];
   };
 
@@ -483,19 +483,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                innerT3charge))
       return false;
 
-    float dxy = abs(std::hypot(regressionCenterX, regressionCenterY) - regressionRadius);
-    float eta_layer3;
-    const int layer1 = modules.layers()[lowerModuleIndex1];
-    if (layer1 == 3) {
-      eta_layer3 = alpaka::math::abs(acc, mds.anchorEta()[firstMDIndex]);
-    } else if (layer1 == 2) {
-      eta_layer3 = alpaka::math::abs(acc, mds.anchorEta()[secondMDIndex]);
-    } else {
-      eta_layer3 = alpaka::math::abs(acc, mds.anchorEta()[thirdMDIndex]);
-    }
-    if (dxy < 0.05f && eta_layer3 < 0.5f)
-      return false;
-    else if (dxy < 0.01f && eta_layer3 < 1.5f)
+    // Reject if a mini-doublet direction disagrees with its triplet circle (flag set in Triplet.h).
+    if ((triplets.flags()[innerTripletIndex] | triplets.flags()[outerTripletIndex]) & kT3MdDirectionFail)
       return false;
 
     nonAnchorChiSquared = computeChiSquared(acc,
