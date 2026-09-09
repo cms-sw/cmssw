@@ -43,6 +43,27 @@
   <class name="portabletest::ParticleSoA::ConstView"/>
   <class name="edm::Wrapper<portabletest::ParticleHostCollection>" splitLevel="0"/>
 
+  <class name="portabletest::HitHostCollection" rntupleStreamerMode="true"/>
+  <class name="portabletest::HitHostCollection::Layout"/>
+  <class name="portabletest::HitSoA"/>
+  <class name="portabletest::HitSoA::View"/>
+  <class name="portabletest::HitSoA::ConstView"/>
+  <class name="edm::Wrapper<portabletest::HitHostCollection>" splitLevel="0"/>
+
+  <class name="portabletest::HitToTrackHostCollection" rntupleStreamerMode="true"/>
+  <class name="portabletest::HitToTrackHostCollection::Layout"/>
+  <class name="portabletest::HitToTrackSoA"/>
+  <class name="portabletest::HitToTrackSoA::View"/>
+  <class name="portabletest::HitToTrackSoA::ConstView"/>
+  <class name="edm::Wrapper<portabletest::HitToTrackHostCollection>" splitLevel="0"/>
+
+  <class name="portabletest::TrackBeginHostCollection" rntupleStreamerMode="true"/>
+  <class name="portabletest::TrackBeginHostCollection::Layout"/>
+  <class name="portabletest::TrackBeginSoA"/>
+  <class name="portabletest::TrackBeginSoA::View"/>
+  <class name="portabletest::TrackBeginSoA::ConstView"/>
+  <class name="edm::Wrapper<portabletest::TrackBeginHostCollection>" splitLevel="0"/>
+  
   <class name="portabletest::SimpleNetHostCollection" rntupleStreamerMode="true"/>
   <!-- portabletest::SimpleNetHostCollection::Layout must be listed before the aliased-to type -->
   <class name="portabletest::SimpleNetHostCollection::Layout"/>

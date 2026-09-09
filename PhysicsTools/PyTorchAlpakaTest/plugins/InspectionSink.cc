@@ -1,8 +1,9 @@
 #include <cassert>
-
+#include <cmath>
 #include <fmt/format.h>
 
 #include "DataFormats/PortableTestObjects/interface/ParticleHostCollection.h"
+#include "DataFormats/PortableTestObjects/interface/HitHostCollection.h"
 #include "DataFormats/PortableTestObjects/interface/ImageHostCollection.h"
 #include "DataFormats/PortableTestObjects/interface/LogitsHostCollection.h"
 #include "DataFormats/PortableTestObjects/interface/SimpleNetHostCollection.h"
@@ -34,6 +35,7 @@ namespace torchtest {
           simple_net_token_{consumes(params.getParameter<edm::InputTag>("simple_net"))},
           simple_net_minibatch_token_{consumes(params.getParameter<edm::InputTag>("simple_net_minibatch"))},
           simple_net_runtimeFP16_token_{consumes(params.getParameter<edm::InputTag>("simple_net_runtimeFP16"))},
+          track_hit_deep_set_token_{consumes(params.getParameter<edm::InputTag>("track_hit_deep_set"))},
           masked_net_token_{consumes(params.getParameter<edm::InputTag>("masked_net"))},
           multi_head_net_token_{consumes(params.getParameter<edm::InputTag>("multi_head_net"))},
           images_token_{consumes(params.getParameter<edm::InputTag>("images"))},
@@ -43,6 +45,8 @@ namespace torchtest {
           simple_net_backend_{consumes(getBackendTag(params.getParameter<edm::InputTag>("simple_net")))},
           simple_net_minibatch_backend_{
               consumes(getBackendTag(params.getParameter<edm::InputTag>("simple_net_minibatch")))},
+          track_hit_deep_set_backend_{
+              consumes(getBackendTag(params.getParameter<edm::InputTag>("track_hit_deep_set")))},
           masked_net_backend_{consumes(getBackendTag(params.getParameter<edm::InputTag>("masked_net")))},
           multi_head_net_backend_{consumes(getBackendTag(params.getParameter<edm::InputTag>("multi_head_net")))},
           images_backend_{consumes(getBackendTag(params.getParameter<edm::InputTag>("images")))},
@@ -57,6 +61,7 @@ namespace torchtest {
       desc.add<edm::InputTag>("simple_net");
       desc.add<edm::InputTag>("simple_net_minibatch");
       desc.add<edm::InputTag>("simple_net_runtimeFP16");
+      desc.add<edm::InputTag>("track_hit_deep_set");
       desc.add<edm::InputTag>("masked_net");
       desc.add<edm::InputTag>("multi_head_net");
       desc.add<edm::InputTag>("images");
@@ -80,6 +85,7 @@ namespace torchtest {
       auto simple_net_handle = event.getHandle(simple_net_token_);
       auto simple_net_minibatch_handle = event.getHandle(simple_net_minibatch_token_);
       auto simple_net_runtimeFP16_handle = event.getHandle(simple_net_runtimeFP16_token_);
+      auto track_hit_deep_set_handle = event.getHandle(track_hit_deep_set_token_);
       auto masked_net_handle = event.getHandle(masked_net_token_);
       auto multi_head_net_handle = event.getHandle(multi_head_net_token_);
       auto images_handle = event.getHandle(images_token_);
@@ -129,6 +135,22 @@ namespace torchtest {
               assert(diff < 1e-2 && "Results from simple_net and simple_net_runtimeFP16 do not match!");
             }
           }
+
+          // track_hit_deep_set
+          if (track_hit_deep_set_handle.isValid()) {
+            auto const& output = track_hit_deep_set_handle->const_view();
+            auto const& particles_view = particles.const_view();
+            auto const backend = static_cast<cms::alpakatools::Backend>(event.get(track_hit_deep_set_backend_));
+
+            print(output, cms::alpakatools::toString(backend), "TrackHitDeepSetCollection");
+
+            assert(output.metadata().size() == particles_view.metadata().size());
+            for (int32_t i = 0; i < output.metadata().size(); ++i) {
+              const float score = output[i].reco_pt();
+              assert(std::isfinite(score) && 0.0f <= score && score <= 1.0f);
+            }
+          }
+
           // masked_net
           if (masked_net_handle.isValid()) {
             auto const& masked_net = *masked_net_handle;
@@ -212,6 +234,7 @@ namespace torchtest {
     const edm::EDGetTokenT<portabletest::SimpleNetHostCollection> simple_net_token_;
     const edm::EDGetTokenT<portabletest::SimpleNetHostCollection> simple_net_minibatch_token_;
     const edm::EDGetTokenT<portabletest::SimpleNetHostCollection> simple_net_runtimeFP16_token_;
+    const edm::EDGetTokenT<portabletest::SimpleNetHostCollection> track_hit_deep_set_token_;
     const edm::EDGetTokenT<portabletest::SimpleNetHostCollection> masked_net_token_;
     const edm::EDGetTokenT<portabletest::MultiHeadNetHostCollection> multi_head_net_token_;
     const edm::EDGetTokenT<portabletest::ImageHostCollection> images_token_;
@@ -221,6 +244,7 @@ namespace torchtest {
     const edm::EDGetTokenT<unsigned short> particles_backend_;
     const edm::EDGetTokenT<unsigned short> simple_net_backend_;
     const edm::EDGetTokenT<unsigned short> simple_net_minibatch_backend_;
+    const edm::EDGetTokenT<unsigned short> track_hit_deep_set_backend_;
     const edm::EDGetTokenT<unsigned short> masked_net_backend_;
     const edm::EDGetTokenT<unsigned short> multi_head_net_backend_;
     const edm::EDGetTokenT<unsigned short> images_backend_;

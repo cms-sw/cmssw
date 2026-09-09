@@ -87,6 +87,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class PixelTrackTorchHighPuritySelector : public stream::FixedQueueEDProducer<> {
     using TkSoADevice = reco::TracksSoACollection;
     using TrackHitSoA = ::reco::TrackHitSoA;
+    using TensorSlice = cms::torch::alpakatools::TensorSlice;
 
   public:
     explicit PixelTrackTorchHighPuritySelector(const edm::ParameterSet&);
@@ -132,6 +133,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     if (maxPreselectedTracks_ > maxNumberOfTracks_) {
       throw cms::Exception("PixelTrackConfiguration") << "maxPreselectedTracks must be <= maxNumberOfTracks";
     }
+    if (batchSize_ <= 0) {
+      throw cms::Exception("PixelTrackConfiguration") << "batchSize must be positive";
+    }
   }
 
   void PixelTrackTorchHighPuritySelector::beginStream(edm::StreamID /*sid*/, Queue queue) {
@@ -144,8 +148,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto score_record = trackScoresOnDevice.view().records();
 
     for (auto it = 0; it < warmupIterations_; ++it) {
-      cms::torch::alpakatools::TensorCollection<Queue> dummy_inputs(batchSize_);
-      cms::torch::alpakatools::TensorCollection<Queue> dummy_outputs(batchSize_);
+      cms::torch::alpakatools::TensorCollection<Queue> dummy_inputs;
+      cms::torch::alpakatools::TensorCollection<Queue> dummy_outputs;
 
       dummy_inputs.add<PixelTrackFeaturesSoA>("track_features",
                                               track_record.chi2(),
@@ -261,14 +265,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     // - Tensor collections for DNN inference
     for (auto i_batch = 0; i_batch < n_batches; ++i_batch) {
-      batches.emplace_back(
-          BatchIO{cms::torch::alpakatools::TensorCollection<Queue>(batchSize_, maxPreselectedTracks_),
-                  cms::torch::alpakatools::TensorCollection<Queue>(batchSize_, maxPreselectedTracks_)});
+      batches.emplace_back(BatchIO{cms::torch::alpakatools::TensorCollection<Queue>(),
+                                   cms::torch::alpakatools::TensorCollection<Queue>()});
 
       auto& batch = batches.back();
+      const TensorSlice slice{static_cast<uint32_t>(i_batch), static_cast<uint32_t>(batchSize_)};
       // Order must match the TorchScript model input schema
       batch.inputs.add<PixelTrackFeaturesSoA>("track_features",
-                                              i_batch,
+                                              slice,
                                               track_record.chi2(),
                                               track_record.dzError(),
                                               track_record.dxyError(),
@@ -287,7 +291,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                               track_record.covPhiDxy(),
                                               track_record.covPhiQOverPt());
 
-      batch.outputs.add<PixelTrackScoresSoA>("track_scores", i_batch, score_record.score());
+      batch.outputs.add<PixelTrackScoresSoA>("track_scores", slice, score_record.score());
 
       model_.forward(queue, batch.inputs, batch.outputs, ::torch::kHalf);
     }
