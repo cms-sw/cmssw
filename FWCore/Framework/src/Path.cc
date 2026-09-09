@@ -210,7 +210,7 @@ namespace edm {
     //This call also allows the WorkerInPath to update statistics
     // so should be done even if an exception happened
     auto& worker = workers_[iModuleIndex];
-    bool shouldContinue = worker.checkResultsOfRunWorker(true);
+    bool shouldContinue = worker.checkResultsOfRunWorker();
     std::exception_ptr finalException;
     if (iException) {
       shouldContinue = false;
@@ -315,8 +315,7 @@ namespace edm {
                                             std::exception_ptr const* iException) {
         this->workerFinished(iException, lastModuleIndex, info, weakToken.lock(), iID, iContext, iGroup);
       });
-      workers_[lastModuleIndex].runWorkerAsync<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>>(
-          WaitingTaskHolder(iGroup, nextTask), iInfo, iToken, iID, iContext);
+      workers_[lastModuleIndex].runWorkerAsync(WaitingTaskHolder(iGroup, nextTask), iInfo, iToken, iID, iContext);
     }
   }
 
