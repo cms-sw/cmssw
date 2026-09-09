@@ -1,45 +1,33 @@
-#include <iostream>
-#include <stdexcept>
-#include <sstream>
-#include "TString.h"
+#include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
 #include "PhysicsTools/FWLite/interface/CommandLineParser.h"
-#include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutManager.h"
-#include "FWCore/Utilities/interface/FileInPath.h"
 
-using namespace std;
+#include <iostream>
+#include <sstream>
+#include <string>
 
-void mergeLUTs(const char *flist, const char *out) {
+void mergeLUTs(const std::string& flist, const std::string& out) {
   LutXml xmls;
-  stringstream ss(flist);
-  while (ss.good()) {
-    string file;
-    ss >> file;
+  std::istringstream iss(flist);
+  std::string file;
+  while (iss >> file) {
     xmls += LutXml(file);
   }
   xmls.write(out);
 }
 
-int main(int argc, char **argv) {
-  optutl::CommandLineParser parser("runTestParameters");
+int main(int argc, char** argv) {
+  optutl::CommandLineParser parser("hcalLUT");
   parser.parseArguments(argc, argv, true);
-  if (argc < 2) {
-    std::cerr << "runTest: missing input command" << std::endl;
-  } else if (strcmp(argv[1], "merge") == 0) {
-    std::string flist_ = parser.stringValue("storePrepend");
-    std::string out_ = parser.stringValue("outputFile");
-    mergeLUTs(flist_.c_str(), out_.c_str());
-  } else if (strcmp(argv[1], "create-lut-loader") == 0) {
-    std::string _file_list = parser.stringValue("outputFile");
-    std::string _tag = parser.stringValue("tag");
-    std::string _comment = parser.stringValue("storePrepend");
-    const std::string &_prefix = _tag;
-    std::string _version = "1";
-    int _subversion = 0;
-    HcalLutManager manager;
-    manager.create_lut_loader(_file_list, _prefix, _tag, _comment, _tag, _subversion);
-  } else {
-    throw std::invalid_argument(Form("Unknown command: %s", argv[1]));
+
+  std::string flist = parser.stringValue("storePrepend");
+  std::string out = parser.stringValue("outputFile");
+
+  if (flist.empty() or out.empty()) {
+    std::cerr << "One or more of arguments \"storePrepend\" and \"outputFile\" is empty !" << std::endl;
+    return -1;
   }
+
+  mergeLUTs(flist, out);
 
   return 0;
 }

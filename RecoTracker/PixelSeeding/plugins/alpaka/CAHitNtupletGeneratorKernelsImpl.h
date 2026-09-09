@@ -771,6 +771,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
         if (doit) {
           typename Cell::TmpTuple stack;
+          typename Cell::hindex_type hits[TrackerTraits::maxHitsOnTrack];  // considering fishbone hits
 
           stack.reset();
           thisCell.template find_ntuplets<maxDepth>(acc,
@@ -787,6 +788,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                                     tracks_view.nLayers().data(),
                                                     tracks_view.pt().data(),
                                                     stack,
+                                                    hits,
                                                     params.minHitsPerNtuplet_);
           ALPAKA_ASSERT_ACC(stack.empty());
         }

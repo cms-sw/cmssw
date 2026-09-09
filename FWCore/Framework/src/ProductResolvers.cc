@@ -19,7 +19,7 @@
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Concurrency/interface/FunctorTask.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/Utilities/interface/make_sentry.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 #include "FWCore/Utilities/interface/Transition.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
@@ -178,15 +178,13 @@ namespace edm {
       if (!context) {
         context = CurrentModuleOnThread::getCurrentModuleOnThread();
       }
-      if (context and branchType == InEvent and aux_) {
+      bool const emitSignals = (context and branchType == InEvent and aux_);
+      auto sentry = signalslot::make_sentry_if(emitSignals, [this, context]() {
+        aux_->postModuleDelayedGetSignal_.emit(*(context->getStreamContext()), *context);
+      });
+      if (emitSignals) {
         aux_->preModuleDelayedGetSignal_.emit(*(context->getStreamContext()), *context);
       }
-
-      auto sentry(make_sentry(context, [this, branchType](ModuleCallingContext const* iContext) {
-        if (branchType == InEvent and aux_) {
-          aux_->postModuleDelayedGetSignal_.emit(*(iContext->getStreamContext()), *iContext);
-        }
-      }));
 
       if (auto reader = principal.reader()) {
         std::unique_lock<std::recursive_mutex> guard;
@@ -207,6 +205,7 @@ namespace edm {
           }
         }
       }
+      sentry.succeeded();
     });
   }
 
@@ -233,6 +232,8 @@ namespace edm {
         if (status() == defaultStatus() || status() == ProductStatus::ProductSet ||
             (status() == ProductStatus::ResolveFailed && !productDescription().isMergeable())) {
           setOrMergeProduct(std::move(edp), mergeableRunProductMetadata);
+          m_prefetchRequested = true;
+          m_waitingTasks.doneWaiting(std::exception_ptr());
         } else {  // status() == ResolveFailed && productDescription().isMergeable()
           throw Exception(errors::MismatchedInputFiles)
               << "Merge of Run or Lumi product failed for branch " << productDescription().branchName() << "\n"
@@ -243,6 +244,8 @@ namespace edm {
         }
       } else if (status() == defaultStatus()) {
         setFailedStatus();
+        m_prefetchRequested = true;
+        m_waitingTasks.doneWaiting(std::exception_ptr());
       } else if (status() != ProductStatus::ResolveFailed && productDescription().isMergeable()) {
         throw Exception(errors::MismatchedInputFiles)
             << "Merge of Run or Lumi product failed for branch " << productDescription().branchName() << "\n"

@@ -24,7 +24,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "DataFormats/HGCalReco/interface/TICLCandidate.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
@@ -100,7 +100,9 @@ private:
   const bool useMTDTiming_;
   const bool useTimingAverage_;
   const float timingQualityThreshold_;
-  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
+  const edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
+  const edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
+  const edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
 
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bfield_token_;
   const std::string detector_;
@@ -110,7 +112,7 @@ private:
 
   std::once_flag initializeGeometry_;
   const HGCalDDDConstants *hgcons_;
-  hgcal::RecHitTools rhtools_;
+  ticlgeom::Tools rhtools_;
   const float tkEnergyCut_ = 2.0f;
   const StringCutObjectSelector<reco::Track> cutTk_;
   edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> hdc_token_;
@@ -130,8 +132,12 @@ TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps, const 
       muons_token_(consumes<std::vector<reco::Muon>>(ps.getParameter<edm::InputTag>("muons"))),
       useMTDTiming_(ps.getParameter<bool>("useMTDTiming")),
       useTimingAverage_(ps.getParameter<bool>("useTimingAverage")),
-      timingQualityThreshold_(ps.getParameter<double>("timingQualityThreshold")),
-      geometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
+      timingQualityThreshold_(ps.getParameter<float>("timingQualityThreshold")),
+      ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
+      ticlGeomLookupToken_(
+          esConsumes<TICLGeomLookupHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
+      ticlGeomLayersToken_(
+          esConsumes<TICLGeomLayersHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
       bfield_token_(esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()),
       detector_(ps.getParameter<std::string>("detector")),
       propName_(ps.getParameter<std::string>("propagator")),
@@ -203,6 +209,7 @@ TICLCandidateProducer::TICLCandidateProducer(const edm::ParameterSet &ps, const 
   }
 
   produces<std::vector<TICLCandidate>>();
+  produces<std::vector<std::vector<unsigned int>>>("linkedTracksters");
 
   // New trackster collection after linking
   produces<std::vector<Trackster>>();
@@ -229,8 +236,7 @@ void TICLCandidateProducer::beginRun(edm::Run const &iEvent, edm::EventSetup con
   edm::ESHandle<HGCalDDDConstants> hdc = es.getHandle(hdc_token_);
   hgcons_ = hdc.product();
 
-  edm::ESHandle<CaloGeometry> geom = es.getHandle(geometry_token_);
-  rhtools_.setGeometry(*geom);
+  rhtools_.setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
 
   bfield_ = es.getHandle(bfield_token_);
   propagator_ = es.getHandle(propagator_token_);
@@ -371,7 +377,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
   // muon), or a rejection (kMuonRejected: the trajectory points to a shower).
   std::vector<bool> maskedInputTracksters(generalTrackstersSpan.size(), false);
   muonInterpretationAlgo_->makeCandidates(
-      muonInput, inputTiming_h, *resultTracksters, muonInTrackIndices, maskedInputTracksters);
+      muonInput, inputTiming_h, *resultTracksters, muonInTrackIndices, maskedInputTracksters, *linkedResultTracksters);
 
   // A track the muon pass rejected is not a muon: route it back to the general pass so
   // it is reconstructed there (and no muon candidate is built for it below).
@@ -391,7 +397,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
                                                                        tracks_h,
                                                                        generalTrackMask);
   generalInterpretationAlgo_->makeCandidates(
-      input, inputTiming_h, *resultTracksters, trackstersInTrackIndices, maskedInputTracksters);
+      input, inputTiming_h, *resultTracksters, trackstersInTrackIndices, maskedInputTracksters, *linkedResultTracksters);
 
   assignPCAtoTracksters(*resultTracksters,
                         layerClusters,
@@ -406,6 +412,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
 
   std::vector<bool> maskTracksters(resultTracksters->size(), true);
   edm::OrphanHandle<std::vector<Trackster>> resultTracksters_h = evt.put(std::move(resultTracksters));
+  auto linkedTracksters = std::make_unique<std::vector<std::vector<unsigned int>>>();
 
   // Muon candidates: energy from the track momentum (pdgId 13), attaching the MIP
   // trackster the muon pass associated (if any) and masking it so it is not re-emitted.
@@ -435,6 +442,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
       if (tracksterId != -1 and !maskTracksters.empty()) {
         auto tracksterPtr = edm::Ptr<Trackster>(resultTracksters_h, tracksterId);
         TICLCandidate chargedCandidate(trackPtr, tracksterPtr);
+        linkedTracksters->push_back((*linkedResultTracksters)[tracksterId]);
         resultCandidates->push_back(chargedCandidate);
         maskTracksters[tracksterId] = false;
       }
@@ -447,6 +455,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
       edm::Ptr<Trackster> tracksterPtr(resultTracksters_h, iTrackster);
       edm::Ptr<reco::Track> trackPtr;
       TICLCandidate neutralCandidate(trackPtr, tracksterPtr);
+      linkedTracksters->push_back((*linkedResultTracksters)[iTrackster]);
       resultCandidates->push_back(neutralCandidate);
     }
   }
@@ -506,6 +515,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
   assignTimeToCandidates(*resultCandidates, tracks_h, inputTimingView, getPathLength);
 
   evt.put(std::move(resultCandidates));
+  evt.put(std::move(linkedTracksters), "linkedTracksters");
 }
 
 template <typename F>
@@ -610,7 +620,7 @@ void TICLCandidateProducer::fillDescriptions(edm::ConfigurationDescriptions &des
   desc.add<std::string>("propagator", "PropagatorWithMaterial");
   desc.add<bool>("useMTDTiming", true);
   desc.add<bool>("useTimingAverage", true);
-  desc.add<double>("timingQualityThreshold", 0.5);
+  desc.add<float>("timingQualityThreshold", 0.5);
   desc.add<std::string>("cutTk",
                         "1.48 < abs(eta) < 3.0 && pt > 1. && quality(\"highPurity\") && "
                         "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 5");

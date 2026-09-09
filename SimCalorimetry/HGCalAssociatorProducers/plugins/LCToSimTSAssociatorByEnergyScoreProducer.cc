@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include "SimDataFormats/Associations/interface/LayerClusterToSimTracksterAssociator.h"
 #include "LCToSimTSAssociatorByEnergyScoreImpl.h"
@@ -25,9 +26,15 @@ public:
 
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
+  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
+  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
+  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
 };
 
-LCToSimTSAssociatorByEnergyScoreProducer::LCToSimTSAssociatorByEnergyScoreProducer(const edm::ParameterSet &) {
+LCToSimTSAssociatorByEnergyScoreProducer::LCToSimTSAssociatorByEnergyScoreProducer(const edm::ParameterSet &ps)
+    : ticlGeomToken_(esConsumes(edm::ESInputTag("", ""))),
+      ticlGeomLookupToken_(esConsumes(edm::ESInputTag("", ""))),
+      ticlGeomLayersToken_(esConsumes(edm::ESInputTag("", ""))) {
   // Register the product
   produces<ticl::LayerClusterToSimTracksterAssociator>();
 }
@@ -36,7 +43,10 @@ LCToSimTSAssociatorByEnergyScoreProducer::~LCToSimTSAssociatorByEnergyScoreProdu
 
 void LCToSimTSAssociatorByEnergyScoreProducer::produce(edm::StreamID,
                                                        edm::Event &iEvent,
-                                                       const edm::EventSetup &) const {
+                                                       const edm::EventSetup &es) const {
+  auto rhtools_ = std::make_shared<ticlgeom::Tools>();
+  rhtools_->setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
+
   auto impl = std::make_unique<LCToSimTSAssociatorByEnergyScoreImpl>(iEvent.productGetter());
   auto toPut = std::make_unique<ticl::LayerClusterToSimTracksterAssociator>(std::move(impl));
   iEvent.put(std::move(toPut));

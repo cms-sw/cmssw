@@ -43,7 +43,15 @@ namespace io_v1 {
           rawEnergy_(0.f) {}
 
     TICLCandidate(const edm::Ptr<reco::Track> trackPtr, const edm::Ptr<ticl::Trackster>& tracksterPtr)
-        : LeafCandidate(), tracksters_{}, trackPtrs_{}, time_(0.f), timeError_(-1.f) {
+        : LeafCandidate(),
+          tracksters_{},
+          trackPtrs_{},
+          idProbabilities_{},
+          time_(0.f),
+          timeError_(-1.f),
+          MTDtime_{0.f},
+          MTDtimeError_{-1.f},
+          rawEnergy_(0.f) {
       if (trackPtr.isNull() and tracksterPtr.isNull())
         throw cms::Exception("NullPointerError")
             << "TICLCandidate constructor: at least one between track and trackster must be valid";

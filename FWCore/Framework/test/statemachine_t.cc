@@ -93,7 +93,6 @@ Machine parameters:  mode = NOMERGE
 	beginRun 1
     *** nextItemType: Run 2 ***
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	readRun 2
 	beginRun 2
@@ -102,7 +101,6 @@ Machine parameters:  mode = NOMERGE
 	beginLumi 2/1
     *** nextItemType: Lumi 2 ***
 	endLumi 2/1
-	writeLumi 2/1
 	clearLumiPrincipal 2/1
 	readLuminosityBlock 2
 	beginLumi 2/2
@@ -113,16 +111,13 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: Lumi 3 ***
 	shouldWeStop
 	endLumi 2/2
-	writeLumi 2/2
 	clearLumiPrincipal 2/2
 	readLuminosityBlock 3
 	beginLumi 2/3
     *** nextItemType: Run 3 ***
 	endLumi 2/3
-	writeLumi 2/3
 	clearLumiPrincipal 2/3
 	endRun 2
-	writeRun 2
 	clearRunPrincipal 2
 	readRun 3
 	beginRun 3
@@ -131,10 +126,8 @@ Machine parameters:  mode = NOMERGE
 	beginLumi 3/1
     *** nextItemType: Stop 1 ***
 	endLumi 3/1
-	writeLumi 3/1
 	clearLumiPrincipal 3/1
 	endRun 3
-	writeRun 3
 	clearRunPrincipal 3
 	respondToCloseInputFile
 	closeInputFile
@@ -153,7 +146,6 @@ Machine parameters:  mode = FULLMERGE
 	beginRun 1
     *** nextItemType: Run 2 ***
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	readRun 2
 	beginRun 2
@@ -162,7 +154,6 @@ Machine parameters:  mode = FULLMERGE
 	beginLumi 2/1
     *** nextItemType: Lumi 2 ***
 	endLumi 2/1
-	writeLumi 2/1
 	clearLumiPrincipal 2/1
 	readLuminosityBlock 2
 	beginLumi 2/2
@@ -173,16 +164,13 @@ Machine parameters:  mode = FULLMERGE
     *** nextItemType: Lumi 3 ***
 	shouldWeStop
 	endLumi 2/2
-	writeLumi 2/2
 	clearLumiPrincipal 2/2
 	readLuminosityBlock 3
 	beginLumi 2/3
     *** nextItemType: Run 3 ***
 	endLumi 2/3
-	writeLumi 2/3
 	clearLumiPrincipal 2/3
 	endRun 2
-	writeRun 2
 	clearRunPrincipal 2
 	readRun 3
 	beginRun 3
@@ -191,10 +179,8 @@ Machine parameters:  mode = FULLMERGE
 	beginLumi 3/1
     *** nextItemType: Stop 1 ***
 	endLumi 3/1
-	writeLumi 3/1
 	clearLumiPrincipal 3/1
 	endRun 3
-	writeRun 3
 	clearRunPrincipal 3
 	respondToCloseInputFile
 	closeInputFile
@@ -253,7 +239,6 @@ Machine parameters:  mode = NOMERGE
 	beginRun 1
     *** nextItemType: File 0 ***
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -283,10 +268,8 @@ Machine parameters:  mode = NOMERGE
 	beginLumi 2/1
     *** nextItemType: File 0 ***
 	endLumi 2/1
-	writeLumi 2/1
 	clearLumiPrincipal 2/1
 	endRun 2
-	writeRun 2
 	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
@@ -375,7 +358,6 @@ Machine parameters:  mode = FULLMERGE
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -404,10 +386,8 @@ Machine parameters:  mode = FULLMERGE
     *** nextItemType: File 1 ***
 	shouldWeCloseOutput
 	endLumi 2/1
-	writeLumi 2/1
 	clearLumiPrincipal 2/1
 	endRun 2
-	writeRun 2
 	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
@@ -461,10 +441,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: File 0 ***
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -485,10 +463,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: File 0 ***
 	shouldWeStop
 	endLumi 2/1
-	writeLumi 2/1
 	clearLumiPrincipal 2/1
 	endRun 2
-	writeRun 2
 	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
@@ -509,10 +485,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: Stop 1 ***
 	shouldWeStop
 	endLumi 1/2
-	writeLumi 1/2
 	clearLumiPrincipal 1/2
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -545,10 +519,8 @@ Machine parameters:  mode = FULLMERGE
 	respondToOpenInputFile
     *** nextItemType: Run 2 ***
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	readRun 2
 	beginRun 2
@@ -568,10 +540,8 @@ Machine parameters:  mode = FULLMERGE
 	respondToOpenInputFile
     *** nextItemType: Run 1 ***
 	endLumi 2/1
-	writeLumi 2/1
 	clearLumiPrincipal 2/1
 	endRun 2
-	writeRun 2
 	clearRunPrincipal 2
 	readRun 1
 	beginRun 1
@@ -585,10 +555,8 @@ Machine parameters:  mode = FULLMERGE
     *** nextItemType: Stop 1 ***
 	shouldWeStop
 	endLumi 1/2
-	writeLumi 1/2
 	clearLumiPrincipal 1/2
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -632,10 +600,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: Run 2 ***
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	readRun 2
 	beginRun 2
@@ -649,10 +615,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: File 0 ***
 	shouldWeStop
 	endLumi 2/1
-	writeLumi 2/1
 	clearLumiPrincipal 2/1
 	endRun 2
-	writeRun 2
 	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
@@ -673,10 +637,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: Stop 1 ***
 	shouldWeStop
 	endLumi 1/2
-	writeLumi 1/2
 	clearLumiPrincipal 1/2
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -703,10 +665,8 @@ Machine parameters:  mode = FULLMERGE
     *** nextItemType: Run 2 ***
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	readRun 2
 	beginRun 2
@@ -726,10 +686,8 @@ Machine parameters:  mode = FULLMERGE
 	respondToOpenInputFile
     *** nextItemType: Run 1 ***
 	endLumi 2/1
-	writeLumi 2/1
 	clearLumiPrincipal 2/1
 	endRun 2
-	writeRun 2
 	clearRunPrincipal 2
 	readRun 1
 	beginRun 1
@@ -743,10 +701,8 @@ Machine parameters:  mode = FULLMERGE
     *** nextItemType: Stop 1 ***
 	shouldWeStop
 	endLumi 1/2
-	writeLumi 1/2
 	clearLumiPrincipal 1/2
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -789,16 +745,13 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: Lumi 2 ***
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	readLuminosityBlock 2
 	beginLumi 1/2
     *** nextItemType: File 0 ***
 	endLumi 1/2
-	writeLumi 1/2
 	clearLumiPrincipal 1/2
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -819,10 +772,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: Stop 1 ***
 	shouldWeStop
 	endLumi 1/2
-	writeLumi 1/2
 	clearLumiPrincipal 1/2
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -849,7 +800,6 @@ Machine parameters:  mode = FULLMERGE
     *** nextItemType: Lumi 2 ***
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	readLuminosityBlock 2
 	beginLumi 1/2
@@ -870,10 +820,8 @@ Machine parameters:  mode = FULLMERGE
     *** nextItemType: Stop 1 ***
 	shouldWeStop
 	endLumi 1/2
-	writeLumi 1/2
 	clearLumiPrincipal 1/2
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -906,7 +854,6 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: Lumi 2 ***
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	readLuminosityBlock 2
 	beginLumi 1/2
@@ -917,10 +864,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: File 0 ***
 	shouldWeStop
 	endLumi 1/2
-	writeLumi 1/2
 	clearLumiPrincipal 1/2
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -941,10 +886,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: Stop 1 ***
 	shouldWeStop
 	endLumi 1/2
-	writeLumi 1/2
 	clearLumiPrincipal 1/2
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -971,7 +914,6 @@ Machine parameters:  mode = FULLMERGE
     *** nextItemType: Lumi 2 ***
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	readLuminosityBlock 2
 	beginLumi 1/2
@@ -997,10 +939,8 @@ Machine parameters:  mode = FULLMERGE
     *** nextItemType: Stop 1 ***
 	shouldWeStop
 	endLumi 1/2
-	writeLumi 1/2
 	clearLumiPrincipal 1/2
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -1032,7 +972,6 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: Lumi 2 ***
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	readLuminosityBlock 2
 	beginLumi 1/2
@@ -1043,10 +982,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: File 0 ***
 	shouldWeStop
 	endLumi 1/2
-	writeLumi 1/2
 	clearLumiPrincipal 1/2
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -1062,7 +999,6 @@ Machine parameters:  mode = NOMERGE
 	beginLumi 1/2
     *** nextItemType: Lumi 3 ***
 	endLumi 1/2
-	writeLumi 1/2
 	clearLumiPrincipal 1/2
 	readLuminosityBlock 3
 	beginLumi 1/3
@@ -1073,10 +1009,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: Stop 1 ***
 	shouldWeStop
 	endLumi 1/3
-	writeLumi 1/3
 	clearLumiPrincipal 1/3
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -1103,7 +1037,6 @@ Machine parameters:  mode = FULLMERGE
     *** nextItemType: Lumi 2 ***
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	readLuminosityBlock 2
 	beginLumi 1/2
@@ -1124,7 +1057,6 @@ Machine parameters:  mode = FULLMERGE
 	readAndMergeLumi 2
     *** nextItemType: Lumi 3 ***
 	endLumi 1/2
-	writeLumi 1/2
 	clearLumiPrincipal 1/2
 	readLuminosityBlock 3
 	beginLumi 1/3
@@ -1135,10 +1067,8 @@ Machine parameters:  mode = FULLMERGE
     *** nextItemType: Stop 1 ***
 	shouldWeStop
 	endLumi 1/3
-	writeLumi 1/3
 	clearLumiPrincipal 1/3
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -1182,16 +1112,13 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: Lumi 2 ***
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	readLuminosityBlock 2
 	beginLumi 1/2
     *** nextItemType: File 0 ***
 	endLumi 1/2
-	writeLumi 1/2
 	clearLumiPrincipal 1/2
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -1207,7 +1134,6 @@ Machine parameters:  mode = NOMERGE
 	beginLumi 1/2
     *** nextItemType: Lumi 3 ***
 	endLumi 1/2
-	writeLumi 1/2
 	clearLumiPrincipal 1/2
 	readLuminosityBlock 3
 	beginLumi 1/3
@@ -1218,10 +1144,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: Stop 1 ***
 	shouldWeStop
 	endLumi 1/3
-	writeLumi 1/3
 	clearLumiPrincipal 1/3
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -1248,7 +1172,6 @@ Machine parameters:  mode = FULLMERGE
     *** nextItemType: Lumi 2 ***
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	readLuminosityBlock 2
 	beginLumi 1/2
@@ -1264,7 +1187,6 @@ Machine parameters:  mode = FULLMERGE
 	readAndMergeLumi 2
     *** nextItemType: Lumi 3 ***
 	endLumi 1/2
-	writeLumi 1/2
 	clearLumiPrincipal 1/2
 	readLuminosityBlock 3
 	beginLumi 1/3
@@ -1275,10 +1197,8 @@ Machine parameters:  mode = FULLMERGE
     *** nextItemType: Stop 1 ***
 	shouldWeStop
 	endLumi 1/3
-	writeLumi 1/3
 	clearLumiPrincipal 1/3
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -1320,10 +1240,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: File 0 ***
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -1349,10 +1267,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: File 0 ***
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -1378,10 +1294,8 @@ Machine parameters:  mode = NOMERGE
 	shouldWeStop
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -1466,10 +1380,8 @@ Machine parameters:  mode = FULLMERGE
 	shouldWeStop
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -1616,7 +1528,6 @@ Left processing loop.
 	beginRun 9
     *** nextItemType: File 0 ***
 	endRun 9
-	writeRun 9
 	clearRunPrincipal 9
 	respondToCloseInputFile
 	closeInputFile
@@ -1629,7 +1540,6 @@ Left processing loop.
 	beginRun 1
     *** nextItemType: File 0 ***
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -1642,13 +1552,11 @@ Left processing loop.
 	beginRun 1
     *** nextItemType: Run 2 ***
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	readRun 2
 	beginRun 2
     *** nextItemType: File 0 ***
 	endRun 2
-	writeRun 2
 	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
@@ -1661,7 +1569,6 @@ Left processing loop.
 	beginRun 2
     *** nextItemType: File 0 ***
 	endRun 2
-	writeRun 2
 	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
@@ -1677,10 +1584,8 @@ Left processing loop.
 	beginLumi 2/1
     *** nextItemType: File 0 ***
 	endLumi 2/1
-	writeLumi 2/1
 	clearLumiPrincipal 2/1
 	endRun 2
-	writeRun 2
 	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
@@ -1696,16 +1601,13 @@ Left processing loop.
 	beginLumi 2/2
     *** nextItemType: Lumi 3 ***
 	endLumi 2/2
-	writeLumi 2/2
 	clearLumiPrincipal 2/2
 	readLuminosityBlock 3
 	beginLumi 2/3
     *** nextItemType: File 0 ***
 	endLumi 2/3
-	writeLumi 2/3
 	clearLumiPrincipal 2/3
 	endRun 2
-	writeRun 2
 	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
@@ -1718,7 +1620,6 @@ Left processing loop.
 	beginRun 2
     *** nextItemType: File 0 ***
 	endRun 2
-	writeRun 2
 	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
@@ -1734,10 +1635,8 @@ Left processing loop.
 	beginLumi 2/3
     *** nextItemType: File 0 ***
 	endLumi 2/3
-	writeLumi 2/3
 	clearLumiPrincipal 2/3
 	endRun 2
-	writeRun 2
 	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
@@ -1764,10 +1663,8 @@ Left processing loop.
 	beginLumi 5/1
     *** nextItemType: File 0 ***
 	endLumi 5/1
-	writeLumi 5/1
 	clearLumiPrincipal 5/1
 	endRun 5
-	writeRun 5
 	clearRunPrincipal 5
 	respondToCloseInputFile
 	closeInputFile
@@ -1794,10 +1691,8 @@ Left processing loop.
 	beginLumi 6/1
     *** nextItemType: Restart 0 ***
 	endLumi 6/1
-	writeLumi 6/1
 	clearLumiPrincipal 6/1
 	endRun 6
-	writeRun 6
 	clearRunPrincipal 6
 	respondToCloseInputFile
 	closeInputFile
@@ -1872,7 +1767,6 @@ Left processing loop.
 	respondToOpenInputFile
     *** nextItemType: Run 1 ***
 	endRun 9
-	writeRun 9
 	clearRunPrincipal 9
 	readRun 1
 	beginRun 1
@@ -1886,7 +1780,6 @@ Left processing loop.
 	readAndMergeRun 1
     *** nextItemType: Run 2 ***
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	readRun 2
 	beginRun 2
@@ -1919,13 +1812,11 @@ Left processing loop.
 	readAndMergeRun 2
     *** nextItemType: Lumi 2 ***
 	endLumi 2/1
-	writeLumi 2/1
 	clearLumiPrincipal 2/1
 	readLuminosityBlock 2
 	beginLumi 2/2
     *** nextItemType: Lumi 3 ***
 	endLumi 2/2
-	writeLumi 2/2
 	clearLumiPrincipal 2/2
 	readLuminosityBlock 3
 	beginLumi 2/3
@@ -1955,10 +1846,8 @@ Left processing loop.
 	respondToOpenInputFile
     *** nextItemType: Lumi 4 ***
 	endLumi 2/3
-	writeLumi 2/3
 	clearLumiPrincipal 2/3
 	endRun 2
-	writeRun 2
 	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
@@ -1984,10 +1873,8 @@ Left processing loop.
 	respondToOpenInputFile
     *** nextItemType: Event ***
 	endLumi 5/1
-	writeLumi 5/1
 	clearLumiPrincipal 5/1
 	endRun 5
-	writeRun 5
 	clearRunPrincipal 5
 	respondToCloseInputFile
 	closeInputFile
@@ -2007,10 +1894,8 @@ Left processing loop.
 	beginLumi 6/1
     *** nextItemType: Restart 0 ***
 	endLumi 6/1
-	writeLumi 6/1
 	clearLumiPrincipal 6/1
 	endRun 6
-	writeRun 6
 	clearRunPrincipal 6
 	respondToCloseInputFile
 	closeInputFile
@@ -2050,10 +1935,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: File 0 ***
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -2074,10 +1957,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: File 0 ***
 	shouldWeStop
 	endLumi 1/2
-	writeLumi 1/2
 	clearLumiPrincipal 1/2
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -2098,10 +1979,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: Stop 1 ***
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -2136,7 +2015,6 @@ Machine parameters:  mode = FULLMERGE
 	readAndMergeRun 1
     *** nextItemType: Lumi 2 ***
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	readLuminosityBlock 2
 	beginLumi 1/2
@@ -2155,7 +2033,6 @@ Machine parameters:  mode = FULLMERGE
 	readAndMergeRun 1
     *** nextItemType: Lumi 1 ***
 	endLumi 1/2
-	writeLumi 1/2
 	clearLumiPrincipal 1/2
 	readLuminosityBlock 1
 	beginLumi 1/1
@@ -2166,10 +2043,8 @@ Machine parameters:  mode = FULLMERGE
     *** nextItemType: Stop 1 ***
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -2213,10 +2088,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: File 0 ***
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -2236,10 +2109,8 @@ Machine parameters:  mode = NOMERGE
 	processEvent
 	throwing
 	endLumi 2/1
-	writeLumi 2/1
 	clearLumiPrincipal 2/1
 	endRun 2
-	writeRun 2
 	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
@@ -2271,10 +2142,8 @@ Machine parameters:  mode = FULLMERGE
 	respondToOpenInputFile
     *** nextItemType: Run 2 ***
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	readRun 2
 	beginRun 2
@@ -2287,10 +2156,8 @@ Machine parameters:  mode = FULLMERGE
 	processEvent
 	throwing
 	endLumi 2/1
-	writeLumi 2/1
 	clearLumiPrincipal 2/1
 	endRun 2
-	writeRun 2
 	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
@@ -2321,10 +2188,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: File 0 ***
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -2343,7 +2208,6 @@ Machine parameters:  mode = NOMERGE
 	endLumi 2/1 global failed
 	clearLumiPrincipal 2/1
 	endRun 2
-	writeRun 2
 	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
@@ -2375,10 +2239,8 @@ Machine parameters:  mode = FULLMERGE
 	respondToOpenInputFile
     *** nextItemType: Run 2 ***
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	readRun 2
 	beginRun 2
@@ -2390,7 +2252,6 @@ Machine parameters:  mode = FULLMERGE
 	endLumi 2/1 global failed
 	clearLumiPrincipal 2/1
 	endRun 2
-	writeRun 2
 	clearRunPrincipal 2
 	respondToCloseInputFile
 	closeInputFile
@@ -2421,10 +2282,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: File 0 ***
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -2470,10 +2329,8 @@ Machine parameters:  mode = FULLMERGE
     *** nextItemType: Throw 1 ***
     *** nextItemType: Run 2 ***
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	readRun 2
 	beginRun 2
@@ -2510,10 +2367,8 @@ Machine parameters:  mode = NOMERGE
     *** nextItemType: File 0 ***
 	shouldWeStop
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile
@@ -2549,10 +2404,8 @@ Machine parameters:  mode = FULLMERGE
  	readFile
 	throwing
 	endLumi 1/1
-	writeLumi 1/1
 	clearLumiPrincipal 1/1
 	endRun 1
-	writeRun 1
 	clearRunPrincipal 1
 	respondToCloseInputFile
 	closeInputFile

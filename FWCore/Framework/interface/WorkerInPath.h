@@ -43,13 +43,6 @@ namespace edm {
     void skipWorker(RunPrincipal const&) {}
     void skipWorker(LuminosityBlockPrincipal const&) {}
 
-    void clearCounters() { timesVisited_ = timesPassed_ = timesFailed_ = timesExcept_ = 0; }
-
-    int timesVisited() const { return timesVisited_; }
-    int timesPassed() const { return timesPassed_; }
-    int timesFailed() const { return timesFailed_; }
-    int timesExcept() const { return timesExcept_; }
-
     FilterAction filterAction() const { return filterAction_; }
     Worker* getWorker() const { return worker_; }
     bool runConcurrently() const noexcept { return runConcurrently_; }
@@ -58,11 +51,6 @@ namespace edm {
     void setPathContext(PathContext const* v) { placeInPathContext_.setPathContext(v); }
 
   private:
-    int timesVisited_;
-    int timesPassed_;
-    int timesFailed_;
-    int timesExcept_;
-
     FilterAction filterAction_;
     Worker* worker_;
 
@@ -84,7 +72,6 @@ namespace edm {
       case Worker::Pass:
         break;
       case Worker::Exception: {
-        ++timesExcept_;
         return true;
       }
 
@@ -98,11 +85,6 @@ namespace edm {
       rc = !rc;
     }
 
-    if (rc) {
-      ++timesPassed_;
-    } else {
-      ++timesFailed_;
-    }
     return rc;
   }
 
@@ -113,8 +95,6 @@ namespace edm {
                                     StreamID streamID,
                                     typename T::Context const* context) noexcept {
     static_assert(T::isEvent_);
-
-    ++timesVisited_;
     ParentContext parentContext(&placeInPathContext_);
     worker_->doWorkAsync<T>(std::move(iTask), info, token, streamID, parentContext, context);
   }

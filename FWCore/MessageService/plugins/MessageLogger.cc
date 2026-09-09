@@ -223,7 +223,6 @@ namespace edm {
       iRegistry.watchPostBeginJob(this, &MessageLogger::postBeginJob);
       iRegistry.watchPreEndJob(this, &MessageLogger::preEndJob);
       iRegistry.watchPostEndJob(this, &MessageLogger::postEndJob);
-      iRegistry.watchJobFailure(this, &MessageLogger::jobFailure);  // change log 14
 
       iRegistry.watchPreModuleConstruction(this, &MessageLogger::preModuleConstruction);
       iRegistry.watchPostModuleConstruction(this, &MessageLogger::postModuleConstruction);
@@ -973,13 +972,6 @@ namespace edm {
     }
 
     void MessageLogger::postEndJob() {
-      summarizeInJobReport();    // Put summary info into Job Rep  // change log 10
-      MessageLoggerQ::MLqSUM();  // trigger summary info.		// change log 9
-    }
-
-    void MessageLogger::jobFailure() {
-      MessageDrop* messageDrop = MessageDrop::instance();
-      messageDrop->setSinglet("jobFailure");
       summarizeInJobReport();    // Put summary info into Job Rep  // change log 10
       MessageLoggerQ::MLqSUM();  // trigger summary info.		// change log 9
     }

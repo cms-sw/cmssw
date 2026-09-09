@@ -9,12 +9,12 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 TEST_CASE("HeterogeneousCore/CUDAUtilities testCudaCheck", "[testCudaCheck]") {
-  SECTION("Test cudaCheck() driver API") {
-    REQUIRE_NOTHROW(cudaCheck(CUDA_SUCCESS));
-    REQUIRE_THROWS(cudaCheck(CUDA_ERROR_UNKNOWN));
+  SECTION("Test CUDA_CHECK() driver API") {
+    REQUIRE_NOTHROW(CUDA_CHECK(CUDA_SUCCESS));
+    REQUIRE_THROWS(CUDA_CHECK(CUDA_ERROR_UNKNOWN));
   }
-  SECTION("Test cudaCheck() runtime API") {
-    REQUIRE_NOTHROW(cudaCheck(cudaSuccess));
-    REQUIRE_THROWS(cudaCheck(cudaErrorUnknown));
+  SECTION("Test CUDA_CHECK() runtime API") {
+    REQUIRE_NOTHROW(CUDA_CHECK(cudaSuccess));
+    REQUIRE_THROWS(CUDA_CHECK(cudaErrorUnknown));
   }
 }

@@ -621,19 +621,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           continue;
 
         unsigned int nInnerSegments = segmentsOccupancy.nSegments()[innerInnerLowerModuleIndex];
-
         if (nInnerSegments == 0)
           continue;
 
         alpaka::syncBlockThreads(acc);
 
         // Step 1: Make inner and outer SG pairs
+        const auto innerSegmentOffset = ranges.segmentRanges()[innerInnerLowerModuleIndex][0];
         for (unsigned int innerSegmentArrayIndex : cms::alpakatools::uniform_elements_y(acc, nInnerSegments)) {
-          unsigned int innerSegmentIndex =
-              ranges.segmentRanges()[innerInnerLowerModuleIndex][0] + innerSegmentArrayIndex;
+          unsigned int innerSegmentIndex = innerSegmentOffset + innerSegmentArrayIndex;
+          if (segments.connectedMax()[innerSegmentIndex] == 0)
+            continue;
 
           uint16_t middleLowerModuleIndex = segments.outerLowerModuleIndices()[innerSegmentIndex];
-          int middleMDIndiceInner = segments.mdIndices()[innerSegmentIndex][1];
+          int middleMDIndexInner = segments.mdIndices()[innerSegmentIndex][1];
 
           T3InnerSegData innerSegData = loadT3InnerSegData(
               acc, mds, segments, modules, innerSegmentIndex, innerInnerLowerModuleIndex, middleLowerModuleIndex);
@@ -642,8 +643,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           for (unsigned int outerSegmentArrayIndex : cms::alpakatools::uniform_elements_x(acc, nOuterSegments)) {
             unsigned int outerSegmentIndex = ranges.segmentRanges()[middleLowerModuleIndex][0] + outerSegmentArrayIndex;
 
-            int middleMDIndiceOuter = segments.mdIndices()[outerSegmentIndex][0];
-            if (middleMDIndiceInner != middleMDIndiceOuter)
+            int middleMDIndexOuter = segments.mdIndices()[outerSegmentIndex][0];
+            if (middleMDIndexInner != middleMDIndexOuter)
               continue;
 
             uint16_t outerOuterLowerModuleIndex = segments.outerLowerModuleIndices()[outerSegmentIndex];

@@ -54,6 +54,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '')
 
+process.load("RecoHGCal.TICL.TICLGeom_cff")
 process.load("Validation.HGCalValidation.hgcalHitValidation_cfi")
 process.load("Validation.HGCalValidation.hgcalHitCalibration_cfi")
 

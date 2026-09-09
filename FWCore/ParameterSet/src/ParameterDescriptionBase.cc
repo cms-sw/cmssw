@@ -169,6 +169,7 @@ namespace edm {
     std::string_view endDelimiter = k_endBasicType;
     switch (type()) {
       case k_vdouble:
+      case k_vfloat:
       case k_vint32:
       case k_vint64:
       case k_vstringRaw:

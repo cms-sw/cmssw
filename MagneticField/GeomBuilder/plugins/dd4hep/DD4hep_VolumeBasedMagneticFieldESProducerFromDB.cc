@@ -220,7 +220,7 @@ std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducerFromDB::
 }
 
 std::string_view DD4hep_VolumeBasedMagneticFieldESProducerFromDB::closerNominalLabel(float current) {
-  constexpr std::array<int, 7> nominalCurrents = {{-1, 0, 9558, 14416, 16819, 18268, 19262}};
+  constexpr std::array<int, 7> nominalCurrents = {{-1, 0, 9500, 14340, 16730, 18164, 19140}};
   constexpr std::array<std::string_view, 7> nominalLabels = {{"3.8T", "0T", "2T", "3T", "3.5T", "3.8T", "4T"}};
 
   int i = 0;

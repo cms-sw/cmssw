@@ -50,6 +50,8 @@ MuonRefProducer::MuonRefProducer(const edm::ParameterSet& iConfig) {
     arbitrationType_ = reco::Muon::SegmentArbitration;
   else if (arbitrationType == "SegmentAndTrackArbitration")
     arbitrationType_ = reco::Muon::SegmentAndTrackArbitration;
+  else if (arbitrationType == "GEMSegmentAndTrackArbitration")
+    arbitrationType_ = reco::Muon::GEMSegmentAndTrackArbitration;
   else {
     edm::LogWarning("MuonIdentification")
         << "Unknown arbitration type is requested: " << arbitrationType << "\nUsing the default one";

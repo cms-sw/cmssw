@@ -1,6 +1,4 @@
 # Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-# Part of the MC-truth-graph prototype - under heavy development, not yet open
-# to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 import FWCore.ParameterSet.Config as cms
 
@@ -257,6 +255,8 @@ process.truthLogicalGraphDumper = cms.EDAnalyzer(
 
 
 process.load("PhysicsTools.TruthInfo.recHitTable_cfi")
+# recHitTable reads the TICL geometry SoAs from the EventSetup
+process.load("RecoHGCal.TICL.TICLGeom_cff")
 
 # Barrel/forward calorimeter PFRecHits as a separate NanoAOD collection.
 # HGCal rechits stay in recHitTable above. NOTE: the offline (RECO) PFRecHit

@@ -15,7 +15,7 @@ namespace cms {
           // Additional layer of types to distinguish from host::unique_ptr
           class HostDeleter {
           public:
-            void operator()(void *ptr) { cudaCheck(cudaFreeHost(ptr)); }
+            void operator()(void *ptr) { CUDA_CHECK(cudaFreeHost(ptr)); }
           };
         }  // namespace impl
 
@@ -49,7 +49,7 @@ namespace cms {
       static_assert(std::is_trivially_constructible<T>::value,
                     "Allocating with non-trivial constructor on the pinned host memory is not supported");
       void *mem;
-      cudaCheck(cudaHostAlloc(&mem, sizeof(T), flags));
+      CUDA_CHECK(cudaHostAlloc(&mem, sizeof(T), flags));
       return typename host::noncached::impl::make_host_unique_selector<T>::non_array(reinterpret_cast<T *>(mem));
     }
 
@@ -60,7 +60,7 @@ namespace cms {
       static_assert(std::is_trivially_constructible<element_type>::value,
                     "Allocating with non-trivial constructor on the pinned host memory is not supported");
       void *mem;
-      cudaCheck(cudaHostAlloc(&mem, n * sizeof(element_type), flags));
+      CUDA_CHECK(cudaHostAlloc(&mem, n * sizeof(element_type), flags));
       return typename host::noncached::impl::make_host_unique_selector<T>::unbounded_array(
           reinterpret_cast<element_type *>(mem));
     }

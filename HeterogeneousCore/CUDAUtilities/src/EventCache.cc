@@ -10,7 +10,7 @@ namespace cms::cuda {
   void EventCache::Deleter::operator()(cudaEvent_t event) const {
     if (device_ != -1) {
       ScopedSetDevice deviceGuard{device_};
-      cudaCheck(cudaEventDestroy(event));
+      CUDA_CHECK(cudaEventDestroy(event));
     }
   }
 
@@ -48,7 +48,7 @@ namespace cms::cuda {
       // it should be a bit faster to ignore timings
       // cudaEventBlockingSync is needed to let the thread calling
       // cudaEventSynchronize() to sleep instead of spinning the CPU
-      cudaCheck(cudaEventCreateWithFlags(&event, cudaEventDisableTiming | cudaEventBlockingSync));
+      CUDA_CHECK(cudaEventCreateWithFlags(&event, cudaEventDisableTiming | cudaEventBlockingSync));
       return std::unique_ptr<BareEvent, Deleter>(event, Deleter{dev});
     });
   }

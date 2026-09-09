@@ -155,6 +155,23 @@ namespace edm {
   }
 
   template <typename T>
+  bool WorkerT<T>::wantsWrites() const noexcept {
+    return false;
+  }
+  template <>
+  bool WorkerT<edm::global::OutputModuleBase>::wantsWrites() const noexcept {
+    return true;
+  }
+  template <>
+  bool WorkerT<edm::one::OutputModuleBase>::wantsWrites() const noexcept {
+    return true;
+  }
+  template <>
+  bool WorkerT<edm::limited::OutputModuleBase>::wantsWrites() const noexcept {
+    return true;
+  }
+
+  template <typename T>
   SerialTaskQueue* WorkerT<T>::globalRunsQueue() {
     return nullptr;
   }
@@ -199,9 +216,7 @@ namespace edm {
 
   template <typename T>
   inline bool WorkerT<T>::implDo(EventTransitionInfo const& info, ModuleCallingContext const* mcc) {
-    EventPrincipal const& ep = info.principal();
-    std::shared_ptr<Worker> sentry(this, [&ep](Worker* obj) { obj->postDoEvent(ep); });
-    return module_->doEvent(info, activityRegistry(), mcc);
+    return module_->doEvent(info, mcc);
   }
 
   template <typename T>
@@ -211,35 +226,35 @@ namespace edm {
   inline void WorkerT<global::EDProducerBase>::implDoAcquire(EventTransitionInfo const& info,
                                                              ModuleCallingContext const* mcc,
                                                              WaitingTaskHolder&& holder) {
-    module_->doAcquire(info, activityRegistry(), mcc, std::move(holder));
+    module_->doAcquire(info, mcc, std::move(holder));
   }
 
   template <>
   inline void WorkerT<global::EDFilterBase>::implDoAcquire(EventTransitionInfo const& info,
                                                            ModuleCallingContext const* mcc,
                                                            WaitingTaskHolder&& holder) {
-    module_->doAcquire(info, activityRegistry(), mcc, std::move(holder));
+    module_->doAcquire(info, mcc, std::move(holder));
   }
 
   template <>
   inline void WorkerT<global::OutputModuleBase>::implDoAcquire(EventTransitionInfo const& info,
                                                                ModuleCallingContext const* mcc,
                                                                WaitingTaskHolder&& holder) {
-    module_->doAcquire(info, activityRegistry(), mcc, std::move(holder));
+    module_->doAcquire(info, mcc, std::move(holder));
   }
 
   template <>
   inline void WorkerT<stream::EDProducerAdaptorBase>::implDoAcquire(EventTransitionInfo const& info,
                                                                     ModuleCallingContext const* mcc,
                                                                     WaitingTaskHolder&& holder) {
-    module_->doAcquire(info, activityRegistry(), mcc, std::move(holder));
+    module_->doAcquire(info, mcc, std::move(holder));
   }
 
   template <>
   inline void WorkerT<stream::EDFilterAdaptorBase>::implDoAcquire(EventTransitionInfo const& info,
                                                                   ModuleCallingContext const* mcc,
                                                                   WaitingTaskHolder&& holder) {
-    module_->doAcquire(info, activityRegistry(), mcc, std::move(holder));
+    module_->doAcquire(info, mcc, std::move(holder));
   }
 
   template <typename T>
@@ -509,6 +524,29 @@ namespace edm {
   }
 
   template <typename T>
+  inline bool WorkerT<T>::implDoWrite(RunTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    return true;
+  }
+  template <>
+  inline bool WorkerT<edm::one::OutputModuleBase>::implDoWrite(RunTransitionInfo const& info,
+                                                               ModuleCallingContext const* mcc) {
+    module_->doWriteRun(info.principal(), mcc);
+    return true;
+  }
+  template <>
+  inline bool WorkerT<edm::global::OutputModuleBase>::implDoWrite(RunTransitionInfo const& info,
+                                                                  ModuleCallingContext const* mcc) {
+    module_->doWriteRun(info.principal(), mcc);
+    return true;
+  }
+  template <>
+  inline bool WorkerT<edm::limited::OutputModuleBase>::implDoWrite(RunTransitionInfo const& info,
+                                                                   ModuleCallingContext const* mcc) {
+    module_->doWriteRun(info.principal(), mcc);
+    return true;
+  }
+
+  template <typename T>
   inline bool WorkerT<T>::implDoBegin(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
     module_->doBeginLuminosityBlock(info, mcc);
     return true;
@@ -557,6 +595,29 @@ namespace edm {
   template <typename T>
   inline bool WorkerT<T>::implDoEnd(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
     module_->doEndLuminosityBlock(info, mcc);
+    return true;
+  }
+
+  template <typename T>
+  inline bool WorkerT<T>::implDoWrite(LumiTransitionInfo const& info, ModuleCallingContext const* mcc) {
+    return true;
+  }
+  template <>
+  inline bool WorkerT<edm::one::OutputModuleBase>::implDoWrite(LumiTransitionInfo const& info,
+                                                               ModuleCallingContext const* mcc) {
+    module_->doWriteLuminosityBlock(info.principal(), mcc);
+    return true;
+  }
+  template <>
+  inline bool WorkerT<edm::global::OutputModuleBase>::implDoWrite(LumiTransitionInfo const& info,
+                                                                  ModuleCallingContext const* mcc) {
+    module_->doWriteLuminosityBlock(info.principal(), mcc);
+    return true;
+  }
+  template <>
+  inline bool WorkerT<edm::limited::OutputModuleBase>::implDoWrite(LumiTransitionInfo const& info,
+                                                                   ModuleCallingContext const* mcc) {
+    module_->doWriteLuminosityBlock(info.principal(), mcc);
     return true;
   }
 

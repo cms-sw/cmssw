@@ -44,7 +44,7 @@ def customiseTICLForMuonCassettesTest(process):
         mightGet = cms.optional.untracked.vstring,
         nHitsTime = cms.uint32(3),
         plugin = cms.PSet(
-            dEdXweights = cms.vdouble(
+            dEdXweights = cms.vfloat(
                 0.0, 9.205, 11.129999999999999, 11.129999999999999, 11.129999999999999,
                 11.129999999999999, 11.129999999999999, 11.129999999999999, 11.129999999999999, 11.129999999999999,
                 11.129999999999999, 11.129999999999999, 11.129999999999999, 11.129999999999999, 11.129999999999999,
@@ -56,32 +56,32 @@ def customiseTICLForMuonCassettesTest(process):
                 83.52000000000001, 83.61, 83.61, 83.61, 83.61,
                 83.61, 83.61, 83.61
             ),
-            # deltac = cms.vdouble(1.3, 1.3, 1.3, 0.0315),
-            deltac = cms.vdouble(1., 1.3, 1.3, 0.0315),
+            # deltac = cms.vfloat(1.3, 1.3, 1.3, 0.0315),
+            deltac = cms.vfloat(1., 1.3, 1.3, 0.0315),
             deltasi_index_regemfac = cms.int32(3),
             dependSensor = cms.bool(True),
-            ecut = cms.double(1.5),
-            fcPerEle = cms.double(0.00016020506),
-            fcPerMip = cms.vdouble(
+            ecut = cms.float(1.5),
+            fcPerEle = cms.float(0.00016020506),
+            fcPerMip = cms.vfloat(
                 2.06, 3.43, 5.15, 2.06, 3.43,
                 5.15
             ),
-            kappa = cms.double(5),
+            kappa = cms.float(5),
             maxNumberOfThickIndices = cms.uint32(6),
             noiseMip = cms.PSet(
                 refToPSet_ = cms.string('HGCAL_noise_heback')
             ),
-            noises = cms.vdouble(
+            noises = cms.vfloat(
                 2000.0, 2400.0, 2000.0, 2000.0, 2400.0,
                 2000.0
             ),
-            positionDeltaRho2 = cms.double(1.69),
-            sciThicknessCorrection = cms.double(0.69),
-            thicknessCorrection = cms.vdouble(
+            positionDeltaRho2 = cms.float(1.69),
+            sciThicknessCorrection = cms.float(0.69),
+            thicknessCorrection = cms.vfloat(
                 0.75, 0.76, 0.75, 0.85, 0.85,
                 0.84
             ),
-            thresholdW0 = cms.vdouble(2.9, 2.9, 2.9),
+            thresholdW0 = cms.vfloat(2.9, 2.9, 2.9),
             type = cms.string('SiCLUE'),
             use2x2 = cms.bool(True),
             verbosity = cms.untracked.uint32(3)
@@ -123,23 +123,23 @@ def customiseTICLForMuonCassettesTest(process):
       pluginPatternRecognitionByCA = cms.PSet(
         algo_verbosity = cms.int32(0),
         computeLocalTime = cms.bool(True),
-        energy_em_over_total_threshold = cms.double(-1),
-        etaLimitIncreaseWindow = cms.double(2.1),
+        energy_em_over_total_threshold = cms.float(-1),
+        etaLimitIncreaseWindow = cms.float(2.1),
         filter_on_categories = cms.vint32(0),
-        max_delta_time = cms.double(-1),
-        max_longitudinal_sigmaPCA = cms.double(9999),
+        max_delta_time = cms.float(-1),
+        max_longitudinal_sigmaPCA = cms.float(9999),
         max_missing_layers_in_trackster = cms.int32(9999),
         max_out_in_hops = cms.int32(10),
-        min_cos_pointing = cms.double(0.5),
-        min_cos_theta = cms.double(0.9),
+        min_cos_pointing = cms.float(0.5),
+        min_cos_theta = cms.float(0.9),
         min_layers_per_trackster = cms.int32(4),
         oneTracksterPerTrackSeed = cms.bool(False),
         out_in_dfs = cms.bool(False),
-        pid_threshold = cms.double(0),
+        pid_threshold = cms.float(0),
         promoteEmptyRegionToTrackster = cms.bool(False),
-        root_doublet_max_distance_from_seed_squared = cms.double(9999),
+        root_doublet_max_distance_from_seed_squared = cms.float(9999),
         shower_start_max_layer = cms.int32(9999),
-        siblings_maxRSquared = cms.vdouble(0.0006, 0.0006, 0.0006),
+        siblings_maxRSquared = cms.vfloat(0.0006, 0.0006, 0.0006),
         skip_layers = cms.int32(3),
         type = cms.string('CA')
       )

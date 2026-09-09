@@ -1,0 +1,147 @@
+---------Processing histories---------
+History: {
+  PROD1 [1]
+}
+---------Processes---------
+Process: PROD1 [1]
+  PSet id: b6a0b924ba604501a5436d5102a43418
+  accelerators: cpu
+
+---------Event filtering---------
+Event filtering information for 1 processing steps is available.
+The ParameterSets are printed out with the oldest process first.
+Event filtering:
+  PSet id: bddf733236a388bb9b184c2c3a457281
+  parameters: {
+    EndPathPositions: vint32 tracked  = {+0}
+    EndPaths: vstring tracked  = {'e'}
+    InProcessHistory: bool tracked  = true
+    SelectEvents: vstring tracked  = {}
+  }
+---------Producers with data in file---------
+Module: TriggerResults PROD1
+ Process: PROD1 [1]
+ PSet id:7499781d3ee2b1d28897c5e8d339ecd8
+ products: {
+  edmTriggerResults_TriggerResults__PROD1. BranchID 3548090599
+ }
+ parameters: {
+  @trigger_paths: vstring tracked  = {'p'}
+ }
+
+Module: aliasForInt PROD1
+ Process: PROD1 [1]
+ PSet id:84fd4b8f040a2f5c075e79e75e58c2dd
+ products: {
+  edmtestIntProduct_aliasForInt__PROD1. BranchID 3673681161
+ }
+ parameters: {
+  @module_edm_type: string tracked  = 'EDAlias'
+  @module_label: string tracked  = 'aliasForInt'
+  @module_type: string tracked  = 'EDAlias'
+  intProducerA: VPSet tracked = ({
+   {
+    type: string tracked  = 'edmtestIntProduct'
+   }
+  })
+ }
+
+Module: intProducer PROD1
+ Process: PROD1 [1]
+ PSet id:47093b04845a3bbca050af6f5836e776
+ products: {
+  edmtestIntProduct_intProducer__PROD1. BranchID 709634656
+ }
+ parameters: {
+  @module_edm_type: string tracked  = 'EDProducer'
+  @module_label: string tracked  = 'intProducer'
+  @module_type: string tracked  = 'IntProducer'
+  ivalue: int32 tracked  = 1
+ }
+
+Module: intProducerA PROD1
+ Process: PROD1 [1]
+ PSet id:56ea7c8bbb02df4e1c3b945954838318
+ products: {
+  edmtestIntProduct_intProducerA__PROD1. BranchID 1289746214
+ }
+ parameters: {
+  @module_edm_type: string tracked  = 'EDProducer'
+  @module_label: string tracked  = 'intProducerA'
+  @module_type: string tracked  = 'IntProducer'
+  ivalue: int32 tracked  = 100
+ }
+
+Module: intProducerU PROD1
+ Process: PROD1 [1]
+ PSet id:0ce4e422dbfc7d21c8f01fc87b6e71b7
+ products: {
+  edmtestIntProduct_intProducerU__PROD1. BranchID 3186877531
+ }
+ parameters: {
+  @module_edm_type: string tracked  = 'EDProducer'
+  @module_label: string tracked  = 'intProducerU'
+  @module_type: string tracked  = 'IntProducer'
+  ivalue: int32 tracked  = 10
+ }
+
+Module: intVectorProducer PROD1
+ Process: PROD1 [1]
+ PSet id:069ebcaafc2423e72b81399666f0fa6f
+ products: {
+  ints_intVectorProducer__PROD1. BranchID 315054627
+ }
+ parameters: {
+  @module_edm_type: string tracked  = 'EDProducer'
+  @module_label: string tracked  = 'intVectorProducer'
+  @module_type: string tracked  = 'IntVectorProducer'
+  count: int32 tracked  = 9
+  delta: int32 tracked  = 0
+  ivalue: int32 tracked  = 11
+ }
+
+Module: source PROD1
+ Process: PROD1 [1]
+ PSet id:6f0b3d3a362a6270c801489bb066414a
+ products: {
+  edmtestIntProduct_source__PROD1. BranchID 3765011715
+ }
+ parameters: {
+  @module_edm_type: string tracked  = 'Source'
+  @module_label: string tracked  = '@main_input'
+  @module_type: string tracked  = 'IntSource'
+ }
+
+---------Other Modules---------
+Module: a1 PROD1
+ parameters: {
+  @module_edm_type: string tracked  = 'EDAnalyzer'
+  @module_label: string tracked  = 'a1'
+  @module_type: string tracked  = 'TestFindProduct'
+ }
+Module: a2 PROD1
+ parameters: {
+  @module_edm_type: string tracked  = 'EDAnalyzer'
+  @module_label: string tracked  = 'a2'
+  @module_type: string tracked  = 'TestFindProduct'
+ }
+Module: a3 PROD1
+ parameters: {
+  @module_edm_type: string tracked  = 'EDAnalyzer'
+  @module_label: string tracked  = 'a3'
+  @module_type: string tracked  = 'TestFindProduct'
+ }
+---------EventSetup---------
+ESSource: DoodadESSource PROD1
+ parameters: {
+  @module_edm_type: string tracked  = 'ESSource'
+  @module_label: string tracked  = ''
+  @module_type: string tracked  = 'DoodadESSource'
+ }
+ESModule: WhatsItESProducer PROD1
+ parameters: {
+  @module_edm_type: string tracked  = 'ESProducer'
+  @module_label: string tracked  = ''
+  @module_type: string tracked  = 'WhatsItESProducer'
+  appendToDataLabel: string tracked  = ''
+ }

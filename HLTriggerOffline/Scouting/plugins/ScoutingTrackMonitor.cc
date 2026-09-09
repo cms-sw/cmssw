@@ -555,7 +555,7 @@ void ScoutingTrackMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooke
                                  VarMin,
                                  VarMax,
                                  "");
-  IPVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 1);
+  IPVsPhi_->setAxisTitle(fmt::format("PV track (p_{{T}} > {} GeV) #phi", pTcut_), 1);
   IPVsPhi_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_), 2);
 
   IPVsEta_ = iBooker.bookProfile(fmt::format("d{}VsEta_pt{}", varname_, pTcut_),
@@ -567,7 +567,7 @@ void ScoutingTrackMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooke
                                  VarMin,
                                  VarMax,
                                  "");
-  IPVsEta_->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
+  IPVsEta_->setAxisTitle(fmt::format("PV track (p_{{T}} > {} GeV) #eta", pTcut_), 1);
   IPVsEta_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_), 2);
 
   IPVsPt_ = sctTrackMonitor::makeProfileIfLog(
@@ -582,7 +582,7 @@ void ScoutingTrackMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooke
       VarMin,
       VarMax,
       "");
-  IPVsPt_->setAxisTitle("PV track (p_{T} > 1 GeV) p_{T} [GeV]", 1);
+  IPVsPt_->setAxisTitle(fmt::format("PV track (p_{{T}} > {} GeV) p_{{T}} [GeV]", pTcut_), 1);
   IPVsPt_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_), 2);
 
   // IP error profiles
@@ -596,7 +596,7 @@ void ScoutingTrackMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooke
                           0.,
                           (varname_.find("xy") != std::string::npos) ? 100. : 200.,
                           "");
-  IPErrVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 1);
+  IPErrVsPhi_->setAxisTitle(fmt::format("PV track (p_{{T}} > {} GeV) #phi", pTcut_), 1);
   IPErrVsPhi_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_), 2);
 
   IPErrVsEta_ =
@@ -609,7 +609,7 @@ void ScoutingTrackMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooke
                           0.,
                           (varname_.find("xy") != std::string::npos) ? 100. : 200.,
                           "");
-  IPErrVsEta_->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
+  IPErrVsEta_->setAxisTitle(fmt::format("PV track (p_{{T}} > {} GeV) #eta", pTcut_), 1);
   IPErrVsEta_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_), 2);
 
   IPErrVsPt_ = sctTrackMonitor::makeProfileIfLog(
@@ -624,7 +624,7 @@ void ScoutingTrackMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooke
       VarMin,
       VarMax,
       "");
-  IPErrVsPt_->setAxisTitle("PV track (p_{T} > 1 GeV) p_{T} [GeV]", 1);
+  IPErrVsPt_->setAxisTitle(fmt::format("PV track (p_{{T}} > {} GeV) p_{{T}} [GeV]", pTcut_), 1);
   IPErrVsPt_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_), 2);
 
   // 2D profiles
@@ -641,8 +641,8 @@ void ScoutingTrackMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooke
       VarMin,
       VarMax,
       "");
-  IPVsEtaVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
-  IPVsEtaVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 2);
+  IPVsEtaVsPhi_->setAxisTitle(fmt::format("PV track (p_{{T}} > {} GeV) #eta", pTcut_), 1);
+  IPVsEtaVsPhi_->setAxisTitle(fmt::format("PV track (p_{{T}} > {} GeV) #phi", pTcut_), 2);
   IPVsEtaVsPhi_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_), 3);
   IPVsEtaVsPhi_->setOption("colz");
 
@@ -659,8 +659,8 @@ void ScoutingTrackMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooke
       0.,
       (varname_.find("xy") != std::string::npos) ? 100. : 200.,
       "");
-  IPErrVsEtaVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
-  IPErrVsEtaVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 2);
+  IPErrVsEtaVsPhi_->setAxisTitle(fmt::format("PV track (p_{{T}} > {} GeV) #eta", pTcut_), 1);
+  IPErrVsEtaVsPhi_->setAxisTitle(fmt::format("PV track (p_{{T}} > {} GeV) #phi", pTcut_), 2);
   IPErrVsEtaVsPhi_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_),
                                  3);
   IPErrVsEtaVsPhi_->setOption("colz");

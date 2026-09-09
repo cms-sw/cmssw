@@ -146,7 +146,7 @@ private:
   edm::EDGetTokenT<SimHitTPAssociationProducer::SimHitTPAssociationList> _simHitTpMapTag;
   edm::EDGetTokenT<edm::View<reco::Track>> labelTokenForDrCalculation;
   edm::EDGetTokenT<edm::View<reco::Vertex>> recoVertexToken_;
-  edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator> vertexAssociatorToken_;
+  edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator<std::vector<reco::Vertex>>> vertexAssociatorToken_;
 };
 
 #endif

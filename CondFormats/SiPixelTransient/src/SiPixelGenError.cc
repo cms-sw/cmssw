@@ -46,6 +46,20 @@ using namespace edm;
 #define ENDL std::endl
 #endif
 
+namespace {
+
+  //! Linear interpolation (1-r)*a + r*b, with the FMA contraction pinned
+  //! Prevents 1ulp shifts due to compiler optimization
+  //! https://github.com/cms-sw/cmssw/issues/48499
+  inline float interpolate1d(float r, float a, float b) { return std::fma(1.f - r, a, r * b); }
+
+  //! Bilinear interpolation, with the same contraction guarantee as interpolate1d()
+  inline float interpolate2d(float ry, float rx, float a00, float a01, float a10, float a11) {
+    return interpolate1d(ry, interpolate1d(rx, a00, a01), interpolate1d(rx, a10, a11));
+  }
+
+}  // namespace
+
 //****************************************************************
 //! This routine initializes the global GenError structures from
 //! an external file generror_summary_zpNNNN where NNNN are four
@@ -711,11 +725,11 @@ int SiPixelGenError::qbin(int id,
 
   // Interpolate/store all y-related quantities (flip displacements when flip_y)
 
-  auto qavg = (1.f - yratio) * thePixelTemp_[index].enty[ilow].qavg + yratio * thePixelTemp_[index].enty[ihigh].qavg;
+  auto qavg = interpolate1d(yratio, thePixelTemp_[index].enty[ilow].qavg, thePixelTemp_[index].enty[ihigh].qavg);
   qavg *= qcorrect;
-  auto qmin = (1.f - yratio) * thePixelTemp_[index].enty[ilow].qmin + yratio * thePixelTemp_[index].enty[ihigh].qmin;
+  auto qmin = interpolate1d(yratio, thePixelTemp_[index].enty[ilow].qmin, thePixelTemp_[index].enty[ihigh].qmin);
   qmin *= qcorrect;
-  auto qmin2 = (1.f - yratio) * thePixelTemp_[index].enty[ilow].qmin2 + yratio * thePixelTemp_[index].enty[ihigh].qmin2;
+  auto qmin2 = interpolate1d(yratio, thePixelTemp_[index].enty[ilow].qmin2, thePixelTemp_[index].enty[ihigh].qmin2);
   qmin2 *= qcorrect;
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
@@ -750,23 +764,23 @@ int SiPixelGenError::qbin(int id,
     }
   }
 
-  auto yrmsgen = (1.f - yratio) * thePixelTemp_[index].enty[ilow].yrmsgen[binq] +
-                 yratio * thePixelTemp_[index].enty[ihigh].yrmsgen[binq];
-  sy1 = (1.f - yratio) * thePixelTemp_[index].enty[ilow].syone + yratio * thePixelTemp_[index].enty[ihigh].syone;
-  sy2 = (1.f - yratio) * thePixelTemp_[index].enty[ilow].sytwo + yratio * thePixelTemp_[index].enty[ihigh].sytwo;
+  auto yrmsgen = interpolate1d(
+      yratio, thePixelTemp_[index].enty[ilow].yrmsgen[binq], thePixelTemp_[index].enty[ihigh].yrmsgen[binq]);
+  sy1 = interpolate1d(yratio, thePixelTemp_[index].enty[ilow].syone, thePixelTemp_[index].enty[ihigh].syone);
+  sy2 = interpolate1d(yratio, thePixelTemp_[index].enty[ilow].sytwo, thePixelTemp_[index].enty[ihigh].sytwo);
 
   if (irradiationCorrections) {
-    auto yavggen = (1.f - yratio) * thePixelTemp_[index].enty[ilow].yavggen[binq] +
-                   yratio * thePixelTemp_[index].enty[ihigh].yavggen[binq];
+    auto yavggen = interpolate1d(
+        yratio, thePixelTemp_[index].enty[ilow].yavggen[binq], thePixelTemp_[index].enty[ihigh].yavggen[binq]);
     if (flip_y) {
       yavggen = -yavggen;
     }
     deltay = yavggen;
-    dy1 = (1.f - yratio) * thePixelTemp_[index].enty[ilow].dyone + yratio * thePixelTemp_[index].enty[ihigh].dyone;
+    dy1 = interpolate1d(yratio, thePixelTemp_[index].enty[ilow].dyone, thePixelTemp_[index].enty[ihigh].dyone);
     if (flip_y) {
       dy1 = -dy1;
     }
-    dy2 = (1.f - yratio) * thePixelTemp_[index].enty[ilow].dytwo + yratio * thePixelTemp_[index].enty[ihigh].dytwo;
+    dy2 = interpolate1d(yratio, thePixelTemp_[index].enty[ilow].dytwo, thePixelTemp_[index].enty[ihigh].dytwo);
     if (flip_y) {
       dy2 = -dy2;
     }
@@ -812,39 +826,41 @@ int SiPixelGenError::qbin(int id,
     ilow = ihigh - 1;
   }
 
-  sx1 =
-      (1.f - xxratio) * thePixelTemp_[index].entx[0][ilow].sxone + xxratio * thePixelTemp_[index].entx[0][ihigh].sxone;
-  sx2 =
-      (1.f - xxratio) * thePixelTemp_[index].entx[0][ilow].sxtwo + xxratio * thePixelTemp_[index].entx[0][ihigh].sxtwo;
+  sx1 = interpolate1d(xxratio, thePixelTemp_[index].entx[0][ilow].sxone, thePixelTemp_[index].entx[0][ihigh].sxone);
+  sx2 = interpolate1d(xxratio, thePixelTemp_[index].entx[0][ilow].sxtwo, thePixelTemp_[index].entx[0][ihigh].sxtwo);
 
   // pixmax is the maximum allowed pixel charge (used for truncation)
 
-  pixmx = (1.f - yxratio) * ((1.f - xxratio) * thePixelTemp_[index].entx[iylow][ilow].pixmax +
-                             xxratio * thePixelTemp_[index].entx[iylow][ihigh].pixmax) +
-          yxratio * ((1.f - xxratio) * thePixelTemp_[index].entx[iyhigh][ilow].pixmax +
-                     xxratio * thePixelTemp_[index].entx[iyhigh][ihigh].pixmax);
+  pixmx = interpolate2d(yxratio,
+                        xxratio,
+                        thePixelTemp_[index].entx[iylow][ilow].pixmax,
+                        thePixelTemp_[index].entx[iylow][ihigh].pixmax,
+                        thePixelTemp_[index].entx[iyhigh][ilow].pixmax,
+                        thePixelTemp_[index].entx[iyhigh][ihigh].pixmax);
 
-  auto xrmsgen = (1.f - yxratio) * ((1.f - xxratio) * thePixelTemp_[index].entx[iylow][ilow].xrmsgen[binq] +
-                                    xxratio * thePixelTemp_[index].entx[iylow][ihigh].xrmsgen[binq]) +
-                 yxratio * ((1.f - xxratio) * thePixelTemp_[index].entx[iyhigh][ilow].xrmsgen[binq] +
-                            xxratio * thePixelTemp_[index].entx[iyhigh][ihigh].xrmsgen[binq]);
+  auto xrmsgen = interpolate2d(yxratio,
+                               xxratio,
+                               thePixelTemp_[index].entx[iylow][ilow].xrmsgen[binq],
+                               thePixelTemp_[index].entx[iylow][ihigh].xrmsgen[binq],
+                               thePixelTemp_[index].entx[iyhigh][ilow].xrmsgen[binq],
+                               thePixelTemp_[index].entx[iyhigh][ihigh].xrmsgen[binq]);
 
   if (irradiationCorrections) {
-    auto xavggen = (1.f - yxratio) * ((1.f - xxratio) * thePixelTemp_[index].entx[iylow][ilow].xavggen[binq] +
-                                      xxratio * thePixelTemp_[index].entx[iylow][ihigh].xavggen[binq]) +
-                   yxratio * ((1.f - xxratio) * thePixelTemp_[index].entx[iyhigh][ilow].xavggen[binq] +
-                              xxratio * thePixelTemp_[index].entx[iyhigh][ihigh].xavggen[binq]);
+    auto xavggen = interpolate2d(yxratio,
+                                 xxratio,
+                                 thePixelTemp_[index].entx[iylow][ilow].xavggen[binq],
+                                 thePixelTemp_[index].entx[iylow][ihigh].xavggen[binq],
+                                 thePixelTemp_[index].entx[iyhigh][ilow].xavggen[binq],
+                                 thePixelTemp_[index].entx[iyhigh][ihigh].xavggen[binq]);
     if (flip_x) {
       xavggen = -xavggen;
     }
     deltax = xavggen;
-    dx1 = (1.f - xxratio) * thePixelTemp_[index].entx[0][ilow].dxone +
-          xxratio * thePixelTemp_[index].entx[0][ihigh].dxone;
+    dx1 = interpolate1d(xxratio, thePixelTemp_[index].entx[0][ilow].dxone, thePixelTemp_[index].entx[0][ihigh].dxone);
     if (flip_x) {
       dx1 = -dx1;
     }
-    dx2 = (1.f - xxratio) * thePixelTemp_[index].entx[0][ilow].dxtwo +
-          xxratio * thePixelTemp_[index].entx[0][ihigh].dxtwo;
+    dx2 = interpolate1d(xxratio, thePixelTemp_[index].entx[0][ilow].dxtwo, thePixelTemp_[index].entx[0][ihigh].dxtwo);
     if (flip_x) {
       dx2 = -dx2;
     }

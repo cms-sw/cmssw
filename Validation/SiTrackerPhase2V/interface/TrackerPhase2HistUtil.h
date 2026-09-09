@@ -1,9 +1,11 @@
 
 // TrackerPhase2HistUtil.h
 // -----------------------------------------------------------------------------
-// Helper utility for booking 1D histograms from ParameterSets and filling
-// resolution MonitorElements (using standard deviations) in Phase-2 tracker
-// validation & harvesting code.
+// Helper utility for Phase-2 tracker validation & harvesting code:
+//  - book 1D histograms from ParameterSets
+//  - fill resolution MonitorElements from standard deviations
+//  - book numerator/denominator fraction histograms (binomial errors)
+//  - book per-event rate histograms (counts / nEvents)
 //
 // Author: Brandi Skipworth
 // -----------------------------------------------------------------------------
@@ -64,6 +66,55 @@ namespace phase2tkutil {
     h->setAxisTitle(xaxis, 1);
     h->setAxisTitle(yaxis, 2);
     return h;
+  }
+
+  // Books a numerator/denominator fraction (e.g. fake or duplicate fraction)
+  // with binomial errors, mirroring TH1::Divide(num, den, 1, 1, "B") in
+  // L1Trigger/TrackFindingTracklet/test/L1TrackNtuplePlot.C. Returns the booked
+  // ME, or nullptr if an input histogram is missing.
+  inline dqm::legacy::MonitorElement* bookFraction(dqm::legacy::DQMStore::IBooker& ibooker,
+                                                   dqm::legacy::DQMStore::IGetter& igetter,
+                                                   const std::string& numName,
+                                                   const std::string& denName,
+                                                   const std::string& outName,
+                                                   const std::string& title) {
+    dqm::legacy::MonitorElement* meNum = igetter.get(numName);
+    dqm::legacy::MonitorElement* meDen = igetter.get(denName);
+    if (meNum == nullptr || meDen == nullptr) {
+      edm::LogWarning("TrackerPhase2HistUtil") << "Missing input histogram(s) for " << outName;
+      return nullptr;
+    }
+    TH1F* hNum = meNum->getTH1F();
+    TH1F* hDen = meDen->getTH1F();
+    if (hNum == nullptr || hDen == nullptr)
+      return nullptr;
+    dqm::legacy::MonitorElement* meOut =
+        ibooker.book1D(outName, title, hDen->GetNbinsX(), hDen->GetXaxis()->GetXmin(), hDen->GetXaxis()->GetXmax());
+    TH1F* hOut = meOut->getTH1F();
+    if (hOut->GetSumw2N() == 0)
+      hOut->Sumw2();                          // ensure Divide("B") stores the binomial errors
+    hOut->Divide(hNum, hDen, 1.0, 1.0, "B");  // "B" = binomial errors
+    return meOut;
+  }
+
+  inline dqm::legacy::MonitorElement* bookPerEventRate(dqm::legacy::DQMStore::IBooker& ibooker,
+                                                       dqm::legacy::DQMStore::IGetter& igetter,
+                                                       const std::string& allName,
+                                                       const std::string& outName,
+                                                       const std::string& title,
+                                                       double nEvents) {
+    dqm::legacy::MonitorElement* meAll = igetter.get(allName);
+    if (meAll == nullptr || nEvents <= 0)
+      return nullptr;
+    TH1F* hAll = meAll->getTH1F();
+    dqm::legacy::MonitorElement* meRate =
+        ibooker.book1D(outName, title, hAll->GetNbinsX(), hAll->GetXaxis()->GetXmin(), hAll->GetXaxis()->GetXmax());
+    TH1F* hRate = meRate->getTH1F();
+    if (hRate->GetSumw2N() == 0)
+      hRate->Sumw2();  // so Scale() propagates the Poisson errors
+    hRate->Add(hAll);
+    hRate->Scale(1.0 / nEvents);
+    return meRate;
   }
 }  // namespace phase2tkutil
 #endif

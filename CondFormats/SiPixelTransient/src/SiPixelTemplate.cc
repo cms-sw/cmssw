@@ -123,6 +123,20 @@ using namespace edm;
 #define ENDL std::endl
 #endif
 
+namespace {
+
+  //! Linear interpolation (1-r)*a + r*b, with the FMA contraction pinned
+  //! Prevents 1ulp shifts due to compiler optimization
+  //! https://github.com/cms-sw/cmssw/issues/48499
+  inline float interpolate1d(float r, float a, float b) { return std::fma(1.f - r, a, r * b); }
+
+  //! Bilinear interpolation, with the same contraction guarantee as interpolate1d()
+  inline float interpolate2d(float ry, float rx, float a00, float a01, float a10, float a11) {
+    return interpolate1d(ry, interpolate1d(rx, a00, a01), interpolate1d(rx, a10, a11));
+  }
+
+}  // namespace
+
 //****************************************************************
 //! This routine initializes the global template structures from
 //! an external file template_summary_zpNNNN where NNNN are four
@@ -1509,35 +1523,35 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
 
     // Interpolate/store all y-related quantities (flip displacements when flip_y_)
 
-    qavg_ = (1.f - yratio_) * enty0_->qavg + yratio_ * enty1_->qavg;
+    qavg_ = interpolate1d(yratio_, enty0_->qavg, enty1_->qavg);
     qavg_ *= qcorrect;
-    symax = (1.f - yratio_) * enty0_->symax + yratio_ * enty1_->symax;
+    symax = interpolate1d(yratio_, enty0_->symax, enty1_->symax);
     syparmax_ = symax;
-    sxmax = (1.f - yratio_) * enty0_->sxmax + yratio_ * enty1_->sxmax;
-    dyone_ = (1.f - yratio_) * enty0_->dyone + yratio_ * enty1_->dyone;
+    sxmax = interpolate1d(yratio_, enty0_->sxmax, enty1_->sxmax);
+    dyone_ = interpolate1d(yratio_, enty0_->dyone, enty1_->dyone);
     if (flip_y_) {
       dyone_ = -dyone_;
     }
-    syone_ = (1.f - yratio_) * enty0_->syone + yratio_ * enty1_->syone;
-    dytwo_ = (1.f - yratio_) * enty0_->dytwo + yratio_ * enty1_->dytwo;
+    syone_ = interpolate1d(yratio_, enty0_->syone, enty1_->syone);
+    dytwo_ = interpolate1d(yratio_, enty0_->dytwo, enty1_->dytwo);
     if (flip_y_) {
       dytwo_ = -dytwo_;
     }
-    sytwo_ = (1.f - yratio_) * enty0_->sytwo + yratio_ * enty1_->sytwo;
-    qmin_ = (1.f - yratio_) * enty0_->qmin + yratio_ * enty1_->qmin;
+    sytwo_ = interpolate1d(yratio_, enty0_->sytwo, enty1_->sytwo);
+    qmin_ = interpolate1d(yratio_, enty0_->qmin, enty1_->qmin);
     qmin_ *= qcorrect;
-    qmin2_ = (1.f - yratio_) * enty0_->qmin2 + yratio_ * enty1_->qmin2;
+    qmin2_ = interpolate1d(yratio_, enty0_->qmin2, enty1_->qmin2);
     qmin2_ *= qcorrect;
-    mpvvav_ = (1.f - yratio_) * enty0_->mpvvav + yratio_ * enty1_->mpvvav;
+    mpvvav_ = interpolate1d(yratio_, enty0_->mpvvav, enty1_->mpvvav);
     mpvvav_ *= qcorrect;
-    sigmavav_ = (1.f - yratio_) * enty0_->sigmavav + yratio_ * enty1_->sigmavav;
-    kappavav_ = (1.f - yratio_) * enty0_->kappavav + yratio_ * enty1_->kappavav;
-    mpvvav2_ = (1.f - yratio_) * enty0_->mpvvav2 + yratio_ * enty1_->mpvvav2;
+    sigmavav_ = interpolate1d(yratio_, enty0_->sigmavav, enty1_->sigmavav);
+    kappavav_ = interpolate1d(yratio_, enty0_->kappavav, enty1_->kappavav);
+    mpvvav2_ = interpolate1d(yratio_, enty0_->mpvvav2, enty1_->mpvvav2);
     mpvvav2_ *= qcorrect;
-    sigmavav2_ = (1.f - yratio_) * enty0_->sigmavav2 + yratio_ * enty1_->sigmavav2;
-    kappavav2_ = (1.f - yratio_) * enty0_->kappavav2 + yratio_ * enty1_->kappavav2;
+    sigmavav2_ = interpolate1d(yratio_, enty0_->sigmavav2, enty1_->sigmavav2);
+    kappavav2_ = interpolate1d(yratio_, enty0_->kappavav2, enty1_->kappavav2);
     clsleny_ = fminf(enty0_->clsleny, enty1_->clsleny);
-    qavg_avg_ = (1.f - yratio_) * enty0_->qavg_avg + yratio_ * enty1_->qavg_avg;
+    qavg_avg_ = interpolate1d(yratio_, enty0_->qavg_avg, enty1_->qavg_avg);
     qavg_avg_ *= qcorrect;
     for (i = 0; i < 2; ++i) {
       for (j = 0; j < 5; ++j) {
@@ -1561,34 +1575,34 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
     }
 
     for (i = 0; i < 4; ++i) {
-      yavg_[i] = (1.f - yratio_) * enty0_->yavg[i] + yratio_ * enty1_->yavg[i];
+      yavg_[i] = interpolate1d(yratio_, enty0_->yavg[i], enty1_->yavg[i]);
       if (flip_y_) {
         yavg_[i] = -yavg_[i];
       }
-      yrms_[i] = (1.f - yratio_) * enty0_->yrms[i] + yratio_ * enty1_->yrms[i];
+      yrms_[i] = interpolate1d(yratio_, enty0_->yrms[i], enty1_->yrms[i]);
 
       if (goodEdgeAlgo) {  // restore y Gaussian Parameter interpolation
-        ygx0_[i] = (1.f - yratio_) * enty0_->ygx0[i] + yratio_ * enty1_->ygx0[i];
+        ygx0_[i] = interpolate1d(yratio_, enty0_->ygx0[i], enty1_->ygx0[i]);
         if (flip_y_) {
           ygx0_[i] = -ygx0_[i];
         }
-        ygsig_[i] = (1.f - yratio_) * enty0_->ygsig[i] + yratio_ * enty1_->ygsig[i];
+        ygsig_[i] = interpolate1d(yratio_, enty0_->ygsig[i], enty1_->ygsig[i]);
       }  //if(goodEdgeAlgo)
-      chi2yavg_[i] = (1.f - yratio_) * enty0_->chi2yavg[i] + yratio_ * enty1_->chi2yavg[i];
-      chi2ymin_[i] = (1.f - yratio_) * enty0_->chi2ymin[i] + yratio_ * enty1_->chi2ymin[i];
-      chi2xavg[i] = (1.f - yratio_) * enty0_->chi2xavg[i] + yratio_ * enty1_->chi2xavg[i];
-      chi2xmin[i] = (1.f - yratio_) * enty0_->chi2xmin[i] + yratio_ * enty1_->chi2xmin[i];
-      yavgc2m_[i] = (1.f - yratio_) * enty0_->yavgc2m[i] + yratio_ * enty1_->yavgc2m[i];
+      chi2yavg_[i] = interpolate1d(yratio_, enty0_->chi2yavg[i], enty1_->chi2yavg[i]);
+      chi2ymin_[i] = interpolate1d(yratio_, enty0_->chi2ymin[i], enty1_->chi2ymin[i]);
+      chi2xavg[i] = interpolate1d(yratio_, enty0_->chi2xavg[i], enty1_->chi2xavg[i]);
+      chi2xmin[i] = interpolate1d(yratio_, enty0_->chi2xmin[i], enty1_->chi2xmin[i]);
+      yavgc2m_[i] = interpolate1d(yratio_, enty0_->yavgc2m[i], enty1_->yavgc2m[i]);
       if (flip_y_) {
         yavgc2m_[i] = -yavgc2m_[i];
       }
-      yrmsc2m_[i] = (1.f - yratio_) * enty0_->yrmsc2m[i] + yratio_ * enty1_->yrmsc2m[i];
-      chi2yavgc2m_[i] = (1.f - yratio_) * enty0_->chi2yavgc2m[i] + yratio_ * enty1_->chi2yavgc2m[i];
+      yrmsc2m_[i] = interpolate1d(yratio_, enty0_->yrmsc2m[i], enty1_->yrmsc2m[i]);
+      chi2yavgc2m_[i] = interpolate1d(yratio_, enty0_->chi2yavgc2m[i], enty1_->chi2yavgc2m[i]);
       //	      if(flip_y_) {chi2yavgc2m_[i] = -chi2yavgc2m_[i];}
-      chi2yminc2m_[i] = (1.f - yratio_) * enty0_->chi2yminc2m[i] + yratio_ * enty1_->chi2yminc2m[i];
+      chi2yminc2m_[i] = interpolate1d(yratio_, enty0_->chi2yminc2m[i], enty1_->chi2yminc2m[i]);
       //	      xrmsc2m[i]=(1.f - yratio_)*enty0_->xrmsc2m[i] + yratio_*enty1_->xrmsc2m[i];
-      chi2xavgc2m[i] = (1.f - yratio_) * enty0_->chi2xavgc2m[i] + yratio_ * enty1_->chi2xavgc2m[i];
-      chi2xminc2m[i] = (1.f - yratio_) * enty0_->chi2xminc2m[i] + yratio_ * enty1_->chi2xminc2m[i];
+      chi2xavgc2m[i] = interpolate1d(yratio_, enty0_->chi2xavgc2m[i], enty1_->chi2xavgc2m[i]);
+      chi2xminc2m[i] = interpolate1d(yratio_, enty0_->chi2xminc2m[i], enty1_->chi2xminc2m[i]);
       for (j = 0; j < 6; ++j) {
         yflparl_[i][j] = enty0_->yflpar[i][j];
         yflparh_[i][j] = enty1_->yflpar[i][j];
@@ -1604,13 +1618,13 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
 
     //// Single pixel cluster probabilities
 
-    chi2yavgone_ = (1.f - yratio_) * enty0_->chi2yavgone + yratio_ * enty1_->chi2yavgone;
-    chi2yminone_ = (1.f - yratio_) * enty0_->chi2yminone + yratio_ * enty1_->chi2yminone;
-    chi2xavgone = (1.f - yratio_) * enty0_->chi2xavgone + yratio_ * enty1_->chi2xavgone;
-    chi2xminone = (1.f - yratio_) * enty0_->chi2xminone + yratio_ * enty1_->chi2xminone;
+    chi2yavgone_ = interpolate1d(yratio_, enty0_->chi2yavgone, enty1_->chi2yavgone);
+    chi2yminone_ = interpolate1d(yratio_, enty0_->chi2yminone, enty1_->chi2yminone);
+    chi2xavgone = interpolate1d(yratio_, enty0_->chi2xavgone, enty1_->chi2xavgone);
+    chi2xminone = interpolate1d(yratio_, enty0_->chi2xminone, enty1_->chi2xminone);
 
-    fracyone_ = (1.f - yratio_) * enty0_->fracyone + yratio_ * enty1_->fracyone;
-    fracytwo_ = (1.f - yratio_) * enty0_->fracytwo + yratio_ * enty1_->fracytwo;
+    fracyone_ = interpolate1d(yratio_, enty0_->fracyone, enty1_->fracyone);
+    fracytwo_ = interpolate1d(yratio_, enty0_->fracytwo, enty1_->fracytwo);
     //       If using y-spares
     //       for(i=0; i<10; ++i) {
     //		    pyspare[i]=(1.f - yratio_)*enty0_->yspare[i] + yratio_*enty1_->yspare[i];
@@ -1627,9 +1641,9 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
         // Flip the basic y-template when the cotbeta is negative
 
         if (flip_y_) {
-          ytemp_[8 - i][BYM3 - j] = (1.f - yratio_) * enty0_->ytemp[i][j] + yratio_ * enty1_->ytemp[i][j];
+          ytemp_[8 - i][BYM3 - j] = interpolate1d(yratio_, enty0_->ytemp[i][j], enty1_->ytemp[i][j]);
         } else {
-          ytemp_[i][j + 2] = (1.f - yratio_) * enty0_->ytemp[i][j] + yratio_ * enty1_->ytemp[i][j];
+          ytemp_[i][j + 2] = interpolate1d(yratio_, enty0_->ytemp[i][j], enty1_->ytemp[i][j]);
         }
       }
     }
@@ -1690,31 +1704,31 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
 
     // sxparmax defines the maximum charge for which the parameters xpar are defined (not rescaled by cotbeta)
 
-    sxparmax_ = (1.f - xxratio) * thePixelTemp_[index_id_].entx[imaxx][ilow].sxmax +
-                xxratio * thePixelTemp_[index_id_].entx[imaxx][ihigh].sxmax;
+    sxparmax_ = interpolate1d(
+        xxratio, thePixelTemp_[index_id_].entx[imaxx][ilow].sxmax, thePixelTemp_[index_id_].entx[imaxx][ihigh].sxmax);
     sxmax_ = sxparmax_;
     if (thePixelTemp_[index_id_].entx[imaxx][imidy].sxmax != 0.f) {
       sxmax_ = sxmax_ / thePixelTemp_[index_id_].entx[imaxx][imidy].sxmax * sxmax;
     }
-    symax_ = (1.f - xxratio) * thePixelTemp_[index_id_].entx[imaxx][ilow].symax +
-             xxratio * thePixelTemp_[index_id_].entx[imaxx][ihigh].symax;
+    symax_ = interpolate1d(
+        xxratio, thePixelTemp_[index_id_].entx[imaxx][ilow].symax, thePixelTemp_[index_id_].entx[imaxx][ihigh].symax);
     if (thePixelTemp_[index_id_].entx[imaxx][imidy].symax != 0.f) {
       symax_ = symax_ / thePixelTemp_[index_id_].entx[imaxx][imidy].symax * symax;
     }
-    dxone_ = (1.f - xxratio) * thePixelTemp_[index_id_].entx[0][ilow].dxone +
-             xxratio * thePixelTemp_[index_id_].entx[0][ihigh].dxone;
+    dxone_ = interpolate1d(
+        xxratio, thePixelTemp_[index_id_].entx[0][ilow].dxone, thePixelTemp_[index_id_].entx[0][ihigh].dxone);
     if (flip_x_) {
       dxone_ = -dxone_;
     }
-    sxone_ = (1.f - xxratio) * thePixelTemp_[index_id_].entx[0][ilow].sxone +
-             xxratio * thePixelTemp_[index_id_].entx[0][ihigh].sxone;
-    dxtwo_ = (1.f - xxratio) * thePixelTemp_[index_id_].entx[0][ilow].dxtwo +
-             xxratio * thePixelTemp_[index_id_].entx[0][ihigh].dxtwo;
+    sxone_ = interpolate1d(
+        xxratio, thePixelTemp_[index_id_].entx[0][ilow].sxone, thePixelTemp_[index_id_].entx[0][ihigh].sxone);
+    dxtwo_ = interpolate1d(
+        xxratio, thePixelTemp_[index_id_].entx[0][ilow].dxtwo, thePixelTemp_[index_id_].entx[0][ihigh].dxtwo);
     if (flip_x_) {
       dxtwo_ = -dxtwo_;
     }
-    sxtwo_ = (1.f - xxratio) * thePixelTemp_[index_id_].entx[0][ilow].sxtwo +
-             xxratio * thePixelTemp_[index_id_].entx[0][ihigh].sxtwo;
+    sxtwo_ = interpolate1d(
+        xxratio, thePixelTemp_[index_id_].entx[0][ilow].sxtwo, thePixelTemp_[index_id_].entx[0][ihigh].sxtwo);
     clslenx_ = fminf(thePixelTemp_[index_id_].entx[0][ilow].clslenx, thePixelTemp_[index_id_].entx[0][ihigh].clslenx);
 
     for (i = 0; i < 2; ++i) {
@@ -1739,30 +1753,33 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
     entx21_ = &thePixelTemp_[index_id_].entx[iyhigh][imidy];
 
     // pixmax is the maximum allowed pixel charge (used for truncation)
-    pixmax_ = (1.f - yxratio) * ((1.f - xxratio) * entx00_->pixmax + xxratio * entx02_->pixmax) +
-              yxratio * ((1.f - xxratio) * entx20_->pixmax + xxratio * entx22_->pixmax);
+    pixmax_ = interpolate2d(yxratio, xxratio, entx00_->pixmax, entx02_->pixmax, entx20_->pixmax, entx22_->pixmax);
 
-    r_qMeas_qTrue_ = (1.f - yxratio) * ((1.f - xxratio) * entx00_->r_qMeas_qTrue + xxratio * entx02_->r_qMeas_qTrue) +
-                     yxratio * ((1.f - xxratio) * entx20_->r_qMeas_qTrue + xxratio * entx22_->r_qMeas_qTrue);
+    r_qMeas_qTrue_ = interpolate2d(yxratio,
+                                   xxratio,
+                                   entx00_->r_qMeas_qTrue,
+                                   entx02_->r_qMeas_qTrue,
+                                   entx20_->r_qMeas_qTrue,
+                                   entx22_->r_qMeas_qTrue);
 
     for (i = 0; i < 4; ++i) {
-      xavg_[i] = (1.f - yxratio) * ((1.f - xxratio) * entx00_->xavg[i] + xxratio * entx02_->xavg[i]) +
-                 yxratio * ((1.f - xxratio) * entx20_->xavg[i] + xxratio * entx22_->xavg[i]);
+      xavg_[i] =
+          interpolate2d(yxratio, xxratio, entx00_->xavg[i], entx02_->xavg[i], entx20_->xavg[i], entx22_->xavg[i]);
       if (flip_x_) {
         xavg_[i] = -xavg_[i];
       }
 
-      xrms_[i] = (1.f - yxratio) * ((1.f - xxratio) * entx00_->xrms[i] + xxratio * entx02_->xrms[i]) +
-                 yxratio * ((1.f - xxratio) * entx20_->xrms[i] + xxratio * entx22_->xrms[i]);
+      xrms_[i] =
+          interpolate2d(yxratio, xxratio, entx00_->xrms[i], entx02_->xrms[i], entx20_->xrms[i], entx22_->xrms[i]);
 
-      xavgc2m_[i] = (1.f - yxratio) * ((1.f - xxratio) * entx00_->xavgc2m[i] + xxratio * entx02_->xavgc2m[i]) +
-                    yxratio * ((1.f - xxratio) * entx20_->xavgc2m[i] + xxratio * entx22_->xavgc2m[i]);
+      xavgc2m_[i] = interpolate2d(
+          yxratio, xxratio, entx00_->xavgc2m[i], entx02_->xavgc2m[i], entx20_->xavgc2m[i], entx22_->xavgc2m[i]);
       if (flip_x_) {
         xavgc2m_[i] = -xavgc2m_[i];
       }
 
-      xrmsc2m_[i] = (1.f - yxratio) * ((1.f - xxratio) * entx00_->xrmsc2m[i] + xxratio * entx02_->xrmsc2m[i]) +
-                    yxratio * ((1.f - xxratio) * entx20_->xrmsc2m[i] + xxratio * entx22_->xrmsc2m[i]);
+      xrmsc2m_[i] = interpolate2d(
+          yxratio, xxratio, entx00_->xrmsc2m[i], entx02_->xrmsc2m[i], entx20_->xrmsc2m[i], entx22_->xrmsc2m[i]);
       //
       //  Try new interpolation scheme instead
       //
@@ -1779,22 +1796,22 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
       //	      chi2xmin_[i]=((1.f - xxratio)*thePixelTemp_[index_id_].entx[imaxx][ilow].chi2xmin[i] + xxratio*thePixelTemp_[index_id_].entx[imaxx][ihigh].chi2xmin[i]);
       //		  if(thePixelTemp_[index_id_].entx[imaxx][imidy].chi2xmin[i] != 0.f) {chi2xmin_[i]=chi2xmin_[i]/thePixelTemp_[index_id_].entx[imaxx][imidy].chi2xmin[i]*chi2xmin[i];}
       //
-      chi2xavg_[i] = ((1.f - xxratio) * entx20_->chi2xavg[i] + xxratio * entx22_->chi2xavg[i]);
+      chi2xavg_[i] = (interpolate1d(xxratio, entx20_->chi2xavg[i], entx22_->chi2xavg[i]));
       if (entx21_->chi2xavg[i] != 0.f) {
         chi2xavg_[i] = chi2xavg_[i] / entx21_->chi2xavg[i] * chi2xavg[i];
       }
 
-      chi2xmin_[i] = ((1.f - xxratio) * entx20_->chi2xmin[i] + xxratio * entx22_->chi2xmin[i]);
+      chi2xmin_[i] = (interpolate1d(xxratio, entx20_->chi2xmin[i], entx22_->chi2xmin[i]));
       if (entx21_->chi2xmin[i] != 0.f) {
         chi2xmin_[i] = chi2xmin_[i] / entx21_->chi2xmin[i] * chi2xmin[i];
       }
 
-      chi2xavgc2m_[i] = ((1.f - xxratio) * entx20_->chi2xavgc2m[i] + xxratio * entx22_->chi2xavgc2m[i]);
+      chi2xavgc2m_[i] = (interpolate1d(xxratio, entx20_->chi2xavgc2m[i], entx22_->chi2xavgc2m[i]));
       if (entx21_->chi2xavgc2m[i] != 0.f) {
         chi2xavgc2m_[i] = chi2xavgc2m_[i] / entx21_->chi2xavgc2m[i] * chi2xavgc2m[i];
       }
 
-      chi2xminc2m_[i] = ((1.f - xxratio) * entx20_->chi2xminc2m[i] + xxratio * entx22_->chi2xminc2m[i]);
+      chi2xminc2m_[i] = (interpolate1d(xxratio, entx20_->chi2xminc2m[i], entx22_->chi2xminc2m[i]));
       if (entx21_->chi2xminc2m[i] != 0.f) {
         chi2xminc2m_[i] = chi2xminc2m_[i] / entx21_->chi2xminc2m[i] * chi2xminc2m[i];
       }
@@ -1816,20 +1833,20 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
 
     // Do the spares next
 
-    chi2xavgone_ = ((1.f - xxratio) * entx20_->chi2xavgone + xxratio * entx22_->chi2xavgone);
+    chi2xavgone_ = (interpolate1d(xxratio, entx20_->chi2xavgone, entx22_->chi2xavgone));
     if (entx21_->chi2xavgone != 0.f) {
       chi2xavgone_ = chi2xavgone_ / entx21_->chi2xavgone * chi2xavgone;
     }
 
-    chi2xminone_ = ((1.f - xxratio) * entx20_->chi2xminone + xxratio * entx22_->chi2xminone);
+    chi2xminone_ = (interpolate1d(xxratio, entx20_->chi2xminone, entx22_->chi2xminone));
     if (entx21_->chi2xminone != 0.f) {
       chi2xminone_ = chi2xminone_ / entx21_->chi2xminone * chi2xminone;
     }
 
-    fracxone_ = (1.f - yxratio) * ((1.f - xxratio) * entx00_->fracxone + xxratio * entx02_->fracxone) +
-                yxratio * ((1.f - xxratio) * entx20_->fracxone + xxratio * entx22_->fracxone);
-    fracxtwo_ = (1.f - yxratio) * ((1.f - xxratio) * entx00_->fracxtwo + xxratio * entx02_->fracxtwo) +
-                yxratio * ((1.f - xxratio) * entx20_->fracxtwo + xxratio * entx22_->fracxtwo);
+    fracxone_ =
+        interpolate2d(yxratio, xxratio, entx00_->fracxone, entx02_->fracxone, entx20_->fracxone, entx22_->fracxone);
+    fracxtwo_ =
+        interpolate2d(yxratio, xxratio, entx00_->fracxtwo, entx02_->fracxtwo, entx20_->fracxtwo, entx22_->fracxtwo);
 
     //       If using x-spares
     //       for(i=0; i<10; ++i) {
@@ -1855,10 +1872,9 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
         //		   xtemp_[i][j+2]=(1.f - xxratio)*thePixelTemp_[index_id_].entx[imaxx][ilow].xtemp[i][j] + xxratio*thePixelTemp_[index_id_].entx[imaxx][ihigh].xtemp[i][j];
         //		   xtemp_[i][j+2]=(1.f - xxratio)*entx20_->xtemp[i][j] + xxratio*entx22_->xtemp[i][j];
         if (flip_x_) {
-          xtemp_[8 - i][BXM3 - j] =
-              qxtempcor * ((1.f - xxratio) * entx20_->xtemp[i][j] + xxratio * entx22_->xtemp[i][j]);
+          xtemp_[8 - i][BXM3 - j] = qxtempcor * (interpolate1d(xxratio, entx20_->xtemp[i][j], entx22_->xtemp[i][j]));
         } else {
-          xtemp_[i][j + 2] = qxtempcor * ((1.f - xxratio) * entx20_->xtemp[i][j] + xxratio * entx22_->xtemp[i][j]);
+          xtemp_[i][j + 2] = qxtempcor * (interpolate1d(xxratio, entx20_->xtemp[i][j], entx22_->xtemp[i][j]));
         }
       }
     }
@@ -2176,15 +2192,15 @@ void SiPixelTemplate::ysigma2(int fypix, int lypix, float sythr, float ysum[25],
       sigi3 = sigi2 * sigi;
       sigi4 = sigi3 * sigi;
       if (i <= BHY) {
-        ysig2[i] = (1.f - yratio_) * (yparl_[0][0] + yparl_[0][1] * sigi + yparl_[0][2] * sigi2 + yparl_[0][3] * sigi3 +
-                                      yparl_[0][4] * sigi4) +
-                   yratio_ * (yparh_[0][0] + yparh_[0][1] * sigi + yparh_[0][2] * sigi2 + yparh_[0][3] * sigi3 +
-                              yparh_[0][4] * sigi4);
+        ysig2[i] = interpolate1d(
+            yratio_,
+            yparl_[0][0] + yparl_[0][1] * sigi + yparl_[0][2] * sigi2 + yparl_[0][3] * sigi3 + yparl_[0][4] * sigi4,
+            yparh_[0][0] + yparh_[0][1] * sigi + yparh_[0][2] * sigi2 + yparh_[0][3] * sigi3 + yparh_[0][4] * sigi4);
       } else {
-        ysig2[i] = (1.f - yratio_) * (yparl_[1][0] + yparl_[1][1] * sigi + yparl_[1][2] * sigi2 + yparl_[1][3] * sigi3 +
-                                      yparl_[1][4] * sigi4) +
-                   yratio_ * (yparh_[1][0] + yparh_[1][1] * sigi + yparh_[1][2] * sigi2 + yparh_[1][3] * sigi3 +
-                              yparh_[1][4] * sigi4);
+        ysig2[i] = interpolate1d(
+            yratio_,
+            yparl_[1][0] + yparl_[1][1] * sigi + yparl_[1][2] * sigi2 + yparl_[1][3] * sigi3 + yparl_[1][4] * sigi4,
+            yparh_[1][0] + yparh_[1][1] * sigi + yparh_[1][2] * sigi2 + yparh_[1][3] * sigi3 + yparh_[1][4] * sigi4);
       }
       ysig2[i] *= qscale;
       if (ysum[i] > sythr) {
@@ -2250,17 +2266,15 @@ void SiPixelTemplate::ysigma2(float qpixel, int index, float& ysig2)
   sigi3 = sigi2 * sigi;
   sigi4 = sigi3 * sigi;
   if (index <= BHY) {
-    err2 =
-        (1.f - yratio_) *
-            (yparl_[0][0] + yparl_[0][1] * sigi + yparl_[0][2] * sigi2 + yparl_[0][3] * sigi3 + yparl_[0][4] * sigi4) +
-        yratio_ *
-            (yparh_[0][0] + yparh_[0][1] * sigi + yparh_[0][2] * sigi2 + yparh_[0][3] * sigi3 + yparh_[0][4] * sigi4);
+    err2 = interpolate1d(
+        yratio_,
+        yparl_[0][0] + yparl_[0][1] * sigi + yparl_[0][2] * sigi2 + yparl_[0][3] * sigi3 + yparl_[0][4] * sigi4,
+        yparh_[0][0] + yparh_[0][1] * sigi + yparh_[0][2] * sigi2 + yparh_[0][3] * sigi3 + yparh_[0][4] * sigi4);
   } else {
-    err2 =
-        (1.f - yratio_) *
-            (yparl_[1][0] + yparl_[1][1] * sigi + yparl_[1][2] * sigi2 + yparl_[1][3] * sigi3 + yparl_[1][4] * sigi4) +
-        yratio_ *
-            (yparh_[1][0] + yparh_[1][1] * sigi + yparh_[1][2] * sigi2 + yparh_[1][3] * sigi3 + yparh_[1][4] * sigi4);
+    err2 = interpolate1d(
+        yratio_,
+        yparl_[1][0] + yparl_[1][1] * sigi + yparl_[1][2] * sigi2 + yparl_[1][3] * sigi3 + yparl_[1][4] * sigi4,
+        yparh_[1][0] + yparh_[1][1] * sigi + yparh_[1][2] * sigi2 + yparh_[1][3] * sigi3 + yparh_[1][4] * sigi4);
   }
   ysig2 = qscale * err2;
   if (ysig2 <= 0.f) {
@@ -2341,29 +2355,31 @@ void SiPixelTemplate::xsigma2(int fxpix, int lxpix, float sxthr, float xsum[BXSI
       // First, do the cotbeta interpolation
 
       if (i <= BHX) {
-        yint = (1.f - yratio_) * (xparly0_[0][0] + xparly0_[0][1] * sigi + xparly0_[0][2] * sigi2 +
-                                  xparly0_[0][3] * sigi3 + xparly0_[0][4] * sigi4) +
-               yratio_ * (xparhy0_[0][0] + xparhy0_[0][1] * sigi + xparhy0_[0][2] * sigi2 + xparhy0_[0][3] * sigi3 +
-                          xparhy0_[0][4] * sigi4);
+        yint = interpolate1d(yratio_,
+                             xparly0_[0][0] + xparly0_[0][1] * sigi + xparly0_[0][2] * sigi2 + xparly0_[0][3] * sigi3 +
+                                 xparly0_[0][4] * sigi4,
+                             xparhy0_[0][0] + xparhy0_[0][1] * sigi + xparhy0_[0][2] * sigi2 + xparhy0_[0][3] * sigi3 +
+                                 xparhy0_[0][4] * sigi4);
       } else {
-        yint = (1.f - yratio_) * (xparly0_[1][0] + xparly0_[1][1] * sigi + xparly0_[1][2] * sigi2 +
-                                  xparly0_[1][3] * sigi3 + xparly0_[1][4] * sigi4) +
-               yratio_ * (xparhy0_[1][0] + xparhy0_[1][1] * sigi + xparhy0_[1][2] * sigi2 + xparhy0_[1][3] * sigi3 +
-                          xparhy0_[1][4] * sigi4);
+        yint = interpolate1d(yratio_,
+                             xparly0_[1][0] + xparly0_[1][1] * sigi + xparly0_[1][2] * sigi2 + xparly0_[1][3] * sigi3 +
+                                 xparly0_[1][4] * sigi4,
+                             xparhy0_[1][0] + xparhy0_[1][1] * sigi + xparhy0_[1][2] * sigi2 + xparhy0_[1][3] * sigi3 +
+                                 xparhy0_[1][4] * sigi4);
       }
 
       // Next, do the cotalpha interpolation
 
       if (i <= BHX) {
-        xsig2[i] = (1.f - xxratio_) * (xparl_[0][0] + xparl_[0][1] * sigi + xparl_[0][2] * sigi2 +
-                                       xparl_[0][3] * sigi3 + xparl_[0][4] * sigi4) +
-                   xxratio_ * (xparh_[0][0] + xparh_[0][1] * sigi + xparh_[0][2] * sigi2 + xparh_[0][3] * sigi3 +
-                               xparh_[0][4] * sigi4);
+        xsig2[i] = interpolate1d(
+            xxratio_,
+            xparl_[0][0] + xparl_[0][1] * sigi + xparl_[0][2] * sigi2 + xparl_[0][3] * sigi3 + xparl_[0][4] * sigi4,
+            xparh_[0][0] + xparh_[0][1] * sigi + xparh_[0][2] * sigi2 + xparh_[0][3] * sigi3 + xparh_[0][4] * sigi4);
       } else {
-        xsig2[i] = (1.f - xxratio_) * (xparl_[1][0] + xparl_[1][1] * sigi + xparl_[1][2] * sigi2 +
-                                       xparl_[1][3] * sigi3 + xparl_[1][4] * sigi4) +
-                   xxratio_ * (xparh_[1][0] + xparh_[1][1] * sigi + xparh_[1][2] * sigi2 + xparh_[1][3] * sigi3 +
-                               xparh_[1][4] * sigi4);
+        xsig2[i] = interpolate1d(
+            xxratio_,
+            xparl_[1][0] + xparl_[1][1] * sigi + xparl_[1][2] * sigi2 + xparl_[1][3] * sigi3 + xparl_[1][4] * sigi4,
+            xparh_[1][0] + xparh_[1][1] * sigi + xparh_[1][2] * sigi2 + xparh_[1][3] * sigi3 + xparh_[1][4] * sigi4);
       }
 
       // Finally, get the mid-point value of the cotalpha function
@@ -2442,10 +2458,11 @@ float SiPixelTemplate::yflcorr(int binq, float qfly)
   qfl3 = qfl2 * qfl;
   qfl4 = qfl3 * qfl;
   qfl5 = qfl4 * qfl;
-  dy = (1.f - yratio_) * (yflparl_[binq][0] + yflparl_[binq][1] * qfl + yflparl_[binq][2] * qfl2 +
-                          yflparl_[binq][3] * qfl3 + yflparl_[binq][4] * qfl4 + yflparl_[binq][5] * qfl5) +
-       yratio_ * (yflparh_[binq][0] + yflparh_[binq][1] * qfl + yflparh_[binq][2] * qfl2 + yflparh_[binq][3] * qfl3 +
-                  yflparh_[binq][4] * qfl4 + yflparh_[binq][5] * qfl5);
+  dy = interpolate1d(yratio_,
+                     yflparl_[binq][0] + yflparl_[binq][1] * qfl + yflparl_[binq][2] * qfl2 + yflparl_[binq][3] * qfl3 +
+                         yflparl_[binq][4] * qfl4 + yflparl_[binq][5] * qfl5,
+                     yflparh_[binq][0] + yflparh_[binq][1] * qfl + yflparh_[binq][2] * qfl2 + yflparh_[binq][3] * qfl3 +
+                         yflparh_[binq][4] * qfl4 + yflparh_[binq][5] * qfl5);
 
   return dy;
 
@@ -2498,16 +2515,16 @@ float SiPixelTemplate::xflcorr(int binq, float qflx)
   qfl3 = qfl2 * qfl;
   qfl4 = qfl3 * qfl;
   qfl5 = qfl4 * qfl;
-  dx = (1.f - yxratio_) *
-           ((1.f - xxratio_) * (xflparll_[binq][0] + xflparll_[binq][1] * qfl + xflparll_[binq][2] * qfl2 +
-                                xflparll_[binq][3] * qfl3 + xflparll_[binq][4] * qfl4 + xflparll_[binq][5] * qfl5) +
-            xxratio_ * (xflparlh_[binq][0] + xflparlh_[binq][1] * qfl + xflparlh_[binq][2] * qfl2 +
-                        xflparlh_[binq][3] * qfl3 + xflparlh_[binq][4] * qfl4 + xflparlh_[binq][5] * qfl5)) +
-       yxratio_ *
-           ((1.f - xxratio_) * (xflparhl_[binq][0] + xflparhl_[binq][1] * qfl + xflparhl_[binq][2] * qfl2 +
-                                xflparhl_[binq][3] * qfl3 + xflparhl_[binq][4] * qfl4 + xflparhl_[binq][5] * qfl5) +
-            xxratio_ * (xflparhh_[binq][0] + xflparhh_[binq][1] * qfl + xflparhh_[binq][2] * qfl2 +
-                        xflparhh_[binq][3] * qfl3 + xflparhh_[binq][4] * qfl4 + xflparhh_[binq][5] * qfl5));
+  dx = interpolate2d(yxratio_,
+                     xxratio_,
+                     xflparll_[binq][0] + xflparll_[binq][1] * qfl + xflparll_[binq][2] * qfl2 +
+                         xflparll_[binq][3] * qfl3 + xflparll_[binq][4] * qfl4 + xflparll_[binq][5] * qfl5,
+                     xflparlh_[binq][0] + xflparlh_[binq][1] * qfl + xflparlh_[binq][2] * qfl2 +
+                         xflparlh_[binq][3] * qfl3 + xflparlh_[binq][4] * qfl4 + xflparlh_[binq][5] * qfl5,
+                     xflparhl_[binq][0] + xflparhl_[binq][1] * qfl + xflparhl_[binq][2] * qfl2 +
+                         xflparhl_[binq][3] * qfl3 + xflparhl_[binq][4] * qfl4 + xflparhl_[binq][5] * qfl5,
+                     xflparhh_[binq][0] + xflparhh_[binq][1] * qfl + xflparhh_[binq][2] * qfl2 +
+                         xflparhh_[binq][3] * qfl3 + xflparhh_[binq][4] * qfl4 + xflparhh_[binq][5] * qfl5);
 
   return dx;
 
@@ -3106,22 +3123,22 @@ int SiPixelTemplate::qbin(int id,
 
   // Interpolate/store all y-related quantities (flip displacements when flip_y)
 
-  dy1 = (1.f - yratio_) * enty0_->dyone + yratio_ * enty1_->dyone;
+  dy1 = interpolate1d(yratio_, enty0_->dyone, enty1_->dyone);
   if (flip_y_) {
     dy1 = -dy1;
   }
-  sy1 = (1.f - yratio_) * enty0_->syone + yratio_ * enty1_->syone;
-  dy2 = (1.f - yratio_) * enty0_->dytwo + yratio_ * enty1_->dytwo;
+  sy1 = interpolate1d(yratio_, enty0_->syone, enty1_->syone);
+  dy2 = interpolate1d(yratio_, enty0_->dytwo, enty1_->dytwo);
   if (flip_y_) {
     dy2 = -dy2;
   }
-  sy2 = (1.f - yratio_) * enty0_->sytwo + yratio_ * enty1_->sytwo;
+  sy2 = interpolate1d(yratio_, enty0_->sytwo, enty1_->sytwo);
 
-  auto qavg = (1.f - yratio_) * enty0_->qavg + yratio_ * enty1_->qavg;
+  auto qavg = interpolate1d(yratio_, enty0_->qavg, enty1_->qavg);
   qavg *= qcorrect;
-  auto qmin = (1.f - yratio_) * enty0_->qmin + yratio_ * enty1_->qmin;
+  auto qmin = interpolate1d(yratio_, enty0_->qmin, enty1_->qmin);
   qmin *= qcorrect;
-  auto qmin2 = (1.f - yratio_) * enty0_->qmin2 + yratio_ * enty1_->qmin2;
+  auto qmin2 = interpolate1d(yratio_, enty0_->qmin2, enty1_->qmin2);
   qmin2 *= qcorrect;
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
@@ -3158,11 +3175,11 @@ int SiPixelTemplate::qbin(int id,
     }
   }
 
-  auto yavggen = (1.f - yratio_) * enty0_->yavggen[binq] + yratio_ * enty1_->yavggen[binq];
+  auto yavggen = interpolate1d(yratio_, enty0_->yavggen[binq], enty1_->yavggen[binq]);
   if (flip_y_) {
     yavggen = -yavggen;
   }
-  auto yrmsgen = (1.f - yratio_) * enty0_->yrmsgen[binq] + yratio_ * enty1_->yrmsgen[binq];
+  auto yrmsgen = interpolate1d(yratio_, enty0_->yrmsgen[binq], enty1_->yrmsgen[binq]);
 
   // next, loop over all x-angle entries, first, find relevant y-slices
 
@@ -3206,40 +3223,42 @@ int SiPixelTemplate::qbin(int id,
     ilow = ihigh - 1;
   }
 
-  dx1 =
-      (1.f - xxratio) * thePixelTemp_[index].entx[0][ilow].dxone + xxratio * thePixelTemp_[index].entx[0][ihigh].dxone;
+  dx1 = interpolate1d(xxratio, thePixelTemp_[index].entx[0][ilow].dxone, thePixelTemp_[index].entx[0][ihigh].dxone);
   if (flip_x) {
     dx1 = -dx1;
   }
-  sx1 =
-      (1.f - xxratio) * thePixelTemp_[index].entx[0][ilow].sxone + xxratio * thePixelTemp_[index].entx[0][ihigh].sxone;
-  dx2 =
-      (1.f - xxratio) * thePixelTemp_[index].entx[0][ilow].dxtwo + xxratio * thePixelTemp_[index].entx[0][ihigh].dxtwo;
+  sx1 = interpolate1d(xxratio, thePixelTemp_[index].entx[0][ilow].sxone, thePixelTemp_[index].entx[0][ihigh].sxone);
+  dx2 = interpolate1d(xxratio, thePixelTemp_[index].entx[0][ilow].dxtwo, thePixelTemp_[index].entx[0][ihigh].dxtwo);
   if (flip_x) {
     dx2 = -dx2;
   }
-  sx2 =
-      (1.f - xxratio) * thePixelTemp_[index].entx[0][ilow].sxtwo + xxratio * thePixelTemp_[index].entx[0][ihigh].sxtwo;
+  sx2 = interpolate1d(xxratio, thePixelTemp_[index].entx[0][ilow].sxtwo, thePixelTemp_[index].entx[0][ihigh].sxtwo);
 
   // pixmax is the maximum allowed pixel charge (used for truncation)
 
-  pixmx = (1.f - yxratio) * ((1.f - xxratio) * thePixelTemp_[index].entx[iylow][ilow].pixmax +
-                             xxratio * thePixelTemp_[index].entx[iylow][ihigh].pixmax) +
-          yxratio * ((1.f - xxratio) * thePixelTemp_[index].entx[iyhigh][ilow].pixmax +
-                     xxratio * thePixelTemp_[index].entx[iyhigh][ihigh].pixmax);
+  pixmx = interpolate2d(yxratio,
+                        xxratio,
+                        thePixelTemp_[index].entx[iylow][ilow].pixmax,
+                        thePixelTemp_[index].entx[iylow][ihigh].pixmax,
+                        thePixelTemp_[index].entx[iyhigh][ilow].pixmax,
+                        thePixelTemp_[index].entx[iyhigh][ihigh].pixmax);
 
-  auto xavggen = (1.f - yxratio) * ((1.f - xxratio) * thePixelTemp_[index].entx[iylow][ilow].xavggen[binq] +
-                                    xxratio * thePixelTemp_[index].entx[iylow][ihigh].xavggen[binq]) +
-                 yxratio * ((1.f - xxratio) * thePixelTemp_[index].entx[iyhigh][ilow].xavggen[binq] +
-                            xxratio * thePixelTemp_[index].entx[iyhigh][ihigh].xavggen[binq]);
+  auto xavggen = interpolate2d(yxratio,
+                               xxratio,
+                               thePixelTemp_[index].entx[iylow][ilow].xavggen[binq],
+                               thePixelTemp_[index].entx[iylow][ihigh].xavggen[binq],
+                               thePixelTemp_[index].entx[iyhigh][ilow].xavggen[binq],
+                               thePixelTemp_[index].entx[iyhigh][ihigh].xavggen[binq]);
   if (flip_x) {
     xavggen = -xavggen;
   }
 
-  auto xrmsgen = (1.f - yxratio) * ((1.f - xxratio) * thePixelTemp_[index].entx[iylow][ilow].xrmsgen[binq] +
-                                    xxratio * thePixelTemp_[index].entx[iylow][ihigh].xrmsgen[binq]) +
-                 yxratio * ((1.f - xxratio) * thePixelTemp_[index].entx[iyhigh][ilow].xrmsgen[binq] +
-                            xxratio * thePixelTemp_[index].entx[iyhigh][ihigh].xrmsgen[binq]);
+  auto xrmsgen = interpolate2d(yxratio,
+                               xxratio,
+                               thePixelTemp_[index].entx[iylow][ilow].xrmsgen[binq],
+                               thePixelTemp_[index].entx[iylow][ihigh].xrmsgen[binq],
+                               thePixelTemp_[index].entx[iyhigh][ilow].xrmsgen[binq],
+                               thePixelTemp_[index].entx[iyhigh][ihigh].xrmsgen[binq]);
 
   //  Take the errors and bias from the correct charge bin
 
@@ -3555,9 +3574,9 @@ void SiPixelTemplate::temperrors(int id,
 
   // Interpolate/store all y-related quantities (flip displacements when flip_y)
 
-  sy1 = (1.f - yratio_) * enty0_->syone + yratio_ * enty1_->syone;
-  sy2 = (1.f - yratio_) * enty0_->sytwo + yratio_ * enty1_->sytwo;
-  yrms = (1.f - yratio_) * enty0_->yrms[qBin] + yratio_ * enty1_->yrms[qBin];
+  sy1 = interpolate1d(yratio_, enty0_->syone, enty1_->syone);
+  sy2 = interpolate1d(yratio_, enty0_->sytwo, enty1_->sytwo);
+  yrms = interpolate1d(yratio_, enty0_->yrms[qBin], enty1_->yrms[qBin]);
 
   // next, loop over all x-angle entries, first, find relevant y-slices
 
@@ -3604,15 +3623,15 @@ void SiPixelTemplate::temperrors(int id,
 
   ihigh = ilow + 1;
 
-  sx1 =
-      (1.f - xxratio) * thePixelTemp_[index].entx[0][ilow].sxone + xxratio * thePixelTemp_[index].entx[0][ihigh].sxone;
-  sx2 =
-      (1.f - xxratio) * thePixelTemp_[index].entx[0][ilow].sxtwo + xxratio * thePixelTemp_[index].entx[0][ihigh].sxtwo;
+  sx1 = interpolate1d(xxratio, thePixelTemp_[index].entx[0][ilow].sxone, thePixelTemp_[index].entx[0][ihigh].sxone);
+  sx2 = interpolate1d(xxratio, thePixelTemp_[index].entx[0][ilow].sxtwo, thePixelTemp_[index].entx[0][ihigh].sxtwo);
 
-  xrms = (1.f - yxratio) * ((1.f - xxratio) * thePixelTemp_[index].entx[iylow][ilow].xrms[qBin] +
-                            xxratio * thePixelTemp_[index].entx[iylow][ihigh].xrms[qBin]) +
-         yxratio * ((1.f - xxratio) * thePixelTemp_[index].entx[iyhigh][ilow].xrms[qBin] +
-                    xxratio * thePixelTemp_[index].entx[iyhigh][ihigh].xrms[qBin]);
+  xrms = interpolate2d(yxratio,
+                       xxratio,
+                       thePixelTemp_[index].entx[iylow][ilow].xrms[qBin],
+                       thePixelTemp_[index].entx[iylow][ihigh].xrms[qBin],
+                       thePixelTemp_[index].entx[iyhigh][ilow].xrms[qBin],
+                       thePixelTemp_[index].entx[iyhigh][ihigh].xrms[qBin]);
 
   //  Take the errors and bias from the correct charge bin
 
@@ -3697,8 +3716,8 @@ void SiPixelTemplate::qbin_dist(int id,
 #endif
 
   // Interpolate/store all y-related quantities (flip displacements when flip_y)
-  ny1_frac = (1.f - yratio_) * enty0_->fracyone + yratio_ * enty1_->fracyone;
-  ny2_frac = (1.f - yratio_) * enty0_->fracytwo + yratio_ * enty1_->fracytwo;
+  ny1_frac = interpolate1d(yratio_, enty0_->fracyone, enty1_->fracyone);
+  ny2_frac = interpolate1d(yratio_, enty0_->fracytwo, enty1_->fracytwo);
 
   // next, loop over all x-angle entries, first, find relevant y-slices
 
@@ -3746,19 +3765,25 @@ void SiPixelTemplate::qbin_dist(int id,
   ihigh = ilow + 1;
 
   for (i = 0; i < 3; ++i) {
-    qfrac[i] = (1.f - yxratio) * ((1.f - xxratio) * thePixelTemp_[index].entx[iylow][ilow].qbfrac[i] +
-                                  xxratio * thePixelTemp_[index].entx[iylow][ihigh].qbfrac[i]) +
-               yxratio * ((1.f - xxratio) * thePixelTemp_[index].entx[iyhigh][ilow].qbfrac[i] +
-                          xxratio * thePixelTemp_[index].entx[iyhigh][ihigh].qbfrac[i]);
+    qfrac[i] = interpolate2d(yxratio,
+                             xxratio,
+                             thePixelTemp_[index].entx[iylow][ilow].qbfrac[i],
+                             thePixelTemp_[index].entx[iylow][ihigh].qbfrac[i],
+                             thePixelTemp_[index].entx[iyhigh][ilow].qbfrac[i],
+                             thePixelTemp_[index].entx[iyhigh][ihigh].qbfrac[i]);
   }
-  nx1_frac = (1.f - yxratio) * ((1.f - xxratio) * thePixelTemp_[index].entx[iylow][ilow].fracxone +
-                                xxratio * thePixelTemp_[index].entx[iylow][ihigh].fracxone) +
-             yxratio * ((1.f - xxratio) * thePixelTemp_[index].entx[iyhigh][ilow].fracxone +
-                        xxratio * thePixelTemp_[index].entx[iyhigh][ihigh].fracxone);
-  nx2_frac = (1.f - yxratio) * ((1.f - xxratio) * thePixelTemp_[index].entx[iylow][ilow].fracxtwo +
-                                xxratio * thePixelTemp_[index].entx[iylow][ihigh].fracxtwo) +
-             yxratio * ((1.f - xxratio) * thePixelTemp_[index].entx[iyhigh][ilow].fracxtwo +
-                        xxratio * thePixelTemp_[index].entx[iyhigh][ihigh].fracxtwo);
+  nx1_frac = interpolate2d(yxratio,
+                           xxratio,
+                           thePixelTemp_[index].entx[iylow][ilow].fracxone,
+                           thePixelTemp_[index].entx[iylow][ihigh].fracxone,
+                           thePixelTemp_[index].entx[iyhigh][ilow].fracxone,
+                           thePixelTemp_[index].entx[iyhigh][ihigh].fracxone);
+  nx2_frac = interpolate2d(yxratio,
+                           xxratio,
+                           thePixelTemp_[index].entx[iylow][ilow].fracxtwo,
+                           thePixelTemp_[index].entx[iylow][ihigh].fracxtwo,
+                           thePixelTemp_[index].entx[iyhigh][ilow].fracxtwo,
+                           thePixelTemp_[index].entx[iyhigh][ihigh].fracxtwo);
 
   qbin_frac[0] = qfrac[0];
   qbin_frac[1] = qbin_frac[0] + qfrac[1];
@@ -4021,7 +4046,9 @@ void SiPixelTemplate::vavilov_pars(double& mpv, double& sigma, double& kappa)
   // Interpolate in cotbeta only for the correct total path length (converts cotalpha, cotbeta into an effective cotbeta)
 
   cotalpha0 = thePixelTemp_[index_id_].enty[0].cotalpha;
-  arg = cotb_current_ * cotb_current_ + cota_current_ * cota_current_ - cotalpha0 * cotalpha0;
+  // stabilize output (see interpolate1d)
+  // arg = cotb_current_ * cotb_current_ + cota_current_ * cota_current_ - cotalpha0 * cotalpha0;
+  arg = std::fma(-cotalpha0, cotalpha0, std::fma(cotb_current_, cotb_current_, cota_current_ * cota_current_));
   if (arg < 0.f)
     arg = 0.f;
   cotb = std::sqrt(arg);
@@ -4065,12 +4092,12 @@ void SiPixelTemplate::vavilov_pars(double& mpv, double& sigma, double& kappa)
 
   // Interpolate Vavilov parameters
 
-  mpvvav_ = (1.f - yratio) * thePixelTemp_[index_id_].enty[ilow].mpvvav +
-            yratio * thePixelTemp_[index_id_].enty[ihigh].mpvvav;
-  sigmavav_ = (1.f - yratio) * thePixelTemp_[index_id_].enty[ilow].sigmavav +
-              yratio * thePixelTemp_[index_id_].enty[ihigh].sigmavav;
-  kappavav_ = (1.f - yratio) * thePixelTemp_[index_id_].enty[ilow].kappavav +
-              yratio * thePixelTemp_[index_id_].enty[ihigh].kappavav;
+  mpvvav_ =
+      interpolate1d(yratio, thePixelTemp_[index_id_].enty[ilow].mpvvav, thePixelTemp_[index_id_].enty[ihigh].mpvvav);
+  sigmavav_ = interpolate1d(
+      yratio, thePixelTemp_[index_id_].enty[ilow].sigmavav, thePixelTemp_[index_id_].enty[ihigh].sigmavav);
+  kappavav_ = interpolate1d(
+      yratio, thePixelTemp_[index_id_].enty[ilow].kappavav, thePixelTemp_[index_id_].enty[ihigh].kappavav);
 
   // Copy to parameter list
 
@@ -4105,7 +4132,9 @@ void SiPixelTemplate::vavilov2_pars(double& mpv, double& sigma, double& kappa)
   // Interpolate in cotbeta only for the correct total path length (converts cotalpha, cotbeta into an effective cotbeta)
 
   cotalpha0 = thePixelTemp_[index_id_].enty[0].cotalpha;
-  arg = cotb_current_ * cotb_current_ + cota_current_ * cota_current_ - cotalpha0 * cotalpha0;
+  // stabilize output (see interpolate1d)
+  // arg = cotb_current_ * cotb_current_ + cota_current_ * cota_current_ - cotalpha0 * cotalpha0;
+  arg = std::fma(-cotalpha0, cotalpha0, std::fma(cotb_current_, cotb_current_, cota_current_ * cota_current_));
   if (arg < 0.f)
     arg = 0.f;
   cotb = std::sqrt(arg);
@@ -4149,12 +4178,12 @@ void SiPixelTemplate::vavilov2_pars(double& mpv, double& sigma, double& kappa)
 
   // Interpolate Vavilov parameters
 
-  mpvvav2_ = (1.f - yratio) * thePixelTemp_[index_id_].enty[ilow].mpvvav2 +
-             yratio * thePixelTemp_[index_id_].enty[ihigh].mpvvav2;
-  sigmavav2_ = (1.f - yratio) * thePixelTemp_[index_id_].enty[ilow].sigmavav2 +
-               yratio * thePixelTemp_[index_id_].enty[ihigh].sigmavav2;
-  kappavav2_ = (1.f - yratio) * thePixelTemp_[index_id_].enty[ilow].kappavav2 +
-               yratio * thePixelTemp_[index_id_].enty[ihigh].kappavav2;
+  mpvvav2_ =
+      interpolate1d(yratio, thePixelTemp_[index_id_].enty[ilow].mpvvav2, thePixelTemp_[index_id_].enty[ihigh].mpvvav2);
+  sigmavav2_ = interpolate1d(
+      yratio, thePixelTemp_[index_id_].enty[ilow].sigmavav2, thePixelTemp_[index_id_].enty[ihigh].sigmavav2);
+  kappavav2_ = interpolate1d(
+      yratio, thePixelTemp_[index_id_].enty[ilow].kappavav2, thePixelTemp_[index_id_].enty[ihigh].kappavav2);
 
   // Copy to parameter list
 

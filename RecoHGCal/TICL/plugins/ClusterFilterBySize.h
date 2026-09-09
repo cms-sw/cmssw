@@ -20,7 +20,7 @@ namespace ticl {
 
     void filter(const std::vector<reco::CaloCluster>& layerClusters,
                 std::vector<float>& layerClustersMask,
-                hgcal::RecHitTools& rhtools) const override {
+                ticlgeom::Tools& rhtools) const override {
       for (size_t i = 0; i < layerClusters.size(); i++) {
         if (layerClusters[i].hitsAndFractions().size() > max_cluster_size_) {
           layerClustersMask[i] = 0.;

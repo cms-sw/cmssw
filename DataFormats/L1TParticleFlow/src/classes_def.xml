@@ -34,6 +34,7 @@
   </class>
   <class name="l1t::PFJetCollection" />
   <class name="edm::Wrapper<l1t::PFJetCollection>" />
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<l1t::io_v1::PFJet>,l1t::io_v1::PFJet>"/>
   <class name="edm::Ref<l1t::PFJetCollection>" />
   <class name="edm::RefVector<l1t::PFJetCollection>" />
   <class name="std::vector<edm::Ref<std::vector<l1t::io_v1::PFJet>,l1t::io_v1::PFJet,edm::refhelper::FindUsingAdvance<std::vector<l1t::io_v1::PFJet>,l1t::io_v1::PFJet> > >" />

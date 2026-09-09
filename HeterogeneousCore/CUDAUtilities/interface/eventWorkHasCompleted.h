@@ -23,7 +23,7 @@ namespace cms {
         return false;
       }
       // leave error case handling to cudaCheck
-      cudaCheck(ret);
+      CUDA_CHECK(ret);
       return false;  // to keep compiler happy
     }
   }  // namespace cuda

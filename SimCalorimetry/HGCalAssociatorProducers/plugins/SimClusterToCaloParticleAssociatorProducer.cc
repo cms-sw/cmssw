@@ -9,7 +9,7 @@
 SimClusterToCaloParticleAssociatorProducer::SimClusterToCaloParticleAssociatorProducer(const edm::ParameterSet &pset)
     : simClusterToken_(consumes<std::vector<SimCluster>>(pset.getParameter<edm::InputTag>("simClusters"))),
       caloParticleToken_(consumes<std::vector<CaloParticle>>(pset.getParameter<edm::InputTag>("caloParticles"))) {
-  produces<ticl::AssociationMap<ticl::oneToOneMapWithFraction, std::vector<SimCluster>, std::vector<CaloParticle>>>(
+  produces<ticl::TICLAssociationMap<ticl::oneToOneMapWithFraction, std::vector<SimCluster>, std::vector<CaloParticle>>>(
       "simClusterToCaloParticleMap");
 }
 
@@ -29,7 +29,7 @@ void SimClusterToCaloParticleAssociatorProducer::produce(edm::StreamID,
 
   // Create association map
   auto simClusterToCaloParticleMap = std::make_unique<
-      ticl::AssociationMap<ticl::oneToOneMapWithFraction, std::vector<SimCluster>, std::vector<CaloParticle>>>(
+      ticl::TICLAssociationMap<ticl::oneToOneMapWithFraction, std::vector<SimCluster>, std::vector<CaloParticle>>>(
       simClustersHandle, caloParticlesHandle, iEvent);
 
   // Loop over caloParticles

@@ -1,6 +1,4 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-// Part of the MC-truth-graph prototype - under heavy development, not yet open
-// to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 // Builds TICL-style AssociationMaps between the truth::Branch graph and the legacy
 // HGCAL calo truth objects (CaloParticle, SimCluster), in the same fashion as the
@@ -39,7 +37,7 @@
 
 namespace {
   // Raw-index AssociationMap (object index -> [(branch id, sharedEnergy, score)]).
-  using BranchAssociationMap = ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore>;
+  using BranchAssociationMap = ticl::TICLAssociationMap<ticl::mapWithSharedEnergyAndScore>;
 }  // namespace
 
 class TruthBranchCaloAssociationProducer : public edm::stream::EDProducer<> {
@@ -143,7 +141,7 @@ void TruthBranchCaloAssociationProducer::produce(edm::Event& event, edm::EventSe
   truth::BranchHitAssociator assoc(hitIndex,
                                    roots,
                                    truth::BranchHitAssociator::Metric::SharedEnergy,
-                                   truth::HitChannel::HGCalCalo,
+                                   truth::HitChannel::Calo,
                                    /*emptyRootsMeansAll=*/!restrictRoots);
 
   associate(event.get(caloParticleToken_), graph, assoc, "caloParticleToBranch", "branchToCaloParticle", event);

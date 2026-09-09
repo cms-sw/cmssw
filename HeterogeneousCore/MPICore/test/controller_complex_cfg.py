@@ -22,6 +22,7 @@ process.MessageLogger.cerr.MPI = cms.untracked.PSet(
 )
 
 process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
+process.load("HeterogeneousCore.MPIServices.MPIConsistencyChecker_cfi")
 
 from HeterogeneousCore.MPICore.modules import *
 
@@ -84,12 +85,24 @@ process.triggerResultsProducer = cms.EDProducer("TestWriteTriggerResults",
 process.sender = MPISender(
     upstream = "mpiController",
     instance = 42,
-    products = [
-        "FEDRawDataCollection_fedRawDataCollectionProducer__*",
-        "RawDataBuffer_rawDataBufferProducer__*",
-        "edmTriggerResults_triggerResultsProducer__*",
-        "triggerTriggerEvent_triggerEventProducer__*"
-    ]
+    products = cms.VPSet(
+        cms.PSet(
+            type = cms.string("FEDRawDataCollection"),
+            name = cms.InputTag('fedRawDataCollectionProducer')
+        ),
+        cms.PSet(
+            type = cms.string("RawDataBuffer"),
+            name = cms.InputTag('rawDataBufferProducer')
+        ),
+        cms.PSet(
+            type = cms.string("edm::TriggerResults"),
+            name = cms.InputTag('triggerResultsProducer')
+        ),
+        cms.PSet(
+            type = cms.string("trigger::TriggerEvent"),
+            name = cms.InputTag('triggerEventProducer')
+        )
+    )
 )
 
 process.path = cms.Path(

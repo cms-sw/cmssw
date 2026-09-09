@@ -1,11 +1,18 @@
+<use name="CalibCalorimetry/CaloTPG"/>
+<use name="CalibCalorimetry/HcalTPGAlgos"/>
+<use name="CalibFormats/CaloTPG"/>
+<use name="CalibFormats/HcalObjects"/>
+<use name="CaloOnlineTools/HcalOnlineDb"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/HcalObjects"/>
+<use name="DataFormats/HcalDetId"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="boost"/>
-<use name="xerces-c"/>
-<use name="zlib"/>
-<use name="DataFormats/HcalDetId"/>
-<use name="CalibCalorimetry/HcalTPGAlgos"/>
-<use name="CaloOnlineTools/HcalOnlineDb"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/CaloTopology"/>
+<use name="Geometry/Records"/>
+<use name="root"/>
+<use name="rootgraphics"/>
 <library file="*.cc" name="CaloOnlineToolsHcalOnlineDbPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

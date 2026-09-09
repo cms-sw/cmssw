@@ -54,22 +54,6 @@ namespace edm {
         func(*begin, *out);
     }
 
-    // Function template that takes a sequence 'from', a sequence
-    // 'to', and a callable object 'func'. It and applies
-    // transform_into to fill the 'to' sequence with the values
-    // calcuated by the callable object, taking care to fill the
-    // outupt only if all calls succeed.
-    template <typename FROM, typename TO, typename FUNC>
-    void fill_summary(FROM const& from, TO& to, FUNC func) {
-      if (to.size() != from.size()) {
-        TO temp(from.size());
-        transform_into(from.begin(), from.end(), temp.begin(), func);
-        to.swap(temp);
-      } else {
-        transform_into(from.begin(), from.end(), to.begin(), func);
-      }
-    }
-
     class BeginStreamTraits {
     public:
       static void preScheduleSignal(ActivityRegistry* activityRegistry, StreamContext const* streamContext) {
@@ -154,7 +138,8 @@ namespace edm {
                                  StreamID streamID,
                                  ProcessContext const* processContext)
       : workerManagerRuns_(modReg, areg, actions),
-        workerManagerLumisAndEvents_(modReg, areg, actions),
+        workerManagerLumis_(modReg, areg, actions),
+        workerManagerEvents_(modReg, areg, actions),
         actReg_(areg),
         results_(std::make_shared<HLTGlobalStatus>(paths.size())),
         results_inserter_(),
@@ -178,7 +163,7 @@ namespace edm {
     if (hasPath) {
       // the results inserter stands alone
       inserter->setTrigResultForStream(streamID.value(), results());
-      results_inserter_ = workerManagerLumisAndEvents_.getWorkerForModule(*inserter);
+      results_inserter_ = workerManagerEvents_.getWorkerForModule(*inserter);
     }
 
     // fill normal endpaths
@@ -190,11 +175,16 @@ namespace edm {
     }
 
     for (auto const* module : unscheduledModules) {
-      workerManagerLumisAndEvents_.addToUnscheduledWorkers(*module);
+      workerManagerEvents_.addToUnscheduledWorkers(*module);
     }
 
-    for (auto const& worker : allWorkersLumisAndEvents()) {
-      (void)workerManagerRuns_.getWorkerForModule(*worker->description());
+    for (auto const& worker : allWorkersEvents()) {
+      if (worker->wantsStreamLuminosityBlocks()) {
+        (void)workerManagerLumis_.getWorkerForModule(*worker->description());
+      }
+      if (worker->wantsStreamRuns()) {
+        (void)workerManagerRuns_.getWorkerForModule(*worker->description());
+      }
     }
 
   }  // StreamSchedule::StreamSchedule
@@ -239,7 +229,7 @@ namespace edm {
     }
 
     std::unordered_set<std::string> modulesToExclude(modulesToSkip.begin(), modulesToSkip.end());
-    for (auto w : allWorkersLumisAndEvents()) {
+    for (auto w : allWorkersEvents()) {
       if (modulesToExclude.end() != modulesToExclude.find(w->description()->moduleLabel())) {
         continue;
       }
@@ -416,7 +406,7 @@ namespace edm {
     PathWorkers tmpworkers;
     tmpworkers.reserve(iPath.size());
     for (auto const& module : iPath) {
-      tmpworkers.emplace_back(workerManagerLumisAndEvents_.getWorkerForModule(*module.description_),
+      tmpworkers.emplace_back(workerManagerEvents_.getWorkerForModule(*module.description_),
                               module.action_,
                               module.placeInPath_,
                               module.runConcurrently_);
@@ -425,7 +415,7 @@ namespace edm {
   }
 
   void StreamSchedule::fillTrigPath(PathInfo const& iPath, int bitpos, TrigResPtr trptr) {
-    auto workerPtr = workerManagerLumisAndEvents_.getWorkerForModule(*iPath.inserter_);
+    auto workerPtr = workerManagerEvents_.getWorkerForModule(*iPath.inserter_);
     pathStatusInserterWorkers_.emplace_back(workerPtr);
     if (iPath.modules_.empty()) {
       empty_trig_paths_.push_back(bitpos);
@@ -440,7 +430,7 @@ namespace edm {
   void StreamSchedule::fillEndPath(EndPathInfo const& iEndPath, int bitpos) {
     Worker* workerPtr = nullptr;
     if (iEndPath.inserter_) {
-      workerPtr = workerManagerLumisAndEvents_.getWorkerForModule(*iEndPath.inserter_);
+      workerPtr = workerManagerEvents_.getWorkerForModule(*iEndPath.inserter_);
       endPathStatusInserterWorkers_.emplace_back(workerPtr);
     }
     if (iEndPath.modules_.empty()) {
@@ -530,8 +520,13 @@ namespace edm {
         break;
       }
     }
-
-    for (auto const& worker : allWorkersLumisAndEvents()) {
+    for (auto const& worker : allWorkersEvents()) {
+      if (worker->description()->moduleLabel() == iLabel) {
+        iMod->replaceModuleFor(worker);
+        break;
+      }
+    }
+    for (auto const& worker : allWorkersLumis()) {
       if (worker->description()->moduleLabel() == iLabel) {
         iMod->replaceModuleFor(worker);
         break;
@@ -541,14 +536,15 @@ namespace edm {
 
   void StreamSchedule::deleteModule(std::string const& iLabel) {
     workerManagerRuns_.deleteModuleIfExists(iLabel);
-    workerManagerLumisAndEvents_.deleteModuleIfExists(iLabel);
+    workerManagerLumis_.deleteModuleIfExists(iLabel);
+    workerManagerEvents_.deleteModuleIfExists(iLabel);
   }
 
   std::vector<ModuleDescription const*> StreamSchedule::getAllModuleDescriptions() const {
     std::vector<ModuleDescription const*> result;
-    result.reserve(allWorkersLumisAndEvents().size());
+    result.reserve(allWorkersEvents().size());
 
-    for (auto const& worker : allWorkersLumisAndEvents()) {
+    for (auto const& worker : allWorkersEvents()) {
       ModuleDescription const* p = worker->description();
       result.push_back(p);
     }
@@ -576,8 +572,8 @@ namespace edm {
       // Data dependencies need to be set up before marking empty
       // (End)Paths complete in case something consumes the status of
       // the empty (EndPath)
-      workerManagerLumisAndEvents_.setupResolvers(ep);
-      workerManagerLumisAndEvents_.setupOnDemandSystem(info);
+      workerManagerEvents_.setupResolvers(ep);
+      workerManagerEvents_.setupOnDemandSystem(info);
 
       HLTPathStatus hltPathStatus(hlt::Pass, 0);
       for (int empty_trig_path : empty_trig_paths_) {
@@ -659,9 +655,8 @@ namespace edm {
       }
 
       ParentContext parentContext(&streamContext_);
-      workerManagerLumisAndEvents_
-          .processAccumulatorsAsync<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
-              hAllPathsDone, info, serviceToken, streamID_, parentContext, &streamContext_);
+      workerManagerEvents_.processAccumulatorsAsync<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
+          hAllPathsDone, info, serviceToken, streamID_, parentContext, &streamContext_);
     } catch (...) {
       iTask.doneWaiting(std::current_exception());
     }
@@ -835,65 +830,15 @@ namespace edm {
     }
   }
 
-  static void fillModuleInPathSummary(Path const& path, size_t which, ModuleInPathSummary& sum) {
-    sum.timesVisited += path.timesVisited(which);
-    sum.timesPassed += path.timesPassed(which);
-    sum.timesFailed += path.timesFailed(which);
-    sum.timesExcept += path.timesExcept(which);
-    sum.moduleLabel = path.getWorker(which)->description()->moduleLabel();
-    sum.bitPosition = path.bitPosition(which);
-  }
-
-  static void fillPathSummary(Path const& path, PathSummary& sum) {
-    sum.name = path.name();
-    sum.bitPosition = path.bitPosition();
-    sum.timesRun += path.timesRun();
-    sum.timesPassed += path.timesPassed();
-    sum.timesFailed += path.timesFailed();
-    sum.timesExcept += path.timesExcept();
-
-    Path::size_type sz = path.size();
-    if (sum.moduleInPathSummaries.empty()) {
-      std::vector<ModuleInPathSummary> temp(sz);
-      for (size_t i = 0; i != sz; ++i) {
-        fillModuleInPathSummary(path, i, temp[i]);
-      }
-      sum.moduleInPathSummaries.swap(temp);
-    } else {
-      assert(sz == sum.moduleInPathSummaries.size());
-      for (size_t i = 0; i != sz; ++i) {
-        fillModuleInPathSummary(path, i, sum.moduleInPathSummaries[i]);
-      }
-    }
-  }
-
-  static void fillWorkerSummaryAux(Worker const& w, WorkerSummary& sum) {
-    sum.timesVisited += w.timesVisited();
-    sum.timesRun += w.timesRun();
-    sum.timesPassed += w.timesPassed();
-    sum.timesFailed += w.timesFailed();
-    sum.timesExcept += w.timesExcept();
-    sum.moduleLabel = w.description()->moduleLabel();
-  }
-
-  static void fillWorkerSummary(Worker const* pw, WorkerSummary& sum) { fillWorkerSummaryAux(*pw, sum); }
-
   void StreamSchedule::getTriggerReport(TriggerReport& rep) const {
     rep.eventSummary.totalEvents += totalEvents();
     rep.eventSummary.totalEventsPassed += totalEventsPassed();
     rep.eventSummary.totalEventsFailed += totalEventsFailed();
-
-    fill_summary(trig_paths_, rep.trigPathSummaries, &fillPathSummary);
-    fill_summary(end_paths_, rep.endPathSummaries, &fillPathSummary);
-    fill_summary(allWorkersLumisAndEvents(), rep.workerSummaries, &fillWorkerSummary);
   }
 
   void StreamSchedule::clearCounters() {
     using std::placeholders::_1;
     total_events_ = total_passed_ = 0;
-    for_all(trig_paths_, std::bind(&Path::clearCounters, _1));
-    for_all(end_paths_, std::bind(&Path::clearCounters, _1));
-    for_all(allWorkersLumisAndEvents(), std::bind(&Worker::clearCounters, _1));
   }
 
   void StreamSchedule::resetAll() { results_->reset(); }

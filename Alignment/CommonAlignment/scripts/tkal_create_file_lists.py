@@ -28,6 +28,10 @@ import Alignment.MillePedeAlignmentAlgorithm.mpslib.tools as mps_tools
 
 
 ################################################################################
+def ignore_sigint():
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+
 def main(argv = None):
     """
     Main routine. Not called, if this module is loaded via `import`.
@@ -359,7 +363,7 @@ class FileListCreator(object):
                                else 1)
         pool = multiprocessing.Pool(
             processes = number_of_processes,
-            initializer = lambda: signal.signal(signal.SIGINT, signal.SIG_IGN))
+            initializer = ignore_sigint)
 
         print_msg("Requesting information for the following dataset(s):")
         for d in self._datasets: print_msg("\t"+d)

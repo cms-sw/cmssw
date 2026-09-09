@@ -20,20 +20,20 @@ namespace cms::cuda {
         throw std::runtime_error("Tried to allocate " + std::to_string(nbytes) +
                                  " bytes, but the allocator maximum is " + std::to_string(maxAllocationSize));
       }
-      cudaCheck(allocator::getCachingDeviceAllocator().DeviceAllocate(dev, &ptr, nbytes, stream));
+      CUDA_CHECK(allocator::getCachingDeviceAllocator().DeviceAllocate(dev, &ptr, nbytes, stream));
     } else {
       ScopedSetDevice setDeviceForThisScope(dev);
-      cudaCheck(cudaMalloc(&ptr, nbytes));
+      CUDA_CHECK(cudaMalloc(&ptr, nbytes));
     }
     return ptr;
   }
 
   void free_device(int device, void *ptr) {
     if constexpr (allocator::useCaching) {
-      cudaCheck(allocator::getCachingDeviceAllocator().DeviceFree(device, ptr));
+      CUDA_CHECK(allocator::getCachingDeviceAllocator().DeviceFree(device, ptr));
     } else {
       ScopedSetDevice setDeviceForThisScope(device);
-      cudaCheck(cudaFree(ptr));
+      CUDA_CHECK(cudaFree(ptr));
     }
   }
 

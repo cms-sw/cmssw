@@ -582,10 +582,11 @@ Timing blockSendPart1(MPIData &mpiData, Timing &timing, Pointers &pointer, UserC
 
   if (mpiData.rank)  //Only for Workers
   {
-    cudaCheck(cudaMalloc((void **)&pointer.dVect1,
-                         user.sizeVectorBytes));  //allocate memory space for vector in the global memory of the Device.
-    cudaCheck(cudaMalloc((void **)&pointer.dVect2, user.sizeVectorBytes));
-    cudaCheck(cudaMalloc((void **)&pointer.dVect3, user.sizeVectorBytes));
+    CUDA_CHECK(
+        cudaMalloc((void **)&pointer.dVect1,
+                   user.sizeVectorBytes));  //allocate memory space for vector in the global memory of the Device.
+    CUDA_CHECK(cudaMalloc((void **)&pointer.dVect2, user.sizeVectorBytes));
+    CUDA_CHECK(cudaMalloc((void **)&pointer.dVect3, user.sizeVectorBytes));
   }
   ///////////////////////////// Start of Average ////////////////////////
   for (int a = 0; a <= average; ++a) {
@@ -626,17 +627,17 @@ Timing blockSendPart1(MPIData &mpiData, Timing &timing, Pointers &pointer, UserC
                MPI_COMM_WORLD,
                MPI_STATUS_IGNORE);
 
-      cudaCheck(cudaMemcpy(pointer.dVect1,
-                           mpiData.mVectWorker1,
-                           user.sizeVectorBytes,
-                           cudaMemcpyHostToDevice));  //copy random vector from host to device.
-      cudaCheck(cudaMemcpy(pointer.dVect2, mpiData.mVectWorker2, user.sizeVectorBytes, cudaMemcpyHostToDevice));
+      CUDA_CHECK(cudaMemcpy(pointer.dVect1,
+                            mpiData.mVectWorker1,
+                            user.sizeVectorBytes,
+                            cudaMemcpyHostToDevice));  //copy random vector from host to device.
+      CUDA_CHECK(cudaMemcpy(pointer.dVect2, mpiData.mVectWorker2, user.sizeVectorBytes, cudaMemcpyHostToDevice));
 
       timing.inputPreparationHost[1] = MPI_Wtime();
       ///////////////////////////////////////////////////////////////////////////////////////
 
-      cudaCheck(cudaEventCreate(&timing.start));  //inialize Event.
-      cudaCheck(cudaEventCreate(&timing.stop));
+      CUDA_CHECK(cudaEventCreate(&timing.start));  //inialize Event.
+      CUDA_CHECK(cudaEventCreate(&timing.stop));
 
       ///////////////////////////// Operation on Device with respect of Host //////////////////
 
@@ -645,7 +646,7 @@ Timing blockSendPart1(MPIData &mpiData, Timing &timing, Pointers &pointer, UserC
       blocks = std::min(blocks, 8);  // Number 8 is least number can be got from lowest Nevedia GPUs.
 
       ////////////////////////// CAll Device Kernel //////////////////////////////////
-      cudaCheck(cudaEventRecord(timing.start));
+      CUDA_CHECK(cudaEventRecord(timing.start));
       timing.operationOnDeviceByHost[0] = MPI_Wtime();
 
       addVectorsGpu<<<blocks, threads>>>(pointer.dVect1,
@@ -654,16 +655,16 @@ Timing blockSendPart1(MPIData &mpiData, Timing &timing, Pointers &pointer, UserC
                                          sizeVector,
                                          task);  //call device function to add two vectors and save into vect3Gpu.
 
-      cudaCheck(cudaGetLastError());
-      cudaCheck(cudaDeviceSynchronize());
-      cudaCheck(cudaEventRecord(timing.stop));
+      CUDA_CHECK(cudaGetLastError());
+      CUDA_CHECK(cudaDeviceSynchronize());
+      CUDA_CHECK(cudaEventRecord(timing.stop));
 
       timing.operationOnDeviceByHost[1] = MPI_Wtime();
       /////////////////////////////////////////////////////////////////////////////////////////////
 
       /////////////////////////////////// Output Prepation for the Host //////////////////////////////////////
       timing.outputPreparationHost[0] = MPI_Wtime();
-      cudaCheck(cudaMemcpy(
+      CUDA_CHECK(cudaMemcpy(
           mpiData.mVectWorker3,
           pointer.dVect3,
           user.sizeVectorBytes,
@@ -702,15 +703,15 @@ Timing blockSendPart1(MPIData &mpiData, Timing &timing, Pointers &pointer, UserC
       calculateTimeDuration(timing, a - 1, mpiData.rank);
 
     if (mpiData.rank) {
-      cudaCheck(cudaEventDestroy(timing.start));
-      cudaCheck(cudaEventDestroy(timing.stop));
+      CUDA_CHECK(cudaEventDestroy(timing.start));
+      CUDA_CHECK(cudaEventDestroy(timing.stop));
     }
   }
   ///////////////////////////// End of Average ////////////////////////
   if (mpiData.rank) {
-    cudaCheck(cudaFree(pointer.dVect1));
-    cudaCheck(cudaFree(pointer.dVect2));
-    cudaCheck(cudaFree(pointer.dVect3));
+    CUDA_CHECK(cudaFree(pointer.dVect1));
+    CUDA_CHECK(cudaFree(pointer.dVect2));
+    CUDA_CHECK(cudaFree(pointer.dVect3));
   }
   ///
   bool test = 0;
@@ -745,13 +746,14 @@ Timing blockSendPart2(MPIData &mpiData, Timing &timing, Pointers &pointer, UserC
 
   if (mpiData.rank)  //Only for Workers
   {
-    cudaCheck(cudaMallocHost((void **)&pointer.vect1, user.sizeVectorBytes));  //allocate Pinned memory on the Host.
-    cudaCheck(cudaMallocHost((void **)&pointer.vect2, user.sizeVectorBytes));
-    cudaCheck(cudaMallocHost((void **)&pointer.vect3, user.sizeVectorBytes));
-    cudaCheck(cudaMalloc((void **)&pointer.dVect1,
-                         user.sizeVectorBytes));  //allocate memory space for vector in the global memory of the Device.
-    cudaCheck(cudaMalloc((void **)&pointer.dVect2, user.sizeVectorBytes));
-    cudaCheck(cudaMalloc((void **)&pointer.dVect3, user.sizeVectorBytes));
+    CUDA_CHECK(cudaMallocHost((void **)&pointer.vect1, user.sizeVectorBytes));  //allocate Pinned memory on the Host.
+    CUDA_CHECK(cudaMallocHost((void **)&pointer.vect2, user.sizeVectorBytes));
+    CUDA_CHECK(cudaMallocHost((void **)&pointer.vect3, user.sizeVectorBytes));
+    CUDA_CHECK(
+        cudaMalloc((void **)&pointer.dVect1,
+                   user.sizeVectorBytes));  //allocate memory space for vector in the global memory of the Device.
+    CUDA_CHECK(cudaMalloc((void **)&pointer.dVect2, user.sizeVectorBytes));
+    CUDA_CHECK(cudaMalloc((void **)&pointer.dVect3, user.sizeVectorBytes));
   }
   ///////////////////////////// Start of Average ////////////////////////
   for (int a = 0; a <= average; ++a) {
@@ -793,17 +795,17 @@ Timing blockSendPart2(MPIData &mpiData, Timing &timing, Pointers &pointer, UserC
                MPI_COMM_WORLD,
                MPI_STATUS_IGNORE);
 
-      cudaCheck(cudaMemcpy(pointer.dVect1,
-                           pointer.vect1,
-                           user.sizeVectorBytes,
-                           cudaMemcpyHostToDevice));  //copy random vector from host to device.
-      cudaCheck(cudaMemcpy(pointer.dVect2, pointer.vect2, user.sizeVectorBytes, cudaMemcpyHostToDevice));
+      CUDA_CHECK(cudaMemcpy(pointer.dVect1,
+                            pointer.vect1,
+                            user.sizeVectorBytes,
+                            cudaMemcpyHostToDevice));  //copy random vector from host to device.
+      CUDA_CHECK(cudaMemcpy(pointer.dVect2, pointer.vect2, user.sizeVectorBytes, cudaMemcpyHostToDevice));
 
       timing.inputPreparationHost[1] = MPI_Wtime();
       ///////////////////////////////////////////////////////////////////////////////////////
 
-      cudaCheck(cudaEventCreate(&timing.start));  //inialize Event.
-      cudaCheck(cudaEventCreate(&timing.stop));
+      CUDA_CHECK(cudaEventCreate(&timing.start));  //inialize Event.
+      CUDA_CHECK(cudaEventCreate(&timing.stop));
 
       ///////////////////////////// Operation on Device with respect of Host //////////////////
 
@@ -812,7 +814,7 @@ Timing blockSendPart2(MPIData &mpiData, Timing &timing, Pointers &pointer, UserC
       blocks = std::min(blocks, 8);  // Number 8 is least number can be got from lowest Nevedia GPUs.
 
       ////////////////////////// CAll Device Kernel //////////////////////////////////
-      cudaCheck(cudaEventRecord(timing.start));
+      CUDA_CHECK(cudaEventRecord(timing.start));
       timing.operationOnDeviceByHost[0] = MPI_Wtime();
 
       addVectorsGpu<<<blocks, threads>>>(pointer.dVect1,
@@ -821,9 +823,9 @@ Timing blockSendPart2(MPIData &mpiData, Timing &timing, Pointers &pointer, UserC
                                          sizeVector,
                                          task);  //call device function to add two vectors and save into vect3Gpu.
 
-      cudaCheck(cudaGetLastError());
-      cudaCheck(cudaDeviceSynchronize());
-      cudaCheck(cudaEventRecord(timing.stop));
+      CUDA_CHECK(cudaGetLastError());
+      CUDA_CHECK(cudaDeviceSynchronize());
+      CUDA_CHECK(cudaEventRecord(timing.stop));
 
       timing.operationOnDeviceByHost[1] = MPI_Wtime();
       /////////////////////////////////////////////////////////////////////////////////////////////
@@ -831,7 +833,7 @@ Timing blockSendPart2(MPIData &mpiData, Timing &timing, Pointers &pointer, UserC
       /////////////////////////////////// Output Prepation for the Host //////////////////////////////////////
       timing.outputPreparationHost[0] = MPI_Wtime();
 
-      cudaCheck(cudaMemcpy(
+      CUDA_CHECK(cudaMemcpy(
           pointer.vect3,
           pointer.dVect3,
           user.sizeVectorBytes,
@@ -871,18 +873,18 @@ Timing blockSendPart2(MPIData &mpiData, Timing &timing, Pointers &pointer, UserC
       calculateTimeDuration(timing, a - 1, mpiData.rank);
 
     if (mpiData.rank) {
-      cudaCheck(cudaEventDestroy(timing.start));
-      cudaCheck(cudaEventDestroy(timing.stop));
+      CUDA_CHECK(cudaEventDestroy(timing.start));
+      CUDA_CHECK(cudaEventDestroy(timing.stop));
     }
   }
   ///////////////////////////// End of Average ////////////////////////
   if (mpiData.rank) {
-    cudaCheck(cudaFreeHost(pointer.vect1));
-    cudaCheck(cudaFreeHost(pointer.vect2));
-    cudaCheck(cudaFreeHost(pointer.vect3));
-    cudaCheck(cudaFree(pointer.dVect1));
-    cudaCheck(cudaFree(pointer.dVect2));
-    cudaCheck(cudaFree(pointer.dVect3));
+    CUDA_CHECK(cudaFreeHost(pointer.vect1));
+    CUDA_CHECK(cudaFreeHost(pointer.vect2));
+    CUDA_CHECK(cudaFreeHost(pointer.vect3));
+    CUDA_CHECK(cudaFree(pointer.dVect1));
+    CUDA_CHECK(cudaFree(pointer.dVect2));
+    CUDA_CHECK(cudaFree(pointer.dVect3));
   }
 
   bool test = 0;
@@ -917,10 +919,11 @@ Timing blockSendPart3(MPIData &mpiData, Timing &timing, Pointers &pointer, UserC
 
   if (mpiData.rank)  //Only for Workers
   {
-    cudaCheck(cudaMalloc((void **)&pointer.dVect1,
-                         user.sizeVectorBytes));  //allocate memory space for vector in the global memory of the Device.
-    cudaCheck(cudaMalloc((void **)&pointer.dVect2, user.sizeVectorBytes));
-    cudaCheck(cudaMalloc((void **)&pointer.dVect3, user.sizeVectorBytes));
+    CUDA_CHECK(
+        cudaMalloc((void **)&pointer.dVect1,
+                   user.sizeVectorBytes));  //allocate memory space for vector in the global memory of the Device.
+    CUDA_CHECK(cudaMalloc((void **)&pointer.dVect2, user.sizeVectorBytes));
+    CUDA_CHECK(cudaMalloc((void **)&pointer.dVect3, user.sizeVectorBytes));
   }
   ///////////////////////////// Start of Average ////////////////////////
   for (int a = 0; a <= average; ++a) {
@@ -961,14 +964,14 @@ Timing blockSendPart3(MPIData &mpiData, Timing &timing, Pointers &pointer, UserC
                MPI_COMM_WORLD,
                MPI_STATUS_IGNORE);
 
-      // cudaCheck(cudaMemcpy(pointer.dVect1, mpiData.mVectWorker1, user.sizeVectorBytes, cudaMemcpyHostToDevice));  //copy random vector from host to device.
-      // cudaCheck(cudaMemcpy(pointer.dVect2, mpiData.mVectWorker2, user.sizeVectorBytes, cudaMemcpyHostToDevice));
+      // CUDA_CHECK(cudaMemcpy(pointer.dVect1, mpiData.mVectWorker1, user.sizeVectorBytes, cudaMemcpyHostToDevice));  //copy random vector from host to device.
+      // CUDA_CHECK(cudaMemcpy(pointer.dVect2, mpiData.mVectWorker2, user.sizeVectorBytes, cudaMemcpyHostToDevice));
 
       timing.inputPreparationHost[1] = MPI_Wtime();
       ///////////////////////////////////////////////////////////////////////////////////////
 
-      cudaCheck(cudaEventCreate(&timing.start));  //inialize Event.
-      cudaCheck(cudaEventCreate(&timing.stop));
+      CUDA_CHECK(cudaEventCreate(&timing.start));  //inialize Event.
+      CUDA_CHECK(cudaEventCreate(&timing.stop));
 
       ///////////////////////////// Operation on Device with respect of Host //////////////////
 
@@ -977,7 +980,7 @@ Timing blockSendPart3(MPIData &mpiData, Timing &timing, Pointers &pointer, UserC
       blocks = std::min(blocks, 8);  // Number 8 is least number can be got from lowest Nevedia GPUs.
 
       ////////////////////////// CAll Device Kernel //////////////////////////////////
-      cudaCheck(cudaEventRecord(timing.start));
+      CUDA_CHECK(cudaEventRecord(timing.start));
       timing.operationOnDeviceByHost[0] = MPI_Wtime();
 
       addVectorsGpu<<<blocks, threads>>>(pointer.dVect1,
@@ -986,16 +989,16 @@ Timing blockSendPart3(MPIData &mpiData, Timing &timing, Pointers &pointer, UserC
                                          sizeVector,
                                          task);  //call device function to add two vectors and save into vect3Gpu.
 
-      cudaCheck(cudaGetLastError());
-      cudaCheck(cudaDeviceSynchronize());
-      cudaCheck(cudaEventRecord(timing.stop));
+      CUDA_CHECK(cudaGetLastError());
+      CUDA_CHECK(cudaDeviceSynchronize());
+      CUDA_CHECK(cudaEventRecord(timing.stop));
 
       timing.operationOnDeviceByHost[1] = MPI_Wtime();
       /////////////////////////////////////////////////////////////////////////////////////////////
 
       /////////////////////////////////// Output Prepation for the Host //////////////////////////////////////
       timing.outputPreparationHost[0] = MPI_Wtime();
-      //cudaCheck(cudaMemcpy(mpiData.mVectWorker3,pointer.dVect3,user.sizeVectorBytes,cudaMemcpyDeviceToHost));  //copy summing result vector from Device to Host.// Try_Regist(3) delete this
+      //CUDA_CHECK(cudaMemcpy(mpiData.mVectWorker3,pointer.dVect3,user.sizeVectorBytes,cudaMemcpyDeviceToHost));  //copy summing result vector from Device to Host.// Try_Regist(3) delete this
 
       MPI_Send(&pointer.dVect3[0],
                mpiData.numberToSend[mpiData.rank],
@@ -1030,15 +1033,15 @@ Timing blockSendPart3(MPIData &mpiData, Timing &timing, Pointers &pointer, UserC
       calculateTimeDuration(timing, a - 1, mpiData.rank);
 
     if (mpiData.rank) {
-      cudaCheck(cudaEventDestroy(timing.start));
-      cudaCheck(cudaEventDestroy(timing.stop));
+      CUDA_CHECK(cudaEventDestroy(timing.start));
+      CUDA_CHECK(cudaEventDestroy(timing.stop));
     }
   }
   ///////////////////////////// End of Average ////////////////////////
   if (mpiData.rank) {
-    cudaCheck(cudaFree(pointer.dVect1));
-    cudaCheck(cudaFree(pointer.dVect2));
-    cudaCheck(cudaFree(pointer.dVect3));
+    CUDA_CHECK(cudaFree(pointer.dVect1));
+    CUDA_CHECK(cudaFree(pointer.dVect2));
+    CUDA_CHECK(cudaFree(pointer.dVect3));
   }
   ///
   bool test = 0;

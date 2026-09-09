@@ -26,8 +26,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           getTokenDeviceRecHits_{consumes(config.getParameter<edm::InputTag>("hgcalRecHitsSoA"))},
           getTokenDeviceClusters_{consumes(config.getParameter<edm::InputTag>("hgcalRecHitsLayerClustersSoA"))},
           deviceTokenSoAClusters_{produces()},
-          thresholdW0_(config.getParameter<double>("thresholdW0")),
-          positionDeltaRho2_(config.getParameter<double>("positionDeltaRho2")) {}
+          thresholdW0_(config.getParameter<float>("thresholdW0")),
+          positionDeltaRho2_(config.getParameter<float>("positionDeltaRho2")) {}
 
     ~HGCalSoALayerClustersProducer() override = default;
 
@@ -79,8 +79,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       edm::ParameterSetDescription desc;
       desc.add<edm::InputTag>("hgcalRecHitsLayerClustersSoA", edm::InputTag("TO BE DEFINED"));
       desc.add<edm::InputTag>("hgcalRecHitsSoA", edm::InputTag("TO BE DEFINED"));
-      desc.add<double>("thresholdW0", 2.9);
-      desc.add<double>("positionDeltaRho2", 1.69);
+      desc.add<float>("thresholdW0", 2.9);
+      desc.add<float>("positionDeltaRho2", 1.69);
       descriptions.addWithDefaultLabel(desc);
     }
 

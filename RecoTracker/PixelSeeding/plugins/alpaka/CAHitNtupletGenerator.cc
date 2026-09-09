@@ -430,6 +430,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const int32_t H = m_params.algoParams_.avgHitsPerTrack_;
 
     reco::TracksSoACollection trackCollection(queue, nTracks, nTracks * H);
+    trackCollection.zeroInitialise(queue);
 
     auto tracks = trackCollection.view().tracks();
 

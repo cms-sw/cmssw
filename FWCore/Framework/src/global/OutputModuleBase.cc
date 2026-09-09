@@ -33,11 +33,9 @@ namespace edm {
 
     void OutputModuleBase::doBeginJob() { core::OutputModuleCore::doBeginJob_(); }
 
-    bool OutputModuleBase::doEvent(EventTransitionInfo const& info,
-                                   ActivityRegistry* act,
-                                   ModuleCallingContext const* mcc) {
+    bool OutputModuleBase::doEvent(EventTransitionInfo const& info, ModuleCallingContext const* mcc) {
       {
-        core::OutputModuleCore::doEvent_(info, act, mcc);
+        core::OutputModuleCore::doEvent_(info, mcc);
       }
 
       auto remainingEvents = remainingEvents_.load();
@@ -55,12 +53,10 @@ namespace edm {
     }
 
     void OutputModuleBase::doAcquire(EventTransitionInfo const& info,
-                                     ActivityRegistry* act,
                                      ModuleCallingContext const* mcc,
                                      WaitingTaskHolder&& holder) {
       EventForOutput e(info, moduleDescription(), mcc);
       e.setConsumer(this);
-      EventAcquireSignalsSentry sentry(act, mcc);
       this->doAcquire_(e.streamID(), e, std::move(holder));
     }
   }  // namespace global

@@ -51,6 +51,14 @@ else:
                                 skipEvents = cms.untracked.uint32(0)
                                ) 
 
+# Workaround after renaming SimDataFormats' ticl::AssociationMap
+# TODO: revert after new relvals
+process.source.inputCommands = cms.untracked.vstring([
+    "keep *",
+    "drop ticlFractionTypeticlAssociationElementsSimClustersCaloParticlesticlAssociationMap_*_*_*",
+    "drop ticlSharedEnergyTypefloatstdpairticlAssociationElementssticlTrackstersticlTrackstersticlAssociationMap_*_*_*",
+    ])
+
 ###################################################################
 # Get good lumi section and load data or handle MC
 ###################################################################

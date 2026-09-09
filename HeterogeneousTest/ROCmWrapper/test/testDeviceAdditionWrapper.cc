@@ -43,25 +43,25 @@ TEST_CASE("HeterogeneousTest/ROCmWrapper test", "[rocmTestWrapperAdditionWrapper
     float* in1_d;
     float* in2_d;
     float* out_d;
-    REQUIRE_NOTHROW(hipCheck(hipMalloc(&in1_d, size * sizeof(float))));
-    REQUIRE_NOTHROW(hipCheck(hipMalloc(&in2_d, size * sizeof(float))));
-    REQUIRE_NOTHROW(hipCheck(hipMalloc(&out_d, size * sizeof(float))));
+    REQUIRE_NOTHROW(HIP_CHECK(hipMalloc(&in1_d, size * sizeof(float))));
+    REQUIRE_NOTHROW(HIP_CHECK(hipMalloc(&in2_d, size * sizeof(float))));
+    REQUIRE_NOTHROW(HIP_CHECK(hipMalloc(&out_d, size * sizeof(float))));
 
     // copy the input data to the device
-    REQUIRE_NOTHROW(hipCheck(hipMemcpy(in1_d, in1_h.data(), size * sizeof(float), hipMemcpyHostToDevice)));
-    REQUIRE_NOTHROW(hipCheck(hipMemcpy(in2_d, in2_h.data(), size * sizeof(float), hipMemcpyHostToDevice)));
+    REQUIRE_NOTHROW(HIP_CHECK(hipMemcpy(in1_d, in1_h.data(), size * sizeof(float), hipMemcpyHostToDevice)));
+    REQUIRE_NOTHROW(HIP_CHECK(hipMemcpy(in2_d, in2_h.data(), size * sizeof(float), hipMemcpyHostToDevice)));
 
     // fill the output buffer with zeros
-    REQUIRE_NOTHROW(hipCheck(hipMemset(out_d, 0, size * sizeof(float))));
+    REQUIRE_NOTHROW(HIP_CHECK(hipMemset(out_d, 0, size * sizeof(float))));
 
     // launch the 1-dimensional kernel for vector addition
     REQUIRE_NOTHROW(cms::rocmtest::wrapper_add_vectors_f(in1_d, in2_d, out_d, size));
 
     // copy the results from the device to the host
-    REQUIRE_NOTHROW(hipCheck(hipMemcpy(out_h.data(), out_d, size * sizeof(float), hipMemcpyDeviceToHost)));
+    REQUIRE_NOTHROW(HIP_CHECK(hipMemcpy(out_h.data(), out_d, size * sizeof(float), hipMemcpyDeviceToHost)));
 
     // wait for all the operations to complete
-    REQUIRE_NOTHROW(hipCheck(hipDeviceSynchronize()));
+    REQUIRE_NOTHROW(HIP_CHECK(hipDeviceSynchronize()));
 
     // check the results
     for (size_t i = 0; i < size; ++i) {

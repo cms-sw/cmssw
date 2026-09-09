@@ -241,13 +241,21 @@ def nanoAOD_refineFastSim_puppiJet(process):
         btagUParTAK4B=None, btagUParTAK4CvB=None, btagUParTAK4CvL=None, btagUParTAK4QvG=None,
     )
 
+    process.linkedObjectsForPuppiJetRefinement = process.linkedObjects.clone(
+        jets = cms.InputTag("finalJetsPuppi"),
+    )
+    fastSim.toModify(
+        process.jetPuppiTablesTask,
+        process.jetPuppiTablesTask.add(process.linkedObjectsForPuppiJetRefinement)
+    )
+
     # 1. Run refinement model and return features
     process.puppiJetRefineNN = cms.EDProducer(
         "JetBaseMVAValueMapProducer",
         backend             = cms.string("ONNX"),
         batch_eval          = cms.bool(True),
         disableONNXGraphOpt = cms.bool(True),
-        src                 = cms.InputTag("linkedObjects","jets"),  # matches table
+        src                 = cms.InputTag("linkedObjectsForPuppiJetRefinement","jets"),
         weightFile          = cms.FileInPath("PhysicsTools/NanoAOD/data/fastSimPuppiJetRefineNN_31July2025.onnx"),
         name                = cms.string("puppiJetRefineNN"),
         variables = cms.VPSet(
@@ -274,12 +282,12 @@ def nanoAOD_refineFastSim_puppiJet(process):
     fastSim.toModify(process.jetPuppiTablesTask, process.jetPuppiTablesTask.add(process.puppiJetRefineNN))
 
     # Ensure src is what we expect (redundant but explicit)
-    process.puppiJetRefineNN.src = cms.InputTag("linkedObjects","jets")
+    process.puppiJetRefineNN.src = cms.InputTag("linkedObjectsForPuppiJetRefinement","jets")
 
     # 2. Copy the ONNX ValueMaps onto jets as userFloats
     process.finalJetsPuppiWithRefined = cms.EDProducer(
         "PATJetUserDataEmbedder",
-        src = cms.InputTag("linkedObjects","jets"),
+        src = cms.InputTag("linkedObjectsForPuppiJetRefinement","jets"),
         userFloats = cms.PSet(
             ptrefined              = cms.InputTag("puppiJetRefineNN","ptrefined"),
             btagDeepFlavBrefined   = cms.InputTag("puppiJetRefineNN","btagDeepFlavBrefined"),
@@ -293,9 +301,6 @@ def nanoAOD_refineFastSim_puppiJet(process):
         )
     )
     fastSim.toModify(process.jetPuppiTablesTask, process.jetPuppiTablesTask.add(process.finalJetsPuppiWithRefined))
-
-    # Intermediate src: jets with refined userFloats
-    process.jetPuppiTable.src = cms.InputTag("finalJetsPuppiWithRefined")
 
     # 3. Apply mask for all refined quantities in Nano (pt + taggers)
     # Note: we keep all the masking logic here in python.
@@ -353,9 +358,18 @@ def nanoAOD_refineFastSim_puppiJet(process):
         process.jetPuppiTablesTask,
         process.jetPuppiTablesTask.add(process.finalJetsPuppiSorted)
     )
+
+    # PATObjectCrossLinker must see the final jet collection.  The main Jet
+    # table, Jet extension tables, and object jetIdx branches are joined by
+    # NanoAOD row order, so sorting only jetPuppiTable corrupts extension and
+    # cross-object indices.
+    fastSim.toModify(
+        process.linkedObjects,
+        jets = cms.InputTag("finalJetsPuppiSorted")
+    )
     fastSim.toModify(
         process.jetPuppiTable,
-        src = cms.InputTag("finalJetsPuppiSorted")
+        src = cms.InputTag("linkedObjects","jets")
     )
 
     return process

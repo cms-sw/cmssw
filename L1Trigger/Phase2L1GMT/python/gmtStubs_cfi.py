@@ -5,6 +5,7 @@ gmtStubs = cms.EDProducer("Phase2L1TGMTStubProducer",
    srcCSC = cms.InputTag("simCscTriggerPrimitiveDigis"),
    srcDT = cms.InputTag("dtTriggerPhase2PrimitiveDigis"),
    srcDTTheta = cms.InputTag("simDtTriggerPrimitiveDigis"),
+   srcDTPairs = cms.InputTag("dtTriggerPhase2PrimitivePairDigis"),
    srcRPC = cms.InputTag("simMuonRPCDigis"),
    Endcap =cms.PSet(                            
         verbose              = cms.uint32(0),

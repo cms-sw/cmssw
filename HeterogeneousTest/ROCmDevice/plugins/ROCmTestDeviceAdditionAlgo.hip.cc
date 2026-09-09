@@ -21,7 +21,7 @@ namespace HeterogeneousTestROCmDevicePlugins {
                              float* __restrict__ out,
                              size_t size) {
     kernel_add_vectors_f<<<32, 32>>>(in1, in2, out, size);
-    hipCheck(hipGetLastError());
+    HIP_CHECK(hipGetLastError());
   }
 
 }  // namespace HeterogeneousTestROCmDevicePlugins

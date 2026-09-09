@@ -1,3 +1,4 @@
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "RecoHGCal/TICL/interface/TICLInterpretationAlgoBase.h"
 #include "RecoHGCal/TICL/interface/TICLUtils.h"
 #include "RecoHGCal/TICL/plugins/GeneralInterpretationAlgo.h"
@@ -12,12 +13,12 @@ GeneralInterpretationAlgo::~GeneralInterpretationAlgo() {}
 
 GeneralInterpretationAlgo::GeneralInterpretationAlgo(const edm::ParameterSet &conf, edm::ConsumesCollector cc)
     : TICLInterpretationAlgoBase(conf, cc),
-      del_tk_ts_layer1_(conf.getParameter<double>("delta_tk_ts_layer1")),
-      del_tk_ts_int_(conf.getParameter<double>("delta_tk_ts_interface")),
-      timing_quality_threshold_(conf.getParameter<double>("timing_quality_threshold")) {}
+      del_tk_ts_layer1_(conf.getParameter<float>("delta_tk_ts_layer1")),
+      del_tk_ts_int_(conf.getParameter<float>("delta_tk_ts_interface")),
+      timing_quality_threshold_(conf.getParameter<float>("timing_quality_threshold")) {}
 
 void GeneralInterpretationAlgo::initialize(const HGCalDDDConstants *hgcons,
-                                           const hgcal::RecHitTools rhtools,
+                                           const ticlgeom::Tools rhtools,
                                            const edm::ESHandle<MagneticField> bfieldH,
                                            const edm::ESHandle<Propagator> propH) {
   hgcons_ = hgcons;
@@ -108,8 +109,9 @@ void GeneralInterpretationAlgo::findTrackstersInWindow(const edm::MultiSpan<Trac
         const auto &in_tile = tile[tile.globalBin(eta_i, (phi_i % TileConstants::nPhiBins))];
         for (const unsigned &t_i : in_tile) {
           // calculate actual distances of tracksters to the seed for a more accurate cut
-          auto sep2 = (tracksterPropPoints[t_i].Eta() - seed_eta) * (tracksterPropPoints[t_i].Eta() - seed_eta) +
-                      (tracksterPropPoints[t_i].Phi() - seed_phi) * (tracksterPropPoints[t_i].Phi() - seed_phi);
+          const auto dPhi = reco::deltaPhi(tracksterPropPoints[t_i].Phi(), seed_phi);
+          auto sep2 =
+              (tracksterPropPoints[t_i].Eta() - seed_eta) * (tracksterPropPoints[t_i].Eta() - seed_eta) + dPhi * dPhi;
           if (sep2 < delta2) {
             in_delta.push_back(t_i);
             // distances2.push_back(sep2);
@@ -195,7 +197,8 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
                                                edm::Handle<MtdHostCollection> inputTiming_h,
                                                std::vector<Trackster> &resultTracksters,
                                                std::vector<int> &resultCandidate,
-                                               std::vector<bool> &maskedTracksters) {
+                                               std::vector<bool> &maskedTracksters,
+                                               std::vector<std::vector<unsigned int>> &linkedResultTracksters) {
   bool useMTDTiming = inputTiming_h.isValid();
   const auto tkH = input.tracksHandle;
   const auto maskTracks = input.maskedTracks;
@@ -370,13 +373,14 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
     }
     trackstersInTrackIndices[i] = chargedCandidate;
   }
-
+  linkedResultTracksters.reserve(input.tracksters.size());
   for (size_t iTrack = 0; iTrack < trackstersInTrackIndices.size(); iTrack++) {
     if (!trackstersInTrackIndices[iTrack].empty()) {
       if (trackstersInTrackIndices[iTrack].size() == 1) {
         auto tracksterId = trackstersInTrackIndices[iTrack][0];
         resultCandidate[iTrack] = resultTracksters.size();
         resultTracksters.push_back(input.tracksters[tracksterId]);
+        linkedResultTracksters.push_back(trackstersInTrackIndices[iTrack]);
       } else {
         // in this case mergeTracksters() clears the pid probabilities and the regressed energy is not set
         // TODO: fix probabilities when CNN will be splitted
@@ -396,19 +400,21 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
         else
           resultTracksters.back().setIdProbability(ticl::Trackster::ParticleType::electron, 1.f);
       }
+      linkedResultTracksters.push_back(trackstersInTrackIndices[iTrack]);
     }
   }
 
-  for (size_t iTrackster = 0; iTrackster < input.tracksters.size(); iTrackster++) {
+  for (auto iTrackster = 0u; iTrackster < input.tracksters.size(); iTrackster++) {
     if (chargedMask[iTrackster]) {
       resultTracksters.push_back(input.tracksters[iTrackster]);
+      linkedResultTracksters.push_back({iTrackster});
     }
   }
 };
 
 void GeneralInterpretationAlgo::fillPSetDescription(edm::ParameterSetDescription &desc) {
-  desc.add<double>("delta_tk_ts_layer1", 0.02);
-  desc.add<double>("delta_tk_ts_interface", 0.03);
-  desc.add<double>("timing_quality_threshold", 0.5);
+  desc.add<float>("delta_tk_ts_layer1", 0.02);
+  desc.add<float>("delta_tk_ts_interface", 0.03);
+  desc.add<float>("timing_quality_threshold", 0.5);
   TICLInterpretationAlgoBase::fillPSetDescription(desc);
 }

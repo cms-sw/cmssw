@@ -79,15 +79,21 @@ postValidation_common = cms.Sequence()
 # enableTruth (Run4 .88 truth workflows). postValidation_common is the harvesting
 # member of the 'baseValidation' triplet that autoValidation['phase2Validation']
 # schedules - the counterpart of the baseCommon{PreValidation,Validation} hook in
-# globalValidation_cff. The .88 workflows therefore also apply enableTruth to the
-# HARVESTGlobal step (see Configuration/PyReleaseValidation). Import * so the
+# globalValidation_cff. The .88 workflow variant therefore also applies enableTruth to
+# the HARVESTGlobal step (see Configuration/PyReleaseValidation), and the Run4 eras
+# apply it to every step of their workflows. Import * so the
 # harvester modules are labelled when the process loads this cff; reco-side
 # harvesters stay opt-in (see truthGraphDQMHarvester_cff).
 from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 from PhysicsTools.TruthInfo.truthGraphDQMHarvester_cff import *
+# premix_stage2 builds no truth products (see globalValidation_cff), so the harvesting
+# reverts to the truth-free sequence there; the later statement wins.
+_postValidationCommonNoTruth = postValidation_common.copy()
 _postValidationCommonWithTruth = postValidation_common.copy()
 _postValidationCommonWithTruth += truthGraphDQMHarvesting
 enableTruth.toReplaceWith(postValidation_common, _postValidationCommonWithTruth)
+premix_stage2.toReplaceWith(postValidation_common, _postValidationCommonNoTruth)
 
 postValidation_trackingOnly = cms.Sequence(
       postProcessorTrackSequenceTrackingOnly

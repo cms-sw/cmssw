@@ -16,7 +16,7 @@
 #include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cstddef>

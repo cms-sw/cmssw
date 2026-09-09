@@ -37,6 +37,7 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
@@ -286,15 +287,8 @@ namespace edm {
                                                                                processContext));
     }
 
-    globalSchedule_ = std::make_unique<GlobalSchedule>(resultsInserter(),
-                                                       pathStatusInserters_,
-                                                       endPathStatusInserters_,
-                                                       moduleRegistrySharedPtr(),
-                                                       builder.allNeededModules_,
-                                                       prealloc,
-                                                       actions,
-                                                       areg,
-                                                       processContext);
+    globalSchedule_ = std::make_unique<GlobalSchedule>(
+        moduleRegistrySharedPtr(), builder.allNeededModules_, prealloc, actions, areg, processContext);
   }
 
   void Schedule::finishSetup(ParameterSet& proc_pset,
@@ -327,7 +321,7 @@ namespace edm {
     // At this point all ProductDescriptions are created. Mark now the
     // ones of unscheduled workers to be on-demand.
     {
-      auto const& unsched = streamSchedules_[0]->unscheduledWorkersLumisAndEvents();
+      auto const& unsched = streamSchedules_[0]->unscheduledWorkersEvents();
       if (not unsched.empty()) {
         std::set<std::string> unscheduledModules;
         std::transform(unsched.begin(),
@@ -410,7 +404,7 @@ namespace edm {
 
     if (wantSummary_) {
       std::vector<const ModuleDescription*> modDesc;
-      const auto& workers = allWorkers();
+      const auto& workers = allWorkersEvents();
       modDesc.reserve(workers.size());
 
       std::transform(workers.begin(),
@@ -421,13 +415,19 @@ namespace edm {
       // propagate_const<T> has no reset() function
       summaryTimeKeeper_ = std::make_unique<SystemTimeKeeper>(prealloc.numberOfStreams(), modDesc, tns, processContext);
       auto timeKeeperPtr = summaryTimeKeeper_.get();
+      summaryTriggerResultsKeeper_ =
+          std::make_unique<SystemTriggerReportKeeper>(prealloc.numberOfStreams(), modDesc, tns, processContext);
+      auto triggerResultsKeeperPtr = summaryTriggerResultsKeeper_.get();
 
       areg->watchPreModuleDestruction(timeKeeperPtr, &SystemTimeKeeper::removeModuleIfExists);
+      areg->watchPreModuleDestruction(triggerResultsKeeperPtr, &SystemTriggerReportKeeper::removeModuleIfExists);
 
       areg->watchPreModuleEvent(timeKeeperPtr, &SystemTimeKeeper::startModuleEvent);
       areg->watchPostModuleEvent(timeKeeperPtr, &SystemTimeKeeper::stopModuleEvent);
+      areg->watchPostModuleEvent(triggerResultsKeeperPtr, &SystemTriggerReportKeeper::stopModuleEvent);
       areg->watchPreModuleEventAcquire(timeKeeperPtr, &SystemTimeKeeper::restartModuleEvent);
       areg->watchPostModuleEventAcquire(timeKeeperPtr, &SystemTimeKeeper::stopModuleEvent);
+      areg->watchPostModuleEventAcquire(triggerResultsKeeperPtr, &SystemTriggerReportKeeper::checkModuleAcquire);
       areg->watchPreModuleEventDelayedGet(timeKeeperPtr, &SystemTimeKeeper::pauseModuleEvent);
       areg->watchPostModuleEventDelayedGet(timeKeeperPtr, &SystemTimeKeeper::restartModuleEvent);
 
@@ -436,12 +436,10 @@ namespace edm {
 
       areg->watchPrePathEvent(timeKeeperPtr, &SystemTimeKeeper::startPath);
       areg->watchPostPathEvent(timeKeeperPtr, &SystemTimeKeeper::stopPath);
+      areg->watchPostPathEvent(triggerResultsKeeperPtr, &SystemTriggerReportKeeper::stopPath);
 
       areg->watchPostBeginJob(timeKeeperPtr, &SystemTimeKeeper::startProcessingLoop);
       areg->watchPreEndJob(timeKeeperPtr, &SystemTimeKeeper::stopProcessingLoop);
-      //areg->preModuleEventSignal_.connect([timeKeeperPtr](StreamContext const& iContext, ModuleCallingContext const& iMod) {
-      //timeKeeperPtr->startModuleEvent(iContext,iMod);
-      //});
     }
 
   }  // Schedule::Schedule
@@ -788,39 +786,6 @@ namespace edm {
     for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::openFile, _1, std::cref(fb)));
   }
 
-  void Schedule::writeRunAsync(WaitingTaskHolder task,
-                               RunPrincipal const& rp,
-                               ProcessContext const* processContext,
-                               ActivityRegistry* activityRegistry,
-                               MergeableRunProductMetadata const* mergeableRunProductMetadata) {
-    auto token = ServiceRegistry::instance().presentToken();
-    GlobalContext globalContext(GlobalContext::Transition::kWriteRun,
-                                LuminosityBlockID(rp.run(), 0),
-                                rp.index(),
-                                LuminosityBlockIndex::invalidLuminosityBlockIndex(),
-                                rp.endTime(),
-                                processContext);
-
-    using namespace edm::waiting_task;
-    chain::first([&](auto nextTask) {
-      //services can depend on other services
-      ServiceRegistry::Operate op(token);
-
-      // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
-      CMS_SA_ALLOW try { activityRegistry->preGlobalWriteRunSignal_.emit(globalContext); } catch (...) {
-      }
-      for (auto& c : all_output_communicators_) {
-        c->writeRunAsync(nextTask, rp, processContext, activityRegistry, mergeableRunProductMetadata);
-      }
-    }) | chain::then(doCleanup([activityRegistry, globalContext, token]() {
-      //services can depend on other services
-      ServiceRegistry::Operate op(token);
-
-      activityRegistry->postGlobalWriteRunSignal_.emit(globalContext);
-    })) |
-        chain::runLast(task);
-  }
-
   void Schedule::writeProcessBlockAsync(WaitingTaskHolder task,
                                         ProcessBlockPrincipal const& pbp,
                                         ProcessContext const* processContext,
@@ -851,35 +816,6 @@ namespace edm {
         chain::runLast(std::move(task));
   }
 
-  void Schedule::writeLumiAsync(WaitingTaskHolder task,
-                                LuminosityBlockPrincipal const& lbp,
-                                ProcessContext const* processContext,
-                                ActivityRegistry* activityRegistry) {
-    auto token = ServiceRegistry::instance().presentToken();
-    GlobalContext globalContext(GlobalContext::Transition::kWriteLuminosityBlock,
-                                lbp.id(),
-                                lbp.runPrincipal().index(),
-                                lbp.index(),
-                                lbp.beginTime(),
-                                processContext);
-
-    using namespace edm::waiting_task;
-    chain::first([&](auto nextTask) {
-      ServiceRegistry::Operate op(token);
-      CMS_SA_ALLOW try { activityRegistry->preGlobalWriteLumiSignal_.emit(globalContext); } catch (...) {
-      }
-      for (auto& c : all_output_communicators_) {
-        c->writeLumiAsync(nextTask, lbp, processContext, activityRegistry);
-      }
-    }) | chain::then(doCleanup([activityRegistry, globalContext, token]() {
-      //services can depend on other services
-      ServiceRegistry::Operate op(token);
-
-      activityRegistry->postGlobalWriteLumiSignal_.emit(globalContext);
-    })) |
-        chain::runLast(task);
-  }
-
   bool Schedule::shouldWeCloseOutput() const {
     using std::placeholders::_1;
     // Return true iff at least one output module returns true.
@@ -902,10 +838,10 @@ namespace edm {
                           ProcessBlockHelperBase const& processBlockHelperBase,
                           std::string const& iProcessName) {
     {
+      auto postGuard = signalslot::make_sentry([this]() { postModulesInitializationFinalizedSignal_.emit(); });
       preModulesInitializationFinalizedSignal_.emit();
-      auto post = [this](void*) { postModulesInitializationFinalizedSignal_.emit(); };
-      std::unique_ptr<void, decltype(post)> const postGuard(this, post);
       finishModulesInitialization(*moduleRegistry_, iRegistry, iESIndices, processBlockHelperBase, iProcessName);
+      postGuard.succeeded();
     }
     globalSchedule_->beginJob(*moduleRegistry_);
   }
@@ -933,7 +869,7 @@ namespace edm {
                               const SignallingProductRegistryFiller& iRegistry,
                               eventsetup::ESRecordsToProductResolverIndices const& iIndices) {
     Worker* found = nullptr;
-    for (auto const& worker : allWorkers()) {
+    for (auto const& worker : allWorkersEvents()) {
       if (worker->description()->moduleLabel() == iLabel) {
         found = worker;
         break;
@@ -1001,7 +937,9 @@ namespace edm {
     moduleRegistry_->forAllModuleHolders([&](auto const* iHolder) { result.push_back(&iHolder->moduleDescription()); });
     return result;
   }
-  Schedule::AllWorkers const& Schedule::allWorkers() const { return globalSchedule_->allWorkers(); }
+  Schedule::AllWorkers const& Schedule::allWorkersEvents() const { return streamSchedules_[0]->allWorkersEvents(); }
+  Schedule::AllWorkers const& Schedule::allWorkersRun() const { return globalSchedule_->runWorkers(); }
+  Schedule::AllWorkers const& Schedule::allWorkersLumis() const { return globalSchedule_->lumisWorkers(); }
 
   void Schedule::convertCurrentProcessAlias(std::string const& processName) {
     moduleRegistry_->forAllModuleHolders([&](auto& iHolder) { iHolder->convertCurrentProcessAlias(processName); });
@@ -1042,6 +980,7 @@ namespace edm {
     for (auto& s : streamSchedules_) {
       s->getTriggerReport(rep);
     }
+    summaryTriggerResultsKeeper_->fillTriggerReport(rep);
     sort_all(rep.workerSummaries);
   }
 

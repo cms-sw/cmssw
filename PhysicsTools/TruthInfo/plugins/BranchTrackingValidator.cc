@@ -1,6 +1,4 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-// Part of the MC-truth-graph prototype - under heavy development, not yet open
-// to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 // DQM performance plots for the truth::Branch graph as a replacement for the
 // TrackingParticle in track->truth association - the tracker counterpart of
@@ -42,6 +40,7 @@
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
 
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
+#include "PhysicsTools/TruthInfo/interface/SubgraphHitView.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
 #include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
@@ -153,7 +152,7 @@ namespace {
     uint32_t sharedHits = 0;
   };
 
-  BestMatch tightestBest(std::vector<truth::BranchMatch> const& matches, truth::LogicalGraphHitIndex const& hitIndex) {
+  BestMatch tightestBest(std::vector<truth::BranchMatch> const& matches, truth::SubgraphHitView& hitIndex) {
     if (matches.empty())
       return {};
     const float best = matches.front().score;
@@ -178,6 +177,7 @@ void BranchTrackingValidator::analyze(edm::Event const& event, edm::EventSetup c
   auto const& graph = event.get(graphToken_);
   auto const& raw = event.get(rawToken_);
   auto const& hitIndex = event.get(hitIndexToken_);
+  truth::SubgraphHitView subgraphView(hitIndex);
   auto const& tracks = event.get(trackToken_);
   auto const& clusterTP = event.get(clusterTPToken_);
 
@@ -205,7 +205,7 @@ void BranchTrackingValidator::analyze(edm::Event const& event, edm::EventSetup c
     std::vector<truth::BranchMatch> matches;
     if (!trackHits.empty()) {
       matches = assoc.bestBranches(std::span<const truth::RecoHit>(trackHits));
-      branch = tightestBest(matches, hitIndex);
+      branch = tightestBest(matches, subgraphView);
     }
 
     // TP side: shared clusters via ClusterTPAssociation -> dominant TP -> particle.

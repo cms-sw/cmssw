@@ -60,7 +60,7 @@ private:
 void setCudaLimit(cudaLimit limit, const char* name, size_t request) {
   // read the current device
   int device;
-  cudaCheck(cudaGetDevice(&device));
+  CUDA_CHECK(cudaGetDevice(&device));
   // try to set the requested limit
   auto result = cudaDeviceSetLimit(limit, request);
   if (cudaErrorUnsupportedLimit == result) {
@@ -167,14 +167,14 @@ namespace {
 
   void devicePreallocate(int numberOfDevices, const std::vector<unsigned int>& bufferSizes) {
     int device;
-    cudaCheck(cudaGetDevice(&device));
+    CUDA_CHECK(cudaGetDevice(&device));
     for (int i = 0; i < numberOfDevices; ++i) {
-      cudaCheck(cudaSetDevice(i));
+      CUDA_CHECK(cudaSetDevice(i));
       preallocate<cms::cuda::device::unique_ptr>(
           [&](size_t size, cudaStream_t stream) { return cms::cuda::make_device_unique<char[]>(size, stream); },
           bufferSizes);
     }
-    cudaCheck(cudaSetDevice(device));
+    CUDA_CHECK(cudaSetDevice(device));
   }
 
   void hostPreallocate(const std::vector<unsigned int>& bufferSizes) {
@@ -209,19 +209,19 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
     std::strncpy(systemDriverVersion, "unknown", sizeof(systemDriverVersion) - 1);
     systemDriverVersion[sizeof(systemDriverVersion) - 1] = '\0';
   } else {
-    nvmlCheck(nvmlSystemGetDriverVersion(systemDriverVersion, sizeof(systemDriverVersion)));
-    nvmlCheck(nvmlShutdown());
+    NVML_CHECK(nvmlSystemGetDriverVersion(systemDriverVersion, sizeof(systemDriverVersion)));
+    NVML_CHECK(nvmlShutdown());
   }
 
   // CUDA driver version, e.g. 11.4
   // the full version, like 11.4.1 or 11.4.100, is not reported
   int driverVersion = 0;
-  cudaCheck(cudaDriverGetVersion(&driverVersion));
+  CUDA_CHECK(cudaDriverGetVersion(&driverVersion));
 
   // CUDA runtime version, e.g. 11.4
   // the full version, like 11.4.1 or 11.4.108, is not reported
   int runtimeVersion = 0;
-  cudaCheck(cudaRuntimeGetVersion(&runtimeVersion));
+  CUDA_CHECK(cudaRuntimeGetVersion(&runtimeVersion));
 
   edm::LogInfo log("CUDAService");
   if (verbose_) {
@@ -248,7 +248,7 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
     // read information about the compute device.
     // see the documentation of cudaGetDeviceProperties() for more information.
     cudaDeviceProp properties;
-    cudaCheck(cudaGetDeviceProperties(&properties, i));
+    CUDA_CHECK(cudaGetDeviceProperties(&properties, i));
     log << '\n' << "CUDA device " << i << ": " << properties.name;
     if (verbose_) {
       log << '\n';
@@ -275,7 +275,7 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
 #if CUDART_VERSION < 13000
       singleToDoublePrecisionPerfRatio = properties.singleToDoublePrecisionPerfRatio;
 #else
-      cudaCheck(
+      CUDA_CHECK(
           cudaDeviceGetAttribute(&singleToDoublePrecisionPerfRatio, cudaDevAttrSingleToDoublePrecisionPerfRatio, i));
 #endif
       log << "  single to double performance: " << std::setw(8) << singleToDoublePrecisionPerfRatio << ":1\n";
@@ -294,7 +294,7 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
 #if CUDART_VERSION < 13000
       computeMode = properties.computeMode;
 #else
-      cudaCheck(cudaDeviceGetAttribute(&computeMode, cudaDevAttrComputeMode, i));
+      CUDA_CHECK(cudaDeviceGetAttribute(&computeMode, cudaDevAttrComputeMode, i));
 #endif
       if (computeMode < 0 or computeMode >= cudaComputeModeUnknown) {
         computeMode = cudaComputeModeUnknown;
@@ -303,14 +303,14 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
     }
 
     // TODO if a device is in exclusive use, skip it and remove it from the list, instead of failing with abort()
-    cudaCheck(cudaSetDevice(i));
-    cudaCheck(cudaSetDeviceFlags(cudaDeviceScheduleAuto | cudaDeviceMapHost));
+    CUDA_CHECK(cudaSetDevice(i));
+    CUDA_CHECK(cudaSetDeviceFlags(cudaDeviceScheduleAuto | cudaDeviceMapHost));
 
     // read the free and total amount of memory available for allocation by the device, in bytes.
     // see the documentation of cudaMemGetInfo() for more information.
     if (verbose_) {
       size_t freeMemory, totalMemory;
-      cudaCheck(cudaMemGetInfo(&freeMemory, &totalMemory));
+      CUDA_CHECK(cudaMemGetInfo(&freeMemory, &totalMemory));
       log << "  memory: " << std::setw(6) << freeMemory / (1 << 20) << " MB free / " << std::setw(6)
           << totalMemory / (1 << 20) << " MB total\n";
       log << "  constant memory:               " << std::setw(6) << properties.totalConstMem / (1 << 10) << " kB\n";
@@ -357,7 +357,7 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
     if (verbose_) {
       log << "CUDA flags\n";
       unsigned int flags;
-      cudaCheck(cudaGetDeviceFlags(&flags));
+      CUDA_CHECK(cudaGetDeviceFlags(&flags));
       switch (flags & cudaDeviceScheduleMask) {
         case cudaDeviceScheduleAuto:
           log << "  thread policy:                   default\n";
@@ -417,14 +417,14 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
     if (verbose_) {
       size_t value;
       log << "CUDA limits\n";
-      cudaCheck(cudaDeviceGetLimit(&value, cudaLimitPrintfFifoSize));
+      CUDA_CHECK(cudaDeviceGetLimit(&value, cudaLimitPrintfFifoSize));
       log << "  printf buffer size:        " << std::setw(10) << value / (1 << 20) << " MB\n";
-      cudaCheck(cudaDeviceGetLimit(&value, cudaLimitStackSize));
+      CUDA_CHECK(cudaDeviceGetLimit(&value, cudaLimitStackSize));
       log << "  stack size:                " << std::setw(10) << value / (1 << 10) << " kB\n";
-      cudaCheck(cudaDeviceGetLimit(&value, cudaLimitMallocHeapSize));
+      CUDA_CHECK(cudaDeviceGetLimit(&value, cudaLimitMallocHeapSize));
       log << "  malloc heap size:          " << std::setw(10) << value / (1 << 20) << " MB\n";
       if ((properties.major > 3) or (properties.major == 3 and properties.minor >= 5)) {
-        cudaCheck(cudaDeviceGetLimit(&value, cudaLimitDevRuntimePendingLaunchCount));
+        CUDA_CHECK(cudaDeviceGetLimit(&value, cudaLimitDevRuntimePendingLaunchCount));
         log << "  runtime pending launch count: " << std::setw(10) << value << '\n';
       }
     }
@@ -468,8 +468,8 @@ CUDAService::~CUDAService() {
     cms::cuda::getStreamCache().clear();
 
     for (int i = 0; i < numberOfDevices_; ++i) {
-      cudaCheck(cudaSetDevice(i));
-      cudaCheck(cudaDeviceSynchronize());
+      CUDA_CHECK(cudaSetDevice(i));
+      CUDA_CHECK(cudaDeviceSynchronize());
       // Explicitly destroys and cleans up all resources associated with the current device in the
       // current process. Any subsequent API call to this device will reinitialize the device.
       // Useful to check for memory leaks with `cuda-memcheck --tool memcheck --leak-check full`.

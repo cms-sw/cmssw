@@ -81,7 +81,7 @@ multiTrackValidator = DQMEDAnalyzer(
     ### Do plots only if first reco vertex is from hard scatter?
     doPlotsOnlyForTruePV = cms.untracked.bool(False),
     label_vertex = cms.untracked.InputTag("offlinePrimaryVertices"),
-    vertexAssociator = cms.untracked.InputTag("VertexAssociatorByPositionAndTracks"),
+    vertexAssociator = cms.untracked.InputTag("vertexAssociatorByPositionAndTracksProducer"),
 
     simPVMaxZ = cms.untracked.double(-1),
 

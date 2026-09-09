@@ -39,6 +39,7 @@
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Signal.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 
 namespace edm {
 
@@ -179,18 +180,12 @@ namespace edm {
                             edm::ESParentContext pc{&context};
                             rec.setImpl(record, Base::produceMethodID(), resolvers, eventSetupImpl, &pc);
                             ServiceRegistry::Operate operate(serviceToken.lock());
+                            auto guard = signalslot::make_sentry([&record, &context]() {
+                              record->activityRegistry()->postESModuleAcquireSignal_.emit(record->key(), context);
+                            });
                             record->activityRegistry()->preESModuleAcquireSignal_.emit(record->key(), context);
-                            struct EndGuard {
-                              EndGuard(EventSetupRecordImpl const* iRecord, ESModuleCallingContext const& iContext)
-                                  : record_{iRecord}, context_{iContext} {}
-                              ~EndGuard() {
-                                record_->activityRegistry()->postESModuleAcquireSignal_.emit(record_->key(), context_);
-                              }
-                              EventSetupRecordImpl const* record_;
-                              ESModuleCallingContext const& context_;
-                            };
-                            EndGuard guard(record, context);
                             acquireCache_ = (*acquireFunction_)(rec, WaitingTaskWithArenaHolder(holder));
+                            guard.succeeded();
                           });
                         } catch (cms::Exception& iException) {
                           iException.addContext("Running acquire");

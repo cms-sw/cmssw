@@ -376,11 +376,13 @@ namespace cms::alpakatools {
       for (auto iBlock = begin; iBlock != end; ++iBlock) {
         if ((reuseSameQueueAllocations_ and (*block.queue == *(iBlock->second.queue))) or
             alpaka::isComplete(*(iBlock->second.event))) {
-          // associate the cached buffer to the new queue
+          // associate the cached buffer to the new queue and update the requested size
           auto queue = std::move(*(block.queue));
+          auto requested = block.requested;
           // TODO cache (or remove) the debug information and use std::move()
           block = iBlock->second;
           block.queue = std::move(queue);
+          block.requested = requested;
 
           // if the new queue is on different device than the old event, create a new event
           if (block.device() != alpaka::getDev(*(block.event))) {

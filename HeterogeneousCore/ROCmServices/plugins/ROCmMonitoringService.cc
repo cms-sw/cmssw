@@ -79,16 +79,16 @@ namespace {
   template <typename T>
   void dumpUsedMemory(T& log, int num) {
     int old = 0;
-    hipCheck(hipGetDevice(&old));
+    HIP_CHECK(hipGetDevice(&old));
     constexpr auto mbytes = 1 << 20;
     for (int i = 0; i < num; ++i) {
       size_t freeMemory, totalMemory;
-      hipCheck(hipSetDevice(i));
-      hipCheck(hipMemGetInfo(&freeMemory, &totalMemory));
+      HIP_CHECK(hipSetDevice(i));
+      HIP_CHECK(hipMemGetInfo(&freeMemory, &totalMemory));
       log << "\n"
           << i << ": " << (totalMemory - freeMemory) / mbytes << " MB used / " << totalMemory / mbytes << " MB total";
     }
-    hipCheck(hipSetDevice(old));
+    HIP_CHECK(hipSetDevice(old));
   }
 }  // namespace
 

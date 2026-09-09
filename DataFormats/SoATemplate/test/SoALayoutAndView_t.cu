@@ -115,7 +115,7 @@ int main(void) {
   cms::cudatest::requireDevices();
 
   cudaStream_t stream;
-  cudaCheck(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
+  CUDA_CHECK(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
 
   // Non-aligned number of elements to check alignment features.
   constexpr unsigned int numElements = 65537;
@@ -123,7 +123,7 @@ int main(void) {
   // Allocate buffer and store on host
   size_t hostDeviceSize = SoAHostDeviceLayout::computeDataSize(numElements);
   std::byte* h_buf = nullptr;
-  cudaCheck(cudaMallocHost(&h_buf, hostDeviceSize));
+  CUDA_CHECK(cudaMallocHost(&h_buf, hostDeviceSize));
   SoAHostDeviceLayout h_soahdLayout(h_buf, numElements);
   SoAHostDeviceView h_soahd(h_soahdLayout);
 
@@ -137,7 +137,7 @@ int main(void) {
   // Alocate buffer, stores and views on the device (single, shared buffer).
   size_t deviceOnlySize = SoADeviceOnlyLayout::computeDataSize(numElements);
   std::byte* d_buf = nullptr;
-  cudaCheck(cudaMallocHost(&d_buf, hostDeviceSize + deviceOnlySize));
+  CUDA_CHECK(cudaMallocHost(&d_buf, hostDeviceSize + deviceOnlySize));
   SoAHostDeviceLayout d_soahdLayout(d_buf, numElements);
   SoADeviceOnlyLayout d_soadoLayout(d_soahdLayout.metadata().nextByte(), numElements);
   SoAHostDeviceView d_soahdView(d_soahdLayout);
@@ -228,13 +228,13 @@ int main(void) {
   sn = numElements + 2;
 
   // Push to device
-  cudaCheck(cudaMemcpyAsync(d_buf, h_buf, hostDeviceSize, cudaMemcpyDefault, stream));
+  CUDA_CHECK(cudaMemcpyAsync(d_buf, h_buf, hostDeviceSize, cudaMemcpyDefault, stream));
 
   // Process on device
   crossProduct<<<(numElements + 255) / 256, 256, 0, stream>>>(d_soahdView, numElements);
 
   // Paint the device only with 0xFF initially
-  cudaCheck(cudaMemsetAsync(d_soadoLayout.metadata().data(), 0xFF, d_soadoLayout.metadata().byteSize(), stream));
+  CUDA_CHECK(cudaMemsetAsync(d_soadoLayout.metadata().data(), 0xFF, d_soadoLayout.metadata().byteSize(), stream));
 
   // Produce to the device only area
   producerKernel<<<(numElements + 255) / 256, 256, 0, stream>>>(d_soaFullView, numElements);
@@ -243,10 +243,10 @@ int main(void) {
   consumerKernel<<<(numElements + 255) / 256, 256, 0, stream>>>(d_soaFullView, numElements);
 
   // Get result back
-  cudaCheck(cudaMemcpyAsync(h_buf, d_buf, hostDeviceSize, cudaMemcpyDefault, stream));
+  CUDA_CHECK(cudaMemcpyAsync(h_buf, d_buf, hostDeviceSize, cudaMemcpyDefault, stream));
 
   // Wait and validate.
-  cudaCheck(cudaStreamSynchronize(stream));
+  CUDA_CHECK(cudaStreamSynchronize(stream));
   for (size_t i = 0; i < numElements; ++i) {
     auto si = h_soahd_c[i];
     assert(si.r() == si.a().cross(si.b()));
@@ -322,7 +322,7 @@ int main(void) {
 
   // Wait and confirm that the CUDA kernel failed
   try {
-    cudaCheck(cudaStreamSynchronize(stream));
+    CUDA_CHECK(cudaStreamSynchronize(stream));
     std::cout << "Fail: expected range-check exception not caught while executing the kernel." << std::endl;
     assert(false);
   } catch (const std::runtime_error&) {

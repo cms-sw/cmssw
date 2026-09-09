@@ -6,6 +6,8 @@
 
 #include "DataFormats/SoATemplate/interface/SoABlocks.h"
 
+using namespace Catch::Matchers;
+
 // This file tests the main properties of SoABlocks
 
 GENERATE_SOA_LAYOUT(SoAPositionTemplate,
@@ -22,14 +24,23 @@ GENERATE_SOA_LAYOUT(SoAPCATemplate,
 
 GENERATE_SOA_LAYOUT(SoATemplate, SOA_SCALAR(int, id), SOA_SCALAR(int, type), SOA_SCALAR(float, energy))
 
+GENERATE_SOA_LAYOUT(
+    SimpleLayoutTemplate, SOA_COLUMN(float, x), SOA_COLUMN(float, y), SOA_COLUMN(float, z), SOA_COLUMN(float, t))
+
 GENERATE_SOA_BLOCKS(SoABlocksTemplate,
                     SOA_BLOCK(position, SoAPositionTemplate),
                     SOA_BLOCK(pca, SoAPCATemplate),
                     SOA_BLOCK(scalars, SoATemplate))
 
+GENERATE_SOA_BLOCKS(NestedBlocksTemplate, SOA_BLOCK(blocks, SoABlocksTemplate), SOA_BLOCK(simple, SimpleLayoutTemplate))
+
 using SoABlocks = SoABlocksTemplate<>;
 using SoABlocksView = SoABlocks::View;
 using SoABlocksConstView = SoABlocks::ConstView;
+
+using NestedBlocks = NestedBlocksTemplate<>;
+using NestedBlocksView = NestedBlocks::View;
+using NestedBlocksConstView = NestedBlocks::ConstView;
 
 TEST_CASE("SoABlocks") {
   // Create a SoABlocks instance with three blocks of different sizes
@@ -233,5 +244,67 @@ TEST_CASE("SoABlocks") {
     REQUIRE(noRestrictBlockConstView.pca().rangeChecking == cms::soa::RangeChecking::Default);
     REQUIRE(noRestrictBlockConstView.scalars().restrictQualify == cms::soa::RestrictQualify::disabled);
     REQUIRE(noRestrictBlockConstView.scalars().rangeChecking == cms::soa::RangeChecking::Default);
+  }
+
+  SECTION("Check extended blocks layout") {
+    std::array<cms::soa::size_type, 4> sizes{{11, 12, 13, 14}};
+    const std::size_t blocksExtendedBufferSize = NestedBlocks::computeDataSize(sizes);
+
+    std::unique_ptr<std::byte, decltype(std::free) *> buffer{
+        reinterpret_cast<std::byte *>(aligned_alloc(NestedBlocks::alignment, blocksExtendedBufferSize)), std::free};
+
+    NestedBlocks NestedBlocksSoA(buffer.get(), sizes);
+    NestedBlocksView nestedBlocksView{NestedBlocksSoA};
+    NestedBlocksConstView nestedBlocksConstView{NestedBlocksSoA};
+
+    nestedBlocksView.blocks().position().detectorType() = 1;
+    for (int i = 0; i < nestedBlocksView.metadata().size()[0]; ++i) {
+      nestedBlocksView.blocks().position()[i] = {0.1f, 0.2f, 0.3f};
+    }
+
+    for (int i = 0; i < nestedBlocksView.metadata().size()[1]; ++i) {
+      nestedBlocksView.blocks().pca()[i].vector_1() = 0.0f;
+      nestedBlocksView.blocks().pca()[i].vector_2() = 0.0f;
+      nestedBlocksView.blocks().pca()[i].vector_3() = 1.0f;
+      nestedBlocksView.blocks().pca()[i].candidateDirection() = Eigen::Vector3d(1.0, 0.0, 0.0);
+    }
+    nestedBlocksView.blocks().scalars().id() = 42;
+    nestedBlocksView.blocks().scalars().type() = 1;
+    nestedBlocksView.blocks().scalars().energy() = 100.0f;
+
+    for (int i = 0; i < nestedBlocksView.metadata().size()[3]; ++i) {
+      nestedBlocksView.simple()[i] = {2.1f, 2.2f, 2.3f, 2.4f};
+    }
+
+    REQUIRE(NestedBlocksSoA.blocks().position().metadata().size() == 11);
+    REQUIRE(NestedBlocksSoA.blocks().pca().metadata().size() == 12);
+    REQUIRE(NestedBlocksSoA.blocks().scalars().metadata().size() == 13);
+    REQUIRE(NestedBlocksSoA.simple().metadata().size() == 14);
+
+    REQUIRE(nestedBlocksConstView.blocks().position().detectorType() == 1);
+    for (int i = 0; i < nestedBlocksConstView.metadata().size()[0]; ++i) {
+      REQUIRE_THAT(nestedBlocksConstView.blocks().position()[i].x(), WithinRel(0.1f));
+      REQUIRE_THAT(nestedBlocksConstView.blocks().position()[i].y(), WithinRel(0.2f));
+      REQUIRE_THAT(nestedBlocksConstView.blocks().position()[i].z(), WithinRel(0.3f));
+    }
+
+    for (int i = 0; i < nestedBlocksConstView.metadata().size()[1]; ++i) {
+      REQUIRE_THAT(nestedBlocksConstView.blocks().pca()[i].vector_1(), WithinRel(0.0f));
+      REQUIRE_THAT(nestedBlocksConstView.blocks().pca()[i].vector_2(), WithinRel(0.0f));
+      REQUIRE_THAT(nestedBlocksConstView.blocks().pca()[i].vector_3(), WithinRel(1.0f));
+      REQUIRE_THAT(nestedBlocksConstView.blocks().pca()[i].candidateDirection()[0], WithinRel(1.0));
+      REQUIRE_THAT(nestedBlocksConstView.blocks().pca()[i].candidateDirection()[1], WithinRel(0.0));
+      REQUIRE_THAT(nestedBlocksConstView.blocks().pca()[i].candidateDirection()[2], WithinRel(0.0));
+    }
+    REQUIRE(nestedBlocksConstView.blocks().scalars().id() == 42);
+    REQUIRE(nestedBlocksConstView.blocks().scalars().type() == 1);
+    REQUIRE_THAT(nestedBlocksConstView.blocks().scalars().energy(), WithinRel(100.0f));
+
+    for (int i = 0; i < nestedBlocksConstView.metadata().size()[3]; ++i) {
+      REQUIRE_THAT(nestedBlocksConstView.simple()[i].x(), WithinRel(2.1f));
+      REQUIRE_THAT(nestedBlocksConstView.simple()[i].y(), WithinRel(2.2f));
+      REQUIRE_THAT(nestedBlocksConstView.simple()[i].z(), WithinRel(2.3f));
+      REQUIRE_THAT(nestedBlocksConstView.simple()[i].t(), WithinRel(2.4f));
+    }
   }
 }

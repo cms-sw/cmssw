@@ -753,9 +753,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
           for (unsigned int hitIndex : cms::alpakatools::uniform_elements_x(acc, limit)) {
             unsigned int innerMDArrayIdx = hitIndex / nOuterMDs;
-            unsigned int outerMDArrayIdx = hitIndex % nOuterMDs;
-
             unsigned int innerMDIndex = ranges.mdRanges()[innerLowerModuleIndex][0] + innerMDArrayIdx;
+            if (mds.connectedMax()[innerMDIndex] == 0)
+              continue;
+
+            unsigned int outerMDArrayIdx = hitIndex % nOuterMDs;
             unsigned int outerMDIndex = ranges.mdRanges()[outerLowerModuleIndex][0] + outerMDArrayIdx;
 
             float dPhi, dPhiMin, dPhiMax, dPhiChange, dPhiChangeMin, dPhiChangeMax;

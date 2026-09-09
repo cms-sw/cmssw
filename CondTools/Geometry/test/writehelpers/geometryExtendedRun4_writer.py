@@ -9,7 +9,7 @@ process.load('CondCore.CondDB.CondDB_cfi')
 # 2) GEM, if Configuration.Geometry.GeometryExtendedRun4D77_cff is used (ScenarioRun4D77 has to be set in DD4hep_GeometrySimPhase2_cff)  
 # Please add the right Scenario (D110 or ..) also in geometryExtendedRun4_xmlwriter.py and in splitExtendedRun4Database.sh 
 #
-process.load('Configuration.Geometry.GeometryExtendedRun4D121_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D127_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
 process.load('Configuration.StandardSequences.DD4hep_GeometrySimPhase2_cff')
@@ -24,7 +24,7 @@ process.source = cms.Source("EmptyIOVSource",
                             )
 
 process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
-                                           XMLFileName = cms.untracked.string("./geD49SingleBigFile.xml"),
+                                           XMLFileName = cms.untracked.string("./geD127SingleBigFile.xml"),
                                            ZIP = cms.untracked.bool(True)
                                            )
 

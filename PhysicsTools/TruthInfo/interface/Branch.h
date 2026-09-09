@@ -1,6 +1,4 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-// Part of the MC-truth-graph prototype - under heavy development, not yet open
-// to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 #ifndef PhysicsTools_TruthInfo_interface_Branch_h
 #define PhysicsTools_TruthInfo_interface_Branch_h
@@ -73,7 +71,10 @@ namespace truth {
     [[nodiscard]] int bunchCrossing() const;
     [[nodiscard]] int event() const;
     [[nodiscard]] bool isInTime() const { return bunchCrossing() == 0; }
-    [[nodiscard]] bool isFromPileup() const { return bunchCrossing() != 0; }
+    // Anything that is not the signal interaction. NOT bunchCrossing() != 0: in-time
+    // pileup carries bunch crossing 0 and a nonzero event number, and the default
+    // production keeps in-time pileup only.
+    [[nodiscard]] bool isFromPileup() const { return !isSignal(); }
     [[nodiscard]] bool isSignal() const { return bunchCrossing() == 0 && event() == 0; }
 
     // Relations between branches.

@@ -13,7 +13,6 @@
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/src/ProductDeletedException.h"
-#include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "DroppedDataProductResolver.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -653,7 +652,7 @@ namespace edm {
   }
 
   void Principal::put_(std::unique_ptr<WrapperBase> prod, ProductResolverBase const* phb) const {
-    dynamic_cast<ProductPutterBase const*>(phb)->putProduct(std::move(prod));
+    phb->putProduct(std::move(prod));
   }
 
   void Principal::put_(ProductDescription const& bd, std::unique_ptr<WrapperBase> edp) const {

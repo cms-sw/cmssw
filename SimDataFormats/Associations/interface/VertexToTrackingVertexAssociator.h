@@ -7,10 +7,15 @@
 #include "DataFormats/Common/interface/Uninitialized.h"
 
 namespace reco {
+  template <typename VertexCollection>
   class VertexToTrackingVertexAssociator {
   public:
+    using VertexType = typename VertexCollection::value_type;
+    using SimToRecoCollection = VertexToTrackingVertexAssociatorBaseImpl<VertexCollection>::SimToRecoCollection;
+    using RecoToSimCollection = VertexToTrackingVertexAssociatorBaseImpl<VertexCollection>::RecoToSimCollection;
+
 #ifndef __GCCXML__
-    VertexToTrackingVertexAssociator(std::unique_ptr<reco::VertexToTrackingVertexAssociatorBaseImpl>);
+    VertexToTrackingVertexAssociator(std::unique_ptr<reco::VertexToTrackingVertexAssociatorBaseImpl<VertexCollection>>);
 #endif
     VertexToTrackingVertexAssociator() = delete;
     explicit VertexToTrackingVertexAssociator(edm::Uninitialized) noexcept {};
@@ -25,21 +30,21 @@ namespace reco {
     // ---------- const member functions ---------------------
     /// compare reco to sim the handle of reco::Vertex and TrackingVertex
     /// collections
-    reco::VertexRecoToSimCollection associateRecoToSim(const edm::Handle<edm::View<reco::Vertex>> &vCH,
-                                                       const edm::Handle<TrackingVertexCollection> &tVCH) const {
+    RecoToSimCollection associateRecoToSim(const edm::Handle<edm::View<VertexType>> &vCH,
+                                           const edm::Handle<TrackingVertexCollection> &tVCH) const {
       return m_impl->associateRecoToSim(vCH, tVCH);
     }
 
     /// compare reco to sim the handle of reco::Vertex and TrackingVertex
     /// collections
-    reco::VertexSimToRecoCollection associateSimToReco(const edm::Handle<edm::View<reco::Vertex>> &vCH,
-                                                       const edm::Handle<TrackingVertexCollection> &tVCH) const {
+    SimToRecoCollection associateSimToReco(const edm::Handle<edm::View<VertexType>> &vCH,
+                                           const edm::Handle<TrackingVertexCollection> &tVCH) const {
       return m_impl->associateSimToReco(vCH, tVCH);
     }
 
   private:
     // ---------- member data --------------------------------
-    std::unique_ptr<VertexToTrackingVertexAssociatorBaseImpl> m_impl;
+    std::unique_ptr<VertexToTrackingVertexAssociatorBaseImpl<VertexCollection>> m_impl;
   };
 }  // namespace reco
 

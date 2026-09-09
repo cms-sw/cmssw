@@ -168,14 +168,12 @@ public:
   // The view must point to data in host memory.
   void deepCopy(ConstView const& view) { layout_.deepCopy(view); }
 
-  // Copy column by column heterogeneously for device to host data transfer.
-  // TODO: implement heterogeneous deepCopy for SoA blocks
+  // Copy column by column or block by block heterogeneously for device to host data transfer.
   template <typename TQueue>
-    requires(alpaka::isQueue<TQueue> && (!requires { Layout::blocksNumber; }))
   void deepCopy(TQueue& queue, ConstView const& view) {
     ConstDescriptor desc{view};
     Descriptor desc_{view_};
-    portablecollection::deepCopy<0>(queue, desc_, desc);
+    portablecollection::deepCopy(queue, desc_, desc);
   }
 
   // Either Layout::size_type for normal layouts or std::array<Layout::size_type, N> for SoABlocks layouts

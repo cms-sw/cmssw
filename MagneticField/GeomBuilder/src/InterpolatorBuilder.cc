@@ -23,16 +23,10 @@
 #include "MagneticField/Interpolation/interface/MFGrid.h"
 
 #include "DataFormats/Math/interface/angle_units.h"
-//
-// constants, enums and typedefs
-//
+#include <fstream>
 
 namespace magneticfield {
   using namespace angle_units::operators;
-
-  //
-  // static data member definitions
-  //
 
   //
   // constructors and destructor
@@ -41,10 +35,17 @@ namespace magneticfield {
       : tableSet_(std::move(iTableSet)) {
     if (not useMergeFileIfAvailable)
       return;
-    auto indexFileName = edm::FileInPath::findFile("MagneticField/Interpolation/data/" + tableSet_ + "/merged.index");
-    if (not indexFileName.empty()) {
-      auto binaryFileName = edm::FileInPath::findFile("MagneticField/Interpolation/data/" + tableSet_ + "/merged.bin");
-      if (not binaryFileName.empty()) {
+    if (tableSet_ != "fake") {
+      tableSet_ += "/";
+      std::string indexFileName, binaryFileName;
+      if (tableSet_.starts_with("/")) {
+        indexFileName = tableSet_ + "merged.index";
+        binaryFileName = tableSet_ + "merged.bin";
+      } else {
+        indexFileName = edm::FileInPath::findFile("MagneticField/Interpolation/data/" + tableSet_ + "merged.index");
+        binaryFileName = edm::FileInPath::findFile("MagneticField/Interpolation/data/" + tableSet_ + "merged.bin");
+      }
+      if (not indexFileName.empty() and not binaryFileName.empty()) {
         std::ifstream indexFile(indexFileName);
         while (indexFile) {
           std::string magFile;
@@ -60,7 +61,7 @@ namespace magneticfield {
   //
   // member functions
   //
-  std::unique_ptr<MagProviderInterpol> InterpolatorBuilder::build(volumeHandle const* vol) {
+  std::unique_ptr<MagProviderInterpol> InterpolatorBuilder::build(BaseVolumeHandle const* vol) {
     if (tableSet_ == "fake" || vol->magFile == "fake") {
       return std::make_unique<magneticfield::FakeInterpolator>();
     }
@@ -84,11 +85,16 @@ namespace magneticfield {
     }
 
     if (not stream_) {
-      auto fullPath = edm::FileInPath::findFile("MagneticField/Interpolation/data/" + tableSet_ + "/" + vol->magFile);
-      if (fullPath.empty()) {
-        //cause the exception to happen
-        edm::FileInPath mydata("MagneticField/Interpolation/data/" + tableSet_ + "/" + vol->magFile);
-        return {};
+      std::string fullPath;
+      if (tableSet_.starts_with("/")) {
+        fullPath = tableSet_ + vol->magFile;
+      } else {
+        fullPath = edm::FileInPath::findFile("MagneticField/Interpolation/data/" + tableSet_ + vol->magFile);
+        if (fullPath.empty()) {
+          //cause the exception to happen
+          edm::FileInPath mydata("MagneticField/Interpolation/data/" + tableSet_ + vol->magFile);
+          return {};
+        }
       }
 
       magneticfield::interpolation::binary_ifstream strm(fullPath);

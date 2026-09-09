@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/ProcessBlock.h"
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
-#include "FWCore/Framework/interface/ProductPutterBase.h"
 
 namespace edm {
 
@@ -45,7 +44,7 @@ namespace edm {
         auto resolver = principal.getProductResolverByIndex(index);
         if (not resolver->productResolved() and isEndTransition(provRecorder_.transition()) ==
                                                     resolver->productDescription().availableOnlyAtEndTransition()) {
-          dynamic_cast<ProductPutterBase const*>(resolver)->putProduct(std::unique_ptr<WrapperBase>());
+          resolver->putProduct(std::unique_ptr<WrapperBase>());
         }
       }
     }

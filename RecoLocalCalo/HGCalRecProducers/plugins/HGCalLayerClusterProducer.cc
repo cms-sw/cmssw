@@ -25,6 +25,7 @@
 
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalLayerClusterAlgoFactory.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
@@ -76,10 +77,12 @@ private:
   unsigned int hitsTime_;
 
   // for calculate position
-  std::vector<double> thresholdW0_;
-  double positionDeltaRho2_;
-  hgcal::RecHitTools rhtools_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+  std::vector<float> thresholdW0_;
+  float positionDeltaRho2_;
+  ticlgeom::Tools rhtools_;
+  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
+  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
+  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   const bool calculatePositionInAlgo_;
 #if DEBUG_CLUSTERS_ALPAKA
   std::string moduleLabel_;
@@ -117,7 +120,11 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
       detector_(ps.getParameter<std::string>("detector")),  // one of EE, FH, BH, HFNose
       timeClname_(ps.getParameter<std::string>("timeClname")),
       hitsTime_(ps.getParameter<unsigned int>("nHitsTime")),
-      caloGeomToken_(consumesCollector().esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      ticlGeomToken_(consumesCollector().esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+      ticlGeomLookupToken_(
+          consumesCollector().esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+      ticlGeomLayersToken_(
+          consumesCollector().esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
       calculatePositionInAlgo_(ps.getParameter<bool>("calculatePositionInAlgo")) {
 #if DEBUG_CLUSTERS_ALPAKA
   moduleLabel_ = ps.getParameter<std::string>("@module_label");
@@ -133,8 +140,8 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
     algo_ = HGCalLayerClusterAlgoFactory::get()->create(pluginPSet.getParameter<std::string>("type"), pluginPSet);
     algo_->setAlgoId(algoId_);
   }
-  thresholdW0_ = pluginPSet.getParameter<std::vector<double>>("thresholdW0");
-  positionDeltaRho2_ = pluginPSet.getParameter<double>("positionDeltaRho2");
+  thresholdW0_ = pluginPSet.getParameter<std::vector<float>>("thresholdW0");
+  positionDeltaRho2_ = pluginPSet.getParameter<float>("positionDeltaRho2");
 
   produces<std::vector<float>>("InitialLayerClustersMask");
   produces<std::vector<reco::BasicCluster>>();
@@ -191,7 +198,7 @@ math::XYZPoint HGCalLayerClusterProducer::calculatePosition(
       if ((d1 * d1 + d2 * d2) > positionDeltaRho2_)
         continue;
 
-      float Wi = std::max(thresholdW0_[thick] + std::log(rechit->energy() / total_weight), 0.);
+      float Wi = std::max(thresholdW0_[thick] + std::log(rechit->energy() / total_weight), 0.f);
       x += position.x() * Wi;
       y += position.y() * Wi;
       total_weight_log += Wi;
@@ -242,8 +249,7 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
   std::unique_ptr<std::vector<reco::BasicCluster>> clusters(new std::vector<reco::BasicCluster>);
 
-  edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeomToken_);
-  rhtools_.setGeometry(*geom);
+  rhtools_.setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
   algo_->getEventSetup(es, rhtools_);
 
   //make a map detid-rechit

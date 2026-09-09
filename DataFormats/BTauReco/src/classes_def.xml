@@ -46,6 +46,8 @@
   <class name="reco::SecondaryVertexTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::SecondaryVertexTagInfoCollection>"/>
 
+  <class name="reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<vector<edm::Ptr<reco::io_v1::Candidate> >,reco::io_v1::JetTagInfo>,reco::io_v1::VertexCompositePtrCandidate>"/>
+
   <class name="reco::TemplatedSecondaryVertexTagInfo<reco::CandIPTagInfo,reco::io_v1::VertexCompositePtrCandidate>::VertexData"/>
   <class name="std::vector<reco::CandSecondaryVertexTagInfo::VertexData>"/>
   <class name="reco::CandSecondaryVertexTagInfo"/>

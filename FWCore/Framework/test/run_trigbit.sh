@@ -13,7 +13,9 @@ F6=${LOCAL_TEST_DIR}/testFilterOnEndPath_cfg.py
 F7=${LOCAL_TEST_DIR}/testPathStatus_cfg.py
 
 (cmsRun $F1 ) || die "Failure using $F1" $?
-(cmsRun $F2 ) || die "Failure using $F2" $?
+(cmsRun $F2 >& testBitsFail.log ) || die "Failure using $F2" $?
+grep '^TrigReport ' testBitsFail.log > testBitsFailTrigReport.log
+diff testBitsFailTrigReport.log ${LOCAL_TEST_DIR}/unit_test_outputs/testBitsFail.log || die "Failure using $F2" $?
 (cmsRun $F3 ) || die "Failure using $F3" $?
 (cmsRun $F4 ) || die "Failure using $F4" $?
 (cmsRun $F5 ) || die "Failure using $F5" $?

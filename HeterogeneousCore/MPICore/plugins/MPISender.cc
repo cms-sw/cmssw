@@ -1,5 +1,6 @@
 // C++ include files
 #include <condition_variable>
+#include <memory>
 #include <mutex>
 #include <iomanip>
 #include <iostream>
@@ -33,16 +34,17 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "HeterogeneousCore/MPICore/interface/MPIChannel.h"
 #include "HeterogeneousCore/MPICore/interface/MPIToken.h"
+#include "HeterogeneousCore/MPICore/interface/MutableOnceFlag.h"
+#include "HeterogeneousCore/MPIServices/interface/MPIConsistencyChecker.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/AnyBuffer.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/SerialiserBase.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/SerialiserFactory.h"
 
-class MPISender : public edm::stream::EDProducer<edm::ExternalWork> {
+class MPISender : public edm::stream::EDProducer<edm::ExternalWork, edm::GlobalCache<MutableOnceFlag>> {
 public:
-  MPISender(edm::ParameterSet const& config)
+  MPISender(edm::ParameterSet const& config, MutableOnceFlag const* cache)
       : upstream_(consumes<MPIToken>(config.getParameter<edm::InputTag>("upstream"))),
         token_(produces<MPIToken>()),
-        patterns_(edm::productPatterns(config.getParameter<std::vector<std::string>>("products"))),
         instance_(config.getParameter<int32_t>("instance")),
         buffer_(std::make_unique<TBufferFile>(TBuffer::kWrite)),
         metadata_size_(0),
@@ -54,59 +56,49 @@ public:
       throw cms::Exception("InvalidValue") << "Invalid MPISender instance value, please use a value between 1 and 255";
     }
 
-    products_.resize(patterns_.size());
-
     if (not activity_.label().empty()) {
       activityToken_ = consumes<edm::PathStateToken>(activity_);
     }
 
-    callWhenNewProductsRegistered([this](edm::ProductDescription const& product) {
-      static const std::string_view kPathStatus("edm::PathStatus");
-      static const std::string_view kEndPathStatus("edm::EndPathStatus");
+    auto const& products = config.getParameter<std::vector<edm::ParameterSet>>("products");
+    products_.reserve(products.size());
+    for (auto const& product : products) {
+      auto const& type = product.getParameter<std::string>("type");
+      auto const& input_tag = product.getParameter<edm::InputTag>("name");
+      Entry entry;
+      entry.type = edm::TypeWithDict::byName(type);
+      entry.wrappedType = edm::TypeWithDict::byName("edm::Wrapper<" + type + ">");
+      entry.token = this->consumes(edm::TypeToGet{edm::TypeID{entry.type.typeInfo()}, edm::PRODUCT_TYPE}, input_tag);
 
-      // std::cout << "MPISender: considering product " << product.friendlyClassName() << '_'
-      //           << product.moduleLabel() << '_' << product.productInstanceName() << '_' << product.processName()
-      //           << " of type " << product.unwrappedType().name() << " branch type " << product.branchType() << "\n";
+      LogDebug("MPISender") << "send product \"" << input_tag.label() << '_' << input_tag.instance() << '_'
+                            << input_tag.process() << "\" of type \"" << entry.type.name()
+                            << "\" over MPI channel instance " << instance_;
 
-      switch (product.branchType()) {
-        case edm::InEvent:
-          if (product.className() == kPathStatus or product.className() == kEndPathStatus)
-            return;
-          for (size_t pattern_index = 0; pattern_index < patterns_.size(); pattern_index++) {
-            if (patterns_[pattern_index].match(product)) {
-              Entry entry;
-              entry.type = product.unwrappedType();
-              entry.wrappedType = product.wrappedType();
-              // TODO move this to EDConsumerBase::consumes() ?
-              entry.token = this->consumes(
-                  edm::TypeToGet{product.unwrappedTypeID(), edm::PRODUCT_TYPE},
-                  edm::InputTag{product.moduleLabel(), product.productInstanceName(), product.processName()});
+      products_.emplace_back(std::move(entry));
+    }
 
-              LogDebug("MPISender") << "send product \"" << product.friendlyClassName() << '_' << product.moduleLabel()
-                                    << '_' << product.productInstanceName() << '_' << product.processName()
-                                    << "\" of type \"" << entry.type.name() << "\" over MPI channel instance "
-                                    << instance_;
-
-              products_[pattern_index] = std::move(entry);
-              break;
-            }
-          }
-          break;
-
-        case edm::InLumi:
-        case edm::InRun:
-        case edm::InProcess:
-          // lumi, run and process products are not supported
-          break;
-
-        default:
-          throw edm::Exception(edm::errors::LogicError)
-              << "Unexpected branch type " << product.branchType() << "\nPlease contact a Framework developer\n";
-      }
+    // record information about this sender for configuration consistency check
+    edm::Service<MPIConsistencyChecker> module_info_service;
+    std::vector<std::string> product_types;
+    product_types.reserve(products_.size());
+    for (auto const& entry : products_) {
+      product_types.push_back(entry.type.name());
+    }
+    std::string module_label = config.getParameter<std::string>("@module_label");
+    std::string upstream_label = config.getParameter<edm::InputTag>("upstream").label();
+    if (cache == nullptr) {
+      throw cms::Exception("MPISender") << "MPISender's global cache is null";
+    }
+    std::call_once(cache->information_recorded_flag, [&]() {
+      module_info_service->recordMPIModuleInfo(true, module_label, upstream_label, this->instance_, product_types);
     });
-
-    // TODO add an error if a pattern does not match any branches? how?
   }
+
+  static std::unique_ptr<MutableOnceFlag> initializeGlobalCache(edm::ParameterSet const&) {
+    return std::make_unique<MutableOnceFlag>();
+  }
+
+  static void globalEndJob(MutableOnceFlag const*) {}
 
   void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
     const MPIToken& token = event.get(upstream_);
@@ -211,6 +203,10 @@ public:
         "This module can consume arbitrary event products and copy them to an \"MPIReceiver\" module in a separate "
         "CMSSW job.");
 
+    edm::ParameterSetDescription product;
+    product.add<std::string>("type")->setComment("C++ type of the product to be sent.");
+    product.add<edm::InputTag>("name")->setComment("Input tag of the product to be sent.");
+
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("upstream", {"source"})
         ->setComment(
@@ -218,11 +214,10 @@ public:
             "Passing an \"MPIController\" or \"MPISource\" only identifies the pair of local and remote application "
             "that communicate. Passing an \"MPISender\" or \"MPIReceiver\" in addition imposes a scheduling "
             "dependency.");
-    desc.add<std::vector<std::string>>("products", {})
+    desc.addVPSet("products", product, {})
         ->setComment(
-            "Event products to be consumed and copied over to a separate CMSSW job. Can be a list of module labels, "
-            "branch names (similar to an OutputModule's \"keep ...\" statement), or a mix of the two. Wildcards (\"?\" "
-            "and \"*\") are allowed in a module label or in each field of a branch name.");
+            "Event products to be consumed and copied over to a separate CMSSW job."
+            "Is configured as a vector of parameter sets, each containing the C++ type and input tag of a product.");
     desc.add<int32_t>("instance", 0)
         ->setComment("A value between 1 and 255 used to identify a matching pair of \"MPISender\"/\"MPIReceiver\".");
     desc.add<edm::InputTag>("activity", edm::InputTag(""))
@@ -252,9 +247,8 @@ private:
 
   edm::EDGetTokenT<MPIToken> const upstream_;  // MPIToken used to establish the communication channel
   edm::EDPutTokenT<MPIToken> const token_;  // copy of the MPIToken that may be used to implement an ordering relation
-  std::vector<edm::ProductNamePattern> patterns_;  // branches to read from the Event and send over the MPI channel
-  std::vector<Entry> products_;                    // types and tokens corresponding to the branches
-  int32_t const instance_;                         // instance used to identify the source-destination pair
+  std::vector<Entry> products_;             // types and tokens corresponding to the branches
+  int32_t const instance_;                  // instance used to identify the source-destination pair
   std::unique_ptr<TBufferFile> buffer_;
   size_t metadata_size_;
   edm::InputTag activity_;

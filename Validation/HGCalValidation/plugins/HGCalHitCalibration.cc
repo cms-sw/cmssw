@@ -28,7 +28,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
 #include <map>
 #include <array>
@@ -58,11 +58,13 @@ private:
   edm::EDGetTokenT<std::vector<reco::Photon> > photons_;
 
   int algo_, depletion0_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
+  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
+  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   bool rawRecHits_;
   int debug_;
   std::string folder_;
-  hgcal::RecHitTools recHitTools_;
+  ticlgeom::Tools recHitTools_;
   static constexpr int depletion1_ = 200;
   static constexpr int depletion2_ = 300;
   static constexpr int scint_ = 400;
@@ -79,7 +81,9 @@ private:
 };
 
 HGCalHitCalibration::HGCalHitCalibration(const edm::ParameterSet& iConfig)
-    : caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+    : ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+      ticlGeomLookupToken_(esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+      ticlGeomLayersToken_(esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
       rawRecHits_(iConfig.getParameter<bool>("rawRecHits")),
       debug_(iConfig.getParameter<int>("debug")),
       folder_(iConfig.getParameter<std::string>("folder")) {
@@ -192,8 +196,8 @@ void HGCalHitCalibration::fillWithRecHits(std::map<DetId, const HGCRecHit*>& hit
 void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   float constexpr max_dR2 = 0.0025;
 
-  const edm::ESHandle<CaloGeometry>& geom = iSetup.getHandle(caloGeomToken_);
-  recHitTools_.setGeometry(*geom);
+  recHitTools_.setGeometry(
+      iSetup.getData(ticlGeomToken_), iSetup.getData(ticlGeomLookupToken_), iSetup.getData(ticlGeomLayersToken_));
 
   const edm::Handle<std::vector<CaloParticle> >& caloParticleHandle = iEvent.getHandle(caloParticles_);
   const std::vector<CaloParticle>& caloParticles = *caloParticleHandle;

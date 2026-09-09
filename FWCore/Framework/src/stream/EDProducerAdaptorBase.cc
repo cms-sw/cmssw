@@ -23,7 +23,6 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/src/EventAcquireSignalsSentry.h"
-#include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/src/stream/ProducingModuleAdaptorBase.cc"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
@@ -67,13 +66,10 @@ namespace edm {
     //
     EDProducerAdaptorBase::EDProducerAdaptorBase() {}
 
-    bool EDProducerAdaptorBase::doEvent(EventTransitionInfo const& info,
-                                        ActivityRegistry* act,
-                                        ModuleCallingContext const* mcc) {
+    bool EDProducerAdaptorBase::doEvent(EventTransitionInfo const& info, ModuleCallingContext const* mcc) {
       EventPrincipal const& ep = info.principal();
       assert(ep.streamID() < m_streamModules.size());
       auto mod = m_streamModules[ep.streamID()];
-      EventSignalsSentry sentry(act, mcc);
       Event e(ep, moduleDescription(), mcc);
       e.setConsumer(mod);
       e.setProducer(mod, &mod->previousParentage_, &mod->gotBranchIDsFromAcquire_);
@@ -86,13 +82,11 @@ namespace edm {
     }
 
     void EDProducerAdaptorBase::doAcquire(EventTransitionInfo const& info,
-                                          ActivityRegistry* act,
                                           ModuleCallingContext const* mcc,
                                           WaitingTaskHolder&& holder) {
       EventPrincipal const& ep = info.principal();
       assert(ep.streamID() < m_streamModules.size());
       auto mod = m_streamModules[ep.streamID()];
-      EventAcquireSignalsSentry sentry(act, mcc);
       Event e(ep, moduleDescription(), mcc);
       e.setConsumer(mod);
       e.setProducerForAcquire(mod, nullptr, mod->gotBranchIDsFromAcquire_);

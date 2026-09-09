@@ -5,6 +5,7 @@
  * Definitions of SoA common parameters for SoA class generators
  */
 
+#include <array>
 #include <cstdint>
 #include <cassert>
 #include <cstring>
@@ -15,6 +16,7 @@
 #include <source_location>
 #include <tuple>
 #include <type_traits>
+#include <utility>
 
 #include <boost/preprocessor.hpp>
 
@@ -160,82 +162,15 @@ namespace cms::soa {
     };
   };
 
-  // Forward declarations
-  template <SoAColumnType COLUMN_TYPE, typename T>
-  struct SoAConstParametersImpl;
-
-  template <SoAColumnType COLUMN_TYPE, typename T>
-  struct SoAParametersImpl;
-
-  // Templated const parameter sets for scalars, columns and Eigen columns
-  template <SoAColumnType COLUMN_TYPE, typename T>
-  struct SoAConstParametersImpl {
-    static constexpr SoAColumnType columnType = COLUMN_TYPE;
-
-    using ValueType = T;
-    using ScalarType = T;
-
-    // default constructor
-    SoAConstParametersImpl() = default;
-
-    // constructor from address and size
-    SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(ScalarType const* addr) : addr_(addr) {}
-
-    // constructor from a non-const parameter set
-    SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(SoAParametersImpl<columnType, ValueType> const& o)
-        : addr_{o.addr_} {}
-
-    SOA_HOST_DEVICE SOA_INLINE ScalarType const* data() const { return addr_; }
-
-  public:
-    // scalar or column
-    ScalarType const* addr_ = nullptr;
-  };
-
-  // Templated const parameter specialisation for Eigen columns
-  template <typename T>
-  struct SoAConstParametersImpl<SoAColumnType::eigen, T> {
-    static constexpr SoAColumnType columnType = SoAColumnType::eigen;
-
-    using ValueType = T;
-    using ScalarType = typename T::Scalar;
-
-    // default constructor
-    SoAConstParametersImpl() = default;
-
-    // constructor from individual address, stride and size
-    SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(ScalarType const* addr, byte_size_type stride)
-        : addr_(addr), stride_(stride) {}
-
-    // constructor from a non-const parameter set
-    SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(SoAParametersImpl<columnType, ValueType> const& o)
-        : addr_{o.addr_}, stride_{o.stride_} {}
-
-    SOA_HOST_DEVICE SOA_INLINE ScalarType const* data() const { return addr_; }
-    SOA_HOST_DEVICE SOA_INLINE byte_size_type stride() const { return stride_; }
-
-  public:
-    // address, stride and size
-    ScalarType const* addr_ = nullptr;
-    byte_size_type stride_ = 0;
-  };
-
-  // Matryoshka template to avoid commas inside macros
-  template <SoAColumnType COLUMN_TYPE>
-  struct SoAConstParameters_ColumnType {
-    template <typename T>
-    using DataType = SoAConstParametersImpl<COLUMN_TYPE, T>;
-  };
-
   // Templated parameter sets for scalars, columns and Eigen columns
   template <SoAColumnType COLUMN_TYPE, typename T>
   struct SoAParametersImpl {
     static constexpr SoAColumnType columnType = COLUMN_TYPE;
 
-    using ValueType = T;
+    using ValueType = std::remove_cvref_t<T>;
     using ScalarType = T;
 
-    using ConstType = SoAConstParametersImpl<columnType, ValueType>;
+    using ConstType = SoAParametersImpl<columnType, const ValueType>;
     friend ConstType;
 
     // default constructor
@@ -243,6 +178,9 @@ namespace cms::soa {
 
     // constructor from address and size
     SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl(ScalarType* addr) : addr_(addr) {}
+
+    SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl(SoAParametersImpl<COLUMN_TYPE, ValueType> const& params)
+        : addr_(const_cast<ScalarType*>(params.addr_)) {}
 
     SOA_HOST_DEVICE SOA_INLINE ScalarType* data() const { return addr_; }
 
@@ -256,10 +194,10 @@ namespace cms::soa {
   struct SoAParametersImpl<SoAColumnType::eigen, T> {
     static constexpr SoAColumnType columnType = SoAColumnType::eigen;
 
-    using ValueType = T;
+    using ValueType = std::remove_cvref_t<T>;
     using ScalarType = typename T::Scalar;
 
-    using ConstType = SoAConstParametersImpl<columnType, ValueType>;
+    using ConstType = SoAParametersImpl<columnType, const ValueType>;
     friend ConstType;
 
     // default constructor
@@ -268,6 +206,9 @@ namespace cms::soa {
     // constructor from individual address, stride and size
     SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl(ScalarType* addr, byte_size_type stride)
         : addr_(addr), stride_(stride) {}
+    SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl(
+        SoAParametersImpl<SoAColumnType::eigen, ValueType> const& params)
+        : addr_(const_cast<ScalarType*>(params.addr_)), stride_(params.stride_) {}
 
     SOA_HOST_DEVICE SOA_INLINE ScalarType* data() const { return addr_; }
     SOA_HOST_DEVICE SOA_INLINE byte_size_type stride() const { return stride_; }
@@ -276,6 +217,17 @@ namespace cms::soa {
     // address, stride and size
     ScalarType* addr_ = nullptr;
     byte_size_type stride_ = 0;
+  };
+
+  template <SoAColumnType COLUMN_TYPE, typename T>
+    requires std::same_as<std::remove_const_t<T>, T>
+  using SoAConstParametersImpl = SoAParametersImpl<COLUMN_TYPE, const T>;
+
+  // Matryoshka template to avoid commas inside macros
+  template <SoAColumnType COLUMN_TYPE>
+  struct SoAConstParameters_ColumnType {
+    template <typename T>
+    using DataType = SoAConstParametersImpl<COLUMN_TYPE, T>;
   };
 
   // Matryoshka template to avoid commas inside macros
@@ -972,24 +924,23 @@ namespace cms::soa::detail {
     }
   };
 
+  // Helper type trait for obtaining the underlying type of an enum, or the type itself if it's not an enum
+  template <typename T>
+  struct EnumTraits {
+    using type = T;
+    using value_type = T;
+  };
+
+  template <typename T>
+    requires std::is_enum_v<T>
+  struct EnumTraits<T> {
+    using type = T;
+    using value_type = std::underlying_type_t<T>;
+  };
+
   // Helper type trait for obtaining a span type for a column
   template <typename ColumnType>
   struct GetSpanType;
-
-  template <typename T>
-  struct GetSpanType<cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::scalar, T>> {
-    using type = std::span<T, 1>;
-  };
-
-  template <typename T>
-  struct GetSpanType<cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::column, T>> {
-    using type = std::span<T>;
-  };
-
-  template <typename T>
-  struct GetSpanType<cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::eigen, T>> {
-    using type = std::span<typename T::Scalar>;
-  };
 
   template <typename T>
   struct GetSpanType<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::scalar, T>> {
@@ -1012,21 +963,6 @@ namespace cms::soa::detail {
   // Helper type trait for obtaining a const-span type for a column
   template <typename ColumnType>
   struct GetConstSpanType;
-
-  template <typename T>
-  struct GetConstSpanType<cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::scalar, T>> {
-    using type = std::span<std::add_const_t<T>, 1>;
-  };
-
-  template <typename T>
-  struct GetConstSpanType<cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::column, T>> {
-    using type = std::span<std::add_const_t<T>>;
-  };
-
-  template <typename T>
-  struct GetConstSpanType<cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::eigen, T>> {
-    using type = std::span<std::add_const_t<typename T::Scalar>>;
-  };
 
   template <typename T>
   struct GetConstSpanType<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::scalar, T>> {
@@ -1070,27 +1006,30 @@ namespace cms::soa::detail {
                          T::ColsAtCompileTime / sizeof(typename T::Scalar));
   }
 
+  // Helper function for extracting the number of blocks of a layout. Falls back to 1 if the layout does not define a static member blocksNumber.
   template <typename T>
-  auto getSpanToColumn(const cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::scalar, T>& column,
-                       cms::soa::size_type elements,
-                       cms::soa::byte_size_type alignment) {
-    return std::span(column.addr_, 1);
+  constexpr size_type nBlocks() {
+    if constexpr (requires { T::blocksNumber; })
+      return T::blocksNumber;
+    else
+      return static_cast<size_type>(1);
   }
 
-  template <typename T>
-  auto getSpanToColumn(const cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::column, T>& column,
-                       cms::soa::size_type elements,
-                       cms::soa::byte_size_type alignment) {
-    return std::span(column.addr_, elements);
+  // Case 1: type has blocksNumber → returns a sub-array
+  template <typename T, size_type N>
+    requires requires { T::blocksNumber; }
+  [[nodiscard]] constexpr std::array<size_type, T::blocksNumber> extractSegment(const std::array<size_type, N>& sizes,
+                                                                                size_type offset) {
+    return [&]<std::size_t... I>(std::index_sequence<I...>) {
+      return std::array<size_type, T::blocksNumber>{sizes[offset + I]...};
+    }(std::make_index_sequence<T::blocksNumber>{});
   }
 
-  template <typename T>
-  auto getSpanToColumn(const cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::eigen, T>& column,
-                       cms::soa::size_type elements,
-                       cms::soa::byte_size_type alignment) {
-    return std::span(column.addr_,
-                     cms::soa::alignSize(elements * sizeof(typename T::Scalar), alignment) * T::RowsAtCompileTime *
-                         T::ColsAtCompileTime / sizeof(typename T::Scalar));
+  // Case 2: fallback (single block) → returns a scalar
+  template <typename T, size_type N>
+    requires(!requires { T::blocksNumber; })
+  [[nodiscard]] constexpr size_type extractSegment(const std::array<size_type, N>& sizes, size_type offset) {
+    return sizes[offset];
   }
 
 }  // namespace cms::soa::detail

@@ -54,7 +54,14 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_TTbarPhase2RECO
 process.source = cms.Source("PoolSource",
                             fileNames = filesDefaultMC_TTbarPhase2RECO,
-                            duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
+                            duplicateCheckMode = cms.untracked.string('checkAllFilesOpened'),
+                            # Workaround after renaming SimDataFormats' ticl::AssociationMap
+                            # TODO: revert after new relvals
+                            inputCommands = cms.untracked.vstring([
+                                "keep *",
+                                "drop ticlFractionTypeticlAssociationElementsSimClustersCaloParticlesticlAssociationMap_*_*_*",
+                                "drop ticlSharedEnergyTypefloatstdpairticlAssociationElementssticlTrackstersticlTrackstersticlAssociationMap_*_*_*",
+                            ])
                             )
 
 runboundary = 1

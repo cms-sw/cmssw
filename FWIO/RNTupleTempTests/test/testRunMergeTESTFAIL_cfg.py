@@ -14,6 +14,9 @@ process.options = cms.untracked.PSet(
 
 
 #this should fail
+#Contents of files
+#testRunMerge.root "PROD" and "MERGE" [run:1, lumi:1, ev:1-25]&[run:2, lumi:1, ev:1-5]&[run:11, lumi:1, ev:1]&[run:11-21, lumi:2-4, ev:1-9] (run 1 is split with run 2 between)
+
 process.source = cms.Source("RNTupleTempSource",
     fileNames = cms.untracked.vstring(
         'file:testRunMerge.root',

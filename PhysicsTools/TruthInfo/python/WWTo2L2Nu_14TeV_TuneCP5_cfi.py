@@ -1,6 +1,4 @@
 # Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-# Part of the MC-truth-graph prototype - under heavy development, not yet open
-# to external contributions (see PhysicsTools/TruthInfo/README.md).
 #
 # Diboson WW GEN fragment (q qbar -> W+ W-, both W -> leptons). There is no WW
 # sample in the standard relval matrix, so this minimal fragment produces a

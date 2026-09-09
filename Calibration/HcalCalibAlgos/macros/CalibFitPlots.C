@@ -2081,7 +2081,7 @@ void PlotFiveHists(std::string infile,
   gStyle->SetPadColor(kWhite);
   gStyle->SetFillColor(kWhite);
   gStyle->SetOptTitle(0);
-  if ((drawStatBox / 10) % 10 > 0)
+  if (((drawStatBox / 10) % 10 > 0) && (!normalize))
     gStyle->SetOptFit(10);
   else
     gStyle->SetOptFit(0);
@@ -2096,9 +2096,9 @@ void PlotFiveHists(std::string infile,
     std::vector<std::string> texts;
     double ymax(0.77);
     if (drawStatBox % 10 > 0) {
-      if (type == 2)
+      if ((type == 2) && (!normalize))
         gStyle->SetOptStat(1110);
-      else if (i != 3)
+      else if ((i != 3) && (!normalize))
         gStyle->SetOptStat(1100);
       else
         gStyle->SetOptStat(10);
@@ -2253,10 +2253,16 @@ void PlotFiveHists(std::string infile,
       }
       pad->Update();
       if (save > 0) {
-        sprintf(name, "%s.pdf", pad->GetName());
+        if (normalize)
+          sprintf(name, "%sN.pdf", pad->GetName());
+        else
+          sprintf(name, "%s.pdf", pad->GetName());
         pad->Print(name);
       } else if (save < 0) {
-        sprintf(name, "%s.C", pad->GetName());
+        if (normalize)
+          sprintf(name, "%sN.C", pad->GetName());
+        else
+          sprintf(name, "%s.C", pad->GetName());
         pad->Print(name);
       }
     }
@@ -3956,7 +3962,7 @@ void PlotFourHists(std::string infile,
   gStyle->SetFillColor(kWhite);
   gStyle->SetOptTitle(0);
   gStyle->SetOptFit(0);
-  if (drawStatBox == 0)
+  if ((drawStatBox == 0) || normalize)
     gStyle->SetOptStat(0);
   else
     gStyle->SetOptStat(1110);
@@ -4059,10 +4065,16 @@ void PlotFourHists(std::string infile,
     pad->Modified();
     pad->Update();
     if (save > 0) {
-      sprintf(name, "%s.pdf", pad->GetName());
+      if (normalize)
+        sprintf(name, "%sN.pdf", pad->GetName());
+      else
+        sprintf(name, "%s.pdf", pad->GetName());
       pad->Print(name);
     } else if (save < 0) {
-      sprintf(name, "%s.C", pad->GetName());
+      if (normalize)
+        sprintf(name, "%sN.C", pad->GetName());
+      else
+        sprintf(name, "%s.C", pad->GetName());
       pad->Print(name);
     }
   }

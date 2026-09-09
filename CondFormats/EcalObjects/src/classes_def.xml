@@ -343,4 +343,24 @@
 </class>
 <class name="EcalSCDynamicDPhiParameters::DynamicDPhiParameters"/>
 
+<!-- base class -->
+<class name="EcalEBPhase2TPGSpikeTaggerParams">
+   <field name="nodes_" mapping="blob"/>
+   <field name="crystalNodes_" mapping="blob"/>
+</class>
+<class name="EcalEBPhase2TPGSpikeTaggerParams::Node">
+   <field name="dparams_" mapping="blob"/>
+   <field name="iparams_" mapping="blob"/>
+   <field name="sparams_" mapping="blob"/>
+   <field name="uparams_" mapping="blob"/>
+</class>
+<!-- templates for EcalCondObjectContainer having the class as template parameter -->
+<class name="std::vector<EcalEBPhase2TPGSpikeTaggerParams::Node>"/>
+<class name="EcalContainer<EBDetId, std::vector<EcalEBPhase2TPGSpikeTaggerParams::Node>>"/>
+<class name="EcalContainer<EEDetId, std::vector<EcalEBPhase2TPGSpikeTaggerParams::Node>>"/>
+<class name="EcalCondObjectContainer<std::vector<EcalEBPhase2TPGSpikeTaggerParams::Node>>">
+   <field name = "eb_" mapping = "blob"/>
+   <field name = "ee_" mapping = "blob"/>
+</class>
+
 </lcgdict>

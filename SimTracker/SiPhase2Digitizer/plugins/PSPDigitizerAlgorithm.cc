@@ -36,7 +36,7 @@ PSPDigitizerAlgorithm::PSPDigitizerAlgorithm(const edm::ParameterSet& conf, edm:
                                     << "threshold in electron Endcap = " << theThresholdInE_Endcap_
                                     << "threshold in electron Barrel = " << theThresholdInE_Barrel_ << " "
                                     << theElectronPerADC_ << " " << theAdcFullScale_ << " The delta cut-off is set to "
-                                    << tMax_ << " pix-inefficiency " << addPixelInefficiency_
+                                    << tMax_ << " Channel Inefficiency Flag " << addChannelInefficiency_
                                     << "Bias Rail Inefficiency " << biasRailInefficiencyFlag_;
 }
 PSPDigitizerAlgorithm::~PSPDigitizerAlgorithm() { LogDebug("PSPDigitizerAlgorithm") << "Algorithm deleted"; }
@@ -82,6 +82,6 @@ bool PSPDigitizerAlgorithm::isInBiasRailRegion(const PSimHit& hit) const {
 //
 // -- Read Bad Channels from the Condidion DB and kill channels/module accordingly
 //
-void PSPDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomDetUnit* pixdet) {
-  // this method is dummy at the moment. Will be implemented once we have the corresponding objectcondition DB
+void PSPDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomDetUnit* ph2det) {
+  // this method is dummy at the moment. Will be implemented once we have the corresponding object condition DB
 }

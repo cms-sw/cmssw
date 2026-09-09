@@ -39,6 +39,7 @@
 #include "HeterogeneousCore/MPICore/interface/conversion.h"
 #include "HeterogeneousCore/MPICore/interface/messages.h"
 #include "HeterogeneousCore/MPIServices/interface/MPIService.h"
+#include "HeterogeneousCore/MPIServices/interface/MPIConsistencyChecker.h"
 
 class MPISource : public edm::ProducerSourceBase {
 public:
@@ -70,7 +71,6 @@ private:
   std::vector<std::unique_ptr<MPIChannel>> channels_;
   edm::EDPutTokenT<MPIToken> token_;
   Mode mode_;
-
   edm::ProcessHistory history_;
 
   // temporary value used to pass information from setRunAndEventInfo() to produce()
@@ -148,6 +148,7 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
     // The remote process always has rank 0 in the new communicator.
     remote = 0;
     controller_ = MPIChannel(comm_, remote);
+
   } else if (mode_ == kIntercommunicator) {
     // Use an intercommunicator to let two groups of processes communicate with each other.
     // The current implementation supports only two processes: one controller and one source.
@@ -183,6 +184,10 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
     throw edm::Exception(edm::errors::Configuration)
         << "Invalid mode \"" << config.getUntrackedParameter<std::string>("mode") << "\"";
   }
+
+  // Record the source name to reconstruct paths for MPI configuration consistency validation
+  edm::Service<MPIConsistencyChecker> module_info_service;
+  module_info_service->registerMPIPathOrigin("source");
 
   // Wait for a client to connect.
   MPI_Status status;
@@ -316,6 +321,25 @@ bool MPISource::setRunAndEventInfo(edm::EventID& event,
         // receive the LuminosityBlockAuxiliary
         EDM_MPI_LuminosityBlockAuxiliary_t buffer;
         MPI_Mrecv(&buffer, 1, EDM_MPI_LuminosityBlockAuxiliary, &message, &status);
+
+        // receive the next message
+        break;
+      }
+
+      case EDM_MPI_SendModulesInfo: {
+        // receive the serialized modules info
+        int size;
+        MPI_Get_count(&status, MPI_BYTE, &size);
+        std::vector<char> buffer;
+        buffer.resize(size);
+        MPI_Mrecv(buffer.data(), size, MPI_BYTE, &message, &status);
+
+        // deserialize the modules info and compare with local modules
+        std::vector<MPIModuleInfo> remote_modules;
+        edm::Service<MPIConsistencyChecker> module_info_service;
+        module_info_service->deserializeMPIModuleInfo(buffer, remote_modules);
+        module_info_service->reconstructMPIPaths();
+        module_info_service->compareMPIModules(remote_modules, "source", "local", "remote");
 
         // receive the next message
         break;

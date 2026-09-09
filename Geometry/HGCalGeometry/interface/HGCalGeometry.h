@@ -91,7 +91,13 @@ public:
   const std::vector<DetId>& getValidDetIds(DetId::Detector det = DetId::Detector(0), int subdet = 0) const override {
     return m_validIds;
   }
+  bool validDetId(const DetId& id) const {
+    return (std::find(m_validIds.begin(), m_validIds.end(), id) != m_validIds.end());
+  }
   const std::vector<DetId>& getValidGeomDetIds(void) const { return m_validGeomIds; }
+  bool validGeomDetId(const DetId& id) const {
+    return (std::find(m_validGeomIds.begin(), m_validGeomIds.end(), id) != m_validGeomIds.end());
+  }
 
   // Get closest cell, etc...
   DetId getClosestCell(const GlobalPoint& r) const override;

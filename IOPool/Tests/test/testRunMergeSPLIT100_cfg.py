@@ -10,6 +10,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
+#Contents of file
+#testRunMerge100.root  "PROD" [run:41-42,lumi:1-10, ev:1-30]
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         'file:testRunMerge100.root'
@@ -23,5 +25,6 @@ process.task = cms.Task(process.thingWithMergeProducer)
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testRunMergeSPLIT100.root')
 )
+#testRunMergeSPLIT100.root  "PROD" and "SPLIT" [run:41-42,lumi:6-10, ev:16-30] with "PROD" range[run:41-42,lumi:1-10]
 
 process.e = cms.EndPath(process.out, process.task)

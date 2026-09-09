@@ -18,6 +18,11 @@
 />
 
 <test
+  name="testMPINestedEventId"
+  command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/nested_config_a_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/nested_config_b_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/nested_config_c_cfg.py"
+/>
+
+<test
   name="testMPIRoundRobinEventId"
   command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_rr_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_cfg.py"
 />
@@ -30,6 +35,11 @@
 <test
   name="testMPISoATransfer"
   command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_soa_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_soa_cfg.py"
+/>
+
+<test
+  name="testMPISoADeviceTransfer"
+  command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_soa_device_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_soa_device_cfg.py"
 />
 
 <test

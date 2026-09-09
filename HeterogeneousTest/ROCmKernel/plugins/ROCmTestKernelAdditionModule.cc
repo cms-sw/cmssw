@@ -72,25 +72,25 @@ void ROCmTestKernelAdditionModule::analyze(edm::StreamID, edm::Event const& even
   float* in1_d;
   float* in2_d;
   float* out_d;
-  hipCheck(hipMalloc(&in1_d, size_ * sizeof(float)));
-  hipCheck(hipMalloc(&in2_d, size_ * sizeof(float)));
-  hipCheck(hipMalloc(&out_d, size_ * sizeof(float)));
+  HIP_CHECK(hipMalloc(&in1_d, size_ * sizeof(float)));
+  HIP_CHECK(hipMalloc(&in2_d, size_ * sizeof(float)));
+  HIP_CHECK(hipMalloc(&out_d, size_ * sizeof(float)));
 
   // copy the input data to the device
-  hipCheck(hipMemcpy(in1_d, in1_h.data(), size_ * sizeof(float), hipMemcpyHostToDevice));
-  hipCheck(hipMemcpy(in2_d, in2_h.data(), size_ * sizeof(float), hipMemcpyHostToDevice));
+  HIP_CHECK(hipMemcpy(in1_d, in1_h.data(), size_ * sizeof(float), hipMemcpyHostToDevice));
+  HIP_CHECK(hipMemcpy(in2_d, in2_h.data(), size_ * sizeof(float), hipMemcpyHostToDevice));
 
   // fill the output buffer with zeros
-  hipCheck(hipMemset(out_d, 0, size_ * sizeof(float)));
+  HIP_CHECK(hipMemset(out_d, 0, size_ * sizeof(float)));
 
   // launch the 1-dimensional kernel for vector addition
   HeterogeneousTestROCmKernelPlugins::wrapper_add_vectors_f(in1_d, in2_d, out_d, size_);
 
   // copy the results from the device to the host
-  hipCheck(hipMemcpy(out_h.data(), out_d, size_ * sizeof(float), hipMemcpyDeviceToHost));
+  HIP_CHECK(hipMemcpy(out_h.data(), out_d, size_ * sizeof(float), hipMemcpyDeviceToHost));
 
   // wait for all the operations to complete
-  hipCheck(hipDeviceSynchronize());
+  HIP_CHECK(hipDeviceSynchronize());
 
   // check the results
   for (size_t i = 0; i < size_; ++i) {

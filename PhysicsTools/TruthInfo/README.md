@@ -1,10 +1,8 @@
-# TruthInfo prototype
+# TruthInfo
 
-> **Status: under heavy development — not open to external contributions.**
-> This is an experimental prototype: its data model, APIs, and configuration
-> change frequently and without notice, and it targets **Phase-2 (Run 4) only**
-> (no Phase-1/Run-2 support). Please do not submit external changes or depend on
-> it in production at this stage.
+> **Status: open for contributions.** The data model and the levels are covered by
+> unit tests; a change to either should come with one. The package targets
+> **Phase-2 (Run 4) only** (no Phase-1/Run-2 support).
 >
 > **Original author and maintainer:** Felice Pantaleo (CERN),
 > <felice.pantaleo@cern.ch>.

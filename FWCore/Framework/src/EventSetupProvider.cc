@@ -93,9 +93,6 @@ namespace edm {
     void EventSetupProvider::add(std::shared_ptr<ESProductResolverProvider> iProvider) {
       assert(iProvider.get() != nullptr);
       dataProviders_->push_back(iProvider);
-      if (activityRegistry_) {
-        activityRegistry_->postESModuleRegistrationSignal_.emit(iProvider->description());
-      }
     }
 
     using RecordProviders = std::vector<std::shared_ptr<EventSetupRecordProvider>>;

@@ -100,8 +100,12 @@ upgradeKeys['Run4'] = [
     'Run4D121FSPU',
     'Run4D126',
     'Run4D126PU',
-     'Run4D121GenOnly',
+    'Run4D127',
+    'Run4D127PU',
+    'Run4D121GenOnly',
     'Run4D121SimOnGen',
+    'Run4D128',
+    'Run4D128PU',
 ]
 
 # pre-generation of WF numbers
@@ -1015,12 +1019,12 @@ upgradeWFs['ticlv5_TrackLinkingGNN'].step4 = {'--procModifiers': 'ticlv5_TrackLi
 
 class UpgradeWorkflow_enableTruth(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        # enableTruth runs the truth-graph producers in RecoGlobal (step3) and,
-        # in GenSim (step1), keeps the full ancestor branch of every stored
-        # SimTrack (g4SimHits PersistencyEmin -> 0 via the modifier) so the
-        # truth graph stays connected to the generator. The Branch validators run
-        # in the RecoGlobal VALIDATION and their efficiency harvesting in
-        # HARVESTGlobal (step4), so the modifier must reach the harvesting step too.
+        # enableTruth runs the truth-graph producers in RecoGlobal (step3). The Branch
+        # validators run in the RecoGlobal VALIDATION and their efficiency harvesting
+        # in HARVESTGlobal (step4), so the modifier must reach the harvesting step too.
+        # GenSim (step1) needs no modifier: SimVertex ancestor reconnection
+        # (g4SimHits TrackingAction.ReconnectDroppedAncestors) is a baseline default,
+        # so the truth graph is connected to the generator in every sample.
         if 'GenSim' in step or 'RecoGlobal' in step or 'HARVESTGlobal' in step:
             stepDict[stepName][k] = deepcopy(stepDict[step][k])
 
@@ -2134,6 +2138,90 @@ upgradeWFs['L1NGTScoutingWithNanoValid'].step2['-s'] = upgradeWFs['L1NGTScouting
 upgradeWFs['L1NGTScoutingWithNanoValid'].step2['--datatier'] += ',GEN-SIM-DIGI-RAW'
 upgradeWFs['L1NGTScoutingWithNanoValid'].step2['--procModifiers'] += ',nano_l1_hlt'
 upgradeWFs['L1NGTScoutingWithNanoValid'].step2['--eventcontent'] += ',FEVTDEBUGHLT'
+
+class UpgradeWorkflow_HLTPhase2_WithNanoAndDQM(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        # skip ALCA and HLT-only steps
+        if ('ALCA' in step) or ('HLT' in step):
+            stepDict[stepName][k] = None
+        elif 'DigiTrigger' in step:
+            # Add the aging customization
+            mergedStep = merge([self.step2, stepDict[step][k]])
+            if '--customise' in mergedStep:
+                mergedStep['--customise'] += ',SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000'
+            else:
+                mergedStep['--customise'] = 'SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000'
+            stepDict[stepName][k] = mergedStep
+        elif step == 'RecoGlobal':
+            # replace default RECO+MiniAOD+DQM with NANO+DQM production
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        elif 'HARVESTGlobal' in step:
+            # real harvesting, reading back the DQM output of step3
+            stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
+        else:
+            stepDict[stepName][k] = merge([stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and 'Run4' in key
+
+upgradeWFs['HLTPhase2WithNanoAndDQM'] = UpgradeWorkflow_HLTPhase2_WithNanoAndDQM(
+    steps = [
+        'Reco',
+        'RecoGlobal',
+        'RecoNano',
+        'DigiTrigger',
+        'ALCA',
+        'ALCAPhase2',
+        'RecoGlobalFakeHLT',
+        'HLT75e33',
+        'HARVESTGlobal',
+        'HARVESTGlobalFakeHLT',
+    ],
+    PU = [
+        'Reco',
+        'RecoGlobal',
+        'RecoNano',
+        'DigiTrigger',
+        'ALCA',
+        'ALCAPhase2',
+        'RecoGlobalFakeHLT',
+        'HLT75e33',
+        'HARVESTGlobal',
+        'HARVESTGlobalFakeHLT',
+    ],
+    suffix = '_HLTPhase2WithNanoAndDQM',
+    offset = 0.7592,
+)
+upgradeWFs['HLTPhase2WithNanoAndDQM'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:@relvalRun4',
+    '--datatier':'GEN-SIM-DIGI-RAW',
+    '--eventcontent':'FEVTDEBUGHLT'
+}
+
+upgradeWFs['HLTPhase2WithNanoAndDQM'].step3 = {
+    '-s':'NANO:@Phase2HLT,DQM:@nanohltDQM',
+    '--datatier':'NANOAODSIM,DQMIO',
+    '--eventcontent':'NANOAODSIM,DQMIO'
+}
+
+upgradeWFs['HLTPhase2WithNanoAndDQM'].step4 = {
+    '-s':'HARVESTING:@nanohltDQM',
+    '--filetype':'DQM'
+}
+
+upgradeWFs['NGTScoutingWithNanoAndDQM'] = deepcopy(upgradeWFs['HLTPhase2WithNanoAndDQM'])
+upgradeWFs['NGTScoutingWithNanoAndDQM'].suffix = '_NGTScoutingWithNanoAndDQM'
+upgradeWFs['NGTScoutingWithNanoAndDQM'].offset = 0.7721
+upgradeWFs['NGTScoutingWithNanoAndDQM'].step2['-s'] = upgradeWFs['NGTScoutingWithNanoAndDQM'].step2['-s'].replace(
+    'HLT:@relvalRun4', 'HLT:@relvalRun4_scouting'
+)
+
+upgradeWFs['NGTScoutingWithNanoAndDQM'].step2['--procModifiers'] = 'alpaka,ngtScouting'
+
+upgradeWFs['NGTScoutingWithNanoAndDQM'].step3['-s'] =  upgradeWFs['NGTScoutingWithNanoAndDQM'].step3['-s'].replace(
+    'NANO:@Phase2HLT,DQM:@nanohltDQM', 'NANO:@NGTScouting,DQM:@nanohltDQM'
+)
+
+upgradeWFs['NGTScoutingWithNanoAndDQM'].step3['--procModifiers'] = 'ngtScouting'
 
 class UpgradeWorkflow_HLTwDIGI75e33(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
@@ -3966,6 +4054,20 @@ upgradeProperties['Run4'] = {
         'Geom' : 'ExtendedRun4D126',
         'HLTmenu': '@relvalRun4',
         'GT' : 'auto:phase2_realistic_T37',
+        'Era' : 'Phase2C26I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    'Run4D127' : {
+        'Geom' : 'ExtendedRun4D127',
+        'HLTmenu': '@relvalRun4',
+        'GT' : 'auto:phase2_realistic_T35',
+        'Era' : 'Phase2C26I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    'Run4D128' : {
+        'Geom' : 'ExtendedRun4D128',
+        'HLTmenu': '@relvalRun4',
+        'GT' : 'auto:phase2_realistic_T35',
         'Era' : 'Phase2C26I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },

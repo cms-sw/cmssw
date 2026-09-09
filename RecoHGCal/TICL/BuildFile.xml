@@ -1,3 +1,4 @@
+<use name="CondFormats/HGCalObjects"/>
 <use name="DataFormats/Candidate"/>
 <use name="DataFormats/HGCalReco"/>
 <use name="DataFormats/VertexReco"/>

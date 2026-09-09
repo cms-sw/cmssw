@@ -1,6 +1,4 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-// Part of the MC-truth-graph prototype - under heavy development, not yet open
-// to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 #ifndef SimDataFormats_TruthInfo_interface_Graph_h
 #define SimDataFormats_TruthInfo_interface_Graph_h
@@ -124,6 +122,28 @@ namespace truth {
 
     [[nodiscard]] bool isConsistent() const;
 
+    // The selection preset's seed PDG ids, recorded so LevelFlag::Signal stays
+    // RE-DERIVABLE. Every other level bit can be recomputed from the graph alone, which
+    // is what lets a reader detect a graph written before a definition changed; Signal
+    // cannot, unless the seeds that produced it travel with it. Empty means no selection
+    // ran, and then no particle carries the Signal bit.
+    [[nodiscard]] std::vector<int32_t> const& signalSeedPdgIds() const { return signalSeedPdgIds_; }
+    [[nodiscard]] std::vector<int32_t>& signalSeedPdgIds() { return signalSeedPdgIds_; }
+
+    // Species that a detector reconstructs as an object even though they decay, so the
+    // walk down from the signal stops at them: pi0 is the motivating case. Recorded for
+    // the same reason as the seeds, to keep ReconstructableFromSignal re-derivable.
+    // Empty means only generator-stable particles terminate the walk.
+    [[nodiscard]] std::vector<int32_t> const& reconstructablePdgIds() const { return reconstructablePdgIds_; }
+    [[nodiscard]] std::vector<int32_t>& reconstructablePdgIds() { return reconstructablePdgIds_; }
+
+    // Heavy-flavour seed content (5 = b, 4 = c) of the selection that stamped Signal.
+    // A flavour-seeded preset carries no seed pdg ids at all, so without this the
+    // Signal bit would not be re-derivable and the audit could not tell a fresh
+    // heavy-flavour file from a stale one.
+    [[nodiscard]] std::vector<int32_t> const& seedHadronFlavors() const { return seedHadronFlavors_; }
+    [[nodiscard]] std::vector<int32_t>& seedHadronFlavors() { return seedHadronFlavors_; }
+
   private:
     friend class Particle;
     friend class Vertex;
@@ -150,6 +170,9 @@ namespace truth {
     [[nodiscard]] std::vector<Particle> outgoingParticlesOf(size_type vertexId) const;
 
     std::vector<ParticleData> particles_;
+    std::vector<int32_t> signalSeedPdgIds_;
+    std::vector<int32_t> reconstructablePdgIds_;
+    std::vector<int32_t> seedHadronFlavors_;
     std::vector<VertexData> vertices_;
 
     // Particle -> decay vertices

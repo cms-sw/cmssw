@@ -39,7 +39,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/GeomDet.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 #include "RecoHGCal/TICL/interface/TracksterInferenceAlgoFactory.h"
 
 #include "TrackstersPCA.h"
@@ -75,14 +75,16 @@ private:
 
   std::vector<edm::EDGetTokenT<std::vector<float>>> original_masks_tokens_;
 
-  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
+  const edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
+  const edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
+  const edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   const std::string detector_;
   const std::string propName_;
 
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bfield_token_;
   const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagator_token_;
   const HGCalDDDConstants *hgcons_;
-  hgcal::RecHitTools rhtools_;
+  ticlgeom::Tools rhtools_;
   edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> hdc_token_;
 };
 
@@ -92,7 +94,11 @@ TracksterLinksProducer::TracksterLinksProducer(const edm::ParameterSet &ps, cons
       clustersTime_token_(
           consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("layer_clustersTime"))),
       regressionAndPid_(ps.getParameter<bool>("regressionAndPid")),
-      geometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
+      ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
+      ticlGeomLookupToken_(
+          esConsumes<TICLGeomLookupHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
+      ticlGeomLayersToken_(
+          esConsumes<TICLGeomLayersHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
       detector_(ps.getParameter<std::string>("detector")),
       propName_(ps.getParameter<std::string>("propagator")),
       bfield_token_(esConsumes<MagneticField, IdealMagneticFieldRecord, edm::Transition::BeginRun>()),
@@ -168,8 +174,7 @@ void TracksterLinksProducer::beginRun(edm::Run const &iEvent, edm::EventSetup co
     hgcons_ = hdc.product();
   }
 
-  edm::ESHandle<CaloGeometry> geom = es.getHandle(geometry_token_);
-  rhtools_.setGeometry(*geom);
+  rhtools_.setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
 
   edm::ESHandle<MagneticField> bfield = es.getHandle(bfield_token_);
   edm::ESHandle<Propagator> propagator = es.getHandle(propagator_token_);

@@ -26,14 +26,15 @@
 
 // user include files
 #include "FWCore/Framework/interface/ComponentDescription.h"
+#include "FWCore/Framework/interface/ComponentInterfaceHolder.h"
 #include "FWCore/Framework/interface/ESProductResolverProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-#include "FWCore/Framework/interface/ComponentConstructionSentry.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 
 namespace edm {
   namespace eventsetup {
@@ -108,7 +109,9 @@ namespace edm {
       const ComponentDescription description = this->createComponentDescription(iConfiguration);
       std::shared_ptr<TComponent> component;
       {
-        ComponentConstructionSentry sentry(iInterfaceHolder, description);
+        auto sentry = signalslot::make_sentry(
+            [&iInterfaceHolder, &description]() { iInterfaceHolder.postConstructionSignal().emit(description); });
+        iInterfaceHolder.preConstructionSignal().emit(description);
         component = std::make_shared<TComponent>(iConfiguration);
         sentry.succeeded();
       }

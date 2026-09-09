@@ -14,7 +14,7 @@ namespace cms::cudatest {
                              size_t size) {
     // launch the 1-dimensional kernel for vector addition
     kernel_add_vectors_f<<<32, 32>>>(in1, in2, out, size);
-    cudaCheck(cudaGetLastError());
+    CUDA_CHECK(cudaGetLastError());
   }
 
   void wrapper_add_vectors_d(const double* __restrict__ in1,
@@ -23,7 +23,7 @@ namespace cms::cudatest {
                              size_t size) {
     // launch the 1-dimensional kernel for vector addition
     kernel_add_vectors_d<<<32, 32>>>(in1, in2, out, size);
-    cudaCheck(cudaGetLastError());
+    CUDA_CHECK(cudaGetLastError());
   }
 
 }  // namespace cms::cudatest

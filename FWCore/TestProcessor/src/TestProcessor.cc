@@ -30,12 +30,10 @@
 #include "FWCore/Framework/interface/ESRecordsToProductResolverIndices.h"
 #include "FWCore/Framework/interface/EventSetupsController.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
-#include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/ensureAvailableAccelerators.h"
 #include "FWCore/Framework/interface/makeModuleTypeResolverMaker.h"
 #include "FWCore/Framework/interface/FileBlock.h"
-#include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
@@ -565,7 +563,7 @@ namespace edm {
           //The data product was not set so we need to
           // tell the ProductResolver not to wait
           auto r = pep->getProductResolver(p.first.branchID());
-          dynamic_cast<ProductPutterBase const*>(r)->putProduct(std::unique_ptr<WrapperBase>());
+          r->putProduct(std::unique_ptr<WrapperBase>());
         }
       }
 
@@ -604,12 +602,6 @@ namespace edm {
           using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalEnd>;
           processGlobalTransition<Traits>(transitionInfo);
         }
-        {
-          FinalWaitingTask globalWaitTask{taskGroup_};
-          schedule_->writeLumiAsync(
-              WaitingTaskHolder(taskGroup_, &globalWaitTask), *lumiPrincipal, &processContext_, actReg_.get());
-          globalWaitTask.wait();
-        }
       }
       lumiPrincipal->setRunPrincipal(std::shared_ptr<RunPrincipal>());
       return lumiPrincipal;
@@ -640,15 +632,6 @@ namespace edm {
         {
           using Traits = OccurrenceTraits<RunPrincipal, TransitionActionGlobalEnd>;
           processGlobalTransition<Traits>(transitionInfo);
-        }
-        {
-          FinalWaitingTask globalWaitTask{taskGroup_};
-          schedule_->writeRunAsync(WaitingTaskHolder(taskGroup_, &globalWaitTask),
-                                   *runPrincipal,
-                                   &processContext_,
-                                   actReg_.get(),
-                                   runPrincipal->mergeableRunProductMetadata());
-          globalWaitTask.wait();
         }
       }
       return runPrincipal;

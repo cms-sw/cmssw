@@ -64,6 +64,17 @@ namespace edm {
       a->postPathEventSignal_.emit(*pathContext->streamContext(), *pathContext, status);
     }
 
+    static void preModuleSignal(ActivityRegistry* a,
+                                StreamContext const* streamContext,
+                                ModuleCallingContext const* moduleCallingContext) {
+      a->preModuleEventSignal_.emit(*streamContext, *moduleCallingContext);
+    }
+    static void postModuleSignal(ActivityRegistry* a,
+                                 StreamContext const* streamContext,
+                                 ModuleCallingContext const* moduleCallingContext) {
+      a->postModuleEventSignal_.emit(*streamContext, *moduleCallingContext);
+    }
+
     static const char* transitionName() { return "Event"; }
   };
 

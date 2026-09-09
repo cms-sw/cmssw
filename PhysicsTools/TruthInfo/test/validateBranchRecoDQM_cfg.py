@@ -1,6 +1,4 @@
 # Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-# Part of the MC-truth-graph prototype - under heavy development, not yet open
-# to external contributions (see PhysicsTools/TruthInfo/README.md).
 
 # Standalone single-file driver for the generic reco-side Branch validators. The
 # modules are the canonical ones from PhysicsTools.TruthInfo.truthGraphValidation_cff

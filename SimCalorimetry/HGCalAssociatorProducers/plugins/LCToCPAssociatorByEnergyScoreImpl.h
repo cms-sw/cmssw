@@ -11,7 +11,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
 namespace edm {
   class EDProductGetter;
@@ -72,7 +72,7 @@ public:
 
   explicit LCToCPAssociatorByEnergyScoreImplT(edm::EDProductGetter const &,
                                               bool,
-                                              std::shared_ptr<hgcal::RecHitTools>,
+                                              std::shared_ptr<ticlgeom::Tools>,
                                               const std::unordered_map<DetId, const unsigned int> *,
                                               const multiCollectionT &hits);
 
@@ -84,7 +84,7 @@ public:
 
 private:
   const bool hardScatterOnly_;
-  std::shared_ptr<hgcal::RecHitTools> recHitTools_;
+  std::shared_ptr<ticlgeom::Tools> recHitTools_;
   const std::unordered_map<DetId, const unsigned int> *hitMap_;
   unsigned layers_;
   edm::EDProductGetter const *productGetter_;

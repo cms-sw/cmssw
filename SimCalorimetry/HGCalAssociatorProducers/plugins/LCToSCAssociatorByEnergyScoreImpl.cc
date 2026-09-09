@@ -9,7 +9,7 @@ template <typename HIT, typename CLUSTER>
 LCToSCAssociatorByEnergyScoreImplT<HIT, CLUSTER>::LCToSCAssociatorByEnergyScoreImplT(
     edm::EDProductGetter const& productGetter,
     bool hardScatterOnly,
-    std::shared_ptr<hgcal::RecHitTools> recHitTools,
+    std::shared_ptr<ticlgeom::Tools> recHitTools,
     const std::unordered_map<DetId, const unsigned int>* hitMap,
     const multiCollectionT& hits)
     : hardScatterOnly_(hardScatterOnly),

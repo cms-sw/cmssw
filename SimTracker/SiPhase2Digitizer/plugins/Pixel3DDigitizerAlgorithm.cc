@@ -39,7 +39,7 @@ Pixel3DDigitizerAlgorithm::Pixel3DDigitizerAlgorithm(const edm::ParameterSet& co
       << "\n    Barrel = " << theThresholdInE_Barrel_ << " electrons"
       << "\n*** Gain"
       << "\n    Electrons per ADC:" << theElectronPerADC_ << "\n    ADC Full Scale: " << theAdcFullScale_
-      << "\n*** The delta cut-off is set to " << tMax_ << "\n*** Pixel-inefficiency: " << addPixelInefficiency_;
+      << "\n*** The delta cut-off is set to " << tMax_ << "\n Channel Inefficiency Flag: " << addChannelInefficiency_;
 }
 
 Pixel3DDigitizerAlgorithm::~Pixel3DDigitizerAlgorithm() {}
@@ -153,7 +153,7 @@ std::vector<digitizerUtility::EnergyDepositUnit> Pixel3DDigitizerAlgorithm::diff
     std::vector<float> newpos(pos_moving);
     // Let's create the new charge carriers around 3 sigmas away
     newpos[displ_ind] += std::copysign(N_SIGMA * sigma, newpos[displ_ind]);
-    migrated_charge.push_back(digitizerUtility::EnergyDepositUnit(migrated_e, newpos[0], newpos[1], newpos[2]));
+    migrated_charge.emplace_back(migrated_e, newpos[0], newpos[1], newpos[2]);
   }
   return migrated_charge;
 }
@@ -317,8 +317,8 @@ std::vector<digitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::driftFor3D
         << " [electrons], Electrons after loss/diff= " << energyOnCollector << " [electrons] ";
     // Load the Charge distribution parameters
     // XXX -- probably makes no sense the SignalPoint anymore...
-    collection_points.push_back(digitizerUtility::SignalPoint(
-        current_pixel_int.first, current_pixel_int.second, 0.0, 0.0, hit.tof(), energyOnCollector));
+    collection_points.emplace_back(
+        current_pixel_int.first, current_pixel_int.second, 0.0, 0.0, hit.tof(), energyOnCollector);
   }
 
   return collection_points;
@@ -328,18 +328,18 @@ std::vector<digitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::driftFor3D
 // Signal is already "induced" (actually electrons transported to the
 // n-column) at the electrode. Just collecting and adding-up all pixel
 // signal and linking it to the simulated energy deposit (hit)
-void Pixel3DDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterator inputBegin,
-                                              const PSimHit& hit,
+void Pixel3DDigitizerAlgorithm::induce_signal(const PSimHit& hit,
                                               const size_t hitIndex,
-                                              const size_t firstHitIndex,
                                               const uint32_t tofBin,
                                               const Phase2TrackerGeomDetUnit* pixdet,
                                               const std::vector<digitizerUtility::SignalPoint>& collection_points) {
   // X  - Rows, Left-Right
   // Y  - Columns, Down-Up
-  const uint32_t detId = pixdet->geographicalId().rawId();
+  const auto detId = pixdet->geographicalId().rawId();
+
   // Accumulated signal at each channel of this detector
-  signal_map_type& the_signal = _signal[detId];
+  auto [it, inserted] = _signal.try_emplace(detId);  // Adding detId as a key in _signal
+  auto& the_signal = it->second;
 
   // Choose the proper pixel-to-channel converter
   std::function<int(int, int)> pixelToChannel =
@@ -352,12 +352,12 @@ void Pixel3DDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
     const int channel = pixelToChannel(pt.position().x(), pt.position().y());
 
     float corr_time = hit.tof() - pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv;
-    if (makeDigiSimLinks_) {
-      the_signal[channel] +=
-          digitizerUtility::Ph2Amplitude(pt.amplitude(), &hit, pt.amplitude(), corr_time, hitIndex, tofBin);
-    } else {
-      the_signal[channel] += digitizerUtility::Ph2Amplitude(pt.amplitude(), nullptr, pt.amplitude());
-    }
+    auto ph2ampl = (makeDigiSimLinks_) ? digitizerUtility::Ph2Amplitude(
+                                             pt.amplitude(), &hit, pt.amplitude(), corr_time, hitIndex, tofBin)
+                                       : digitizerUtility::Ph2Amplitude(pt.amplitude(), nullptr, pt.amplitude());
+    auto [it, inserted] = the_signal.try_emplace(channel, std::move(ph2ampl));
+    if (!inserted)
+      it->second += ph2ampl;  // key exists
 
     LogDebug("Pixel3DDigitizerAlgorithm")
         << " Induce charge at row,col:" << pt.position() << " N_electrons:" << pt.amplitude() << " [Channel:" << channel

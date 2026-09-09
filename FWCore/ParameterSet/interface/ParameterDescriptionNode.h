@@ -69,7 +69,9 @@ namespace edm {
     k_EventRange = 'R',
     k_VEventRange = 'r',
     k_PSet = 'Q',
-    k_VPSet = 'q'
+    k_VPSet = 'q',
+    k_float = 'H',
+    k_vfloat = 'h'
   };
 
   bool compareEntryCodeToParameterType(char code, ParameterTypes type);
