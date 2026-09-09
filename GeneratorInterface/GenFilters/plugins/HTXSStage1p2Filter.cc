@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    HTXSFilter
-// Class:      HTXSFilter
+// Package:    HTXSStage1p2Filter
+// Class:      HTXSStage1p2Filter
 //
-/**\class HTXSFilter HTXSFilter.cc user/HTXSFilter/plugins/HTXSFilter.cc
+/**\class HTXSStage1p2Filter HTXSStage1p2Filter.cc user/HTXSStage1p2Filter/plugins/HTXSStage1p2Filter.cc
 
  Description: [one line class summary]
 
@@ -11,14 +11,14 @@
      [Notes on implementation]
 */
 //
-// Original Author:  Janek Bechtel
-//         Created:  Fri, 10 May 2019 14:30:15 GMT
+// Original Author:  Tom Runting
+//         Created:  Mon, 03 August 2024 09:29:16 GMT
 //
 //
 
 // system include files
 #include <memory>
-#include "GeneratorInterface/GenFilters/plugins/HTXSFilter.h"
+#include "GeneratorInterface/GenFilters/plugins/HTXSStage1p2Filter.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -31,11 +31,11 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h"
 
-HTXSFilter::HTXSFilter(const edm::ParameterSet& iConfig)
+HTXSStage1p2Filter::HTXSStage1p2Filter(const edm::ParameterSet& iConfig)
     : token_(consumes<HTXS::HiggsClassification>(edm::InputTag("rivetProducerHTXS", "HiggsClassification"))),
       htxs_flags(iConfig.getUntrackedParameter("htxs_flags", std::vector<int>())) {}
 
-HTXSFilter::~HTXSFilter() {
+HTXSStage1p2Filter::~HTXSStage1p2Filter() {
   // do anything here that needs to be done at destruction time
   // (e.g. close files, deallocate resources etc.)
 }
@@ -45,19 +45,16 @@ HTXSFilter::~HTXSFilter() {
 //
 
 // ------------ method called on each new Event  ------------
-bool HTXSFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+bool HTXSStage1p2Filter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
-  edm::LogWarning("HTXSFilter") << "HTXSFilter uses the (deprecated) Stage 1.1 flags to filter events. For Stage 1.2 "
-                                   "flags, see HTXSStage1p2Filter."
-                                << std::endl;
   Handle<HTXS::HiggsClassification> cat;
   iEvent.getByToken(token_, cat);
   if (htxs_flags.empty()) {
-    edm::LogInfo("HTXSFilter") << "Selection of HTXS flags to filter is empty. Filtering will not be applied."
-                               << std::endl;
+    edm::LogInfo("HTXSStage1p2Filter") << "Selection of HTXS flags to filter is empty. Filtering will not be applied."
+                                       << std::endl;
     return true;
   }
-  if (std::find(htxs_flags.begin(), htxs_flags.end(), cat->stage1_1_cat_pTjet30GeV) != htxs_flags.end()) {
+  if (std::find(htxs_flags.begin(), htxs_flags.end(), cat->stage1_2_cat_pTjet30GeV) != htxs_flags.end()) {
     return true;
   } else {
     return false;
@@ -65,4 +62,4 @@ bool HTXSFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(HTXSFilter);
+DEFINE_FWK_MODULE(HTXSStage1p2Filter);
