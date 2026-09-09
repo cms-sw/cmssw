@@ -13,24 +13,25 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 // Trigger
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 // DQM services
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 // for gen matching
 #include "DataFormats/JetMatching/interface/JetFlavourMatching.h"
-#include <Math/GenVector/VectorUtil.h>
-
 #include "FWCore/Utilities/interface/transform.h"
+#include <Math/GenVector/VectorUtil.h>
 
 /** \class HLTBTagPerformanceAnalyzer
  *
@@ -43,7 +44,8 @@
 class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 public:
   explicit HLTBTagPerformanceAnalyzer(const edm::ParameterSet &);
-  ~HLTBTagPerformanceAnalyzer() override;
+  ~HLTBTagPerformanceAnalyzer() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
   void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
 
 private:

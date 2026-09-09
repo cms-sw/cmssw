@@ -1,3 +1,6 @@
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "HLTriggerOffline/Btag/interface/HLTBTagPerformanceAnalyzer.h"
 #include <algorithm>
 #include <set>
@@ -116,11 +119,6 @@ HLTBTagPerformanceAnalyzer::HLTBTagPerformanceAnalyzer(const edm::ParameterSet &
   HCALSpecialsNames[HEP17] = "HEP17";
   HCALSpecialsNames[HEP18] = "HEP18";
   HCALSpecialsNames[HEM17] = "HEM17";
-}
-
-HLTBTagPerformanceAnalyzer::~HLTBTagPerformanceAnalyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 void HLTBTagPerformanceAnalyzer::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
@@ -433,6 +431,42 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
       }
     }  /// for mc.size()
   }  /// for hltPathNames_.size()
+}
+
+void HLTBTagPerformanceAnalyzer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("TriggerResults", edm::InputTag("TriggerResults", "", "HLT"));
+  desc.add<std::string>("mainFolder", "HLT/BTV/Validation");
+  desc.add<std::vector<std::string>>("HLTPathNames",
+                                     {"HLT_PFMET120_PFMHT120_IDTight_v",
+                                      "HLT_PFHT330PT30_QuadPFJet_75_60_45_40_v",
+                                      "HLT_PFHT400_SixPFJet32_PNet2BTagMean0p50_v",
+                                      "HLT_PFHT450_SixPFJet36_PNetBTag0p35_v",
+                                      "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_v",
+                                      "HLT_BTagMu_AK4DiJet20_Mu5_v",
+                                      "HLT_BTagMu_AK4DiJet20_Mu5_v",
+                                      "HLT_BTagMu_AK4DiJet20_Mu5_v"});
+  desc.add<std::vector<edm::InputTag>>("JetTag",
+                                       {edm::InputTag("hltParticleNetDiscriminatorsJetTags", "BvsAll"),
+                                        edm::InputTag("hltParticleNetDiscriminatorsJetTags", "BvsAll"),
+                                        edm::InputTag("hltParticleNetDiscriminatorsJetTags", "BvsAll"),
+                                        edm::InputTag("hltParticleNetDiscriminatorsJetTags", "BvsAll"),
+                                        edm::InputTag("hltParticleNetDiscriminatorsJetTags", "BvsAll"),
+                                        edm::InputTag("hltBSoftMuonDiJet20L1FastJetL25Jets"),
+                                        edm::InputTag("hltDeepJetDiscriminatorsJetTags", "BvsAll"),
+                                        edm::InputTag("hltParticleNetDiscriminatorsJetTags", "BvsAll")});
+  desc.add<double>("MinJetPT", 20);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::vector<unsigned int>>("light", {1, 2, 3, 21});
+    psd0.add<std::vector<unsigned int>>("c", {4});
+    psd0.add<std::vector<unsigned int>>("b", {5});
+    psd0.add<std::vector<unsigned int>>("g", {21});
+    psd0.add<std::vector<unsigned int>>("uds", {1, 2, 3});
+    desc.add<edm::ParameterSetDescription>("mcFlavours", psd0);
+  }
+  desc.add<edm::InputTag>("mcPartons", edm::InputTag("hltBtagJetsbyValAlgo"));
+  descriptions.addWithDefaultLabel(desc);
 }
 
 // define this as a plug-in
