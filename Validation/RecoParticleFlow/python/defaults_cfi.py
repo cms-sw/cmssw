@@ -33,11 +33,11 @@ etaBinsOffset = [-5.191, -4.889, -4.716, -4.538, -4.363, -4.191, -4.013, -3.839,
    4.191, 4.363, 4.538, 4.716, 4.889, 5.191]
 
 muLowOffset = 0
-muHighOffset = 100
+muHighOffset = 210
 
 npvLowOffset = 0
-npvHighOffset = 100
-pvzHighOffset = 100
+npvHighOffset = 210
+pvzHighOffset = 210
 
 eBinsOffset = 1000
 eLowOffset = 0
