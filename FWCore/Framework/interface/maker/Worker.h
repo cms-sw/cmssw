@@ -27,6 +27,7 @@ the worker is reset().
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/maker/WorkerParams.h"
 #include "FWCore/Framework/interface/maker/ModuleSignalSentry.h"
+#include "FWCore/Framework/interface/maker/ModuleAttributes.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
@@ -88,8 +89,8 @@ namespace edm {
   class Worker {
   public:
     enum State { Ready, Pass, Fail, Exception };
-    enum Types { kAnalyzer, kFilter, kProducer, kOutputModule };
-    enum ConcurrencyTypes { kGlobal, kLimited, kOne, kStream };
+    using Types = edm::modules::Type;
+    using ConcurrencyTypes = edm::modules::Concurrency;
     struct TaskQueueAdaptor {
       SerialTaskQueueChain* serial_ = nullptr;
       LimitedTaskQueue* limited_ = nullptr;
@@ -911,7 +912,7 @@ namespace edm {
       using Arg = OccurrenceTraits<ProcessBlockPrincipal, TransitionActionProcessBlockInput>;
       static bool call(Worker* iWorker,
                        StreamID,
-                       ProcessBlockTransitionInfo const& info,
+                       InputProcessBlockTransitionInfo const& info,
                        ActivityRegistry* actReg,
                        ModuleCallingContext const* mcc,
                        Arg::Context const* context) {
@@ -921,8 +922,11 @@ namespace edm {
         cpp.postModuleSignal();
         return returnValue;
       }
-      static void esPrefetchAsync(
-          Worker*, WaitingTaskHolder, ServiceToken const&, ProcessBlockTransitionInfo const&, Transition) noexcept {}
+      static void esPrefetchAsync(Worker*,
+                                  WaitingTaskHolder,
+                                  ServiceToken const&,
+                                  InputProcessBlockTransitionInfo const&,
+                                  Transition) noexcept {}
       static bool wantsTransition(Worker const* iWorker) noexcept { return iWorker->wantsInputProcessBlocks(); }
       static bool needToRunSelection(Worker const* iWorker) noexcept { return false; }
       static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) noexcept { return nullptr; }
