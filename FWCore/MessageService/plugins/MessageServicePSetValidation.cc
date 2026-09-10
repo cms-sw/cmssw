@@ -64,6 +64,7 @@ namespace edm {
       if (!thresh.empty())
         validateThreshold(thresh, "MessageLogger");
       check<unsigned int>(pset, "MessageLogger", "waiting_threshold");
+      check<bool>(pset, "MessageLogger", "useContext");
 
       // Nested PSets
 
@@ -80,7 +81,8 @@ namespace edm {
 
       noneExcept<int>(pset, "MessageLogger", "int");
       noneExcept<unsigned int>(pset, "MessageLogger", "unsigned int", "waiting_threshold");
-      noneExcept<bool>(pset, "MessageLogger", "bool", "messageSummaryToJobReport");
+      std::vector<std::string> const bools = {"messageSummaryToJobReport", "useContext"};
+      noneExcept<bool>(pset, "MessageLogger", "bool", bools);
       // Note - at this, the upper MessageLogger PSet level, the use of
       // optionalPSet makes no sense, so we are OK letting that be a flaw
       noneExcept<float>(pset, "MessageLogger", "float");
