@@ -206,6 +206,7 @@ namespace edm::rntuple_temp {
     std::unique_ptr<std::vector<EntryNumber>> entryNumberForIndex_;
     std::vector<std::string> branchNames_;
     ProductMap branches_;
+    std::vector<ROOT::RNTupleReader::RActiveEntryToken> activeEntryTokens_;
     unsigned int cacheSize_ = 0;
     unsigned long treeAutoFlush_ = 0;
     bool promptRead_;
