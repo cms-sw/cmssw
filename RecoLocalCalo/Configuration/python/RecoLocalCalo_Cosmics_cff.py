@@ -50,7 +50,7 @@ horeco = _hcalLocalReco_cff.horeco.clone(
     tsFromDB = False,
     recoParamsFromDB = False,
 )
-zdcreco = _hcalLocalReco_cff.zdcreco.clone(
+zdcreco = _hcalLocalReco_cff.zdcrecoPhase1.clone(
 #    firstSample = 1,
 #    samplesToAdd = 8,
     correctForTimeslew = True,
