@@ -55,7 +55,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     std::array<unsigned int, 5> n_quintuplets_by_layer_endcap_{};
     std::array<unsigned int, 6> n_quadruplets_by_layer_barrel_{};
     std::array<unsigned int, 5> n_quadruplets_by_layer_endcap_{};
+    unsigned int nTotalMDsOT_;
     unsigned int nTotalSegments_;
+    unsigned int nTotalSegmentsOT_;
     unsigned int pixelSize_;
     uint16_t pixelModuleIndex_;
 

@@ -31,6 +31,8 @@ namespace lst {
                       SOA_SCALAR(unsigned int, nTotalTrips),
                       SOA_SCALAR(unsigned int, nTotalQuads),
                       SOA_SCALAR(unsigned int, nTotalQuints),
+                      SOA_SCALAR(unsigned int, nTotalQuintsByMD0),
+                      SOA_SCALAR(unsigned int, nTotalQuintsByMD1),
                       SOA_SCALAR(uint16_t, nEligibleT4Modules),
                       SOA_SCALAR(uint16_t, nEligibleT5Modules))
 

@@ -45,9 +45,33 @@ namespace lst {
   using TripletsOccupancy = TripletsOccupancySoA::View;
   using TripletsOccupancyConst = TripletsOccupancySoA::ConstView;
 
+  GENERATE_SOA_LAYOUT(TripletsRangesSoALayout, SOA_COLUMN(int, offset), SOA_COLUMN(uint32_t, n));
+
+  using TripletsRangesSoA = TripletsRangesSoALayout<>;
+  using TripletsRanges = TripletsRangesSoA::View;
+  using TripletsRangesConst = TripletsRangesSoA::ConstView;
+
+  // index and fast cached data if any
+  GENERATE_SOA_LAYOUT(TripletsBySegmentSoALayout, SOA_COLUMN(unsigned int, tripletIndex));
+
+  using TripletsBySegmentSoA = TripletsBySegmentSoALayout<>;
+  using TripletsBySegment = TripletsBySegmentSoA::View;
+  using TripletsBySegmentConst = TripletsBySegmentSoA::ConstView;
+
+  // index and fast cached data if any
+  GENERATE_SOA_LAYOUT(TripletsByMDSoALayout, SOA_COLUMN(unsigned int, tripletIndex));
+
+  using TripletsByMDSoA = TripletsByMDSoALayout<>;
+  using TripletsByMD = TripletsByMDSoA::View;
+  using TripletsByMDConst = TripletsByMDSoA::ConstView;
+
   GENERATE_SOA_BLOCKS(TripletsSoABlocksLayout,
                       SOA_BLOCK(triplets, TripletsSoALayout),
-                      SOA_BLOCK(tripletsOccupancy, TripletsOccupancySoALayout))
+                      SOA_BLOCK(tripletsOccupancy, TripletsOccupancySoALayout),
+                      SOA_BLOCK(tripletsRangesBySegment, TripletsRangesSoALayout),
+                      SOA_BLOCK(tripletsBySegment, TripletsBySegmentSoALayout),
+                      SOA_BLOCK(tripletsRangesByMD, TripletsRangesSoALayout),
+                      SOA_BLOCK(tripletsByMD, TripletsByMDSoALayout))
 
   using TripletsSoABlocks = TripletsSoABlocksLayout<>;
   using TripletsSoABlocksView = TripletsSoABlocks::View;
