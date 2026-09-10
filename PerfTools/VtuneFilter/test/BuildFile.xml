@@ -1,0 +1,8 @@
+<bin name="testPerfToolsVtuneFilter" file="testVtuneServices.cc">
+  <use name="PerfTools/VtuneFilter"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="DataFormats/Provenance"/>
+  <use name="ittnotify"/>
+  <use name="catch2"/>
+</bin>
