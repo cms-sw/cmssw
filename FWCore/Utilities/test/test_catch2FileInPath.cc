@@ -15,11 +15,6 @@
 // A test that references an issue number below asserts the CURRENT behaviour;
 // if the issue is fixed, update the test in the same commit.
 //
-//  7. Inconsistency: write() uses a raw string-prefix test
-//     (canonicalFilename_.find(top) != 0, FileInPath.cc:168/:179/:190) while
-//     initialize_() uses the component-wise pathBeginsWith(). The two disagree
-//     for sibling directories with a shared string prefix, so a record naming a
-//     file under "<CMSSW_BASE>2/..." round-trips as Local.
 //  8. Documented limitation (FileInPath.h:48-52): paths containing spaces are
 //     not supported. write() succeeds, but read() cannot parse the result back.
 //  9. Asymmetry: readFromParameterSetBlob() degrades gracefully for a missing
@@ -958,24 +953,22 @@ TEST_CASE("strayPathElement: an ordinary Local file still resolves normally", "[
   REQUIRE(fip.fullPath() == (g_paths.local / "src/Sub/Pack/data/file.txt").string());
 }
 
-TEST_CASE("read accepts a record naming a sibling of the local top", "[local]") {
-  // Issue 7: write() uses a raw string-prefix test
-  // (canonicalFilename_.find(localTop_) == 0) while initialize_() uses the
-  // component-wise pathBeginsWith(). A record naming a file under
-  // "<CMSSW_BASE>2/..." therefore round-trips as Local via read()/write(),
-  // even though the strayPathElement scenario above shows initialize_()
-  // rejecting the very same directory as "not in any of the known search
-  // areas" when reached through construction instead of read().
+TEST_CASE("write throws if the file is not under one of the search paths", "[local]") {
+  // Historically the read() accepts a record naming a file under "<CMSSW_BASE>2/..." as Local, even though the
+  // constructor rejects the very same directory as "not in any of the known search areas" (see the strayPathElement
+  // test above). It is a bit weird case, but allows to verify the behavior of write() in this scenario, which is the
+  // main point of this test.
   edm::FileInPath fip;
   std::istringstream is("V001 Sub/Pack/data/sib.txt 1 2/src/Sub/Pack/data/sib.txt");
   fip.read(is);
   REQUIRE_FALSE(is.fail());
+  REQUIRE(fip.relativePath() == "Sub/Pack/data/sib.txt");
   REQUIRE(fip.location() == edm::FileInPath::Local);
   REQUIRE(fip.fullPath() == (g_paths.local.string() + "2/src/Sub/Pack/data/sib.txt"));
 
+  // write() checks harder (similarly to the constructor) that the file is under one of the search paths and throws if not.
   std::ostringstream os;
-  fip.write(os);
-  REQUIRE(os.str() == "V001 Sub/Pack/data/sib.txt 1 2/src/Sub/Pack/data/sib.txt");
+  REQUIRE_THROWS_WITH(fip.write(os), Catch::Matchers::ContainsSubstring("is not in the local release area"));
 }
 
 TEST_CASE("paths with spaces round-trip through write() but not read()", "[local]") {

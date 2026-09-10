@@ -161,8 +161,7 @@ namespace edm {
       if (localTop_.empty()) {
         throw edm::Exception(edm::errors::FileInPathError) << "Environment Variable " << LOCALTOP << " is not set.\n";
       }
-      std::string::size_type pos = canonicalFilename_.find(localTop_);
-      if (pos != 0) {
+      if (!pathBeginsWith(canonicalFilename_, std::filesystem::path(localTop_))) {
         throw edm::Exception(edm::errors::FileInPathError)
             << "Path " << canonicalFilename_ << " is not in the local release area " << localTop_ << "\n";
       }
@@ -172,8 +171,7 @@ namespace edm {
       if (releaseTop_.empty()) {
         throw edm::Exception(edm::errors::FileInPathError) << "Environment Variable " << RELEASETOP << " is not set.\n";
       }
-      std::string::size_type pos = canonicalFilename_.find(releaseTop_);
-      if (pos != 0) {
+      if (!pathBeginsWith(canonicalFilename_, std::filesystem::path(releaseTop_))) {
         throw edm::Exception(edm::errors::FileInPathError)
             << "Path " << canonicalFilename_ << " is not in the base release area " << releaseTop_ << "\n";
       }
@@ -183,8 +181,7 @@ namespace edm {
       if (dataTop_.empty()) {
         throw edm::Exception(edm::errors::FileInPathError) << "Environment Variable " << DATATOP << " is not set.\n";
       }
-      std::string::size_type pos = canonicalFilename_.find(dataTop_);
-      if (pos != 0) {
+      if (!pathBeginsWith(canonicalFilename_, std::filesystem::path(dataTop_))) {
         throw edm::Exception(edm::errors::FileInPathError)
             << "Path " << canonicalFilename_ << " is not in the data area " << dataTop_ << "\n";
       }
