@@ -266,6 +266,9 @@ namespace edm {
     }
   }
 
+  // This function is called when reading from ParameterSet blob. The environment variable setup can be different from
+  // the job that wrote the file. The function is similar to read() but in case of unset environment variables it uses
+  // placeholders for the top directories.
   void FileInPath::readFromParameterSetBlob(std::istream& is) {
     std::string vsn;
     std::string relname;
@@ -322,7 +325,7 @@ namespace edm {
         canonicalFilename_ = releaseTop_ + canFilename;
     } else if (location_ == Data) {
       if (dataTop_.empty()) {
-        throw edm::Exception(edm::errors::FileInPathError) << "Environment Variable " << DATATOP << " is not set.\n";
+        dataTop_ = "@DATA";
       }
       canonicalFilename_ = dataTop_ + canFilename;
     }
