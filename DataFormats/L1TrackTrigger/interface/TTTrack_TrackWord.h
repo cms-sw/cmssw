@@ -347,6 +347,7 @@ public:
     return (double(digitizedValue) + offset) * lsb;
   }
 
+private:
   // ----------member data ---------------------------
   tkword_bs_t trackWord_;
 };
