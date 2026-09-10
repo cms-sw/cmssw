@@ -15,8 +15,6 @@
 // A test that references an issue number below asserts the CURRENT behaviour;
 // if the issue is fixed, update the test in the same commit.
 //
-//  8. Documented limitation (FileInPath.h:48-52): paths containing spaces are
-//     not supported. write() succeeds, but read() cannot parse the result back.
 //  9. Asymmetry: readFromParameterSetBlob() degrades gracefully for a missing
 //     local or release top (@LOCAL / @RELEASE, FileInPath.cc:302-311) but still
 //     throws for a missing data top (FileInPath.cc:325-327).
@@ -972,9 +970,11 @@ TEST_CASE("write throws if the file is not under one of the search paths", "[loc
 }
 
 TEST_CASE("paths with spaces round-trip through write() but not read()", "[local]") {
-  // Issue 8 (documented limitation, FileInPath.h:48-52): write() happily
-  // serialises a path containing a space, but read() cannot parse the
+  // Paths containing spaces are not really supported. write() happily serialises them, but read() cannot parse the
   // result back, because both fields are whitespace-delimited.
+  //
+  // TODO: the serialization format should be improved to allow whitespace in the paths, but that is left for later.
+  // This test merely documents the current behavior.
   edm::FileInPath fip("Sub/Pack/data/with space.txt");
   REQUIRE(fip.relativePath() == "Sub/Pack/data/with space.txt");
   REQUIRE(fip.location() == edm::FileInPath::Local);
@@ -983,10 +983,6 @@ TEST_CASE("paths with spaces round-trip through write() but not read()", "[local
   fip.write(os);
   REQUIRE(os.str() == "V001 Sub/Pack/data/with space.txt 1 /src/Sub/Pack/data/with space.txt");
 
-  // >> relname stops at "Sub/Pack/data/with", then >> loc fails trying to
-  // parse "space.txt" as an int, so the stream ends in fail() and the
-  // object is left corrupted rather than untouched (see Issue 4/10 above -
-  // this is a third, non-truncated way to reach the same inconsistency).
   edm::FileInPath fip2;
   std::istringstream is(os.str());
   fip2.read(is);
