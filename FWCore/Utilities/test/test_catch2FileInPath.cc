@@ -11,14 +11,6 @@
 // FileInPath is constructed, and are never inherited from the surrounding
 // shell (see main() below).
 
-// Known issues in edm::FileInPath exercised (but not fixed) by these tests.
-// A test that references an issue number below asserts the CURRENT behaviour;
-// if the issue is fixed, update the test in the same commit.
-//
-//  9. Asymmetry: readFromParameterSetBlob() degrades gracefully for a missing
-//     local or release top (@LOCAL / @RELEASE, FileInPath.cc:302-311) but still
-//     throws for a missing data top (FileInPath.cc:325-327).
-
 #include "catch2/catch_all.hpp"
 
 #include "FWCore/Utilities/interface/FileInPath.h"
@@ -1147,18 +1139,18 @@ TEST_CASE("noData: file is found CMSSW_SEARCH_PATH, but element is not in any of
           Catch::Matchers::ContainsSubstring("is not in any of the known search areas"));
 }
 
-TEST_CASE("noData: read() of a Data record throws naming CMSSW_DATA_PATH", "[noData]") {
-  std::istringstream is("V001 Sub/Pack/data/dat.txt 3 /Sub/Pack/data/dat.txt");
-  edm::FileInPath fip;
-  REQUIRE_THROWS_WITH(fip.read(is), Catch::Matchers::ContainsSubstring("CMSSW_DATA_PATH"));
-}
+TEST_CASE("noData: read() of a Data record throws, readFromParameterSetBlob degrades to @DATA", "[noData]") {
+  std::string const record = "V001 Sub/Pack/data/dat.txt 3 /Sub/Pack/data/dat.txt";
 
-TEST_CASE("noData: readFromParameterSetBlob of a Data record also throws", "[noData]") {
-  // Issue 9: unlike Local/Release, readFromParameterSetBlob() does not
-  // degrade gracefully for a missing data top; it throws just like read().
-  std::istringstream is("V001 Sub/Pack/data/dat.txt 3 /Sub/Pack/data/dat.txt");
-  edm::FileInPath fip;
-  REQUIRE_THROWS_WITH(fip.readFromParameterSetBlob(is), Catch::Matchers::ContainsSubstring("CMSSW_DATA_PATH"));
+  edm::FileInPath viaRead;
+  std::istringstream isRead(record);
+  REQUIRE_THROWS_WITH(viaRead.read(isRead), Catch::Matchers::ContainsSubstring("CMSSW_DATA_PATH"));
+
+  edm::FileInPath viaBlob;
+  std::istringstream isBlob(record);
+  viaBlob.readFromParameterSetBlob(isBlob);
+  REQUIRE(viaBlob.location() == edm::FileInPath::Data);
+  REQUIRE(viaBlob.fullPath() == "@DATA/Sub/Pack/data/dat.txt");
 }
 
 TEST_CASE("absolutePath: absolute relativePath_ bypasses the search path and hangs", "[absolutePath]") {

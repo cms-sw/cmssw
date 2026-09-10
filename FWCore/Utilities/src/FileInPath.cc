@@ -322,7 +322,7 @@ namespace edm {
         canonicalFilename_ = releaseTop_ + canFilename;
     } else if (location_ == Data) {
       if (dataTop_.empty()) {
-        throw edm::Exception(edm::errors::FileInPathError) << "Environment Variable " << DATATOP << " is not set.\n";
+        dataTop_ = "@DATA";
       }
       canonicalFilename_ = dataTop_ + canFilename;
     }
