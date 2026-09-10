@@ -16,6 +16,7 @@
 // Original Author:  Thomas Williams <thomas.williams@stfc.ac.uk>
 //         Created:  Fri, 19 Feb 2021 01:10:55 GMT
 //
+// WARNING: THIS CODE NEEDS UPDATES & VALIDATION.
 //
 
 // system include files
@@ -133,23 +134,33 @@ void GTTFileReader::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       for (auto& trackword : iTracks) {
         if (!trackword.getValidWord())
           continue;
-        L1Track track = L1Track(trackword.getValidWord(),
-                                trackword.getRinvWord(),
-                                trackword.getPhiWord(),
-                                trackword.getTanlWord(),
-                                trackword.getZ0Word(),
-                                trackword.getD0Word(),
-                                trackword.getChi2RPhiWord(),
-                                trackword.getChi2RZWord(),
-                                trackword.getBendChi2Word(),
-                                trackword.getHitPatternWord(),
-                                trackword.getMVAQualityWord(),
-                                trackword.getMVAOtherWord());
-        //retrieve the eta (first) and phi (second) sectors for GTT, encoded in an std::pair
+        // WARNING (from Ian Tomalin): THE CODE BELOW WAS WRONG. IT MIGHT NOW BE SEMI-OK, BUT HAS NOT BEEN VALIDATED.
+        constexpr unsigned int nHelixPar = 4;
+        // WARNING: Must set B-field here to sensible value
+        // - either hard-wired value matching that used by L1 tracking or real value from DB?
+        constexpr double bField = 3.8112;
+        //retrieve the eta & phi sectors for GTT, encoded in an std::pair
         auto sectors = (l1t::demo::codecs::sectorsEtaPhiFromGTTLinkID(i));
-        track.setEtaSector(sectors.first);
-        track.setPhiSector(sectors.second);
-        track.trackWord_ = trackword.trackWord_;
+        const unsigned int etaSector = sectors.first;
+        const unsigned int phiSector = sectors.second;
+
+        L1Track track = L1Track(trackword.getRinv(),
+                                trackword.getPhi(),
+                                trackword.getTanl(),
+                                trackword.getZ0(),
+                                trackword.getD0(),
+                                trackword.getChi2RPhi(),
+                                trackword.getChi2RZ(),
+                                trackword.getMVAQuality(),
+                                trackword.getMVAOtherQuality(),
+                                0.,  // This is another MVA word.
+                                trackword.getHitPattern(),
+                                nHelixPar,
+                                bField,
+                                trackword.getBendChi2(),
+                                phiSector,
+                                etaSector);
+        track.setTrackWordBits();
         inputTracks->push_back(track);
       }  //end loop over trackwoards
     }  // end loop over GTT input links
