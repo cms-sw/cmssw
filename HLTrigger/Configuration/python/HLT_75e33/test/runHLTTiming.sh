@@ -191,6 +191,19 @@ run_benchmark() {
     ensure_patatrack_scripts
     mkdir -p "$logdir"
 
+    # Create jobReport for accurate input measurements
+    if [ -f "jobReport.xml" ]; then
+        rm jobReport.xml
+    fi
+
+    echo "Creating jobReport.xml for accurate input measurements"
+    cp "$cfg" tmp_cfg.py
+    cat <<@EOF >>tmp_cfg.py
+process.maxEvents.input = cms.untracked.int32(10)
+@EOF
+     cmsRun -j jobReport.xml tmp_cfg.py >report.log 2>&1 && rm tmp_cfg.py
+     echo "jobReport.xml created successfully." && rm report.log
+
     if [[ "$ENABLE_RESOURCES_MONITORING" = true ]]; then
 
 	echo "Running benchmark WITH RESOURCES monitoring"
@@ -223,7 +236,8 @@ run_benchmark() {
 	patatrack-scripts/benchmark \
 	    -j 8 -t 16 -s 16 \
 	    -e ${EVENTS} \
-	    --no-input-benchmark \
+	    --input-xml jobReport.xml \
+	    --input-benchmark \
 	    --slot "numa=0-3:mem=0-3" \
 	    --event-skip 100 \
 	    --event-resolution 10 \
