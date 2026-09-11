@@ -68,7 +68,10 @@ hltbTagValidation = DQMEDAnalyzer('HLTBTagPerformanceAnalyzer',
 		g = cms.vuint32(21),
 		uds = cms.vuint32(1, 2, 3)
 	),
-	mcPartons = cms.InputTag("hltBtagJetsbyValAlgo")
+	mcPartons = cms.InputTag("hltBtagJetsbyValAlgo"),
+	isPhase2 = cms.bool(False),
+	L1Seeds = cms.VPSet(),
+	PathFilters = cms.VPSet()
 )
 
 #put all in a path
@@ -102,48 +105,45 @@ fastSim.toModify(HltVertexValidationVertices, SimVertexCollection = "fastSimProd
 #Including phase2 conditions
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 
-triggerConditions_phase2 = cms.vstring(
-    "HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepCSV_2p4* OR HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepFlavour_2p4* OR HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepFlavour_2p4* OR HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepFlavour_2p4*")
-
-phase2_common.toModify(hltBtagTriggerSelection,
-                       triggerConditions = triggerConditions_phase2)
-
-HLTPathNames_phase2 = cms.vstring(
+HLTPathNames_phase2 = [
     'HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepCSV_2p4',
     'HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepFlavour_2p4',
     'HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepFlavour_2p4',
-    'HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepFlavour_2p4'
-)
+    'HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepFlavour_2p4',
+    'DST_PFScouting',
+    'DST_PFScouting'
+]
+
+phase2_common.toModify(hltBtagTriggerSelection,
+                       triggerConditions = [" OR ".join(p + "*" for p in dict.fromkeys(HLTPathNames_phase2))])
 
 phase2_common.toModify(hltbTagValidation,
                        HLTPathNames = HLTPathNames_phase2)
 
 phase2_common.toModify(HltVertexValidationVertices,
-                       HLTPathNames = HLTPathNames_phase2)
-
-phase2_common.toModify(
-    HltVertexValidationVertices,
-    Vertex = cms.VInputTag(
-            cms.InputTag("hltOfflinePrimaryVertices","","HLT"),
-    )
-)
+                       HLTPathNames = list(dict.fromkeys(HLTPathNames_phase2)),
+                       Vertex = ["hltOfflinePrimaryVertices::HLT"])
 
 phase2_common.toModify(
     hltbTagValidation,
-    isPhase2 = cms.bool(True),
-    L1Seeds = cms.VPSet(
+    isPhase2 = True,
+    L1Seeds = [
         cms.PSet(seeds = cms.vstring("pDoublePuppiJet112_112")),
         cms.PSet(seeds = cms.vstring("pPuppiHT400", "pQuadJet70_55_40_40")),
         cms.PSet(seeds = cms.vstring("pPuppiHT400", "pQuadJet70_55_40_40")),
-        cms.PSet(seeds = cms.vstring("pDoublePuppiJet112_112"))
-    ),
-    JetTag = cms.VInputTag(
-        cms.InputTag("hltDeepCombinedSecondaryVertexBJetTagsPFPuppiModEta2p4","probb"),
-        cms.InputTag("hltPfDeepFlavourJetTagsModEta2p4","probb"),
-        cms.InputTag("hltPfDeepFlavourJetTagsModEta2p4","probb"),
-        cms.InputTag("hltPfDeepFlavourJetTagsModEta2p4","probb")
-    ),
-    PathFilters = cms.VPSet(
+        cms.PSet(seeds = cms.vstring("pDoublePuppiJet112_112")),
+        cms.PSet(seeds = cms.vstring()),
+        cms.PSet(seeds = cms.vstring())
+    ],
+    JetTag = [
+        "hltDeepCombinedSecondaryVertexBJetTagsPFPuppiModEta2p4:probb",
+        "hltPfDeepFlavourJetTagsModEta2p4:probb",
+        "hltPfDeepFlavourJetTagsModEta2p4:probb",
+        "hltPfDeepFlavourJetTagsModEta2p4:probb",
+        "hltDeepCombinedSecondaryVertexBJetTagsPFPuppi:probb",
+        "hltPfDeepFlavourJetTags:probb"
+    ],
+    PathFilters = [
         cms.PSet(filters = cms.vstring(
             "hltDoublePFPuppiJets128MaxEta2p4",
             "hltDoublePFPuppiJets128Eta2p4MaxDeta1p6",
@@ -169,6 +169,8 @@ phase2_common.toModify(
             "hltDoublePFPuppiJets128MaxEta2p4",
             "hltDoublePFPuppiJets128Eta2p4MaxDeta1p6",
             "hltBTagPFPuppiDeepFlavour0p935DoubleEta2p4"
-        ))
-    )
+        )),
+        cms.PSet(filters = cms.vstring()),
+        cms.PSet(filters = cms.vstring())
+    ]
 )

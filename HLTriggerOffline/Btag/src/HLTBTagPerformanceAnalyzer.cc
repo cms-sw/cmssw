@@ -97,19 +97,15 @@ HLTBTagPerformanceAnalyzer::HLTBTagPerformanceAnalyzer(const edm::ParameterSet &
       consumes<std::vector<reco::ShallowTagInfo>>(edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfos"));
 
   // phase2-only config
-  isPhase2_ = iConfig.existsAs<bool>("isPhase2") ? iConfig.getParameter<bool>("isPhase2") : false;
+  isPhase2_ = iConfig.getParameter<bool>("isPhase2");
   if (isPhase2_) {
-    if (iConfig.existsAs<std::vector<edm::ParameterSet>>("L1Seeds")) {
-      auto l1SeedsCfg = iConfig.getParameter<std::vector<edm::ParameterSet>>("L1Seeds");
-      for (auto const &ps : l1SeedsCfg)
-        l1Seeds_.push_back(ps.getParameter<std::vector<std::string>>("seeds"));
-    }
+    auto const &l1SeedsCfg = iConfig.getParameter<std::vector<edm::ParameterSet>>("L1Seeds");
+    for (auto const &ps : l1SeedsCfg)
+      l1Seeds_.push_back(ps.getParameter<std::vector<std::string>>("seeds"));
 
-    if (iConfig.existsAs<std::vector<edm::ParameterSet>>("PathFilters")) {
-      auto pathFiltersCfg = iConfig.getParameter<std::vector<edm::ParameterSet>>("PathFilters");
-      for (auto const &ps : pathFiltersCfg)
-        pathFilters_.push_back(ps.getParameter<std::vector<std::string>>("filters"));
-    }
+    auto const &pathFiltersCfg = iConfig.getParameter<std::vector<edm::ParameterSet>>("PathFilters");
+    for (auto const &ps : pathFiltersCfg)
+      pathFilters_.push_back(ps.getParameter<std::vector<std::string>>("filters"));
   }
 
   m_mcPartons = consumes<JetFlavourMatchingCollection>(iConfig.getParameter<InputTag>("mcPartons"));
@@ -513,7 +509,7 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
     }
 
     // phase2-only isolated histograms
-    if (isPhase2_) {
+    if (isPhase2_ && ind < pathFilters_.size() && !pathFilters_[ind].empty()) {
       ibooker.setCurrentFolder(dqmFolder + "/filters");
       H1Iso_.back()["L1"] = ibooker.book1D("L1", "L1", btagBins, btagL, btagU);
       H1Iso_.back()["L1"]->setAxisTitle("disc", 1);
@@ -663,6 +659,18 @@ void HLTBTagPerformanceAnalyzer::fillDescriptions(edm::ConfigurationDescriptions
     desc.add<edm::ParameterSetDescription>("mcFlavours", psd0);
   }
   desc.add<edm::InputTag>("mcPartons", edm::InputTag("hltBtagJetsbyValAlgo"));
+  // phase2-only parameters, unused in the Run 3 configuration
+  desc.add<bool>("isPhase2", false);
+  {
+    edm::ParameterSetDescription psd1;
+    psd1.add<std::vector<std::string>>("seeds", {});
+    desc.addVPSet("L1Seeds", psd1, {});
+  }
+  {
+    edm::ParameterSetDescription psd2;
+    psd2.add<std::vector<std::string>>("filters", {});
+    desc.addVPSet("PathFilters", psd2, {});
+  }
   descriptions.addWithDefaultLabel(desc);
 }
 

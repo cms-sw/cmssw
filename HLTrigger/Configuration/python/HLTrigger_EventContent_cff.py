@@ -304,6 +304,8 @@ HLTDebugFEVT = cms.PSet(
         'drop *_hlt*_*_*',
         'keep *_hltPfDeepFlavourJetTagsModEta2p4_*_*',
         'keep *_hltDeepCombinedSecondaryVertexBJetTagsPFPuppiModEta2p4_*_*',
+        'keep *_hltPfDeepFlavourJetTags_*_*',
+        'keep *_hltDeepCombinedSecondaryVertexBJetTagsPFPuppi_*_*',
         'keep *RecHit*_hltSiPixelRecHitsSoASerialSync_*_*',
         'keep *RecHit*_hltSiPixelRecHitsSoA_*_*',
         'keep *_hltAK4CaloJetsCorrectedIDPassed_*_*',
