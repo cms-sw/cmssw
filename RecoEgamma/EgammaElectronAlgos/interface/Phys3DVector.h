@@ -5,6 +5,8 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include <limits>
+
 #include "FWCore/Utilities/interface/CMSUnrollLoop.h"
 
 namespace egamma::math {
@@ -21,18 +23,9 @@ namespace egamma::math {
 
     Phys3DVector(const Phys3DVector<T>&) = default;
 
-    constexpr Phys3DVector(const T value) : m_data{} {
-      CMS_UNROLL_LOOP
-      for (int i = 0; i < 3; i++) {
-        m_data[i] = value;
-      }
-    }
+    constexpr Phys3DVector(const T value) : m_data{value, value, value} {}
 
-    constexpr Phys3DVector(const T x, const T y, const T z) : m_data{} {
-      m_data[0] = x;
-      m_data[1] = y;
-      m_data[2] = z;
-    }
+    constexpr Phys3DVector(const T x, const T y, const T z) : m_data{x, y, z} {}
 
     Phys3DVector<T>& operator=(const Phys3DVector<T>&) = default;
 
@@ -43,36 +36,19 @@ namespace egamma::math {
 
     // Extra:
     inline constexpr void zero() {
-      CMS_UNROLL_LOOP
-      for (int i = 0; i < 3; i++) {
-        m_data[i] = static_cast<T>(0);
-      }
+      m_data[0] = static_cast<T>(0);
+      m_data[1] = static_cast<T>(0);
+      m_data[2] = static_cast<T>(0);
     }
 
-    inline constexpr T r2() const {
-      T res{0};
-      CMS_UNROLL_LOOP
-      for (int i = 0; i < 3; i++) {
-        res += m_data[i] * m_data[i];
-      }
-      return res;
-    }
+    inline constexpr T r2() const { return (m_data[0] * m_data[0] + m_data[1] * m_data[1] + m_data[2] * m_data[2]); }
 
-    inline constexpr T rho2() const {
-      T res{0};
-      CMS_UNROLL_LOOP
-      for (int i = 0; i < 2; i++) {
-        res += m_data[i] * m_data[i];
-      }
-
-      return res;
-    }
+    inline constexpr T rho2() const { return (m_data[0] * m_data[0] + m_data[1] * m_data[1]); }
 
     inline constexpr Phys3DVector<T>& operator*=(const T& scale) {
-      CMS_UNROLL_LOOP
-      for (int i = 0; i < 3; ++i) {
-        m_data[i] *= scale;
-      }
+      m_data[0] *= scale;
+      m_data[1] *= scale;
+      m_data[2] *= scale;
       return *this;
     }
 
@@ -90,13 +66,12 @@ namespace egamma::math {
     ALPAKA_FN_ACC void normalize(const TAcc& acc) {
       const T mag = r(acc);
 
-      if (mag == 0.)
+      if (mag < std::numeric_limits<T>::epsilon())
         return;
 
-      CMS_UNROLL_LOOP
-      for (int i = 0; i < 3; i++) {
-        m_data[i] /= mag;
-      }
+      m_data[0] /= mag;
+      m_data[1] /= mag;
+      m_data[2] /= mag;
     }
 
   private:
@@ -105,26 +80,12 @@ namespace egamma::math {
 
   template <typename T>
   inline constexpr Phys3DVector<T> operator*(const T a, const Phys3DVector<T>& x) {
-    Phys3DVector<T> res;
-
-    CMS_UNROLL_LOOP
-    for (int i = 0; i < 3; i++) {
-      res[i] = a * x[i];
-    }
-
-    return res;
+    return Phys3DVector<T>{a * x[0], a * x[1], a * x[2]};
   }
 
   template <typename T>
   inline constexpr Phys3DVector<T> operator-(const Phys3DVector<T>& x, const Phys3DVector<T>& y) {
-    Phys3DVector<T> res;
-
-    CMS_UNROLL_LOOP
-    for (int i = 0; i < 3; i++) {
-      res[i] = x[i] - y[i];
-    }
-
-    return res;
+    return Phys3DVector<T>{x[0] - y[0], x[1] - y[1], x[2] - y[2]};
   }
 
   template <typename TAcc, typename T>
@@ -141,14 +102,7 @@ namespace egamma::math {
 
   template <typename T>
   inline constexpr T operator*(const Phys3DVector<T>& x, const Phys3DVector<T>& y) {
-    T res{0};
-
-    CMS_UNROLL_LOOP
-    for (int i = 0; i < 3; i++) {
-      res += x[i] * y[i];
-    }
-
-    return res;
+    return (x[0] * y[0] + x[1] * y[1] + x[2] * y[2]);
   }
 
   template <typename T>

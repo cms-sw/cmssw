@@ -11,7 +11,6 @@
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/FreeTrajectoryState.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/helixBarrelPlaneCrossingByCircle.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/helixArbitraryPlaneCrossing.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/helixForwardPlaneCrossing.h"
 
 #include "PixelMatchingAlgo.h"
@@ -23,11 +22,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace cms::alpakatools;
 
   template <typename TAcc, typename T>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE T
-  getZVtxFromExtrapolation(TAcc const& acc, const Vec3d& primeVtxPos, const Vec3d& hitPos, const Vec3d& candPos) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE T getZVtxFromExtrapolation(TAcc const& acc,
+                                                            const egamma::math::Phys3DVector<T>& primeVtxPos,
+                                                            const egamma::math::Phys3DVector<T>& hitPos,
+                                                            const egamma::math::Phys3DVector<T>& candPos) {
     auto sq = [](T x) { return x * x; };
 
-    auto calRDiff2 = [sq](const Vec3d& p1, const Vec3d& p2) { return sq(p2[0] - p1[0]) + sq(p2[1] - p1[1]); };
+    auto calRDiff2 = [sq](const auto& p1, const auto& p2) { return sq(p2[0] - p1[0]) + sq(p2[1] - p1[1]); };
     const T r1Diff = alpaka::math::sqrt(acc, calRDiff2(primeVtxPos, hitPos));
     const T r2Diff = alpaka::math::sqrt(acc, calRDiff2(hitPos, candPos));
 
@@ -210,8 +211,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 (dRZMax >= 0 && alpaka::math::abs(acc, dRZ) > dRZMax))
               continue;
 
-            const double zVertex =
-                getZVtxFromExtrapolation<TAcc, typename Vec3d::value_type>(acc, vertex, hitPosition, positionSC);
+            const double zVertex = getZVtxFromExtrapolation(acc, vertex, hitPosition, positionSC);
             Vec3d vertexUpdated(vertex[0], vertex[1], zVertex);
 
             // --- Second hit ---
