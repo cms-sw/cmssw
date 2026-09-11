@@ -93,6 +93,8 @@ muons1stStep = cms.EDProducer("MuonIdProducer",
 
     # tracker muon arbitration
     arbitrateTrackerMuons = cms.bool(True),
+    # one muon, not two, for a tracker track crossing the interaction point
+    mergeCrossingTrackLegs = cms.bool(True),
     # normalization parameter for ME0 tracker muon arbitration
     dxNorm = cms.double(0.45),
     dDphiDzNorm = cms.double(0.00003)

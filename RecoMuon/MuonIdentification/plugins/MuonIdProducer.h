@@ -228,6 +228,12 @@ private:
 
   bool arbitrateTrackerMuons_;
 
+  // A tracker track that crosses the interaction point is propagated twice, once in each
+  // direction, so that both hemispheres of muon chambers are reachable. With this flag the
+  // two propagations produce a single muon carrying the chamber matches of both legs,
+  // instead of two muons sharing the track and hence having an identical four-vector.
+  bool mergeCrossingTrackLegs_;
+
   bool isPhase2_;
   bool debugWithTruthMatching_;
 
