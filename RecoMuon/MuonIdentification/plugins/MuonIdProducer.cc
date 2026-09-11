@@ -14,6 +14,8 @@
 #include <algorithm>
 
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
@@ -297,6 +299,7 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.getByToken(pvToken_, pvHandle_);
   if (gemHitHandle_.isValid())
     gemgeom = &iSetup.getData(gemgeomToken_);
+  globalGeom_ = &iSetup.getData(globalGeomToken_);
 }
 
 reco::Muon MuonIdProducer::makeMuon(edm::Event& iEvent,
@@ -656,6 +659,10 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
           if (sameRegion) {
             muon.setMatches(trackerMuon.matches());
           } else {
+            LogTrace("MuonIdentification")
+                << "merging legs at (eta,phi) " << etaOfMuonInteractionRegion(muon) << ","
+                << phiOfMuonInteractionRegion(muon) << " and " << etaOfMuonInteractionRegion(trackerMuon) << ","
+                << phiOfMuonInteractionRegion(trackerMuon);
             // fill the muon's own leg first, so the merge keeps the chambers of both
             if (!muon.isMatchesValid() && muon.isStandAloneMuon())
               fillMuonId(iEvent,
@@ -1620,6 +1627,25 @@ double MuonIdProducer::phiOfMuonInteractionRegion(const reco::Muon& muon) const 
       return muon.phi();  // makes little sense, but what else can I use
   }
   return sectorPhi(muon.matches().at(0).id);
+}
+
+double MuonIdProducer::etaOfMuonInteractionRegion(const reco::Muon& muon) const {
+  if (muon.isStandAloneMuon())
+    return muon.standAloneMuon()->innerPosition().eta();
+  // the rest is tracker muon only
+  if (muon.matches().empty()) {
+    if (muon.innerTrack().isAvailable() && muon.innerTrack()->extra().isAvailable())
+      return muon.innerTrack()->outerPosition().eta();
+    else
+      return muon.eta();
+  }
+  // where the track crossed the first matched chamber
+  const auto& match = muon.matches().at(0);
+  if (globalGeom_) {
+    if (const GeomDet* det = globalGeom_->idToDet(match.id))
+      return det->toGlobal(LocalPoint(match.x, match.y, 0)).eta();
+  }
+  return muon.eta();
 }
 
 void MuonIdProducer::fillGlbQuality(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::Muon& aMuon) {

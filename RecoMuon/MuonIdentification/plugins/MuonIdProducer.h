@@ -129,6 +129,7 @@ private:
   unsigned int chamberId(const DetId&);
 
   double phiOfMuonInteractionRegion(const reco::Muon& muon) const;
+  double etaOfMuonInteractionRegion(const reco::Muon& muon) const;
 
   bool checkLinks(const reco::MuonTrackLinks*) const;
   inline bool approxEqual(const double a, const double b, const double tol = 1E-3) const {
@@ -297,6 +298,7 @@ private:
   std::unique_ptr<MuonMesh> meshAlgo_;
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemgeomToken_;
   const GEMGeometry* gemgeom;
+  const GlobalTrackingGeometry* globalGeom_ = nullptr;
   double GEM_edgecut_;
 };
 #endif
