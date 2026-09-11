@@ -1375,6 +1375,29 @@ upgradeWFs['HCALOnlyCPU'] = PatatrackWorkflow(
     offset = 0.521,
 )
 
+# HGCal-only local reconstruction and validation, without general tracking
+#  - Phase-2 only (HGCal does not exist in Run3)
+#  - RAW2DIGI + HGCal-only reconstruction, with DQM and validation
+#  - harvesting
+class UpgradeWorkflow_HGCalOnly(PatatrackWorkflow):
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return ('Run4' in key) and (fragment == "TTbar_14TeV") and hasHarvest
+
+upgradeWFs['HGCalOnly'] = UpgradeWorkflow_HGCalOnly(
+    digi = {
+        # nothing special needed for the HGCal-only reconstruction
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi,RECO:reconstruction_hgcalOnly,VALIDATION:@HGCalOnlyValidation',
+        '--customise': 'Validation/Configuration/customiseHGCalOnly.customiseHGCalOnly',
+    },
+    harvest = {
+        '-s': 'HARVESTING:@HGCalOnlyValidation'
+    },
+    suffix = 'HGCalOnly',
+    offset = 0.531,
+)
+
 ###############################################################################################################
 ### Alpaka workflows
 ###
