@@ -91,7 +91,10 @@ hltSimTiclCandidateTable = cms.EDProducer(
         MTDtimeError=Var("MTDtimeError", "float",
                          doc="Trackster associated MTD time error, meaningful only for offline reconstruction"),
         trackIdx=Var("trackPtr().key", "int",
-                     doc="Index of hltGeneralTrack associated with TICLCandidate")
+                     doc="Index of hltGeneralTrack associated with SimTICLCandidate"),
+        gsftrackIdx=Var("gsftrackPtr().key", "int",
+                        doc="Index of GSFTrack associated with SimTICLCandidate")
+
     ),
 )
 hltTiclCandidateExtraTable = cms.EDProducer(
@@ -102,6 +105,9 @@ hltTiclCandidateExtraTable = cms.EDProducer(
     doc = cms.string("TICLCandidates extra table with linked Tracksters"),
     tracksters = cms.InputTag("hltTiclTrackstersCLUE3DHigh"),
     tracks = cms.InputTag("hltGeneralTracks"),
+    linkedTracksters=cms.InputTag("hltTiclCandidate", "linkedTracksters"),
+    produceGeneralTrackBoundary=cms.bool(True),
+    trackTableToExtend = cms.string("hltGeneralTrack"),
     detector = cms.string("HGCAL"),
     propagator = cms.string("PropagatorWithMaterial"),
     collectionVariables = cms.PSet(
@@ -123,6 +129,8 @@ hltSimTiclCandidateExtraTable = cms.EDProducer(
     doc = cms.string("TICLCandidates extra table with linked Tracksters"),
     tracksters = cms.InputTag("hltTiclSimTracksters"),
     tracks = cms.InputTag("hltGeneralTracks"),
+    caloParticles=cms.InputTag("mix", "MergedCaloTruth"),
+    caloParticleToSimClustersMap=cms.InputTag("hltTiclSimTracksters"),
     detector = cms.string("HGCAL"),
     propagator = cms.string("PropagatorWithMaterial"),
     collectionVariables = cms.PSet(

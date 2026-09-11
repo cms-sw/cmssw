@@ -45,6 +45,7 @@ public:
         produceGeneralTrackBoundary_(params.getParameter<bool>("produceGeneralTrackBoundary")),
         detector_(params.getParameter<std::string>("detector")),
         propName_(params.getParameter<std::string>("propagator")),
+        trackTableToExtend_(params.getParameter<std::string>("trackTableToExtend")),
         geometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
         bfield_token_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
         propagator_token_(esConsumes<Propagator, TrackingComponentsRecord>(edm::ESInputTag("", propName_))),
@@ -187,8 +188,8 @@ public:
     if (produceGeneralTrackBoundary_) {
       const auto& allTracks_h = iEvent.getHandle(tracks_token_);
       const size_t nAllTracks = allTracks_h.isValid() ? allTracks_h->size() : 0;
-      auto trackBoundaryTable =
-          std::make_unique<nanoaod::FlatTable>(nAllTracks, "GeneralTrack", /*singleton*/ false, /*extension*/ true);
+      auto trackBoundaryTable = std::make_unique<nanoaod::FlatTable>(
+          nAllTracks, trackTableToExtend_, /*singleton*/ false, /*extension*/ true);
       std::vector<float> hgcal_x(nAllTracks), hgcal_y(nAllTracks), hgcal_z(nAllTracks);
       std::vector<float> hgcal_eta(nAllTracks), hgcal_phi(nAllTracks);
       std::vector<float> hgcal_px(nAllTracks), hgcal_py(nAllTracks), hgcal_pz(nAllTracks);
@@ -529,6 +530,7 @@ public:
             "caloParticles to compute the isPU column. Omit for reco candidates.");
     desc.add<std::string>("detector", "HGCAL");
     desc.add<std::string>("propagator", "PropagatorWithMaterial");
+    desc.add<std::string>("trackTableToExtend", "GeneralTrack");
     desc.add<bool>("produceGeneralTrackBoundary", false)
         ->setComment(
             "If true, also emit an extension of the GeneralTrack table with HGCal-boundary "
@@ -571,6 +573,7 @@ protected:
   const bool produceGeneralTrackBoundary_;
   const std::string detector_;
   const std::string propName_;
+  const std::string trackTableToExtend_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bfield_token_;
   const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagator_token_;
