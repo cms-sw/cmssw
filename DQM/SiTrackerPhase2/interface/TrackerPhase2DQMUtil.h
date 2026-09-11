@@ -10,24 +10,30 @@
 
 namespace phase2tkutil {
 
-  std::string getITHistoId(uint32_t det_id, const TrackerTopology* tTopo, float phi);
-  std::string getITHistoWheelId(uint32_t det_id, const TrackerTopology* tTopo, float phi);
-  std::string getOTHistoId(uint32_t det_id, const TrackerTopology* tTopo);
-  std::string getOTHistoWheelId(uint32_t det_id, const TrackerTopology* tTopo);
   std::string getITShell(uint32_t det_id, const TrackerTopology* tTopo, float phi);
+  int getITSignedModule(uint32_t det_id, const TrackerTopology* tTopo, float phi);
+  int getITSignedLadder(uint32_t det_id, const TrackerTopology* tTopo, float phi);
+  int getITSignedWheel(uint32_t det_id, const TrackerTopology* tTopo);
+  std::string getHistoId(uint32_t det_id, const TrackerTopology* tTopo, float phi, int LEVEL, bool pretty);
 
   typedef dqm::reco::MonitorElement MonitorElement;
   typedef dqm::reco::DQMStore DQMStore;
 
-  MonitorElement* book1DFromPSet(const edm::ParameterSet& hpars, DQMStore::IBooker& ibooker);
-
-  MonitorElement* book2DFromPSet(const edm::ParameterSet& hpars, DQMStore::IBooker& ibooker);
-
-  MonitorElement* bookProfile1DFromPSet(const edm::ParameterSet& hpars, DQMStore::IBooker& ibooker);
+  MonitorElement* book1DFromPSet(const edm::ParameterSet& hpars,
+                                 DQMStore::IBooker& ibooker,
+                                 std::string titleString = "",
+                                 int scale = 1);
+  MonitorElement* book2DFromPSet(const edm::ParameterSet& hpars,
+                                 DQMStore::IBooker& ibooker,
+                                 std::string titleString = "");
+  MonitorElement* bookProfile1DFromPSet(const edm::ParameterSet& hpars,
+                                        DQMStore::IBooker& ibooker,
+                                        std::string titleString = "");
 
   void add1DDesc(edm::ParameterSetDescription& desc,
                  const std::string& psetKey,
                  const std::string& histName,
+                 const std::string& histTitle,
                  const std::string& xlabel,
                  const std::string& ylabel,
                  int nbins,
@@ -37,6 +43,7 @@ namespace phase2tkutil {
   void add2DDesc(edm::ParameterSetDescription& desc,
                  const std::string& psetKey,
                  const std::string& histName,
+                 const std::string& histTitle,
                  const std::string& xlabel,
                  const std::string& ylabel,
                  int nbx,

@@ -216,11 +216,6 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, const Si
         layer = tTopo_->getOTLayerNumber(rawid);
       if (layer < 0)
         continue;
-      std::string key = getHistoId(rawid, pixelFlag_);
-      auto pos = layerMEs.find(key);
-      if (pos == layerMEs.end())
-        continue;
-      DigiMEs& local_mes = pos->second;
 
       const DetId detId(rawid);
       float dZ = (*isim).entryPoint().z() - (*isim).exitPoint().z();
@@ -234,6 +229,12 @@ int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent, const Si
       if (!geomDet)
         continue;
       Global3DPoint pdPos = geomDet->surface().toGlobal(isim->localPosition());
+
+      std::string key = phase2tkutil::getHistoId(rawid, tTopo_, pdPos.phi(), 6, false);
+      auto pos = layerMEs.find(key);
+      if (pos == layerMEs.end())
+        continue;
+      DigiMEs& local_mes = pos->second;
 
       if (((*isim).tof() - pdPos.mag() / cval) < tofLowerCut_ || ((*isim).tof() - pdPos.mag() / cval) > tofUpperCut_)
         continue;
@@ -640,7 +641,9 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsi
   if (layer < 0)
     return;
 
-  std::string key = getHistoId(det_id, flag);
+  const GeomDet* geomDet = tkGeom_->idToDet(det_id);
+  GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
+  std::string key = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), 6, false);
   std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
   if (pos == layerMEs.end()) {
     std::string top_folder = config_.getParameter<std::string>("TopFolderName");
@@ -927,8 +930,7 @@ void Phase2TrackerValidateDigi::fillOTBXInfo() {
     int layer = tTopo_->getOTLayerNumber(rawid);
     if (layer < 0)
       continue;
-    bool flag_ = false;
-    std::string key = getHistoId(rawid, flag_);
+    std::string key = phase2tkutil::getHistoId(rawid, tTopo_, 0.0, 6, false);
     std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
     if (pos == layerMEs.end())
       continue;
@@ -963,8 +965,9 @@ void Phase2TrackerValidateDigi::fillITPixelBXInfo() {
     int layer = tTopo_->getITPixelLayerNumber(rawid);
     if (layer < 0)
       continue;
-    bool flag_ = true;
-    std::string key = getHistoId(rawid, flag_);
+    const GeomDet* geomDet = tkGeom_->idToDet(rawid);
+    GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
+    std::string key = phase2tkutil::getHistoId(rawid, tTopo_, detPos.phi(), 6, false);
     std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
     if (pos == layerMEs.end())
       continue;
@@ -1047,14 +1050,6 @@ void Phase2TrackerValidateDigi::fillHitsPerTrack() {
   }
 }
 */
-std::string Phase2TrackerValidateDigi::getHistoId(uint32_t det_id, bool flag) {
-  if (flag) {
-    const GeomDet* geomDet = tkGeom_->idToDet(det_id);
-    GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
-    return phase2tkutil::getITHistoId(det_id, tTopo_, detPos.phi());
-  } else
-    return phase2tkutil::getOTHistoId(det_id, tTopo_);
-}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(Phase2TrackerValidateDigi);

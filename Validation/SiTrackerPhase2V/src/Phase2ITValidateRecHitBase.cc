@@ -52,9 +52,7 @@ void Phase2ITValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, uns
   ibooker.cd();
   const GeomDet* geomDet = tkGeom_->idToDet(det_id);
   GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
-  std::string key = phase2tkutil::getITHistoId(det_id, tTopo_, detPos.phi());
-  if (key.empty())
-    return;
+  std::string key = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), 6, false);
   if (layerMEs_.find(key) == layerMEs_.end()) {
     ibooker.cd();
     RecHitME local_histos;
@@ -136,7 +134,7 @@ void Phase2ITValidateRecHitBase::fillRechitHistos(const PSimHit* simhitClosest,
   auto id = rechit->geographicalId();
   const GeomDet* geomDet = tkGeom_->idToDet(id);
   GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
-  std::string key = phase2tkutil::getITHistoId(id.rawId(), tTopo_, detPos.phi());
+  std::string key = phase2tkutil::getHistoId(id.rawId(), tTopo_, detPos.phi(), 6, false);
   const GeomDetUnit* geomDetunit(tkGeom_->idToDetUnit(id));
   if (!geomDetunit)
     return;

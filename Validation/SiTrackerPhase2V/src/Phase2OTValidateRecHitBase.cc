@@ -61,7 +61,7 @@ void Phase2OTValidateRecHitBase::fillOTRecHitHistos(const PSimHit* simhitClosest
     return;
   // determine the detector we are in
   TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(detId);
-  std::string key = phase2tkutil::getOTHistoId(detId.rawId(), tTopo_);
+  std::string key = phase2tkutil::getHistoId(detId.rawId(), tTopo_, 0.0, 6, false);
 
   LocalPoint lp = rechit->localPosition();
   auto simTrackIt(selectedSimTrackMap.find(simhitClosest->trackId()));
@@ -199,7 +199,7 @@ void Phase2OTValidateRecHitBase::bookHistograms(DQMStore::IBooker& ibooker,
 // -- Book Layer Histograms
 //
 void Phase2OTValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir) {
-  std::string key = phase2tkutil::getOTHistoId(det_id, tTopo_);
+  std::string key = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, 6, false);
   if (layerMEs_.find(key) == layerMEs_.end()) {
     ibooker.cd();
     RecHitME local_histos;
