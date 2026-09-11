@@ -80,7 +80,7 @@ from Configuration.Eras.Modifier_run3_ecal_devel_cff import run3_ecal_devel
 run3_ecal_devel.toModify( theDigitizers,
                         ecalTime = ecalTimeDigitizer.clone() )
 
-from SimFastTiming.Configuration.SimFastTiming_cff import mtdDigitizer
+from SimFastTiming.Configuration.SimFastTiming_cff import mtdDigitizer, BTLReadoutMapESProducer
 from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
 phase2_timing_layer.toModify( theDigitizers,
                               fastTimingLayer = mtdDigitizer.clone(),
