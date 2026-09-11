@@ -2,6 +2,9 @@
 #define RecoEgamma_EgammaElectronAlgos_interface_Plane_h
 
 #include <cmath>
+
+#include <alpaka/alpaka.hpp>
+
 #include "RecoEgamma/EgammaElectronAlgos/interface/Phys3DVector.h"
 
 namespace egamma {

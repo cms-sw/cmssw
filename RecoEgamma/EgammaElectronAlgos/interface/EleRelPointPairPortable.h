@@ -71,6 +71,11 @@ namespace egamma {
     Vec3 relP2;  // Relative point 2
   };
 
+  template <typename T>
+  EleRelPointPairPortable(const egamma::math::Phys3DVector<T>&,
+                          const egamma::math::Phys3DVector<T>&,
+                          const egamma::math::Phys3DVector<T>&) -> EleRelPointPairPortable<T>;
+
 }  // namespace egamma
 
 #endif  // RecoEgamma_EgammaElectronAlgos_interface_EleRelPointPairPortable_h
