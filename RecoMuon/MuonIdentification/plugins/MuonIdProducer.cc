@@ -643,6 +643,9 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
         for (auto& muon : *outputMuons) {
           if (muon.innerTrack().get() != trackerMuon.innerTrack().get())
             continue;
+          // a candidate without matches has nothing to contribute and must not wipe the muon's
+          if (trackerMuon.matches().empty())
+            continue;
           // sharing the tracker track already makes the two the same object; the phi test only
           // says whether they were reconstructed from the same hemisphere
           const bool sameRegion = std::abs(reco::deltaPhi(phiOfMuonInteractionRegion(muon),
