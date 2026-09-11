@@ -34,7 +34,7 @@
 
   <class name="std::vector<std::pair<edm::Ref<std::vector<io_v1::TrackingParticle>,io_v1::TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<io_v1::TrackingParticle>,io_v1::TrackingParticle> >,double> >" />
   <class name="std::pair<edm::Ref<std::vector<io_v1::TrackingParticle>,io_v1::TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<io_v1::TrackingParticle>,io_v1::TrackingParticle> >,double>" />
-  <class name="UniqueSimTrackId"/>
+  <typedef name="UniqueSimTrackId"/>
   <class name="std::pair<UniqueSimTrackId, edm::Ref<std::vector<io_v1::TrackingParticle>, io_v1::TrackingParticle, edm::refhelper::FindUsingAdvance<std::vector<io_v1::TrackingParticle>, io_v1::TrackingParticle> > >"/>
   <class name="std::unordered_map<UniqueSimTrackId, TrackingParticleRef, UniqueSimTrackIdHash>"/>
   <class name="edm::Wrapper<std::unordered_map<UniqueSimTrackId, TrackingParticleRef, UniqueSimTrackIdHash>>"/>
