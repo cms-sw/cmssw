@@ -11,7 +11,7 @@ namespace edm {
   class VtuneFilterService {
   public:
     VtuneFilterService(const ParameterSet&, ActivityRegistry&);
-    
+
     void preModuleEvent(StreamContext const&, ModuleCallingContext const&);
     void postModuleEvent(StreamContext const&, ModuleCallingContext const&);
 
@@ -19,4 +19,4 @@ namespace edm {
     std::vector<std::string> targetModules_;
     bool isTargetModule(std::string const& label) const;
   };
-}
+}  // namespace edm

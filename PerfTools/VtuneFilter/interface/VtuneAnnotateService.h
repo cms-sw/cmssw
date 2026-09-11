@@ -11,13 +11,13 @@ namespace edm {
   class VtuneAnnotateService {
   public:
     VtuneAnnotateService(const ParameterSet&, ActivityRegistry&);
-    
+
     void preModuleEvent(StreamContext const&, ModuleCallingContext const&);
     void postModuleEvent(StreamContext const&, ModuleCallingContext const&);
 
   private:
     std::vector<std::string> targetModules_;
     bool isTargetModule(std::string const& label) const;
-    __itt_domain* ittDomain_; 
+    __itt_domain* ittDomain_;
   };
-}
+}  // namespace edm
