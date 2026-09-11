@@ -40,6 +40,7 @@ process.looper.algoConfig = cms.PSet(
                                 MuonRecHitBuilder = cms.string("MuonRecHitBuilder"),
                                 RefitDirection = cms.string("alongMomentum"),
                                 RefitRPCHits = cms.bool(False),
+                                RefitMuonHits = cms.bool(True),
                                 Propagator = cms.string("SteppingHelixPropagatorAny")),
 
     mode = cms.string("phipos"),

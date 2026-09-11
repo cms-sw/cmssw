@@ -41,12 +41,15 @@ MuonAlignmentFromReference = cms.PSet(
     reportFileName = cms.string("MuonAlignmentFromReference_report.py"),  # Python-formatted output
 
     maxResSlopeY = cms.double(10.),
-    
+
     createNtuple = cms.bool(False),
-    
+
     peakNSigma = cms.double(-1.),
     bFieldCorrection = cms.int32(1),
-    
+
     doDT = cms.bool(True),
-    doCSC = cms.bool(True)
+    doCSC = cms.bool(True),
+
+    createLayerNtupleDT = cms.bool(False),
+    createLayerNtupleCSC = cms.bool(False)
 )

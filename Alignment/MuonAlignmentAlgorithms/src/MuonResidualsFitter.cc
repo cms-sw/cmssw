@@ -5,13 +5,21 @@
 #else
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsFitter.h"
 #endif
+#include "Alignment/MuonAlignmentAlgorithms/interface/MuonResiduals6DOFrphiFitter.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
 #include <fstream>
 #include <set>
 #include "TMath.h"
 #include "TH1.h"
 #include "TF1.h"
+#include "TVector2.h"
 #include "TRobustEstimator.h"
+#include "Math/MinimizerOptions.h"
+#include <fstream>
+#include <sstream>
 
 // all global variables begin with "MuonResidualsFitter_" to avoid
 // namespace clashes (that is, they do what would ordinarily be done
@@ -160,6 +168,19 @@ MuonResidualsFitter::MuonResidualsFitter(int residualsModel, int minHits, int us
   if (m_residualsModel != kPureGaussian && m_residualsModel != kPowerLawTails && m_residualsModel != kROOTVoigt &&
       m_residualsModel != kGaussPowerTails && m_residualsModel != kPureGaussian2D)
     throw cms::Exception("MuonResidualsFitter") << "unrecognized residualsModel";
+  //Reading external file containing CSC geometry
+  std::ifstream infile("/afs/cern.ch/cms/CAF/CMSALCA/ALCA_MUONALIGN/MuonGeometries/muonGeometry_DESIGN_Global.txt");
+  float endcap, station, ring, chamber, DX, DY, tmp1, tmp2, tmp3, tmp4;
+  while (infile >> endcap >> station >> ring >> chamber >> DX >> DY >> tmp1 >> tmp2 >> tmp3 >> tmp4) {
+    std::vector<float> vec;
+    vec.clear();
+    vec.push_back(endcap);
+    vec.push_back(station);
+    vec.push_back(ring);
+    vec.push_back(chamber);
+    m_RadiousOfCSC[vec] = sqrt(DX * DX + DY * DY);
+    vec.clear();
+  }
 }
 
 MuonResidualsFitter::~MuonResidualsFitter() {
@@ -275,7 +296,9 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int &, double *, double &, double *,
                                 std::vector<double> &start,
                                 std::vector<double> &step,
                                 std::vector<double> &low,
-                                std::vector<double> &high) {
+                                std::vector<double> &high,
+                                std::string chamber_id) {
+  //ROOT::Math::MinimizerOptions::SetDefaultErrorDef(0.5); //Alternative way to say Minuit you have a Log-likelihood
   MuonResidualsFitterFitInfo *fitinfo = new MuonResidualsFitterFitInfo(this);
 
   MuonResidualsFitter_TMinuit = new TMinuit(npar());
@@ -292,12 +315,23 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int &, double *, double &, double *,
   std::vector<double>::const_iterator ilow = low.begin();
   std::vector<double>::const_iterator ihigh = high.begin();
 
-  //MuonResidualsFitter_TMinuit->SetPrintLevel(-1);
+  // Created as a test to fix sigmaX and sigmaY to post-fit values (also a change in MuonAlignmentAlgorithms/plugins/MuonAlignmentFromReference.cc)
+  /*std::vector<double> sigmas_value; sigmas_value.clear(); sigmas_value = GetSigmaValues(chamber_id);
+  double sigX=sigmas_value[0]; double sigY=sigmas_value[1];
+  double sigX_I=sigX-0.001, sigX_F=sigX+0.001;
+  double sigY_I=sigY-0.001, sigY_F=sigY+0.001;*/
 
   for (; iNum != parNum.end(); ++iNum, ++iName, ++istart, ++istep, ++ilow, ++ihigh) {
     MuonResidualsFitter_TMinuit->DefineParameter(*iNum, iName->c_str(), *istart, *istep, *ilow, *ihigh);
     if (fixed(*iNum))
       MuonResidualsFitter_TMinuit->FixParameter(*iNum);
+    /*if( std::strcmp(iName->c_str(),"ResidXSigma")==0 || std::strcmp(iName->c_str(),"ResidYSigma")==0 || std::strcmp(iName->c_str(),"ResidSigma")==0 ){
+    int ierflg;
+    if(std::strcmp(iName->c_str(),"ResidXSigma")==0 ) MuonResidualsFitter_TMinuit->mnparm(6, iName->c_str(), sigX, 0.0001, sigX_I, sigX_F, ierflg);
+    if(std::strcmp(iName->c_str(),"ResidYSigma")==0)  MuonResidualsFitter_TMinuit->mnparm(7, iName->c_str(), sigY, 0.0001, sigY_I, sigY_F, ierflg);
+    if(std::strcmp(iName->c_str(),"ResidSigma")==0  ) MuonResidualsFitter_TMinuit->mnparm(5, iName->c_str(), sigX, 0.0001, sigX_I, sigX_F, ierflg);
+    MuonResidualsFitter_TMinuit->FixParameter(*iNum);
+    }*/
   }
 
   double arglist[10];
@@ -357,6 +391,7 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int &, double *, double &, double *,
       arglist[i] = 0.;
     ierflg = 0;
     MuonResidualsFitter_TMinuit->mnexcm("HESSE", arglist, 0, ierflg);
+    //MuonResidualsFitter_TMinuit->mnexcm("MINOS", arglist, 0, ierflg); //For non paraboloid Likelihood, but it was checked that errors are similar
   }
 
   // read-out the results
@@ -716,56 +751,49 @@ void MuonResidualsFitter::selectPeakResiduals_simple(double nsigma, int nvar, in
             << (size_t)std::count(m_residuals_ok.begin(), m_residuals_ok.end(), true) << std::endl;
 }
 
-void MuonResidualsFitter::fiducialCuts(double xMin, double xMax, double yMin, double yMax, bool fidcut1) {
-  int iResidual = -1;
+void MuonResidualsFitter::fiducialCuts(unsigned int idx) {
+  DetId id(idx);
+  if (id.subdetId() == MuonSubdetId::DT) {
+    int iResidual = -1;
 
-  int n_station = 9999;
-  int n_wheel = 9999;
-  int n_sector = 9999;
+    int n_station = 9999;
+    int n_wheel = 9999;
+    int n_sector = 9999;
 
-  double positionX = 9999.;
-  double positionY = 9999.;
+    double positionX = 9999.;
+    double positionY = 9999.;
 
-  double chambw = 9999.;
-  double chambl = 9999.;
+    double chambw = 9999.;
+    double chambl = 9999.;
 
-  for (std::vector<double *>::const_iterator r = residuals_begin(); r != residuals_end(); ++r) {
-    iResidual++;
-    if (!m_residuals_ok[iResidual])
-      continue;
+    for (std::vector<double *>::const_iterator r = residuals_begin(); r != residuals_end(); ++r) {
+      iResidual++;
 
-    if ((*r)[15] >
-        0.0001) {  // this value is greater than zero (chamber width) for 6DOFs stations 1,2,3 better to change for type()!!!
-      n_station = (*r)[12];
-      n_wheel = (*r)[13];
-      n_sector = (*r)[14];
-      positionX = (*r)[4];
-      positionY = (*r)[5];
-      chambw = (*r)[15];
-      chambl = (*r)[16];
-    } else {  // in case of 5DOF residual the residual object index is different
-      n_station = (*r)[10];
-      n_wheel = (*r)[11];
-      n_sector = (*r)[12];
-      positionX = (*r)[2];
-      positionY = (*r)[3];
-      chambw = (*r)[13];
-      chambl = (*r)[14];
-    }
+      if ((*r)[10] >
+          14) {  // Since you don't know if you are in station 1,2,3 or 4 (the index is different) you look at the 150th one. In MuonResiduals5DOFFitter.h is the sector, in MuonResiduals6DOFFitter.h is the Pt (always bigger than 15 GeV)
+        n_station = (*r)[12];
+        n_wheel = (*r)[13];
+        n_sector = (*r)[14];
+        positionX = (*r)[4];
+        positionY = (*r)[5];
+        chambw = (*r)[15];
+        chambl = (*r)[16];
+      } else {  // This is sttaion 4 *5 (DOF). In case of 5DOF residual the residual object index is different (MuonAlignmentAlgorithms/interface/MuonResiduals5DOFFitter.h)
+        n_station = (*r)[10];
+        n_wheel = (*r)[11];
+        n_sector = (*r)[12];
+        positionX = (*r)[2];
+        positionY = (*r)[3];
+        chambw = (*r)[13];
+        chambl = (*r)[14];
+      }
+      if (!m_residuals_ok[iResidual])
+        continue;
 
-    if (fidcut1) {  // this is the standard fiducial cut used so far 80x80 cm in x,y
-      if (positionX >= xMax || positionX <= xMin)
-        m_residuals_ok[iResidual] = false;
-      if (positionY >= yMax || positionY <= yMin)
-        m_residuals_ok[iResidual] = false;
-    }
+      // Implementation of new fiducial cut
+      double dtrkchamx = (chambw / 2.) - positionX;  // variables to cut tracks on the edge of the chambers
+      double dtrkchamy = (chambl / 2.) - positionY;
 
-    // Implementation of new fiducial cut
-
-    double dtrkchamx = (chambw / 2.) - positionX;  // variables to cut tracks on the edge of the chambers
-    double dtrkchamy = (chambl / 2.) - positionY;
-
-    if (!fidcut1) {
       if (n_station == 4) {
         if ((n_wheel == -1 && n_sector == 3) ||
             (n_wheel == 1 &&
@@ -815,6 +843,62 @@ void MuonResidualsFitter::fiducialCuts(double xMin, double xMax, double yMin, do
             m_residuals_ok[iResidual] = false;
         }
       }
+    }
+  }  //end !m_doCSC
+  //Fid cuts for CSC
+  else if (id.subdetId() == MuonSubdetId::CSC) {
+    CSCDetId chamberId(id.rawId());
+    std::vector<float> ChamberInfo;
+    ChamberInfo.clear();
+    ChamberInfo.push_back(chamberId.endcap());
+    ChamberInfo.push_back(chamberId.station());
+    ChamberInfo.push_back(chamberId.ring());
+    ChamberInfo.push_back(chamberId.chamber());
+    float Radi = getRadiusFromMap(ChamberInfo);
+    TVector2 Radius(0, fabs(Radi));
+    //Cut is different if chamber is 20 or 10 degrees width
+    float Fiducial_cut = 1., SizeInDegree = 10.;
+    if (chamberId.station() == 1 || (chamberId.station() != 1 && chamberId.ring() == 2))
+      SizeInDegree = 5.;
+    int iResidual = -1;
+    for (std::vector<double *>::const_iterator r = residuals_begin(); r != residuals_end(); ++r) {
+      iResidual++;
+      if (!m_residuals_ok[iResidual])
+        continue;
+      TVector2 LocalPoint((*r)[MuonResiduals6DOFrphiFitter::kPositionX], (*r)[MuonResiduals6DOFrphiFitter::kPositionY]);
+      LocalPoint += Radius;
+      float phi_rad = (3.14159265 / 2.) - LocalPoint.Phi();  //Angle to which I want to apply the fid. cut
+      float phi_deg = 180 * (phi_rad) / 3.14159265;          //Angle in degree.
+      //Actual cut for borders
+      if (chamberId.station() == 1 && chamberId.ring() == 3)
+        // Fiducial_cut = 1.7;
+        Fiducial_cut = 2.7;
+      else
+        // Fiducial_cut = 1;
+        Fiducial_cut = 2;
+      if (fabs(phi_deg) > (SizeInDegree - Fiducial_cut))
+        m_residuals_ok[iResidual] = false;
+      //Actual cut for local Y
+      float Y_pos = (*r)[MuonResiduals6DOFrphiFitter::kPositionY];
+      if (chamberId.station() == 1 && chamberId.ring() == 1 && (Y_pos < -65 || Y_pos > 65))
+        m_residuals_ok[iResidual] = false;  //Need to add the gap between 1/1 and 1/4
+      //	if(chamberId.station()==1 && chamberId.ring()==1 && (Y_pos>-34  && Y_pos<-29)  ) m_residuals_ok[iResidual] = false; //Gap between 1/1 and 1/4 should be removed? No all chambers have gaps
+      if (chamberId.station() == 1 && chamberId.ring() == 2 && (Y_pos < -80 || Y_pos > 80))
+        m_residuals_ok[iResidual] = false;
+      if (chamberId.station() == 1 && chamberId.ring() == 3 && (Y_pos < -75 || Y_pos > 70))
+        m_residuals_ok[iResidual] = false;
+      if (chamberId.station() == 2 && chamberId.ring() == 1 && (Y_pos < -80 || Y_pos > 90))
+        m_residuals_ok[iResidual] = false;
+      if (chamberId.station() == 2 && chamberId.ring() == 2 && (Y_pos < -150 || Y_pos > 150))
+        m_residuals_ok[iResidual] = false;
+      if (chamberId.station() == 3 && chamberId.ring() == 1 && (Y_pos < -70 || Y_pos > 80))
+        m_residuals_ok[iResidual] = false;
+      if (chamberId.station() == 3 && chamberId.ring() == 2 && (Y_pos < -150 || Y_pos > 150))
+        m_residuals_ok[iResidual] = false;
+      if (chamberId.station() == 4 && chamberId.ring() == 1 && (Y_pos < -60 || Y_pos > 70))
+        m_residuals_ok[iResidual] = false;
+      if (chamberId.station() == 4 && chamberId.ring() == 2 && (Y_pos < -150 || Y_pos > 150))
+        m_residuals_ok[iResidual] = false;
     }
   }
 }
@@ -906,4 +990,34 @@ void MuonResidualsFitter::eraseNotSelectedResiduals() {
 
   std::cout << "residuals size after eraseNotSelectedResiduals =" << m_residuals.size()
             << "  ok size=" << m_residuals_ok.size() << std::endl;
+}
+
+// Not used. Created as a test to fix sigmaX and sigmaY to post-fit values (also a change in MuonAlignmentAlgorithms/plugins/MuonAlignmentFromReference.cc)
+std::vector<double> MuonResidualsFitter::GetSigmaValues(std::string chmaber_id) {
+  std::vector<double> sigmas;
+  sigmas.clear();
+  std::string whole_line;
+  // This file should contain the sigmaX and signaY post-fit values. Each line is a DT chamber and it is like: -2_1_11 0.705242 1.05453 (chamber ID, sigmaX, sigmaY). Only sigmaX in station 4.
+  std::ifstream infile(
+      "/afs/cern.ch/work/l/lpernie/MuonAlign/WD/CMSSW_8_0_24/src/FIXING_sigmas/"
+      "mc_DT-1100-111111_CMSSW_8_0_24_GTasym_45M_8TeV_misall_03_sigmas.txt");
+  while (std::getline(infile, whole_line)) {
+    std::vector<std::string> v_whole_line;
+    v_whole_line.clear();
+    std::istringstream iss(whole_line);
+    std::string word;
+    while (getline(iss, word, ' ')) {
+      v_whole_line.push_back(word);
+    }
+    v_whole_line.push_back("-999.");
+    if (v_whole_line[0] == chmaber_id) {
+      float fl_sigmaX = std::stof(v_whole_line[1]);
+      float fl_sigmaY = std::stof(v_whole_line[2]);
+      sigmas.push_back(fl_sigmaX);
+      sigmas.push_back(fl_sigmaY);
+      return sigmas;
+    }
+  }
+  std::cout << "WARNING! CHAMBER NOT FOUND!" << std::endl;
+  return sigmas;
 }
