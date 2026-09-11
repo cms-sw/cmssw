@@ -105,6 +105,12 @@ options.register('throwOnInvalid', False, # Intended production setup: False for
                 VarParsing.VarParsing.varType.bool,
                 "duringFill only: If true, throw on invalid payloads; if false, filter them out.")
 
+# Size of the lumi-per-BX vector used in tests / dummy payload generation
+options.register('size', 0
+                , VarParsing.VarParsing.multiplicity.singleton
+                , VarParsing.VarParsing.varType.int
+                , "Size of the lumi-per-BX vector to generate. If 0, default size from code is used.")
+
 # so far there was no need to use option, added just in case
 options.register( 'authenticationPath'
                 , ""
@@ -188,6 +194,7 @@ process.Test1 = cms.EDAnalyzer("LHCInfoPerFillPopConAnalyzer" if options.mode ==
                                    omsBaseUrl = cms.untracked.string(options.oms),
                                    authenticationPath = cms.untracked.string(options.authenticationPath),
                                    debug=cms.untracked.bool(False),
+                                   size=cms.untracked.uint32(options.size),
                                    minEnergy = cms.untracked.double(options.minEnergy),
                                    maxEnergy = cms.untracked.double(options.maxEnergy),
                                    throwOnInvalid = cms.untracked.bool(options.throwOnInvalid)
