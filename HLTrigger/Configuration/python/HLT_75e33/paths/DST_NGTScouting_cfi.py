@@ -20,25 +20,25 @@ from ..modules.hltEgammaR9Unseeded_cfi import *
 from ..modules.hltEgammaEcalPFClusterIsoUnseeded_cfi import *
 from ..modules.hltEgammaEleGsfTrackIsoUnseeded_cfi import *
 from ..modules.hltEgammaHcalPFClusterIsoUnseeded_cfi import *
+
+from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTAK4PFJetsReconstruction_cfi import *
 from ..sequences.HLTAK4PFPuppiJetsReconstruction_cfi import *
-from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTBtagDeepCSVSequencePFPuppi_cfi import *
 from ..sequences.HLTBtagDeepFlavourSequencePFPuppi_cfi import *
-from ..sequences.HLTEndSequence_cfi import *
+from ..sequences.HLTElePixelMatchUnseededSequence_cfi import *
+from ..sequences.HLTGsfElectronUnseededSequence_cfi import *
 from ..sequences.HLTHPSDeepTauPFTauSequence_cfi import *
-from ..sequences.HLTTICLLocalRecoSequence_cfi import *
 from ..sequences.HLTHgcalTiclPFClusteringForEgammaUnseededSequence_cfi import *
 from ..sequences.HLTLocalrecoSequence_cfi import *
 from ..sequences.HLTMuonsSequence_cfi import *
+from ..sequences.HLTPFClusteringForEgammaUnseededSequence_cfi import *
 from ..sequences.HLTPFPuppiMETReconstruction_cfi import *
 from ..sequences.HLTPFTauHPS_cfi import *
 from ..sequences.HLTParticleFlowSequence_cfi import *
-from ..sequences.HLTElePixelMatchUnseededSequence_cfi import *
-from ..sequences.HLTGsfElectronUnseededSequence_cfi import *
 from ..sequences.HLTPhase2L3MuonGeneralTracksSequence_cfi import *
-from ..sequences.HLTPFClusteringForEgammaUnseededSequence_cfi import *
 from ..sequences.HLTRawToDigiSequence_cfi import *
+from ..sequences.HLTTICLLocalRecoSequence_cfi import *
 from ..sequences.HLTTrackingSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
 
