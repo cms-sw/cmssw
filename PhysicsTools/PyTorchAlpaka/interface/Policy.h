@@ -35,23 +35,9 @@ namespace cms::torch::alpakatools::detail {
     explicit Policy(T* data_ptr, const size_t num_elems) : num_elems_(num_elems), data_ptr_(data_ptr) {}
 
     // Perform a copy operation for constant tensors.
-    // For CudaAsync, SerialSync only D2D (H2H for CPU but stick to alpaka semantics) copy is considered
+    // For CudaAsync, RocmAsync, SerialSync only D2D (H2H for CPU but stick to alpaka semantics) copy is considered
     // and only for constant data. If T is not const then reuse the provided data pointer.
-    //
-    // For ROCmAsync only D2H and H2D copies are considered and CPU fallback avaliable only.
-    // Perform a copy operation not matter if the data is constant
     void copy(TQueue& queue, const MemcpyKind kind) {
-#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
-      if (kind == MemcpyKind::DeviceToHost)
-        deviceToHost(queue);
-      else if (kind == MemcpyKind::HostToDevice)
-        hostToDevice(queue);
-      else
-        assert(
-            false &&
-            "Unsupported MemcpyKind, only D2H and H2D copy is supported for ROCmAsync backend due to CPU fallback and "
-            "CMSSW pytorch-hip limitations.");
-#else
       // copy only if T is const (const correctness and thread-safety -> torch::from_blob())
       if constexpr (std::is_const_v<T>) {
         if (kind == MemcpyKind::DeviceToDevice)
@@ -59,19 +45,12 @@ namespace cms::torch::alpakatools::detail {
         else
           assert(false && "Unsupported MemcpyKind, only D2D copy operation is supported this backend.");
       }
-#endif  // ALPAKA_ACC_GPU_HIP_ENABLED
     }
 
     // Returns a writable pointer to a copy of constant data,
     // or the original pointer for non-const data.
     // Workaround for torch::from_blob() until pytorch supports safe COW tensors.
     Ttype* data() {
-#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
-      // return buffer that can be safely used by pytorch (possibly modified)
-      assert(host_buffer_ &&
-             "HostBuffer not initialized! For ROCm/HIP CPU fallback avaliable only. Call deviceToHost first.");
-      return host_buffer_->data();
-#else
       if constexpr (std::is_const_v<T>) {
         // return buffer that can be safely used by pytorch (possibly modified)
         assert(dev_buffer_ && "DeviceBuffer not initialized! Materialize constant data first with D2D copy.");
@@ -80,7 +59,6 @@ namespace cms::torch::alpakatools::detail {
         // return original pointer since it is not const
         return data_ptr_;
       }
-#endif  // ALPAKA_ACC_GPU_HIP_ENABLED
     }
 
   private:
@@ -107,8 +85,7 @@ namespace cms::torch::alpakatools::detail {
     void hostToDevice(TQueue& queue) {
       // guard to not write to const memory space only is dest is mutable
       if constexpr (!std::is_const_v<T>) {
-        assert(host_buffer_ &&
-               "HostBuffer not initialized! For ROCm/HIP CPU fallback avaliable only. Call deviceToHost first.");
+        assert(host_buffer_ && "HostBuffer not initialized! Call deviceToHost first.");
         auto dest_view =
             alpaka::createView(alpaka::getDev(queue), data_ptr_, alpaka::getExtents(host_buffer_.value())[0]);
         alpaka::memcpy(queue, dest_view, host_buffer_.value());

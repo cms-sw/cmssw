@@ -131,7 +131,7 @@ model.forward(queue, inputs, outputs, torch::kHalf);
 FP16 and FP32 outputs may differ slightly due to reduced precision and floating-point accumulation effects. Users are encouraged to check the output compatibility.
 
 ## Limitations
-- Current implementation supports `SerialSync` and `CudaAsync` backends only. `ROCmAsync` backend is supported via SerialSync fallback mechanism due to missing `pytorch-hip` library in CMSSW (see: https://github.com/pytorch/pytorch/blob/main/aten/CMakeLists.txt#L75), with explicit `alpaka::wait()` call to copy data to host and back to device.
+- Currently the `ROCmAsync` backend does not support convolution kernels.
 - Const correctness and thread-safety relies on `torch::from_blob()` mechanism which currently does not ensure that data will not be modified internally. There is ongoing work to support COW tensors but until this support will be integrated in mainstream PyTorch the provided solution materialises (copies) the tensors if passed registry points to `const` memory. For more information please check [Const correctness and thread-safety of torch::from_blob with external memory](https://discuss.pytorch.org/t/const-correctness-and-thread-safety-of-torch-from-blob-with-external-memory/223521) and [pytorch:#97856](https://github.com/pytorch/pytorch/issues/97856)
 - For multi output branch models the intermediate copy of output is done, so there is no "true" no-copy mechanism under the hood.
 - AOT support is under active development and subject to changes that obey CMSSW releasing rules.

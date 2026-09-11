@@ -12,6 +12,7 @@
   <use name="alpaka"/>
   <use name="pytorch"/>
   <use name="pytorch-cuda" for="alpaka/cuda"/>
+  <use name="pytorch-rocm" for="alpaka/rocm"/>
   <use name="DataFormats/PortableTestObjects"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
