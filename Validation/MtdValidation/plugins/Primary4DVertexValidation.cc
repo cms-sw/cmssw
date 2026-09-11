@@ -390,11 +390,18 @@ private:
   MonitorElement* meSimPVTvsZ_;
 
   MonitorElement* meVtxTrackMult_;
+  MonitorElement* meVtxTrackMultLin_;
   MonitorElement* meVtxTrackMultPassNdof_;
+  MonitorElement* meVtxTrackMultPassNdofLin_;
   MonitorElement* meVtxTrackMultFailNdof_;
   MonitorElement* meVtxTrackW_;
   MonitorElement* meVtxTrackWnt_;
   MonitorElement* meVtxTrackRecLVMult_;
+  MonitorElement* meVtxTrackRecLVMultLin_;
+  MonitorElement* meVtxTrackRecLVMult20_;
+  MonitorElement* meVtxTrackRecLVMultLin20_;
+  MonitorElement* meVtxTrackRecLVMult60_;
+  MonitorElement* meVtxTrackRecLVMultLin60_;
   MonitorElement* meVtxTrackRecLVW_;
   MonitorElement* meVtxTrackRecLVWnt_;
 
@@ -795,13 +802,26 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
   meSimPVTvsZ_ = ibook.bookProfile("simPVTvsZ", "PV Time vs Z", 30, -15., 15., 30, -0.75, 0.75);
 
   meVtxTrackMult_ = ibook.book1D("VtxTrackMult", "Log10(Vertex track multiplicity)", 80, 0.5, 2.5);
+  meVtxTrackMultLin_ = ibook.book1D("VtxTrackMultLin", "Vertex track multiplicity", 80, 3., 320.);
   meVtxTrackMultPassNdof_ =
       ibook.book1D("VtxTrackMultPassNdof", "Log10(Vertex track multiplicity for ndof>4)", 80, 0.5, 2.5);
+  meVtxTrackMultPassNdofLin_ =
+      ibook.book1D("VtxTrackMultPassNdofLin", "Vertex track multiplicity for ndof>4", 80, 3., 320.);
   meVtxTrackMultFailNdof_ = ibook.book1D("VtxTrackMultFailNdof", "Vertex track multiplicity for ndof<4", 10, 0., 10.);
   meVtxTrackW_ = ibook.book1D("VtxTrackW", "Vertex track weight (all)", 50, 0., 1.);
   meVtxTrackWnt_ = ibook.book1D("VtxTrackWnt", "Vertex track Wnt", 50, 0., 1.);
   meVtxTrackRecLVMult_ =
-      ibook.book1D("VtxTrackRecLVMult", "Log10(Vertex track multiplicity) for matched LV", 80, 0.5, 2.5);
+      ibook.book1D("VtxTrackRecLVMult", "Log10(Vertex track multiplicity) for matched LV", 40, 0.5, 2.5);
+  meVtxTrackRecLVMultLin_ =
+      ibook.book1D("VtxTrackRecLVMultLin", "Vertex track multiplicity for matched LV", 40, 3., 320.);
+  meVtxTrackRecLVMult20_ =
+      ibook.book1D("VtxTrackRecLVMult20", "Log10(Vertex track multiplicity) for matched LV (20 bins)", 20, 0.5, 2.5);
+  meVtxTrackRecLVMultLin20_ =
+      ibook.book1D("VtxTrackRecLVMultLin20", "Vertex track multiplicity for matched LV (20 bins)", 20, 3., 320.);
+  meVtxTrackRecLVMult60_ =
+      ibook.book1D("VtxTrackRecLVMult60", "Log10(Vertex track multiplicity) for matched LV (60 bins)", 60, 0.5, 2.5);
+  meVtxTrackRecLVMultLin60_ =
+      ibook.book1D("VtxTrackRecLVMultLin60", "Vertex track multiplicity for matched LV (60 bins)", 60, 3., 320.);
   meVtxTrackRecLVW_ = ibook.book1D("VtxTrackRecLVW", "Vertex track weight for matched LV (all)", 50, 0., 1.);
   meVtxTrackRecLVWnt_ = ibook.book1D("VtxTrackRecLVWnt", "Vertex track Wnt for matched LV", 50, 0., 1.);
 
@@ -2901,6 +2921,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
         }  // loop on reco tracks
         if (selectedVtxMatching) {
           meVtxTrackMult_->Fill(log10(nt));
+          meVtxTrackMultLin_->Fill(nt);
           mePUTrackRelMult_->Fill(static_cast<double>(PUnt) / nt);
           meFakeTrackRelMult_->Fill(static_cast<double>(Fakent) / nt);
           mePUTrackRelSumWnt_->Fill(PUsumWnt / sumWnt);
@@ -2973,6 +2994,11 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
           }
           if (selectedLV) {
             meVtxTrackRecLVMult_->Fill(log10(nt));
+            meVtxTrackRecLVMultLin_->Fill(nt);
+            meVtxTrackRecLVMult20_->Fill(log10(nt));
+            meVtxTrackRecLVMultLin20_->Fill(nt);
+            meVtxTrackRecLVMult60_->Fill(log10(nt));
+            meVtxTrackRecLVMultLin60_->Fill(nt);
             mePUTrackRecLVRelMult_->Fill(static_cast<double>(PUnt) / nt);
             meFakeTrackRecLVRelMult_->Fill(static_cast<double>(Fakent) / nt);
             mePUTrackRecLVRelSumWnt_->Fill(PUsumWnt / sumWnt);
@@ -3055,6 +3081,7 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
     if (recopv.at(ir).ndof > selNdof_) {
       meRecPVZ_->Fill(recopv.at(ir).z);
       meVtxTrackMultPassNdof_->Fill(log10(vertex->tracksSize()));
+      meVtxTrackMultPassNdofLin_->Fill(vertex->tracksSize());
 
       if (recopv.at(ir).recVtx->tError() > 0.) {
         meRecPVT_->Fill(recopv.at(ir).recVtx->t());
