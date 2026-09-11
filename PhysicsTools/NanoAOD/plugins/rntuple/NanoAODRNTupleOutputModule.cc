@@ -13,11 +13,9 @@
 #include <cstdint>
 #include <string>
 
-#include <ROOT/RNTuple.hxx>
 #include <ROOT/RNTupleModel.hxx>
-using ROOT::RNTupleModel;
 #include <ROOT/RNTupleWriteOptions.hxx>
-using ROOT::RNTupleWriteOptions;
+#include <ROOT/RNTupleWriter.hxx>
 
 #include "TObjString.h"
 
@@ -34,12 +32,19 @@ using ROOT::RNTupleWriteOptions;
 #include "DataFormats/NanoAOD/interface/UniqueString.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
+#include "EventStringOutputFields.h"
 #include "NanoAODRNTuples.h"
+#include "RNTupleFieldPtr.h"
+#include "TriggerOutputFields.h"
+
+using ROOT::RNTupleModel;
+using ROOT::RNTupleWriteOptions;
+using ROOT::RNTupleWriter;
 
 class NanoAODRNTupleOutputModule : public edm::one::OutputModule<> {
 public:
   NanoAODRNTupleOutputModule(edm::ParameterSet const& pset);
-  ~NanoAODRNTupleOutputModule() override;
+  ~NanoAODRNTupleOutputModule() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -64,6 +69,7 @@ private:
 
   std::unique_ptr<TFile> m_file;
   std::unique_ptr<RNTupleWriter> m_ntuple;
+  std::vector<edm::EDGetToken> m_eventTableTokens;
   TableCollectionSet m_tables;
   std::vector<TriggerOutputFields> m_triggers;
   EventStringOutputFields m_evstrings;
@@ -71,20 +77,20 @@ private:
   class CommonEventFields {
   public:
     void createFields(RNTupleModel& model) {
-      m_run = model.MakeField<UInt_t>("run");
-      m_luminosityBlock = model.MakeField<UInt_t>("luminosityBlock");
-      m_event = model.MakeField<std::uint64_t>("event");
+      m_run = RNTupleFieldPtr<std::uint32_t>("run", "", model);
+      m_luminosityBlock = RNTupleFieldPtr<std::uint32_t>("luminosityBlock", "", model);
+      m_event = RNTupleFieldPtr<std::uint64_t>("event", "", model);
     }
     void fill(const edm::EventID& id) {
-      *m_run = id.run();
-      *m_luminosityBlock = id.luminosityBlock();
-      *m_event = id.event();
+      m_run.fill(id.run());
+      m_luminosityBlock.fill(id.luminosityBlock());
+      m_event.fill(id.event());
     }
 
   private:
-    std::shared_ptr<UInt_t> m_run;
-    std::shared_ptr<UInt_t> m_luminosityBlock;
-    std::shared_ptr<std::uint64_t> m_event;
+    RNTupleFieldPtr<std::uint32_t> m_run;
+    RNTupleFieldPtr<std::uint32_t> m_luminosityBlock;
+    RNTupleFieldPtr<std::uint64_t> m_event;
   } m_commonFields;
 
   LumiNTuple m_lumi;
@@ -121,11 +127,8 @@ NanoAODRNTupleOutputModule::NanoAODRNTupleOutputModule(edm::ParameterSet const& 
       m_compressionAlgorithm(pset.getUntrackedParameter<std::string>("compressionAlgorithm")),
       m_compressionLevel(pset.getUntrackedParameter<int>("compressionLevel")),
       m_writeProvenance(pset.getUntrackedParameter<bool>("saveProvenance", true)),
-      m_processHistoryRegistry(),
       m_noSplitFields{pset.getUntrackedParameter<std::vector<std::string>>("noSplitFields")},
       m_writeOptions(writeOptions(pset.getUntrackedParameterSet("rntupleWriteOptions"))) {}
-
-NanoAODRNTupleOutputModule::~NanoAODRNTupleOutputModule() {}
 
 void NanoAODRNTupleOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput const& iLumi) {
   edm::Service<edm::JobReport> jr;
@@ -144,8 +147,10 @@ void NanoAODRNTupleOutputModule::writeRun(edm::RunForOutput const& iRun) {
   for (const auto& p : m_nanoMetadata) {
     iRun.getByToken(p.second, hstring);
     TObjString* tos = dynamic_cast<TObjString*>(m_file->Get(p.first.c_str()));
-    if (tos && hstring->str() != tos->GetString()) {
-      throw cms::Exception("LogicError", "Inconsistent nanoMetadata " + p.first + " (" + hstring->str() + ")");
+    if (tos) {
+      if (hstring->str() != tos->GetString()) {
+        throw cms::Exception("LogicError", "Inconsistent nanoMetadata " + p.first + " (" + hstring->str() + ")");
+      }
     } else {
       auto ostr = std::make_unique<TObjString>(hstring->str().c_str());
       m_file->WriteTObject(ostr.release(), p.first.c_str());
@@ -154,7 +159,9 @@ void NanoAODRNTupleOutputModule::writeRun(edm::RunForOutput const& iRun) {
   m_processHistoryRegistry.registerProcessHistory(iRun.processHistory());
 }
 
-bool NanoAODRNTupleOutputModule::isFileOpen() const { return nullptr != m_ntuple.get(); }
+// The Events RNTuple is only created on the first event, so the file, not the writer, tracks
+// whether output is open: otherwise a job writing no events would never be closed.
+bool NanoAODRNTupleOutputModule::isFileOpen() const { return nullptr != m_file.get(); }
 
 void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
   m_file = std::make_unique<TFile>(m_fileName.c_str(), "RECREATE", "", m_compressionLevel);
@@ -163,8 +170,6 @@ void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
   m_jrToken = jr->outputFileOpened(m_fileName,
                                    m_logicalFileName,
                                    std::string(),
-                                   // TODO check if needed
-                                   //m_fakeName ? "PoolOutputModule" : "NanoAODOutputModule",
                                    "NanoAODRNTupleOutputModule",
                                    description().moduleLabel(),
                                    edm::createGlobalIdentifier(),
@@ -178,11 +183,15 @@ void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
     m_file->SetCompressionAlgorithm(ROOT::RCompressionSetting::EAlgorithm::kLZMA);
   } else {
     throw cms::Exception("Configuration")
-        << "NanoAODOutputModule configured with unknown compression algorithm '" << m_compressionAlgorithm << "'\n"
+        << "NanoAODRNTupleOutputModule configured with unknown compression algorithm '" << m_compressionAlgorithm
+        << "'\n"
         << "Allowed compression algorithms are ZLIB and LZMA\n";
   }
   m_writeOptions.SetCompression(m_file->GetCompressionSettings());
 
+  // Sorting the kept products by class only needs their descriptions, so it happens here rather
+  // than on the first event. What the Events model looks like does depend on the payloads, and is
+  // left to initializeNTuple().
   const auto& keeps = keptProducts();
   for (const auto& keep : keeps[edm::InRun]) {
     if (keep.first->className() == "nanoaod::MergeableCounterTable") {
@@ -195,6 +204,20 @@ void NanoAODRNTupleOutputModule::openFile(edm::FileBlock const&) {
       throw cms::Exception(
           "Configuration",
           "NanoAODRNTupleOutputModule cannot handle class " + keep.first->className() + " in Run RNTuple");
+    }
+  }
+
+  for (const auto& keep : keeps[edm::InEvent]) {
+    if (keep.first->className() == "nanoaod::FlatTable") {
+      m_eventTableTokens.push_back(keep.second);
+    } else if (keep.first->className() == "edm::TriggerResults") {
+      m_triggers.emplace_back(keep.first->processName(), keep.second);
+    } else if (keep.first->className() == "std::basic_string<char,std::char_traits<char> >" &&
+               keep.first->productInstanceName() == "genModel") {
+      m_evstrings.registerToken(keep.second);
+    } else {
+      throw cms::Exception("Configuration",
+                           "NanoAODRNTupleOutputModule cannot handle class " + keep.first->className());
     }
   }
 }
@@ -229,25 +252,15 @@ namespace {
 }  // namespace
 
 void NanoAODRNTupleOutputModule::initializeNTuple(edm::EventForOutput const& iEvent) {
-  // set up RNTuple schema
+  // RNTuple needs the whole schema before the first Fill, and which fields a FlatTable needs is
+  // only visible from its contents, so the Events model is built on the first event.
   auto model = RNTupleModel::Create();
   m_commonFields.createFields(*model);
 
-  const auto& keeps = keptProducts();
-  for (const auto& keep : keeps[edm::InEvent]) {
-    if (keep.first->className() == "nanoaod::FlatTable") {
-      edm::Handle<nanoaod::FlatTable> handle;
-      const auto& token = keep.second;
-      iEvent.getByToken(token, handle);
-      m_tables.add(token, *handle);
-    } else if (keep.first->className() == "edm::TriggerResults") {
-      m_triggers.emplace_back(TriggerOutputFields(keep.first->processName(), keep.second));
-    } else if (keep.first->className() == "std::basic_string<char,std::char_traits<char> >" &&
-               keep.first->productInstanceName() == "genModel") {
-      m_evstrings.registerToken(keep.second);
-    } else {
-      throw cms::Exception("Configuration", "NanoAODOutputModule cannot handle class " + keep.first->className());
-    }
+  edm::Handle<nanoaod::FlatTable> handle;
+  for (const auto& token : m_eventTableTokens) {
+    iEvent.getByToken(token, handle);
+    m_tables.add(token, *handle);
   }
   m_tables.createFields(iEvent, *model);
   for (auto& trigger : m_triggers) {
@@ -303,19 +316,15 @@ void NanoAODRNTupleOutputModule::reallyCloseFile() {
   m_run.finalizeWrite();
   m_file->Write();
   m_file->Close();
+  m_file.reset();
 
   edm::Service<edm::JobReport> jr;
   jr->outputFileClosed(m_jrToken);
 }
 
 void NanoAODRNTupleOutputModule::writeProvenance() {
-  PSetNTuple pntuple;
-  pntuple.fill(edm::pset::Registry::instance(), *m_file);
-  pntuple.finalizeWrite();
-
-  MetadataNTuple mdntuple;
-  mdntuple.fill(m_processHistoryRegistry, *m_file);
-  mdntuple.finalizeWrite();
+  rntupleprovenance::writeParameterSets(*m_file);
+  rntupleprovenance::writeProcessHistory(m_processHistoryRegistry, *m_file);
 }
 
 void NanoAODRNTupleOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

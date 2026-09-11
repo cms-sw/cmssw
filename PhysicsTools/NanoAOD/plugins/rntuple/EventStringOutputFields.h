@@ -6,9 +6,12 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include <ROOT/RNTupleModel.hxx>
-using ROOT::RNTupleModel;
 
 #include "RNTupleFieldPtr.h"
+
+namespace edm {
+  class EventForOutput;
+}
 
 class EventStringOutputFields {
 private:
@@ -20,7 +23,7 @@ public:
   EventStringOutputFields() = default;
 
   void registerToken(const edm::EDGetToken &token);
-  void createFields(RNTupleModel &model);
+  void createFields(ROOT::RNTupleModel &model);
   void fill(const edm::EventForOutput &iEvent);
 };
 
