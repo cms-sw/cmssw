@@ -39,9 +39,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   private:
     void produce(device::Event&, device::EventSetup const&) override;
 
-    using IProductTypef01 = hcal::Phase1DigiDeviceCollection;
-    const device::EDGetToken<IProductTypef01> digisTokenF01HE_;
-
     using IProductTypef5 = hcal::Phase0DigiDeviceCollection;
     const device::EDGetToken<IProductTypef5> digisTokenF5HB_;
 
@@ -62,7 +59,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   HBHERecHitProducerPortable::HBHERecHitProducerPortable(edm::ParameterSet const& ps, HcalMahiPulseOffsetsCache const*)
       : EDProducer(ps),
-        digisTokenF01HE_{consumes(ps.getParameter<edm::InputTag>("digisLabelF01HE"))},
         digisTokenF5HB_{consumes(ps.getParameter<edm::InputTag>("digisLabelF5HB"))},
         digisTokenF3HB_{consumes(ps.getParameter<edm::InputTag>("digisLabelF3HB"))},
         rechitsM0Token_{produces()},
@@ -101,7 +97,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     edm::ParameterSetDescription desc;
     desc.add<uint32_t>("maxTimeSamples", 10);
     desc.add<uint32_t>("kprep1dChannelsPerBlock", 32);
-    desc.add<edm::InputTag>("digisLabelF01HE", edm::InputTag{"hcalRawToDigiGPU", "f01HEDigisGPU"});
     desc.add<edm::InputTag>("digisLabelF5HB", edm::InputTag{"hcalRawToDigiGPU", "f5HBDigisGPU"});
     desc.add<edm::InputTag>("digisLabelF3HB", edm::InputTag{"hcalRawToDigiGPU", "f3HBDigisGPU"});
     desc.add<std::string>("recHitsLabelM0HBHE", "recHitsM0HBHE");
@@ -144,15 +139,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto& queue = event.queue();
 
     // get device collections from event
-    auto const& f01HEDigisDev = event.get(digisTokenF01HE_);
     auto const& f5HBDigisDev = event.get(digisTokenF5HB_);
     auto const& f3HBDigisDev = event.get(digisTokenF3HB_);
 
-    auto const f01DigisSize = f01HEDigisDev->metadata().size();
     auto const f5DigisSize = f5HBDigisDev->metadata().size();
     auto const f3DigisSize = f3HBDigisDev->metadata().size();
 
-    auto const totalChannels = f01DigisSize + f5DigisSize + f3DigisSize;
+    auto const totalChannels = f5DigisSize + f3DigisSize;
     OProductType outputGPU_{queue, totalChannels};
 
     if (totalChannels > 0) {
@@ -166,7 +159,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // schedule algorithms
       //
       hcal::reconstruction::runMahiAsync(queue,
-                                         f01HEDigisDev.const_view(),
                                          f5HBDigisDev.const_view(),
                                          f3HBDigisDev.const_view(),
                                          outputGPU_.view(),
