@@ -1,0 +1,8 @@
+<lcgdict>
+  <class name="alpaka_cuda_async::btldigi::BTLDigiDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::btldigi::BTLDigiDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::btldigi::BTLDigiDeviceCollection>>" persistent="false"/>
+  <class name="alpaka_cuda_async::etldigi::ETLDigiDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::etldigi::ETLDigiDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::etldigi::ETLDigiDeviceCollection>>" persistent="false"/>
+</lcgdict>

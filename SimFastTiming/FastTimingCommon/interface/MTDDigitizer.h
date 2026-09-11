@@ -21,9 +21,13 @@
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 
+#include "CondFormats/MTDObjects/interface/BTLReadoutMap.h"
+#include "CondFormats/DataRecord/interface/BTLReadoutMapRcd.h"
+
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
 #include "DataFormats/Math/interface/liblogintpack.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 
 #include <vector>
 #include <unordered_map>
@@ -137,6 +141,7 @@ namespace mtd_digitizer {
         : MTDDigitizerBase(config, producesCollector, iC),
           geomToken_(iC.esConsumes()),
           geom_(nullptr),
+          btlReadoutMapToken_(iC.esConsumes()),
           deviceSim_(config.getParameterSet("DeviceSimulation"), iC),
           electronicsSim_(config.getParameterSet("ElectronicsSimulation"), iC),
           maxSimHitsAccTime_(config.getParameter<uint32_t>("maxSimHitsAccTime")) {}
@@ -165,6 +170,7 @@ namespace mtd_digitizer {
 
     const edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> geomToken_;
     const MTDGeometry* geom_;
+    const edm::ESGetToken<BTLReadoutMap, BTLReadoutMapRcd> btlReadoutMapToken_;
 
     // implementations
     DeviceSim deviceSim_;            // processes a given simhit into an entry in a MTDSimHitDataAccumulator
@@ -247,14 +253,31 @@ namespace mtd_digitizer {
 
   template <class Traits>
   void MTDDigitizer<Traits>::finalizeEvent(edm::Event& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre) {
+    // Compiler instruction to save BTL and ETL digis in SoA format
     if (premixStage1_) {
       auto simResult = std::make_unique<PMTDSimAccumulator>();
       saveSimHitAccumulator(*simResult, simHitAccumulator_, premixStage1MinCharge_, premixStage1MaxCharge_);
       e.put(std::move(simResult), digiCollection_);
-    } else {
+
+    } else if constexpr (std::is_same_v<Traits, BTLDigitizerTraits>) {
       auto digiCollection = std::make_unique<DigiCollection>();
-      electronicsSim_.run(simHitAccumulator_, *digiCollection, hre);
+      typedef typename Traits::MTDDigiCollection MTDDigiCollection;
+      auto digiMTDCollection = std::make_unique<MTDDigiCollection>();
+
+      auto const& btlReadoutMap = c.getData(btlReadoutMapToken_);
+      electronicsSim_.run(simHitAccumulator_, *digiCollection, *digiMTDCollection, hre, btlReadoutMap);
+
       e.put(std::move(digiCollection), digiCollection_);
+      e.put(std::move(digiMTDCollection), digiMTDCollection_);
+
+    } else if constexpr (std::is_same_v<Traits, ETLDigitizerTraits>) {
+      auto digiCollection = std::make_unique<DigiCollection>();
+      typedef typename Traits::MTDDigiCollection MTDDigiCollection;
+      auto digiMTDCollection = std::make_unique<MTDDigiCollection>();
+      electronicsSim_.run(simHitAccumulator_, *digiCollection, *digiMTDCollection, hre);
+
+      e.put(std::move(digiCollection), digiCollection_);
+      e.put(std::move(digiMTDCollection), digiMTDCollection_);
     }
 
     //release memory for next event
