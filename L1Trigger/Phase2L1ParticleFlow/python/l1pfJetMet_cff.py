@@ -60,9 +60,11 @@ l1tSC4PFL1PuppiExtendedCorrectedEmulator = l1SeedConePFJetEmulatorProducer.clone
                                                                      correctorFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root"),
                                                                      correctorDir = cms.string('L1PuppiSC4EmuJets'))
 
+from L1Trigger.Phase2L1ParticleFlow.l1tSC82ProngJetProducer_cfi import l1tSC82ProngJetProducer
+
 L1TPFJetsTask = cms.Task(
     l1tLayer2Deregionizer, l1tSC4PFL1PF, l1tSC4PFL1Puppi, l1tSC4PFL1PuppiCorrected, l1tSC8PFL1Puppi, l1tSC8PFL1PuppiCorrected, l1tSC4PFL1PuppiEmulator, l1tSC4PFL1PuppiCorrectedEmulator, l1tSC4PFL1PuppiCorrectedEmulatorMHT,
-    l1tSC8PFL1PuppiEmulator, l1tSC8PFL1PuppiCorrectedEmulator
+    l1tSC8PFL1PuppiEmulator, l1tSC8PFL1PuppiCorrectedEmulator, l1tSC82ProngJetProducer
 )
 
 L1TPFJetsExtendedTask = cms.Task(
@@ -71,5 +73,5 @@ L1TPFJetsExtendedTask = cms.Task(
 
 L1TPFJetsEmulationTask = cms.Task(
     l1tLayer2Deregionizer, l1tSC4PFL1PuppiEmulator, l1tSC4PFL1PuppiCorrectedEmulator, l1tSC4PFL1PuppiCorrectedEmulatorMHT,
-    l1tSC8PFL1PuppiEmulator, l1tSC8PFL1PuppiCorrectedEmulator
+    l1tSC8PFL1PuppiEmulator, l1tSC8PFL1PuppiCorrectedEmulator, l1tSC82ProngJetProducer
 )

@@ -169,16 +169,8 @@ bool l1ct::RawInputs::read(std::fstream& from) {
 
   if (!readVar(from, number))
     return false;
-  gctHad.resize(number);
-  for (auto& v : gctHad) {
-    if (!(v.region.read(from) && readMany(from, v.obj)))
-      return false;
-  }
-
-  if (!readVar(from, number))
-    return false;
-  gctEm.resize(number);
-  for (auto& v : gctEm) {
+  gctcluster.resize(number);
+  for (auto& v : gctcluster) {
     if (!(v.region.read(from) && readMany(from, v.obj)))
       return false;
   }
@@ -208,21 +200,14 @@ bool l1ct::RawInputs::write(std::fstream& to) const {
       return false;
   }
 
-  number = gctHad.size();
+  number = gctcluster.size();
   if (!writeVar(number, to))
     return false;
-  for (const auto& v : gctHad) {
+  for (const auto& v : gctcluster) {
     if (!(v.region.write(to) && writeMany(v.obj, to)))
       return false;
   }
 
-  number = gctEm.size();
-  if (!writeVar(number, to))
-    return false;
-  for (const auto& v : gctEm) {
-    if (!(v.region.write(to) && writeMany(v.obj, to)))
-      return false;
-  }
   return true;
 }
 void l1ct::RawInputs::clear() {
@@ -231,9 +216,7 @@ void l1ct::RawInputs::clear() {
   muon.clear();
   for (auto& h : hgcalcluster)
     h.clear();
-  for (auto& h : gctHad)
-    h.clear();
-  for (auto& h : gctEm)
+  for (auto& h : gctcluster)
     h.clear();
 }
 
