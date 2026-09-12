@@ -59,6 +59,7 @@ The offsets currently in use are:
 * 0.7502: HLT phase-2 menu, with tracking ntuple
 * 0.7503: HLT phase-2 menu, CPU vs. GPU validation
 * 0.751: HLT phase-2 timing menu Alpaka variant
+* 0.7511: HLT phase-2 timing menu with portable e/gamma pixel seeding
 * 0.7521: HLT phase-2 timing menu ticlv5TrackLinkingGNN variant
 * 0.7522: HLT phase-2 timing menu mtd_at_hlt variant
 * 0.753: HLT phase-2 timing menu legacy tracking
