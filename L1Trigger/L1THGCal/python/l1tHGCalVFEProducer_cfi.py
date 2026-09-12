@@ -4,7 +4,7 @@ import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
 import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam 
 from . import hgcalLayersCalibrationCoefficients_cfi as layercalibparam
-from HLTrigger.Configuration.HLT_75e33.psets.hgcal_reco_constants_cfi import HGCAL_reco_constants as HGCAL_reco_constants
+from . import hgcalTriggerRecoConstants_cfi as recoconstparam
 
 feCfg_si = digiparam.hgceeDigitizer.digiCfg.feCfg
 feCfg_sc = digiparam.hgchebackDigitizer.digiCfg.feCfg
@@ -71,7 +71,7 @@ thicknessCorrectionSi = recocalibparam.HGCalRecHit.thicknessCorrection
 thicknessCorrectionSc = recocalibparam.HGCalRecHit.sciThicknessCorrection
 thicknessCorrectionNose = recocalibparam.HGCalRecHit.thicknessNoseCorrection
 
-NTHICKNESS = HGCAL_reco_constants.numberOfThicknesses.value() 
+NTHICKNESS = recoconstparam.HGCAL_reco_constants.numberOfThicknesses.value() 
 # Silicon thickness correction in HGCalRecHit_cfi.py is in the form:
 # [CE_E_120um, CE_E_200um, CE_E_300um, CE_H_120um, CE_H_200um, CE_H_300um]
 # While here there are two different sets for CE-E and CE-H

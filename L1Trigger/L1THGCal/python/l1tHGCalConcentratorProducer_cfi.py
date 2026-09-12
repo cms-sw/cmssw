@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
-from HLTrigger.Configuration.HLT_75e33.psets.hgcal_reco_constants_cfi import HGCAL_reco_constants as HGCAL_reco_constants
+from . import hgcalTriggerRecoConstants_cfi as recoconstparam
 
 # Digitization parameters
 adcSaturationBH_MIP = digiparam.hgchebackDigitizer.digiCfg.feCfg.adcSaturation_fC
@@ -12,7 +12,7 @@ adcNbitsBH = digiparam.hgchebackDigitizer.digiCfg.feCfg.adcNbits
 # <V19: 3 different silicon thicknesses/types (HD120, LD200, LD300) + scintillator portion
 # >=V19: 4 different silicon thicknesses/types (HD120, LD200, LD300, HD200) + scintillator portion
 MAX_LAYERS = 52
-N_THICKNESSES = HGCAL_reco_constants.numberOfThicknesses.value()
+N_THICKNESSES = recoconstparam.HGCAL_reco_constants.numberOfThicknesses.value()
 CTC_2_SIZES = cms.vuint32( [2]*(MAX_LAYERS+1)*(N_THICKNESSES+1) )
 STC_4_AND_16_SIZES = cms.vuint32( [4]*(MAX_LAYERS+1)+ [16]*(MAX_LAYERS+1)*N_THICKNESSES )
 STC_4_AND_8_SIZES = cms.vuint32( [4]*(MAX_LAYERS+1)+ [8]*(MAX_LAYERS+1)*N_THICKNESSES )
