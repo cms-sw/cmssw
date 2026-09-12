@@ -262,6 +262,11 @@ run2_GEM_2017.toModify( theMixObjects,
         crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'MuonGEMHits' ]
     )
 )
+(run2_GEM_2017 & fastSim).toModify( theMixObjects,
+    mixSH = dict(
+        input = [x for x in theMixObjects.mixSH.input[:-1]]+[cms.InputTag("MuonSimHits","MuonGEMHits")],
+    )
+)
 (premix_stage1 & run2_GEM_2017).toModify(theMixObjects,
     mixSH = dict(
         pcrossingFrames = theMixObjects.mixSH.pcrossingFrames + [ 'MuonGEMHits' ]
@@ -273,6 +278,11 @@ run3_GEM.toModify( theMixObjects,
         input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","MuonGEMHits") ],
         subdets = theMixObjects.mixSH.subdets + [ 'MuonGEMHits' ],
         crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'MuonGEMHits' ]
+    )
+)
+(run3_GEM & fastSim).toModify( theMixObjects,
+    mixSH = dict(
+        input = [x for x in theMixObjects.mixSH.input[:-1]]+[cms.InputTag("MuonSimHits","MuonGEMHits")],
     )
 )
 (premix_stage1 & run3_GEM).toModify(theMixObjects,
