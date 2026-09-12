@@ -276,7 +276,9 @@ l1tpf::corrector::corrector(corrector &&corr)
       neta_(corr.neta_),
       nemf_(corr.nemf_),
       emfMax_(corr.emfMax_),
-      emulate_(corr.emulate_) {
+      emulate_(corr.emulate_),
+      debug_(corr.debug_),
+      emulationMode_(corr.emulationMode_) {
 }
 
 l1tpf::corrector &l1tpf::corrector::operator=(corrector &&corr) {
@@ -285,6 +287,8 @@ l1tpf::corrector &l1tpf::corrector::operator=(corrector &&corr) {
   std::swap(nemf_, corr.nemf_);
   std::swap(emfMax_, corr.emfMax_);
   std::swap(emulate_, corr.emulate_);
+  std::swap(debug_, corr.debug_);
+  std::swap(emulationMode_, corr.emulationMode_);
 
 #ifdef L1PF_USE_ROOT
   index_.swap(corr.index_);
@@ -402,7 +406,7 @@ float l1tpf::corrector::correctedPt(float pt, float emPt, float eta) const {
       ptcorr = ptcorr * pt;
     }
     if (debug_)
-      dbgCout() << "[EMU] ieta: " << ieta << " iemf: " << iemf << " ipt: " << ipt - 1
+      dbgCout() << "[EMU] this: " << this << " ieta: " << ieta << " iemf: " << iemf << " ipt: " << ipt - 1
                 << "corr: " << hist->GetBinContent(ipt) << " ptcorr: " << ptcorr << std::endl;
   }
   return ptcorr;

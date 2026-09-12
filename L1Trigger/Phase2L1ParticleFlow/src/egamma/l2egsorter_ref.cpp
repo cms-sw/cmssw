@@ -10,12 +10,22 @@ using namespace l1ct;
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 l1ct::L2EgSorterEmulator::L2EgSorterEmulator(const edm::ParameterSet &pset)
     : L2EgSorterEmulator(pset.getParameter<uint32_t>("nREGIONS"),
                          pset.getParameter<uint32_t>("nEGPerRegion"),
                          pset.getParameter<uint32_t>("nEGOut"),
                          pset.getUntrackedParameter<uint32_t>("debug", 0)) {}
+
+edm::ParameterSetDescription l1ct::L2EgSorterEmulator::getParameterSetDescription() {
+  edm::ParameterSetDescription desc;
+  desc.add<uint32_t>("nREGIONS", 5);
+  desc.add<uint32_t>("nEGPerRegion", 16);
+  desc.add<uint32_t>("nEGOut", 12);
+  desc.addUntracked<uint32_t>("debug", 0);
+  return desc;
+}
 #endif
 
 void L2EgSorterEmulator::toFirmware(const std::vector<EGIsoObjEmu> &out_photons,
