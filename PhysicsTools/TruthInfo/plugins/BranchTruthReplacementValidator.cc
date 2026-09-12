@@ -19,7 +19,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticleFwd.h"
@@ -37,6 +39,7 @@ public:
   explicit BranchTruthReplacementValidator(edm::ParameterSet const&);
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void endJob() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
   struct Stats {
@@ -74,6 +77,16 @@ BranchTruthReplacementValidator::BranchTruthReplacementValidator(edm::ParameterS
       hitIndexToken_(consumes<truth::LogicalGraphHitIndex>(cfg.getParameter<edm::InputTag>("hitIndex"))),
       caloParticleToken_(consumes<std::vector<CaloParticle>>(cfg.getParameter<edm::InputTag>("caloParticles"))),
       simClusterToken_(consumes<std::vector<SimCluster>>(cfg.getParameter<edm::InputTag>("simClusters"))) {}
+
+void BranchTruthReplacementValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src", edm::InputTag("truthLogicalGraphProducer"));
+  desc.add<edm::InputTag>("rawSrc", edm::InputTag("truthGraphProducer"));
+  desc.add<edm::InputTag>("hitIndex", edm::InputTag("truthLogicalGraphHitIndexProducer"));
+  desc.add<edm::InputTag>("caloParticles", edm::InputTag("mix", "MergedCaloTruth"));
+  desc.add<edm::InputTag>("simClusters", edm::InputTag("mix", "MergedCaloTruth"));
+  descriptions.addWithDefaultLabel(desc);
+}
 
 namespace {
   // logical-particle id <- SimTrack trackId, via the raw-graph node back-reference.

@@ -44,8 +44,6 @@ parser.add_argument("--signal-only", dest='signalOnly', action=BooleanOptionalAc
 parser.add_argument("--bunch-crossings", dest='bunchCrossings', default=None,
                     help="pile-up filter: comma-separated bunch crossings to keep, e.g. '0' for in-time only "
                          "(default: keep all)" )
-parser.add_argument("--showAll", action='store_true',
-                    help="do not hide zero-simhit subgraphs or large SIM source vertices in the logical DOT dump" )
 parser.add_argument("--layout", default="dot",
                     help="DOT layout for the logical-graph dump: 'dot' (default, hierarchical L->R ranks) "
                          "or a force-directed engine ('sfdp'/'fdp'/'neato') for node repulsion + spring edges" )
@@ -104,8 +102,6 @@ process.truthGraphDumper = cms.EDAnalyzer(
     "TruthGraphDumper",
     src=cms.InputTag("truthGraphProducer"),
     dotFile=cms.string(os.path.join(args.outdir,f"truthgraph{args.tag}.dot")), # output file
-    maxNodes=cms.uint32(20000),
-    maxEdgesPerNode=cms.uint32(50),
     simTracks=cms.InputTag("g4SimHits"),
     simVertices=cms.InputTag("g4SimHits"),
     genEventHepMC=cms.InputTag("generatorSmeared"),
@@ -240,17 +236,6 @@ process.truthLogicalGraphDumper = cms.EDAnalyzer(
     dotFile=cms.string(os.path.join(args.outdir,f"truthlogicalgraph{args.tag}.dot")), # output file
 
     layout=cms.string(args.layout),
-
-    maxParticles=cms.uint32(20000),
-    maxVertices=cms.uint32(20000),
-    # --showAll lifts the per-node edge cap: with large events the artificial
-    # source vertex legitimately has more than 300 outgoing spectators.
-    maxEdgesPerNode=cms.uint32(1000000 if args.showAll else 300),
-
-    hideLargeSimSourceVertices=cms.bool(not args.showAll),
-    largeSimSourceVertexMinOutgoing=cms.uint32(50),
-
-    hideZeroSimHitSubgraphs=cms.bool(not args.showAll),
 )
 
 

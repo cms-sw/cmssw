@@ -394,7 +394,7 @@ public:
                     if (slot < 0) {
                       slot = gvNode;
                     } else if (slot != gvNode) {
-                      edm::LogPrint("TruthGraphProducer")
+                      edm::LogWarning("TruthGraphProducer")
                           << "SimVertex node " << simVtxNode << " associated to multiple GenVertex nodes (" << slot
                           << " and " << gvNode << "); keeping the first";
                     }
@@ -402,13 +402,13 @@ public:
                 }
               }
             } else {
-              edm::LogPrint("TruthGraphProducer")
+              edm::LogWarning("TruthGraphProducer")
                   << "Rejecting primary SimTrack->GenParticle association with mismatched PDG id: "
                   << "simTrack index=" << i << " trackId=" << simTrack.trackId() << " genBarcode=" << barcode
                   << " simPdgId=" << simPdgId << " genNode=" << it->second << " genPdgId=" << genPdgId;
             }
           } else {
-            edm::LogPrint("TruthGraphProducer")
+            edm::LogWarning("TruthGraphProducer")
                 << "Rejecting primary SimTrack->GenParticle association with missing GEN barcode: "
                 << "simTrack index=" << i << " trackId=" << simTrack.trackId() << " genBarcode=" << barcode;
           }
@@ -614,13 +614,13 @@ public:
       }
     }
 
-    edm::LogPrint("TruthGraphProducer") << "TruthGraph nodes: "
-                                        << "GenEvent=" << nGenEventOut << " GenVertex=" << nGenVertexOut
-                                        << " GenParticle=" << nGenParticleOut << " SimVertex=" << nSimVertexOut
-                                        << " SimTrack=" << nSimTrackOut << " total=" << out->nNodes()
-                                        << " edges=" << out->nEdges()
-                                        << " primaryGenToSimParticleLinks=" << nGenToSimParticleLinks
-                                        << " simVtxToGenVertexLinks=" << nSimVtxToGenLinks;
+    LogDebug("TruthGraphProducer") << "TruthGraph nodes: "
+                                   << "GenEvent=" << nGenEventOut << " GenVertex=" << nGenVertexOut
+                                   << " GenParticle=" << nGenParticleOut << " SimVertex=" << nSimVertexOut
+                                   << " SimTrack=" << nSimTrackOut << " total=" << out->nNodes()
+                                   << " edges=" << out->nEdges()
+                                   << " primaryGenToSimParticleLinks=" << nGenToSimParticleLinks
+                                   << " simVtxToGenVertexLinks=" << nSimVtxToGenLinks;
 
     evt.put(std::move(out));
   }

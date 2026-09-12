@@ -2,6 +2,7 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/DetId"/>
 <use name="DataFormats/Math"/>
 <use name="FWCore/ParameterSet"/>
 <use name="SimDataFormats/EncodedEventId"/>

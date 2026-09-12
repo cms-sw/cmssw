@@ -92,7 +92,7 @@ branchTrackRecoValidator = DQMEDAnalyzer(
     src=cms.InputTag("truthLogicalGraphProducer"),
     hitIndex=cms.InputTag("truthLogicalGraphHitIndexProducer"),
     recoCollection=cms.InputTag("generalTracks"),
-    interestingPdgIds=cms.vint32(13, -13),  # muons: a near-antichain (do not shower)
+    interestingPdgIds=cms.vint32(13),  # |pdgId|; muons: a near-antichain (do not shower)
     folder=cms.string("Tracking/BranchValidator/recoTrack"),
     xName=cms.string("pt"),
     xTitle=cms.string("p_{T} [GeV]"),
@@ -100,8 +100,8 @@ branchTrackRecoValidator = DQMEDAnalyzer(
     minX=cms.double(0.9),
     minAbsEta=cms.double(0.0),
     maxAbsEta=cms.double(3.0),
-    matchThreshold=cms.double(0.5),
-    mergeThreshold=cms.double(0.3),
+    matchThreshold=cms.float(0.5),
+    mergeThreshold=cms.float(0.3),
 )
 
 branchTracksterRecoValidator = DQMEDAnalyzer(
@@ -111,7 +111,8 @@ branchTracksterRecoValidator = DQMEDAnalyzer(
     recoCollection=cms.InputTag("ticlTrackstersCLUE3DHigh"),
     layerClusters=cms.InputTag("hgcalMergeLayerClusters"),
     # Placeholder; needs the BranchSelector calo antichain to be non-degenerate.
-    interestingPdgIds=cms.vint32(22, 11, -11, 211, -211, 321, -321, 2212, -2212, 2112),
+    # |pdgId| values: one entry covers particle and antiparticle.
+    interestingPdgIds=cms.vint32(22, 11, 211, 321, 2212, 2112),
     folder=cms.string("HGCAL/BranchValidator/Trackster"),
     xName=cms.string("energy"),
     xTitle=cms.string("E [GeV]"),
@@ -119,8 +120,8 @@ branchTracksterRecoValidator = DQMEDAnalyzer(
     minX=cms.double(1.0),
     minAbsEta=cms.double(1.5),
     maxAbsEta=cms.double(3.0),
-    matchThreshold=cms.double(0.5),
-    mergeThreshold=cms.double(0.3),
+    matchThreshold=cms.float(0.5),
+    mergeThreshold=cms.float(0.3),
 )
 
 # Producers (truth graph + hit index + association maps) followed by the DQM
@@ -135,8 +136,8 @@ branchTracksterRecoValidator = DQMEDAnalyzer(
 
 # Split views for wiring into the release validation: the EDProducers (truth graph,
 # hit index, association maps) run in the prevalidation Path, the DQM analyzers in
-# the validation EndPath. truthGraphValidationSequence (above) keeps both together
-# for the standalone single-file drivers in test/.
+# the validation EndPath. The standalone single-file drivers in test/ load the
+# signal-only build producers from Validation.Configuration.truthPrevalidation_cff.
 # Under enableTruth the logical graph and the hit index are built at the DIGI step
 # by the mixing accumulator chain (PhysicsTools/TruthInfo/truthGraphMixedDigi_cff),
 # and arrive at RECO through the input file. So the RECO prevalidation runs only the

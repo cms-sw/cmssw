@@ -27,39 +27,39 @@ validation, pileup, and the roadmap. The MkDocs sources are in the companion
 
 ## The three layers
 
-1. **`TruthGraph`** (raw) — a compact CSR graph built directly from HepMC +
+1. **`TruthGraph`** (raw): a compact CSR graph built directly from HepMC +
    `SimTrack`/`SimVertex` by `TruthGraphProducer`.
-2. **`truth::Graph`** (logical) — a user-facing bipartite Particle↔Vertex graph
+2. **`truth::Graph`** (logical): a user-facing bipartite Particle<->Vertex graph
    built by `TruthLogicalGraphProducer`; GEN and SIM are merged where robustly
    associated, with navigation (`parents()`, `descendants()`,
-   `firstCommonAncestor()`, `hasAncestorPdgId()`, …) and the `truth::Branch`
+   `firstCommonAncestor()`, `hasAncestorPdgId()`, ...) and the `truth::Branch`
    subgraph view + `BranchSelector` selection.
-3. **`truth::LogicalGraphHitIndex`** — per-particle direct vs aggregated subgraph
+3. **`truth::LogicalGraphHitIndex`**: per-particle direct vs aggregated subgraph
    calorimeter and tracker hits, built by `LogicalGraphHitIndexProducer` (with the
-   DetId→RecHit map from `DetIdToRecHitMapProducer`).
+   DetId->RecHit map from `DetIdToRecHitMapProducer`).
 
-Producer chain (order matters): `truthGraphProducer` → `truthLogicalGraphProducer`
-→ `detIdToRecHitMapProducer` → `truthLogicalGraphHitIndexProducer`. In a release
+Producer chain (order matters): `truthGraphProducer` -> `truthLogicalGraphProducer`
+-> `detIdToRecHitMapProducer` -> `truthLogicalGraphHitIndexProducer`. In a release
 job these run behind the `enableTruth` process modifier (the
 `truthGraphPrevalidation` sequence in `Validation/Configuration`).
 
 ## Package layout
 
-- `interface/` + `src/` — the data formats and algorithms: `TruthGraph`,
+- `interface/` + `src/`: the data formats and algorithms: `TruthGraph`,
   `truth::Graph`, `Branch`, `BranchSelector`, `LogicalGraphHitIndex`,
   `BranchHitAssociator`, the `truth::recoHits` adapters (`RecoHitAdapters.h`), and
   `TruthLogicalGraphPostProcessor` (merge/collapse/filter; covered by the cppunit).
-- `plugins/` — the producers above, the DOT dumpers, the flat-table producers, the
+- `plugins/`: the producers above, the DOT dumpers, the flat-table producers, the
   pileup `TruthGraphAccumulator`/`TruthGraphMixedProducer`, the association-map
   producers (`TruthBranchCaloAssociationProducer`,
   `TruthBranchTrackingAssociationProducer`), and the DQM validators
   (`BranchHGCalValidator`, `BranchTrackingValidator`, the generic
   `BranchRecoValidator`).
-- `python/` — `truthGraphValidation_cff` (producers + association maps + DQM
+- `python/`: `truthGraphValidation_cff` (producers + association maps + DQM
   analyzers) and `truthGraphDQMHarvester_cff` (efficiency/fake/merge harvesting).
-- `scripts/` — `makeTruthGraphValidationPlots.py` (renders the Branch validation
+- `scripts/`: `makeTruthGraphValidationPlots.py` (renders the Branch validation
   plots / sample overlays).
-- `test/` — cppunit unit tests and standalone `cmsRun` drivers (graph dumps,
+- `test/`: cppunit unit tests and standalone `cmsRun` drivers (graph dumps,
   topology checks, association/DQM smoke tests).
 
 ## Build, check, test

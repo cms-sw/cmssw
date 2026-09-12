@@ -30,6 +30,9 @@ namespace {
     auto set = [&](uint32_t i, int32_t pdg, double px, double py, double pz, double e, uint64_t eid) {
       auto& p = g.particles()[i];
       p.genNode = 100 + i;
+      // Geant4-tracked: the kinematic cuts apply only to a root that has a SIM side,
+      // which is what these pt and eta cases are about.
+      p.simNode = 200 + i;
       p.pdgId = pdg;
       p.status = 1;
       p.genEvent = 0;
@@ -57,6 +60,7 @@ class TestBranchSelector : public CppUnit::TestFixture {
   CPPUNIT_TEST(testEtaCut);
   CPPUNIT_TEST(testPdgIdAndCharge);
   CPPUNIT_TEST(testSignalAndInTime);
+  CPPUNIT_TEST(testKinematicsOnStableOnly);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -64,6 +68,7 @@ public:
   void testEtaCut();
   void testPdgIdAndCharge();
   void testSignalAndInTime();
+  void testKinematicsOnStableOnly();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranchSelector);
@@ -87,6 +92,27 @@ void TestBranchSelector::testEtaCut() {
   CPPUNIT_ASSERT(sel(truth::Branch(&g, 0)));   // eta 0
   CPPUNIT_ASSERT(!sel(truth::Branch(&g, 1)));  // forward
   CPPUNIT_ASSERT(!sel(truth::Branch(&g, 2)));  // eta ~1.7
+}
+
+// A root Geant4 never tracked has no measurable momentum: a resonance produced at rest
+// carries pt about 0 and unbounded eta. The kinematic cuts must not reject it, or the
+// signal denominator loses the very object the sample was generated for.
+void TestBranchSelector::testKinematicsOnStableOnly() {
+  auto g = buildParticles();
+  g.particles()[1].simNode = -1;  // GEN-only, as a resonance is
+
+  truth::BranchSelector::Config cfg;
+  cfg.ptMin = 10.;
+  cfg.etaMin = -1.0;
+  cfg.etaMax = 1.0;
+
+  cfg.kinematicsOnStableOnly = true;
+  CPPUNIT_ASSERT(truth::BranchSelector(cfg)(truth::Branch(&g, 1)));
+  // its Geant4-tracked neighbours are still judged on their kinematics
+  CPPUNIT_ASSERT(!truth::BranchSelector(cfg)(truth::Branch(&g, 2)));
+
+  cfg.kinematicsOnStableOnly = false;
+  CPPUNIT_ASSERT(!truth::BranchSelector(cfg)(truth::Branch(&g, 1)));
 }
 
 void TestBranchSelector::testPdgIdAndCharge() {
