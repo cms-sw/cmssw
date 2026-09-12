@@ -78,12 +78,12 @@ void GenPartIsoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
         double this_dR_lgamma = reco::deltaR(
             genPart->eta(), genPart->phi(), (*packedGenParticles)[k].eta(), (*packedGenParticles)[k].phi());
         bool idmatch = false;
-        if ((*packedGenParticles)[k].mother(0)->pdgId() == genPart->pdgId())
-          idmatch = true;
-        const reco::Candidate* mother = (*packedGenParticles)[k].mother(0);
-        for (size_t m = 0; m < mother->numberOfMothers(); m++) {
-          if ((*packedGenParticles)[k].mother(m)->pdgId() == genPart->pdgId())
+        for (size_t m = 0; m < (*packedGenParticles)[k].numberOfMothers(); m++) {
+          const reco::Candidate* mother = (*packedGenParticles)[k].mother(m);
+          if (mother != nullptr && mother->pdgId() == genPart->pdgId()) {
             idmatch = true;
+            break;
+          }
         }
         if (!idmatch)
           continue;
