@@ -19,6 +19,18 @@
   <use name="catch2"/>
 </bin>
 
+<!-- -->
+<bin file="test_catch2FileInPath.cc" name="testFWCoreUtilitiesFileInPath">
+  <use name="catch2"/>
+  <flags NO_TESTRUN="1"/>
+</bin>
+
+<test name="TestFWCoreUtilitiesFileInPath"
+      command="testFWCoreUtilitiesFileInPath ${value}"
+      foreach="local,noRelease,sameTops,symlink,emptySearchPath,lookupDisabled,emptyPathElement,noData,absolutePath,symlinkException,noTops,strayPathElement,elementIsTop,trailingSlashTop">
+  <flags PRE_TEST="testFWCoreUtilitiesFileInPath"/>
+</test>
+
 <bin file="InputTag_t.cpp">
   <use name="tbb"/>
 </bin>
