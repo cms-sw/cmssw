@@ -1,8 +1,10 @@
-# N,B, DUE TO THE CHANGE IN STUB WINDOW SIZES WITH CMSSW 14_2_0_PRE2, THIS JOB HAS BEEN NODIFIED TO
-# RECREATE THE STUBS, WHICH IS NECESSARY WHEN RUNNING ON MONTE CARLO GENERATED WITH OLDER VERSIONS.
 
 ############################################################
-# define basic process
+# THIS JOB RUNS THE L1 TRACKING ALGORITHM.
+# (Several alternative algorithms can be specified).
+# It also runs an EDAnalyzer that makes a TTREE of
+# track performance. (The script makeHists.csh can
+# optionally then be used to create histograms from this).
 ############################################################
 
 import FWCore.ParameterSet.Config as cms
@@ -14,18 +16,20 @@ process = cms.Process("L1TrackNtuple")
 # edit options here
 ############################################################
 
-# D88 was used for CMSSW_12_6 datasets, and D98 recommended for more recent ones.
-#GEOMETRY = "D88"
-#GEOMETRY = "D98"
-GEOMETRY = "D110"
+# D121 MC recommended. D110 MC can only be used if made with CMSSW_20.
+#GEOMETRY = "D110"
+GEOMETRY = "D121"
 
 # Set L1 tracking algorithm:
 # 'HYBRID' (baseline, 4par fit) or 'HYBRID_DISPLACED' (extended, 5par fit).
 # 'HYBRID_NEWKF' (baseline, 4par fit, with bit-accurate KF emulation),
-# 'HYBRID_REDUCED' to use the "Summer Chain" configuration with reduced inputs.
+# 'HYBRID_REDUCED' to use the "L5L6" seeding only reduced (NEWKF) cfg.
+# 'HYBRID_SIM' prompt tracklet reco + (NEWKF) Track Processing simulation (4 param fit)
+# 'HYBRID_SIM_DISPLACED' displaced tracklet reco + (NEWKF) Track Processing simulation (5 param fit)
 # (Or legacy algos 'TMTT' or 'TRACKLET').
 L1TRKALGO = 'HYBRID'
 
+# Write output dataset?
 WRITE_DATA = False
 
 ############################################################
@@ -39,8 +43,8 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.L1track = dict(limit = -1)
 process.MessageLogger.Tracklet = dict(limit = -1)
-process.MessageLogger.TrackTriggerHPH = dict(limit = -1)
-
+process.MessageLogger.cout.enableStatistics = True
+process.MessageLogger.cerr.enableStatistics = True
 
 print("using geometry " + GEOMETRY + " (tilted)")
 process.load('Configuration.Geometry.GeometryExtendedRun4' + GEOMETRY + 'Reco_cff')
@@ -48,23 +52,15 @@ process.load('Configuration.Geometry.GeometryExtendedRun4' + GEOMETRY +'_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-# Change needed to run with D98 geometry in recent CMSSW versions.
-if GEOMETRY == "D88" or GEOMETRY == 'D98':
-    process.GlobalTag = GlobalTag(process.GlobalTag, '133X_mcRun4_realistic_v1', '')
-elif GEOMETRY == 'D110':
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
-else:
-    print("this is not a valid geometry!!!")
-
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-
 
 ############################################################
 # input and output
 ############################################################
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 
 #--- To use MCsamples scripts, defining functions get*data*() for easy MC access,
 #--- follow instructions in https://github.com/cms-L1TK/MCsamples
@@ -72,58 +68,50 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1000))
 #from MCsamples.Scripts.getCMSdata_cfi import *
 #from MCsamples.Scripts.getCMSlocaldata_cfi import *
 
-if GEOMETRY == "D98":
+if GEOMETRY == "D110":
 
   # Read data from card files (defines getCMSdataFromCards()):
-  #from MCsamples.RelVal_1400_D98.PU200_TTbar_14TeV_cfi import *
+  #from MCsamples.RelVal_1510_D110.PU200_TTbar_14TeV_cfi import *
   #inputMC = getCMSdataFromCards()
 
   # Or read .root files from directory on local computer:
-  #dirName = "$scratchmc/MCsamples1400_D98/RelVal/TTbar/PU0/"
-  #inputMC=getCMSlocaldata(dirName)
+  #dirName = "$scratchmc/MCsamples1510_D110/RelVal/TTbar/PU0/"
+  #inputMC=getCMSlocaldata(dirName)  
 
   # Or read specified dataset (accesses CMS DB, so use this method only occasionally):
-  #dataName="/RelValTTbar_14TeV/CMSSW_14_0_0_pre2-PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/GEN-SIM-DIGI-RAW"
+  #dataName="/RelValTTbar_14TeV_TuneCP5/CMSSW_15_1_0_pre5-PU_150X_mcRun4_realistic_v1_RV269_Run4D110_PU-v2/GEN-SIM-DIGI-RAW"
   #inputMC=getCMSdata(dataName)
+  
+  # ttbar + 200PU
+  inputMC = ["/store/relval/CMSSW_15_1_0_pre5/RelValTTbar_14TeV_TuneCP5/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_RV269_Run4D110_PU-v2/2590000/0f0bcfd3-dafe-4dda-8d39-9765f6eae68e.root"]
 
-  inputMC = [#"/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/0b2b0b0b-f312-48a8-9d46-ccbadc69bbfd.root"
-    '/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/0b2b0b0b-f312-48a8-9d46-ccbadc69bbfd.root',
-    '/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/0c3cb20d-8556-450d-b4f0-e5c754818f74.root',
-    '/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/0eafa2b4-711a-43ec-be1c-7e564c294a9a.root',
-    '/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/1450b1bb-171e-495e-a767-68e2796d95c2.root',
-    '/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/15498564-9cf0-4219-aab7-f97b3484b122.root',
-    '/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/1838a806-316b-4f53-9d22-5b3856019623.root',
-    '/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/1a34eb87-b9a3-47fb-b945-57e6f775fcac.root',
-    '/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/1add5b2e-19cb-4581-956d-271907d03b72.root',
-    '/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/1bed1837-ef65-4e07-a2ac-13c705b20fc1.root',
-    '/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/1d057884-72bd-4353-8375-ec4616c00a33.root'
-  ]
+elif GEOMETRY == "D121":
 
-elif GEOMETRY == "D88":
-
-  # Read specified .root file:
-  inputMC = ["/store/mc/CMSSW_12_6_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_125X_mcRun4_realistic_v5_2026D88PU200RV183v2-v1/30000/0959f326-3f52-48d8-9fcf-65fc41de4e27.root"]
-
-elif GEOMETRY == "D110":
-
-  # Read specified .root file:
-  inputMC = ["/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/00c7f40e-b44e-4eea-a86b-def8f7d82b0e.root"]
-
+  # ttbar + 200PU
+  inputMC = ['/store/relval/CMSSW_20_0_0_pre1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_STD_D121_RegeneratedGS_PU-v1/2590000/0033230b-a131-453a-95c0-fe14d5027d1f.root']
+  
+  # ttbar + 0PU
+  #inputMC = ['/store/relval/CMSSW_20_0_0_pre1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/0a33391d-2eb7-45fe-98fe-ca7b70a785c4.root']  
+  
 else:
 
   print("this is not a valid geometry!!!")
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputMC))
 
-#if GEOMETRY == "D76":
-#  # If reading old MC dataset, drop incompatible EDProducts.
-#  process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
-#  process.source.inputCommands = cms.untracked.vstring()
-#  process.source.inputCommands.append('keep  *_*_*Level1TTTracks*_*')
-#  process.source.inputCommands.append('keep  *_*_*StubAccepted*_*')
-#  process.source.inputCommands.append('keep  *_*_*ClusterAccepted*_*')
-#  process.source.inputCommands.append('keep  *_*_*MergedTrackTruth*_*')
-#  process.source.inputCommands.append('keep  *_genParticles_*_*')
+# Drop previously reconstructed L1 tracks + their truth association to avoid risk of analysing them instead of new tracks created by this job.
+process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
+process.source.inputCommands = cms.untracked.vstring()
+process.source.inputCommands.append('keep *_*_*_*')
+process.source.inputCommands.append('drop  *_*_*Level1TTTracks*_*')
+
+#  # If reading old MC dataset, it can help to drop incompatible EDProducts.
+#  process.source.inputCommands.append('drop *_*_*_*')
+#  process.source.inputCommands.append('keep *_*_*Level1TTTracks*_*')
+#  process.source.inputCommands.append('keep *_*_*StubAccepted*_*')
+#  process.source.inputCommands.append('keep *_*_*ClusterAccepted*_*')
+#  process.source.inputCommands.append('keep *_*_*MergedTrackTruth*_*')
+#  process.source.inputCommands.append('keep *_genParticles_*_*')
 
 # Use skipEvents to select particular single events for test vectors
 #process.source.skipEvents = cms.untracked.uint32(11)
@@ -138,19 +126,21 @@ process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 
 process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
 
-# remake stubs?
-#from L1Trigger.TrackTrigger.TTStubAlgorithmRegister_cfi import *
-#process.load("SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff")
+# Load code needed to remake clusters + stubs + their association to truth,
+# in case user wants to remake them. 
+from L1Trigger.TrackTrigger.TTStubAlgorithmRegister_cfi import *
+process.load("SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff")
 
-#from SimTracker.TrackTriggerAssociation.TTClusterAssociation_cfi import *
-#TTClusterAssociatorFromPixelDigis.digiSimLinks = cms.InputTag("simSiPixelDigis","Tracker")
+from SimTracker.TrackTriggerAssociation.TTClusterAssociation_cfi import *
+TTClusterAssociatorFromPixelDigis.digiSimLinks = cms.InputTag("simSiPixelDigis","Tracker")
 
-#process.TTClusterStub = cms.Path(process.TrackTriggerClustersStubs)
-#process.TTClusterStubTruth = cms.Path(process.TrackTriggerAssociatorClustersStubs)
-
+process.TTClusterStub = cms.Path(process.TrackTriggerClustersStubs)
+process.TTClusterStubTruth = cms.Path(process.TrackTriggerAssociatorClustersStubs)
 
 # load code that associates stubs with mctruth
 process.load( 'SimTracker.TrackTriggerAssociation.StubAssociator_cff' )
+# load code that analyzes mc truth
+process.load( 'L1Trigger.TrackTrigger.AnalyzerMC_cff' )
 # DTC emulation
 process.load('L1Trigger.TrackerDTC.DTC_cff')
 
@@ -161,7 +151,7 @@ process.load('L1Trigger.TrackerDTC.Analyzer_cff')
 #process.TrackTriggerSetup.FrontEnd.BendCut = 5.0
 #process.TrackTriggerSetup.Hybrid.MinPt = 1.0
 
-process.dtc = cms.Path(process.StubAssociator + process.ProducerDTC + process.AnalyzerDTC)
+process.dtc = cms.Path(process.StubAssociator + process.AnalyzerMC + process.ProducerDTC + process.AnalyzerDTC)
 
 ############################################################
 # L1 tracking
@@ -181,12 +171,14 @@ if (L1TRKALGO == 'HYBRID'):
 
 # HYBRID: extended tracking
 elif (L1TRKALGO == 'HYBRID_DISPLACED'):
-    process.TTTracksEmulation = cms.Path(process.L1TExtendedHybridTracks)
-    process.TTTracksEmulationWithTruth = cms.Path(process.L1TExtendedHybridTracksWithAssociators)
     NHELIXPAR = 5
     L1TRK_NAME  = "l1tTTTracksFromExtendedTrackletEmulation"
     L1TRK_LABEL = "Level1TTTracks"
     L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigisExtended"
+    process.load( 'L1Trigger.TrackFindingTracklet.Analyzer_cff' )
+    process.AnalyzerTracklet.InputTag = cms.InputTag(L1TRK_NAME, L1TRK_LABEL)
+    process.TTTracksEmulation = cms.Path(process.L1TExtendedHybridTracks)
+    process.TTTracksEmulationWithTruth = cms.Path(process.L1TExtendedHybridTracksWithAssociators + process.AnalyzerTracklet)
 
 # HYBRID_NEWKF: prompt tracking or reduced
 elif (L1TRKALGO == 'HYBRID_NEWKF' or L1TRKALGO == 'HYBRID_REDUCED'):
@@ -199,17 +191,58 @@ elif (L1TRKALGO == 'HYBRID_NEWKF' or L1TRKALGO == 'HYBRID_REDUCED'):
     process.TTTrackAssociatorFromPixelDigis.TTTracks = cms.VInputTag( cms.InputTag(L1TRK_NAME, L1TRK_LABEL) )
     process.HybridNewKF = cms.Sequence(process.L1THybridTracks + process.ProducerTM + process.ProducerDR + process.ProducerKF + process.ProducerTQ + process.ProducerTFP)
     process.TTTracksEmulation = cms.Path(process.HybridNewKF)
-    #process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF +  process.TrackTriggerAssociatorTracks)
     # Optionally include code producing performance plots & end-of-job summary.
-    process.load( 'SimTracker.TrackTriggerAssociation.StubAssociator_cff' )
-    process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF +  process.TrackTriggerAssociatorTracks + process.StubAssociator +  process.AnalyzerTracklet + process.AnalyzerTM + process.AnalyzerDR + process.AnalyzerKF + process.AnalyzerTQ + process.AnalyzerTFP )
+    process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF + process.TrackTriggerAssociatorTracks + process.AnalyzerTracklet + process.AnalyzerTM + process.AnalyzerDR + process.AnalyzerKF + process.AnalyzerTFP )
     from L1Trigger.TrackFindingTracklet.Customize_cff import *
     if (L1TRKALGO == 'HYBRID_NEWKF'):
         fwConfig( process )
+        # cheats to get good performance
+        process.TrackFindingTrackletSetup.DR.UseTTStubs = True
     if (L1TRKALGO == 'HYBRID_REDUCED'):
         reducedConfig( process )
     # Needed by L1TrackNtupleMaker
     process.HitPatternHelperSetup.useNewKF = True
+
+# prompt tracklet track finding followed by Track Processing simulation (4 param fit)
+elif (L1TRKALGO == 'HYBRID_SIM'):
+    process.load( 'L1Trigger.TrackFindingTracklet.Producer_cff' )
+    process.load( 'L1Trigger.TrackFindingTracklet.Analyzer_cff' )
+    process.load( 'SimTracker.TrackTriggerAssociation.StubAssociator_cff' )
+    from L1Trigger.TrackFindingTracklet.Customize_cff import *
+    NHELIXPAR = 4
+    L1TRK_NAME  = "ProducerSim"
+    L1TRK_LABEL = process.TrackFindingTrackletProducer_params.BranchTTTracks.value()
+    L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigis"
+    process.TTTrackAssociatorFromPixelDigis.TTTracks = cms.VInputTag( cms.InputTag(L1TRK_NAME, L1TRK_LABEL) )
+    from L1Trigger.TrackFindingTracklet.Customize_cff import *
+    sim4Config( process )
+    process.Sim = cms.Sequence(process.L1THybridTracks + process.ProducerSim)
+    process.TTTracksEmulationWithTruth = cms.Path(process.Sim + process.TrackTriggerAssociatorTracks + process.AnalyzerTracklet + process.AnalyzerSim)
+    process.TTTracksEmulation = cms.Path(process.Sim)
+
+# displaced tracklet track finding followed Track Processing simulation (5 param fit)
+elif (L1TRKALGO == 'HYBRID_SIM_DISPLACED'):
+    process.load( 'L1Trigger.TrackFindingTracklet.Producer_cff' )
+    process.load( 'L1Trigger.TrackFindingTracklet.Analyzer_cff' )
+    process.load( 'SimTracker.TrackTriggerAssociation.StubAssociator_cff' )
+    from L1Trigger.TrackFindingTracklet.Customize_cff import *
+    NHELIXPAR = 5
+    TRACKLET_NAME  = "l1tTTTracksFromExtendedTrackletEmulation"
+    TRACKLET_LABEL = "Level1TTTracks"
+    L1TRK_NAME  = "ProducerSim"
+    L1TRK_LABEL = process.TrackFindingTrackletProducer_params.BranchTTTracks.value()
+    L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigisExtended"
+    process.TTTrackAssociatorFromPixelDigisExtended.TTTracks = cms.VInputTag( cms.InputTag(L1TRK_NAME, L1TRK_LABEL) )
+    process.AnalyzerTracklet.InputTag = cms.InputTag(TRACKLET_NAME, TRACKLET_LABEL)
+    process.StubAssociator.MaxZ0 = 30.
+    process.StubAssociator.MaxD0 = 10.
+    process.StubAssociator.MaxVertR = 10.
+    process.StubAssociator.MaxVertZ = 60.
+    from L1Trigger.TrackFindingTracklet.Customize_cff import *
+    sim5Config( process )
+    process.Sim = cms.Sequence(process.L1TExtendedHybridTracks + process.ProducerSim)
+    process.TTTracksEmulationWithTruth = cms.Path(process.Sim + process.L1TExtendedHybridTracksWithAssociators + process.AnalyzerTracklet + process.AnalyzerSim)
+    process.TTTracksEmulation = cms.Path(process.Sim)
 
 # LEGACY ALGORITHM (EXPERTS ONLY): TRACKLET
 elif (L1TRKALGO == 'TRACKLET'):
@@ -261,18 +294,16 @@ process.ana = cms.Path(process.L1TrackNtuple)
 # final schedule of what is to be run
 ############################################################
 
-# use this if you want to re-run the stub making
-#process.schedule = cms.Schedule(process.TTClusterStub,process.TTClusterStubTruth,process.dtc,process.TTTracksEmulationWithTruth,process.ana)
-
-# use this if cluster/stub associators not available
-# process.schedule = cms.Schedule(process.TTClusterStubTruth,process.dtc,process.TTTracksEmulationWithTruth,process.ana)
-
-# use this to only run tracking + track associator
+# Run tracking + track associator
 process.schedule = cms.Schedule(process.dtc,process.TTTracksEmulationWithTruth,process.ana)
+
+# use this to re-run the cluster+stub making + truth association
+# (Not needed unless their format has changed or you want to change them)
+#process.schedule = cms.Schedule(process.TTClusterStub,process.TTClusterStubTruth,process.dtc,process.TTTracksEmulationWithTruth,process.ana)
 
 
 ############################################################
-# write output dataset?
+# write output dataset
 ############################################################
 
 if (WRITE_DATA):

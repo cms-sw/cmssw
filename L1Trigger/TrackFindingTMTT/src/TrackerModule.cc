@@ -56,29 +56,29 @@ namespace tmtt {
     // Note if module is PS or 2S, and whether in barrel or endcap.
     // From Geometry/TrackerGeometryBuilder/README.md
     psModule_ = (trackerGeometry->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP);
-    barrel_ = detId.subdetId() == StripSubdetector::TOB || detId.subdetId() == StripSubdetector::TIB;
+    barrel_ = detId.subdetId() == Phase2Tracker::Subdetector::Barrel || detId.subdetId() == StripSubdetector::TIB;
 
     // Encode layer ID (barrel layers: 1-6, endcap disks: 11-15 + 21-25)
     if (barrel_) {
       layerId_ = trackerTopology->layer(detId);  // barrel layer 1-6 encoded as 1-6
     } else {
-      layerId_ = 10 * trackerTopology->side(detId) + trackerTopology->tidWheel(detId);
+      layerId_ = 10 * trackerTopology->side(detId) + trackerTopology->endcapWheelP2(detId);
     }
     // Get reduced layer ID (in range 1-7), requiring only 3 bits for firmware.
     layerIdReduced_ = TrackerModule::calcLayerIdReduced(layerId_);
 
     // Note module ring in endcap
-    endcapRing_ = barrel_ ? 0 : trackerTopology->tidRing(detId);
+    endcapRing_ = barrel_ ? 0 : trackerTopology->endcapRingP2(detId);
     if (not barrel_) {
       // Apply bodge, since Topology class annoyingly starts ring count at 1, even in endcap wheels where
       // inner rings are absent.
-      unsigned int iWheel = trackerTopology->tidWheel(detId);
+      unsigned int iWheel = trackerTopology->endcapWheelP2(detId);
       if (iWheel >= 3 && iWheel <= 5)
         endcapRing_ += 3;
     }
 
     // Note if tilted barrel module & get tilt angle (in range 0 to PI).
-    tiltedBarrel_ = barrel_ && (trackerTopology->tobSide(detId) != BarrelModuleType::flat);
+    tiltedBarrel_ = barrel_ && (trackerTopology->barrelTiltTypeP2(detId) != Phase2Tracker::BarrelModuleTilt::flat);
     float deltaR = std::abs(R1 - R0);
     float deltaZ = (R1 - R0 > 0) ? (Z1 - Z0) : -(Z1 - Z0);
     tiltAngle_ = atan(deltaR / deltaZ);

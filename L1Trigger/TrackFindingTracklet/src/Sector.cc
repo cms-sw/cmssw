@@ -9,7 +9,6 @@
 #include "L1Trigger/TrackFindingTracklet/interface/AllInnerStubsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubsTEMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/VMStubsMEMemory.h"
-#include "L1Trigger/TrackFindingTracklet/interface/StubTripletsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletParametersMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletProjectionsMemory.h"
 #include "L1Trigger/TrackFindingTracklet/interface/FullMatchMemory.h"
@@ -20,7 +19,8 @@
 #include "L1Trigger/TrackFindingTracklet/interface/VMRouterCM.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletProcessor.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletProcessorDisplaced.h"
-#include "L1Trigger/TrackFindingTracklet/interface/TrackletCalculatorDisplaced.h"
+#include "L1Trigger/TrackFindingTracklet/interface/ProjectionCalculator.h"
+#include "L1Trigger/TrackFindingTracklet/interface/VMStubMERouter.h"
 #include "L1Trigger/TrackFindingTracklet/interface/MatchProcessor.h"
 #include "L1Trigger/TrackFindingTracklet/interface/FitTrack.h"
 #include "L1Trigger/TrackFindingTracklet/interface/PurgeDuplicate.h"
@@ -57,7 +57,7 @@ void Sector::setSector(unsigned int isector) {
   }
 }
 
-bool Sector::addStub(L1TStub stub, string dtc) {
+bool Sector::addStub(L1TStub stub, const string& dtc) {
   unsigned int layerdisk = stub.layerdisk();
   int nrbits = 3;
 
@@ -82,7 +82,7 @@ bool Sector::addStub(L1TStub stub, string dtc) {
     const string& name = DL_[i]->getName();
     if (name.find("_" + dtc) == string::npos)
       continue;
-    DL_[i]->addStub(stub, fpgastub);
+    DL_[i]->addStub(stub, fpgastub);  // Creates its own copy of stub
     nadd++;
   }
 
@@ -92,7 +92,7 @@ bool Sector::addStub(L1TStub stub, string dtc) {
   return true;
 }
 
-void Sector::addMem(string memType, string memName) {
+void Sector::addMem(const string& memType, const string& memName) {
   if (memType == "DTCLink:") {
     addMemToVec(DL_, memName, settings_, phimin_, phimax_);
   } else if (memType == "InputLink:") {
@@ -105,8 +105,6 @@ void Sector::addMem(string memType, string memName) {
     addMemToVec(VMSTE_, memName, settings_);
   } else if (memType == "VMStubsME:") {
     addMemToVec(VMSME_, memName, settings_);
-  } else if (memType == "StubTriplets:") {
-    addMemToVec(ST_, memName, settings_);
   } else if (memType == "TrackletParameters:") {
     addMemToVec(TPAR_, memName, settings_);
   } else if (memType == "TrackletProjections:") {
@@ -123,7 +121,7 @@ void Sector::addMem(string memType, string memName) {
   }
 }
 
-void Sector::addProc(string procType, string procName) {
+void Sector::addProc(const string& procType, const string& procName) {
   if (procType == "InputRouter:") {
     addProcToVec(IR_, procName, settings_, globals_);
   } else if (procType == "VMRouterCM:") {
@@ -132,8 +130,10 @@ void Sector::addProc(string procType, string procName) {
     addProcToVec(TP_, procName, settings_, globals_);
   } else if (procType == "TrackletProcessorDisplaced:") {
     addProcToVec(TPD_, procName, settings_, globals_);
-  } else if (procType == "TrackletCalculatorDisplaced:") {
-    addProcToVec(TCD_, procName, settings_, globals_);
+  } else if (procType == "ProjectionCalculator:") {
+    addProcToVec(PC_, procName, settings_, globals_);
+  } else if (procType == "VMStubMERouter:") {
+    addProcToVec(VMSMER_, procName, settings_, globals_);
   } else if (procType == "MatchProcessor:") {
     addProcToVec(MP_, procName, settings_, globals_);
   } else if (procType == "FitTrack:") {
@@ -146,7 +146,7 @@ void Sector::addProc(string procType, string procName) {
   }
 }
 
-void Sector::addWire(string mem, string procinfull, string procoutfull) {
+void Sector::addWire(const string& mem, const string& procinfull, const string& procoutfull) {
   stringstream ss1(procinfull);
   string procin, output;
   getline(ss1, procin, '.');
@@ -170,7 +170,7 @@ void Sector::addWire(string mem, string procinfull, string procoutfull) {
   }
 }
 
-ProcessBase* Sector::getProc(string procName) {
+ProcessBase* Sector::getProc(const string& procName) {
   auto it = Processes_.find(procName);
 
   if (it != Processes_.end()) {
@@ -180,7 +180,7 @@ ProcessBase* Sector::getProc(string procName) {
   return nullptr;
 }
 
-MemoryBase* Sector::getMem(string memName) {
+MemoryBase* Sector::getMem(const string& memName) {
   auto it = Memories_.find(memName);
 
   if (it != Memories_.end()) {
@@ -226,12 +226,6 @@ void Sector::writeAIS(bool first) {
   }
 }
 
-void Sector::writeST(bool first) {
-  for (auto& i : ST_) {
-    i->writeST(first, isector_);
-  }
-}
-
 void Sector::writeTPAR(bool first) {
   for (auto& i : TPAR_) {
     i->writeTPAR(first, isector_);
@@ -259,6 +253,42 @@ void Sector::writeTF(bool first) {
 void Sector::writeCT(bool first) {
   for (auto& i : CT_) {
     i->writeCT(first, isector_);
+  }
+}
+
+void Sector::incrBXEvent() {
+  for (auto& i : DL_) {
+    i->incrBXEvent();
+  }
+  for (auto& i : IL_) {
+    i->incrBXEvent();
+  }
+  for (auto& i : VMSTE_) {
+    i->incrBXEvent();
+  }
+  for (auto& i : VMSME_) {
+    i->incrBXEvent();
+  }
+  for (auto& i : AS_) {
+    i->incrBXEvent();
+  }
+  for (auto& i : AIS_) {
+    i->incrBXEvent();
+  }
+  for (auto& i : TPAR_) {
+    i->incrBXEvent();
+  }
+  for (auto& i : TPROJ_) {
+    i->incrBXEvent();
+  }
+  for (auto& i : FM_) {
+    i->incrBXEvent();
+  }
+  for (auto& i : TF_) {
+    i->incrBXEvent();
+  }
+  for (auto& i : CT_) {
+    i->incrBXEvent();
   }
 }
 
@@ -298,9 +328,15 @@ void Sector::executeTPD() {
   }
 }
 
-void Sector::executeTCD() {
-  for (auto& i : TCD_) {
-    i->execute(isector_, phimin_, phimax_);
+void Sector::executePC() {
+  for (auto& i : PC_) {
+    i->execute(isector_, phimin_);
+  }
+}
+
+void Sector::executeVMSMER() {
+  for (auto& i : VMSMER_) {
+    i->execute(isector_);
   }
 }
 
@@ -318,21 +354,28 @@ void Sector::executeFT(vector<vector<string>>& streamsTrackRaw, vector<vector<St
   const int numChannels = streamsTrackRaw.size() / N_SECTOR;
   const int maxNumProjectionLayers = streamsStubRaw.size() / streamsTrackRaw.size();
   const int offsetTrack = isector_ * numChannels;
-  int channelTrack(0);
 
   for (auto& i : FT_) {
     // Temporary streams for a single TrackBuilder (i.e. seed type)
     deque<string> streamTrackTmp;
     vector<deque<StubStreamData>> streamsStubTmp(maxNumProjectionLayers);
     i->execute(streamTrackTmp, streamsStubTmp, isector_);
+
     if (!settings_.storeTrackBuilderOutput())
       continue;
-    const int offsetStub = (offsetTrack + channelTrack) * maxNumProjectionLayers;
-    streamsTrackRaw[offsetTrack + channelTrack] = vector<string>(streamTrackTmp.begin(), streamTrackTmp.end());
-    channelTrack++;
-    int channelStub(0);
-    for (auto& stream : streamsStubTmp)
-      streamsStubRaw[offsetStub + channelStub++] = vector<StubStreamData>(stream.begin(), stream.end());
+
+    for (unsigned int i = 0; i < streamTrackTmp.size(); i++) {
+      std::string seedstr = streamTrackTmp[i].substr(1, settings_.nbitsseed());
+      unsigned int channelTrack = 0;
+      if (seedstr.size() == settings_.nbitsseed()) {
+        channelTrack = std::stoi(seedstr, nullptr, 2);
+      }
+      streamsTrackRaw[offsetTrack + channelTrack].push_back(streamTrackTmp[i]);
+      const int offsetStub = (offsetTrack + channelTrack) * maxNumProjectionLayers;
+      for (unsigned int j = 0; j < streamsStubTmp.size(); j++) {
+        streamsStubRaw[offsetStub + j].push_back(streamsStubTmp[j][i]);
+      }
+    }
   }
 }
 

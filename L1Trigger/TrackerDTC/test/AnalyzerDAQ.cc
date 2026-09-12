@@ -5,14 +5,13 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerDTC/interface/Setup.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 #include <TProfile.h>
 #include <TH1F.h>
@@ -39,7 +38,7 @@ namespace trackerDTC {
     // ED input token of accepted TTClusters
     edm::EDGetTokenT<TTClusterDetSetVec> edGetToken_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
 
     // Histograms
 
@@ -61,18 +60,18 @@ namespace trackerDTC {
 
   void AnalyzerDAQ::beginRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
-    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // book histograms
     edm::Service<TFileService> fs;
     TFileDirectory dir;
     dir = fs->mkdir("Modules");
     int maxOcc = 150;
-    int numChannels = setup->numDTCs() * setup->numModulesPerDTC();
+    int numChannels = setup->sysNumDTC() * setup->dtcNumModule();
     hisModules_ = dir.make<TH1F>("His Module Occupancy", ";", maxOcc, -.5, maxOcc - .5);
     profModules_ = dir.make<TProfile>("Prof Module Occupancy", ";", numChannels, -.5, numChannels - .5);
     dir = fs->mkdir("DTCs");
     maxOcc = 3456;
-    numChannels = setup->numDTCs();
+    numChannels = setup->sysNumDTC();
     hisDTCs_ = dir.make<TH1F>("His DTC Occupancy", ";", maxOcc / 16, -.5, maxOcc - .5);
     profDTCs_ = dir.make<TProfile>("Prof DTC Occupancy", ";", numChannels, -.5, numChannels - .5);
     dir = fs->mkdir("Tracker");
@@ -81,20 +80,20 @@ namespace trackerDTC {
   }
 
   void AnalyzerDAQ::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // read in original TTCluster collection
     edm::Handle<TTClusterDetSetVec> handle;
     iEvent.getByToken<TTClusterDetSetVec>(edGetToken_, handle);
     // apply cabling map, reorganise cluster collections
     std::vector<std::vector<std::deque<TTClusterRef>>> dtcs(
-        setup->numDTCs(), std::vector<std::deque<TTClusterRef>>(setup->numModulesPerDTC()));
+        setup->sysNumDTC(), std::vector<std::deque<TTClusterRef>>(setup->dtcNumModule()));
     for (auto itModule = handle->begin(); itModule != handle->end(); itModule++) {
       // DetSetVec->detId - 1 or + 0 = tk layout det id depending from which of both sensor planes the cluster has been constructed
       const DetId& detIdModule = itModule->detId();
-      const int offset = setup->trackerTopology()->isLower(detIdModule) ? 0 : setup->offsetDetIdTP();
+      const int offset = setup->trackerTopology()->isLower(detIdModule) ? 0 : -1;
       const DetId detId = detIdModule + offset;
       // corresponding sensor module
-      tt::SensorModule* sm = setup->sensorModule(detId);
+      const trackerDTC::SensorModule* sm = setup->sensorModule(detId);
       // empty cluster collection
       std::deque<TTClusterRef>& module = dtcs[sm->dtcId()][sm->modId()];
       for (TTClusterDetSet::const_iterator itCluster = itModule->begin(); itCluster != itModule->end(); itCluster++)

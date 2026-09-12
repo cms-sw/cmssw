@@ -1,9 +1,8 @@
 #ifndef L1Trigger_TrackerTFP_DuplicateRemoval_h
 #define L1Trigger_TrackerTFP_DuplicateRemoval_h
 
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 #include <vector>
 
@@ -12,7 +11,7 @@ namespace trackerTFP {
   // Class to do duplicate removal in a region.
   class DuplicateRemoval {
   public:
-    DuplicateRemoval(const tt::Setup* setup,
+    DuplicateRemoval(const Setup* setup,
                      const DataFormats* dataFormats,
                      std::vector<TrackDR>& tracks,
                      std::vector<StubDR>& stubs);
@@ -41,7 +40,7 @@ namespace trackerTFP {
       int zT_;
     };
     // provides run-time constants
-    const tt::Setup* setup_;
+    const Setup* setup_;
     // provides dataformats
     const DataFormats* dataFormats_;
     // container of output tracks

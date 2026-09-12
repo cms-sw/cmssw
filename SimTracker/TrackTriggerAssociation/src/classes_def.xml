@@ -1,6 +1,2 @@
 <lcgdict>
-    <class name="tt::StubAssociation" persistent="false"/>
-    <class name="std::map<TTStubRef, std::vector<TPPtr>>" persistent="false"/>
-    <class name="std::map<TPPtr, std::vector<TTStubRef>>" persistent="false"/>
-    <class name="edm::Wrapper<tt::StubAssociation>" persistent="false"/>
 </lcgdict>

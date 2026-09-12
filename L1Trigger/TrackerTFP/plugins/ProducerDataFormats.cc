@@ -19,10 +19,10 @@ namespace trackerTFP {
   public:
     ProducerDataFormats(const edm::ParameterSet& iConfig);
     ~ProducerDataFormats() override = default;
-    std::unique_ptr<DataFormats> produce(const DataFormatsRcd& rcd);
+    std::unique_ptr<DataFormats> produce(const trackerDTC::SetupRcd& rcd);
 
   private:
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetToken_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetToken_;
   };
 
   ProducerDataFormats::ProducerDataFormats(const edm::ParameterSet& iConfig) {
@@ -30,8 +30,8 @@ namespace trackerTFP {
     esGetToken_ = cc.consumes();
   }
 
-  std::unique_ptr<DataFormats> ProducerDataFormats::produce(const DataFormatsRcd& rcd) {
-    const tt::Setup* setup = &rcd.get(esGetToken_);
+  std::unique_ptr<DataFormats> ProducerDataFormats::produce(const trackerDTC::SetupRcd& rcd) {
+    const Setup* setup = &rcd.get(esGetToken_);
     return std::make_unique<DataFormats>(setup);
   }
 

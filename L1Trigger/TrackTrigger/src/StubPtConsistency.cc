@@ -36,7 +36,7 @@ namespace StubPtConsistency {
       float stub_r = posStub.perp();
       float stub_z = posStub.z();
 
-      bool isBarrel = (detIdStub.subdetId() == StripSubdetector::TOB);
+      bool isBarrel = (detIdStub.subdetId() == Phase2Tracker::Subdetector::Barrel);
 
       const GeomDetUnit* det0 = theTrackerGeom->idToDetUnit(detIdStub);
       const GeomDetUnit* det1 = theTrackerGeom->idToDetUnit(tTopo->partnerDetId(detIdStub));
@@ -53,7 +53,7 @@ namespace StubPtConsistency {
       float sensorSpacing = sqrt((modMaxR - modMinR) * (modMaxR - modMinR) + (modMaxZ - modMinZ) * (modMaxZ - modMinZ));
 
       // Approximation of phiOverBendCorrection, from TMTT: https://github.com/CMS-TMTT/cmssw/blob/TMTT_938/L1Trigger/TrackFindingTMTT/src/Stub.cc#L440-L448
-      bool tiltedBarrel = (isBarrel && tTopo->tobSide(detIdStub) != 3);
+      bool tiltedBarrel = (isBarrel && tTopo->barrelTiltTypeP2(detIdStub) != Phase2Tracker::BarrelModuleTilt::flat);
       float gradient = 0.886454;
       float intercept = 0.504148;
       float correction;

@@ -20,6 +20,8 @@ namespace trklet {
     int start_in_ = 0;
     int rzbinfirst_out_ = 0;
     int rzdiffmax_out_ = 0;
+    int rzbinfirst_in_ = 0;
+    int rzdiffmax_in_ = 0;
     std::vector<std::tuple<int, int, int> > projbin_out_;  // next z/r bin; outer stub mem; nstub
     std::vector<std::tuple<int, int, int> > projbin_in_;   // next z/r bin; inner stub mem; nstub
   };

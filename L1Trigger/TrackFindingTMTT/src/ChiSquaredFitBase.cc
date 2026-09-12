@@ -124,6 +124,7 @@ namespace tmtt {
                            x[PHI0],
                            x[Z0],
                            x[T],
+                           TMatrixD(4, 4),  // helix cov matrix not yet calculated
                            chiSq_,
                            chi2rz,
                            nPar_);

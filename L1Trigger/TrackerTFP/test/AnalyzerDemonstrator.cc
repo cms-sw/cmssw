@@ -47,11 +47,11 @@ namespace trackerTFP {
     edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracksIn_;
     edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracksOut_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
     // Demonstrator token
-    edm::ESGetToken<Demonstrator, tt::SetupRcd> esGetTokenDemonstrator_;
+    edm::ESGetToken<Demonstrator, trackerDTC::SetupRcd> esGetTokenDemonstrator_;
     //
-    const tt::Setup* setup_ = nullptr;
+    const Setup* setup_ = nullptr;
     //
     const Demonstrator* demonstrator_ = nullptr;
   };
@@ -115,10 +115,10 @@ namespace trackerTFP {
       iEvent.getByToken<tt::StreamsTrack>(tokenTracks, handleTracks);
       numChannelTracks = handleTracks->size();
     }
-    numChannelTracks /= setup_->numRegions();
-    numChannelStubs /= (setup_->numRegions() * (tracks ? numChannelTracks : 1));
+    numChannelTracks /= setup_->sysNumRegion();
+    numChannelStubs /= (setup_->sysNumRegion() * (tracks ? numChannelTracks : 1));
     bits.reserve(numChannelTracks + numChannelStubs);
-    for (int region = 0; region < setup_->numRegions(); region++) {
+    for (int region = 0; region < setup_->sysNumRegion(); region++) {
       if (tracks) {
         const int offsetTracks = region * numChannelTracks;
         for (int channelTracks = 0; channelTracks < numChannelTracks; channelTracks++) {

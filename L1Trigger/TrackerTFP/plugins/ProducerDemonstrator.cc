@@ -20,11 +20,11 @@ namespace trackerTFP {
   public:
     ProducerDemonstrator(const edm::ParameterSet& iConfig);
     ~ProducerDemonstrator() override = default;
-    std::unique_ptr<Demonstrator> produce(const tt::SetupRcd& rcd);
+    std::unique_ptr<Demonstrator> produce(const trackerDTC::SetupRcd& rcd);
 
   private:
     Demonstrator::Config iConfig_;
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetToken_;
+    edm::ESGetToken<trackerDTC::Setup, trackerDTC::SetupRcd> esGetToken_;
   };
 
   ProducerDemonstrator::ProducerDemonstrator(const edm::ParameterSet& iConfig) {
@@ -36,8 +36,8 @@ namespace trackerTFP {
     iConfig_.linkMappingOut_ = iConfig.getParameter<std::vector<int>>("LinkMappingOut");
   }
 
-  std::unique_ptr<Demonstrator> ProducerDemonstrator::produce(const tt::SetupRcd& rcd) {
-    const tt::Setup* setup = &rcd.get(esGetToken_);
+  std::unique_ptr<Demonstrator> ProducerDemonstrator::produce(const trackerDTC::SetupRcd& rcd) {
+    const trackerDTC::Setup* setup = &rcd.get(esGetToken_);
     return std::make_unique<Demonstrator>(iConfig_, setup);
   }
 

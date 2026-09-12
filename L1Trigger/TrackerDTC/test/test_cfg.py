@@ -9,8 +9,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "Demo" )
 process.load( 'FWCore.MessageService.MessageLogger_cfi' )
-process.load( 'Configuration.Geometry.GeometryExtended2026D110Reco_cff' ) 
-process.load( 'Configuration.Geometry.GeometryExtended2026D110_cff' )
+process.load( 'Configuration.Geometry.GeometryExtendedRun4D110Reco_cff' ) 
+process.load( 'Configuration.Geometry.GeometryExtendedRun4D110_cff' )
 process.load( 'Configuration.StandardSequences.MagneticField_cff' )
 process.load( 'Configuration.StandardSequences.FrontierConditions_GlobalTag_cff' )
 process.load( 'L1Trigger.TrackTrigger.TrackTrigger_cff' )
@@ -22,21 +22,22 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 process.load( 'L1Trigger.TrackerDTC.DTC_cff' )
 # load code that analyzes DTCStubs
 process.load( 'L1Trigger.TrackerDTC.Analyzer_cff' )
-# cosutmize TT algorithm
-from L1Trigger.TrackerDTC.Customize_cff import *
-#producerUseTMTT(process)
-#analyzerUseTMTT(process)
+# load code that associates stubs with mctruth
+process.load( 'SimTracker.TrackTriggerAssociation.StubAssociator_cff' )
+# load code that analyzes mc truth
+process.load( 'L1Trigger.TrackTrigger.AnalyzerMC_cff' )
 
 # build schedule (not essential to rerun producer)
-process.produce = cms.Path( process.ProducerDTC )
-process.analyze = cms.Path( process.AnalyzerDTC )
-process.schedule = cms.Schedule( process.produce, process.analyze )
+process.path = cms.Path( process.StubAssociator + process.AnalyzerMC + process.ProducerDTC + process.AnalyzerDTC )
+process.schedule = cms.Schedule( process.path )
 
 # create options
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing( 'analysis' )
 # specify input MC
-Samples = [""]
+Samples = [
+  '/store/relval/CMSSW_15_1_0_pre5/RelValDoubleMuFlatPt1To100/GEN-SIM-DIGI-RAW/150X_mcRun4_realistic_v1_RV269_Run4D110_noPU-v1/2590000/076c038a-eb20-4be9-8bff-04af5917c436.root'
+]
 options.register( 'inputMC', Samples, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed" )
 # specify number of events to process.
 options.register( 'Events',100,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Number of Events to analyze" )
@@ -47,7 +48,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.Even
 process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring( options.inputMC ),
-  #skipEvents = cms.untracked.uint32( 47 ),
+  #skipEvents = cms.untracked.uint32( 1 ),
   secondaryFileNames = cms.untracked.vstring(),
   duplicateCheckMode = cms.untracked.string( 'noDuplicateCheck' )
 )

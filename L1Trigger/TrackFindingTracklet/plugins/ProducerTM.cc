@@ -10,10 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
-#include "L1Trigger/TrackFindingTracklet/interface/ChannelAssignment.h"
-#include "L1Trigger/TrackFindingTracklet/interface/DataFormats.h"
-#include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Setup.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackMultiplexer.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
@@ -27,8 +24,9 @@
 namespace trklet {
 
   /*! \class  trklet::ProducerTM
-   *  \brief  Transforms format of Track Builder into that expected by DR input and muxes all channels to 1.
-              Since DR keeps first tracks the mux ordering (currently from low seed id to high seed id) is important.
+   *  \brief  Transforms format of Track Builder into that expected by DR input (using only inv2R, phiT and zT)
+   *          and muxes all channels to 1. Since DR keeps first tracks the mux ordering (currently from low
+   *          seed id to high seed id) is important.
    *  \author Thomas Schuh
    *  \date   2023, Jan
    */
@@ -49,13 +47,7 @@ namespace trklet {
     // ED output token for tracks
     edm::EDPutTokenT<tt::StreamsTrack> edPutTokenTracks_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
-    // DataFormats token
-    edm::ESGetToken<DataFormats, ChannelAssignmentRcd> esGetTokenDataFormats_;
-    // ChannelAssignment token
-    edm::ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
-    // helper class to store tracklet configurations
-    trklet::Settings settings_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
   };
 
   ProducerTM::ProducerTM(const edm::ParameterSet& iConfig) {
@@ -63,32 +55,26 @@ namespace trklet {
     const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubs");
     const std::string& branchTracks = iConfig.getParameter<std::string>("BranchTracks");
     // book in- and output ED products
-    edGetTokenTracks_ = consumes<tt::StreamsTrack>(edm::InputTag(label, branchTracks));
-    edGetTokenStubs_ = consumes<tt::StreamsStub>(edm::InputTag(label, branchStubs));
-    edPutTokenStubs_ = produces<tt::StreamsStub>(branchStubs);
-    edPutTokenTracks_ = produces<tt::StreamsTrack>(branchTracks);
+    edGetTokenTracks_ = consumes(edm::InputTag(label, branchTracks));
+    edGetTokenStubs_ = consumes(edm::InputTag(label, branchStubs));
+    edPutTokenStubs_ = produces(branchStubs);
+    edPutTokenTracks_ = produces(branchTracks);
     // book ES products
     esGetTokenSetup_ = esConsumes();
-    esGetTokenDataFormats_ = esConsumes();
-    esGetTokenChannelAssignment_ = esConsumes();
   }
 
   void ProducerTM::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
-    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
-    // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
-    // helper class to assign tracks to channel
-    const ChannelAssignment* channelAssignment = &iSetup.getData(esGetTokenChannelAssignment_);
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // empty TM products
-    tt::StreamsStub streamsStub(setup->numRegions() * channelAssignment->tmNumLayers());
-    tt::StreamsTrack streamsTrack(setup->numRegions());
+    tt::StreamsStub streamsStub(setup->sysNumRegion() * setup->tmNumLayers());
+    tt::StreamsTrack streamsTrack(setup->sysNumRegion());
     // read in TBout Product and produce TM product
     const tt::StreamsStub& stubs = iEvent.get(edGetTokenStubs_);
     const tt::StreamsTrack& tracks = iEvent.get(edGetTokenTracks_);
-    for (int region = 0; region < setup->numRegions(); region++) {
+    for (int region = 0; region < setup->sysNumRegion(); region++) {
       // object to reformat tracks from tracklet fromat to TMTT format in a processing region
-      TrackMultiplexer tm(setup, dataFormats, channelAssignment, &settings_, region);
+      TrackMultiplexer tm(setup, region);
       // read in and organize input tracks and stubs
       tm.consume(tracks, stubs);
       // fill output products
