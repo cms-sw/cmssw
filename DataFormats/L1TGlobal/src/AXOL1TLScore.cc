@@ -14,6 +14,7 @@
 void AXOL1TLScore::reset() {
   axoscore_ = 0.0;
   m_bxInEvent = 0;
+  inputs_.fill(0.f);
 }
 
 AXOL1TLScore::AXOL1TLScore() { reset(); }
