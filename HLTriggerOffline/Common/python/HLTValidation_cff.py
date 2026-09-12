@@ -118,7 +118,6 @@ _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
   ExoticaValidationSequence,
   b2gHLTriggerValidation,
   SMPValidationSequence,
-  hltbtagValidationSequence,
   hltHCALdigisAnalyzer,
   hltHCALRecoAnalyzer,
   hltHCALNoiseRates])
