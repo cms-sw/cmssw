@@ -6,6 +6,7 @@
 #include <string>
 #include <iostream>
 
+#include "L1Trigger/L1TGEM/interface/ME0StubFit.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 
 class ME0StubPrimitive final {
@@ -14,13 +15,8 @@ public:
   ME0StubPrimitive();
   ME0StubPrimitive(int layerCount, int hitCount, int patternId, int strip, int etaPartition);
   ME0StubPrimitive(int layerCount, int hitCount, int patternId, int strip, int etaPartition, double bx);
-  ME0StubPrimitive(int layerCount,
-                   int hitCount,
-                   int patternId,
-                   int strip,
-                   int etaPartition,
-                   double bx,
-                   std::vector<double>& centroids);
+  ME0StubPrimitive(
+      int layerCount, int hitCount, int patternId, int strip, int etaPartition, double bx, std::vector<int>& centroids);
 
   // clone
   ME0StubPrimitive* clone() const { return new ME0StubPrimitive(*this); }
@@ -35,7 +31,7 @@ public:
   double subStrip() const { return subStrip_; }
   double bendingAngle() const { return bendingAngle_; }
   double mse() const { return mse_; }
-  std::vector<double> centroids() const { return centroids_; }
+  std::vector<int> centroids() const { return centroids_; }
   int quality() const { return quality_; }
   int maxClusterSize() const { return maxClusterSize_; }
   int maxNoise() const { return maxNoise_; }
@@ -47,13 +43,13 @@ public:
   void setStrip(int strip) { strip_ = strip; }
   void setEtaPartition(int etaPartition) { etaPartition_ = etaPartition; }
   void setBx(double bx) { bx_ = bx; }
-  void setCentroids(std::vector<double> centroids) { centroids_ = centroids; }
+  void setCentroids(std::vector<int> centroids) { centroids_ = centroids; }
   void setMaxClusterSize(int maxClusterSize) { maxClusterSize_ = maxClusterSize; }
   void setMaxNoise(int maxNoise) { maxNoise_ = maxNoise; }
 
   void reset();
   void updateQuality();
-  void fit(int maxSpan = 37);
+  void fit(int patSpan);
 
   // operators
   bool operator==(const ME0StubPrimitive& other) {
@@ -76,7 +72,7 @@ public:
 private:
   int layerCount_, hitCount_, patternId_, strip_, etaPartition_;
   double bx_ = -9999;
-  std::vector<double> centroids_;
+  std::vector<int> centroids_;
   double subStrip_ = 0.0;
   double bendingAngle_ = 0.0;
   double mse_ = 9999;
@@ -84,7 +80,6 @@ private:
   int maxClusterSize_ = 0;
   int maxNoise_ = 0;
   bool ignoreBend_ = false;
-  std::vector<double> llseFit(const std::vector<double>& x, const std::vector<double>& y);
 };
 
 #endif

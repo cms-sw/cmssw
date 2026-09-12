@@ -1,8 +1,7 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1TGEM/interface/ME0StubAlgoMask.h"
 
-using namespace l1t::me0;
-
-std::vector<int> l1t::me0::shiftCenter(const HiLo& layer, int maxSpan) {
+std::vector<int> l1t::me0::shiftCenter(const l1t::me0::HiLo& layer, int maxSpan) {
   /*
     Patterns are defined as a +hi and -lo around a center point of a pattern.
 
@@ -31,7 +30,7 @@ uint64_t l1t::me0::setHighBits(const std::vector<int>& loHiPair) {
   return out;
 }
 
-Mask l1t::me0::getLayerMask(const PatternDefinition& layerPattern, int maxSpan) {
+l1t::me0::Mask l1t::me0::getLayerMask(const l1t::me0::PatternDef& layerPattern, const std::vector<int> layerSpans) {
   /*
     takes in a given layer pattern and returns a list of integer bit masks
     for each layer
@@ -42,17 +41,99 @@ Mask l1t::me0::getLayerMask(const PatternDefinition& layerPattern, int maxSpan) 
   // for each layer, shift the provided hi and lo values for each layer from
   // pattern definition by center
   mVals.reserve(layerPattern.layers.size());
-  for (HiLo layer : layerPattern.layers) {
-    mVals.push_back(shiftCenter(layer, maxSpan));
+  for (int idxLy = 0; idxLy < static_cast<int>(layerPattern.layers.size()); ++idxLy) {
+    mVals.push_back(l1t::me0::shiftCenter(layerPattern.layers[idxLy], layerSpans[idxLy]));
   }
 
   // use the high and low indices to determine where the high bits must go for
   // each layer
   mVec.reserve(mVals.size());
   for (const std::vector<int>& x : mVals) {
-    mVec.push_back(setHighBits(x));
+    mVec.push_back(l1t::me0::setHighBits(x));
   }
 
-  Mask mask_{layerPattern.id, mVec};
+  l1t::me0::Mask mask_{layerPattern.id, mVec};
   return mask_;
+}
+//define functions to generate patterns
+l1t::me0::HiLo l1t::me0::mirrorHiLo(const l1t::me0::HiLo& layer) {
+  l1t::me0::HiLo mirrored{-1 * (layer.lo), -1 * (layer.hi)};
+  return mirrored;
+}
+l1t::me0::PatternDef l1t::me0::mirrorPatternDefinition(const l1t::me0::PatternDef& pattern, int id) {
+  std::vector<l1t::me0::HiLo> layers_;
+  layers_.reserve(pattern.layers.size());
+  for (const auto& l : pattern.layers) {
+    layers_.push_back(l1t::me0::mirrorHiLo(l));
+  }
+  l1t::me0::PatternDef mirrored{id, layers_};
+  return mirrored;
+}
+std::vector<l1t::me0::HiLo> l1t::me0::createPatternLayer(double lower, double upper) {
+  std::vector<l1t::me0::HiLo> layerList;
+  double hi, lo;
+  int hi_i, lo_i;
+  for (int i = 0; i < 6; ++i) {
+    if (i < 3) {
+      hi = lower * (i - 2.5);
+      lo = upper * (i - 2.5);
+    } else {
+      hi = upper * (i - 2.5);
+      lo = lower * (i - 2.5);
+    }
+    if (std::abs(hi) < 0.1) {
+      hi = 0.0f;
+    }
+    if (std::abs(lo) < 0.1) {
+      lo = 0.0f;
+    }
+    hi_i = std::ceil(hi);
+    lo_i = std::floor(lo);
+    layerList.push_back(l1t::me0::HiLo{hi_i, lo_i});
+  }
+  return layerList;
+}
+std::vector<int> l1t::me0::calculateLayerSpans(const std::vector<l1t::me0::PatternDef>& patternList) {
+  std::vector<int> layerSpans;
+  layerSpans.reserve(6);
+  for (int idxLy = 0; idxLy < 6; ++idxLy) {
+    int high = 0;
+    for (const auto& pattern : patternList) {
+      high = std::max(high, pattern.layers[idxLy].hi);
+    }
+    layerSpans.push_back(2 * high +
+                         1);  // span = 2*hi + 1, since hi is defined as the number of strips above the center strip
+  }
+  return layerSpans;
+}
+std::vector<int> l1t::me0::calculatePatternSpans(const std::vector<l1t::me0::PatternDef>& patternList) {
+  std::vector<int> patternSpans;
+  patternSpans.reserve(patternList.size());
+  for (const auto& pattern : patternList) {
+    int high = std::max(pattern.layers[0].hi, pattern.layers[5].hi);
+    int low = std::min(pattern.layers[0].lo, pattern.layers[5].lo);
+    patternSpans.push_back(high - low + 1);
+  }
+  return patternSpans;
+}
+std::vector<std::vector<int>> l1t::me0::calculatePatternOffsets(const std::vector<l1t::me0::PatternDef>& patternList,
+                                                                const std::vector<int>& patternSpans,
+                                                                const std::vector<int>& layerSpans) {
+  std::vector<std::vector<int>> patternOffsets;
+  for (int idxPat = 0; idxPat < static_cast<int>(patternList.size()); ++idxPat) {
+    int maxSpan = layerSpans[0] / 2;
+    std::vector<int> shiftLeft;
+    shiftLeft.reserve(6);
+    for (int idxLy = 0; idxLy < 6; ++idxLy) {
+      shiftLeft.push_back(maxSpan - layerSpans[idxLy] / 2);
+    }
+    int shiftRight = maxSpan - patternSpans[idxPat] / 2;
+    std::vector<int> offsets;
+    offsets.reserve(6);
+    for (int idxLy = 0; idxLy < 6; ++idxLy) {
+      offsets.push_back(shiftLeft[idxLy] - shiftRight);
+    }
+    patternOffsets.push_back(offsets);
+  }
+  return patternOffsets;
 }

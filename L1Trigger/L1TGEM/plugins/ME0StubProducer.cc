@@ -1,6 +1,11 @@
 /** \class ME0StubProducer derived by CSCSegmentProducer 
  * Produces a collection of ME0Stub's in ME0. 
  *
+ * Old version of ME0 trigger object Producer, which produces ME0StubCollection instead of ME0TriggerDigiCollection.
+ * (will be deprecated in the future)
+ * New version of ME0 trigger object Producer is ME0TriggerProducerV2, which produces ME0TriggerDigiCollection.
+ * ME0TriggerProducerV2 will replace ME0StubProducer and ME0TriggerProducer.
+ * 
  * \author Woohyeon Heo
  */
 
@@ -14,14 +19,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/ME0StubCollection.h"
 #include "DataFormats/GEMDigi/interface/ME0Stub.h"
-
-#include "L1Trigger/L1TGEM/plugins/ME0StubBuilder.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "L1Trigger/L1TGEM/interface/ME0StubBuilder.h"
 
 class ME0StubProducer : public edm::stream::EDProducer<> {
 public:
