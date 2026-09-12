@@ -14,7 +14,9 @@
 
 
   <class name="l1t::io_v1::P2GTCandidate::Optional<int>"/>
-  <class name="l1t::io_v1::P2GTCandidate" ClassVersion="3">
+  <class name="l1t::io_v1::P2GTCandidate::Optional<double>"/>
+  <class name="l1t::io_v1::P2GTCandidate" ClassVersion="4">
+    <version ClassVersion="4" checksum="3737213310"/>
     <version ClassVersion="3" checksum="1444610149"/>
   </class>
   <class name="l1t::P2GTCandidateCollection"/>
