@@ -3378,7 +3378,7 @@ class UpgradeWorkflowHybridPU(UpgradeWorkflow):
             if not stepNameS1 in stepDict: stepDict[stepNameS1] = {}
             stepDict[stepNameS1][k] = merge([{
                 '--fast': '',
-                '--era': stepDict[stepName][k]['--era']+'_FastSim',
+                '--era': stepDict[stepName][k]['--era'],
                 '--eventcontent': 'FASTPU',
                 '--processName': 'FASTSIM',
             }, d])
@@ -3445,7 +3445,6 @@ class UpgradeWorkflow_Run3FStrackingOnly(UpgradeWorkflow):
         if 'HARVESTFastRun3' in step:
             stepDict[stepName][k] = merge([{'-s':'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM',
                                             '--fast':'',
-                                            '--era':'Run3_FastSim',
                                             '--filein':'file:step1_inDQM.root'}, stepDict[step][k]])
         else:
             stepDict[stepName][k] = merge([stepDict[step][k]])
@@ -3470,7 +3469,6 @@ class UpgradeWorkflow_Run3FSMBMixing(UpgradeWorkflow):
         if 'Gen' in step and 'GenOnly' not in step:
             stepDict[stepName][k] = merge([{'-s':'GEN,SIM,RECOBEFMIX',
                                             '--fast':'',
-                                            '--era':'Run3_FastSim',
                                             '--eventcontent':'FASTPU',
                                             '--datatier':'GEN-SIM-RECO',
                                             '--relval':'27000,3000'}, stepDict[step][k]])
@@ -3765,7 +3763,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2022_realistic',
         'HLTmenu': '@relval2022',
-        'Era' : 'Run3_FastSim',
+        'Era' : 'Run3',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
@@ -3781,7 +3779,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2023_realistic',
         'HLTmenu': '@relval2023',
-        'Era' : 'Run3_2023_FastSim',
+        'Era' : 'Run3_2023',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
@@ -3836,7 +3834,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2024_realistic',
         'HLTmenu': '@relval2024',
-        'Era' : 'Run3_2024_FastSim',
+        'Era' : 'Run3_2024',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
@@ -3876,7 +3874,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2025_realistic',
         'HLTmenu': '@relval2025',
-        'Era' : 'Run3_2025_FastSim',
+        'Era' : 'Run3_2025',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
@@ -3917,7 +3915,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2026_realistic',
         'HLTmenu': '@relval2026',
-        'Era' : 'Run3_2026_FastSim',
+        'Era' : 'Run3_2026',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     }
