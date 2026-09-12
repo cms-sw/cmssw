@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 #AOD content
 RecoVertexAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep  *_offlinePrimaryVertices__*', 
+    outputCommands = cms.untracked.vstring('keep  *_offlinePrimaryVertices__*',
         'keep *_offlinePrimaryVerticesWithBS_*_*',
         'keep *_offlinePrimaryVerticesFromCosmicTracks_*_*',
         'keep *_nuclearInteractionMaker_*_*',
-        'keep *_generalV0Candidates_*_*',                                           
+        'keep *_generalV0Candidates_*_*',
 	'keep *_inclusiveSecondaryVertices_*_*')
 )
 
@@ -23,6 +23,13 @@ phase2_timing.toModify( RecoVertexAOD,
 phase2_timing_layer.toModify( RecoVertexAOD,
      outputCommands = RecoVertexAOD.outputCommands + _phase2_tktiming_layer_RecoVertexEventContent)
 
+from Configuration.ProcessModifiers.vertexSlotGNN_cff import vertexSlotGNN
+_vertexSlotGNN_RecoVertexEventContent = [ 'keep *_offlinePrimaryVerticesGNN__*',
+                                          'keep *_unsortedOfflinePrimaryVerticesGNN_*_*',
+                                          'keep *_tofPIDGNN_*_*',
+                                          'keep *_tofPID3D_*_*' ]
+(phase2_timing_layer & vertexSlotGNN).toModify( RecoVertexAOD,
+     outputCommands = RecoVertexAOD.outputCommands + _vertexSlotGNN_RecoVertexEventContent)
 #RECO content
 RecoVertexRECO = cms.PSet(
     outputCommands = cms.untracked.vstring()

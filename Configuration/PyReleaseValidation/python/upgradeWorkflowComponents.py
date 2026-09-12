@@ -1093,6 +1093,29 @@ upgradeWFs['phase2L3MuonsOIFirst'].step2 = {'-s':'DIGI:pdigi_valid,L1TrackTrigge
 upgradeWFs['phase2L3MuonsOIFirst'].step3 = {'--procModifiers':'phase2L3MuonsOIFirst'}
 upgradeWFs['phase2L3MuonsOIFirst'].step4 = {'--procModifiers':'phase2L3MuonsOIFirst'}
 
+class UpgradeWorkflow_vertexSlotGNN(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = deepcopy(stepDict[step][k])
+            if '--procModifiers' in stepDict[stepName][k]:
+                stepDict[stepName][k]['--procModifiers'] += ',vertexSlotGNN'
+            else:
+                stepDict[stepName][k]['--procModifiers'] = 'vertexSlotGNN'
+
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment == "TTbar_14TeV" and 'Run4' in key and 'FS' not in key
+
+upgradeWFs['vertexSlotGNN'] = UpgradeWorkflow_vertexSlotGNN(
+    steps = [
+        'RecoGlobal',
+    ],
+    PU = [
+        'RecoGlobal',
+    ],
+    suffix = '_vertexSlotGNN',
+    offset = 0.28,
+)
+
 # Track DNN workflows
 class UpgradeWorkflow_trackdnn(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
