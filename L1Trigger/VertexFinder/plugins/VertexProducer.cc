@@ -75,15 +75,15 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig)
   }
 
   if (settings_.vx_algo() == Algorithm::NNEmulation) {
-    // load graphs, create a new session and add the graphDef
+    // loads weight and pattern NN, creates models
     if (settings_.debug() > 1) {
-      edm::LogInfo("VertexProducer") << "loading TrkWeight graph from " << settings_.vx_trkw_graph() << std::endl;
-      edm::LogInfo("VertexProducer") << "loading PatternRec graph from " << settings_.vx_pattrec_graph() << std::endl;
+      edm::LogInfo("VertexProducer") << "loading Weight NN from " << settings_.vx_wtnn() << std::endl;
+      edm::LogInfo("VertexProducer") << "loading Pattern NN from " << settings_.vx_patnn() << std::endl;
     }
-    TrkWGraph_ = tensorflow::loadGraphDef(settings_.vx_trkw_graph());
-    TrkWSesh_ = tensorflow::createSession(TrkWGraph_);
-    PattRecGraph_ = tensorflow::loadGraphDef(settings_.vx_pattrec_graph());
-    PattRecSesh_ = tensorflow::createSession(PattRecGraph_);
+    wt_loader = std::make_unique<hls4mlEmulator::ModelLoader>(settings_.vx_wtnn());
+    wt_model = wt_loader->load_model();
+    pat_loader = std::make_unique<hls4mlEmulator::ModelLoader>(settings_.vx_patnn());
+    pat_model = pat_loader->load_model();
   }
 }
 
@@ -155,7 +155,7 @@ void VertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
       vf.Kmeans();
       break;
     case Algorithm::NNEmulation:
-      vf.NNVtxEmulation(TrkWSesh_, PattRecSesh_);
+      vf.NNVtxEmulation(wt_model, pat_model);
       break;
   }
 
