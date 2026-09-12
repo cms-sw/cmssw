@@ -1,28 +1,50 @@
 #include "HeterogeneousCore/SonicCore/interface/SonicClientBase.h"
+#include "HeterogeneousCore/SonicCore/interface/RetryActionBase.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/allowedValues.h"
+
+// Custom deleter implementation
+void SonicClientBase::RetryDeleter::operator()(RetryActionBase* ptr) const { delete ptr; }
 
 SonicClientBase::SonicClientBase(const edm::ParameterSet& params,
                                  const std::string& debugName,
                                  const std::string& clientName)
-    : allowedTries_(params.getUntrackedParameter<unsigned>("allowedTries", 0)),
-      debugName_(debugName),
+    : debugName_(debugName),
       clientName_(clientName),
-      fullDebugName_(debugName_) {
+      fullDebugName_(debugName_),
+      userMode_(params.getParameter<std::string>("mode")) {
   if (!clientName_.empty())
     fullDebugName_ += ":" + clientName_;
 
-  std::string modeName(params.getParameter<std::string>("mode"));
-  if (modeName == "Sync")
+  const auto& retryPSetList = params.getParameter<std::vector<edm::ParameterSet>>("Retry");
+
+  for (const auto& retryPSet : retryPSetList) {
+    const std::string& actionType = retryPSet.getParameter<std::string>("retryType");
+
+    auto retryAction = RetryActionFactory::get()->create(actionType, retryPSet, this);
+    if (retryAction) {
+      //Convert to  RetryActionPtr Type from raw pointer of retryAction
+      retryActions_.emplace_back(RetryActionPtr(retryAction.release()));
+    } else {
+      throw cms::Exception("Configuration")
+          << "Unknown Retry type " << actionType << " for SonicClient: " << fullDebugName_;
+    }
+  }
+
+  setUserMode(userMode_);
+}
+void SonicClientBase::setUserMode(const std::string& userMode) {
+  if (userMode == "Sync")
     setMode(SonicMode::Sync);
-  else if (modeName == "Async")
+  else if (userMode == "Async")
     setMode(SonicMode::Async);
-  else if (modeName == "PseudoAsync")
+  else if (userMode == "PseudoAsync")
+    setMode(SonicMode::PseudoAsync);
+  else if (userMode.empty())
     setMode(SonicMode::PseudoAsync);
   else
-    throw cms::Exception("Configuration") << "Unknown mode for SonicClient: " << modeName;
+    throw cms::Exception("Configuration") << "Unknown mode for SonicClient: " << userMode;
 }
-
 void SonicClientBase::setMode(SonicMode mode) {
   if (dispatcher_ and mode_ == mode)
     return;
@@ -40,24 +62,33 @@ void SonicClientBase::start(edm::WaitingTaskWithArenaHolder holder) {
   holder_ = std::move(holder);
 }
 
-void SonicClientBase::start() { tries_ = 0; }
+void SonicClientBase::start() {
+  totalTries_ = 0;
+  // initialize all actions
+  for (auto& action : retryActions_) {
+    action->start();
+  }
+}
 
 void SonicClientBase::finish(bool success, std::exception_ptr eptr) {
   //retries are only allowed if no exception was raised
   if (!success and !eptr) {
-    ++tries_;
-    //if max retries has not been exceeded, call evaluate again
-    if (tries_ < allowedTries_) {
-      evaluate();
-      //avoid calling doneWaiting() twice
-      return;
+    ++totalTries_;
+    edm::LogInfo("SonicClientBase") << "finish: failed after total tries of " << totalTries_;
+    for (const auto& action : retryActions_) {
+      if (action->shouldRetry()) {
+        edm::LogInfo("SonicClientBase") << "Calling retry()";
+        // retry() must trigger eval() or finish()
+        action->retry();
+        return;
+      }
     }
-    //prepare an exception if exceeded
-    else {
-      edm::Exception ex(edm::errors::ExternalFailure);
-      ex << "SonicCallFailed: call failed after max " << tries_ << " tries";
-      eptr = make_exception_ptr(ex);
-    }
+    //prepare an exception if no more retry actions left
+    edm::LogInfo("SonicClientBase") << "SonicCallFailed: call failed, no retry actions available after " << totalTries_
+                                    << " tries.";
+    edm::Exception ex(edm::errors::ExternalFailure);
+    ex << "SonicCallFailed: call failed, no retry actions available after " << totalTries_ << " tries.";
+    eptr = make_exception_ptr(ex);
   }
   if (holder_) {
     holder_->doneWaiting(eptr);
@@ -70,11 +101,24 @@ void SonicClientBase::finish(bool success, std::exception_ptr eptr) {
     reset();
 }
 
-void SonicClientBase::fillBasePSetDescription(edm::ParameterSetDescription& desc, bool allowRetry) {
+void SonicClientBase::fillBasePSetDescription(edm::ParameterSetDescription& desc, const std::string& defaultRetryType) {
   //restrict allowed values
-  desc.ifValue(edm::ParameterDescription<std::string>("mode", "PseudoAsync", true),
-               edm::allowedValues<std::string>("Sync", "Async", "PseudoAsync"));
-  if (allowRetry)
-    desc.addUntracked<unsigned>("allowedTries", 0);
+  desc.ifValue(edm::ParameterDescription<std::string>("mode", "", true),
+               edm::allowedValues<std::string>("Sync", "Async", "PseudoAsync", ""));
+
+  // Defines the structure of each entry in the VPSet
+  edm::ParameterSetDescription retryDesc;
+  retryDesc.add<std::string>("retryType", defaultRetryType);
+  retryDesc.addUntracked<unsigned>("allowedTries", 0);  //used by RetrySameServerAction only
+
+  // Define a default retry action
+  edm::ParameterSet defaultRetry;
+  defaultRetry.addParameter<std::string>("retryType", defaultRetryType);
+  defaultRetry.addUntrackedParameter<unsigned>("allowedTries", 0);
+
+  // Add the VPSet with the default retry action
+  desc.addVPSet("Retry", retryDesc, {defaultRetry});
+
+  desc.add("sonicClientBase", desc);
   desc.addUntracked<bool>("verbose", false);
 }

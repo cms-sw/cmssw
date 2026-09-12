@@ -50,16 +50,11 @@ pfParticleNetFromMiniAODAK4CHSCentralJetTags = boostedJetONNXJetTagsProducer.clo
 particleNetSonicTriton.toReplaceWith(pfParticleNetFromMiniAODAK4CHSCentralJetTags, _particleNetSonicJetTagsProducer.clone(
     src = 'pfParticleNetFromMiniAODAK4CHSCentralTagInfos',
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK4/CHS/Central/preprocess.json',
-    Client = cms.PSet(
+    Client = dict(
         timeout = cms.untracked.uint32(300),
-        mode = cms.string("Async"),
         modelName = cms.string("particleNetFromMiniAODAK4CHSCentral"),
         modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particleNetFromMiniAODAK4CHSCentral/config.pbtxt"),
-        modelVersion = cms.string(""),
-        verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(0),
-        useSharedMemory = cms.untracked.bool(True),
-        compression = cms.untracked.string(""),
+        modelVersion = cms.string("")
     ),
     flav_names = pfParticleNetFromMiniAODAK4CHSCentralJetTags.flav_names,
 ))
@@ -74,16 +69,11 @@ pfParticleNetFromMiniAODAK4CHSForwardJetTags = boostedJetONNXJetTagsProducer.clo
 particleNetSonicTriton.toReplaceWith(pfParticleNetFromMiniAODAK4CHSForwardJetTags, _particleNetSonicJetTagsProducer.clone(
     src = 'pfParticleNetFromMiniAODAK4CHSForwardTagInfos',
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK4/CHS/Central/preprocess.json',
-    Client = cms.PSet(
+    Client = dict(
         timeout = cms.untracked.uint32(300),
-        mode = cms.string("Async"),
         modelName = cms.string("particleNetFromMiniAODAK4CHSForward"),
         modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particleNetFromMiniAODAK4CHSForward/config.pbtxt"),
-        modelVersion = cms.string(""),
-        verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(0),
-        useSharedMemory = cms.untracked.bool(True),
-        compression = cms.untracked.string(""),
+        modelVersion = cms.string("")
     ),
     flav_names = pfParticleNetFromMiniAODAK4CHSForwardJetTags.flav_names,
 ))
@@ -98,16 +88,11 @@ pfParticleNetFromMiniAODAK4PuppiCentralJetTags = boostedJetONNXJetTagsProducer.c
 particleNetSonicTriton.toReplaceWith(pfParticleNetFromMiniAODAK4PuppiCentralJetTags, _particleNetSonicJetTagsProducer.clone(
     src = 'pfParticleNetFromMiniAODAK4PuppiCentralTagInfos',
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK4/PUPPI/Central/preprocess.json',
-    Client = cms.PSet(
+    Client = dict(
         timeout = cms.untracked.uint32(300),
-        mode = cms.string("Async"),
         modelName = cms.string("particleNetFromMiniAODAK4PuppiCentral"),
         modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particleNetFromMiniAODAK4PuppiCentral/config.pbtxt"),
-        modelVersion = cms.string(""),
-        verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(0),
-        useSharedMemory = cms.untracked.bool(True),
-        compression = cms.untracked.string(""),
+        modelVersion = cms.string("")
     ),
     flav_names = pfParticleNetFromMiniAODAK4PuppiCentralJetTags.flav_names,
 ))
@@ -122,16 +107,11 @@ pfParticleNetFromMiniAODAK4PuppiForwardJetTags = boostedJetONNXJetTagsProducer.c
 particleNetSonicTriton.toReplaceWith(pfParticleNetFromMiniAODAK4PuppiForwardJetTags, _particleNetSonicJetTagsProducer.clone(
     src = 'pfParticleNetFromMiniAODAK4PuppiForwardTagInfos',
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK4/PUPPI/Forward/preprocess.json',
-    Client = cms.PSet(
+    Client = dict(
         timeout = cms.untracked.uint32(300),
-        mode = cms.string("Async"),
         modelName = cms.string("particleNetFromMiniAODAK4PuppiForward"),
         modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particleNetFromMiniAODAK4PuppiForward/config.pbtxt"),
-        modelVersion = cms.string(""),
-        verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(0),
-        useSharedMemory = cms.untracked.bool(True),
-        compression = cms.untracked.string(""),
+        modelVersion = cms.string("")
     ),
     flav_names = pfParticleNetFromMiniAODAK4PuppiForwardJetTags.flav_names,
 ))
