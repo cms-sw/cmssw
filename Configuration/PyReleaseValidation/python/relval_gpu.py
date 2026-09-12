@@ -31,12 +31,14 @@ from Configuration.PyReleaseValidation.relval_Run4 import prefixDet
 # no PU
 #           Alpaka pixel-only:                                  TTbar: quadruplets any backend, CA Extension any backend, any backend vs cpu validation, profiling, triplets
 #           Alpaka ECAL-only development:                       TTbar: any backend
+#           Alpaka HCAL-only:                                   TTbar: any backend, any backend vs cpu validation, profiling
 #           Alpaka pixel-only:                                  Single Nu E10: any backend
 #           Alpaka LST-only:                                    TTbar: TRK-only w/ 2 iterations and LST building on any backend
 #           Alpaka HLTTiming75e33:                              TTbar: any backend
 #           Alpaka HLTTiming75e33:                              Single Nu E10: any backend
 # with PU
 #           Alpaka pixel-only:                                  TTbar: quadruplets any backend, CA Extension any backend, any backend vs cpu validation, profiling
+#           Alpaka HCAL-only:                                   TTbar: any backend, any backend vs cpu validation, profiling
 #           Alpaka LST-only:                                    TTbar: TRK-only w/ 2 iterations and LST building on any backend
 #           Alpaka HLTTiming75e33:                              TTbar: any backend
 numWFIB = [
@@ -52,17 +54,19 @@ numWFIB = [
            18450.406, 18450.407, 18450.408,
            18461.402,
 
-           # Run4, Alpaka-based noPU
+           # Run4, alpaka-based workflows without pileup
            prefixDet+34.402, prefixDet+34.4021, prefixDet+34.403, prefixDet+34.404, prefixDet+34.406,
            prefixDet+34.612,
+           prefixDet+34.422, prefixDet+34.423, prefixDet+34.424,
            prefixDet+61.402,
            prefixDet+34.712, prefixDet+34.713,
            prefixDet+34.7503,
            prefixDet+34.751,
            prefixDet+61.751,
 
-           # Run4, Alpaka-based PU
+           # Run4, alpaka-based workflows with pileup
            prefixDet+234.402, prefixDet+234.4021, prefixDet+234.403, prefixDet+234.404,
+           prefixDet+234.422, prefixDet+234.423, prefixDet+234.424,
            prefixDet+234.712, prefixDet+234.713,
            prefixDet+234.7503,
            prefixDet+234.751,
