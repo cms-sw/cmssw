@@ -2,6 +2,7 @@
 #include "DataFormats/HGCalReco/interface/HGCalSoARecHitsHostCollection.h"
 #include "DataFormats/HGCalReco/interface/alpaka/HGCalSoAClustersDeviceCollection.h"
 #include "DataFormats/HGCalReco/interface/alpaka/HGCalSoARecHitsExtraDeviceCollection.h"
+#include "DataFormats/CaloRecHit/interface/alpaka/CaloClusterDeviceCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -27,7 +28,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           getTokenDeviceClusters_{consumes(config.getParameter<edm::InputTag>("hgcalRecHitsLayerClustersSoA"))},
           deviceTokenSoAClusters_{produces()},
           thresholdW0_(config.getParameter<float>("thresholdW0")),
-          positionDeltaRho2_(config.getParameter<float>("positionDeltaRho2")) {}
+          positionDeltaRho2_(config.getParameter<float>("positionDeltaRho2")),
+          isScintillator_(config.getParameter<std::string>("detector") == "BH") {}
 
     ~HGCalSoALayerClustersProducer() override = default;
 
@@ -58,7 +60,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto const& deviceInputClusters = iEvent.get(getTokenDeviceClusters_);
       auto const inputClusters_v = deviceInputClusters.view();
 
-      HGCalSoAClustersDeviceCollection output(iEvent.queue(), num_clusters_);
+      reco::CaloClusterDeviceCollection output(
+          iEvent.queue(), num_clusters_, num_clusters_, num_clusters_, num_clusters_);
       auto output_v = output.view();
       // Allocate workspace SoA cluster
       HGCalSoAClustersExtraDeviceCollection outputWorkspace(iEvent.queue(), num_clusters_);
@@ -68,6 +71,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 num_clusters_,
                 thresholdW0_,
                 positionDeltaRho2_,
+                isScintillator_,
                 inputRechits_v,
                 inputClusters_v,
                 output_v,
@@ -81,17 +85,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       desc.add<edm::InputTag>("hgcalRecHitsSoA", edm::InputTag("TO BE DEFINED"));
       desc.add<float>("thresholdW0", 2.9);
       desc.add<float>("positionDeltaRho2", 1.69);
+      desc.add<std::string>("detector", "EE")
+          ->setComment("HGCAL component; 'BH' computes the scintillator centroid in cartesian (eta,phi->x,y).");
       descriptions.addWithDefaultLabel(desc);
     }
 
   private:
     device::EDGetToken<HGCalSoARecHitsDeviceCollection> const getTokenDeviceRecHits_;
     device::EDGetToken<HGCalSoARecHitsExtraDeviceCollection> const getTokenDeviceClusters_;
-    device::EDPutToken<HGCalSoAClustersDeviceCollection> const deviceTokenSoAClusters_;
+    device::EDPutToken<reco::CaloClusterDeviceCollection> const deviceTokenSoAClusters_;
     HGCalLayerClustersSoAAlgoWrapper algo_;
     unsigned int num_clusters_;
     float thresholdW0_;
     float positionDeltaRho2_;
+    const bool isScintillator_;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
