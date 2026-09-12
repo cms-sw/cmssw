@@ -560,9 +560,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               if (alpaka::math::abs(acc, dPhi) > 0.1f)
                 continue;
 
-              const float dR2 = dEta * dEta + dPhi * dPhi;
               const int nMatched = checkHitsT5(ix, jx, quintuplets);
-              constexpr int minNHitsForDup_T5 = 5;
 
               float d2 = 0.f;
               CMS_UNROLL_LOOP
@@ -573,16 +571,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
               // 99th percentile of true-dup d2 distribution measured on 100 PU200 events.
               constexpr float d2Thresh = 0.25f;
-              if (((dR2 < 0.001f || nMatched >= minNHitsForDup_T5) && d2 < d2Thresh) || (dR2 < 0.02f && d2 < 0.1f)) {
+              constexpr int minNHitsForDup_T5 = 5;
+              // Duplicate regardless of the embedding at this many shared hits.
+              constexpr int nHitsForHardDup_T5 = 10;
+              if ((nMatched >= minNHitsForDup_T5 && d2 < d2Thresh) || nMatched >= nHitsForHardDup_T5) {
                 float ptIx = __H2F(quintuplets.innerRadius()[ix]) * lst::k2Rinv1GeVf * 2;
                 float ptJx = __H2F(quintuplets.innerRadius()[jx]) * lst::k2Rinv1GeVf * 2;
                 bool highPt = (ptIx > 5.0f || ptJx > 5.0f);
                 bool ixLoses;
-                if (isPT5_jx) {
-                  ixLoses = true;
-                } else if (isPT5_ix) {
-                  ixLoses = false;
-                } else if (highPt) {
+                if (highPt) {
                   float rphisum1 = __H2F(quintuplets.score_rphisum()[ix]);
                   float rphisum2 = __H2F(quintuplets.score_rphisum()[jx]);
                   ixLoses = (rphisum1 > rphisum2) || (rphisum1 == rphisum2 && ix < jx);
@@ -701,10 +698,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
               const float score2 = quadruplets.displacedScore()[jx] - quadruplets.fakeScore()[jx];
 
-              float dR2 = dEta * dEta + dPhi * dPhi;
               int nMatched = checkHitsT4(ix, jx, quadruplets);
               const int minNHitsForDup_T4 = 4;
-              if (dR2 < 0.001f || nMatched >= minNHitsForDup_T4) {
+              if (nMatched >= minNHitsForDup_T4) {
                 if (score1 > score2) {
                   rmQuadrupletFromMemory(quadruplets, jx, true);
                 } else if (score1 < score2) {

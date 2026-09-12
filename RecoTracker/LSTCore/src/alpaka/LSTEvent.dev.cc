@@ -711,13 +711,10 @@ void LSTEvent::createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets)
                       modules_.const_view().modules(),
                       quadrupletsDC_->view().quadruplets(),
                       quadrupletsDC_->const_view().quadrupletsOccupancy(),
-                      pixelQuintupletsDC_->const_view(),
                       pixelTripletsDC_->const_view(),
                       quintupletsDC_->const_view().quintuplets(),
                       trackCandidatesBaseDC_->view(),
                       trackCandidatesExtendedDC_->view(),
-                      miniDoubletsDC_->view().miniDoublets(),
-                      segmentsDC_->view().segments(),
                       tripletsDC_->view().triplets(),
                       rangesDC_->const_view());
 
