@@ -110,10 +110,12 @@ fastSim.toModify(muonAssociatorByHitsCommonParameters,
     DTsimhitsTag  = "MuonSimHits:MuonDTHits",
     CSCsimHitsTag = "MuonSimHits:MuonCSCHits",
     RPCsimhitsTag = "MuonSimHits:MuonRPCHits",
+    GEMsimhitsTag = "MuonSimHits:MuonGEMHits",
     simtracksXFTag = "mix:fastSimProducer",
     DTsimhitsXFTag  = "mix:MuonSimHitsMuonDTHits",
     CSCsimHitsXFTag = "mix:MuonSimHitsMuonCSCHits",
     RPCsimhitsXFTag = "mix:MuonSimHitsMuonRPCHits",
+    GEMsimhitsXFTag = "mix:MuonSimHitsMuonGEMHits",
     ROUList = ['fastSimProducerTrackerHits']
 )
 

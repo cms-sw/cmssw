@@ -2472,6 +2472,21 @@ upgradeWFs['ecalDevelAlpaka'] = UpgradeWorkflow_ecalDevel(
     offset = 0.612,
 )
 
+# ECAL Phase 2 workflow with APD spikes added to the digis and reconstruction with Alpaka
+upgradeWFs['ecalDevelSpikesAlpaka'] = UpgradeWorkflow_ecalDevel(
+    digi = {
+        '--procModifiers': 'ecal_addspikes',
+        '--custom_conditions': 'EcalSimPulseShapes_TB2025_v1,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+    },
+    reco = {
+        '--procModifiers': 'alpaka',
+        '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
+        '--custom_conditions': 'EcalSimPulseShapes_TB2025_v1,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+    },
+    suffix = '_ecalDevelSpikesAlpaka',
+    offset = 0.622,
+)
+
 # ECAL Phase 2 workflow with Alpaka reconstruction and PU from premix
 class UpgradeWorkflowPremix_ecalDevel(UpgradeWorkflow):
     def __init__(self, digi = {}, reco = {}, harvest = {}, **kwargs):
@@ -3363,7 +3378,7 @@ class UpgradeWorkflowHybridPU(UpgradeWorkflow):
             if not stepNameS1 in stepDict: stepDict[stepNameS1] = {}
             stepDict[stepNameS1][k] = merge([{
                 '--fast': '',
-                '--era': stepDict[stepName][k]['--era']+'_FastSim',
+                '--era': stepDict[stepName][k]['--era'],
                 '--eventcontent': 'FASTPU',
                 '--processName': 'FASTSIM',
             }, d])
@@ -3430,7 +3445,6 @@ class UpgradeWorkflow_Run3FStrackingOnly(UpgradeWorkflow):
         if 'HARVESTFastRun3' in step:
             stepDict[stepName][k] = merge([{'-s':'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM',
                                             '--fast':'',
-                                            '--era':'Run3_FastSim',
                                             '--filein':'file:step1_inDQM.root'}, stepDict[step][k]])
         else:
             stepDict[stepName][k] = merge([stepDict[step][k]])
@@ -3455,7 +3469,6 @@ class UpgradeWorkflow_Run3FSMBMixing(UpgradeWorkflow):
         if 'Gen' in step and 'GenOnly' not in step:
             stepDict[stepName][k] = merge([{'-s':'GEN,SIM,RECOBEFMIX',
                                             '--fast':'',
-                                            '--era':'Run3_FastSim',
                                             '--eventcontent':'FASTPU',
                                             '--datatier':'GEN-SIM-RECO',
                                             '--relval':'27000,3000'}, stepDict[step][k]])
@@ -3750,7 +3763,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2022_realistic',
         'HLTmenu': '@relval2022',
-        'Era' : 'Run3_FastSim',
+        'Era' : 'Run3',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
@@ -3766,7 +3779,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2023_realistic',
         'HLTmenu': '@relval2023',
-        'Era' : 'Run3_2023_FastSim',
+        'Era' : 'Run3_2023',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
@@ -3821,7 +3834,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2024_realistic',
         'HLTmenu': '@relval2024',
-        'Era' : 'Run3_2024_FastSim',
+        'Era' : 'Run3_2024',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
@@ -3861,7 +3874,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2025_realistic',
         'HLTmenu': '@relval2025',
-        'Era' : 'Run3_2025_FastSim',
+        'Era' : 'Run3_2025',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
@@ -3902,7 +3915,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2026_realistic',
         'HLTmenu': '@relval2026',
-        'Era' : 'Run3_2026_FastSim',
+        'Era' : 'Run3_2026',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     }
@@ -4194,7 +4207,7 @@ upgradeFragments = OrderedDict([
     ('DisplacedSUSY_stopToBottom_M_800_500mm_TuneCP5_13TeV_pythia8_cff', UpgradeFragment(Kby(9,50),'DisplacedSUSY_stopToB_M_800_500mm_13')),
     ('TenE_E_0_200_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenE_0_200')),
     ('FlatRandomPtAndDxyGunProducer_cfi', UpgradeFragment(Kby(9,100),'DisplacedMuonsDxy_0_500')),
-    ('TenTau_E_15_500_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_15_500')),
+    ('TenTau_E15to500_Eta3p1_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_E15to500_Eta3p1')),
     ('SinglePiPt25Eta1p7_2p7_cfi', UpgradeFragment(Kby(9,100),'SinglePiPt25Eta1p7_2p7')),
     ('SingleMuPt15Eta1p7_2p7_cfi', UpgradeFragment(Kby(9,100),'SingleMuPt15Eta1p7_2p7')),
     ('SingleGammaPt25Eta1p7_2p7_cfi', UpgradeFragment(Kby(9,100),'SingleGammaPt25Eta1p7_2p7')),
@@ -4229,7 +4242,7 @@ upgradeFragments = OrderedDict([
     ('ZpTT_1500_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50),'ZpTT_1500_14')),
     ('BuMixing_BMuonFilter_forSTEAM_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(900,10000),'BuMixing_14')),
     ('Upsilon1SToMuMu_forSTEAM_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50),'Upsilon1SToMuMu_14')),
-    ('TenTau_E_15_500_Eta3p1_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_15_500_Eta3p1')),
+    ('TenTau_Pt10to500_Eta3p1_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_Pt10to500_Eta3p1')),
     ('QCD_Pt_1800_2400_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50), 'QCD_Pt_1800_2400_14')),
     ('DisplacedSUSY_stopToBottom_M_800_500mm_TuneCP5_14TeV_pythia8_cff', UpgradeFragment(Kby(9,50),'DisplacedSUSY_14TeV')),
     ('GluGluTo2Jets_M_300_2000_14TeV_Exhume_cff',UpgradeFragment(Kby(9,100),'GluGluTo2Jets_14TeV')),
@@ -4262,4 +4275,5 @@ upgradeFragments = OrderedDict([
     ('SingleMuPt15Eta0_0p4_cfi', UpgradeFragment(Kby(9,100),'SingleMuPt15Eta0p_0p4')),
     ('CloseByPGun_Barrel_Front_cfi', UpgradeFragment(Kby(9,100),'CloseByPGun_Barrel_Front')),
     ('DisplacedParticleGun_cfi', UpgradeFragment(Kby(9,100),'DisplacedPGun')),
+    ('TenTau_Pt10to500_Eta4p1_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_Pt10to500_Eta4p1')),
 ])
