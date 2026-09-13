@@ -1,8 +1,7 @@
 #include "L1Trigger/L1TGEM/interface/ME0StubAlgoPatUnit.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace l1t::me0;
-
-std::vector<uint64_t> l1t::me0::maskLayerData(const std::vector<uint64_t>& data, const Mask& mask) {
+std::vector<uint64_t> l1t::me0::maskLayerData(const std::vector<uint64_t>& data, const l1t::me0::Mask& mask) {
   std::vector<uint64_t> out;
   out.reserve(static_cast<int>(data.size()));
   for (int i = 0; i < static_cast<int>(data.size()); ++i) {
@@ -11,15 +10,15 @@ std::vector<uint64_t> l1t::me0::maskLayerData(const std::vector<uint64_t>& data,
   return out;
 }
 
-std::pair<std::vector<double>, double> l1t::me0::calculateCentroids(
-    const std::vector<uint64_t>& maskedData, const std::vector<std::vector<int>>& partitionBxData) {
-  std::vector<double> centroids;
+std::pair<std::vector<int>, double> l1t::me0::calculateCentroids(const std::vector<uint64_t>& maskedData,
+                                                                 const std::vector<std::vector<int>>& partitionBxData) {
+  std::vector<int> centroids;
   std::vector<int> bxs;
   for (int ly = 0; ly < static_cast<int>(maskedData.size()); ++ly) {
-    auto data = maskedData[ly];
+    const auto& data = maskedData[ly];
     const auto& bxData = partitionBxData[ly];
-    const auto temp = findCentroid(data);
-    double curCentroid = temp.first;
+    const auto temp = l1t::me0::findCentroid(data);
+    int curCentroid = temp.first;
     std::vector<int> hitsIndices = temp.second;
     centroids.push_back(curCentroid);
 
@@ -39,12 +38,12 @@ int l1t::me0::calculateHitCount(const std::vector<uint64_t>& maskedData, bool li
   int totHitCount = 0;
   if (light) {
     for (int ly : {0, 5}) {
-      int hitLy = countOnes(maskedData[ly]);
+      int hitLy = l1t::me0::countOnes(maskedData[ly]);
       totHitCount += (hitLy < 7) ? hitLy : 7;
     }
   } else {
     for (uint64_t d : maskedData) {
-      totHitCount += countOnes(d);
+      totHitCount += l1t::me0::countOnes(d);
     }
   }
   return totHitCount;
@@ -64,7 +63,7 @@ std::vector<int> l1t::me0::calculateClusterSize(const std::vector<uint64_t>& dat
   std::vector<int> clusterSizePerLayer;
   clusterSizePerLayer.reserve(data.size());
   for (uint64_t x : data) {
-    clusterSizePerLayer.push_back(maxClusterSize(x));
+    clusterSizePerLayer.push_back(l1t::me0::maxClusterSize(x));
   }
   return clusterSizePerLayer;
 }
@@ -73,7 +72,7 @@ std::vector<int> l1t::me0::calculateHits(const std::vector<uint64_t>& data) {
   std::vector<int> nHitsPerLayer;
   nHitsPerLayer.reserve(data.size());
   for (uint64_t x : data) {
-    nHitsPerLayer.push_back(countOnes(x));
+    nHitsPerLayer.push_back(l1t::me0::countOnes(x));
   }
   return nHitsPerLayer;
 }
@@ -114,7 +113,7 @@ ME0StubPrimitive l1t::me0::patUnit(const std::vector<uint64_t>& data,
   //    for each of the N patterns, the masked []*6 layer data
   std::vector<std::vector<uint64_t>> maskedData;
   std::vector<int> pids;
-  for (const Mask& M : kLayerMask) {
+  for (const l1t::me0::Mask& M : kLayerMask) {
     maskedData.push_back(maskLayerData(data, M));
     pids.push_back(M.id);
   }
@@ -122,78 +121,70 @@ ME0StubPrimitive l1t::me0::patUnit(const std::vector<uint64_t>& data,
   // (3) count # of hits & process centroids
   std::vector<int> hcs;
   std::vector<int> lcs;
-  std::vector<std::vector<double>> centroids;
-  std::vector<double> bxs;
-  for (const std::vector<uint64_t>& x : maskedData) {
-    hcs.push_back(calculateHitCount(x, lightHitCount));
-    lcs.push_back(calculateLayerCount(x));
-    if (skipCentroids) {
-      centroids.push_back({0, 0, 0, 0, 0, 0});
-      bxs.push_back(-9999);
-    } else {
-      auto temp = calculateCentroids(x, bxData);
-      std::vector<double> curPatternCentroids = temp.first;
-      int curPatternBx = temp.second;
-      centroids.push_back(curPatternCentroids);
-      bxs.push_back(curPatternBx);
-    }
+  for (size_t idxPat = 0; idxPat < maskedData.size(); ++idxPat) {
+    const std::vector<uint64_t>& x = maskedData[idxPat];
+    hcs.push_back(
+        0);  // hit count is not used in the current quality calculation, so we set it to 0 for now - can be re-enabled if needed
+    // hcs.push_back(l1t::me0::calculateHitCount(x, lightHitCount));
+    lcs.push_back(l1t::me0::calculateLayerCount(x));
+  }
+
+  if (*std::max_element(lcs.begin(), lcs.end()) < 4) {
+    return ME0StubPrimitive(0, 0, 0, strip, partition);
   }
 
   // (4) process segments & choose the max of all patterns
   ME0StubPrimitive best{0, 0, 0, strip, partition};
   for (int i = 0; i < static_cast<int>(hcs.size()); ++i) {
-    ME0StubPrimitive seg{lcs[i], hcs[i], pids[i], strip, partition, bxs[i]};
+    ME0StubPrimitive seg{lcs[i], hcs[i], pids[i], strip, partition};
     seg.updateQuality();
     if (best.quality() < seg.quality()) {
       best = seg;
-      best.setCentroids(centroids[i]);
       best.updateQuality();
     }
   }
 
   // (5) apply a layer threshold
-  int lyThreshFinal;
-  if (lyThreshPatid[best.patternId() - 1] > lyThreshEta[partition]) {
-    lyThreshFinal = lyThreshPatid[best.patternId() - 1];
-  } else {
-    lyThreshFinal = lyThreshEta[partition];
-  }
-
+  int lyThreshFinal = (lyThreshPatid[best.patternId() - 1] > lyThreshEta[partition])
+                          ? lyThreshPatid[best.patternId() - 1]
+                          : lyThreshEta[partition];
   if (best.layerCount() < lyThreshFinal) {
     best.reset();
   }
 
-  // (6) remove very wide segments
-  if (best.patternId() <= 10) {
-    best.reset();
+  if (verbose) {
+    LogTrace("ME0StubAlgoPatUnit") << "maskedData : \n";
+    for (auto& x : maskedData) {
+      for (auto& y : x) {
+        LogTrace("ME0StubAlgoPatUnit") << y << " ";
+      }
+      LogTrace("ME0StubAlgoPatUnit") << "\n";
+    }
+    LogTrace("ME0StubAlgoPatUnit") << "layer counts : \n";
+    for (auto& lc : lcs) {
+      LogTrace("ME0StubAlgoPatUnit") << lc << " ";
+    }
+    LogTrace("ME0StubAlgoPatUnit") << "\nlayer threshold = " << lyThreshFinal << "\nBest segment: " << best << "\n";
   }
 
-  // (7) remove segments with large clusters for wide segments - ONLY NEEDED FOR PU200 - NOT USED AT THE MOMENT
-  std::vector<int> clusterSizeMaxLimits = {3, 6, 9, 12, 15};
-  std::vector<int> nHitsMaxLimits = {3, 6, 9, 12, 15};
-  std::vector<int> clusterSizeCounts = calculateClusterSize(data);
-  std::vector<int> nHitsCounts = calculateHits(data);
-  std::vector<int> nLayersLargeClusters = {0, 0, 0, 0, 0};
-  std::vector<int> nLayersLargeHits = {0, 0, 0, 0, 0};
-  for (int i = 0; i < static_cast<int>(clusterSizeCounts.size()); ++i) {
-    int threshold = clusterSizeMaxLimits[i];
-    for (int l : clusterSizeCounts) {
-      if (l > threshold) {
-        nLayersLargeClusters[i]++;
-      }
+  // process centroids if a segment is found
+  if (skipCentroids || best.patternId() == 0) {
+    best.setCentroids({0, 0, 0, 0, 0, 0});
+    best.setBx(-9999);
+  } else {
+    const std::vector<uint64_t>& originalSbits = maskedData[best.patternId() - 1];
+    std::vector<uint64_t> extractedSbits;
+    for (int ly = 0; ly < 6; ++ly) {
+      int shift = kPatOffsets[best.patternId() - 1][ly];
+      uint64_t extractedSbit = (shift > 0) ? (originalSbits[ly] << shift) : (originalSbits[ly] >> -shift);
+      extractedSbits.push_back(extractedSbit);
     }
+    auto temp = calculateCentroids(extractedSbits, bxData);
+    std::vector<int> curPatternCentroids = temp.first;
+    double curPatternBx = temp.second;
+    best.setCentroids(curPatternCentroids);
+    best.setBx(curPatternBx);
   }
-  for (int i = 0; i < static_cast<int>(nHitsMaxLimits.size()); ++i) {
-    int threshold = nHitsMaxLimits[i];
-    for (int l : nHitsCounts) {
-      if (l > threshold) {
-        nLayersLargeHits[i]++;
-      }
-    }
-  }
-
-  best.setMaxClusterSize(*std::max_element(clusterSizeCounts.begin(), clusterSizeCounts.end()));
-  best.setMaxNoise(*std::max_element(nHitsCounts.begin(), nHitsCounts.end()));
 
   best.setHitCount(0);
   best.updateQuality();
