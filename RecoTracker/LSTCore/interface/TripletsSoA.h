@@ -15,7 +15,6 @@ namespace lst {
                       SOA_COLUMN(ArrayUx2, segmentIndices),    // inner and outer segment indices
                       SOA_COLUMN(Params_T3::ArrayU16xLayers, lowerModuleIndices),  // lower module index in each layer
                       SOA_COLUMN(Params_T3::ArrayU8xLayers, logicalLayers),        // layer ID
-                      SOA_COLUMN(Params_T3::ArrayUxHits, hitIndices),              // hit indices
                       SOA_COLUMN(float, centerX),              // lower/anchor-hit based circle center x
                       SOA_COLUMN(float, centerY),              // lower/anchor-hit based circle center y
                       SOA_COLUMN(float, radius),               // lower/anchor-hit based circle radius

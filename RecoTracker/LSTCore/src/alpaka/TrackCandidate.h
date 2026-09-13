@@ -22,6 +22,7 @@
 #include "RecoTracker/LSTCore/interface/QuadrupletsSoA.h"
 
 #include "NeuralNetwork.h"
+#include "TripletAccessors.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addpLSTrackCandidateToMemory(TrackCandidatesBase& candsBase,
@@ -397,6 +398,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   QuintupletsConst quintuplets,
                                   TrackCandidatesBase candsBase,
                                   TrackCandidatesExtended candsExtended,
+                                  MiniDoubletsConst mds,
+                                  SegmentsConst segments,
                                   TripletsConst triplets,
                                   ObjectRangesConst ranges) const {
       for (int lowmod : cms::alpakatools::uniform_elements_z(acc, modules.nLowerModules())) {
@@ -425,7 +428,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                 quadruplets.isDup()[iT4] = true;
             } else if (type == LSTObjType::pT3) {
               int innerTripletIndex = pixelTriplets.tripletIndices()[outerTrackletIdx];
-              unsigned int const* t3Hits = triplets.hitIndices()[innerTripletIndex].data();
+              unsigned int t3Hits[Params_T3::kHits];
+              getTripletHitIndices(mds, segments, triplets, innerTripletIndex, t3Hits);
               if (nSharedHitsT4(t4Hits, t3Hits, Params_T3::kHits) >= minShared)
                 quadruplets.isDup()[iT4] = true;
             }
