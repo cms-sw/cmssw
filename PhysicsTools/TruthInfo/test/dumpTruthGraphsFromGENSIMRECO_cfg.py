@@ -6,17 +6,19 @@ import FWCore.ParameterSet.Config as cms
 import os
 from argparse import ArgumentParser, BooleanOptionalAction
 parser = ArgumentParser()
-parser.add_argument("inputFile",        nargs='?', default="step3.root",
-                    metavar='FILE', help="Input file, default=%(default)r" )
+parser.add_argument("inputFile",        nargs='?', default="file:step3.root",
+                    metavar='FILE', help="input file, default=%(default)r" )
 parser.add_argument('-o', "--outdir",   default='',
                     help="output directory, default=%(default)r" )
-parser.add_argument('-n', "--maxevts",  type=int, default=-1,
+parser.add_argument('-p', "--pickEvts", default=None,
+                    help="comma-separated list of event (ranges) to pick in run:lumi:event format, e.g. '1:1:100,1:1:200-205'" )
+parser.add_argument('-n', "--maxEvts",  type=int, default=-1,
                     help="maximum number of events to process, default=%(default)s" )
 parser.add_argument('-m', "--merge",    dest='mergeGenSim', action=BooleanOptionalAction, default=True,
                     help="merge GEN and SIM vertices (producer-level and by position)" )
 parser.add_argument('-c', "--collapse", action=BooleanOptionalAction, default=True,
                     help="collapse intermediate GenParticle copies" )
-parser.add_argument('-t', "--tag",      default='', help="tag for out put file" )
+parser.add_argument('-t', "--tag",      default='', help="tag for output file" )
 parser.add_argument('-s', "--seeds",    default=None,
                     help="comma-separated seed PDG ids, e.g. '15,-15'; '0' keeps the full graph; "
                          "default=%(default)s uses the hardcoded list" )
@@ -75,7 +77,7 @@ process.load("Configuration.Geometry.GeometryExtendedRun4D120Reco_cff")
 process.trackerGeometry.applyAlignment = cms.bool(False)
 
 process.maxEvents = cms.untracked.PSet(
-    input=cms.untracked.int32(args.maxevts)
+    input=cms.untracked.int32(args.maxEvts)
 )
 
 process.source = cms.Source(
@@ -84,6 +86,9 @@ process.source = cms.Source(
         args.inputFile #"file:step3.root"
     )
 )
+if args.pickEvts:
+    evtlist = [("1:1:"+e) if e.count(':')==0 else e for e in args.pickEvts.split(',')]
+    process.source.eventsToProcess=cms.untracked.VEventRange(evtlist)
 
 process.options = cms.untracked.PSet(
     wantSummary=cms.untracked.bool(True)
