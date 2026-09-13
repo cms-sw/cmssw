@@ -20,7 +20,8 @@
 #include "Triplet.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addQuintupletToMemory(MiniDoubletsConst mds,
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addQuintupletToMemory(ModulesConst modules,
+                                                            MiniDoubletsConst mds,
                                                             SegmentsConst segments,
                                                             TripletsConst triplets,
                                                             Quintuplets quintuplets,
@@ -75,11 +76,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quintuplets.regressionRadius()[quintupletIndex] = regressionRadius;
     quintuplets.regressionCenterX()[quintupletIndex] = regressionCenterX;
     quintuplets.regressionCenterY()[quintupletIndex] = regressionCenterY;
-    quintuplets.logicalLayers()[quintupletIndex][0] = triplets.logicalLayers()[innerTripletIndex][0];
-    quintuplets.logicalLayers()[quintupletIndex][1] = triplets.logicalLayers()[innerTripletIndex][1];
-    quintuplets.logicalLayers()[quintupletIndex][2] = triplets.logicalLayers()[innerTripletIndex][2];
-    quintuplets.logicalLayers()[quintupletIndex][3] = triplets.logicalLayers()[outerTripletIndex][1];
-    quintuplets.logicalLayers()[quintupletIndex][4] = triplets.logicalLayers()[outerTripletIndex][2];
+    quintuplets.logicalLayers()[quintupletIndex][0] =
+        getLogicalLayer(modules, triplets.lowerModuleIndices()[innerTripletIndex][0]);
+    quintuplets.logicalLayers()[quintupletIndex][1] =
+        getLogicalLayer(modules, triplets.lowerModuleIndices()[innerTripletIndex][1]);
+    quintuplets.logicalLayers()[quintupletIndex][2] =
+        getLogicalLayer(modules, triplets.lowerModuleIndices()[innerTripletIndex][2]);
+    quintuplets.logicalLayers()[quintupletIndex][3] =
+        getLogicalLayer(modules, triplets.lowerModuleIndices()[outerTripletIndex][1]);
+    quintuplets.logicalLayers()[quintupletIndex][4] =
+        getLogicalLayer(modules, triplets.lowerModuleIndices()[outerTripletIndex][2]);
 
     unsigned int innerT3Hits[Params_T3::kHits], outerT3Hits[Params_T3::kHits];
     getTripletHitIndices(mds, segments, triplets, innerTripletIndex, innerT3Hits);
@@ -1817,7 +1823,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         float eta = mds.anchorEta()[mdIndices[ls0Index][layer2_adjustment]];
         float pt = (innerRadius + outerRadius) * k2Rinv1GeVf;
         float scores = chiSquared + nonAnchorChiSquared;
-        addQuintupletToMemory(mds,
+        addQuintupletToMemory(modules,
+                              mds,
                               segments,
                               triplets,
                               quintuplets,

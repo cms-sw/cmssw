@@ -89,7 +89,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int segmentMD1Index,
                                                                 const float ptCut);
 
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addPixelTripletToMemory(MiniDoubletsConst mds,
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addPixelTripletToMemory(ModulesConst modules,
+                                                              MiniDoubletsConst mds,
                                                               SegmentsConst segments,
                                                               TripletsConst triplets,
                                                               PixelTriplets pixelTriplets,
@@ -129,9 +130,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     pixelTriplets.centerY()[pixelTripletIndex] = __F2H(centerY);
     pixelTriplets.logicalLayers()[pixelTripletIndex][0] = 0;
     pixelTriplets.logicalLayers()[pixelTripletIndex][1] = 0;
-    pixelTriplets.logicalLayers()[pixelTripletIndex][2] = triplets.logicalLayers()[tripletIndex][0];
-    pixelTriplets.logicalLayers()[pixelTripletIndex][3] = triplets.logicalLayers()[tripletIndex][1];
-    pixelTriplets.logicalLayers()[pixelTripletIndex][4] = triplets.logicalLayers()[tripletIndex][2];
+    pixelTriplets.logicalLayers()[pixelTripletIndex][2] =
+        getLogicalLayer(modules, triplets.lowerModuleIndices()[tripletIndex][0]);
+    pixelTriplets.logicalLayers()[pixelTripletIndex][3] =
+        getLogicalLayer(modules, triplets.lowerModuleIndices()[tripletIndex][1]);
+    pixelTriplets.logicalLayers()[pixelTripletIndex][4] =
+        getLogicalLayer(modules, triplets.lowerModuleIndices()[tripletIndex][2]);
 
     // A pixel segment's two module indices are both the pixel module index, so
     // one column serves for both ends.
@@ -811,7 +815,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               } else {
                 unsigned int pixelTripletIndex =
                     alpaka::atomicAdd(acc, &pixelTriplets.nPixelTriplets(), 1u, alpaka::hierarchy::Threads{});
-                addPixelTripletToMemory(mds,
+                addPixelTripletToMemory(modules,
+                                        mds,
                                         segments,
                                         triplets,
                                         pixelTriplets,
