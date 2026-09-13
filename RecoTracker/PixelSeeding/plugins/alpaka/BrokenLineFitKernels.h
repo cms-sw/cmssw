@@ -360,19 +360,44 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // Evaluated before the fit state exists so its scalars are dead by prepareBrokenLineData's O(N) set.
       // fitCorrections_ off, or null bMap_, => scalar bField.
       const double bFieldEff = fitCorrections_ ? blEffectiveBField(acc, hits, int(N), fast_fit, bField, bMap_) : bField;
-      // Every field-dependent term of the fast fit reads bFieldEff:
-      //   - prepareBrokenLineData/lineFit/circleFit use it only inside multScatt, as the momentum
-      //     p = bFieldEff * radius * sqrt(1+slope^2) the Highland variance is divided by;
-      //   - copyFromCircle's 1/bFieldEff converts the fitted geometric curvature (and its covariance
-      //     row/column, and the (2,2) element quadratically) to q/pT;
-      //   - pt is bFieldEff/|curvature|, the same expression Kernel_BLFitPhaseOut publishes.
-      brokenline::prepareBrokenLineData(
-          acc, hits, fast_fit, bFieldEff, rhoMap_, data, fitWs, fitCorrections_, /*elossGaps=*/fitCorrections_);
+      // bFieldEff enters as the momentum p = bFieldEff * radius * sqrt(1+slope^2) the Highland variance is
+      // divided by, as the 1/bFieldEff of copyFromCircle's geometric-curvature -> q/pT conversion, and as
+      // pt = bFieldEff/|curvature|. The two fits additionally take the map itself and the field it is
+      // normalized to (the origin scalar bField): the B_r dip-angle row of the line fit and the bending
+      // profile's departure from bFieldEff in the circle fit are deterministic offsets of their coordinates,
+      // so the single effective scalar keeps its meaning and no fit parameter is added.
+      brokenline::prepareBrokenLineData(acc,
+                                        hits,
+                                        fast_fit,
+                                        bFieldEff,
+                                        rhoMap_,
+                                        data,
+                                        fitWs,
+                                        fitCorrections_,
+                                        /*elossGaps=*/fitCorrections_,
+                                        bMap_,
+                                        bField);
       brokenline::lineFit(acc, hits_ge, fast_fit, bFieldEff, data, line, fitWs, fitCorrections_);
       // Ionization energy loss: the per-node Landau law of the walked columns, which prepareBrokenLineData
-      // left in the workspace under elossGaps; circleFit turns it into the deterministic residual offset.
-      brokenline::circleFit(
-          acc, hits, hits_ge, fast_fit, bFieldEff, data, circle, fitWs, fitCorrections_, /*elossGaps=*/fitCorrections_);
+      // left in the workspace under elossGaps; circleFit turns it into the deterministic residual offset,
+      // together with the bending profile's departure from bFieldEff.
+      brokenline::circleFit(acc,
+                            hits,
+                            hits_ge,
+                            fast_fit,
+                            bFieldEff,
+                            data,
+                            circle,
+                            fitWs,
+                            fitCorrections_,
+                            /*elossGaps=*/fitCorrections_,
+                            bMap_,
+                            bField);
+      // The fit's reference is the pre-fit circle and its abscissa starts at that circle's perigee, while
+      // the state is published at the perigee of the trajectory: transport it there, by the arc the fit
+      // moved the perigee along and by the field's departure over the lever inside hit 0.
+      if (fitCorrections_)
+        brokenline::transportToFittedPca(acc, hits, data, bFieldEff, circle, line, bMap_, bField);
       reco::copyFromCircle(results_view, circle.par, circle.cov, line.par, line.cov, 1.f / float(bFieldEff), tkid);
       results_view[tkid].pt() = float(bFieldEff) / float(std::abs(circle.par(2)));
       results_view[tkid].eta() = alpaka::math::asinh(acc, line.par(0));
