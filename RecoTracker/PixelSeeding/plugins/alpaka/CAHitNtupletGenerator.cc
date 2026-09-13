@@ -102,6 +102,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           ->setComment(
               "OT-stub extension. Max |phi residual| per connection during chain extension [rad]. "
               "Negative = disabled. Typical value when enabled: 0.01.");
+      desc.add<double>("maxStubTip", 0.1)
+          ->setComment(
+              "OT-stub extension. Transverse displacement the iteration admits [cm]. Widens the "
+              "pixel-stub direction test, which two points and one direction leave impact-parameter "
+              "dependent, so that a displaced arm does not reject its own tracks.");
       desc.add<bool>("sameDPhiSign", kStubs)
           ->setComment(
               "OT-stub extension. If true, require dPhi12 * dPhi23 > 0 in a triplet. Off on every "

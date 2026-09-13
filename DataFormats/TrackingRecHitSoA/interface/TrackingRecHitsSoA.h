@@ -32,6 +32,9 @@ namespace reco {
                       // stub's error (>= 0) for merged stubs.
                       SOA_COLUMN(float, dPhiDr),       // Stub direction (local track angle); 0 for non-stub hits
                       SOA_COLUMN(float, dPhiDrError),  // Error on stub direction; -1 for non-stub hits
+                      // Bend error from the two cluster positions alone, without the along-strip
+                      // term that cancels in the bend; -1 for non-stub hits.
+                      SOA_COLUMN(float, dPhiDrErrorPrec),
                       // P-hit group ID: For stub hits, identifies which P-hit (lower sensor hit)
                       // was used to form this stub. Stubs sharing the same P-hit have the same ID.
                       // Used by CAFishbone to correctly handle duplicate stubs from the same P-hit.

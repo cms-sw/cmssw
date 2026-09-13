@@ -116,6 +116,76 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return parallCorr;  // along LOWER-sensor local_x, transporting LOWER->UPPER along globalLowUpNorm
     }
 
+    // Acceptance of a (lower, upper) cluster pair, in one place: the counting and the formation
+    // kernel must agree exactly or the count kernel reserves the wrong number of slots.
+    // The width is the offline VectorHit builder's: |pC| is taken off whichever cluster is the outer
+    // one by the sign of the upper local x. The signed form lx_upper - lx_lower - pC is what the
+    // straight-line projection asks for, but on ttbar it removes 16-20 % of the barrel PS stubs and
+    // 4.5 points of prompt barrel efficiency, so the sign convention of the parallax correction is
+    // not the one that derivation assumes.
+    template <typename TAcc, typename THits>
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool acceptStubPair(TAcc const& acc,
+                                                       THits const& hits,
+                                                       uint32_t iLower,
+                                                       uint32_t iUpper,
+                                                       float topoLowUpNormX,
+                                                       float topoLowUpNormY,
+                                                       float topoLowUpNormZ,
+                                                       float localXInGlobalX,
+                                                       float localXInGlobalY,
+                                                       float localXInGlobalZ,
+                                                       float separation_cm,
+                                                       float cut,
+                                                       int32_t maxCSDiff,
+                                                       int32_t maxCS,
+                                                       int32_t maxCSSum) {
+      auto const& lowerHit = hits[iLower];
+      auto const& upperHit = hits[iUpper];
+
+      if (lowerHit.yLocal() * upperHit.yLocal() < 0.f)
+        return false;
+      const int32_t csLower = int32_t(lowerHit.clusterSize());
+      const int32_t csUpper = int32_t(upperHit.clusterSize());
+      if (alpaka::math::abs(acc, csLower - csUpper) > maxCSDiff)
+        return false;
+      if (csLower > maxCS || csUpper > maxCS)
+        return false;
+      if (csLower + csUpper > maxCSSum)
+        return false;
+
+      const float pC = computeParallaxCorrection(acc,
+                                                 lowerHit.xGlobal(),
+                                                 lowerHit.yGlobal(),
+                                                 lowerHit.zGlobal(),
+                                                 topoLowUpNormX,
+                                                 topoLowUpNormY,
+                                                 topoLowUpNormZ,
+                                                 localXInGlobalX,
+                                                 localXInGlobalY,
+                                                 localXInGlobalZ,
+                                                 separation_cm);
+      const float lx_lower = lowerHit.xLocal();
+      const float lx_upper = upperHit.xLocal();
+      const float absPC = alpaka::math::abs(acc, pC);
+      float lpos_lower_corr = lx_lower;
+      float lpos_upper_corr = lx_upper;
+      if (lx_upper > lx_lower) {
+        if (lx_upper > 0.f)
+          lpos_upper_corr = lx_upper - absPC;
+        else
+          lpos_lower_corr = lx_lower + absPC;
+      } else if (lx_upper < lx_lower) {
+        if (lx_upper > 0.f)
+          lpos_lower_corr = lx_lower - absPC;
+        else
+          lpos_upper_corr = lx_upper + absPC;
+      } else {
+        lpos_upper_corr = (lx_upper > 0.f) ? lx_upper - absPC : lx_upper + absPC;
+      }
+      const float width = lpos_lower_corr - lpos_upper_corr;
+      return alpaka::math::abs(acc, width) < cut;
+    }
+
     // Work division: Acc2D with Y indexing modules and X indexing warp lanes
     // (warpSize threads per module). All lanes of a warp cooperate on the
     // (iLower, iUpper) pair loop of a single module.
@@ -217,66 +287,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           for (uint32_t p = static_cast<uint32_t>(laneId); p < nPairs; p += warpSize) {
             uint32_t iLower = hitStart + p / nUpper;
             uint32_t iUpper = upperStart + p % nUpper;
-
-            auto const& lowerHit = hits[iLower];
-            auto const& upperHit = hits[iUpper];
-
-            // Same-sign local-y cut
-            if (lowerHit.yLocal() * upperHit.yLocal() < 0.f)
-              continue;
-            // Cluster size compatibility cuts (per layer)
-            if (alpaka::math::abs(acc, int32_t(lowerHit.clusterSize()) - int32_t(upperHit.clusterSize())) > maxCSDiff)
-              continue;
-            if (int32_t(lowerHit.clusterSize()) > maxCS || int32_t(upperHit.clusterSize()) > maxCS)
-              continue;
-            if (int32_t(lowerHit.clusterSize()) + int32_t(upperHit.clusterSize()) > maxCSSum)
-              continue;
-
-            float lx_lower = lowerHit.xLocal();
-            float lx_upper = upperHit.xLocal();
-
-            float pC = computeParallaxCorrection(acc,
-                                                 lowerHit.xGlobal(),
-                                                 lowerHit.yGlobal(),
-                                                 lowerHit.zGlobal(),
-                                                 topoLowUpNormX,
-                                                 topoLowUpNormY,
-                                                 topoLowUpNormZ,
-                                                 localXInGlobalX,
-                                                 localXInGlobalY,
-                                                 localXInGlobalZ,
-                                                 separation_cm);
-
-            float lpos_lower_corr = 0.0f;
-            float lpos_upper_corr = 0.0f;
-            if (lx_upper > lx_lower) {
-              if (lx_upper > 0) {
-                lpos_lower_corr = lx_lower;
-                lpos_upper_corr = lx_upper - alpaka::math::abs(acc, pC);
-              } else {
-                lpos_lower_corr = lx_lower + alpaka::math::abs(acc, pC);
-                lpos_upper_corr = lx_upper;
-              }
-            } else if (lx_upper < lx_lower) {
-              if (lx_upper > 0) {
-                lpos_lower_corr = lx_lower - alpaka::math::abs(acc, pC);
-                lpos_upper_corr = lx_upper;
-              } else {
-                lpos_lower_corr = lx_lower;
-                lpos_upper_corr = lx_upper + alpaka::math::abs(acc, pC);
-              }
-            } else {
-              if (lx_upper > 0) {
-                lpos_lower_corr = lx_lower;
-                lpos_upper_corr = lx_upper - alpaka::math::abs(acc, pC);
-              } else {
-                lpos_lower_corr = lx_lower;
-                lpos_upper_corr = lx_upper + alpaka::math::abs(acc, pC);
-              }
-            }
-
-            float width = lpos_lower_corr - lpos_upper_corr;
-            if (alpaka::math::abs(acc, width) < cut)
+            if (acceptStubPair(acc,
+                               hits,
+                               iLower,
+                               iUpper,
+                               topoLowUpNormX,
+                               topoLowUpNormY,
+                               topoLowUpNormZ,
+                               localXInGlobalX,
+                               localXInGlobalY,
+                               localXInGlobalZ,
+                               separation_cm,
+                               cut,
+                               maxCSDiff,
+                               maxCS,
+                               maxCSSum))
               ++localCount;
           }
 
@@ -384,6 +409,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 stubs[out].dPhiDrError() = -1.0f;
                 stubs[out].dPhiDrErrorPrec() = -1.0f;  // same sentinel: no bend measurement
 
+                stubs[out].posHitIdx() = iLower;
                 stubs[out].lowerHitIdx() = iLower;
                 stubs[out].upperHitIdx() = UINT32_MAX;  // Invalid marker
 
@@ -430,72 +456,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             if (p < nPairs) {
               iLower = hitStart + p / nUpper;
               iUpper = upperStart + p % nUpper;
-
-              auto const& lowerHit = hits[iLower];
-              auto const& upperHit = hits[iUpper];
-
-              // Evaluate the VectorHit-style predicate. Use a do/while(false) to
-              // simulate labelled break out of the predicate block without exiting
-              // the warp-collective code below.
-              do {
-                if (lowerHit.yLocal() * upperHit.yLocal() < 0.f)
-                  break;
-                if (alpaka::math::abs(acc, int32_t(lowerHit.clusterSize()) - int32_t(upperHit.clusterSize())) >
-                    maxCSDiff)
-                  break;
-                if (int32_t(lowerHit.clusterSize()) > maxCS || int32_t(upperHit.clusterSize()) > maxCS)
-                  break;
-                if (int32_t(lowerHit.clusterSize()) + int32_t(upperHit.clusterSize()) > maxCSSum)
-                  break;
-
-                float lx_lower = lowerHit.xLocal();
-                float lx_upper = upperHit.xLocal();
-
-                float pC = computeParallaxCorrection(acc,
-                                                     lowerHit.xGlobal(),
-                                                     lowerHit.yGlobal(),
-                                                     lowerHit.zGlobal(),
-                                                     topoLowUpNormX,
-                                                     topoLowUpNormY,
-                                                     topoLowUpNormZ,
-                                                     localXInGlobalX,
-                                                     localXInGlobalY,
-                                                     localXInGlobalZ,
-                                                     separation_cm);
-
-                float lpos_lower_corr = 0.0f;
-                float lpos_upper_corr = 0.0f;
-                if (lx_upper > lx_lower) {
-                  if (lx_upper > 0) {
-                    lpos_lower_corr = lx_lower;
-                    lpos_upper_corr = lx_upper - alpaka::math::abs(acc, pC);
-                  } else {
-                    lpos_lower_corr = lx_lower + alpaka::math::abs(acc, pC);
-                    lpos_upper_corr = lx_upper;
-                  }
-                } else if (lx_upper < lx_lower) {
-                  if (lx_upper > 0) {
-                    lpos_lower_corr = lx_lower - alpaka::math::abs(acc, pC);
-                    lpos_upper_corr = lx_upper;
-                  } else {
-                    lpos_lower_corr = lx_lower;
-                    lpos_upper_corr = lx_upper + alpaka::math::abs(acc, pC);
-                  }
-                } else {
-                  if (lx_upper > 0) {
-                    lpos_lower_corr = lx_lower;
-                    lpos_upper_corr = lx_upper - alpaka::math::abs(acc, pC);
-                  } else {
-                    lpos_lower_corr = lx_lower;
-                    lpos_upper_corr = lx_upper + alpaka::math::abs(acc, pC);
-                  }
-                }
-                float width = lpos_lower_corr - lpos_upper_corr;
-                if (alpaka::math::abs(acc, width) >= cut)
-                  break;
-
-                predicate = true;
-              } while (false);
+              predicate = acceptStubPair(acc,
+                                         hits,
+                                         iLower,
+                                         iUpper,
+                                         topoLowUpNormX,
+                                         topoLowUpNormY,
+                                         topoLowUpNormZ,
+                                         localXInGlobalX,
+                                         localXInGlobalY,
+                                         localXInGlobalZ,
+                                         separation_cm,
+                                         cut,
+                                         maxCSDiff,
+                                         maxCS,
+                                         maxCSSum);
             }
 
             // Warp exclusive prefix scan of (predicate ? 1 : 0).
@@ -519,18 +494,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 uint32_t innerIdx = isFlipped ? iUpper : iLower;
                 uint32_t outerIdx = isFlipped ? iLower : iUpper;
 
-                float xi = hits[innerIdx].xGlobal();
-                float yi = hits[innerIdx].yGlobal();
-                float xo = hits[outerIdx].xGlobal();
-                float yo = hits[outerIdx].yGlobal();
-                float ri2 = xi * xi + yi * yi;
-                float ro2 = xo * xo + yo * yo;
-
-                // Contract: a stub stores exactly one sensor's position+error.
-                //   PS modules: always the PIXEL sensor (better spatial precision).
-                //     PSP (moduleType == 0): pixel is topologically lower.
-                //     PSS (moduleType == 1): pixel is topologically upper.
-                //   SS modules: the physically-inner sensor.
+                // Contract: a stub stores exactly one sensor's position+error, and the same
+                // sensor's azimuth. PS: the pixel sensor (better spatial precision), topologically
+                // lower on a PSP (moduleType == 0) and upper on a PSS. 2S: the physically inner
+                // sensor, which on a flipped stack is not the topologically lower one.
                 uint32_t pickedIdx = isPS ? ((moduleType == 0) ? iLower : iUpper) : innerIdx;
                 float xg = hits[pickedIdx].xGlobal();
                 float yg = hits[pickedIdx].yGlobal();
@@ -540,40 +507,61 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 // iPhi - same encoding as pixel hits (16-bit signed, full circle = [-32768, 32767])
                 stubs[out].iphi() = unsafe_atan2s<7>(yg, xg);
 
-                // dPhiDr from the inner/outer global positions, with the parallax correction
-                // applied for tilted barrel and endcap modules (in the flat barrel local-x is
-                // along phi and the correction vanishes).
+                float xi = hits[innerIdx].xGlobal();
+                float yi = hits[innerIdx].yGlobal();
+                float xo = hits[outerIdx].xGlobal();
+                float yo = hits[outerIdx].yGlobal();
+
+                // Zero-bend reference of the pair: a straight track from the beam spot has the same azimuth on both
+                // sensors, so the other hit is compared with the point where the ray through the position hit crosses the
+                // other sensor's plane, and it is moved along its own local y (the centre of its strip segment) to the
+                // crossing point's along-strip coordinate. Wherever local y has a radial component (tilted barrel, discs)
+                // an along-strip offset dy enters the azimuth difference as x * dy / r^2, larger than the bend itself for
+                // a strip centre. The pair's along-strip error becomes the position hit's.
+                const uint32_t otherIdx = (pickedIdx == innerIdx) ? outerIdx : innerIdx;
+                auto const& rotOther = (otherIdx == innerIdx) ? innerFrame.rotation() : outerFrame.rotation();
+                float yerrInnerEff = hits[innerIdx].yerrLocal();
+                float yerrOuterEff = hits[outerIdx].yerrLocal();
+                float rayScale = 1.0f;
+                {
+                  const float xOther = hits[otherIdx].xGlobal();
+                  const float yOther = hits[otherIdx].yGlobal();
+                  const float zOther = hits[otherIdx].zGlobal();
+                  const float nDotPick = globalLowUpNormX * xg + globalLowUpNormY * yg + globalLowUpNormZ * zg;
+                  const float nDotOther =
+                      globalLowUpNormX * xOther + globalLowUpNormY * yOther + globalLowUpNormZ * zOther;
+                  // the ray crosses the other sensor's plane at t times the position hit
+                  const float t = (alpaka::math::abs(acc, nDotPick) > 1e-6f) ? nDotOther / nDotPick : 1.0f;
+                  rayScale = t;
+                  const float dy = rotOther.yx() * (t * xg - xOther) + rotOther.yy() * (t * yg - yOther) +
+                                   rotOther.yz() * (t * zg - zOther);
+                  if (otherIdx == innerIdx) {
+                    xi += dy * rotOther.yx();
+                    yi += dy * rotOther.yy();
+                    yerrInnerEff = hits[pickedIdx].yerrLocal();
+                  } else {
+                    xo += dy * rotOther.yx();
+                    yo += dy * rotOther.yy();
+                    yerrOuterEff = hits[pickedIdx].yerrLocal();
+                  }
+                }
+
+                float ri2 = xi * xi + yi * yi;
+                float ro2 = xo * xo + yo * yo;
+
+                // The bend is the azimuth difference itself. On the ray a straight track leaves none, on
+                // any surface, so no parallax term is subtracted here: the local-x parallax belongs to
+                // the width test, which compares local x rather than azimuth.
                 float phi_inner = alpaka::math::atan2(acc, yi, xi);
                 float phi_outer = alpaka::math::atan2(acc, yo, xo);
                 float ri = alpaka::math::sqrt(acc, ri2);
                 float ro = alpaka::math::sqrt(acc, ro2);
 
-                float dphi_raw = phi_outer - phi_inner;
-                if (dphi_raw > M_PI)
-                  dphi_raw -= 2.0f * M_PI;
-                if (dphi_raw < -M_PI)
-                  dphi_raw += 2.0f * M_PI;
-
-                float dphi;
-                bool applyDphiParallax = !isFlat || !isBarrel;  // tilted barrel or endcap
-                if (applyDphiParallax) {
-                  float zi = hits[innerIdx].zGlobal();
-                  float pC_dphi = computeParallaxCorrection(acc,
-                                                            xi,
-                                                            yi,
-                                                            zi,
-                                                            globalLowUpNormX,
-                                                            globalLowUpNormY,
-                                                            globalLowUpNormZ,
-                                                            localXInGlobalX,
-                                                            localXInGlobalY,
-                                                            localXInGlobalZ,
-                                                            separation_cm);
-                  float dphi_parallax = (ri > 1e-6f) ? pC_dphi / ri : 0.0f;
-                  dphi = dphi_raw - dphi_parallax;
-                } else {
-                  dphi = dphi_raw;
-                }
+                float dphi = phi_outer - phi_inner;
+                if (dphi > M_PI)
+                  dphi -= 2.0f * M_PI;
+                if (dphi < -M_PI)
+                  dphi += 2.0f * M_PI;
 
                 float dr_geometric = ro - ri;
                 float denominator = cosTilt + sinTilt * zg / rg;
@@ -585,74 +573,86 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   dr_effective = dr_geometric;
                 }
 
-                stubs[out].dPhiDr() = (alpaka::math::abs(acc, dr_effective) > 1e-6f) ? dphi / dr_effective : 0.0f;
+                // A degenerate geometry leaves no bend measurement: tag the entry as a non-stub
+                // rather than publishing a zero bend with perfect precision.
+                const bool bendValid = alpaka::math::abs(acc, dr_effective) > 1e-6f;
+                if (!bendValid) {
+                  stubs[out].dPhiDr() = 0.0f;
+                  stubs[out].dPhiDrError() = -1.0f;
+                  stubs[out].dPhiDrErrorPrec() = -1.0f;
+                } else {
+                  const float bend = dphi / dr_effective;
+                  stubs[out].dPhiDr() = bend;
 
-                // dPhiDr error: propagate per-sensor local errors to global via the
-                // sensor frames, then form the global phi variance.
-                float ge_i[6], ge_o[6];
-                innerFrame.toGlobal(hits[innerIdx].xerrLocal(), 0.0f, hits[innerIdx].yerrLocal(), ge_i);
-                outerFrame.toGlobal(hits[outerIdx].xerrLocal(), 0.0f, hits[outerIdx].yerrLocal(), ge_o);
+                  // dPhiDr error: propagate per-sensor local errors to global via the
+                  // sensor frames, then form the global phi variance.
+                  float ge_i[6], ge_o[6];
+                  innerFrame.toGlobal(hits[innerIdx].xerrLocal(), 0.0f, yerrInnerEff, ge_i);
+                  outerFrame.toGlobal(hits[outerIdx].xerrLocal(), 0.0f, yerrOuterEff, ge_o);
 
-                float sinphi_i = alpaka::math::sin(acc, phi_inner);
-                float cosphi_i = alpaka::math::cos(acc, phi_inner);
-                float sig2phi_i = (ri2 > 0.0f) ? (sinphi_i * sinphi_i * ge_i[0] - 2.0f * sinphi_i * cosphi_i * ge_i[1] +
-                                                  cosphi_i * cosphi_i * ge_i[2]) /
-                                                     ri2
-                                               : 0.0f;
-                float sinphi_o = alpaka::math::sin(acc, phi_outer);
-                float cosphi_o = alpaka::math::cos(acc, phi_outer);
-                float sig2phi_o = (ro2 > 0.0f) ? (sinphi_o * sinphi_o * ge_o[0] - 2.0f * sinphi_o * cosphi_o * ge_o[1] +
-                                                  cosphi_o * cosphi_o * ge_o[2]) /
-                                                     ro2
-                                               : 0.0f;
-                float dphi_err = alpaka::math::sqrt(acc, sig2phi_i + sig2phi_o);
-                stubs[out].dPhiDrError() = (alpaka::math::abs(acc, dr_effective) > 1e-6f)
-                                               ? dphi_err / alpaka::math::abs(acc, dr_effective)
-                                               : 0.0f;
+                  float sinphi_i = alpaka::math::sin(acc, phi_inner);
+                  float cosphi_i = alpaka::math::cos(acc, phi_inner);
+                  float sig2phi_i = (ri2 > 0.0f)
+                                        ? (sinphi_i * sinphi_i * ge_i[0] - 2.0f * sinphi_i * cosphi_i * ge_i[1] +
+                                           cosphi_i * cosphi_i * ge_i[2]) /
+                                              ri2
+                                        : 0.0f;
+                  float sinphi_o = alpaka::math::sin(acc, phi_outer);
+                  float cosphi_o = alpaka::math::cos(acc, phi_outer);
+                  float sig2phi_o = (ro2 > 0.0f)
+                                        ? (sinphi_o * sinphi_o * ge_o[0] - 2.0f * sinphi_o * cosphi_o * ge_o[1] +
+                                           cosphi_o * cosphi_o * ge_o[2]) /
+                                              ro2
+                                        : 0.0f;
+                  float dphi_err = alpaka::math::sqrt(acc, sig2phi_i + sig2phi_o);
+                  stubs[out].dPhiDrError() = dphi_err / alpaka::math::abs(acc, dr_effective);
 
-                // Precision-only azimuthal bend error. dPhiDrError above adds the full local covariance
-                // of both sensors as independent, so the along-strip (local-y) term enters twice: in a 2S
-                // stack the two sensors carry identical aligned strips, the along-strip offset is common
-                // mode in dphi = phi_outer - phi_inner, and only the difference of the two projections
-                // survives. Form: sigma2 = ux_i^2 vx_i + ux_o^2 vx_o + (sy_i uy_i - sy_o uy_o)^2, with
-                // ux, uy the azimuthal angular sensitivity to a unit displacement along local-x and
-                // local-y: an in-plane (dX, dY) moves the azimuth by (cos(phi) dY - sin(phi) dX) / r.
-                {
-                  auto const& rotI = innerFrame.rotation();
-                  auto const& rotO = outerFrame.rotation();
-                  const float riInv = (ri > 1e-6f) ? 1.0f / ri : 0.0f;
-                  const float roInv = (ro > 1e-6f) ? 1.0f / ro : 0.0f;
-                  // azimuthal angular sensitivity to a unit displacement along each local axis
-                  const float uxI = (cosphi_i * rotI.xy() - sinphi_i * rotI.xx()) * riInv;
-                  const float uxO = (cosphi_o * rotO.xy() - sinphi_o * rotO.xx()) * roInv;
-                  const float uyI = (cosphi_i * rotI.yy() - sinphi_i * rotI.yx()) * riInv;
-                  float uyO = (cosphi_o * rotO.yy() - sinphi_o * rotO.yx()) * roInv;
-                  // orient the outer strip direction onto the inner one (common-mode requires a
-                  // common global sense; the local frames' y-axes may be flipped relative to each
-                  // other without any physical meaning)
-                  const float dotY = rotI.yx() * rotO.yx() + rotI.yy() * rotO.yy() + rotI.yz() * rotO.yz();
-                  if (dotY < 0.0f)
-                    uyO = -uyO;
-                  const float vxI = alpaka::math::max(acc, hits[innerIdx].xerrLocal(), 0.0f);
-                  const float vxO = alpaka::math::max(acc, hits[outerIdx].xerrLocal(), 0.0f);
-                  const float syI = alpaka::math::sqrt(acc, alpaka::math::max(acc, hits[innerIdx].yerrLocal(), 0.0f));
-                  const float syO = alpaka::math::sqrt(acc, alpaka::math::max(acc, hits[outerIdx].yerrLocal(), 0.0f));
-                  // The common-mode cancellation holds only when both sensors report the same along-strip
-                  // segmentation, a 2S/2S stack with identical aligned strips; in a PS stack the two
-                  // quantisations are independent and the plain sum is correct. The test compares the two
-                  // along-strip variances, which are bit-equal for identical sensors.
-                  const bool sameSegmentation =
-                      alpaka::math::abs(acc, hits[innerIdx].yerrLocal() - hits[outerIdx].yerrLocal()) <=
-                      1.0e-6f * (hits[innerIdx].yerrLocal() + hits[outerIdx].yerrLocal());
-                  const float alongVar = sameSegmentation ? (syI * uyI - syO * uyO) * (syI * uyI - syO * uyO)
-                                                          : (syI * uyI * syI * uyI + syO * uyO * syO * uyO);
-                  const float sig2prec = vxI * uxI * uxI + vxO * uxO * uxO + alongVar;
-                  const float errPrec = alpaka::math::sqrt(acc, alpaka::math::max(acc, sig2prec, 0.0f));
-                  stubs[out].dPhiDrErrorPrec() = (alpaka::math::abs(acc, dr_effective) > 1e-6f)
-                                                     ? errPrec / alpaka::math::abs(acc, dr_effective)
-                                                     : 0.0f;
+                  // Precision-only azimuthal bend error: the three coordinates the pair measures (two local x readings, one
+                  // along-strip coordinate: the macro-pixel on PS, the strip centre on 2S), propagated into
+                  // dPhiDr = dphi / dr_effective. Where the strip has a radial component (discs, tilted barrel) the
+                  // along-strip coordinate moves both azimuths and the radial lever dr_effective = separation /
+                  // (cosTilt + sinTilt z/r); on a disc both are -dPhiDr/r, so the bend carries a relative error of
+                  // 2 sigma_r / r (3 to 5 % for a 2S disc stub).
+                  {
+                    auto const& rotI = innerFrame.rotation();
+                    auto const& rotO = outerFrame.rotation();
+                    auto const& rotPick = (pickedIdx == innerIdx) ? rotI : rotO;
+                    const float riInv = (ri > 1e-6f) ? 1.0f / ri : 0.0f;
+                    const float roInv = (ro > 1e-6f) ? 1.0f / ro : 0.0f;
+                    // azimuthal angular sensitivity to a unit displacement along each local axis
+                    const float uxI = (cosphi_i * rotI.xy() - sinphi_i * rotI.xx()) * riInv;
+                    const float uxO = (cosphi_o * rotO.xy() - sinphi_o * rotO.xx()) * roInv;
+                    const float uyI = (cosphi_i * rotI.yy() - sinphi_i * rotI.yx()) * riInv;
+                    float uyO = (cosphi_o * rotO.yy() - sinphi_o * rotO.yx()) * roInv;
+                    // orient the outer strip direction onto the inner one: the two local frames' y-axes
+                    // may be flipped relative to each other without any physical meaning, and the two
+                    // azimuths have to move against one common sense of the along-strip coordinate
+                    const float dotY = rotI.yx() * rotO.yx() + rotI.yy() * rotO.yy() + rotI.yz() * rotO.yz();
+                    if (dotY < 0.0f)
+                      uyO = -uyO;
+                    // the other hit rides the ray, so it travels rayScale times as far along its strip
+                    const float dPhiDy = (pickedIdx == innerIdx) ? (rayScale * uyO - uyI) : (uyO - rayScale * uyI);
+                    // the same coordinate moves the divisor: d(ln dr_effective)/dy, with the strip's
+                    // radial and longitudinal components at the position hit, taken in the same sense
+                    // as the azimuth term above (which is oriented on the inner sensor's y axis)
+                    const float pickSense = (pickedIdx == innerIdx) ? 1.0f : ((dotY < 0.0f) ? -1.0f : 1.0f);
+                    const float yRad = pickSense * (rotPick.yx() * xg + rotPick.yy() * yg) / rg;
+                    const float yLong = pickSense * rotPick.yz();
+                    const float dLever = (alpaka::math::abs(acc, denominator) > 1e-6f)
+                                             ? sinTilt * (yLong * rg - zg * yRad) / (denominator * rg * rg)
+                                             : 0.0f;
+                    const float dBendDy = dPhiDy / dr_effective + bend * dLever;
+                    const float vxI = alpaka::math::max(acc, hits[innerIdx].xerrLocal(), 0.0f);
+                    const float vxO = alpaka::math::max(acc, hits[outerIdx].xerrLocal(), 0.0f);
+                    const float vyPick = alpaka::math::max(acc, hits[pickedIdx].yerrLocal(), 0.0f);
+                    const float sig2prec = (vxI * uxI * uxI + vxO * uxO * uxO) / (dr_effective * dr_effective) +
+                                           dBendDy * dBendDy * vyPick;
+                    const float errPrec = alpaka::math::sqrt(acc, alpaka::math::max(acc, sig2prec, 0.0f));
+                    stubs[out].dPhiDrErrorPrec() = errPrec;
+                  }
                 }
 
+                stubs[out].posHitIdx() = pickedIdx;
                 stubs[out].lowerHitIdx() = iLower;
                 stubs[out].upperHitIdx() = iUpper;
                 stubs[out].flags() = ::reco::StubFlags::makeFlags(isBarrel, isFlat, true, layer, isPS);

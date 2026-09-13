@@ -651,6 +651,7 @@ void TrueStubProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
           stubsView[iStub].dPhiDrErrorPrec() = stubsView[iStub].dPhiDrError();
         }
 
+        stubsView[iStub].posHitIdx() = lowerIdx;  // this producer publishes the lower hit's position
         stubsView[iStub].lowerHitIdx() = lowerIdx;
         stubsView[iStub].upperHitIdx() = upperIdx;
         stubsView[iStub].flags() = reco::StubFlags::makeFlags(isBarrel, isFlat, true, layer, isPS);
@@ -669,6 +670,7 @@ void TrueStubProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         stubsView[iStub].dPhiDr() = 0.0f;
         stubsView[iStub].dPhiDrError() = -1.0f;
         stubsView[iStub].dPhiDrErrorPrec() = -1.0f;
+        stubsView[iStub].posHitIdx() = hitIdx;
         stubsView[iStub].lowerHitIdx() = hitIdx;
         stubsView[iStub].upperHitIdx() = UINT32_MAX;
         stubsView[iStub].flags() = reco::StubFlags::makeFlags(isBarrel, isFlat, true, layer, isPS);
