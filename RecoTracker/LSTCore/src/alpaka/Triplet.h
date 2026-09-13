@@ -140,8 +140,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   }
 
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addTripletToMemory(ModulesConst modules,
-                                                         Triplets triplets,
+  // The logical layer of a lower module: its layer number, offset by the six
+  // barrel layers when the module is in an endcap (subdet 4). This is what
+  // Triplets.logicalLayers used to cache, one entry per lower module index.
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE uint8_t getLogicalLayer(ModulesConst modules, uint16_t lowerModuleIndex) {
+    return modules.layers()[lowerModuleIndex] + (modules.subdets()[lowerModuleIndex] == 4) * 6;
+  }
+
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addTripletToMemory(Triplets triplets,
                                                          TripletsBySegment tripletsBySegment,
                                                          TripletsByMD tripletsByMD,
                                                          unsigned int innerSegmentIndex,
@@ -169,12 +175,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     triplets.radius()[tripletIndex] = circleRadius;
     triplets.centerX()[tripletIndex] = circleCenterX;
     triplets.centerY()[tripletIndex] = circleCenterY;
-    triplets.logicalLayers()[tripletIndex][0] =
-        modules.layers()[innerInnerLowerModuleIndex] + (modules.subdets()[innerInnerLowerModuleIndex] == 4) * 6;
-    triplets.logicalLayers()[tripletIndex][1] =
-        modules.layers()[middleLowerModuleIndex] + (modules.subdets()[middleLowerModuleIndex] == 4) * 6;
-    triplets.logicalLayers()[tripletIndex][2] =
-        modules.layers()[outerOuterLowerModuleIndex] + (modules.subdets()[outerOuterLowerModuleIndex] == 4) * 6;
     triplets.charge()[tripletIndex] = charge;
     triplets.flags()[tripletIndex] = flags;
 #ifdef CUT_VALUE_DEBUG
@@ -680,8 +680,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         uint8_t flags = loosePointing ? kT3LoosePointing : 0;
         if (t3MdDirectionFail(acc, modules, mds, lowerModuleIndices, mdIndices))
           flags |= kT3MdDirectionFail;
-        addTripletToMemory(modules,
-                           triplets,
+        addTripletToMemory(triplets,
                            tripletsBySegment,
                            tripletsByMD,
                            innerSegmentIndex,
