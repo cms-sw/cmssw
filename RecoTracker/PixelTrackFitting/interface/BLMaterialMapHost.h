@@ -9,15 +9,16 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "RecoTracker/PixelTrackFitting/interface/BLMaterialMap.h"
 
-// Host-resident BL-fit material map rho(r,z) [X0/cm] (kSize floats, 0.5 cm radial lattice), built from the
-// compiled-in table rather than the conditions DB and copied to the device once per IOV.
+// Host-resident BL-fit material map (kBufferFloats floats, 0.5 cm radial lattice): per cell the density
+// rho(r,z) [X0/cm] and the dE/dx triple, built from the compiled-in table rather than the conditions DB and
+// copied to the device once per IOV.
 class BLMaterialMapHost {
 public:
   using Buffer = cms::alpakatools::host_buffer<float[]>;
   using ConstBuffer = cms::alpakatools::const_host_buffer<float[]>;
 
-  BLMaterialMapHost() : buffer_(cms::alpakatools::make_host_buffer<float[]>(blMaterialMap::kSize)) {
-    std::copy_n(blMaterialMap::blMaterialMapData(), blMaterialMap::kSize, buffer_.data());
+  BLMaterialMapHost() : buffer_(cms::alpakatools::make_host_buffer<float[]>(blMaterialMap::kBufferFloats)) {
+    std::copy_n(blMaterialMap::blMaterialMapData(), blMaterialMap::kBufferFloats, buffer_.data());
   }
 
   // non-copyable
@@ -32,6 +33,7 @@ public:
 
   ConstBuffer buffer() const { return buffer_; }
 
+  // the whole table: rhoAt() and dedxAt() both read it through this pointer
   float const* data() const { return buffer_.data(); }
 
 private:

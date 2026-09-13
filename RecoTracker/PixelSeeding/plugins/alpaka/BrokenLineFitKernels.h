@@ -369,23 +369,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       brokenline::prepareBrokenLineData(
           acc, hits, fast_fit, bFieldEff, rhoMap_, data, fitWs, fitCorrections_, /*elossGaps=*/fitCorrections_);
       brokenline::lineFit(acc, hits_ge, fast_fit, bFieldEff, data, line, fitWs, fitCorrections_);
-      // Ionization energy loss, the per-track scalar curvature growth per unit material column,
-      //     elossCurv = kappa_0 * (dE/dX)_eff / p ,   (dE/dX)_eff = dE(X_tot)/X_tot ,
-      // with dE() the same Landau law the GBL refit charges per node (elossTypicalColumn, cumulative-column
-      // form, exact at the summed thickness). Anchoring on the total column makes the loss exact at the
-      // outermost node and low by a few percent in the middle; momentum is the fit's own
-      // p = bFieldEff*R*sqrt(1+slope^2). Evaluated after lineFit so its temps never overlap lineFit's set.
-      // fitCorrections_ off => 0.0 (circleFit skips every added expression).
-      double elossCurv = 0.;
-      if (fitCorrections_) {
-        const double slopeK = -double(data.qCharge) / fast_fit(3);
-        const double xTot = data.innerXX0 + fitWs.gapXX0(int(N) - 2);  // beamline -> outermost node [X/X0]
-        const double pTot =
-            alpaka::math::sqrt(acc, riemannFit::sqr(bFieldEff * fast_fit(2)) * (1. + riemannFit::sqr(slopeK)));
-        if (xTot > 0. && pTot > 0. && fast_fit(2) > 0.)
-          elossCurv = (generalBrokenLine::elossTypicalColumn(acc, pTot, xTot) / xTot) / (pTot * fast_fit(2));
-      }
-      brokenline::circleFit(acc, hits, hits_ge, fast_fit, bFieldEff, data, circle, fitWs, fitCorrections_, elossCurv);
+      // Ionization energy loss: the per-node Landau law of the walked columns, which prepareBrokenLineData
+      // left in the workspace under elossGaps; circleFit turns it into the deterministic residual offset.
+      brokenline::circleFit(
+          acc, hits, hits_ge, fast_fit, bFieldEff, data, circle, fitWs, fitCorrections_, /*elossGaps=*/fitCorrections_);
       reco::copyFromCircle(results_view, circle.par, circle.cov, line.par, line.cov, 1.f / float(bFieldEff), tkid);
       results_view[tkid].pt() = float(bFieldEff) / float(std::abs(circle.par(2)));
       results_view[tkid].eta() = alpaka::math::asinh(acc, line.par(0));
