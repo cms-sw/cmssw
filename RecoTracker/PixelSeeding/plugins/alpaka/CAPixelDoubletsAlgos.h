@@ -19,6 +19,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 
+#include "RecoTracker/PixelSeeding/interface/CAStubMS.h"
 #include "CACell.h"
 #include "CAPipelineCounters.h"
 #include "CAStructures.h"
@@ -531,44 +532,54 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
             continue;
           }
 
-          // Stub-stub pairwise compatibility cut using unified kappa (half-curvature) comparison.
-          //
-          // The stub formation kernel computes dPhiDr = dphi / dr_effective for all module types,
-          // where dr_effective = separation / (cosTilt + sinTilt * z/r) projects the sensor gap
-          // onto the radial direction. This makes dPhiDr a curvature proxy for all module types:
-          //   - Flat barrel: dPhiDr = dphi/dr ~= kappa
-          //   - Tilted barrel: parallax correction + dr_effective account for tilt -> dPhiDr ~= kappa
-          //   - Endcap: dr_effective = separation * r/z cancels the dip angle -> dPhiDr ~= kappa
-          //
-          // The kappa transformation kappa = dPhiDr / sqrt(1 + r^2 * dPhiDr^2) extracts the
-          // radius-independent half-curvature. For barrel stubs this removes the r-dependence;
-          // for endcap stubs it is a near-identity transformation (since r^2 * dPhiDr^2 << 1).
-          //
-          // All stub-stub transitions are handled uniformly: flat-flat, flat-tilted, tilted-tilted,
-          // disk-disk, flat-disk, tilted-disk.
-          //
-          // Pairs involving pixel hits or PHitOnly stubs are skipped.
-          // Controlled by per-pair stubSigmaCut (negative = disabled).
+          // Stub-stub compatibility. A stub measures the track direction at its own radius, psi = phi + beta with
+          // tan(beta) = r * dPhiDr, and for any circle through the two hits psi_inner + psi_outer = 2 * phi_chord
+          // whatever the curvature and the impact parameter, so that sum is tested (comparing the two curvatures
+          // would reject displaced tracks). The residual is sin(gamma_i + gamma_o) with the unnormalised tangent
+          // T = (x - r*d*y, r*d*x + y), no trigonometry; sigma from d(beta)/d(dPhiDr) = r/den on the precision-only
+          // bend error. Pairs with a pixel hit or a PHitOnly stub are skipped; a negative stubSigmaCut disables the cut.
           if constexpr (std::is_same_v<pixelTopology::Phase2OTStubs, TrackerTraits>) {
             auto stubSigmaCut = doubletCuts.maxStubCurvSigma()[pairLayerId];
             if (stubSigmaCut > 0.f && ll.isOT()[inner] && isStub(hh, oi) > 0.f && isStub(hh, i)) {
-              // Unified kappa-corrected significance for all stub-stub pairs
-              float d_i = hh[i].dPhiDr(), s_i = hh[i].dPhiDrError();
+              float d_i = hh[i].dPhiDr(), s_i = hh[i].dPhiDrErrorPrec();
+              float d_o = hh[oi].dPhiDr(), s_o = hh[oi].dPhiDrErrorPrec();
+              float xi = hh[i].xGlobal(), yi = hh[i].yGlobal();
+              float xo = hh[oi].xGlobal(), yo = hh[oi].yGlobal();
+
               float den_i = 1.f + ri * ri * d_i * d_i;
-              float sqrt_den_i = std::sqrt(den_i);
-              float k_i = d_i / sqrt_den_i;
-              float sk_i = s_i / (den_i * sqrt_den_i);
-
-              float d_o = hh[oi].dPhiDr(), s_o = hh[oi].dPhiDrError();
               float den_o = 1.f + ro * ro * d_o * d_o;
-              float sqrt_den_o = std::sqrt(den_o);
-              float k_o = d_o / sqrt_den_o;
-              float sk_o = s_o / (den_o * sqrt_den_o);
+              float tix = xi - ri * d_i * yi, tiy = ri * d_i * xi + yi;
+              float tox = xo - ro * d_o * yo, toy = ro * d_o * xo + yo;
+              float cx = xo - xi, cy = yo - yi;
 
-              float combined_err2 = sk_i * sk_i + sk_o * sk_o;
-              float significance = std::abs(k_i - k_o) / std::sqrt(combined_err2);
+              float sinI = cx * tiy - cy * tix, cosI = cx * tix + cy * tiy;
+              float sinO = cx * toy - cy * tox, cosO = cx * tox + cy * toy;
+              float normI = ri * std::sqrt(den_i), normO = ro * std::sqrt(den_o);
+              float chord2 = cx * cx + cy * cy;
+              float norm = chord2 * normI * normO;
 
-              if (significance > stubSigmaCut) {
+              float resid = (norm > 0.f) ? (sinI * cosO + cosI * sinO) / norm : 0.f;
+              float sbi = ri * s_i / den_i, sbo = ro * s_o / den_o;
+              // Multiple scattering between the two layers, from the pair's own curvature estimate
+              // (each stub measures about kappa/2). Without it the test is an intrinsic-precision cut
+              // on a quantity whose physical spread at 1 GeV is ten times larger.
+              float kappaEst = std::abs(d_i * ri / normI + d_o * ro / normO);
+              float sMS = caStubMS::kThetaPerCurv * kappaEst;
+              float combined_err2 = sbi * sbi + sbo * sbo + sMS * sMS;
+              float significance = std::abs(resid) / std::sqrt(combined_err2);
+
+              // The tangent-sum residual is free of the impact parameter, so it does not ask the two stubs to agree on
+              // the curvature; the iteration's bound on the impact parameter does. A stub measures kappa/2 + d0/r^2, so
+              // for |d0| <= maxStubTip the two curvatures may differ by at most maxStubTip |1/ri^2 - 1/ro^2| plus the
+              // measurement error; the acceptance enters as a bound on the residual, not as a variance.
+              float k_i = d_i / std::sqrt(den_i), k_o = d_o / std::sqrt(den_o);
+              float sk_i = s_i / (den_i * std::sqrt(den_i)), sk_o = s_o / (den_o * std::sqrt(den_o));
+              float drPair = ro - ri;
+              float sMSk = (drPair > 0.f) ? sMS / drPair : 0.f;  // an angle over the lever arm is a curvature
+              float tipBound = doubletCuts.maxStubTip() * std::abs(1.f / (ri * ri) - 1.f / (ro * ro));
+              float curvWindow = stubSigmaCut * std::sqrt(sk_i * sk_i + sk_o * sk_o + sMSk * sMSk) + tipBound;
+
+              if (significance > stubSigmaCut || std::abs(k_i - k_o) > curvWindow) {
 #ifdef DOUBLETS_DEBUG
                 auto flags_i = hh[i].stubFlags();
                 auto flags_o = hh[oi].stubFlags();
@@ -586,11 +597,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
             }
           }
 
-          // Pixel-to-stub direction consistency check using kappa comparison.
-          // When only the outer hit is a stub, compute the doublet's kappa from the
-          // pixel-stub geometry and compare with the stub's own kappa measurement.
-          // This reuses stubSigmaCut as the significance threshold (a per-pair configuration value, so the
-          // check is disabled for any pixel-to-stub pair whose maxStubCurvSigma is negative).
+          // Pixel-to-stub direction consistency (only the outer hit a stub): two points and one direction fix a
+          // circle, so no residual is free of the impact parameter. The chord measures kappa/2 + d0/(ri ro) and the
+          // stub kappa/2 + d0/ro^2; the difference d0 (ro - ri)/(ri ro^2) with d0 = maxStubTip is added to the error
+          // so that the test stays a sigma count. A negative maxStubCurvSigma disables it.
           if constexpr (std::is_same_v<pixelTopology::Phase2OTStubs, TrackerTraits>) {
             auto stubSigmaCut = doubletCuts.maxStubCurvSigma()[pairLayerId];
             if (stubSigmaCut > 0.f && !ll.isOT()[inner] && isStub(hh, oi)) {
@@ -602,14 +612,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
                 float sqrt_den_d = std::sqrt(den_d);
                 float k_doublet = dphidr_doublet / sqrt_den_d;
 
-                float d_o = hh[oi].dPhiDr(), s_o = hh[oi].dPhiDrError();
+                float d_o = hh[oi].dPhiDr(), s_o = hh[oi].dPhiDrErrorPrec();
                 float den_o = 1.f + ro * ro * d_o * d_o;
                 float sqrt_den_o = std::sqrt(den_o);
                 float k_stub = d_o / sqrt_den_o;
                 float sk_stub = s_o / (den_o * sqrt_den_o);
 
-                if (sk_stub > 0.f) {
-                  float significance = std::abs(k_doublet - k_stub) / sk_stub;
+                float tipTerm = doubletCuts.maxStubTip() * dr / (ri * ro * ro);
+                // Multiple scattering over the pixel-to-stub lever arm, as a curvature error.
+                float msTerm = caStubMS::kThetaPerCurv * 2.f * std::abs(k_stub) / dr;
+                float err2 = sk_stub * sk_stub + tipTerm * tipTerm + msTerm * msTerm;
+                if (err2 > 0.f) {
+                  float significance = std::abs(k_doublet - k_stub) / std::sqrt(err2);
                   if (significance > stubSigmaCut) {
 #ifdef DOUBLETS_DEBUG
                     printf("Killed here 11: pixel-stub kappa cut (sig=%.2f > cut=%.2f)\n", significance, stubSigmaCut);

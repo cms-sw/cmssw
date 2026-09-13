@@ -82,6 +82,9 @@ namespace reco {
                       SOA_COLUMN(float, maxStubCurvSigma),
                       // scalar doublet cuts
                       SOA_SCALAR(float, dzdrFact),
+                      // transverse displacement (cm) the iteration admits, used to widen the
+                      // pixel-stub direction test, which cannot be made impact-parameter free
+                      SOA_SCALAR(float, maxStubTip),
                       SOA_SCALAR(int16_t, minInnerSizeB1),
                       SOA_SCALAR(int16_t, minInnerSizeB2),
                       SOA_SCALAR(int16_t, maxDSizeB1),

@@ -204,6 +204,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               // reco::isStub() tests dPhiDrError() >= 0.
               hits[h].dPhiDr() = 0.f;
               hits[h].dPhiDrError() = -1.f;
+              hits[h].dPhiDrErrorPrec() = -1.f;
               hits[h].lowerHitIdx() = std::numeric_limits<uint32_t>::max();
               hits[h].stubFlags() = 0;
 

@@ -223,6 +223,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             // Not a stub: reco::isStub() tests dPhiDrError() >= 0.
             hit.dPhiDr() = 0.f;
             hit.dPhiDrError() = -1.f;
+            hit.dPhiDrErrorPrec() = -1.f;
             hit.lowerHitIdx() = std::numeric_limits<uint32_t>::max();
             hit.stubFlags() = 0;
 #ifdef P_HIT_POSITION_DEBUG
