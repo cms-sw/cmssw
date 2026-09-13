@@ -81,3 +81,11 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 <test name="testBLMapsCheck" command="cmsRun ${LOCALTOP}/src/RecoTracker/PixelTrackFitting/test/blMapsCheck_cfg.py"/>
+<bin file="testPerigeeJacobian.cc" name="testPerigeeJacobian">
+  <use name="eigen"/>
+  <use name="DataFormats/GeometryVector"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
+  <use name="DataFormats/GeometrySurface"/>
+  <use name="DataFormats/TrajectoryState"/>
+  <flags CXXFLAGS="-g"/>
+</bin>
