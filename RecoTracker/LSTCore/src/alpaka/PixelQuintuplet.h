@@ -49,7 +49,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     // Copy pixel layers (always 2)
     pixelQuintuplets.logicalLayers()[pixelQuintupletIndex][0] = 0;
     pixelQuintuplets.logicalLayers()[pixelQuintupletIndex][1] = 0;
-    pixelQuintuplets.lowerModuleIndices()[pixelQuintupletIndex][0] = segments.innerLowerModuleIndices()[pixelIndex];
+    // A pixel segment's two module indices are both the pixel module index, so
+    // one column serves for both ends.
+    pixelQuintuplets.lowerModuleIndices()[pixelQuintupletIndex][0] = segments.outerLowerModuleIndices()[pixelIndex];
     pixelQuintuplets.lowerModuleIndices()[pixelQuintupletIndex][1] = segments.outerLowerModuleIndices()[pixelIndex];
 
     unsigned int pixelInnerMD = segments.mdIndices()[pixelIndex][0];

@@ -25,7 +25,6 @@ namespace lst {
                       SOA_COLUMN(FPX, dAlphaOuters),
                       SOA_COLUMN(FPX, dAlphaInnerOuters),
 #endif
-                      SOA_COLUMN(uint16_t, innerLowerModuleIndices),
                       SOA_COLUMN(uint16_t, outerLowerModuleIndices),
                       SOA_COLUMN(Params_LS::ArrayUxLayers, mdIndices),
                       SOA_COLUMN(unsigned int, connectedMax))
