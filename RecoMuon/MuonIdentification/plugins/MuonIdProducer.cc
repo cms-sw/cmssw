@@ -1687,7 +1687,7 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.setAllowAnything();
 
   desc.add<bool>("arbitrateTrackerMuons", false);
-  desc.add<bool>("mergeCrossingTrackLegs", false);
+  desc.add<bool>("mergeCrossingTrackLegs", true);
   desc.add<bool>("storeCrossedHcalRecHits", false);
   desc.add<bool>("fillShowerDigis", false);
   desc.add<bool>("isPhase2", false);
