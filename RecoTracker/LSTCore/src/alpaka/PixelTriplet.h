@@ -149,12 +149,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     pixelTriplets.hitIndices()[pixelTripletIndex][2] = mds.anchorHitIndices()[pixelOuterMD];
     pixelTriplets.hitIndices()[pixelTripletIndex][3] = mds.outerHitIndices()[pixelOuterMD];
 
-    pixelTriplets.hitIndices()[pixelTripletIndex][4] = triplets.hitIndices()[tripletIndex][0];
-    pixelTriplets.hitIndices()[pixelTripletIndex][5] = triplets.hitIndices()[tripletIndex][1];
-    pixelTriplets.hitIndices()[pixelTripletIndex][6] = triplets.hitIndices()[tripletIndex][2];
-    pixelTriplets.hitIndices()[pixelTripletIndex][7] = triplets.hitIndices()[tripletIndex][3];
-    pixelTriplets.hitIndices()[pixelTripletIndex][8] = triplets.hitIndices()[tripletIndex][4];
-    pixelTriplets.hitIndices()[pixelTripletIndex][9] = triplets.hitIndices()[tripletIndex][5];
+    unsigned int t3Hits[Params_T3::kHits];
+    getTripletHitIndices(mds, segments, triplets, tripletIndex, t3Hits);
+
+    pixelTriplets.hitIndices()[pixelTripletIndex][4] = t3Hits[0];
+    pixelTriplets.hitIndices()[pixelTripletIndex][5] = t3Hits[1];
+    pixelTriplets.hitIndices()[pixelTripletIndex][6] = t3Hits[2];
+    pixelTriplets.hitIndices()[pixelTripletIndex][7] = t3Hits[3];
+    pixelTriplets.hitIndices()[pixelTripletIndex][8] = t3Hits[4];
+    pixelTriplets.hitIndices()[pixelTripletIndex][9] = t3Hits[5];
 #ifdef CUT_VALUE_DEBUG
     pixelTriplets.rPhiChiSquared()[pixelTripletIndex] = rPhiChiSquared;
     pixelTriplets.rPhiChiSquaredInwards()[pixelTripletIndex] = rPhiChiSquaredInwards;

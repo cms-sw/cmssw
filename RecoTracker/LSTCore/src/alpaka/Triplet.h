@@ -7,6 +7,8 @@
 #include "RecoTracker/LSTCore/interface/alpaka/Common.h"
 #include "RecoTracker/LSTCore/interface/ModulesSoA.h"
 #include "RecoTracker/LSTCore/interface/ObjectRangesSoA.h"
+#include "RecoTracker/LSTCore/interface/MiniDoubletsSoA.h"
+#include "RecoTracker/LSTCore/interface/SegmentsSoA.h"
 #include "RecoTracker/LSTCore/interface/TripletsSoA.h"
 #include "RecoTracker/LSTCore/interface/Circle.h"
 
@@ -76,9 +78,36 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return d;
   }
 
+  // A triplet's six hit indices are the anchor and outer hits of its three
+  // mini-doublets, reachable through its two segments. They used to be cached in
+  // a per-triplet column; recovering them here instead costs one extra
+  // indirection at the three places that consume them and saves 24 bytes on
+  // every triplet slot. This is exactly the gather addTripletToMemory performed.
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void getTripletMDIndices(SegmentsConst segments,
+                                                          TripletsConst triplets,
+                                                          unsigned int tripletIndex,
+                                                          unsigned int (&mdIndices)[Params_T3::kLayers]) {
+    unsigned int innerSegmentIndex = triplets.segmentIndices()[tripletIndex][0];
+    unsigned int outerSegmentIndex = triplets.segmentIndices()[tripletIndex][1];
+    mdIndices[0] = segments.mdIndices()[innerSegmentIndex][0];
+    mdIndices[1] = segments.mdIndices()[innerSegmentIndex][1];
+    mdIndices[2] = segments.mdIndices()[outerSegmentIndex][1];
+  }
+
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void getTripletHitIndices(MiniDoubletsConst mds,
+                                                           SegmentsConst segments,
+                                                           TripletsConst triplets,
+                                                           unsigned int tripletIndex,
+                                                           unsigned int (&hitIndices)[Params_T3::kHits]) {
+    unsigned int mdIndices[Params_T3::kLayers];
+    getTripletMDIndices(segments, triplets, tripletIndex, mdIndices);
+    for (int i = 0; i < Params_T3::kLayers; ++i) {
+      hitIndices[2 * i] = mds.anchorHitIndices()[mdIndices[i]];
+      hitIndices[2 * i + 1] = mds.outerHitIndices()[mdIndices[i]];
+    }
+  }
+
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addTripletToMemory(ModulesConst modules,
-                                                         MiniDoubletsConst mds,
-                                                         SegmentsConst segments,
                                                          Triplets triplets,
                                                          TripletsBySegment tripletsBySegment,
                                                          TripletsByMD tripletsByMD,
@@ -112,18 +141,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         modules.layers()[middleLowerModuleIndex] + (modules.subdets()[middleLowerModuleIndex] == 4) * 6;
     triplets.logicalLayers()[tripletIndex][2] =
         modules.layers()[outerOuterLowerModuleIndex] + (modules.subdets()[outerOuterLowerModuleIndex] == 4) * 6;
-    //get the hits
-    unsigned int firstMDIndex = segments.mdIndices()[innerSegmentIndex][0];
-    unsigned int secondMDIndex = segments.mdIndices()[innerSegmentIndex][1];
-    unsigned int thirdMDIndex = segments.mdIndices()[outerSegmentIndex][1];
-
-    triplets.hitIndices()[tripletIndex][0] = mds.anchorHitIndices()[firstMDIndex];
-    triplets.hitIndices()[tripletIndex][1] = mds.outerHitIndices()[firstMDIndex];
-    triplets.hitIndices()[tripletIndex][2] = mds.anchorHitIndices()[secondMDIndex];
-    triplets.hitIndices()[tripletIndex][3] = mds.outerHitIndices()[secondMDIndex];
-    triplets.hitIndices()[tripletIndex][4] = mds.anchorHitIndices()[thirdMDIndex];
-    triplets.hitIndices()[tripletIndex][5] = mds.outerHitIndices()[thirdMDIndex];
-
     triplets.charge()[tripletIndex] = charge;
 #ifdef CUT_VALUE_DEBUG
     triplets.betaIn()[tripletIndex] = __F2H(betaIn);
@@ -610,8 +627,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             alpaka::atomicAdd(acc, &tripletsRangesByMD.n()[innerMDIndex], 1u, alpaka::hierarchy::Threads{}) +
             tripletsRangesByMD.offset()[innerMDIndex];
         addTripletToMemory(modules,
-                           mds,
-                           segments,
                            triplets,
                            tripletsBySegment,
                            tripletsByMD,

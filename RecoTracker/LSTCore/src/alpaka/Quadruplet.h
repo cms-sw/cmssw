@@ -21,7 +21,9 @@
 #include "NeuralNetwork.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addQuadrupletToMemory(TripletsConst triplets,
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addQuadrupletToMemory(MiniDoubletsConst mds,
+                                                            SegmentsConst segments,
+                                                            TripletsConst triplets,
                                                             Quadruplets quadruplets,
                                                             unsigned int innerTripletIndex,
                                                             unsigned int outerTripletIndex,
@@ -68,14 +70,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quadruplets.logicalLayers()[quadrupletIndex][2] = triplets.logicalLayers()[innerTripletIndex][2];
     quadruplets.logicalLayers()[quadrupletIndex][3] = triplets.logicalLayers()[outerTripletIndex][2];
 
-    quadruplets.hitIndices()[quadrupletIndex][0] = triplets.hitIndices()[innerTripletIndex][0];
-    quadruplets.hitIndices()[quadrupletIndex][1] = triplets.hitIndices()[innerTripletIndex][1];
-    quadruplets.hitIndices()[quadrupletIndex][2] = triplets.hitIndices()[innerTripletIndex][2];
-    quadruplets.hitIndices()[quadrupletIndex][3] = triplets.hitIndices()[innerTripletIndex][3];
-    quadruplets.hitIndices()[quadrupletIndex][4] = triplets.hitIndices()[innerTripletIndex][4];
-    quadruplets.hitIndices()[quadrupletIndex][5] = triplets.hitIndices()[innerTripletIndex][5];
-    quadruplets.hitIndices()[quadrupletIndex][6] = triplets.hitIndices()[outerTripletIndex][4];
-    quadruplets.hitIndices()[quadrupletIndex][7] = triplets.hitIndices()[outerTripletIndex][5];
+    unsigned int innerT3Hits[Params_T3::kHits], outerT3Hits[Params_T3::kHits];
+    getTripletHitIndices(mds, segments, triplets, innerTripletIndex, innerT3Hits);
+    getTripletHitIndices(mds, segments, triplets, outerTripletIndex, outerT3Hits);
+
+    quadruplets.hitIndices()[quadrupletIndex][0] = innerT3Hits[0];
+    quadruplets.hitIndices()[quadrupletIndex][1] = innerT3Hits[1];
+    quadruplets.hitIndices()[quadrupletIndex][2] = innerT3Hits[2];
+    quadruplets.hitIndices()[quadrupletIndex][3] = innerT3Hits[3];
+    quadruplets.hitIndices()[quadrupletIndex][4] = innerT3Hits[4];
+    quadruplets.hitIndices()[quadrupletIndex][5] = innerT3Hits[5];
+    quadruplets.hitIndices()[quadrupletIndex][6] = outerT3Hits[4];
+    quadruplets.hitIndices()[quadrupletIndex][7] = outerT3Hits[5];
 
     quadruplets.displacedScore()[quadrupletIndex] = displacedScore;
     quadruplets.fakeScore()[quadrupletIndex] = fakeScore;
@@ -671,7 +677,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                   float eta = mds.anchorEta()[layer3MDIndex];
 
                   float scores = chiSquared + nonAnchorChiSquared;
-                  addQuadrupletToMemory(triplets,
+                  addQuadrupletToMemory(mds,
+                                        segments,
+                                        triplets,
                                         quadruplets,
                                         innerTripletIndex,
                                         outerTripletIndex,
@@ -790,7 +798,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               float eta = mds.anchorEta()[layer3MDIndex];
 
               float scores = chiSquared + nonAnchorChiSquared;
-              addQuadrupletToMemory(triplets,
+              addQuadrupletToMemory(mds,
+                                    segments,
+                                    triplets,
                                     quadruplets,
                                     innerTripletIndex,
                                     outerTripletIndex,
