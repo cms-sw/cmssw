@@ -34,6 +34,7 @@
 #include "RecoTracker/PixelSeeding/interface/TripletDumpSoA.h"
 #include "RecoTracker/PixelSeeding/interface/CircleEq.h"
 #include "RecoTracker/PixelSeeding/interface/CATrackFeatures.h"
+#include "RecoTracker/PixelSeeding/interface/CAStubMS.h"
 #include "CAFitHitSelection.h"
 
 // local includes
@@ -1458,12 +1459,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
             }
           }
 
-          // Ntuplet-wide stub-curvature consistency: inverse-variance-weighted reduced chi2 of
-          // ALL per-stub curvatures on the track around their common weighted mean (same kappa as
-          // CATripletCuts). A real track's stubs agree; a combinatorial chain admitted by the
-          // relaxed displaced DCA does not -> demote it below `tight`. Skipped when the DNN already
-          // decided (its score subsumes this), so this is the non-DNN / fill-failed fallback;
-          // CA_CHI2_DUMP forces it for the calibration printout.
+          // Ntuplet-wide stub-curvature consistency. A stub at transverse distance d0 from the beam line measures
+          // kappa/2 + d0/r^2, so the per-stub curvatures of one track are linear in 1/r^2: that line is fitted by
+          // weighted least squares (errors from the precision-only bend column) and the reduced chi2 of its residuals
+          // (ndof = nStubs - 2) is the statistic; a chain admitted by the relaxed DCA still fails it and is demoted
+          // below `tight`. Skipped when the DNN already decided.
 #ifdef CA_CHI2_DUMP
           const bool computeStubChi2 = true;
 #else
@@ -1471,36 +1471,50 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 #endif
           if (computeStubChi2) {
             int nStubK = 0;
-            float sumW = 0.f, sumWK = 0.f, sumWK2 = 0.f;
+            float sumW = 0.f, sumWX = 0.f, sumWXX = 0.f, sumWK = 0.f, sumWKX = 0.f, sumWKK = 0.f;
             for (auto h = foundNtuplets->begin(it); h != foundNtuplets->end(it); ++h) {
               if (*h >= static_cast<unsigned int>(nHitsTot))
                 break;  // content buffer corruption from overflow
               if (!isStub(hh, *h))
                 continue;  // pixel hit
-              const float s = hh[*h].dPhiDrError();
+              const float s = hh[*h].dPhiDrErrorPrec();
               if (s > 0.f) {
                 const float d = hh[*h].dPhiDr();
                 const float xg = hh[*h].xGlobal();
                 const float yg = hh[*h].yGlobal();
+                const float rg2 = xg * xg + yg * yg;
+                if (!(rg2 > 0.f))
+                  continue;
                 float den, w;  // same shared kappa formula as CATrackFeatures::fill
-                caTrackFeatures::stubDenWeight(xg * xg + yg * yg, d, s, den, w);
+                caTrackFeatures::stubDenWeight(rg2, d, s, den, w);
                 const float k = d / std::sqrt(den);  // stub curvature
+                const float x = 1.f / rg2;           // the d0 term enters linearly in 1/r^2
+                // hit precision plus multiple scattering, as in the doublet and triplet cuts
+                const float sMS = caStubMS::kThetaPerCurv * 2.f * std::abs(k) / std::sqrt(rg2);
+                w = 1.f / (1.f / w + sMS * sMS);
                 sumW += w;
+                sumWX += w * x;
+                sumWXX += w * x * x;
                 sumWK += w * k;
-                sumWK2 += w * k * k;
+                sumWKX += w * k * x;
+                sumWKK += w * k * k;
                 ++nStubK;
               }
             }
             // chi2Stub < 0 => not enough stubs to judge consistency.
             float chi2Stub = -1.f;
             if (nStubK >= 3 && sumW > 0.f) {
-              chi2Stub = (sumWK2 - sumWK * sumWK / sumW) / float(nStubK - 1);
-              if (!dnnHandled && cuts.maxNtupletStubChi2 >= 0.f) {
-                // Same discipline as the DNN gate: the KEEP decision is the positive comparison
-                // (`chi2Stub <= cut` -> keep), so a non-finite chi2Stub -- which a degenerate stub
-                // set can produce -- falls to the demoting side instead of sailing through the
-                // negated `chi2Stub > cut` test. The explicit isNotFinite keeps that true under
-                // -Ofast, where the comparison alone would not be trustworthy.
+              const float det = sumW * sumWXX - sumWX * sumWX;
+              if (std::abs(det) > 0.f) {
+                // k = a + b/r^2, a = kappa/2 and b = d0
+                const float a = (sumWXX * sumWK - sumWX * sumWKX) / det;
+                const float b = (sumW * sumWKX - sumWX * sumWK) / det;
+                chi2Stub = (sumWKK - a * sumWK - b * sumWKX) / float(nStubK - 2);
+              }
+              if (chi2Stub >= 0.f && !dnnHandled && cuts.maxNtupletStubChi2 >= 0.f) {
+                // The keep decision is the positive comparison (chi2Stub <= cut), so a non-finite chi2Stub
+                // from a degenerate stub set falls to the demoting side; the explicit isNotFinite keeps that
+                // true under -Ofast.
                 const bool stubConsistent = !edm::isNotFinite(chi2Stub) && (chi2Stub <= cuts.maxNtupletStubChi2);
                 if (!stubConsistent)
                   failChi2 = true;
@@ -2107,11 +2121,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
             }
           }
 
-          // For Phase2OTStubs: also consider the tracks that use another stub built from the same
-          // P-hit. Several stubs sharing a lowerHitIdx have different hit indices but stand for the
-          // same physical measurement, so for cleaning purposes they are the same shared hit.
+          // For Phase2OTStubs: several stubs sharing a lowerHitIdx have different hit indices but stand for
+          // the same physical measurement, so for cleaning purposes they count as the same shared hit.
+          // PS only: a 2S stub now carries its lower cluster id as well, but merging 2S stubs here kills
+          // short tracks whose long partner does not replace them -- measured, 4.5 points of prompt barrel
+          // efficiency on ttbar PU200. The rule stays where it was tuned until it is retuned.
           if constexpr (std::is_same_v<pixelTopology::Phase2OTStubs, TrackerTraits>) {
-            if (h < static_cast<uint32_t>(hh.size()) && isStub(hh, h)) {
+            if (h < static_cast<uint32_t>(hh.size()) && isStub(hh, h) && ::reco::StubFlags::isPS(hh[h].stubFlags())) {
               auto const lowerHitIdx = hh[h].lowerHitIdx();
               if (lowerHitIdx != std::numeric_limits<uint32_t>::max()) {
                 auto const offsetStubs = hh.view(0).offsetStubs();
@@ -2121,7 +2137,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                     continue;
                   if (otherIdx >= hitToTuple.nOnes())
                     continue;
-                  if (!isStub(hh, otherIdx))
+                  if (!isStub(hh, otherIdx) || !::reco::StubFlags::isPS(hh[otherIdx].stubFlags()))
                     continue;
                   if (hh[otherIdx].lowerHitIdx() != lowerHitIdx)
                     continue;

@@ -99,10 +99,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
             // Same detector module check with special handling for stubs
             if (ci.inner_detIndex(hh) == cj.inner_detIndex(hh)) {
-              // For Phase2OTStubs: handle the case where multiple stubs share the same P-hit
-              // If two stubs have the same lowerHitIdx, they come from the same P-hit
-              // and one should be killed (duplicate). If different lowerHitIdx, they are
-              // from different P-hits on the same module - skip (not duplicates).
+              // Two stubs on the same module are duplicates only if they were built from the same
+              // lower cluster, i.e. the same lowerHitIdx: one measurement paired with two different
+              // clusters on the other sensor. The rule is the same for PS and 2S stacks (lowerHitIdx
+              // is published for both).
               if constexpr (std::is_same_v<pixelTopology::Phase2OTStubs, TrackerTraits>) {
                 auto innerHitI = ci.inner_hit_id();
                 auto innerHitJ = cj.inner_hit_id();

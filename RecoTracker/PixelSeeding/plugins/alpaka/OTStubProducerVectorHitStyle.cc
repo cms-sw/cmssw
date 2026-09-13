@@ -275,14 +275,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     reco::StubsSoACollection outputStubs(queue, nStubs, nModules_);
 
     if (nStubs > 0) {
+      // The two error columns are the stub predicate (reco::isStub tests dPhiDrError >= 0), so a slot
+      // the formation kernel does not write must still read as a non-stub. 0x80 in every byte is a
+      // tiny negative normal float: negative without the NaN the fast-math flags would not compare.
+      auto stubsView = outputStubs.view().stubs();
+      auto errView = cms::alpakatools::make_device_view(queue, stubsView.dPhiDrError().data(), nStubs);
+      auto errPrecView = cms::alpakatools::make_device_view(queue, stubsView.dPhiDrErrorPrec().data(), nStubs);
+      alpaka::memset(queue, errView, 0x80);
+      alpaka::memset(queue, errPrecView, 0x80);
+
       auto const& otRecHits = iEvent.get(hitToken_);
       auto const& geomDevice = iSetup.getData(geomToken_);
       auto const& geomView = geomDevice.const_view();
 
       auto const& hitsView = otRecHits.const_view().otRecHits();
       auto const& moduleView = otRecHits.const_view().otHitModules();
-
-      auto stubsView = outputStubs.view().stubs();
 
       OTStubFormationVectorHitStyleKernelsWrapper kernels(queue);
       kernels.formStubs(queue,

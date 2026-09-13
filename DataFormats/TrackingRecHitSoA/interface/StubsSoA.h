@@ -21,14 +21,18 @@ namespace reco {
                       // Error on the above.
                       SOA_COLUMN(float, dPhiDrError),
 
-                      // Same error from the precision (local-x) rows only: the along-strip cluster
-                      // position is a strip centre common to both sensors, so it cancels in dphi and
-                      // only the difference of the two segmentations survives. < 0 for non-stub entries.
+                      // Same error from the precision (local-x) rows only: both azimuths are evaluated
+                      // at the same along-strip coordinate, so that term is common mode in dphi and only
+                      // the difference of the two projections survives. < 0 for non-stub entries.
                       SOA_COLUMN(float, dPhiDrErrorPrec),
 
                       // Original OT RecHit indices for track fitting.
                       SOA_COLUMN(uint32_t, lowerHitIdx),
                       SOA_COLUMN(uint32_t, upperHitIdx),
+
+                      // The one sensor hit whose position and local errors the stub publishes: the
+                      // macro-pixel hit of a PS stack, the physically inner sensor of a 2S stack.
+                      SOA_COLUMN(uint32_t, posHitIdx),
 
                       // Packed flags: bit 0 isBarrel, bit 1 isFlat (barrel only), bit 2 isValid,
                       // bits 3-5 OT layer (0-5), bit 6 isPS, bit 7 reserved.

@@ -640,11 +640,11 @@ namespace phase2PixelTopology {
       0.03712, 0.03712,                                                    // 79-80 OTB3 -> D1 2S (fwd, bwd)
       0.06984, 0.096,                                                      // 81-82 OTB 2S -> fwd D1 2S
       0.005,   0.005,   0.005,                                             // 83-85 OTB PS -> bwd D1 PS
-      0.06984, 0.06984,                                                    // 86-87 OTB 2S -> bwd D1 2S
-      0.02,    0.1312,  0.02,   0.06984, 0.02,   0.05096, 0.02,  0.05096,  // 88-95 fwd disks PS chain, PS->2S
+      0.06984, 0.096,                                                      // 86-87 OTB 2S -> bwd D1 2S
+      0.02,    0.1312,  0.02,   0.06984, 0.02,   0.05096, 0.02,  0.06984,  // 88-95 fwd disks PS chain, PS->2S
       0.1312,  0.1312,  0.1312, 0.3392,                                    // 96-99 fwd disks 2S chain
-      0.02,    0.05096, 0.02,   0.06984, 0.02,   0.05096, 0.02,  0.06984,  // 100-107 bwd disks PS chain, PS->2S
-      0.096,   0.1312,  0.1312, 0.18                                       // 108-111 bwd disks 2S chain
+      0.02,    0.1312,  0.02,   0.06984, 0.02,   0.05096, 0.02,  0.06984,  // 100-107 bwd disks PS chain, PS->2S
+      0.1312,  0.1312,  0.1312, 0.3392                                     // 108-111 bwd disks 2S chain
   };
 
   // The CA graph (geometry.pairGraph): (inner, outer) layer of every pair.
@@ -736,7 +736,7 @@ namespace phase2PixelTopology {
       250,  522,  300,  522,  240,  650,  300,  200,   // 58-65
       220,  250,  250,  250,  250,                     // 66-70
       1100, 1250, 1250, 2000, 2000,                    // 71-75 OT barrel chain
-      1600, 1700, 2000,                                // 76-78 OTB PS -> fwd D1 PS
+      2500, 2500, 2000,                                // 76-78 OTB PS -> fwd D1 PS
       1000, 1000,                                      // 79-80 OTB3 -> D1 2S (fwd, bwd)
       1000, 1000,                                      // 81-82 OTB 2S -> fwd D1 2S
       2500, 2500, 2000,                                // 83-85 OTB PS -> bwd D1 PS
@@ -764,12 +764,12 @@ namespace phase2PixelTopology {
       -1200, -1200, -10000, -10000, -10000,                         // 71-75 OT barrel chain
       40,    80,    100,                                            // 76-78 OTB PS -> fwd D1 PS
       80,    -108,                                                  // 79-80 OTB3 -> D1 2S (fwd, bwd)
-      90,    101,                                                   // 81-82 OTB 2S -> fwd D1 2S
+      90,    99,                                                    // 81-82 OTB 2S -> fwd D1 2S
       -130,  -130,  -130,                                           // 83-85 OTB PS -> bwd D1 PS
       -116,  -116,                                                  // 86-87 OTB 2S -> bwd D1 2S
       20,    45,    20,     45,     20,     20,     20,     20,     // 88-95 fwd disks PS chain, PS->2S
       55,    55,    55,     55,                                     // 96-99 fwd disks 2S chain
-      20,    45,    20,     45,     20,     45,     20,     45,     // 100-107 bwd disks PS chain, PS->2S
+      20,    45,    20,     45,     20,     20,     20,     20,     // 100-107 bwd disks PS chain, PS->2S
       55,    55,    55,     55                                      // 108-111 bwd disks 2S chain
   };
 
@@ -795,7 +795,7 @@ namespace phase2PixelTopology {
       -90,   -99,                                             // 86-87 OTB 2S -> bwd D1 2S
       115,   72,    115,   72,    115,   115,   115,   115,   // 88-95 fwd disks PS chain, PS->2S
       105,   105,   105,   105,                               // 96-99 fwd disks 2S chain
-      115,   72,    115,   72,    115,   72,    115,   72,    // 100-107 bwd disks PS chain, PS->2S
+      115,   72,    115,   72,    115,   115,   115,   115,   // 100-107 bwd disks PS chain, PS->2S
       105,   105,   105,   105                                // 108-111 bwd disks 2S chain
   };
 
@@ -821,7 +821,7 @@ namespace phase2PixelTopology {
       60,     80,                                                    // 86-87 OTB 2S -> bwd D1 2S
       20,     55,     20,     55,     20,     20,   20,     20,      // 88-95 fwd disks PS chain, PS->2S
       55,     55,     55,     55,                                    // 96-99 fwd disks 2S chain
-      20,     55,     20,     55,     20,     55,   20,     55,      // 100-107 bwd disks PS chain, PS->2S
+      20,     55,     20,     55,     20,     20,   20,     20,      // 100-107 bwd disks PS chain, PS->2S
       55,     55,     55,     55                                     // 108-111 bwd disks 2S chain
   };
 
@@ -831,7 +831,7 @@ namespace phase2PixelTopology {
       10000, 10000, 10000, 10000, 10000, 10000, 10000,         // 8-14
       30.0,  -25.0, 50.0,                                      // 15-17 PXB3 -> OTB1 (cen/bwd/fwd)
       45.0,                                                    // 18 PXB4 -> OTB1
-      57.5,  70.0,  95.0,  110.0, 10000,                       // 19-23 fwd PXD1-5 -> OTB1
+      57.5,  80.0,  95.0,  110.0, 10000,                       // 19-23 fwd PXD1-5 -> OTB1
       -30.0, -40.0, -55.0, -70.0, -80.0,                       // 24-28 bwd PXD1-5 -> OTB1
       10000, 10000, 10000, 10000, 10000, 10000, 10000, 10000,  // 29-36 fwd pixel disks
       10000, 10000, 10000, 10000, 10000, 10000, 21.0,  7.5,    // 37-44
@@ -847,7 +847,7 @@ namespace phase2PixelTopology {
       110,   110,                                              // 86-87 OTB 2S -> bwd D1 2S
       115,   105,   115,   105,   115,   115,   115,   115,    // 88-95 fwd disks PS chain, PS->2S
       105,   105,   105,   105,                                // 96-99 fwd disks 2S chain
-      115,   105,   115,   105,   115,   105,   115,   105,    // 100-107 bwd disks PS chain, PS->2S
+      115,   105,   115,   105,   115,   115,   115,   115,    // 100-107 bwd disks PS chain, PS->2S
       105,   105,   105,   105                                 // 108-111 bwd disks 2S chain
   };
 
@@ -871,7 +871,7 @@ namespace phase2PixelTopology {
       10000, 10000,                                           // 81-82 OTB 2S -> fwd D1 2S
       10000, 10000, 10000,                                    // 83-85 OTB PS -> bwd D1 PS
       10000, 10000,                                           // 86-87 OTB 2S -> bwd D1 2S
-      60.0,  10000, 60.0,  10000, 60.0,  60.0,  60.0, 60.0,   // 88-95 fwd disks PS chain, PS->2S
+      60.0,  10000, 60.0,  10000, 60.0,  10000, 60.0, 10000,  // 88-95 fwd disks PS chain, PS->2S
       10000, 10000, 10000, 10000,                             // 96-99 fwd disks 2S chain
       60.0,  10000, 60.0,  10000, 60.0,  10000, 60.0, 10000,  // 100-107 bwd disks PS chain, PS->2S
       10000, 10000, 10000, 10000                              // 108-111 bwd disks 2S chain
@@ -897,7 +897,7 @@ namespace phase2PixelTopology {
       -10000, -10000,                                                  // 81-82 OTB 2S -> fwd D1 2S
       -10000, -10000, -10000,                                          // 83-85 OTB PS -> bwd D1 PS
       -10000, -10000,                                                  // 86-87 OTB 2S -> bwd D1 2S
-      15.0,   -10000, 15.0,   -10000, 15.0,   15.0,   15.0,   15.0,    // 88-95 fwd disks PS chain, PS->2S
+      15.0,   -10000, 15.0,   -10000, 15.0,   -10000, 15.0,   -10000,  // 88-95 fwd disks PS chain, PS->2S
       -10000, -10000, -10000, -10000,                                  // 96-99 fwd disks 2S chain
       -50.0,  -10000, -50.0,  -10000, -50.0,  -10000, -50.0,  -10000,  // 100-107 bwd disks PS chain, PS->2S
       -10000, -10000, -10000, -10000                                   // 108-111 bwd disks 2S chain
@@ -923,7 +923,7 @@ namespace phase2PixelTopology {
       10000, 10000,                                            // 81-82 OTB 2S -> fwd D1 2S
       10000, 10000, 10000,                                     // 83-85 OTB PS -> bwd D1 PS
       10000, 10000,                                            // 86-87 OTB 2S -> bwd D1 2S
-      50.0,  10000, 50.0,  10000, 50.0,  50.0,  50.0,  50.0,   // 88-95 fwd disks PS chain, PS->2S
+      50.0,  10000, 50.0,  10000, 50.0,  10000, 50.0,  10000,  // 88-95 fwd disks PS chain, PS->2S
       10000, 10000, 10000, 10000,                              // 96-99 fwd disks 2S chain
       -15.0, 10000, -15.0, 10000, -15.0, 10000, -15.0, 10000,  // 100-107 bwd disks PS chain, PS->2S
       10000, 10000, 10000, 10000                               // 108-111 bwd disks 2S chain
@@ -973,12 +973,12 @@ namespace phase2PixelTopology {
       13.0, 13.0, 24.0, 30.0, 30.0,                    // 71-75 OT barrel chain
       13.0, 13.0, 13.0,                                // 76-78 OTB PS -> fwd D1 PS
       22.0, 22.0,                                      // 79-80 OTB3 -> D1 2S (fwd, bwd)
-      34.0, 46.0,                                      // 81-82 OTB 2S -> fwd D1 2S
+      35.0, 46.0,                                      // 81-82 OTB 2S -> fwd D1 2S
       13.0, 13.0, 13.0,                                // 83-85 OTB PS -> bwd D1 PS
-      35.0, 40.0,                                      // 86-87 OTB 2S -> bwd D1 2S
+      35.0, 46.0,                                      // 86-87 OTB 2S -> bwd D1 2S
       18.0, 42.0, 18.0, 47.0, 18.0, 47.0, 16.0, 48.0,  // 88-95 fwd disks PS chain, PS->2S
       47,   47,   45,   47,                            // 96-99 fwd disks 2S chain
-      18.0, 41.0, 18.0, 47.0, 18.0, 46.0, 15.0, 47.0,  // 100-107 bwd disks PS chain, PS->2S
+      18.0, 42.0, 18.0, 47.0, 18.0, 47.0, 16.0, 48.0,  // 100-107 bwd disks PS chain, PS->2S
       47,   47,   45,   47                             // 108-111 bwd disks 2S chain
   };
 
@@ -1004,7 +1004,7 @@ namespace phase2PixelTopology {
       0.0,    0.0,                                               // 86-87 OTB 2S -> bwd D1 2S
       0.0002, 0.0,    0.0002, 0.0, 0.0002, 0.0, 0.0002, 0.0002,  // 88-95 fwd disks PS chain, PS->2S
       0.0,    0.0,    0.0,    0.0,                               // 96-99 fwd disks 2S chain
-      0.0002, 0.0,    0.0002, 0.0, 0.0002, 0.0, 0.0002, 0.0,     // 100-107 bwd disks PS chain, PS->2S
+      0.0002, 0.0,    0.0002, 0.0, 0.0002, 0.0, 0.0002, 0.0002,  // 100-107 bwd disks PS chain, PS->2S
       0.0,    0.0,    0.0,    0.0                                // 108-111 bwd disks 2S chain
   };
 

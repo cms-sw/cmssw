@@ -7,6 +7,7 @@
 #include "FWCore/Utilities/interface/isFinite.h"  // bit-pattern finiteness test for the DNN-gate inputs
 #include "RecoTracker/PixelSeeding/interface/CircleEq.h"
 #include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
+#include "RecoTracker/PixelSeeding/interface/CAStubMS.h"
 #include "CACell.h"
 #include "CAPipelineCounters.h"
 #include "CATripletDNN.h"  // inline per-triplet DNN gate (compile-time weights)
@@ -161,49 +162,43 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return compatible;
     }
 
-    // ---------------------------------
-    // curvature compatibility with triplet aka geomKappaSigmaCut
-    // ---------------------------------
-    // This cut checks the compatibility of the inner-outer hit doublet's dPhi/dr with the stubs' average of the triplet.
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE static bool stubsCurvCompatibleWithTriplet(const float dPhi13,
-                                                                              const float r1,
-                                                                              const float r3,
-                                                                              const float curvatureStubs,
-                                                                              const float curvatureStubsErrSquared,
+    // Tangent of the three-point circle at one stub, as a half-curvature. The circle through the triplet's
+    // three hits knows the impact parameter, so its tangent at the stub's radius already contains the d0/r^2
+    // term the stub measures and the comparison is free of d0. cosdir(x,y) is the unit radial vector of the
+    // circle at (x,y) up to the sign of the curvature; sin(beta)/r with beta the angle to the radial direction
+    // is the same quantity as the stub's own d/sqrt(1 + r^2 d^2).
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE static float circleKappaAt(CircleEq<float> const& eq, float x, float y) {
+      auto cd = eq.cosdir(x, y);
+      float tx = cd.second, ty = -cd.first;
+      if (tx * x + ty * y < 0.f) {
+        tx = -tx;
+        ty = -ty;
+      }
+      float r2 = x * x + y * y;
+      return (r2 > 0.f) ? (x * ty - y * tx) / r2 : 0.f;
+    }
+
+    // curvature compatibility with the triplet aka geomKappaSigmaCut
+    // Inverse-variance weighted mean of the per-stub residuals against the three-point circle's own
+    // tangent, in sigma. Errors from the precision-only bend column: the plain one carries the
+    // along-strip term twice although it cancels in the bend, which on endcap 2S stubs makes the
+    // cut about twenty times looser than the hit precision warrants.
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE static bool stubsCurvCompatibleWithTriplet(const float residSum,
+                                                                              const float weightSum,
                                                                               const float maxStubGeomCurvSigma) {
-      if (maxStubGeomCurvSigma < 0.f)
-        return true;  // cut disabled
+      if (maxStubGeomCurvSigma < 0.f || !(weightSum > 0.f))
+        return true;  // cut disabled, or no stub with a usable error
 
-      float dr13 = r3 - r1;
-      float rmid = 0.5f * (r1 + r3);
-      float dPhiDr13 = dPhi13 / dr13;
-      float conversionSquared = 1.f + rmid * rmid * dPhiDr13 * dPhiDr13;
-      float curvature13 = dPhiDr13 / std::sqrt(conversionSquared);
-
-      // Geometric curvature error (~500 murad phi resolution)
-      constexpr float phiErrSquared = 25e-8f;
-      float curvature13ErrSquared =
-          phiErrSquared / (dr13 * dr13 * conversionSquared * conversionSquared * conversionSquared);
-      float curvatureDiffErrSquared = curvatureStubsErrSquared + curvature13ErrSquared;
-      float curvatureDiff = curvatureStubs - curvature13;
-      bool compatible =
-          curvatureDiff * curvatureDiff < maxStubGeomCurvSigma * maxStubGeomCurvSigma * curvatureDiffErrSquared;
+      float resid = residSum / weightSum;
+      bool compatible = resid * resid * weightSum < maxStubGeomCurvSigma * maxStubGeomCurvSigma;
 
 #ifdef CA_DEBUG
       printf(
-          "TripletCuts::stubsCurvCompatibleWithTriplet;dPhi13=%.4f;r1=%.4f;r3=%.4f;curvatureStubs=%.4f;"
-          "curvatureStubsErrSquared=%.4e;maxStubGeomCurvSigma=%.4f;curvature13=%.4f;curvatureDiff=%.4f;"
-          "curvatureDiffErrSquared=%.4e;compatible=%d\n",
-          dPhi13,                    // dPhi between inner and outer hit
-          r1,                        // r of inner hit
-          r3,                        // r of outer hit
-          curvatureStubs,            // curvature from stubs
-          curvatureStubsErrSquared,  // error squared of curvature from stubs
-          maxStubGeomCurvSigma,      // maximum allowed geometry curvature sigma
-          curvature13,               // curvature from inner-outer hit pair
-          curvatureDiff,             // computed curvature difference
-          curvatureDiffErrSquared,   // error squared of curvature difference
-          compatible ? 1 : 0);       // pass/fail
+          "TripletCuts::stubsCurvCompatibleWithTriplet;resid=%.6f;sigma=%.6f;maxStubGeomCurvSigma=%.4f;compatible=%d\n",
+          resid,
+          std::sqrt(1.f / weightSum),
+          maxStubGeomCurvSigma,
+          compatible ? 1 : 0);
 #endif
 
       return compatible;
@@ -376,10 +371,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             return false;
           }
 
-          // calculate the average stub curvature for the stubs compatibility cuts
+          // Weighted mean stub curvature, and in the same walk the residuals against the tangent of
+          // the three-point circle. The mean and its variance are DNN features and keep their trained
+          // definition (the plain dPhiDrError column); the cut below uses the precision-only one.
           float sum_weights = 0.f, sum_weightsTimesCurv = 0.f;
+          float residSum = 0.f, weightSum = 0.f;
 
-          // Compute curvature + error for each stub hit
           auto computeKappa = [&](uint32_t hitId, float r) {
             float s = hh[hitId].dPhiDrError();
             if (s < 0.f)
@@ -389,6 +386,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             float w = den * den * den / (s * s);
             sum_weights += w;
             sum_weightsTimesCurv += w * d / std::sqrt(den);
+
+            float sPrec = hh[hitId].dPhiDrErrorPrec();
+            if (sPrec > 0.f && r > 0.f) {
+              float x = hh[hitId].xGlobal(), y = hh[hitId].yGlobal();
+              // Curvature error of this stub: hit precision, plus the multiple scattering that
+              // separates its direction from the triplet's circle (an angle theta becomes a
+              // curvature theta/r at radius r).
+              float sk = sPrec / (den * std::sqrt(den));
+              float sMS = caStubMS::kThetaPerCurv * absCurvature / r;
+              float wPrec = 1.f / (sk * sk + sMS * sMS);
+              residSum += wPrec * (d / std::sqrt(den) - circleKappaAt(eq, x, y));
+              weightSum += wPrec;
+            }
           };
 
           computeKappa(innerCell.inner_hit_id(), r1);
@@ -399,12 +409,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           curvatureStubsErrSquared = 1.f / sum_weights;
 
           // apply compatibility with triplet cut
-          if (!stubsCurvCompatibleWithTriplet(dPhi13,
-                                              r1,
-                                              r3,
-                                              curvatureStubs,
-                                              curvatureStubsErrSquared,
-                                              tripletVectorCutsCol.maxStubGeomCurvSigma())) {
+          if (!stubsCurvCompatibleWithTriplet(residSum, weightSum, tripletVectorCutsCol.maxStubGeomCurvSigma())) {
 #ifdef CA_PIPELINE_COUNTERS
             countRej(caHitNtupletGenerator::kCutStubsCurvCompatibleWithTriplet);
 #endif

@@ -100,7 +100,8 @@ namespace reco {
           hardCurvCut_(iConfig.getParameter<double>("hardCurvCut")),
           maxPhiResid_(iConfig.getParameter<double>("maxPhiResid")),
           sameDPhiSign_(iConfig.getParameter<bool>("sameDPhiSign")),
-          // ---- ntuplet cuts + fishbone (per layer) ----
+          maxStubTip_(iConfig.getParameter<double>("maxStubTip")),
+          // ntuplet cuts and fishbone (per layer)
           startMaxInnerR_(geo.getParameter<std::vector<double>>("startMaxInnerR")),
           maxDCurv_(geo.getParameter<std::vector<double>>("maxDCurv")),
           floorDCurv_(geo.getParameter<std::vector<double>>("floorDCurv")),
@@ -224,6 +225,7 @@ namespace reco {
     const double hardCurvCut_;
     const double maxPhiResid_;
     const bool sameDPhiSign_;
+    const float maxStubTip_;
 
     // ntuplet cuts and fishbone (per layer)
     const std::vector<double> startMaxInnerR_;
@@ -648,6 +650,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         graphSoA.startingPair()[i] = true;
 
       doubletCutsSoA.dzdrFact() = iCache->dzdrFact_;
+      doubletCutsSoA.maxStubTip() = iCache->maxStubTip_;
       doubletCutsSoA.minInnerSizeB1() = iCache->minYsizeB1_;
       doubletCutsSoA.minInnerSizeB2() = iCache->minYsizeB2_;
       doubletCutsSoA.maxDSizeB1() = iCache->maxDYsize12_;
