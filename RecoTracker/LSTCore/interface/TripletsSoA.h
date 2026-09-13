@@ -16,7 +16,6 @@ namespace lst {
                       SOA_COLUMN(Params_T3::ArrayU16xLayers, lowerModuleIndices),  // lower module index in each layer
                       SOA_COLUMN(Params_T3::ArrayU8xLayers, logicalLayers),        // layer ID
                       SOA_COLUMN(Params_T3::ArrayUxHits, hitIndices),              // hit indices
-                      SOA_COLUMN(FPX, betaIn),                 // beta/chord angle of the inner segment
                       SOA_COLUMN(float, centerX),              // lower/anchor-hit based circle center x
                       SOA_COLUMN(float, centerY),              // lower/anchor-hit based circle center y
                       SOA_COLUMN(float, radius),               // lower/anchor-hit based circle radius
@@ -27,6 +26,7 @@ namespace lst {
                       SOA_COLUMN(unsigned int, connectedLSMax),  // n of outer-triplets that pass the LS-equality cut
                       SOA_COLUMN(short, charge),
 #ifdef CUT_VALUE_DEBUG
+                      SOA_COLUMN(FPX, betaIn),  // beta/chord angle of the inner segment
                       SOA_COLUMN(float, betaInCut),
 #endif
                       SOA_COLUMN(bool, partOfPT5),   // is it used in a pT5
