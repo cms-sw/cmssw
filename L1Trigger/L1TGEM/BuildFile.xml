@@ -3,6 +3,7 @@
 <use name="Geometry/Records"/>
 <use name="Geometry/GEMGeometry"/>
 <use name="DataFormats/GEMDigi"/>
+<use name="hls"/>
 <export>
   <lib name="1"/>
 </export>
