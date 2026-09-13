@@ -66,20 +66,20 @@ public:
       throw cms::Exception("BLMapsCheck") << nBad << " of " << blBFieldMap::kNValues
                                           << " field-map values differ from the MagneticField sampled on the lattice";
 
-    // material map: must be the compiled-in table
+    // material map: every float of it must be the compiled-in table
     float const* materialMap = iSetup.getData(materialMapToken_).data();
     float const* table = blMaterialMap::blMaterialMapData();
     nBad = 0;
-    for (int i = 0; i < blMaterialMap::kSize; ++i)
+    for (int i = 0; i < blMaterialMap::kBufferFloats; ++i)
       nBad += (materialMap[i] != table[i]);
     if (nBad)
       throw cms::Exception("BLMapsCheck")
-          << nBad << " of " << blMaterialMap::kSize << " material-map values differ from the compiled-in table";
+          << nBad << " of " << blMaterialMap::kBufferFloats << " material-map values differ from the compiled-in table";
 
     edm::LogPrint("BLMapsCheck") << "field map: " << blBFieldMap::kNValues
                                  << " values reproduced from the MagneticField (Bz(0,0) = " << bz00
-                                 << " T); material map: " << blMaterialMap::kSize
-                                 << " values identical to the compiled-in table";
+                                 << " T); material map: " << blMaterialMap::kBufferFloats
+                                 << " values (density + dE/dx) identical to the compiled-in table";
 
     if (!outputFile_.empty()) {
       std::ofstream out(outputFile_);

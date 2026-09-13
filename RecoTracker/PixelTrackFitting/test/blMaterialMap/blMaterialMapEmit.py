@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Sum the per-job accumulators written by blMaterialMapBuild and emit the compiled-in material table
-src/BLMaterialMap<tag>.cc, or check an existing table against them.
+src/BLMaterialMap<tag>.cc (the 1/X0 lattice kRho and the dE/dx lattice kDedx), or check an existing table
+against them.
 
   blMaterialMapEmit.py --bins DIR --provenance FILE [--tag D121] --out BLMaterialMapD121.cc
   blMaterialMapEmit.py --bins DIR --check src/BLMaterialMapD121.cc
@@ -26,6 +27,9 @@ KNR, KNZ = 250, 560  # blMaterialMap::kNR, kNZ (0.5 cm radial x 1 cm z lattice)
 def read_bins(paths):
     num = np.zeros((KNR, KNZ))
     den = np.zeros((KNR, KNZ))
+    numE = np.zeros((KNR, KNZ))
+    numEI = np.zeros((KNR, KNZ))
+    numEE = np.zeros((KNR, KNZ))
     nray = 0.0
     for p in paths:
         with open(p, "rb") as f:
@@ -34,9 +38,19 @@ def read_bins(paths):
                 sys.exit("%s: lattice %dx%d, expected %dx%d" % (p, a, b, KNR, KNZ))
             num += np.fromfile(f, dtype=np.float64, count=a * b).reshape(a, b)
             den += np.fromfile(f, dtype=np.float64, count=a * b).reshape(a, b)
+            numE += np.fromfile(f, dtype=np.float64, count=a * b).reshape(a, b)
+            numEI += np.fromfile(f, dtype=np.float64, count=a * b).reshape(a, b)
+            numEE += np.fromfile(f, dtype=np.float64, count=a * b).reshape(a, b)
             nray += np.fromfile(f, dtype=np.float64, count=1)[0]
-    rho = np.where(den > 0, num / np.where(den > 0, den, 1.0), 0.0).astype(np.float32)
-    return rho.reshape(-1), int(nray)
+    safe = np.where(den > 0, den, 1.0)
+    rho = np.where(den > 0, num / safe, 0.0).astype(np.float32)
+    rhoE = np.where(den > 0, numE / safe, 0.0)
+    safeE = np.where(numE > 0, numE, 1.0)
+    lnI = np.where(numE > 0, numEI / safeE, 0.0)
+    lnRhoE = np.where(numE > 0, numEE / safeE, 0.0)
+    # per cell the triple (rho Z/A [mol/cm^3], <ln(I/eV)>, <ln(rho Z/A)>), xi-weighted log-means
+    dedx = np.stack([rhoE, lnI, lnRhoE], axis=-1).astype(np.float32)
+    return rho.reshape(-1), dedx.reshape(-1, 3), int(nray)
 
 
 def tokens(flat):
@@ -44,12 +58,19 @@ def tokens(flat):
 
 
 def table_tokens(path):
+    """The float literals of the table's data array, as (density tokens, dE/dx tokens).
+
+    The array holds the whole density lattice, then the whole dE/dx lattice; a table older than the dE/dx
+    columns holds the densities only and yields an empty dE/dx list.
+    """
     txt = open(path).read()
-    m = re.search(r"kRho\w*\[kSize\] = \{", txt)
+    m = re.search(r"const float k\w+\[[^\]]*\] = \{", txt)
     if not m:
-        sys.exit("%s: no kRho[kSize] array found" % path)
-    body = txt[m.end():txt.index("};", m.end())]
-    return [t for t in body.replace(",", " ").split() if t]
+        return None, None
+    body = re.sub(r"//[^\n]*", "", txt[m.end():txt.index("};", m.end())])
+    toks = [t for t in body.replace(",", " ").split() if t]
+    n = KNR * KNZ
+    return toks[:n], toks[n:]
 
 
 def read_provenance(path):
@@ -85,7 +106,14 @@ def header(prov, nray):
 //            along it. Each deposit is weighted by the local radius, because rays from the origin flat in eta
 //            carry path measure dr dz / r, so rho[cell] = sum(dmb * rbar) / sum(dl * rbar) is the exact
 //            phi-averaged area average of the local 1/X0 over the cell.
-// LATTICE    0.5 cm radial x 1 cm z (device buffer 560 kB).
+// LATTICE    0.5 cm radial x 1 cm z, four floats per cell (device buffer 2.24 MB: the density lattice, then
+//            the dE/dx lattice).
+// DEDX       Next to rho, each cell carries (rho Z/A [mol/cm^3], <ln(I/eV)>, <ln(rho Z/A)>): the electron
+//            density per Avogadro (the Landau xi per cm of path) area-averaged like rho, and the xi-weighted
+//            log-means of the mean excitation energy and of the electron density over the cell (the ln I and
+//            plasma-energy terms of the Landau most-probable loss of a composite column). Materials are
+//            identified per Geant4 step by their (density, X0) pair in the run's G4 material table
+//            (BLMaterialTableDump).
 // NOTE       Air (rho = 3.3e-5 /cm) is present in the table rather than stored as an exact zero: it is real
 //            material and contributes ~0.010 X/X0 over a 300 cm forward path.
 """ % (get("geometry"), get("beam pipe"), get("materials"), get("era"), get("release"), get("rays"), nray)
@@ -107,26 +135,39 @@ def main():
     paths = sorted(glob.glob(os.path.join(a.bins, "*.bin")) if os.path.isdir(a.bins) else glob.glob(a.bins))
     if not paths:
         sys.exit("no accumulators under %s" % a.bins)
-    flat, nray = read_bins(paths)
+    flat, dedx, nray = read_bins(paths)
     toks = tokens(flat)
+    dtoks = [tokens(row) for row in dedx]
     print("%d accumulators, %d rays, %d cells, %d non-zero" % (len(paths), nray, flat.size, int((flat > 0).sum())))
 
     rc = 0
     if a.check:
-        ref = table_tokens(a.check)
-        nd = sum(1 for x, y in zip(toks, ref) if x != y) + abs(len(toks) - len(ref))
-        print("%s: %d of %d values differ" % (a.check, nd, len(ref)))
-        rc = 1 if nd else 0
+        refRho, refDedx = table_tokens(a.check)
+        if refRho is None:
+            sys.exit("%s: no data array" % a.check)
+        flatd = [t for row in dtoks for t in row]
+        for name, mine, ref in (("density", toks, refRho), ("dE/dx", flatd, refDedx)):
+            if not ref:
+                print("%s: no %s values (a table older than the dE/dx columns)" % (a.check, name))
+                continue
+            nd = sum(1 for x, y in zip(mine, ref) if x != y) + abs(len(mine) - len(ref))
+            print("%s: %s %d of %d values differ" % (a.check, name, nd, len(ref)))
+            rc = 1 if nd else rc
 
     if a.out:
         with open(a.out, "w") as f:
             f.write(header(read_provenance(a.provenance), nray))
             f.write('#include "RecoTracker/PixelTrackFitting/interface/BLMaterialMap.h"\n\n')
-            f.write("namespace blMaterialMap {\n  namespace {\n    const float kRho[kSize] = {\n")
+            f.write("namespace blMaterialMap {\n  namespace {\n")
+            f.write("    // the whole density lattice [X0/cm], then the dE/dx triples of the same cells, both\n")
+            f.write("    // kNZ-major: one array, so that one pointer reaches both (blMaterialMap::dedxOf).\n")
+            f.write("    const float kMap[kBufferFloats] = {\n")
             for i in range(0, len(toks), 8):
                 f.write("        " + " ".join(t + "," for t in toks[i:i + 8]) + "\n")
+            for row in dtoks:
+                f.write("        " + " ".join(t + "," for t in row) + "\n")
             f.write("    };\n  }  // namespace\n")
-            f.write("  const float* blMaterialMapData() { return kRho; }\n")
+            f.write("  const float* blMaterialMapData() { return kMap; }\n")
             f.write("}  // namespace blMaterialMap\n")
         print("wrote %s" % a.out)
     sys.exit(rc)

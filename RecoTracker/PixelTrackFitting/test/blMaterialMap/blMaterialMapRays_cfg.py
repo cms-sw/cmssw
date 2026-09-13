@@ -4,7 +4,9 @@
 # field off) from the nominal interaction point through the full Geant4 detector of the chosen
 # geometry and records every step inside the Tracker and beam-pipe volumes with the release's own
 # MaterialBudgetAction watcher (AllStepsToTree). blMaterialMapBuild turns the trees into the (r,z)
-# lattice and blMaterialMapEmit.py writes the table; blMaterialMapRun.sh drives the three steps.
+# lattice and blMaterialMapEmit.py writes the table; blMaterialMapRun.sh drives the three steps. A second
+# watcher (BLMaterialTableDump) writes the run's Geant4 material table, from which the builder takes the
+# ionisation weights of every step's material.
 #
 #   cmsRun blMaterialMapRays_cfg.py nEvents=150000 seed=1 out=rays_001.root \
 #          geometry=Configuration.Geometry.GeometryExtendedRun4D121Reco_cff era=Phase2C22I13M9
@@ -19,6 +21,8 @@ options.register('etaMin', -6.0, VarParsing.multiplicity.singleton, VarParsing.v
 options.register('etaMax', 6.0, VarParsing.multiplicity.singleton, VarParsing.varType.float, "eta max")
 options.register('out', 'blMaterialMapRays.root', VarParsing.multiplicity.singleton, VarParsing.varType.string,
                  "step-tree file")
+options.register('materials', 'blMaterials.txt', VarParsing.multiplicity.singleton, VarParsing.varType.string,
+                 "Geant4 material table of the run (BLMaterialTableDump), read by blMaterialMapBuild")
 options.register('geometry', 'Configuration.Geometry.GeometryExtendedRun4D121Reco_cff',
                  VarParsing.multiplicity.singleton, VarParsing.varType.string, "geometry configuration")
 options.register('era', 'Phase2C22I13M9', VarParsing.multiplicity.singleton, VarParsing.varType.string, "era")
@@ -73,6 +77,9 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         StopAfterProcess=cms.string('None'),
         TextFile=cms.string('None'),
         storeDecay=cms.untracked.bool(False),
-        EminDecayProd=cms.untracked.double(0.0))))
+        EminDecayProd=cms.untracked.double(0.0))),
+    cms.PSet(
+        type=cms.string('BLMaterialTableDump'),
+        BLMaterialTableDump=cms.PSet(file=cms.string(options.materials))))
 
 process.p1 = cms.Path(process.generator * process.VtxSmeared * process.generatorSmeared * process.g4SimHits)

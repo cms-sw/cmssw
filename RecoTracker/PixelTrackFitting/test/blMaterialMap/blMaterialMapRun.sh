@@ -1,6 +1,7 @@
 #!/bin/bash
 # Regenerate the BL-fit material table src/BLMaterialMap<tag>.cc from scratch, for any geometry:
-#   rays (blMaterialMapRays_cfg.py, one cmsRun per job) -> lattice (blMaterialMapBuild) -> table (blMaterialMapEmit.py)
+#   rays (blMaterialMapRays_cfg.py, one cmsRun per job, + the run's G4 material table) -> lattice (blMaterialMapBuild)
+#   -> table (blMaterialMapEmit.py: the 1/X0 lattice and the dE/dx lattice)
 #
 #   blMaterialMapRun.sh <outdir> [njobs] [rays-per-job] [tag] [geometry-cff] [era]
 #
@@ -50,14 +51,17 @@ cat "$OUT/PROVENANCE.txt"
 for ((j = 1; j <= NJ; j++)); do
   n=$(printf %03d "$j")
   (cd "$OUT/trees" && cmsRun "$HERE/blMaterialMapRays_cfg.py" nEvents="$NEV" seed="$j" out="rays_$n.root" \
-    geometry="$GEOM" era="$ERA" > "$OUT/logs/rays_$n.log" 2>&1) &
+    materials="materials_$n.txt" geometry="$GEOM" era="$ERA" > "$OUT/logs/rays_$n.log" 2>&1) &
 done
 wait
 NT=$(ls "$OUT"/trees/rays_*.root 2>/dev/null | wc -l)
 [ "$NT" -eq "$NJ" ] || { echo "only $NT of $NJ step trees were written; see $OUT/logs" >&2; exit 1; }
 echo "rays done: $NT trees"
 
-ls "$OUT"/trees/rays_*.root | xargs -P 8 -I{} bash -c 'b=$(basename {} .root); "'"$BUILD"'" "'"$OUT"'/bins/$b.bin" {} > "'"$OUT"'/logs/build_$b.log" 2>&1'
+# every job wrote the same material table; the builder reads the first
+MAT=$OUT/trees/materials_001.txt
+[ -s "$MAT" ] || { echo "no material table $MAT (BLMaterialTableDump did not run)" >&2; exit 1; }
+ls "$OUT"/trees/rays_*.root | xargs -P 8 -I{} bash -c 'b=$(basename {} .root); "'"$BUILD"'" "'"$OUT"'/bins/$b.bin" "'"$MAT"'" {} > "'"$OUT"'/logs/build_$b.log" 2>&1'
 echo "lattice done: $(ls "$OUT"/bins/*.bin | wc -l) accumulators"
 
 if [ -f "$SHIPPED" ]; then
