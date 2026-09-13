@@ -21,8 +21,9 @@
 // `fitCorrections` (a runtime bool threaded from the producer parameter useFitCorrections through HelixFit and
 // Kernel_BLFit into prepareBrokenLineData / lineFit / circleFit) selects the fast-BL scattering/covariance
 // model. With it on, the corrections apply as one package (not independently selectable):
-//   - material from the Geant4 tracker map (segmentXX0 with trapezoid quadrature: exact segment length, each
-//     layer counted once) with the ENDPOINT PARTITION in prepareBrokenLineData (each gap's material split
+//   - material from the Geant4 tracker map (segmentXX0, an exact walk of the map's cells: every cell is
+//     charged with its own density over its exact length, and each gap is rescaled to the 3-D path the
+//     density is defined per) with the ENDPOINT PARTITION in prepareBrokenLineData (each gap's material split
 //     between its two END nodes so that the gap's total AND its first moment are both reproduced), the
 //     rigid-node guard that removes the kink term of a node with no assigned material, and a beamline->first-hit
 //     material integral for the innermost scattering term;
@@ -193,75 +194,127 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
     
     \return the variance of the planar angle ((theta_0)^2 /3).
   */
-  // X/X0 integrated along the straight segment (r0,z0)->(r1,z1) through the Geant4 density map.
-  // r,z from the actual hit positions [cm]; the march samples at ~0.5 cm, one sample per cell on the
-  // reader's 0.5 cm radial lattice.
-  //
-  // `trapezoid` selects the quadrature weights over the SAME samples at the SAME positions.
-  //   false: every one of the nseg samples carries the full weight dl = L/(nseg-1), so the rule integrates
-  //     a length L*nseg/(nseg-1) (2L at the nseg floor of 2) and gives the two endpoint samples -- which sit
-  //     ON the detector layers -- full weight in BOTH adjacent segments, i.e. every layer is counted twice.
-  //   true: trapezoid weights (half-weight endpoints), which integrate L exactly and count each layer's
-  //     bin once across the segment sum. Free: same sample count, same rhoAt lookups.
+  // Exact cell walk of the material map along the straight (r,z) chord (r0,z0)->(r1,z1): the chord is cut at
+  // every radial and z cell boundary and every piece is charged with its own cell's density times its exact
+  // length (a fixed-step march would alias the 0.5 cm lattice). Outputs the chord length L and the moments
+  // about the arrival end (r1,z1), with d the distance to that end: W = int rho dl, S1 = int rho d dl,
+  // S2 = int rho d^2 dl, exact per cell (rho L (a-c), rho L^2 (a^2-c^2)/2, rho L^3 (a^3-c^3)/3 with
+  // a = 1-ta, c = 1-tc). `path3D` > 0 rescales d to the track's real 3-D path, k = path3D/L: the moments
+  // scale by k, k^2, k^3, so the shape quantities (fDep, w1) are unchanged and the lever d1 is in path units.
   template <alpaka::concepts::Acc TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE double segmentXX0(
-      const TAcc& acc, const float* rho, double r0, double z0, double r1, double z1, bool trapezoid = false) {
-    const double L = alpaka::math::sqrt(acc, (r1 - r0) * (r1 - r0) + (z1 - z0) * (z1 - z0));
-    int nseg = int(2. * L);
-    if (nseg < 2)
-      nseg = 2;
-    const double dl = L / (nseg - 1);
-    double xx0 = 0.;
-    for (int k = 0; k < nseg; ++k) {
-      const double f = double(k) / (nseg - 1);
-      // the endpoint half-weight is applied to dl itself; every other sample carries dl unscaled.
-      const double w = (trapezoid && (k == 0 || k == nseg - 1)) ? 0.5 * dl : dl;
-      xx0 += blMaterialMap::rhoAt(rho, float(r0 + f * (r1 - r0)), float(z0 + f * (z1 - z0))) * w;
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void segmentWalk(const TAcc& acc,
+                                                  const float* rho,
+                                                  double r0,
+                                                  double z0,
+                                                  double r1,
+                                                  double z1,
+                                                  double path3D,
+                                                  double& L,
+                                                  double& W,
+                                                  double& S1,
+                                                  double& S2) {
+    const double dr = r1 - r0, dz = z1 - z0;
+    L = alpaka::math::sqrt(acc, dr * dr + dz * dz);
+    W = S1 = S2 = 0.;
+    if (!(L > 0.))
+      return;
+    // Next boundary crossing of each coordinate, in units of the chord parameter t in [0,1], and the
+    // constant spacing between two consecutive crossings of the same family. A coordinate that does not
+    // change never crosses: park it past the end of the chord.
+    double tR = 2., dtR = 1.;
+    if (dr != 0.) {
+      const double kNext = alpaka::math::floor(acc, r0 / double(blMaterialMap::kDR)) + (dr > 0. ? 1. : 0.);
+      tR = (kNext * double(blMaterialMap::kDR) - r0) / dr;
+      dtR = double(blMaterialMap::kDR) / alpaka::math::abs(acc, dr);
     }
-    return xx0;  // dimensionless X/X0
+    double tZ = 2., dtZ = 1.;
+    if (dz != 0.) {
+      const double kNext = alpaka::math::floor(acc, z0 / double(blMaterialMap::kDZ)) + (dz > 0. ? 1. : 0.);
+      tZ = (kNext * double(blMaterialMap::kDZ) - z0) / dz;
+      dtZ = double(blMaterialMap::kDZ) / alpaka::math::abs(acc, dz);
+    }
+    // One iteration per cell. The bound is never reached by a tracker segment (the longest one crosses
+    // fewer than 900 cells); it only keeps a NaN or denormal input from spinning the device.
+    constexpr int kMaxCells = 2048;
+    double t = 0.;
+    for (int cell = 0; cell < kMaxCells && t < 1.; ++cell) {
+      double tn = tR < tZ ? tR : tZ;
+      if (tn > 1.)
+        tn = 1.;
+      if (tn > t) {
+        const double tm = 0.5 * (t + tn);  // midpoint: inside the cell whatever the boundary rounding
+        const double q = blMaterialMap::rhoAt(rho, float(r0 + tm * dr), float(z0 + tm * dz));
+        if (q > 0.f) {
+          const double a = 1. - t, c = 1. - tn;
+          W += q * (a - c) * L;
+          S1 += q * (a * a - c * c) * 0.5 * L * L;
+          S2 += q * (a * a * a - c * c * c) * (1. / 3.) * L * L * L;
+        }
+      }
+      t = tn;
+      if (tR <= t)
+        tR += dtR;
+      if (tZ <= t)
+        tZ += dtZ;
+    }
+    if (path3D > 0.) {
+      const double k = path3D / L;
+      W *= k;
+      S1 *= k * k;
+      S2 *= k * k * k;
+      L = path3D;
+    }
   }
 
-  // ENDPOINT PARTITION of a segment's material between its two EXISTING end nodes -- the zero-extra-node
-  // two-moment model. Same march, same sample positions and the same rhoAt lookups as segmentXX0: the ONLY
-  // added work is one multiply-add per sample and one divide per segment.
-  //
-  // With q(l) the X/X0 density along (r0,z0)->(r1,z1) and d(l) = distance from the sample to the ARRIVAL end
-  // (r1,z1):   W = int q dl,  S1 = int q d dl.  Charging  fDep*W  at the DEPARTURE end and  (1-fDep)*W  at the
-  // arrival end, with
-  //     fDep = S1 / (W * L) = <d> / L   in [0,1],
-  // reproduces the segment's total material AND its first moment about either end EXACTLY (the lever of the
-  // departure share about the arrival end is fDep*W*L = S1). It is exact to the second moment too whenever the
-  // material sits at the two ends (modules with services between, the worst case for a single kink), and
-  // otherwise reproduces the far-end offset variance as S1*L against the true S2, where a single kink at the
-  // arrival node produces it as zero.
-  //
-  // Returns W, the same value segmentXX0 returns for the same `trapezoid` (same samples, same weights, same
-  // accumulation order), so the partition never changes a segment's material total -- only where it is charged.
+  // X/X0 of the segment (r0,z0)->(r1,z1), the walk's total. `path3D` as in segmentWalk.
   template <alpaka::concepts::Acc TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE double segmentXX0Endpoint(const TAcc& acc,
-                                                           const float* rho,
-                                                           double r0,
-                                                           double z0,
-                                                           double r1,
-                                                           double z1,
-                                                           double& fDep,
-                                                           bool trapezoid = false) {
-    const double L = alpaka::math::sqrt(acc, (r1 - r0) * (r1 - r0) + (z1 - z0) * (z1 - z0));
-    int nseg = int(2. * L);
-    if (nseg < 2)
-      nseg = 2;
-    const double dl = L / (nseg - 1);
-    double W = 0., S1overL = 0.;
-    for (int k = 0; k < nseg; ++k) {
-      const double f = double(k) / (nseg - 1);
-      // the endpoint half-weight is applied to dl itself; every other sample carries dl unscaled.
-      const double w = (trapezoid && (k == 0 || k == nseg - 1)) ? 0.5 * dl : dl;
-      const double q = blMaterialMap::rhoAt(rho, float(r0 + f * (r1 - r0)), float(z0 + f * (z1 - z0))) * w;
-      W += q;
-      S1overL += q * (1. - f);  // (1-f) == d/L, so this accumulates S1/L directly (no division by L, L>0 free)
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE double segmentXX0(
+      const TAcc& acc, const float* rho, double r0, double z0, double r1, double z1, double path3D = 0.) {
+    double L, W, S1, S2;
+    segmentWalk(acc, rho, r0, z0, r1, z1, path3D, L, W, S1, S2);
+    return W;  // dimensionless X/X0
+  }
+
+  // Two-equivalent-thin-scatterer split of a segment's material (Kleinwort's GBL thick-scatterer model),
+  // used for every gap of the GBL and for the beamline->first-hit segment. With W, S1, S2 the walk's
+  // moments about the (r1,z1) end, a pair of thin scatterers -- one at path distance d1 = S2/S1 upstream
+  // of that end carrying the fraction w1 = S1^2/(S2 W) of the scattering variance, one AT the end with
+  // 1-w1 -- reproduces all three (angle variance, angle-offset covariance, offset variance at the end).
+  // w1 is in (0,1] by Cauchy-Schwarz (equality for a single-atom measure) and d1 in (0,L]; the caller
+  // handles those limits. Returns W.
+  template <alpaka::concepts::Acc TAcc>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE double segmentXX0Moments(const TAcc& acc,
+                                                          const float* rho,
+                                                          double r0,
+                                                          double z0,
+                                                          double r1,
+                                                          double z1,
+                                                          double& d1,
+                                                          double& w1,
+                                                          double path3D = 0.) {
+    double L, W, S1, S2;
+    segmentWalk(acc, rho, r0, z0, r1, z1, path3D, L, W, S1, S2);
+    d1 = 0.;
+    w1 = 0.;
+    if (W > 0. && S1 > 0. && S2 > 0.) {
+      d1 = S2 / S1;
+      w1 = S1 * S1 / (S2 * W);
     }
-    fDep = (W > 0.) ? S1overL / W : 0.;  // in [0,1] by construction: every sample contributes (1-f) in [0,1]
-    return W;                            // total X/X0, the same value as segmentXX0(..., trapezoid)
+    return W;
+  }
+
+  // Endpoint partition of a segment's material between its two existing end nodes, for the fast BL, which
+  // has no node to spare between the hits. With W and S1 the walk's moments about the arrival end (r1,z1),
+  // charging fDep*W at the departure end and (1-fDep)*W at the arrival end, with fDep = S1/(W L) = <d>/L
+  // in [0,1], reproduces the segment's total and its first moment about either end exactly (a single kink
+  // at the arrival node would model the first moment as zero). Returns W.
+  template <alpaka::concepts::Acc TAcc>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE double segmentXX0Endpoint(
+      const TAcc& acc, const float* rho, double r0, double z0, double r1, double z1, double& fDep, double path3D = 0.) {
+    double L, W, S1, S2;
+    segmentWalk(acc, rho, r0, z0, r1, z1, path3D, L, W, S1, S2);
+    fDep = (W > 0.) ? S1 / (W * L) : 0.;
+    return W;
   }
 
   // Coulomb MS planar-angle variance from a segment's X/X0 (radLen), fed in directly from the
@@ -473,8 +526,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
       double xx0Run = 0.;
       for (u_int g = 0; g < n - 1; g++) {
         double fDep = 0.5;  // overwritten by segmentXX0Endpoint (uniform density => lever L/2)
-        double xx0;
-        xx0 = segmentXX0Endpoint(acc, rho, rOf(g), hits(2, g), rOf(g + 1), hits(2, g + 1), fDep, true);
+        // the gap's 3-D path, the length the map's density is defined per (the chord is shorter)
+        const double path = alpaka::math::abs(acc, results.sTotal(g + 1) - results.sTotal(g));
+        const double xx0 = segmentXX0Endpoint(acc, rho, rOf(g), hits(2, g), rOf(g + 1), hits(2, g + 1), fDep, path);
         results.matXX0(g) += (1. - fDep) * xx0;  // arrival share   -> node g+1 -> slot g
         if (g > 0)
           results.matXX0(g - 1) += fDep * xx0;  // departure share -> node g   -> slot g-1
@@ -503,7 +557,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
     // over-covered, as in the CKF; prepareGblFitData applies the same rule.
     const bool useInner = true;
     if (fitCorrections) {
-      results.innerXX0 = useInner ? segmentXX0(acc, rho, 0., 0., rOf(0), hits(2, 0), fitCorrections) : 0.;
+      results.innerXX0 = useInner ? segmentXX0(acc, rho, 0., 0., rOf(0), hits(2, 0)) : 0.;
     } else {
       // Corrections OFF: upstream adds the innermost multiple-scattering term from the FIRST GAP's
       // length -- multScatt(sTotal(1) - sTotal(0), ...) -- not from a beamline material integral.
