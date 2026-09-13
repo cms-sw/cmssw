@@ -195,7 +195,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addSegmentToMemory(Segments segments,
                                                          unsigned int lowerMDIndex,
                                                          unsigned int upperMDIndex,
-                                                         uint16_t innerLowerModuleIndex,
                                                          uint16_t outerLowerModuleIndex,
                                                          float dPhiChange,
                                                          float dPhiChangeMin,
@@ -215,7 +214,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                          unsigned int idx) {
     segments.mdIndices()[idx][0] = lowerMDIndex;
     segments.mdIndices()[idx][1] = upperMDIndex;
-    segments.innerLowerModuleIndices()[idx] = innerLowerModuleIndex;
     segments.outerLowerModuleIndices()[idx] = outerLowerModuleIndex;
 
     segments.dPhiChanges()[idx] = __F2H(dPhiChange);
@@ -254,7 +252,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                               float score) {
     segments.mdIndices()[idx][0] = innerMDIndex;
     segments.mdIndices()[idx][1] = outerMDIndex;
-    segments.innerLowerModuleIndices()[idx] = pixelModuleIndex;
     segments.outerLowerModuleIndices()[idx] = pixelModuleIndex;
     segments.dPhiChanges()[idx] = __F2H(dPhiChange);
 
@@ -805,7 +802,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                 addSegmentToMemory(segments,
                                    innerMDIndex,
                                    outerMDIndex,
-                                   innerLowerModuleIndex,
                                    outerLowerModuleIndex,
                                    dPhiChange,
                                    dPhiChangeMin,

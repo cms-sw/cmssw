@@ -133,7 +133,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     pixelTriplets.logicalLayers()[pixelTripletIndex][3] = triplets.logicalLayers()[tripletIndex][1];
     pixelTriplets.logicalLayers()[pixelTripletIndex][4] = triplets.logicalLayers()[tripletIndex][2];
 
-    pixelTriplets.lowerModuleIndices()[pixelTripletIndex][0] = segments.innerLowerModuleIndices()[pixelSegmentIndex];
+    // A pixel segment's two module indices are both the pixel module index, so
+    // one column serves for both ends.
+    pixelTriplets.lowerModuleIndices()[pixelTripletIndex][0] = segments.outerLowerModuleIndices()[pixelSegmentIndex];
     pixelTriplets.lowerModuleIndices()[pixelTripletIndex][1] = segments.outerLowerModuleIndices()[pixelSegmentIndex];
     pixelTriplets.lowerModuleIndices()[pixelTripletIndex][2] = triplets.lowerModuleIndices()[tripletIndex][0];
     pixelTriplets.lowerModuleIndices()[pixelTripletIndex][3] = triplets.lowerModuleIndices()[tripletIndex][1];
