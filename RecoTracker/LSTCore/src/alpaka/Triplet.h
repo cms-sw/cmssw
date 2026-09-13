@@ -137,7 +137,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     triplets.lowerModuleIndices()[tripletIndex][1] = middleLowerModuleIndex;
     triplets.lowerModuleIndices()[tripletIndex][2] = outerOuterLowerModuleIndex;
 
-    triplets.betaIn()[tripletIndex] = __F2H(betaIn);
     triplets.radius()[tripletIndex] = circleRadius;
     triplets.centerX()[tripletIndex] = circleCenterX;
     triplets.centerY()[tripletIndex] = circleCenterY;
@@ -162,6 +161,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     triplets.charge()[tripletIndex] = charge;
     triplets.flags()[tripletIndex] = flags;
 #ifdef CUT_VALUE_DEBUG
+    triplets.betaIn()[tripletIndex] = __F2H(betaIn);
     triplets.betaInCut()[tripletIndex] = betaInCut;
 #endif
 
