@@ -837,7 +837,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                       quadruplets.regressionRadius()[quadrupletIndex],
                                       trackCandidateIdx,
                                       quadrupletIndex);
-            quadruplets.partOfTC()[quadrupletIndex] = true;
           }
         }
       }
