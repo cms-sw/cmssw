@@ -11,6 +11,7 @@
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/FitUtils.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/BandedSolve.h"        // bandFactor / bandSolveInPlace
 #include "RecoTracker/PixelTrackFitting/interface/BLMaterialMap.h"             // Geant4 rho(r,z) -> segment X/X0
+#include "RecoTracker/PixelTrackFitting/interface/BLBFieldMap.h"               // solenoid (Bz,Br) lattice -> field rows
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/GeneralBrokenLine.h"  // the Landau laws of a column
 
 //#define BL_DEEPDEBUG
@@ -44,6 +45,13 @@
 //     i.e. the production pT. It is a VALUE correction only: the covariance is untouched, exactly as in the
 //     GBL's Deloss accumulator. It is charge-even in every ingredient (unsigned curvature, unsigned column,
 //     the charge-normalised sTransverse), so the two charges stay exact mirrors with no mirroring code.
+//   - the full field of the solenoid map (BLBFieldMap.h), as two deterministic offsets: the B_r term of the
+//     equation of motion turns the dip angle along the path and is removed from the measured z coordinates
+//     (prepareBrokenLineData), and the Bz(r,z) profile's departure from the track's effective bending field
+//     is removed from the circle residuals (circleFit);
+//   - the state reported at the trajectory's own closest approach instead of the reference circle's: the
+//     arc the fit itself moved the perigee along, plus the transport of phi, d and the arc from hit 0
+//     inwards through the map over the empty lever the fit has no measurement on (transportToFittedPca);
 // With it off every one of these is bypassed and the fit is upstream's exactly: flat material |Delta s|*0.06/16
 // per gap charged at its arrival node (the first gap for the innermost term), theta0 with geometry factor 0.7,
 // beta = 1 and the 20 GeV pt cap, hit 1 as the reference, and the broken-line covariance emitted unblended.
@@ -502,6 +510,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
            with the cumulative loss at the outermost node in slot n-1. circleFit's dE/dx offset reads them.
            Costs the walk's dE/dx accumulators and one Landau evaluation per gap, only under fitCorrections.
            Default false: a caller that wants only the extrapolation covariance does not pay for it.
+    \param bMap normalized (Bz,Br) solenoid lattice (BLBFieldMap.h) and \param bFieldOrigin the field it is
+           normalized to [GeV/cm]. With both given (and fitCorrections on) the radial field's dip-angle row is
+           removed from the z coordinates, see below; null map = no field row, as with corrections off.
   */
   template <alpaka::concepts::Acc TAcc, typename M3xN, typename V4, typename TData, typename TWs, int n = TData::kN>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void __attribute__((always_inline)) prepareBrokenLineData(const TAcc& acc,
@@ -512,7 +523,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
                                                                                            TData& results,
                                                                                            TWs& fitWs,
                                                                                            bool fitCorrections = false,
-                                                                                           bool elossGaps = false) {
+                                                                                           bool elossGaps = false,
+                                                                                           const float* bMap = nullptr,
+                                                                                           double bFieldOrigin = 0.) {
     riemannFit::Vector2d dVec;
     riemannFit::Vector2d eVec;
     results.xx0Total = 0.;
@@ -568,6 +581,71 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
     }
     results.sTotal = pointsSZ.block(0, 0, 1, n).transpose();
     results.zInSZplane = pointsSZ.block(1, 0, 1, n).transpose();
+    // Radial-field (B_r) row of the equation of motion (the same row the GBL fit carries): the real field turns
+    // the dip angle along the path, dlambda/ds = -(q/p) B_r sin(alpha), and B_r is odd in z, so a Bz-only line
+    // model buys a z-odd dip-angle and z0 bias. The resulting z displacement is deterministic and is subtracted
+    // from the measured z coordinates here, so the line fit sees a straight trajectory and its parameters are
+    // the state at the reference PCA. Value only: no fit parameter, no change to weights or covariance.
+    if (fitCorrections && bMap != nullptr && bFieldOrigin > 0. && bField > 0. && fast_fit(2) > 0.) {
+      const double cx = fast_fit(0), cy = fast_fit(1), rad = fast_fit(2);
+      const double sec2 = 1. + riemannFit::sqr(slope);
+      const double pTot = bField * rad * alpaka::math::sqrt(acc, sec2);  // bField = the effective bending field
+      const double qbp = double(results.qCharge) / pTot;
+      // dlambda per unit TRANSVERSE arc at a point of the reference circle (the fit's z is a function of
+      // sTransverse). Only B_r is read: bBendAndBrAt with a null tanLambda*cos(alpha) leaves the bending
+      // interpolation dead, rather than repeating the lattice index block a third time.
+      auto lambdaRate = [&](double x, double y, double z) {
+        const double r = alpaka::math::sqrt(acc, x * x + y * y);
+        if (!(r > 0.))
+          return 0.;
+        double brNorm = 0.;
+        blBFieldMap::bBendAndBrAt(bMap, r, z, 0., brNorm);
+        const double sinAlpha = -double(results.qCharge) * (x * (x - cx) + y * (y - cy)) / (rad * r);
+        return -qbp * (bFieldOrigin * brNorm) * sinAlpha * alpaka::math::sqrt(acc, sec2);
+      };
+      // start at the reference PCA: the circle point closest to the beam line, z from the fitted line
+      // (beamlineSegment, the same closest approach the upstream material segment starts at)
+      const double cNorm = alpaka::math::sqrt(acc, cx * cx + cy * cy);
+      double zPca = 0., path0 = 0.;
+      beamlineSegment(acc, hits(2, 0), slope, results.sTransverse(0), zPca, path0);
+      double xPrev = (cNorm > 0.) ? cx * (1. - rad / cNorm) : 0.;
+      double yPrev = (cNorm > 0.) ? cy * (1. - rad / cNorm) : 0.;
+      double zPrev = zPca, sPrev = 0., dLambda = 0., dz = 0.;
+      double ratePrev = lambdaRate(xPrev, yPrev, zPrev);
+      for (u_int i = 0; i < n; i++) {
+        const double sCur = results.sTransverse(i);
+        // The rate varies along a gap (B_r grows with r and |z|), and the first gap runs from the beam line
+        // to the innermost hit, so a single trapezoid over it is 10-30 % off. Sub-step long gaps, walking the
+        // reference circle: its radius vector turns by -q*ds/R per step (the arc convention sTransverse
+        // itself carries), so one sine and cosine per gap suffice.
+        const double dsGap = sCur - sPrev;
+        const int nSub = alpaka::math::min(acc, 4, 1 + int(alpaka::math::abs(acc, dsGap) * 0.125));
+        const double ds = dsGap / double(nSub);
+        const double dPsi = (rad != 0.) ? -double(results.qCharge) * ds / rad : 0.;
+        const double cPsi = alpaka::math::cos(acc, dPsi), sPsi = alpaka::math::sin(acc, dPsi);
+        double rx = xPrev - cx, ry = yPrev - cy;
+        const double dzSub = (hits(2, i) - zPrev) / double(nSub);
+        double zSub = zPrev;
+        for (int k = 0; k < nSub; ++k) {
+          const double rxNew = rx * cPsi - ry * sPsi, ryNew = rx * sPsi + ry * cPsi;
+          rx = rxNew;
+          ry = ryNew;
+          zSub += dzSub;
+          const double rateCur =
+              (k + 1 == nSub) ? lambdaRate(hits(0, i), hits(1, i), hits(2, i)) : lambdaRate(cx + rx, cy + ry, zSub);
+          const double rateMid = 0.5 * (ratePrev + rateCur);
+          // dz/dsTransverse = tan(lambda) = tan(lambda_0) + sec^2(lambda) * dlambda to first order
+          dz += sec2 * (dLambda * ds + 0.5 * rateMid * ds * ds);
+          dLambda += rateMid * ds;
+          ratePrev = rateCur;
+        }
+        results.zInSZplane(i) -= rotMat(1, 1) * dz;  // rotMat(1,1) = cos(lambda): z shift -> sz-plane offset
+        xPrev = hits(0, i);
+        yPrev = hits(1, i);
+        zPrev = hits(2, i);
+        sPrev = sCur;
+      }
+    }
 #ifdef BL_DEEPDEBUG
     for (u_int i = 0; i < n; i++) {
       printf("Point %d, rot_s: %f, rot_z: %f\n", i, results.sTotal(i), results.zInSZplane(i));
@@ -885,6 +963,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
     \param elossGaps runs the deterministic dE/dx term, reading the per-gap ionization loss
            prepareBrokenLineData(elossGaps = true) left in fitWs.gapEloss. False leaves upstream's
            arithmetic intact.
+    \param bMap normalized (Bz,Br) solenoid lattice (BLBFieldMap.h) and \param bFieldOrigin the field it is
+           normalized to [GeV/cm]. With both given, the bending field's profile along the track, relative to
+           the effective field `bField` the caller converts curvature with, enters the same deterministic
+           residual offset as the dE/dx term; null map = no field term.
 
     \details The function implements the steps 2 and 3 of the Broken Line fit
    *         with the curvature correction.\n
@@ -912,7 +994,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
                                                 karimaki_circle_fit& circle_results,
                                                 TWs& fitWs,
                                                 bool fitCorrections = false,
-                                                bool elossGaps = false) {
+                                                bool elossGaps = false,
+                                                const float* bMap = nullptr,
+                                                double bFieldOrigin = 0.) {
     circle_results.qCharge = data.qCharge;
     auto& radii = data.radii;
     const auto& sTransverse = data.sTransverse;
@@ -925,32 +1009,47 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
       zInSZplane(i) = radii.block(0, i, 2, 1).norm() - fast_fit(2);
     }
 
-    // Ionization energy loss, deterministic part (elossGaps = false skips the block). The fit models one
-    // circle: u(s), the radial offset from the reference circle, obeys u'' = -(kappa(s) - kappa_ref) with
-    // Delta-kappa constant, while the real curvature grows along the path as the track loses momentum,
-    // kappa(s) = kappa_0 (1 + dE(s)/p), so the least-squares Delta-kappa lands on a path average of kappa and
-    // the published pT is low. The known growth is removed as the GBL refit removes it: with the curvature
-    // deviation over gap k the exact dkappa_k = kappa_0 dE(col_k)/p of that gap's own walked column,
-    // u_eloss(s) = -int_0^s ds' int_0^s' dkappa is subtracted from the measured residuals, so the fitted
-    // curvature is the one at the beam line (u_eloss = u_eloss' = 0 at node 0, whose own column -- the
-    // upstream segment -- is already inside gap 0's loss) and no single-medium anchoring approximation is
-    // left. A gap's dkappa is the one the walk charged for that gap: the path-average of the cumulative
-    // loss over it, so the quadrature follows the material and not the geometry. gapEloss is rewritten in
-    // place.
+    // Ionization energy loss, deterministic part (skipped when elossGaps = false). The fit models one circle with
+    // constant Delta-kappa while the real curvature grows as the track loses momentum, kappa(s) = kappa_0 (1 + dE(s)/p),
+    // so the fitted curvature would be a path average. With dkappa_k = kappa_0 dE(col_k)/p of each gap's walked
+    // column, u_eloss(s) = -int_0^s ds' int_0^s' dkappa is subtracted from the measured residuals, so the fitted
+    // curvature is the one at the beam line (u_eloss = u_eloss' = 0 at node 0). gapEloss is rewritten in place.
+    // The bending-field profile rides in the same offset: the real curvature follows kappa * B_bend(r,z)/bField,
+    // and only the profile's shape matters (a constant offset is absorbed by the fitted Delta-kappa).
     const double pTot = alpaka::math::sqrt(acc, riemannFit::sqr(bField * fast_fit(2)) * (1. + riemannFit::sqr(slope)));
     const bool eloss = elossGaps && pTot > 0. && fast_fit(2) > 0.;
-    auto& uEloss = fitWs.gapEloss;  // in: the loss [GeV] charged over each gap; out: the dE/dx residual offset
-    if (eloss) {
+    const bool field = (fitCorrections && bMap != nullptr && bFieldOrigin > 0. && bField > 0. && fast_fit(2) > 0.);
+    const bool offset = eloss || field;
+    auto& uEloss = fitWs.gapEloss;  // in: the loss [GeV] charged over each gap; out: the deterministic offset
+    if (offset) {
       const double kScale = 1. / (pTot * fast_fit(2));  // kappa_0 / p [1/(cm GeV)]
-      double eCur = uEloss(0);                          // gap 0's loss; read BEFORE slot 0 is overwritten
+      const double cx = fast_fit(0), cy = fast_fit(1);
+      const double slopeDen = fast_fit(3) * alpaka::math::abs(acc, fast_fit(2));
+      const double invRad = 1. / fast_fit(2);
+      // B_bend(r,z)/bField - 1 at a node: the local bending field's departure from the effective one.
+      auto bDevAt = [&](u_int i) {
+        if (!field)
+          return 0.;
+        const double x = hits(0, i), y = hits(1, i);
+        const double r = alpaka::math::sqrt(acc, x * x + y * y);
+        const double den = slopeDen * r;
+        const double tanLambdaCosAlpha = (den != 0.) ? -(cx * y - cy * x) / den : 0.;
+        return bFieldOrigin * blBFieldMap::bBendAt(bMap, r, hits(2, i), tanLambdaCosAlpha) / bField - 1.;
+      };
+      double eCur = eloss ? uEloss(0) : 0.;  // gap 0's loss; read BEFORE slot 0 is overwritten
+      double bPrev = bDevAt(0);
       double du = 0., dup = 0.;
       uEloss(0) = 0.;  // the anchor
       for (u_int k = 0; k + 1 < n; ++k) {
         const double ds = sTransverse(k + 1) - sTransverse(k);
-        const double dk = kScale * eCur;  // this gap's curvature increment [1/cm]
+        const double bCur = bDevAt(k + 1);
+        // this gap's curvature increment [1/cm]: the ionization growth it was charged plus the mid-gap
+        // departure of the bending profile from the effective field
+        const double dk = kScale * eCur + invRad * 0.5 * (bPrev + bCur);
         du += dup * ds - 0.5 * dk * ds * ds;
         dup -= dk * ds;
-        if (k + 2 < n)
+        bPrev = bCur;
+        if (eloss && k + 2 < n)
           eCur = uEloss(k + 1);  // next gap's loss, read BEFORE the store below
         uEloss(k + 1) = du;
       }
@@ -975,7 +1074,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
     // involve the measurements, so the dE/dx offset enters at exactly one place, the measured offset. Two loops
     // rather than one predicated loop, so that the no-eloss path is upstream's instruction stream verbatim.
     r_uVec(n) = 0;
-    if (eloss) {
+    if (offset) {
       for (u_int i = 0; i < n; i++) {
         r_uVec(i) = weightsVec(i) * (zInSZplane(i) - uEloss(i));
       }
@@ -1221,7 +1320,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
     circle_results.chi2 = 0;
     for (u_int i = 0; i < n; i++) {
       circle_results.chi2 +=
-          weightsVec(i) * riemannFit::sqr(eloss ? (zInSZplane(i) - uEloss(i) - uVec(i)) : (zInSZplane(i) - uVec(i)));
+          weightsVec(i) * riemannFit::sqr(offset ? (zInSZplane(i) - uEloss(i) - uVec(i)) : (zInSZplane(i) - uVec(i)));
       if (i > 0 && i < n - 1)
         circle_results.chi2 +=
             riemannFit::sqr(uVec(i - 1) / (sTransverse(i) - sTransverse(i - 1)) -
@@ -1384,6 +1483,119 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
     }
   }
 
+  /*!
+    \brief Reports the state at the trajectory's own closest approach instead of the reference circle's.
+
+    \param hits hits coordinates.
+    \param data PreparedBrokenLineDataMap (its sTransverse(0) is the fit's own abscissa of hit 0).
+    \param bField the effective bending field the fit converts the curvature with [GeV/cm].
+    \param circle_results the circle fit's output (phi, d, k): phi and d move, the curvature does not.
+    \param line_results the line fit's output (cot(theta), zip); only zip moves.
+    \param bMap normalized (Bz,Br) solenoid lattice (BLBFieldMap.h) and \param bFieldOrigin the field it is
+           normalized to [GeV/cm]. Without them only the arc between the two circles' perigees is taken out.
+
+    \details One inward transport, from hit 0 to the perigee, in two deterministic pieces.
+
+    The line fit's abscissa is the arc of the fast pre-fit circle and its origin, s = 0, is that circle's
+    closest approach to the beam line, so zip is the z at the REFERENCE circle's perigee, while the circle
+    published with it is the fitted one, whose perigee sits at a different arc. With s_ref = sTransverse(0)
+    the reference arc of hit 0 and s_fit the arc of the same point on the FITTED circle measured from ITS
+    perigee, that piece is zip += cot(theta) * (s_ref - s_fit). It needs no new input -- the fitted perigee
+    and radius are the circle fit's own output (perigee = d*(sin phi, -cos phi), centre = (d + q R)*(sin phi,
+    -cos phi), R = 1/|k|) -- and vanishes identically when the fit leaves the reference circle where it was.
+
+    The published circle is not the trajectory either, over the lever between that perigee and hit 0: its
+    curvature belongs to the effective bending field, the hit average, while the field the track really bends
+    in follows the map, and for a track whose first hit is at r = 23 cm the field over that empty lever is a
+    few percent above the average. The two field rows accumulate their offsets outwards from hit 0
+    (prepareBrokenLineData, circleFit); here the same accumulation is continued inwards. u, the radial offset
+    of the trajectory from the fitted circle, obeys u'' = -dkappa with dkappa(s) = (B_bend(r,z)/bField - 1)/R
+    -- the departure the circle row removes from the residuals, B_r included through B_bend -- and u = u' = 0
+    at hit 0, where the rows are anchored. Walking the circle in sub-steps of the lattice's own cell gives at
+    the perigee
+        d   += -q u,                the trajectory sits at u along the outward normal, which is -q m there;
+        phi += q (u' - s_p / R),    its direction has turned by q u', and its own closest approach has moved
+                                    to the arc s_p = q u' d R / |d + q R| (where the minimum of |r| now is);
+        zip += -cot(theta) * ds,    ds = -s_p + (int u ds)/R, the arc it spends between its perigee and hit 0
+                                    minus the circle's (a curve offset by u from a circle of radius R is
+                                    1 + u/R times as long).
+    Value only, as the field rows are: the covariances are the ones the two fits built, the curvature and the
+    dip angle are untouched, and every offset is identically zero in a uniform field.
+  */
+  template <alpaka::concepts::Acc TAcc, typename M3xN, typename TData>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void transportToFittedPca(const TAcc& acc,
+                                                           const M3xN& hits,
+                                                           const TData& data,
+                                                           const double bField,
+                                                           karimaki_circle_fit& circle_results,
+                                                           riemannFit::LineFit& line_results,
+                                                           const float* bMap = nullptr,
+                                                           double bFieldOrigin = 0.) {
+    const double kFit = circle_results.par(2);
+    if (!(alpaka::math::abs(acc, kFit) > 0.))
+      return;
+    const double qCharge = double(data.qCharge);
+    const double radFit = 1. / alpaka::math::abs(acc, kFit);
+    // perigee = d * mVec and centre = (d + q R) * mVec, so the perigee's radius vector is -q R mVec
+    const double mx = alpaka::math::sin(acc, circle_results.par(0));
+    const double my = -alpaka::math::cos(acc, circle_results.par(0));
+    const double cFit = circle_results.par(1) + qCharge * radFit;  // signed distance of the centre along mVec
+    const double cx = cFit * mx, cy = cFit * my;
+    const double dx = hits(0, 0) - cx, dy = hits(1, 0) - cy;
+    const double ex = -qCharge * radFit * mx, ey = -qCharge * radFit * my;
+    // arc of hit 0 from the fitted perigee, in prepareBrokenLineData's own convention (q R times the
+    // angle from the perigee's radius vector to the hit's)
+    const double sFit = qCharge * radFit * alpaka::math::atan2(acc, dx * ey - dy * ex, dx * ex + dy * ey);
+    double dsArc = 0.;  // the arc the trajectory spends over the lever, minus the fitted circle's
+    if (bMap != nullptr && bFieldOrigin > 0. && bField > 0.) {
+      const double cot = line_results.par(0);
+      // the local curvature's departure from the fitted one, dkappa = (B_bend(r,z)/bField - 1)/R, with the
+      // track-radial cosine of the reference circle (the expression circleFit and the effective field use)
+      auto dKappaAt = [&](double x, double y, double z) {
+        const double r = alpaka::math::sqrt(acc, x * x + y * y);
+        if (!(r > 0.))
+          return 0.;
+        const double tanLambdaCosAlpha = cot * qCharge * (cx * y - cy * x) / (radFit * r);
+        return (bFieldOrigin * blBFieldMap::bBendAt(bMap, r, z, tanLambdaCosAlpha) / bField - 1.) / radFit;
+      };
+      // One sub-step per cell of the lattice the departure is read from, i.e. per length over which the
+      // field changes: the count comes from the lever itself. The bound is never reached by a tracker track
+      // (hit 0 is inside r = 115 cm); it only keeps a NaN input from spinning the device.
+      constexpr int kMaxSub = 32;
+      const int nSub = alpaka::math::min(acc, kMaxSub, 1 + int(alpaka::math::abs(acc, sFit) * blBFieldMap::kInvDR));
+      const double ds = -sFit / double(nSub);      // walking inwards, hit 0 -> perigee
+      const double dPsi = -qCharge * ds / radFit;  // the radius vector turns by -q ds/R, the arc convention
+      const double cPsi = alpaka::math::cos(acc, dPsi), sPsi = alpaka::math::sin(acc, dPsi);
+      double rx = dx, ry = dy, zCur = hits(2, 0);
+      double uOff = 0., uSlope = 0., uInt = 0.;
+      double ratePrev = dKappaAt(hits(0, 0), hits(1, 0), zCur);
+      for (int k = 0; k < nSub; ++k) {
+        const double rxNew = rx * cPsi - ry * sPsi, ryNew = rx * sPsi + ry * cPsi;
+        rx = rxNew;
+        ry = ryNew;
+        zCur += cot * ds;
+        const double rateCur = dKappaAt(cx + rx, cy + ry, zCur);
+        const double rateMid = 0.5 * (ratePrev + rateCur);
+        const double uNew = uOff + uSlope * ds - 0.5 * rateMid * ds * ds;
+        uSlope -= rateMid * ds;
+        uInt += 0.5 * (uOff + uNew) * ds;
+        uOff = uNew;
+        ratePrev = rateCur;
+      }
+      const double aCentre = alpaka::math::abs(acc, cFit);
+      const double sPca = (aCentre > 0.) ? qCharge * uSlope * circle_results.par(1) * radFit / aCentre : 0.;
+      dsArc = -sPca - uInt / radFit;  // uInt was accumulated inwards, the arc stretch runs outwards
+      circle_results.par(1) -= qCharge * uOff;
+      constexpr double kPi = 3.14159265358979323846;  // M_PI may be undefined in device compilation
+      double phi = circle_results.par(0) + qCharge * (uSlope - sPca / radFit);
+      if (phi > kPi)
+        phi -= 2. * kPi;
+      else if (phi < -kPi)
+        phi += 2. * kPi;
+      circle_results.par(0) = phi;
+    }
+    line_results.par(1) += line_results.par(0) * (data.sTransverse(0) - sFit - dsArc);
+  }
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline
 
 #endif  // RecoTracker_PixelTrackFitting_interface_alpaka_BrokenLine_h

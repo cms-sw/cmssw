@@ -66,6 +66,13 @@
   <flags ALPAKA_BACKENDS="1"/>
 </bin>
 
+<bin name="testBLFastFieldDevice" file="alpaka/testBLFastFieldDevice.dev.cc">
+  <use name="alpaka"/>
+  <use name="catch2"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
 
 <!-- The Landau energy-loss law of a composite ionization column (BLMaterialMap.h). -->
 <bin file="testBLElossColumn.cc" name="testBLElossColumn">
