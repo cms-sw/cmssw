@@ -125,6 +125,15 @@ def loadDigiAliases(process, premix=False):
                 )
           )
 
+def loadDigiAliasesGEM(process):
+    process.muonGEMDigis = cms.EDAlias(
+        simMuonGEMDigis = cms.VPSet(
+                cms.PSet(
+                    type = cms.string("GEMDetIdGEMDigiMuonDigiCollection")
+                    ),
+                )
+          )
+
 def loadDigiAliasesHGCal(process):
     process.hgcalDigis = cms.EDAlias(
         mix = cms.VPSet(
