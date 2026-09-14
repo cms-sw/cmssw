@@ -142,6 +142,8 @@ def buildCompactTruthAtDigi(process, includeTrackingHits=True):
     # out here has its particles pruned as hitless even though they do carry hits.
     process.truthLogicalGraphProducer = truthLogicalGraphProducer.clone(
         src=cms.InputTag("mix"),
+        simTracks=cms.InputTag("mix", "mergedSimTracks"),
+        simVertices=cms.InputTag("mix", "mergedSimVertices"),
         simHitCollections=caloSimHits,
         trackerSimHitCollections=trackerSimHits,
         muonSimHitCollections=muonSimHits,
