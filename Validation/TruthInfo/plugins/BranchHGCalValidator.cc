@@ -530,10 +530,10 @@ void BranchHGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& desc
                                         edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
                                         edm::InputTag("HGCalRecHit", "HGCHEBRecHits")});
   desc.add<std::vector<edm::InputTag>>("pfRecHits",
-                                       {edm::InputTag("particleFlowRecHitECAL", "Cleaned"),
-                                        edm::InputTag("particleFlowRecHitHBHE", "Cleaned"),
-                                        edm::InputTag("particleFlowRecHitHF", "Cleaned"),
-                                        edm::InputTag("particleFlowRecHitHO", "Cleaned")});
+                                       {edm::InputTag("particleFlowRecHitECAL"),
+                                        edm::InputTag("particleFlowRecHitHBHE"),
+                                        edm::InputTag("particleFlowRecHitHF"),
+                                        edm::InputTag("particleFlowRecHitHO")});
   descriptions.addWithDefaultLabel(desc);
 }
 
