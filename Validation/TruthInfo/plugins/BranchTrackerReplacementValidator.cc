@@ -72,8 +72,13 @@ void BranchTrackerReplacementValidator::fillDescriptions(edm::ConfigurationDescr
 }
 
 namespace {
-  std::unordered_map<uint32_t, uint32_t> buildTrackIdToParticle(truth::Graph const& graph, TruthGraph const& raw) {
-    std::unordered_map<uint32_t, uint32_t> out;
+  // (EncodedEventId, SimTrack trackId) -> logical particle. A trackId is local to its
+  // sub-event, so the pileup sub-events reuse the signal's values and the event id is
+  // part of the key.
+  uint64_t simTrackKey(uint64_t eventId, uint32_t trackId) { return (eventId << 32) | trackId; }
+
+  std::unordered_map<uint64_t, uint32_t> buildTrackIdToParticle(truth::Graph const& graph, TruthGraph const& raw) {
+    std::unordered_map<uint64_t, uint32_t> out;
     out.reserve(graph.nParticles());
     for (uint32_t i = 0; i < graph.nParticles(); ++i) {
       const int32_t simNode = graph.particles()[i].simNode;
@@ -81,7 +86,7 @@ namespace {
         continue;
       auto const& nr = raw.nodeRef(static_cast<uint32_t>(simNode));
       if (nr.kind == TruthGraph::NodeKind::SimTrack)
-        out[static_cast<uint32_t>(nr.key)] = i;
+        out[simTrackKey(raw.nodeEventId(static_cast<uint32_t>(simNode)), static_cast<uint32_t>(nr.key))] = i;
     }
     return out;
   }
@@ -135,7 +140,7 @@ void BranchTrackerReplacementValidator::analyze(edm::Event const& event, edm::Ev
     // TP side: shared clusters via ClusterTPAssociation -> dominant TP -> particle.
     auto clusters = track_associator::hitsToClusterRefs(track.recHitsBegin(), track.recHitsEnd());
     std::unordered_map<uint32_t, int> tpClusters;
-    std::unordered_map<uint32_t, uint32_t> tpTrackId;
+    std::unordered_map<uint32_t, uint64_t> tpTrackId;
     for (auto const& omni : clusters) {
       auto range = clusterTP.equal_range(omni);
       for (auto i = range.first; i != range.second; ++i) {
@@ -143,7 +148,7 @@ void BranchTrackerReplacementValidator::analyze(edm::Event const& event, edm::Ev
         const uint32_t key = tpRef.key();
         ++tpClusters[key];
         if (!tpTrackId.count(key) && !tpRef->g4Tracks().empty())
-          tpTrackId[key] = tpRef->g4Tracks().front().trackId();
+          tpTrackId[key] = simTrackKey(tpRef->eventId().rawId(), tpRef->g4Tracks().front().trackId());
       }
     }
     int expectedParticle = -1;

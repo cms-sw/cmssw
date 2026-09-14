@@ -58,7 +58,7 @@ private:
                 TruthGraph const& raw,
                 truth::SubgraphHitView& hitIndex,
                 truth::BranchHitAssociator const& assoc,
-                std::unordered_map<uint32_t, uint32_t> const& tidToParticle,
+                std::unordered_map<uint64_t, uint32_t> const& tidToParticle,
                 Stats& stats);
 
   const edm::EDGetTokenT<truth::Graph> graphToken_;
@@ -89,9 +89,14 @@ void BranchTruthReplacementValidator::fillDescriptions(edm::ConfigurationDescrip
 }
 
 namespace {
-  // logical-particle id <- SimTrack trackId, via the raw-graph node back-reference.
-  std::unordered_map<uint32_t, uint32_t> buildTrackIdToParticle(truth::Graph const& graph, TruthGraph const& raw) {
-    std::unordered_map<uint32_t, uint32_t> out;
+
+  // (EncodedEventId, SimTrack trackId) -> logical particle. A trackId is local to its
+  // sub-event, so the pileup sub-events reuse the signal's values and the event id is
+  // part of the key.
+  uint64_t simTrackKey(uint64_t eventId, uint32_t trackId) { return (eventId << 32) | trackId; }
+
+  std::unordered_map<uint64_t, uint32_t> buildTrackIdToParticle(truth::Graph const& graph, TruthGraph const& raw) {
+    std::unordered_map<uint64_t, uint32_t> out;
     out.reserve(graph.nParticles());
     for (uint32_t i = 0; i < graph.nParticles(); ++i) {
       const int32_t simNode = graph.particles()[i].simNode;
@@ -99,7 +104,7 @@ namespace {
         continue;
       auto const& nr = raw.nodeRef(static_cast<uint32_t>(simNode));
       if (nr.kind == TruthGraph::NodeKind::SimTrack)
-        out[static_cast<uint32_t>(nr.key)] = i;
+        out[simTrackKey(raw.nodeEventId(static_cast<uint32_t>(simNode)), static_cast<uint32_t>(nr.key))] = i;
     }
     return out;
   }
@@ -111,15 +116,15 @@ void BranchTruthReplacementValidator::validate(Collection const& objects,
                                                TruthGraph const& raw,
                                                truth::SubgraphHitView& hitIndex,
                                                truth::BranchHitAssociator const& assoc,
-                                               std::unordered_map<uint32_t, uint32_t> const& tidToParticle,
+                                               std::unordered_map<uint64_t, uint32_t> const& tidToParticle,
                                                Stats& stats) {
   for (auto const& obj : objects) {
     if (obj.g4Tracks().empty())
       continue;
     ++stats.n;
 
-    const uint32_t trackId = obj.g4Tracks().front().trackId();
-    auto it = tidToParticle.find(trackId);
+    auto it =
+        tidToParticle.find(simTrackKey(obj.g4Tracks().front().eventId().rawId(), obj.g4Tracks().front().trackId()));
     if (it == tidToParticle.end()) {
       ++stats.unmapped;
       continue;

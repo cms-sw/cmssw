@@ -101,7 +101,7 @@ private:
                 TruthGraph const& raw,
                 truth::SubgraphHitView& hitIndex,
                 truth::BranchHitAssociator const& assoc,
-                std::unordered_map<uint32_t, uint32_t> const& tidToParticle,
+                std::unordered_map<uint64_t, uint32_t> const& tidToParticle,
                 std::unordered_map<uint32_t, float> const& cellSimEnergy,
                 std::unordered_map<uint32_t, float> const& recHitEnergyByDetId,
                 Plots& plots);
@@ -253,9 +253,14 @@ void BranchHGCalValidator::bookHistograms(DQMStore::IBooker& ib, edm::Run const&
 }
 
 namespace {
-  // logical-particle id <- SimTrack trackId, via the raw-graph node back-reference.
-  std::unordered_map<uint32_t, uint32_t> buildTrackIdToParticle(truth::Graph const& graph, TruthGraph const& raw) {
-    std::unordered_map<uint32_t, uint32_t> out;
+
+  // (EncodedEventId, SimTrack trackId) -> logical particle. A trackId is local to its
+  // sub-event, so the pileup sub-events reuse the signal's values and the event id is
+  // part of the key.
+  uint64_t simTrackKey(uint64_t eventId, uint32_t trackId) { return (eventId << 32) | trackId; }
+
+  std::unordered_map<uint64_t, uint32_t> buildTrackIdToParticle(truth::Graph const& graph, TruthGraph const& raw) {
+    std::unordered_map<uint64_t, uint32_t> out;
     out.reserve(graph.nParticles());
     for (uint32_t i = 0; i < graph.nParticles(); ++i) {
       const int32_t simNode = graph.particles()[i].simNode;
@@ -263,7 +268,7 @@ namespace {
         continue;
       auto const& nr = raw.nodeRef(static_cast<uint32_t>(simNode));
       if (nr.kind == TruthGraph::NodeKind::SimTrack)
-        out[static_cast<uint32_t>(nr.key)] = i;
+        out[simTrackKey(raw.nodeEventId(static_cast<uint32_t>(simNode)), static_cast<uint32_t>(nr.key))] = i;
     }
     return out;
   }
@@ -275,7 +280,7 @@ void BranchHGCalValidator::validate(Collection const& objects,
                                     TruthGraph const& raw,
                                     truth::SubgraphHitView& hitIndex,
                                     truth::BranchHitAssociator const& assoc,
-                                    std::unordered_map<uint32_t, uint32_t> const& tidToParticle,
+                                    std::unordered_map<uint64_t, uint32_t> const& tidToParticle,
                                     std::unordered_map<uint32_t, float> const& cellSimEnergy,
                                     std::unordered_map<uint32_t, float> const& recHitEnergyByDetId,
                                     Plots& plots) {
@@ -302,8 +307,8 @@ void BranchHGCalValidator::validate(Collection const& objects,
     plots.denomPt->Fill(pt);
     plots.denomEnergy->Fill(energy);
 
-    const uint32_t trackId = obj.g4Tracks().front().trackId();
-    auto it = tidToParticle.find(trackId);
+    auto it =
+        tidToParticle.find(simTrackKey(obj.g4Tracks().front().eventId().rawId(), obj.g4Tracks().front().trackId()));
     if (it == tidToParticle.end())
       continue;  // unmapped -> counts as inefficiency
     const uint32_t particleId = it->second;
