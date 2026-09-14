@@ -5,8 +5,7 @@ def customise(process):
     process.VtuneFilterService = cms.Service("VtuneFilterService",
         # Pass an explicit list of module labels you want to DISABLE profiling for
         targetModules = cms.untracked.vstring(
-            'demoAnalyzerModule', 
-            'specificMuonProducer'
+            'deepTau2018v2p5ForMini',
         )
     )
     return (process)
