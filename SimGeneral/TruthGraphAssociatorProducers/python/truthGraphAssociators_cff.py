@@ -29,6 +29,19 @@ truthBranchSelectorBlock = cms.PSet(
     kinematicsOnStableOnly=cms.bool(True),
 )
 
+# Which candidate roots a reco object may be ASSIGNED to. A root carries the hits of its
+# whole subgraph, so a parton or a beam particle covers the object entirely and would win
+# on score alone. The barred roots stay candidates: they are the members of the
+# hardProcess and partonJets denominators, which the truth-driven direction must reach.
+truthAssignableTargetsBlock = cms.PSet(
+    excludeSynthetic=cms.bool(True),
+    excludeArtificialProduction=cms.bool(True),
+    excludeBeamParticles=cms.bool(True),
+    excludePartons=cms.bool(True),
+    excludeElectroweakBosons=cms.bool(True),
+    extraBarredPdgIds=cms.vint32(),
+)
+
 _workingPointArgs = dict(
     workingPointNames=cms.vstring(*truthBranchWorkingPointsPSet.names),
     adaptiveReverseWeight=cms.vfloat(*truthBranchWorkingPointsPSet.adaptiveReverseWeight),
@@ -87,6 +100,7 @@ truthBranchTargets = cms.EDProducer(
     signalSeedPdgIds=_signalSeedPdgIds,
     signalSeedHadronFlavors=_signalSeedHadronFlavors,
     truthToRecoSignalOnly=cms.bool(True),
+    assignableTargets=truthAssignableTargetsBlock.clone(),
 )
 
 # Hit-based: the object owns detector hits.
@@ -94,6 +108,7 @@ allTrackToTruthBranchAssociators = cms.EDProducer(
     "AllTrackToTruthBranchAssociatorsProducer",
     recoCollections=_tags("tracks"),
     targetsSrc=cms.InputTag("truthBranchTargets", "selectedRoots"),
+    assignableTargetsSrc=cms.InputTag("truthBranchTargets", "assignableRoots"),
     **_truthSources,
     **_workingPointArgs,
 )
@@ -104,6 +119,7 @@ allVertexToTruthBranchAssociators = cms.EDProducer(
     "AllVertexToTruthBranchAssociatorsProducer",
     recoCollections=_tags("vertices"),
     targetsSrc=cms.InputTag("truthBranchTargets", "selectedRoots"),
+    assignableTargetsSrc=cms.InputTag("truthBranchTargets", "assignableRoots"),
     constituentAssociator=cms.string("allTrackToTruthBranchAssociators"),
     constituentCollection=cms.string("generalTracks"),
     # A primary vertex asks which INTERACTION a track came from, so a track produced in
@@ -132,6 +148,7 @@ truthBranchTracksterAssociators = cms.EDProducer(
     "TruthBranchTracksterAssociatorsProducer",
     recoCollections=_tags("tracksters"),
     targetsSrc=cms.InputTag("truthBranchTargets", "selectedRoots"),
+    assignableTargetsSrc=cms.InputTag("truthBranchTargets", "assignableRoots"),
     layerClusters=cms.InputTag("hgcalMergeLayerClusters"),
     # A trackster is an endcap object, so its shared-energy denominator covers the HGCAL
     # only, not the whole Calo hit channel. See the producer's fillDescriptions.
