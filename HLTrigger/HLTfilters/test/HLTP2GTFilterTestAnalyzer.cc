@@ -35,8 +35,7 @@ private:
 };
 
 HLTP2GTFilterTestAnalyzer::HLTP2GTFilterTestAnalyzer(const edm::ParameterSet& iConfig)
-    : m_trigResToken(consumes<edm::TriggerResults>(
-          iConfig.getParameter<edm::InputTag>("triggerResults"))),
+    : m_trigResToken(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResults"))),
       m_referencePath(iConfig.getParameter<std::string>("referencePath")),
       m_underTestPath(iConfig.getParameter<std::string>("underTestPath")) {}
 
@@ -52,14 +51,13 @@ void HLTP2GTFilterTestAnalyzer::analyze(const edm::Event& iEvent, const edm::Eve
   ++m_nEvents;
 
   const auto& trigRes = iEvent.get(m_trigResToken);
-  const auto& names   = iEvent.triggerNames(trigRes);
+  const auto& names = iEvent.triggerNames(trigRes);
 
   auto getIndex = [&](const std::string& pathName) -> unsigned int {
     const unsigned int idx = names.triggerIndex(pathName);
     if (idx >= trigRes.size())
       throw cms::Exception("Configuration")
-          << "HLTP2GTFilterTestAnalyzer: path \"" << pathName
-          << "\" not found in TriggerResults.\nAvailable paths:\n"
+          << "HLTP2GTFilterTestAnalyzer: path \"" << pathName << "\" not found in TriggerResults.\nAvailable paths:\n"
           << [&]() {
                std::string s;
                for (const auto& n : names.triggerNames())
@@ -69,29 +67,25 @@ void HLTP2GTFilterTestAnalyzer::analyze(const edm::Event& iEvent, const edm::Eve
     return idx;
   };
 
-  const bool refAccept  = trigRes.accept(getIndex(m_referencePath));
+  const bool refAccept = trigRes.accept(getIndex(m_referencePath));
   const bool testAccept = trigRes.accept(getIndex(m_underTestPath));
 
   if (refAccept != testAccept) {
     ++m_nMismatches;
     edm::LogPrint("HLTP2GTFilterTestAnalyzer")
-        << "MISMATCH run=" << iEvent.run()
-        << " lumi=" << iEvent.luminosityBlock()
-        << " event=" << iEvent.id().event()
-        << "  reference(" << m_referencePath << ")=" << refAccept
-        << "  underTest(" << m_underTestPath << ")=" << testAccept;
+        << "MISMATCH run=" << iEvent.run() << " lumi=" << iEvent.luminosityBlock() << " event=" << iEvent.id().event()
+        << "  reference(" << m_referencePath << ")=" << refAccept << "  underTest(" << m_underTestPath
+        << ")=" << testAccept;
   }
 }
 
 void HLTP2GTFilterTestAnalyzer::endJob() {
   if (m_nMismatches > 0)
-    throw cms::Exception("TestFailure")
-        << "HLTP2GTFilterTestAnalyzer [" << m_underTestPath << "]:"
-        << " found " << m_nMismatches << " mismatched decision(s)"
-        << " out of " << m_nEvents << " events.";
+    throw cms::Exception("TestFailure") << "HLTP2GTFilterTestAnalyzer [" << m_underTestPath << "]:"
+                                        << " found " << m_nMismatches << " mismatched decision(s)"
+                                        << " out of " << m_nEvents << " events.";
   edm::LogPrint("HLTP2GTFilterTestAnalyzer")
-      << "[" << m_underTestPath << "] OK — "
-      << m_nEvents << " events, 0 mismatches.";
+      << "[" << m_underTestPath << "] OK -- " << m_nEvents << " events, 0 mismatches.";
 }
 
 DEFINE_FWK_MODULE(HLTP2GTFilterTestAnalyzer);

@@ -230,44 +230,40 @@ namespace hltp2gt {
       const char* typeName = objectTypeName(objectType);
 
       if (c.objectType() != objectType) {
-        std::cout << "HLTP2GTUtilities"
-                  << "[" << algoName << "] REJECT objectType mismatch:"
-                  << " candidate=" << objectTypeName(c.objectType()) << " expected=" << typeName << std::endl;
+        LogDebug("HLTP2GTUtilities") << "[" << algoName << "] REJECT objectType mismatch:"
+                                     << " candidate=" << objectTypeName(c.objectType()) << " expected=" << typeName
+                                     << std::endl;
         return false;
       } else {
-        std::cout << "HLTP2GTUtilities"
-                  << "[" << algoName << "] ACCEPT objectType:"
-                  << " candidate=" << objectTypeName(c.objectType()) << " expected=" << typeName << std::endl;
+        LogDebug("HLTP2GTUtilities") << "[" << algoName << "] ACCEPT objectType:"
+                                     << " candidate=" << objectTypeName(c.objectType()) << " expected=" << typeName
+                                     << std::endl;
       }
 
       const double absEta = std::abs(c.eta());
       if (absEta > maxAbsEta) {
-        std::cout << "HLTP2GTUtilities"
-                  << "[" << algoName << "] REJECT " << typeName << " |eta|=" << absEta << " > maxAbsEta=" << maxAbsEta
-                  << std::endl;
+        LogDebug("HLTP2GTUtilities") << "[" << algoName << "] REJECT " << typeName << " |eta|=" << absEta
+                                     << " > maxAbsEta=" << maxAbsEta << std::endl;
         return false;
       } else {
-        std::cout << "HLTP2GTUtilities"
-                  << "[" << algoName << "] ACCEPT " << typeName << " |eta|=" << absEta << " < maxAbsEta=" << maxAbsEta
-                  << std::endl;
+        LogDebug("HLTP2GTUtilities") << "[" << algoName << "] ACCEPT " << typeName << " |eta|=" << absEta
+                                     << " < maxAbsEta=" << maxAbsEta << std::endl;
       }
 
       const double value = c.pt();
       const auto& hWpT = c.hwPT();
 
       if (value < minPt) {
-        std::cout << "HLTP2GTUtilities"
-                  << "[" << algoName << "] REJECT " << typeName << " pT =" << value << " < minPt=" << minPt
-                  << "(hW pT:)" << hWpT << std::endl;
+        LogDebug("HLTP2GTUtilities") << "[" << algoName << "] REJECT " << typeName << " pT =" << value
+                                     << " < minPt=" << minPt << "(hW pT:)" << hWpT << std::endl;
         return false;
       } else {
-        std::cout << "HLTP2GTUtilities"
-                  << "[" << algoName << "] ACCEPT " << typeName << " pT =" << value << " > minPt=" << minPt
-                  << "(hW pT:)" << hWpT << std::endl;
+        LogDebug("HLTP2GTUtilities") << "[" << algoName << "] ACCEPT " << typeName << " pT =" << value
+                                     << " > minPt=" << minPt << "(hW pT:)" << hWpT << std::endl;
       }
 
-      std::cout << "HLTP2GTUtilities" << "[" << algoName << "] ACCEPT " << typeName << "pT=" << value
-                << " >= minPt=" << minPt << std::endl;
+      LogDebug("HLTP2GTUtilities") << "[" << algoName << "] ACCEPT " << typeName << "pT=" << value
+                                   << " >= minPt=" << minPt << std::endl;
       return true;
     }
 
