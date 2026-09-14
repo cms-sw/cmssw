@@ -281,6 +281,11 @@ private:
   std::vector<uint8_t> edgeKinds_;
   std::vector<uint16_t> simVertexProcessType_;  // node-parallel; G4 process subtype (SimVertex only)
   std::vector<uint8_t> simTrackBackscattered_;  // node-parallel; albedo flag (SimTrack only)
+  // Every sub-event's SimTracks and SimVertices, each tagged with its sub-event id, in
+  // the order the sub-events were added. The logical graph reads momenta and
+  // positions from them by (event id, trackId) and (event id, index).
+  edm::SimTrackContainer mergedSimTracks_;
+  edm::SimVertexContainer mergedSimVertices_;
 
   [[nodiscard]] bool keepBx(int bx) const {
     return std::find(pileupBunchCrossings_.begin(), pileupBunchCrossings_.end(), bx) != pileupBunchCrossings_.end();
@@ -312,6 +317,8 @@ TruthGraphAccumulator::TruthGraphAccumulator(edm::ParameterSet const& cfg,
   producesCollector.produces<std::vector<PCaloHit>>("mergedHcalHits");
   producesCollector.produces<std::vector<PSimHit>>("mergedTrackerHits");
   producesCollector.produces<std::vector<PSimHit>>("mergedMuonHits");
+  producesCollector.produces<edm::SimTrackContainer>("mergedSimTracks");
+  producesCollector.produces<edm::SimVertexContainer>("mergedSimVertices");
   producesCollector.produces<std::vector<PSimHit>>("mergedMtdHits");
   if (computeCellEnergyBudget_) {
     producesCollector.produces<std::vector<unsigned int>>("cellTotalDetId");
@@ -351,6 +358,8 @@ void TruthGraphAccumulator::initializeEvent(edm::Event const&, edm::EventSetup c
   edgeKinds_.clear();
   simVertexProcessType_.clear();
   simTrackBackscattered_.clear();
+  mergedSimTracks_.clear();
+  mergedSimVertices_.clear();
   cellTotalEnergy_.clear();
   cellWeightedEnergy_.clear();
   cellInTimeEnergy_.clear();
@@ -362,6 +371,17 @@ void TruthGraphAccumulator::addSubEvent(std::vector<std::pair<int, int>> const& 
                                         edm::SimVertexContainer const& vertices,
                                         EncodedEventId const& eid,
                                         int32_t genEvent) {
+  mergedSimTracks_.reserve(mergedSimTracks_.size() + tracks.size());
+  for (SimTrack t : tracks) {
+    t.setEventId(eid);
+    mergedSimTracks_.push_back(std::move(t));
+  }
+  mergedSimVertices_.reserve(mergedSimVertices_.size() + vertices.size());
+  for (SimVertex v : vertices) {
+    v.setEventId(eid);
+    mergedSimVertices_.push_back(std::move(v));
+  }
+
   const uint64_t packed = packEventId(eid);
   auto pushNode = [&](TruthGraph::NodeKind kind, int64_t key, int32_t pdg, int16_t st) {
     const uint32_t node = static_cast<uint32_t>(nodes_.size());
@@ -774,6 +794,8 @@ void TruthGraphAccumulator::finalizeEvent(edm::Event& event, edm::EventSetup con
   event.put(std::make_unique<std::vector<PSimHit>>(std::move(mergedTrackerHits_)), "mergedTrackerHits");
   event.put(std::make_unique<std::vector<PSimHit>>(std::move(mergedMuonHits_)), "mergedMuonHits");
   event.put(std::make_unique<std::vector<PSimHit>>(std::move(mergedMtdHits_)), "mergedMtdHits");
+  event.put(std::make_unique<edm::SimTrackContainer>(std::move(mergedSimTracks_)), "mergedSimTracks");
+  event.put(std::make_unique<edm::SimVertexContainer>(std::move(mergedSimVertices_)), "mergedSimVertices");
 }
 
 DEFINE_DIGI_ACCUMULATOR(TruthGraphAccumulator);
