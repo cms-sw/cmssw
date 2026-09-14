@@ -25,13 +25,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torch {
     ~QueueGuard() noexcept { c10::cuda::setCurrentCUDAStream(cached_stream_); }
 
   private:
-    c10::cuda::CUDAStream cached_stream_ = c10::cuda::getCurrentCUDAStream();
+    c10::cuda::CUDAStream cached_stream_;
   };
 #else
   class QueueGuard {
   public:
-    explicit QueueGuard(const Queue &queue) noexcept {}
-    ~QueueGuard() noexcept {}
+    explicit QueueGuard(const Queue &) noexcept {}
+    ~QueueGuard() = default;
   };
 
 #endif
