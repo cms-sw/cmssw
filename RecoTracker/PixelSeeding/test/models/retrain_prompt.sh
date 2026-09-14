@@ -6,10 +6,7 @@
 # Three models, trained in this order. Each decides on the population the
 # previous one leaves behind, so every dataset is produced with the upstream
 # models already deployed and built; the steps refuse to run out of order where
-# that is detectable and always print the rebuild gate. Retrain the prompt
-# iteration BEFORE the displaced one: the displaced iteration runs on the hits
-# the prompt one did not use (see retrain_displaced.sh), and the merged
-# selector after both (see retrain_merged.sh).
+# that is detectable and always print the rebuild gate.
 #
 #   step      model                        deployed as                     action
 #   --------  ---------------------------  ------------------------------  --------------
@@ -41,8 +38,9 @@
 #                       trackNano_<sample>_<quality>.root / tripletNano_<sample>.root in
 #                       --work, and a training step trains on their union  (default ttbarPU)
 #     --events N        events per dataset; applies to the dump it is on
-#     --threshold X     bake this decision threshold; 'rule' = the value the trainer
-#                       derives                     (default: the value the chain runs today)
+#     --threshold X     (triplet, gate) bake this decision threshold instead of the one
+#                       the step derives against the model it replaces; 'rule' = the
+#                       derived value, which is also the default
 #     --bake-recall R   (gate) bake the derived point at this displacement-weighted recall,
 #                       0.99 or 0.995; implies --threshold rule (see retrain_track_dnn.sh)
 #     --label L         (gate) truth-label definition, mtv or legacy (see retrain_track_dnn.sh)
@@ -68,7 +66,9 @@
 #       --input ttbarPU=/data/ttbar,displacedPU=/data/susy,qcdPU=/data/qcd --events 300
 #
 # ENVIRONMENT (tuning; the defaults are the ones in use)
-#   hp step: WP_RULE (uniform | global | profile, see train_merged_forest.py --wp-rule),
+#   hp step: WP_RULE (profile | uniform | global, see train_merged_forest.py --wp-rule),
+#            NTREES (1000), ES_ROUNDS (0), PRUNE_TOL (0.002) -- the tree budget and the
+#            size the data chooses inside it,
 #            RECALL (0.995), EFF_WEIGHT (4.0), LABEL (mtv), TAG (wp, the tag in the file
 #            name), XGB_THREADS (16), MODEL_NAME (the date in the file name, today),
 #            TRAIN_EXTRA (further train_merged_forest.py options, e.g. "--ntrees 200" for a
@@ -81,10 +81,12 @@
 #   gate step:    NAME  -- see retrain_track_dnn.sh
 #   everywhere:   MEM_GUARD_GB (300)
 #
-# WORKING POINTS. The threshold a trainer prints is an offline starting point; the deployed
-# values come from a scan of the full reconstruction (efficiency ceiling, combinatorial load,
-# container occupancy, fake load to the next stage). By default each step bakes the value the
-# chain runs today, so a retrain with no options changes the model and nothing else.
+# WORKING POINTS. Every step states its point against the model it replaces, so a retrain with
+# no options moves the model and moves the threshold with it, to the point where nothing the old
+# model kept is given up anywhere. The two baked headers are deployed at that point directly.
+# The selector threshold is a starting point: it is pinned by a scan of the full reconstruction
+# (efficiency ceiling, combinatorial load, container occupancy, fake load to the next stage) --
+# see README.md, "Working points".
 # =============================================================================
 set -euo pipefail
 # shellcheck source=retrain_common.sh
@@ -101,7 +103,7 @@ case "${STEP:-}" in
 esac
 
 BANK=prompt
-SAMPLES=${RT_SAMPLE:-${SAMPLES:-ttbarPU}}
+SAMPLES=${RT_SAMPLE:-${SAMPLES:-"ttbarPU displacedPU qcdPU bsPU zpPU"}}
 CLASS=${RT_CLASS:-${MODEL_CLASS:-forest31}}
 CA_CFI=$(rt_ca_cfi $BANK)
 HP_CFI=$(rt_hp_cfi $BANK)
@@ -148,31 +150,33 @@ step_dump() {
   case "$what" in
     triplet|gate|hp) ;;
     "") rt_die "say which dataset to produce: --for triplet | gate | hp" ;;
-    *)  rt_die "--for must be triplet, gate or hp (got '$what'); the merged dataset is produced by retrain_merged.sh" ;;
+    *)  rt_die "--for must be triplet, gate or hp (got '$what')" ;;
   esac
   rt_require_no_cmsrun
   rt_cmsenv
   rt_resolve_chassis
   local s i
+  # The training step has to be told the same sample list the dump was.
+  local sopt=""; [ -n "$RT_SAMPLE" ] && sopt=" --sample \"$RT_SAMPLE\""
   case "$what" in
     triplet)
       rt_require_dump_build
       i=0; for s in $SAMPLES; do rt_dump_triplet_nano $BANK "$s" "$RT_WORK/tripletNano_${s}.root" "$i"; i=$((i + 1)); done
       rt_report "Triplet-gate dataset ready"
       rt_r_produced "$(triplet_nano | tr '\n' ' ')"
-      rt_r_next "./retrain_prompt.sh triplet --work $RT_WORK"
+      rt_r_next "./retrain_prompt.sh triplet --work $RT_WORK$sopt"
       ;;
     gate)
       i=0; for s in $SAMPLES; do rt_dump_track_nano $BANK loose "$s" "$RT_WORK/trackNano_${s}_loose.root" "$i"; i=$((i + 1)); done
       rt_report "Track-DNN dataset ready (quality 'loose', track DNN switched off at dump time)"
       rt_r_produced "$(track_nano loose | tr '\n' ' ')"
-      rt_r_next "./retrain_prompt.sh gate --work $RT_WORK"
+      rt_r_next "./retrain_prompt.sh gate --work $RT_WORK$sopt"
       ;;
     hp)
       i=0; for s in $SAMPLES; do rt_dump_track_nano $BANK tight "$s" "$RT_WORK/trackNano_${s}_tight.root" "$i"; i=$((i + 1)); done
       rt_report "High-purity dataset ready (quality 'tight', full deployed chain)"
       rt_r_produced "$(track_nano tight | tr '\n' ' ')"
-      rt_r_next "./retrain_prompt.sh hp --work $RT_WORK"
+      rt_r_next "./retrain_prompt.sh hp --work $RT_WORK$sopt"
       ;;
   esac
 }
@@ -237,13 +241,13 @@ hp_deploy() {  # $@ = tight datasets
   echo ">>> [2/3] train the forest -> $outdir"
   rt_wp_args prompt "$cache" "$RT_DATA/${deployed:-none}" "$thr" "$RT_WORK/prompt_reference_profile.json" \
     --label "$label"
-  # The prompt recipe: the trainer's defaults (depth 12, up to 450 trees, two-pass tail
-  # re-weight, early stopping on the working-point rule), true high-pT tracks up-weighted
+  # The prompt recipe: the trainer's defaults (depth 12, two-pass tail re-weight), the
+  # large tree budget with the size chosen by the data, true high-pT tracks up-weighted
   # (--eff-weight 4), full-precision values in the exported file (--no-fp16).
   local -a train=(--cache "$cache" --out "$outdir" --feats 31 --label "$label"
                   --recall "${RECALL:-0.995}" --arm prompt --tag "$tag" --date "$MODEL_TAG"
                   --threads "${XGB_THREADS:-16}" --eff-weight "${EFF_WEIGHT:-4.0}" --no-fp16
-                  "${RT_WP_ARGS[@]}")
+                  "${RT_FOREST_SIZE_ARGS[@]}" "${RT_WP_ARGS[@]}")
   # shellcheck disable=SC2206
   [ -n "${TRAIN_EXTRA:-}" ] && train+=(${TRAIN_EXTRA})
   rt_run python3 "$RT_TRAINER" "${train[@]}"
