@@ -95,6 +95,10 @@ class TestBranchHitAssociator : public CppUnit::TestFixture {
   CPPUNIT_TEST(testReverseScoreNeverExceedsOne);
   CPPUNIT_TEST(testRecHitEnergyTableWeightsCells);
   CPPUNIT_TEST(testEqualScoresRankTheTightestBranchFirst);
+  CPPUNIT_TEST(testAdaptivePicksTheObjectiveMinimum);
+  CPPUNIT_TEST(testAdaptiveCeilingKeepsTheClimbLow);
+  CPPUNIT_TEST(testAdaptiveFallsBackWhenTheCeilingRejectsEverything);
+  CPPUNIT_TEST(testAdaptiveReturnsNoMatchOnAnEmptyCandidateList);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -110,6 +114,10 @@ public:
   void testReverseScoreNeverExceedsOne();
   void testRecHitEnergyTableWeightsCells();
   void testEqualScoresRankTheTightestBranchFirst();
+  void testAdaptivePicksTheObjectiveMinimum();
+  void testAdaptiveCeilingKeepsTheClimbLow();
+  void testAdaptiveFallsBackWhenTheCeilingRejectsEverything();
+  void testAdaptiveReturnsNoMatchOnAnEmptyCandidateList();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranchHitAssociator);
@@ -281,6 +289,57 @@ void TestBranchHitAssociator::testTiclScoreArithmetic() {
   // scores are squared and energy weighted, the fraction is linear. That is exactly why
   // HGCalValidator gates efficiency on the fraction and purity on the score.
   CPPUNIT_ASSERT(std::abs((1.f - root0->reverseScore) - root0->sharedEnergyFraction) > 0.2f);
+}
+
+namespace {
+  // One reco object covered by three levels of the same chain, as the merge-join yields
+  // them: the leaf covers little of the object and nothing else, the parent covers it
+  // well, the grandparent covers it entirely and spreads far beyond it.
+  truth::BranchMatch match(uint32_t root, float score, float reverseScore) {
+    truth::BranchMatch m;
+    m.rootParticleId = root;
+    m.score = score;
+    m.reverseScore = reverseScore;
+    return m;
+  }
+
+  std::vector<truth::BranchMatch> chainOfThree() {
+    return {match(2, 0.4f, 0.0f), match(1, 0.1f, 0.2f), match(0, 0.0f, 0.9f)};
+  }
+}  // namespace
+
+void TestBranchHitAssociator::testAdaptivePicksTheObjectiveMinimum() {
+  const auto matches = chainOfThree();
+  // Objectives at weight 1: 0.40, 0.30, 0.90. The parent is the climb's answer.
+  const auto best = truth::BranchHitAssociator::bestAdaptiveBranch(matches, 1.f, 1.f);
+  CPPUNIT_ASSERT_EQUAL(uint32_t(1), best.rootParticleId);
+
+  // Weight 0 is the Fixed point's objective: the widest branch always covers the most.
+  const auto lowest = truth::BranchHitAssociator::bestAdaptiveBranch(matches, 0.f, 1.f);
+  CPPUNIT_ASSERT_EQUAL(uint32_t(0), lowest.rootParticleId);
+}
+
+void TestBranchHitAssociator::testAdaptiveCeilingKeepsTheClimbLow() {
+  const auto matches = chainOfThree();
+  // A ceiling of 0.1 admits only the leaf, whose objective is the worst of the three.
+  const auto best = truth::BranchHitAssociator::bestAdaptiveBranch(matches, 1.f, 0.1f);
+  CPPUNIT_ASSERT_EQUAL(uint32_t(2), best.rootParticleId);
+}
+
+void TestBranchHitAssociator::testAdaptiveFallsBackWhenTheCeilingRejectsEverything() {
+  // Every candidate spreads beyond the reco object, so the ceiling admits none. A reco
+  // object that shares hits must still get an answer, so the unconstrained minimum wins.
+  const std::vector<truth::BranchMatch> matches{match(5, 0.6f, 0.5f), match(4, 0.2f, 0.7f)};
+  const auto best = truth::BranchHitAssociator::bestAdaptiveBranch(matches, 1.f, 0.1f);
+  CPPUNIT_ASSERT_EQUAL(uint32_t(4), best.rootParticleId);
+}
+
+void TestBranchHitAssociator::testAdaptiveReturnsNoMatchOnAnEmptyCandidateList() {
+  // What a caller that filtered every candidate away hands in. No match is the honest
+  // answer; the fallback must not invent one.
+  const std::vector<truth::BranchMatch> none;
+  const auto best = truth::BranchHitAssociator::bestAdaptiveBranch(none, 1.f, 1.f);
+  CPPUNIT_ASSERT_EQUAL(truth::BranchMatch::kInvalidRoot, best.rootParticleId);
 }
 
 void TestBranchHitAssociator::testEqualScoresRankTheTightestBranchFirst() {
