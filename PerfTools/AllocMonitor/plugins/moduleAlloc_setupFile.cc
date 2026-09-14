@@ -81,10 +81,10 @@ namespace {
     endStream = -11,
     writeProcessBlock = -10,
     endProcessBlock = -9,
-    globalWriteRun = -7,
+    globalWriteRun = -7,  //obsolete
     globalEndRun = -6,
     streamEndRun = -5,
-    globalWriteLumi = -4,
+    globalWriteLumi = -4,  //obsolete
     globalEndLumi = -3,
     streamEndLumi = -2,
     clearEvent = -1,
@@ -762,9 +762,7 @@ namespace edm::service::moduleAlloc {
       iRegistry.watchPreGlobalBeginRun(preGlobal);
       iRegistry.watchPreGlobalBeginLumi(preGlobal);
       iRegistry.watchPreGlobalEndLumi(preGlobal);
-      iRegistry.watchPreGlobalWriteLumi(preGlobal);
       iRegistry.watchPreGlobalEndRun(preGlobal);
-      iRegistry.watchPreGlobalWriteRun(preGlobal);
     }
     {
       auto postGlobal = [logFile, beginTime](GlobalContext const& gc) {
@@ -784,9 +782,7 @@ namespace edm::service::moduleAlloc {
       iRegistry.watchPostGlobalBeginRun(postGlobal);
       iRegistry.watchPostGlobalBeginLumi(postGlobal);
       iRegistry.watchPostGlobalEndLumi(postGlobal);
-      iRegistry.watchPostGlobalWriteLumi(postGlobal);
       iRegistry.watchPostGlobalEndRun(postGlobal);
-      iRegistry.watchPostGlobalWriteRun(postGlobal);
     }
     {
       auto preStream = [logFile, beginTime](StreamContext const& sc) {
