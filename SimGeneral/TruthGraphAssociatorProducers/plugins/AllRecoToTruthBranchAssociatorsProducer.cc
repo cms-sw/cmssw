@@ -51,6 +51,7 @@
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 
 #include "PhysicsTools/TruthInfo/interface/Branch.h"
+#include "PhysicsTools/TruthInfo/interface/AssignableTarget.h"
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
 #include "PhysicsTools/TruthInfo/interface/BranchSelector.h"
 #include "PhysicsTools/TruthInfo/interface/RecoHitAdapters.h"
@@ -357,6 +358,8 @@ private:
   // The selector-passing candidate roots, computed once per event by the shared
   // TruthBranchTargetsProducer together with the level denominators and signal seeds.
   edm::EDGetTokenT<std::vector<unsigned int>> targetsToken_;
+  // The subset of those roots a reco object may be assigned to, from the same producer.
+  edm::EDGetTokenT<std::vector<unsigned int>> assignableTargetsToken_;
 
   using Traits = TruthAssociationTraits<RECO>;
   using MapType = typename Traits::MapType;
@@ -387,6 +390,8 @@ AllRecoToTruthBranchAssociatorsProducer<RECO>::AllRecoToTruthBranchAssociatorsPr
   }
 
   targetsToken_ = consumes<std::vector<unsigned int>>(cfg.getParameter<edm::InputTag>("targetsSrc"));
+  assignableTargetsToken_ =
+      consumes<std::vector<unsigned int>>(cfg.getParameter<edm::InputTag>("assignableTargetsSrc"));
 
   if constexpr (ConstituentBasedDomain<RECO>) {
     maxConstituentScore_ = cfg.getParameter<double>("maxConstituentScore");
@@ -538,6 +543,22 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
   // The selector-passing candidate roots, computed once per event by the shared
   // TruthBranchTargetsProducer alongside the level denominators and signal seeds.
   auto const& selectedRoots = event.get(targetsToken_);
+  // Membership test for the adaptive answer below, one lookup per candidate. The product
+  // is a sorted id list like every other target product; the mask is the per-event
+  // expansion of it. A composite domain answers with a vertex, so it needs no mask.
+  const bool anyAdaptiveWorkingPoint =
+      std::any_of(workingPoints_.begin(), workingPoints_.end(), [](WorkingPoint const& wp) { return wp.adaptive; });
+  std::vector<uint8_t> isAssignable;
+  if constexpr (!ConstituentBasedDomain<RECO>) {
+    if (anyAdaptiveWorkingPoint) {
+      isAssignable.assign(nBranches, 0);
+      for (const unsigned int id : event.get(assignableTargetsToken_)) {
+        if (id < isAssignable.size()) {
+          isAssignable[id] = 1;
+        }
+      }
+    }
+  }
 
   // eventId 0 is the signal interaction; anything else is overlaid pileup.
   [[maybe_unused]] auto isSignalParticle = [&graph](uint32_t particleId) {
@@ -835,6 +856,10 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
         recoToTruthPerWp.push_back(std::make_unique<MapType>(nReco));
       }
 
+      // The candidates of one reco object, restricted to the roots an adaptive point may
+      // answer with. Declared here and cleared per object, so it allocates once.
+      std::vector<truth::BranchMatch> assignableMatches;
+
       for (unsigned int i = 0; i < nReco; ++i) {
         if (recoHitsPerObject[i].empty()) {
           continue;
@@ -842,13 +867,31 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
         const std::span<const truth::RecoHit> span(recoHitsPerObject[i]);
         const auto matches = hitAssociator->bestBranches(span);
 
+        // A candidate root carries the hits of its whole subgraph, so a parton, a beam
+        // particle or an invented node covers the reco object entirely and wins on score.
+        // An adaptive point may not answer with one. They stay in the first working
+        // point's map, which is the candidate list, and the truth-driven direction reads
+        // its pair scores from that map: filtering them there empties the levels made of
+        // these particles, partonJets 91 of 92 to 0 of 92 on 20 ttbar events at PU200.
+        assignableMatches.clear();
+        if (anyAdaptiveWorkingPoint) {
+          for (auto const& match : matches) {
+            if (match.rootParticleId < isAssignable.size() && isAssignable[match.rootParticleId] != 0) {
+              assignableMatches.push_back(match);
+            }
+          }
+        }
+        // Ascending score, tightest first, as bestBranches ordered it: the filter keeps
+        // the order, so the climb still starts from the best candidate.
+        const std::span<const truth::BranchMatch> assignableSpan(assignableMatches);
+
         // RECO to TRUTH: the working point drives the search, and the score is
         // reco-normalised, so 1 - score is the RECO purity.
         for (std::size_t wpIndex = 0; wpIndex < workingPoints_.size(); ++wpIndex) {
           auto const& wp = workingPoints_[wpIndex];
           if (wp.adaptive) {
             const auto match =
-                truth::BranchHitAssociator::bestAdaptiveBranch(matches, wp.reverseWeight, wp.maxReverseScore);
+                truth::BranchHitAssociator::bestAdaptiveBranch(assignableSpan, wp.reverseWeight, wp.maxReverseScore);
             if (match.rootParticleId != truth::BranchMatch::kInvalidRoot) {
               recoToTruthPerWp[wpIndex]->insert(i, match.rootParticleId, match.sharedEnergy, match.score);
             }
@@ -894,6 +937,11 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::fillDescriptions(edm::Config
   desc.add<edm::InputTag>("src", edm::InputTag("truthLogicalGraphProducer"));
   desc.add<edm::InputTag>("hitIndex", edm::InputTag("truthLogicalGraphHitIndexProducer"));
   desc.add<std::vector<edm::InputTag>>("recoCollections", {});
+  desc.add<edm::InputTag>("assignableTargetsSrc", edm::InputTag("truthBranchTargets", "assignableRoots"))
+      ->setComment(
+          "The roots an adaptive working point may answer with. The barred ones stay in targetsSrc and in the "
+          "first working point's map, because they are the members of the hard-process and parton-jet "
+          "denominators and the truth-driven direction reads its pair scores from that map");
   desc.add<edm::InputTag>("targetsSrc", edm::InputTag("truthBranchTargets", "selectedRoots"))
       ->setComment(
           "The selector-passing candidate roots from TruthBranchTargetsProducer, which also emits the level "

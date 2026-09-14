@@ -1,10 +1,12 @@
 // The truth-side target products every associator and validator consumes: the
-// selector-passing candidate roots, the signal-seed denominators, and one TruthToReco
-// denominator per graph level with its eligibility mask. They depend only on the graph
+// selector-passing candidate roots, the subset of them a reco object may be assigned to,
+// the signal-seed denominators, and one TruthToReco denominator per graph level with its
+// eligibility mask. They depend only on the graph
 // and on the selection configuration, never on a reco collection. One producer computes
 // them once per event, so every consumer sees the same targets and the same cuts.
 
 #include <cctype>
+#include <cstdlib>
 #include <limits>
 #include <algorithm>
 #include <memory>
@@ -19,6 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "PhysicsTools/TruthInfo/interface/AssignableTarget.h"
 #include "PhysicsTools/TruthInfo/interface/Branch.h"
 #include "PhysicsTools/TruthInfo/interface/BranchSelector.h"
 #include "PhysicsTools/TruthInfo/interface/TruthLevels.h"
@@ -35,6 +38,7 @@ private:
   truth::BranchSelector branchSelector_;
   // (level, product instance) pairs, instance = "truthToRecoTargets" + capitalized name.
   std::vector<std::pair<truth::Level, std::string>> truthLevels_;
+  truth::AssignableTargetConfig assignableConfig_;
   const std::vector<int> signalSeedPdgIds_;
   const std::vector<int> signalSeedHadronFlavors_;
   const bool truthToRecoSignalOnly_;
@@ -65,9 +69,26 @@ TruthBranchTargetsProducer::TruthBranchTargetsProducer(edm::ParameterSet const& 
     branchSelector_ = truth::BranchSelector(std::move(selectorConfig));
   }
 
+  {
+    auto const& assignable = cfg.getParameter<edm::ParameterSet>("assignableTargets");
+    assignableConfig_.excludeSynthetic = assignable.getParameter<bool>("excludeSynthetic");
+    assignableConfig_.excludeArtificialProduction = assignable.getParameter<bool>("excludeArtificialProduction");
+    assignableConfig_.excludeBeamParticles = assignable.getParameter<bool>("excludeBeamParticles");
+    assignableConfig_.excludePartons = assignable.getParameter<bool>("excludePartons");
+    assignableConfig_.excludeElectroweakBosons = assignable.getParameter<bool>("excludeElectroweakBosons");
+    for (const int pdgId : assignable.getParameter<std::vector<int>>("extraBarredPdgIds")) {
+      assignableConfig_.extraBarredPdgIds.push_back(static_cast<int32_t>(std::abs(pdgId)));
+    }
+  }
+
   // The associators' candidate roots. NOT an efficiency denominator: the set can hold a
   // particle together with its own ancestor, so it is not an antichain.
   produces<std::vector<unsigned int>>("selectedRoots");
+  // The candidate roots a reco object may be ASSIGNED to: the subset of selectedRoots
+  // that are detector particles. The barred ones stay candidates, because they are the
+  // members of the hard-process and parton-jet denominators and a truth object that is
+  // not a candidate can never be matched.
+  produces<std::vector<unsigned int>>("assignableRoots");
   produces<std::vector<unsigned int>>("signalSeeds");
   // The same seed species without any selector cut, so an efficiency can be quoted
   // against EVERY seed in the event and not only against those the kinematic selection
@@ -191,7 +212,16 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
   selectedRoots->insert(selectedRoots->end(), extraCandidates.begin(), extraCandidates.end());
   std::sort(selectedRoots->begin(), selectedRoots->end());
 
+  auto assignableRoots = std::make_unique<std::vector<unsigned int>>();
+  assignableRoots->reserve(selectedRoots->size());
+  for (const unsigned int id : *selectedRoots) {
+    if (truth::isAssignableTarget(graph, id, assignableConfig_)) {
+      assignableRoots->push_back(id);
+    }
+  }
+
   event.put(std::move(selectedRoots), "selectedRoots");
+  event.put(std::move(assignableRoots), "assignableRoots");
 }
 
 void TruthBranchTargetsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -214,6 +244,20 @@ void TruthBranchTargetsProducer::fillDescriptions(edm::ConfigurationDescriptions
           "that decayed is not a detector observable: a resonance at rest has pt about 0 and |eta| "
           "unbounded, so a track-shaped cut rejects it while its decay products fill the calorimeter.");
   desc.add<edm::ParameterSetDescription>("branchSelector", selector);
+
+  // Which candidate roots a reco object may be assigned to. Every clause bars one class
+  // of particle that no detector sees, so a reco object is never labelled with a
+  // bookkeeping node that merely covers it.
+  edm::ParameterSetDescription assignable;
+  assignable.add<bool>("excludeSynthetic", true)->setComment("Bar the connector and signal stand-in nodes");
+  assignable.add<bool>("excludeArtificialProduction", true)
+      ->setComment("Bar a particle produced at an Upstream, UnderlyingEvent or Interaction vertex");
+  assignable.add<bool>("excludeBeamParticles", true)->setComment("Bar a particle with no production vertex");
+  assignable.add<bool>("excludePartons", true)->setComment("Bar quarks and gluons");
+  assignable.add<bool>("excludeElectroweakBosons", true)->setComment("Bar the W, the Z and the Higgs");
+  assignable.add<std::vector<int>>("extraBarredPdgIds", {})
+      ->setComment("Further species to bar, matched on the absolute value");
+  desc.add<edm::ParameterSetDescription>("assignableTargets", assignable);
 
   desc.add<std::vector<std::string>>("truthLevels", {"caloBoundary"})
       ->setComment("Graph levels to emit a TruthToReco denominator for, one product per level");
