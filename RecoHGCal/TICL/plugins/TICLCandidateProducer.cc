@@ -428,7 +428,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
       maskTracksters[tracksterId] = false;
     }
     TICLCandidate muonCandidate(trackPtr, tracksterPtr);
-    muonCandidate.setPdgId(13 * tk.charge());
+    muonCandidate.setPdgId(-13 * tk.charge());
     math::PtEtaPhiMLorentzVector p4Polar(tk.pt(), tk.eta(), tk.phi(), ticl::mmuon);
     muonCandidate.setP4(p4Polar);
     resultCandidates->push_back(muonCandidate);
