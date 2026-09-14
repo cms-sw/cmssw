@@ -130,6 +130,26 @@ truthBranchTracksterAssociators = cms.EDProducer(
     **_workingPointArgs,
 )
 
+# Hit-based on the CALORIMETER channel, barrel: a particle-flow cluster owns its cells
+# directly through hitsAndFractions, so it is matched on shared energy like a
+# trackster, with no layer-cluster collection to resolve. One module per subdetector:
+# denominatorDetectors is a single mask per module and the shared-energy fraction that
+# gates the efficiency is normalised to the branch energy in those detectors, so an
+# ECAL cluster must be scored against the branch's ECAL energy, not ECAL plus HCAL.
+truthBranchPFClusterEcalAssociators = cms.EDProducer(
+    "TruthBranchPFClusterAssociatorsProducer",
+    recoCollections=_tags("pfClustersEcal"),
+    targetsSrc=cms.InputTag("truthBranchTargets", "selectedRoots"),
+    assignableTargetsSrc=cms.InputTag("truthBranchTargets", "assignableRoots"),
+    denominatorDetectors=cms.vstring("Ecal"),
+    **_truthSources,
+    **_workingPointArgs,
+)
+truthBranchPFClusterHcalAssociators = truthBranchPFClusterEcalAssociators.clone(
+    recoCollections=_tags("pfClustersHcal"),
+    denominatorDetectors=["Hcal"],
+)
+
 # The HLT menu's own reconstruction of the same event. Same producers, same working
 # points, different input collections, so the two can be compared page by page.
 hltTrackToTruthBranchAssociators = allTrackToTruthBranchAssociators.clone(
@@ -159,6 +179,8 @@ truthGraphAssociatorsSequence = cms.Sequence(
     truthBranchTargets
     + allTrackToTruthBranchAssociators
     + truthBranchTracksterAssociators
+    + truthBranchPFClusterEcalAssociators
+    + truthBranchPFClusterHcalAssociators
     + allVertexToTruthBranchAssociators
     + allSecondaryVertexToTruthBranchAssociators
 )

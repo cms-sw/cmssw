@@ -46,6 +46,7 @@
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 
 #include "PhysicsTools/TruthInfo/interface/Branch.h"
@@ -176,6 +177,25 @@ namespace {
       forEachConstituent(vertex, [&total](unsigned int, float w) { total += w; });
       return total;
     }
+  };
+
+  // A particle-flow cluster owns its calorimeter cells directly: reco::PFCluster derives
+  // from reco::CaloCluster and addRecHitFraction fills the base hitsAndFractions, so the
+  // reco::CaloCluster adapter in RecoHitAdapters.h applies unchanged and the cluster is
+  // matched on shared energy like a trackster. One PFCluster type serves every block
+  // element flavour (ECAL, HCAL, HO, HF, PS, HGCAL): the importer picks the enum from
+  // the cluster's layer, the object is the same. Which detector the shared-energy
+  // denominator covers is configuration (denominatorDetectors), one module per
+  // subdetector, because the efficiency gate is the branch energy fraction there and a
+  // hadron branch scored against a joint ECAL+HCAL denominator can never reach the
+  // individual threshold with an ECAL cluster alone.
+  template <>
+  struct TruthAssociationTraits<reco::PFCluster> {
+    static constexpr auto strategy = AssociationStrategy::HitBased;
+    using MapType = ticl::TICLAssociationMap<ticl::mapWithSharedEnergyAndScore>;
+    static constexpr truth::HitChannel channel = truth::HitChannel::Calo;
+    static constexpr auto metric = truth::BranchHitAssociator::Metric::SharedEnergy;
+    static constexpr const char* cfiName = "truthBranchPFClusterAssociators";
   };
 
   // A trackster owns calorimeter energy through its layer clusters, so it is matched
@@ -1019,3 +1039,5 @@ DEFINE_FWK_MODULE(AllVertexToTruthBranchAssociatorsProducer);
 // one of the two at random in an area that carries both.
 using TruthBranchTracksterAssociatorsProducer = AllRecoToTruthBranchAssociatorsProducer<ticl::Trackster>;
 DEFINE_FWK_MODULE(TruthBranchTracksterAssociatorsProducer);
+using TruthBranchPFClusterAssociatorsProducer = AllRecoToTruthBranchAssociatorsProducer<reco::PFCluster>;
+DEFINE_FWK_MODULE(TruthBranchPFClusterAssociatorsProducer);
