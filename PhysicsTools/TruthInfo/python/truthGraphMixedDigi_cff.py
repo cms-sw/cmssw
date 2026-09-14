@@ -65,6 +65,10 @@ from Validation.Configuration.truthPrevalidation_cff import (
 # its particles pruned as hitless even though the index would have given them hits.
 truthLogicalGraphProducer = _truthLogicalGraphProducer.clone(
     src=cms.InputTag("mix"),
+    # Every sub-event's SimTracks and SimVertices, tagged with their sub-event id, so a
+    # pileup particle takes its own momentum and position.
+    simTracks=cms.InputTag("mix", "mergedSimTracks"),
+    simVertices=cms.InputTag("mix", "mergedSimVertices"),
     simHitCollections=cms.VInputTag(
         cms.InputTag("mix", "mergedHGCHits"),
         cms.InputTag("mix", "mergedEcalHits"),

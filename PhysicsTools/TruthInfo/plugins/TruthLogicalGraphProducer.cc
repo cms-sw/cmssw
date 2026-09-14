@@ -456,13 +456,32 @@ public:
     edm::Handle<edm::SimVertexContainer> hSimVertices;
     evt.getByToken(simVertexToken_, hSimVertices);
 
-    std::unordered_map<uint32_t, uint32_t> simTrackIdToIndex;
+    // SimTracks by (sub-event id, trackId) and SimVertices by (sub-event id, index in
+    // its sub-event): a trackId and an index are local to a sub-event, and a merged
+    // container holds every sub-event's in order.
+    auto simKey = [](uint64_t eventId, uint32_t local) { return (eventId << 32) | local; };
+    std::unordered_map<uint64_t, uint32_t> simTrackIdToIndex;
+    std::unordered_map<uint64_t, uint32_t> simVertexIdToIndex;
+    if (validHandle(hSimVertices)) {
+      simVertexIdToIndex.reserve(hSimVertices->size() * 2);
+      uint32_t local = 0;
+      uint32_t currentEventId = 0;
+      for (uint32_t i = 0; i < hSimVertices->size(); ++i) {
+        const uint32_t eventId = (*hSimVertices)[i].eventId().rawId();
+        if (i == 0 || eventId != currentEventId) {
+          currentEventId = eventId;
+          local = 0;
+        }
+        simVertexIdToIndex.emplace(simKey(eventId, local), i);
+        ++local;
+      }
+    }
 
     if (validHandle(hSimTracks)) {
       simTrackIdToIndex.reserve(hSimTracks->size() * 2);
 
       for (uint32_t i = 0; i < hSimTracks->size(); ++i) {
-        simTrackIdToIndex.emplace((*hSimTracks)[i].trackId(), i);
+        simTrackIdToIndex.emplace(simKey((*hSimTracks)[i].eventId().rawId(), (*hSimTracks)[i].trackId()), i);
       }
     }
 
@@ -744,7 +763,9 @@ public:
           if (p.statusFlags == 0)
             p.statusFlags = raw.nodeStatusFlags(nodeId);
 
-          if (haveGenPayload) {
+          // The HepMC payload is the signal interaction's. A pileup GEN node with the
+          // same barcode is a different particle and takes its SimTrack momentum below.
+          if (haveGenPayload && raw.nodeEventId(nodeId) == 0) {
             const int barcode = static_cast<int>(ref.key);
             auto it = genParticlePayload.find(barcode);
 
@@ -779,7 +800,7 @@ public:
 
           if (validHandle(hSimTracks)) {
             const auto trackId = static_cast<uint32_t>(ref.key);
-            auto it = simTrackIdToIndex.find(trackId);
+            auto it = simTrackIdToIndex.find(simKey(raw.nodeEventId(nodeId), trackId));
 
             if (it != simTrackIdToIndex.end()) {
               auto const& t = (*hSimTracks)[it->second];
@@ -826,7 +847,7 @@ public:
           if (v.eventId == 0)
             v.eventId = raw.nodeEventId(nodeId);
 
-          if (haveGenPayload) {
+          if (haveGenPayload && raw.nodeEventId(nodeId) == 0) {
             const int barcode = static_cast<int>(ref.key);
             auto it = genVertexPayload.find(barcode);
 
@@ -848,10 +869,10 @@ public:
             v.eventId = raw.nodeEventId(nodeId);
 
           if (validHandle(hSimVertices)) {
-            const auto simIndex = static_cast<uint32_t>(ref.key);
+            auto it = simVertexIdToIndex.find(simKey(raw.nodeEventId(nodeId), static_cast<uint32_t>(ref.key)));
 
-            if (simIndex < hSimVertices->size()) {
-              auto const& sv = (*hSimVertices)[simIndex];
+            if (it != simVertexIdToIndex.end()) {
+              auto const& sv = (*hSimVertices)[it->second];
               const auto& pos = sv.position();
               constexpr double sToNs = 1e9;  // SimVertex time is stored in seconds -> ns
 
