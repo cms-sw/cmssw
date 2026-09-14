@@ -163,11 +163,7 @@ namespace {
         return Phase::globalBeginLumi;
       case GlobalContext::Transition::kEndLuminosityBlock:
         return Phase::globalEndLumi;
-      case GlobalContext::Transition::kWriteLuminosityBlock:
-        return Phase::globalEndLumi;
       case GlobalContext::Transition::kEndRun:
-        return Phase::globalEndRun;
-      case GlobalContext::Transition::kWriteRun:
         return Phase::globalEndRun;
       default:
         break;

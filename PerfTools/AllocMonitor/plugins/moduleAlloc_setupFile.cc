@@ -181,12 +181,8 @@ namespace {
         return Phase::globalBeginLumi;
       case GlobalContext::Transition::kEndLuminosityBlock:
         return Phase::globalEndLumi;
-      case GlobalContext::Transition::kWriteLuminosityBlock:
-        return Phase::globalWriteLumi;
       case GlobalContext::Transition::kEndRun:
         return Phase::globalEndRun;
-      case GlobalContext::Transition::kWriteRun:
-        return Phase::globalWriteRun;
       case GlobalContext::Transition::kEndProcessBlock:
         return Phase::endProcessBlock;
       case GlobalContext::Transition::kWriteProcessBlock:
@@ -209,8 +205,7 @@ namespace {
       return 0;
     }
     if (iContext.transition() == edm::GlobalContext::Transition::kBeginRun or
-        iContext.transition() == edm::GlobalContext::Transition::kEndRun or
-        iContext.transition() == edm::GlobalContext::Transition::kWriteRun) {
+        iContext.transition() == edm::GlobalContext::Transition::kEndRun) {
       return iContext.runIndex();
     }
     return iContext.luminosityBlockIndex();
@@ -1050,10 +1045,10 @@ namespace edm::service::moduleAlloc {
         << "# clearEvent              " << Phase::clearEvent << "\n"
         << "# streamEndLumi           " << Phase::streamEndLumi << "\n"
         << "# globalEndLumi           " << Phase::globalEndLumi << "\n"
-        << "# globalWriteLumi         " << Phase::globalWriteLumi << "\n"
+        << "# globalWriteLumi         " << Phase::globalWriteLumi << " (obsolete)\n"
         << "# streamEndRun            " << Phase::streamEndRun << "\n"
         << "# globalEndRun            " << Phase::globalEndRun << "\n"
-        << "# globalWriteRun          " << Phase::globalWriteRun << "\n"
+        << "# globalWriteRun          " << Phase::globalWriteRun << " (obsolete)\n"
         << "# endProcessBlock         " << Phase::endProcessBlock << "\n"
         << "# writeProcessBlock       " << Phase::writeProcessBlock << "\n"
         << "# endStream               " << Phase::endStream << "\n"
