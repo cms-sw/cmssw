@@ -153,6 +153,12 @@ hltVertexToTruthBranchAssociators = allVertexToTruthBranchAssociators.clone(
 hltTruthBranchTracksterAssociators = truthBranchTracksterAssociators.clone(
     recoCollections=_tags("tracksters", "hlt"),
     layerClusters="hltMergeLayerClusters",
+    hgcalRecHits=cms.VInputTag(
+        cms.InputTag("hltHGCalRecHit", "HGCEERecHits"),
+        cms.InputTag("hltHGCalRecHit", "HGCHEFRecHits"),
+        cms.InputTag("hltHGCalRecHit", "HGCHEBRecHits"),
+    ),
+    pfRecHits=cms.VInputTag("hltParticleFlowRecHitECALUnseeded", "hltParticleFlowRecHitHBHE"),
 )
 
 truthGraphAssociatorsTask = cms.Task(

@@ -18,10 +18,38 @@ namespace truth {
   struct RecoHit {
     uint32_t detId = 0;
     // The cell (rec)hit energy, for callers that need a per-object weight. The
-    // SharedEnergy metric does not read it: it takes the cell energy from the truth
-    // hit index, because a calorimetric adapter has no per-cell reco energy to give.
+    // SharedEnergy metric does not read it: the per-cell weight comes from the
+    // associator's CellEnergyTable when it has one, else from the truth hit index.
     float energy = 0.f;
     float fraction = 1.f;  // fraction of the cell assigned to this reco object
+  };
+
+  // Reconstructed energy per cell, detId ascending after finalize(). Given to the
+  // associator, it makes the shared-energy arithmetic the TICL one: every cell is
+  // weighted by its rechit energy, the reco object owns fraction * energy of it and
+  // the branch owns its sim fraction * energy. A cell absent from the table has no
+  // rechit and weighs nothing.
+  class CellEnergyTable {
+  public:
+    void reserve(std::size_t n) {
+      keys_.reserve(n);
+      values_.reserve(n);
+    }
+    void add(uint32_t detId, float energy) {
+      keys_.push_back(detId);
+      values_.push_back(energy);
+    }
+    // Sorts by detId and sums the energies of a repeated detId. Entries added in
+    // ascending detId order are not sorted again.
+    void finalize();
+    // The rechit energy on a cell, 0 if the cell has none.
+    [[nodiscard]] float energy(uint32_t detId) const;
+    [[nodiscard]] bool empty() const { return keys_.empty(); }
+    [[nodiscard]] std::size_t size() const { return keys_.size(); }
+
+  private:
+    std::vector<uint32_t> keys_;
+    std::vector<float> values_;
   };
 
   // Customization point: a reco object R is matchable if it exposes its hits via
@@ -91,12 +119,16 @@ namespace truth {
     // emptyRootsMeansAll = false to instead treat an empty list as "no candidates"
     // (match nothing) - needed when a caller asked for a restriction that happened
     // to select no particle in this event, which must not silently fall back to all.
+    // recHitEnergies, when given, weights every cell of the SharedEnergy metric by its
+    // reconstructed energy instead of its total sim energy; it must outlive the
+    // associator.
     explicit BranchHitAssociator(LogicalGraphHitIndex const& hitIndex,
                                  std::vector<uint32_t> candidateRoots = {},
                                  Metric metric = Metric::SharedEnergy,
                                  HitChannel channel = HitChannel::Calo,
                                  bool emptyRootsMeansAll = true,
-                                 uint32_t denominatorDetectors = kAllDetectors);
+                                 uint32_t denominatorDetectors = kAllDetectors,
+                                 CellEnergyTable const* recHitEnergies = nullptr);
 
     // Best branches for a reco object's hits, sorted by score ascending. If
     // maxResults > 0, only the best maxResults are returned.
@@ -144,8 +176,15 @@ namespace truth {
     [[nodiscard]] std::span<const uint32_t> rootsForCell(uint32_t detId) const;
     // Total sim energy on a cell (denominator for branch fractions), 0 if none.
     [[nodiscard]] float cellTotalEnergy(uint32_t detId) const;
+    // The weight of a cell in the SharedEnergy metric: its rechit energy with a
+    // CellEnergyTable, its total sim energy without one.
+    [[nodiscard]] float cellWeight(uint32_t detId) const;
+    // A branch hit's energy in the SharedEnergy metric: its sim fraction of the cell
+    // times the cell weight.
+    [[nodiscard]] float branchHitEnergy(LogicalGraphHitIndex::Hit const& hit) const;
 
     LogicalGraphHitIndex const* hitIndex_;
+    CellEnergyTable const* recHitEnergies_ = nullptr;
     Metric metric_;
     HitChannel channel_;
     uint32_t denominatorDetectors_;
