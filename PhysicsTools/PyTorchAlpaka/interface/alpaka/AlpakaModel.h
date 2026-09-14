@@ -8,7 +8,7 @@
 #include "PhysicsTools/PyTorchAlpaka/interface/GetDevice.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/TensorCollection.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/SoAConversion.h"
-#include "PhysicsTools/PyTorchAlpaka/interface/QueueGuard.h"
+#include "PhysicsTools/PyTorchAlpaka/interface/alpaka/QueueGuard.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::torch {
 
@@ -38,8 +38,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torch {
                  cms::torch::alpakatools::TensorCollection<Queue> &inputs,
                  cms::torch::alpakatools::TensorCollection<Queue> &outputs,
                  std::optional<::torch::Dtype> dtype = std::nullopt) {
-      inputs.copy(queue, cms::torch::alpakatools::detail::MemcpyKind::DeviceToDevice);
-      cms::torch::alpakatools::QueueGuard<Queue> guard(queue);
+      inputs.copy(queue);
+      torch::QueueGuard guard(queue);
       if (cms::torch::alpakatools::getDevice(queue) != this->Model::device()) {
         to(queue, dtype);
       }
