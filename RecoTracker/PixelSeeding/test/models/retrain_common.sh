@@ -1,9 +1,8 @@
 # =============================================================================
 # retrain_common.sh -- shared helpers for the retraining scripts.
 # =============================================================================
-# Sourced by retrain_prompt.sh / retrain_displaced.sh / retrain_merged.sh and by
-# the two per-stage workers (retrain_triplet_gate.sh, retrain_track_dnn.sh). Not
-# executable on its own.
+# Sourced by retrain_prompt.sh and by the two per-stage workers
+# (retrain_triplet_gate.sh, retrain_track_dnn.sh). Not executable on its own.
 #
 # It provides: one option parser for all the scripts, the CMSSW environment
 # setup, base-config (chassis) resolution, the dataset dump commands, lookups of
@@ -66,7 +65,7 @@ RT_INPUT_SPECS=()
 RT_SAMPLE=""
 RT_EVENTS=""
 RT_DATASETS=()
-RT_THRESHOLD=""
+RT_THRESHOLD="${THRESHOLD:-}"
 RT_CLASS=""
 RT_BANK=""
 RT_THREADS="${THREADS:-8}"
@@ -231,6 +230,19 @@ rt_require_dump_build() {
 }
 
 # ---- working directory ------------------------------------------------------
+# The opposite check, for the track-level datasets: in a dump build the triplet gate's reject is
+# compiled out, so the tracks are not the ones the production chain builds.
+rt_require_production_build() {
+  if grep -Eq '^[[:space:]]*#define[[:space:]]+CA_TRIPLET_DUMP' "$RT_DUMP_MACRO"; then
+    echo "ERROR: CA_TRIPLET_DUMP is switched on, and a track-level dataset must come from the" >&2
+    echo "       production build: the dump build compiles the triplet gate's reject out." >&2
+    echo "       Comment '#define CA_TRIPLET_DUMP' out again in" >&2
+    echo "         $RT_DUMP_MACRO" >&2
+    echo "       then rebuild:  scram b code-format && scram b -j" >&2
+    exit 1
+  fi
+}
+
 rt_require_work() {
   [ -n "$RT_WORK" ] || rt_die "no working directory: pass --work <dir> (datasets, models and logs are written there)"
   mkdir -p "$RT_WORK"
@@ -291,6 +303,7 @@ rt_resolve_chassis() {
 # turns on the third (merged-collection) row space.
 rt_dump_track_nano() {  # $1 = arm, $2 = quality, $3 = sample, $4 = output, $5 = sample index
   local arm=$1 quality=$2 sample=$3 out=$4 idx=${5:-0} spec
+  rt_require_production_build
   local -a env=(NANO_SAMPLE="$sample" NANO_MINQUALITY="$quality" NANO_THREADS="$RT_THREADS"
                 NANO_NEVT="${RT_EVENTS:-1000}" NANO_OUT="$out")
   # The MTV-true label columns on the per-arm truth tables. Independent of arm and of quality,
@@ -450,12 +463,25 @@ rt_model_stem() {  # strip a trailing _YYYYMMDD date and the extension
 RT_TRAINER="$RT_MODELS/train_merged_forest.py"
 RT_PROFILER="$RT_MODELS/make_profile.py"
 
+# Forest size, for all three selectors: fit with a large budget and no early
+# stopping, then let the data choose the size -- the smallest prefix of the
+# forest whose validation fake rejection at the working point is within
+# PRUNE_TOL of the best prefix. The whole curve is written to result.json as
+# `size_curve`, so the choice can be read back. A fixed budget with early
+# stopping stops where the validation loss stops improving, which is not the
+# same question as "how many trees does the deployed decision need".
+RT_FOREST_SIZE_ARGS=(--ntrees "${NTREES:-1000}" --es-rounds "${ES_ROUNDS:-0}"
+                     --prune-tol "${PRUNE_TOL:-0.002}")
+
 # The working-point rule of a retrain (train_merged_forest.py --wp-rule):
 #   uniform  (default) recall >= --recall in every pT / |eta| / |dxyBS| bin
 #   global   recall = --recall over all true tracks
-#   profile  match or exceed, bin by bin, the model the configuration loads today,
-#            measured on this run's own cache by make_profile.py
-RT_WP_RULE="${WP_RULE:-uniform}"
+#   profile  (default) match or exceed, bin by bin, the model the configuration
+#            loads today, measured on this run's own cache by make_profile.py
+# The default is 'profile' because that is what the deployed files were trained
+# against: a retrain has to be at least as good as what it replaces, everywhere,
+# on the sample of the run itself.
+RT_WP_RULE="${WP_RULE:-profile}"
 
 # Sets RT_WP_ARGS, the trainer's working-point options for the chosen rule. For
 # 'profile' it first measures the deployed model on the cache.
