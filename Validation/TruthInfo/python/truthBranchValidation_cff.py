@@ -215,6 +215,33 @@ _domains = [
         recoAxisOverrides={"zpos": (60, -600.0, 600.0), "vertpos": (50, 0.0, 200.0)},
         thresholds=_caloThresholds,
     ),
+    # Particle-flow clusters, the calorimeter constituents of the barrel PF blocks. One
+    # domain per subdetector, matching the associator modules: the efficiency gate is
+    # the branch energy fraction in that detector alone. A barrel cluster position sits
+    # at a transverse radius near 130 cm (ECAL) to 180-290 cm (HCAL) and |z| below about
+    # 400 cm, so the shared tracker ranges would put every entry in the overflow.
+    dict(
+        name="pfClustersEcal",
+        module="TruthBranchPFClusterValidator",
+        label="truthBranchPFClusterEcalValidator",
+        associator="truthBranchPFClusterEcalAssociators",
+        dirName="TruthInfo/Offline/PFClustersECAL/",
+        recoVariables=["pt", "eta", "phi", "nhits", "vertpos", "zpos"],
+        recoAxisOverrides={"zpos": (60, -600.0, 600.0), "vertpos": (50, 0.0, 300.0),
+                           "nhits": (50, 0.0, 100.0)},
+        thresholds=_caloThresholds,
+    ),
+    dict(
+        name="pfClustersHcal",
+        module="TruthBranchPFClusterValidator",
+        label="truthBranchPFClusterHcalValidator",
+        associator="truthBranchPFClusterHcalAssociators",
+        dirName="TruthInfo/Offline/PFClustersHCAL/",
+        recoVariables=["pt", "eta", "phi", "nhits", "vertpos", "zpos"],
+        recoAxisOverrides={"zpos": (60, -600.0, 600.0), "vertpos": (50, 0.0, 300.0),
+                           "nhits": (50, 0.0, 100.0)},
+        thresholds=_caloThresholds,
+    ),
 ]
 
 # The HLT menu's reconstruction of the same event, same domains and same variables. A
@@ -227,7 +254,11 @@ _hltDomains = [
          associator={"allTrackToTruthBranchAssociators": "hltTrackToTruthBranchAssociators",
                      "allVertexToTruthBranchAssociators": "hltVertexToTruthBranchAssociators",
                      "allSecondaryVertexToTruthBranchAssociators": "hltVertexToTruthBranchAssociators",
-                     "truthBranchTracksterAssociators": "hltTruthBranchTracksterAssociators"}[_d["associator"]],
+                     "truthBranchTracksterAssociators": "hltTruthBranchTracksterAssociators",
+                     # No HLT PF-cluster association is produced; the HLT label lists are
+                     # empty, so these domains are dropped by the recoLabels filter below.
+                     "truthBranchPFClusterEcalAssociators": "hltTruthBranchPFClusterEcalAssociators",
+                     "truthBranchPFClusterHcalAssociators": "hltTruthBranchPFClusterHcalAssociators"}[_d["associator"]],
          dirName=_d["dirName"].replace("TruthInfo/Offline/", "TruthInfo/HLT/"))
     for _d in _domains
 ]

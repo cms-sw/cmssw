@@ -31,6 +31,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
@@ -146,6 +147,37 @@ namespace {
       return kin;
     }
     static bool hasDirection(ticl::Trackster const&) { return true; }
+    static constexpr bool truthIsVertex = false;
+    static constexpr bool calorimetric = true;
+    static constexpr const char* denominatorInstance = "truthToRecoTargets";
+  };
+
+  // A particle-flow cluster carries calorimeter energy through its own cells. Its
+  // direction is the cluster position, and its hit count is the number of cells.
+  template <>
+  struct RecoValidationTraits<reco::PFCluster> {
+    using MapType = ticl::TICLAssociationMap<ticl::mapWithSharedEnergyAndScore>;
+    static constexpr const char* cfiName = "truthBranchPFClusterValidator";
+    static constexpr const char* defaultAssociator = "truthBranchPFClusterAssociators";
+    static constexpr const char* defaultDir = "TruthInfo/PFClusters/";
+    static constexpr truth::HitChannel hitChannel = truth::HitChannel::Calo;
+
+    static Kinematics kinematics(reco::PFCluster const& cluster) {
+      Kinematics kin;
+      auto const& pos = cluster.position();
+      const double rho = std::sqrt(pos.x() * pos.x() + pos.y() * pos.y());
+      const double mag = std::sqrt(rho * rho + pos.z() * pos.z());
+      // A cluster has no track, so its transverse momentum is the energy projected
+      // transversally along the cluster position.
+      kin.pt = (mag > 0.) ? cluster.energy() * rho / mag : 0.;
+      kin.eta = pos.eta();
+      kin.phi = pos.phi();
+      kin.nhits = cluster.hitsAndFractions().size();
+      kin.vertpos = rho;
+      kin.zpos = pos.z();
+      return kin;
+    }
+    static bool hasDirection(reco::PFCluster const&) { return true; }
     static constexpr bool truthIsVertex = false;
     static constexpr bool calorimetric = true;
     static constexpr const char* denominatorInstance = "truthToRecoTargets";
@@ -1000,3 +1032,5 @@ using TruthBranchVertexValidator = TruthBranchRecoValidator<reco::Vertex>;
 DEFINE_FWK_MODULE(TruthBranchVertexValidator);
 using TruthBranchTracksterValidator = TruthBranchRecoValidator<ticl::Trackster>;
 DEFINE_FWK_MODULE(TruthBranchTracksterValidator);
+using TruthBranchPFClusterValidator = TruthBranchRecoValidator<reco::PFCluster>;
+DEFINE_FWK_MODULE(TruthBranchPFClusterValidator);
