@@ -37,6 +37,13 @@ truthGraphRecoLabelsPSet = cms.PSet(
     tracks=cms.vstring("generalTracks"),
     vertices=cms.vstring("offlinePrimaryVertices"),
     secondaryVertices=cms.vstring("inclusiveSecondaryVertices"),
+    # Particle-flow clusters, one domain per subdetector because the shared-energy
+    # denominator of an associator module is one detector mask, and the efficiency gate
+    # is the branch energy fraction in THAT detector. These are the calorimeter
+    # constituents of the barrel PF blocks; preshower clusters are left out because the
+    # truth hit index carries no preshower sim hits, so they would match nothing.
+    pfClustersEcal=cms.vstring("particleFlowClusterECAL"),
+    pfClustersHcal=cms.vstring("particleFlowClusterHCAL"),
     # Fallback for a job that never sees the producers: the TICL label registry. A job
     # that does run them replaces this with what its process actually schedules, via
     # setTracksterLabelsFromProcess below.
@@ -52,6 +59,8 @@ truthGraphHltRecoLabelsPSet = cms.PSet(
     tracks=cms.vstring("hltGeneralTracks"),
     vertices=cms.vstring("hltOfflinePrimaryVertices"),
     secondaryVertices=cms.vstring(),
+    pfClustersEcal=cms.vstring(),
+    pfClustersHcal=cms.vstring(),
     # Same fallback role as the offline entry, from the menu's own registry in
     # Validation/HGCalValidation. A RECO or DQM job reads the HLT tracksters from its
     # input file and so has no HLT producer to discover.
