@@ -438,10 +438,10 @@ public:
         ->setComment("HGCRecHit collections, in the same order used by DetIdToRecHitMapProducer");
 
     desc.add<std::vector<edm::InputTag>>("pfRecHits",
-                                         {edm::InputTag("particleFlowRecHitECAL", "Cleaned"),
-                                          edm::InputTag("particleFlowRecHitHBHE", "Cleaned"),
-                                          edm::InputTag("particleFlowRecHitHF", "Cleaned"),
-                                          edm::InputTag("particleFlowRecHitHO", "Cleaned")})
+                                         {edm::InputTag("particleFlowRecHitECAL"),
+                                          edm::InputTag("particleFlowRecHitHBHE"),
+                                          edm::InputTag("particleFlowRecHitHF"),
+                                          edm::InputTag("particleFlowRecHitHO")})
         ->setComment("PFRecHit collections, in the same order used by DetIdToRecHitMapProducer");
 
     desc.add<std::string>("dotFile", "truthlogicalgraph.dot");
