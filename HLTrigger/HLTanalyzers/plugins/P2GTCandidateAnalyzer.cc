@@ -138,9 +138,8 @@ std::string P2GTCandidateAnalyzer::printCandidate(const l1t::P2GTCandidateRef& c
   });
   tryPrintField(oss, cand, "hwSum_pT_pv", [](const l1t::P2GTCandidate& c) { return c.hwSum_pT_pv(); });
   tryPrintField(oss, cand, "hwType", [](const l1t::P2GTCandidate& c) { return c.hwType(); });
-  tryPrintField(oss, cand, "hwNumber_of_tracks_in_pv", [](const l1t::P2GTCandidate& c) {
-    return c.hwNumber_of_tracks_in_pv();
-  });
+  tryPrintField(
+      oss, cand, "hwNumber_of_tracks_in_pv", [](const l1t::P2GTCandidate& c) { return c.hwNumber_of_tracks_in_pv(); });
   tryPrintField(oss, cand, "hwNumber_of_tracks_not_in_pv", [](const l1t::P2GTCandidate& c) {
     return c.hwNumber_of_tracks_not_in_pv();
   });
@@ -158,15 +157,15 @@ void P2GTCandidateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
       for (const l1t::P2GTCandidateRef& obj : objects) {
         if (obj->objectType() == m_objectType) {
           vl1cands.push_back(obj);
-	  edm::LogPrint("P2GTCandidateAnalyzer") << "Found P2GTCandidate ObjectType::" << m_objectTypeName
-                                             << " from algo " << algoName;
+          edm::LogPrint("P2GTCandidateAnalyzer")
+              << "Found P2GTCandidate ObjectType::" << m_objectTypeName << " from algo " << algoName;
         }
       }
     }
   }
 
-  edm::LogInfo("P2GTCandidateAnalyzer")
-      << "Matched " << vl1cands.size() << " P2GTCandidate(s) of type " << m_objectTypeName;
+  edm::LogInfo("P2GTCandidateAnalyzer") << "Matched " << vl1cands.size() << " P2GTCandidate(s) of type "
+                                        << m_objectTypeName;
 
   for (const l1t::P2GTCandidateRef& cand : vl1cands) {
     edm::LogPrint("P2GTCandidateAnalyzer") << "  " << printCandidate(cand);
