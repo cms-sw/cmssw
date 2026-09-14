@@ -93,6 +93,7 @@ class TestBranchHitAssociator : public CppUnit::TestFixture {
   CPPUNIT_TEST(testSharedEnergyFractionCountsOnlyTheRequestedDetectors);
   CPPUNIT_TEST(testZeroFractionObjectScoresWorst);
   CPPUNIT_TEST(testReverseScoreNeverExceedsOne);
+  CPPUNIT_TEST(testRecHitEnergyTableWeightsCells);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -106,6 +107,7 @@ public:
   void testSharedEnergyFractionCountsOnlyTheRequestedDetectors();
   void testZeroFractionObjectScoresWorst();
   void testReverseScoreNeverExceedsOne();
+  void testRecHitEnergyTableWeightsCells();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranchHitAssociator);
@@ -277,6 +279,82 @@ void TestBranchHitAssociator::testTiclScoreArithmetic() {
   // scores are squared and energy weighted, the fraction is linear. That is exactly why
   // HGCalValidator gates efficiency on the fraction and purity on the score.
   CPPUNIT_ASSERT(std::abs((1.f - root0->reverseScore) - root0->sharedEnergyFraction) > 0.2f);
+}
+
+void TestBranchHitAssociator::testRecHitEnergyTableWeightsCells() {
+  auto index = buildScoreIndex();  // cell 10: p0 3, p1 1 (total 4); cell 11: p1 4
+
+  // Reco object: half of cell 10, all of cell 11, and all of cell 13, which no
+  // particle touched (a noise rechit).
+  std::vector<truth::RecoHit> reco{{10, 0.f, 0.5f}, {11, 0.f, 1.0f}, {13, 0.f, 1.0f}};
+
+  // Without a table the noise cell weighs nothing and the scores are those of
+  // testTiclScoreArithmetic.
+  truth::BranchHitAssociator simWeighted(index);
+  auto simMatches = simWeighted.bestBranches(reco);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), simMatches.size());
+  for (auto const& m : simMatches)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(m.rootParticleId == 1 ? 1.0 / 20.0 : 16.0 / 20.0, m.score, 1e-6);
+
+  // Rechit energies: cell 10 reads 8 (twice its sim total), cell 11 has no rechit,
+  // cell 13 reads 5. Added out of order and with a repeated cell to exercise finalize.
+  truth::CellEnergyTable table;
+  table.add(13, 5.f);
+  table.add(10, 6.f);
+  table.add(10, 2.f);
+  table.finalize();
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), table.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(8.0, table.energy(10), 1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, table.energy(11), 1e-6);
+
+  truth::BranchHitAssociator assoc(index,
+                                   {},
+                                   truth::BranchHitAssociator::Metric::SharedEnergy,
+                                   truth::HitChannel::Calo,
+                                   true,
+                                   truth::BranchHitAssociator::kAllDetectors,
+                                   &table);
+  auto matches = assoc.bestBranches(reco);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), matches.size());
+  const truth::BranchMatch* root0 = nullptr;
+  const truth::BranchMatch* root1 = nullptr;
+  for (auto const& m : matches)
+    (m.rootParticleId == 0 ? root0 : root1) = &m;
+  CPPUNIT_ASSERT(root0 != nullptr && root1 != nullptr);
+
+  // Reco energies: 0.5 * 8 = 4 on cell 10, 1 * 0 = 0 on cell 11, 1 * 5 = 5 on cell 13.
+  // recoToSim denominator = 16 + 0 + 25 = 41. The noise cell is paid for in full.
+  //
+  // Root 1 owns 1/4 of cell 10, so 2 of its rechit energy, and all of cell 11, so 0.
+  //   recoToSim: max(0, 4-2)^2 + 0 + 5^2 = 29, over 41.
+  //   shared: min(4,2) = 2, over the branch's own 2: fraction 1.
+  //   simToReco: self energy 2^2 = 4, all captured: 0.
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(29.0 / 41.0, root1->score, 1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, root1->sharedEnergy, 1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, root1->sharedEnergyFraction, 1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, root1->reverseScore, 1e-6);
+
+  // Root 0 owns 3/4 of cell 10, so 6, and nothing else.
+  //   recoToSim: max(0, 4-6)^2 + 0 + 25 = 25, over 41.
+  //   shared: min(4,6) = 4, over the branch's own 6.
+  //   simToReco: max(0, 6-4)^2 = 4, over 6^2 = 36.
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(25.0 / 41.0, root0->score, 1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(4.0, root0->sharedEnergy, 1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(4.0 / 6.0, root0->sharedEnergyFraction, 1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(4.0 / 36.0, root0->reverseScore, 1e-6);
+
+  // An empty table is the same as no table.
+  truth::CellEnergyTable empty;
+  truth::BranchHitAssociator fallback(index,
+                                      {},
+                                      truth::BranchHitAssociator::Metric::SharedEnergy,
+                                      truth::HitChannel::Calo,
+                                      true,
+                                      truth::BranchHitAssociator::kAllDetectors,
+                                      &empty);
+  auto fallbackMatches = fallback.bestBranches(reco);
+  for (auto const& m : fallbackMatches)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(m.rootParticleId == 1 ? 1.0 / 20.0 : 16.0 / 20.0, m.score, 1e-6);
 }
 
 void TestBranchHitAssociator::testSharedEnergyFractionCountsOnlyTheRequestedDetectors() {
