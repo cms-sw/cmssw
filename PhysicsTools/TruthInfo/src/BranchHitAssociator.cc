@@ -14,13 +14,43 @@ namespace truth {
 
   uint32_t BranchHitAssociator::detectorBit(uint32_t detId) { return 1u << DetId(detId).det(); }
 
+  void CellEnergyTable::finalize() {
+    std::vector<std::pair<uint32_t, float>> cells;
+    cells.reserve(keys_.size());
+    for (std::size_t i = 0; i < keys_.size(); ++i)
+      cells.emplace_back(keys_[i], values_[i]);
+    // Rechit collections arrive sorted by DetId, and the producer adds them in
+    // ascending detector order, so the common case needs no sort.
+    if (!std::is_sorted(keys_.begin(), keys_.end()))
+      std::sort(cells.begin(), cells.end(), [](auto const& a, auto const& b) { return a.first < b.first; });
+    keys_.clear();
+    values_.clear();
+    for (auto const& [detId, energy] : cells) {
+      if (!keys_.empty() && keys_.back() == detId)
+        values_.back() += energy;
+      else {
+        keys_.push_back(detId);
+        values_.push_back(energy);
+      }
+    }
+  }
+
+  float CellEnergyTable::energy(uint32_t detId) const {
+    auto it = std::lower_bound(keys_.begin(), keys_.end(), detId);
+    if (it == keys_.end() || *it != detId)
+      return 0.f;
+    return values_[static_cast<std::size_t>(it - keys_.begin())];
+  }
+
   BranchHitAssociator::BranchHitAssociator(LogicalGraphHitIndex const& hitIndex,
                                            std::vector<uint32_t> candidateRoots,
                                            Metric metric,
                                            HitChannel channel,
                                            bool emptyRootsMeansAll,
-                                           uint32_t denominatorDetectors)
+                                           uint32_t denominatorDetectors,
+                                           CellEnergyTable const* recHitEnergies)
       : hitIndex_(&hitIndex),
+        recHitEnergies_(recHitEnergies != nullptr && !recHitEnergies->empty() ? recHitEnergies : nullptr),
         metric_(metric),
         channel_(channel),
         denominatorDetectors_(denominatorDetectors),
@@ -73,12 +103,13 @@ namespace truth {
       double selfEnergy = 0.0;
       for (auto const& hit : rootHits(root)) {
         pairs.emplace_back(hit.detId, root);
-        selfEnergySq += static_cast<double>(hit.energy) * hit.energy;
+        const float energy = branchHitEnergy(hit);
+        selfEnergySq += static_cast<double>(energy) * energy;
         // The linear total is the sharedEnergyFraction denominator, so it counts only
         // the detectors the caller reconstructs; the squared one is the TICL score
         // denominator and stays over the whole channel, as the reference computes it.
         if ((denominatorDetectors_ & detectorBit(hit.detId)) != 0u)
-          selfEnergy += hit.energy;
+          selfEnergy += energy;
       }
       rootSelfEnergySq_[root] = selfEnergySq;
       rootEnergy_[root] = selfEnergy;
@@ -182,6 +213,17 @@ namespace truth {
     return std::span<const uint32_t>(cellRoots_.data() + b, e - b);
   }
 
+  float BranchHitAssociator::cellWeight(uint32_t detId) const {
+    return recHitEnergies_ != nullptr ? recHitEnergies_->energy(detId) : cellTotalEnergy(detId);
+  }
+
+  float BranchHitAssociator::branchHitEnergy(LogicalGraphHitIndex::Hit const& hit) const {
+    if (recHitEnergies_ == nullptr)
+      return hit.energy;
+    const float total = cellTotalEnergy(hit.detId);
+    return total > 0.f ? hit.energy / total * recHitEnergies_->energy(hit.detId) : 0.f;
+  }
+
   float BranchHitAssociator::cellTotalEnergy(uint32_t detId) const {
     auto it = std::lower_bound(cellEnergyKeys_.begin(), cellEnergyKeys_.end(), detId);
     if (it == cellEnergyKeys_.end() || *it != detId)
@@ -208,11 +250,11 @@ namespace truth {
     }
 
     // Per-cell energy weight of the shared-energy score. The TICL trackster
-    // association weights every cell by its rechit energy (squared, in the score); a
-    // calorimetric reco adapter exposes (detId, fraction) and no per-cell reco energy,
-    // so the weight is the cell's total truth energy, which the hit index carries. The
-    // reco object's energy on a cell is then fraction * cellEnergy and the branch's own
-    // is the subgraph hit energy, which is already simFraction * cellEnergy.
+    // association weights every cell by its rechit energy (squared, in the score), and
+    // so does this metric when a CellEnergyTable is present: the reco object owns
+    // fraction * rechit energy of a cell and the branch owns its sim fraction of the
+    // same rechit energy. Without a table the weight is the cell's total sim energy
+    // from the hit index, and the branch's share is its subgraph hit energy.
     const bool energyWeighted = metric_ == Metric::SharedEnergy;
     std::vector<float> cellEnergy;
     if (energyWeighted)
@@ -223,7 +265,7 @@ namespace truth {
     std::vector<uint32_t> candidates;
     for (auto const& h : reco) {
       if (energyWeighted) {
-        const float energy = cellTotalEnergy(h.detId);
+        const float energy = cellWeight(h.detId);
         cellEnergy.push_back(energy);
         const double recoEnergy = static_cast<double>(h.fraction) * energy;
         denominator += recoEnergy * recoEnergy;
@@ -269,7 +311,7 @@ namespace truth {
           // excess on the other side counts as a good association rather than a
           // penalty (max(0, ...) in each direction).
           const float recoEnergy = rh.fraction * cellEnergy[i];
-          const float branchEnergy = shared ? branchHits[j].energy : 0.f;
+          const float branchEnergy = shared ? branchHitEnergy(branchHits[j]) : 0.f;
           sharedEnergy += std::min(recoEnergy, branchEnergy);
           const float recoMinusBranch = std::max(0.f, recoEnergy - branchEnergy);
           scoreNum += static_cast<double>(recoMinusBranch) * recoMinusBranch;
