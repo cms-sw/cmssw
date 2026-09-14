@@ -138,7 +138,6 @@ void SiPixelRecHitFromSoAAlpaka::produce(edm::StreamID streamID,
       edm::LogWarning("GPUHits2CPU") << "nhits!= nclus " << nhits << ' ' << dsv.size();
     }
     for (auto const& clust : dsv) {
-      assert(clust.originalId() >= 0);
       assert(clust.originalId() < dsv.size());
       if (clust.originalId() >= nhits)
         continue;
