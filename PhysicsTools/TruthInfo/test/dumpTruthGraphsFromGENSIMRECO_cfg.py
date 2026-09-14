@@ -189,10 +189,10 @@ process.detIdToRecHitMapProducer = cms.EDProducer(
     ),
 
     pfRecHits=cms.VInputTag(
-        cms.InputTag("particleFlowRecHitECAL", "Cleaned", "RECO"),
-        cms.InputTag("particleFlowRecHitHBHE", "Cleaned", "RECO"),
-        cms.InputTag("particleFlowRecHitHF", "Cleaned", "RECO"),
-        cms.InputTag("particleFlowRecHitHO", "Cleaned", "RECO"),
+        cms.InputTag("particleFlowRecHitECAL", "", "RECO"),
+        cms.InputTag("particleFlowRecHitHBHE", "", "RECO"),
+        cms.InputTag("particleFlowRecHitHF", "", "RECO"),
+        cms.InputTag("particleFlowRecHitHO", "", "RECO"),
     ),
 )
 process.truthLogicalGraphHitIndexProducer = cms.EDProducer(
@@ -227,10 +227,10 @@ process.truthLogicalGraphDumper = cms.EDAnalyzer(
     ),
 
     pfRecHits=cms.VInputTag(
-        cms.InputTag("particleFlowRecHitECAL", "Cleaned", "RECO"),
-        cms.InputTag("particleFlowRecHitHBHE", "Cleaned", "RECO"),
-        cms.InputTag("particleFlowRecHitHF", "Cleaned", "RECO"),
-        cms.InputTag("particleFlowRecHitHO", "Cleaned", "RECO"),
+        cms.InputTag("particleFlowRecHitECAL", "", "RECO"),
+        cms.InputTag("particleFlowRecHitHBHE", "", "RECO"),
+        cms.InputTag("particleFlowRecHitHF", "", "RECO"),
+        cms.InputTag("particleFlowRecHitHO", "", "RECO"),
     ),
 
     dotFile=cms.string(os.path.join(args.outdir,f"truthlogicalgraph{args.tag}.dot")), # output file

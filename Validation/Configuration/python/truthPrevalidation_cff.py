@@ -40,11 +40,13 @@ detIdToRecHitMapProducer = cms.EDProducer(
         cms.InputTag("HGCalRecHit", "HGCHEBRecHits"),
     ),
 
+    # The PFRecHit collections the barrel layer clusters are built from. The Cleaned
+    # instance of each producer holds the hits that FAILED its quality tests.
     pfRecHits = cms.VInputTag(
-        cms.InputTag("particleFlowRecHitECAL", "Cleaned"),
-        cms.InputTag("particleFlowRecHitHBHE", "Cleaned"),
-        cms.InputTag("particleFlowRecHitHF", "Cleaned"),
-        cms.InputTag("particleFlowRecHitHO", "Cleaned"),
+        cms.InputTag("particleFlowRecHitECAL"),
+        cms.InputTag("particleFlowRecHitHBHE"),
+        cms.InputTag("particleFlowRecHitHF"),
+        cms.InputTag("particleFlowRecHitHO"),
     ),
 )
 
@@ -90,10 +92,10 @@ truthLogicalGraphDumper = cms.EDAnalyzer(
     ),
 
     pfRecHits=cms.VInputTag(
-        cms.InputTag("particleFlowRecHitECAL", "Cleaned", "RECO"),
-        cms.InputTag("particleFlowRecHitHBHE", "Cleaned", "RECO"),
-        cms.InputTag("particleFlowRecHitHF", "Cleaned", "RECO"),
-        cms.InputTag("particleFlowRecHitHO", "Cleaned", "RECO"),
+        cms.InputTag("particleFlowRecHitECAL", "", "RECO"),
+        cms.InputTag("particleFlowRecHitHBHE", "", "RECO"),
+        cms.InputTag("particleFlowRecHitHF", "", "RECO"),
+        cms.InputTag("particleFlowRecHitHO", "", "RECO"),
     ),
 
     dotFile=cms.string("truthlogicalgraph.dot"), # output file
