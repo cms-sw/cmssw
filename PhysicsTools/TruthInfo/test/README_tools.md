@@ -9,7 +9,7 @@ Reusable helpers for producing and inspecting truth graphs. All require `cmsenv`
 | `truthGraphConnectivity.py` | FWLite debugger: per-event count of weakly-connected components and how many SimTrack/SimVertex are disconnected from a generator primary (the orphans). Exits non-zero if any event has orphans. `--link {parentIndex,ancestor,combined}`. |
 | `../python/truthGraphSelections.py` | Per-process selection presets: maps a generator fragment (or label) to one of seven archetypes (gun / resonance / vbf / ggf / top / heavyflavor / full) and returns the right `postProcessing` selection. `selectionForFragment(name, **overrides)` (dict), `postProcessingPSet(...)` (cms.PSet), `dumperArgs(...)` / CLI (`python3 truthGraphSelections.py <fragment>`) emit the dumper flags. |
 | `makeTruthGallery.sh` | Build the per-process DOT/SVG gallery (full + natural-seed selection) from a relval library dir; the per-sample selection is resolved by `truthGraphSelections.py` from each workflow's fragment. |
-| `makeBranchValidationPlots.sh` | Render the Branch DQM validation plots (overlaying a few samples) from the per-workflow harvested DQM, via `scripts/makeTruthGraphValidationPlots.py`. |
+| `Validation/TruthInfo/test/makeBranchValidationPlots.sh` | Render the Branch DQM validation plots (overlaying a few samples) from the per-workflow harvested DQM, via `Validation/TruthInfo/scripts/makeTruthGraphValidationPlots.py`. |
 | `runTruthRelvals.sh` | Run the 8 enableTruth Run4 D120 no-PU truth-validation workflows via `runTheMatrix`. |
 | `TruthLogicalGraphPostProcessor_t.cpp` | cppunit tests for the logical-graph postprocessing (selection, merging, collapsing). |
 

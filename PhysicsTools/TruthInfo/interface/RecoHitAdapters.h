@@ -4,7 +4,7 @@
 #define PhysicsTools_TruthInfo_interface_RecoHitAdapters_h
 
 // Adapters that expose a reco object's hits as a range of truth::RecoHit so the
-// generic BranchHitAssociator / BranchRecoValidator can match any reco object to
+// generic BranchHitAssociator and the reco-to-truth associators can match any reco object to
 // the truth Branch graph (the customization point envisaged by the HasTruthHits
 // concept in BranchHitAssociator.h). These live here, not as member methods on the
 // reco data formats, for two reasons: (a) only reco::Track owns its hits - a
