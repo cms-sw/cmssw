@@ -94,6 +94,7 @@ class TestBranchHitAssociator : public CppUnit::TestFixture {
   CPPUNIT_TEST(testZeroFractionObjectScoresWorst);
   CPPUNIT_TEST(testReverseScoreNeverExceedsOne);
   CPPUNIT_TEST(testRecHitEnergyTableWeightsCells);
+  CPPUNIT_TEST(testEqualScoresRankTheTightestBranchFirst);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -108,6 +109,7 @@ public:
   void testZeroFractionObjectScoresWorst();
   void testReverseScoreNeverExceedsOne();
   void testRecHitEnergyTableWeightsCells();
+  void testEqualScoresRankTheTightestBranchFirst();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranchHitAssociator);
@@ -279,6 +281,22 @@ void TestBranchHitAssociator::testTiclScoreArithmetic() {
   // scores are squared and energy weighted, the fraction is linear. That is exactly why
   // HGCalValidator gates efficiency on the fraction and purity on the score.
   CPPUNIT_ASSERT(std::abs((1.f - root0->reverseScore) - root0->sharedEnergyFraction) > 0.2f);
+}
+
+void TestBranchHitAssociator::testEqualScoresRankTheTightestBranchFirst() {
+  // buildIndex: particle 0 is the parent of particle 1, so its subgraph holds every
+  // cell of 1 (11 and 12) and more (10). By shared cells a reco object on cells 11 and
+  // 12 is covered by both with score 0; the child is the tighter branch and must come
+  // first, even though the parent has the lower id.
+  auto index = buildIndex();
+  truth::BranchHitAssociator assoc(index, {}, truth::BranchHitAssociator::Metric::SharedHits, truth::HitChannel::Calo);
+  std::vector<truth::RecoHit> reco{{11, 0.f, 1.0f}, {12, 0.f, 1.0f}};
+  auto matches = assoc.bestBranches(reco);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), matches.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(matches[0].score, matches[1].score, 1e-6);
+  CPPUNIT_ASSERT_EQUAL(uint32_t(1), matches[0].rootParticleId);
+  CPPUNIT_ASSERT_EQUAL(uint32_t(0), matches[1].rootParticleId);
+  CPPUNIT_ASSERT(matches[0].reverseScore < matches[1].reverseScore);
 }
 
 void TestBranchHitAssociator::testRecHitEnergyTableWeightsCells() {

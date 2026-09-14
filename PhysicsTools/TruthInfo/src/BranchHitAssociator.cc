@@ -365,8 +365,15 @@ namespace truth {
       result.push_back(m);
     }
 
+    // Best first. Equal scores are common, because an ancestor's subgraph holds every
+    // cell of its descendants: the tightest branch, the one with the smallest reverse
+    // score, then comes first, so [0] is the particle itself and not a beam proton.
     std::sort(result.begin(), result.end(), [](BranchMatch const& a, BranchMatch const& b) {
-      return a.score != b.score ? a.score < b.score : a.rootParticleId < b.rootParticleId;
+      if (a.score != b.score)
+        return a.score < b.score;
+      if (a.reverseScore != b.reverseScore)
+        return a.reverseScore < b.reverseScore;
+      return a.rootParticleId < b.rootParticleId;
     });
 
     if (maxResults > 0 && result.size() > maxResults)

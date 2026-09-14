@@ -874,9 +874,9 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
       }
 
       for (std::size_t wpIndex = 0; wpIndex < workingPoints_.size(); ++wpIndex) {
-        // Ascending score, so [0] is the best match; consumers rely on this. An
-        // explicit comparator: the map's own sort(true) orders DESCENDING by score.
-        recoToTruthPerWp[wpIndex]->sort(byAscendingScore);
+        // The rows keep the associator's order: ascending score, equal scores by the
+        // tightest branch first, so [0] is the best match. A sort by score and index
+        // here would hand a tie to the lowest id, an ancestor.
         // Every declared instance label must be put on every path, including the one
         // where the reco collection was absent: a missing put is a framework error.
         event.put(std::move(recoToTruthPerWp[wpIndex]), key + "RecoToTruth" + workingPoints_[wpIndex].name);
