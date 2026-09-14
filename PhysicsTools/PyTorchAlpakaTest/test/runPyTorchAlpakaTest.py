@@ -101,10 +101,7 @@ if "MaskedNet" in args.only:
     )
     process.path += process.MaskedNet
 # --only TinyResNet
-isROCm = (args.backend == "rocm_async")
-if ("TinyResNet" in args.only or "TinyResNetMiniBatch" in args.only) and isROCm:
-    print('Skipping residual networks execution on AMD GPUs: convolution kernels currently not supported')
-if "TinyResNet" in args.only and not isROCm:
+if "TinyResNet" in args.only:
     from PhysicsTools.PyTorchAlpakaTest.modules import torchtest_TinyResNet_alpaka, torchtest_TinyResNetMiniBatch_alpaka
     process.TinyResNet = torchtest_TinyResNet_alpaka(
         model = cms.FileInPath(args.tinyResNet),
@@ -115,7 +112,7 @@ if "TinyResNet" in args.only and not isROCm:
         environment = cms.untracked.int32(args.environment)
     )
     process.path += process.TinyResNet
-if "TinyResNetMiniBatch" in args.only and not isROCm:
+if "TinyResNetMiniBatch" in args.only:
     process.TinyResNetMiniBatch = torchtest_TinyResNetMiniBatch_alpaka(
         model = cms.FileInPath(args.tinyResNet),
         batchSize = cms.int32(args.batchSize),
