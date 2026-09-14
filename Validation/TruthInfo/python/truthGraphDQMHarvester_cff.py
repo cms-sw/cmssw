@@ -49,42 +49,5 @@ branchTrackingPostProcessor = DQMEDHarvester(
     outputFileName=cms.untracked.string(""),
 )
 
-# Generic reco-side validators (BranchRecoValidator): efficiency/duplicate over the
-# branches, fake-rate/merge-rate over the reco objects, vs eta and the second axis
-# (pt for tracks, energy for tracksters). All are num/den ratios via DQMGenericClient.
-def _recoSideEfficiency(xName):
-    return cms.vstring(
-        "efficiency_eta 'Branch reco efficiency vs #eta;#eta;efficiency' effnum_eta denom_eta",
-        "efficiency_%s 'Branch reco efficiency;;efficiency' effnum_%s denom_%s" % (xName, xName, xName),
-        "duplicate_eta 'Branch duplicate rate vs #eta;#eta;duplicate' dupnum_eta denom_eta",
-        "duplicate_%s 'Branch duplicate rate;;duplicate' dupnum_%s denom_%s" % (xName, xName, xName),
-        "fakerate_eta 'Reco fake rate vs #eta;#eta;fake rate' fakenum_eta recodenom_eta",
-        "fakerate_%s 'Reco fake rate;;fake rate' fakenum_%s recodenom_%s" % (xName, xName, xName),
-        "mergerate_eta 'Reco merge rate vs #eta;#eta;merge rate' mergenum_eta recodenom_eta",
-        "mergerate_%s 'Reco merge rate;;merge rate' mergenum_%s recodenom_%s" % (xName, xName, xName),
-    )
-
-branchTrackRecoPostProcessor = DQMEDHarvester(
-    "DQMGenericClient",
-    subDirs=cms.untracked.vstring("Tracking/BranchValidator/recoTrack"),
-    efficiency=_recoSideEfficiency("pt"),
-    resolution=cms.vstring(),
-    verbose=cms.untracked.uint32(0),
-    outputFileName=cms.untracked.string(""),
-)
-
-branchTracksterRecoPostProcessor = DQMEDHarvester(
-    "DQMGenericClient",
-    subDirs=cms.untracked.vstring("HGCAL/BranchValidator/Trackster"),
-    efficiency=_recoSideEfficiency("energy"),
-    resolution=cms.vstring(),
-    verbose=cms.untracked.uint32(0),
-    outputFileName=cms.untracked.string(""),
-)
-
 truthGraphDQMHarvesting = cms.Sequence(branchHGCalPostProcessor + branchTrackingPostProcessor)
 
-# Opt-in harvesting for the experimental reco-side validators (see
-# truthGraphRecoSideValidationSequence in truthGraphValidation_cff): pair with that
-# sequence only once a disjoint antichain reference is configured.
-truthGraphRecoSideHarvesting = cms.Sequence(branchTrackRecoPostProcessor + branchTracksterRecoPostProcessor)

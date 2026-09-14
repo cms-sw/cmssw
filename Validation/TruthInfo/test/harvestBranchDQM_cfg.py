@@ -16,7 +16,7 @@ if '/' not in args.inputFile and ':' not in args.inputFile:
 process = cms.Process("BRANCHHARVEST")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("DQMServices.Core.DQMStore_cfi")
-process.load("PhysicsTools.TruthInfo.truthGraphDQMHarvester_cff")
+process.load("Validation.TruthInfo.truthGraphDQMHarvester_cff")
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 

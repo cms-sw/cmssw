@@ -49,18 +49,17 @@ job these run behind the `enableTruth` process modifier (the
   `truth::Graph`, `Branch`, `BranchSelector`, `LogicalGraphHitIndex`,
   `BranchHitAssociator`, the `truth::recoHits` adapters (`RecoHitAdapters.h`), and
   `TruthLogicalGraphPostProcessor` (merge/collapse/filter; covered by the cppunit).
-- `plugins/`: the producers above, the DOT dumpers, the flat-table producers, the
-  pileup `TruthGraphAccumulator`/`TruthGraphMixedProducer`, the association-map
-  producers (`TruthBranchCaloAssociationProducer`,
-  `TruthBranchTrackingAssociationProducer`), and the DQM validators
-  (`BranchHGCalValidator`, `BranchTrackingValidator`, the generic
-  `BranchRecoValidator`).
-- `python/`: `truthGraphValidation_cff` (producers + association maps + DQM
-  analyzers) and `truthGraphDQMHarvester_cff` (efficiency/fake/merge harvesting).
-- `scripts/`: `makeTruthGraphValidationPlots.py` (renders the Branch validation
-  plots / sample overlays).
+- `plugins/`: the producers above, the DOT dumpers, the flat-table producers and
+  the pileup `TruthGraphAccumulator`/`TruthGraphMixedProducer`.
+- `python/`: the DIGI and RECO customisations (`truthGraphMixedDigi_cff`,
+  `mixedTruthGraphCustomize`, `customiseTruthMixedReco`) and the event content.
 - `test/`: cppunit unit tests and standalone `cmsRun` drivers (graph dumps,
-  topology checks, association/DQM smoke tests).
+  topology checks).
+
+The DQM validators, their association-map producers, `truthGraphValidation_cff`,
+`truthGraphDQMHarvester_cff` and the plot scripts live in `Validation/TruthInfo`.
+The reco-to-truth associators with working points live in
+`SimGeneral/TruthGraphAssociatorProducers`.
 
 ## Build, check, test
 
@@ -78,10 +77,9 @@ scram b runtests                      # cppunit unit tests
 # Dump per-event DOT graphs (options: -n, -m/--merge, -c/--collapse, -o, -t)
 cmsRun test/dumpTruthGraphsFromGENSIMRECO_cfg.py path/to/step3.root -n 5
 
-# Branch DQM validators (calo / tracking / generic reco-side)
-cmsRun test/validateBranchDQM_cfg.py          path/to/step3.root -n 5
-cmsRun test/validateBranchTrackingDQM_cfg.py  path/to/step3.root -n 5
-cmsRun test/validateBranchRecoDQM_cfg.py      path/to/step3.root -n 5
+# Branch DQM validators (calo / tracking), from Validation/TruthInfo
+cmsRun ../../Validation/TruthInfo/test/validateBranchDQM_cfg.py          path/to/step3.root -n 5
+cmsRun ../../Validation/TruthInfo/test/validateBranchTrackingDQM_cfg.py  path/to/step3.root -n 5
 ```
 
 See the website for the full configuration reference, the navigation API with

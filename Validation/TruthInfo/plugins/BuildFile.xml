@@ -1,0 +1,27 @@
+<use name="DQMServices/Core"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/HGCRecHit"/>
+<use name="DataFormats/ParticleFlowReco"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/VertexReco"/>
+<use name="DataFormats/HGCalReco"/>
+<use name="SimDataFormats/Associations"/>
+<use name="SimDataFormats/CaloAnalysis"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+<use name="SimDataFormats/TruthInfo"/>
+<use name="SimTracker/TrackAssociation"/>
+<use name="SimTracker/TrackerHitAssociation"/>
+<use name="PhysicsTools/TruthInfo"/>
+<use name="Validation/TruthInfo"/>
+
+<library file="BranchHGCalValidator.cc" name="BranchHGCalValidatorPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="BranchTrackingValidator.cc" name="BranchTrackingValidatorPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
