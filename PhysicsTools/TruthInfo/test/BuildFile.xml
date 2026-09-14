@@ -17,6 +17,12 @@
   <use name="cppunit"/>
 </bin>
 
+<bin name="AssignableTarget_t" file="AssignableTarget_t.cpp">
+  <use name="PhysicsTools/TruthInfo"/>
+  <use name="SimDataFormats/TruthInfo"/>
+  <use name="cppunit"/>
+</bin>
+
 <bin name="BranchHitAssociator_t" file="BranchHitAssociator_t.cpp">
   <use name="PhysicsTools/TruthInfo"/>
   <use name="SimDataFormats/TruthInfo"/>
