@@ -12,6 +12,10 @@ recoVerticesFromScouting = cms.EDProducer("Run3ScoutingVertexToRecoVertexProduce
                                           skipMissingProduct = cms.bool(True), # do not throw on missing input
 					  src = cms.InputTag("hltScoutingPrimaryVertexPacker", "primaryVtx"))
 
-recoTrackFromScoutingMonitorSequence = cms.Sequence(recoTracksFromScouting +
+from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer as _onlineBeamSpotProducer
+hltOnlineBeamSpot = _onlineBeamSpotProducer.clone()
+
+recoTrackFromScoutingMonitorSequence = cms.Sequence(hltOnlineBeamSpot +
+                                                    recoTracksFromScouting +
                                                     recoVerticesFromScouting +
                                                     scoutingRecoTrackMonitor)
