@@ -129,6 +129,7 @@ private:
   unsigned int chamberId(const DetId&);
 
   double phiOfMuonInteractionRegion(const reco::Muon& muon) const;
+  double etaOfMuonInteractionRegion(const reco::Muon& muon) const;
 
   bool checkLinks(const reco::MuonTrackLinks*) const;
   inline bool approxEqual(const double a, const double b, const double tol = 1E-3) const {
@@ -228,6 +229,12 @@ private:
 
   bool arbitrateTrackerMuons_;
 
+  // A tracker track that crosses the interaction point is propagated twice, once in each
+  // direction, so that both hemispheres of muon chambers are reachable. With this flag the
+  // two propagations produce a single muon carrying the chamber matches of both legs,
+  // instead of two muons sharing the track and hence having an identical four-vector.
+  bool mergeCrossingTrackLegs_;
+
   bool isPhase2_;
   bool debugWithTruthMatching_;
 
@@ -291,6 +298,7 @@ private:
   std::unique_ptr<MuonMesh> meshAlgo_;
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemgeomToken_;
   const GEMGeometry* gemgeom;
+  const GlobalTrackingGeometry* globalGeom_ = nullptr;
   double GEM_edgecut_;
 };
 #endif
