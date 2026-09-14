@@ -18,18 +18,26 @@
 # THRESHOLD_RULE=global selects the global-recall rule for comparison (it also prints what the
 # default rule would have chosen).
 #
-# WHICH NUMBER GETS BAKED. By default the threshold the chain runs today (the producer config
-# value if it sets one, else the value in the header being replaced), so a retrain with no
-# options replaces the model and changes nothing else. --threshold rule bakes the derived value;
-# --threshold <x> an explicit one. The baked value is a fallback: the producer's
-# tripletDNNThreshold overrides it, and that value belongs to an in-situ scan.
+# WHICH NUMBER GETS BAKED. By default the point of the rule above, taken against the bank being
+# replaced: the step first scores the outgoing header on the same held-out events and records its
+# per-group per-track survival, then bakes the largest threshold at which the new gate matches or
+# beats that survival in every populated (|tip|, pT) group. So a retrain with no options moves the
+# model and moves the threshold with it, to the point where no group is worse off than it was.
+# BAKE_THR=<x> (or --threshold <x>) bakes an explicit value instead; REF_SURVIVAL=<file> uses a
+# reference measured elsewhere and skips the measurement. The baked value is a fallback: the
+# producer's tripletDNNThreshold overrides it.
+#
+# These gates are deployed at this rule's point, without a further in-situ scan: a per-triplet
+# threshold is not a collection the track validation can see on its own, and the survival rule
+# already states the requirement in tracks.
 #
 # OPTIONS
 #   --bank prompt|displaced   which iteration's weights to train    (required)
 #   --work DIR                datasets, models, plots and logs      (required)
 #   --dataset FILE[:LABEL]    training dataset; repeatable. The label appears in
 #                             the per-sample breakdowns (default: from the name)
-#   --threshold X|rule        threshold to bake (default: what the chain runs)
+#   --threshold X|rule        threshold to bake (default: the survival point of the
+#                             outgoing bank, see above; 'rule' is the same thing)
 #   --device DEV              torch device                          (default cuda:0)
 #   --dry-run                 print the commands without running them
 #
@@ -46,8 +54,11 @@
 #   EPOCHS          maximum epochs                             (default 40)
 #   WORKERS         ingestion workers (default: sized from cores and memory)
 #   THRESHOLD_RULE  worstgroup-survival (default) | global
-#   SURVIVAL_FLOOR  per-track survival the rule must hold      (default 0.90)
-#   REF_SURVIVAL    json of a reference model to pin each group against
+#   SURVIVAL_FLOOR  per-track survival the rule must hold when there is no reference
+#                   to match, group by group                   (default 0.90)
+#   REF_SURVIVAL    json of a reference model to pin each group against; by default
+#                   the step measures the outgoing header itself and writes one
+#   BAKE_THR        an explicit threshold to bake, as --threshold
 #   MEM_GUARD_GB    stop if the cgroup anonymous memory exceeds this (default 300)
 #   EXTRA           extra flags passed to the trainer
 # =============================================================================
@@ -123,22 +134,22 @@ if [ -z "$CURRENT_THR" ]; then
   CURRENT_THR=$(rt_baked_threshold "$HEADER")
   CURRENT_SRC="the header being replaced (the producer sets no threshold, so the baked one is used)"
 fi
-BAKE_THR=${RT_THRESHOLD:-$CURRENT_THR}
+# Empty means "apply the rule"; an explicit --threshold / THRESHOLD / BAKE_THR wins.
+BAKE_THR=${RT_THRESHOLD:-${BAKE_THR:-}}
+[ "$BAKE_THR" = rule ] && BAKE_THR=""
 
 mkdir -p "$OUTDIR" "$LOGDIR"
 W=""; [ -n "$WORKERS" ] && W="--workers $WORKERS"
-RS=""; [ -n "$REF_SURVIVAL" ] && RS="--ref-survival-json $REF_SURVIVAL"
 BT=""
-if [ -n "$BAKE_THR" ] && [ "$BAKE_THR" != rule ]; then
+if [ -n "$BAKE_THR" ]; then
   BT="--bake-thr $BAKE_THR"
   cat <<BANNER
 ============================================================================
- The header will be baked at threshold $BAKE_THR, taken from
- $CURRENT_SRC.
- The rule this run applies ($THRESHOLD_RULE) is still evaluated and printed
- below. If the two disagree that is information, not an error: the deployed
- value comes from a scan of the full reconstruction, on axes an offline scorer
- cannot see. Pass --threshold rule to bake the derived number instead.
+ The header will be baked at threshold $BAKE_THR, because it was given
+ explicitly. The rule this run applies ($THRESHOLD_RULE) is still evaluated
+ and printed below; if the two disagree that is information, not an error.
+ Leave the threshold unset to bake the number the rule derives.
+ The chain runs $CURRENT_THR today, from $CURRENT_SRC.
 ============================================================================
 BANNER
 fi
@@ -151,7 +162,7 @@ trap 'kill $GUARD 2>/dev/null' EXIT
 
 export TRIPLET_DNN_OUTDIR="$OUTDIR"   # plots and per-run artifacts stay out of the source tree
 
-echo "=== [1/2] train: recipe=$VARIANT, events [0,$TRAIN_EV), bank=$BANK ==="
+echo "=== [1/3] train: recipe=$VARIANT, events [0,$TRAIN_EV), bank=$BANK ==="
 rt_run python3 "$RT_MODELS/train_triplet_dnn.py" train "${SPECS[@]}" \
   --bank "$BANK" --device "$RT_DEVICE" --variant "$VARIANT" --max-events "$TRAIN_EV" --chunk-events 10 \
   --max-epochs "$EPOCHS" --patience 10 --val-frac 0.15 \
@@ -160,7 +171,36 @@ rt_run python3 "$RT_MODELS/train_triplet_dnn.py" train "${SPECS[@]}" \
   $W $EXTRA 2>&1 | tee "$LOGDIR/retrain_train_${VARIANT}.log"
 [ "${PIPESTATUS[0]}" -ne 0 ] && { echo "training failed"; exit 1; }
 
-echo "=== [2/2] score on events [$TEST_SKIP,+$TEST_EV), pick a threshold, bake the header ==="
+# The bank being replaced, measured on the same held-out events as the new one: its
+# per-group per-track survival is what the new gate has to match or beat. The header
+# is still the outgoing one here -- the bake is the next step.
+if [ -z "$BAKE_THR" ] && [ -z "$REF_SURVIVAL" ]; then
+  echo "=== [2/3] measure the bank being replaced on events [$TEST_SKIP,+$TEST_EV) ==="
+  OLD_GATE_JSON="$LOGDIR/old_gate_${BANK}.json"
+  rt_run python3 "$RT_MODELS/train_triplet_dnn.py" eval "${SPECS[@]}" \
+    --bank "$BANK" --device "$RT_DEVICE" --header "$HEADER" \
+    --skip-events "$TEST_SKIP" --max-events "$TEST_EV" --chunk-events 10 \
+    --mem-guard-gb 260 --mem-log "$LOGDIR/retrain_ram.log" \
+    --json-out "$OLD_GATE_JSON" \
+    $W 2>&1 | tee "$LOGDIR/retrain_old_gate_${BANK}.log"
+  [ "${PIPESTATUS[0]}" -ne 0 ] && { echo "measuring the outgoing bank failed; $HEADER is untouched"; exit 1; }
+  REF_SURVIVAL="$LOGDIR/ref_survival_${BANK}.json"
+  if [ "$RT_DRYRUN" -eq 0 ]; then
+    python3 - "$OLD_GATE_JSON" "$REF_SURVIVAL" <<'REFPY' || exit 1
+import json, sys
+o = json.load(open(sys.argv[1]))["header"]
+json.dump({"tip": o["survival_tip"], "pt": o["survival_pt"]}, open(sys.argv[2], "w"))
+fmt = lambda v: " ".join("%.4f" % x for x in v)
+print("reference survival of the outgoing bank: tip [%s]  pt [%s]"
+      % (fmt(o["survival_tip"]), fmt(o["survival_pt"])))
+REFPY
+  fi
+else
+  echo "=== [2/3] measuring the outgoing bank: skipped ($([ -n "$BAKE_THR" ] && echo "the threshold was given" || echo "REF_SURVIVAL was given")) ==="
+fi
+RS=""; [ -n "$REF_SURVIVAL" ] && RS="--ref-survival-json $REF_SURVIVAL"
+
+echo "=== [3/3] score on events [$TEST_SKIP,+$TEST_EV), pick a threshold, bake the header ==="
 rt_run python3 "$RT_MODELS/train_triplet_dnn.py" finalize "${SPECS[@]}" \
   --bank "$BANK" --device "$RT_DEVICE" --force-variant "$VARIANT" \
   --skip-events "$TEST_SKIP" --max-events "$TEST_EV" --chunk-events 10 \
@@ -176,8 +216,9 @@ if [ "$RT_DRYRUN" -eq 0 ]; then
 fi
 
 rt_report "Triplet gate retrained ($BANK iteration)"
-rt_r_produced "$HEADER   (written in place)" \
-              "scores, plots and logs: $OUTDIR"
+RP=("$HEADER   (written in place)" "scores, plots and logs: $OUTDIR")
+[ -n "$REF_SURVIVAL" ] && RP+=("the survival the new gate was held to: $REF_SURVIVAL")
+rt_r_produced "${RP[@]}"
 rt_r_deploy "the weights are compiled into the kernel, so rebuild:" \
             "  scram b code-format && scram b -j" \
             "(never rebuild while a cmsRun job is running: the shared libraries are replaced in place)" \
@@ -187,6 +228,6 @@ if [ "$CURRENT_SRC" = "the producer configuration" ]; then
               "  tripletDNNThreshold -- $CURRENT_THR today; re-scan it in situ after this retrain"
 else
   rt_r_update "$CA_CFI" \
-              "  tripletDNNThreshold is not set there, so the value baked into the header is what" \
-              "  runs ($BAKE_THR). Set it explicitly if the in-situ scan lands somewhere else."
+              "  tripletDNNThreshold is not set there, so the value the bake just wrote into the" \
+              "  header is what runs. Set it explicitly only to override the rule."
 fi

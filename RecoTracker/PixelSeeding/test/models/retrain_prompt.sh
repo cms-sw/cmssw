@@ -68,7 +68,9 @@
 #       --input ttbarPU=/data/ttbar,displacedPU=/data/susy,qcdPU=/data/qcd --events 300
 #
 # ENVIRONMENT (tuning; the defaults are the ones in use)
-#   hp step: WP_RULE (uniform | global | profile, see train_merged_forest.py --wp-rule),
+#   hp step: WP_RULE (profile | uniform | global, see train_merged_forest.py --wp-rule),
+#            NTREES (1000), ES_ROUNDS (0), PRUNE_TOL (0.002) -- the tree budget and the
+#            size the data chooses inside it,
 #            RECALL (0.995), EFF_WEIGHT (4.0), LABEL (mtv), TAG (wp, the tag in the file
 #            name), XGB_THREADS (16), MODEL_NAME (the date in the file name, today),
 #            TRAIN_EXTRA (further train_merged_forest.py options, e.g. "--ntrees 200" for a
@@ -81,10 +83,12 @@
 #   gate step:    NAME  -- see retrain_track_dnn.sh
 #   everywhere:   MEM_GUARD_GB (300)
 #
-# WORKING POINTS. The threshold a trainer prints is an offline starting point; the deployed
-# values come from a scan of the full reconstruction (efficiency ceiling, combinatorial load,
-# container occupancy, fake load to the next stage). By default each step bakes the value the
-# chain runs today, so a retrain with no options changes the model and nothing else.
+# WORKING POINTS. Every step states its point against the model it replaces, so a retrain with
+# no options moves the model and moves the threshold with it, to the point where nothing the old
+# model kept is given up anywhere. The two baked headers are deployed at that point directly.
+# The selector threshold is a starting point: it is pinned by a scan of the full reconstruction
+# (efficiency ceiling, combinatorial load, container occupancy, fake load to the next stage) --
+# see forest_threshold_scan.py and README.md, "Working points".
 # =============================================================================
 set -euo pipefail
 # shellcheck source=retrain_common.sh
@@ -101,7 +105,7 @@ case "${STEP:-}" in
 esac
 
 BANK=prompt
-SAMPLES=${RT_SAMPLE:-${SAMPLES:-ttbarPU}}
+SAMPLES=${RT_SAMPLE:-${SAMPLES:-"ttbarPU displacedPU qcdPU bsPU zpPU"}}
 CLASS=${RT_CLASS:-${MODEL_CLASS:-forest31}}
 CA_CFI=$(rt_ca_cfi $BANK)
 HP_CFI=$(rt_hp_cfi $BANK)
@@ -237,13 +241,13 @@ hp_deploy() {  # $@ = tight datasets
   echo ">>> [2/3] train the forest -> $outdir"
   rt_wp_args prompt "$cache" "$RT_DATA/${deployed:-none}" "$thr" "$RT_WORK/prompt_reference_profile.json" \
     --label "$label"
-  # The prompt recipe: the trainer's defaults (depth 12, up to 450 trees, two-pass tail
-  # re-weight, early stopping on the working-point rule), true high-pT tracks up-weighted
+  # The prompt recipe: the trainer's defaults (depth 12, two-pass tail re-weight), the
+  # large tree budget with the size chosen by the data, true high-pT tracks up-weighted
   # (--eff-weight 4), full-precision values in the exported file (--no-fp16).
   local -a train=(--cache "$cache" --out "$outdir" --feats 31 --label "$label"
                   --recall "${RECALL:-0.995}" --arm prompt --tag "$tag" --date "$MODEL_TAG"
                   --threads "${XGB_THREADS:-16}" --eff-weight "${EFF_WEIGHT:-4.0}" --no-fp16
-                  "${RT_WP_ARGS[@]}")
+                  "${RT_FOREST_SIZE_ARGS[@]}" "${RT_WP_ARGS[@]}")
   # shellcheck disable=SC2206
   [ -n "${TRAIN_EXTRA:-}" ] && train+=(${TRAIN_EXTRA})
   rt_run python3 "$RT_TRAINER" "${train[@]}"

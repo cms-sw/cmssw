@@ -551,7 +551,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   Tuples const* __restrict__ foundNtuplets,
                                   TupleMultiplicity const* __restrict__ tupleMultiplicity,
-                                  ::reco::TrackingRecHitConstView hh,
+                                  caStructures::HitsMultiView hh,
                                   ::reco::CAModulesConstView cm,
                                   typename caStructures::tindex_type* __restrict__ ptkids,
                                   double* __restrict__ phits,

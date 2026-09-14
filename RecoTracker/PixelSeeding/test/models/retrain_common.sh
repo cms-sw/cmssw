@@ -66,7 +66,7 @@ RT_INPUT_SPECS=()
 RT_SAMPLE=""
 RT_EVENTS=""
 RT_DATASETS=()
-RT_THRESHOLD=""
+RT_THRESHOLD="${THRESHOLD:-}"
 RT_CLASS=""
 RT_BANK=""
 RT_THREADS="${THREADS:-8}"
@@ -450,12 +450,25 @@ rt_model_stem() {  # strip a trailing _YYYYMMDD date and the extension
 RT_TRAINER="$RT_MODELS/train_merged_forest.py"
 RT_PROFILER="$RT_MODELS/make_profile.py"
 
+# Forest size, for all three selectors: fit with a large budget and no early
+# stopping, then let the data choose the size -- the smallest prefix of the
+# forest whose validation fake rejection at the working point is within
+# PRUNE_TOL of the best prefix. The whole curve is written to result.json as
+# `size_curve`, so the choice can be read back. A fixed budget with early
+# stopping stops where the validation loss stops improving, which is not the
+# same question as "how many trees does the deployed decision need".
+RT_FOREST_SIZE_ARGS=(--ntrees "${NTREES:-1000}" --es-rounds "${ES_ROUNDS:-0}"
+                     --prune-tol "${PRUNE_TOL:-0.002}")
+
 # The working-point rule of a retrain (train_merged_forest.py --wp-rule):
 #   uniform  (default) recall >= --recall in every pT / |eta| / |dxyBS| bin
 #   global   recall = --recall over all true tracks
-#   profile  match or exceed, bin by bin, the model the configuration loads today,
-#            measured on this run's own cache by make_profile.py
-RT_WP_RULE="${WP_RULE:-uniform}"
+#   profile  (default) match or exceed, bin by bin, the model the configuration
+#            loads today, measured on this run's own cache by make_profile.py
+# The default is 'profile' because that is what the deployed files were trained
+# against: a retrain has to be at least as good as what it replaces, everywhere,
+# on the sample of the run itself.
+RT_WP_RULE="${WP_RULE:-profile}"
 
 # Sets RT_WP_ARGS, the trainer's working-point options for the chosen rule. For
 # 'profile' it first measures the deployed model on the cache.
