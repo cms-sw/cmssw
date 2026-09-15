@@ -4,10 +4,13 @@
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
 
 #include "RecoMTD/TimingTools/interface/MTDHitMatchingInfo.h"
+#include "RecoMTD/TimingTools/interface/TrackPathLength.h"
 #include "RecoMTD/TimingTools/interface/TrackSegments.h"
 #include "RecoMTD/TimingTools/interface/TrackTofPidInfo.h"
 
 #include "RecoMTD/TrackExtender/interface/MTDHitMatcher.h"
+
+#include "TrackingTools/PatternTools/interface/trajectoryStateClosestToBeamLine.h"
 
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
@@ -40,7 +43,6 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-#include "TrackingTools/PatternTools/interface/TSCBLBuilderWithPropagator.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
@@ -63,113 +65,9 @@ using mtd::MTDHitMatchingInfo;
 using mtd::MTDHitMatchResult;
 using mtd::SigmaTofCalc;
 using mtd::TofCalc;
+using mtd::trackPathLength;
 using mtd::TrackSegments;
 using mtd::TrackTofPidInfo;
-
-namespace {
-
-  bool getTrajectoryStateClosestToBeamLine(const Trajectory& traj,
-                                           const reco::BeamSpot& bs,
-                                           const Propagator* thePropagator,
-                                           TrajectoryStateClosestToBeamLine& tscbl) {
-    // get the state closest to the beamline
-    TrajectoryStateOnSurface stateForProjectionToBeamLineOnSurface =
-        traj.closestMeasurement(GlobalPoint(bs.x0(), bs.y0(), bs.z0())).updatedState();
-
-    if (!stateForProjectionToBeamLineOnSurface.isValid()) {
-      edm::LogError("CannotPropagateToBeamLine") << "the state on the closest measurement isnot valid. skipping track.";
-      return false;
-    }
-
-    const FreeTrajectoryState& stateForProjectionToBeamLine = *stateForProjectionToBeamLineOnSurface.freeState();
-
-    TSCBLBuilderWithPropagator tscblBuilder(*thePropagator);
-    tscbl = tscblBuilder(stateForProjectionToBeamLine, bs);
-
-    return tscbl.isValid();
-  }
-
-  bool trackPathLength(const Trajectory& traj,
-                       const TrajectoryStateClosestToBeamLine& tscbl,
-                       const Propagator* thePropagator,
-                       float& pathlength,
-                       TrackSegments& trs) {
-    pathlength = 0.f;
-
-    bool validpropagation = true;
-    float oldp = traj.measurements().begin()->updatedState().globalMomentum().mag();
-    float pathlength1 = 0.f;
-    float pathlength2 = 0.f;
-
-    //add pathlength layer by layer
-    for (auto it = traj.measurements().begin(); it != traj.measurements().end() - 1; ++it) {
-      const auto& propresult = thePropagator->propagateWithPath(it->updatedState(), (it + 1)->updatedState().surface());
-      float layerpathlength = std::abs(propresult.second);
-      if (layerpathlength == 0.f) {
-        validpropagation = false;
-      }
-      pathlength1 += layerpathlength;
-
-      // sigma(p) from curvilinear error (on q/p)
-      float sigma_p = sqrt((it + 1)->updatedState().curvilinearError().matrix()(0, 0)) *
-                      (it + 1)->updatedState().globalMomentum().mag2();
-
-      trs.addSegment(layerpathlength, (it + 1)->updatedState().globalMomentum().mag2(), sigma_p);
-
-      LogTrace("TrackExtenderWithMTD") << "TSOS " << std::fixed << std::setw(4) << trs.size() << " R_i " << std::fixed
-                                       << std::setw(14) << it->updatedState().globalPosition().perp() << " z_i "
-                                       << std::fixed << std::setw(14) << it->updatedState().globalPosition().z()
-                                       << " R_e " << std::fixed << std::setw(14)
-                                       << (it + 1)->updatedState().globalPosition().perp() << " z_e " << std::fixed
-                                       << std::setw(14) << (it + 1)->updatedState().globalPosition().z() << " p "
-                                       << std::fixed << std::setw(14) << (it + 1)->updatedState().globalMomentum().mag()
-                                       << " dp " << std::fixed << std::setw(14)
-                                       << (it + 1)->updatedState().globalMomentum().mag() - oldp;
-      oldp = (it + 1)->updatedState().globalMomentum().mag();
-    }
-
-    //add distance from bs to first measurement
-    auto const& tscblPCA = tscbl.trackStateAtPCA();
-    auto const& aSurface = traj.direction() == alongMomentum ? traj.firstMeasurement().updatedState().surface()
-                                                             : traj.lastMeasurement().updatedState().surface();
-    pathlength2 = thePropagator->propagateWithPath(tscblPCA, aSurface).second;
-    if (pathlength2 == 0.f) {
-      validpropagation = false;
-    }
-    pathlength = pathlength1 + pathlength2;
-
-    float sigma_p = sqrt(tscblPCA.curvilinearError().matrix()(0, 0)) * tscblPCA.momentum().mag2();
-
-    trs.addSegment(pathlength2, tscblPCA.momentum().mag2(), sigma_p);
-
-    LogTrace("TrackExtenderWithMTD") << "TSOS " << std::fixed << std::setw(4) << trs.size() << " R_e " << std::fixed
-                                     << std::setw(14) << tscblPCA.position().perp() << " z_e " << std::fixed
-                                     << std::setw(14) << tscblPCA.position().z() << " p " << std::fixed << std::setw(14)
-                                     << tscblPCA.momentum().mag() << " dp " << std::fixed << std::setw(14)
-                                     << tscblPCA.momentum().mag() - oldp << " sigma_p = " << std::fixed << std::setw(14)
-                                     << sigma_p << " sigma_p/p = " << std::fixed << std::setw(14)
-                                     << sigma_p / tscblPCA.momentum().mag() * 100 << " %";
-
-    return validpropagation;
-  }
-
-  bool trackPathLength(const Trajectory& traj,
-                       const reco::BeamSpot& bs,
-                       const Propagator* thePropagator,
-                       float& pathlength,
-                       TrackSegments& trs) {
-    pathlength = 0.f;
-
-    TrajectoryStateClosestToBeamLine tscbl;
-    bool tscbl_status = getTrajectoryStateClosestToBeamLine(traj, bs, thePropagator, tscbl);
-
-    if (!tscbl_status)
-      return false;
-
-    return trackPathLength(traj, tscbl, thePropagator, pathlength, trs);
-  }
-
-}  // namespace
 
 template <class TrackCollection>
 class TrackExtenderWithMTDT : public edm::stream::EDProducer<> {
@@ -482,7 +380,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
       // get the outermost trajectory point on the track
       TrajectoryStateOnSurface tsos = builder_->build(track).outermostMeasurementState();
       TrajectoryStateClosestToBeamLine tscbl;
-      bool tscbl_status = getTrajectoryStateClosestToBeamLine(trajs, bs, prop, tscbl);
+      bool tscbl_status = trajectoryStateClosestToBeamLine(trajs, bs, prop, tscbl);
 
       if (tscbl_status) {
         float pmag2 = tscbl.trackStateAtPCA().momentum().mag2();
@@ -504,7 +402,7 @@ void TrackExtenderWithMTDT<TrackCollection>::produce(edm::Event& ev, const edm::
       }
 #ifdef EDM_ML_DEBUG
       else {
-        LogTrace("TrackExtenderWithMTD") << "Failing getTrajectoryStateClosestToBeamLine, no search for hits in MTD!";
+        LogTrace("TrackExtenderWithMTD") << "Failing trajectoryStateClosestToBeamLine, no search for hits in MTD!";
       }
 #endif
     }
@@ -704,7 +602,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
                                                                float& sigmatofk,
                                                                float& sigmatofp) const {
   TrajectoryStateClosestToBeamLine tscbl;
-  bool tsbcl_status = getTrajectoryStateClosestToBeamLine(traj, bs, thePropagator, tscbl);
+  bool tsbcl_status = trajectoryStateClosestToBeamLine(traj, bs, thePropagator, tscbl);
 
   if (!tsbcl_status)
     return reco::Track();
