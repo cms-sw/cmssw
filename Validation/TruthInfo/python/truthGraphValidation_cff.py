@@ -14,17 +14,6 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 # intentionally NOT imported here: importing them would attach them to the RECO
 # process and shadow the DIGI-built products.
 
-# TICL-style Branch <-> calo-truth association maps (best-matched branch first),
-# restricted to the interesting particles via interestingPdgIds (empty = all).
-truthBranchCaloAssociationProducer = cms.EDProducer(
-    "TruthBranchCaloAssociationProducer",
-    src=cms.InputTag("truthLogicalGraphProducer"),
-    hitIndex=cms.InputTag("truthLogicalGraphHitIndexProducer"),
-    caloParticles=cms.InputTag("mix", "MergedCaloTruth"),
-    simClusters=cms.InputTag("mix", "MergedCaloTruth"),
-    interestingPdgIds=cms.vint32(),
-)
-
 branchHGCalValidator = DQMEDAnalyzer(
     "BranchHGCalValidator",
     src=cms.InputTag("truthLogicalGraphProducer"),
@@ -52,14 +41,6 @@ truthTpClusterProducer = _tpClusterProducer.clone(
     throwOnMissingCollections=cms.bool(False),
 )
 
-truthBranchTrackingAssociationProducer = cms.EDProducer(
-    "TruthBranchTrackingAssociationProducer",
-    src=cms.InputTag("truthLogicalGraphProducer"),
-    hitIndex=cms.InputTag("truthLogicalGraphHitIndexProducer"),
-    tracks=cms.InputTag("generalTracks"),
-    interestingPdgIds=cms.vint32(),
-)
-
 branchTrackingValidator = DQMEDAnalyzer(
     "BranchTrackingValidator",
     src=cms.InputTag("truthLogicalGraphProducer"),
@@ -72,28 +53,16 @@ branchTrackingValidator = DQMEDAnalyzer(
     maxEta=cms.double(3.0),
 )
 
-# Producers (truth graph + hit index + association maps) followed by the DQM
-# analyzers that reproduce the legacy truth objects (CaloParticle/SimCluster via
-# branchHGCalValidator, TrackingParticle via branchTrackingValidator - both verified
-# meaningful). Append to a validation sequence with the calo truth, the reco tracks
-# and the tracker digi sim-links available.
-# Split views for wiring into the release validation: the EDProducers (truth graph,
-# hit index, association maps) run in the prevalidation Path, the DQM analyzers in
-# the validation EndPath. The standalone single-file drivers in test/ load the
-# signal-only build producers from Validation.Configuration.truthPrevalidation_cff.
-# Under enableTruth the logical graph and the hit index are built at the DIGI step
-# by the mixing accumulator chain (PhysicsTools/TruthInfo/python/truthGraphMixedDigi_cff.py),
-# and arrive at RECO through the input file. So the RECO prevalidation runs only the
-# reco-side association producers: src=truthLogicalGraphProducer /
-# hitIndex=truthLogicalGraphHitIndexProducer resolve (empty process) to the
-# DIGI-built products, and the validators' rawSrc points at the mixed graph (mix).
-truthGraphValidationProducers = cms.Sequence(
-    truthBranchCaloAssociationProducer
-    + truthTpClusterProducer
-    + truthBranchTrackingAssociationProducer
-)
+# The truth-graph DQM analyzers that compare the graph to the legacy truth objects:
+# CaloParticle and SimCluster through branchHGCalValidator, TrackingParticle through
+# branchTrackingValidator. Split in two so the release wires each into the right place,
+# the EDProducers in the prevalidation Path and the analyzers in the validation EndPath.
+# The logical graph and the hit index are built at DIGI by the mixing accumulator chain
+# and arrive at RECO through the input file, so the signal-only build producers are not
+# imported here: they would attach to the RECO process and shadow the DIGI-built
+# products. The validators' rawSrc points at the mixed graph.
+truthGraphValidationProducers = cms.Sequence(truthTpClusterProducer)
 truthGraphValidationAnalyzers = cms.Sequence(
     branchHGCalValidator
     + branchTrackingValidator
 )
-
