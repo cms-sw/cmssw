@@ -17,8 +17,9 @@ namespace edm {
 
   void VtuneFilterService::preModuleEvent(StreamContext const&, ModuleCallingContext const& mcc) {
     std::string const& moduleLabel = mcc.moduleDescription()->moduleLabel();
+    std::string const& moduleName = mcc.moduleDescription()->moduleName();
 
-    if (isTargetModule(moduleLabel)) {
+    if (isTargetModule(moduleLabel) || isTargetModule(moduleName)) {
       // Tells VTune to pause collecting data for entire process
       __itt_pause();
     }
@@ -26,8 +27,9 @@ namespace edm {
 
   void VtuneFilterService::postModuleEvent(StreamContext const&, ModuleCallingContext const& mcc) {
     std::string const& moduleLabel = mcc.moduleDescription()->moduleLabel();
+    std::string const& moduleName = mcc.moduleDescription()->moduleName();
 
-    if (isTargetModule(moduleLabel)) {
+    if (isTargetModule(moduleLabel) || isTargetModule(moduleName)) {
       // Tells VTune to resume collecting data for entire process
       __itt_resume();
     }
