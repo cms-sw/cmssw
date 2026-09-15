@@ -9,12 +9,10 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::btlrechit {
 
-  using namespace ::btlrechit;
-
   struct BTLBaseRecHitSoAProducerAlgo {
     static void fromDigiToBase(Queue& queue,
                                ::btldigi::BTLDigiSoA::ConstView const& input,
-                               BTLBaseRecHitSoA::View& output,
+                               ::btlrechit::BTLBaseRecHitSoA::View& output,
                                const uint32_t adcBitSaturation_,
                                const double tclock_,
                                const std::array<double, 4> tdcCalParams_,

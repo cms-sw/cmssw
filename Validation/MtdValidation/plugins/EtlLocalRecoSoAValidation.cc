@@ -148,12 +148,11 @@ void EtlLocalRecoSoAValidation::analyze(const edm::Event& iEvent, const edm::Eve
   geomUtil.setGeometry(geom);
 
   auto etlRecHitsSoAHandle = makeValid(iEvent.getHandle(etlRecHitsSoAToken_));
-  auto etlBaseRecHitsSoAHandle = makeValid(iEvent.getHandle(etlBaseRecHitsSoAToken_));
   auto etlSimHitsHandle = makeValid(iEvent.getHandle(etlSimHitsToken_));
-  auto mtdTrkHitHandle = makeValid(iEvent.getHandle(mtdTrackingHitToken_));
   MixCollection<PSimHit> etlSimHits(etlSimHitsHandle.product());
 
 #ifdef EDM_ML_DEBUG
+  auto mtdTrkHitHandle = makeValid(iEvent.getHandle(mtdTrackingHitToken_));
   for (const auto& hits : *mtdTrkHitHandle) {
     if (MTDDetId(hits.id()).mtdSubDetector() == MTDDetId::MTDType::ETL) {
       LogDebug("EtlLocalRecoValidation") << "MTD cluster DetId " << hits.id() << " # cluster " << hits.size();
