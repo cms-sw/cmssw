@@ -69,11 +69,14 @@ namespace l1t {
       void setHwEmID(uint16_t hwEmID) { hwEmID_ = hwEmID; }
       void setEncodedPuppi64(uint64_t encodedPuppi64) { encodedPuppi64_ = encodedPuppi64; }
 
+      float hwAssociationScore() const { return hwAssociationScore_; }
+      void setHwAssociationScore(float score) { hwAssociationScore_ = score; }
+
     private:
       L1CandPtr caloPtr_;
       PFTrackRef trackRef_;
       MuonRef muonRef_;
-      float dxy_, puppiWeight_, caloEta_, caloPhi_;
+      float dxy_, puppiWeight_, caloEta_, caloPhi_, hwAssociationScore_;
 
       int16_t hwZ0_, hwDxy_;
       uint16_t hwTkQuality_, hwPuppiWeight_, hwEmID_;
