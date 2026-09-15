@@ -26,31 +26,58 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackerRecHit2D/interface/TrackerSingleRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
+#include "PhysicsTools/TruthInfo/interface/TrackerCells.h"
 
 namespace truth {
 
-  // reco::Track -> its valid rechit DetIds (unit weight; tracker shared-hit metric).
+  // reco::Track -> its valid rechits (unit weight; tracker shared-hit metric). On a
+  // module whose truth is keyed by cell, one entry per cell of the hit's cluster, so the
+  // two sides compare the same objects; elsewhere one entry for the module.
   inline std::vector<RecoHit> recoHits(reco::Track const& track) {
     std::vector<RecoHit> hits;
     hits.reserve(track.recHitsSize());
     for (auto it = track.recHitsBegin(); it != track.recHitsEnd(); ++it) {
       TrackingRecHit const* hit = &(**it);
-      if (hit->isValid())
-        hits.push_back(RecoHit{hit->geographicalId().rawId(), 1.f, 1.f});
+      if (!hit->isValid()) {
+        continue;
+      }
+      const uint32_t detId = hit->geographicalId().rawId();
+      bool expanded = false;
+      if (isCellKeyedSubdetector(detId)) {
+        // A stub or a matched hit is not a single hit and carries no pixel cluster; it
+        // stays at module granularity, which the merge-join accepts.
+        auto const* single = dynamic_cast<TrackerSingleRecHit const*>(hit);
+        if (single != nullptr && single->cluster_pixel().isNonnull()) {
+          for (auto const& pixel : single->cluster_pixel()->pixels()) {
+            hits.push_back(RecoHit{detId, 1.f, 1.f, pixelCell(pixel.x, pixel.y)});
+          }
+          expanded = true;
+        }
+      }
+      if (!expanded) {
+        hits.push_back(RecoHit{detId, 1.f, 1.f});
+      }
     }
-    // One entry per DetId, ascending, which is what the merge-join in
+    // One entry per (DetId, cell), ascending, which is what the merge-join in
     // BranchHitAssociator requires. Two valid rechits can carry one geographicalId, and
     // a repeated cell would be counted twice: that drives the shared-cell count above
     // the branch's own cell count, which makes the reverse score negative and the shared
     // fraction larger than one. The count is what this metric measures, so a duplicate
     // is dropped rather than summed.
-    std::sort(hits.begin(), hits.end(), [](RecoHit const& a, RecoHit const& b) { return a.detId < b.detId; });
-    hits.erase(
-        std::unique(hits.begin(), hits.end(), [](RecoHit const& a, RecoHit const& b) { return a.detId == b.detId; }),
-        hits.end());
+    const auto byCell = [](RecoHit const& a, RecoHit const& b) {
+      if (a.detId != b.detId)
+        return a.detId < b.detId;
+      return a.cell < b.cell;
+    };
+    std::sort(hits.begin(), hits.end(), byCell);
+    hits.erase(std::unique(hits.begin(),
+                           hits.end(),
+                           [](RecoHit const& a, RecoHit const& b) { return a.detId == b.detId && a.cell == b.cell; }),
+               hits.end());
     return hits;
   }
 

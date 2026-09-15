@@ -3,6 +3,10 @@
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/DetId"/>
+<use name="DataFormats/SiPixelCluster"/>
+<use name="DataFormats/SiPixelDetId"/>
+<use name="DataFormats/SiPixelDigi"/>
+<use name="DataFormats/TrackerRecHit2D"/>
 <use name="DataFormats/Math"/>
 <use name="FWCore/ParameterSet"/>
 <use name="SimDataFormats/EncodedEventId"/>

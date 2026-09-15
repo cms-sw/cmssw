@@ -37,6 +37,11 @@ namespace truth {
                 float energy,
                 uint32_t recHitIndex = LogicalGraphHitIndex::Hit::kInvalidRecHitIndex);
 
+    // Whether a channel's hits are keyed by (detId, cell) rather than by detId alone.
+    // The Tracker channel is cell keyed when the producer fills the digi channel of each
+    // hit; every other channel names a cell with its DetId and is never cell keyed.
+    void setCellKeyed(HitChannel channel, bool value) { cellKeyed_[static_cast<std::size_t>(channel)] = value; }
+
     // (EncodedEventId, trackId) -> global map key. The packed EncodedEventId fits in
     // 32 bits (reco::EncodedEventId::rawId is uint32), so shift it into the high word.
     static uint64_t simKey(uint64_t eventId, uint32_t trackId) {
@@ -70,7 +75,9 @@ namespace truth {
     // independent of hit insertion order (unlike a hash-map accumulation, whose
     // sum order was bucket-dependent); cell energies can therefore differ from a
     // hash-based build at the float-reassociation level (~1e-7 relative).
-    static void coalesce(HitList& hits);
+    // cellKeyed groups by (detId, cell) instead of by detId, so two cells of one module
+    // stay separate entries.
+    static void coalesce(HitList& hits, bool cellKeyed);
 
     // Collect the particle and every distinct descendant (cycle-safe) into
     // `order`. `visited`/`touched`/`stack` are reusable scratch: `touched` lists
@@ -118,6 +125,7 @@ namespace truth {
     static constexpr uint32_t kNoParent = std::numeric_limits<uint32_t>::max();
 
     uint32_t nParticles_ = 0;
+    std::array<bool, kNumHitChannels> cellKeyed_{};
     bool sharedSubgraphStore_ = false;
     bool usedSharedStore_ = false;
 
