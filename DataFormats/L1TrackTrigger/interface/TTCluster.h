@@ -26,6 +26,10 @@
 template <typename T>
 class TTCluster {
 public:
+  /// Granularity in strips/pixels with which FE electronics outputs TTCluster positions.
+  static constexpr float rowGranularityFE = 0.5;
+  static constexpr float colGranularityFE = 1.0;
+
   /// Constructors
   TTCluster();
   TTCluster(std::vector<T> aHits, DetId aDetId, unsigned int aStackMember, bool storeLocal);
@@ -56,14 +60,19 @@ public:
   std::vector<int> getRows() const { return theRows; }
   std::vector<int> getCols() const { return theCols; }
 
-  /// Cluster width
+  /// Cluster width in r-phi plane
   unsigned int findWidth() const;
+  /// Cluster width in r-z plane
+  unsigned int findWidthCols() const;
 
   /// Single hit coordinates
-  /// Average cluster coordinates
   MeasurementPoint findHitLocalCoordinates(unsigned int hitIdx) const;
-  MeasurementPoint findAverageLocalCoordinates() const;
-  MeasurementPoint findAverageLocalCoordinatesCentered() const;
+
+  /// Average cluster coordinates
+  /// If outFE=true, then granularity will be reduced to match that output by front-end electronics.
+  MeasurementPoint findAverageLocalCoordinates(bool outFE = true) const;
+  /// Average cluster coordinates offset by 0.5 strip/pitch so unbiased for coord calc.
+  MeasurementPoint findAverageLocalCoordinatesCentered(bool outFE = true) const;
 
   /// Information
   std::string print(unsigned int i = 0) const;
@@ -122,6 +131,9 @@ TTCluster<T>::~TTCluster() {}
 template <>
 unsigned int TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findWidth() const;
 
+template <>
+unsigned int TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findWidthCols() const;
+
 /// Single hit coordinates
 /// Average cluster coordinates
 template <>
@@ -130,7 +142,13 @@ MeasurementPoint TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2
 
 template <>
 MeasurementPoint
-TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findAverageLocalCoordinates() const;
+TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findAverageLocalCoordinates(
+    bool outFE) const;
+
+template <>
+MeasurementPoint
+TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi> >::findAverageLocalCoordinatesCentered(
+    bool outFE) const;
 
 /// Operations with coordinates stored locally
 template <typename T>

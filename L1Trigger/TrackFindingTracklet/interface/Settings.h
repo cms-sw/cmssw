@@ -13,20 +13,21 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
-namespace tt {
-  class Setup;
-}
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 namespace trklet {
 
+  class Setup;
+
   constexpr unsigned int N_SECTOR = 9;  // # of phi sectors for L1TK processing
 
-  constexpr int N_LAYER = 6;                 // # of barrel layers assumed
-  constexpr int N_DISK = 5;                  // # of endcap disks assumed
-  constexpr unsigned int N_PSLAYER = 3;      // # of barrel PS layers assumed
-  constexpr unsigned int N_SEED = 12;        // # of tracklet+triplet seeds
-  constexpr unsigned int N_SEED_PROMPT = 8;  // # of tracklet (prompt) seeds
+  constexpr int N_LAYER = 6;                                         // # of barrel layers assumed
+  constexpr int N_DISK = 5;                                          // # of endcap disks assumed
+  constexpr unsigned int N_PSLAYER = 3;                              // # of barrel PS layers assumed
+  constexpr unsigned int N_SEED_PROMPT = 8;                          // # of tracklet (prompt) seeds
+  constexpr unsigned int N_SEED_DISPLACED = 4;                       // # of triplet (displaced) seeds
+  constexpr unsigned int N_SEED = N_SEED_PROMPT + N_SEED_DISPLACED;  // # of tracklet+triplet seeds
+  constexpr unsigned int N_TB = 2;                                   // # of track builders
 
   constexpr unsigned int N_DSS_MOD = 5;  // # of rings with 2S modules per disk
 
@@ -57,22 +58,29 @@ namespace trklet {
   public:
     Settings() {};
     ~Settings() = default;
-    void passSetup(const tt::Setup* setup) { setup_ = setup; }
-    const tt::Setup* setup() const { return setup_; }
+    void passSetup(const Setup* setup) { setup_ = setup; }
+    const Setup* setup() const { return setup_; }
 
     // processing & memory modules, wiring, etc.
     std::string const& fitPatternFile() const { return fitPatternFile_; }
     std::string const& processingModulesFile() const { return processingModulesFile_; }
+    std::string const& processingModulesFullPath() const { return edm::FileInPath(processingModulesFile()).fullPath(); }
     std::string const& memoryModulesFile() const { return memoryModulesFile_; }
+    std::string const& memoryModulesFullPath() const { return edm::FileInPath(memoryModulesFile()).fullPath(); }
     std::string const& wiresFile() const { return wiresFile_; }
+    std::string const& wiresFullPath() const { return edm::FileInPath(wiresFile()).fullPath(); }
+    std::string const& wiresJSONFile() const { return wiresJSONFile_; }
+    std::string const& wiresJSONFullPath() const { return edm::FileInPath(wiresJSONFile()).fullPath(); }
 
-    void setFitPatternFile(std::string fitPatternFileName) { fitPatternFile_ = fitPatternFileName; }
-    void setProcessingModulesFile(std::string processingModulesFileName) {
+    void setFitPatternFile(const std::string& fitPatternFileName) { fitPatternFile_ = fitPatternFileName; }
+    void setProcessingModulesFile(const std::string& processingModulesFileName) {
       processingModulesFile_ = processingModulesFileName;
     }
-    void setMemoryModulesFile(std::string memoryModulesFileName) { memoryModulesFile_ = memoryModulesFileName; }
-    void setWiresFile(std::string wiresFileName) { wiresFile_ = wiresFileName; }
+    void setMemoryModulesFile(const std::string& memoryModulesFileName) { memoryModulesFile_ = memoryModulesFileName; }
+    void setWiresFile(const std::string& wiresFileName) { wiresFile_ = wiresFileName; }
+    void setWiresJSONFile(const std::string& wiresJSONFileName) { wiresJSONFile_ = wiresJSONFileName; }
 
+    unsigned int nndbitsstub(unsigned int layerdisk) const { return nndbitsstub_[layerdisk]; }
     unsigned int nzbitsstub(unsigned int layerdisk) const { return nzbitsstub_[layerdisk]; }
     unsigned int nphibitsstub(unsigned int layerdisk) const { return nphibitsstub_[layerdisk]; }
     unsigned int nrbitsstub(unsigned int layerdisk) const { return nrbitsstub_[layerdisk]; }
@@ -86,12 +94,7 @@ namespace trklet {
     unsigned int nbendbitsmedisk() const { return nbendbitsmedisk_; }
 
     bool useSeed(unsigned int iSeed) const { return useseeding_.find(iSeed) != useseeding_.end(); }
-    unsigned int nbitsvmte(unsigned int inner, unsigned int iSeed) const {
-      if (combined_) {
-        return nbitsvmtecm_[inner][iSeed];
-      }
-      return nbitsvmte_[inner][iSeed];
-    }
+    unsigned int nbitsvmte(unsigned int inner, unsigned int iSeed) const { return nbitsvmtecm_[inner][iSeed]; }
     unsigned int nvmte(unsigned int inner, unsigned int iSeed) const { return (1 << nbitsvmte(inner, iSeed)); }
 
     unsigned int nbitsvmme(unsigned int layerdisk) const { return nbitsvmme_[layerdisk]; }
@@ -100,14 +103,14 @@ namespace trklet {
     unsigned int nbitsallstubs(unsigned int layerdisk) const { return nbitsallstubs_[layerdisk]; }
     unsigned int nallstubs(unsigned int layerdisk) const { return (1 << nbitsallstubs_[layerdisk]); }
 
-    bool writeMonitorData(std::string module) const {
+    bool writeMonitorData(const std::string& module) const {
       if (writeMonitorData_.find(module) == writeMonitorData_.end()) {
         throw cms::Exception("BadConfig") << "Settings::writeMonitorData module = " << module << " not known";
       }
       return writeMonitorData_.at(module);
     }
 
-    unsigned int maxStep(std::string module) const {
+    unsigned int maxStep(const std::string& module) const {
       if (maxstep_.find(module) == maxstep_.end()) {
         throw cms::Exception("BadConfig")
             << __FILE__ << " " << __LINE__ << " maxStep module = " << module << " not known";
@@ -125,12 +128,7 @@ namespace trklet {
     double half2SmoduleWidth() const { return half2SmoduleWidth_; }
 
     int nfinephi(unsigned int inner, unsigned int iSeed) const { return nfinephi_[inner][iSeed]; }
-    double nphireg(unsigned int inner, unsigned int iSeed) const {
-      if (combined_) {
-        return nphiregcm_[inner][iSeed];
-      }
-      return nphireg_[inner][iSeed];
-    }
+    double nphireg(unsigned int inner, unsigned int iSeed) const { return nphiregcm_[inner][iSeed]; }
     double lutwidthtab(unsigned int inner, unsigned int iSeed) const { return lutwidthtab_[inner][iSeed]; }
     double lutwidthtabextended(unsigned int inner, unsigned int iSeed) const {
       return lutwidthtabextended_[inner][iSeed];
@@ -156,9 +154,11 @@ namespace trklet {
     double rphicut2S(unsigned int iSeed, unsigned int idisk) const { return rphicut2S_[idisk][iSeed]; }
     double rcut2S(unsigned int iSeed, unsigned int idisk) const { return rcut2S_[idisk][iSeed]; }
 
+    unsigned int irmean(unsigned int iLayer) const { return irmean_[iLayer]; }
     double rmean(unsigned int iLayer) const { return irmean_[iLayer] * rmaxdisk_ / 4096; }
     double rmax(unsigned int iLayer) const { return rmean(iLayer) + drmax(); }
     double rmin(unsigned int iLayer) const { return rmean(iLayer) - drmax(); }
+    unsigned int izmean(unsigned int iDisk) const { return izmean_[iDisk]; }
     double zmean(unsigned int iDisk) const { return izmean_[iDisk] * zlength_ / 2048; }
     double zmax(unsigned int iDisk) const { return zmean(iDisk) + dzmax(); }
     double zmin(unsigned int iDisk) const { return zmean(iDisk) - dzmax(); }
@@ -187,15 +187,11 @@ namespace trklet {
     bool writeTable() const { return writeTable_; }
     bool writeConfig() const { return writeConfig_; }
 
-    std::string memPath() const { return memPath_; }
-    std::string tablePath() const { return tablePath_; }
+    const std::string& memPath() const { return memPath_; }
+    const std::string& tablePath() const { return tablePath_; }
 
-    bool writeVerilog() const { return writeVerilog_; }
-    bool writeHLS() const { return writeHLS_; }
-    bool writeInvTable() const { return writeInvTable_; }
-    bool writeHLSInvTable() const { return writeHLSInvTable_; }
-
-    unsigned int writememsect() const { return writememsect_; }
+    int writememsect() const { return writememsect_; }
+    bool splitmembysect() const { return (writememsect_ >= 0 || splitmembysect_); }
 
     bool writeoutReal() const { return writeoutReal_; }
 
@@ -220,8 +216,7 @@ namespace trklet {
 
     std::string geomext() const {
       std::string geo = extended_ ? "hourglassExtended" : "hourglass";
-      if (combined_)
-        geo += "Combined";
+      geo += "Combined";
       return geo;
     }
 
@@ -231,8 +226,8 @@ namespace trklet {
     bool usephicritapprox() const { return usephicritapprox_; }
 
     unsigned int minIndStubs() const { return minIndStubs_; }
-    std::string removalType() const { return removalType_; }
-    std::string mergeComparison() const { return mergeComparison_; }
+    const std::string& removalType() const { return removalType_; }
+    const std::string& mergeComparison() const { return mergeComparison_; }
     bool doKF() const { return doKF_; }
     bool doMultipleMatches() const { return doMultipleMatches_; }
     bool fakefit() const { return fakefit_; }
@@ -241,7 +236,7 @@ namespace trklet {
     void setStoreTrackBuilderOutput(bool storeTrackBuilderOutput) {
       storeTrackBuilderOutput_ = storeTrackBuilderOutput;
     }
-    void setRemovalType(std::string removalType) { removalType_ = removalType; }
+    void setRemovalType(const std::string& removalType) { removalType_ = removalType; }
     void setDoMultipleMatches(bool doMultipleMatches) { doMultipleMatches_ = doMultipleMatches; }
 
     // configurable
@@ -257,8 +252,6 @@ namespace trklet {
     const std::array<bool, N_LAYER + N_DISK>& layersDisksDuplicatedWeightedProjBalance() const {
       return layersDisksDuplicatedWeightedProjBalance_;
     }
-    bool combined() const { return combined_; }
-    void setCombined(bool combined) { combined_ = combined; }
     bool reduced() const { return reduced_; }
     void setReduced(bool reduced) { reduced_ = reduced; }
     bool inventStubs() const { return inventStubs_; }
@@ -288,13 +281,15 @@ namespace trklet {
     double phiOverlapSize() const { return phiOverlapSize_; }
     //Function which returns the value corresponding to the number of tracks that are compared to all the other tracks per rinv bin
     unsigned int numTracksComparedPerBin() const { return numTracksComparedPerBin_; }
+    //Function which sets the value corresponding to the number of tracks that are compared to all the other tracks per rinv bin
+    void setNumTracksComparedPerBin(int numTracksComparedPerBin) { numTracksComparedPerBin_ = numTracksComparedPerBin; }
     //Returns the rinv bin edges you need for duplicate removal bins
     const std::vector<double>& rinvBins() const { return rinvBins_; }
     //Returns the phi bin edges you need for duplicate removal bins
     const std::vector<double>& phiBins() const { return phiBins_; }
 
-    std::string skimfile() const { return skimfile_; }
-    void setSkimfile(std::string skimfile) { skimfile_ = skimfile; }
+    const std::string& skimfile() const { return skimfile_; }
+    void setSkimfile(const std::string& skimfile) { skimfile_ = skimfile; }
 
     unsigned int nbitstrackletindex() const { return nbitstrackletindex_; }
     void setNbitstrackletindex(unsigned int nbitstrackletindex) { nbitstrackletindex_ = nbitstrackletindex; }
@@ -331,8 +326,17 @@ namespace trklet {
 
     double kz() const { return 2.0 * zlength_ / (1 << nzbitsstub_[0]); }
     double kz(unsigned int layerdisk) const { return 2.0 * zlength_ / (1 << nzbitsstub_[layerdisk]); }
-    double kr() const { return rmaxdisk_ / (1 << nrbitsstub_[N_LAYER]); }
+    double kr() const {
+      return rmaxdisk_ / (1 << (nrbitsstub_[N_LAYER] + 1));
+    }  // + 1 required to offset artificial decrease in # of diskps r bits from 12 -> 11 to make space for negDisk bit
     double krbarrel() const { return 2.0 * drmax() / (1 << nrbitsstub_[0]); }
+    double kr(unsigned int layerdisk) const {
+      if (layerdisk << N_LAYER) {
+        return krbarrel();
+      } else {
+        return kr();
+      }
+    }
 
     double maxrinv() const { return maxrinv_; }
     double maxd0() const { return maxd0_; }
@@ -365,12 +369,6 @@ namespace trklet {
     int nbitsphi0() const { return nbitsphi0_; }
     int nbitst() const { return nbitst_; }
     int nbitsz0() const { return nbitsz0_; }
-
-    //track and tracklet parameters
-    int rinv_shift() const { return rinv_shift_; }
-    int phi0_shift() const { return phi0_shift_; }
-    int t_shift() const { return t_shift_; }
-    int z0_shift() const { return z0_shift_; }
 
     //projections are coarsened from global to stub precision
 
@@ -418,17 +416,13 @@ namespace trklet {
     }
     double kphi0pars() const { return 2 * kphi1(); }
     double ktpars() const { return maxt_ / (1 << nbitst_); }
-    double kz0pars() const { return kz(); }
+    double kz0pars() const { return 0.5 * zlength_ / (1 << nbitsz0_); }
     double kd0pars() const { return kd0(); }
 
     double kphider() const { return kphi() / kr() / 256; }
     double kphiderdisk() const { return kphi() / kr() / 128; }
     double kzder() const { return 1.0 / 64; }
     double krder() const { return 1.0 / 128; }
-
-    //This is a 'historical accident' and should be fixed so that we don't
-    //have the factor if 2
-    double krprojshiftdisk() const { return 2 * kr(); }
 
     double benddecode(unsigned int ibend, unsigned int layerdisk, bool isPSmodule) const {
       if (layerdisk >= N_LAYER && (!isPSmodule))
@@ -443,7 +437,7 @@ namespace trklet {
         layerdisk += N_DISK;
       double bendcut = bendcut_[layerdisk][ibend];
       if (bendcut <= 0.0)
-        std::cout << "bendcut : " << layerdisk << " " << ibend << " " << isPSmodule << std::endl;
+        edm::LogError("Tracklet") << "bendcut : " << layerdisk << " " << ibend << " " << isPSmodule;
       assert(bendcut > 0.0);
       return bendcut;
     }
@@ -492,13 +486,20 @@ namespace trklet {
     //projection disks by seed index. For each seeding index (row) the list of diks that we consider projections to
     std::array<std::array<unsigned int, N_DISK>, N_SEED> projdisks() const { return projdisks_; }
 
+    bool barrelSeed(unsigned int iSeed) const {
+      return iSeed == Seed::L1L2 || iSeed == Seed::L2L3 || iSeed == Seed::L3L4 || iSeed == Seed::L5L6;
+    }
+    bool diskSeed(unsigned int iSeed) const { return iSeed == Seed::D1D2 || iSeed == Seed::D3D4; }
+    bool overlapSeed(unsigned int iSeed) const { return iSeed == Seed::L1D1 || iSeed == Seed::L2D1; }
+
   private:
-    const tt::Setup* setup_;
+    const Setup* setup_;
 
     std::string fitPatternFile_;
     std::string processingModulesFile_;
     std::string memoryModulesFile_;
     std::string wiresFile_;
+    std::string wiresJSONFile_;
 
     double rcrit_{55.0};  // critical radius for the hourglass configuration
 
@@ -512,9 +513,10 @@ namespace trklet {
     std::array<unsigned int, N_LAYER> irmean_{{851, 1269, 1784, 2347, 2936, 3697}};
     std::array<unsigned int, N_DISK> izmean_{{2239, 2645, 3163, 3782, 4523}};
 
+    std::array<unsigned int, N_LAYER + N_DISK> nndbitsstub_{{0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1}};
     std::array<unsigned int, N_LAYER + N_DISK> nzbitsstub_{{12, 12, 12, 8, 8, 8, 7, 7, 7, 7, 7}};
     std::array<unsigned int, N_LAYER + N_DISK> nphibitsstub_{{14, 14, 14, 17, 17, 17, 14, 14, 14, 14, 14}};
-    std::array<unsigned int, N_LAYER + N_DISK> nrbitsstub_{{7, 7, 7, 7, 7, 7, 12, 12, 12, 12, 12}};
+    std::array<unsigned int, N_LAYER + N_DISK> nrbitsstub_{{7, 7, 7, 7, 7, 7, 11, 11, 11, 11, 11}};
 
     unsigned int nrbitsprojderdisk_{9};
     unsigned int nbitsphiprojderL123_{10};
@@ -528,11 +530,6 @@ namespace trklet {
 
     std::array<unsigned int, N_LAYER + N_DISK> nbitsallstubs_{{3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2}};
     std::array<unsigned int, N_LAYER + N_DISK> nbitsvmme_{{2, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2}};
-    std::array<std::array<unsigned int, N_SEED>, 3> nbitsvmte_{
-        {{{2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 3, 2}},  // (3 = #stubs/triplet, only row 1+2 used for tracklet)
-         {{3, 2, 3, 3, 2, 2, 2, 2, 3, 3, 2, 2}},
-         {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 1}}}};
-
     std::array<std::array<unsigned int, N_SEED>, 3> nbitsvmtecm_{
         {{{2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 3, 2}},  // (3 = #stubs/triplet, only row 1+2 used for tracklet)
          {{3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2}},
@@ -600,14 +597,8 @@ namespace trklet {
     //Bits used to store track parameter in tracklet
     int nbitsrinv_{14};
     int nbitsphi0_{18};
-    int nbitst_{14};
-    int nbitsz0_{10};
-
-    //track and tracklet parameters
-    int rinv_shift_{-8};  // Krinv = 2^shift * Kphi/Kr
-    int phi0_shift_{1};   // Kphi0 = 2^shift * Kphi
-    int t_shift_{-10};    // Kt    = 2^shift * Kz/Kr
-    int z0_shift_{0};     // Kz0   = 2^shift * kz
+    int nbitst_{15};   //change from 14 to 15?
+    int nbitsz0_{11};  //change from 10 to 11
 
     //projections are coarsened from global to stub precision
 
@@ -633,7 +624,7 @@ namespace trklet {
 
     int phiresidbits_{12};
     int zresidbits_{9};
-    int rresidbits_{7};
+    int rresidbits_{8};
 
     //Trackfit
     int fitrinvbitshift_{9};  //6 OK?
@@ -661,13 +652,6 @@ namespace trklet {
          {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3}}}};  //outermost (triplets only)
 
     //These are the number of bits used for the VM regions in the TE by seedindex
-    //FIXME not independed nbitsvmte
-    std::array<std::array<unsigned int, N_SEED>, 3> nphireg_{
-        {{{5, 4, 4, 4, 4, 4, 4, 3, 4, 4, 5, 4}},    //inner
-         {{5, 4, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4}},    //outer
-         {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4}}}};  //outermost (triplets only)
-
-    //For combined modules
     std::array<std::array<unsigned int, N_SEED>, 3> nphiregcm_{
         {{{5, 4, 4, 4, 4, 4, 4, 3, 4, 4, 5, 4}},    //inner
          {{5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4}},    //outer
@@ -706,7 +690,7 @@ namespace trklet {
                                                         {{6, 7, 1}}}};  //11 D1D2L2
 
     //Number of tracklet calculators for the prompt seeding combinations
-    std::array<unsigned int, N_SEED> ntc_{{12, 4, 4, 4, 4, 4, 8, 4, 0, 0, 0, 0}};
+    std::array<unsigned int, N_SEED> ntc_{{12, 4, 4, 4, 4, 4, 8, 4, 10, 10, 10, 10}};
 
     //projection layers by seed index. For each seeding index (row) the list of layers that we consider projections to
     std::array<std::array<unsigned int, N_LAYER - 2>, N_SEED> projlayers_{{{{3, 4, 5, 6}},  //0 L1L2
@@ -780,10 +764,10 @@ namespace trklet {
 
     //r cuts for 2S modules in disks -the column is the seedindex
     std::array<std::array<double, N_SEED>, N_DISK> rcut2S_{
-        {{{3.8, 3.8, 3.8, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 0.0, 0.0, 0.0}},    //disk 1
-         {{3.8, 3.8, 3.8, 0.0, 0.0, 0.0, 3.8, 3.4, 3.0, 0.0, 3.0, 0.0}},    //disk 2
-         {{3.6, 3.8, 0.0, 0.0, 3.6, 0.0, 3.6, 3.8, 0.0, 0.0, 3.8, 3.0}},    //disk 3
-         {{3.6, 3.8, 0.0, 0.0, 3.6, 0.0, 3.5, 3.8, 0.0, 0.0, 3.0, 3.0}},    //disk 4
+        {{{3.6, 3.6, 3.6, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 0.0, 0.0, 0.0}},    //disk 1
+         {{3.6, 3.6, 3.6, 0.0, 0.0, 0.0, 3.6, 3.4, 3.0, 0.0, 3.0, 0.0}},    //disk 2
+         {{3.6, 3.6, 0.0, 0.0, 3.6, 0.0, 3.6, 3.6, 0.0, 0.0, 3.6, 3.0}},    //disk 3
+         {{3.6, 3.6, 0.0, 0.0, 3.6, 0.0, 3.5, 3.6, 0.0, 0.0, 3.0, 3.0}},    //disk 4
          {{0.0, 0.0, 0.0, 0.0, 3.6, 3.4, 3.7, 0.0, 0.0, 0.0, 0.0, 3.0}}}};  //disk 5
 
     //returns the mean bend (in strips at a 1.8 mm separation) for bendcode
@@ -866,26 +850,16 @@ namespace trklet {
         {"IR", 156},  //IR will run at a higher clock speed to handle
                       //input links running at 25 Gbits/s
         //Set to 108 to match firmware project 240 MHz clock
-
-        {"VMR", 107},
-        {"TE", 107},
-        {"TC", 108},
-        {"PR", 108},
-        {"ME", 108},
-        //NOTE: The MC is set to 108, but `mergedepth`
-        //removes 3 iterations to emulate the delay
-        //due to the HLS priority encoder
-        {"MC", 108},
+        {"VMR", 108},
         {"TB", 108},
+        {"PC", 108},
         {"MP", 108},
         {"TP", 108},
         {"TPD", 108},
         {"TRE", 108},
         {"DR", 108}};  //Specifies how many tracks allowed per bin in DR
 
-    // If set to true this creates txt files, which the ROOT macros in
-    // https://github.com/cms-L1TK/TrackPerf/tree/master/PatternReco
-    // can then use to study truncation of individual algo steps within tracklet chain.
+    // If set to true this will generate debub printout in text files
     std::unordered_map<std::string, bool> writeMonitorData_{{"IL", false},
                                                             {"TE", false},
                                                             {"CT", false},
@@ -906,8 +880,11 @@ namespace trklet {
                                                             {"TPars", false},
                                                             {"TPD", false},
                                                             {"TrackletPars", false},
+                                                            {"ProjectionCalculator", false},
+                                                            {"MPDiskProjection", false},
                                                             {"TED", false},
                                                             {"TP", false},
+                                                            {"PC", false},
                                                             {"TRE", false},
                                                             {"VMR", false},
                                                             {"StubsLayer", false},
@@ -936,16 +913,12 @@ namespace trklet {
     bool writeMem_{false};     //If true will print out content of memories (between algo steps) to files
     bool writeTable_{false};   //If true will print out content of LUTs to files
     bool writeConfig_{false};  //If true will print out the autogenerated configuration as files
-    std::string memPath_{"../data/MemPrints/"};  //path for writing memories
-    std::string tablePath_{"../data/LUTs/"};     //path for writing LUTs
+    std::string memPath_{"L1Trigger/TrackFindingTracklet/data/MemPrints/"};  //path for writing memories
+    std::string tablePath_{"L1Trigger/TrackFindingTracklet/data/LUTs/"};     //path for writing LUTs
 
-    // Write various lookup tables and autogenerated code (from iMath)
-    bool writeVerilog_{false};      //Write out auto-generated Verilog mudules used by TCs
-    bool writeHLS_{false};          //Write out auto-generated HLS mudules used by TCs
-    bool writeInvTable_{false};     //Write out tables of drinv and invt in tracklet calculator for Verilog module
-    bool writeHLSInvTable_{false};  //Write out tables of drinv and invt in tracklet calculator for HLS module
-
-    unsigned int writememsect_{3};  //writemem only for this sector (note that the files will have _4 extension)
+    int writememsect_{3};         //writemem only for this sector (note that the files will have _4 extension);
+                                  //negative values will cause all sectors to be written
+    bool splitmembysect_{false};  //If true will write each sector to separate files when writememsect_ is negative
 
     bool writeoutReal_{false};
 
@@ -973,8 +946,10 @@ namespace trklet {
 
     // Duplicate Removal
     // "merge" (hybrid dup removal)
-    // "ichi" (pairwise, keep track with best ichisq), "nstub" (pairwise, keep track with more stubs)
-    // "grid" (TMTT-like removal), "" (no removal)
+    // "ichi" (pairwise kill, keep track with best ichisq)
+    // "nstub" (pairwise kill, keep track with more stubs)
+    // "grid" (TMTT-like removal),
+    // "" (no removal)
     unsigned int minIndStubs_{3};  // not used with merge removal
 
 #ifdef USEHYBRID
@@ -996,7 +971,7 @@ namespace trklet {
     // This is a temporary fix for compatibilty with HLS. We will need to implement multiple match
     // printing in emulator eventually, possibly after CMSSW-integration inspired rewrites
     // Use false when generating HLS files, use true when doing full hybrid tracking
-    bool doMultipleMatches_{true};
+    bool doMultipleMatches_{false};
 
     // NEXT 2 VALUES OVERRIDDEN BY PYTHON CFG
     // if true, run a dummy fit, producing TTracks directly from output of tracklet pattern reco stage
@@ -1010,16 +985,9 @@ namespace trklet {
     bool reduced_{false};        // use reduced (Summer Chain) config
     bool inventStubs_{false};    // invent seeding stub coordinates based on tracklet traj
 
-    // Use combined TP (TE+TC) & MP (PR+ME+MC) config (with prompt tracking)
-    bool combined_{true};
-    // N.B. For extended tracking, this combined_ is overridden by python cfg
-    // to false, but combined modules are nonetheless used by default.
-    // If you don't want them, edit l1tTTTracksFromTrackletEmulation_cfi.py
-    // to refer to *_hourglassExtended.dat .
-
     // Use chain with duplicated MPs for L3,L4 to reduce truncation issue
     // Balances load from projections roughly in half for each of the two MPs
-    bool duplicateMPs_{false};
+    bool duplicateMPs_{true};
 
     // Determines which layers, disks the MatchProcessor is duplicated for
     // (note: in TCB by default always duplicated for phi B, C as truncation is significantly worse than A, D)
@@ -1027,12 +995,12 @@ namespace trklet {
 
     // EqualProjBalancing is for layers for which the projections to each duplicated MP are split in half sequentially
     std::array<bool, N_LAYER + N_DISK> layersDisksDuplicatedEqualProjBalance_{
-        {false, false, false, false, false, false, false, false, false, false, false}};
+        {false, false, true, true, true, true, false, false, true, true, false}};
 
     // Weighted proj balancing is for specifically L4, L5 where the split of the projections is weighted to account for
     // Higher occupancy in the L1L2 seed to minimize truncation
     std::array<bool, N_LAYER + N_DISK> layersDisksDuplicatedWeightedProjBalance_{
-        {false, false, false, false, false, false, false, false, false, false, false}};
+        {false, false, true, true, true, true, false, false, true, true, false}};
 
     // Example use where for L3, L4, L5, D2, D3, the layers/disks where truncation is worst
     //std::array<bool, N_LAYER + N_DISK> layersDisksDuplicatedEqualProjBalance_{{0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0}};
@@ -1052,18 +1020,17 @@ namespace trklet {
     double stripLength_PS_{0.1467};
     double stripLength_2S_{5.0250};
 
-    // The DR binning below disabled, as doesn't match latest FW.
-
     //Following values are used for duplicate removal
     //Only one bin currently used.
-    std::vector<double> rinvBins_{-rinvcut(), rinvcut()};
-    std::vector<double> phiBins_{0, dphisectorHG()};
+    std::vector<double> rinvBins_{-999.9, 999.9};
+    std::vector<double> phiBins_{-999.9, 999.9};
     //Overlap size for the overlap rinv bins in DR
-    double rinvOverlapSize_{0.0004};
+    double rinvOverlapSize_{0.0};
     //Overlap size for the overlap phi bins in DR
-    double phiOverlapSize_{M_PI / 360};
+    double phiOverlapSize_{0.0};
     //The maximum number of tracks that are compared to all the other tracks per rinv bin
-    int numTracksComparedPerBin_{9999};
+    //VALUE AUTOMATICALLY SET TO INFINITY FOR EXTENDED TRACKING
+    int numTracksComparedPerBin_{32};
 
     double sensorSpacing_2S_{0.18};
   };
