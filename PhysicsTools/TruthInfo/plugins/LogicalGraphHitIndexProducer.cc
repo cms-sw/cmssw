@@ -148,6 +148,7 @@ private:
   // cellKeyed skips the modules whose cells fillTrackerCells writes below.
   void fillTrackerSimHits(edm::Event& event, truth::LogicalGraphHitIndexBuilder& builder, bool cellKeyed) const;
   void fillTrackerCells(edm::Event& event, truth::LogicalGraphHitIndexBuilder& builder) const;
+  [[nodiscard]] bool trackerCellsAvailable(edm::Event const& event) const;
 
   // Muon chambers (DT/CSC/RPC/GEM/ME0): PSimHits keyed by trackId, like the tracker
   // channel (energy = energyLoss, no recHit link).
@@ -356,9 +357,10 @@ void TruthLogicalGraphHitIndexProducer::produce(edm::StreamID, edm::Event& event
   if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::Calo)])
     fillSimHits(event, setup, builder, recHitMap);
   if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::Tracker)]) {
-    // The inner tracker is keyed by cell when the digi sim links are configured, so the
-    // hits two particles leave on one module stay apart.
-    const bool cellKeyed = !digiSimLinkTokens_.empty();
+    // The inner tracker is keyed by cell when the digi sim links are there, so the hits
+    // two particles leave on one module stay apart. Without them it falls back to one
+    // module-level hit per particle, which the PSimHits still provide.
+    const bool cellKeyed = trackerCellsAvailable(event);
     builder.setCellKeyed(truth::HitChannel::Tracker, cellKeyed);
     fillTrackerSimHits(event, builder, cellKeyed);
     if (cellKeyed) {
@@ -605,6 +607,25 @@ void TruthLogicalGraphHitIndexProducer::fillTrackerSimHits(edm::Event& event,
   }
 }
 
+// The cell key needs every configured links product. A job that has none of them keys
+// the inner tracker by module, so the truth of a pixel module is "this particle was
+// somewhere in it" and the PSimHit path fills it.
+bool TruthLogicalGraphHitIndexProducer::trackerCellsAvailable(edm::Event const& event) const {
+  bool available = !digiSimLinkTokens_.empty();
+  for (uint32_t tokenIndex = 0; tokenIndex < digiSimLinkTokens_.size(); ++tokenIndex) {
+    if (event.getHandle(digiSimLinkTokens_[tokenIndex]).isValid()) {
+      continue;
+    }
+    available = false;
+    std::call_once(digiSimLinkWarned_[tokenIndex], [this, tokenIndex]() {
+      edm::LogWarning("TruthLogicalGraphHitIndexProducer")
+          << "Missing digi sim links " << digiSimLinkTags_[tokenIndex].encode()
+          << ". The inner tracker is keyed by module for this job.";
+    });
+  }
+  return available;
+}
+
 void TruthLogicalGraphHitIndexProducer::fillTrackerCells(edm::Event& event,
                                                          truth::LogicalGraphHitIndexBuilder& builder) const {
   for (uint32_t tokenIndex = 0; tokenIndex < digiSimLinkTokens_.size(); ++tokenIndex) {
@@ -612,11 +633,6 @@ void TruthLogicalGraphHitIndexProducer::fillTrackerCells(edm::Event& event,
     event.getByToken(digiSimLinkTokens_[tokenIndex], hLinks);
 
     if (!hLinks.isValid()) {
-      std::call_once(digiSimLinkWarned_[tokenIndex], [this, tokenIndex]() {
-        edm::LogWarning("TruthLogicalGraphHitIndexProducer")
-            << "Missing digi sim links " << digiSimLinkTags_[tokenIndex].encode()
-            << ". The modules they cover stay keyed by module for this job.";
-      });
       continue;
     }
 
