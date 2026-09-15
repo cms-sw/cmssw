@@ -2,15 +2,18 @@
 
 # The association producers, one per domain, all driven by the label and working-point
 # lists in truthGraphAssociationLabels_cff so a collection is configured in exactly one
-# place. Composite domains consume the constituent domain's maps, so the order in
-# truthGraphAssociatorsTask matters only for readability: the framework resolves the
-# data dependency itself.
+# place. Composite domains consume the constituent domain's maps, so the order in the
+# sequences below matters only for readability: the framework resolves the data
+# dependency itself.
 
 import FWCore.ParameterSet.Config as cms
 
 from SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociationLabels_cff import (
     truthBranchWorkingPointsPSet,
     recoLabels,
+    _truthLevels,
+    _signalSeedPdgIds,
+    _signalSeedHadronFlavors,
 )
 
 # Shared selection of which truth branches are candidates at all. A 1 GeV floor keeps
@@ -57,36 +60,6 @@ _truthSources = dict(
 def _tags(domain, flavour="offline"):
     return cms.VInputTag(*[cms.InputTag(*label.split(":")) for label in recoLabels(domain, flavour)])
 
-
-# Branch levels the truth-driven direction asks about, one denominator product per
-# level, side by side. Only hit-based domains have levels: a composite object's truth
-# target is a vertex, fixed by its resolution instead.
-_truthLevels = cms.vstring(
-    "stableLegsFromUpstream", "caloBoundary", "stableDecayProducts", "hardProcess",
-    # The resonance's visible final state, which needs LevelFlag::Signal on the graph.
-    # Stamped at DIGI, so a sample produced before that carries an empty level.
-    "reconstructableFromSignal", "underlyingEvent",
-    # One root per parton-initiated jet: the hard-scatter legs that are quarks or gluons,
-    # each standing for everything downstream of it. No clustering.
-    "partonJets",
-    # The weakly decaying hadron of each heavy flavour along a chain, the one CMS ghost
-    # association names. Separate levels because a B decays to a D, so one combined
-    # level would keep only one flavour per chain.
-    "bHadrons", "cHadrons",
-    # Event-wide visible final state: the reconstructableFromSignal walk seeded from every
-    # GEN root, so a pi0 is one object on samples with no resonance to seed from.
-    "reconstructableFinalState",
-    # One entry per hadronically decaying tau, the last copy of each radiative chain.
-    "visibleTau"
-)
-
-# The selection preset's seed species, so the signalSeeds product (the _signal
-# efficiency denominator) is the preset's signal object itself. A production that
-# applies a preset must set this to the SAME pdgIds the preset seeds with, via
-# PhysicsTools.TruthInfo.truthGraphSelections.seedPdgIdsForPreset. With no preset
-# there is no resonance and the signal products stay empty.
-_signalSeedPdgIds = cms.vint32()
-_signalSeedHadronFlavors = cms.vint32()
 
 # The truth-side targets, once per event: the selector-passing candidate roots the
 # associators consume, the signal-seed denominators and one TruthToReco denominator
@@ -178,13 +151,20 @@ hltTruthBranchTracksterAssociators = truthBranchTracksterAssociators.clone(
     pfRecHits=cms.VInputTag("hltParticleFlowRecHitECALUnseeded", "hltParticleFlowRecHitHBHE"),
 )
 
-truthGraphAssociatorsTask = cms.Task(
-    truthBranchTargets,
-    allTrackToTruthBranchAssociators,
-    allVertexToTruthBranchAssociators,
-    allSecondaryVertexToTruthBranchAssociators,
-    truthBranchTracksterAssociators,
-    hltTrackToTruthBranchAssociators,
-    hltVertexToTruthBranchAssociators,
-    hltTruthBranchTracksterAssociators,
+# Sequences, not Tasks: a Task runs a module only when another module consumes its
+# product, so a job that keeps the maps without validating them would produce nothing.
+# The order is the data flow, the targets first, then the hit-based domains, then the
+# composite domains, which consume the track maps.
+truthGraphAssociatorsSequence = cms.Sequence(
+    truthBranchTargets
+    + allTrackToTruthBranchAssociators
+    + truthBranchTracksterAssociators
+    + allVertexToTruthBranchAssociators
+    + allSecondaryVertexToTruthBranchAssociators
+)
+
+# The HLT twins read HLT collections, which an offline reconstruction does not produce,
+# so they are kept apart from the offline sequence.
+truthGraphHltAssociatorsSequence = cms.Sequence(
+    hltTrackToTruthBranchAssociators + hltTruthBranchTracksterAssociators + hltVertexToTruthBranchAssociators
 )
