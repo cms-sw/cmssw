@@ -18,7 +18,7 @@ from DQM.Physics.CentralityDQM_cfi import *
 from DQM.Physics.CentralitypADQM_cfi import *
 from DQM.Physics.FSQDQM_cfi import *
 from DQM.Physics.SMPDQM_cfi import *
-from DQM.Physics.NPSDQM_cfi import *
+from DQM.Physics.npsDQM_cfi import *
 
 dqmPhysics = cms.Sequence( bphysicsOniaDQM 
 #                          Empty Histograms from EWK and Error log messages

@@ -20,10 +20,16 @@
 #include <string>
 #include <vector>
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class NPSDQM : public DQMEDAnalyzer {
 public:
   explicit NPSDQM(const edm::ParameterSet&);
   ~NPSDQM() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;

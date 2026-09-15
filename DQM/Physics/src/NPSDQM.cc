@@ -1,5 +1,8 @@
 #include "NPSDQM.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 NPSDQM::NPSDQM(const edm::ParameterSet& iConfig) {
   jetLabels_ = iConfig.getParameter<std::vector<std::string>>("jetLabels");
   for (const auto& label : jetLabels_) {
@@ -17,7 +20,54 @@ NPSDQM::NPSDQM(const edm::ParameterSet& iConfig) {
   photonToken_ = consumes<edm::View<reco::Photon>>(iConfig.getParameter<edm::InputTag>("photonCollection"));
 }
 
+void NPSDQM::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<std::vector<std::string>>("jetLabels", std::vector<std::string>{"ak4PFJetsCHS"});
+
+  desc.add<edm::InputTag>("btagDeepCSV", edm::InputTag("pfDeepCSVJetTags", "probb"));
+  desc.add<edm::InputTag>("btagDeepJet", edm::InputTag("pfDeepFlavourJetTags", "probb"));
+  desc.add<edm::InputTag>("btagParticleNet", edm::InputTag("pfParticleNetAK4JetTags", "probb"));
+  desc.add<edm::InputTag>("btagRobustParT", edm::InputTag("pfParticleTransformerAK4JetTags", "probb"));
+
+  desc.add<edm::InputTag>("pfMETCollection", edm::InputTag("pfMet"));
+  desc.add<edm::InputTag>("muonCollection", edm::InputTag("muons"));
+  desc.add<edm::InputTag>("electronCollection", edm::InputTag("gedGsfElectrons"));
+  desc.add<edm::InputTag>("photonCollection", edm::InputTag("gedPhotons"));
+
+  descriptions.add("npsDQM", desc);
+}
+
 void NPSDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&, edm::EventSetup const&) {
+  CentralJet_HT.clear();
+  ForwardJet_HT.clear();
+  N_CentralJets.clear();
+  N_ForwardJets.clear();
+
+  Jet_pt.clear();
+  Jet_eta.clear();
+  Jet_phi.clear();
+  Jet_m.clear();
+
+  Jet_btagDeepCSV.clear();
+  Jet_btagDeepJet.clear();
+  Jet_btagParticleNet.clear();
+  Jet_btagRobustParT.clear();
+
+  Jet1_pt.clear();
+  Jet1_eta.clear();
+  Jet1_phi.clear();
+
+  dPhi_Jet1_MET.clear();
+  dPhi_Jet2_MET.clear();
+  dPhi_Jet3_MET.clear();
+  dPhi_Jet4_MET.clear();
+
+  Jet_chef.clear();
+  Jet_nhef.clear();
+  Jet_cemf.clear();
+  Jet_nemf.clear();
+
   bei.setCurrentFolder("Physics/NPS");
 
   MET_pt = bei.book1D("MET", "Missing E_{T}; GeV", 50, 0, 1000);
