@@ -5,9 +5,7 @@ def customise(process):
     process.VtuneAnnotateService = cms.Service("VtuneAnnotateService",
         # Pass an explicit list of module labels you want to ENABLE annotation for
         targetModules = cms.untracked.vstring(
-            'deepTau2018v2p5ForMini',
-            'deepTau2026v2p5ForMini',
-            'boostedDeepTau20161718v2p0BoostedForMini',
+            'all'  # Use 'all' to enable annotation for all modules
         )
     )
     return(process)
