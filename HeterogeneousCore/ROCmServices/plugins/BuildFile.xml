@@ -1,5 +1,6 @@
 <iftool name="rocm">
   <use name="rocm"/>
+  <use name="rocm-rocprofiler-sdk"/>
   <use name="DataFormats/Provenance" source_only="1"/>
   <use name="FWCore/AbstractServices"/>
   <use name="FWCore/MessageLogger"/>
@@ -8,7 +9,8 @@
   <use name="FWCore/Utilities"/>
   <use name="HeterogeneousCore/ROCmServices"/>
   <use name="HeterogeneousCore/ROCmUtilities" source_only="true"/>
-  <library file="ROCmMonitoringService.cc ROCmService.cc" name="HeterogeneousCoreROCmServicesPlugins">
+  <use name="PerfTools/ProfilerService" source_only="1"/>
+  <library file="ROCmMonitoringService.cc ROCmService.cc ROCmProfilerService.cc" name="HeterogeneousCoreROCmServicesPlugins">
     <flags EDM_PLUGIN="1"/>
   </library>
 </iftool>
