@@ -27,6 +27,7 @@ namespace truth {
     Particle(Graph const* graph, uint32_t id) : graph_(graph), id_(id) {}
 
     [[nodiscard]] bool valid() const { return graph_ != nullptr; }
+    [[nodiscard]] Graph const* graph() const { return graph_; }
     [[nodiscard]] uint32_t id() const { return id_; }
 
     [[nodiscard]] const ParticleData& data() const;
@@ -40,6 +41,7 @@ namespace truth {
     [[nodiscard]] int32_t genEvent() const;
     [[nodiscard]] bool backscattered() const;
     [[nodiscard]] const math::XYZTLorentzVectorD& momentum() const;
+    [[nodiscard]] const math::XYZTLorentzVectorD& p4() const { return momentum(); }  // alias
     [[nodiscard]] const int charge() const;
 
     [[nodiscard]] std::span<const Checkpoint> checkpoints() const;
