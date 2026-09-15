@@ -94,6 +94,30 @@ namespace {
     return b.finish();
   }
 
+  // A parent and its child crossing one module on different cells: p0 fires cell 5 of
+  // module 10 and cell 5 of module 20, its child p1 fires cell 7 of module 10. The
+  // parent's subgraph therefore owns both cells of module 10.
+  truth::LogicalGraphHitIndex buildAncestorCellIndex() {
+    truth::LogicalGraphHitIndexBuilder b(2);
+    b.setCellKeyed(truth::HitChannel::Tracker, true);
+    b.setSimTrackForParticle(0, 0, 100);
+    b.setSimTrackForParticle(1, 0, 101);
+    b.addParticleChild(0, 1);
+    b.addHit(truth::HitChannel::Tracker, 0, 100, 10, 1.0f, 5);
+    b.addHit(truth::HitChannel::Tracker, 0, 100, 20, 1.0f, 5);
+    b.addHit(truth::HitChannel::Tracker, 0, 101, 10, 1.0f, 7);
+    return b.finish();
+  }
+
+  // One particle on one module, keyed by module: the truth says "somewhere in module 10"
+  // and names no cell.
+  truth::LogicalGraphHitIndex buildModuleKeyedIndex() {
+    truth::LogicalGraphHitIndexBuilder b(1);
+    b.setSimTrackForParticle(0, 0, 100);
+    b.addHit(truth::HitChannel::Tracker, 0, 100, 10, 1.0f);
+    return b.finish();
+  }
+
   truth::BranchHitAssociator trackerAssociator(truth::LogicalGraphHitIndex const& index) {
     return truth::BranchHitAssociator(
         index, {}, truth::BranchHitAssociator::Metric::SharedHits, truth::HitChannel::Tracker);
@@ -121,6 +145,8 @@ class TestBranchHitAssociator : public CppUnit::TestFixture {
   CPPUNIT_TEST(testAdaptiveReturnsNoMatchOnAnEmptyCandidateList);
   CPPUNIT_TEST(testCellsSeparateTwoParticlesOnOneModule);
   CPPUNIT_TEST(testAModuleWithoutACellMatchesAnyCellOfIt);
+  CPPUNIT_TEST(testAnAncestorKeepsEveryCellOfAModule);
+  CPPUNIT_TEST(testAModuleKeyedBranchIsNeverOverCounted);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -142,6 +168,8 @@ public:
   void testAdaptiveReturnsNoMatchOnAnEmptyCandidateList();
   void testCellsSeparateTwoParticlesOnOneModule();
   void testAModuleWithoutACellMatchesAnyCellOfIt();
+  void testAnAncestorKeepsEveryCellOfAModule();
+  void testAModuleKeyedBranchIsNeverOverCounted();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranchHitAssociator);
@@ -575,4 +603,39 @@ void TestBranchHitAssociator::testAModuleWithoutACellMatchesAnyCellOfIt() {
   CPPUNIT_ASSERT_DOUBLES_EQUAL(matches[0].score, matches[1].score, 1e-6);
   // Equal scores rank the tightest branch first: particle 1 owns one cell, particle 0 two.
   CPPUNIT_ASSERT_EQUAL(uint32_t(1), matches[0].rootParticleId);
+}
+
+void TestBranchHitAssociator::testAnAncestorKeepsEveryCellOfAModule() {
+  auto index = buildAncestorCellIndex();
+  auto assoc = trackerAssociator(index);
+
+  // Two rechits: one on the cell the child fired, one on the cell only the parent fired.
+  // The parent's subgraph holds both, so it owns the object entirely. Coalescing that
+  // subgraph by module alone would drop cell 7 from it and score the parent 0.5.
+  std::vector<truth::RecoHit> reco{{10, 1.f, 1.f, 7}, {20, 1.f, 1.f, 5}};
+  auto matches = assoc.bestBranches(reco);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), matches.size());
+  CPPUNIT_ASSERT_EQUAL(uint32_t(0), matches.front().rootParticleId);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, matches.front().score, 1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, matches.front().sharedEnergy, 1e-6);
+
+  // The child owns one of the two rechits.
+  CPPUNIT_ASSERT_EQUAL(uint32_t(1), matches.back().rootParticleId);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5, matches.back().score, 1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, matches.back().reverseScore, 1e-6);
+}
+
+void TestBranchHitAssociator::testAModuleKeyedBranchIsNeverOverCounted() {
+  auto index = buildModuleKeyedIndex();
+  auto assoc = trackerAssociator(index);
+
+  // One rechit of three cells against a branch that names the module and no cell. The
+  // object is one rechit, the branch is one entry, so both normalisations give 1.
+  std::vector<truth::RecoHit> reco{{10, 1.f, 1.f, 5}, {10, 1.f, 1.f, 6}, {10, 1.f, 1.f, 7}};
+  auto matches = assoc.bestBranches(reco);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), matches.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, matches.front().score, 1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, matches.front().reverseScore, 1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, matches.front().sharedEnergyFraction, 1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, matches.front().sharedEnergy, 1e-6);
 }
