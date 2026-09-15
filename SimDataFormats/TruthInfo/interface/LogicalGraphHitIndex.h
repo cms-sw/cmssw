@@ -29,12 +29,19 @@ namespace truth {
   public:
     struct Hit {
       static constexpr uint32_t kInvalidRecHitIndex = std::numeric_limits<uint32_t>::max();
+      // The same field, read as the cell inside the module on the Tracker channel,
+      // where a DetId names a module rather than a cell and no rechit is mapped.
+      static constexpr uint32_t kNoCell = kInvalidRecHitIndex;
 
       uint32_t detId = 0;
+      // Calo and MTD: the global recHit index from the DetId map. Tracker: the digi
+      // channel, when the index was built at cell granularity, else kNoCell. Muon:
+      // always kNoCell.
       uint32_t recHitIndex = kInvalidRecHitIndex;
       float energy = 0.f;
 
       [[nodiscard]] bool hasRecHit() const { return recHitIndex != kInvalidRecHitIndex; }
+      [[nodiscard]] bool hasCell() const { return recHitIndex != kNoCell; }
     };
 
     // One detector channel. Two storage layouts exist, and which one an index carries
