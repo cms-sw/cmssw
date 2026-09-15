@@ -10,9 +10,9 @@
 // reproduces the TP-based assignment when both point at the same logical particle.
 // The booked numerator/denominator (TP-matched tracks vs Branch-and-TP-agree) are
 // turned into a "reproduction efficiency vs eta/pt" by the harvester
-// (DQMGenericClient); the shared-hit completeness is booked directly. This is the
-// DQM form of BranchTrackerReplacementValidator and sits alongside the standard
-// tracking validation so the two truth descriptions can be compared.
+// (DQMGenericClient); the shared-hit completeness is booked directly. It sits
+// alongside the standard tracking validation so the two truth descriptions can be
+// compared.
 
 #include <algorithm>
 #include <cstdint>

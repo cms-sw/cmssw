@@ -44,7 +44,6 @@ process.p = cms.Path(
     + process.detIdToRecHitMapProducer
     + process.truthLogicalGraphHitIndexProducer
     + process.truthTpClusterProducer
-    + process.truthBranchTrackingAssociationProducer
     + process.branchTrackingValidator
 )
 process.e = cms.EndPath(process.dqmOut)
