@@ -93,9 +93,9 @@ def addTruthGraphAccumulator(process,
     )
 
     # Persistence is owned by truthEventContent_cff (the compact/full verbosity
-    # levels), applied via customiseTruthDigi. The accumulator products
-    # (TruthGraph_mix, mix:merged*Hits) are kept only at the 'full' level; the
-    # compact default persists the graph + unresolved index built below instead.
+    # levels), applied via customiseTruthDigi. Both levels keep the raw
+    # TruthGraph_mix (the validators read it as rawSrc); the merged sim-hit
+    # collections (mix:merged*Hits) are kept only at the 'full' level.
     return process
 
 
@@ -142,6 +142,8 @@ def buildCompactTruthAtDigi(process, includeTrackingHits=True):
     # out here has its particles pruned as hitless even though they do carry hits.
     process.truthLogicalGraphProducer = truthLogicalGraphProducer.clone(
         src=cms.InputTag("mix"),
+        simTracks=cms.InputTag("mix", "mergedSimTracks"),
+        simVertices=cms.InputTag("mix", "mergedSimVertices"),
         simHitCollections=caloSimHits,
         trackerSimHitCollections=trackerSimHits,
         muonSimHitCollections=muonSimHits,
@@ -152,8 +154,10 @@ def buildCompactTruthAtDigi(process, includeTrackingHits=True):
         rawSrc=cms.InputTag("mix"),
         recHitMap=cms.InputTag(""),   # UNRESOLVED: association is by DetId
         subdetectors=cms.vstring(*subdetectors),
+        # See truthGraphMixedDigi_cff: the tracker is keyed by (module, cell).
+        trackerDigiSimLinks=cms.VInputTag(cms.InputTag("simSiPixelDigis", "Pixel"),
+                                          cms.InputTag("simSiPixelDigis", "Tracker")),
         simHitCollections=caloSimHits,
-        trackerSimHitCollections=trackerSimHits,
         muonSimHitCollections=muonSimHits,
     )
 
@@ -200,7 +204,6 @@ def customiseTruthReduced(process):
     acc.trackerHits = cms.VInputTag()
     idx = process.truthLogicalGraphHitIndexProducer
     idx.subdetectors = cms.vstring("Calo", "Muon")
-    idx.trackerSimHitCollections = cms.VInputTag()
     # The pruning's detector scope stays equal to the index's, otherwise it prunes on
     # tracker hits that are no longer accumulated.
     process.truthLogicalGraphProducer.trackerSimHitCollections = cms.VInputTag()

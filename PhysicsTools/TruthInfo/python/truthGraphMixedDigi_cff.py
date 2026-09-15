@@ -65,6 +65,10 @@ from Validation.Configuration.truthPrevalidation_cff import (
 # its particles pruned as hitless even though the index would have given them hits.
 truthLogicalGraphProducer = _truthLogicalGraphProducer.clone(
     src=cms.InputTag("mix"),
+    # Every sub-event's SimTracks and SimVertices, tagged with their sub-event id, so a
+    # pileup particle takes its own momentum and position.
+    simTracks=cms.InputTag("mix", "mergedSimTracks"),
+    simVertices=cms.InputTag("mix", "mergedSimVertices"),
     simHitCollections=cms.VInputTag(
         cms.InputTag("mix", "mergedHGCHits"),
         cms.InputTag("mix", "mergedEcalHits"),
@@ -83,12 +87,16 @@ truthLogicalGraphHitIndexProducer = _truthLogicalGraphHitIndexProducer.clone(
     # HGCAL geometries carry reco DetIds already, so only the HCAL switch is set here.
     doHcalRelabelling=cms.bool(True),
     subdetectors=cms.vstring("Calo", "Muon", "Tracker"),  # full; MTD resolved at RECO
+    # The tracker truth is keyed by (module, cell): a tracker DetId names a module, so
+    # without the cell two particles crossing one module share every hit they leave
+    # there. The links are the digitizer's own record of which cell each particle fired.
+    trackerDigiSimLinks=cms.VInputTag(cms.InputTag("simSiPixelDigis", "Pixel"),
+                                      cms.InputTag("simSiPixelDigis", "Tracker")),
     simHitCollections=cms.VInputTag(
         cms.InputTag("mix", "mergedHGCHits"),
         cms.InputTag("mix", "mergedEcalHits"),
         cms.InputTag("mix", "mergedHcalHits"),
     ),
-    trackerSimHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedTrackerHits")),  # customiseTruthReduced empties this
     muonSimHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedMuonHits")),
 )
 

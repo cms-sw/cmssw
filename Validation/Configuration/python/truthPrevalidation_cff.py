@@ -40,11 +40,13 @@ detIdToRecHitMapProducer = cms.EDProducer(
         cms.InputTag("HGCalRecHit", "HGCHEBRecHits"),
     ),
 
+    # The PFRecHit collections the barrel layer clusters are built from. The Cleaned
+    # instance of each producer holds the hits that FAILED its quality tests.
     pfRecHits = cms.VInputTag(
-        cms.InputTag("particleFlowRecHitECAL", "Cleaned"),
-        cms.InputTag("particleFlowRecHitHBHE", "Cleaned"),
-        cms.InputTag("particleFlowRecHitHF", "Cleaned"),
-        cms.InputTag("particleFlowRecHitHO", "Cleaned"),
+        cms.InputTag("particleFlowRecHitECAL"),
+        cms.InputTag("particleFlowRecHitHBHE"),
+        cms.InputTag("particleFlowRecHitHF"),
+        cms.InputTag("particleFlowRecHitHO"),
     ),
 )
 
@@ -54,6 +56,12 @@ truthLogicalGraphHitIndexProducer = cms.EDProducer(
     src = cms.InputTag("truthLogicalGraphProducer"),
     rawSrc = cms.InputTag("truthGraphProducer"),
     recHitMap = cms.InputTag("detIdToRecHitMapProducer"),
+
+    # The tracker truth is keyed by (module, cell): a tracker DetId names a module, so
+    # without the cell two particles crossing one module share every hit they leave
+    # there. A job whose input dropped the links keeps working, keyed by module.
+    trackerDigiSimLinks = cms.VInputTag(cms.InputTag("simSiPixelDigis", "Pixel"),
+                                        cms.InputTag("simSiPixelDigis", "Tracker")),
 
     simHitCollections = cms.VInputTag(
         cms.InputTag("g4SimHits", "HGCHitsEE"),
@@ -70,8 +78,6 @@ truthGraphDumper = cms.EDAnalyzer(
     "TruthGraphDumper",
     src=cms.InputTag("truthGraphProducer"),
     dotFile=cms.string("truthgraph.dot"), # output file
-    maxNodes=cms.uint32(20000),
-    maxEdgesPerNode=cms.uint32(50),
     simTracks=cms.InputTag("g4SimHits"),
     simVertices=cms.InputTag("g4SimHits"),
     genEventHepMC=cms.InputTag("generatorSmeared"),
@@ -92,22 +98,13 @@ truthLogicalGraphDumper = cms.EDAnalyzer(
     ),
 
     pfRecHits=cms.VInputTag(
-        cms.InputTag("particleFlowRecHitECAL", "Cleaned", "RECO"),
-        cms.InputTag("particleFlowRecHitHBHE", "Cleaned", "RECO"),
-        cms.InputTag("particleFlowRecHitHF", "Cleaned", "RECO"),
-        cms.InputTag("particleFlowRecHitHO", "Cleaned", "RECO"),
+        cms.InputTag("particleFlowRecHitECAL", "", "RECO"),
+        cms.InputTag("particleFlowRecHitHBHE", "", "RECO"),
+        cms.InputTag("particleFlowRecHitHF", "", "RECO"),
+        cms.InputTag("particleFlowRecHitHO", "", "RECO"),
     ),
 
     dotFile=cms.string("truthlogicalgraph.dot"), # output file
-
-    maxParticles=cms.uint32(20000),
-    maxVertices=cms.uint32(20000),
-    maxEdgesPerNode=cms.uint32(300),
-
-    hideLargeSimSourceVertices=cms.bool(True),
-    largeSimSourceVertexMinOutgoing=cms.uint32(50),
-
-    hideZeroSimHitSubgraphs=cms.bool(True),
 )
 
 truthGraphPrevalidation = cms.Sequence(

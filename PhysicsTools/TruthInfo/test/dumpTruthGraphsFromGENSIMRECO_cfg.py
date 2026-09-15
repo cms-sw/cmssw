@@ -6,17 +6,19 @@ import FWCore.ParameterSet.Config as cms
 import os
 from argparse import ArgumentParser, BooleanOptionalAction
 parser = ArgumentParser()
-parser.add_argument("inputFile",        nargs='?', default="step3.root",
-                    metavar='FILE', help="Input file, default=%(default)r" )
+parser.add_argument("inputFile",        nargs='?', default="file:step3.root",
+                    metavar='FILE', help="input file, default=%(default)r" )
 parser.add_argument('-o', "--outdir",   default='',
                     help="output directory, default=%(default)r" )
-parser.add_argument('-n', "--maxevts",  type=int, default=-1,
+parser.add_argument('-p', "--pickEvts", default=None,
+                    help="comma-separated list of event (ranges) to pick in run:lumi:event format, e.g. '1:1:100,1:1:200-205'" )
+parser.add_argument('-n', "--maxEvts",  type=int, default=-1,
                     help="maximum number of events to process, default=%(default)s" )
 parser.add_argument('-m', "--merge",    dest='mergeGenSim', action=BooleanOptionalAction, default=True,
                     help="merge GEN and SIM vertices (producer-level and by position)" )
 parser.add_argument('-c', "--collapse", action=BooleanOptionalAction, default=True,
                     help="collapse intermediate GenParticle copies" )
-parser.add_argument('-t', "--tag",      default='', help="tag for out put file" )
+parser.add_argument('-t', "--tag",      default='', help="tag for output file" )
 parser.add_argument('-s', "--seeds",    default=None,
                     help="comma-separated seed PDG ids, e.g. '15,-15'; '0' keeps the full graph; "
                          "default=%(default)s uses the hardcoded list" )
@@ -44,8 +46,9 @@ parser.add_argument("--signal-only", dest='signalOnly', action=BooleanOptionalAc
 parser.add_argument("--bunch-crossings", dest='bunchCrossings', default=None,
                     help="pile-up filter: comma-separated bunch crossings to keep, e.g. '0' for in-time only "
                          "(default: keep all)" )
-parser.add_argument("--showAll", action='store_true',
-                    help="do not hide zero-simhit subgraphs or large SIM source vertices in the logical DOT dump" )
+parser.add_argument("--geometry", default="ExtendedRun4D122",
+                    help="geometry key of the sample, e.g. ExtendedRun4D122; it must match the one that "
+                         "produced the input file, default=%(default)r" )
 parser.add_argument("--layout", default="dot",
                     help="DOT layout for the logical-graph dump: 'dot' (default, hierarchical L->R ranks) "
                          "or a force-directed engine ('sfdp'/'fdp'/'neato') for node repulsion + spring edges" )
@@ -68,16 +71,16 @@ process = cms.Process("TRUTHGRAPH")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-# Needed if TruthLogicalGraphHitIndexProducer does HGCal simId -> reco DetId relabelling.
-# Keep this consistent with the geometry used to produce step3.root.
-process.load("Configuration.Geometry.GeometryExtendedRun4D120Reco_cff")
+# The rechit and tracker sim-hit tables read positions from the geometry, so it must be
+# the one that produced the input file.
+process.load(f"Configuration.Geometry.Geometry{args.geometry}Reco_cff")
 
 # Use the ideal tracker geometry so the tracker simhit table needs no alignment
 # conditions (GlobalPositionRcd) when running standalone without a GlobalTag.
 process.trackerGeometry.applyAlignment = cms.bool(False)
 
 process.maxEvents = cms.untracked.PSet(
-    input=cms.untracked.int32(args.maxevts)
+    input=cms.untracked.int32(args.maxEvts)
 )
 
 process.source = cms.Source(
@@ -86,6 +89,9 @@ process.source = cms.Source(
         args.inputFile #"file:step3.root"
     )
 )
+if args.pickEvts:
+    evtlist = [("1:1:"+e) if e.count(':')==0 else e for e in args.pickEvts.split(',')]
+    process.source.eventsToProcess=cms.untracked.VEventRange(evtlist)
 
 process.options = cms.untracked.PSet(
     wantSummary=cms.untracked.bool(True)
@@ -104,8 +110,6 @@ process.truthGraphDumper = cms.EDAnalyzer(
     "TruthGraphDumper",
     src=cms.InputTag("truthGraphProducer"),
     dotFile=cms.string(os.path.join(args.outdir,f"truthgraph{args.tag}.dot")), # output file
-    maxNodes=cms.uint32(20000),
-    maxEdgesPerNode=cms.uint32(50),
     simTracks=cms.InputTag("g4SimHits"),
     simVertices=cms.InputTag("g4SimHits"),
     genEventHepMC=cms.InputTag("generatorSmeared"),
@@ -193,10 +197,10 @@ process.detIdToRecHitMapProducer = cms.EDProducer(
     ),
 
     pfRecHits=cms.VInputTag(
-        cms.InputTag("particleFlowRecHitECAL", "Cleaned", "RECO"),
-        cms.InputTag("particleFlowRecHitHBHE", "Cleaned", "RECO"),
-        cms.InputTag("particleFlowRecHitHF", "Cleaned", "RECO"),
-        cms.InputTag("particleFlowRecHitHO", "Cleaned", "RECO"),
+        cms.InputTag("particleFlowRecHitECAL", "", "RECO"),
+        cms.InputTag("particleFlowRecHitHBHE", "", "RECO"),
+        cms.InputTag("particleFlowRecHitHF", "", "RECO"),
+        cms.InputTag("particleFlowRecHitHO", "", "RECO"),
     ),
 )
 process.truthLogicalGraphHitIndexProducer = cms.EDProducer(
@@ -231,31 +235,22 @@ process.truthLogicalGraphDumper = cms.EDAnalyzer(
     ),
 
     pfRecHits=cms.VInputTag(
-        cms.InputTag("particleFlowRecHitECAL", "Cleaned", "RECO"),
-        cms.InputTag("particleFlowRecHitHBHE", "Cleaned", "RECO"),
-        cms.InputTag("particleFlowRecHitHF", "Cleaned", "RECO"),
-        cms.InputTag("particleFlowRecHitHO", "Cleaned", "RECO"),
+        cms.InputTag("particleFlowRecHitECAL", "", "RECO"),
+        cms.InputTag("particleFlowRecHitHBHE", "", "RECO"),
+        cms.InputTag("particleFlowRecHitHF", "", "RECO"),
+        cms.InputTag("particleFlowRecHitHO", "", "RECO"),
     ),
 
     dotFile=cms.string(os.path.join(args.outdir,f"truthlogicalgraph{args.tag}.dot")), # output file
 
     layout=cms.string(args.layout),
-
-    maxParticles=cms.uint32(20000),
-    maxVertices=cms.uint32(20000),
-    # --showAll lifts the per-node edge cap: with large events the artificial
-    # source vertex legitimately has more than 300 outgoing spectators.
-    maxEdgesPerNode=cms.uint32(1000000 if args.showAll else 300),
-
-    hideLargeSimSourceVertices=cms.bool(not args.showAll),
-    largeSimSourceVertexMinOutgoing=cms.uint32(50),
-
-    hideZeroSimHitSubgraphs=cms.bool(not args.showAll),
 )
 
 
 process.load("PhysicsTools.TruthInfo.recHitTable_cfi")
-# recHitTable reads the TICL geometry SoAs from the EventSetup
+# recHitTable reads the TICL geometry SoAs from the EventSetup. Their producer is an
+# alpaka module, so the process needs the accelerator configuration to resolve it.
+process.load("Configuration.StandardSequences.Accelerators_cff")
 process.load("RecoHGCal.TICL.TICLGeom_cff")
 
 # Barrel/forward calorimeter PFRecHits as a separate NanoAOD collection.

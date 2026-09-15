@@ -50,7 +50,7 @@ namespace truth {
     hits.push_back(Hit{detId, recHitIndex, energy});
   }
 
-  void LogicalGraphHitIndexBuilder::coalesce(HitList& hits) {
+  void LogicalGraphHitIndexBuilder::coalesce(HitList& hits, bool cellKeyed) {
     if (hits.empty())
       return;
 
@@ -63,10 +63,13 @@ namespace truth {
       return a.recHitIndex < b.recHitIndex;
     });
 
-    // In-place merge of consecutive entries that share a detId.
+    // In-place merge of consecutive entries that share a key: the detId, or the
+    // (detId, cell) pair where a DetId names a module and the cell is the digi channel.
     std::size_t w = 0;
     for (std::size_t r = 0; r < hits.size(); ++r) {
-      if (w > 0 && hits[w - 1].detId == hits[r].detId) {
+      const bool sameKey =
+          w > 0 && hits[w - 1].detId == hits[r].detId && (!cellKeyed || hits[w - 1].recHitIndex == hits[r].recHitIndex);
+      if (sameKey) {
         hits[w - 1].energy += hits[r].energy;
         if (hits[w - 1].recHitIndex == Hit::kInvalidRecHitIndex && hits[r].recHitIndex != Hit::kInvalidRecHitIndex)
           hits[w - 1].recHitIndex = hits[r].recHitIndex;
@@ -431,7 +434,7 @@ namespace truth {
 
       auto& direct = directHits_[ch];
       for (auto& hits : direct)
-        coalesce(hits);
+        coalesce(hits, cellKeyed_[ch]);
 
       auto& out = channels[ch];
       out.dfsOffsets.reserve(slotToParticle.size() + 1);
@@ -467,7 +470,7 @@ namespace truth {
       // Coalesce the per-particle direct-hit lists once, so the subgraph
       // aggregation and the CSR build both operate on sorted, de-duplicated spans.
       for (auto& hits : direct)
-        coalesce(hits);
+        coalesce(hits, cellKeyed_[ch]);
 
       std::vector<HitList> subgraph(nParticles_);
       std::vector<uint8_t> visited(nParticles_, 0);
@@ -480,7 +483,7 @@ namespace truth {
         auto& out = subgraph[particleId];
         for (const uint32_t descendant : order)
           out.insert(out.end(), direct[descendant].begin(), direct[descendant].end());
-        coalesce(out);
+        coalesce(out, cellKeyed_[ch]);
 
         // Reset only the entries we set, keeping the per-particle cost proportional
         // to the subgraph size rather than nParticles_.

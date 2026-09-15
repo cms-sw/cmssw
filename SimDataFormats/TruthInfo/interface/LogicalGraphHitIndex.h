@@ -29,12 +29,18 @@ namespace truth {
   public:
     struct Hit {
       static constexpr uint32_t kInvalidRecHitIndex = std::numeric_limits<uint32_t>::max();
+      // The same field, read as the cell inside the module on the Tracker channel,
+      // where a DetId names a module rather than a cell and no rechit is mapped.
+      static constexpr uint32_t kNoCell = kInvalidRecHitIndex;
 
       uint32_t detId = 0;
+      // Calo and MTD: the global recHit index from the DetId map. Tracker: the digi
+      // channel of the cell. Muon: always kNoCell.
       uint32_t recHitIndex = kInvalidRecHitIndex;
       float energy = 0.f;
 
       [[nodiscard]] bool hasRecHit() const { return recHitIndex != kInvalidRecHitIndex; }
+      [[nodiscard]] bool hasCell() const { return recHitIndex != kNoCell; }
     };
 
     // One detector channel. Two storage layouts exist, and which one an index carries
@@ -96,7 +102,10 @@ namespace truth {
 
     // The slot ranges a particle's subgraph covers. Empty in the materialised layout.
     [[nodiscard]] std::span<const SlotRange> subgraphRanges(uint32_t particleId) const {
-      if (particleId + 1 >= rangeOffsets_.size())
+      // Widened before the increment: particleId is read back from a file and the
+      // builder's own kNoParent sentinel is 0xFFFFFFFF, which wraps to 0 in uint32 and
+      // turns the bound into an out-of-range read.
+      if (static_cast<std::size_t>(particleId) + 1 >= rangeOffsets_.size())
         return {};
       const auto begin = rangeOffsets_[particleId];
       const auto end = rangeOffsets_[particleId + 1];
@@ -108,7 +117,7 @@ namespace truth {
       Channel const* channelData = channelOrNull(channel);
       if (channelData == nullptr || range.slotCount == 0)
         return {};
-      if (range.firstSlot + range.slotCount >= channelData->dfsOffsets.size())
+      if (static_cast<std::size_t>(range.firstSlot) + range.slotCount >= channelData->dfsOffsets.size())
         return {};
       const auto begin = channelData->dfsOffsets[range.firstSlot];
       const auto end = channelData->dfsOffsets[range.firstSlot + range.slotCount];
@@ -128,7 +137,7 @@ namespace truth {
           return {};
         return rangeHits(channel, SlotRange{dfsPos_[particleId], 1});
       }
-      if (particleId + 1 >= channelData->directOffsets.size())
+      if (static_cast<std::size_t>(particleId) + 1 >= channelData->directOffsets.size())
         return {};
       const auto begin = channelData->directOffsets[particleId];
       const auto end = channelData->directOffsets[particleId + 1];
@@ -148,7 +157,7 @@ namespace truth {
         const auto ranges = subgraphRanges(particleId);
         return ranges.size() == 1 ? rangeHits(channel, ranges[0]) : std::span<const Hit>{};
       }
-      if (particleId + 1 >= channelData->subgraphOffsets.size())
+      if (static_cast<std::size_t>(particleId) + 1 >= channelData->subgraphOffsets.size())
         return {};
       const auto begin = channelData->subgraphOffsets[particleId];
       const auto end = channelData->subgraphOffsets[particleId + 1];

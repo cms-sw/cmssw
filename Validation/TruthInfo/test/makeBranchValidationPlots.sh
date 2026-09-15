@@ -20,7 +20,7 @@ set -uo pipefail
 
 LIB="${1:-$PWD/library}"
 OUT="${2:-$PWD/branch_validation_plots}"
-PLOTTER="$CMSSW_BASE/src/PhysicsTools/TruthInfo/scripts/makeTruthGraphValidationPlots.py"
+PLOTTER="$CMSSW_BASE/src/Validation/TruthInfo/scripts/makeTruthGraphValidationPlots.py"
 
 # label : workflow-number. Diverse topologies: hadronic (TTbar), dense multi-tau
 # gun (TenTau, where the calo n_sharing tail is richest) and clean dimuon (ZMM).

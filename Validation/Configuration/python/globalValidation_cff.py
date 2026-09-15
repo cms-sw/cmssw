@@ -75,7 +75,9 @@ from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 # are built at DIGI (mixing accumulator chain) under enableTruth, so truthPrevalidation
 # is deliberately NOT imported here (importing its signal-only build producers would
 # attach them to the RECO process and shadow the DIGI-built products).
-from PhysicsTools.TruthInfo.truthGraphValidation_cff import *
+from Validation.TruthInfo.truthGraphValidation_cff import *
+from SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociators_cff import *
+from Validation.TruthInfo.truthBranchValidation_cff import *
 
 # filter/producer "pre-" sequence for validation_preprod
 preprodPrevalidation = cms.Sequence(
@@ -149,9 +151,7 @@ baseCommonValidation = cms.Sequence()
 # triplet that autoValidation['phase2Validation'] always schedules, so this is the
 # Phase-2 entry point: the truth-graph + association EDProducers run in the
 # prevalidation Path, the DQM analyzers in the validation EndPath. The matching
-# harvesting is attached to postValidation_common in postValidation_cff. The
-# reco-side eff/fake/merge/duplicate validators stay opt-in (antichain caveat, see
-# truthGraphValidation_cff).
+# harvesting is attached to postValidation_common in postValidation_cff.
 # premix_stage2 keeps enableTruth (it comes from the era) but the premixed pileup has
 # no raw pileup SimTracks, so the accumulator and the DIGI build are dropped and the
 # truth products do not exist downstream. Revert to the truth-free sequences there,
@@ -162,16 +162,18 @@ baseCommonValidation = cms.Sequence()
 # truth to baseCommonPreValidation itself would fail those workflows with
 # ProductNotFound at the first event.
 baseCommonPreValidationNoTruth = baseCommonPreValidation.copy()
-_baseCommonPreValidationNoTruth = baseCommonPreValidationNoTruth
+_baseCommonPreValidationNoTruth = baseCommonPreValidationNoTruth.copy()
 _baseCommonValidationNoTruth = baseCommonValidation.copy()
 
 _baseCommonPreValidationWithTruth = baseCommonPreValidation.copy()
 _baseCommonPreValidationWithTruth += truthGraphValidationProducers
+_baseCommonPreValidationWithTruth += truthGraphAssociatorsSequence
 enableTruth.toReplaceWith(baseCommonPreValidation, _baseCommonPreValidationWithTruth)
 premix_stage2.toReplaceWith(baseCommonPreValidation, _baseCommonPreValidationNoTruth)
 
 _baseCommonValidationWithTruth = baseCommonValidation.copy()
 _baseCommonValidationWithTruth += truthGraphValidationAnalyzers
+_baseCommonValidationWithTruth += truthBranchValidationSequence
 enableTruth.toReplaceWith(baseCommonValidation, _baseCommonValidationWithTruth)
 premix_stage2.toReplaceWith(baseCommonValidation, _baseCommonValidationNoTruth)
 

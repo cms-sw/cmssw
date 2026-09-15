@@ -438,10 +438,10 @@ public:
         ->setComment("HGCRecHit collections, in the same order used by DetIdToRecHitMapProducer");
 
     desc.add<std::vector<edm::InputTag>>("pfRecHits",
-                                         {edm::InputTag("particleFlowRecHitECAL", "Cleaned"),
-                                          edm::InputTag("particleFlowRecHitHBHE", "Cleaned"),
-                                          edm::InputTag("particleFlowRecHitHF", "Cleaned"),
-                                          edm::InputTag("particleFlowRecHitHO", "Cleaned")})
+                                         {edm::InputTag("particleFlowRecHitECAL"),
+                                          edm::InputTag("particleFlowRecHitHBHE"),
+                                          edm::InputTag("particleFlowRecHitHF"),
+                                          edm::InputTag("particleFlowRecHitHO")})
         ->setComment("PFRecHit collections, in the same order used by DetIdToRecHitMapProducer");
 
     desc.add<std::string>("dotFile", "truthlogicalgraph.dot");
@@ -994,9 +994,12 @@ private:
       evt.getByToken(hgcalRecHitTokens_[i], handle);
 
       if (!handle.isValid()) {
-        edm::LogWarning("TruthLogicalGraphDumper") << "Missing HGCRecHit collection " << hgcalRecHitTags_[i].encode()
-                                                   << ". Skipping it while rebuilding recHit energies.";
-        continue;
+        // Every later index would shift by the size of this collection, so the whole
+        // annotation is dropped rather than reported against the wrong hits.
+        edm::LogWarning("TruthLogicalGraphDumper")
+            << "Missing HGCRecHit collection " << hgcalRecHitTags_[i].encode()
+            << ". The global recHit index cannot be rebuilt, so recHit energies are left out of this dump.";
+        return {};
       }
 
       energies.reserve(energies.size() + handle->size());
@@ -1009,9 +1012,10 @@ private:
       evt.getByToken(pfRecHitTokens_[i], handle);
 
       if (!handle.isValid()) {
-        edm::LogWarning("TruthLogicalGraphDumper") << "Missing reco::PFRecHitCollection " << pfRecHitTags_[i].encode()
-                                                   << ". Skipping it while rebuilding recHit energies.";
-        continue;
+        edm::LogWarning("TruthLogicalGraphDumper")
+            << "Missing reco::PFRecHitCollection " << pfRecHitTags_[i].encode()
+            << ". The global recHit index cannot be rebuilt, so recHit energies are left out of this dump.";
+        return {};
       }
 
       energies.reserve(energies.size() + handle->size());

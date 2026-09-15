@@ -7,6 +7,7 @@
 #include <queue>
 #include <utility>
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "PhysicsTools/TruthInfo/interface/TruthLevels.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
@@ -30,10 +31,30 @@ namespace {
 namespace truth {
 
   Branch::Branch(Graph const* graph, uint32_t rootId, ClosureSpec spec)
-      : graph_(graph), roots_{rootId}, spec_(std::move(spec)) {}
+      : graph_(graph), roots_{rootId}, spec_(std::move(spec)) {
+    validate();
+  }
 
   Branch::Branch(Graph const* graph, std::vector<uint32_t> rootIds, ClosureSpec spec)
-      : graph_(graph), roots_(std::move(rootIds)), spec_(std::move(spec)) {}
+      : graph_(graph), roots_(std::move(rootIds)), spec_(std::move(spec)) {
+    validate();
+  }
+
+  Branch::Branch(Particle const* particle, ClosureSpec spec) : spec_(std::move(spec)) {
+    if (particle == nullptr || !particle->valid()) {
+      throw cms::Exception("TruthGraphBranch") << "Cannot initialize Branch: particle is invalid.";
+    }
+    graph_ = particle->graph();
+    roots_.push_back(particle->id());
+  }
+
+  void Branch::validate() {
+    if (graph_ == nullptr) {
+      throw cms::Exception("TruthGraphBranch") << "Cannot initialize Branch: graph is a nullptr.";
+    } else if (std::any_of(roots_.begin(), roots_.end(), [this](uint32_t id) { return id >= graph_->nParticles(); })) {
+      throw cms::Exception("TruthGraphBranch") << "Cannot initialize Branch: root particle id does not exist in graph.";
+    }
+  }
 
   Particle Branch::root() const { return valid() ? graph_->particle(roots_.front()) : Particle{}; }
 
@@ -136,18 +157,32 @@ namespace truth {
     return out;
   }
 
+  std::vector<uint32_t> Branch::frontier() const {
+    std::vector<uint32_t> ids = traverse();
+    if (ids.empty())
+      return ids;
+    // The members no other member covers, so each particle of the branch is counted
+    // once and none of its own ancestors is counted with it. On a Subtree branch these
+    // are the final-state leaves. On a TRUNCATED branch they are the particles the
+    // closure stopped at, which is the whole point: an UntilPdgId({111}) branch stops at
+    // the pi0, whose photons are not members, so the pi0 itself carries the momentum.
+    dropCoveredMembers(*graph_, ids, /*keepDeepest=*/true);
+    return ids;
+  }
+
   math::XYZTLorentzVectorD Branch::p4() const {
     math::XYZTLorentzVectorD sum;
-    for (auto const& leaf : stableLeaves())
-      sum += leaf.momentum();
+    for (uint32_t id : frontier())
+      sum += graph_->particles()[id].momentum;
     return sum;
   }
 
   math::XYZTLorentzVectorD Branch::visibleP4() const {
     math::XYZTLorentzVectorD sum;
-    for (auto const& leaf : stableLeaves()) {
-      if (!isInvisible(leaf.pdgId()))
-        sum += leaf.momentum();
+    for (uint32_t id : frontier()) {
+      auto const& particle = graph_->particles()[id];
+      if (!isInvisible(particle.pdgId))
+        sum += particle.momentum;
     }
     return sum;
   }
