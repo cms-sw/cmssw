@@ -22,17 +22,17 @@ namespace edm {
     std::string const& moduleLabel = mcc.moduleDescription()->moduleLabel();
     std::string const& moduleName = mcc.moduleDescription()->moduleName();
 
-      // Dynamically generate a string handle for this specific module name
-      std::string handleName = moduleName + "/" + moduleLabel;
-      __itt_string_handle* handle = __itt_string_handle_create(handleName.c_str());
+    // Dynamically generate a string handle for this specific module name
+    std::string handleName = moduleName + "/" + moduleLabel;
+    __itt_string_handle* handle = __itt_string_handle_create(handleName.c_str());
 
-      // Start a task on THIS thread only. Global profiling remains ACTIVE.
-      __itt_task_begin(ittDomain_, __itt_null, __itt_null, handle);
+    // Start a task on THIS thread only. Global profiling remains ACTIVE.
+    __itt_task_begin(ittDomain_, __itt_null, __itt_null, handle);
   }
 
   void VtuneAnnotateService::postModuleEvent(StreamContext const&, ModuleCallingContext const& mcc) {
-      // End the task on THIS thread
-      __itt_task_end(ittDomain_);
+    // End the task on THIS thread
+    __itt_task_end(ittDomain_);
   }
 }  // namespace edm
 
