@@ -35,7 +35,7 @@ namespace hcal {
 
     HcalRecoParamWithPulseShapeT(size_t recoSize, size_t pulseSize, TDev const& dev)
         : recoParam_(dev, recoSize), pulseShape_(dev, pulseSize) {}
-    template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
+    template <typename TQueue, typename = std::enable_if_t<alpaka::concepts::Queue<TQueue>>>
     HcalRecoParamWithPulseShapeT(size_t recoSize, size_t pulseSize, TQueue const& queue)
         : recoParam_(queue, recoSize), pulseShape_(queue, pulseSize) {}
     HcalRecoParamWithPulseShapeT(RecoParamCollection reco, PulseShapeCollection pulse)
