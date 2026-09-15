@@ -331,9 +331,9 @@ void TruthLogicalGraphHitIndexProducer::produce(edm::StreamID, edm::Event& event
   auto output = std::make_unique<truth::LogicalGraphHitIndex>(builder.finish());
   if (sharedSubgraphStore_ && !builder.usedSharedStore()) {
     // The materialised layout stores each hit once PER ANCESTOR, and on a large event
-    // that can exceed ROOT's 1 GiB single-object limit and kill the output module. The
-    // fallback was silent when that happened on heavy-ion events (cms-sw/cmssw#51638):
-    // the one symptom was a crash three modules away. Never fall back quietly.
+    // that can exceed ROOT's 1 GiB single-object limit and kill the output module. A
+    // silent fallback shows up only as a crash three modules away, on heavy-ion events
+    // (cms-sw/cmssw#51638), so the fallback is always announced.
     edm::LogWarning("LogicalGraphHitIndexProducer")
         << "shared subgraph store requested but the hit-carrying particles do not form a forest; "
            "fell back to the MATERIALISED layout, which duplicates every hit per ancestor. On a "

@@ -1735,9 +1735,8 @@ void TestTruthLogicalGraphPostProcessor::testSignalOnlyAndBunchCrossingFilterDro
 
     // (d) The pile-up filter is orthogonal to the seed selection and must work
     // with NO seeds: signalOnly on the full graph keeps the signal interaction
-    // untouched and drops the pile-up one. (Regression: previously the filter was
-    // folded inside the seed selection, which short-circuits without seeds, so the
-    // pile-up Z survived.)
+    // untouched and drops the pile-up one. The filter therefore runs outside the
+    // seed selection, which short-circuits when there are no seeds.
     {
       auto config = defaultConfig();
       config.signalOnly = true;
