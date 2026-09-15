@@ -32,7 +32,7 @@ public:
   // Construct the object in pinned host memory associated to the given work
   // queue, accessible by the queue's device.
   template <typename TQueue>
-    requires(alpaka::isQueue<TQueue>)
+    requires(alpaka::concepts::Queue<TQueue>)
   explicit SiPixelDigiErrorsHost(TQueue queue, int maxFedWords)
       : PortableHostCollection<SiPixelDigiErrorsSoA>(queue, maxFedWords), maxFedWords_(maxFedWords) {}
 
@@ -61,7 +61,7 @@ namespace ngt {
     }
 
     template <typename TQueue>
-      requires(alpaka::isQueue<TQueue>)
+      requires(alpaka::concepts::Queue<TQueue>)
     static void initialize(TQueue& queue, value_type& object, Properties const& props) {
       // Replace the default-constructed empty object with one where the buffer
       // has been allocated in pinned host memory.

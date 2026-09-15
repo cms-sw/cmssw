@@ -13,7 +13,7 @@
 // Forward declaration for friend
 namespace cms::torch::alpakatools {
   template <typename TQueue>
-    requires alpaka::isQueue<TQueue>
+    requires alpaka::concepts::Queue<TQueue>
   class TensorCollection;
 }
 
@@ -72,7 +72,7 @@ namespace cms::torch::alpakatools::detail {
   }
 
   template <typename TQueue>
-    requires alpaka::isQueue<TQueue>
+    requires alpaka::concepts::Queue<TQueue>
   class ITensorHandle {
   public:
     virtual ~ITensorHandle() = default;
@@ -96,7 +96,7 @@ namespace cms::torch::alpakatools::detail {
   // TODO: handle case when user register only one column:
   // e.g. .register_tensor("test", soa.pt()); (stride should be [1] instead of e.g. [1, 32])
   template <typename TQueue, typename T>
-    requires alpaka::isQueue<TQueue>
+    requires alpaka::concepts::Queue<TQueue>
   class TensorHandle : public ITensorHandle<TQueue> {
   public:
     explicit TensorHandle(const size_t alignment,
