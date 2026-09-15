@@ -31,6 +31,7 @@ using namespace edm;
 /// Constructor
 TrackTransformer::TrackTransformer(const ParameterSet& parameterSet, edm::ConsumesCollector& iC)
     : theRPCInTheFit(parameterSet.getParameter<bool>("RefitRPCHits")),
+      theMuonInTheFit(parameterSet.getParameter<bool>("RefitMuonHits")),
       theDoPredictionsOnly(parameterSet.getParameter<bool>("DoPredictionsOnly")),
       theRefitDirection(parameterSet.getParameter<string>("RefitDirection")),
       theFitterName(parameterSet.getParameter<string>("Fitter")),
@@ -59,6 +60,7 @@ void TrackTransformer::fillPSetDescription(edm::ParameterSetDescription& desc,
                                            const std::string& propagator,
                                            const std::string& refitDirection,
                                            bool refitRPCHits,
+                                           bool refitMuonHits,
                                            const std::string& trackerRecHitBuilder,
                                            const std::string& muonRecHitBuilder,
                                            const std::string& mtdRecHitBuilder) {
@@ -68,6 +70,7 @@ void TrackTransformer::fillPSetDescription(edm::ParameterSetDescription& desc,
   desc.add<std::string>("Propagator", propagator);
   desc.add<std::string>("RefitDirection", refitDirection);
   desc.add<bool>("RefitRPCHits", refitRPCHits);
+  desc.add<bool>("RefitMuonHits", refitMuonHits);
   desc.add<std::string>("TrackerRecHitBuilder", trackerRecHitBuilder);
   desc.add<std::string>("MuonRecHitBuilder", muonRecHitBuilder);
   desc.add<std::string>("MTDRecHitBuilder", mtdRecHitBuilder);
@@ -114,6 +117,10 @@ TransientTrackingRecHit::ConstRecHitContainer TrackTransformer::getTransientRecH
       if ((*hit)->geographicalId().det() == DetId::Tracker) {
         result.emplace_back((**hit).cloneForFit(*tkbuilder->geometry()->idToDet((**hit).geographicalId())));
       } else if ((*hit)->geographicalId().det() == DetId::Muon) {
+        if (!theMuonInTheFit) {
+          LogTrace("Reco|TrackingTools|TrackTransformer") << "Muon Rec Hit discarged";
+          continue;
+        }
         if ((*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit) {
           LogTrace("Reco|TrackingTools|TrackTransformer") << "RPC Rec Hit discarged";
           continue;
