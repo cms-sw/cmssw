@@ -130,7 +130,8 @@ def _modifyForPPonAAandNotPhase2(producer):
 
 from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtension
 phase2CAExtension.toReplaceWith(pixelTracksAlpaka,_pixelTracksAlpakaPhase2Extended.clone(
-    pixelRecHitSrc = "siPixelRecHitsExtendedPreSplittingAlpaka",
+    pixelRecHitSrc = "siPixelRecHitsPreSplittingAlpaka",
+    trackerRecHitsSoA = "phase2OTRecHitsSoAConverter"
 ))
 
 # pixel tracks SoA producer on the cpu, for validation
