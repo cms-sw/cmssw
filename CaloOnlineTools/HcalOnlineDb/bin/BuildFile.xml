@@ -1,4 +1,4 @@
-<use name="CalibCalorimetry/HcalTPGAlgos"/>
+<use name="CaloOnlineTools/HcalOnlineDb"/>
 <use name="PhysicsTools/FWLite"/>
 <environment>
   <bin file="hcalLUT.cc">

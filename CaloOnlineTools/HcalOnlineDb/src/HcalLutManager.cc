@@ -16,9 +16,9 @@
 //
 
 #include "CalibCalorimetry/CaloTPG/interface/CaloTPGTranscoderULUT.h"
-#include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
-#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
-#include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/LutXml.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/XMLDOMBlock.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutManager.h"
@@ -570,7 +570,7 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii_ZDC(const std::s
                                                                     const CaloTPGTranscoderULUT& _transcoder,
                                                                     const std::string& _lin_file) {
   std::map<int, std::shared_ptr<LutXml>> xml;
-  lut_checksums_xml = new XMLDOMBlock("CFGBrick", 1);
+  lut_checksums_xml = new XMLDOMBlock("CFGBrick", true);
 
   if (!_lin_file.empty()) {
     const std::map<int, std::shared_ptr<LutXml>> _lin_lut_ascii_xml =
