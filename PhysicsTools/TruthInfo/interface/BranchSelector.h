@@ -28,9 +28,10 @@ namespace truth {
       bool signalOnly = false;      // bunchCrossing == 0 and event == 0
       bool intimeOnly = false;      // bunchCrossing == 0
       bool chargedOnly = false;     // root particle electrically charged
-      bool invertEta = false;       // keep |eta| OUTSIDE [etaMin, etaMax]
-      // Apply the pt and eta cuts ONLY to a root Geant4 actually tracked. The cuts describe what a detector can see, and the momentum of a
-      // root that decayed is not a detector observable: a resonance produced at rest
+      bool invertEta = false;       // keep eta OUTSIDE [etaMin, etaMax]
+      // Apply the pt and eta cuts ONLY to a root that Geant4 tracked. The cuts describe
+      // what a detector can see, and the momentum of a root that decayed is not a
+      // detector observable: a resonance produced at rest
       // carries pt about 0 and therefore |eta| -> infinity, so a pt>1 GeV or |eta|<4 cut
       // throws it away while its decay products are all over the calorimeter. Measured on
       // DYToLL: 43% of the Z bosons were rejected that way, every one of them with a
@@ -52,7 +53,7 @@ namespace truth {
     BranchSelector() = default;
     explicit BranchSelector(Config config) : config_(std::move(config)) {}
 
-    // Unchanged meaning: passes everything. Equivalent to passesNonKinematic() with no
+    // True when the branch passes every cut. Equivalent to passesNonKinematic() with no
     // kinematic cut failed.
     [[nodiscard]] bool operator()(Branch const& branch) const;
 
