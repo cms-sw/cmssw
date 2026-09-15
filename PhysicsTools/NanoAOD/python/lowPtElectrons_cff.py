@@ -179,23 +179,6 @@ lowPtElectronMCTask = cms.Task(
 
 # To preserve "nano v9" functionality ...
 
-from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import lowPtRegressionModifier
-run2_nanoAOD_106Xv2.toModify(
-    modifiedLowPtElectrons.modifierConfig,
-    modifications = cms.VPSet(lowPtElectronModifier,
-                              lowPtRegressionModifier)
-).toModify(
-    updatedLowPtElectronsWithUserData.userFloats,
-    ID = cms.InputTag("lowPtPATElectronID")
-).toModify(
-    finalLowPtElectrons,
-    cut = "pt > 1. && userFloat('ID') > -0.25"
-).toModify(
-    lowPtElectronTable.variables,
-    embeddedID = Var("electronID('ID')",float,doc="ID, BDT (raw) score"),
-    ID = Var("userFloat('ID')",float,doc="New ID, BDT (raw) score")
-)
-
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronID_cfi import lowPtGsfElectronID
 lowPtPATElectronID = lowPtGsfElectronID.clone(
     usePAT = True,
@@ -206,7 +189,25 @@ lowPtPATElectronID = lowPtGsfElectronID.clone(
     ],
 )
 
-run2_nanoAOD_106Xv2.toReplaceWith(
-    lowPtElectronTask,
-    lowPtElectronTask.copyAndAdd(lowPtPATElectronID)
-)
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import lowPtRegressionModifier
+for modifier in [run2_nanoAOD_106Xv2, run2_nanoAOD_from_m2m_106Xv2]:
+    modifier.toModify(
+        modifiedLowPtElectrons.modifierConfig,
+        modifications = cms.VPSet(lowPtElectronModifier,
+                                  lowPtRegressionModifier)
+    ).toModify(
+        updatedLowPtElectronsWithUserData.userFloats,
+        ID = cms.InputTag("lowPtPATElectronID")
+    ).toModify(
+        finalLowPtElectrons,
+        cut = "pt > 1. && userFloat('ID') > -0.25"
+    ).toModify(
+        lowPtElectronTable.variables,
+        embeddedID = Var("electronID('ID')",float,doc="ID, BDT (raw) score"),
+        ID = Var("userFloat('ID')",float,doc="New ID, BDT (raw) score")
+    )
+
+    modifier.toReplaceWith(
+        lowPtElectronTask,
+        lowPtElectronTask.copyAndAdd(lowPtPATElectronID)
+    )
