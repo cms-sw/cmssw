@@ -4,8 +4,6 @@
 
 #include <algorithm>
 
-#include "HepPDT/ParticleID.hh"
-
 namespace truth {
 
   bool BranchSelector::operator()(Branch const& branch) const {
@@ -22,11 +20,10 @@ namespace truth {
     if (config_.intimeOnly && !branch.isInTime())
       return false;
 
-    const int32_t pdgId = branch.rootPdgId();
-
-    if (config_.chargedOnly && HepPDT::ParticleID(pdgId).threeCharge() == 0)
+    if (config_.chargedOnly && branch.root().charge() == 0)
       return false;
 
+    const int32_t pdgId = branch.rootPdgId();
     if (!config_.pdgIds.empty() &&
         std::find(config_.pdgIds.begin(), config_.pdgIds.end(), pdgId) == config_.pdgIds.end())
       return false;
