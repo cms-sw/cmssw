@@ -129,7 +129,7 @@ namespace {
   //                    consumes the track maps, it does not revisit hits.
   //
   // Binding payload and strategy to the type means the declared product type and the
-  // produced one cannot drift apart, which they did when the metric was a config string.
+  // produced one cannot drift apart.
   enum class AssociationStrategy { HitBased, ConstituentBased };
 
   template <typename RECO>
@@ -192,33 +192,13 @@ namespace {
     static constexpr const char* cfiName = "truthBranchTracksterAssociators";
   };
 
-  // Which truth vertex a constituent should be counted at.
-  // One representative vertex per interaction, for Interaction resolution.
-  //
-  // No VertexRole::Interaction node is materialised unless a selection preset builds one:
-  // measured on ttbar, all 534 vertices of an event are Normal. eventId IS the
-  // interaction instead, 0 being the signal and anything else an overlaid pileup
-  // interaction, so every particle of one interaction must count at a single vertex.
-  //
-  // That vertex is the lowest-numbered usable production vertex of the interaction. The
-  // build hands out ids in order, so the lowest one is where the interaction started.
-  // Usable excludes a vertex that neither merged with a SimVertex nor carries a position.
-  // A pileup sub-event built with collapsePileupGen has one synthetic GEN vertex. If all
-  // its GenToSim links are dropped, that vertex never merges and keeps a default
-  // position. Electing it would count the whole interaction at the origin, where any
-  // reco vertex near the beamspot absorbs it.
-  //
-  // Position alone does not identify the right vertex: after VtxSmeared every shower and
-  // hadronisation vertex of a Pythia record sits at the same smeared point, so "it came
-  // out at the beamspot" would be true of almost any choice. The build order is what
-  // picks it; the usability test only rejects the placeholder.
-  //
-  // The placeholder this rejects is a default-constructed position, an in-band value: a
-  // genuine unsmeared vertex at the exact origin is indistinguishable and gets demoted
-  // too. Harmless for the association itself, since on such a sample every candidate
-  // shares the position anyway, but the elected id can differ from the plain build-order
-  // choice there. Time is part of the test so a real origin vertex with nonzero time is
-  // kept.
+  // Whether a vertex may represent an interaction. The eventId identifies the
+  // interaction, so every particle of one interaction counts at a single vertex: the
+  // lowest-numbered usable production vertex, which the build order makes the one where
+  // the interaction started. A vertex that neither merged with a SimVertex nor carries a
+  // position is a placeholder, and electing it would count the whole interaction at the
+  // origin. Time is part of the test, so a real vertex at the origin with a nonzero time
+  // is kept.
   [[nodiscard]] inline bool usableAsInteractionVertex(truth::VertexData const& vertex) {
     if (vertex.hasSim()) {
       return true;
@@ -267,17 +247,21 @@ namespace {
 
     // An interaction with nothing but placeholders still has to resolve, or every
     // composite object built from its constituents silently matches nothing. Take the
-    // placeholder and say that its position is not to be trusted.
+    // placeholder and say that its position is not to be trusted. One message per event,
+    // because a PU200 event holds of order ten of them.
+    unsigned int placeholderCount = 0;
     for (auto const& [eventId, vertexId] : placeholderOnly) {
       if (representative.emplace(eventId, vertexId).second) {
-        edm::LogWarning("AllRecoToTruthBranchAssociators")
-            << "interaction " << eventId << " resolves only to logical vertex " << vertexId
-            << ", which did not merge with a SimVertex and whose position is "
-               "indistinguishable from a default-constructed one. Its constituents are "
-               "counted there, so any vertex efficiency or purity for that interaction "
-               "is positional nonsense. This is what a pileup sub-event looks like when "
-               "all of its GenToSim links were dropped.";
+        ++placeholderCount;
       }
+    }
+    if (placeholderCount > 0) {
+      edm::LogWarning("AllRecoToTruthBranchAssociators")
+          << placeholderCount
+          << " interactions resolve only to a logical vertex that did not merge with a SimVertex and whose "
+             "position is indistinguishable from a default-constructed one. Their constituents are counted "
+             "there, so a vertex efficiency or purity for those interactions carries no position. This is what "
+             "a pileup sub-event looks like when all of its GenToSim links were dropped.";
     }
     return representative;
   }
@@ -334,6 +318,7 @@ private:
   // One warning per job when no rechit collection is present, because the metric
   // then falls back to sim-energy weights and its scores are not the TICL ones.
   mutable std::once_flag recHitsWarned_;
+  mutable std::once_flag rowOutOfRangeWarned_;
 
   std::vector<std::pair<std::string, edm::EDGetTokenT<std::vector<RECO>>>> recoTokens_;
   // One warning per collection per job when its input is absent: a silently empty map
@@ -619,21 +604,12 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
       }
     }
 
-    // Restrict to what the collection is actually for. inclusiveSecondaryVertices
-    // reconstructs DISPLACED HEAVY-FLAVOUR vertices, about 4 per ttbar event, while every
-    // graph vertex with two selected roots sweeps in every nuclear interaction, conversion
-    // and decay in flight: 45.9 per event, an 11x excess that caps the efficiency near 9%
-    // however good the reconstruction is. The graph answers the question directly.
-    // WHERE THE HEAVY-FLAVOUR HADRON DECAYED, which is what a secondary vertex is. Asking
-    // instead whether the incoming particle's subgraph contains a b or c hadron anywhere
-    // is true at every vertex along the chain above and below it: measured on no-PU ttbar
-    // it selects 12 and 16 vertices per event against the 4 and 5 the hadrons actually
-    // decay at, and 4.1 reconstructed, so the denominator is inflated 3x and caps the
-    // efficiency near a third however good the reconstruction is.
-    //
-    // The levels are antichains, so a B* radiating down to a B contributes ONE vertex
-    // rather than one per generator copy. Beauty and charm are asked separately because a
-    // B decays to a D and a combined level would drop every charm vertex.
+    // The denominator is where a heavy-flavour hadron decayed, which is what a secondary
+    // vertex is: inclusiveSecondaryVertices reconstructs displaced heavy-flavour
+    // vertices, not every nuclear interaction, conversion and decay in flight. The levels
+    // are antichains, so a B* radiating down to a B contributes one vertex rather than one
+    // per generator copy. Beauty and charm are asked separately because a B decays to a D
+    // and a combined level would drop every charm vertex.
     const std::unordered_set<unsigned int> heavyFlavorDecayVertices = [&graph, heavyFlavorOnly = heavyFlavorOnly_] {
       std::unordered_set<unsigned int> vertices;
       // Only the secondary-vertex flavour of this producer reads the set.
@@ -777,10 +753,9 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
         auto const& constituentMap = event.get(constituentMapTokens_[collectionIndex][wpIndex]);
         for (unsigned int i = 0; i < nReco; ++i) {
           auto const& object = (*handle)[i];
-          // The total weight is summed in its own pass, NOT fused into the scan below:
-          // fusing changes the inlining context of the float accumulation and with it
-          // the rounding of pt^2 sums, which moves association scores in the last ulp
-          // (caught by a bin-by-bin DQM comparison on 200 TenTau events).
+          // Summed in its own pass, not fused into the scan below: fusing changes the
+          // inlining context of the float accumulation and with it the rounding of the
+          // pt^2 sums, which moves association scores in the last ulp.
           const float total = Traits::totalWeight(object);
           if (total <= 0.f) {
             continue;
@@ -808,9 +783,8 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
             }
           });
           // Denominator over ALL constituents, the CMSSW convention: a track with no
-          // truth match legitimately lowers the shared fraction. With pt^2 weighting
-          // that dilution is small, because the tracks that go unmatched are the soft
-          // ones, which is exactly why the standard weighting is pt^2 and not a count.
+          // truth match lowers the shared fraction. The pt^2 weighting keeps that
+          // dilution small, because the unmatched tracks are the soft ones.
           for (auto const& [vertexId, weight] : weightPerVertex) {
             // RECO purity: the leading truth vertex's share of THIS reco object's pt^2.
             const float recoPurity = weight / total;
@@ -869,10 +843,9 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
 
         // A candidate root carries the hits of its whole subgraph, so a parton, a beam
         // particle or an invented node covers the reco object entirely and wins on score.
-        // An adaptive point may not answer with one. They stay in the first working
-        // point's map, which is the candidate list, and the truth-driven direction reads
-        // its pair scores from that map: filtering them there empties the levels made of
-        // these particles, partonJets 91 of 92 to 0 of 92 on 20 ttbar events at PU200.
+        // An adaptive point may not answer with one. The barred roots stay in the first
+        // working point's map, which the truth-driven direction reads its pair scores
+        // from, so a level made of those particles keeps its efficiency.
         assignableMatches.clear();
         if (anyAdaptiveWorkingPoint) {
           for (auto const& match : matches) {
@@ -911,6 +884,18 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
         // keeps reporting the shared hit count.
         constexpr bool sharedEnergyMetric = Traits::metric == truth::BranchHitAssociator::Metric::SharedEnergy;
         for (auto const& match : matches) {
+          // The row index comes from the hit index and the map is sized from the graph.
+          // A candidate outside the graph means the two products were built from
+          // different events, which is a configuration error, not a row to write.
+          if (match.rootParticleId >= nTruthRows) {
+            std::call_once(rowOutOfRangeWarned_, [&key] {
+              edm::LogWarning("AllRecoToTruthBranchAssociators")
+                  << "Hit index and truth graph disagree on the particle count for '" << key
+                  << "'; the candidates outside the graph are dropped. Check that both products come from the same "
+                     "event.";
+            });
+            continue;
+          }
           const float truthValue = sharedEnergyMetric ? match.sharedEnergyFraction : match.sharedEnergy;
           truthToReco->insert(match.rootParticleId, i, truthValue, match.reverseScore);
         }
