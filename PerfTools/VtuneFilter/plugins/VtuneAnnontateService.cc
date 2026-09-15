@@ -20,24 +20,27 @@ namespace edm {
 
   void VtuneAnnotateService::preModuleEvent(StreamContext const&, ModuleCallingContext const& mcc) {
     std::string const& moduleLabel = mcc.moduleDescription()->moduleLabel();
+    std::string const& moduleName = mcc.moduleDescription()->moduleName();
 
     // If it's a module we want to IGNORE/DISABLE profiling for:
-    if (isTargetModule(moduleLabel)) {
+//    if (isTargetModule(moduleLabel) || isTargetModule(moduleName)) {
       // Dynamically generate a string handle for this specific module name
-      __itt_string_handle* handle = __itt_string_handle_create(moduleLabel.c_str());
+      std::string handleName = moduleName + "/" + moduleLabel;
+      __itt_string_handle* handle = __itt_string_handle_create(handleName.c_str());
 
       // Start a task on THIS thread only. Global profiling remains ACTIVE.
       __itt_task_begin(ittDomain_, __itt_null, __itt_null, handle);
-    }
+//    }
   }
 
   void VtuneAnnotateService::postModuleEvent(StreamContext const&, ModuleCallingContext const& mcc) {
     std::string const& moduleLabel = mcc.moduleDescription()->moduleLabel();
+    std::string const& moduleName = mcc.moduleDescription()->moduleName();
 
-    if (isTargetModule(moduleLabel)) {
+//    if (isTargetModule(moduleLabel)) {
       // End the task on THIS thread
       __itt_task_end(ittDomain_);
-    }
+//    }
   }
 }  // namespace edm
 
