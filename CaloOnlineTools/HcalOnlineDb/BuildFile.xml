@@ -1,6 +1,5 @@
 <use name="CalibCalorimetry/CaloTPG"/>
 <use name="CalibCalorimetry/HcalAlgos"/>
-<use name="CalibCalorimetry/HcalTPGAlgos"/>
 <use name="CalibFormats/HcalObjects"/>
 <use name="CondFormats/HcalObjects"/>
 <use name="DataFormats/HcalDetId"/>
@@ -11,6 +10,8 @@
 <use name="Geometry/CaloTopology"/>
 <use name="PhysicsTools/FWLite"/>
 <use name="SimCalorimetry/HcalTrigPrimAlgos"/>
+<use name="Utilities/Xerces"/>
+<use name="xerces-c"/>
 <export>
   <lib name="1"/>
 </export>

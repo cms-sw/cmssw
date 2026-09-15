@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <iostream>
 #include <sstream>
 
 #include "Validation/RecoParticleFlow/interface/Comparator.h"

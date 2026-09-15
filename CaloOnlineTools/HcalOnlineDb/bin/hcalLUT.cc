@@ -1,4 +1,4 @@
-#include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/LutXml.h"
 #include "PhysicsTools/FWLite/interface/CommandLineParser.h"
 
 #include <iostream>
