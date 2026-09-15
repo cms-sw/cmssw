@@ -76,6 +76,8 @@ from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 # is deliberately NOT imported here (importing its signal-only build producers would
 # attach them to the RECO process and shadow the DIGI-built products).
 from Validation.TruthInfo.truthGraphValidation_cff import *
+from SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociators_cff import *
+from Validation.TruthInfo.truthBranchValidation_cff import *
 
 # filter/producer "pre-" sequence for validation_preprod
 preprodPrevalidation = cms.Sequence(
@@ -160,16 +162,18 @@ baseCommonValidation = cms.Sequence()
 # truth to baseCommonPreValidation itself would fail those workflows with
 # ProductNotFound at the first event.
 baseCommonPreValidationNoTruth = baseCommonPreValidation.copy()
-_baseCommonPreValidationNoTruth = baseCommonPreValidationNoTruth
+_baseCommonPreValidationNoTruth = baseCommonPreValidationNoTruth.copy()
 _baseCommonValidationNoTruth = baseCommonValidation.copy()
 
 _baseCommonPreValidationWithTruth = baseCommonPreValidation.copy()
 _baseCommonPreValidationWithTruth += truthGraphValidationProducers
+_baseCommonPreValidationWithTruth += truthGraphAssociatorsSequence
 enableTruth.toReplaceWith(baseCommonPreValidation, _baseCommonPreValidationWithTruth)
 premix_stage2.toReplaceWith(baseCommonPreValidation, _baseCommonPreValidationNoTruth)
 
 _baseCommonValidationWithTruth = baseCommonValidation.copy()
 _baseCommonValidationWithTruth += truthGraphValidationAnalyzers
+_baseCommonValidationWithTruth += truthBranchValidationSequence
 enableTruth.toReplaceWith(baseCommonValidation, _baseCommonValidationWithTruth)
 premix_stage2.toReplaceWith(baseCommonValidation, _baseCommonValidationNoTruth)
 

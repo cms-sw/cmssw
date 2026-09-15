@@ -86,11 +86,13 @@ postValidation_common = cms.Sequence()
 from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 from Validation.TruthInfo.truthGraphDQMHarvester_cff import *
+from Validation.TruthInfo.truthBranchValidation_cff import *
 # premix_stage2 builds no truth products (see globalValidation_cff), so the harvesting
 # reverts to the truth-free sequence there; the later statement wins.
 _postValidationCommonNoTruth = postValidation_common.copy()
 _postValidationCommonWithTruth = postValidation_common.copy()
 _postValidationCommonWithTruth += truthGraphDQMHarvesting
+_postValidationCommonWithTruth += truthBranchHarvestingSequence
 enableTruth.toReplaceWith(postValidation_common, _postValidationCommonWithTruth)
 premix_stage2.toReplaceWith(postValidation_common, _postValidationCommonNoTruth)
 
