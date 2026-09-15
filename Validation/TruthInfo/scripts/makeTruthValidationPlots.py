@@ -614,10 +614,15 @@ def discover(tfile):
 
     The DQM path is TruthInfo/<flavour>/<category>/<collection>_<workingPoint>. A file
     written before the flavour level existed has no such component and is reported as
-    Offline, so old files still plot.
+    Offline, so old files still plot. Only the TruthInfo tree is read: a harvested file
+    of a full validation job also holds Tracking, Btag, HLT and other folders, whose
+    names split on the last underscore as well and would be drawn as truth collections.
     """
 
     def walk(directory, path):
+        # DQMData / Run N / <top folder>: below the run folder, only TruthInfo is read.
+        if len(path) >= 3 and "TruthInfo" not in path:
+            return
         holds = False
         for key in directory.GetListOfKeys():
             # Classify by the key's class name: ReadObj deserializes the whole payload
