@@ -53,7 +53,7 @@ namespace truth {
         recHitEnergies_(recHitEnergies != nullptr && !recHitEnergies->empty() ? recHitEnergies : nullptr),
         metric_(metric),
         channel_(channel),
-        cellAware_(channel == HitChannel::Tracker || channel == HitChannel::Muon),
+        cellAware_(channel == HitChannel::Tracker),
         denominatorDetectors_(denominatorDetectors),
         roots_(std::move(candidateRoots)) {
     if (roots_.empty() && emptyRootsMeansAll) {
@@ -322,12 +322,7 @@ namespace truth {
         while (jEnd < branchHits.size() && branchHits[jEnd].detId == detId)
           ++jEnd;
 
-        // An entry with no cell stands for the whole module and sorts last, so it
-        // answers every cell the other side holds on that module.
         const bool branchHasEntry = jEnd > j;
-        const bool branchCoversModule = branchHasEntry && (!cellAware_ || !branchHits[jEnd - 1].hasCell());
-        bool recoNamesModuleOnly = false;
-        bool moduleEntryUsed = false;
         bool runIsShared = false;
         uint32_t exactMatches = 0;
         std::size_t cursor = j;
@@ -342,25 +337,21 @@ namespace truth {
           std::size_t matched = jEnd;
           bool shared = false;
           bool firstOnBranchEntry = false;
-          if (!cellAware_ || rh.cell == LogicalGraphHitIndex::Hit::kNoCell) {
-            recoNamesModuleOnly = branchHasEntry;
+          if (!cellAware_) {
+            // The DetId names the cell: one entry per DetId on each side.
             matched = j;
             shared = branchHasEntry;
-            firstOnBranchEntry = shared;
-          } else {
-            while (cursor < jEnd && branchHits[cursor].hasCell() && branchHits[cursor].recHitIndex < rh.cell)
+            firstOnBranchEntry = shared && !runIsShared;
+          } else if (rh.cell != LogicalGraphHitIndex::Hit::kNoCell) {
+            // Keyed by (module, cell): the two sides match only on the same cell.
+            while (cursor < jEnd && branchHits[cursor].recHitIndex < rh.cell)
               ++cursor;
-            if (cursor < jEnd && branchHits[cursor].hasCell() && branchHits[cursor].recHitIndex == rh.cell) {
+            if (cursor < jEnd && branchHits[cursor].recHitIndex == rh.cell) {
               matched = cursor;
               shared = true;
               firstOnBranchEntry = true;
               ++exactMatches;
               ++cursor;
-            } else if (branchCoversModule) {
-              matched = jEnd - 1;
-              shared = true;
-              firstOnBranchEntry = !moduleEntryUsed;
-              moduleEntryUsed = true;
             }
           }
           runIsShared = runIsShared || shared;
@@ -390,13 +381,9 @@ namespace truth {
         if (runIsShared)
           ++sharedRecoRuns;
 
-        // The branch entries this reco object answers: the exact cells, plus the
-        // module-wide branch entry at most once however many reco cells fall on it. A
-        // reco entry that names the module alone cannot say which cell it fired, so it
-        // answers one branch entry and a branch owning more cells of the module keeps
-        // the higher reverse score.
-        sharedBranchCells +=
-            exactMatches + (moduleEntryUsed ? 1u : 0u) + (recoNamesModuleOnly && exactMatches == 0u ? 1u : 0u);
+        // The branch entries this reco object answers: the matched cells, or the one
+        // entry of the DetId where the DetId names the cell.
+        sharedBranchCells += cellAware_ ? exactMatches : (runIsShared ? 1u : 0u);
 
         i = iEnd;
         j = jEnd;

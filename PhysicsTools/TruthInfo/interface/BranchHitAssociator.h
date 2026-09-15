@@ -22,9 +22,9 @@ namespace truth {
     // associator's CellEnergyTable when it has one, else from the truth hit index.
     float energy = 0.f;
     float fraction = 1.f;  // fraction of the cell assigned to this reco object
-    // The cell inside the module, on a channel whose DetId names a module rather than a
-    // cell. kNoCell means "anywhere in this module" and matches any cell of it, which is
-    // what an adapter that cannot reach the clusters, or a module-keyed index, provides.
+    // The cell inside the module, on the tracker channel, where a DetId names a module
+    // rather than a cell. A tracker hit matches only the same cell, so a hit left at
+    // kNoCell matches nothing there.
     uint32_t cell = LogicalGraphHitIndex::Hit::kNoCell;
   };
 
@@ -193,10 +193,9 @@ namespace truth {
     CellEnergyTable const* recHitEnergies_ = nullptr;
     Metric metric_;
     HitChannel channel_;
-    // Whether a DetId of this channel names a module, so that the hit's cell field
-    // distinguishes two hits on the same DetId. True for the tracker and the muon
-    // chambers; on the calorimeter and MTD channels a DetId already names a cell and
-    // the field holds a recHit index instead.
+    // Whether a DetId of this channel names a module, so that two hits match only on
+    // the same cell. True for the tracker; on the other channels a DetId already names
+    // a cell and the field holds a recHit index instead.
     bool cellAware_ = false;
     uint32_t denominatorDetectors_;
     std::vector<uint32_t> roots_;

@@ -87,10 +87,9 @@ truthLogicalGraphHitIndexProducer = _truthLogicalGraphHitIndexProducer.clone(
     # HGCAL geometries carry reco DetIds already, so only the HCAL switch is set here.
     doHcalRelabelling=cms.bool(True),
     subdetectors=cms.vstring("Calo", "Muon", "Tracker"),  # full; MTD resolved at RECO
-    # The inner-tracker truth is keyed by (module, cell): a tracker DetId names a
-    # module, so without the cell two particles crossing one module share every hit
-    # they leave there. The links are the digitizer's own record of which cell each
-    # particle fired.
+    # The tracker truth is keyed by (module, cell): a tracker DetId names a module, so
+    # without the cell two particles crossing one module share every hit they leave
+    # there. The links are the digitizer's own record of which cell each particle fired.
     trackerDigiSimLinks=cms.VInputTag(cms.InputTag("simSiPixelDigis", "Pixel"),
                                       cms.InputTag("simSiPixelDigis", "Tracker")),
     simHitCollections=cms.VInputTag(
@@ -98,7 +97,6 @@ truthLogicalGraphHitIndexProducer = _truthLogicalGraphHitIndexProducer.clone(
         cms.InputTag("mix", "mergedEcalHits"),
         cms.InputTag("mix", "mergedHcalHits"),
     ),
-    trackerSimHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedTrackerHits")),  # customiseTruthReduced empties this
     muonSimHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedMuonHits")),
 )
 
