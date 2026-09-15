@@ -3,6 +3,8 @@
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/DetId"/>
+<use name="DataFormats/Phase2TrackerCluster"/>
+<use name="DataFormats/Phase2TrackerDigi"/>
 <use name="DataFormats/SiPixelCluster"/>
 <use name="DataFormats/SiPixelDetId"/>
 <use name="DataFormats/SiPixelDigi"/>

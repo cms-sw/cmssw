@@ -9,6 +9,7 @@
 
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
 #include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndexBuilder.h"
+#include "PhysicsTools/TruthInfo/interface/TrackerCells.h"
 
 namespace {
 
@@ -147,6 +148,7 @@ class TestBranchHitAssociator : public CppUnit::TestFixture {
   CPPUNIT_TEST(testAModuleWithoutACellMatchesAnyCellOfIt);
   CPPUNIT_TEST(testAnAncestorKeepsEveryCellOfAModule);
   CPPUNIT_TEST(testAModuleKeyedBranchIsNeverOverCounted);
+  CPPUNIT_TEST(testTheTwoTrackerPackingsAreNotInterchangeable);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -170,6 +172,7 @@ public:
   void testAModuleWithoutACellMatchesAnyCellOfIt();
   void testAnAncestorKeepsEveryCellOfAModule();
   void testAModuleKeyedBranchIsNeverOverCounted();
+  void testTheTwoTrackerPackingsAreNotInterchangeable();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranchHitAssociator);
@@ -638,4 +641,20 @@ void TestBranchHitAssociator::testAModuleKeyedBranchIsNeverOverCounted() {
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, matches.front().reverseScore, 1e-6);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, matches.front().sharedEnergyFraction, 1e-6);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, matches.front().sharedEnergy, 1e-6);
+}
+
+void TestBranchHitAssociator::testTheTwoTrackerPackingsAreNotInterchangeable() {
+  // The inner tracker packs the row in the high bits, the outer tracker the column, so
+  // one packing must never be used for the other's cluster: the cells would be real
+  // numbers naming the wrong strips, and the merge-join would report a clean mismatch
+  // rather than an error.
+  CPPUNIT_ASSERT(truth::pixelCell(3, 5) != truth::outerTrackerCell(3, 5));
+
+  // Each agrees with the digitizer that writes the sim links it is matched against.
+  CPPUNIT_ASSERT_EQUAL(static_cast<uint32_t>(PixelDigi::pixelToChannel(3, 5)), truth::pixelCell(3, 5));
+  CPPUNIT_ASSERT_EQUAL(static_cast<uint32_t>(Phase2TrackerDigi::pixelToChannel(3, 5)), truth::outerTrackerCell(3, 5));
+
+  // Distinct cells of one module stay distinct in both, which is the whole point.
+  CPPUNIT_ASSERT(truth::pixelCell(3, 5) != truth::pixelCell(3, 6));
+  CPPUNIT_ASSERT(truth::outerTrackerCell(3, 5) != truth::outerTrackerCell(4, 5));
 }
