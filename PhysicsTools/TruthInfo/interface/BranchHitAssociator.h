@@ -67,14 +67,14 @@ namespace truth {
   struct BranchMatch {
     static constexpr uint32_t kInvalidRoot = std::numeric_limits<uint32_t>::max();
     uint32_t rootParticleId = 0;
-    float sharedEnergy = 0.f;  // (SharedHits metric: number of shared cells)
-    // Reco-normalized score: how much of the reco object the branch fails to
-    // cover (denominator = reco self-energy / reco hit count). Use for the
-    // reco->branch direction. Lower is better.
+    float sharedEnergy = 0.f;  // (SharedHits metric: number of shared reco hits)
+    // Reco-normalized score: how much of the reco object the branch fails to cover
+    // (denominator = the reco self-energy, or the reco hit count for SharedHits). Use
+    // for the reco->branch direction. Lower is better.
     float score = 0.f;
-    // Branch-normalized score: how much of the branch the reco object fails to
-    // cover (denominator = branch subgraph self-energy / branch hit count). Use
-    // for the branch->reco direction. Lower is better.
+    // Branch-normalized score: how much of the branch the reco object fails to cover
+    // (denominator = the branch subgraph self-energy, or its cell count for
+    // SharedHits). Use for the branch->reco direction. Lower is better.
     float reverseScore = 0.f;
     // Sim-normalized shared quantity: sharedEnergy over the branch's own energy IN
     // THE DETECTORS the caller asked the denominator to cover (its cell count for
@@ -100,12 +100,14 @@ namespace truth {
   // (sorted) hits with each candidate's sorted subgraph-hit span.
   class BranchHitAssociator {
   public:
-    // SharedEnergy reproduces the TICL trackster-to-simTrackster arithmetic
-    // (SimCalorimetry/HGCalAssociatorProducers/plugins/
-    // AllTracksterToSimTracksterAssociatorsByHitsProducer.cc:341-364 for reco->sim and
-    // :428-453 for sim->reco): per cell the score is the squared uncovered energy over
-    // the squared self energy, and the shared energy is the minimum of the two sides.
-    // SharedHits counts cells and ignores energy, which is what the tracker needs.
+    // SharedEnergy reproduces the TICL trackster-to-simTrackster arithmetic of
+    // AllTracksterToSimTracksterAssociatorsByHitsProducer, in both directions: per cell
+    // the score is the squared uncovered energy over the squared self energy, and the
+    // shared energy is the minimum of the two sides.
+    // SharedHits ignores energy and counts objects, which is what the tracker needs: on
+    // the reco side one rechit, so a pixel cluster counts once however many cells it
+    // spans; on the branch side one cell, so an ancestor spanning more of a module keeps
+    // the higher reverse score.
     enum class Metric { SharedEnergy, SharedHits };
 
     // Detectors the sharedEnergyFraction denominator covers, as a bit per DetId::det()
@@ -220,10 +222,10 @@ namespace truth {
     std::vector<double> rootEnergy_;
 
     // Shared layout only: the candidate roots' subgraph hits, coalesced here once at
-    // construction because the persisted store keeps them in tree order with a detId
-    // repeated per contributing descendant, while the merge-join below needs one
-    // ascending entry per detId. Materialised indices keep using the persisted spans,
-    // so these stay empty. CSR over roots_, in the order roots_ holds them.
+    // construction because the persisted store keeps them in tree order with a cell
+    // repeated per contributing descendant, while the merge-join needs one ascending
+    // entry per cell. Materialised indices keep using the persisted spans, so these
+    // stay empty. CSR over roots_, in the order roots_ holds them.
     std::vector<uint32_t> rootHitOffsets_;
     std::vector<LogicalGraphHitIndex::Hit> rootHitStorage_;
     // particle id -> position in rootHitOffsets_, or kNoRoot when the particle is not a

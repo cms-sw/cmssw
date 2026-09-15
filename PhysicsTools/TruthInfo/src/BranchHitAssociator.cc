@@ -162,10 +162,9 @@ namespace truth {
       scratch.clear();
       hitIndex_->appendSubgraphHits(channel_, root, scratch);
 
-      // Same rule the materialised layout applies when it aggregates: sort by detId
-      // and sum the energies of the entries that share one, so the merge-join sees a
-      // single ascending entry per cell. The valid recHit index wins over the invalid
-      // sentinel, which sorts last.
+      // Sort by (detId, cell) and sum the energies of the entries that share that key,
+      // so the merge-join sees one ascending entry per cell. On a channel whose DetId
+      // already names a cell the key is the detId alone.
       std::sort(scratch.begin(), scratch.end(), [](auto const& a, auto const& b) {
         if (a.detId != b.detId)
           return a.detId < b.detId;
@@ -173,7 +172,9 @@ namespace truth {
       });
       std::size_t w = 0;
       for (std::size_t r = 0; r < scratch.size(); ++r) {
-        if (w > 0 && scratch[w - 1].detId == scratch[r].detId) {
+        const bool sameKey = w > 0 && scratch[w - 1].detId == scratch[r].detId &&
+                             (!cellAware_ || scratch[w - 1].recHitIndex == scratch[r].recHitIndex);
+        if (sameKey) {
           scratch[w - 1].energy += scratch[r].energy;
           if (scratch[w - 1].recHitIndex == LogicalGraphHitIndex::Hit::kInvalidRecHitIndex)
             scratch[w - 1].recHitIndex = scratch[r].recHitIndex;
@@ -290,63 +291,118 @@ namespace truth {
       // ones or a reco object with cells outside the mask exceeds 1.
       double sharedEnergyInDenominator = 0.0;
       double scoreNum = 0.0;
-      uint32_t sharedCells = 0;
+      // The two sides are counted separately: one reco entry can answer several branch
+      // entries of a module, and one branch entry can answer several reco entries, so a
+      // single counter would exceed one of the two denominators. The reco side is
+      // counted per DetId run, which is one rechit, so the score is the fraction of the
+      // object's rechits the branch owns whatever the cell multiplicity of a cluster.
+      uint32_t recoRuns = 0;
+      uint32_t sharedRecoRuns = 0;
+      uint32_t sharedBranchCells = 0;
 
       // Branch-normalized (reverse) accumulators over the shared cells.
       double sharedBranchEnergySq = 0.0;
       double branchExcessNum = 0.0;
 
       // Merge-join reco hits and the branch subgraph hits by detId, then by cell where
-      // the channel carries one. j stops at the first entry of a module and stays there,
-      // because several reco hits can share that module; the inner scan covers the
-      // module's cells, which are the few a particle fires there.
+      // the channel carries one. Both sides are sorted by (detId, cell), so the join
+      // walks one DetId run at a time and each side is read once.
       std::size_t i = 0;
       std::size_t j = 0;
       while (i < reco.size()) {
-        const RecoHit& rh = reco[i];
+        const uint32_t detId = reco[i].detId;
 
-        // advance branch pointer to rh.detId
-        while (j < branchHits.size() && branchHits[j].detId < rh.detId)
+        std::size_t iEnd = i;
+        while (iEnd < reco.size() && reco[iEnd].detId == detId)
+          ++iEnd;
+
+        while (j < branchHits.size() && branchHits[j].detId < detId)
           ++j;
+        std::size_t jEnd = j;
+        while (jEnd < branchHits.size() && branchHits[jEnd].detId == detId)
+          ++jEnd;
 
-        std::size_t matched = j;
-        bool shared = false;
-        for (std::size_t k = j; k < branchHits.size() && branchHits[k].detId == rh.detId; ++k) {
-          // A cell on one side and none on the other means "anywhere in this module",
-          // so the two match: a module-keyed index and a cell-keyed adapter, or the
-          // reverse, still give an answer, coarser but never wrong.
-          if (!cellAware_ || !branchHits[k].hasCell() || rh.cell == LogicalGraphHitIndex::Hit::kNoCell ||
-              branchHits[k].recHitIndex == rh.cell) {
-            matched = k;
-            shared = true;
-            break;
+        // An entry with no cell stands for the whole module and sorts last, so it
+        // answers every cell the other side holds on that module.
+        const bool branchHasEntry = jEnd > j;
+        const bool branchCoversModule = branchHasEntry && (!cellAware_ || !branchHits[jEnd - 1].hasCell());
+        bool recoNamesModuleOnly = false;
+        bool moduleEntryUsed = false;
+        bool runIsShared = false;
+        uint32_t exactMatches = 0;
+        std::size_t cursor = j;
+        ++recoRuns;
+
+        for (std::size_t r = i; r < iEnd; ++r) {
+          const RecoHit& rh = reco[r];
+
+          // The branch entry this reco entry is scored against, and whether it is the
+          // first reco entry to reach it. Only the first one carries the branch-side
+          // energy, which belongs to the branch entry and not to the reco entry.
+          std::size_t matched = jEnd;
+          bool shared = false;
+          bool firstOnBranchEntry = false;
+          if (!cellAware_ || rh.cell == LogicalGraphHitIndex::Hit::kNoCell) {
+            recoNamesModuleOnly = branchHasEntry;
+            matched = j;
+            shared = branchHasEntry;
+            firstOnBranchEntry = shared;
+          } else {
+            while (cursor < jEnd && branchHits[cursor].hasCell() && branchHits[cursor].recHitIndex < rh.cell)
+              ++cursor;
+            if (cursor < jEnd && branchHits[cursor].hasCell() && branchHits[cursor].recHitIndex == rh.cell) {
+              matched = cursor;
+              shared = true;
+              firstOnBranchEntry = true;
+              ++exactMatches;
+              ++cursor;
+            } else if (branchCoversModule) {
+              matched = jEnd - 1;
+              shared = true;
+              firstOnBranchEntry = !moduleEntryUsed;
+              moduleEntryUsed = true;
+            }
+          }
+          runIsShared = runIsShared || shared;
+
+          if (energyWeighted) {
+            // Both directions on this cell, as the TICL association computes them:
+            // the penalty is the energy the OTHER side fails to cover, squared, and an
+            // excess on the other side counts as a good association rather than a
+            // penalty (max(0, ...) in each direction).
+            const float recoEnergy = rh.fraction * cellEnergy[r];
+            const float branchEnergy = shared ? branchHitEnergy(branchHits[matched]) : 0.f;
+            sharedEnergy += std::min(recoEnergy, branchEnergy);
+            const float recoMinusBranch = std::max(0.f, recoEnergy - branchEnergy);
+            scoreNum += static_cast<double>(recoMinusBranch) * recoMinusBranch;
+            if (shared) {
+              if ((denominatorDetectors_ & detectorBit(rh.detId)) != 0u)
+                sharedEnergyInDenominator += std::min(recoEnergy, branchEnergy);
+              if (firstOnBranchEntry) {
+                sharedBranchEnergySq += static_cast<double>(branchEnergy) * branchEnergy;
+                const float branchMinusReco = std::max(0.f, branchEnergy - recoEnergy);
+                branchExcessNum += static_cast<double>(branchMinusReco) * branchMinusReco;
+              }
+            }
           }
         }
-        if (shared)
-          ++sharedCells;
 
-        if (energyWeighted) {
-          // Both directions on this cell, as the TICL association computes them:
-          // the penalty is the energy the OTHER side fails to cover, squared, and an
-          // excess on the other side counts as a good association rather than a
-          // penalty (max(0, ...) in each direction).
-          const float recoEnergy = rh.fraction * cellEnergy[i];
-          const float branchEnergy = shared ? branchHitEnergy(branchHits[matched]) : 0.f;
-          sharedEnergy += std::min(recoEnergy, branchEnergy);
-          const float recoMinusBranch = std::max(0.f, recoEnergy - branchEnergy);
-          scoreNum += static_cast<double>(recoMinusBranch) * recoMinusBranch;
-          if (shared) {
-            if ((denominatorDetectors_ & detectorBit(rh.detId)) != 0u)
-              sharedEnergyInDenominator += std::min(recoEnergy, branchEnergy);
-            sharedBranchEnergySq += static_cast<double>(branchEnergy) * branchEnergy;
-            const float branchMinusReco = std::max(0.f, branchEnergy - recoEnergy);
-            branchExcessNum += static_cast<double>(branchMinusReco) * branchMinusReco;
-          }
-        }
-        ++i;
+        if (runIsShared)
+          ++sharedRecoRuns;
+
+        // The branch entries this reco object answers: the exact cells, plus the
+        // module-wide branch entry at most once however many reco cells fall on it. A
+        // reco entry that names the module alone cannot say which cell it fired, so it
+        // answers one branch entry and a branch owning more cells of the module keeps
+        // the higher reverse score.
+        sharedBranchCells +=
+            exactMatches + (moduleEntryUsed ? 1u : 0u) + (recoNamesModuleOnly && exactMatches == 0u ? 1u : 0u);
+
+        i = iEnd;
+        j = jEnd;
       }
 
-      if (sharedCells == 0)
+      if (sharedRecoRuns == 0)
         continue;
 
       BranchMatch m;
@@ -363,7 +419,9 @@ namespace truth {
         // to the numerator; the shared cells contribute branchExcessNum.
         const double branchDenom = rootSelfEnergySq_[root];
         const double branchScoreNum = std::max(0.0, (branchDenom - sharedBranchEnergySq) + branchExcessNum);
-        m.reverseScore = branchDenom > 0.0 ? static_cast<float>(branchScoreNum / branchDenom) : 0.f;
+        // A branch with no energy of its own captures nothing, so it takes the worst
+        // reverse score rather than the best one.
+        m.reverseScore = branchDenom > 0.0 ? static_cast<float>(branchScoreNum / branchDenom) : 1.f;
         // Normalized to the branch energy in the detectors of denominatorDetectors_,
         // not to its whole channel energy: the numerator can only ever grow on cells
         // the reco object occupies, so a denominator spanning detectors that
@@ -373,14 +431,15 @@ namespace truth {
         m.sharedEnergyFraction =
             branchEnergyTotal > 0.0 ? static_cast<float>(sharedEnergyInDenominator / branchEnergyTotal) : 0.f;
       } else {
-        m.sharedEnergy = static_cast<float>(sharedCells);
-        m.score = 1.f - static_cast<float>(sharedCells) / static_cast<float>(reco.size());
+        m.sharedEnergy = static_cast<float>(sharedRecoRuns);
+        m.score = 1.f - static_cast<float>(sharedRecoRuns) / static_cast<float>(recoRuns);
         // Reverse score: fraction of the branch's cells the reco object misses.
         const std::size_t branchCellCount = branchHits.size();
-        m.reverseScore =
-            branchCellCount > 0 ? 1.f - static_cast<float>(sharedCells) / static_cast<float>(branchCellCount) : 1.f;
+        m.reverseScore = branchCellCount > 0
+                             ? 1.f - static_cast<float>(sharedBranchCells) / static_cast<float>(branchCellCount)
+                             : 1.f;
         m.sharedEnergyFraction =
-            branchCellCount > 0 ? static_cast<float>(sharedCells) / static_cast<float>(branchCellCount) : 0.f;
+            branchCellCount > 0 ? static_cast<float>(sharedBranchCells) / static_cast<float>(branchCellCount) : 0.f;
       }
       result.push_back(m);
     }
