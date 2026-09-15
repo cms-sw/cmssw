@@ -1,6 +1,7 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
 
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
+#include "HepPDT/ParticleID.hh"  // for HepPDT::ParticleID(pdgId).threeCharge()
 
 #include <algorithm>
 #include <cstddef>
@@ -57,6 +58,8 @@ uint64_t truth::Particle::eventId() const { return data().eventId; }
 int32_t truth::Particle::genEvent() const { return data().genEvent; }
 
 const math::XYZTLorentzVectorD& truth::Particle::momentum() const { return data().momentum; }
+
+const int truth::Particle::charge() const { return HepPDT::ParticleID(data().pdgId).threeCharge(); }
 
 std::span<const truth::Checkpoint> truth::Particle::checkpoints() const {
   return std::span<const truth::Checkpoint>(data().checkpoints.data(), data().checkpoints.size());

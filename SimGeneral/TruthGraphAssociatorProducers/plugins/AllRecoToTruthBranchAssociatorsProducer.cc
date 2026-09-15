@@ -38,8 +38,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "HepPDT/ParticleID.hh"
-
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
@@ -599,7 +597,7 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
         if (!truth::Branch(&graph, root).isInTime()) {
           continue;
         }
-        if (HepPDT::ParticleID(graph.particles()[root].pdgId).threeCharge() == 0) {
+        if (graph.particle(root).charge() == 0) {
           continue;
         }
         // Same resolution the numerator uses. A denominator counted at a different set
