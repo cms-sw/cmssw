@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <vector>
+#include <algorithm>
 
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
