@@ -4,19 +4,17 @@
 #include "DataFormats/L1Trigger/interface/TkTripletWord.h"
 
 namespace l1t {
-  TkTripletWord::TkTripletWord(valid_t valid,
-                               pt_t pt,
-                               glbeta_t eta,
-                               glbphi_t phi,
-                               mass_t mass,
-                               charge_t charge,
-                               ditrack_minmass_t ditrack_minmass,
-                               ditrack_maxmass_t ditrack_maxmass,
-                               ditrack_minz0_t ditrack_minz0,
-                               ditrack_maxz0_t ditrack_maxz0,
-                               unassigned_t unassigned) {
-    setTkTripletWord(
-        valid, pt, eta, phi, mass, charge, ditrack_minmass, ditrack_maxmass, ditrack_minz0, ditrack_maxz0, unassigned);
+  TkTripletWord::TkTripletWord(tktriplet_valid_t valid,
+                               tktriplet_pt_t pt,
+                               tktriplet_phi_t phi,
+                               tktriplet_eta_t eta,
+                               tktriplet_mass_t mass,
+                               tktriplet_trk_pt_t trk1Pt,
+                               tktriplet_trk_pt_t trk2Pt,
+                               tktriplet_trk_pt_t trk3Pt,
+                               tktriplet_charge_t charge,
+                               tktriplet_unassigned_t unassigned) {
+    setTkTripletWord(valid, pt, phi, eta, mass, trk1Pt, trk2Pt, trk3Pt, charge, unassigned);
   }
 
   template <class packVarType>
@@ -29,29 +27,28 @@ namespace l1t {
     currentOffset += wordChunkSize;
   }
 
-  void TkTripletWord::setTkTripletWord(valid_t valid,
-                                       pt_t pt,
-                                       glbeta_t eta,
-                                       glbphi_t phi,
-                                       mass_t mass,
-                                       charge_t charge,
-                                       ditrack_minmass_t ditrack_minmass,
-                                       ditrack_maxmass_t ditrack_maxmass,
-                                       ditrack_minz0_t ditrack_minz0,
-                                       ditrack_maxz0_t ditrack_maxz0,
-                                       unassigned_t unassigned) {
+  void TkTripletWord::setTkTripletWord(tktriplet_valid_t valid,
+                                       tktriplet_pt_t pt,
+                                       tktriplet_phi_t phi,
+                                       tktriplet_eta_t eta,
+                                       tktriplet_mass_t mass,
+                                       tktriplet_trk_pt_t trk1Pt,
+                                       tktriplet_trk_pt_t trk2Pt,
+                                       tktriplet_trk_pt_t trk3Pt,
+                                       tktriplet_charge_t charge,
+                                       tktriplet_unassigned_t unassigned) {
     // pack the TkTriplet word
     unsigned int offset = 0;
     packIntoWord(offset, TkTripletBitWidths::kValidSize, valid);
     packIntoWord(offset, TkTripletBitWidths::kPtSize, pt);
-    packIntoWord(offset, TkTripletBitWidths::kGlbPhiSize, phi);
-    packIntoWord(offset, TkTripletBitWidths::kGlbEtaSize, eta);
+    packIntoWord(offset, TkTripletBitWidths::kPhiSize, phi);
+    packIntoWord(offset, TkTripletBitWidths::kEtaSize, eta);
     packIntoWord(offset, TkTripletBitWidths::kMassSize, mass);
+    packIntoWord(offset, TkTripletBitWidths::kTrk1PtSize, trk1Pt);
+    packIntoWord(offset, TkTripletBitWidths::kTrk2PtSize, trk2Pt);
+    packIntoWord(offset, TkTripletBitWidths::kTrk3PtSize, trk3Pt);
     packIntoWord(offset, TkTripletBitWidths::kChargeSize, charge);
-    packIntoWord(offset, TkTripletBitWidths::kDiTrackMinMassSize, ditrack_minmass);
-    packIntoWord(offset, TkTripletBitWidths::kDiTrackMaxMassSize, ditrack_maxmass);
-    packIntoWord(offset, TkTripletBitWidths::kDiTrackMinZ0Size, ditrack_minz0);
-    packIntoWord(offset, TkTripletBitWidths::kDiTrackMaxZ0Size, ditrack_maxz0);
+    packIntoWord(offset, TkTripletBitWidths::kUnassignedSize, unassigned);
   }
 
 }  //namespace l1t
