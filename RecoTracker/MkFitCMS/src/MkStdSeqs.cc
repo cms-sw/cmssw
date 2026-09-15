@@ -576,10 +576,146 @@ namespace mkfit {
                 sharedFirst += 1;
 
               if ((sharedCount - sharedFirst) >= ((minFoundHits - sharedFirst) * fraction))
-                continue;
+                break;
             }
             if ((sharedCount - sharedFirst) >= ((minFoundHits - sharedFirst) * fraction))
+              break;
+          }
+
+          //selection here - 11percent fraction of shared hits to label a duplicate
+          if ((sharedCount - sharedFirst) >= ((minFoundHits - sharedFirst) * fraction)) {
+            if (trk.score() > track2.score())
+              track2.setDuplicateValue(true);
+            else
+              trk.setDuplicateValue(true);
+          }
+        }
+      }  //end loop one over tracks
+
+      remove_duplicates(tracks);
+    }
+
+    void clean_duplicates_sharedhits_minicone(TrackVec &tracks, const IterationConfig &itconf) {
+      const float fractionRef = itconf.dc_fracSharedHits;
+      const float drth_central = itconf.dc_drth_central;
+      const float drth_obarrel = itconf.dc_drth_obarrel;
+      const float drth_forward = itconf.dc_drth_forward;
+      const auto ntracks = tracks.size();
+
+      // sqrt(maxdRSquared) scales as 1/pT (i.e. directly with |invpT|), normalized to the
+      // configured drth_* value at pT = ptScaleRef and decreasing until pT = ptScaleMax.
+      // Outside [ptScaleRef, ptScaleMax] the scaling saturates (flat), so the threshold
+      // never grows above drth_* and never shrinks past its pT = ptScaleMax value.
+      constexpr float ptScaleRef = 5.0f;                  // [GeV] pT where sqrt(maxdR) == drth_*
+      constexpr float ptScaleMax = 500.0f;                // [GeV] pT beyond which scaling saturates
+      constexpr float invptScaleRef = 1.0f / ptScaleRef;  // 0.2 = 1/5 GeV
+      constexpr float invptScaleMax = 1.0f / ptScaleMax;  // 0.002 = 1/500 GeV
+
+      // Hard pT cut(s): for leading (trailing) track pT > hard (soft) cut, disable duplicate cleaning
+      constexpr float ptScaleHard = 10.0f;                           // [GeV] hard pT cut
+      constexpr float invptScaleHard = 1.0f / ptScaleHard;           // hard 1/pT cut
+      constexpr float invptScaleSoft = 1.0f / (0.9f * ptScaleHard);  // soft 1/pT cut --> 90% of hard pT cut
+
+      // Fraction of shared hits
+      const float fractionMax =
+          std::max(1.5f * fractionRef, 1.0f);  // increase requirement on fraction of shared hits by up to 1.5x
+
+      std::vector<float> ctheta(ntracks);
+      for (auto itrack = 0U; itrack < ntracks; itrack++) {
+        auto &trk = tracks[itrack];
+        ctheta[itrack] = 1.f / vdt::fast_tanf(trk.theta());
+      }
+
+      float phi1, invpt1, dctheta, ctheta1, dphi, dr2;
+      for (auto itrack = 0U; itrack < ntracks; itrack++) {
+        auto &trk = tracks[itrack];
+        phi1 = trk.momPhi();
+        invpt1 = trk.invpT();
+        ctheta1 = ctheta[itrack];
+
+        float baseMaxdR2 = drth_central * drth_central;
+        if (std::abs(ctheta1) > Config::maxcth_fw_p2)
+          baseMaxdR2 = drth_forward * drth_forward;
+        else if (std::abs(ctheta1) > Config::maxcth_ob_p2)
+          baseMaxdR2 = drth_obarrel * drth_obarrel;
+
+        const float drthRegion = std::sqrt(baseMaxdR2);                                // central/obarrel/forward drth
+        const float wFloor = drthRegion / std::min(Config::maxdcth, Config::maxdphi);  // window floor = drth_region
+
+        for (auto jtrack = itrack + 1; jtrack < ntracks; jtrack++) {
+          auto &track2 = tracks[jtrack];
+          if (trk.label() == track2.label())
+            continue;
+
+          float invpt2 = track2.invpT();
+          const float invptPairMin = std::min(invpt1, invpt2);  // 1/pT of the hardest track
+          const float ptScale =
+              ptScaleRef * std::clamp(invptPairMin, invptScaleMax, invptScaleRef);  // 1 at pT<=5, ->0.01 at 500 GeV
+          const float ptScale2 = ptScale * ptScale;
+          const float w = std::max(ptScale, wFloor);  // window scale, floored for geometry safety
+
+          dctheta = std::abs(ctheta[jtrack] - ctheta1);
+          if (dctheta > Config::maxdcth * w)
+            continue;
+
+          dphi = std::abs(squashPhiMinimal(phi1 - track2.momPhi()));
+          if (dphi > Config::maxdphi * w)
+            continue;
+
+          // dR window (harder track drives it)
+          const float maxdRSquared = baseMaxdR2 * ptScale2;
+          dr2 = dphi * dphi + dctheta * dctheta;
+
+          if (dr2 < maxdRSquared) {
+            //Keep track with best score
+            if (trk.score() > track2.score())
+              track2.setDuplicateValue(true);
+            else
+              trk.setDuplicateValue(true);
+            continue;
+          }
+
+          // Do not consider shared hit fraction for duplicate identification, if pT > (0.9f * ) 10 GeV for the hardest (softest) track
+          const float invptPairMax = std::max(invpt1, invpt2);  // pT of the softest track
+          if (invptPairMin < invptScaleHard && invptPairMax < invptScaleSoft)
+            continue;
+
+          // Do not consider shared hit fraction for duplicate identification, if |d(1/pT)|>1.8, for very soft tracks:
+          // for pT1~1 GeV, this corresponds to pT2 >~ 0.36 GeV;
+          // for pT1~10 GeV, pT2 >~0.55 GeV
+          if (std::abs(invpt2 - invpt1) > Config::maxd1pt)
+            continue;
+
+          auto sharedCount = 0;
+          auto sharedFirst = 0;
+          const auto minFoundHits = std::min(trk.nFoundHits(), track2.nFoundHits());
+          // fracScale = 1 at hardest pT <= 5 GeV, 0 at >= 10 GeV (linear in 1/pT between).
+          const auto fracScale =
+              std::clamp((invptPairMin - invptScaleHard) / (invptScaleRef - invptScaleHard), 0.0f, 1.0f);
+          const auto fraction = fractionRef + (fractionMax - fractionRef) * (1.0f - fracScale);
+
+          for (int i = 0; i < trk.nTotalHits(); ++i) {
+            if (trk.getHitIdx(i) < 0)
               continue;
+            const int a = trk.getHitLyr(i);
+            const int b = trk.getHitIdx(i);
+            for (int j = 0; j < track2.nTotalHits(); ++j) {
+              if (track2.getHitIdx(j) < 0)
+                continue;
+              const int c = track2.getHitLyr(j);
+              const int d = track2.getHitIdx(j);
+
+              //this is to count once shared matched hits (may be done more properly...)
+              if (a == c && b == d)
+                sharedCount += 1;
+              if (j == 0 && i == 0 && a == c && b == d)
+                sharedFirst += 1;
+
+              if ((sharedCount - sharedFirst) >= ((minFoundHits - sharedFirst) * fraction))
+                break;
+            }
+            if ((sharedCount - sharedFirst) >= ((minFoundHits - sharedFirst) * fraction))
+              break;
           }
 
           //selection here - 11percent fraction of shared hits to label a duplicate
@@ -603,6 +739,8 @@ namespace mkfit {
                                                       clean_duplicates_sharedhits);
           IterationConfig::register_duplicate_cleaner("phase1:clean_duplicates_sharedhits_pixelseed",
                                                       clean_duplicates_sharedhits_pixelseed);
+          IterationConfig::register_duplicate_cleaner("phase2:clean_duplicates_sharedhits_minicone",
+                                                      clean_duplicates_sharedhits_minicone);
         }
       } rdc_instance;
     }  // namespace
