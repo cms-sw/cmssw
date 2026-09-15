@@ -1,25 +1,23 @@
 # TruthInfo test & debugging tools
 
 Reusable helpers for producing and inspecting truth graphs. All require `cmsenv`
-(run from `CMSSW_17_0_0_pre2/src`).
+(run from `$CMSSW_BASE/src`).
 
 | Tool | Purpose |
 |---|---|
-| `dumpTruthGraphsFromGENSIMRECO_cfg.py` | cmsRun config: build the raw + logical truth graph from a GEN-SIM/RECO file and dump DOT (+NanoAOD rechit/simhit tables). Selection flags: `-s/--seeds`, `-g/--groups`, `-d/--parentDepth`, `-i/--ignore`, `-m/--merge`, `-c/--collapse`, `--showAll`, `-n`, `-o`, `-t`. `-s 0` keeps the full graph. |
+| `dumpTruthGraphsFromGENSIMRECO_cfg.py` | cmsRun config: build the raw + logical truth graph from a GEN-SIM/RECO file and dump DOT (+NanoAOD rechit/simhit tables). Selection flags: `-s/--seeds`, `-g/--groups`, `-d/--parentDepth`, `-i/--ignore`, `-m/--merge`, `-c/--collapse`, `-f/--flavors`, `-p/--pickEvts`, `--keepSpectators`, `--attachSources`, `--keepProductionSiblings`, `--signal-only`, `--bunch-crossings`, `--layout`, `-n/--maxEvts`, `-o/--outdir`, `-t/--tag`. `-s 0` keeps the full graph. |
 | `truthGraphConnectivity.py` | FWLite debugger: per-event count of weakly-connected components and how many SimTrack/SimVertex are disconnected from a generator primary (the orphans). Exits non-zero if any event has orphans. `--link {parentIndex,ancestor,combined}`. |
-| `../python/truthGraphSelections.py` | Per-process selection presets: maps a generator fragment (or label) to one of seven archetypes (gun / resonance / vbf / ggf / top / heavyflavor / full) and returns the right `postProcessing` selection. `selectionForFragment(name, **overrides)` (dict), `postProcessingPSet(...)` (cms.PSet), `dumperArgs(...)` / CLI (`python3 truthGraphSelections.py <fragment>`) emit the dumper flags. |
+| `../python/truthGraphSelections.py` | Per-process selection presets: maps a generator fragment (or label) to one of ten archetypes (gun / resonance / vbf / ggf / vh / top / singletop / diboson / heavyflavor / full) and returns the right `postProcessing` selection. `selectionForFragment(name, **overrides)` (dict), `postProcessingPSet(...)` (cms.PSet), `dumperArgs(...)` / CLI (`python3 truthGraphSelections.py <fragment>`) emit the dumper flags. |
 | `makeTruthGallery.sh` | Build the per-process DOT/SVG gallery (full + natural-seed selection) from a relval library dir; the per-sample selection is resolved by `truthGraphSelections.py` from each workflow's fragment. |
-| `Validation/TruthInfo/test/makeBranchValidationPlots.sh` | Render the Branch DQM validation plots (overlaying a few samples) from the per-workflow harvested DQM, via `Validation/TruthInfo/scripts/makeTruthGraphValidationPlots.py`. |
 | `runTruthRelvals.sh` | Run the 8 enableTruth Run4 D120 no-PU truth-validation workflows via `runTheMatrix`. |
 | `TruthLogicalGraphPostProcessor_t.cpp` | cppunit tests for the logical-graph postprocessing (selection, merging, collapsing). |
 
 ## Typical flow
 ```bash
-cmsenv                                   # from CMSSW_17_0_0_pre2/src
+cmsenv                                   # from $CMSSW_BASE/src
 runTruthRelvals.sh  /path/library        # produce the sample library (step1..5)
 truthGraphConnectivity.py /path/library/34050.88_*/step3.root   # sanity: orphans == 0
 makeTruthGallery.sh /path/library /path/dot_gallery             # DOT + SVG gallery
-makeBranchValidationPlots.sh /path/library /path/branch_plots   # Branch DQM validation plots
 ```
 
 ## Focused selections (phases 1-3)
@@ -76,5 +74,5 @@ walks up to a specific origin species.
 # Z -> mu mu only (drop Z -> ee), depth-0 context:
 cmsRun dumpTruthGraphsFromGENSIMRECO_cfg.py file:step3.root -s 23 -g 13,-13 -d 0
 # full graph for debugging:
-cmsRun dumpTruthGraphsFromGENSIMRECO_cfg.py file:step3.root -s 0 --showAll
+cmsRun dumpTruthGraphsFromGENSIMRECO_cfg.py file:step3.root -s 0
 ```
