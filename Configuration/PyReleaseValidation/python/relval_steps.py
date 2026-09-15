@@ -4733,22 +4733,19 @@ for ds in defaultDataSets:
         continue
     key='MinBias_14TeV_pythia8_TuneCP5'+'_'+ds
     name=baseDataSetReleaseBetter[key]
+    puProperties = {'pu': 'AVE_35_BX_25ns', 'frag': 'RelValMinBias_14TeV', 'tier': 'GEN-SIM'}
     if '2017' in ds:
-        PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
+        puProperties.update({'pu': 'AVE_35_BX_25ns', 'frag': 'RelValMinBias_13'})
     elif '2018' in ds or 'postLS2' in ds:
-        PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
+        puProperties.update({'pu': 'AVE_50_BX_25ns', 'frag': 'RelValMinBias_13'})
     elif any(year in ds for year in run3_years):
-        if 'FS' not in ds:
-            PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
-        else:
-            PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM-RECO'%(name,)}
+        puProperties['pu'] = 'Run3_Flat55To75_PoissonOOTPU'
+        if 'FS' in ds:
+            puProperties['tier'] = 'GEN-SIM-RECO'
     elif 'Run4' in ds:
-        PUDataSets[ds]={'-n':10,'--pileup':'AVE_200_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
-    else:
-        PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
+        puProperties['pu'] = 'AVE_200_BX_25ns'
 
-    #PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
-    #PUDataSets[ds]={'-n':10,'--pileup':'AVE_70_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
+    PUDataSets[ds] = {'-n': 10, '--pileup': puProperties['pu'], '--pileup_input': f'das:/{puProperties["frag"]}/{name}/{puProperties["tier"]}'}
 
 upgradeStepDict={}
 for specialType,specialWF in upgradeWFs.items():
