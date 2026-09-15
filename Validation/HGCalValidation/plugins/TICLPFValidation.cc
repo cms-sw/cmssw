@@ -46,10 +46,10 @@ private:
   // ----------member data ---------------------------
   const std::string folder_;
   const edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
-  static constexpr std::array<std::string, reco::PFCandidate::egamma_HF + 1> kPFCandidateTypeNames_ = {
+  static constexpr std::array<std::string_view, reco::PFCandidate::egamma_HF + 1> kPFCandidateTypeNames_ = {
       "X", "h", "e", "mu", "gamma", "h0", "h_HF", "egamma_HF"};
 
-  static constexpr std::array<std::string, reco::PFCandidate::egamma_HF + 1> kPFCandidateDisplayNames = {
+  static constexpr std::array<std::string_view, reco::PFCandidate::egamma_HF + 1> kPFCandidateDisplayNames = {
       "Undefined", "ChHadron", "Electron", "Muon", "Photon", "NHadron", "HFHadron", "HFEGamma"};
 };
 
@@ -104,10 +104,10 @@ void TICLPFValidation::bookHistograms(DQMStore::IBooker& ibook,
   histos[0].type_ = ibook.book1D("Type", "Type", 10, -0.5, 9.5);
   histos[0].vect_sum_pt_ = ibook.book1D("PtVectSum", "PtVectSum", 200, 0., 200.);
   for (size_t type = reco::PFCandidate::X; type <= reco::PFCandidate::egamma_HF; type++) {
-    ibook.setCurrentFolder(folder_ + "TICLPFCandidates/" + kPFCandidateTypeNames_[type]);
+    ibook.setCurrentFolder(folder_ + "TICLPFCandidates/" + std::string(kPFCandidateTypeNames_[type]));
     auto& histo = histos[type];
 
-    const auto& particleType = kPFCandidateDisplayNames[type];
+    const auto particleType = std::string{kPFCandidateDisplayNames[type]};
 
     histo.energy_ = ibook.book1D("Energy", particleType + " Energy", 250, 0., 250.);
     histo.energy_->setAxisTitle("Energy [GeV]", 1);
