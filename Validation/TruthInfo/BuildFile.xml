@@ -1,6 +1,8 @@
+<use name="DataFormats/Math"/>
 <use name="DQMServices/Core"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
+<use name="PhysicsTools/TruthInfo"/>
 <use name="SimDataFormats/TruthInfo"/>
 <export>
   <lib name="1"/>

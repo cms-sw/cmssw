@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iterator>
 
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "SimDataFormats/TruthInfo/interface/VertexData.h"
 #include "PhysicsTools/TruthInfo/interface/BranchSelector.h"
@@ -84,8 +85,8 @@ namespace truth {
       return edges;
     }
     // One linear bin holding everything below the threshold, zero included, then a log
-    // ladder to the top. The first edge stays at min so nothing that used to be in range
-    // silently becomes underflow.
+    // ladder to the top. The first edge is the axis minimum, so the axis covers the same
+    // range as a linear one.
     edges.push_back(static_cast<float>(axis.min));
     const int nLog = axis.nbins - 1;
     const double lo = std::log10(axis.linthresh);
@@ -402,7 +403,7 @@ namespace truth {
       h.h_ptres_vs_pt[i]->Fill(truthKin.pt, dpt);
     }
     h.h_etares_vs_eta[i]->Fill(truthKin.eta, recoEta - truthKin.eta);
-    h.h_phires_vs_eta[i]->Fill(truthKin.eta, recoPhi - truthKin.phi);
+    h.h_phires_vs_eta[i]->Fill(truthKin.eta, reco::deltaPhi(recoPhi, truthKin.phi));
   }
 
 }  // namespace truth
