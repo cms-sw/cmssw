@@ -40,6 +40,7 @@ namespace truth {
     [[nodiscard]] int32_t genEvent() const;
     [[nodiscard]] bool backscattered() const;
     [[nodiscard]] const math::XYZTLorentzVectorD& momentum() const;
+    [[nodiscard]] const int charge() const;
 
     [[nodiscard]] std::span<const Checkpoint> checkpoints() const;
     [[nodiscard]] bool hasCheckpoints() const;

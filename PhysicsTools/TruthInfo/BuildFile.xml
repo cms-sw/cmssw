@@ -19,7 +19,6 @@
 <use name="PhysicsTools/HepMCCandAlgos"/>
 <use name="hepmc"/>
 <use name="hepmc3"/>
-<use name="heppdt"/>
 
 <export>
   <lib name="1"/>
