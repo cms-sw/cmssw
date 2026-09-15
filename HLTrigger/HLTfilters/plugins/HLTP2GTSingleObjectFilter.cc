@@ -50,6 +50,7 @@ private:
   const edm::InputTag m_algoBlockTag;
   const edm::EDGetTokenT<l1t::P2GTAlgoBlockMap> m_algoBlockToken;
   const unsigned int m_minN;
+  const bool m_debugAccepts;
   std::vector<AlgoConfig> m_algos;
 };
 
@@ -57,7 +58,8 @@ HLTP2GTSingleObjectFilter::HLTP2GTSingleObjectFilter(const edm::ParameterSet& iC
     : HLTFilter(iConfig),
       m_algoBlockTag(iConfig.getParameter<edm::InputTag>("l1GTAlgoBlockTag")),
       m_algoBlockToken(consumes<l1t::P2GTAlgoBlockMap>(m_algoBlockTag)),
-      m_minN(iConfig.getParameter<unsigned int>("minN")) {
+      m_minN(iConfig.getParameter<unsigned int>("minN")),
+      m_debugAccepts(iConfig.getParameter<bool>("debugAccepts")) {
   for (const auto& ps : iConfig.getParameter<std::vector<edm::ParameterSet>>("l1GTAlgos"))
     m_algos.emplace_back(ps);
 }
@@ -67,6 +69,7 @@ void HLTP2GTSingleObjectFilter::fillDescriptions(edm::ConfigurationDescriptions&
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("l1GTAlgoBlockTag", edm::InputTag("l1tGTAlgoBlockProducer"));
   desc.add<unsigned int>("minN", 1);
+  desc.add<bool>("debugAccepts", false);
 
   edm::ParameterSetDescription algoDesc;
   algoDesc.add<std::string>("name", "");
@@ -94,12 +97,28 @@ bool HLTP2GTSingleObjectFilter::hltFilter(edm::Event& iEvent,
 
   for (const auto& cfg : m_algos) {
     auto it = algoMap.find(cfg.algoName);
-    if (it == algoMap.end() || !it->second.decisionBeforeBxMaskAndPrescale())
+    if (it == algoMap.end()) {
+      if (m_debugAccepts)
+        edm::LogPrint("HLTP2GTSingleObjectFilter")
+            << "[" << cfg.algoName << "] REJECT algo not found in P2GTAlgoBlockMap";
       continue;
+    }
+    if (!it->second.decisionBeforeBxMaskAndPrescale()) {
+      if (m_debugAccepts)
+        edm::LogPrint("HLTP2GTSingleObjectFilter")
+            << "[" << cfg.algoName << "] REJECT decisionBeforeBxMaskAndPrescale=false"
+            << " (trigObjects size=" << it->second.trigObjects().size() << ")";
+      continue;
+    }
 
     for (const auto& ref : it->second.trigObjects()) {
-      if (!cfg.collection.accepts(*ref))
+      if (m_debugAccepts) {
+        cfg.collection.acceptsWithDebug(*ref, cfg.algoName);
+        if (!cfg.collection.accepts(*ref))
+          continue;
+      } else if (!cfg.collection.accepts(*ref)) {
         continue;
+      }
       if (saveTags())
         hltp2gt::addCollectionTagOnce(ref, iEvent, filterproduct, lastTag);
       accepted.push_back(ref);
