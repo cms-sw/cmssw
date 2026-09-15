@@ -800,7 +800,7 @@ def plot_metric(category, collection, metric, var, per_wp, outdir, index, slices
     fig, (ax, rax) = plt.subplots(
         2, 1, figsize=(10, 9), sharex=True, gridspec_kw=dict(height_ratios=[3, 1], hspace=0.07)
     )
-    fig.subplots_adjust(top=0.88, bottom=0.16)
+    fig.subplots_adjust(top=0.93, bottom=0.16)
 
     means = {}
     for i, wp in enumerate(wps):
@@ -879,7 +879,6 @@ def plot_metric(category, collection, metric, var, per_wp, outdir, index, slices
     else:
         caption = f"{title}, {region_label(category)}"
 
-    fig.suptitle(title, fontsize=16, y=0.965)
     # Centred on the MAIN pad: the CMS top location hangs the title from the top of the
     # axes, so a long one runs down past the pad and into the ratio panel.
     ax.set_ylabel(label, fontsize=AXIS_TITLE_SIZE, loc="center")
@@ -1006,7 +1005,7 @@ def plot_categorical(category, collection, metric, var, per_wp, counts, outdir, 
     # Margins fixed in inches, not in figure fractions: the figure height grows with the
     # number of categories, so a fractional bottom margin would shrink the label space.
     height = fig.get_figheight()
-    fig.subplots_adjust(left=0.30, right=0.97, top=1 - 0.9 / height, bottom=1.6 / height)
+    fig.subplots_adjust(left=0.30, right=0.97, top=1 - 0.5 / height, bottom=1.6 / height)
 
     y = np.arange(len(keep))
     barh = 0.8 / len(wps)
@@ -1034,7 +1033,6 @@ def plot_categorical(category, collection, metric, var, per_wp, counts, outdir, 
     ax.set_xlabel(label, fontsize=AXIS_TITLE_SIZE)
     ax.tick_params(axis="x", labelsize=TICK_LABEL_SIZE)
     ax.grid(axis="x", alpha=0.3)
-    fig.suptitle(title, fontsize=16, y=0.965)
     # Below everything: a legend inside the axes covers the least populated rows, which
     # are still real measurements, so it goes under the x label in the reserved margin.
     handles, lbls = ax.get_legend_handles_labels()
@@ -1065,7 +1063,7 @@ def plot_residual(category, collection, source, per_wp, outdir, index):
     colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
     styles = SERIES_STYLES
     fig, ax = plt.subplots(figsize=(10, 8))
-    fig.subplots_adjust(top=0.88, bottom=0.16)
+    fig.subplots_adjust(top=0.93, bottom=0.16)
 
     cores = {}
     for i, wp in enumerate(wps):
@@ -1086,7 +1084,6 @@ def plot_residual(category, collection, source, per_wp, outdir, index):
     ax.tick_params(labelsize=TICK_LABEL_SIZE)
     ax.grid(alpha=0.3)
     ax.legend(fontsize=13, frameon=False)
-    fig.suptitle(f"{source} residual distribution", fontsize=16, y=0.965)
     hep.cms.label(ax=ax, llabel="Private Work", rlabel=f"Phase-2 Simulation, {region_label(category)}", fontsize=15)
 
     ref = cores.get(REFERENCE_WP)
@@ -1109,7 +1106,7 @@ def plot_composition(category, collection, counts, outdir, index, reference=None
 
     colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
     fig, ax = plt.subplots(figsize=(11, 0.5 * len(order) + 3.4))
-    fig.subplots_adjust(left=0.30, right=0.97, top=1 - 0.9 / fig.get_figheight(),
+    fig.subplots_adjust(left=0.30, right=0.97, top=1 - 0.5 / fig.get_figheight(),
                         bottom=0.9 / fig.get_figheight())
     frac = np.array([values[k] for k in order]) / values.sum()
     ax.barh(np.arange(len(order)), frac, color=colors[0], alpha=0.9)
@@ -1119,7 +1116,6 @@ def plot_composition(category, collection, counts, outdir, index, reference=None
     ax.set_xlabel("fraction of selected truth branches", fontsize=AXIS_TITLE_SIZE)
     ax.tick_params(axis="x", labelsize=TICK_LABEL_SIZE)
     ax.grid(axis="x", alpha=0.3)
-    fig.suptitle("Selected truth branches by creation process", fontsize=16, y=0.965)
     hep.cms.label(ax=ax, llabel="Private Work", rlabel=f"Phase-2 Simulation, {region_label(category)}", fontsize=15)
 
     caption = ("Composition of the truth-branch denominator by the Geant4 process that created each branch root. "
