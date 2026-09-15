@@ -7,7 +7,6 @@
 #include <mutex>
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
 #include <vector>
 
 #include "FWCore/Framework/interface/Event.h"
@@ -146,13 +145,7 @@ private:
                    truth::LogicalGraphHitIndexBuilder& builder,
                    hgcal::DetIdRecHitMap const* recHitMap) const;
 
-  // The PSimHit pass leaves alone the modules whose cells fillTrackerCells wrote.
-  void fillTrackerSimHits(edm::Event& event,
-                          truth::LogicalGraphHitIndexBuilder& builder,
-                          std::unordered_set<uint32_t> const& cellKeyedModules) const;
-  void fillTrackerCells(edm::Event& event,
-                        truth::LogicalGraphHitIndexBuilder& builder,
-                        std::unordered_set<uint32_t>& cellKeyedModules) const;
+  void fillTrackerCells(edm::Event& event, truth::LogicalGraphHitIndexBuilder& builder) const;
 
   // Muon chambers (DT/CSC/RPC/GEM/ME0): PSimHits keyed by trackId, like the tracker
   // channel (energy = energyLoss, no recHit link).
@@ -176,15 +169,11 @@ private:
   std::vector<edm::InputTag> simHitTags_;
   std::vector<edm::EDGetTokenT<std::vector<PCaloHit>>> simHitTokens_;
 
-  std::vector<edm::InputTag> trackerSimHitTags_;
-  std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> trackerSimHitTokens_;
-
-  // Per-cell truth of the inner tracker, written by the digitizer: (channel, trackId,
-  // eventId, charge fraction). Empty leaves the tracker keyed by module.
+  // Per-cell truth of the tracker, written by the digitizer: (channel, trackId,
+  // eventId, charge fraction).
   std::vector<edm::InputTag> digiSimLinkTags_;
   std::vector<edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink>>> digiSimLinkTokens_;
-  // One warning per job per collection: a job reading a file that dropped the links
-  // keeps working, keyed by module, and says so.
+  // One warning per job per collection that is missing from the input.
   mutable std::vector<std::once_flag> digiSimLinkWarned_;
   std::vector<edm::InputTag> muonSimHitTags_;
   std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> muonSimHitTokens_;
@@ -210,7 +199,6 @@ TruthLogicalGraphHitIndexProducer::TruthLogicalGraphHitIndexProducer(edm::Parame
       rawGraphToken_(consumes<TruthGraph>(cfg.getParameter<edm::InputTag>("rawSrc"))),
       recHitMapToken_(consumes<hgcal::DetIdRecHitMap>(cfg.getParameter<edm::InputTag>("recHitMap"))),
       simHitTags_(cfg.getParameter<std::vector<edm::InputTag>>("simHitCollections")),
-      trackerSimHitTags_(cfg.getParameter<std::vector<edm::InputTag>>("trackerSimHitCollections")),
       digiSimLinkTags_(cfg.getParameter<std::vector<edm::InputTag>>("trackerDigiSimLinks")),
       muonSimHitTags_(cfg.getParameter<std::vector<edm::InputTag>>("muonSimHitCollections")),
       geomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
@@ -220,11 +208,6 @@ TruthLogicalGraphHitIndexProducer::TruthLogicalGraphHitIndexProducer(edm::Parame
   simHitTokens_.reserve(simHitTags_.size());
   for (auto const& tag : simHitTags_) {
     simHitTokens_.push_back(consumes<std::vector<PCaloHit>>(tag));
-  }
-
-  trackerSimHitTokens_.reserve(trackerSimHitTags_.size());
-  for (auto const& tag : trackerSimHitTags_) {
-    trackerSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
   }
 
   digiSimLinkTokens_.reserve(digiSimLinkTags_.size());
@@ -281,29 +264,13 @@ void TruthLogicalGraphHitIndexProducer::fillDescriptions(edm::ConfigurationDescr
                                         edm::InputTag("g4SimHits", "EcalHitsEB"),
                                         edm::InputTag("g4SimHits", "HcalHits")});
 
-  desc.add<std::vector<edm::InputTag>>("trackerSimHitCollections",
-                                       {edm::InputTag("g4SimHits", "TrackerHitsPixelBarrelLowTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsPixelBarrelHighTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsPixelEndcapLowTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsPixelEndcapHighTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsTIBLowTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsTIBHighTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsTIDLowTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsTIDHighTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsTOBLowTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsTOBHighTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsTECLowTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsTECHighTof")})
-      ->setComment("Tracker PSimHit collections matched to particles via PSimHit::trackId()");
-
   desc.add<std::vector<edm::InputTag>>(
           "trackerDigiSimLinks",
           {edm::InputTag("simSiPixelDigis", "Pixel"), edm::InputTag("simSiPixelDigis", "Tracker")})
       ->setComment(
-          "Digi sim links of the tracker, the inner one and the outer one. Every module a links product covers is "
-          "keyed by (module, cell), which is what separates two particles crossing one module. A module the list "
-          "does not reach stays keyed by module and is filled from the PSimHits instead. An empty list keeps the "
-          "whole tracker keyed by module");
+          "Digi sim links of the tracker, the inner one and the outer one. The tracker truth is keyed by "
+          "(module, cell) and comes from these alone, which is what separates two particles crossing one module. "
+          "A module no links product covers carries no tracker truth");
   desc.add<std::vector<edm::InputTag>>("muonSimHitCollections",
                                        {edm::InputTag("g4SimHits", "MuonDTHits"),
                                         edm::InputTag("g4SimHits", "MuonCSCHits"),
@@ -362,14 +329,11 @@ void TruthLogicalGraphHitIndexProducer::produce(edm::StreamID, edm::Event& event
   if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::Calo)])
     fillSimHits(event, setup, builder, recHitMap);
   if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::Tracker)]) {
-    // The tracker is keyed by cell wherever the digi sim links reach, so the hits two
-    // particles leave on one module stay apart. The cells come first: they name the
-    // modules the PSimHit pass must then leave alone, because a module-level hit would
-    // match every cell of the module it names.
-    std::unordered_set<uint32_t> cellKeyedModules;
-    fillTrackerCells(event, builder, cellKeyedModules);
-    builder.setCellKeyed(truth::HitChannel::Tracker, !cellKeyedModules.empty());
-    fillTrackerSimHits(event, builder, cellKeyedModules);
+    // The tracker truth is keyed by (module, cell) and comes from the digi sim links
+    // alone: a tracker DetId names a module, and the cell is what separates two
+    // particles crossing one.
+    builder.setCellKeyed(truth::HitChannel::Tracker, true);
+    fillTrackerCells(event, builder);
   }
   if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::Muon)])
     fillMuonSimHits(event, builder);
@@ -581,39 +545,8 @@ void TruthLogicalGraphHitIndexProducer::fillSimHits(edm::Event& event,
   }
 }
 
-void TruthLogicalGraphHitIndexProducer::fillTrackerSimHits(edm::Event& event,
-                                                           truth::LogicalGraphHitIndexBuilder& builder,
-                                                           std::unordered_set<uint32_t> const& cellKeyedModules) const {
-  for (uint32_t tokenIndex = 0; tokenIndex < trackerSimHitTokens_.size(); ++tokenIndex) {
-    edm::Handle<edm::PSimHitContainer> hSimHits;
-    event.getByToken(trackerSimHitTokens_[tokenIndex], hSimHits);
-
-    if (!hSimHits.isValid()) {
-      edm::LogWarning("TruthLogicalGraphHitIndexProducer")
-          << "Missing tracker PSimHit collection " << trackerSimHitTags_[tokenIndex].encode() << ". Skipping it.";
-      continue;
-    }
-
-    for (auto const& simHit : *hSimHits) {
-      // A module whose cells came from the digi sim links must not also get a
-      // module-level hit: that hit names the whole module and would match every cell.
-      if (cellKeyedModules.count(simHit.detUnitId()) != 0) {
-        continue;
-      }
-      // PSimHit::trackId() is the G4 trackId of the SimTrack that made the hit,
-      // the same id space used to associate calorimeter simhits to particles.
-      builder.addHit(truth::HitChannel::Tracker,
-                     simHit.eventId().rawId(),
-                     simHit.trackId(),
-                     simHit.detUnitId(),
-                     simHit.energyLoss());
-    }
-  }
-}
-
 void TruthLogicalGraphHitIndexProducer::fillTrackerCells(edm::Event& event,
-                                                         truth::LogicalGraphHitIndexBuilder& builder,
-                                                         std::unordered_set<uint32_t>& cellKeyedModules) const {
+                                                         truth::LogicalGraphHitIndexBuilder& builder) const {
   for (uint32_t tokenIndex = 0; tokenIndex < digiSimLinkTokens_.size(); ++tokenIndex) {
     edm::Handle<edm::DetSetVector<PixelDigiSimLink>> hLinks;
     event.getByToken(digiSimLinkTokens_[tokenIndex], hLinks);
@@ -622,15 +555,12 @@ void TruthLogicalGraphHitIndexProducer::fillTrackerCells(edm::Event& event,
       std::call_once(digiSimLinkWarned_[tokenIndex], [this, tokenIndex]() {
         edm::LogWarning("TruthLogicalGraphHitIndexProducer")
             << "Missing digi sim links " << digiSimLinkTags_[tokenIndex].encode()
-            << ". The modules they cover stay keyed by module for this job.";
+            << ". The modules they cover carry no tracker truth for this job.";
       });
       continue;
     }
 
     for (auto const& detSet : *hLinks) {
-      // Every module a links product covers is keyed by cell. The set, not a table of
-      // subdetectors, is what the PSimHit pass reads, so the two cannot disagree.
-      cellKeyedModules.insert(detSet.detId());
       for (auto const& link : detSet) {
         // The energy of a cell-keyed hit is the charge fraction the digitizer recorded
         // for this particle on this cell. The tracker metric counts cells, so the value
