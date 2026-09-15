@@ -22,6 +22,10 @@ namespace truth {
     // associator's CellEnergyTable when it has one, else from the truth hit index.
     float energy = 0.f;
     float fraction = 1.f;  // fraction of the cell assigned to this reco object
+    // The cell inside the module, on a channel whose DetId names a module rather than a
+    // cell. kNoCell means "anywhere in this module" and matches any cell of it, which is
+    // what an adapter that cannot reach the clusters, or a module-keyed index, provides.
+    uint32_t cell = LogicalGraphHitIndex::Hit::kNoCell;
   };
 
   // Reconstructed energy per cell, detId ascending after finalize(). Given to the
@@ -139,7 +143,7 @@ namespace truth {
     [[nodiscard]] std::vector<BranchMatch> bestBranches(R const& reco, std::size_t maxResults = 0) const {
       std::vector<RecoHit> hits;
       for (auto const& h : reco.truthHits())
-        hits.push_back(RecoHit{h.detId, h.energy, h.fraction});
+        hits.push_back(RecoHit{h.detId, h.energy, h.fraction, h.cell});
       return bestBranches(std::span<const RecoHit>(hits), maxResults);
     }
 
@@ -187,6 +191,11 @@ namespace truth {
     CellEnergyTable const* recHitEnergies_ = nullptr;
     Metric metric_;
     HitChannel channel_;
+    // Whether a DetId of this channel names a module, so that the hit's cell field
+    // distinguishes two hits on the same DetId. True for the tracker and the muon
+    // chambers; on the calorimeter and MTD channels a DetId already names a cell and
+    // the field holds a recHit index instead.
+    bool cellAware_ = false;
     uint32_t denominatorDetectors_;
     std::vector<uint32_t> roots_;
 

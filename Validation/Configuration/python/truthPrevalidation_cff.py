@@ -57,6 +57,11 @@ truthLogicalGraphHitIndexProducer = cms.EDProducer(
     rawSrc = cms.InputTag("truthGraphProducer"),
     recHitMap = cms.InputTag("detIdToRecHitMapProducer"),
 
+    # The inner-tracker truth is keyed by (module, cell): a tracker DetId names a module,
+    # so without the cell two particles crossing one module share every hit they leave
+    # there. A job whose input dropped the links keeps working, keyed by module.
+    trackerDigiSimLinks = cms.VInputTag(cms.InputTag("simSiPixelDigis", "Pixel")),
+
     simHitCollections = cms.VInputTag(
         cms.InputTag("g4SimHits", "HGCHitsEE"),
         cms.InputTag("g4SimHits", "HGCHitsHEfront"),
