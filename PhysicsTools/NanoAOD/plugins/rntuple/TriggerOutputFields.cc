@@ -11,7 +11,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <algorithm>
+#include <map>
 
 using ROOT::RNTupleModel;
 
@@ -36,16 +36,12 @@ namespace {
 }  // anonymous namespace
 
 TriggerFieldPtr::TriggerFieldPtr(
-    std::string name, int index, std::string fieldName, std::string fieldDesc, RNTupleModel& model)
-    : m_triggerName(name), m_triggerIndex(index) {
-  m_field = RNTupleFieldPtr<bool>(fieldName, fieldDesc, model);
-}
+    const std::string& name, int index, const std::string& fieldName, const std::string& fieldDesc, RNTupleModel& model)
+    : m_field(fieldName, fieldDesc, model), m_triggerName(name), m_triggerIndex(index) {}
 
 void TriggerFieldPtr::fill(const edm::TriggerResults& triggers) {
-  if (m_triggerIndex == -1) {
-    m_field.fill(false);
-  }
-  m_field.fill(triggers.accept(m_triggerIndex));
+  // A trigger absent from the current run's menu has no index and is filled as false
+  m_field.fill(m_triggerIndex >= 0 ? triggers.accept(m_triggerIndex) : false);
 }
 
 std::vector<std::string> TriggerOutputFields::getTriggerNames(const edm::TriggerResults& triggerResults) {
@@ -86,40 +82,42 @@ void TriggerOutputFields::createFields(const edm::EventForOutput& event, RNTuple
     std::string modelName = name;
     makeUniqueFieldName(model, modelName);
     std::string desc = std::string("Trigger/flag bit (process: ") + m_processName + ")";
-    m_triggerFields.emplace_back(TriggerFieldPtr(name, i, modelName, desc, model));
+    m_triggerFields.emplace_back(name, i, modelName, desc, model);
   }
 }
 
-// Worst case O(n^2) to adjust the triggers
 void TriggerOutputFields::updateTriggerFields(const edm::TriggerResults& triggers) {
   std::vector<std::string> newNames(TriggerOutputFields::getTriggerNames(triggers));
-  // adjust existing trigger indices
-  for (auto& t : m_triggerFields) {
-    t.setIndex(-1);
-    for (std::size_t j = 0; j < newNames.size(); j++) {
-      auto& name = newNames[j];
-      if (!isNanoaodTrigger(name)) {
-        continue;
-      }
-      trimVersionSuffix(name);
-      if (name == t.getTriggerName()) {
-        t.setIndex(j);
-      }
-    }
-  }
-  // find new triggers
+  // Collect the current menu once. Each name is trimmed exactly once: trimVersionSuffix cuts at the
+  // last "_v", so trimming an already trimmed name can truncate it again.
+  std::map<std::string, int> menu;
   for (std::size_t j = 0; j < newNames.size(); j++) {
     auto& name = newNames[j];
     if (!isNanoaodTrigger(name)) {
       continue;
     }
     trimVersionSuffix(name);
-    if (std::none_of(m_triggerFields.cbegin(), m_triggerFields.cend(), [&](const TriggerFieldPtr& t) {
-          return t.getTriggerName() == name;
-        })) {
-      // TODO backfill / friend ntuples
-      edm::LogWarning("TriggerOutputFields") << "Skipping output of TriggerField " << name << "\n";
+    menu[name] = static_cast<int>(j);
+  }
+  // Point the existing fields at their index in the current menu, or at -1 if they are gone.
+  // Erasing on a match leaves only the unclaimed paths behind for the warning below. It also means
+  // a menu entry is bound to at most one field: should two fields ever carry the same trimmed name
+  // (possible only if a menu holds two versions of one path), the first claims it and the rest are
+  // written as false. That is the safe reading -- the alternative, pointing several fields at the
+  // same bit, would silently duplicate one path's decision under several names.
+  for (auto& t : m_triggerFields) {
+    auto found = menu.find(t.getTriggerName());
+    if (found == menu.end()) {
+      t.setIndex(-1);
+    } else {
+      t.setIndex(found->second);
+      menu.erase(found);
     }
+  }
+  // Whatever is left in the menu appeared after the schema was frozen and cannot be added.
+  for (const auto& entry : menu) {
+    // TODO backfill / friend ntuples
+    edm::LogWarning("TriggerOutputFields") << "Skipping output of TriggerField " << entry.first << "\n";
   }
 }
 

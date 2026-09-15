@@ -411,7 +411,8 @@ void NanoAODOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descr
 
   desc.addUntracked<int>("compressionLevel", 9)->setComment("ROOT compression level of output file.");
   desc.addUntracked<std::string>("compressionAlgorithm", "ZLIB")
-      ->setComment("Algorithm used to compress data in the ROOT output file, allowed values are ZLIB and LZMA");
+      ->setComment(
+          "Algorithm used to compress data in the ROOT output file, allowed values are ZLIB, LZMA, ZSTD, and LZ4");
   desc.addUntracked<bool>("saveProvenance", true)
       ->setComment("Save process provenance information, e.g. for edmProvDump");
   desc.addUntracked<bool>("fakeNameForCrab", false)
