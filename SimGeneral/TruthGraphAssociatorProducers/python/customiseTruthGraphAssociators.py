@@ -1,8 +1,8 @@
 # Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
 
-# Schedule the truth-graph association producers at RECO and keep their products.
-# The producers form a cms.Task, so the framework runs only what is actually consumed
-# and resolves the constituent dependency (vertices need the track maps) itself.
+# Schedule the truth-graph association producers at RECO, offline and HLT, and keep
+# their products. The release validation schedules the offline sequence on its own,
+# without this customise; use this one for a job that wants the maps in its output.
 
 import FWCore.ParameterSet.Config as cms
 
@@ -16,44 +16,12 @@ def customiseTruthGraphAssociators(process):
     # associator cff, which builds its modules from the label lists at import time.
     setTracksterLabelsFromProcess(process)
 
-    from SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociators_cff import (
-        truthBranchTargets,
-        allTrackToTruthBranchAssociators,
-        allVertexToTruthBranchAssociators,
-        allSecondaryVertexToTruthBranchAssociators,
-        truthBranchTracksterAssociators,
-        hltTrackToTruthBranchAssociators,
-        hltVertexToTruthBranchAssociators,
-        hltTruthBranchTracksterAssociators,
-    )
+    # load(), not import: it labels every module of the cff on the process, which a
+    # sequence imported by name cannot do for itself.
+    process.load("SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociators_cff")
 
-    # Attach each producer to the process FIRST: a cms.Task imported by name carries
-    # modules that have no label yet, and adding it directly fails with "an entry in
-    # task ... has not been attached to the process".
-    process.truthBranchTargets = truthBranchTargets
-    process.allTrackToTruthBranchAssociators = allTrackToTruthBranchAssociators
-    process.allVertexToTruthBranchAssociators = allVertexToTruthBranchAssociators
-    process.allSecondaryVertexToTruthBranchAssociators = allSecondaryVertexToTruthBranchAssociators
-    process.truthBranchTracksterAssociators = truthBranchTracksterAssociators
-    process.hltTrackToTruthBranchAssociators = hltTrackToTruthBranchAssociators
-    process.hltVertexToTruthBranchAssociators = hltVertexToTruthBranchAssociators
-    process.hltTruthBranchTracksterAssociators = hltTruthBranchTracksterAssociators
-
-    # A Sequence, not a Task: a Task runs a module only when another module consumes its
-    # product, so a job with no output module and no validation would apply this customise
-    # and produce nothing. The order is the data flow: the targets first, then the
-    # hit-based domains, then the composite domains, which consume the track maps.
-    process.truthGraphAssociatorsSequence = cms.Sequence(
-        process.truthBranchTargets
-        + process.allTrackToTruthBranchAssociators
-        + process.truthBranchTracksterAssociators
-        + process.allVertexToTruthBranchAssociators
-        + process.allSecondaryVertexToTruthBranchAssociators
-        + process.hltTrackToTruthBranchAssociators
-        + process.hltTruthBranchTracksterAssociators
-        + process.hltVertexToTruthBranchAssociators
-    )
-    process.truthGraphAssociatorsPath = cms.Path(process.truthGraphAssociatorsSequence)
+    process.truthGraphAssociatorsPath = cms.Path(process.truthGraphAssociatorsSequence +
+                                                process.truthGraphHltAssociatorsSequence)
     if process.schedule is not None:
         process.schedule.append(process.truthGraphAssociatorsPath)
 

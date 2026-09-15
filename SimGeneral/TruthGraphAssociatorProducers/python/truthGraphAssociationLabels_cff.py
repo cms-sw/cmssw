@@ -37,8 +37,6 @@ truthGraphRecoLabelsPSet = cms.PSet(
     tracks=cms.vstring("generalTracks"),
     vertices=cms.vstring("offlinePrimaryVertices"),
     secondaryVertices=cms.vstring("inclusiveSecondaryVertices"),
-    pfCandidates=cms.vstring("particleFlow", "pfTICL"),
-    jets=cms.vstring("ak4PFJetsPuppi"),
     # Fallback for a job that never sees the producers: the TICL label registry. A job
     # that does run them replaces this with what its process actually schedules, via
     # setTracksterLabelsFromProcess below.
@@ -54,8 +52,6 @@ truthGraphHltRecoLabelsPSet = cms.PSet(
     tracks=cms.vstring("hltGeneralTracks"),
     vertices=cms.vstring("hltOfflinePrimaryVertices"),
     secondaryVertices=cms.vstring(),
-    pfCandidates=cms.vstring(),
-    jets=cms.vstring(),
     # Same fallback role as the offline entry, from the menu's own registry in
     # Validation/HGCalValidation. A RECO or DQM job reads the HLT tracksters from its
     # input file and so has no HLT producer to discover.
@@ -75,17 +71,6 @@ truthBranchWorkingPointsPSet = cms.PSet(
     adaptiveReverseWeight=cms.vfloat(0.0, 1.0, 1.0),
     adaptiveMaxReverseScore=cms.vfloat(0.0, 0.6, 1.0),
 )
-
-
-def workingPoints():
-    """(name, reverseWeight, maxReverseScore) per working point, in declaration order."""
-    return list(
-        zip(
-            truthBranchWorkingPointsPSet.names,
-            truthBranchWorkingPointsPSet.adaptiveReverseWeight,
-            truthBranchWorkingPointsPSet.adaptiveMaxReverseScore,
-        )
-    )
 
 
 def recoLabels(domain, flavour="offline"):
@@ -191,6 +176,36 @@ def setTracksterLabelsFromProcess(process):
     return recoLabels("tracksters"), recoLabels("tracksters", "hlt")
 
 
+# Branch levels the truth-driven direction asks about, one denominator product per
+# level, side by side. Only hit-based domains have levels: a composite object's truth
+# target is a vertex, fixed by its resolution instead.
+_truthLevels = cms.vstring(
+    "stableLegsFromUpstream", "caloBoundary", "stableDecayProducts", "hardProcess",
+    # The resonance's visible final state, which needs LevelFlag::Signal on the graph.
+    # Stamped at DIGI, so a sample produced before that carries an empty level.
+    "reconstructableFromSignal", "underlyingEvent",
+    # One root per parton-initiated jet: the hard-scatter legs that are quarks or gluons,
+    # each standing for everything downstream of it. No clustering.
+    "partonJets",
+    # The weakly decaying hadron of each heavy flavour along a chain, the one CMS ghost
+    # association names. Separate levels because a B decays to a D, so one combined
+    # level would keep only one flavour per chain.
+    "bHadrons", "cHadrons",
+    # Event-wide visible final state: the reconstructableFromSignal walk seeded from every
+    # GEN root, so a pi0 is one object on samples with no resonance to seed from.
+    "reconstructableFinalState",
+    # One entry per hadronically decaying tau, the last copy of each radiative chain.
+    "visibleTau"
+)
+
+# The selection preset's seed species, so the signalSeeds product (the _signal
+# efficiency denominator) is the preset's signal object itself. A production that
+# applies a preset must set this to the SAME pdgIds the preset seeds with, via
+# PhysicsTools.TruthInfo.truthGraphSelections.seedPdgIdsForPreset. With no preset
+# there is no resonance and the signal products stay empty.
+_signalSeedPdgIds = cms.vint32()
+_signalSeedHadronFlavors = cms.vint32()
+
 def instanceKey(label):
     """Product instance key for a collection label: label and instance joined by an
     underscore. HGCal uses no separator for product labels but an underscore for DQM
@@ -199,30 +214,3 @@ def instanceKey(label):
     return label.replace(":", "_")
 
 
-def associatorInstances(domain):
-    """Every product instance label this domain's associator emits: one reco-driven
-    map per (collection, working point) and ONE truth-driven map per collection, the
-    truth target being fixed a priori by the level so no working point enters it.
-    Must stay in step with the produces() calls in
-    AllRecoToTruthBranchAssociatorsProducer."""
-    instances = []
-    for label in recoLabels(domain):
-        key = instanceKey(label)
-        for wp in truthBranchWorkingPointsPSet.names:
-            instances.append(key + "RecoToTruth" + wp)
-        instances.append(key + "TruthToReco")
-    return instances
-
-
-# Domains with an association producer in truthGraphAssociators_cff. The label PSets
-# above also carry pfCandidates and jets for forward compatibility; enumerating those
-# here would advertise product instances nothing produces.
-producedDomains = ("tracks", "vertices", "secondaryVertices", "tracksters")
-
-
-def allAssociatorInstances():
-    """The union over every produced domain, for a consumer that takes them flat."""
-    instances = []
-    for domain in producedDomains:
-        instances.extend(associatorInstances(domain))
-    return instances

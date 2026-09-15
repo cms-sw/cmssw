@@ -16,10 +16,6 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<library file="TruthBranchAssociationDumper.cc" name="TruthBranchAssociationDumperPlugins">
-  <flags EDM_PLUGIN="1"/>
-</library>
-
 <library file="TruthBranchTargetsProducer.cc" name="TruthBranchTargetsProducerPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
