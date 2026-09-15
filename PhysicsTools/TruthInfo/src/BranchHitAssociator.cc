@@ -53,6 +53,7 @@ namespace truth {
         recHitEnergies_(recHitEnergies != nullptr && !recHitEnergies->empty() ? recHitEnergies : nullptr),
         metric_(metric),
         channel_(channel),
+        cellAware_(channel == HitChannel::Tracker || channel == HitChannel::Muon),
         denominatorDetectors_(denominatorDetectors),
         roots_(std::move(candidateRoots)) {
     if (roots_.empty() && emptyRootsMeansAll) {
@@ -237,10 +238,14 @@ namespace truth {
     if (recoHitsIn.empty())
       return result;
 
-    // The merge-join needs the reco hits sorted by detId. The production adapters
-    // already deliver them sorted and coalesced, so the copy-and-sort only runs for
-    // an unsorted caller.
-    const auto byDetId = [](RecoHit const& a, RecoHit const& b) { return a.detId < b.detId; };
+    // The merge-join needs the reco hits sorted the way the index stores its own, by
+    // detId and then by cell. The production adapters already deliver them sorted and
+    // coalesced, so the copy-and-sort only runs for an unsorted caller.
+    const auto byDetId = [](RecoHit const& a, RecoHit const& b) {
+      if (a.detId != b.detId)
+        return a.detId < b.detId;
+      return a.cell < b.cell;
+    };
     std::vector<RecoHit> sortedStorage;
     std::span<const RecoHit> reco = recoHitsIn;
     if (!std::is_sorted(recoHitsIn.begin(), recoHitsIn.end(), byDetId)) {
@@ -291,7 +296,10 @@ namespace truth {
       double sharedBranchEnergySq = 0.0;
       double branchExcessNum = 0.0;
 
-      // Merge-join reco hits and the branch subgraph hits by detId.
+      // Merge-join reco hits and the branch subgraph hits by detId, then by cell where
+      // the channel carries one. j stops at the first entry of a module and stays there,
+      // because several reco hits can share that module; the inner scan covers the
+      // module's cells, which are the few a particle fires there.
       std::size_t i = 0;
       std::size_t j = 0;
       while (i < reco.size()) {
@@ -301,7 +309,19 @@ namespace truth {
         while (j < branchHits.size() && branchHits[j].detId < rh.detId)
           ++j;
 
-        const bool shared = (j < branchHits.size() && branchHits[j].detId == rh.detId);
+        std::size_t matched = j;
+        bool shared = false;
+        for (std::size_t k = j; k < branchHits.size() && branchHits[k].detId == rh.detId; ++k) {
+          // A cell on one side and none on the other means "anywhere in this module",
+          // so the two match: a module-keyed index and a cell-keyed adapter, or the
+          // reverse, still give an answer, coarser but never wrong.
+          if (!cellAware_ || !branchHits[k].hasCell() || rh.cell == LogicalGraphHitIndex::Hit::kNoCell ||
+              branchHits[k].recHitIndex == rh.cell) {
+            matched = k;
+            shared = true;
+            break;
+          }
+        }
         if (shared)
           ++sharedCells;
 
@@ -311,7 +331,7 @@ namespace truth {
           // excess on the other side counts as a good association rather than a
           // penalty (max(0, ...) in each direction).
           const float recoEnergy = rh.fraction * cellEnergy[i];
-          const float branchEnergy = shared ? branchHitEnergy(branchHits[j]) : 0.f;
+          const float branchEnergy = shared ? branchHitEnergy(branchHits[matched]) : 0.f;
           sharedEnergy += std::min(recoEnergy, branchEnergy);
           const float recoMinusBranch = std::max(0.f, recoEnergy - branchEnergy);
           scoreNum += static_cast<double>(recoMinusBranch) * recoMinusBranch;

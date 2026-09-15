@@ -79,6 +79,26 @@ namespace {
     return b.finish();
   }
 
+  // Two particles crossing ONE module, told apart by the cell: p0 fires cells 5 and 6,
+  // p1 fires cell 7. Keyed by module alone, every reco hit on module 10 would match both.
+  truth::LogicalGraphHitIndex buildCellIndex() {
+    truth::LogicalGraphHitIndexBuilder b(2);
+    b.setCellKeyed(truth::HitChannel::Tracker, true);
+    b.setSimTrackForParticle(0, 0, 100);
+    b.setSimTrackForParticle(1, 0, 101);
+    b.addHit(truth::HitChannel::Tracker, 0, 100, 10, 1.0f, 5);
+    b.addHit(truth::HitChannel::Tracker, 0, 100, 10, 1.0f, 6);
+    // The same cell twice: one entry, as a module-keyed index coalesces a repeated detId.
+    b.addHit(truth::HitChannel::Tracker, 0, 100, 10, 1.0f, 5);
+    b.addHit(truth::HitChannel::Tracker, 0, 101, 10, 1.0f, 7);
+    return b.finish();
+  }
+
+  truth::BranchHitAssociator trackerAssociator(truth::LogicalGraphHitIndex const& index) {
+    return truth::BranchHitAssociator(
+        index, {}, truth::BranchHitAssociator::Metric::SharedHits, truth::HitChannel::Tracker);
+  }
+
 }  // namespace
 
 class TestBranchHitAssociator : public CppUnit::TestFixture {
@@ -99,6 +119,8 @@ class TestBranchHitAssociator : public CppUnit::TestFixture {
   CPPUNIT_TEST(testAdaptiveCeilingKeepsTheClimbLow);
   CPPUNIT_TEST(testAdaptiveFallsBackWhenTheCeilingRejectsEverything);
   CPPUNIT_TEST(testAdaptiveReturnsNoMatchOnAnEmptyCandidateList);
+  CPPUNIT_TEST(testCellsSeparateTwoParticlesOnOneModule);
+  CPPUNIT_TEST(testAModuleWithoutACellMatchesAnyCellOfIt);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -118,6 +140,8 @@ public:
   void testAdaptiveCeilingKeepsTheClimbLow();
   void testAdaptiveFallsBackWhenTheCeilingRejectsEverything();
   void testAdaptiveReturnsNoMatchOnAnEmptyCandidateList();
+  void testCellsSeparateTwoParticlesOnOneModule();
+  void testAModuleWithoutACellMatchesAnyCellOfIt();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranchHitAssociator);
@@ -515,4 +539,40 @@ void TestBranchHitAssociator::testReverseScoreNeverExceedsOne() {
       CPPUNIT_ASSERT(m.reverseScore <= 1.f);
     }
   }
+}
+
+void TestBranchHitAssociator::testCellsSeparateTwoParticlesOnOneModule() {
+  auto index = buildCellIndex();
+  // The repeated cell coalesced, so particle 0 owns two cells of the module and not three.
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), index.directHits(truth::HitChannel::Tracker, 0).size());
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), index.directHits(truth::HitChannel::Tracker, 1).size());
+
+  auto assoc = trackerAssociator(index);
+  // A cluster on cells 5 and 6 of module 10 belongs to particle 0 alone. Keyed by module
+  // this object would have matched particle 1 just as well.
+  std::vector<truth::RecoHit> reco{{10, 1.f, 1.f, 5}, {10, 1.f, 1.f, 6}};
+  auto matches = assoc.bestBranches(reco);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), matches.size());
+  CPPUNIT_ASSERT_EQUAL(uint32_t(0), matches.front().rootParticleId);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, matches.front().score, 1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, matches.front().reverseScore, 1e-6);
+
+  // The other particle's cell picks the other particle.
+  std::vector<truth::RecoHit> other{{10, 1.f, 1.f, 7}};
+  auto otherMatches = assoc.bestBranches(other);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), otherMatches.size());
+  CPPUNIT_ASSERT_EQUAL(uint32_t(1), otherMatches.front().rootParticleId);
+}
+
+void TestBranchHitAssociator::testAModuleWithoutACellMatchesAnyCellOfIt() {
+  auto index = buildCellIndex();
+  auto assoc = trackerAssociator(index);
+  // An adapter that cannot reach the clusters names the module alone. The answer is then
+  // the coarse one, both particles, rather than nothing at all.
+  std::vector<truth::RecoHit> reco{{10, 1.f, 1.f}};
+  auto matches = assoc.bestBranches(reco);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), matches.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(matches[0].score, matches[1].score, 1e-6);
+  // Equal scores rank the tightest branch first: particle 1 owns one cell, particle 0 two.
+  CPPUNIT_ASSERT_EQUAL(uint32_t(1), matches[0].rootParticleId);
 }
