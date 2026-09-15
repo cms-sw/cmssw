@@ -79,7 +79,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addTripletToMemory(ModulesConst modules,
                                                          MiniDoubletsConst mds,
                                                          SegmentsConst segments,
-                                                         Triplets& triplets,
+                                                         Triplets triplets,
+                                                         TripletsBySegment tripletsBySegment,
+                                                         TripletsByMD tripletsByMD,
                                                          unsigned int innerSegmentIndex,
                                                          unsigned int outerSegmentIndex,
                                                          uint16_t innerInnerLowerModuleIndex,
@@ -91,6 +93,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                          float circleCenterX,
                                                          float circleCenterY,
                                                          unsigned int tripletIndex,
+                                                         unsigned int tripletBySegmentIndex,
+                                                         unsigned int tripletByMDIndex,
                                                          float (&t3Scores)[dnn::t3dnn::kOutputFeatures],
                                                          short charge) {
     triplets.segmentIndices()[tripletIndex][0] = innerSegmentIndex;
@@ -129,6 +133,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     triplets.fakeScore()[tripletIndex] = t3Scores[0];
     triplets.promptScore()[tripletIndex] = t3Scores[1];
     triplets.displacedScore()[tripletIndex] = t3Scores[2];
+
+    //ordered cached data
+    tripletsBySegment.tripletIndex()[tripletBySegmentIndex] = tripletIndex;
+    tripletsByMD.tripletIndex()[tripletByMDIndex] = tripletIndex;
   }
 
   template <alpaka::concepts::Acc TAcc>
@@ -520,10 +528,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
                                   MiniDoubletsConst mds,
+                                  MiniDoubletsOccupancyConst mdOccupancy,
                                   SegmentsConst segments,
                                   SegmentsOccupancyConst segmentsOccupancy,
                                   Triplets triplets,
                                   TripletsOccupancy tripletsOccupancy,
+                                  TripletsBySegment tripletsBySegment,
+                                  TripletsRanges tripletsRangesBySegment,
+                                  TripletsByMD tripletsByMD,
+                                  TripletsRanges tripletsRangesByMD,
                                   ObjectRangesConst ranges,
                                   uint16_t* index_gpu,
                                   uint16_t nonZeroModules,
@@ -585,13 +598,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 #endif
           return;
         }
-        unsigned int tripletModuleIndex = alpaka::atomicAdd(
+        const unsigned int tripletModuleIndex = alpaka::atomicAdd(
             acc, &tripletsOccupancy.nTriplets()[innerInnerLowerModuleIndex], 1u, alpaka::hierarchy::Threads{});
-        unsigned int tripletIndex = ranges.tripletModuleIndices()[innerInnerLowerModuleIndex] + tripletModuleIndex;
+        const unsigned int tripletIndex =
+            ranges.tripletModuleIndices()[innerInnerLowerModuleIndex] + tripletModuleIndex;
+        const unsigned int tripletBySegmentIndex =
+            alpaka::atomicAdd(acc, &tripletsRangesBySegment.n()[innerSegmentIndex], 1u, alpaka::hierarchy::Threads{}) +
+            tripletsRangesBySegment.offset()[innerSegmentIndex];
+        auto const innerMDIndex = segments.mdIndices()[innerSegmentIndex][0];
+        const unsigned int tripletByMDIndex =
+            alpaka::atomicAdd(acc, &tripletsRangesByMD.n()[innerMDIndex], 1u, alpaka::hierarchy::Threads{}) +
+            tripletsRangesByMD.offset()[innerMDIndex];
         addTripletToMemory(modules,
                            mds,
                            segments,
                            triplets,
+                           tripletsBySegment,
+                           tripletsByMD,
                            innerSegmentIndex,
                            outerSegmentIndex,
                            innerInnerLowerModuleIndex,
@@ -603,6 +626,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                            circleCenterX,
                            circleCenterY,
                            tripletIndex,
+                           tripletBySegmentIndex,
+                           tripletByMDIndex,
                            t3Scores,
                            charge);
       };
@@ -623,11 +648,35 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         unsigned int nInnerSegments = segmentsOccupancy.nSegments()[innerInnerLowerModuleIndex];
         if (nInnerSegments == 0)
           continue;
+        const auto innerSegmentOffset = ranges.segmentRanges()[innerInnerLowerModuleIndex][0];
+
+        if (cms::alpakatools::once_per_block(acc)) {
+          //the loops are probably too simple to parallelize with a needed atomicAdd for tripletOffset
+          {
+            auto tripletOffset = ranges.tripletModuleIndices()[innerInnerLowerModuleIndex];
+            for (unsigned int idx = 0; idx < nInnerSegments; ++idx) {
+              unsigned int innerSegmentIndex = innerSegmentOffset + idx;
+              tripletsRangesBySegment.offset()[innerSegmentIndex] = tripletOffset;
+              tripletsRangesBySegment.n()[innerSegmentIndex] = 0;
+              tripletOffset += segments.connectedMax()[innerSegmentIndex];
+            }
+          }
+          {
+            auto tripletOffset = ranges.tripletModuleIndices()[innerInnerLowerModuleIndex];
+            const auto innerMDOffset = ranges.mdRanges()[innerInnerLowerModuleIndex][0];
+            const auto nInnerMDs = mdOccupancy.nMDs()[innerInnerLowerModuleIndex];
+            for (unsigned int idx = 0; idx < nInnerMDs; ++idx) {
+              unsigned int innerMDIndex = innerMDOffset + idx;
+              tripletsRangesByMD.offset()[innerMDIndex] = tripletOffset;
+              tripletsRangesByMD.n()[innerMDIndex] = 0;
+              tripletOffset += mds.connectedT3sMax()[innerMDIndex];
+            }
+          }
+        }
 
         alpaka::syncBlockThreads(acc);
 
         // Step 1: Make inner and outer SG pairs
-        const auto innerSegmentOffset = ranges.segmentRanges()[innerInnerLowerModuleIndex][0];
         for (unsigned int innerSegmentArrayIndex : cms::alpakatools::uniform_elements_y(acc, nInnerSegments)) {
           unsigned int innerSegmentIndex = innerSegmentOffset + innerSegmentArrayIndex;
           if (segments.connectedMax()[innerSegmentIndex] == 0)
@@ -722,7 +771,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   struct CountSegmentConnectionsT {
     ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
-                                  MiniDoubletsConst mds,
+                                  MiniDoublets mds,
                                   Segments segments,
                                   SegmentsOccupancyConst segOcc,
                                   ObjectRangesConst ranges,
@@ -791,6 +840,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             }
             if (counts) {
               alpaka::atomicAdd(acc, &segments.connectedMax()[innerSegmentIndex], 1u, alpaka::hierarchy::Threads{});
+              auto const innerMDIndex = mdIndices[innerSegmentIndex][0];
+              alpaka::atomicAdd(acc, &mds.connectedT3sMax()[innerMDIndex], 1u, alpaka::hierarchy::Threads{});
             }
           }
         }
