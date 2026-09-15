@@ -12,7 +12,7 @@ namespace cms::alpakatools {
 
     //! The caching memory allocator trait.
     template <typename TElem, typename TDim, typename TIdx, typename TDev, typename TQueue>
-      requires alpaka::isDevice<TDev> and alpaka::isQueue<TQueue>
+      requires alpaka::concepts::Device<TDev> and alpaka::concepts::Queue<TQueue>
     struct CachedBufAlloc {
       static_assert(alpaka::meta::DependentFalseType<TDev>::value, "This device does not support a caching allocator");
     };
@@ -91,7 +91,7 @@ namespace cms::alpakatools {
 
     //! The caching memory allocator implementation for the CUDA device
     template <typename TElem, typename TDim, typename TIdx, typename TQueue>
-      requires alpaka::isQueue<TQueue>
+      requires alpaka::concepts::Queue<TQueue>
     struct CachedBufAlloc<TElem, TDim, TIdx, alpaka::DevCudaRt, TQueue> {
       template <typename TExtent>
       ALPAKA_FN_HOST static auto allocCachedBuf(alpaka::DevCudaRt const& dev, TQueue queue, TExtent const& extent)
@@ -168,7 +168,7 @@ namespace cms::alpakatools {
 
     //! The caching memory allocator implementation for the ROCm/HIP device
     template <typename TElem, typename TDim, typename TIdx, typename TQueue>
-      requires alpaka::isQueue<TQueue>
+      requires alpaka::concepts::Queue<TQueue>
     struct CachedBufAlloc<TElem, TDim, TIdx, alpaka::DevHipRt, TQueue> {
       template <typename TExtent>
       ALPAKA_FN_HOST static auto allocCachedBuf(alpaka::DevHipRt const& dev, TQueue queue, TExtent const& extent)
@@ -198,7 +198,7 @@ namespace cms::alpakatools {
   }  // namespace traits
 
   template <typename TElem, typename TIdx, typename TExtent, typename TQueue, typename TDev>
-    requires alpaka::isDevice<TDev> and alpaka::isQueue<TQueue>
+    requires alpaka::concepts::Device<TDev> and alpaka::concepts::Queue<TQueue>
   ALPAKA_FN_HOST auto allocCachedBuf(TDev const& dev, TQueue queue, TExtent const& extent = TExtent()) {
     return traits::CachedBufAlloc<TElem, alpaka::Dim<TExtent>, TIdx, TDev, TQueue>::allocCachedBuf(dev, queue, extent);
   }
