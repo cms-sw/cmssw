@@ -24,32 +24,17 @@ from SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociationLabels_cff im
     truthBranchWorkingPointsPSet,
     recoLabels,
     instanceKey,
-)
-
-# The same seed lists the associators are configured with, so the analyzer's decision to
-# book the signal folders and the associator's decision to fill them cannot disagree.
-from SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociators_cff import (
+    _truthLevels,
     _signalSeedPdgIds,
     _signalSeedHadronFlavors,
 )
 
+
 _wps = list(truthBranchWorkingPointsPSet.names)
 
-# Branch levels of the truth graph, matching truthGraphAssociators_cff: the
-# truth-driven metrics are measured once per level, in per-level folders, while the
-# reco-driven metrics keep their per-working-point folders. Composite domains have no
-# levels; their one truth-driven folder is named by the domain's vertex resolution.
-# reconstructableFromSignal is the resonance's visible final state: the walk from each
-# signal root down to the first object a detector reconstructs, pi0 included as an object
-# rather than as two photons. It needs LevelFlag::Signal on the graph, which is stamped at
-# DIGI, so a sample produced before that carries an EMPTY level rather than a wrong one.
-# partonJets is one root per parton-initiated jet: the hard-scatter legs that are quarks
-# or gluons, each standing for everything downstream of it. There is no clustering; the
-# jet IS the descendant subgraph and its flavour is the parton's PDG id. The deepest-
-# element rule keeps the b rather than the top above it, so a jet is never counted twice.
-_truthLevels = ["stableLegsFromUpstream", "caloBoundary", "stableDecayProducts", "hardProcess",
-                "reconstructableFromSignal", "underlyingEvent", "partonJets",
-                "bHadrons", "cHadrons", "reconstructableFinalState", "visibleTau"]
+# Branch levels of the truth graph, one source with the associators so the analyzer
+# cannot book a folder whose denominator product does not exist.
+_levels = list(_truthLevels)
 
 # Axis definition per x variable, shared by every domain. Built here so the booking, the
 # harvester strings and the plot script all read one list.
@@ -365,6 +350,10 @@ truthBranchValidationSequence = cms.Sequence()
 # One harvester per domain: DQMGenericClient applies one string list to all its subDirs,
 # so a folder that never booked num_reco_pt must not be asked for fakerate_vs_pt.
 truthBranchHarvestingSequence = cms.Sequence()
+# The HLT twins read HLT collections, which an offline reconstruction does not produce,
+# so they are kept apart from the offline sequences.
+truthBranchHltValidationSequence = cms.Sequence()
+truthBranchHltHarvestingSequence = cms.Sequence()
 
 for _d in _domains:
     # Every denominator here is an ANTICHAIN: the levels by construction, and
@@ -376,14 +365,14 @@ for _d in _domains:
     # no selector cut at all (signalSeedsNoSelection) for a hit-based domain, the vertex
     # resolution for a composite one.
     _truthSuffixes = ([_d["vertexResolution"]] if "vertexResolution" in _d
-                      else _truthLevels + ["signal", "signalNoSelection"])
+                      else _levels + ["signal", "signalNoSelection"])
     # signalSeedPdgIds travels with truthLevels because the analyzer books the signal
     # folders from it, and it must carry the SAME value the associators get. A production
     # that applies a preset sets it on the analyzers as well as on the associators; with
     # no preset it stays empty and the signal folders are simply not booked.
     _truthArgs = (dict(vertexResolution=cms.string(_d["vertexResolution"]))
                   if "vertexResolution" in _d
-                  else dict(truthLevels=cms.vstring(*_truthLevels),
+                  else dict(truthLevels=cms.vstring(*_levels),
                             signalSeedPdgIds=cms.vint32(*_signalSeedPdgIds),
                             signalSeedHadronFlavors=cms.vint32(*_signalSeedHadronFlavors)))
     _analyzer = cms.EDProducer(
@@ -405,7 +394,10 @@ for _d in _domains:
         **_truthArgs,
     )
     globals()[_d["label"]] = _analyzer
-    truthBranchValidationSequence += _analyzer
+    if _d["flavour"] == "hlt":
+        truthBranchHltValidationSequence += _analyzer
+    else:
+        truthBranchValidationSequence += _analyzer
 
     # Two harvesters per domain because DQMGenericClient applies one string list to all
     # its subDirs: the per-WP folders carry only reco-driven MEs, the per-level folders
@@ -426,7 +418,10 @@ for _d in _domains:
         outputFileName=cms.untracked.string(""),
     )
     globals()[_d["label"].replace("Validator", "PostProcessor")] = _harvester
-    truthBranchHarvestingSequence += _harvester
+    if _d["flavour"] == "hlt":
+        truthBranchHltHarvestingSequence += _harvester
+    else:
+        truthBranchHarvestingSequence += _harvester
 
     _truthFolders = [_d["dirName"] + instanceKey(_label) + "_" + _suffix
                      for _label in recoLabels(_d["name"], _d["flavour"]) for _suffix in _truthSuffixes]
@@ -441,4 +436,7 @@ for _d in _domains:
         outputFileName=cms.untracked.string(""),
     )
     globals()[_d["label"].replace("Validator", "TruthPostProcessor")] = _truthHarvester
-    truthBranchHarvestingSequence += _truthHarvester
+    if _d["flavour"] == "hlt":
+        truthBranchHltHarvestingSequence += _truthHarvester
+    else:
+        truthBranchHarvestingSequence += _truthHarvester
