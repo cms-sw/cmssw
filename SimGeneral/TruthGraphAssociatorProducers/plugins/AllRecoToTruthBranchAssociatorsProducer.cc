@@ -226,7 +226,10 @@ namespace {
     return position.x() != 0. || position.y() != 0. || position.z() != 0. || position.t() != 0.;
   }
 
-  [[nodiscard]] inline std::unordered_map<uint64_t, uint32_t> interactionVertices(truth::Graph const& graph) {
+  // placeholderCount receives the number of interactions that resolve only to a placeholder.
+  [[nodiscard]] inline std::unordered_map<uint64_t, uint32_t> interactionVertices(truth::Graph const& graph,
+                                                                                  unsigned int& placeholderCount) {
+    placeholderCount = 0;
     std::unordered_map<uint64_t, uint32_t> representative;
 
     // An interaction the graph actually models gets a VertexRole::Interaction node, built
@@ -266,21 +269,11 @@ namespace {
 
     // An interaction with nothing but placeholders still has to resolve, or every
     // composite object built from its constituents silently matches nothing. Take the
-    // placeholder and say that its position is not to be trusted. One message per event,
-    // because a PU200 event holds of order ten of them.
-    unsigned int placeholderCount = 0;
+    // placeholder; the caller reports that its position is not to be trusted.
     for (auto const& [eventId, vertexId] : placeholderOnly) {
       if (representative.emplace(eventId, vertexId).second) {
         ++placeholderCount;
       }
-    }
-    if (placeholderCount > 0) {
-      edm::LogWarning("AllRecoToTruthBranchAssociators")
-          << placeholderCount
-          << " interactions resolve only to a logical vertex that did not merge with a SimVertex and whose "
-             "position is indistinguishable from a default-constructed one. Their constituents are counted "
-             "there, so a vertex efficiency or purity for those interactions carries no position. This is what "
-             "a pileup sub-event looks like when all of its GenToSim links were dropped.";
     }
     return representative;
   }
@@ -339,6 +332,7 @@ private:
   mutable std::once_flag recHitsWarned_;
   mutable std::once_flag moduleKeyedWarned_;
   mutable std::once_flag rowOutOfRangeWarned_;
+  mutable std::once_flag placeholderVertexWarned_;
 
   std::vector<std::pair<std::string, edm::EDGetTokenT<std::vector<RECO>>>> recoTokens_;
   // One warning per collection per job when its input is absent: a silently empty map
@@ -583,10 +577,21 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
   // in the same pt^2 weighting the numerator uses.
   std::unordered_map<unsigned int, float> truthWeightPerVertex;
 
+  unsigned int placeholderCount = 0;
   [[maybe_unused]] const auto interactionVertex =
       ConstituentBasedDomain<RECO> && vertexResolution_ == VertexResolution::Interaction
-          ? interactionVertices(graph)
+          ? interactionVertices(graph, placeholderCount)
           : std::unordered_map<uint64_t, uint32_t>{};
+  if (placeholderCount > 0) {
+    std::call_once(placeholderVertexWarned_, [placeholderCount] {
+      edm::LogWarning("AllRecoToTruthBranchAssociatorsProducer")
+          << placeholderCount
+          << " interactions resolve only to a logical vertex that did not merge with a SimVertex and whose "
+             "position is indistinguishable from a default-constructed one. Their constituents are counted "
+             "there, so a vertex efficiency or purity for those interactions carries no position. This is what "
+             "a pileup sub-event looks like when all of its GenToSim links were dropped. Reported once per job.";
+    });
+  }
 
   if constexpr (ConstituentBasedDomain<RECO>) {
     // The vertices a composite object could have been reconstructed at: those where at
