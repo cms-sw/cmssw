@@ -8,6 +8,7 @@
 #include <utility>
 #include <vector>
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "PhysicsTools/TruthInfo/interface/Branch.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
 
@@ -98,6 +99,7 @@ namespace {
 
 class TestBranch : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(TestBranch);
+  CPPUNIT_TEST(testInitializers);
   CPPUNIT_TEST(testClosures);
   CPPUNIT_TEST(testKinematics);
   CPPUNIT_TEST(testTruncatedClosureKinematics);
@@ -107,6 +109,7 @@ class TestBranch : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
+  void testInitializers();
   void testClosures();
   void testKinematics();
   void testTruncatedClosureKinematics();
@@ -116,6 +119,35 @@ public:
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranch);
+
+void TestBranch::testInitializers() {
+  auto g = buildTtbarLike();
+
+  // Branch(&graph,id) initializer
+  truth::Branch gBranch(&g, 2);
+  CPPUNIT_ASSERT(gBranch.valid());
+  CPPUNIT_ASSERT_EQUAL(uint32_t(2), gBranch.rootIds().front());
+  CPPUNIT_ASSERT_EQUAL(int32_t(5), gBranch.rootPdgId());
+  CPPUNIT_ASSERT_EQUAL(std::size_t(4), gBranch.members().size());
+
+  // Branch(&graph,id) initializer [invalid]
+  CPPUNIT_ASSERT_THROW(truth::Branch(&g, 9999), cms::Exception);
+
+  // Branch(particle) initializer
+  truth::Particle particle = g.particle(2);
+  truth::Branch pBranch(&particle);
+  CPPUNIT_ASSERT(pBranch.valid());
+  CPPUNIT_ASSERT_EQUAL(uint32_t(2), pBranch.rootIds().front());
+  CPPUNIT_ASSERT_EQUAL(int32_t(5), pBranch.rootPdgId());
+  CPPUNIT_ASSERT_EQUAL(std::size_t(4), pBranch.members().size());
+
+  // Branch(particle) initializer [invalid]
+  truth::Particle invalid;
+  CPPUNIT_ASSERT_THROW((void)truth::Branch(&invalid), cms::Exception);
+
+  // Branch(particle) initializer [invalid]
+  CPPUNIT_ASSERT_THROW((void)truth::Branch(static_cast<truth::Particle const*>(nullptr)), cms::Exception);
+}
 
 void TestBranch::testClosures() {
   auto g = buildTtbarLike();

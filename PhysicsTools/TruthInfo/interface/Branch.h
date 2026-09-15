@@ -10,6 +10,7 @@
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/Particle.h"
 
 namespace truth {
 
@@ -41,6 +42,7 @@ namespace truth {
     Branch() = default;
     Branch(Graph const* graph, uint32_t rootId, ClosureSpec spec = ClosureSpec::subtree());
     Branch(Graph const* graph, std::vector<uint32_t> rootIds, ClosureSpec spec = ClosureSpec::subtree());
+    Branch(Particle const* particle, ClosureSpec spec = ClosureSpec::subtree());
 
     [[nodiscard]] bool valid() const { return graph_ != nullptr && !roots_.empty(); }
     [[nodiscard]] Graph const* graph() const { return graph_; }
@@ -87,6 +89,7 @@ namespace truth {
     [[nodiscard]] Branch merged(Branch const& other) const;
 
   private:
+    void validate();
     [[nodiscard]] std::vector<uint32_t> traverse() const;
 
     Graph const* graph_ = nullptr;
