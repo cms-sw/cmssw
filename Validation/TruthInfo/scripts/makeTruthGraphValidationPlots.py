@@ -36,25 +36,6 @@ FOLDERS = [
         },
         "dists": ["completeness_hits", "shared_hits", "n_sharing_branches"],
     }),
-    ("Tracking/BranchValidator/recoTrack", "Reco track vs Branch", {
-        "ratios": {
-            "efficiency_eta": ("effnum_eta", "denom_eta", "efficiency"),
-            "efficiency_pt": ("effnum_pt", "denom_pt", "efficiency"),
-            "fakerate_eta": ("fakenum_eta", "recodenom_eta", "fake rate"),
-            "mergerate_eta": ("mergenum_eta", "recodenom_eta", "merge rate"),
-            "duplicate_eta": ("dupnum_eta", "denom_eta", "duplicate rate"),
-        },
-        "dists": ["purity"],
-    }),
-    ("HGCAL/BranchValidator/Trackster", "Trackster vs Branch", {
-        "ratios": {
-            "efficiency_eta": ("effnum_eta", "denom_eta", "efficiency"),
-            "efficiency_energy": ("effnum_energy", "denom_energy", "efficiency"),
-            "fakerate_eta": ("fakenum_eta", "recodenom_eta", "fake rate"),
-            "mergerate_eta": ("mergenum_eta", "recodenom_eta", "merge rate"),
-        },
-        "dists": ["purity"],
-    }),
     ("HGCAL/BranchValidator/CaloParticle", "Branch vs CaloParticle", {
         "ratios": {
             "efficiency_eta": ("effnum_eta", "denom_eta", "Branch reproduces CP"),

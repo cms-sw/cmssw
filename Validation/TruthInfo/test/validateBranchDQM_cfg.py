@@ -43,7 +43,6 @@ process.p = cms.Path(
     + process.truthLogicalGraphProducer
     + process.detIdToRecHitMapProducer
     + process.truthLogicalGraphHitIndexProducer
-    + process.truthBranchCaloAssociationProducer
     + process.branchHGCalValidator
 )
 process.e = cms.EndPath(process.dqmOut)
