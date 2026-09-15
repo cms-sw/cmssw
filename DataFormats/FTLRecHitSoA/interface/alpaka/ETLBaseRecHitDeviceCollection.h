@@ -8,11 +8,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::etlrechit {
 
-  // Make the names from the top-level etlrechit namespace visible for unqualified lookup
-  // inside the ALPAKA_ACCELERATOR_NAMESPACE::etlrechit namespace.
-  using namespace ::etlrechit;
-
-  using ETLBaseRecHitDeviceCollection = PortableCollection<ETLBaseRecHitSoA>;
+  using ETLBaseRecHitDeviceCollection = PortableCollection<::etlrechit::ETLBaseRecHitSoA>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::etlrechit
 

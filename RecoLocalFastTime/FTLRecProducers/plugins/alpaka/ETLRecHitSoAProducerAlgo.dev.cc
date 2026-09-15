@@ -68,7 +68,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::etlrechit {
         printf("Time of arrival: %f +- %f \n", toa, time_error);
         printf("Time over threshold: %f \n", tot);
         printf("Energy %f \n", energy);
-        printf("Position: %f +- %f \n", position, position_error);
 
 #endif
 

@@ -8,11 +8,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::btlrechit {
 
-  // Make the names from the top-level btlrechit namespace visible for unqualified lookup
-  // inside the ALPAKA_ACCELERATOR_NAMESPACE::btlrechit namespace.
-  using namespace ::btlrechit;
-
-  using BTLBaseRecHitDeviceCollection = PortableCollection<BTLBaseRecHitSoA>;
+  using BTLBaseRecHitDeviceCollection = PortableCollection<::btlrechit::BTLBaseRecHitSoA>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::btlrechit
 
