@@ -55,6 +55,7 @@
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
 #include "PhysicsTools/TruthInfo/interface/BranchSelector.h"
 #include "PhysicsTools/TruthInfo/interface/RecoHitAdapters.h"
+#include "PhysicsTools/TruthInfo/interface/TrackerCells.h"
 #include "PhysicsTools/TruthInfo/interface/TruthLevels.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
@@ -318,6 +319,7 @@ private:
   // One warning per job when no rechit collection is present, because the metric
   // then falls back to sim-energy weights and its scores are not the TICL ones.
   mutable std::once_flag recHitsWarned_;
+  mutable std::once_flag moduleKeyedWarned_;
   mutable std::once_flag rowOutOfRangeWarned_;
 
   std::vector<std::pair<std::string, edm::EDGetTokenT<std::vector<RECO>>>> recoTokens_;
@@ -475,6 +477,15 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
                                                             edm::EventSetup const&) const {
   auto const& graph = event.get(graphToken_);
   auto const& hitIndex = event.get(hitIndexToken_);
+  if constexpr (!ConstituentBasedDomain<RECO>) {
+    if (Traits::channel == truth::HitChannel::Tracker && truth::isModuleKeyedTracker(hitIndex)) {
+      std::call_once(moduleKeyedWarned_, [] {
+        edm::LogWarning("AllRecoToTruthBranchAssociatorsProducer")
+            << "the tracker truth of the input carries no cells, so no track matches it. The input was "
+               "digitised before the tracker truth was keyed by cell; reprocess it from the DIGI step.";
+      });
+    }
+  }
 
   std::vector<reco::CaloCluster> const* layerClusters = nullptr;
   // The rechit energy of every cell, the weight of the shared-energy metric. Absent

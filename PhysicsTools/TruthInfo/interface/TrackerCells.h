@@ -21,10 +21,12 @@
 #ifndef PhysicsTools_TruthInfo_interface_TrackerCells_h
 #define PhysicsTools_TruthInfo_interface_TrackerCells_h
 
+#include <algorithm>
 #include <cstdint>
 
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
 
 namespace truth {
 
@@ -38,6 +40,13 @@ namespace truth {
   // module is not a pixel one, and it is NOT the packing above: the two swap the fields.
   [[nodiscard]] inline uint32_t outerTrackerCell(unsigned int row, unsigned int column) {
     return static_cast<uint32_t>(Phase2TrackerDigi::pixelToChannel(row, column));
+  }
+
+  // True for an index whose tracker truth carries hits and no cell. No track matches it.
+  [[nodiscard]] inline bool isModuleKeyedTracker(LogicalGraphHitIndex const& index) {
+    auto const& hits = index.channel(HitChannel::Tracker).directHits;
+    return !hits.empty() &&
+           std::none_of(hits.begin(), hits.end(), [](LogicalGraphHitIndex::Hit const& h) { return h.hasCell(); });
   }
 
 }  // namespace truth

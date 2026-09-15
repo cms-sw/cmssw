@@ -35,8 +35,7 @@ namespace truth {
 
       uint32_t detId = 0;
       // Calo and MTD: the global recHit index from the DetId map. Tracker: the digi
-      // channel, when the index was built at cell granularity, else kNoCell. Muon:
-      // always kNoCell.
+      // channel of the cell. Muon: always kNoCell.
       uint32_t recHitIndex = kInvalidRecHitIndex;
       float energy = 0.f;
 

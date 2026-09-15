@@ -37,6 +37,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimTracker/TrackAssociation/interface/trackHitsToClusterRefs.h"
+#include "PhysicsTools/TruthInfo/interface/RecoHitAdapters.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
 
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
@@ -195,15 +196,13 @@ void BranchTrackingValidator::analyze(edm::Event const& event, edm::EventSetup c
     if (pt < minPt_ || std::abs(eta) > maxEta_)
       continue;
 
-    // Branch side: reco-track rechit DetIds -> best (tightest) tracker branch.
-    std::vector<truth::RecoHit> trackHits;
+    // Branch side: the track's cells -> best (tightest) tracker branch. The tracker truth
+    // is keyed by (module, cell), so the hits come from the shared adapter.
+    const std::vector<truth::RecoHit> trackHits = truth::recoHits(track);
     uint32_t nTrackHits = 0;
     for (auto it = track.recHitsBegin(); it != track.recHitsEnd(); ++it) {
-      const TrackingRecHit* hit = &(**it);
-      if (hit->isValid()) {
-        trackHits.push_back(truth::RecoHit{hit->geographicalId().rawId(), 1.f, 1.f});
+      if ((*it)->isValid())
         ++nTrackHits;
-      }
     }
     BestMatch branch;
     std::vector<truth::BranchMatch> matches;

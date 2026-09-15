@@ -154,11 +154,10 @@ def buildCompactTruthAtDigi(process, includeTrackingHits=True):
         rawSrc=cms.InputTag("mix"),
         recHitMap=cms.InputTag(""),   # UNRESOLVED: association is by DetId
         subdetectors=cms.vstring(*subdetectors),
-        # See truthGraphMixedDigi_cff: the inner tracker is keyed by (module, cell).
+        # See truthGraphMixedDigi_cff: the tracker is keyed by (module, cell).
         trackerDigiSimLinks=cms.VInputTag(cms.InputTag("simSiPixelDigis", "Pixel"),
                                           cms.InputTag("simSiPixelDigis", "Tracker")),
         simHitCollections=caloSimHits,
-        trackerSimHitCollections=trackerSimHits,
         muonSimHitCollections=muonSimHits,
     )
 
@@ -205,7 +204,6 @@ def customiseTruthReduced(process):
     acc.trackerHits = cms.VInputTag()
     idx = process.truthLogicalGraphHitIndexProducer
     idx.subdetectors = cms.vstring("Calo", "Muon")
-    idx.trackerSimHitCollections = cms.VInputTag()
     # The pruning's detector scope stays equal to the index's, otherwise it prunes on
     # tracker hits that are no longer accumulated.
     process.truthLogicalGraphProducer.trackerSimHitCollections = cms.VInputTag()
