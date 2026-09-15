@@ -581,17 +581,12 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
     // from a pileup interaction rather than the signal one.
     for (std::size_t r = 0; r < recoHandle->size(); ++r) {
       // The maps are score-sorted, so [0] is the best match. "Associated" means the
-      // object corresponds to SOMETHING in the truth graph, in every domain. It is one
-      // of the two ways of being a fake, published on its own as the no-candidate rate.
-      //
-      // The calorimetric recoToSim score is NOT folded in here. That score is
-      // reco-normalised against the cell's TOTAL truth energy, so at PU200 a cell shared
-      // with overlaid interactions inflates it towards 1 even for a perfectly matched
-      // object, and gating on it reports contamination the reconstruction cannot avoid
-      // as if the object were spurious. Measured on ttbar PU200, 200 events,
-      // ticlCandidate AdaptiveNominal: 73.8% of tracksters failed the 0.6 cut but only
-      // 2.3% had no candidate at all. It is kept as the STRICT numerator, which is
-      // HGCalValidator's non-fake criterion and is comparable to it.
+      // object corresponds to something in the truth graph, and it is published on its
+      // own as the no-candidate rate. The calorimetric recoToSim score is not folded in
+      // here, because it is reco-normalised against the cell's total truth energy and at
+      // PU200 a cell shared with overlaid interactions drives it towards 1 for a matched
+      // object too. That score is the strict numerator instead, which is HGCalValidator's
+      // non-fake criterion.
       const bool associated = r < recoToTruth.size() && !recoToTruth[r].empty();
       bool strictMatch = associated;
       if constexpr (Traits::calorimetric) {
@@ -762,10 +757,9 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
         }
         auto const& particle = graph.particles()[b];
         const auto& p4 = particle.momentum;
-        // A resonance in its pre-ISR copy carries EXACTLY zero transverse momentum, and
-        // eta is undefined there. Dropping the whole object was removing 43% of the DY Z
-        // bosons from every signal denominator, on every axis at once. Keep it, and send
-        // only the quantities that genuinely have no value to the underflow.
+        // A resonance in its pre-ISR copy carries exactly zero transverse momentum, so it
+        // has no direction. The object stays in the denominator and only the quantities
+        // that have no value go to the underflow.
         const bool hasDirection = p4.pt() > 0.;
         kin.pt = p4.pt();
         kin.eta = hasDirection ? p4.eta() : truth::kNoCaloEntry;
