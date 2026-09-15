@@ -36,18 +36,19 @@ namespace {
     return b.finish();
   }
 
-  // Same topology populated on the *tracker* channel (cells 20,21,22), plus one
-  // calo cell (10) that the tracker associator must ignore.
+  // Same topology populated on the *tracker* channel (modules 20,21,22, one cell each),
+  // plus one calo cell (10) that the tracker associator must ignore.
   truth::LogicalGraphHitIndex buildTrackerIndex() {
     truth::LogicalGraphHitIndexBuilder b(2);
+    b.setCellKeyed(truth::HitChannel::Tracker, true);
     b.setSimTrackForParticle(0, 0, 100);
     b.setSimTrackForParticle(1, 0, 101);
     b.addParticleChild(0, 1);
     b.addHit(truth::HitChannel::Calo, 0, 100, 10, 1.0f, 0);  // calo channel
-    b.addHit(truth::HitChannel::Tracker, 0, 100, 20, 1.0f);
-    b.addHit(truth::HitChannel::Tracker, 0, 100, 21, 1.0f);
-    b.addHit(truth::HitChannel::Tracker, 0, 101, 21, 1.0f);
-    b.addHit(truth::HitChannel::Tracker, 0, 101, 22, 2.0f);
+    b.addHit(truth::HitChannel::Tracker, 0, 100, 20, 1.0f, 1);
+    b.addHit(truth::HitChannel::Tracker, 0, 100, 21, 1.0f, 1);
+    b.addHit(truth::HitChannel::Tracker, 0, 101, 21, 1.0f, 1);
+    b.addHit(truth::HitChannel::Tracker, 0, 101, 22, 2.0f, 1);
     return b.finish();
   }
 
@@ -110,8 +111,7 @@ namespace {
     return b.finish();
   }
 
-  // One particle on one module, keyed by module: the truth says "somewhere in module 10"
-  // and names no cell.
+  // One particle on one module with no cell: a tracker index keyed by module.
   truth::LogicalGraphHitIndex buildModuleKeyedIndex() {
     truth::LogicalGraphHitIndexBuilder b(1);
     b.setSimTrackForParticle(0, 0, 100);
@@ -145,9 +145,9 @@ class TestBranchHitAssociator : public CppUnit::TestFixture {
   CPPUNIT_TEST(testAdaptiveFallsBackWhenTheCeilingRejectsEverything);
   CPPUNIT_TEST(testAdaptiveReturnsNoMatchOnAnEmptyCandidateList);
   CPPUNIT_TEST(testCellsSeparateTwoParticlesOnOneModule);
-  CPPUNIT_TEST(testAModuleWithoutACellMatchesAnyCellOfIt);
+  CPPUNIT_TEST(testAHitWithoutACellMatchesNothing);
   CPPUNIT_TEST(testAnAncestorKeepsEveryCellOfAModule);
-  CPPUNIT_TEST(testAModuleKeyedBranchIsNeverOverCounted);
+  CPPUNIT_TEST(testAModuleKeyedIndexIsRecognisedAndMatchesNothing);
   CPPUNIT_TEST(testTheTwoTrackerPackingsAreNotInterchangeable);
   CPPUNIT_TEST_SUITE_END();
 
@@ -169,9 +169,9 @@ public:
   void testAdaptiveFallsBackWhenTheCeilingRejectsEverything();
   void testAdaptiveReturnsNoMatchOnAnEmptyCandidateList();
   void testCellsSeparateTwoParticlesOnOneModule();
-  void testAModuleWithoutACellMatchesAnyCellOfIt();
+  void testAHitWithoutACellMatchesNothing();
   void testAnAncestorKeepsEveryCellOfAModule();
-  void testAModuleKeyedBranchIsNeverOverCounted();
+  void testAModuleKeyedIndexIsRecognisedAndMatchesNothing();
   void testTheTwoTrackerPackingsAreNotInterchangeable();
 };
 
@@ -236,8 +236,8 @@ void TestBranchHitAssociator::testTrackerChannel() {
   truth::BranchHitAssociator assoc(
       index, {}, truth::BranchHitAssociator::Metric::SharedHits, truth::HitChannel::Tracker);
 
-  // Tracker cells 20,21,22 are fully covered by root 0's tracker subgraph.
-  std::vector<truth::RecoHit> reco{{20, 1.0f, 1.0f}, {21, 1.0f, 1.0f}, {22, 1.0f, 1.0f}};
+  // Tracker modules 20,21,22 are fully covered by root 0's tracker subgraph.
+  std::vector<truth::RecoHit> reco{{20, 1.0f, 1.0f, 1}, {21, 1.0f, 1.0f, 1}, {22, 1.0f, 1.0f, 1}};
   auto matches = assoc.bestBranches(reco, /*maxResults=*/1);
   CPPUNIT_ASSERT_EQUAL(std::size_t(1), matches.size());
   CPPUNIT_ASSERT_EQUAL(uint32_t(0), matches.front().rootParticleId);
@@ -595,17 +595,13 @@ void TestBranchHitAssociator::testCellsSeparateTwoParticlesOnOneModule() {
   CPPUNIT_ASSERT_EQUAL(uint32_t(1), otherMatches.front().rootParticleId);
 }
 
-void TestBranchHitAssociator::testAModuleWithoutACellMatchesAnyCellOfIt() {
+void TestBranchHitAssociator::testAHitWithoutACellMatchesNothing() {
   auto index = buildCellIndex();
   auto assoc = trackerAssociator(index);
-  // An adapter that cannot reach the clusters names the module alone. The answer is then
-  // the coarse one, both particles, rather than nothing at all.
+  // The tracker truth is keyed by (module, cell), so a hit that names a module and no
+  // cell matches no particle on it.
   std::vector<truth::RecoHit> reco{{10, 1.f, 1.f}};
-  auto matches = assoc.bestBranches(reco);
-  CPPUNIT_ASSERT_EQUAL(std::size_t(2), matches.size());
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(matches[0].score, matches[1].score, 1e-6);
-  // Equal scores rank the tightest branch first: particle 1 owns one cell, particle 0 two.
-  CPPUNIT_ASSERT_EQUAL(uint32_t(1), matches[0].rootParticleId);
+  CPPUNIT_ASSERT(assoc.bestBranches(reco).empty());
 }
 
 void TestBranchHitAssociator::testAnAncestorKeepsEveryCellOfAModule() {
@@ -628,19 +624,20 @@ void TestBranchHitAssociator::testAnAncestorKeepsEveryCellOfAModule() {
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, matches.back().reverseScore, 1e-6);
 }
 
-void TestBranchHitAssociator::testAModuleKeyedBranchIsNeverOverCounted() {
-  auto index = buildModuleKeyedIndex();
-  auto assoc = trackerAssociator(index);
-
-  // One rechit of three cells against a branch that names the module and no cell. The
-  // object is one rechit, the branch is one entry, so both normalisations give 1.
+void TestBranchHitAssociator::testAModuleKeyedIndexIsRecognisedAndMatchesNothing() {
+  // An index whose tracker truth names modules and no cell matches no track, and is
+  // recognised as such.
+  auto moduleKeyed = buildModuleKeyedIndex();
+  CPPUNIT_ASSERT(truth::isModuleKeyedTracker(moduleKeyed));
+  auto assoc = trackerAssociator(moduleKeyed);
   std::vector<truth::RecoHit> reco{{10, 1.f, 1.f, 5}, {10, 1.f, 1.f, 6}, {10, 1.f, 1.f, 7}};
-  auto matches = assoc.bestBranches(reco);
-  CPPUNIT_ASSERT_EQUAL(std::size_t(1), matches.size());
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, matches.front().score, 1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, matches.front().reverseScore, 1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, matches.front().sharedEnergyFraction, 1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, matches.front().sharedEnergy, 1e-6);
+  CPPUNIT_ASSERT(assoc.bestBranches(reco).empty());
+
+  // A cell-keyed index is not, and neither is an index with no tracker truth at all.
+  auto cellKeyed = buildCellIndex();
+  CPPUNIT_ASSERT(!truth::isModuleKeyedTracker(cellKeyed));
+  auto noTracker = buildIndex();
+  CPPUNIT_ASSERT(!truth::isModuleKeyedTracker(noTracker));
 }
 
 void TestBranchHitAssociator::testTheTwoTrackerPackingsAreNotInterchangeable() {
