@@ -39,6 +39,8 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFinding.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/HITrackFilterForPVFinding.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/GapClusterizerInZ.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/GNNClusterizerFromAlpaka.h"
+#include "DataFormats/VertexGNNReco/interface/VertexGNNHostCollection.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexFitterBase.h"
@@ -108,4 +110,9 @@ private:
   edm::ValueMap<float> trackMTDTimeQualities_;
   edm::ValueMap<float> trackTimes_;
   double minTrackTimeQuality_;
+  std::vector<TransientVertex> clustersFromGNN(edm::Event& iEvent,
+                                               const std::vector<reco::TransientTrack>& seltks) const;
+  bool useAlpakaGNN_ = false;
+  std::unique_ptr<vertexgnn::GNNClusterizerFromAlpaka> alpakaClusterizer_;
+  edm::EDGetTokenT<vertexgnn::GNNOutputHostCollection> gnnOutputToken_;
 };
