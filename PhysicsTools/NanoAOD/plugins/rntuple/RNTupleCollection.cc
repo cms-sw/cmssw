@@ -1,5 +1,9 @@
 #include "RNTupleCollection.h"
 
+#include "FlatTableColumnDispatch.h"
+#include "RNTupleProjections.h"
+
+#include <ROOT/RField.hxx>
 #include <ROOT/RFieldBase.hxx>
 #include <ROOT/RField/RFieldRecord.hxx>
 #include <ROOT/RField/RFieldSequenceContainer.hxx>
@@ -10,104 +14,80 @@ using ROOT::RNTupleModel;
 using ROOT::RRecordField;
 using ROOT::RVectorField;
 
-std::string flatTableColumnTypeToString(nanoaod::FlatTable::ColumnType type) {
-  switch (type) {
-    case nanoaod::FlatTable::ColumnType::UInt8:
-      return "std::uint8_t";
-    case nanoaod::FlatTable::ColumnType::Int16:
-      return "std::int16_t";
-    case nanoaod::FlatTable::ColumnType::UInt16:
-      return "std::uint16_t";
-    case nanoaod::FlatTable::ColumnType::Int32:
-      return "std::int32_t";
-    case nanoaod::FlatTable::ColumnType::UInt32:
-      return "std::uint32_t";
-    case nanoaod::FlatTable::ColumnType::Int64:
-      return "std::int64_t";
-    case nanoaod::FlatTable::ColumnType::UInt64:
-      return "std::uint64_t";
-    case nanoaod::FlatTable::ColumnType::Bool:
-      return "bool";
-    case nanoaod::FlatTable::ColumnType::Float:
-      return "float";
-    case nanoaod::FlatTable::ColumnType::Double:
-      return "double";
-    default:
-      throw cms::Exception("LogicError", "Unsupported type");
+namespace {
+  // The RNTuple type name for a FlatTable column, e.g. "std::uint8_t" or "float".
+  std::string columnTypeName(nanoaod::FlatTable::ColumnType type) {
+    return dispatchColumnType(type, [](auto tag) { return ROOT::RField<typename decltype(tag)::type>::TypeName(); });
   }
-}
 
-std::tuple<const unsigned char*, unsigned int> getColStartAndTypeSize(edm::Handle<nanoaod::FlatTable>& table,
-                                                                      unsigned int colIdx) {
-  const unsigned char* col_start;
-  switch (table->columnType(colIdx)) {
-    case nanoaod::FlatTable::ColumnType::UInt8:
-      col_start = reinterpret_cast<const unsigned char*>(table->columnData<uint8_t>(colIdx).data());
-      return std::make_tuple(col_start, 1);
-    case nanoaod::FlatTable::ColumnType::Int16:
-      col_start = reinterpret_cast<const unsigned char*>(table->columnData<int16_t>(colIdx).data());
-      return std::make_tuple(col_start, 2);
-    case nanoaod::FlatTable::ColumnType::UInt16:
-      col_start = reinterpret_cast<const unsigned char*>(table->columnData<uint16_t>(colIdx).data());
-      return std::make_tuple(col_start, 2);
-    case nanoaod::FlatTable::ColumnType::Int32:
-      col_start = reinterpret_cast<const unsigned char*>(table->columnData<int32_t>(colIdx).data());
-      return std::make_tuple(col_start, 4);
-    case nanoaod::FlatTable::ColumnType::UInt32:
-      col_start = reinterpret_cast<const unsigned char*>(table->columnData<uint32_t>(colIdx).data());
-      return std::make_tuple(col_start, 4);
-    case nanoaod::FlatTable::ColumnType::Int64:
-      col_start = reinterpret_cast<const unsigned char*>(table->columnData<int64_t>(colIdx).data());
-      return std::make_tuple(col_start, 8);
-    case nanoaod::FlatTable::ColumnType::UInt64:
-      col_start = reinterpret_cast<const unsigned char*>(table->columnData<uint64_t>(colIdx).data());
-      return std::make_tuple(col_start, 8);
-    case nanoaod::FlatTable::ColumnType::Bool:
-      col_start = reinterpret_cast<const unsigned char*>(table->columnData<bool>(colIdx).data());
-      return std::make_tuple(col_start, 1);
-    case nanoaod::FlatTable::ColumnType::Float:
-      col_start = reinterpret_cast<const unsigned char*>(table->columnData<float>(colIdx).data());
-      return std::make_tuple(col_start, 4);
-    case nanoaod::FlatTable::ColumnType::Double:
-      col_start = reinterpret_cast<const unsigned char*>(table->columnData<double>(colIdx).data());
-      return std::make_tuple(col_start, 8);
-    default:
-      throw cms::Exception("LogicError", "Unsupported type");
+  // Where a column's values start in the FlatTable, and how wide one value is.
+  std::tuple<const unsigned char*, unsigned int> getColStartAndTypeSize(const nanoaod::FlatTable& table,
+                                                                        unsigned int colIdx) {
+    return dispatchColumnType(table.columnType(colIdx), [&](auto tag) {
+      using ColumnT = typename decltype(tag)::type;
+      auto column = table.columnData<ColumnT>(colIdx);
+      return std::make_tuple(reinterpret_cast<const unsigned char*>(column.data()),
+                             static_cast<unsigned int>(sizeof(nanoaod::FlatTable::ColumnStorageType<ColumnT>)));
+    });
   }
-}
+}  // anonymous namespace
 
 RNTupleCollection::RNTupleCollection(const std::string& name,
                                      const std::string& desc,
                                      std::vector<edm::Handle<nanoaod::FlatTable>>& tables,
-                                     RNTupleModel& model)
-    : m_name(name) {
+                                     RNTupleModel& model,
+                                     bool singleton)
+    : m_name(name), m_singleton(singleton) {
   std::vector<std::unique_ptr<RFieldBase>> subfields;
   for (auto& table : tables) {
     for (unsigned int i = 0; i < table->nColumns(); i++) {
-      std::string type = flatTableColumnTypeToString(table->columnType(i));
-      auto field = RFieldBase::Create(table->columnName(i), type).Unwrap();
+      auto field = RFieldBase::Create(table->columnName(i), columnTypeName(table->columnType(i))).Unwrap();
       field->SetDescription(table->columnDoc(i));
       subfields.push_back(std::move(field));
     }
   }
-  auto record_field = std::make_unique<RRecordField>("_0", std::move(subfields));
+  // A singleton's record is the top-level field itself and takes the collection name; the record
+  // inside a vector is an item field, which RNTuple names "_0" by convention.
+  auto record_field = std::make_unique<RRecordField>(m_singleton ? name : "_0", std::move(subfields));
   m_record_size = record_field->GetValueSize();
   m_record_offsets = record_field->GetOffsets();
+  if (m_singleton) {
+    record_field->SetDescription(desc);
+    model.AddField(std::move(record_field));
+    return;
+  }
   auto collection_field = RVectorField::CreateUntyped(name, std::move(record_field));
   collection_field->SetDescription(desc);
   model.AddField(std::move(collection_field));
 }
 
-void RNTupleCollection::bindBuffer(RNTupleModel& model) {
-  auto& default_entry = model.GetDefaultEntry();
-  default_entry.BindRawPtr<void>(m_name, &m_buffer);
+void RNTupleCollection::addProjections(RNTupleModel& model) const { rntupleprojection::addForField(model, m_name); }
+
+void RNTupleCollection::bindBuffer(REntry& entry) {
+  if (m_singleton) {
+    // A record's value is the memory holding it, so the entry gets the buffer's contents; a vector
+    // field's value is the std::vector itself, so it gets the buffer object. Sizing the record
+    // buffer here, once, is what keeps the bound address valid: fill() must never reallocate it.
+    m_buffer.resize(m_record_size);
+    entry.BindRawPtr<void>(m_name, m_buffer.data());
+    return;
+  }
+  entry.BindRawPtr<void>(m_name, &m_buffer);
 }
 
 void RNTupleCollection::fill(std::vector<edm::Handle<nanoaod::FlatTable>>& tables) {
   unsigned int col_idx = 0;
   size_t col_size = tables.empty() ? 0 : tables[0]->size();
 
-  m_buffer.resize(m_record_size * col_size);
+  if (m_singleton) {
+    // One row, always: the field has no place to put a second and no way to say there was none.
+    if (col_size != 1) {
+      throw cms::Exception("LogicError",
+                           "Singleton table " + m_name + " has " + std::to_string(col_size) + " rows, expected 1");
+    }
+  } else {
+    m_buffer.resize(m_record_size * col_size);
+  }
 
   for (auto& table : tables) {
     if (table->size() != col_size) {
@@ -115,7 +95,7 @@ void RNTupleCollection::fill(std::vector<edm::Handle<nanoaod::FlatTable>>& table
                            "Mismatch in number of entries between extension and main table for " + m_name);
     }
     for (unsigned int i = 0; i < table->nColumns(); i++) {
-      auto [col_start, type_size] = getColStartAndTypeSize(table, i);
+      auto [col_start, type_size] = getColStartAndTypeSize(*table, i);
       size_t col_offset = m_record_offsets[col_idx];
 
       for (unsigned int j = 0; j < col_size; j++) {
