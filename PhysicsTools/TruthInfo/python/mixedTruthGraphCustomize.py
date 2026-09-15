@@ -155,7 +155,8 @@ def buildCompactTruthAtDigi(process, includeTrackingHits=True):
         recHitMap=cms.InputTag(""),   # UNRESOLVED: association is by DetId
         subdetectors=cms.vstring(*subdetectors),
         # See truthGraphMixedDigi_cff: the inner tracker is keyed by (module, cell).
-        trackerDigiSimLinks=cms.VInputTag(cms.InputTag("simSiPixelDigis", "Pixel")),
+        trackerDigiSimLinks=cms.VInputTag(cms.InputTag("simSiPixelDigis", "Pixel"),
+                                          cms.InputTag("simSiPixelDigis", "Tracker")),
         simHitCollections=caloSimHits,
         trackerSimHitCollections=trackerSimHits,
         muonSimHitCollections=muonSimHits,

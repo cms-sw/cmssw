@@ -91,7 +91,8 @@ truthLogicalGraphHitIndexProducer = _truthLogicalGraphHitIndexProducer.clone(
     # module, so without the cell two particles crossing one module share every hit
     # they leave there. The links are the digitizer's own record of which cell each
     # particle fired.
-    trackerDigiSimLinks=cms.VInputTag(cms.InputTag("simSiPixelDigis", "Pixel")),
+    trackerDigiSimLinks=cms.VInputTag(cms.InputTag("simSiPixelDigis", "Pixel"),
+                                      cms.InputTag("simSiPixelDigis", "Tracker")),
     simHitCollections=cms.VInputTag(
         cms.InputTag("mix", "mergedHGCHits"),
         cms.InputTag("mix", "mergedEcalHits"),
