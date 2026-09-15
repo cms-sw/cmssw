@@ -12,16 +12,11 @@ from Configuration.ProcessModifiers.unifiedparticleTransformerAK4SonicTriton_cff
 pfUnifiedParticleTransformerAK4JetTags = _pfUnifiedParticleTransformerAK4JetTags.clone()
 
 unifiedparticleTransformerAK4SonicTriton.toReplaceWith(pfUnifiedParticleTransformerAK4JetTags, _pfUnifiedParticleTransformerAK4SonicJetTags.clone(
-    Client = cms.PSet(
+    Client = dict(
         timeout = cms.untracked.uint32(500),
-        mode = cms.string("Async"),
         modelName = cms.string("unifiedparticletransformer_AK4_V01"),
         modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/unifiedparticletransformer_AK4_V01/config.pbtxt"),
         modelVersion = cms.string(""),
-        verbose = cms.untracked.bool(True),
-        allowedTries = cms.untracked.uint32(0),
-        useSharedMemory = cms.untracked.bool(True),
-        compression = cms.untracked.string(""),
     ),
     flav_names = pfUnifiedParticleTransformerAK4JetTags.flav_names,
 ))

@@ -3,9 +3,25 @@
 <test name="TestHeterogeneousCoreSonicTritonVersionCheck" command="cmsTritonConfigTool versioncheck">
   <use name="cmsswdata"/>
 </test>
-<library file="*.cc" name="testHeterogenousCoreSonicTriton">
+<library file="TritonGraphModules.cc, TritonIdentityProducer.cc, TritonImageProducer.cc, DynamicModelLoadingProducer.cc" name="testHeterogenousCoreSonicTriton">
   <flags EDM_PLUGIN="1"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Framework"/>
+  <use name="FWCore/ServiceRegistry"/>
   <use name="HeterogeneousCore/SonicTriton"/>
+  <use name="DataFormats/TestObjects"/>
 </library>
+
+<bin file="test_RetryActionDiffServer.cc" name="TestHeterogeneousCoreSonicTritonRetryActionDiffServer">
+  <use name="catch2"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="HeterogeneousCore/SonicTriton"/>
+</bin>
+
+<test name="TestHeterogeneousCoreSonicTritonRetryActionSame" command="retry_action_same.sh ${LOCALTOP}"/>
+<test name="TestHeterogeneousCoreSonicTritonRetryActionDiff" command="retry_action_diff.sh ${LOCALTOP}"/>
+
+<test name="TestHeterogeneousCoreSonicTritonDynamicModelLoadingSingleThread" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/tritonTest_cfg.py --modules DynamicModelLoadingProducer --maxEvents 5 --loadUnloadCycles 3 --unittest --device cpu"/>
+<test name="TestHeterogeneousCoreSonicTritonDynamicModelLoadingConcurrent" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/tritonTest_cfg.py --modules DynamicModelLoadingProducer --maxEvents 10 --loadUnloadCycles 5 --threads 10 --streams 10 --testConcurrency --unittest --device cpu"/>
+
