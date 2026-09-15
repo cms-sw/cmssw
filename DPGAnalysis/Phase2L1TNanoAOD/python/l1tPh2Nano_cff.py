@@ -15,10 +15,9 @@ from DPGAnalysis.Phase2L1TNanoAOD.l1tPh2Nanotables_cff import *
 def addPh2L1Objects(process):
     process.l1tPh2NanoTask.add(p2L1TablesTask)
 
-    # This modifier excludes the hpsTauTable, which is based on the l1tHPSPFTauProducerPuppi collection, no longer available in the L1 menu.
-    # This allows to run the NANOAOD production from L1 and HLT steps, whitout requiring old inputs from the Spring24 datasets.
-    from Configuration.ProcessModifiers.nano_l1_hlt_cff import nano_l1_hlt
-    nano_l1_hlt.toReplaceWith(p2L1TablesTask, p2L1TablesTask.copyAndExclude([hpsTauTable]))
+    # NOTE: the hpsTauTable used to be excluded here under the nano_l1_hlt modifier.
+    # It is now simply not part of p2L1TablesTask, so no modifier is needed and every
+    # workflow -- not just the L1+HLT one -- can run this task.
 
     return process
 
