@@ -1155,6 +1155,11 @@ upgradeWFs['mlpf'].step3 = {
     '--procModifiers': 'mlpf'
 }
 
+upgradeWFs['mlpfSonicTriton'] = deepcopy(upgradeWFs['mlpf'])
+upgradeWFs['mlpfSonicTriton'].suffix = '_mlpfSonicTriton'
+upgradeWFs['mlpfSonicTriton'].offset = 0.1301
+upgradeWFs['mlpfSonicTriton'].step3['--procModifiers'] = 'enableSonicTriton,MLPFSonicTriton'
+
 
 # ECAL DeepSC clustering studies workflow
 class UpgradeWorkflow_ecalclustering(UpgradeWorkflow):
