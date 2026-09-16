@@ -94,6 +94,6 @@ for year in upgradeKeys:
                 if notForGenOnly(key,specialType):
                     continue
                 if specialType=="PMXS1":
-                    stepList[specialType] = stepList[specialType][:1]
+                    stepList[specialType] = stepList[specialType][:2]
                 specialWF.workflow(workflows, numWF, info.dataset, stepList[specialType], key, hasHarvest)
             numWF+=1
