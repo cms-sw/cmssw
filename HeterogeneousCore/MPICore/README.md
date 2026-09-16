@@ -90,7 +90,7 @@ An automated test is available in the `test/` directory.
 ## Automatic configuration splitter
 
 In order to use MPI functionality in CMSSW, you need to create special configurations with MPI modules performing the 
-communication. Therefore we provide ```edmMpiSplitConfig.py``` script which allows to split any given
+communication. Therefore we provide ```edmMpiSplitConfig``` script which allows to split any given
 python process configuration into 2 parts: local and remote.
 
 The tool takes modules to offload as a command line parameter and analyzes data dependencies between CMSSW modules.
@@ -103,7 +103,7 @@ between processes unless the producing module is explicitly marked as shared.
 The example command to offload GPU component of ECAL, HCAL and Pixels would be following:
 
 ```
-python3 edmMpiSplitConfig.py hlt.py --remote-modules hltEcalDigisSoA hltEcalUncalibRecHitSoA \
+edmMpiSplitConfig hlt.py --remote-modules hltEcalDigisSoA hltEcalUncalibRecHitSoA \
         hltHcalDigisSoA hltHbheRecoSoA hltParticleFlowRecHitHBHESoA hltParticleFlowClusterHBHESoA \
         hltSiPixelClustersSoA hltSiPixelRecHitsSoA hltPixelTracksSoA hltPixelVerticesSoA \
         --duplicate-modules hltHcalDigis hltOnlineBeamSpot   hltOnlineBeamSpotDevice \
@@ -111,7 +111,7 @@ python3 edmMpiSplitConfig.py hlt.py --remote-modules hltEcalDigisSoA hltEcalUnca
         --output-remote remote_pixels.py
 ```
 
-For more information about input parameters of the script you could run ```edmMpiSplitConfig.py -h```.
+For more information about input parameters of the script you could run ```edmMpiSplitConfig -h```.
 
 
 ## Current limitations
