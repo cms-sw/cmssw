@@ -36,17 +36,17 @@ public:
   /// Set position of the merged cluster
   void setSimPos(const LocalPoint& pos) { simMC_pos_ = pos; }
 
-  /// detId of earliest cluster
-  DetId simDetId() const;
-
   /// Energy of mergedcluster
   float simEnergy() const;
 
+  /// Retrieve the stored geographic module DetId
+  DetId simDetId() const { return simMC_detId_; }
+
+  /// Set the geographic module DetId
+  void setSimDetId(const DetId& id) { simMC_detId_ = id; }
+
   /// Retrieve list of all DetIds from clusters
   std::vector<DetId> detIds() const;
-
-  //unique ids, computed in the same way as in FTLMergedCluster, for all hits in the merged cluster
-  std::vector<uint64_t> hitUniqueIds() const;
 
   /// Retrieve list of times and positions of all sim hits in the clusters
   std::vector<std::pair<float, LocalPoint>> hitTimesAndPositions() const;
@@ -54,6 +54,8 @@ public:
   /// Retrieve cluster production type
   /// if primary is present, use that
   unsigned int hitProdType() const;
+
+  unsigned int seedHitProdType() const;
 
   /// Accessors
   const MtdSimLayerClusterRefVector& clusters() const { return clusters_; }
@@ -65,6 +67,7 @@ private:
   TrackingParticleRefVector trackingParticles_;
   TrackingParticleRef mainTrack_;
   LocalPoint simMC_pos_ = LocalPoint(0.f, 0.f, 0.f);
+  DetId simMC_detId_ = DetId(0);
 };
 
 #endif

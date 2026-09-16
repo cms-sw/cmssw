@@ -1,5 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+# --- Edit the reco MergedCluster producer to save the constituents of the merged clusters (needed for validation)
+from RecoLocalFastTime.FTLClusterizer.mtdMergedClusters_cfi import mtdMergedClusters
+mtdMergedClusters.saveMergedClusterConstituents = True
+
 
 from SimFastTiming.MtdSimMergedClusterProducers.mtdSimMergedClusterProducer_cfi import mtdSimMergedClusterProducer
 

@@ -22,114 +22,81 @@ MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl::MtdRecoMergedCluster
 reco::MergedRecoToSimCollectionMtd MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl::associateRecoToSim(
     const edm::Handle<FTLMergedClusterCollection>& btlRecoClusH,
     const edm::Handle<FTLMergedClusterCollection>& etlRecoClusH,
+    const edm::Handle<edmNew::DetSetVector<std::vector<FTLClusterRef>>>& btlConstituentsH,
+    const edm::Handle<edmNew::DetSetVector<std::vector<FTLClusterRef>>>& etlConstituentsH,
     const edm::Handle<MtdSimMergedClusterCollection>& simMergedClusH) const {
   MergedRecoToSimCollectionMtd outputCollection;
 
   // -- get collections
-  std::array<edm::Handle<FTLMergedClusterCollection>, 2> inputRecoMergedClusH{{btlRecoClusH, etlRecoClusH}};
-
+  std::array<
+      std::pair<edm::Handle<FTLMergedClusterCollection>, edm::Handle<edmNew::DetSetVector<std::vector<FTLClusterRef>>>>,
+      2>
+      inputRecoMergedClus{{{btlRecoClusH, btlConstituentsH}, {etlRecoClusH, etlConstituentsH}}};
   const auto& simMergedClusters = *simMergedClusH.product();
 
-  // make preliminary map: detId -> SimMergedClusterRef
-
-  std::map<uint32_t, std::vector<MtdSimMergedClusterRef>> simMergedClusIdsMap;
-  for (auto simClusIt = simMergedClusters.begin(); simClusIt != simMergedClusters.end(); simClusIt++) {
-    const auto& simClus = *simClusIt;
-
-    edm::Ref<MtdSimMergedClusterCollection> simClusterRef =
-        edm::Ref<MtdSimMergedClusterCollection>(simMergedClusH, simClusIt - simMergedClusters.begin());
-
-    std::vector<DetId> detIds = simClus.detIds();
-
-    for (const auto& detId : detIds) {
-      uint32_t modId = geomTools_.sensorModuleId(detId);
-      simMergedClusIdsMap[modId].push_back(simClusterRef);
-      LogDebug("MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl")
-          << "Considered SimMergedCluster detId = " << modId << std::endl;
+  // make preliminary map: simCluster => simMergedCluster
+  std::map<MtdSimLayerClusterRef, std::vector<MtdSimMergedClusterRef>> simClusToMergedMap;
+  for (const auto& simMergedClus : simMergedClusters) {
+    for (const auto& simClusRef : simMergedClus.clusters()) {
+      simClusToMergedMap[simClusRef].push_back(
+          MtdSimMergedClusterRef(simMergedClusH, &simMergedClus - &(*simMergedClusH->begin())));
     }
   }
 
   // loop over reco merged clusters
-  for (auto const& recoMergedClusH : inputRecoMergedClusH) {
+  for (auto const& [recoMergedClusH, constituentsH] : inputRecoMergedClus) {
+    if (!recoMergedClusH.isValid() || !constituentsH.isValid())
+      continue;
     for (const auto& detSet : *recoMergedClusH) {
+      auto constIt = constituentsH->find(detSet.id());
+      if (constIt == constituentsH->end()) {
+        edm::LogWarning("MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl")
+            << "Missing parallel constituent DetSet for DetId: " << detSet.id();
+        continue;
+      }
+      size_t clusterIndex = 0;
       for (const auto& recoMergedClus : detSet) {
         FTLMergedClusterRef recoMergedClusterRef = edmNew::makeRefTo(recoMergedClusH, &recoMergedClus);
         std::vector<MtdSimMergedClusterRef> simClusterRefs;
+        const auto& constituentRefs = (*constIt)[clusterIndex];
 
-        LogDebug("MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl")
-            << "RecoCluster: " << recoMergedClusterRef.key() << " with size=" << recoMergedClus.size();
-
-        LogDebug("MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl")
-            << "Reco cluster : " << recoMergedClus.id();
-
-        std::vector<uint64_t> recoMergedClusHitIds(recoMergedClus.size());
-        std::vector<DetId> recodetIds = recoMergedClus.clusterIds();
-        // -- loop over hits in the reco cluster and find their unique ids
-        for (size_t ihit = 0; ihit < recoMergedClus.size(); ++ihit) {
-          // -- Get an unique id from sensor module detId , row, column
-          uint64_t uniqueId = recoMergedClus.hUniqueId(ihit);
-          recoMergedClusHitIds[ihit] = uniqueId;
-
+        // iterate over component clusters
+        for (const auto& recoClusRef : constituentRefs) {
           LogDebug("MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl")
-              << "  reco mergedcluster hit uniqueId : " << uniqueId;
-        }
-        for (const auto& recodetId : recodetIds) {
-          uint32_t recoModId = geomTools_.sensorModuleId(recodetId);
-          for (const auto& simMergedClusterRef : simMergedClusIdsMap[recoModId]) {
-            const auto& simMergedClus = *simMergedClusterRef;
-            //std::vector<uint64_t> simMergedClusHitIds = simMergedClus.hitUniqueIds();
-            std::vector<uint64_t> simMergedClusHitIds;
-            for (const auto& simLayerClus : simMergedClus.clusters()) {
-              for (const auto& hit : simLayerClus->detIds_and_rows()) {
-                uint32_t modId = geomTools_.sensorModuleId(hit.first);
-
-                uint8_t rowcol = static_cast<uint8_t>((std::clamp(static_cast<int>(hit.second.first), 0, 15) << 4) |
-                                                      std::clamp(static_cast<int>(hit.second.second), 0, 15));
-
-                simMergedClusHitIds.push_back((static_cast<uint64_t>(modId) << 8) | static_cast<uint64_t>(rowcol));
-              }
+              << "    Component id=" << recoClusRef.id() << "    key=" << recoClusRef.key();
+          auto recoToSimIt = recoToSimMap_.equal_range(recoClusRef);
+          if (recoToSimIt.first == recoToSimIt.second) {
+            LogDebug("MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl")
+                << "    -> NOT FOUND in recoToSimMap)";
+            if (!recoToSimMap_.empty()) {
+              LogDebug("MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl")
+                  << "    -> First entry id = " << recoToSimMap_.begin()->first.id()
+                  << " key = " << recoToSimMap_.begin()->first.key();
             }
-
-            // Ensure the generated list is sorted for std::set_intersection
-            std::sort(simMergedClusHitIds.begin(), simMergedClusHitIds.end());
-            simMergedClusHitIds.erase(std::unique(simMergedClusHitIds.begin(), simMergedClusHitIds.end()),
-                                      simMergedClusHitIds.end());
-
-            // -- Get shared hits
-            std::vector<uint64_t> sharedHitIds;
-            std::sort(recoMergedClusHitIds.begin(), recoMergedClusHitIds.end());
-            std::sort(simMergedClusHitIds.begin(), simMergedClusHitIds.end());
-            std::set_intersection(recoMergedClusHitIds.begin(),
-                                  recoMergedClusHitIds.end(),
-                                  simMergedClusHitIds.begin(),
-                                  simMergedClusHitIds.end(),
-                                  std::back_inserter(sharedHitIds));
-
-            if (sharedHitIds.empty()) {
+            LogDebug("MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl")
+                << "  No sim clusters associated to this reco cluster";
+            continue;
+          }
+          const auto& simClusterCandidates = (*recoToSimIt.first).second;
+          for (const auto& simClusterRef : simClusterCandidates) {
+            // retrieve simMergedClusters associated to this simLayerCluster
+            auto const& simMergedClusters = simClusToMergedMap.find(simClusterRef);
+            if (simMergedClusters == simClusToMergedMap.end()) {
+              LogDebug("MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl")
+                  << "  No sim merged clusters associated to this sim layer cluster";
               continue;
             }
-
-            // -- If the sim and reco clusters have common hits, fill the std:vector of sim clusters refs
-            if (!sharedHitIds.empty()) {
+            for (const auto& simMergedClusterRef : simMergedClusters->second) {
               simClusterRefs.push_back(simMergedClusterRef);
-
-              LogDebug("MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl")
-                  << "RecoToSim --> Found " << sharedHitIds.size() << " shared hits";
-              LogDebug("MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl")
-                  << "E_recoClus = " << recoMergedClus.energy() << "   E_simClus = " << simMergedClus.simEnergy()
-                  << "   E_recoClus/E_simClus = " << recoMergedClus.energy() * 0.001 / simMergedClus.simEnergy();
-              LogDebug("MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl")
-                  << "(t_recoClus-t_simClus)/sigma_t = "
-                  << std::abs((recoMergedClus.time() - simMergedClus.simTime()) / recoMergedClus.timeError());
             }
-          }  //end loop over simclusters associated with this detId
-
-        }  //end loop over detIds in reco merged cluster
+          }
+        }
 
         // Fill output collection after removing simClusterRefs duplicates
         std::sort(simClusterRefs.begin(), simClusterRefs.end());
         simClusterRefs.erase(std::unique(simClusterRefs.begin(), simClusterRefs.end()), simClusterRefs.end());
         outputCollection.emplace_back(recoMergedClusterRef, simClusterRefs);
+        clusterIndex++;
       }
     }
   }  // end loop over reco merged clusters
@@ -141,102 +108,77 @@ reco::MergedRecoToSimCollectionMtd MtdRecoMergedClusterToSimMergedClusterAssocia
 reco::MergedSimToRecoCollectionMtd MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl::associateSimToReco(
     const edm::Handle<FTLMergedClusterCollection>& btlRecoClusH,
     const edm::Handle<FTLMergedClusterCollection>& etlRecoClusH,
+    const edm::Handle<edmNew::DetSetVector<std::vector<FTLClusterRef>>>& btlConstituentsH,
+    const edm::Handle<edmNew::DetSetVector<std::vector<FTLClusterRef>>>& etlConstituentsH,
     const edm::Handle<MtdSimMergedClusterCollection>& simMergedClusH) const {
   MergedSimToRecoCollectionMtd outputCollection;
 
   // -- get the collections
   const auto& simMergedClusters = *simMergedClusH.product();
-  std::array<edm::Handle<FTLMergedClusterCollection>, 2> inputRecoMergedClusH{{btlRecoClusH, etlRecoClusH}};
+  std::array<
+      std::pair<edm::Handle<FTLMergedClusterCollection>, edm::Handle<edmNew::DetSetVector<std::vector<FTLClusterRef>>>>,
+      2>
+      inputH{{{btlRecoClusH, btlConstituentsH}, {etlRecoClusH, etlConstituentsH}}};
+
+  // make preliminary map: recoCluster => recoMergedCluster
+  std::map<FTLClusterRef, std::vector<FTLMergedClusterRef>> recoClusToMergedMap;
+  for (const auto& [recoMergedClusH, constituentsH] : inputH) {
+    if (!recoMergedClusH.isValid() || !constituentsH.isValid())
+      continue;
+    for (const auto& detSet : *recoMergedClusH) {
+      auto constIt = constituentsH->find(detSet.id());
+      if (constIt == constituentsH->end())
+        continue;
+      size_t clusterIndex = 0;
+      for (const auto& recoMergedClus : detSet) {
+        FTLMergedClusterRef recoMergedClusterRef = edmNew::makeRefTo(recoMergedClusH, &recoMergedClus);
+        const auto& constituentRefs = (*constIt)[clusterIndex];
+        for (const auto& recoClusRef : constituentRefs) {
+          recoClusToMergedMap[recoClusRef].push_back(recoMergedClusterRef);
+        }
+        clusterIndex++;
+      }
+    }
+  }
 
   // -- loop over MtdSimMergedClusters
   for (auto simMergedClusIt = simMergedClusters.begin(); simMergedClusIt != simMergedClusters.end();
        simMergedClusIt++) {
     const auto& simMergedClus = *simMergedClusIt;
 
-    std::vector<uint64_t> simMergedClusHitIds;
-    for (const auto& simLayerClus : simMergedClus.clusters()) {
-      for (const auto& hit : simLayerClus->detIds_and_rows()) {
-        uint32_t modId = geomTools_.sensorModuleId(hit.first);
+    // query the simToReco map and retrieve list of reco clusters
+    auto const& simMergedClusterRef =
+        edm::Ref<MtdSimMergedClusterCollection>(simMergedClusH, &simMergedClus - &(*simMergedClusters.begin()));
+    std::vector<FTLMergedClusterRef> recoMergedClusterRefs;
 
-        uint8_t rowcol = static_cast<uint8_t>((std::clamp(static_cast<int>(hit.second.first), 0, 15) << 4) |
-                                              std::clamp(static_cast<int>(hit.second.second), 0, 15));
+    // iterate over component clusters
+    for (const auto& simClusterRef : simMergedClus.clusters()) {
+      auto simToRecoIt = simToRecoMap_.equal_range(simClusterRef);
+      if (simToRecoIt.first != simToRecoIt.second) {
+        const auto& recoRefs = (*simToRecoIt.first).second;
+        for (const auto& recoRef : recoRefs) {
+          // retrieve recoMergedClusters associated to this recoCluster
+          auto const& recoMergedClusters = recoClusToMergedMap.find(recoRef);
 
-        simMergedClusHitIds.push_back((static_cast<uint64_t>(modId) << 8) | static_cast<uint64_t>(rowcol));
-      }
-    }
+          if (recoMergedClusters == recoClusToMergedMap.end()) {
+            continue;
+          }
 
-    // Ensure the generated list is sorted for std::set_intersection
-    std::sort(simMergedClusHitIds.begin(), simMergedClusHitIds.end());
-    simMergedClusHitIds.erase(std::unique(simMergedClusHitIds.begin(), simMergedClusHitIds.end()),
-                              simMergedClusHitIds.end());
-
-    std::vector<DetId> simMergedClusDetIds = simMergedClus.detIds();
-    for (size_t i = 0; i < simMergedClusDetIds.size(); ++i) {
-      simMergedClusDetIds[i] = geomTools_.sensorModuleId(simMergedClusDetIds[i]);
-    }
-    std::vector<FTLMergedClusterRef> matchedRecoMergedClusterRefs;
-    // loop over reco merged clusters
-    for (auto const& recoMergedClusH : inputRecoMergedClusH) {
-      for (const auto& detSet : *recoMergedClusH) {
-        for (const auto& recoMergedClus : detSet) {
-          FTLMergedClusterRef recoMergedClusterRef = edmNew::makeRefTo(recoMergedClusH, &recoMergedClus);
-          std::vector<DetId> recodetIds = recoMergedClus.clusterIds();
-          std::vector<DetId> shareddetIds;
-          std::sort(simMergedClusDetIds.begin(), simMergedClusDetIds.end());
-          std::sort(recodetIds.begin(), recodetIds.end());
-          std::set_intersection(simMergedClusDetIds.begin(),
-                                simMergedClusDetIds.end(),
-                                recodetIds.begin(),
-                                recodetIds.end(),
-                                std::back_inserter(shareddetIds));
-          if (shareddetIds.empty())
-            continue;  //no shared detIds between sim and reco merged clusters, skip to next reco merged cluster
-          else {
-            //comput the unique ids of the hits in the reco merged cluster
-            std::vector<uint64_t> recoMergedClusHitIds(recoMergedClus.size());
-            for (size_t ihit = 0; ihit < recoMergedClus.size(); ++ihit) {
-              uint64_t uniqueId = recoMergedClus.hUniqueId(ihit);
-              recoMergedClusHitIds[ihit] = uniqueId;
-            }
-
-            std::vector<uint64_t> sharedHitIds;
-            std::sort(simMergedClusHitIds.begin(), simMergedClusHitIds.end());
-            std::sort(recoMergedClusHitIds.begin(), recoMergedClusHitIds.end());
-
-            std::set_intersection(simMergedClusHitIds.begin(),
-                                  simMergedClusHitIds.end(),
-                                  recoMergedClusHitIds.begin(),
-                                  recoMergedClusHitIds.end(),
-                                  std::back_inserter(sharedHitIds));
-            //if no shared hits between sim and reco merged clusters, skip to next reco merged cluster
-            if (sharedHitIds.empty())
-              continue;
-            else {  //if there is an intersection, add the reco merged cluster ref to the vector of matched reco merged clusters
-              matchedRecoMergedClusterRefs.push_back(recoMergedClusterRef);
-              LogDebug("MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl")
-                  << "SimToReco --> Found " << sharedHitIds.size() << " shared hits";
-              LogDebug("MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl")
-                  << "E_recoClus = " << recoMergedClus.energy() << "   E_simClus = " << simMergedClus.simEnergy()
-                  << "   E_recoClus/E_simClus = " << recoMergedClus.energy() * 0.001 / simMergedClus.simEnergy();
-              LogDebug("MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl")
-                  << "(t_recoClus-t_simClus)/sigma_t = "
-                  << std::abs((recoMergedClus.time() - simMergedClus.simTime()) / recoMergedClus.timeError());
-            }
+          for (const auto& recoMergedClusterRef : recoMergedClusters->second) {
+            LogDebug("MtdRecoMergedClusterToSimMergedClusterAssociatorByHitsImpl")
+                << "  Found associated reco merged cluster: " << recoMergedClusterRef.key();
+            recoMergedClusterRefs.push_back(recoMergedClusterRef);
           }
         }
       }
-    }  //end loop over reco merged clusters
+    }
 
     // Remove duplicates from recoMergedClusterRefs
-    std::sort(matchedRecoMergedClusterRefs.begin(), matchedRecoMergedClusterRefs.end());
-    matchedRecoMergedClusterRefs.erase(
-        std::unique(matchedRecoMergedClusterRefs.begin(), matchedRecoMergedClusterRefs.end()),
-        matchedRecoMergedClusterRefs.end());
+    std::sort(recoMergedClusterRefs.begin(), recoMergedClusterRefs.end());
+    recoMergedClusterRefs.erase(std::unique(recoMergedClusterRefs.begin(), recoMergedClusterRefs.end()),
+                                recoMergedClusterRefs.end());
 
-    edm::Ref<MtdSimMergedClusterCollection> simMergedClusterRef =
-        edm::Ref<MtdSimMergedClusterCollection>(simMergedClusH, simMergedClusIt - simMergedClusters.begin());
-
-    outputCollection.emplace_back(simMergedClusterRef, matchedRecoMergedClusterRefs);
+    outputCollection.emplace_back(simMergedClusterRef, recoMergedClusterRefs);
 
   }  // -- end loop over sim merged clusters
 

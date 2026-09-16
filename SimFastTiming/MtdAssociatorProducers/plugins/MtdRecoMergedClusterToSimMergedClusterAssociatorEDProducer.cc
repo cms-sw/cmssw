@@ -31,8 +31,9 @@ private:
 
   edm::EDGetTokenT<FTLMergedClusterCollection> btlRecoClustersToken_;
   edm::EDGetTokenT<FTLMergedClusterCollection> etlRecoClustersToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<std::vector<FTLClusterRef>>> btlConstituentsToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<std::vector<FTLClusterRef>>> etlConstituentsToken_;
   edm::EDGetTokenT<MtdSimMergedClusterCollection> simMergedClustersToken_;
-
   edm::EDGetTokenT<reco::MtdRecoMergedClusterToSimMergedClusterAssociator> associatorToken_;
 };
 
@@ -43,6 +44,10 @@ MtdRecoMergedClusterToSimMergedClusterAssociatorEDProducer::MtdRecoMergedCluster
 
   btlRecoClustersToken_ = consumes<FTLMergedClusterCollection>(pset.getParameter<edm::InputTag>("btlRecoClustersTag"));
   etlRecoClustersToken_ = consumes<FTLMergedClusterCollection>(pset.getParameter<edm::InputTag>("etlRecoClustersTag"));
+  btlConstituentsToken_ = consumes<edmNew::DetSetVector<std::vector<FTLClusterRef>>>(
+      pset.getParameter<edm::InputTag>("btlConstituentsTag"));
+  etlConstituentsToken_ = consumes<edmNew::DetSetVector<std::vector<FTLClusterRef>>>(
+      pset.getParameter<edm::InputTag>("etlConstituentsTag"));
   simMergedClustersToken_ =
       consumes<MtdSimMergedClusterCollection>(pset.getParameter<edm::InputTag>("mtdSimMergedClustersTag"));
   associatorToken_ =
@@ -74,11 +79,17 @@ void MtdRecoMergedClusterToSimMergedClusterAssociatorEDProducer::produce(edm::St
   edm::Handle<MtdSimMergedClusterCollection> simMergedClusters;
   iEvent.getByToken(simMergedClustersToken_, simMergedClusters);
 
+  edm::Handle<edmNew::DetSetVector<std::vector<FTLClusterRef>>> btlConstituentsMapH;
+  iEvent.getByToken(btlConstituentsToken_, btlConstituentsMapH);
+
+  edm::Handle<edmNew::DetSetVector<std::vector<FTLClusterRef>>> etlConstituentsMapH;
+  iEvent.getByToken(etlConstituentsToken_, etlConstituentsMapH);
+
   // associate reco clus to sim merged clus
-  reco::MergedRecoToSimCollectionMtd recoToSimColl =
-      theAssociator->associateRecoToSim(btlRecoClusters, etlRecoClusters, simMergedClusters);
-  reco::MergedSimToRecoCollectionMtd simToRecoColl =
-      theAssociator->associateSimToReco(btlRecoClusters, etlRecoClusters, simMergedClusters);
+  reco::MergedRecoToSimCollectionMtd recoToSimColl = theAssociator->associateRecoToSim(
+      btlRecoClusters, etlRecoClusters, btlConstituentsMapH, etlConstituentsMapH, simMergedClusters);
+  reco::MergedSimToRecoCollectionMtd simToRecoColl = theAssociator->associateSimToReco(
+      btlRecoClusters, etlRecoClusters, btlConstituentsMapH, etlConstituentsMapH, simMergedClusters);
 
   auto r2s = std::make_unique<reco::MergedRecoToSimCollectionMtd>(recoToSimColl);
   auto s2r = std::make_unique<reco::MergedSimToRecoCollectionMtd>(simToRecoColl);
@@ -93,6 +104,8 @@ void MtdRecoMergedClusterToSimMergedClusterAssociatorEDProducer::fillDescription
   desc.add<edm::InputTag>("mtdSimMergedClustersTag", edm::InputTag("mtdSimMergedClusterProducer", ""));
   desc.add<edm::InputTag>("btlRecoClustersTag", edm::InputTag("mtdMergedClusters", "FTLBarrel"));
   desc.add<edm::InputTag>("etlRecoClustersTag", edm::InputTag("mtdMergedClusters", "FTLEndcap"));
+  desc.add<edm::InputTag>("etlConstituentsTag", edm::InputTag("mtdMergedClusters", "FTLEndcapConstituents"));
+  desc.add<edm::InputTag>("btlConstituentsTag", edm::InputTag("mtdMergedClusters", "FTLBarrelConstituents"));
 
   cfg.add("mtdRecoMergedClusterToSimMergedClusterAssociationDefault", desc);
 }

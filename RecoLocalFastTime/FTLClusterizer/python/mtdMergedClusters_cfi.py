@@ -5,6 +5,7 @@ mtdMergedClusters = cms.EDProducer("MTDMergedClusterProducer",
     etlEndcap = cms.InputTag("mtdClusters", "FTLEndcap"),
     timeThreshold = cms.double(10.0),
     energyThreshold = cms.double(0.0),
+    saveMergedClusterConstituents = cms.bool(False),
     btlMergedClusterInstance = cms.string("FTLBarrel"),
     etlMergedClusterInstance = cms.string("FTLEndcap")
 )
