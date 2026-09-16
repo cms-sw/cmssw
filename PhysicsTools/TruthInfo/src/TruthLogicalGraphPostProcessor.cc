@@ -359,6 +359,18 @@ namespace {
       oldParticleToNew[oldParticle] = static_cast<int32_t>(newParticle);
     }
 
+    // A status flag describes the particle, not the copy, so the flags of the collapsed
+    // copies travel to the survivor. isHardProcess sits on the first copy of a
+    // hard-scatter leg and the chain collapses to the last one: without this, a leg that
+    // radiates leaves the hardProcess level, and partonJets with it.
+    for (uint32_t oldParticle = 0; oldParticle < nParticles; ++oldParticle) {
+      const int32_t newParticle = oldParticleToNew[oldParticle];
+      if (newParticle < 0)
+        continue;
+
+      output.particles()[newParticle].statusFlags |= input.particles()[oldParticle].statusFlags;
+    }
+
     std::vector<uint8_t> keepVertex(nVertices, 0);
 
     for (uint32_t oldVertex = 0; oldVertex < nVertices; ++oldVertex) {
