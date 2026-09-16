@@ -21,10 +21,14 @@
 //        record. A selection preset seeded on a resonance pdgId needs this: the
 //        collapsed form has stable particles only and nothing to seed on.
 //
-//   collapseGenShower (default true): applies to the full chain above. The parton
+//   collapseGenShower (default true): applies to the pile-up interactions. The parton
 //        shower and the intermediate copies of a resonance are contracted away,
 //        keeping ancestry, so a resonance that appears several times is one node whose
 //        children are its decay products. See truth::collapseGenShower.
+//
+//   collapseGenShowerSignal (default false): the same for the main event, which keeps
+//        its shower: those partons are what feeds the hard-scatter strings from the beam
+//        side, and the BeamSideInput vertex points at them.
 //
 //   pileupBunchCrossings (default {0} = in-time pileup only): which bunch crossings
 //        to include for pileup.
@@ -229,6 +233,7 @@ private:
   const bool collapsePileupGen_;
   const bool collapseSignalGen_;
   const bool collapseGenShower_;
+  const bool collapseGenShowerSignal_;
   const bool computeCellEnergyBudget_;
 
   int pileupCount_ = 0;
@@ -309,6 +314,8 @@ TruthGraphAccumulator::TruthGraphAccumulator(edm::ParameterSet const& cfg,
       collapsePileupGen_(cfg.getParameter<bool>("collapsePileupGen")),
       collapseSignalGen_(cfg.getParameter<bool>("collapseSignalGen")),
       collapseGenShower_(cfg.getParameter<bool>("collapseGenShower")),
+      collapseGenShowerSignal_(
+          cfg.existsAs<bool>("collapseGenShowerSignal") ? cfg.getParameter<bool>("collapseGenShowerSignal") : false),
       computeCellEnergyBudget_(
           cfg.existsAs<bool>("computeCellEnergyBudget") ? cfg.getParameter<bool>("computeCellEnergyBudget") : false) {
   producesCollector.produces<TruthGraph>();
@@ -660,7 +667,7 @@ void TruthGraphAccumulator::accumulate(edm::Event const& event, edm::EventSetup 
   if (collapseSignalGen_)
     stableGen = readStableGen(event, hepmc3Tag_, hepmc2Tag_);
   else
-    fullGen = readFullGen(event, hepmc3Tag_, hepmc2Tag_, collapseGenShower_, *tracks, degradedCollapseWarned_);
+    fullGen = readFullGen(event, hepmc3Tag_, hepmc2Tag_, collapseGenShowerSignal_, *tracks, degradedCollapseWarned_);
   const EncodedEventId sigEid(0, 0);
   addSubEvent(stableGen, &fullGen, *tracks, *vertices, sigEid, 0);
   addSubEventHits(event, sigEid);
