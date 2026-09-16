@@ -236,7 +236,8 @@ class LevelFlags_t : public CppUnit::TestFixture {
   CPPUNIT_TEST(testPartonJetsKeepTheQuarksNotTheTopOrTheBeam);
   CPPUNIT_TEST(testPartonJetsExcludeLeptons);
   CPPUNIT_TEST(testHeavyFlavourKeepsTheWeaklyDecayingHadron);
-  CPPUNIT_TEST(testVisibleTauIsTheLastHadronicCopy);
+  CPPUNIT_TEST(testTauVisibleHadronicIsTheLastHadronicCopy);
+  CPPUNIT_TEST(testTauVisibleLeptonicIsTheLeptonicTau);
   CPPUNIT_TEST(testReconstructableFinalStateNeedsNoSignal);
   CPPUNIT_TEST(testBeautyAndCharmAreSeparateLevels);
   CPPUNIT_TEST(testEmptyGraphStampsNothing);
@@ -813,15 +814,30 @@ public:
   // REQUIRED: one entry per physical hadronically decaying tau. The last copy of a
   // radiative chain is the member; the radiating copy and a leptonically decaying tau
   // are not.
-  void testVisibleTauIsTheLastHadronicCopy() {
+  void testTauVisibleHadronicIsTheLastHadronicCopy() {
     truth::Graph g = buildTausAndPi0();
-    const auto taus = truth::levelAntichain(g, truth::Level::VisibleTau);
+    const auto taus = truth::levelAntichain(g, truth::Level::TauVisibleHadronic);
     CPPUNIT_ASSERT_EQUAL(std::size_t{1}, taus.size());
     CPPUNIT_ASSERT_EQUAL(uint32_t{1}, taus[0]);
     truth::fillLevelFlags(g);
-    CPPUNIT_ASSERT(g.particles()[1].isAtLevel(truth::LevelFlag::VisibleTau));
-    CPPUNIT_ASSERT(!g.particles()[0].isAtLevel(truth::LevelFlag::VisibleTau));
-    CPPUNIT_ASSERT(!g.particles()[5].isAtLevel(truth::LevelFlag::VisibleTau));
+    CPPUNIT_ASSERT(g.particles()[1].isAtLevel(truth::LevelFlag::TauVisibleHadronic));
+    CPPUNIT_ASSERT(!g.particles()[0].isAtLevel(truth::LevelFlag::TauVisibleHadronic));
+    CPPUNIT_ASSERT(!g.particles()[5].isAtLevel(truth::LevelFlag::TauVisibleHadronic));
+  }
+
+  // REQUIRED: one entry per physical tau that decays to an electron or a muon. The
+  // hadronic tau and the radiating copy are not members, so the two tau levels never
+  // hold the same particle.
+  void testTauVisibleLeptonicIsTheLeptonicTau() {
+    truth::Graph g = buildTausAndPi0();
+    const auto taus = truth::levelAntichain(g, truth::Level::TauVisibleLeptonic);
+    CPPUNIT_ASSERT_EQUAL(std::size_t{1}, taus.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t{5}, taus[0]);
+    truth::fillLevelFlags(g);
+    CPPUNIT_ASSERT(g.particles()[5].isAtLevel(truth::LevelFlag::TauVisibleLeptonic));
+    CPPUNIT_ASSERT(!g.particles()[5].isAtLevel(truth::LevelFlag::TauVisibleHadronic));
+    CPPUNIT_ASSERT(!g.particles()[1].isAtLevel(truth::LevelFlag::TauVisibleLeptonic));
+    CPPUNIT_ASSERT(!g.particles()[0].isAtLevel(truth::LevelFlag::TauVisibleLeptonic));
   }
 
   // REQUIRED: the event-wide reconstructable final state exists WITHOUT a Signal flag,
