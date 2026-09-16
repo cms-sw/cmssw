@@ -4,6 +4,7 @@ from Validation.RecoTau.ticlTauValidator_cfi import ticlTauValidator as _ticlTau
 # RECO: default
 recoTiclTauValidator = _ticlTauValidator.clone(
     TauProducer = cms.InputTag("hpsPFTauProducer"),
+    checkhlt = cms.bool(False),
     folder = cms.string("Tau/ticlTauValidator"),
 )
 
@@ -29,6 +30,11 @@ hltTiclTauValidator = _ticlTauValidator.clone(
     genVisTaus = cms.InputTag("genVisTaus"),
     genParticles = cms.InputTag("genParticles"),
     hltProcessName = cms.string("HLT"),
+    hltTauFilterLabels = cms.vstring(
+        "hltHpsDoublePFTau35MediumDitauWPDeepTau",
+        "hltHpsDoublePFTau40TrackPt1MediumChargedIsolation",
+    ),
+    hltFinalTauFilterLabel = cms.string("hltHpsDoublePFTau35MediumDitauWPDeepTau"),
     maxAssocScore = 0.6
 )
 
