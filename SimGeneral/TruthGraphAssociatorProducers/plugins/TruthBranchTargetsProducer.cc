@@ -120,6 +120,13 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
   selectedRoots->reserve(nBranches);
   std::vector<bool> isCandidate(nBranches, false);
   for (uint32_t id = 0; id < nBranches; ++id) {
+    // A parton, a diquark or a string is shower bookkeeping, not an object a reco
+    // collection can be asked about, and the main event carries its whole shower: on one
+    // ttbar event that is 176 partons and 2 diquarks. The levels that do ask about a
+    // parton, partonJets and hardProcess, add their own members to the candidates below.
+    if (truth::isShowerObject(graph.particles()[id].pdgId)) {
+      continue;
+    }
     if (branchSelector_(truth::Branch(&graph, id))) {
       selectedRoots->push_back(id);
       isCandidate[id] = true;
