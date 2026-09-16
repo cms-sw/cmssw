@@ -56,7 +56,8 @@ namespace truth {
 
     // If true (default), stable final-state GEN particles outside the selected
     // subgraph are kept and attached to an artificial UnderlyingEvent source
-    // vertex. If false, they are dropped, giving a focused subgraph that
+    // vertex, each with its SIM subgraph, which is where its hits are. If false,
+    // they are dropped, giving a focused subgraph that
     // contains only the selection and its truncated initial-state context.
     // Only meaningful when a selection is active (seedPdgIds/decayPdgIdGroups).
     bool keepStableSpectators = true;
