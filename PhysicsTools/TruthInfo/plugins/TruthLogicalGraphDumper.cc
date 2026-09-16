@@ -30,6 +30,12 @@
 
 namespace {
 
+  // The selection post-processing owns LevelFlag::Signal, so it is not a row of the level
+  // table and the loops over kAllLevels below do not reach it. It is drawn like a level
+  // because a reader looks for it like one.
+  constexpr char const* kSignalName = "signal";
+  constexpr char const* kSignalColor = "#ffc4d6";
+
   // One colour per level, shared by the node labels and the legend so the two cannot
   // drift. Pale on purpose: these are backgrounds behind black text.
   std::string levelColor(truth::Level level) {
@@ -686,6 +692,10 @@ public:
           levels += truth::levelName(level);
         }
       }
+      if (d.isAtLevel(truth::LevelFlag::Signal)) {
+        levels += levels.empty() ? "" : ",";
+        levels += kSignalName;
+      }
       os << ", levels=\"" << levels << "\"";
 
       if (p.hasCheckpoints()) {
@@ -771,6 +781,9 @@ public:
           os << "      <TR><TD BGCOLOR=\"" << levelColor(level) << "\"><B>" << truth::levelName(level)
              << "</B></TD></TR>\n";
         }
+      }
+      if (d.isAtLevel(truth::LevelFlag::Signal)) {
+        os << "      <TR><TD BGCOLOR=\"" << kSignalColor << "\"><B>" << kSignalName << "</B></TD></TR>\n";
       }
 
       if (d.pdgId != 0)
