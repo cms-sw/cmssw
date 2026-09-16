@@ -34,7 +34,7 @@ parser.add_argument("--keepSpectators", action=BooleanOptionalAction, default=Tr
                     help="keep stable final-state spectators (underlying event) outside the selection; "
                          "use --no-keepSpectators for a focused subgraph" )
 parser.add_argument("--attachSources", action=BooleanOptionalAction, default=True,
-                    help="attach selected roots to artificial Upstream/UnderlyingEvent source vertices; "
+                    help="attach selected roots to artificial InitialState/UnderlyingEvent source vertices; "
                          "use --no-attachSources to root each seed directly (e.g. ten taus -> ten subgraphs)" )
 parser.add_argument("--keepProductionSiblings", action=BooleanOptionalAction, default=False,
                     help="also keep the seed's hard-scatter co-products (the other outgoing particles of its "
@@ -147,11 +147,11 @@ process.truthLogicalGraphProducer = cms.EDProducer(
 
         # Keep stable spectators (underlying event) on an artificial
         # UnderlyingEvent vertex; --no-keepSpectators drops them for a focused
-        # subgraph (only the selection + its Upstream/ISR context).
+        # subgraph (only the selection + its InitialState context).
         keepStableSpectators=cms.bool(args.keepSpectators),
 
         # Root each selected seed directly (true graph roots) instead of
-        # attaching it to an artificial Upstream/UnderlyingEvent vertex.
+        # attaching it to an artificial InitialState/UnderlyingEvent vertex.
         # --no-attachSources gives one self-contained subgraph per seed.
         attachSelectionSources=cms.bool(args.attachSources),
 

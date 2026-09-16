@@ -34,7 +34,7 @@ namespace {
   // drift. Pale on purpose: these are backgrounds behind black text.
   std::string levelColor(truth::Level level) {
     switch (level) {
-      case truth::Level::StableLegsFromUpstream:
+      case truth::Level::StableLegsFromInitialState:
         return "#cfe8ff";
       case truth::Level::HardProcess:
         return "#ffd6a5";
@@ -193,7 +193,7 @@ namespace {
   }
 
   const char* logicalVertexDomain(truth::VertexData const& d) {
-    // Artificial source vertices (Interaction / Upstream-ISR / UnderlyingEvent)
+    // Artificial source vertices (Interaction / InitialState / UnderlyingEvent)
     // have no GEN or SIM back-reference by construction; they are graph-internal
     // bookkeeping nodes, so they get their own "Internal" domain rather than
     // looking like an unclassified real vertex.
@@ -863,8 +863,8 @@ public:
           roleName = "interaction";
           roleColor = "indianred1";
           break;
-        case truth::VertexRole::Upstream:
-          roleName = "ISR/upstream";
+        case truth::VertexRole::InitialState:
+          roleName = "initial state";
           roleColor = "navajowhite";
           break;
         case truth::VertexRole::UnderlyingEvent:

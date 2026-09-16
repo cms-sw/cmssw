@@ -23,7 +23,7 @@ makeTruthGallery.sh /path/library /path/dot_gallery             # DOT + SVG gall
 ## Focused selections (phases 1-3)
 The postprocessing supports focused, physics-oriented views:
 - `--no-keepSpectators` drops underlying-event spectators, leaving the selection
-  plus its truncated upstream attached to a labeled **ISR/upstream** source node.
+  plus its truncated ancestry attached to a labeled **initial state** source node.
   Spectators (when kept) sit on a separate **underlying event** node; both
   artificial nodes carry the genEvent/eventId of the activity they summarize
   (pile-up provenance).
@@ -34,12 +34,12 @@ The postprocessing supports focused, physics-oriented views:
   siblings of the seed, not ancestors, so `-d/--parentDepth` never reaches them -
   e.g. seeding on the Higgs in VBF, this brings in the recoiling tagging quarks and
   their forward jets, and shows the real hard vertex in place of the artificial
-  Upstream node.
+  InitialState node.
 - **Pile-up filter** (orthogonal to the seed, composes with any preset): `--signal-only`
   keeps only the signal interaction (EncodedEventId bunchCrossing 0, event 0), dropping
   all pile-up; `--bunch-crossings 0` keeps only the listed bunch crossings (in-time only).
 ```bash
-# clean Z -> mu mu view with an explicit ISR node:
+# clean Z -> mu mu view with an explicit initial-state node:
 cmsRun dumpTruthGraphsFromGENSIMRECO_cfg.py file:step3.root -s 23 -d 1 --no-keepSpectators
 # all B-hadron decay subgraphs:
 cmsRun dumpTruthGraphsFromGENSIMRECO_cfg.py file:step3.root -f 5 --no-keepSpectators

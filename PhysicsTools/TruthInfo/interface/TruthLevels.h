@@ -33,7 +33,7 @@
 namespace truth {
 
   enum class Level {
-    StableLegsFromUpstream,
+    StableLegsFromInitialState,
     HardProcess,
     StableDecayProducts,
     CaloBoundary,
@@ -59,7 +59,7 @@ namespace truth {
   };
 
   inline constexpr std::array<LevelRow, 11> kLevelTable = {
-      {{Level::StableLegsFromUpstream, LevelFlag::StableLegsFromUpstream, "stableLegsFromUpstream"},
+      {{Level::StableLegsFromInitialState, LevelFlag::StableLegsFromInitialState, "stableLegsFromInitialState"},
        {Level::HardProcess, LevelFlag::HardProcess, "hardProcess"},
        {Level::StableDecayProducts, LevelFlag::StableDecayProducts, "stableDecayProducts"},
        {Level::CaloBoundary, LevelFlag::CaloBoundary, "caloBoundary"},
@@ -203,9 +203,9 @@ namespace truth {
   [[nodiscard]] inline bool atLevel(Graph const& graph, uint32_t id, Level level) {
     auto const& data = graph.particles()[id];
     switch (level) {
-      case Level::StableLegsFromUpstream:
-        // Not a per-particle predicate: it is reachability from the Upstream node, so
-        // it is answered by stableLegsFromUpstream and never reaches here.
+      case Level::StableLegsFromInitialState:
+        // Not a per-particle predicate: it is reachability from the InitialState node, so
+        // it is answered by stableLegsFromInitialState and never reaches here.
         return false;
       case Level::HardProcess:
         // The hard-scatter legs, not the resonance: see the header note.
@@ -250,8 +250,8 @@ namespace truth {
     return false;
   }
 
-  // Stable legs hanging off every artificial vertex of one role. Upstream collects the
-  // ISR and upstream side of the interaction, UnderlyingEvent the spectators; the walk is
+  // Stable legs hanging off every artificial vertex of one role. InitialState collects the
+  // beam, hard-scatter and ISR side of the interaction, UnderlyingEvent the spectators; the walk is
   // identical, so it is written once. A leg is a particle that produced nothing further,
   // which makes the result an antichain by construction.
   [[nodiscard]] inline std::vector<uint32_t> stableLegsFromRole(Graph const& graph, VertexRole role) {
@@ -304,8 +304,8 @@ namespace truth {
     return legs;
   }
 
-  [[nodiscard]] inline std::vector<uint32_t> stableLegsFromUpstream(Graph const& graph) {
-    return stableLegsFromRole(graph, VertexRole::Upstream);
+  [[nodiscard]] inline std::vector<uint32_t> stableLegsFromInitialState(Graph const& graph) {
+    return stableLegsFromRole(graph, VertexRole::InitialState);
   }
 
   [[nodiscard]] inline std::vector<uint32_t> stableLegsFromUnderlyingEvent(Graph const& graph) {
@@ -520,8 +520,8 @@ namespace truth {
   }
 
   [[nodiscard]] inline std::vector<uint32_t> levelAntichain(Graph const& graph, Level level) {
-    if (level == Level::StableLegsFromUpstream) {
-      std::vector<uint32_t> legs = stableLegsFromUpstream(graph);
+    if (level == Level::StableLegsFromInitialState) {
+      std::vector<uint32_t> legs = stableLegsFromInitialState(graph);
       dropCoveredMembers(graph, legs, false);
       return legs;
     }

@@ -251,7 +251,7 @@ void TruthBranchTargetsProducer::fillDescriptions(edm::ConfigurationDescriptions
   edm::ParameterSetDescription assignable;
   assignable.add<bool>("excludeSynthetic", true)->setComment("Bar the connector and signal stand-in nodes");
   assignable.add<bool>("excludeArtificialProduction", true)
-      ->setComment("Bar a particle produced at an Upstream, UnderlyingEvent or Interaction vertex");
+      ->setComment("Bar a particle produced at an InitialState, UnderlyingEvent or Interaction vertex");
   assignable.add<bool>("excludeBeamParticles", true)->setComment("Bar a particle with no production vertex");
   assignable.add<bool>("excludePartons", true)->setComment("Bar quarks and gluons");
   assignable.add<bool>("excludeElectroweakBosons", true)->setComment("Bar the W, the Z and the Higgs");

@@ -19,7 +19,7 @@ namespace truth {
   // with levelAntichain() (Signal and ReconstructableFromSignal from the seed lists
   // recorded on the Graph), which is what the dumper audit and LevelFlags_t check.
   enum class LevelFlag : uint32_t {
-    StableLegsFromUpstream = 1u << 0,
+    StableLegsFromInitialState = 1u << 0,
     HardProcess = 1u << 1,
     StableDecayProducts = 1u << 2,
     CaloBoundary = 1u << 3,
@@ -32,7 +32,7 @@ namespace truth {
     // detector cannot see as objects, and drops invisible species.
     ReconstructableFromSignal = 1u << 5,
     // Stable legs of the artificial UnderlyingEvent vertex, the spectator counterpart
-    // of StableLegsFromUpstream. Empty without a selection preset, not wrong.
+    // of StableLegsFromInitialState. Empty without a selection preset, not wrong.
     UnderlyingEvent = 1u << 6,
     // One root per parton-initiated jet: the hard-process legs that are partons, each
     // standing for its descendant subgraph; no clustering, flavour = the parton's own
@@ -63,7 +63,7 @@ namespace truth {
   enum class ParticleRole : uint8_t {
     // A generator or Geant4 particle.
     Normal = 0,
-    // Artificial: produced at an Interaction vertex and decaying at the Upstream or
+    // Artificial: produced at an Interaction vertex and decaying at the InitialState or
     // UnderlyingEvent sub-vertex, so those descend from one interaction root.
     Connector = 1,
     // Artificial: stands in for a resonance the generator never wrote, so the signal
