@@ -113,7 +113,6 @@ private:
   MonitorElement* h_simmc_nSimHits_merged_;
   MonitorElement* h_simmc_energy_merged_;
   MonitorElement* h_simmc_eta_merged_;
-  MonitorElement* h_simmc_eta_total_;
   MonitorElement* h_simmc_eta_unmerged_;
   MonitorElement* h_simmc_time_merged_;
   MonitorElement* h_simmc_x_merged_;
@@ -230,7 +229,7 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
             (*range.first).second;  // the range of itp.first, itp.second should be always 1
 
         for (size_t it_matched_sim_mc = 0; it_matched_sim_mc < simClustersRefs.size(); it_matched_sim_mc++) {
-          auto sim_mc_ref = simClustersRefs[it_matched_sim_mc];
+          const auto& sim_mc_ref = simClustersRefs[it_matched_sim_mc];
           if (sim_mc_ref.isNonnull()) {
             const MtdSimMergedCluster& sim_mc = *sim_mc_ref;
             if (mc.nClusters() > 1) {
@@ -284,8 +283,8 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
       h_simmc_nSimHits_merged_->Fill(simmc.hitTimesAndPositions().size());
       h_simmc_eta_merged_->Fill(global_point.eta());
       h_simmc_merging_fraction_eta_->Fill(global_point.eta(), 1.0);
-      h_simmc_x_merged_->Fill(global_point.x());
-      h_simmc_y_merged_->Fill(global_point.y());
+      h_simmc_x_merged_->Fill(simmc.simPos().x());
+      h_simmc_y_merged_->Fill(simmc.simPos().y());
       h_simmc_hitProdType_merged_->Fill(simmc.hitProdType());
       if (nClusters == 2) {
         h_simmc_cluster_hitProdType_2D->Fill((*simmc.clusters().at(0)).hitProdType(),
@@ -294,12 +293,11 @@ void MtdMergedClusterValidation::analyze(const edm::Event& iEvent, const edm::Ev
     } else {
       h_simmc_energy_unmerged_->Fill(energy);
       h_simmc_time_unmerged_->Fill(time);
-      h_simmc_nSimHits_merged_->Fill(simmc.hitTimesAndPositions().size());
+      h_simmc_nSimHits_unmerged_->Fill(simmc.hitTimesAndPositions().size());
       h_simmc_eta_unmerged_->Fill(global_point.eta());
-      h_simmc_merging_fraction_eta_->Fill(global_point.eta(), 1.0);
-
-      h_simmc_x_unmerged_->Fill(global_point.x());
-      h_simmc_y_unmerged_->Fill(global_point.y());
+      h_simmc_merging_fraction_eta_->Fill(global_point.eta(), 0.0);
+      h_simmc_x_unmerged_->Fill(simmc.simPos().x());
+      h_simmc_y_unmerged_->Fill(simmc.simPos().y());
       h_simmc_hitProdType_unmerged_->Fill(simmc.hitProdType());
     }
   }  // end of loop on sim MC
@@ -310,142 +308,156 @@ void MtdMergedClusterValidation::bookHistograms(DQMStore::IBooker& ibooker, edm:
 
   // Book all histograms
   h_mc_nClusters_ =
-      ibooker.book1D("h_mc_nClusters", "Number of FTLClusters in reco MergedCluster;N_{clusters};Count", 4, 0.5, 4.5);
+      ibooker.book1D("MC_nClusters", "Number of FTLClusters in reco MergedCluster;N_{clusters};Count", 4, 0.5, 4.5);
 
-  h_mc_nRecHits_merged_ = ibooker.book1D("h_mc_nRecHits_merged",
-                                         "Number of FTLRecHits in reco MergedCluster, >1 FTLCluster;N_{RecHits};Count",
-                                         32,
-                                         0.5,
-                                         32.5);
+  h_mc_nRecHits_merged_ =
+      ibooker.book1D("MC_nRecHits_merged",
+                     "Number of FTLRecHits in reco MergedCluster, MC with >1 FTLCluster;N_{RecHits};Count",
+                     32,
+                     0.5,
+                     32.5);
   h_mc_nRecHits_unmerged_ =
-      ibooker.book1D("h_mc_nRecHits_unmerged",
-                     "Number of FTLRecHits in reco MergedCluster, =1 FTLCluster;N_{RecHits};Count",
+      ibooker.book1D("MC_nRecHits_unmerged",
+                     "Number of FTLRecHits in reco MergedCluster, MC with =1 FTLCluster;N_{RecHits};Count",
                      32,
                      0.5,
                      32.5);
 
   h_mc_energy_merged_ =
-      ibooker.book1D("h_mc_energy_merged", "MergedCluster Energy, >1 FTLCluster;Energy [MeV];Count", 100, 0, 50);
-  h_mc_energy_unmerged_ =
-      ibooker.book1D("h_mc_energy_unmerged", "MergedCluster Energy, =1 FTLCluster;Energy [MeV];Count", 100, 0, 50);
+      ibooker.book1D("MC_energy_merged", "MergedCluster Energy, MC with >1 FTLCluster;Energy [MeV];Count", 100, 0, 50);
+  h_mc_energy_unmerged_ = ibooker.book1D(
+      "MC_energy_unmerged", "MergedCluster Energy, MC with =1 FTLCluster;Energy [MeV];Count", 100, 0, 50);
 
   h_mc_time_merged_ =
-      ibooker.book1D("h_mc_time_merged", "MergedCluster Time, >1 FTLCluster;Time [ns];Count", 100, -5, 20);
+      ibooker.book1D("MC_time_merged", "MergedCluster Time, MC with >1 FTLCluster;Time [ns];Count", 100, -5, 20);
   h_mc_time_unmerged_ =
-      ibooker.book1D("h_mc_time_unmerged", "MergedCluster Time, =1 FTLCluster;Time [ns];Count", 100, -5, 20);
+      ibooker.book1D("MC_time_unmerged", "MergedCluster Time, MC with =1 FTLCluster;Time [ns];Count", 100, -5, 20);
 
   h_mc_timeError_merged_ = ibooker.book1D(
-      "h_mc_timeError_merged", "MergedCluster Time Error, >1 FTLCluster;Time Error [ns];Count", 100, 0, 1);
+      "MC_timeError_merged", "MergedCluster Time Error, MC with >1 FTLCluster;Time Error [ns];Count", 100, 0, 0.4);
   h_mc_timeError_unmerged_ = ibooker.book1D(
-      "h_mc_timeError_unmerged", "MergedCluster Time Error, =1 FTLCluster;Time Error [ns];Count", 100, 0, 1);
+      "MC_timeError_unmerged", "MergedCluster Time Error, MC with =1 FTLCluster;Time Error [ns];Count", 100, 0, 0.4);
 
-  h_mc_x_merged_ = ibooker.book1D("h_mc_x_merged", "MergedCluster X, >1 FTLCluster;X [mm];Count", 20, -4, 4);
-  h_mc_x_unmerged_ = ibooker.book1D("h_mc_x_unmerged", "MergedCluster X, =1 FTLCluster;X [mm];Count", 20, -4, 4);
+  h_mc_x_merged_ = ibooker.book1D("MC_x_merged", "MergedCluster X, MC with >1 FTLCluster;X [mm];Count", 20, -4, 4);
+  h_mc_x_unmerged_ = ibooker.book1D("MC_x_unmerged", "MergedCluster X, MC with =1 FTLCluster;X [mm];Count", 20, -4, 4);
 
-  h_mc_y_merged_ = ibooker.book1D("h_mc_y_merged", "MergedCluster Y, >1 FTLCluster;Y [mm];Count", 20, -4, 4);
-  h_mc_y_unmerged_ = ibooker.book1D("h_mc_y_unmerged", "MergedCluster Y, =1 FTLCluster;Y [mm];Count", 20, -4, 4);
+  h_mc_y_merged_ = ibooker.book1D("MC_y_merged", "MergedCluster Y, MC with >1 FTLCluster;Y [mm];Count", 20, -4, 4);
+  h_mc_y_unmerged_ = ibooker.book1D("MC_y_unmerged", "MergedCluster Y, MC with =1 FTLCluster;Y [mm];Count", 20, -4, 4);
 
-  h_mc_eta_total_ = ibooker.book1D("h_mc_eta_total", "MergedClusterEta, total;#eta;Count", 50, -1.5, 1.5);
-  h_mc_eta_merged_ = ibooker.book1D("h_mc_eta_merged", "MergedClusterEta, >1 FTLCluster;#eta;Count", 50, -1.5, 1.5);
-  h_mc_eta_unmerged_ = ibooker.book1D("h_mc_eta_unmerged", "MergedClusterEta, =1 FTLCluster;#eta;Count", 50, -1.5, 1.5);
+  h_mc_eta_total_ = ibooker.book1D("MC_eta_total", "MergedClusterEta, total;#eta;Count", 50, -1.5, 1.5);
+  h_mc_eta_merged_ =
+      ibooker.book1D("MC_eta_merged", "MergedClusterEta, MC with >1 FTLCluster;#eta;Count", 50, -1.5, 1.5);
+  h_mc_eta_unmerged_ =
+      ibooker.book1D("MC_eta_unmerged", "MergedClusterEta, MC with =1 FTLCluster;#eta;Count", 50, -1.5, 1.5);
   h_eta_merging_fraction_ = ibooker.bookProfile(
-      "h_eta_merging_fraction", "Merging Fraction vs Eta;#eta;Fraction", 50, -1.5, 1.5, 0.0, 1.0, "");
+      "MC_eta_merging_fraction", "Merging Fraction vs Eta;#eta;Fraction", 50, -1.5, 1.5, 0.0, 1.0, "");
 
   h_mc_time_unmerged_ =
-      ibooker.book1D("h_mc_time_unmerged", "MergedCluster Time, =1 FTLCluster;Time [ns];Count", 100, -5, 20);
+      ibooker.book1D("MC_time_unmerged", "MergedCluster Time, MC with =1 FTLCluster;Time [ns];Count", 100, -5, 20);
   h_mc_timeError_unmerged_ = ibooker.book1D(
-      "h_mc_timeError_unmerged", "MergedCluster Time Error, =1 FTLCluster;Time Error [ns];Count", 100, 0, 1);
+      "MC_timeError_unmerged", "MergedCluster Time Error, MC with =1 FTLCluster;Time Error [ns];Count", 100, 0, 1);
 
   h_mc_comp_energy_merged_ =
-      ibooker.book1D("h_mc_comp_energy_merged",
-                     "#Delta E(recHit - MC),  >1 FTLCluster;E(recHit)- E(MergedCluster) [MeV];Count",
+      ibooker.book1D("MC_comp_energy_merged",
+                     "#Delta E(recHit - MC),  MC with >1 FTLCluster;E(recHit)- E(MergedCluster) [MeV];Count",
                      50,
                      -50,
                      0);
   h_mc_comp_energy_unmerged_ =
-      ibooker.book1D("h_mc_comp_energy_unmerged",
-                     "#Delta E(recHit - MC),  =1 FTLCluster;E(recHit)- E(MergedCluster) [MeV];Count",
+      ibooker.book1D("MC_comp_energy_unmerged",
+                     "#Delta E(recHit - MC),  MC with =1 FTLCluster;E(recHit)- E(MergedCluster) [MeV];Count",
                      50,
                      -50,
                      0);
 
   h_mc_comp_time_merged_ =
-      ibooker.book1D("h_mc_comp_time_merged",
-                     "#Delta t(recHit - MC),  >1 FTLCluster;t(recHit)- t(MergedCluster) [ns];Count",
+      ibooker.book1D("MC_comp_time_merged",
+                     "#Delta t(recHit - MC),  MC with >1 FTLCluster;t(recHit)- t(MergedCluster) [ns];Count",
                      50,
                      -1,
                      1);
   h_mc_comp_time_unmerged_ =
-      ibooker.book1D("h_mc_comp_time_unmerged",
-                     "#Delta t(recHit - MC),  =1 FTLCluster;t(recHit)- t(MergedCluster) [ns];Count",
+      ibooker.book1D("MC_comp_time_unmerged",
+                     "#Delta t(recHit - MC),  MC with =1 FTLCluster;t(recHit)- t(MergedCluster) [ns];Count",
                      50,
                      -1,
                      1);
 
   h_mc_nMatched_merged_ =
-      ibooker.book1D("h_mc_nMatched_merged",
-                     "N. of matched SimMergedClusters per RecoMergedCluster,  >1 FTLCluster;nMatched;Count",
+      ibooker.book1D("MC_nMatched_merged",
+                     "N. of matched SimMergedClusters per RecoMergedCluster,  MC with >1 FTLCluster;nMatched;Count",
                      6,
                      -0.5,
                      5.5);
   h_mc_nMatched_unmerged_ =
-      ibooker.book1D("h_mc_nMatched_unmerged",
-                     "N. of matched SimMergedClusters per RecoMergedCluster,  =1 FTLCluster;nMatched;Count",
+      ibooker.book1D("MC_nMatched_unmerged",
+                     "N. of matched SimMergedClusters per RecoMergedCluster, MC with =1 FTLCluster;nMatched;Count",
                      6,
                      -0.5,
                      5.5);
 
-  h_mc_vs_sim_energyres_merged_ = ibooker.book1D(
-      "h_mc_vs_sim_energyres_merged", "#Delta E(reco - sim),  >1 FTLCluster;E(reco)- E(sim) [MeV];Count", 50, -50, 50);
-  h_mc_vs_sim_energyres_unmerged_ = ibooker.book1D(
-      "h_mc_vs_sim_energyres_unmerged", "#Delta E(reco - sim),  =1 FTLCluster;E(reco)- E(sim) [MeV];Count", 50, -50, 50);
-  h_mc_vs_sim_timeres_merged_ = ibooker.book1D(
-      "h_mc_vs_sim_timeres_merged", "#Delta t(reco - sim),  >1 FTLCluster;t(reco)- t(sim) [ns];Count", 50, -1, 1);
-  h_mc_vs_sim_timeres_unmerged_ = ibooker.book1D(
-      "h_mc_vs_sim_timeres_unmerged", "#Delta t(reco - sim),  =1 FTLCluster;t(reco)- t(sim) [ns];Count", 50, -1, 1);
+  h_mc_vs_sim_energyres_merged_ =
+      ibooker.book1D("MC_vs_simMC_energyres_merged",
+                     "#Delta E(reco - sim),  MC with >1 FTLCluster;E(reco)- E(sim) [MeV];Count",
+                     50,
+                     -50,
+                     50);
+  h_mc_vs_sim_energyres_unmerged_ =
+      ibooker.book1D("MC_vs_simMC_energyres_unmerged",
+                     "#Delta E(reco - sim),  MC with =1 FTLCluster;E(reco)- E(sim) [MeV];Count",
+                     50,
+                     -50,
+                     50);
+  h_mc_vs_sim_timeres_merged_ =
+      ibooker.book1D("MC_vs_simMC_timeres_merged",
+                     "#Delta t(reco - sim),  MC with >1 FTLCluster;t(reco)- t(sim) [ns];Count",
+                     50,
+                     -1,
+                     1);
+  h_mc_vs_sim_timeres_unmerged_ =
+      ibooker.book1D("MC_vs_simMC_timeres_unmerged",
+                     "#Delta t(reco - sim),  MC with =1 FTLCluster;t(reco)- t(sim) [ns];Count",
+                     50,
+                     -1,
+                     1);
 
   // sim
 
   //2D
 
   h_simmc_nSimClusters_ =
-      ibooker.book1D("h_simmc_nSimClusters_",
+      ibooker.book1D("simMC_nSimClusters_",
                      "N. of MtdSimLayerClusters in MergedCluster;N. of MtdSimLayerClusters in MergedCluster;Count",
                      6,
                      -0.5,
                      5.5);
   h_simmc_nSimHits_merged_ = ibooker.book1D(
-      "h_simmc_nSimHits_merged", "N. of SimHits in MergedCluster;N. of SimHits in MergedCluster;Count", 20, -0.5, 19.5);
-  h_simmc_nSimHits_unmerged_ = ibooker.book1D("h_simmc_nSimHits_unmerged",
-                                              "N. of SimHits in MergedCluster;N. of SimHits in MergedCluster;Count",
-                                              20,
-                                              -0.5,
-                                              19.5);
+      "simMC_nSimHits_merged", "N. of SimHits in MergedCluster;N. of SimHits in MergedCluster;Count", 20, -0.5, 19.5);
+  h_simmc_nSimHits_unmerged_ = ibooker.book1D(
+      "simMC_nSimHits_unmerged", "N. of SimHits in MergedCluster;N. of SimHits in MergedCluster;Count", 20, -0.5, 19.5);
   h_simmc_energy_merged_ =
-      ibooker.book1D("h_simmc_energy_merged", "Energy of MergedCluster;Energy [MeV];Count", 100, 0, 100);
+      ibooker.book1D("simMC_energy_merged", "Energy of MergedCluster;Energy [MeV];Count", 100, 0, 100);
   h_simmc_energy_unmerged_ =
-      ibooker.book1D("h_simmc_energy_unmerged", "Energy of MergedCluster;Energy [MeV];Count", 100, 0, 100);
-  h_simmc_time_merged_ = ibooker.book1D("h_simmc_time_merged", "Time of MergedCluster;Time [ns];Count", 100, -5, 20);
-  h_simmc_time_unmerged_ =
-      ibooker.book1D("h_simmc_time_unmerged", "Time of MergedCluster;Time [ns];Count", 100, -5, 20);
-  h_simmc_x_merged_ = ibooker.book1D("h_simmc_x_merged", "MergedCluster X, >1 FTLCluster;X [mm];Count", 20, -4, 4);
-  h_simmc_x_unmerged_ = ibooker.book1D("h_simmc_x_unmerged", "MergedCluster X, =1 FTLCluster;X [mm];Count", 20, -4, 4);
-  h_simmc_y_merged_ = ibooker.book1D("h_simmc_y_merged", "MergedCluster Y, >1 FTLCluster;Y [mm];Count", 20, -4, 4);
-  h_simmc_y_unmerged_ = ibooker.book1D("h_simmc_y_unmerged", "MergedCluster Y, =1 FTLCluster;Y [mm];Count", 20, -4, 4);
-  h_simmc_eta_merged_ =
-      ibooker.book1D("h_simmc_eta_merged", "MergedClusterEta, >1 FTLCluster;#eta;Count", 50, -1.5, 1.5);
+      ibooker.book1D("simMC_energy_unmerged", "Energy of MergedCluster;Energy [MeV];Count", 100, 0, 100);
+  h_simmc_time_merged_ = ibooker.book1D("simMC_time_merged", "Time of MergedCluster;Time [ns];Count", 100, -5, 20);
+  h_simmc_time_unmerged_ = ibooker.book1D("simMC_time_unmerged", "Time of MergedCluster;Time [ns];Count", 100, -5, 20);
+  h_simmc_x_merged_ = ibooker.book1D("simMC_x_merged", "MergedCluster local X, >1 FTLCluster;X [mm];Count", 20, -4, 4);
+  h_simmc_x_unmerged_ =
+      ibooker.book1D("simMC_x_unmerged", "MergedCluster local X, =1 FTLCluster;X [mm];Count", 20, -4, 4);
+  h_simmc_y_merged_ = ibooker.book1D("simMC_y_merged", "MergedCluster local Y, >1 FTLCluster;Y [mm];Count", 20, -4, 4);
+  h_simmc_y_unmerged_ =
+      ibooker.book1D("simMC_y_unmerged", "MergedCluster local Y, =1 FTLCluster;Y [mm];Count", 20, -4, 4);
+  h_simmc_eta_merged_ = ibooker.book1D("simMC_eta_merged", "MergedClusterEta, >1 FTLCluster;#eta;Count", 50, -1.5, 1.5);
   h_simmc_eta_unmerged_ =
-      ibooker.book1D("h_simmc_eta_unmerged", "MergedClusterEta, =1 FTLCluster;#eta;Count", 50, -1.5, 1.5);
-  h_simmc_eta_total_ =
-      ibooker.book1D("h_simmc_eta_total", "MergedClusterEta, all FTLClusters;#eta;Count", 50, -1.5, 1.5);
+      ibooker.book1D("simMC_eta_unmerged", "MergedClusterEta, =1 FTLCluster;#eta;Count", 50, -1.5, 1.5);
   h_simmc_merging_fraction_eta_ = ibooker.bookProfile(
-      "h_simmc_merging_fraction_eta", "Merging Fraction of MergedCluster;#eta;Fraction", 50, -1.5, 1.5, 0.0, 1.0, "");
+      "simMC_merging_fraction_eta", "Merging Fraction of MergedCluster;#eta;Fraction", 50, -1.5, 1.5, 0.0, 1.0, "");
   h_simmc_hitProdType_merged_ =
-      ibooker.book1D("h_simmc_clusterType_merged", "hitProdType of MergedCluster;hitProdType;Count", 4, -0.5, 3.5);
+      ibooker.book1D("simMC_hitProdType_merged", "hitProdType of MergedCluster;hitProdType;Count", 4, -0.5, 3.5);
   h_simmc_hitProdType_unmerged_ =
-      ibooker.book1D("h_simmc_clusterType_unmerged", "hitProdType of MergedCluster;hitProdType;Count", 4, -0.5, 3.5);
+      ibooker.book1D("simMC_hitProdType_unmerged", "hitProdType of MergedCluster;hitProdType;Count", 4, -0.5, 3.5);
 
-  h_simmc_cluster_hitProdType_2D = ibooker.book2D("h_simmc_cluster_hitProdType_2D",
+  h_simmc_cluster_hitProdType_2D = ibooker.book2D("simMC_cluster_hitProdType_2D",
                                                   "HitProdType of clusters in MergedCluster;HitProdType;HitProdType",
                                                   4,
                                                   -0.5,

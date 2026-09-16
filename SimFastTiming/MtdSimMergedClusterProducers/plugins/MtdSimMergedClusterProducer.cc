@@ -243,7 +243,7 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
   for (const auto* cluster : allsimLClusters) {
     if (cluster->energy() >= minEnergy_) {
       // retrieve GEOGRAPHICAL id -> rawId
-      clusterMap[BTLDetId::rawGeoId(cluster->detIds_and_rows()[0].first, crysLayout)].push_back(cluster);    
+      clusterMap[BTLDetId::rawGeoId(cluster->detIds_and_rows()[0].first, crysLayout)].push_back(cluster);
     }
   }
 
@@ -444,7 +444,10 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
 
     // Create MergedCluster from merged clusters
     MtdSimMergedCluster simMergedCluster;
-
+    //sort MergedClusters by time, earliest first
+    std::sort(mergedClusterClusters.begin(),
+              mergedClusterClusters.end(),
+              [](const MtdSimLayerCluster* a, const MtdSimLayerCluster* b) { return a->simLCTime() < b->simLCTime(); });
     // for each cluster, find associated TPs and add to mergedcluster using Sim to TP map
     for (const auto& simLayerCluster : mergedClusterClusters) {
       // create simLC reference by finding the index in the original collection
@@ -461,9 +464,13 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
         simMergedCluster.addCluster(simLayerClusterRef, TrackingParticleRef());
       }
     }
+    DetId seedGeoId = DetId(BTLDetId::rawGeoId(mergedClusterClusters[0]->detIds_and_rows()[0].first, crysLayout));
+    simMergedCluster.setSimDetId(seedGeoId);
+
     if (mergedClusterClusters.size() == 1) {
       // if only one cluster, take position and time from it
       simMergedCluster.setSimPos(mergedClusterClusters[0]->simLCPos());
+
     } else {
       // --- Calculate energy-weighted position ---
       double weightedGlobalX = 0;
@@ -478,8 +485,7 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
 
         // Use the first hit's DetId for geometry lookup
         if (!simLC.detIds_and_rows().empty()) {
-          DetId detId = simLC.detIds_and_rows()[0].first;
-          const GeomDet* det = geom.idToDetUnit(detId);
+          const GeomDet* det = geom.idToDetUnit(seedGeoId);
           if (det) {
             const GlobalPoint& gp = det->surface().toGlobal(simLC.simLCPos());
             weightedGlobalX += static_cast<double>(energy) * gp.x();
@@ -497,16 +503,16 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
 
       // Convert back to local coordinates of the seed cluster
       if (!mergedClusterClusters.empty()) {
-        uint32_t seedRawId = mergedClusterClusters.front()->detIds_and_rows()[0].first;
-        DetId seedGeoId = DetId(BTLDetId::rawGeoId(seedRawId, crysLayout));
         const GeomDet* seedDet = geom.idToDetUnit(seedGeoId);
 
         if (seedDet) {
           LocalPoint lp = seedDet->surface().toLocal(avgGlobal);
           simMergedCluster.setSimPos(lp);
+          simMergedCluster.setSimDetId(seedGeoId);
         } else {
           edm::LogWarning("MtdSimMergedClusterProducer") << "Could not find seed detector for position calculation";
           simMergedCluster.setSimPos(mergedClusterClusters[0]->simLCPos());
+          simMergedCluster.setSimDetId(seedGeoId);
         }
       }
     }
@@ -536,6 +542,8 @@ void MtdSimMergedClusterProducer::produce(edm::Event& iEvent, const edm::EventSe
       simMergedCluster.addCluster(simLayerClusterRef, TrackingParticleRef());
     }
     simMergedCluster.setSimPos(clusterPointer->simLCPos());
+    DetId etlDetId = clusterPointer->detIds_and_rows()[0].first;
+    simMergedCluster.setSimDetId(etlDetId);
     outputClusters->push_back(simMergedCluster);
     LogDebug("MtdSimMergedClusterProducer")
         << "Created ETL MergedCluster from an ETL cluster"
