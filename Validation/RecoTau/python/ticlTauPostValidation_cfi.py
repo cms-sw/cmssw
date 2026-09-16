@@ -180,7 +180,64 @@ for assoc, tag in [("calo", "calo assoc"), ("track", "track assoc")]:
             f"{prefix}_rate_dm{dm}_eta 'DM {dm}: fake rate ({tag}) vs eta' {prefix}_dm{dm}_num_eta {prefix}_dm{dm}_den_eta"
         )
 
+# Final charged-isolation HLT path: combined, calo-only and track-only.
+filtered_fake_sets = [
+    ("fake_chargedIsoPath", "charged-isolation path"),
+    ("fake_calo_chargedIsoPath", "calo assoc, charged-isolation path"),
+    ("fake_track_chargedIsoPath", "track assoc, charged-isolation path"),
+]
+filtered_fake_effs = []
+for prefix, tag in filtered_fake_sets:
+    filtered_fake_effs.append(
+        f"{prefix}_rate_pt  'Fake rate ({tag}) vs pT'  {prefix}_num_pt  {prefix}_den_pt"
+    )
+    filtered_fake_effs.append(
+        f"{prefix}_rate_eta 'Fake rate ({tag}) vs eta' {prefix}_num_eta {prefix}_den_eta"
+    )
+    for dm in fake_dm_list:
+        filtered_fake_effs.append(
+            f"{prefix}_rate_dm{dm}_pt  'DM {dm}: fake rate ({tag}) vs pT'  "
+            f"{prefix}_dm{dm}_num_pt  {prefix}_dm{dm}_den_pt"
+        )
+        filtered_fake_effs.append(
+            f"{prefix}_rate_dm{dm}_eta 'DM {dm}: fake rate ({tag}) vs eta' "
+            f"{prefix}_dm{dm}_num_eta {prefix}_dm{dm}_den_eta"
+        )
+
+# Signal-candidate multiplicity subdivisions for every inclusive/filtered
+# association definition.  A tau with N candidates contributes to all >=n,
+# n <= N, exactly matching the analyzer's nested histogram filling.
+base_fake_sets = [
+    ("fake", "combined"),
+    ("fake_calo", "calo assoc"),
+    ("fake_track", "track assoc"),
+]
+for prefix, tag in base_fake_sets + filtered_fake_sets:
+    target = filtered_fake_effs if (prefix, tag) in filtered_fake_sets else fake_effs
+    for particle, max_count in [("ch", 3), ("pi0", 2)]:
+        for n in range(1, max_count + 1):
+            stem = f"{prefix}_ge{n}{particle}_sig"
+            target.append(
+                f"{stem}_rate_pt  'Fake rate ({tag}, >= {n} {particle} in signal) vs pT'  "
+                f"{stem}_num_pt  {stem}_den_pt"
+            )
+            target.append(
+                f"{stem}_rate_eta 'Fake rate ({tag}, >= {n} {particle} in signal) vs eta' "
+                f"{stem}_num_eta {stem}_den_eta"
+            )
+            for dm in fake_dm_list:
+                dm_stem = f"{prefix}_dm{dm}_ge{n}{particle}_sig"
+                target.append(
+                    f"{dm_stem}_rate_pt  'DM {dm}: fake rate ({tag}, >= {n} {particle}) vs pT'  "
+                    f"{dm_stem}_num_pt  {dm_stem}_den_pt"
+                )
+                target.append(
+                    f"{dm_stem}_rate_eta 'DM {dm}: fake rate ({tag}, >= {n} {particle}) vs eta' "
+                    f"{dm_stem}_num_eta {dm_stem}_den_eta"
+                )
+
 effs += fake_effs
+hlt_effs = effs + filtered_fake_effs
 
 recoTiclTauHarvester = DQMEDHarvester(
     "DQMGenericClient",
@@ -211,7 +268,7 @@ hltTiclTauHarvester = DQMEDHarvester(
     runOnEndJob=cms.untracked.bool(True),
     makeGlobalEffienciesPlot=cms.untracked.bool(False),
     subDirs=cms.untracked.vstring("HLT/Tau/ticlTauValidator/*"),
-    efficiency=cms.vstring(*effs),
+    efficiency=cms.vstring(*hlt_effs),
     resolution=cms.vstring(),
     efficiencyProfile=cms.untracked.vstring(),
     resolutionProfile=cms.untracked.vstring(),
