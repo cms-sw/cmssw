@@ -4,26 +4,38 @@
 # their products. The release validation schedules the offline sequence on its own,
 # without this customise; use this one for a job that wants the maps in its output.
 
+import sys
+
 import FWCore.ParameterSet.Config as cms
+
+_associatorsCff = "SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociators_cff"
 
 
 def customiseTruthGraphAssociators(process):
-    from SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociationLabels_cff import (
-        setTracksterLabelsFromProcess,
-    )
+    # The associator cff builds its modules from the trackster label lists at import
+    # time, so the lists can only be retargeted while it is not imported yet. A job with
+    # VALIDATION imports it through globalValidation_cff, and there the labels are the
+    # ones of the registry.
+    if _associatorsCff not in sys.modules:
+        from SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociationLabels_cff import (
+            setTracksterLabelsFromProcess,
+        )
 
-    # Discover the trackster collections by producer type before importing the
-    # associator cff, which builds its modules from the label lists at import time.
-    setTracksterLabelsFromProcess(process)
+        setTracksterLabelsFromProcess(process)
 
     # load(), not import: it labels every module of the cff on the process, which a
     # sequence imported by name cannot do for itself.
-    process.load("SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociators_cff")
+    if not hasattr(process, "truthGraphAssociatorsSequence"):
+        process.load(_associatorsCff)
 
-    process.truthGraphAssociatorsPath = cms.Path(process.truthGraphAssociatorsSequence +
-                                                process.truthGraphHltAssociatorsSequence)
-    if process.schedule is not None:
-        process.schedule.append(process.truthGraphAssociatorsPath)
+    # The offline sequence is already scheduled in a job that runs the validation. A
+    # module in two paths still runs once, and the path carries the HLT twins, which no
+    # other sequence schedules.
+    if not hasattr(process, "truthGraphAssociatorsPath"):
+        process.truthGraphAssociatorsPath = cms.Path(process.truthGraphAssociatorsSequence +
+                                                    process.truthGraphHltAssociatorsSequence)
+        if process.schedule is not None:
+            process.schedule.append(process.truthGraphAssociatorsPath)
 
     for out in process.outputModules_().values():
         out.outputCommands.extend(
