@@ -54,8 +54,10 @@ namespace {
         return "#f2d5e0";
       case truth::Level::ReconstructableFinalState:
         return "#d5f0f2";
-      case truth::Level::VisibleTau:
+      case truth::Level::TauVisibleHadronic:
         return "#f9e9c9";
+      case truth::Level::TauVisibleLeptonic:
+        return "#e9d8c9";
     }
     return "#ffffff";
   }

@@ -203,8 +203,10 @@ _truthLevels = cms.vstring(
     # Event-wide visible final state: the reconstructableFromSignal walk seeded from every
     # GEN root, so a pi0 is one object on samples with no resonance to seed from.
     "reconstructableFinalState",
-    # One entry per hadronically decaying tau, the last copy of each radiative chain.
-    "visibleTau"
+    # One entry per tau, the last copy of each radiative chain, split by decay mode. The
+    # member is the tau itself in both, so the visible part is its decay products without
+    # the neutrinos.
+    "tauVisibleHadronic", "tauVisibleLeptonic"
 )
 
 # The selection preset's seed species, so the signalSeeds product (the _signal

@@ -47,7 +47,8 @@ WP_ORDER = ["Fixed", "AdaptiveTight", "AdaptiveNominal", "AdaptiveLoose"]
 # counts one object twice. That is the entry requirement for a truth denominator.
 LEVEL_ORDER = ["stableLegsFromInitialState", "caloBoundary", "stableDecayProducts", "hardProcess",
                "reconstructableFromSignal", "reconstructableFinalState", "underlyingEvent",
-               "partonJets", "bHadrons", "cHadrons", "visibleTau", "signal", "signalNoSelection"]
+               "partonJets", "bHadrons", "cHadrons", "tauVisibleHadronic", "tauVisibleLeptonic",
+               "signal", "signalNoSelection"]
 # What each truth-driven series IS. These are the efficiency DENOMINATORS, and they are not
 # interchangeable, but every one of them is an ANTICHAIN: no member is an ancestor of
 # another, so no efficiency counts one object twice. Sizes quoted are ttbar PU200 D122 with

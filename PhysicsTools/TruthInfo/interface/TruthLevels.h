@@ -43,7 +43,8 @@ namespace truth {
     BHadrons,
     CHadrons,
     ReconstructableFinalState,
-    VisibleTau
+    TauVisibleHadronic,
+    TauVisibleLeptonic
   };
 
   // One row per level: the enum value, the bit it stamps on the graph, and the name a
@@ -58,7 +59,7 @@ namespace truth {
     char const* name;
   };
 
-  inline constexpr std::array<LevelRow, 11> kLevelTable = {
+  inline constexpr std::array<LevelRow, 12> kLevelTable = {
       {{Level::StableLegsFromInitialState, LevelFlag::StableLegsFromInitialState, "stableLegsFromInitialState"},
        {Level::HardProcess, LevelFlag::HardProcess, "hardProcess"},
        {Level::StableDecayProducts, LevelFlag::StableDecayProducts, "stableDecayProducts"},
@@ -69,7 +70,8 @@ namespace truth {
        {Level::BHadrons, LevelFlag::BHadrons, "bHadrons"},
        {Level::CHadrons, LevelFlag::CHadrons, "cHadrons"},
        {Level::ReconstructableFinalState, LevelFlag::ReconstructableFinalState, "reconstructableFinalState"},
-       {Level::VisibleTau, LevelFlag::VisibleTau, "visibleTau"}}};
+       {Level::TauVisibleHadronic, LevelFlag::TauVisibleHadronic, "tauVisibleHadronic"},
+       {Level::TauVisibleLeptonic, LevelFlag::TauVisibleLeptonic, "tauVisibleLeptonic"}}};
 
   inline constexpr std::array<Level, kLevelTable.size()> kAllLevels = [] {
     std::array<Level, kLevelTable.size()> levels{};
@@ -167,20 +169,23 @@ namespace truth {
     return seedsNameAResonance(seeds) || !flavors.empty();
   }
 
-  // One entry per physical hadronically decaying tau: the LAST tau of each radiative
-  // chain, so a tau radiating a photon counts once, the same last-copy rule the b and c
-  // hadron levels use. Requires a GEN decay record, because a tau with no recorded decay
-  // cannot be classified, and rejects a decay with an electron or a muon among the
-  // children, which is what tau identification measures efficiency against
-  // (TauGenJetProducer applies the same rule). Membership alone is an antichain: a tau
-  // with a tau child is not a member, so no member can be an ancestor of another member
-  // through the only chain taus form.
-  [[nodiscard]] inline bool isVisibleTau(Graph const& graph, uint32_t id) {
+  // How the generator recorded the decay of one tau.
+  enum class TauDecay : uint8_t { None, Hadronic, Leptonic };
+
+  // The decay mode of one physical tau. None when the particle is not a tau, is
+  // synthetic, has no GEN decay record, or is a radiative copy, which is a tau with a
+  // tau child. Leptonic when an electron or a muon is among the children, Hadronic
+  // otherwise, the rule TauGenJetProducer applies. Taking the LAST tau of each
+  // radiative chain counts a tau that radiates a photon once, the same last-copy rule
+  // the b and c hadron levels use, and it makes each tau level an antichain on its own:
+  // no member can be an ancestor of another through the only chain taus form.
+  [[nodiscard]] inline TauDecay tauDecay(Graph const& graph, uint32_t id) {
     auto const& data = graph.particles()[id];
     if (std::abs(static_cast<int64_t>(data.pdgId)) != 15 || data.isSynthetic()) {
-      return false;
+      return TauDecay::None;
     }
     bool hasGenDecay = false;
+    bool leptonic = false;
     for (const uint32_t vertexId : graph.decayVertices(id)) {
       if (vertexId >= graph.nVertices() || !graph.vertices()[vertexId].hasGen()) {
         continue;
@@ -191,12 +196,31 @@ namespace truth {
           continue;
         }
         const int64_t a = std::abs(static_cast<int64_t>(graph.particles()[child].pdgId));
-        if (a == 15 || a == 11 || a == 13) {
-          return false;
+        if (a == 15) {
+          return TauDecay::None;
+        }
+        if (a == 11 || a == 13) {
+          leptonic = true;
         }
       }
     }
-    return hasGenDecay;
+    if (!hasGenDecay) {
+      return TauDecay::None;
+    }
+    return leptonic ? TauDecay::Leptonic : TauDecay::Hadronic;
+  }
+
+  // One entry per physical tau that decays to hadrons. The member is the tau itself, so
+  // its visible part is the branch of its decay products with the neutrino dropped. This
+  // is what tau identification measures efficiency against.
+  [[nodiscard]] inline bool isTauVisibleHadronic(Graph const& graph, uint32_t id) {
+    return tauDecay(graph, id) == TauDecay::Hadronic;
+  }
+
+  // One entry per physical tau that decays to an electron or a muon. The member is the
+  // tau itself, as in the hadronic level, so its visible part is the charged lepton.
+  [[nodiscard]] inline bool isTauVisibleLeptonic(Graph const& graph, uint32_t id) {
+    return tauDecay(graph, id) == TauDecay::Leptonic;
   }
 
   // Whether one particle belongs to a level, before the antichain check.
@@ -236,8 +260,10 @@ namespace truth {
         // A walk from the GEN roots, answered by reconstructableFinalState, so it never
         // reaches here.
         return false;
-      case Level::VisibleTau:
-        return isVisibleTau(graph, id);
+      case Level::TauVisibleHadronic:
+        return isTauVisibleHadronic(graph, id);
+      case Level::TauVisibleLeptonic:
+        return isTauVisibleLeptonic(graph, id);
       case Level::CHadrons:
         // A c hadron from a B decay is a legitimate member: the nesting that matters is
         // within one flavour, and beauty and charm are deliberately different levels.
