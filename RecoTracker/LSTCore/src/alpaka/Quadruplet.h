@@ -519,8 +519,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   ModulesConst modules,
                                   MiniDoubletsConst mds,
                                   SegmentsConst segments,
-                                  Triplets triplets,
+                                  TripletsConst triplets,
                                   TripletsOccupancyConst tripletsOccupancy,
+                                  TripletsBySegmentConst tripletsBySegment,
+                                  TripletsRangesConst tripletsRangesBySegment,
                                   Quadruplets quadruplets,
                                   QuadrupletsOccupancy quadrupletsOccupancy,
                                   ObjectRangesConst ranges,
@@ -596,19 +598,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
           const uint16_t lowerModule2 = lmIdx[innerTripletIndex][1];
           const unsigned int nOuterTriplets = tripletsOccupancy.nTriplets()[lowerModule2];
-          if (nOuterTriplets == 0)
+          const unsigned int nOuterTripletsByLS = tripletsRangesBySegment.n()[innerT3LS2Index];
+          if (nOuterTripletsByLS == 0)
             continue;
 
           const float innerRadius = triplets.radius()[innerTripletIndex];
           const uint16_t lowerModule3 = lmIdx[innerTripletIndex][2];
 
-          const auto outerTripletOffset = tripIdx[lowerModule2];
-          for (unsigned int outerTripletArrayIndex : cms::alpakatools::uniform_elements_x(acc, nOuterTriplets)) {
-            unsigned int outerTripletIndex = outerTripletOffset + outerTripletArrayIndex;
-            //check if the 2 T3s have a common LS
-            const auto outerT3LS1Index = segIdx[outerTripletIndex][0];
-            if (innerT3LS2Index != outerT3LS1Index)
-              continue;
+          const auto outerOffset = tripletsRangesBySegment.offset()[innerT3LS2Index];
+          for (unsigned int outerIndex : cms::alpakatools::uniform_elements_x(acc, nOuterTripletsByLS)) {
+            unsigned int outerTripletIndex = tripletsBySegment.tripletIndex()[outerOffset + outerIndex];
 
             if (triplets.partOfPT5()[outerTripletIndex])
               continue;  //don't create T4s for T3s accounted in pT5s
@@ -841,6 +840,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   SegmentsConst segments,
                                   Triplets triplets,
                                   TripletsOccupancyConst tripletsOcc,
+                                  TripletsBySegmentConst tripletsBySegment,
+                                  TripletsRangesConst tripletsRangesBySegment,
                                   ObjectRangesConst ranges,
                                   const float ptCut) const {
       // The atomicAdd below with hierarchy::Threads{} requires one block in x, y dimensions.
@@ -875,16 +876,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           const unsigned int nOuterTriplets = tripletsOcc.nTriplets()[lowerModule2];
           if (nOuterTriplets == 0)
             continue;
-
           const unsigned int secondSegIdx = segIdx[innerTripletIndex][1];
+          const unsigned int nOuterTripletsByLS = tripletsRangesBySegment.n()[secondSegIdx];
+          if (nOuterTripletsByLS == 0)
+            continue;
 
-          const auto outerTripletOffset = tripIdx[lowerModule2];
-          for (unsigned int outerTripletArrayIndex : cms::alpakatools::uniform_elements_x(acc, nOuterTriplets)) {
-            const unsigned int outerTripletIndex = outerTripletOffset + outerTripletArrayIndex;
-            const unsigned int thirdSegIdx = segIdx[outerTripletIndex][0];
-            //check if the 2 T3s have a common LS
-            if (secondSegIdx != thirdSegIdx)
-              continue;
+          const auto outerOffset = tripletsRangesBySegment.offset()[secondSegIdx];
+          for (unsigned int outerIndex : cms::alpakatools::uniform_elements_x(acc, nOuterTripletsByLS)) {
+            const unsigned int outerTripletIndex = tripletsBySegment.tripletIndex()[outerOffset + outerIndex];
 
             if (partOfPT5[outerTripletIndex])
               continue;  //don't create T4s for T3s accounted in pT5s
