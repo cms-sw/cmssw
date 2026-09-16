@@ -1,5 +1,5 @@
 #include "FWCore/Version/interface/GetReleaseVersion.h"
-// just for test
+// just for test1
 #define STRINGIFY_(x_) #x_
 #define STRINGIFY(x_) STRINGIFY_(x_)
 
