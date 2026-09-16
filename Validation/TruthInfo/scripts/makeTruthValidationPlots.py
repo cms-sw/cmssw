@@ -89,8 +89,8 @@ LEVEL_MEANING = {
         "flag existed, since it is stamped at DIGI.",
     "underlyingEvent":
         "the stable legs of the UNDERLYING EVENT, the spectator activity hanging off the artificial "
-        "UnderlyingEvent vertex. The counterpart of stableLegsFromInitialState, which holds the initial state "
-        "side of the same interaction, so between them and the signal levels the event is partitioned into what "
+        "UnderlyingEvent vertex. The counterpart of stableLegsFromInitialState, which holds the legs of the "
+        "selected subgraph, so between them and the signal levels the event is partitioned into what "
         "the analysis asked for, what radiated into it, and what came along with it. An antichain: a leg is a "
         "particle that produced nothing further. Exists only when a selection preset ran, since the artificial "
         "vertices are what the preset builds, and is EMPTY rather than wrong otherwise.",
