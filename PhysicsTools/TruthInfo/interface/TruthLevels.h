@@ -121,11 +121,30 @@ namespace truth {
     constexpr uint16_t kIsLastCopy = 1u << 13;
   }  // namespace detail
 
-  // Quarks and gluons. Strings, clusters and diquarks are collapsed away by
-  // truth::collapseGenShower before the graph is built, so they cannot appear here.
+  // Quarks and gluons.
   [[nodiscard]] inline bool isParton(int32_t pdgId) {
     const int64_t a = std::abs(static_cast<int64_t>(pdgId));
     return (a >= 1 && a <= 6) || a == 21;
+  }
+
+  // Shower bookkeeping rather than a particle a detector could be asked about: a parton,
+  // a diquark, a Pythia string or cluster, a beam or generator-internal pseudoparticle.
+  // The main event keeps its shower, so these are in the graph.
+  [[nodiscard]] inline bool isShowerObject(int32_t pdgId) {
+    const int64_t a = std::abs(static_cast<int64_t>(pdgId));
+    if (isParton(pdgId)) {
+      return true;
+    }
+    if (a >= 91 && a <= 94) {  // cluster, string and the other hadronization placeholders
+      return true;
+    }
+    if (a == 990) {  // pomeron
+      return true;
+    }
+    if (a >= 1000 && a <= 9999 && (a / 10) % 10 == 0 && (a / 100) % 10 != 0) {  // diquarks, e.g. 2101, 2203
+      return true;
+    }
+    return a >= 9900000 && a < 1000000000;  // generator-internal states, below the nuclei codes
   }
 
   // Ordinary hadron whose quark content includes `flavor` (5 = b, 4 = c), read off the
