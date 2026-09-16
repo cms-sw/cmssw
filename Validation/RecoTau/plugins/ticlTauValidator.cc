@@ -69,6 +69,8 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "SimDataFormats/CaloAnalysis/interface/SimTauCPLink.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
@@ -81,9 +83,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  using TracksterToTracksterMap = ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
-                                                       std::vector<ticl::Trackster>,
-                                                       std::vector<ticl::Trackster>>;
+  using TracksterToTracksterMap = ticl::TICLAssociationMap<ticl::mapWithSharedEnergyAndScore,
+							   std::vector<ticl::Trackster>,
+							   std::vector<ticl::Trackster>>;
   using ProductKey = std::pair<edm::ProductID, size_t>;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
@@ -122,6 +124,14 @@ private:
   edm::EDGetTokenT<reco::GenParticleCollection>      genParticlesToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> genVisTausToken_;
   edm::EDGetTokenT<TracksterToTracksterMap>      recoToSimAssocByLCsToken_;
+
+  // Optional HLT-only monitoring.  The main validator still runs when this is
+  // disabled (RECO) or when a configured filter product is absent.
+  bool checkHlt_ = false;
+  std::vector<std::string> hltTauFilterLabels_;
+  std::string hltFinalTauFilterLabel_;
+  std::string hltProcessName_;
+  std::vector<edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>> hltFilterTokens_;
 
   // ---------- constants & helpers ----------
   static constexpr int   kMaxCHLegs    = 3; // charged hadrons per tau
@@ -204,10 +214,28 @@ private:
     MonitorElement* den_dm_eta[kNDMSel]  = {};
     MonitorElement* num_dm_pt[kNDMSel]   = {};
     MonitorElement* num_dm_eta[kNDMSel]  = {};
+    MonitorElement* den_sig_nCh_pt[kMaxCHLegs]    = {};
+    MonitorElement* den_sig_nCh_eta[kMaxCHLegs]   = {};
+    MonitorElement* num_sig_nCh_pt[kMaxCHLegs]    = {};
+    MonitorElement* num_sig_nCh_eta[kMaxCHLegs]   = {};
+    MonitorElement* den_sig_nPi0_pt[kMaxPi0Legs]  = {};
+    MonitorElement* den_sig_nPi0_eta[kMaxPi0Legs] = {};
+    MonitorElement* num_sig_nPi0_pt[kMaxPi0Legs]  = {};
+    MonitorElement* num_sig_nPi0_eta[kMaxPi0Legs] = {};
+    MonitorElement* den_dm_sig_nCh_pt[kNDMSel][kMaxCHLegs]    = {{}};
+    MonitorElement* den_dm_sig_nCh_eta[kNDMSel][kMaxCHLegs]   = {{}};
+    MonitorElement* num_dm_sig_nCh_pt[kNDMSel][kMaxCHLegs]    = {{}};
+    MonitorElement* num_dm_sig_nCh_eta[kNDMSel][kMaxCHLegs]   = {{}};
+    MonitorElement* den_dm_sig_nPi0_pt[kNDMSel][kMaxPi0Legs]  = {{}};
+    MonitorElement* den_dm_sig_nPi0_eta[kNDMSel][kMaxPi0Legs] = {{}};
+    MonitorElement* num_dm_sig_nPi0_pt[kNDMSel][kMaxPi0Legs]  = {{}};
+    MonitorElement* num_dm_sig_nPi0_eta[kNDMSel][kMaxPi0Legs] = {{}};
   };
 
   void fillFakeRateHists(const reco::PFTau& tau,
                          int dmSelI,
+                         int nChFill,
+                         int nPi0Fill,
                          bool isGenuine,
                          FakeRateHists& fr);
 
@@ -303,7 +331,9 @@ private:
                          int bestTauIdx,
                          const LegCounts& counts,
                          const EventContext& ctx);
-  void processFakeRates(const std::vector<SimTauCPLink>& simTaus, const EventContext& ctx);
+  void processFakeRates(const std::vector<SimTauCPLink>& simTaus,
+                        const std::vector<reco::PFTauRef>& filteredTaus,
+                        const EventContext& ctx);
   static int coverageDMFromTruthCPs(int nCharged, int nPhotons);
 
   std::array<std::array<CaloStepHists,  kMaxCHLegs>,    kNDMGen> chStepHists_{};
@@ -384,8 +414,11 @@ private:
 
   // ---------- fake rate histograms ----------
   FakeRateHists fakeRate_;
+  FakeRateHists fakeRateFiltered_;
   FakeRateHists fakeRateCalo_;
+  FakeRateHists fakeRateCaloFiltered_;
   FakeRateHists fakeRateTrack_;
+  FakeRateHists fakeRateTrackFiltered_;
 
 };
 
@@ -410,6 +443,18 @@ TICLTauValidator::TICLTauValidator(const edm::ParameterSet& iConfig)
   genVisTausToken_   = consumes<reco::GenParticleCollection>(    iConfig.getParameter<edm::InputTag>("genVisTaus") );
   recoToSimAssocByLCsToken_ = consumes<TracksterToTracksterMap>(
     iConfig.getParameter<edm::InputTag>("recoToSimTracksterAssocByLCs") );
+
+  checkHlt_ = iConfig.getParameter<bool>("checkhlt");
+  hltTauFilterLabels_ = iConfig.getParameter<std::vector<std::string>>("hltTauFilterLabels");
+  hltFinalTauFilterLabel_ = iConfig.getParameter<std::string>("hltFinalTauFilterLabel");
+  hltProcessName_ = iConfig.getParameter<std::string>("hltProcessName");
+  if (checkHlt_) {
+    hltFilterTokens_.reserve(hltTauFilterLabels_.size());
+    for (const auto& label : hltTauFilterLabels_) {
+      hltFilterTokens_.push_back(
+          mayConsume<trigger::TriggerFilterObjectWithRefs>(edm::InputTag(label, "", hltProcessName_)));
+    }
+  }
 }
 
 void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
@@ -652,18 +697,58 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
     std::string tag = tagExtra.empty() ? "Fake rate" : ("Fake rate (" + tagExtra + ")");
     bookStepDenNum(fr.den_pt, fr.den_eta, fr.num_pt, fr.num_eta, prefix, tag);
 
+    // Reconstructed signal-candidate multiplicities.  These are nested
+    // selections: the >=N histogram is filled for every N passed by the tau.
+    for (int n = 1; n <= kMaxCHLegs; ++n) {
+      const std::string ns = std::to_string(n);
+      bookStepDenNum(fr.den_sig_nCh_pt[n - 1], fr.den_sig_nCh_eta[n - 1],
+                     fr.num_sig_nCh_pt[n - 1], fr.num_sig_nCh_eta[n - 1],
+                     prefix + "_ge" + ns + "ch_sig",
+                     tag + " (>= " + ns + " charged in signal)");
+    }
+    for (int n = 1; n <= kMaxPi0Legs; ++n) {
+      const std::string ns = std::to_string(n);
+      bookStepDenNum(fr.den_sig_nPi0_pt[n - 1], fr.den_sig_nPi0_eta[n - 1],
+                     fr.num_sig_nPi0_pt[n - 1], fr.num_sig_nPi0_eta[n - 1],
+                     prefix + "_ge" + ns + "pi0_sig",
+                     tag + " (>= " + ns + " pi0 equivalents in signal)");
+    }
+
     for (int i = 0; i < kNDMSel; ++i) {
       int dm = kDMSel[i];
       std::string ds = std::to_string(dm);
       ibook.setCurrentFolder(folder_ + "/GenDM" + ds + "/FakeRate");
       bookStepDenNum(fr.den_dm_pt[i], fr.den_dm_eta[i], fr.num_dm_pt[i], fr.num_dm_eta[i],
                      prefix + "_dm" + ds, tag + " (DM=" + ds + ")");
+      for (int n = 1; n <= kMaxCHLegs; ++n) {
+        const std::string ns = std::to_string(n);
+        bookStepDenNum(fr.den_dm_sig_nCh_pt[i][n - 1], fr.den_dm_sig_nCh_eta[i][n - 1],
+                       fr.num_dm_sig_nCh_pt[i][n - 1], fr.num_dm_sig_nCh_eta[i][n - 1],
+                       prefix + "_dm" + ds + "_ge" + ns + "ch_sig",
+                       tag + " (DM=" + ds + ", >= " + ns + " charged in signal)");
+      }
+      for (int n = 1; n <= kMaxPi0Legs; ++n) {
+        const std::string ns = std::to_string(n);
+        bookStepDenNum(fr.den_dm_sig_nPi0_pt[i][n - 1], fr.den_dm_sig_nPi0_eta[i][n - 1],
+                       fr.num_dm_sig_nPi0_pt[i][n - 1], fr.num_dm_sig_nPi0_eta[i][n - 1],
+                       prefix + "_dm" + ds + "_ge" + ns + "pi0_sig",
+                       tag + " (DM=" + ds + ", >= " + ns + " pi0 equivalents in signal)");
+      }
     }
   };
 
   bookFakeRateSet("fake", "", fakeRate_);
   bookFakeRateSet("fake_calo", "calo assoc", fakeRateCalo_);
   bookFakeRateSet("fake_track", "track assoc", fakeRateTrack_);
+  if (checkHlt_) {
+    bookFakeRateSet("fake_chargedIsoPath", "charged-isolation path", fakeRateFiltered_);
+    bookFakeRateSet("fake_calo_chargedIsoPath",
+                    "calo assoc, charged-isolation path",
+                    fakeRateCaloFiltered_);
+    bookFakeRateSet("fake_track_chargedIsoPath",
+                    "track assoc, charged-isolation path",
+                    fakeRateTrackFiltered_);
+  }
 }
 
 void TICLTauValidator::analyze(const edm::Event& iEvent,
@@ -680,32 +765,29 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
   edm::Handle<reco::PFJetCollection>      pfJets;            iEvent.getByToken(pfJetsToken_, pfJets);
   edm::Handle<reco::GenParticleCollection> genParticles;     iEvent.getByToken(genParticlesToken_, genParticles);
   edm::Handle<reco::GenParticleCollection> genVisTaus;       iEvent.getByToken(genVisTausToken_, genVisTaus);
-<<<<<<< HEAD
-=======
-  edm::Handle<TrackingParticleCollection> trackingParticles;  iEvent.getByToken(trackingParticleToken_, trackingParticles);
-  edm::Handle<reco::RecoToSimCollection> trackRecoToSim;       iEvent.getByToken(trackRecoToSimToken_, trackRecoToSim);
-
-  if (!taus.isValid())
-    return;
 
   std::vector<reco::PFTauRef> finalFilterTauRefs;
 
-  // Access HLT filter products and extract PFTau refs
-  for (size_t fi = 0; fi < hltTauFilterLabels_.size(); ++fi) {
-    edm::Handle<trigger::TriggerFilterObjectWithRefs> filterProduct;
-    iEvent.getByToken(hltFilterTokens_[fi], filterProduct);
-    if (filterProduct.isValid()) {
-      trigger::VRpftau tauRefs;
-      filterProduct->getObjects(trigger::TriggerTau, tauRefs);
-      if (hltTauFilterLabels_[fi] == "hltHpsDoublePFTau40TrackPt1MediumChargedIsolation")
-	finalFilterTauRefs = tauRefs;
-      // HLT filter products accessed for final filter tau reference extraction
-    } else {
-      edm::LogWarning("TICLTauValidator") << "HLT filter " << hltTauFilterLabels_[fi]
-                                          << " product not available";
+  // Extract the tau references from the explicitly configured final HLT
+  // filter.  Other labels may be consumed for future per-filter monitoring,
+  // but they are not mixed into this final-path fake-rate denominator.
+  if (checkHlt_) {
+    for (size_t i = 0; i < hltTauFilterLabels_.size(); ++i) {
+      edm::Handle<trigger::TriggerFilterObjectWithRefs> filterProduct;
+      iEvent.getByToken(hltFilterTokens_[i], filterProduct);
+      if (!filterProduct.isValid()) {
+        edm::LogWarning("TICLTauValidator")
+            << "HLT filter product " << hltTauFilterLabels_[i]
+            << " is unavailable in process " << hltProcessName_;
+        continue;
+      }
+      if (hltTauFilterLabels_[i] == hltFinalTauFilterLabel_) {
+        trigger::VRpftau tauRefs;
+        filterProduct->getObjects(trigger::TriggerTau, tauRefs);
+        finalFilterTauRefs.assign(tauRefs.begin(), tauRefs.end());
+      }
     }
   }
->>>>>>> f2ee35f65de (test one more HLT path)
 
   if (!simTaus.isValid()) {
     edm::LogWarning("TICLTauValidator") << "simTaus invalid, skipping event " << iEvent.id();
@@ -737,7 +819,7 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
   for (const auto& link : *simTaus)
     processLink(link, ctx, seen);
 
-  processFakeRates(*simTaus, ctx);
+  processFakeRates(*simTaus, finalFilterTauRefs, ctx);
 
   LogDebug("TICLTauValidator")
       << "event " << iEvent.id()
@@ -893,12 +975,14 @@ int TICLTauValidator::findBestTICLCandidateIdx(size_t simIdx, PendingInfo& pend,
   int bestRecoTkIdx = -1;
   if (!ctx.simToRecoMap) {
     edm::LogWarning("TICLTauValidator") << "Trackster association map is missing.";
-  } else if (simIdx >= ctx.simToRecoMap->size()) {
+  }
+  else if (simIdx >= ctx.simToRecoMap->size()) {
     edm::LogWarning("TICLTauValidator")
         << "sim trackster index " << simIdx
         << " is out of range for the sim->reco association map (size "
         << ctx.simToRecoMap->size() << ").";
-  } else {
+  }
+  else {
     const auto& assocs = (*ctx.simToRecoMap)[simIdx];
     auto best = std::min_element(assocs.begin(), assocs.end(), [](const auto& a, const auto& b) {
       return a.score() < b.score();
@@ -913,7 +997,8 @@ int TICLTauValidator::findBestTICLCandidateIdx(size_t simIdx, PendingInfo& pend,
           << " pass=" << pass;
       if (pass)
         bestRecoTkIdx = static_cast<int>(best->index());
-    } else {
+    }
+    else {
       LogDebug("TICLTauValidator") << "    step1 simIdx=" << simIdx << " no associations";
     }
   }
@@ -1516,7 +1601,9 @@ int TICLTauValidator::coverageDMFromTruthCPs(int nCharged, int nPhotons) {
 
 
 // Fake rate: loop reco taus and reverse the association chain.
-void TICLTauValidator::processFakeRates(const std::vector<SimTauCPLink>& simTaus, const EventContext& ctx) {
+void TICLTauValidator::processFakeRates(const std::vector<SimTauCPLink>& simTaus,
+                                        const std::vector<reco::PFTauRef>& filteredTaus,
+                                        const EventContext& ctx) {
   if (!ctx.taus || !ctx.jets || !ctx.pfMerged || !ctx.ticlCandidates || !ctx.simTICLCandidates ||
       !ctx.recoToSimMap) {
     edm::LogWarning("TICLTauValidator") << "Fake rate loop skipped:"
@@ -1563,13 +1650,30 @@ void TICLTauValidator::processFakeRates(const std::vector<SimTauCPLink>& simTaus
       tauSimCandTrackKeys.emplace(sc.trackPtr().id(), sc.trackPtr().key());
   }
 
-  for (const auto& tau : *ctx.taus) {
+  const auto processTau = [&](const reco::PFTau& tau,
+                              FakeRateHists& inclusive,
+                              FakeRateHists& calo,
+                              FakeRateHists& track) {
     if (std::abs(tau.eta()) < hgcalEtaAbsMin_)
-      continue;
+      return;
     if (tau.signalPFCands().empty())
-      continue;
+      return;
 
     const int dmSelI = dmToSelIndex(tau.decayMode());
+    int nChSig = 0;
+    int nPhotonSig = 0;
+    for (const auto& pfPtr : tau.signalPFCands()) {
+      if (!pfPtr.isNonnull())
+        continue;
+      const int absPdg = std::abs(pfPtr->pdgId());
+      if (absPdg == 211 || absPdg == 130)
+        ++nChSig;
+      else if (absPdg == 22 || absPdg == 11)
+        ++nPhotonSig;
+    }
+    const int nChFill = std::min(nChSig, kMaxCHLegs);
+    const int nPi0Fill = std::min(nPhotonSig / 2, kMaxPi0Legs);
+
     const auto assocCounts = countAssociatedSignalPFCands(
         tau, ctx.barrelSize, tauSimTracksterIdxs, tauSimCandTrackKeys, *ctx.ticlCandidates, *ctx.recoToSimMap);
     const bool isGenuine      = (assocCounts.nAssocAllParticles > 0);
@@ -1583,14 +1687,26 @@ void TICLTauValidator::processFakeRates(const std::vector<SimTauCPLink>& simTaus
         << " track=" << isGenuineTrack
         << " nSigCh=" << assocCounts.nSigCh
         << " nSigPho=" << assocCounts.nSigPho;
-    fillFakeRateHists(tau, dmSelI, isGenuine, fakeRate_);
-    fillFakeRateHists(tau, dmSelI, isGenuineCalo, fakeRateCalo_);
-    fillFakeRateHists(tau, dmSelI, isGenuineTrack, fakeRateTrack_);
+    fillFakeRateHists(tau, dmSelI, nChFill, nPi0Fill, isGenuine, inclusive);
+    fillFakeRateHists(tau, dmSelI, nChFill, nPi0Fill, isGenuineCalo, calo);
+    fillFakeRateHists(tau, dmSelI, nChFill, nPi0Fill, isGenuineTrack, track);
+  };
+
+  for (const auto& tau : *ctx.taus)
+    processTau(tau, fakeRate_, fakeRateCalo_, fakeRateTrack_);
+
+  // This is intentionally a second population: only tau objects retained by
+  // the configured final HLT filter.  It must not replace the inclusive loop.
+  for (const auto& tauRef : filteredTaus) {
+    if (tauRef.isNonnull())
+      processTau(*tauRef, fakeRateFiltered_, fakeRateCaloFiltered_, fakeRateTrackFiltered_);
   }
 }
 
 void TICLTauValidator::fillFakeRateHists(const reco::PFTau& tau,
                                          int dmSelI,
+                                         int nChFill,
+                                         int nPi0Fill,
                                          bool isGenuine,
                                          FakeRateHists& fr) {
   auto fillPtEta = [&](MonitorElement* hpt, MonitorElement* heta) {
@@ -1602,6 +1718,17 @@ void TICLTauValidator::fillFakeRateHists(const reco::PFTau& tau,
   if (dmSelI >= 0)
     fillPtEta(fr.den_dm_pt[dmSelI], fr.den_dm_eta[dmSelI]);
 
+  for (int n = 1; n <= nChFill; ++n) {
+    fillPtEta(fr.den_sig_nCh_pt[n - 1], fr.den_sig_nCh_eta[n - 1]);
+    if (dmSelI >= 0)
+      fillPtEta(fr.den_dm_sig_nCh_pt[dmSelI][n - 1], fr.den_dm_sig_nCh_eta[dmSelI][n - 1]);
+  }
+  for (int n = 1; n <= nPi0Fill; ++n) {
+    fillPtEta(fr.den_sig_nPi0_pt[n - 1], fr.den_sig_nPi0_eta[n - 1]);
+    if (dmSelI >= 0)
+      fillPtEta(fr.den_dm_sig_nPi0_pt[dmSelI][n - 1], fr.den_dm_sig_nPi0_eta[dmSelI][n - 1]);
+  }
+
   if (isGenuine)
     return;
 
@@ -1609,6 +1736,16 @@ void TICLTauValidator::fillFakeRateHists(const reco::PFTau& tau,
   if (dmSelI >= 0)
     fillPtEta(fr.num_dm_pt[dmSelI], fr.num_dm_eta[dmSelI]);
 
+  for (int n = 1; n <= nChFill; ++n) {
+    fillPtEta(fr.num_sig_nCh_pt[n - 1], fr.num_sig_nCh_eta[n - 1]);
+    if (dmSelI >= 0)
+      fillPtEta(fr.num_dm_sig_nCh_pt[dmSelI][n - 1], fr.num_dm_sig_nCh_eta[dmSelI][n - 1]);
+  }
+  for (int n = 1; n <= nPi0Fill; ++n) {
+    fillPtEta(fr.num_sig_nPi0_pt[n - 1], fr.num_sig_nPi0_eta[n - 1]);
+    if (dmSelI >= 0)
+      fillPtEta(fr.num_dm_sig_nPi0_pt[dmSelI][n - 1], fr.num_dm_sig_nPi0_eta[dmSelI][n - 1]);
+  }
 }
 
 TICLTauValidator::AssocCounts TICLTauValidator::countAssociatedSignalPFCands(
@@ -1719,7 +1856,15 @@ void TICLTauValidator::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<edm::InputTag>("genVisTaus", edm::InputTag("genVisTaus"));
   desc.add<double>("maxAssocScore", 0.6);
   desc.add<double>("hgcalEtaAbsMin", 1.5);
+  // for reco step, it should be set false in config
+  desc.add<bool>("checkhlt", true);
   desc.add<std::string>("hltProcessName", "HLTX");
+  desc.add<std::vector<std::string>>(
+      "hltTauFilterLabels",
+      {"hltHpsDoublePFTau35MediumDitauWPDeepTau",
+       "hltHpsDoublePFTau40TrackPt1MediumChargedIsolation"});
+  desc.add<std::string>("hltFinalTauFilterLabel",
+                        "hltHpsDoublePFTau40TrackPt1MediumChargedIsolation");
   descriptions.add("ticlTauValidator", desc);
 }
 
