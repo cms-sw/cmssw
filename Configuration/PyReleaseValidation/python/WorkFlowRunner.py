@@ -1,5 +1,6 @@
 from threading import Thread
 from Configuration.PyReleaseValidation import WorkFlow
+from Configuration.PyReleaseValidation.relval_steps import localPUname
 import os,time
 import shutil
 import re
@@ -234,7 +235,8 @@ class WorkFlowRunner(Thread):
                 # in case previous step used DAS query (either filelist of das:)
                 # not to be applied for premixing stage1 to allow combined stage1+stage2 workflow
                 # & similar for HybridPU combined workflow
-                if inFile and not 'premix_stage1' in cmd and not 'FASTSIM' in cmd:
+                # & for on-the-fly MinBias creation for PU
+                if inFile and not 'premix_stage1' in cmd and not 'FASTSIM' in cmd and not f'--fileout {localPUname}' in cmd:
                     cmd += ' --filein '+inFile
                     inFile=None
                 if lumiRangeFile: #DAS query can also restrict lumi range
@@ -248,14 +250,18 @@ class WorkFlowRunner(Thread):
                     # Disable input for premix stage1 to allow combined stage1+stage2 workflow
                     # Disable input for premix stage2 in FastSim to allow combined stage1+stage2 workflow (in FS, stage2 does also GEN)
                     # & similar for HybridPU combined workflow
+                    # & for on-the-fly MinBias creation for PU
                     # Ugly hack but works
                     extension = '.root'
                     if '--rntuple_out' in cmd:
                         extension = '.rntpl'
                     outputExtensionForStep[istep] = extension
-                    if istep!=1 and not '--filein' in cmd and not 'premix_stage1' in cmd and not ("--fast" in cmd and "premix_stage2" in cmd) and not 'FASTSIM' in cmd:
+                    if istep!=1 and not '--filein' in cmd and not 'premix_stage1' in cmd and not ("--fast" in cmd and "premix_stage2" in cmd) and not 'FASTSIM' in cmd and not f'--fileout {localPUname}' in cmd:
                         steps = cmd.split("-s ")[1].split(" ")[0] ## relying on the syntax: cmsDriver -s STEPS --otherFlags
-                        if "ALCA" not in steps:
+                        if "GEN" in steps:
+                            # in case on-the-fly MinBias step added before signal generation
+                            pass
+                        elif "ALCA" not in steps:
                             cmd+=' --filein  file:step%s%s '%(istep-1,outputExtensionForStep[istep-1])
                         elif "ALCA" in steps and "RECO" in steps:
                             cmd+=' --filein  file:step%s%s '%(istep-1,outputExtensionForStep[istep-1])

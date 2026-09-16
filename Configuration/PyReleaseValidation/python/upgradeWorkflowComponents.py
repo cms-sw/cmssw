@@ -265,6 +265,12 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'HARVESTFastRun3',
         'FastSimRun4',
         'HARVESTFastRun4',
+        'MinBias13',
+        'MinBias',
+        'MinBiasHLBeamSpot',
+        'MinBiasHLBeamSpot14',
+        'MinBiasFSRun3',
+        'MinBiasFSRun4',
     ],
     PU =  [
         'DigiTrigger',
@@ -3929,8 +3935,10 @@ for key in list(upgradeProperties[2017].keys()):
             scenToRun[idx] += 'PU'*(val.startswith('Digi') or val.startswith('Reco') or val.startswith('HARVEST'))
         # remove ALCA
         upgradeProperties[2017][key+'PU']['ScenToRun'] = [foo for foo in scenToRun if foo != 'ALCA']
+        # insert minbias at beginning
+        upgradeProperties[2017][key+'PU']['ScenToRun'].insert(0, 'MinBias13' if key.startswith('201') else 'MinBias')
     else:
-        upgradeProperties[2017][key+'PU']['ScenToRun'] = ['Gen','FastSimRun3PU','HARVESTFastRun3PU']
+        upgradeProperties[2017][key+'PU']['ScenToRun'] = ['MinBiasFSRun3','Gen','FastSimRun3PU','HARVESTFastRun3PU']
 
 upgradeProperties['Run4'] = {
     'Run4D104' : {
@@ -4097,9 +4105,9 @@ for key in list(upgradeProperties['Run4'].keys()):
         continue
     upgradeProperties['Run4'][key+'PU'] = deepcopy(upgradeProperties['Run4'][key])
     if 'FS' not in key:
-        upgradeProperties['Run4'][key+'PU']['ScenToRun'] = ['GenSimHLBeamSpot','DigiTriggerPU','RecoGlobalPU', 'HARVESTGlobalPU']
+        upgradeProperties['Run4'][key+'PU']['ScenToRun'] = ['MinBiasHLBeamSpot','GenSimHLBeamSpot','DigiTriggerPU','RecoGlobalPU', 'HARVESTGlobalPU']
     else:
-        upgradeProperties['Run4'][key+'PU']['ScenToRun'] = ['GenHLBeamSpot','FastSimRun4PU','HARVESTFastRun4PU']
+        upgradeProperties['Run4'][key+'PU']['ScenToRun'] = ['MinBiasFSRun4','GenHLBeamSpot','FastSimRun4PU','HARVESTFastRun4PU']
 
 # for relvals
 defaultDataSets = {}
