@@ -80,7 +80,7 @@ namespace {
     b.graph.particles()[kConnector].pdgId = 0;
     b.graph.particles()[kConnector].role = static_cast<uint8_t>(truth::ParticleRole::Connector);
     b.graph.particles()[kPion].pdgId = 211;
-    b.graph.vertices()[4].role = static_cast<uint8_t>(truth::VertexRole::Upstream);
+    b.graph.vertices()[4].role = static_cast<uint8_t>(truth::VertexRole::InitialState);
 
     b.addDecay(kBeam, 0);
     b.addProduction(0, kGluon);

@@ -15,8 +15,8 @@ object does not map to a single truth particle:
 - a b-jet  <-> the b-quark branch (with its B-hadron sub-branch).
 
 It is built directly on phases 1-3: the selection (seed PDG / heavy-flavor)
-chooses the root, the downstream closure defines the extent, the ISR/underlying
--event roles + genEvent/eventId give provenance, and the hit index gives the
+chooses the root, the downstream closure defines the extent, the initial-state and
+underlying-event roles + genEvent/eventId give provenance, and the hit index gives the
 detector footprint.
 
 ## Construction & closure policy

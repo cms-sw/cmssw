@@ -9,7 +9,7 @@ selection (which particle is the seed, whether to pull in the seed's hard-scatte
 co-products, which decay channel to keep, ...):
 
   gun          single/multi-particle guns          seed = the gun species
-  resonance    s-channel Z / DY (+n-jet) / Z' / W(+jets)  seed = the resonance, ISR context
+  resonance    s-channel Z / DY (+n-jet) / Z' / W(+jets)  seed = the resonance, initial state
   vbf          VBF / t-channel Higgs (incl. VBF HH) seed = Higgs + keepProductionSiblings
   ggf          ggF / s-channel single Higgs, di-Higgs (gg->HH)  seed = Higgs
   vh           associated Higgs (WH / ZH / VH / WWH / ZZH)  seed = Higgs + recoiling boson

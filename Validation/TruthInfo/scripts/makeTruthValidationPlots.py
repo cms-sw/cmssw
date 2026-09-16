@@ -45,7 +45,7 @@ WP_ORDER = ["Fixed", "AdaptiveTight", "AdaptiveNominal", "AdaptiveLoose"]
 # selector cut at all, so the efficiency is quoted against every seed in the event.
 # Every entry here is an ANTICHAIN: no member is an ancestor of another, so no efficiency
 # counts one object twice. That is the entry requirement for a truth denominator.
-LEVEL_ORDER = ["stableLegsFromUpstream", "caloBoundary", "stableDecayProducts", "hardProcess",
+LEVEL_ORDER = ["stableLegsFromInitialState", "caloBoundary", "stableDecayProducts", "hardProcess",
                "reconstructableFromSignal", "reconstructableFinalState", "underlyingEvent",
                "partonJets", "bHadrons", "cHadrons", "visibleTau", "signal", "signalNoSelection"]
 # What each truth-driven series IS. These are the efficiency DENOMINATORS, and they are not
@@ -63,8 +63,8 @@ LEVEL_MEANING = {
         "of any detector or selection, so it includes neutrinos and everything that never reaches a "
         "calorimeter. About 2740 per event, of which only 2.2% reach the calorimeter boundary: as a "
         "calorimetric denominator it is therefore dominated by objects no calorimeter object could ever match.",
-    "stableLegsFromUpstream":
-        "the LEAVES of the selected subgraph: follow every particle out of the artificial Upstream vertex down "
+    "stableLegsFromInitialState":
+        "the LEAVES of the selected subgraph: follow every particle out of the artificial InitialState vertex down "
         "until the chain stops. It is the selection's own notion of 'the interesting activity', so it exists "
         "only when a selection preset ran. About 35 per event; 67% of it is also at the calorimeter boundary "
         "and 44% is also generator-stable, so it is a middle ground between the two.",
@@ -88,7 +88,7 @@ LEVEL_MEANING = {
         "flag existed, since it is stamped at DIGI.",
     "underlyingEvent":
         "the stable legs of the UNDERLYING EVENT, the spectator activity hanging off the artificial "
-        "UnderlyingEvent vertex. The counterpart of stableLegsFromUpstream, which holds the ISR and upstream "
+        "UnderlyingEvent vertex. The counterpart of stableLegsFromInitialState, which holds the initial state "
         "side of the same interaction, so between them and the signal levels the event is partitioned into what "
         "the analysis asked for, what radiated into it, and what came along with it. An antichain: a leg is a "
         "particle that produced nothing further. Exists only when a selection preset ran, since the artificial "
@@ -1273,7 +1273,7 @@ def main():
     def overlay_note(metric):
         if metric in TRUTH_METRICS:
             return ("Each plot overlays the branch LEVELS of the truth graph, the a priori definitions of what "
-                    "one truth object is (stableLegsFromUpstream, caloBoundary, stableDecayProducts, "
+                    "one truth object is (stableLegsFromInitialState, caloBoundary, stableDecayProducts, "
                     "hardProcess, reconstructableFromSignal), plus three more series: signal, whose denominator "
                     "is the preset SEED objects "
                     "among the selected roots, so with a selection preset it is the signal object's own "

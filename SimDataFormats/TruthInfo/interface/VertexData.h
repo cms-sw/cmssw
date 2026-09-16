@@ -12,17 +12,18 @@ namespace truth {
   // Role of a logical vertex. Normal vertices are real GEN/SIM vertices.
   // Artificial source vertices summarize activity that was cut from a focused
   // selection but is kept for context/consistency:
-  //   Upstream        - truncated production context of the selected roots (ISR,
-  //                     beam/initial-state activity that led to the selection);
+  //   InitialState    - truncated production context of the selected roots: the
+  //                     beam, the hard-scatter ancestry and the ISR that led to
+  //                     the selection;
   //   UnderlyingEvent - stable final-state particles not in any selected
   //                     subgraph (underlying event, unrelated to the selection).
   // Artificial vertices carry the genEvent/eventId of the activity they
   // summarize, so that overlaid pile-up graphs stay distinguishable. Interaction
   // is the per-interaction root that fans out (through connector particles) to
-  // its Upstream (ISR/hard-scatter) and UnderlyingEvent sub-vertices, so the
+  // its InitialState and UnderlyingEvent sub-vertices, so the
   // whole interaction descends from one node: the signal is everything reachable
   // from the signal Interaction vertex, and each pile-up interaction gets its own.
-  enum class VertexRole : uint8_t { Normal = 0, Upstream = 1, UnderlyingEvent = 2, Interaction = 3 };
+  enum class VertexRole : uint8_t { Normal = 0, InitialState = 1, UnderlyingEvent = 2, Interaction = 3 };
 
   // Physical reason a vertex exists, derived from the Geant4 creator-process
   // subtype of the SimVertex (TruthGraph::nodeProcessType). Unknown for GEN-only

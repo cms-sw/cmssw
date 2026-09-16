@@ -230,7 +230,7 @@ class LevelFlags_t : public CppUnit::TestFixture {
   CPPUNIT_TEST(testGunSeedThatIsItselfReconstructableIsItsOwnLeg);
   CPPUNIT_TEST(testSimContinuationIsNotADecay);
   CPPUNIT_TEST(testReconvergentHistoryStaysAnAntichain);
-  CPPUNIT_TEST(testStableLegsFromUpstreamAndUnderlyingEvent);
+  CPPUNIT_TEST(testStableLegsFromInitialStateAndUnderlyingEvent);
   CPPUNIT_TEST(testDiquarksAreNotHeavyFlavourHadrons);
   CPPUNIT_TEST(testThreeProngThroughAnIntermediateResonance);
   CPPUNIT_TEST(testPartonJetsKeepTheQuarksNotTheTopOrTheBeam);
@@ -529,10 +529,10 @@ public:
     CPPUNIT_ASSERT_EQUAL(uint32_t{1}, legs[0]);
   }
 
-  // The two levels that hang off the artificial source vertices: Upstream collects the
-  // ISR side, UnderlyingEvent the spectators, and each keeps the legs that produced
+  // The two levels that hang off the artificial source vertices: InitialState collects the
+  // beam, hard-scatter and ISR side, UnderlyingEvent the spectators, and each keeps the legs that produced
   // nothing further. A leg's own role vertex decides which level it lands in.
-  void testStableLegsFromUpstreamAndUnderlyingEvent() {
+  void testStableLegsFromInitialStateAndUnderlyingEvent() {
     GraphBuilder b(4, 2);
     auto set = [&](uint32_t i, int32_t pdg, int16_t st) {
       auto& d = b.graph.particles()[i];
@@ -541,18 +541,18 @@ public:
       d.status = st;
       d.momentum = math::XYZTLorentzVectorD(5., 0., 0., 5.);
     };
-    set(0, 22, 1);   // ISR photon off the Upstream vertex
+    set(0, 22, 1);   // ISR photon off the InitialState vertex
     set(1, 211, 1);  // spectator off the UnderlyingEvent vertex
     set(2, 111, 2);  // spectator that decays, so it is not a leg
     set(3, 22, 1);   // its daughter, which is
-    b.graph.vertices()[0].role = static_cast<uint8_t>(truth::VertexRole::Upstream);
+    b.graph.vertices()[0].role = static_cast<uint8_t>(truth::VertexRole::InitialState);
     b.graph.vertices()[1].role = static_cast<uint8_t>(truth::VertexRole::UnderlyingEvent);
     b.addProduction(0, 0);
     b.addProduction(1, 1);
     b.addProduction(1, 2);
     truth::Graph g = b.finish();
 
-    const auto upstream = truth::levelAntichain(g, truth::Level::StableLegsFromUpstream);
+    const auto upstream = truth::levelAntichain(g, truth::Level::StableLegsFromInitialState);
     CPPUNIT_ASSERT_EQUAL(std::size_t{1}, upstream.size());
     CPPUNIT_ASSERT_EQUAL(uint32_t{0}, upstream[0]);
 
