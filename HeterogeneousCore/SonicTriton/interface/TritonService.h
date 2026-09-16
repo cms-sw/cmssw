@@ -3,11 +3,11 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
-#include "oneapi/tbb/concurrent_hash_map.h"
 
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
+#include <map>
 #include <string>
 #include <functional>
 #include <utility>
@@ -95,13 +95,13 @@ public:
   };
   //Dynamic quantities of servers
   struct ServerHealth {
-    bool live{false};
     bool ready{false};
 
+    //successful and failed requests, cumulative since the server started
     uint64_t inferenceCount{0};
     uint64_t failureCount{0};
-    double avgQueueTimeMs{0.0};
-    double avgInferTimeMs{0.0};
+    //average end-to-end time of a successful request as a proxy to server load
+    double avgSuccessTimeMs{0.0};
   };
   struct Model {
     Model(const std::string& path_ = "") : path(path_) {}
@@ -129,9 +129,6 @@ public:
   const std::pair<const std::string, Server>& resolveServer(const std::string& model,
                                                             const std::string& preferred = "") const;
   std::vector<std::string> unassignedModels() const;
-
-  // update health stats of all servers
-  void updateServerHealth(const std::string& modelName = "") const;
 
   // return the best server for retry, ignore the current server
   std::optional<std::string> getBestServer(const std::string& modelName, const std::string& IgnoreServer = "") const;
@@ -164,6 +161,12 @@ private:
   // Internal helpers that operate on Model directly (caller holds lock)
   bool loadModel(const std::string& modelName, Model& model);
   bool unloadModel(const std::string& modelName, Model& model);
+  // Query current health of every (non-fallback) server that serves modelName, measured for that model
+  // only, computed on the fly and returned by value
+  std::vector<std::pair<std::string, ServerHealth>> getServerHealth(const std::string& modelName) const;
+  // choose the retry target among the measured healths
+  std::optional<std::string> selectBestServer(const std::vector<std::pair<std::string, ServerHealth>>& healths,
+                                              const std::string& ignoreServer) const;
 
   bool verbose_;
   FallbackOpts fallbackOpts_;
@@ -173,9 +176,9 @@ private:
   mutable std::atomic<int> callFails_;
   std::string pid_;
   //this represents a many:many:many map
-  std::unordered_map<std::string, Server> servers_;
-  //server health needs concurrent-safe edits
-  tbb::concurrent_hash_map<std::string, ServerHealth> serversHealth_;
+  //ordered (not unordered_map) since iteration order must be deterministic: it drives
+  //server-assignment decisions, and the list is short enough that map's overhead doesn't matter
+  std::map<std::string, Server> servers_;
   std::unordered_map<std::string, Model> models_;
   std::unordered_map<unsigned, Module> modules_;
   int numberOfThreads_;
