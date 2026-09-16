@@ -19,7 +19,7 @@ import FWCore.ParameterSet.Config as cms
 def addHLTPFDQM(process):
     process.load('Validation.RecoParticleFlow.DQMForPF_HLT_cff')
 
-    seq = process.DQMHLTPF_withPFAnalyzer
+    seq = process.DQMHLTPF
 
     # The analyzers are DQM producers.  Attach to the validation Path when there
     # is one (the HLT-only workflow has VALIDATION but no DQM step); fall back to

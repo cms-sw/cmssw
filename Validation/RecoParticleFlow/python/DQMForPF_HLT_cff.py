@@ -63,15 +63,6 @@ offsetAnalyzerDQMHLT = offsetAnalyzerDQM.clone(
     offsetPlots = createOffsetVPSetPhase2(),
 )
 
-DQMHLTPF = cms.Sequence(
-    PFCandAnalyzerDQMHLT +
-    offsetAnalyzerDQMHLT
-)
-
-DQMHarvestHLTPF = cms.Sequence(
-    offsetDQMPostProcessor
-)
-
 
 # ---------------------------------------------------------------------------
 # DQMOffline/ParticleFlow PFAnalyzer, HLT instance.
@@ -86,7 +77,8 @@ DQMHarvestHLTPF = cms.Sequence(
 # spectra are binned to resolve it.
 from DQMOffline.ParticleFlow.pfAnalyzer_cfi import pfAnalyzer
 
-pfAnalyzerHLT = pfAnalyzer.clone(
+pfAnalyzerDQMHLT = pfAnalyzer.clone(
+    isHLT               = True,
     isMiniAOD           = False,
     pfCandidates        = "hltParticleFlowTmp",
     pfJetCollection     = "hltAK4PFPuppiJets",
@@ -118,8 +110,12 @@ pfAnalyzerHLT = pfAnalyzer.clone(
     ),
 )
 
-DQMHLTPF_withPFAnalyzer = cms.Sequence(
+DQMHLTPF = cms.Sequence(
     PFCandAnalyzerDQMHLT +
     offsetAnalyzerDQMHLT +
-    pfAnalyzerHLT
+    pfAnalyzerDQMHLT
+)
+
+DQMHarvestHLTPF = cms.Sequence(
+    offsetDQMPostProcessor
 )
