@@ -213,7 +213,7 @@ namespace {
     });
   }
 
-  // The artificial *sub*-vertex a particle attaches to (Upstream or
+  // The artificial *sub*-vertex a particle attaches to (InitialState or
   // UnderlyingEvent), i.e. skipping the per-interaction Interaction root that
   // those sub-vertices descend from.
   uint32_t artificialVertexId(truth::Graph const& graph) {
@@ -258,7 +258,7 @@ namespace {
   }
 
   // True if, walking up its production chain, the particle reaches an artificial
-  // source vertex (Interaction / Upstream / UnderlyingEvent) - i.e. it is grounded
+  // source vertex (Interaction / InitialState / UnderlyingEvent) - i.e. it is grounded
   // on the per-interaction artificial-source structure rather than on a real vertex.
   bool descendsFromArtificialSource(truth::Graph const& graph, uint32_t particleId) {
     std::vector<uint8_t> seenParticle(graph.nParticles(), 0);
@@ -1285,9 +1285,9 @@ void TestTruthLogicalGraphPostProcessor::testArtificialSourceRolesAndProvenance(
     auto output = runPostProcessing(std::move(graph), config);
     CPPUNIT_ASSERT(output.isConsistent());
 
-    // Z (root with truncated upstream) -> Upstream node; pi+ -> UnderlyingEvent
+    // Z (root with truncated upstream) -> InitialState node; pi+ -> UnderlyingEvent
     // node; both descend from a single Interaction node for the one interaction.
-    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::Upstream));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::InitialState));
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::UnderlyingEvent));
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::Interaction));
 
@@ -1304,12 +1304,12 @@ void TestTruthLogicalGraphPostProcessor::testArtificialSourceRolesAndProvenance(
     const uint32_t z = findParticleWithPdgId(output, 23);
     const auto zProd = output.productionVertices(z);
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), zProd.size());
-    CPPUNIT_ASSERT(output.vertices()[zProd.front()].vertexRole() == truth::VertexRole::Upstream);
+    CPPUNIT_ASSERT(output.vertices()[zProd.front()].vertexRole() == truth::VertexRole::InitialState);
 
-    // The Upstream and UnderlyingEvent vertices each descend from the single
+    // The InitialState and UnderlyingEvent vertices each descend from the single
     // Interaction vertex through one artificial connector particle.
     const uint32_t interaction = findVertexWithRole(output, truth::VertexRole::Interaction);
-    const uint32_t upstream = findVertexWithRole(output, truth::VertexRole::Upstream);
+    const uint32_t upstream = findVertexWithRole(output, truth::VertexRole::InitialState);
     const uint32_t underlyingEvent = findVertexWithRole(output, truth::VertexRole::UnderlyingEvent);
 
     for (const uint32_t sub : {upstream, underlyingEvent}) {
@@ -1361,10 +1361,10 @@ void TestTruthLogicalGraphPostProcessor::testKeepStableSpectatorsFalseDropsSpect
     CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::UnderlyingEvent));
 
     // Focused subgraph: Z + two muons + one artificial connector, the Z hanging
-    // off an Upstream (ISR) node that descends from the Interaction node.
+    // off an InitialState node that descends from the Interaction node.
     CPPUNIT_ASSERT_EQUAL(uint32_t(4), output.nParticles());
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 23));
-    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::Upstream));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::InitialState));
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::Interaction));
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
@@ -1572,7 +1572,7 @@ void TestTruthLogicalGraphPostProcessor::testAttachSelectionSourcesFalseRootsSee
     CPPUNIT_ASSERT(output.isConsistent());
 
     // No artificial source vertices at all: the Z is a true graph root.
-    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::Upstream));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::InitialState));
     CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::UnderlyingEvent));
     CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::Interaction));
 
@@ -1643,9 +1643,9 @@ void TestTruthLogicalGraphPostProcessor::testEventIdKeyingSplitsInteractions() {
     auto output = runPostProcessing(std::move(graph), config);
     CPPUNIT_ASSERT(output.isConsistent());
 
-    // One Interaction (and one Upstream) vertex per interaction: signal + pile-up.
+    // One Interaction (and one InitialState) vertex per interaction: signal + pile-up.
     CPPUNIT_ASSERT_EQUAL(uint32_t(2), countArtificialVerticesWithRole(output, truth::VertexRole::Interaction));
-    CPPUNIT_ASSERT_EQUAL(uint32_t(2), countArtificialVerticesWithRole(output, truth::VertexRole::Upstream));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(2), countArtificialVerticesWithRole(output, truth::VertexRole::InitialState));
     CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::UnderlyingEvent));
     CPPUNIT_ASSERT_EQUAL(uint32_t(2), countParticlesWithPdgId(output, 23));
 
@@ -1759,7 +1759,7 @@ void TestTruthLogicalGraphPostProcessor::testEveryParticleDescendsFromArtificial
     // (a photon and an electron) produced at the hard-interaction vertex. With a
     // seed selection and attachSelectionSources, the post-processor must leave NO
     // real (Normal) source vertex behind: every particle has to trace up to an
-    // artificial source (Interaction / Upstream / UnderlyingEvent), so nothing is
+    // artificial source (Interaction / InitialState / UnderlyingEvent), so nothing is
     // left rooted at a real vertex. (A real source vertex surviving is what makes a
     // cluster of particles look orphaned once such a vertex is hidden in the dump.)
     GraphBuilder builder(7, 3);

@@ -138,7 +138,7 @@ namespace {
   // unmapped endpoint. `extraProductionEdges` are additional
   // (newVertex, newParticle) production-side edges and `extraDecayEdges` are
   // additional (newParticle, newVertex) decay-side edges - e.g. those wiring the
-  // artificial Interaction/Upstream/UnderlyingEvent vertices and their connector
+  // artificial Interaction/InitialState/UnderlyingEvent vertices and their connector
   // particles. buildCSR sorts and deduplicates, so the collection order here does
   // not affect the result.
   void rebuildAdjacency(truth::Graph const& input,
@@ -745,9 +745,9 @@ namespace {
   }
 
   // attachRole[i] is 0 for particles that are not attached to an artificial
-  // source, or the uint8_t value of the Upstream/UnderlyingEvent VertexRole
+  // source, or the uint8_t value of the InitialState/UnderlyingEvent VertexRole
   // otherwise. Per interaction (keyed by genEvent) a single Interaction source
-  // vertex is created and fans out, through connector particles, to the Upstream
+  // vertex is created and fans out, through connector particles, to the InitialState
   // and UnderlyingEvent sub-vertices the attached particles hang off; all three
   // carry the genEvent/eventId of the activity they summarize so overlaid
   // pile-up interactions stay distinguishable.
@@ -787,7 +787,7 @@ namespace {
     // each pile-up interaction its own):
     //
     //   (Interaction vertex, source)
-    //      --connector particle--> (Upstream vertex)        --> ISR/upstream roots
+    //      --connector particle--> (InitialState vertex)   --> initial-state roots
     //      --connector particle--> (UnderlyingEvent vertex) --> spectators
     //
     // so the whole interaction descends from a single Interaction vertex: the
@@ -798,7 +798,7 @@ namespace {
     // (genNode = simNode = -1) and carry the interaction provenance.
     struct InteractionNodes {
       int32_t interactionVertex = -1;
-      int32_t upstreamVertex = -1;
+      int32_t initialStateVertex = -1;
       int32_t underlyingEventVertex = -1;
     };
 
@@ -822,7 +822,7 @@ namespace {
         };
 
     // The real production vertex of an attached particle is the primary
-    // interaction point of its pp collision: the Upstream (ISR) roots and the
+    // interaction point of its pp collision: the InitialState roots and the
     // UnderlyingEvent spectators are all produced there. That vertex was dropped
     // from the output (which is why the particle needs an artificial source), but
     // it still carries its 4-position in `input`, so the artificial source nodes
@@ -854,13 +854,13 @@ namespace {
 
       int32_t& subVertex = (role == static_cast<uint8_t>(truth::VertexRole::UnderlyingEvent))
                                ? nodes.underlyingEventVertex
-                               : nodes.upstreamVertex;
+                               : nodes.initialStateVertex;
 
       if (subVertex < 0) {
         subVertex = static_cast<int32_t>(makeArtificialVertex(role, genEvent, eventId, interactionPoint));
 
         // Connector particle: produced at the Interaction vertex, decays at this
-        // Upstream/UnderlyingEvent sub-vertex, so the sub-vertex (and everything
+        // InitialState/UnderlyingEvent sub-vertex, so the sub-vertex (and everything
         // below it) descends from the single Interaction vertex.
         truth::ParticleData connector;
         connector.genNode = -1;
@@ -1039,8 +1039,8 @@ namespace {
 
     // Assign an artificial-source role to every kept particle whose real
     // production vertices were all dropped: stable spectators -> UnderlyingEvent,
-    // selected roots / truncated ancestors at the upstream boundary -> Upstream
-    // (ISR). True sources of the input graph stay sources. When
+    // selected roots / truncated ancestors at the upstream boundary -> InitialState.
+    // True sources of the input graph stay sources. When
     // attachSelectionSources is false these particles instead become true graph
     // roots (no production vertex), so each selected seed yields a self-contained
     // subgraph starting directly at the seed (e.g. ten taus -> ten components).
@@ -1063,7 +1063,7 @@ namespace {
 
         if (!hasKeptProduction) {
           attachRole[particleId] = static_cast<uint8_t>(stableSpectator[particleId] ? truth::VertexRole::UnderlyingEvent
-                                                                                    : truth::VertexRole::Upstream);
+                                                                                    : truth::VertexRole::InitialState);
         }
       }
     }
@@ -1324,7 +1324,7 @@ namespace truth {
         ->setComment(
             "Number of ancestor generations kept above each selected root as context only: the ancestors and "
             "connecting vertices are kept, but not their other descendants. Kept particles whose production "
-            "vertices all fall outside the selection are attached to an artificial Upstream (ISR) source vertex.");
+            "vertices all fall outside the selection are attached to an artificial InitialState source vertex.");
 
     desc.add<std::vector<int32_t>>("seedHadronFlavors", {})
         ->setComment(
@@ -1335,13 +1335,13 @@ namespace truth {
         ->setComment(
             "If true, stable final-state GEN particles outside the selected subgraph are kept and attached to an "
             "artificial UnderlyingEvent source vertex (tagged with their genEvent/eventId for pile-up provenance). "
-            "If false, they are dropped, giving a focused subgraph with only the selection and its Upstream (ISR) "
+            "If false, they are dropped, giving a focused subgraph with only the selection and its InitialState "
             "context. Only meaningful when a selection (seedPdgIds/decayPdgIdGroups) is active.");
 
     desc.add<bool>("attachSelectionSources", true)
         ->setComment(
             "If true, kept particles whose production vertices all fall outside the selection are attached to an "
-            "artificial Upstream/UnderlyingEvent source vertex. If false, they become true graph roots, so each "
+            "artificial InitialState/UnderlyingEvent source vertex. If false, they become true graph roots, so each "
             "selected seed yields a self-contained subgraph starting directly at the seed (e.g. ten taus -> ten "
             "disjoint components). Only meaningful when a selection is active.");
 

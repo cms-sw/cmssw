@@ -57,12 +57,12 @@ namespace truth {
     // If true (default), stable final-state GEN particles outside the selected
     // subgraph are kept and attached to an artificial UnderlyingEvent source
     // vertex. If false, they are dropped, giving a focused subgraph that
-    // contains only the selection and its truncated upstream (ISR) context.
+    // contains only the selection and its truncated initial-state context.
     // Only meaningful when a selection is active (seedPdgIds/decayPdgIdGroups).
     bool keepStableSpectators = true;
 
     // If true (default), kept particles whose real production vertices all fall
-    // outside the selection are attached to an artificial Upstream (ISR) or
+    // outside the selection are attached to an artificial InitialState or
     // UnderlyingEvent source vertex, keeping the selected subgraph rooted in a
     // summary of the activity above it. If false, those particles become true
     // graph roots (no production vertex), so each selected seed yields a
@@ -78,7 +78,7 @@ namespace truth {
     // jets and "produce" the Higgs - which are siblings of the seed, not its
     // ancestors, and so are never reached by seedParentDepth. Keeping the
     // production vertex also means the seed is no longer at the upstream boundary,
-    // so the real hard vertex is shown in place of the artificial Upstream summary.
+    // so the real hard vertex is shown in place of the artificial InitialState summary.
     // Only meaningful when a selection (seedPdgIds/seedHadronFlavors/...) is active.
     bool keepProductionSiblings = false;
 
