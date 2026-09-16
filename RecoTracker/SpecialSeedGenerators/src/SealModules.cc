@@ -3,11 +3,13 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/CosmicSeedGenerator.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/CRackSeedGenerator.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/SimpleCosmicBONSeeder.h"
+#include "RecoTracker/SpecialSeedGenerators/interface/CosmicGridTripletSeeder.h"
 
 DEFINE_FWK_MODULE(CtfSpecialSeedGenerator);
 DEFINE_FWK_MODULE(CosmicSeedGenerator);
 DEFINE_FWK_MODULE(CRackSeedGenerator);
 DEFINE_FWK_MODULE(SimpleCosmicBONSeeder);
+DEFINE_FWK_MODULE(CosmicGridTripletSeeder);
 
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
