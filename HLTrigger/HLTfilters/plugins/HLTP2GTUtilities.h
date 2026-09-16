@@ -220,7 +220,15 @@ namespace hltp2gt {
           maxAbsEta(ps.getParameter<double>("maxAbsEta")) {}
 
     bool accepts(const l1t::P2GTCandidate& c) const {
-      return c.objectType() == objectType && c.pt() >= minPt && std::abs(c.eta()) <= maxAbsEta;
+      if (c.objectType() != objectType)
+        return false;
+      if (std::abs(c.eta()) > maxAbsEta)
+        return false;
+      // Sum objects store their value in scalarSumPt(), not pt().
+      // Using pt() for sum types returns an unphysical value and would make
+      // the threshold cut ineffective.
+      const double value = c.isHtSum() ? c.scalarSumPT() : c.pt();
+      return value >= minPt;
     }
 
     // Same logic as accepts() but emits one edm::LogPrint line per candidate
@@ -250,8 +258,8 @@ namespace hltp2gt {
                                      << " < maxAbsEta=" << maxAbsEta << std::endl;
       }
 
-      const double value = c.pt();
-      const auto& hWpT = c.hwPT();
+      const double value = c.isHtSum() ? c.scalarSumPT() : c.pt();
+      const auto& hWpT = c.isHtSum() ? c.hwScalarSumPT() : c.hwPT();
 
       if (value < minPt) {
         LogDebug("HLTP2GTUtilities") << "[" << algoName << "] REJECT " << typeName << " pT =" << value
