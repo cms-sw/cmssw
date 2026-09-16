@@ -120,7 +120,45 @@ void GeneralInterpretationAlgo::findTrackstersInWindow(const edm::MultiSpan<Trac
         }
       }
     }
-
+    /*
+    const int nPhiBins = TileConstants::nPhiBins;
+    
+    for (int eta_i = search_box[0]; eta_i <= search_box[1]; ++eta_i) {
+      for (int phi_i = search_box[2]; phi_i <= search_box[3]; ++phi_i) {
+	const int wrappedPhiBin =
+	  ((phi_i % nPhiBins) + nPhiBins) % nPhiBins;
+	
+	const auto& in_tile =
+	  tile[tile.globalBin(eta_i, wrappedPhiBin)];
+	
+	for (const unsigned int t_i : in_tile) {
+	  if (t_i >= tracksterPropPoints.size() ||
+	      t_i >= tracksters.size()) {
+	    throw cms::Exception("InvalidTracksterIndex")
+	      << "Trackster index " << t_i
+	      << " is outside the propagated-point collection size "
+	      << tracksterPropPoints.size()
+	      << " or trackster collection size "
+	      << tracksters.size();
+	  }
+	  
+	  const float deltaEta =
+	    tracksterPropPoints[t_i].Eta() - seed_eta;
+	  
+	  const float deltaPhi =
+	    reco::deltaPhi(tracksterPropPoints[t_i].Phi(), seed_phi);
+	  
+	  const float sep2 =
+	    deltaEta * deltaEta + deltaPhi * deltaPhi;
+	  
+	  if (sep2 < delta2) {
+	    in_delta.push_back(t_i);
+	    energies.push_back(tracksters[t_i].raw_energy());
+	  }
+	}
+      }
+    }
+    */
     // sort tracksters found in ascending order of their distances from the seed
     std::vector<unsigned> indices(in_delta.size());
     std::iota(indices.begin(), indices.end(), 0);
