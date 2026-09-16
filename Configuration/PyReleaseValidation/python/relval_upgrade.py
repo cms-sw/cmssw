@@ -37,21 +37,18 @@ for year in upgradeKeys:
             hasHarvest = False
             for step in upgradeProperties[year][key]['ScenToRun']:
                 stepMaker = makeStepName
+                if step.endswith('HLBeamSpot') and '14TeV' in frag:
+                    step = step.replace('HLBeamSpot', 'HLBeamSpot14')
                 if 'Sim' in step and 'Fast' not in step and step != "Sim":
                     if 'DisplacedParticleGun' in frag:
                         step = 'GenSimDisplaced'
-                    elif 'HLBeamSpot' in step:
-                        if '14TeV' in frag:
-                            step = 'GenSimHLBeamSpot14'
-                        elif 'CloseBy' in frag or 'CE_E' in frag or 'CE_H' in frag:
-                            step = 'GenSimHLBeamSpotCloseBy'
                     elif 'CloseBy' in frag or 'CE_E' in frag or 'CE_H' in frag:
-                        step = 'GenSimCloseBy'
+                        if 'HLBeamSpot' in step:
+                            step = 'GenSimHLBeamSpotCloseBy'
+                        else:
+                            step = 'GenSimCloseBy'
                     stepMaker = makeStepNameSim
                 elif 'Gen' in step:
-                    if 'HLBeamSpot' in step:
-                        if '14TeV' in frag:
-                            step = 'GenHLBeamSpot14'
                     stepMaker = makeStepNameSim
 
                 if 'HARVEST' in step: hasHarvest = True
