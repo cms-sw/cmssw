@@ -71,7 +71,7 @@ namespace pixelClustering {
 
         uint32_t nclus = clus_view[thisModuleId].clusInModule();
         if (nclus == 0)
-          return;
+          continue;  // nothing to do for this module, but other modules may still be assigned to this block
 
         if (cms::alpakatools::once_per_block(acc) && nclus > maxNumClustersPerModules)
           printf("Warning: too many clusters in module %u in block %u: %u > %d\n",
@@ -89,7 +89,7 @@ namespace pixelClustering {
               break;  // end of module
             if (digi_view[i].clus() >= maxNumClustersPerModules) {
               digi_view[i].moduleId() = invalidModuleId;
-              digi_view[i].clus() = invalidModuleId;
+              digi_view[i].clus() = invalidClusterId;
             }
           }
           nclus = maxNumClustersPerModules;
@@ -170,9 +170,10 @@ namespace pixelClustering {
             continue;  // not valid
           if (digi_view[i].moduleId() != thisModuleId)
             break;  // end of module
-          if (0 == ok[digi_view[i].clus()])
-            digi_view[i].moduleId() = digi_view[i].clus() = invalidModuleId;
-          else
+          if (0 == ok[digi_view[i].clus()]) {
+            digi_view[i].moduleId() = invalidModuleId;
+            digi_view[i].clus() = invalidClusterId;
+          } else
             digi_view[i].clus() = newclusId[digi_view[i].clus()] - 1;
         }
 
