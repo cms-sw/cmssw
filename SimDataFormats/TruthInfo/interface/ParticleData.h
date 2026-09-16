@@ -53,7 +53,11 @@ namespace truth {
     // Hadronically decaying taus, one per physical tau: the last tau of each radiative
     // chain, with a GEN decay record and no electron and no muon among its decay children.
     // The object tau identification measures efficiency against.
-    VisibleTau = 1u << 11,
+    TauVisibleHadronic = 1u << 11,
+    // Taus that decay to an electron or a muon, one per physical tau, by the same
+    // last-copy rule. The complement of TauVisibleHadronic over the taus that carry a
+    // GEN decay record.
+    TauVisibleLeptonic = 1u << 12,
   };
 
   // What a particle IS, mirroring VertexRole on the vertex side. Absence of a GEN and a
