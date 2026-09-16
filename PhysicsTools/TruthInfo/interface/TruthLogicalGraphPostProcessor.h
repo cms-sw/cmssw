@@ -56,15 +56,15 @@ namespace truth {
 
     // If true (default), stable final-state GEN particles outside the selected
     // subgraph are kept and attached to an artificial UnderlyingEvent source
-    // vertex, each with its SIM subgraph, which is where its hits are. If false,
-    // they are dropped, giving a focused subgraph that
-    // contains only the selection and its truncated initial-state context.
+    // vertex, each with its SIM subgraph, which is where its hits are. If false, they
+    // are dropped, leaving the selection, its truncated initial-state context and the
+    // beam-side input of its vertices.
     // Only meaningful when a selection is active (seedPdgIds/decayPdgIdGroups).
     bool keepStableSpectators = true;
 
     // If true (default), kept particles whose real production vertices all fall
-    // outside the selection are attached to an artificial InitialState or
-    // UnderlyingEvent source vertex, keeping the selected subgraph rooted in a
+    // outside the selection are attached to an artificial InitialState,
+    // UnderlyingEvent or BeamSideInput source vertex, keeping the selected subgraph rooted in a
     // summary of the activity above it. If false, those particles become true
     // graph roots (no production vertex), so each selected seed yields a
     // self-contained subgraph starting directly at the seed - e.g. the ten taus

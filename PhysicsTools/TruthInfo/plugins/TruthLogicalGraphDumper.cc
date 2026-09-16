@@ -882,6 +882,10 @@ public:
           roleName = "initial state";
           roleColor = "navajowhite";
           break;
+        case truth::VertexRole::BeamSideInput:
+          roleName = "beam side input";
+          roleColor = "wheat";
+          break;
         case truth::VertexRole::UnderlyingEvent:
           roleName = "underlying event";
           roleColor = "lightgrey";

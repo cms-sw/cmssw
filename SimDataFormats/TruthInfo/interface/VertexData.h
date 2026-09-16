@@ -16,14 +16,24 @@ namespace truth {
   //                     beam, the hard-scatter ancestry and the ISR that led to
   //                     the selection;
   //   UnderlyingEvent - stable final-state particles not in any selected
-  //                     subgraph (underlying event, unrelated to the selection).
+  //                     subgraph (underlying event, unrelated to the selection);
+  //   BeamSideInput   - the input a kept vertex received from outside the selection.
+  //                     It holds the dropped GEN parents of that vertex, which is
+  //                     where a colour string spans the hard scatter and the beam
+  //                     remnant, so that contribution stays visible.
   // Artificial vertices carry the genEvent/eventId of the activity they
   // summarize, so that overlaid pile-up graphs stay distinguishable. Interaction
   // is the per-interaction root that fans out (through connector particles) to
   // its InitialState and UnderlyingEvent sub-vertices, so the
   // whole interaction descends from one node: the signal is everything reachable
   // from the signal Interaction vertex, and each pile-up interaction gets its own.
-  enum class VertexRole : uint8_t { Normal = 0, InitialState = 1, UnderlyingEvent = 2, Interaction = 3 };
+  enum class VertexRole : uint8_t {
+    Normal = 0,
+    InitialState = 1,
+    UnderlyingEvent = 2,
+    Interaction = 3,
+    BeamSideInput = 4
+  };
 
   // Physical reason a vertex exists, derived from the Geant4 creator-process
   // subtype of the SimVertex (TruthGraph::nodeProcessType). Unknown for GEN-only
