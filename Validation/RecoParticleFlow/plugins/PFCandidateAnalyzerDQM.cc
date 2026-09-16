@@ -1,9 +1,7 @@
 // Producer for particle flow candidates. Plots Eta, Phi, Charge, Pt (log freq, bin)
 // for different types of particles described in python/defaults_cfi.py
 // It actually uses packedCandidates so that we need only MINIAOD contents to run this DQMAnalyzer.
-// note: for pt, log freq is done in this producer, but log freq is done by running
-// compare.py
-// author: Chosila Sutantawibul, April 23, 2020
+// note: for pt, log freq is done in this producer, but log freq is done by running compare.py
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
