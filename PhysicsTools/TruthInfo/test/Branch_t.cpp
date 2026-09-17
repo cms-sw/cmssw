@@ -1,5 +1,6 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
 
+#include "SimDataFormats/TruthInfo/interface/ParticleData.h"
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 #include "cppunit/extensions/HelperMacros.h"
 
@@ -20,7 +21,11 @@ namespace {
       graph.particles().resize(nParticles);
       graph.vertices().resize(nVertices);
     }
-    void setParticle(uint32_t id, int32_t pdgId, int16_t status, double e = 1.0) {
+    void setParticle(uint32_t id,
+                     int32_t pdgId,
+                     int16_t status,
+                     double e = 1.0,
+                     std::vector<truth::LevelFlag> const& levelFlags = {}) {
       auto& p = graph.particles()[id];
       p.genNode = 100 + id;
       p.simNode = -1;
@@ -29,6 +34,9 @@ namespace {
       p.genEvent = 0;
       p.eventId = 0;
       p.momentum = math::XYZTLorentzVectorD(0., 0., e, e);
+      p.levelFlags = 0;
+      for (truth::LevelFlag levelFlag : levelFlags)
+        p.levelFlags |= static_cast<uint32_t>(levelFlag);
     }
     void addDecay(uint32_t particleId, uint32_t vertexId) {
       d2v.emplace_back(particleId, vertexId);
@@ -69,14 +77,15 @@ namespace {
   // top -> {W+, b}; W+ -> {mu+, nu_mu}; b -> B0; B0 -> {D-, pi+}
   truth::Graph buildTtbarLike() {
     GraphBuilder b(8, 4);
-    b.setParticle(0, 6, 2, 100.);    // top
-    b.setParticle(1, 24, 2, 80.);    // W+
-    b.setParticle(2, 5, 2, 20.);     // b
-    b.setParticle(3, 511, 2, 18.);   // B0
-    b.setParticle(4, -13, 1, 40.);   // mu+  (leaf)
-    b.setParticle(5, 14, 1, 30.);    // nu_mu (leaf, invisible)
-    b.setParticle(6, -411, 1, 10.);  // D-  (leaf)
-    b.setParticle(7, 211, 1, 5.);    // pi+ (leaf)
+    b.setParticle(0, 6, 2, 100.);                                      // top
+    b.setParticle(1, 24, 2, 80.);                                      // W+
+    b.setParticle(2, 5, 2, 20.);                                       // b
+    b.setParticle(3, 511, 2, 18., {truth::LevelFlag::BHadrons});       // B0
+    b.setParticle(4, -13, 1, 40., {truth::LevelFlag::CaloBoundary});   // mu+  (leaf)
+    b.setParticle(5, 14, 1, 30.);                                      // nu_mu (leaf, invisible)
+    b.setParticle(6, -411, 1, 10., {truth::LevelFlag::CaloBoundary});  // D-  (leaf)
+    b.setParticle(
+        7, 211, 1, 5., {truth::LevelFlag::CaloBoundary, truth::LevelFlag::ReconstructableFromSignal});  // pi+ (leaf)
     b.addDecay(0, 0);
     b.addProduction(0, 1);
     b.addProduction(0, 2);
@@ -125,18 +134,18 @@ void TestBranch::testInitializers() {
 
   // Branch(&graph,id) initializer
   truth::Branch gBranch(&g, 2);
-  CPPUNIT_ASSERT(gBranch.valid());
   CPPUNIT_ASSERT_EQUAL(uint32_t(2), gBranch.rootIds().front());
   CPPUNIT_ASSERT_EQUAL(int32_t(5), gBranch.rootPdgId());
   CPPUNIT_ASSERT_EQUAL(std::size_t(4), gBranch.members().size());
 
   // Branch(&graph,id) initializer [invalid]
+  CPPUNIT_ASSERT_THROW(truth::Branch(static_cast<truth::Graph const*>(nullptr), 0), cms::Exception);
+  CPPUNIT_ASSERT_THROW(truth::Branch(&g, {}), cms::Exception);
   CPPUNIT_ASSERT_THROW(truth::Branch(&g, 9999), cms::Exception);
 
   // Branch(particle) initializer
   truth::Particle particle = g.particle(2);
   truth::Branch pBranch(&particle);
-  CPPUNIT_ASSERT(pBranch.valid());
   CPPUNIT_ASSERT_EQUAL(uint32_t(2), pBranch.rootIds().front());
   CPPUNIT_ASSERT_EQUAL(int32_t(5), pBranch.rootPdgId());
   CPPUNIT_ASSERT_EQUAL(std::size_t(4), pBranch.members().size());
@@ -162,11 +171,29 @@ void TestBranch::testClosures() {
   // DepthN(1): top + W + b.
   CPPUNIT_ASSERT_EQUAL(std::size_t(3), truth::Branch(&g, 0, truth::ClosureSpec::depth(1)).members().size());
 
+  // UntilLevel stops at descendants carrying the selected level.
+  auto untilBoundary = truth::Branch(&g, 0, truth::ClosureSpec::untilLevel(truth::LevelFlag::CaloBoundary));
+  CPPUNIT_ASSERT_EQUAL(std::size_t(8), untilBoundary.members().size());
+  CPPUNIT_ASSERT_EQUAL(std::size_t(3), untilBoundary.closureLeaves().size());
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), countPdg(untilBoundary.closureLeaves(), -13));
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), countPdg(untilBoundary.closureLeaves(), -411));
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), countPdg(untilBoundary.closureLeaves(), 211));
+
+  // UntilLevels stops at descendants carrying one of the selected levels.
+  auto untilLevels = truth::Branch(
+      &g, 0, truth::ClosureSpec::untilLevels({truth::LevelFlag::BHadrons, truth::LevelFlag::CaloBoundary}));
+  CPPUNIT_ASSERT_EQUAL(std::size_t(6), untilLevels.members().size());
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), untilLevels.closureLeaves().size());
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), countPdg(untilLevels.closureLeaves(), -13));
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), countPdg(untilLevels.closureLeaves(), 511));
+
   // UntilPdgId stopping at the B0: top, W, b, B0, mu+, nu_mu (D-/pi+ excluded).
-  auto untilB = truth::Branch(&g, 0, truth::ClosureSpec::untilPdgId({511})).members();
-  CPPUNIT_ASSERT_EQUAL(std::size_t(6), untilB.size());
-  CPPUNIT_ASSERT_EQUAL(std::size_t(1), countPdg(untilB, 511));
-  CPPUNIT_ASSERT_EQUAL(std::size_t(0), countPdg(untilB, -411));
+  auto untilB = truth::Branch(&g, 0, truth::ClosureSpec::untilPdgId({511}));
+  CPPUNIT_ASSERT_EQUAL(std::size_t(6), untilB.members().size());
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), countPdg(untilB.members(), 511));
+  CPPUNIT_ASSERT_EQUAL(std::size_t(0), countPdg(untilB.members(), -411));
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), untilB.closureLeaves().size());
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), countPdg(untilB.closureLeaves(), 511));
 
   // Predicate stopping at any b-hadron: same effect as untilPdgId({511}) here.
   auto untilHF = truth::Branch(&g, 0, truth::ClosureSpec::predicate([](truth::Particle p) {
@@ -174,6 +201,30 @@ void TestBranch::testClosures() {
                    return id > 100 && ((id / 100) % 10 == 5 || (id / 1000) % 10 == 5);
                  })).members();
   CPPUNIT_ASSERT_EQUAL(std::size_t(0), countPdg(untilHF, -411));
+
+  // closureLeaves: Subtree stops at the graph leaves: mu+, nu_mu, D-, pi+.
+  auto subLeaves = truth::Branch(&g, 0).closureLeaves();
+  CPPUNIT_ASSERT_EQUAL(std::size_t(4), subLeaves.size());
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), countPdg(subLeaves, -13));
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), countPdg(subLeaves, 211));
+
+  // closureLeaves: StableLeaves stops at the same graph leaves (the root is not a leaf).
+  auto stableLeaves = truth::Branch(&g, 0, truth::ClosureSpec::stableLeaves()).closureLeaves();
+  CPPUNIT_ASSERT_EQUAL(std::size_t(4), stableLeaves.size());
+
+  // closureLeaves: DepthN(1) stops at the W+ and the b.
+  auto depthLeaves = truth::Branch(&g, 0, truth::ClosureSpec::depth(1)).closureLeaves();
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), depthLeaves.size());
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), countPdg(depthLeaves, 24));
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), countPdg(depthLeaves, 5));
+
+  // closureLeaves: UntilPdgId({511}) stops at the B0 only.
+  auto untilBLeaves = truth::Branch(&g, 0, truth::ClosureSpec::untilPdgId({511})).closureLeaves();
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), untilBLeaves.size());
+  CPPUNIT_ASSERT_EQUAL(int32_t(511), untilBLeaves.front().pdgId());
+
+  // closureLeaves: A root that itself matches the stop id is not a closure leaf (depth 0 never stops).
+  CPPUNIT_ASSERT(truth::Branch(&g, 3, truth::ClosureSpec::untilPdgId({511})).closureLeaves().empty());
 }
 
 void TestBranch::testKinematics() {
@@ -188,7 +239,7 @@ void TestBranch::testKinematics() {
 }
 
 // REQUIRED: a truncated closure carries the momentum of the particle it stopped at.
-// The frontier, not the graph leaves, is the summation set, so no particle is counted
+// The branch leaves, not the graph leaves, is the summation set, so no particle is counted
 // together with its own ancestor and none of a stopped branch goes missing.
 void TestBranch::testTruncatedClosureKinematics() {
   auto g = buildTtbarLike();
@@ -199,11 +250,11 @@ void TestBranch::testTruncatedClosureKinematics() {
   CPPUNIT_ASSERT_DOUBLES_EQUAL(88.0, untilB.energy(), 1e-6);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(58.0, untilB.visibleEnergy(), 1e-6);
 
-  // DepthN(1) keeps top, W+ and b; the frontier is W+ (80) and b (20), never the top.
+  // DepthN(1) keeps top, W+ and b; the frontier leaves are W+ (80) and b (20), never the top.
   truth::Branch depth1(&g, 0, truth::ClosureSpec::depth(1));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(100.0, depth1.energy(), 1e-6);
 
-  // A root with no member descendant is its own frontier.
+  // A root with no member descendant is its own frontier leaves.
   truth::Branch justTheTop(&g, 0, truth::ClosureSpec::depth(0));
   CPPUNIT_ASSERT_DOUBLES_EQUAL(100.0, justTheTop.energy(), 1e-6);
 

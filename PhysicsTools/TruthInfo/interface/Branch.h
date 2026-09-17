@@ -6,29 +6,44 @@
 #include <cstdint>
 #include <functional>
 #include <optional>
+#include <utility>
 #include <vector>
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
 #include "SimDataFormats/TruthInfo/interface/Particle.h"
+#include "SimDataFormats/TruthInfo/interface/ParticleData.h"
 
 namespace truth {
 
   // How far below the root(s) a Branch extends.
-  enum class ClosureKind : uint8_t { Subtree, StableLeaves, DepthN, UntilPdgId, Predicate };
+  enum class ClosureKind : uint8_t { Subtree, StableLeaves, DepthN, UntilPdgId, UntilLevels, Predicate };
 
   struct ClosureSpec {
     ClosureKind kind = ClosureKind::Subtree;
     uint32_t maxDepth = 0;                 // DepthN: generations kept below each root (0 = roots only)
-    std::vector<int32_t> stopPdgIds;       // UntilPdgId: stop at (and include) particles with these ids
-    std::function<bool(Particle)> stopAt;  // Predicate: stop at (and include) particles where true
+    std::vector<int32_t> stopPdgIds;       // UntilPdgId: stop at (and include) particles with these ids (excl. root)
+    std::function<bool(Particle)> stopAt;  // Predicate: stop at (and include) particles where true (incl. root)
+    uint32_t levelFlags = 0;  // UntilLevels: stop at (and include) particles at any of these levels (incl. root)
+                              // Note: levelFlags==0 is equivalent to the full branch
 
     static ClosureSpec subtree() { return {}; }
-    static ClosureSpec stableLeaves() { return {ClosureKind::StableLeaves, 0, {}, {}}; }
-    static ClosureSpec depth(uint32_t n) { return {ClosureKind::DepthN, n, {}, {}}; }
-    static ClosureSpec untilPdgId(std::vector<int32_t> ids) { return {ClosureKind::UntilPdgId, 0, std::move(ids), {}}; }
+    static ClosureSpec stableLeaves() { return {ClosureKind::StableLeaves, 0, {}, {}, 0}; }
+    static ClosureSpec depth(uint32_t n) { return {ClosureKind::DepthN, n, {}, {}, 0}; }
+    static ClosureSpec untilPdgId(std::vector<int32_t> ids) {
+      return {ClosureKind::UntilPdgId, 0, std::move(ids), {}, 0};
+    }
+    static ClosureSpec untilLevel(LevelFlag level) {
+      return {ClosureKind::UntilLevels, 0, {}, {}, static_cast<uint32_t>(level)};
+    }
+    static ClosureSpec untilLevels(std::vector<LevelFlag> const& levels) {
+      uint32_t flag = 0;
+      for (auto level : levels)
+        flag |= static_cast<uint32_t>(level);
+      return {ClosureKind::UntilLevels, 0, {}, {}, flag};
+    }
     static ClosureSpec predicate(std::function<bool(Particle)> p) {
-      return {ClosureKind::Predicate, 0, {}, std::move(p)};
+      return {ClosureKind::Predicate, 0, {}, std::move(p), 0};
     }
   };
 
@@ -39,28 +54,32 @@ namespace truth {
   // to, the natural successor to the static CaloParticle/TrackingParticle.
   class Branch {
   public:
-    Branch() = default;
+    Branch() = delete;
     Branch(Graph const* graph, uint32_t rootId, ClosureSpec spec = ClosureSpec::subtree());
     Branch(Graph const* graph, std::vector<uint32_t> rootIds, ClosureSpec spec = ClosureSpec::subtree());
     Branch(Particle const* particle, ClosureSpec spec = ClosureSpec::subtree());
 
-    [[nodiscard]] bool valid() const { return graph_ != nullptr && !roots_.empty(); }
     [[nodiscard]] Graph const* graph() const { return graph_; }
     [[nodiscard]] Particle root() const;
     [[nodiscard]] std::vector<Particle> roots() const;
     [[nodiscard]] std::vector<uint32_t> rootIds() const { return roots_; }
     [[nodiscard]] ClosureSpec const& closure() const { return spec_; }
 
-    // Closure members (roots + selected descendants), ascending particle id.
+    // Roots and descendants up to and including the particles where the closure stops, ascending particle id.
     [[nodiscard]] std::vector<uint32_t> memberIds() const;
     [[nodiscard]] std::vector<Particle> members() const;
+
+    // Only the members that meet the closure condition, ascending particle id.
+    [[nodiscard]] std::vector<Particle> closureLeaves() const;
+
+    // Members that are stable leaves (up to and including the closure), ascending particle id.
     [[nodiscard]] std::vector<Particle> stableLeaves() const;
 
-    // The members no other member covers: the final-state leaves of a full subtree, or
-    // the particles the closure stopped at when it truncates.
-    [[nodiscard]] std::vector<uint32_t> frontier() const;
+    // The members no other member covers: the final-state leaves of a full subtree,
+    // or the particles the closure stopped at when it truncates.
+    [[nodiscard]] std::vector<uint32_t> leaves() const;
 
-    // Kinematics, summed over the frontier, so a truncated closure counts the particle
+    // Kinematics, summed over the "frontier" leaves, so a truncated closure counts the particle
     // it stopped at and never counts a particle together with its own ancestor.
     [[nodiscard]] math::XYZTLorentzVectorD p4() const;
     [[nodiscard]] math::XYZTLorentzVectorD visibleP4() const;  // excludes neutrinos
@@ -90,9 +109,10 @@ namespace truth {
 
   private:
     void validate();
-    [[nodiscard]] std::vector<uint32_t> traverse() const;
+    // Fills stopIds (when non-null) with the particles where the closure stops
+    [[nodiscard]] std::vector<uint32_t> traverse(std::vector<uint32_t>* stopIds = nullptr) const;
 
-    Graph const* graph_ = nullptr;
+    Graph const* graph_;
     std::vector<uint32_t> roots_;
     ClosureSpec spec_;
   };
