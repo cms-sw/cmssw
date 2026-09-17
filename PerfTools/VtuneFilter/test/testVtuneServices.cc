@@ -122,7 +122,7 @@ namespace {
   }
 }  // namespace
 
-TEST_CASE("VtuneFilterService filters configured modules", "[VtuneFilterService]") {
+TEST_CASE("VtuneFilterService enables configured modules", "[VtuneFilterService]") {
   IttMock mock;
   edm::ActivityRegistry registry;
   auto config = parameters({"selectedLabel", "SelectedType"});
@@ -130,12 +130,12 @@ TEST_CASE("VtuneFilterService filters configured modules", "[VtuneFilterService]
 
   SECTION("matches a module label") {
     emitModule(registry, service, "OtherType", "selectedLabel");
-    CHECK(calls.order == std::vector<std::string>{"pause", "resume"});
+    CHECK(calls.order == std::vector<std::string>{"resume", "pause"});
   }
 
   SECTION("matches a module type") {
     emitModule(registry, service, "SelectedType", "otherLabel");
-    CHECK(calls.order == std::vector<std::string>{"pause", "resume"});
+    CHECK(calls.order == std::vector<std::string>{"resume", "pause"});
   }
 
   SECTION("ignores an unconfigured module") {
@@ -143,10 +143,18 @@ TEST_CASE("VtuneFilterService filters configured modules", "[VtuneFilterService]
     CHECK(calls.order.empty());
   }
 
+  SECTION("matches all modules when configured") {
+    edm::ActivityRegistry allRegistry;
+    auto allConfig = parameters({"all"});
+    edm::VtuneFilterService allService{allConfig, allRegistry};
+    emitModule(allRegistry, allService, "OtherType", "otherLabel");
+    CHECK(calls.order == std::vector<std::string>{"resume", "pause"});
+  }
+
   SECTION("acts once when label and type both match") {
     emitModule(registry, service, "SelectedType", "selectedLabel");
-    CHECK(calls.pauses == 1);
     CHECK(calls.resumes == 1);
+    CHECK(calls.pauses == 1);
   }
 }
 

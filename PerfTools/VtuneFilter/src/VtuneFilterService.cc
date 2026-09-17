@@ -18,8 +18,8 @@ namespace edm {
     std::string const& moduleLabel = mcc.moduleDescription()->moduleLabel();
     std::string const& moduleName = mcc.moduleDescription()->moduleName();
 
-    if (isTargetModule(moduleLabel) || isTargetModule(moduleName)) {
-      __itt_pause();
+    if (isTargetModule(moduleLabel) || isTargetModule(moduleName) || isTargetModule("all")) {
+      __itt_resume();
     }
   }
 
@@ -27,8 +27,8 @@ namespace edm {
     std::string const& moduleLabel = mcc.moduleDescription()->moduleLabel();
     std::string const& moduleName = mcc.moduleDescription()->moduleName();
 
-    if (isTargetModule(moduleLabel) || isTargetModule(moduleName)) {
-      __itt_resume();
+    if (isTargetModule(moduleLabel) || isTargetModule(moduleName) || isTargetModule("all")) {
+      __itt_pause();
     }
   }
 }  // namespace edm
