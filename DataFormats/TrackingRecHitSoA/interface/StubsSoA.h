@@ -13,7 +13,27 @@ namespace reco {
   // Main stub SoA: stubs from hit pairs on stacked OT sensors (2-5mm separation).
   // Provide position, direction (dPhi/dr) and pT discrimination (bend cut).
   GENERATE_SOA_LAYOUT(StubsLayout,
+                      // Azimuth of the published sensor hit (posHitIdx), same 16-bit encoding as the
+                      // pixel hits: full circle mapped onto [-32768, 32767].
                       SOA_COLUMN(int16_t, iphi),
+
+                      // Position and local errors of the published sensor hit (posHitIdx), copied
+                      // from the OT rechit SoA.
+                      SOA_COLUMN(float, xGlobal),
+                      SOA_COLUMN(float, yGlobal),
+                      SOA_COLUMN(float, zGlobal),
+                      // Transverse radius of the published hit, sqrt(xGlobal^2 + yGlobal^2) in
+                      // single precision.
+                      SOA_COLUMN(float, rGlobal),
+                      // Local position errors (variances, cm^2) of the published hit.
+                      SOA_COLUMN(float, xerrLocal),
+                      SOA_COLUMN(float, yerrLocal),
+
+                      // Global CA module index of the stub's stack: pixel modules first, then the OT
+                      // stacks, i.e. phase2PixelTopology::nModulesPix + (index of the stack in the
+                      // StackedModuleGeometry / OT rechit module ordering), i.e. the detectorIndex
+                      // of the OT rechits of the stack.
+                      SOA_COLUMN(uint16_t, detectorIndex),
 
                       // Direction: dPhiDr = (phi_outer - phi_inner) / (r_outer - r_inner); encodes curvature for CA.
                       SOA_COLUMN(float, dPhiDr),
@@ -38,8 +58,10 @@ namespace reco {
                       // bits 3-5 OT layer (0-5), bit 6 isPS, bit 7 reserved.
                       SOA_COLUMN(uint8_t, flags));
 
-  // Size carrier only: the extent of this block is nModules+1 and is what StubsHost/StubsDevice
-  // report as nModules(); the column itself is never filled and never read.
+  // Stub-local index of the first stub of each outer-tracker CA module (entry i = CA module
+  // phase2PixelTopology::nModulesPix + i), nOTModules + 1 entries, the last one the total number of stubs;
+  // nModules() reports the block extent. Stubs are stored grouped by module in this order, so
+  // [moduleStart[i], moduleStart[i + 1]) is contiguous.
   GENERATE_SOA_LAYOUT(StubModulesLayout, SOA_COLUMN(uint32_t, moduleStart));
 
   GENERATE_SOA_BLOCKS(StubBlocksLayout, SOA_BLOCK(stubs, StubsLayout), SOA_BLOCK(stubModules, StubModulesLayout))

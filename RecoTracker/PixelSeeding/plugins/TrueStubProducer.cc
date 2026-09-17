@@ -523,6 +523,20 @@ void TrueStubProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   auto output = std::make_unique<reco::StubsHost>(cms::alpakatools::host(), nStubs, nModules);
 
+  // Stub-local module starts: outputOrder is stable-sorted by geomModIdx, so each module's stubs are
+  // contiguous. moduleStart[i] is the first stub of OT CA module nModulesPix + i and
+  // moduleStart[nModules] is nStubs.
+  {
+    auto stubModulesView = output->view().stubModules();
+    uint32_t iStub = 0;
+    for (uint32_t iMod = 0; iMod < nModules; ++iMod) {
+      stubModulesView[iMod].moduleStart() = iStub;
+      while (iStub < nStubs && outputOrder[iStub].geomModIdx == iMod)
+        ++iStub;
+    }
+    stubModulesView[nModules].moduleStart() = nStubs;
+  }
+
   if (nStubs > 0) {
     auto stubsView = output->view().stubs();
 
@@ -560,6 +574,15 @@ void TrueStubProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         float xg = hitsView[lowerIdx].xGlobal();
         float yg = hitsView[lowerIdx].yGlobal();
         stubsView[iStub].iphi() = unsafe_atan2s<7>(yg, xg);
+
+        // Position, errors and CA module of the published hit (lowerIdx here).
+        stubsView[iStub].xGlobal() = xg;
+        stubsView[iStub].yGlobal() = yg;
+        stubsView[iStub].zGlobal() = hitsView[lowerIdx].zGlobal();
+        stubsView[iStub].rGlobal() = std::sqrt(xg * xg + yg * yg);
+        stubsView[iStub].xerrLocal() = hitsView[lowerIdx].xerrLocal();
+        stubsView[iStub].yerrLocal() = hitsView[lowerIdx].yerrLocal();
+        stubsView[iStub].detectorIndex() = hitsView[lowerIdx].detectorIndex();
 
         float phi_lower = std::atan2(hitsView[lowerIdx].yGlobal(), hitsView[lowerIdx].xGlobal());
         float phi_upper = std::atan2(hitsView[upperIdx].yGlobal(), hitsView[upperIdx].xGlobal());
@@ -665,6 +688,15 @@ void TrueStubProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
           float yg = hitsView[hitIdx].yGlobal();
           // iphi from (xGlobal, yGlobal)
           stubsView[iStub].iphi() = unsafe_atan2s<7>(yg, xg);
+
+          // Same published-hit quantities as above, here the P-hit itself.
+          stubsView[iStub].xGlobal() = xg;
+          stubsView[iStub].yGlobal() = yg;
+          stubsView[iStub].zGlobal() = hitsView[hitIdx].zGlobal();
+          stubsView[iStub].rGlobal() = std::sqrt(xg * xg + yg * yg);
+          stubsView[iStub].xerrLocal() = hitsView[hitIdx].xerrLocal();
+          stubsView[iStub].yerrLocal() = hitsView[hitIdx].yerrLocal();
+          stubsView[iStub].detectorIndex() = hitsView[hitIdx].detectorIndex();
         }
 
         stubsView[iStub].dPhiDr() = 0.0f;

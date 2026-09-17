@@ -273,7 +273,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     uint32_t nStubs = nStubs_h_->data()[0];
 
+    // nModules_ is the number of OT stacks, so the module block has nModules_ + 1 rows.
     reco::StubsSoACollection outputStubs(queue, nStubs, nModules_);
+
+    // The per-module stub offsets the acquire() prefix scan produced are the stub-local module
+    // starts: an exclusive scan over the OT module range with stubOffsets[nModules_] == nStubs, and
+    // the formation kernel writes each module's stubs into [stubOffsets[i], stubOffsets[i + 1]).
+    // Copy them into the SoA device-to-device on the same queue (no host round trip). With no stubs
+    // the scan output is all zeros, which is still the right answer, so this is unconditional.
+    {
+      auto moduleStartView = cms::alpakatools::make_device_view(
+          alpaka::getDev(queue), outputStubs.view().stubModules().moduleStart().data(), nModules_ + 1);
+      alpaka::memcpy(queue, moduleStartView, *stubOffsets_d_);
+    }
 
     if (nStubs > 0) {
       // The two error columns are the stub predicate (reco::isStub tests dPhiDrError >= 0), so a slot
