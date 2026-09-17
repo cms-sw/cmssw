@@ -57,9 +57,7 @@ namespace {
                                                                     "@endRun",
                                                                     "@endProcessBlock",
                                                                     "@endJob",
-                                                                    "@writeProcessBlock",
-                                                                    "@writeRun",
-                                                                    "@writeLumi"}};
+                                                                    "@writeProcessBlock"}};
 
   constexpr std::array<char const*, 7> s_streamTransitionNames = {{"@beginStream",
                                                                    "@streamBeginRun",
@@ -718,7 +716,7 @@ namespace edm {
     void MessageLogger::preModuleWriteLumi(GlobalContext const& context, ModuleCallingContext const& mod) {
       establishModule(lumiInfoBegin_ + context.luminosityBlockIndex().value(),
                       mod,
-                      s_globalTransitionNames[static_cast<int>(GlobalContext::Transition::kWriteLuminosityBlock)]);
+                      s_globalTransitionNames[static_cast<int>(GlobalContext::Transition::kEndLuminosityBlock)]);
     }
     void MessageLogger::postModuleWriteLumi(GlobalContext const& stream, ModuleCallingContext const& mod) {
       unEstablishModule(mod, "AfterModWriteLumi");
@@ -736,7 +734,7 @@ namespace edm {
     void MessageLogger::preModuleWriteRun(GlobalContext const& context, ModuleCallingContext const& mod) {
       establishModule(runInfoBegin_ + context.runIndex().value(),
                       mod,
-                      s_globalTransitionNames[static_cast<int>(GlobalContext::Transition::kWriteRun)]);
+                      s_globalTransitionNames[static_cast<int>(GlobalContext::Transition::kEndRun)]);
     }
     void MessageLogger::postModuleWriteRun(GlobalContext const& stream, ModuleCallingContext const& mod) {
       unEstablishModule(mod, "AfterModWriteRun");
