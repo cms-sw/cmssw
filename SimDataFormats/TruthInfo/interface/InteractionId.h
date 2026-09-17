@@ -30,6 +30,13 @@ namespace truth {
   // The index of the interaction inside its bunch crossing, 0 for the signal.
   [[nodiscard]] inline int eventIndexOf(uint64_t packedEventId) { return decodeEventId(packedEventId).event(); }
 
+  // The key of a SIM object inside a merged container: a SimTrack id and a SimVertex
+  // index are local to their sub-event, so only the interaction tells two of them apart.
+  // A bare local id attributes the hits of a pile-up track to a signal particle.
+  [[nodiscard]] inline uint64_t simObjectKey(uint64_t packedEventId, uint32_t localId) {
+    return (packedEventId << 32) | static_cast<uint64_t>(localId);
+  }
+
   // The signal interaction is the in-time one with index 0.
   [[nodiscard]] inline bool isSignalEventId(uint64_t packedEventId) {
     return bunchCrossingOf(packedEventId) == 0 && eventIndexOf(packedEventId) == 0;

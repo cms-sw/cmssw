@@ -43,6 +43,7 @@
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
 #include "PhysicsTools/TruthInfo/interface/SubgraphHitView.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/InteractionId.h"
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
 #include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 
@@ -131,11 +132,7 @@ void BranchTrackingValidator::bookHistograms(DQMStore::IBooker& ib, edm::Run con
 }
 
 namespace {
-  // (EncodedEventId, SimTrack trackId) -> logical particle. A trackId is local to its
-  // sub-event, so the pileup sub-events reuse the signal's values and the event id is
-  // part of the key.
-  uint64_t simTrackKey(uint64_t eventId, uint32_t trackId) { return (eventId << 32) | trackId; }
-
+  // (EncodedEventId, SimTrack trackId) -> logical particle.
   std::unordered_map<uint64_t, uint32_t> buildTrackIdToParticle(truth::Graph const& graph, TruthGraph const& raw) {
     std::unordered_map<uint64_t, uint32_t> out;
     out.reserve(graph.nParticles());
@@ -145,7 +142,7 @@ namespace {
         continue;
       auto const& nr = raw.nodeRef(static_cast<uint32_t>(simNode));
       if (nr.kind == TruthGraph::NodeKind::SimTrack)
-        out[simTrackKey(raw.nodeEventId(static_cast<uint32_t>(simNode)), static_cast<uint32_t>(nr.key))] = i;
+        out[truth::simObjectKey(raw.nodeEventId(static_cast<uint32_t>(simNode)), static_cast<uint32_t>(nr.key))] = i;
     }
     return out;
   }
@@ -222,7 +219,7 @@ void BranchTrackingValidator::analyze(edm::Event const& event, edm::EventSetup c
         const uint32_t key = tpRef.key();
         ++tpClusters[key];
         if (!tpTrackId.count(key) && !tpRef->g4Tracks().empty())
-          tpTrackId[key] = simTrackKey(tpRef->eventId().rawId(), tpRef->g4Tracks().front().trackId());
+          tpTrackId[key] = truth::simObjectKey(tpRef->eventId().rawId(), tpRef->g4Tracks().front().trackId());
       }
     }
     int expectedParticle = -1;

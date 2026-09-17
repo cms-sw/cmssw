@@ -362,7 +362,7 @@ void TruthGraphTopologyChecker::analyzeLogical(truth::Graph const& g) {
     // Pileup provenance: signal is (bx==0, event==0); everything else is pileup.
     const EncodedEventId eid = truth::decodeEventId(g.particles()[p].eventId);
     ++logBxHist_[eid.bunchCrossing()];
-    if (eid.bunchCrossing() == 0 && eid.event() == 0)
+    if (truth::isSignalEventId(g.particles()[p].eventId))
       ++logSignalParticles_;
     else
       ++logPileupParticles_;

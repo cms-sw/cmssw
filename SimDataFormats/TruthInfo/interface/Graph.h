@@ -160,6 +160,10 @@ namespace truth {
     void appendParents(size_type particleId, std::vector<uint32_t>& out) const;
     void appendChildren(size_type particleId, std::vector<uint32_t>& out) const;
 
+    // The seen list of ancestorCount grows with the decay chain, not with the graph,
+    // so a per-particle call allocates nothing worth measuring at pile-up 200.
+    [[nodiscard]] uint32_t ancestorCount(size_type particleId) const;
+
     [[nodiscard]] std::vector<Particle> ancestorsOf(size_type particleId) const;
     [[nodiscard]] std::vector<Particle> descendantsOf(size_type particleId) const;
 
