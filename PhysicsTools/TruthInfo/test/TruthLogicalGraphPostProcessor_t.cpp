@@ -353,6 +353,7 @@ class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(testBeamSideInputKeepsNoSubgraph);
   CPPUNIT_TEST(testUnattachedSelectionHasNoBeamSideInput);
   CPPUNIT_TEST(testSpectatorKeepsItsSimSubgraph);
+  CPPUNIT_TEST(testVertexReasonSurvivesTheRewrite);
   CPPUNIT_TEST(testIgnoredParticlesAreCollapsedAway);
   CPPUNIT_TEST(testSeedCutWithIgnoredParticles);
   CPPUNIT_TEST(testIgnoredParticleIdsAreCollapsedAway);
@@ -385,6 +386,7 @@ public:
   void testBeamSideInputKeepsNoSubgraph();
   void testUnattachedSelectionHasNoBeamSideInput();
   void testSpectatorKeepsItsSimSubgraph();
+  void testVertexReasonSurvivesTheRewrite();
   void testIgnoredParticlesAreCollapsedAway();
   void testSeedCutWithIgnoredParticles();
   void testIgnoredParticleIdsAreCollapsedAway();
@@ -679,6 +681,44 @@ void TestTruthLogicalGraphPostProcessor::testSpectatorKeepsItsSimSubgraph() {
     const auto legs = truth::levelAntichain(output, truth::Level::UnderlyingEvent);
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), legs.size());
     CPPUNIT_ASSERT_EQUAL(int32_t(211), output.particles()[legs.front()].pdgId);
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+// REQUIRED: the vertex reason is stamped before this rewrite and travels with the vertex
+// through it, so a consumer of the finished graph sees it.
+void TestTruthLogicalGraphPostProcessor::testVertexReasonSurvivesTheRewrite() {
+  try {
+    GraphBuilder builder(3, 1);
+
+    //   H -> v0 -> gamma gamma
+    builder.setGenParticle(0, 25, 2, 100);
+    builder.setGenSimParticle(1, 22, 1, 101, 1001);
+    builder.setGenSimParticle(2, 22, 1, 102, 1002);
+
+    builder.setGenVertex(0, 200);
+    builder.addDecay(0, 0);
+    builder.addProduction(0, 1);
+    builder.addProduction(0, 2);
+
+    truth::Graph input = builder.finish();
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Decay, truth::genVertexReason(input, 0));
+    input.vertices()[0].reason = static_cast<uint8_t>(truth::VertexReason::Decay);
+
+    auto config = defaultConfig();
+    config.seedPdgIds = {25};
+    config.seedParentDepth = 0;
+
+    auto output = runPostProcessing(std::move(input), config);
+
+    CPPUNIT_ASSERT(output.isConsistent());
+
+    const uint32_t higgs = findParticleWithPdgId(output, 25);
+    const auto decays = output.decayVertices(higgs);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), decays.size());
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Decay, output.vertices()[decays.front()].vertexReason());
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);

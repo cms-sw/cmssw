@@ -968,6 +968,16 @@ public:
              out->vertexToIncomingParticleOffsets(),
              out->vertexToIncomingParticles());
 
+    // A GEN-only vertex has no creator process to read, so its reason comes from the
+    // particles that meet there, on the complete GEN topology.
+    for (uint32_t vertexId = 0; vertexId < out->nVertices(); ++vertexId) {
+      auto& vertex = out->vertices()[vertexId];
+      if (vertex.isArtificial() || vertex.hasSim() || !vertex.hasGen())
+        continue;
+
+      vertex.reason = static_cast<uint8_t>(truth::genVertexReason(*out, vertexId));
+    }
+
     // Per-particle sim-hit presence for the hitless-subgraph pruning. A logical
     // particle is flagged when a calo or tracker sim-hit carries its SimTrack
     // trackId with positive energy -- exactly how the LogicalGraphHitIndex

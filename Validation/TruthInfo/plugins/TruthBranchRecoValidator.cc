@@ -782,7 +782,7 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
         kin.zpos = pos.z();
         kin.nhits = vertex.outgoingParticles().size();
         reason = vdata.hasSim() ? static_cast<unsigned int>(vdata.reason)
-                                : static_cast<unsigned int>(truth::VertexReason::Other) + 1;
+                                : static_cast<unsigned int>(truth::kVertexReasonCount);
       } else {
         if (b >= graph.nParticles()) {
           continue;
@@ -816,12 +816,11 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
 
         const auto vertices = branchRoot.productionVertices();
         if (!vertices.empty()) {
-          // A GEN-only production vertex has no Geant4 creator process, so its reason is
-          // Unknown by construction rather than by failure to classify. It gets its own
-          // bin, one past the enum, so the two do not get read as the same thing.
+          // The axis reports the Geant4 process, so a vertex with no SIM side goes to the
+          // synthetic bin past the whole enum and not to its GEN reason.
           auto const& vdata = vertices.front().data();
           reason = vdata.hasSim() ? static_cast<unsigned int>(vdata.reason)
-                                  : static_cast<unsigned int>(truth::VertexReason::Other) + 1;
+                                  : static_cast<unsigned int>(truth::kVertexReasonCount);
           const auto& pos = vertices.front().position();
           kin.vertpos = std::sqrt(pos.x() * pos.x() + pos.y() * pos.y());
           kin.zpos = pos.z();

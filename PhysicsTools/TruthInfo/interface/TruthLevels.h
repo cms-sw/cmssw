@@ -147,6 +147,75 @@ namespace truth {
     return a >= 9900000 && a < 1000000000;  // generator-internal states, below the nuclei codes
   }
 
+  // A shower object that turns into hadrons rather than decaying. The top is excluded
+  // although its pdgId makes it a parton: it decays before it can hadronize.
+  [[nodiscard]] inline bool hadronizes(int32_t pdgId) { return isShowerObject(pdgId) && std::abs(pdgId) != 6; }
+
+  // The physical reason a GEN-only vertex exists, from the species and the generator
+  // status codes of the particles that meet there. Returns Unknown for a vertex with a
+  // SIM side, which keeps its Geant4 reason, for an artificial vertex, and for anything
+  // the rules do not cover. The graph must have its adjacency built.
+  [[nodiscard]] inline VertexReason genVertexReason(Graph const& graph, uint32_t vertexId) {
+    const std::size_t next = static_cast<std::size_t>(vertexId) + 1;
+    if (next >= graph.vertexToIncomingParticleOffsets().size() ||
+        next >= graph.vertexToOutgoingParticleOffsets().size())
+      return VertexReason::Unknown;
+
+    auto const& vertex = graph.vertices()[vertexId];
+    if (vertex.isArtificial() || vertex.hasSim() || !vertex.hasGen())
+      return VertexReason::Unknown;
+
+    const auto incoming = graph.incomingParticles(vertexId);
+    const auto outgoing = graph.outgoingParticles(vertexId);
+    if (incoming.empty() || outgoing.empty())
+      return VertexReason::Unknown;
+
+    auto pdgIdOf = [&graph](uint32_t id) { return graph.particles()[id].pdgId; };
+    auto anyOutgoingStatus = [&](int16_t low, int16_t high) {
+      return std::any_of(outgoing.begin(), outgoing.end(), [&](uint32_t id) {
+        const int16_t status = graph.particles()[id].status;
+        return status >= low && status <= high;
+      });
+    };
+    // Every incoming leg hadronizes, so the vertex belongs to the shower and not to the
+    // decay of a particle a detector could be asked about.
+    const bool fromShower =
+        std::all_of(incoming.begin(), incoming.end(), [&](uint32_t id) { return hadronizes(pdgIdOf(id)); });
+
+    // Two or more incoming hard-process legs. The count is required: a hard-process
+    // resonance enters its own decay vertex and would otherwise match here. The flag is
+    // the generator-independent form, but buildFromHepMC3 leaves it empty, so the Pythia
+    // incoming-hard-parton code is the fallback.
+    if (incoming.size() >= 2) {
+      auto allIncoming = [&](auto predicate) { return std::all_of(incoming.begin(), incoming.end(), predicate); };
+      const bool flagged =
+          allIncoming([&](uint32_t id) { return (graph.particles()[id].statusFlags & detail::kIsHardProcess) != 0; });
+      const bool coded = allIncoming([&](uint32_t id) { return graph.particles()[id].status == 21; });
+      if (flagged || coded)
+        return VertexReason::HardScatter;
+    }
+
+    // A branching inside the shower, initial or final state. The species test carries the
+    // rule: a status code travels with a particle's own history, so a decay whose product
+    // is a shower copy would match the code alone.
+    if (fromShower && anyOutgoingStatus(41, 59))
+      return VertexReason::ShowerBranching;
+
+    const bool fromString = std::any_of(incoming.begin(), incoming.end(), [&](uint32_t id) {
+      const int64_t pdgId = std::abs(static_cast<int64_t>(pdgIdOf(id)));
+      return pdgId >= 91 && pdgId <= 94;
+    });
+    const bool toHadron =
+        std::any_of(outgoing.begin(), outgoing.end(), [&](uint32_t id) { return !isShowerObject(pdgIdOf(id)); });
+    if (fromString || (fromShower && (toHadron || anyOutgoingStatus(71, 79))))
+      return VertexReason::Hadronization;
+
+    if (incoming.size() == 1 && !hadronizes(pdgIdOf(incoming[0])))
+      return VertexReason::Decay;
+
+    return VertexReason::Unknown;
+  }
+
   // Ordinary hadron whose quark content includes `flavor` (5 = b, 4 = c), read off the
   // PDG hadron-numbering digits. Nuclei and generator-internal codes are not hadrons here.
   [[nodiscard]] inline bool hadronHasQuark(int32_t pdgId, int32_t flavor) {

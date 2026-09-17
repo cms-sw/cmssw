@@ -11,14 +11,13 @@
 #include "Validation/TruthInfo/interface/TruthBranchHistoProducerAlgo.h"
 
 namespace {
-  // One bin per VertexReason, the enum being contiguous from Unknown to Other, plus one
-  // synthetic bin. VertexReason is derived from the Geant4 creator-process subtype of a
-  // SimVertex, so a GEN-only vertex has no process and reads as Unknown. That is a
-  // different statement from "the process is not one we map", and in a pileup sample it
-  // is the dominant category: collapsePileupGen replaces each pileup interaction with
-  // one GEN-only vertex carrying all its stable particles. Giving it its own bin keeps
-  // Unknown meaning what it says.
-  constexpr int kNReasons = static_cast<int>(truth::VertexReason::Other) + 1;
+  // One bin per VertexReason, plus one synthetic bin for a vertex with no SIM side. The
+  // validator sends every such vertex to the synthetic bin rather than to its GEN reason,
+  // so the axis answers one question only: which Geant4 process made this vertex. In a
+  // pileup sample the synthetic bin is the dominant category, because collapsePileupGen
+  // replaces each pileup interaction with one GEN vertex carrying all its stable
+  // particles. The synthetic bin sits past the whole enum, so no reason value shares it.
+  constexpr int kNReasons = truth::kVertexReasonCount;
   constexpr int kGenOnlyBin = kNReasons;
   constexpr int kNReasonBins = kNReasons + 1;
 }  // namespace

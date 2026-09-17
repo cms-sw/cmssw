@@ -245,6 +245,11 @@ class LevelFlags_t : public CppUnit::TestFixture {
   CPPUNIT_TEST(testCycleIsReported);
   CPPUNIT_TEST(testCycleDoesNotStopStamping);
   CPPUNIT_TEST(testLevelTableIsTheSingleSource);
+  CPPUNIT_TEST(testGenVertexReasonReadsTheMeetingParticles);
+  CPPUNIT_TEST(testHardScatterIsFoundWithoutStatusFlags);
+  CPPUNIT_TEST(testHadronDecayIsNotAShowerBranching);
+  CPPUNIT_TEST(testCollapsedResonanceDecayIsNotAHardScatter);
+  CPPUNIT_TEST(testGenVertexReasonLeavesSimAndArtificialVertices);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -859,6 +864,161 @@ public:
     // The radiating tau is walked through, never labelled.
     CPPUNIT_ASSERT(!has(0));
     CPPUNIT_ASSERT(!has(1));
+  }
+
+  // REQUIRED: a GEN vertex takes its reason from the particles that meet there. A shower
+  // branching is named by its own code even when its incoming leg is hard-process.
+  void testGenVertexReasonReadsTheMeetingParticles() {
+    GraphBuilder b(8, 3);
+
+    // v0: u ubar, both hard-process, make a t tbar pair.
+    // v1: an initial-state branching, which writes a hard-process code on its own leg.
+    // v2: a parton prepared for hadronization turning into a pion.
+    auto set = [&b](uint32_t id, int32_t pdgId, int16_t status, uint16_t flags) {
+      auto& p = b.graph.particles()[id];
+      p.genNode = 100 + static_cast<int32_t>(id);
+      p.pdgId = pdgId;
+      p.status = status;
+      p.statusFlags = flags;
+    };
+    set(0, 2, 21, truth::detail::kIsHardProcess);
+    set(1, -2, 21, truth::detail::kIsHardProcess);
+    set(2, 6, 62, 0);
+    set(3, -6, 62, 0);
+    set(4, 21, 41, truth::detail::kIsHardProcess);
+    set(5, 21, 44, 0);
+    set(6, 211, 1, 0);
+    set(7, 2, 71, 0);
+
+    b.addDecay(0, 0);
+    b.addDecay(1, 0);
+    b.addProduction(0, 2);
+    b.addProduction(0, 3);
+
+    b.addDecay(4, 1);
+    b.addProduction(1, 5);
+
+    b.addDecay(7, 2);
+    b.addProduction(2, 6);
+
+    truth::Graph g = b.finish();
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::HardScatter, truth::genVertexReason(g, 0));
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::ShowerBranching, truth::genVertexReason(g, 1));
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Hadronization, truth::genVertexReason(g, 2));
+
+    // The hadronization vertex is named by the species of what meets there, so it holds
+    // whatever the fragmenting parton's own status happens to be.
+    b.graph.particles()[7].status = 52;
+    truth::Graph withCopyStatus = b.finish();
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Hadronization, truth::genVertexReason(withCopyStatus, 2));
+  }
+
+  // REQUIRED: the hard scatter is found without the status flags, which buildFromHepMC3
+  // does not fill.
+  void testHardScatterIsFoundWithoutStatusFlags() {
+    GraphBuilder b(4, 1);
+
+    for (uint32_t id : {0u, 1u}) {
+      auto& parton = b.graph.particles()[id];
+      parton.genNode = 100 + static_cast<int32_t>(id);
+      parton.pdgId = (id == 0) ? 2 : -2;
+      parton.status = 21;
+      parton.statusFlags = 0;
+    }
+    for (uint32_t id : {2u, 3u}) {
+      auto& out = b.graph.particles()[id];
+      out.genNode = 100 + static_cast<int32_t>(id);
+      out.pdgId = (id == 2) ? 23 : 2;
+      out.status = 23;
+    }
+
+    b.addDecay(0, 0);
+    b.addDecay(1, 0);
+    b.addProduction(0, 2);
+    b.addProduction(0, 3);
+
+    truth::Graph g = b.finish();
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::HardScatter, truth::genVertexReason(g, 0));
+  }
+
+  // REQUIRED: a hadron decay stays a decay when a decay product carries a shower status
+  // code. A status code belongs to the particle's own history, not to the vertex.
+  void testHadronDecayIsNotAShowerBranching() {
+    GraphBuilder b(3, 1);
+
+    auto& meson = b.graph.particles()[0];
+    meson.genNode = 100;
+    meson.pdgId = 521;
+    meson.status = 2;
+
+    auto& muon = b.graph.particles()[1];
+    muon.genNode = 101;
+    muon.pdgId = -13;
+    muon.status = 52;
+
+    auto& neutrino = b.graph.particles()[2];
+    neutrino.genNode = 102;
+    neutrino.pdgId = 14;
+    neutrino.status = 1;
+
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addProduction(0, 2);
+
+    truth::Graph g = b.finish();
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Decay, truth::genVertexReason(g, 0));
+  }
+
+  // REQUIRED: a resonance that decays is not a hard scatter, even though the collapsed
+  // copy chain leaves isHardProcess on the particle that enters the decay vertex.
+  void testCollapsedResonanceDecayIsNotAHardScatter() {
+    GraphBuilder b(3, 1);
+
+    auto& higgs = b.graph.particles()[0];
+    higgs.genNode = 100;
+    higgs.pdgId = 25;
+    higgs.status = 62;
+    higgs.statusFlags = truth::detail::kIsHardProcess | truth::detail::kIsLastCopy;
+
+    for (uint32_t id : {1u, 2u}) {
+      auto& z = b.graph.particles()[id];
+      z.genNode = 100 + static_cast<int32_t>(id);
+      z.pdgId = 23;
+      z.status = 22;
+    }
+
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addProduction(0, 2);
+
+    truth::Graph g = b.finish();
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Decay, truth::genVertexReason(g, 0));
+  }
+
+  // REQUIRED: only GEN-only vertices are classified here. A vertex with a SIM side keeps
+  // the Geant4 reason and an artificial vertex has none.
+  void testGenVertexReasonLeavesSimAndArtificialVertices() {
+    GraphBuilder b(2, 2);
+
+    for (uint32_t id : {0u, 1u}) {
+      auto& p = b.graph.particles()[id];
+      p.genNode = 100 + static_cast<int32_t>(id);
+      p.pdgId = 211;
+      p.status = 2;
+    }
+
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addDecay(1, 1);
+
+    b.graph.vertices()[0].simNode = 900;
+    b.graph.vertices()[1].genNode = -1;
+    b.graph.vertices()[1].simNode = 901;
+    b.graph.vertices()[1].role = static_cast<uint8_t>(truth::VertexRole::UnderlyingEvent);
+
+    truth::Graph g = b.finish();
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Unknown, truth::genVertexReason(g, 0));
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Unknown, truth::genVertexReason(g, 1));
   }
 };
 
