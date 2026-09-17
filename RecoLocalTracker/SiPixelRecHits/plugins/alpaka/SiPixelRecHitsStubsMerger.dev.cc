@@ -4,6 +4,7 @@
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsDevice.h"
 #include "DataFormats/TrackingRecHitSoA/interface/alpaka/OTRecHitsSoACollection.h"
 #include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitsSoACollection.h"
+#include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitsMaskSoACollection.h"
 #include "DataFormats/TrackingRecHitSoA/interface/StubsDevice.h"
 #include "DataFormats/TrackingRecHitSoA/interface/alpaka/StubsSoACollection.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -158,6 +159,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           hitsView.detectorIndex()[hitIdx] = otHitsView.detectorIndex()[posHitIdx];
 
           // Set stub-specific fields
+          // Contract check (compiled out with NDEBUG): the stub SoA is self-contained, i.e. it
+          // already carries the published hit's position, errors, radius and CA module, and the
+          // values are bit-identical to the ones this kernel derives from the OT rechits. A future
+          // consumer may read them from the stub SoA instead of the merged collection.
+          ALPAKA_ASSERT_ACC(stubsView.xGlobal()[stubIdx] == otHitsView.xGlobal()[posHitIdx]);
+          ALPAKA_ASSERT_ACC(stubsView.yGlobal()[stubIdx] == otHitsView.yGlobal()[posHitIdx]);
+          ALPAKA_ASSERT_ACC(stubsView.zGlobal()[stubIdx] == otHitsView.zGlobal()[posHitIdx]);
+          ALPAKA_ASSERT_ACC(stubsView.rGlobal()[stubIdx] == hitsView.rGlobal()[hitIdx]);
+          ALPAKA_ASSERT_ACC(stubsView.xerrLocal()[stubIdx] == otHitsView.xerrLocal()[posHitIdx]);
+          ALPAKA_ASSERT_ACC(stubsView.yerrLocal()[stubIdx] == otHitsView.yerrLocal()[posHitIdx]);
+          ALPAKA_ASSERT_ACC(stubsView.detectorIndex()[stubIdx] == otHitsView.detectorIndex()[posHitIdx]);
+
           hitsView.dPhiDr()[hitIdx] = stubsView.dPhiDr()[stubIdx];
           hitsView.dPhiDrError()[hitIdx] = stubsView.dPhiDrError()[stubIdx];
           hitsView.dPhiDrErrorPrec()[hitIdx] = stubsView.dPhiDrErrorPrec()[stubIdx];  // read by the extension
@@ -216,6 +229,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
       }
     };
+
+#ifndef NDEBUG
+    // Contract check (only built and launched with assertions enabled): the stub SoA's own
+    // StubModulesLayout::moduleStart is the stub-local version of the OT part of the merged
+    // moduleStart, i.e. it differs from it only by the pixel-hit offset.
+    struct ValidateStubModuleStartKernel {
+      template <typename TAcc, typename ModuleView, typename StubModuleView>
+      ALPAKA_FN_ACC void operator()(const TAcc& acc,
+                                    ModuleView moduleView,
+                                    StubModuleView stubModuleView,
+                                    uint32_t nPixHits,
+                                    uint32_t nOTModulesActual) const {
+        for (uint32_t i : cms::alpakatools::uniform_elements(acc, nOTModulesActual + 1)) {
+          ALPAKA_ASSERT_ACC(moduleView.moduleStart()[nPixelModules + i] == nPixHits + stubModuleView.moduleStart()[i]);
+        }
+      }
+    };
+#endif  // NDEBUG
 
   }  // namespace
 
@@ -357,6 +388,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::exec<Acc1D>(
             queue, workDiv, CopyStubsToHitsKernel{}, stubsSubView, outHitsView, otHitsView, nPixHits, nStubs);
       }
+
+#ifndef NDEBUG
+      {
+        uint32_t blocksCheck = (nOTModulesActual + 1 + threadsPerBlock - 1) / threadsPerBlock;
+        auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(blocksCheck, threadsPerBlock);
+        alpaka::exec<Acc1D>(queue,
+                            workDiv,
+                            ValidateStubModuleStartKernel{},
+                            outModuleView,
+                            stubsColl.view().stubModules(),
+                            nPixHits,
+                            nOTModulesActual);
+      }
+#endif  // NDEBUG
     } else {
       // No stubs: initialize OT moduleStart to empty.
       auto outModuleView = output.view().hitModules();

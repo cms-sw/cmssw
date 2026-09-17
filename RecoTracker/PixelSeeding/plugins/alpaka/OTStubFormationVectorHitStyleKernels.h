@@ -403,6 +403,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 float yg = pHit.yGlobal();
                 stubs[out].iphi() = unsafe_atan2s<7>(yg, xg);
 
+                // Position, errors and CA module of the published hit.
+                stubs[out].xGlobal() = xg;
+                stubs[out].yGlobal() = yg;
+                stubs[out].zGlobal() = pHit.zGlobal();
+                stubs[out].rGlobal() = alpaka::math::sqrt(acc, xg * xg + yg * yg);
+                stubs[out].xerrLocal() = pHit.xerrLocal();
+                stubs[out].yerrLocal() = pHit.yerrLocal();
+                stubs[out].detectorIndex() = pHit.detectorIndex();
+
                 // Stub-specific fields set to invalid values (no bend measurement).
                 // Negative dPhiDrError tags PHitOnly entries (see reco::isStub).
                 stubs[out].dPhiDr() = 0.0f;
@@ -506,6 +515,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
                 // iPhi - same encoding as pixel hits (16-bit signed, full circle = [-32768, 32767])
                 stubs[out].iphi() = unsafe_atan2s<7>(yg, xg);
+
+                // Position, errors and CA module of the published hit; rGlobal reuses rg.
+                stubs[out].xGlobal() = xg;
+                stubs[out].yGlobal() = yg;
+                stubs[out].zGlobal() = zg;
+                stubs[out].rGlobal() = rg;
+                stubs[out].xerrLocal() = hits[pickedIdx].xerrLocal();
+                stubs[out].yerrLocal() = hits[pickedIdx].yerrLocal();
+                stubs[out].detectorIndex() = hits[pickedIdx].detectorIndex();
 
                 float xi = hits[innerIdx].xGlobal();
                 float yi = hits[innerIdx].yGlobal();

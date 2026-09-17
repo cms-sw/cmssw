@@ -23,8 +23,8 @@ namespace reco {
   public:
     StubsHost(edm::Uninitialized) : StubPortableCollectionHost{edm::kUninitialized} {}
 
-    // The module block is allocated with nModules+1 elements and carries no payload: its extent is
-    // the only record of the module count.
+    // The module block holds moduleStart with nModules+1 entries, the last one the total
+    // number of stubs.
     template <typename TQueue>
     explicit StubsHost(TQueue queue, uint32_t nStubs, uint32_t nModules)
         : StubPortableCollectionHost(queue, nStubs, nModules + 1) {}
