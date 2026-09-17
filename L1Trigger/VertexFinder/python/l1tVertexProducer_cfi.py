@@ -8,7 +8,7 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
   # === Vertex Reconstruction configuration
   VertexReconstruction = cms.PSet(
         # Vertex Reconstruction Algorithm
-        Algorithm = cms.string("NNEmulation"),
+        Algorithm = cms.string("fastHisto"),
         # Vertex distance [cm]
         VertexDistance = cms.double(.15),
         # Assumed Vertex Resolution [cm]
