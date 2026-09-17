@@ -204,7 +204,7 @@ private:
       // Run Association Network:
       AssociationModel_->prepare_input(assoc_input);
       AssociationModel_->predict();
-      AssociationModel_->read_result(assoc_output);
+      AssociationModel_->read_result(&assoc_output);
 
       double NNOutput = (double)assoc_output;
       double NNOutput_exp = 1.0 / (1.0 + exp(-1.0 * (NNOutput)));
