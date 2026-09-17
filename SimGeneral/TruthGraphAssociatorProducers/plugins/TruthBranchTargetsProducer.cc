@@ -171,8 +171,6 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
     event.put(std::move(signalSeedsNoSelection), "signalSeedsNoSelection");
   }
 
-  // eventId 0 is the signal interaction; anything else is overlaid pileup.
-  auto isSignalParticle = [&graph](uint32_t particleId) { return graph.particles()[particleId].eventId == 0; };
   // One denominator per level. The level antichain, then the signal restriction, then
   // the kinematic selector. Order matters: taking the antichain of an already
   // kinematically-selected set would promote a soft particle to a level it does not
@@ -196,7 +194,7 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
       if ((failed & (failed - 1u)) != 0u) {
         continue;
       }
-      if (truthToRecoSignalOnly_ && !isSignalParticle(id)) {
+      if (truthToRecoSignalOnly_ && !graph.particles()[id].isSignal()) {
         continue;
       }
       if (!isCandidate[id]) {

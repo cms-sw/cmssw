@@ -10,6 +10,7 @@
 #include <utility>
 #include <vector>
 
+#include "SimDataFormats/TruthInfo/interface/InteractionId.h"
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
 
 namespace truth {
@@ -42,11 +43,7 @@ namespace truth {
     // hit; every other channel names a cell with its DetId and is never cell keyed.
     void setCellKeyed(HitChannel channel, bool value) { cellKeyed_[static_cast<std::size_t>(channel)] = value; }
 
-    // (EncodedEventId, trackId) -> global map key. The packed EncodedEventId fits in
-    // 32 bits (reco::EncodedEventId::rawId is uint32), so shift it into the high word.
-    static uint64_t simKey(uint64_t eventId, uint32_t trackId) {
-      return (eventId << 32) | static_cast<uint64_t>(trackId);
-    }
+    static uint64_t simKey(uint64_t eventId, uint32_t trackId) { return simObjectKey(eventId, trackId); }
 
     [[nodiscard]] LogicalGraphHitIndex finish();
 

@@ -459,7 +459,6 @@ public:
     // SimTracks by (sub-event id, trackId) and SimVertices by (sub-event id, index in
     // its sub-event): a trackId and an index are local to a sub-event, and a merged
     // container holds every sub-event's in order.
-    auto simKey = [](uint64_t eventId, uint32_t local) { return (eventId << 32) | local; };
     std::unordered_map<uint64_t, uint32_t> simTrackIdToIndex;
     std::unordered_map<uint64_t, uint32_t> simVertexIdToIndex;
     if (validHandle(hSimVertices)) {
@@ -472,7 +471,7 @@ public:
           currentEventId = eventId;
           local = 0;
         }
-        simVertexIdToIndex.emplace(simKey(eventId, local), i);
+        simVertexIdToIndex.emplace(truth::simObjectKey(eventId, local), i);
         ++local;
       }
     }
@@ -481,7 +480,8 @@ public:
       simTrackIdToIndex.reserve(hSimTracks->size() * 2);
 
       for (uint32_t i = 0; i < hSimTracks->size(); ++i) {
-        simTrackIdToIndex.emplace(simKey((*hSimTracks)[i].eventId().rawId(), (*hSimTracks)[i].trackId()), i);
+        simTrackIdToIndex.emplace(truth::simObjectKey((*hSimTracks)[i].eventId().rawId(), (*hSimTracks)[i].trackId()),
+                                  i);
       }
     }
 
@@ -800,7 +800,7 @@ public:
 
           if (validHandle(hSimTracks)) {
             const auto trackId = static_cast<uint32_t>(ref.key);
-            auto it = simTrackIdToIndex.find(simKey(raw.nodeEventId(nodeId), trackId));
+            auto it = simTrackIdToIndex.find(truth::simObjectKey(raw.nodeEventId(nodeId), trackId));
 
             if (it != simTrackIdToIndex.end()) {
               auto const& t = (*hSimTracks)[it->second];
@@ -869,7 +869,8 @@ public:
             v.eventId = raw.nodeEventId(nodeId);
 
           if (validHandle(hSimVertices)) {
-            auto it = simVertexIdToIndex.find(simKey(raw.nodeEventId(nodeId), static_cast<uint32_t>(ref.key)));
+            auto it =
+                simVertexIdToIndex.find(truth::simObjectKey(raw.nodeEventId(nodeId), static_cast<uint32_t>(ref.key)));
 
             if (it != simVertexIdToIndex.end()) {
               auto const& sv = (*hSimVertices)[it->second];
@@ -994,7 +995,6 @@ public:
       // be namespaced by the packed EncodedEventId or signal and pileup collide and
       // the wrong particles get flagged as hit-bearing. Mirrors the same key in
       // LogicalGraphHitIndexBuilder so the pruned graph stays consistent with the index.
-      auto simKey = [](uint64_t eventId, uint32_t trackId) { return (eventId << 32) | static_cast<uint64_t>(trackId); };
       std::unordered_set<uint64_t> hitKeys;
       bool anyCollectionValid = false;
 
@@ -1007,7 +1007,7 @@ public:
         for (auto const& hit : *hHits) {
           const int trackId = hit.geantTrackId();
           if (trackId > 0 && hit.energy() > 0.f)
-            hitKeys.insert(simKey(hit.eventId().rawId(), static_cast<uint32_t>(trackId)));
+            hitKeys.insert(truth::simObjectKey(hit.eventId().rawId(), static_cast<uint32_t>(trackId)));
         }
       }
 
@@ -1019,7 +1019,7 @@ public:
         anyCollectionValid = true;
         for (auto const& hit : *hHits) {
           if (hit.energyLoss() > 0.f)
-            hitKeys.insert(simKey(hit.eventId().rawId(), hit.trackId()));
+            hitKeys.insert(truth::simObjectKey(hit.eventId().rawId(), hit.trackId()));
         }
       }
 
@@ -1037,7 +1037,7 @@ public:
             continue;
           if (ref.key <= 0 || ref.key > static_cast<int64_t>(std::numeric_limits<uint32_t>::max()))
             continue;
-          if (hitKeys.count(simKey(raw.nodeEventId(simNodeU32), static_cast<uint32_t>(ref.key))) != 0)
+          if (hitKeys.count(truth::simObjectKey(raw.nodeEventId(simNodeU32), static_cast<uint32_t>(ref.key))) != 0)
             particleDirectHit[particleId] = 1;
         }
       } else {

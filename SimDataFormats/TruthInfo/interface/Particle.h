@@ -63,6 +63,10 @@ namespace truth {
     [[nodiscard]] std::vector<Particle> ancestors() const;
     [[nodiscard]] std::vector<Particle> descendants() const;
 
+    // How many particles sit above this one, which is ancestors().size() without
+    // building the list.
+    [[nodiscard]] uint32_t ancestorCount() const;
+
     // The ids of the particles this one decays into, and of those it comes from, passed
     // to the callable one at a time. An id can repeat when two vertices share a particle.
     // Defined in Graph.h, which a caller has to include.

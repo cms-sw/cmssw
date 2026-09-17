@@ -544,11 +544,12 @@ namespace {
       if (!keepParticle[particleId])
         continue;
 
-      const EncodedEventId eid = truth::decodeEventId(graph.particles()[particleId].eventId);
+      auto const& data = graph.particles()[particleId];
+      const EncodedEventId eid = truth::decodeEventId(data.eventId);
 
       bool keep = true;
       if (signalOnly)
-        keep = eid.bunchCrossing() == 0 && eid.event() == 0;
+        keep = data.isSignal();
       if (keep && !keepBunchCrossings.empty())
         keep = std::find(keepBunchCrossings.begin(), keepBunchCrossings.end(), eid.bunchCrossing()) !=
                keepBunchCrossings.end();

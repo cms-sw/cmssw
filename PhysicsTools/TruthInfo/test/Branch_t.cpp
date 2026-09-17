@@ -101,6 +101,22 @@ namespace {
     return b.finish();
   }
 
+  // g -> {q, qbar}; q and qbar both enter one vertex that makes a cluster
+  truth::Graph buildReconvergent() {
+    GraphBuilder b(4, 2);
+    b.setParticle(0, 21, 2, 100.);  // g
+    b.setParticle(1, 1, 2, 50.);    // q
+    b.setParticle(2, -1, 2, 50.);   // qbar
+    b.setParticle(3, 211, 1, 90.);  // pi+
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addProduction(0, 2);
+    b.addDecay(1, 1);
+    b.addDecay(2, 1);
+    b.addProduction(1, 3);
+    return b.finish();
+  }
+
   std::size_t countPdg(std::vector<truth::Particle> const& ps, int32_t pdg) {
     return std::count_if(ps.begin(), ps.end(), [pdg](auto const& p) { return p.pdgId() == pdg; });
   }
@@ -119,6 +135,7 @@ class TestBranch : public CppUnit::TestFixture {
   CPPUNIT_TEST(testBranchesAtLevel);
   CPPUNIT_TEST(testNavigationWithoutAllocation);
   CPPUNIT_TEST(testProvenanceComesFromTheRoot);
+  CPPUNIT_TEST(testAncestorCount);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -132,6 +149,7 @@ public:
   void testBranchesAtLevel();
   void testNavigationWithoutAllocation();
   void testProvenanceComesFromTheRoot();
+  void testAncestorCount();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranch);
@@ -401,4 +419,20 @@ void TestBranch::testProvenanceComesFromTheRoot() {
 
   top.eventId = 0;
   CPPUNIT_ASSERT(truth::Branch(&graph, 0).isSignal());
+}
+
+void TestBranch::testAncestorCount() {
+  // ancestorCount equals ancestors().size(), on a tree and where two parents
+  // share a grandparent.
+  for (auto const& g : {buildTtbarLike(), buildReconvergent()})
+    for (uint32_t id = 0; id < g.nParticles(); ++id)
+      CPPUNIT_ASSERT_EQUAL(static_cast<uint32_t>(truth::Particle(&g, id).ancestors().size()),
+                           truth::Particle(&g, id).ancestorCount());
+
+  auto rec = buildReconvergent();
+  // g, q and qbar, each counted once.
+  CPPUNIT_ASSERT_EQUAL(uint32_t(3), truth::Particle(&rec, 3).ancestorCount());
+  CPPUNIT_ASSERT_EQUAL(uint32_t(0), truth::Particle(&rec, 0).ancestorCount());
+  // An invalid view has no ancestors.
+  CPPUNIT_ASSERT_EQUAL(uint32_t(0), truth::Particle(&rec, rec.nParticles()).ancestorCount());
 }
