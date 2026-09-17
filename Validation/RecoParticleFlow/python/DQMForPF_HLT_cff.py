@@ -14,13 +14,8 @@ import FWCore.ParameterSet.Config as cms
 # The jet-level part of the offline sequence is deliberately not reproduced:
 # Validation/RecoJets already provides hltJetValidation for
 # hltAK4PFPuppiJets / hltAK4PFJets / hltAK4PFCHSJets.
-from Validation.RecoParticleFlow.particleFlowDQM_cff import PFCandAnalyzerDQM
 from Validation.RecoParticleFlow.offsetAnalyzerDQM_cff import offsetAnalyzerDQM
 from Validation.RecoParticleFlow.offsetAnalyzerDQM_cff import offsetDQMPostProcessor
-
-PFCandAnalyzerDQMHLT = PFCandAnalyzerDQM.clone(
-    PFCandType = "hltParticleFlowTmp"
-)
 
 # The offset plots are booked one per (candidate type, mu) and (type, npv), and
 # the analyzer returns without filling if the event's mu or npv has no
@@ -75,14 +70,15 @@ offsetAnalyzerDQMHLT = offsetAnalyzerDQM.clone(
 # 2.9, 3.0) that the package's own config carries commented out -- that is the
 # region where JME reported the TICLv5 jet structure, so the PF candidate
 # spectra are binned to resolve it.
-from DQMOffline.ParticleFlow.pfAnalyzer_cfi import pfAnalyzer
+from Validation.RecoParticleFlow.particleFlowDQM_cff import pfAnalyzerDQM
 
-pfAnalyzerDQMHLT = pfAnalyzer.clone(
+pfAnalyzerDQMHLT = pfAnalyzerDQM.clone(
     isHLT               = True,
     isMiniAOD           = False,
     pfCandidates        = "hltParticleFlowTmp",
     pfJetCollection     = "hltAK4PFPuppiJets",
     PVCollection        = "hltOfflinePrimaryVertices",
+    puppiWeight         = "hltPFPuppi",
     TriggerResultsLabel = cms.InputTag("TriggerResults", "", "reHLT"),
     # passesTriggerSelection accepts everything only if the list contains an
     # EMPTY STRING; an empty list makes its inner loop never run, so every
@@ -103,17 +99,16 @@ pfAnalyzerDQMHLT = pfAnalyzer.clone(
         # inclusive, then resolved in |eta| across the HGCAL edge
         cutList = cms.vstring(
             '[pt;1;0;10000]',
-            '[pt;1;0;10000][abseta;0;1;2;2.5;2.6;2.7;2.8;2.9;3;3.5;4.0;4.5]',
-            '[pt;0;1;2;4;6;10;20;40;60;100][abseta;0;1.5;2.0;2.5;2.8;2.85;2.9;2.95;3]',
+            '[pt;1;0;10000][abseta;0;1.47;4.;6.]',
+            '[pt;0;1;2;4;6;10;20;50;100][abseta;0;1.47;4.;6.]',
         ),
         jetCutList = cms.vstring('[pt;20;10000]'),
     ),
 )
 
 DQMHLTPF = cms.Sequence(
-    PFCandAnalyzerDQMHLT +
-    offsetAnalyzerDQMHLT +
-    pfAnalyzerDQMHLT
+    pfAnalyzerDQMHLT +
+    offsetAnalyzerDQMHLT
 )
 
 DQMHarvestHLTPF = cms.Sequence(
