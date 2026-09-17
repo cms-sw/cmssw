@@ -250,6 +250,7 @@ class LevelFlags_t : public CppUnit::TestFixture {
   CPPUNIT_TEST(testHadronDecayIsNotAShowerBranching);
   CPPUNIT_TEST(testCollapsedResonanceDecayIsNotAHardScatter);
   CPPUNIT_TEST(testGenVertexReasonLeavesSimAndArtificialVertices);
+  CPPUNIT_TEST(testLastCopyFollowsTheRadiatingChain);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -1019,6 +1020,34 @@ public:
     truth::Graph g = b.finish();
     CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Unknown, truth::genVertexReason(g, 0));
     CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Unknown, truth::genVertexReason(g, 1));
+  }
+
+  // REQUIRED: the last copy of a radiating chain is the one whose children are the decay
+  // products, and the walk stops where the chain is ambiguous.
+  void testLastCopyFollowsTheRadiatingChain() {
+    GraphBuilder b(5, 2);
+    // Z(0) -> v0 -> Z(1) gamma(2) ; Z(1) -> v1 -> e-(3) e+(4)
+    auto set = [&b](uint32_t id, int32_t pdgId, int16_t status) {
+      auto& p = b.graph.particles()[id];
+      p.genNode = 100 + static_cast<int32_t>(id);
+      p.pdgId = pdgId;
+      p.status = status;
+    };
+    set(0, 23, 2);
+    set(1, 23, 2);
+    set(2, 22, 1);
+    set(3, 11, 1);
+    set(4, -11, 1);
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addProduction(0, 2);
+    b.addDecay(1, 1);
+    b.addProduction(1, 3);
+    b.addProduction(1, 4);
+    truth::Graph g = b.finish();
+    CPPUNIT_ASSERT_EQUAL(uint32_t{1}, truth::lastCopyOf(g, 0));
+    CPPUNIT_ASSERT_EQUAL(uint32_t{1}, truth::lastCopyOf(g, 1));
+    CPPUNIT_ASSERT_EQUAL(uint32_t{3}, truth::lastCopyOf(g, 3));
   }
 };
 

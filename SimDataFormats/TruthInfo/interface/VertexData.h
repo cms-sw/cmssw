@@ -7,6 +7,8 @@
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
+#include "SimDataFormats/TruthInfo/interface/InteractionId.h"
+
 namespace truth {
 
   // Role of a logical vertex. Normal vertices are real GEN/SIM vertices.
@@ -65,6 +67,25 @@ namespace truth {
     Hadronization,    // partons or a string turn into hadrons
   };
 
+  // Number of VertexRole values, for a bin per role.
+  inline constexpr int kVertexRoleCount = static_cast<int>(VertexRole::BeamSideInput) + 1;
+
+  [[nodiscard]] inline const char* vertexRoleName(VertexRole role) {
+    switch (role) {
+      case VertexRole::Normal:
+        return "Normal";
+      case VertexRole::InitialState:
+        return "InitialState";
+      case VertexRole::UnderlyingEvent:
+        return "UnderlyingEvent";
+      case VertexRole::Interaction:
+        return "Interaction";
+      case VertexRole::BeamSideInput:
+        return "BeamSideInput";
+    }
+    return "Normal";
+  }
+
   // Number of VertexReason values. A bin count or a sentinel derived from Other instead
   // would collide with the GEN values, which sit after it.
   inline constexpr int kVertexReasonCount = static_cast<int>(VertexReason::Hadronization) + 1;
@@ -100,6 +121,12 @@ namespace truth {
     [[nodiscard]] bool isArtificial() const { return vertexRole() != VertexRole::Normal; }
 
     [[nodiscard]] VertexReason vertexReason() const { return static_cast<VertexReason>(reason); }
+
+    // The interaction this vertex belongs to, as on ParticleData.
+    [[nodiscard]] int bunchCrossing() const { return bunchCrossingOf(eventId); }
+    [[nodiscard]] int eventIndex() const { return eventIndexOf(eventId); }
+    [[nodiscard]] bool isSignal() const { return isSignalEventId(eventId); }
+    [[nodiscard]] bool isFromPileup() const { return !isSignal(); }
   };
 
   // Map a Geant4 process subtype (G4VProcess::GetProcessSubType(), as stored in

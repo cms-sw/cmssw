@@ -15,7 +15,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/TruthInfo/interface/TruthLevels.h"
-#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
+#include "SimDataFormats/TruthInfo/interface/InteractionId.h"
 
 namespace {
 
@@ -528,14 +528,6 @@ namespace {
     }
   }
 
-  // Decode a particle's packed EncodedEventId (mirror of TruthGraphProducer::
-  // packEventId, which memcpys the EncodedEventId bytes into the low word).
-  EncodedEventId decodeEventId(uint64_t packedEventId) {
-    uint32_t raw = 0;
-    std::memcpy(&raw, &packedEventId, sizeof(raw));
-    return EncodedEventId(raw);
-  }
-
   // Pile-up filter (orthogonal to the seed selection): drop already-kept particles
   // by the provenance of their pp collision. signalOnly keeps only (bx 0, event 0);
   // a non-empty keepBunchCrossings keeps only the listed bunch crossings; the two
@@ -552,7 +544,7 @@ namespace {
       if (!keepParticle[particleId])
         continue;
 
-      const EncodedEventId eid = decodeEventId(graph.particles()[particleId].eventId);
+      const EncodedEventId eid = truth::decodeEventId(graph.particles()[particleId].eventId);
 
       bool keep = true;
       if (signalOnly)
@@ -618,46 +610,10 @@ namespace {
     return roots;
   }
 
-  // Follow the radiating-copy chain of a particle: while the current copy has
-  // exactly one decay vertex with exactly one same-PDG daughter, advance to it.
-  // Pure 1 -> 1 copy chains are already gone if collapseIntermediateGenParticles
-  // ran before; this handles surviving chains like Z -> Z gamma. Any ambiguity
-  // (several decay vertices, several same-PDG daughters) stops the walk.
-  uint32_t lastCopyOf(truth::Graph const& graph, uint32_t rootId) {
-    const int32_t pdgId = graph.particles()[rootId].pdgId;
-    uint32_t current = rootId;
-
-    for (uint32_t guard = 0; guard < graph.nParticles(); ++guard) {
-      if (graph.particles()[current].status == 1)
-        break;
-
-      const auto decayVertices = graph.decayVertices(current);
-      if (decayVertices.size() != 1)
-        break;
-
-      uint32_t sameIdChild = 0;
-      uint32_t nSameId = 0;
-
-      for (const uint32_t childId : graph.outgoingParticles(decayVertices.front())) {
-        if (childId < graph.nParticles() && childId != current && graph.particles()[childId].pdgId == pdgId) {
-          sameIdChild = childId;
-          ++nSameId;
-        }
-      }
-
-      if (nSameId != 1)
-        break;
-
-      current = sameIdChild;
-    }
-
-    return current;
-  }
-
   // Sorted PDG ids of the effective decay products of a root: the outgoing
   // particles of the decay vertices of its last radiating copy.
   std::vector<int32_t> effectiveDecayProductPdgIds(truth::Graph const& graph, uint32_t rootId) {
-    const uint32_t lastCopy = lastCopyOf(graph, rootId);
+    const uint32_t lastCopy = truth::lastCopyOf(graph, rootId);
 
     std::vector<int32_t> pdgIds;
 
@@ -947,7 +903,7 @@ namespace {
       for (uint32_t particleId = 0; particleId < input.nParticles(); ++particleId) {
         if (signalInteractionOnly) {
           auto const& particle = input.particles()[particleId];
-          if (!particle.hasGen() || particle.eventId != 0)
+          if (!particle.hasGen() || particle.isFromPileup())
             continue;
         }
         if (matchesSeed(input, particleId, config))
@@ -982,7 +938,7 @@ namespace {
       // reduction; this filters whatever any path produced.
       std::erase_if(roots, [&input](uint32_t root) {
         auto const& particle = input.particles()[root];
-        return !particle.hasGen() || particle.eventId != 0;
+        return !particle.hasGen() || particle.isFromPileup();
       });
     }
     return roots;

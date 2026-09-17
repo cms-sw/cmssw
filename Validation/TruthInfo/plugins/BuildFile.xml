@@ -30,3 +30,7 @@
 <library file="BranchTrackingValidator.cc" name="BranchTrackingValidatorPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="TruthGraphSummaryValidator.cc" name="TruthGraphSummaryValidatorPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

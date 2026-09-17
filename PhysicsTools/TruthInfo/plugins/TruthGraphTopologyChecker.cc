@@ -31,6 +31,7 @@
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/InteractionId.h"
 #include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 
 namespace {
@@ -101,13 +102,6 @@ namespace {
   void capPush(std::vector<std::string>& v, std::string s, std::size_t cap = 6) {
     if (v.size() < cap)
       v.push_back(std::move(s));
-  }
-
-  // Decode the packed EncodedEventId (memcpy reverse of TruthGraphProducer::packEventId).
-  EncodedEventId decodeEid(uint64_t packed) {
-    uint32_t raw = 0;
-    std::memcpy(&raw, &packed, sizeof(raw));
-    return EncodedEventId(raw);
   }
 
 }  // namespace
@@ -366,7 +360,7 @@ void TruthGraphTopologyChecker::analyzeLogical(truth::Graph const& g) {
     }
 
     // Pileup provenance: signal is (bx==0, event==0); everything else is pileup.
-    const EncodedEventId eid = decodeEid(g.particles()[p].eventId);
+    const EncodedEventId eid = truth::decodeEventId(g.particles()[p].eventId);
     ++logBxHist_[eid.bunchCrossing()];
     if (eid.bunchCrossing() == 0 && eid.event() == 0)
       ++logSignalParticles_;

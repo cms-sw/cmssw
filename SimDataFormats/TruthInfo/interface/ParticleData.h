@@ -9,6 +9,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "SimDataFormats/TruthInfo/interface/Checkpoint.h"
+#include "SimDataFormats/TruthInfo/interface/InteractionId.h"
 
 namespace truth {
 
@@ -76,6 +77,18 @@ namespace truth {
     SignalStandIn = 2,
   };
 
+  [[nodiscard]] inline const char* particleRoleName(ParticleRole role) {
+    switch (role) {
+      case ParticleRole::Normal:
+        return "Normal";
+      case ParticleRole::Connector:
+        return "Connector";
+      case ParticleRole::SignalStandIn:
+        return "SignalStandIn";
+    }
+    return "Normal";
+  }
+
   struct ParticleData {
     // Optional provenance/debug back-references to the raw TruthGraph nodes.
     // -1 means "not available".
@@ -132,6 +145,17 @@ namespace truth {
     // True for anything the graph invented. Never read the momentum of such a particle
     // as a generator quantity.
     [[nodiscard]] bool isSynthetic() const { return particleRole() != ParticleRole::Normal; }
+
+    // The interaction this particle belongs to. isSignal() is the one test that decides
+    // signal from pile-up; do not compare eventId to 0 by hand.
+    [[nodiscard]] int bunchCrossing() const { return bunchCrossingOf(eventId); }
+    [[nodiscard]] int eventIndex() const { return eventIndexOf(eventId); }
+    [[nodiscard]] bool isSignal() const { return isSignalEventId(eventId); }
+    [[nodiscard]] bool isFromPileup() const { return !isSignal(); }
+
+    // False when no momentum is known: a GEN particle of a pile-up interaction that no
+    // decay product and no SimTrack gives one.
+    [[nodiscard]] bool hasMomentum() const { return momentum.E() > 0.; }
 
     [[nodiscard]] bool isAtLevel(LevelFlag flag) const { return (levelFlags & static_cast<uint32_t>(flag)) != 0; }
     void setLevel(LevelFlag flag) { levelFlags |= static_cast<uint32_t>(flag); }

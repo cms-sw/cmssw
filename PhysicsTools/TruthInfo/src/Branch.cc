@@ -3,28 +3,17 @@
 #include "PhysicsTools/TruthInfo/interface/Branch.h"
 
 #include <algorithm>
-#include <cstring>
 #include <queue>
 #include <utility>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "PhysicsTools/TruthInfo/interface/TruthLevels.h"
-#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 namespace {
 
   using truth::isInvisible;
 
   using truth::hadronHasQuark;
-
-  // Mirror of TruthGraphProducer::packEventId, which memcpys the EncodedEventId
-  // bytes into the low word of a uint64_t. Decode into a trivial uint32_t and
-  // rebuild through the public ctor (EncodedEventId is a uint32_t wrapper).
-  EncodedEventId decodeEventId(uint64_t packedEventId) {
-    uint32_t raw = 0;
-    std::memcpy(&raw, &packedEventId, sizeof(raw));
-    return EncodedEventId(raw);
-  }
 
 }  // namespace
 
@@ -227,11 +216,11 @@ namespace truth {
 
   int32_t Branch::genEvent() const { return graph_->particles()[roots_.front()].genEvent; }
 
-  int Branch::bunchCrossing() const {
-    return decodeEventId(graph_->particles()[roots_.front()].eventId).bunchCrossing();
-  }
+  int Branch::bunchCrossing() const { return graph_->particles()[roots_.front()].bunchCrossing(); }
 
-  int Branch::event() const { return decodeEventId(graph_->particles()[roots_.front()].eventId).event(); }
+  int Branch::event() const { return graph_->particles()[roots_.front()].eventIndex(); }
+
+  bool Branch::isSignal() const { return graph_->particles()[roots_.front()].isSignal(); }
 
   std::optional<Particle> Branch::commonAncestor(Branch const& other) const {
     if (graph_ != other.graph_)
@@ -250,6 +239,16 @@ namespace truth {
     std::sort(ids.begin(), ids.end());
     ids.erase(std::unique(ids.begin(), ids.end()), ids.end());
     return Branch(graph_, std::move(ids), spec_);
+  }
+
+  std::vector<Branch> branchesAtLevel(Graph const& graph, Level level, ClosureSpec spec) {
+    const std::vector<uint32_t> members = levelAntichain(graph, level);
+    std::vector<Branch> branches;
+    branches.reserve(members.size());
+    for (const uint32_t member : members) {
+      branches.emplace_back(&graph, member, spec);
+    }
+    return branches;
   }
 
 }  // namespace truth

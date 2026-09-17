@@ -58,6 +58,9 @@ namespace {
     }
   }
 
+  // The bin of the reason axis is the vertex reason itself, whatever side it came from.
+  unsigned int reasonBin(truth::VertexData const& vertex) { return static_cast<unsigned int>(vertex.reason); }
+
   template <typename RECO>
   struct RecoValidationTraits;
 
@@ -634,11 +637,11 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
         const unsigned int matched = recoToTruth[r][0].index();
         if constexpr (Traits::truthIsVertex) {
           if (matched < graph.nVertices()) {
-            pileup = graph.vertices()[matched].eventId != 0;
+            pileup = graph.vertices()[matched].isFromPileup();
           }
         } else {
           if (matched < graph.nParticles()) {
-            pileup = graph.particles()[matched].eventId != 0;
+            pileup = graph.particles()[matched].isFromPileup();
           }
         }
       }
@@ -781,8 +784,7 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
         kin.vertpos = std::sqrt(pos.x() * pos.x() + pos.y() * pos.y());
         kin.zpos = pos.z();
         kin.nhits = vertex.outgoingParticles().size();
-        reason = vdata.hasSim() ? static_cast<unsigned int>(vdata.reason)
-                                : static_cast<unsigned int>(truth::kVertexReasonCount);
+        reason = reasonBin(vdata);
       } else {
         if (b >= graph.nParticles()) {
           continue;
@@ -816,11 +818,8 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
 
         const auto vertices = branchRoot.productionVertices();
         if (!vertices.empty()) {
-          // The axis reports the Geant4 process, so a vertex with no SIM side goes to the
-          // synthetic bin past the whole enum and not to its GEN reason.
           auto const& vdata = vertices.front().data();
-          reason = vdata.hasSim() ? static_cast<unsigned int>(vdata.reason)
-                                  : static_cast<unsigned int>(truth::kVertexReasonCount);
+          reason = reasonBin(vdata);
           const auto& pos = vertices.front().position();
           kin.vertpos = std::sqrt(pos.x() * pos.x() + pos.y() * pos.y());
           kin.zpos = pos.z();

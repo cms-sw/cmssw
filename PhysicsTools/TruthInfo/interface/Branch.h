@@ -101,7 +101,8 @@ namespace truth {
     // pileup carries bunch crossing 0 and a nonzero event number, and the default
     // production keeps in-time pileup only.
     [[nodiscard]] bool isFromPileup() const { return !isSignal(); }
-    [[nodiscard]] bool isSignal() const { return bunchCrossing() == 0 && event() == 0; }
+    // The root particle decides, so a branch and its root cannot disagree.
+    [[nodiscard]] bool isSignal() const;
 
     // Relations between branches.
     [[nodiscard]] std::optional<Particle> commonAncestor(Branch const& other) const;
@@ -116,6 +117,15 @@ namespace truth {
     std::vector<uint32_t> roots_;
     ClosureSpec spec_;
   };
+
+  enum class Level;
+
+  // Every member of a level as its own Branch: the one call from "the b hadrons of this
+  // event" to objects an association can use. Level members are an antichain, so no
+  // branch here contains another.
+  [[nodiscard]] std::vector<Branch> branchesAtLevel(Graph const& graph,
+                                                    Level level,
+                                                    ClosureSpec spec = ClosureSpec::subtree());
 
 }  // namespace truth
 
