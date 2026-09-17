@@ -192,6 +192,30 @@ namespace truth {
     std::vector<uint32_t> vertexToIncomingParticles_;
   };
 
+  // Defined here because they read through the Graph, which Particle only forward
+  // declares.
+  template <typename F>
+  void Particle::forEachChildId(F&& visit) const {
+    if (graph_ == nullptr)
+      return;
+    for (const uint32_t vertexId : graph_->decayVertices(id_)) {
+      for (const uint32_t child : graph_->outgoingParticles(vertexId)) {
+        visit(child);
+      }
+    }
+  }
+
+  template <typename F>
+  void Particle::forEachParentId(F&& visit) const {
+    if (graph_ == nullptr)
+      return;
+    for (const uint32_t vertexId : graph_->productionVertices(id_)) {
+      for (const uint32_t parent : graph_->incomingParticles(vertexId)) {
+        visit(parent);
+      }
+    }
+  }
+
 }  // namespace truth
 
 #endif

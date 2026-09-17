@@ -242,6 +242,8 @@ process.truthLogicalGraphDumper = cms.EDAnalyzer(
     ),
 
     dotFile=cms.string(os.path.join(args.outdir,f"truthlogicalgraph{args.tag}.dot")), # output file
+    # The same graph as JSON, full precision, for graphTools.TruthGraphView.fromJson.
+    jsonFile=cms.string(os.path.join(args.outdir,f"truthlogicalgraph{args.tag}.json")),
 
     layout=cms.string(args.layout),
 )

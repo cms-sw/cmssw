@@ -115,6 +115,24 @@ namespace truth {
     return "unknown";
   }
 
+  // LevelFlag::Signal is not a level row, so it has no name in kLevelTable. It is what a
+  // reader calls that flag, in a dump, a folder name or a log line.
+  inline constexpr char const* kSignalLevelName = "signal";
+
+  // The names of the levels a particle belongs to, in kLevelTable order, signal last.
+  [[nodiscard]] inline std::vector<char const*> levelNamesOf(ParticleData const& data) {
+    std::vector<char const*> names;
+    for (auto const& row : kLevelTable) {
+      if (data.isAtLevel(row.flag)) {
+        names.push_back(row.name);
+      }
+    }
+    if (data.isAtLevel(LevelFlag::Signal)) {
+      names.push_back(kSignalLevelName);
+    }
+    return names;
+  }
+
   namespace detail {
     // reco::GenStatusFlags bit positions, as packed into ParticleData::statusFlags.
     constexpr uint16_t kIsHardProcess = 1u << 7;
@@ -145,6 +163,40 @@ namespace truth {
       return true;
     }
     return a >= 9900000 && a < 1000000000;  // generator-internal states, below the nuclei codes
+  }
+
+  // The last copy of a radiating chain: from `rootId`, the walk follows the one same-species
+  // child of the one decay vertex until the species changes, the particle is stable, or the
+  // step is ambiguous. What the particle decays into is read from the copy this returns.
+  [[nodiscard]] inline uint32_t lastCopyOf(truth::Graph const& graph, uint32_t rootId) {
+    const int32_t pdgId = graph.particles()[rootId].pdgId;
+    uint32_t current = rootId;
+
+    for (uint32_t guard = 0; guard < graph.nParticles(); ++guard) {
+      if (graph.particles()[current].status == 1)
+        break;
+
+      const auto decayVertices = graph.decayVertices(current);
+      if (decayVertices.size() != 1)
+        break;
+
+      uint32_t sameIdChild = 0;
+      uint32_t nSameId = 0;
+
+      for (const uint32_t childId : graph.outgoingParticles(decayVertices.front())) {
+        if (childId < graph.nParticles() && childId != current && graph.particles()[childId].pdgId == pdgId) {
+          sameIdChild = childId;
+          ++nSameId;
+        }
+      }
+
+      if (nSameId != 1)
+        break;
+
+      current = sameIdChild;
+    }
+
+    return current;
   }
 
   // A shower object that turns into hadrons rather than decaying. The top is excluded

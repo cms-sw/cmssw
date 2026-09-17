@@ -11,16 +11,11 @@
 #include "Validation/TruthInfo/interface/TruthBranchHistoProducerAlgo.h"
 
 namespace {
-  // One bin per VertexReason, plus one synthetic bin for a vertex with no SIM side. The
-  // validator sends every such vertex to the synthetic bin rather than to its GEN reason,
-  // so the axis answers one question only: which Geant4 process made this vertex. In a
-  // pileup sample the synthetic bin is the dominant category, because collapsePileupGen
-  // reduces each pileup interaction to GEN-only vertices: one for the interaction and
-  // one for each kept decay. The synthetic bin sits past the whole enum, so no reason
-  // value shares it.
-  constexpr int kNReasons = truth::kVertexReasonCount;
-  constexpr int kGenOnlyBin = kNReasons;
-  constexpr int kNReasonBins = kNReasons + 1;
+  // One bin per VertexReason. The Geant4 values name the process that made a SIM vertex;
+  // the values past Other name what a GEN-only vertex is, which is what a pileup
+  // interaction is made of; Unknown holds an artificial vertex and a GEN pattern no rule
+  // covers.
+  constexpr int kNReasonBins = truth::kVertexReasonCount;
 }  // namespace
 
 namespace truth {
@@ -160,10 +155,9 @@ namespace truth {
     // Categorical axis: one labelled bin per Geant4 creation process.
     auto bookReason = [&](std::vector<TruthBranchHistograms::METype>& v, std::string const& name) {
       auto* me = booker.book1D(name, name, kNReasonBins, -0.5, kNReasonBins - 0.5);
-      for (int r = 0; r < kNReasons; ++r) {
+      for (int r = 0; r < kNReasonBins; ++r) {
         me->setBinLabel(r + 1, truth::vertexReasonName(static_cast<truth::VertexReason>(r)));
       }
-      me->setBinLabel(kGenOnlyBin + 1, "GenOnly");
       v.push_back(me);
     };
     bookReason(h.h_simul_reason, "num_simul_reason");
