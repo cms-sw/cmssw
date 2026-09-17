@@ -15,8 +15,9 @@ namespace {
   // validator sends every such vertex to the synthetic bin rather than to its GEN reason,
   // so the axis answers one question only: which Geant4 process made this vertex. In a
   // pileup sample the synthetic bin is the dominant category, because collapsePileupGen
-  // replaces each pileup interaction with one GEN vertex carrying all its stable
-  // particles. The synthetic bin sits past the whole enum, so no reason value shares it.
+  // reduces each pileup interaction to GEN-only vertices: one for the interaction and
+  // one for each kept decay. The synthetic bin sits past the whole enum, so no reason
+  // value shares it.
   constexpr int kNReasons = truth::kVertexReasonCount;
   constexpr int kGenOnlyBin = kNReasons;
   constexpr int kNReasonBins = kNReasons + 1;

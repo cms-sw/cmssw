@@ -120,6 +120,14 @@ namespace truth {
     std::vector<uint32_t> ignoredParticleIds;
   };
 
+  // Gives a GEN-only particle with no momentum the sum of its decay products that have
+  // one. A decay here is a GEN vertex whose only incoming particle is this one, so a vertex
+  // fed by several partons, a string or the beams adds nothing. The sum is exact when
+  // every product has a momentum. Otherwise it misses the products Geant4 did not track,
+  // which are those outside the g4SimHits Generator primary cuts. A decay chain resolves
+  // from the bottom up, and a product that closes a cycle is not added.
+  void fillMomentumFromDecayProducts(Graph& graph);
+
   class TruthLogicalGraphPostProcessor {
   public:
     TruthLogicalGraphPostProcessor() = default;

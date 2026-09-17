@@ -968,6 +968,10 @@ public:
              out->vertexToIncomingParticleOffsets(),
              out->vertexToIncomingParticles());
 
+    // A pileup GEN particle has no generator payload after mixing, so a decaying one takes
+    // its momentum from its decay products, before the pruning removes any of them.
+    truth::fillMomentumFromDecayProducts(*out);
+
     // A GEN-only vertex has no creator process to read, so its reason comes from the
     // particles that meet there, on the complete GEN topology.
     for (uint32_t vertexId = 0; vertexId < out->nVertices(); ++vertexId) {
