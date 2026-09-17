@@ -9,7 +9,7 @@ _barrelAlgo = cms.PSet(
     npePerMeV = mtdDigitizer.barrelDigitizer.DeviceSimulation.LightOutput, # [Npe/MeV]
     npeSaturationCorrection = mtdDigitizer.barrelDigitizer.ElectronicsSimulation.SiPMSaturationParam, # effective Npe to true Npe conversion (SiPM saturation)
     tdcLSB_ns = cms.double(0.020), # [ns]
-    timeResolutionInNs = cms.string("0.0593858*pow(x,-1.02826)+0.0156719"), # [ns]
+    timeResolutionInNs = cms.string("sqrt(pow(0.0660735/x,2)+pow(0.036071,2)/x+pow(0.0176838,2))"), # [ns]
     timeWalkCorrection = cms.string("1.64964*pow(x+0.566953,-0.965789)+0.123377") # [ns]
 )
 

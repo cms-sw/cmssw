@@ -25,8 +25,9 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
   float position = -1.f;
   float positionError = -1.f;
 
-  switch (flagsWord) {
-    // BTL bar geometry with only the right SiPM information available
+  // --- Only bits 0 and 1 tell which BTL SiPMs are available (bits 4-7 flag ADC/TDC saturation)
+  switch (flagsWord & 0x3) {
+    // BTL bar geometry with only the left SiPM information available
     case 0x2: {
       energy = uRecHit.amplitude().second;
       time = uRecHit.time().second;
@@ -43,7 +44,7 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
 
       break;
     }
-    // ETL, BTL tile geometry, BTL bar geometry with only the left SiPM information available
+    // ETL, BTL tile geometry, BTL bar geometry with only the right SiPM information available
     default: {
       energy = uRecHit.amplitude().first;  //for ETL, it is the time_over_threshold
       time = uRecHit.time().first;

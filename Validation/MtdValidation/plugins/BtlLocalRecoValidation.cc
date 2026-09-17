@@ -272,7 +272,7 @@ private:
   MonitorElement* meUncTimeLVsX_;
   MonitorElement* meUncTimeRVsX_;
 
-  static constexpr int nBinsQ_ = 30;
+  static constexpr int nBinsQ_ = 44;
   static constexpr float binWidthQ_ = 0.5;  // [MeV]
   static constexpr int nBinsQEta_ = 3;
   static constexpr float binsQEta_[nBinsQEta_ + 1] = {0., 0.65, 1.15, 1.55};
@@ -282,8 +282,8 @@ private:
 
   static constexpr int nBinsEta_ = 31;
   static constexpr float binWidthEta_ = 0.05;
-  static constexpr int nBinsEtaQ_ = 6;
-  static constexpr float binsEtaQ_[nBinsEtaQ_ + 1] = {0., 2., 4., 6., 8., 12., 15.};
+  static constexpr int nBinsEtaQ_ = 7;
+  static constexpr float binsEtaQ_[nBinsEtaQ_ + 1] = {0., 2., 4., 6., 8., 12., 15., 22.};
 
   MonitorElement* meTimeResEta_[nBinsEta_];
   MonitorElement* meTimeResEtavsQ_[nBinsEta_][nBinsEtaQ_];
@@ -895,13 +895,13 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       float hit_amplitude = 0.;
       float hit_time = 0.;
 
-      // left side:
+      // right side:
       if (uRecHit.amplitude().first > 0.) {
         hit_amplitude += uRecHit.amplitude().first;
         hit_time += uRecHit.time().first;
         nHits += 1.;
       }
-      // right side:
+      // left side:
       if (uRecHit.amplitude().second > 0.) {
         hit_amplitude += uRecHit.amplitude().second;
         hit_time += uRecHit.time().second;
@@ -943,7 +943,10 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
         float time_res = hit_time - m_btlSimHits[detId.rawId()].time;
 
-        // amplitude histograms
+        // amplitude histograms (hits above the last amplitude or |eta| bin are put in the last bin,
+        // so that the saturation peak is visible)
+
+        const float hit_abs_eta = fabs(global_point.eta());
 
         int qBin = (int)(hit_amplitude / binWidthQ_);
         if (qBin > nBinsQ_ - 1)
@@ -951,25 +954,31 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
         meTimeResQ_[qBin]->Fill(time_res);
 
-        int etaBin = 0;
-        for (int ibin = 1; ibin < nBinsQEta_; ++ibin)
-          if (fabs(global_point.eta()) >= binsQEta_[ibin] && fabs(global_point.eta()) < binsQEta_[ibin + 1])
+        int etaBin = nBinsQEta_ - 1;
+        for (int ibin = 0; ibin < nBinsQEta_ - 1; ++ibin) {
+          if (hit_abs_eta < binsQEta_[ibin + 1]) {
             etaBin = ibin;
+            break;
+          }
+        }
 
         meTimeResQvsEta_[qBin][etaBin]->Fill(time_res);
 
         // eta histograms
 
-        etaBin = (int)(fabs(global_point.eta()) / binWidthEta_);
+        etaBin = (int)(hit_abs_eta / binWidthEta_);
         if (etaBin > nBinsEta_ - 1)
           etaBin = nBinsEta_ - 1;
 
         meTimeResEta_[etaBin]->Fill(time_res);
 
-        qBin = 0;
-        for (int ibin = 1; ibin < nBinsEtaQ_; ++ibin)
-          if (hit_amplitude >= binsEtaQ_[ibin] && hit_amplitude < binsEtaQ_[ibin + 1])
+        qBin = nBinsEtaQ_ - 1;
+        for (int ibin = 0; ibin < nBinsEtaQ_ - 1; ++ibin) {
+          if (hit_amplitude < binsEtaQ_[ibin + 1]) {
             qBin = ibin;
+            break;
+          }
+        }
 
         meTimeResEtavsQ_[etaBin][qBin]->Fill(time_res);
       }
