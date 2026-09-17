@@ -1017,22 +1017,6 @@ namespace edm {
     }
     AR_WATCH_USING_METHOD(PostModuleGlobalEndLumi)
 
-    //OBSOLETE
-    typedef signalslot::Signal<void(GlobalContext const&)> PreGlobalWriteLumi;
-    PreGlobalWriteLumi preGlobalWriteLumiSignal_;
-    void watchPreGlobalWriteLumi(PreGlobalWriteLumi::slot_type const& iSlot) {
-      preGlobalWriteLumiSignal_.connect(iSlot);
-    }
-    AR_WATCH_USING_METHOD(PreGlobalWriteLumi)
-
-    //OBSOLETE
-    typedef signalslot::Signal<void(GlobalContext const&)> PostGlobalWriteLumi;
-    PostGlobalWriteLumi postGlobalWriteLumiSignal_;
-    void watchPostGlobalWriteLumi(PostGlobalWriteLumi::slot_type const& iSlot) {
-      postGlobalWriteLumiSignal_.connect_front(iSlot);
-    }
-    AR_WATCH_USING_METHOD(PostGlobalWriteLumi)
-
     typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PreModuleWriteLumi;
     PreModuleWriteLumi preModuleWriteLumiSignal_;
     void watchPreModuleWriteLumi(PreModuleWriteLumi::slot_type const& iSlot) {
@@ -1098,20 +1082,6 @@ namespace edm {
       postModuleGlobalEndRunSignal_.connect_front(iSlot);
     }
     AR_WATCH_USING_METHOD(PostModuleGlobalEndRun)
-
-    //OBSOLETE
-    typedef signalslot::Signal<void(GlobalContext const&)> PreGlobalWriteRun;
-    PreGlobalWriteRun preGlobalWriteRunSignal_;
-    void watchPreGlobalWriteRun(PreGlobalWriteRun::slot_type const& iSlot) { preGlobalWriteRunSignal_.connect(iSlot); }
-    AR_WATCH_USING_METHOD(PreGlobalWriteRun)
-
-    //OBSOLETE
-    typedef signalslot::Signal<void(GlobalContext const&)> PostGlobalWriteRun;
-    PostGlobalWriteRun postGlobalWriteRunSignal_;
-    void watchPostGlobalWriteRun(PostGlobalWriteRun::slot_type const& iSlot) {
-      postGlobalWriteRunSignal_.connect_front(iSlot);
-    }
-    AR_WATCH_USING_METHOD(PostGlobalWriteRun)
 
     typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PreModuleWriteRun;
     PreModuleWriteRun preModuleWriteRunSignal_;
