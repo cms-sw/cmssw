@@ -4,6 +4,7 @@
 #include "cppunit/extensions/HelperMacros.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <iostream>
 #include <queue>
@@ -354,6 +355,8 @@ class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(testUnattachedSelectionHasNoBeamSideInput);
   CPPUNIT_TEST(testSpectatorKeepsItsSimSubgraph);
   CPPUNIT_TEST(testVertexReasonSurvivesTheRewrite);
+  CPPUNIT_TEST(testMomentumFromDecayProducts);
+  CPPUNIT_TEST(testMomentumPassStopsOnACycle);
   CPPUNIT_TEST(testIgnoredParticlesAreCollapsedAway);
   CPPUNIT_TEST(testSeedCutWithIgnoredParticles);
   CPPUNIT_TEST(testIgnoredParticleIdsAreCollapsedAway);
@@ -387,6 +390,8 @@ public:
   void testUnattachedSelectionHasNoBeamSideInput();
   void testSpectatorKeepsItsSimSubgraph();
   void testVertexReasonSurvivesTheRewrite();
+  void testMomentumFromDecayProducts();
+  void testMomentumPassStopsOnACycle();
   void testIgnoredParticlesAreCollapsedAway();
   void testSeedCutWithIgnoredParticles();
   void testIgnoredParticleIdsAreCollapsedAway();
@@ -723,6 +728,106 @@ void TestTruthLogicalGraphPostProcessor::testVertexReasonSurvivesTheRewrite() {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);
   }
+}
+
+// REQUIRED: a GEN-only particle with no momentum takes the sum of the products of its own
+// decays, a chain from the bottom up. A vertex it shares with other incoming particles and
+// a SIM vertex are not its decays, and a product with no momentum adds nothing.
+void TestTruthLogicalGraphPostProcessor::testMomentumFromDecayProducts() {
+  using P4 = math::XYZTLorentzVectorD;
+  GraphBuilder builder(13, 5);
+
+  //   eta(0) -> v0 -> pi0(1), gamma(4) ; pi0(1) -> v1 -> gamma(2), gamma(3)
+  //   q(5), q(6) -> v2 -> pi+(7)
+  //   pi0(8) -> v3 -> gamma(9), untracked gamma(10)
+  //   pi0(11) -> v4 (SIM) -> e-(12)
+  builder.setGenParticle(0, 221, 2, 100);
+  builder.setGenParticle(1, 111, 2, 101);
+  builder.setGenSimParticle(2, 22, 1, 102, 1002);
+  builder.setGenSimParticle(3, 22, 1, 103, 1003);
+  builder.setGenSimParticle(4, 22, 1, 104, 1004);
+  builder.setGenParticle(5, 1, 71, 105);
+  builder.setGenParticle(6, -1, 71, 106);
+  builder.setGenSimParticle(7, 211, 1, 107, 1007);
+  builder.setGenParticle(8, 111, 2, 108);
+  builder.setGenSimParticle(9, 22, 1, 109, 1009);
+  builder.setGenParticle(10, 22, 1, 110);
+  builder.setGenParticle(11, 111, 2, 111);
+  builder.setSimParticle(12, 11, 1012);
+
+  builder.setGenVertex(0, 200);
+  builder.setGenVertex(1, 201);
+  builder.setGenVertex(2, 202);
+  builder.setGenVertex(3, 203);
+  builder.setSimVertex(4, 2004);
+
+  builder.addDecay(0, 0);
+  builder.addProduction(0, 1);
+  builder.addProduction(0, 4);
+  builder.addDecay(1, 1);
+  builder.addProduction(1, 2);
+  builder.addProduction(1, 3);
+  builder.addDecay(5, 2);
+  builder.addDecay(6, 2);
+  builder.addProduction(2, 7);
+  builder.addDecay(8, 3);
+  builder.addProduction(3, 9);
+  builder.addProduction(3, 10);
+  builder.addDecay(11, 4);
+  builder.addProduction(4, 12);
+
+  const P4 gammaA(0.1, 0., 2., std::sqrt(0.01 + 4.));
+  const P4 gammaB(-0.1, 0., 1., std::sqrt(0.01 + 1.));
+  const P4 gammaC(0., 0.5, 0., 0.5);
+  const P4 pion(0., 0., 3., std::sqrt(0.0195 + 9.));
+  auto& particles = builder.graph.particles();
+  particles[2].momentum = gammaA;
+  particles[3].momentum = gammaB;
+  particles[4].momentum = gammaC;
+  particles[7].momentum = pion;
+  particles[9].momentum = gammaA;
+  particles[12].momentum = gammaC;
+
+  truth::Graph graph = builder.finish();
+  truth::fillMomentumFromDecayProducts(graph);
+  auto const& out = graph.particles();
+
+  CPPUNIT_ASSERT(out[1].momentum == gammaA + gammaB);
+  CPPUNIT_ASSERT(out[0].momentum == gammaA + gammaB + gammaC);
+  CPPUNIT_ASSERT_EQUAL(0., out[5].momentum.E());
+  CPPUNIT_ASSERT_EQUAL(0., out[6].momentum.E());
+  CPPUNIT_ASSERT(out[8].momentum == gammaA);
+  CPPUNIT_ASSERT_EQUAL(0., out[10].momentum.E());
+  CPPUNIT_ASSERT_EQUAL(0., out[11].momentum.E());
+  CPPUNIT_ASSERT(out[7].momentum == pion);
+}
+
+// REQUIRED: the pass terminates on a graph with a cycle, and the product that closes the
+// cycle adds nothing.
+void TestTruthLogicalGraphPostProcessor::testMomentumPassStopsOnACycle() {
+  using P4 = math::XYZTLorentzVectorD;
+  GraphBuilder builder(3, 2);
+
+  //   a(0) -> v0 -> b(1) ; b(1) -> v1 -> a(0), gamma(2)
+  builder.setGenParticle(0, 221, 2, 100);
+  builder.setGenParticle(1, 221, 2, 101);
+  builder.setGenSimParticle(2, 22, 1, 102, 1002);
+  builder.setGenVertex(0, 200);
+  builder.setGenVertex(1, 201);
+  builder.addDecay(0, 0);
+  builder.addProduction(0, 1);
+  builder.addDecay(1, 1);
+  builder.addProduction(1, 0);
+  builder.addProduction(1, 2);
+
+  const P4 gamma(0., 0., 1., 1.);
+  builder.graph.particles()[2].momentum = gamma;
+
+  truth::Graph graph = builder.finish();
+  truth::fillMomentumFromDecayProducts(graph);
+
+  CPPUNIT_ASSERT(graph.particles()[1].momentum == gamma);
+  CPPUNIT_ASSERT(graph.particles()[0].momentum == gamma);
 }
 
 void TestTruthLogicalGraphPostProcessor::testSeedCutKeepsUnselectedParentsAsBeamSideInput() {

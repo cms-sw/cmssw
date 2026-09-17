@@ -7,6 +7,7 @@
 
 import FWCore.ParameterSet.Config as cms
 from SimGeneral.MixingModule.fullMixCustomize_cff import setCrossingFrameOn
+from PhysicsTools.TruthInfo.truthGraphMixedDigi_cff import reconstructablePdgIds
 
 
 def addMixedTruthGraph(process):
@@ -83,6 +84,7 @@ def addTruthGraphAccumulator(process,
         mtdHits=mtdHits,
         pileupBunchCrossings=cms.vint32(*pileupBunchCrossings),
         collapsePileupGen=cms.bool(collapsePileupGen),
+        collapsedGenKeptPdgIds=cms.vint32(*reconstructablePdgIds),
         collapseSignalGen=cms.bool(False),
         collapseGenShower=cms.bool(True),
         collapseGenShowerSignal=cms.bool(False),
@@ -149,6 +151,7 @@ def buildCompactTruthAtDigi(process, includeTrackingHits=True):
         trackerSimHitCollections=trackerSimHits,
         muonSimHitCollections=muonSimHits,
     )
+    process.truthLogicalGraphProducer.postProcessing.reconstructablePdgIds = cms.vint32(*reconstructablePdgIds)
 
     process.truthLogicalGraphHitIndexProducer = truthLogicalGraphHitIndexProducer.clone(
         src=cms.InputTag("truthLogicalGraphProducer"),

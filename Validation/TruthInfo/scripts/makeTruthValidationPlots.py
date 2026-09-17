@@ -463,8 +463,8 @@ CATEGORICAL_MEANING = {
     "reason": (
         "the Geant4 process that CREATED the branch root, read from the VertexReason of its production vertex. "
         "GenOnly is its own bin, not Unknown: a GEN-only production vertex has no SimVertex and therefore no "
-        "Geant4 process at all. In a pileup sample it dominates, because collapsePileupGen replaces each pileup "
-        "interaction with one GEN-only vertex carrying all of its stable particles. "
+        "Geant4 process at all. In a pileup sample it dominates, because collapsePileupGen reduces each pileup "
+        "interaction to GEN-only vertices: one for the interaction and one for each kept decay, such as a pi0. "
         "Primary means the particle came straight from the hard scatter; every other value is a secondary made "
         "in the detector material. This axis exists only because the graph keeps the process that made each "
         "particle: a frozen TrackingParticle or CaloParticle does not carry it."
