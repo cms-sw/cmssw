@@ -98,6 +98,10 @@ class TruthGraphView:
         self._incoming = incoming
         self._outgoing = outgoing
         self.eventId = eventId
+        # What the level rules read from the graph itself; empty unless a source set them.
+        self.reconstructablePdgIds = []
+        self.signalSeedPdgIds = []
+        self.seedHadronFlavors = []
 
     # --- construction ------------------------------------------------------------
     @classmethod
@@ -136,7 +140,7 @@ class TruthGraphView:
             )
             for i, v in enumerate(graph.vertices())
         ]
-        return cls(
+        view = cls(
             particles,
             vertices,
             csr(graph.particleToDecayVertexOffsets(), graph.particleToDecayVertices()),
@@ -145,6 +149,10 @@ class TruthGraphView:
             csr(graph.vertexToOutgoingParticleOffsets(), graph.vertexToOutgoingParticles()),
             eventId,
         )
+        view.reconstructablePdgIds = list(graph.reconstructablePdgIds())
+        view.signalSeedPdgIds = list(graph.signalSeedPdgIds())
+        view.seedHadronFlavors = list(graph.seedHadronFlavors())
+        return view
 
     @classmethod
     def fromJson(cls, path):
@@ -169,7 +177,11 @@ class TruthGraphView:
             for particle in vertex["out"]:
                 production[particle].append(vertex["id"])
         eventId = (payload.get("run"), payload.get("lumi"), payload.get("event"))
-        return cls(particles, vertices, decay, production, incoming, outgoing, eventId)
+        view = cls(particles, vertices, decay, production, incoming, outgoing, eventId)
+        view.reconstructablePdgIds = list(payload.get("reconstructablePdgIds", []))
+        view.signalSeedPdgIds = list(payload.get("signalSeedPdgIds", []))
+        view.seedHadronFlavors = list(payload.get("seedHadronFlavors", []))
+        return view
 
     # --- particles ---------------------------------------------------------------
     def nParticles(self):
