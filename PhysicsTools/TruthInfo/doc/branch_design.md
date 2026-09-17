@@ -25,16 +25,19 @@ Branch b = graph.branch(rootParticle, closure);
 ```
 `closure` selects which members belong to the branch and is always evaluated on
 the fly from the `Graph` (a Branch is never an EDM product):
-- `Subtree`     - the root and all descendants (default);
-- `StableLeaves`- the root plus only its final-state descendants;
-- `DepthN`      - descendants down to N generations;
-- `UntilPdgId`  - stop the closure at a species (e.g. stop at stable hadrons,
-                  or at the B hadron for a b-branch);
-- `Predicate`   - stop on a user predicate (stop at any heavy-flavor hadron, at a
-                  detector-boundary crossing, on a custom lambda), so closures
-                  are extensible without new enum values.
-The phase-1-3 postprocessing already computes member sets; a Branch makes that
-set a first-class, queryable object.
+- `Subtree`      - the root and all descendants (default);
+- `StableLeaves` - the root plus only its final-state descendants;
+- `DepthN`       - descendants down to N generations;
+- `UntilPdgId`   - stop the closure at a species (e.g. stop at stable hadrons,
+                   or at the B hadron for a b-branch), excluding the root;
+- `UntilLevels`  - stop the closure at any of a set of truth levels (e.g. stop at
+                   particles crossing the boundary between the tracker and calorimeter);
+- `Predicate`    - stop on a user predicate (e.g. stop at any heavy-flavor hadron, at a
+                   detector-boundary crossing, on a custom lambda), so closures
+                   are extensible without new closure enum values.
+
+The phase-1-3 postprocessing already computes member sets;
+a Branch makes that set a first-class, queryable object.
 
 **Decision:** the Branch is a **view, recomputed on demand**: stateless, no
 stored member list, not an EDM product. Any caching needed for performance lives
@@ -54,7 +57,10 @@ branches stay distinguishable when graphs are overlaid.
 ## Queries the Branch should answer
 
 ### A. Matching reco objects (the substrate is detector-agnostic; metrics are pluggable)
-- `members()`, `stableLeaves()`, `frontier()`.
+- `members()` - all particles included by the closure, including roots, and descendants in subtrees where the closure condition was never met.
+- `stableLeaves()` - the childless particles (i.e., with `isLeaf() == true`) included by the closure.
+- `closureLeaves()` - the particles in the branch that meet the closure condition.
+- `leaves()` - the deepest members not covered by another member, i.e., the final-state leaves of a full subtree ("stable leaves"), or the particles the closure stopped at when it truncates ("closure leaves"); together these carry the branch's total momentum.
 - `hits(closure)` - aggregated direct/subgraph SimHits + matched RecHits over all members (LogicalGraphHitIndex already gives this per particle).
 - `detIds()`, `energy(Detector)` - sim/rec energy summed over the branch in a subdetector.
 - `sharedHitFraction(recoObject)` / `sharedHits(recoObject)` - tracking-style metric.
