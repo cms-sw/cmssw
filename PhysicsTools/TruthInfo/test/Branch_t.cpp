@@ -11,6 +11,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "PhysicsTools/TruthInfo/interface/Branch.h"
+#include "PhysicsTools/TruthInfo/interface/TruthLevels.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
 
 namespace {
@@ -115,6 +116,9 @@ class TestBranch : public CppUnit::TestFixture {
   CPPUNIT_TEST(testTaggingAndProvenance);
   CPPUNIT_TEST(testRelations);
   CPPUNIT_TEST(testInvalidViews);
+  CPPUNIT_TEST(testBranchesAtLevel);
+  CPPUNIT_TEST(testNavigationWithoutAllocation);
+  CPPUNIT_TEST(testProvenanceComesFromTheRoot);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -125,6 +129,9 @@ public:
   void testTaggingAndProvenance();
   void testRelations();
   void testInvalidViews();
+  void testBranchesAtLevel();
+  void testNavigationWithoutAllocation();
+  void testProvenanceComesFromTheRoot();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranch);
@@ -331,4 +338,67 @@ void TestBranch::testInvalidViews() {
     CPPUNIT_ASSERT(v.incomingParticles().empty());
     CPPUNIT_ASSERT(v.outgoingParticles().empty());
   }
+}
+
+// REQUIRED: one call turns a level into the branches an association can use, one per
+// member, and the closure passes through.
+void TestBranch::testBranchesAtLevel() {
+  truth::Graph graph = buildTtbarLike();
+
+  const auto bHadrons = truth::branchesAtLevel(graph, truth::Level::BHadrons);
+  CPPUNIT_ASSERT_EQUAL(std::size_t{1}, bHadrons.size());
+  CPPUNIT_ASSERT_EQUAL(int32_t{511}, bHadrons.front().roots().front().pdgId());
+  // The default closure is the whole subtree, so the B0 branch holds its two products.
+  CPPUNIT_ASSERT_EQUAL(std::size_t{3}, bHadrons.front().members().size());
+
+  const auto stopAtRoot = truth::branchesAtLevel(graph, truth::Level::BHadrons, truth::ClosureSpec::depth(0));
+  CPPUNIT_ASSERT_EQUAL(std::size_t{1}, stopAtRoot.front().members().size());
+
+  // The members come from levelAntichain, which reads the graph rather than the stored
+  // flags, so a level whose rule this graph cannot satisfy yields no branch at all.
+  CPPUNIT_ASSERT(truth::branchesAtLevel(graph, truth::Level::CaloBoundary).empty());
+}
+
+// REQUIRED: the allocation-free navigation reports the same ids as the vector-returning
+// one, so a hot loop can use it without changing what it sees.
+void TestBranch::testNavigationWithoutAllocation() {
+  truth::Graph graph = buildTtbarLike();
+
+  for (uint32_t id = 0; id < graph.nParticles(); ++id) {
+    const truth::Particle particle(&graph, id);
+
+    std::vector<uint32_t> visited;
+    particle.forEachChildId([&visited](uint32_t child) { visited.push_back(child); });
+    std::vector<uint32_t> expected;
+    for (auto const& child : particle.children()) {
+      expected.push_back(child.id());
+    }
+    CPPUNIT_ASSERT(visited == expected);
+
+    visited.clear();
+    expected.clear();
+    particle.forEachParentId([&visited](uint32_t parent) { visited.push_back(parent); });
+    for (auto const& parent : particle.parents()) {
+      expected.push_back(parent.id());
+    }
+    CPPUNIT_ASSERT(visited == expected);
+  }
+}
+
+// REQUIRED: a branch reports the interaction of its root, and a bunch crossing other than
+// the in-time one is not the signal whatever the interaction index says.
+void TestBranch::testProvenanceComesFromTheRoot() {
+  truth::Graph graph = buildTtbarLike();
+  auto& top = graph.particles()[0];
+  top.eventId = (uint64_t{2} << 16) | 5;  // bunch crossing 2, interaction 5
+  const truth::Branch branch(&graph, 0);
+  CPPUNIT_ASSERT_EQUAL(2, branch.bunchCrossing());
+  CPPUNIT_ASSERT_EQUAL(5, branch.event());
+  CPPUNIT_ASSERT(!branch.isSignal());
+  CPPUNIT_ASSERT(branch.isFromPileup());
+  CPPUNIT_ASSERT(!branch.isInTime());
+  CPPUNIT_ASSERT_EQUAL(top.isSignal(), branch.isSignal());
+
+  top.eventId = 0;
+  CPPUNIT_ASSERT(truth::Branch(&graph, 0).isSignal());
 }

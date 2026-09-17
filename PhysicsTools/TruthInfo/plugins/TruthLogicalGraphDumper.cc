@@ -1,6 +1,7 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <fstream>
 #include <iomanip>
@@ -33,7 +34,7 @@ namespace {
   // The selection post-processing owns LevelFlag::Signal, so it is not a row of the level
   // table and the loops over kAllLevels below do not reach it. It is drawn like a level
   // because a reader looks for it like one.
-  constexpr char const* kSignalName = "signal";
+  constexpr char const* kSignalName = truth::kSignalLevelName;
   constexpr char const* kSignalColor = "#ffc4d6";
 
   // One colour per level, shared by the node labels and the legend so the two cannot
@@ -370,6 +371,73 @@ namespace {
     return false;
   }
 
+  // The same graph as the dot file, for a script that has to read numbers rather than a
+  // picture: one JSON object per event, with the momenta and positions at full precision.
+  // Full precision, and null where JSON has no number: it knows no NaN and no infinity.
+  std::string number(double value) {
+    if (!std::isfinite(value)) {
+      return "null";
+    }
+    std::ostringstream out;
+    out << std::setprecision(17) << value;
+    return out.str();
+  }
+
+  void writeJson(std::string const& path,
+                 edm::EventID const& id,
+                 truth::Graph const& graph,
+                 truth::SubgraphHitView* hitIndex) {
+    std::ofstream os(path);
+    os << "{\n";
+    os << "  \"run\": " << id.run() << ", \"lumi\": " << id.luminosityBlock() << ", \"event\": " << id.event() << ",\n";
+    os << "  \"particles\": [\n";
+    for (uint32_t i = 0; i < graph.nParticles(); ++i) {
+      auto const& d = graph.particles()[i];
+      os << "    {\"id\": " << i << ", \"pdgId\": " << d.pdgId << ", \"status\": " << d.status
+         << ", \"statusFlags\": " << d.statusFlags << ", \"hasGen\": " << (d.hasGen() ? "true" : "false")
+         << ", \"hasSim\": " << (d.hasSim() ? "true" : "false") << ", \"role\": \""
+         << truth::particleRoleName(d.particleRole()) << "\", \"eventId\": " << d.eventId
+         << ", \"bunchCrossing\": " << d.bunchCrossing() << ", \"eventIndex\": " << d.eventIndex()
+         << ", \"genEvent\": " << d.genEvent << ", \"p4\": [" << number(d.momentum.px()) << ", "
+         << number(d.momentum.py()) << ", " << number(d.momentum.pz()) << ", " << number(d.momentum.e())
+         << "], \"levels\": [";
+      bool firstLevel = true;
+      for (char const* name : truth::levelNamesOf(d)) {
+        os << (firstLevel ? "" : ", ") << "\"" << name << "\"";
+        firstLevel = false;
+      }
+      os << "]";
+      if (hitIndex != nullptr && i < hitIndex->nParticles()) {
+        os << ", \"caloHits\": " << hitIndex->subgraphHits(truth::HitChannel::Calo, i).size()
+           << ", \"trackerHits\": " << hitIndex->subgraphHits(truth::HitChannel::Tracker, i).size();
+      }
+      os << "}" << (i + 1 == graph.nParticles() ? "" : ",") << "\n";
+    }
+    os << "  ],\n  \"vertices\": [\n";
+    for (uint32_t i = 0; i < graph.nVertices(); ++i) {
+      auto const& d = graph.vertices()[i];
+      os << "    {\"id\": " << i << ", \"role\": \"" << truth::vertexRoleName(d.vertexRole()) << "\", \"reason\": \""
+         << truth::vertexReasonName(d.vertexReason()) << "\", \"hasGen\": " << (d.hasGen() ? "true" : "false")
+         << ", \"hasSim\": " << (d.hasSim() ? "true" : "false") << ", \"eventId\": " << d.eventId
+         << ", \"bunchCrossing\": " << d.bunchCrossing() << ", \"eventIndex\": " << d.eventIndex() << ", \"x4\": ["
+         << number(d.position.x()) << ", " << number(d.position.y()) << ", " << number(d.position.z()) << ", "
+         << number(d.position.t()) << "], \"in\": [";
+      bool first = true;
+      for (const uint32_t in : graph.incomingParticles(i)) {
+        os << (first ? "" : ", ") << in;
+        first = false;
+      }
+      os << "], \"out\": [";
+      first = true;
+      for (const uint32_t out : graph.outgoingParticles(i)) {
+        os << (first ? "" : ", ") << out;
+        first = false;
+      }
+      os << "]}" << (i + 1 == graph.nVertices() ? "" : ",") << "\n";
+    }
+    os << "  ]\n}\n";
+  }
+
   std::string appendEventIdToFilename(std::string const& filename, edm::EventID const& id) {
     const auto dotPos = filename.rfind('.');
 
@@ -403,6 +471,7 @@ public:
         hitIndexToken_(mayConsume<truth::LogicalGraphHitIndex>(hitIndexTag_)),
         useHitIndex_(!hitIndexTag_.label().empty()),
         dotFile_(cfg.getParameter<std::string>("dotFile")),
+        jsonFile_(cfg.getParameter<std::string>("jsonFile")),
         layout_(cfg.getParameter<std::string>("layout")),
 
         dumpSimHits_(cfg.getParameter<bool>("dumpSimHits")) {
@@ -453,6 +522,9 @@ public:
         ->setComment("PFRecHit collections, in the same order used by DetIdToRecHitMapProducer");
 
     desc.add<std::string>("dotFile", "truthlogicalgraph.dot");
+    desc.add<std::string>("jsonFile", "")
+        ->setComment(
+            "Write the same graph as JSON next to the dot file, for a script that reads numbers. Off when empty.");
     desc.add<std::string>("layout", "dot")
         ->setComment(
             "DOT layout: 'dot' (default, hierarchical left-to-right ranks) or a force-directed engine "
@@ -482,6 +554,9 @@ public:
     const std::vector<float> recHitEnergies = collectRecHitEnergies(evt);
 
     const std::string eventDotFile = appendEventIdToFilename(dotFile_, evt.id());
+    if (!jsonFile_.empty()) {
+      writeJson(appendEventIdToFilename(jsonFile_, evt.id()), evt.id(), g, hitIndex);
+    }
 
     std::ofstream os(eventDotFile);
 
@@ -686,15 +761,9 @@ public:
       // label, because graphviz silently ignores attributes it does not know and an
       // attribute alone renders to nothing at all.
       std::string levels;
-      for (const truth::Level level : truth::kAllLevels) {
-        if (d.isAtLevel(truth::levelFlagOf(level))) {
-          levels += levels.empty() ? "" : ",";
-          levels += truth::levelName(level);
-        }
-      }
-      if (d.isAtLevel(truth::LevelFlag::Signal)) {
+      for (char const* name : truth::levelNamesOf(d)) {
         levels += levels.empty() ? "" : ",";
-        levels += kSignalName;
+        levels += name;
       }
       os << ", levels=\"" << levels << "\"";
 
@@ -800,7 +869,7 @@ public:
       if (d.backscattered)
         os << "      <TR><TD><B>back-scattered</B></TD></TR>\n";
 
-      if (d.eventId != 0)
+      if (d.isFromPileup())
         os << "      <TR><TD>eid: " << d.eventId << "</TD></TR>\n";
 
       if (d.genEvent >= 0)
@@ -939,7 +1008,7 @@ public:
       if (d.vertexReason() != truth::VertexReason::Unknown)
         os << "      <TR><TD>reason: " << truth::vertexReasonName(d.vertexReason()) << "</TD></TR>\n";
 
-      if (d.eventId != 0)
+      if (d.isFromPileup())
         os << "      <TR><TD>eid: " << d.eventId << "</TD></TR>\n";
 
       if (d.genEvent >= 0)
@@ -1059,6 +1128,7 @@ private:
   std::vector<edm::EDGetTokenT<reco::PFRecHitCollection>> pfRecHitTokens_;
 
   std::string dotFile_;
+  std::string jsonFile_;
   std::string layout_;
   bool dumpSimHits_;
 };

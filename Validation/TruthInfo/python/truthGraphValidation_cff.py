@@ -61,8 +61,17 @@ branchTrackingValidator = DQMEDAnalyzer(
 # and arrive at RECO through the input file, so the signal-only build producers are not
 # imported here: they would attach to the RECO process and shadow the DIGI-built
 # products. The validators' rawSrc points at the mixed graph.
+# What the graph itself holds, per interaction: the numbers that say whether it was built
+# as intended, so a pile-up regression shows up in a plot rather than in a hand dump.
+truthGraphSummaryValidator = DQMEDAnalyzer(
+    "TruthGraphSummaryValidator",
+    src=cms.InputTag("truthLogicalGraphProducer"),
+    folder=cms.string("TruthInfo/Graph"),
+)
+
 truthGraphValidationProducers = cms.Sequence(truthTpClusterProducer)
 truthGraphValidationAnalyzers = cms.Sequence(
     branchHGCalValidator
     + branchTrackingValidator
+    + truthGraphSummaryValidator
 )

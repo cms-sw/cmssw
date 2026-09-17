@@ -54,11 +54,22 @@ namespace truth {
     [[nodiscard]] std::vector<Vertex> productionVertices() const;
     [[nodiscard]] std::vector<Vertex> decayVertices() const;
 
+    // These four build a vector on every call, and ancestors() and descendants() walk the
+    // whole subgraph to do it. In a loop over particles use forEachChildId and
+    // forEachParentId below, or the CSR spans of Graph, which allocate nothing.
     [[nodiscard]] std::vector<Particle> parents() const;
     [[nodiscard]] std::vector<Particle> children() const;
 
     [[nodiscard]] std::vector<Particle> ancestors() const;
     [[nodiscard]] std::vector<Particle> descendants() const;
+
+    // The ids of the particles this one decays into, and of those it comes from, passed
+    // to the callable one at a time. An id can repeat when two vertices share a particle.
+    // Defined in Graph.h, which a caller has to include.
+    template <typename F>
+    void forEachChildId(F&& visit) const;
+    template <typename F>
+    void forEachParentId(F&& visit) const;
 
     [[nodiscard]] bool hasAncestorPdgId(int pdgId) const;
     [[nodiscard]] std::optional<Particle> firstAncestorWithPdgId(int pdgId) const;
