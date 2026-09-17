@@ -140,7 +140,7 @@ void TestBranch::testInitializers() {
 
   // Branch(&graph,id) initializer [invalid]
   CPPUNIT_ASSERT_THROW(truth::Branch(static_cast<truth::Graph const*>(nullptr), 0), cms::Exception);
-  CPPUNIT_ASSERT_THROW(truth::Branch(&g, {}), cms::Exception);
+  CPPUNIT_ASSERT_THROW(truth::Branch(&g, std::vector<uint32_t>{}), cms::Exception);
   CPPUNIT_ASSERT_THROW(truth::Branch(&g, 9999), cms::Exception);
 
   // Branch(particle) initializer
