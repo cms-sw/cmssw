@@ -20,6 +20,7 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
     return;
   }
 
+
   pfCandidateToken_ = consumes<CandView>(pSet.getParameter<edm::InputTag>("pfCandidates"));
   jetsToken_ = consumes<JetView>(pSet.getParameter<edm::InputTag>("pfJetCollection"));
 
@@ -232,6 +233,35 @@ PFAnalyzer::~PFAnalyzer() { LogTrace("PFAnalyzer") << "[PFAnalyzer] Saving the h
 
 // ***********************************************************
 void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const&) {
+  // alls candidate without differential plots
+  ibooker.setCurrentFolder(m_directory + "/DQM_PFCs_all/");
+  
+  //eta has variable bin sizes, use 4th def of TH1F constructor
+  map_of_MEs["AllCandidatesEta"] = ibooker.book1D("AllCandidatesEta", "AllCandidatesEta", 100, -5.2, 5.2);
+  map_of_MEs["AllCandidatesLog10Pt"] = ibooker.book1D("AllCandidatesLog10Pt", "AllCandidatesLog10Pt", 120, -2, 4);
+
+  //for phi binnings
+  double nPhiBins = 73;
+  double phiBinWidth = M_PI / (nPhiBins - 1) * 2.;
+  map_of_MEs["AllCandidatesPhi"] = ibooker.book1D(
+      "AllCandidatesPhi", "AllCandidatesPhi", nPhiBins, -M_PI - 0.25 * phiBinWidth, +M_PI + 0.75 * phiBinWidth);
+
+  map_of_MEs["AllCandidatesCharge"] = ibooker.book1D("AllCandidatesCharge", "AllCandidatesCharge", 3, -1.5, 1.5);
+  map_of_MEs["AllCandidatesPtLow"]  = ibooker.book1D("AllCandidatesPtLow", "AllCandidatesPtLow", 100, 0., 5.);
+  map_of_MEs["AllCandidatesPtMid"]  = ibooker.book1D("AllCandidatesPtMid", "AllCandidatesPtMid", 100, 0., 200.);
+  map_of_MEs["AllCandidatesPtHigh"] = ibooker.book1D("AllCandidatesPtHigh", "AllCandidatesPtHigh", 100, 0., 1000.);
+
+  for (const auto& [_, part] : m_particleTypeName) {  
+    map_of_MEs[part + "Eta"] = ibooker.book1D(part + "Eta", part + "Eta", 100, -5.2, 5.2);
+    map_of_MEs[part + "Log10Pt"] = ibooker.book1D(part + "Log10Pt", part + "Log10Pt", 120, -2, 4);
+    map_of_MEs[part + "Phi"]     = ibooker.book1D(part + "Phi", part + "Phi",
+												 nPhiBins, -M_PI - 0.25 * phiBinWidth, +M_PI + 0.75 * phiBinWidth);
+    map_of_MEs[part + "Charge"]  = ibooker.book1D(part + "Charge", part + "Charge", 3, -1.5, 1.5);
+    map_of_MEs[part + "PtLow"]   = ibooker.book1D(part + "PtLow", part + "PtLow", 100, 0., 5.);
+    map_of_MEs[part + "PtMid"]   = ibooker.book1D(part + "PtMid", part + "PtMid", 100, 0., 200.);
+    map_of_MEs[part + "PtHigh"]  = ibooker.book1D(part + "PtHigh", part + "PtHigh", 100, 0., 1000.);
+  }
+  
   for (unsigned int i = 0; i < m_fullCutList.size(); i++) {
     m_allSuffixes.push_back(getAllSuffixes(m_fullCutList[i], m_binList[i]));
   }
@@ -303,7 +333,7 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
             map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/PFCs/" + histName, mHist));
           }
 
-          //ibooker.setCurrentFolder(m_directory + "/PFCinJet");
+          // ibooker.setCurrentFolder(m_directory + "/PFCinJet");
           for (unsigned int k = 0; k < m_allJetSuffixes.size(); k++) {
             for (unsigned int p = 0; p < m_allJetSuffixes[k].size(); p++) {
               for (unsigned int m = 0; m < m_pfNames.size(); m++) {
@@ -441,10 +471,10 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/JetKinematics/" + histName, mHist));
   }
 
-  ibooker.setCurrentFolder(m_directory + "/DQM_Event");
+  ibooker.setCurrentFolder(m_directory + "/");
   std::string histName = Form("NPV");
   MonitorElement* mHist = ibooker.book1D(histName, Form(";%s;", "N_PV"), 200, 0, 200);
-  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/Event/" + histName, mHist));
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/" + histName, mHist));
 }
 
 PFAnalyzer::binInfo PFAnalyzer::getBinInfo(std::string observableString) {
@@ -786,10 +816,29 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
   for (const auto& cand : pfCollection) {
-    if (!cand)
-      continue;
+    if (!cand) continue;
+
+	// all candidates
+	map_of_MEs["AllCandidatesLog10Pt"]->Fill(cand->pt() > 0 ? log10(cand->pt()) : -10);
+	map_of_MEs["AllCandidatesEta"]->Fill(cand->eta());
+	map_of_MEs["AllCandidatesPhi"]->Fill(cand->phi());
+	map_of_MEs["AllCandidatesCharge"]->Fill(cand->charge());
+	map_of_MEs["AllCandidatesPtLow"]->Fill(cand->pt());
+	map_of_MEs["AllCandidatesPtMid"]->Fill(cand->pt());
+	map_of_MEs["AllCandidatesPtHigh"]->Fill(cand->pt());
+	  
     reco::PFCandidate::ParticleType pfType = particleType(cand);
     bool hasTypeHist = m_particleTypeName.find(pfType) != m_particleTypeName.end();
+
+	if (hasTypeHist) {
+	  map_of_MEs[m_particleTypeName[pfType] + "Log10Pt"]->Fill(cand->pt() > 0 ? log10(cand->pt()) : -10);
+	  map_of_MEs[m_particleTypeName[pfType] + "Eta"]->Fill(cand->eta());
+	  map_of_MEs[m_particleTypeName[pfType] + "Phi"]->Fill(cand->phi());
+	  map_of_MEs[m_particleTypeName[pfType] + "Charge"]->Fill(cand->charge());
+	  map_of_MEs[m_particleTypeName[pfType] + "PtLow"]->Fill(cand->pt());
+	  map_of_MEs[m_particleTypeName[pfType] + "PtMid"]->Fill(cand->pt());
+	  map_of_MEs[m_particleTypeName[pfType] + "PtHigh"]->Fill(cand->pt());
+	}
 
     for (unsigned int j = 0; j < m_fullCutList.size(); j++) {
       int binNumber = getPFBin(cand, j, puppiWeight);
@@ -814,7 +863,7 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       }
 
       // Eventually, we might want the hist name to include the cuts that we are applying,
-      // so I am keepking it as a separate string for now, even though it is redundant.
+      // so I am keeping it as a separate string for now, even though it is redundant.
       // Make plots of all observables
       for (unsigned int i = 0; i < m_observableNames.size(); i++) {
         std::string histName = Form("%s%s_%s", m_observableNames[i].c_str(), binString.c_str(), npvString.c_str());
@@ -840,7 +889,7 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
   // Plots for generic debugging
-  map_of_MEs[m_directory + "/Event/NPV"]->Fill(numPV, eventWeight);
+  map_of_MEs[m_directory + "/NPV"]->Fill(numPV, eventWeight);
   if (numJets) {
     map_of_MEs[m_directory + Form("/JetKinematics/jetPtLead_%s", npvString.c_str())]->Fill(jets[0].pt(), eventWeight);
     map_of_MEs[m_directory + Form("/JetKinematics/jetEtaLead_%s", npvString.c_str())]->Fill(jets[0].eta(), eventWeight);

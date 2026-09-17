@@ -111,14 +111,29 @@ pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
     recoPtCut = cms.double(10. )
 )
 
+# Particle Flow Candidates
+from DQMOffline.ParticleFlow.pfAnalyzer_cfi import pfAnalyzer
 
-# PFCandidates
-PFCandAnalyzerDQM = cms.EDProducer("PFCandidateAnalyzerDQM",
-    PFCandType = cms.InputTag("packedPFCandidates"),
-    etabins = cms.vdouble( default.etaBinsOffset ),
-    pdgKeys = cms.vuint32( default.pdgIDDict.keys() ),
-    pdgStrs = cms.vstring( default.pdgIDDict.values() )
+pfAnalyzerDQM = pfAnalyzer.clone(
+    isHLT               = False,
+    isMiniAOD           = False,
+    pfCandidates        = "particleFlow", # "packedPFCandidates" for MiniAOD
+    pfAnalysis = cms.PSet(
+        NPVBins = cms.vdouble(0, 100, 250),
+        observables = cms.vstring(
+            'pt;p_{T,PFC};50.;0.;350.',
+            'eta;#eta;50;-5;5',
+            'phi;#phi;50;-3.14;3.14',
+            'energy;E;50;0;300',
+        ),
+        eventObservables = cms.vstring(),
+        pfInJetObservables = cms.vstring(),
+        binList2D = cms.vstring('[eta;30;-5;5][phi;30;-3.14;3.14]'),
+        cutList = cms.vstring(
+            '[pt;1;0;10000]',
+            '[pt;1;0;10000][abseta;0;1.47;4.;6.]',
+            '[pt;0;1;2;4;6;10;20;50;100][abseta;0;1.47;4.;6.]',
+        ),
+        jetCutList = cms.vstring('[pt;20;10000]'),
+    ),
 )
-
-
-#----- ----- ----- ----- ----- ----- ----- -----
