@@ -52,6 +52,7 @@
 #include "PhysicsTools/TruthInfo/interface/Branch.h"
 #include "PhysicsTools/TruthInfo/interface/AssignableTarget.h"
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
+#include "PhysicsTools/TruthInfo/interface/Interactions.h"
 #include "PhysicsTools/TruthInfo/interface/BranchSelector.h"
 #include "PhysicsTools/TruthInfo/interface/RecoHitAdapters.h"
 #include "PhysicsTools/TruthInfo/interface/TrackerCells.h"
@@ -210,73 +211,6 @@ namespace {
     static constexpr auto metric = truth::BranchHitAssociator::Metric::SharedEnergy;
     static constexpr const char* cfiName = "truthBranchTracksterAssociators";
   };
-
-  // Whether a vertex may represent an interaction. The eventId identifies the
-  // interaction, so every particle of one interaction counts at a single vertex: the
-  // lowest-numbered usable production vertex, which the build order makes the one where
-  // the interaction started. A vertex that neither merged with a SimVertex nor carries a
-  // position is a placeholder, and electing it would count the whole interaction at the
-  // origin. Time is part of the test, so a real vertex at the origin with a nonzero time
-  // is kept.
-  [[nodiscard]] inline bool usableAsInteractionVertex(truth::VertexData const& vertex) {
-    if (vertex.hasSim()) {
-      return true;
-    }
-    auto const& position = vertex.position;
-    return position.x() != 0. || position.y() != 0. || position.z() != 0. || position.t() != 0.;
-  }
-
-  // placeholderCount receives the number of interactions that resolve only to a placeholder.
-  [[nodiscard]] inline std::unordered_map<uint64_t, uint32_t> interactionVertices(truth::Graph const& graph,
-                                                                                  unsigned int& placeholderCount) {
-    placeholderCount = 0;
-    std::unordered_map<uint64_t, uint32_t> representative;
-
-    // An interaction the graph actually models gets a VertexRole::Interaction node, built
-    // by the selection preset, and THAT is the primary vertex: it is the interaction
-    // point, not a vertex elected to stand for it. Only these enter the primary-vertex
-    // plots, so what is drawn is the interaction rather than whichever production vertex
-    // happened to be built first and whichever position that carries.
-    for (uint32_t v = 0; v < graph.nVertices(); ++v) {
-      auto const& data = graph.vertices()[v];
-      if (data.vertexRole() == truth::VertexRole::Interaction) {
-        representative.emplace(data.eventId, v);
-      }
-    }
-    if (!representative.empty()) {
-      return representative;
-    }
-
-    // No preset ran, so no interaction node exists and there is nothing to plot but an
-    // elected stand-in. Measured on ttbar without a preset, all 534 vertices are Normal.
-    // The election below is kept for that case, and it is the reason a primary-vertex
-    // position is only as good as the preset: with one, the node is the interaction.
-    std::unordered_map<uint64_t, uint32_t> placeholderOnly;
-    const uint32_t nParticles = graph.nParticles();
-    for (uint32_t id = 0; id < nParticles; ++id) {
-      const auto production = truth::Particle(&graph, id).productionVertices();
-      if (production.empty()) {
-        continue;
-      }
-      const uint32_t vertexId = production.front().id();
-      const uint64_t eventId = graph.particles()[id].eventId;
-      auto& target = usableAsInteractionVertex(graph.vertices()[vertexId]) ? representative : placeholderOnly;
-      auto [it, inserted] = target.emplace(eventId, vertexId);
-      if (!inserted) {
-        it->second = std::min(it->second, vertexId);
-      }
-    }
-
-    // An interaction with nothing but placeholders still has to resolve, or every
-    // composite object built from its constituents silently matches nothing. Take the
-    // placeholder; the caller reports that its position is not to be trusted.
-    for (auto const& [eventId, vertexId] : placeholderOnly) {
-      if (representative.emplace(eventId, vertexId).second) {
-        ++placeholderCount;
-      }
-    }
-    return representative;
-  }
 
   [[nodiscard]] inline std::optional<uint32_t> countingVertex(
       truth::Graph const& graph,
@@ -573,10 +507,13 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
   std::unordered_map<unsigned int, float> truthWeightPerVertex;
 
   unsigned int placeholderCount = 0;
-  [[maybe_unused]] const auto interactionVertex =
-      ConstituentBasedDomain<RECO> && vertexResolution_ == VertexResolution::Interaction
-          ? interactionVertices(graph, placeholderCount)
-          : std::unordered_map<uint64_t, uint32_t>{};
+  std::unordered_map<uint64_t, uint32_t> interactionVertex;
+  if (ConstituentBasedDomain<RECO> && vertexResolution_ == VertexResolution::Interaction) {
+    for (auto const& interaction : truth::interactions(graph)) {
+      interactionVertex.emplace(interaction.eventId, interaction.vertexId);
+      placeholderCount += interaction.isPlaceholder ? 1 : 0;
+    }
+  }
   if (placeholderCount > 0) {
     std::call_once(placeholderVertexWarned_, [placeholderCount] {
       edm::LogWarning("AllRecoToTruthBranchAssociatorsProducer")
