@@ -12,9 +12,11 @@
 // GEN handling is configurable per realm, and the same flag means the same thing for
 // both:
 //   collapsePileupGen (default true) : collapse the GEN decay chain to the stable
-//        (status 1) GEN particles on a single gen vertex, keep the SIM continuation
-//        (GenToSim links). Compact, and it connects each pileup interaction into one
-//        component.
+//        (status 1) GEN particles and the species in collapsedGenKeptPdgIds (default
+//        {111}), keep the SIM continuation (GenToSim links). The interaction has one
+//        gen vertex, and each kept species has its own decay vertex, so a level that
+//        stops at a pi0 finds it. Compact, and it connects each pileup interaction
+//        into one component.
 //   collapseSignalGen (default false): keep the full HepMC decay chain, built by the
 //        shared truth::GenBuild that TruthGraphProducer uses, so the signal carries
 //        intermediate (status 2) particles, GenStatusFlags and the hard-process
@@ -98,41 +100,22 @@ namespace {
     return static_cast<uint64_t>(id.rawId());
   }
 
-  // Stable (status 1) GEN particles as (barcode, pdgId). Used to collapse the GEN
-  // part to "stable particles on a single gen vertex".
-  std::vector<std::pair<int, int>> stableFromHepMC2(HepMC::GenEvent const& ev) {
-    std::vector<std::pair<int, int>> out;
-    for (auto p = ev.particles_begin(); p != ev.particles_end(); ++p) {
-      if (*p != nullptr && (*p)->status() == 1)
-        out.emplace_back((*p)->barcode(), (*p)->pdg_id());
-    }
-    return out;
-  }
-
-  std::vector<std::pair<int, int>> stableFromHepMC3(HepMC3::GenEvent const& ev) {
-    std::vector<std::pair<int, int>> out;
-    for (auto const& p : ev.particles()) {
-      if (p && p->status() == 1)
-        out.emplace_back(p->id(), p->pid());
-    }
-    return out;
-  }
-
-  // Read the stable GEN particles from a signal Event or a PileUpEventPrincipal
-  // (both expose getByLabel), preferring HepMC3.
+  // The compact GEN record of a signal Event or a PileUpEventPrincipal (both expose
+  // getByLabel), preferring HepMC3. See truth::compactGen.
   template <class EvT>
-  std::vector<std::pair<int, int>> readStableGen(EvT const& ev,
-                                                 edm::InputTag const& hepmc3Tag,
-                                                 edm::InputTag const& hepmc2Tag) {
+  std::vector<truth::CompactGenParticle> readCompactGen(EvT const& ev,
+                                                        edm::InputTag const& hepmc3Tag,
+                                                        edm::InputTag const& hepmc2Tag,
+                                                        std::vector<int32_t> const& keptPdgIds) {
     edm::Handle<edm::HepMC3Product> h3;
     if (ev.getByLabel(hepmc3Tag, h3) && h3.isValid() && h3->GetEvent() != nullptr) {
       HepMC3::GenEvent ev3;
       ev3.read_data(*h3->GetEvent());
-      return stableFromHepMC3(ev3);
+      return truth::compactGen(truth::buildFromHepMC3(ev3), keptPdgIds);
     }
     edm::Handle<edm::HepMCProduct> h2;
     if (ev.getByLabel(hepmc2Tag, h2) && h2.isValid() && h2->GetEvent() != nullptr)
-      return stableFromHepMC2(*h2->GetEvent());
+      return truth::compactGen(truth::buildFromHepMC2(*h2->GetEvent(), false), keptPdgIds);
     return {};
   }
 
@@ -186,10 +169,10 @@ public:
 private:
   // Append one sub-event. SimTrack/SimVertex ids are local to this sub-event.
   // The GEN half is `fullGen` when that is non-null and non-empty, otherwise the
-  // collapsed `stableGen` when that is non-empty, otherwise absent. Either GEN form
+  // collapsed `compactGen` when that is non-empty, otherwise absent. Either GEN form
   // is linked to the primary SimTracks by GenToSim edges. `genEvent` identifies the
   // sub-event the GEN nodes belong to.
-  void addSubEvent(std::vector<std::pair<int, int>> const& stableGen,
+  void addSubEvent(std::vector<truth::CompactGenParticle> const& compactGen,
                    truth::GenBuild const* fullGen,
                    edm::SimTrackContainer const& tracks,
                    edm::SimVertexContainer const& vertices,
@@ -234,6 +217,7 @@ private:
   const bool collapseSignalGen_;
   const bool collapseGenShower_;
   const bool collapseGenShowerSignal_;
+  const std::vector<int32_t> collapsedGenKeptPdgIds_;
   const bool computeCellEnergyBudget_;
 
   int pileupCount_ = 0;
@@ -316,6 +300,9 @@ TruthGraphAccumulator::TruthGraphAccumulator(edm::ParameterSet const& cfg,
       collapseGenShower_(cfg.getParameter<bool>("collapseGenShower")),
       collapseGenShowerSignal_(
           cfg.existsAs<bool>("collapseGenShowerSignal") ? cfg.getParameter<bool>("collapseGenShowerSignal") : false),
+      collapsedGenKeptPdgIds_(cfg.existsAs<std::vector<int32_t>>("collapsedGenKeptPdgIds")
+                                  ? cfg.getParameter<std::vector<int32_t>>("collapsedGenKeptPdgIds")
+                                  : std::vector<int32_t>{111}),
       computeCellEnergyBudget_(
           cfg.existsAs<bool>("computeCellEnergyBudget") ? cfg.getParameter<bool>("computeCellEnergyBudget") : false) {
   producesCollector.produces<TruthGraph>();
@@ -372,7 +359,7 @@ void TruthGraphAccumulator::initializeEvent(edm::Event const&, edm::EventSetup c
   cellInTimeEnergy_.clear();
 }
 
-void TruthGraphAccumulator::addSubEvent(std::vector<std::pair<int, int>> const& stableGen,
+void TruthGraphAccumulator::addSubEvent(std::vector<truth::CompactGenParticle> const& compactGen,
                                         truth::GenBuild const* fullGen,
                                         edm::SimTrackContainer const& tracks,
                                         edm::SimVertexContainer const& vertices,
@@ -522,16 +509,35 @@ void TruthGraphAccumulator::addSubEvent(std::vector<std::pair<int, int>> const& 
       if (isSource || componentHasNoSource)
         pushEdge(genEventNode, genVtxBarcodeToNode.at(vbc), TruthGraph::EdgeKind::Gen);
     }
-  } else if (!stableGen.empty()) {
-    // Collapsed GEN: one gen vertex + the stable gen particles.
+  } else if (!compactGen.empty()) {
+    // Collapsed GEN: one gen vertex for the interaction, and one decay vertex for each
+    // kept particle that decays into another kept particle.
     const uint32_t genVtxNode = pushNode(TruthGraph::NodeKind::GenVertex, 0, 0, 0);
     genEventOfNode_[genVtxNode] = genEvent;
-    genBarcodeToNode.reserve(stableGen.size() * 2);
-    for (auto const& [barcode, pdg] : stableGen) {
-      const uint32_t pn = pushNode(TruthGraph::NodeKind::GenParticle, barcode, pdg, 1);
+    genBarcodeToNode.reserve(compactGen.size() * 2);
+    std::unordered_map<int, int> decayVertexOf;
+    for (auto const& particle : compactGen) {
+      const uint32_t pn =
+          pushNode(TruthGraph::NodeKind::GenParticle, particle.barcode, particle.pdgId, particle.status);
       genEventOfNode_[pn] = genEvent;
-      pushEdge(genVtxNode, pn, TruthGraph::EdgeKind::Gen);
-      genBarcodeToNode.emplace(barcode, pn);
+      genBarcodeToNode.emplace(particle.barcode, pn);
+      if (particle.decayVertex != 0)
+        decayVertexOf.emplace(particle.barcode, particle.decayVertex);
+    }
+    std::unordered_map<int, uint32_t> decayVertexNode;
+    for (auto const& particle : compactGen) {
+      uint32_t source = genVtxNode;
+      const auto itDecay = decayVertexOf.find(particle.parent);
+      if (particle.parent != 0 && itDecay != decayVertexOf.end()) {
+        auto [itNode, inserted] = decayVertexNode.try_emplace(particle.parent, 0);
+        if (inserted) {
+          itNode->second = pushNode(TruthGraph::NodeKind::GenVertex, itDecay->second, 0, 0);
+          genEventOfNode_[itNode->second] = genEvent;
+          pushEdge(genBarcodeToNode.at(particle.parent), itNode->second, TruthGraph::EdgeKind::Gen);
+        }
+        source = itNode->second;
+      }
+      pushEdge(source, genBarcodeToNode.at(particle.barcode), TruthGraph::EdgeKind::Gen);
     }
   }
 
@@ -662,14 +668,14 @@ void TruthGraphAccumulator::accumulate(edm::Event const& event, edm::EventSetup 
   event.getByLabel(simVertexTag_, vertices);
   if (!tracks.isValid() || !vertices.isValid())
     return;
-  std::vector<std::pair<int, int>> stableGen;
+  std::vector<truth::CompactGenParticle> compactGen;
   truth::GenBuild fullGen;
   if (collapseSignalGen_)
-    stableGen = readStableGen(event, hepmc3Tag_, hepmc2Tag_);
+    compactGen = readCompactGen(event, hepmc3Tag_, hepmc2Tag_, collapsedGenKeptPdgIds_);
   else
     fullGen = readFullGen(event, hepmc3Tag_, hepmc2Tag_, collapseGenShowerSignal_, *tracks, degradedCollapseWarned_);
   const EncodedEventId sigEid(0, 0);
-  addSubEvent(stableGen, &fullGen, *tracks, *vertices, sigEid, 0);
+  addSubEvent(compactGen, &fullGen, *tracks, *vertices, sigEid, 0);
   addSubEventHits(event, sigEid);
   if (computeCellEnergyBudget_)
     accumulateCellEnergy(event, 0);  // signal is in-time (bx 0)
@@ -691,10 +697,10 @@ void TruthGraphAccumulator::accumulate(PileUpEventPrincipal const& pep, edm::Eve
   if (!tracks.isValid() || !vertices.isValid())
     return;
 
-  std::vector<std::pair<int, int>> stableGen;
+  std::vector<truth::CompactGenParticle> compactGen;
   truth::GenBuild fullGen;
   if (collapsePileupGen_)
-    stableGen = readStableGen(pep, hepmc3Tag_, hepmc2Tag_);
+    compactGen = readCompactGen(pep, hepmc3Tag_, hepmc2Tag_, collapsedGenKeptPdgIds_);
   else
     fullGen = readFullGen(pep, hepmc3Tag_, hepmc2Tag_, collapseGenShower_, *tracks, degradedCollapseWarned_);
 
@@ -708,7 +714,7 @@ void TruthGraphAccumulator::accumulate(PileUpEventPrincipal const& pep, edm::Eve
     throw cms::Exception("TruthGraphAccumulator")
         << "pileup sub-event count " << puIndex << " exceeds the 16-bit EncodedEventId event field";
   const EncodedEventId puEid(bx, puIndex);
-  addSubEvent(stableGen, &fullGen, *tracks, *vertices, puEid, puIndex);
+  addSubEvent(compactGen, &fullGen, *tracks, *vertices, puEid, puIndex);
   addSubEventHits(pep, puEid);
 }
 

@@ -79,7 +79,7 @@ namespace {
 
 namespace truth {
 
-  GenBuild buildFromHepMC2(HepMC::GenEvent const& ev) {
+  GenBuild buildFromHepMC2(HepMC::GenEvent const& ev, bool withStatusFlags) {
     GenBuild gb;
 
     std::unordered_set<int> seenV;
@@ -134,9 +134,11 @@ namespace truth {
       gb.particlePdgIdByBarcode.emplace(pbc, (*p)->pdg_id());
       gb.particleStatusByBarcode.emplace(pbc, static_cast<int16_t>((*p)->status()));
 
-      reco::GenStatusFlags flags;
-      mcTruthHelper.fillGenStatusFlags(**p, flags);
-      gb.particleStatusFlagsByBarcode.emplace(pbc, static_cast<uint16_t>(flags.flags_.to_ulong()));
+      if (withStatusFlags) {
+        reco::GenStatusFlags flags;
+        mcTruthHelper.fillGenStatusFlags(**p, flags);
+        gb.particleStatusFlagsByBarcode.emplace(pbc, static_cast<uint16_t>(flags.flags_.to_ulong()));
+      }
 
       if (seenP.insert(pbc).second)
         gb.partBarcodes.push_back(pbc);
@@ -356,6 +358,59 @@ namespace truth {
     gb.partToVtx = std::move(partToVtx);
 
     return statusFlagsAvailable;
+  }
+
+  std::vector<CompactGenParticle> compactGen(GenBuild const& gb, std::vector<int32_t> const& keptPdgIds) {
+    std::unordered_map<int, int> productionVertex;
+    productionVertex.reserve(gb.vtxToPart.size() * 2);
+    for (auto const& [vbc, pbc] : gb.vtxToPart)
+      productionVertex.emplace(pbc, vbc);
+
+    std::unordered_map<int, int> decayVertex;
+    std::unordered_map<int, std::vector<int>> incoming;
+    decayVertex.reserve(gb.partToVtx.size() * 2);
+    for (auto const& [pbc, vbc] : gb.partToVtx) {
+      decayVertex.emplace(pbc, vbc);
+      incoming[vbc].push_back(pbc);
+    }
+
+    auto statusOf = [&gb](int barcode) { return lookup(gb.particleStatusByBarcode, barcode, int16_t{0}); };
+    auto pdgIdOf = [&gb](int barcode) { return lookup(gb.particlePdgIdByBarcode, barcode, int32_t{0}); };
+    auto survives = [&](int barcode) {
+      if (statusOf(barcode) == 1)
+        return true;
+      return decayVertex.count(barcode) != 0 &&
+             std::find(keptPdgIds.begin(), keptPdgIds.end(), pdgIdOf(barcode)) != keptPdgIds.end();
+    };
+
+    std::vector<CompactGenParticle> out;
+    for (const int barcode : gb.partBarcodes) {
+      if (!survives(barcode))
+        continue;
+
+      // The step bound makes the walk terminate on a record with a cycle.
+      int parent = 0;
+      int current = barcode;
+      for (std::size_t step = 0; step < gb.partBarcodes.size(); ++step) {
+        const auto itVertex = productionVertex.find(current);
+        if (itVertex == productionVertex.end())
+          break;
+        const auto itIncoming = incoming.find(itVertex->second);
+        if (itIncoming == incoming.end() || itIncoming->second.size() != 1)
+          break;
+        current = itIncoming->second.front();
+        if (survives(current)) {
+          parent = current;
+          break;
+        }
+      }
+
+      const int16_t status = statusOf(barcode);
+      const auto itDecay = decayVertex.find(barcode);
+      const int decay = (status != 1 && itDecay != decayVertex.end()) ? itDecay->second : 0;
+      out.push_back({barcode, pdgIdOf(barcode), status, parent, decay});
+    }
+    return out;
   }
 
 }  // namespace truth

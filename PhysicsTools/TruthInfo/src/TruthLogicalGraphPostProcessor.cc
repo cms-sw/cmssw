@@ -1472,6 +1472,68 @@ namespace truth {
     return config;
   }
 
+  void fillMomentumFromDecayProducts(Graph& graph) {
+    const uint32_t nParticles = graph.nParticles();
+    auto& particles = graph.particles();
+
+    auto needsSum = [&particles](uint32_t id) {
+      auto const& data = particles[id];
+      return data.hasGen() && !data.hasSim() && data.momentum.E() <= 0.;
+    };
+    auto forEachProduct = [&graph, nParticles](uint32_t id, auto&& visit) {
+      for (const uint32_t vertexId : graph.decayVertices(id)) {
+        if (vertexId >= graph.nVertices() || !graph.vertices()[vertexId].hasGen())
+          continue;
+        const auto incoming = graph.incomingParticles(vertexId);
+        if (incoming.size() != 1 || incoming.front() != id)
+          continue;
+        for (const uint32_t product : graph.outgoingParticles(vertexId)) {
+          if (product < nParticles)
+            visit(product);
+        }
+      }
+    };
+
+    // Depth-first, so every product has its sum before its parent adds it. A particle on
+    // the current path is an ancestor, so reaching it again closes a cycle.
+    constexpr uint8_t kNew = 0, kOnPath = 1, kDone = 2;
+    std::vector<uint8_t> state(nParticles, kNew);
+    std::vector<std::pair<uint32_t, bool>> stack;
+    for (uint32_t root = 0; root < nParticles; ++root) {
+      if (state[root] != kNew || !needsSum(root))
+        continue;
+      stack.emplace_back(root, false);
+      while (!stack.empty()) {
+        const auto [id, expanded] = stack.back();
+        if (!expanded) {
+          if (state[id] != kNew) {
+            stack.pop_back();
+            continue;
+          }
+          state[id] = kOnPath;
+          stack.back().second = true;
+          forEachProduct(id, [&](uint32_t product) {
+            if (state[product] == kNew && needsSum(product))
+              stack.emplace_back(product, false);
+          });
+          continue;
+        }
+        stack.pop_back();
+        math::XYZTLorentzVectorD sum;
+        bool hasProduct = false;
+        forEachProduct(id, [&](uint32_t product) {
+          if (state[product] == kOnPath || particles[product].momentum.E() <= 0.)
+            return;
+          sum += particles[product].momentum;
+          hasProduct = true;
+        });
+        if (hasProduct)
+          particles[id].momentum = sum;
+        state[id] = kDone;
+      }
+    }
+  }
+
   Graph TruthLogicalGraphPostProcessor::process(Graph input, std::vector<uint8_t> const& particleDirectHit) const {
     // Run before any collapsing/selection so particleDirectHit stays aligned to
     // the input particle ids the producer computed it for.

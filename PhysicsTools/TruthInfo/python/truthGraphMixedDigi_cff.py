@@ -23,6 +23,12 @@ def _tags(*names):
     return cms.VInputTag(*[cms.InputTag("g4SimHits", n) for n in names])
 
 
+# The species the detector reconstructs as one object although it decays. The collapsed
+# pileup record keeps them and the reconstructable levels stop at them, so the two lists
+# must be the same.
+reconstructablePdgIds = [111]
+
+
 # Accumulator PSet added to the mixing digitizers under enableTruth (digitizers_cfi).
 truthGraphAccumulator = cms.PSet(
     accumulatorType=cms.string("TruthGraphAccumulator"),
@@ -44,7 +50,10 @@ truthGraphAccumulator = cms.PSet(
     muonHits=_tags("MuonDTHits", "MuonCSCHits", "MuonRPCHits", "MuonGEMHits", "MuonME0Hits"),
     mtdHits=_tags("FastTimerHitsBarrel", "FastTimerHitsEndcap"),
     pileupBunchCrossings=cms.vint32(0),   # in-time pileup for the per-particle graph
-    collapsePileupGen=cms.bool(True),    # pileup keeps stable GEN particles only
+    collapsePileupGen=cms.bool(True),    # pileup keeps its stable GEN particles and the
+                                         # species of collapsedGenKeptPdgIds
+    collapsedGenKeptPdgIds=cms.vint32(*reconstructablePdgIds),  # decaying species the
+                                                                   # collapsed record keeps
     collapseSignalGen=cms.bool(False),   # signal keeps the full HepMC decay chain, which
                                          # selection presets seed on
     collapseGenShower=cms.bool(True),    # pileup: contract the parton shower and the
@@ -80,6 +89,7 @@ truthLogicalGraphProducer = _truthLogicalGraphProducer.clone(
     trackerSimHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedTrackerHits")),
     muonSimHitCollections=cms.VInputTag(cms.InputTag("mix", "mergedMuonHits")),
 )
+truthLogicalGraphProducer.postProcessing.reconstructablePdgIds = cms.vint32(*reconstructablePdgIds)
 
 truthLogicalGraphHitIndexProducer = _truthLogicalGraphHitIndexProducer.clone(
     src=cms.InputTag("truthLogicalGraphProducer"),
