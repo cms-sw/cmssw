@@ -9,6 +9,7 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 ### Tracks
 from HLTriggerOffline.Scouting.ScoutingTrackMonitor_cfi import *
+from HLTriggerOffline.Scouting.RecoTrackFromScoutingMonitor_cff import *
 
 ### Muons monitoring
 from HLTriggerOffline.Scouting.ScoutingMuonTriggerAnalyzer_cfi import *
@@ -59,7 +60,8 @@ hltScoutingDileptonMonitor = cms.Sequence(ScoutingDileptonMonitor)
 hltScoutingPi0Monitor = cms.Sequence(ScoutingPi0Monitor)
 hltScoutingDiMuonVertexMonitor = cms.Sequence(ScoutingDiMuonVertexMonitor)
 
-hltScoutingDqmOffline = cms.Sequence(hltScoutingTrackMonitor +
+hltScoutingDqmOffline = cms.Sequence(recoTrackFromScoutingMonitorSequence +
+                                     hltScoutingTrackMonitor +
                                      hltScoutingMuonDqmOffline +
                                      hltScoutingEGammaDqmOffline +
                                      hltScoutingJetDqmOffline +
