@@ -42,6 +42,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     using HitsOnDeviceRefProdVector = edm::RefProdVector<HitsOnDevice>;
 
+    // Everything the CA build needs from the event's hit collections, assembled by the producer: the
+    // topology's hit view and module-start view (see CAStructures.h) plus the two scalars.
+    using HitsInput = caStructures::HitsInputT<TrackerTraits>;
+
     using TkSoADevice = reco::TracksSoACollection;
     using Quality = ::pixelTrack::Quality;
 
@@ -99,7 +103,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       bool built = false;  // false = early-out (too few hits): tracks holds the empty collection
     };
 
-    PendingTuples beginTuplesAsync(HitsOnDeviceRefProdVector const& hitsRefProdVector,
+    PendingTuples beginTuplesAsync(HitsInput const& hits,
                                    CAGeometryOnDevice const& params_d,
                                    float bfield,
                                    uint32_t maxDoublets,
@@ -109,7 +113,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                    const float* bMapDevice) const;
 
     TkSoADevice finishTuplesAsync(PendingTuples&& pending,
-                                  HitsOnDeviceRefProdVector const& hitsRefProdVector,
+                                  HitsInput const& hits,
                                   CAGeometryOnDevice const& params_d,
                                   Queue& queue) const;
 

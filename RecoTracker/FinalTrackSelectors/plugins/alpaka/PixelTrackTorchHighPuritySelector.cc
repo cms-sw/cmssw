@@ -36,6 +36,8 @@
 #include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
 #include "DataFormats/TrackingRecHitSoA/interface/alpaka/OTRecHitsSoACollection.h"
 #include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitsSoACollection.h"
+#include "DataFormats/TrackingRecHitSoA/interface/alpaka/StubsSoACollection.h"
+#include "RecoTracker/PixelSeeding/interface/CAHitsView.h"
 
 #include "RecoTracker/FinalTrackSelectors/interface/PixelTrackFeaturesSoA.h"
 #include "RecoTracker/FinalTrackSelectors/plugins/alpaka/PixelTrackFeaturesDeviceCollection.h"
@@ -55,6 +57,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class PixelTrackTorchHighPuritySelector : public stream::FixedQueueEDProducer<> {
     using TkSoADevice = reco::TracksSoACollection;
     using HitsOnDevice = reco::TrackingRecHitsSoACollection;
+    using StubsOnDevice = reco::StubsSoACollection;
     using OTHitsOnDevice = reco::OTRecHitsSoACollection;
 
   public:
@@ -153,7 +156,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // forward(dtype) casts the whole model: kHalf is fine for the MLP but breaks a tree model, whose
     // int64 index buffers must not be cast. inferenceHalf = false leaves the model in fp32.
     const bool inferenceHalf_;
-    device::EDGetToken<HitsOnDevice> mergedHitsToken_;
+    device::EDGetToken<HitsOnDevice> pixelHitsToken_;
+    device::EDGetToken<StubsOnDevice> stubsToken_;
     // Raw OT-rechit SoA, so the hit-feature walk can resolve the bit30-tagged raw-OT ids a track may
     // carry. Consumed only when useHitFeatures_.
     device::EDGetToken<OTHitsOnDevice> otRecHitsSoAToken_;
@@ -180,7 +184,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         batchSize_(iConfig.getParameter<int>("batchSize")),
         tokenTrackOut_(produces()) {
     if (useHitFeatures_) {
-      mergedHitsToken_ = consumes(iConfig.getParameter<edm::InputTag>("mergedHitsSrc"));
+      pixelHitsToken_ = consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"));
+      stubsToken_ = consumes(iConfig.getParameter<edm::InputTag>("stubsSrc"));
       otRecHitsSoAToken_ = consumes(iConfig.getParameter<edm::InputTag>("otRecHitsSoASrc"));
     }
     if (minimumTrackQuality_ == pixelTrack::Quality::notQuality) {
@@ -268,15 +273,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     // 2. Feature extraction. The merged TrackingRecHitsSoA is needed only for the hit/stub features;
     // otherwise pass a null view and nHitsTot = 0.
-    ::reco::TrackingRecHitConstView mergedHitsView{};
+    caStructures::CAHitsView hitsView{};
     int nHitsTot = 0;
     // OT-rechit view for resolving tagged OT extras (empty view + 0 when not needed).
     ::reco::OTRecHitsConstView otHitsView{};
     uint32_t nOTHits = 0;
     if (useHitFeatures_) {
-      const auto& mergedHits = iEvent.get(mergedHitsToken_);
-      mergedHitsView = mergedHits.view().trackingHits();
-      nHitsTot = mergedHitsView.metadata().size();
+      const auto& pixHits = iEvent.get(pixelHitsToken_);
+      const auto& stubs = iEvent.get(stubsToken_);
+      hitsView = caStructures::CAHitsView(pixHits.const_view().trackingHits(),
+                                          pixHits.const_view().hitModules(),
+                                          stubs.const_view().stubs(),
+                                          stubs.const_view().stubModules(),
+                                          pixHits.nHits(),
+                                          stubs.nStubs(),
+                                          pixHits.nModules());
+      nHitsTot = hitsView.size();
       const auto& otHits = iEvent.get(otRecHitsSoAToken_);
       otHitsView = otHits.const_view().otRecHits();
       nOTHits = otHitsView.metadata().size();
@@ -286,7 +298,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             maxPreselectedTracks_,
                             tracks.tracks(),
                             tracks.trackHits(),
-                            mergedHitsView,
+                            hitsView,
                             nHitsTot,
                             otHitsView,
                             nOTHits,
@@ -359,10 +371,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // scoreThreshold at |dxyBS| >= dxyRampKnee [cm]. scoreThresholdLowDxy < 0 disables it.
     desc.add<double>("scoreThresholdLowDxy", -1.0);
     desc.add<double>("dxyRampKnee", 2.0);
-    // Hit/stub features (enriched model); mergedHitsSrc is the merged TrackingRecHitsSoA the CA indexed,
+    // Hit/stub features (enriched model); the hit features read the pixel rechits + stubs the CA indexed,
     // consumed only when useHitFeatures is true.
     desc.add<bool>("useHitFeatures", false);
-    desc.add<edm::InputTag>("mergedHitsSrc", {"hltPhase2PixelRecHitsStubsMerger"});
+    desc.add<edm::InputTag>("pixelRecHitSrc", {"hltPhase2SiPixelRecHitsSoA"});
+    desc.add<edm::InputTag>("stubsSrc", {"hltOTStubProducer"});
     // Raw OT-rechit SoA, consumed only when useHitFeatures is true: resolves the bit30-tagged raw-OT hit
     // ids so OT-extended tracks are scored on their full hit content.
     desc.add<edm::InputTag>("otRecHitsSoASrc", {"hltPixelSeedingOTRecHitsSoA"});

@@ -5,6 +5,7 @@
 #include <cmath>
 
 #include "FWCore/Utilities/interface/isFinite.h"  // bit-pattern finiteness test for the DNN-gate inputs
+#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "RecoTracker/PixelSeeding/interface/CircleEq.h"
 #include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 #include "RecoTracker/PixelSeeding/interface/CAStubMS.h"
@@ -20,6 +21,117 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   struct TripletCuts {
+    using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
+    // One hit of the outer cell, read on access (one lookup per read).
+    struct HitRef {
+      HitsMultiView const& hh_;
+      uint32_t i_;
+
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float rGlobal() const { return hh_[i_].rGlobal(); }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float zGlobal() const { return hh_[i_].zGlobal(); }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float xGlobal() const { return hh_[i_].xGlobal(); }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float yGlobal() const { return hh_[i_].yGlobal(); }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE int16_t iphi() const { return hh_[i_].iphi(); }
+    };
+
+    // The same hit, read once into registers.
+    struct HitSnapshot {
+      template <typename P>
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE explicit HitSnapshot(P const& p)
+          : r_(p.rGlobal()), z_(p.zGlobal()), x_(p.xGlobal()), y_(p.yGlobal()), iphi_(p.iphi()) {}
+
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float rGlobal() const { return r_; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float zGlobal() const { return z_; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float xGlobal() const { return x_; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float yGlobal() const { return y_; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE int16_t iphi() const { return iphi_; }
+
+    private:
+      float r_, z_, x_, y_;
+      int16_t iphi_;
+    };
+
+    // The outer cell's cut row, read on access (one lookup per read).
+    struct CutRowRef {
+      reco::CATripletCutsSoAConstView const& cuts_;
+      uint8_t pairId_;
+
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float maxRZTolerance() const { return cuts_[pairId_].maxRZTolerance(); }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float maxStubGeomCurvSigma() const {
+        return cuts_[pairId_].maxStubGeomCurvSigma();
+      }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float maxStubInnerDoubletDCurv() const {
+        return cuts_[pairId_].maxStubInnerDoubletDCurv();
+      }
+    };
+
+    // The same cut row, read once into registers.
+    struct CutRowSnapshot {
+      template <typename R>
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE explicit CutRowSnapshot(R const& row)
+          : maxRZTolerance_(row.maxRZTolerance()),
+            maxStubGeomCurvSigma_(row.maxStubGeomCurvSigma()),
+            maxStubInnerDoubletDCurv_(row.maxStubInnerDoubletDCurv()) {}
+
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float maxRZTolerance() const { return maxRZTolerance_; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float maxStubGeomCurvSigma() const { return maxStubGeomCurvSigma_; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float maxStubInnerDoubletDCurv() const { return maxStubInnerDoubletDCurv_; }
+
+    private:
+      float maxRZTolerance_, maxStubGeomCurvSigma_, maxStubInnerDoubletDCurv_;
+    };
+
+    // Everything a candidate triplet needs from its OUTER cell, over whichever provider the backend picked.
+    template <typename Hit, typename CutRow>
+    struct OuterCellT {
+      Hit h2_, h3_;
+      CutRow cut_;
+      uint32_t innerHitId_, outerHitId_;
+      uint8_t layerPairId_;
+
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE uint32_t innerHitId() const { return innerHitId_; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE uint32_t outerHitId() const { return outerHitId_; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE uint8_t layerPairId() const { return layerPairId_; }
+
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float r2() const { return h2_.rGlobal(); }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float z2() const { return h2_.zGlobal(); }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float x2() const { return h2_.xGlobal(); }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float y2() const { return h2_.yGlobal(); }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float r3() const { return h3_.rGlobal(); }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float z3() const { return h3_.zGlobal(); }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float x3() const { return h3_.xGlobal(); }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float y3() const { return h3_.yGlobal(); }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE int16_t iphi2() const { return h2_.iphi(); }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE int16_t iphi3() const { return h3_.iphi(); }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float maxRZTolerance() const { return cut_.maxRZTolerance(); }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float maxStubGeomCurvSigma() const { return cut_.maxStubGeomCurvSigma(); }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float maxStubInnerDoubletDCurv() const { return cut_.maxStubInnerDoubletDCurv(); }
+    };
+
+    // Performance: reading the outer cell once per cell makes Kernel_connect 3x faster on the CPU, while
+    // on the GPU the extra registers across the neighbour loop cost 55 %, so there the reads stay lazy.
+    template <typename TAcc>
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE static auto makeOuter(TAcc const&,
+                                                         HitsMultiView const& hh,
+                                                         reco::CATripletCutsSoAConstView const& tripletCuts,
+                                                         CACell<TrackerTraits> const& outerCell) {
+      auto const i2 = outerCell.inner_hit_id();
+      auto const i3 = outerCell.outer_hit_id();
+      auto const pairId = outerCell.layerPairId();
+      if constexpr (cms::alpakatools::requires_single_thread_per_block_v<TAcc>) {
+        return OuterCellT<HitSnapshot, CutRowSnapshot>{HitSnapshot(hh[i2]),
+                                                       HitSnapshot(hh[i3]),
+                                                       CutRowSnapshot(tripletCuts[pairId]),
+                                                       uint32_t(i2),
+                                                       uint32_t(i3),
+                                                       pairId};
+      } else {
+        return OuterCellT<HitRef, CutRowRef>{
+            HitRef{hh, i2}, HitRef{hh, i3}, CutRowRef{tripletCuts, pairId}, uint32_t(i2), uint32_t(i3), pairId};
+      }
+    }
+
     // ----------------------------------
     // RZ alignment cut aka CAThetaCut
     // ----------------------------------
@@ -237,19 +349,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // MAIN FUNCTION: ACCEPT function applying the cuts in sequence
     // -------------------------------------------------------------------------------------------------------------
     // This function checks the compatibility of a triplet with the above CA cuts by applying them in sequence.
-    template <typename TAcc>
+    template <typename TAcc, typename Outer>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE static bool accept(
         [[maybe_unused]] const TAcc& acc,
         CACell<TrackerTraits> const& innerCell,
-        CACell<TrackerTraits> const& outerCell,
+        Outer const& outer,
         float& curvature,
-        HitsMultiView hh,
-        reco::CATripletCutsSoAConstView tripletCuts,
-        reco::CATripletCutsSoAConstView::const_element tripletVectorCutsCol,
-        // Row of the INNER cell's layer pair (L1,L2). Used by the beam-spot (DCA) cut on every
-        // topology: its threshold is anchored at the triplet's innermost layer -- see the cut itself.
-        reco::CATripletCutsSoAConstView::const_element tripletInnerPairCutsCol,
-        [[maybe_unused]] reco::CAGraphSoAConstView cc,
+        HitsMultiView const& hh,
+        reco::CATripletCutsSoAConstView const& tripletCuts,
+        [[maybe_unused]] reco::CAGraphSoAConstView const& cc,
         [[maybe_unused]] bool useTripletDNN,
         [[maybe_unused]] float tripletDNNThreshold,
 #ifdef CA_TRIPLET_DUMP
@@ -272,15 +380,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       };
 #endif
 
-      float r1 = innerCell.inner_r(hh);
-      float z1 = innerCell.inner_z(hh);
-      float r2 = outerCell.inner_r(hh);
-      float z2 = outerCell.inner_z(hh);
-      float r3 = outerCell.outer_r(hh);
-      float z3 = outerCell.outer_z(hh);
+      // DCA cut row: the inner cell's layer pair; RZ tolerance and stub columns: the outer cell's, via `outer`.
+      auto const innerPairId = innerCell.layerPairId();
+
+      // one hit lookup for the inner cell; everything about the outer cell comes from `outer`
+      auto const h1 = hh[innerCell.inner_hit_id()];
+      float r1 = h1.rGlobal();
+      float z1 = h1.zGlobal();
+      float r2 = outer.r2();
+      float z2 = outer.z2();
+      float r3 = outer.r3();
+      float z3 = outer.z3();
 
       // apply alignment in RZ plane cut
-      if (!alignedRZ(r1, z1, r2, z2, r3, z3, tripletCuts.ptmin(), tripletVectorCutsCol.maxRZTolerance())) {
+      if (!alignedRZ(r1, z1, r2, z2, r3, z3, tripletCuts.ptmin(), outer.maxRZTolerance())) {
 #ifdef CA_PIPELINE_COUNTERS
         countRej(caHitNtupletGenerator::kCutAlignedRZ);
 #endif
@@ -288,12 +401,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       // calculate curvature for the XY plane cuts
-      float x1 = innerCell.inner_x(hh);
-      float y1 = innerCell.inner_y(hh);
-      float x2 = outerCell.inner_x(hh);
-      float y2 = outerCell.inner_y(hh);
-      float x3 = outerCell.outer_x(hh);
-      float y3 = outerCell.outer_y(hh);
+      float x1 = h1.xGlobal();
+      float y1 = h1.yGlobal();
+      float x2 = outer.x2();
+      float y2 = outer.y2();
+      float x3 = outer.x3();
+      float y3 = outer.y3();
       CircleEq<float> eq(x1, y1, x2, y2, x3, y3);
       curvature = eq.curvature();
       float absCurvature = std::abs(curvature);
@@ -311,7 +424,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // parameter note above); floorDCA comes from the same row.
       float tipTimesCurvature = std::abs(eq.dca0());
       if (!beamspotCompatibleXY(
-              absCurvature, tipTimesCurvature, tripletInnerPairCutsCol.maxDCA(), tripletInnerPairCutsCol.floorDCA())) {
+              absCurvature, tipTimesCurvature, tripletCuts[innerPairId].maxDCA(), tripletCuts[innerPairId].floorDCA())) {
 #ifdef CA_PIPELINE_COUNTERS
         countRej(caHitNtupletGenerator::kCutBeamspotCompatibleXY);
 #endif
@@ -321,9 +434,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // stub specific cuts for Phase2 OT
       if constexpr (std::is_same_v<pixelTopology::Phase2OTStubs, TrackerTraits>) {
         // calculate dPhi and dr values for the stubs cuts
-        auto iphi1 = innerCell.inner_iphi(hh);
-        auto iphi2 = outerCell.inner_iphi(hh);
-        auto iphi3 = outerCell.outer_iphi(hh);
+        auto iphi1 = h1.iphi();
+        auto iphi2 = outer.iphi2();
+        auto iphi3 = outer.iphi3();
         float dPhi12 = short2phi(iphi2 - iphi1);
         float dPhi13 = short2phi(iphi3 - iphi1);
         float dPhi23 = short2phi(iphi3 - iphi2);
@@ -339,11 +452,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
 
         // calculate number of stubs
-        int nStubs =
-            int(innerCell.inner_isStub(hh)) + int(outerCell.inner_isStub(hh)) + int(outerCell.outer_isStub(hh));
+        int nStubs = int(innerCell.inner_isStub(hh)) + int(isStub(hh, int32_t(outer.innerHitId()))) +
+                     int(isStub(hh, int32_t(outer.outerHitId())));
 
         // Stub-curvature quantities, needed by BOTH the stub-curvature cuts AND the dump/DNN feature
-        // vector below, so they are hoisted to this scope. For nStubs>0 they hold the weighted-mean
+        // vector below, so they live in this scope. For nStubs>0 they hold the weighted-mean
         // stub curvature and its variance. For pixel-only triplets (nStubs==0) the weighted mean would
         // be 0/0=NaN, so SENTINELS are assigned instead:
         //   curvatureStubs            = 0.f
@@ -378,16 +491,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           float residSum = 0.f, weightSum = 0.f;
 
           auto computeKappa = [&](uint32_t hitId, float r) {
-            float s = hh[hitId].dPhiDrError();
-            if (s < 0.f)
+            // Only a stub carries a bend: isStub() is false for a pixel hit and for a degenerate
+            // outer-tracker row with a negative bend error.
+            if (!isStub(hh, int32_t(hitId)))
               return;
-            float d = hh[hitId].dPhiDr();
+            auto const stub = hh.stub(int32_t(hitId));
+            float s = stub.dPhiDrError();
+            float d = stub.dPhiDr();
             float den = 1.f + r * r * d * d;
             float w = den * den * den / (s * s);
             sum_weights += w;
             sum_weightsTimesCurv += w * d / std::sqrt(den);
 
-            float sPrec = hh[hitId].dPhiDrErrorPrec();
+            float sPrec = stub.dPhiDrErrorPrec();
             if (sPrec > 0.f && r > 0.f) {
               float x = hh[hitId].xGlobal(), y = hh[hitId].yGlobal();
               // Curvature error of this stub: hit precision, plus the multiple scattering that
@@ -402,14 +518,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           };
 
           computeKappa(innerCell.inner_hit_id(), r1);
-          computeKappa(outerCell.inner_hit_id(), r2);
-          computeKappa(outerCell.outer_hit_id(), r3);
+          computeKappa(outer.innerHitId(), r2);
+          computeKappa(outer.outerHitId(), r3);
 
           curvatureStubs = sum_weightsTimesCurv / sum_weights;
           curvatureStubsErrSquared = 1.f / sum_weights;
 
           // apply compatibility with triplet cut
-          if (!stubsCurvCompatibleWithTriplet(residSum, weightSum, tripletVectorCutsCol.maxStubGeomCurvSigma())) {
+          if (!stubsCurvCompatibleWithTriplet(residSum, weightSum, outer.maxStubGeomCurvSigma())) {
 #ifdef CA_PIPELINE_COUNTERS
             countRej(caHitNtupletGenerator::kCutStubsCurvCompatibleWithTriplet);
 #endif
@@ -417,8 +533,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           }
 
           // apply compatibility with inner doublet cut
-          if (!stubsCompatibleWithInnerDoublet(
-                  dPhi12, dr12, curvatureStubs, tripletVectorCutsCol.maxStubInnerDoubletDCurv())) {
+          if (!stubsCompatibleWithInnerDoublet(dPhi12, dr12, curvatureStubs, outer.maxStubInnerDoubletDCurv())) {
 #ifdef CA_PIPELINE_COUNTERS
             countRej(caHitNtupletGenerator::kCutStubsCompatibleWithInnerDoublet);
 #endif
@@ -501,8 +616,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           const float logAbsCurv = std::log1p(absCurvature * 1e3f);
           const float logErrSq = std::log1p(curvatureStubsErrSquared * 1e6f);
           const float logDca = std::log1p(std::abs(dcaDnn));
-          const float layGap12 = float(int(outerCell.innerLayer(cc)) - int(innerCell.innerLayer(cc)));
-          const float layGap23 = float(int(outerCell.outerLayer(cc)) - int(outerCell.innerLayer(cc)));
+          const float layGap12 = float(int(cc[outer.layerPairId()].layerPair()[0]) - int(innerCell.innerLayer(cc)));
+          const float layGap23 =
+              float(int(cc[outer.layerPairId()].layerPair()[1]) - int(cc[outer.layerPairId()].layerPair()[0]));
           const float feat[caTripletDNN::kNFeat] = {absCurvature,
                                                     tipTimesCurvature,
                                                     dcaDnn,

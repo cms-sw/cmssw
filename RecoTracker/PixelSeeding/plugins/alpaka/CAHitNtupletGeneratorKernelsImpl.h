@@ -80,18 +80,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
   using namespace cms::alpakatools;
 
+  // Templated on the module-start view: the ModulesMultiView, or the CAHitsView facade, which
+  // answers moduleStartOf() out of the pixel and stub module blocks.
+  template <typename ModulesView>
   class SetHitsLayerStart {
   public:
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
-                                  const ModulesMultiView &mm,
+                                  const ModulesView &mm,
                                   const reco::CALayersSoAConstView &ll,
                                   uint32_t *__restrict__ hitsLayerStart) const {
-      ALPAKA_ASSERT_ACC(0 == mm[0].moduleStart());
+      ALPAKA_ASSERT_ACC(0 == caStructures::moduleStartOf(mm, 0));
 
       for (int32_t i : cms::alpakatools::uniform_elements(acc, ll.metadata().size())) {
-        hitsLayerStart[i] = mm[ll.layerStarts()[i]].moduleStart();
+        hitsLayerStart[i] = caStructures::moduleStartOf(mm, ll.layerStarts()[i]);
 #ifdef GPU_DEBUG
-        int old = i == 0 ? 0 : mm[ll.layerStarts()[i - 1]].moduleStart();
+        int old = i == 0 ? 0 : caStructures::moduleStartOf(mm, ll.layerStarts()[i - 1]);
         printf("LayerStart %d/%d at module %d: %d - %d\n",
                i,
                ll.metadata().size() - 1,
@@ -103,10 +106,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
     }
   };
 
+  template <typename HitsView>
   class Kernel_printSizes {
   public:
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
-                                  HitsMultiView hh,
+                                  HitsView hh,
                                   TkSoAView tt,
                                   uint32_t const *__restrict__ nCells,
                                   uint32_t const *__restrict__ nTrips,
@@ -780,6 +784,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   template <typename TrackerTraits>
   class Kernel_connect {
   public:
+    using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
     ALPAKA_FN_ACC void operator()(Acc2D const &acc,
                                   cms::alpakatools::AtomicPairCounter *apc,  // just to zero them
                                   HitsMultiView hh,
@@ -815,13 +821,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         auto const *__restrict__ outerHitCells = outerHitHisto->begin(middleHitId);
         auto const numberOfPossibleNeighbors = outerHitHisto->size(middleHitId);
 
-        // Per-layer-pair triplet cut rows. The RZ-alignment tolerance (and the stub-specific columns)
-        // are anchored at the OUTER pair (L2,L3) -- its inner layer is the triplet's middle layer L2,
-        // which is upstream's caThetaCut anchor. The beam-spot (DCA/floorDCA) cut is anchored at the
-        // INNER pair (L1,L2) instead, whose inner layer is the triplet's innermost layer L1 --
-        // upstream's caDCACut anchor. Both anchors hold on every topology. See TripletCuts::accept.
-        auto tripletVectorCutsCol = tripletCuts[outerCell.layerPairId()];
         auto skips = cc[outerCell.layerPairId()].skipsLayers();
+
+        // outer-cell values shared by all candidates
+        auto const outer = TripletCuts<TrackerTraits>::makeOuter(acc, hh, tripletCuts, outerCell);
 
 #ifdef CA_DEBUG
         printf("numberOfPossibleFromHisto;%d;%d;%d;%d;%d\n",
@@ -847,12 +850,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 #endif
           if (TripletCuts<TrackerTraits>::accept(acc,
                                                  innerCell,
-                                                 outerCell,
+                                                 outer,
                                                  curvature,
                                                  hh,
                                                  tripletCuts,
-                                                 tripletVectorCutsCol,
-                                                 tripletCuts[innerCell.layerPairId()],
                                                  cc,
                                                  useTripletDNN,
                                                  tripletDNNThreshold,
@@ -1040,6 +1041,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   template <typename TrackerTraits>
   class Kernel_find_ntuplets {
   public:
+    using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                   HitsMultiView hh,
                                   const ::reco::CAGraphSoAConstView &cc,
@@ -1130,6 +1133,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   template <typename TrackerTraits>
   class Kernel_pipelineNtupletCount {
   public:
+    using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                   HitsMultiView hh,
                                   HitContainer const *__restrict__ foundNtuplets,
@@ -1223,21 +1228,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   template <typename TrackerTraits>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE uint32_t nSelectedHits(HitContainer const *__restrict__ foundNtuplets,
                                                         uint32_t it,
-                                                        HitsMultiView hh) {
-    // hasStubs enables the OT-stub-specific hit treatment (kMode filtering and the same-layer pixel
-    // overlap merge). It must be the same value the fit uses, which keys off the runtime offsetStubs
-    // (the start of the stub region in the merged hit collection). Derive it the same way here: a
-    // Phase2OTStubs collection that carries no stubs sets offsetStubs to the unsigned sentinel
-    // (-1 as int32), and there every hit is a plain pixel hit -- the binning must match the fit.
-    // For non-OTStubs topologies dedupWalk applies no kMode filter and no merge (plain hit count).
+                                                        caStructures::HitsViewT<TrackerTraits> hh) {
+    // hasStubs enables the OT-stub hit treatment (kMode filtering and the same-layer pixel overlap merge).
+    // It must match the fit, which keys off the runtime offsetStubs: with no stubs, offsetStubs is the
+    // unsigned sentinel and every hit is a plain pixel hit.
     const bool hasStubs = std::is_same_v<pixelTopology::Phase2OTStubs, TrackerTraits> &&
-                          (static_cast<int32_t>(hh.view(0).offsetStubs()) >= 0);
+                          (static_cast<int32_t>(caStructures::offsetStubsOf(hh)) >= 0);
     return caFitHitSel::dedupWalk(foundNtuplets, it, hh, hasStubs, /*k=*/-1);
   }
 
   template <typename TrackerTraits>
   class Kernel_countMultiplicity {
   public:
+    using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                   HitsMultiView hh,
                                   TkSoAView tracks_view,
@@ -1274,6 +1278,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   template <typename TrackerTraits>
   class Kernel_fillMultiplicity {
   public:
+    using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                   HitsMultiView hh,
                                   TkSoAView tracks_view,
@@ -1302,6 +1308,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   template <typename TrackerTraits>
   class Kernel_classifyTracks {
   public:
+    using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                   TkSoAView tracks_view,
                                   HitContainer const *__restrict__ foundNtuplets,
@@ -1477,9 +1485,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                 break;  // content buffer corruption from overflow
               if (!isStub(hh, *h))
                 continue;  // pixel hit
-              const float s = hh[*h].dPhiDrErrorPrec();
+              auto const stub = hh.stub(int32_t(*h));
+              const float s = stub.dPhiDrErrorPrec();
               if (s > 0.f) {
-                const float d = hh[*h].dPhiDr();
+                const float d = stub.dPhiDr();
                 const float xg = hh[*h].xGlobal();
                 const float yg = hh[*h].yGlobal();
                 const float rg2 = xg * xg + yg * yg;
@@ -1583,6 +1592,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   template <typename TrackerTraits>
   class Kernel_countFinalQuality {
   public:
+    using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                   TkSoAView tracks_view,
                                   HitContainer const *__restrict__ foundNtuplets,
@@ -1769,6 +1780,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   template <typename TrackerTraits>
   class Kernel_fillHitDetIndices {
   public:
+    using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                   TkSoAView tracks_view,
                                   TkHitSoAView track_hits_view,
@@ -2075,6 +2088,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   template <typename TrackerTraits>
   class Kernel_sharedHitCleaner {
   public:
+    using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                   HitsMultiView hh,
                                   uint32_t const *__restrict__ layerStarts,
@@ -2127,19 +2142,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
           // short tracks whose long partner does not replace them -- measured, 4.5 points of prompt barrel
           // efficiency on ttbar PU200. The rule stays where it was tuned until it is retuned.
           if constexpr (std::is_same_v<pixelTopology::Phase2OTStubs, TrackerTraits>) {
-            if (h < static_cast<uint32_t>(hh.size()) && isStub(hh, h) && ::reco::StubFlags::isPS(hh[h].stubFlags())) {
-              auto const lowerHitIdx = hh[h].lowerHitIdx();
+            if (h < static_cast<uint32_t>(hh.size()) && isStub(hh, h) &&
+                ::reco::StubFlags::isPS(hh.stub(int32_t(h)).flags())) {
+              auto const lowerHitIdx = hh.stub(int32_t(h)).lowerHitIdx();
               if (lowerHitIdx != std::numeric_limits<uint32_t>::max()) {
-                auto const offsetStubs = hh.view(0).offsetStubs();
+                auto const offsetStubs = caStructures::offsetStubsOf(hh);
                 auto const nHits = static_cast<uint32_t>(hh.size());
                 for (uint32_t otherIdx = offsetStubs; otherIdx < nHits; ++otherIdx) {
                   if (otherIdx == h)
                     continue;
                   if (otherIdx >= hitToTuple.nOnes())
                     continue;
-                  if (!isStub(hh, otherIdx) || !::reco::StubFlags::isPS(hh[otherIdx].stubFlags()))
+                  if (!isStub(hh, otherIdx) || !::reco::StubFlags::isPS(hh.stub(int32_t(otherIdx)).flags()))
                     continue;
-                  if (hh[otherIdx].lowerHitIdx() != lowerHitIdx)
+                  if (hh.stub(int32_t(otherIdx)).lowerHitIdx() != lowerHitIdx)
                     continue;
                   for (auto jp = hitToTuple.begin(otherIdx); jp != hitToTuple.end(otherIdx); ++jp) {
                     if (qual(*jp) < longTqual)
@@ -2278,6 +2294,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   template <typename TrackerTraits>
   class Kernel_print_found_ntuplets {
   public:
+    using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                   HitsMultiView hh,
                                   TkSoAView tracks_view,

@@ -134,7 +134,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   const int maxPreselectedTracks,
                                   const ::reco::TrackSoAConstView tracks,
                                   const ::reco::TrackHitSoAConstView track_hits,
-                                  const ::reco::TrackingRecHitConstView hits,
+                                  const caStructures::CAHitsView hits,
                                   const int nHitsTot,
                                   const ::reco::OTRecHitsConstView otHits,  // raw OT-extra positions
                                   const uint32_t nOTHits,                   // 0 => merged-hits-only (view unused)
@@ -269,9 +269,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             float qMin = 0.f, qSum = 0.f, qnMin = 0.f;
             float syMax = 0.f, sySum = 0.f, sxMax = 0.f;
             if (end > start && end <= (uint32_t)track_hits.metadata().size()) {
-              // Stub rows of the merged SoA start at offsetStubs and carry zeroed charge/sizes.
-              // offsetStubs is an SoA scalar in device memory, read here under useHitFeatures and
-              // never through the empty view the 17-feature path passes in.
+              // Outer-tracker entries start at offsetStubs and carry no cluster information; skip them.
               const uint32_t offsetStubsMain = hits.offsetStubs();
               for (uint32_t k = start; k < end; ++k) {
                 const uint32_t h = track_hits[k].id();
@@ -283,7 +281,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   continue;  // raw OT extra: indexes the OT SoA, no cluster information there
                 if (h >= (uint32_t)nHitsTot || h >= offsetStubsMain)
                   continue;  // stub row (no cluster information) or corrupt index
-                const float q = float(hits[h].chargeAndStatus().charge);
+                auto const pix = hits.pixel(int32_t(h));
+                const float q = float(pix.chargeAndStatus().charge);
                 if (!(q > 0.f))
                   continue;  // a pixel row with no charge carries no usable cluster
                 const bool barrel = (uint32_t)hits[h].detectorIndex() < kPixelBarrelModuleEnd;
@@ -292,8 +291,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 // cluster touches a sensor edge, see pixelCPEforDevice.h), used as stored: no abs()
                 // and no /8, matching the nano table the model is trained from. syMax/sxMax start at
                 // 0, so an all-edge track reports 0 rather than a negative maximum.
-                const float sx = float(hits[h].clusterSizeX());
-                const float sy = float(hits[h].clusterSizeY());
+                const float sx = float(pix.clusterSizeX());
+                const float sy = float(pix.clusterSizeY());
                 if (nPix == 0) {
                   qMin = q;
                   qnMin = qn;
@@ -870,7 +869,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                const int maxPreselectedTracks,
                                const ::reco::TrackSoAConstView tracks,
                                const ::reco::TrackHitSoAConstView track_hits,
-                               const ::reco::TrackingRecHitConstView hits,
+                               const caStructures::CAHitsView hits,
                                const int nHitsTot,
                                const ::reco::OTRecHitsConstView otHits,
                                const uint32_t nOTHits,

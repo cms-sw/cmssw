@@ -603,7 +603,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using namespace caHitNtupletGeneratorKernels;
 
     const auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(1, ll.metadata().size() - 1);
-    alpaka::exec<Acc1D>(queue, workDiv1D, SetHitsLayerStart{}, mm, ll, this->device_layerStarts_->data());
+    alpaka::exec<Acc1D>(
+        queue, workDiv1D, SetHitsLayerStart<ModulesMultiView>{}, mm, ll, this->device_layerStarts_->data());
 
     auto accessor_iphi = [] ALPAKA_FN_ACC(auto const &v) { return v.iphi(); };
 
@@ -1448,7 +1449,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(1, 1);
     alpaka::exec<Acc1D>(queue,
                         workDiv1D,
-                        Kernel_printSizes{},
+                        Kernel_printSizes<HitsMultiView>{},
                         hh,
                         tracks_view,
                         this->device_nCells_->data(),
