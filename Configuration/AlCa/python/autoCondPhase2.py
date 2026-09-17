@@ -63,9 +63,9 @@ allTags["Template"] = {
 
 allTags["TkAlignment"] = {
     'T35' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T33_design_v1' ,TkAlRecord, connectionString, "", "2024-09-12 15:37:00"] ), ),
-    'T36' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T36_design_v1' ,TkAlRecord, connectionString, "", "2024-09-12 15:37:00"] ), ),
-    'T37' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T37_design_v1' ,TkAlRecord, connectionString, "", "2024-09-12 15:37:00"] ), ),
-    'T38' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T38_design_v1' ,TkAlRecord, connectionString, "", "2024-09-12 15:37:00"] ), ),
+    'T36' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T36_design_v2_Post48118' ,TkAlRecord, connectionString, "", "2026-09-10 09:13:00"] ), ),
+    'T37' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T37_design_v2_Post48118' ,TkAlRecord, connectionString, "", "2026-09-10 08:32:00"] ), ),
+    'T38' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T38_design_v2_Post48118' ,TkAlRecord, connectionString, "", "2026-09-10 09:13:00"] ), ),
 }
 
 allTags["TkAPE"] = {
