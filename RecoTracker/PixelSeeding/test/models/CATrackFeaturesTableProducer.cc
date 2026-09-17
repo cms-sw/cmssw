@@ -56,6 +56,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "RecoTracker/PixelSeeding/interface/CAHitsView.h"
 #include "RecoTracker/PixelSeeding/interface/CATrackFeatures.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "RecoTracker/PixelSeeding/test/models/TrackerLayerId.h"
@@ -66,14 +67,14 @@ public:
   explicit CATrackFeaturesTableProducer(const edm::ParameterSet& params)
       : tableName_(params.getParameter<std::string>("tableName")),
         tracksToken_(consumes<reco::TracksHost>(params.getParameter<edm::InputTag>("trackSrc"))),
-        hitsToken_(consumes<reco::TrackingRecHitHost>(params.getParameter<edm::InputTag>("mergedHitsSrc"))),
+        pixelHitsToken_(consumes<reco::TrackingRecHitHost>(params.getParameter<edm::InputTag>("pixelRecHitSrc"))),
+        stubsToken_(consumes<reco::StubsHost>(params.getParameter<edm::InputTag>("stubsSrc"))),
         otHitsToken_(consumes<reco::OTRecHitsHost>(params.getParameter<edm::InputTag>("otRecHitsSoASrc"))),
         emitHitTruth_(params.getParameter<bool>("emitHitTruth")),
         hitTableName_(params.getParameter<std::string>("hitTableName")),
         minSharedForOwnTP_(params.getParameter<int>("minSharedForOwnTP")) {
     produces<nanoaod::FlatTable>(tableName_);
     if (emitHitTruth_) {
-      stubsToken_ = consumes<reco::StubsHost>(params.getParameter<edm::InputTag>("stubsSrc"));
       otRecHitCollToken_ =
           consumes<Phase2TrackerRecHit1DCollectionNew>(params.getParameter<edm::InputTag>("otRecHitSrc"));
       tpToken_ = consumes<std::vector<TrackingParticle>>(params.getParameter<edm::InputTag>("trackingParticleSrc"));
@@ -94,7 +95,7 @@ public:
     edm::ParameterSetDescription desc;
     desc.add<std::string>("tableName", "TrkDispCA");
     desc.add<edm::InputTag>("trackSrc", edm::InputTag("hltPhase2PixelTracksSoALowPt"));
-    desc.add<edm::InputTag>("mergedHitsSrc", edm::InputTag("hltPhase2PixelRecHitsStubsMerger"));
+    desc.add<edm::InputTag>("pixelRecHitSrc", edm::InputTag("hltPhase2SiPixelRecHitsSoA"));
     // Raw OT-rechit SoA: resolves tagged OT extras attached by the in-CA fit extension so the
     // deployed 12-feature vector matches the device Kernel_classifyTracks on OT-extended tracks.
     desc.add<edm::InputTag>("otRecHitsSoASrc", edm::InputTag("hltPixelSeedingOTRecHitsSoA"));
@@ -146,13 +147,22 @@ public:
 private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
     const auto& tracksHost = iEvent.get(tracksToken_);
-    const auto& mergedHits = iEvent.get(hitsToken_);
+    const auto& pixelHits = iEvent.get(pixelHitsToken_);
+    const auto& stubsColl = iEvent.get(stubsToken_);
     const auto& otHits = iEvent.get(otHitsToken_);
     const auto tracks = tracksHost.const_view().tracks();
     const auto trackHits = tracksHost.const_view().trackHits();
-    const auto hh = mergedHits.const_view().trackingHits();
+    // The global hit index space the track hit ids point into: pixel rechits, then stubs. Same
+    // facade the CA and the device selectors read, so the columns agree bit for bit.
+    const caStructures::CAHitsView hh(pixelHits.const_view().trackingHits(),
+                                      pixelHits.const_view().hitModules(),
+                                      stubsColl.const_view().stubs(),
+                                      stubsColl.const_view().stubModules(),
+                                      pixelHits.nHits(),
+                                      stubsColl.nStubs(),
+                                      pixelHits.nModules());
     const auto otView = otHits.const_view().otRecHits();
-    const int nHitsTot = hh.metadata().size();
+    const int nHitsTot = hh.size();
     const uint32_t nOTHits = otView.metadata().size();
     const ::reco::OTRecHitsConstView* otViewPtr = (nOTHits > 0u) ? &otView : nullptr;
     const int nTracks = tracks.nTracks();
@@ -217,18 +227,24 @@ private:
         Srz += double(rg) * zg;
         Szz += double(zg) * zg;
         ++nrz;
-        const short cly = hh[h].clusterSizeY();
-        if (cly > 0) {
-          sumClY += cly;
-          ++nClY;
+        // Cluster sizes are a pixel-only column; an outer-tracker entry has none.
+        if (!hh.isOTEntry(int32_t(h))) {
+          const short cly = hh.pixel(int32_t(h)).clusterSizeY();
+          if (cly > 0) {
+            sumClY += cly;
+            ++nClY;
+          }
         }
-        if (::reco::isStub(hh, h)) {
-          const auto flags = hh[h].stubFlags();
+        if (isStub(hh, h)) {
+          const auto flags = hh.stub(int32_t(h)).flags();
           if (::reco::StubFlags::isBarrel(flags) && !::reco::StubFlags::isFlat(flags))
             ++nTilted;  // tilted barrel module (|eta|~1-2 transition)
-          const float s = hh[h].dPhiDrError();
+          // isStub(hh, h) guarantees an outer-tracker stub entry, so the bend columns are readable
+          // through the stub element.
+          auto const stub = hh.stub(int32_t(h));
+          const float s = stub.dPhiDrError();
           if (s > 0.f) {
-            const float d = hh[h].dPhiDr();
+            const float d = stub.dPhiDr();
             float den, w;  // same shared kappa formula as CATrackFeatures::fill (single source)
             caTrackFeatures::stubDenWeight(rg * rg, d, s, den, w);
             const float k = d / std::sqrt(den);
@@ -271,13 +287,13 @@ private:
                             const edm::EventSetup& iSetup,
                             const ::reco::TrackSoAConstView& tracks,
                             const ::reco::TrackHitSoAConstView& trackHits,
-                            const ::reco::TrackingRecHitConstView& hh,
+                            const caStructures::CAHitsView& hh,
                             const ::reco::OTRecHitsConstView& otView,
                             uint32_t nOTHits,
                             int nTracks) const {
     const auto& tTopo = iSetup.getData(topoToken_);
     const auto& tGeom = iSetup.getData(geomToken_);
-    const auto& stubsHost = iEvent.get(stubsToken_);
+    const auto& stubsHost = iEvent.get(stubsToken_);  // NOLINT: re-fetched, cheap reference
     const auto stubsView = stubsHost.const_view().stubs();
     const uint32_t nStubs = stubsView.metadata().size();
     const uint32_t offsetStubs = hh.offsetStubs();
@@ -433,8 +449,7 @@ private:
     const unsigned nRows = cTrackIdx.size();
     auto t = std::make_unique<nanoaod::FlatTable>(nRows, hitTableName_, /*singleton*/ false, /*extension*/ false);
     t->addColumn<int>("trackIdx", cTrackIdx, "SoA track index this hit belongs to", -1);
-    t->addColumn<int>(
-        "hitId", cHitId, "raw merged track-hit id (pixel/stub index into mergedHits; OT extras tagged bit30)", -1);
+    t->addColumn<int>("hitId", cHitId, "raw track-hit id (global pixel/stub index; OT extras tagged bit30)", -1);
     t->addColumn<int>("layerId", cLayer, "getLayerId (Phase2 V1) OT layer 28-53, -1 if pixel/unresolved", -1);
     t->addColumn<int>("isStub", cIsStub, "1 if merged stub-region hit", -1);
     t->addColumn<int>("isOTExtra", cIsOTExtra, "1 if attached raw-OT extra (tag bit set)", -1);
@@ -459,14 +474,14 @@ private:
 
   const std::string tableName_;
   const edm::EDGetTokenT<reco::TracksHost> tracksToken_;
-  const edm::EDGetTokenT<reco::TrackingRecHitHost> hitsToken_;
+  const edm::EDGetTokenT<reco::TrackingRecHitHost> pixelHitsToken_;
+  const edm::EDGetTokenT<reco::StubsHost> stubsToken_;
   const edm::EDGetTokenT<reco::OTRecHitsHost> otHitsToken_;
 
   // Optional attach-purity table members (used only when emitHitTruth_).
   const bool emitHitTruth_;
   const std::string hitTableName_;
   const int minSharedForOwnTP_;
-  edm::EDGetTokenT<reco::StubsHost> stubsToken_;
   edm::EDGetTokenT<Phase2TrackerRecHit1DCollectionNew> otRecHitCollToken_;
   edm::EDGetTokenT<std::vector<TrackingParticle>> tpToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;

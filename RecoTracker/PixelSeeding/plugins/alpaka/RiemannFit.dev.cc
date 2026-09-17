@@ -28,11 +28,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <int N, typename TrackerTraits>
   class Kernel_FastFit {
   public:
+    using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                   Tuples const *__restrict__ foundNtuplets,
                                   TupleMultiplicity const *__restrict__ tupleMultiplicity,
                                   uint32_t nHits,
-                                  caStructures::HitsMultiView hh,
+                                  HitsMultiView hh,
                                   ::reco::CAModulesConstView cm,
                                   double *__restrict__ phits,
                                   float *__restrict__ phits_ge,
@@ -208,9 +210,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   };
 
-  // hv.offsetStubs() must not be called here: on the host it dereferences device memory.
   template <typename TrackerTraits>
-  void HelixFit<TrackerTraits>::launchRiemannKernels(const caStructures::HitsMultiView &hv,
+  void HelixFit<TrackerTraits>::launchRiemannKernels(const HitsMultiView &hv,
                                                      const ::reco::CAModulesConstView &cm,
                                                      uint32_t nhits,
                                                      uint32_t maxNumberOfTuples,

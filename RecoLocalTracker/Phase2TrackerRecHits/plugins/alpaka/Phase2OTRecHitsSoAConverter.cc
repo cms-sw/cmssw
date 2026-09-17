@@ -220,12 +220,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             hit.clusterSizeX() = -1;
             hit.clusterSizeY() = -1;
             hit.detectorIndex() = modulesInPixel_ + offset;
-            // Not a stub: reco::isStub() tests dPhiDrError() >= 0.
-            hit.dPhiDr() = 0.f;
-            hit.dPhiDrError() = -1.f;
-            hit.dPhiDrErrorPrec() = -1.f;
-            hit.lowerHitIdx() = std::numeric_limits<uint32_t>::max();
-            hit.stubFlags() = 0;
 #ifdef P_HIT_POSITION_DEBUG
             double r = sqrt(gx * gx + gy * gy);
             edm::LogPrint("Phase2OTRecHitsSoAConverter")

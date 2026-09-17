@@ -87,7 +87,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // BrokenLine fit (circle + line), for every CA iteration and every topology. It has ONE linearization,
   // so it is a single sweep with no phase split and no re-linearization reference buffer.
   template <typename TrackerTraits>
-  void HelixFit<TrackerTraits>::launchBrokenLineKernels(const caStructures::HitsMultiView& hv,
+  void HelixFit<TrackerTraits>::launchBrokenLineKernels(const HitsMultiView& hv,
                                                         const ::reco::CAModulesConstView& cm,
                                                         uint32_t hitsInFit,
                                                         uint32_t maxNumberOfTuples,

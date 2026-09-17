@@ -76,17 +76,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
   template <typename TrackerTraits, alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool dSizeCut(const TAcc& acc,
-                                               caStructures::HitsMultiView hh,
+                                               caStructures::HitsViewT<TrackerTraits> hh,
                                                ::reco::CALayersSoAConstView ll,
                                                ::reco::CADoubletCutsSoAConstView doubletCuts,
                                                int i,
                                                int o) {
     const uint32_t mi = hh[i].detectorIndex();
+    const uint32_t mo = hh[o].detectorIndex();
     const auto first_forward = ll.layerStarts()[4];
     const auto first_bpix2 = ll.layerStarts()[1];
     bool innerB1 = mi < first_bpix2;
     bool isOuterLadder = moduleIsOuterLadder<TrackerTraits>(mi);
-    auto mes = (!innerB1) || isOuterLadder ? hh[i].clusterSizeY() : -1;
+    auto innerBarrel = mi < first_forward;
+    auto onlyBarrel = mo < first_forward;
 #ifdef DOUBLETS_DEBUG
     printf("i = %d o = %d mi = %d innerB1 = %d isOuterLadder = %d first_forward = %d first_bpix2 = %d\n",
            i,
@@ -96,23 +98,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
            isOuterLadder,
            first_forward,
            first_bpix2);
+    printf("i = %d o = %d mo = %d innerB1 = %d isOuterLadder = %d \n", i, o, mo, innerBarrel, onlyBarrel);
 #endif
+    // The module/barrel predicates are decided before any cluster size is read: a cluster size is a
+    // pixel-only column, which an outer-tracker entry does not have.
+    // An inner hit on an inner-barrel-1 inner ladder and a pair with no barrel hit are rejected here;
+    // an outer-tracker inner hit sits beyond every barrel pixel module and its outer partner further
+    // out still, so it never reaches the cluster-size reads.
+    if (not innerBarrel and not onlyBarrel)
+      return false;
+    if (innerB1 and not isOuterLadder)
+      return false;
+
+    // A cluster size is stored signed and is negative when the cluster touches a sensor edge, so
+    // `mes < 0` also rejects edge clusters.
+    auto mes = int(caStructures::clusterSizeY(hh, i));
     if (mes < 0)
       return false;
 
-    const uint32_t mo = hh[o].detectorIndex();
-    auto so = hh[o].clusterSizeY();
-
     auto dz = hh[i].zGlobal() - hh[o].zGlobal();
     auto dr = hh[i].rGlobal() - hh[o].rGlobal();
-
-    auto innerBarrel = mi < first_forward;
-    auto onlyBarrel = mo < first_forward;
-#ifdef DOUBLETS_DEBUG
-    printf("i = %d o = %d mo = %d innerB1 = %d isOuterLadder = %d \n", i, o, mo, innerBarrel, onlyBarrel);
-#endif
-    if (not innerBarrel and not onlyBarrel)
-      return false;
     auto dy = innerB1 ? doubletCuts.maxDSizeB1() : doubletCuts.maxDSize();
 #ifdef DOUBLETS_DEBUG
     printf("i = %d o = %d dy = %d maxDSizeB1 = %d maxDSize = %d dzdrFact = %.2f maxDSizePred = %d \n",
@@ -124,14 +129,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
            doubletCuts.dzdrFact(),
            doubletCuts.maxDSizePred());
 #endif
-    return onlyBarrel ? so > 0 && std::abs(so - mes) > dy
-                      : innerBarrel && std::abs(mes - int(std::abs(dz / dr) * doubletCuts.dzdrFact() + 0.5f)) >
-                                           doubletCuts.maxDSizePred();
+    if (onlyBarrel) {
+      // The outer cluster size is read only here, where the outer hit is a barrel pixel one.
+      auto so = caStructures::clusterSizeY(hh, o);
+      return so > 0 && std::abs(so - mes) > dy;
+    }
+    return innerBarrel &&
+           std::abs(mes - int(std::abs(dz / dr) * doubletCuts.dzdrFact() + 0.5f)) > doubletCuts.maxDSizePred();
   }
 
   template <typename TrackerTraits, alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool clusterCut(const TAcc& acc,
-                                                 caStructures::HitsMultiView hh,
+                                                 caStructures::HitsViewT<TrackerTraits> hh,
                                                  ::reco::CALayersSoAConstView ll,
                                                  ::reco::CADoubletCutsSoAConstView doubletCuts,
                                                  uint32_t i) {
@@ -151,7 +160,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
         doubletCuts.minInnerSizeB1(),
         doubletCuts.minInnerSizeB2(),
         (0 == (mi / 8) % 2),
-        (!(mi < first_bpix2)) || (0 == (mi / 8) % 2) ? hh[i].clusterSizeY() : -1);
+        innerB1orB2 && ((!(mi < first_bpix2)) || (0 == (mi / 8) % 2)) ? int(caStructures::clusterSizeY(hh, i)) : -1);
 #endif
     if (!innerB1orB2)
       return false;
@@ -159,7 +168,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
     bool innerB1 = mi < first_bpix2;
 
     bool isOuterLadder = moduleIsOuterLadder<TrackerTraits>(mi);
-    auto mes = (!innerB1) || isOuterLadder ? hh[i].clusterSizeY() : -1;
+    // innerB1orB2 above established that the hit is on a barrel pixel module, so the pixel-only
+    // cluster-size column exists.
+    auto mes = (!innerB1) || isOuterLadder ? int(caStructures::clusterSizeY(hh, i)) : -1;
 
     if (innerB1)  // B1
       if (mes > 0 && mes < doubletCuts.minInnerSizeB1())
@@ -180,7 +191,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
                                                         uint32_t maxNumOfDoublets,
                                                         CACell<TrackerTraits>* cells,
                                                         uint32_t* nCells,
-                                                        caStructures::HitsMultiView hh,
+                                                        caStructures::HitsViewT<TrackerTraits> hh,
                                                         ::reco::CAGraphSoAConstView cc,
                                                         ::reco::CALayersSoAConstView ll,
                                                         ::reco::CADoubletCutsSoAConstView doubletCuts,
@@ -541,8 +552,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
           if constexpr (std::is_same_v<pixelTopology::Phase2OTStubs, TrackerTraits>) {
             auto stubSigmaCut = doubletCuts.maxStubCurvSigma()[pairLayerId];
             if (stubSigmaCut > 0.f && ll.isOT()[inner] && isStub(hh, oi) > 0.f && isStub(hh, i)) {
-              float d_i = hh[i].dPhiDr(), s_i = hh[i].dPhiDrErrorPrec();
-              float d_o = hh[oi].dPhiDr(), s_o = hh[oi].dPhiDrErrorPrec();
+              float d_i = hh.stub(i).dPhiDr(), s_i = hh.stub(i).dPhiDrErrorPrec();
+              float d_o = hh.stub(oi).dPhiDr(), s_o = hh.stub(oi).dPhiDrErrorPrec();
               float xi = hh[i].xGlobal(), yi = hh[i].yGlobal();
               float xo = hh[oi].xGlobal(), yo = hh[oi].yGlobal();
 
@@ -581,8 +592,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
               if (significance > stubSigmaCut || std::abs(k_i - k_o) > curvWindow) {
 #ifdef DOUBLETS_DEBUG
-                auto flags_i = hh[i].stubFlags();
-                auto flags_o = hh[oi].stubFlags();
+                auto flags_i = hh.stub(i).flags();
+                auto flags_o = hh.stub(oi).flags();
                 printf("Killed here 10: stub sigma cut (sig=%.2f > cut=%.2f, barrel_i=%d barrel_o=%d)\n",
                        significance,
                        stubSigmaCut,
@@ -612,7 +623,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
                 float sqrt_den_d = std::sqrt(den_d);
                 float k_doublet = dphidr_doublet / sqrt_den_d;
 
-                float d_o = hh[oi].dPhiDr(), s_o = hh[oi].dPhiDrErrorPrec();
+                float d_o = hh.stub(oi).dPhiDr(), s_o = hh.stub(oi).dPhiDrErrorPrec();
                 float den_o = 1.f + ro * ro * d_o * d_o;
                 float sqrt_den_o = std::sqrt(den_o);
                 float k_stub = d_o / sqrt_den_o;
@@ -685,8 +696,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
                 // Flat/tilted classification helper for barrel-barrel pairs
                 auto classifyFlatTilted = [&](PC pairCounter, PC ffCounter, PC ftCounter, PC ttCounter) {
                   alpaka::atomicAdd(acc, &pipelineCounters[pairCounter], 1u, alpaka::hierarchy::Blocks{});
-                  bool iFlat = (hh[i].stubFlags() & 0x02) != 0;
-                  bool oFlat = (hh[oi].stubFlags() & 0x02) != 0;
+                  // Only one of the two hits need be a stub here; a pixel hit has no flags.
+                  bool iFlat = isStub(hh, i) && (hh.stub(i).flags() & 0x02) != 0;
+                  bool oFlat = isStub(hh, oi) && (hh.stub(oi).flags() & 0x02) != 0;
                   if (iFlat && oFlat)
                     alpaka::atomicAdd(acc, &pipelineCounters[ffCounter], 1u, alpaka::hierarchy::Blocks{});
                   else if (!iFlat && !oFlat)

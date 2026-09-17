@@ -34,7 +34,6 @@ from ..sequences.HLTEndSequence_cfi import *
 # merger) therefore sits next to the extended pixel+OT rechit SoA it replaces under phase2CAStubs.
 from ..modules.hltPixelSeedingOTRecHitsSoA_cfi import hltPixelSeedingOTRecHitsSoA
 from ..modules.hltOTStubProducer_cfi import hltOTStubProducer
-from ..modules.hltPhase2PixelRecHitsStubsMerger_cfi import hltPhase2PixelRecHitsStubsMerger
 
 HLTLocalTrackerSequence = cms.Sequence(
     hltPhase2SiPixelClustersSoA
@@ -44,7 +43,6 @@ HLTLocalTrackerSequence = cms.Sequence(
     + hltPhase2OtRecHitsSoA
     + hltPixelSeedingOTRecHitsSoA
     + hltOTStubProducer
-    + hltPhase2PixelRecHitsStubsMerger
     + hltSiPixelClusters
     + hltSiPixelRecHits
 )

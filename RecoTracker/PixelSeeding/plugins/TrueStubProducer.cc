@@ -1,7 +1,7 @@
 // TrueStubProducer - Creates "true stubs" from simulation truth (TrackingParticles).
 // CPU-only EDProducer: for each TrackingParticle, finds its RecHits on OT stacked modules,
 // pairs the lower/upper sensor hits, and computes stub quantities. The output StubsHost can be
-// consumed by SiPixelRecHitsStubsMerger instead of the normal OTStubProducer, giving the CA a
+// read by the CA (and the rest of the stub chain) in place of the normal OTStubProducer's, giving it a
 // perfect set of stubs (zero fakes, no missed genuine pairs) to measure upper-bound performance.
 // No bend or pT cut is applied: all genuine pairs are kept regardless of kinematics.
 

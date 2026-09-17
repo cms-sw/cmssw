@@ -30,6 +30,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   class CACell {
   public:
+    // The hit view this topology's CA reads (HitsMultiView, or the CAHitsView facade for
+    // Phase2OTStubs). Declared first: every signature below names it.
+    using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void init(const HitsMultiView& hh,
                                              uint layerPairId,
                                              hindex_type innerHitId,
@@ -104,8 +108,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC ALPAKA_FN_INLINE auto inner_iphi(const HitsMultiView& hh) const { return hh[inner_hit_id()].iphi(); }
     ALPAKA_FN_ACC ALPAKA_FN_INLINE auto outer_iphi(const HitsMultiView& hh) const { return hh[outer_hit_id()].iphi(); }
 
+    // Bend of the inner hit. Stub-only: the caller must have established isStub(hh, inner_hit_id()).
     ALPAKA_FN_ACC ALPAKA_FN_INLINE auto inner_dPhiDr(const HitsMultiView& hh) const {
-      return hh[inner_hit_id()].dPhiDr();
+      return hh.stub(inner_hit_id()).dPhiDr();
     }
 
     ALPAKA_FN_ACC ALPAKA_FN_INLINE auto inner_isStub(const HitsMultiView& hh) const {

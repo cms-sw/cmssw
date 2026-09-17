@@ -28,8 +28,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   template <typename TrackerTraits>
   class CAFishbone {
   public:
+    using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
     ALPAKA_FN_ACC void operator()(Acc2D const& acc,
-                                  caStructures::HitsMultiView hh,
+                                  HitsMultiView hh,
                                   ::reco::CALayersSoAConstView const& ll,
                                   ::reco::CAGraphSoAConstView const& cc,
                                   CACell<TrackerTraits>* cells,
@@ -108,8 +110,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
                 auto innerHitJ = cj.inner_hit_id();
                 // Check if both inner hits are stubs
                 if (isStub(hh, innerHitI) && isStub(hh, innerHitJ)) {
-                  auto lowerHitI = hh[innerHitI].lowerHitIdx();
-                  auto lowerHitJ = hh[innerHitJ].lowerHitIdx();
+                  auto lowerHitI = hh.stub(innerHitI).lowerHitIdx();
+                  auto lowerHitJ = hh.stub(innerHitJ).lowerHitIdx();
                   // If different lower hits (different P-hits on same module), skip
                   // These are not duplicates - they represent different physical P-hits
                   if (lowerHitI != lowerHitJ) {

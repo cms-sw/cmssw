@@ -214,7 +214,9 @@ layerPairs = [
 ]
 
 hltPhase2PixelTracksSoAWithStubs = cms.EDProducer('CAHitNtupletAlpakaPhase2OTStubs@alpaka',
-    pixelRecHitSrc = cms.InputTag('hltPhase2PixelRecHitsStubsMerger'),
+    # The CA reads the pixel rechits and the outer-tracker stubs through the CAHitsView facade.
+    pixelRecHitSrc = cms.InputTag('hltPhase2SiPixelRecHitsSoA'),
+    stubsSrc = cms.InputTag('hltOTStubProducer'),
 
     # In-kernel classifiers: ON; their working points are BAKED in the weight headers (CATripletDNNWeights_*.h,
     # CATrackDNNWeights_*.h) by the retraining scripts, so no explicit threshold is set here (-1 = baked).

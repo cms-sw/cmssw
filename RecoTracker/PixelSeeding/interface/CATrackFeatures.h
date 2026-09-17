@@ -17,6 +17,9 @@
 
 namespace caTrackFeatures {
 
+  // isStub is resolved by ADL on the hit view (caStructures::isStub for CAHitsView); keep the call
+  // unqualified.
+
   inline constexpr int kNFeat = 12;
 
   // Inverse-variance stub-curvature kernel: given rg2, bend d=dPhiDr and error s=dPhiDrError, return
@@ -30,18 +33,12 @@ namespace caTrackFeatures {
   // Feature order, as trained:
   //   0 fitChi2  1 psFrac  2 r0  3 nPS  4 nh  5 spanZ
   //   6 nStubs   7 nl      8 logChi2Stub  9 kErr  10 dcaEst  11 nBarrel
-  //
-  // HitIter: forward iterator over merged-hit indices. Returns false on empty/corrupt list.
-  //
-  // otView: raw OT-rechit SoA for extension-walk hits; a hit id with kOTHitTag set indexes this view
-  // (otIdx(id)), not hh, and is not a stub (no dPhiDr/stubFlags). Null view with tagged ids -> false.
-  // rGlobal() is absent from the OT SoA and is derived inline.
-  //
-  // rzKappaOut (Stage-2): when non-null, the same hit walk produces out[0]=rzChi2 (reduced chi2 of
-  // a straight line z=a+b*r; -1 undefined), out[1]=meanStubKappa, out[2]=leverArm (rMax-r0),
-  // out[3]=rMax. Null -> not computed. The caller must size out[] for 4 floats.
-  // HitsView: the merged-collection const view on the host, the CA's SoAConstMultiView in the kernels
-  // (element access and reco::isStub are identical for both).
+  // HitIter: forward iterator over hit indices; returns false on an empty/corrupt list.
+  // otView: raw OT-rechit SoA for hit ids with kOTHitTag set (otIdx(id)); such a hit is not a stub and
+  // rGlobal() is derived inline. A null view with tagged ids -> false.
+  // rzKappaOut (optional, 4 floats): out[0]=rzChi2 (straight line z=a+b*r; -1 undefined),
+  // out[1]=meanStubKappa, out[2]=leverArm (rMax-r0), out[3]=rMax.
+  // HitsView: the pixel+stubs CAHitsView facade (see CAHitsView.h), on the host as in the kernels.
   template <typename HitIter, typename HitsView>
   ALPAKA_FN_HOST_ACC inline bool fill(HitIter hitBegin,
                                       HitIter hitEnd,
@@ -112,16 +109,17 @@ namespace caTrackFeatures {
         Szz += double(zg) * zg;
       }
       // OT extras are never stubs, so they contribute as a pixel hit does.
-      if (!otHit && ::reco::isStub(hh, h)) {
+      if (!otHit && isStub(hh, h)) {
         ++nStubs;
-        const auto flags = hh[h].stubFlags();
+        auto const stub = hh.stub(int32_t(h));
+        const auto flags = stub.flags();
         if (::reco::StubFlags::isPS(flags))
           ++nPS;
         if (::reco::StubFlags::isBarrel(flags))
           ++nBarrel;
-        const float s = hh[h].dPhiDrError();
+        const float s = stub.dPhiDrError();
         if (s > 0.f) {
-          const float d = hh[h].dPhiDr();
+          const float d = stub.dPhiDr();
           float den, w;
           stubDenWeight(xg * xg + yg * yg, d, s, den, w);
           const float k = d / std::sqrt(den);

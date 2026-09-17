@@ -1,5 +1,5 @@
-// Per-merged-hit to TrackingParticle truth FlatTable for the built-triplet dataset: one row per
-// merged hit, the row index being the merged-hit index carried by the Triplet table, holding the
+// Per-hit to TrackingParticle truth FlatTable for the built-triplet dataset: one row per hit of the
+// global (pixel + stub) index space, the row index being the hit index carried by the Triplet table, holding the
 // matched TrackingParticle key or -1. A triplet is real when its three hits share one tpKey >= 0.
 //
 // Association chain:
@@ -54,6 +54,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
+#include "RecoTracker/PixelSeeding/interface/CAHitsView.h"
 
 class HitTruthTableProducer : public edm::stream::EDProducer<> {
 public:
@@ -67,7 +68,7 @@ private:
 
   const std::string tableName_;
 
-  edm::EDGetTokenT<reco::TrackingRecHitHost> mergedHitsToken_;
+  edm::EDGetTokenT<reco::TrackingRecHitHost> pixelHitsSoAToken_;
   edm::EDGetTokenT<reco::OTRecHitsHost> otRecHitsSoAToken_;
   edm::EDGetTokenT<reco::StubsHost> stubsToken_;
   edm::EDGetTokenT<Phase2TrackerRecHit1DCollectionNew> otRecHitCollectionToken_;
@@ -96,7 +97,7 @@ private:
 
 HitTruthTableProducer::HitTruthTableProducer(const edm::ParameterSet& iConfig)
     : tableName_(iConfig.getParameter<std::string>("tableName")),
-      mergedHitsToken_(consumes<reco::TrackingRecHitHost>(iConfig.getParameter<edm::InputTag>("mergedHitsSrc"))),
+      pixelHitsSoAToken_(consumes<reco::TrackingRecHitHost>(iConfig.getParameter<edm::InputTag>("pixelRecHitSoASrc"))),
       otRecHitsSoAToken_(consumes<reco::OTRecHitsHost>(iConfig.getParameter<edm::InputTag>("otRecHitsSoASrc"))),
       stubsToken_(consumes<reco::StubsHost>(iConfig.getParameter<edm::InputTag>("stubsSrc"))),
       otRecHitCollectionToken_(
@@ -122,7 +123,7 @@ HitTruthTableProducer::HitTruthTableProducer(const edm::ParameterSet& iConfig)
 }
 
 void HitTruthTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  const auto& mergedHits = iEvent.get(mergedHitsToken_);
+  const auto& pixelHitsSoA = iEvent.get(pixelHitsSoAToken_);
   const auto& otHitsSoA = iEvent.get(otRecHitsSoAToken_);
   const auto& stubsHost = iEvent.get(stubsToken_);
   const auto& otRecHitCollection = iEvent.get(otRecHitCollectionToken_);
@@ -130,11 +131,18 @@ void HitTruthTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<std::vector<TrackingParticle>> tpHandle;
   iEvent.getByToken(tpToken_, tpHandle);
 
-  auto mergedView = mergedHits.const_view().trackingHits();
   auto otHitsView = otHitsSoA.view().otRecHits();
   auto stubsView = stubsHost.const_view().stubs();
+  // The global hit index space the CA indexes: pixel rechits first, then stubs (CAHitsView.h).
+  const caStructures::CAHitsView mergedView(pixelHitsSoA.const_view().trackingHits(),
+                                            pixelHitsSoA.const_view().hitModules(),
+                                            stubsHost.const_view().stubs(),
+                                            stubsHost.const_view().stubModules(),
+                                            pixelHitsSoA.nHits(),
+                                            stubsHost.nStubs(),
+                                            pixelHitsSoA.nModules());
 
-  uint32_t nMergedHits = mergedView.metadata().size();
+  uint32_t nMergedHits = uint32_t(mergedView.size());
   uint32_t offsetStubs = mergedView.offsetStubs();
   uint32_t nOTHits = otHitsSoA.nHits();
   uint32_t nStubs = stubsView.metadata().size();
@@ -252,12 +260,24 @@ void HitTruthTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       yg[i] = mergedView[i].yGlobal();
       zg[i] = mergedView[i].zGlobal();
       rg[i] = mergedView[i].rGlobal();
-      dPhiDrC[i] = mergedView[i].dPhiDr();
-      dPhiDrErrC[i] = mergedView[i].dPhiDrError();
-      isStubC[i] = reco::isStub(mergedView, i) ? 1 : 0;
-      stubFlagsC[i] = int(mergedView[i].stubFlags());
-      clSizeX[i] = int(mergedView[i].clusterSizeX());
-      clSizeY[i] = int(mergedView[i].clusterSizeY());
+      // Source-specific columns come from the matching element of the hit view; a pixel hit publishes
+      // bend 0, error -1 and no flags, an outer-tracker entry publishes no cluster.
+      if (mergedView.isOTEntry(int32_t(i))) {
+        auto const stub = mergedView.stub(int32_t(i));
+        dPhiDrC[i] = stub.dPhiDr();
+        dPhiDrErrC[i] = stub.dPhiDrError();
+        stubFlagsC[i] = int(stub.flags());
+        clSizeX[i] = 0;
+        clSizeY[i] = 0;
+      } else {
+        auto const pix = mergedView.pixel(int32_t(i));
+        dPhiDrC[i] = 0.f;
+        dPhiDrErrC[i] = -1.f;
+        stubFlagsC[i] = 0;
+        clSizeX[i] = int(pix.clusterSizeX());
+        clSizeY[i] = int(pix.clusterSizeY());
+      }
+      isStubC[i] = isStub(mergedView, int32_t(i)) ? 1 : 0;
       if (i >= offsetStubs) {
         const uint32_t stubIdx = i - offsetStubs;
         if (stubIdx < nStubs)
@@ -267,7 +287,7 @@ void HitTruthTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   }
 
   for (uint32_t i = 0; i < nMergedHits; ++i) {
-    // The stub-region gate is the index, not reco::isStub(mergedView, i): the latter is the
+    // The stub-region gate is the index, not isStub(mergedView, i): the latter is the
     // paired-stub flag, false for a PHitOnly hit, and would drop single-sensor stub-region hits.
     bool inStubRegion = (i >= offsetStubs);
 
@@ -314,7 +334,7 @@ void HitTruthTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   // The global-position self-check below guards against a wrong inversion for a given geometry.
   {
     const TrackerGeometry& geom = iSetup.getData(geomToken_);
-    auto hitModulesView = mergedHits.const_view().hitModules();
+    auto hitModulesView = pixelHitsSoA.const_view().hitModules();
     uint32_t nPixChecked = 0, nPixMismatch = 0, nPixLabeled = 0;
     for (auto const& detSet : pixelRecHitCollection) {
       const DetId detid(detSet.detId());
@@ -440,8 +460,8 @@ void HitTruthTableProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("tableName", "HitTruth");
-  desc.add<edm::InputTag>("mergedHitsSrc", edm::InputTag("hltPhase2PixelRecHitsStubsMerger"))
-      ->setComment("Merged TrackingRecHit SoA host copy (defines the CA merged-hit index space)");
+  desc.add<edm::InputTag>("pixelRecHitSoASrc", edm::InputTag("hltPhase2SiPixelRecHitsSoA"))
+      ->setComment("Pixel TrackingRecHit SoA host copy; with stubsSrc it defines the CA global hit index space");
   desc.add<edm::InputTag>("otRecHitsSoASrc", edm::InputTag("hltPixelSeedingOTRecHitsSoA"))
       ->setComment("OTRecHitsSoA host copy (origRecHitIdx -> flat Phase2 index)");
   desc.add<edm::InputTag>("stubsSrc", edm::InputTag("hltOTStubProducer"))

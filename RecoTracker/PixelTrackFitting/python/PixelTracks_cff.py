@@ -134,12 +134,11 @@ phase2CAExtension.toReplaceWith(pixelTracksAlpaka,_pixelTracksAlpakaPhase2Extend
     trackerRecHitsSoA = "phase2OTRecHitsSoAConverter"
 ))
 
-# Phase-2 CA extended to outer-tracker stubs: the outer-tracker hits in SoA format, the stubs built from them,
-# the pixel hits merged with the stubs and the stub CA, on the device and on the cpu
+# Phase-2 CA extended to outer-tracker stubs: the outer-tracker hits in SoA format, the stubs built from them
+# and the stub CA, on the device and on the cpu
 from Configuration.ProcessModifiers.phase2CAStubs_cff import phase2CAStubs
 from RecoTracker.PixelSeeding.pixelSeedingOTRecHitsSoAConverter_cfi import pixelSeedingOTRecHitsSoAConverter as _pixelSeedingOTRecHitsSoAConverter
 from RecoTracker.PixelSeeding.otStubProducerVectorHitStyle_cfi import otStubProducerVectorHitStyle as _otStubProducerVectorHitStyle
-from RecoLocalTracker.SiPixelRecHits.siPixelRecHitsStubsMerger_cfi import siPixelRecHitsStubsMerger as _siPixelRecHitsStubsMerger
 from RecoTracker.PixelSeeding.caHitNtupletAlpakaPhase2OTStubs_cfi import caHitNtupletAlpakaPhase2OTStubs as _pixelTracksAlpakaPhase2OTStubs
 from RecoTracker.FinalTrackSelectors.pixelTrackForestHighPuritySelector_cfi import pixelTrackForestHighPuritySelector as _pixelTrackForestHighPuritySelector
 
@@ -151,19 +150,10 @@ otStubProducer = _otStubProducerVectorHitStyle.clone(
 otStubProducerSerial = makeSerialClone(otStubProducer,
     otRecHitsSoA = "pixelSeedingOTRecHitsSoASerial"
 )
-siPixelRecHitsStubsMerger = _siPixelRecHitsStubsMerger.clone(
-    pixelRecHitsSoA = "siPixelRecHitsPreSplittingAlpaka",
-    stubsSoA = "otStubProducer",
-    otRecHitsSoA = "pixelSeedingOTRecHitsSoA"
-)
-siPixelRecHitsStubsMergerSerial = makeSerialClone(siPixelRecHitsStubsMerger,
-    pixelRecHitsSoA = "siPixelRecHitsPreSplittingAlpakaSerial",
-    stubsSoA = "otStubProducerSerial",
-    otRecHitsSoA = "pixelSeedingOTRecHitsSoASerial"
-)
 
 phase2CAStubs.toReplaceWith(pixelTracksAlpaka, _pixelTracksAlpakaPhase2OTStubs.clone(
-    pixelRecHitSrc = "siPixelRecHitsStubsMerger"
+    pixelRecHitSrc = "siPixelRecHitsPreSplittingAlpaka",
+    stubsSrc = "otStubProducer"
 ))
 
 # pixel tracks SoA producer on the cpu, for validation
@@ -176,13 +166,14 @@ phase2CAExtension.toModify(pixelTracksAlpakaSerial,
                            )
 
 phase2CAStubs.toModify(pixelTracksAlpakaSerial,
-    pixelRecHitSrc = "siPixelRecHitsStubsMergerSerial"
+    stubsSrc = "otStubProducerSerial"
 )
 
 # high-purity selection of the stub CA tracks, as in the HLT menu
 pixelTracksAlpakaHighPurity = _pixelTrackForestHighPuritySelector.clone(
     pixelTrackSrc = "pixelTracksAlpaka",
-    mergedHitsSrc = "siPixelRecHitsStubsMerger",
+    pixelRecHitSrc = "siPixelRecHitsPreSplittingAlpaka",
+    stubsSrc = "otStubProducer",
     otRecHitsSoASrc = "pixelSeedingOTRecHitsSoA",
     model = "RecoTracker/FinalTrackSelectors/data/PixelTrackTorchHighPuritySelector/prompt_tree31_wp_20260914.bin"
 )
@@ -232,8 +223,6 @@ phase2CAStubs.toReplaceWith(pixelTracksTask, cms.Task(
     pixelSeedingOTRecHitsSoASerial,
     otStubProducer,
     otStubProducerSerial,
-    siPixelRecHitsStubsMerger,
-    siPixelRecHitsStubsMergerSerial,
     pixelTracksAlpaka,
     pixelTracksAlpakaSerial,
     pixelTracksAlpakaHighPurity,

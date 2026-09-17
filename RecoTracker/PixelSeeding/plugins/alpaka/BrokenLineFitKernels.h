@@ -131,12 +131,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // Out-of-line per-lane body of the fast fit (BL_REFIT_NOINLINE, see above): the per-bin ladder's
     // operator() and the fused ladder's switch call this one compiled function. No cross-lane or
     // cross-block state: the lane index only forms addresses.
+    // Templated on the hit view (HitsMultiView, or the CAHitsView facade of Phase2OTStubs).
+    template <typename HitsView>
     ALPAKA_FN_ACC BL_REFIT_NOINLINE static void lane(Acc1D const& acc,
                                                      uint32_t local_idx,
                                                      uint32_t tuple_idx,
                                                      Tuples const* __restrict__ foundNtuplets,
                                                      TupleMultiplicity const* __restrict__ tupleMultiplicity,
-                                                     caStructures::HitsMultiView const& hh,
+                                                     HitsView const& hh,
                                                      ::reco::CAModulesConstView const& cm,
                                                      typename caStructures::tindex_type* __restrict__ ptkids,
                                                      double* __restrict__ phits,
@@ -165,7 +167,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // Number of hits the fit uses: kMode filter + same-layer PIXEL overlap dedup (OT stubs never merged),
       // by the SAME caFitHitSel::dedupWalk used in count/fillMultiplicity. hasStubs is the compile-time
       // OT-stubs topology flag; combine it with the runtime stub offset as count/fill do.
-      const bool hasStubsRt = hasStubs && (static_cast<int32_t>(hh.view(0).offsetStubs()) >= 0);
+      const bool hasStubsRt = hasStubs && (static_cast<int32_t>(caStructures::offsetStubsOf(hh)) >= 0);
       uint32_t nSel = caFitHitSel::dedupWalk(foundNtuplets, tkid, hh, hasStubsRt, /*k=*/-1);
       ALPAKA_ASSERT_ACC(nSel >= nHitsL);
       ALPAKA_ASSERT_ACC(nSel <= nHitsH);
@@ -204,7 +206,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // Stub transverse-error calibration (fit input only): scale the local-x VARIANCE by the squared
         // pull width (2S barrel 0.68, PS barrel 0.80, disks 0.92/0.95) so the fit weights match the real
         // resolution. Fit-input only -- track finding is untouched.
-        if (hasStubsRt && reco::isStub(hh, int32_t(hit))) {
+        if (hasStubsRt && isStub(hh, int32_t(hit))) {
           const bool is2S = hh[hit].yerrLocal() > 0.1f;                                // strip vs macro-pixel
           const bool isBarrelHit = alpaka::math::abs(acc, hh[hit].zGlobal()) < 118.f;  // OT barrel vs TEDD
           const float f = is2S ? (isBarrelHit ? 0.4624f : 0.8464f)                     // sigma 0.68 / 0.92
@@ -230,10 +232,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
     }
 
+    // Templated on the hit view, like lane() above.
+    template <typename HitsView>
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   Tuples const* __restrict__ foundNtuplets,
                                   TupleMultiplicity const* __restrict__ tupleMultiplicity,
-                                  caStructures::HitsMultiView hh,
+                                  HitsView hh,
                                   ::reco::CAModulesConstView cm,
                                   typename caStructures::tindex_type* __restrict__ ptkids,
                                   double* __restrict__ phits,
@@ -539,6 +543,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // addresses, so the arithmetic and the set of fitted tuples are the same on both ladders.
   template <typename TrackerTraits>
   struct Kernel_BLFastFitFused {
+    using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
     // The switch dispatches bins 0..7 by hand; kMainNBins is traits-derived. A traits set carrying more
     // bins would pass the idle test, fall to `default:` and lose its tuples silently, so raising
     // maxHitsOnTrackForFullFit past 10 must be a build error.
@@ -551,7 +557,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   Tuples const* __restrict__ foundNtuplets,
                                   TupleMultiplicity const* __restrict__ tupleMultiplicity,
-                                  caStructures::HitsMultiView hh,
+                                  HitsMultiView hh,
                                   ::reco::CAModulesConstView cm,
                                   typename caStructures::tindex_type* __restrict__ ptkids,
                                   double* __restrict__ phits,
@@ -696,7 +702,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     Queue& queue;
     Tuples const* tuples;
     TupleMultiplicity const* tupleMultiplicity;
-    caStructures::HitsMultiView hv;
+    caStructures::HitsViewT<TrackerTraits> hv;
     ::reco::CAModulesConstView cm;
     OutputSoAView outputSoa;
     double bField;

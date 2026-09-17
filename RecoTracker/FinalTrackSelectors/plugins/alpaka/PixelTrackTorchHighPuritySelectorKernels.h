@@ -15,6 +15,7 @@
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 
 #include "RecoTracker/FinalTrackSelectors/interface/PixelTrackFeaturesSoA.h"
+#include "RecoTracker/PixelSeeding/interface/CAHitsView.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -31,7 +32,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                const int maxPreselectedTracks,
                                const ::reco::TrackSoAConstView tracks,
                                const ::reco::TrackHitSoAConstView track_hits,
-                               const ::reco::TrackingRecHitConstView hits,
+                               const caStructures::CAHitsView hits,
                                const int nHitsTot,
                                // Raw OT-rechit view + count so the feature walk resolves tagged
                                // OT extras (nOTHits == 0 / empty view => merged-hits-only).

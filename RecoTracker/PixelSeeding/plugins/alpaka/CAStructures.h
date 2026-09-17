@@ -3,14 +3,19 @@
 
 #include <cmath>
 #include <cstdint>
+#include <limits>
 
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/SoATemplate/interface/SoAConstMultiView.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
+#include "DataFormats/TrackSoA/interface/TracksSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/SimpleVector.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/VecArray.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
+
+#include "RecoTracker/PixelSeeding/interface/CAHitsView.h"
 
 namespace caStructures {
 
@@ -85,6 +90,77 @@ namespace caStructures {
   // MultiViews for hits and modules
   using ModulesMultiView = SoAConstMultiView<HitModulesConstView, 2>;
   using HitsMultiView = SoAConstMultiView<HitsConstView, 2>;
+
+  // How a topology sees the hits inside the CA. Every topology but Phase2OTStubs reads its hit
+  // collections through the upstream MultiViews; Phase2OTStubs reads the pixel rechits and the stubs
+  // SoA through the CAHitsView facade, which presents the same element proxy and the same global hit
+  // index space (see CAHitsView.h).
+  template <typename TrackerTraits>
+  struct HitsViewFor {
+    using type = HitsMultiView;
+    using modules_type = ModulesMultiView;
+  };
+
+  template <>
+  struct HitsViewFor<::pixelTopology::Phase2OTStubs> {
+    using type = CAHitsView;
+    using modules_type = CAHitsView;
+  };
+
+  template <typename TrackerTraits>
+  using HitsViewT = typename HitsViewFor<TrackerTraits>::type;
+
+  template <typename TrackerTraits>
+  using ModulesViewT = typename HitsViewFor<TrackerTraits>::modules_type;
+
+  // True only for the facade, which carries the stubs SoA beside the pixel one.
+  template <typename View>
+  inline constexpr bool viewHasStubs = false;
+  template <>
+  inline constexpr bool viewHasStubs<CAHitsView> = true;
+
+  // Everything the CA build hands to the generator: the hit view, the module-start view (the same
+  // object as the hit view for the facade), and the two scalars the producer already knows.
+  template <typename TrackerTraits>
+  struct HitsInputT {
+    HitsViewT<TrackerTraits> hits;
+    ModulesViewT<TrackerTraits> modules;
+    uint32_t nHits = 0;
+    int32_t offsetBPIX2 = 0;
+  };
+
+  // Module start, as a global hit index, for CA module m. The MultiView holds one row per module of
+  // the merged collection; the facade splices the pixel and the outer-tracker module blocks.
+  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE uint32_t moduleStartOf(ModulesMultiView const& mm, int32_t m) {
+    return mm[m].moduleStart();
+  }
+  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE uint32_t moduleStartOf(CAHitsView const& hh, int32_t m) {
+    return hh.moduleStart(m);
+  }
+
+  // First stub index. The facade knows it as the number of pixel rechits; a MultiView topology has no
+  // stubs at all, so it answers the "no stubs" sentinel (the stub code paths that read it are
+  // compile-time gated on Phase2OTStubs, and int32_t(sentinel) < 0 disables the run-time ones).
+  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE uint32_t offsetStubsOf(HitsMultiView const&) {
+    return std::numeric_limits<uint32_t>::max();
+  }
+  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE uint32_t offsetStubsOf(CAHitsView const& hh) { return hh.offsetStubs(); }
+
+  // Hit-classification predicates, by overload. The CAHitsView forms live in CAHitsView.h; a MultiView
+  // topology carries no stubs and no outer-tracker entries, so every hit answers false.
+  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool isStub(HitsMultiView const&, int32_t) { return false; }
+  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool isOTEntry(HitsMultiView const&, int32_t) { return false; }
+  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool hasBend(HitsMultiView const&, int32_t) { return false; }
+
+  // Pixel cluster size in Y, for the doublet cuts, which are shared by every topology. The MultiView
+  // reads the column directly; the facade reads it through the pixel element, which asserts that the
+  // index is a pixel one (dSizeCut and clusterCut establish that before calling).
+  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE int16_t clusterSizeY(HitsMultiView const& hh, int32_t i) {
+    return hh[i].clusterSizeY();
+  }
+  ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE int16_t clusterSizeY(CAHitsView const& hh, int32_t i) {
+    return hh.pixel(i).clusterSizeY();
+  }
 
   //Tracks data formats
   using TkSoAView = ::reco::TrackSoAView;
@@ -169,5 +245,15 @@ namespace caStructures {
   };
 
 }  // namespace caStructures
+
+// The CA kernels call isStub(hh, i) / isOTEntry(hh, i) / hasBend(hh, i) unqualified so the overload
+// follows the hit view. ADL finds the caStructures ones for the CAHitsView facade, but not for a
+// MultiView topology (whose associated namespaces are reco and the SoA template's), so the overload
+// set is opened here once for every kernel of this backend namespace rather than in each kernel header.
+namespace ALPAKA_ACCELERATOR_NAMESPACE {
+  using caStructures::hasBend;
+  using caStructures::isOTEntry;
+  using caStructures::isStub;
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 #endif  // RecoTracker_PixelSeeding_plugins_alpaka_CAStructures_h

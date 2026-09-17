@@ -64,6 +64,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   class HelixFit {
   public:
+    // Hit view of the CA main fit (see CAStructures.h).
+    using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
     using HitView = ::reco::TrackingRecHitView;
     using HitConstView = ::reco::TrackingRecHitConstView;
     using OutputSoAView = ::reco::TrackSoAView;
@@ -110,15 +113,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       verboseDump_ = on;
       verboseDumpN_ = nToPrint;
     }
-    void launchRiemannKernels(const caStructures::HitsMultiView &hv,
+    void launchRiemannKernels(const HitsMultiView &hv,
                               const ::reco::CAModulesConstView &fr,
                               uint32_t nhits,
                               uint32_t maxNumberOfTuples,
                               Queue &queue);
     // ONE sweep of the N-binned BLFastFit+BLFit kernels: the factorized fast BrokenLine fit that every
-    // CA iteration and every topology runs on its own tracks. The General Broken Lines fit runs once per
-    // track downstream, in the merger (refitExtended / refitMergedTwins below).
-    void launchBrokenLineKernels(const caStructures::HitsMultiView &hv,
+    // CA iteration and every topology runs on its own tracks.
+    void launchBrokenLineKernels(const HitsMultiView &hv,
                                  const ::reco::CAModulesConstView &fr,
                                  uint32_t nhits,
                                  uint32_t maxNumberOfTuples,
