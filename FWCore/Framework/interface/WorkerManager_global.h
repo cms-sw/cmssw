@@ -27,7 +27,7 @@ namespace edm {
     void deleteModuleIfExists(std::string const& moduleLabel);
   };
 
-    template <>
+  template <>
   class WorkerManager<EventTransitionInfo, TransitionPhaseGlobal>
       : private WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal> {
   public:
