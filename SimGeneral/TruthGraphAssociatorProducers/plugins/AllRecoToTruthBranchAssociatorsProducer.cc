@@ -568,11 +568,6 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
     }
   }
 
-  // eventId 0 is the signal interaction; anything else is overlaid pileup.
-  [[maybe_unused]] auto isSignalParticle = [&graph](uint32_t particleId) {
-    return graph.particles()[particleId].eventId == 0;
-  };
-
   // The denominator of the truth-side fraction: what each truth vertex itself produced,
   // in the same pt^2 weighting the numerator uses.
   std::unordered_map<unsigned int, float> truthWeightPerVertex;
@@ -629,7 +624,7 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
         // of vertices than the numerator measures nothing.
         if (const auto vertexId = countingVertex(graph, root, vertexResolution_, interactionVertex)) {
           ++rootsPerVertex[*vertexId];
-          if (isSignalParticle(root)) {
+          if (graph.particles()[root].isSignal()) {
             ++signalRootsPerVertex[*vertexId];
           }
           const float rootPt = static_cast<float>(graph.particles()[root].momentum.pt());

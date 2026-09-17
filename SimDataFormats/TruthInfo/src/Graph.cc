@@ -103,6 +103,8 @@ std::vector<truth::Particle> truth::Particle::ancestors() const {
   return valid() ? graph_->ancestorsOf(id_) : std::vector<truth::Particle>{};
 }
 
+uint32_t truth::Particle::ancestorCount() const { return valid() ? graph_->ancestorCount(id_) : 0; }
+
 std::vector<truth::Particle> truth::Particle::descendants() const {
   return valid() ? graph_->descendantsOf(id_) : std::vector<truth::Particle>{};
 }
@@ -290,6 +292,32 @@ std::vector<truth::Particle> truth::Graph::childrenOf(size_type particleId) cons
   appendChildren(particleId, ids);
   appendUnique(this, ids, out);
   return out;
+}
+
+uint32_t truth::Graph::ancestorCount(size_type particleId) const {
+  if (particleId >= nParticles())
+    return 0;
+
+  // The start is seen first, so a cycle back to it cannot count it as its own ancestor.
+  std::vector<uint32_t> seen{static_cast<uint32_t>(particleId)};
+  std::vector<uint32_t> stack{static_cast<uint32_t>(particleId)};
+  std::vector<uint32_t> buf;
+
+  while (!stack.empty()) {
+    const uint32_t cur = stack.back();
+    stack.pop_back();
+
+    buf.clear();
+    appendParents(cur, buf);
+    for (uint32_t p : buf) {
+      if (std::find(seen.begin(), seen.end(), p) != seen.end())
+        continue;
+      seen.push_back(p);
+      stack.push_back(p);
+    }
+  }
+
+  return static_cast<uint32_t>(seen.size() - 1);
 }
 
 std::vector<truth::Particle> truth::Graph::ancestorsOf(size_type particleId) const {

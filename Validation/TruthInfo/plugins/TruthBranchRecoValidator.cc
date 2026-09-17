@@ -806,7 +806,7 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
         const truth::Particle branchRoot(&graph, b);
         // How deep in the graph the branch root sits. A frozen truth object has one
         // fixed level and no such axis.
-        kin.depth = branchRoot.ancestors().size();
+        kin.depth = branchRoot.ancestorCount();
         // How much of the branch footprint is the root particle's own hits rather than
         // its descendants'. Near 1 is a clean single particle, near 0 a branch whose
         // hits all come from what it produced.
