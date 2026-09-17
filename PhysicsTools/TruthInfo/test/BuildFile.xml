@@ -21,6 +21,13 @@
   <use name="cppunit"/>
 </bin>
 
+<bin name="Interactions_t" file="Interactions_t.cpp">
+  <use name="PhysicsTools/TruthInfo"/>
+  <use name="SimDataFormats/TruthInfo"/>
+  <use name="SimDataFormats/EncodedEventId"/>
+  <use name="cppunit"/>
+</bin>
+
 <bin name="Branch_t" file="Branch_t.cpp">
   <use name="PhysicsTools/TruthInfo"/>
   <use name="SimDataFormats/TruthInfo"/>
