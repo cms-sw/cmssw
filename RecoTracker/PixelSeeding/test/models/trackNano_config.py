@@ -308,7 +308,8 @@ process.trainDispCATable = cms.EDProducer(
     "CATrackFeaturesTableProducer",
     tableName=cms.string("TrkDispCA"),
     trackSrc=cms.InputTag(_dispLabel),
-    mergedHitsSrc=cms.InputTag("hltPhase2PixelRecHitsStubsMerger"),
+    pixelRecHitSrc=cms.InputTag("hltPhase2SiPixelRecHitsSoA"),
+    stubsSrc=cms.InputTag("hltOTStubProducer"),
     # Attach-purity: also emit a per-(track,hit) truth table (isOTExtra/isStub/isTrueForOwnTP).
     emitHitTruth=cms.bool(True),
     hitTableName=cms.string("TrkDispCAHit"),
@@ -321,7 +322,8 @@ process.trainPromptCATable = cms.EDProducer(
     "CATrackFeaturesTableProducer",
     tableName=cms.string("TrkPromptCA"),
     trackSrc=cms.InputTag("hltPhase2PixelTracksSoA"),
-    mergedHitsSrc=cms.InputTag("hltPhase2PixelRecHitsStubsMerger"),
+    pixelRecHitSrc=cms.InputTag("hltPhase2SiPixelRecHitsSoA"),
+    stubsSrc=cms.InputTag("hltOTStubProducer"),
     # Attach-purity: also emit a per-(track,hit) truth table (isOTExtra/isStub/isTrueForOwnTP).
     emitHitTruth=cms.bool(True),
     hitTableName=cms.string("TrkPromptCAHit"),

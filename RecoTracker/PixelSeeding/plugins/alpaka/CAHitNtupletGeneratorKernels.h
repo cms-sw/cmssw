@@ -145,6 +145,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     using TrackerTraits = TTTraits;
 
+    // Topology-dependent hit / module-start views (see CAStructures.h): the upstream MultiViews for
+    // every topology but Phase2OTStubs, which reads the pixel rechits and the stubs SoA through the
+    // CAHitsView facade.
+    using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+    using ModulesMultiView = caStructures::ModulesViewT<TrackerTraits>;
+
     using SimpleCell = CACell<TrackerTraits>;
     using Params = caHitNtupletGenerator::ParamsT<TrackerTraits>;
     using Counters = caHitNtupletGenerator::Counters;

@@ -3,21 +3,27 @@
 
 #include <cstdint>
 
-#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"  // ::reco::isStub
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"          // ALPAKA_FN_ACC
-#include "RecoTracker/PixelSeeding/interface/OTHitTag.h"                 // caOTHitTag::isOTId (tagged-OT-extra skip)
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"  // ALPAKA_FN_ACC
+#include "RecoTracker/PixelSeeding/interface/OTHitTag.h"         // caOTHitTag::isOTId (tagged-OT-extra skip)
+
+#include "CAStructures.h"  // caStructures::isStub overloads
 
 // Compile-time selection of which hits the BrokenLine fit uses (track finding stays IT+OT; only the fit and
 // its multiplicity binning see the selected subset): All (default), ITonly (pixel hits only), OTonly (stub
 // hits only). Edit kMode and recompile; tracks with < 3 selected hits are skipped.
 namespace caFitHitSel {
 
+  // The stub predicate is resolved by overload: caStructures::isStub, either found by ADL (the
+  // pixel+stubs CAHitsView facade) or through this using-declaration (a MultiView topology, which
+  // carries no stubs and answers false); keep the calls unqualified.
+  using caStructures::isStub;
+
   enum class Mode { All, ITonly, OTonly };
 
   constexpr Mode kMode = Mode::All;
 
   // Whether a hit (given its isStub flag) is used by the fit in the current mode.
-  // hasStubs guards the case where the OT collections aren't present (offsetStubs < 0):
+  // hasStubs guards the case where the OT collections aren't present (offsetStubs sentinel):
   // there, every hit is a pixel hit and we keep everything.
   constexpr inline bool useHit(bool isStub, bool hasStubs) {
     if (kMode == Mode::All || !hasStubs)
@@ -55,13 +61,11 @@ namespace caFitHitSel {
           continue;  // tagged OT extra -> not a merged-fit member; skip, keep walking
         break;       // content buffer overflow guard
       }
-      // Stub-ness comes from reco::isStub(view, idx): stubs are the merged-collection hits at index
-      // >= hh.offsetStubs().
-      if (!useHit(::reco::isStub(hh, int32_t(h)), hasStubs))
+      // Stub-ness comes from isStub(view, idx): stubs are the hits at index >= hh.offsetStubs().
+      if (!useHit(isStub(hh, int32_t(h)), hasStubs))
         continue;
       // Merge only two consecutive pixel hits that are near-coincident in the transverse plane.
-      if (hasStubs && lastKeptJ >= 0 && !::reco::isStub(hh, int32_t(h)) &&
-          !::reco::isStub(hh, int32_t(hitId[lastKeptJ]))) {
+      if (hasStubs && lastKeptJ >= 0 && !isStub(hh, int32_t(h)) && !isStub(hh, int32_t(hitId[lastKeptJ]))) {
         auto const hp = hitId[lastKeptJ];
         float const dx = float(hh[h].xGlobal()) - float(hh[hp].xGlobal());
         float const dy = float(hh[h].yGlobal()) - float(hh[hp].yGlobal());

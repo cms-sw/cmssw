@@ -87,7 +87,6 @@ _HLTPhase2PixelTracksAndVerticesSequenceLegacyPatatrack = cms.Sequence(
 # Note: the SerialSync and vertex-trimming arms are NOT stub-aware.
 from ..modules.hltPixelSeedingOTRecHitsSoA_cfi import hltPixelSeedingOTRecHitsSoA
 from ..modules.hltOTStubProducer_cfi import hltOTStubProducer
-from ..modules.hltPhase2PixelRecHitsStubsMerger_cfi import hltPhase2PixelRecHitsStubsMerger
 from ..modules.hltSiPixelClusters_cfi import hltSiPixelClusters
 from ..modules.hltSiPixelRecHits_cfi import hltSiPixelRecHits
 
@@ -100,7 +99,6 @@ _HLTPhase2PixelTracksAndVerticesSequenceCAStubs = cms.Sequence(
     +hltSiPixelRecHits                      # legacy pixel rechits for the legacy converter
     +hltPixelSeedingOTRecHitsSoA
     +hltOTStubProducer
-    +hltPhase2PixelRecHitsStubsMerger
     +hltPhase2PixelTracksSoA                     # stub CA via the modifier (label preserved)
     +hltPhase2PixelTrackTorchHighPuritySelector  # forest selector via the modifier (label preserved)
     +hltPhase2PixelTracks

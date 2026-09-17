@@ -50,7 +50,6 @@ namespace cms::alpakatools {
       assert(deviceData.nHits() == hostData.nHits());
       assert(deviceData.nModules() == hostData.nModules());
       assert(deviceData.offsetBPIX2() == hostData.offsetBPIX2());
-      assert(deviceData.offsetStubs() == hostData.offsetStubs());
 #endif
 
       return hostData;
@@ -83,7 +82,6 @@ namespace cms::alpakatools {
       assert(deviceData.nHits() == hostData.nHits());
       assert(deviceData.nModules() == hostData.nModules());
       assert(deviceData.offsetBPIX2() == hostData.offsetBPIX2());
-      assert(deviceData.offsetStubs() == hostData.offsetStubs());
 #endif
       return deviceData;
     }

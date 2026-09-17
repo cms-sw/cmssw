@@ -265,8 +265,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       : public stream::SynchronizingEDProducer<edm::GlobalCache<::reco::CAGeometryParams>, edm::RunCache<CARunGeometry>> {
     using HitsConstView = ::reco::TrackingRecHitConstView;
     using HitsOnDevice = reco::TrackingRecHitsSoACollection;
+    using StubsOnDevice = reco::StubsSoACollection;
 
     using HitsOnDeviceRefProdVector = edm::RefProdVector<HitsOnDevice>;
+
+    // What the generator takes: this topology's hit view, module-start view and the two scalars.
+    using HitsInput = typename CAHitNtupletGenerator<TrackerTraits>::HitsInput;
 
     using TkSoAHost = ::reco::TracksHost;
     using TkSoADevice = reco::TracksSoACollection;
@@ -708,6 +712,59 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
   private:
+    // Build this topology's view of the event's hits. Phase2OTStubs reads the pixel rechits and the
+    // stubs SoA through the CAHitsView facade (one global index space: pixel rows first, then
+    // stubs); every other topology uses the upstream MultiViews, built here because HitsInput
+    // carries them.
+    HitsInput makeHitsInput(device::Event const& iEvent) const {
+      HitsInput in;
+      const auto& pixColl = iEvent.get(pixelRecHitToken_);
+      if constexpr (caStructures::viewHasStubs<caStructures::HitsViewT<TrackerTraits>>) {
+        const auto& stubColl = iEvent.get(stubsToken_);
+        in.hits = caStructures::CAHitsView(pixColl.const_view().trackingHits(),
+                                           pixColl.const_view().hitModules(),
+                                           stubColl.const_view().stubs(),
+                                           stubColl.const_view().stubModules(),
+                                           pixColl.nHits(),
+                                           stubColl.nStubs(),
+                                           pixColl.nModules());
+        in.modules = in.hits;
+        in.nHits = pixColl.nHits() + stubColl.nStubs();
+        in.offsetBPIX2 = pixColl.offsetBPIX2();
+      } else {
+        HitsOnDeviceRefProdVector hitsCollections;
+        hitsCollections.push_back(edm::RefProd<HitsOnDevice>(&pixColl));
+        if (usePhase2_) {
+          const auto& trkColl = iEvent.get(trackerRecHitToken_);
+          hitsCollections.push_back(edm::RefProd<HitsOnDevice>(&trkColl));
+        }
+
+        in.hits = caStructures::HitsMultiView(
+            hitsCollections, [](edm::RefProd<HitsOnDevice> hits) -> auto { return hits->const_view().trackingHits(); });
+
+        std::vector<int> hitModulesSizes;
+        for (const auto& hit : hitsCollections) {
+          hitModulesSizes.push_back(static_cast<int>(hit->nModules()));
+        }
+        // We need to encounter for the last hidden module, so we add 1 to the last element of hitModulesSizes
+        if (!hitModulesSizes.empty()) {
+          ++hitModulesSizes.back();
+        }
+
+        in.modules = caStructures::ModulesMultiView(
+            hitsCollections,
+            [](edm::RefProd<HitsOnDevice> hits) -> auto { return hits->const_view().hitModules(); },
+            hitModulesSizes);
+
+        uint32_t nHits = 0;
+        for (auto const& ref : hitsCollections)
+          nHits += ref->nHits();
+        in.nHits = nHits;
+        in.offsetBPIX2 = hitsCollections[0]->offsetBPIX2();
+      }
+      return in;
+    }
+
     const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenField_;
     // The BL-fit material map and the (Bz,Br) r-z field map. The fit reads them only under useFitCorrections, so
     // they are consumed only then: the other topologies (Run 3 pixel tracks in particular) run in menus
@@ -717,6 +774,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device::ESGetToken<BLBFieldMap, BLBFieldMapRecord> tokenBLBFieldMap_;
     const device::EDGetToken<HitsOnDevice> pixelRecHitToken_;
     device::EDGetToken<HitsOnDevice> trackerRecHitToken_;
+    // Phase2OTStubs only: the outer-tracker stubs SoA, read with the pixel rechits through the
+    // CAHitsView facade.
+    device::EDGetToken<StubsOnDevice> stubsToken_;
     const device::EDPutToken<TkSoADevice> tokenTrack_;
 #ifdef CA_TRIPLET_DUMP
     // Per-built-triplet training-dataset product (one row per built triplet, valid rows = view().nValid()).
@@ -766,6 +826,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
     iCache->tokenGeometry_ = esConsumes<edm::Transition::BeginRun>();
     iCache->tokenTopology_ = esConsumes<edm::Transition::BeginRun>();
+    if constexpr (caStructures::viewHasStubs<caStructures::HitsViewT<TrackerTraits>>) {
+      // The stub CA reads the pixel rechits and the stubs SoA side by side; only a topology whose
+      // hit view carries the stubs consumes the stubs product.
+      stubsToken_ = consumes(iConfig.getParameter<edm::InputTag>("stubsSrc"));
+    }
     if constexpr (std::is_same_v<pixelTopology::Phase2OTStubs, TrackerTraits>) {
       iCache->tokenStackedGeometry_ = esConsumes<edm::Transition::BeginRun>();
     }
@@ -777,6 +842,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     desc.add<edm::InputTag>("pixelRecHitSrc", edm::InputTag("siPixelRecHitsPreSplittingAlpaka"));
     desc.add<edm::InputTag>("trackerRecHitsSoA", edm::InputTag(""));
+    desc.add<edm::InputTag>("stubsSrc", edm::InputTag("otStubProducer"))
+        ->setComment(
+            "Outer-tracker stubs SoA (a reco::StubsSoACollection). Consumed only by the Phase2OTStubs "
+            "topology, whose CA reads the pixel rechits and the stubs side by side through the CAHitsView "
+            "facade; ignored by every other topology.");
 
     Algo::fillPSetDescription(desc);
     descriptions.addWithDefaultLabel(desc);
@@ -797,21 +867,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const float* bMapDevice = useFitCorrections_ ? es.getData(tokenBLBFieldMap_).data() : nullptr;
 
     auto const& geometry = runCache()->geometry_.get(iEvent.queue());
-    const auto& pixColl = iEvent.get(pixelRecHitToken_);
-
-    HitsOnDeviceRefProdVector hitsCollections;
-    hitsCollections.push_back(edm::RefProd<HitsOnDevice>(&pixColl));
-
-    if (usePhase2_) {
-      const auto& trkColl = iEvent.get(trackerRecHitToken_);
-      hitsCollections.push_back(edm::RefProd<HitsOnDevice>(&trkColl));
-    }
-
-    uint32_t nHits = 0;
-    for (auto const& ref : hitsCollections)
-      nHits += ref->nHits();
-
-    const int32_t offsetBPIX2 = hitsCollections[0]->offsetBPIX2();
+    HitsInput const hitsInput = makeHitsInput(iEvent);
+    const uint32_t nHits = hitsInput.nHits;
+    const int32_t offsetBPIX2 = hitsInput.offsetBPIX2;
 
     /// Don't bother if no hits on BPix1 and no good graph for that
     /// (so no staring pair without BPix1 as first layer).
@@ -849,7 +907,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // tuple-multiplicity offsets. No blocking wait anywhere: the framework's seam runs
     // produce only after this queue has drained.
     pending_ = deviceAlgo_.beginTuplesAsync(
-        hitsCollections, geometry, bf, maxDoublets, maxTuples, iEvent.queue(), rhoMapDevice, bMapDevice);
+        hitsInput, geometry, bf, maxDoublets, maxTuples, iEvent.queue(), rhoMapDevice, bMapDevice);
   }
 
   template <typename TrackerTraits>
@@ -872,18 +930,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // Fit passes + classification, consuming the offsets that landed across the seam;
     // zero readbacks, zero waits.
     auto const& geometry = runCache()->geometry_.get(iEvent.queue());
-    const auto& pixColl = iEvent.get(pixelRecHitToken_);
-
-    HitsOnDeviceRefProdVector hitsCollections;
-    hitsCollections.push_back(edm::RefProd<HitsOnDevice>(&pixColl));
-
-    if (usePhase2_) {
-      const auto& trkColl = iEvent.get(trackerRecHitToken_);
-      hitsCollections.push_back(edm::RefProd<HitsOnDevice>(&trkColl));
-    }
+    HitsInput const hitsInput = makeHitsInput(iEvent);
 
     iEvent.emplace(tokenTrack_,
-                   deviceAlgo_.finishTuplesAsync(std::move(*pending_), hitsCollections, geometry, iEvent.queue()));
+                   deviceAlgo_.finishTuplesAsync(std::move(*pending_), hitsInput, geometry, iEvent.queue()));
     pending_.reset();
 
 #ifdef CA_TRIPLET_DUMP

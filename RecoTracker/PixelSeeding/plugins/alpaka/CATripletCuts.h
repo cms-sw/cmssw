@@ -20,6 +20,8 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TrackerTraits>
   struct TripletCuts {
+    using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
     // ----------------------------------
     // RZ alignment cut aka CAThetaCut
     // ----------------------------------
@@ -378,16 +380,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           float residSum = 0.f, weightSum = 0.f;
 
           auto computeKappa = [&](uint32_t hitId, float r) {
-            float s = hh[hitId].dPhiDrError();
-            if (s < 0.f)
+            // Only a stub carries a bend: isStub() is false for a pixel hit and for a degenerate
+            // outer-tracker row with a negative bend error.
+            if (!isStub(hh, int32_t(hitId)))
               return;
-            float d = hh[hitId].dPhiDr();
+            auto const stub = hh.stub(int32_t(hitId));
+            float s = stub.dPhiDrError();
+            float d = stub.dPhiDr();
             float den = 1.f + r * r * d * d;
             float w = den * den * den / (s * s);
             sum_weights += w;
             sum_weightsTimesCurv += w * d / std::sqrt(den);
 
-            float sPrec = hh[hitId].dPhiDrErrorPrec();
+            float sPrec = stub.dPhiDrErrorPrec();
             if (sPrec > 0.f && r > 0.f) {
               float x = hh[hitId].xGlobal(), y = hh[hitId].yGlobal();
               // Curvature error of this stub: hit precision, plus the multiple scattering that
