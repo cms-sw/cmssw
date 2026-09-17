@@ -583,7 +583,7 @@ void TestTruthLogicalGraphPostProcessor::testBeamSideInputKeepsNoSubgraph() {
     config.seedParentDepth = 0;
     config.keepStableSpectators = false;
 
-    auto output = runPostProcessing(std::move(builder.finish()), config);
+    auto output = runPostProcessing(builder.finish(), config);
 
     CPPUNIT_ASSERT(output.isConsistent());
 
@@ -624,7 +624,7 @@ void TestTruthLogicalGraphPostProcessor::testUnattachedSelectionHasNoBeamSideInp
     config.seedParentDepth = 0;
     config.attachSelectionSources = false;
 
-    auto output = runPostProcessing(std::move(builder.finish()), config);
+    auto output = runPostProcessing(builder.finish(), config);
 
     CPPUNIT_ASSERT(output.isConsistent());
     CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 23));
@@ -664,7 +664,7 @@ void TestTruthLogicalGraphPostProcessor::testSpectatorKeepsItsSimSubgraph() {
     config.seedPdgIds = {25};
     config.seedParentDepth = 0;
 
-    auto output = runPostProcessing(std::move(builder.finish()), config);
+    auto output = runPostProcessing(builder.finish(), config);
 
     CPPUNIT_ASSERT(output.isConsistent());
 
