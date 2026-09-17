@@ -11,9 +11,6 @@ namespace truth {
   }
 
   bool BranchSelector::passesNonKinematic(Branch const& branch) const {
-    if (!branch.valid())
-      return false;
-
     if (config_.signalOnly && !branch.isSignal())
       return false;
 
@@ -32,9 +29,6 @@ namespace truth {
   }
 
   uint32_t BranchSelector::failedKinematicCuts(Branch const& branch) const {
-    if (!branch.valid())
-      return 0u;
-
     // Kinematics from the defining root particle. Copy by value: root() returns
     // a temporary Particle, so a reference to its momentum() would dangle.
     const auto rootParticle = branch.root();

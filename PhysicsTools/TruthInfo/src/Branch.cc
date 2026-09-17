@@ -46,32 +46,30 @@ namespace truth {
     }
     graph_ = particle->graph();
     roots_.push_back(particle->id());
+    validate();
   }
 
   void Branch::validate() {
     if (graph_ == nullptr) {
       throw cms::Exception("TruthGraphBranch") << "Cannot initialize Branch: graph is a nullptr.";
+    } else if (roots_.empty()) {
+      throw cms::Exception("TruthGraphBranch") << "Cannot initialize Branch: roots list is empty.";
     } else if (std::any_of(roots_.begin(), roots_.end(), [this](uint32_t id) { return id >= graph_->nParticles(); })) {
       throw cms::Exception("TruthGraphBranch") << "Cannot initialize Branch: root particle id does not exist in graph.";
     }
   }
 
-  Particle Branch::root() const { return valid() ? graph_->particle(roots_.front()) : Particle{}; }
+  Particle Branch::root() const { return graph_->particle(roots_.front()); }
 
   std::vector<Particle> Branch::roots() const {
     std::vector<Particle> out;
-    if (!valid())
-      return out;
     out.reserve(roots_.size());
     for (uint32_t id : roots_)
       out.push_back(graph_->particle(id));
     return out;
   }
 
-  std::vector<uint32_t> Branch::traverse() const {
-    if (!valid())
-      return {};
-
+  std::vector<uint32_t> Branch::traverse(std::vector<uint32_t>* stopIds) const {
     const uint32_t n = graph_->nParticles();
     std::vector<uint8_t> visited(n, 0);
     std::queue<std::pair<uint32_t, uint32_t>> queue;  // (particleId, depth)
@@ -89,30 +87,40 @@ namespace truth {
       queue.pop();
       order.push_back(id);
 
-      bool expand = true;
+      bool stop = false;  // the closure condition fired on this particle
       switch (spec_.kind) {
         case ClosureKind::DepthN:
-          expand = depth < spec_.maxDepth;
+          stop = depth >= spec_.maxDepth;
           break;
         case ClosureKind::UntilPdgId:
           // Stop at (but include) a particle whose id is in the stop list,
           // unless it is itself a root.
-          expand = depth == 0 ||
-                   std::find(spec_.stopPdgIds.begin(), spec_.stopPdgIds.end(), graph_->particles()[id].pdgId) ==
-                       spec_.stopPdgIds.end();
+          stop =
+              depth > 0 && std::find(spec_.stopPdgIds.begin(), spec_.stopPdgIds.end(), graph_->particles()[id].pdgId) !=
+                               spec_.stopPdgIds.end();
+          break;
+        case ClosureKind::UntilLevels:
+          // Stop at (but include) a particle that is at any of the selected truth levels
+          stop = (graph_->particles()[id].levelFlags & spec_.levelFlags) != 0;
           break;
         case ClosureKind::Predicate:
-          expand = depth == 0 || !(spec_.stopAt && spec_.stopAt(graph_->particle(id)));
+          // Stop when predicate condition is satitified (note: includes roots)
+          stop = spec_.stopAt && spec_.stopAt(graph_->particle(id));
           break;
         case ClosureKind::Subtree:
         case ClosureKind::StableLeaves:
-          expand = true;
+          stop = graph_->particle(id).isLeaf();  // no decayVertices/children
           break;
       }
 
-      if (!expand)
+      // Stop this chain if the closure condition was met
+      if (stop) {
+        if (stopIds != nullptr)
+          stopIds->push_back(id);
         continue;
+      }
 
+      // Add children to queue
       for (const uint32_t vertexId : graph_->decayVertices(id)) {
         if (vertexId >= graph_->nVertices())
           continue;
@@ -131,6 +139,10 @@ namespace truth {
       std::erase_if(order, [&](uint32_t id) { return !isRoot(id) && !graph_->particle(id).isLeaf(); });
     }
 
+    // Sort so ids in stopIds and order are ascending
+    if (stopIds != nullptr) {
+      std::sort(stopIds->begin(), stopIds->end());
+    }
     std::sort(order.begin(), order.end());
     order.erase(std::unique(order.begin(), order.end()), order.end());
     return order;
@@ -145,10 +157,18 @@ namespace truth {
     return out;
   }
 
+  std::vector<Particle> Branch::closureLeaves() const {
+    std::vector<Particle> out;
+    std::vector<uint32_t> stopIds;
+    static_cast<void>(traverse(&stopIds));
+    out.reserve(stopIds.size());
+    for (uint32_t id : stopIds)
+      out.push_back(graph_->particle(id));
+    return out;
+  }
+
   std::vector<Particle> Branch::stableLeaves() const {
     std::vector<Particle> out;
-    if (!valid())
-      return out;
     for (uint32_t id : traverse()) {
       auto p = graph_->particle(id);
       if (p.isLeaf())
@@ -157,7 +177,7 @@ namespace truth {
     return out;
   }
 
-  std::vector<uint32_t> Branch::frontier() const {
+  std::vector<uint32_t> Branch::leaves() const {
     std::vector<uint32_t> ids = traverse();
     if (ids.empty())
       return ids;
@@ -172,14 +192,14 @@ namespace truth {
 
   math::XYZTLorentzVectorD Branch::p4() const {
     math::XYZTLorentzVectorD sum;
-    for (uint32_t id : frontier())
+    for (uint32_t id : leaves())
       sum += graph_->particles()[id].momentum;
     return sum;
   }
 
   math::XYZTLorentzVectorD Branch::visibleP4() const {
     math::XYZTLorentzVectorD sum;
-    for (uint32_t id : frontier()) {
+    for (uint32_t id : leaves()) {
       auto const& particle = graph_->particles()[id];
       if (!isInvisible(particle.pdgId))
         sum += particle.momentum;
@@ -189,11 +209,9 @@ namespace truth {
 
   double Branch::invisibleEnergy() const { return p4().energy() - visibleP4().energy(); }
 
-  int32_t Branch::rootPdgId() const { return valid() ? graph_->particles()[roots_.front()].pdgId : 0; }
+  int32_t Branch::rootPdgId() const { return graph_->particles()[roots_.front()].pdgId; }
 
   std::optional<Particle> Branch::originWithPdgId(int32_t pdgId) const {
-    if (!valid())
-      return std::nullopt;
     if (rootPdgId() == pdgId)
       return root();
     return root().firstAncestorWithPdgId(pdgId);
@@ -207,16 +225,16 @@ namespace truth {
     return false;
   }
 
-  int32_t Branch::genEvent() const { return valid() ? graph_->particles()[roots_.front()].genEvent : -1; }
+  int32_t Branch::genEvent() const { return graph_->particles()[roots_.front()].genEvent; }
 
   int Branch::bunchCrossing() const {
-    return valid() ? decodeEventId(graph_->particles()[roots_.front()].eventId).bunchCrossing() : 0;
+    return decodeEventId(graph_->particles()[roots_.front()].eventId).bunchCrossing();
   }
 
-  int Branch::event() const { return valid() ? decodeEventId(graph_->particles()[roots_.front()].eventId).event() : 0; }
+  int Branch::event() const { return decodeEventId(graph_->particles()[roots_.front()].eventId).event(); }
 
   std::optional<Particle> Branch::commonAncestor(Branch const& other) const {
-    if (!valid() || !other.valid() || graph_ != other.graph_)
+    if (graph_ != other.graph_)
       return std::nullopt;
     std::vector<Particle> seeds = roots();
     for (auto const& r : other.roots())
@@ -225,9 +243,7 @@ namespace truth {
   }
 
   Branch Branch::merged(Branch const& other) const {
-    if (!valid())
-      return other;
-    if (!other.valid() || graph_ != other.graph_)
+    if (graph_ != other.graph_)
       return *this;
     std::vector<uint32_t> ids = roots_;
     ids.insert(ids.end(), other.roots_.begin(), other.roots_.end());
