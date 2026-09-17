@@ -74,7 +74,7 @@ public:
 
 private:
   struct binInfo;
-
+  
   // The input collections are read polymorphically, so that the same code can
   // handle RECO / AOD / HLT (reco::PFCandidate / reco::PFJet) and miniAOD
   // (pat::PackedCandidate / pat::Jet) inputs without duplicating anything.
