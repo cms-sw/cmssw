@@ -48,7 +48,8 @@ check_logs_for_errors() {
 
 ensure_patatrack_scripts() {
     if [[ ! -d patatrack-scripts ]]; then
-        git clone https://github.com/cms-patatrack/patatrack-scripts --depth 1
+        git clone https://github.com/cms-externals/patatrack-scripts --depth 1
+        #git clone https://github.com/cms-patatrack/patatrack-scripts --depth 1
     fi
 }
 
