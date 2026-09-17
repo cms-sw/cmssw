@@ -390,6 +390,17 @@ namespace {
     std::ofstream os(path);
     os << "{\n";
     os << "  \"run\": " << id.run() << ", \"lumi\": " << id.luminosityBlock() << ", \"event\": " << id.event() << ",\n";
+    auto list = [&os](char const* key, std::vector<int32_t> const& values) {
+      os << "  \"" << key << "\": [";
+      for (std::size_t i = 0; i < values.size(); ++i) {
+        os << (i == 0 ? "" : ", ") << values[i];
+      }
+      os << "],\n";
+    };
+    // What the level rules read from the graph itself, so a reader recomputes a level.
+    list("signalSeedPdgIds", graph.signalSeedPdgIds());
+    list("seedHadronFlavors", graph.seedHadronFlavors());
+    list("reconstructablePdgIds", graph.reconstructablePdgIds());
     os << "  \"particles\": [\n";
     for (uint32_t i = 0; i < graph.nParticles(); ++i) {
       auto const& d = graph.particles()[i];
