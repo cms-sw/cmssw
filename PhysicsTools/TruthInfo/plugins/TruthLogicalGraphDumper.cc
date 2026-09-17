@@ -916,9 +916,8 @@ public:
            << ">";
       }
 
-      // Big title row: the role for artificial vertices; the physical reason when
-      // known (SIM vertices carry the Geant4 process); else - GEN-only vertices have
-      // no process - infer from the topology (a single incoming particle decays).
+      // Big title row: the role for an artificial vertex, else the physical reason, else
+      // the topology (a single incoming particle decays).
       std::string vBig;
       if (roleName != nullptr)
         vBig = roleName;

@@ -35,9 +35,11 @@ namespace truth {
     BeamSideInput = 4
   };
 
-  // Physical reason a vertex exists, derived from the Geant4 creator-process
-  // subtype of the SimVertex (TruthGraph::nodeProcessType). Unknown for GEN-only
-  // and artificial vertices; Primary for vertices with no creator process.
+  // Physical reason a vertex exists. A vertex with a SIM side takes it from the Geant4
+  // creator-process subtype of the SimVertex (TruthGraph::nodeProcessType). A GEN-only
+  // vertex takes it from its topology and from the generator status codes of the
+  // particles that meet there, through genVertexReason(). Unknown for an artificial
+  // vertex and for any pattern neither rule set covers.
   enum class VertexReason : uint8_t {
     Unknown = 0,
     Primary,            // no creator process (primary / hard-scatter)
@@ -56,7 +58,16 @@ namespace truth {
     ChargeExchange,     // hadronic charge exchange
     HadronAtRest,       // hadron interaction at rest (e.g. pi- absorption)
     Other,              // a known-but-unmapped G4 subtype
+    // GEN-only vertices. A generator decay reuses Decay above, which is the same
+    // statement on either side.
+    HardScatter,      // the hard interaction of the event
+    ShowerBranching,  // a parton branching in the initial or final state shower
+    Hadronization,    // partons or a string turn into hadrons
   };
+
+  // Number of VertexReason values. A bin count or a sentinel derived from Other instead
+  // would collide with the GEN values, which sit after it.
+  inline constexpr int kVertexReasonCount = static_cast<int>(VertexReason::Hadronization) + 1;
 
   struct VertexData {
     // Optional provenance/debug back-references to the raw TruthGraph nodes.
@@ -73,7 +84,7 @@ namespace truth {
     // VertexRole stored as its underlying type for dictionary simplicity.
     uint8_t role = static_cast<uint8_t>(VertexRole::Normal);
 
-    // VertexReason (G4-derived), stored as its underlying type.
+    // VertexReason, stored as its underlying type.
     uint8_t reason = static_cast<uint8_t>(VertexReason::Unknown);
 
     // Standalone payload.
@@ -172,6 +183,12 @@ namespace truth {
         return "HadronAtRest";
       case VertexReason::Other:
         return "Other";
+      case VertexReason::HardScatter:
+        return "HardScatter";
+      case VertexReason::ShowerBranching:
+        return "ShowerBranching";
+      case VertexReason::Hadronization:
+        return "Hadronization";
     }
     return "Unknown";
   }
