@@ -38,6 +38,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   }
 
+  // The last mini-doublet of a triplet: the outer MD of its outer segment. This
+  // is the tail that getTripletHitIndices reaches as mdIndices[2]; a consumer
+  // needing only the triplet's final two hits can take this and skip the rest.
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE unsigned int getTripletLastMDIndex(SegmentsConst segments,
+                                                                    TripletsConst triplets,
+                                                                    unsigned int tripletIndex) {
+    return segments.mdIndices()[triplets.segmentIndices()[tripletIndex][1]][1];
+  }
+
   // The logical layer of a lower module: its layer number, offset by the six
   // barrel layers when the module is in an endcap (subdet 4). This is what
   // Triplets.logicalLayers used to cache, one entry per lower module index.
