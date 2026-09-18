@@ -107,7 +107,7 @@ pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
     genjetDir = cms.string( genjetDir ),
     ptBins = cms.vdouble( ptbins ),
     etaBins = cms.vdouble( etabins ),
-    recoPtCut = cms.double(10. )
+    recoPtCut = cms.double(10.)
 )
 
 # Particle Flow Candidates
@@ -127,7 +127,11 @@ pfAnalyzerDQM = pfAnalyzer.clone(
         ),
         eventObservables = cms.vstring(),
         pfInJetObservables = cms.vstring(),
-        binList2D = cms.vstring('[eta;30;-5;5][phi;30;-3.14;3.14]'),
+        binList2D = cms.vstring(
+            '[eta;30;-5;5][phi;30;-3.14;3.14]'
+            '[eta;30;-5;5][logPt;50;-1.5;4.]'
+            '[eta;30;-5;5][energy;50;0;50.]'
+        ),
         cutList = cms.vstring(
             '[pt;1;0;10000]',
             '[pt;1;0;10000][abseta;0;1.47;4.;6.]',
