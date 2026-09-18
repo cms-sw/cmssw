@@ -201,7 +201,7 @@ namespace fastsim {
         TrajectoryStateOnSurface tsos(GlobalTrajectoryParameters(position, momentum, TrackCharge(particle.charge()), &magneticField), *plane);
 
         //--------------------------------------
-        // Fint the nearest DetUnit
+        // Find the nearest DetUnit
         //--------------------------------------
         AnalyticalPropagator propagator(&magneticField, anyDirection);
         InsideBoundsMeasurementEstimator est;
@@ -248,7 +248,11 @@ namespace fastsim {
         GlobalPoint position(x, y, z);
         GlobalVector momentum(px, py, pz);
         auto plane = detLayer->surface().tangentPlane(position);
-        TrajectoryStateOnSurface tsos(GlobalTrajectoryParameters(position, momentum, TrackCharge(particle.charge()), &magneticField), *plane);
+
+        AlgebraicSymMatrix55 dummyCov;
+        dummyCov(0,0) = 1.; dummyCov(1,1) = 1.; dummyCov(2,2) = 1.;
+        dummyCov(3,3) = 1.; dummyCov(4,4) = 1.;
+        TrajectoryStateOnSurface tsos(GlobalTrajectoryParameters(position, momentum, TrackCharge(particle.charge()), &magneticField), CurvilinearTrajectoryError(dummyCov), *plane);
 
         AnalyticalPropagator propagator(&magneticField, anyDirection);
         InsideBoundsMeasurementEstimator est;

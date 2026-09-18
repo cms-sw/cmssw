@@ -25,34 +25,19 @@ MTDMaterialBlock = cms.PSet(
                 interactionModels = _mtdMaterialInteractionModels,
             ),
         ),
-
         EndcapLayers = cms.VPSet(
-            # ETL disk 1
+            # ETL DoubleLayer 1 (disk 1 z=299.5 + disk 2 z=300.7)
             cms.PSet(
-                z         = cms.untracked.double(299.5),
+                z         = cms.untracked.double(300.1),
                 limits    = cms.untracked.vdouble(31., 120.),
-                thickness = cms.untracked.vdouble(0.0032),
+                thickness = cms.untracked.vdouble(0.0064),
                 interactionModels = _mtdMaterialInteractionModels,
             ),
-            # ETL disk 2
+            # ETL DoubleLayer 2 (disk 3 z=301.9 + disk 4 z=303.1)
             cms.PSet(
-                z         = cms.untracked.double(300.7),
+                z         = cms.untracked.double(302.5),
                 limits    = cms.untracked.vdouble(31., 120.),
-                thickness = cms.untracked.vdouble(0.0032),
-                interactionModels = _mtdMaterialInteractionModels,
-            ),
-            # ETL disk 3
-            cms.PSet(
-                z         = cms.untracked.double(301.9),
-                limits    = cms.untracked.vdouble(31., 120.),
-                thickness = cms.untracked.vdouble(0.0032),
-                interactionModels = _mtdMaterialInteractionModels,
-            ),
-            # ETL disk 4
-            cms.PSet(
-                z         = cms.untracked.double(303.1),
-                limits    = cms.untracked.vdouble(31., 120.),
-                thickness = cms.untracked.vdouble(0.0032),
+                thickness = cms.untracked.vdouble(0.0064),
                 interactionModels = _mtdMaterialInteractionModels,
             ),
         ),

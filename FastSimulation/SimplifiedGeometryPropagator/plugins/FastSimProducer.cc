@@ -164,6 +164,17 @@ private:
                        const GeometryDependentObjects* geometries,
                        FastSimState* state) const;
 
+  //------------------------------------------------------------------------------
+  // Propagate a particle through a set of layers (tracker or MTD), calling
+  // interaction models at each layer. Common routine shared by tracker and
+  // MTD propagation. Layer navigation stops when the particle decays, loses
+  // all its energy, or reaches a TRACKERBOUNDARY layer.
+  //------------------------------------------------------------------------------
+  void propagateThroughLayers(fastsim::Particle& particle,
+                              const fastsim::Geometry& geometry,
+                              fastsim::ParticleManager& particleManager,
+                              FastSimState* state) const;
+
   edm::ParameterSet iConfig_;
   edm::EDGetTokenT<edm::HepMCProduct> genParticlesToken_;  //!< Token to get the genParticles
   fastsim::GeometryConsumer geometryConsumer_;
@@ -258,6 +269,90 @@ std::unique_ptr<FastSimState> FastSimProducer::beginStream(const edm::StreamID i
   return std::make_unique<FastSimState>(iConfig_, id, interactionModelNames_);
 }
 
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Definition of propagateThroughLayers function
+////////////////////////////////////////////////////////////////////////////////
+void FastSimProducer::propagateThroughLayers(fastsim::Particle& particle,
+                                             const fastsim::Geometry& geometry,
+                                             fastsim::ParticleManager& particleManager,
+                                             FastSimState* state) const {
+  fastsim::LayerNavigator layerNavigator(geometry);
+  const fastsim::SimplifiedGeometry* layer = nullptr;
+
+  //------------------------------------------------------------------------------
+  // moveParticleToNextLayer(..) returns 0 in case that particle decays
+  // in this case particle is propagated up to its decay vertex
+  //------------------------------------------------------------------------------
+  while (layerNavigator.moveParticleToNextLayer(particle, layer)) {
+    LogDebug(MESSAGECATEGORY) << "   moved to next layer: " << *layer;
+    LogDebug(MESSAGECATEGORY) << "   new state: " << particle;
+
+    //----------------------------------------------------------
+    // Hack to interface "old" calo to "new" tracking
+    // Particle reached calorimetry so stop further propagation
+    //----------------------------------------------------------
+    if (layer->getCaloType() == fastsim::SimplifiedGeometry::TRACKERBOUNDARY) {
+      layer = nullptr;
+      //--------------------------------------
+      // particle no longer is on a layer
+      //--------------------------------------
+      particle.resetOnLayer();
+      break;
+    }
+
+    //----------------------------------------------------------
+    // break after 25 ns: only happens for particles stuck in loops
+    //----------------------------------------------------------
+    if (particle.position().T() > maxParticleTime_) {
+      layer = nullptr;
+      //--------------------------------------
+      // particle no longer is on a layer
+      //--------------------------------------
+      particle.resetOnLayer();
+      break;
+    }
+
+    //----------------------------------------------------------
+    // perform interaction between layer and particle
+    // do only if there is actual material
+    //----------------------------------------------------------
+    if (layer->getThickness(particle.position(), particle.momentum()) > minThickness_) {
+      int nSecondaries = 0;
+      //--------------------------------------
+      // loop on interaction models
+      //--------------------------------------
+      for (size_t interactionModelIndex : layer->getInteractionModelIndices()) {
+        auto& interactionModel = state->interactionModels[interactionModelIndex];
+        LogDebug(MESSAGECATEGORY) << "   interact with " << *interactionModel;
+        std::vector<std::unique_ptr<fastsim::Particle>> secondaries;
+        interactionModel->interact(particle, *layer, secondaries, *(state->randomEngine));
+        nSecondaries += secondaries.size();
+        particleManager.addSecondaries(particle.position(), particle.simTrackIndex(), secondaries, layer);
+      }
+
+      //--------------------------------------
+      // kinematic cuts: particle might e.g. lost all its energy
+      //--------------------------------------
+      if (!particleFilter_.acceptsEn(particle)) {
+        //------------------
+        // Add endvertex if particle did not create any secondaries
+        //------------------
+        if (nSecondaries == 0)
+          particleManager.addEndVertex(&particle);
+        layer = nullptr;
+        break;
+      }
+    }
+
+    LogDebug(MESSAGECATEGORY) << "--------------------------------"
+                              << "\n-------------------------------";
+  }
+}
+
+
+
 void FastSimProducer::produce(edm::StreamID id, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   LogDebug(MESSAGECATEGORY) << "   produce";
 
@@ -309,125 +404,12 @@ void FastSimProducer::produce(edm::StreamID id, edm::Event& iEvent, const edm::E
         particle->position().Perp2() < caloBoundaryPerp2_ && std::abs(particle->position().Z()) < caloBoundaryZ_;
 
     if (startedInsideTracker) {
-      // move the particle through the layers
-      fastsim::LayerNavigator layerNavigator(geometries->geometry);
-      const fastsim::SimplifiedGeometry* layer = nullptr;
+      // move the particle through the tracker layers
+      propagateThroughLayers(*particle, geometries->geometry, particleManager, state);
 
-      // moveParticleToNextLayer(..) returns 0 in case that particle decays
-      // in this case particle is propagated up to its decay vertex
-      while (layerNavigator.moveParticleToNextLayer(*particle, layer)) {
-        LogDebug(MESSAGECATEGORY) << "   moved to next layer: " << *layer;
-        LogDebug(MESSAGECATEGORY) << "   new state: " << *particle;
-
-        // Hack to interface "old" calo to "new" tracking
-        // Particle reached calorimetry so stop further propagation
-        if (layer->getCaloType() == fastsim::SimplifiedGeometry::TRACKERBOUNDARY) {
-          layer = nullptr;
-          // particle no longer is on a layer
-          particle->resetOnLayer();
-          break;
-        }
-
-        // break after 25 ns: only happens for particles stuck in loops
-        if (particle->position().T() > maxParticleTime_) {
-          layer = nullptr;
-          // particle no longer is on a layer
-          particle->resetOnLayer();
-          break;
-        }
-
-        // perform interaction between layer and particle
-        // do only if there is actual material
-        if (layer->getThickness(particle->position(), particle->momentum()) > minThickness_) {
-          int nSecondaries = 0;
-          // loop on interaction models
-          for (size_t interactionModelIndex : layer->getInteractionModelIndices()) {
-            auto& interactionModel = state->interactionModels[interactionModelIndex];
-            LogDebug(MESSAGECATEGORY) << "   interact with " << *interactionModel;
-            std::vector<std::unique_ptr<fastsim::Particle>> secondaries;
-            interactionModel->interact(*particle, *layer, secondaries, *(state->randomEngine));
-            nSecondaries += secondaries.size();
-            particleManager.addSecondaries(particle->position(), particle->simTrackIndex(), secondaries, layer);
-          }
-
-          // kinematic cuts: particle might e.g. lost all its energy
-          if (!particleFilter_.acceptsEn(*particle)) {
-            // Add endvertex if particle did not create any secondaries
-            if (nSecondaries == 0)
-              particleManager.addEndVertex(particle.get());
-            layer = nullptr;
-            break;
-          }
-        }
-
-        LogDebug(MESSAGECATEGORY) << "--------------------------------"
-                                  << "\n-------------------------------";
-      }
-
-      //--------------------------------------
-      // MTD propagation
-      //--------------------------------------
+      // MTD case
       if (!geometries->mtdGeometry.barrelLayers().empty() or !geometries->mtdGeometry.forwardLayers().empty()) {
-        fastsim::LayerNavigator mtdLayerNavigator(geometries->mtdGeometry);
-        const fastsim::SimplifiedGeometry* mtdLayer = nullptr;
-
-        while (mtdLayerNavigator.moveParticleToNextLayer(*particle, mtdLayer)) {
-          LogDebug(MESSAGECATEGORY) << "   moved particle to MTD layer " << *mtdLayer;
-          LogDebug(MESSAGECATEGORY) << "   new state: " << *particle;
-
-          //------------------
-          // Hack to interface "old" calo to "new" tracking
-          // Particle reached calorimetry so stop further propagation
-          //------------------
-          if (mtdLayer->getCaloType() == fastsim::SimplifiedGeometry::TRACKERBOUNDARY) {
-            mtdLayer = nullptr;
-
-            // particle no longer is on a layer
-            particle->resetOnLayer();
-
-            break;
-          }
-
-          //------------------
-          // break after 25 ns: only happens for particles stuck in loops
-          //------------------
-          if (particle->position().T() > maxParticleTime_) {
-            layer = nullptr;
-
-            // particle no longer is on a layer
-            particle->resetOnLayer();
-
-            break;
-          }
-
-          //------------------
-          // perform interaction between layer and particle
-          // do only if there is actual material
-          //------------------
-          if (mtdLayer->getThickness(particle->position(), particle->momentum()) > minThickness_) {
-            int nSecondaries = 0;
-
-            // loop on interaction models
-            for (size_t interactionModelIndex : mtdLayer->getInteractionModelIndices()) {
-              auto& interactionModel = state->interactionModels[interactionModelIndex];
-              LogDebug(MESSAGECATEGORY) << "   interact with " << *interactionModel;
-              std::vector<std::unique_ptr<fastsim::Particle>> secondaries;
-              interactionModel->interact(*particle, *mtdLayer, secondaries, *(state->randomEngine));
-              particleManager.addSecondaries(particle->position(), particle->simTrackIndex(), secondaries, mtdLayer);
-            }
-
-            // kinematic cuts: particle might e.g. lost all its energy
-            if (!particleFilter_.acceptsEn(*particle)) {
-              mtdLayer = nullptr;
-
-              // Add endvertex if particle did not create any secondaries
-              if (nSecondaries == 0)
-                particleManager.addEndVertex(particle.get());
-
-              break;
-            }
-          }
-        }
+        propagateThroughLayers(*particle, geometries->geometry, particleManager, state);
       }
 
       // do decays
