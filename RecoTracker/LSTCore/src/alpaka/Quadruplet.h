@@ -17,6 +17,7 @@
 #include "RecoTracker/LSTCore/interface/Circle.h"
 
 #include "Quintuplet.h"
+#include "TripletAccessors.h"
 
 #include "NeuralNetwork.h"
 

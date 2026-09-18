@@ -17,7 +17,7 @@
 #include "RecoTracker/LSTCore/interface/Circle.h"
 
 #include "NeuralNetwork.h"
-#include "Triplet.h"
+#include "TripletAccessors.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addQuintupletToMemory(ModulesConst modules,
