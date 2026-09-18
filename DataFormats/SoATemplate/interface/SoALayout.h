@@ -1286,19 +1286,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
               BOOST_PP_EMPTY(),                                                             \
               BOOST_PP_EXPAND(_DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_IMPL TYPE_NAME))
 
-/**
- * Operator to assign a SoA element to an AoS element 
- */
-// clang-format off
-#define _DECLARE_ELEMENT_PARAMS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
-  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, BOOST_PP_CAT(NAME, _) = elem.NAME();)
-// clang-format on
-
-#define _DECLARE_ELEMENT_PARAMS(R, DATA, TYPE_NAME)                                         \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
-              BOOST_PP_EXPAND(_DECLARE_ELEMENT_PARAMS_IMPL TYPE_NAME))
-
 // ============================================== AoS Macros ===========================================================
 /**
  * Declare the AoS scalars as data members
@@ -1347,9 +1334,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
   _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE, (other.BOOST_PP_CAT(NAME, _)))
 // clang-format on
 
-#define _DECLARE_AOS_VIEW_OTHER_MEMBER_LIST(R, DATA, TYPE_NAME)                              \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE),  \
-              BOOST_PP_EMPTY(),                                                              \
+#define _DECLARE_AOS_VIEW_OTHER_MEMBER_LIST(R, DATA, TYPE_NAME)                             \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
               BOOST_PP_EXPAND(_DECLARE_AOS_VIEW_OTHER_MEMBER_LIST_IMPL TYPE_NAME))
 
 /**
@@ -1393,6 +1380,47 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
               BOOST_PP_EXPAND(_COPY_AOS_SCALAR_MEMBERS_IMPL TYPE_NAME))
 
 /**
+ * Declare the const forward declarations
+ */
+// clang-format off
+#define _DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_FORWARD_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)          \
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, SOA_HOST_DEVICE SOA_INLINE                                         \
+                                    decltype(auto) NAME() const { return value_element_ptr_->NAME(); })
+// clang-format on
+
+#define _DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_FORWARD(R, DATA, TYPE_NAME)                  \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_FORWARD_IMPL TYPE_NAME))
+
+/**
+ * Declare the forward declarations
+ */
+// clang-format off
+#define _DECLARE_VALUE_ELEMENT_ACCESSORS_FORWARD_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                \
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, SOA_HOST_DEVICE SOA_INLINE                                         \
+                                    decltype(auto) NAME() { return value_element_ptr_->NAME(); })
+// clang-format on
+
+#define _DECLARE_VALUE_ELEMENT_ACCESSORS_FORWARD(R, DATA, TYPE_NAME)                        \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_VALUE_ELEMENT_ACCESSORS_FORWARD_IMPL TYPE_NAME))
+
+/**
+ * Operator to assign a SoA element to an AoS element 
+ */
+// clang-format off
+#define _DECLARE_AOS_ELEMENT_PARAMS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, value_element_ptr_->NAME() = elem.NAME();)
+// clang-format on
+
+#define _DECLARE_AOS_ELEMENT_PARAMS(R, DATA, TYPE_NAME)                                     \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
+              BOOST_PP_EMPTY(),                                                             \
+              BOOST_PP_EXPAND(_DECLARE_AOS_ELEMENT_PARAMS_IMPL TYPE_NAME))
+
+/**
  * Declare the const accessors for the AoSView scalars
  */
 // clang-format off
@@ -1403,7 +1431,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       ,                                                                                                                \
       /* Column */                                                                                                     \
       SOA_HOST_DEVICE SOA_INLINE auto NAME() const {                                                                   \
-        return ConstColumn<&const_element::BOOST_PP_CAT(NAME, _)>(aos_, elements_);                                    \
+        return ConstColumn<&value_element::BOOST_PP_CAT(NAME, _)>(aos_, elements_);                                    \
       }                                                                                                                \
                                                                                                                        \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
@@ -1413,7 +1441,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       ,                                                                                                                \
       /* Eigen column */                                                                                               \
       SOA_HOST_DEVICE SOA_INLINE auto NAME() const {                                                                   \
-        return ConstColumn<&const_element::BOOST_PP_CAT(NAME, _)>(aos_, elements_);                                    \
+        return ConstColumn<&value_element::BOOST_PP_CAT(NAME, _)>(aos_, elements_);                                    \
       }                                                                                                                \
                                                                                                                        \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
@@ -1590,14 +1618,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         /* Useful accessors for the AoS element */                                                                     \
         _ITERATE_ON_ALL(_DECLARE_VALUE_ELEMENT_ACCESSORS, ~, __VA_ARGS__)                                              \
         _ITERATE_ON_ALL(_DECLARE_VALUE_ELEMENT_CONST_ACCESSORS, ~, __VA_ARGS__)                                        \
-                                                                                                                       \
-        template<class T>                                                                                              \
-        requires (!std::same_as<std::decay_t<T>, value_element>)                                                       \
-        SOA_HOST_DEVICE SOA_INLINE constexpr value_element& operator=(T const& elem) {                                 \
-          _ITERATE_ON_ALL(_DECLARE_ELEMENT_PARAMS, ~, __VA_ARGS__)                                                     \
-          return *this;                                                                                                \
-        }                                                                                                              \
-                                                                                                                       \
                                                                                                                        \
         _ITERATE_ON_ALL(_DEFINE_VALUE_ELEMENT_MEMBERS, ~, __VA_ARGS__)                                                 \
       };                                                                                                               \
@@ -2041,17 +2061,41 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     template <cms::soa::RangeChecking::Mode RANGE_CHECKING>                                                            \
     struct ConstViewTemplate {                                                                                         \
       friend CLASS::AoSWrapper;                                                                                        \
-      using SoAMetadata = typename CLASS::Metadata;                                                                    \
-      using const_element = typename SoAMetadata::value_element;                                                       \
-      template <auto Member>                                                                                           \
-      using ConstColumn = typename cms::soa::AoSConstMember<Member>::template AoSElement<const_element>::ConstColumn;  \
+      using value_element = typename CLASS::Metadata::value_element;                                                   \
       constexpr static cms::soa::RangeChecking::Mode rangeChecking = RANGE_CHECKING;                                   \
       constexpr static bool isSoA = AoSWrapper::isSoA;                                                                 \
+                                                                                                                       \
+      template <auto Member>                                                                                           \
+      using ConstColumn = typename cms::soa::AoSConstMember<Member>::template AoSElement<value_element>::ConstColumn;  \
+                                                                                                                       \
+      struct const_element {                                                                                           \
+        SOA_HOST_DEVICE SOA_INLINE                                                                                     \
+        explicit const_element(const value_element* value_element_ptr) : value_element_ptr_(value_element_ptr) {}      \
+                                                                                                                       \
+        /* Forward getters */                                                                                          \
+        _ITERATE_ON_ALL(_DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_FORWARD, ~, __VA_ARGS__)                                \
+                                                                                                                       \
+        /* generic assignment operator */                                                                              \
+        template<class T>                                                                                              \
+        SOA_HOST_DEVICE SOA_INLINE constexpr const_element& operator=(T const& elem) {                                 \
+          _ITERATE_ON_ALL(_DECLARE_AOS_ELEMENT_PARAMS, ~, __VA_ARGS__)                                                 \
+          return *this;                                                                                                \
+        }                                                                                                              \
+                                                                                                                       \
+        /* conversion operator for SoA::View::element to AoS const_element, needed for transpose SoA -> AoS*/          \
+        SOA_HOST_DEVICE SOA_INLINE operator const value_element&() const { return *value_element_ptr_; }               \
+                                                                                                                       \
+        /* element methods defined const */                                                                            \
+        ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_METHODS, ~, __VA_ARGS__))                                         \
+                                                                                                                       \
+        private:                                                                                                       \
+          const value_element* value_element_ptr_{nullptr};                                                            \
+      };                                                                                                               \
                                                                                                                        \
       /**                                                                                                              \
        * Helper/friend class allowing AoS introspection.                                                               \
        */                                                                                                              \
-       struct AoSMetadata {                                                                                            \
+      struct AoSMetadata {                                                                                             \
         friend ConstViewTemplate;                                                                                      \
         SOA_HOST_DEVICE SOA_INLINE size_type size() const { return parent_.elements_; }                                \
                                                                                                                        \
@@ -2067,13 +2111,13 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       SOA_HOST_DEVICE SOA_INLINE const AoSMetadata metadata() const { return AoSMetadata(*this); }                     \
                                                                                                                        \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
-      const const_element& operator[] (cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) const {         \
+      const const_element operator[] (cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) const {         \
         if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                            \
           if (index.value_ >= elements_ or index.value_ < 0)                                                           \
             SOA_THROW_OUT_OF_RANGE("Out of range index in AoS ConstViewTemplate" #CLASS "::operator[]",                \
               index, elements_)                                                                                        \
         }                                                                                                              \
-        return aos_[index.value_];                                                                                     \
+        return const_element{&aos_[index.value_]};                                                                                     \
       }                                                                                                                \
                                                                                                                        \
       /* Const accessors */                                                                                            \
@@ -2112,7 +2156,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
       private:                                                                                                         \
           size_type elements_ = 0;                                                                                     \
-          const_element* aos_ = nullptr;                                                                               \
+          value_element* aos_ = nullptr;                                                                               \
           _ITERATE_ON_ALL(_DECLARE_SCALAR_MEMBERS_AOS_CONSTVIEW, ~, __VA_ARGS__)                                       \
     };                                                                                                                 \
     using ConstView = ConstViewTemplate<cms::soa::RangeChecking::Default>;                                             \
@@ -2121,22 +2165,46 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     struct ViewTemplate : public ConstViewTemplate<RANGE_CHECKING> {                                                   \
       friend CLASS::AoSWrapper;                                                                                        \
       using base_type = ConstViewTemplate<RANGE_CHECKING>;                                                             \
-      using SoAMetadata = typename CLASS::Metadata;                                                                    \
-      using value_element = typename SoAMetadata::value_element;                                                       \
+      using value_element = typename CLASS::Metadata::value_element;                                                   \
+      constexpr static cms::soa::RangeChecking::Mode rangeChecking = RANGE_CHECKING;                                   \
+      constexpr static bool isSoA = AoSWrapper::isSoA;                                                                 \
+                                                                                                                       \
       template <auto Member>                                                                                           \
       using Column = typename cms::soa::AoSMember<Member>::template AoSElement<value_element>::Column;                 \
-      constexpr static cms::soa::RangeChecking::Mode rangeChecking = RANGE_CHECKING;                                   \
+                                                                                                                       \
+      struct element {                                                                                                 \
+        SOA_HOST_DEVICE SOA_INLINE                                                                                     \
+        explicit element(value_element* value_element_ptr) : value_element_ptr_(value_element_ptr) {}                  \
+                                                                                                                       \
+        /* Forward getters */                                                                                          \
+        _ITERATE_ON_ALL(_DECLARE_VALUE_ELEMENT_ACCESSORS_FORWARD, ~, __VA_ARGS__)                                      \
+        _ITERATE_ON_ALL(_DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_FORWARD, ~, __VA_ARGS__)                                \
+                                                                                                                       \
+        /* generic assignment operator */                                                                              \
+        template<class T>                                                                                              \
+        SOA_HOST_DEVICE SOA_INLINE constexpr element& operator=(T const& elem) {                                       \
+          _ITERATE_ON_ALL(_DECLARE_AOS_ELEMENT_PARAMS, ~, __VA_ARGS__)                                                 \
+          return *this;                                                                                                \
+        }                                                                                                              \
+                                                                                                                       \
+        /* element methods defined const */                                                                            \
+        ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_METHODS, ~, __VA_ARGS__))                                         \
+        ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_METHODS, ~, __VA_ARGS__))                                               \
+                                                                                                                       \
+        private:                                                                                                       \
+          value_element* value_element_ptr_{nullptr};                                                                  \
+      };                                                                                                               \
                                                                                                                        \
       using base_type::operator[];                                                                                     \
                                                                                                                        \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
-      value_element& operator[] (cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) {                     \
+      element operator[] (cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) {                            \
         if constexpr (rangeChecking != cms::soa::RangeChecking::disabled) {                                            \
           if (index.value_ >= this->elements_ or index.value_ < 0)                                                     \
             SOA_THROW_OUT_OF_RANGE("Out of range index in AoS ViewTemplate" #CLASS "::operator[]",                     \
               index, this->elements_)                                                                                  \
         }                                                                                                              \
-        return this->aos_[index.value_];                                                                               \
+        return element{&this->aos_[index.value_]};                                                                     \
       }                                                                                                                \
                                                                                                                        \
       /* Using the const accessors of the View */                                                                      \
