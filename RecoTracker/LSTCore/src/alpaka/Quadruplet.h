@@ -76,9 +76,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quadruplets.logicalLayers()[quadrupletIndex][3] =
         getLogicalLayer(modules, triplets.lowerModuleIndices()[outerTripletIndex][2]);
 
-    unsigned int innerT3Hits[Params_T3::kHits], outerT3Hits[Params_T3::kHits];
+    unsigned int innerT3Hits[Params_T3::kHits];
     getTripletHitIndices(mds, segments, triplets, innerTripletIndex, innerT3Hits);
-    getTripletHitIndices(mds, segments, triplets, outerTripletIndex, outerT3Hits);
+    // Only the outer triplet's final two hits are kept, so fetch its last
+    // mini-doublet rather than gathering all six of its hit indices.
+    unsigned int outerLastMD = getTripletLastMDIndex(segments, triplets, outerTripletIndex);
 
     quadruplets.hitIndices()[quadrupletIndex][0] = innerT3Hits[0];
     quadruplets.hitIndices()[quadrupletIndex][1] = innerT3Hits[1];
@@ -86,8 +88,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quadruplets.hitIndices()[quadrupletIndex][3] = innerT3Hits[3];
     quadruplets.hitIndices()[quadrupletIndex][4] = innerT3Hits[4];
     quadruplets.hitIndices()[quadrupletIndex][5] = innerT3Hits[5];
-    quadruplets.hitIndices()[quadrupletIndex][6] = outerT3Hits[4];
-    quadruplets.hitIndices()[quadrupletIndex][7] = outerT3Hits[5];
+    quadruplets.hitIndices()[quadrupletIndex][6] = mds.anchorHitIndices()[outerLastMD];
+    quadruplets.hitIndices()[quadrupletIndex][7] = mds.outerHitIndices()[outerLastMD];
 
     quadruplets.displacedScore()[quadrupletIndex] = displacedScore;
     quadruplets.fakeScore()[quadrupletIndex] = fakeScore;
