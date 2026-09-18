@@ -1,3 +1,6 @@
+#ifndef RecoTracker_PixelSeeding_plugins_alpaka_RiemannFit_h
+#define RecoTracker_PixelSeeding_plugins_alpaka_RiemannFit_h
+
 // #define FIT_DEBUG
 #include <cstdint>
 
@@ -455,10 +458,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   }
 
-  template class HelixFit<pixelTopology::Phase1>;
-  template class HelixFit<pixelTopology::Phase2>;
-  template class HelixFit<pixelTopology::Phase2OT>;
-  template class HelixFit<pixelTopology::Phase2OTStubs>;
-  template class HelixFit<pixelTopology::HIonPhase1>;
-
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+
+#endif  // RecoTracker_PixelSeeding_plugins_alpaka_RiemannFit_h
