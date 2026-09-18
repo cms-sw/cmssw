@@ -1025,10 +1025,16 @@ upgradeWFs['ticlv5_TrackLinkingGNN'].step4 = {'--procModifiers': 'ticlv5_TrackLi
 
 
 class UpgradeWorkflow_enableTruth(UpgradeWorkflow):
+    # The reco-to-truth association producers and their performance plots are not part of
+    # the default validation, because they book 54242 monitor elements and 21.9 MiB of the
+    # harvested DQM file on ten ttbar events. This workflow is where they are exercised.
+    truthValidationCustomise = ('SimGeneral/TruthGraphAssociatorProducers/'
+                                'customiseTruthGraphAssociators.customiseTruthBranchValidation')
+
     def setup_(self, step, stepName, stepDict, k, properties):
-        # enableTruth runs the truth-graph producers in RecoGlobal (step3). The Branch
-        # validators run in the RecoGlobal VALIDATION and their efficiency harvesting
-        # in HARVESTGlobal (step4), so the modifier must reach the harvesting step too.
+        # enableTruth runs the truth-graph producers in RecoGlobal (step3). The graph
+        # validators run in the RecoGlobal VALIDATION and their harvesting in
+        # HARVESTGlobal (step4), so the modifier must reach the harvesting step too.
         # GenSim (step1) needs no modifier: SimVertex ancestor reconnection
         # (g4SimHits TrackingAction.ReconnectDroppedAncestors) is a baseline default,
         # so the truth graph is connected to the generator in every sample.
@@ -1039,6 +1045,14 @@ class UpgradeWorkflow_enableTruth(UpgradeWorkflow):
                 stepDict[stepName][k]['--procModifiers'] += ',enableTruth'
             else:
                 stepDict[stepName][k]['--procModifiers'] = 'enableTruth'
+
+            # The customise books and fills the association plots in RecoGlobal and turns
+            # them into ratios in HARVESTGlobal.
+            if 'RecoGlobal' in step or 'HARVESTGlobal' in step:
+                if '--customise' in stepDict[stepName][k]:
+                    stepDict[stepName][k]['--customise'] += ',' + self.truthValidationCustomise
+                else:
+                    stepDict[stepName][k]['--customise'] = self.truthValidationCustomise
 
     def condition(self, fragment, stepList, key, hasHarvest):
         return 'Run4' in key
