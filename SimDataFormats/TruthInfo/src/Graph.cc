@@ -115,6 +115,18 @@ std::optional<truth::Particle> truth::Particle::firstAncestorWithPdgId(int pdgId
   return valid() ? graph_->firstAncestorWithPdgIdOf(id_, pdgId) : std::nullopt;
 }
 
+truth::Particle truth::Particle::lastCopy() const {
+  return valid() ? Particle(graph_, graph_->lastCopyOf(id_)) : *this;
+}
+
+std::optional<truth::Particle> truth::Particle::firstChildWithPdgId(int pdgId) const {
+  return valid() ? graph_->firstChildWithPdgIdOf(id_, pdgId) : std::nullopt;
+}
+
+std::vector<truth::Particle> truth::Particle::productionSiblings() const {
+  return valid() ? graph_->productionSiblingsOf(id_) : std::vector<truth::Particle>{};
+}
+
 std::optional<truth::Particle> truth::Particle::firstCommonAncestor(Particle other) const {
   if (!valid() || !other.valid() || graph_ != other.graph_)
     return std::nullopt;
@@ -397,6 +409,89 @@ std::vector<truth::Particle> truth::Graph::descendantsOf(size_type particleId) c
     }
   }
 
+  return out;
+}
+
+std::vector<truth::Vertex> truth::Graph::interactionVertices() const {
+  std::vector<Vertex> out;
+  for (uint32_t id = 0; id < nVertices(); ++id) {
+    if (vertices_[id].vertexRole() == VertexRole::Interaction)
+      out.emplace_back(this, id);
+  }
+  return out;
+}
+
+std::vector<truth::Particle> truth::Graph::signalParticles() const {
+  std::vector<Particle> out;
+  for (uint32_t id = 0; id < nParticles(); ++id) {
+    if (particles_[id].isAtLevel(LevelFlag::Signal))
+      out.emplace_back(this, id);
+  }
+  return out;
+}
+
+truth::Graph::size_type truth::Graph::lastCopyOf(size_type particleId) const {
+  if (particleId >= nParticles())
+    return particleId;
+
+  const int32_t pdgId = particles_[particleId].pdgId;
+  size_type current = particleId;
+
+  for (uint32_t guard = 0; guard < nParticles(); ++guard) {
+    if (particles_[current].status == 1)
+      break;
+
+    const auto decays = decayVertices(current);
+    if (decays.size() != 1)
+      break;
+
+    uint32_t sameIdChild = 0;
+    uint32_t nSameId = 0;
+    for (const uint32_t childId : outgoingParticles(decays.front())) {
+      if (childId < nParticles() && childId != current && particles_[childId].pdgId == pdgId) {
+        sameIdChild = childId;
+        ++nSameId;
+      }
+    }
+
+    // Two same-species children, or none, is not a copy: the chain ends here.
+    if (nSameId != 1)
+      break;
+
+    current = sameIdChild;
+  }
+
+  return current;
+}
+
+std::optional<truth::Particle> truth::Graph::firstChildWithPdgIdOf(size_type particleId, int pdgId) const {
+  if (particleId >= nParticles())
+    return std::nullopt;
+
+  // The direct children only, in the order the decay vertices list them.
+  for (const uint32_t vertexId : decayVertices(particleId)) {
+    for (const uint32_t child : outgoingParticles(vertexId)) {
+      if (child != particleId && particles_[child].pdgId == pdgId)
+        return particle(child);
+    }
+  }
+  return std::nullopt;
+}
+
+std::vector<truth::Particle> truth::Graph::productionSiblingsOf(size_type particleId) const {
+  std::vector<Particle> out;
+  if (particleId >= nParticles())
+    return out;
+
+  for (const uint32_t vertexId : productionVertices(particleId)) {
+    for (const uint32_t sibling : outgoingParticles(vertexId)) {
+      if (sibling == particleId)
+        continue;
+      // Two production vertices can list the same particle, so report each one once.
+      if (std::find_if(out.begin(), out.end(), [sibling](Particle const& p) { return p.id() == sibling; }) == out.end())
+        out.emplace_back(this, sibling);
+    }
+  }
   return out;
 }
 

@@ -85,6 +85,8 @@ class TestInteractions : public CppUnit::TestFixture {
   CPPUNIT_TEST(testElectionWithoutInteractionNodes);
   CPPUNIT_TEST(testPlaceholderIsReported);
   CPPUNIT_TEST(testNoSignal);
+  CPPUNIT_TEST(testPositionAndProducts);
+  CPPUNIT_TEST(testInteractionVerticesAreTheFacts);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -92,6 +94,8 @@ public:
   void testElectionWithoutInteractionNodes();
   void testPlaceholderIsReported();
   void testNoSignal();
+  void testPositionAndProducts();
+  void testInteractionVerticesAreTheFacts();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestInteractions);
@@ -111,7 +115,7 @@ void TestInteractions::testSignalComesFirst() {
   CPPUNIT_ASSERT_EQUAL(std::size_t(5), all.size());
 
   CPPUNIT_ASSERT(all.front().isSignal());
-  CPPUNIT_ASSERT_EQUAL(uint32_t(4), all.front().vertexId);
+  CPPUNIT_ASSERT_EQUAL(uint32_t(4), all.front().vertexId());
   for (std::size_t i = 1; i < all.size(); ++i)
     CPPUNIT_ASSERT(!all[i].isSignal());
 
@@ -120,12 +124,12 @@ void TestInteractions::testSignalComesFirst() {
   for (std::size_t i = 0; i < all.size(); ++i) {
     CPPUNIT_ASSERT_EQUAL(expected[i].first, all[i].bunchCrossing());
     CPPUNIT_ASSERT_EQUAL(expected[i].second, all[i].eventIndex());
-    CPPUNIT_ASSERT(!all[i].isPlaceholder);
+    CPPUNIT_ASSERT(!all[i].isPlaceholder());
   }
 
   const auto signal = truth::signalInteraction(graph);
   CPPUNIT_ASSERT(signal.has_value());
-  CPPUNIT_ASSERT_EQUAL(uint32_t(4), signal->vertexId);
+  CPPUNIT_ASSERT_EQUAL(uint32_t(4), signal->vertexId());
 }
 
 void TestInteractions::testElectionWithoutInteractionNodes() {
@@ -139,10 +143,10 @@ void TestInteractions::testElectionWithoutInteractionNodes() {
   const auto all = truth::interactions(graph);
   CPPUNIT_ASSERT_EQUAL(std::size_t(2), all.size());
   CPPUNIT_ASSERT(all[0].isSignal());
-  CPPUNIT_ASSERT_EQUAL(uint32_t(0), all[0].vertexId);
-  CPPUNIT_ASSERT_EQUAL(uint32_t(1), all[1].vertexId);
-  CPPUNIT_ASSERT(!all[0].isPlaceholder);
-  CPPUNIT_ASSERT(!all[1].isPlaceholder);
+  CPPUNIT_ASSERT_EQUAL(uint32_t(0), all[0].vertexId());
+  CPPUNIT_ASSERT_EQUAL(uint32_t(1), all[1].vertexId());
+  CPPUNIT_ASSERT(!all[0].isPlaceholder());
+  CPPUNIT_ASSERT(!all[1].isPlaceholder());
 }
 
 void TestInteractions::testPlaceholderIsReported() {
@@ -157,9 +161,9 @@ void TestInteractions::testPlaceholderIsReported() {
 
   const auto all = truth::interactions(graph);
   CPPUNIT_ASSERT_EQUAL(std::size_t(3), all.size());
-  CPPUNIT_ASSERT(!all[0].isPlaceholder);
-  CPPUNIT_ASSERT(all[1].isPlaceholder);
-  CPPUNIT_ASSERT(!all[2].isPlaceholder);
+  CPPUNIT_ASSERT(!all[0].isPlaceholder());
+  CPPUNIT_ASSERT(all[1].isPlaceholder());
+  CPPUNIT_ASSERT(!all[2].isPlaceholder());
 }
 
 void TestInteractions::testNoSignal() {
@@ -174,4 +178,53 @@ void TestInteractions::testNoSignal() {
   truth::Graph empty;
   CPPUNIT_ASSERT(truth::interactions(empty).empty());
   CPPUNIT_ASSERT(!truth::signalInteraction(empty).has_value());
+}
+
+void TestInteractions::testPositionAndProducts() {
+  // Where each interaction happened, and what came out of it.
+  GraphBuilder b;
+  b.addInteraction(packed(0, 0), truth::VertexRole::Interaction, true, math::XYZTLorentzVectorD(0.1, 0.2, 3.0, 0.5));
+  b.addInteraction(packed(0, 1), truth::VertexRole::Interaction, true, math::XYZTLorentzVectorD(0.1, 0.2, -7.0, 1.5));
+  auto graph = b.finish();
+
+  const auto all = truth::interactions(graph);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), all.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.0, all[0].position().z(), 1e-9);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5, all[0].position().t(), 1e-9);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-7.0, all[1].position().z(), 1e-9);
+
+  // One particle was produced at each interaction vertex, and it belongs to it.
+  const auto products = all[0].outgoingParticles();
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), products.size());
+  CPPUNIT_ASSERT_EQUAL(int32_t(211), products.front().pdgId());
+  CPPUNIT_ASSERT(products.front().data().isSignal());
+  CPPUNIT_ASSERT(!all[1].outgoingParticles().front().data().isSignal());
+
+  CPPUNIT_ASSERT(all[0].vertex().valid());
+  CPPUNIT_ASSERT(!truth::Interaction().valid());
+}
+
+void TestInteractions::testInteractionVerticesAreTheFacts() {
+  // Graph::interactionVertices reports what the graph carries, in id order, and nothing
+  // is elected on its behalf.
+  GraphBuilder withPreset;
+  withPreset.addInteraction(packed(0, 1), truth::VertexRole::Interaction, true);
+  withPreset.addInteraction(packed(0, 0), truth::VertexRole::Interaction, true);
+  auto graph = withPreset.finish();
+
+  const auto vertices = graph.interactionVertices();
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), vertices.size());
+  CPPUNIT_ASSERT_EQUAL(uint32_t(0), vertices[0].id());
+  CPPUNIT_ASSERT_EQUAL(uint32_t(1), vertices[1].id());
+  // interactions() puts the signal first; the graph accessor does not reorder.
+  CPPUNIT_ASSERT(!vertices[0].data().isSignal());
+  CPPUNIT_ASSERT(truth::interactions(graph).front().isSignal());
+
+  // With no preset there are no interaction vertices, and the election happens one
+  // layer up rather than here.
+  GraphBuilder withoutPreset;
+  withoutPreset.addInteraction(packed(0, 0), truth::VertexRole::Normal, true);
+  auto plain = withoutPreset.finish();
+  CPPUNIT_ASSERT(plain.interactionVertices().empty());
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), truth::interactions(plain).size());
 }
