@@ -30,58 +30,91 @@ TEST_CASE("SoACustomizedMethods") {
   }
   view.detectorType() = 42;
 
+  // create AoS
+  const auto aosBufferSize = SoA::AoSWrapper::computeDataSize(elems);
+  std::unique_ptr<std::byte, decltype(std::free) *> aosBuffer{
+      reinterpret_cast<std::byte *>(aligned_alloc(SoA::alignment, aosBufferSize)), std::free};
+
+  SoA::AoSWrapper aos{aosBuffer.get(), elems};
+  SoA::AoSWrapper::View aos_view{aos};
+  SoA::AoSWrapper::ConstView aos_const_view{aos};
+
+  // Copy to AoS
+  for (size_t i = 0; i < elems; i++) {
+    aos_view.transpose(const_view, i);
+  }
+
   SECTION("ConstElement methods") {
-    REQUIRE(const_view.sizeMinusOne() == elems - 1);
     // arrays of norms
     std::array<float, elems> position_norms;
     std::array<double, elems> velocity_norms;
 
     // Check for the correctness of the square_norm() functions
-    for (size_t i = 0; i < elems; i++) {
-      position_norms[i] = sqrt(const_view[i].x() * const_view[i].x() + const_view[i].y() * const_view[i].y() +
-                               const_view[i].z() * const_view[i].z());
-      velocity_norms[i] = sqrt(const_view[i].v_x() * const_view[i].v_x() + const_view[i].v_y() * const_view[i].v_y() +
-                               const_view[i].v_z() * const_view[i].v_z());
-      REQUIRE(position_norms[i] == const_view[i].square_norm_position());
-      REQUIRE(velocity_norms[i] == const_view[i].square_norm_velocity());
-    }
+    auto test_view = [&](auto const &view) {
+      for (size_t i = 0; i < elems; i++) {
+        position_norms[i] =
+            std::sqrt(view[i].x() * view[i].x() + view[i].y() * view[i].y() + view[i].z() * view[i].z());
 
-    for (int i = 0; i < const_view.sizeMinusOne(); i++) {
-      auto pi = const_view[i];
-      auto pj = const_view[i + 1];
-      const float distance = (pi.x() - pj.x()) * (pi.x() - pj.x()) + (pi.y() - pj.y()) * (pi.y() - pj.y()) +
-                             (pi.z() - pj.z()) * (pi.z() - pj.z());
-      REQUIRE(const_view.distance2(i, i + 1) == distance);
-    }
+        velocity_norms[i] =
+            std::sqrt(view[i].v_x() * view[i].v_x() + view[i].v_y() * view[i].v_y() + view[i].v_z() * view[i].v_z());
+
+        REQUIRE(position_norms[i] == view[i].square_norm_position());
+        REQUIRE(velocity_norms[i] == view[i].square_norm_velocity());
+      }
+
+      for (int i = 0; i < view.sizeMinusOne(); i++) {
+        auto pi = view[i];
+        auto pj = view[i + 1];
+        const float distance = (pi.x() - pj.x()) * (pi.x() - pj.x()) + (pi.y() - pj.y()) * (pi.y() - pj.y()) +
+                              (pi.z() - pj.z()) * (pi.z() - pj.z());
+        REQUIRE(view.distance2(i, i + 1) == distance);
+      }
+    };
+
+    test_view(const_view);
+    test_view(aos_const_view);
   }
 
   SECTION("Element methods") {
-    REQUIRE(view.sizeMinusOne() == elems - 1);
-    // array of times
-    std::array<double, elems> times;
+    auto test_view = [&](auto &view) {
+      REQUIRE(view.sizeMinusOne() == elems - 1);
+      // array of times
+      std::array<double, elems> times;
 
-    // Check for the correctness of the time() function
-    times[0] = 0.;
-    for (size_t i = 0; i < elems; i++) {
-      if (not(i == 0))
-        times[i] = 1.5 * view[i].x() / view[i].v_x();
+      // Check for the correctness of the time() function
+      times[0] = 0.;
+      for (size_t i = 0; i < elems; i++) {
+        if (not(i == 0))
+          times[i] = 1.5 * view[i].x() / view[i].v_x();
 
-      view.update_position(i, 0.5f);
-      REQUIRE(times[i] == SoAView::const_element::time(view[i].x(), view[i].v_x()));
-    }
+        view.update_position(i, 0.5f);
+        REQUIRE(times[i] == SoAView::const_element::time(view[i].x(), view[i].v_x()));
+      }
 
-    // normalise the particles data
-    for (size_t i = 0; i < elems; i++) {
-      view[i].normalise();
-    }
+      // check that the time() function is also correctly generated for the AoS view
+      times[0] = 0.;
+      for (size_t i = 0; i < elems; i++) {
+        if (not(i == 0))
+          times[i] = view[i].x() / view[i].v_x();
+        REQUIRE(times[i] == SoA::AoSWrapper::View::const_element::time(view[i].x(), view[i].v_x()));
+      }
 
-    // Check for the norm equal to 1 except for the first element
-    REQUIRE(view[0].square_norm_position() == 0.f);
-    REQUIRE(view[0].square_norm_velocity() == 0.);
-    for (size_t i = 1; i < elems; i++) {
-      REQUIRE_THAT(view[i].square_norm_position(), Catch::Matchers::WithinAbs(1.f, 1.e-6));
-      REQUIRE_THAT(view[i].square_norm_velocity(), Catch::Matchers::WithinAbs(1., 1.e-9));
-    }
+      // normalise the particles data
+      for (size_t i = 0; i < elems; i++) {
+        view[i].normalise();
+      }
+
+      // Check for the norm equal to 1 except for the first element
+      REQUIRE(view[0].square_norm_position() == 0.f);
+      REQUIRE(view[0].square_norm_velocity() == 0.);
+      for (size_t i = 1; i < elems; i++) {
+        REQUIRE_THAT(view[i].square_norm_position(), Catch::Matchers::WithinAbs(1.f, 1.e-6));
+        REQUIRE_THAT(view[i].square_norm_velocity(), Catch::Matchers::WithinAbs(1., 1.e-9));
+      }
+    };
+
+    test_view(view);
+    test_view(aos_view);
   }
 
   const auto points_sizes = std::array<cms::soa::size_type, 2>{{2, 2}};
