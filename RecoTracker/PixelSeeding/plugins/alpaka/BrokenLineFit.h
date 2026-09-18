@@ -1,9 +1,12 @@
-// Orchestration TU of the SPLIT BrokenLine fit build. The heavy per-N device kernels
+#ifndef RecoTracker_PixelSeeding_plugins_alpaka_BrokenLineFit_h
+#define RecoTracker_PixelSeeding_plugins_alpaka_BrokenLineFit_h
+
+// Orchestration of the SPLIT BrokenLine fit build, instantiated per topology by BrokenLineFit_<Topology>.dev.cc. The heavy per-N device kernels
 // (Kernel_BLFit + fast-fit kernels) and the per-N launcher helpers
 // live in BrokenLineFitKernels.h and are explicitly instantiated in the
 // disjoint-N BrokenLineFit_*.dev.cc TUs; here they are extern-template calls only. This file
-// keeps the light launcher orchestration (HelixFit members), the debug dump
-// kernel, and the HelixFit explicit instantiations. The split is a build-time division only: the
+// keeps the light launcher orchestration (HelixFit members) and the debug dump
+// kernel. The split is a build-time division only: the
 // launches keep the same order, arguments and grids they would have in a single TU.
 #include "BrokenLineFitKernels.h"
 #include <optional>  // fused-ladder partition tables, allocated only on the fused arm
@@ -305,10 +308,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   }
 
-  template class HelixFit<pixelTopology::Phase1>;
-  template class HelixFit<pixelTopology::Phase2>;
-  template class HelixFit<pixelTopology::Phase2OT>;
-  template class HelixFit<pixelTopology::Phase2OTStubs>;
-  template class HelixFit<pixelTopology::HIonPhase1>;
-
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+
+#endif  // RecoTracker_PixelSeeding_plugins_alpaka_BrokenLineFit_h
