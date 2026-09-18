@@ -427,9 +427,4 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }  // loop on concurrent fits
   }
 
-  template class HelixFit<pixelTopology::Phase1>;
-  template class HelixFit<pixelTopology::Phase2>;
-  template class HelixFit<pixelTopology::Phase2OT>;
-  template class HelixFit<pixelTopology::HIonPhase1>;
-
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
