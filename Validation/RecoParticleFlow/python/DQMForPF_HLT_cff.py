@@ -95,7 +95,11 @@ pfAnalyzerDQMHLT = pfAnalyzerDQM.clone(
         ),
         eventObservables = cms.vstring(),
         pfInJetObservables = cms.vstring(),
-        binList2D = cms.vstring('[eta;30;-5;5][phi;30;-3.14;3.14]'),
+        binList2D = cms.vstring(
+            '[eta;30;-5;5][phi;30;-3.14;3.14]'
+            '[eta;30;-5;5][logPt;50;-1.5;4.]'
+            '[eta;30;-5;5][energy;50;0;50.]'
+        ),
         # inclusive, then resolved in |eta| across the HGCAL edge
         cutList = cms.vstring(
             '[pt;1;0;10000]',
