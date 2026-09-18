@@ -327,7 +327,8 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
     HGCSiliconDetId idNxt(detIdNxt);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "HGCalNeighbourFinder: mirror|irot|idir " << mirror << ":" << irot << ":" << idir
-                                  << " ID " << idNxt << " Wafer " << wiu << ":" << wiv << " to " << wiuNxt << ":" << wivNxt;
+                                  << " ID " << idNxt << " Wafer " << wiu << ":" << wiv << " to " << wiuNxt << ":"
+                                  << wivNxt;
 #endif
 
     // Next wafer adjacent to this edge may not exist
@@ -335,7 +336,8 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
     // if so, we are done...
     if (!(hgc_.waferExist(idNxt.layer(), idNxt.waferU(), idNxt.waferV()))) {
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "The wafer (" << idNxt.layer() << "|" << idNxt.waferU() << ":" << idNxt.waferV() << ") does ot exist";
+      edm::LogVerbatim("HGCalGeom") << "The wafer (" << idNxt.layer() << "|" << idNxt.waferU() << ":" << idNxt.waferV()
+                                    << ") does ot exist";
 #endif
       return detIdVec;
     }
@@ -476,7 +478,9 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
       int ivNxt = ivEdge[(newIndex + i) % edgeCount];
       detIdVec[icount] = (detIdNxt & ~(iuMask | ivMask)) | iuNxt | (ivNxt << ivShift);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "HGCalNeighbourFinder: Test validity [" << i << "] partial " << partialWafer << " (u = " << iuNxt << ", v = " << ivNxt << " ID " << std::hex << detIdVec[icount] << std::dec << " Valid " << geom_->validDetId(DetId(detIdVec[icount]));
+      edm::LogVerbatim("HGCalGeom") << "HGCalNeighbourFinder: Test validity [" << i << "] partial " << partialWafer
+                                    << " (u = " << iuNxt << ", v = " << ivNxt << " ID " << std::hex << detIdVec[icount]
+                                    << std::dec << " Valid " << geom_->validDetId(DetId(detIdVec[icount]));
 #endif
       if (partialWafer) {
         if (geom_->validDetId(DetId(detIdVec[icount])))
