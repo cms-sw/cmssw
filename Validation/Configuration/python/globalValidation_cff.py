@@ -68,16 +68,14 @@ globalPrevalidation = cms.Sequence(
 
 from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
-# The truth Branch validation is wired into the baseCommon{PreValidation,Validation}
-# sequences below (after they are defined): the monolithic globalPrevalidation /
-# globalValidation are NOT in the Phase-2 autoValidation assembly, so attaching there
-# would silently never run for the Run4 truth workflows. The truth graph + hit index
-# are built at DIGI (mixing accumulator chain) under enableTruth, so truthPrevalidation
-# is deliberately NOT imported here (importing its signal-only build producers would
-# attach them to the RECO process and shadow the DIGI-built products).
+# The truth validation is wired into the baseCommon{PreValidation,Validation} sequences
+# below (after they are defined): the monolithic globalPrevalidation / globalValidation
+# are NOT in the Phase-2 autoValidation assembly, so attaching there would silently never
+# run for the Run4 truth workflows. The truth graph + hit index are built at DIGI (mixing
+# accumulator chain) under enableTruth, so truthPrevalidation is deliberately NOT imported
+# here (importing its signal-only build producers would attach them to the RECO process
+# and shadow the DIGI-built products).
 from Validation.TruthInfo.truthGraphValidation_cff import *
-from SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociators_cff import *
-from Validation.TruthInfo.truthBranchValidation_cff import *
 
 # filter/producer "pre-" sequence for validation_preprod
 preprodPrevalidation = cms.Sequence(
@@ -145,13 +143,19 @@ from Validation.Configuration.me0SimValid_cff import *
 baseCommonPreValidation = cms.Sequence(cms.SequencePlaceholder("mix"))
 baseCommonValidation = cms.Sequence()
 
-# Branch performance-plot validation, gated by enableTruth, which the Run4 eras apply
-# from Phase2C17I13M9 onwards (the .88 workflow variant applies it explicitly on top of
-# a non-truth era). baseCommon{PreValidation,Validation} are part of the 'baseValidation'
+# Truth-graph validation, gated by enableTruth, which the Run4 eras apply from
+# Phase2C17I13M9 onwards (the .88 workflow variant applies it explicitly on top of a
+# non-truth era). baseCommon{PreValidation,Validation} are part of the 'baseValidation'
 # triplet that autoValidation['phase2Validation'] always schedules, so this is the
-# Phase-2 entry point: the truth-graph + association EDProducers run in the
-# prevalidation Path, the DQM analyzers in the validation EndPath. The matching
-# harvesting is attached to postValidation_common in postValidation_cff.
+# Phase-2 entry point.
+# Two things run by default: the graph summary, and the comparison of a branch with
+# CaloParticle, SimCluster and TrackingParticle. Together they book 98 monitor elements,
+# which is the regression net on the graph itself.
+# The reco-to-truth association maps and their performance plots do NOT run by default.
+# They book 54242 monitor elements, 21.9 MiB of the harvested DQM file on 10 ttbar D127
+# events, and only a study of the association needs them. Add them with
+# customiseTruthBranchValidation in
+# SimGeneral/TruthGraphAssociatorProducers/python/customiseTruthGraphAssociators.py.
 # premix_stage2 keeps enableTruth (it comes from the era) but the premixed pileup has
 # no raw pileup SimTracks, so the accumulator and the DIGI build are dropped and the
 # truth products do not exist downstream. Revert to the truth-free sequences there,
@@ -167,13 +171,11 @@ _baseCommonValidationNoTruth = baseCommonValidation.copy()
 
 _baseCommonPreValidationWithTruth = baseCommonPreValidation.copy()
 _baseCommonPreValidationWithTruth += truthGraphValidationProducers
-_baseCommonPreValidationWithTruth += truthGraphAssociatorsSequence
 enableTruth.toReplaceWith(baseCommonPreValidation, _baseCommonPreValidationWithTruth)
 premix_stage2.toReplaceWith(baseCommonPreValidation, _baseCommonPreValidationNoTruth)
 
 _baseCommonValidationWithTruth = baseCommonValidation.copy()
 _baseCommonValidationWithTruth += truthGraphValidationAnalyzers
-_baseCommonValidationWithTruth += truthBranchValidationSequence
 enableTruth.toReplaceWith(baseCommonValidation, _baseCommonValidationWithTruth)
 premix_stage2.toReplaceWith(baseCommonValidation, _baseCommonValidationNoTruth)
 
