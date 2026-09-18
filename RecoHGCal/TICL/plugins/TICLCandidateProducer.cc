@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/PluginDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -376,8 +377,18 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
   // muon-candidate track, the consumed trackster (>=0), no trackster (-1, a track-only
   // muon), or a rejection (kMuonRejected: the trajectory points to a shower).
   std::vector<bool> maskedInputTracksters(generalTrackstersSpan.size(), false);
+  // Every interpretation pass records, for each trackster it emits, the input tracksters
+  // it was built from. The two collections are indexed in parallel.
+  auto checkLinks = [](const char *pass, size_t tracksters, size_t links) {
+    if (links != tracksters)
+      throw cms::Exception("LogicError") << "TICLCandidateProducer: the " << pass << " pass emitted " << tracksters
+                                         << " tracksters and " << links << " linked-trackster entries";
+  };
+
   muonInterpretationAlgo_->makeCandidates(
       muonInput, inputTiming_h, *resultTracksters, muonInTrackIndices, maskedInputTracksters, *linkedResultTracksters);
+  checkLinks("muon", resultTracksters->size(), linkedResultTracksters->size());
+  const size_t nTrackstersFromMuons = resultTracksters->size();
 
   // A track the muon pass rejected is not a muon: route it back to the general pass so
   // it is reconstructed there (and no muon candidate is built for it below).
@@ -398,6 +409,9 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
                                                                        generalTrackMask);
   generalInterpretationAlgo_->makeCandidates(
       input, inputTiming_h, *resultTracksters, trackstersInTrackIndices, maskedInputTracksters, *linkedResultTracksters);
+  checkLinks("general",
+             resultTracksters->size() - nTrackstersFromMuons,
+             linkedResultTracksters->size() - nTrackstersFromMuons);
 
   assignPCAtoTracksters(*resultTracksters,
                         layerClusters,
@@ -426,6 +440,9 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
     if (tracksterId >= 0) {
       tracksterPtr = edm::Ptr<Trackster>(resultTracksters_h, tracksterId);
       maskTracksters[tracksterId] = false;
+      linkedTracksters->push_back((*linkedResultTracksters)[tracksterId]);
+    } else {
+      linkedTracksters->emplace_back();
     }
     TICLCandidate muonCandidate(trackPtr, tracksterPtr);
     muonCandidate.setPdgId(-13 * tk.charge());
@@ -439,7 +456,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
     if (generalTrackMask[iTrack]) {
       auto const tracksterId = trackstersInTrackIndices[iTrack];
       auto trackPtr = edm::Ptr<reco::Track>(tracks_h, iTrack);
-      if (tracksterId != -1 and !maskTracksters.empty()) {
+      if (tracksterId >= 0) {
         auto tracksterPtr = edm::Ptr<Trackster>(resultTracksters_h, tracksterId);
         TICLCandidate chargedCandidate(trackPtr, tracksterPtr);
         linkedTracksters->push_back((*linkedResultTracksters)[tracksterId]);

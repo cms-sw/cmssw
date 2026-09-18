@@ -536,6 +536,7 @@ void GNNInterpretationAlgo::makeCandidates(const Inputs& input,
 
     if (trackToTracksters[trkId].size() == 1) {
       resultTracksters.push_back(tracksters[trackToTracksters[trkId][0]]);
+      linkedResultTracksters.push_back(trackToTracksters[trkId]);
     } else {
       Trackster merged;
       merged.mergeTracksters(tracksters, trackToTracksters[trkId]);
@@ -553,9 +554,10 @@ void GNNInterpretationAlgo::makeCandidates(const Inputs& input,
 
   // Add unlinked tracksters
   for (auto iTrackster = 0u; iTrackster < input.tracksters.size(); iTrackster++) {
-    if (tracksterAvailable[iTrackster])
+    if (tracksterAvailable[iTrackster]) {
       resultTracksters.push_back(tracksters[iTrackster]);
-    linkedResultTracksters.push_back({iTrackster});
+      linkedResultTracksters.push_back({iTrackster});
+    }
   }
 }
 

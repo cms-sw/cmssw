@@ -97,6 +97,7 @@ void MuonInterpretationAlgo::makeCandidates(const Inputs &input,
       }
       resultCandidate[iTrack] = static_cast<int>(resultTracksters.size());
       resultTracksters.push_back(muonTrackster);
+      linkedResultTracksters.push_back(std::move(nearby));
     } else {
       resultCandidate[iTrack] = -1;  // muon with no HGCAL deposit: track-only candidate
     }
