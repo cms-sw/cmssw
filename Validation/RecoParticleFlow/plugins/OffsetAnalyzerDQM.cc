@@ -159,7 +159,8 @@ void OffsetAnalyzerDQM::bookHistograms(DQMStore::IBooker& booker, edm::Run const
 }
 
 void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
-  //npv//
+
+  // Number of primary vertices
   edm::Handle<edm::View<reco::Vertex>> vertexHandle;
   iEvent.getByToken(pvToken, vertexHandle);
   // Offline the vertex collection always exists. At HLT it does not: products
@@ -193,7 +194,7 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
   else if (npv_in_range >= npvHigh)
     npv_in_range = npvHigh - 1;  // make sure int_mu won't lead to non-existing ME
 
-  //mu//
+  // Pileup
   int int_mu = -1;
   edm::Handle<edm::View<PileupSummaryInfo>> muHandle;
   if (iEvent.getByToken(muToken, muHandle)) {
@@ -212,15 +213,12 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
     int_mu = muHigh - 1;  // make sure int_mu won't lead to non-existing ME
 
   //create map of pftypes vs total energy / eta
-  std::map<std::string, std::vector<double>> m_pftype_etaE;
+  std::map<std::string, std::vector<double>> m_pftype_pfEt;
   int nEta = etabins.size() - 1;
   for (const auto& pftype : pftypes)
-    m_pftype_etaE[pftype].assign(nEta, 0.0);
+    m_pftype_pfEt[pftype].assign(nEta, 0.0);
 
-  //pf particles//
-  //
-  // Both input types go through the same loop; the PV-attachment lambda is the
-  // only place that has to know which concrete type it was handed.
+  //Fill profile histograms with PF transverse energy versus pseudo-rapidity
   auto fillCandidate = [&](double eta, int pdg, double et, auto isAttachedToPV) {
     int etaIndex = getEtaIndex(eta);
     std::string pftype = pdgMap[abs(pdg)];
@@ -228,7 +226,7 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
       return;
     if (pftype == "chm" && !isAttachedToPV())
       pftype = "chu";  //unmatched charged hadron
-    m_pftype_etaE[pftype][etaIndex] += et;
+    m_pftype_pfEt[pftype][etaIndex] += et;
   };
 
   edm::Handle<edm::View<reco::Candidate>> pfHandle;
@@ -255,22 +253,23 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
         reco::TrackRef candTrkRef(pf->trackRef());
         if (candTrkRef.isNull())
           return false;
-        for (auto ipv = vertexHandle->begin(), endpv = vertexHandle->end(); ipv != endpv; ++ipv) {
-          if (ipv->isFake() || ipv->ndof() < 4 || std::abs(ipv->z()) > 24)
-            continue;
-          for (auto ivtrk = ipv->tracks_begin(), endvtrk = ipv->tracks_end(); ivtrk != endvtrk; ++ivtrk) {
-            if (ivtrk->castTo<reco::TrackRef>() == candTrkRef)
-              return true;
-          }
-        }
+		for (unsigned int ipv = 0; ipv < nPVall; ++ipv) {
+		  if (!isGoodPV[ipv])
+			continue;
+		  const auto& pv = vertexHandle->at(ipv);
+		  for (auto ivtrk = pv.tracks_begin(), endvtrk = pv.tracks_end(); ivtrk != endvtrk; ++ivtrk) {
+			if (ivtrk->castTo<reco::TrackRef>() == candTrkRef)
+			  return true;
+		  }
+		}
       }
       return false;
     });
   }
 
-  for (const auto& pair : m_pftype_etaE) {
+  for (const auto& pair : m_pftype_pfEt) {
     std::string pftype = pair.first;
-    std::vector<double> etaE = pair.second;
+    std::vector<double> pfEt = pair.second;
 
     std::string offset_name_npv = offsetPlotBaseName + "_npv" + std::to_string(npv_in_range) + "_" + pftype;
     if (offsetPlots.find(offset_name_npv) == offsetPlots.end())
@@ -278,7 +277,7 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
     for (int i = 0; i < nEta; i++) {
       double eta = 0.5 * (etabins[i] + etabins[i + 1]);
-      offsetPlots[offset_name_npv].fill2D(eta, etaE[i]);
+      offsetPlots[offset_name_npv].fill2D(eta, pfEt[i]);
     }
 
     if (int_mu != -1) {
@@ -288,7 +287,7 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
       for (int i = 0; i < nEta; i++) {
         double eta = 0.5 * (etabins[i] + etabins[i + 1]);
-        offsetPlots[offset_name_mu].fill2D(eta, etaE[i]);
+        offsetPlots[offset_name_mu].fill2D(eta, pfEt[i]);
       }
     }
   }
