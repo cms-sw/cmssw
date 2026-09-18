@@ -61,10 +61,15 @@ public:
   /// Destructor
   ~PFAnalyzer() override;
 
-  /// Initialize parameters for histo binning
+  // Check the MonitorElement was defined in the map to avoid segmentation violations
+  MonitorElement* getME(const std::string& key) const;
+  void fillME(const std::string& key, double val, double weight) const;
+  void fillME2D(const std::string& key, double valX, double valY, double weight) const;
+	
+  // Initialize parameters for histo binning
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-  /// Get the analysis
+  // Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   /// Initialize run-based parameters
@@ -875,7 +880,7 @@ private:
   std::vector<std::vector<std::string>> m_allJetSuffixes;
 
   // The directory where the output is stored
-  std::string m_directory;
+  std::string mDir;
 
   // All of the histograms, stored as a map between the histogram name and the histogram
   std::map<std::string, MonitorElement*> map_of_MEs;
