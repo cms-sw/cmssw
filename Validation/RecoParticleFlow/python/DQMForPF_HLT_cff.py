@@ -34,13 +34,13 @@ def createOffsetVPSetPhase2():
         for mu in range(default.muLowOffset, MU_HIGH_PHASE2):
             name = default.offset_name("mu", mu, pftype)
             plots += [plotPSet(name, name + ";#eta;<Offset Energy_{T}> [GeV]",
-                               "{0}muPlots/mu{1}".format(default.offsetDir, mu),
+                               "muPlots/mu{0}".format(mu),
                                0, 0, 0, default.eBinsOffset, default.eLowOffset,
                                default.eHighOffset, default.etaBinsOffset)]
         for npv in range(default.npvLowOffset, NPV_HIGH_PHASE2):
             name = default.offset_name("npv", npv, pftype)
             plots += [plotPSet(name, name + ";#eta;<Offset Energy_{T}> [GeV]",
-                               "{0}npvPlots/npv{1}".format(default.offsetDir, npv),
+                               "npvPlots/npv{0}".format(npv),
                                0, 0, 0, default.eBinsOffset, default.eLowOffset,
                                default.eHighOffset, default.etaBinsOffset)]
     return plots
@@ -49,7 +49,7 @@ def createOffsetVPSetPhase2():
 # candidate trackRef against the tracks fitted to a good primary vertex, rather
 # than reading pat::PackedCandidate::fromPV().
 offsetAnalyzerDQMHLT = offsetAnalyzerDQM.clone(
-    useAOD = True,
+    dqmDir = "HLT/ParticleFlow/Offset/",
     pfTag  = "hltParticleFlowTmp",
     pvTag  = "hltOfflinePrimaryVertices",
     muTag  = "addPileupInfo",
@@ -106,11 +106,15 @@ pfAnalyzerDQMHLT = pfAnalyzerDQM.clone(
     ),
 )
 
+offsetDQMPostProcessorHLT = offsetDQMPostProcessor.clone(
+    offsetDir = "HLT/ParticleFlow/Offset/"
+)
+
 DQMHLTPF = cms.Sequence(
     pfAnalyzerDQMHLT +
     offsetAnalyzerDQMHLT
 )
 
 DQMHarvestHLTPF = cms.Sequence(
-    offsetDQMPostProcessor
+    offsetDQMPostProcessorHLT
 )

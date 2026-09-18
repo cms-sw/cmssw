@@ -42,15 +42,14 @@ private:
 //
 // constructors and destructor
 //
-OffsetDQMPostProcessor::OffsetDQMPostProcessor(const edm::ParameterSet& iConfig) {
-  offsetPlotBaseName = iConfig.getParameter<std::string>("offsetPlotBaseName");
-  offsetDir = iConfig.getParameter<std::string>("offsetDir");
-  offsetVariableTypes = iConfig.getParameter<std::vector<std::string> >("offsetVariableTypes");
-  offsetR = iConfig.getUntrackedParameter<double>("offsetR");
-  pftypes = iConfig.getParameter<std::vector<std::string> >("pftypes");
-  muHigh = iConfig.getUntrackedParameter<int>("muHigh");
-  npvHigh = iConfig.getUntrackedParameter<int>("npvHigh");
-};
+OffsetDQMPostProcessor::OffsetDQMPostProcessor(const edm::ParameterSet& iConfig)
+  : offsetPlotBaseName(iConfig.getParameter<std::string>("offsetPlotBaseName")),
+	offsetDir(iConfig.getParameter<std::string>("offsetDir")),
+	offsetR(iConfig.getUntrackedParameter<double>("offsetR")),
+	pftypes(iConfig.getParameter<std::vector<std::string> >("pftypes")),
+	offsetVariableTypes(iConfig.getParameter<std::vector<std::string> >("offsetVariableTypes")),
+	muHigh(iConfig.getUntrackedParameter<int>("muHigh")),
+	npvHigh(iConfig.getUntrackedParameter<int>("npvHigh")) {}
 
 OffsetDQMPostProcessor::~OffsetDQMPostProcessor() {}
 
