@@ -77,6 +77,22 @@ namespace truth {
 
     [[nodiscard]] bool hasAncestorPdgId(int pdgId) const;
     [[nodiscard]] std::optional<Particle> firstAncestorWithPdgId(int pdgId) const;
+
+    // The last copy of a radiating chain: follow the one same-species child through the
+    // one decay vertex until the species changes, the particle is stable, or the step is
+    // ambiguous. What a particle decays into is read from the copy this returns, so a
+    // child lookup on a radiating particle starts here.
+    [[nodiscard]] Particle lastCopy() const;
+
+    // The first child of this particle with exactly this signed pdgId, the downward twin
+    // of firstAncestorWithPdgId. A radiating particle carries its decay products on its
+    // last copy, so ask lastCopy() first where that matters.
+    [[nodiscard]] std::optional<Particle> firstChildWithPdgId(int pdgId) const;
+
+    // The other particles produced where this one was produced, each once. This is what
+    // recoils against the particle: the VBF tagging quarks, the single-top partner, the
+    // vector boson made with a Higgs.
+    [[nodiscard]] std::vector<Particle> productionSiblings() const;
     [[nodiscard]] std::optional<Particle> firstCommonAncestor(Particle other) const;
 
     [[nodiscard]] bool operator==(Particle const& other) const { return graph_ == other.graph_ && id_ == other.id_; }

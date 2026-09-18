@@ -30,14 +30,10 @@ bool truth::usableAsInteractionVertex(truth::VertexData const& vertex) {
 std::vector<truth::Interaction> truth::interactions(truth::Graph const& graph) {
   std::vector<Interaction> out;
 
-  // An interaction the graph models gets a VertexRole::Interaction node, built by the
-  // selection preset, and THAT is the interaction point: it is not a vertex elected to
-  // stand for one.
-  for (uint32_t v = 0; v < graph.nVertices(); ++v) {
-    auto const& data = graph.vertices()[v];
-    if (data.vertexRole() == VertexRole::Interaction) {
-      out.push_back(Interaction{data.eventId, v, false});
-    }
+  // An interaction the graph models carries its own vertex, and THAT is the interaction
+  // point: it is not a vertex elected to stand for one.
+  for (auto const& vertex : graph.interactionVertices()) {
+    out.emplace_back(&graph, vertex.eventId(), vertex.id(), false);
   }
 
   if (out.empty()) {
@@ -63,13 +59,13 @@ std::vector<truth::Interaction> truth::interactions(truth::Graph const& graph) {
 
     out.reserve(elected.size() + placeholderOnly.size());
     for (auto const& [eventId, vertexId] : elected) {
-      out.push_back(Interaction{eventId, vertexId, false});
+      out.emplace_back(&graph, eventId, vertexId, false);
     }
     // An interaction with nothing but placeholders still has to resolve, or every
     // composite object built from its constituents silently matches nothing.
     for (auto const& [eventId, vertexId] : placeholderOnly) {
       if (elected.find(eventId) == elected.end()) {
-        out.push_back(Interaction{eventId, vertexId, true});
+        out.emplace_back(&graph, eventId, vertexId, true);
       }
     }
   }

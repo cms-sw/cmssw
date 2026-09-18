@@ -114,13 +114,36 @@ class TestGraphToolsNavigation(unittest.TestCase):
         self.assertEqual(graph.children(1), [])
         self.assertTrue(graph.hasMomentum(0))
 
+    def test_child_and_sibling_lookups(self):
+        graph = self.graph()
+        # The signed id has to match, as in C++.
+        self.assertEqual(graph.firstChildWithPdgId(0, 22), 1)
+        self.assertIsNone(graph.firstChildWithPdgId(0, -22))
+        self.assertIsNone(graph.firstChildWithPdgId(1, 22))
+        # The two photons come from one vertex, so each is the other's sibling.
+        self.assertEqual(graph.productionSiblings(1), [2])
+        self.assertEqual(graph.productionSiblings(2), [1])
+        self.assertEqual(graph.productionSiblings(0), [])
+
+    def test_signal_particles_and_interactions(self):
+        graph = self.graph()
+        self.assertEqual(graph.signalParticles(), [3])
+
+        interactions = graph.interactions()
+        self.assertEqual(len(interactions), 1)
+        # Only the signal carries an Interaction vertex in this fixture.
+        self.assertTrue(interactions[0]["isSignal"])
+        self.assertEqual(interactions[0]["vertexId"], 1)
+        self.assertEqual(interactions[0]["outgoingParticles"], [3])
+        self.assertEqual(interactions[0]["position"], (0.0, 0.0, 0.0, 0.0))
+
     def test_levels_and_provenance(self):
         graph = self.graph()
         self.assertEqual(graph.particlesOfLevel("reconstructableFinalState"), [0])
         self.assertEqual(graph.levels(3), ["signal"])
         self.assertTrue(graph.isFromPileup(0))
         self.assertTrue(graph.isSignal(3))
-        self.assertEqual(graph.interactions(), [0, self.PILEUP])
+        self.assertEqual(graph.interactionIds(), [0, self.PILEUP])
         self.assertEqual(graph.particlesOfInteraction(0), [3])
         self.assertEqual(graph.verticesWithRole("Interaction"), [1])
         self.assertIn("Interaction 1", graph.summary())

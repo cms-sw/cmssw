@@ -12,25 +12,48 @@
 
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
 #include "SimDataFormats/TruthInfo/interface/InteractionId.h"
+#include "SimDataFormats/TruthInfo/interface/Particle.h"
+#include "SimDataFormats/TruthInfo/interface/Vertex.h"
 #include "SimDataFormats/TruthInfo/interface/VertexData.h"
 
 namespace truth {
 
-  // One interaction of the event.
-  struct Interaction {
+  // One interaction of the event, as a view over the graph, like Particle and Vertex.
+  class Interaction {
+  public:
+    Interaction() = default;
+    Interaction(Graph const* graph, uint64_t eventId, uint32_t vertexId, bool isPlaceholder)
+        : graph_(graph), eventId_(eventId), vertexId_(vertexId), isPlaceholder_(isPlaceholder) {}
+
+    [[nodiscard]] bool valid() const { return graph_ != nullptr; }
+
     // The packed EncodedEventId every particle and vertex of this interaction carries.
-    uint64_t eventId = 0;
+    [[nodiscard]] uint64_t eventId() const { return eventId_; }
+
+    // The signal is the in-time interaction with index 0. Read it here rather than from
+    // the position in the list.
+    [[nodiscard]] bool isSignal() const { return isSignalEventId(eventId_); }
+    [[nodiscard]] int bunchCrossing() const { return bunchCrossingOf(eventId_); }
+    [[nodiscard]] int eventIndex() const { return eventIndexOf(eventId_); }
+
     // The vertex that stands for the interaction point.
-    uint32_t vertexId = 0;
+    [[nodiscard]] uint32_t vertexId() const { return vertexId_; }
+    [[nodiscard]] Vertex vertex() const { return Vertex(graph_, vertexId_); }
+
+    // Where the interaction happened, and what came out of it. The position means nothing
+    // when isPlaceholder is true.
+    [[nodiscard]] math::XYZTLorentzVectorD const& position() const { return vertex().position(); }
+    [[nodiscard]] std::vector<Particle> outgoingParticles() const { return vertex().outgoingParticles(); }
+
     // The vertex is a stand-in with no usable position, so a distance or a resolution
     // measured against it means nothing. Its constituents still count there.
-    bool isPlaceholder = false;
+    [[nodiscard]] bool isPlaceholder() const { return isPlaceholder_; }
 
-    // The signal is the in-time interaction with index 0. Read it here rather than
-    // from the position in the list.
-    [[nodiscard]] bool isSignal() const { return isSignalEventId(eventId); }
-    [[nodiscard]] int bunchCrossing() const { return bunchCrossingOf(eventId); }
-    [[nodiscard]] int eventIndex() const { return eventIndexOf(eventId); }
+  private:
+    Graph const* graph_ = nullptr;
+    uint64_t eventId_ = 0;
+    uint32_t vertexId_ = 0;
+    bool isPlaceholder_ = false;
   };
 
   // Whether a vertex may stand for an interaction. A vertex that neither merged with a

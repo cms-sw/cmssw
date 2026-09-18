@@ -510,8 +510,8 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
   std::unordered_map<uint64_t, uint32_t> interactionVertex;
   if (ConstituentBasedDomain<RECO> && vertexResolution_ == VertexResolution::Interaction) {
     for (auto const& interaction : truth::interactions(graph)) {
-      interactionVertex.emplace(interaction.eventId, interaction.vertexId);
-      placeholderCount += interaction.isPlaceholder ? 1 : 0;
+      interactionVertex.emplace(interaction.eventId(), interaction.vertexId());
+      placeholderCount += interaction.isPlaceholder() ? 1 : 0;
     }
   }
   if (placeholderCount > 0) {

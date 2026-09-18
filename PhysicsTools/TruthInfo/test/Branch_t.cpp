@@ -136,6 +136,8 @@ class TestBranch : public CppUnit::TestFixture {
   CPPUNIT_TEST(testNavigationWithoutAllocation);
   CPPUNIT_TEST(testProvenanceComesFromTheRoot);
   CPPUNIT_TEST(testAncestorCount);
+  CPPUNIT_TEST(testChildAndSiblingLookups);
+  CPPUNIT_TEST(testLevelReaders);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -150,6 +152,8 @@ public:
   void testNavigationWithoutAllocation();
   void testProvenanceComesFromTheRoot();
   void testAncestorCount();
+  void testChildAndSiblingLookups();
+  void testLevelReaders();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranch);
@@ -435,4 +439,63 @@ void TestBranch::testAncestorCount() {
   CPPUNIT_ASSERT_EQUAL(uint32_t(0), truth::Particle(&rec, 0).ancestorCount());
   // An invalid view has no ancestors.
   CPPUNIT_ASSERT_EQUAL(uint32_t(0), truth::Particle(&rec, rec.nParticles()).ancestorCount());
+}
+
+void TestBranch::testChildAndSiblingLookups() {
+  truth::Graph graph = buildTtbarLike();
+  const truth::Particle top(&graph, 0);
+  const truth::Particle w(&graph, 1);
+
+  // firstChildWithPdgId matches the signed id exactly, like firstAncestorWithPdgId.
+  CPPUNIT_ASSERT(top.firstChildWithPdgId(24).has_value());
+  CPPUNIT_ASSERT_EQUAL(uint32_t(1), top.firstChildWithPdgId(24)->id());
+  CPPUNIT_ASSERT(top.firstChildWithPdgId(5).has_value());
+  CPPUNIT_ASSERT(!top.firstChildWithPdgId(-24).has_value());
+  // A grandchild is not a child.
+  CPPUNIT_ASSERT(!top.firstChildWithPdgId(-13).has_value());
+  CPPUNIT_ASSERT(!truth::Particle(&graph, 4).firstChildWithPdgId(22).has_value());
+
+  // The W and the b were produced at the same vertex, so each is the other's sibling.
+  const auto siblings = w.productionSiblings();
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), siblings.size());
+  CPPUNIT_ASSERT_EQUAL(int32_t(5), siblings.front().pdgId());
+  // A particle is never its own sibling, and the beam top was produced nowhere.
+  CPPUNIT_ASSERT(top.productionSiblings().empty());
+
+  // An invalid view answers rather than reading through a null graph.
+  const truth::Particle invalid;
+  CPPUNIT_ASSERT(!invalid.firstChildWithPdgId(24).has_value());
+  CPPUNIT_ASSERT(invalid.productionSiblings().empty());
+}
+
+void TestBranch::testLevelReaders() {
+  truth::Graph graph = buildTtbarLike();
+
+  // particlesAtLevel names the same members branchesAtLevel roots its branches on.
+  const auto members = truth::particlesAtLevel(graph, truth::Level::BHadrons);
+  const auto branches = truth::branchesAtLevel(graph, truth::Level::BHadrons);
+  CPPUNIT_ASSERT_EQUAL(branches.size(), members.size());
+  CPPUNIT_ASSERT_EQUAL(int32_t(511), members.front().pdgId());
+
+  // Signal is a stamped flag and not a level row, so it is read from the bit. The
+  // fixture stamps none of it.
+  CPPUNIT_ASSERT(graph.signalParticles().empty());
+  graph.particles()[0].setLevel(truth::LevelFlag::Signal);
+  graph.particles()[3].setLevel(truth::LevelFlag::Signal);
+  const auto signal = graph.signalParticles();
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), signal.size());
+  CPPUNIT_ASSERT_EQUAL(uint32_t(0), signal.front().id());
+  CPPUNIT_ASSERT_EQUAL(uint32_t(3), signal.back().id());
+
+  // lastCopy of a particle that does not radiate is the particle itself.
+  CPPUNIT_ASSERT_EQUAL(uint32_t(1), truth::Particle(&graph, 1).lastCopy().id());
+  CPPUNIT_ASSERT(!truth::Particle().lastCopy().valid());
+
+  CPPUNIT_ASSERT(truth::isLepton(-13));
+  CPPUNIT_ASSERT(truth::isLepton(15));
+  CPPUNIT_ASSERT(!truth::isLepton(14));  // a neutrino is not a charged lepton
+  CPPUNIT_ASSERT(truth::isWeakBoson(24));
+  CPPUNIT_ASSERT(truth::isWeakBoson(-24));
+  CPPUNIT_ASSERT(truth::isWeakBoson(23));
+  CPPUNIT_ASSERT(!truth::isWeakBoson(25));  // the Higgs is not a weak boson
 }
