@@ -1,7 +1,8 @@
 #ifndef Mixing_Base_SecondaryEventProvider_h
 #define Mixing_Base_SecondaryEventProvider_h
 
-#include "FWCore/Framework/interface/WorkerManager.h"
+#include "FWCore/Framework/interface/WorkerManager_global.h"
+#include "FWCore/Framework/interface/WorkerManager_stream.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/TransitionPhaseTypes.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistryfwd.h"
@@ -60,7 +61,7 @@ namespace edm {
     StreamWorkerManager<RunTransitionInfo> runStreamWorkerManager_;
     GlobalWorkerManager<LumiTransitionInfo> lumiWorkerManager_;
     StreamWorkerManager<LumiTransitionInfo> lumiStreamWorkerManager_;
-    StreamWorkerManager<EventTransitionInfo> eventWorkerManager_;
+    GlobalWorkerManager<EventTransitionInfo> eventWorkerManager_;
     std::vector<unsigned int> modulesThatFailed_;
   };
 }  // namespace edm

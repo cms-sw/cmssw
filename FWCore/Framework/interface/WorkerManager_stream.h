@@ -21,7 +21,6 @@ namespace edm {
     using WorkerManagerCore<TI, TransitionPhaseStream>::resetAll;
     using AllWorkers = typename WorkerManagerCore<TI, TransitionPhaseStream>::AllWorkers;
 
-    //ONLY CALLED BY RUN/LUMI STREAM TRANSITIONS
     template <typename T, typename U>
       requires std::is_same_v<TI, typename T::TransitionInfoType> &&
                std::is_same_v<typename TransitionPhaseStream::ContextType, typename T::Context>
