@@ -17,7 +17,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
 // generic SoA-based product in device memory
-template <typename TDev, typename T, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
+template <typename TDev, typename T, typename = std::enable_if_t<alpaka::concepts::Device<TDev>>>
 class PortableDeviceCollection {
   static_assert(not std::is_same_v<TDev, alpaka_common::DevHost>,
                 "Use PortableHostCollection<T> instead of PortableDeviceCollection<T, DevHost>");
@@ -47,7 +47,7 @@ public:
   }
 
   template <typename TQueue, std::integral Int>
-    requires(alpaka::isQueue<TQueue> && (!requires { Layout::blocksNumber; }))
+    requires(alpaka::concepts::Queue<TQueue> && (!requires { Layout::blocksNumber; }))
   PortableDeviceCollection(TQueue const& queue, const Int size)
       : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(
             queue, Layout::computeDataSize(portablecollection::size_cast(size)))},
@@ -65,7 +65,7 @@ public:
 
   // constructor for a SoABlocks-layout, taking per-block sizes as variadic integral arguments
   template <typename TQueue, std::integral... Ints>
-    requires(alpaka::isQueue<TQueue>)
+    requires(alpaka::concepts::Queue<TQueue>)
   explicit PortableDeviceCollection(TQueue const& queue, const Ints... sizes)
     requires requires { Layout::blocksNumber; } && (sizeof...(Ints) == static_cast<std::size_t>(Layout::blocksNumber))
       : PortableDeviceCollection(queue, std::to_array({portablecollection::size_cast(sizes)...})) {}
@@ -83,7 +83,7 @@ public:
 
   // constructor for a SoABlocks-layout, taking per-block sizes as a fixed-size array
   template <typename TQueue, std::size_t N>
-    requires(alpaka::isQueue<TQueue>)
+    requires(alpaka::concepts::Queue<TQueue>)
   explicit PortableDeviceCollection(TQueue const& queue, std::array<int32_t, N> const& sizes)
     requires requires { Layout::blocksNumber; } && (N == static_cast<std::size_t>(Layout::blocksNumber))
       : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(queue, Layout::computeDataSize(sizes))},
@@ -122,7 +122,7 @@ public:
 
   // erases the data in the Buffer by writing zeros (bytes containing '\0') to it
   template <typename TQueue>
-    requires(alpaka::isQueue<TQueue>)
+    requires(alpaka::concepts::Queue<TQueue>)
   void zeroInitialise(TQueue&& queue) {
     alpaka::memset(std::forward<TQueue>(queue), *buffer_, 0x00);
   }
@@ -158,7 +158,7 @@ namespace ngt {
     static Properties properties(value_type const& object) { return object->metadata().size(); }
 
     template <typename TQueue>
-      requires(alpaka::isQueue<TQueue>)
+      requires(alpaka::concepts::Queue<TQueue>)
     static void initialize(TQueue& queue, value_type& object, Properties const& size) {
       // Replace the default-constructed empty object with one where the buffer
       // has been allocated in global device memory

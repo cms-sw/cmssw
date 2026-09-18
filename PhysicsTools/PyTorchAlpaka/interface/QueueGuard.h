@@ -21,7 +21,7 @@ namespace cms::torch::alpakatools {
   // GPU backends:
   // - ALPAKA_ACC_GPU_HIP_ENABLED (AMD ROCm/HIP backend not yet supported, see below)
   template <typename TQueue>
-    requires ::alpaka::isQueue<TQueue>
+    requires ::alpaka::concepts::Queue<TQueue>
   class QueueGuard {
   public:
     explicit QueueGuard(const TQueue &queue) { /* no-op default, threading disabled by `PyTorchService` */ }
