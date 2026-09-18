@@ -39,8 +39,8 @@ TEST_CASE("SoATemplate") {
   // size in bytes
   const std::size_t slBufferSize = SimpleLayout::computeDataSize(slSize);
   // memory buffer aligned according to the layout requirements
-  std::unique_ptr<std::byte, decltype(std::free)*> slBuffer{
-      reinterpret_cast<std::byte*>(aligned_alloc(SimpleLayout::alignment, slBufferSize)), std::free};
+  std::unique_ptr<std::byte, decltype(std::free) *> slBuffer{
+      reinterpret_cast<std::byte *>(aligned_alloc(SimpleLayout::alignment, slBufferSize)), std::free};
   // SoA layout
   SimpleLayout sl{slBuffer.get(), slSize};
 
@@ -72,8 +72,8 @@ TEST_CASE("SoATemplate") {
       auto slcvi = slcv[i];
 
       // check that SCALAR accessors are not available an SoA element
-      STATIC_REQUIRE(![](auto& x) { return requires { x.s(); }; }(slvi));
-      STATIC_REQUIRE(![](auto& x) { return requires { x.s(); }; }(slcvi));
+      STATIC_REQUIRE(![](auto &x) { return requires { x.s(); }; }(slvi));
+      STATIC_REQUIRE(![](auto &x) { return requires { x.s(); }; }(slcvi));
 
       REQUIRE(slvi.x() == x);
       REQUIRE(slvi.y() == y);
