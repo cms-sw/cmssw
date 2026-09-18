@@ -20,7 +20,6 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
     return;
   }
 
-
   pfCandidateToken_ = consumes<CandView>(pSet.getParameter<edm::InputTag>("pfCandidates"));
   jetsToken_ = consumes<JetView>(pSet.getParameter<edm::InputTag>("pfJetCollection"));
 
@@ -238,7 +237,7 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
   
   //eta has variable bin sizes, use 4th def of TH1F constructor
   map_of_MEs["AllCandidatesEta"] = ibooker.book1D("AllCandidatesEta", "AllCandidatesEta", 100, -5.2, 5.2);
-  map_of_MEs["AllCandidatesLog10Pt"] = ibooker.book1D("AllCandidatesLog10Pt", "AllCandidatesLog10Pt", 120, -2, 4);
+  map_of_MEs["AllCandidatesLog10Pt"] = ibooker.book1D("AllCandidatesLog10Pt", "AllCandidatesLog10Pt", 120, -1.5, 3.);
 
   //for phi binnings
   double nPhiBins = 73;
@@ -253,7 +252,7 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
 
   for (const auto& [_, part] : m_particleTypeName) {  
     map_of_MEs[part + "Eta"] = ibooker.book1D(part + "Eta", part + "Eta", 100, -5.2, 5.2);
-    map_of_MEs[part + "Log10Pt"] = ibooker.book1D(part + "Log10Pt", part + "Log10Pt", 120, -2, 4);
+    map_of_MEs[part + "Log10Pt"] = ibooker.book1D(part + "Log10Pt", part + "Log10Pt", 120, -1.5, 3.);
     map_of_MEs[part + "Phi"]     = ibooker.book1D(part + "Phi", part + "Phi",
 												 nPhiBins, -M_PI - 0.25 * phiBinWidth, +M_PI + 0.75 * phiBinWidth);
     map_of_MEs[part + "Charge"]  = ibooker.book1D(part + "Charge", part + "Charge", 3, -1.5, 1.5);
