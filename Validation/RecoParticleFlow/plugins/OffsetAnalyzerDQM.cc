@@ -7,6 +7,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -92,24 +93,21 @@ private:
 
   edm::EDGetTokenT<edm::View<reco::Vertex>> pvToken;
   edm::EDGetTokenT<edm::View<PileupSummaryInfo>> muToken;
-  edm::EDGetTokenT<edm::View<pat::PackedCandidate>> pfToken;
-  // AOD/HLT input: reco::PFCandidate carries trackRef(), which is what the
-  // reco path needs to decide PV attachment; pat::PackedCandidate instead
-  // carries a precomputed fromPV().  Exactly one of the two is consumed.
-  edm::EDGetTokenT<edm::View<reco::PFCandidate>> pfRecoToken;
-  const bool useAOD_;
+  // Read through the base class so that one token serves both inputs:
+  // miniAOD pat::PackedCandidate and AOD/HLT reco::PFCandidate both derive
+  // from reco::Candidate. Only the PV-attachment test below is type specific.
+  edm::EDGetTokenT<edm::View<reco::Candidate>> pfToken;
+  std::string dqmDir_;
 };
 
 OffsetAnalyzerDQM::OffsetAnalyzerDQM(const edm::ParameterSet& iConfig)
-    : useAOD_(iConfig.getParameter<bool>("useAOD")) {
+  : dqmDir_(iConfig.getParameter<std::string>("dqmDir")) {
+
   offsetPlotBaseName = iConfig.getParameter<std::string>("offsetPlotBaseName");
 
   pvToken = consumes<edm::View<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("pvTag"));
   muToken = consumes<edm::View<PileupSummaryInfo>>(iConfig.getParameter<edm::InputTag>("muTag"));
-  if (useAOD_)
-    pfRecoToken = consumes<edm::View<reco::PFCandidate>>(iConfig.getParameter<edm::InputTag>("pfTag"));
-  else
-    pfToken = consumes<edm::View<pat::PackedCandidate>>(iConfig.getParameter<edm::InputTag>("pfTag"));
+  pfToken = consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("pfTag"));
 
   etabins = iConfig.getParameter<std::vector<double>>("etabins");
   pftypes = iConfig.getParameter<std::vector<std::string>>("pftypes");
@@ -122,7 +120,7 @@ OffsetAnalyzerDQM::OffsetAnalyzerDQM(const edm::ParameterSet& iConfig)
   for (auto& pset : offset_psets) {
     std::string name = pset.getParameter<std::string>("name");
     std::string title = pset.getParameter<std::string>("title");
-    std::string dir = pset.getParameter<std::string>("dir");
+    std::string dir = dqmDir_ + pset.getParameter<std::string>("dir");
     std::vector<double> vx = pset.getParameter<std::vector<double>>("vx");
     int ny = pset.getParameter<uint32_t>("ny");
     double y0 = pset.getParameter<double>("y0");
@@ -136,7 +134,7 @@ OffsetAnalyzerDQM::OffsetAnalyzerDQM(const edm::ParameterSet& iConfig)
   for (auto& pset : th1d_psets) {
     std::string name = pset.getParameter<std::string>("name");
     std::string title = pset.getParameter<std::string>("title");
-    std::string dir = pset.getParameter<std::string>("dir");
+    std::string dir = dqmDir_ + pset.getParameter<std::string>("dir");
     int nx = pset.getParameter<uint32_t>("nx");
     double x0 = pset.getParameter<double>("x0");
     double x1 = pset.getParameter<double>("x1");
@@ -221,11 +219,8 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   //pf particles//
   //
-  // Two input types are supported.  MiniAOD gives pat::PackedCandidate, which
-  // carries fromPV() directly.  AOD/HLT gives reco::PFCandidate, where PV
-  // attachment has to be decided by matching the candidate track against the
-  // tracks fitted to a good primary vertex.  The second path is the one the
-  // original code sketched in the commented ////AOD//// block below.
+  // Both input types go through the same loop; the PV-attachment lambda is the
+  // only place that has to know which concrete type it was handed.
   auto fillCandidate = [&](double eta, int pdg, double et, auto isAttachedToPV) {
     int etaIndex = getEtaIndex(eta);
     std::string pftype = pdgMap[abs(pdg)];
@@ -236,18 +231,28 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
     m_pftype_etaE[pftype][etaIndex] += et;
   };
 
-  if (useAOD_) {
-    edm::Handle<edm::View<reco::PFCandidate>> pfRecoHandle;
-    iEvent.getByToken(pfRecoToken, pfRecoHandle);
-    if (!pfRecoHandle.isValid()) {
-      edm::LogInfo("OffsetAnalyzerDQM") << "no PF candidate collection in this event; skipping";
-      return;
-    }
+  edm::Handle<edm::View<reco::Candidate>> pfHandle;
+  iEvent.getByToken(pfToken, pfHandle);
+  if (!pfHandle.isValid()) {
+    edm::LogInfo("OffsetAnalyzerDQM") << "no PF candidate collection in this event; skipping";
+    return;
+  }
 
-    for (unsigned int i = 0, n = pfRecoHandle->size(); i < n; i++) {
-      const auto& cand = pfRecoHandle->at(i);
-      fillCandidate(cand.eta(), cand.pdgId(), cand.et(), [&]() {
-        reco::TrackRef candTrkRef(cand.trackRef());
+  for (unsigned int i = 0, n = pfHandle->size(); i < n; i++) {
+    const reco::Candidate& cand = pfHandle->at(i);
+    fillCandidate(cand.eta(), cand.pdgId(), cand.et(), [&]() {
+      // MiniAOD: PV attachment is precomputed in fromPV(), 3 == used in the fit.
+      if (const pat::PackedCandidate* packed = dynamic_cast<const pat::PackedCandidate*>(&cand)) {
+        for (unsigned int ipv = 0; ipv < nPVall; ipv++) {
+          if (isGoodPV[ipv] && packed->fromPV(ipv) == 3)
+            return true;
+        }
+        return false;
+      }
+      // AOD/HLT: reco::PFCandidate has no such flag, so attachment is decided
+      // by matching the candidate track against the tracks fitted to a good PV.
+      if (const reco::PFCandidate* pf = dynamic_cast<const reco::PFCandidate*>(&cand)) {
+        reco::TrackRef candTrkRef(pf->trackRef());
         if (candTrkRef.isNull())
           return false;
         for (auto ipv = vertexHandle->begin(), endpv = vertexHandle->end(); ipv != endpv; ++ipv) {
@@ -258,26 +263,10 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
               return true;
           }
         }
-        return false;
-      });
-    }
-  } else {
-  edm::Handle<edm::View<pat::PackedCandidate>> pfHandle;
-  iEvent.getByToken(pfToken, pfHandle);
-
-  for (unsigned int i = 0, n = pfHandle->size(); i < n; i++) {
-    const auto& cand = pfHandle->at(i);
-    // MiniAOD path: PV attachment is precomputed in fromPV(), 3 == used in fit.
-    fillCandidate(cand.eta(), cand.pdgId(), cand.et(), [&]() {
-      for (unsigned int ipv = 0; ipv < nPVall; ipv++) {
-        if (isGoodPV[ipv] && cand.fromPV(ipv) == 3)
-          return true;
       }
       return false;
     });
   }
-
-  }  // end packed-candidate branch
 
   for (const auto& pair : m_pftype_etaE) {
     std::string pftype = pair.first;

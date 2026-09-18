@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import Validation.RecoParticleFlow.defaults_cfi as default
-from Validation.RecoParticleFlow.defaults_cfi import ptbins, etabins, response_distribution_name, genjet_distribution_name, recojet_distribution_name, jetResponseDir, genjetDir, offsetDir
+from Validation.RecoParticleFlow.defaults_cfi import ptbins, etabins, response_distribution_name, genjet_distribution_name, recojet_distribution_name, jetResponseDir, genjetDir
 
 #----- ----- ----- ----- ----- ----- ----- -----
 #
@@ -102,10 +102,9 @@ vjetResponseDir = [jetResponseDir + "slimmedJets/JEC/",
                    jetResponseDir + "slimmedJetsPuppi/noJEC/"]
 
 pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
-
+    isHLT = cms.bool(False),
     jetResponseDir = cms.vstring( vjetResponseDir ),
     genjetDir = cms.string( genjetDir ),
-    offsetDir = cms.string( offsetDir ),
     ptBins = cms.vdouble( ptbins ),
     etaBins = cms.vdouble( etabins ),
     recoPtCut = cms.double(10. )
