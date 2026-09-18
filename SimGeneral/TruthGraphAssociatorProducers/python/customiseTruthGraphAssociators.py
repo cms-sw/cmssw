@@ -53,3 +53,29 @@ def customiseTruthGraphAssociators(process):
             ]
         )
     return process
+
+
+def customiseTruthHltValidation(process):
+    """Schedule the HLT truth DQM. The offline twins are scheduled by globalValidation and
+    postValidation; the HLT ones are not, because a job only has HLT reconstruction to
+    validate when it ran the HLT menu. Apply this to the reconstruction step to book and
+    fill them, and to the harvesting step to turn them into ratios.
+
+        cmsDriver.py ... --customise SimGeneral/TruthGraphAssociatorProducers/\
+            customiseTruthGraphAssociators.customiseTruthHltValidation
+    """
+    customiseTruthGraphAssociators(process)
+    process.load("Validation.TruthInfo.truthBranchValidation_cff")
+
+    # A harvesting job has the DQM saver and no reconstruction to analyse; a
+    # reconstruction job is the other way round.
+    harvesting = hasattr(process, "dqmSaver")
+    sequence = (process.truthBranchHltHarvestingSequence if harvesting
+                else process.truthBranchHltValidationSequence)
+    if not sequence.moduleNames():
+        return process
+    if not hasattr(process, "truthBranchHltValidationPath"):
+        process.truthBranchHltValidationPath = cms.Path(sequence)
+        if process.schedule is not None:
+            process.schedule.append(process.truthBranchHltValidationPath)
+    return process

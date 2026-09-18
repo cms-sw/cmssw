@@ -59,7 +59,7 @@ int32_t truth::Particle::genEvent() const { return data().genEvent; }
 
 const math::XYZTLorentzVectorD& truth::Particle::momentum() const { return data().momentum; }
 
-const int truth::Particle::charge() const { return HepPDT::ParticleID(data().pdgId).threeCharge(); }
+int truth::Particle::threeCharge() const { return HepPDT::ParticleID(data().pdgId).threeCharge(); }
 
 std::span<const truth::Checkpoint> truth::Particle::checkpoints() const {
   return std::span<const truth::Checkpoint>(data().checkpoints.data(), data().checkpoints.size());
@@ -468,10 +468,11 @@ std::optional<truth::Particle> truth::Graph::firstChildWithPdgIdOf(size_type par
   if (particleId >= nParticles())
     return std::nullopt;
 
-  // The direct children only, in the order the decay vertices list them.
+  // The direct children only, in the order the decay vertices list them. The id bound is
+  // checked as in the other walks: a truncated graph would read out of range otherwise.
   for (const uint32_t vertexId : decayVertices(particleId)) {
     for (const uint32_t child : outgoingParticles(vertexId)) {
-      if (child != particleId && particles_[child].pdgId == pdgId)
+      if (child < nParticles() && child != particleId && particles_[child].pdgId == pdgId)
         return particle(child);
     }
   }

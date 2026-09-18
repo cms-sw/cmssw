@@ -38,7 +38,6 @@ truthBranchSelectorBlock = cms.PSet(
 # hardProcess and partonJets denominators, which the truth-driven direction must reach.
 truthAssignableTargetsBlock = cms.PSet(
     excludeSynthetic=cms.bool(True),
-    excludeArtificialProduction=cms.bool(True),
     excludeBeamParticles=cms.bool(True),
     excludePartons=cms.bool(True),
     excludeElectroweakBosons=cms.bool(True),

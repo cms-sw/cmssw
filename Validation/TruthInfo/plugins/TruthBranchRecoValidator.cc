@@ -833,6 +833,14 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
             kin.dxy = truth::kNoCaloEntry;
             kin.dz = truth::kNoCaloEntry;
           }
+        } else {
+          // No production vertex, so no position and no impact parameter. Left at 0 these
+          // would pile up in the first bin of both numerator and denominator and read as
+          // a real feature at the origin.
+          kin.vertpos = truth::kNoCaloEntry;
+          kin.zpos = truth::kNoCaloEntry;
+          kin.dxy = truth::kNoCaloEntry;
+          kin.dz = truth::kNoCaloEntry;
         }
       }
 
@@ -1001,6 +1009,10 @@ void TruthBranchRecoValidator<RECO>::fillDescriptions(edm::ConfigurationDescript
     algo.addOptional<double>("max_reco_" + name);
     algo.addOptional<double>("linthresh_reco_" + name);
   }
+  // Which absolute-pseudorapidity bands to book a folder for, on top of the inclusive
+  // one. A band a domain's objects cannot reach only duplicates the inclusive folder and
+  // costs the same monitor elements, so each domain lists the bands its detector covers.
+  algo.add<std::vector<std::string>>("etaRegions", {"etaLt15", "eta15to30", "eta30to45"});
   algo.add<std::vector<std::string>>("truthVariables", {"pt", "eta", "phi"});
   algo.add<std::vector<std::string>>("recoVariables", {"pt", "eta", "phi"});
   algo.add<int>("nintScore", 50);

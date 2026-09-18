@@ -17,7 +17,7 @@ namespace truth {
     if (config_.intimeOnly && !branch.isInTime())
       return false;
 
-    if (config_.chargedOnly && branch.root().charge() == 0)
+    if (config_.chargedOnly && branch.root().threeCharge() == 0)
       return false;
 
     const int32_t pdgId = branch.rootPdgId();

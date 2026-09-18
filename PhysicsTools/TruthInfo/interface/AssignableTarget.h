@@ -11,7 +11,12 @@
 //
 // The rule is about WHAT the ancestor is, not about the vertex between it and the reco
 // object's own particle: the merged pi0 the adaptive search exists for is reached by
-// crossing a decay vertex, so no vertex process can be a barrier.
+// crossing a decay vertex, so no vertex process can be a barrier. Nor is it about the
+// vertex a particle was produced at. A selection preset attaches every real particle it
+// keeps but whose production vertex it dropped to an artificial source vertex: a gun
+// particle to the InitialState vertex, a stable spectator to the UnderlyingEvent vertex.
+// Those are particles a detector sees, and they stay assignable. The invented nodes are
+// barred by their own role instead.
 //
 // This is the assignment rule only. The barred particles stay candidate roots, because a
 // truth object that is not a candidate can never be matched and the hard-process and
@@ -42,7 +47,6 @@ namespace truth {
   // and its antiparticle.
   struct AssignableTargetConfig {
     bool excludeSynthetic = true;
-    bool excludeArtificialProduction = true;
     bool excludeBeamParticles = true;
     bool excludePartons = true;
     bool excludeElectroweakBosons = true;
@@ -81,13 +85,6 @@ namespace truth {
     // whole interaction.
     if (config.excludeBeamParticles && production.empty()) {
       return false;
-    }
-    if (config.excludeArtificialProduction) {
-      for (const uint32_t vertexId : production) {
-        if (graph.vertices()[vertexId].isArtificial()) {
-          return false;
-        }
-      }
     }
     return true;
   }

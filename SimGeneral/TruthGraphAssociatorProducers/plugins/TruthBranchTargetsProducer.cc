@@ -72,7 +72,6 @@ TruthBranchTargetsProducer::TruthBranchTargetsProducer(edm::ParameterSet const& 
   {
     auto const& assignable = cfg.getParameter<edm::ParameterSet>("assignableTargets");
     assignableConfig_.excludeSynthetic = assignable.getParameter<bool>("excludeSynthetic");
-    assignableConfig_.excludeArtificialProduction = assignable.getParameter<bool>("excludeArtificialProduction");
     assignableConfig_.excludeBeamParticles = assignable.getParameter<bool>("excludeBeamParticles");
     assignableConfig_.excludePartons = assignable.getParameter<bool>("excludePartons");
     assignableConfig_.excludeElectroweakBosons = assignable.getParameter<bool>("excludeElectroweakBosons");
@@ -136,7 +135,15 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
   // The preset seed objects: with a tau preset the tau roots alone, so the signal
   // efficiency is the tau's own, not its decay legs'.
   {
-    auto const isSeedSpecies = [this, &graph](uint32_t id) {
+    // The species alone is not the signal object: the same species appears in the pile-up
+    // interactions, among the Geant4 secondaries of a gun, and repeatedly along a heavy
+    // flavour chain, where B**, B* and B all carry the quark. LevelFlag::Signal is the
+    // graph's own answer: the post-processing stamps it on the most upstream seed-species
+    // particle of the signal interaction only, with the decay groups applied.
+    auto const isSignalSeed = [this, &graph](uint32_t id) {
+      if (!graph.particles()[id].isAtLevel(truth::LevelFlag::Signal)) {
+        return false;
+      }
       const int32_t pdgId = graph.particles()[id].pdgId;
       if (std::find(signalSeedPdgIds_.begin(), signalSeedPdgIds_.end(), pdgId) != signalSeedPdgIds_.end()) {
         return true;
@@ -150,19 +157,20 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
     };
     auto signalSeeds = std::make_unique<std::vector<unsigned int>>();
     auto signalSeedsNoSelection = std::make_unique<std::vector<unsigned int>>();
+    // NoSelection drops the kinematic selector, not the signal requirement.
     // With no seed species there is no resonance in this sample, so BOTH products stay
-    // EMPTY. Every selected root is not a substitute: that set holds particles together
+    // EMPTY. A graph built with no preset carries no Signal flag, so they stay empty too. Every selected root is not a substitute: that set holds particles together
     // with their own ancestors, so it is not an antichain and an efficiency over it
     // counts the same energy twice (on QCD it is 518.89 per event against 164
     // generator-stable particles).
     if (truth::seedsNameAResonance(signalSeedPdgIds_, signalSeedHadronFlavors_)) {
       for (uint32_t id : *selectedRoots) {
-        if (isSeedSpecies(id)) {
+        if (isSignalSeed(id)) {
           signalSeeds->push_back(id);
         }
       }
       for (uint32_t id = 0; id < nBranches; ++id) {
-        if (isSeedSpecies(id)) {
+        if (isSignalSeed(id)) {
           signalSeedsNoSelection->push_back(id);
         }
       }
@@ -255,8 +263,6 @@ void TruthBranchTargetsProducer::fillDescriptions(edm::ConfigurationDescriptions
   // bookkeeping node that merely covers it.
   edm::ParameterSetDescription assignable;
   assignable.add<bool>("excludeSynthetic", true)->setComment("Bar the connector and signal stand-in nodes");
-  assignable.add<bool>("excludeArtificialProduction", true)
-      ->setComment("Bar a particle produced at an InitialState, UnderlyingEvent or Interaction vertex");
   assignable.add<bool>("excludeBeamParticles", true)->setComment("Bar a particle with no production vertex");
   assignable.add<bool>("excludePartons", true)->setComment("Bar quarks and gluons");
   assignable.add<bool>("excludeElectroweakBosons", true)->setComment("Bar the W, the Z and the Higgs");

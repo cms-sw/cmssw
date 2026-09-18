@@ -8,6 +8,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenStatusFlags.h"
 #include "PhysicsTools/HepMCCandAlgos/interface/MCTruthHelper.h"
 #include "PhysicsTools/TruthInfo/interface/GenGraphBuild.h"
+#include "PhysicsTools/TruthInfo/interface/TruthLevels.h"
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
@@ -25,26 +26,6 @@ namespace {
   // case for the incoming beam particles.
   constexpr int kNoVertex = std::numeric_limits<int>::min();
 
-  // Shower bookkeeping objects rather than particles reconstruction can be asked
-  // about: partons, diquarks, Pythia strings and clusters, and the beam/system
-  // pseudoparticles. Their last copy carries no physics of its own.
-  [[nodiscard]] bool isShowerObject(int32_t pdgId) {
-    const int32_t id = std::abs(pdgId);
-    if (id >= 1 && id <= 6)
-      return true;
-    if (id == 21)
-      return true;
-    if (id >= 91 && id <= 94)  // cluster, string and the other hadronization placeholders
-      return true;
-    if (id == 990)  // pomeron
-      return true;
-    if (id >= 1000 && id <= 9999 && (id / 10) % 10 == 0 && (id / 100) % 10 != 0)  // diquarks, e.g. 2101, 2203
-      return true;
-    if (id >= 9900000 && id < 1000000000)  // generator-internal states such as 9922212, below the nuclei codes
-      return true;
-    return false;
-  }
-
   template <typename V>
   [[nodiscard]] V lookup(std::unordered_map<int, V> const& map, int key, V fallback) {
     const auto it = map.find(key);
@@ -61,7 +42,7 @@ namespace {
     const uint16_t flags = lookup(gb.particleStatusFlagsByBarcode, barcode, static_cast<uint16_t>(0));
     if ((flags & kIsHardProcess) != 0)
       return true;
-    return (flags & kIsLastCopy) != 0 && !isShowerObject(lookup(gb.particlePdgIdByBarcode, barcode, int32_t{0}));
+    return (flags & kIsLastCopy) != 0 && !truth::isShowerObject(lookup(gb.particlePdgIdByBarcode, barcode, int32_t{0}));
   }
 
   void sortUnique(std::vector<uint32_t>& v) {

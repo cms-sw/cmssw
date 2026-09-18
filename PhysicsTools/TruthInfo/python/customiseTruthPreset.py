@@ -2,10 +2,11 @@
 
 """Apply one truth-graph selection preset to every module that has to agree on it.
 
-The preset decides which particle is the signal, so three modules have to read the
-same answer: the graph producer builds the selected view, and the targets producer
-publishes the signal-seed denominators. Setting them separately lets them drift, and
-a drifted signal denominator is not visible in any plot.
+The preset decides which particle is the signal, so several modules have to read the
+same answer: the graph producer builds the selected view, the targets producer publishes
+the signal-seed denominators, and every validator books its signal folders from the same
+seeds. Setting them separately lets them drift, and a drifted signal denominator is not
+visible in any plot.
 
 Pick the preset by name, or name the generator fragment and let the rules in
 ``truthGraphSelections`` resolve it:
@@ -39,10 +40,10 @@ from PhysicsTools.TruthInfo.truthGraphSelections import (
     templateForFragment,
 )
 
-# The producer that builds the selected view, and the producer that publishes the
-# signal-seed denominators from the same seeds.
+# The producer that builds the selected view. Every module that carries seed parameters
+# is found by name below, so a new validator needs no edit here.
 GRAPH_PRODUCER = "truthLogicalGraphProducer"
-TARGETS_PRODUCER = "truthBranchTargets"
+SEED_PARAMETERS = ("signalSeedPdgIds", "signalSeedHadronFlavors")
 
 # The postProcessing fields the preset owns. Anything outside this list, such as
 # reconstructablePdgIds or dropHitlessSimSubgraphs, is left as the chain set it unless
@@ -91,8 +92,8 @@ def resolvePreset(preset=None, fragment=None):
 
 
 def applyTruthPreset(process, preset=None, fragment=None, **overrides):
-    """Set the selection on the graph producer and the matching seeds on the targets
-    producer. Returns the process, so it chains like any other customise."""
+    """Set the selection on the graph producer and the matching seeds on every module that
+    reads them. Returns the process, so it chains like any other customise."""
     name = resolvePreset(preset=preset, fragment=fragment)
     selection = selectionForFragment(name=fragment, template=preset, **overrides)
 
@@ -107,19 +108,32 @@ def applyTruthPreset(process, preset=None, fragment=None, **overrides):
         for field, value in fields.items():
             setattr(postProcessing, field, _TYPES[field](value))
 
-    # The signal-seed denominator is the preset's own signal object, so it seeds with
-    # the same species. [0] is the full-graph escape hatch, not a species.
-    if hasattr(process, TARGETS_PRODUCER):
-        targets = getattr(process, TARGETS_PRODUCER)
-        targets.signalSeedPdgIds = cms.vint32(*[p for p in selection["seedPdgIds"] if p != 0])
-        targets.signalSeedHadronFlavors = cms.vint32(*selection["seedHadronFlavors"])
+    # The signal-seed denominator is the preset's own signal object, so every module that
+    # reads seeds reads the same ones: the targets producer publishes the denominators and
+    # each validator books its signal folders from them. [0] is the full-graph escape
+    # hatch, not a species.
+    seeds = [p for p in selection["seedPdgIds"] if p != 0]
+    flavors = list(selection["seedHadronFlavors"])
+    seeded = []
+    modules = {}
+    # A DQM harvester is an EDProducer, so producers_() has to be read as well.
+    for kind in ("producers_", "analyzers_", "filters_"):
+        modules.update(getattr(process, kind)())
+    for label, module in modules.items():
+        if not all(hasattr(module, name) for name in SEED_PARAMETERS):
+            continue
+        module.signalSeedPdgIds = cms.vint32(*seeds)
+        module.signalSeedHadronFlavors = cms.vint32(*flavors)
+        seeded.append(label)
 
-    print("[truth] selection preset '%s'%s: seedPdgIds=%s seedHadronFlavors=%s seedParentDepth=%d" %
+    print("[truth] selection preset '%s'%s: seedPdgIds=%s seedHadronFlavors=%s seedParentDepth=%d, "
+          "seeds set on %d module(s): %s" %
           (name,
            " from fragment '%s'" % fragment if fragment else "",
            selection["seedPdgIds"],
            selection["seedHadronFlavors"],
-           selection["seedParentDepth"]))
+           selection["seedParentDepth"],
+           len(seeded), ", ".join(sorted(seeded)) or "none"))
     return process
 
 
