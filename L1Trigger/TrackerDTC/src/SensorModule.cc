@@ -87,8 +87,10 @@ namespace trackerDTC {
     layerIdReduced_--;
     // TTStub row needs flip of sign
     signRow_ = std::signbit(tt::deltaPhi(plane.rotation().x().phi() - pos0.phi()));
+    // A 180 deg in-plane (yaw) flip reverses local row and column
+    const bool barrelYawFlipped = barrel_ && (signRow_ != flipped_);
     // TTStub col needs flip of sign
-    signCol_ = !barrel_ && !side_;
+    signCol_ = (!barrel_ && !side_) != barrelYawFlipped;
     // TTStub bend needs flip of sign
     signBend_ = signCol_;
     // determing sensor type
