@@ -136,7 +136,6 @@ namespace edm {
   template class WorkerManager<LumiTransitionInfo, TransitionPhaseGlobal>;
   template class WorkerManager<RunTransitionInfo, TransitionPhaseStream>;
   template class WorkerManager<LumiTransitionInfo, TransitionPhaseStream>;
-  template class WorkerManager<EventTransitionInfo, TransitionPhaseGlobal>;
   template class WorkerManager<ProcessBlockTransitionInfo, TransitionPhaseGlobal>;
   template class WorkerManager<InputProcessBlockTransitionInfo, TransitionPhaseGlobal>;
 }  // namespace edm
