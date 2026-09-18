@@ -252,6 +252,24 @@ class TruthGraphView:
                     stack.append(child)
         return out
 
+    def firstChildWithPdgId(self, particleId, pdgId):
+        """The first child with exactly this signed pdgId, as Particle::firstChildWithPdgId.
+        A radiating particle carries its decay products on its last copy."""
+        for child in self.children(particleId):
+            if child != particleId and self.pdgId(child) == pdgId:
+                return child
+        return None
+
+    def productionSiblings(self, particleId):
+        """The other particles produced where this one was, each once: what recoils
+        against it."""
+        out = []
+        for vertexId in self._productionVertices[particleId]:
+            for sibling in self._outgoing[vertexId]:
+                if sibling != particleId and sibling not in out:
+                    out.append(sibling)
+        return out
+
     # --- levels and provenance ---------------------------------------------------
     def levels(self, particleId):
         flags = self._particles[particleId]["levelFlags"]
@@ -276,16 +294,70 @@ class TruthGraphView:
     def isFromPileup(self, particleId):
         return not self.isSignal(particleId)
 
-    def interactions(self):
-        """The packed interaction ids present, signal first."""
+    def interactionIds(self):
+        """The packed interaction ids present, signal first. interactions() carries the
+        same list with the vertex, the position and the products of each one."""
         return sorted({p["eventId"] for p in self._particles})
 
     def particlesOfInteraction(self, eventId):
         return [i for i, p in enumerate(self._particles) if p["eventId"] == eventId]
 
+    def signalParticles(self):
+        """What the selection preset named as the signal. Signal is a stamped flag and not
+        a level row, so no preset means an empty list."""
+        return self.particlesOfLevel("signal")
+
     # --- vertices ----------------------------------------------------------------
+    def interactionVertices(self):
+        """The vertices the graph marks as interaction points, in id order, one per
+        interaction. Only a selection preset builds them."""
+        return self.verticesWithRole("Interaction")
+
     def verticesWithRole(self, role):
         return [i for i, v in enumerate(self._vertices) if v["role"] == role]
+
+    def interactions(self):
+        """One entry per overlaid interaction, the signal first and the pile-up after it by
+        bunch crossing then by index. Each entry carries the vertex that stands for the
+        interaction point, its position and what came out of it. Ask isSignal rather than
+        taking the first entry on faith: a pile-up-only graph holds no signal."""
+        found = {}
+        for vertexId, vertex in enumerate(self._vertices):
+            if vertex["role"] == "Interaction":
+                found.setdefault(vertex["eventId"], vertexId)
+        placeholder = set()
+        if not found:
+            # No preset ran, so elect the lowest-numbered usable production vertex of each
+            # interaction, as truth::interactions does.
+            elected, onlyPlaceholders = {}, {}
+            for particleId, particle in enumerate(self._particles):
+                vertices = self._productionVertices[particleId]
+                if not vertices:
+                    continue
+                vertexId = vertices[0]
+                vertex = self._vertices[vertexId]
+                usable = vertex["hasSim"] or any(c != 0.0 for c in vertex["x4"])
+                target = elected if usable else onlyPlaceholders
+                eventId = particle["eventId"]
+                target[eventId] = min(target.get(eventId, vertexId), vertexId)
+            found = dict(elected)
+            for eventId, vertexId in onlyPlaceholders.items():
+                if eventId not in found:
+                    found[eventId] = vertexId
+                    placeholder.add(eventId)
+
+        out = []
+        for eventId, vertexId in found.items():
+            out.append(dict(eventId=eventId,
+                            vertexId=vertexId,
+                            isPlaceholder=eventId in placeholder,
+                            isSignal=isSignalEventId(eventId),
+                            bunchCrossing=bunchCrossingOf(eventId),
+                            eventIndex=eventIndexOf(eventId),
+                            position=self._vertices[vertexId]["x4"],
+                            outgoingParticles=list(self._outgoing[vertexId])))
+        out.sort(key=lambda i: (not i["isSignal"], i["bunchCrossing"], i["eventIndex"]))
+        return out
 
     def summary(self):
         """One line per interaction: particles, vertices and artificial roles."""

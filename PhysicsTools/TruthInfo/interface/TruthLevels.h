@@ -145,6 +145,18 @@ namespace truth {
     return (a >= 1 && a <= 6) || a == 21;
   }
 
+  // Charged leptons. A neutrino is not one of these; ask isInvisible for that.
+  [[nodiscard]] inline bool isLepton(int32_t pdgId) {
+    const int64_t a = std::abs(static_cast<int64_t>(pdgId));
+    return a == 11 || a == 13 || a == 15;
+  }
+
+  // The W and the Z. The Higgs is not a weak boson and is not one of these.
+  [[nodiscard]] inline bool isWeakBoson(int32_t pdgId) {
+    const int64_t a = std::abs(static_cast<int64_t>(pdgId));
+    return a == 23 || a == 24;
+  }
+
   // Shower bookkeeping rather than a particle a detector could be asked about: a parton,
   // a diquark, a Pythia string or cluster, a beam or generator-internal pseudoparticle.
   // The main event keeps its shower, so these are in the graph.
@@ -165,38 +177,9 @@ namespace truth {
     return a >= 9900000 && a < 1000000000;  // generator-internal states, below the nuclei codes
   }
 
-  // The last copy of a radiating chain: from `rootId`, the walk follows the one same-species
-  // child of the one decay vertex until the species changes, the particle is stable, or the
-  // step is ambiguous. What the particle decays into is read from the copy this returns.
+  // The id form of Particle::lastCopy.
   [[nodiscard]] inline uint32_t lastCopyOf(truth::Graph const& graph, uint32_t rootId) {
-    const int32_t pdgId = graph.particles()[rootId].pdgId;
-    uint32_t current = rootId;
-
-    for (uint32_t guard = 0; guard < graph.nParticles(); ++guard) {
-      if (graph.particles()[current].status == 1)
-        break;
-
-      const auto decayVertices = graph.decayVertices(current);
-      if (decayVertices.size() != 1)
-        break;
-
-      uint32_t sameIdChild = 0;
-      uint32_t nSameId = 0;
-
-      for (const uint32_t childId : graph.outgoingParticles(decayVertices.front())) {
-        if (childId < graph.nParticles() && childId != current && graph.particles()[childId].pdgId == pdgId) {
-          sameIdChild = childId;
-          ++nSameId;
-        }
-      }
-
-      if (nSameId != 1)
-        break;
-
-      current = sameIdChild;
-    }
-
-    return current;
+    return Particle(&graph, rootId).lastCopy().id();
   }
 
   // A shower object that turns into hadrons rather than decaying. The top is excluded
@@ -878,6 +861,16 @@ namespace truth {
         }
       }
     }
+  }
+
+  // The particles a level names, as views. This is levelAntichain with the ids resolved,
+  // and the counterpart of branchesAtLevel where only the particle itself is asked about.
+  [[nodiscard]] inline std::vector<Particle> particlesAtLevel(Graph const& graph, Level level) {
+    std::vector<Particle> members;
+    for (const uint32_t id : levelAntichain(graph, level)) {
+      members.emplace_back(&graph, id);
+    }
+    return members;
   }
 
 }  // namespace truth
