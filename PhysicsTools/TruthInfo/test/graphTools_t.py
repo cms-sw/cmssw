@@ -125,6 +125,17 @@ class TestGraphToolsNavigation(unittest.TestCase):
         self.assertEqual(graph.productionSiblings(2), [1])
         self.assertEqual(graph.productionSiblings(0), [])
 
+    def test_particles_at_levels(self):
+        graph = self.graph()
+        # particle 0 is reconstructableFinalState, 1 and 2 are stableDecayProducts.
+        self.assertEqual(graph.particlesAtLevels(["reconstructableFinalState"]), [0])
+        self.assertEqual(
+            graph.particlesAtLevels(["reconstructableFinalState", "stableDecayProducts"]), [0, 1, 2])
+        self.assertEqual(
+            graph.particlesAtLevels(["reconstructableFinalState", "stableDecayProducts"], "all"), [])
+        self.assertEqual(graph.particlesAtLevels([]), [])
+        self.assertRaises(ValueError, graph.particlesAtLevels, ["signal"], "either")
+
     def test_signal_particles_and_interactions(self):
         graph = self.graph()
         self.assertEqual(graph.signalParticles(), [3])

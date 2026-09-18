@@ -863,6 +863,47 @@ namespace truth {
     }
   }
 
+  // Whether a particle has to be at one of the levels asked for, or at every one.
+  enum class LevelMatch : uint8_t { Any, All };
+
+  // The particles several levels name together, as views, in id order and each once.
+  //
+  // Any is the union of the per-level members and is NOT reduced to an antichain again.
+  // Levels nest: a hard-process b quark is an ancestor of the B hadron, which is an
+  // ancestor of the D hadron, and each is the member of its own level. Reducing the union
+  // would keep the topmost and silently drop the very members the caller asked for.
+  //
+  // All is the intersection, for a particle that is a member of every level named. A level
+  // repeated in the list is asked for once.
+  [[nodiscard]] inline std::vector<Particle> particlesAtLevels(Graph const& graph,
+                                                               std::vector<Level> const& levels,
+                                                               LevelMatch match = LevelMatch::Any) {
+    std::vector<Level> wanted = levels;
+    std::sort(wanted.begin(), wanted.end());
+    wanted.erase(std::unique(wanted.begin(), wanted.end()), wanted.end());
+
+    std::vector<uint32_t> ids;
+    for (const Level level : wanted) {
+      const auto members = levelAntichain(graph, level);
+      ids.insert(ids.end(), members.begin(), members.end());
+    }
+    std::sort(ids.begin(), ids.end());
+
+    std::vector<Particle> out;
+    for (std::size_t i = 0; i < ids.size();) {
+      std::size_t j = i;
+      while (j < ids.size() && ids[j] == ids[i]) {
+        ++j;
+      }
+      const bool keep = match == LevelMatch::Any || (j - i) == wanted.size();
+      if (keep) {
+        out.emplace_back(&graph, ids[i]);
+      }
+      i = j;
+    }
+    return out;
+  }
+
   // The particles a level names, as views. This is levelAntichain with the ids resolved,
   // and the counterpart of branchesAtLevel where only the particle itself is asked about.
   [[nodiscard]] inline std::vector<Particle> particlesAtLevel(Graph const& graph, Level level) {

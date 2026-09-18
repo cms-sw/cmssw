@@ -251,6 +251,7 @@ class LevelFlags_t : public CppUnit::TestFixture {
   CPPUNIT_TEST(testCollapsedResonanceDecayIsNotAHardScatter);
   CPPUNIT_TEST(testGenVertexReasonLeavesSimAndArtificialVertices);
   CPPUNIT_TEST(testLastCopyFollowsTheRadiatingChain);
+  CPPUNIT_TEST(testParticlesAtSeveralLevels);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -796,6 +797,45 @@ public:
 
   // REQUIRED: beauty and charm stay separate levels. The D descends from the B, so one
   // combined level would keep the B and drop the D, and charm would silently vanish.
+  // REQUIRED: Any keeps a nested member. The B hadron is an ancestor of the D hadron and
+  // each is the member of its own level, so a union reduced to an antichain again would
+  // drop the D and answer the wrong question.
+  void testParticlesAtSeveralLevels() {
+    truth::Graph g = buildHeavyFlavour();
+
+    const auto either = truth::particlesAtLevels(g, {truth::Level::BHadrons, truth::Level::CHadrons});
+    CPPUNIT_ASSERT_EQUAL(std::size_t{2}, either.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t{2}, either[0].id());
+    CPPUNIT_ASSERT_EQUAL(uint32_t{3}, either[1].id());
+
+    // No particle is both a beauty and a charm hadron.
+    CPPUNIT_ASSERT(
+        truth::particlesAtLevels(g, {truth::Level::BHadrons, truth::Level::CHadrons}, truth::LevelMatch::All).empty());
+
+    // One level repeated is asked for once, so All over it is that level.
+    const auto repeated =
+        truth::particlesAtLevels(g, {truth::Level::CHadrons, truth::Level::CHadrons}, truth::LevelMatch::All);
+    CPPUNIT_ASSERT_EQUAL(std::size_t{1}, repeated.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t{3}, repeated[0].id());
+
+    // A particle that really is at two levels comes back from All.
+    const auto both =
+        truth::particlesAtLevels(g, {truth::Level::HardProcess, truth::Level::PartonJets}, truth::LevelMatch::All);
+    const auto partons = truth::levelAntichain(g, truth::Level::PartonJets);
+    const auto hard = truth::levelAntichain(g, truth::Level::HardProcess);
+    CPPUNIT_ASSERT(!partons.empty() && !hard.empty());
+    CPPUNIT_ASSERT_EQUAL(std::size_t{1}, both.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t{0}, both[0].id());
+
+    // No level named is no particle, whichever mode.
+    CPPUNIT_ASSERT(truth::particlesAtLevels(g, {}).empty());
+    CPPUNIT_ASSERT(truth::particlesAtLevels(g, {}, truth::LevelMatch::All).empty());
+
+    // One level is particlesAtLevel.
+    CPPUNIT_ASSERT_EQUAL(truth::particlesAtLevel(g, truth::Level::CHadrons).size(),
+                         truth::particlesAtLevels(g, {truth::Level::CHadrons}).size());
+  }
+
   void testBeautyAndCharmAreSeparateLevels() {
     truth::Graph g = buildHeavyFlavour();
 

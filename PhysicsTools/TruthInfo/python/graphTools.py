@@ -302,6 +302,25 @@ class TruthGraphView:
     def particlesOfInteraction(self, eventId):
         return [i for i, p in enumerate(self._particles) if p["eventId"] == eventId]
 
+    def particlesAtLevels(self, levels, match="any"):
+        """The particles several levels name together, in id order and each once.
+        match="any" is the union, match="all" the intersection. As particlesOfLevel, this
+        reads the stamped flags, where the C++ particlesAtLevels recomputes the antichain
+        from the graph."""
+        if match not in ("any", "all"):
+            raise ValueError("match is 'any' or 'all', not %r" % match)
+        bits = {LEVEL_BITS[level] for level in levels}
+        if not bits:
+            return []
+        out = []
+        for i, particle in enumerate(self._particles):
+            flags = particle["levelFlags"]
+            hits = sum(1 for bit in bits if flags & bit)
+            keep = hits == len(bits) if match == "all" else hits > 0
+            if keep:
+                out.append(i)
+        return out
+
     def signalParticles(self):
         """What the selection preset named as the signal. Signal is a stamped flag and not
         a level row, so no preset means an empty list."""
