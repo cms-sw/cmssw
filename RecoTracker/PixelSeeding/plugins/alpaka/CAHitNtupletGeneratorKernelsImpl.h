@@ -2190,6 +2190,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   }  // namespace caHitNtupletGeneratorKernels
 
+  // The host side of CAHitNtupletGeneratorKernels: the launchers and the buffer management. Instantiated per
+  // topology by the CAHitNtupletGeneratorKernels_<Topology>.dev.cc translation units.
+
 // The sizing accumulator is used by the CA_STATS report and by the GPU_DEBUG
 // per-event allocation report, so it must be compiled for either toggle.
 #if defined(CA_STATS) || defined(GPU_DEBUG)
