@@ -12,6 +12,7 @@
 #include "RecoTracker/LSTCore/interface/TripletsSoA.h"
 
 #include "Quintuplet.h"
+#include "TripletAccessors.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
