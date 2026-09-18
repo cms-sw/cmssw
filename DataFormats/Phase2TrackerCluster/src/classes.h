@@ -5,5 +5,9 @@
 #include "DataFormats/Common/interface/ContainerMask.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/DetSetNew.h"
+// alpaka 
+#include "DataFormats/Phase2TrackerCluster/interface/ClusterPropHostCollection.h"
+#include "DataFormats/Phase2TrackerCluster/interface/ClusterPropSoA.h"
+//#include "DataFormats/Phase2TrackerCluster/interface/alpaka/ClusterPropSoACollection.h"
 
 #endif

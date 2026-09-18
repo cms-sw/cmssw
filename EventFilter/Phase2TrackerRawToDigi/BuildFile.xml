@@ -1,4 +1,5 @@
 <use name="DataFormats/FEDRawData"/>
+<use name="CondFormats/SiPhase2TrackerObjects"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
 <export>

@@ -113,6 +113,36 @@ void DTCCablingMapTestReader::analyze(const edm::Event& iEvent, const edm::Event
 
     edm::LogInfo("DetToElinkCablingMapDump") << dump_ElinkToDet.str();
   }
+
+  {
+    // ModuleInfo dump (only the count + a sample, since dumping all modules would be excessive).
+    ostringstream dump_ModuleInfo;
+    std::vector<uint32_t> const knownDetIds = p_cablingMap->getKnownDetIds();
+    int n_with_info = 0;
+    int n_without_info = 0;
+    for (uint32_t detId : knownDetIds) {
+      if (p_cablingMap->hasModuleInfo(detId)) ++n_with_info;
+      else                                    ++n_without_info;
+    }
+    dump_ModuleInfo << "ModuleInfo dump: " << n_with_info << "/" << knownDetIds.size()
+                    << " modules have ModuleInfo populated (" << n_without_info << " without).\n";
+    // One sample per unique layout key (section, layer, ring) for compact diagnostic.
+    std::set<std::tuple<uint8_t, uint8_t, uint8_t>> seen_layouts;
+    for (uint32_t detId : knownDetIds) {
+      if (!p_cablingMap->hasModuleInfo(detId)) continue;
+      auto const& mi = p_cablingMap->getModuleInfo(detId);
+      auto key = std::make_tuple(mi.section, mi.layer, mi.ring);
+      if (!seen_layouts.insert(key).second) continue;  // already shown this layout
+      dump_ModuleInfo << "  detId=" << detId
+                      << "  nChips=" << unsigned(mi.nChips)
+                      << "  nElinks=" << unsigned(mi.nElinks)
+                      << "  section=" << unsigned(mi.section)
+                      << "  layer=" << unsigned(mi.layer)
+                      << "  ring=" << unsigned(mi.ring)
+                      << "  subtype=" << unsigned(mi.subtype) << "\n";
+    }
+    edm::LogInfo("DetToElinkCablingMapDump") << dump_ModuleInfo.str();
+  }
 }
 
 void DTCCablingMapTestReader::beginJob() {}

@@ -91,6 +91,14 @@ private:
   unsigned csvFormat_idtcid_;
   unsigned csvFormat_igbtlinkid_;
   unsigned csvFormat_ielinkid_;
+  // Optional per-module Aurora info columns; populated when read_innertracker_module_info_ is true.
+  bool     read_innertracker_module_info_;
+  unsigned csvFormat_inchips_;
+  unsigned csvFormat_inelinks_;
+  unsigned csvFormat_isection_;
+  unsigned csvFormat_ilayer_;
+  unsigned csvFormat_iring_;
+  unsigned csvFormat_isubtype_;
   cond::Time_t iovBeginTime_;
   std::unique_ptr<TrackerDetToDTCELinkCablingMap> pCablingMap_;
   std::string record_;
@@ -106,6 +114,15 @@ void DTCCablingMapProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<unsigned>("csvFormat_idtcid", 0);
   desc.add<unsigned>("csvFormat_igbtlinkid", 0);
   desc.add<unsigned>("csvFormat_ielinkid", 0);
+  // Below fields are only relelvant for IT cabling map
+  desc.add<bool>("read_innertracker_module_info", false);
+  desc.add<unsigned>("csvFormat_inchips",   0);
+  desc.add<unsigned>("csvFormat_inelinks",  0);
+  desc.add<unsigned>("csvFormat_isection",  0);
+  desc.add<unsigned>("csvFormat_ilayer",    0);
+  desc.add<unsigned>("csvFormat_iring",     0);
+  desc.add<unsigned>("csvFormat_isubtype",  0);
+  // Above fields are only relelvant for IT cabling map
   desc.add<long long unsigned int>("iovBeginTime", 1);
   desc.add<std::string>("record", "TrackerDTCCablingMapRcd");
   desc.add<std::vector<std::string>>("modulesToDTCCablingCSVFileNames", std::vector<std::string>());
@@ -119,6 +136,13 @@ DTCCablingMapProducer::DTCCablingMapProducer(const edm::ParameterSet& iConfig)
       csvFormat_idtcid_(iConfig.getParameter<unsigned>("csvFormat_idtcid")),
       csvFormat_igbtlinkid_(iConfig.getParameter<unsigned>("csvFormat_igbtlinkid")),
       csvFormat_ielinkid_(iConfig.getParameter<unsigned>("csvFormat_ielinkid")),
+      read_innertracker_module_info_(iConfig.getParameter<bool>("read_innertracker_module_info")),
+      csvFormat_inchips_(iConfig.getParameter<unsigned>("csvFormat_inchips")),
+      csvFormat_inelinks_(iConfig.getParameter<unsigned>("csvFormat_inelinks")),
+      csvFormat_isection_(iConfig.getParameter<unsigned>("csvFormat_isection")),
+      csvFormat_ilayer_(iConfig.getParameter<unsigned>("csvFormat_ilayer")),
+      csvFormat_iring_(iConfig.getParameter<unsigned>("csvFormat_iring")),
+      csvFormat_isubtype_(iConfig.getParameter<unsigned>("csvFormat_isubtype")),
       iovBeginTime_(iConfig.getParameter<long long unsigned int>("iovBeginTime")),
       pCablingMap_(std::make_unique<TrackerDetToDTCELinkCablingMap>()),
       record_(iConfig.getParameter<std::string>("record")) {
@@ -184,8 +208,10 @@ void DTCCablingMapProducer::LoadModulesToDTCCablingMapFromCSV(
         }
 
         if (csvColumn.size() == csvFormat_ncolumns_) {
-          // Skip the legend lines
-          if (0 == csvColumn[0].compare(std::string("Module_DetId/U"))) {
+          // Skip the legend lines.
+          // Heuristic: the legend's first column contains a "/" (e.g. "Module_DetId/U", "Sensor_DetId/i"); a real data row's first
+          // column is a numeric DetId.
+          if (csvColumn[0].find('/') != std::string::npos) {
             if (verbosity_ >= 1) {
               edm::LogInfo("CSVParser") << "-- skipping legend line" << endl;
             }
@@ -246,6 +272,23 @@ void DTCCablingMapProducer::LoadModulesToDTCCablingMapFromCSV(
           }
 
           pCablingMap_->insert(dtcELinkId, detIdRaw);
+
+          // Optional: per-module cabling info for innertracker
+          if (read_innertracker_module_info_) {
+            TrackerDetToDTCELinkCablingMap::ModuleInfo info;
+            info.nChips  = static_cast<uint8_t>(strtoul(csvColumn.at(csvFormat_inchips_ ).c_str(), nullptr, 10));
+            info.nElinks = static_cast<uint8_t>(strtoul(csvColumn.at(csvFormat_inelinks_).c_str(), nullptr, 10));
+            // Section is a short string in the CSV; map to enum value.
+            std::string const sec = csvColumn.at(csvFormat_isection_);
+            if      (sec == "TBPX") info.section = 1;
+            else if (sec == "TFPX") info.section = 2;
+            else if (sec == "TEPX") info.section = 3;
+            else                    info.section = 0;
+            info.layer   = static_cast<uint8_t>(strtoul(csvColumn.at(csvFormat_ilayer_  ).c_str(), nullptr, 10));
+            info.ring    = static_cast<uint8_t>(strtoul(csvColumn.at(csvFormat_iring_   ).c_str(), nullptr, 10));
+            info.subtype = static_cast<uint8_t>(strtoul(csvColumn.at(csvFormat_isubtype_).c_str(), nullptr, 10));
+            pCablingMap_->setModuleInfo(detIdRaw, info);
+          }
         } else {
           if (verbosity_ >= 3) {
             edm::LogInfo("CSVParser") << "Reading CSV file: Skipped a short line: \"" << csvLine << "\"" << endl;

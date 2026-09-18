@@ -21,12 +21,20 @@
    <class name="edm::DetSetVector<Phase2ITChipBitStream>"/>
    <class name="std::vector<edm::DetSet<io_v1::Phase2TrackerDigi> >"/>
    <class name="std::vector<edm::DetSet<Phase2ITQCore> >"/>
-   <class name="std::vector<edm::DetSet<Phase2ITChipBitStream> >"/>
    <class name="edm::Wrapper< edm::DetSet<io_v1::Phase2TrackerDigi> >" splitLevel="0"/>
    <class name="edm::Wrapper< std::vector<edm::DetSet<io_v1::Phase2TrackerDigi> > >" splitLevel="0"/>
    <class name="edm::Wrapper< edm::DetSetVector<io_v1::Phase2TrackerDigi> >" splitLevel="0"/>
+   <class name="edmNew::DetSetVector<Phase2ITChipBitStream>"/>
+   <class name="std::vector<edmNew::DetSet<Phase2ITChipBitStream> >"/> 
    <class name="edm::Wrapper< edm::DetSetVector<Phase2ITQCore> >" splitLevel="0"/>
    <class name="edm::Wrapper< edm::DetSetVector<Phase2ITChipBitStream> >" splitLevel="0"/>
+   <class name="edm::Wrapper< edmNew::DetSetVector<Phase2ITChipBitStream> >" splitLevel="0"/>
+   <class name="Phase2ITAuroraBitStream"/>
+   <class name="std::vector<Phase2ITAuroraBitStream>"/>
+   <class name="edm::DetSet<Phase2ITAuroraBitStream>"/>
+   <class name="std::vector<edm::DetSet<Phase2ITAuroraBitStream> >"/>
+   <class name="edm::DetSetVector<Phase2ITAuroraBitStream>"/>
+   <class name="edm::Wrapper< edm::DetSetVector<Phase2ITAuroraBitStream> >" splitLevel="0"/>
    <class name="Phase2TrackerCommissioningDigi" />
    <class name="std::vector<Phase2TrackerCommissioningDigi>"/>
    <class name="edm::DetSet<Phase2TrackerCommissioningDigi>"/>
