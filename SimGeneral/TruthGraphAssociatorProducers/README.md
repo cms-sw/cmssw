@@ -23,8 +23,9 @@ collection labels, the working points and the truth levels live in
 `python/truthGraphAssociationLabels_cff.py`, so a collection is configured in one place
 and `Validation/TruthInfo` reads the same lists.
 
-The Run4 eras carry `enableTruth`, which schedules `truthGraphAssociatorsSequence` in
-the prevalidation Path of the standard validation. A job that wants the maps in its own
-output applies `customiseTruthGraphAssociators`, which also schedules the HLT twins.
+Nothing schedules these producers by default, because only a study of the association
+reads their maps. `customiseTruthGraphAssociators` schedules them, offline and HLT, and
+keeps their products in the output. `customiseTruthBranchValidation` schedules the
+offline ones together with the DQM that turns them into performance plots.
 
 Documentation: <http://cms-truth.docs.cern.ch/association-layer/>

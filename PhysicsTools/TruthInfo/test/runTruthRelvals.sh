@@ -2,7 +2,9 @@
 #
 # Run the Run4 D127 (no-PU) truth-validation relval sample set, one workflow per truth
 # topology. Truth needs no workflow variant: every Run4 era carries enableTruth, so the
-# plain .0 workflow builds the graph, runs the associators and fills the truth DQM.
+# plain .0 workflow builds the graph. The association maps and their performance plots
+# are not part of the default validation, so the customise below adds them; it is a
+# no-op on every step that has no reconstruction to validate.
 #   37602 SingleElectronPt35  37605 SingleGammaPt35   37607 SingleMuPt10
 #   37688 SinglePiPt25        37687 TenTau E15to500   37634 TTbar_14TeV
 #   37644 DYToLL_M-50         37645 DYToTauTau_M-50   37646 ZEE_14
@@ -30,4 +32,5 @@ THREADS="${THREADS:-8}"
 mkdir -p "$OUT"
 cd "$OUT"
 echo "Running workflows [$WF] into $OUT (jobs=$JOBS threads=$THREADS)"
-runTheMatrix.py -w upgrade -l "$WF" -j "$JOBS" -t "$THREADS"
+CUSTOMISE="SimGeneral/TruthGraphAssociatorProducers/customiseTruthGraphAssociators.customiseTruthBranchValidation"
+runTheMatrix.py -w upgrade -l "$WF" -j "$JOBS" -t "$THREADS" --command "--customise $CUSTOMISE"
