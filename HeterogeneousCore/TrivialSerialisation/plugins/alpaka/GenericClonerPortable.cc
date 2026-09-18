@@ -1,11 +1,13 @@
 /*
- * This Alpaka EDProducer clones host or device event products declared in
- * its configuration, using the plugin-based NGT trivial serialisation.
+ * This Alpaka EDProducer clones host or device event products declared in its
+ * configuration, using the plugin-based NGT trivial serialisation.
  *
  * - Host type aliases (e.g. "portabletest::TestHostCollection") are cloned
- *   using the host TrivialSerialisation mechanism with std::memcpy. If a
- *   matching device serialiser is registered, the H->D transformation is
- *   also registered at construction time.
+ *   using the host TrivialSerialisation mechanism with std::memcpy if no
+ *   portable serialiser exists for them. If a portable serialiser exists for
+ *   these types and the backend is the serial CPU, it is preferred over the
+ *   host serialiser, and the copy goes through alpaka::memcpy. The H->D
+ *   transformation is also registered at construction time in this case.
  *
  * - Device type aliases (e.g. "sistrip::SiStripClusterDevice") are cloned on
  *   device using alpaka::memcpy. The D->H transformation is registered if
@@ -69,13 +71,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ngt {
       edm::TypeID typeID;
       edm::EDGetToken getToken;
       edm::EDPutToken putToken;
-      std::unique_ptr<ngt::SerialiserBase> deviceSerialiser;
+      std::unique_ptr<ngt::SerialiserBase> portableSerialiser;
       std::unique_ptr<::ngt::SerialiserBase> hostSerialiser;
       edm::TypeWithDict wrappedType;
     };
 
     std::vector<Entry> eventProducts_;
-    bool hasDeviceProducts_ = false;
+    bool hasPortableProducts_ = false;
     bool verbose_;
   };
 
@@ -141,7 +143,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ngt {
       if (deviceSerialiser) {
         entry.typeID = edm::TypeID{deviceSerialiser->productTypeID()};
         entry.getToken = this->consumes(edm::TypeToGet{entry.typeID, edm::PRODUCT_TYPE}, src);
-        hasDeviceProducts_ = true;
+        hasPortableProducts_ = true;
 
         if (deviceSerialiser->hasCopyToHost()) {
           entry.putToken = this->produces(src.instance())
@@ -155,7 +157,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ngt {
               this->producesCollector().template produces<edm::Transition::Event>(entry.typeID, src.instance());
         }
 
-        entry.deviceSerialiser = std::move(deviceSerialiser);
+        entry.portableSerialiser = std::move(deviceSerialiser);
 
         if (verbose_) {
           edm::LogInfo("GenericClonerPortable") << "will clone device product of type '" << type << "', " << src;
@@ -166,8 +168,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ngt {
       }
 
       // Check 2: "type" could be a host type alias "T" for which a host
-      // serialiser (and perhaps a portable serialiser for the H->D transform)
-      // exists.
+      // serialiser and/or a portable serialiser exist. See check 2a for the
+      // priority between the two.
       edm::TypeWithDict twd = edm::TypeWithDict::byName(bareType);
       std::unique_ptr<ngt::SerialiserBase> portableSerialiser;
       std::unique_ptr<::ngt::SerialiserBase> hostSerialiser;
@@ -176,6 +178,37 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ngt {
         hostSerialiser = ::ngt::SerialiserFactory::get()->tryToCreate(twd.typeInfo().name());
       }
 
+      // Check 2a: prefer a portable serialiser that can act as a host
+      // serialiser directly, i.e. its product type is the host type itself
+      // and not edm::DeviceProduct<T> (e.g. on the serial backend): it
+      // allocates pinned host memory, enabling faster/async H<->D copies,
+      // unlike a plain host serialiser.
+      //
+      // The equality "edm::TypeID{portableSerialiser->productTypeID()} ==
+      // edm::TypeID{twd.typeInfo()}" holds only on the serial CPU backend, where
+      // DeviceProductType<TYPE_DEVICE> == TYPE_DEVICE == TYPE_HOST
+      if (portableSerialiser and bool(twd) and
+          edm::TypeID{portableSerialiser->productTypeID()} == edm::TypeID{twd.typeInfo()}) {
+        entry.typeID = edm::TypeID{twd.typeInfo()};
+        entry.getToken = this->consumes(edm::TypeToGet{entry.typeID, edm::PRODUCT_TYPE}, src);
+        entry.putToken =
+            this->producesCollector().template produces<edm::Transition::Event>(entry.typeID, src.instance());
+
+        hasPortableProducts_ = true;
+        entry.portableSerialiser = std::move(portableSerialiser);
+
+        if (verbose_) {
+          edm::LogInfo("GenericClonerPortable")
+              << "will clone host product of type '" << type << "' using a portable serialiser, label '" << src.label()
+              << "', instance '" << src.instance() << "'";
+        }
+
+        eventProducts_.emplace_back(std::move(entry));
+        continue;
+      }
+
+      // Check 2b: fall back to the host serialiser, using the portable one
+      // (if any) for the H->D transform.
       if (hostSerialiser && bool(twd)) {
         entry.typeID = edm::TypeID{twd.typeInfo()};
         entry.getToken = this->consumes(edm::TypeToGet{entry.typeID, edm::PRODUCT_TYPE}, src);
@@ -244,7 +277,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ngt {
 
   void GenericClonerPortable::produce(edm::Event& event, edm::EventSetup const& /*unused*/) {
     std::unique_ptr<::ALPAKA_ACCELERATOR_NAMESPACE::detail::EDMetadataSentry> sentry;
-    if (hasDeviceProducts_) {
+    if (hasPortableProducts_) {
       sentry = std::make_unique<::ALPAKA_ACCELERATOR_NAMESPACE::detail::EDMetadataSentry>(event.streamID(),
                                                                                           this->synchronize());
     }
@@ -277,9 +310,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ngt {
 
         writer->finalize();
         event.put(entry.putToken, writer->get());
-      } else if (entry.deviceSerialiser) {
-        auto reader = entry.deviceSerialiser->reader(*wrapper, *sentry->metadata());
-        auto writer = entry.deviceSerialiser->writer();
+      } else if (entry.portableSerialiser) {
+        auto reader = entry.portableSerialiser->reader(*wrapper, *sentry->metadata());
+        auto writer = entry.portableSerialiser->writer();
 
         writer->initialize(sentry->metadata()->queue(), reader->parameters());
 
