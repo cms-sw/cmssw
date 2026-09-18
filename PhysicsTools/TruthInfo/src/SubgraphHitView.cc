@@ -30,6 +30,14 @@ namespace truth {
     // The same rule LogicalGraphHitIndexBuilder::coalesce applies: sort by detId, sum
     // the energies that share one, and keep the valid recHit index, which sorts first
     // because the invalid sentinel is UINT32_MAX.
+    //
+    // The tracker channel names a cell, not a module, and carries it in recHitIndex, so
+    // there two cells of one module are two hits. Merging them by detId alone would give
+    // an ancestor one entry per module while a leaf keeps one per cell, and a consumer
+    // that compares the two counts, such as the tightest-match rule of the tracking
+    // validator, would read the ancestor as the tighter match. This is the same
+    // cell-aware rule BranchHitAssociator applies.
+    const bool cellKeyed = channel == HitChannel::Tracker;
     std::sort(hits.begin(), hits.end(), [](Hit const& a, Hit const& b) {
       if (a.detId != b.detId)
         return a.detId < b.detId;
@@ -37,7 +45,9 @@ namespace truth {
     });
     std::size_t w = 0;
     for (std::size_t r = 0; r < hits.size(); ++r) {
-      if (w > 0 && hits[w - 1].detId == hits[r].detId) {
+      const bool same =
+          w > 0 && hits[w - 1].detId == hits[r].detId && (!cellKeyed || hits[w - 1].recHitIndex == hits[r].recHitIndex);
+      if (same) {
         hits[w - 1].energy += hits[r].energy;
         if (hits[w - 1].recHitIndex == Hit::kInvalidRecHitIndex)
           hits[w - 1].recHitIndex = hits[r].recHitIndex;

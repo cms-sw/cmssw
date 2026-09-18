@@ -61,6 +61,18 @@ namespace truth {
                         pset.getParameter<double>("linthresh_" + key)});
       }
     };
+    regionSlot_.fill(-1);
+    regionSlot_[0] = 0;
+    for (auto const& name : pset.getParameter<std::vector<std::string>>("etaRegions")) {
+      const auto found = std::find(kEtaRegionFolders.begin(), kEtaRegionFolders.end(), name);
+      if (found == kEtaRegionFolders.end() || found == kEtaRegionFolders.begin()) {
+        throw cms::Exception("TruthBranchHistoProducerAlgo")
+            << "unknown eta region '" << name << "'; expected one of etaLt15, eta15to30, eta30to45";
+      }
+      const auto region = static_cast<EtaRegion>(std::distance(kEtaRegionFolders.begin(), found));
+      regionSlot_[static_cast<std::size_t>(region)] = static_cast<int>(bookedRegions_.size()) + 1;
+      bookedRegions_.push_back(region);
+    }
     resolve(pset.getParameter<std::vector<std::string>>("truthVariables"), truthVars_, truthVarNames_, truthAxes_);
     resolve(pset.getParameter<std::vector<std::string>>("recoVariables"), recoVars_, recoVarNames_, recoAxes_, "reco_");
     truthCutBits_.reserve(truthVarNames_.size());
@@ -123,11 +135,12 @@ namespace truth {
   void TruthBranchHistoProducerAlgo::bookTruthHistos(dqm::implementation::IBooker& booker,
                                                      TruthBranchHistograms& h,
                                                      bool calorimetric) const {
-    // One block of kNEtaRegions rows per entry, the region ones in sub-folders carrying
+    // One block of rowsPerEntry() rows per entry, the region ones in sub-folders carrying
     // the SAME ME names, so every harvester string and the plot script work unchanged.
     const std::string base = booker.pwd();
-    for (std::size_t r = 0; r < kNEtaRegions; ++r) {
-      booker.setCurrentFolder(r == 0 ? base : base + "/" + kEtaRegionFolders[r]);
+    bookTruthRow(booker, h, calorimetric);
+    for (const EtaRegion region : bookedRegions_) {
+      booker.setCurrentFolder(base + "/" + kEtaRegionFolders[static_cast<std::size_t>(region)]);
       bookTruthRow(booker, h, calorimetric);
     }
     booker.setCurrentFolder(base);
@@ -180,8 +193,9 @@ namespace truth {
                                                     TruthBranchHistograms& h,
                                                     bool calorimetric) const {
     const std::string base = booker.pwd();
-    for (std::size_t r = 0; r < kNEtaRegions; ++r) {
-      booker.setCurrentFolder(r == 0 ? base : base + "/" + kEtaRegionFolders[r]);
+    bookRecoRow(booker, h, calorimetric);
+    for (const EtaRegion region : bookedRegions_) {
+      booker.setCurrentFolder(base + "/" + kEtaRegionFolders[static_cast<std::size_t>(region)]);
       bookRecoRow(booker, h, calorimetric);
     }
     booker.setCurrentFolder(base);
@@ -252,9 +266,10 @@ namespace truth {
     // records that, since a branch produced centrally can deposit in an endcap.
     const double regionEta = (kin.caloeta != kNoCaloEntry) ? kin.caloeta : kin.eta;
     const auto region = etaRegionOf(std::abs(regionEta));
-    fill_simul_row(h, kNEtaRegions * i, kin, outcome, cumulative, failedCuts);
-    if (region != EtaRegion::Inclusive) {
-      fill_simul_row(h, kNEtaRegions * i + static_cast<std::size_t>(region), kin, outcome, cumulative, failedCuts);
+    fill_simul_row(h, rowsPerEntry() * i, kin, outcome, cumulative, failedCuts);
+    const int slot = regionSlot_[static_cast<std::size_t>(region)];
+    if (region != EtaRegion::Inclusive && slot > 0) {
+      fill_simul_row(h, rowsPerEntry() * i + static_cast<std::size_t>(slot), kin, outcome, cumulative, failedCuts);
     }
   }
 
@@ -317,9 +332,10 @@ namespace truth {
                                                Kinematics const& kin,
                                                RecoOutcome const& outcome) const {
     const auto region = etaRegionOf(std::abs(kin.eta));
-    fill_reco_row(h, kNEtaRegions * i, kin, outcome);
-    if (region != EtaRegion::Inclusive) {
-      fill_reco_row(h, kNEtaRegions * i + static_cast<std::size_t>(region), kin, outcome);
+    fill_reco_row(h, rowsPerEntry() * i, kin, outcome);
+    const int slot = regionSlot_[static_cast<std::size_t>(region)];
+    if (region != EtaRegion::Inclusive && slot > 0) {
+      fill_reco_row(h, rowsPerEntry() * i + static_cast<std::size_t>(slot), kin, outcome);
     }
   }
 

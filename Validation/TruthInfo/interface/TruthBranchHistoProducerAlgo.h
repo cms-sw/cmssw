@@ -108,9 +108,9 @@ namespace truth {
   struct TruthBranchHistograms {
     using METype = dqm::reco::MonitorElement*;
 
-    // Rows are booked in blocks of kNEtaRegions per entry: index kNEtaRegions * entry + r
-    // is entry's row for region r, r = 0 being inclusive. The fill side does that
-    // arithmetic once and fills exactly two rows, the inclusive one and the object's.
+    // Rows are booked in blocks of rowsPerEntry() per entry: the inclusive row first,
+    // then one row per region the domain books. The fill side does that arithmetic once
+    // and fills at most two rows, the inclusive one and the object's own region.
     //
     // Each vector is indexed [entry][variable], variable being the position within that
     // side's variable list, so booking order and fill index stay in step exactly as in
@@ -358,6 +358,9 @@ namespace truth {
                          double recoEta,
                          double recoPhi) const;
 
+    // How many rows one entry occupies: the inclusive row plus the booked regions.
+    [[nodiscard]] std::size_t rowsPerEntry() const { return 1 + bookedRegions_.size(); }
+
   private:
     struct Axis {
       int nbins;
@@ -370,6 +373,12 @@ namespace truth {
     // Cut bit per truth variable, resolved once so the fill loop does no string work.
     std::vector<uint32_t> truthCutBits_;
     std::vector<Axis> truthAxes_, recoAxes_;
+
+    // The regions this domain books, in booking order, and the row offset of each region
+    // or -1 for a region it does not book. A domain whose objects all land in one band
+    // books none of them: the region folder would only duplicate the inclusive one.
+    std::vector<EtaRegion> bookedRegions_;
+    std::array<int, kNEtaRegions> regionSlot_{};
 
     int nintScore_, nintShared_, nintRes_;
     double minScore_, maxScore_, minShared_, maxShared_, minRes_, maxRes_;

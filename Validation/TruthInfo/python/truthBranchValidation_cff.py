@@ -12,12 +12,18 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 # Acceptance regions, mirroring truth::kEtaRegionFolders. Each num_* row is booked again
 # in a sub-folder of the same name, with the SAME ME names, so one string list harvests
-# the inclusive folder and every region.
+# the inclusive folder and every region. A domain that books no region folder, because
+# its objects all fall in one band, must not have them harvested either: the ratios would
+# be asked for in folders that do not exist.
 _etaRegions = ["", "etaLt15", "eta15to30", "eta30to45"]
+# The bands a domain books on top of the inclusive folder. A band the domain's detector
+# does not cover would only repeat the inclusive one at the same cost in monitor elements.
+_allEtaRegions = _etaRegions[1:]
 
 
-def _withRegions(folders):
-    return [f + ("" if not r else "/" + r) for f in folders for r in _etaRegions]
+def _withRegions(folders, regions=None):
+    bands = [""] + list(_allEtaRegions if regions is None else regions)
+    return [f + ("" if not r else "/" + r) for f in folders for r in bands]
 
 
 from SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociationLabels_cff import (
@@ -151,7 +157,16 @@ truthPlotVariables = ["pt", "eta", "phi", "nhits", "vertpos", "zpos", "dxy", "dz
 # maxRecoToSimScoreForNonFake/Merge = 0.6 (cfi:70-71, applied
 # HGVHistoProducerAlgo.cc:2819-2820).
 _trackThresholds = dict(minTruthPurityForIndividual=0.0, minRecoPurityLoose=0.75)
-_vertexThresholds = dict(minTruthPurityForIndividual=0.0, minRecoPurityLoose=0.0)
+# Vertices: the reference association gates on POSITION, not on shared tracks. Its
+# shared-track cut is disabled (sharedTrackFraction = 2, above 1) and the match is a
+# window in z (absZ = 1.0 cm, sigmaZ = 10) in
+# SimTracker/VertexAssociation/python/secondaryVertexAssociatorByPositionAndTracks_cfi.py:4-13.
+# This association has no position gate: it matches a truth vertex to a reco vertex
+# through the tracks they share. With both cuts at 0 every truth vertex that shares ONE
+# track counted as reconstructed, so the efficiency was 1 by construction and a split
+# over two reco vertices was a duplicate. A constituent-fraction cut takes the place of
+# the position window: more than half of the constituents on each side.
+_vertexThresholds = dict(minTruthPurityForIndividual=0.5, minRecoPurityLoose=0.5)
 _caloThresholds = dict(minSharedEnergyFractionForIndividual=0.5,
                        maxSimToRecoScoreForDuplicate=0.2,
                        maxRecoToSimScore=0.6)
@@ -180,6 +195,9 @@ _domains = [
         recoVariables=["nhits", "vertpos", "zpos"],
         truthVariables=["nhits", "vertpos", "zpos"],
         sharedRange=(0.0, 1.0),
+        # A vertex has no pseudorapidity of its own, so every entry would land in the
+        # first band and the three folders would be one duplicate and two empty.
+        etaRegions=[],
         # nhits counts tracks on the reco side but PARTICLES at the truth vertex, and an
         # interaction vertex has hundreds of them: the 40-bin default put every truth
         # entry in the overflow, so the efficiency was empty in the visible range.
@@ -197,6 +215,8 @@ _domains = [
         recoVariables=["nhits", "vertpos", "zpos"],
         truthVariables=["nhits", "vertpos", "zpos"],
         sharedRange=(0.0, 1.0),
+        # As for the primary vertices: no pseudorapidity of its own.
+        etaRegions=[],
         thresholds=_vertexThresholds,
     ),
     dict(
@@ -268,7 +288,7 @@ _domains = _domains + [_d for _d in _hltDomains if recoLabels(_d["name"], "hlt")
 
 
 def _algoBlock(recoVariables, truthVariables=None, sharedRange=None, axisOverrides=None,
-               recoAxisOverrides=None):
+               recoAxisOverrides=None, etaRegions=None):
     args = dict(_algoBlockArgs)
     # Reco-side only. A trackster barycentre sits in HGCal while the truth branch's
     # production vertex is in the tracker, so the two sides cannot share one range.
@@ -294,6 +314,7 @@ def _algoBlock(recoVariables, truthVariables=None, sharedRange=None, axisOverrid
     return cms.PSet(
         truthVariables=cms.vstring(*(truthVariables or truthPlotVariables)),
         recoVariables=cms.vstring(*recoVariables),
+        etaRegions=cms.vstring(*(_allEtaRegions if etaRegions is None else etaRegions)),
         **args,
     )
 
@@ -421,7 +442,7 @@ for _d in _domains:
         **{_k: cms.double(_v) for _k, _v in _d["thresholds"].items()},
         histoProducerAlgoBlock=_algoBlock(_d["recoVariables"], _d.get("truthVariables"),
                                           _d.get("sharedRange"), _d.get("axisOverrides"),
-                                          _d.get("recoAxisOverrides")),
+                                          _d.get("recoAxisOverrides"), _d.get("etaRegions")),
         **_truthArgs,
     )
     globals()[_d["label"]] = _analyzer
@@ -437,7 +458,7 @@ for _d in _domains:
                   for _label in recoLabels(_d["name"], _d["flavour"]) for _wp in _wps]
     _harvester = DQMEDHarvester(
         "DQMGenericClient",
-        subDirs=cms.untracked.vstring(*_withRegions(_wpFolders)),
+        subDirs=cms.untracked.vstring(*_withRegions(_wpFolders, _d.get("etaRegions"))),
         efficiency=cms.vstring(*_recoDrivenStrings(
             _d["recoVariables"],
             strict="minSharedEnergyFractionForIndividual" in _d["thresholds"])),
@@ -458,7 +479,7 @@ for _d in _domains:
                      for _label in recoLabels(_d["name"], _d["flavour"]) for _suffix in _truthSuffixes]
     _truthHarvester = DQMEDHarvester(
         "DQMGenericClient",
-        subDirs=cms.untracked.vstring(*_withRegions(_truthFolders)),
+        subDirs=cms.untracked.vstring(*_withRegions(_truthFolders, _d.get("etaRegions"))),
         efficiency=cms.vstring(*_truthDrivenStrings(
             _d.get("truthVariables"),
             duplicate="minSharedEnergyFractionForIndividual" not in _d["thresholds"])),

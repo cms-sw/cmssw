@@ -9,14 +9,14 @@ Reusable helpers for producing and inspecting truth graphs. All require `cmsenv`
 | `truthGraphConnectivity.py` | FWLite debugger: per-event count of weakly-connected components and how many SimTrack/SimVertex are disconnected from a generator primary (the orphans). Exits non-zero if any event has orphans. `--link {parentIndex,ancestor,combined}`. |
 | `../python/truthGraphSelections.py` | Per-process selection presets: maps a generator fragment (or label) to one of ten archetypes (gun / resonance / vbf / ggf / vh / top / singletop / diboson / heavyflavor / full) and returns the right `postProcessing` selection. `selectionForFragment(name, **overrides)` (dict), `postProcessingPSet(...)` (cms.PSet), `dumperArgs(...)` / CLI (`python3 truthGraphSelections.py <fragment>`) emit the dumper flags. |
 | `makeTruthGallery.sh` | Build the per-process DOT/SVG gallery (full + natural-seed selection) from a relval library dir; the per-sample selection is resolved by `truthGraphSelections.py` from each workflow's fragment. |
-| `runTruthRelvals.sh` | Run the 8 enableTruth Run4 D120 no-PU truth-validation workflows via `runTheMatrix`. |
+| `runTruthRelvals.sh` | Run the 14 Run4 D127 no-PU truth-validation workflows via `runTheMatrix`. |
 | `TruthLogicalGraphPostProcessor_t.cpp` | cppunit tests for the logical-graph postprocessing (selection, merging, collapsing). |
 
 ## Typical flow
 ```bash
 cmsenv                                   # from $CMSSW_BASE/src
 runTruthRelvals.sh  /path/library        # produce the sample library (step1..5)
-truthGraphConnectivity.py /path/library/34050.88_*/step3.root   # sanity: orphans == 0
+truthGraphConnectivity.py /path/library/37650.0_*/step3.root   # sanity: orphans == 0
 makeTruthGallery.sh /path/library /path/dot_gallery             # DOT + SVG gallery
 ```
 

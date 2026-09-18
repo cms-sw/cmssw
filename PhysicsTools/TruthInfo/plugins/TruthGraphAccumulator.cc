@@ -41,6 +41,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
+#include <map>
 #include <memory>
 #include <set>
 #include <string>
@@ -220,7 +221,9 @@ private:
   const std::vector<int32_t> collapsedGenKeptPdgIds_;
   const bool computeCellEnergyBudget_;
 
-  int pileupCount_ = 0;
+  // One counter per bunch crossing, keyed by bx, as the MixingModule numbers its
+  // sub-events. Reset per event.
+  std::map<int, int> pileupCount_;
   // Warn once PER COLLECTION, not once overall: a single shared flag reports only the
   // first collection that goes missing and hides every later one, so a real premix
   // problem in the calorimeter can be masked by an unrelated tracker collection.
@@ -332,7 +335,7 @@ TruthGraphAccumulator::TruthGraphAccumulator(edm::ParameterSet const& cfg,
 }
 
 void TruthGraphAccumulator::initializeEvent(edm::Event const&, edm::EventSetup const&) {
-  pileupCount_ = 0;
+  pileupCount_.clear();
   rejectedGenToSimLinks_ = 0;
   mergedCaloHits_.clear();
   mergedEcalHits_.clear();
@@ -704,10 +707,13 @@ void TruthGraphAccumulator::accumulate(PileUpEventPrincipal const& pep, edm::Eve
   else
     fullGen = readFullGen(pep, hepmc3Tag_, hepmc2Tag_, collapseGenShower_, *tracks, degradedCollapseWarned_);
 
-  // Global counter across bunch crossings: EncodedEventId stores abs(bx), so a
-  // per-bx counter would give (-1,1) and (+1,1) identical packed ids. A single
-  // counter keeps every pileup interaction's tag unique regardless of bx sign.
-  const int puIndex = ++pileupCount_;
+  // One counter per bunch crossing, starting at 1, which is how the MixingModule numbers
+  // the sub-events it overlays. The tracker digi links carry those numbers, so a global
+  // counter across crossings would tag the same interaction differently on the two sides
+  // and attribute a link to another interaction that happens to reuse the local track id.
+  // EncodedEventId keeps the sign of the crossing in its own bit, so (-1,1) and (+1,1) are
+  // different packed ids and a per-crossing counter is unique.
+  const int puIndex = ++pileupCount_[bx];
   // EncodedEventId packs the event number into 16 bits; an unrealistic pileup
   // multiplicity would overflow into the bunch-crossing bits and alias ids.
   if (puIndex > 0xFFFF)

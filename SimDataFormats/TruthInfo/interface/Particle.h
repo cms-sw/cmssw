@@ -42,7 +42,9 @@ namespace truth {
     [[nodiscard]] bool backscattered() const;
     [[nodiscard]] const math::XYZTLorentzVectorD& momentum() const;
     [[nodiscard]] const math::XYZTLorentzVectorD& p4() const { return momentum(); }  // alias
-    [[nodiscard]] const int charge() const;
+    // Three times the electric charge, as HepPDT reports it: an electron gives -3. The
+    // name says so, because a charge of -3 read as the charge itself is a factor 3.
+    [[nodiscard]] int threeCharge() const;
 
     [[nodiscard]] std::span<const Checkpoint> checkpoints() const;
     [[nodiscard]] bool hasCheckpoints() const;

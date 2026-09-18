@@ -20,7 +20,7 @@ if '/' not in args.inputFile and ':' not in args.inputFile:
 
 process = cms.Process("BRANCHDQM")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load("Configuration.Geometry.GeometryExtendedRun4D120Reco_cff")
+process.load("Configuration.Geometry.GeometryExtendedRun4D127Reco_cff")
 process.load("DQMServices.Core.DQMStore_cfi")
 process.trackerGeometry.applyAlignment = cms.bool(False)
 
@@ -28,6 +28,10 @@ process.trackerGeometry.applyAlignment = cms.bool(False)
 process.load("Validation.TruthInfo.truthGraphValidation_cff")
 # The build producers: truthGraphValidation_cff deliberately does not define them
 process.load("Validation.Configuration.truthPrevalidation_cff")
+# This driver rebuilds the graph in the job, so the validator has to read the raw graph it
+# was built from. The sequence default points at the mixed graph in the input file, whose
+# node numbering is a different graph: the logical graph's simNode would index it.
+process.branchHGCalValidator.rawSrc = cms.InputTag("truthGraphProducer")
 
 process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(args.maxevts))
 process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring(args.inputFile))

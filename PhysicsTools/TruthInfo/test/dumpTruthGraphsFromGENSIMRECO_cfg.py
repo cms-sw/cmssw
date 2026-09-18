@@ -46,8 +46,8 @@ parser.add_argument("--signal-only", dest='signalOnly', action=BooleanOptionalAc
 parser.add_argument("--bunch-crossings", dest='bunchCrossings', default=None,
                     help="pile-up filter: comma-separated bunch crossings to keep, e.g. '0' for in-time only "
                          "(default: keep all)" )
-parser.add_argument("--geometry", default="ExtendedRun4D122",
-                    help="geometry key of the sample, e.g. ExtendedRun4D122; it must match the one that "
+parser.add_argument("--geometry", default="ExtendedRun4D127",
+                    help="geometry key of the sample, e.g. ExtendedRun4D127; it must match the one that "
                          "produced the input file, default=%(default)r" )
 parser.add_argument("--layout", default="dot",
                     help="DOT layout for the logical-graph dump: 'dot' (default, hierarchical L->R ranks) "

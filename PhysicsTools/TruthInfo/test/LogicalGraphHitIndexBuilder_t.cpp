@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndexBuilder.h"
+#include "PhysicsTools/TruthInfo/interface/SubgraphHitView.h"
 
 // These tests lock in the layout property the Branch view relies on: a particle's
 // subgraph hits are a single contiguous std::span, sorted by detId, deduplicated
@@ -25,6 +26,7 @@ class TestLogicalGraphHitIndexBuilder : public CppUnit::TestFixture {
   CPPUNIT_TEST(testSharedStoreFallsBackWhenNotAForest);
   CPPUNIT_TEST(testSharedStoreFallsBackAcrossAGenOnlyChild);
   CPPUNIT_TEST(testSharedStoreFallsBackAcrossAGenOnlyCycle);
+  CPPUNIT_TEST(testSubgraphViewKeepsTrackerCellsApart);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -35,6 +37,7 @@ public:
   void testSharedStoreFallsBackWhenNotAForest();
   void testSharedStoreFallsBackAcrossAGenOnlyChild();
   void testSharedStoreFallsBackAcrossAGenOnlyCycle();
+  void testSubgraphViewKeepsTrackerCellsApart();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestLogicalGraphHitIndexBuilder);
@@ -259,4 +262,35 @@ void TestLogicalGraphHitIndexBuilder::testSharedStoreFallsBackAcrossAGenOnlyCycl
   CPPUNIT_ASSERT_EQUAL(std::size_t(2), sub.size());
   CPPUNIT_ASSERT_EQUAL(uint32_t(10), sub[0].detId);
   CPPUNIT_ASSERT_EQUAL(uint32_t(20), sub[1].detId);
+}
+
+// REQUIRED: the tracker channel names a cell and carries it in recHitIndex, so two cells
+// of one module are two hits for an ancestor as well as for a leaf. A consumer that
+// compares hit counts between an ancestor and its descendant, such as the tightest-match
+// rule of the tracking validator, reads the wrong one as tighter otherwise. The calo
+// channel is keyed by DetId alone, so there the two merge into one.
+void TestLogicalGraphHitIndexBuilder::testSubgraphViewKeepsTrackerCellsApart() {
+  auto build = [](truth::HitChannel channel, bool cellKeyed) {
+    truth::LogicalGraphHitIndexBuilder builder(2, true);
+    builder.setCellKeyed(channel, cellKeyed);
+    builder.setSimTrackForParticle(0, 0, 100);
+    builder.setSimTrackForParticle(1, 0, 101);
+    builder.addParticleChild(0, 1);
+    // One module, two cells: the parent hits cell 3 and its child hits cell 7.
+    builder.addHit(channel, 0, 100, 42, 1.0f, 3);
+    builder.addHit(channel, 0, 101, 42, 2.0f, 7);
+    return builder.finish();
+  };
+
+  const auto tracker = build(truth::HitChannel::Tracker, true);
+  truth::SubgraphHitView trackerView(tracker);
+  const auto ancestor = trackerView.subgraphHits(truth::HitChannel::Tracker, 0);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), ancestor.size());
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), trackerView.subgraphHits(truth::HitChannel::Tracker, 1).size());
+
+  const auto calo = build(truth::HitChannel::Calo, false);
+  truth::SubgraphHitView caloView(calo);
+  const auto merged = caloView.subgraphHits(truth::HitChannel::Calo, 0);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), merged.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.0, merged[0].energy, 1e-6);
 }
