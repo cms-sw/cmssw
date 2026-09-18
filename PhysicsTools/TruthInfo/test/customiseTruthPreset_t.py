@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
-"""The preset customise sets the graph producer and the targets producer together."""
+"""The preset customise sets the graph producer, the targets producer and every module that
+reads the signal seeds, so a validator books its signal folders from the same preset."""
 
 import unittest
 
@@ -12,11 +13,26 @@ from SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociators_cff import t
 
 
 def _process():
-    """A process carrying the two real modules, so a renamed parameter fails here."""
+    """A process carrying the real modules, so a renamed parameter fails here: the graph
+    producer, the targets producer and one validator that books signal folders."""
     process = cms.Process("TEST")
     process.truthLogicalGraphProducer = truthLogicalGraphProducer.clone()
     process.truthBranchTargets = truthBranchTargets.clone()
+    process.aTruthValidator = _validatorWithSeeds()
     return process
+
+
+def _validatorWithSeeds():
+    """The first truth validator of the DQM sequence that carries seed parameters."""
+    from Validation.TruthInfo.truthBranchValidation_cff import truthBranchValidationSequence
+    import FWCore.ParameterSet.Config as config
+
+    found = []
+    truthBranchValidationSequence.visit(config.ModuleNodeVisitor(found))
+    for module in found:
+        if hasattr(module, "signalSeedPdgIds") and hasattr(module, "signalSeedHadronFlavors"):
+            return module.clone()
+    raise AssertionError("no truth validator carries the seed parameters any more")
 
 
 class TestCustomiseTruthPreset(unittest.TestCase):
@@ -26,6 +42,21 @@ class TestCustomiseTruthPreset(unittest.TestCase):
         self.assertEqual(list(selection.seedPdgIds), [6, -6])
         self.assertTrue(selection.keepProductionSiblings.value())
         self.assertEqual(list(process.truthBranchTargets.signalSeedPdgIds), [6, -6])
+
+    def testEverySeededModuleIsSet(self):
+        # A validator books its signal folders from its own seeds, so the preset has to
+        # reach it too: with empty seeds there the signal plots are never booked.
+        process = applyTruthPreset(_process(), preset="ggf")
+        for label in ("truthBranchTargets", "aTruthValidator"):
+            module = getattr(process, label)
+            self.assertEqual(list(module.signalSeedPdgIds), [25], label)
+            self.assertEqual(list(module.signalSeedHadronFlavors), [], label)
+
+        flavoured = applyTruthPreset(_process(), preset="heavyflavor")
+        for label in ("truthBranchTargets", "aTruthValidator"):
+            module = getattr(flavoured, label)
+            self.assertEqual(list(module.signalSeedPdgIds), [], label)
+            self.assertEqual(list(module.signalSeedHadronFlavors), [5], label)
 
     def testFragmentResolvesToPreset(self):
         self.assertEqual(resolvePreset(fragment="TTbar_14TeV_TuneCP5_cfi"), "top")

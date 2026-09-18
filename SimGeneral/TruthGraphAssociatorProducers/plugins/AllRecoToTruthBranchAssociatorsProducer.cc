@@ -267,6 +267,7 @@ private:
   mutable std::once_flag moduleKeyedWarned_;
   mutable std::once_flag rowOutOfRangeWarned_;
   mutable std::once_flag placeholderVertexWarned_;
+  mutable std::once_flag layerClustersWarned_;
 
   std::vector<std::pair<std::string, edm::EDGetTokenT<std::vector<RECO>>>> recoTokens_;
   // One warning per collection per job when its input is absent: a silently empty map
@@ -355,6 +356,14 @@ AllRecoToTruthBranchAssociatorsProducer<RECO>::AllRecoToTruthBranchAssociatorsPr
   }
 
   if constexpr (ConstituentBasedDomain<RECO>) {
+    // The truth-driven direction of a composite domain reads the constituent map of the
+    // FIRST working point, so that point has to be the plain per-root match. With an
+    // adaptive point first it would silently measure the adaptive climb instead.
+    if (names.front() != "Fixed") {
+      throw cms::Exception("Configuration")
+          << "workingPointNames starts with '" << names.front()
+          << "': a composite domain reads the first point's constituent map, so the first point must be 'Fixed'";
+    }
     // A composite object's truth target is a vertex, not a branch at some level, so
     // there is a single denominator.
     produces<std::vector<unsigned int>>("truthToRecoTargets");
@@ -475,8 +484,10 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
     if (handle.isValid()) {
       layerClusters = &(*handle);
     } else {
-      edm::LogWarning("AllRecoToTruthBranchAssociatorsProducer")
-          << "layer clusters absent; trackster collections will produce empty maps this event";
+      std::call_once(layerClustersWarned_, [] {
+        edm::LogWarning("AllRecoToTruthBranchAssociatorsProducer")
+            << "layer clusters absent; trackster collections produce empty maps. Reported once per job.";
+      });
     }
   }
 
@@ -535,11 +546,19 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
     // Counting the gate over a different population than the weight readmits the
     // one-track vertex through a neutral member or a root's own selected ancestor.
     // Charged, because the constituents are tracks and a neutrino carries pt^2 no
-    // vertex finder can recover. One entry per physical particle: with Interaction
-    // resolution a whole decay chain resolves to one vertex, so a tau and its three
-    // prongs would all enter unless the candidates are reduced to their deepest
-    // antichain first. Immediate resolution needs no reduction, its members being one
-    // vertex's outgoing particles.
+    // vertex finder can recover. Charged is not enough on its own: a charged particle
+    // that decays before it reaches the tracker leaves no track either, and a D+ from a
+    // B decays after about 300 um. Such a particle would make a one-track vertex look
+    // findable and would carry pt^2 into the purity denominator that no track can ever
+    // match, since its own daughters count at its own decay vertex. So the population is
+    // the particles that own tracker hits, which is what a track is made of. When the
+    // input carries no tracker truth at all the requirement is dropped, because then it
+    // would empty the denominator instead of cleaning it.
+    // One entry per physical particle: with Interaction resolution a whole decay chain
+    // resolves to one vertex, so a tau and its three prongs would all enter unless the
+    // candidates are reduced to their deepest antichain first. Immediate resolution needs
+    // no reduction, its members being one vertex's outgoing particles.
+    const bool trackerTruthPresent = hitIndex.hasChannel(truth::HitChannel::Tracker);
     std::unordered_map<unsigned int, unsigned int> rootsPerVertex;
     std::unordered_map<unsigned int, unsigned int> signalRootsPerVertex;
     {
@@ -554,7 +573,10 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
         if (!truth::Branch(&graph, root).isInTime()) {
           continue;
         }
-        if (graph.particle(root).charge() == 0) {
+        if (graph.particle(root).threeCharge() == 0) {
+          continue;
+        }
+        if (trackerTruthPresent && hitIndex.directHits(truth::HitChannel::Tracker, root).empty()) {
           continue;
         }
         // Same resolution the numerator uses. A denominator counted at a different set

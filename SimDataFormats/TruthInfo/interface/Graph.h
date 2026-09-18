@@ -170,8 +170,11 @@ namespace truth {
     void appendParents(size_type particleId, std::vector<uint32_t>& out) const;
     void appendChildren(size_type particleId, std::vector<uint32_t>& out) const;
 
-    // The seen list of ancestorCount grows with the decay chain, not with the graph,
-    // so a per-particle call allocates nothing worth measuring at pile-up 200.
+    // ancestorCount allocates a seen list that grows with the number of ancestors, not
+    // with the graph, so it does not allocate per graph as ancestorsOf does. It scans
+    // that list for each step, so it costs O(ancestors^2): a few hundred ancestors on an
+    // uncollapsed generator record is still well under a millisecond, and the validator
+    // calls it once per target.
     [[nodiscard]] uint32_t ancestorCount(size_type particleId) const;
 
     [[nodiscard]] std::vector<Particle> ancestorsOf(size_type particleId) const;

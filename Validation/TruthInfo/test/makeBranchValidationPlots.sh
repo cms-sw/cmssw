@@ -11,7 +11,7 @@
 # Requires cmsenv. Usage:
 #   cmsenv
 #   makeBranchValidationPlots.sh [LIBRARY_DIR] [OUTPUT_DIR]
-#     LIBRARY_DIR  dir containing <wf>.88_*/DQM_V0001_*__RECO.root  (default ./library)
+#     LIBRARY_DIR  dir containing <wf>.0_*/DQM_V0001_*__RECO.root  (default ./library)
 #     OUTPUT_DIR   plots output dir                                 (default ./branch_validation_plots)
 # Env knobs: SAMPLES (override the "label:workflow" overlay list).
 #
@@ -24,13 +24,13 @@ PLOTTER="$CMSSW_BASE/src/Validation/TruthInfo/scripts/makeTruthGraphValidationPl
 
 # label : workflow-number. Diverse topologies: hadronic (TTbar), dense multi-tau
 # gun (TenTau, where the calo n_sharing tail is richest) and clean dimuon (ZMM).
-SAMPLES_DEFAULT=("TTbar:34034" "TenTau:34087" "ZMM:34050")
+SAMPLES_DEFAULT=("TTbar:37634" "TenTau:37687" "ZMM:37650")
 read -r -a SAMPLES <<< "${SAMPLES:-${SAMPLES_DEFAULT[*]}}"
 
 args=()
 for s in "${SAMPLES[@]}"; do
   IFS=: read -r lab num <<< "$s"
-  dqm=$(ls "$LIB"/${num}.88_*/DQM_V0001_R*__Global__*__RECO.root 2>/dev/null | head -1)
+  dqm=$(ls "$LIB"/${num}.[08]*_*/DQM_V0001_R*__Global__*__RECO.root 2>/dev/null | head -1)
   if [[ -z "$dqm" ]]; then echo "SKIP $lab ($num): no harvested DQM under $LIB"; continue; fi
   args+=("${dqm}:${lab}")
 done

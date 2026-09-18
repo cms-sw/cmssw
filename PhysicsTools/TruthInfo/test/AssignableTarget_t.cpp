@@ -65,12 +65,15 @@ namespace {
   //   p3  pi0 from v1, decays at v3
   //   p4  photon from v3, stable
   //   p5  muon from v2, stable
-  //   p6  connector, produced at the artificial vertex v4
+  //   p6  connector, produced at the artificial InitialState vertex v4
   //   p7  pi+ from v1, stable, produced at a normal vertex like p3
-  constexpr uint32_t kBeam = 0, kGluon = 1, kZ = 2, kPi0 = 3, kPhoton = 4, kMuon = 5, kConnector = 6, kPion = 7;
+  //   p8  muon produced at v4, a gun particle whose own production vertex the preset dropped
+  //   p9  pi+ produced at the artificial UnderlyingEvent vertex v5, a stable spectator
+  constexpr uint32_t kBeam = 0, kGluon = 1, kZ = 2, kPi0 = 3, kPhoton = 4, kMuon = 5, kConnector = 6, kPion = 7,
+                     kGunSeed = 8, kSpectator = 9;
 
   truth::Graph buildInteraction() {
-    GraphBuilder b(8, 5);
+    GraphBuilder b(10, 6);
     b.graph.particles()[kBeam].pdgId = 2212;
     b.graph.particles()[kGluon].pdgId = 21;
     b.graph.particles()[kZ].pdgId = 23;
@@ -80,7 +83,10 @@ namespace {
     b.graph.particles()[kConnector].pdgId = 0;
     b.graph.particles()[kConnector].role = static_cast<uint8_t>(truth::ParticleRole::Connector);
     b.graph.particles()[kPion].pdgId = 211;
+    b.graph.particles()[kGunSeed].pdgId = -13;
+    b.graph.particles()[kSpectator].pdgId = 211;
     b.graph.vertices()[4].role = static_cast<uint8_t>(truth::VertexRole::InitialState);
+    b.graph.vertices()[5].role = static_cast<uint8_t>(truth::VertexRole::UnderlyingEvent);
 
     b.addDecay(kBeam, 0);
     b.addProduction(0, kGluon);
@@ -93,6 +99,8 @@ namespace {
     b.addDecay(kPi0, 3);
     b.addProduction(3, kPhoton);
     b.addProduction(4, kConnector);
+    b.addProduction(4, kGunSeed);
+    b.addProduction(5, kSpectator);
     return b.finish();
   }
 
@@ -104,6 +112,7 @@ class TestAssignableTarget : public CppUnit::TestFixture {
   CPPUNIT_TEST(testBookkeepingNodesAreNot);
   CPPUNIT_TEST(testEachClauseCanBeTurnedOff);
   CPPUNIT_TEST(testExtraBarredPdgIdsCoverBothSigns);
+  CPPUNIT_TEST(testArtificialSourceKeepsRealParticles);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -111,6 +120,7 @@ public:
   void testBookkeepingNodesAreNot();
   void testEachClauseCanBeTurnedOff();
   void testExtraBarredPdgIdsCoverBothSigns();
+  void testArtificialSourceKeepsRealParticles();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestAssignableTarget);
@@ -154,9 +164,7 @@ void TestAssignableTarget::testEachClauseCanBeTurnedOff() {
 
   config = truth::AssignableTargetConfig();
   config.excludeSynthetic = false;
-  // Still barred: its production vertex is the artificial one.
-  CPPUNIT_ASSERT(!truth::isAssignableTarget(graph, kConnector, config));
-  config.excludeArtificialProduction = false;
+  // The role is the only thing that bars an invented node.
   CPPUNIT_ASSERT(truth::isAssignableTarget(graph, kConnector, config));
 }
 
@@ -170,4 +178,19 @@ void TestAssignableTarget::testExtraBarredPdgIdsCoverBothSigns() {
   auto negative = buildInteraction();
   negative.particles()[kPion].pdgId = -211;
   CPPUNIT_ASSERT(!truth::isAssignableTarget(negative, kPion, config));
+}
+
+// REQUIRED: a selection preset attaches a real particle whose production vertex it dropped
+// to an artificial source vertex. A gun particle lands on the InitialState vertex and a
+// stable spectator on the UnderlyingEvent vertex, and both are particles a detector sees,
+// so both stay assignable. Only the invented node produced beside them is barred.
+void TestAssignableTarget::testArtificialSourceKeepsRealParticles() {
+  const auto graph = buildInteraction();
+  const truth::AssignableTargetConfig config;
+
+  CPPUNIT_ASSERT(graph.vertices()[4].isArtificial());
+  CPPUNIT_ASSERT(graph.vertices()[5].isArtificial());
+  CPPUNIT_ASSERT(truth::isAssignableTarget(graph, kGunSeed, config));
+  CPPUNIT_ASSERT(truth::isAssignableTarget(graph, kSpectator, config));
+  CPPUNIT_ASSERT(!truth::isAssignableTarget(graph, kConnector, config));
 }
