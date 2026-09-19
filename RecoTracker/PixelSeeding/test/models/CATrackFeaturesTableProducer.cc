@@ -1,13 +1,13 @@
-// CATrackFeaturesTableProducer - nano flat table with the displaced track classifier's
-// 35-feature vector (CATrackDNN ABI), computed HOST-SIDE from the final track SoA hit
-// lists via the shared RecoTracker/PixelSeeding/interface/CATrackFeatures.h -- the same
-// single-source-of-truth function Kernel_classifyTracks evaluates on device.
+// CATrackFeaturesTableProducer - nano flat table with the track classifier's 12-feature vector
+// (caTrackFeatures::Features, in asArray() order), computed HOST-SIDE from the final track SoA
+// hit lists via the shared RecoTracker/PixelSeeding/interface/CATrackFeatures.h -- the same
+// single-source-of-truth function Kernel_classifyTracks evaluates on device -- plus seven study
+// columns computed here.
 //
-// This is the robust ntuple route for displaced track-classifier training data
-// (replaces the printf dump): pair this table with the TrkDispTruth table from
-// trackNano_config.py and join offline by (fitPt, phi).
+// This is the source of the track-level training datasets: trackNano_config.py writes this table
+// (Trk<X>CA) next to the Trk<X>Full and Trk<X>Truth tables, and the trainers join them offline.
 //
-// Rows: ALL tracks of the SoA in SoA order (same row space as TrkDispFull);
+// Rows: ALL tracks of the SoA in SoA order (same row space as Trk<X>Full);
 // tracks with <3 hits / corrupt hit lists get NaN features (drop offline).
 //
 // OPTIONAL ATTACH-PURITY TABLE (emitHitTruth=True, OFF by default). A SECOND FlatTable, one row
@@ -168,7 +168,7 @@ private:
     const ::reco::OTRecHitsConstView* otViewPtr = (nOTHits > 0u) ? &otView : nullptr;
     const int nTracks = tracks.nTracks();
 
-    // Column names == caTrackFeatures::fill order == train_disp_nano.py FEATS (12 feats).
+    // Column names, in caTrackFeatures::Features::asArray() order == the FEATS list of train_disp_nano.py.
     static const char* kNames[caTrackFeatures::kNFeat] = {"fitChi2",
                                                           "psFrac",
                                                           "r0",
@@ -197,7 +197,7 @@ private:
         "meanVectorHitKappa", "leverArm", "rMax", "rzChi2", "meanClusterY", "nTilted", "tiltedFrac"};
     std::vector<std::vector<float>> ex(7, std::vector<float>(nTracks, kNaN));
 
-    float feat[caTrackFeatures::kNFeat];
+    caTrackFeatures::Features feat;
     for (int it = 0; it < nTracks; ++it) {
       const uint32_t start = (it == 0) ? 0 : tracks[it - 1].hitOffsets();
       const uint32_t end = tracks[it].hitOffsets();
@@ -209,8 +209,9 @@ private:
           hitsBegin, hitsEnd, hh, nHitsTot, float(tracks[it].nLayers()), tracks[it].chi2(), feat, nullptr, otViewPtr);
       if (!ok)
         continue;
+      const auto featArray = feat.asArray();
       for (int f = 0; f < caTrackFeatures::kNFeat; ++f)
-        cols[f][it] = feat[f];
+        cols[f][it] = featArray[f];
       phiCol[it] = tracks[it].state()(0);
       qualityCol[it] = int(tracks[it].quality());
 
@@ -272,9 +273,9 @@ private:
           ex[3][it] = float(std::max(0.0, (Szz - a * Sz - b * Srz)) / std::max(1, nrz - 2));
         }
       }
-      ex[4][it] = (nClY > 0) ? float(sumClY / nClY) : 0.f;  // meanClusterY
-      ex[5][it] = float(nTilted);                           // nTilted
-      ex[6][it] = nTilted / std::max(feat[6], 1.f);         // tiltedFrac (feat[6]=nVectorHits)
+      ex[4][it] = (nClY > 0) ? float(sumClY / nClY) : 0.f;    // meanClusterY
+      ex[5][it] = float(nTilted);                             // nTilted
+      ex[6][it] = nTilted / std::max(feat.nVectorHits, 1.f);  // tiltedFrac
     }
 
     auto table = std::make_unique<nanoaod::FlatTable>(nTracks, tableName_, /*singleton*/ false, /*extension*/ false);
