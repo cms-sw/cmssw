@@ -2,6 +2,7 @@
 #define SimFastTiming_FastTimingCommon_MTDDigitizerTraits_h
 
 #include "DataFormats/FTLDigi/interface/FTLDigiCollections.h"
+#include "DataFormats/FTLDigi/interface/MTDDigiCollections.h"
 
 #include "SimFastTiming/FastTimingCommon/interface/BTLDeviceSim.h"
 #include "SimFastTiming/FastTimingCommon/interface/BTLElectronicsSim.h"
@@ -12,6 +13,9 @@ class BTLDigitizerTraits {
 public:
   // --- The BTL DIGI collection
   typedef BTLDigiCollection DigiCollection;
+
+  // --- The BTL DIGI collection in new format
+  typedef BTLDigiContentCollection MTDDigiCollection;
 
   // --- The BTL sensor response simulation for the bar geometry
   typedef BTLDeviceSim DeviceSim;
@@ -24,6 +28,9 @@ class ETLDigitizerTraits {
 public:
   // --- The ETL DIGI collection
   typedef ETLDigiCollection DigiCollection;
+
+  // --- The ETL DIGI collection in new format
+  typedef ETLDigiContentCollection MTDDigiCollection;
 
   // --- The ETL sensor response simulation
   typedef ETLDeviceSim DeviceSim;
