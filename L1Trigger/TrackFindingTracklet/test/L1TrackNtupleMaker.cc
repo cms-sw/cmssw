@@ -55,11 +55,12 @@
 
 ////////////////
 // PHYSICS TOOLS
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
-#include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Setup.h"
+#include "L1Trigger/TrackFindingTracklet/interface/DataFormats.h"
 #include "L1Trigger/TrackFindingTracklet/interface/HitPatternHelper.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CLHEP/Units/PhysicalConstants.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 ///////////////
 // ROOT HEADERS
@@ -147,9 +148,9 @@ private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> getTokenTrackerGeom_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> getTokenTrackerTopo_;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> getTokenBField_;
-  edm::ESGetToken<hph::Setup, hph::SetupRcd> getTokenHPHSetup_;
-  edm::ESGetToken<tt::Setup, tt::SetupRcd> getTokenSetup_;
-  edm::ESGetToken<trackerTFP::LayerEncoding, trackerTFP::DataFormatsRcd> getTokenLayerEncoding_;
+  edm::ESGetToken<hph::Setup, trackerDTC::SetupRcd> getTokenHPHSetup_;
+  edm::ESGetToken<trklet::Setup, trackerDTC::SetupRcd> getTokenSetup_;
+  edm::ESGetToken<trklet::DataFormats, trackerDTC::SetupRcd> getTokenDataFormats_;
   //-----------------------------------------------------------------------------------------------
   // tree & branches for mini-ntuple
 
@@ -157,12 +158,14 @@ private:
 
   TTree* eventTree;
 
-  // all L1 tracks
+  //--- all L1 tracks
   std::vector<float>* m_trk_pt;
   std::vector<float>* m_trk_eta;
   std::vector<float>* m_trk_phi;
   std::vector<float>* m_trk_d0;  // (filled if L1Tk_nPar==5, else 999)
   std::vector<float>* m_trk_z0;
+  std::vector<float>* m_trk_tanL;
+  std::vector<float>* m_trk_zT;
   std::vector<float>* m_trk_chi2;
   std::vector<float>* m_trk_chi2_dof;
   std::vector<float>* m_trk_chi2rphi;
@@ -170,10 +173,20 @@ private:
   std::vector<float>* m_trk_chi2rz;
   std::vector<float>* m_trk_chi2rz_dof;
   std::vector<float>* m_trk_bendchi2;
+  std::vector<float>* m_trk_sigma_qOverPt;  // Uncertainties from fitted helix covariance matrix
+  std::vector<float>* m_trk_sigma_phi;
+  std::vector<float>* m_trk_sigma_d0;
+  std::vector<float>* m_trk_sigma_z0;
+  std::vector<float>* m_trk_sigma_tanL;
+  std::vector<float>* m_trk_pt_beamCon;  // Helix params constrained to x=y=0.
+  std::vector<float>* m_trk_phi_beamCon;
+  std::vector<float>* m_trk_chi2rphi_beamCon;
+  std::vector<float>* m_trk_chi2rphi_dof_beamCon;
   std::vector<int>* m_trk_nstub;
   std::vector<int>* m_trk_lhits;
   std::vector<int>* m_trk_dhits;
   std::vector<int>* m_trk_seed;
+  // WARNING - info unpacked from the hit pattern is unrelable due to bugs in HitPatternHelper
   std::vector<int>* m_trk_hitpattern;
   std::vector<int>* m_trk_lhits_hitpattern;  // 6-digit hit mask (barrel layer only) dervied from hitpattern
   std::vector<int>* m_trk_dhits_hitpattern;  // disk only
@@ -190,12 +203,29 @@ private:
   std::vector<int>* m_trk_loose;
   std::vector<int>* m_trk_unknown;
   std::vector<int>* m_trk_combinatoric;
-  std::vector<int>* m_trk_fake;  //0 fake, 1 track from primary interaction, 2 secondary track
   std::vector<float>* m_trk_MVA1;
+
+  // Track Quality BDT Training
+
+  std::vector<int>* m_tqbdt_nStubs_;
+  std::vector<double>* m_tqbdt_z0_;
+  std::vector<double>* m_tqbdt_cot_;
+  std::vector<double>* m_tqbdt_chi20_;
+  std::vector<double>* m_tqbdt_chi21_;
+  std::vector<int>* m_tqbdt_nGaps_;
+  std::vector<bool>* m_tqbdt_true_;
+
+  //--- Matched TP info (filled if track genuine)
+  // N.B. This TP not required to have stubs in at least 4 layers.
+
+  std::vector<int>*
+      m_trk_matchtp_eventtype;  //event type: -999 = fake track (not genuine), 1 = TP from signal pp event, 2 = TP from pileup
   std::vector<int>* m_trk_matchtp_pdgid;
+  // kinematics of matching truth particle
   std::vector<float>* m_trk_matchtp_pt;
   std::vector<float>* m_trk_matchtp_eta;
   std::vector<float>* m_trk_matchtp_phi;
+  std::vector<float>* m_trk_matchtp_lz;
   std::vector<float>* m_trk_matchtp_z0;
   std::vector<float>* m_trk_matchtp_lxy;
   std::vector<float>* m_trk_matchtp_d0;
@@ -204,15 +234,14 @@ private:
   std::vector<int>* m_trk_injet_vhighpt;  //is the track within dR<0.4 of a genjet with pt > 200 GeV?
   std::vector<std::vector<int>>* m_trk_layers;
 
-  // all tracking particles
+  //--- all tracking particles passing cuts in cfg file (e.g. >=4 stub layers)
   std::vector<float>* m_tp_pt;
   std::vector<float>* m_tp_eta;
   std::vector<float>* m_tp_phi;
   std::vector<float>* m_tp_lxy;
   std::vector<float>* m_tp_d0;
+  std::vector<float>* m_tp_lz;
   std::vector<float>* m_tp_z0;
-  std::vector<float>* m_tp_d0_prod;
-  std::vector<float>* m_tp_z0_prod;
   std::vector<int>* m_tp_pdgid;
   std::vector<int>* m_tp_nmatch;
   std::vector<int>* m_tp_nstub;
@@ -222,7 +251,8 @@ private:
   std::vector<int>* m_tp_injet_highpt;
   std::vector<int>* m_tp_injet_vhighpt;
 
-  // *L1 track* properties if m_tp_nmatch > 0
+  //--- Best genuine *L1 track* (if any) that matches TP. Will exist if tp_nmatch > 0
+  // Only filled for TP that have stubs in at least 4 layers.
   std::vector<float>* m_matchtrk_pt;
   std::vector<float>* m_matchtrk_eta;
   std::vector<float>* m_matchtrk_phi;
@@ -236,6 +266,10 @@ private:
   std::vector<float>* m_matchtrk_chi2rz_dof;
   std::vector<float>* m_matchtrk_bendchi2;
   std::vector<float>* m_matchtrk_MVA1;
+  std::vector<float>* m_matchtrk_pt_beamCon;  // Helix params constrained to x=y=0.
+  std::vector<float>* m_matchtrk_phi_beamCon;
+  std::vector<float>* m_matchtrk_chi2rphi_beamCon;
+  std::vector<float>* m_matchtrk_chi2rphi_dof_beamCon;
   std::vector<int>* m_matchtrk_nstub;
   std::vector<int>* m_matchtrk_lhits;
   std::vector<int>* m_matchtrk_dhits;
@@ -324,9 +358,9 @@ L1TrackNtupleMaker::L1TrackNtupleMaker(edm::ParameterSet const& iConfig) : confi
   getTokenTrackerGeom_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
   getTokenTrackerTopo_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
   getTokenBField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
-  getTokenHPHSetup_ = esConsumes<hph::Setup, hph::SetupRcd>();
-  getTokenSetup_ = esConsumes<tt::Setup, tt::SetupRcd>();
-  getTokenLayerEncoding_ = esConsumes<trackerTFP::LayerEncoding, trackerTFP::DataFormatsRcd>();
+  getTokenHPHSetup_ = esConsumes<hph::Setup, trackerDTC::SetupRcd>();
+  getTokenSetup_ = esConsumes<trklet::Setup, trackerDTC::SetupRcd>();
+  getTokenDataFormats_ = esConsumes();
 }
 
 /////////////
@@ -345,6 +379,8 @@ void L1TrackNtupleMaker::endJob() {
   delete m_trk_phi;
   delete m_trk_z0;
   delete m_trk_d0;
+  delete m_trk_tanL;
+  delete m_trk_zT;
   delete m_trk_chi2;
   delete m_trk_chi2_dof;
   delete m_trk_chi2rphi;
@@ -352,6 +388,15 @@ void L1TrackNtupleMaker::endJob() {
   delete m_trk_chi2rz;
   delete m_trk_chi2rz_dof;
   delete m_trk_bendchi2;
+  delete m_trk_sigma_qOverPt;
+  delete m_trk_sigma_phi;
+  delete m_trk_sigma_d0;
+  delete m_trk_sigma_z0;
+  delete m_trk_sigma_tanL;
+  delete m_trk_pt_beamCon;
+  delete m_trk_phi_beamCon;
+  delete m_trk_chi2rphi_beamCon;
+  delete m_trk_chi2rphi_dof_beamCon;
   delete m_trk_nstub;
   delete m_trk_lhits;
   delete m_trk_dhits;
@@ -372,28 +417,36 @@ void L1TrackNtupleMaker::endJob() {
   delete m_trk_loose;
   delete m_trk_unknown;
   delete m_trk_combinatoric;
-  delete m_trk_fake;
   delete m_trk_MVA1;
-  delete m_trk_layers;
+  delete m_trk_matchtp_eventtype;
   delete m_trk_matchtp_pdgid;
   delete m_trk_matchtp_pt;
   delete m_trk_matchtp_eta;
   delete m_trk_matchtp_phi;
+  delete m_trk_matchtp_lz;
   delete m_trk_matchtp_z0;
   delete m_trk_matchtp_lxy;
   delete m_trk_matchtp_d0;
   delete m_trk_injet;
   delete m_trk_injet_highpt;
   delete m_trk_injet_vhighpt;
+  delete m_trk_layers;
+
+  delete m_tqbdt_nStubs_;
+  delete m_tqbdt_z0_;
+  delete m_tqbdt_cot_;
+  delete m_tqbdt_chi20_;
+  delete m_tqbdt_chi21_;
+  delete m_tqbdt_nGaps_;
+  delete m_tqbdt_true_;
 
   delete m_tp_pt;
   delete m_tp_eta;
   delete m_tp_phi;
   delete m_tp_lxy;
   delete m_tp_d0;
+  delete m_tp_lz;
   delete m_tp_z0;
-  delete m_tp_d0_prod;
-  delete m_tp_z0_prod;
   delete m_tp_pdgid;
   delete m_tp_nmatch;
   delete m_tp_nstub;
@@ -416,6 +469,10 @@ void L1TrackNtupleMaker::endJob() {
   delete m_matchtrk_chi2rz_dof;
   delete m_matchtrk_bendchi2;
   delete m_matchtrk_MVA1;
+  delete m_matchtrk_pt_beamCon;
+  delete m_matchtrk_phi_beamCon;
+  delete m_matchtrk_chi2rphi_beamCon;
+  delete m_matchtrk_chi2rphi_dof_beamCon;
   delete m_matchtrk_nstub;
   delete m_matchtrk_dhits;
   delete m_matchtrk_lhits;
@@ -468,8 +525,10 @@ void L1TrackNtupleMaker::beginJob() {
   m_trk_pt = new std::vector<float>;
   m_trk_eta = new std::vector<float>;
   m_trk_phi = new std::vector<float>;
-  m_trk_z0 = new std::vector<float>;
   m_trk_d0 = new std::vector<float>;
+  m_trk_z0 = new std::vector<float>;
+  m_trk_tanL = new std::vector<float>;
+  m_trk_zT = new std::vector<float>;
   m_trk_chi2 = new std::vector<float>;
   m_trk_chi2_dof = new std::vector<float>;
   m_trk_chi2rphi = new std::vector<float>;
@@ -477,6 +536,15 @@ void L1TrackNtupleMaker::beginJob() {
   m_trk_chi2rz = new std::vector<float>;
   m_trk_chi2rz_dof = new std::vector<float>;
   m_trk_bendchi2 = new std::vector<float>;
+  m_trk_sigma_qOverPt = new std::vector<float>;
+  m_trk_sigma_phi = new std::vector<float>;
+  m_trk_sigma_d0 = new std::vector<float>;
+  m_trk_sigma_z0 = new std::vector<float>;
+  m_trk_sigma_tanL = new std::vector<float>;
+  m_trk_pt_beamCon = new std::vector<float>;
+  m_trk_phi_beamCon = new std::vector<float>;
+  m_trk_chi2rphi_beamCon = new std::vector<float>;
+  m_trk_chi2rphi_dof_beamCon = new std::vector<float>;
   m_trk_nstub = new std::vector<int>;
   m_trk_lhits = new std::vector<int>;
   m_trk_dhits = new std::vector<int>;
@@ -497,12 +565,13 @@ void L1TrackNtupleMaker::beginJob() {
   m_trk_loose = new std::vector<int>;
   m_trk_unknown = new std::vector<int>;
   m_trk_combinatoric = new std::vector<int>;
-  m_trk_fake = new std::vector<int>;
   m_trk_MVA1 = new std::vector<float>;
+  m_trk_matchtp_eventtype = new std::vector<int>;
   m_trk_matchtp_pdgid = new std::vector<int>;
   m_trk_matchtp_pt = new std::vector<float>;
   m_trk_matchtp_eta = new std::vector<float>;
   m_trk_matchtp_phi = new std::vector<float>;
+  m_trk_matchtp_lz = new std::vector<float>;
   m_trk_matchtp_z0 = new std::vector<float>;
   m_trk_matchtp_lxy = new std::vector<float>;
   m_trk_matchtp_d0 = new std::vector<float>;
@@ -511,14 +580,21 @@ void L1TrackNtupleMaker::beginJob() {
   m_trk_injet_vhighpt = new std::vector<int>;
   m_trk_layers = new std::vector<std::vector<int>>;
 
+  m_tqbdt_nStubs_ = new std::vector<int>;
+  m_tqbdt_z0_ = new std::vector<double>;
+  m_tqbdt_cot_ = new std::vector<double>;
+  m_tqbdt_chi20_ = new std::vector<double>;
+  m_tqbdt_chi21_ = new std::vector<double>;
+  m_tqbdt_nGaps_ = new std::vector<int>;
+  m_tqbdt_true_ = new std::vector<bool>;
+
   m_tp_pt = new std::vector<float>;
   m_tp_eta = new std::vector<float>;
   m_tp_phi = new std::vector<float>;
   m_tp_lxy = new std::vector<float>;
   m_tp_d0 = new std::vector<float>;
+  m_tp_lz = new std::vector<float>;
   m_tp_z0 = new std::vector<float>;
-  m_tp_d0_prod = new std::vector<float>;
-  m_tp_z0_prod = new std::vector<float>;
   m_tp_pdgid = new std::vector<int>;
   m_tp_nmatch = new std::vector<int>;
   m_tp_nstub = new std::vector<int>;
@@ -541,6 +617,10 @@ void L1TrackNtupleMaker::beginJob() {
   m_matchtrk_chi2rz_dof = new std::vector<float>;
   m_matchtrk_bendchi2 = new std::vector<float>;
   m_matchtrk_MVA1 = new std::vector<float>;
+  m_matchtrk_pt_beamCon = new std::vector<float>;
+  m_matchtrk_phi_beamCon = new std::vector<float>;
+  m_matchtrk_chi2rphi_beamCon = new std::vector<float>;
+  m_matchtrk_chi2rphi_dof_beamCon = new std::vector<float>;
   m_matchtrk_nstub = new std::vector<int>;
   m_matchtrk_dhits = new std::vector<int>;
   m_matchtrk_lhits = new std::vector<int>;
@@ -587,6 +667,8 @@ void L1TrackNtupleMaker::beginJob() {
     eventTree->Branch("trk_phi", &m_trk_phi);
     eventTree->Branch("trk_d0", &m_trk_d0);
     eventTree->Branch("trk_z0", &m_trk_z0);
+    eventTree->Branch("trk_tanL", &m_trk_tanL);
+    eventTree->Branch("trk_zT", &m_trk_zT);
     eventTree->Branch("trk_chi2", &m_trk_chi2);
     eventTree->Branch("trk_chi2_dof", &m_trk_chi2_dof);
     eventTree->Branch("trk_chi2rphi", &m_trk_chi2rphi);
@@ -594,6 +676,15 @@ void L1TrackNtupleMaker::beginJob() {
     eventTree->Branch("trk_chi2rz", &m_trk_chi2rz);
     eventTree->Branch("trk_chi2rz_dof", &m_trk_chi2rz_dof);
     eventTree->Branch("trk_bendchi2", &m_trk_bendchi2);
+    eventTree->Branch("trk_sigma_qOverPt", &m_trk_sigma_qOverPt);
+    eventTree->Branch("trk_sigma_phi", &m_trk_sigma_phi);
+    eventTree->Branch("trk_sigma_d0", &m_trk_sigma_d0);
+    eventTree->Branch("trk_sigma_z0", &m_trk_sigma_z0);
+    eventTree->Branch("trk_sigma_tanL", &m_trk_sigma_tanL);
+    eventTree->Branch("trk_pt_beamCon", &m_trk_pt_beamCon);
+    eventTree->Branch("trk_phi_beamCon", &m_trk_phi_beamCon);
+    eventTree->Branch("trk_chi2rphi_beamCon", &m_trk_chi2rphi_beamCon);
+    eventTree->Branch("trk_chi2rphi_dof_beamCon", &m_trk_chi2rphi_dof_beamCon);
     eventTree->Branch("trk_nstub", &m_trk_nstub);
     eventTree->Branch("trk_lhits", &m_trk_lhits);
     eventTree->Branch("trk_dhits", &m_trk_dhits);
@@ -614,21 +705,29 @@ void L1TrackNtupleMaker::beginJob() {
     eventTree->Branch("trk_loose", &m_trk_loose);
     eventTree->Branch("trk_unknown", &m_trk_unknown);
     eventTree->Branch("trk_combinatoric", &m_trk_combinatoric);
-    eventTree->Branch("trk_fake", &m_trk_fake);
     eventTree->Branch("trk_MVA1", &m_trk_MVA1);
+    eventTree->Branch("trk_matchtp_eventtype", &m_trk_matchtp_eventtype);
     eventTree->Branch("trk_matchtp_pdgid", &m_trk_matchtp_pdgid);
     eventTree->Branch("trk_matchtp_pt", &m_trk_matchtp_pt);
     eventTree->Branch("trk_matchtp_eta", &m_trk_matchtp_eta);
     eventTree->Branch("trk_matchtp_phi", &m_trk_matchtp_phi);
+    eventTree->Branch("trk_matchtp_lz", &m_trk_matchtp_lz);
     eventTree->Branch("trk_matchtp_z0", &m_trk_matchtp_z0);
     eventTree->Branch("trk_matchtp_lxy", &m_trk_matchtp_lxy);
     eventTree->Branch("trk_matchtp_d0", &m_trk_matchtp_d0);
+    eventTree->Branch("tqbdt_nStubs_", &m_tqbdt_nStubs_);
+    eventTree->Branch("tqbdt_z0_", &m_tqbdt_z0_);
+    eventTree->Branch("tqbdt_cot_", &m_tqbdt_cot_);
+    eventTree->Branch("tqbdt_chi20_", &m_tqbdt_chi20_);
+    eventTree->Branch("tqbdt_chi21_", &m_tqbdt_chi21_);
+    eventTree->Branch("tqbdt_nGaps_", &m_tqbdt_nGaps_);
+    eventTree->Branch("tqbdt_true", &m_tqbdt_true_);
     if (TrackingInJets) {
       eventTree->Branch("trk_injet", &m_trk_injet);
       eventTree->Branch("trk_injet_highpt", &m_trk_injet_highpt);
       eventTree->Branch("trk_injet_vhighpt", &m_trk_injet_vhighpt);
     }
-    eventTree->Branch("m_trk_layers", &m_trk_layers);
+    eventTree->Branch("trk_layers", &m_trk_layers);
   }
 
   eventTree->Branch("tp_pt", &m_tp_pt);
@@ -636,9 +735,8 @@ void L1TrackNtupleMaker::beginJob() {
   eventTree->Branch("tp_phi", &m_tp_phi);
   eventTree->Branch("tp_lxy", &m_tp_lxy);
   eventTree->Branch("tp_d0", &m_tp_d0);
+  eventTree->Branch("tp_lz", &m_tp_lz);
   eventTree->Branch("tp_z0", &m_tp_z0);
-  eventTree->Branch("tp_d0_prod", &m_tp_d0_prod);
-  eventTree->Branch("tp_z0_prod", &m_tp_z0_prod);
   eventTree->Branch("tp_pdgid", &m_tp_pdgid);
   eventTree->Branch("tp_nmatch", &m_tp_nmatch);
   eventTree->Branch("tp_nstub", &m_tp_nstub);
@@ -663,6 +761,10 @@ void L1TrackNtupleMaker::beginJob() {
   eventTree->Branch("matchtrk_chi2rz_dof", &m_matchtrk_chi2rz_dof);
   eventTree->Branch("matchtrk_bendchi2", &m_matchtrk_bendchi2);
   eventTree->Branch("matchtrk_MVA1", &m_matchtrk_MVA1);
+  eventTree->Branch("matchtrk_pt_beamCon", &m_matchtrk_pt_beamCon);
+  eventTree->Branch("matchtrk_phi_beamCon", &m_matchtrk_phi_beamCon);
+  eventTree->Branch("matchtrk_chi2rphi_beamCon", &m_matchtrk_chi2rphi_beamCon);
+  eventTree->Branch("matchtrk_chi2rphi_dof_beamCon", &m_matchtrk_chi2rphi_dof_beamCon);
   eventTree->Branch("matchtrk_nstub", &m_matchtrk_nstub);
   eventTree->Branch("matchtrk_lhits", &m_matchtrk_lhits);
   eventTree->Branch("matchtrk_dhits", &m_matchtrk_dhits);
@@ -726,13 +828,15 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     return;
   }
 
-  // clear variables
+  // Reset variables before next event
   if (SaveAllTracks) {
     m_trk_pt->clear();
     m_trk_eta->clear();
     m_trk_phi->clear();
     m_trk_d0->clear();
     m_trk_z0->clear();
+    m_trk_tanL->clear();
+    m_trk_zT->clear();
     m_trk_chi2->clear();
     m_trk_chi2_dof->clear();
     m_trk_chi2rphi->clear();
@@ -740,6 +844,15 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_trk_chi2rz->clear();
     m_trk_chi2rz_dof->clear();
     m_trk_bendchi2->clear();
+    m_trk_sigma_qOverPt->clear();
+    m_trk_sigma_phi->clear();
+    m_trk_sigma_d0->clear();
+    m_trk_sigma_z0->clear();
+    m_trk_sigma_tanL->clear();
+    m_trk_pt_beamCon->clear();
+    m_trk_phi_beamCon->clear();
+    m_trk_chi2rphi_beamCon->clear();
+    m_trk_chi2rphi_dof_beamCon->clear();
     m_trk_nstub->clear();
     m_trk_lhits->clear();
     m_trk_dhits->clear();
@@ -760,12 +873,13 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_trk_loose->clear();
     m_trk_unknown->clear();
     m_trk_combinatoric->clear();
-    m_trk_fake->clear();
     m_trk_MVA1->clear();
+    m_trk_matchtp_eventtype->clear();
     m_trk_matchtp_pdgid->clear();
     m_trk_matchtp_pt->clear();
     m_trk_matchtp_eta->clear();
     m_trk_matchtp_phi->clear();
+    m_trk_matchtp_lz->clear();
     m_trk_matchtp_z0->clear();
     m_trk_matchtp_lxy->clear();
     m_trk_matchtp_d0->clear();
@@ -773,6 +887,13 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_trk_injet_highpt->clear();
     m_trk_injet_vhighpt->clear();
     m_trk_layers->clear();
+    m_tqbdt_nStubs_->clear();
+    m_tqbdt_z0_->clear();
+    m_tqbdt_cot_->clear();
+    m_tqbdt_chi20_->clear();
+    m_tqbdt_chi21_->clear();
+    m_tqbdt_nGaps_->clear();
+    m_tqbdt_true_->clear();
   }
 
   m_tp_pt->clear();
@@ -780,9 +901,8 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
   m_tp_phi->clear();
   m_tp_lxy->clear();
   m_tp_d0->clear();
+  m_tp_lz->clear();
   m_tp_z0->clear();
-  m_tp_d0_prod->clear();
-  m_tp_z0_prod->clear();
   m_tp_pdgid->clear();
   m_tp_nmatch->clear();
   m_tp_nstub->clear();
@@ -805,6 +925,10 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
   m_matchtrk_chi2rz_dof->clear();
   m_matchtrk_bendchi2->clear();
   m_matchtrk_MVA1->clear();
+  m_matchtrk_pt_beamCon->clear();
+  m_matchtrk_phi_beamCon->clear();
+  m_matchtrk_chi2rphi_beamCon->clear();
+  m_matchtrk_chi2rphi_dof_beamCon->clear();
   m_matchtrk_nstub->clear();
   m_matchtrk_lhits->clear();
   m_matchtrk_dhits->clear();
@@ -881,14 +1005,22 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
   edm::ESHandle<MagneticField> bFieldHandle = iSetup.getHandle(getTokenBField_);
 
   edm::ESHandle<hph::Setup> hphHandle = iSetup.getHandle(getTokenHPHSetup_);
-  edm::ESHandle<tt::Setup> handleSetup = iSetup.getHandle(getTokenSetup_);
-  edm::ESHandle<trackerTFP::LayerEncoding> handleLayerEncoding = iSetup.getHandle(getTokenLayerEncoding_);
+  edm::ESHandle<trklet::Setup> handleSetup = iSetup.getHandle(getTokenSetup_);
+  const trklet::DataFormats* dataFormats = &iSetup.getData(getTokenDataFormats_);
+  const trklet::DataFormat& dfZ0 = dataFormats->format(trklet::Variable::z0, trklet::Process::tq);
+  const trklet::DataFormat& dfCot = dataFormats->format(trklet::Variable::cot, trklet::Process::tq);
+  const trklet::DataFormat& dfChi20 = dataFormats->format(trklet::Variable::chi20, trklet::Process::tq);
+  const trklet::DataFormat& dfChi21 = dataFormats->format(trklet::Variable::chi21, trklet::Process::tq);
 
   const TrackerTopology* const tTopo = tTopoHandle.product();
   const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
   const hph::Setup* hphSetup = hphHandle.product();
-  const tt::Setup* setup = handleSetup.product();
-  const trackerTFP::LayerEncoding* layerEncoding = handleLayerEncoding.product();
+  const trklet::Setup* setup = handleSetup.product();
+
+  // Conversion factor curvature radius to Pt.
+  const float b_field = bFieldHandle.product()->inTesla(GlobalPoint(0, 0, 0)).z();
+  const float cLight = CLHEP::c_light / 1.0E5;
+  const float convertRtoPt = cLight * b_field;
 
   // ----------------------------------------------------------------------------------------------
   // loop over L1 stubs
@@ -897,7 +1029,8 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
   if (SaveStubs) {
     for (auto gd = theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++) {
       DetId detid = (*gd)->geographicalId();
-      if (detid.subdetId() != StripSubdetector::TOB && detid.subdetId() != StripSubdetector::TID)
+      if (detid.subdetId() != Phase2Tracker::Subdetector::Barrel &&
+          detid.subdetId() != Phase2Tracker::Subdetector::Endcap)
         continue;
       if (!tTopo->isLower(detid))
         continue;                              // loop on the stacks: choose the lower arbitrarily
@@ -919,14 +1052,14 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
         int isBarrel = 0;
         int layer = -999999;
-        if (detid.subdetId() == StripSubdetector::TOB) {
+        if (detid.subdetId() == Phase2Tracker::Subdetector::Barrel) {
           isBarrel = 1;
           layer = static_cast<int>(tTopo->layer(detid));
-        } else if (detid.subdetId() == StripSubdetector::TID) {
+        } else if (detid.subdetId() == Phase2Tracker::Subdetector::Endcap) {
           isBarrel = 0;
           layer = static_cast<int>(tTopo->layer(detid));
         } else {
-          edm::LogVerbatim("Tracklet") << "WARNING -- neither TOB or TID stub, shouldn't happen...";
+          edm::LogVerbatim("Tracklet") << "WARNING -- neither barrel nor endcap stub, shouldn't happen...";
           layer = -1;
         }
 
@@ -934,9 +1067,9 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
         if (topol->nrows() == 960)
           isPSmodule = 1;
 
-        const unsigned int tobSide = tTopo->tobSide(detid);  // nonBarrel = 0, tiltedMinus = 1, tiltedPlus = 2, flat = 3
+        const Phase2Tracker::BarrelModuleTilt tiltType = tTopo->barrelTiltTypeP2(detid);
         int isTiltedBarrel = 0;
-        if (isBarrel == 1 && (tobSide == 1 || tobSide == 2))
+        if (isBarrel == 1 && (tiltType == Phase2Tracker::tiltedZminus || tiltType == Phase2Tracker::tiltedZplus))
           isTiltedBarrel = 1;
 
         MeasurementPoint coords = tempStubPtr->clusterRef(0)->findAverageLocalCoordinatesCentered();
@@ -1074,22 +1207,33 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> l1track_ptr(TTTrackHandle, this_l1track);
       this_l1track++;
 
-      float tmp_trk_pt = iterL1Track->momentum().perp();
-      float tmp_trk_eta = iterL1Track->momentum().eta();
-      float tmp_trk_phi = iterL1Track->momentum().phi();
+      if (DebugMode) {
+        // Print L1 track helix params etc.
+        edm::LogVerbatim("Tracklet") << *iterL1Track;
+      }
+
+      float tmp_trk_pt = iterL1Track->pt();
+      float tmp_trk_eta = iterL1Track->eta();
+      float tmp_trk_phi = iterL1Track->phi();
       float tmp_trk_z0 = iterL1Track->z0();  //cm
       float tmp_trk_tanL = iterL1Track->tanL();
+      float tmp_trk_zT = iterL1Track->z0() + setup->regChosenRofZ() * iterL1Track->tanL();
       int tmp_trk_charge = (int)TMath::Sign(1, iterL1Track->rInv());
-      bool usingNewKF = hphSetup->useNewKF();
-      if (usingNewKF) {
-        // Skip crazy tracks to avoid crash (as NewKF applies no cuts to kill them).
-        constexpr float crazy_z0_cut = 30.;  // Cut to kill any crazy tracks found by New KF (which applies no cuts)
-        if (fabs(tmp_trk_z0) > crazy_z0_cut)
-          continue;
-      }
+
+      int nHelixPars = iterL1Track->nFitPars();
+      const auto& helixCovMat = iterL1Track->helixCovMat();
+      // Protect against wierd covariance matrices with negatives.
+      auto safeSqrt = [](float q) { return q >= 0 ? sqrt(q) : -sqrt(-q); };
+      using enum TTTrack<Ref_Phase2TrackerDigi_>::Hpar;
+      float tmp_trk_sigma_qOverPt = 2 * safeSqrt(helixCovMat[INVR][INVR]) / convertRtoPt;
+      float tmp_trk_sigma_phi = safeSqrt(helixCovMat[PHI0][PHI0]);
+      float tmp_trk_sigma_tanL = safeSqrt(helixCovMat[TANL][TANL]);
+      float tmp_trk_sigma_z0 = safeSqrt(helixCovMat[Z0][Z0]);
+      float tmp_trk_sigma_d0 = (nHelixPars == 5) ? safeSqrt(helixCovMat[D0][D0]) : 0.;
 
       int tmp_trk_hitpattern = 0;
       tmp_trk_hitpattern = (int)iterL1Track->hitPattern();
+      // TO FIX -- The HitPatternHelper code contains several bugs & design flaws.
       hph::HitPatternHelper hph(hphSetup, tmp_trk_hitpattern, tmp_trk_tanL, tmp_trk_z0);
       std::vector<int> hitpattern_expanded_binary = hph.binary();
       int tmp_trk_lhits_hitpattern = 0;
@@ -1123,15 +1267,21 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       float tmp_trk_bendchi2 = iterL1Track->chi2BendRed();
       float tmp_trk_MVA1 = iterL1Track->trkMVA1();
 
+      // Constrain track to x=y=0
+      float tmp_trk_phi_beamCon, tmp_trk_rInv_beamCon, tmp_trk_pt_beamCon, tmp_trk_chi2rphi_beamCon,
+          tmp_trk_chi2rphi_dof_beamCon;
+      iterL1Track->beamConstraint(tmp_trk_phi_beamCon,
+                                  tmp_trk_rInv_beamCon,
+                                  tmp_trk_pt_beamCon,
+                                  tmp_trk_chi2rphi_beamCon,
+                                  tmp_trk_chi2rphi_dof_beamCon);
+
       std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
           stubRefs = iterL1Track->getStubRefs();
       int tmp_trk_nstub = (int)stubRefs.size();
-      int ndof = 2 * tmp_trk_nstub - L1Tk_nPar;
-      int ndofrphi = tmp_trk_nstub - L1Tk_nPar + 2;
-      int ndofrz = tmp_trk_nstub - 2;
-      float tmp_trk_chi2_dof = (float)tmp_trk_chi2 / ndof;
-      float tmp_trk_chi2rphi_dof = (float)tmp_trk_chi2rphi / ndofrphi;
-      float tmp_trk_chi2rz_dof = (float)tmp_trk_chi2rz / ndofrz;
+      float tmp_trk_chi2_dof = iterL1Track->chi2Red();
+      float tmp_trk_chi2rphi_dof = iterL1Track->chi2XYRed();
+      float tmp_trk_chi2rz_dof = iterL1Track->chi2ZRed();
 
       int tmp_trk_seed = 0;
       tmp_trk_seed = (int)iterL1Track->trackSeedType();
@@ -1139,12 +1289,23 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       unsigned int tmp_trk_phiSector = iterL1Track->phiSector();
       int tmp_trk_etaSector = hph.etaSector();
 
-      // ----------------------------------------------------------------------------------------------
+      // layer encoding
+      const TTBV hitPattern((int)iterL1Track->hitPattern(), setup->sysNumLayer());
+      vector<int> le = {1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15};
+      vector<int> layers;
+      layers.reserve(hitPattern.size());
+      for (int layer : hitPattern.ids())
+        layers.push_back(le[layer]);
+      m_trk_layers->push_back(layers);
+
+      // ----------------------------------------------------------------------------------------
       // loop over stubs on tracks
 
       //float tmp_trk_bend_chi2 = 0;
       int tmp_trk_dhits = 0;
       int tmp_trk_lhits = 0;
+      set<int> hitLayPS;
+      set<int> hitLay2S;
 
       if (true) {
         // loop over stubs
@@ -1161,13 +1322,14 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
           double z = posStub.z();
 
           int layer = -999999;
-          if (detIdStub.subdetId() == StripSubdetector::TOB) {
+          bool barrel = (detIdStub.subdetId() == Phase2Tracker::Subdetector::Barrel);
+          if (barrel) {
             layer = static_cast<int>(tTopo->layer(detIdStub));
             if (DebugMode)
               edm::LogVerbatim("Tracklet")
                   << "   stub in layer " << layer << " at position x y z = " << x << " " << y << " " << z;
             tmp_trk_lhits += pow(10, layer - 1);
-          } else if (detIdStub.subdetId() == StripSubdetector::TID) {
+          } else {
             layer = static_cast<int>(tTopo->layer(detIdStub));
             if (DebugMode)
               edm::LogVerbatim("Tracklet")
@@ -1175,8 +1337,39 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
             tmp_trk_dhits += pow(10, layer - 1);
           }
 
+          bool psMod = (theTrackerGeom->getDetectorType(detIdStub) == TrackerGeometry::ModuleType::Ph2PSP);
+          int layerdisk = barrel ? layer : 10 + layer;
+          if (psMod) {
+            hitLayPS.insert(layerdisk);
+          } else {
+            hitLay2S.insert(layerdisk);
+          }
         }  //end loop over stubs
       }
+
+      // Check accuracy of hit pattern info.
+      if (DebugMode && hph.newKF()) {
+        // Only bother for New KF, as HitPatternHelper buggy for Old KF.
+        // For New KF, hph gets these via function LayerEncoding::analyze().
+        if (hph.numPS() != int(hitLayPS.size()) || hph.num2S() != int(hitLay2S.size())) {
+          // Some inaccuracy expected, as estimating number of PS stubs from hit pattern is approximate,
+          // due to r-boundary of PS-2S not being well defined (analyze() assumes 2S if ambiguous),
+          // and due to truncation of hit pattern from 8 to 7 bits.
+          std::stringstream ss;
+          ss << "Number of layers with stubs estimated from hit pattern is inaccurate: (PS,2S) = (" << hph.numPS()
+             << "," << hph.num2S() << ") vs (" << hitLayPS.size() << "," << hitLay2S.size()
+             << "), eta sect = " << hph.etaSector() << ", hitpattern = " << std::bitset<8>(tmp_trk_hitpattern)
+             << ", hit layers = PS(";
+          for (const auto& lay : hitLayPS)
+            ss << " " << lay;
+          ss << ") + 2S(";
+          for (const auto& lay : hitLay2S)
+            ss << " " << lay;
+          ss << ")";
+          edm::LogWarning("Tracklet") << ss.str();
+        }
+      }
+
       // ----------------------------------------------------------------------------------------------
 
       int tmp_trk_genuine = 0;
@@ -1210,10 +1403,9 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       m_trk_eta->push_back(tmp_trk_eta);
       m_trk_phi->push_back(tmp_trk_phi);
       m_trk_z0->push_back(tmp_trk_z0);
-      if (L1Tk_nPar == 5)
-        m_trk_d0->push_back(tmp_trk_d0);
-      else
-        m_trk_d0->push_back(999.);
+      m_trk_d0->push_back(tmp_trk_d0);
+      m_trk_tanL->push_back(tmp_trk_tanL);
+      m_trk_zT->push_back(tmp_trk_zT);
       m_trk_chi2->push_back(tmp_trk_chi2);
       m_trk_chi2_dof->push_back(tmp_trk_chi2_dof);
       m_trk_chi2rphi->push_back(tmp_trk_chi2rphi);
@@ -1221,7 +1413,16 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       m_trk_chi2rz->push_back(tmp_trk_chi2rz);
       m_trk_chi2rz_dof->push_back(tmp_trk_chi2rz_dof);
       m_trk_bendchi2->push_back(tmp_trk_bendchi2);
+      m_trk_sigma_qOverPt->push_back(tmp_trk_sigma_qOverPt);
+      m_trk_sigma_phi->push_back(tmp_trk_sigma_phi);
+      m_trk_sigma_z0->push_back(tmp_trk_sigma_z0);
+      m_trk_sigma_d0->push_back(tmp_trk_sigma_d0);
+      m_trk_sigma_tanL->push_back(tmp_trk_sigma_tanL);
       m_trk_MVA1->push_back(tmp_trk_MVA1);
+      m_trk_pt_beamCon->push_back(tmp_trk_pt_beamCon);
+      m_trk_phi_beamCon->push_back(tmp_trk_phi_beamCon);
+      m_trk_chi2rphi_beamCon->push_back(tmp_trk_chi2rphi_beamCon);
+      m_trk_chi2rphi_dof_beamCon->push_back(tmp_trk_chi2rphi_dof_beamCon);
       m_trk_nstub->push_back(tmp_trk_nstub);
       m_trk_dhits->push_back(tmp_trk_dhits);
       m_trk_lhits->push_back(tmp_trk_lhits);
@@ -1243,31 +1444,43 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       m_trk_unknown->push_back(tmp_trk_unknown);
       m_trk_combinatoric->push_back(tmp_trk_combinatoric);
 
+      // Track Qualtity BDT training set
+
+      const TTBV tqbdt_hp(tmp_trk_hitpattern, TTTrack_TrackWord::TrackBitWidths::kHitPatternSize);
+      m_tqbdt_nStubs_->push_back(tqbdt_hp.count());
+      m_tqbdt_z0_->push_back(dfZ0.integer(iterL1Track->z0()) / setup->tqScaleFactorZ0());
+      m_tqbdt_cot_->push_back(dfCot.integer(iterL1Track->tanL()) / setup->tqScaleFactorCot());
+      m_tqbdt_chi20_->push_back(dfChi20.integer(iterL1Track->chi2XY()));
+      m_tqbdt_chi21_->push_back(dfChi21.integer(iterL1Track->chi2Z()));
+      m_tqbdt_nGaps_->push_back(tqbdt_hp.count(tqbdt_hp.plEncode(), tqbdt_hp.pmEncode(), false));
+      m_tqbdt_true_->push_back(tmp_trk_genuine);
+
       // ----------------------------------------------------------------------------------------------
       // for studying the fake rate
       // ----------------------------------------------------------------------------------------------
 
-      edm::Ptr<TrackingParticle> my_tp = MCTruthTTTrackHandle->findTrackingParticlePtr(l1track_ptr);
-
-      int myFake = 0;
-
+      int tmp_matchtp_eventtype = -999;
       int tmp_matchtp_pdgid = -999;
       float tmp_matchtp_pt = -999;
       float tmp_matchtp_eta = -999;
       float tmp_matchtp_phi = -999;
+      float tmp_matchtp_lz = -999;
       float tmp_matchtp_z0 = -999;
       float tmp_matchtp_lxy = -999;
       float tmp_matchtp_d0 = -999;
 
-      if (my_tp.isNull())
-        myFake = 0;
-      else {
+      if (tmp_trk_genuine) {  // Change this to allow matching for loosely genuine tracks too
+
+        edm::Ptr<TrackingParticle> my_tp = MCTruthTTTrackHandle->findTrackingParticlePtr(l1track_ptr);
+        if (my_tp.isNull())
+          assert(false);  // Should never happen
+
         int tmp_eventid = my_tp->eventId().event();
 
         if (tmp_eventid > 0)
-          myFake = 2;
+          tmp_matchtp_eventtype = 2;  // Genuine track from pileup
         else
-          myFake = 1;
+          tmp_matchtp_eventtype = 1;  // Genuine track from signal pp vertex
 
         tmp_matchtp_pdgid = my_tp->pdgId();
         tmp_matchtp_pt = my_tp->pt();
@@ -1278,30 +1491,24 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
         float tmp_matchtp_vx = my_tp->vx();
         float tmp_matchtp_vy = my_tp->vy();
         tmp_matchtp_lxy = sqrt(tmp_matchtp_vx * tmp_matchtp_vx + tmp_matchtp_vy * tmp_matchtp_vy);
+        tmp_matchtp_lz = tmp_matchtp_vz;
 
         // ----------------------------------------------------------------------------------------------
         // get d0/z0 propagated back to the IP
 
-        float tmp_matchtp_t = 1.0 / tan(2.0 * atan(exp(-tmp_matchtp_eta)));
+        float tmp_matchtp_t = my_tp->tanl();
 
         float delx = -tmp_matchtp_vx;
         float dely = -tmp_matchtp_vy;
 
-        float b_field = bFieldHandle.product()->inTesla(GlobalPoint(0, 0, 0)).z();
-        float c_converted = CLHEP::c_light / 1.0E5;
-        float r2_inv = my_tp->charge() * c_converted * b_field / tmp_matchtp_pt / 2.0;
+        float r2_inv = my_tp->charge() * convertRtoPt / tmp_matchtp_pt / 2.0;
 
         float tmp_matchtp_x0p = delx - (1. / (2. * r2_inv) * sin(tmp_matchtp_phi));
         float tmp_matchtp_y0p = dely + (1. / (2. * r2_inv) * cos(tmp_matchtp_phi));
         float tmp_matchtp_rp = sqrt(tmp_matchtp_x0p * tmp_matchtp_x0p + tmp_matchtp_y0p * tmp_matchtp_y0p);
         tmp_matchtp_d0 = my_tp->charge() * tmp_matchtp_rp - (1. / (2. * r2_inv));
 
-        static double pi = M_PI;
-        float delphi = tmp_matchtp_phi - atan2(-r2_inv * tmp_matchtp_x0p, r2_inv * tmp_matchtp_y0p);
-        if (delphi < -pi)
-          delphi += 2.0 * pi;
-        if (delphi > pi)
-          delphi -= 2.0 * pi;
+        float delphi = reco::deltaPhi(tmp_matchtp_phi, atan2(-r2_inv * tmp_matchtp_x0p, r2_inv * tmp_matchtp_y0p));
         tmp_matchtp_z0 = tmp_matchtp_vz + tmp_matchtp_t * delphi / (2.0 * r2_inv);
         // ----------------------------------------------------------------------------------------------
 
@@ -1313,12 +1520,12 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
         }
       }
 
-      m_trk_fake->push_back(myFake);
-
+      m_trk_matchtp_eventtype->push_back(tmp_matchtp_eventtype);
       m_trk_matchtp_pdgid->push_back(tmp_matchtp_pdgid);
       m_trk_matchtp_pt->push_back(tmp_matchtp_pt);
       m_trk_matchtp_eta->push_back(tmp_matchtp_eta);
       m_trk_matchtp_phi->push_back(tmp_matchtp_phi);
+      m_trk_matchtp_lz->push_back(tmp_matchtp_lz);
       m_trk_matchtp_z0->push_back(tmp_matchtp_z0);
       m_trk_matchtp_lxy->push_back(tmp_matchtp_lxy);
       m_trk_matchtp_d0->push_back(tmp_matchtp_d0);
@@ -1337,9 +1544,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
         for (int ij = 0; ij < (int)v_jets.size(); ij++) {
           float deta = tmp_trk_eta - (v_jets.at(ij)).eta();
-          float dphi = tmp_trk_phi - (v_jets.at(ij)).phi();
-          while (dphi > 3.14159)
-            dphi = std::abs(2 * 3.14159 - dphi);
+          float dphi = reco::deltaPhi(tmp_trk_phi, (v_jets.at(ij)).phi());
           float dR = sqrt(deta * deta + dphi * dphi);
 
           if (dR < 0.4) {
@@ -1358,16 +1563,6 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
         m_trk_injet_vhighpt->push_back(InJetVeryHighpt);
 
       }  //end tracking in jets
-
-      // layer encoding
-      const TTBV hitPattern((int)iterL1Track->hitPattern(), setup->numLayers());
-      const double zT = iterL1Track->z0() + setup->chosenRofZ() * iterL1Track->tanL();
-      const vector<int>& le = layerEncoding->layerEncoding(zT);
-      vector<int> layers;
-      layers.reserve(hitPattern.size());
-      for (int layer : hitPattern.ids())
-        layers.push_back(le[layer]);
-      m_trk_layers->push_back(layers);
 
     }  //end track loop
 
@@ -1402,37 +1597,28 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       continue;
 
     float tmp_tp_phi = iterTP->phi();
+    float tmp_tp_t = iterTP->tanl();
     float tmp_tp_vz = iterTP->vz();
     float tmp_tp_vx = iterTP->vx();
     float tmp_tp_vy = iterTP->vy();
     int tmp_tp_pdgid = iterTP->pdgId();
-    float tmp_tp_z0_prod = tmp_tp_vz;
-    float tmp_tp_d0_prod = tmp_tp_vx * sin(tmp_tp_phi) - tmp_tp_vy * cos(tmp_tp_phi);
 
     // ----------------------------------------------------------------------------------------------
-    // get d0/z0 propagated back to the IP
-
-    float tmp_tp_t = 1.0 / tan(2.0 * atan(exp(-tmp_tp_eta)));
+    // get d0/z0 accurately propagated back to the IP, rather than using approx from iterTP->d0() or z0().
 
     float delx = -tmp_tp_vx;
     float dely = -tmp_tp_vy;
 
-    float b_field = bFieldHandle.product()->inTesla(GlobalPoint(0, 0, 0)).z();
-    float c_converted = CLHEP::c_light / 1.0E5;
-    float r2_inv = tmp_tp_charge * c_converted * b_field / tmp_tp_pt / 2.0;
+    float r2_inv = tmp_tp_charge * convertRtoPt / tmp_tp_pt / 2.0;
 
-    float tmp_tp_x0p = delx - (1. / (2. * r2_inv) * sin(tmp_tp_phi));
+    float tmp_tp_x0p = delx - (1. / (2. * r2_inv) * sin(tmp_tp_phi));  // centre of track circle (except sign ...)
     float tmp_tp_y0p = dely + (1. / (2. * r2_inv) * cos(tmp_tp_phi));
     float tmp_tp_rp = sqrt(tmp_tp_x0p * tmp_tp_x0p + tmp_tp_y0p * tmp_tp_y0p);
     float tmp_tp_d0 = tmp_tp_charge * tmp_tp_rp - (1. / (2. * r2_inv));
 
-    static double pi = M_PI;
-    float delphi = tmp_tp_phi - atan2(-r2_inv * tmp_tp_x0p, r2_inv * tmp_tp_y0p);
-    if (delphi < -pi)
-      delphi += 2.0 * pi;
-    if (delphi > pi)
-      delphi -= 2.0 * pi;
+    float delphi = reco::deltaPhi(tmp_tp_phi, atan2(-r2_inv * tmp_tp_x0p, r2_inv * tmp_tp_y0p));
     float tmp_tp_z0 = tmp_tp_vz + tmp_tp_t * delphi / (2.0 * r2_inv);
+
     // ----------------------------------------------------------------------------------------------
 
     if (MyProcess == 13 && abs(tmp_tp_pdgid) != 13)
@@ -1445,16 +1631,12 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     if (std::abs(tmp_tp_z0) > TP_maxZ0)
       continue;
 
-    // for pions in ttbar, only consider TPs coming from near the IP!
-    float lxy = sqrt(tmp_tp_vx * tmp_tp_vx + tmp_tp_vy * tmp_tp_vy);
-    float tmp_tp_lxy = lxy;
-    if (MyProcess == 6 && (lxy > 1.0))
-      continue;
+    float tmp_tp_lxy = sqrt(tmp_tp_vx * tmp_tp_vx + tmp_tp_vy * tmp_tp_vy);
+    float tmp_tp_lz = tmp_tp_vz;
 
     if (DebugMode)
       edm::LogVerbatim("Tracklet") << "Tracking particle, pt: " << tmp_tp_pt << " eta: " << tmp_tp_eta
                                    << " phi: " << tmp_tp_phi << " z0: " << tmp_tp_z0 << " d0: " << tmp_tp_d0
-                                   << " z_prod: " << tmp_tp_z0_prod << " d_prod: " << tmp_tp_d0_prod
                                    << " pdgid: " << tmp_tp_pdgid << " eventID: " << iterTP->eventId().event()
                                    << " ttclusters " << MCTruthTTClusterHandle->findTTClusterRefs(tp_ptr).size()
                                    << " ttstubs " << MCTruthTTStubHandle->findTTStubRefs(tp_ptr).size() << " tttracks "
@@ -1479,19 +1661,19 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       DetId detid(theStubRef->getDetId());
 
       int layer = -1;
-      if (detid.subdetId() == StripSubdetector::TOB) {
+      if (detid.subdetId() == Phase2Tracker::Subdetector::Barrel) {
         layer = static_cast<int>(tTopo->layer(detid)) - 1;  //fill in array as entries 0-5
-      } else if (detid.subdetId() == StripSubdetector::TID) {
+      } else if (detid.subdetId() == Phase2Tracker::Subdetector::Endcap) {
         layer = static_cast<int>(tTopo->layer(detid)) + 5;  //fill in array as entries 6-10
       }
 
       //bool isPS = (theTrackerGeom->getDetectorType(detid)==TrackerGeometry::ModuleType::Ph2PSP);
 
       //treat genuine stubs separately (==2 is genuine, ==1 is not)
-      if (MCTruthTTStubHandle->findTrackingParticlePtr(theStubRef).isNull() && hasStubInLayer[layer] < 2)
-        hasStubInLayer[layer] = 1;
-      else
+      if (MCTruthTTStubHandle->isGenuine(theStubRef))
         hasStubInLayer[layer] = 2;
+      else if (hasStubInLayer[layer] == 0)
+        hasStubInLayer[layer] = 1;
     }
 
     int nStubLayerTP = 0;
@@ -1553,8 +1735,6 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
           tmp_trk_genuine = true;
         if (MCTruthTTTrackHandle->isLooselyGenuine(matchedTracks.at(it)))
           tmp_trk_loosegenuine = true;
-        if (!tmp_trk_loosegenuine)
-          continue;
 
         if (DebugMode) {
           if (MCTruthTTTrackHandle->findTrackingParticlePtr(matchedTracks.at(it)).isNull()) {
@@ -1577,6 +1757,9 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
           if (tmp_trk_loosegenuine)
             edm::LogVerbatim("Tracklet") << "    (loose genuine!) ";
         }
+
+        if (!tmp_trk_genuine)  // Change this to study effect on efficiency of looser association
+          continue;
 
         // ----------------------------------------------------------------------------------------------
         // further require L1 track to be (loosely) genuine, that there is only one TP matched to the track
@@ -1609,7 +1792,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
         edm::Ptr<TrackingParticle> my_tp = MCTruthTTTrackHandle->findTrackingParticlePtr(matchedTracks.at(it));
         dmatch_pt = std::abs(my_tp->p4().pt() - tmp_tp_pt);
         dmatch_eta = std::abs(my_tp->p4().eta() - tmp_tp_eta);
-        dmatch_phi = std::abs(my_tp->p4().phi() - tmp_tp_phi);
+        dmatch_phi = std::abs(reco::deltaPhi(my_tp->p4().phi(), tmp_tp_phi));
         match_id = my_tp->pdgId();
 
         float tmp_trk_chi2dof = (matchedTracks.at(it)->chi2()) / (2 * tmp_trk_nstub - L1Tk_nPar);
@@ -1628,6 +1811,8 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     }  // end has at least 1 matched L1 track
     // ----------------------------------------------------------------------------------------------
 
+    // Properties of track matching TP.
+    // (If TP matches more than one track, only properties of the track with lowest chi2/dof are stored here).
     float tmp_matchtrk_pt = -999;
     float tmp_matchtrk_eta = -999;
     float tmp_matchtrk_phi = -999;
@@ -1641,6 +1826,11 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     float tmp_matchtrk_chi2rz_dof = -999;
     float tmp_matchtrk_bendchi2 = -999;
     float tmp_matchtrk_MVA1 = -999;
+    float tmp_matchtrk_phi_beamCon = -999;
+    float tmp_matchtrk_rInv_beamCon = -999;
+    float tmp_matchtrk_pt_beamCon = -999;
+    float tmp_matchtrk_chi2rphi_beamCon = -999;
+    float tmp_matchtrk_chi2rphi_dof_beamCon = -999;
     int tmp_matchtrk_charge = -999;
     int tmp_matchtrk_nstub = -999;
     int tmp_matchtrk_dhits = -999;
@@ -1651,11 +1841,11 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     if (nMatch > 1 && DebugMode)
       edm::LogVerbatim("Tracklet") << "WARNING *** 2 or more matches to genuine L1 tracks ***";
 
-    if (nMatch > 0) {
-      tmp_matchtrk_pt = matchedTracks.at(i_track)->momentum().perp();
+    if (nMatch > 0) {  // TP matches at least 1 genuine track
+      tmp_matchtrk_pt = matchedTracks.at(i_track)->pt();
       tmp_matchtrk_charge = (int)TMath::Sign(1, matchedTracks.at(i_track)->rInv());
-      tmp_matchtrk_eta = matchedTracks.at(i_track)->momentum().eta();
-      tmp_matchtrk_phi = matchedTracks.at(i_track)->momentum().phi();
+      tmp_matchtrk_eta = matchedTracks.at(i_track)->eta();
+      tmp_matchtrk_phi = matchedTracks.at(i_track)->phi();
       tmp_matchtrk_z0 = matchedTracks.at(i_track)->z0();
 
       if (L1Tk_nPar == 5) {
@@ -1672,13 +1862,16 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       tmp_matchtrk_nstub = (int)matchedTracks.at(i_track)->getStubRefs().size();
       tmp_matchtrk_seed = (int)matchedTracks.at(i_track)->trackSeedType();
       tmp_matchtrk_hitpattern = (int)matchedTracks.at(i_track)->hitPattern();
+      tmp_matchtrk_chi2_dof = matchedTracks.at(i_track)->chi2Red();
+      tmp_matchtrk_chi2rphi_dof = matchedTracks.at(i_track)->chi2XYRed();
+      tmp_matchtrk_chi2rz_dof = matchedTracks.at(i_track)->chi2ZRed();
 
-      int ndof = 2 * tmp_matchtrk_nstub - L1Tk_nPar;
-      int ndofrphi = tmp_matchtrk_nstub - L1Tk_nPar + 2;
-      int ndofrz = tmp_matchtrk_nstub - 2;
-      tmp_matchtrk_chi2_dof = (float)tmp_matchtrk_chi2 / ndof;
-      tmp_matchtrk_chi2rphi_dof = (float)tmp_matchtrk_chi2rphi / ndofrphi;
-      tmp_matchtrk_chi2rz_dof = (float)tmp_matchtrk_chi2rz / ndofrz;
+      // Constrain track to x=y=0
+      matchedTracks.at(i_track)->beamConstraint(tmp_matchtrk_phi_beamCon,
+                                                tmp_matchtrk_rInv_beamCon,
+                                                tmp_matchtrk_pt_beamCon,
+                                                tmp_matchtrk_chi2rphi_beamCon,
+                                                tmp_matchtrk_chi2rphi_dof_beamCon);
 
       // ------------------------------------------------------------------------------------------
 
@@ -1700,10 +1893,10 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 	*/
 
         int layer = -999999;
-        if (detIdStub.subdetId() == StripSubdetector::TOB) {
+        if (detIdStub.subdetId() == Phase2Tracker::Subdetector::Barrel) {
           layer = static_cast<int>(tTopo->layer(detIdStub));
           tmp_matchtrk_lhits += pow(10, layer - 1);
-        } else if (detIdStub.subdetId() == StripSubdetector::TID) {
+        } else if (detIdStub.subdetId() == Phase2Tracker::Subdetector::Endcap) {
           layer = static_cast<int>(tTopo->layer(detIdStub));
           tmp_matchtrk_dhits += pow(10, layer - 1);
         }
@@ -1715,11 +1908,10 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_tp_pt->push_back(tmp_tp_pt);
     m_tp_eta->push_back(tmp_tp_eta);
     m_tp_phi->push_back(tmp_tp_phi);
+    m_tp_lz->push_back(tmp_tp_lz);
     m_tp_lxy->push_back(tmp_tp_lxy);
     m_tp_z0->push_back(tmp_tp_z0);
     m_tp_d0->push_back(tmp_tp_d0);
-    m_tp_z0_prod->push_back(tmp_tp_z0_prod);
-    m_tp_d0_prod->push_back(tmp_tp_d0_prod);
     m_tp_pdgid->push_back(tmp_tp_pdgid);
     m_tp_nmatch->push_back(nMatch);
     m_tp_nstub->push_back(nStubTP);
@@ -1736,6 +1928,10 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_matchtrk_chi2rz->push_back(tmp_matchtrk_chi2rz);
     m_matchtrk_bendchi2->push_back(tmp_matchtrk_bendchi2);
     m_matchtrk_MVA1->push_back(tmp_matchtrk_MVA1);
+    m_matchtrk_pt_beamCon->push_back(tmp_matchtrk_pt_beamCon);
+    m_matchtrk_phi_beamCon->push_back(tmp_matchtrk_phi_beamCon);
+    m_matchtrk_chi2rphi_beamCon->push_back(tmp_matchtrk_chi2rphi_beamCon);
+    m_matchtrk_chi2rphi_dof_beamCon->push_back(tmp_matchtrk_chi2rphi_dof_beamCon);
     m_matchtrk_nstub->push_back(tmp_matchtrk_nstub);
     m_matchtrk_dhits->push_back(tmp_matchtrk_dhits);
     m_matchtrk_lhits->push_back(tmp_matchtrk_lhits);
@@ -1763,9 +1959,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       for (int ij = 0; ij < (int)v_jets.size(); ij++) {
         float deta = tmp_tp_eta - (v_jets.at(ij)).eta();
-        float dphi = tmp_tp_phi - (v_jets.at(ij)).phi();
-        while (dphi > 3.14159)
-          dphi = std::abs(2 * 3.14159 - dphi);
+        float dphi = reco::deltaPhi(tmp_tp_phi, (v_jets.at(ij)).phi());
         float dR = sqrt(deta * deta + dphi * dphi);
         if (dR < 0.4) {
           tp_InJet = 1;
@@ -1779,9 +1973,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
         if (nMatch > 0) {
           deta = tmp_matchtrk_eta - (v_jets.at(ij)).eta();
-          dphi = tmp_matchtrk_phi - (v_jets.at(ij)).phi();
-          while (dphi > 3.14159)
-            dphi = std::abs(2 * 3.14159 - dphi);
+          dphi = reco::deltaPhi(tmp_matchtrk_phi, (v_jets.at(ij)).phi());
           dR = sqrt(deta * deta + dphi * dphi);
           if (dR < 0.4) {
             matchtrk_InJet = 1;

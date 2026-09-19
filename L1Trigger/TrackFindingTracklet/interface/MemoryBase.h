@@ -35,7 +35,11 @@ namespace trklet {
     //Used for a hack below due to MAC OS case insensitiviy problem for files
     void findAndReplaceAll(std::string& data, std::string toSearch, std::string replaceStr);
 
-    void openFile(bool first, std::string dirName, std::string filebase);
+    std::string fnameWithSuffix(const std::string& fname);
+    std::string eventHeader();
+    void incrBXEvent();
+
+    void openFile(const bool first, const std::string& dirName, const std::string& filebase);
 
     static size_t find_nth(const std::string& haystack, size_t pos, const std::string& needle, size_t nth);
 

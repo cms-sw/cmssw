@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Setup.h"
 #include "L1Trigger/TrackFindingTracklet/interface/DataFormats.h"
 #include "L1Trigger/TrackFindingTracklet/interface/KalmanFilter.h"
 #include "L1Trigger/TrackFindingTMTT/interface/Settings.h"
@@ -27,12 +27,13 @@ namespace trklet {
    *  \author Thomas Schuh
    *  \date   2020, July
    */
-  class ProducerKF : public edm::stream::EDProducer<> {
+  class ProducerKF : public edm::stream::EDProducer<edm::stream::WatchRuns> {
   public:
     explicit ProducerKF(const edm::ParameterSet&);
     ~ProducerKF() override = default;
 
   private:
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
     void produce(edm::Event&, const edm::EventSetup&) override;
     void endStream() override {
       std::stringstream ss;
@@ -40,41 +41,35 @@ namespace trklet {
         kalmanFilterFormats_.endJob(ss);
       edm::LogPrint(moduleDescription().moduleName()) << ss.str();
     }
+    // call old KF
+    void oldKF(const tt::StreamsTrack&, const tt::StreamsStub&, tt::StreamsTrack&, tt::StreamsStub&);
     // ED input token of sf stubs and tracks
     edm::EDGetTokenT<tt::StreamsStub> edGetTokenStubs_;
     edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracks_;
     // ED output token for accepted stubs and tracks
-    edm::EDPutTokenT<tt::TTTracks> edPutTokenTTTracks_;
     edm::EDPutTokenT<tt::StreamsStub> edPutTokenStubs_;
     edm::EDPutTokenT<tt::StreamsTrack> edPutTokenTracks_;
-    // ED output token for number of accepted and lost States
-    edm::EDPutTokenT<int> edPutTokenNumStatesAccepted_;
-    edm::EDPutTokenT<int> edPutTokenNumStatesTruncated_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    edm::ESGetToken<DataFormats, ChannelAssignmentRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, trackerDTC::SetupRcd> esGetTokenDataFormats_;
+    // helper class to extract structured data from tt::Frames
+    const DataFormats* dataFormats_;
     // provides dataformats of Kalman filter internals
     KalmanFilterFormats kalmanFilterFormats_;
     //
     ConfigKF iConfig_;
+    // helper class to store configurations
+    const Setup* setup_;
     //
     tmtt::Settings settings_;
     //
-    tmtt::KFParamsComb tmtt4_;
-    //
-    tmtt::KFParamsComb tmtt5_;
-    //
-    tmtt::KFParamsComb* tmtt_;
+    tmtt::KFParamsComb tmtt_;
     // print end job internal unused MSB
     bool printDebug_;
   };
 
-  ProducerKF::ProducerKF(const edm::ParameterSet& iConfig)
-      : settings_(iConfig),
-        tmtt4_(&settings_, 4, "KF5ParamsComb"),
-        tmtt5_(&settings_, 5, "KF4ParamsComb"),
-        tmtt_(&tmtt4_) {
+  ProducerKF::ProducerKF(const edm::ParameterSet& iConfig) : settings_(iConfig), tmtt_(&settings_, 4, "KF4ParamsComb") {
     iConfig_.enableIntegerEmulation_ = iConfig.getParameter<bool>("EnableIntegerEmulation");
     iConfig_.widthR00_ = iConfig.getParameter<int>("WidthR00");
     iConfig_.widthR11_ = iConfig.getParameter<int>("WidthR11");
@@ -116,78 +111,158 @@ namespace trklet {
     iConfig_.baseShiftC22_ = iConfig.getParameter<int>("BaseShiftC22");
     iConfig_.baseShiftC23_ = iConfig.getParameter<int>("BaseShiftC23");
     iConfig_.baseShiftC33_ = iConfig.getParameter<int>("BaseShiftC33");
+    iConfig_.baseShiftInvDH_ = iConfig.getParameter<int>("BaseShiftInvDH");
+    iConfig_.baseShiftInvDH2_ = iConfig.getParameter<int>("BaseShiftInvDH2");
+    iConfig_.baseShiftHv0_ = iConfig.getParameter<int>("BaseShiftHv0");
+    iConfig_.baseShiftHv1_ = iConfig.getParameter<int>("BaseShiftHv1");
+    iConfig_.baseShiftH2v0_ = iConfig.getParameter<int>("BaseShiftH2v0");
+    iConfig_.baseShiftH2v1_ = iConfig.getParameter<int>("BaseShiftH2v1");
     printDebug_ = iConfig.getParameter<bool>("PrintKFDebug");
     const std::string& label = iConfig.getParameter<std::string>("InputLabelKF");
     const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubs");
     const std::string& branchTracks = iConfig.getParameter<std::string>("BranchTracks");
-    const std::string& branchTruncated = iConfig.getParameter<std::string>("BranchTruncated");
     // book in- and output ED products
-    edGetTokenStubs_ = consumes<tt::StreamsStub>(edm::InputTag(label, branchStubs));
-    edGetTokenTracks_ = consumes<tt::StreamsTrack>(edm::InputTag(label, branchTracks));
-    edPutTokenStubs_ = produces<tt::StreamsStub>(branchStubs);
-    edPutTokenTracks_ = produces<tt::StreamsTrack>(branchTracks);
-    edPutTokenTTTracks_ = produces<tt::TTTracks>(branchTracks);
-    edPutTokenNumStatesAccepted_ = produces<int>(branchTracks);
-    edPutTokenNumStatesTruncated_ = produces<int>(branchTruncated);
+    edGetTokenStubs_ = consumes(edm::InputTag(label, branchStubs));
+    edGetTokenTracks_ = consumes(edm::InputTag(label, branchTracks));
+    edPutTokenStubs_ = produces(branchStubs);
+    edPutTokenTracks_ = produces(branchTracks);
     // book ES products
-    esGetTokenSetup_ = esConsumes();
-    esGetTokenDataFormats_ = esConsumes();
+    esGetTokenSetup_ = esConsumes<edm::Transition::BeginRun>();
+    esGetTokenDataFormats_ = esConsumes<edm::Transition::BeginRun>();
+  }
+
+  void ProducerKF::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+    // helper class to store configurations
+    setup_ = &iSetup.getData(esGetTokenSetup_);
+    settings_.setMagneticField(setup_->sysBField());
+    // helper class to extract structured data from tt::Frames
+    dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
+    kalmanFilterFormats_.consume(dataFormats_, iConfig_);
   }
 
   void ProducerKF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    // helper class to store configurations
-    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
-    settings_.setMagneticField(setup->bField());
-    // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
-    kalmanFilterFormats_.consume(dataFormats, iConfig_);
-    auto valid = [](int sum, const tt::FrameTrack& f) { return sum + (f.first.isNull() ? 0 : 1); };
     // empty KF products
-    tt::StreamsStub streamsStub(setup->numRegions() * setup->numLayers());
-    tt::StreamsTrack streamsTrack(setup->numRegions());
-    int numStatesAccepted(0);
-    int numStatesTruncated(0);
+    tt::StreamsStub streamsStub(setup_->sysNumRegion() * setup_->kfNumLayers());
+    tt::StreamsTrack streamsTrack(setup_->sysNumRegion());
     // read in DR Product and produce KF product
     const tt::StreamsStub& stubs = iEvent.get(edGetTokenStubs_);
     const tt::StreamsTrack& tracks = iEvent.get(edGetTokenTracks_);
-    // prep TTTracks
-    tt::TTTracks ttTracks;
-    std::vector<TTTrackRef> ttTrackRefs;
-    if (setup->kfUse5ParameterFit()) {
-      tmtt_ = &tmtt5_;
-      int nTracks(0);
-      for (const tt::StreamTrack& stream : tracks)
-        nTracks += std::accumulate(stream.begin(), stream.end(), 0, valid);
-      ttTracks.reserve(nTracks);
-      ttTrackRefs.reserve(nTracks);
-      for (const tt::StreamTrack& stream : tracks)
-        for (const tt::FrameTrack& frame : stream)
-          if (frame.first.isNonnull())
-            ttTrackRefs.push_back(frame.first);
-    }
-    for (int region = 0; region < setup->numRegions(); region++) {
-      // object to fit tracks in a processing region
-      KalmanFilter kf(setup, dataFormats, &kalmanFilterFormats_, &settings_, tmtt_, region, ttTracks);
-      // read in and organize input tracks and stubs
-      kf.consume(tracks, stubs);
-      // fill output products
-      kf.produce(streamsStub, streamsTrack, numStatesAccepted, numStatesTruncated);
-    }
-    if (setup->kfUse5ParameterFit()) {
-      // store ttTracks
-      const edm::OrphanHandle<tt::TTTracks> oh = iEvent.emplace(edPutTokenTTTracks_, std::move(ttTracks));
-      // replace ttTrackRefs in track streams
-      int iTrk(0);
-      for (tt::StreamTrack& stream : streamsTrack)
-        for (tt::FrameTrack& frame : stream)
-          if (frame.first.isNonnull())
-            frame.first = TTTrackRef(oh, iTrk++);
+    if (setup_->kfUseSimulation())
+      oldKF(tracks, stubs, streamsTrack, streamsStub);
+    else {
+      for (int region = 0; region < setup_->sysNumRegion(); region++) {
+        // object to fit tracks in a processing region
+        KalmanFilter kf(setup_, dataFormats_, &kalmanFilterFormats_, region);
+        // read in and organize input tracks and stubs
+        kf.consume(tracks, stubs);
+        // fill output products
+        kf.produce(streamsStub, streamsTrack);
+      }
     }
     // store products
     iEvent.emplace(edPutTokenStubs_, std::move(streamsStub));
     iEvent.emplace(edPutTokenTracks_, std::move(streamsTrack));
-    iEvent.emplace(edPutTokenNumStatesAccepted_, numStatesAccepted);
-    iEvent.emplace(edPutTokenNumStatesTruncated_, numStatesTruncated);
+  }
+
+  // call old KF
+  void ProducerKF::oldKF(const tt::StreamsTrack& tracksIn,
+                         const tt::StreamsStub& stubsIn,
+                         tt::StreamsTrack& tracksOut,
+                         tt::StreamsStub& stubsOut) {
+    std::vector<double> zTs;
+    zTs.reserve(settings_.etaRegions().size());
+    for (double eta : settings_.etaRegions())
+      zTs.emplace_back(std::sinh(eta) * settings_.chosenRofZ());
+    for (int region = 0; region < setup_->sysNumRegion(); region++) {
+      const double phiR = region * setup_->regRangePhiT();
+      const int offsetIn = region * setup_->drNumLayers();
+      const int offsetOut = region * setup_->kfNumLayers();
+      const tt::StreamTrack& streamTrack = tracksIn[region];
+      const int sizeT = streamTrack.size();
+      tracksOut[region].reserve(sizeT);
+      for (int layer = 0; layer < setup_->kfNumLayers(); layer++)
+        stubsOut[offsetOut + layer].reserve(sizeT);
+      for (int iFrame = 0; iFrame < sizeT; iFrame++) {
+        const tt::FrameTrack& frameTrack = streamTrack[iFrame];
+        const TTTrackRef& ttTrackRef = frameTrack.first;
+        if (ttTrackRef.isNull())
+          continue;
+        TrackDR trackDR(frameTrack, dataFormats_);
+        // collect stubs
+        std::vector<StubDR> stubsDR;
+        stubsDR.reserve(setup_->drNumLayers());
+        for (int layer = 0; layer < setup_->drNumLayers(); layer++) {
+          const tt::FrameStub& frameStub = stubsIn[offsetIn + layer][iFrame];
+          if (frameStub.first.isNonnull())
+            stubsDR.emplace_back(frameStub, dataFormats_);
+        }
+        // convert stubs
+        std::vector<tmtt::Stub> stubs;
+        stubs.reserve(stubsDR.size());
+        std::vector<tmtt::Stub*> stubsPtr;
+        stubsPtr.reserve(stubsDR.size());
+        for (const StubDR& stubDR : stubsDR) {
+          const TTStubRef& ttStubRef = stubDR.frame().first;
+          const trackerDTC::SensorModule* sm = setup_->sensorModule(ttStubRef);
+          stubs.emplace_back(ttStubRef,
+                             stubDR.r(),
+                             tt::deltaPhi(stubDR.phi() + phiR),
+                             stubDR.z(),
+                             sm->layerId(),
+                             sm->layerIdReduced(),
+                             sm->pitchRow(),
+                             sm->pitchCol(),
+                             sm->psModule(),
+                             sm->barrel(),
+                             sm->tilted());
+          stubsPtr.push_back(&stubs.back());
+        }
+        // convert intput Track
+        const double zT = ttTrackRef->z0() + settings_.chosenRofZ() * ttTrackRef->tanL();
+        int iEtaReg = 0;
+        for (; iEtaReg < 15; iEtaReg++)
+          if (zT < zTs[iEtaReg + 1])
+            break;
+        const tmtt::L1track3D l1track3D(&settings_,
+                                        stubsPtr,
+                                        .5 * ttTrackRef->rInv() / setup_->sysInvPtToDphi(),
+                                        ttTrackRef->phi(),
+                                        ttTrackRef->z0(),
+                                        ttTrackRef->tanL(),
+                                        0.,
+                                        region,
+                                        iEtaReg);
+        // perform fit
+        const tmtt::L1fittedTrack trackFitted(tmtt_.fit(l1track3D));
+        if (!trackFitted.accepted())
+          continue;
+        // convert to output track
+        const double inv2R = -trackFitted.qOverPt() * setup_->sysInvPtToDphi();
+        const double phi0 = tt::deltaPhi(trackFitted.phi0() - phiR);
+        const double cot = trackFitted.tanLambda();
+        const double z0 = trackFitted.z0();
+        const TrackKF trackKF(trackDR, inv2R, phi0, cot, z0);
+        // convert to output stubs
+        const int sizeS = trackFitted.stubs().size();
+        std::vector<StubKF> stubsKF;
+        stubsKF.reserve(sizeS);
+        for (tmtt::Stub* stub : trackFitted.stubs()) {
+          const TTStubRef& ttStubRef = stub->ttStubRef();
+          const trackerDTC::SensorModule* sm = setup_->sensorModule(ttStubRef);
+          auto same = [&ttStubRef](const StubDR& s) { return s.frame().first == ttStubRef; };
+          const auto it = std::find_if(stubsDR.begin(), stubsDR.end(), same);
+          const double phi = it->phi() - it->r() * inv2R - phi0;
+          const double z = it->z() - it->r() * cot - z0;
+          stubsKF.emplace_back(*it, sm->layerIdReduced(), it->r(), phi, z, it->dPhi(), it->dZ());
+        }
+        // store
+        tracksOut[region].push_back(trackKF.frame());
+        for (int layer = 0; layer < sizeS; layer++)
+          stubsOut[offsetOut + layer].push_back(stubsKF[layer].frame());
+        for (int layer = sizeS; layer < setup_->kfNumLayers(); layer++)
+          stubsOut[offsetOut + layer].emplace_back();
+      }
+    }
   }
 
 }  // namespace trklet

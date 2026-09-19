@@ -8,6 +8,7 @@
  */
 
 #include "L1Trigger/TrackTrigger/interface/TTClusterAlgorithm_official.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /// Function to compare clusters and sort them by row
 template <>
@@ -142,11 +143,11 @@ void TTClusterAlgorithm_official<Ref_Phase2TrackerDigi_>::Cluster(
       /// Sort the vector by row index
       std::sort(candCluster.begin(), candCluster.end(), CompareClusters);
       /*
-      std::cout << candCluster.at(0)->row() - candCluster.back()->row() << " / " 
+      edm::LogPrint("TrackTrigger") << candCluster.at(0)->row() - candCluster.back()->row() << " / " 
 		<< static_cast<int>(candCluster.at(0)->row() - candCluster.back()->row()) << " / " 
 		<< abs( candCluster.at(0)->row() - candCluster.back()->row() ) << " / " 
 		<< std::abs( candCluster.at(0)->row() - candCluster.back()->row() ) << " / " 
-		<< mWidthCut << std::endl;
+		<< mWidthCut;
       */
       if (std::abs(static_cast<int>(candCluster.at(0)->row() - candCluster.back()->row())) <
               mWidthCut ||  /// one should add 1 to use <=
