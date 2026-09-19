@@ -1,12 +1,16 @@
 #ifndef RecoTracker_PixelSeeding_interface_CATrackFeatures_h
 #define RecoTracker_PixelSeeding_interface_CATrackFeatures_h
 
-// Feature vector of the displaced-track classifier (CATrackDNN.h), in the trained order. fill() is
-// shared by Kernel_classifyTracks (Stage 1, the 12 features), PixelTrackTorchHighPuritySelector
-// (Stage 2, plus the rzKappaOut extras) and the host table producer, which must agree bit for bit.
+// Hit and vector hit features of a CA track, computed in one walk over its hits. fill() is the
+// single implementation shared by the in-kernel track classifier (Kernel_classifyTracks: the 12
+// Features, scored by CATrackDNN.h), the feature extraction of the high-purity selectors
+// (PixelTrackTorchHighPuritySelectorKernels.dev.cc: ten of the Features plus the Extras) and the
+// host table producer that writes the training dataset, so the three agree bit for bit.
 
+#include <array>
 #include <cmath>
 #include <cstdint>
+#include <type_traits>
 
 #include "DataFormats/TrackingRecHitSoA/interface/OTRecHitsSoA.h"
 #include "DataFormats/TrackingRecHitSoA/interface/VectorHitsSoA.h"
@@ -22,24 +26,65 @@ namespace caTrackFeatures {
   // unqualified.
 
   inline constexpr int kNFeat = 12;
+  inline constexpr int kNExtras = 4;
 
-  // Inverse-variance vector-hit-curvature kernel: given rg2, bend d=dPhiDr and error s=dPhiDrError, return
-  // den = 1 + rg2*d^2 and weight w = den^3 / s^2. rg2 is caller-passed because the xg^2+yg^2 and
-  // rGlobal()^2 forms differ at the bit level and each call site must stay exact for its model.
+  // Input of the track classifier, one named float per feature. The network identifies a feature by
+  // its position only: asArray() defines that order, the one the weights of CATrackDNNWeights_prompt.h
+  // were trained with and the one of the columns CATrackFeaturesTableProducer writes. Adding,
+  // removing or moving an entry of asArray() therefore needs a retrain; the order of the fields
+  // themselves carries no meaning.
+  struct Features {
+    float caFitChi2 = 0.f;  // log1p of the capped fit chi2
+    float psFrac = 0.f;
+    float r0 = 0.f;
+    float nPS = 0.f;
+    float nHits = 0.f;
+    float spanZ = 0.f;
+    float nVectorHits = 0.f;
+    float nLayers = 0.f;
+    float logChi2VectorHit = 0.f;
+    float kErr = 0.f;
+    float dcaEst = 0.f;
+    float nBarrel = 0.f;
+
+    ALPAKA_FN_HOST_ACC constexpr std::array<float, kNFeat> asArray() const {
+      return {caFitChi2, psFrac, r0, nPS, nHits, spanZ, nVectorHits, nLayers, logChi2VectorHit, kErr, dcaEst, nBarrel};
+    }
+  };
+  static_assert(std::is_standard_layout_v<Features>);
+
+  // Further quantities of the same hit walk, read by the high-purity selectors only. The defaults
+  // are the values left in place when fill() fails.
+  struct Extras {
+    float rzChi2 = -1.f;  // -1 = undefined
+    float meanVectorHitKappa = 0.f;
+    float leverArm = 0.f;  // rMax - r0
+    float rMax = 0.f;
+
+    ALPAKA_FN_HOST_ACC constexpr std::array<float, kNExtras> asArray() const {
+      return {rzChi2, meanVectorHitKappa, leverArm, rMax};
+    }
+  };
+  static_assert(std::is_standard_layout_v<Extras>);
+
+  // Inverse-variance weight of the curvature estimate k = d / sqrt(den) of one vector hit: given the
+  // squared radius rg2, the bend d = dPhiDr and its error s = dPhiDrError, return den = 1 + rg2*d^2
+  // and the weight w = den^3 / s^2. rg2 is caller-passed because the xg^2+yg^2 and rGlobal()^2 forms
+  // differ at the bit level and each call site must stay exact for its model.
   ALPAKA_FN_HOST_ACC inline void vectorHitDenWeight(float rg2, float d, float s, float &den, float &w) {
     den = 1.f + rg2 * d * d;
     w = den * den * den / (s * s);
   }
 
-  // Feature order, as trained:
-  //   0 fitChi2  1 psFrac  2 r0  3 nPS  4 nh  5 spanZ
-  //   6 nVectorHits   7 nl      8 logChi2VectorHit  9 kErr  10 dcaEst  11 nBarrel
-  // HitIter: forward iterator over hit indices; returns false on an empty/corrupt list.
+  // Fill feat (and extras, if given) for one track; return false, leaving both untouched, for a track
+  // with fewer than three hits or a hit index out of range.
+  // HitIter: forward iterator over the track's hit indices.
+  // HitsView: the pixel+vector hits CAHitsView facade (see CAHitsView.h), on the host as in the kernels;
+  // nHitsTot is its size.
+  // nLayers, chi2: the track's number of layers and fit chi2, as stored in the track SoA.
+  // extras (optional): rzChi2 (straight line z=a+b*r), meanVectorHitKappa, leverArm, rMax.
   // otView: raw OT-rechit SoA for hit ids with kOTHitTag set (otIdx(id)); such a hit is not a vector hit and
   // rGlobal() is derived inline. A null view with tagged ids -> false.
-  // rzKappaOut (optional, 4 floats): out[0]=rzChi2 (straight line z=a+b*r; -1 undefined),
-  // out[1]=meanVectorHitKappa, out[2]=leverArm (rMax-r0), out[3]=rMax.
-  // HitsView: the pixel+vector hits CAHitsView facade (see CAHitsView.h), on the host as in the kernels.
   template <typename HitIter, typename HitsView>
   ALPAKA_FN_HOST_ACC inline bool fill(HitIter hitBegin,
                                       HitIter hitEnd,
@@ -47,8 +92,8 @@ namespace caTrackFeatures {
                                       int nHitsTot,
                                       float nLayers,
                                       float chi2,
-                                      float *feat,
-                                      float *rzKappaOut = nullptr,
+                                      Features &feat,
+                                      Extras *extras = nullptr,
                                       ::reco::OTRecHitsConstView const *otView = nullptr) {
     int nh = 0;
     for (auto ph = hitBegin; ph != hitEnd; ++ph) {
@@ -63,7 +108,7 @@ namespace caTrackFeatures {
     float xN = 0.f, yN = 0.f, zN = 0.f;
     int nVectorHits = 0, nPS = 0, nBarrel = 0, nVectorHitK = 0;
     float sumW = 0.f, sumWK = 0.f, sumWK2 = 0.f;
-    // Stage-2 extras accumulators, touched only when rzKappaOut != nullptr.
+    // Accumulators of the Extras, touched only when extras != nullptr.
     float sumKw = 0.f, sumKwk = 0.f;
     float rMaxE = 0.f, r0E = -1.f;  // radial extent, rGlobal-based
     double Sr = 0, Sz = 0, Srr = 0, Srz = 0, Szz = 0;
@@ -104,7 +149,7 @@ namespace caTrackFeatures {
       xN = xg, yN = yg, zN = zg;
       // r-z linearity sums, rGlobal()-based (the OT SoA derives rGlobal from x/y).
       float rg = 0.f;
-      if (rzKappaOut) {
+      if (extras) {
         rg = otHit ? std::sqrt(xg * xg + yg * yg) : hh[h].rGlobal();
         if (r0E < 0.f) {
           r0E = rg;  // first hit's radius
@@ -136,7 +181,7 @@ namespace caTrackFeatures {
           sumWK += w * k;
           sumWK2 += w * k * k;
           ++nVectorHitK;
-          if (rzKappaOut) {
+          if (extras) {
             // meanVectorHitKappa weight uses rGlobal()^2, not xg^2+yg^2, to match the host table bit for bit.
             float denR, wR;
             vectorHitDenWeight(rg * rg, d, s, denR, wR);
@@ -154,27 +199,28 @@ namespace caTrackFeatures {
     const float curv3 = eq.curvature();
     const float dcaEst = (std::abs(curv3) > 0.f) ? std::abs(eq.dca0()) / std::abs(curv3) : 0.f;
 
-    // fitChi2: non-finite, negative or huge raw chi2 -> worst cap, then log1p, as the trainer does.
+    // caFitChi2: a non-finite, negative or huge raw chi2 is set to the cap, then log1p. The training
+    // dataset comes from this same function, so the network is trained on the capped value.
     float fitChi2Safe = chi2;
     if (edm::isNotFinite(fitChi2Safe) || fitChi2Safe < 0.f || fitChi2Safe > 1.0e4f) {
       fitChi2Safe = 1.0e4f;
     }
-    feat[0] = std::log1p(fitChi2Safe);
-    feat[1] = float(nPS) / float(std::max(nVectorHits, 1));
-    feat[2] = r0;
-    feat[3] = float(nPS);
-    feat[4] = float(nh);
-    feat[5] = std::abs(zN - z0);
-    feat[6] = float(nVectorHits);
-    feat[7] = nLayers;
-    feat[8] = std::log1p(std::max(chi2VectorHit, 0.f));
-    feat[9] = kErr;
-    feat[10] = dcaEst;
-    feat[11] = float(nBarrel);
-    // Stage-2 extras, finalized from the walk above; same arithmetic as the host producer.
-    if (rzKappaOut) {
-      rzKappaOut[1] = (sumKw > 0.f) ? sumKwk / sumKw : 0.f;  // meanVectorHitKappa
-      float rz = -1.f;                                       // rzChi2 (-1 = undefined)
+    feat.caFitChi2 = std::log1p(fitChi2Safe);
+    feat.psFrac = float(nPS) / float(std::max(nVectorHits, 1));
+    feat.r0 = r0;
+    feat.nPS = float(nPS);
+    feat.nHits = float(nh);
+    feat.spanZ = std::abs(zN - z0);
+    feat.nVectorHits = float(nVectorHits);
+    feat.nLayers = nLayers;
+    feat.logChi2VectorHit = std::log1p(std::max(chi2VectorHit, 0.f));
+    feat.kErr = kErr;
+    feat.dcaEst = dcaEst;
+    feat.nBarrel = float(nBarrel);
+    // Extras, finalized from the walk above; same arithmetic as the host table producer.
+    if (extras) {
+      extras->meanVectorHitKappa = (sumKw > 0.f) ? sumKwk / sumKw : 0.f;
+      float rz = -1.f;  // rzChi2 (-1 = undefined)
       // The nh hits were all validated above.
       if (nh >= 3) {
         const double D = nh * Srr - Sr * Sr;
@@ -183,10 +229,10 @@ namespace caTrackFeatures {
           rz = float(std::max(0.0, (Szz - a * Sz - b * Srz)) / std::max(1, nh - 2));
         }
       }
-      rzKappaOut[0] = rz;
+      extras->rzChi2 = rz;
       // Radial extent, as in CATrackFeaturesTableProducer.
-      rzKappaOut[2] = rMaxE - (r0E < 0.f ? 0.f : r0E);  // leverArm
-      rzKappaOut[3] = rMaxE;                            // rMax
+      extras->leverArm = rMaxE - (r0E < 0.f ? 0.f : r0E);
+      extras->rMax = rMaxE;
     }
     return true;
   }
