@@ -18,7 +18,7 @@ from RecoTICL.Geometry.TICLGeom_cff import (ticlGeomESProducer,
 # (for now until global reco is going with some sort of clustering)
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHGC_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHGC_cfi import *
-from RecoLocalCalo.HGCalRecProducers.hgcalLayerClusters_cff import hgcalLayerClustersHFNose, hgcalLayerClustersEE, hgcalLayerClustersHSi, hgcalLayerClustersHSci, hgcalMergeLayerClusters
+from RecoTICL.LayerClustering.hgcalLayerClusters_cff import hgcalLayerClustersHFNose, hgcalLayerClustersEE, hgcalLayerClustersHSi, hgcalLayerClustersHSci, hgcalMergeLayerClusters
 
 hgcalLocalRecoTask = cms.Task( HGCalUncalibRecHit,
                                        HGCalRecHit,

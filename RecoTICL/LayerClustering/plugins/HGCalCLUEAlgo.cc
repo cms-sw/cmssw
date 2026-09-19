@@ -1,4 +1,4 @@
-#include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalCLUEAlgo.h"
+#include "HGCalCLUEAlgo.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 

@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iostream>
 
-#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalLayerTiles.h"
+#include "RecoTICL/LayerClustering/interface/HGCalLayerTiles.h"
 
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>

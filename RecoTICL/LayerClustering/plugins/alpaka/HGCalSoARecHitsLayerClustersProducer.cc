@@ -11,7 +11,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalTilesConstants.h"
+#include "RecoTICL/LayerClustering/interface/HGCalTilesConstants.h"
 
 #include "HGCalLayerClustersAlgoWrapper.h"
 

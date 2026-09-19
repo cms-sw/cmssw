@@ -23,7 +23,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEnergyCorrectorBase.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 
-#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalLayerClusterAlgoFactory.h"
+#include "RecoTICL/LayerClustering/interface/HGCalLayerClusterAlgoFactory.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
@@ -36,7 +36,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #if DEBUG_CLUSTERS_ALPAKA
-#include "RecoLocalCalo/HGCalRecProducers/interface/DumpClustersDetails.h"
+#include "RecoTICL/LayerClustering/interface/DumpClustersDetails.h"
 #endif
 
 class HGCalLayerClusterProducer : public edm::stream::EDProducer<> {
