@@ -9,11 +9,11 @@
 
 #include "RecoTracker/FinalTrackSelectors/interface/PixelTrackFeaturesSoA.h"
 
-// The forest reads the full PixelTrackFeaturesSoA width.
+// The forest reads both blocks, fit block first.
 inline constexpr int kNForestFeatures = kNPixelTrackFeatures;
 
-// One named float per SoA column; asArray() gives them in column order, which the model's split
-// feature index addresses.
+// One named float per SoA column, the fit block then the hit block; asArray() gives them in that
+// order, which the model's split feature index addresses.
 struct PixelTrackForestFeatures {
   float chi2 = 0.f;
   float dzError = 0.f;
@@ -80,7 +80,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                        const int32_t* treeRoots,
                        const int nTrees,
                        const float baseLogit,
-                       const PixelTrackFeaturesSoA::ConstView trackFeatures,
+                       const PixelTrackFitFeaturesConstView fitFeatures,
+                       const PixelTrackHitFeaturesConstView hitFeatures,
                        const int* nPreselectedTracks,
                        PixelTrackScoresSoA::View trackScores);
 
