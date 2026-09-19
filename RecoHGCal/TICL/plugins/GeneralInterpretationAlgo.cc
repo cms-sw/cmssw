@@ -380,7 +380,6 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
         auto tracksterId = trackstersInTrackIndices[iTrack][0];
         resultCandidate[iTrack] = resultTracksters.size();
         resultTracksters.push_back(input.tracksters[tracksterId]);
-        linkedResultTracksters.push_back(trackstersInTrackIndices[iTrack]);
       } else {
         // in this case mergeTracksters() clears the pid probabilities and the regressed energy is not set
         // TODO: fix probabilities when CNN will be splitted
