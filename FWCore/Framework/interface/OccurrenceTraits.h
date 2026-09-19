@@ -35,7 +35,7 @@ namespace edm {
   class OccurrenceTraits;
 
   template <>
-  class OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin> {
+  class OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin> {
   public:
     using MyPrincipal = EventPrincipal;
     using TransitionInfoType = EventTransitionInfo;
