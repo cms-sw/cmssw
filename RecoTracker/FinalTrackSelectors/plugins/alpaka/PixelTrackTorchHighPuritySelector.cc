@@ -1,50 +1,18 @@
 /**
  * PixelTrackTorchHighPuritySelector
- * =================================
  *
  * GPU/Accelerator module performing HighPurity pixel-track selection composed of:
- *
  *   1. CA-based quality preselection
  *   2. Feature extraction
  *   3. TorchScript DNN inference
  *   4. Score-based filtering
  *   5. Track/hit compaction and output production
  *
- * ------------------------------------------------------------------
- * Pipeline Overview
- * ------------------------------------------------------------------
+ * Input: TracksSoA (pixel tracks + hit associations), TrackingRecHitsSoA + OTRecHitsSoA
+ * (the latter only when useHitFeatures = true).
  *
- *   Input:
- *       TracksSoA (pixel tracks + hit associations)
- *
- *   Transformations:
- *
- *       TracksSoA
- *          │
- *          v
- *       CA preselection
- *          │  Produces compacted preselected track index list 
- *          v
- *       Feature extraction
- *          │  Produces fixed-size features tensors
- *          v
- *       Torch inference
- *          │  Produces per-track classification score
- *          v
- *       Score filtering
- *          │  Filters tracks based on their classification scores
- *          v
- *       Output TrackSoA compaction
- *
- * ------------------------------------------------------------------
- * Torch Inference
- * ------------------------------------------------------------------
- *
- *     Track tensor:  [maxPreselectedTracks, N_track_features]
- *
- * Padding slots are filled with 0s.
- * ------------------------------------------------------------------
-*/
+ * Torch inference: track tensor [maxPreselectedTracks, N_track_features], padding slots 0-filled.
+ */
 
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
@@ -66,6 +34,10 @@
 #include "DataFormats/TrackSoA/interface/TracksDevice.h"
 #include "DataFormats/TrackSoA/interface/TracksHost.h"
 #include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
+#include "DataFormats/TrackingRecHitSoA/interface/alpaka/OTRecHitsSoACollection.h"
+#include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitsSoACollection.h"
+#include "DataFormats/TrackingRecHitSoA/interface/alpaka/StubsSoACollection.h"
+#include "RecoTracker/PixelSeeding/interface/CAHitsView.h"
 
 #include "RecoTracker/FinalTrackSelectors/interface/PixelTrackFeaturesSoA.h"
 #include "RecoTracker/FinalTrackSelectors/plugins/alpaka/PixelTrackFeaturesDeviceCollection.h"
@@ -73,8 +45,6 @@
 
 #include "PhysicsTools/PyTorchAlpaka/interface/TensorCollection.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/alpaka/AlpakaModel.h"
-
-// #define PIXEL_TRACK_HP_DEBUG
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -86,7 +56,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class PixelTrackTorchHighPuritySelector : public stream::FixedQueueEDProducer<> {
     using TkSoADevice = reco::TracksSoACollection;
-    using TrackHitSoA = ::reco::TrackHitSoA;
+    using HitsOnDevice = reco::TrackingRecHitsSoACollection;
+    using StubsOnDevice = reco::StubsSoACollection;
+    using OTHitsOnDevice = reco::OTRecHitsSoACollection;
 
   public:
     explicit PixelTrackTorchHighPuritySelector(const edm::ParameterSet&);
@@ -96,6 +68,77 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void produce(device::Event&, const device::EventSetup&) override;
     void beginStream(edm::StreamID /*sid*/, Queue queue) override;
 
+    /// Registers the "track_features" input block of `tc` for batch `i_batch`: the prefix of
+    /// PixelTrackFeaturesSoA the model consumes (17 fit/cov columns, plus the 14 hit/stub columns when
+    /// useHitFeatures). The order must match the TorchScript model input schema.
+    template <typename TRecord>
+    static void addTrackFeatures(cms::torch::alpakatools::TensorCollection<Queue>& tc,
+                                 int i_batch,
+                                 TRecord& r,
+                                 bool useHitFeatures) {
+      if (useHitFeatures) {
+        tc.add<PixelTrackFeaturesSoA>("track_features",
+                                      i_batch,
+                                      r.chi2(),
+                                      r.dzError(),
+                                      r.dxyError(),
+                                      r.eta(),
+                                      r.nHits(),
+                                      r.phi(),
+                                      r.phiError(),
+                                      r.pt(),
+                                      r.qOverPtError(),
+                                      r.dzBS(),
+                                      r.dxyBS(),
+                                      r.nLayers(),
+                                      r.cotThetaError(),
+                                      r.covCotThetaDz(),
+                                      r.covDxyQOverPt(),
+                                      r.covPhiDxy(),
+                                      r.covPhiQOverPt(),
+                                      r.caFitChi2(),
+                                      r.psFrac(),
+                                      r.r0(),
+                                      r.nPS(),
+                                      r.spanZ(),
+                                      r.nStubs(),
+                                      r.logChi2Stub(),
+                                      r.kErr(),
+                                      r.dcaEst(),
+                                      r.nBarrel(),
+                                      r.rzChi2(),
+                                      r.meanStubKappa(),
+                                      r.leverArm(),
+                                      r.rMax());
+      } else {
+        tc.add<PixelTrackFeaturesSoA>("track_features",
+                                      i_batch,
+                                      r.chi2(),
+                                      r.dzError(),
+                                      r.dxyError(),
+                                      r.eta(),
+                                      r.nHits(),
+                                      r.phi(),
+                                      r.phiError(),
+                                      r.pt(),
+                                      r.qOverPtError(),
+                                      r.dzBS(),
+                                      r.dxyBS(),
+                                      r.nLayers(),
+                                      r.cotThetaError(),
+                                      r.covCotThetaDz(),
+                                      r.covDxyQOverPt(),
+                                      r.covPhiDxy(),
+                                      r.covPhiQOverPt());
+      }
+    }
+
+    /// Inference dtype, shared by the warm-up and the per-event forward passes: the first forward moves
+    /// and casts the model to the device, so the two must agree.
+    std::optional<::torch::Dtype> inferenceDtype() const {
+      return inferenceHalf_ ? std::optional<::torch::Dtype>{::torch::kHalf} : std::nullopt;
+    }
+
     const device::EDGetToken<TkSoADevice> pixelTrackToken_;
     const int maxNumberOfTracks_;
     const int maxPreselectedTracks_;
@@ -103,6 +146,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const int avgHitsPerTrack_;
     const pixelTrack::Quality minimumTrackQuality_;
     const double scoreThreshold_;
+    // dxy-aware threshold ramp: threshold goes from scoreThresholdLowDxy at |dxyBS|=0 down to
+    // scoreThreshold at |dxyBS|>=dxyRampKnee. scoreThresholdLowDxy < 0 disables it (flat threshold).
+    const double scoreThresholdLowDxy_;
+    const double dxyRampKnee_;
+    // When true, the 14 CA hit/stub features are appended to the 17 fit/cov features, for the enriched
+    // 31-feature model; the merged-hits product is consumed only then.
+    const bool useHitFeatures_;
+    // forward(dtype) casts the whole model: kHalf is fine for the MLP but breaks a tree model, whose
+    // int64 index buffers must not be cast. inferenceHalf = false leaves the model in fp32.
+    const bool inferenceHalf_;
+    device::EDGetToken<HitsOnDevice> pixelHitsToken_;
+    device::EDGetToken<StubsOnDevice> stubsToken_;
+    // Raw OT-rechit SoA, so the hit-feature walk can resolve the bit30-tagged raw-OT ids a track may
+    // carry. Consumed only when useHitFeatures_.
+    device::EDGetToken<OTHitsOnDevice> otRecHitsSoAToken_;
     torch::AlpakaModel model_;
     const int batchSize_;
     const int warmupIterations_ = 3;
@@ -118,9 +176,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         avgHitsPerTrack_(iConfig.getParameter<int>("avgHitsPerTrack")),
         minimumTrackQuality_(pixelTrack::qualityByName(iConfig.getParameter<std::string>("minimumTrackQuality"))),
         scoreThreshold_(iConfig.getParameter<double>("scoreThreshold")),
+        scoreThresholdLowDxy_(iConfig.getParameter<double>("scoreThresholdLowDxy")),
+        dxyRampKnee_(iConfig.getParameter<double>("dxyRampKnee")),
+        useHitFeatures_(iConfig.getParameter<bool>("useHitFeatures")),
+        inferenceHalf_(iConfig.getParameter<bool>("inferenceHalf")),
         model_(iConfig.getParameter<edm::FileInPath>("model").fullPath()),
         batchSize_(iConfig.getParameter<int>("batchSize")),
         tokenTrackOut_(produces()) {
+    if (useHitFeatures_) {
+      pixelHitsToken_ = consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"));
+      stubsToken_ = consumes(iConfig.getParameter<edm::InputTag>("stubsSrc"));
+      otRecHitsSoAToken_ = consumes(iConfig.getParameter<edm::InputTag>("otRecHitsSoASrc"));
+    }
     if (minimumTrackQuality_ == pixelTrack::Quality::notQuality) {
       throw cms::Exception("PixelTrackConfiguration")
           << iConfig.getParameter<std::string>("minimumTrackQuality") + " is not a pixelTrack::Quality";
@@ -147,33 +214,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       cms::torch::alpakatools::TensorCollection<Queue> dummy_inputs(batchSize_);
       cms::torch::alpakatools::TensorCollection<Queue> dummy_outputs(batchSize_);
 
-      dummy_inputs.add<PixelTrackFeaturesSoA>("track_features",
-                                              track_record.chi2(),
-                                              track_record.dzError(),
-                                              track_record.dxyError(),
-                                              track_record.eta(),
-                                              track_record.nHits(),
-                                              track_record.phi(),
-                                              track_record.phiError(),
-                                              track_record.pt(),
-                                              track_record.qOverPtError(),
-                                              track_record.dzBS(),
-                                              track_record.dxyBS(),
-                                              track_record.nLayers(),
-                                              track_record.cotThetaError(),
-                                              track_record.covCotThetaDz(),
-                                              track_record.covDxyQOverPt(),
-                                              track_record.covPhiDxy(),
-                                              track_record.covPhiQOverPt());
+      // Same column list (and therefore the same tensor width) as the per-event inference below.
+      addTrackFeatures(dummy_inputs, 0, track_record, useHitFeatures_);
 
       dummy_outputs.add<PixelTrackScoresSoA>("track_scores", score_record.score());
 
-      model_.forward(queue, dummy_inputs, dummy_outputs, ::torch::kHalf);
+      model_.forward(queue, dummy_inputs, dummy_outputs, inferenceDtype());
     }
   }
 
   void PixelTrackTorchHighPuritySelector::produce(device::Event& iEvent, const device::EventSetup&) {
-    /* 
+    /*
     Processing steps:
       1. CA-based preselection of tracks
       2. Feature extraction (track SoA)
@@ -207,25 +258,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     PixelTrackFeaturesOnDevice trackFeatures(queue, maxPreselectedTracks_);
     PixelTrackScoresOnDevice trackScoresOnDevice(queue, maxPreselectedTracks_);
 
-    // Optional debug definitions
-#ifdef PIXEL_TRACK_HP_DEBUG
-    auto h_nPreselectedTracks = cms::alpakatools::make_host_buffer<int>(queue);
-    auto h_nSelectedTracks = cms::alpakatools::make_host_buffer<int>(queue);
-    auto nPreselectedTracks = 0;
-    auto nSelectedTracks = 0;
-    // Helper to copy the number of kept tracks back to host (debug only)
-    auto fetchNumPreselectedTracks = [&]() {
-      alpaka::memcpy(queue, h_nPreselectedTracks, d_nPreselectedTracks);
-      alpaka::wait(queue);
-      return *h_nPreselectedTracks;
-    };
-    auto fetchNumSelectedTracks = [&]() {
-      alpaka::memcpy(queue, h_nSelectedTracks, d_nSelectedTracks);
-      alpaka::wait(queue);
-      return *h_nSelectedTracks;
-    };
-#endif
-
     // 1. CA-based preselection of tracks
     //  Launch first kernel to look which tracks need to be filtered out
     //  based on quality criteria from the CA
@@ -239,14 +271,38 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                          alpaka::getPtrNative(d_preselectionOffsets),
                          alpaka::getPtrNative(d_nPreselectedTracks));
 
-#ifdef PIXEL_TRACK_HP_DEBUG
-    nPreselectedTracks = fetchNumPreselectedTracks();
-    std::cout << "PixelTrackTorchHighPuritySelector::Prefiltered tracks=" << nPreselectedTracks << "\n";
-#endif
+    // 2. Feature extraction. The merged TrackingRecHitsSoA is needed only for the hit/stub features;
+    // otherwise pass a null view and nHitsTot = 0.
+    caStructures::CAHitsView hitsView{};
+    int nHitsTot = 0;
+    // OT-rechit view for resolving tagged OT extras (empty view + 0 when not needed).
+    ::reco::OTRecHitsConstView otHitsView{};
+    uint32_t nOTHits = 0;
+    if (useHitFeatures_) {
+      const auto& pixHits = iEvent.get(pixelHitsToken_);
+      const auto& stubs = iEvent.get(stubsToken_);
+      hitsView = caStructures::CAHitsView(pixHits.const_view().trackingHits(),
+                                          pixHits.const_view().hitModules(),
+                                          stubs.const_view().stubs(),
+                                          stubs.const_view().stubModules(),
+                                          pixHits.nHits(),
+                                          stubs.nStubs(),
+                                          pixHits.nModules());
+      nHitsTot = hitsView.size();
+      const auto& otHits = iEvent.get(otRecHitsSoAToken_);
+      otHitsView = otHits.const_view().otRecHits();
+      nOTHits = otHitsView.metadata().size();
+    }
 
     launchFeaturesExtractor(queue,
                             maxPreselectedTracks_,
                             tracks.tracks(),
+                            tracks.trackHits(),
+                            hitsView,
+                            nHitsTot,
+                            otHitsView,
+                            nOTHits,
+                            useHitFeatures_,
                             alpaka::getPtrNative(d_preselectedTrackIndices),
                             alpaka::getPtrNative(d_nPreselectedTracks),
                             trackFeatures.view(),
@@ -267,34 +323,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       auto& batch = batches.back();
       // Order must match the TorchScript model input schema
-      batch.inputs.add<PixelTrackFeaturesSoA>("track_features",
-                                              i_batch,
-                                              track_record.chi2(),
-                                              track_record.dzError(),
-                                              track_record.dxyError(),
-                                              track_record.eta(),
-                                              track_record.nHits(),
-                                              track_record.phi(),
-                                              track_record.phiError(),
-                                              track_record.pt(),
-                                              track_record.qOverPtError(),
-                                              track_record.dzBS(),
-                                              track_record.dxyBS(),
-                                              track_record.nLayers(),
-                                              track_record.cotThetaError(),
-                                              track_record.covCotThetaDz(),
-                                              track_record.covDxyQOverPt(),
-                                              track_record.covPhiDxy(),
-                                              track_record.covPhiQOverPt());
+      addTrackFeatures(batch.inputs, i_batch, track_record, useHitFeatures_);
 
       batch.outputs.add<PixelTrackScoresSoA>("track_scores", i_batch, score_record.score());
 
-      model_.forward(queue, batch.inputs, batch.outputs, ::torch::kHalf);
+      model_.forward(queue, batch.inputs, batch.outputs, inferenceDtype());
     }
 
+    // 4. Score-based filtering
     launchScoreFilter(queue,
                       maxPreselectedTracks_,
                       scoreThreshold_,
+                      scoreThresholdLowDxy_,
+                      dxyRampKnee_,
+                      trackFeatures.const_view(),
                       trackScoresOnDevice.view(),
                       alpaka::getPtrNative(d_preselectedTrackIndices),
                       alpaka::getPtrNative(d_nPreselectedTracks),
@@ -302,11 +344,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                       alpaka::getPtrNative(d_selectedTrackIndices),
                       alpaka::getPtrNative(d_nSelectedTracks),
                       alpaka::getPtrNative(d_selectedTrackHitOffsets));
-
-#ifdef PIXEL_TRACK_HP_DEBUG
-    nSelectedTracks = fetchNumSelectedTracks();
-    std::cout << "PixelTrackTorchHighPuritySelector::Filtered tracks=" << nSelectedTracks << "\n";
-#endif
 
     auto tracks_out = launchProduceOutputTracks(queue,
                                                 maxPreselectedTracks_,
@@ -330,9 +367,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<edm::FileInPath>("model");
     desc.add<double>("scoreThreshold", 0.5);
     desc.add<int>("batchSize", 10);
+    // dxy-aware threshold ramp: the cut goes from scoreThresholdLowDxy at |dxyBS| = 0 to
+    // scoreThreshold at |dxyBS| >= dxyRampKnee [cm]. scoreThresholdLowDxy < 0 disables it.
+    desc.add<double>("scoreThresholdLowDxy", -1.0);
+    desc.add<double>("dxyRampKnee", 2.0);
+    // Hit/stub features (enriched model); the hit features read the pixel rechits + stubs the CA indexed,
+    // consumed only when useHitFeatures is true.
+    desc.add<bool>("useHitFeatures", false);
+    desc.add<edm::InputTag>("pixelRecHitSrc", {"hltPhase2SiPixelRecHitsSoA"});
+    desc.add<edm::InputTag>("stubsSrc", {"hltOTStubProducer"});
+    // Raw OT-rechit SoA, consumed only when useHitFeatures is true: resolves the bit30-tagged raw-OT hit
+    // ids so OT-extended tracks are scored on their full hit content.
+    desc.add<edm::InputTag>("otRecHitsSoASrc", {"hltPixelSeedingOTRecHitsSoA"});
+    // inferenceHalf = false keeps the model in fp32, required for a tree model whose int index buffers
+    // must not be cast to half; true selects the fp16 path used by the MLP models.
+    desc.add<bool>("inferenceHalf", true);
     descriptions.addWithDefaultLabel(desc);
   }
-};  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
 DEFINE_FWK_ALPAKA_MODULE(PixelTrackTorchHighPuritySelector);

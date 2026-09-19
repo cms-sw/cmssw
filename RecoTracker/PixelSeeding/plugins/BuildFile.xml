@@ -1,5 +1,6 @@
 <use name="ofast-flag"/>
 <use name="CommonTools/RecoAlgos"/>
+<use name="CommonTools/Utils"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
@@ -9,21 +10,45 @@
 <use name="RecoTracker/TkSeedingLayers"/>
 
 <library file="*.cc" name="RecoTrackerPixelSeedingPlugins">
+  <!-- Dependencies for TrueStubProducer (simulation truth-based stub formation) -->
+  <use name="DataFormats/Math"/>
+  <use name="DataFormats/TrackerCommon"/>
+  <use name="DataFormats/TrackerRecHit2D"/>
+  <use name="DataFormats/TrackingRecHitSoA"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="Geometry/CommonTopologies"/>
+  <use name="Geometry/Records"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="SimDataFormats/TrackingAnalysis"/>
+  <use name="SimTracker/TrackerHitAssociation"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
 <library file="alpaka/*.cc" name="RecoTrackerPixelSeedingPortable">
   <use name="alpaka"/>
+  <use name="DataFormats/BeamSpot"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/Math"/>
   <use name="DataFormats/Portable"/>
   <use name="DataFormats/TrackSoA"/>
   <use name="DataFormats/TrackingRecHitSoA"/>
+  <use name="DataFormats/TrackerCommon"/>
+  <use name="DataFormats/TrackerRecHit2D"/>
+  <use name="FWCore/MessageLogger"/>
   <use name="FWCore/Utilities"/>
+  <use name="Geometry/CommonTopologies"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/TrackerGeometryBuilder"/>
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="RecoLocalTracker/Records"/>
   <use name="RecoLocalTracker/SiPixelRecHits"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
   <!-- work around for cms-sw/cmssw#45179 -->
   <use name="no-array-bounds-flag" for="alpaka/serial"/>
+  <!-- nvcc 13.3: threaded split compilation makes the device link fail intermittently with
+       "nvlink fatal : Internal error: unexpected reloc (target: sm_100)"; a single partition is deterministic. -->
+  <flags CUDA_FLAGS="--split-compile=1 -t 1"/>
   <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
 </library>

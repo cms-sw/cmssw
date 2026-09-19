@@ -227,9 +227,11 @@ namespace riemannFit {
 
     jMat(0, 2) = sinTheta;
     jMat(0, 3) = -sinTheta2 * cosTheta * ip(2);
-    jMat(1, 0) = 1.;
+    // rotating the momentum by dphi tilts it by -dphi in the plane and lifts the crossing by Tip*cotan(theta)*dphi
+    jMat(1, 0) = -1.;
     jMat(2, 3) = -1.;
     jMat(3, 1) = 1.;
+    jMat(4, 0) = ip(1) * ip(3);
     jMat(4, 4) = -1;
 
     ocov = jMat * icov * jMat.transpose();

@@ -9,4 +9,8 @@
   <class name="reco::TrackHitsLayout<128, false>"/>
   
   <class name="edm::Wrapper<reco::TracksHost>" splitLevel="0"/>
+
+  <class name="PixelTrackSoATab"/>
+  <class name="std::vector<PixelTrackSoATab>"/>
+  <class name="edm::Wrapper<std::vector<PixelTrackSoATab> >"/>
 </lcgdict>

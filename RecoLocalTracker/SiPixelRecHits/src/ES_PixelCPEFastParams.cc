@@ -5,7 +5,9 @@
 using PixelCPEFastParamsHostPhase1 = PixelCPEFastParamsHost<pixelTopology::Phase1>;
 using PixelCPEFastParamsHostHIonPhase1 = PixelCPEFastParamsHost<pixelTopology::HIonPhase1>;
 using PixelCPEFastParamsHostPhase2 = PixelCPEFastParamsHost<pixelTopology::Phase2>;
+using PixelCPEFastParamsHostPhase2OTStubs = PixelCPEFastParamsHost<pixelTopology::Phase2OTStubs>;
 
 TYPELOOKUP_DATA_REG(PixelCPEFastParamsHostPhase1);
 TYPELOOKUP_DATA_REG(PixelCPEFastParamsHostHIonPhase1);
 TYPELOOKUP_DATA_REG(PixelCPEFastParamsHostPhase2);
+TYPELOOKUP_DATA_REG(PixelCPEFastParamsHostPhase2OTStubs);

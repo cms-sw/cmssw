@@ -54,6 +54,9 @@ namespace cms::alpakatools {
 
       return hostData;
     }
+
+    // No postCopy needed - host data is already synchronized
+    static void postCopy(reco::TrackingRecHitHost&) {}
   };
 
   template <>

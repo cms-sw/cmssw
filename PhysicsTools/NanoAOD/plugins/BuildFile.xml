@@ -20,6 +20,7 @@
 <use name="DataFormats/ProtonReco"/>
 <use name="DataFormats/Provenance"/>
 <use name="DataFormats/TrackReco"/>
+<use name="DataFormats/TrackSoA"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
