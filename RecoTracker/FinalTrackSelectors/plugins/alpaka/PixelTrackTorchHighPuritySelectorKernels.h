@@ -38,10 +38,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                // OT extras (nOTHits == 0 / empty view => merged-hits-only).
                                const ::reco::OTRecHitsConstView otHits,
                                const uint32_t nOTHits,
-                               const bool useHitFeatures,
                                const int* preselectedTrackIndices,
                                const int* nPreselectedTracks,
-                               PixelTrackFeaturesSoA::View trackFeatures,
+                               PixelTrackFitFeaturesView fitFeatures,
+                               PixelTrackHitFeaturesView hitFeatures,  // sized 0: no hit-feature walk
                                int* trackHitCounts);
 
   void launchScoreFilter(Queue& queue,
@@ -49,7 +49,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                          const double scoreThreshold,
                          const double scoreThresholdLowDxy,
                          const double dxyRampKnee,
-                         const PixelTrackFeaturesSoA::ConstView trackFeatures,
+                         const PixelTrackFitFeaturesConstView fitFeatures,
                          const PixelTrackScoresSoA::View trackScores,
                          const int* preselectedTrackIndices,
                          const int* nPreselectedTracks,

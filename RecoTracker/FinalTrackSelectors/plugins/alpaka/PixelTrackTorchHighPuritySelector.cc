@@ -60,68 +60,69 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void produce(device::Event&, const device::EventSetup&) override;
     void beginStream(edm::StreamID /*sid*/, Queue queue) override;
 
-    /// Registers the "track_features" input block of `tc`, sliced in batches of `batchSize` rows: the prefix of
-    /// PixelTrackFeaturesSoA the model consumes (17 fit/cov columns, plus the 14 hit/vector hit columns when
-    /// useHitFeatures). The order must match the TorchScript model input schema.
-    template <typename TRecord>
+    /// Registers the "track_features" tensor, sliced in batches of `batchSize` rows: the 17 fit/cov columns,
+    /// plus the first 14 hit/vector hit columns when useHitFeatures, in the model's input order. The tensor may
+    /// span the two blocks: they are back to back and the fit block is a whole number of padded columns.
+    template <typename TFitRecord, typename THitRecord>
     static void addTrackFeatures(cms::torch::alpakatools::BatchedTensorCollection<Queue>& tc,
                                  uint32_t batchSize,
-                                 TRecord& r,
+                                 TFitRecord& r,
+                                 THitRecord& h,
                                  bool useHitFeatures) {
       if (useHitFeatures) {
-        tc.addBatched<PixelTrackFeaturesSoA>("track_features",
-                                             batchSize,
-                                             r.chi2(),
-                                             r.dzError(),
-                                             r.dxyError(),
-                                             r.eta(),
-                                             r.nHits(),
-                                             r.phi(),
-                                             r.phiError(),
-                                             r.pt(),
-                                             r.qOverPtError(),
-                                             r.dzBS(),
-                                             r.dxyBS(),
-                                             r.nLayers(),
-                                             r.cotThetaError(),
-                                             r.covCotThetaDz(),
-                                             r.covDxyQOverPt(),
-                                             r.covPhiDxy(),
-                                             r.covPhiQOverPt(),
-                                             r.caFitChi2(),
-                                             r.psFrac(),
-                                             r.r0(),
-                                             r.nPS(),
-                                             r.spanZ(),
-                                             r.nVectorHits(),
-                                             r.logChi2VectorHit(),
-                                             r.kErr(),
-                                             r.dcaEst(),
-                                             r.nBarrel(),
-                                             r.rzChi2(),
-                                             r.meanVectorHitKappa(),
-                                             r.leverArm(),
-                                             r.rMax());
+        tc.addBatched<PixelTrackFitFeaturesSoA>("track_features",
+                                                batchSize,
+                                                r.chi2(),
+                                                r.dzError(),
+                                                r.dxyError(),
+                                                r.eta(),
+                                                r.nHits(),
+                                                r.phi(),
+                                                r.phiError(),
+                                                r.pt(),
+                                                r.qOverPtError(),
+                                                r.dzBS(),
+                                                r.dxyBS(),
+                                                r.nLayers(),
+                                                r.cotThetaError(),
+                                                r.covCotThetaDz(),
+                                                r.covDxyQOverPt(),
+                                                r.covPhiDxy(),
+                                                r.covPhiQOverPt(),
+                                                h.caFitChi2(),
+                                                h.psFrac(),
+                                                h.r0(),
+                                                h.nPS(),
+                                                h.spanZ(),
+                                                h.nVectorHits(),
+                                                h.logChi2VectorHit(),
+                                                h.kErr(),
+                                                h.dcaEst(),
+                                                h.nBarrel(),
+                                                h.rzChi2(),
+                                                h.meanVectorHitKappa(),
+                                                h.leverArm(),
+                                                h.rMax());
       } else {
-        tc.addBatched<PixelTrackFeaturesSoA>("track_features",
-                                             batchSize,
-                                             r.chi2(),
-                                             r.dzError(),
-                                             r.dxyError(),
-                                             r.eta(),
-                                             r.nHits(),
-                                             r.phi(),
-                                             r.phiError(),
-                                             r.pt(),
-                                             r.qOverPtError(),
-                                             r.dzBS(),
-                                             r.dxyBS(),
-                                             r.nLayers(),
-                                             r.cotThetaError(),
-                                             r.covCotThetaDz(),
-                                             r.covDxyQOverPt(),
-                                             r.covPhiDxy(),
-                                             r.covPhiQOverPt());
+        tc.addBatched<PixelTrackFitFeaturesSoA>("track_features",
+                                                batchSize,
+                                                r.chi2(),
+                                                r.dzError(),
+                                                r.dxyError(),
+                                                r.eta(),
+                                                r.nHits(),
+                                                r.phi(),
+                                                r.phiError(),
+                                                r.pt(),
+                                                r.qOverPtError(),
+                                                r.dzBS(),
+                                                r.dxyBS(),
+                                                r.nLayers(),
+                                                r.cotThetaError(),
+                                                r.covCotThetaDz(),
+                                                r.covDxyQOverPt(),
+                                                r.covPhiDxy(),
+                                                r.covPhiQOverPt());
       }
     }
 
@@ -200,9 +201,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // Warmup the model with dummy data
 
     // Create temporary feature and score buffers used to warm up the model.
-    PixelTrackFeaturesOnDevice trackFeatures(queue, batchSize_);
+    PixelTrackFeaturesOnDevice trackFeatures(queue, batchSize_, useHitFeatures_ ? batchSize_ : 0);
     PixelTrackScoresOnDevice trackScoresOnDevice(queue, batchSize_);
-    auto track_record = trackFeatures.view().records();
+    // a Metarecords keeps a reference to its view, so the views live in named locals
+    auto fit_view = trackFeatures.view().fit();
+    auto hit_view = trackFeatures.view().hit();
+    auto fit_record = fit_view.records();
+    auto hit_record = hit_view.records();
     auto score_record = trackScoresOnDevice.view().records();
 
     for (auto it = 0; it < warmupIterations_; ++it) {
@@ -211,7 +216,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       // Same column list (and therefore the same tensor width) as the per-event inference below;
       // the buffers hold batchSize_ rows, so this is a single batch.
-      addTrackFeatures(dummy_inputs, batchSize_, track_record, useHitFeatures_);
+      addTrackFeatures(dummy_inputs, batchSize_, fit_record, hit_record, useHitFeatures_);
 
       dummy_outputs.addBatched<PixelTrackScoresSoA>("track_scores", batchSize_, score_record.score());
 
@@ -250,8 +255,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::memset(queue, d_selectedTrackIndices, 0xFF);
     alpaka::memset(queue, d_preselectionOffsets, 0);
 
-    //  - Features and scores containers
-    PixelTrackFeaturesOnDevice trackFeatures(queue, maxPreselectedTracks_);
+    //  - Features and scores containers; the hit block is sized 0 when the model does not read it
+    PixelTrackFeaturesOnDevice trackFeatures(queue, maxPreselectedTracks_, useHitFeatures_ ? maxPreselectedTracks_ : 0);
     PixelTrackScoresOnDevice trackScoresOnDevice(queue, maxPreselectedTracks_);
 
     // 1. CA-based preselection of tracks
@@ -298,22 +303,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             nHitsTot,
                             otHitsView,
                             nOTHits,
-                            useHitFeatures_,
                             alpaka::getPtrNative(d_preselectedTrackIndices),
                             alpaka::getPtrNative(d_nPreselectedTracks),
-                            trackFeatures.view(),
+                            trackFeatures.view().fit(),
+                            trackFeatures.view().hit(),
                             alpaka::getPtrNative(d_trackHitCounts));
 
     // 3. DNN inference
     //  Prepare TensorCollection inputs and outputs for the model
-    auto track_record = trackFeatures.view().records();
+    // a Metarecords keeps a reference to its view, so the views live in named locals
+    auto fit_view = trackFeatures.view().fit();
+    auto hit_view = trackFeatures.view().hit();
+    auto fit_record = fit_view.records();
+    auto hit_record = hit_view.records();
     auto score_record = trackScoresOnDevice.view().records();
 
     auto inputs = cms::torch::alpakatools::BatchedTensorCollection<Queue>();
     auto outputs = cms::torch::alpakatools::BatchedTensorCollection<Queue>();
 
     // Order must match the TorchScript model input schema
-    addTrackFeatures(inputs, batchSize_, track_record, useHitFeatures_);
+    addTrackFeatures(inputs, batchSize_, fit_record, hit_record, useHitFeatures_);
 
     outputs.addBatched<PixelTrackScoresSoA>("track_scores", batchSize_, score_record.score());
 
@@ -325,7 +334,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                       scoreThreshold_,
                       scoreThresholdLowDxy_,
                       dxyRampKnee_,
-                      trackFeatures.const_view(),
+                      trackFeatures.const_view().fit(),
                       trackScoresOnDevice.view(),
                       alpaka::getPtrNative(d_preselectedTrackIndices),
                       alpaka::getPtrNative(d_nPreselectedTracks),
