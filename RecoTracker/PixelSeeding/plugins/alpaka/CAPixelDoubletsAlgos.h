@@ -592,13 +592,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
               if (significance > stubSigmaCut || std::abs(k_i - k_o) > curvWindow) {
 #ifdef DOUBLETS_DEBUG
-                auto flags_i = hh.stub(i).flags();
-                auto flags_o = hh.stub(oi).flags();
                 printf("Killed here 10: stub sigma cut (sig=%.2f > cut=%.2f, barrel_i=%d barrel_o=%d)\n",
                        significance,
                        stubSigmaCut,
-                       (int)::reco::StubFlags::isBarrel(flags_i),
-                       (int)::reco::StubFlags::isBarrel(flags_o));
+                       (int)hh.stub(i).isBarrel(),
+                       (int)hh.stub(oi).isBarrel());
 #endif
 #ifdef CA_PIPELINE_COUNTERS
                 countRej(caHitNtupletGenerator::kCutStubSigma);

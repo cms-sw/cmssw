@@ -236,12 +236,10 @@ private:
           }
         }
         if (isStub(hh, h)) {
-          const auto flags = hh.stub(int32_t(h)).flags();
-          if (::reco::StubFlags::isBarrel(flags) && !::reco::StubFlags::isFlat(flags))
-            ++nTilted;  // tilted barrel module (|eta|~1-2 transition)
-          // isStub(hh, h) guarantees an outer-tracker stub entry, so the bend columns are readable
-          // through the stub element.
           auto const stub = hh.stub(int32_t(h));
+          if (stub.isBarrel() && !stub.isFlat())
+            ++nTilted;  // tilted barrel module (|eta|~1-2 transition)
+          // isStub(hh, h) guarantees an outer-tracker stub entry, so the bend columns are readable.
           const float s = stub.dPhiDrError();
           if (s > 0.f) {
             const float d = stub.dPhiDr();

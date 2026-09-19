@@ -112,10 +112,9 @@ namespace caTrackFeatures {
       if (!otHit && isStub(hh, h)) {
         ++nStubs;
         auto const stub = hh.stub(int32_t(h));
-        const auto flags = stub.flags();
-        if (::reco::StubFlags::isPS(flags))
+        if (stub.isPS())
           ++nPS;
-        if (::reco::StubFlags::isBarrel(flags))
+        if (stub.isBarrel())
           ++nBarrel;
         const float s = stub.dPhiDrError();
         if (s > 0.f) {

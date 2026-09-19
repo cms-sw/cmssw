@@ -372,13 +372,12 @@ void OTStubNtupleAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
       localXInGlobalZ_ = 0;
     }
 
-    uint8_t flags = stub.flags();
-    layer_ = reco::StubFlags::layer(flags);
-    isBarrel_ = reco::StubFlags::isBarrel(flags);
+    layer_ = stub.layer();
+    isBarrel_ = stub.isBarrel();
     isEndcap_ = !isBarrel_;
-    isFlat_ = reco::StubFlags::isFlat(flags);
+    isFlat_ = stub.isFlat();
     isTilted_ = isBarrel_ && !isFlat_;
-    isPS_ = reco::StubFlags::isPS(flags);
+    isPS_ = stub.isPS();
 
     // CA layer id of the stub (layer_ is 1-based, from TrackerTopology::layer()), in the numbering the CA
     // geometry builds from the stacked-module order: 28-33 barrel, 34-43 z > 0 disks, 44-53 z < 0 disks,

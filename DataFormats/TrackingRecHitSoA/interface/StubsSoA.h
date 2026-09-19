@@ -10,6 +10,26 @@
 
 namespace reco {
 
+  namespace StubFlags {
+    constexpr uint8_t isBarrelMask = 0x01;  // Bit 0
+    constexpr uint8_t isFlatMask = 0x02;    // Bit 1
+    constexpr uint8_t isValidMask = 0x04;   // Bit 2
+    constexpr uint8_t layerMask = 0x38;     // Bits 3-5
+    constexpr uint8_t layerShift = 3;
+    constexpr uint8_t isPSMask = 0x40;  // Bit 6
+
+    inline constexpr bool isBarrel(uint8_t flags) { return (flags & isBarrelMask) != 0; }
+    inline constexpr bool isFlat(uint8_t flags) { return (flags & isFlatMask) != 0; }
+    inline constexpr bool isValid(uint8_t flags) { return (flags & isValidMask) != 0; }
+    inline constexpr uint8_t layer(uint8_t flags) { return (flags & layerMask) >> layerShift; }
+    inline constexpr bool isPS(uint8_t flags) { return (flags & isPSMask) != 0; }
+
+    inline constexpr uint8_t makeFlags(bool barrel, bool flat, bool valid, uint8_t layerNum, bool ps) {
+      return (barrel ? isBarrelMask : 0) | (flat ? isFlatMask : 0) | (valid ? isValidMask : 0) |
+             ((layerNum << layerShift) & layerMask) | (ps ? isPSMask : 0);
+    }
+  }  // namespace StubFlags
+
   // Main stub SoA: stubs from hit pairs on stacked OT sensors (2-5mm separation).
   // Provide position, direction (dPhi/dr) and pT discrimination (bend cut).
   GENERATE_SOA_LAYOUT(StubsLayout,
@@ -56,7 +76,19 @@ namespace reco {
 
                       // Packed flags: bit 0 isBarrel, bit 1 isFlat (barrel only), bit 2 isValid,
                       // bits 3-5 OT layer (0-5), bit 6 isPS, bit 7 reserved.
-                      SOA_COLUMN(uint8_t, flags));
+                      SOA_COLUMN(uint8_t, flags),
+
+                      // Decode the packed flags of one stub.
+                      SOA_CONST_ELEMENT_METHODS(
+                          ALPAKA_FN_HOST_ACC bool isBarrel() const { return StubFlags::isBarrel(flags()); }
+
+                          ALPAKA_FN_HOST_ACC bool isFlat() const { return StubFlags::isFlat(flags()); }
+
+                          ALPAKA_FN_HOST_ACC bool isValid() const { return StubFlags::isValid(flags()); }
+
+                          ALPAKA_FN_HOST_ACC uint8_t layer() const { return StubFlags::layer(flags()); }
+
+                          ALPAKA_FN_HOST_ACC bool isPS() const { return StubFlags::isPS(flags()); }));
 
   // Stub-local index of the first stub of each outer-tracker CA module (entry i = CA module
   // phase2PixelTopology::nModulesPix + i), nOTModules + 1 entries, the last one the total number of stubs;
@@ -83,26 +115,6 @@ namespace reco {
     return stubs[i].dPhiDrError() >= 0.f;
   }
   ALPAKA_FN_HOST_ACC inline bool isStub(const StubsConstView::const_element &stub) { return stub.dPhiDrError() >= 0.f; }
-
-  namespace StubFlags {
-    constexpr uint8_t isBarrelMask = 0x01;  // Bit 0
-    constexpr uint8_t isFlatMask = 0x02;    // Bit 1
-    constexpr uint8_t isValidMask = 0x04;   // Bit 2
-    constexpr uint8_t layerMask = 0x38;     // Bits 3-5
-    constexpr uint8_t layerShift = 3;
-    constexpr uint8_t isPSMask = 0x40;  // Bit 6
-
-    inline constexpr bool isBarrel(uint8_t flags) { return (flags & isBarrelMask) != 0; }
-    inline constexpr bool isFlat(uint8_t flags) { return (flags & isFlatMask) != 0; }
-    inline constexpr bool isValid(uint8_t flags) { return (flags & isValidMask) != 0; }
-    inline constexpr uint8_t layer(uint8_t flags) { return (flags & layerMask) >> layerShift; }
-    inline constexpr bool isPS(uint8_t flags) { return (flags & isPSMask) != 0; }
-
-    inline constexpr uint8_t makeFlags(bool barrel, bool flat, bool valid, uint8_t layerNum, bool ps) {
-      return (barrel ? isBarrelMask : 0) | (flat ? isFlatMask : 0) | (valid ? isValidMask : 0) |
-             ((layerNum << layerShift) & layerMask) | (ps ? isPSMask : 0);
-    }
-  }  // namespace StubFlags
 
 }  // namespace reco
 
