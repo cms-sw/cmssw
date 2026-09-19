@@ -1,4 +1,4 @@
-#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalTilesConstants.h"
+#include "RecoTICL/LayerClustering/interface/HGCalTilesConstants.h"
 
 #include "HGCalLayerClustersSoAAlgoWrapper.h"
 #include "ConstantsForClusters.h"

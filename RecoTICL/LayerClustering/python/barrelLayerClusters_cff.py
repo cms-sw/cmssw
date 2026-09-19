@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoParticleFlow.PFClusterProducer.barrelLayerClusters_cfi import barrelLayerClusters as barrelLayerClusters_
+from RecoTICL.LayerClustering.barrelLayerClusters_cfi import barrelLayerClusters as barrelLayerClusters_
 
 barrelLayerClustersEB = barrelLayerClusters_.clone(
   recHits = 'particleFlowRecHitECAL',

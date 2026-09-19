@@ -4,10 +4,10 @@
 #ifndef RecoLocalCalo_HGCalRecProducers_HGCalLayerTiles_h
 #define RecoLocalCalo_HGCalRecProducers_HGCalLayerTiles_h
 
-#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalTilesConstants.h"
-#include "RecoLocalCalo/HGCalRecProducers/interface/HFNoseTilesConstants.h"
-#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalTilesWrapper.h"
-#include "RecoLocalCalo/HGCalRecProducers/interface/BarrelTilesConstants.h"
+#include "RecoTICL/LayerClustering/interface/HGCalTilesConstants.h"
+#include "RecoTICL/LayerClustering/interface/HFNoseTilesConstants.h"
+#include "RecoTICL/LayerClustering/interface/HGCalTilesWrapper.h"
+#include "RecoTICL/LayerClustering/interface/BarrelTilesConstants.h"
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
 #include <vector>

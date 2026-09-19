@@ -13,7 +13,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/SynchronizingEDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalSoAClustersExtra.h"
-#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalTilesConstants.h"
+#include "RecoTICL/LayerClustering/interface/HGCalTilesConstants.h"
 
 #include "HGCalLayerClustersSoAAlgoWrapper.h"
 

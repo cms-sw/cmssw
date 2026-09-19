@@ -16,8 +16,8 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalLayerTiles.h"
-#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalCLUEStrategy.h"
+#include "RecoTICL/LayerClustering/interface/HGCalLayerTiles.h"
+#include "RecoTICL/LayerClustering/interface/HGCalCLUEStrategy.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
@@ -29,7 +29,7 @@
 #define DEBUG_CLUSTERS_ALPAKA 0
 
 #if DEBUG_CLUSTERS_ALPAKA
-#include "RecoLocalCalo/HGCalRecProducers/interface/DumpClustersDetails.h"
+#include "RecoTICL/LayerClustering/interface/DumpClustersDetails.h"
 #endif
 
 template <typename TILE, typename STRATEGY>

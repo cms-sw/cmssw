@@ -10,7 +10,7 @@ from RecoTICL.Configuration.MIPStep_cff import ticlTrackstersMIP, filteredLayerC
 
 
 from RecoTICL.ClusterFilters.filteredLayerClustersProducer_cfi import filteredLayerClustersProducer
-from RecoLocalCalo.HGCalRecProducers.hgcalLayerClusters_cff import hgcalLayerClustersEE, hgcalMergeLayerClusters
+from RecoTICL.LayerClustering.hgcalLayerClusters_cff import hgcalLayerClustersEE, hgcalMergeLayerClusters
 from RecoTracker.IterativeTracking.iterativeTk_cff import trackdnn_source
 from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cfi import recHitMapProducer
 from RecoTICL.LayerClustering.ticlLayerTileProducer_cfi import ticlLayerTileProducer

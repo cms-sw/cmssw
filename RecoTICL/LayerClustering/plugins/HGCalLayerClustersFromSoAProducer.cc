@@ -22,7 +22,7 @@
 #define DEBUG_CLUSTERS_ALPAKA 0
 
 #if DEBUG_CLUSTERS_ALPAKA
-#include "RecoLocalCalo/HGCalRecProducers/interface/DumpClustersDetails.h"
+#include "RecoTICL/LayerClustering/interface/DumpClustersDetails.h"
 #endif
 
 class HGCalLayerClustersFromSoAProducer : public edm::stream::EDProducer<> {

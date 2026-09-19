@@ -1,4 +1,4 @@
-#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalImagingAlgo.h"
+#include "RecoTICL/LayerClustering/interface/HGCalImagingAlgo.h"
 
 // Geometry
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"

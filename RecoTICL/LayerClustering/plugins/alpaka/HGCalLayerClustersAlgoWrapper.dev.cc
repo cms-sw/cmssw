@@ -3,7 +3,7 @@
 #error ALPAKA_HOST_ONLY defined in device compilation
 #endif
 
-#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalTilesConstants.h"
+#include "RecoTICL/LayerClustering/interface/HGCalTilesConstants.h"
 
 #include "HGCalLayerClustersAlgoWrapper.h"
 #include "ConstantsForClusters.h"
