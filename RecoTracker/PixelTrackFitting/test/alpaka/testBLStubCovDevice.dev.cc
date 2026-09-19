@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <memory>
 #include <cstdio>
 #include <random>
 #include <string>
@@ -140,7 +141,7 @@ namespace {
   //!< records the crossings of the surfaces above, skipping the pixel detector for the outer-tracker layout.
   //!< `xLogTotal` > 0 evaluates Highland's logarithm at the whole thickness the particle crosses, as the
   //!< PDG formula prescribes, instead of at each lump separately; `xTot` returns that thickness.
-  Track makeTrack(const float* rho,
+  Track makeTrack(const blMaterialMap::Map* rho,
                   double pT,
                   double eta,
                   int q,
@@ -195,7 +196,7 @@ namespace {
       // size, so that none of its total is lost)
       {
         const double rr = std::hypot(pos[0], pos[1]);
-        const double dens = blMaterialMap::rhoAt(rho, float(rr), float(pos[2]));
+        const double dens = blMaterialMap::rhoAt(*rho, float(rr), float(pos[2]));
         xCluster += dens * ds;
         xSum += dens * ds;
         constexpr double kDense = 1.e-3, kLump = 2.e-3;
@@ -275,7 +276,7 @@ namespace {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   double const* hitsIn,
                                   float const* geIn,
-                                  const float* rho,
+                                  const blMaterialMap::Map* rho,
                                   int nTracks,
                                   double* scratch,
                                   double* out) const {
@@ -381,7 +382,7 @@ namespace {
   //!< outer-tracker reads for the assertions.
   template <int NH>
   void runLayout(Queue& queue,
-                 const float* rho,
+                 const blMaterialMap::Map* rho,
                  bool otOnly,
                  bool gaussianReadout,
                  int fineY,  // 1 = the unmeasured coordinate of the disc hits is read out finely
@@ -460,12 +461,12 @@ namespace {
     std::copy(hitsHost.begin(), hitsHost.end(), hits_h.data());
     auto ge_h = cms::alpakatools::make_host_buffer<float[], Platform>(geHost.size());
     std::copy(geHost.begin(), geHost.end(), ge_h.data());
-    auto rho_h = cms::alpakatools::make_host_buffer<float[], Platform>(blMaterialMap::kBufferFloats);
-    std::copy_n(rho, blMaterialMap::kBufferFloats, rho_h.data());
+    auto rho_h = cms::alpakatools::make_host_buffer<blMaterialMap::Map, Platform>();
+    *rho_h.data() = *rho;
     auto out_h = cms::alpakatools::make_host_buffer<double[], Platform>(std::size_t(nTracks) * kNVar * kOut);
     auto hits_d = cms::alpakatools::make_device_buffer<double[]>(queue, hitsHost.size());
     auto ge_d = cms::alpakatools::make_device_buffer<float[]>(queue, geHost.size());
-    auto rho_d = cms::alpakatools::make_device_buffer<float[]>(queue, blMaterialMap::kBufferFloats);
+    auto rho_d = cms::alpakatools::make_device_buffer<blMaterialMap::Map>(queue);
     auto out_d = cms::alpakatools::make_device_buffer<double[]>(queue, std::size_t(nTracks) * kNVar * kOut);
     auto scr_d = cms::alpakatools::make_device_buffer<double[]>(
         queue, std::size_t(nTracks) * kNVar * std::size_t(bld::kLegacyFitScratchDoubles<NH>));
@@ -524,7 +525,9 @@ TEST_CASE("fast BrokenLine stub covariance on the " EDM_STRINGIZE(ALPAKA_ACCELER
   if (devices.empty())
     FAIL("No devices available for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) " backend, test skipped.");
 
-  const float* rho = blMaterialMap::blMaterialMapData();
+  auto rhoTable = std::make_unique<blMaterialMap::Map>();
+  blMaterialMap::loadTable(*rhoTable, blMaterialMap::blMaterialMapData());
+  const blMaterialMap::Map* rho = rhoTable.get();
 
   for (auto const& device : devices) {
     auto queue = Queue(device);

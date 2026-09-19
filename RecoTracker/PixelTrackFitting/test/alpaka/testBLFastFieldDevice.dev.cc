@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <memory>
 #include <cstdio>
 #include <random>
 #include <string>
@@ -108,8 +109,14 @@ namespace {
 
   //!< RK4 through the lattice from the origin, optionally scattering in the material map; records the
   //!< crossings of the surfaces above until kN of them are collected.
-  Track makeTrack(
-      const float* map, const float* rho, double pT, double eta, int q, std::mt19937_64* rng, int nWanted, bool otOnly) {
+  Track makeTrack(const float* map,
+                  const blMaterialMap::Map* rho,
+                  double pT,
+                  double eta,
+                  int q,
+                  std::mt19937_64* rng,
+                  int nWanted,
+                  bool otOnly) {
     Track tk;
     const double tanl = std::sinh(eta);
     const double p = pT * std::cosh(eta);
@@ -155,7 +162,7 @@ namespace {
       // multiple scattering: one kink per contiguous material cluster, Highland at the cluster's thickness
       if (rng != nullptr) {
         const double rr = std::hypot(pos[0], pos[1]);
-        const double density = blMaterialMap::rhoAt(rho, float(rr), float(pos[2]));
+        const double density = blMaterialMap::rhoAt(*rho, float(rr), float(pos[2]));
         xCluster += density * ds;
         // one Highland kink per crossed layer (the map's air, 3.3e-5 per cm, is charged in lumps of the
         // same size so that its total is not lost): thickness collected, then spent when the dense
@@ -252,7 +259,7 @@ namespace {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   double const* hitsIn,
                                   float const* geIn,
-                                  const float* rho,
+                                  const blMaterialMap::Map* rho,
                                   const float* map,
                                   int nTracks,
                                   double* scratch,
@@ -321,7 +328,7 @@ namespace {
   //!< layer it crosses, true = the outer-tracker-only layout (first hit at
   //!< r = 23 cm, the state extrapolated back over the whole pixel volume).
   template <int NH>
-  void runLayout(Queue& queue, const float* map, const float* rho, bool otOnly, const char* label) {
+  void runLayout(Queue& queue, const float* map, const blMaterialMap::Map* rho, bool otOnly, const char* label) {
     std::vector<Config> cfgs;
     for (double pT : {1., 3., 10.})
       for (double aeta : {1.0, 1.5, 1.7, 2.3})
@@ -380,14 +387,14 @@ namespace {
     std::copy(hitsHost.begin(), hitsHost.end(), hits_h.data());
     auto ge_h = cms::alpakatools::make_host_buffer<float[], Platform>(geHost.size());
     std::copy(geHost.begin(), geHost.end(), ge_h.data());
-    auto rho_h = cms::alpakatools::make_host_buffer<float[], Platform>(blMaterialMap::kBufferFloats);
-    std::copy_n(rho, blMaterialMap::kBufferFloats, rho_h.data());
+    auto rho_h = cms::alpakatools::make_host_buffer<blMaterialMap::Map, Platform>();
+    *rho_h.data() = *rho;
     auto map_h = cms::alpakatools::make_host_buffer<float[], Platform>(blBFieldMap::kNValues);
     std::copy_n(map, blBFieldMap::kNValues, map_h.data());
     auto out_h = cms::alpakatools::make_host_buffer<double[], Platform>(std::size_t(nTracks) * kNVar * kOut);
     auto hits_d = cms::alpakatools::make_device_buffer<double[]>(queue, hitsHost.size());
     auto ge_d = cms::alpakatools::make_device_buffer<float[]>(queue, geHost.size());
-    auto rho_d = cms::alpakatools::make_device_buffer<float[]>(queue, blMaterialMap::kBufferFloats);
+    auto rho_d = cms::alpakatools::make_device_buffer<blMaterialMap::Map>(queue);
     auto map_d = cms::alpakatools::make_device_buffer<float[]>(queue, blBFieldMap::kNValues);
     auto out_d = cms::alpakatools::make_device_buffer<double[]>(queue, std::size_t(nTracks) * kNVar * kOut);
     auto scr_d = cms::alpakatools::make_device_buffer<double[]>(
@@ -559,7 +566,9 @@ TEST_CASE("fast BrokenLine field rows on the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_
     FAIL("No devices available for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) " backend, test skipped.");
 
   const float* map = blBFieldMapFixture::kCmsLattice;
-  const float* rho = blMaterialMap::blMaterialMapData();
+  auto rhoTable = std::make_unique<blMaterialMap::Map>();
+  blMaterialMap::loadTable(*rhoTable, blMaterialMap::blMaterialMapData());
+  const blMaterialMap::Map* rho = rhoTable.get();
 
   // diagnostic lattice: the same Bz profile with B_r removed, used to generate AND to fit, so the residual
   // biases it leaves are the ones the two rows cannot reach (they belong to the single-pass fit's own

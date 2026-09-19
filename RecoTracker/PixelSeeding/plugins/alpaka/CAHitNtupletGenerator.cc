@@ -658,7 +658,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       uint32_t nDoublets,
       uint32_t nTracks,
       Queue& queue,
-      const float* rhoMapDevice,
+      const blMaterialMap::Map* rhoMapDevice,
       const float* bMapDevice) const {
     using GPUKernels = CAHitNtupletGeneratorKernels<TrackerTraits>;
 

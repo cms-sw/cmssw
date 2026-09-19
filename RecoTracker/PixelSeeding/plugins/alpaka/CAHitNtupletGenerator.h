@@ -95,7 +95,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       uint32_t maxTuples = 0;
       uint32_t maxDoublets = 0;
       float bfield = 0.f;
-      const float* rhoMapDevice = nullptr;
+      const blMaterialMap::Map* rhoMapDevice = nullptr;
       // Normalized (Bz,Br) r-z field map (BLBFieldMap EventSetup condition, device-resident). Carried
       // across the acquire->produce seam beside the material map because the fit consumes them together
       // (see HelixFit::setBFieldMap); null is the scalar-field fallback.
@@ -109,7 +109,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                    uint32_t maxDoublets,
                                    uint32_t maxTuples,
                                    Queue& queue,
-                                   const float* rhoMapDevice,
+                                   const blMaterialMap::Map* rhoMapDevice,
                                    const float* bMapDevice) const;
 
     TkSoADevice finishTuplesAsync(PendingTuples&& pending,

@@ -160,7 +160,7 @@ def main():
             f.write('#include "RecoTracker/PixelTrackFitting/interface/BLMaterialMap.h"\n\n')
             f.write("namespace blMaterialMap {\n  namespace {\n")
             f.write("    // the whole density lattice [X0/cm], then the dE/dx triples of the same cells, both\n")
-            f.write("    // kNZ-major: one array, so that one pointer reaches both (blMaterialMap::dedxOf).\n")
+            f.write("    // kNZ-major: one array, the serialized blMaterialMap::Map (loadTable).\n")
             f.write("    const float kMap[kBufferFloats] = {\n")
             for i in range(0, len(toks), 8):
                 f.write("        " + " ".join(t + "," for t in toks[i:i + 8]) + "\n")

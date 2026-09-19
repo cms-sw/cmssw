@@ -7,6 +7,7 @@
 
 #include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
+#include "RecoTracker/PixelTrackFitting/interface/BLMaterialMap.h"
 #include "RecoTracker/PixelTrackFitting/interface/FitResult.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
@@ -79,10 +80,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     void setBField(double bField) { bField_ = bField; }
 
-    // Device pointer to the BL-fit Geant4 material-map grid (kSize floats), provided by the EventSetup
+    // Device pointer to the BL-fit Geant4 material map (blMaterialMap::Map), provided by the EventSetup
     // BLMaterialMap condition (copied to the device once per IOV). Set before launchBrokenLineKernels;
     // it is forwarded into Kernel_BLFit and read by prepareBrokenLineData/segmentXX0. Not owned.
-    void setMaterialMap(const float *rhoMap) { rhoMap_ = rhoMap; }
+    void setMaterialMap(const blMaterialMap::Map *rhoMap) { rhoMap_ = rhoMap; }
     // Device pointer to the normalized (Bz,Br) r-z field map (blBFieldMap::kNValues floats), provided by
     // the EventSetup BLBFieldMap condition. When set, the fit uses a per-track hit-averaged effective
     // field (blEffectiveBField) in the curvature->pT conversion and in the MS/dE/dx momentum; when null
@@ -139,9 +140,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     TupleMultiplicity const *tupleMultiplicity_ = nullptr;
     OutputSoAView outputSoa_;
     float bField_;
-    const float *rhoMap_ = nullptr;  // BL material-map device grid (EventSetup condition; not owned)
-    const float *bMap_ = nullptr;    // normalized (Bz,Br) r-z field map (EventSetup condition; not owned)
-    bool fitCorrections_ = false;    // CA main fit's correctness package (useFitCorrections)
+    const blMaterialMap::Map *rhoMap_ = nullptr;  // BL material map on the device (EventSetup condition; not owned)
+    const float *bMap_ = nullptr;                 // normalized (Bz,Br) r-z field map (EventSetup condition; not owned)
+    bool fitCorrections_ = false;                 // CA main fit's correctness package (useFitCorrections)
     // Tuple-multiplicity per-N-bin cumulative offsets, pre-read by the caller into host memory (see
     // setHostTupleMultiplicityOffsets). Not owned; null means the fit runs to the cap.
     const uint32_t *hostTupleMultiplicityOffsets_ = nullptr;
