@@ -43,6 +43,7 @@
 
 #include "RecoTracker/FinalTrackSelectors/interface/PixelTrackFeaturesSoA.h"
 #include "RecoTracker/FinalTrackSelectors/plugins/alpaka/PixelTrackFeaturesDeviceCollection.h"
+#include "RecoTracker/FinalTrackSelectors/plugins/alpaka/PixelTrackForestHighPuritySelectorKernels.h"
 #include "RecoTracker/FinalTrackSelectors/plugins/alpaka/PixelTrackTorchHighPuritySelectorKernels.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
