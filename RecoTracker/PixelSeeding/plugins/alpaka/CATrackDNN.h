@@ -7,7 +7,8 @@
 // sigmoid. The weights live in an auto-generated header (CATrackDNNWeights_prompt.h, baked by
 // RecoTracker/PixelSeeding/test/models/retrain_track_dnn.sh) and are indexed directly as
 // constexpr globals, so the whole forward pass inlines (register/stack neutral). The in-kernel
-// feature vector is filled in the SAME order as that script's FEATS list.
+// feature vector, caTrackFeatures::Features::asArray(), is in the SAME order as the FEATS list of
+// the trainer that script runs (test/models/train_disp_nano.py).
 
 #include <alpaka/alpaka.hpp>
 #include <cmath>
