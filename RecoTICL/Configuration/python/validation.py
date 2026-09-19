@@ -81,7 +81,7 @@ def build_associators_by_hits(labels):
 # --------------------------------------------------------------------------- #
 
 def build_ticl_dumper(labels):
-    from RecoHGCal.TICL.ticlDumper_cfi import ticlDumper as base
+    from Validation.TICLValidation.ticlDumper_cfi import ticlDumper as base
     dumper_associators = []
     for sts in SIM_COLLECTIONS:
         for lab in labels:

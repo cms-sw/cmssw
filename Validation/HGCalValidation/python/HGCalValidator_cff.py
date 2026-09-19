@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Core.DQM_cfg import *
 from Validation.HGCalValidation.hgcalValidator_cfi import hgcalValidator as _hgcalValidator
-from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsPSet, associatorsInstances
+from RecoTICL.Configuration.iterativeTICL_cff import ticlIterLabelsPSet, associatorsInstances
 
 # Default configuration is now TICLv5
 hgcalValidator = _hgcalValidator.clone(

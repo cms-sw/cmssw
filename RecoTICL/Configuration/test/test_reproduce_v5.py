@@ -3,7 +3,7 @@
 """M1 acceptance gate + primary drift detector.
 
 Assert that the configuration pyTICL generates for the v5 default reproduces the
-live baseline ``iterTICLTask`` (from ``RecoHGCal.TICL.iterativeTICL_cff``)
+live baseline ``iterTICLTask`` (from ``RecoTICL.Configuration.iterativeTICL_cff``)
 byte-for-byte, module by module.  If anyone edits a baseline cff in a way pyTICL
 does not mirror, this test fails with a precise diff.
 """
@@ -18,7 +18,7 @@ from RecoTICL.Configuration.compare import diff_tasks
 
 def build_baseline():
     p = cms.Process("TEST")
-    p.load("RecoHGCal.TICL.iterativeTICL_cff")
+    p.load("RecoTICL.Configuration.iterativeTICL_cff")
     return p, p.iterTICLTask
 
 

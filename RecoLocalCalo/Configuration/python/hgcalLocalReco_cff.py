@@ -8,7 +8,7 @@ from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cff import recHitMapProdu
 # TICLGeom SoA geometry EventSetup producers (RecHitTools replacement), added to
 # the HGCal reco Task so the @alpaka producers are instantiated only when the
 # Task is scheduled, never in FastSim or bare reco-loading configs
-from RecoHGCal.TICL.TICLGeom_cff import (ticlGeomESProducer,
+from RecoTICL.Geometry.TICLGeom_cff import (ticlGeomESProducer,
                                          ticlGeomLookupESProducer,
                                          ticlGeomLayersESProducer,
                                          ticlGeomWithBarrelESProducer,
