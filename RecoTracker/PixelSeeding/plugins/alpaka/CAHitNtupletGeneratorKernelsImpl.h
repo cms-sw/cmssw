@@ -1935,8 +1935,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             // short tracks whose long partner does not replace them -- measured, 4.5 points of prompt barrel
             // efficiency on ttbar PU200. The rule stays where it was tuned until it is retuned.
             if constexpr (std::is_same_v<pixelTopology::Phase2OTVectorHits, TrackerTraits>) {
-              if (h < static_cast<uint32_t>(hh.size()) && isVectorHit(hh, h) &&
-                  ::reco::VectorHitFlags::isPS(hh.vectorHit(int32_t(h)).flags())) {
+              if (h < static_cast<uint32_t>(hh.size()) && isVectorHit(hh, h) && hh.vectorHit(int32_t(h)).isPS()) {
                 auto const lowerHitIdx = hh.vectorHit(int32_t(h)).lowerHitIdx();
                 if (lowerHitIdx != std::numeric_limits<uint32_t>::max()) {
                   auto const offsetVectorHits = caStructures::offsetVectorHitsOf(hh);
@@ -1948,8 +1947,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                     if (otherIdx >= hitToTuple.nOnes()) {
                       continue;
                     }
-                    if (!isVectorHit(hh, otherIdx) ||
-                        !::reco::VectorHitFlags::isPS(hh.vectorHit(int32_t(otherIdx)).flags())) {
+                    if (!isVectorHit(hh, otherIdx) || !hh.vectorHit(int32_t(otherIdx)).isPS()) {
                       continue;
                     }
                     if (hh.vectorHit(int32_t(otherIdx)).lowerHitIdx() != lowerHitIdx) {

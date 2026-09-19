@@ -179,6 +179,12 @@ namespace caStructures {
       ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE uint32_t upperHitIdx() const { return s_.upperHitIdx()[j_]; }
       ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE uint32_t posHitIdx() const { return s_.posHitIdx()[j_]; }
       ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE uint8_t flags() const { return s_.flags()[j_]; }
+      // the decoded flags, as the vector hits SoA element offers them
+      ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool isBarrel() const { return ::reco::VectorHitFlags::isBarrel(flags()); }
+      ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool isFlat() const { return ::reco::VectorHitFlags::isFlat(flags()); }
+      ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool isValid() const { return ::reco::VectorHitFlags::isValid(flags()); }
+      ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE uint8_t layer() const { return ::reco::VectorHitFlags::layer(flags()); }
+      ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE bool isPS() const { return ::reco::VectorHitFlags::isPS(flags()); }
       // The vector hit's index in the vector hits collection.
       ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE int32_t vectorHitIndex() const { return j_; }
 
