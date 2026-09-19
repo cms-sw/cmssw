@@ -11,11 +11,80 @@
 // that script's BASE_FEATURES + DERIVED lists.
 
 #include <alpaka/alpaka.hpp>
+#include <array>
 #include <cmath>
+#include <type_traits>
 
 #include "CATripletDNNWeights.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
+
+  // The gate's input, 18 raw and 11 derived quantities; asArray() gives them in the trained order.
+  struct CATripletFeatures {
+    float absCurvature = 0.f;
+    float tipTimesCurvature = 0.f;
+    float dca = 0.f;
+    float curvatureStubs = 0.f;
+    float curvatureStubsErrSquared = 0.f;
+    float curvature13 = 0.f;
+    float dPhi12 = 0.f;
+    float dPhi13 = 0.f;
+    float dPhi23 = 0.f;
+    float dr12 = 0.f;
+    float dr13 = 0.f;
+    float r1 = 0.f;
+    float r2 = 0.f;
+    float r3 = 0.f;
+    float z1 = 0.f;
+    float z2 = 0.f;
+    float z3 = 0.f;
+    float nStubs = 0.f;
+    float stubCirclePull = 0.f;
+    float stubCircleRatio = 0.f;
+    float curv13Resid = 0.f;
+    float rzResid = 0.f;
+    float cotTheta = 0.f;
+    float dPhiRatio = 0.f;
+    float logAbsCurv = 0.f;
+    float logErrSq = 0.f;
+    float logDca = 0.f;
+    float layGap12 = 0.f;
+    float layGap23 = 0.f;
+
+    ALPAKA_FN_HOST_ACC constexpr std::array<float, caTripletDNN::kNFeat> asArray() const {
+      return {absCurvature,
+              tipTimesCurvature,
+              dca,
+              curvatureStubs,
+              curvatureStubsErrSquared,
+              curvature13,
+              dPhi12,
+              dPhi13,
+              dPhi23,
+              dr12,
+              dr13,
+              r1,
+              r2,
+              r3,
+              z1,
+              z2,
+              z3,
+              nStubs,
+              stubCirclePull,
+              stubCircleRatio,
+              curv13Resid,
+              rzResid,
+              cotTheta,
+              dPhiRatio,
+              logAbsCurv,
+              logErrSq,
+              logDca,
+              layGap12,
+              layGap23};
+    }
+  };
+  static_assert(std::is_standard_layout_v<CATripletFeatures>);
+
   namespace caTripletDNN_eval {
 
     // feat[] has kNFeat entries in the trained order. Returns P(real) in [0,1].
