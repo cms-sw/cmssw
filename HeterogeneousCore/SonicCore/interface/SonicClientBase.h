@@ -9,11 +9,14 @@
 #include "HeterogeneousCore/SonicCore/interface/SonicDispatcherPseudoAsync.h"
 
 #include <string>
+#include <vector>
 #include <exception>
 #include <memory>
 #include <optional>
 
 enum class SonicMode { Sync = 1, Async = 2, PseudoAsync = 3 };
+
+class RetryActionBase;
 
 class SonicClientBase {
 public:
@@ -37,10 +40,15 @@ public:
   virtual void reset() {}
 
   //provide base params
-  static void fillBasePSetDescription(edm::ParameterSetDescription& desc, bool allowRetry = true);
+  //defaultRetryType: retryType used for the default entry of the "Retry" VPSet.
+  //Clients that need a different default (e.g. TritonClient) can override it here,
+  //since only one place may declare "Retry" on a given ParameterSetDescription.
+  static void fillBasePSetDescription(edm::ParameterSetDescription& desc,
+                                      const std::string& defaultRetryType = "RetrySameServerAction");
 
 protected:
   void setMode(SonicMode mode);
+  void setUserMode(const std::string& userMode);
 
   virtual void evaluate() = 0;
 
@@ -54,14 +62,25 @@ protected:
   SonicMode mode_;
   bool verbose_;
   std::unique_ptr<SonicDispatcher> dispatcher_;
-  unsigned allowedTries_, tries_;
+  unsigned totalTries_;
   std::optional<edm::WaitingTaskWithArenaHolder> holder_;
+
+  // Use a unique_ptr with a custom deleter to avoid incomplete type issues
+  struct RetryDeleter {
+    void operator()(RetryActionBase* ptr) const;
+  };
+
+  using RetryActionPtr = std::unique_ptr<RetryActionBase, RetryDeleter>;
+  std::vector<RetryActionPtr> retryActions_;
 
   //for logging/debugging
   std::string debugName_, clientName_, fullDebugName_;
+  //remember what user set at config time
+  std::string userMode_;
 
   friend class SonicDispatcher;
   friend class SonicDispatcherPseudoAsync;
+  friend class RetryActionBase;
 };
 
 #endif
