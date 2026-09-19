@@ -28,7 +28,7 @@
 
 using namespace Phase2DAQFormatSpecification;
 
-class RawToBitStreamProducer : public edm::stream::EDProducer<> {
+class RawToBitStreamProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit RawToBitStreamProducer(const edm::ParameterSet&);
   ~RawToBitStreamProducer() override = default;

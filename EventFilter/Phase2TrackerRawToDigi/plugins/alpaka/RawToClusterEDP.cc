@@ -56,7 +56,7 @@ using namespace Phase2RawToCluster;
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace cms::alpakatools;
 
-  class Phase2RawToClusterProducer : public stream::EDProducer<> {
+class Phase2RawToClusterProducer : public stream::EDProducer<edm::stream::WatchRuns> {
   public:
     explicit Phase2RawToClusterProducer(const edm::ParameterSet&);
     static void fillDescriptions(edm::ConfigurationDescriptions&);
@@ -106,7 +106,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };
 
   Phase2RawToClusterProducer::Phase2RawToClusterProducer(const edm::ParameterSet& iConfig)
-      : stream::EDProducer<>(iConfig)
+    : stream::EDProducer<edm::stream::WatchRuns>(iConfig)
       , fedRawDataToken_(consumes<RawDataBuffer>(iConfig.getParameter<edm::InputTag>("fedRawDataCollection")))
       , cablingMapToken_(esConsumes<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd, edm::Transition::BeginRun>())
       , trackerGeometryToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>())

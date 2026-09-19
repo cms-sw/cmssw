@@ -33,7 +33,7 @@ using namespace Phase2TrackerSpecifications;
 using namespace Phase2DAQFormatSpecification;
 
 
-class RawToClusterProducer : public edm::stream::EDProducer<> {
+class RawToClusterProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit RawToClusterProducer(const edm::ParameterSet&);
   ~RawToClusterProducer() override;

@@ -16,6 +16,7 @@
   <use name="CondFormats/SiPhase2TrackerObjects"/>
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="DataFormats/SoATemplate"/>
   <use name="DataFormats/FEDRawData"/>
   <use name="DataFormats/Phase2TrackerCluster"/>
 
