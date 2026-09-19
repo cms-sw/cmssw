@@ -114,7 +114,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           throw cms::Exception("PixelTrackConfiguration")
               << "compact tree binary " << path << ": node " << n << " splits on feature index " << fi
               << ", outside the [0, " << kNPixelTrackFeatures - 1 << "] range the selector provides (-1 = leaf). "
-              << "The model was exported against a different feature ABI than PixelTrackFeaturesSoA's "
+              << "The model was exported against a different feature ABI than the features collection's "
               << kNPixelTrackFeatures << " columns.";
         }
       }
@@ -271,8 +271,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // (preselectionMask, selectionMask, selectedTrackHitCounts) are filled where they are
     // allocated.
 
-    // Features and scores containers
-    PixelTrackFeaturesOnDevice trackFeatures(queue, maxPreselectedTracks_);
+    // Features and scores containers, both blocks: the forest reads the hit/vector hit columns too
+    PixelTrackFeaturesOnDevice trackFeatures(queue, maxPreselectedTracks_, maxPreselectedTracks_);
     PixelTrackScoresOnDevice trackScoresOnDevice(queue, maxPreselectedTracks_);
 
     // 1. CA-based preselection of tracks
@@ -316,10 +316,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             nHitsTot,
                             otHitsView,
                             nOTHits,
-                            useHitFeatures_,
                             alpaka::getPtrNative(d_preselectedTrackIndices),
                             alpaka::getPtrNative(d_nPreselectedTracks),
-                            trackFeatures.view(),
+                            trackFeatures.view().fit(),
+                            trackFeatures.view().hit(),
                             alpaka::getPtrNative(d_trackHitCounts));
 
     // 3. Tree inference, reading the buffers resident on this queue's device from the per-device
@@ -334,7 +334,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                     alpaka::getPtrNative(tc.roots.get(queue)),
                     tc.nTrees,
                     tc.baseLogit,
-                    trackFeatures.const_view(),
+                    trackFeatures.const_view().fit(),
+                    trackFeatures.const_view().hit(),
                     alpaka::getPtrNative(d_nPreselectedTracks),
                     trackScoresOnDevice.view());
 
@@ -344,7 +345,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                       scoreThreshold_,
                       scoreThresholdLowDxy_,
                       dxyRampKnee_,
-                      trackFeatures.const_view(),
+                      trackFeatures.const_view().fit(),
                       trackScoresOnDevice.view(),
                       alpaka::getPtrNative(d_preselectedTrackIndices),
                       alpaka::getPtrNative(d_nPreselectedTracks),
@@ -407,7 +408,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<int>("avgHitsPerTrack", 8);
     desc.add<std::string>("minimumTrackQuality", "tight");
     // Compact gradient-boosted tree binary, not a TorchScript .pt. Split-feature indices are
-    // positions in the PixelTrackFeaturesSoA column order.
+    // positions in the fit-then-hit column order.
     desc.add<edm::FileInPath>("model");
     desc.add<double>("scoreThreshold", 0.232);
     // dxy-aware threshold ramp: scoreThresholdLowDxy < 0 disables it (flat scoreThreshold). When
