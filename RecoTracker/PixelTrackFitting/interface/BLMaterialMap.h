@@ -1,13 +1,15 @@
 // Phi-averaged material of the Tracker and the beam pipe on a 0.5 cm radial lattice, two lattices in one
-// array: the radiation-length density rho(r,z) [X0/cm], whose integral along a track segment is its X/X0,
-// and the dE/dx triple, the electron density and the two log-means the Landau loss of a composite column
-// needs. One table per geometry is compiled in (src/BLMaterialMap<geometry>.cc), and test/blMaterialMap/
-// regenerates it. The readers take the same pointer: the device fits get it from the EventSetup, the unit
-// tests read the compiled-in array directly.
+// object (Map): the radiation-length density rho(r,z) [X0/cm], whose integral along a track segment is its
+// X/X0, and the dE/dx triple (DeDx), the electron density and the two log-means the Landau loss of a
+// composite column needs. One table per geometry is compiled in (src/BLMaterialMap<geometry>.cc) as the
+// serialized Map, and test/blMaterialMap/ regenerates it. The readers all see a Map: the device fits get it
+// from the EventSetup, the unit tests load it from the compiled-in table with loadTable().
 #ifndef RecoTracker_PixelTrackFitting_BLMaterialMap_h
 #define RecoTracker_PixelTrackFitting_BLMaterialMap_h
 
 #include <cmath>
+#include <cstring>
+#include <type_traits>
 
 namespace blMaterialMap {
   constexpr int kNR = 250;
@@ -16,20 +18,36 @@ namespace blMaterialMap {
   constexpr float kDZ = 1.0000f;   // cm
   constexpr float kZMAX = 280.0f;  // cm; z in [-kZMAX, +kZMAX]
   constexpr int kSize = kNR * kNZ;
-  // floats per cell of the dE/dx lattice: (rho_e [mol/cm^3], <ln(I/eV)>, <ln rho_e>)
-  constexpr int kDedxStride = 3;
-  // floats in the compiled-in table and in the buffer the EventSetup uploads: the whole density lattice,
-  // then the whole dE/dx lattice. The two are kept in blocks rather than interleaved so that the readers
-  // that want only the density -- the extender's march, which walks long z runs -- keep their cache lines
-  // dense; a cell-interleaved table costs them more than it saves the fits.
-  constexpr int kBufferFloats = (1 + kDedxStride) * kSize;
+
+  // The dE/dx triple of a cell: the electron density rho_e = rho_mass Z/A [mol/cm^3] (the Landau xi per cm
+  // of path), and the rho_e-weighted means of ln(I/eV) and of ln rho_e over the cell (Bragg additivity,
+  // PDG RPP 34.2.5). All zero where the cell holds no material.
+  struct DeDx {
+    float rhoE;
+    float lnI;
+    float lnRhoE;
+  };
+
+  // The whole map: the density lattice, then the dE/dx lattice of the same cells, both kNZ-major (cell
+  // (ir,iz) at ir * kNZ + iz). The two are kept in blocks rather than interleaved so that the readers that
+  // want only the density -- the extender's march, which walks long z runs -- keep their cache lines dense;
+  // a cell-interleaved table costs them more than it saves the fits. Trivially copyable: the host payload
+  // is copied to the device as one object.
+  struct Map {
+    float rho[kSize];
+    DeDx dedx[kSize];
+  };
+  static_assert(std::is_trivially_copyable_v<Map> && std::is_standard_layout_v<Map>);
+
+  // Floats in the compiled-in table: the serialized Map, the same floats in the same order and no padding.
+  constexpr int kBufferFloats = 4 * kSize;
+  static_assert(sizeof(Map) == kBufferFloats * sizeof(float));
   // Host pointer to the compiled-in table (src/BLMaterialMap<geometry>.cc).
   const float* blMaterialMapData();
-  // The dE/dx lattice belonging to a density lattice: contiguous with it in the compiled-in table and in the
-  // uploaded buffer alike, so one pointer carries both and no reader needs a second one.
-  constexpr inline const float* dedxOf(const float* rho) { return rho + kSize; }
+  // Fills a Map from a serialized table: the compiled-in one, or any other with the same layout.
+  inline void loadTable(Map& map, const float* table) { std::memcpy(&map, table, sizeof(Map)); }
 
-  // Index of cell (r,z) in the density lattice, or -1 outside the grid.
+  // Index of cell (r,z), or -1 outside the grid.
   constexpr inline int cellAt(float r, float z) {
     int ir = int(r / kDR), iz = int((z + kZMAX) / kDZ);
     if (ir < 0 || ir >= kNR || iz < 0 || iz >= kNZ)
@@ -37,25 +55,17 @@ namespace blMaterialMap {
     return ir * kNZ + iz;
   }
 
-  // Local density [X0/cm] at (r,z), 0 outside the grid; rho is a host array or a device buffer.
+  // Local density [X0/cm] at (r,z), 0 outside the grid; the map lives in host memory or in a device buffer.
   // constexpr so it is callable from device code.
-  constexpr inline float rhoAt(const float* rho, float r, float z) {
+  constexpr inline float rhoAt(const Map& map, float r, float z) {
     const int c = cellAt(r, z);
-    return c < 0 ? 0.f : rho[c];
+    return c < 0 ? 0.f : map.rho[c];
   }
 
-  // The cell's dE/dx triple at (r,z): the electron density rho_e = rho_mass Z/A [mol/cm^3] (the Landau xi per
-  // cm of path), and the rho_e-weighted means of ln(I/eV) and of ln rho_e over the cell (Bragg additivity,
-  // PDG RPP 34.2.5). Zeros outside the grid and where the cell holds no material.
-  constexpr inline void dedxAt(const float* dedx, float r, float z, float& rhoE, float& lnI, float& lnRhoE) {
+  // The cell's dE/dx triple at (r,z): zeros outside the grid and where the cell holds no material.
+  constexpr inline DeDx dedxAt(const Map& map, float r, float z) {
     const int c = cellAt(r, z);
-    if (c < 0) {
-      rhoE = lnI = lnRhoE = 0.f;
-      return;
-    }
-    rhoE = dedx[kDedxStride * c];
-    lnI = dedx[kDedxStride * c + 1];
-    lnRhoE = dedx[kDedxStride * c + 2];
+    return c < 0 ? DeDx{0.f, 0.f, 0.f} : map.dedx[c];
   }
 
   // The ionization column of a path: the three integrals int rho_e dl, int rho_e <ln I> dl and

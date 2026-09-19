@@ -66,12 +66,18 @@ public:
       throw cms::Exception("BLMapsCheck") << nBad << " of " << blBFieldMap::kNValues
                                           << " field-map values differ from the MagneticField sampled on the lattice";
 
-    // material map: every float of it must be the compiled-in table
-    float const* materialMap = iSetup.getData(materialMapToken_).data();
+    // material map: every float of it must be the compiled-in table (the serialized Map: the density
+    // lattice, then the dE/dx triples)
+    blMaterialMap::Map const* materialMap = iSetup.getData(materialMapToken_).data();
     float const* table = blMaterialMap::blMaterialMapData();
+    float const* tableDedx = table + blMaterialMap::kSize;
     nBad = 0;
-    for (int i = 0; i < blMaterialMap::kBufferFloats; ++i)
-      nBad += (materialMap[i] != table[i]);
+    for (int i = 0; i < blMaterialMap::kSize; ++i) {
+      nBad += (materialMap->rho[i] != table[i]);
+      nBad += (materialMap->dedx[i].rhoE != tableDedx[3 * i]);
+      nBad += (materialMap->dedx[i].lnI != tableDedx[3 * i + 1]);
+      nBad += (materialMap->dedx[i].lnRhoE != tableDedx[3 * i + 2]);
+    }
     if (nBad)
       throw cms::Exception("BLMapsCheck")
           << nBad << " of " << blMaterialMap::kBufferFloats << " material-map values differ from the compiled-in table";
@@ -91,7 +97,7 @@ public:
       out << "# BLMaterialMap: " << blMaterialMap::kNR << " x " << blMaterialMap::kNZ
           << " cells, rho(r,z) [X0/cm], index ir*kNZ+iz\n";
       for (int i = 0; i < blMaterialMap::kSize; ++i)
-        out << materialMap[i] << "\n";
+        out << materialMap->rho[i] << "\n";
     }
   }
 

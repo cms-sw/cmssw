@@ -863,7 +863,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // conditions (copied once per IOV; on the serial backend data() points at the host buffer). Both are
     // consumed and read only under useFitCorrections; null otherwise (the fit's scalar-field, flat-material
     // path).
-    const float* rhoMapDevice = useFitCorrections_ ? es.getData(tokenBLMaterialMap_).data() : nullptr;
+    const blMaterialMap::Map* rhoMapDevice = useFitCorrections_ ? es.getData(tokenBLMaterialMap_).data() : nullptr;
     const float* bMapDevice = useFitCorrections_ ? es.getData(tokenBLBFieldMap_).data() : nullptr;
 
     auto const& geometry = runCache()->geometry_.get(iEvent.queue());

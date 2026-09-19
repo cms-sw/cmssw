@@ -409,8 +409,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       results_view[tkid].ndof() = int8_t(2 * N - 5);
     }
 
-    // Device pointer to the uploaded Geant4 material density grid (blMaterialMap, kSize floats).
-    const float* __restrict__ rhoMap_ = nullptr;
+    // Device pointer to the uploaded Geant4 material map (blMaterialMap::Map: density and dE/dx lattices).
+    const blMaterialMap::Map* __restrict__ rhoMap_ = nullptr;
     // Device pointer to the (Bz,Br) r-z field map (blBFieldMap), an EventSetup condition. Consumed only
     // under fitCorrections_: the material/field model is one, so the
     // scattering variance is only correct if its momentum comes from the same field that bent the track.
@@ -509,7 +509,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // N-independent config of one fused main-fit launch: the per-bin kernels' members + N-independent args.
   // One object serves every bin; the trampoline rebuilds the bin's kernel inside the callee's frame.
   struct BLMainFusedCfg {
-    const float* __restrict__ rhoMap = nullptr;
+    const blMaterialMap::Map* __restrict__ rhoMap = nullptr;
     const float* __restrict__ bMap = nullptr;
     bool fitCorrections = false;
     bool hasStubs = false;
@@ -706,7 +706,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ::reco::CAModulesConstView cm;
     OutputSoAView outputSoa;
     double bField;
-    const float* rhoMap;
+    const blMaterialMap::Map* rhoMap;
     const float* bMap;  // normalized (Bz,Br) r-z field map; null (or fitCorrections off) => the scalar bField
     typename caStructures::tindex_type* tkids;
     double* phits;

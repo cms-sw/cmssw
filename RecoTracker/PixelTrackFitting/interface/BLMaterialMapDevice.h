@@ -6,17 +6,17 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "RecoTracker/PixelTrackFitting/interface/BLMaterialMap.h"
 
-// Device-resident BL-fit material map (kBufferFloats floats): per cell the density rho(r,z) [X0/cm] and the
-// dE/dx triple, filled once per IOV from the host payload.
+// Device-resident BL-fit material map (one blMaterialMap::Map): per cell the density rho(r,z) [X0/cm] and
+// the dE/dx triple, filled once per IOV from the host payload.
 template <typename TDev>
 class BLMaterialMapDevice {
 public:
-  using Buffer = cms::alpakatools::device_buffer<TDev, float[]>;
-  using ConstBuffer = cms::alpakatools::const_device_buffer<TDev, float[]>;
+  using Buffer = cms::alpakatools::device_buffer<TDev, blMaterialMap::Map>;
+  using ConstBuffer = cms::alpakatools::const_device_buffer<TDev, blMaterialMap::Map>;
 
   template <typename TQueue>
   explicit BLMaterialMapDevice(TQueue queue)
-      : buffer_(cms::alpakatools::make_device_buffer<float[]>(queue, blMaterialMap::kBufferFloats)) {}
+      : buffer_(cms::alpakatools::make_device_buffer<blMaterialMap::Map>(queue)) {}
 
   // non-copyable
   BLMaterialMapDevice(BLMaterialMapDevice const&) = delete;
@@ -30,8 +30,8 @@ public:
 
   Buffer buffer() { return buffer_; }
 
-  // raw device pointer passed to rhoAt() and dedxAt() by the BL fit kernel
-  float const* data() const { return buffer_.data(); }
+  // device pointer to the map, read by rhoAt() and dedxAt() in the BL fit kernels
+  blMaterialMap::Map const* data() const { return buffer_.data(); }
 
 private:
   Buffer buffer_;

@@ -226,7 +226,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
   // scale by k, k^2, k^3, so the shape quantities (fDep, w1) are unchanged and the lever d1 is in path units.
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void segmentWalk(const TAcc& acc,
-                                                  const float* rho,
+                                                  const blMaterialMap::Map* map,
                                                   double r0,
                                                   double z0,
                                                   double r1,
@@ -240,7 +240,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
     const double dr = r1 - r0, dz = z1 - z0;
     L = alpaka::math::sqrt(acc, dr * dr + dz * dz);
     W = S1 = S2 = 0.;
-    const float* dedx = (col != nullptr) ? blMaterialMap::dedxOf(rho) : nullptr;
     if (col != nullptr)
       *col = ElossColumn{};
     if (!(L > 0.))
@@ -271,7 +270,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
       if (tn > t) {
         const double tm = 0.5 * (t + tn);  // midpoint: inside the cell whatever the boundary rounding
         const float rm = float(r0 + tm * dr), zm = float(z0 + tm * dz);
-        const double q = blMaterialMap::rhoAt(rho, rm, zm);
+        const double q = blMaterialMap::rhoAt(*map, rm, zm);
         if (q > 0.f) {
           const double a = 1. - t, c = 1. - tn;
           W += q * (a - c) * L;
@@ -279,12 +278,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
           S2 += q * (a * a * a - c * c * c) * (1. / 3.) * L * L * L;
           if (col != nullptr) {
             // the same sub-interval, the same cell index: the ionization column costs one more cell read
-            float rhoE, lnI, lnRhoE;
-            blMaterialMap::dedxAt(dedx, rm, zm, rhoE, lnI, lnRhoE);
-            const double we = double(rhoE) * (a - c) * L;
+            const blMaterialMap::DeDx d = blMaterialMap::dedxAt(*map, rm, zm);
+            const double we = double(d.rhoE) * (a - c) * L;
             col->e += we;
-            col->eLnI += we * double(lnI);
-            col->eLnRho += we * double(lnRhoE);
+            col->eLnI += we * double(d.lnI);
+            col->eLnRho += we * double(d.lnRhoE);
           }
         }
       }
@@ -308,7 +306,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
   // X/X0 of the segment (r0,z0)->(r1,z1), the walk's total. `path3D` as in segmentWalk.
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE double segmentXX0(const TAcc& acc,
-                                                   const float* rho,
+                                                   const blMaterialMap::Map* map,
                                                    double r0,
                                                    double z0,
                                                    double r1,
@@ -316,7 +314,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
                                                    double path3D = 0.,
                                                    ElossColumn* col = nullptr) {
     double L, W, S1, S2;
-    segmentWalk(acc, rho, r0, z0, r1, z1, path3D, L, W, S1, S2, col);
+    segmentWalk(acc, map, r0, z0, r1, z1, path3D, L, W, S1, S2, col);
     return W;  // dimensionless X/X0
   }
 
@@ -329,7 +327,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
   // handles those limits. Returns W.
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE double segmentXX0Moments(const TAcc& acc,
-                                                          const float* rho,
+                                                          const blMaterialMap::Map* map,
                                                           double r0,
                                                           double z0,
                                                           double r1,
@@ -339,7 +337,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
                                                           double path3D = 0.,
                                                           ElossColumn* col = nullptr) {
     double L, W, S1, S2;
-    segmentWalk(acc, rho, r0, z0, r1, z1, path3D, L, W, S1, S2, col);
+    segmentWalk(acc, map, r0, z0, r1, z1, path3D, L, W, S1, S2, col);
     d1 = 0.;
     w1 = 0.;
     if (W > 0. && S1 > 0. && S2 > 0.) {
@@ -356,7 +354,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
   // at the arrival node would model the first moment as zero). Returns W.
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE double segmentXX0Endpoint(const TAcc& acc,
-                                                           const float* rho,
+                                                           const blMaterialMap::Map* map,
                                                            double r0,
                                                            double z0,
                                                            double r1,
@@ -365,7 +363,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
                                                            double path3D = 0.,
                                                            ElossColumn* col = nullptr) {
     double L, W, S1, S2;
-    segmentWalk(acc, rho, r0, z0, r1, z1, path3D, L, W, S1, S2, col);
+    segmentWalk(acc, map, r0, z0, r1, z1, path3D, L, W, S1, S2, col);
     fDep = (W > 0.) ? S1 / (W * L) : 0.;
     return W;
   }
@@ -519,7 +517,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
                                                                                            const M3xN& hits,
                                                                                            const V4& fast_fit,
                                                                                            const double bField,
-                                                                                           const float* rho,
+                                                                                           const blMaterialMap::Map* map,
                                                                                            TData& results,
                                                                                            TWs& fitWs,
                                                                                            bool fitCorrections = false,
@@ -680,7 +678,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
       double pTot = 0.;
       if (elossGaps) {
         results.innerXX0 =
-            segmentXX0Moments(acc, rho, 0., zPca, rOf(0), hits(2, 0), results.innerD1, results.innerW1, path0, &colRun);
+            segmentXX0Moments(acc, map, 0., zPca, rOf(0), hits(2, 0), results.innerD1, results.innerW1, path0, &colRun);
         pTot = alpaka::math::sqrt(acc, riemannFit::sqr(bField * fast_fit(2)) * (1. + riemannFit::sqr(slope)));
       }
       for (u_int g = 0; g < n - 1; g++) {
@@ -689,7 +687,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
         const double path = alpaka::math::abs(acc, results.sTotal(g + 1) - results.sTotal(g));
         ElossColumn colGap;
         const double xx0 = segmentXX0Endpoint(
-            acc, rho, rOf(g), hits(2, g), rOf(g + 1), hits(2, g + 1), fDep, path, elossGaps ? &colGap : nullptr);
+            acc, map, rOf(g), hits(2, g), rOf(g + 1), hits(2, g + 1), fDep, path, elossGaps ? &colGap : nullptr);
         xx0Run += xx0;
         results.matXX0(g) += (1. - fDep) * xx0;  // arrival share   -> node g+1 -> slot g
         if (g > 0)
@@ -729,7 +727,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::brokenline {
     if (fitCorrections) {
       if (!elossGaps)  // with elossGaps the same walk already ran, one lump earlier
         results.innerXX0 =
-            segmentXX0Moments(acc, rho, 0., zPca, rOf(0), hits(2, 0), results.innerD1, results.innerW1, path0);
+            segmentXX0Moments(acc, map, 0., zPca, rOf(0), hits(2, 0), results.innerD1, results.innerW1, path0);
     } else {
       // Corrections OFF: upstream adds the innermost multiple-scattering term from the FIRST GAP's
       // length -- multScatt(sTotal(1) - sTotal(0), ...) -- not from a beamline material integral.

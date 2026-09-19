@@ -32,7 +32,7 @@
 namespace blMaterialMap {
   namespace {
     // the whole density lattice [X0/cm], then the dE/dx triples of the same cells, both
-    // kNZ-major: one array, so that one pointer reaches both (blMaterialMap::dedxOf).
+    // kNZ-major: one array, the serialized blMaterialMap::Map (loadTable).
     const float kMap[kBufferFloats] = {
         0.0f,          0.0f,          0.0f,          0.0f,          0.0f,          0.0f,          0.0f,
         0.0f,          0.0f,          0.0f,          0.0f,          0.0f,          0.0f,          0.0f,
