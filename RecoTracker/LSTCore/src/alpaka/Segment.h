@@ -195,10 +195,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addSegmentToMemory(Segments segments,
                                                          unsigned int lowerMDIndex,
                                                          unsigned int upperMDIndex,
-                                                         uint16_t innerLowerModuleIndex,
                                                          uint16_t outerLowerModuleIndex,
-                                                         unsigned int innerMDAnchorHitIndex,
-                                                         unsigned int outerMDAnchorHitIndex,
                                                          float dPhiChange,
                                                          float dPhiChangeMin,
                                                          float dPhiChangeMax,
@@ -217,10 +214,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                          unsigned int idx) {
     segments.mdIndices()[idx][0] = lowerMDIndex;
     segments.mdIndices()[idx][1] = upperMDIndex;
-    segments.innerLowerModuleIndices()[idx] = innerLowerModuleIndex;
     segments.outerLowerModuleIndices()[idx] = outerLowerModuleIndex;
-    segments.innerMiniDoubletAnchorHitIndices()[idx] = innerMDAnchorHitIndex;
-    segments.outerMiniDoubletAnchorHitIndices()[idx] = outerMDAnchorHitIndex;
 
     segments.dPhiChanges()[idx] = __F2H(dPhiChange);
 #ifdef CUT_VALUE_DEBUG
@@ -252,18 +246,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                               unsigned int outerMDIndex,
                                                               uint16_t pixelModuleIndex,
                                                               const Params_pLS::ArrayUxHits& hitIdxs,
-                                                              unsigned int innerAnchorHitIndex,
-                                                              unsigned int outerAnchorHitIndex,
                                                               float dPhiChange,
                                                               unsigned int idx,
                                                               unsigned int pixelSegmentArrayIndex,
                                                               float score) {
     segments.mdIndices()[idx][0] = innerMDIndex;
     segments.mdIndices()[idx][1] = outerMDIndex;
-    segments.innerLowerModuleIndices()[idx] = pixelModuleIndex;
     segments.outerLowerModuleIndices()[idx] = pixelModuleIndex;
-    segments.innerMiniDoubletAnchorHitIndices()[idx] = innerAnchorHitIndex;
-    segments.outerMiniDoubletAnchorHitIndices()[idx] = outerAnchorHitIndex;
     segments.dPhiChanges()[idx] = __F2H(dPhiChange);
 
     pixelSegments.isDup()[pixelSegmentArrayIndex] = false;
@@ -766,8 +755,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             float zLo, zHi, rtLo, rtHi, dAlphaInnerMDSegment, dAlphaOuterMDSegment, dAlphaInnerMDOuterMD;
 #endif
 
-            unsigned int innerMiniDoubletAnchorHitIndex = mds.anchorHitIndices()[innerMDIndex];
-            unsigned int outerMiniDoubletAnchorHitIndex = mds.anchorHitIndices()[outerMDIndex];
             dPhiMin = 0;
             dPhiMax = 0;
             dPhiChangeMin = 0;
@@ -815,10 +802,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                 addSegmentToMemory(segments,
                                    innerMDIndex,
                                    outerMDIndex,
-                                   innerLowerModuleIndex,
                                    outerLowerModuleIndex,
-                                   innerMiniDoubletAnchorHitIndex,
-                                   outerMiniDoubletAnchorHitIndex,
                                    dPhiChange,
                                    dPhiChangeMin,
                                    dPhiChangeMax,
@@ -1149,8 +1133,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                 outerMDIndex,
                                 pixelModuleIndex,
                                 hits1,
-                                firstHit,
-                                firstHit + 2,
                                 pixelSeeds.deltaPhi()[tid],
                                 pixelSegmentIndex,
                                 tid,

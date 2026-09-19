@@ -22,13 +22,10 @@ namespace lst {
                       SOA_COLUMN(float, regressionRadius),
                       SOA_COLUMN(float, regressionCenterX),
                       SOA_COLUMN(float, regressionCenterY),
-                      SOA_COLUMN(float, chiSquared),
-                      SOA_COLUMN(float, nonAnchorChiSquared),
                       SOA_COLUMN(float, displacedScore),
                       SOA_COLUMN(float, fakeScore),
                       SOA_COLUMN(FPX, innerRadius),  // inner triplet circle radius
                       SOA_COLUMN(FPX, outerRadius),  // outer triplet radius
-                      SOA_COLUMN(FPX, pt),
 #ifdef CUT_VALUE_DEBUG
                       SOA_COLUMN(FPX, score_rphisum),  // r-phi based score
                       SOA_COLUMN(float, nonAnchorRegressionRadius),
@@ -37,7 +34,7 @@ namespace lst {
                       SOA_COLUMN(int, layer),
                       SOA_COLUMN(float, dBeta),
 #endif
-                      SOA_COLUMN(bool, partOfTC));
+                      SOA_COLUMN(FPX, pt));
 
   using QuadrupletsSoA = QuadrupletsSoALayout<>;
   using Quadruplets = QuadrupletsSoA::View;

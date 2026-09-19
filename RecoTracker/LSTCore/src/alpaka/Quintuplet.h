@@ -17,10 +17,13 @@
 #include "RecoTracker/LSTCore/interface/Circle.h"
 
 #include "NeuralNetwork.h"
+#include "TripletAccessors.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addQuintupletToMemory(TripletsConst triplets,
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addQuintupletToMemory(ModulesConst modules,
+                                                            MiniDoubletsConst mds,
                                                             SegmentsConst segments,
+                                                            TripletsConst triplets,
                                                             Quintuplets quintuplets,
                                                             QuintupletsByMD quintupletsByMD0,
                                                             QuintupletsByMD quintupletsByMD1,
@@ -73,22 +76,31 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quintuplets.regressionRadius()[quintupletIndex] = regressionRadius;
     quintuplets.regressionCenterX()[quintupletIndex] = regressionCenterX;
     quintuplets.regressionCenterY()[quintupletIndex] = regressionCenterY;
-    quintuplets.logicalLayers()[quintupletIndex][0] = triplets.logicalLayers()[innerTripletIndex][0];
-    quintuplets.logicalLayers()[quintupletIndex][1] = triplets.logicalLayers()[innerTripletIndex][1];
-    quintuplets.logicalLayers()[quintupletIndex][2] = triplets.logicalLayers()[innerTripletIndex][2];
-    quintuplets.logicalLayers()[quintupletIndex][3] = triplets.logicalLayers()[outerTripletIndex][1];
-    quintuplets.logicalLayers()[quintupletIndex][4] = triplets.logicalLayers()[outerTripletIndex][2];
+    quintuplets.logicalLayers()[quintupletIndex][0] =
+        getLogicalLayer(modules, triplets.lowerModuleIndices()[innerTripletIndex][0]);
+    quintuplets.logicalLayers()[quintupletIndex][1] =
+        getLogicalLayer(modules, triplets.lowerModuleIndices()[innerTripletIndex][1]);
+    quintuplets.logicalLayers()[quintupletIndex][2] =
+        getLogicalLayer(modules, triplets.lowerModuleIndices()[innerTripletIndex][2]);
+    quintuplets.logicalLayers()[quintupletIndex][3] =
+        getLogicalLayer(modules, triplets.lowerModuleIndices()[outerTripletIndex][1]);
+    quintuplets.logicalLayers()[quintupletIndex][4] =
+        getLogicalLayer(modules, triplets.lowerModuleIndices()[outerTripletIndex][2]);
 
-    quintuplets.hitIndices()[quintupletIndex][0] = triplets.hitIndices()[innerTripletIndex][0];
-    quintuplets.hitIndices()[quintupletIndex][1] = triplets.hitIndices()[innerTripletIndex][1];
-    quintuplets.hitIndices()[quintupletIndex][2] = triplets.hitIndices()[innerTripletIndex][2];
-    quintuplets.hitIndices()[quintupletIndex][3] = triplets.hitIndices()[innerTripletIndex][3];
-    quintuplets.hitIndices()[quintupletIndex][4] = triplets.hitIndices()[innerTripletIndex][4];
-    quintuplets.hitIndices()[quintupletIndex][5] = triplets.hitIndices()[innerTripletIndex][5];
-    quintuplets.hitIndices()[quintupletIndex][6] = triplets.hitIndices()[outerTripletIndex][2];
-    quintuplets.hitIndices()[quintupletIndex][7] = triplets.hitIndices()[outerTripletIndex][3];
-    quintuplets.hitIndices()[quintupletIndex][8] = triplets.hitIndices()[outerTripletIndex][4];
-    quintuplets.hitIndices()[quintupletIndex][9] = triplets.hitIndices()[outerTripletIndex][5];
+    unsigned int innerT3Hits[Params_T3::kHits], outerT3Hits[Params_T3::kHits];
+    getTripletHitIndices(mds, segments, triplets, innerTripletIndex, innerT3Hits);
+    getTripletHitIndices(mds, segments, triplets, outerTripletIndex, outerT3Hits);
+
+    quintuplets.hitIndices()[quintupletIndex][0] = innerT3Hits[0];
+    quintuplets.hitIndices()[quintupletIndex][1] = innerT3Hits[1];
+    quintuplets.hitIndices()[quintupletIndex][2] = innerT3Hits[2];
+    quintuplets.hitIndices()[quintupletIndex][3] = innerT3Hits[3];
+    quintuplets.hitIndices()[quintupletIndex][4] = innerT3Hits[4];
+    quintuplets.hitIndices()[quintupletIndex][5] = innerT3Hits[5];
+    quintuplets.hitIndices()[quintupletIndex][6] = outerT3Hits[2];
+    quintuplets.hitIndices()[quintupletIndex][7] = outerT3Hits[3];
+    quintuplets.hitIndices()[quintupletIndex][8] = outerT3Hits[4];
+    quintuplets.hitIndices()[quintupletIndex][9] = outerT3Hits[5];
     quintuplets.bridgeRadius()[quintupletIndex] = bridgeRadius;
 #ifdef CUT_VALUE_DEBUG
     quintuplets.rzChiSquared()[quintupletIndex] = rzChiSquared;
@@ -1811,8 +1823,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         float eta = mds.anchorEta()[mdIndices[ls0Index][layer2_adjustment]];
         float pt = (innerRadius + outerRadius) * k2Rinv1GeVf;
         float scores = chiSquared + nonAnchorChiSquared;
-        addQuintupletToMemory(triplets,
+        addQuintupletToMemory(modules,
+                              mds,
                               segments,
+                              triplets,
                               quintuplets,
                               quintupletsByMD0,
                               quintupletsByMD1,

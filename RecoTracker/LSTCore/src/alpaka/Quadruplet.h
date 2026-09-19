@@ -17,11 +17,15 @@
 #include "RecoTracker/LSTCore/interface/Circle.h"
 
 #include "Quintuplet.h"
+#include "TripletAccessors.h"
 
 #include "NeuralNetwork.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addQuadrupletToMemory(TripletsConst triplets,
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addQuadrupletToMemory(ModulesConst modules,
+                                                            MiniDoubletsConst mds,
+                                                            SegmentsConst segments,
+                                                            TripletsConst triplets,
                                                             Quadruplets quadruplets,
                                                             unsigned int innerTripletIndex,
                                                             unsigned int outerTripletIndex,
@@ -63,19 +67,29 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quadruplets.score_rphisum()[quadrupletIndex] = __F2H(scores);
     quadruplets.layer()[quadrupletIndex] = layer;
 #endif
-    quadruplets.logicalLayers()[quadrupletIndex][0] = triplets.logicalLayers()[innerTripletIndex][0];
-    quadruplets.logicalLayers()[quadrupletIndex][1] = triplets.logicalLayers()[innerTripletIndex][1];
-    quadruplets.logicalLayers()[quadrupletIndex][2] = triplets.logicalLayers()[innerTripletIndex][2];
-    quadruplets.logicalLayers()[quadrupletIndex][3] = triplets.logicalLayers()[outerTripletIndex][2];
+    quadruplets.logicalLayers()[quadrupletIndex][0] =
+        getLogicalLayer(modules, triplets.lowerModuleIndices()[innerTripletIndex][0]);
+    quadruplets.logicalLayers()[quadrupletIndex][1] =
+        getLogicalLayer(modules, triplets.lowerModuleIndices()[innerTripletIndex][1]);
+    quadruplets.logicalLayers()[quadrupletIndex][2] =
+        getLogicalLayer(modules, triplets.lowerModuleIndices()[innerTripletIndex][2]);
+    quadruplets.logicalLayers()[quadrupletIndex][3] =
+        getLogicalLayer(modules, triplets.lowerModuleIndices()[outerTripletIndex][2]);
 
-    quadruplets.hitIndices()[quadrupletIndex][0] = triplets.hitIndices()[innerTripletIndex][0];
-    quadruplets.hitIndices()[quadrupletIndex][1] = triplets.hitIndices()[innerTripletIndex][1];
-    quadruplets.hitIndices()[quadrupletIndex][2] = triplets.hitIndices()[innerTripletIndex][2];
-    quadruplets.hitIndices()[quadrupletIndex][3] = triplets.hitIndices()[innerTripletIndex][3];
-    quadruplets.hitIndices()[quadrupletIndex][4] = triplets.hitIndices()[innerTripletIndex][4];
-    quadruplets.hitIndices()[quadrupletIndex][5] = triplets.hitIndices()[innerTripletIndex][5];
-    quadruplets.hitIndices()[quadrupletIndex][6] = triplets.hitIndices()[outerTripletIndex][4];
-    quadruplets.hitIndices()[quadrupletIndex][7] = triplets.hitIndices()[outerTripletIndex][5];
+    unsigned int innerT3Hits[Params_T3::kHits];
+    getTripletHitIndices(mds, segments, triplets, innerTripletIndex, innerT3Hits);
+    // Only the outer triplet's final two hits are kept, so fetch its last
+    // mini-doublet rather than gathering all six of its hit indices.
+    unsigned int outerLastMD = getTripletLastMDIndex(segments, triplets, outerTripletIndex);
+
+    quadruplets.hitIndices()[quadrupletIndex][0] = innerT3Hits[0];
+    quadruplets.hitIndices()[quadrupletIndex][1] = innerT3Hits[1];
+    quadruplets.hitIndices()[quadrupletIndex][2] = innerT3Hits[2];
+    quadruplets.hitIndices()[quadrupletIndex][3] = innerT3Hits[3];
+    quadruplets.hitIndices()[quadrupletIndex][4] = innerT3Hits[4];
+    quadruplets.hitIndices()[quadrupletIndex][5] = innerT3Hits[5];
+    quadruplets.hitIndices()[quadrupletIndex][6] = mds.anchorHitIndices()[outerLastMD];
+    quadruplets.hitIndices()[quadrupletIndex][7] = mds.outerHitIndices()[outerLastMD];
 
     quadruplets.displacedScore()[quadrupletIndex] = displacedScore;
     quadruplets.fakeScore()[quadrupletIndex] = fakeScore;
@@ -671,7 +685,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                   float eta = mds.anchorEta()[layer3MDIndex];
 
                   float scores = chiSquared + nonAnchorChiSquared;
-                  addQuadrupletToMemory(triplets,
+                  addQuadrupletToMemory(modules,
+                                        mds,
+                                        segments,
+                                        triplets,
                                         quadruplets,
                                         innerTripletIndex,
                                         outerTripletIndex,
@@ -790,7 +807,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               float eta = mds.anchorEta()[layer3MDIndex];
 
               float scores = chiSquared + nonAnchorChiSquared;
-              addQuadrupletToMemory(triplets,
+              addQuadrupletToMemory(modules,
+                                    mds,
+                                    segments,
+                                    triplets,
                                     quadruplets,
                                     innerTripletIndex,
                                     outerTripletIndex,
