@@ -2142,8 +2142,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
           // short tracks whose long partner does not replace them -- measured, 4.5 points of prompt barrel
           // efficiency on ttbar PU200. The rule stays where it was tuned until it is retuned.
           if constexpr (std::is_same_v<pixelTopology::Phase2OTStubs, TrackerTraits>) {
-            if (h < static_cast<uint32_t>(hh.size()) && isStub(hh, h) &&
-                ::reco::StubFlags::isPS(hh.stub(int32_t(h)).flags())) {
+            if (h < static_cast<uint32_t>(hh.size()) && isStub(hh, h) && hh.stub(int32_t(h)).isPS()) {
               auto const lowerHitIdx = hh.stub(int32_t(h)).lowerHitIdx();
               if (lowerHitIdx != std::numeric_limits<uint32_t>::max()) {
                 auto const offsetStubs = caStructures::offsetStubsOf(hh);
@@ -2153,7 +2152,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                     continue;
                   if (otherIdx >= hitToTuple.nOnes())
                     continue;
-                  if (!isStub(hh, otherIdx) || !::reco::StubFlags::isPS(hh.stub(int32_t(otherIdx)).flags()))
+                  if (!isStub(hh, otherIdx) || !hh.stub(int32_t(otherIdx)).isPS())
                     continue;
                   if (hh.stub(int32_t(otherIdx)).lowerHitIdx() != lowerHitIdx)
                     continue;

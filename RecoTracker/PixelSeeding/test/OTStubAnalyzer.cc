@@ -161,10 +161,10 @@ void OTStubAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iS
           << " innerHit=" << std::setw(6) << stubsView[i].lowerHitIdx() << " outerHit=" << std::setw(6)
           << stubsView[i].upperHitIdx();
 
-      uint8_t flags = stubsView[i].flags();
-      bool isBarrel = reco::StubFlags::isBarrel(flags);
-      bool isFlat = reco::StubFlags::isFlat(flags);
-      uint8_t layer = reco::StubFlags::layer(flags);
+      auto const stub = stubsView[i];
+      bool isBarrel = stub.isBarrel();
+      bool isFlat = stub.isFlat();
+      uint8_t layer = stub.layer();
       msg << (isBarrel ? "B" : "E") << static_cast<int>(layer);
       if (isBarrel)
         msg << (isFlat ? "_flat" : "_tilt");
@@ -200,10 +200,10 @@ void OTStubAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iS
           << " innerHit=" << std::setw(6) << stubsView[i].lowerHitIdx() << " outerHit=" << std::setw(6)
           << stubsView[i].upperHitIdx();
 
-      uint8_t flags = stubsView[i].flags();
-      bool isBarrel = reco::StubFlags::isBarrel(flags);
-      bool isFlat = reco::StubFlags::isFlat(flags);
-      uint8_t layer = reco::StubFlags::layer(flags);
+      auto const stub = stubsView[i];
+      bool isBarrel = stub.isBarrel();
+      bool isFlat = stub.isFlat();
+      uint8_t layer = stub.layer();
       msg << (isBarrel ? "B" : "E") << static_cast<int>(layer);
       if (isBarrel)
         msg << (isFlat ? "_flat" : "_tilt");
