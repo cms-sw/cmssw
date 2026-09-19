@@ -52,7 +52,6 @@ static constexpr auto kCovCotThetaDz = 13;        // (3,4)
 static constexpr auto kCovDzDz = 14;              // (4,4)
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
-  using PixelTrackFeaturesSoAView = PixelTrackFeaturesSoA::View;
 
   // ------------------------------------------------------------------------------
 
@@ -139,17 +138,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   const int nHitsTot,
                                   const ::reco::OTRecHitsConstView otHits,  // raw OT-extra positions
                                   const uint32_t nOTHits,                   // 0 => merged-hits-only (view unused)
-                                  const bool useHitFeatures,
                                   const int* preselectedTrackIndices,
                                   const int* nPreselectedTracks,
-                                  PixelTrackFeaturesSoAView trackFeatures,
+                                  PixelTrackFitFeaturesView fitFeatures,
+                                  PixelTrackHitFeaturesView hitFeatures,
                                   int* trackHitCounts) const {
       /**
             * Extracts per-track features used as input to
             * the Torch HighPurity classifier.
             *
             * For each valid preselected track:
-            *  - Per-track features are written to PixelTrackFeaturesSoA
+            *  - Per-track features are written to the fit block, and to the hit block when
+            *    that block is allocated
             *  - trackHitCounts[i] stores the number of hits per track
             *    and is later transformed into hit offsets via prefix-scan
 
@@ -163,6 +163,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             *  - The first nPreselectedTracks entries are valid
             * This guarantees fixed-size tensors for Torch inference.
         */
+      // the hit block is allocated only when a model reads it: its extent is the flag
+      const bool useHitFeatures = hitFeatures.metadata().size() > 0;
       const auto nPreselected = *nPreselectedTracks;
       const auto nPreselectedTracksBound = alpaka::math::min(acc, nPreselected, maxPreselectedTracks);
 
@@ -186,32 +188,32 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           trackHitCounts[i] = numHits;
 
           // Fill per-track features
-          trackFeatures.chi2(i) = track.chi2();  // in the SoA chi2 is stored as chi2/ndof
-          trackFeatures.dzError(i) = xtd::sqrt(cov(kCovDzDz));
-          trackFeatures.dxyError(i) = xtd::sqrt(cov(kCovDxyDxy));
-          trackFeatures.eta(i) = track.eta();
-          trackFeatures.nHits(i) = numHits;
-          trackFeatures.phi(i) = state(kStatePhi);
-          trackFeatures.phiError(i) = xtd::sqrt(cov(kCovPhiPhi));
-          trackFeatures.pt(i) = track.pt();
-          trackFeatures.qOverPtError(i) = xtd::sqrt(cov(kCovQOverPtQOverPt));
-          trackFeatures.dzBS(i) = state(kStateDz);
-          trackFeatures.dxyBS(i) = state(kStateDxy);
-          trackFeatures.nLayers(i) = track.nLayers();
-          trackFeatures.cotThetaError(i) = xtd::sqrt(cov(kCovCotThetaCotTheta));
-          trackFeatures.covCotThetaDz(i) = cov(kCovCotThetaDz);
-          trackFeatures.covDxyQOverPt(i) = cov(kCovDxyQOverPt);
-          trackFeatures.covPhiDxy(i) = cov(kCovPhiDxy);
-          trackFeatures.covPhiQOverPt(i) = cov(kCovPhiQOverPt);
+          fitFeatures.chi2(i) = track.chi2();  // in the SoA chi2 is stored as chi2/ndof
+          fitFeatures.dzError(i) = xtd::sqrt(cov(kCovDzDz));
+          fitFeatures.dxyError(i) = xtd::sqrt(cov(kCovDxyDxy));
+          fitFeatures.eta(i) = track.eta();
+          fitFeatures.nHits(i) = numHits;
+          fitFeatures.phi(i) = state(kStatePhi);
+          fitFeatures.phiError(i) = xtd::sqrt(cov(kCovPhiPhi));
+          fitFeatures.pt(i) = track.pt();
+          fitFeatures.qOverPtError(i) = xtd::sqrt(cov(kCovQOverPtQOverPt));
+          fitFeatures.dzBS(i) = state(kStateDz);
+          fitFeatures.dxyBS(i) = state(kStateDxy);
+          fitFeatures.nLayers(i) = track.nLayers();
+          fitFeatures.cotThetaError(i) = xtd::sqrt(cov(kCovCotThetaCotTheta));
+          fitFeatures.covCotThetaDz(i) = cov(kCovCotThetaDz);
+          fitFeatures.covDxyQOverPt(i) = cov(kCovDxyQOverPt);
+          fitFeatures.covPhiDxy(i) = cov(kCovPhiDxy);
+          fitFeatures.covPhiQOverPt(i) = cov(kCovPhiQOverPt);
 
-          // Columns 18-42 (CA hit/stub, merged-collection provenance, pixel cluster) are filled
+          // The hit block (CA hit/stub, merged-collection provenance, pixel cluster) is filled
           // only for the hit-feature models. The CA features come from the shared
           // caTrackFeatures::fill, so the in-kernel gate, the nano table and this selector see the
           // same numbers. The hit walk indexes the merged TrackingRecHitsSoA over the per-track
           // [start,end) range of track_hits.id().
           if (useHitFeatures) {
             caTrackFeatures::Features feat;
-            // Extras (cols 28-31): rzChi2 (r-z linearity), meanStubKappa, leverArm (rMax-r0),
+            // Extras (hit cols 10-13): rzChi2 (r-z linearity), meanStubKappa, leverArm (rMax-r0),
             // rMax (radial extent), all produced in the same hit walk. Default-constructed to the
             // sentinels kept when fill() fails on a corrupt or short list.
             caTrackFeatures::Extras extras;
@@ -234,20 +236,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             // CA features -> appended columns, dropping nHits and nLayers (redundant with the
             // columns of the same name). Order must match the trained model's input schema; a
             // failed fill() falls back to 0, as padding rows do.
-            trackFeatures.caFitChi2(i) = featOk ? feat.caFitChi2 : 0.f;
-            trackFeatures.psFrac(i) = featOk ? feat.psFrac : 0.f;
-            trackFeatures.r0(i) = featOk ? feat.r0 : 0.f;
-            trackFeatures.nPS(i) = featOk ? feat.nPS : 0.f;
-            trackFeatures.spanZ(i) = featOk ? feat.spanZ : 0.f;
-            trackFeatures.nStubs(i) = featOk ? feat.nStubs : 0.f;
-            trackFeatures.logChi2Stub(i) = featOk ? feat.logChi2Stub : 0.f;
-            trackFeatures.kErr(i) = featOk ? feat.kErr : 0.f;
-            trackFeatures.dcaEst(i) = featOk ? feat.dcaEst : 0.f;
-            trackFeatures.nBarrel(i) = featOk ? feat.nBarrel : 0.f;
-            trackFeatures.rzChi2(i) = extras.rzChi2;
-            trackFeatures.meanStubKappa(i) = extras.meanStubKappa;
-            trackFeatures.leverArm(i) = featOk ? extras.leverArm : 0.f;
-            trackFeatures.rMax(i) = featOk ? extras.rMax : 0.f;
+            hitFeatures.caFitChi2(i) = featOk ? feat.caFitChi2 : 0.f;
+            hitFeatures.psFrac(i) = featOk ? feat.psFrac : 0.f;
+            hitFeatures.r0(i) = featOk ? feat.r0 : 0.f;
+            hitFeatures.nPS(i) = featOk ? feat.nPS : 0.f;
+            hitFeatures.spanZ(i) = featOk ? feat.spanZ : 0.f;
+            hitFeatures.nStubs(i) = featOk ? feat.nStubs : 0.f;
+            hitFeatures.logChi2Stub(i) = featOk ? feat.logChi2Stub : 0.f;
+            hitFeatures.kErr(i) = featOk ? feat.kErr : 0.f;
+            hitFeatures.dcaEst(i) = featOk ? feat.dcaEst : 0.f;
+            hitFeatures.nBarrel(i) = featOk ? feat.nBarrel : 0.f;
+            hitFeatures.rzChi2(i) = extras.rzChi2;
+            hitFeatures.meanStubKappa(i) = extras.meanStubKappa;
+            hitFeatures.leverArm(i) = featOk ? extras.leverArm : 0.f;
+            hitFeatures.rMax(i) = featOk ? extras.rMax : 0.f;
 
             // Merged-collection provenance (cols 32-35: nAttached, nOTExtras, iterationId, ndof)
             // and the pixel-cluster charge/shape block (cols 36-42: minCharge, meanCharge,
@@ -310,69 +312,69 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 ++nPix;
               }
             }
-            trackFeatures.nAttached(i) = float(nAttachedHits);
-            trackFeatures.nOTExtras(i) = float(nOTExtraHits);
+            hitFeatures.nAttached(i) = float(nAttachedHits);
+            hitFeatures.nOTExtras(i) = float(nOTExtraHits);
             // iteration exists only on the multi-iteration TrackSoA -> 0 where the column is absent.
-            trackFeatures.iterationId(i) = trackIterationId(track);
-            trackFeatures.ndof(i) = float(track.ndof());
-            // Cols 36-42: -1 sentinel on every column when the track carries no usable pixel
+            hitFeatures.iterationId(i) = trackIterationId(track);
+            hitFeatures.ndof(i) = float(track.ndof());
+            // Cluster columns: -1 sentinel on every column when the track carries no usable pixel
             // cluster, as in the nano producer.
             const bool clOk = (nPix > 0);
-            trackFeatures.minCharge(i) = clOk ? qMin : -1.f;
-            trackFeatures.meanCharge(i) = clOk ? qSum / float(nPix) : -1.f;
-            trackFeatures.minChargeNorm(i) = clOk ? qnMin : -1.f;
-            trackFeatures.maxSizeY(i) = clOk ? syMax : -1.f;
-            trackFeatures.meanSizeY(i) = clOk ? sySum / float(nPix) : -1.f;
-            trackFeatures.maxSizeX(i) = clOk ? sxMax : -1.f;
-            trackFeatures.nLowCharge(i) = clOk ? float(nLow) : -1.f;
+            hitFeatures.minCharge(i) = clOk ? qMin : -1.f;
+            hitFeatures.meanCharge(i) = clOk ? qSum / float(nPix) : -1.f;
+            hitFeatures.minChargeNorm(i) = clOk ? qnMin : -1.f;
+            hitFeatures.maxSizeY(i) = clOk ? syMax : -1.f;
+            hitFeatures.meanSizeY(i) = clOk ? sySum / float(nPix) : -1.f;
+            hitFeatures.maxSizeX(i) = clOk ? sxMax : -1.f;
+            hitFeatures.nLowCharge(i) = clOk ? float(nLow) : -1.f;
           }
         }
         // Case 2: padding entries --> fill with 0s for inference
         else {
-          trackFeatures.chi2(i) = 0;
-          trackFeatures.dzError(i) = 0;
-          trackFeatures.dxyError(i) = 0;
-          trackFeatures.eta(i) = 0;
-          trackFeatures.nHits(i) = 0;
-          trackFeatures.phi(i) = 0;
-          trackFeatures.phiError(i) = 0;
-          trackFeatures.pt(i) = 0;
-          trackFeatures.qOverPtError(i) = 0;
-          trackFeatures.dzBS(i) = 0;
-          trackFeatures.dxyBS(i) = 0;
-          trackFeatures.nLayers(i) = 0;
-          trackFeatures.cotThetaError(i) = 0;
-          trackFeatures.covCotThetaDz(i) = 0;
-          trackFeatures.covDxyQOverPt(i) = 0;
-          trackFeatures.covPhiDxy(i) = 0;
-          trackFeatures.covPhiQOverPt(i) = 0;
+          fitFeatures.chi2(i) = 0;
+          fitFeatures.dzError(i) = 0;
+          fitFeatures.dxyError(i) = 0;
+          fitFeatures.eta(i) = 0;
+          fitFeatures.nHits(i) = 0;
+          fitFeatures.phi(i) = 0;
+          fitFeatures.phiError(i) = 0;
+          fitFeatures.pt(i) = 0;
+          fitFeatures.qOverPtError(i) = 0;
+          fitFeatures.dzBS(i) = 0;
+          fitFeatures.dxyBS(i) = 0;
+          fitFeatures.nLayers(i) = 0;
+          fitFeatures.cotThetaError(i) = 0;
+          fitFeatures.covCotThetaDz(i) = 0;
+          fitFeatures.covDxyQOverPt(i) = 0;
+          fitFeatures.covPhiDxy(i) = 0;
+          fitFeatures.covPhiQOverPt(i) = 0;
           if (useHitFeatures) {
-            trackFeatures.caFitChi2(i) = 0;
-            trackFeatures.psFrac(i) = 0;
-            trackFeatures.r0(i) = 0;
-            trackFeatures.nPS(i) = 0;
-            trackFeatures.spanZ(i) = 0;
-            trackFeatures.nStubs(i) = 0;
-            trackFeatures.logChi2Stub(i) = 0;
-            trackFeatures.kErr(i) = 0;
-            trackFeatures.dcaEst(i) = 0;
-            trackFeatures.nBarrel(i) = 0;
-            trackFeatures.rzChi2(i) = -1.f;
-            trackFeatures.meanStubKappa(i) = 0;
-            trackFeatures.leverArm(i) = 0;
-            trackFeatures.rMax(i) = 0;
-            trackFeatures.nAttached(i) = 0;
-            trackFeatures.nOTExtras(i) = 0;
-            trackFeatures.iterationId(i) = 0;
-            trackFeatures.ndof(i) = 0;
-            // Cols 36-42 pad with their -1 sentinel rather than 0. Padding rows are never scored.
-            trackFeatures.minCharge(i) = -1.f;
-            trackFeatures.meanCharge(i) = -1.f;
-            trackFeatures.minChargeNorm(i) = -1.f;
-            trackFeatures.maxSizeY(i) = -1.f;
-            trackFeatures.meanSizeY(i) = -1.f;
-            trackFeatures.maxSizeX(i) = -1.f;
-            trackFeatures.nLowCharge(i) = -1.f;
+            hitFeatures.caFitChi2(i) = 0;
+            hitFeatures.psFrac(i) = 0;
+            hitFeatures.r0(i) = 0;
+            hitFeatures.nPS(i) = 0;
+            hitFeatures.spanZ(i) = 0;
+            hitFeatures.nStubs(i) = 0;
+            hitFeatures.logChi2Stub(i) = 0;
+            hitFeatures.kErr(i) = 0;
+            hitFeatures.dcaEst(i) = 0;
+            hitFeatures.nBarrel(i) = 0;
+            hitFeatures.rzChi2(i) = -1.f;
+            hitFeatures.meanStubKappa(i) = 0;
+            hitFeatures.leverArm(i) = 0;
+            hitFeatures.rMax(i) = 0;
+            hitFeatures.nAttached(i) = 0;
+            hitFeatures.nOTExtras(i) = 0;
+            hitFeatures.iterationId(i) = 0;
+            hitFeatures.ndof(i) = 0;
+            // The cluster columns pad with their -1 sentinel rather than 0. Padding rows are never scored.
+            hitFeatures.minCharge(i) = -1.f;
+            hitFeatures.meanCharge(i) = -1.f;
+            hitFeatures.minChargeNorm(i) = -1.f;
+            hitFeatures.maxSizeY(i) = -1.f;
+            hitFeatures.meanSizeY(i) = -1.f;
+            hitFeatures.maxSizeX(i) = -1.f;
+            hitFeatures.nLowCharge(i) = -1.f;
           }
         }
       }
@@ -476,10 +478,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   // ------------------------------------------------------------------------------
 
-  // Fit-derived feature columns (0-16). FeaturesExtractorKernel writes these for every preselected
-  // track, while columns 17-41 are written only under useHitFeatures, so the guard below stops at 17
-  // rather than reading memory that may never have been filled.
-  inline constexpr int kNForestFitFeatures = 17;
+  // Fit block: FeaturesExtractorKernel writes it for every preselected track, while the hit block
+  // is written only under useHitFeatures, so the guard below covers the fit block alone rather than
+  // reading memory that may never have been allocated.
+  inline constexpr int kNForestFitFeatures = kNPixelTrackFitFeatures;
 
   // The fit-derived columns, one named float each; asArray() gives them in column order.
   struct ForestFitFeatures {
@@ -528,26 +530,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // meaningless score. The rejection is therefore made on the features, not on the score.
   // edm::isNotFinite is a bit-pattern test on the exponent field, so it survives -Ofast.
   template <typename TIdx>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool forestFitFeaturesFinite(const PixelTrackFeaturesSoA::ConstView& trackFeatures,
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool forestFitFeaturesFinite(const PixelTrackFitFeaturesConstView& fitFeatures,
                                                               const TIdx i) {
     ForestFitFeatures ff;
-    ff.chi2 = trackFeatures[i].chi2();
-    ff.dzError = trackFeatures[i].dzError();
-    ff.dxyError = trackFeatures[i].dxyError();
-    ff.eta = trackFeatures[i].eta();
-    ff.nHits = trackFeatures[i].nHits();
-    ff.phi = trackFeatures[i].phi();
-    ff.phiError = trackFeatures[i].phiError();
-    ff.pt = trackFeatures[i].pt();
-    ff.qOverPtError = trackFeatures[i].qOverPtError();
-    ff.dzBS = trackFeatures[i].dzBS();
-    ff.dxyBS = trackFeatures[i].dxyBS();
-    ff.nLayers = trackFeatures[i].nLayers();
-    ff.cotThetaError = trackFeatures[i].cotThetaError();
-    ff.covCotThetaDz = trackFeatures[i].covCotThetaDz();
-    ff.covDxyQOverPt = trackFeatures[i].covDxyQOverPt();
-    ff.covPhiDxy = trackFeatures[i].covPhiDxy();
-    ff.covPhiQOverPt = trackFeatures[i].covPhiQOverPt();
+    ff.chi2 = fitFeatures[i].chi2();
+    ff.dzError = fitFeatures[i].dzError();
+    ff.dxyError = fitFeatures[i].dxyError();
+    ff.eta = fitFeatures[i].eta();
+    ff.nHits = fitFeatures[i].nHits();
+    ff.phi = fitFeatures[i].phi();
+    ff.phiError = fitFeatures[i].phiError();
+    ff.pt = fitFeatures[i].pt();
+    ff.qOverPtError = fitFeatures[i].qOverPtError();
+    ff.dzBS = fitFeatures[i].dzBS();
+    ff.dxyBS = fitFeatures[i].dxyBS();
+    ff.nLayers = fitFeatures[i].nLayers();
+    ff.cotThetaError = fitFeatures[i].cotThetaError();
+    ff.covCotThetaDz = fitFeatures[i].covCotThetaDz();
+    ff.covDxyQOverPt = fitFeatures[i].covDxyQOverPt();
+    ff.covPhiDxy = fitFeatures[i].covPhiDxy();
+    ff.covPhiQOverPt = fitFeatures[i].covPhiQOverPt();
     const auto f = ff.asArray();
     bool ok = true;
     for (int k = 0; ok && k < kNForestFitFeatures; ++k)
@@ -564,7 +566,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   const double scoreThreshold,
                                   const double scoreThresholdLowDxy,
                                   const double dxyRampKnee,
-                                  const PixelTrackFeaturesSoA::ConstView trackFeatures,
+                                  const PixelTrackFitFeaturesConstView fitFeatures,
                                   const int* nPreselectedTracks,
                                   const PixelTrackScoresSoA::View trackScores,
                                   int* selectionMask) const {
@@ -592,7 +594,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         const auto score = trackScores[i].score();
         float thr = scoreThreshold;
         if (scoreThresholdLowDxy >= 0.) {
-          const float adxy = alpaka::math::abs(acc, trackFeatures[i].dxyBS());
+          const float adxy = alpaka::math::abs(acc, fitFeatures[i].dxyBS());
           const float ramp = (adxy >= float(dxyRampKnee)) ? 0.f : (1.f - adxy / float(dxyRampKnee));
           thr = float(scoreThreshold) + (float(scoreThresholdLowDxy) - float(scoreThreshold)) * ramp;
         }
@@ -600,7 +602,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // rejected outright: the forest's verdict on it is meaningless. The score comparison is kept
         // in the promoting form (`score >= thr` -> keep), which leaves a non-finite score on the
         // rejecting side under -Ofast (-ffinite-math-only); the negated form is rewritable.
-        const bool fitOk = forestFitFeaturesFinite(trackFeatures, i);
+        const bool fitOk = forestFitFeaturesFinite(fitFeatures, i);
         selectionMask[i] = (fitOk && score >= thr) ? 1 : 0;
       }
     }
@@ -726,10 +728,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                const int nHitsTot,
                                const ::reco::OTRecHitsConstView otHits,
                                const uint32_t nOTHits,
-                               const bool useHitFeatures,
                                const int* preselectedTrackIndices,
                                const int* nPreselectedTracks,
-                               PixelTrackFeaturesSoAView trackFeatures,
+                               PixelTrackFitFeaturesView fitFeatures,
+                               PixelTrackHitFeaturesView hitFeatures,
                                int* trackHitCounts) {
     // Extract per-track features for Torch inference
     constexpr auto threadsPerBlock = 256u;
@@ -746,10 +748,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         nHitsTot,
                         otHits,
                         nOTHits,
-                        useHitFeatures,
                         preselectedTrackIndices,
                         nPreselectedTracks,
-                        trackFeatures,
+                        fitFeatures,
+                        hitFeatures,
                         trackHitCounts);
   }
 
@@ -760,7 +762,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                          const double scoreThreshold,
                          const double scoreThresholdLowDxy,
                          const double dxyRampKnee,
-                         const PixelTrackFeaturesSoA::ConstView trackFeatures,
+                         const PixelTrackFitFeaturesConstView fitFeatures,
                          const PixelTrackScoresSoA::View trackScores,
                          const int* preselectedTrackIndices,
                          const int* nPreselectedTracks,
@@ -790,7 +792,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         scoreThreshold,
                         scoreThresholdLowDxy,
                         dxyRampKnee,
-                        trackFeatures,
+                        fitFeatures,
                         nPreselectedTracks,
                         trackScores,
                         selectionMask.data());

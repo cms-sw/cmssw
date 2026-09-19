@@ -20,55 +20,56 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // amortise a tree over the tile while staying far below the CMSSW thread stack.
   inline constexpr int kForestCpuTrackTile = 512;
 
-  // Feature vector in PixelTrackFeaturesSoA column order == the trained ABI. Pure loads, no
-  // arithmetic, so the gather cannot differ between backends.
+  // The feature vector, fit block then hit block: pure loads.
   ALPAKA_FN_ACC ALPAKA_FN_INLINE PixelTrackForestFeatures
-  loadForestFeatures(const PixelTrackFeaturesSoA::ConstView& trackFeatures, const Idx i) {
+  loadForestFeatures(const PixelTrackFitFeaturesConstView& fitFeatures,
+                     const PixelTrackHitFeaturesConstView& hitFeatures,
+                     const Idx i) {
     PixelTrackForestFeatures f;
-    f.chi2 = trackFeatures[i].chi2();
-    f.dzError = trackFeatures[i].dzError();
-    f.dxyError = trackFeatures[i].dxyError();
-    f.eta = trackFeatures[i].eta();
-    f.nHits = trackFeatures[i].nHits();
-    f.phi = trackFeatures[i].phi();
-    f.phiError = trackFeatures[i].phiError();
-    f.pt = trackFeatures[i].pt();
-    f.qOverPtError = trackFeatures[i].qOverPtError();
-    f.dzBS = trackFeatures[i].dzBS();
-    f.dxyBS = trackFeatures[i].dxyBS();
-    f.nLayers = trackFeatures[i].nLayers();
-    f.cotThetaError = trackFeatures[i].cotThetaError();
-    f.covCotThetaDz = trackFeatures[i].covCotThetaDz();
-    f.covDxyQOverPt = trackFeatures[i].covDxyQOverPt();
-    f.covPhiDxy = trackFeatures[i].covPhiDxy();
-    f.covPhiQOverPt = trackFeatures[i].covPhiQOverPt();
-    f.caFitChi2 = trackFeatures[i].caFitChi2();
-    f.psFrac = trackFeatures[i].psFrac();
-    f.r0 = trackFeatures[i].r0();
-    f.nPS = trackFeatures[i].nPS();
-    f.spanZ = trackFeatures[i].spanZ();
-    f.nStubs = trackFeatures[i].nStubs();
-    f.logChi2Stub = trackFeatures[i].logChi2Stub();
-    f.kErr = trackFeatures[i].kErr();
-    f.dcaEst = trackFeatures[i].dcaEst();
-    f.nBarrel = trackFeatures[i].nBarrel();
-    f.rzChi2 = trackFeatures[i].rzChi2();
-    f.meanStubKappa = trackFeatures[i].meanStubKappa();
-    f.leverArm = trackFeatures[i].leverArm();
-    f.rMax = trackFeatures[i].rMax();
+    f.chi2 = fitFeatures[i].chi2();
+    f.dzError = fitFeatures[i].dzError();
+    f.dxyError = fitFeatures[i].dxyError();
+    f.eta = fitFeatures[i].eta();
+    f.nHits = fitFeatures[i].nHits();
+    f.phi = fitFeatures[i].phi();
+    f.phiError = fitFeatures[i].phiError();
+    f.pt = fitFeatures[i].pt();
+    f.qOverPtError = fitFeatures[i].qOverPtError();
+    f.dzBS = fitFeatures[i].dzBS();
+    f.dxyBS = fitFeatures[i].dxyBS();
+    f.nLayers = fitFeatures[i].nLayers();
+    f.cotThetaError = fitFeatures[i].cotThetaError();
+    f.covCotThetaDz = fitFeatures[i].covCotThetaDz();
+    f.covDxyQOverPt = fitFeatures[i].covDxyQOverPt();
+    f.covPhiDxy = fitFeatures[i].covPhiDxy();
+    f.covPhiQOverPt = fitFeatures[i].covPhiQOverPt();
+    f.caFitChi2 = hitFeatures[i].caFitChi2();
+    f.psFrac = hitFeatures[i].psFrac();
+    f.r0 = hitFeatures[i].r0();
+    f.nPS = hitFeatures[i].nPS();
+    f.spanZ = hitFeatures[i].spanZ();
+    f.nStubs = hitFeatures[i].nStubs();
+    f.logChi2Stub = hitFeatures[i].logChi2Stub();
+    f.kErr = hitFeatures[i].kErr();
+    f.dcaEst = hitFeatures[i].dcaEst();
+    f.nBarrel = hitFeatures[i].nBarrel();
+    f.rzChi2 = hitFeatures[i].rzChi2();
+    f.meanStubKappa = hitFeatures[i].meanStubKappa();
+    f.leverArm = hitFeatures[i].leverArm();
+    f.rMax = hitFeatures[i].rMax();
     // Cols 31-34: merged-collection provenance, indexed only by a merged-collection model.
-    f.nAttached = trackFeatures[i].nAttached();
-    f.nOTExtras = trackFeatures[i].nOTExtras();
-    f.iterationId = trackFeatures[i].iterationId();
-    f.ndof = trackFeatures[i].ndof();
+    f.nAttached = hitFeatures[i].nAttached();
+    f.nOTExtras = hitFeatures[i].nOTExtras();
+    f.iterationId = hitFeatures[i].iterationId();
+    f.ndof = hitFeatures[i].ndof();
     // Cols 35-41: pixel-cluster charge/shape, indexed only by a 42-feature model.
-    f.minCharge = trackFeatures[i].minCharge();
-    f.meanCharge = trackFeatures[i].meanCharge();
-    f.minChargeNorm = trackFeatures[i].minChargeNorm();
-    f.maxSizeY = trackFeatures[i].maxSizeY();
-    f.meanSizeY = trackFeatures[i].meanSizeY();
-    f.maxSizeX = trackFeatures[i].maxSizeX();
-    f.nLowCharge = trackFeatures[i].nLowCharge();
+    f.minCharge = hitFeatures[i].minCharge();
+    f.meanCharge = hitFeatures[i].meanCharge();
+    f.minChargeNorm = hitFeatures[i].minChargeNorm();
+    f.maxSizeY = hitFeatures[i].maxSizeY();
+    f.meanSizeY = hitFeatures[i].meanSizeY();
+    f.maxSizeX = hitFeatures[i].maxSizeX();
+    f.nLowCharge = hitFeatures[i].nLowCharge();
     return f;
   }
 
@@ -109,7 +110,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   const int32_t* treeRoots,
                                   const int nTrees,
                                   const float baseLogit,
-                                  const PixelTrackFeaturesSoA::ConstView trackFeatures,
+                                  const PixelTrackFitFeaturesConstView fitFeatures,
+                                  const PixelTrackHitFeaturesConstView hitFeatures,
                                   const int* nPreselectedTracks,
                                   PixelTrackScoresSoA::View trackScores) const {
       static_assert(cms::alpakatools::requires_single_thread_per_block_v<TAcc>,
@@ -129,7 +131,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           const int nTile = static_cast<int>(cms::alpakatools::idx_min(Idx(kForestCpuTrackTile), groupEnd - tileBegin));
           // Gather the tile's feature rows once; row-major, so a track's columns are adjacent.
           for (int k = 0; k < nTile; ++k) {
-            features[k] = loadForestFeatures(trackFeatures, tileBegin + Idx(k)).asArray();
+            features[k] = loadForestFeatures(fitFeatures, hitFeatures, tileBegin + Idx(k)).asArray();
             margins[k] = baseLogit;
           }
           // One pass over the forest for the whole tile; the inner walks are independent, so the
@@ -162,7 +164,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   const int32_t* treeRoots,
                                   const int nTrees,
                                   const float baseLogit,
-                                  const PixelTrackFeaturesSoA::ConstView trackFeatures,
+                                  const PixelTrackFitFeaturesConstView fitFeatures,
+                                  const PixelTrackHitFeaturesConstView hitFeatures,
                                   const int* nPreselectedTracks,
                                   PixelTrackScoresSoA::View trackScores) const {
       const auto nValid = alpaka::math::min(acc, *nPreselectedTracks, maxPreselectedTracks);
@@ -170,7 +173,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const int32_t laneId = static_cast<int32_t>(alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[1u]);
       for (auto i : cms::alpakatools::uniform_elements_y(acc, nValid)) {
         // All warpSize lanes read the same track i -> broadcast (single-address) global loads.
-        const std::array<float, kNForestFeatures> f = loadForestFeatures(trackFeatures, i).asArray();
+        const std::array<float, kNForestFeatures> f = loadForestFeatures(fitFeatures, hitFeatures, i).asArray();
         // Lane 0 seeds baseLogit (added exactly once); every lane sums its own disjoint tree
         // subset.
         float partial = (laneId == 0) ? baseLogit : 0.f;
@@ -197,7 +200,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                        const int32_t* treeRoots,
                        const int nTrees,
                        const float baseLogit,
-                       const PixelTrackFeaturesSoA::ConstView trackFeatures,
+                       const PixelTrackFitFeaturesConstView fitFeatures,
+                       const PixelTrackHitFeaturesConstView hitFeatures,
                        const int* nPreselectedTracks,
                        PixelTrackScoresSoA::View trackScores) {
     if constexpr (cms::alpakatools::requires_single_thread_per_block_v<Acc1D>) {
@@ -218,7 +222,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           treeRoots,
                           nTrees,
                           baseLogit,
-                          trackFeatures,
+                          fitFeatures,
+                          hitFeatures,
                           nPreselectedTracks,
                           trackScores);
     } else {
@@ -242,7 +247,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           treeRoots,
                           nTrees,
                           baseLogit,
-                          trackFeatures,
+                          fitFeatures,
+                          hitFeatures,
                           nPreselectedTracks,
                           trackScores);
     }
