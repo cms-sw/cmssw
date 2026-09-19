@@ -44,19 +44,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                PixelTrackFeaturesSoA::View trackFeatures,
                                int* trackHitCounts);
 
-  void launchTreeScore(Queue& queue,
-                       const int maxPreselectedTracks,
-                       const int8_t* treeFeat,
-                       const float* treeVal,
-                       const int32_t* treeLeft,
-                       const int32_t* treeRight,
-                       const int32_t* treeRoots,
-                       const int nTrees,
-                       const float baseLogit,
-                       const PixelTrackFeaturesSoA::ConstView trackFeatures,
-                       const int* nPreselectedTracks,
-                       PixelTrackScoresSoA::View trackScores);
-
   void launchScoreFilter(Queue& queue,
                          const int maxPreselectedTracks,
                          const double scoreThreshold,
