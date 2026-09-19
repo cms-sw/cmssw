@@ -247,12 +247,10 @@ private:
           }
         }
         if (isVectorHit(hh, h)) {
-          const auto flags = hh.vectorHit(int32_t(h)).flags();
-          if (::reco::VectorHitFlags::isBarrel(flags) && !::reco::VectorHitFlags::isFlat(flags))
-            ++nTilted;  // tilted barrel module (|eta|~1-2 transition)
-          // isVectorHit(hh, h) guarantees an outer-tracker vector hit entry, so the bend columns are readable
-          // through the vector hit element.
           auto const vectorHit = hh.vectorHit(int32_t(h));
+          if (vectorHit.isBarrel() && !vectorHit.isFlat())
+            ++nTilted;  // tilted barrel module (|eta|~1-2 transition)
+          // isVectorHit(hh, h) guarantees an outer-tracker vector hit entry, so the bend columns are readable.
           const float s = vectorHit.dPhiDrError();
           if (s > 0.f) {
             const float d = vectorHit.dPhiDr();

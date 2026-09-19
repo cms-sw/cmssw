@@ -112,10 +112,9 @@ namespace caTrackFeatures {
       if (!otHit && isVectorHit(hh, h)) {
         ++nVectorHits;
         auto const vectorHit = hh.vectorHit(int32_t(h));
-        const auto flags = vectorHit.flags();
-        if (::reco::VectorHitFlags::isPS(flags))
+        if (vectorHit.isPS())
           ++nPS;
-        if (::reco::VectorHitFlags::isBarrel(flags))
+        if (vectorHit.isBarrel())
           ++nBarrel;
         const float s = vectorHit.dPhiDrError();
         if (s > 0.f) {

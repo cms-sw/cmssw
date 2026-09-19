@@ -526,13 +526,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
               if (significance > vectorHitSigmaCut || std::abs(k_i - k_o) > curvWindow) {
 #ifdef DOUBLETS_DEBUG
-                auto flags_i = hh.vectorHit(i).flags();
-                auto flags_o = hh.vectorHit(oi).flags();
                 printf("Killed here 10: vector hit sigma cut (sig=%.2f > cut=%.2f, barrel_i=%d barrel_o=%d)\n",
                        significance,
                        vectorHitSigmaCut,
-                       (int)::reco::VectorHitFlags::isBarrel(flags_i),
-                       (int)::reco::VectorHitFlags::isBarrel(flags_o));
+                       (int)hh.vectorHit(i).isBarrel(),
+                       (int)hh.vectorHit(oi).isBarrel());
 #endif
                 continue;
               }
