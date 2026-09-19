@@ -167,7 +167,7 @@ private:
     const ::reco::OTRecHitsConstView* otViewPtr = (nOTHits > 0u) ? &otView : nullptr;
     const int nTracks = tracks.nTracks();
 
-    // Column names == caTrackFeatures::fill order == train_disp_nano.py FEATS (12 feats).
+    // Column names == the caTrackFeatures::Features field order == train_disp_nano.py FEATS.
     static const char* kNames[caTrackFeatures::kNFeat] = {
         "fitChi2", "psFrac", "r0", "nPS", "nh", "spanZ", "nStubs", "nl", "logChi2Stub", "kErr", "dcaEst", "nBarrel"};
 
@@ -186,7 +186,7 @@ private:
         "meanStubKappa", "leverArm", "rMax", "rzChi2", "meanClusterY", "nTilted", "tiltedFrac"};
     std::vector<std::vector<float>> ex(7, std::vector<float>(nTracks, kNaN));
 
-    float feat[caTrackFeatures::kNFeat];
+    caTrackFeatures::Features feat;
     for (int it = 0; it < nTracks; ++it) {
       const uint32_t start = (it == 0) ? 0 : tracks[it - 1].hitOffsets();
       const uint32_t end = tracks[it].hitOffsets();
@@ -198,8 +198,9 @@ private:
           hitsBegin, hitsEnd, hh, nHitsTot, float(tracks[it].nLayers()), tracks[it].chi2(), feat, nullptr, otViewPtr);
       if (!ok)
         continue;
+      const auto featArray = feat.asArray();
       for (int f = 0; f < caTrackFeatures::kNFeat; ++f)
-        cols[f][it] = feat[f];
+        cols[f][it] = featArray[f];
       phiCol[it] = tracks[it].state()(0);
       qualityCol[it] = int(tracks[it].quality());
 
@@ -263,7 +264,7 @@ private:
       }
       ex[4][it] = (nClY > 0) ? float(sumClY / nClY) : 0.f;  // meanClusterY
       ex[5][it] = float(nTilted);                           // nTilted
-      ex[6][it] = nTilted / std::max(feat[6], 1.f);         // tiltedFrac (feat[6]=nStubs)
+      ex[6][it] = nTilted / std::max(feat.nStubs, 1.f);     // tiltedFrac
     }
 
     auto table = std::make_unique<nanoaod::FlatTable>(nTracks, tableName_, /*singleton*/ false, /*extension*/ false);

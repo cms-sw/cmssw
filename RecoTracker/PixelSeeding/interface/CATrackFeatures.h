@@ -3,10 +3,12 @@
 
 // Feature vector of the displaced-track classifier (CATrackDNN.h), in the trained order. fill() is
 // shared by Kernel_classifyTracks (Stage 1, the 12 features), PixelTrackTorchHighPuritySelector
-// (Stage 2, plus the rzKappaOut extras) and the host table producer, which must agree bit for bit.
+// (Stage 2, plus the Extras) and the host table producer, which must agree bit for bit.
 
+#include <array>
 #include <cmath>
 #include <cstdint>
+#include <type_traits>
 
 #include "DataFormats/TrackingRecHitSoA/interface/OTRecHitsSoA.h"
 #include "DataFormats/TrackingRecHitSoA/interface/StubsSoA.h"
@@ -21,6 +23,41 @@ namespace caTrackFeatures {
   // unqualified.
 
   inline constexpr int kNFeat = 12;
+  inline constexpr int kNExtras = 4;
+
+  // The classifier's input, one named float per feature; asArray() gives them in the trained order.
+  struct Features {
+    float caFitChi2 = 0.f;  // log1p of the capped fit chi2
+    float psFrac = 0.f;
+    float r0 = 0.f;
+    float nPS = 0.f;
+    float nHits = 0.f;
+    float spanZ = 0.f;
+    float nStubs = 0.f;
+    float nLayers = 0.f;
+    float logChi2Stub = 0.f;
+    float kErr = 0.f;
+    float dcaEst = 0.f;
+    float nBarrel = 0.f;
+
+    ALPAKA_FN_HOST_ACC constexpr std::array<float, kNFeat> asArray() const {
+      return {caFitChi2, psFrac, r0, nPS, nHits, spanZ, nStubs, nLayers, logChi2Stub, kErr, dcaEst, nBarrel};
+    }
+  };
+  static_assert(std::is_standard_layout_v<Features>);
+
+  // Stage-2 extras of the same hit walk; the defaults are the sentinels kept when fill() fails.
+  struct Extras {
+    float rzChi2 = -1.f;  // -1 = undefined
+    float meanStubKappa = 0.f;
+    float leverArm = 0.f;  // rMax - r0
+    float rMax = 0.f;
+
+    ALPAKA_FN_HOST_ACC constexpr std::array<float, kNExtras> asArray() const {
+      return {rzChi2, meanStubKappa, leverArm, rMax};
+    }
+  };
+  static_assert(std::is_standard_layout_v<Extras>);
 
   // Inverse-variance stub-curvature kernel: given rg2, bend d=dPhiDr and error s=dPhiDrError, return
   // den = 1 + rg2*d^2 and weight w = den^3 / s^2. rg2 is caller-passed because the xg^2+yg^2 and
@@ -30,14 +67,11 @@ namespace caTrackFeatures {
     w = den * den * den / (s * s);
   }
 
-  // Feature order, as trained:
-  //   0 fitChi2  1 psFrac  2 r0  3 nPS  4 nh  5 spanZ
-  //   6 nStubs   7 nl      8 logChi2Stub  9 kErr  10 dcaEst  11 nBarrel
+  // The feature order is the Features field order.
   // HitIter: forward iterator over hit indices; returns false on an empty/corrupt list.
   // otView: raw OT-rechit SoA for hit ids with kOTHitTag set (otIdx(id)); such a hit is not a stub and
   // rGlobal() is derived inline. A null view with tagged ids -> false.
-  // rzKappaOut (optional, 4 floats): out[0]=rzChi2 (straight line z=a+b*r; -1 undefined),
-  // out[1]=meanStubKappa, out[2]=leverArm (rMax-r0), out[3]=rMax.
+  // extras (optional): rzChi2 (straight line z=a+b*r), meanStubKappa, leverArm, rMax.
   // HitsView: the pixel+stubs CAHitsView facade (see CAHitsView.h), on the host as in the kernels.
   template <typename HitIter, typename HitsView>
   ALPAKA_FN_HOST_ACC inline bool fill(HitIter hitBegin,
@@ -46,8 +80,8 @@ namespace caTrackFeatures {
                                       int nHitsTot,
                                       float nLayers,
                                       float chi2,
-                                      float *feat,
-                                      float *rzKappaOut = nullptr,
+                                      Features &feat,
+                                      Extras *extras = nullptr,
                                       ::reco::OTRecHitsConstView const *otView = nullptr) {
     int nh = 0;
     for (auto ph = hitBegin; ph != hitEnd; ++ph)
@@ -60,7 +94,7 @@ namespace caTrackFeatures {
     float xN = 0.f, yN = 0.f, zN = 0.f;
     int nStubs = 0, nPS = 0, nBarrel = 0, nStubK = 0;
     float sumW = 0.f, sumWK = 0.f, sumWK2 = 0.f;
-    // Stage-2 extras accumulators, touched only when rzKappaOut != nullptr.
+    // Stage-2 extras accumulators, touched only when extras != nullptr.
     float sumKw = 0.f, sumKwk = 0.f;
     float rMaxE = 0.f, r0E = -1.f;  // radial extent, rGlobal-based
     double Sr = 0, Sz = 0, Srr = 0, Srz = 0, Szz = 0;
@@ -97,7 +131,7 @@ namespace caTrackFeatures {
       xN = xg, yN = yg, zN = zg;
       // r-z linearity sums, rGlobal()-based (the OT SoA derives rGlobal from x/y).
       float rg = 0.f;
-      if (rzKappaOut) {
+      if (extras) {
         rg = otHit ? std::sqrt(xg * xg + yg * yg) : hh[h].rGlobal();
         if (r0E < 0.f)
           r0E = rg;  // first hit's radius
@@ -126,7 +160,7 @@ namespace caTrackFeatures {
           sumWK += w * k;
           sumWK2 += w * k * k;
           ++nStubK;
-          if (rzKappaOut) {
+          if (extras) {
             // meanStubKappa weight uses rGlobal()^2, not xg^2+yg^2, to match the host table bit for bit.
             float denR, wR;
             stubDenWeight(rg * rg, d, s, denR, wR);
@@ -147,22 +181,22 @@ namespace caTrackFeatures {
     float fitChi2Safe = chi2;
     if (!(fitChi2Safe >= 0.f) || fitChi2Safe > 1.0e4f)  // catches NaN, negative, +inf, huge
       fitChi2Safe = 1.0e4f;
-    feat[0] = std::log1p(fitChi2Safe);
-    feat[1] = float(nPS) / float(std::max(nStubs, 1));
-    feat[2] = r0;
-    feat[3] = float(nPS);
-    feat[4] = float(nh);
-    feat[5] = std::abs(zN - z0);
-    feat[6] = float(nStubs);
-    feat[7] = nLayers;
-    feat[8] = std::log1p(std::max(chi2Stub, 0.f));
-    feat[9] = kErr;
-    feat[10] = dcaEst;
-    feat[11] = float(nBarrel);
+    feat.caFitChi2 = std::log1p(fitChi2Safe);
+    feat.psFrac = float(nPS) / float(std::max(nStubs, 1));
+    feat.r0 = r0;
+    feat.nPS = float(nPS);
+    feat.nHits = float(nh);
+    feat.spanZ = std::abs(zN - z0);
+    feat.nStubs = float(nStubs);
+    feat.nLayers = nLayers;
+    feat.logChi2Stub = std::log1p(std::max(chi2Stub, 0.f));
+    feat.kErr = kErr;
+    feat.dcaEst = dcaEst;
+    feat.nBarrel = float(nBarrel);
     // Stage-2 extras, finalized from the walk above; same arithmetic as the host producer.
-    if (rzKappaOut) {
-      rzKappaOut[1] = (sumKw > 0.f) ? sumKwk / sumKw : 0.f;  // meanStubKappa
-      float rz = -1.f;                                       // rzChi2 (-1 = undefined)
+    if (extras) {
+      extras->meanStubKappa = (sumKw > 0.f) ? sumKwk / sumKw : 0.f;
+      float rz = -1.f;  // rzChi2 (-1 = undefined)
       // The nh hits were all validated above.
       if (nh >= 3) {
         const double D = nh * Srr - Sr * Sr;
@@ -171,10 +205,10 @@ namespace caTrackFeatures {
           rz = float(std::max(0.0, (Szz - a * Sz - b * Srz)) / std::max(1, nh - 2));
         }
       }
-      rzKappaOut[0] = rz;
+      extras->rzChi2 = rz;
       // Radial extent, as in CATrackFeaturesTableProducer.
-      rzKappaOut[2] = rMaxE - (r0E < 0.f ? 0.f : r0E);  // leverArm
-      rzKappaOut[3] = rMaxE;                            // rMax
+      extras->leverArm = rMaxE - (r0E < 0.f ? 0.f : r0E);
+      extras->rMax = rMaxE;
     }
     return true;
   }

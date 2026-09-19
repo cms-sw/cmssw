@@ -585,8 +585,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // training set unbiased: gating the dump on the compiled-in model would only ever show the next
         // DNN that model's own accepted subset. The score is still captured (dumpScore) so the in-kernel
         // evaluation can be cross-checked against the offline one.
-        // Feature vector = 18 raw quantities + 11 derived (pulls/residuals/log
-        // compressions/layer gaps): order AND formulas (incl. the 1e-12 eps
+        // Feature vector (CATripletFeatures) = 18 raw quantities + 11 derived (pulls/residuals/log
+        // compressions/layer gaps): field order AND formulas (incl. the 1e-12 eps
         // conventions) MUST match add_derived() + BASE_FEATURES/DERIVED in
         // RecoTracker/PixelSeeding/test/train_triplet_dnn_v2.py.
         // Gate regime: when the in-kernel DNN is on it gates EVERY triplet, pixel-only (nStubs==0, via
@@ -619,35 +619,37 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           const float layGap12 = float(int(cc[outer.layerPairId()].layerPair()[0]) - int(innerCell.innerLayer(cc)));
           const float layGap23 =
               float(int(cc[outer.layerPairId()].layerPair()[1]) - int(cc[outer.layerPairId()].layerPair()[0]));
-          const float feat[caTripletDNN::kNFeat] = {absCurvature,
-                                                    tipTimesCurvature,
-                                                    dcaDnn,
-                                                    curvatureStubs,
-                                                    curvatureStubsErrSquared,
-                                                    curvature13Dnn,
-                                                    dPhi12,
-                                                    dPhi13,
-                                                    dPhi23,
-                                                    dr12,
-                                                    dr13,
-                                                    r1,
-                                                    r2,
-                                                    r3,
-                                                    z1,
-                                                    z2,
-                                                    z3,
-                                                    static_cast<float>(nStubs),
-                                                    stubCirclePull,
-                                                    stubCircleRatio,
-                                                    curv13Resid,
-                                                    rzResid,
-                                                    cotTheta,
-                                                    dPhiRatio,
-                                                    logAbsCurv,
-                                                    logErrSq,
-                                                    logDca,
-                                                    layGap12,
-                                                    layGap23};
+          CATripletFeatures feat;
+          feat.absCurvature = absCurvature;
+          feat.tipTimesCurvature = tipTimesCurvature;
+          feat.dca = dcaDnn;
+          feat.curvatureStubs = curvatureStubs;
+          feat.curvatureStubsErrSquared = curvatureStubsErrSquared;
+          feat.curvature13 = curvature13Dnn;
+          feat.dPhi12 = dPhi12;
+          feat.dPhi13 = dPhi13;
+          feat.dPhi23 = dPhi23;
+          feat.dr12 = dr12;
+          feat.dr13 = dr13;
+          feat.r1 = r1;
+          feat.r2 = r2;
+          feat.r3 = r3;
+          feat.z1 = z1;
+          feat.z2 = z2;
+          feat.z3 = z3;
+          feat.nStubs = static_cast<float>(nStubs);
+          feat.stubCirclePull = stubCirclePull;
+          feat.stubCircleRatio = stubCircleRatio;
+          feat.curv13Resid = curv13Resid;
+          feat.rzResid = rzResid;
+          feat.cotTheta = cotTheta;
+          feat.dPhiRatio = dPhiRatio;
+          feat.logAbsCurv = logAbsCurv;
+          feat.logErrSq = logErrSq;
+          feat.logDca = logDca;
+          feat.layGap12 = layGap12;
+          feat.layGap23 = layGap23;
+          const auto featArray = feat.asArray();
           // NaN discipline, triplet half -- the same rule the track-level gate in
           // Kernel_classifyTracks follows: a non-finite quantity must never DECIDE anything. The
           // finiteness of the network INPUTS is established here, BEFORE the score is used, rather
@@ -656,8 +658,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // -Ofast / -ffinite-math-only. 29 exponent tests against a ~6k-MAC evaluation: free.
           bool featFinite = true;
           for (int k = 0; featFinite && k < int(caTripletDNN::kNFeat); ++k)
-            featFinite = !edm::isNotFinite(feat[k]);
-          const float dnnScore = caTripletDNN_eval::score(feat);
+            featFinite = !edm::isNotFinite(featArray[k]);
+          const float dnnScore = caTripletDNN_eval::score(featArray.data());
 #ifdef CA_TRIPLET_DUMP
           if (dumpScore)
             *dumpScore = dnnScore;  // capture the in-kernel score for the offline-vs-in-kernel check

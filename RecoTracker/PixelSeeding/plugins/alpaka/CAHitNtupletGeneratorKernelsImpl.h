@@ -1410,7 +1410,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
           // ---- classify-embedded track classifier --------------------------------------
           // When enabled, the MLP score REPLACES the chi2-based strict->tight decision (both the
           // strictCut fit-chi2 gate AND the ntuplet-wide stub-consistency demotion below); the
-          // fit chi2 and chi2Stub stay INPUTS of the network (feat[0], feat[8]). So once the DNN
+          // fit chi2 and chi2Stub stay INPUTS of the network (caFitChi2, logChi2Stub). So once the DNN
           // decides a track we SKIP the stub-consistency walk entirely -- it only fed
           // maxNtupletStubChi2, whose verdict the score overwrites, so it would be wasted work. Feature
           // ORDER mirrors test/models/train_disp_nano.py FEATS (documented in CATrackDNNWeights.h).
@@ -1419,7 +1419,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
             // Single-source feature fill (RecoTracker/PixelSeeding/interface/CATrackFeatures.h),
             // producing values identical to the host-side CA-features nano table producer's. On a
             // corrupt/short hit list fill() returns false -> fall through to the chi2-based path.
-            float feat[caTrackFeatures::kNFeat];
+            caTrackFeatures::Features feat;
             static_assert(caTrackFeatures::kNFeat == caTrackDNN::kNFeat, "feature ABI mismatch");
             const bool featOk = caTrackFeatures::fill(foundNtuplets->begin(it),
                                                       foundNtuplets->end(it),
@@ -1428,7 +1428,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                                       float(tracks_view[it].nLayers()),
                                                       tracks_view[it].chi2(),
                                                       feat,
-                                                      /*rzKappaOut=*/nullptr);
+                                                      /*extras=*/nullptr);
             // FIT-FAILURE RULE, gate half. This DNN gate REPLACED the classical `chi2 < maxChi2`
             // promotion, which rejected a failed fit as a side effect of NaN comparing false. The
             // network gives nothing for free: a non-finite input propagates through the MLP, and
@@ -1436,11 +1436,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
             // finiteness of the network INPUTS is established BEFORE the network is evaluated --
             // never relying on a NaN surviving the sigmoid -- and a track with any non-finite
             // feature stays Quality::bad (quality() was optimistically set to strict above, so it
-            // is written back explicitly). feat[0] is the fit chi2, already covered by the guard
+            // is written back explicitly). caFitChi2 is the fit chi2, already covered by the guard
             // at the top of the loop; this covers every other quantity the fill produced.
+            const auto featArray = feat.asArray();
             bool featFinite = featOk;
             for (int k = 0; featFinite && k < int(caTrackFeatures::kNFeat); ++k)
-              featFinite = !edm::isNotFinite(feat[k]);
+              featFinite = !edm::isNotFinite(featArray[k]);
             if (featOk && !featFinite) {
 #if defined(NTUPLE_DEBUG) || defined(FIT_DEBUG)
               nNaN++;
@@ -1454,7 +1455,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
               // belongs to a downstream selector.
               const float defThr = caTrackDNN::kDefaultThreshold;
               const float dnnThr = (trackDNNThreshold < 0.f) ? defThr : trackDNNThreshold;
-              const float dnnScore = caTrackDNN_eval::score(feat);
+              const float dnnScore = caTrackDNN_eval::score(featArray.data());
               // PROMOTING form on purpose: `score >= threshold` is the decision to PROMOTE and the
               // rejection is its negation, never `if (score < thr) reject`. Under -Ofast
               // (-ffinite-math-only) the compiler may assume no NaN operand and rewrite a rejecting

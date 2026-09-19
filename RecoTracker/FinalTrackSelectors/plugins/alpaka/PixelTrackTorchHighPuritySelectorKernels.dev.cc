@@ -1,6 +1,7 @@
 #include <alpaka/alpaka.hpp>
 #include <xtd/math/sqrt.h>
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <type_traits>
 #include <utility>
@@ -209,11 +210,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           // same numbers. The hit walk indexes the merged TrackingRecHitsSoA over the per-track
           // [start,end) range of track_hits.id().
           if (useHitFeatures) {
-            float feat[caTrackFeatures::kNFeat];
+            caTrackFeatures::Features feat;
             // Extras (cols 28-31): rzChi2 (r-z linearity), meanStubKappa, leverArm (rMax-r0),
-            // rMax (radial extent), all produced in the same hit walk. Initialised to the sentinels
-            // kept when fill() fails on a corrupt or short list.
-            float rzk[4] = {-1.f, 0.f, 0.f, 0.f};
+            // rMax (radial extent), all produced in the same hit walk. Default-constructed to the
+            // sentinels kept when fill() fails on a corrupt or short list.
+            caTrackFeatures::Extras extras;
             const auto start = (inputTrackIdx == 0) ? 0u : tracks[inputTrackIdx - 1].hitOffsets();
             const auto end = track.hitOffsets();
             bool featOk = false;
@@ -227,26 +228,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                              float(track.nLayers()),
                                              track.chi2(),
                                              feat,
-                                             rzk,
+                                             &extras,
                                              otViewPtr);
             }
-            // CA feat[] -> appended columns, dropping feat[4]=nh and feat[7]=nl (redundant with
-            // nHits/nLayers). Order must match the trained model's input schema; a failed fill()
-            // falls back to 0, as padding rows do.
-            trackFeatures.caFitChi2(i) = featOk ? feat[0] : 0.f;
-            trackFeatures.psFrac(i) = featOk ? feat[1] : 0.f;
-            trackFeatures.r0(i) = featOk ? feat[2] : 0.f;
-            trackFeatures.nPS(i) = featOk ? feat[3] : 0.f;
-            trackFeatures.spanZ(i) = featOk ? feat[5] : 0.f;
-            trackFeatures.nStubs(i) = featOk ? feat[6] : 0.f;
-            trackFeatures.logChi2Stub(i) = featOk ? feat[8] : 0.f;
-            trackFeatures.kErr(i) = featOk ? feat[9] : 0.f;
-            trackFeatures.dcaEst(i) = featOk ? feat[10] : 0.f;
-            trackFeatures.nBarrel(i) = featOk ? feat[11] : 0.f;
-            trackFeatures.rzChi2(i) = rzk[0];
-            trackFeatures.meanStubKappa(i) = rzk[1];
-            trackFeatures.leverArm(i) = featOk ? rzk[2] : 0.f;
-            trackFeatures.rMax(i) = featOk ? rzk[3] : 0.f;
+            // CA features -> appended columns, dropping nHits and nLayers (redundant with the
+            // columns of the same name). Order must match the trained model's input schema; a
+            // failed fill() falls back to 0, as padding rows do.
+            trackFeatures.caFitChi2(i) = featOk ? feat.caFitChi2 : 0.f;
+            trackFeatures.psFrac(i) = featOk ? feat.psFrac : 0.f;
+            trackFeatures.r0(i) = featOk ? feat.r0 : 0.f;
+            trackFeatures.nPS(i) = featOk ? feat.nPS : 0.f;
+            trackFeatures.spanZ(i) = featOk ? feat.spanZ : 0.f;
+            trackFeatures.nStubs(i) = featOk ? feat.nStubs : 0.f;
+            trackFeatures.logChi2Stub(i) = featOk ? feat.logChi2Stub : 0.f;
+            trackFeatures.kErr(i) = featOk ? feat.kErr : 0.f;
+            trackFeatures.dcaEst(i) = featOk ? feat.dcaEst : 0.f;
+            trackFeatures.nBarrel(i) = featOk ? feat.nBarrel : 0.f;
+            trackFeatures.rzChi2(i) = extras.rzChi2;
+            trackFeatures.meanStubKappa(i) = extras.meanStubKappa;
+            trackFeatures.leverArm(i) = featOk ? extras.leverArm : 0.f;
+            trackFeatures.rMax(i) = featOk ? extras.rMax : 0.f;
 
             // Merged-collection provenance (cols 32-35: nAttached, nOTExtras, iterationId, ndof)
             // and the pixel-cluster charge/shape block (cols 36-42: minCharge, meanCharge,
@@ -480,6 +481,48 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // rather than reading memory that may never have been filled.
   inline constexpr int kNForestFitFeatures = 17;
 
+  // The fit-derived columns, one named float each; asArray() gives them in column order.
+  struct ForestFitFeatures {
+    float chi2 = 0.f;
+    float dzError = 0.f;
+    float dxyError = 0.f;
+    float eta = 0.f;
+    float nHits = 0.f;
+    float phi = 0.f;
+    float phiError = 0.f;
+    float pt = 0.f;
+    float qOverPtError = 0.f;
+    float dzBS = 0.f;
+    float dxyBS = 0.f;
+    float nLayers = 0.f;
+    float cotThetaError = 0.f;
+    float covCotThetaDz = 0.f;
+    float covDxyQOverPt = 0.f;
+    float covPhiDxy = 0.f;
+    float covPhiQOverPt = 0.f;
+
+    ALPAKA_FN_HOST_ACC constexpr std::array<float, kNForestFitFeatures> asArray() const {
+      return {chi2,
+              dzError,
+              dxyError,
+              eta,
+              nHits,
+              phi,
+              phiError,
+              pt,
+              qOverPtError,
+              dzBS,
+              dxyBS,
+              nLayers,
+              cotThetaError,
+              covCotThetaDz,
+              covDxyQOverPt,
+              covPhiDxy,
+              covPhiQOverPt};
+    }
+  };
+  static_assert(std::is_standard_layout_v<ForestFitFeatures>);
+
   // The tree walk cannot report a bad input: the split test `f[k] < threshold` is false for a NaN,
   // so a non-finite feature takes the right branch at every node and the forest returns a finite,
   // meaningless score. The rejection is therefore made on the features, not on the score.
@@ -487,23 +530,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename TIdx>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool forestFitFeaturesFinite(const PixelTrackFeaturesSoA::ConstView& trackFeatures,
                                                               const TIdx i) {
-    const float f[kNForestFitFeatures] = {trackFeatures[i].chi2(),
-                                          trackFeatures[i].dzError(),
-                                          trackFeatures[i].dxyError(),
-                                          trackFeatures[i].eta(),
-                                          trackFeatures[i].nHits(),
-                                          trackFeatures[i].phi(),
-                                          trackFeatures[i].phiError(),
-                                          trackFeatures[i].pt(),
-                                          trackFeatures[i].qOverPtError(),
-                                          trackFeatures[i].dzBS(),
-                                          trackFeatures[i].dxyBS(),
-                                          trackFeatures[i].nLayers(),
-                                          trackFeatures[i].cotThetaError(),
-                                          trackFeatures[i].covCotThetaDz(),
-                                          trackFeatures[i].covDxyQOverPt(),
-                                          trackFeatures[i].covPhiDxy(),
-                                          trackFeatures[i].covPhiQOverPt()};
+    ForestFitFeatures ff;
+    ff.chi2 = trackFeatures[i].chi2();
+    ff.dzError = trackFeatures[i].dzError();
+    ff.dxyError = trackFeatures[i].dxyError();
+    ff.eta = trackFeatures[i].eta();
+    ff.nHits = trackFeatures[i].nHits();
+    ff.phi = trackFeatures[i].phi();
+    ff.phiError = trackFeatures[i].phiError();
+    ff.pt = trackFeatures[i].pt();
+    ff.qOverPtError = trackFeatures[i].qOverPtError();
+    ff.dzBS = trackFeatures[i].dzBS();
+    ff.dxyBS = trackFeatures[i].dxyBS();
+    ff.nLayers = trackFeatures[i].nLayers();
+    ff.cotThetaError = trackFeatures[i].cotThetaError();
+    ff.covCotThetaDz = trackFeatures[i].covCotThetaDz();
+    ff.covDxyQOverPt = trackFeatures[i].covDxyQOverPt();
+    ff.covPhiDxy = trackFeatures[i].covPhiDxy();
+    ff.covPhiQOverPt = trackFeatures[i].covPhiQOverPt();
+    const auto f = ff.asArray();
     bool ok = true;
     for (int k = 0; ok && k < kNForestFitFeatures; ++k)
       ok = !edm::isNotFinite(f[k]);
