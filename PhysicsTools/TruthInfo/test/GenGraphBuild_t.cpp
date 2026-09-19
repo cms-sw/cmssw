@@ -78,6 +78,67 @@ namespace {
     return gb;
   }
 
+  // A minimum-bias style record for the compact form. No status flags: the compact
+  // record never reads them.
+  //
+  //   V-1: 1,2 beam protons in   -> 3 string 92   status 2
+  //   V-2: 3 in                  -> 4 pi0  status 2
+  //                              -> 5 pi+  status 1
+  //                              -> 6 eta  status 2
+  //   V-3: 4 in                  -> 7, 8 gamma  status 1
+  //   V-4: 6 in                  -> 9 pi0  status 2
+  //                              -> 10 gamma status 1
+  //   V-5: 9 in                  -> 11 e+, 12 e-, 13 gamma  status 1 (Dalitz)
+  truth::GenBuild buildMinBiasRecord() {
+    truth::GenBuild gb;
+
+    struct Particle {
+      int barcode;
+      int32_t pdgId;
+      int16_t status;
+      int prodVertex;  // 0 = none
+      int endVertex;   // 0 = none
+    };
+
+    const std::vector<Particle> particles = {
+        {1, 2212, 4, 0, -1},
+        {2, 2212, 4, 0, -1},
+        {3, 92, 2, -1, -2},
+        {4, 111, 2, -2, -3},
+        {5, 211, 1, -2, 0},
+        {6, 221, 2, -2, -4},
+        {7, 22, 1, -3, 0},
+        {8, 22, 1, -3, 0},
+        {9, 111, 2, -4, -5},
+        {10, 22, 1, -4, 0},
+        {11, -11, 1, -5, 0},
+        {12, 11, 1, -5, 0},
+        {13, 22, 1, -5, 0},
+    };
+
+    for (int vbc = -1; vbc >= -5; --vbc)
+      gb.vtxBarcodes.push_back(vbc);
+
+    for (auto const& p : particles) {
+      gb.partBarcodes.push_back(p.barcode);
+      gb.particleBarcodeByIndex.push_back(p.barcode);
+      gb.particlePdgIdByBarcode.emplace(p.barcode, p.pdgId);
+      gb.particleStatusByBarcode.emplace(p.barcode, p.status);
+      if (p.prodVertex != 0)
+        gb.vtxToPart.emplace_back(p.prodVertex, p.barcode);
+      if (p.endVertex != 0)
+        gb.partToVtx.emplace_back(p.barcode, p.endVertex);
+    }
+
+    return gb;
+  }
+
+  truth::CompactGenParticle const* findCompact(std::vector<truth::CompactGenParticle> const& record, int barcode) {
+    const auto it = std::find_if(
+        record.begin(), record.end(), [barcode](truth::CompactGenParticle const& p) { return p.barcode == barcode; });
+    return it != record.end() ? &*it : nullptr;
+  }
+
   bool hasVertexToParticle(truth::GenBuild const& gb, int vbc, int pbc) {
     return std::find(gb.vtxToPart.begin(), gb.vtxToPart.end(), std::make_pair(vbc, pbc)) != gb.vtxToPart.end();
   }
@@ -133,6 +194,10 @@ class TestGenGraphBuild : public CppUnit::TestFixture {
   CPPUNIT_TEST(testNoOrphans);
   CPPUNIT_TEST(testSimContinuationKeeps);
   CPPUNIT_TEST(testNoStatusFlagsReportsDegraded);
+  CPPUNIT_TEST(testCompactKeepsStableOnly);
+  CPPUNIT_TEST(testCompactKeepsListedSpecies);
+  CPPUNIT_TEST(testCompactChainsThroughKeptSpecies);
+  CPPUNIT_TEST(testCompactEdgeCases);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -141,6 +206,10 @@ public:
   void testNoOrphans();
   void testSimContinuationKeeps();
   void testNoStatusFlagsReportsDegraded();
+  void testCompactKeepsStableOnly();
+  void testCompactKeepsListedSpecies();
+  void testCompactChainsThroughKeptSpecies();
+  void testCompactEdgeCases();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestGenGraphBuild);
@@ -274,4 +343,106 @@ void TestGenGraphBuild::testNoStatusFlagsReportsDegraded() {
   std::vector<int> kept = gb.partBarcodes;
   std::sort(kept.begin(), kept.end());
   CPPUNIT_ASSERT(kept == expected);
+}
+
+// With no listed species the compact record is the stable particles, every one on the
+// vertex of the interaction.
+void TestGenGraphBuild::testCompactKeepsStableOnly() {
+  const auto record = truth::compactGen(buildMinBiasRecord(), {});
+
+  std::vector<int> kept;
+  for (auto const& p : record) {
+    kept.push_back(p.barcode);
+    CPPUNIT_ASSERT_EQUAL(int16_t{1}, p.status);
+    CPPUNIT_ASSERT_EQUAL(0, p.parent);
+    CPPUNIT_ASSERT_EQUAL(0, p.decayVertex);
+  }
+  std::sort(kept.begin(), kept.end());
+  const std::vector<int> expected = {5, 7, 8, 10, 11, 12, 13};
+  CPPUNIT_ASSERT(kept == expected);
+}
+
+// A listed species survives with its decay vertex, and its decay products hang on it.
+// An unlisted parent is walked through: the photon of the eta hangs on the interaction.
+void TestGenGraphBuild::testCompactKeepsListedSpecies() {
+  const auto record = truth::compactGen(buildMinBiasRecord(), {111});
+
+  CPPUNIT_ASSERT_EQUAL(std::size_t{9}, record.size());
+  CPPUNIT_ASSERT(findCompact(record, 3) == nullptr);
+  CPPUNIT_ASSERT(findCompact(record, 6) == nullptr);
+
+  auto const* pi0 = findCompact(record, 4);
+  CPPUNIT_ASSERT(pi0 != nullptr);
+  CPPUNIT_ASSERT_EQUAL(int16_t{2}, pi0->status);
+  CPPUNIT_ASSERT_EQUAL(-3, pi0->decayVertex);
+  // Made by the string, so it hangs on the interaction.
+  CPPUNIT_ASSERT_EQUAL(0, pi0->parent);
+
+  CPPUNIT_ASSERT_EQUAL(4, findCompact(record, 7)->parent);
+  CPPUNIT_ASSERT_EQUAL(4, findCompact(record, 8)->parent);
+  CPPUNIT_ASSERT_EQUAL(0, findCompact(record, 5)->parent);
+  CPPUNIT_ASSERT_EQUAL(0, findCompact(record, 10)->parent);
+
+  // The Dalitz pi0 under the unlisted eta: it hangs on the interaction, its products on it.
+  CPPUNIT_ASSERT_EQUAL(0, findCompact(record, 9)->parent);
+  for (int product : {11, 12, 13})
+    CPPUNIT_ASSERT_EQUAL(9, findCompact(record, product)->parent);
+}
+
+// Listing the parent species too gives a chain: eta, then pi0, then the Dalitz products.
+void TestGenGraphBuild::testCompactChainsThroughKeptSpecies() {
+  const auto record = truth::compactGen(buildMinBiasRecord(), {111, 221});
+
+  auto const* eta = findCompact(record, 6);
+  CPPUNIT_ASSERT(eta != nullptr);
+  CPPUNIT_ASSERT_EQUAL(-4, eta->decayVertex);
+  CPPUNIT_ASSERT_EQUAL(0, eta->parent);
+  CPPUNIT_ASSERT_EQUAL(6, findCompact(record, 9)->parent);
+  CPPUNIT_ASSERT_EQUAL(6, findCompact(record, 10)->parent);
+  CPPUNIT_ASSERT_EQUAL(9, findCompact(record, 13)->parent);
+}
+
+// A listed species survives only as what it is in the record: stable with no decay vertex,
+// or decaying with one; with no end vertex it is dropped. Only a vertex it alone enters
+// makes it a parent. The ancestor walk terminates on a cycle.
+void TestGenGraphBuild::testCompactEdgeCases() {
+  truth::GenBuild gb;
+  auto add = [&gb](int barcode, int32_t pdgId, int16_t status, int prodVertex, int endVertex) {
+    gb.partBarcodes.push_back(barcode);
+    gb.particlePdgIdByBarcode.emplace(barcode, pdgId);
+    gb.particleStatusByBarcode.emplace(barcode, status);
+    if (prodVertex != 0)
+      gb.vtxToPart.emplace_back(prodVertex, barcode);
+    if (endVertex != 0)
+      gb.partToVtx.emplace_back(barcode, endVertex);
+  };
+  //   1 pi0 status 1, no end vertex
+  //   2 pi0 status 2, no end vertex
+  //   3 pi0 status 2 and 4 pi+ status 2 both enter V-1 -> 5 gamma
+  //   V-2: 6 in -> 7 eta, 8 gamma ; V-3: 7 in -> 6 eta   (a cycle through unlisted 6, 7)
+  add(1, 111, 1, 0, 0);
+  add(2, 111, 2, 0, 0);
+  add(3, 111, 2, 0, -1);
+  add(4, 211, 2, 0, -1);
+  add(5, 22, 1, -1, 0);
+  add(6, 221, 2, -3, -2);
+  add(7, 221, 2, -2, -3);
+  add(8, 22, 1, -2, 0);
+  for (int vbc = -1; vbc >= -3; --vbc)
+    gb.vtxBarcodes.push_back(vbc);
+
+  const auto record = truth::compactGen(gb, {111});
+
+  auto const* stablePi0 = findCompact(record, 1);
+  CPPUNIT_ASSERT(stablePi0 != nullptr);
+  CPPUNIT_ASSERT_EQUAL(0, stablePi0->decayVertex);
+  CPPUNIT_ASSERT(findCompact(record, 2) == nullptr);
+
+  auto const* sharedPi0 = findCompact(record, 3);
+  CPPUNIT_ASSERT(sharedPi0 != nullptr);
+  CPPUNIT_ASSERT_EQUAL(-1, sharedPi0->decayVertex);
+  CPPUNIT_ASSERT_EQUAL(0, findCompact(record, 5)->parent);
+
+  CPPUNIT_ASSERT_EQUAL(0, findCompact(record, 8)->parent);
+  CPPUNIT_ASSERT_EQUAL(std::size_t{4}, record.size());
 }

@@ -53,8 +53,29 @@ namespace truth {
     [[nodiscard]] bool empty() const { return partBarcodes.empty() && vtxBarcodes.empty(); }
   };
 
-  [[nodiscard]] GenBuild buildFromHepMC2(HepMC::GenEvent const& ev);
+  // withStatusFlags = false skips the packed status flags, which cost one MCTruthHelper
+  // call per particle and which the compact GEN record below does not read.
+  [[nodiscard]] GenBuild buildFromHepMC2(HepMC::GenEvent const& ev, bool withStatusFlags = true);
   [[nodiscard]] GenBuild buildFromHepMC3(HepMC3::GenEvent const& ev);
+
+  // One particle of the compact GEN record of an interaction.
+  struct CompactGenParticle {
+    int barcode;
+    int32_t pdgId;
+    int16_t status;
+    // The surviving ancestor that decays into this particle, 0 when the particle hangs
+    // on the vertex of the whole interaction.
+    int parent;
+    // The vertex this particle decays at, 0 when it is stable.
+    int decayVertex;
+  };
+
+  // The compact GEN record of an interaction: its status 1 particles and the decaying
+  // particles whose pdgId is in keptPdgIds. The ancestor walk follows vertices with one
+  // incoming particle, so a survivor takes the nearest surviving particle it decays from,
+  // and a survivor made by a string or by the interaction takes no parent. The GEN
+  // record holds no particle or vertex with barcode or id 0, so 0 means none.
+  [[nodiscard]] std::vector<CompactGenParticle> compactGen(GenBuild const& gb, std::vector<int32_t> const& keptPdgIds);
 
   // Contract the parton shower and the intermediate copies of a resonance away. A GEN
   // particle survives if its barcode is in `simContinuedBarcodes` (some SimTrack

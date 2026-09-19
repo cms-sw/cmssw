@@ -85,6 +85,11 @@ namespace truth {
     [[nodiscard]] std::vector<Particle> roots() const;
     [[nodiscard]] std::vector<Particle> leaves() const;
 
+    // What the selection preset named as the signal of the event, in id order. Signal is
+    // a stamped flag and not a level, so it is read from the bit rather than recomputed;
+    // a graph built with no preset carries none and this is empty.
+    [[nodiscard]] std::vector<Particle> signalParticles() const;
+
     // Lowest (closest) common ancestor of a set of particles: the single truth
     // particle from which all of them descend, minimizing the total number of
     // generations. This answers "which particle did this jet come from" given
@@ -92,6 +97,11 @@ namespace truth {
     // up with Particle::firstAncestorWithPdgId to reach a specific origin
     // species (e.g. the top). Returns nullopt if the inputs share no ancestor.
     [[nodiscard]] std::optional<Particle> lowestCommonAncestor(std::vector<Particle> const& particles) const;
+
+    // The vertices the graph marks as the point where an interaction happened, in id
+    // order, one per interaction. Only a selection preset builds them, so a graph built
+    // without one carries none and this is empty.
+    [[nodiscard]] std::vector<Vertex> interactionVertices() const;
 
     [[nodiscard]] std::vector<Vertex> sourceVertices() const;
     [[nodiscard]] std::vector<Vertex> sinkVertices() const;
@@ -160,10 +170,20 @@ namespace truth {
     void appendParents(size_type particleId, std::vector<uint32_t>& out) const;
     void appendChildren(size_type particleId, std::vector<uint32_t>& out) const;
 
+    // ancestorCount allocates a seen list that grows with the number of ancestors, not
+    // with the graph, so it does not allocate per graph as ancestorsOf does. It scans
+    // that list for each step, so it costs O(ancestors^2): a few hundred ancestors on an
+    // uncollapsed generator record is still well under a millisecond, and the validator
+    // calls it once per target.
+    [[nodiscard]] uint32_t ancestorCount(size_type particleId) const;
+
     [[nodiscard]] std::vector<Particle> ancestorsOf(size_type particleId) const;
     [[nodiscard]] std::vector<Particle> descendantsOf(size_type particleId) const;
 
     [[nodiscard]] std::optional<Particle> firstAncestorWithPdgIdOf(size_type particleId, int pdgId) const;
+    [[nodiscard]] size_type lastCopyOf(size_type particleId) const;
+    [[nodiscard]] std::optional<Particle> firstChildWithPdgIdOf(size_type particleId, int pdgId) const;
+    [[nodiscard]] std::vector<Particle> productionSiblingsOf(size_type particleId) const;
     [[nodiscard]] std::optional<Particle> firstCommonAncestorOf(size_type a, size_type b) const;
 
     [[nodiscard]] std::vector<Particle> incomingParticlesOf(size_type vertexId) const;
@@ -191,6 +211,30 @@ namespace truth {
     std::vector<uint32_t> vertexToIncomingParticleOffsets_;
     std::vector<uint32_t> vertexToIncomingParticles_;
   };
+
+  // Defined here because they read through the Graph, which Particle only forward
+  // declares.
+  template <typename F>
+  void Particle::forEachChildId(F&& visit) const {
+    if (graph_ == nullptr)
+      return;
+    for (const uint32_t vertexId : graph_->decayVertices(id_)) {
+      for (const uint32_t child : graph_->outgoingParticles(vertexId)) {
+        visit(child);
+      }
+    }
+  }
+
+  template <typename F>
+  void Particle::forEachParentId(F&& visit) const {
+    if (graph_ == nullptr)
+      return;
+    for (const uint32_t vertexId : graph_->productionVertices(id_)) {
+      for (const uint32_t parent : graph_->incomingParticles(vertexId)) {
+        visit(parent);
+      }
+    }
+  }
 
 }  // namespace truth
 

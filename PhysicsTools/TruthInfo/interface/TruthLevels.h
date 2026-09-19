@@ -24,6 +24,7 @@
 #include <string>
 #include <vector>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
 #include "SimDataFormats/TruthInfo/interface/Particle.h"
@@ -32,7 +33,7 @@
 namespace truth {
 
   enum class Level {
-    StableLegsFromUpstream,
+    StableLegsFromInitialState,
     HardProcess,
     StableDecayProducts,
     CaloBoundary,
@@ -42,7 +43,8 @@ namespace truth {
     BHadrons,
     CHadrons,
     ReconstructableFinalState,
-    VisibleTau
+    TauVisibleHadronic,
+    TauVisibleLeptonic
   };
 
   // One row per level: the enum value, the bit it stamps on the graph, and the name a
@@ -57,8 +59,8 @@ namespace truth {
     char const* name;
   };
 
-  inline constexpr std::array<LevelRow, 11> kLevelTable = {
-      {{Level::StableLegsFromUpstream, LevelFlag::StableLegsFromUpstream, "stableLegsFromUpstream"},
+  inline constexpr std::array<LevelRow, 12> kLevelTable = {
+      {{Level::StableLegsFromInitialState, LevelFlag::StableLegsFromInitialState, "stableLegsFromInitialState"},
        {Level::HardProcess, LevelFlag::HardProcess, "hardProcess"},
        {Level::StableDecayProducts, LevelFlag::StableDecayProducts, "stableDecayProducts"},
        {Level::CaloBoundary, LevelFlag::CaloBoundary, "caloBoundary"},
@@ -68,7 +70,8 @@ namespace truth {
        {Level::BHadrons, LevelFlag::BHadrons, "bHadrons"},
        {Level::CHadrons, LevelFlag::CHadrons, "cHadrons"},
        {Level::ReconstructableFinalState, LevelFlag::ReconstructableFinalState, "reconstructableFinalState"},
-       {Level::VisibleTau, LevelFlag::VisibleTau, "visibleTau"}}};
+       {Level::TauVisibleHadronic, LevelFlag::TauVisibleHadronic, "tauVisibleHadronic"},
+       {Level::TauVisibleLeptonic, LevelFlag::TauVisibleLeptonic, "tauVisibleLeptonic"}}};
 
   inline constexpr std::array<Level, kLevelTable.size()> kAllLevels = [] {
     std::array<Level, kLevelTable.size()> levels{};
@@ -112,17 +115,140 @@ namespace truth {
     return "unknown";
   }
 
+  // LevelFlag::Signal is not a level row, so it has no name in kLevelTable. It is what a
+  // reader calls that flag, in a dump, a folder name or a log line.
+  inline constexpr char const* kSignalLevelName = "signal";
+
+  // The names of the levels a particle belongs to, in kLevelTable order, signal last.
+  [[nodiscard]] inline std::vector<char const*> levelNamesOf(ParticleData const& data) {
+    std::vector<char const*> names;
+    for (auto const& row : kLevelTable) {
+      if (data.isAtLevel(row.flag)) {
+        names.push_back(row.name);
+      }
+    }
+    if (data.isAtLevel(LevelFlag::Signal)) {
+      names.push_back(kSignalLevelName);
+    }
+    return names;
+  }
+
   namespace detail {
     // reco::GenStatusFlags bit positions, as packed into ParticleData::statusFlags.
     constexpr uint16_t kIsHardProcess = 1u << 7;
     constexpr uint16_t kIsLastCopy = 1u << 13;
   }  // namespace detail
 
-  // Quarks and gluons. Strings, clusters and diquarks are collapsed away by
-  // truth::collapseGenShower before the graph is built, so they cannot appear here.
+  // Quarks and gluons.
   [[nodiscard]] inline bool isParton(int32_t pdgId) {
     const int64_t a = std::abs(static_cast<int64_t>(pdgId));
     return (a >= 1 && a <= 6) || a == 21;
+  }
+
+  // Charged leptons. A neutrino is not one of these; ask isInvisible for that.
+  [[nodiscard]] inline bool isLepton(int32_t pdgId) {
+    const int64_t a = std::abs(static_cast<int64_t>(pdgId));
+    return a == 11 || a == 13 || a == 15;
+  }
+
+  // The W and the Z. The Higgs is not a weak boson and is not one of these.
+  [[nodiscard]] inline bool isWeakBoson(int32_t pdgId) {
+    const int64_t a = std::abs(static_cast<int64_t>(pdgId));
+    return a == 23 || a == 24;
+  }
+
+  // Shower bookkeeping rather than a particle a detector could be asked about: a parton,
+  // a diquark, a Pythia string or cluster, a beam or generator-internal pseudoparticle.
+  // The main event keeps its shower, so these are in the graph.
+  [[nodiscard]] inline bool isShowerObject(int32_t pdgId) {
+    const int64_t a = std::abs(static_cast<int64_t>(pdgId));
+    if (isParton(pdgId)) {
+      return true;
+    }
+    if (a >= 91 && a <= 94) {  // cluster, string and the other hadronization placeholders
+      return true;
+    }
+    if (a == 990) {  // pomeron
+      return true;
+    }
+    if (a >= 1000 && a <= 9999 && (a / 10) % 10 == 0 && (a / 100) % 10 != 0) {  // diquarks, e.g. 2101, 2203
+      return true;
+    }
+    return a >= 9900000 && a < 1000000000;  // generator-internal states, below the nuclei codes
+  }
+
+  // The id form of Particle::lastCopy.
+  [[nodiscard]] inline uint32_t lastCopyOf(truth::Graph const& graph, uint32_t rootId) {
+    return Particle(&graph, rootId).lastCopy().id();
+  }
+
+  // A shower object that turns into hadrons rather than decaying. The top is excluded
+  // although its pdgId makes it a parton: it decays before it can hadronize.
+  [[nodiscard]] inline bool hadronizes(int32_t pdgId) { return isShowerObject(pdgId) && std::abs(pdgId) != 6; }
+
+  // The physical reason a GEN-only vertex exists, from the species and the generator
+  // status codes of the particles that meet there. Returns Unknown for a vertex with a
+  // SIM side, which keeps its Geant4 reason, for an artificial vertex, and for anything
+  // the rules do not cover. The graph must have its adjacency built.
+  [[nodiscard]] inline VertexReason genVertexReason(Graph const& graph, uint32_t vertexId) {
+    const std::size_t next = static_cast<std::size_t>(vertexId) + 1;
+    if (next >= graph.vertexToIncomingParticleOffsets().size() ||
+        next >= graph.vertexToOutgoingParticleOffsets().size())
+      return VertexReason::Unknown;
+
+    auto const& vertex = graph.vertices()[vertexId];
+    if (vertex.isArtificial() || vertex.hasSim() || !vertex.hasGen())
+      return VertexReason::Unknown;
+
+    const auto incoming = graph.incomingParticles(vertexId);
+    const auto outgoing = graph.outgoingParticles(vertexId);
+    if (incoming.empty() || outgoing.empty())
+      return VertexReason::Unknown;
+
+    auto pdgIdOf = [&graph](uint32_t id) { return graph.particles()[id].pdgId; };
+    auto anyOutgoingStatus = [&](int16_t low, int16_t high) {
+      return std::any_of(outgoing.begin(), outgoing.end(), [&](uint32_t id) {
+        const int16_t status = graph.particles()[id].status;
+        return status >= low && status <= high;
+      });
+    };
+    // Every incoming leg hadronizes, so the vertex belongs to the shower and not to the
+    // decay of a particle a detector could be asked about.
+    const bool fromShower =
+        std::all_of(incoming.begin(), incoming.end(), [&](uint32_t id) { return hadronizes(pdgIdOf(id)); });
+
+    // Two or more incoming hard-process legs. The count is required: a hard-process
+    // resonance enters its own decay vertex and would otherwise match here. The flag is
+    // the generator-independent form, but buildFromHepMC3 leaves it empty, so the Pythia
+    // incoming-hard-parton code is the fallback.
+    if (incoming.size() >= 2) {
+      auto allIncoming = [&](auto predicate) { return std::all_of(incoming.begin(), incoming.end(), predicate); };
+      const bool flagged =
+          allIncoming([&](uint32_t id) { return (graph.particles()[id].statusFlags & detail::kIsHardProcess) != 0; });
+      const bool coded = allIncoming([&](uint32_t id) { return graph.particles()[id].status == 21; });
+      if (flagged || coded)
+        return VertexReason::HardScatter;
+    }
+
+    // A branching inside the shower, initial or final state. The species test carries the
+    // rule: a status code travels with a particle's own history, so a decay whose product
+    // is a shower copy would match the code alone.
+    if (fromShower && anyOutgoingStatus(41, 59))
+      return VertexReason::ShowerBranching;
+
+    const bool fromString = std::any_of(incoming.begin(), incoming.end(), [&](uint32_t id) {
+      const int64_t pdgId = std::abs(static_cast<int64_t>(pdgIdOf(id)));
+      return pdgId >= 91 && pdgId <= 94;
+    });
+    const bool toHadron =
+        std::any_of(outgoing.begin(), outgoing.end(), [&](uint32_t id) { return !isShowerObject(pdgIdOf(id)); });
+    if (fromString || (fromShower && (toHadron || anyOutgoingStatus(71, 79))))
+      return VertexReason::Hadronization;
+
+    if (incoming.size() == 1 && !hadronizes(pdgIdOf(incoming[0])))
+      return VertexReason::Decay;
+
+    return VertexReason::Unknown;
   }
 
   // Ordinary hadron whose quark content includes `flavor` (5 = b, 4 = c), read off the
@@ -166,20 +292,23 @@ namespace truth {
     return seedsNameAResonance(seeds) || !flavors.empty();
   }
 
-  // One entry per physical hadronically decaying tau: the LAST tau of each radiative
-  // chain, so a tau radiating a photon counts once, the same last-copy rule the b and c
-  // hadron levels use. Requires a GEN decay record, because a tau with no recorded decay
-  // cannot be classified, and rejects a decay with an electron or a muon among the
-  // children, which is what tau identification measures efficiency against
-  // (TauGenJetProducer applies the same rule). Membership alone is an antichain: a tau
-  // with a tau child is not a member, so no member can be an ancestor of another member
-  // through the only chain taus form.
-  [[nodiscard]] inline bool isVisibleTau(Graph const& graph, uint32_t id) {
+  // How the generator recorded the decay of one tau.
+  enum class TauDecay : uint8_t { None, Hadronic, Leptonic };
+
+  // The decay mode of one physical tau. None when the particle is not a tau, is
+  // synthetic, has no GEN decay record, or is a radiative copy, which is a tau with a
+  // tau child. Leptonic when an electron or a muon is among the children, Hadronic
+  // otherwise, the rule TauGenJetProducer applies. Taking the LAST tau of each
+  // radiative chain counts a tau that radiates a photon once, the same last-copy rule
+  // the b and c hadron levels use, and it makes each tau level an antichain on its own:
+  // no member can be an ancestor of another through the only chain taus form.
+  [[nodiscard]] inline TauDecay tauDecay(Graph const& graph, uint32_t id) {
     auto const& data = graph.particles()[id];
     if (std::abs(static_cast<int64_t>(data.pdgId)) != 15 || data.isSynthetic()) {
-      return false;
+      return TauDecay::None;
     }
     bool hasGenDecay = false;
+    bool leptonic = false;
     for (const uint32_t vertexId : graph.decayVertices(id)) {
       if (vertexId >= graph.nVertices() || !graph.vertices()[vertexId].hasGen()) {
         continue;
@@ -190,21 +319,40 @@ namespace truth {
           continue;
         }
         const int64_t a = std::abs(static_cast<int64_t>(graph.particles()[child].pdgId));
-        if (a == 15 || a == 11 || a == 13) {
-          return false;
+        if (a == 15) {
+          return TauDecay::None;
+        }
+        if (a == 11 || a == 13) {
+          leptonic = true;
         }
       }
     }
-    return hasGenDecay;
+    if (!hasGenDecay) {
+      return TauDecay::None;
+    }
+    return leptonic ? TauDecay::Leptonic : TauDecay::Hadronic;
+  }
+
+  // One entry per physical tau that decays to hadrons. The member is the tau itself, so
+  // its visible part is the branch of its decay products with the neutrino dropped. This
+  // is what tau identification measures efficiency against.
+  [[nodiscard]] inline bool isTauVisibleHadronic(Graph const& graph, uint32_t id) {
+    return tauDecay(graph, id) == TauDecay::Hadronic;
+  }
+
+  // One entry per physical tau that decays to an electron or a muon. The member is the
+  // tau itself, as in the hadronic level, so its visible part is the charged lepton.
+  [[nodiscard]] inline bool isTauVisibleLeptonic(Graph const& graph, uint32_t id) {
+    return tauDecay(graph, id) == TauDecay::Leptonic;
   }
 
   // Whether one particle belongs to a level, before the antichain check.
   [[nodiscard]] inline bool atLevel(Graph const& graph, uint32_t id, Level level) {
     auto const& data = graph.particles()[id];
     switch (level) {
-      case Level::StableLegsFromUpstream:
-        // Not a per-particle predicate: it is reachability from the Upstream node, so
-        // it is answered by stableLegsFromUpstream and never reaches here.
+      case Level::StableLegsFromInitialState:
+        // Not a per-particle predicate: it is reachability from the InitialState node, so
+        // it is answered by stableLegsFromInitialState and never reaches here.
         return false;
       case Level::HardProcess:
         // The hard-scatter legs, not the resonance: see the header note.
@@ -235,8 +383,10 @@ namespace truth {
         // A walk from the GEN roots, answered by reconstructableFinalState, so it never
         // reaches here.
         return false;
-      case Level::VisibleTau:
-        return isVisibleTau(graph, id);
+      case Level::TauVisibleHadronic:
+        return isTauVisibleHadronic(graph, id);
+      case Level::TauVisibleLeptonic:
+        return isTauVisibleLeptonic(graph, id);
       case Level::CHadrons:
         // A c hadron from a B decay is a legitimate member: the nesting that matters is
         // within one flavour, and beauty and charm are deliberately different levels.
@@ -249,8 +399,8 @@ namespace truth {
     return false;
   }
 
-  // Stable legs hanging off every artificial vertex of one role. Upstream collects the
-  // ISR and upstream side of the interaction, UnderlyingEvent the spectators; the walk is
+  // Stable legs hanging off every artificial vertex of one role. InitialState collects the
+  // beam, hard-scatter and ISR side of the interaction, UnderlyingEvent the spectators; the walk is
   // identical, so it is written once. A leg is a particle that produced nothing further,
   // which makes the result an antichain by construction.
   [[nodiscard]] inline std::vector<uint32_t> stableLegsFromRole(Graph const& graph, VertexRole role) {
@@ -303,8 +453,8 @@ namespace truth {
     return legs;
   }
 
-  [[nodiscard]] inline std::vector<uint32_t> stableLegsFromUpstream(Graph const& graph) {
-    return stableLegsFromRole(graph, VertexRole::Upstream);
+  [[nodiscard]] inline std::vector<uint32_t> stableLegsFromInitialState(Graph const& graph) {
+    return stableLegsFromRole(graph, VertexRole::InitialState);
   }
 
   [[nodiscard]] inline std::vector<uint32_t> stableLegsFromUnderlyingEvent(Graph const& graph) {
@@ -519,8 +669,8 @@ namespace truth {
   }
 
   [[nodiscard]] inline std::vector<uint32_t> levelAntichain(Graph const& graph, Level level) {
-    if (level == Level::StableLegsFromUpstream) {
-      std::vector<uint32_t> legs = stableLegsFromUpstream(graph);
+    if (level == Level::StableLegsFromInitialState) {
+      std::vector<uint32_t> legs = stableLegsFromInitialState(graph);
       dropCoveredMembers(graph, legs, false);
       return legs;
     }
@@ -584,6 +734,76 @@ namespace truth {
     throw cms::Exception("TruthLevels") << "level " << static_cast<int>(level) << " has no row in kLevelTable";
   }
 
+  // The particles that lie on a directed cycle, walking particle to child. Empty on a
+  // well-formed graph.
+  //
+  // A cycle is not a shape the levels can describe. dropCoveredMembers marks the closure
+  // of a level's members and then erases every member the closure reached; on a cycle a
+  // member reaches ITSELF, so the level erases its own members and comes out empty or
+  // thinned. The count is what a consumer sees, and an empty level is indistinguishable
+  // from "the event has none of these", so the condition has to be reported rather than
+  // inferred. One pass, O(nParticles + nEdges), iterative because a shower chain is deep
+  // enough to overflow the stack.
+  [[nodiscard]] inline std::vector<uint32_t> particlesOnCycles(Graph const& graph) {
+    enum : uint8_t { kUnseen = 0, kOnStack = 1, kDone = 2 };
+    const uint32_t nParticles = graph.nParticles();
+    std::vector<uint8_t> state(nParticles, kUnseen);
+    std::vector<uint32_t> onCycle;
+    // (particle, index of the next child to visit) so the walk can resume after a child.
+    std::vector<std::pair<uint32_t, std::size_t>> stack;
+    std::vector<uint32_t> children;
+
+    auto childrenOf = [&graph](uint32_t id, std::vector<uint32_t>& out) {
+      out.clear();
+      for (const uint32_t vertexId : graph.decayVertices(id)) {
+        if (vertexId >= graph.nVertices()) {
+          continue;
+        }
+        for (const uint32_t child : graph.outgoingParticles(vertexId)) {
+          out.push_back(child);
+        }
+      }
+    };
+
+    for (uint32_t root = 0; root < nParticles; ++root) {
+      if (state[root] != kUnseen) {
+        continue;
+      }
+      stack.emplace_back(root, 0);
+      state[root] = kOnStack;
+      while (!stack.empty()) {
+        auto& [id, next] = stack.back();
+        childrenOf(id, children);
+        if (next >= children.size()) {
+          state[id] = kDone;
+          stack.pop_back();
+          continue;
+        }
+        const uint32_t child = children[next];
+        ++next;
+        if (child >= nParticles) {
+          continue;
+        }
+        if (state[child] == kOnStack) {
+          // Back edge: the child reaches itself through the particles above it on the
+          // stack, so the whole loop is named, not only the point the walk re-entered.
+          for (auto it = stack.rbegin(); it != stack.rend(); ++it) {
+            onCycle.push_back(it->first);
+            if (it->first == child) {
+              break;
+            }
+          }
+        } else if (state[child] == kUnseen) {
+          state[child] = kOnStack;
+          stack.emplace_back(child, 0);
+        }
+      }
+    }
+    std::sort(onCycle.begin(), onCycle.end());
+    onCycle.erase(std::unique(onCycle.begin(), onCycle.end()), onCycle.end());
+    return onCycle;
+  }
+
   // Stamp every particle with the levels it belongs to. Call once, on the COMPLETE graph:
   // levelAntichain walks ancestors and descendants, so a graph still being assembled
   // gives an antichain of whatever existed at the time.
@@ -594,9 +814,7 @@ namespace truth {
   inline void fillLevelFlags(Graph& graph) {
     // Preconditions, because the walks below index the CSR arrays directly: the graph
     // must be shaped (Graph::isConsistent) and acyclic. A short offset array aborts the
-    // job with a bare std::out_of_range and no module context. A cycle makes every member
-    // of a level cover every other, which empties that level with no diagnostic.
-    // TruthGraphTopologyChecker counts cycles in a job.
+    // job with a bare std::out_of_range and no module context.
     if (graph.nParticles() == 0) {
       return;
     }
@@ -605,6 +823,15 @@ namespace truth {
       throw cms::Exception("TruthLevels")
           << "fillLevelFlags needs CSR offsets of size nParticles + 1 (" << graph.nParticles() + 1 << "), found "
           << graph.particleToDecayVertexOffsets().size() << " and " << graph.particleToProductionVertexOffsets().size();
+    }
+    // A cycle thins or empties the levels it touches, and the result reads as a normal
+    // event, so it is announced. The stamping continues: the levels a cycle does not
+    // reach stay correct, and dropping every level would lose more than it protects.
+    if (const std::vector<uint32_t> cyclic = particlesOnCycles(graph); !cyclic.empty()) {
+      edm::LogWarning("TruthLevels") << cyclic.size() << " particles lie on a directed cycle, first at id "
+                                     << cyclic.front() << " (pdgId " << graph.particles()[cyclic.front()].pdgId
+                                     << "). A level whose members a cycle reaches erases them and comes out "
+                                        "empty or thinned, so treat the level counts of this event as unreliable.";
     }
     // Clear only the bits this function owns. LevelFlag::Signal is set upstream, by the
     // selection post-processing that knows the seed species, and clearing it here would
@@ -634,6 +861,57 @@ namespace truth {
         }
       }
     }
+  }
+
+  // Whether a particle has to be at one of the levels asked for, or at every one.
+  enum class LevelMatch : uint8_t { Any, All };
+
+  // The particles several levels name together, as views, in id order and each once.
+  //
+  // Any is the union of the per-level members and is NOT reduced to an antichain again.
+  // Levels nest: a hard-process b quark is an ancestor of the B hadron, which is an
+  // ancestor of the D hadron, and each is the member of its own level. Reducing the union
+  // would keep the topmost and silently drop the very members the caller asked for.
+  //
+  // All is the intersection, for a particle that is a member of every level named. A level
+  // repeated in the list is asked for once.
+  [[nodiscard]] inline std::vector<Particle> particlesAtLevels(Graph const& graph,
+                                                               std::vector<Level> const& levels,
+                                                               LevelMatch match = LevelMatch::Any) {
+    std::vector<Level> wanted = levels;
+    std::sort(wanted.begin(), wanted.end());
+    wanted.erase(std::unique(wanted.begin(), wanted.end()), wanted.end());
+
+    std::vector<uint32_t> ids;
+    for (const Level level : wanted) {
+      const auto members = levelAntichain(graph, level);
+      ids.insert(ids.end(), members.begin(), members.end());
+    }
+    std::sort(ids.begin(), ids.end());
+
+    std::vector<Particle> out;
+    for (std::size_t i = 0; i < ids.size();) {
+      std::size_t j = i;
+      while (j < ids.size() && ids[j] == ids[i]) {
+        ++j;
+      }
+      const bool keep = match == LevelMatch::Any || (j - i) == wanted.size();
+      if (keep) {
+        out.emplace_back(&graph, ids[i]);
+      }
+      i = j;
+    }
+    return out;
+  }
+
+  // The particles a level names, as views. This is levelAntichain with the ids resolved,
+  // and the counterpart of branchesAtLevel where only the particle itself is asked about.
+  [[nodiscard]] inline std::vector<Particle> particlesAtLevel(Graph const& graph, Level level) {
+    std::vector<Particle> members;
+    for (const uint32_t id : levelAntichain(graph, level)) {
+      members.emplace_back(&graph, id);
+    }
+    return members;
   }
 
 }  // namespace truth

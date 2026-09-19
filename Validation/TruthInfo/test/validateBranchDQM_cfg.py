@@ -1,7 +1,7 @@
 # Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
 
 # Standalone single-file driver for the Branch calo DQM validator. The modules are
-# the canonical ones from PhysicsTools.TruthInfo.truthGraphValidation_cff (the same
+# the canonical ones from Validation.TruthInfo.truthGraphValidation_cff (the same
 # sequence wired into globalValidation behind enableTruth) - this cfg only rebuilds
 # the truth-graph chain from a GEN-SIM-RECO file and runs the HGCAL Branch validator
 # on it, writing a DQM root file (inspect under
@@ -20,12 +20,18 @@ if '/' not in args.inputFile and ':' not in args.inputFile:
 
 process = cms.Process("BRANCHDQM")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load("Configuration.Geometry.GeometryExtendedRun4D120Reco_cff")
+process.load("Configuration.Geometry.GeometryExtendedRun4D127Reco_cff")
 process.load("DQMServices.Core.DQMStore_cfi")
 process.trackerGeometry.applyAlignment = cms.bool(False)
 
 # Canonical truth-graph + Branch-validator modules (single source of truth).
-process.load("PhysicsTools.TruthInfo.truthGraphValidation_cff")
+process.load("Validation.TruthInfo.truthGraphValidation_cff")
+# The build producers: truthGraphValidation_cff deliberately does not define them
+process.load("Validation.Configuration.truthPrevalidation_cff")
+# This driver rebuilds the graph in the job, so the validator has to read the raw graph it
+# was built from. The sequence default points at the mixed graph in the input file, whose
+# node numbering is a different graph: the logical graph's simNode would index it.
+process.branchHGCalValidator.rawSrc = cms.InputTag("truthGraphProducer")
 
 process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(args.maxevts))
 process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring(args.inputFile))
@@ -41,7 +47,6 @@ process.p = cms.Path(
     + process.truthLogicalGraphProducer
     + process.detIdToRecHitMapProducer
     + process.truthLogicalGraphHitIndexProducer
-    + process.truthBranchCaloAssociationProducer
     + process.branchHGCalValidator
 )
 process.e = cms.EndPath(process.dqmOut)

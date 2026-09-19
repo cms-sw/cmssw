@@ -1,3 +1,13 @@
+<library file="TruthGraphPresetExamples.cc" name="TruthGraphPresetExamplesPlugins">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="PhysicsTools/TruthInfo"/>
+  <use name="SimDataFormats/TruthInfo"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <bin name="TruthLogicalGraphPostProcessor_t" file="TruthLogicalGraphPostProcessor_t.cpp">
   <use name="PhysicsTools/TruthInfo"/>
   <use name="SimDataFormats/TruthInfo"/>
@@ -11,7 +21,20 @@
   <use name="cppunit"/>
 </bin>
 
+<bin name="Interactions_t" file="Interactions_t.cpp">
+  <use name="PhysicsTools/TruthInfo"/>
+  <use name="SimDataFormats/TruthInfo"/>
+  <use name="SimDataFormats/EncodedEventId"/>
+  <use name="cppunit"/>
+</bin>
+
 <bin name="Branch_t" file="Branch_t.cpp">
+  <use name="PhysicsTools/TruthInfo"/>
+  <use name="SimDataFormats/TruthInfo"/>
+  <use name="cppunit"/>
+</bin>
+
+<bin name="AssignableTarget_t" file="AssignableTarget_t.cpp">
   <use name="PhysicsTools/TruthInfo"/>
   <use name="SimDataFormats/TruthInfo"/>
   <use name="cppunit"/>
@@ -43,5 +66,11 @@
 </bin>
 
 <test name="truthGraphSelections_t" command="python3 ${LOCALTOP}/src/PhysicsTools/TruthInfo/test/truthGraphSelections_t.py"/>
+
+<test name="truthGraphMixedDigi_t" command="python3 ${LOCALTOP}/src/PhysicsTools/TruthInfo/test/truthGraphMixedDigi_t.py"/>
+
+<test name="graphTools_t" command="python3 ${LOCALTOP}/src/PhysicsTools/TruthInfo/test/graphTools_t.py"/>
+
+<test name="customiseTruthPreset_t" command="python3 ${LOCALTOP}/src/PhysicsTools/TruthInfo/test/customiseTruthPreset_t.py"/>
 
 <test name="testTruthHistoryGuard" command="bash ${LOCALTOP}/src/PhysicsTools/TruthInfo/test/testTruthHistoryGuard.sh"/>

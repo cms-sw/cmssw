@@ -456,13 +456,32 @@ public:
     edm::Handle<edm::SimVertexContainer> hSimVertices;
     evt.getByToken(simVertexToken_, hSimVertices);
 
-    std::unordered_map<uint32_t, uint32_t> simTrackIdToIndex;
+    // SimTracks by (sub-event id, trackId) and SimVertices by (sub-event id, index in
+    // its sub-event): a trackId and an index are local to a sub-event, and a merged
+    // container holds every sub-event's in order.
+    std::unordered_map<uint64_t, uint32_t> simTrackIdToIndex;
+    std::unordered_map<uint64_t, uint32_t> simVertexIdToIndex;
+    if (validHandle(hSimVertices)) {
+      simVertexIdToIndex.reserve(hSimVertices->size() * 2);
+      uint32_t local = 0;
+      uint32_t currentEventId = 0;
+      for (uint32_t i = 0; i < hSimVertices->size(); ++i) {
+        const uint32_t eventId = (*hSimVertices)[i].eventId().rawId();
+        if (i == 0 || eventId != currentEventId) {
+          currentEventId = eventId;
+          local = 0;
+        }
+        simVertexIdToIndex.emplace(truth::simObjectKey(eventId, local), i);
+        ++local;
+      }
+    }
 
     if (validHandle(hSimTracks)) {
       simTrackIdToIndex.reserve(hSimTracks->size() * 2);
 
       for (uint32_t i = 0; i < hSimTracks->size(); ++i) {
-        simTrackIdToIndex.emplace((*hSimTracks)[i].trackId(), i);
+        simTrackIdToIndex.emplace(truth::simObjectKey((*hSimTracks)[i].eventId().rawId(), (*hSimTracks)[i].trackId()),
+                                  i);
       }
     }
 
@@ -744,7 +763,9 @@ public:
           if (p.statusFlags == 0)
             p.statusFlags = raw.nodeStatusFlags(nodeId);
 
-          if (haveGenPayload) {
+          // The HepMC payload is the signal interaction's. A pileup GEN node with the
+          // same barcode is a different particle and takes its SimTrack momentum below.
+          if (haveGenPayload && raw.nodeEventId(nodeId) == 0) {
             const int barcode = static_cast<int>(ref.key);
             auto it = genParticlePayload.find(barcode);
 
@@ -779,7 +800,7 @@ public:
 
           if (validHandle(hSimTracks)) {
             const auto trackId = static_cast<uint32_t>(ref.key);
-            auto it = simTrackIdToIndex.find(trackId);
+            auto it = simTrackIdToIndex.find(truth::simObjectKey(raw.nodeEventId(nodeId), trackId));
 
             if (it != simTrackIdToIndex.end()) {
               auto const& t = (*hSimTracks)[it->second];
@@ -826,7 +847,7 @@ public:
           if (v.eventId == 0)
             v.eventId = raw.nodeEventId(nodeId);
 
-          if (haveGenPayload) {
+          if (haveGenPayload && raw.nodeEventId(nodeId) == 0) {
             const int barcode = static_cast<int>(ref.key);
             auto it = genVertexPayload.find(barcode);
 
@@ -848,10 +869,11 @@ public:
             v.eventId = raw.nodeEventId(nodeId);
 
           if (validHandle(hSimVertices)) {
-            const auto simIndex = static_cast<uint32_t>(ref.key);
+            auto it =
+                simVertexIdToIndex.find(truth::simObjectKey(raw.nodeEventId(nodeId), static_cast<uint32_t>(ref.key)));
 
-            if (simIndex < hSimVertices->size()) {
-              auto const& sv = (*hSimVertices)[simIndex];
+            if (it != simVertexIdToIndex.end()) {
+              auto const& sv = (*hSimVertices)[it->second];
               const auto& pos = sv.position();
               constexpr double sToNs = 1e9;  // SimVertex time is stored in seconds -> ns
 
@@ -947,6 +969,20 @@ public:
              out->vertexToIncomingParticleOffsets(),
              out->vertexToIncomingParticles());
 
+    // A pileup GEN particle has no generator payload after mixing, so a decaying one takes
+    // its momentum from its decay products, before the pruning removes any of them.
+    truth::fillMomentumFromDecayProducts(*out);
+
+    // A GEN-only vertex has no creator process to read, so its reason comes from the
+    // particles that meet there, on the complete GEN topology.
+    for (uint32_t vertexId = 0; vertexId < out->nVertices(); ++vertexId) {
+      auto& vertex = out->vertices()[vertexId];
+      if (vertex.isArtificial() || vertex.hasSim() || !vertex.hasGen())
+        continue;
+
+      vertex.reason = static_cast<uint8_t>(truth::genVertexReason(*out, vertexId));
+    }
+
     // Per-particle sim-hit presence for the hitless-subgraph pruning. A logical
     // particle is flagged when a calo or tracker sim-hit carries its SimTrack
     // trackId with positive energy -- exactly how the LogicalGraphHitIndex
@@ -959,7 +995,6 @@ public:
       // be namespaced by the packed EncodedEventId or signal and pileup collide and
       // the wrong particles get flagged as hit-bearing. Mirrors the same key in
       // LogicalGraphHitIndexBuilder so the pruned graph stays consistent with the index.
-      auto simKey = [](uint64_t eventId, uint32_t trackId) { return (eventId << 32) | static_cast<uint64_t>(trackId); };
       std::unordered_set<uint64_t> hitKeys;
       bool anyCollectionValid = false;
 
@@ -972,7 +1007,7 @@ public:
         for (auto const& hit : *hHits) {
           const int trackId = hit.geantTrackId();
           if (trackId > 0 && hit.energy() > 0.f)
-            hitKeys.insert(simKey(hit.eventId().rawId(), static_cast<uint32_t>(trackId)));
+            hitKeys.insert(truth::simObjectKey(hit.eventId().rawId(), static_cast<uint32_t>(trackId)));
         }
       }
 
@@ -984,7 +1019,7 @@ public:
         anyCollectionValid = true;
         for (auto const& hit : *hHits) {
           if (hit.energyLoss() > 0.f)
-            hitKeys.insert(simKey(hit.eventId().rawId(), hit.trackId()));
+            hitKeys.insert(truth::simObjectKey(hit.eventId().rawId(), hit.trackId()));
         }
       }
 
@@ -1002,7 +1037,7 @@ public:
             continue;
           if (ref.key <= 0 || ref.key > static_cast<int64_t>(std::numeric_limits<uint32_t>::max()))
             continue;
-          if (hitKeys.count(simKey(raw.nodeEventId(simNodeU32), static_cast<uint32_t>(ref.key))) != 0)
+          if (hitKeys.count(truth::simObjectKey(raw.nodeEventId(simNodeU32), static_cast<uint32_t>(ref.key))) != 0)
             particleDirectHit[particleId] = 1;
         }
       } else {

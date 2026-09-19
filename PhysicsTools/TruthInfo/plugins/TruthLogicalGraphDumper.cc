@@ -1,6 +1,7 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <fstream>
 #include <iomanip>
@@ -30,11 +31,17 @@
 
 namespace {
 
+  // The selection post-processing owns LevelFlag::Signal, so it is not a row of the level
+  // table and the loops over kAllLevels below do not reach it. It is drawn like a level
+  // because a reader looks for it like one.
+  constexpr char const* kSignalName = truth::kSignalLevelName;
+  constexpr char const* kSignalColor = "#ffc4d6";
+
   // One colour per level, shared by the node labels and the legend so the two cannot
   // drift. Pale on purpose: these are backgrounds behind black text.
   std::string levelColor(truth::Level level) {
     switch (level) {
-      case truth::Level::StableLegsFromUpstream:
+      case truth::Level::StableLegsFromInitialState:
         return "#cfe8ff";
       case truth::Level::HardProcess:
         return "#ffd6a5";
@@ -54,8 +61,10 @@ namespace {
         return "#f2d5e0";
       case truth::Level::ReconstructableFinalState:
         return "#d5f0f2";
-      case truth::Level::VisibleTau:
+      case truth::Level::TauVisibleHadronic:
         return "#f9e9c9";
+      case truth::Level::TauVisibleLeptonic:
+        return "#e9d8c9";
     }
     return "#ffffff";
   }
@@ -193,7 +202,7 @@ namespace {
   }
 
   const char* logicalVertexDomain(truth::VertexData const& d) {
-    // Artificial source vertices (Interaction / Upstream-ISR / UnderlyingEvent)
+    // Artificial source vertices (Interaction / InitialState / UnderlyingEvent)
     // have no GEN or SIM back-reference by construction; they are graph-internal
     // bookkeeping nodes, so they get their own "Internal" domain rather than
     // looking like an unclassified real vertex.
@@ -362,6 +371,84 @@ namespace {
     return false;
   }
 
+  // The same graph as the dot file, for a script that has to read numbers rather than a
+  // picture: one JSON object per event, with the momenta and positions at full precision.
+  // Full precision, and null where JSON has no number: it knows no NaN and no infinity.
+  std::string number(double value) {
+    if (!std::isfinite(value)) {
+      return "null";
+    }
+    std::ostringstream out;
+    out << std::setprecision(17) << value;
+    return out.str();
+  }
+
+  void writeJson(std::string const& path,
+                 edm::EventID const& id,
+                 truth::Graph const& graph,
+                 truth::SubgraphHitView* hitIndex) {
+    std::ofstream os(path);
+    os << "{\n";
+    os << "  \"run\": " << id.run() << ", \"lumi\": " << id.luminosityBlock() << ", \"event\": " << id.event() << ",\n";
+    auto list = [&os](char const* key, std::vector<int32_t> const& values) {
+      os << "  \"" << key << "\": [";
+      for (std::size_t i = 0; i < values.size(); ++i) {
+        os << (i == 0 ? "" : ", ") << values[i];
+      }
+      os << "],\n";
+    };
+    // What the level rules read from the graph itself, so a reader recomputes a level.
+    list("signalSeedPdgIds", graph.signalSeedPdgIds());
+    list("seedHadronFlavors", graph.seedHadronFlavors());
+    list("reconstructablePdgIds", graph.reconstructablePdgIds());
+    os << "  \"particles\": [\n";
+    for (uint32_t i = 0; i < graph.nParticles(); ++i) {
+      auto const& d = graph.particles()[i];
+      os << "    {\"id\": " << i << ", \"pdgId\": " << d.pdgId << ", \"status\": " << d.status
+         << ", \"statusFlags\": " << d.statusFlags << ", \"hasGen\": " << (d.hasGen() ? "true" : "false")
+         << ", \"hasSim\": " << (d.hasSim() ? "true" : "false") << ", \"role\": \""
+         << truth::particleRoleName(d.particleRole()) << "\", \"eventId\": " << d.eventId
+         << ", \"bunchCrossing\": " << d.bunchCrossing() << ", \"eventIndex\": " << d.eventIndex()
+         << ", \"genEvent\": " << d.genEvent << ", \"p4\": [" << number(d.momentum.px()) << ", "
+         << number(d.momentum.py()) << ", " << number(d.momentum.pz()) << ", " << number(d.momentum.e())
+         << "], \"levels\": [";
+      bool firstLevel = true;
+      for (char const* name : truth::levelNamesOf(d)) {
+        os << (firstLevel ? "" : ", ") << "\"" << name << "\"";
+        firstLevel = false;
+      }
+      os << "]";
+      if (hitIndex != nullptr && i < hitIndex->nParticles()) {
+        os << ", \"caloHits\": " << hitIndex->subgraphHits(truth::HitChannel::Calo, i).size()
+           << ", \"trackerHits\": " << hitIndex->subgraphHits(truth::HitChannel::Tracker, i).size();
+      }
+      os << "}" << (i + 1 == graph.nParticles() ? "" : ",") << "\n";
+    }
+    os << "  ],\n  \"vertices\": [\n";
+    for (uint32_t i = 0; i < graph.nVertices(); ++i) {
+      auto const& d = graph.vertices()[i];
+      os << "    {\"id\": " << i << ", \"role\": \"" << truth::vertexRoleName(d.vertexRole()) << "\", \"reason\": \""
+         << truth::vertexReasonName(d.vertexReason()) << "\", \"hasGen\": " << (d.hasGen() ? "true" : "false")
+         << ", \"hasSim\": " << (d.hasSim() ? "true" : "false") << ", \"eventId\": " << d.eventId
+         << ", \"bunchCrossing\": " << d.bunchCrossing() << ", \"eventIndex\": " << d.eventIndex() << ", \"x4\": ["
+         << number(d.position.x()) << ", " << number(d.position.y()) << ", " << number(d.position.z()) << ", "
+         << number(d.position.t()) << "], \"in\": [";
+      bool first = true;
+      for (const uint32_t in : graph.incomingParticles(i)) {
+        os << (first ? "" : ", ") << in;
+        first = false;
+      }
+      os << "], \"out\": [";
+      first = true;
+      for (const uint32_t out : graph.outgoingParticles(i)) {
+        os << (first ? "" : ", ") << out;
+        first = false;
+      }
+      os << "]}" << (i + 1 == graph.nVertices() ? "" : ",") << "\n";
+    }
+    os << "  ]\n}\n";
+  }
+
   std::string appendEventIdToFilename(std::string const& filename, edm::EventID const& id) {
     const auto dotPos = filename.rfind('.');
 
@@ -395,6 +482,7 @@ public:
         hitIndexToken_(mayConsume<truth::LogicalGraphHitIndex>(hitIndexTag_)),
         useHitIndex_(!hitIndexTag_.label().empty()),
         dotFile_(cfg.getParameter<std::string>("dotFile")),
+        jsonFile_(cfg.getParameter<std::string>("jsonFile")),
         layout_(cfg.getParameter<std::string>("layout")),
 
         dumpSimHits_(cfg.getParameter<bool>("dumpSimHits")) {
@@ -438,13 +526,16 @@ public:
         ->setComment("HGCRecHit collections, in the same order used by DetIdToRecHitMapProducer");
 
     desc.add<std::vector<edm::InputTag>>("pfRecHits",
-                                         {edm::InputTag("particleFlowRecHitECAL", "Cleaned"),
-                                          edm::InputTag("particleFlowRecHitHBHE", "Cleaned"),
-                                          edm::InputTag("particleFlowRecHitHF", "Cleaned"),
-                                          edm::InputTag("particleFlowRecHitHO", "Cleaned")})
+                                         {edm::InputTag("particleFlowRecHitECAL"),
+                                          edm::InputTag("particleFlowRecHitHBHE"),
+                                          edm::InputTag("particleFlowRecHitHF"),
+                                          edm::InputTag("particleFlowRecHitHO")})
         ->setComment("PFRecHit collections, in the same order used by DetIdToRecHitMapProducer");
 
     desc.add<std::string>("dotFile", "truthlogicalgraph.dot");
+    desc.add<std::string>("jsonFile", "")
+        ->setComment(
+            "Write the same graph as JSON next to the dot file, for a script that reads numbers. Off when empty.");
     desc.add<std::string>("layout", "dot")
         ->setComment(
             "DOT layout: 'dot' (default, hierarchical left-to-right ranks) or a force-directed engine "
@@ -474,6 +565,9 @@ public:
     const std::vector<float> recHitEnergies = collectRecHitEnergies(evt);
 
     const std::string eventDotFile = appendEventIdToFilename(dotFile_, evt.id());
+    if (!jsonFile_.empty()) {
+      writeJson(appendEventIdToFilename(jsonFile_, evt.id()), evt.id(), g, hitIndex);
+    }
 
     std::ofstream os(eventDotFile);
 
@@ -678,11 +772,9 @@ public:
       // label, because graphviz silently ignores attributes it does not know and an
       // attribute alone renders to nothing at all.
       std::string levels;
-      for (const truth::Level level : truth::kAllLevels) {
-        if (d.isAtLevel(truth::levelFlagOf(level))) {
-          levels += levels.empty() ? "" : ",";
-          levels += truth::levelName(level);
-        }
+      for (char const* name : truth::levelNamesOf(d)) {
+        levels += levels.empty() ? "" : ",";
+        levels += name;
       }
       os << ", levels=\"" << levels << "\"";
 
@@ -770,6 +862,9 @@ public:
              << "</B></TD></TR>\n";
         }
       }
+      if (d.isAtLevel(truth::LevelFlag::Signal)) {
+        os << "      <TR><TD BGCOLOR=\"" << kSignalColor << "\"><B>" << kSignalName << "</B></TD></TR>\n";
+      }
 
       if (d.pdgId != 0)
         os << "      <TR><TD>pid: " << pdgLabel(d.pdgId) << "</TD></TR>\n";
@@ -785,7 +880,7 @@ public:
       if (d.backscattered)
         os << "      <TR><TD><B>back-scattered</B></TD></TR>\n";
 
-      if (d.eventId != 0)
+      if (d.isFromPileup())
         os << "      <TR><TD>eid: " << d.eventId << "</TD></TR>\n";
 
       if (d.genEvent >= 0)
@@ -863,9 +958,13 @@ public:
           roleName = "interaction";
           roleColor = "indianred1";
           break;
-        case truth::VertexRole::Upstream:
-          roleName = "ISR/upstream";
+        case truth::VertexRole::InitialState:
+          roleName = "initial state";
           roleColor = "navajowhite";
+          break;
+        case truth::VertexRole::BeamSideInput:
+          roleName = "beam side input";
+          roleColor = "wheat";
           break;
         case truth::VertexRole::UnderlyingEvent:
           roleName = "underlying event";
@@ -897,9 +996,8 @@ public:
            << ">";
       }
 
-      // Big title row: the role for artificial vertices; the physical reason when
-      // known (SIM vertices carry the Geant4 process); else - GEN-only vertices have
-      // no process - infer from the topology (a single incoming particle decays).
+      // Big title row: the role for an artificial vertex, else the physical reason, else
+      // the topology (a single incoming particle decays).
       std::string vBig;
       if (roleName != nullptr)
         vBig = roleName;
@@ -921,7 +1019,7 @@ public:
       if (d.vertexReason() != truth::VertexReason::Unknown)
         os << "      <TR><TD>reason: " << truth::vertexReasonName(d.vertexReason()) << "</TD></TR>\n";
 
-      if (d.eventId != 0)
+      if (d.isFromPileup())
         os << "      <TR><TD>eid: " << d.eventId << "</TD></TR>\n";
 
       if (d.genEvent >= 0)
@@ -994,9 +1092,12 @@ private:
       evt.getByToken(hgcalRecHitTokens_[i], handle);
 
       if (!handle.isValid()) {
-        edm::LogWarning("TruthLogicalGraphDumper") << "Missing HGCRecHit collection " << hgcalRecHitTags_[i].encode()
-                                                   << ". Skipping it while rebuilding recHit energies.";
-        continue;
+        // Every later index would shift by the size of this collection, so the whole
+        // annotation is dropped rather than reported against the wrong hits.
+        edm::LogWarning("TruthLogicalGraphDumper")
+            << "Missing HGCRecHit collection " << hgcalRecHitTags_[i].encode()
+            << ". The global recHit index cannot be rebuilt, so recHit energies are left out of this dump.";
+        return {};
       }
 
       energies.reserve(energies.size() + handle->size());
@@ -1009,9 +1110,10 @@ private:
       evt.getByToken(pfRecHitTokens_[i], handle);
 
       if (!handle.isValid()) {
-        edm::LogWarning("TruthLogicalGraphDumper") << "Missing reco::PFRecHitCollection " << pfRecHitTags_[i].encode()
-                                                   << ". Skipping it while rebuilding recHit energies.";
-        continue;
+        edm::LogWarning("TruthLogicalGraphDumper")
+            << "Missing reco::PFRecHitCollection " << pfRecHitTags_[i].encode()
+            << ". The global recHit index cannot be rebuilt, so recHit energies are left out of this dump.";
+        return {};
       }
 
       energies.reserve(energies.size() + handle->size());
@@ -1037,6 +1139,7 @@ private:
   std::vector<edm::EDGetTokenT<reco::PFRecHitCollection>> pfRecHitTokens_;
 
   std::string dotFile_;
+  std::string jsonFile_;
   std::string layout_;
   bool dumpSimHits_;
 };

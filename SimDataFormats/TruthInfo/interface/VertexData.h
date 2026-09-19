@@ -7,26 +7,41 @@
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
+#include "SimDataFormats/TruthInfo/interface/InteractionId.h"
+
 namespace truth {
 
   // Role of a logical vertex. Normal vertices are real GEN/SIM vertices.
   // Artificial source vertices summarize activity that was cut from a focused
   // selection but is kept for context/consistency:
-  //   Upstream        - truncated production context of the selected roots (ISR,
-  //                     beam/initial-state activity that led to the selection);
+  //   InitialState    - truncated production context of the selected roots: the
+  //                     beam, the hard-scatter ancestry and the ISR that led to
+  //                     the selection;
   //   UnderlyingEvent - stable final-state particles not in any selected
-  //                     subgraph (underlying event, unrelated to the selection).
+  //                     subgraph (underlying event, unrelated to the selection);
+  //   BeamSideInput   - the input a kept vertex received from outside the selection.
+  //                     It holds the dropped GEN parents of that vertex, which is
+  //                     where a colour string spans the hard scatter and the beam
+  //                     remnant, so that contribution stays visible.
   // Artificial vertices carry the genEvent/eventId of the activity they
   // summarize, so that overlaid pile-up graphs stay distinguishable. Interaction
   // is the per-interaction root that fans out (through connector particles) to
-  // its Upstream (ISR/hard-scatter) and UnderlyingEvent sub-vertices, so the
+  // its InitialState and UnderlyingEvent sub-vertices, so the
   // whole interaction descends from one node: the signal is everything reachable
   // from the signal Interaction vertex, and each pile-up interaction gets its own.
-  enum class VertexRole : uint8_t { Normal = 0, Upstream = 1, UnderlyingEvent = 2, Interaction = 3 };
+  enum class VertexRole : uint8_t {
+    Normal = 0,
+    InitialState = 1,
+    UnderlyingEvent = 2,
+    Interaction = 3,
+    BeamSideInput = 4
+  };
 
-  // Physical reason a vertex exists, derived from the Geant4 creator-process
-  // subtype of the SimVertex (TruthGraph::nodeProcessType). Unknown for GEN-only
-  // and artificial vertices; Primary for vertices with no creator process.
+  // Physical reason a vertex exists. A vertex with a SIM side takes it from the Geant4
+  // creator-process subtype of the SimVertex (TruthGraph::nodeProcessType). A GEN-only
+  // vertex takes it from its topology and from the generator status codes of the
+  // particles that meet there, through genVertexReason(). Unknown for an artificial
+  // vertex and for any pattern neither rule set covers.
   enum class VertexReason : uint8_t {
     Unknown = 0,
     Primary,            // no creator process (primary / hard-scatter)
@@ -45,7 +60,35 @@ namespace truth {
     ChargeExchange,     // hadronic charge exchange
     HadronAtRest,       // hadron interaction at rest (e.g. pi- absorption)
     Other,              // a known-but-unmapped G4 subtype
+    // GEN-only vertices. A generator decay reuses Decay above, which is the same
+    // statement on either side.
+    HardScatter,      // the hard interaction of the event
+    ShowerBranching,  // a parton branching in the initial or final state shower
+    Hadronization,    // partons or a string turn into hadrons
   };
+
+  // Number of VertexRole values, for a bin per role.
+  inline constexpr int kVertexRoleCount = static_cast<int>(VertexRole::BeamSideInput) + 1;
+
+  [[nodiscard]] inline const char* vertexRoleName(VertexRole role) {
+    switch (role) {
+      case VertexRole::Normal:
+        return "Normal";
+      case VertexRole::InitialState:
+        return "InitialState";
+      case VertexRole::UnderlyingEvent:
+        return "UnderlyingEvent";
+      case VertexRole::Interaction:
+        return "Interaction";
+      case VertexRole::BeamSideInput:
+        return "BeamSideInput";
+    }
+    return "Normal";
+  }
+
+  // Number of VertexReason values. A bin count or a sentinel derived from Other instead
+  // would collide with the GEN values, which sit after it.
+  inline constexpr int kVertexReasonCount = static_cast<int>(VertexReason::Hadronization) + 1;
 
   struct VertexData {
     // Optional provenance/debug back-references to the raw TruthGraph nodes.
@@ -62,7 +105,7 @@ namespace truth {
     // VertexRole stored as its underlying type for dictionary simplicity.
     uint8_t role = static_cast<uint8_t>(VertexRole::Normal);
 
-    // VertexReason (G4-derived), stored as its underlying type.
+    // VertexReason, stored as its underlying type.
     uint8_t reason = static_cast<uint8_t>(VertexReason::Unknown);
 
     // Standalone payload.
@@ -78,6 +121,12 @@ namespace truth {
     [[nodiscard]] bool isArtificial() const { return vertexRole() != VertexRole::Normal; }
 
     [[nodiscard]] VertexReason vertexReason() const { return static_cast<VertexReason>(reason); }
+
+    // The interaction this vertex belongs to, as on ParticleData.
+    [[nodiscard]] int bunchCrossing() const { return bunchCrossingOf(eventId); }
+    [[nodiscard]] int eventIndex() const { return eventIndexOf(eventId); }
+    [[nodiscard]] bool isSignal() const { return isSignalEventId(eventId); }
+    [[nodiscard]] bool isFromPileup() const { return !isSignal(); }
   };
 
   // Map a Geant4 process subtype (G4VProcess::GetProcessSubType(), as stored in
@@ -161,6 +210,12 @@ namespace truth {
         return "HadronAtRest";
       case VertexReason::Other:
         return "Other";
+      case VertexReason::HardScatter:
+        return "HardScatter";
+      case VertexReason::ShowerBranching:
+        return "ShowerBranching";
+      case VertexReason::Hadronization:
+        return "Hadronization";
     }
     return "Unknown";
   }

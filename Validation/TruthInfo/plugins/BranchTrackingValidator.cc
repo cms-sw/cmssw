@@ -10,9 +10,9 @@
 // reproduces the TP-based assignment when both point at the same logical particle.
 // The booked numerator/denominator (TP-matched tracks vs Branch-and-TP-agree) are
 // turned into a "reproduction efficiency vs eta/pt" by the harvester
-// (DQMGenericClient); the shared-hit completeness is booked directly. This is the
-// DQM form of BranchTrackerReplacementValidator and sits alongside the standard
-// tracking validation so the two truth descriptions can be compared.
+// (DQMGenericClient); the shared-hit completeness is booked directly. It sits
+// alongside the standard tracking validation so the two truth descriptions can be
+// compared.
 
 #include <algorithm>
 #include <cstdint>
@@ -37,11 +37,13 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimTracker/TrackAssociation/interface/trackHitsToClusterRefs.h"
+#include "PhysicsTools/TruthInfo/interface/RecoHitAdapters.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
 
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
 #include "PhysicsTools/TruthInfo/interface/SubgraphHitView.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/InteractionId.h"
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
 #include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 
@@ -130,9 +132,9 @@ void BranchTrackingValidator::bookHistograms(DQMStore::IBooker& ib, edm::Run con
 }
 
 namespace {
-  // logical-particle id <- SimTrack trackId, via the raw-graph node back-reference.
-  std::unordered_map<uint32_t, uint32_t> buildTrackIdToParticle(truth::Graph const& graph, TruthGraph const& raw) {
-    std::unordered_map<uint32_t, uint32_t> out;
+  // (EncodedEventId, SimTrack trackId) -> logical particle.
+  std::unordered_map<uint64_t, uint32_t> buildTrackIdToParticle(truth::Graph const& graph, TruthGraph const& raw) {
+    std::unordered_map<uint64_t, uint32_t> out;
     out.reserve(graph.nParticles());
     for (uint32_t i = 0; i < graph.nParticles(); ++i) {
       const int32_t simNode = graph.particles()[i].simNode;
@@ -140,7 +142,7 @@ namespace {
         continue;
       auto const& nr = raw.nodeRef(static_cast<uint32_t>(simNode));
       if (nr.kind == TruthGraph::NodeKind::SimTrack)
-        out[static_cast<uint32_t>(nr.key)] = i;
+        out[truth::simObjectKey(raw.nodeEventId(static_cast<uint32_t>(simNode)), static_cast<uint32_t>(nr.key))] = i;
     }
     return out;
   }
@@ -191,15 +193,13 @@ void BranchTrackingValidator::analyze(edm::Event const& event, edm::EventSetup c
     if (pt < minPt_ || std::abs(eta) > maxEta_)
       continue;
 
-    // Branch side: reco-track rechit DetIds -> best (tightest) tracker branch.
-    std::vector<truth::RecoHit> trackHits;
+    // Branch side: the track's cells -> best (tightest) tracker branch. The tracker truth
+    // is keyed by (module, cell), so the hits come from the shared adapter.
+    const std::vector<truth::RecoHit> trackHits = truth::recoHits(track);
     uint32_t nTrackHits = 0;
     for (auto it = track.recHitsBegin(); it != track.recHitsEnd(); ++it) {
-      const TrackingRecHit* hit = &(**it);
-      if (hit->isValid()) {
-        trackHits.push_back(truth::RecoHit{hit->geographicalId().rawId(), 1.f, 1.f});
+      if ((*it)->isValid())
         ++nTrackHits;
-      }
     }
     BestMatch branch;
     std::vector<truth::BranchMatch> matches;
@@ -211,7 +211,7 @@ void BranchTrackingValidator::analyze(edm::Event const& event, edm::EventSetup c
     // TP side: shared clusters via ClusterTPAssociation -> dominant TP -> particle.
     auto clusters = track_associator::hitsToClusterRefs(track.recHitsBegin(), track.recHitsEnd());
     std::unordered_map<uint32_t, int> tpClusters;
-    std::unordered_map<uint32_t, uint32_t> tpTrackId;
+    std::unordered_map<uint32_t, uint64_t> tpTrackId;
     for (auto const& omni : clusters) {
       auto range = clusterTP.equal_range(omni);
       for (auto i = range.first; i != range.second; ++i) {
@@ -219,7 +219,7 @@ void BranchTrackingValidator::analyze(edm::Event const& event, edm::EventSetup c
         const uint32_t key = tpRef.key();
         ++tpClusters[key];
         if (!tpTrackId.count(key) && !tpRef->g4Tracks().empty())
-          tpTrackId[key] = tpRef->g4Tracks().front().trackId();
+          tpTrackId[key] = truth::simObjectKey(tpRef->eventId().rawId(), tpRef->g4Tracks().front().trackId());
       }
     }
     int expectedParticle = -1;

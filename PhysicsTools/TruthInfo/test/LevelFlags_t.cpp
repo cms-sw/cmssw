@@ -230,17 +230,28 @@ class LevelFlags_t : public CppUnit::TestFixture {
   CPPUNIT_TEST(testGunSeedThatIsItselfReconstructableIsItsOwnLeg);
   CPPUNIT_TEST(testSimContinuationIsNotADecay);
   CPPUNIT_TEST(testReconvergentHistoryStaysAnAntichain);
-  CPPUNIT_TEST(testStableLegsFromUpstreamAndUnderlyingEvent);
+  CPPUNIT_TEST(testStableLegsFromInitialStateAndUnderlyingEvent);
   CPPUNIT_TEST(testDiquarksAreNotHeavyFlavourHadrons);
   CPPUNIT_TEST(testThreeProngThroughAnIntermediateResonance);
   CPPUNIT_TEST(testPartonJetsKeepTheQuarksNotTheTopOrTheBeam);
   CPPUNIT_TEST(testPartonJetsExcludeLeptons);
   CPPUNIT_TEST(testHeavyFlavourKeepsTheWeaklyDecayingHadron);
-  CPPUNIT_TEST(testVisibleTauIsTheLastHadronicCopy);
+  CPPUNIT_TEST(testTauVisibleHadronicIsTheLastHadronicCopy);
+  CPPUNIT_TEST(testTauVisibleLeptonicIsTheLeptonicTau);
   CPPUNIT_TEST(testReconstructableFinalStateNeedsNoSignal);
   CPPUNIT_TEST(testBeautyAndCharmAreSeparateLevels);
   CPPUNIT_TEST(testEmptyGraphStampsNothing);
+  CPPUNIT_TEST(testAcyclicGraphReportsNoCycle);
+  CPPUNIT_TEST(testCycleIsReported);
+  CPPUNIT_TEST(testCycleDoesNotStopStamping);
   CPPUNIT_TEST(testLevelTableIsTheSingleSource);
+  CPPUNIT_TEST(testGenVertexReasonReadsTheMeetingParticles);
+  CPPUNIT_TEST(testHardScatterIsFoundWithoutStatusFlags);
+  CPPUNIT_TEST(testHadronDecayIsNotAShowerBranching);
+  CPPUNIT_TEST(testCollapsedResonanceDecayIsNotAHardScatter);
+  CPPUNIT_TEST(testGenVertexReasonLeavesSimAndArtificialVertices);
+  CPPUNIT_TEST(testLastCopyFollowsTheRadiatingChain);
+  CPPUNIT_TEST(testParticlesAtSeveralLevels);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -526,10 +537,10 @@ public:
     CPPUNIT_ASSERT_EQUAL(uint32_t{1}, legs[0]);
   }
 
-  // The two levels that hang off the artificial source vertices: Upstream collects the
-  // ISR side, UnderlyingEvent the spectators, and each keeps the legs that produced
+  // The two levels that hang off the artificial source vertices: InitialState collects the
+  // beam, hard-scatter and ISR side, UnderlyingEvent the spectators, and each keeps the legs that produced
   // nothing further. A leg's own role vertex decides which level it lands in.
-  void testStableLegsFromUpstreamAndUnderlyingEvent() {
+  void testStableLegsFromInitialStateAndUnderlyingEvent() {
     GraphBuilder b(4, 2);
     auto set = [&](uint32_t i, int32_t pdg, int16_t st) {
       auto& d = b.graph.particles()[i];
@@ -538,18 +549,18 @@ public:
       d.status = st;
       d.momentum = math::XYZTLorentzVectorD(5., 0., 0., 5.);
     };
-    set(0, 22, 1);   // ISR photon off the Upstream vertex
+    set(0, 22, 1);   // ISR photon off the InitialState vertex
     set(1, 211, 1);  // spectator off the UnderlyingEvent vertex
     set(2, 111, 2);  // spectator that decays, so it is not a leg
     set(3, 22, 1);   // its daughter, which is
-    b.graph.vertices()[0].role = static_cast<uint8_t>(truth::VertexRole::Upstream);
+    b.graph.vertices()[0].role = static_cast<uint8_t>(truth::VertexRole::InitialState);
     b.graph.vertices()[1].role = static_cast<uint8_t>(truth::VertexRole::UnderlyingEvent);
     b.addProduction(0, 0);
     b.addProduction(1, 1);
     b.addProduction(1, 2);
     truth::Graph g = b.finish();
 
-    const auto upstream = truth::levelAntichain(g, truth::Level::StableLegsFromUpstream);
+    const auto upstream = truth::levelAntichain(g, truth::Level::StableLegsFromInitialState);
     CPPUNIT_ASSERT_EQUAL(std::size_t{1}, upstream.size());
     CPPUNIT_ASSERT_EQUAL(uint32_t{0}, upstream[0]);
 
@@ -580,6 +591,71 @@ public:
     }
     truth::fillLevelFlags(g);
     CPPUNIT_ASSERT_EQUAL(uint32_t{0}, g.nParticles());
+  }
+
+  // A well-formed graph reports no cycle, and the walk terminates on a graph where one
+  // particle has several parents and several children.
+  void testAcyclicGraphReportsNoCycle() {
+    truth::Graph decay = buildDecay();
+    CPPUNIT_ASSERT(truth::particlesOnCycles(decay).empty());
+    truth::Graph tausAndPi0 = buildTausAndPi0();
+    CPPUNIT_ASSERT(truth::particlesOnCycles(tausAndPi0).empty());
+    truth::Graph empty;
+    CPPUNIT_ASSERT(truth::particlesOnCycles(empty).empty());
+  }
+
+  // REQUIRED: a directed cycle is reported by id, and every particle on it is named.
+  // The levels cannot describe a cycle, so the caller must be able to see one.
+  //   p0 -> v0 -> p1 -> v1 -> p2 -> v2 -> p0
+  void testCycleIsReported() {
+    GraphBuilder b(3, 3);
+    for (uint32_t i = 0; i < 3; ++i) {
+      auto& p = b.graph.particles()[i];
+      p.genNode = 100 + static_cast<int32_t>(i);
+      p.pdgId = 211;
+      p.status = 2;
+      b.addDecay(i, i);
+      b.addProduction(i, (i + 1) % 3);
+    }
+    truth::Graph g = b.finish();
+
+    const std::vector<uint32_t> onCycle = truth::particlesOnCycles(g);
+    CPPUNIT_ASSERT_EQUAL(std::size_t{3}, onCycle.size());
+    for (uint32_t i = 0; i < 3; ++i) {
+      CPPUNIT_ASSERT(std::find(onCycle.begin(), onCycle.end(), i) != onCycle.end());
+    }
+  }
+
+  // A cycle that hangs off an acyclic chain names only the particles on the cycle, and
+  // stamping still runs, so the levels a cycle does not reach stay usable.
+  void testCycleDoesNotStopStamping() {
+    // p0 (hard process) decays at v0 to p1; p1 -> v1 -> p2 -> v2 -> p1 is the cycle.
+    GraphBuilder b(3, 3);
+    auto& seed = b.graph.particles()[0];
+    seed.genNode = 100;
+    seed.pdgId = 6;
+    seed.status = 2;
+    seed.statusFlags = truth::detail::kIsHardProcess;
+    for (uint32_t i = 1; i < 3; ++i) {
+      auto& p = b.graph.particles()[i];
+      p.genNode = 100 + static_cast<int32_t>(i);
+      p.pdgId = 211;
+      p.status = 2;
+    }
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addDecay(1, 1);
+    b.addProduction(1, 2);
+    b.addDecay(2, 2);
+    b.addProduction(2, 1);
+    truth::Graph g = b.finish();
+
+    const std::vector<uint32_t> onCycle = truth::particlesOnCycles(g);
+    CPPUNIT_ASSERT_EQUAL(std::size_t{2}, onCycle.size());
+    CPPUNIT_ASSERT(std::find(onCycle.begin(), onCycle.end(), 0u) == onCycle.end());
+
+    truth::fillLevelFlags(g);
+    CPPUNIT_ASSERT_EQUAL(uint32_t{3}, g.nParticles());
   }
 
   // A SIM continuation is transport, not decay. The TenTau topology that exposed it:
@@ -721,6 +797,45 @@ public:
 
   // REQUIRED: beauty and charm stay separate levels. The D descends from the B, so one
   // combined level would keep the B and drop the D, and charm would silently vanish.
+  // REQUIRED: Any keeps a nested member. The B hadron is an ancestor of the D hadron and
+  // each is the member of its own level, so a union reduced to an antichain again would
+  // drop the D and answer the wrong question.
+  void testParticlesAtSeveralLevels() {
+    truth::Graph g = buildHeavyFlavour();
+
+    const auto either = truth::particlesAtLevels(g, {truth::Level::BHadrons, truth::Level::CHadrons});
+    CPPUNIT_ASSERT_EQUAL(std::size_t{2}, either.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t{2}, either[0].id());
+    CPPUNIT_ASSERT_EQUAL(uint32_t{3}, either[1].id());
+
+    // No particle is both a beauty and a charm hadron.
+    CPPUNIT_ASSERT(
+        truth::particlesAtLevels(g, {truth::Level::BHadrons, truth::Level::CHadrons}, truth::LevelMatch::All).empty());
+
+    // One level repeated is asked for once, so All over it is that level.
+    const auto repeated =
+        truth::particlesAtLevels(g, {truth::Level::CHadrons, truth::Level::CHadrons}, truth::LevelMatch::All);
+    CPPUNIT_ASSERT_EQUAL(std::size_t{1}, repeated.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t{3}, repeated[0].id());
+
+    // A particle that really is at two levels comes back from All.
+    const auto both =
+        truth::particlesAtLevels(g, {truth::Level::HardProcess, truth::Level::PartonJets}, truth::LevelMatch::All);
+    const auto partons = truth::levelAntichain(g, truth::Level::PartonJets);
+    const auto hard = truth::levelAntichain(g, truth::Level::HardProcess);
+    CPPUNIT_ASSERT(!partons.empty() && !hard.empty());
+    CPPUNIT_ASSERT_EQUAL(std::size_t{1}, both.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t{0}, both[0].id());
+
+    // No level named is no particle, whichever mode.
+    CPPUNIT_ASSERT(truth::particlesAtLevels(g, {}).empty());
+    CPPUNIT_ASSERT(truth::particlesAtLevels(g, {}, truth::LevelMatch::All).empty());
+
+    // One level is particlesAtLevel.
+    CPPUNIT_ASSERT_EQUAL(truth::particlesAtLevel(g, truth::Level::CHadrons).size(),
+                         truth::particlesAtLevels(g, {truth::Level::CHadrons}).size());
+  }
+
   void testBeautyAndCharmAreSeparateLevels() {
     truth::Graph g = buildHeavyFlavour();
 
@@ -745,15 +860,30 @@ public:
   // REQUIRED: one entry per physical hadronically decaying tau. The last copy of a
   // radiative chain is the member; the radiating copy and a leptonically decaying tau
   // are not.
-  void testVisibleTauIsTheLastHadronicCopy() {
+  void testTauVisibleHadronicIsTheLastHadronicCopy() {
     truth::Graph g = buildTausAndPi0();
-    const auto taus = truth::levelAntichain(g, truth::Level::VisibleTau);
+    const auto taus = truth::levelAntichain(g, truth::Level::TauVisibleHadronic);
     CPPUNIT_ASSERT_EQUAL(std::size_t{1}, taus.size());
     CPPUNIT_ASSERT_EQUAL(uint32_t{1}, taus[0]);
     truth::fillLevelFlags(g);
-    CPPUNIT_ASSERT(g.particles()[1].isAtLevel(truth::LevelFlag::VisibleTau));
-    CPPUNIT_ASSERT(!g.particles()[0].isAtLevel(truth::LevelFlag::VisibleTau));
-    CPPUNIT_ASSERT(!g.particles()[5].isAtLevel(truth::LevelFlag::VisibleTau));
+    CPPUNIT_ASSERT(g.particles()[1].isAtLevel(truth::LevelFlag::TauVisibleHadronic));
+    CPPUNIT_ASSERT(!g.particles()[0].isAtLevel(truth::LevelFlag::TauVisibleHadronic));
+    CPPUNIT_ASSERT(!g.particles()[5].isAtLevel(truth::LevelFlag::TauVisibleHadronic));
+  }
+
+  // REQUIRED: one entry per physical tau that decays to an electron or a muon. The
+  // hadronic tau and the radiating copy are not members, so the two tau levels never
+  // hold the same particle.
+  void testTauVisibleLeptonicIsTheLeptonicTau() {
+    truth::Graph g = buildTausAndPi0();
+    const auto taus = truth::levelAntichain(g, truth::Level::TauVisibleLeptonic);
+    CPPUNIT_ASSERT_EQUAL(std::size_t{1}, taus.size());
+    CPPUNIT_ASSERT_EQUAL(uint32_t{5}, taus[0]);
+    truth::fillLevelFlags(g);
+    CPPUNIT_ASSERT(g.particles()[5].isAtLevel(truth::LevelFlag::TauVisibleLeptonic));
+    CPPUNIT_ASSERT(!g.particles()[5].isAtLevel(truth::LevelFlag::TauVisibleHadronic));
+    CPPUNIT_ASSERT(!g.particles()[1].isAtLevel(truth::LevelFlag::TauVisibleLeptonic));
+    CPPUNIT_ASSERT(!g.particles()[0].isAtLevel(truth::LevelFlag::TauVisibleLeptonic));
   }
 
   // REQUIRED: the event-wide reconstructable final state exists WITHOUT a Signal flag,
@@ -775,6 +905,189 @@ public:
     // The radiating tau is walked through, never labelled.
     CPPUNIT_ASSERT(!has(0));
     CPPUNIT_ASSERT(!has(1));
+  }
+
+  // REQUIRED: a GEN vertex takes its reason from the particles that meet there. A shower
+  // branching is named by its own code even when its incoming leg is hard-process.
+  void testGenVertexReasonReadsTheMeetingParticles() {
+    GraphBuilder b(8, 3);
+
+    // v0: u ubar, both hard-process, make a t tbar pair.
+    // v1: an initial-state branching, which writes a hard-process code on its own leg.
+    // v2: a parton prepared for hadronization turning into a pion.
+    auto set = [&b](uint32_t id, int32_t pdgId, int16_t status, uint16_t flags) {
+      auto& p = b.graph.particles()[id];
+      p.genNode = 100 + static_cast<int32_t>(id);
+      p.pdgId = pdgId;
+      p.status = status;
+      p.statusFlags = flags;
+    };
+    set(0, 2, 21, truth::detail::kIsHardProcess);
+    set(1, -2, 21, truth::detail::kIsHardProcess);
+    set(2, 6, 62, 0);
+    set(3, -6, 62, 0);
+    set(4, 21, 41, truth::detail::kIsHardProcess);
+    set(5, 21, 44, 0);
+    set(6, 211, 1, 0);
+    set(7, 2, 71, 0);
+
+    b.addDecay(0, 0);
+    b.addDecay(1, 0);
+    b.addProduction(0, 2);
+    b.addProduction(0, 3);
+
+    b.addDecay(4, 1);
+    b.addProduction(1, 5);
+
+    b.addDecay(7, 2);
+    b.addProduction(2, 6);
+
+    truth::Graph g = b.finish();
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::HardScatter, truth::genVertexReason(g, 0));
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::ShowerBranching, truth::genVertexReason(g, 1));
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Hadronization, truth::genVertexReason(g, 2));
+
+    // The hadronization vertex is named by the species of what meets there, so it holds
+    // whatever the fragmenting parton's own status happens to be.
+    b.graph.particles()[7].status = 52;
+    truth::Graph withCopyStatus = b.finish();
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Hadronization, truth::genVertexReason(withCopyStatus, 2));
+  }
+
+  // REQUIRED: the hard scatter is found without the status flags, which buildFromHepMC3
+  // does not fill.
+  void testHardScatterIsFoundWithoutStatusFlags() {
+    GraphBuilder b(4, 1);
+
+    for (uint32_t id : {0u, 1u}) {
+      auto& parton = b.graph.particles()[id];
+      parton.genNode = 100 + static_cast<int32_t>(id);
+      parton.pdgId = (id == 0) ? 2 : -2;
+      parton.status = 21;
+      parton.statusFlags = 0;
+    }
+    for (uint32_t id : {2u, 3u}) {
+      auto& out = b.graph.particles()[id];
+      out.genNode = 100 + static_cast<int32_t>(id);
+      out.pdgId = (id == 2) ? 23 : 2;
+      out.status = 23;
+    }
+
+    b.addDecay(0, 0);
+    b.addDecay(1, 0);
+    b.addProduction(0, 2);
+    b.addProduction(0, 3);
+
+    truth::Graph g = b.finish();
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::HardScatter, truth::genVertexReason(g, 0));
+  }
+
+  // REQUIRED: a hadron decay stays a decay when a decay product carries a shower status
+  // code. A status code belongs to the particle's own history, not to the vertex.
+  void testHadronDecayIsNotAShowerBranching() {
+    GraphBuilder b(3, 1);
+
+    auto& meson = b.graph.particles()[0];
+    meson.genNode = 100;
+    meson.pdgId = 521;
+    meson.status = 2;
+
+    auto& muon = b.graph.particles()[1];
+    muon.genNode = 101;
+    muon.pdgId = -13;
+    muon.status = 52;
+
+    auto& neutrino = b.graph.particles()[2];
+    neutrino.genNode = 102;
+    neutrino.pdgId = 14;
+    neutrino.status = 1;
+
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addProduction(0, 2);
+
+    truth::Graph g = b.finish();
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Decay, truth::genVertexReason(g, 0));
+  }
+
+  // REQUIRED: a resonance that decays is not a hard scatter, even though the collapsed
+  // copy chain leaves isHardProcess on the particle that enters the decay vertex.
+  void testCollapsedResonanceDecayIsNotAHardScatter() {
+    GraphBuilder b(3, 1);
+
+    auto& higgs = b.graph.particles()[0];
+    higgs.genNode = 100;
+    higgs.pdgId = 25;
+    higgs.status = 62;
+    higgs.statusFlags = truth::detail::kIsHardProcess | truth::detail::kIsLastCopy;
+
+    for (uint32_t id : {1u, 2u}) {
+      auto& z = b.graph.particles()[id];
+      z.genNode = 100 + static_cast<int32_t>(id);
+      z.pdgId = 23;
+      z.status = 22;
+    }
+
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addProduction(0, 2);
+
+    truth::Graph g = b.finish();
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Decay, truth::genVertexReason(g, 0));
+  }
+
+  // REQUIRED: only GEN-only vertices are classified here. A vertex with a SIM side keeps
+  // the Geant4 reason and an artificial vertex has none.
+  void testGenVertexReasonLeavesSimAndArtificialVertices() {
+    GraphBuilder b(2, 2);
+
+    for (uint32_t id : {0u, 1u}) {
+      auto& p = b.graph.particles()[id];
+      p.genNode = 100 + static_cast<int32_t>(id);
+      p.pdgId = 211;
+      p.status = 2;
+    }
+
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addDecay(1, 1);
+
+    b.graph.vertices()[0].simNode = 900;
+    b.graph.vertices()[1].genNode = -1;
+    b.graph.vertices()[1].simNode = 901;
+    b.graph.vertices()[1].role = static_cast<uint8_t>(truth::VertexRole::UnderlyingEvent);
+
+    truth::Graph g = b.finish();
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Unknown, truth::genVertexReason(g, 0));
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Unknown, truth::genVertexReason(g, 1));
+  }
+
+  // REQUIRED: the last copy of a radiating chain is the one whose children are the decay
+  // products, and the walk stops where the chain is ambiguous.
+  void testLastCopyFollowsTheRadiatingChain() {
+    GraphBuilder b(5, 2);
+    // Z(0) -> v0 -> Z(1) gamma(2) ; Z(1) -> v1 -> e-(3) e+(4)
+    auto set = [&b](uint32_t id, int32_t pdgId, int16_t status) {
+      auto& p = b.graph.particles()[id];
+      p.genNode = 100 + static_cast<int32_t>(id);
+      p.pdgId = pdgId;
+      p.status = status;
+    };
+    set(0, 23, 2);
+    set(1, 23, 2);
+    set(2, 22, 1);
+    set(3, 11, 1);
+    set(4, -11, 1);
+    b.addDecay(0, 0);
+    b.addProduction(0, 1);
+    b.addProduction(0, 2);
+    b.addDecay(1, 1);
+    b.addProduction(1, 3);
+    b.addProduction(1, 4);
+    truth::Graph g = b.finish();
+    CPPUNIT_ASSERT_EQUAL(uint32_t{1}, truth::lastCopyOf(g, 0));
+    CPPUNIT_ASSERT_EQUAL(uint32_t{1}, truth::lastCopyOf(g, 1));
+    CPPUNIT_ASSERT_EQUAL(uint32_t{3}, truth::lastCopyOf(g, 3));
   }
 };
 

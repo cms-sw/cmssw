@@ -15,7 +15,7 @@ cmsDriver.py SingleElectronPt35_pythia8_cfi \
   --conditions auto:phase2_realistic_T35_13TeV \
   --beamspot DBrealisticHLLHC \
   --datatier GEN-SIM --eventcontent FEVTDEBUG \
-  --geometry ExtendedRun4D120 --era Phase2C26I13M9 \
+  --geometry ExtendedRun4D127 --era Phase2C26I13M9 \
   --procModifiers enableTruth \
   --customise PhysicsTools/TruthInfo/addTruthHistoryGuard.addTruthHistoryGuard \
   --fileout file:testTruthHistoryGuard_genSim.root \
