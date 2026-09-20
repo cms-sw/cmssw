@@ -74,6 +74,8 @@
   <class name="std::vector<edm::Ptr<l1t::io_v1::HGCalCluster>>" />
   <class name="std::vector<edm::Ptr<l1t::HGCalConcentratorData>>" />
   <class name="std::vector<edm::PtrVector<l1t::HGCalTriggerSums>>" />
+  <class name="std::pair<uint32_t, edm::Ptr<l1t::io_v1::HGCalTriggerCell>>" />
+  <class name="std::pair<uint32_t, edm::Ptr<l1t::io_v1::HGCalCluster>>" />
   <class name="std::unordered_map<uint32_t, edm::Ptr<l1t::io_v1::HGCalTriggerCell>>" />
   <class name="std::unordered_map<uint32_t, edm::Ptr<l1t::io_v1::HGCalCluster>>" />
   <class name="std::unordered_map<uint32_t, double>" />
