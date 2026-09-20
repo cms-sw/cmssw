@@ -3,12 +3,9 @@ import FWCore.ParameterSet.Config as cms
 from ..modules.hltAK4PFJetsForTaus_cfi import *
 from ..modules.hltL1GTAcceptFilter_cfi import *
 from ..modules.hltFixedGridRhoFastjetAllCaloForEGamma_cfi import *
-from ..modules.hltL1SeedsForPuppiMETFilter_cfi import *
 from ..modules.hltPFPuppiHT_cfi import *
-from ..modules.hltPFPuppiMETTypeOne140_cfi import *
 from ..modules.hltPFPuppiMETTypeOneCorrector_cfi import *
 from ..modules.hltPFPuppiMETTypeOne_cfi import *
-from ..modules.hltPFPuppiMHT140_cfi import *
 from ..modules.hltPFPuppiMHT_cfi import *
 from ..modules.hltParticleFlowClusterECALUncorrectedUnseeded_cfi import *
 from ..modules.hltParticleFlowClusterECALUnseeded_cfi import *
@@ -76,5 +73,8 @@ DST_NGTScouting = cms.Path(
     + hltPFPuppiMHT
     + HLTBtagDeepCSVSequencePFPuppi
     + HLTBtagDeepFlavourSequencePFPuppi
+    + HLTPFPuppiMETReconstruction
+    + hltPFPuppiMETTypeOneCorrector
+    + hltPFPuppiMETTypeOne
     + HLTEndSequence
 )
