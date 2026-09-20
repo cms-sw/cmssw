@@ -75,6 +75,5 @@ DST_PFScouting = cms.Path(
     + HLTPFPuppiMETReconstruction
     + hltPFPuppiMETTypeOneCorrector
     + hltPFPuppiMETTypeOne
-    + hltPFPuppiMHT
     + HLTEndSequence
 )

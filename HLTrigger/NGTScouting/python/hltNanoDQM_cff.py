@@ -100,7 +100,35 @@ hltNanoDQM = DQMEDAnalyzer("NanoAODDQM",
             sels = cms.PSet(),
             plots = cms.VPSet(
                 Plot1D('pt', 'pt', 20, 0, 400, 'pf candidate pt'),
-                Plot1D('eta', 'eta', 20, -4., 4., 'pf candidate eta')
+                Plot1D('eta', 'eta', 20, -4., 4., 'pf candidate eta'),
+                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'pf candidate phi'),
+                Plot1D('eta', 'eta', 20, -4., 4., 'pf candidate eta'),
+                Plot1D('mass', 'mass', 20, 0, 5, 'pf candidate mass'),
+                Plot1D('trackIndex', 'trackIndex', 20, 0, 255, 'pf candidate track index'),
+                Plot1D('pdgId', 'pdgId', 50, -250, 250, 'pf candidate pdgId'),
+                Plot1D('charge', 'charge', 5, -2, 3, 'pf candidate charge')
+            )
+        ),
+        hltPFPuppiHT = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Plot1D('pt',     'pt',     50, 0,    2000, 'PF Puppi HT'),
+                Plot1D('mhtPt',  'mhtPt',  20, 0,    400,  'PF Puppi MHT'),
+                Plot1D('mhtPhi', 'mhtPhi', 20, -3.2, 3.2,  'PF Puppi MHT phi'),
+                Plot1D('mhtPx',  'mhtPx',  40, -400, 400,  'PF Puppi MHT x'),
+                Plot1D('mhtPy',  'mhtPy',  40, -400, 400,  'PF Puppi MHT y'),
+                Plot1D('mhtSig', 'mhtSig', 20, 0,    20,   'PF Puppi MHT significance')
+            )
+        ),
+        hltPFPuppiMET = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Plot1D('pt',     'pt',     20, 0,    400,  'PF Puppi MET'),
+                Plot1D('phi',    'phi',    20, -3.2, 3.2,  'PF Puppi MET phi'),
+                Plot1D('px',     'px',     40, -400, 400,  'PF Puppi MET x'),
+                Plot1D('py',     'py',     40, -400, 400,  'PF Puppi MET y'),
+                Plot1D('sumEt',  'sumEt',  50, 0,    2000, 'PF Puppi sumEt'),
+                Plot1D('mEtSig', 'mEtSig', 20, 0,    20,   'PF Puppi MET / sqrt(sumEt)')
             )
         ),
         GenPart = cms.PSet(
