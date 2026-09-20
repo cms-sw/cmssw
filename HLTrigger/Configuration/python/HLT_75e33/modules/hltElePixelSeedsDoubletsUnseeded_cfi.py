@@ -7,7 +7,7 @@ hltElePixelSeedsDoubletsUnseeded = cms.EDProducer("SeedCreatorFromRegionConsecut
         ComponentName = cms.string('none')
     ),
     SeedMomentumForBOFF = cms.double(5.0),
-    TTRHBuilder = cms.string('WithTrackAngle'),
+    TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
     forceKinematicWithRegionDirection = cms.bool(False),
     magneticField = cms.string('ParabolicMf'),
     propagator = cms.string('PropagatorWithMaterialParabolicMf'),

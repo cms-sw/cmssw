@@ -90,7 +90,7 @@ hltL2MuonsFromL1TkMuon = cms.EDProducer("L2MuonProducer",
             Propagator = cms.string('hltESPFastSteppingHelixPropagatorOpposite')
         ),
         Smoother = cms.string('hltESPKFTrajectorySmootherForMuonTrackLoader'),
-        TTRHBuilder = cms.string('WithTrackAngle'),
+        TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
         VertexConstraint = cms.bool(True),
         beamSpot = cms.InputTag("hltOnlineBeamSpot")
     )
