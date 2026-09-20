@@ -320,21 +320,6 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
     //Fill MultiSpan
     generalTrackstersSpan.add(*general_tracksters_h[i]);
   }
-  //now get the general_tracksterlinks_tokens_
-  std::vector<edm::Handle<std::vector<std::vector<unsigned>>>> general_tracksterlinks_h(
-      general_tracksterlinks_tokens_.size());
-  std::vector<std::vector<unsigned>> generalTracksterLinksGlobalId;
-  for (unsigned int i = 0; i < general_tracksterlinks_tokens_.size(); ++i) {
-    evt.getByToken(general_tracksterlinks_tokens_[i], general_tracksterlinks_h[i]);
-    for (unsigned int j = 0; j < general_tracksterlinks_h[i]->size(); ++j) {
-      generalTracksterLinksGlobalId.emplace_back();
-      auto &links_vector = generalTracksterLinksGlobalId.back();
-      links_vector.resize((*general_tracksterlinks_h[i])[j].size());
-      for (unsigned int k = 0; k < links_vector.size(); ++k) {
-        links_vector[k] = generalTrackstersSpan.globalIndex(i, (*general_tracksterlinks_h[i])[j][k]);
-      }
-    }
-  }
 
   std::vector<bool> maskTracks;
   maskTracks.resize(tracks.size());
@@ -356,14 +341,8 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
     }
   }
 
-  const typename TICLInterpretationAlgoBase<reco::Track>::Inputs muonInput(evt,
-                                                                           es,
-                                                                           layerClusters,
-                                                                           layerClustersTimes,
-                                                                           generalTrackstersSpan,
-                                                                           generalTracksterLinksGlobalId,
-                                                                           tracks_h,
-                                                                           muonTrackMask);
+  const typename TICLInterpretationAlgoBase<reco::Track>::Inputs muonInput(
+      evt, es, layerClusters, layerClustersTimes, generalTrackstersSpan, tracks_h, muonTrackMask);
   auto resultCandidates = std::make_unique<std::vector<TICLCandidate>>();
   std::vector<int> muonInTrackIndices(tracks.size(), -1);
   std::vector<int> trackstersInTrackIndices(tracks.size(), -1);
@@ -399,14 +378,8 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
     }
   }
 
-  const typename TICLInterpretationAlgoBase<reco::Track>::Inputs input(evt,
-                                                                       es,
-                                                                       layerClusters,
-                                                                       layerClustersTimes,
-                                                                       generalTrackstersSpan,
-                                                                       generalTracksterLinksGlobalId,
-                                                                       tracks_h,
-                                                                       generalTrackMask);
+  const typename TICLInterpretationAlgoBase<reco::Track>::Inputs input(
+      evt, es, layerClusters, layerClustersTimes, generalTrackstersSpan, tracks_h, generalTrackMask);
   generalInterpretationAlgo_->makeCandidates(
       input, inputTiming_h, *resultTracksters, trackstersInTrackIndices, maskedInputTracksters, *linkedResultTracksters);
   checkLinks("general",
@@ -427,6 +400,11 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
   std::vector<bool> maskTracksters(resultTracksters->size(), true);
   edm::OrphanHandle<std::vector<Trackster>> resultTracksters_h = evt.put(std::move(resultTracksters));
   auto linkedTracksters = std::make_unique<std::vector<std::vector<unsigned int>>>();
+  // One linked-tracksters entry per candidate: at most one candidate per track, plus at
+  // most one neutral candidate per result trackster.
+  const size_t maxCandidates = resultTracksters_h->size() + tracks.size();
+  resultCandidates->reserve(maxCandidates);
+  linkedTracksters->reserve(maxCandidates);
 
   // Muon candidates: energy from the track momentum (pdgId 13), attaching the MIP
   // trackster the muon pass associated (if any) and masking it so it is not re-emitted.
