@@ -61,6 +61,7 @@
 <bin name="testBLStubCovDevice" file="alpaka/testBLStubCovDevice.dev.cc">
   <use name="alpaka"/>
   <use name="catch2"/>
+  <use name="FWCore/Utilities"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="RecoTracker/PixelTrackFitting"/>
   <flags ALPAKA_BACKENDS="1"/>
@@ -69,6 +70,7 @@
 <bin name="testBLFastFieldDevice" file="alpaka/testBLFastFieldDevice.dev.cc">
   <use name="alpaka"/>
   <use name="catch2"/>
+  <use name="FWCore/Utilities"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="RecoTracker/PixelTrackFitting"/>
   <flags ALPAKA_BACKENDS="1"/>
@@ -80,7 +82,13 @@
   <use name="RecoTracker/PixelTrackFitting"/>
 </bin>
 
-<!-- Regeneration of the compiled-in material table (blMaterialMap/blMaterialMapRun.sh): needs step trees as
+<!-- The material-map binary file format: bit-exact round trip and the malformed-file refusals. -->
+<bin file="testBLMaterialMapFile.cc" name="testBLMaterialMapFile">
+  <use name="FWCore/Utilities"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
+</bin>
+
+<!-- Regeneration of the binary material maps (blMaterialMap/blMaterialMapRun.sh): needs step trees as
      arguments; NO_TESTRUN skips the argument-less runtests. -->
 <bin file="blMaterialMap/blMaterialMapBuild.cc" name="blMaterialMapBuild">
   <use name="root"/>
