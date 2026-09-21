@@ -17,6 +17,7 @@
 <use name="HeterogeneousCore/AlpakaCore"/>
 <use name="Geometry/CommonTopologies" source_only="1"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
+<use name="Geometry/TrackerNumberingBuilder"/>
 <use name="MagneticField/Engine"/>
 <use name="RecoTracker/TkHitPairs"/>
 <use name="RecoTracker/TkMSParametrization"/>
@@ -30,6 +31,7 @@
 <use name="TrackingTools/TransientTrackingRecHit"/>
 <use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/DetId"/>
 <use name="DataFormats/GeometryCommonDetAlgo"/>
 <use name="DataFormats/TrackerCommon"/>
 <use name="RecoTracker/TkSeedingLayers"/>
