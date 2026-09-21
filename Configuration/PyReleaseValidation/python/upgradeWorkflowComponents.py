@@ -5,6 +5,7 @@ import re
 
 run3_years = ['2022','2023','2024','2025','2026']
 undefInput = "UNDEF"
+localPUname = 'stepMB.root'
 
 U2000by1={'--relval': '2000,1'}
 
@@ -3367,48 +3368,40 @@ upgradeWFs['PMXS1S2ProdLike'] = UpgradeWorkflowPremixProdLike(
 
 class UpgradeWorkflowHybridPU(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        # just copy steps
-        stepDict[stepName][k] = merge([stepDict[step][k]])
-    def setupPU_(self, step, stepName, stepDict, k, properties):
-        # make new step for S1
-        # this gets inserted in relval_upgrade.py
-        if "GenSim" in stepName:
-            # go back to non-PU step version
-            d = merge([stepDict[self.getStepName(step)][k]])
-            stepNameS1 = stepName.replace('GenSim','GenSimFS')
-            if not stepNameS1 in stepDict: stepDict[stepNameS1] = {}
-            stepDict[stepNameS1][k] = merge([{
-                '--fast': '',
-                '--era': stepDict[stepName][k]['--era'],
-                '--eventcontent': 'FASTPU',
-                '--processName': 'FASTSIM',
-            }, d])
-        else:
-            # include modifier in all subsequent steps in case any of them use PU replay
-            if "--procModifiers" in stepDict[stepName][k]:
-                stepDict[stepName][k]["--procModifiers"] += ",fastSimPU"
+        if 'MinBias' in step:
+            stepMap = {
+                'MinBias': 'MinBiasFSRun3', 'MinBias13': 'MinBiasFSRun3',
+                'MinBiasHLBeamSpot': 'MinBiasFSRun4', 'MinBiasHLBeamSpot14': 'MinBiasFSRun4',
+            }
+            if 'S1S2' in self.suffix:
+                # swap to FastSim version of MinBias
+                # remove unnecessary step
+                stepDict[stepName][k] = merge([{'-s': 'GEN,SIM', '--datatier': 'GEN-SIM'},stepDict[stepMap[step]][k]])
             else:
-                stepDict[stepName][k]["--procModifiers"] = "fastSimPU"
+                # remove local PU step
+                stepDict[stepName][k] = None
+        else:
+            # just copy steps
+            stepDict[stepName][k] = merge([stepDict[step][k]])
+    def setupPU_(self, step, stepName, stepDict, k, properties):
+        # include modifier in all subsequent steps in case any of them use PU replay
+        if "--procModifiers" in stepDict[stepName][k]:
+            stepDict[stepName][k]["--procModifiers"] += ",fastSimPU"
+        else:
+            stepDict[stepName][k]["--procModifiers"] = "fastSimPU"
 
-            if "Digi" in stepName:
-                stepDict[stepName][k] = merge([digiPremixLocalPileup, stepDict[stepName][k]])
-            elif 'S1S2' in self.suffix:
-                # increment inputs for subsequent steps in combined case
-                # also reset pileup input
-                digiPremixLocalPileupTmp = deepcopy(digiPremixLocalPileup)
-                filein = stepDict[stepName][k].get("--filein","")
-                m = re.search("step(?P<ind>\\d+)", filein)
-                if m:
-                    digiPremixLocalPileupTmp['--filein'] = filein.replace(m.group(), "step%d"%(int(m.group("ind"))+1))
-                else:
-                    digiPremixLocalPileupTmp.pop('--filein')
-                stepDict[stepName][k] = merge([digiPremixLocalPileupTmp, stepDict[stepName][k]])
+        stepDict[stepName][k] = merge([{'--pileup_input': f'file:{localPUname}'}, stepDict[stepName][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return (fragment=='TTbar_14TeV' and 'PU' in key and key.startswith('202') and not 'FS' in key)
 # stage1 is just FastSim MinBias, no separate workflow needed
 # HybridPU stage2
 upgradeWFs['HybridPUS2'] = UpgradeWorkflowHybridPU(
-    steps = [],
+    steps = [
+        'MinBias13',
+        'MinBias',
+        'MinBiasHLBeamSpot',
+        'MinBiasHLBeamSpot14',
+    ],
     PU = [
         'Digi',
         'DigiTrigger',
@@ -3418,11 +3411,13 @@ upgradeWFs['HybridPUS2'] = UpgradeWorkflowHybridPU(
 )
 # HybridPU combined stage1+stage2
 upgradeWFs['HybridPUS1S2'] = UpgradeWorkflowHybridPU(
-    steps = [],
+    steps = [
+        'MinBias13',
+        'MinBias',
+        'MinBiasHLBeamSpot',
+        'MinBiasHLBeamSpot14',
+    ],
     PU = [
-        'GenSim',
-        'GenSimHLBeamSpot',
-        'GenSimHLBeamSpot14',
         'Digi',
         'DigiTrigger',
         'RecoLocal',

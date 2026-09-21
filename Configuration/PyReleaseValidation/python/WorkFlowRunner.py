@@ -239,9 +239,8 @@ class WorkFlowRunner(Thread):
                     cmd +=' --no_exec'
                 # in case previous step used DAS query (either filelist of das:)
                 # not to be applied for premixing stage1 to allow combined stage1+stage2 workflow
-                # & similar for HybridPU combined workflow
-                # & for on-the-fly MinBias creation for PU
-                if inFile and not 'premix_stage1' in cmd and not 'FASTSIM' in cmd and not f'--fileout {localPUname}' in cmd:
+                # & similar for on-the-fly MinBias creation for PU
+                if inFile and not 'premix_stage1' in cmd and not isLocalPU:
                     cmd += ' --filein '+inFile
                     inFile=None
                 if lumiRangeFile: #DAS query can also restrict lumi range
@@ -254,14 +253,13 @@ class WorkFlowRunner(Thread):
                 else:
                     # Disable input for premix stage1 to allow combined stage1+stage2 workflow
                     # Disable input for premix stage2 in FastSim to allow combined stage1+stage2 workflow (in FS, stage2 does also GEN)
-                    # & similar for HybridPU combined workflow
-                    # & for on-the-fly MinBias creation for PU
+                    # & similar for on-the-fly MinBias creation for PU
                     # Ugly hack but works
                     extension = '.root'
                     if '--rntuple_out' in cmd:
                         extension = '.rntpl'
                     outputExtensionForStep[istep] = extension
-                    if istep!=1 and not '--filein' in cmd and not 'premix_stage1' in cmd and not ("--fast" in cmd and "premix_stage2" in cmd) and not 'FASTSIM' in cmd and not isLocalPU:
+                    if istep!=1 and not '--filein' in cmd and not 'premix_stage1' in cmd and not ("--fast" in cmd and "premix_stage2" in cmd) and not isLocalPU:
                         steps = cmd.split("-s ")[1].split(" ")[0] ## relying on the syntax: cmsDriver -s STEPS --otherFlags
                         if "GEN" in steps:
                             # in case on-the-fly MinBias step added before signal generation
