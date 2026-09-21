@@ -212,6 +212,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               "Disable the triplet cleaner entirely.");  // FIXME this should be implemented as an automatic check (simple if) that disables if minHitsPerNtuplet > 3
       desc.add<bool>("doFastDuplicateRemover", true)->setComment("Disable the fastDuplicateRemover");
       desc.add<bool>("doEarlyDuplicateRemover", true)->setComment("Disable the earlyDuplicateRemover");
+      desc.add<std::string>("iterationName", std::string("promptHighPt"))->setComment("Name of the tracking iteration");
     }
 
     AlgoParams makeCommonParams(edm::ParameterSet const& cfg) {
@@ -250,7 +251,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           cfg.getParameter<bool>("useSimpleTripletCleaner"),
           cfg.getParameter<bool>("doTripletCleaner"),
           cfg.getParameter<bool>("doFastDuplicateRemover"),
-          cfg.getParameter<bool>("doEarlyDuplicateRemover")});
+          cfg.getParameter<bool>("doEarlyDuplicateRemover"),
+          // Iteration name
+          pixelTrack::iterationByName(cfg.getParameter<std::string>("iterationName")),
+      });
     }
 
     //This is needed to have the partial specialization for isPhase1Topology/isPhase2Topology
@@ -417,12 +421,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
   reco::TracksSoACollection CAHitNtupletGenerator<TrackerTraits>::makeTuplesAsync(
+      Queue& queue,
       HitsOnDeviceRefProdVector const& hitsRefProdVector,
       CAGeometryOnDevice const& geometry_d,
       float bfield,
       uint32_t nDoublets,
       uint32_t nTracks,
-      Queue& queue) const {
+      MapToHitConstView maskView) const {
     using HelixFit = HelixFit<TrackerTraits>;
     using GPUKernels = CAHitNtupletGeneratorKernels<TrackerTraits>;
     using TrackHitSoA = ::reco::TrackHitSoA;
@@ -470,7 +475,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     GPUKernels kernels(m_params, nHits, offsetBPIX2, nDoublets, nTracks, layers.metadata().size(), queue);
 
     kernels.prepareHits(trackingHits, hitModules, layers, queue);
-    kernels.buildDoublets(trackingHits, graph, layers, offsetBPIX2, queue);
+    kernels.buildDoublets(trackingHits, graph, layers, offsetBPIX2, maskView, queue);
     kernels.launchKernels(
         trackingHits, offsetBPIX2, layers.metadata().size(), trackCollection.view(), layers, graph, queue);
 

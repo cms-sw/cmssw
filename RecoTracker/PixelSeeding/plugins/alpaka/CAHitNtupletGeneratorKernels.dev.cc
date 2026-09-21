@@ -17,8 +17,8 @@
 #include "CAHitNtupletGeneratorKernels.h"
 #include "CAHitNtupletGeneratorKernelsImpl.h"
 
-//#define GPU_DEBUG
-// #define NTUPLE_DEBUG
+#define GPU_DEBUG
+#define NTUPLE_DEBUG
 //#define CA_STATS
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -265,7 +265,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const Vec2D blks{numberOfBlocks, 1u};
     const Vec2D thrs{blockSize, stride};
     const auto kernelConnectWorkDiv = cms::alpakatools::make_workdiv<Acc2D>(blks, thrs);
-
+    std::cout << "Launching Kernel_connect with " << numberOfBlocks << " blocks of size " << blockSize << std::endl;
+    std::cout << "Kernel_connect work division: blocks (" << blks[0] << ", " << blks[1] << "), threads (" << thrs[0] << ", " << thrs[1] << ")" << std::endl;
+    
     alpaka::exec<Acc2D>(queue,
                         kernelConnectWorkDiv,
                         Kernel_connect<TrackerTraits>{},
@@ -518,6 +520,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                                   const ::reco::CAGraphSoAConstView &cc,
                                                                   const ::reco::CALayersSoAConstView &ll,
                                                                   uint32_t offsetBPIX2,
+                                                                  const MapToHitConstView &mask,
                                                                   Queue &queue) {
     using namespace caPixelDoublets;
     using namespace caHitNtupletGeneratorKernels;
@@ -558,7 +561,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         this->device_layerStarts_->data(),
                         this->device_hitPhiHist_->data(),
                         this->device_hitToCell_->data(),
-                        this->m_params.algoParams_);
+                        this->m_params.algoParams_,
+                        mask);
 
     HitToCell::template launchFinalize<Acc1D>(this->device_hitToCellView_, queue);
 
@@ -629,6 +633,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #ifdef GPU_DEBUG
     alpaka::wait(queue);
     std::cout << "Kernel_classifyTracks -> done!" << std::endl;
+#endif
+
+    alpaka::exec<Acc1D>(queue,
+                        workDiv1D,
+                        Kernel_assignIteration{},
+                        tracks_view,
+                        this->device_hitContainer_->data(),
+                        this->m_params.algoParams_.iterationName_);
+#ifdef GPU_DEBUG
+    alpaka::wait(queue);
+    std::cout << "Kernel_assignIteration -> done!" << std::endl;
 #endif
 
     if (this->m_params.algoParams_.lateFishbone_) {

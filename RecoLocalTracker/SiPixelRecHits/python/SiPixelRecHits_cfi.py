@@ -45,10 +45,17 @@ from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtensi
 from RecoLocalTracker.Phase2TrackerRecHits.Phase2TrackerRecHits_cfi import siPhase2RecHits
 
 from RecoLocalTracker.Phase2TrackerRecHits.phase2OTRecHitsSoAConverter_cfi import phase2OTRecHitsSoAConverter as _phase2OTRecHitsSoAConverter
+
 phase2OTRecHitsSoAConverter = _phase2OTRecHitsSoAConverter.clone(
     beamSpot = "offlineBeamSpot",
     otRecHitSource = "siPhase2RecHits",
     pixelRecHitSoASource = "siPixelRecHitsPreSplittingAlpaka"
+)
+
+phase2OTRecHitsSoAConverterSerial = _phase2OTRecHitsSoAConverter.clone(
+    beamSpot = "offlineBeamSpot",
+    otRecHitSource = "siPhase2RecHits",
+    pixelRecHitSoASource = "siPixelRecHitsPreSplittingAlpakaSerial"
 )
 
 # Hit SoA producer on the cpu, for validation
@@ -80,5 +87,6 @@ phase2CAExtension.toReplaceWith(siPixelRecHitsPreSplittingTask, cms.Task(
     siPixelRecHitsPreSplittingAlpaka,
     siPixelRecHitsPreSplittingAlpakaSerial,    
     phase2OTRecHitsSoAConverter,
+    phase2OTRecHitsSoAConverterSerial,
     siPixelRecHitsPreSplitting
 ))

@@ -46,12 +46,16 @@ namespace caStructures {
     bool doTripletCleaner_;
     bool doFastDuplicateRemover_;
     bool doEarlyDuplicateRemover_;
+
+    // Iteration name
+    ::pixelTrack::Iteration iterationName_;
   };
 
   // Hits data formats
   using HitsView = ::reco::TrackingRecHitView;
   using HitModulesConstView = ::reco::HitModuleSoAConstView;
   using HitsConstView = ::reco::TrackingRecHitConstView;
+  using MapToHitConstView = ::reco::TrackingRecHitsMaskingConstView;
 
   // MultiViews for hits and modules
   using ModulesMultiView = SoAConstMultiView<HitModulesConstView, 2>;
