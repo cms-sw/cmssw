@@ -2,7 +2,7 @@ import sys, os
 
 from Configuration.PyReleaseValidation.WorkFlow import WorkFlow
 from Configuration.PyReleaseValidation.MatrixUtil import InputInfo
-from Configuration.PyReleaseValidation.upgradeWorkflowComponents import defaultDataSets,undefInput
+from Configuration.PyReleaseValidation.upgradeWorkflowComponents import defaultDataSets,undefInput,localPUname
 # ================================================================================
 
 class MatrixException(Exception):
@@ -326,7 +326,10 @@ With --checkInputs option this throws an error.
                         cmd="export CMSSW_USE_IBEOS=true; "+cmd
                 commands.append(cmd)
                 ranStepList.append(stepName)
-                stepIndex+=1
+                isLocalPU = isinstance(cmd,str) and f'--fileout {localPUname}' in cmd
+                # do not treat initial local PU (MinBias GEN-SIM) step as a numbered step
+                if not isLocalPU:
+                    stepIndex+=1
             self.workFlowSteps[(num,prefix)] = (num, name_for_workflow, commands, ranStepList)
         
         return
