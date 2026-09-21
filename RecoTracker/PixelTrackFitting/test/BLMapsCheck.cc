@@ -1,10 +1,11 @@
 // Checks the two EventSetup maps read by the BrokenLine fits, and optionally writes them out:
 // the field map must match the MagneticField sampled on the same lattice and normalization as
-// BLBFieldMapESProducerAlpaka, the material map must match the compiled-in D121 table. Bit for bit; a
-// mismatch throws.
+// BLBFieldMapESProducerAlpaka, the material map must match the shipped binary file. Bit for bit;
+// a mismatch throws.
 #include <array>
 #include <cmath>
 #include <fstream>
+#include <memory>
 #include <string>
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -17,11 +18,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/FileInPath.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/PixelTrackFitting/interface/BLBFieldMap.h"
 #include "RecoTracker/PixelTrackFitting/interface/BLBFieldMapHost.h"
 #include "RecoTracker/PixelTrackFitting/interface/BLMaterialMap.h"
+#include "RecoTracker/PixelTrackFitting/interface/BLMaterialMapFile.h"
+#include "RecoTracker/PixelTrackFitting/interface/BLMaterialMapFingerprint.h"
 #include "RecoTracker/PixelTrackFitting/interface/BLMaterialMapHost.h"
 #include "RecoTracker/Record/interface/BLBFieldMapRecord.h"
 #include "RecoTracker/Record/interface/BLMaterialMapRecord.h"
@@ -66,26 +70,31 @@ public:
       throw cms::Exception("BLMapsCheck") << nBad << " of " << blBFieldMap::kNValues
                                           << " field-map values differ from the MagneticField sampled on the lattice";
 
-    // material map: every float of it must be the compiled-in table (the serialized Map: the density
-    // lattice, then the dE/dx triples)
+    // material map: every float of it must be the shipped binary file (the Map goes on the heap:
+    // 2.2 MB). The T35 file name is hard-coded because blMapsCheck_cfg.py always builds the D121
+    // geometry.
     blMaterialMap::Map const* materialMap = iSetup.getData(materialMapToken_).data();
-    float const* table = blMaterialMap::blMaterialMapData();
-    float const* tableDedx = table + blMaterialMap::kSize;
+    const std::string mapFile =
+        edm::FileInPath("RecoTracker/PixelSeeding/data/BLMaterialMap/BLMaterialMap_T35_BP2030v3_v1.bin").fullPath();
+    auto fileMap = std::make_unique<blMaterialMap::Map>();
+    const blMaterialMap::FileHeader fileHdr = blMaterialMap::readFile(mapFile, *fileMap);
     nBad = 0;
     for (int i = 0; i < blMaterialMap::kSize; ++i) {
-      nBad += (materialMap->rho[i] != table[i]);
-      nBad += (materialMap->dedx[i].rhoE != tableDedx[3 * i]);
-      nBad += (materialMap->dedx[i].lnI != tableDedx[3 * i + 1]);
-      nBad += (materialMap->dedx[i].lnRhoE != tableDedx[3 * i + 2]);
+      nBad += (materialMap->rho[i] != fileMap->rho[i]);
+      nBad += (materialMap->dedx[i].rhoE != fileMap->dedx[i].rhoE);
+      nBad += (materialMap->dedx[i].lnI != fileMap->dedx[i].lnI);
+      nBad += (materialMap->dedx[i].lnRhoE != fileMap->dedx[i].lnRhoE);
     }
     if (nBad)
       throw cms::Exception("BLMapsCheck")
-          << nBad << " of " << blMaterialMap::kBufferFloats << " material-map values differ from the compiled-in table";
+          << nBad << " of " << blMaterialMap::kBufferFloats << " material-map values differ from " << mapFile;
+    edm::LogPrint("BLMapsCheck") << "material map: " << blMaterialMap::kBufferFloats << " values (density + dE/dx), "
+                                 << nBad << " mismatches against " << mapFile << " (geometry " << fileHdr.geometryTag
+                                 << ", beam pipe " << fileHdr.beamPipeTag << ", version " << fileHdr.mapVersion
+                                 << ", fingerprint " << blMaterialMap::fingerprintToHex(fileHdr.fingerprint) << ")";
 
     edm::LogPrint("BLMapsCheck") << "field map: " << blBFieldMap::kNValues
-                                 << " values reproduced from the MagneticField (Bz(0,0) = " << bz00
-                                 << " T); material map: " << blMaterialMap::kBufferFloats
-                                 << " values (density + dE/dx) identical to the compiled-in table";
+                                 << " values reproduced from the MagneticField (Bz(0,0) = " << bz00 << " T)";
 
     if (!outputFile_.empty()) {
       std::ofstream out(outputFile_);
