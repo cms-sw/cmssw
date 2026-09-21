@@ -22,16 +22,3 @@ _hltPhase2PixelTracksLegacy = cms.EDProducer("PixelTrackProducer",
     passLabel = cms.string('hltPhase2PixelTracks')
 )
 hltPhase2LegacyTracking.toReplaceWith(hltPhase2PixelTracks, _hltPhase2PixelTracksLegacy)
-
-from Configuration.ProcessModifiers.hltPhase2LegacyTrackingPatatrackQuadsChain_cff import hltPhase2LegacyTrackingPatatrackQuads
-_hltPhase2PixelTracksLegacyPatatrack = cms.EDProducer("PixelTrackProducerFromSoAAlpaka",
-    beamSpot = cms.InputTag("hltOnlineBeamSpot"),
-    minNumberOfHits = cms.int32(0),
-    minQuality = cms.string('tight'),
-    pixelRecHitLegacySrc = cms.InputTag("hltSiPixelRecHits"),
-    trackSrc = cms.InputTag("hltPhase2PixelTracksSoA"),
-    outerTrackerRecHitSrc = cms.InputTag(""),
-    useOTExtension = cms.bool(False),
-    requireQuadsFromConsecutiveLayers = cms.bool(True)
-)
-(hltPhase2LegacyTracking & hltPhase2LegacyTrackingPatatrackQuads).toReplaceWith(hltPhase2PixelTracks, _hltPhase2PixelTracksLegacyPatatrack)
