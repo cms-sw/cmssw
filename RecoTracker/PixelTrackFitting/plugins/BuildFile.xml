@@ -2,6 +2,7 @@
   <use name="DataFormats/TrackSoA"/>
   <use name="DataFormats/TrackingRecHit"/>
   <use name="Geometry/Records"/>
+  <use name="Geometry/TrackerNumberingBuilder"/>
   <use name="RecoTracker/PixelTrackFitting"/>
   <flags EDM_PLUGIN="1"/>
 </library>
@@ -11,6 +12,7 @@
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="Geometry/Records"/>
+  <use name="Geometry/TrackerNumberingBuilder"/>
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <use name="MagneticField/Engine"/>
