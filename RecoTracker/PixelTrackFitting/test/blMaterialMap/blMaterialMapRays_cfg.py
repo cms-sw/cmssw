@@ -23,6 +23,11 @@ options.register('out', 'blMaterialMapRays.root', VarParsing.multiplicity.single
                  "step-tree file")
 options.register('materials', 'blMaterials.txt', VarParsing.multiplicity.singleton, VarParsing.varType.string,
                  "Geant4 material table of the run (BLMaterialTableDump), read by blMaterialMapBuild")
+options.register('fingerprint', '', VarParsing.multiplicity.singleton, VarParsing.varType.string,
+                 "fingerprint dump file; empty disables")
+options.register('dumpPositions', 0, VarParsing.multiplicity.singleton, VarParsing.varType.int,
+                 "also dump the full-precision sensor positions into the fingerprint file (one job per "
+                 "run is enough; the emitter appends them to the map)")
 options.register('geometry', 'Configuration.Geometry.GeometryExtendedRun4D121Reco_cff',
                  VarParsing.multiplicity.singleton, VarParsing.varType.string, "geometry configuration")
 options.register('era', 'Phase2C22I13M9', VarParsing.multiplicity.singleton, VarParsing.varType.string, "era")
@@ -83,3 +88,10 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
         BLMaterialTableDump=cms.PSet(file=cms.string(options.materials))))
 
 process.p1 = cms.Path(process.generator * process.VtxSmeared * process.generatorSmeared * process.g4SimHits)
+
+if options.fingerprint:
+    # bare file name: the rays jobs run inside the trees directory
+    process.blMaterialMapFingerprintDump = cms.EDAnalyzer("BLMaterialMapFingerprintDump",
+        out=cms.untracked.string(options.fingerprint),
+        dumpPositions=cms.untracked.bool(bool(options.dumpPositions)))
+    process.p1 += process.blMaterialMapFingerprintDump

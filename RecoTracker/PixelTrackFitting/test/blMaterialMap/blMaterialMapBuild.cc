@@ -28,7 +28,7 @@
 // output: int kNR, int kNZ, kNR*kNZ doubles num, kNR*kNZ doubles den,
 //         3 x kNR*kNZ doubles numE, numEI, numEE, one double = rays processed,
 //         int kNE, kNE doubles etaSum, kNE doubles etaN.
-// The per-job outputs are summed by blMaterialMapEmit.py, which writes the compiled-in table.
+// The per-job outputs are summed by blMaterialMapEmit.py, which writes the binary map.
 #include <TFile.h>
 #include <TTree.h>
 #include <algorithm>
