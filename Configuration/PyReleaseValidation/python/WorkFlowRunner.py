@@ -148,11 +148,16 @@ class WorkFlowRunner(Thread):
         lumiRangeFile=None
         aborted=False
         outputExtensionForStep = {}
-        for (istepmone,com) in enumerate(self.wf.cmds):
+        istepmone = -1
+        for com in self.wf.cmds:
             # isInputOk is used to keep track of the das result. In case this
             # is False we use a different error message to indicate the failed
             # das query.
             isInputOk=True
+            isLocalPU = isinstance(com,str) and f'--fileout {localPUname}' in com
+            # do not treat initial local PU (MinBias GEN-SIM) step as a numbered step for purpose of downstream input (--filein below)
+            if not isLocalPU:
+                istepmone += 1
             istep=istepmone+1
             cmd = preamble
             outputExtensionForStep[istep]=''
@@ -256,7 +261,7 @@ class WorkFlowRunner(Thread):
                     if '--rntuple_out' in cmd:
                         extension = '.rntpl'
                     outputExtensionForStep[istep] = extension
-                    if istep!=1 and not '--filein' in cmd and not 'premix_stage1' in cmd and not ("--fast" in cmd and "premix_stage2" in cmd) and not 'FASTSIM' in cmd and not f'--fileout {localPUname}' in cmd:
+                    if istep!=1 and not '--filein' in cmd and not 'premix_stage1' in cmd and not ("--fast" in cmd and "premix_stage2" in cmd) and not 'FASTSIM' in cmd and not isLocalPU:
                         steps = cmd.split("-s ")[1].split(" ")[0] ## relying on the syntax: cmsDriver -s STEPS --otherFlags
                         if "GEN" in steps:
                             # in case on-the-fly MinBias step added before signal generation
