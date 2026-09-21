@@ -26,35 +26,37 @@ process.ClusterAnalyzer = cms.EDAnalyzer('ClusterAnalyzer',
     ProductLabel = cms.InputTag("hltSiPhase2Clusters")
 )
 
-process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring("file:raw2clusters.root"))
-
 if ANALYZE_PACKUNPACK:
 
   print("\n === Analyzing clusters created by pack + unpack sequence ===\n")
   
+  inputFileList = ["file:raw2clusters.root"]
+
   # Update label to match the output from the digi-raw-digi process
   process.ClusterAnalyzer.ProductLabel = cms.InputTag("Unpacker", "", "PACKANDUNPACK")
 
 elif ANALYZE_CRACK:
 
   print("\n === Analyzing clusters created by CRack unpacker sequence ===\n")
-  
-  process.source = cms.Source("PoolSource", 
-      fileNames = cms.untracked.vstring(
-          "file:/home/hep/am2023/sara_crack_july_2026/CMSSW_16_0_8/src/Unpacker_CRACK_Physics_Run_September_2026.root"
-      )
-  )
+
+  inputFileList = ["file:/home/hep/am2023/sara_crack_july_2026/CMSSW_16_0_8/src/Unpacker_CRACK_Physics_Run_September_2026.root"]
+                              
   # Update label to match the output from the unpacker process
   process.ClusterAnalyzer.ProductLabel = cms.InputTag("Unpacker", "", "UNPACK")
 
-
 else:
   print("\n === Analyzing original clusters ===\n")
+
+  inputFileList = ["/store/relval/CMSSW_20_0_0_pre1/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_STD_D121_RegeneratedGS_PU_16Aug26-v3/2590000/0438e4bc-b740-48a4-9d02-ff7896522eac.root"]
+
   # Read original clusters from input dataset
   process.ClusterAnalyzer.ProductLabel = cms.InputTag("hltSiPhase2Clusters")
   # Read clusters remade from digis by SLinkProducerAndUnpacker_cfg.py.
   #process.ClusterAnalyzer.ProductLabel = cms.InputTag("siPhase2Clusters", "", "PACKANDUNPACK")
-  
+
+process.source = cms.Source("PoolSource",
+   fileNames = cms.untracked.vstring(*inputFileList)
+)  
 
 # Create output root file for TTree.
 process.TFileService = cms.Service('TFileService', 
@@ -71,8 +73,7 @@ process.load("CondCore.CondDB.CondDB_cfi")
 from Configuration.AlCa.GlobalTag import GlobalTag
 
 if not ANALYZE_CRACK:
-    ## Load Geometry for the D110 configuration
-    process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtendedRun4D121Reco_cff')
     # Set the GlobalTag (adjust as necessary for your geometry)
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
     ## the following won't be needed anymore once the cabling map generated with the updated TrackerDetToDTCELinkCablingMapRcd class is included in the GT
