@@ -21,9 +21,9 @@
 
 class HGCalCornerCheck : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
-  explicit HGCalCornerCheck(const edm::ParameterSet&);
+  explicit HGCalCornerCheck(const edm::ParameterSet &);
   ~HGCalCornerCheck() override = default;
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   void beginJob() override {}
   void beginRun(edm::Run const &, edm::EventSetup const &) override;
@@ -39,7 +39,7 @@ private:
   const DetId::Detector dets_;
 };
 
-HGCalCornerCheck::HGCalCornerCheck(const edm::ParameterSet& iC)
+HGCalCornerCheck::HGCalCornerCheck(const edm::ParameterSet &iC)
     : name_{iC.getParameter<std::string>("Detector")},
       layerFirst_{iC.getParameter<int32_t>("LayerFirst")},
       layerLast_{iC.getParameter<int32_t>("LayerLast")},
@@ -47,10 +47,11 @@ HGCalCornerCheck::HGCalCornerCheck(const edm::ParameterSet& iC)
       debug_{iC.getParameter<uint32_t>("Debug")},
       tok_hgcal_{esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag{"", name_})},
       dets_(DetId::HGCalHSc) {
-  edm::LogVerbatim("HGCalGeomX") << "Perform test for " << name_ << " Layers " << layerFirst_ << ":" << layerLast_ << " NMax " << nmax_;
+  edm::LogVerbatim("HGCalGeomX") << "Perform test for " << name_ << " Layers " << layerFirst_ << ":" << layerLast_
+                                 << " NMax " << nmax_;
 }
 
-void HGCalCornerCheck::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HGCalCornerCheck::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("Detector", "HGCalHEScintillatorSensitive");
   desc.add<int32_t>("LayerFirst", 8);
@@ -66,38 +67,41 @@ void HGCalCornerCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &iSe
   const edm::ESHandle<HGCalGeometry> &hgcGeom = iSetup.getHandle(tok_hgcal_);
   if (hgcGeom.isValid()) {
     const HGCalGeometry *geom = hgcGeom.product();
-    const std::vector<DetId>& ids = geom->getValidDetIds();
+    const std::vector<DetId> &ids = geom->getValidDetIds();
     edm::LogVerbatim("HGCalGeomX") << "Test: " << ids.size() << " valid ids for " << name_;
 
     for (int layer = layerFirst_; layer <= layerLast_; ++layer) {
       unsigned int kk = 0;
       edm::LogVerbatim("HGCalGeomX") << "\nLayer: " << layer << "\n==========";
       for (DetId id : ids) {
-	if ((HGCScintillatorDetId(id).layer() == layer) && (HGCScintillatorDetId(id).zside() > 0) && ((kk < nmax_) || (nmax_ <= 0))) {
-	  ++kk;
-	  std::vector<GlobalPoint> cor1 = geom->getCorners(id);
-	  std::vector<GlobalPoint> cor2 = geom->get8Corners(id);
-//        std::vector<GlobalPoint> cor3 = geom->getNewCorners(id, false);
-	  std::ostringstream st1;
-	  st1 << "Layer " << layer << " Ring " << HGCScintillatorDetId(id).ring() << " phi " << HGCScintillatorDetId(id).iphi() << " Corners:";
-	  for (unsigned int k = 0; k < cor1.size(); ++k)
-	    st1 << " " << cor1[k].perp();
-	  st1 << " 8Corner8";
-	  for (unsigned int k = 0; k < cor2.size(); ++k)
-	    st1 << " " << cor2[k].perp();
-//        st1 << " Newcorners:";
-//        for (unsigned int k = 0; k < cor3.size(); ++k)
-//          st1 << " " << cor3[k].perp();
-	  edm::LogVerbatim("HGCalGeomX") << "Tile " << kk << " " << st1.str();
-	  if (debug_ > 0) {
-	    for (unsigned int k = 0; k < cor1.size(); ++k) {
-	      std::ostringstream st2;
-	      st2 << "  Corner[" << k << "]: (" << cor1[k].x() << ", " << cor1[k].y() << ", " << cor1[k].z() << ") perp " << cor1[k].perp();
-	      edm::LogVerbatim("HGCalGeomX") << st2.str();
-	    }
-	    edm::LogVerbatim("HGCalGeomX") << "================================================================";
-	  }
-	}
+        if ((HGCScintillatorDetId(id).layer() == layer) && (HGCScintillatorDetId(id).zside() > 0) &&
+            ((kk < nmax_) || (nmax_ <= 0))) {
+          ++kk;
+          std::vector<GlobalPoint> cor1 = geom->getCorners(id);
+          std::vector<GlobalPoint> cor2 = geom->get8Corners(id);
+          //        std::vector<GlobalPoint> cor3 = geom->getNewCorners(id, false);
+          std::ostringstream st1;
+          st1 << "Layer " << layer << " Ring " << HGCScintillatorDetId(id).ring() << " phi "
+              << HGCScintillatorDetId(id).iphi() << " Corners:";
+          for (unsigned int k = 0; k < cor1.size(); ++k)
+            st1 << " " << cor1[k].perp();
+          st1 << " 8Corner8";
+          for (unsigned int k = 0; k < cor2.size(); ++k)
+            st1 << " " << cor2[k].perp();
+          //        st1 << " Newcorners:";
+          //        for (unsigned int k = 0; k < cor3.size(); ++k)
+          //          st1 << " " << cor3[k].perp();
+          edm::LogVerbatim("HGCalGeomX") << "Tile " << kk << " " << st1.str();
+          if (debug_ > 0) {
+            for (unsigned int k = 0; k < cor1.size(); ++k) {
+              std::ostringstream st2;
+              st2 << "  Corner[" << k << "]: (" << cor1[k].x() << ", " << cor1[k].y() << ", " << cor1[k].z()
+                  << ") perp " << cor1[k].perp();
+              edm::LogVerbatim("HGCalGeomX") << st2.str();
+            }
+            edm::LogVerbatim("HGCalGeomX") << "================================================================";
+          }
+        }
       }
     }
   }
