@@ -14,7 +14,7 @@ hltPhase2PixelTracks = cms.EDProducer("PixelTrackProducerFromSoAAlpaka",
 
 from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
 _hltPhase2PixelTracksLegacy = cms.EDProducer("PixelTrackProducer",
-    Cleaner = cms.string('pixelTrackCleanerBySharedHits'),
+    Cleaner = cms.string('hltPixelTracksCleanerBySharedHits'),
     Filter = cms.InputTag("hltPhase2PixelTrackFilterByKinematics"),
     Fitter = cms.InputTag("hltPhase2PixelFitterByHelixProjections"),
     SeedingHitSets = cms.InputTag("hltPhase2PixelTracksHitSeeds"),
