@@ -72,22 +72,6 @@ void MTDDigiContentDump::analyze(const edm::Event& iEvent, const edm::EventSetup
 
     for (const auto& etldigi : *h_ETL_digi) {
       std::cout << etldigi << std::endl;
-
-      // --- loop over the dataFrame samples
-      //for (int isample = 0; isample < dataFrame.size(); ++isample) {
-      //  const auto& sample = dataFrame.sample(isample);
-
-      //  std::cout << "       sample " << isample << ":";
-      //  if (sample.data() == 0 && sample.toa() == 0) {
-      //    std::cout << std::endl;
-      //    continue;
-      //  }
-      //  std::cout << "  amplitude = " << sample.data() << "  time = " << sample.toa() << " r/c = " << sample.row()
-      //  << " / " << sample.column() << " th = " << sample.threshold() << " mode = " << sample.mode()
-      //  << std::endl;
-
-      //}  // isample loop
-
     }  // digi loop
 
   }  // if ( h_ETL_digi->size() > 0 )

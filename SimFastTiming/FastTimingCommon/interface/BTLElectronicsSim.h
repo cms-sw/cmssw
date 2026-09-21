@@ -90,7 +90,6 @@ private:
 
   static constexpr uint16_t T1coarseMask = 0x7FFF;  // 15 bits for T1 coarse time
   static constexpr uint16_t T2coarseMask = 0x3FF;   // 10 bits for T2 coarse time
-  // static constexpr uint16_t TfineShift = 5;   // 10 bits for fine time
 
   // tdc calibration parameters
   // To be replaced by CondFormat when available
