@@ -27,6 +27,7 @@ class MatrixReader(object):
         self.overWrite=opt.overWrite
         
         self.noRun = opt.noRun
+        self.noLocalPU = opt.noLocalPU
         self.checkInputs = opt.checkInputs
         return
 
@@ -269,6 +270,8 @@ With --checkInputs option this throws an error.
             for (stepI,step) in enumerate(stepList):
                 stepName=step
                 if self.relvalModule.steps[stepName] is None:
+                    continue
+                if self.noLocalPU and 'MinBias' in stepName:
                     continue
                 if self.wm:
                     #cannot put a certain number of things in wm
