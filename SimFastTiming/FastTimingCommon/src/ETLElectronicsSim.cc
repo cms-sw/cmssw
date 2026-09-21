@@ -152,8 +152,7 @@ void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       uint16_t ToTdata = std::min(static_cast<uint16_t>(std::floor(tot[it] / toaLSB_ns_)), totMask);
       //If time over threshold is 0 the event is assumed to not pass the threshold
       if (ToTdata > 0 && chargeColl[it] >= adcThreshold_MIP_) {
-        etldigi::ETLDigi newDigi(rawId, header, status, colID, rowID, ToAdata, ToTdata, CALdata);
-        etloutput.emplace_back(newDigi);
+        etloutput.emplace_back(rawId, header, status, colID, rowID, ToAdata, ToTdata, CALdata);
       }
     }
   }
