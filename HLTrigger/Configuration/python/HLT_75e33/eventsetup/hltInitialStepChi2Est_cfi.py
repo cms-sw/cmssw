@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-initialStepChi2Est = cms.ESProducer("Chi2ChargeMeasurementEstimatorESProducer",
-    ComponentName = cms.string('initialStepChi2Est'),
+hltInitialStepChi2Est = cms.ESProducer("Chi2ChargeMeasurementEstimatorESProducer",
+    ComponentName = cms.string('hltInitialStepChi2Est'),
     MaxChi2 = cms.double(9.0),
     MaxDisplacement = cms.double(0.5),
     MaxSagitta = cms.double(2),

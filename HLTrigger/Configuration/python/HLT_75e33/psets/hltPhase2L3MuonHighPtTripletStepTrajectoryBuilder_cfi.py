@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltPhase2L3MuonHighPtTripletStepTrajectoryBuilder = cms.PSet(
     ComponentType = cms.string('GroupedCkfTrajectoryBuilder'),
-    TTRHBuilder = cms.string('WithTrackAngle'),
+    TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
     alwaysUseInvalidHits = cms.bool(False),
     bestHitOnly = cms.bool(True),
     estimator = cms.string('hltPhase2L3MuonHighPtTripletStepChi2Est'),
@@ -19,12 +19,12 @@ hltPhase2L3MuonHighPtTripletStepTrajectoryBuilder = cms.PSet(
     maxPtForLooperReconstruction = cms.double(0.7),
     minNrOfHitsForRebuild = cms.int32(5),
     propagatorAlong = cms.string('PropagatorWithMaterialParabolicMf'),
-    propagatorOpposite = cms.string('PropagatorWithMaterialParabolicMfOpposite'),
+    propagatorOpposite = cms.string('hltOppositeMaterialPropagatorParabolicMF'),
     requireSeedHitsInRebuild = cms.bool(True),
     seedAs5DHit = cms.bool(False),
     trajectoryFilter = cms.PSet(
         refToPSet_ = cms.string('hltPhase2L3MuonHighPtTripletStepTrajectoryFilter')
     ),
-    updator = cms.string('KFUpdator'),
+    updator = cms.string('hltESPKFUpdator'),
     useSameTrajFilter = cms.bool(False)
 )

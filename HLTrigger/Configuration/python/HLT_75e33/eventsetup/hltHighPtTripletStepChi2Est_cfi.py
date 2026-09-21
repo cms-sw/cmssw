@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-highPtTripletStepChi2Est = cms.ESProducer("Chi2ChargeMeasurementEstimatorESProducer",
-    ComponentName = cms.string('highPtTripletStepChi2Est'),
+hltHighPtTripletStepChi2Est = cms.ESProducer("Chi2ChargeMeasurementEstimatorESProducer",
+    ComponentName = cms.string('hltHighPtTripletStepChi2Est'),
     MaxChi2 = cms.double(16.0),
     MaxDisplacement = cms.double(0.5),
     MaxSagitta = cms.double(2),
