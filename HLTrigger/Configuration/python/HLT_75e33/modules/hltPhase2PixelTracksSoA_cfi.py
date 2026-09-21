@@ -142,27 +142,18 @@ layerPairs = [
 
 # find the layerPairs that contain a layer that is excluded
 excludeLayerPair = [any([(lp[0] == l) or (lp[1] == l) for l in layersToExclude]) for lp in layerPairs]
-excludeCAExtension = [any([(lp[0] == l) or (lp[1] == l) for l in [28, 29, 30]]) for lp in layerPairs]
 
 # exclude those layerPairs
-layerPairsAlpaka = []
-layerPairsCAExtension = []
+layerPairsFinal = []
 for i, lp in enumerate(layerPairs):
-    if (not excludeLayerPair[i]) and (not excludeCAExtension[i]):
-        layerPairsAlpaka.append(lp)
     if not excludeLayerPair[i]:
-        layerPairsCAExtension.append(lp)
+        layerPairsFinal.append(lp)
 
 # get startingPairs for Ntuplet building
-startingPairsAlpaka = []
-for i, lp in enumerate(layerPairsAlpaka):
+startingPairs = []
+for i, lp in enumerate(layerPairsFinal):
     if lp[2]:
-        startingPairsAlpaka.append(i)
-
-startingPairsCAExtension = []
-for i, lp in enumerate(layerPairsCAExtension):
-    if lp[2]:
-        startingPairsCAExtension.append(i)
+        startingPairs.append(i)
 
 hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
     pixelRecHitSrc = cms.InputTag('hltPhase2SiPixelRecHitsSoA'),
@@ -219,123 +210,23 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
         # the layers, and is percolated into this compatibility function via
         # the SoA itself.
         caThetaCuts = cms.vdouble([l[3] for l in layers]),
-        startingPairs = cms.vuint32(startingPairsCAExtension),
+        startingPairs = cms.vuint32(startingPairs),
         startMaxInnerR = cms.vdouble([l[4] for l in layers]),
         maxDCurv    = cms.vdouble([l[5] for l in layers]),
         floorDCurv       = cms.vdouble([l[6] for l in layers]),
         fishboneCuts   = cms.vdouble([l[7] for l in layers]),
-        pairGraph = cms.vuint32(sum([[lp[0], lp[1]] for lp in layerPairsCAExtension], [])),
-        skipsLayers = cms.vuint32( [int(lp[ 3]) for lp in layerPairsCAExtension]),
-        phiCuts     = cms.vint32( [lp[ 4] for lp in layerPairsCAExtension]),
-        minInner    = cms.vdouble([lp[ 5] for lp in layerPairsCAExtension]),
-        maxInner    = cms.vdouble([lp[ 6] for lp in layerPairsCAExtension]),
-        minOuter    = cms.vdouble([lp[ 7] for lp in layerPairsCAExtension]),
-        maxOuter    = cms.vdouble([lp[ 8] for lp in layerPairsCAExtension]),
-        maxDR       = cms.vdouble([lp[ 9] for lp in layerPairsCAExtension]),
-        minDZ       = cms.vdouble([lp[10] for lp in layerPairsCAExtension]),
-        maxDZ       = cms.vdouble([lp[11] for lp in layerPairsCAExtension]),
-        ptCuts      = cms.vdouble([lp[12] for lp in layerPairsCAExtension]),
+        pairGraph = cms.vuint32(sum([[lp[0], lp[1]] for lp in layerPairsFinal], [])),
+        skipsLayers = cms.vuint32( [int(lp[ 3]) for lp in layerPairsFinal]),
+        phiCuts     = cms.vint32( [lp[ 4] for lp in layerPairsFinal]),
+        minInner    = cms.vdouble([lp[ 5] for lp in layerPairsFinal]),
+        maxInner    = cms.vdouble([lp[ 6] for lp in layerPairsFinal]),
+        minOuter    = cms.vdouble([lp[ 7] for lp in layerPairsFinal]),
+        maxOuter    = cms.vdouble([lp[ 8] for lp in layerPairsFinal]),
+        maxDR       = cms.vdouble([lp[ 9] for lp in layerPairsFinal]),
+        minDZ       = cms.vdouble([lp[10] for lp in layerPairsFinal]),
+        maxDZ       = cms.vdouble([lp[11] for lp in layerPairsFinal]),
+        ptCuts      = cms.vdouble([lp[12] for lp in layerPairsFinal]),
     ),
     # autoselect the alpaka backend
     alpaka = cms.untracked.PSet(backend = cms.untracked.string(''))
 )
-
-
-_hltPhase2PixelTracksSoANonCAExtended = cms.EDProducer('CAHitNtupletAlpakaPhase2@alpaka',
-    pixelRecHitSrc = cms.InputTag('hltPhase2SiPixelRecHitsSoA'),
-    ptmin = cms.double(0.9),
-    hardCurvCut = cms.double(0.01425), # corresponds to 800 MeV in 3.8T.
-    earlyFishbone = cms.bool(True),
-    lateFishbone = cms.bool(False),
-    fillStatistics = cms.bool(False),
-    minHitsPerNtuplet = cms.uint32(4),
-    maxNumberOfDoublets = cms.string(str(6*512*1024)),
-    maxNumberOfTuples = cms.string(str(60*1024)),
-    cellZ0Cut = cms.double(12.5), # it's half the BS width! It has nothing to do with the sample!!
-    minYsizeB1 = cms.int32(20),
-    minYsizeB2 = cms.int32(18),
-    maxDYsize12 = cms.int32(12),
-    maxDYsize = cms.int32(10),
-    maxDYPred = cms.int32(24),
-    avgHitsPerTrack = cms.double(7.0),
-    avgCellsPerHit = cms.double(12),
-    avgCellsPerCell = cms.double(0.151),
-    avgTracksPerCell = cms.double(0.040),
-    minHitsForSharingCut = cms.uint32(10),
-    fitNas4 = cms.bool(False),
-    useRiemannFit = cms.bool(False),
-    doSharedHitCut = cms.bool(True),
-    dupPassThrough = cms.bool(False),
-    useSimpleTripletCleaner = cms.bool(True),
-    doTripletCleaner = cms.bool(True),
-    doFastDuplicateRemover = cms.bool(True),
-    doEarlyDuplicateRemover = cms.bool(True),
-    trackQualityCuts = cms.PSet(
-        maxChi2TripletsOrQuadruplets = cms.double(5.0),
-        maxChi2Quintuplets = cms.double(5.0),
-        maxChi2 = cms.double(5.0),
-        minPt   = cms.double(0.9),
-        maxTip  = cms.double(0.3),
-        maxZip  = cms.double(12),
-    ),
-    geometry = cms.PSet(
-        caDCACuts   = cms.vdouble([l[2] for l in layers[:28]]),
-        caThetaCuts = cms.vdouble([l[3] for l in layers[:28]]),
-        startingPairs = cms.vuint32(startingPairsAlpaka),
-        startMaxInnerR = cms.vdouble([l[4] for l in layers[:28]]),
-        maxDCurv    = cms.vdouble([l[5] for l in layers[:28]]),
-        floorDCurv       = cms.vdouble([l[6] for l in layers[:28]]),
-        fishboneCuts   = cms.vdouble([l[7] for l in layers[:28]]),
-        pairGraph = cms.vuint32(sum([[lp[0], lp[1]] for lp in layerPairsAlpaka], [])),
-        skipsLayers = cms.vuint32( [int(lp[ 3]) for lp in layerPairsAlpaka]),
-        phiCuts   = cms.vint32( [lp[ 4] for lp in layerPairsAlpaka]),
-        minInner  = cms.vdouble([lp[ 5] for lp in layerPairsAlpaka]),
-        maxInner  = cms.vdouble([lp[ 6] for lp in layerPairsAlpaka]),
-        minOuter  = cms.vdouble([lp[ 7] for lp in layerPairsAlpaka]),
-        maxOuter  = cms.vdouble([lp[ 8] for lp in layerPairsAlpaka]),
-        maxDR     = cms.vdouble([lp[ 9] for lp in layerPairsAlpaka]),
-        minDZ     = cms.vdouble([lp[10] for lp in layerPairsAlpaka]),
-        maxDZ     = cms.vdouble([lp[11] for lp in layerPairsAlpaka]),
-        ptCuts    = cms.vdouble([lp[12] for lp in layerPairsAlpaka]),
-  ),
-    # autoselect the alpaka backend
-    alpaka = cms.untracked.PSet(backend = cms.untracked.string(''))
-)
-
-from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
-from Configuration.ProcessModifiers.hltPhase2LegacyTrackingPatatrackQuadsChain_cff import hltPhase2LegacyTrackingPatatrackQuads
-(hltPhase2LegacyTracking & hltPhase2LegacyTrackingPatatrackQuads).toReplaceWith(hltPhase2PixelTracksSoA, _hltPhase2PixelTracksSoANonCAExtended)
-
-
-def _exclude_OT_layers(hltPhase2PixelTracksSoA, layers_to_exclude = [28, 29, 30]):
-    keep_indices = []
-    num_pairs = len(hltPhase2PixelTracksSoA.geometry.pairGraph) // 2
-    for i in range(num_pairs):
-        a = hltPhase2PixelTracksSoA.geometry.pairGraph[2*i]
-        b = hltPhase2PixelTracksSoA.geometry.pairGraph[2*i + 1]
-        if a not in layers_to_exclude and b not in layers_to_exclude:
-            keep_indices.append(i)
-    # Now update in place
-    # For pairGraph, build the new flat list from kept pairs
-    new_pairGraph = []
-    for i in keep_indices:
-        new_pairGraph.extend([hltPhase2PixelTracksSoA.geometry.pairGraph[2*i], hltPhase2PixelTracksSoA.geometry.pairGraph[2*i+1]])
-
-    hltPhase2PixelTracksSoA.geometry.pairGraph[:] = new_pairGraph
-    # Update all other lists in place
-    hltPhase2PixelTracksSoA.geometry.skipsLayers[:] = [hltPhase2PixelTracksSoA.geometry.skipsLayers[i] for i in keep_indices]
-    hltPhase2PixelTracksSoA.geometry.phiCuts[:] = [hltPhase2PixelTracksSoA.geometry.phiCuts[i] for i in keep_indices]
-    hltPhase2PixelTracksSoA.geometry.minInnerR[:] = [hltPhase2PixelTracksSoA.geometry.minInnerR[i] for i in keep_indices]
-    hltPhase2PixelTracksSoA.geometry.maxInnerR[:] = [hltPhase2PixelTracksSoA.geometry.maxInnerR[i] for i in keep_indices]
-    hltPhase2PixelTracksSoA.geometry.minOuterR[:] = [hltPhase2PixelTracksSoA.geometry.minOuterR[i] for i in keep_indices]
-    hltPhase2PixelTracksSoA.geometry.maxOuterR[:] = [hltPhase2PixelTracksSoA.geometry.maxOuterR[i] for i in keep_indices]
-    hltPhase2PixelTracksSoA.geometry.maxDR[:] = [hltPhase2PixelTracksSoA.geometry.maxDR[i] for i in keep_indices]
-    hltPhase2PixelTracksSoA.geometry.minInnerZ[:] = [hltPhase2PixelTracksSoA.geometry.minInnerZ[i] for i in keep_indices]
-    hltPhase2PixelTracksSoA.geometry.maxInnerZ[:] = [hltPhase2PixelTracksSoA.geometry.maxInnerZ[i] for i in keep_indices]
-    hltPhase2PixelTracksSoA.geometry.minOuterZ[:] = [hltPhase2PixelTracksSoA.geometry.minOuterZ[i] for i in keep_indices]
-    hltPhase2PixelTracksSoA.geometry.maxOuterZ[:] = [hltPhase2PixelTracksSoA.geometry.maxOuterZ[i] for i in keep_indices]
-    hltPhase2PixelTracksSoA.geometry.minDZ[:] = [hltPhase2PixelTracksSoA.geometry.minDZ[i] for i in keep_indices]
-    hltPhase2PixelTracksSoA.geometry.maxDZ[:] = [hltPhase2PixelTracksSoA.geometry.maxDZ[i] for i in keep_indices]
-    hltPhase2PixelTracksSoA.geometry.ptCuts[:] = [hltPhase2PixelTracksSoA.geometry.ptCuts[i] for i in keep_indices]
-
-#print("Using {} pair connections: {}".format(len(hltPhase2PixelTracksSoA.geometry.pairGraph) // 2, hltPhase2PixelTracksSoA.geometry.pairGraph))

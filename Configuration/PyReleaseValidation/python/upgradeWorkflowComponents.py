@@ -2025,11 +2025,6 @@ upgradeWFs['HLTTiming75e33LegacyTracking'].suffix = '_HLT75e33TimingLegacyTracki
 upgradeWFs['HLTTiming75e33LegacyTracking'].offset = 0.753
 upgradeWFs['HLTTiming75e33LegacyTracking'].step2['--procModifiers'] = 'hltPhase2LegacyTracking'
 
-upgradeWFs['HLTTiming75e33LegacyTrackingPatatrackQuads'] = deepcopy(upgradeWFs['HLTTiming75e33'])
-upgradeWFs['HLTTiming75e33LegacyTrackingPatatrackQuads'].suffix = '_HLT75e33TimingLegacyTrackingPatatrackQuads'
-upgradeWFs['HLTTiming75e33LegacyTrackingPatatrackQuads'].offset = 0.754
-upgradeWFs['HLTTiming75e33LegacyTrackingPatatrackQuads'].step2['--procModifiers'] = 'hltPhase2LegacyTrackingPatatrackQuadsChain'
-
 upgradeWFs['HLTTiming75e33LST'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33LST'].suffix = '_HLT75e33TimingLST'
 upgradeWFs['HLTTiming75e33LST'].offset = 0.755
