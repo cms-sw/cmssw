@@ -8,15 +8,20 @@
 #include "RecoTracker/PixelTrackFitting/interface/BLMaterialMap.h"
 
 // Host-resident BL-fit material map (one blMaterialMap::Map, 0.5 cm radial lattice): per cell the density
-// rho(r,z) [X0/cm] and the dE/dx triple, loaded from the compiled-in table rather than the conditions DB and
-// copied to the device once per IOV.
+// rho(r,z) [X0/cm] and the dE/dx triple. The ESProducer builds the payload from a per-geometry binary file
+// (BLMaterialMapFile.h) selected by the ideal-geometry fingerprint; no table is compiled in. Copied to the
+// device once per IOV.
 class BLMaterialMapHost {
 public:
   using Buffer = cms::alpakatools::host_buffer<blMaterialMap::Map>;
   using ConstBuffer = cms::alpakatools::const_host_buffer<blMaterialMap::Map>;
 
-  BLMaterialMapHost() : buffer_(cms::alpakatools::make_host_buffer<blMaterialMap::Map>()) {
-    blMaterialMap::loadTable(*buffer_.data(), blMaterialMap::blMaterialMapData());
+  // the buffer alone, uninitialised: the producer fills it in place from the file
+  BLMaterialMapHost() : buffer_(cms::alpakatools::make_host_buffer<blMaterialMap::Map>()) {}
+
+  explicit BLMaterialMapHost(const blMaterialMap::Map& map)
+      : buffer_(cms::alpakatools::make_host_buffer<blMaterialMap::Map>()) {
+    *buffer_.data() = map;
   }
 
   // non-copyable
@@ -33,6 +38,9 @@ public:
 
   // the whole map: rhoAt() and dedxAt() both read it
   blMaterialMap::Map const* data() const { return buffer_.data(); }
+
+  // the buffer as a Map, to be filled in place (the producer reads the file straight into it)
+  blMaterialMap::Map& map() { return *buffer_.data(); }
 
 private:
   Buffer buffer_;

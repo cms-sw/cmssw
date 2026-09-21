@@ -1,5 +1,5 @@
 # Checks that hltESPBLBFieldMap equals the MagneticField sampled on its lattice and that
-# hltESPBLMaterialMap equals the compiled-in D121 table.
+# hltESPBLMaterialMap equals the shipped binary file.
 #   cmsRun blMapsCheck_cfg.py [mapsFile=blMaps.txt]
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing

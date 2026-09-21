@@ -1,14 +1,14 @@
 // Phi-averaged material of the Tracker and the beam pipe on a 0.5 cm radial lattice, two lattices in one
 // object (Map): the radiation-length density rho(r,z) [X0/cm], whose integral along a track segment is its
 // X/X0, and the dE/dx triple (DeDx), the electron density and the two log-means the Landau loss of a
-// composite column needs. One table per geometry is compiled in (src/BLMaterialMap<geometry>.cc) as the
-// serialized Map, and test/blMaterialMap/ regenerates it. The readers all see a Map: the device fits get it
-// from the EventSetup, the unit tests load it from the compiled-in table with loadTable().
+// composite column needs. One map per tracker geometry ships as a binary file
+// (RecoTracker/PixelSeeding/data/BLMaterialMap, format in BLMaterialMapFile.h; test/blMaterialMap/
+// regenerates them). The readers all see a Map: the device fits get it from the EventSetup, selected by
+// the ideal-geometry fingerprint (BLMaterialMapFingerprint.h), and the unit tests read the T35 file.
 #ifndef RecoTracker_PixelTrackFitting_BLMaterialMap_h
 #define RecoTracker_PixelTrackFitting_BLMaterialMap_h
 
 #include <cmath>
-#include <cstring>
 #include <type_traits>
 
 namespace blMaterialMap {
@@ -39,13 +39,10 @@ namespace blMaterialMap {
   };
   static_assert(std::is_trivially_copyable_v<Map> && std::is_standard_layout_v<Map>);
 
-  // Floats in the compiled-in table: the serialized Map, the same floats in the same order and no padding.
+  // Floats of the serialized Map (the body of the binary map files, BLMaterialMapFile.h): the density
+  // lattice, then the dE/dx triples, same order and no padding.
   constexpr int kBufferFloats = 4 * kSize;
   static_assert(sizeof(Map) == kBufferFloats * sizeof(float));
-  // Host pointer to the compiled-in table (src/BLMaterialMap<geometry>.cc).
-  const float* blMaterialMapData();
-  // Fills a Map from a serialized table: the compiled-in one, or any other with the same layout.
-  inline void loadTable(Map& map, const float* table) { std::memcpy(&map, table, sizeof(Map)); }
 
   // Index of cell (r,z), or -1 outside the grid.
   constexpr inline int cellAt(float r, float z) {

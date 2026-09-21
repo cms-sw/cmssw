@@ -23,12 +23,14 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>
 
+#include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/stringize.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
 #include "RecoTracker/PixelTrackFitting/interface/BLMaterialMap.h"
+#include "RecoTracker/PixelTrackFitting/interface/BLMaterialMapFile.h"
 #include "RecoTracker/PixelTrackFitting/interface/alpaka/BrokenLine.h"
 
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
@@ -526,7 +528,10 @@ TEST_CASE("fast BrokenLine stub covariance on the " EDM_STRINGIZE(ALPAKA_ACCELER
     FAIL("No devices available for the " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) " backend, test skipped.");
 
   auto rhoTable = std::make_unique<blMaterialMap::Map>();
-  blMaterialMap::loadTable(*rhoTable, blMaterialMap::blMaterialMapData());
+  // the fixture's physics is the D121 (T35) map, loaded from the shipped binary file
+  blMaterialMap::readFile(
+      edm::FileInPath("RecoTracker/PixelSeeding/data/BLMaterialMap/BLMaterialMap_T35_BP2030v3_v1.bin").fullPath(),
+      *rhoTable);
   const blMaterialMap::Map* rho = rhoTable.get();
 
   for (auto const& device : devices) {
