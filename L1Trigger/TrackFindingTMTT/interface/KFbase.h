@@ -141,6 +141,9 @@ namespace tmtt {
     // Ditto after applying beam-spot constraint.
     virtual TVectorD trackParams_BeamConstr(const KalmanState *state, double &chi2rphi_bcon) const = 0;
 
+    // Convert to physical helix covariance matrix instead of local ones used by KF
+    virtual TMatrixD trackParamsCov(const KalmanState *state) const = 0;
+
     // Get phi of centre of sector containing track.
     double sectorPhi() const {
       float phiCentreSec0 = -M_PI / float(settings_->numPhiNonants()) + M_PI / float(settings_->numPhiSectors());

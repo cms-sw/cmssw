@@ -2,4 +2,4 @@
 
 import FWCore.ParameterSet.Config as cms
 
-HybridDataFormats = cms.ESProducer("trklet::ProducerDataFormats")
+TrackFindingTrackletDataFormats = cms.ESProducer("trklet::ProducerDataFormats")
