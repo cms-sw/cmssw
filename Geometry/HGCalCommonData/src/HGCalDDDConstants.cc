@@ -1423,9 +1423,12 @@ int32_t HGCalDDDConstants::placementIndex(const HGCSiliconDetId& id) const {
   int32_t indx = HGCalWaferIndex::waferIndex(layer, waferU, id.waferV());
   auto ktr = hgpar_->waferInfoMap_.find(indx);
   int32_t orient = (ktr == hgpar_->waferInfoMap_.end()) ? -1 : (ktr->second).orient;
-  int32_t place = (ktr == hgpar_->waferInfoMap_.end()) ? 0 : HGCalCell::cellPlacementIndex(id.zside(), layertype, orient);
+  int32_t place =
+      (ktr == hgpar_->waferInfoMap_.end()) ? 0 : HGCalCell::cellPlacementIndex(id.zside(), layertype, orient);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "ID: " << id << " Layer " << layer << " Layer Type " << layertype << " Zside " << id.zside() << " Orient " << orient << " Index " << indx << ":" << (ktr != hgpar_->waferInfoMap_.end()) << " Placement Index " << place;
+  edm::LogVerbatim("HGCalGeom") << "ID: " << id << " Layer " << layer << " Layer Type " << layertype << " Zside "
+                                << id.zside() << " Orient " << orient << " Index " << indx << ":"
+                                << (ktr != hgpar_->waferInfoMap_.end()) << " Placement Index " << place;
 #endif
   return place;
 }
