@@ -465,7 +465,7 @@ namespace edm {
     };
 
     template <typename DUMMY>
-    class AcquireTask<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>, DUMMY> : public WaitingTask {
+    class AcquireTask<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>, DUMMY> : public WaitingTask {
     public:
       AcquireTask(Worker* worker,
                   EventTransitionInfo const& eventTransitionInfo,
@@ -567,9 +567,9 @@ namespace edm {
   };
   namespace workerhelper {
     template <>
-    class CallImpl<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>> {
+    class CallImpl<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>> {
     public:
-      typedef OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin> Arg;
+      typedef OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin> Arg;
       static bool call(Worker* iWorker,
                        StreamID,
                        EventTransitionInfo const& info,

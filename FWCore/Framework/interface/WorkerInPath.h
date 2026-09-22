@@ -30,18 +30,12 @@ namespace edm {
 
     WorkerInPath(Worker*, FilterAction theAction, unsigned int placeInPath, bool runConcurrently);
 
-    template <typename T>
-    void runWorkerAsync(WaitingTaskHolder,
-                        typename T::TransitionInfoType const&,
-                        ServiceToken const&,
-                        StreamID,
-                        typename T::Context const*) noexcept;
+    void runWorkerAsync(
+        WaitingTaskHolder, EventTransitionInfo const&, ServiceToken const&, StreamID, StreamContext const*) noexcept;
 
-    bool checkResultsOfRunWorker(bool wasEvent);
+    bool checkResultsOfRunWorker();
 
     void skipWorker(EventPrincipal const& iPrincipal) { worker_->skipOnPath(iPrincipal); }
-    void skipWorker(RunPrincipal const&) {}
-    void skipWorker(LuminosityBlockPrincipal const&) {}
 
     FilterAction filterAction() const { return filterAction_; }
     Worker* getWorker() const { return worker_; }
@@ -58,10 +52,7 @@ namespace edm {
     bool runConcurrently_;
   };
 
-  inline bool WorkerInPath::checkResultsOfRunWorker(bool wasEvent) {
-    if (not wasEvent) {
-      return true;
-    }
+  inline bool WorkerInPath::checkResultsOfRunWorker() {
     auto state = worker_->state();
     bool rc = true;
     switch (state) {
@@ -88,15 +79,14 @@ namespace edm {
     return rc;
   }
 
-  template <typename T>
-  void WorkerInPath::runWorkerAsync(WaitingTaskHolder iTask,
-                                    typename T::TransitionInfoType const& info,
-                                    ServiceToken const& token,
-                                    StreamID streamID,
-                                    typename T::Context const* context) noexcept {
-    static_assert(T::isEvent_);
+  inline void WorkerInPath::runWorkerAsync(WaitingTaskHolder iTask,
+                                           EventTransitionInfo const& info,
+                                           ServiceToken const& token,
+                                           StreamID streamID,
+                                           StreamContext const* context) noexcept {
     ParentContext parentContext(&placeInPathContext_);
-    worker_->doWorkAsync<T>(std::move(iTask), info, token, streamID, parentContext, context);
+    worker_->doWorkAsync<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>>(
+        std::move(iTask), info, token, streamID, parentContext, context);
   }
 }  // namespace edm
 

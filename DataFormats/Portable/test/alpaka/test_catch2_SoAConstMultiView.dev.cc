@@ -1,3 +1,8 @@
+#include <cstddef>
+#include <iostream>
+#include <numeric>
+#include <vector>
+
 #include <Eigen/Core>
 #include <Eigen/Dense>
 
@@ -18,6 +23,8 @@
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 using namespace Catch::Matchers;
 
+constexpr int maxViews = 5;
+
 GENERATE_SOA_LAYOUT(SoAPositionTemplate,
                     SOA_COLUMN(float, x),
                     SOA_COLUMN(float, y),
@@ -28,7 +35,7 @@ GENERATE_SOA_LAYOUT(SoAPositionTemplate,
 using SoAPosition = SoAPositionTemplate<>;
 using SoAPositionView = SoAPosition::View;
 using SoAPositionConstView = SoAPosition::ConstView;
-using SoAPositionMultiView = SoAConstMultiView<SoAPositionConstView, 5>;
+using SoAPositionMultiView = SoAConstMultiView<SoAPositionConstView, maxViews>;
 
 GENERATE_SOA_LAYOUT(SoAPCATemplate,
                     SOA_COLUMN(float, vector_1),
@@ -39,7 +46,7 @@ GENERATE_SOA_LAYOUT(SoAPCATemplate,
 using SoAPCA = SoAPCATemplate<>;
 using SoAPCAView = SoAPCA::View;
 using SoAPCAConstView = SoAPCA::ConstView;
-using SoAPCAMultiView = SoAConstMultiView<SoAPCAConstView, 5>;
+using SoAPCAMultiView = SoAConstMultiView<SoAPCAConstView, maxViews>;
 
 GENERATE_SOA_BLOCKS(SoABlocksTemplate, SOA_BLOCK(position, SoAPositionTemplate), SOA_BLOCK(pca, SoAPCATemplate))
 
@@ -85,125 +92,139 @@ TEST_CASE("PortableSoAConstMultiView") {
     std::cout << "Running on " << alpaka::getName(device) << std::endl;
     Queue queue(device);
 
-    std::array<cms::soa::size_type, 2> sizes1{{42, 69}};
+    for (int nCollections = 1; nCollections <= maxViews; ++nCollections) {
+      // constexpr int nCollections = 4;
+      std::vector<cms::soa::size_type> sizesPositionLayout(nCollections);
+      std::vector<cms::soa::size_type> sizesPCALayout(nCollections);
+      std::vector<int> pcaOffsets(nCollections);
 
-    PortableHostCollection<SoA> hostCollection1(cms::alpakatools::host(), sizes1);
-    auto h_view1 = hostCollection1.view();
-
-    // fill up
-    for (cms::soa::size_type i = 0; i < sizes1[0]; i++) {
-      h_view1.position()[i].x() = static_cast<float>(i);
-      h_view1.position()[i].y() = static_cast<float>(i) * 2.0f;
-      h_view1.position()[i].z() = static_cast<float>(i) * 3.0f;
-    }
-    h_view1.position().s1() = 21;
-    h_view1.position().s2() = 21.23;
-    for (cms::soa::size_type i = 0; i < sizes1[1]; i++) {
-      h_view1.pca()[i].vector_1() = static_cast<float>(i);
-      h_view1.pca()[i].vector_2() = static_cast<float>(i) * 2.0f;
-      h_view1.pca()[i].vector_3() = static_cast<float>(i) * 3.0f;
-      h_view1.pca()[i].candidateDirection() = Eigen::Vector3d(i, i * 2.0, i * 3.0);
-    }
-
-    std::array<cms::soa::size_type, 2> sizes2{{420, 666}};
-    PortableHostCollection<SoA> hostCollection2(cms::alpakatools::host(), sizes2);
-    auto h_view2 = hostCollection2.view();
-
-    // fill up
-    for (cms::soa::size_type i = 0; i < sizes2[0]; i++) {
-      h_view2.position()[i].x() = static_cast<float>(i) * 10.0f;
-      h_view2.position()[i].y() = static_cast<float>(i) * 11.0f;
-      h_view2.position()[i].z() = static_cast<float>(i) * 12.0f;
-    }
-    h_view2.position().s1() = 42;
-    h_view2.position().s2() = 42.43;
-    for (cms::soa::size_type i = 0; i < sizes2[1]; i++) {
-      h_view2.pca()[i].vector_1() = static_cast<float>(i) * 17.0f;
-      h_view2.pca()[i].vector_2() = static_cast<float>(i) * 18.0f;
-      h_view2.pca()[i].vector_3() = static_cast<float>(i) * 19.0f;
-      h_view2.pca()[i].candidateDirection() = Eigen::Vector3d(i * 111.0, i * 222.0, i * 333.0);
-    }
-
-    // for the position multi view we restrict the iteration range for both views
-    std::vector<int> offsetsPositionMultiView{sizes1[0] / 3, sizes1[1] / 2};
-
-    std::vector<std::reference_wrapper<const PortableHostCollection<SoA>>> hostCollections;
-    hostCollections.emplace_back(hostCollection1);
-    hostCollections.emplace_back(hostCollection2);
-
-    SoAPositionMultiView hostPositionMultiView(
-        hostCollections,
-        [](auto const& collection) { return collection.get().const_view().position(); },
-        offsetsPositionMultiView);
-
-    PortableCollection<Device, SoA> deviceCollection1(queue, sizes1);
-    alpaka::memcpy(queue, deviceCollection1.buffer(), hostCollection1.buffer());
-    PortableCollection<Device, SoA> deviceCollection2(queue, sizes2);
-    alpaka::memcpy(queue, deviceCollection2.buffer(), hostCollection2.buffer());
-
-    std::vector<std::reference_wrapper<const PortableCollection<Device, SoA>>> deviceCollections;
-    deviceCollections.emplace_back(deviceCollection1);
-    deviceCollections.emplace_back(deviceCollection2);
-
-    SoAPositionMultiView positionMultiView(
-        deviceCollections,
-        [](auto const& collection) { return collection.get().const_view().position(); },
-        offsetsPositionMultiView);
-    SoAPCAMultiView pcaMultiView(deviceCollections,
-                                 [](auto const& collection) { return collection.get().const_view().pca(); });
-
-    REQUIRE(positionMultiView.size() == offsetsPositionMultiView[0] + offsetsPositionMultiView[1]);
-    REQUIRE(pcaMultiView.size() == sizes1[1] + sizes2[1]);
-    REQUIRE(hostPositionMultiView.size() == offsetsPositionMultiView[0] + offsetsPositionMultiView[1]);
-
-    REQUIRE(positionMultiView.numViews() == 2);
-    REQUIRE(pcaMultiView.numViews() == 2);
-    REQUIRE(hostPositionMultiView.numViews() == 2);
-
-    auto resultPosition_d = cms::alpakatools::make_device_buffer<float[]>(queue, positionMultiView.size());
-    auto resultPCA_d = cms::alpakatools::make_device_buffer<float[]>(queue, pcaMultiView.size());
-    auto resultPosition_h = cms::alpakatools::make_host_buffer<float[]>(queue, positionMultiView.size());
-    auto resultPCA_h = cms::alpakatools::make_host_buffer<float[]>(queue, pcaMultiView.size());
-    alpaka::wait(queue);
-
-    const std::size_t blockSize = 64;
-
-    const std::size_t nBlocksPositionKernel = cms::alpakatools::divide_up_by(positionMultiView.size(), blockSize);
-    const auto workDivPositionKernel = cms::alpakatools::make_workdiv<Acc1D>(nBlocksPositionKernel, blockSize);
-    const std::size_t nBlocksPCAKernel = cms::alpakatools::divide_up_by(pcaMultiView.size(), blockSize);
-    const auto workDivPCAKernel = cms::alpakatools::make_workdiv<Acc1D>(nBlocksPCAKernel, blockSize);
-
-    alpaka::exec<Acc1D>(
-        queue, workDivPositionKernel, checkPositionMultiView{}, positionMultiView, resultPosition_d.data());
-    alpaka::exec<Acc1D>(queue, workDivPCAKernel, checkPCAMultiView{}, pcaMultiView, resultPCA_d.data());
-    alpaka::wait(queue);
-
-    alpaka::memcpy(queue, hostCollection1.buffer(), deviceCollection1.buffer());
-    alpaka::memcpy(queue, hostCollection2.buffer(), deviceCollection2.buffer());
-
-    alpaka::memcpy(queue, resultPosition_h, resultPosition_d);
-    alpaka::memcpy(queue, resultPCA_h, resultPCA_d);
-
-    alpaka::wait(queue);
-
-    // check results
-    for (cms::soa::size_type i = 0; i < hostPositionMultiView.size(); ++i) {
-      int s1 = 0;
-      for (int j = 0; j < hostPositionMultiView.numViews(); ++j) {
-        s1 += hostPositionMultiView.view(j).s1();
+      int pcaOffset = 0;
+      for (int i = 0; i < nCollections; ++i) {
+        sizesPositionLayout[i] = 10 * (i + 1);
+        sizesPCALayout[i] = 5 * (i + 1);
+        pcaOffset += sizesPCALayout[i];
+        pcaOffsets[i] = pcaOffset;
       }
-      auto const s2 = hostPositionMultiView.view(0).s2();
-      auto si = hostPositionMultiView[i];
-      const float expected = si.x() * si.x() + si.y() * si.y() + si.z() * si.z() + static_cast<float>(s1) + s2;
-      REQUIRE(resultPosition_h[i] == Catch::Approx(expected).margin(1e-5));
-    }
 
-    // check results
-    for (cms::soa::size_type i = 0; i < pcaMultiView.size(); ++i) {
-      auto si = i < sizes1[1] ? h_view1.pca()[i] : h_view2.pca()[i - sizes1[1]];
-      const float expected = si.vector_1() * si.vector_1() + si.vector_2() * si.vector_2() +
-                             si.vector_3() * si.vector_3() + static_cast<float>(si.candidateDirection().squaredNorm());
-      REQUIRE(resultPCA_h[i] == Catch::Approx(expected).margin(1e-5));
+      std::vector<PortableHostCollection<SoA>> hostCollections;
+
+      for (int i = 0; i < nCollections; ++i) {
+        hostCollections.emplace_back(cms::alpakatools::host(), sizesPositionLayout[i], sizesPCALayout[i]);
+      }
+
+      int globalCounter = 0;
+      for (int i = 0; i < nCollections; ++i) {
+        auto h_view = hostCollections[i].view();
+
+        for (cms::soa::size_type j = 0; j < sizesPositionLayout[i]; ++j) {
+          float val = static_cast<float>(globalCounter++);
+          h_view.position()[j].x() = val;
+          h_view.position()[j].y() = val + 0.1f;
+          h_view.position()[j].z() = val + 0.2f;
+        }
+
+        h_view.position().s1() = i + 1;
+        h_view.position().s2() = static_cast<float>(i + 1) * 1.23f;
+
+        for (cms::soa::size_type j = 0; j < sizesPCALayout[i]; ++j) {
+          float val = static_cast<float>(globalCounter++);
+          h_view.pca()[j].vector_1() = val + 0.3f;
+          h_view.pca()[j].vector_2() = val + 0.4f;
+          h_view.pca()[j].vector_3() = val + 0.5f;
+
+          double dval = static_cast<double>(val);
+          h_view.pca()[j].candidateDirection() = Eigen::Vector3d(dval, dval + 0.1, dval + 0.2);
+        }
+      }
+
+      // for the position multi view we restrict the iteration range for both views
+      std::vector<int> offsetsPositionMultiView(nCollections);
+      for (int i = 0; i < nCollections; ++i) {
+        offsetsPositionMultiView[i] =
+            sizesPositionLayout[i] / 3;  // restrict the iteration range of the position multi view
+      }
+
+      SoAPositionMultiView hostPositionMultiView(
+          hostCollections,
+          [](auto const& collection) { return collection.const_view().position(); },
+          offsetsPositionMultiView);
+
+      std::vector<PortableCollection<Device, SoA>> deviceCollections;
+
+      for (int i = 0; i < nCollections; ++i) {
+        deviceCollections.emplace_back(queue, sizesPositionLayout[i], sizesPCALayout[i]);
+        alpaka::memcpy(queue, deviceCollections[i].buffer(), hostCollections[i].buffer());
+      }
+
+      SoAPositionMultiView positionMultiView(
+          deviceCollections,
+          [](auto const& collection) { return collection.const_view().position(); },
+          offsetsPositionMultiView);
+      SoAPCAMultiView pcaMultiView(deviceCollections,
+                                   [](auto const& collection) { return collection.const_view().pca(); });
+
+      REQUIRE(positionMultiView.size() ==
+              std::accumulate(offsetsPositionMultiView.begin(), offsetsPositionMultiView.end(), 0));
+      REQUIRE(pcaMultiView.size() == std::accumulate(sizesPCALayout.begin(), sizesPCALayout.end(), 0));
+      REQUIRE(hostPositionMultiView.size() ==
+              std::accumulate(offsetsPositionMultiView.begin(), offsetsPositionMultiView.end(), 0));
+
+      REQUIRE(positionMultiView.numViews() == nCollections);
+      REQUIRE(pcaMultiView.numViews() == nCollections);
+      REQUIRE(hostPositionMultiView.numViews() == nCollections);
+
+      auto resultPosition_d = cms::alpakatools::make_device_buffer<float[]>(queue, positionMultiView.size());
+      auto resultPCA_d = cms::alpakatools::make_device_buffer<float[]>(queue, pcaMultiView.size());
+      auto resultPosition_h = cms::alpakatools::make_host_buffer<float[]>(queue, positionMultiView.size());
+      auto resultPCA_h = cms::alpakatools::make_host_buffer<float[]>(queue, pcaMultiView.size());
+      alpaka::wait(queue);
+
+      const std::size_t blockSize = 64;
+
+      const std::size_t nBlocksPositionKernel = cms::alpakatools::divide_up_by(positionMultiView.size(), blockSize);
+      const auto workDivPositionKernel = cms::alpakatools::make_workdiv<Acc1D>(nBlocksPositionKernel, blockSize);
+      const std::size_t nBlocksPCAKernel = cms::alpakatools::divide_up_by(pcaMultiView.size(), blockSize);
+      const auto workDivPCAKernel = cms::alpakatools::make_workdiv<Acc1D>(nBlocksPCAKernel, blockSize);
+
+      alpaka::exec<Acc1D>(
+          queue, workDivPositionKernel, checkPositionMultiView{}, positionMultiView, resultPosition_d.data());
+      alpaka::exec<Acc1D>(queue, workDivPCAKernel, checkPCAMultiView{}, pcaMultiView, resultPCA_d.data());
+      alpaka::wait(queue);
+
+      alpaka::memcpy(queue, resultPosition_h, resultPosition_d);
+      alpaka::memcpy(queue, resultPCA_h, resultPCA_d);
+
+      alpaka::wait(queue);
+
+      // check results
+      for (cms::soa::size_type i = 0; i < hostPositionMultiView.size(); ++i) {
+        int s1 = 0;
+        for (int j = 0; j < hostPositionMultiView.numViews(); ++j) {
+          s1 += hostPositionMultiView.view(j).s1();
+        }
+        auto const s2 = hostPositionMultiView.view(0).s2();
+        auto si = hostPositionMultiView[i];
+        const float expected = si.x() * si.x() + si.y() * si.y() + si.z() * si.z() + static_cast<float>(s1) + s2;
+        REQUIRE(resultPosition_h[i] == Catch::Approx(expected).margin(1e-5));
+      }
+
+      // check results
+      for (cms::soa::size_type i = 0; i < pcaMultiView.size(); ++i) {
+        int viewIdx = 0;
+        for (int j = 0; j < nCollections; ++j) {
+          if (i < pcaOffsets[j]) {
+            viewIdx = j;
+            break;
+          }
+        }
+        auto h_view = hostCollections[viewIdx].const_view().pca();
+
+        auto si = viewIdx == 0 ? h_view[i] : h_view[i - pcaOffsets[viewIdx - 1]];
+        const float expected = si.vector_1() * si.vector_1() + si.vector_2() * si.vector_2() +
+                               si.vector_3() * si.vector_3() +
+                               static_cast<float>(si.candidateDirection().squaredNorm());
+        REQUIRE(resultPCA_h[i] == Catch::Approx(expected).margin(1e-5));
+      }
     }
   }
 }

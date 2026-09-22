@@ -85,18 +85,6 @@ namespace edm {
             << "The module with label " << label << " is not an EDProducer or EDFilter so can not be run unscheduled";
       }
       eventWorkerManager_.addToUnscheduledWorkers(module->moduleDescription());
-      if (module->wantsTransition(RunTransitionInfo::key(), TransitionPhaseGlobal::value)) {
-        runWorkerManager_.addToUnscheduledWorkers(module->moduleDescription());
-      }
-      if (module->wantsTransition(RunTransitionInfo::key(), TransitionPhaseStream::value)) {
-        runStreamWorkerManager_.addToUnscheduledWorkers(module->moduleDescription());
-      }
-      if (module->wantsTransition(LumiTransitionInfo::key(), TransitionPhaseGlobal::value)) {
-        lumiWorkerManager_.addToUnscheduledWorkers(module->moduleDescription());
-      }
-      if (module->wantsTransition(LumiTransitionInfo::key(), TransitionPhaseStream::value)) {
-        lumiStreamWorkerManager_.addToUnscheduledWorkers(module->moduleDescription());
-      }
 
       unscheduledLabels.insert(label);
     }
@@ -180,7 +168,7 @@ namespace edm {
     std::exception_ptr exceptPtr = tbb::this_task_arena::isolate([&]() {
       return edm::syncWait([&](edm::WaitingTaskHolder&& iHolder) {
         for (auto& worker : eventWorkerManager_.unscheduledWorkers()) {
-          worker->doWorkAsync<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
+          worker->doWorkAsync<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>>(
               iHolder, info, token, sContext.streamID(), pc, &sContext);
         }
       });
