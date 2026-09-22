@@ -3,7 +3,7 @@
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
 # 50 ttbar events in HepMC3 ASCII (Asciiv3), from the IOMC-Input data package
-hepmc3=$(edmFileInPath IOMC/Input/data/TTbar_13TeV_TuneCUETP8M1_HepMC3.hepmc3) \
+hepmc3=file:$(edmFileInPath IOMC/Input/data/TTbar_13TeV_TuneCUETP8M1_HepMC3.hepmc3) \
   || die "IOMC/Input/data/TTbar_13TeV_TuneCUETP8M1_HepMC3.hepmc3 not found" $?
 
 cmsRun ${SCRAM_TEST_PATH}/testReader3_cfg.py \
