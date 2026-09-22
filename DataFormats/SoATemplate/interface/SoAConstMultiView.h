@@ -131,7 +131,7 @@ private:
   SOA_HOST_DEVICE SOA_INLINE size_type viewIndex(const size_type globalIndex) const {
     size_type viewIdx = 1;
     for (size_type i = 1; i < MaxSize; ++i) {
-      viewIdx += static_cast<size_type>(n_ > i && globalIndex < offsets_[i - 1]);
+      viewIdx += static_cast<size_type>(n_ > i && globalIndex >= offsets_[i]);
     }
     return viewIdx;
   }
