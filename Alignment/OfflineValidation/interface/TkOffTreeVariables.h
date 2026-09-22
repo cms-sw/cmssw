@@ -58,7 +58,7 @@ struct TkOffTreeVariables {
   UInt_t entries;              // number of entries for each module
   UInt_t moduleId, subDetId,   //moduleId == detId
       layer, side, half, rod,  // half = TPB: halfBarrel, TPE: halfCylinder, TIB: halfShell
-      ring, petal, blade, panel, outerInner,
+      ring, petal, blade, panel, outerInner;
       UInt_t module;  //orientation of modules in TIB:1/2= int/ext string, TID:1/2=back/front ring, TEC 1/2=back/front petal
 
   Bool_t isDoubleSide;  // (!isDoubleSide) is a detUnit, (isDoubleSide) is a Det (glued Modules)
