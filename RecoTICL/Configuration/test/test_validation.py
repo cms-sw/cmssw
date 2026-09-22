@@ -3,7 +3,7 @@
 """M2: validate the single-source-of-truth derivation of labels, associators,
 dumper and validator against the live baselines, byte-for-byte where possible.
 
-Note: ``RecoHGCal.TICL.ticlDumper_cff`` currently NameErrors on import (it
+Note: ``Validation.TICLValidation.ticlDumper_cff`` currently NameErrors on import (it
 references an undefined ``ticlIterLabels`` inside a barrel ``toModify``), so the
 dumper is checked structurally against the documented derivation instead.
 """
@@ -16,7 +16,7 @@ from RecoTICL.Configuration import presets, validation
 
 
 def main():
-    from RecoHGCal.TICL.iterativeTICL_cff import associatorsInstances as base_inst, ticlIterLabelsPSet
+    from RecoTICL.Configuration.iterativeTICL_cff import associatorsInstances as base_inst, ticlIterLabelsPSet
     from SimCalorimetry.HGCalAssociatorProducers.TSToSimTSAssociation_cfi \
         import allTrackstersToSimTrackstersAssociationsByLCs as base_bylcs
     from SimCalorimetry.HGCalAssociatorProducers.TSToSimTSAssociationByHits_cfi \

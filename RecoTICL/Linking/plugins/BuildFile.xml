@@ -1,0 +1,28 @@
+<use name="CommonTools/Utils"/>
+<use name="DataFormats/CaloRecHit"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/HGCalReco"/>
+<use name="DataFormats/Math"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/CommonTopologies" source_only="1"/>
+<use name="Geometry/HGCalCommonData"/>
+<use name="Geometry/Records"/>
+<use name="MagneticField/Engine"/>
+<use name="MagneticField/Records"/>
+<use name="PhysicsTools/ONNXRuntime"/>
+<use name="RecoLocalCalo/HGCalRecAlgos"/>
+<use name="RecoParticleFlow/PFProducer"/>
+<use name="RecoTICL/Common"/>
+<use name="RecoTICL/Inference"/>
+<use name="RecoTICL/Linking"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="TrackingTools/Records"/>
+<use name="TrackingTools/TrajectoryState"/>
+<use name="fastjet"/>
+<library file="*.cc" name="RecoTICLLinkingPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

@@ -16,7 +16,7 @@ This is pyTICL's "type system". For every TICL producer it records:
                     ``cpu`` + ``gpu``/alpaka).
 
 The data is transcribed from the C++ ``consumes<>``/``produces<>`` calls of the
-producers in ``RecoHGCal/TICL/plugins`` (see the design notes in the package
+producers in the ``RecoTICL`` step packages (see the design notes in the package
 README).  ``test/test_catalog_schema.py`` locks this registry against the live
 ``_cfi`` defaults so that any drift in the raw configuration is detected.
 """
@@ -98,7 +98,7 @@ T_MTDSOA = "MtdHostCollection"
 _SPECS = [
     ModuleSpec(
         key="TICLLayerTileProducer",
-        cfi_module="RecoHGCal.TICL.ticlLayerTileProducer_cfi",
+        cfi_module="RecoTICL.LayerClustering.ticlLayerTileProducer_cfi",
         cfi_symbol="ticlLayerTileProducer",
         produces=(
             Product(T_TILES),
@@ -112,14 +112,14 @@ _SPECS = [
     ),
     ModuleSpec(
         key="TICLSeedingRegionProducer",
-        cfi_module="RecoHGCal.TICL.ticlSeedingRegionProducer_cfi",
+        cfi_module="RecoTICL.SeedingRegions.ticlSeedingRegionProducer_cfi",
         cfi_symbol="ticlSeedingRegionProducer",
         produces=(Product(T_SEEDS),),
         consumes=(),  # seeding inputs are consumed inside the plugin via cutTk etc.
     ),
     ModuleSpec(
         key="FilteredLayerClustersProducer",
-        cfi_module="RecoHGCal.TICL.filteredLayerClustersProducer_cfi",
+        cfi_module="RecoTICL.ClusterFilters.filteredLayerClustersProducer_cfi",
         cfi_symbol="filteredLayerClustersProducer",
         produces=(Product(T_MASK, "param:iteration_label"),),
         consumes=(
@@ -129,7 +129,7 @@ _SPECS = [
     ),
     ModuleSpec(
         key="TrackstersProducer",
-        cfi_module="RecoHGCal.TICL.trackstersProducer_cfi",
+        cfi_module="RecoTICL.PatternRecognition.trackstersProducer_cfi",
         cfi_symbol="trackstersProducer",
         produces=(
             Product(T_TRACKSTERS),
@@ -148,7 +148,7 @@ _SPECS = [
     ),
     ModuleSpec(
         key="TracksterLinksProducer",
-        cfi_module="RecoHGCal.TICL.tracksterLinksProducer_cfi",
+        cfi_module="RecoTICL.Linking.tracksterLinksProducer_cfi",
         cfi_symbol="tracksterLinksProducer",
         produces=(
             Product(T_TRACKSTERS),
@@ -165,7 +165,7 @@ _SPECS = [
     ),
     ModuleSpec(
         key="EGammaSuperclusterProducer",
-        cfi_module="RecoHGCal.TICL.ticlEGammaSuperClusterProducer_cfi",
+        cfi_module="RecoTICL.Superclustering.ticlEGammaSuperClusterProducer_cfi",
         cfi_symbol="ticlEGammaSuperClusterProducer",
         produces=(
             Product(T_SUPERCLUSTERS),
@@ -179,7 +179,7 @@ _SPECS = [
     ),
     ModuleSpec(
         key="TICLCandidateProducer",
-        cfi_module="RecoHGCal.TICL.ticlCandidateProducer_cfi",
+        cfi_module="RecoTICL.Interpretation.ticlCandidateProducer_cfi",
         cfi_symbol="ticlCandidateProducer",
         produces=(
             Product(T_CANDIDATES),
@@ -198,7 +198,7 @@ _SPECS = [
     ),
     ModuleSpec(
         key="MTDSoAProducer",
-        cfi_module="RecoHGCal.TICL.mtdSoAProducer_cfi",
+        cfi_module="RecoTICL.Interpretation.mtdSoAProducer_cfi",
         cfi_symbol="mtdSoAProducer",
         produces=(Product(T_MTDSOA),),
         consumes=(),  # all inputs are ValueMaps / tracks, not TICL products
@@ -223,7 +223,7 @@ _SPECS = [
     ),
     ModuleSpec(
         key="PFTICLProducer",
-        cfi_module="RecoHGCal.TICL.pfTICLProducer_cfi",
+        cfi_module="RecoTICL.ParticleFlow.pfTICLProducer_cfi",
         cfi_symbol="pfTICLProducer",
         produces=(Product(T_PFCANDS),),
         consumes=(

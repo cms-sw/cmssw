@@ -158,8 +158,6 @@ RecoEgamma/EgammaPhotonProducers:
 RecoEgamma/Examples:
 - SiStripElectronAnalyzer
 - SimplePhotonAnalyzer
-RecoHGCal/TICL:
-- TrackstersProducer
 RecoHI/HiEgammaAlgos:
 - HiEgammaSCCorrectionMaker
 - HiSpikeCleaner
@@ -181,7 +179,6 @@ RecoLocalCalo/EcalRecProducers:
 - EcalRecHitProducerGPU
 - EcalUncalibRecHitProducer
 RecoLocalCalo/HGCalRecProducers:
-- HGCalLayerClusterProducer
 - HGCalMultiClusterProducer
 - HGCalRecHitProducer
 - HGCalUncalibRecHitProducer
@@ -282,6 +279,10 @@ RecoPixelVertexing/PixelTrackFitting:
 RecoPixelVertexing/PixelVertexFinding:
 - FastPrimaryVertexProducer
 - FastPrimaryVertexWithWeightsProducer
+RecoTICL/LayerClustering:
+- HGCalLayerClusterProducer
+RecoTICL/PatternRecognition:
+- TrackstersProducer
 RecoTauTag/RecoTau:
 - PFTauPrimaryVertexProducerBase
 - PFTauSecondaryVertexProducer
