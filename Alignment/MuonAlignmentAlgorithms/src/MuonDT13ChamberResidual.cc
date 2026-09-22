@@ -82,7 +82,7 @@ void MuonDT13ChamberResidual::addResidual(edm::ESHandle<Propagator> prop,
   m_hity_1 += weight;
   m_hity_x += weight * layerHitPos;
   m_hity_y += weight * hitChamberPos.y();
-  m_hity_xx += weight * layerHitPos * layerPosition;
+  m_hity_xx += weight * layerHitPos * layerHitPos;
   m_hity_xy += weight * layerHitPos * hitChamberPos.y();
 
   m_localIDs.push_back(id);
