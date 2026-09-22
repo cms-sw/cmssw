@@ -74,5 +74,5 @@ namespace edm {
   template class WorkerRegistry<edm::InputProcessBlockTransitionInfo, edm::TransitionPhaseGlobal>;
   template class WorkerRegistry<edm::RunTransitionInfo, edm::TransitionPhaseStream>;
   template class WorkerRegistry<edm::LumiTransitionInfo, edm::TransitionPhaseStream>;
-  template class WorkerRegistry<edm::EventTransitionInfo, edm::TransitionPhaseStream>;
+  template class WorkerRegistry<edm::EventTransitionInfo, edm::TransitionPhaseGlobal>;
 }  // namespace edm

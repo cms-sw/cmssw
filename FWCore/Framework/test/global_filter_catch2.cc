@@ -421,7 +421,7 @@ namespace {
       };
 
       m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase, edm::maker::ModuleHolder*) {
-        typedef edm::OccurrenceTraits<edm::EventPrincipal, edm::TransitionActionStreamBegin> Traits;
+        typedef edm::OccurrenceTraits<edm::EventPrincipal, edm::TransitionActionGlobalBegin> Traits;
         edm::StreamContext streamContext(s_streamID0, nullptr);
         edm::ParentContext nullParentContext(&streamContext);
         iBase->setActivityRegistry(m_actReg);
