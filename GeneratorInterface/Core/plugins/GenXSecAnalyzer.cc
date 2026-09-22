@@ -25,6 +25,8 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterCounter.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -65,6 +67,10 @@ namespace gxsec {
     // updated for each luminosity block, initialized in every run
     // used for computation
     CMS_THREAD_GUARD(GenXSecAnalyzer::mutex_) mutable std::map<int, GenLumiInfoProduct::XSec> currentLumiBlockLHEXSec_;
+
+    // LHEEventProduct sum of weights and count of events
+    CMS_THREAD_GUARD(GenXSecAnalyzer::mutex_) mutable unsigned long long lheEventCount_ = 0;
+    CMS_THREAD_GUARD(GenXSecAnalyzer::mutex_) mutable std::vector<double> lheEventWeights_ = {};
   };
 }  // namespace gxsec
 
@@ -93,6 +99,11 @@ private:
   edm::EDGetTokenT<GenFilterInfo> hepMCFilterInfoToken_;
   edm::EDGetTokenT<GenLumiInfoProduct> genLumiInfoToken_;
   edm::EDGetTokenT<LHERunInfoProduct> lheRunInfoToken_;
+  edm::EDGetTokenT<GenRunInfoProduct> genRunInfoToken_;
+  edm::EDGetTokenT<LHEEventProduct> lheEventProductToken_;
+
+  // details on cross section values and uncertainties from different products
+  bool verbose_;
 
   // ----------member data --------------------------
 
@@ -129,10 +140,13 @@ private:
   CMS_THREAD_GUARD(mutex_) mutable std::vector<GenLumiInfoProduct::XSec> xsecAfterMatching_;
   // statistics from jet matching
   CMS_THREAD_GUARD(mutex_) mutable std::map<int, GenFilterInfo> jetMatchEffStat_;
+  // ratio of GenRunInfoProduct and LHERunInfoProduct (after matching) cross sections
+  CMS_THREAD_GUARD(GenXSecAnalyzer::mutex_) mutable double ratio_lhe_gen_;
 };
 
 GenXSecAnalyzer::GenXSecAnalyzer(const edm::ParameterSet &iConfig)
-    : nMCs_(0),
+    : verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
+      nMCs_(0),
       hepidwtup_(-9999),
       totalWeightPre_(0),
       totalWeight_(0),
@@ -144,6 +158,8 @@ GenXSecAnalyzer::GenXSecAnalyzer(const edm::ParameterSet &iConfig)
   hepMCFilterInfoToken_ = consumes<GenFilterInfo, edm::InLumi>(edm::InputTag("generator", ""));
   genLumiInfoToken_ = consumes<GenLumiInfoProduct, edm::InLumi>(edm::InputTag("generator", ""));
   lheRunInfoToken_ = consumes<LHERunInfoProduct, edm::InRun>(edm::InputTag("externalLHEProducer", ""));
+  genRunInfoToken_ = consumes<GenRunInfoProduct, edm::InRun>(edm::InputTag("generator", ""));
+  lheEventProductToken_ = consumes<LHEEventProduct, edm::InEvent>(edm::InputTag("externalLHEProducer", ""));
 }
 
 GenXSecAnalyzer::~GenXSecAnalyzer() {}
@@ -169,7 +185,23 @@ std::shared_ptr<gxsec::LumiCache> GenXSecAnalyzer::globalBeginLuminosityBlock(ed
   return std::shared_ptr<gxsec::LumiCache>();
 }
 
-void GenXSecAnalyzer::analyze(edm::StreamID, const edm::Event &, const edm::EventSetup &) const {}
+void GenXSecAnalyzer::analyze(edm::StreamID, const edm::Event &iEvent, const edm::EventSetup &) const {
+  edm::Handle<LHEEventProduct> lheEvent;
+  iEvent.getByToken(lheEventProductToken_, lheEvent);
+
+  if (!lheEvent.isValid())
+    return;
+
+  auto runC = runCache(iEvent.getRun().index());
+
+  double weight = lheEvent->originalXWGTUP();  // event weight
+
+  {
+    std::lock_guard g{mutex_};
+    runC->lheEventCount_++;
+    runC->lheEventWeights_.push_back(weight);
+  }
+}
 
 void GenXSecAnalyzer::globalEndLuminosityBlock(edm::LuminosityBlock const &iLumi, edm::EventSetup const &) const {
   edm::Handle<GenLumiInfoProduct> genLumiInfo;
@@ -281,10 +313,12 @@ void GenXSecAnalyzer::globalEndLuminosityBlock(edm::LuminosityBlock const &iLumi
 
 void GenXSecAnalyzer::globalEndRun(edm::Run const &iRun, edm::EventSetup const &) const {
   //xsection before matching
-  edm::Handle<LHERunInfoProduct> run;
+  edm::Handle<LHERunInfoProduct> run_lhe;
+  edm::Handle<GenRunInfoProduct> run_gen;
+  edm::Handle<LHEEventProduct> event_lhe;
 
-  if (iRun.getByToken(lheRunInfoToken_, run)) {
-    const lhef::HEPRUP thisHeprup = run->heprup();
+  if (iRun.getByToken(lheRunInfoToken_, run_lhe)) {
+    const lhef::HEPRUP thisHeprup = run_lhe->heprup();
 
     for (unsigned int iSize = 0; iSize < thisHeprup.XSECUP.size(); iSize++) {
       std::cout << std::setw(14) << std::fixed << thisHeprup.XSECUP[iSize] << std::setw(14) << std::fixed
@@ -313,7 +347,89 @@ void GenXSecAnalyzer::globalEndRun(edm::Run const &iRun, edm::EventSetup const &
   }
   runC->product_.setProcessInfo(newInfos);
 
-  const GenLumiInfoProduct::XSec thisRunXSecPre = compute(runC->product_);
+  const GenLumiInfoProduct::XSec thisRunXSecPre_lhe = compute(runC->product_);
+
+  if (verbose_) {
+    unsigned sizeOfInfos = jetMatchEffStat_.size();
+    unsigned last = sizeOfInfos - 1;
+    edm::LogPrint("GenXSecAnalyzer") << "--------------------------------------------------\n"
+                                     << "GenXsecAnalyzer (verbose)\n"
+                                     << "--------------------------------------------------\n"
+                                     << "LHERunInfoProduct (before matching)\n"
+                                     << "    value       : " << std::scientific << std::setprecision(3)
+                                     << xsecBeforeMatching_[last].value() << " pb\n"
+                                     << "    uncertainty : " << std::scientific << std::setprecision(3)
+                                     << xsecBeforeMatching_[last].error() << " pb\n"
+                                     << "LHERunInfoProduct (after matching)\n"
+                                     << "    value       : " << std::scientific << std::setprecision(3)
+                                     << xsecAfterMatching_[last].value() << " pb\n"
+                                     << "    uncertainty : " << std::scientific << std::setprecision(3)
+                                     << xsecAfterMatching_[last].error() << " pb";
+  }
+
+  double thisRunXSecPre_value = thisRunXSecPre_lhe.value();
+  double thisRunXSecPre_error = thisRunXSecPre_lhe.error();
+  ratio_lhe_gen_ = -1.0;
+
+  if (iRun.getByToken(genRunInfoToken_, run_gen)) {
+    const GenRunInfoProduct::XSec thisRunXSecPre_gen = run_gen->internalXSec();
+    thisRunXSecPre_value = thisRunXSecPre_gen.value();
+    thisRunXSecPre_error = thisRunXSecPre_gen.error();
+    ratio_lhe_gen_ = thisRunXSecPre_gen.value() / thisRunXSecPre_lhe.value();
+    thisRunXSecPre_error = thisRunXSecPre_lhe.error() * ratio_lhe_gen_;
+    if (verbose_) {
+      edm::LogPrint("GenXSecAnalyzer") << "GenRunInfoProduct\n"
+                                       << "    value       : " << std::scientific << std::setprecision(3)
+                                       << thisRunXSecPre_gen.value() << " pb\n"
+                                       << "    uncertainty : " << std::scientific << std::setprecision(3)
+                                       << thisRunXSecPre_gen.error() << " pb";
+    }
+  }
+
+  double event_lhe_value = 0.0;
+  double event_lhe_error = 0.0;
+  if (runC->lheEventCount_ > 0) {
+    for (const auto &w : runC->lheEventWeights_) {
+      event_lhe_value += w;
+    }
+    event_lhe_value /= runC->lheEventCount_;
+    for (const auto &w : runC->lheEventWeights_) {
+      event_lhe_error += (w - event_lhe_value) * (w - event_lhe_value);
+    }
+    event_lhe_error = sqrt(event_lhe_error / runC->lheEventCount_);
+    if (verbose_) {
+      edm::LogPrint("GenXSecAnalyzer") << "LHEEventInfoProduct\n"
+                                       << "    value       : " << std::scientific << std::setprecision(3)
+                                       << event_lhe_value << " pb\n"
+                                       << "    uncertainty : " << std::scientific << std::setprecision(3)
+                                       << event_lhe_error << " pb";
+    }
+  }
+
+  if (verbose_) {
+    edm::LogPrint("GenXSecAnalyzer")
+        << "------------------------------------------------------------------------------------------";
+    if (iRun.getByToken(genRunInfoToken_, run_gen)) {
+      edm::LogPrint("GenXSecAnalyzer") << "Scaling with   : value(GenRunInfoProduct) / value(LHERunInfoProduct)\n"
+                                       << "Scaling factor : " << std::scientific << std::setprecision(3)
+                                       << ratio_lhe_gen_ << "\n"
+                                       << "Before filter, cross section value       : " << std::scientific
+                                       << std::setprecision(3) << thisRunXSecPre_value << " pb (GenRunInfoProduct)\n"
+                                       << "Before filter, cross section uncertainty : " << std::scientific
+                                       << std::setprecision(3) << thisRunXSecPre_error
+                                       << " pb (LHERunInfoProduct, scaled)";
+
+    } else {
+      edm::LogPrint("GenXSecAnalyzer") << "Before filter, cross section value       : " << std::scientific
+                                       << std::setprecision(3) << thisRunXSecPre_value << " pb (LHERunInfoProduct)\n"
+                                       << "Before filter, cross section uncertainty : " << std::scientific
+                                       << std::setprecision(3) << thisRunXSecPre_error << " pb (LHERunInfoProduct)";
+    }
+    edm::LogPrint("GenXSecAnalyzer")
+        << "------------------------------------------------------------------------------------------\n";
+  }
+
+  const GenLumiInfoProduct::XSec thisRunXSecPre(thisRunXSecPre_value, thisRunXSecPre_error);
   // xsection after matching before filters
   combine(xsecPreFilter_, totalWeightPre_, thisRunXSecPre, runC->thisRunWeightPre_);
 
@@ -333,9 +449,8 @@ void GenXSecAnalyzer::globalEndRun(edm::Run const &iRun, edm::EventSetup const &
   double thisGenFilterErr = 0;
 
   if (runC->filterOnlyEffRun_.sumWeights2() > 0) {
-    int input_genfilter_efficiency = ResonanceDecayFilterCounter::getInstance().getFilterBool() ? 1 : hepidwtup_.load();
-    thisGenFilterEff = runC->filterOnlyEffRun_.filterEfficiency(input_genfilter_efficiency);
-    thisGenFilterErr = runC->filterOnlyEffRun_.filterEfficiencyError(input_genfilter_efficiency);
+    thisGenFilterEff = runC->filterOnlyEffRun_.filterEfficiency(hepidwtup_);
+    thisGenFilterErr = runC->filterOnlyEffRun_.filterEfficiencyError(hepidwtup_);
     if (thisGenFilterEff < 0) {
       thisGenFilterEff = 1;
       thisGenFilterErr = 0;
@@ -602,21 +717,21 @@ void GenXSecAnalyzer::endJob() {
         << "-----------------------------------------------------------------------------------------------------------"
            "---------------------------------------------------------------";
 
-    edm::LogPrint("GenXSecAnalyzer") << "Before matching: total cross section = " << std::scientific
+    edm::LogPrint("GenXSecAnalyzer") << "[LHE] Before matching: total cross section = " << std::scientific
                                      << std::setprecision(3) << xsecBeforeMatching_[last].value() << " +- "
                                      << xsecBeforeMatching_[last].error() << " pb";
 
-    edm::LogPrint("GenXSecAnalyzer") << "After matching: total cross section = " << std::scientific
+    edm::LogPrint("GenXSecAnalyzer") << "[LHE] After matching: total cross section = " << std::scientific
                                      << std::setprecision(3) << xsecAfterMatching_[last].value() << " +- "
                                      << xsecAfterMatching_[last].error() << " pb";
 
-    edm::LogPrint("GenXSecAnalyzer") << "Matching efficiency = " << std::fixed << std::setprecision(1) << matching_eff
-                                     << " +/- " << matching_efferr << "   [TO BE USED IN MCM]";
-
-  } else if (hepidwtup_ == -1)
-    edm::LogPrint("GenXSecAnalyzer") << "Before Filter: total cross section = " << std::scientific
-                                     << std::setprecision(3) << xsecPreFilter_.value() << " +- "
-                                     << xsecPreFilter_.error() << " pb";
+    edm::LogPrint("GenXSecAnalyzer") << "[LHE] Matching efficiency = " << std::fixed << std::setprecision(1)
+                                     << matching_eff << " +/- " << matching_efferr << "   [TO BE USED IN MCM]";
+  }
+  std::string step_name = (ratio_lhe_gen_ != -1.0) ? "[GEN]" : "[LHE]";
+  edm::LogPrint("GenXSecAnalyzer") << step_name << " Before filter: total cross section = " << std::scientific
+                                   << std::setprecision(3) << xsecPreFilter_.value() << " +- " << xsecPreFilter_.error()
+                                   << " pb";
 
   // hepMC filter efficiency
   double hepMCFilter_eff = 1.0;
