@@ -11,6 +11,3 @@ hltInitialStepTrackSelectionHighPurity = cms.EDProducer("TrackCollectionFilterCl
 
 from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
 mtd_at_hlt.toModify(hltInitialStepTrackSelectionHighPurity, copyTrajectories = True)
-
-from Configuration.ProcessModifiers.trackCutClassifier_cff import trackCutClassifier
-trackCutClassifier.toModify(hltInitialStepTrackSelectionHighPurity, originalSource = "hltInitialStepTracks")
