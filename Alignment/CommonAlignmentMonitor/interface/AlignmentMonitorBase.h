@@ -27,6 +27,7 @@
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
@@ -54,6 +55,9 @@ public:
   /// Called at beginning of job: don't reimplement
   void beginOfJob(AlignableTracker *pTracker, AlignableMuon *pMuon, AlignmentParameterStore *pStore);
 
+  /// Called at beginning of run: don't reimplement
+  void beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup);
+
   /// Called at beginning of loop: don't reimplement
   void startingNewLoop();
 
@@ -72,6 +76,9 @@ public:
 
   /// Book or retrieve histograms; MUST be reimplemented
   virtual void book() = 0;
+
+  /// Called at beginning of run (by "beginRun()"): may be reimplemented
+  virtual void runBegin(const edm::Run &iRun, const edm::EventSetup &iSetup) {}
 
   /// Called for each event (by "run()"): may be reimplemented
   virtual void event(const edm::Event &iEvent,
