@@ -466,7 +466,7 @@ namespace edm {
 
       ParentContext parentContext(mcc);
       EventTransitionInfo const& info = aux_->eventTransitionInfo();
-      worker_->doWorkAsync<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin> >(
+      worker_->doWorkAsync<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin> >(
           WaitingTaskHolder(*waitTask.group(), t),
           info,
           token,
