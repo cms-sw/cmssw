@@ -294,12 +294,17 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
     bool mirror = false;
     int irot = hgc_.placementIndex(id);  //[theDetInterface placementIndexForWafer:DetId];
     int idir = (iside + irot) % 6;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "Orignal irot " << irot << " idir " << (iside + irot) << ":" << idir;
+#endif
     if (irot > 5) {
       mirror = true;
       irot = (12 - irot) % 6;
       idir = (irot - iside + 5) % 6;
     }
-
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "edgeIndex= " << edgeIndex << " partial wafer= " << partialWafer << " Wafer (u:v)=(" << waferU << ":" << waferV << "); Cell (u:v)=(" << iu << ":" << iv << ") iside = " << iside << "; irot = " << irot << "; idir = " << idir << "; iplace = " << hgc_.placementIndex(id) << "; mirror = " << mirror;
+#endif
     unsigned int waferId = (detId & waferMask) >> waferShift;
 
     int wiu = waferId & iuMask;

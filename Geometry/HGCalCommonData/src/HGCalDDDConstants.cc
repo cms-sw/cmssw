@@ -1417,18 +1417,15 @@ int HGCalDDDConstants::numberCellsHexagon(int lay, int waferU, int waferV, bool 
 }
 
 int32_t HGCalDDDConstants::placementIndex(const HGCSiliconDetId& id) const {
-  int32_t place(0);
   int32_t layer = id.layer();
   int32_t layertype = layerType(layer);
   int32_t waferU = (id.zside() > 0) ? -id.waferU() : id.waferU();
   int32_t indx = HGCalWaferIndex::waferIndex(layer, waferU, id.waferV());
   auto ktr = hgpar_->waferInfoMap_.find(indx);
-  if (ktr != hgpar_->waferInfoMap_.end()) {
-    place = HGCalCell::cellPlacementIndex(id.zside(), layertype, (ktr->second).orient);
-  }
+  int32_t orient = (ktr == hgpar_->waferInfoMap_.end()) ? -1 : (ktr->second).orient;
+  int32_t place = (ktr == hgpar_->waferInfoMap_.end()) ? 0 : HGCalCell::cellPlacementIndex(id.zside(), layertype, orient);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "ID: " << id << " Layer " << layer << ":" << layertype << " Index " << indx << ":"
-                                << (ktr != hgpar_->waferInfoMap_.end()) << " Place " << place;
+  edm::LogVerbatim("HGCalGeom") << "ID: " << id << " Layer " << layer << " Layer Type " << layertype << " Zside " << id.zside() << " Orient " << orient << " Index " << indx << ":" << (ktr != hgpar_->waferInfoMap_.end()) << " Placement Index " << place;
 #endif
   return place;
 }
