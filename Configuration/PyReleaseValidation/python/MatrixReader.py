@@ -237,7 +237,7 @@ With --checkInputs option this throws an error.
             if len(wfKey)>0:
                 name = name+'+'+wfKey
                 if len(wfSuffix)>0: name = name+wfSuffix
-            stepIndex=0
+            stepIndex=-1
             ranStepList=[]
             name_for_workflow = name
 
@@ -277,6 +277,11 @@ With --checkInputs option this throws an error.
                     #cannot put a certain number of things in wm
                     if stepName in ['SKIMD','SKIMCOSD','SKIMDreHLT']:
                         continue
+
+                isLocalPU = self.relvalModule.steps[stepName].get('--fileout',None)==localPUname
+                # do not treat initial local PU (MinBias GEN-SIM) step as a numbered step
+                if not isLocalPU:
+                    stepIndex+=1
 
                 #replace stepName is needed
                 #if stepName in self.replaceStep
@@ -329,10 +334,6 @@ With --checkInputs option this throws an error.
                         cmd="export CMSSW_USE_IBEOS=true; "+cmd
                 commands.append(cmd)
                 ranStepList.append(stepName)
-                isLocalPU = isinstance(cmd,str) and f'--fileout {localPUname}' in cmd
-                # do not treat initial local PU (MinBias GEN-SIM) step as a numbered step
-                if not isLocalPU:
-                    stepIndex+=1
             self.workFlowSteps[(num,prefix)] = (num, name_for_workflow, commands, ranStepList)
         
         return
