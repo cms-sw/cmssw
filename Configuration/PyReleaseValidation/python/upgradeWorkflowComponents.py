@@ -3197,7 +3197,7 @@ class UpgradeWorkflowPremix(UpgradeWorkflow):
     def workflow_(self, workflows, num, fragment, stepList, key):
         fragmentTmp = fragment
         if self.suffix.endswith("S1"):
-            fragmentTmp = 'PREMIXUP' + key[2:].replace("PU", "").replace("Design", "") + '_PU25'
+            fragmentTmp = 'PREMIXUP' + key[2:].replace("n4", "").replace("PU", "").replace("Design", "") + '_PU25'
         super(UpgradeWorkflowPremix,self).workflow_(workflows, num, fragmentTmp, stepList, key)
 # Premix stage1
 upgradeWFs['PMXS1'] = UpgradeWorkflowPremix(
