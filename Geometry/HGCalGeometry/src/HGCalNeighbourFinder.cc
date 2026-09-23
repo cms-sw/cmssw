@@ -2,7 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 constexpr int densityNumberLD = 8;
 constexpr int densityNumberHD = 12;
@@ -166,7 +166,7 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
   edm::LogVerbatim("HGCalGeom")
       << "HGCalNeighbourFinder:nearestNeighbour:input Layer|waferU:waderV|cellU:cellV|HD|edge|partial|placement   "
       << layer << "|" << waferU << ":" << waferV << "|" << iu << ":" << iv << "|" << HD << "|" << edgeIndex << "|"
-      << partialWafer << "|" << hgc_.placementIndex(id);
+      << partialWafer << "|" << hgc_.placementIndex(id) << ":" << hgc_.placementIndexMod(id);
 #endif
 
   if (edgeIndex < 0) {  // Cell is not on the edge of a wafer (~80% of cells)
@@ -292,10 +292,10 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
        Second step: Find the wafer adjacent to this wafer side
        ------------------------------------------------------------------------------- */
     bool mirror = false;
-    int irot = hgc_.placementIndex(id);  //[theDetInterface placementIndexForWafer:DetId];
+    int irot = hgc_.placementIndexMod(id);  //[theDetInterface placementIndexForWafer:DetId];
     int idir = (iside + irot) % 6;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "Orignal irot " << irot << " idir " << (iside + irot) << ":" << idir;
+    edm::LogVerbatim("HGCalGeom") << "Original irot " << irot << " idir " << (iside + irot) << ":" << idir;
 #endif
     if (irot > 5) {
       mirror = true;
@@ -306,7 +306,7 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
     edm::LogVerbatim("HGCalGeom") << "edgeIndex= " << edgeIndex << " partial wafer= " << partialWafer
                                   << " Wafer (u:v)=(" << waferU << ":" << waferV << "); Cell (u:v)=(" << iu << ":" << iv
                                   << ") iside = " << iside << "; irot = " << irot << "; idir = " << idir
-                                  << "; iplace = " << hgc_.placementIndex(id) << "; mirror = " << mirror;
+                                  << "; iplace = " << hgc_.placementIndex(id) << "|" << hgc_.placementIndexMod(id) << "; mirror = " << mirror;
 #endif
     unsigned int waferId = (detId & waferMask) >> waferShift;
 
@@ -352,7 +352,7 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
     /* -------------------------------------------------------------------------------
        Third step: locate the neighbour cells in the wafer specified by DetIdNxt
        ------------------------------------------------------------------------------- */
-    int jrot = hgc_.placementIndex(idNxt);
+    int jrot = hgc_.placementIndexMod(idNxt);
     if (jrot > 5)
       jrot = (12 - jrot) % 6;
 

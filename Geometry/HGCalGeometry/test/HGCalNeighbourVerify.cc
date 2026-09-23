@@ -117,23 +117,25 @@ void HGCalNeighbourVerify::beginRun(edm::Run const &iRun, edm::EventSetup const 
     std::unique_ptr<HGCalNeighbourFinder> finder = std::make_unique<HGCalNeighbourFinder>(geom);
     for (unsigned int k = 0; k < detIds.size(); ++k) {
       HGCSiliconDetId id(detIds[k]);
-      std::vector<uint32_t> ids = finder->nearestNeighboursOfDetId(id.rawId());
-      unsigned int nn(0);
-      for (auto const &idZ : ids)
-        if (idZ != 0)
-          ++nn;
-      edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << id.detType() << " Type " << id.waferTypeX() << " z "
-                                    << id.zside() << " Layer " << id.layer() << " Wafer " << id.waferU() << ":"
-                                    << id.waferV() << " Cell " << id.cellU() << ":" << id.cellV() << " has " << nn
-                                    << " neighbours:";
-      unsigned int k1(0);
-      for (auto const &idZ : ids) {
-        if (idZ != 0) {
-          HGCSiliconDetId idx(idZ);
-          edm::LogVerbatim("HGCalGeom") << "[" << k1 << "] Layer " << idx.layer() << " Wafer " << idx.waferU() << ":"
-                                        << idx.waferV() << " Cell " << idx.cellU() << ":" << idx.cellV();
-          ++k1;
-        }
+      if (geom->validDetId(id)) {
+	std::vector<uint32_t> ids = finder->nearestNeighboursOfDetId(id.rawId());
+	unsigned int nn(0);
+	for (auto const &idZ : ids)
+	  if (idZ != 0)
+	    ++nn;
+	edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << id.detType() << " Type " << id.waferTypeX() << " z "
+				      << id.zside() << " Layer " << id.layer() << " Wafer " << id.waferU() << ":"
+				      << id.waferV() << " Cell " << id.cellU() << ":" << id.cellV() << " has " << nn
+				      << " neighbours:";
+	unsigned int k1(0);
+	for (auto const &idZ : ids) {
+	  if (idZ != 0) {
+	    HGCSiliconDetId idx(idZ);
+	    edm::LogVerbatim("HGCalGeom") << "[" << k1 << "] Layer " << idx.layer() << " Wafer " << idx.waferU() << ":"
+					  << idx.waferV() << " Cell " << idx.cellU() << ":" << idx.cellV();
+	    ++k1;
+	  }
+	}
       }
     }
   } else {
