@@ -306,7 +306,8 @@ std::vector<uint32_t> HGCalNeighbourFinder::nearestNeighboursOfDetId(uint32_t de
     edm::LogVerbatim("HGCalGeom") << "edgeIndex= " << edgeIndex << " partial wafer= " << partialWafer
                                   << " Wafer (u:v)=(" << waferU << ":" << waferV << "); Cell (u:v)=(" << iu << ":" << iv
                                   << ") iside = " << iside << "; irot = " << irot << "; idir = " << idir
-                                  << "; iplace = " << hgc_.placementIndex(id) << "|" << hgc_.placementIndexMod(id) << "; mirror = " << mirror;
+                                  << "; iplace = " << hgc_.placementIndex(id) << "|" << hgc_.placementIndexMod(id)
+                                  << "; mirror = " << mirror;
 #endif
     unsigned int waferId = (detId & waferMask) >> waferShift;
 
