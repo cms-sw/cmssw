@@ -417,8 +417,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           for (unsigned int trackCandidateIndex : cms::alpakatools::uniform_elements_x(acc, nTrackCandidates)) {
             short type = candsBase.trackCandidateType()[trackCandidateIndex];
             unsigned int outerTrackletIdx = candsExtended.objectIndices()[trackCandidateIndex][1];
-            // Deleted when a promoted candidate owns three of its hits, or two for a pixel quintuplet.
-            const int minShared = (type == LSTObjType::pT5) ? 2 : 3;
+            // Deleted when a promoted candidate owns three of its hits, or two for a pixel quintuplet or triplet.
+            const int minShared = (type == LSTObjType::pT5 || type == LSTObjType::pT3) ? 2 : 3;
             if (type == LSTObjType::T5 || type == LSTObjType::pT5) {
               unsigned int const* t5Hits = quintuplets.hitIndices()[outerTrackletIdx].data();
               if (nSharedHitsT4(t4Hits, t5Hits, Params_T5::kHits) >= minShared)
