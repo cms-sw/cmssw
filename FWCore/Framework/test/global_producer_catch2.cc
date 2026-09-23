@@ -315,7 +315,11 @@ namespace {
       oneapi::tbb::task_group group;
       edm::FinalWaitingTask task{group};
       edm::ServiceToken token;
-      iBase->doWorkAsync<Traits>(edm::WaitingTaskHolder(group, &task), info, token, s_streamID0, iContext, nullptr);
+      auto worker = dynamic_cast<
+          edm::TransitionWorker<typename Traits::TransitionInfoType, typename Traits::TransitionPhaseType>*>(iBase);
+      assert(worker != nullptr);
+      worker->template doWorkAsync<Traits>(
+          edm::WaitingTaskHolder(group, &task), info, token, s_streamID0, iContext, nullptr);
       task.wait();
     }
 
@@ -464,11 +468,16 @@ namespace {
       edm::maker::ModuleHolderT<edm::global::EDProducerBase> h(iMod);
       h.finishModuleInitialization(iMod->moduleDescription(), edm::PreallocationConfiguration{}, nullptr);
 
-      edm::WorkerT<edm::global::EDProducerBase> wOther{iMod, m_desc, nullptr};
-      edm::WorkerT<edm::global::EDProducerBase> wGlobalLumi{iMod, m_desc, nullptr};
-      edm::WorkerT<edm::global::EDProducerBase> wStreamLumi{iMod, m_desc, nullptr};
-      edm::WorkerT<edm::global::EDProducerBase> wGlobalRun{iMod, m_desc, nullptr};
-      edm::WorkerT<edm::global::EDProducerBase> wStreamRun{iMod, m_desc, nullptr};
+      edm::WorkerT<edm::global::EDProducerBase, edm::EventTransitionInfo, edm::TransitionPhaseGlobal> wOther{
+          iMod, m_desc, nullptr};
+      edm::WorkerT<edm::global::EDProducerBase, edm::LumiTransitionInfo, edm::TransitionPhaseGlobal> wGlobalLumi{
+          iMod, m_desc, nullptr};
+      edm::WorkerT<edm::global::EDProducerBase, edm::LumiTransitionInfo, edm::TransitionPhaseStream> wStreamLumi{
+          iMod, m_desc, nullptr};
+      edm::WorkerT<edm::global::EDProducerBase, edm::RunTransitionInfo, edm::TransitionPhaseGlobal> wGlobalRun{
+          iMod, m_desc, nullptr};
+      edm::WorkerT<edm::global::EDProducerBase, edm::RunTransitionInfo, edm::TransitionPhaseStream> wStreamRun{
+          iMod, m_desc, nullptr};
       for (auto& keyVal : m_transToFunc) {
         edm::Worker* worker = &wOther;
         if (keyVal.first == Trans::kStreamBeginLuminosityBlock || keyVal.first == Trans::kStreamEndLuminosityBlock) {

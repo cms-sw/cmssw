@@ -275,11 +275,22 @@ namespace {
     oneapi::tbb::task_arena arena(1);
     arena.execute([&]() {
       iMod->doPreallocate(m_preallocConfig);
-      edm::WorkerT<edm::global::OutputModuleBase> w{iMod, m_desc, m_params.actions_};
+      edm::WorkerT<edm::global::OutputModuleBase, edm::EventTransitionInfo, edm::TransitionPhaseGlobal> wOther{
+          iMod, m_desc, m_params.actions_};
+      edm::WorkerT<edm::global::OutputModuleBase, edm::LumiTransitionInfo, edm::TransitionPhaseGlobal> wGlobalLumi{
+          iMod, m_desc, m_params.actions_};
+      edm::WorkerT<edm::global::OutputModuleBase, edm::RunTransitionInfo, edm::TransitionPhaseGlobal> wGlobalRun{
+          iMod, m_desc, m_params.actions_};
       edm::OutputModuleCommunicatorT<edm::global::OutputModuleBase> comm(iMod.get());
       edm::maker::ModuleHolderT<edm::global::OutputModuleBase> h(iMod);
       for (auto& keyVal : m_transToFunc) {
-        testTransition(iMod, &w, &h, &comm, keyVal.first, iExpect, keyVal.second);
+        edm::Worker* worker = &wOther;
+        if (keyVal.first == Trans::kGlobalBeginLuminosityBlock || keyVal.first == Trans::kGlobalEndLuminosityBlock) {
+          worker = &wGlobalLumi;
+        } else if (keyVal.first == Trans::kGlobalBeginRun || keyVal.first == Trans::kGlobalEndRun) {
+          worker = &wGlobalRun;
+        }
+        testTransition(iMod, worker, &h, &comm, keyVal.first, iExpect, keyVal.second);
       }
     });
   }

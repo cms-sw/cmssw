@@ -349,7 +349,11 @@ namespace {
       oneapi::tbb::task_group group;
       edm::FinalWaitingTask task{group};
       edm::ServiceToken token;
-      iBase->doWorkAsync<Traits>(edm::WaitingTaskHolder(group, &task), info, token, s_streamID0, iContext, nullptr);
+      auto worker = dynamic_cast<
+          edm::TransitionWorker<typename Traits::TransitionInfoType, typename Traits::TransitionPhaseType>*>(iBase);
+      assert(worker != nullptr);
+      worker->template doWorkAsync<Traits>(
+          edm::WaitingTaskHolder(group, &task), info, token, s_streamID0, iContext, nullptr);
       task.wait();
     }
 
@@ -496,11 +500,16 @@ namespace {
       edm::maker::ModuleHolderT<edm::global::EDFilterBase> h(iMod);
       h.finishModuleInitialization(iMod->moduleDescription(), edm::PreallocationConfiguration{}, nullptr);
 
-      edm::WorkerT<edm::global::EDFilterBase> wOther{iMod, m_desc, nullptr};
-      edm::WorkerT<edm::global::EDFilterBase> wGlobalLumi{iMod, m_desc, nullptr};
-      edm::WorkerT<edm::global::EDFilterBase> wStreamLumi{iMod, m_desc, nullptr};
-      edm::WorkerT<edm::global::EDFilterBase> wGlobalRun{iMod, m_desc, nullptr};
-      edm::WorkerT<edm::global::EDFilterBase> wStreamRun{iMod, m_desc, nullptr};
+      edm::WorkerT<edm::global::EDFilterBase, edm::EventTransitionInfo, edm::TransitionPhaseGlobal> wOther{
+          iMod, m_desc, nullptr};
+      edm::WorkerT<edm::global::EDFilterBase, edm::LumiTransitionInfo, edm::TransitionPhaseGlobal> wGlobalLumi{
+          iMod, m_desc, nullptr};
+      edm::WorkerT<edm::global::EDFilterBase, edm::LumiTransitionInfo, edm::TransitionPhaseStream> wStreamLumi{
+          iMod, m_desc, nullptr};
+      edm::WorkerT<edm::global::EDFilterBase, edm::RunTransitionInfo, edm::TransitionPhaseGlobal> wGlobalRun{
+          iMod, m_desc, nullptr};
+      edm::WorkerT<edm::global::EDFilterBase, edm::RunTransitionInfo, edm::TransitionPhaseStream> wStreamRun{
+          iMod, m_desc, nullptr};
       for (auto& keyVal : m_transToFunc) {
         edm::Worker* worker = &wOther;
         if (keyVal.first == Trans::kStreamBeginLuminosityBlock || keyVal.first == Trans::kStreamEndLuminosityBlock) {

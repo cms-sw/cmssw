@@ -136,7 +136,10 @@ namespace {
       oneapi::tbb::task_group group;
       edm::FinalWaitingTask task{group};
       edm::ServiceToken token;
-      iBase->doWorkAsync<Traits>(edm::WaitingTaskHolder(group, &task), info, token, id, iContext, nullptr);
+      auto worker = dynamic_cast<
+          edm::TransitionWorker<typename Traits::TransitionInfoType, typename Traits::TransitionPhaseType>*>(iBase);
+      assert(worker != nullptr);
+      worker->template doWorkAsync<Traits>(edm::WaitingTaskHolder(group, &task), info, token, id, iContext, nullptr);
       task.wait();
     }
 
@@ -276,10 +279,21 @@ namespace {
     oneapi::tbb::global_control control(oneapi::tbb::global_control::max_allowed_parallelism, 1);
 
     iMod->doPreallocate(m_preallocConfig);
-    edm::WorkerT<edm::limited::OutputModuleBase> w{iMod, m_desc, m_params.actions_};
+    edm::WorkerT<edm::limited::OutputModuleBase, edm::EventTransitionInfo, edm::TransitionPhaseGlobal> wOther{
+        iMod, m_desc, m_params.actions_};
+    edm::WorkerT<edm::limited::OutputModuleBase, edm::LumiTransitionInfo, edm::TransitionPhaseGlobal> wGlobalLumi{
+        iMod, m_desc, m_params.actions_};
+    edm::WorkerT<edm::limited::OutputModuleBase, edm::RunTransitionInfo, edm::TransitionPhaseGlobal> wGlobalRun{
+        iMod, m_desc, m_params.actions_};
     edm::OutputModuleCommunicatorT<edm::limited::OutputModuleBase> comm(iMod.get());
     for (auto& keyVal : m_transToFunc) {
-      testTransition(iMod, &w, &comm, keyVal.first, iExpect, keyVal.second);
+      edm::Worker* worker = &wOther;
+      if (keyVal.first == Trans::kGlobalBeginLuminosityBlock || keyVal.first == Trans::kGlobalEndLuminosityBlock) {
+        worker = &wGlobalLumi;
+      } else if (keyVal.first == Trans::kGlobalBeginRun || keyVal.first == Trans::kGlobalEndRun) {
+        worker = &wGlobalRun;
+      }
+      testTransition(iMod, worker, &comm, keyVal.first, iExpect, keyVal.second);
     }
   }
 

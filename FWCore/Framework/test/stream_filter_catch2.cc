@@ -96,7 +96,11 @@ namespace {
       oneapi::tbb::task_group group;
       edm::FinalWaitingTask task{group};
       edm::ServiceToken token;
-      iBase->doWorkAsync<Traits>(edm::WaitingTaskHolder(group, &task), info, token, s_streamID0, iContext, nullptr);
+      auto worker = dynamic_cast<
+          edm::TransitionWorker<typename Traits::TransitionInfoType, typename Traits::TransitionPhaseType>*>(iBase);
+      assert(worker != nullptr);
+      worker->template doWorkAsync<Traits>(
+          edm::WaitingTaskHolder(group, &task), info, token, s_streamID0, iContext, nullptr);
       task.wait();
     }
 
@@ -551,12 +555,18 @@ namespace {
     oneapi::tbb::global_control control(oneapi::tbb::global_control::max_allowed_parallelism, 1);
 
     edm::maker::ModuleHolderT<edm::stream::EDFilterAdaptorBase> h(iMod);
-    edm::WorkerT<edm::stream::EDFilterAdaptorBase> wBeginJobEndJob{iMod, m_desc, nullptr};
-    edm::WorkerT<edm::stream::EDFilterAdaptorBase> wBeginStreamEndStream{iMod, m_desc, nullptr};
-    edm::WorkerT<edm::stream::EDFilterAdaptorBase> wGlobalLumi{iMod, m_desc, nullptr};
-    edm::WorkerT<edm::stream::EDFilterAdaptorBase> wStreamLumi{iMod, m_desc, nullptr};
-    edm::WorkerT<edm::stream::EDFilterAdaptorBase> wGlobalRun{iMod, m_desc, nullptr};
-    edm::WorkerT<edm::stream::EDFilterAdaptorBase> wStreamRun{iMod, m_desc, nullptr};
+    edm::WorkerT<edm::stream::EDFilterAdaptorBase, edm::EventTransitionInfo, edm::TransitionPhaseGlobal> wBeginJobEndJob{
+        iMod, m_desc, nullptr};
+    edm::WorkerT<edm::stream::EDFilterAdaptorBase, edm::EventTransitionInfo, edm::TransitionPhaseGlobal>
+        wBeginStreamEndStream{iMod, m_desc, nullptr};
+    edm::WorkerT<edm::stream::EDFilterAdaptorBase, edm::LumiTransitionInfo, edm::TransitionPhaseGlobal> wGlobalLumi{
+        iMod, m_desc, nullptr};
+    edm::WorkerT<edm::stream::EDFilterAdaptorBase, edm::LumiTransitionInfo, edm::TransitionPhaseStream> wStreamLumi{
+        iMod, m_desc, nullptr};
+    edm::WorkerT<edm::stream::EDFilterAdaptorBase, edm::RunTransitionInfo, edm::TransitionPhaseGlobal> wGlobalRun{
+        iMod, m_desc, nullptr};
+    edm::WorkerT<edm::stream::EDFilterAdaptorBase, edm::RunTransitionInfo, edm::TransitionPhaseStream> wStreamRun{
+        iMod, m_desc, nullptr};
     for (auto& keyVal : m_transToFunc) {
       edm::Worker* worker = &wBeginJobEndJob;
       if (keyVal.first == Trans::kBeginStream || keyVal.first == Trans::kEndStream) {

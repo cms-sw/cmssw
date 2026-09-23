@@ -222,7 +222,10 @@ namespace {
       oneapi::tbb::task_group group;
       edm::FinalWaitingTask task{group};
       edm::ServiceToken token;
-      iBase->doWorkAsync<Traits>(edm::WaitingTaskHolder(group, &task), info, token, id, iContext, nullptr);
+      auto worker = dynamic_cast<
+          edm::TransitionWorker<typename Traits::TransitionInfoType, typename Traits::TransitionPhaseType>*>(iBase);
+      assert(worker != nullptr);
+      worker->template doWorkAsync<Traits>(edm::WaitingTaskHolder(group, &task), info, token, id, iContext, nullptr);
       task.wait();
     }
 
@@ -374,8 +377,19 @@ namespace {
     iMod->doPreallocate(m_preallocConfig);
     //add an extra one to handle the case where a transition is not handled by any worker
     std::vector<std::unique_ptr<edm::Worker>> workers(m_numWorkerIdices + 1);
-    for (auto& worker : workers) {
-      worker = std::make_unique<edm::WorkerT<edm::one::OutputModuleBase>>(iMod, m_desc, m_params.actions_);
+    workers[0] =
+        std::make_unique<edm::WorkerT<edm::one::OutputModuleBase, edm::RunTransitionInfo, edm::TransitionPhaseGlobal>>(
+            iMod, m_desc, m_params.actions_);
+    workers[1] =
+        std::make_unique<edm::WorkerT<edm::one::OutputModuleBase, edm::LumiTransitionInfo, edm::TransitionPhaseGlobal>>(
+            iMod, m_desc, m_params.actions_);
+    workers[2] =
+        std::make_unique<edm::WorkerT<edm::one::OutputModuleBase, edm::EventTransitionInfo, edm::TransitionPhaseGlobal>>(
+            iMod, m_desc, m_params.actions_);
+    for (unsigned int i = 3; i < workers.size(); ++i) {
+      workers[i] = std::make_unique<
+          edm::WorkerT<edm::one::OutputModuleBase, edm::EventTransitionInfo, edm::TransitionPhaseGlobal>>(
+          iMod, m_desc, m_params.actions_);
     }
     edm::maker::ModuleHolderT<edm::one::OutputModuleBase> h(iMod);
     h.beginJob();

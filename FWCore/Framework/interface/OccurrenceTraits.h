@@ -16,6 +16,7 @@ OccurrenceTraits:
 #include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
+#include "FWCore/Framework/interface/TransitionPhaseTypes.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
@@ -40,6 +41,7 @@ namespace edm {
     using MyPrincipal = EventPrincipal;
     using TransitionInfoType = EventTransitionInfo;
     using Context = StreamContext;
+    using TransitionPhaseType = TransitionPhaseGlobal;
     static BranchType constexpr branchType_ = InEvent;
     static bool constexpr begin_ = true;
     static bool constexpr isEvent_ = true;
@@ -83,6 +85,7 @@ namespace edm {
   public:
     using MyPrincipal = RunPrincipal;
     using TransitionInfoType = RunTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseGlobal;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = true;
@@ -124,6 +127,7 @@ namespace edm {
   public:
     using MyPrincipal = RunPrincipal;
     using TransitionInfoType = RunTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseStream;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = true;
@@ -164,6 +168,7 @@ namespace edm {
   public:
     using MyPrincipal = RunPrincipal;
     using TransitionInfoType = RunTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseStream;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = false;
@@ -204,6 +209,7 @@ namespace edm {
   public:
     using MyPrincipal = RunPrincipal;
     using TransitionInfoType = RunTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseGlobal;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = false;
@@ -245,6 +251,7 @@ namespace edm {
   public:
     using MyPrincipal = LuminosityBlockPrincipal;
     using TransitionInfoType = LumiTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseGlobal;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = true;
@@ -286,6 +293,7 @@ namespace edm {
   public:
     using MyPrincipal = LuminosityBlockPrincipal;
     using TransitionInfoType = LumiTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseStream;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = true;
@@ -326,6 +334,7 @@ namespace edm {
   public:
     using MyPrincipal = LuminosityBlockPrincipal;
     using TransitionInfoType = LumiTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseStream;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = false;
@@ -368,6 +377,7 @@ namespace edm {
   public:
     using MyPrincipal = LuminosityBlockPrincipal;
     using TransitionInfoType = LumiTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseGlobal;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = false;
@@ -409,6 +419,7 @@ namespace edm {
   public:
     using MyPrincipal = ProcessBlockPrincipal;
     using TransitionInfoType = ProcessBlockTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseGlobal;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InProcess;
     static bool constexpr isEvent_ = false;
@@ -485,6 +496,7 @@ namespace edm {
   public:
     using MyPrincipal = ProcessBlockPrincipal;
     using TransitionInfoType = ProcessBlockTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseGlobal;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InProcess;
     static bool constexpr isEvent_ = false;
