@@ -128,9 +128,10 @@ pfAnalyzerDQM = pfAnalyzer.clone(
         eventObservables = cms.vstring(),
         pfInJetObservables = cms.vstring(),
         binList2D = cms.vstring(
-            '[eta;30;-5;5][phi;30;-3.14;3.14]'
-            '[eta;30;-5;5][logPt;50;-1.5;4.]'
-            '[eta;30;-5;5][energy;50;0;50.]'
+            '[eta;30;-5;5][phi;30;-3.14;3.14]',
+            '[eta;30;-5;5][logPt;50;-1.5;4.]',
+            '[eta;30;-5;5][pt;100;0;10.]',
+            '[eta;30;-5;5][energy;50;0;50.]',
         ),
         cutList = cms.vstring(
             '[pt;1;0;10000]',
