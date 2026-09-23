@@ -430,10 +430,13 @@ void GNNInterpretationAlgo::makeCandidates(const Inputs& input,
 
   std::vector<std::vector<unsigned>> trackToTracksters(tracks.size());
   std::vector<std::vector<std::pair<unsigned, float>>> trackToScores(tracks.size());
+  if (maskedTracksters.size() < tracksters.size())
+    maskedTracksters.resize(tracksters.size(), false);
+
   std::vector<bool> tracksterAvailable(tracksters.size(), true);
   // Tracksters consumed by an earlier interpretation pass (e.g. muon MIP tracksters)
   // are unavailable: they are neither re-linked to a track nor emitted as neutrals.
-  for (size_t i = 0; i < tracksters.size() && i < maskedTracksters.size(); ++i)
+  for (size_t i = 0; i < tracksters.size(); ++i)
     if (maskedTracksters[i])
       tracksterAvailable[i] = false;
 
@@ -526,7 +529,7 @@ void GNNInterpretationAlgo::makeCandidates(const Inputs& input,
     }
   }
   // Build output tracksters
-  linkedResultTracksters.reserve(input.tracksters.size());
+  linkedResultTracksters.reserve(linkedResultTracksters.size() + input.tracksters.size());
 
   for (unsigned trkId = 0; trkId < trackToTracksters.size(); ++trkId) {
     if (trackToTracksters[trkId].empty())
@@ -536,6 +539,7 @@ void GNNInterpretationAlgo::makeCandidates(const Inputs& input,
 
     if (trackToTracksters[trkId].size() == 1) {
       resultTracksters.push_back(tracksters[trackToTracksters[trkId][0]]);
+      linkedResultTracksters.push_back(trackToTracksters[trkId]);
     } else {
       Trackster merged;
       merged.mergeTracksters(tracksters, trackToTracksters[trkId]);
@@ -549,13 +553,17 @@ void GNNInterpretationAlgo::makeCandidates(const Inputs& input,
       resultTracksters.push_back(std::move(merged));
       linkedResultTracksters.push_back(trackToTracksters[trkId]);
     }
+    for (auto tsId : trackToTracksters[trkId])
+      maskedTracksters[tsId] = true;
   }
 
   // Add unlinked tracksters
   for (auto iTrackster = 0u; iTrackster < input.tracksters.size(); iTrackster++) {
-    if (tracksterAvailable[iTrackster])
+    if (tracksterAvailable[iTrackster]) {
       resultTracksters.push_back(tracksters[iTrackster]);
-    linkedResultTracksters.push_back({iTrackster});
+      linkedResultTracksters.push_back({iTrackster});
+      maskedTracksters[iTrackster] = true;
+    }
   }
 }
 
