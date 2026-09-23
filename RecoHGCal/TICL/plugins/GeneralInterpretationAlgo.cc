@@ -201,7 +201,7 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
                                                std::vector<std::vector<unsigned int>> &linkedResultTracksters) {
   bool useMTDTiming = inputTiming_h.isValid();
   const auto tkH = input.tracksHandle;
-  const auto maskTracks = input.maskedTracks;
+  const auto &maskTracks = input.maskedTracks;
   const auto &tracks = *tkH;
   const auto &tracksters = input.tracksters;
 
@@ -311,11 +311,14 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
   std::vector<std::vector<unsigned int>> trackstersInTrackIndices;
   trackstersInTrackIndices.resize(tracks.size());
 
+  if (maskedTracksters.size() < tracksters.size())
+    maskedTracksters.resize(tracksters.size(), false);
+
   std::vector<bool> chargedMask(tracksters.size(), true);
   // Tracksters already consumed by an earlier interpretation pass (e.g. muon MIP
   // tracksters) are unavailable here: they are neither linked to a track nor emitted
   // as neutral candidates.
-  for (size_t i = 0; i < tracksters.size() && i < maskedTracksters.size(); ++i)
+  for (size_t i = 0; i < tracksters.size(); ++i)
     if (maskedTracksters[i])
       chargedMask[i] = false;
   for (unsigned &i : candidateTrackIds) {
@@ -373,14 +376,13 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
     }
     trackstersInTrackIndices[i] = chargedCandidate;
   }
-  linkedResultTracksters.reserve(input.tracksters.size());
+  linkedResultTracksters.reserve(linkedResultTracksters.size() + input.tracksters.size());
   for (size_t iTrack = 0; iTrack < trackstersInTrackIndices.size(); iTrack++) {
     if (!trackstersInTrackIndices[iTrack].empty()) {
       if (trackstersInTrackIndices[iTrack].size() == 1) {
         auto tracksterId = trackstersInTrackIndices[iTrack][0];
         resultCandidate[iTrack] = resultTracksters.size();
         resultTracksters.push_back(input.tracksters[tracksterId]);
-        linkedResultTracksters.push_back(trackstersInTrackIndices[iTrack]);
       } else {
         // in this case mergeTracksters() clears the pid probabilities and the regressed energy is not set
         // TODO: fix probabilities when CNN will be splitted
@@ -400,6 +402,8 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
         else
           resultTracksters.back().setIdProbability(ticl::Trackster::ParticleType::electron, 1.f);
       }
+      for (auto const tracksterId : trackstersInTrackIndices[iTrack])
+        maskedTracksters[tracksterId] = true;
       linkedResultTracksters.push_back(trackstersInTrackIndices[iTrack]);
     }
   }
@@ -408,6 +412,7 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
     if (chargedMask[iTrackster]) {
       resultTracksters.push_back(input.tracksters[iTrackster]);
       linkedResultTracksters.push_back({iTrackster});
+      maskedTracksters[iTrackster] = true;
     }
   }
 };
