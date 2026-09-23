@@ -48,7 +48,9 @@ GENERATE_SOA_LAYOUT(SoATemplate,
                           element.x() += element.v_x() * time;
                           element.y() += element.v_y() * time;
                           element.z() += element.v_z() * time;
-                        } SOA_HOST_DEVICE auto sizeMinusOne() const { return this->metadata().size() - 1; }),
+                        }
+
+                        SOA_HOST_DEVICE auto sizeMinusOne() const { return this->metadata().size() - 1; }),
 
                     SOA_CONST_VIEW_METHODS(
                         SOA_HOST_DEVICE auto distance2(uint32_t i, uint32_t j) const {
@@ -56,7 +58,9 @@ GENERATE_SOA_LAYOUT(SoATemplate,
                           auto pj = (*this)[j];
                           return (pi.x() - pj.x()) * (pi.x() - pj.x()) + (pi.y() - pj.y()) * (pi.y() - pj.y()) +
                                  (pi.z() - pj.z()) * (pi.z() - pj.z());
-                        } SOA_HOST_DEVICE auto sizeMinusOne() const { return this->metadata().size() - 1; }),
+                        }
+
+                        SOA_HOST_DEVICE auto sizeMinusOne() const { return this->metadata().size() - 1; }),
 
                     SOA_SCALAR(int, detectorType))
 
