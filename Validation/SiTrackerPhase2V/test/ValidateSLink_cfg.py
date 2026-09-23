@@ -68,7 +68,7 @@ process.itSlinkDQM = cms.EDProducer('Phase2ITValidateSLink',
     scaleTEPX=cms.untracked.double(1.17),
     trigger_rate=cms.untracked.double(750.0e3),
     slink_bandwidth=cms.untracked.double(25.0e9),
-    folder=cms.untracked.string('Phase2IT/RawDataSLink'),
+    folder=cms.untracked.string('InnerTrackerV/SLink'),
 )
 
 process.dqmout = cms.OutputModule('DQMRootOutputModule',

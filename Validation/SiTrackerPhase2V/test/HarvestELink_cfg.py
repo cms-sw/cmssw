@@ -27,7 +27,7 @@ process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(-1))
 process.source = cms.Source('DQMRootSource', fileNames=cms.untracked.vstring(options.inputDQM))
 
 process.elinkOccupancyHarvester = cms.EDProducer('ElinkOccupancyHarvester',
-    TopFolder        = cms.string('Phase2IT/RawData'),
+    TopFolder        = cms.string('InnerTrackerV/ELink'),
     OccupancyMapName = cms.string('eLinkOccupancyMap'),
     savePlots     = cms.untracked.bool(True),
     plotDir       = cms.untracked.string(options.plotDir),
