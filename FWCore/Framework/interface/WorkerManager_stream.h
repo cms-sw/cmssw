@@ -54,7 +54,7 @@ namespace edm {
       }
     }
     //used by all but specialized for events
-    void setupResolvers(Principal& principal);
+    void setupResolvers(typename TI::PrincipalType& principal);
 
     void deleteModuleIfExists(std::string const& moduleLabel);
   };

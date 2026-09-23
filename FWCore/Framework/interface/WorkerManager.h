@@ -69,7 +69,7 @@ namespace edm {
       return workerReg_.getWorkerFromExistingModule(label, actionTable_);
     }
 
-    void setupResolvers(Principal& principal, UnscheduledAuxiliary const* aux);
+    void setupResolvers(typename TI::PrincipalType& principal, UnscheduledAuxiliary const* aux);
 
   private:
     TransitionWorker<TI, TP>* getWorkerForExistingModule(std::string const& label);

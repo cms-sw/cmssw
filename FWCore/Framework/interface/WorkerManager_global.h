@@ -51,7 +51,7 @@ namespace edm {
       }
     }
 
-    void setupResolvers(Principal& principal);
+    void setupResolvers(typename TI::PrincipalType& principal);
 
     void deleteModuleIfExists(std::string const& moduleLabel);
   };
@@ -88,7 +88,7 @@ namespace edm {
     }
     void setupOnDemandSystem(EventTransitionInfo const&);
 
-    void setupResolvers(Principal& principal);
+    void setupResolvers(typename EventTransitionInfo::PrincipalType& principal);
 
     void deleteModuleIfExists(std::string const& moduleLabel);
 
