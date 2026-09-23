@@ -21,6 +21,7 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2ITDigiHit.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2ITQCore.h"
@@ -90,7 +91,7 @@ PixelToBitStreamProducer::PixelToBitStreamProducer(const edm::ParameterSet& iCon
       gapMode_(parseGapMode(iConfig.getUntrackedParameter<std::string>("handleGapPixels", "AGGREGATE"))),
       dropTot_(iConfig.getUntrackedParameter<bool>("dropTot", false)) {
   produces<edm::DetSetVector<Phase2ITQCore>>();
-  produces<edm::DetSetVector<Phase2ITChipBitStream>>();
+  produces<edmNew::DetSetVector<Phase2ITChipBitStream>>();
 }
 
 namespace {
@@ -212,8 +213,8 @@ void PixelToBitStreamProducer::produce(edm::Event& iEvent, const edm::EventSetup
   using namespace std;
 
   unique_ptr<edm::DetSetVector<Phase2ITQCore>> aQCoreVector = make_unique<edm::DetSetVector<Phase2ITQCore>>();
-  unique_ptr<edm::DetSetVector<Phase2ITChipBitStream>> aBitStreamVector =
-      make_unique<edm::DetSetVector<Phase2ITChipBitStream>>();
+  unique_ptr<edmNew::DetSetVector<Phase2ITChipBitStream>> aBitStreamVector =
+      make_unique<edmNew::DetSetVector<Phase2ITChipBitStream>>();
 
   auto const& tTopo = iSetup.getData(tTopoToken_);
   auto const& cablingMap = iSetup.getData(cablingMapToken_);
@@ -246,7 +247,7 @@ void PixelToBitStreamProducer::produce(edm::Event& iEvent, const edm::EventSetup
     std::vector<Phase2ITChip> chips = processHits(std::move(hitlist), gapMode_, subtype, tkId.rawId());
 
     DetSet<Phase2ITQCore> DetSetQCores(tkId);
-    DetSet<Phase2ITChipBitStream> DetSetBitStream(tkId);
+    edmNew::DetSetVector<Phase2ITChipBitStream>::FastFiller bitStreamFiller(*aBitStreamVector, tkId.rawId(), true);
 
     for (size_t i = 0; i < chips.size(); i++) {
       Phase2ITChip chip = chips[i];
@@ -255,10 +256,9 @@ void PixelToBitStreamProducer::produce(edm::Event& iEvent, const edm::EventSetup
         DetSetQCores.push_back(qcore);
       }
       Phase2ITChipBitStream aChipBitStream(i, chip.getChipCode(dropTot_));
-      DetSetBitStream.push_back(aChipBitStream);
+      bitStreamFiller.push_back(aChipBitStream);
     }
 
-    aBitStreamVector->insert(DetSetBitStream);
     aQCoreVector->insert(DetSetQCores);
   }
   iEvent.put(std::move(aQCoreVector));

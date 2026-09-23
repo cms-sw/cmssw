@@ -16,6 +16,7 @@
 
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2ITChipBitStream.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/FEDRawData/interface/RawDataBuffer.h"
 #include "DataFormats/FEDRawData/interface/SLinkRocketHeaders.h"
 #include "EventFilter/Phase2PixelRawToDigi/interface/Phase2DAQFormatSpecification.h"
@@ -35,7 +36,7 @@ public:
 
 private:
   const edm::ESGetToken<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd> cablingMapToken_;
-  const edm::EDGetTokenT<edm::DetSetVector<Phase2ITChipBitStream>> ITChipBitStreamToken_;
+  const edm::EDGetTokenT<edmNew::DetSetVector<Phase2ITChipBitStream>> ITChipBitStreamToken_;
 
   void addWordToBuffer(unsigned char* buffer, size_t position, uint32_t word);
   void addWordToBitVector(std::vector<bool>& vec, uint32_t word);
@@ -47,7 +48,7 @@ private:
 BitStreamToRawProducer::BitStreamToRawProducer(const edm::ParameterSet& iConfig)
     : cablingMapToken_(
           esConsumes<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd, edm::Transition::BeginRun>()),
-      ITChipBitStreamToken_(consumes<edm::DetSetVector<Phase2ITChipBitStream>>(
+      ITChipBitStreamToken_(consumes<edmNew::DetSetVector<Phase2ITChipBitStream>>(
           iConfig.getParameter<edm::InputTag>("Phase2ITChipBitStream"))) {
   produces<RawDataBuffer>();
 }
@@ -66,7 +67,7 @@ void BitStreamToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   using namespace edm;
   using namespace std;
 
-  edm::Handle<edm::DetSetVector<Phase2ITChipBitStream>> handle;
+  edm::Handle<edmNew::DetSetVector<Phase2ITChipBitStream>> handle;
   iEvent.getByToken(ITChipBitStreamToken_, handle);
 
   if (!handle.isValid()) {
@@ -108,7 +109,7 @@ void BitStreamToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       if (foundDetId == handle->end()) {
         throw cms::Exception("BitStreamToRawProducer") << "Could not find detId from the inputs";
       }
-      const edm::DetSet<Phase2ITChipBitStream>& detSet = *foundDetId;
+      const edmNew::DetSet<Phase2ITChipBitStream>& detSet = *foundDetId;
 
       // Block 2: per-module offsets.
       // Module-level offset = dataBlock position for module in 32-bit words.

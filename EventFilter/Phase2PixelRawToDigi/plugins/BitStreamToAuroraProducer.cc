@@ -23,6 +23,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2ITChipBitStream.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2ITAuroraBitStream.h"
@@ -42,7 +43,7 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  const edm::EDGetTokenT<edm::DetSetVector<Phase2ITChipBitStream>> ITChipBitStreamToken_;
+  const edm::EDGetTokenT<edmNew::DetSetVector<Phase2ITChipBitStream>> ITChipBitStreamToken_;
   const edm::ESGetToken<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd> cablingMapToken_;
   const unsigned int eventsPerStream_;       // NE: events per stream group
   const unsigned int serviceBlockInterval_;  // ND: data blocks per Aurora service block
@@ -53,7 +54,7 @@ private:
 };
 
 BitStreamToAuroraProducer::BitStreamToAuroraProducer(const edm::ParameterSet& iConfig)
-    : ITChipBitStreamToken_(consumes<edm::DetSetVector<Phase2ITChipBitStream>>(
+    : ITChipBitStreamToken_(consumes<edmNew::DetSetVector<Phase2ITChipBitStream>>(
           iConfig.getParameter<edm::InputTag>("Phase2ITChipBitStream"))),
       cablingMapToken_(esConsumes<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd>()),
       eventsPerStream_(iConfig.getParameter<unsigned int>("eventsPerStream")),
@@ -87,14 +88,14 @@ void BitStreamToAuroraProducer::fillDescriptions(edm::ConfigurationDescriptions&
 void BitStreamToAuroraProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  Handle<DetSetVector<Phase2ITChipBitStream>> handle;
+  Handle<edmNew::DetSetVector<Phase2ITChipBitStream>> handle;
   iEvent.getByToken(ITChipBitStreamToken_, handle);
   if (!handle.isValid())
     throw cms::Exception("BitStreamToAuroraProducer") << "Invalid BitStream handle";
 
   // Accumulate this event's chip bit streams into the buffer.
   for (const auto& detset : *handle) {
-    auto& moduleBuffer = buffer_[detset.id];
+    auto& moduleBuffer = buffer_[detset.id()];
     if (moduleBuffer.empty())
       moduleBuffer.resize(detset.size());
     unsigned int chipIdx = 0;
