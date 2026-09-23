@@ -471,8 +471,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         unsigned int nQuints = quintupletsOccupancy.nQuintuplets()[idx];
         for (unsigned int jdx = 0; jdx < nQuints; ++jdx) {
           unsigned int quintupletIndex = ranges.quintupletModuleIndices()[idx] + jdx;
-          if (!quintuplets.isDup()[quintupletIndex] && !quintuplets.partOfPT5()[quintupletIndex] &&
-              quintuplets.tightCutFlag()[quintupletIndex])
+          if (!quintuplets.isDup()[quintupletIndex] && !quintuplets.partOfPT5()[quintupletIndex])
             alpaka::atomicAdd(acc, &nSurviving[2], 1u, alpaka::hierarchy::Threads{});
         }
       }
@@ -567,8 +566,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         for (unsigned int jdx : cms::alpakatools::uniform_elements_x(acc, nQuints)) {
           unsigned int quintupletIndex = ranges.quintupletModuleIndices()[idx] + jdx;
           if (quintuplets.isDup()[quintupletIndex] or quintuplets.partOfPT5()[quintupletIndex])
-            continue;
-          if (!(quintuplets.tightCutFlag()[quintupletIndex]))
             continue;
 
           unsigned int trackCandidateIdx =

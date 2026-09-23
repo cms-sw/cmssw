@@ -90,13 +90,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       HOST_DEVICE_CONSTANT float kEta_norm = 2.5f;
       HOST_DEVICE_CONSTANT float kZ_max = 267.2349854f;
       HOST_DEVICE_CONSTANT float kR_max = 110.1099396f;
-      HOST_DEVICE_CONSTANT float kWp98[kPtBins][kEtaBins] = {
-          {0.4493f, 0.4939f, 0.5715f, 0.6488f, 0.5709f, 0.5938f, 0.7164f, 0.7565f, 0.8103f, 0.8593f},
-          {0.4488f, 0.4448f, 0.5067f, 0.5929f, 0.4836f, 0.4112f, 0.4968f, 0.4403f, 0.5597f, 0.5067f}};
-      // 93% retention working points, same binning as kWp98.
-      HOST_DEVICE_CONSTANT float kWp93[kPtBins][kEtaBins] = {
-          {0.7831f, 0.8153f, 0.8313f, 0.823f, 0.7426f, 0.7532f, 0.8392f, 0.8636f, 0.9172f, 0.9389f},
-          {0.6982f, 0.7335f, 0.7395f, 0.8015f, 0.7356f, 0.6149f, 0.6848f, 0.6468f, 0.7187f, 0.7079f}};
+      HOST_DEVICE_CONSTANT float kLogDcaMax = 1.4913617f;  // log10(1 + 30 cm)
+      constexpr unsigned int kOutputFeatures = 3;
+      // Extra DNN inputs computed from the candidate's MDs
+      struct ExtraFeatures {
+        float mdDirMeanW;   // MD direction log-likelihood, mean over the MDs
+        float mdDirMaxW;    // MD direction log-likelihood, largest
+        float nT3OutMid;    // T3s leaving the middle MD
+        float nT3OutFirst;  // T3s leaving the first MD
+        float nMDFirstMod;  // MDs in the first module
+        float dcaXY;        // dcaXY of the circle through the anchors
+      };
+      // keeps 0.95 of fully matched T5s per bin
+      HOST_DEVICE_CONSTANT float kWp[kPtBins][kEtaBins] = {
+          {0.8838f, 0.8933f, 0.9270f, 0.9192f, 0.8223f, 0.8524f, 0.9099f, 0.9383f, 0.9640f, 0.9608f},
+          {0.9761f, 0.9744f, 0.9855f, 0.9765f, 0.9327f, 0.8803f, 0.8803f, 0.8978f, 0.9049f, 0.8822f}};
     }  // namespace t5dnn
 
     namespace pt3dnn {
