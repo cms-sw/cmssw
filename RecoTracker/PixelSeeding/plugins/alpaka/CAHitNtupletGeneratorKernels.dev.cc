@@ -266,8 +266,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const Vec2D thrs{blockSize, stride};
     const auto kernelConnectWorkDiv = cms::alpakatools::make_workdiv<Acc2D>(blks, thrs);
     std::cout << "Launching Kernel_connect with " << numberOfBlocks << " blocks of size " << blockSize << std::endl;
-    std::cout << "Kernel_connect work division: blocks (" << blks[0] << ", " << blks[1] << "), threads (" << thrs[0] << ", " << thrs[1] << ")" << std::endl;
-    
+    std::cout << "Kernel_connect work division: blocks (" << blks[0] << ", " << blks[1] << "), threads (" << thrs[0]
+              << ", " << thrs[1] << ")" << std::endl;
+
     alpaka::exec<Acc2D>(queue,
                         kernelConnectWorkDiv,
                         Kernel_connect<TrackerTraits>{},

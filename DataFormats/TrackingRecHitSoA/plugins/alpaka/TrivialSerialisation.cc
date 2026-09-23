@@ -5,4 +5,3 @@
 
 DEFINE_TRIVIAL_SERIALISER_PORTABLE_PLUGIN(reco::TrackingRecHitHost, reco::TrackingRecHitsSoACollection);
 DEFINE_TRIVIAL_SERIALISER_PORTABLE_PLUGIN(reco::TrackingRecHitsMaskingHost, reco::TrackingRecHitsSoACollection);
-
