@@ -32,7 +32,7 @@ namespace edm {
     struct ComponentDescription;
   }  // namespace eventsetup
 
-  template <typename T, typename TI = EventTransitionInfo, typename TP = TransitionPhaseGlobal>
+  template <typename T, typename TI, typename TP>
   class WorkerT : public TransitionWorker<TI, TP> {
   public:
     typedef T ModuleType;
