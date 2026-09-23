@@ -2,8 +2,12 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/SiPhase2TrackerObjects"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/Phase2TrackerDigi"/>
 <use name="DataFormats/TrackerCommon"/>
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="DataFormats/SiPixelDigi"/>

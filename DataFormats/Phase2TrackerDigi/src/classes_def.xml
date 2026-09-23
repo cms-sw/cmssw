@@ -29,7 +29,9 @@
    <class name="edm::Wrapper< edm::DetSetVector<Phase2ITQCore> >" splitLevel="0"/>
    <class name="edm::Wrapper< edm::DetSetVector<Phase2ITChipBitStream> >" splitLevel="0"/>
    <class name="edm::Wrapper< edmNew::DetSetVector<Phase2ITChipBitStream> >" splitLevel="0"/>
-   <class name="Phase2ITAuroraBitStream"/>
+   <class name="Phase2ITAuroraBitStream" ClassVersion="4">
+    <version ClassVersion="4" checksum="1455468157"/>
+   </class>
    <class name="std::vector<Phase2ITAuroraBitStream>"/>
    <class name="edm::DetSet<Phase2ITAuroraBitStream>"/>
    <class name="std::vector<edm::DetSet<Phase2ITAuroraBitStream> >"/>

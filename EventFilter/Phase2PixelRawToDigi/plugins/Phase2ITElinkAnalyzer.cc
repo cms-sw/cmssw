@@ -90,7 +90,7 @@ void Phase2ITElinkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
     b_ring_ = static_cast<int>(info.ring);
     b_subtype_ = static_cast<int>(info.subtype);
     for (const auto& aurora : detset) {
-      b_elink_ = aurora.get_chipId();  // elink index within the module
+      b_elink_ = aurora.get_elinkId();
       b_ne_ = aurora.get_eventsPerStream();
       for (const auto& stream : aurora.get_auroraStreams()) {
         b_bits_ = static_cast<int>(stream.size());

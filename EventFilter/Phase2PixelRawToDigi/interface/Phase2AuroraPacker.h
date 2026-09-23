@@ -53,10 +53,10 @@ namespace Phase2AuroraPacker {
 
     const int headerBits = AURORA_NS_BITS + (chipId >= 0 ? AURORA_CHIP_ID_BITS : 0);
     const int step = AURORA_BLOCK_BODY_BITS - headerBits;
-    newStream.reserve(streamSize + (streamSize / step + 1) * headerBits);
+    const int nBlocks = (streamSize + step - 1) / step;
+    newStream.reserve(streamSize + nBlocks * headerBits);
 
-    const int lastIndex = streamSize / step;
-    for (int index = 0; index <= lastIndex; ++index) {
+    for (int index = 0; index < nBlocks; ++index) {
       newStream.push_back(newStream.empty());
       if (chipId >= 0) {
         newStream.insert(newStream.end(), binaryChipId.begin(), binaryChipId.end());
