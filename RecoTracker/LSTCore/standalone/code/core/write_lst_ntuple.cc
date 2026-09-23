@@ -178,6 +178,13 @@ void createT4DNNBranches() {
   ana.tx->createBranch<std::vector<float>>("t4_regressionRadius");
 #ifdef CUT_VALUE_DEBUG
   ana.tx->createBranch<std::vector<float>>("t4_nonAnchorRegressionRadius");
+  // T4 DNN extra inputs (analysis/DNN/train_T4_DNN.py)
+  ana.tx->createBranch<std::vector<float>>("t4x_mdDirMeanW");
+  ana.tx->createBranch<std::vector<float>>("t4x_mdDirMaxW");
+  ana.tx->createBranch<std::vector<float>>("t4x_nT3OutMid");
+  ana.tx->createBranch<std::vector<float>>("t4x_nT3OutFirst");
+  ana.tx->createBranch<std::vector<float>>("t4x_nMDFirstMod");
+  ana.tx->createBranch<std::vector<float>>("t4x_dcaXY");
 #endif
 
   // Hit-specific branches
@@ -2918,6 +2925,12 @@ void setT4DNNBranches(LSTEvent* event) {
       ana.tx->pushbackToBranch<float>("t4_regressionRadius", quadruplets.regressionRadius()[t4Idx]);
 #ifdef CUT_VALUE_DEBUG
       ana.tx->pushbackToBranch<float>("t4_nonAnchorRegressionRadius", quadruplets.nonAnchorRegressionRadius()[t4Idx]);
+      ana.tx->pushbackToBranch<float>("t4x_mdDirMeanW", quadruplets.mdDirMeanW()[t4Idx]);
+      ana.tx->pushbackToBranch<float>("t4x_mdDirMaxW", quadruplets.mdDirMaxW()[t4Idx]);
+      ana.tx->pushbackToBranch<float>("t4x_nT3OutMid", quadruplets.nT3OutMid()[t4Idx]);
+      ana.tx->pushbackToBranch<float>("t4x_nT3OutFirst", quadruplets.nT3OutFirst()[t4Idx]);
+      ana.tx->pushbackToBranch<float>("t4x_nMDFirstMod", quadruplets.nMDFirstMod()[t4Idx]);
+      ana.tx->pushbackToBranch<float>("t4x_dcaXY", quadruplets.dcaXY()[t4Idx]);
 #endif
 
       if (t4s_used_in_tc.find(t4Idx) != t4s_used_in_tc.end()) {

@@ -588,7 +588,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           unsigned int ix = quadrupletModuleIndices_lowmod + ix1;
           const float eta1 = __H2F(quadruplets.eta()[ix]);
           const float phi1 = __H2F(quadruplets.phi()[ix]);
-          const float score1 = quadruplets.displacedScore()[ix] - quadruplets.fakeScore()[ix];
+          const float score1 = quadruplets.displacedScore()[ix];
 
           for (unsigned int jx1 : cms::alpakatools::uniform_elements_x(acc, ix1 + 1, nQuadruplets_lowmod)) {
             unsigned int jx = quadrupletModuleIndices_lowmod + jx1;
@@ -604,7 +604,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             if (alpaka::math::abs(acc, dPhi) > 0.1f)
               continue;
 
-            const float score2 = quadruplets.displacedScore()[jx] - quadruplets.fakeScore()[jx];
+            const float score2 = quadruplets.displacedScore()[jx];
 
             int nMatched = checkHitsT4(ix, jx, quadruplets);
             const int minNHitsForDup_T4 = 5;
@@ -650,7 +650,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
             const float eta1 = __H2F(quadruplets.eta()[ix]);
             const float phi1 = __H2F(quadruplets.phi()[ix]);
-            const float score1 = quadruplets.displacedScore()[ix] - quadruplets.fakeScore()[ix];
+            const float score1 = quadruplets.displacedScore()[ix];
 
             for (unsigned int jx1 = 0; jx1 < nQuadruplets_lowmod2; jx1++) {
               unsigned int jx = quadrupletModuleIndices_lowmod2 + jx1;
@@ -671,7 +671,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               if (alpaka::math::abs(acc, dPhi) > 0.1f)
                 continue;
 
-              const float score2 = quadruplets.displacedScore()[jx] - quadruplets.fakeScore()[jx];
+              const float score2 = quadruplets.displacedScore()[jx];
 
               int nMatched = checkHitsT4(ix, jx, quadruplets);
               const int minNHitsForDup_T4 = 4;

@@ -468,9 +468,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                      float displacedScore1,
                                                      float fakeScore2,
                                                      float promptScore2,
-                                                     float displacedScore2) {
+                                                     float displacedScore2,
+                                                     const dnn::t5dnn::ExtraFeatures& extra) {
       // Constants
-      constexpr unsigned int kinputFeatures = 30;
+      constexpr unsigned int kinputFeatures = 33;
       constexpr unsigned int khiddenFeatures = 32;
       constexpr unsigned int koutputFeatures = 3;
 
@@ -530,10 +531,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           fakeScore2,
           promptScore2,
           displacedScore2,
-          (fakeScore2 - fakeScore1),
-          (promptScore2 - promptScore1),
-          (displacedScore2 - displacedScore1),
-      };
+          extra.mdDirMeanW,
+          extra.mdDirMaxW,
+          alpaka::math::log10(acc, 1.f + extra.nT3OutMid),
+          alpaka::math::log10(acc, 1.f + extra.nT3OutFirst),
+          alpaka::math::log10(acc, 1.f + extra.nMDFirstMod),
+          alpaka::math::min(acc, alpaka::math::log10(acc, 1.f + extra.dcaXY), dnn::t5dnn::kLogDcaMax)};
 
       float x_1[khiddenFeatures];  // Layer 1 output
       float x_2[khiddenFeatures];  // Layer 2 output
@@ -556,14 +559,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       float t4_pt = (innerRadius + outerRadius) * lst::k2Rinv1GeVf;  //t4 pt is average
 
       uint8_t pt_index = (t4_pt > 5.f);
-      uint8_t bin_index = (eta1 > 2.5f) ? (dnn::t4dnn::kEtaBins - 1) : static_cast<unsigned int>(eta1 / 0.1f);
+      uint8_t bin_index = (eta1 > 2.5f) ? (dnn::kEtaBins - 1) : static_cast<unsigned int>(eta1 / dnn::kEtaSize);
 
       promptScore = x_3[1];
       displacedScore = x_3[2];
       fakeScore = x_3[0];
 
-      return (x_3[2] > dnn::t4dnn::kWp_displaced[pt_index][bin_index]) &&
-             (x_3[0] < dnn::t4dnn::kWp_fake[pt_index][bin_index]);
+      return x_3[2] > dnn::t4dnn::kWp[pt_index][bin_index];
     }
 
   }  //namespace t4dnn
