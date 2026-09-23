@@ -513,6 +513,12 @@ int RecHitTools::getCellType(const DetId& id) const {
   int layerType = -1;
   if (isScint) {
     layerType = CE_H_Tile_HD;
+  } else if (isNose) {
+    if (isEELayer) {
+      layerType = CE_E_120_HD;
+    } else {
+      layerType = CE_H_120_Fine_HD;
+    }
   } else {
     HGCSiliconDetId siHid(id);
     auto type = siHid.type();

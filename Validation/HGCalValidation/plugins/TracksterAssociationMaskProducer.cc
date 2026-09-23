@@ -15,7 +15,6 @@
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
 #include "DataFormats/HGCalReco/interface/Common.h"
 
@@ -27,12 +26,12 @@
 
 // using namespace ticl;
 using std::vector;
-using ticl::AssociationMap;
+using ticl::TICLAssociationMap;
 using ticl::Trackster;
 using ticl::TracksterCollection;
 
 using TracksterToTracksterMap =
-    ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore, vector<ticl::Trackster>, vector<ticl::Trackster>>;
+    ticl::TICLAssociationMap<ticl::mapWithSharedEnergyAndScore, vector<ticl::Trackster>, vector<ticl::Trackster>>;
 
 class TracksterAssociationMaskProducer : public edm::stream::EDProducer<> {
 public:

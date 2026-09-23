@@ -12,7 +12,8 @@
 
 namespace portablecollection {
 
-  template <int I, typename TQueue, typename Descriptor, typename ConstDescriptor>
+  template <std::size_t I = 0, typename TQueue, typename Descriptor, typename ConstDescriptor>
+    requires requires { Descriptor::num_cols; }
   void deepCopy(TQueue& queue, Descriptor& dest, ConstDescriptor const& src) {
     if constexpr (I < ConstDescriptor::num_cols) {
       assert(std::get<I>(dest.buff).size_bytes() == std::get<I>(src.buff).size_bytes());
@@ -20,6 +21,16 @@ namespace portablecollection {
           queue,
           alpaka::createView(alpaka::getDev(queue), std::get<I>(dest.buff).data(), std::get<I>(dest.buff).size()),
           alpaka::createView(alpaka::getDev(queue), std::get<I>(src.buff).data(), std::get<I>(src.buff).size()));
+      deepCopy<I + 1>(queue, dest, src);
+    }
+  }
+
+  // Helper function implementing the recursive deep copy for blocks
+  template <std::size_t I = 0, typename TQueue, typename Descriptor, typename ConstDescriptor>
+    requires requires { Descriptor::blocksNumber; }
+  void deepCopy(TQueue& queue, Descriptor& dest, ConstDescriptor const& src) {
+    if constexpr (I < ConstDescriptor::blocksNumber) {
+      deepCopy(queue, std::get<I>(dest.buff), std::get<I>(src.buff));
       deepCopy<I + 1>(queue, dest, src);
     }
   }

@@ -54,9 +54,29 @@ namespace lst {
   using QuintupletsOccupancy = QuintupletsOccupancySoA::View;
   using QuintupletsOccupancyConst = QuintupletsOccupancySoA::ConstView;
 
+  // index and fast cached data if any
+  GENERATE_SOA_LAYOUT(QuintupletsBySegmentSoALayout, SOA_COLUMN(unsigned int, quintupletIndex));
+
+  using QuintupletsBySegmentSoA = QuintupletsBySegmentSoALayout<>;
+  using QuintupletsBySegment = QuintupletsBySegmentSoA::View;
+  using QuintupletsBySegmentConst = QuintupletsBySegmentSoA::ConstView;
+
+  // index and fast cached data if any
+  GENERATE_SOA_LAYOUT(QuintupletsByMDSoALayout,
+                      SOA_COLUMN(unsigned int, quintupletIndex),
+                      SOA_COLUMN(uint32_t, mdBarCode));
+  constexpr uint32_t kT5ByMDBarCodeMask = 0xFF;
+  constexpr short kT5ByMDBarOffset = 8;
+
+  using QuintupletsByMDSoA = QuintupletsByMDSoALayout<>;
+  using QuintupletsByMD = QuintupletsByMDSoA::View;
+  using QuintupletsByMDConst = QuintupletsByMDSoA::ConstView;
+
   GENERATE_SOA_BLOCKS(QuintupletsSoABlocksLayout,
                       SOA_BLOCK(quintuplets, QuintupletsSoALayout),
-                      SOA_BLOCK(quintupletsOccupancy, QuintupletsOccupancySoALayout))
+                      SOA_BLOCK(quintupletsOccupancy, QuintupletsOccupancySoALayout),
+                      SOA_BLOCK(quintupletsByMD0, QuintupletsByMDSoALayout),
+                      SOA_BLOCK(quintupletsByMD1, QuintupletsByMDSoALayout))
 
   using QuintupletsSoABlocks = QuintupletsSoABlocksLayout<>;
   using QuintupletsSoABlocksView = QuintupletsSoABlocks::View;

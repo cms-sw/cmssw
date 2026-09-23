@@ -69,7 +69,7 @@ process.trackingParticleRecoTrackAsssociationByChi2 = process.trackingParticleRe
 )
 
 process.vertexAssociatorByTracksByHits = process.VertexAssociatorByTracks.clone(
-    trackAssociation = "trackingParticleRecoTrackAsssociationByHits"
+    trackAssociations = ["trackingParticleRecoTrackAsssociationByHits"]
 )
 
 process.testanalyzer = cms.EDAnalyzer("testVertexAssociator",

@@ -88,6 +88,9 @@ class StandardTester(object):
         from Configuration.HLT.addOnTestsHLT import addOnTestsHLT
         hltTestsToAdd = addOnTestsHLT()
         for key in hltTestsToAdd:
+            if '_Phase2' in key:
+                hltTests[key] = [hltTestsToAdd[key][0]]
+                continue
             if '_data_' in key:
                 hltTests[key] = [hltTestsToAdd[key][0],
                                  'cmsRun '+self.file2Path(hltTestsToAdd[key][1])+' '+hltFlag_data,

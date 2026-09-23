@@ -2,57 +2,73 @@ import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment("HLT")
 
-### Non HLT-specific event-setups
+### Accelerators
 fragment.load("Configuration/StandardSequences/Accelerators_cff")
-fragment.load("CalibMuon/CSCCalibration/CSCChannelMapper_cfi")
-fragment.load("CalibMuon/CSCCalibration/CSCIndexer_cfi")
-fragment.load("RecoJets/Configuration/CaloTowersES_cfi")
-fragment.load("RecoLocalCalo/EcalRecAlgos/EcalSeverityLevelESProducer_cfi")
-fragment.load("RecoLocalCalo/HcalRecAlgos/hcalRecAlgoESProd_cfi")
-fragment.load("RecoLocalCalo/HcalRecAlgos/hcalChannelPropertiesESProd_cfi")
-fragment.load("RecoLocalTracker/Phase2TrackerRecHits/Phase2StripCPEESProducer_cfi")
-fragment.load("RecoLocalTracker/SiPixelRecHits/PixelCPEGeneric_cfi")
-fragment.load("RecoTracker/PixelTrackFitting/pixelTrackCleanerBySharedHits_cfi")
-fragment.load("RecoTracker/PixelLowPtUtilities/ClusterShapeHitFilterESProducer_cfi")
-fragment.load("RecoTracker/FinalTrackSelectors/trackAlgoPriorityOrder_cfi")
-fragment.load("RecoTracker/MeasurementDet/MeasurementTrackerESProducer_cfi")
-fragment.load("RecoTracker/TkNavigation/NavigationSchoolESProducer_cfi")
-fragment.load("RecoTracker/TkSeedingLayers/TTRHBuilderWithoutAngle4PixelTriplets_cfi")
-fragment.load("RecoTracker/TransientTrackingRecHit/TransientTrackingRecHitBuilder_cfi")
-fragment.load("TrackPropagation/SteppingHelixPropagator/SteppingHelixPropagatorAny_cfi")
-fragment.load("TrackingTools/GeomPropagators/AnyDirectionAnalyticalPropagator_cfi")
-fragment.load("TrackingTools/GsfTracking/BwdAnalyticalPropagator_cfi")
-fragment.load("TrackingTools/GsfTracking/CloseComponentsTSOSMerger_cfi")
-fragment.load("TrackingTools/GsfTracking/FwdAnalyticalPropagator_cfi")
-fragment.load("TrackingTools/GsfTracking/GsfElectronFittingSmoother_cfi")
-fragment.load("TrackingTools/GsfTracking/GsfElectronMaterialEffects_cfi")
-fragment.load("TrackingTools/GsfTracking/GsfElectronTrajectoryFitter_cfi")
-fragment.load("TrackingTools/GsfTracking/GsfElectronTrajectorySmoother_cfi")
-fragment.load("TrackingTools/GsfTracking/KullbackLeiblerTSOSDistance_cfi")
-fragment.load("TrackingTools/GsfTracking/fwdGsfElectronPropagator_cff")
-fragment.load("TrackingTools/KalmanUpdators/Chi2MeasurementEstimator_cfi")
-fragment.load("TrackingTools/KalmanUpdators/KFUpdatorESProducer_cfi")
-fragment.load("TrackingTools/MaterialEffects/MaterialPropagatorParabolicMf_cff")
-fragment.load("TrackingTools/MaterialEffects/MaterialPropagator_cfi")
-fragment.load("TrackingTools/MaterialEffects/OppositeMaterialPropagator_cfi")
-fragment.load("TrackingTools/MaterialEffects/PropagatorsForLoopers_cff")
-fragment.load("TrackingTools/MaterialEffects/RungeKuttaTrackerPropagator_cfi")
-fragment.load("TrackingTools/RecoGeometry/GlobalDetLayerGeometryESProducer_cfi")
-fragment.load("TrackingTools/TrackAssociator/DetIdAssociatorESProducer_cff")
-fragment.load("TrackingTools/TrackFitters/FlexibleKFFittingSmoother_cfi")
-fragment.load("TrackingTools/TrackFitters/LooperFitters_cff")
-fragment.load("TrackingTools/TrackFitters/RungeKuttaFitters_cff")
-fragment.load("TrackingTools/TrajectoryCleaning/TrajectoryCleanerBySharedHits_cfi")
-fragment.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
+
+### Event-setup modules migrated from the RECO configuration
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/AnyDirectionAnalyticalPropagator_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/caloDetIdAssociator_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/CaloTowerConstituentsMapBuilder_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/ClusterShapeHitFilterESProducer_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/CSCChannelMapperESProducer_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/CSCIndexerESProducer_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/ecalDetIdAssociator_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/ecalSeverityLevel_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hcalChannelPropertiesESProd_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hcalDetIdAssociator_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hcalRecAlgos_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltCSCChannelMapperESSource_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltCSCIndexerESSource_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPAnalyticalPropagator_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPBwdAnalyticalPropagator_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPChi2MeasurementEstimatorForFitters_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPCloseComponentsMerger5D_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPElectronMaterialEffects_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPFlexibleKFFittingSmoother_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPGlobalDetLayerGeometry_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPGsfElectronFittingSmoother_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPGsfTrajectoryFitter_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPGsfTrajectorySmoother_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPInitialStepTrajectoryCleanerBySharedHits_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFFittingSmootherForLoopers_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFFittingSmootherWithOutliersRejectionAndRK_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFTrajectoryFitterForLoopers_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFTrajectorySmootherForLoopers_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKullbackLeiblerDistance5D_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPMeasurementTracker_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPPhase2StripCPE_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPPixelCPEGeneric_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPRKTrajectoryFitter_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPRKTrajectorySmoother_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPTTRHBuilderWithoutAngle4PixelTriplets_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESSEcalSeverityLevel_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESSHcalSeverityLevel_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltGeneralTracksTrackAlgoPriorityOrder_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltOppositeMaterialPropagatorParabolicMF_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltPropagatorWithMaterialForLoopers_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hoDetIdAssociator_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/MaterialPropagator_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/MaterialPropagatorParabolicMF_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/muonDetIdAssociator_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/navigationSchoolESProducer_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/OppositeMaterialPropagator_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/preshowerDetIdAssociator_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/SteppingHelixPropagatorAny_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/TransientTrackBuilderESProducer_cfi")
 
 ### Actual changes on top of Phase2
 ### It could come from RecoTracker/IterativeTracking/InitialStep_cff.py
-fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/initialStepChi2Est_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltTiclGeomESProducer_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltTiclGeomLookupESProducer_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltTiclGeomLayersESProducer_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltTiclGeomWithBarrelESProducer_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltTiclGeomWithBarrelLookupESProducer_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltInitialStepChi2Est_cfi")
 ### It could come from RecoTracker/IterativeTracking/python/HighPtTripletStep_cff.py
-fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/highPtTripletStepChi2Est_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/highPtTripletStepTrajectoryCleanerBySharedHits_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltHighPtTripletStepChi2Est_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltHighPtTripletStepTrajectoryCleanerBySharedHits_cfi")
 ### It could come from RecoTracker/IterativeTracking/python/MuonSeededStep_cff.py
-fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/muonSeededTrajectoryCleanerBySharedHits_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltMuonSeededTrajectoryCleanerBySharedHits_cfi")
 
 ### Mostly comes from HLT-like configuration, not RECO-like configuration
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPBwdElectronPropagator_cfi")
@@ -102,7 +118,9 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltChi2EstimatorForR
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltKFSmootherForRefitInsideOut_cfi")
 
 ### Paths
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/DST_PFScouting_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_AK4PFPuppiJet520_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleMediumPFPuppiParTTauh30_eta2p1_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Diphoton30_23_IsoCaloId_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Diphoton30_23_IsoCaloId_Unseeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleEle23_12_Iso_L1Seeded_cfi")
@@ -120,6 +138,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Ele32_WPTight_Unseede
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Ele30_WPTight_L1Seeded_LooseDeepTauPFTauHPS30_eta2p1_CrossL1_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_IsoMu24_FromL1TkMuon_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_LooseDeepTauPFTauHPS150_L1NN_eta2p1_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_FromL1TkMuon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Mu37_Mu27_FromL1TkMuon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Mu50_FromL1TkMuon_cfi")
@@ -280,9 +299,12 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/services/DQMStore_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/services/FastTimerService_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/services/MessageLogger_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/services/ThroughputService_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/services/PyTorchService_cfi")
 
 fragment.schedule = cms.Schedule(*[
 
+    fragment.DST_PFScouting,
+   
     fragment.HLT_AK4PFPuppiJet520,
     fragment.HLT_PFPuppiHT1070,
     fragment.HLT_PFPuppiMETTypeOne140_PFPuppiMHT140,
@@ -315,8 +337,10 @@ fragment.schedule = cms.Schedule(*[
 
     fragment.HLT_DoubleMediumChargedIsoPFTauHPS40_eta2p1,
     fragment.HLT_DoubleMediumDeepTauPFTauHPS35_eta2p1,
+    fragment.HLT_DoubleMediumPFPuppiParTTauh30_eta2p1,
     fragment.HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1,
     fragment.HLT_Ele30_WPTight_L1Seeded_LooseDeepTauPFTauHPS30_eta2p1_CrossL1,
+    fragment.HLT_LooseDeepTauPFTauHPS150_L1NN_eta2p1,
 
     fragment.MC_JME,
     fragment.MC_BTV,

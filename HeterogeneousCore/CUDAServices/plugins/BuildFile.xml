@@ -15,4 +15,8 @@
   <library file="CUDAMonitoringService.cc CUDAService.cc NVProfilerService.cc" name="HeterogeneousCoreCUDAServicesPlugins">
     <flags EDM_PLUGIN="1"/>
   </library>
+  <library file="CuptiKernelLoggerService.cc" name="HeterogeneousCoreCUDAServicesCuptiKernelLogger">
+    <use name="cupti"/>
+    <flags EDM_PLUGIN="1"/>
+  </library>
 </iftool>

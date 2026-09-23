@@ -4,6 +4,7 @@ from PhysicsTools.JetMCAlgos.AK4GenJetFlavourInfos_cfi import *
 from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import *
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.genparticles_cff import *
+from PhysicsTools.NanoAOD.genVertex_cff import *
 from PhysicsTools.NanoAOD.jetMC_cff import *
 from PhysicsTools.NanoAOD.taus_cff import *
 from PhysicsTools.PatAlgos.slimming.genParticles_cff import *
@@ -19,6 +20,7 @@ from HLTrigger.NGTScouting.hltPhotons_cfi import *
 from HLTrigger.NGTScouting.hltElectrons_cfi import *
 from HLTrigger.NGTScouting.hltMuons_cfi import *
 from HLTrigger.NGTScouting.hltTracks_cfi import *
+from HLTrigger.NGTScouting.hltGsfTracks_cfi import *
 from HLTrigger.NGTScouting.hltJets_cfi import *
 from HLTrigger.NGTScouting.hltTaus_cfi import *
 from HLTrigger.NGTScouting.hltTracksters_cfi import *
@@ -39,6 +41,7 @@ NanoGenTables = cms.Sequence(
     + prunedGenParticles
     + finalGenParticles
     + genParticleTable
+    + genVertexTable
     + genParticlesForJetsNoNu
     + ak4GenJetsNoNu
     + selectedHadronsAndPartonsForGenJetsFlavourInfos
@@ -58,10 +61,11 @@ NanoGenTables = cms.Sequence(
 NanoHltTables = cms.Sequence(
     hltTriggerObjP4Table
     + hltVertexTable
-    + hltSecondaryVertexTable
     + hltPixelVertexTable
     + hltGeneralTrackTable
     + hltGeneralTrackExtTable
+    + hltGsfTracksL1SeededTable
+    + hltGsfTracksUnseededTable
     + hltEgammaPacker
     + hltPhotonTable
     + hltElectronTable
@@ -108,8 +112,7 @@ NanoValTables = cms.Sequence(
 
 # NGT Scouting Nano flavour (NANO:@NGTScouting)
 dstNanoFlavour = cms.Sequence(
-    dstTriggerAcceptFilter
-    + NanoHltTables
+    NanoHltTables.copyAndExclude([hltGsfTracksL1SeededTable])
 )
 
 # NGT Scouting Nano flavour with MC/HGCal info (NANO:@NGTScoutingVal)
@@ -155,6 +158,9 @@ def hltNanoCustomize(process):
         # process.genJetTable.cut = "pt > 10"
         # process.genJetFlavourTable.deltaR = 0.3
         process.genParticleTable.externalVariables = cms.PSet() # remove iso as external variable from PhysicsTools/NanoAOD/python/genparticles_cff.py:37 (hopefully temporarily)
+        process.genParticleTable.variables.vx = Var("vx", float, precision=10, doc="x coordinate of production vertex")
+        process.genParticleTable.variables.vy = Var("vy", float, precision=10, doc="y coordinate of production vertex")
+        process.genParticleTable.variables.vz = Var("vz", float, precision=16, doc="z coordinate of production vertex")
         process.NANOAODSIMoutput.outputCommands.append(
             "keep nanoaodFlatTable_*Table*_*_*"
         )

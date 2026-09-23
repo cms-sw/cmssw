@@ -255,14 +255,20 @@ highPtTripletStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
     candWP = -0.3,
 ))
 (pp_on_XeXe_2017 | pp_on_AA).toModify(highPtTripletStepTrackCandidatesMkFitConfig, minPt=0.7)
-(trackingPhase2PU140 & trackingMkFitHighPtTripletStep & seedingLST & trackingLST).toModify(highPtTripletStepTrackCandidatesMkFitSeeds,
+_phase2LSTmkFit = (
+    trackingPhase2PU140
+    & trackingMkFitHighPtTripletStep
+    & seedingLST
+    & trackingLST
+)
+_phase2LSTmkFit.toModify(highPtTripletStepTrackCandidatesMkFitSeeds,
     seeds = 'highPtTripletStepSeedsPixelsWithLST'
 )
-(trackingPhase2PU140 & trackingMkFitHighPtTripletStep & seedingLST & trackingLST).toModify(highPtTripletStepTrackCandidatesMkFit,
+_phase2LSTmkFit.toModify(highPtTripletStepTrackCandidatesMkFit,
     stripHits = cms.InputTag("mkFitSiPhase2Hits"),
     clustersToSkip = cms.InputTag("")
 )
-(trackingPhase2PU140 & trackingMkFitHighPtTripletStep & seedingLST & trackingLST).toModify(highPtTripletStepTrackCandidatesMkFitConfig,
+_phase2LSTmkFit.toModify(highPtTripletStepTrackCandidatesMkFitConfig,
     config = cms.FileInPath('RecoTracker/MkFit/data/mkfit-phase2-lstStep-offline.json'),
     minPt = cms.double(0)                                                    
 )
@@ -286,7 +292,7 @@ highPtTripletStepSeedsPixelsWithLST = _lstOutputConverter.clone(
     includeNonpLSTSs = cms.bool(True)
 )
 
-(trackingPhase2PU140 & trackingMkFitHighPtTripletStep & seedingLST & trackingLST).toReplaceWith(highPtTripletStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
+_phase2LSTmkFit.toReplaceWith(highPtTripletStepTrackCandidates, mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
     seeds = 'highPtTripletStepSeedsPixelsWithLST',
     mkFitSeeds = 'highPtTripletStepTrackCandidatesMkFitSeeds',
     tracks = 'highPtTripletStepTrackCandidatesMkFit',
@@ -432,7 +438,7 @@ _HighPtTripletStepTask_LST.add(siPhase2RecHits, lstGeometryESProducer, lstInputP
 (trackingPhase2PU140 & trackingLST).toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_LST)
 
 _HighPtTripletStepTask_LST_mkFit = _HighPtTripletStepTask_LST.copy()
-(trackingPhase2PU140 & seedingLST & trackingLST & trackingMkFitHighPtTripletStep).toModify(lstInputProducer,
+_phase2LSTmkFit.toModify(lstInputProducer,
     ptCut = cms.double(0.1)
 )
 import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
@@ -441,7 +447,7 @@ highPtTripletStepSeedsPixelsOnly = RecoTracker.TkSeedGenerator.GlobalCombinedSee
 )
 
 _HighPtTripletStepTask_LST_mkFit.add(highPtTripletStepSeedsPixelsWithLST,highPtTripletStepTrackCandidatesMkFitSeeds, highPtTripletStepTrackCandidatesMkFit, highPtTripletStepTrackCandidatesMkFitConfig,highPtTripletStepSeedsPixelsOnly)
-(trackingPhase2PU140 & trackingMkFitHighPtTripletStep & seedingLST & trackingLST).toReplaceWith(HighPtTripletStepTask,_HighPtTripletStepTask_LST_mkFit)
+_phase2LSTmkFit.toReplaceWith(HighPtTripletStepTask,_HighPtTripletStepTask_LST_mkFit)
 
 from Configuration.ProcessModifiers.alpakaValidationLST_cff import alpakaValidationLST
 from HeterogeneousCore.AlpakaCore.functions import makeSerialClone
@@ -465,20 +471,28 @@ _HighPtTripletStepTask_LSTSerialSync.add(siPhase2RecHits, lstInputProducerSerial
 )
 _HighPtTripletStepTask_LST_mkFitSerialSync = _HighPtTripletStepTask_LSTSerialSync.copy()
 highPtTripletStepSeedsPixelsWithLSTSerialSync  =  highPtTripletStepSeedsPixelsWithLST.clone()
-(trackingPhase2PU140 & alpakaValidationLST & trackingLST & seedingLST & trackingMkFitHighPtTripletStep).toModify(highPtTripletStepSeedsPixelsWithLSTSerialSync,
+_phase2LSTmkFitValidation = (
+    _phase2LSTmkFit
+    & alpakaValidationLST
+)
+_phase2LSTmkFitValidation.toModify(highPtTripletStepSeedsPixelsWithLSTSerialSync,
     lstOutput = "lstProducerSerialSync",
     lstInput = "lstInputProducerSerialSync",
     lstPixelSeeds = "lstInputProducerSerialSync"
 )
-(trackingPhase2PU140 & trackingMkFitHighPtTripletStep & seedingLST & trackingLST).toModify(highPtTripletStepTrackCandidatesSerialSync, seeds = 'highPtTripletStepSeedsPixelsWithLSTSerialSync')
+_phase2LSTmkFitValidation.toModify(highPtTripletStepTrackCandidatesSerialSync,
+    seeds = 'highPtTripletStepSeedsPixelsWithLSTSerialSync',
+    mkFitSeeds = 'highPtTripletStepTrackCandidatesMkFitSeedsSerialSync',
+    tracks = 'highPtTripletStepTrackCandidatesMkFitSerialSync'
+)
 highPtTripletStepTrackCandidatesMkFitSeedsSerialSync = highPtTripletStepTrackCandidatesMkFitSeeds.clone()
-(trackingPhase2PU140 & trackingMkFitHighPtTripletStep & seedingLST & trackingLST).toModify(highPtTripletStepTrackCandidatesMkFitSeedsSerialSync, seeds = 'highPtTripletStepSeedsPixelsWithLSTSerialSync')
+_phase2LSTmkFitValidation.toModify(highPtTripletStepTrackCandidatesMkFitSeedsSerialSync, seeds = 'highPtTripletStepSeedsPixelsWithLSTSerialSync')
 highPtTripletStepTrackCandidatesMkFitSerialSync = highPtTripletStepTrackCandidatesMkFit.clone()
-(trackingPhase2PU140 & trackingMkFitHighPtTripletStep & seedingLST & trackingLST).toModify(highPtTripletStepTrackCandidatesMkFitSerialSync, seeds = 'highPtTripletStepTrackCandidatesMkFitSeedsSerialSync')
+_phase2LSTmkFitValidation.toModify(highPtTripletStepTrackCandidatesMkFitSerialSync, seeds = 'highPtTripletStepTrackCandidatesMkFitSeedsSerialSync')
 _HighPtTripletStepTask_LST_mkFitSerialSync.add(highPtTripletStepSeedsPixelsWithLSTSerialSync,highPtTripletStepTrackCandidatesMkFitSeedsSerialSync, highPtTripletStepTrackCandidatesMkFitSerialSync, highPtTripletStepTrackCandidatesMkFitConfig)
 HighPtTripletStepTaskSerialSync = cms.Task()
 (trackingPhase2PU140 & alpakaValidationLST & trackingLST).toReplaceWith(HighPtTripletStepTaskSerialSync, _HighPtTripletStepTask_LSTSerialSync)
-(trackingPhase2PU140 & alpakaValidationLST & trackingLST & seedingLST & trackingMkFitHighPtTripletStep).toReplaceWith(HighPtTripletStepTaskSerialSync,_HighPtTripletStepTask_LST_mkFitSerialSync)
+_phase2LSTmkFitValidation.toReplaceWith(HighPtTripletStepTaskSerialSync,_HighPtTripletStepTask_LST_mkFitSerialSync)
 # fast tracking mask producer 
 _HighPtTripletStepTask_fastSim = cms.Task(highPtTripletStepMasks
                                          ,highPtTripletStepTrackingRegions

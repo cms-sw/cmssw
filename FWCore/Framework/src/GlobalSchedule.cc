@@ -26,53 +26,49 @@
 #include <sstream>
 
 namespace edm {
-  GlobalSchedule::GlobalSchedule(
-      std::shared_ptr<TriggerResultInserter> inserter,
-      std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
-      std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
-      std::shared_ptr<ModuleRegistry> modReg,
-      std::vector<edm::ModuleDescription const*> const& iModulesToUse,
-      PreallocationConfiguration const& prealloc,
-      ExceptionToActionTable const& actions,
-      std::shared_ptr<ActivityRegistry> areg,
-      ProcessContext const* processContext)
-      : actReg_(areg),
-        processContext_(processContext),
-        numberOfConcurrentLumis_(prealloc.numberOfLuminosityBlocks()),
-        numberOfConcurrentRuns_(prealloc.numberOfRuns()) {
-    unsigned int nManagers =
-        prealloc.numberOfLuminosityBlocks() + prealloc.numberOfRuns() + numberOfConcurrentProcessBlocks_;
-    workerManagers_.reserve(nManagers);
-    for (unsigned int i = 0; i < nManagers; ++i) {
-      workerManagers_.emplace_back(modReg, areg, actions);
+  GlobalSchedule::GlobalSchedule(std::shared_ptr<ModuleRegistry> modReg,
+                                 std::vector<edm::ModuleDescription const*> const& iModulesToUse,
+                                 PreallocationConfiguration const& prealloc,
+                                 ExceptionToActionTable const& actions,
+                                 std::shared_ptr<ActivityRegistry> areg,
+                                 ProcessContext const* processContext)
+      : processBlockWorkerManager_(modReg, areg, actions),
+        inputProcessBlockWorkerManager_(modReg, areg, actions),
+        actReg_(areg),
+        processContext_(processContext) {
+    runWorkerManagers_.reserve(prealloc.numberOfRuns());
+    for (unsigned int i = 0; i < prealloc.numberOfRuns(); ++i) {
+      runWorkerManagers_.emplace_back(modReg, areg, actions);
+    }
+    lumiWorkerManagers_.reserve(prealloc.numberOfLuminosityBlocks());
+    for (unsigned int i = 0; i < prealloc.numberOfLuminosityBlocks(); ++i) {
+      lumiWorkerManagers_.emplace_back(modReg, areg, actions);
     }
     for (auto const& module : iModulesToUse) {
       //side effect keeps this module around
-      for (auto& wm : workerManagers_) {
-        (void)wm.getWorkerForModule(*module);
+      auto mod = modReg->getExistingModule(module->moduleLabel());
+      assert(mod);
+      if (mod->wantsTransition(ProcessBlockTransitionInfo::key(), TransitionPhaseGlobal::value)) {
+        for (auto& wm : processBlockManagers()) {
+          (void)wm.getWorkerForModule(*module);
+        }
+      }
+      if (mod->wantsTransition(RunTransitionInfo::key(), TransitionPhaseGlobal::value)) {
+        for (auto& wm : runManagers()) {
+          (void)wm.getWorkerForModule(*module);
+        }
+      }
+      if (mod->wantsTransition(LumiTransitionInfo::key(), TransitionPhaseGlobal::value)) {
+        for (auto& wm : lumiManagers()) {
+          (void)wm.getWorkerForModule(*module);
+        }
+      }
+      if (mod->wantsTransition(InputProcessBlockTransitionInfo::key(), TransitionPhaseGlobal::value)) {
+        for (auto& wm : inputProcessBlockManagers()) {
+          (void)wm.getWorkerForModule(*module);
+        }
       }
     }
-    if (inserter) {
-      for (auto& wm : workerManagers_) {
-        (void)wm.getWorkerForModule(*inserter);
-      }
-    }
-
-    for (auto& pathStatusInserter : pathStatusInserters) {
-      std::shared_ptr<PathStatusInserter> inserterPtr = get_underlying(pathStatusInserter);
-
-      for (auto& wm : workerManagers_) {
-        (void)wm.getWorkerForModule(*inserterPtr);
-      }
-    }
-
-    for (auto& endPathStatusInserter : endPathStatusInserters) {
-      std::shared_ptr<EndPathStatusInserter> inserterPtr = get_underlying(endPathStatusInserter);
-      for (auto& wm : workerManagers_) {
-        (void)wm.getWorkerForModule(*inserterPtr);
-      }
-    }
-
   }  // GlobalSchedule::GlobalSchedule
 
   void GlobalSchedule::beginJob(ModuleRegistry& modReg) {
@@ -138,19 +134,33 @@ namespace edm {
     }
   }
 
-  void GlobalSchedule::replaceModule(maker::ModuleHolder* iMod, std::string const& iLabel) {
-    Worker* found = nullptr;
-    for (auto& wm : workerManagers_) {
-      for (auto const& worker : wm.allWorkers()) {
-        if (worker->description()->moduleLabel() == iLabel) {
-          found = worker;
-          break;
+  namespace {
+    template <typename T, std::size_t U>
+    bool replaceWorkerByLabel(std::span<WorkerManager<T, edm::TransitionPhaseGlobal>, U> workerManagers,
+                              maker::ModuleHolder* iMod,
+                              std::string const& iLabel) {
+      bool returnValue = false;
+      for (auto& wm : workerManagers) {
+        for (auto const& worker : wm.allWorkers()) {
+          if (worker->description()->moduleLabel() == iLabel) {
+            iMod->replaceModuleFor(worker);
+            returnValue = true;
+            break;
+          }
         }
       }
-      if (nullptr == found) {
-        return;
-      }
-      iMod->replaceModuleFor(found);
+      return returnValue;
+    }
+  }  // namespace
+  void GlobalSchedule::replaceModule(maker::ModuleHolder* iMod, std::string const& iLabel) {
+    bool found = false;
+
+    found |= replaceWorkerByLabel(runManagers(), iMod, iLabel);
+    found |= replaceWorkerByLabel(lumiManagers(), iMod, iLabel);
+    found |= replaceWorkerByLabel(processBlockManagers(), iMod, iLabel);
+    found |= replaceWorkerByLabel(inputProcessBlockManagers(), iMod, iLabel);
+    if (not found) {
+      return;
     }
     auto sentry = make_sentry(
         iMod, [&](auto const* mod) { beginJobFailedForModule_.emplace_back(mod->moduleDescription().id()); });
@@ -159,20 +169,14 @@ namespace edm {
   }
 
   void GlobalSchedule::deleteModule(std::string const& iLabel) {
-    for (auto& wm : workerManagers_) {
+    for (auto& wm : runWorkerManagers_) {
       wm.deleteModuleIfExists(iLabel);
     }
-  }
-
-  std::vector<ModuleDescription const*> GlobalSchedule::getAllModuleDescriptions() const {
-    std::vector<ModuleDescription const*> result;
-    result.reserve(allWorkers().size());
-
-    for (auto const& worker : allWorkers()) {
-      ModuleDescription const* p = worker->description();
-      result.push_back(p);
+    for (auto& wm : lumiWorkerManagers_) {
+      wm.deleteModuleIfExists(iLabel);
     }
-    return result;
+    processBlockWorkerManager_.deleteModuleIfExists(iLabel);
+    inputProcessBlockWorkerManager_.deleteModuleIfExists(iLabel);
   }
 
   void GlobalSchedule::handleException(GlobalContext const* globalContext,

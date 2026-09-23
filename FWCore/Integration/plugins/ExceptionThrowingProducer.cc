@@ -608,9 +608,7 @@ namespace edmtest {
         serviceOne->nPreModuleGlobalEndLumi() !=
             nGlobalBeginLumi * kNumberOfTestModules - expectedOffsetNoGlobalEndLumi_ ||
         serviceOne->nPostModuleGlobalEndLumi() !=
-            nGlobalBeginLumi * kNumberOfTestModules - expectedOffsetNoGlobalEndLumi_ ||
-        serviceOne->nPreGlobalWriteLumi() != nGlobalBeginLumi - expectedOffsetNoWriteLumi_ ||
-        serviceOne->nPostGlobalWriteLumi() != nGlobalBeginLumi - expectedOffsetNoWriteLumi_) {
+            nGlobalBeginLumi * kNumberOfTestModules - expectedOffsetNoGlobalEndLumi_) {
       edm::LogAbsolute("ExceptionThrowingProducer")
           << "FAILED: Unexpected number of service transitions in TestServiceOne, global lumi";
       testsPass = false;
@@ -624,9 +622,7 @@ namespace edmtest {
         serviceTwo->nPreModuleGlobalEndLumi() !=
             nGlobalBeginLumi * kNumberOfTestModules - expectedOffsetNoGlobalEndLumi_ ||
         serviceTwo->nPostModuleGlobalEndLumi() !=
-            nGlobalBeginLumi * kNumberOfTestModules - expectedOffsetNoGlobalEndLumi_ ||
-        serviceTwo->nPreGlobalWriteLumi() != nGlobalBeginLumi - expectedOffsetNoWriteLumi_ ||
-        serviceTwo->nPostGlobalWriteLumi() != nGlobalBeginLumi - expectedOffsetNoWriteLumi_) {
+            nGlobalBeginLumi * kNumberOfTestModules - expectedOffsetNoGlobalEndLumi_) {
       edm::LogAbsolute("ExceptionThrowingProducer")
           << "FAILED: Unexpected number of service transitions in TestServiceTwo, global lumi";
       testsPass = false;
@@ -671,9 +667,7 @@ namespace edmtest {
         serviceOne->nPreModuleGlobalEndRun() !=
             nGlobalBeginRun * kNumberOfTestModules - expectedOffsetNoGlobalEndRun_ ||
         serviceOne->nPostModuleGlobalEndRun() !=
-            nGlobalBeginRun * kNumberOfTestModules - expectedOffsetNoGlobalEndRun_ ||
-        serviceOne->nPreGlobalWriteRun() != nGlobalBeginRun - expectedOffsetNoWriteRun_ ||
-        serviceOne->nPostGlobalWriteRun() != nGlobalBeginRun - expectedOffsetNoWriteRun_) {
+            nGlobalBeginRun * kNumberOfTestModules - expectedOffsetNoGlobalEndRun_) {
       edm::LogAbsolute("ExceptionThrowingProducer")
           << "FAILED: Unexpected number of service transitions in TestServiceOne, global run";
       testsPass = false;
@@ -686,9 +680,7 @@ namespace edmtest {
         serviceTwo->nPreModuleGlobalEndRun() !=
             nGlobalBeginRun * kNumberOfTestModules - expectedOffsetNoGlobalEndRun_ ||
         serviceTwo->nPostModuleGlobalEndRun() !=
-            nGlobalBeginRun * kNumberOfTestModules - expectedOffsetNoGlobalEndRun_ ||
-        serviceTwo->nPreGlobalWriteRun() != nGlobalBeginRun - expectedOffsetNoWriteRun_ ||
-        serviceTwo->nPostGlobalWriteRun() != nGlobalBeginRun - expectedOffsetNoWriteRun_) {
+            nGlobalBeginRun * kNumberOfTestModules - expectedOffsetNoGlobalEndRun_) {
       edm::LogAbsolute("ExceptionThrowingProducer")
           << "FAILED: Unexpected number of service transitions in TestServiceTwo, global run";
       testsPass = false;
@@ -782,11 +774,7 @@ namespace edmtest {
       edm::LogAbsolute("ExceptionThrowingProducer")
           << "serviceOne->nPreModuleGlobalEndLumi = " << serviceOne->nPreModuleGlobalEndLumi();
       edm::LogAbsolute("ExceptionThrowingProducer")
-          << "serviceOne->nPostModuleGlobalEndLumi = " << serviceOne->nPostModuleGlobalEndLumi();
-      edm::LogAbsolute("ExceptionThrowingProducer")
-          << "serviceOne->nPreGlobalWriteLumi = " << serviceOne->nPreGlobalWriteLumi();
-      edm::LogAbsolute("ExceptionThrowingProducer")
-          << "serviceOne->nPostGlobalWriteLumi = " << serviceOne->nPostGlobalWriteLumi() << "\n";
+          << "serviceOne->nPostModuleGlobalEndLumi = " << serviceOne->nPostModuleGlobalEndLumi() << "\n";
 
       edm::LogAbsolute("ExceptionThrowingProducer")
           << "serviceOne->nPreStreamBeginRun = " << serviceOne->nPreStreamBeginRun();
@@ -820,11 +808,7 @@ namespace edmtest {
       edm::LogAbsolute("ExceptionThrowingProducer")
           << "serviceOne->nPreModuleGlobalEndRun = " << serviceOne->nPreModuleGlobalEndRun();
       edm::LogAbsolute("ExceptionThrowingProducer")
-          << "serviceOne->nPostModuleGlobalEndRun = " << serviceOne->nPostModuleGlobalEndRun();
-      edm::LogAbsolute("ExceptionThrowingProducer")
-          << "serviceOne->nPreGlobalWriteRun = " << serviceOne->nPreGlobalWriteRun();
-      edm::LogAbsolute("ExceptionThrowingProducer")
-          << "serviceOne->nPostGlobalWriteRun = " << serviceOne->nPostGlobalWriteRun() << "\n";
+          << "serviceOne->nPostModuleGlobalEndRun = " << serviceOne->nPostModuleGlobalEndRun() << "\n";
     }
 
     if (testsPass) {

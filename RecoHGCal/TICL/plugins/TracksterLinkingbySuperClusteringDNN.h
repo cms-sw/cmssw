@@ -46,7 +46,7 @@ namespace ticl {
                         std::vector<std::vector<unsigned int>>& linkedTracksterIdToInputTracksterId) override;
 
     void initialize(const HGCalDDDConstants* hgcons,
-                    const hgcal::RecHitTools rhtools,
+                    const ticlgeom::Tools rhtools,
                     const edm::ESHandle<MagneticField> bfieldH,
                     const edm::ESHandle<Propagator> propH) override;
 
@@ -57,7 +57,7 @@ namespace ticl {
     // --- Configuration
     std::unique_ptr<AbstractSuperclusteringDNNInput> dnnInputs_;
     unsigned int inferenceBatchSize_;
-    double nnWorkingPoint_;
+    float nnWorkingPoint_;
     float deltaEtaWindow_;
     float deltaPhiWindow_;
     float seedPtThreshold_;

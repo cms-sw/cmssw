@@ -240,6 +240,7 @@ namespace l1t {
       gtObj.hwPT_ = htMiss.Et.V.to_int();
       gtObj.hwPhi_ = obj.hwPhi();
       gtObj.hwScalarSumPT_ = obj.hwPt();
+      gtObj.scalarSumPT_ = scales_.to_scalarSumPT(obj.hwPt());
       gtObj.objectType_ = P2GTCandidate::GTTPromptHtSum;
 
       outputCollection->push_back(gtObj);
@@ -262,6 +263,7 @@ namespace l1t {
       gtObj.hwPT_ = htMiss.Et.V.to_int();
       gtObj.hwPhi_ = obj.hwPhi();
       gtObj.hwScalarSumPT_ = obj.hwPt();
+      gtObj.scalarSumPT_ = scales_.to_scalarSumPT(obj.hwPt());
       gtObj.objectType_ = P2GTCandidate::GTTDisplacedHtSum;
 
       outputCollection->push_back(gtObj);
@@ -357,6 +359,7 @@ namespace l1t {
       gtObj.hwZ0_ = hwZ0;
       gtObj.hwQualityFlags_ = obj.apQualFlags().to_int();
       gtObj.hwIsolationPT_ = obj.apIso().to_int();
+      gtObj.isolationPT_ = scales_.to_isolationPT(obj.apIso().to_int());
       gtObj.hwCharge_ = obj.apCharge().to_int();
       gtObj.hwD0_ = obj.apD0().to_int();
       gtObj.hwBeta_ = obj.apBeta().to_int();
@@ -427,6 +430,7 @@ namespace l1t {
       gtObj.hwPhi_ = gtPhoton.v3.phi.V.to_int();
       gtObj.hwEta_ = gtPhoton.v3.eta.V.to_int();
       gtObj.hwIsolationPT_ = gtPhoton.isolationPT.V.to_int();
+      gtObj.isolationPT_ = scales_.to_isolationPT(gtPhoton.isolationPT.V.to_int());
       gtObj.hwQualityFlags_ = gtPhoton.qualityFlags.V.to_int();
       gtObj.objectType_ = P2GTCandidate::CL2Photons;
 
@@ -452,6 +456,7 @@ namespace l1t {
       gtObj.hwEta_ = gtElectron.v3.eta.V.to_int();
       gtObj.hwZ0_ = hwZ0;
       gtObj.hwIsolationPT_ = gtElectron.isolationPT.V.to_int();
+      gtObj.isolationPT_ = scales_.to_isolationPT(gtElectron.isolationPT.V.to_int());
       gtObj.hwQualityFlags_ = gtElectron.qualityFlags.V.to_int();
       gtObj.hwQualityScore_ = gtElectron.idScore.V.to_int();
       gtObj.hwCharge_ = gtElectron.charge.V.to_int();
@@ -500,6 +505,7 @@ namespace l1t {
     gtObj.hwPT_ = sum.vector_pt.V.to_int();
     gtObj.hwPhi_ = sum.vector_phi.V.to_int();
     gtObj.hwScalarSumPT_ = sum.scalar_pt.V.to_int();
+    gtObj.scalarSumPT_ = scales_.to_scalarSumPT(sum.scalar_pt.V.to_int());
     gtObj.objectType_ = P2GTCandidate::CL2EtSum;
 
     outputCollection->push_back(gtObj);
@@ -517,6 +523,7 @@ namespace l1t {
     gtObj.hwPT_ = mht.hwPt();
     gtObj.hwPhi_ = mht.hwPhi();
     gtObj.hwScalarSumPT_ = ht.hwPt();
+    gtObj.scalarSumPT_ = scales_.to_scalarSumPT(ht.hwPt());
     gtObj.objectType_ = P2GTCandidate::CL2HtSum;
 
     outputCollection->push_back(gtObj);

@@ -42,7 +42,7 @@ using namespace magneticfield;
 AutoParametrizedMagneticFieldProducer::AutoParametrizedMagneticFieldProducer(const edm::ParameterSet& iConfig)
     : version_{iConfig.getParameter<string>("version")},
       currentOverride_{iConfig.getParameter<int>("valueOverride")},
-      nominalCurrents_{{-1, 0, 9558, 14416, 16819, 18268, 19262}}
+      nominalCurrents_{{-1, 0, 9500, 14340, 16730, 18164, 19140}}
 //  nominalLabels_{["3.8T","0T","2T", "3T", "3.5T", "3.8T", "4T"}}
 {
   auto cc = setWhatProduced(this, iConfig.getUntrackedParameter<std::string>("label", ""));
@@ -77,8 +77,8 @@ std::unique_ptr<MagneticField> AutoParametrizedMagneticFieldProducer::produce(co
     parameters.push_back(7.53701e-06);   //b1
     parameters.push_back(2.43878e-11);   //a
     if (cnc !=
-        18268) {  // Linear scaling for B!= 3.8T; note that just c1, b0 and b1 have to be scaled to get linear scaling
-      double scale = double(cnc) / double(18268);
+        18164) {  // Linear scaling for B!= 3.8T; note that just c1, b0 and b1 have to be scaled to get linear scaling
+      double scale = double(cnc) / double(18164);
       parameters[0] *= scale;
       parameters[1] *= scale;
       parameters[2] *= scale;

@@ -68,6 +68,7 @@ namespace edm {
       virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
       virtual bool wantsStreamRuns() const noexcept = 0;
       virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
+      constexpr static bool wantsWrites() noexcept { return false; }
 
       void callWhenNewProductsRegistered(std::function<void(ProductDescription const&)> const& func) {
         callWhenNewProductsRegistered_ = func;
@@ -78,7 +79,7 @@ namespace edm {
       LimitedTaskQueue& queue() { return queue_; }
 
     private:
-      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                                     ModuleCallingContext const& iModuleCallingContext,

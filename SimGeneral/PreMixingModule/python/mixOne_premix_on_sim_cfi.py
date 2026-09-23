@@ -219,10 +219,21 @@ from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
         ),
     )
 )
+((run2_GEM_2017 | run3_GEM) & fastSim).toModify(
+    mixData,
+    workers = dict(
+        gem = dict(
+            labelSig = cms.InputTag("mix", "MuonSimHitsMuonGEMHits"),
+            pileInputTag = cms.InputTag("mix", "MuonSimHitsMuonGEMHits"),
+            collectionDM = cms.string("MuonSimHitsMuonGEMHits"),
+        ),
+    )
+)
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
@@ -285,8 +296,19 @@ phase2_timing_layer.toModify(mixData,
     )
 )
 # ECAL
-phase2_common.toModify (mixData, workers=dict(ecal=dict(doES=False)))
-phase2_hgcal.toModify(mixData, workers=dict(ecal=dict(doEE=False)))
+(phase2_common & ~phase2_ecal_devel).toModify (mixData, workers=dict(ecal=dict(doES=False)))
+phase2_ecal_devel.toModify(mixData,
+    workers = dict(
+        ecal = cms.PSet(
+            ecalDigitizer.clone(accumulatorType = None, makeDigiSimLinks=None),
+            workerType = cms.string("PreMixingEcalPh2Worker"),
+            EBdigiProducerSig = cms.InputTag("simEcalUnsuppressedDigis"),
+            EBPileInputTag = cms.InputTag("simEcalUnsuppressedDigis"),
+            EBDigiCollectionDM   = cms.string(''),
+        )
+    )
+)
+(phase2_hgcal & ~phase2_ecal_devel).toModify(mixData, workers=dict(ecal=dict(doEE=False)))
 
 # HGCAL
 phase2_hgcal.toModify(mixData,

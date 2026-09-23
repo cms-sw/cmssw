@@ -43,9 +43,9 @@ namespace ticl {
 
     int algoVerbosity_ = 0;
 
-    double minAbsEta_;
-    double maxAbsEta_;
-    double minEt_;
+    float minAbsEta_;
+    float maxAbsEta_;
+    float minEt_;
 
     edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geo_token_;
     const CaloGeometry* geometry_;

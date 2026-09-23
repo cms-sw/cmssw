@@ -18,24 +18,24 @@ using namespace ticl;
 template <typename TILES>
 PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::ParameterSet &conf, edm::ConsumesCollector iC)
     : PatternRecognitionAlgoBaseT<TILES>(conf, iC),
-      criticalDensity_(conf.getParameter<std::vector<double>>("criticalDensity")),
-      criticalSelfDensity_(conf.getParameter<std::vector<double>>("criticalSelfDensity")),
+      criticalDensity_(conf.getParameter<std::vector<float>>("criticalDensity")),
+      criticalSelfDensity_(conf.getParameter<std::vector<float>>("criticalSelfDensity")),
       densitySiblingLayers_(conf.getParameter<std::vector<int>>("densitySiblingLayers")),
-      densityEtaPhiDistanceSqr_(conf.getParameter<std::vector<double>>("densityEtaPhiDistanceSqr")),
-      densityXYDistanceSqr_(conf.getParameter<std::vector<double>>("densityXYDistanceSqr")),
-      kernelDensityFactor_(conf.getParameter<std::vector<double>>("kernelDensityFactor")),
+      densityEtaPhiDistanceSqr_(conf.getParameter<std::vector<float>>("densityEtaPhiDistanceSqr")),
+      densityXYDistanceSqr_(conf.getParameter<std::vector<float>>("densityXYDistanceSqr")),
+      kernelDensityFactor_(conf.getParameter<std::vector<float>>("kernelDensityFactor")),
       densityOnSameLayer_(conf.getParameter<bool>("densityOnSameLayer")),
       nearestHigherOnSameLayer_(conf.getParameter<bool>("nearestHigherOnSameLayer")),
       useAbsoluteProjectiveScale_(conf.getParameter<bool>("useAbsoluteProjectiveScale")),
       useClusterDimensionXY_(conf.getParameter<bool>("useClusterDimensionXY")),
       rescaleDensityByZ_(conf.getParameter<bool>("rescaleDensityByZ")),
-      criticalEtaPhiDistance_(conf.getParameter<std::vector<double>>("criticalEtaPhiDistance")),
-      criticalXYDistance_(conf.getParameter<std::vector<double>>("criticalXYDistance")),
+      criticalEtaPhiDistance_(conf.getParameter<std::vector<float>>("criticalEtaPhiDistance")),
+      criticalXYDistance_(conf.getParameter<std::vector<float>>("criticalXYDistance")),
       criticalZDistanceLyr_(conf.getParameter<std::vector<int>>("criticalZDistanceLyr")),
-      outlierMultiplier_(conf.getParameter<std::vector<double>>("outlierMultiplier")),
+      outlierMultiplier_(conf.getParameter<std::vector<float>>("outlierMultiplier")),
       minNumLayerCluster_(conf.getParameter<std::vector<int>>("minNumLayerCluster")),
       doPidCut_(conf.getParameter<bool>("doPidCut")),
-      cutHadProb_(conf.getParameter<double>("cutHadProb")),
+      cutHadProb_(conf.getParameter<float>("cutHadProb")),
       computeLocalTime_(conf.getParameter<bool>("computeLocalTime")),
       usePCACleaning_(conf.getParameter<bool>("usePCACleaning")){};
 template <typename TILES>
@@ -142,7 +142,7 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(const TILES &tiles,
 }
 
 template <typename TILES>
-void PatternRecognitionbyCLUE3D<TILES>::setGeometry(hgcal::RecHitTools const &rhtools) {
+void PatternRecognitionbyCLUE3D<TILES>::setGeometry(ticlgeom::Tools const &rhtools) {
   // Non-owning pointer: valid because TrackstersProducer owns rhtools_ for the module lifetime (per stream).
   this->rhtools_ = &rhtools;
 
@@ -233,8 +233,12 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     // radius. On the other hand, while averaging the x and y radius, we would
     // end up dividing by 2. Hence we omit the value here and in the average
     // below, too.
-    float radius_x = sqrt((sum_sqr_x - (sum_x * sum_x) * invClsize) * invClsize);
-    float radius_y = sqrt((sum_sqr_y - (sum_y * sum_y) * invClsize) * invClsize);
+    // Clamp the variance at zero: for point-like multi-cell clusters the
+    // difference can cancel slightly below zero in floating point, and the
+    // sqrt of a negative value yields a NaN radius whose comparisons are
+    // all false downstream (seed and density decisions).
+    float radius_x = sqrt(std::max(0.f, (sum_sqr_x - (sum_x * sum_x) * invClsize) * invClsize));
+    float radius_y = sqrt(std::max(0.f, (sum_sqr_y - (sum_y * sum_y) * invClsize) * invClsize));
     if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
       edm::LogVerbatim("PatternRecognitionbyCLUE3D")
           << "cluster rx: " << std::setw(5) << radius_x << ", ry: " << std::setw(5) << radius_y
@@ -698,8 +702,12 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
   std::vector<std::pair<int, int>> localStack;
   const auto &critical_transverse_distance =
       useAbsoluteProjectiveScale_ ? criticalXYDistance_ : criticalEtaPhiDistance_;
+
   // find cluster seeds and outlier
   unsigned int maxLayer = (isBarrel_) ? this->rhtools_->lastLayerBarrel() + 1 : 2 * this->rhtools_->lastLayer();
+
+  std::vector<std::pair<unsigned int, unsigned int>> seed_clusterIdx_map;
+
   for (unsigned int layer = 0; layer < maxLayer; layer++) {
     auto &clustersOnLayer = clusters_[layer];
     unsigned int numberOfClusters = clustersOnLayer.x.size();
@@ -727,6 +735,7 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
         }
         clustersOnLayer.clusterIndex[i] = nTracksters++;
         tracksterSeedAlgoId_.push_back(algoId);
+        seed_clusterIdx_map.emplace_back(layer, i);
         clustersOnLayer.isSeed[i] = true;
         localStack.emplace_back(layer, i);
       } else if (!isOutlier) {
@@ -748,16 +757,88 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
     }
   }
 
+  //vector keeping the soaIdx of the ECAL cluster inside a trackster (not the seed)
+  std::vector<int> ecal_LC_content_idx(nTracksters, -1);
+
   // Propagate cluster index
   while (!localStack.empty()) {
     auto [lyrIdx, soaIdx] = localStack.back();
     auto &thisSeed = clusters_[lyrIdx].followers[soaIdx];
+
+    // This is the algo ID
+    auto current_algoId = clusters_[lyrIdx].algoId[soaIdx];
+    auto current_tracksterid = clusters_[lyrIdx].clusterIndex[soaIdx];
+
+    if (isBarrel_) {
+      if ((current_algoId == 0) && (!clusters_[lyrIdx].isSeed[soaIdx]) &&
+          ((current_algoId == tracksterSeedAlgoId_[current_tracksterid]))) {
+        //skip this connection --> create a new trackster
+        clusters_[lyrIdx].clusterIndex[soaIdx] = nTracksters++;
+        tracksterSeedAlgoId_.push_back(current_algoId);
+        ecal_LC_content_idx.emplace_back(-1);  // Only the ECAL LC not seeds are saved
+        clusters_[lyrIdx].isSeed[soaIdx] = true;
+        // Do not pop from the stack, it will be reanalyze
+        continue;
+      }
+
+      if ((current_algoId == 0) && (!clusters_[lyrIdx].isSeed[soaIdx]) &&
+          (tracksterSeedAlgoId_[current_tracksterid] != 0)) {
+        if (ecal_LC_content_idx[current_tracksterid] != -1) {
+          // We need to compare ECAL LCs
+          // We need to get the cluster index of the seed cluster from the trackster seed idx
+          auto [seed_lyrIdx, seed_soaIdx] = seed_clusterIdx_map[current_tracksterid];
+          auto otherEcal_soaIdx = ecal_LC_content_idx[current_tracksterid];
+          constexpr unsigned int otherEcal_lyrIdx = 0;
+
+          auto dist_first = reco::deltaR2(clusters_[lyrIdx].eta[soaIdx],
+                                          clusters_[lyrIdx].phi[soaIdx],
+                                          clusters_[seed_lyrIdx].eta[seed_soaIdx],
+                                          clusters_[seed_lyrIdx].phi[seed_soaIdx]);
+
+          auto dist_second = reco::deltaR2(clusters_[otherEcal_lyrIdx].eta[otherEcal_soaIdx],
+                                           clusters_[otherEcal_lyrIdx].phi[otherEcal_soaIdx],
+                                           clusters_[seed_lyrIdx].eta[seed_soaIdx],
+                                           clusters_[seed_lyrIdx].phi[seed_soaIdx]);
+
+          if (dist_first < dist_second) {
+            // swap
+            ecal_LC_content_idx[current_tracksterid] = soaIdx;  // I become the ECAL LC of that trackster
+            // Now remove the other , create a new trackster
+            clusters_[otherEcal_lyrIdx].clusterIndex[otherEcal_soaIdx] = nTracksters++;
+            tracksterSeedAlgoId_.push_back(current_algoId);
+            ecal_LC_content_idx.emplace_back(-1);
+            clusters_[otherEcal_lyrIdx].isSeed[otherEcal_soaIdx] = true;
+            localStack.emplace_back(otherEcal_lyrIdx, otherEcal_soaIdx);
+          } else {
+            //skip this connection --> create a new trackster
+            //Pruning
+            clusters_[lyrIdx].clusterIndex[soaIdx] = nTracksters++;
+            tracksterSeedAlgoId_.push_back(current_algoId);
+            ecal_LC_content_idx.emplace_back(-1);
+            clusters_[lyrIdx].isSeed[soaIdx] = true;
+            // Do not pop from the stack, it will be reanalyzed
+            continue;
+          }
+
+        } else {
+          // I'm ECAL, there is nobody else, I take this trackster
+          ecal_LC_content_idx[current_tracksterid] = soaIdx;  // Now I'm the ECAL LC of that trackster
+        }
+      }  // end of check for other ECAL LC
+    }
+    // We arrive here if
+    // - the cluster is the seed
+    // - the cluster is not ECAL
+    // - the cluster is ECAL, gets assigned to the trackster as the best ECAL
     localStack.pop_back();
 
     // loop over followers
     for (auto [follower_lyrIdx, follower_soaIdx] : thisSeed) {
       // pass id to a follower
-      clusters_[follower_lyrIdx].clusterIndex[follower_soaIdx] = clusters_[lyrIdx].clusterIndex[soaIdx];
+      if (clusters_[follower_lyrIdx].isSeed[follower_soaIdx]) {
+        continue;
+      }
+      clusters_[follower_lyrIdx].clusterIndex[follower_soaIdx] = current_tracksterid;
       // push this follower to localStack
       localStack.emplace_back(follower_lyrIdx, follower_soaIdx);
     }
@@ -768,17 +849,17 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDescription &iDesc) {
   iDesc.add<int>("algo_verbosity", 0);
-  iDesc.add<std::vector<double>>("criticalDensity", {4, 4, 4})->setComment("in GeV");
-  iDesc.add<std::vector<double>>("criticalSelfDensity", {0.15, 0.15, 0.15} /* roughly 1/(densitySiblingLayers+1) */)
+  iDesc.add<std::vector<float>>("criticalDensity", {4, 4, 4})->setComment("in GeV");
+  iDesc.add<std::vector<float>>("criticalSelfDensity", {0.15, 0.15, 0.15} /* roughly 1/(densitySiblingLayers+1) */)
       ->setComment("Minimum ratio of self_energy/local_density to become a seed.");
   iDesc.add<std::vector<int>>("densitySiblingLayers", {3, 3, 3})
       ->setComment(
           "inclusive, layers to consider while computing local density and searching for nearestHigher higher");
-  iDesc.add<std::vector<double>>("densityEtaPhiDistanceSqr", {0.0008, 0.0008, 0.0008})
+  iDesc.add<std::vector<float>>("densityEtaPhiDistanceSqr", {0.0008, 0.0008, 0.0008})
       ->setComment("in eta,phi space, distance to consider for local density");
-  iDesc.add<std::vector<double>>("densityXYDistanceSqr", {3.24, 3.24, 3.24})
+  iDesc.add<std::vector<float>>("densityXYDistanceSqr", {3.24, 3.24, 3.24})
       ->setComment("in cm, distance on the transverse plane to consider for local density");
-  iDesc.add<std::vector<double>>("kernelDensityFactor", {0.2, 0.2, 0.2})
+  iDesc.add<std::vector<float>>("kernelDensityFactor", {0.2, 0.2, 0.2})
       ->setComment("Kernel factor to be applied to other LC while computing the local density");
   iDesc.add<bool>("densityOnSameLayer", false);
   iDesc.add<bool>("nearestHigherOnSameLayer", false)
@@ -793,17 +874,17 @@ void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDes
       ->setComment(
           "Rescale local density by the extension of the Z 'volume' explored. The transvere dimension is, at present, "
           "fixed and factored out.");
-  iDesc.add<std::vector<double>>("criticalEtaPhiDistance", {0.025, 0.025, 0.025})
+  iDesc.add<std::vector<float>>("criticalEtaPhiDistance", {0.025, 0.025, 0.025})
       ->setComment("Minimal distance in eta,phi space from nearestHigher to become a seed");
-  iDesc.add<std::vector<double>>("criticalXYDistance", {1.8, 1.8, 1.8})
+  iDesc.add<std::vector<float>>("criticalXYDistance", {1.8, 1.8, 1.8})
       ->setComment("Minimal distance in cm on the XY plane from nearestHigher to become a seed");
   iDesc.add<std::vector<int>>("criticalZDistanceLyr", {5, 5, 5})
       ->setComment("Minimal distance in layers along the Z axis from nearestHigher to become a seed");
-  iDesc.add<std::vector<double>>("outlierMultiplier", {2, 2, 2})
+  iDesc.add<std::vector<float>>("outlierMultiplier", {2, 2, 2})
       ->setComment("Minimal distance in transverse space from nearestHigher to become an outlier");
   iDesc.add<std::vector<int>>("minNumLayerCluster", {2, 2, 2})->setComment("Not Inclusive");
   iDesc.add<bool>("doPidCut", false);
-  iDesc.add<double>("cutHadProb", 0.5);
+  iDesc.add<float>("cutHadProb", 0.5);
   iDesc.add<bool>("computeLocalTime", true);
   iDesc.add<bool>("usePCACleaning", true)->setComment("Enable PCA cleaning algorithm");
 }

@@ -31,9 +31,9 @@ namespace ticl {
   private:
     edm::EDGetTokenT<l1t::P2GTCandidateCollection> l1GTCandsToken_;
     int algoVerbosity_ = 0;
-    double minPt_;        // minimum pT of L1 TkEm objects
-    double minAbsEta_;    // minimum |eta| of L1 TkEm objects
-    double maxAbsEta_;    // maximum |eta| of L1 TkEm objects
+    float minPt_;         // minimum pT of L1 TkEm objects
+    float minAbsEta_;     // minimum |eta| of L1 TkEm objects
+    float maxAbsEta_;     // maximum |eta| of L1 TkEm objects
     int quality_;         // hwQual
     bool qualityIsMask_;  // is hwQual to be applied as a mask
     bool applyQuality_;   // whether to apply quality

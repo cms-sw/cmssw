@@ -46,7 +46,7 @@ void testVisibleDevices::test() {
   CPPUNIT_ASSERT_THROW(tensorflow::createSession(nullptr, options), cms::Exception);
 
   std::vector<tensorflow::DeviceAttributes> response;
-  tensorflow::Status status = session->ListDevices(&response);
+  absl::Status status = session->ListDevices(&response);
   CPPUNIT_ASSERT(status.ok());
 
   // If a single device is found, we assume that it's the CPU.

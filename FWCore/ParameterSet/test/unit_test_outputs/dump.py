@@ -141,6 +141,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     suppressFwkInfo = cms.untracked.vstring(),
     suppressInfo = cms.untracked.vstring(),
     suppressWarning = cms.untracked.vstring(),
+    useContext = cms.untracked.bool(True),
     allowAnyLabel_=cms.optional.untracked.PSetTemplate(
         limit = cms.optional.untracked.int32,
         reportEvery = cms.untracked.int32(1),

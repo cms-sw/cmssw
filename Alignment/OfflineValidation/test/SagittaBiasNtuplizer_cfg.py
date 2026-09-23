@@ -131,7 +131,15 @@ else:
     readFiles = cms.untracked.vstring([options.myfile])
 
 process.source = cms.Source("PoolSource",
-                            fileNames = readFiles)
+                            fileNames = readFiles,
+                            # Workaround after renaming SimDataFormats' ticl::AssociationMap
+                            # TODO: revert after new relvals
+                            inputCommands = cms.untracked.vstring([
+                                "keep *",
+                                "drop ticlFractionTypeticlAssociationElementsSimClustersCaloParticlesticlAssociationMap_*_*_*",
+                                "drop ticlSharedEnergyTypefloatstdpairticlAssociationElementssticlTrackstersticlTrackstersticlAssociationMap_*_*_*",
+                            ])
+                            )
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(options.maxEvents))
 

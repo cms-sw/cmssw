@@ -15,6 +15,7 @@
 // user include files
 #include "FWCore/Framework/interface/ModuleRegistry.h"
 #include "FWCore/Framework/src/ModuleHolderFactory.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 
 namespace edm {
   std::shared_ptr<maker::ModuleHolder> ModuleRegistry::getModule(
@@ -73,25 +74,13 @@ namespace edm {
           << "Trying to delete module " << iModuleLabel
           << " but it does not exist in the ModuleRegistry. Please contact framework developers.";
     }
-    // If iPost throws and exception, let it propagate
-    // If deletion throws an exception, capture it and call iPost before throwing an exception
-    // If iPost throws an exception, let it propagate
+    // The pre signal must be given a reference to the ModuleDescription of the module before the module is deleted (the
+    // signal is promised to be given the ModuleDescription in a stable location). After the module has been deleted
+    // that stable location is gone, so the best we can do is to give a copy of the ModuleDescription.
     auto md = modItr->second->moduleDescription();
+    auto guard = signalslot::make_sentry([&iPost, &md]() { iPost.emit(md); });
     iPre.emit(modItr->second->moduleDescription());
-    bool postCalled = false;
-    // exception is rethrown
-    CMS_SA_ALLOW try {
-      labelToModule_.erase(modItr);
-      // if exception then post will be called in the catch block
-      postCalled = true;
-      iPost.emit(md);
-    } catch (...) {
-      if (not postCalled) {
-        // we're already handling exception, nothing we can do if iPost throws
-        CMS_SA_ALLOW try { iPost.emit(md); } catch (...) {
-        }
-      }
-      throw;
-    }
+    labelToModule_.erase(modItr);
+    guard.succeeded();
   }
 }  // namespace edm

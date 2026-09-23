@@ -23,7 +23,7 @@ MuonInterpretationAlgo::MuonInterpretationAlgo(const edm::ParameterSet &conf, ed
 MuonInterpretationAlgo::~MuonInterpretationAlgo() {}
 
 void MuonInterpretationAlgo::initialize(const HGCalDDDConstants *hgcons,
-                                        const hgcal::RecHitTools rhtools,
+                                        const ticlgeom::Tools rhtools,
                                         const edm::ESHandle<MagneticField> bfieldH,
                                         const edm::ESHandle<Propagator> propH) {
   hgcons_ = hgcons;
@@ -44,7 +44,8 @@ void MuonInterpretationAlgo::makeCandidates(const Inputs &input,
                                             edm::Handle<MtdHostCollection> /*inputTiming_h*/,
                                             std::vector<Trackster> &resultTracksters,
                                             std::vector<int> &resultCandidate,
-                                            std::vector<bool> &maskedTracksters) {
+                                            std::vector<bool> &maskedTracksters,
+                                            std::vector<std::vector<unsigned int>> &linkedResultTracksters) {
   const auto &tracks = *input.tracksHandle;
   const auto &maskTracks = input.maskedTracks;
   const auto &tracksters = input.tracksters;

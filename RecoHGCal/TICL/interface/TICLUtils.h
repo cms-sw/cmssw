@@ -8,7 +8,7 @@
 #include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
 namespace ticl {
   namespace utils {
@@ -16,8 +16,6 @@ namespace ticl {
     // Returns array of [negative-z disk, positive-z disk]
     inline std::array<std::unique_ptr<GeomDet>, 2> buildHGCalFirstDisks(const HGCalDDDConstants& hgcons,
                                                                         const CaloGeometry& geom) {
-      hgcal::RecHitTools rhtools;
-      rhtools.setGeometry(geom);
       float zVal = hgcons.waferZ(1, true);
       std::pair<float, float> rMinMax = hgcons.rangeR(zVal, true);
 
@@ -50,7 +48,7 @@ namespace ticl {
     }
 
     inline std::array<std::unique_ptr<GeomDet>, 2> buildHGCalInterfaceDisks(const HGCalDDDConstants& hgcons,
-                                                                            const hgcal::RecHitTools& rhtools) {
+                                                                            const ticlgeom::Tools& rhtools) {
       float zVal_interface = rhtools.getPositionLayer(rhtools.lastLayerEE()).z();
       std::pair<float, float> rMinMax_interface = hgcons.rangeR(zVal_interface, true);
 

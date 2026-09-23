@@ -27,7 +27,7 @@
 #include <iomanip>
 #include <iostream>
 #include <map>
-#include <fmt/core.h>
+#include <fmt/format.h>
 
 // CMSSW classes / style
 #include "Alignment/OfflineValidation/interface/FitWithRooFit.h"

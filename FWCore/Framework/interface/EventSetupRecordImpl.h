@@ -126,10 +126,7 @@ namespace edm {
 
       ///Set the cache identifier and validity interval when starting a new IOV
       ///In addition, also notify the ESProductResolver's a new IOV is starting.
-      ///(As a performance optimization, we only notify the ESProductResolver's if hasFinder
-      ///is true. At the current time, the CondDBESSource ESProductResolver's are the only
-      ///ones who need to know about this and they always have finders).
-      void initializeForNewIOV(unsigned long long iCacheIdentifier, ValidityInterval const&, bool hasFinder);
+      void initializeForNewIOV(unsigned long long iCacheIdentifier, ValidityInterval const&);
 
       /**Set the validity interval in a thread safe way. This is used when the
          IOV is already in use and the end of the IOV needs to be updated but

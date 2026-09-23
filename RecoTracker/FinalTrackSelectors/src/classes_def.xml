@@ -1,0 +1,9 @@
+<lcgdict>
+  <class name="TrackTorchClassifierFeaturesSoALayout<128,false>"/>
+  <class name="PortableHostCollection<TrackTorchClassifierFeaturesSoALayout<128,false>>" persistent="false"/>
+  <class name="edm::Wrapper<PortableHostCollection<TrackTorchClassifierFeaturesSoALayout<128,false>>>" persistent="false"/>
+
+  <class name="TrackTorchClassifierScoresSoALayout<128,false>"/>
+  <class name="PortableHostCollection<TrackTorchClassifierScoresSoALayout<128,false>>" persistent="false"/>
+  <class name="edm::Wrapper<PortableHostCollection<TrackTorchClassifierScoresSoALayout<128,false>>>" persistent="false"/>
+</lcgdict>

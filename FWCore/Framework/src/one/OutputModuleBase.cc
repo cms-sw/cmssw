@@ -30,7 +30,6 @@
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-#include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -60,11 +59,9 @@ namespace edm {
       core::OutputModuleCore::doBeginJob_();
     }
 
-    bool OutputModuleBase::doEvent(EventTransitionInfo const& info,
-                                   ActivityRegistry* act,
-                                   ModuleCallingContext const* mcc) {
+    bool OutputModuleBase::doEvent(EventTransitionInfo const& info, ModuleCallingContext const* mcc) {
       {
-        core::OutputModuleCore::doEvent_(info, act, mcc);
+        core::OutputModuleCore::doEvent_(info, mcc);
       }
       if (remainingEvents_ > 0) {
         --remainingEvents_;

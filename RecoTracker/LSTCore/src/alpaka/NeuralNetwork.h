@@ -291,7 +291,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       uint8_t bin_index = (eta1 > 2.5f) ? (dnn::kEtaBins - 1) : static_cast<unsigned int>(eta1 / dnn::kEtaSize);
 
       // Compare output to the cut value for the relevant bin
-      return dnnScore > dnn::t5dnn::kWp[pt_index][bin_index];
+      return dnnScore > dnn::t5dnn::kWp98[pt_index][bin_index];
     }
   }  // namespace t5dnn
 

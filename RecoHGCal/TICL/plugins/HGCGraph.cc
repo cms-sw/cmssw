@@ -27,7 +27,7 @@ void HGCGraphT<TILES>::makeAndConnectDoublets(const TILES &histo,
                                               float maxDeltaTime,
                                               int lastLayerEE,
                                               int lastLayerFH,
-                                              const std::vector<double> &siblings_maxRSquared) {
+                                              const std::vector<float> &siblings_maxRSquared) {
   isOuterClusterOfDoublets_.clear();
   isOuterClusterOfDoublets_.resize(layerClusters.size());
   allDoublets_.clear();

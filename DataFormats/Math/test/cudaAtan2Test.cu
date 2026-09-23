@@ -71,7 +71,7 @@ void go() {
   auto diff_d = cms::cuda::make_device_unique<int[]>(3, nullptr);
 
   int diffs[3];
-  cudaCheck(cudaMemset(diff_d.get(), 0, 3 * 4));
+  CUDA_CHECK(cudaMemset(diff_d.get(), 0, 3 * 4));
 
   // Launch the diff CUDA Kernel
   dim3 threadsPerBlock(32, 32, 1);
@@ -82,7 +82,7 @@ void go() {
 
   cms::cuda::launch(diffAtan<DEGREE>, {blocksPerGrid, threadsPerBlock}, diff_d.get());
 
-  cudaCheck(cudaMemcpy(diffs, diff_d.get(), 3 * 4, cudaMemcpyDeviceToHost));
+  CUDA_CHECK(cudaMemcpy(diffs, diff_d.get(), 3 * 4, cudaMemcpyDeviceToHost));
   delta += (std::chrono::high_resolution_clock::now() - start);
 
   float mdiff = diffs[0] * 1.e-7;

@@ -1,14 +1,20 @@
 <use name="boost"/>
 <use name="cpu_features"/>
 <use name="gcc-atomic"/>
+<use name="rootcore"/>
+<use name="roothistmatrix"/>
+<use name="tinyxml2"/>
 <use name="tbb"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Provenance"/>
+<use name="FWCore/AbstractServices"/>
 <use name="FWCore/Concurrency"/>
 <use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Reflection"/>
-<use name="FWCore/Services"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
 <library file="*.cc" name="FWCoreServicesPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

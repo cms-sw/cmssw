@@ -75,14 +75,11 @@ namespace edm {
     }
 
     void EventSetupRecordImpl::initializeForNewIOV(unsigned long long iCacheIdentifier,
-                                                   ValidityInterval const& iValidityInterval,
-                                                   bool hasFinder) {
+                                                   ValidityInterval const& iValidityInterval) {
       cacheIdentifier_ = iCacheIdentifier;
       validity_ = iValidityInterval;
-      if (hasFinder) {
-        for (auto& productResolver : resolvers_) {
-          productResolver->initializeForNewIOV();
-        }
+      for (auto& productResolver : resolvers_) {
+        productResolver->initializeForNewIOV();
       }
     }
 

@@ -100,8 +100,12 @@ upgradeKeys['Run4'] = [
     'Run4D121FSPU',
     'Run4D126',
     'Run4D126PU',
-     'Run4D121GenOnly',
+    'Run4D127',
+    'Run4D127PU',
+    'Run4D121GenOnly',
     'Run4D121SimOnGen',
+    'Run4D128',
+    'Run4D128PU',
 ]
 
 # pre-generation of WF numbers
@@ -228,6 +232,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'Sim',
         'GenSim',
         'GenSimCloseBy',
+        'GenSimDisplaced',
         'GenSimHLBeamSpot',
         'GenSimHLBeamSpot14',
         'GenSimHLBeamSpotLHE14',
@@ -926,7 +931,7 @@ class UpgradeWorkflow_ticl_barrel(UpgradeWorkflow):
         if 'HARVESTGlobal' in step:
             stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return ('CloseByPGun_Barrel') in fragment and ('Run4' in key)
+        return 'CloseByPGun_Barrel' in fragment and 'Run4' in key
 
 upgradeWFs['ticl_barrel'] = UpgradeWorkflow_ticl_barrel(
     steps = [
@@ -957,7 +962,7 @@ class UpgradeWorkflow_ticl_barrel_CPfromPU(UpgradeWorkflow):
         if 'HARVESTGlobal' in step:
             stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return ('CloseByPGun_Barrel') in fragment and ('Run4' in key) and ('PU' in key)
+        return 'CloseByPGun_Barrel' in fragment and 'Run4' in key and 'PU' in key
 
 upgradeWFs['ticl_barrel_CPfromPU'] = UpgradeWorkflow_ticl_barrel_CPfromPU(
     steps = [
@@ -1010,6 +1015,49 @@ upgradeWFs['ticlv5_TrackLinkingGNN'] = UpgradeWorkflow_ticlv5_TrackLinkingGNN(
 upgradeWFs['ticlv5_TrackLinkingGNN'].step2 = {'--procModifiers': 'ticlv5_TrackLinkingGNN'}
 upgradeWFs['ticlv5_TrackLinkingGNN'].step3 = {'--procModifiers': 'ticlv5_TrackLinkingGNN'}
 upgradeWFs['ticlv5_TrackLinkingGNN'].step4 = {'--procModifiers': 'ticlv5_TrackLinkingGNN'}
+
+
+
+class UpgradeWorkflow_enableTruth(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        # enableTruth runs the truth-graph producers in RecoGlobal (step3). The Branch
+        # validators run in the RecoGlobal VALIDATION and their efficiency harvesting
+        # in HARVESTGlobal (step4), so the modifier must reach the harvesting step too.
+        # GenSim (step1) needs no modifier: SimVertex ancestor reconnection
+        # (g4SimHits TrackingAction.ReconnectDroppedAncestors) is a baseline default,
+        # so the truth graph is connected to the generator in every sample.
+        if 'GenSim' in step or 'RecoGlobal' in step or 'HARVESTGlobal' in step:
+            stepDict[stepName][k] = deepcopy(stepDict[step][k])
+
+            if '--procModifiers' in stepDict[stepName][k]:
+                stepDict[stepName][k]['--procModifiers'] += ',enableTruth'
+            else:
+                stepDict[stepName][k]['--procModifiers'] = 'enableTruth'
+
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return 'Run4' in key
+
+
+upgradeWFs['enableTruth'] = UpgradeWorkflow_enableTruth(
+    steps = [
+        'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
+        'GenSimHLBeamSpotCloseBy',
+        'RecoGlobal',
+        'HARVESTGlobal',
+    ],
+    PU = [
+        'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
+        'GenSimHLBeamSpotCloseBy',
+        'RecoGlobal',
+        'HARVESTGlobal',
+    ],
+    suffix = '_enableTruth',
+    offset = 0.88,
+)
 
 # L3 Tracker Muon Outside-In reconstruction first
 class UpgradeWorkflow_phase2L3MuonsOIFirst(UpgradeWorkflow):
@@ -1978,20 +2026,10 @@ upgradeWFs['HLTTiming75e33LegacyTracking'].suffix = '_HLT75e33TimingLegacyTracki
 upgradeWFs['HLTTiming75e33LegacyTracking'].offset = 0.753
 upgradeWFs['HLTTiming75e33LegacyTracking'].step2['--procModifiers'] = 'hltPhase2LegacyTracking'
 
-upgradeWFs['HLTTiming75e33LegacyTrackingPatatrackQuads'] = deepcopy(upgradeWFs['HLTTiming75e33'])
-upgradeWFs['HLTTiming75e33LegacyTrackingPatatrackQuads'].suffix = '_HLT75e33TimingLegacyTrackingPatatrackQuads'
-upgradeWFs['HLTTiming75e33LegacyTrackingPatatrackQuads'].offset = 0.754
-upgradeWFs['HLTTiming75e33LegacyTrackingPatatrackQuads'].step2['--procModifiers'] = 'hltPhase2LegacyTrackingPatatrackQuadsChain'
-
 upgradeWFs['HLTTiming75e33LST'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33LST'].suffix = '_HLT75e33TimingLST'
 upgradeWFs['HLTTiming75e33LST'].offset = 0.755
 upgradeWFs['HLTTiming75e33LST'].step2['--procModifiers'] = 'trackingLST'
-
-upgradeWFs['HLTTiming75e33TrimmedTracking'] = deepcopy(upgradeWFs['HLTTiming75e33'])
-upgradeWFs['HLTTiming75e33TrimmedTracking'].suffix = '_HLT75e33TimingTrimmedTracking'
-upgradeWFs['HLTTiming75e33TrimmedTracking'].offset = 0.756
-upgradeWFs['HLTTiming75e33TrimmedTracking'].step2['--procModifiers'] = 'phase2_hlt_vertexTrimming'
 
 upgradeWFs['HLTTiming75e33MkFitFit'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33MkFitFit'].suffix = '_HLT75e33TimingMkFitFit'
@@ -2092,6 +2130,90 @@ upgradeWFs['L1NGTScoutingWithNanoValid'].step2['--datatier'] += ',GEN-SIM-DIGI-R
 upgradeWFs['L1NGTScoutingWithNanoValid'].step2['--procModifiers'] += ',nano_l1_hlt'
 upgradeWFs['L1NGTScoutingWithNanoValid'].step2['--eventcontent'] += ',FEVTDEBUGHLT'
 
+class UpgradeWorkflow_HLTPhase2_WithNanoAndDQM(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        # skip ALCA and HLT-only steps
+        if ('ALCA' in step) or ('HLT' in step):
+            stepDict[stepName][k] = None
+        elif 'DigiTrigger' in step:
+            # Add the aging customization
+            mergedStep = merge([self.step2, stepDict[step][k]])
+            if '--customise' in mergedStep:
+                mergedStep['--customise'] += ',SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000'
+            else:
+                mergedStep['--customise'] = 'SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000'
+            stepDict[stepName][k] = mergedStep
+        elif step == 'RecoGlobal':
+            # replace default RECO+MiniAOD+DQM with NANO+DQM production
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        elif 'HARVESTGlobal' in step:
+            # real harvesting, reading back the DQM output of step3
+            stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
+        else:
+            stepDict[stepName][k] = merge([stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and 'Run4' in key
+
+upgradeWFs['HLTPhase2WithNanoAndDQM'] = UpgradeWorkflow_HLTPhase2_WithNanoAndDQM(
+    steps = [
+        'Reco',
+        'RecoGlobal',
+        'RecoNano',
+        'DigiTrigger',
+        'ALCA',
+        'ALCAPhase2',
+        'RecoGlobalFakeHLT',
+        'HLT75e33',
+        'HARVESTGlobal',
+        'HARVESTGlobalFakeHLT',
+    ],
+    PU = [
+        'Reco',
+        'RecoGlobal',
+        'RecoNano',
+        'DigiTrigger',
+        'ALCA',
+        'ALCAPhase2',
+        'RecoGlobalFakeHLT',
+        'HLT75e33',
+        'HARVESTGlobal',
+        'HARVESTGlobalFakeHLT',
+    ],
+    suffix = '_HLTPhase2WithNanoAndDQM',
+    offset = 0.7592,
+)
+upgradeWFs['HLTPhase2WithNanoAndDQM'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:@relvalRun4',
+    '--datatier':'GEN-SIM-DIGI-RAW',
+    '--eventcontent':'FEVTDEBUGHLT'
+}
+
+upgradeWFs['HLTPhase2WithNanoAndDQM'].step3 = {
+    '-s':'NANO:@Phase2HLT,DQM:@nanohltDQM',
+    '--datatier':'NANOAODSIM,DQMIO',
+    '--eventcontent':'NANOAODSIM,DQMIO'
+}
+
+upgradeWFs['HLTPhase2WithNanoAndDQM'].step4 = {
+    '-s':'HARVESTING:@nanohltDQM',
+    '--filetype':'DQM'
+}
+
+upgradeWFs['NGTScoutingWithNanoAndDQM'] = deepcopy(upgradeWFs['HLTPhase2WithNanoAndDQM'])
+upgradeWFs['NGTScoutingWithNanoAndDQM'].suffix = '_NGTScoutingWithNanoAndDQM'
+upgradeWFs['NGTScoutingWithNanoAndDQM'].offset = 0.7721
+upgradeWFs['NGTScoutingWithNanoAndDQM'].step2['-s'] = upgradeWFs['NGTScoutingWithNanoAndDQM'].step2['-s'].replace(
+    'HLT:@relvalRun4', 'HLT:@relvalRun4_scouting'
+)
+
+upgradeWFs['NGTScoutingWithNanoAndDQM'].step2['--procModifiers'] = 'alpaka,ngtScouting'
+
+upgradeWFs['NGTScoutingWithNanoAndDQM'].step3['-s'] =  upgradeWFs['NGTScoutingWithNanoAndDQM'].step3['-s'].replace(
+    'NANO:@Phase2HLT,DQM:@nanohltDQM', 'NANO:@NGTScouting,DQM:@nanohltDQM'
+)
+
+upgradeWFs['NGTScoutingWithNanoAndDQM'].step3['--procModifiers'] = 'ngtScouting'
+
 class UpgradeWorkflow_HLTwDIGI75e33(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'DigiTrigger' in step:
@@ -2112,7 +2234,7 @@ upgradeWFs['HLTwDIGI75e33'] = UpgradeWorkflow_HLTwDIGI75e33(
 class UpgradeWorkflow_NGTScouting(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         # skip RECO, ALCA and HARVEST
-        if ('ALCA' in step) or ('Reco' in step) or ('HLT' in step):
+        if any(x in step for x in ('ALCA', 'Reco', 'HLT')):
             stepDict[stepName][k] = None
         elif 'DigiTrigger' in step:
             # Add the aging customization
@@ -2126,8 +2248,10 @@ class UpgradeWorkflow_NGTScouting(UpgradeWorkflow):
             stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         else:
             stepDict[stepName][k] = merge([stepDict[step][k]])
+
     def condition(self, fragment, stepList, key, hasHarvest):
-        return (fragment=="TTbar_14TeV" or fragment=="SingleMuPt15Eta0p_0p4") and 'Run4' in key
+        return (fragment=='TTbar_14TeV' or fragment=='SingleMuPt15Eta0p_0p4' or 'Displaced' in fragment) and 'Run4' in key
+    
 upgradeWFs['NGTScouting'] = UpgradeWorkflow_NGTScouting(
     steps = [
         'Reco',
@@ -2295,8 +2419,9 @@ class UpgradeWorkflow_ecalDevel(UpgradeWorkflow):
         self.__harvest = harvest
 
     def setup_(self, step, stepName, stepDict, k, properties):
+        # run the ECAL devel modules and the Phase 2 ECAL TP
+        mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel,phase2_ecalTP_devel'}
         # temporarily remove trigger & downstream steps
-        mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel'}
         if 'Digi' in step:
             mods['-s'] = 'DIGI:pdigi_valid,DIGI2RAW'
             mods['--custom_conditions'] = 'EcalSimPulseShapePhaseII,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
@@ -2316,7 +2441,16 @@ class UpgradeWorkflow_ecalDevel(UpgradeWorkflow):
             stepDict[stepName][k] = None
 
     def condition(self, fragment, stepList, key, hasHarvest):
-        return fragment=="TTbar_14TeV" and 'Run4' in key
+        return any([f in fragment for f in [
+                                            "SingleElectron",
+                                            "SingleEFlat",
+                                            "SingleGamma",
+                                            "CloseByPGun_Barrel_Front",
+                                            "TTbar_14TeV",
+                                            "ZEE_14",
+                                            "DYToLL_M_50_14TeV",
+                                            "H125GGgluonfusion_14"
+                                           ]]) and not 'Eta1p7_2p7' in fragment and 'Run4' in key
 
 # ECAL Phase 2 workflow running on CPU
 upgradeWFs['ecalDevel'] = UpgradeWorkflow_ecalDevel(
@@ -2332,6 +2466,222 @@ upgradeWFs['ecalDevelAlpaka'] = UpgradeWorkflow_ecalDevel(
     },
     suffix = '_ecalDevelAlpaka',
     offset = 0.612,
+)
+
+# ECAL Phase 2 workflow with APD spikes added to the digis and reconstruction with Alpaka
+upgradeWFs['ecalDevelSpikesAlpaka'] = UpgradeWorkflow_ecalDevel(
+    digi = {
+        '--procModifiers': 'ecal_addspikes',
+        '--custom_conditions': 'EcalSimPulseShapes_TB2025_v1,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+    },
+    reco = {
+        '--procModifiers': 'alpaka',
+        '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
+        '--custom_conditions': 'EcalSimPulseShapes_TB2025_v1,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+    },
+    suffix = '_ecalDevelSpikesAlpaka',
+    offset = 0.622,
+)
+
+# ECAL Phase 2 workflow with Alpaka reconstruction and PU from premix
+class UpgradeWorkflowPremix_ecalDevel(UpgradeWorkflow):
+    def __init__(self, digi = {}, reco = {}, harvest = {}, **kwargs):
+        # adapt the parameters for the UpgradeWorkflow init method
+        super(UpgradeWorkflowPremix_ecalDevel, self).__init__(
+            steps = [],
+            PU = [
+                'GenSimHLBeamSpot14',
+                'DigiTrigger',
+                'RecoGlobal',
+                'RecoGlobalFakeHLT',
+                'HARVESTGlobal',
+                'HARVESTGlobalFakeHLT',
+                'ALCAPhase2',
+            ],
+            **kwargs)
+        self.__digi = digi
+        self.__reco = reco
+        self.__harvest = harvest
+    def setup_(self, step, stepName, stepDict, k, properties):
+        # just copy steps
+        stepDict[stepName][k] = merge([stepDict[step][k]])
+    def setupPU_(self, step, stepName, stepDict, k, properties):
+        # setup for stage 1
+        if "GenSim" in stepName:
+            stepNamePmx = stepName.replace('GenSim','Premix')
+            if not stepNamePmx in stepDict: stepDict[stepNamePmx] = {}
+            stepDict[stepNamePmx][k] = merge([
+                {
+                    '-s': 'GEN,SIM,DIGI:pdigi_valid',
+                    '--era': stepDict[step][k]['--era']+',phase2_ecal_devel,phase2_ecalTP_devel',
+                    '--datatier': 'PREMIX',
+                    '--eventcontent': 'PREMIX',
+                    '--procModifiers': 'premix_stage1',
+                    '--custom_conditions': 'EcalSimPulseShapePhaseII,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+                },
+                stepDict[stepName][k]
+            ])
+        # setup for stage 2
+        elif 'Digi' in step or 'Reco' in step:
+            # run the ECAL devel modules and the Phase 2 ECAL TP
+            mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel,phase2_ecalTP_devel'}
+            # temporarily remove trigger & downstream steps
+            if 'Digi' in step:
+                mods['-s'] = 'DIGI:pdigi_valid,DATAMIX,DIGI2RAW'
+                mods['--datamix'] = 'PreMix'
+                mods['--custom_conditions'] = 'EcalSimPulseShapePhaseII,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+                mods['--filein'] = 'file:step1.root'
+                mods['--pileup_input'] = 'file:step2.root'
+                mods |= self.__digi
+                mods['--procModifiers'] = mods['--procModifiers']+',premix_stage2' if '--procModifiers' in mods else 'premix_stage2'
+            elif 'Reco' in step:
+                mods['-s'] = 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly'
+                mods['--datatier'] = 'GEN-SIM-RECO,DQMIO'
+                mods['--eventcontent'] = 'FEVTDEBUGHLT,DQM'
+                mods['--custom_conditions'] = 'EcalSimPulseShapePhaseII,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+                mods |= self.__reco
+                mods['--procModifiers'] = mods['--procModifiers']+',premix_stage2' if '--procModifiers' in mods else 'premix_stage2'
+            stepDict[stepName][k] = merge([mods, stepDict[step][k]])
+        if 'HARVEST' in stepName:
+            # run the ECAL devel modules and the Phase 2 ECAL TP
+            mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel,phase2_ecalTP_devel'}
+            mods['-s'] = 'HARVESTING:@ecalOnlyValidation+@ecal'
+            mods |= self.__harvest
+            stepDict[stepName][k] = merge([mods, stepDict[step][k]])
+        # skip ALCA step
+        if 'ALCA' in step:
+            stepDict[stepName][k] = None
+
+    def condition(self, fragment, stepList, key, hasHarvest):
+        if not 'PU' in key:
+            return False
+        return any([f in fragment for f in [
+                                            "SingleElectron",
+                                            "SingleEFlat",
+                                            "SingleGamma",
+                                            "CloseByPGun_Barrel_Front",
+                                            "TTbar_14TeV",
+                                            "ZEE_14",
+                                            "DYToLL_M_50_14TeV",
+                                            "H125GGgluonfusion_14"
+                                           ]]) and not 'Eta1p7_2p7' in fragment and 'Run4' in key
+
+    def workflow_(self, workflows, num, fragment, stepList, key):
+        fragmentTmp = fragment
+        super(UpgradeWorkflowPremix_ecalDevel,self).workflow_(workflows, num, fragmentTmp, stepList, key)
+
+# ECAL developemnt workflow on CPU with premix combined stage1+stage2
+upgradeWFs['ecalDevelPMXS1S2'] = UpgradeWorkflowPremix_ecalDevel(
+    suffix = '_ecalDevelPMXS1S2',
+    offset = 0.6199,
+)
+
+# ECAL developemnt Alpaka workflow with premix combined stage1+stage2
+upgradeWFs['ecalDevelAlpakaPMXS1S2'] = UpgradeWorkflowPremix_ecalDevel(
+    reco = {
+        '--procModifiers': 'alpaka',
+        '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling'
+    },
+    suffix = '_ecalDevelAlpakaPMXS1S2',
+    offset = 0.61299,
+)
+
+# ECAL component
+class UpgradeWorkflow_ECalComponent(UpgradeWorkflow):
+    def __init__(self, suffix, offset, ecalTPPh2, ecalMod,
+                 steps = [
+                     'GenSim',
+                     'GenSimHLBeamSpot',
+                     'GenSimHLBeamSpot14',
+                     'GenSimHLBeamSpotCloseBy',
+                     'Digi',
+                     'DigiTrigger',
+                     'RecoGlobal',
+                     'HARVESTGlobal',
+                     'ALCAPhase2',
+                 ],
+                 PU = [
+                     'GenSim',
+                     'GenSimHLBeamSpot',
+                     'GenSimHLBeamSpot14',
+                     'GenSimHLBeamSpotCloseBy',
+                     'Digi',
+                     'DigiTrigger',
+                     'RecoGlobal',
+                     'HARVESTGlobal',
+                     'ALCAPhase2',
+                 ]):
+        super(UpgradeWorkflow_ECalComponent, self).__init__(steps, PU, suffix, offset)
+        self.__ecalTPPh2 = ecalTPPh2
+        self.__ecalMod = ecalMod
+
+    def setup_(self, step, stepName, stepDict, k, properties):
+        stepDict[stepName][k] = deepcopy(stepDict[step][k])
+        if 'Sim' in step:
+            if self.__ecalMod is not None:
+                stepDict[stepName][k] = merge([{'--procModifiers':self.__ecalMod},stepDict[step][k]])
+        if 'Digi' in step and 'NoHLT' not in step:
+            if self.__ecalMod is not None:
+                stepDict[stepName][k] = merge([{'--procModifiers':self.__ecalMod},stepDict[step][k]])
+            if self.__ecalTPPh2 is not None:
+                mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel,phase2_ecalTP_devel'}
+                mods['-s'] = 'DIGI:pdigi_valid,DIGI2RAW,HLT:@fake2'
+                stepDict[stepName][k] = merge([mods, stepDict[step][k]])
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,RECO,RECOSIM,PAT',
+                                            '--datatier':'GEN-SIM-RECO',
+                                            '--eventcontent':'FEVTDEBUGHLT',
+                                        }, stepDict[step][k]])
+        if 'HARVESTGlobal' in step:
+            stepDict[stepName][k] = None
+        if 'ALCAPhase2' in step:
+            stepDict[stepName][k] = None
+
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return any([f in fragment for f in [
+                                            "SingleElectron",
+                                            "SingleEFlat",
+                                            "SingleGamma",
+                                            "CloseByPGun_Barrel_Front",
+                                            "TTbar_14TeV",
+                                            "ZEE_14",
+                                            "DYToLL_M_50_14TeV",
+                                            "H125GGgluonfusion_14"
+                                           ]]) and not 'Eta1p7_2p7' in fragment and ('2022' in key or '2023' in key or 'Run4' in key)
+
+upgradeWFs['ECALComponent'] = UpgradeWorkflow_ECalComponent(
+    suffix = '_ecalComponent',
+    offset = 0.631,
+    ecalTPPh2 = None,
+    ecalMod = 'ecal_component',
+)
+
+upgradeWFs['ECALComponentFSW'] = UpgradeWorkflow_ECalComponent(
+    suffix = '_ecalComponentFSW',
+    offset = 0.632,
+    ecalTPPh2 = None,
+    ecalMod = 'ecal_component_finely_sampled_waveforms',
+)
+
+upgradeWFs['ECALTPPh2'] = UpgradeWorkflow_ECalComponent(
+    suffix = '_ecalTPPh2',
+    offset = 0.633,
+    ecalTPPh2 = 'phase2_ecal_devel,phase2_ecalTP_devel',
+    ecalMod = None,
+)
+
+upgradeWFs['ECALTPPh2Component'] = UpgradeWorkflow_ECalComponent(
+    suffix = '_ecalTPPh2Component',
+    offset = 0.634,
+    ecalTPPh2 = 'phase2_ecal_devel,phase2_ecalTP_devel',
+    ecalMod = 'ecal_component',
+)
+
+upgradeWFs['ECALTPPh2ComponentFSW'] = UpgradeWorkflow_ECalComponent(
+    suffix = '_ecalTPPh2ComponentFSW',
+    offset = 0.635,
+    ecalTPPh2 = 'phase2_ecal_devel,phase2_ecalTP_devel',
+    ecalMod = 'ecal_component_finely_sampled_waveforms',
 )
 
 # Offline HGCAL NanoAOD workflows
@@ -2399,95 +2749,6 @@ upgradeWFs['HGCALNanoVal'].step3 = {
     '--datatier': 'GEN-SIM-RECO,MINIAODSIM,DQMIO,NANOAODSIM',
     '--eventcontent': 'FEVTDEBUGHLT,MINIAODSIM,DQM,NANOAODSIM'
 }
-
-# ECAL component
-class UpgradeWorkflow_ECalComponent(UpgradeWorkflow):
-    def __init__(self, suffix, offset, ecalTPPh2, ecalMod,
-                 steps = [
-                     'GenSim',
-                     'GenSimHLBeamSpot',
-                     'GenSimHLBeamSpot14',
-                     'GenSimHLBeamSpotCloseBy',
-                     'Digi',
-                     'DigiTrigger',
-                     'RecoGlobal',
-                     'HARVESTGlobal',
-                     'ALCAPhase2',
-                 ],
-                 PU = [
-                     'GenSim',
-                     'GenSimHLBeamSpot',
-                     'GenSimHLBeamSpot14',
-                     'GenSimHLBeamSpotCloseBy',
-                     'Digi',
-                     'DigiTrigger',
-                     'RecoGlobal',
-                     'HARVESTGlobal',
-                     'ALCAPhase2',
-                 ]):
-        super(UpgradeWorkflow_ECalComponent, self).__init__(steps, PU, suffix, offset)
-        self.__ecalTPPh2 = ecalTPPh2
-        self.__ecalMod = ecalMod
-
-    def setup_(self, step, stepName, stepDict, k, properties):
-        stepDict[stepName][k] = deepcopy(stepDict[step][k])
-        if 'Sim' in step:
-            if self.__ecalMod is not None:
-                stepDict[stepName][k] = merge([{'--procModifiers':self.__ecalMod},stepDict[step][k]])
-        if 'Digi' in step and 'NoHLT' not in step:
-            if self.__ecalMod is not None:
-                stepDict[stepName][k] = merge([{'--procModifiers':self.__ecalMod},stepDict[step][k]])
-            if self.__ecalTPPh2 is not None:
-                mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel,phase2_ecalTP_devel'}
-                mods['-s'] = 'DIGI:pdigi_valid,DIGI2RAW,HLT:@fake2'
-                stepDict[stepName][k] = merge([mods, stepDict[step][k]])
-        if 'RecoGlobal' in step:
-            stepDict[stepName][k] = merge([{'-s': 'RAW2DIGI,RECO,RECOSIM,PAT',
-                                            '--datatier':'GEN-SIM-RECO',
-                                            '--eventcontent':'FEVTDEBUGHLT',
-                                        }, stepDict[step][k]])
-        if 'HARVESTGlobal' in step:
-            stepDict[stepName][k] = None
-        if 'ALCAPhase2' in step:
-            stepDict[stepName][k] = None
-
-    def condition(self, fragment, stepList, key, hasHarvest):
-        return fragment=="TTbar_14TeV" and ('2022' in key or '2023' in key or 'Run4' in key)
-
-upgradeWFs['ECALComponent'] = UpgradeWorkflow_ECalComponent(
-    suffix = '_ecalComponent',
-    offset = 0.631,
-    ecalTPPh2 = None,
-    ecalMod = 'ecal_component',
-)
-
-upgradeWFs['ECALComponentFSW'] = UpgradeWorkflow_ECalComponent(
-    suffix = '_ecalComponentFSW',
-    offset = 0.632,
-    ecalTPPh2 = None,
-    ecalMod = 'ecal_component_finely_sampled_waveforms',
-)
-
-upgradeWFs['ECALTPPh2'] = UpgradeWorkflow_ECalComponent(
-    suffix = '_ecalTPPh2',
-    offset = 0.633,
-    ecalTPPh2 = 'phase2_ecal_devel,phase2_ecalTP_devel',
-    ecalMod = None,
-)
-
-upgradeWFs['ECALTPPh2Component'] = UpgradeWorkflow_ECalComponent(
-    suffix = '_ecalTPPh2Component',
-    offset = 0.634,
-    ecalTPPh2 = 'phase2_ecal_devel,phase2_ecalTP_devel',
-    ecalMod = 'ecal_component',
-)
-
-upgradeWFs['ECALTPPh2ComponentFSW'] = UpgradeWorkflow_ECalComponent(
-    suffix = '_ecalTPPh2ComponentFSW',
-    offset = 0.635,
-    ecalTPPh2 = 'phase2_ecal_devel,phase2_ecalTP_devel',
-    ecalMod = 'ecal_component_finely_sampled_waveforms',
-)
 
 class UpgradeWorkflow_0T(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
@@ -3113,7 +3374,7 @@ class UpgradeWorkflowHybridPU(UpgradeWorkflow):
             if not stepNameS1 in stepDict: stepDict[stepNameS1] = {}
             stepDict[stepNameS1][k] = merge([{
                 '--fast': '',
-                '--era': stepDict[stepName][k]['--era']+'_FastSim',
+                '--era': stepDict[stepName][k]['--era'],
                 '--eventcontent': 'FASTPU',
                 '--processName': 'FASTSIM',
             }, d])
@@ -3180,7 +3441,6 @@ class UpgradeWorkflow_Run3FStrackingOnly(UpgradeWorkflow):
         if 'HARVESTFastRun3' in step:
             stepDict[stepName][k] = merge([{'-s':'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM',
                                             '--fast':'',
-                                            '--era':'Run3_FastSim',
                                             '--filein':'file:step1_inDQM.root'}, stepDict[step][k]])
         else:
             stepDict[stepName][k] = merge([stepDict[step][k]])
@@ -3205,7 +3465,6 @@ class UpgradeWorkflow_Run3FSMBMixing(UpgradeWorkflow):
         if 'Gen' in step and 'GenOnly' not in step:
             stepDict[stepName][k] = merge([{'-s':'GEN,SIM,RECOBEFMIX',
                                             '--fast':'',
-                                            '--era':'Run3_FastSim',
                                             '--eventcontent':'FASTPU',
                                             '--datatier':'GEN-SIM-RECO',
                                             '--relval':'27000,3000'}, stepDict[step][k]])
@@ -3524,7 +3783,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2022_realistic',
         'HLTmenu': '@relval2022',
-        'Era' : 'Run3_FastSim',
+        'Era' : 'Run3',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
@@ -3540,7 +3799,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2023_realistic',
         'HLTmenu': '@relval2023',
-        'Era' : 'Run3_2023_FastSim',
+        'Era' : 'Run3_2023',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
@@ -3595,7 +3854,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2024_realistic',
         'HLTmenu': '@relval2024',
-        'Era' : 'Run3_2024_FastSim',
+        'Era' : 'Run3_2024',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
@@ -3635,7 +3894,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2025_realistic',
         'HLTmenu': '@relval2025',
-        'Era' : 'Run3_2025_FastSim',
+        'Era' : 'Run3_2025',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
@@ -3676,7 +3935,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2026_realistic',
         'HLTmenu': '@relval2026',
-        'Era' : 'Run3_2026_FastSim',
+        'Era' : 'Run3_2026',
         'BeamSpot': 'DBrealistic',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     }
@@ -3826,6 +4085,20 @@ upgradeProperties['Run4'] = {
         'Era' : 'Phase2C26I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
+    'Run4D127' : {
+        'Geom' : 'ExtendedRun4D127',
+        'HLTmenu': '@relvalRun4',
+        'GT' : 'auto:phase2_realistic_T35',
+        'Era' : 'Phase2C26I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    'Run4D128' : {
+        'Geom' : 'ExtendedRun4D128',
+        'HLTmenu': '@relvalRun4',
+        'GT' : 'auto:phase2_realistic_T35',
+        'Era' : 'Phase2C26I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
     'Run4D121GenOnly' : {
         'Geom' : 'ExtendedRun4D121',
         'BeamSpot' : 'DBrealisticHLLHC',
@@ -3954,7 +4227,7 @@ upgradeFragments = OrderedDict([
     ('DisplacedSUSY_stopToBottom_M_800_500mm_TuneCP5_13TeV_pythia8_cff', UpgradeFragment(Kby(9,50),'DisplacedSUSY_stopToB_M_800_500mm_13')),
     ('TenE_E_0_200_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenE_0_200')),
     ('FlatRandomPtAndDxyGunProducer_cfi', UpgradeFragment(Kby(9,100),'DisplacedMuonsDxy_0_500')),
-    ('TenTau_E_15_500_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_15_500')),
+    ('TenTau_E15to500_Eta3p1_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_E15to500_Eta3p1')),
     ('SinglePiPt25Eta1p7_2p7_cfi', UpgradeFragment(Kby(9,100),'SinglePiPt25Eta1p7_2p7')),
     ('SingleMuPt15Eta1p7_2p7_cfi', UpgradeFragment(Kby(9,100),'SingleMuPt15Eta1p7_2p7')),
     ('SingleGammaPt25Eta1p7_2p7_cfi', UpgradeFragment(Kby(9,100),'SingleGammaPt25Eta1p7_2p7')),
@@ -3989,7 +4262,7 @@ upgradeFragments = OrderedDict([
     ('ZpTT_1500_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50),'ZpTT_1500_14')),
     ('BuMixing_BMuonFilter_forSTEAM_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(900,10000),'BuMixing_14')),
     ('Upsilon1SToMuMu_forSTEAM_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50),'Upsilon1SToMuMu_14')),
-    ('TenTau_E_15_500_Eta3p1_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_15_500_Eta3p1')),
+    ('TenTau_Pt10to500_Eta3p1_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_Pt10to500_Eta3p1')),
     ('QCD_Pt_1800_2400_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(9,50), 'QCD_Pt_1800_2400_14')),
     ('DisplacedSUSY_stopToBottom_M_800_500mm_TuneCP5_14TeV_pythia8_cff', UpgradeFragment(Kby(9,50),'DisplacedSUSY_14TeV')),
     ('GluGluTo2Jets_M_300_2000_14TeV_Exhume_cff',UpgradeFragment(Kby(9,100),'GluGluTo2Jets_14TeV')),
@@ -4023,4 +4296,6 @@ upgradeFragments = OrderedDict([
     ('Configuration/Generator/python/DYto2TautoMuTauh_BinMLL50_TuneCP5_14TeV_madgraphMLM_pythia8_cfi.py', UpgradeFragment(Kby(9,100),'DYto2TautoMuTauh_M_50_14TeV')),
     ('SingleMuPt15Eta0_0p4_cfi', UpgradeFragment(Kby(9,100),'SingleMuPt15Eta0p_0p4')),
     ('CloseByPGun_Barrel_Front_cfi', UpgradeFragment(Kby(9,100),'CloseByPGun_Barrel_Front')),
+    ('DisplacedParticleGun_cfi', UpgradeFragment(Kby(9,100),'DisplacedPGun')),
+    ('TenTau_Pt10to500_Eta4p1_pythia8_cfi', UpgradeFragment(Kby(9,100),'TenTau_Pt10to500_Eta4p1')),
 ])

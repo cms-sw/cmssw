@@ -32,9 +32,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         : EDProducer(config),
           getTokenDevice_{consumes(config.getParameter<edm::InputTag>("hgcalRecHitsSoA"))},
           deviceToken_{produces()},
-          deltac_((float)config.getParameter<double>("deltac")),
-          kappa_((float)config.getParameter<double>("kappa")),
-          outlierDeltaFactor_((float)config.getParameter<double>("outlierDeltaFactor")) {}
+          deltac_(config.getParameter<float>("deltac")),
+          kappa_(config.getParameter<float>("kappa")),
+          outlierDeltaFactor_(config.getParameter<float>("outlierDeltaFactor")) {}
 
     ~HGCalSoARecHitsLayerClustersProducer() override = default;
 
@@ -54,9 +54,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.add<edm::InputTag>("hgcalRecHitsSoA", edm::InputTag("TO BE DEFINED"));
-      desc.add<double>("deltac", 1.3);
-      desc.add<double>("kappa", 9.);
-      desc.add<double>("outlierDeltaFactor", 2.);
+      desc.add<float>("deltac", 1.3);
+      desc.add<float>("kappa", 9.);
+      desc.add<float>("outlierDeltaFactor", 2.);
       descriptions.addWithDefaultLabel(desc);
     }
 

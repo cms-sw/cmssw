@@ -14,11 +14,14 @@
 HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps, edm::ConsumesCollector iC)
     : HGCalRecHitWorkerBaseClass(ps, iC),
       caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      ticlGeomToken_(iC.esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+      ticlGeomLookupToken_(iC.esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+      ticlGeomLayersToken_(iC.esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
       ee_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalEESensitive"))),
       hef_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalHESiliconSensitive"))),
       hfnose_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalHFNoseSensitive"))) {
   rechitMaker_ = std::make_unique<HGCalRecHitSimpleAlgo>();
-  tools_ = std::make_unique<hgcal::RecHitTools>();
+  tools_ = std::make_unique<ticlgeom::Tools>();
   constexpr float keV2GeV = 1e-6;
 
   // HGCee constants
@@ -103,9 +106,8 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps, ed
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
-  const CaloGeometry& geom = es.getData(caloGeomToken_);
-  tools_->setGeometry(geom);
-  rechitMaker_->set(geom);
+  tools_->setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
+  rechitMaker_->set(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
   if (hgcEE_isSiFE_) {
     const HGCalGeometry& hgceeGeoHandle = es.getData(ee_geometry_token_);
     ddds_[0] = &(hgceeGeoHandle.topology().dddConstants());

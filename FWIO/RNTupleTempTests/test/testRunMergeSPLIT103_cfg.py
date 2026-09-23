@@ -10,6 +10,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
+#Contents of file
+#testRunMerge102.root  "PROD" [run:41-42,lumi:21-30, ev:1-30]
 process.source = cms.Source("RNTupleTempSource",
     fileNames = cms.untracked.vstring(
         'file:testRunMerge102.root'
@@ -23,5 +25,7 @@ process.task = cms.Task(process.thingWithMergeProducer)
 process.out = cms.OutputModule("RNTupleTempOutputModule",
     fileName = cms.untracked.string('testRunMergeSPLIT103.root')
 )
+#Contents of file
+#testRunMergeSPLIT103.root  "PROD" and "SPLIT" [run:41-42,lumi:21-25, ev:1-15] with "PROD" range[run:41-42,lumi:21-30]
 
 process.e = cms.EndPath(process.out, process.task)

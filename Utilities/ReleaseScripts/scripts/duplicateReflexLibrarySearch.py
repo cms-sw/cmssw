@@ -33,9 +33,16 @@ io_v = r"(io_v\d+::)?"
 equivDict = \
      [
          {'SelectorUtils': ['VersionedSelector']},
-         {'Associations': ['TTTrackTruthPair', 'edm::Wrapper.+edm::AssociationMap.+TrackingParticle', 'MtdSimLayerCluster.+TrackingParticle', 'TrackingParticle.+MtdSimLayerCluster',
+         {'Associations': ['TTTrackTruthPair',
+                           'edm::Wrapper.+edm::AssociationMap.+TrackingParticle',
+                           'MtdSimLayerCluster.+TrackingParticle',
+                           'TrackingParticle.+MtdSimLayerCluster',
                            '(TTClusterAssociationMap|TTStubAssociationMap|TTTrackAssociationMap|TrackingParticle).*Phase2TrackerDigi',
-                           '(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi.*TrackingParticle']},
+                           '(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi.*TrackingParticle',
+                           'reco::VertexToTrackingVertexAssociator',
+                           f'TrackingVertex.*reco::{io_v}Vertex',
+                           f'reco::{io_v}Vertex.*TrackingVertex',
+                           ]},
          {'TrajectoryState'         : ['TrajectoryStateOnSurface']},
          {'L1TrackTrigger'        : ['(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi']},
          {'L1Scouting'            : ['l1ScoutingRun3::CaloTower.*']},

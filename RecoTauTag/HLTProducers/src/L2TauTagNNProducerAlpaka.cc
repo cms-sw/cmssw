@@ -576,10 +576,10 @@ void L2TauNNProducerAlpaka::selectGoodTracksAndVertices(const ZVertexHost& patav
                                                         const TracksHost& patatracks_tsoa,
                                                         std::vector<int>& trkGood,
                                                         std::vector<int>& vtxGood) {
-  const auto maxTracks = patatracks_tsoa.view().tracks().metadata().size();
+  const auto nTracks = patatracks_tsoa.view().tracks().nTracks();
   const int nv = patavtx_soa.view().zvertex().nvFinal();
   trkGood.clear();
-  trkGood.reserve(maxTracks);
+  trkGood.reserve(nTracks);
   vtxGood.clear();
   vtxGood.reserve(nv);
   auto const quality = patatracks_tsoa.view().tracks().quality();
@@ -588,11 +588,8 @@ void L2TauNNProducerAlpaka::selectGoodTracksAndVertices(const ZVertexHost& patav
   std::vector<float> pTSquaredSum(nv, 0);
   std::vector<int> nTrkAssociated(nv, 0);
 
-  for (int32_t trk_idx = 0; trk_idx < maxTracks; ++trk_idx) {
+  for (int32_t trk_idx = 0; trk_idx < nTracks; ++trk_idx) {
     auto n_hits = nHits(patatracks_tsoa.view().tracks(), trk_idx);
-    if (n_hits == 0) {
-      break;
-    }
     int vtx_ass_to_track = patavtx_soa.view().zvertexTracks()[trk_idx].idv();
     if (vtx_ass_to_track >= 0 && vtx_ass_to_track < nv) {
       auto patatrackPt = patatracks_tsoa.view().tracks()[trk_idx].pt();

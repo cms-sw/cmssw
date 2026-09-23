@@ -69,7 +69,7 @@ EGammaSuperclusterProducer::EGammaSuperclusterProducer(const edm::ParameterSet& 
                         ps.getParameter<edm::InputTag>("ticlSuperClusters").process()))),
       ticlTrackstersEMToken_(consumes<ticl::TracksterCollection>(ps.getParameter<edm::InputTag>("ticlTrackstersEM"))),
       layerClustersToken_(consumes<reco::CaloClusterCollection>(ps.getParameter<edm::InputTag>("layerClusters"))),
-      superclusterEtThreshold_(ps.getParameter<double>("superclusterEtThreshold")),
+      superclusterEtThreshold_(ps.getParameter<float>("superclusterEtThreshold")),
       enableRegression_(ps.getParameter<bool>("enableRegression")) {
   if (enableRegression_) {
     onnxInputs_.resize(1);
@@ -244,7 +244,7 @@ void EGammaSuperclusterProducer::fillDescriptions(edm::ConfigurationDescriptions
       ->setComment("The trackster collection used before superclustering, ie CLUE3D EM tracksters");
   desc.add<edm::InputTag>("layerClusters", edm::InputTag("hgcalMergeLayerClusters"))
       ->setComment("The layer cluster collection that goes with ticlTrackstersEM");
-  desc.add<double>("superclusterEtThreshold", 4.)->setComment("Minimum supercluster transverse energy.");
+  desc.add<float>("superclusterEtThreshold", 4.)->setComment("Minimum supercluster transverse energy.");
   desc.add<bool>("enableRegression", true)->setComment("Enable supercluster energy regression");
   desc.add<edm::FileInPath>("regressionModelPath",
                             edm::FileInPath("RecoHGCal/TICL/data/superclustering/regression_v1.onnx"))

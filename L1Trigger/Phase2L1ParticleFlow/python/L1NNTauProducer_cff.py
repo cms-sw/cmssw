@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from L1Trigger.Phase2L1ParticleFlow.l1ctLayer1_cff import l1tLayer1Barrel,l1tLayer1HGCal,l1tLayer1
 
+nnPuppiTauModelName = "NNPuppiTauModel_v1"
+
 #from L1Trigger.Phase2L1ParticleFlow.L1NNTauProducer_cfi import *
 
 #L1NNTauProducerPuppi = L1NNTauProducer.clone(
@@ -19,7 +21,8 @@ l1tNNTauProducerPuppi = cms.EDProducer("L1NNTauProducer",
                                       emseed          = cms.bool(True),
                                       debug           = cms.bool(False),
                                       L1PFObjects     = cms.InputTag('l1tLayer2Deregionizer:Puppi'), #1pfCandidates:Puppi"),#l1pfCandidates
-                                      NNFileName      = cms.string("L1Trigger/Phase2L1ParticleFlow/data/tau_3layer_puppi.pb")
+                                      NNFileName      = cms.string("L1Trigger/Phase2L1ParticleFlow/data/tau_3layer_puppi.pb"),
+                                      tauModelPath    = cms.string(nnPuppiTauModelName)
 )
 
 l1tNNTauProducerPF = cms.EDProducer("L1NNTauProducer",
@@ -29,6 +32,7 @@ l1tNNTauProducerPF = cms.EDProducer("L1NNTauProducer",
                                       maxtaus         = cms.int32(5),
                                       nparticles      = cms.int32(10),
                                       L1PFObjects     = cms.InputTag("l1tLayer1:PF"),#l1pfCandidates
-                                      NNFileName      = cms.string("L1Trigger/Phase2L1ParticleFlow/data/tau_3layer.pb")
+                                      NNFileName      = cms.string("L1Trigger/Phase2L1ParticleFlow/data/tau_3layer.pb"),
+                                      tauModelPath    = cms.string(nnPuppiTauModelName)
 )
 

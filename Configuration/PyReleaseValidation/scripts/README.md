@@ -319,10 +319,10 @@ MC workflows for pp collisions:
 | **Run3** 	|  	|  	|  	|  	|  	
 | |  	|  	|  	|  	|  	
 | 11634.0 	| TTbar_14TeV 	| phase1_2022_realistic 	| Run3 	|  	|  	
-| 13234.0 	| RelValTTbar_14TeV 	| phase1_2022_realistic 	| Run3_FastSim 	| *FastSim*  |  	
+| 13234.0 	| RelValTTbar_14TeV 	| phase1_2022_realistic 	| Run3 	| *FastSim*  |  	
 | 12434.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023 	|  	|  	
-| 14034.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023_FastSim 	|  	*FastSim* |  	
-| 14234.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023_FastSim 	| *FastSim*  Run3_Flat55To75_PoissonOOTPU 	|  	
+| 14034.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023 	|  	*FastSim* |  	
+| 14234.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023 	| *FastSim*  Run3_Flat55To75_PoissonOOTPU 	|  	
 | 12834.0 	| RelValTTbar_14TeV 	| phase1_2024_realistic 	| Run3_2024 	|  	| 
 | 12846.0 	| RelValZEE_14 	| phase1_2023_realistic 	| Run3_2024 	|  	|  	
 | 13034.0 	| RelValTTbar_14TeV 	| phase1_2024_realistic 	| Run3_2024 	|  Run3_Flat55To75_PoissonOOTPU 	|  	

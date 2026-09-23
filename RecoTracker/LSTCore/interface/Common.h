@@ -22,6 +22,9 @@ namespace lst {
   // Named types for LST objects
   enum LSTObjType : int8_t { T5 = 4, pT3 = 5, pT5 = 7, pLS = 8, T4 = 9 };
 
+  // Packed per-triplet flags, non-overlapping bits.
+  enum T3Flag : uint8_t { kT3LoosePointing = 0b0001, kT3MdDirectionFail = 0b0010 };
+
   enum class HitType : int { Pixel = 0, Invalid = 3, Phase2OT = 4 };  // as in TrackingNtuple.cc
 
   constexpr unsigned int kPixelModuleId = 1;
@@ -46,6 +49,7 @@ namespace lst {
 
   constexpr uint16_t kTCEmptyLowerModule = 0xFFFF;     // Sentinel for empty lowerModule index
   constexpr unsigned int kTCEmptyHitIdx = 0xFFFFFFFF;  // Sentinel for empty hit slots
+  constexpr unsigned int kInvalidU32Idx = 0xFFFFFFFF;  // Sentinel for invalid uint32 idx
 
   constexpr float kB = lstgeometry::kB;
   constexpr float kC = lstgeometry::kC;

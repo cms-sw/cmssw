@@ -11,5 +11,5 @@
 
 namespace caStructures {
   using CAPairHost = PortableHostCollection<CAPairSoA>;
-}
+}  // namespace caStructures
 #endif  // RecoTracker_PixelSeeding_interface_CAPairHost_h

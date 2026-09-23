@@ -7,7 +7,7 @@
 
 #include <list>
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/ClusterTools.h"
 
 class HGCalDepthPreClusterer {
@@ -31,13 +31,15 @@ public:
         minClusters(min_clusters),
         realSpaceCone(real_space_cone),
         clusterTools(std::make_unique<hgcal::ClusterTools>(conf, sumes)),
-        caloGeomToken_(sumes.esConsumes<CaloGeometry, CaloGeometryRecord>()) {}
+        ticlGeomToken_(sumes.esConsumes(edm::ESInputTag("", ""))),
+        ticlGeomLookupToken_(sumes.esConsumes(edm::ESInputTag("", ""))),
+        ticlGeomLayersToken_(sumes.esConsumes(edm::ESInputTag("", ""))) {}
 
   void getEvent(const edm::Event& ev) { clusterTools->getEvent(ev); }
   void getEventSetup(const edm::EventSetup& es) {
     clusterTools->getEventSetup(es);
-    edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeomToken_);
-    rhtools_.setGeometry(*geom);
+    rhtools_.setGeometry(
+        es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
   }
 
   typedef std::vector<reco::BasicCluster> ClusterCollection;
@@ -51,8 +53,10 @@ private:
   bool realSpaceCone; /*!< flag to use cartesian space clustering. */
 
   std::unique_ptr<hgcal::ClusterTools> clusterTools;
-  hgcal::RecHitTools rhtools_; /*!< instance of tools to access RecHit information. */
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+  ticlgeom::Tools rhtools_; /*!< instance of tools to access RecHit information. */
+  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
+  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
+  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
 };
 
 #endif

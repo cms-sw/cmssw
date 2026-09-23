@@ -93,6 +93,7 @@ namespace edm {
       virtual bool wantsInputProcessBlocks() const noexcept = 0;
       virtual bool wantsGlobalRuns() const noexcept = 0;
       virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
+      constexpr static bool wantsWrites() noexcept { return false; }
       virtual bool hasAcquire() const noexcept = 0;
       virtual bool hasAccumulator() const noexcept = 0;
       virtual bool wantsStreamRuns() const noexcept = 0;

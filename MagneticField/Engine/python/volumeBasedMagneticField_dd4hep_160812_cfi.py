@@ -1,26 +1,17 @@
+"""
+This cfi contains everything needed to use the VolumeBased magnetic field engine version 160812.
+
+MF geometry is read from xml files using DD4hep.
+PLEASE DO NOT USE THIS DIRECTLY.
+Always use the standard sequence: Configuration.StandardSequences.MagneticField_cff
+"""
+
 import FWCore.ParameterSet.Config as cms
 from MagneticField.Engine.volumeBasedMagneticField_160812_cfi import VBFConfig_160812 
 from MagneticField.Engine.volumeBasedMagneticField_160812_cfi import ParametrizedMagneticFieldProducer
 
 
-# This cfi contains everything needed to use the VolumeBased magnetic
-# field engine version 160812 built using dd4hep for the geometry.
-#
-# PLEASE DO NOT USE THIS DIRECTLY
-# Always use the standard sequence Configuration.StandardSequences.MagneticField_cff
-
-
-DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-    confGeomXMLFiles = cms.FileInPath('MagneticField/GeomBuilder/data/cms-mf-geometry_160812.xml'),
-    rootDDName = cms.string('cmsMagneticField:MAGF'),
-    appendToDataLabel = cms.string('magfield')
-    )
-
-
-DDCompactViewMFESProducer = cms.ESProducer("DDCompactViewMFESProducer",
-                                            appendToDataLabel = cms.string('magfield')
-                                           )
-
+from MagneticField.GeomBuilder.MFDD4hepGeometry_160812_cff import *
 
 VolumeBasedMagneticFieldESProducer = cms.ESProducer("DD4hep_VolumeBasedMagneticFieldESProducer",
     VBFConfig_160812,

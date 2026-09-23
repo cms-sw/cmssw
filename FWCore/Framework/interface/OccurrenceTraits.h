@@ -35,7 +35,7 @@ namespace edm {
   class OccurrenceTraits;
 
   template <>
-  class OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin> {
+  class OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin> {
   public:
     using MyPrincipal = EventPrincipal;
     using TransitionInfoType = EventTransitionInfo;
@@ -62,6 +62,17 @@ namespace edm {
     }
     static void postPathSignal(ActivityRegistry* a, HLTPathStatus const& status, PathContext const* pathContext) {
       a->postPathEventSignal_.emit(*pathContext->streamContext(), *pathContext, status);
+    }
+
+    static void preModuleSignal(ActivityRegistry* a,
+                                StreamContext const* streamContext,
+                                ModuleCallingContext const* moduleCallingContext) {
+      a->preModuleEventSignal_.emit(*streamContext, *moduleCallingContext);
+    }
+    static void postModuleSignal(ActivityRegistry* a,
+                                 StreamContext const* streamContext,
+                                 ModuleCallingContext const* moduleCallingContext) {
+      a->postModuleEventSignal_.emit(*streamContext, *moduleCallingContext);
     }
 
     static const char* transitionName() { return "Event"; }
@@ -435,7 +446,7 @@ namespace edm {
   class OccurrenceTraits<ProcessBlockPrincipal, TransitionActionProcessBlockInput> {
   public:
     using MyPrincipal = ProcessBlockPrincipal;
-    using TransitionInfoType = ProcessBlockTransitionInfo;
+    using TransitionInfoType = InputProcessBlockTransitionInfo;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InProcess;
     static bool constexpr isEvent_ = false;

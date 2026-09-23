@@ -11,7 +11,11 @@
 // user include files
 #include "RecoMuon/MuonIdentification/plugins/MuonIdProducer.h"
 
+#include <algorithm>
+
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
@@ -31,6 +35,18 @@
 #include "RecoMuon/MuonIdentification/interface/MuonMesh.h"
 #include "RecoMuon/MuonIdentification/interface/MuonKinkFinder.h"
 
+namespace {
+  // add the chambers of another propagation, skipping the ones already matched
+  void appendMatches(std::vector<reco::MuonChamberMatch>& matches, const std::vector<reco::MuonChamberMatch>& extra) {
+    for (const auto& match : extra) {
+      const bool alreadyThere =
+          std::any_of(matches.begin(), matches.end(), [&match](const auto& kept) { return kept.id == match.id; });
+      if (!alreadyThere)
+        matches.push_back(match);
+    }
+  }
+}  // namespace
+
 MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
     : geomTokenRun_(esConsumes<edm::Transition::BeginRun>()),
       propagatorToken_(esConsumes(edm::ESInputTag("", "SteppingHelixPropagatorAny"))) {
@@ -42,6 +58,7 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
   produces<reco::MuonTimeExtraMap>("dt");
   produces<reco::MuonTimeExtraMap>("csc");
 
+  globalGeomToken_ = esConsumes<GlobalTrackingGeometry, GlobalTrackingGeometryRecord>();
   minPt_ = iConfig.getParameter<double>("minPt");
   minP_ = iConfig.getParameter<double>("minP");
   minPCaloMuon_ = iConfig.getParameter<double>("minPCaloMuon");
@@ -64,6 +81,7 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
   fillGlobalTrackQuality_ = iConfig.getParameter<bool>("fillGlobalTrackQuality");
   fillGlobalTrackRefits_ = iConfig.getParameter<bool>("fillGlobalTrackRefits");
   arbitrateTrackerMuons_ = iConfig.getParameter<bool>("arbitrateTrackerMuons");
+  mergeCrossingTrackLegs_ = iConfig.getParameter<bool>("mergeCrossingTrackLegs");
   selectHighPurity_ = iConfig.getParameter<bool>("selectHighPurity");
   //SK: (maybe temporary) run it only if the global is also run
   fillTrackerKink_ = false;
@@ -77,6 +95,9 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
   caloCut_ = iConfig.getParameter<double>("minCaloCompatibility");  //CaloMuons
   arbClean_ = iConfig.getParameter<bool>("runArbitrationCleaner");  // muon mesh
   isPhase2_ = iConfig.getParameter<bool>("isPhase2");
+
+  dxNorm_ = iConfig.getParameter<double>("dxNorm");
+  dDphiDzNorm_ = iConfig.getParameter<double>("dDphiDzNorm");
 
   // Load TrackDetectorAssociator parameters
   const edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
@@ -278,6 +299,7 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.getByToken(pvToken_, pvHandle_);
   if (gemHitHandle_.isValid())
     gemgeom = &iSetup.getData(gemgeomToken_);
+  globalGeom_ = &iSetup.getData(globalGeomToken_);
 }
 
 reco::Muon MuonIdProducer::makeMuon(edm::Event& iEvent,
@@ -574,12 +596,30 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       bool splitTrack = false;
       if (track.extra().isAvailable() && TrackDetectorAssociator::crossedIP(track))
         splitTrack = true;
-      const auto& directions = splitTrack ? directions1 : directions2;
-      for (const auto direction : directions) {
-        // make muon
-        reco::Muon trackerMuon(makeMuon(iEvent, iSetup, trackRef, reco::Muon::InnerTrack));
-        fillMuonId(iEvent, iSetup, trackerMuon, direction);
+      const bool mergeLegs = splitTrack && mergeCrossingTrackLegs_;
 
+      std::vector<reco::Muon> candidates;
+      if (mergeLegs) {
+        // both legs share the track, so keep one muon holding the matches of both
+        reco::Muon trackerMuon(makeMuon(iEvent, iSetup, trackRef, reco::Muon::InnerTrack));
+        fillMuonId(iEvent, iSetup, trackerMuon, TrackDetectorAssociator::InsideOut);
+        reco::Muon otherLeg(makeMuon(iEvent, iSetup, trackRef, reco::Muon::InnerTrack));
+        fillMuonId(iEvent, iSetup, otherLeg, TrackDetectorAssociator::OutsideIn);
+        auto mergedMatches = trackerMuon.matches();
+        appendMatches(mergedMatches, otherLeg.matches());
+        trackerMuon.setMatches(mergedMatches);
+        candidates.push_back(std::move(trackerMuon));
+      } else {
+        const auto& directions = splitTrack ? directions1 : directions2;
+        for (const auto direction : directions) {
+          // make muon
+          reco::Muon trackerMuon(makeMuon(iEvent, iSetup, trackRef, reco::Muon::InnerTrack));
+          fillMuonId(iEvent, iSetup, trackerMuon, direction);
+          candidates.push_back(std::move(trackerMuon));
+        }
+      }
+
+      for (auto& trackerMuon : candidates) {
         if (debugWithTruthMatching_) {
           // add MC hits to a list of matched segments.
           // Since it's debugging mode - code is slow
@@ -604,28 +644,51 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
           trackerMuon.setType(trackerMuon.type() | reco::Muon::ME0Muon);
 
         for (auto& muon : *outputMuons) {
-          if (muon.innerTrack().get() == trackerMuon.innerTrack().get() &&
-              std::abs(reco::deltaPhi(phiOfMuonInteractionRegion(muon), phiOfMuonInteractionRegion(trackerMuon))) <
-                  M_PI_2) {
-            newMuon = false;
+          if (muon.innerTrack().get() != trackerMuon.innerTrack().get())
+            continue;
+          // a candidate without matches has nothing to contribute and must not wipe the muon's
+          if (trackerMuon.matches().empty())
+            continue;
+          // sharing the tracker track already makes the two the same object; the phi test only
+          // says whether they were reconstructed from the same hemisphere
+          const bool sameRegion = std::abs(reco::deltaPhi(phiOfMuonInteractionRegion(muon),
+                                                          phiOfMuonInteractionRegion(trackerMuon))) < M_PI_2;
+          if (!sameRegion && !mergeCrossingTrackLegs_)
+            continue;
+          newMuon = false;
+          if (sameRegion) {
             muon.setMatches(trackerMuon.matches());
-            if (trackerMuon.isTimeValid())
-              muon.setTime(trackerMuon.time());
-            if (trackerMuon.isEnergyValid())
-              muon.setCalEnergy(trackerMuon.calEnergy());
-            if (goodTrackerMuon)
-              muon.setType(muon.type() | reco::Muon::TrackerMuon);
-            if (goodRPCMuon)
-              muon.setType(muon.type() | reco::Muon::RPCMuon);
-            if (goodGEMMuon)
-              muon.setType(muon.type() | reco::Muon::GEMMuon);
-            if (goodME0Muon)
-              muon.setType(muon.type() | reco::Muon::ME0Muon);
-            if (isPhase2_)
-              muon.setType(muon.type() | reco::Muon::Phase2Muon);
-            LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
-            break;
+          } else {
+            LogTrace("MuonIdentification")
+                << "merging legs at (eta,phi) " << etaOfMuonInteractionRegion(muon) << ","
+                << phiOfMuonInteractionRegion(muon) << " and " << etaOfMuonInteractionRegion(trackerMuon) << ","
+                << phiOfMuonInteractionRegion(trackerMuon);
+            // fill the muon's own leg first, so the merge keeps the chambers of both
+            if (!muon.isMatchesValid() && muon.isStandAloneMuon())
+              fillMuonId(iEvent,
+                         iSetup,
+                         muon,
+                         std::abs(reco::deltaPhi(phiOfMuonInteractionRegion(muon), muon.phi())) < M_PI_2
+                             ? TrackDetectorAssociator::InsideOut
+                             : TrackDetectorAssociator::OutsideIn);
+            auto mergedMatches = muon.matches();
+            appendMatches(mergedMatches, trackerMuon.matches());
+            muon.setMatches(mergedMatches);
           }
+          if (trackerMuon.isTimeValid())
+            muon.setTime(trackerMuon.time());
+          if (trackerMuon.isEnergyValid())
+            muon.setCalEnergy(trackerMuon.calEnergy());
+          if (goodTrackerMuon)
+            muon.setType(muon.type() | reco::Muon::TrackerMuon);
+          if (goodRPCMuon)
+            muon.setType(muon.type() | reco::Muon::RPCMuon);
+          if (goodGEMMuon)
+            muon.setType(muon.type() | reco::Muon::GEMMuon);
+          if (goodME0Muon)
+            muon.setType(muon.type() | reco::Muon::ME0Muon);
+          LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
+          break;
         }
         if (newMuon) {
           if (goodTrackerMuon || goodRPCMuon || goodGEMMuon || goodME0Muon) {
@@ -712,7 +775,8 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // Fill various information
   for (unsigned int i = 0; i < outputMuons->size(); ++i) {
     auto& muon = outputMuons->at(i);
-
+    if (isPhase2_)
+      muon.setType(muon.type() | reco::Muon::Phase2Muon);
     // Fill muonID
     if ((fillMatching_ && !muon.isMatchesValid()) || (fillEnergy_ && !muon.isEnergyValid())) {
       // predict direction based on the muon interaction region location
@@ -856,6 +920,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
                                 reco::Muon& aMuon,
                                 TrackDetectorAssociator::Direction direction) {
   LogTrace("MuonIdentification") << "RecoMuon/MuonIdProducer :: fillMuonId";
+  auto const& propagator = iSetup.getData(propagatorToken_);
 
   // perform track - detector association
   const reco::Track* track = nullptr;
@@ -934,6 +999,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
     const auto& lErr = chamber.tState.localError();
     const auto& lPos = chamber.tState.localPosition();
     const auto& lDir = chamber.tState.localDirection();
+    const auto& gPos = chamber.tState.globalPosition();
 
     const auto& localError = lErr.positionError();
     matchedChamber.x = lPos.x();
@@ -952,6 +1018,28 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
     matchedChamber.edgeY = chamber.localDistanceY;
 
     matchedChamber.id = chamber.id;
+
+    // dummy default values for DT CSC and RPC
+    matchedChamber.dPhidZ = 9999;
+
+    // Fill dPhidZ only for ME0
+    if (chamber.id.subdetId() == MuonSubdetId::GEM && GEMDetId(chamber.id.rawId()).station() == 0) {
+      const GEMDetId me0id(chamber.id);
+      GEMDetId layer1Id(me0id.region(), me0id.ring(), me0id.station(), 1, me0id.chamber(), me0id.ieta());
+      const GeomDet* layer1 = gemgeom->idToDet(layer1Id);
+      if (!layer1)
+        continue;  // check null pointer
+      auto tsos_layer1 = propagator.propagate(chamber.tState, layer1->surface());
+      if (!tsos_layer1.isValid())
+        continue;
+
+      GlobalPoint gPos_l1 = tsos_layer1.globalPosition();
+      float dphi = reco::deltaPhi(gPos_l1.phi().value(), gPos.phi().value());
+      float dz = gPos_l1.z() - gPos.z();
+      float dphi_dz = (fabs(dz) > 1e-6) ? dphi / dz : 9999;
+
+      matchedChamber.dPhidZ = dphi_dz;
+    }
 
     if (fillShowerDigis_ && fillMatching_) {
       theShowerDigiFiller_->fill(matchedChamber);
@@ -983,6 +1071,42 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
       matchedSegment.me0SegmentRef = segment.me0SegmentRef;
       matchedSegment.hasZed_ = segment.hasZed;
       matchedSegment.hasPhi_ = segment.hasPhi;
+
+      // dummy default values for DT CSC and RPC
+      matchedSegment.dPhidZ = 9999;
+      if (segment.gemSegmentRef.isNonnull() && gemgeom) {
+        const auto& recHits = segment.gemSegmentRef->specificRecHits();
+        if (recHits.size() >= 2) {
+          int minL = 99, maxL = -99;
+          GlobalPoint gpFirst, gpLast;
+          GlobalError geFirst, geLast;
+          ErrorFrameTransformer transformer;
+
+          for (const auto& rh : recHits) {
+            GEMDetId id(rh.geographicalId());
+            if (const auto* det = gemgeom->idToDet(id)) {
+              int layer = id.layer();
+              if (layer < minL) {
+                minL = layer;
+                gpFirst = det->surface().toGlobal(rh.localPosition());
+                geFirst = transformer.transform(rh.localPositionError(), det->surface());
+              }
+              if (layer > maxL) {
+                maxL = layer;
+                gpLast = det->surface().toGlobal(rh.localPosition());
+                geLast = transformer.transform(rh.localPositionError(), det->surface());
+              }
+            }
+          }
+
+          if (minL < 99 && maxL > -99) {
+            double dz = gpLast.z() - gpFirst.z();
+            double dphi = reco::deltaPhi(gpLast.phi().value(), gpFirst.phi().value());
+            matchedSegment.dPhidZ = (std::abs(dz) > 1e-6) ? dphi / dz : 0.0;
+          }
+        }
+      }
+
       // test segment
       bool matchedX = false;
       bool matchedY = false;
@@ -1260,6 +1384,7 @@ void MuonIdProducer::fillArbitrationInfo(reco::MuonCollection* pOutputMuons, uns
             arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDR);
             arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDX);
             arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::Arbitrated);
+            arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDX_DPhiDZ);
           } else {
             sort(arbitrationPairs.begin(),
                  arbitrationPairs.end(),
@@ -1277,6 +1402,10 @@ void MuonIdProducer::fillArbitrationInfo(reco::MuonCollection* pOutputMuons, uns
                  arbitrationPairs.end(),
                  SortMuonSegmentMatches(reco::MuonSegmentMatch::BelongsToTrackByDX));
             arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDX);
+            sort(arbitrationPairs.begin(),
+                 arbitrationPairs.end(),
+                 SortMuonSegmentMatches(reco::MuonSegmentMatch::BelongsToTrackByDX_DPhiDZ, dxNorm_, dDphiDzNorm_));
+            arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDX_DPhiDZ);
             for (auto& ap : arbitrationPairs) {
               ap.second->setMask(reco::MuonSegmentMatch::Arbitrated);
             }
@@ -1307,6 +1436,7 @@ void MuonIdProducer::fillArbitrationInfo(reco::MuonCollection* pOutputMuons, uns
         chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDXSlope);
         chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDR);
         chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDX);
+        chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDX_DPhiDZ);
       } else {
         sort(chamberPairs.begin(),
              chamberPairs.end(),
@@ -1324,6 +1454,10 @@ void MuonIdProducer::fillArbitrationInfo(reco::MuonCollection* pOutputMuons, uns
              chamberPairs.end(),
              SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInChamberByDX));
         chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDX);
+        sort(chamberPairs.begin(),
+             chamberPairs.end(),
+             SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInChamberByDX_DPhiDZ, dxNorm_, dDphiDzNorm_));
+        chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDX_DPhiDZ);
       }
     }  // chamberIter1
 
@@ -1354,6 +1488,7 @@ void MuonIdProducer::fillArbitrationInfo(reco::MuonCollection* pOutputMuons, uns
           stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDXSlope);
           stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDR);
           stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDX);
+          stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDX_DPhiDZ);
         } else {
           sort(stationPairs.begin(),
                stationPairs.end(),
@@ -1371,6 +1506,10 @@ void MuonIdProducer::fillArbitrationInfo(reco::MuonCollection* pOutputMuons, uns
                stationPairs.end(),
                SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInStationByDX));
           stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDX);
+          sort(stationPairs.begin(),
+               stationPairs.end(),
+               SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInStationByDX_DPhiDZ, dxNorm_, dDphiDzNorm_));
+          stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDX_DPhiDZ);
         }
       }
     }
@@ -1490,6 +1629,25 @@ double MuonIdProducer::phiOfMuonInteractionRegion(const reco::Muon& muon) const 
   return sectorPhi(muon.matches().at(0).id);
 }
 
+double MuonIdProducer::etaOfMuonInteractionRegion(const reco::Muon& muon) const {
+  if (muon.isStandAloneMuon())
+    return muon.standAloneMuon()->innerPosition().eta();
+  // the rest is tracker muon only
+  if (muon.matches().empty()) {
+    if (muon.innerTrack().isAvailable() && muon.innerTrack()->extra().isAvailable())
+      return muon.innerTrack()->outerPosition().eta();
+    else
+      return muon.eta();
+  }
+  // where the track crossed the first matched chamber
+  const auto& match = muon.matches().at(0);
+  if (globalGeom_) {
+    if (const GeomDet* det = globalGeom_->idToDet(match.id))
+      return det->toGlobal(LocalPoint(match.x, match.y, 0)).eta();
+  }
+  return muon.eta();
+}
+
 void MuonIdProducer::fillGlbQuality(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::Muon& aMuon) {
   if (aMuon.isGlobalMuon() && glbQualHandle_.isValid() && !glbQualHandle_.failedToGet()) {
     aMuon.setCombinedQuality((*glbQualHandle_)[aMuon.combinedMuon()]);
@@ -1529,6 +1687,7 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.setAllowAnything();
 
   desc.add<bool>("arbitrateTrackerMuons", false);
+  desc.add<bool>("mergeCrossingTrackLegs", true);
   desc.add<bool>("storeCrossedHcalRecHits", false);
   desc.add<bool>("fillShowerDigis", false);
   desc.add<bool>("isPhase2", false);
@@ -1565,6 +1724,8 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descCalo.add<int>("MaxSeverityHB", 9);
   descCalo.add<int>("MaxSeverityHE", 9);
   desc.add<edm::ParameterSetDescription>("CaloExtractorPSet", descCalo);
+  desc.add<double>("dxNorm", 0.45);
+  desc.add<double>("dDphiDzNorm", 0.00003);
 
   descriptions.addDefault(desc);
 }

@@ -7,11 +7,11 @@ hltHighPtTripletStepTrackCandidates = cms.EDProducer("CkfTrackCandidateMaker",
     TrajectoryBuilderPSet = cms.PSet(
         refToPSet_ = cms.string('highPtTripletStepTrajectoryBuilder')
     ),
-    TrajectoryCleaner = cms.string('highPtTripletStepTrajectoryCleanerBySharedHits'),
+    TrajectoryCleaner = cms.string('hltHighPtTripletStepTrajectoryCleanerBySharedHits'),
     TransientInitialStateEstimatorParameters = cms.PSet(
         numberMeasurementsForFit = cms.int32(4),
         propagatorAlongTISE = cms.string('PropagatorWithMaterialParabolicMf'),
-        propagatorOppositeTISE = cms.string('PropagatorWithMaterialParabolicMfOpposite')
+        propagatorOppositeTISE = cms.string('hltOppositeMaterialPropagatorParabolicMF')
     ),
     cleanTrajectoryAfterInOut = cms.bool(True),
     doSeedingRegionRebuilding = cms.bool(True),

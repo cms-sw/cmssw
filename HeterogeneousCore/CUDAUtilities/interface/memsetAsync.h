@@ -14,7 +14,7 @@ namespace cms {
       // let's add an assert with a more helpful message
       static_assert(std::is_array<T>::value == false,
                     "For array types, use the other overload with the size parameter");
-      cudaCheck(cudaMemsetAsync(ptr.get(), value, sizeof(T), stream));
+      CUDA_CHECK(cudaMemsetAsync(ptr.get(), value, sizeof(T), stream));
     }
 
     /**
@@ -25,7 +25,7 @@ namespace cms {
    */
     template <typename T>
     inline void memsetAsync(device::unique_ptr<T[]>& ptr, int value, size_t nelements, cudaStream_t stream) {
-      cudaCheck(cudaMemsetAsync(ptr.get(), value, nelements * sizeof(T), stream));
+      CUDA_CHECK(cudaMemsetAsync(ptr.get(), value, nelements * sizeof(T), stream));
     }
   }  // namespace cuda
 }  // namespace cms

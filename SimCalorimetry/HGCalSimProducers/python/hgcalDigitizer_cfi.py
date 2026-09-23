@@ -189,6 +189,13 @@ hfnoseDigitizer = cms.PSet(
         )
     )
 
+# per-silicon-thickness MIP-charge scale of the ZS threshold {HD120, LD200, LD300, HD200}.
+#more accurate for V19
+for _dig in [hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer, hfnoseDigitizer]:
+    _dig.digiCfg.mipChargeScale = cms.vdouble(1.0, 2.0, 3.0, 2.0)
+phase2_hgcalV19.toModify(hgceeDigitizer.digiCfg, mipChargeScale = cms.vdouble(1.0, 1.6, 2.5, 1.6))
+phase2_hgcalV19.toModify(hgchefrontDigitizer.digiCfg, mipChargeScale = cms.vdouble(1.0, 1.6, 2.5, 1.6))
+
 # this bypasses the noise simulation
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 for _m in [hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer, hfnoseDigitizer]:
@@ -317,7 +324,7 @@ def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap
         scaleByDoseAlgo = cms.uint32(byDoseAlgo),
         scaleByDoseFactor = cms.double(byDoseFactor),
         doseMap = byDoseMap,
-        values = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] ), #100,200,300 um, to be deprecated
+        values = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] ), #120,200,300,HD200 um, to be deprecated
         )
 
     #this is to be deprecated
@@ -329,10 +336,11 @@ def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap
     process.HGCAL_noises = cms.PSet(
         values = cms.vdouble([x for x in endOfLifeNoises])  
         )
-    phase2_hgcalV19.toModify(HGCAL_noise_fC, values = [x*fC_per_ele for x in endOfLifeNoises_v19] ) #100,200,300 um, to be deprecated
-    phase2_hgcalV19.toModify(HGCAL_noise_fC, values = [x*fC_per_ele for x in endOfLifeNoises_v19] ) #100,200,300 um, to be deprecated
-    phase2_hgcalV19.toModify(HGCAL_chargeCollectionEfficiencies, values = endOfLifeNoises_v19)
-    phase2_hgcalV19.toModify(HGCAL_noises, values = [x for x in endOfLifeNoises_v19])
+    #target the PSets just attached to the process: the module-level objects of
+    #the same names are not the ones the digitizers resolve on a loaded process
+    phase2_hgcalV19.toModify(process.HGCAL_noise_fC, values = [x*fC_per_ele for x in endOfLifeNoises_v19] ) #120,200,300,HD200 um, to be deprecated
+    phase2_hgcalV19.toModify(process.HGCAL_chargeCollectionEfficiencies, values = endOfLifeCCEs_v19)
+    phase2_hgcalV19.toModify(process.HGCAL_noises, values = [x for x in endOfLifeNoises_v19])
 
     return process
 
@@ -346,7 +354,7 @@ def HFNose_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMa
         values = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] ), #100,200,300 um
         )
 
-    phase2_hgcalV19.toModify(HFNose_noise_fC, values = [x*fC_per_ele for x in endOfLifeNoises_v19]) #100,200,300 um, to be deprecated
+    phase2_hgcalV19.toModify(process.HFNose_noise_fC, values = [x*fC_per_ele for x in endOfLifeNoises_v19]) #120,200,300,HD200 um, to be deprecated
     return process
 
 

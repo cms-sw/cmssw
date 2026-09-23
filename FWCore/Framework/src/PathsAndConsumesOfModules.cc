@@ -274,8 +274,7 @@ namespace edm {
     ProducedByESModule fillProducedByESModule(eventsetup::EventSetupProvider const& esProvider) {
       ProducedByESModule producedByESModule;
 
-      std::set<eventsetup::EventSetupRecordKey> keys;
-      esProvider.fillKeys(keys);
+      std::set<eventsetup::EventSetupRecordKey> keys = esProvider.keys();
 
       for (auto const& recordKey : keys) {
         auto const* providers = esProvider.tryToGetRecordProvider(recordKey);

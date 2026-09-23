@@ -9,6 +9,7 @@
 
 // system includes
 #include <string>
+#include <iostream>
 
 // for ROOT
 #include "TString.h"

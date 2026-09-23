@@ -9,9 +9,9 @@ using namespace ticl;
 SeedingRegionByHF::SeedingRegionByHF(const edm::ParameterSet &conf, edm::ConsumesCollector &sumes)
     : SeedingRegionAlgoBase(conf, sumes),
       hfhits_token_(sumes.consumes<HFRecHitCollection>(conf.getParameter<edm::InputTag>("hits"))),
-      minAbsEta_(conf.getParameter<double>("minAbsEta")),
-      maxAbsEta_(conf.getParameter<double>("maxAbsEta")),
-      minEt_(conf.getParameter<double>("minEt")) {
+      minAbsEta_(conf.getParameter<float>("minAbsEta")),
+      maxAbsEta_(conf.getParameter<float>("maxAbsEta")),
+      minEt_(conf.getParameter<float>("minEt")) {
   geo_token_ = sumes.esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
 }
 
@@ -57,8 +57,8 @@ void SeedingRegionByHF::makeRegions(const edm::Event &ev,
 void SeedingRegionByHF::fillPSetDescription(edm::ParameterSetDescription &desc) {
   desc.add<edm::InputTag>("hits", edm::InputTag("hfreco"));
   desc.add<int>("algo_verbosity", 0);
-  desc.add<double>("minAbsEta", 3.0);
-  desc.add<double>("maxAbsEta", 4.0);
-  desc.add<double>("minEt", 5);
+  desc.add<float>("minAbsEta", 3.0);
+  desc.add<float>("maxAbsEta", 4.0);
+  desc.add<float>("minEt", 5);
   SeedingRegionAlgoBase::fillPSetDescription(desc);
 }

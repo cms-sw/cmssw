@@ -61,7 +61,7 @@ namespace {
 }  // namespace
 
 TICLCandidateFromTrackstersProducer::TICLCandidateFromTrackstersProducer(const edm::ParameterSet& ps)
-    : min_particle_prob_(ps.getParameter<double>("minParticleProbability")) {
+    : min_particle_prob_(ps.getParameter<float>("minParticleProbability")) {
   trackster_tokens_ =
       edm::vector_transform(ps.getParameter<std::vector<edm::InputTag>>("tracksterCollections"),
                             [this](edm::InputTag const& tag) { return consumes<std::vector<Trackster>>(tag); });
@@ -83,7 +83,7 @@ void TICLCandidateFromTrackstersProducer::fillDescriptions(edm::ConfigurationDes
                                            edm::InputTag("trackstersEM"),
                                            edm::InputTag("trackstersHAD")};
   desc.add<std::vector<edm::InputTag>>("tracksterCollections", source_vector);
-  desc.add<double>("minParticleProbability", 0.);
+  desc.add<float>("minParticleProbability", 0.);
 
   edm::ParameterSetDescription desc_momentum;
   desc_momentum.add<std::string>("plugin", "TracksterP4FromEnergySum");

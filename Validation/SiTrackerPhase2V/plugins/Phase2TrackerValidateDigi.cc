@@ -1048,9 +1048,11 @@ void Phase2TrackerValidateDigi::fillHitsPerTrack() {
 }
 */
 std::string Phase2TrackerValidateDigi::getHistoId(uint32_t det_id, bool flag) {
-  if (flag)
-    return phase2tkutil::getITHistoId(det_id, tTopo_);
-  else
+  if (flag) {
+    const GeomDet* geomDet = tkGeom_->idToDet(det_id);
+    GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
+    return phase2tkutil::getITHistoId(det_id, tTopo_, detPos.phi());
+  } else
     return phase2tkutil::getOTHistoId(det_id, tTopo_);
 }
 

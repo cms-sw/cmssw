@@ -12,7 +12,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
 namespace edm {
@@ -28,7 +28,7 @@ namespace ticl {
     virtual ~LinkingAlgoBase() {}
 
     virtual void initialize(const HGCalDDDConstants* hgcons,
-                            const hgcal::RecHitTools rhtools,
+                            const ticlgeom::Tools rhtools,
                             const edm::ESHandle<MagneticField> bfieldH,
                             const edm::ESHandle<Propagator> propH) = 0;
 

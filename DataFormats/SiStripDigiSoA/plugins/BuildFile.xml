@@ -1,0 +1,12 @@
+<library file="TrivialSerialisation.cc" name="DataFormatsSiStripDigiSoATrivialSerialisation">
+  <use name="DataFormats/SiStripDigiSoA"/>
+  <use name="HeterogeneousCore/TrivialSerialisation"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="alpaka/TrivialSerialisation.cc" name="DataFormatsSiStripDigiSoATrivialSerialisationPortable">
+  <use name="DataFormats/SiStripDigiSoA"/>
+  <use name="HeterogeneousCore/TrivialSerialisation"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

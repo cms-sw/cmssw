@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 def _addProcessSmartPropagatorAnyRK(process):
     process.hltSmartPropagatorAnyRK = cms.ESProducer("SmartPropagatorESProducer",
                                                      ComponentName = cms.string('hltSmartPropagatorAnyRK'),
-                                                     TrackerPropagator = cms.string('RungeKuttaTrackerPropagator'),
+                                                     TrackerPropagator = cms.string('hltESPRungeKuttaTrackerPropagator'),
                                                      MuonPropagator = cms.string('SteppingHelixPropagatorAny'),
                                                      PropagationDirection = cms.string('alongMomentum'),
                                                      Epsilon = cms.double(5.0))

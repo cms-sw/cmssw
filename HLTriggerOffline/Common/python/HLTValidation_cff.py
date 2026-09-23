@@ -1,5 +1,6 @@
 from Validation.RecoTrack.HLTmultiTrackValidator_cff import *
 from Validation.RecoVertex.HLTmultiPVvalidator_cff import *
+from Validation.RecoVertex.HLTSecondaryVertexValidation_cff import *
 from HLTriggerOffline.Muon.HLTMuonVal_cff import *
 from HLTriggerOffline.Tau.Validation.HLTTauValidation_cff import *
 from HLTriggerOffline.Egamma.EgammaValidationAutoConf_cff import *
@@ -54,6 +55,7 @@ from DQMOffline.Trigger.HLTMonTau_cfi import *
 hltassociation = cms.Sequence(
     hltMultiTrackValidation
     +hltMultiPVValidation
+    +HLTSecondaryVertexValidation
     +egammaSelectors
     +ExoticaValidationProdSeq
     +hltMultiTrackValidationGsfTracks
@@ -116,12 +118,12 @@ _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
   ExoticaValidationSequence,
   b2gHLTriggerValidation,
   SMPValidationSequence,
-  hltbtagValidationSequence,
   hltHCALdigisAnalyzer,
   hltHCALRecoAnalyzer,
   hltHCALNoiseRates])
 _hltvalidationWithMC_Phase2.insert(-1, hgcalHitCalibrationHLT)
 _hltvalidationWithMC_Phase2.insert(-1, hltHgcalValidator)
+_hltvalidationWithMC_Phase2.insert(-1, hltTICLPFValidation)
 _hltvalidationWithMC_Phase2.insert(0, hltGENValidation)
 
 # Add at the end only when mtd_at_hlt is active

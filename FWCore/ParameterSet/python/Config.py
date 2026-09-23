@@ -5,7 +5,6 @@ import os
 from  .Options import Options
 options = Options()
 
-
 ## imports
 import sys
 from typing import Union
@@ -1915,6 +1914,10 @@ if __name__=="__main__":
             self.__insertValue(tracked,label,value)
         def addVDouble(self,tracked,label,value):
             self.__insertValue(tracked,label,value)
+        def addFloat(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addVFloat(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
         def addBool(self,tracked,label,value):
             self.__insertValue(tracked,label,value)
         def addString(self,tracked,label,value):
@@ -2327,6 +2330,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     suppressFwkInfo = cms.untracked.vstring(),
     suppressInfo = cms.untracked.vstring(),
     suppressWarning = cms.untracked.vstring(),
+    useContext = cms.untracked.bool(True),
     allowAnyLabel_=cms.optional.untracked.PSetTemplate(
         limit = cms.optional.untracked.int32,
         reportEvery = cms.untracked.int32(1),

@@ -195,12 +195,13 @@ def _calculateRatios(histos, ratioUncertainty=False):
 
             xaxis = th1.GetXaxis()
             xaxis_arr = xaxis.GetXbins()
+            ratio_name = f"ratio_{id(self)}"
             if xaxis_arr.GetSize() > 0: # unequal binning
                 lst = [xaxis_arr[i] for i in range(0, xaxis_arr.GetSize())]
                 arr = array.array("d", lst)
-                self._ratio = ROOT.TH1F("foo", "foo", xaxis.GetNbins(), arr)
+                self._ratio = ROOT.TH1F(ratio_name, ratio_name, xaxis.GetNbins(), arr)
             else:
-                self._ratio = ROOT.TH1F("foo", "foo", xaxis.GetNbins(), xaxis.GetXmin(), xaxis.GetXmax())
+                self._ratio = ROOT.TH1F(ratio_name, ratio_name, xaxis.GetNbins(), xaxis.GetXmin(), xaxis.GetXmax())
             _copyStyle(th1, self._ratio)
             self._ratio.SetStats(0)
             self._ratio.SetLineColor(ROOT.kBlack)
@@ -1212,7 +1213,6 @@ def _drawFrame(pad, bounds, zmax=None, xbinlabels=None, xbinlabelsize=None, xbin
             frame.SetMaximum(zmax)
 
         frame.SetBit(ROOT.TH1.kNoStats)
-        frame.SetBit(ROOT.kCanDelete)
         frame.Draw("")
 
         xaxis = frame.GetXaxis()
@@ -2264,6 +2264,7 @@ class PlotGroup(object):
         _set("onlyForPileup", False)
 
         self._ratioFactor = 1.25
+        self._canvasId = 0
 
     def setProperties(self, **kwargs):
         for name, value in kwargs.items():
@@ -2397,14 +2398,15 @@ class PlotGroup(object):
         lx2def = 0.95
         ly1def = 0.85
         ly2def = 0.95
-        
+
         ret = []
         for plot in self._plots:
             if plot.isEmpty():
                 continue
 
-            canvas = _createCanvas(self._name+'Single', width, height)
-            canvasRatio = _createCanvas(self._name+'SingleRatio', width, int(height*self._ratioFactor))
+            canvasId = self._resolveNextCanvasId()
+            canvas = _createCanvas(self._name+'Single'+canvasId, width, height)
+            canvasRatio = _createCanvas(self._name+'SingleRatio'+canvasId, width, int(height*self._ratioFactor))
 
             # from TDRStyle
             for c in [canvas, canvasRatio]:
@@ -2448,8 +2450,13 @@ class PlotGroup(object):
 
             del canvas
             del canvasRatio
-            
+
         return ret
+
+    def _resolveNextCanvasId(self):
+        """Return an id for unique ROOT canvas names."""
+        self._canvasId += 1
+        return str(self._canvasId)
 
     def _modifyPadForRatio(self, pad):
         """Internal method to set divide a pad to two for ratio plots"""

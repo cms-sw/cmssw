@@ -59,6 +59,7 @@ public:
     std::string srcName;
     ResType type;
     bool isProfile;
+    bool relative;
   };
 
   struct ProfileOption {
@@ -95,7 +96,16 @@ public:
                          const std::string& fitMETitlePrefix,
                          const std::string& srcMEName,
                          const ResType type = ResType::fit,
-                         const bool makeProfile = false);
+                         const bool makeProfile = false,
+                         const bool relative = false);
+  void bookRelativeResolution(DQMStore::IBooker& ibooker,
+                              MonitorElement* meanME,
+                              MonitorElement* sigmaME,
+                              const std::string& namePrefix,
+                              const std::string& titlePrefix,
+                              const int nBin,
+                              const TH2F* hSrc,
+                              const float* lowedgesfloats);
   void computeProfile(DQMStore::IBooker& ibooker,
                       DQMStore::IGetter& igetter,
                       const std::string& startDir,
@@ -428,6 +438,8 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
       else
         opt.type = ResType::none;
 
+      opt.relative = (args.size() > 4 && args[4] == "relative");
+
       resolOptions_.push_back(opt);
     }
   }
@@ -450,6 +462,8 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
       else
         opt.type = ResType::none;
       opt.isProfile = (optName.find("Profile") != std::string::npos) ? true : false;
+
+      opt.relative = resSet->getUntrackedParameter<bool>("relative", false);
 
       resolOptions_.push_back(opt);
     }
@@ -712,7 +726,8 @@ void DQMGenericClient::makeAllPlots(DQMStore::IBooker& ibooker, DQMStore::IGette
                         resolOption->titlePrefix,
                         resolOption->srcName,
                         resolOption->type,
-                        resolOption->isProfile);
+                        resolOption->isProfile,
+                        resolOption->relative);
     }
 
     for (const auto& profileOption : profileOptions_) {
@@ -915,7 +930,8 @@ void DQMGenericClient::computeResolution(DQMStore::IBooker& ibooker,
                                          const string& titlePrefix,
                                          const std::string& srcName,
                                          const ResType type,
-                                         const bool makeProfile) {
+                                         const bool makeProfile,
+                                         const bool relative) {
   if (!igetter.dirExists(startDir)) {
     if (verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_)) {
       LogInfo("DQMGenericClient") << "computeResolution() : "
@@ -1007,6 +1023,8 @@ void DQMGenericClient::computeResolution(DQMStore::IBooker& ibooker,
           }
         }
       }
+      if (relative)
+        bookRelativeResolution(ibooker, meanME, sigmaME, newPrefix, titlePrefix, nBin, hSrc, lowedgesfloats);
     }
   } else {
     ME* meanME;
@@ -1047,9 +1065,62 @@ void DQMGenericClient::computeResolution(DQMStore::IBooker& ibooker,
           }
         }
       }
+      if (relative)
+        bookRelativeResolution(ibooker, meanME, sigmaME, newPrefix, titlePrefix, nBin, hSrc, lowedgesfloats);
     }
   }
   delete[] lowedgesfloats;
+}
+
+void DQMGenericClient::bookRelativeResolution(DQMStore::IBooker& ibooker,
+                                              ME* meanME,
+                                              ME* sigmaME,
+                                              const std::string& namePrefix,
+                                              const std::string& titlePrefix,
+                                              const int nBin,
+                                              const TH2F* hSrc,
+                                              const float* lowedgesfloats) {
+  if (!meanME || !sigmaME)
+    return;
+
+  ME* resME;
+  if (hSrc->GetXaxis()->GetXbins()->GetSize()) {
+    std::vector<double> lowedges(nBin + 1);
+    for (int j = 0; j <= nBin; ++j)
+      lowedges[j] = static_cast<double>(lowedgesfloats[j]);
+    resME = ibooker.bookProfile(
+        namePrefix + "_Resolution", titlePrefix + " Resolution", nBin, lowedges.data(), 0., 0., " ");
+  } else {
+    resME = ibooker.bookProfile(namePrefix + "_Resolution",
+                                titlePrefix + " Resolution",
+                                nBin,
+                                hSrc->GetXaxis()->GetXmin(),
+                                hSrc->GetXaxis()->GetXmax(),
+                                0.,
+                                0.,
+                                " ");
+  }
+
+  if (!resME)
+    return;
+  resME->setEfficiencyFlag();
+
+  const bool meanIsProfile = (meanME->kind() == MonitorElement::Kind::TPROFILE);
+
+  for (int i = 1; i <= nBin; ++i) {
+    const double m = meanME->getBinContent(i);
+    const double dm = meanME->getBinError(i);
+    const double s = sigmaME->getBinContent(i);
+    const double ds = sigmaME->getBinError(i);
+    if (m != 0.) {
+      const double entries = meanIsProfile ? meanME->getBinEntries(i) : 1.;
+      const double rel = s / m;
+      const double relErr = std::sqrt((ds / m) * (ds / m) + (s * dm / (m * m)) * (s * dm / (m * m)));
+      resME->setBinContent(i, rel * entries);
+      resME->setBinError(i, relErr);
+      resME->setBinEntries(i, entries);
+    }
+  }
 }
 
 void DQMGenericClient::computeProfile(DQMStore::IBooker& ibooker,

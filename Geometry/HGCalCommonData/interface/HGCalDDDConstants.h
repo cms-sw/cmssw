@@ -112,6 +112,7 @@ public:
   bool isValidHex(int lay, int mod, int cell, bool reco) const;
   bool isValidHex8(int lay, int waferU, int waferV, bool fullAndPart) const;
   bool isValidHex8(int lay, int modU, int modV, int cellU, int cellV, bool fullAndPart) const;
+  bool isValidSilicon(unsigned int id) const;
   bool isValidTrap(int zside, int lay, int ieta, int iphi) const;
   int lastLayer(bool reco) const;
   int layerIndex(int lay, bool reco) const;

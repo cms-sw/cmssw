@@ -49,6 +49,7 @@ ticlCandidateTable = cms.EDProducer(
     ),
 )
 
+
 # SimTICLCandidates for validation
 ticlSimCandidateTable = cms.EDProducer(
     "TICLCandidateTableProducer",
@@ -91,18 +92,24 @@ ticlSimCandidateTable = cms.EDProducer(
         MTDtimeError=Var("MTDtimeError", "float",
                          doc="Trackster associated MTD time error, meaningful only for offline reconstruction"),
         trackIdx=Var("trackPtr().key", "int",
-                     doc="Index of generalTrack associated with TICLCandidate")
+                     doc="Index of generalTrack associated with SimTICLCandidate"),
+        gsftrackIdx=Var("gsftrackPtr().key", "int",
+                        doc="Index of GSFTrack associated with SimTICLCandidate"),
+
     ),
 )
 
 # Extra tables for linking tracksters to candidates
 ticlCandidateExtraTable = cms.EDProducer(
     "TICLCandidateExtraTableProducer",
+    skipNonExistingSrc=cms.bool(True),
     src=cms.InputTag("ticlCandidate"),
     name=cms.string("TICLCandidates"),
     doc=cms.string("TICLCandidates extra table with linked Tracksters"),
-    tracksters=cms.InputTag("ticlTrackstersCLUE3DHigh"),
+    tracksters=cms.InputTag("ticlCandidate"),
     tracks=cms.InputTag("generalTracks"),
+    linkedTracksters=cms.InputTag("ticlCandidate", "linkedTracksters"),
+    produceGeneralTrackBoundary=cms.bool(True),
     detector=cms.string("HGCAL"),
     propagator=cms.string("PropagatorWithMaterial"),
     collectionVariables=cms.PSet(
@@ -118,11 +125,14 @@ ticlCandidateExtraTable = cms.EDProducer(
 
 ticlSimCandidateExtraTable = cms.EDProducer(
     "TICLCandidateExtraTableProducer",
+    skipNonExistingSrc=cms.bool(True),
     src=cms.InputTag("ticlSimTracksters"),
     name=cms.string("SimTICLCandidates"),
     doc=cms.string("TICLCandidates extra table with linked Tracksters"),
     tracksters=cms.InputTag("ticlSimTracksters"),
     tracks=cms.InputTag("generalTracks"),
+    caloParticles=cms.InputTag("mix", "MergedCaloTruth"),
+    caloParticleToSimClustersMap=cms.InputTag("ticlSimTracksters"),
     detector=cms.string("HGCAL"),
     propagator=cms.string("PropagatorWithMaterial"),
     collectionVariables=cms.PSet(
@@ -135,4 +145,3 @@ ticlSimCandidateExtraTable = cms.EDProducer(
         ),
     ),
 )
-

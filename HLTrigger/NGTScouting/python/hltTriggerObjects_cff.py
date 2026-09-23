@@ -11,7 +11,8 @@ hltTriggerObjP4Table = cms.EDProducer(
     "TrigObjP4FlatTableProducer",
 
     # TriggerEvent summary from HLT (process name must match your HLT menu).
-    triggerEvent=cms.InputTag("hltTriggerSummaryAOD", "", "@currentProcess"),
+    #triggerEvent=cms.InputTag("hltTriggerSummaryAOD", "", "@currentProcess"),
+    triggerEvent=cms.InputTag("hltTriggerSummaryAOD", "", "HLT"),
 
     # Name of the output branch group in the nanoAOD file.
     tableName=cms.string("TriggerObject"),
@@ -50,6 +51,7 @@ hltTriggerObjP4Table = cms.EDProducer(
         "HLT_Diphoton30_23_IsoCaloId_L1Seeded",
         "HLT_DoubleMediumChargedIsoPFTauHPS40_eta2p1",
         "HLT_DoubleMediumDeepTauPFTauHPS35_eta2p1",
+        "HLT_DoubleMediumPFPuppiParTTauh30_eta2p1",
         "HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1",
         "HLT_Ele30_WPTight_L1Seeded_LooseDeepTauPFTauHPS30_eta2p1_CrossL1"
     ),

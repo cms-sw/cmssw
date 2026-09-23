@@ -42,10 +42,14 @@ namespace edm::moduleAlloc::monitor_file_utilities {
     assert(iModuleLabels.size() == iModuleTypes.size());
     std::size_t const width{std::to_string(iModuleLabels.size()).size()};
     OStreamColumn col0{iIDHeader, width};
-    auto itMax = std::max_element(iModuleLabels.begin(), iModuleLabels.end(), [](auto const& iL, auto const& iR) {
-      return iL.size() < iR.size();
-    });
-    OStreamColumn labelCol{iLabelHeader, itMax->size()};
+    std::size_t maxLabelSize{0};
+    if (not iModuleLabels.empty()) {
+      auto itMax = std::max_element(iModuleLabels.begin(), iModuleLabels.end(), [](auto const& iL, auto const& iR) {
+        return iL.size() < iR.size();
+      });
+      maxLabelSize = itMax->size();
+    }
+    OStreamColumn labelCol{iLabelHeader, maxLabelSize};
     std::string const& typeCol = iTypeHeader;
 
     oStream << "\n#  " << col0 << space << labelCol << space << typeCol << '\n';
@@ -57,7 +61,7 @@ namespace edm::moduleAlloc::monitor_file_utilities {
       auto const& type = iModuleTypes[i];
       if (not label.empty()) {
         oStream << '#' << moduleIdSymbol << ' ' << std::setw(width) << std::left << col0(i) << space
-                << std::setw(itMax->size()) << std::left << labelCol(label) << space << std::left << type << '\n';
+                << std::setw(maxLabelSize) << std::left << labelCol(label) << space << std::left << type << '\n';
       }
     }
     oStream << '\n';

@@ -153,6 +153,9 @@ process.out = cms.OutputModule("PoolOutputModule",
         'drop *_makeThingToBeDropped2_*_*'
     )
 )
+#Contents of files
+#testRunMerge1.root  "PROD" [run:1,lumi:1, ev:11-20]
+
 
 process.p1 = cms.Path((process.m1 + process.m2 + process.m3) *
                      process.thingWithMergeProducer *

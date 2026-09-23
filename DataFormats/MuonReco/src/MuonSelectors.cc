@@ -208,9 +208,16 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
           // 	LogTrace("MuonIdentification")<<"            // Message: A muon candidate track has more than 4 stations with matching segments.";
           // 	LogTrace("MuonIdentification")<<"            // Did not expect this - please let me know: ibloch@fnal.gov";
           // for all other cases
-          if (nr_of_stations_crossed > 5)
+          // nr_of_stations_crossed counts the stations the track was propagated
+          // close to, over the n_muon_stations the arrays are sized for, so any
+          // value up to n_muon_stations is reachable: a prompt muon stays within
+          // 5 (1 ME0 + 4 CSC), but a heavy long-lived charged particle need not.
+          // 1/n is the correct generalisation of the weights above, so only a
+          // count that cannot come from the loop is a logic error.
+          if (nr_of_stations_crossed > n_muon_stations)
             throw cms::Exception("LogicError")
-                << "A muon candidate track has more than 5 stations with matching segments. This should not happen.";
+                << "A muon candidate track crossed " << nr_of_stations_crossed << " muon stations, but only "
+                << n_muon_stations << " exist. This should not happen.";
           station_weight[i - 1] = 1.f / nr_of_stations_crossed;
       }
 

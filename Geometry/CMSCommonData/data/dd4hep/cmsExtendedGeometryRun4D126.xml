@@ -82,7 +82,7 @@
     <Include ref='Geometry/MuonCommonData/data/mfshield/2030/v6/mfshield.xml'/>
     <Include ref='Geometry/MuonCommonData/data/ge0/TDR_Dev/v6/ge0.xml'/>
     <Include ref='Geometry/MuonCommonData/data/ge0shield/2030/v1/ge0shield.xml'/>
-    <Include ref='Geometry/ForwardCommonData/data/forwardshield/2030/v5/forwardshield.xml'/>
+    <Include ref='Geometry/ForwardCommonData/data/forwardshield/2030/v6/forwardshield.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/zdcmaterials/2021/v1/zdcmaterials.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/lumimaterials.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/zdcrotations.xml'/>

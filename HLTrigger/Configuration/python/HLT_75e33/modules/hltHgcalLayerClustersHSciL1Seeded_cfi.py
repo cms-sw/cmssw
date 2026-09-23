@@ -6,24 +6,24 @@ hltHgcalLayerClustersHSciL1Seeded = cms.EDProducer("HGCalLayerClusterProducer",
     mightGet = cms.optional.untracked.vstring,
     nHitsTime = cms.uint32(3),
     plugin = cms.PSet(
-        dEdXweights = HGCAL_reco_constants.dEdXweights,
+        dEdXweights = cms.vfloat(HGCAL_reco_constants.dEdXweights.value()),
         # Scintillator tiles use (eta, phi) coordinates, so the critical/seed/outlier
         # distances need the scintillator scale (the silicon-scale defaults are used by
         # the EE/FH instances). deltao = 0.063 reproduces the previous effective outlier
         # distance (outlierDeltaFactor = 2.0) x (scint critical distance = 0.0315).
-        deltac = cms.vdouble(
+        deltac = cms.vfloat(
             0.0315,
             0.0315,
             0.0315,
             0.0315
         ),
-        deltao = cms.vdouble(
+        deltao = cms.vfloat(
             0.063,
             0.063,
             0.063,
             0.063
         ),
-        deltas = cms.vdouble(
+        deltas = cms.vfloat(
             0.0315,
             0.0315,
             0.0315,
@@ -31,17 +31,17 @@ hltHgcalLayerClustersHSciL1Seeded = cms.EDProducer("HGCalLayerClusterProducer",
         ),
         deltasi_index_regemfac = cms.int32(3),
         dependSensor = cms.bool(True),
-        ecut = cms.double(3),
-        fcPerEle = HGCAL_reco_constants.fcPerEle,
-        fcPerMip = HGCAL_reco_constants.fcPerMip,
-        kappa = cms.double(9),
+        ecut = cms.float(3),
+        fcPerEle = cms.float(HGCAL_reco_constants.fcPerEle.value()),
+        fcPerMip = cms.vfloat(HGCAL_reco_constants.fcPerMip.value()),
+        kappa = cms.float(9),
         maxNumberOfThickIndices = HGCAL_reco_constants.maxNumberOfThickIndices,
         noiseMip = HGCAL_reco_constants.noiseMip,
-        noises = HGCAL_reco_constants.noises,
-        positionDeltaRho2 = HGCAL_reco_constants.positionDeltaRho2,
-        sciThicknessCorrection = HGCAL_reco_constants.sciThicknessCorrection,
-        thicknessCorrection = HGCAL_reco_constants.thicknessCorrection,
-        thresholdW0 = HGCAL_reco_constants.thresholdW0,
+        noises = cms.vfloat(HGCAL_reco_constants.noises.value()),
+        positionDeltaRho2 = cms.float(HGCAL_reco_constants.positionDeltaRho2.value()),
+        sciThicknessCorrection = cms.float(HGCAL_reco_constants.sciThicknessCorrection.value()),
+        thicknessCorrection = cms.vfloat(HGCAL_reco_constants.thicknessCorrection.value()),
+        thresholdW0 = cms.vfloat(HGCAL_reco_constants.thresholdW0.value()),
         type = cms.string('SciCLUE'),
         use2x2 = cms.bool(True),
         verbosity = cms.untracked.uint32(3)

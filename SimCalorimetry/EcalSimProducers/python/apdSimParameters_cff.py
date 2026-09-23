@@ -14,3 +14,5 @@ apd_sim_parameters = cms.PSet(
     apdNonlParms    = cms.vdouble( 1.48, -3.75, 1.81, 1.26, 2.0, 45, 1.0 )
 )
 
+from Configuration.ProcessModifiers.ecal_addspikes_cff import ecal_addspikes
+ecal_addspikes.toModify(apd_sim_parameters, apdAddToBarrel = True)

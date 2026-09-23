@@ -9,7 +9,7 @@ namespace cms::cuda {
   void StreamCache::Deleter::operator()(cudaStream_t stream) const {
     if (device_ != -1) {
       ScopedSetDevice deviceGuard{device_};
-      cudaCheck(cudaStreamDestroy(stream));
+      CUDA_CHECK(cudaStreamDestroy(stream));
     }
   }
 
@@ -21,7 +21,7 @@ namespace cms::cuda {
     const auto dev = currentDevice();
     return cache_[dev].makeOrGet([dev]() {
       cudaStream_t stream;
-      cudaCheck(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
+      CUDA_CHECK(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
       return std::unique_ptr<BareStream, Deleter>(stream, Deleter{dev});
     });
   }
