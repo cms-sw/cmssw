@@ -96,7 +96,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   void CAMaskSoAProducer::produce(edm::StreamID streamID, device::Event& iEvent, const device::EventSetup& es) const {
     // get both Pixel and Tracker SoA collections
-    auto queue = iEvent.queue();
+    auto& queue = iEvent.queue();
     const auto& inpTkColl = iEvent.get(inputTrackSoAToken_);
 
     MapToHitConstView maskView;
@@ -123,11 +123,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     reco::TrackingRecHitsMaskingSoACollection outMask(queue, maskSize);
     if (useOldMask_) {
-      auto outMaskColumn = cms::alpakatools::make_device_view(queue, outMask.view().recHitMask(), maskSize);
-      auto inMaskColumn = cms::alpakatools::make_device_view(queue, maskView.recHitMask(), maskSize);
+      auto outMaskColumn = cms::alpakatools::make_device_view(queue, outMask.view().recHitMask());
+      auto inMaskColumn = cms::alpakatools::make_device_view(queue, maskView.recHitMask());
       alpaka::memcpy(queue, outMaskColumn, inMaskColumn);
     } else {
-      auto outMaskColumn = cms::alpakatools::make_device_view(queue, outMask.view().recHitMask(), maskSize);
+      auto outMaskColumn = cms::alpakatools::make_device_view(queue, outMask.view().recHitMask());
       alpaka::memset(queue, outMaskColumn, 0);
     }
 

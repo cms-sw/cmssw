@@ -37,7 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caMasking {
         uint32_t const nTrackHits = end - start;
 
         for (uint32_t k : cms::alpakatools::uniform_elements_y(acc, nTrackHits)) {
-          ALPAKA_ASSERT_ACC(int(trackhitd_view[start + k].id()) < mask_view.metadata().size());
+          ALPAKA_ASSERT_ACC(static_cast<int>(trackhitd_view[start + k].id()) < mask_view.metadata().size());
           // ^ if not it will crash below, but at least the assert is easier to catch
           mask_view[trackhitd_view[start + k].id()].recHitMask() = maskValue;
         }
