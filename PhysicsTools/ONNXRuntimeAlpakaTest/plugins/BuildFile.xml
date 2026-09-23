@@ -1,0 +1,21 @@
+<library file="*.cc" name="PhysicsToolsONNXRuntimeAlpakaTestPlugins">
+  <use name="DataFormats/PortableTestObjects"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="alpaka/*.cc" name="PhysicsToolsONNXRuntimeAlpakaTestPluginsPortable">
+  <use name="alpaka"/>
+  <use name="onnxruntime"/>
+  <use name="DataFormats/PortableTestObjects"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="PhysicsTools/ONNXRuntimeAlpaka"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
