@@ -180,13 +180,13 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
 
   for (unsigned int i = 0; i < m_cutList2D.size(); i++) {
     m_fullCutList2D.push_back(std::vector<std::string>());
-    while (m_cutList2D[i].find(']') != std::string::npos) {
-      size_t pos = m_cutList2D[i].find(']');
+    size_t pos;
+    while ((pos = m_cutList2D[i].find(']')) != std::string::npos) {
       m_fullCutList2D[i].push_back(m_cutList2D[i].substr(1, pos));
       m_cutList2D[i].erase(0, pos + 1);
     }
   }
-
+ 
   for (unsigned int i = 0; i < m_fullCutList2D.size(); i++) {
     m_binList2D.push_back(std::vector<std::vector<double>>());
     for (unsigned int j = 0; j < m_fullCutList2D[i].size(); j++) {
@@ -207,8 +207,8 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   //
   for (unsigned int i = 0; i < m_jetCutList.size(); i++) {
     m_fullJetCutList.push_back(std::vector<std::string>());
-    while (m_jetCutList[i].find(']') != std::string::npos) {
-      size_t pos = m_jetCutList[i].find(']');
+	size_t pos;
+    while ((pos = m_jetCutList[i].find(']')) != std::string::npos) {
       m_fullJetCutList[i].push_back(m_jetCutList[i].substr(1, pos));
       m_jetCutList[i].erase(0, pos + 1);
     }
@@ -281,7 +281,6 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
   // with the first being the observable name (corresponding to one of
   // the keys in m_funcMap), the second being the number of bins,
   // and the last two being the min and max value for the histogram respectively.
-
   for (unsigned int i = 0; i < m_fullCutList2D.size(); i++) {
     // Loop over all of the different types of PF candidates
     for (unsigned int m = 0; m < m_pfNames.size(); m++) {
@@ -594,15 +593,15 @@ std::string PFAnalyzer::stringWithDecimals(int bin, std::vector<double> bins) {
 std::vector<double> PFAnalyzer::getBinList(std::string binString) {
   std::vector<double> binList;
 
-  while (binString.find(';') != std::string::npos) {
-    size_t pos = binString.find(';');
+  size_t pos;
+  while ((pos = binString.find(';')) != std::string::npos) {
     binList.push_back(atof(binString.substr(0, pos).c_str()));
     binString.erase(0, pos + 1);
   }
   binList.push_back(atof(binString.c_str()));
 
   if (binList.size() == 3) {
-    int nBins = int(binList[0]);
+    int nBins = static_cast<int>(binList[0]);
     double minVal = binList[1];
     double maxVal = binList[2];
     binList.clear();
