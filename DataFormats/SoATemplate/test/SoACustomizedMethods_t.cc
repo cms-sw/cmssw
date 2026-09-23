@@ -88,7 +88,10 @@ TEST_CASE("SoACustomizedMethods") {
   points_view.position()[1].y() = 1.f;
   points_view.position()[1].z() = 1.f;
 
-  SECTION("View methods") { REQUIRE(points_const_view.distance2(0, 1) == 14.f); }
+  SECTION("View methods") { 
+    REQUIRE(points_const_view.distance2(0, 1) == 14.f); 
+    REQUIRE(points_const_view.position().distance2(0, 1) == 14.f); 
+  }
 
   SECTION("ConstView methods") {
     points_view.velocity()[0].vx() = 1.f;

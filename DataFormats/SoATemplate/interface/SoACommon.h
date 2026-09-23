@@ -586,6 +586,8 @@ namespace cms::soa {
 #define SOA_BLOCK(NAME, LAYOUT_NAME) (_VALUE_TYPE_BLOCK, NAME, LAYOUT_NAME)
 #define SOA_VIEW_METHODS(...) (_VALUE_TYPE_VIEW_METHOD, _, (__VA_ARGS__))
 #define SOA_CONST_VIEW_METHODS(...) (_VALUE_TYPE_CONST_VIEW_METHOD, _, (__VA_ARGS__))
+#define SOA_VIEW_METHODS_LAYOUT(...) (_VALUE_TYPE_VIEW_METHOD, _, _, (__VA_ARGS__))
+#define SOA_CONST_VIEW_METHODS_LAYOUT(...) (_VALUE_TYPE_CONST_VIEW_METHOD, _, _, (__VA_ARGS__))
 
 /* Macro generating customized methods for the element */
 #define GENERATE_METHODS(R, DATA, FIELD)                                         \
@@ -609,6 +611,18 @@ namespace cms::soa {
 #define GENERATE_CONST_VIEW_METHODS(R, DATA, FIELD)                                         \
   BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_ELEM(0, FIELD), _VALUE_TYPE_CONST_VIEW_METHOD), \
               BOOST_PP_TUPLE_ELEM(2, FIELD),                                                \
+              BOOST_PP_EMPTY())
+
+/* Macro generating customized methods for the element */
+#define GENERATE_VIEW_METHODS_LAYOUT(R, DATA, FIELD)                                  \
+  BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_ELEM(0, FIELD), _VALUE_TYPE_VIEW_METHOD), \
+              BOOST_PP_TUPLE_ELEM(3, FIELD),                                          \
+              BOOST_PP_EMPTY())
+
+/* Macro generating customized methods for the const element*/
+#define GENERATE_CONST_VIEW_METHODS_LAYOUT(R, DATA, FIELD)                                  \
+  BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_ELEM(0, FIELD), _VALUE_TYPE_CONST_VIEW_METHOD), \
+              BOOST_PP_TUPLE_ELEM(3, FIELD),                                                \
               BOOST_PP_EMPTY())
 
 /* Preprocessing loop for managing functions generation: only macros containing valid content are expanded */

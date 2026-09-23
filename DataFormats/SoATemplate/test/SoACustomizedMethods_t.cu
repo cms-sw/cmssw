@@ -24,7 +24,10 @@ __global__ void checkNormalise(SoAView soaView, double* checkTimesFunction) {
   soaView[i].normalise();
 }
 
-__global__ void checkPointsDistance(PointsConstView view, bool* result) { *result &= (view.distance2(0, 1) == 14.f); }
+__global__ void checkPointsDistance(PointsConstView view, bool* result) { 
+  *result &= (view.distance2(0, 1) == 14.f); 
+  *result &= (view.position().distance2(0, 1) == 14.f);
+}
 
 __global__ void checkPointsPositionUpdate(PointsView view, float time, bool* result) {
   view.update_position(0, time);
