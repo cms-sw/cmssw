@@ -38,7 +38,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                             float pt,
                                                             float eta,
                                                             float phi,
-                                                            float scores,
                                                             uint8_t layer,
                                                             unsigned int quadrupletIndex,
                                                             float rzChiSquared,
@@ -64,7 +63,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quadruplets.outerRadius()[quadrupletIndex] = __F2H(outerRadius);
     quadruplets.pt()[quadrupletIndex] = __F2H(pt);
 #ifdef CUT_VALUE_DEBUG
-    quadruplets.score_rphisum()[quadrupletIndex] = __F2H(scores);
     quadruplets.layer()[quadrupletIndex] = layer;
 #endif
     quadruplets.logicalLayers()[quadrupletIndex][0] =
@@ -679,7 +677,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                   float phi = mds.anchorPhi()[layer3MDIndex];
                   float eta = mds.anchorEta()[layer3MDIndex];
 
-                  float scores = chiSquared + nonAnchorChiSquared;
                   addQuadrupletToMemory(modules,
                                         mds,
                                         segments,
@@ -696,7 +693,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                         pt,
                                         eta,
                                         phi,
-                                        scores,
                                         layer,
                                         quadrupletIndex,
                                         rzChiSquared,
@@ -801,7 +797,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               float phi = mds.anchorPhi()[layer3MDIndex];
               float eta = mds.anchorEta()[layer3MDIndex];
 
-              float scores = chiSquared + nonAnchorChiSquared;
               addQuadrupletToMemory(modules,
                                     mds,
                                     segments,
@@ -818,7 +813,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                     pt,
                                     eta,
                                     phi,
-                                    scores,
                                     layer,
                                     quadrupletIndex,
                                     rzChiSquared,

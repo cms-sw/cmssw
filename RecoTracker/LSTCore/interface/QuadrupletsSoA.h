@@ -27,7 +27,6 @@ namespace lst {
                       SOA_COLUMN(FPX, innerRadius),  // inner triplet circle radius
                       SOA_COLUMN(FPX, outerRadius),  // outer triplet radius
 #ifdef CUT_VALUE_DEBUG
-                      SOA_COLUMN(FPX, score_rphisum),  // r-phi based score
                       SOA_COLUMN(float, nonAnchorRegressionRadius),
                       SOA_COLUMN(float, rzChiSquared),  // r-z only chi2
                       SOA_COLUMN(float, promptScore),
