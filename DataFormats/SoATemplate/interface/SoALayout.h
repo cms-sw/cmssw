@@ -1508,7 +1508,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
         /* const accessors */                                                                                          \
         _ITERATE_ON_ALL(_DECLARE_VIEW_SOA_CONST_ACCESSOR, ~, __VA_ARGS__)                                              \
-        ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_VIEW_METHODS_LAYOUT, ~, __VA_ARGS__))                             \
+        ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_VIEW_METHODS, ~, __VA_ARGS__))                                    \
                                                                                                                        \
         /* dump the SoA internal structure */                                                                          \
         template <typename T>                                                                                          \
@@ -1699,7 +1699,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
       /* non-const accessors */                                                                                        \
       _ITERATE_ON_ALL(_DECLARE_VIEW_SOA_ACCESSOR, ~, __VA_ARGS__)                                                      \
-      ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_VIEW_METHODS_LAYOUT, ~, __VA_ARGS__))                                     \
+      ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_VIEW_METHODS, ~, __VA_ARGS__))                                            \
                                                                                                                        \
       /* dump the SoA internal structure */                                                                            \
       template <typename T>                                                                                            \

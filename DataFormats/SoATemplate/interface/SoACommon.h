@@ -584,10 +584,8 @@ namespace cms::soa {
 #define SOA_ELEMENT_METHODS(...) (_VALUE_TYPE_METHOD, _, _, (__VA_ARGS__))
 #define SOA_CONST_ELEMENT_METHODS(...) (_VALUE_TYPE_CONST_METHOD, _, _, (__VA_ARGS__))
 #define SOA_BLOCK(NAME, LAYOUT_NAME) (_VALUE_TYPE_BLOCK, NAME, LAYOUT_NAME)
-#define SOA_VIEW_METHODS(...) (_VALUE_TYPE_VIEW_METHOD, _, (__VA_ARGS__))
-#define SOA_CONST_VIEW_METHODS(...) (_VALUE_TYPE_CONST_VIEW_METHOD, _, (__VA_ARGS__))
-#define SOA_VIEW_METHODS_LAYOUT(...) (_VALUE_TYPE_VIEW_METHOD, _, _, (__VA_ARGS__))
-#define SOA_CONST_VIEW_METHODS_LAYOUT(...) (_VALUE_TYPE_CONST_VIEW_METHOD, _, _, (__VA_ARGS__))
+#define SOA_VIEW_METHODS(...) (_VALUE_TYPE_VIEW_METHOD, _, _, (__VA_ARGS__))
+#define SOA_CONST_VIEW_METHODS(...) (_VALUE_TYPE_CONST_VIEW_METHOD, _, _, (__VA_ARGS__))
 
 /* Macro generating customized methods for the element */
 #define GENERATE_METHODS(R, DATA, FIELD)                                         \
@@ -601,26 +599,14 @@ namespace cms::soa {
               BOOST_PP_TUPLE_ELEM(3, FIELD),                                           \
               BOOST_PP_EMPTY())
 
-/* Macro generating customized methods for the element */
+/* Macro generating customized methods for the View of an SoA */
 #define GENERATE_VIEW_METHODS(R, DATA, FIELD)                                         \
-  BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_ELEM(0, FIELD), _VALUE_TYPE_VIEW_METHOD), \
-              BOOST_PP_TUPLE_ELEM(2, FIELD),                                          \
-              BOOST_PP_EMPTY())
-
-/* Macro generating customized methods for the const element*/
-#define GENERATE_CONST_VIEW_METHODS(R, DATA, FIELD)                                         \
-  BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_ELEM(0, FIELD), _VALUE_TYPE_CONST_VIEW_METHOD), \
-              BOOST_PP_TUPLE_ELEM(2, FIELD),                                                \
-              BOOST_PP_EMPTY())
-
-/* Macro generating customized methods for the element */
-#define GENERATE_VIEW_METHODS_LAYOUT(R, DATA, FIELD)                                  \
   BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_ELEM(0, FIELD), _VALUE_TYPE_VIEW_METHOD), \
               BOOST_PP_TUPLE_ELEM(3, FIELD),                                          \
               BOOST_PP_EMPTY())
 
-/* Macro generating customized methods for the const element*/
-#define GENERATE_CONST_VIEW_METHODS_LAYOUT(R, DATA, FIELD)                                  \
+/* Macro generating customized methods for the ConstView of an SoA */
+#define GENERATE_CONST_VIEW_METHODS(R, DATA, FIELD)                                         \
   BOOST_PP_IF(BOOST_PP_EQUAL(BOOST_PP_TUPLE_ELEM(0, FIELD), _VALUE_TYPE_CONST_VIEW_METHOD), \
               BOOST_PP_TUPLE_ELEM(3, FIELD),                                                \
               BOOST_PP_EMPTY())
@@ -657,6 +643,17 @@ namespace cms::soa {
           BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_COLUMN),                  \
           IF_COLUMN,                                                       \
           BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_EIGEN_COLUMN), IF_EIGEN_COLUMN, BOOST_PP_EMPTY())))
+
+// Extract the type, name and layout from a block specification
+#define _BLOCK_GET_TYPE(SPEC) BOOST_PP_TUPLE_ELEM(0, SPEC)
+#define _BLOCK_GET_NAME(SPEC) BOOST_PP_TUPLE_ELEM(1, SPEC)
+#define _BLOCK_GET_LAYOUT(SPEC) BOOST_PP_TUPLE_ELEM(2, SPEC)
+
+// Check if argument is a block specification
+#define _IS_BLOCK(SPEC) BOOST_PP_LESS_EQUAL(_BLOCK_GET_TYPE(SPEC), _VALUE_TYPE_BLOCK)
+
+// Execute MACRO if specification is a block specification, otherwise do nothing
+#define _EXEC_IF_BLOCK(SPEC, MACRO, ARGS) BOOST_PP_IF(_IS_BLOCK(SPEC), MACRO ARGS, BOOST_PP_EMPTY())
 
 #define _APPLY_ONLY_FOR_SCALAR(VALUE_TYPE, CODE) BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_SCALAR), CODE, )
 

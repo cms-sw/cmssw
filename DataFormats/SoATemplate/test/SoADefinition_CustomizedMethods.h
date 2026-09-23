@@ -42,6 +42,22 @@ GENERATE_SOA_LAYOUT(SoATemplate,
                           return 0.;
                         }),
 
+                    SOA_VIEW_METHODS(
+                        SOA_HOST_DEVICE void update_position(uint32_t i, float time) {
+                          auto element = (*this)[i];
+                          element.x() += element.v_x() * time;
+                          element.y() += element.v_y() * time;
+                          element.z() += element.v_z() * time;
+                        } SOA_HOST_DEVICE auto sizeMinusOne() const { return this->metadata().size() - 1; }),
+
+                    SOA_CONST_VIEW_METHODS(
+                        SOA_HOST_DEVICE auto distance2(uint32_t i, uint32_t j) const {
+                          auto pi = (*this)[i];
+                          auto pj = (*this)[j];
+                          return (pi.x() - pj.x()) * (pi.x() - pj.x()) + (pi.y() - pj.y()) * (pi.y() - pj.y()) +
+                                 (pi.z() - pj.z()) * (pi.z() - pj.z());
+                        } SOA_HOST_DEVICE auto sizeMinusOne() const { return this->metadata().size() - 1; }),
+
                     SOA_SCALAR(int, detectorType))
 
 using SoA = SoATemplate<>;
@@ -52,16 +68,7 @@ using SoAConstView = SoA::ConstView;
 GENERATE_SOA_LAYOUT(PositionLayout,
                     SOA_COLUMN(float, x),
                     SOA_COLUMN(float, y),
-                    SOA_COLUMN(float, z),
-                    SOA_CONST_VIEW_METHODS_LAYOUT(
-                      SOA_HOST_DEVICE auto distance2(uint32_t i, uint32_t j) const {
-                          auto pi = (*this)[i];
-                          auto pj = (*this)[j];
-                          return (pi.x() - pj.x()) * (pi.x() - pj.x()) + 
-                                 (pi.y() - pj.y()) * (pi.y() - pj.y()) + 
-                                 (pi.z() - pj.z()) * (pi.z() - pj.z());
-                      }
-                    ))
+                    SOA_COLUMN(float, z))
 
 GENERATE_SOA_LAYOUT(VelocityLayout,
                     SOA_COLUMN(float, vx),

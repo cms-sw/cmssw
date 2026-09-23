@@ -17,19 +17,26 @@ __global__ void calculateNorm(SoAConstView soaConstView, float* resultNorm, doub
   resultVelNorm[i] = soaConstView[i].square_norm_velocity();
 }
 
+__global__ void calculateDistance(SoAConstView soaConstView, float* resultDistance) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i >= soaConstView.sizeMinusOne())
+    return;
+
+  resultDistance[i] = soaConstView.distance2(i, i + 1);
+}
+
 __global__ void checkNormalise(SoAView soaView, double* checkTimesFunction) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i >= soaView.metadata().size())
     return;
 
+  soaView.update_position(i, 0.5f);
+
   checkTimesFunction[i] = SoAView::const_element::time(soaView[i].x(), soaView[i].v_x());
   soaView[i].normalise();
 }
 
-__global__ void checkPointsDistance(PointsConstView view, bool* result) { 
-  *result &= (view.distance2(0, 1) == 14.f); 
-  *result &= (view.position().distance2(0, 1) == 14.f);
-}
+__global__ void checkPointsDistance(PointsConstView view, bool* result) { *result &= (view.distance2(0, 1) == 14.f); }
 
 __global__ void checkPointsPositionUpdate(PointsView view, float time, bool* result) {
   view.update_position(0, time);
@@ -68,15 +75,20 @@ TEST_CASE("SoACustomizedMethods hip", "[SoACustomizedMethods][hip]") {
   SoAView d_view(d_soahdLayout);
   SoAConstView d_Constview(d_soahdLayout);
 
+  REQUIRE(d_view.sizeMinusOne() == elems - 1);
+
   std::vector<float> h_position_norms(elems);
+  std::vector<float> h_distance(d_view.sizeMinusOne());
   std::vector<double> h_velocity_norms(elems);
   std::vector<double> h_times(elems);
 
   float* d_position_norms;
+  float* d_distance;
   double* d_velocity_norms;
   double* d_times;
 
   HIP_CHECK(hipMalloc(&d_position_norms, elems * sizeof(float)));
+  HIP_CHECK(hipMalloc(&d_distance, d_view.sizeMinusOne() * sizeof(float)));
   HIP_CHECK(hipMalloc(&d_velocity_norms, elems * sizeof(double)));
   HIP_CHECK(hipMalloc(&d_times, elems * sizeof(double)));
 
@@ -84,9 +96,12 @@ TEST_CASE("SoACustomizedMethods hip", "[SoACustomizedMethods][hip]") {
   HIP_CHECK(hipMemcpy(d_buf, h_buf, bufferSize, hipMemcpyHostToDevice));
 
   SECTION("ConstElement methods HIP") {
+    REQUIRE(d_Constview.sizeMinusOne() == elems - 1);
     calculateNorm<<<(elems + 255) / 256, 256>>>(d_Constview, d_position_norms, d_velocity_norms);
+    calculateDistance<<<(elems + 255) / 256, 256>>>(d_Constview, d_distance);
 
     HIP_CHECK(hipMemcpy(h_position_norms.data(), d_position_norms, elems * sizeof(float), hipMemcpyDeviceToHost));
+    HIP_CHECK(hipMemcpy(h_distance.data(), d_distance, d_view.sizeMinusOne() * sizeof(float), hipMemcpyDeviceToHost));
     HIP_CHECK(hipMemcpy(h_velocity_norms.data(), d_velocity_norms, elems * sizeof(double), hipMemcpyDeviceToHost));
 
     // Check for the correctness of the square_norm() functions
@@ -100,6 +115,14 @@ TEST_CASE("SoACustomizedMethods hip", "[SoACustomizedMethods][hip]") {
       REQUIRE(h_position_norms[i] == position_norm);
       REQUIRE(h_velocity_norms[i] == velocity_norm);
     }
+
+    for (int i = 0; i < h_Constview.sizeMinusOne(); i++) {
+      auto pi = h_Constview[i];
+      auto pj = h_Constview[i + 1];
+      const float distance = (pi.x() - pj.x()) * (pi.x() - pj.x()) + (pi.y() - pj.y()) * (pi.y() - pj.y()) +
+                             (pi.z() - pj.z()) * (pi.z() - pj.z());
+      REQUIRE(h_distance[i] == distance);
+    }
   }
 
   SECTION("Element methods HIP") {
@@ -109,7 +132,7 @@ TEST_CASE("SoACustomizedMethods hip", "[SoACustomizedMethods][hip]") {
     times[0] = 0.;
     for (size_t i = 0; i < elems; i++) {
       if (!(i == 0))
-        times[i] = h_view[i].x() / h_view[i].v_x();
+        times[i] = 1.5 * h_view[i].x() / h_view[i].v_x();
     }
 
     checkNormalise<<<(elems + 255) / 256, 256>>>(d_view, d_times);
@@ -174,6 +197,7 @@ TEST_CASE("SoACustomizedMethods hip", "[SoACustomizedMethods][hip]") {
 
   // ===== cleanup =====
   HIP_CHECK(hipFree(d_position_norms));
+  HIP_CHECK(hipFree(d_distance));
   HIP_CHECK(hipFree(d_velocity_norms));
   HIP_CHECK(hipFree(d_times));
   HIP_CHECK(hipFree(d_buf));
