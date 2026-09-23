@@ -5081,7 +5081,8 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
             for step in specialWF.steps:
                 stepName = specialWF.getStepName(step)
                 stepNamePU = specialWF.getStepNamePU(step)
-                if 'MinBias' in stepName and not localPUname in PUDataSets[k2]['--pileup_input']:
+                # always needed for hybrid PU
+                if 'MinBias' in stepName and not localPUname in PUDataSets[k2]['--pileup_input'] and not 'Hybrid' in specialType:
                     upgradeStepDict[stepName][k] = None
 
             # in case special WF has PU-specific changes: apply *after* basic PU step is created
