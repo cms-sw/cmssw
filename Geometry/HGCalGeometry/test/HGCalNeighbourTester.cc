@@ -134,7 +134,7 @@ void HGCalNeighbourTester::beginRun(edm::Run const &iRun, edm::EventSetup const 
       for (auto const &id : detIds_) {
         for (auto const &idz : allIds) {
           if ((id & mask) == (idz & mask)) {
-            detIds.emplace_back(idz);
+            detIds.emplace_back(id);
             break;
           }
         }
@@ -152,9 +152,9 @@ void HGCalNeighbourTester::beginRun(edm::Run const &iRun, edm::EventSetup const 
         if (idZ != 0)
           if (geom->validDetId(DetId(idZ)))
             ++nn;
-      edm::LogVerbatim("HGCalGeom") << "[" << k << "] Layer " << id.layer() << " Wafer " << id.waferU() << ":"
-                                    << id.waferV() << " Cell " << id.cellU() << ":" << id.cellV() << " has " << nn
-                                    << " neighbours:";
+      edm::LogVerbatim("HGCalGeom") << "[" << k << "] z-Side " << id.zside() << " Layer " << id.layer() << " Wafer "
+                                    << id.waferU() << ":" << id.waferV() << " Cell " << id.cellU() << ":" << id.cellV()
+                                    << " has " << nn << " neighbours:";
       unsigned int k1(0);
       for (auto const &idZ : ids) {
         if (idZ != 0) {
