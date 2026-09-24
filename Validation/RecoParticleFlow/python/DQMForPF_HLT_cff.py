@@ -115,11 +115,11 @@ offsetDQMPostProcessorHLT = offsetDQMPostProcessor.clone(
     offsetDir = "HLT/ParticleFlow/Offset/"
 )
 
-DQMHLTPF = cms.Sequence(
+hltPFDQM = cms.Sequence(
     pfAnalyzerDQMHLT +
     offsetAnalyzerDQMHLT
 )
 
-DQMHarvestHLTPF = cms.Sequence(
+hltPFDQMHarvest = cms.Sequence(
     offsetDQMPostProcessorHLT
 )
