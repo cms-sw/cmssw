@@ -1,5 +1,4 @@
 // EDProducer that takes RawDataBuffer and fully decodes it straight to PixelDigi
-// Fused unpacker: one pass over the same walk and decode as the split chain
 
 #include <memory>
 #include <vector>
