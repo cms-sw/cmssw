@@ -8,17 +8,21 @@
  *      Author: hqu
  *  Improved on: Mar 30, 2026
  *      Author: Felice Pantaleo
+ *  Extended on: Sep 28, 2026
+ *      Author: Andrea Bocci, CERN
  */
 
 #ifndef PHYSICSTOOLS_ONNXRUNTIME_INTERFACE_ONNXRUNTIME_H_
 #define PHYSICSTOOLS_ONNXRUNTIME_INTERFACE_ONNXRUNTIME_H_
 
-#include <vector>
 #include <map>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 
-#include "onnxruntime/onnxruntime_cxx_api.h"
+#include <onnxruntime/onnxruntime_cxx_api.h>
+
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace cms::Ort {
 
@@ -36,7 +40,10 @@ namespace cms::Ort {
     ONNXRuntime& operator=(const ONNXRuntime&) = delete;
     ~ONNXRuntime();
 
-    static ::Ort::SessionOptions defaultSessionOptions(Backend backend = Backend::cpu);
+    // Create the default session options for the given backend.
+    // For Backend::cuda, `device` is the CUDA runtime index of the GPU to use, as seen by the job (i.e. after applying
+    // CUDA_VISIBLE_DEVICES); if it is not available, an edm::Exception is thrown. It is ignored by the other backends.
+    static ::Ort::SessionOptions defaultSessionOptions(Backend backend = Backend::cpu, int device = 0);
 
     // Run inference and get outputs
     // input_names: list of the names of the input nodes.
@@ -76,7 +83,8 @@ namespace cms::Ort {
     const std::vector<int64_t>& getOutputShape(const std::string& output_name) const;
 
   private:
-    static const ::Ort::Env env_;
+    // non-const to register the execution provider libraries; the Ort::Env methods are thread safe
+    CMS_THREAD_SAFE static ::Ort::Env env_;
     std::unique_ptr<::Ort::Session> session_;
 
     std::vector<std::string> input_node_strings_;

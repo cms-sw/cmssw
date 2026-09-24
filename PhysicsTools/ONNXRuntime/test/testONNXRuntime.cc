@@ -1,12 +1,13 @@
+#include <iostream>
+
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #ifdef CMSSW_CUDA_IS_AVAILABLE
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 #endif
-
-#include <iostream>
 
 using namespace cms::Ort;
 
@@ -48,10 +49,23 @@ void testONNXRuntime::test(Backend backend) {
 
 void testONNXRuntime::checkCPU() { test(Backend::cpu); }
 
+// The CUDA execution provider validates the device selected by defaultSessionOptions(), so requesting a device that
+// is not available is expected to throw an edm::Exception with the UnavailableAccelerator category.
 void testONNXRuntime::checkGPU() {
 #ifdef CMSSW_CUDA_IS_AVAILABLE
   if (cms::cudatest::testDevices()) {
     test(Backend::cuda);
+
+    // a device index that is not expected to be available in the job
+    constexpr int kUnavailableDevice = 1024;
+    bool thrown = false;
+    try {
+      ONNXRuntime::defaultSessionOptions(Backend::cuda, kUnavailableDevice);
+    } catch (edm::Exception const &e) {
+      thrown = true;
+      CPPUNIT_ASSERT_EQUAL(edm::errors::UnavailableAccelerator, e.categoryCode());
+    }
+    CPPUNIT_ASSERT(thrown);
   }
 #endif
 }

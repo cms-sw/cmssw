@@ -5,12 +5,9 @@
  *      Author: hqu
  *  Improved on: Mar 30, 2026
  *      Author: Felice Pantaleo
+ *  Extended on: Sep 28, 2026
+ *      Author: Andrea Bocci, CERN
  */
-
-#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
-
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <algorithm>
 #include <cassert>
@@ -19,14 +16,67 @@
 #include <memory>
 #include <numeric>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
+
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
 namespace cms::Ort {
 
   using namespace ::Ort;
 
   namespace {
+
+    constexpr const char* kCudaExecutionProvider = "CUDAExecutionProvider";
+
+    // Register the CUDA plugin execution provider library with the ONNX Runtime environment, and return the CUDA
+    // devices it exposes. The registration is done only once per process; the list is empty if there are no CUDA
+    // devices. A relative library name is looked up in the same directory as libonnxruntime.so .
+    const std::vector<ConstEpDevice>& cudaDevices(Env& env) {
+      static const std::vector<ConstEpDevice> devices = [&env]() {
+        env.RegisterExecutionProviderLibrary(kCudaExecutionProvider, ORT_TSTR("libonnxruntime_providers_cuda.so"));
+        std::vector<ConstEpDevice> result;
+        for (const auto& device : env.GetEpDevices()) {
+          if (std::string_view(device.EpName()) == kCudaExecutionProvider) {
+            result.push_back(device);
+          }
+        }
+        return result;
+      }();
+      return devices;
+    }
+
+    // Select the CUDA device with the given CUDA runtime index (as seen by the job, i.e. after applying
+    // CUDA_VISIBLE_DEVICES). The CUDA execution provider stores the index in the "cuda_device_id" entry of the device
+    // metadata, and runs on the device that is added to the session options. Return an empty list if the CUDA
+    // execution provider does not expose any device, and throw an exception if it does not expose the requested one.
+    std::vector<ConstEpDevice> selectCudaDevice(const std::vector<ConstEpDevice>& devices, int device) {
+      if (devices.empty()) {
+        return {};
+      }
+
+      const std::string id = std::to_string(device);
+      for (const auto& ep_device : devices) {
+        const char* value = ep_device.EpMetadata().GetValue("cuda_device_id");
+        if (value and id == value) {
+          return {ep_device};
+        }
+      }
+
+      edm::Exception ex(edm::errors::UnavailableAccelerator);
+      ex << "CUDA backend requested for device " << device << ", but the ONNX Runtime " << kCudaExecutionProvider
+         << " provides only the devices";
+      for (const auto& ep_device : devices) {
+        const char* value = ep_device.EpMetadata().GetValue("cuda_device_id");
+        ex << ' ' << (value ? value : "(unknown)");
+      }
+      ex.addContext("Calling cms::Ort::ONNXRuntime::defaultSessionOptions()");
+      throw ex;
+    }
 
     inline int64_t numel(const std::vector<int64_t>& dims) {
       return std::accumulate(dims.begin(), dims.end(), int64_t{1}, std::multiplies<int64_t>());
@@ -43,7 +93,7 @@ namespace cms::Ort {
 
   }  // namespace
 
-  const Env ONNXRuntime::env_(ORT_LOGGING_LEVEL_ERROR, "");
+  Env ONNXRuntime::env_(ORT_LOGGING_LEVEL_ERROR, "");
 
   ONNXRuntime::ONNXRuntime(const std::string& model_path, const SessionOptions* session_options) {
     // create session
@@ -96,13 +146,19 @@ namespace cms::Ort {
 
   ONNXRuntime::~ONNXRuntime() {}
 
-  SessionOptions ONNXRuntime::defaultSessionOptions(Backend backend) {
+  SessionOptions ONNXRuntime::defaultSessionOptions(Backend backend, int device) {
     SessionOptions sess_opts;
     sess_opts.SetIntraOpNumThreads(1);
     if (backend == Backend::cuda) {
-      // https://www.onnxruntime.ai/docs/reference/execution-providers/CUDA-ExecutionProvider.html
-      OrtCUDAProviderOptions options;
-      sess_opts.AppendExecutionProvider_CUDA(options);
+      // the CUDA execution provider is built as a plugin library, see
+      // https://onnxruntime.ai/docs/execution-providers/plugin-ep-libraries/
+      const auto devices = selectCudaDevice(cudaDevices(env_), device);
+      if (devices.empty()) {
+        throw cms::Exception("RuntimeError")
+            << "No CUDA device available for the ONNX Runtime " << kCudaExecutionProvider;
+      }
+      // use the selected device
+      sess_opts.AppendExecutionProvider_V2(env_, {devices.front()}, std::unordered_map<std::string, std::string>{});
     }
     return sess_opts;
   }
