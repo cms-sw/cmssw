@@ -19,6 +19,7 @@
 #include <memory>
 #include <numeric>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -27,6 +28,25 @@ namespace cms::Ort {
   using namespace ::Ort;
 
   namespace {
+
+    constexpr const char* kCudaExecutionProvider = "CUDAExecutionProvider";
+
+    // Register the CUDA plugin execution provider library with the ONNX Runtime environment, and return the CUDA
+    // devices it exposes. The registration is done only once per process; the list is empty if there are no CUDA
+    // devices. A relative library name is looked up in the same directory as libonnxruntime.so .
+    const std::vector<ConstEpDevice>& cudaDevices(Env& env) {
+      static const std::vector<ConstEpDevice> devices = [&env]() {
+        env.RegisterExecutionProviderLibrary(kCudaExecutionProvider, ORT_TSTR("libonnxruntime_providers_cuda.so"));
+        std::vector<ConstEpDevice> result;
+        for (const auto& device : env.GetEpDevices()) {
+          if (std::string_view(device.EpName()) == kCudaExecutionProvider) {
+            result.push_back(device);
+          }
+        }
+        return result;
+      }();
+      return devices;
+    }
 
     inline int64_t numel(const std::vector<int64_t>& dims) {
       return std::accumulate(dims.begin(), dims.end(), int64_t{1}, std::multiplies<int64_t>());
@@ -43,7 +63,7 @@ namespace cms::Ort {
 
   }  // namespace
 
-  const Env ONNXRuntime::env_(ORT_LOGGING_LEVEL_ERROR, "");
+  Env ONNXRuntime::env_(ORT_LOGGING_LEVEL_ERROR, "");
 
   ONNXRuntime::ONNXRuntime(const std::string& model_path, const SessionOptions* session_options) {
     // create session
@@ -100,9 +120,15 @@ namespace cms::Ort {
     SessionOptions sess_opts;
     sess_opts.SetIntraOpNumThreads(1);
     if (backend == Backend::cuda) {
-      // https://www.onnxruntime.ai/docs/reference/execution-providers/CUDA-ExecutionProvider.html
-      OrtCUDAProviderOptions options;
-      sess_opts.AppendExecutionProvider_CUDA(options);
+      // the CUDA execution provider is built as a plugin library, see
+      // https://onnxruntime.ai/docs/execution-providers/plugin-ep-libraries/
+      const auto& devices = cudaDevices(env_);
+      if (devices.empty()) {
+        throw cms::Exception("RuntimeError")
+            << "No CUDA device available for the ONNX Runtime " << kCudaExecutionProvider;
+      }
+      // use the first device, like the default OrtCUDAProviderOptions (device_id = 0)
+      sess_opts.AppendExecutionProvider_V2(env_, {devices.front()}, std::unordered_map<std::string, std::string>{});
     }
     return sess_opts;
   }

@@ -20,6 +20,8 @@
 
 #include "onnxruntime/onnxruntime_cxx_api.h"
 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+
 namespace cms::Ort {
 
   typedef std::vector<std::vector<float>> FloatArrays;
@@ -76,7 +78,8 @@ namespace cms::Ort {
     const std::vector<int64_t>& getOutputShape(const std::string& output_name) const;
 
   private:
-    static const ::Ort::Env env_;
+    // non-const to register the execution provider libraries; the Ort::Env methods are thread safe
+    CMS_THREAD_SAFE static ::Ort::Env env_;
     std::unique_ptr<::Ort::Session> session_;
 
     std::vector<std::string> input_node_strings_;
