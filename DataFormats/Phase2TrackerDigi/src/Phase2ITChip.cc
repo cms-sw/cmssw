@@ -112,16 +112,15 @@ std::vector<Phase2ITQCore> Phase2ITChip::getOrganizedQCores() {
 }
 
 //Returns the encoding of the readout chip
-std::vector<bool> Phase2ITChip::getChipCode(bool dropTot) {
-  std::vector<bool> code = {};
+Phase2ITBitBuffer Phase2ITChip::getChipCode(bool dropTot) {
+  Phase2ITBitBuffer code;
 
   if (!hitList_.empty()) {
     std::vector<Phase2ITQCore> qcores = getOrganizedQCores();
     bool isNewCol = true;
 
     for (auto& qcore : qcores) {
-      std::vector<bool> qcoreCode = qcore.encodeQCore(isNewCol, dropTot);
-      code.insert(code.end(), qcoreCode.begin(), qcoreCode.end());
+      qcore.encodeQCore(code, isNewCol, dropTot);
       isNewCol = qcore.islast();
     }
   }

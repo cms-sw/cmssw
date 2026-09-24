@@ -3,6 +3,7 @@
 #include <vector>
 #include <utility>
 #include <string>
+#include "DataFormats/Phase2TrackerDigi/interface/Phase2ITBitBuffer.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2ITQCore.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2ITDigiHit.h"
 
@@ -18,7 +19,7 @@ public:
 
   std::vector<Phase2ITQCore> getOrganizedQCores();
   // dropTot=true forwards to Phase2ITQCore::encodeQCore to suppress ToTs
-  std::vector<bool> getChipCode(bool dropTot = false);
+  Phase2ITBitBuffer getChipCode(bool dropTot = false);
 
   static int encodeQCoreIndex(int row, int col);
   static std::pair<int, int> decodeQCoreIndex(int index);

@@ -14,6 +14,8 @@
 #include "CondFormats/SiPhase2TrackerObjects/interface/TrackerDetToDTCELinkCablingMap.h"
 #include "CondFormats/DataRecord/interface/TrackerDetToDTCELinkCablingMapRcd.h"
 
+#include <cstring>
+
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2ITChipBitStream.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
@@ -39,8 +41,8 @@ private:
   const edm::EDGetTokenT<edmNew::DetSetVector<Phase2ITChipBitStream>> ITChipBitStreamToken_;
 
   void addWordToBuffer(unsigned char* buffer, size_t position, uint32_t word);
-  void addWordToBitVector(std::vector<bool>& vec, uint32_t word);
-  void padToChunkBoundary(std::vector<bool>& vec);
+  void addWordToByteVector(std::vector<uint8_t>& vec, uint32_t word);
+  void padToChunkBoundary(std::vector<uint8_t>& vec);
 
   std::unique_ptr<SLinkModuleMap> slinkMap_;
 };
@@ -78,9 +80,9 @@ void BitStreamToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   // SLinkRocket header/trailer + IT header/trailer placeholders.
   struct FedFrame {
     int fedId;
-    std::vector<bool> offsetBlock;  // already padded to 128-bit
-    std::vector<bool> dataBlock;    // already padded to 128-bit
-    unsigned int totalSize;         // bytes
+    std::vector<uint8_t> offsetBlock;  // already padded to 16 B
+    std::vector<uint8_t> dataBlock;    // already padded to 16 B
+    unsigned int totalSize;            // bytes
   };
   std::vector<FedFrame> frames;
   frames.reserve(slinkMap_->fedIdToDetIds().size());
@@ -88,14 +90,14 @@ void BitStreamToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   // Each fragment carries:
   //   SLinkRocket header (16 B)
   // + IT header placeholder (16 B = HEADER_TRAILER_LINES words)
-  // + offset table (128-bit padded)
-  // + data block (128-bit padded)
+  // + offset table (16 B padded)
+  // + data block (16 B padded for each module)
   // + IT trailer placeholder (16 B)
   // + SLinkRocket trailer (16 B)
   const unsigned int SLINK_HDR_BYTES = sizeof(SLinkRocketHeader_v3);
   const unsigned int SLINK_TRL_BYTES = sizeof(SLinkRocketTrailer_v3);
-  const unsigned int IT_HDR_BYTES    = HEADER_TRAILER_LINES * BYTES_PER_WORD;
-  const unsigned int IT_TRL_BYTES    = HEADER_TRAILER_LINES * BYTES_PER_WORD;
+  const unsigned int IT_HDR_BYTES = HEADER_TRAILER_LINES * BYTES_PER_WORD;
+  const unsigned int IT_TRL_BYTES = HEADER_TRAILER_LINES * BYTES_PER_WORD;
 
   // Build bit blocks per FED and compute totalSize=totalRawDataBuffer.
   uint32_t totalRawDataBuffer = 0;
@@ -114,14 +116,14 @@ void BitStreamToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       // Block 2: per-module offsets.
       // Module-level offset = dataBlock position for module in 32-bit words.
       // FIXME For the first module the value is always 0, is it necessary?
-      uint32_t moduleOffset = f.dataBlock.size() / BITS_PER_WORD;
-      addWordToBitVector(f.offsetBlock, moduleOffset);
+      uint32_t moduleOffset = f.dataBlock.size() / BYTES_PER_WORD;
+      addWordToByteVector(f.offsetBlock, moduleOffset);
 
       // Block 3: per-module sequence of (chip header word, chip bitstream, 32-bit pad)
       // repeated for CHIPS_PER_MODULE chips.
       for (auto const& chip : detSet) {
-        std::vector<bool> chipBitStream = chip.get_bitstream();
-        unsigned int bitstreamSize = chipBitStream.size();
+        const std::vector<uint8_t>& chipBitStream = chip.bytes();
+        unsigned int bitstreamSize = chip.nBits();
         unsigned int sizeWords = (bitstreamSize + BITS_PER_WORD - 1) / BITS_PER_WORD;
         unsigned int endBit = bitstreamSize % BITS_PER_WORD;
 
@@ -133,25 +135,24 @@ void BitStreamToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
         //   bits 15..0  : chip bitstream size in 32-bit words, NOT PER MODULE
         uint32_t chipHeader = ((CHIP_HEADER_MAGIC & 0xF) << 28) | ((0u & 0xF) << 24) | ((0u & 0x7) << 21) |
                               ((endBit & 0x1F) << 16) | (sizeWords & 0xFFFF);
-        addWordToBitVector(f.dataBlock, chipHeader);
+        addWordToByteVector(f.dataBlock, chipHeader);
         f.dataBlock.insert(f.dataBlock.end(), chipBitStream.begin(), chipBitStream.end());
 
-        // Pad chip bitstream to 32-bit boundary
-        unsigned int chipPadBits = (endBit > 0) ? (BITS_PER_WORD - endBit) : 0;
-        if (chipPadBits > 0) {
-          f.dataBlock.insert(f.dataBlock.end(), chipPadBits, false);
-        }
+        // Pad chip bitstream to 4 B boundary. The stream's own trailing bits
+        // are already zero, so only whole bytes need adding.
+        while (f.dataBlock.size() % BYTES_PER_WORD != 0)
+          f.dataBlock.push_back(0);
       }
 
-      // Pad module to 128-bit boundary at module end
+      // Pad module to 16 B boundary at module end
       padToChunkBoundary(f.dataBlock);
     }
 
-    // Pad offset block to 128-bit boundary
+    // Pad offset block to 16 B boundary
     padToChunkBoundary(f.offsetBlock);
 
-    unsigned int offsetSize = f.offsetBlock.size() / BITS_PER_WORD * BYTES_PER_WORD;
-    unsigned int dataSize   = f.dataBlock.size()   / BITS_PER_WORD * BYTES_PER_WORD;
+    unsigned int offsetSize = f.offsetBlock.size();
+    unsigned int dataSize = f.dataBlock.size();
     f.totalSize = SLINK_HDR_BYTES + IT_HDR_BYTES + offsetSize + dataSize + IT_TRL_BYTES + SLINK_TRL_BYTES;
     totalRawDataBuffer += f.totalSize;
     frames.push_back(std::move(f));
@@ -164,17 +165,16 @@ void BitStreamToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   const auto& aux = iEvent.eventAuxiliary();
   const uint64_t eventId = aux.event();
   const uint32_t orbitId = aux.orbitNumber();
-  const uint16_t bxId    = static_cast<uint16_t>(aux.bunchCrossing());
+  const uint16_t bxId = static_cast<uint16_t>(aux.bunchCrossing());
 
   for (auto& f : frames) {
     unsigned char* buffer = raw->addSource(f.fedId, nullptr, f.totalSize);
 
     // SLinkRocket header (16 B) at the very start.
-    const uint16_t l1a_types  = 1;
-    const uint8_t  l1a_phys   = 0;
-    const uint8_t  emu_status = 2;  // DTH emulator
-    new ((void*)buffer)
-        SLinkRocketHeader_v3(static_cast<uint32_t>(f.fedId), l1a_types, l1a_phys, emu_status, eventId);
+    const uint16_t l1a_types = 1;
+    const uint8_t l1a_phys = 0;
+    const uint8_t emu_status = 2;  // DTH emulator
+    new ((void*)buffer) SLinkRocketHeader_v3(static_cast<uint32_t>(f.fedId), l1a_types, l1a_phys, emu_status, eventId);
 
     // Word index within the fragment (4-byte words) after the SLinkRocket header.
     unsigned int wordIdx = SLINK_HDR_BYTES / BYTES_PER_WORD;  // = 4
@@ -184,29 +184,10 @@ void BitStreamToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       addWordToBuffer(buffer, wordIdx++, HEADER_TRAILER_PATTERN);
     }
 
-    // Offset block
-    unsigned int offsetWords = f.offsetBlock.size() / BITS_PER_WORD;
-    for (unsigned int i = 0; i < offsetWords; i++) {
-      uint32_t word = 0;
-      for (int bit = 0; bit < BITS_PER_WORD; bit++) {
-        if (f.offsetBlock[i * BITS_PER_WORD + bit]) {
-          word |= (1 << (31 - bit));
-        }
-      }
-      addWordToBuffer(buffer, wordIdx++, word);
-    }
-
-    // Data block
-    unsigned int dataWords = f.dataBlock.size() / BITS_PER_WORD;
-    for (unsigned int i = 0; i < dataWords; i++) {
-      uint32_t word = 0;
-      for (int bit = 0; bit < BITS_PER_WORD; bit++) {
-        if (f.dataBlock[i * BITS_PER_WORD + bit]) {
-          word |= (1 << (31 - bit));
-        }
-      }
-      addWordToBuffer(buffer, wordIdx++, word);
-    }
+    std::memcpy(buffer + wordIdx * BYTES_PER_WORD, f.offsetBlock.data(), f.offsetBlock.size());
+    wordIdx += f.offsetBlock.size() / BYTES_PER_WORD;
+    std::memcpy(buffer + wordIdx * BYTES_PER_WORD, f.dataBlock.data(), f.dataBlock.size());
+    wordIdx += f.dataBlock.size() / BYTES_PER_WORD;
 
     // IT trailer placeholder (4 lines of 0xFFFFFFFF) FIXME dummy given for now
     for (int i = 0; i < HEADER_TRAILER_LINES; i++) {
@@ -215,8 +196,8 @@ void BitStreamToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
     // SLinkRocket trailer (16 B) at the very end. event_length_wcount is the
     // fragment size in 16-byte SLinkRocket words.
-    const uint16_t status  = 0;
-    const uint16_t crc     = 0;
+    const uint16_t status = 0;
+    const uint16_t crc = 0;
     const uint16_t daq_crc = 0;
     const uint32_t evtLenWc = f.totalSize >> SLR_WORD_NUM_BYTES_SHIFT;
     new ((void*)(buffer + f.totalSize - SLINK_TRL_BYTES))
@@ -227,24 +208,25 @@ void BitStreamToRawProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 }
 
 void BitStreamToRawProducer::addWordToBuffer(unsigned char* buffer, size_t position, uint32_t word) {
-  buffer[position * 4]     = (word >> 24) & 0xFF;
+  buffer[position * 4] = (word >> 24) & 0xFF;
   buffer[position * 4 + 1] = (word >> 16) & 0xFF;
-  buffer[position * 4 + 2] = (word >>  8) & 0xFF;
-  buffer[position * 4 + 3] =  word        & 0xFF;
+  buffer[position * 4 + 2] = (word >> 8) & 0xFF;
+  buffer[position * 4 + 3] = word & 0xFF;
 }
 
-// Append a 32-bit word to a bit vector
-void BitStreamToRawProducer::addWordToBitVector(std::vector<bool>& vec, uint32_t word) {
-  for (int bit = 31; bit >= 0; bit--) {
-    vec.push_back((word >> bit) & 1);
-  }
+// Append a 4 B word to a byte vector
+void BitStreamToRawProducer::addWordToByteVector(std::vector<uint8_t>& vec, uint32_t word) {
+  vec.push_back((word >> 24) & 0xFF);
+  vec.push_back((word >> 16) & 0xFF);
+  vec.push_back((word >> 8) & 0xFF);
+  vec.push_back(word & 0xFF);
 }
 
-// Pad bit vector with zeros up to the next 128-bit chunk boundary
-void BitStreamToRawProducer::padToChunkBoundary(std::vector<bool>& vec) {
-  if (!vec.empty() && vec.size() % BITS_PER_CHUNK != 0) {
-    size_t paddingNeeded = BITS_PER_CHUNK - (vec.size() % BITS_PER_CHUNK);
-    vec.insert(vec.end(), paddingNeeded, false);
+// Pad byte vector with zeros up to the next 16 B chunk boundary
+void BitStreamToRawProducer::padToChunkBoundary(std::vector<uint8_t>& vec) {
+  constexpr size_t kBytesPerChunk = BITS_PER_CHUNK / 8;
+  if (!vec.empty() && vec.size() % kBytesPerChunk != 0) {
+    vec.insert(vec.end(), kBytesPerChunk - (vec.size() % kBytesPerChunk), 0);
   }
 }
 

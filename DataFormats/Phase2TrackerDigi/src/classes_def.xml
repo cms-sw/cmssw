@@ -8,7 +8,8 @@
    <class name="Phase2ITQCore" ClassVersion="3">
     <version ClassVersion="3" checksum="2154561050"/>
    </class>                                 
-   <class name="Phase2ITChipBitStream" ClassVersion="3">
+   <class name="Phase2ITChipBitStream" ClassVersion="4">
+    <version ClassVersion="4" checksum="1808064135"/>
     <version ClassVersion="3" checksum="2503829339"/>
    </class>                                 
    <class name="std::vector<io_v1::Phase2TrackerDigi>"/>

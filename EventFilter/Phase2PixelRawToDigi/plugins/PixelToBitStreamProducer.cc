@@ -65,6 +65,7 @@ class PixelToBitStreamProducer : public edm::stream::EDProducer<> {
 public:
   PixelToBitStreamProducer(const edm::ParameterSet&);
   ~PixelToBitStreamProducer() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -83,13 +84,22 @@ private:
   typedef std::vector<Point> PointCollection;
 };
 
+void PixelToBitStreamProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src", edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("siPixelDigi", edm::InputTag("simSiPixelDigis", "Pixel"));
+  desc.add<bool>("dropTot", false);
+  desc.add<std::string>("handleGapPixels", "AGGREGATE");
+  descriptions.add("pixelToBitStreamProducer", desc);
+}
+
 PixelToBitStreamProducer::PixelToBitStreamProducer(const edm::ParameterSet& iConfig)
     : src_(iConfig.getParameter<edm::InputTag>("src")),
       pixelDigiToken_(consumes(iConfig.getParameter<edm::InputTag>("siPixelDigi"))),
       tTopoToken_(esConsumes()),
       cablingMapToken_(esConsumes<TrackerDetToDTCELinkCablingMap, TrackerDetToDTCELinkCablingMapRcd>()),
-      gapMode_(parseGapMode(iConfig.getUntrackedParameter<std::string>("handleGapPixels", "AGGREGATE"))),
-      dropTot_(iConfig.getUntrackedParameter<bool>("dropTot", false)) {
+      gapMode_(parseGapMode(iConfig.getParameter<std::string>("handleGapPixels"))),
+      dropTot_(iConfig.getParameter<bool>("dropTot")) {
   produces<edm::DetSetVector<Phase2ITQCore>>();
   produces<edmNew::DetSetVector<Phase2ITChipBitStream>>();
 }
@@ -255,8 +265,10 @@ void PixelToBitStreamProducer::produce(edm::Event& iEvent, const edm::EventSetup
       for (auto& qcore : qcores) {
         DetSetQCores.push_back(qcore);
       }
-      Phase2ITChipBitStream aChipBitStream(i, chip.getChipCode(dropTot_));
-      bitStreamFiller.push_back(aChipBitStream);
+      Phase2ITBitBuffer chipCode = chip.getChipCode(dropTot_);
+      const uint32_t chipNBits = chipCode.nBits();
+      Phase2ITChipBitStream aChipBitStream(i, std::move(chipCode.bytes()), chipNBits);
+      bitStreamFiller.push_back(std::move(aChipBitStream));
     }
 
     aQCoreVector->insert(DetSetQCores);
