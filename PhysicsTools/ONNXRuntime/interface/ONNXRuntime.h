@@ -13,12 +13,12 @@
 #ifndef PHYSICSTOOLS_ONNXRUNTIME_INTERFACE_ONNXRUNTIME_H_
 #define PHYSICSTOOLS_ONNXRUNTIME_INTERFACE_ONNXRUNTIME_H_
 
-#include <vector>
 #include <map>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 
-#include "onnxruntime/onnxruntime_cxx_api.h"
+#include <onnxruntime/onnxruntime_cxx_api.h>
 
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 

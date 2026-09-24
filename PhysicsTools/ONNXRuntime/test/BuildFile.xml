@@ -2,20 +2,34 @@
   <use name="onnxruntime"/>
 </test>
 
-<iftool name="cuda">
-  <flags CPPDEFINES="CMSSW_CUDA_IS_AVAILABLE"/>
-</iftool>
 <bin name="testONNXRuntime" file="testRunner.cpp, testONNXRuntime.cc">
   <use name="cppunit"/>
   <use name="FWCore/ParameterSet"/>
-  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/Utilities"/>
   <use name="PhysicsTools/ONNXRuntime"/>
 </bin>
+
+<iftool name="cuda">
+  <bin name="testONNXRuntimeCUDA" file="testRunner.cpp, testONNXRuntimeCUDA.cc">
+    <use name="cppunit"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/PluginManager"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="FWCore/Utilities"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <use name="PhysicsTools/ONNXRuntime"/>
+  </bin>
+</iftool>
 
 <iftool name="rocm">
   <bin name="testONNXRuntimeROCm" file="testRunner.cpp, testONNXRuntimeROCm.cc">
     <use name="cppunit"/>
     <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/PluginManager"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="FWCore/Utilities"/>
     <use name="HeterogeneousCore/ROCmUtilities"/>
     <use name="PhysicsTools/ONNXRuntime"/>
   </bin>
