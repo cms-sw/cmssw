@@ -48,7 +48,7 @@ public:
   }
 
   template <typename TQueue, std::integral Int>
-    requires(alpaka::isQueue<TQueue> && (!requires { Layout::blocksNumber; }))
+    requires(alpaka::concepts::Queue<TQueue> && (!requires { Layout::blocksNumber; }))
   PortableHostCollection(TQueue const& queue, const Int size)
       // allocate pinned host memory associated to the given work queue, accessible by the queue's device
       : buffer_{cms::alpakatools::make_host_buffer<std::byte[]>(
@@ -81,7 +81,7 @@ public:
 
   // constructor for a SoABlocks-layout, taking per-block sizes as variadic integral arguments
   template <typename TQueue, std::integral... Ints>
-    requires(alpaka::isQueue<TQueue>)
+    requires(alpaka::concepts::Queue<TQueue>)
   explicit PortableHostCollection(TQueue const& queue, const Ints... sizes)
     requires requires { Layout::blocksNumber; } && (sizeof...(Ints) == static_cast<std::size_t>(Layout::blocksNumber))
       // allocate pinned host memory associated to the given work queue, accessible by the queue's device
@@ -101,7 +101,7 @@ public:
 
   // constructor for a SoABlocks-layout, taking per-block sizes as a fixed-size array
   template <typename TQueue, std::size_t N>
-    requires(alpaka::isQueue<TQueue>)
+    requires(alpaka::concepts::Queue<TQueue>)
   explicit PortableHostCollection(TQueue const& queue, std::array<int32_t, N> const& sizes)
     requires requires { Layout::blocksNumber; } && (N == static_cast<std::size_t>(Layout::blocksNumber))
       // allocate pinned host memory associated to the given work queue, accessible by the queue's device
@@ -145,7 +145,7 @@ public:
   }
 
   template <typename TQueue>
-    requires(alpaka::isQueue<TQueue>)
+    requires(alpaka::concepts::Queue<TQueue>)
   void zeroInitialise(TQueue&& queue) {
     alpaka::memset(std::forward<TQueue>(queue), *buffer_, 0x00);
   }
@@ -199,7 +199,7 @@ namespace ngt {
     static Properties properties(value_type const& object) { return object->metadata().size(); }
 
     template <typename TQueue>
-      requires(alpaka::isQueue<TQueue>)
+      requires(alpaka::concepts::Queue<TQueue>)
     static void initialize(TQueue& queue, value_type& object, Properties const& size) {
       // Replace the default-constructed empty object with one where the buffer
       // has been allocated in pinned host memory.

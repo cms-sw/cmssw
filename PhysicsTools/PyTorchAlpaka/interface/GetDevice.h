@@ -9,7 +9,7 @@
 namespace cms::torch::alpakatools {
 
   template <typename TDev>
-    requires ::alpaka::isDevice<TDev>
+    requires ::alpaka::concepts::Device<TDev>
   inline ::torch::Device getDevice(const TDev& device) {
 #ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
     if constexpr (std::is_same_v<TDev, alpaka::DevCudaRt>)
@@ -28,7 +28,7 @@ namespace cms::torch::alpakatools {
   }
 
   template <typename TQueue>
-    requires ::alpaka::isQueue<TQueue>
+    requires ::alpaka::concepts::Queue<TQueue>
   inline ::torch::Device getDevice(const TQueue& queue) {
     return getDevice(alpaka::getDev(queue));
   }

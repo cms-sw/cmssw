@@ -17,7 +17,7 @@ public:
       : PortableDeviceCollection<TDev, SiPixelDigisSoA>{edm::kUninitialized} {}
 
   template <typename TQueue>
-    requires(alpaka::isQueue<TQueue>)
+    requires(alpaka::concepts::Queue<TQueue>)
   explicit SiPixelDigisDevice(TQueue queue, size_t maxFedWords)
       : PortableDeviceCollection<TDev, SiPixelDigisSoA>(queue, maxFedWords + 1) {}
 
@@ -47,7 +47,7 @@ namespace ngt {
     static Properties properties(value_type const& object) { return {object.nDigis(), object.nModules()}; }
 
     template <typename TQueue>
-      requires(alpaka::isQueue<TQueue>)
+      requires(alpaka::concepts::Queue<TQueue>)
     static void initialize(TQueue& queue, value_type& object, Properties const& props) {
       // Replace the default-constructed empty object with one where the buffer
       // has been allocated in global device memory.
