@@ -30,22 +30,46 @@ namespace cms::Ort {
   namespace {
 
     constexpr const char* kCudaExecutionProvider = "CUDAExecutionProvider";
+    constexpr const char* kMIGraphXExecutionProvider = "MIGraphXExecutionProvider";
 
-    // Register the CUDA plugin execution provider library with the ONNX Runtime environment, and return the CUDA
-    // devices it exposes. The registration is done only once per process; the list is empty if there are no CUDA
-    // devices. A relative library name is looked up in the same directory as libonnxruntime.so .
-    const std::vector<ConstEpDevice>& cudaDevices(Env& env) {
-      static const std::vector<ConstEpDevice> devices = [&env]() {
-        env.RegisterExecutionProviderLibrary(kCudaExecutionProvider, ORT_TSTR("libonnxruntime_providers_cuda.so"));
-        std::vector<ConstEpDevice> result;
-        for (const auto& device : env.GetEpDevices()) {
-          if (std::string_view(device.EpName()) == kCudaExecutionProvider) {
-            result.push_back(device);
-          }
+    // Register an execution provider library with the ONNX Runtime environment, and return the devices it exposes;
+    // the list is empty if there are no suitable devices. A relative library name is looked up in the same directory
+    // as libonnxruntime.so .
+    std::vector<ConstEpDevice> registerExecutionProvider(Env& env, const char* name, const ORTCHAR_T* library) {
+      env.RegisterExecutionProviderLibrary(name, library);
+      std::vector<ConstEpDevice> devices;
+      for (const auto& device : env.GetEpDevices()) {
+        if (std::string_view(device.EpName()) == name) {
+          devices.push_back(device);
         }
-        return result;
-      }();
+      }
       return devices;
+    }
+
+    // The CUDA execution provider plugin, for NVIDIA GPUs. The registration is done only once per process.
+    const std::vector<ConstEpDevice>& cudaDevices(Env& env) {
+      static const std::vector<ConstEpDevice> devices =
+          registerExecutionProvider(env, kCudaExecutionProvider, ORT_TSTR("libonnxruntime_providers_cuda.so"));
+      return devices;
+    }
+
+    // The MIGraphX execution provider, for AMD GPUs. The registration is done only once per process.
+    const std::vector<ConstEpDevice>& rocmDevices(Env& env) {
+      static const std::vector<ConstEpDevice> devices =
+          registerExecutionProvider(env, kMIGraphXExecutionProvider, ORT_TSTR("libonnxruntime_providers_migraphx.so"));
+      return devices;
+    }
+
+    // Add the first device of an execution provider to the session options, like the default device_id = 0 used by
+    // the legacy execution provider options.
+    void appendExecutionProvider(SessionOptions& options,
+                                 Env& env,
+                                 const std::vector<ConstEpDevice>& devices,
+                                 const char* name) {
+      if (devices.empty()) {
+        throw cms::Exception("RuntimeError") << "No device available for the ONNX Runtime " << name;
+      }
+      options.AppendExecutionProvider_V2(env, {devices.front()}, std::unordered_map<std::string, std::string>{});
     }
 
     inline int64_t numel(const std::vector<int64_t>& dims) {
@@ -119,16 +143,12 @@ namespace cms::Ort {
   SessionOptions ONNXRuntime::defaultSessionOptions(Backend backend) {
     SessionOptions sess_opts;
     sess_opts.SetIntraOpNumThreads(1);
+    // the GPU execution providers are loaded as plugin libraries, see
+    // https://onnxruntime.ai/docs/execution-providers/plugin-ep-libraries/
     if (backend == Backend::cuda) {
-      // the CUDA execution provider is built as a plugin library, see
-      // https://onnxruntime.ai/docs/execution-providers/plugin-ep-libraries/
-      const auto& devices = cudaDevices(env_);
-      if (devices.empty()) {
-        throw cms::Exception("RuntimeError")
-            << "No CUDA device available for the ONNX Runtime " << kCudaExecutionProvider;
-      }
-      // use the first device, like the default OrtCUDAProviderOptions (device_id = 0)
-      sess_opts.AppendExecutionProvider_V2(env_, {devices.front()}, std::unordered_map<std::string, std::string>{});
+      appendExecutionProvider(sess_opts, env_, cudaDevices(env_), kCudaExecutionProvider);
+    } else if (backend == Backend::rocm) {
+      appendExecutionProvider(sess_opts, env_, rocmDevices(env_), kMIGraphXExecutionProvider);
     }
     return sess_opts;
   }

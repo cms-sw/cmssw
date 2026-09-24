@@ -28,7 +28,10 @@ namespace cms::Ort {
 
   enum class Backend {
     cpu,
-    cuda,
+    cuda,  // NVIDIA GPUs, using the CUDA execution provider
+    rocm,  // AMD GPUs, using the MIGraphX execution provider
+           // note: MIGraphX recompiles the model whenever the input shapes change from one call to the next,
+           // so it is best suited for models with fixed input shapes (e.g. a fixed or padded batch size)
   };
 
   class ONNXRuntime {

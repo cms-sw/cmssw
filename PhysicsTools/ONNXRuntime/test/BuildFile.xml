@@ -11,3 +11,12 @@
   <use name="HeterogeneousCore/CUDAUtilities"/>
   <use name="PhysicsTools/ONNXRuntime"/>
 </bin>
+
+<iftool name="rocm">
+  <bin name="testONNXRuntimeROCm" file="testRunner.cpp, testONNXRuntimeROCm.cc">
+    <use name="cppunit"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="HeterogeneousCore/ROCmUtilities"/>
+    <use name="PhysicsTools/ONNXRuntime"/>
+  </bin>
+</iftool>
