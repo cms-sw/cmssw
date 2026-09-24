@@ -44,6 +44,10 @@ namespace cms::Ort {
     ~ONNXRuntime();
 
     // Create the default session options for the given backend.
+    // The GPU backends (Backend::cuda and Backend::rocm) check the GPUs available in the job using the
+    // ResourceInformation service, filled by the CUDAService or ROCmService: these services must be available in the
+    // calling thread (as is the case within cmsRun), and an edm::Exception with category UnavailableAccelerator is
+    // thrown if no suitable GPU is available.
     // `device` is the CUDA or HIP runtime index of the GPU to use, as seen by the job (i.e. after applying
     // CUDA_VISIBLE_DEVICES or ROCR_VISIBLE_DEVICES); it is ignored by Backend::cpu.
     // For Backend::cuda an edm::Exception is thrown if the device is not available; for Backend::rocm the device is

@@ -20,6 +20,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "FWCore/AbstractServices/interface/ResourceInformation.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
@@ -84,8 +86,8 @@ namespace cms::Ort {
     }
 
     // The MIGraphX execution provider, for AMD GPUs. The registration is done only once per process.
-    // Note that the MIGraphX execution provider ignores the selected device: it uses the HIP device given by the
-    // "device_id" option.
+    // Note that the MIGraphX execution provider lists all GPU-class devices found in the system, not only the AMD GPUs
+    // usable in the job, and it ignores the selected device: it uses the HIP device given by the "device_id" option.
     const std::vector<ConstEpDevice>& rocmDevices(Env& env) {
       static const std::vector<ConstEpDevice> devices =
           registerExecutionProvider(env, kMIGraphXExecutionProvider, ORT_TSTR("libonnxruntime_providers_migraphx.so"));
@@ -106,11 +108,24 @@ namespace cms::Ort {
                                  Env& env,
                                  const std::vector<ConstEpDevice>& devices,
                                  const char* name,
+                                 const char* backend,
                                  const std::unordered_map<std::string, std::string>& epOptions = {}) {
       if (devices.empty()) {
-        throw cms::Exception("RuntimeError") << "No device available for the ONNX Runtime " << name;
+        edm::Exception ex(edm::errors::UnavailableAccelerator);
+        ex << backend << " backend requested, GPU visible to cmssw, but no device available for the ONNX Runtime "
+           << name;
+        ex.addContext("Calling cms::Ort::ONNXRuntime::defaultSessionOptions()");
+        throw ex;
       }
       options.AppendExecutionProvider_V2(env, {devices.front()}, epOptions);
+    }
+
+    // Throw an exception if a GPU backend is requested, but no suitable GPU is available in the job.
+    [[noreturn]] void throwUnavailableAccelerator(const char* backend, const char* vendor) {
+      edm::Exception ex(edm::errors::UnavailableAccelerator);
+      ex << backend << " backend requested, but no " << vendor << " GPU available in the job";
+      ex.addContext("Calling cms::Ort::ONNXRuntime::defaultSessionOptions()");
+      throw ex;
     }
 
     inline int64_t numel(const std::vector<int64_t>& dims) {
@@ -184,12 +199,25 @@ namespace cms::Ort {
   SessionOptions ONNXRuntime::defaultSessionOptions(Backend backend, int device) {
     SessionOptions sess_opts;
     sess_opts.SetIntraOpNumThreads(1);
-    // the GPU execution providers are loaded as plugin libraries, see
-    // https://onnxruntime.ai/docs/execution-providers/plugin-ep-libraries/
+    // The GPU execution providers are loaded as plugin libraries, see
+    // https://onnxruntime.ai/docs/execution-providers/plugin-ep-libraries/ .
+    // The GPUs available in the job are taken from the ResourceInformation service, filled by the CUDAService and
+    // ROCmService, which take into account the GPUs visible to the job (e.g. CUDA_VISIBLE_DEVICES or
+    // HIP_VISIBLE_DEVICES) and whether their use is enabled in the configuration.
     if (backend == Backend::cuda) {
-      appendExecutionProvider(sess_opts, env_, selectCudaDevice(cudaDevices(env_), device), kCudaExecutionProvider);
+      edm::Service<edm::ResourceInformation> ri;
+      if (not ri->hasGpuNvidia()) {
+        throwUnavailableAccelerator("CUDA", "NVIDIA");
+      }
+      appendExecutionProvider(
+          sess_opts, env_, selectCudaDevice(cudaDevices(env_), device), kCudaExecutionProvider, "CUDA");
     } else if (backend == Backend::rocm) {
-      appendExecutionProvider(sess_opts, env_, rocmDevices(env_), kMIGraphXExecutionProvider, migraphxOptions(device));
+      edm::Service<edm::ResourceInformation> ri;
+      if (not ri->hasGpuAMD()) {
+        throwUnavailableAccelerator("ROCm", "AMD");
+      }
+      appendExecutionProvider(
+          sess_opts, env_, rocmDevices(env_), kMIGraphXExecutionProvider, "ROCm", migraphxOptions(device));
     }
     return sess_opts;
   }
