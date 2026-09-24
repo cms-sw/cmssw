@@ -820,13 +820,12 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
     processLink(link, ctx, seen);
 
   processFakeRates(*simTaus, finalFilterTauRefs, ctx);
-
   LogDebug("TICLTauValidator")
-      << "event " << iEvent.id()
-      << " nSimTaus=" << simTaus->size()
-      << " nCPsCharged=" << seen.charged.size()
-      << " nCPsPhoton=" << seen.photon.size()
-      << " nTaus=" << (ctx.taus ? ctx.taus->size() : 0);
+    << "event " << iEvent.id()
+    << " nSimTaus=" << simTaus->size()
+    << " nCPsCharged=" << seen.charged.size()
+    << " nCPsPhoton=" << seen.photon.size()
+    << " nTaus=" << (ctx.taus ? ctx.taus->size() : 0);
 }
 
 void TICLTauValidator::buildRecoLookups(EventContext& ctx) const {
@@ -888,6 +887,7 @@ void TICLTauValidator::buildCpToSimIdx(const std::vector<ticl::Trackster>* simTr
     const int seedIdx = simTk.seedIndex();
     if (seedIdx < 0)
       continue;
+    //std::cout<<" ===>> buildCpToSimIdx: seedIdx "<<seedIdx<<", simTk.seedID(): "<<simTk.seedID()<<std::endl;    
     const auto [_, inserted] =
         ctx.cpToSimIdx.emplace(std::make_pair(simTk.seedID(), static_cast<unsigned int>(seedIdx)), i);
     if (!inserted) {
@@ -1067,17 +1067,34 @@ void TICLTauValidator::processLeaf(const SimTauCPLink::DecayNav& leaf,
                                    SeenSets& seen,
                                    PendingMap& pendingHad,
                                    PendingMap& pendingGamma) {
-  const int cp_id = leaf.calo_particle_idx();
+  const int cp_id = leaf.calo_particle_idx(); // get calo-particle idx from simtauCPlink leaves [e.g. charged pion]
   if (cp_id < 0 || static_cast<size_t>(cp_id) >= link.calo_particle_leaves.size())
     return;
-  const auto& cpRef = link.calo_particle_leaves[cp_id];
+  const auto& cpRef = link.calo_particle_leaves[cp_id]; // get calo-particle reference from calo_particle_leaves of the simTauCPLink itself
   if (!cpRef.isNonnull())
     return;
-  const auto& cp = *cpRef;
+  const auto& cp = *cpRef; // Dereference the edm::Ref to obtain the actual CaloParticle object.
 
+  // e.g.
+  // link.calo_particle_leaves
+  // ---- [element 0] ----
+  // edm::Ref(ProductID=2:61, key=1)
+  // ---- [dereference] ----
+  // Original CaloParticle collection[1]
+  LogDebug("TICLTauValidator")
+    << "leaf CP index=" << cp_id
+    << ", CP product=" << cpRef.id()
+    << ", CP product key=" << cpRef.key()
+    << ", pdgId=" << cp.pdgId()
+    << ", pt=" << cp.pt()
+    << ", eta=" << cp.eta();
+  
   // keep only CPs in HGCAL
-  if (std::abs(cp.eta()) < hgcalEtaAbsMin_)
+  if (std::abs(cp.eta()) < hgcalEtaAbsMin_) {
+    LogDebug("TICLTauValidator")
+      << "CP is in barrel, avoid, for now";
     return;
+  }
 
   const int absPdg = std::abs(cp.pdgId());
   const bool isPhoton        = (absPdg == 22);
@@ -1120,7 +1137,7 @@ void TICLTauValidator::processLeaf(const SimTauCPLink::DecayNav& leaf,
   const size_t simIdx = hasSimIdx ? simIdxIt->second : 0;
   const TICLCandidate* simCand = nullptr;
   if (hasSimIdx && ctx.simTICLCandidates && simIdx < ctx.simTICLCandidates->size())
-    simCand = &(*ctx.simTICLCandidates)[simIdx];
+    simCand = &(*ctx.simTICLCandidates)[simIdx]; // simTICLCandidate < -- > CP
 
   // Step 0: CP -> sim trackster(s): the CP left usable deposits in HGCAL
   const bool hasSimTracksters = simCand && !simCand->tracksters().empty();
