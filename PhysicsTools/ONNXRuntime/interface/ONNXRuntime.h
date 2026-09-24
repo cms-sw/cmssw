@@ -30,7 +30,10 @@ namespace cms::Ort {
 
   enum class Backend {
     cpu,
-    cuda,
+    cuda,  // NVIDIA GPUs, using the CUDA execution provider
+    rocm,  // AMD GPUs, using the MIGraphX execution provider
+           // note: MIGraphX recompiles the model whenever the input shapes change from one call to the next,
+           // so it is best suited for models with fixed input shapes (e.g. a fixed or padded batch size)
   };
 
   class ONNXRuntime {
@@ -41,8 +44,10 @@ namespace cms::Ort {
     ~ONNXRuntime();
 
     // Create the default session options for the given backend.
-    // For Backend::cuda, `device` is the CUDA runtime index of the GPU to use, as seen by the job (i.e. after applying
-    // CUDA_VISIBLE_DEVICES); if it is not available, an edm::Exception is thrown. It is ignored by the other backends.
+    // `device` is the CUDA or HIP runtime index of the GPU to use, as seen by the job (i.e. after applying
+    // CUDA_VISIBLE_DEVICES or ROCR_VISIBLE_DEVICES); it is ignored by Backend::cpu.
+    // For Backend::cuda an edm::Exception is thrown if the device is not available; for Backend::rocm the device is
+    // not validated, and an invalid device makes the MIGraphX execution provider terminate the process.
     static ::Ort::SessionOptions defaultSessionOptions(Backend backend = Backend::cpu, int device = 0);
 
     // Run inference and get outputs
