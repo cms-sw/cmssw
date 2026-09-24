@@ -50,7 +50,7 @@ private:
   unsigned int eventCount_;
 
   // detId -> chip -> per-event RD53 chip bit streams, accumulated across NE events
-  std::map<uint32_t, std::vector<std::vector<std::vector<bool>>>> buffer_;
+  std::map<uint32_t, std::vector<std::vector<Phase2ITChipBitStream>>> buffer_;
 };
 
 BitStreamToAuroraProducer::BitStreamToAuroraProducer(const edm::ParameterSet& iConfig)
@@ -100,7 +100,7 @@ void BitStreamToAuroraProducer::produce(edm::Event& iEvent, const edm::EventSetu
       moduleBuffer.resize(detset.size());
     unsigned int chipIdx = 0;
     for (const auto& chipBitStream : detset) {
-      moduleBuffer[chipIdx].push_back(chipBitStream.get_bitstream());
+      moduleBuffer[chipIdx].push_back(chipBitStream);
       chipIdx++;
     }
   }
@@ -134,7 +134,8 @@ void BitStreamToAuroraProducer::produce(edm::Event& iEvent, const edm::EventSetu
         for (unsigned int e = 0; e < chips[c].size(); ++e) {
           auto tag = Phase2AuroraPacker::makeEventTag(EVENT_ID_PLACEHOLDER, (e == 0));
           concat.insert(concat.end(), tag.begin(), tag.end());
-          concat.insert(concat.end(), chips[c][e].begin(), chips[c][e].end());
+          for (uint32_t i = 0; i < chips[c][e].nBits(); ++i)
+            concat.push_back(chips[c][e].bit(i));
         }
         // TODO for now we are applying the chip id blockings by default although it might be not needed for some elinks!!!
         auto blocked = Phase2AuroraPacker::applyBlocking(concat, static_cast<int>(c));
