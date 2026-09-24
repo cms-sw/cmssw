@@ -17,9 +17,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 //
-// class decleration
+// class declaration
 //
-
 class OffsetDQMPostProcessor : public DQMEDHarvester {
 public:
   explicit OffsetDQMPostProcessor(const edm::ParameterSet&);
@@ -81,7 +80,7 @@ void OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGet
       continue;
     mtmp = iget_.get(stitle);
     float avg = mtmp->getMean();
-    int iavg = int(avg + 0.5);  // integer version for identifying correcping ME, in order to get the rounding correctly
+    int iavg = int(avg + 0.5);  // integer version for identifying correct ME, in order to get the rounding correctly
 
     if (avg < 1.)
       avg = 1.;  // protection against this value going too low
