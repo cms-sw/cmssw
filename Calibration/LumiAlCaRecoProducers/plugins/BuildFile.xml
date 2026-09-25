@@ -8,7 +8,12 @@
 <use name="CondCore/DBOutputService"/>
 <use name="DataFormats/Luminosity"/>
 <use name="CondFormats/DataRecord"/>
+<!-- <use name="CondFormats/LHCObjects"/> -->
 <flags EDM_PLUGIN="1"/>
 <library file="*.cc" name="CalibrationLumiAlCaRecoProducersPlugins">
   <flags EDM_PLUGIN="1"/>
+    <use name="rootcore"/>
+    <use name="rootgraphics"/>
+    <use name="rootgpad"/>
+    <!-- <use name="roothist"/> -->
 </library>
