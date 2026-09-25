@@ -47,6 +47,9 @@ def step2(process):
   # Disable L1 tracking algo, as doesn't make sense for CRACK.
   process.L1TrackTrigger.remove(process.L1TPromptExtendedHybridTracksWithAssociators)
 
+  # Disable DTC emulation as it needs CRack cabling map.
+  process.L1TrackTrigger.remove(process.ProducerDTC)
+
   # But do run offline cluster finding
   process.load('RecoLocalTracker.SiPhase2Clusterizer.phase2TrackerClusterizer_cfi')
   process.L1TrackTrigger += process.siPhase2Clusters
