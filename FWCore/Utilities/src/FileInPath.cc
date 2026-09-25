@@ -3,9 +3,12 @@
 
 #include <atomic>
 #include <cstdlib>
-#include <vector>
-#include <cassert>
 #include <filesystem>
+#include <iostream>
+#include <mutex>
+#include <ranges>
+#include <syncstream>
+#include <vector>
 
 #include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -54,25 +57,22 @@ namespace {
     std::string path = var + src;
     edm::resolveSymbolicLinks(path);
     size_t actualSize = path.size() - src.size();
-    assert(path.substr(actualSize, src.size()) == src);
+    if (path.substr(actualSize, src.size()) != src) {
+      throw edm::Exception(edm::errors::FileInPathError)
+          .format("{}/src is a symbolic link to a directory not literally named 'src': {}\n", envName, path);
+    }
     return path.substr(0, actualSize);
   }
 
-  std::string removeSymLinksTokens(std::string const& envName) {
-    char const* const var = std::getenv(envName.c_str());
-    if (var == nullptr) {
-      return std::string();
-    }
-    std::string theSearchPath;
-    typedef std::vector<std::string> stringvec_t;
-    stringvec_t pathElements = edm::tokenize(std::string(var), ":");
+  std::vector<std::filesystem::path> removeSymLinksTokens(std::string const& envValue) {
+    auto pathElements = edm::tokenize(envValue, ":");
+    std::vector<std::filesystem::path> ret;
+    ret.reserve(pathElements.size());
     for (auto& element : pathElements) {
       edm::resolveSymbolicLinks(element);
-      if (!theSearchPath.empty())
-        theSearchPath += ":";
-      theSearchPath += element;
+      ret.emplace_back(element);
     }
-    return theSearchPath;
+    return ret;
   }
 
   // Check for existence of a file for the given relative path and
@@ -96,6 +96,13 @@ namespace {
           << "Path " << p.string() << " is a symbolic link, not a file\n";
     }
     return true;
+  }
+
+  // Return true if 'path' begins with 'prefix'
+  bool pathBeginsWith(std::filesystem::path const& path, std::filesystem::path const& prefix) {
+    // lexically_relative() prepends ".." components whenever 'path' has to go up and out of 'prefix'.
+    auto const rel = path.lexically_relative(prefix);
+    return !rel.empty() && rel.begin()->string() != "..";
   }
 }  // namespace
 
@@ -134,7 +141,6 @@ namespace edm {
     localTop_.swap(other.localTop_);
     releaseTop_.swap(other.releaseTop_);
     dataTop_.swap(other.dataTop_);
-    searchPath_.swap(other.searchPath_);
   }
 
   const std::string& FileInPath::relativePath() const { return relativePath_; }
@@ -155,8 +161,7 @@ namespace edm {
       if (localTop_.empty()) {
         throw edm::Exception(edm::errors::FileInPathError) << "Environment Variable " << LOCALTOP << " is not set.\n";
       }
-      std::string::size_type pos = canonicalFilename_.find(localTop_);
-      if (pos != 0) {
+      if (!pathBeginsWith(canonicalFilename_, std::filesystem::path(localTop_))) {
         throw edm::Exception(edm::errors::FileInPathError)
             << "Path " << canonicalFilename_ << " is not in the local release area " << localTop_ << "\n";
       }
@@ -166,8 +171,7 @@ namespace edm {
       if (releaseTop_.empty()) {
         throw edm::Exception(edm::errors::FileInPathError) << "Environment Variable " << RELEASETOP << " is not set.\n";
       }
-      std::string::size_type pos = canonicalFilename_.find(releaseTop_);
-      if (pos != 0) {
+      if (!pathBeginsWith(canonicalFilename_, std::filesystem::path(releaseTop_))) {
         throw edm::Exception(edm::errors::FileInPathError)
             << "Path " << canonicalFilename_ << " is not in the base release area " << releaseTop_ << "\n";
       }
@@ -177,8 +181,7 @@ namespace edm {
       if (dataTop_.empty()) {
         throw edm::Exception(edm::errors::FileInPathError) << "Environment Variable " << DATATOP << " is not set.\n";
       }
-      std::string::size_type pos = canonicalFilename_.find(dataTop_);
-      if (pos != 0) {
+      if (!pathBeginsWith(canonicalFilename_, std::filesystem::path(dataTop_))) {
         throw edm::Exception(edm::errors::FileInPathError)
             << "Path " << canonicalFilename_ << " is not in the data area " << dataTop_ << "\n";
       }
@@ -190,6 +193,7 @@ namespace edm {
     std::string vsn;
     std::string relname;
     std::string canFilename;
+    LocationCode loc = Unknown;
 #if 1
     // This #if needed for backward compatibility
     // for files written before CMSSW_1_5_0_pre3.
@@ -199,16 +203,16 @@ namespace edm {
     bool oldFormat = (version != vsn);
     if (oldFormat) {
       relname = vsn;
-      bool local;
+      bool local = false;
       is >> local;
-      location_ = (local ? Local : Release);
+      loc = (local ? Local : Release);
       is >> canFilename;
     } else {
       // Current format
-      int loc;
-      is >> relname >> loc;
-      location_ = static_cast<FileInPath::LocationCode>(loc);
-      if (location_ != Unknown) {
+      int locInt = 0;
+      is >> relname >> locInt;
+      loc = static_cast<FileInPath::LocationCode>(locInt);
+      if (loc != Unknown) {
         is >> canFilename;
       } else if (relname == "@") {
         relname = "";
@@ -219,7 +223,9 @@ namespace edm {
 #endif
     if (!is)
       return;
+    // Commit to member state only now that the whole record was read successfully.
     relativePath_ = relname;
+    location_ = loc;
     if (location_ == Local) {
       if (localTop_.empty()) {
         throw edm::Exception(edm::errors::FileInPathError) << "Environment Variable " << LOCALTOP << " is not set.\n"
@@ -264,22 +270,23 @@ namespace edm {
     std::string vsn;
     std::string relname;
     std::string canFilename;
+    LocationCode loc = Unknown;
     is >> vsn;
     if (!is)
       return;
     bool oldFormat = (version != vsn);
     if (oldFormat) {
       relname = vsn;
-      bool local;
+      bool local = false;
       is >> local;
-      location_ = (local ? Local : Release);
+      loc = (local ? Local : Release);
       is >> canFilename;
     } else {
       // Current format
-      int loc;
-      is >> relname >> loc;
-      location_ = static_cast<FileInPath::LocationCode>(loc);
-      if (location_ != Unknown) {
+      int locInt = 0;
+      is >> relname >> locInt;
+      loc = static_cast<FileInPath::LocationCode>(locInt);
+      if (loc != Unknown) {
         is >> canFilename;
       } else if (relname == "@") {
         relname = "";
@@ -287,7 +294,9 @@ namespace edm {
     }
     if (!is)
       return;
+    // Commit to member state only now that the whole record was read successfully.
     relativePath_ = relname;
+    location_ = loc;
     if (location_ == Local) {
       if (localTop_.empty()) {
         localTop_ = "@LOCAL";
@@ -313,25 +322,31 @@ namespace edm {
         canonicalFilename_ = releaseTop_ + canFilename;
     } else if (location_ == Data) {
       if (dataTop_.empty()) {
-        throw edm::Exception(edm::errors::FileInPathError) << "Environment Variable " << DATATOP << " is not set.\n";
+        dataTop_ = "@DATA";
       }
       canonicalFilename_ = dataTop_ + canFilename;
     }
   }
 
   //------------------------------------------------------------
-  std::string const& FileInPath::searchPath() {
-    static std::string const s_searchPath = removeSymLinksTokens(PathVariableName);
+  std::string const& searchPathValue() {
+    static std::string const s_searchPathValue = []() {
+      char const* const var = std::getenv(PathVariableName.c_str());
+      if (var == nullptr) {
+        return std::string();
+      }
+      return std::string(var);
+    }();
+    return s_searchPathValue;
+  }
+
+  std::vector<std::filesystem::path> const& FileInPath::searchPath() {
+    static std::vector<std::filesystem::path> const s_searchPath = removeSymLinksTokens(searchPathValue());
     return s_searchPath;
   }
   //------------------------------------------------------------
 
   void FileInPath::getEnvironment() {
-    searchPath_ = searchPath();
-    if (searchPath_.empty()) {
-      throw edm::Exception(edm::errors::FileInPathError) << PathVariableName << " must be defined\n";
-    }
-
     static std::string const releaseTop = removeSymLinksSrc(RELEASETOP);
     releaseTop_ = releaseTop;
 
@@ -340,6 +355,34 @@ namespace edm {
 
     static std::string const dataTop = removeSymLinks(DATATOP);
     dataTop_ = dataTop;
+
+    static std::once_flag s_onceFlag;
+    std::call_once(s_onceFlag, [this]() {
+      auto const& searchPathElements = searchPath();
+      if (searchPathElements.empty()) {
+        throw edm::Exception(edm::errors::FileInPathError) << PathVariableName << " must be defined\n";
+      }
+      // Empty elements get treated as "not matched"
+      std::filesystem::path const localTopPath(localTop_);
+      std::filesystem::path const releaseTopPath(releaseTop_);
+      std::filesystem::path const dataTopPath(dataTop_);
+      auto filtered =
+          searchPathElements |
+          std::views::filter([&localTopPath, &releaseTopPath, &dataTopPath](std::filesystem::path const& s) {
+            return not pathBeginsWith(s, releaseTopPath) && not pathBeginsWith(s, localTopPath) &&
+                   not pathBeginsWith(s, dataTopPath);
+          }) |
+          std::views::transform([](std::filesystem::path const& s) { return s.string(); });
+      std::vector<std::string> const notFound(filtered.begin(), filtered.end());
+      if (!notFound.empty()) {
+        std::osyncstream ss(std::cerr);
+        ss << "Warning: The following elements of $" << PathVariableName << " are not in any of the $" << LOCALTOP
+           << ", $" << RELEASETOP << ", or $" << DATATOP << " areas:\n";
+        for (const auto& element : notFound) {
+          ss << " '" << element << "'\n";
+        }
+      }
+    });
 
     if (releaseTop_.empty()) {
       // RELEASETOP was not set.  This means that the environment is set
@@ -358,66 +401,54 @@ namespace edm {
 
   void FileInPath::initialize_() {
     if (relativePath_.empty()) {
-      throw edm::Exception(edm::errors::FileInPathError) << "Relative path must not be empty\n";
+      throw edm::Exception(edm::errors::FileInPathError) << "Relative path must not be empty";
+    }
+    if (std::filesystem::path(relativePath_).is_absolute()) {
+      throw edm::Exception(edm::errors::FileInPathError)
+          << "The path must be relative, not absolute: " << relativePath_;
     }
 
     // Find the file, based on the value of searchPath.
-    typedef std::vector<std::string> stringvec_t;
-    stringvec_t pathElements = tokenize(searchPath_, ":");
-    for (auto const& element : pathElements) {
-      // Set the path to the current element of CMSSW_SEARCH_PATH:
-      std::filesystem::path pathPrefix(element);
-
+    // Iterate over every element of CMSSW_SEARCH_PATH
+    for (auto const& pathPrefix : searchPath()) {
       // Does the a file exist? locateFile throws is it finds
       // something goofy.
       if (locateFile(pathPrefix, relativePath_)) {
         // Convert relative path to canonical form, and save it.
         relativePath_ = std::filesystem::path(relativePath_).lexically_normal().string();
-        //std::filesystem::path(relativePath_).normalize().string();
 
-        // Save the absolute path.
-        canonicalFilename_ = std::filesystem::absolute(pathPrefix / relativePath_).string();
+        // Save the absolute path. Resolve also any .. or . in the path.
+        canonicalFilename_ = std::filesystem::canonical(pathPrefix / relativePath_).string();
         if (canonicalFilename_.empty()) {
           throw edm::Exception(edm::errors::FileInPathError)
               << "fullPath is empty"
               << "\nrelativePath() is: " << relativePath_ << "\npath prefix is: " << pathPrefix.string() << '\n';
         }
 
-        // From the current path element, find the branch path (basically the path minus the
-        // last directory, e.g. /src or /share):
-        for (std::filesystem::path br = pathPrefix.parent_path();
-             !std::filesystem::weakly_canonical(br).string().empty();
-             br = br.parent_path()) {
-          if (!localTop_.empty()) {
-            // Create a path object for our local path LOCALTOP:
-            std::filesystem::path local_(localTop_);
-            // If the branch path matches the local path, the file was found locally:
-            if (br == local_) {
-              location_ = Local;
-              return;
-            }
-          }
-
-          if (!releaseTop_.empty()) {
-            // Create a path object for our release path RELEASETOP:
-            std::filesystem::path release_(releaseTop_);
-            // If the branch path matches the release path, the file was found in the release:
-            if (br == release_) {
-              location_ = Release;
-              return;
-            }
-          }
-
-          if (!dataTop_.empty()) {
-            // Create a path object for our data path DATATOP:
-            std::filesystem::path data_(dataTop_);
-            // If the branch path matches the data path, the file was found in the data area:
-            if (br == data_) {
-              location_ = Data;
-              return;
-            }
-          }
+        // Determine which search area the current path element belongs to:
+        if (!localTop_.empty() && pathBeginsWith(canonicalFilename_, std::filesystem::path(localTop_))) {
+          location_ = Local;
+          return;
         }
+
+        if (!releaseTop_.empty() && pathBeginsWith(canonicalFilename_, std::filesystem::path(releaseTop_))) {
+          location_ = Release;
+          return;
+        }
+
+        if (!dataTop_.empty() && pathBeginsWith(canonicalFilename_, std::filesystem::path(dataTop_))) {
+          location_ = Data;
+          return;
+        }
+
+        throw edm::Exception(edm::errors::FileInPathError)
+            << "edm::FileInPath found file " << relativePath_ << " in search path element '" << pathPrefix.string()
+            << "', but the resulting absolute path '" << canonicalFilename_
+            << "' is not in any of the known search areas.\n"
+            << "Known search areas are:\n"
+            << "  Local area:   " << localTop_ << "\n"
+            << "  Release area: " << releaseTop_ << "\n"
+            << "  Data area:    " << dataTop_ << "\n";
       }
     }
 
@@ -426,20 +457,22 @@ namespace edm {
     throw edm::Exception(edm::errors::FileInPathError)
         << "edm::FileInPath unable to find file " << relativePath_ << " anywhere in the search path."
         << "\nThe search path is defined by: " << PathVariableName << "\n${" << PathVariableName
-        << "} is: " << std::getenv(PathVariableName.c_str())
-        << "\nCurrent directory is: " << std::filesystem::current_path().string() << "\n";
+        << "} is: " << searchPathValue() << "\nCurrent directory is: " << std::filesystem::current_path().string()
+        << "\n";
   }
 
   void FileInPath::disableFileLookup() { s_fileLookupDisabled = true; }
 
   std::string FileInPath::findFile(const std::string& iFileName) {
-    // Find the file, based on the value of path variable.
-    auto pathElements = tokenize(searchPath(), ":");
-    for (auto const& element : pathElements) {
-      // Set the boost::fs path to the current element of
-      // CMSSW_SEARCH_PATH:
-      std::filesystem::path pathPrefix(element);
+    if (iFileName.empty()) {
+      throw edm::Exception(edm::errors::FileInPathError) << "Relative path must not be empty";
+    }
+    if (std::filesystem::path(iFileName).is_absolute()) {
+      throw edm::Exception(edm::errors::FileInPathError) << "The path must be relative, not absolute: " << iFileName;
+    }
 
+    // Find the file, based on the value of path variable.
+    for (auto const& pathPrefix : searchPath()) {
       // Does the a file exist? locateFile throws is it finds
       // something goofy.
       if (locateFile(pathPrefix, iFileName)) {
