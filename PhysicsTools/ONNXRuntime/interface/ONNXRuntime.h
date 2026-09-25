@@ -13,12 +13,14 @@
 #ifndef PHYSICSTOOLS_ONNXRUNTIME_INTERFACE_ONNXRUNTIME_H_
 #define PHYSICSTOOLS_ONNXRUNTIME_INTERFACE_ONNXRUNTIME_H_
 
-#include <vector>
 #include <map>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 
-#include "onnxruntime/onnxruntime_cxx_api.h"
+#include <onnxruntime/onnxruntime_cxx_api.h>
+
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace cms::Ort {
 
@@ -26,7 +28,10 @@ namespace cms::Ort {
 
   enum class Backend {
     cpu,
-    cuda,
+    cuda,  // NVIDIA GPUs, using the CUDA execution provider
+    rocm,  // AMD GPUs, using the MIGraphX execution provider
+           // note: MIGraphX recompiles the model whenever the input shapes change from one call to the next,
+           // so it is best suited for models with fixed input shapes (e.g. a fixed or padded batch size)
   };
 
   class ONNXRuntime {
@@ -76,7 +81,8 @@ namespace cms::Ort {
     const std::vector<int64_t>& getOutputShape(const std::string& output_name) const;
 
   private:
-    static const ::Ort::Env env_;
+    // non-const to register the execution provider libraries; the Ort::Env methods are thread safe
+    CMS_THREAD_SAFE static ::Ort::Env env_;
     std::unique_ptr<::Ort::Session> session_;
 
     std::vector<std::string> input_node_strings_;
