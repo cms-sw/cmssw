@@ -6,7 +6,7 @@
   <use name="catch2"/>
 </bin>
 
-<test name="test-fastsim-refiner-eras" command="python3 ${SCRAM_TEST_PATH}/test_fastsim_refiner_eras.py"/>
+<test name="test-fastsim-refiner-eras" command="python3 $$SCRAM_TEST_PATH/test_fastsim_refiner_eras.py"/>
 
 <test name="test-btvNano-run" command="test-btvNano.sh"/>
 <test name="test-btvNano-check" command="test-btvNano.py">
