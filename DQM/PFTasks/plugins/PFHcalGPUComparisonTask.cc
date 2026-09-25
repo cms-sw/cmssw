@@ -80,7 +80,7 @@ void PFHcalGPUComparisonTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
   _subsystem = subsystemDir_;
 
   ibooker.setCurrentFolder(compDir_);
-  
+
   DQTask::bookHistograms(ibooker, r, es);
 
   // Book monitoring elements
@@ -159,47 +159,47 @@ void PFHcalGPUComparisonTask::_process(edm::Event const& event, edm::EventSetup 
                                        << pfClusters_target->size();
   }
   pfCluster_Multiplicity_HostvsDevice_->Fill(static_cast<float>(pfClusters_ref->size()),
-											 static_cast<float>(pfClusters_target->size()));
+                                             static_cast<float>(pfClusters_target->size()));
   pfCluster_Multiplicity_Diff_HostvsDevice_->Fill(static_cast<float>(pfClusters_ref->size()) -
-												  static_cast<float>(pfClusters_target->size()));
+                                                  static_cast<float>(pfClusters_target->size()));
 
   // Build ref-target map to enable linear search in the next loop
   std::unordered_map<DetId, std::vector<std::size_t>> targetBySeed;
   targetBySeed.reserve(pfClusters_target->size());
   for (std::size_t j = 0; j < pfClusters_target->size(); ++j) {
-	targetBySeed[pfClusters_target->at(j).seed()].push_back(j);
+    targetBySeed[pfClusters_target->at(j).seed()].push_back(j);
   }
 
   // Match and plot PF cluster variables
   for (unsigned i = 0; i < pfClusters_ref->size(); ++i) {
-	auto const found = targetBySeed.find(pfClusters_ref->at(i).seed());
+    auto const found = targetBySeed.find(pfClusters_ref->at(i).seed());
 
-	if (found == targetBySeed.end())
-	  continue;
+    if (found == targetBySeed.end())
+      continue;
 
-	auto const& candidates = found->second;
-	if (candidates.size() > 1) { //multiple clusters with the same seed
-	  edm::LogWarning("PFHcalGPUComparisonTask") << "Found duplicate match";
-	  pfCluster_DuplicateMatches_HostvsDevice_->Fill(candidates.size()-1);
-	}
+    auto const& candidates = found->second;
+    if (candidates.size() > 1) {  //multiple clusters with the same seed
+      edm::LogWarning("PFHcalGPUComparisonTask") << "Found duplicate match";
+      pfCluster_DuplicateMatches_HostvsDevice_->Fill(candidates.size() - 1);
+    }
 
-	auto const& ref = pfClusters_ref->at(i);
-	auto const& target = pfClusters_target->at(candidates.front());
-	
-	pfCluster_Energy_HostvsDevice_->Fill(ref.energy(), target.energy());
-	pfCluster_Layer_HostvsDevice_->Fill(ref.layer(), target.layer());
-	pfCluster_Eta_HostvsDevice_->Fill(ref.eta(), target.eta());
-	pfCluster_Phi_HostvsDevice_->Fill(ref.phi(), target.phi());
-	pfCluster_Depth_HostvsDevice_->Fill(ref.depth(), target.depth());
-	pfCluster_RecHitMultiplicity_HostvsDevice_->Fill(static_cast<float>(ref.recHitFractions().size()),
-													 static_cast<float>(target.recHitFractions().size()));
-	pfCluster_Energy_Diff_HostvsDevice_->Fill(ref.energy() - target.energy());
-	pfCluster_RecHitMultiplicity_Diff_HostvsDevice_->Fill(static_cast<float>(ref.recHitFractions().size()) -
-														  static_cast<float>(target.recHitFractions().size()));
-	pfCluster_Layer_Diff_HostvsDevice_->Fill(ref.layer() - target.layer());
-	pfCluster_Depth_Diff_HostvsDevice_->Fill(ref.depth() - target.depth());
-	pfCluster_Eta_Diff_HostvsDevice_->Fill(ref.eta() - target.eta());
-	pfCluster_Phi_Diff_HostvsDevice_->Fill(reco::deltaPhi(ref.phi(), target.phi()));
+    auto const& ref = pfClusters_ref->at(i);
+    auto const& target = pfClusters_target->at(candidates.front());
+
+    pfCluster_Energy_HostvsDevice_->Fill(ref.energy(), target.energy());
+    pfCluster_Layer_HostvsDevice_->Fill(ref.layer(), target.layer());
+    pfCluster_Eta_HostvsDevice_->Fill(ref.eta(), target.eta());
+    pfCluster_Phi_HostvsDevice_->Fill(ref.phi(), target.phi());
+    pfCluster_Depth_HostvsDevice_->Fill(ref.depth(), target.depth());
+    pfCluster_RecHitMultiplicity_HostvsDevice_->Fill(static_cast<float>(ref.recHitFractions().size()),
+                                                     static_cast<float>(target.recHitFractions().size()));
+    pfCluster_Energy_Diff_HostvsDevice_->Fill(ref.energy() - target.energy());
+    pfCluster_RecHitMultiplicity_Diff_HostvsDevice_->Fill(static_cast<float>(ref.recHitFractions().size()) -
+                                                          static_cast<float>(target.recHitFractions().size()));
+    pfCluster_Layer_Diff_HostvsDevice_->Fill(ref.layer() - target.layer());
+    pfCluster_Depth_Diff_HostvsDevice_->Fill(ref.depth() - target.depth());
+    pfCluster_Eta_Diff_HostvsDevice_->Fill(ref.eta() - target.eta());
+    pfCluster_Phi_Diff_HostvsDevice_->Fill(reco::deltaPhi(ref.phi(), target.phi()));
   }
 }
 
