@@ -2,6 +2,7 @@
 #define RecoParticleFlow_PFProducer_interface_MLPFModel
 
 #include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
@@ -186,6 +187,26 @@ namespace reco::mlpf {
   void setCandidateRefs(reco::PFCandidate& cand,
                         const std::vector<const reco::PFBlockElement*> elems,
                         size_t ielem_originator);
+
+  using ElementMap = std::multimap<double, unsigned>;
+
+  struct TrackLinks {
+    ElementMap ecal;
+    ElementMap hcal;
+    ElementMap hfEm;
+    ElementMap hfHad;
+  };
+
+  TrackLinks getTrackLinks(const reco::PFBlock* block, const reco::PFBlockElement* elem);
+
+  inline const reco::PFBlock* findBlock(const reco::PFBlockCollection& blocks, const reco::PFBlockElement* elem) {
+    for (const auto& block : blocks)
+      if (std::any_of(block.elements().begin(), block.elements().end(), [&](const auto& e) { return &e == elem; }))
+        return &block;
+
+    return nullptr;
+  }
+
 };  // namespace reco::mlpf
 
 #endif

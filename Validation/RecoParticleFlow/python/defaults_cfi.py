@@ -4,7 +4,7 @@ ptbins = [
     15, 21, 28, 37, 49, 64, 84, 114, 153, 196, 272, 330, 395, 468, 548, 686, 846, 1032, 1248, 1588, 2000, 2500, 3103, 3832, 4713, 5777, 7000
     #10,24,32,43,56,74,97,133,174,245,300,362,430,507,592,686,846,1032,1248,1588,2000,2500,3000,4000,6000
 ]
-etabins = [0.0, 0.5, 1.3, 2.1, 2.5, 3.0, 5.0]
+etabins = [0.0, 0.5, 1.3, 1.7, 2.5, 3.0, 5.0]
 
 def response_distribution_name(iptbin, ietabin):
     #convert 0.5 -> "05"
@@ -33,11 +33,11 @@ etaBinsOffset = [-5.191, -4.889, -4.716, -4.538, -4.363, -4.191, -4.013, -3.839,
    4.191, 4.363, 4.538, 4.716, 4.889, 5.191]
 
 muLowOffset = 0
-muHighOffset = 100
+muHighOffset = 210
 
 npvLowOffset = 0
-npvHighOffset = 100
-pvzHighOffset = 100
+npvHighOffset = 210
+pvzHighOffset = 210
 
 eBinsOffset = 1000
 eLowOffset = 0
