@@ -147,28 +147,28 @@ void HGCalNeighbourTester::beginRun(edm::Run const &iRun, edm::EventSetup const 
     for (unsigned int k = 0; k < detIds.size(); k += nskip) {
       HGCSiliconDetId id(detIds[k]);
       if (geom->valid(id)) {
-	edm::LogVerbatim("HGCalGeom") << "HGCalNeighbourTester for entry ** " << kk << " *****";
-	std::vector<uint32_t> ids = finder->nearestNeighboursOfDetId(id.rawId());
-	unsigned int nn(0);
-	for (auto const &idZ : ids)
-	  if (idZ != 0)
-	    if (geom->validDetId(DetId(idZ)))
-	      ++nn;
-	edm::LogVerbatim("HGCalGeom") << "[" << kk << "] z-Side " << id.zside() << " Layer " << id.layer() << " Wafer "
-				      << id.waferU() << ":" << id.waferV() << " Cell " << id.cellU() << ":" << id.cellV()
-				      << " has " << nn << " neighbours:";
-	unsigned int k1(0);
-	for (auto const &idZ : ids) {
-	  if (idZ != 0) {
-	    HGCSiliconDetId idx(idZ);
-	    if (geom->validDetId(idx)) {
-	      edm::LogVerbatim("HGCalGeom") << "[" << k1 << "] Layer " << idx.layer() << " Wafer " << idx.waferU() << ":"
-					    << idx.waferV() << " Cell " << idx.cellU() << ":" << idx.cellV();
-	      ++k1;
-	    }
-	  }
-	}
-	++kk;
+        edm::LogVerbatim("HGCalGeom") << "HGCalNeighbourTester for entry ** " << kk << " *****";
+        std::vector<uint32_t> ids = finder->nearestNeighboursOfDetId(id.rawId());
+        unsigned int nn(0);
+        for (auto const &idZ : ids)
+          if (idZ != 0)
+            if (geom->validDetId(DetId(idZ)))
+              ++nn;
+        edm::LogVerbatim("HGCalGeom") << "[" << kk << "] z-Side " << id.zside() << " Layer " << id.layer() << " Wafer "
+                                      << id.waferU() << ":" << id.waferV() << " Cell " << id.cellU() << ":"
+                                      << id.cellV() << " has " << nn << " neighbours:";
+        unsigned int k1(0);
+        for (auto const &idZ : ids) {
+          if (idZ != 0) {
+            HGCSiliconDetId idx(idZ);
+            if (geom->validDetId(idx)) {
+              edm::LogVerbatim("HGCalGeom") << "[" << k1 << "] Layer " << idx.layer() << " Wafer " << idx.waferU()
+                                            << ":" << idx.waferV() << " Cell " << idx.cellU() << ":" << idx.cellV();
+              ++k1;
+            }
+          }
+        }
+        ++kk;
       }
     }
   } else {
