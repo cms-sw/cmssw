@@ -225,9 +225,8 @@ L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::EvaluateNNFixed() {
 }  //end EvaluateNNFixed
 
 L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::computeFixed(const l1t::PFJet& iJet) {
-  
-  constexpr int LOG_LUT_SIZE = 256; // Size of the log pT look up table
-  constexpr int INV_LUT_SIZE = 1024;// Size of the inverse pT look up table
+  constexpr int LOG_LUT_SIZE = 256;   // Size of the log pT look up table
+  constexpr int INV_LUT_SIZE = 1024;  // Size of the inverse pT look up table
 
   for (int i0 = 0; i0 < fNParticles_; i0++) {
     fPt_rel_.get()[i0] = 0;
