@@ -13,7 +13,6 @@ OccurrenceTraits:
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
-#include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/TransitionPhaseTypes.h"
@@ -23,6 +22,7 @@ OccurrenceTraits:
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/Transition.h"
 
@@ -42,6 +42,7 @@ namespace edm {
     using TransitionInfoType = EventTransitionInfo;
     using Context = StreamContext;
     using TransitionPhaseType = TransitionPhaseGlobal;
+    static TransitionActionType constexpr transitionAction_ = TransitionActionGlobalBegin;
     static BranchType constexpr branchType_ = InEvent;
     static bool constexpr begin_ = true;
     static bool constexpr isEvent_ = true;
@@ -86,6 +87,7 @@ namespace edm {
     using MyPrincipal = RunPrincipal;
     using TransitionInfoType = RunTransitionInfo;
     using TransitionPhaseType = TransitionPhaseGlobal;
+    static TransitionActionType constexpr transitionAction_ = TransitionActionGlobalBegin;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = true;
@@ -128,6 +130,7 @@ namespace edm {
     using MyPrincipal = RunPrincipal;
     using TransitionInfoType = RunTransitionInfo;
     using TransitionPhaseType = TransitionPhaseStream;
+    static TransitionActionType constexpr transitionAction_ = TransitionActionStreamBegin;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = true;
@@ -169,6 +172,7 @@ namespace edm {
     using MyPrincipal = RunPrincipal;
     using TransitionInfoType = RunTransitionInfo;
     using TransitionPhaseType = TransitionPhaseStream;
+    static TransitionActionType constexpr transitionAction_ = TransitionActionStreamEnd;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = false;
@@ -210,6 +214,7 @@ namespace edm {
     using MyPrincipal = RunPrincipal;
     using TransitionInfoType = RunTransitionInfo;
     using TransitionPhaseType = TransitionPhaseGlobal;
+    static constexpr TransitionActionType transitionAction_ = TransitionActionGlobalEnd;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InRun;
     static bool constexpr begin_ = false;
@@ -252,6 +257,7 @@ namespace edm {
     using MyPrincipal = LuminosityBlockPrincipal;
     using TransitionInfoType = LumiTransitionInfo;
     using TransitionPhaseType = TransitionPhaseGlobal;
+    static constexpr TransitionActionType transitionAction_ = TransitionActionGlobalBegin;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = true;
@@ -294,6 +300,7 @@ namespace edm {
     using MyPrincipal = LuminosityBlockPrincipal;
     using TransitionInfoType = LumiTransitionInfo;
     using TransitionPhaseType = TransitionPhaseStream;
+    static constexpr TransitionActionType transitionAction_ = TransitionActionStreamBegin;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = true;
@@ -335,6 +342,7 @@ namespace edm {
     using MyPrincipal = LuminosityBlockPrincipal;
     using TransitionInfoType = LumiTransitionInfo;
     using TransitionPhaseType = TransitionPhaseStream;
+    static constexpr TransitionActionType transitionAction_ = TransitionActionStreamEnd;
     using Context = StreamContext;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = false;
@@ -378,6 +386,7 @@ namespace edm {
     using MyPrincipal = LuminosityBlockPrincipal;
     using TransitionInfoType = LumiTransitionInfo;
     using TransitionPhaseType = TransitionPhaseGlobal;
+    static constexpr TransitionActionType transitionAction_ = TransitionActionGlobalEnd;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InLumi;
     static bool constexpr begin_ = false;
@@ -420,6 +429,7 @@ namespace edm {
     using MyPrincipal = ProcessBlockPrincipal;
     using TransitionInfoType = ProcessBlockTransitionInfo;
     using TransitionPhaseType = TransitionPhaseGlobal;
+    static constexpr TransitionActionType transitionAction_ = TransitionActionGlobalBegin;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InProcess;
     static bool constexpr isEvent_ = false;
@@ -458,6 +468,8 @@ namespace edm {
   public:
     using MyPrincipal = ProcessBlockPrincipal;
     using TransitionInfoType = InputProcessBlockTransitionInfo;
+    using TransitionPhaseType = TransitionPhaseGlobal;
+    static constexpr TransitionActionType transitionAction_ = TransitionActionProcessBlockInput;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InProcess;
     static bool constexpr isEvent_ = false;
@@ -497,6 +509,7 @@ namespace edm {
     using MyPrincipal = ProcessBlockPrincipal;
     using TransitionInfoType = ProcessBlockTransitionInfo;
     using TransitionPhaseType = TransitionPhaseGlobal;
+    static constexpr TransitionActionType transitionAction_ = TransitionActionGlobalEnd;
     using Context = GlobalContext;
     static BranchType constexpr branchType_ = InProcess;
     static bool constexpr isEvent_ = false;

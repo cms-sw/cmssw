@@ -129,6 +129,7 @@ namespace edm {
     virtual bool wantsStreamRuns() const noexcept = 0;
     virtual bool wantsStreamLuminosityBlocks() const noexcept = 0;
     virtual bool wantsWrites() const noexcept = 0;
+    virtual bool hasAccumulator() const noexcept = 0;
 
     //returns non-nullptr if the module can only process one Run at a time
     virtual SerialTaskQueue* globalRunsQueue() = 0;
@@ -147,28 +148,33 @@ namespace edm {
       assert(false);
     }
 
+    //Called by GlobalSchedule::processOneGlobalAsync, UnscheduledCallProducer::runAccumulatorsAsync, WorkerInPath::runWorkerAsync, UnscheduledProductResolver::prefetchAsync_
     template <typename T>
-    void doWorkAsync(WaitingTaskHolder,
-                     typename T::TransitionInfoType const&,
-                     ServiceToken const&,
-                     StreamID,
-                     ParentContext const&,
-                     typename T::Context const*) noexcept;
+    void doWorkAsyncImpl(WaitingTaskHolder,
+                         typename T::TransitionInfoType const&,
+                         ServiceToken const&,
+                         StreamID,
+                         ParentContext const&,
+                         typename T::Context const*) noexcept;
 
+    //called by processOneOccurrenceAsync which is only used for globals by the SecondaryEventProvider and
+    // WokerManager<stream>::processOneOccurrenceAsync
     template <typename T>
-    void doWorkNoPrefetchingAsync(WaitingTaskHolder,
-                                  typename T::TransitionInfoType const&,
-                                  ServiceToken const&,
-                                  StreamID,
-                                  ParentContext const&,
-                                  typename T::Context const*) noexcept;
+    void doWorkNoPrefetchingAsyncImpl(WaitingTaskHolder,
+                                      typename T::TransitionInfoType const&,
+                                      ServiceToken const&,
+                                      StreamID,
+                                      ParentContext const&,
+                                      typename T::Context const*) noexcept;
 
+    //Called by Path to inject PathStatus and StreamSchedule to inject TriggerResults and PathStatus for empty paths.
     template <typename T>
     std::exception_ptr runModuleDirectly(typename T::TransitionInfoType const&,
                                          StreamID,
                                          ParentContext const&,
                                          typename T::Context const*) noexcept;
 
+    //called by TransformingProductResolver so only for global Event
     virtual size_t transformIndex(edm::ProductDescription const&) const noexcept = 0;
     void doTransformAsync(WaitingTaskHolder,
                           size_t iTransformIndex,
@@ -207,11 +213,10 @@ namespace edm {
     virtual Types moduleType() const = 0;
     virtual ConcurrencyTypes moduleConcurrencyType() const = 0;
 
+    //Only for global Event
     void addedToPath() noexcept { ++numberOfPathsOn_; }
     //NOTE: calling state() is done to force synchronization across threads
     State state() const noexcept { return state_; }
-
-    virtual bool hasAccumulator() const noexcept = 0;
 
     virtual bool matchesBaseClassPointer(void const* iPtr) const noexcept = 0;
     // Used in PuttableProductResolver
@@ -268,6 +273,7 @@ namespace edm {
     virtual std::vector<ESResolverIndex> const& esItemsToGetFrom(Transition) const = 0;
     virtual std::vector<ESRecordIndex> const& esRecordsToGetFrom(Transition) const = 0;
 
+    //Only used by Event and only for OutputModule
     virtual void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                               ModuleCallingContext const& moduleCallingContext,
                                               Principal const& iPrincipal) const noexcept = 0;
@@ -337,6 +343,7 @@ namespace edm {
     // see comment in runAcquireAfterAsyncPrefetch() definition
     void runAcquire(EventTransitionInfo const&, ParentContext const&, WaitingTaskHolder);
 
+    //Only for Event
     void runAcquireAfterAsyncPrefetch(std::exception_ptr,
                                       EventTransitionInfo const&,
                                       ParentContext const&,
@@ -989,12 +996,12 @@ namespace edm {
   }
 
   template <typename T>
-  void Worker::doWorkAsync(WaitingTaskHolder task,
-                           typename T::TransitionInfoType const& transitionInfo,
-                           ServiceToken const& token,
-                           StreamID streamID,
-                           ParentContext const& parentContext,
-                           typename T::Context const* context) noexcept {
+  void Worker::doWorkAsyncImpl(WaitingTaskHolder task,
+                               typename T::TransitionInfoType const& transitionInfo,
+                               ServiceToken const& token,
+                               StreamID streamID,
+                               ParentContext const& parentContext,
+                               typename T::Context const* context) noexcept {
     if (not workerhelper::CallImpl<T>::wantsTransition(this)) {
       return;
     }
@@ -1108,12 +1115,12 @@ namespace edm {
   }
 
   template <typename T>
-  void Worker::doWorkNoPrefetchingAsync(WaitingTaskHolder task,
-                                        typename T::TransitionInfoType const& transitionInfo,
-                                        ServiceToken const& serviceToken,
-                                        StreamID streamID,
-                                        ParentContext const& parentContext,
-                                        typename T::Context const* context) noexcept {
+  void Worker::doWorkNoPrefetchingAsyncImpl(WaitingTaskHolder task,
+                                            typename T::TransitionInfoType const& transitionInfo,
+                                            ServiceToken const& serviceToken,
+                                            StreamID streamID,
+                                            ParentContext const& parentContext,
+                                            typename T::Context const* context) noexcept {
     if (not workerhelper::CallImpl<T>::wantsTransition(this)) {
       return;
     }

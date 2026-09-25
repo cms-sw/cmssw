@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/Framework/interface/ProductProvenanceRetriever.h"
+#include "FWCore/Framework/interface/maker/TransitionWorker.h"
 #include "FWCore/ServiceRegistry/interface/CurrentModuleOnThread.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
@@ -422,7 +423,12 @@ namespace edm {
 
   void UnscheduledProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
     aux_ = iConfigure.auxiliary();
-    worker_ = iConfigure.findWorker(productDescription().moduleLabel());
+    worker_ = nullptr;
+    auto worker = iConfigure.findWorker(productDescription().moduleLabel());
+    if (worker) {
+      worker_ = dynamic_cast<TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>*>(worker);
+      assert(worker_);
+    }
   }
 
   ProductResolverBase::Resolution UnscheduledProductResolver::resolveProduct_(Principal const&,
@@ -466,13 +472,12 @@ namespace edm {
 
       ParentContext parentContext(mcc);
       EventTransitionInfo const& info = aux_->eventTransitionInfo();
-      worker_->doWorkAsync<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin> >(
-          WaitingTaskHolder(*waitTask.group(), t),
-          info,
-          token,
-          info.principal().streamID(),
-          parentContext,
-          mcc->getStreamContext());
+      worker_->doWorkAsync<TransitionActionGlobalBegin>(WaitingTaskHolder(*waitTask.group(), t),
+                                                        info,
+                                                        token,
+                                                        info.principal().streamID(),
+                                                        parentContext,
+                                                        mcc->getStreamContext());
     }
   }
 
@@ -486,10 +491,12 @@ namespace edm {
 
   void TransformingProductResolver::setupUnscheduled(UnscheduledConfigurator const& iConfigure) {
     aux_ = iConfigure.auxiliary();
-    worker_ = iConfigure.findWorker(productDescription().moduleLabel());
+    auto worker = iConfigure.findWorker(productDescription().moduleLabel());
     // worker can be missing if the corresponding module is
     // unscheduled and none of its products are consumed
-    if (worker_) {
+    if (worker) {
+      worker_ = dynamic_cast<TransitionWorker<EventTransitionInfo, TransitionPhaseGlobal>*>(worker);
+      assert(worker_);
       index_ = worker_->transformIndex(productDescription());
     }
   }
