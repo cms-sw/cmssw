@@ -16,14 +16,14 @@
     <Constant name="CMSZSt3"       value="114.0*m"/>
     <Constant name="CMSZDCFront"   value="139.0*m"/>
     <Constant name="CMSdzSt"       value="0.5*cm"/>
-    <Constant name="CMSdzSt1"      value="(0.5 * ([CMSZSt1] - [HallZ] - [CMSdzSt]))"/>
-    <Constant name="CMSdzSt2"      value="(0.5 * ([CMSZSt2] - [CMSZSt1]) - [CMSdzSt])"/>
-    <Constant name="CMSdzSt3"      value="(0.5 * ([CMSZSt3] - [CMSZSt2]) - [CMSdzSt])"/>
-    <Constant name="CMSdzZDC"      value="(0.5 * ([CMSZDCFront] - [CMSZSt3] - [CMSdzSt]))"/>
-    <Constant name="CMSzSt1"       value="([HallZ] + [CMSdzSt1])"/>
-    <Constant name="CMSzSt2"       value="([CMSZSt1] + [CMSdzSt2])"/>
-    <Constant name="CMSzSt3"       value="([CMSZSt2] + [CMSdzSt3])"/>
-    <Constant name="CMSzZDC"       value="([CMSZDCFront] - [CMSdzZDC])"/>
+    <Constant name="CMSdzSt1"      value="0.5 * ([CMSZSt1] - [HallZ] - [CMSdzSt])"/>
+    <Constant name="CMSdzSt2"      value="0.5 * ([CMSZSt2] - [CMSZSt1] - [CMSdzSt])"/>
+    <Constant name="CMSdzSt3"      value="0.5 * ([CMSZSt3] - [CMSZSt2] - [CMSdzSt])"/>
+    <Constant name="CMSdzZDC"      value="0.5 * ([CMSZDCFront] - [CMSZSt3] - [CMSdzSt])"/>
+    <Constant name="CMSzSt1"       value="0.5 * ([CMSZSt1] + [HallZ] - [CMSdzSt])"/>
+    <Constant name="CMSzSt2"       value="0.5 * ([CMSZSt2] + [CMSZSt1] - [CMSdzSt])"/>
+    <Constant name="CMSzSt3"       value="0.5 * ([CMSZSt3] + [CMSZSt2] - [CMSdzSt])"/>
+    <Constant name="CMSzZDC"       value="0.5 * ([CMSZDCFront] + [CMSZSt3] - [CMSdzSt])"/>
     <Constant name="ZDCtoFP420Z1L" value="150.0*m"/>
     <Constant name="ZDCtoFP420Z1R" value="202.769*m"/>
     <Constant name="ZDCtoFP420Z2L" value="279.90*m"/>

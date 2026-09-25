@@ -2645,6 +2645,42 @@ forwardDict = {
             'from Geometry.ForwardGeometry.ForwardGeometry_cfi import *',
         ]
     },
+    "F7" : {
+        2 : [
+            'Geometry/ForwardCommonData/data/forward/2021/v1/forward.xml',
+            'Geometry/ForwardCommonData/data/totemt2/2021/v1/totemt2.xml',
+            'Geometry/ForwardCommonData/data/forwardshield/2021/v2/forwardshield.xml',
+            'Geometry/ForwardCommonData/data/bhm.xml',
+            'Geometry/ForwardCommonData/data/pltbcm/2021/v1/pltbcm.xml',
+            'Geometry/ForwardCommonData/data/bcm1f/2021/v1/bcm1f.xml',
+            'Geometry/ForwardCommonData/data/plt/2021/v1/plt.xml',
+            'Geometry/ForwardCommonData/data/zdcmaterials/2021/v2/zdcmaterials.xml',
+            'Geometry/ForwardCommonData/data/lumimaterials.xml',
+            'Geometry/ForwardCommonData/data/zdcrotations.xml',
+            'Geometry/ForwardCommonData/data/lumirotations.xml',
+            'Geometry/ForwardCommonData/data/zdc/2025/v3/zdc.xml',
+            'Geometry/ForwardCommonData/data/zdclumi/2025/v1/zdclumi.xml',
+            'Geometry/ForwardCommonData/data/cmszdc.xml',
+            'Geometry/ForwardCommonData/data/fsc/2025/v2/fsc.xml',
+        ],
+        3 : [
+            'Geometry/ForwardSimData/data/totemsensT2/2021/totemsensT2.xml',
+            'Geometry/ForwardCommonData/data/bhmsens.xml',
+            'Geometry/ForwardSimData/data/pltsens.xml',
+            'Geometry/ForwardSimData/data/bcm1fsens.xml',
+            'Geometry/ForwardSimData/data/zdcsens/2021/v1/zdcsens.xml',
+            'Geometry/ForwardSimData/data/fscsens.xml',
+        ],
+        4 : [
+            'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
+            'Geometry/ForwardSimData/data/bhmProdCuts/2021/v1/bhmProdCuts.xml',
+            'Geometry/ForwardSimData/data/zdcProdCuts/2021/v3/zdcProdCuts.xml',
+            'Geometry/ForwardSimData/data/fscProdCuts.xml',
+        ],
+        "reco" :[
+            'from Geometry.ForwardGeometry.ForwardGeometry_cfi import *',
+        ]
+    },
 }
 
 ppsDict = {
@@ -2876,7 +2912,7 @@ detectorVersionDict = {
     ("O9","T6","C2","M12","F3","P8") : "2025FlatMinus10Percent",
     ("O9","T7","C2","M12","F3","P8") : "2025FlatPlus05Percent",
     ("O9","T8","C2","M12","F3","P8") : "2025FlatPlus10Percent",
-    ("O11","T3","C2","M17","F6","P8") : "2026",
+    ("O11","T3","C2","M17","F7","P8") : "2026",
  }
 
 deprecatedSubdets = set([ "T1", "T2", "O1", "O2", "O3", "M1" "M2", "M3", "M4", "M5"
