@@ -178,7 +178,7 @@ void Phase2ITValidateCluster::fillITHistos(const edm::Event& iEvent,
       continue;
 
     GlobalPoint detPos = geomDetUnit->surface().toGlobal(Local2DPoint(0, 0));
-    std::string folderkey = phase2tkutil::getITHistoId(detId, tTopo_, detPos.phi());
+    std::string folderkey = phase2tkutil::getHistoId(detId, tTopo_, detPos.phi(), 6, false);
     for (const auto& clusterItr : DSVItr) {
       MeasurementPoint mpCluster(clusterItr.x(), clusterItr.y());
       Local3DPoint localPosCluster = geomDetUnit->topology().localPosition(mpCluster);
@@ -283,7 +283,7 @@ void Phase2ITValidateCluster::bookHistograms(DQMStore::IBooker& ibooker,
 void Phase2ITValidateCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_id, const std::string& subdir) {
   const GeomDet* geomDet = tkGeom_->idToDet(det_id);
   GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
-  std::string folderName = phase2tkutil::getITHistoId(det_id, tTopo_, detPos.phi());
+  std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), 6, false);
   if (folderName.empty()) {
     edm::LogWarning("Phase2ITValidateCluster") << ">>>> Invalid histo_id ";
     return;
