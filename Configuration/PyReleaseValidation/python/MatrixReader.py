@@ -2,7 +2,7 @@ import sys, os
 
 from Configuration.PyReleaseValidation.WorkFlow import WorkFlow
 from Configuration.PyReleaseValidation.MatrixUtil import InputInfo
-from Configuration.PyReleaseValidation.upgradeWorkflowComponents import defaultDataSets,undefInput
+from Configuration.PyReleaseValidation.upgradeWorkflowComponents import defaultDataSets,undefInput,localPUname
 # ================================================================================
 
 class MatrixException(Exception):
@@ -27,6 +27,7 @@ class MatrixReader(object):
         self.overWrite=opt.overWrite
         
         self.noRun = opt.noRun
+        self.noLocalPU = opt.noLocalPU
         self.checkInputs = opt.checkInputs
         return
 
@@ -236,7 +237,7 @@ With --checkInputs option this throws an error.
             if len(wfKey)>0:
                 name = name+'+'+wfKey
                 if len(wfSuffix)>0: name = name+wfSuffix
-            stepIndex=0
+            stepIndex=-1
             ranStepList=[]
             name_for_workflow = name
 
@@ -270,10 +271,17 @@ With --checkInputs option this throws an error.
                 stepName=step
                 if self.relvalModule.steps[stepName] is None:
                     continue
+                if self.noLocalPU and 'MinBias' in stepName:
+                    continue
                 if self.wm:
                     #cannot put a certain number of things in wm
                     if stepName in ['SKIMD','SKIMCOSD','SKIMDreHLT']:
                         continue
+
+                isLocalPU = self.relvalModule.steps[stepName].get('--fileout',None)==localPUname
+                # do not treat initial local PU (MinBias GEN-SIM) step as a numbered step
+                if not isLocalPU:
+                    stepIndex+=1
 
                 #replace stepName is needed
                 #if stepName in self.replaceStep
@@ -326,7 +334,6 @@ With --checkInputs option this throws an error.
                         cmd="export CMSSW_USE_IBEOS=true; "+cmd
                 commands.append(cmd)
                 ranStepList.append(stepName)
-                stepIndex+=1
             self.workFlowSteps[(num,prefix)] = (num, name_for_workflow, commands, ranStepList)
         
         return
