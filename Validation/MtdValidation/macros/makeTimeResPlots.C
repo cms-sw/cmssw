@@ -33,15 +33,15 @@ const Float_t minBinContent = 20.;
 
 // --- BTL
 
-const Int_t nBinsQ_BTL = 30;
+const Int_t nBinsQ_BTL = 44;
 const Float_t binWidthQ_BTL = 0.5;  // [MeV]
 const Int_t nBinsQEta_BTL = 3;
 const Float_t binsQEta_BTL[nBinsQEta_BTL + 1] = {0., 0.65, 1.15, 1.55};
 
 const Int_t nBinsEta_BTL = 31;
 const Float_t binWidthEta_BTL = 0.05;
-const Int_t nBinsEtaQ_BTL = 6;
-const Float_t binsEtaQ_BTL[nBinsEtaQ_BTL + 1] = {0., 2., 4., 6., 8., 12., 15.};
+const Int_t nBinsEtaQ_BTL = 7;
+const Float_t binsEtaQ_BTL[nBinsEtaQ_BTL + 1] = {0., 2., 4., 6., 8., 12., 15., 22.};
 
 // --- ETL
 
@@ -129,7 +129,7 @@ void makeTimeResPlots(const TString DQMfilename = "DQM_V0001_UNKNOWN_R000000001.
       TString hname = Form("DQMData/Run 1/MTD/Run summary/BTL/LocalReco/TimeResQ_%d", iq);
       h_TimeResQ_BTL[iq] = (TH1F*)input_file->Get(hname);
 
-      if (h_TimeResQ_BTL[iq]->GetEntries() < minBinContent)
+      if (h_TimeResQ_BTL[iq] == nullptr || h_TimeResQ_BTL[iq]->GetEntries() < minBinContent)
         continue;
 
       Float_t low_limit = h_TimeResQ_BTL[iq]->GetMean() - 2. * h_TimeResQ_BTL[iq]->GetRMS();
@@ -155,7 +155,7 @@ void makeTimeResPlots(const TString DQMfilename = "DQM_V0001_UNKNOWN_R000000001.
         TString hname = Form("DQMData/Run 1/MTD/Run summary/BTL/LocalReco/TimeResQvsEta_%d_%d", iq, ieta);
         h_TimeResQEta_BTL[iq][ieta] = (TH1F*)input_file->Get(hname);
 
-        if (h_TimeResQEta_BTL[iq][ieta]->GetEntries() < minBinContent)
+        if (h_TimeResQEta_BTL[iq][ieta] == nullptr || h_TimeResQEta_BTL[iq][ieta]->GetEntries() < minBinContent)
           continue;
 
         Float_t low_limit = h_TimeResQEta_BTL[iq][ieta]->GetMean() - 2. * h_TimeResQEta_BTL[iq][ieta]->GetRMS();
@@ -183,7 +183,7 @@ void makeTimeResPlots(const TString DQMfilename = "DQM_V0001_UNKNOWN_R000000001.
       TString hname = Form("DQMData/Run 1/MTD/Run summary/BTL/LocalReco/TimeResEta_%d", ieta);
       h_TimeResEta_BTL[ieta] = (TH1F*)input_file->Get(hname);
 
-      if (h_TimeResEta_BTL[ieta]->GetEntries() < minBinContent)
+      if (h_TimeResEta_BTL[ieta] == nullptr || h_TimeResEta_BTL[ieta]->GetEntries() < minBinContent)
         continue;
 
       Float_t low_limit = h_TimeResEta_BTL[ieta]->GetMean() - 2. * h_TimeResEta_BTL[ieta]->GetRMS();
@@ -209,7 +209,7 @@ void makeTimeResPlots(const TString DQMfilename = "DQM_V0001_UNKNOWN_R000000001.
         TString hname = Form("DQMData/Run 1/MTD/Run summary/BTL/LocalReco/TimeResEtavsQ_%d_%d", ieta, iq);
         h_TimeResEtaQ_BTL[ieta][iq] = (TH1F*)input_file->Get(hname);
 
-        if (h_TimeResEtaQ_BTL[ieta][iq]->GetEntries() < minBinContent)
+        if (h_TimeResEtaQ_BTL[ieta][iq] == nullptr || h_TimeResEtaQ_BTL[ieta][iq]->GetEntries() < minBinContent)
           continue;
 
         Float_t low_limit = h_TimeResEtaQ_BTL[ieta][iq]->GetMean() - 2. * h_TimeResEtaQ_BTL[ieta][iq]->GetRMS();
@@ -318,7 +318,7 @@ void makeTimeResPlots(const TString DQMfilename = "DQM_V0001_UNKNOWN_R000000001.
         TString hname = Form("DQMData/Run 1/MTD/Run summary/ETL/LocalReco/TimeResTot_%d_%d", iside, iq);
         h_TimeResQ_ETL[iside][iq] = (TH1F*)input_file->Get(hname);
 
-        if (h_TimeResQ_ETL[iside][iq]->GetEntries() < minBinContent)
+        if (h_TimeResQ_ETL[iside][iq] == nullptr || h_TimeResQ_ETL[iside][iq]->GetEntries() < minBinContent)
           continue;
 
         Float_t low_limit = h_TimeResQ_ETL[iside][iq]->GetMean() - 2. * h_TimeResQ_ETL[iside][iq]->GetRMS();
@@ -340,7 +340,7 @@ void makeTimeResPlots(const TString DQMfilename = "DQM_V0001_UNKNOWN_R000000001.
         TString hname = Form("DQMData/Run 1/MTD/Run summary/ETL/LocalReco/TimeResEta_%d_%d", iside, ieta);
         h_TimeResEta_ETL[iside][ieta] = (TH1F*)input_file->Get(hname);
 
-        if (h_TimeResEta_ETL[iside][ieta]->GetEntries() < minBinContent)
+        if (h_TimeResEta_ETL[iside][ieta] == nullptr || h_TimeResEta_ETL[iside][ieta]->GetEntries() < minBinContent)
           continue;
 
         Float_t low_limit = h_TimeResEta_ETL[iside][ieta]->GetMean() - 2. * h_TimeResEta_ETL[iside][ieta]->GetRMS();

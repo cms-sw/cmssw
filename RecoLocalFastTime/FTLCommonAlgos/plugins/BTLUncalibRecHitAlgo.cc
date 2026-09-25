@@ -34,6 +34,12 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
 
     flag |= 0x1;
     nHits += 1.;
+
+    // Set bits 4 (ADC) and 5 (TDC) of flag when the right channel's ADC or TDC is saturated
+    if (sampleRight.data() == BTLSample::kDataMask)
+      flag |= (0x1 << 4);
+    if (sampleRight.toa() == BTLSample::kToAMask)
+      flag |= (0x1 << 5);
   }
 
   // --- Reconstruct amplitude and time of the crystal's left channel
@@ -52,6 +58,12 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
 
     flag |= (0x1 << 1);
     nHits += 1.;
+
+    // Set bits 6 (ADC) and 7 (TDC) of flag when the left channel's ADC or TDC is saturated
+    if (sampleLeft.data() == BTLSample::kDataMask)
+      flag |= (0x1 << 6);
+    if (sampleLeft.toa() == BTLSample::kToAMask)
+      flag |= (0x1 << 7);
   }
 
   // --- Calculate the error on the hit time using the provided parameterization
