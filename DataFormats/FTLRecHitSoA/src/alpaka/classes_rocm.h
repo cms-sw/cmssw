@@ -1,0 +1,6 @@
+#include "DataFormats/Common/interface/DeviceProduct.h"
+#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/FTLRecHitSoA/interface/alpaka/BTLBaseRecHitDeviceCollection.h"
+#include "DataFormats/FTLRecHitSoA/interface/alpaka/BTLRecHitDeviceCollection.h"
+#include "DataFormats/FTLRecHitSoA/interface/alpaka/ETLBaseRecHitDeviceCollection.h"
+#include "DataFormats/FTLRecHitSoA/interface/alpaka/ETLRecHitDeviceCollection.h"
