@@ -6,10 +6,13 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
+#include "CommonTools/Utils/interface/StringObjectFunction.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <cmath>
 #include <memory>
 #include <string>
+#include <vector>
 
 //This producer embeds the final refined FastSim jet pT values
 //so that they can be used as input to the pT-based sorting routine, as well
@@ -21,7 +24,16 @@ public:
         refinedPtName_(iConfig.getParameter<std::string>("refinedPtName")),
         maskBtagName_(iConfig.getParameter<std::string>("maskBtagName")),
         ptFinalName_(iConfig.getParameter<std::string>("ptFinalName")),
-        ptUnrefinedName_(iConfig.getParameter<std::string>("ptUnrefinedName")) {
+        ptUnrefinedName_(iConfig.getParameter<std::string>("ptUnrefinedName")),
+        minGenJetPt_(iConfig.existsAs<double>("minGenJetPt") ? iConfig.getParameter<double>("minGenJetPt") : -1.) {
+    if (iConfig.existsAs<std::vector<std::string>>("taggerNames")) {
+      taggerNames_ = iConfig.getParameter<std::vector<std::string>>("taggerNames");
+      const auto expressions = iConfig.getParameter<std::vector<std::string>>("rawTaggerExpressions");
+      if (expressions.size() != taggerNames_.size())
+        throw cms::Exception("Configuration") << "Each refined tagger requires its raw expression";
+      for (const auto &expression : expressions)
+        rawTaggers_.emplace_back(expression);
+    }
     // Type-1 MET correction is optional
     if (iConfig.existsAs<edm::InputTag>("met")) {
       metToken_ = consumes<edm::View<pat::MET>>(iConfig.getParameter<edm::InputTag>("met"));
@@ -59,11 +71,28 @@ public:
 
       // mask: BvsAll > 0
       const float bvsAll = j.bDiscriminator(maskBtagName_);
-      const bool refine = (bvsAll > 0.f);
+      bool refine = (bvsAll > 0.f);
+      if (minGenJetPt_ >= 0.) {
+        const auto &gen = j.genJetFwdRef().backRef();
+        refine =
+            refine && gen.isNonnull() && gen.isAvailable() && std::isfinite(gen->pt()) && gen->pt() >= minGenJetPt_;
+        // Share the decision with the Nano taggers, pT sorting, and MET.
+        j.addUserInt("fastSimRefinementApplied", refine);
+      }
 
       const double pt_ref = j.hasUserFloat(refinedPtName_) ? static_cast<double>(j.userFloat(refinedPtName_)) : pt_orig;
 
       const double pt_final = refine ? pt_ref : pt_orig;
+      if (minGenJetPt_ >= 0. && (!std::isfinite(pt_final) || pt_final <= 0.))
+        throw cms::Exception("InvalidRefinedPt") << "Nonphysical final jet pT: " << pt_final;
+
+      // Select scores here; raw Nano expressions can themselves contain conditionals.
+      for (unsigned int i = 0; i < taggerNames_.size(); ++i) {
+        const float value = refine ? j.userFloat(taggerNames_[i] + "refined") : rawTaggers_[i](jIn);
+        if (!std::isfinite(value) || (refine && (value < 0.f || value > 1.f)))
+          throw cms::Exception("InvalidRefinedScore") << taggerNames_[i] << ": " << value;
+        j.addUserFloat("fastSimFinal_" + taggerNames_[i], value);
+      }
 
       // store unrefined pt if requested
       if (!ptUnrefinedName_.empty()) {
@@ -131,6 +160,9 @@ private:
   std::string maskBtagName_;
   std::string ptFinalName_;
   std::string ptUnrefinedName_;
+  double minGenJetPt_;
+  std::vector<std::string> taggerNames_;
+  std::vector<StringObjectFunction<pat::Jet>> rawTaggers_;
 };
 
 DEFINE_FWK_MODULE(ProcessRefinedJets);
