@@ -1,59 +1,64 @@
-#include "DataFormats/HGCalReco/interface/HGCalSoARecHitsHostCollection.h"
+#include <cstdint>
+#include <span>
+#include <string>
+#include <vector>
+
 #include "DataFormats/HGCalReco/interface/alpaka/HGCalSoARecHitsDeviceCollection.h"
 #include "DataFormats/HGCalReco/interface/alpaka/HGCalSoARecHitsExtraDeviceCollection.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalTilesConstants.h"
 
-#include "HGCalLayerClustersAlgoWrapper.h"
+#include "HGCalCLUEsteringAlgoWrapper.h"
 
-// Processes the input RecHit SoA collection and generates an output SoA
-// containing all the necessary information to build the clusters.
-// Specifically, this producer does not create the clusters in any format.
-// Instead, it fills a SoA (HGCalSoARecHitsExtra) with the same size as the input
-// RecHit SoA. This output SoA includes all the data needed to assemble the
-// clusters and assigns a clusterId to each cell that belongs to a cluster.
-// Consequently, this producer must be used by another downstream producer to
-// either build traditional clusters or to create a SoA representing the
-// clusters, complete with all required information (e.g., energy, position).
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  class HGCalSoARecHitsLayerClustersProducer : public stream::EDProducer<> {
+  class HGCalCLUEsteringLayerClustersProducer : public stream::EDProducer<> {
   public:
-    HGCalSoARecHitsLayerClustersProducer(edm::ParameterSet const& config)
+    HGCalCLUEsteringLayerClustersProducer(edm::ParameterSet const& config)
         : EDProducer(config),
           getTokenDevice_{consumes(config.getParameter<edm::InputTag>("hgcalRecHitsSoA"))},
+          getTokenLayerSizes_{consumes<std::vector<uint32_t>>(
+              edm::InputTag(config.getParameter<edm::InputTag>("hgcalRecHitsSoA").label(), "layerSizes"))},
           deviceToken_{produces()},
           deltac_(config.getParameter<float>("deltac")),
           kappa_(config.getParameter<float>("kappa")),
-          outlierDeltaFactor_(config.getParameter<float>("outlierDeltaFactor")) {}
+          outlierDeltaFactor_(config.getParameter<float>("outlierDeltaFactor")),
+          isScintillator_(config.getParameter<std::string>("detector") == "BH") {}
 
-    ~HGCalSoARecHitsLayerClustersProducer() override = default;
+    ~HGCalCLUEsteringLayerClustersProducer() override = default;
 
     void produce(device::Event& iEvent, device::EventSetup const& iSetup) override {
       auto const& deviceInput = iEvent.get(getTokenDevice_);
-      //std::cout << "Size of device collection: " << deviceInput->metadata().size() << std::endl;
       auto const input_v = deviceInput.view();
-      // Allocate output SoA
+      // Per-layer batch sizes computed upstream by the rechit producer (the SoA
+      // is emitted layer-contiguous), used directly as the CLUEstering batch sizes.
+      auto const& layerSizes = iEvent.get(getTokenLayerSizes_);
+      // Allocate output SoA, same size as the input RecHit SoA.
       HGCalSoARecHitsExtraDeviceCollection output(iEvent.queue(), deviceInput->metadata().size());
       auto output_v = output.view();
 
-      algo_.run(
-          iEvent.queue(), deviceInput->metadata().size(), deltac_, kappa_, outlierDeltaFactor_, input_v, output_v);
+      algo_.run(iEvent.queue(),
+                deviceInput->metadata().size(),
+                deltac_,
+                kappa_,
+                outlierDeltaFactor_,
+                isScintillator_,
+                std::span<const uint32_t>(layerSizes),
+                input_v,
+                output_v);
       iEvent.emplace(deviceToken_, std::move(output));
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.add<edm::InputTag>("hgcalRecHitsSoA", edm::InputTag("TO BE DEFINED"));
+      desc.add<std::string>("detector", "EE")
+          ->setComment("HGCAL component; 'BH' selects the periodic (eta,phi) scintillator metric.");
       desc.add<float>("deltac", 1.3);
       desc.add<float>("kappa", 9.);
       desc.add<float>("outlierDeltaFactor", 2.);
@@ -61,16 +66,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
   private:
-    // use device::EDGetToken<T> to read from device memory space
     device::EDGetToken<HGCalSoARecHitsDeviceCollection> const getTokenDevice_;
+    edm::EDGetTokenT<std::vector<uint32_t>> const getTokenLayerSizes_;
     device::EDPutToken<HGCalSoARecHitsExtraDeviceCollection> const deviceToken_;
-    HGCalLayerClustersAlgoWrapper algo_;
+    HGCalCLUEsteringAlgoWrapper algo_;
     const float deltac_;
     const float kappa_;
     const float outlierDeltaFactor_;
+    const bool isScintillator_;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
-DEFINE_FWK_ALPAKA_MODULE(HGCalSoARecHitsLayerClustersProducer);
+DEFINE_FWK_ALPAKA_MODULE(HGCalCLUEsteringLayerClustersProducer);

@@ -46,7 +46,7 @@ hltHGCalRecHit = cms.EDProducer("HGCalRecHitProducer",
     algo = cms.string('HGCalRecHitWorkerSimple'),
     constSiPar = cms.double(0.02),
     deltasi_index_regemfac = cms.int32(3),
-    layerNoseWeights = cms.vdouble(
+    layerNoseWeights = cms.vfloat(
         0.0, 39.500245, 39.756638, 39.756638, 39.756638,
         39.756638, 66.020266, 92.283895, 92.283895
     ),
