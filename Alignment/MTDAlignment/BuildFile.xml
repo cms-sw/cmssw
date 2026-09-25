@@ -1,0 +1,14 @@
+<export>
+  <lib name="1"/>
+</export>
+<use name="Alignment/CommonAlignment"/>
+<use name="DataFormats/GeometryCommonDetAlgo"/>
+<use name="Geometry/MTDGeometryBuilder"/>
+<use name="Geometry/CommonTopologies"/>
+<use name="Geometry/Records"/>
+<use name="FWCore/Framework"/>
+<use name="Utilities/Xerces"/>
+<use name="CondCore/DBOutputService"/>
+<use name="CondFormats/Alignment"/>
+<use name="DataFormats/ForwardDetId"/>
+<use name="xerces-c"/>

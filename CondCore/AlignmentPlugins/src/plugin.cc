@@ -22,6 +22,8 @@
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GEMAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GEMAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/MTDAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/MTDAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTSurveyRcd.h"
@@ -50,6 +52,7 @@
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GEMAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/MTDAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EBAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EEAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentErrorExtendedRcd.h"
@@ -68,13 +71,14 @@ REGISTER_PLUGIN_NO_SERIAL(CSCAlignmentRcd, Alignments);
 REGISTER_PLUGIN_NO_SERIAL(CSCAlignmentErrorRcd, AlignmentErrors);
 REGISTER_PLUGIN_NO_SERIAL(GEMAlignmentRcd, Alignments);
 REGISTER_PLUGIN_NO_SERIAL(GEMAlignmentErrorRcd, AlignmentErrors);
+REGISTER_PLUGIN_NO_SERIAL(MTDAlignmentRcd, Alignments);
+REGISTER_PLUGIN_NO_SERIAL(MTDAlignmentErrorRcd, AlignmentErrors);
 REGISTER_PLUGIN_NO_SERIAL(TrackerSurveyRcd, Alignments);
 REGISTER_PLUGIN(TrackerSurveyErrorRcd, SurveyErrors);
 REGISTER_PLUGIN_NO_SERIAL(DTSurveyRcd, Alignments);
 REGISTER_PLUGIN_NO_SERIAL(DTSurveyErrorRcd, SurveyErrors);
 REGISTER_PLUGIN_NO_SERIAL(CSCSurveyRcd, Alignments);
 REGISTER_PLUGIN_NO_SERIAL(CSCSurveyErrorRcd, SurveyErrors);
-
 REGISTER_PLUGIN_NO_SERIAL(EBAlignmentRcd, Alignments);
 REGISTER_PLUGIN_NO_SERIAL(EBAlignmentErrorRcd, AlignmentErrors);
 REGISTER_PLUGIN_NO_SERIAL(EEAlignmentRcd, Alignments);
@@ -96,6 +100,7 @@ REGISTER_PLUGIN(TrackerAlignmentErrorExtendedRcd, AlignmentErrorsExtended);
 REGISTER_PLUGIN_NO_SERIAL(DTAlignmentErrorExtendedRcd, AlignmentErrorsExtended);
 REGISTER_PLUGIN_NO_SERIAL(CSCAlignmentErrorExtendedRcd, AlignmentErrorsExtended);
 REGISTER_PLUGIN_NO_SERIAL(GEMAlignmentErrorExtendedRcd, AlignmentErrorsExtended);
+REGISTER_PLUGIN_NO_SERIAL(MTDAlignmentErrorExtendedRcd, AlignmentErrorsExtended);
 REGISTER_PLUGIN_NO_SERIAL(EBAlignmentErrorExtendedRcd, AlignmentErrorsExtended);
 REGISTER_PLUGIN_NO_SERIAL(EEAlignmentErrorExtendedRcd, AlignmentErrorsExtended);
 REGISTER_PLUGIN_NO_SERIAL(ESAlignmentErrorExtendedRcd, AlignmentErrorsExtended);

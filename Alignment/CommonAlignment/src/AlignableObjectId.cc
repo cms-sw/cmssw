@@ -215,6 +215,19 @@ namespace {
                                                        {align::AlignableGEMEtaPartition, "GEMEtaPartition"},
                                                        {align::AlignableMuon, "Muon"},
 
+                                                       {align::AlignableBTL, "BTL"},
+                                                       {align::AlignableBTLTray, "BTLTray"},
+                                                       {align::AlignableBTLRU, "BTLRU"},
+                                                       {align::AlignableBTLModule, "BTLModule"},
+                                                       {align::AlignableBTLSensorModule, "BTLSensorModule"},
+                                                       {align::AlignableETLEndcap, "ETLEndcap"},
+                                                       {align::AlignableETLDisk, "ETLDisk"},
+                                                       {align::AlignableETLDee, "ETLDee"},
+                                                       {align::AlignableETLServiceHybrid, "ETLServiceHybrid"},
+                                                       {align::AlignableETLModule, "ETLModule"},
+                                                       {align::AlignableETLSensor, "ETLSensor"},
+                                                       {align::AlignableMTD, "MTD"},
+
                                                        {align::BeamSpot, "BeamSpot"},
                                                        {align::notfound, nullptr}};
 
@@ -262,6 +275,10 @@ AlignableObjectId ::AlignableObjectId(const TrackerGeometry *tracker,
                                       const CSCGeometry *muonCsc,
                                       const GEMGeometry *muonGem)
     : AlignableObjectId(commonGeometry(trackerGeometry(tracker), muonGeometry(muonDt, muonCsc, muonGem))) {}
+
+//_____________________________________________________________________________
+AlignableObjectId ::AlignableObjectId(const TrackerGeometry *tracker, const MTDGeometry *mtd)
+    : AlignableObjectId(commonGeometry(trackerGeometry(tracker), mtdGeometry(mtd))) {}
 
 //_____________________________________________________________________________
 align::StructureType AlignableObjectId::nameToType(const std::string &name) const { return stringToId(name.c_str()); }
@@ -318,6 +335,11 @@ AlignableObjectId::Geometry AlignableObjectId ::muonGeometry(const DTGeometry *,
                                                              const GEMGeometry *) {
   // muon alignment structure types are identical for all kinds of geometries
   return Geometry::General;
+}
+
+AlignableObjectId::Geometry AlignableObjectId ::mtdGeometry(const MTDGeometry *) {
+  // MTD alignment structure types are identical for all kinds of geometries
+  return Geometry::PhaseII;
 }
 
 AlignableObjectId::Geometry AlignableObjectId ::commonGeometry(Geometry first, Geometry second) {
