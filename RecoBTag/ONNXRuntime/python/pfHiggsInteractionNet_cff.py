@@ -26,16 +26,11 @@ pfHiggsInteractionNetTags = boostedJetONNXJetTagsProducer.clone(
 particleNetSonicTriton.toReplaceWith(pfHiggsInteractionNetTags, _particleNetSonicJetTagsProducer.clone(
     src = 'pfHiggsInteractionNetTagInfos',
     preprocess_json = 'RecoBTag/Combined/data/models/higgsInteractionNet/preprocess.json',
-    Client = cms.PSet(
+    Client = dict(
         timeout = cms.untracked.uint32(300),
-        mode = cms.string("Async"),
         modelName = cms.string("higgsInteractionNet"),
         modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/higgsInteractionNet/config.pbtxt"),
         modelVersion = cms.string(""),
-        verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(0),
-        useSharedMemory = cms.untracked.bool(True),
-        compression = cms.untracked.string(""),
     ),
     flav_names = pfHiggsInteractionNetTags.flav_names,
 ))

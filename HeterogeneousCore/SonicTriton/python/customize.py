@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import json
 
 def getDefaultClientPSet():
     from HeterogeneousCore.SonicTriton.TritonGraphAnalyzer import TritonGraphAnalyzer
@@ -13,12 +14,12 @@ def getParser():
     from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
     parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter)
     parser.add_argument("--maxEvents", default=-1, type=int, help="Number of events to process (-1 for all)")
-    parser.add_argument("--serverName", default="default", type=str, help="name for server (used internally)")
-    parser.add_argument("--address", default="", type=str, help="server address")
-    parser.add_argument("--port", default=8001, type=int, help="server port")
+    parser.add_argument("--address", nargs=3, action="append", metavar=("NAME", "HOST", "PORT"),
+                        dest="addresses", default=[],
+                        help="Triton server entry: name host port (repeatable, e.g. --address server1 0.0.0.0 8011 --address server2 0.0.0.0 8021)")
     parser.add_argument("--timeout", default=30, type=int, help="timeout for requests")
     parser.add_argument("--timeoutUnit", default="seconds", type=str, help="unit for timeout")
-    parser.add_argument("--params", default="", type=str, help="json file containing server address/port")
+    parser.add_argument("--params", default="", type=str, help="json file containing server address/port(s) (single server dict, or list of server dicts[{'name': ..., 'address': ..., 'port': ...}])")
     parser.add_argument("--threads", default=1, type=int, help="number of threads")
     parser.add_argument("--streams", default=0, type=int, help="number of streams")
     parser.add_argument("--verbose", default=False, action="store_true", help="enable all verbose output")
@@ -36,18 +37,26 @@ def getParser():
     parser.add_argument("--imageName", default="", type=str, help="container image name for fallback server")
     parser.add_argument("--sandboxDir", default="", type=str, help="apptainer sandbox directory")
     parser.add_argument("--tempDir", default="", type=str, help="temp directory for fallback server")
+    parser.add_argument("--retryAction", default="same", type=str, choices=["same","diff"], help="retry policy: same server or different server")
 
     return parser
 
 def getOptions(parser, verbose=False):
     options = parser.parse_args()
 
-    if len(options.params)>0:
-        with open(options.params,'r') as pfile:
+    if len(options.params) > 0:
+        with open(options.params, 'r') as pfile:
             pdict = json.load(pfile)
-        options.address = pdict["address"]
-        options.port = int(pdict["port"])
-        if verbose: print("server = "+options.address+":"+str(options.port))
+
+        server_list = pdict if isinstance(pdict, list) else [pdict]
+
+        for entry in server_list:
+            name = entry.get("name", "default")
+            host = entry["address"]
+            port = str(int(entry["port"]))
+            options.addresses.append([name, host, port])
+            if verbose:
+                print("server (from params) = {}:{} [{}]".format(host, port, name))
 
     return options
 
@@ -76,13 +85,15 @@ def applyOptions(process, options, applyToModules=False):
         process.TritonService.fallback.device = options.device
         if len(options.fallbackName)>0:
             process.TritonService.fallback.instanceBaseName = options.fallbackName
-        if len(options.address)>0:
+        for name, host, port in options.addresses:
+            if options.verbose:
+                print("server = {}:{} [{}]".format(host, port, name))
             process.TritonService.servers.append(
                 dict(
-                    name = options.serverName,
-                    address = options.address,
-                    port = options.port,
-                    useSsl = options.ssl,
+                    name    = name,
+                    address = host,
+                    port    = int(port),
+                    useSsl  = options.ssl,
                 )
             )
 
@@ -92,12 +103,19 @@ def applyOptions(process, options, applyToModules=False):
     return process
 
 def getClientOptions(options):
+    action = cms.PSet(
+                retryType = cms.string('RetrySameServerAction'),
+                allowedTries = cms.untracked.uint32(options.tries))
+    if options.retryAction != 'same':
+        action.retryType = cms.string('RetryActionDiffServer')
+
+    fallback = cms.PSet(retryType = cms.string('RetryFallbackServerAction'))
     return dict(
         compression = cms.untracked.string(options.compression),
         useSharedMemory = cms.untracked.bool(not options.noShm),
         timeout = cms.untracked.uint32(options.timeout),
         timeoutUnit = cms.untracked.string(options.timeoutUnit),
-        allowedTries = cms.untracked.uint32(options.tries),
+        Retry = cms.VPSet(action,fallback)
     )
 
 def applyClientOptions(client, options):

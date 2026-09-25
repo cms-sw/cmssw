@@ -42,13 +42,18 @@ The python configuration for the producer should include a dedicated `PSet` for 
 process.MyProducer = cms.EDProducer("MyProducer",
     Client = cms.PSet(
         # necessary client options go here
-        mode = cms.string("Sync"),
-        allowedTries = cms.untracked.uint32(0),
+        mode = cms.string(""),
+        Retry = cms.VPSet(
+          cms.PSet(
+            retryType = cms.string('RetrySameServerAction'),
+            allowedTries = cms.untracked.uint32(0)
+          )
+        )
     )
 )
 ```
 These parameters can be prepopulated and validated by the client using `fillDescriptions()`.
-The `mode` and `allowedTries` parameters are always necessary (example values are shown here, but other values are also allowed).
+The `mode` and `Retry` parameters are always necessary (example values are shown here, but other values are also allowed).
 These parameters are described in the next section.
 
 In addition, there is a `SonicOneEDAnalyzer` class template for user analysis, e.g. to produce simple ROOT files.
@@ -99,6 +104,7 @@ The `SonicClient` has three available modes:
 * `PseudoAsync`: turns a synchronous, blocking call into an asynchronous, non-blocking call, by waiting for the result in a separate `std::thread`.
 
 `Async` is the most efficient, but can only be used if asynchronous, non-blocking calls are supported by the communication protocol in use.
+When a fallback CPU server is used, `Sync` mode is enforced to avoid contention, user's configuration of `mode` will be respected for other cases with `Async` mode as the default.
 
 In addition, as indicated, the input and output data types must be specified.
 (If both types are the same, only the input type needs to be specified.)
@@ -110,9 +116,9 @@ For the `Sync` and `PseudoAsync` modes, `finish()` should be called at the end o
 For the `Async` mode, `finish()` should be called inside the communication protocol callback function (implementations may vary).
 
 When `finish()` is called, the success or failure of the call should be conveyed.
-If a call fails, it can optionally be retried. This is only allowed if the call failure does not cause an exception.
+If a call fails without raising an exception, it can be retried through an ordered chain of retry actions rather than a single fixed number of tries. 
+The chain is configured per client through a `Retry` `VPSet` parameter, where each `PSet` specifies a `retryType` plus any action-specific parameters; VPSet order is try order. 
 Therefore, if retrying is desired, any exception should be converted to a `LogWarning` or `LogError` message by the client.
-A Python configuration parameter can be provided to enable retries with a specified maximum number of allowed tries.
 
 The client must also provide a static method `fillPSetDescription()` to populate its parameters in the `fillDescriptions()` for the producers that use the client:
 ```cpp
@@ -126,6 +132,12 @@ void MyClient::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
 
 As indicated, the `fillBasePSetDescription()` function should always be applied to the `descClient` object,
 to ensure that it includes the necessary parameters.
-(Calling `fillBasePSetDescription(descClient, false)` will omit the `allowedTries` parameter, disabling retries.)
+`Retry` is a vector of `PSet` with the parameters `retryType` and `allowedTries`.
+`retryType` is the action type that inherents from `RetryActionBase`.
+`allowedTries` is a parameter consumed by `RetrySameServerAction`.
+
+The default `Retry` action is a single `RetryFallbackServerAction`.
+To disable `Retry`, leave the `Retry` `VPSet` empty.
+
 
 Example client code can be found in the `interface` and `src` directories of the other Sonic packages in this repository.
