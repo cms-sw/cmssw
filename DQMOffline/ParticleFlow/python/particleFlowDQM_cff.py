@@ -77,12 +77,10 @@ def createRecoJetPlots(ptbins, etabins):
 name = "genjet_pt"
 title = "genjet pt"
 pfJetAnalyzerDQM = cms.EDProducer("PFJetAnalyzerDQM",
-
     #match these reco-jets to the gen-jets and compute jet response
     recoJetCollection = cms.InputTag('slimmedJets'),
     genJetCollection = cms.InputTag('slimmedGenJets'),
     jetDeltaR = cms.double(0.2),
-
     # turn gen jets on or off
     genJetsOn = cms.bool(True),
     recoJetsOn = cms.bool(True),
@@ -91,23 +89,23 @@ pfJetAnalyzerDQM = cms.EDProducer("PFJetAnalyzerDQM",
     recoJetPlots = cms.VPSet(createRecoJetPlots(ptbins, etabins)),
 )
 
-pfPuppiJetAnalyzerDQM = pfJetAnalyzerDQM.clone(
-    recoJetCollection = 'slimmedJetsPuppi',
-    genJetsOn = False
-)
-
 vjetResponseDir = [jetResponseDir + "slimmedJets/JEC/",
                    jetResponseDir + "slimmedJets/noJEC/",
                    jetResponseDir + "slimmedJetsPuppi/JEC/",
                    jetResponseDir + "slimmedJetsPuppi/noJEC/"]
 
 pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
-    isHLT = cms.bool(False),
     jetResponseDir = cms.vstring( vjetResponseDir ),
     genjetDir = cms.string( genjetDir ),
+    offsetDir = cms.string('ParticleFlow/Offset/'),
     ptBins = cms.vdouble( ptbins ),
     etaBins = cms.vdouble( etabins ),
     recoPtCut = cms.double(10.)
+)
+
+pfPuppiJetAnalyzerDQM = pfJetAnalyzerDQM.clone(
+    recoJetCollection = 'slimmedJetsPuppi',
+    genJetsOn = False
 )
 
 # Particle Flow Candidates
@@ -116,7 +114,7 @@ from DQMOffline.ParticleFlow.pfAnalyzer_cfi import pfAnalyzer
 pfAnalyzerDQM = pfAnalyzer.clone(
     isHLT               = False,
     isMiniAOD           = False,
-    pfCandidates        = "particleFlow", # "packedPFCandidates" for MiniAOD
+    pfCandidates        = "particleFlow",
     pfAnalysis = cms.PSet(
         NPVBins = cms.vdouble(0, 100, 250),
         observables = cms.vstring(
@@ -127,6 +125,36 @@ pfAnalyzerDQM = pfAnalyzer.clone(
         ),
         eventObservables = cms.vstring(),
         pfInJetObservables = cms.vstring(),
+        binList2D = cms.vstring(
+            '[eta;30;-5;5][phi;30;-3.14;3.14]',
+            '[eta;30;-5;5][logPt;50;-1.5;4.]',
+            '[eta;30;-5;5][pt;100;0;10.]',
+            '[eta;30;-5;5][energy;50;0;50.]',
+        ),
+        cutList = cms.vstring(
+            '[pt;1;0;10000]',
+            '[pt;1;0;10000][abseta;0;1.47;4.;6.]',
+            '[pt;0;1;2;4;6;10;20;50;100][abseta;0;1.47;4.;6.]',
+        ),
+        jetCutList = cms.vstring('[pt;20;10000]'),
+    ),
+)
+
+pfAnalyzerMiniAODDQM = pfAnalyzer.clone(
+    isHLT        = False,
+    isMiniAOD    = True,
+    pfCandidates = "packedPFCandidates",
+    pfJetCollection = cms.InputTag("slimmedJets"),
+    pfAnalysis = cms.PSet(
+        NPVBins = cms.vdouble(0, 100, 250),
+        observables = cms.vstring(
+            'pt;p_{T,PFC};50.;0.;350.',
+            'eta;#eta;50;-5;5',
+            'phi;#phi;50;-3.14;3.14',
+            'energy;E;50;0;300',
+        ),
+        eventObservables = cms.vstring('NPFC;N_{PFC};500;0;10000;100;0;100',),
+        pfInJetObservables = cms.vstring('PFSpectrum;E_{PF}/E_{jet};50;0;1',),
         binList2D = cms.vstring(
             '[eta;30;-5;5][phi;30;-3.14;3.14]',
             '[eta;30;-5;5][logPt;50;-1.5;4.]',

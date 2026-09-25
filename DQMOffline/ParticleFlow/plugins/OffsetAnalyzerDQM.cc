@@ -101,8 +101,7 @@ private:
 };
 
 OffsetAnalyzerDQM::OffsetAnalyzerDQM(const edm::ParameterSet& iConfig)
-  : dqmDir_(iConfig.getParameter<std::string>("dqmDir")) {
-
+    : dqmDir_(iConfig.getParameter<std::string>("dqmDir")) {
   offsetPlotBaseName = iConfig.getParameter<std::string>("offsetPlotBaseName");
 
   pvToken = consumes<edm::View<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("pvTag"));
@@ -159,7 +158,6 @@ void OffsetAnalyzerDQM::bookHistograms(DQMStore::IBooker& booker, edm::Run const
 }
 
 void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
-
   // Number of primary vertices
   edm::Handle<edm::View<reco::Vertex>> vertexHandle;
   iEvent.getByToken(pvToken, vertexHandle);
@@ -253,15 +251,15 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
         reco::TrackRef candTrkRef(pf->trackRef());
         if (candTrkRef.isNull())
           return false;
-		for (unsigned int ipv = 0; ipv < nPVall; ++ipv) {
-		  if (!isGoodPV[ipv])
-			continue;
-		  const auto& pv = vertexHandle->at(ipv);
-		  for (auto ivtrk = pv.tracks_begin(), endvtrk = pv.tracks_end(); ivtrk != endvtrk; ++ivtrk) {
-			if (ivtrk->castTo<reco::TrackRef>() == candTrkRef)
-			  return true;
-		  }
-		}
+        for (unsigned int ipv = 0; ipv < nPVall; ++ipv) {
+          if (!isGoodPV[ipv])
+            continue;
+          const auto& pv = vertexHandle->at(ipv);
+          for (auto ivtrk = pv.tracks_begin(), endvtrk = pv.tracks_end(); ivtrk != endvtrk; ++ivtrk) {
+            if (ivtrk->castTo<reco::TrackRef>() == candTrkRef)
+              return true;
+          }
+        }
       }
       return false;
     });
