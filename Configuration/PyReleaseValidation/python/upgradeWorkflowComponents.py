@@ -198,9 +198,13 @@ class UpgradeWorkflow(object):
         if self.offset==0 or workflows[num][1]!=stepList:
             workflows[num+self.offset] = [ fragmentTmp, stepList ]
             
+    # True when condition() inspects or amends stepList, so that the caller has to
+    # build the step list before asking
+    conditionUsesStepList = False
+
     def condition(self, fragment, stepList, key, hasHarvest):
         return False
-    
+
     def preventReuse(self, stepName, stepDict, k):
         if "Sim" in stepName and stepName != "Sim":
             stepDict[stepName][k] = None
@@ -306,6 +310,7 @@ class UpgradeWorkflow_DigiNoHLT(UpgradeWorkflow):
                 stepDict[stepName][k] = merge([{'--filein': 'file:step3.root', '--secondfilein': 'file:step2.root'}, stepDict[step][k]])
             if 'Digi' in step and 'NoHLT' not in step:
                 stepDict[stepName][k] = merge([{'-s': re.sub(',HLT.*', '', stepDict[step][k]['-s'])}, stepDict[step][k]])
+    conditionUsesStepList = True
     def condition(self, fragment, stepList, key, hasHarvest):
         if ('TTbar_14TeV' in fragment and '2022' == key):
             stepList.insert(stepList.index('Digi_DigiNoHLT_2022')+1, 'HLTRun3_2022')
@@ -1289,15 +1294,16 @@ class PatatrackWorkflow(UpgradeWorkflow):
         self.__mini = mini
         self.__harvest = harvest
 
+    years = run3_years + ['Run4']
+    fragments = ["TTbar_14","ZMM_14","ZEE_14","ZTT_14","NuGun","SingleMu","QCD_Pt15To7000_Flat"]
+
     def condition(self, fragment, stepList, key, hasHarvest):
         # select only a subset of the workflows
-        years = run3_years + ['Run4']
-        fragments = ["TTbar_14","ZMM_14","ZEE_14","ZTT_14","NuGun","SingleMu","QCD_Pt15To7000_Flat"]
-        selected = [
-            (any(y in key for y in years) and ('FS' not in key) and any( f in fragment for f in fragments)),
+        selected = (
+            (any(y in key for y in self.years) and ('FS' not in key) and any( f in fragment for f in self.fragments)) or
             (('HI' in key) and ('Hydjet' in fragment) and ("PixelOnly" in self.suffix) )
-        ]
-        result = any(selected) and hasHarvest
+        )
+        result = selected and hasHarvest
 
         return result
 
