@@ -142,22 +142,31 @@ layerPairs = [
 
 # find the layerPairs that contain a layer that is excluded
 excludeLayerPair = [any([(lp[0] == l) or (lp[1] == l) for l in layersToExclude]) for lp in layerPairs]
+excludeCAExtension = [any([(lp[0] == l) or (lp[1] == l) for l in [28, 29, 30]]) for lp in layerPairs]
 
 # exclude those layerPairs
-layerPairsFinal = []
+layerPairsAlpaka = []
+layerPairsCAExtension = []
 for i, lp in enumerate(layerPairs):
+    if (not excludeLayerPair[i]) and (not excludeCAExtension[i]):
+        layerPairsAlpaka.append(lp)
     if not excludeLayerPair[i]:
-        layerPairsFinal.append(lp)
+        layerPairsCAExtension.append(lp)
 
 # get startingPairs for Ntuplet building
-startingPairs = []
-for i, lp in enumerate(layerPairsFinal):
+startingPairsAlpaka = []
+for i, lp in enumerate(layerPairsAlpaka):
     if lp[2]:
-        startingPairs.append(i)
+        startingPairsAlpaka.append(i)
 
-hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
-    pixelRecHitSrc = cms.InputTag('hltPhase2SiPixelRecHitsSoA'),
-    trackerRecHitsSoA = cms.InputTag('hltPhase2OtRecHitsSoA'),
+startingPairsCAExtension = []
+for i, lp in enumerate(layerPairsCAExtension):
+    if lp[2]:
+        startingPairsCAExtension.append(i)
+
+pixelTracksExtendedSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
+    pixelRecHitSrc = cms.InputTag(''),
+    trackerRecHitsSoA = cms.InputTag(''),
     ptmin = cms.double(0.9),
     hardCurvCut = cms.double(0.02), # corresponds to 800 MeV in 3.8T.
     earlyFishbone = cms.bool(True),
@@ -212,22 +221,22 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
         # the layers, and is percolated into this compatibility function via
         # the SoA itself.
         caThetaCuts = cms.vdouble([l[3] for l in layers]),
-        startingPairs = cms.vuint32(startingPairs),
+        startingPairs = cms.vuint32(startingPairsCAExtension),
         startMaxInnerR = cms.vdouble([l[4] for l in layers]),
         maxDCurv    = cms.vdouble([l[5] for l in layers]),
         floorDCurv       = cms.vdouble([l[6] for l in layers]),
         fishboneCuts   = cms.vdouble([l[7] for l in layers]),
-        pairGraph = cms.vuint32(sum([[lp[0], lp[1]] for lp in layerPairsFinal], [])),
-        skipsLayers = cms.vuint32( [int(lp[ 3]) for lp in layerPairsFinal]),
-        phiCuts     = cms.vint32( [lp[ 4] for lp in layerPairsFinal]),
-        minInner    = cms.vdouble([lp[ 5] for lp in layerPairsFinal]),
-        maxInner    = cms.vdouble([lp[ 6] for lp in layerPairsFinal]),
-        minOuter    = cms.vdouble([lp[ 7] for lp in layerPairsFinal]),
-        maxOuter    = cms.vdouble([lp[ 8] for lp in layerPairsFinal]),
-        maxDR       = cms.vdouble([lp[ 9] for lp in layerPairsFinal]),
-        minDZ       = cms.vdouble([lp[10] for lp in layerPairsFinal]),
-        maxDZ       = cms.vdouble([lp[11] for lp in layerPairsFinal]),
-        ptCuts      = cms.vdouble([lp[12] for lp in layerPairsFinal]),
+        pairGraph = cms.vuint32(sum([[lp[0], lp[1]] for lp in layerPairsCAExtension], [])),
+        skipsLayers = cms.vuint32( [int(lp[ 3]) for lp in layerPairsCAExtension]),
+        phiCuts     = cms.vint32( [lp[ 4] for lp in layerPairsCAExtension]),
+        minInner    = cms.vdouble([lp[ 5] for lp in layerPairsCAExtension]),
+        maxInner    = cms.vdouble([lp[ 6] for lp in layerPairsCAExtension]),
+        minOuter    = cms.vdouble([lp[ 7] for lp in layerPairsCAExtension]),
+        maxOuter    = cms.vdouble([lp[ 8] for lp in layerPairsCAExtension]),
+        maxDR       = cms.vdouble([lp[ 9] for lp in layerPairsCAExtension]),
+        minDZ       = cms.vdouble([lp[10] for lp in layerPairsCAExtension]),
+        maxDZ       = cms.vdouble([lp[11] for lp in layerPairsCAExtension]),
+        ptCuts      = cms.vdouble([lp[12] for lp in layerPairsCAExtension]),
     ),
     # autoselect the alpaka backend
     alpaka = cms.untracked.PSet(backend = cms.untracked.string(''))

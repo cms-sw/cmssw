@@ -129,9 +129,11 @@ def _modifyForPPonAAandNotPhase2(producer):
 (pp_on_AA & ~phase2_tracker).toModify(pixelTracksAlpaka, _modifyForPPonAAandNotPhase2)
 
 from Configuration.ProcessModifiers.phase2CAExtension_cff import phase2CAExtension
-phase2CAExtension.toReplaceWith(pixelTracksAlpaka,_pixelTracksAlpakaPhase2Extended.clone(
+from RecoTracker.PixelTrackFitting.pixelTracksExtended_cfg import pixelTracksExtendedSoA as _pixelTracksExtendedSoA
+phase2CAExtension.toReplaceWith(pixelTracksAlpaka,_pixelTracksExtendedSoA.clone(
     pixelRecHitSrc = "siPixelRecHitsPreSplittingAlpaka",
-    trackerRecHitsSoA = "phase2OTRecHitsSoAConverter"
+    trackerRecHitsSoA = "phase2OTRecHitsSoAConverter",
+    hitMask = "siPixelRecHitsExtendedPreSplittingAlpaka",
 ))
 
 # pixel tracks SoA producer on the cpu, for validation
@@ -140,7 +142,7 @@ pixelTracksAlpakaSerial = makeSerialClone(pixelTracksAlpaka,
 )
 
 phase2CAExtension.toModify(pixelTracksAlpakaSerial,
-                           pixelRecHitSrc = 'siPixelRecHitsExtendedPreSplittingAlpakaSerial'
+                           pixelRecHitSrc = 'siPixelRecHitsPreSplittingAlpakaSerial'
                            )
 
 # legacy pixel tracks from SoA
@@ -159,14 +161,173 @@ phase2CAExtension.toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAAlpaka.cl
     outerTrackerRecHitSrc = cms.InputTag("siPhase2RecHits"),
     outerTrackerRecHitSoAConverterSrc = cms.InputTag("phase2OTRecHitsSoAConverter"),
     useOTExtension = cms.bool(True),
-    requireQuadsFromConsecutiveLayers = cms.bool(True)
+    requireQuadsFromConsecutiveLayers = cms.bool(False)
 ))
+
+pixelTracksHighPt = pixelTracks.clone()
+pixelTracksLowPt = pixelTracks.clone()
 
 alpaka.toReplaceWith(pixelTracksTask, cms.Task(
     # Build the pixel ntuplets and the pixel tracks in SoA format with alpaka on the device
     pixelTracksAlpaka,
     # Build the pixel ntuplets and the pixel tracks in SoA format with alpaka on the cpu (if requested by the validation)
     pixelTracksAlpakaSerial,
+    # Just to validate recHits masking machinery
+    pixelTracksHighPt,
+    # Just to validate recHits masking machinery
+    pixelTracksLowPt,
+    # Convert the pixel tracks from SoA to legacy format
+    pixelTracks)
+)
+
+
+from Configuration.ProcessModifiers.caTwoIterations_cff import caTwoIterations
+pixelTracksHighPtAlpaka = _pixelTracksExtendedSoA.clone(
+    pixelRecHitSrc = "siPixelRecHitsPreSplittingAlpaka",
+    trackerRecHitsSoA = "phase2OTRecHitsSoAConverter",
+    iterationName = "promptHighPt",
+)
+
+# pixel tracks SoA producer on the cpu, for validation
+pixelTracksHighPtAlpakaSerial = makeSerialClone(pixelTracksHighPtAlpaka,
+    pixelRecHitSrc = 'siPixelRecHitsPreSplittingAlpakaSerial',
+    trackerRecHitsSoA = 'phase2OTRecHitsSoAConverterSerial'
+)
+
+# pixel tracks SoA Mask
+from RecoTracker.PixelSeeding.caMaskSoAProducer_cfi import caMaskSoAProducer as _caMaskSoAProducer
+
+pixelTracksHighPtMaskingSoA = _caMaskSoAProducer.clone(
+    hitSoAs = cms.VInputTag(["siPixelRecHitsPreSplittingAlpaka","phase2OTRecHitsSoAConverter"]),
+    minQuality = "tight",
+    trackSoA = cms.InputTag("pixelTracksHighPtAlpaka"),
+)
+
+lowPtPtMinCut = 0.3 
+
+pixelTracksLowPtAlpakaPhase2Extended = _pixelTracksAlpakaPhase2Extended.clone(
+    hitMask = "pixelTracksHighPtMaskingSoA",
+    pixelRecHitSrc = "siPixelRecHitsPreSplittingAlpaka",
+    trackerRecHitsSoA = 'phase2OTRecHitsSoAConverter',
+    ptmin = lowPtPtMinCut + 0.05,
+    maxNumberOfDoublets = str(10000000),
+    maxNumberOfTuples   = str(32 * 32 * 1024),
+    hardCurvCut = cms.double(0.035),
+    iterationName = "promptLowPt",
+)
+
+pixelTracksLowPtAlpakaPhase2Extended.trackQualityCuts.minPt = cms.double(lowPtPtMinCut)
+pixelTracksLowPtAlpakaPhase2Extended.geometry.ptCuts = cms.vdouble(73 * [lowPtPtMinCut ])
+
+pixelTracksLowPtAlpaka = _pixelTracksAlpakaPhase1.clone()
+
+(caTwoIterations & phase2CAExtension).toReplaceWith(pixelTracksLowPtAlpaka,pixelTracksLowPtAlpakaPhase2Extended.clone())
+
+# pixel tracks SoA producer on the cpu, for validation
+pixelTracksLowPtAlpakaSerial = makeSerialClone(pixelTracksLowPtAlpaka,
+    pixelRecHitSrc = 'siPixelRecHitsPreSplittingAlpakaSerial'
+)
+
+# legacy pixel tracks from SoA
+from  RecoTracker.PixelTrackFitting.pixelTrackProducerFromSoAAlpaka_cfi import pixelTrackProducerFromSoAAlpaka as _pixelTrackProducerFromSoAAlpaka
+
+(alpaka & ~phase2CAExtension).toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAAlpaka.clone(
+    pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
+))
+
+# pixel tracks SoA merger
+from RecoTracker.FinalTrackSelectors.tracksSoAMerger_cfi import tracksSoAMerger as _tracksSoAMerger
+
+# pixelTracksAlpakaPreDNN 
+pixelTracksSoA = _tracksSoAMerger.clone(
+    inputTkSoAs = cms.VInputTag("pixelTracksAlpakaPostDNN","pixelTracksLowPtAlpaka"),
+    minQuality = cms.string('tight'),
+    matchFraction = cms.double(0.5),
+    dupNSigma2 = 3.0,
+    dupMaxDeltaR2 = 0.001,
+)
+
+pixelTracksAlpakaPostDNN = cms.EDProducer('PixelTrackTorchHighPuritySelector@alpaka',
+    pixelTrackSrc = cms.InputTag('pixelTracksHighPtAlpaka'),
+    maxNumberOfTracks = cms.int32(2*60*1024),
+    maxPreselectedTracks = cms.int32(9_984),
+    minNumberOfHits = cms.int32(0),
+    avgHitsPerTrack = cms.int32(8),
+    minimumTrackQuality = cms.string('tight'),
+    model = cms.FileInPath('RecoTracker/FinalTrackSelectors/data/PixelTrackTorchHighPuritySelector/pixel_track_classifier_FP16.pt'),
+    scoreThreshold = cms.double(0.4),
+    batchSize = cms.int32(4_992)
+)
+
+
+(caTwoIterations & phase2CAExtension).toReplaceWith(pixelTracksAlpaka, pixelTracksSoA.clone(
+))
+
+(caTwoIterations & phase2CAExtension).toReplaceWith(pixelTracksHighPt, _pixelTrackProducerFromSoAAlpaka.clone(
+    pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
+    beamSpot = cms.InputTag("offlineBeamSpot"),
+    minNumberOfHits = cms.int32(0),
+    minQuality = cms.string('tight'),
+    trackSrc = cms.InputTag("pixelTracksHighPtAlpaka"),
+    outerTrackerRecHitSrc = cms.InputTag("siPhase2RecHits"),
+    outerTrackerRecHitSoAConverterSrc = cms.InputTag("phase2OTRecHitsSoAConverter"),
+    useOTExtension = cms.bool(True),
+    requireQuadsFromConsecutiveLayers = cms.bool(True)
+))
+
+(caTwoIterations & phase2CAExtension).toReplaceWith(pixelTracksLowPt, _pixelTrackProducerFromSoAAlpaka.clone(
+    pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
+    beamSpot = cms.InputTag("offlineBeamSpot"),
+    minNumberOfHits = cms.int32(0),
+    minQuality = cms.string('tight'),
+    trackSrc = cms.InputTag("pixelTracksLowPtAlpaka"),
+    outerTrackerRecHitSrc = cms.InputTag("siPhase2RecHits"),
+    outerTrackerRecHitSoAConverterSrc = cms.InputTag("phase2OTRecHitsSoAConverter"),
+    useOTExtension = cms.bool(True),
+    requireQuadsFromConsecutiveLayers = cms.bool(True)
+))
+
+(caTwoIterations & phase2CAExtension).toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAAlpaka.clone(
+    pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
+    beamSpot = cms.InputTag("offlineBeamSpot"),
+    minNumberOfHits = cms.int32(0),
+    minQuality = cms.string('tight'),
+    trackSrc = cms.InputTag("pixelTracksAlpaka"),
+    outerTrackerRecHitSrc = cms.InputTag("siPhase2RecHits"),
+    outerTrackerRecHitSoAConverterSrc = cms.InputTag("phase2OTRecHitsSoAConverter"),
+    useOTExtension = cms.bool(True),
+    requireQuadsFromConsecutiveLayers = cms.bool(True)
+))
+
+
+
+
+
+# Used 2 iterations to check that the machinery works
+(caTwoIterations & phase2CAExtension).toReplaceWith(pixelTracksTask, cms.Task(
+    # Build the highPt pixel ntuplets and the pixel tracks in SoA format with alpaka on the device
+    pixelTracksHighPtAlpaka,
+    # Build the highPt pixel ntuplets and the pixel tracks in SoA format with alpaka on the cpu (if requested by the validation)
+    pixelTracksHighPtAlpakaSerial,
+    # Updates the TrackingRecHitsMasking collection for next iteration
+    pixelTracksHighPtMaskingSoA,
+    # Convert the highPt pixel tracks from SoA to legacy format for validation
+    pixelTracksHighPt,
+    pixelTracksAlpakaPostDNN,
+    
+    # Build the lowPt pixel ntuplets and the pixel tracks in SoA format with alpaka on the device
+    pixelTracksLowPtAlpaka,
+    # Build the lowPt pixel ntuplets and the pixel tracks in SoA format with alpaka on the cpu (if requested by the validation)
+    pixelTracksLowPtAlpakaSerial,
+    # Convert the lowPt pixel tracks from SoA to legacy format for validation
+    pixelTracksLowPt,
+
+    # Merge the produced SoAs directly
+    pixelTracksSoA,
+
+    # Run the DNN on the merged
+    pixelTracksAlpaka,
+
     # Convert the pixel tracks from SoA to legacy format
     pixelTracks)
 )
