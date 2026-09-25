@@ -89,7 +89,7 @@ namespace cms::torch::alpakatools::detail {
     friend class ::cms::torch::alpakatools::TensorCollection<TQueue>;
 
   private:
-    virtual void copy(TQueue& queue, const cms::torch::alpakatools::detail::MemcpyKind kind) = 0;
+    virtual void copy(TQueue& queue) = 0;
     virtual void* data() = 0;
   };
 
@@ -131,9 +131,7 @@ namespace cms::torch::alpakatools::detail {
     iterator_t cend() const { return dims_.cend(); }
 
   private:
-    void copy(TQueue& queue, const cms::torch::alpakatools::detail::MemcpyKind kind) override {
-      policy_.copy(queue, kind);
-    }
+    void copy(TQueue& queue) override { policy_.copy(queue); }
     void* data() override { return static_cast<void*>(policy_.data()); }
     void init_sizes() {
       sizes_ = std::vector<long int>(dims_.size() + 1);
