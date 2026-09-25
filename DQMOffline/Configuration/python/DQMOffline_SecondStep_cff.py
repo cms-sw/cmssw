@@ -107,6 +107,9 @@ DQMOffline_SecondStepTrigger = cms.Sequence( triggerOfflineDQMClient *
 # HLT Heterogeneous monitoring sequence
 DQMHarvestHLTGPUvsCPU = cms.Sequence( HLTHeterogeneousMonitoringHarvesting )
 
+# Offline Heterogeneous monitoring sequence
+DQMHarvestGPUvsCPU = cms.Sequence( HeterogeneousMonitoringHarvesting )
+
 DQMOffline_SecondStepBTag = cms.Sequence( bTagCollectorSequenceDATA )
 
 DQMOffline_SecondStepBeam = cms.Sequence( alcaBeamMonitorClient )

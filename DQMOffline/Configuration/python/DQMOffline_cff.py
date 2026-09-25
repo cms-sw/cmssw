@@ -40,7 +40,10 @@ DQMOfflineScoutingForRelVals = DQMOfflineScouting.copy()
 DQMOfflineScoutingForRelVals.replace(hltScoutingDqmOffline, hltScoutingDqmOfflineForRelVals)
 
 # HLT Heterogeneous monitoring sequence
-DQMOfflineHLTGPUvsCPU =  cms.Sequence( HLTHeterogeneousMonitoringSequence )
+DQMOfflineHLTGPUvsCPU = cms.Sequence( HLTHeterogeneousMonitoringSequence )
+
+# Offline Heterogeneous monitoring sequence
+DQMOfflineGPUvsCPU = cms.Sequence( HeterogeneousMonitoringSequence )
 
 # L1 trigger sequences
 DQMOfflineL1T = cms.Sequence( l1TriggerDqmOffline ) # L1 emulator is run within this sequence for real data
