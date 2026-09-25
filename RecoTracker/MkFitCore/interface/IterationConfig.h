@@ -131,7 +131,10 @@ namespace mkfit {
     bool m_backward_search = false;
     bool m_backward_drop_seed_hits = false;
 
-    int m_backward_fit_min_hits = -1;  // Min number of hits to keep when m_backward_drop_seed_hits is true
+    int m_backward_fit_min_hits = -1;           // Min number of hits to keep when m_backward_drop_seed_hits is true
+    float m_backward_fit_outlier_chi2 = 0.f;    // If > 0, hits above this chi2 are dropped in the backward fit ...
+    int m_backward_fit_max_outliers = 0;        // ... up to this many per track
+    float m_backward_fit_outlier_min_pt = 0.f;  // ... only on tracks with pT above this
 
     // seed cleaning params with good defaults (all configurable)
     float sc_ptthr_hpt = 2.0;
