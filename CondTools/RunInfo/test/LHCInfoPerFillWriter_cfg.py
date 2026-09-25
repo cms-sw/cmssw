@@ -1,5 +1,25 @@
 import FWCore.ParameterSet.Config as cms
+from FWCore.ParameterSet.VarParsing import VarParsing
 
+# ----- Options -----
+options = VarParsing('analysis')
+options.register(
+    'size',
+    0,
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.int,
+    "Size parameter for LHCInfoPerFillWriter"
+)
+options.register(
+    'db',
+    'sqlite_file:LHCInfoPerFill.sqlite',
+    VarParsing.multiplicity.singleton,
+    VarParsing.varType.string,
+    "Database connection string"
+)
+options.parseArguments()
+
+# ----- Process -----
 process = cms.Process('test')
 
 process.source = cms.Source('EmptyIOVSource',
@@ -9,9 +29,9 @@ process.source = cms.Source('EmptyIOVSource',
     interval = cms.uint64(1)
 )
 
-# output service for database
+# DB service
 process.load('CondCore.CondDB.CondDB_cfi')
-process.CondDB.connect = 'sqlite_file:LHCInfoPerFill.sqlite' # SQLite output
+process.CondDB.connect = options.db
 
 process.PoolDBOutputService = cms.Service('PoolDBOutputService',
     process.CondDB,
@@ -24,8 +44,10 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
     )
 )
 
-process.LHCInfoPerFillWriter = cms.EDAnalyzer('LHCInfoPerFillWriter')
-
-process.path = cms.Path(
-    process.LHCInfoPerFillWriter
+# Analyzer with option passed in
+process.LHCInfoPerFillWriter = cms.EDAnalyzer(
+    'LHCInfoPerFillWriter',
+    size = cms.untracked.int32(options.size)
 )
+
+process.path = cms.Path(process.LHCInfoPerFillWriter)
