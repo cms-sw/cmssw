@@ -38,13 +38,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::hcal::reconstruction {
     float tzeroTimeSlew, slopeTimeSlew, tmaxTimeSlew;
   };
 
-  using IProductTypef01 = hcal::Phase1DigiDeviceCollection;
   using IProductTypef5 = hcal::Phase0DigiDeviceCollection;
   using IProductTypef3 = hcal::Phase1DigiDeviceCollection;
   using OProductType = hcal::RecHitDeviceCollection;
 
   void runMahiAsync(Queue& queue,
-                    IProductTypef01::ConstView const& f01HEDigis,
                     IProductTypef5::ConstView const& f5HBDigis,
                     IProductTypef3::ConstView const& f3HBDigis,
                     OProductType::View outputGPU,
