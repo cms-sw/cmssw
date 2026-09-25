@@ -16,6 +16,8 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <map>
+#include <tuple>
 
 //#define EDM_ML_DEBUG
 
@@ -82,6 +84,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #endif
   static constexpr double tol = 0.00001 * dd4hep::mm;
 
+  // Passive layers have no sensitive detector and can share identical volumes.
+  std::map<std::tuple<std::string, std::vector<double>, std::vector<double>, double, double>, dd4hep::Volume>
+      passiveLayers;
+
   // Loop over all types
   for (unsigned int k = 0; k < tags.size(); ++k) {
     for (unsigned int m = 0; m < placementIndex.size(); ++m) {
@@ -140,24 +146,31 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
             zw[0] = -0.5 * layerThick[i];
             zw[1] = 0.5 * layerThick[i];
           }
-          solid = dd4hep::ExtrudedPolygon(xL, yL, zw, zx, zy, scale);
-          std::string lname = layerNames[i] + placementIndexTags[m] + waferTag + tags[k];
-          ns.addSolidNS(ns.prepend(lname), solid);
           matter = ns.material(materials[i]);
-          glogs[i] = dd4hep::Volume(solid.name(), solid, matter);
-          ns.addVolumeNS(glogs[i]);
+          std::string lname = layerNames[i] + placementIndexTags[m] + waferTag + tags[k];
+          auto key = std::make_tuple(materials[i], xL, yL, zw[0], zw[1]);
+          auto found = passiveLayers.find(key);
+          if ((layerType[i] <= 0) && (found != passiveLayers.end())) {
+            glogs[i] = found->second;
+          } else {
+            solid = dd4hep::ExtrudedPolygon(xL, yL, zw, zx, zy, scale);
+            ns.addSolidNS(ns.prepend(lname), solid);
+            glogs[i] = dd4hep::Volume(solid.name(), solid, matter);
+            ns.addVolumeNS(glogs[i]);
+            if (layerType[i] <= 0)
+              passiveLayers.emplace(std::move(key), glogs[i]);
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferPartialRotated: " << solid.name()
-                                        << " extruded polygon made of " << materials[i] << " z|x|y|s (0) "
-                                        << cms::convert2mm(zw[0]) << ":" << cms::convert2mm(zx[0]) << ":"
-                                        << cms::convert2mm(zy[0]) << ":" << scale[0] << " z|x|y|s (1) "
-                                        << cms::convert2mm(zw[1]) << ":" << cms::convert2mm(zx[1]) << ":"
-                                        << cms::convert2mm(zy[1]) << ":" << scale[1] << " partial " << partialTypes[k]
-                                        << " placement index " << placementIndex[m] << " and " << xM.size() << " edges";
-          for (unsigned int j = 0; j < xL.size(); ++j)
             edm::LogVerbatim("HGCalGeom")
-                << "[" << j << "] " << cms::convert2mm(xL[j]) << ":" << cms::convert2mm(yL[j]);
+                << "DDHGCalWaferPartialRotated: " << solid.name() << " extruded polygon made of " << materials[i]
+                << " z|x|y|s (0) " << cms::convert2mm(zw[0]) << ":" << cms::convert2mm(zx[0]) << ":"
+                << cms::convert2mm(zy[0]) << ":" << scale[0] << " z|x|y|s (1) " << cms::convert2mm(zw[1]) << ":"
+                << cms::convert2mm(zx[1]) << ":" << cms::convert2mm(zy[1]) << ":" << scale[1] << " partial "
+                << partialTypes[k] << " placement index " << placementIndex[m] << " and " << xM.size() << " edges";
+            for (unsigned int j = 0; j < xL.size(); ++j)
+              edm::LogVerbatim("HGCalGeom")
+                  << "[" << j << "] " << cms::convert2mm(xL[j]) << ":" << cms::convert2mm(yL[j]);
 #endif
+          }
         }
         if ((layerType[i] > 0) && (senseType >= 0)) {
           std::string sname = senseName + placementIndexTags[m] + waferTag + tags[k];
