@@ -10,30 +10,33 @@
       
 */
 
-class EcalPnDiodeDigi {
-public:
-  typedef EcalPnDiodeDetId key_type;  ///< For the sorted collection
+namespace io_v1 {
+  class EcalPnDiodeDigi {
+  public:
+    typedef EcalPnDiodeDetId key_type;  ///< For the sorted collection
 
-  EcalPnDiodeDigi();  // for persistence
-  explicit EcalPnDiodeDigi(const EcalPnDiodeDetId& id);
+    EcalPnDiodeDigi();  // for persistence
+    explicit EcalPnDiodeDigi(const EcalPnDiodeDetId& id);
 
-  const EcalPnDiodeDetId& id() const { return id_; }
-  int size() const { return size_; }
+    const EcalPnDiodeDetId& id() const { return id_; }
+    int size() const { return size_; }
 
-  const EcalFEMSample& operator[](int i) const { return data_[i]; }
-  const EcalFEMSample& sample(int i) const { return data_[i]; }
+    const EcalFEMSample& operator[](int i) const { return data_[i]; }
+    const EcalFEMSample& sample(int i) const { return data_[i]; }
 
-  void setSize(int size);
-  void setSample(int i, const EcalFEMSample& sam) { data_[i] = sam; }
+    void setSize(int size);
+    void setSample(int i, const EcalFEMSample& sam) { data_[i] = sam; }
 
-  static const int MAXSAMPLES = 50;
+    static const int MAXSAMPLES = 50;
 
-private:
-  EcalPnDiodeDetId id_;
-  int size_;
-  std::vector<EcalFEMSample> data_;
-};
+  private:
+    EcalPnDiodeDetId id_;
+    int size_;
+    std::vector<EcalFEMSample> data_;
+  };
 
-std::ostream& operator<<(std::ostream& s, const EcalPnDiodeDigi& digi);
+  std::ostream& operator<<(std::ostream& s, const EcalPnDiodeDigi& digi);
+}  // namespace io_v1
+using EcalPnDiodeDigi = io_v1::EcalPnDiodeDigi;
 
 #endif

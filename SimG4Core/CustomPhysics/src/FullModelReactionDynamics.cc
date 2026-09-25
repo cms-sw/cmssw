@@ -10,6 +10,8 @@
 #include <iostream>
 #include "G4ParticleTable.hh"
 #include "G4Poisson.hh"
+#include "G4HadronicException.hh"
+#include "G4ReactionProduct.hh"
 
 using namespace CLHEP;
 

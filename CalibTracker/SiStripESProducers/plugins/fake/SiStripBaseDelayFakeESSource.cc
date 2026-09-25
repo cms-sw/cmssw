@@ -16,7 +16,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripBaseDelay.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
@@ -25,14 +25,10 @@
 
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
-class SiStripBaseDelayFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class SiStripBaseDelayFakeESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  SiStripBaseDelayFakeESSource(const edm::ParameterSet&);
+  explicit SiStripBaseDelayFakeESSource(const edm::ParameterSet&);
   ~SiStripBaseDelayFakeESSource() override;
-
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue& iov,
-                      edm::ValidityInterval& iValidity) override;
 
   typedef std::unique_ptr<SiStripBaseDelay> ReturnType;
   ReturnType produce(const SiStripBaseDelayRcd&);
@@ -53,12 +49,6 @@ SiStripBaseDelayFakeESSource::SiStripBaseDelayFakeESSource(const edm::ParameterS
 }
 
 SiStripBaseDelayFakeESSource::~SiStripBaseDelayFakeESSource() {}
-
-void SiStripBaseDelayFakeESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                                  const edm::IOVSyncValue& iov,
-                                                  edm::ValidityInterval& iValidity) {
-  iValidity = edm::ValidityInterval{iov.beginOfTime(), iov.endOfTime()};
-}
 
 // ------------ method called to produce the data  ------------
 SiStripBaseDelayFakeESSource::ReturnType SiStripBaseDelayFakeESSource::produce(const SiStripBaseDelayRcd& iRecord) {

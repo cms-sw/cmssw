@@ -12,8 +12,10 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace l1t {
-
-  class TkJet;
+  namespace io_v1 {
+    class TkJet;
+  }
+  using TkJet = io_v1::TkJet;
 
   typedef edm::RefProd<TkJet> TkJetRefProd;
 

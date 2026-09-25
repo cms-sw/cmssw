@@ -126,12 +126,36 @@ public:
 
   void doFit(std::array<float, 4>& correctedOutput, const int nbx) const;
 
-  void setPulseShapeTemplate(int pulseShapeId,
-                             const HcalPulseShapes& ps,
-                             bool hasTimeInfo,
+  template <class PulseShapeCollection>
+  void setPulseShapeTemplate(const int pulseShapeId,
+                             const PulseShapeCollection& ps,
+                             const bool hasTimeInfo,
                              const HcalTimeSlew* hcalTimeSlewDelay,
-                             unsigned int nSamples,
-                             const float gain);
+                             const unsigned nSamples,
+                             const float gain0) {
+    if (hcalTimeSlewDelay != hcalTimeSlewDelay_) {
+      assert(hcalTimeSlewDelay);
+      hcalTimeSlewDelay_ = hcalTimeSlewDelay;
+      tsDelay1GeV_ = hcalTimeSlewDelay->delay(1.0, slewFlavor_);
+    }
+
+    if (pulseShapeId != currentPulseShapeId_) {
+      resetPulseShapeTemplate(pulseShapeId, ps, nSamples);
+    }
+
+    // 1 sigma time constraint
+    nnlsWork_.dt = hasTimeInfo ? timeSigmaSiPM_ : timeSigmaHPD_;
+
+    if (nnlsWork_.tsSize != nSamples) {
+      nnlsWork_.tsSize = nSamples;
+      nnlsWork_.amplitudes.resize(nSamples);
+      nnlsWork_.noiseTerms.resize(nSamples);
+      nnlsWork_.pedVals.resize(nSamples);
+    }
+
+    // threshold in GeV for ccTime
+    thEnergeticPulsesFC_ = thEnergeticPulses_ / gain0;
+  }
 
   typedef BXVector::Index Index;
   const HcalTimeSlew* hcalTimeSlewDelay_ = nullptr;
@@ -145,7 +169,30 @@ private:
   const float minimize() const;
   void onePulseMinimize() const;
   void updateCov(const SampleMatrix& invCovMat) const;
-  void resetPulseShapeTemplate(int pulseShapeId, const HcalPulseShapes& ps, unsigned int nSamples);
+
+  template <class PulseShapeCollection>
+  void resetPulseShapeTemplate(const int pulseShapeId, const PulseShapeCollection& ps, unsigned /* nSamples */) {
+    ++cntsetPulseShape_;
+
+    psfPtr_ = nullptr;
+    for (auto& elem : knownPulseShapes_) {
+      if (elem.first == pulseShapeId) {
+        psfPtr_ = &*elem.second;
+        break;
+      }
+    }
+
+    if (!psfPtr_) {
+      // only the pulse shape itself from PulseShapeFunctor is used for Mahi
+      // the uncertainty terms calculated inside PulseShapeFunctor are used for Method 2 only
+      auto p = std::make_shared<FitterFuncs::PulseShapeFunctor>(
+          ps.getShape(pulseShapeId), false, false, false, 1, 0, 0, hcal::constants::maxSamples);
+      knownPulseShapes_.emplace_back(pulseShapeId, p);
+      psfPtr_ = &*p;
+    }
+
+    currentPulseShapeId_ = pulseShapeId;
+  }
 
   float ccTime(const float itQ) const;
   void updatePulseShape(const float itQ,

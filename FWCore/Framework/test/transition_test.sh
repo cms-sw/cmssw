@@ -21,3 +21,5 @@ LOCAL_TEST_DIR="${CMSSW_BASE}/src/FWCore/Framework/test"
 (cmsRun ${LOCAL_TEST_DIR}/transition_test_cfg.py 14 ) || die 'Failure running cmsRun transition_test_cfg.py 14' $?
 (cmsRun ${LOCAL_TEST_DIR}/transition_test_cfg.py 15 ) || die 'Failure running cmsRun transition_test_cfg.py 15' $?
 (cmsRun ${LOCAL_TEST_DIR}/transition_test_cfg.py 16 ) || die 'Failure running cmsRun transition_test_cfg.py 16' $?
+(cmsRun ${LOCAL_TEST_DIR}/transition_test_cfg.py 17 ) || die 'Failure running cmsRun transition_test_cfg.py 17' $?
+(cmsRun ${LOCAL_TEST_DIR}/transition_test_cfg.py 18 ) || die 'Failure running cmsRun transition_test_cfg.py 18' $?

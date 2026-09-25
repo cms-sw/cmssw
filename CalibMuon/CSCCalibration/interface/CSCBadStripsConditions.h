@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -17,9 +17,9 @@
 #include "CondFormats/DataRecord/interface/CSCBadStripsRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCBadStripsConditions : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class CSCBadStripsConditions : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  CSCBadStripsConditions(const edm::ParameterSet &);
+  explicit CSCBadStripsConditions(const edm::ParameterSet &);
   ~CSCBadStripsConditions() override;
 
   inline static CSCBadStrips *prefillBadStrips();
@@ -30,10 +30,6 @@ public:
 
 private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                      const edm::IOVSyncValue &,
-                      edm::ValidityInterval &) override;
-  CSCBadStrips *cndbBadStrips;
 };
 
 #include <fstream>

@@ -154,7 +154,6 @@ void CTPPSSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         initialPosition_tr1 = xyzzy_tr1;
         t0_tr1 = vertex.t() / c_light_s * s_to_ns;
         //Get the global coordinates at Tracker2 by propagating as a straight line from Tracker1
-        t0_tr2 = z_tr2 * m_to_mm / c_light_s * s_to_ns;  //discuss latter if needs to be corrected with vertex position
         t0_tr2 = t0_tr1 + (z_tr2 - z_tr1) * m_to_mm / c_light_s * s_to_ns;  //corrected with vertex position
         z_tr2 *= Direction;
         x_tr2 = x_tr1 + (p.x() / p.z()) * (z_tr2 - z_tr1) * m_to_mm;
@@ -162,7 +161,6 @@ void CTPPSSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         Local3DPoint xyzzy_tr2(x_tr2, y_tr2, z_tr2);
         initialPosition_tr2 = xyzzy_tr2;
         //Propagate as a straight line from Tracker1
-        t0_tof = z_tof * m_to_mm / c_light_s * s_to_ns;  //discuss latter if needs to be corrected with vertex position
         t0_tof = (z_tof - prim_vtxZ) * m_to_mm / c_light_s * s_to_ns;  //corrected with vertex position
         z_tof *= Direction;
         x_tof = x_tr1 + (p.x() / p.z()) * (z_tof - z_tr1) * m_to_mm;

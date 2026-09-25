@@ -58,6 +58,8 @@ namespace edm {
                     ValueFormat format);
     void writeValue(std::ostream& os, int indentation, double const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, std::vector<double> const& value_, ValueFormat format);
+    void writeValue(std::ostream& os, int indentation, float const& value_, ValueFormat format);
+    void writeValue(std::ostream& os, int indentation, std::vector<float> const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, bool const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, std::string const& value_, ValueFormat format);
     void writeValue(std::ostream& os, int indentation, std::vector<std::string> const& value_, ValueFormat format);
@@ -88,6 +90,8 @@ namespace edm {
     bool hasNestedContent(std::vector<unsigned long long> const& value);
     bool hasNestedContent(double const& value);
     bool hasNestedContent(std::vector<double> const& value);
+    bool hasNestedContent(float const& value);
+    bool hasNestedContent(std::vector<float> const& value);
     bool hasNestedContent(bool const& value);
     bool hasNestedContent(std::string const& value);
     bool hasNestedContent(std::vector<std::string> const& value);

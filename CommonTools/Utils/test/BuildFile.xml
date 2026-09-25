@@ -1,5 +1,5 @@
 <bin name="testCommonToolsUtil" file="testSelectors.cc,testSelectIterator.cc,testComparators.cc,testCutParser.cc,testExpressionParser.cc,testAssociationMapFilterValues.cc,testFormulaEvaluator.cc,testRunner.cpp">
-  <use name="Geometry/CommonDetUnit"/>
+  <use name="Geometry/CommonTopologies"/>
   <use name="DataFormats/TrackReco"/>
   <use name="DataFormats/TrackerRecHit2D"/>
   <use name="DataFormats/Candidate"/>
@@ -18,7 +18,7 @@
   <ifrelease name="ASAN">
     <flags NO_TEST_PREFIX="1"/>
   </ifrelease>
-  <use name="Geometry/CommonDetUnit"/>
+  <use name="Geometry/CommonTopologies"/>
   <use name="DataFormats/TrackReco"/>
   <use name="DataFormats/TrackerRecHit2D"/>
   <use name="DataFormats/Candidate"/>

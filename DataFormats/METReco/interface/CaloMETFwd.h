@@ -6,7 +6,10 @@
 #include "DataFormats/Common/interface/RefProd.h"
 
 namespace reco {
-  class CaloMET;
+  namespace io_v1 {
+    class CaloMET;
+  }
+  using CaloMET = io_v1::CaloMET;
   /// collection of CaloMET objects
   typedef std::vector<CaloMET> CaloMETCollection;
   /// edm references

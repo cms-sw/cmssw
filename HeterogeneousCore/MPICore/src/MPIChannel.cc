@@ -1,7 +1,9 @@
 // C++ standard library headers
+#include <atomic>
 #include <cassert>
 #include <cstring>
 #include <memory>
+#include <mutex>
 #include <string>
 
 // ROOT headers
@@ -14,7 +16,6 @@
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "HeterogeneousCore/MPICore/interface/MPIChannel.h"
-#include "HeterogeneousCore/MPICore/interface/conversion.h"
 #include "HeterogeneousCore/MPICore/interface/messages.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/ReaderBase.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/WriterBase.h"
@@ -40,7 +41,7 @@ std::unique_ptr<MPIChannel> MPIChannel::duplicate(int slot) const {
   MPI_Comm newcomm;
   MPI_Comm_dup(comm_, &newcomm);
   auto channel = std::make_unique<MPIChannel>(newcomm, dest_);
-  channel->status_.store(kReady, std::memory_order_release);
+  channel->state_.store(kReady, std::memory_order_release);
   channel->slot_ = slot;
   LogDebug("MPI") << "channel " << slot << " transitioned to kReady";
   return channel;
@@ -48,47 +49,63 @@ std::unique_ptr<MPIChannel> MPIChannel::duplicate(int slot) const {
 
 // mark the channel as busy
 void MPIChannel::acquire() {
-  auto status = status_.load(std::memory_order_acquire);
-  if (status != kReady) {
+  auto state = state_.load(std::memory_order_acquire);
+  if (state != kReady) {
     throw cms::Exception("MPI") << "MPIChannel " << slot_ << " is in an invalide state";
   }
   assert(request_ == MPI_REQUEST_NULL);
-  status_.store(kBusy, std::memory_order_release);
+  state_.store(kBusy, std::memory_order_release);
   LogDebug("MPI") << "channel " << slot_ << " transitioned to kBusy";
 }
 
 // make sure both processes have completed processing the event that was transmitted
 // Note: this is a non-blocking collective operation.
 void MPIChannel::sync() {
-  auto status = status_.load(std::memory_order_acquire);
-  if (status != kBusy) {
+  auto state = state_.load(std::memory_order_acquire);
+  if (state != kBusy) {
     throw cms::Exception("MPI") << "MPIChannel " << slot_ << " is in an invalide state";
   }
   assert(request_ == MPI_REQUEST_NULL);
   MPI_Ibarrier(comm_, &request_);
   assert(request_ != MPI_REQUEST_NULL);
-  status_.store(kSync, std::memory_order_release);
+  state_.store(kSync, std::memory_order_release);
+  state_.notify_one();
   LogDebug("MPI") << "channel " << slot_ << " transitioned to kSync";
 }
 
 // check whether this channel can be used to transmit a new event
 bool MPIChannel::ready() {
-  auto status = status_.load(std::memory_order_acquire);
-  if (status == kInvalid) {
+  auto state = state_.load(std::memory_order_acquire);
+  if (state == kInvalid) {
     throw cms::Exception("MPI") << "MPIChannel " << slot_ << " is in an invalide state";
-  } else if (status == kReady) {
+  } else if (state == kReady) {
     return true;
-  } else if (status == kBusy) {
+  } else if (state == kBusy) {
     return false;
-  } else if (status == kSync) {
+  } else if (state == kSync) {
+    // Guard the MPI_Test and the state_.store() below with a mutex. If some
+    // other thread is currently in wait() on this channel and owns the mutex,
+    // return false to indicate that this channel is not yet ready.
+    std::unique_lock lock(mutex_, std::try_to_lock);
+    if (!lock) {
+      return false;
+    }
+    // reload state_, since at this point it could have been changed by wait().
+    state = state_.load(std::memory_order_acquire);
+    if (state == kReady) {
+      return true;
+    } else if (state != kSync) {
+      return false;
+    }
     int flag = 0;
     assert(request_ != MPI_REQUEST_NULL);
-    // TODO check status and return value
+    // TODO check state and return value
     MPI_Test(&request_, &flag, MPI_STATUS_IGNORE);
     if (flag) {
       // if the barrier was reached, MPI_Test resets the request object to MPI_REQUEST_NULL
       assert(request_ == MPI_REQUEST_NULL);
-      status_.store(kReady, std::memory_order_release);
+      state_.store(kReady, std::memory_order_release);
+      state_.notify_one();
       LogDebug("MPI") << "channel " << slot_ << " transitioned to kReady";
       return true;
     } else {
@@ -102,29 +119,46 @@ bool MPIChannel::ready() {
 
 // wait until this channel can be used to transmit a new event
 void MPIChannel::wait() {
-  auto status = status_.load(std::memory_order_acquire);
-  if (status == kInvalid) {
+  auto state = state_.load(std::memory_order_acquire);
+
+  state_.wait(kBusy, std::memory_order_acquire);
+  state = state_.load(std::memory_order_acquire);
+
+  if (state == kInvalid) {
     throw cms::Exception("MPI") << "MPIChannel " << slot_ << " is in an invalide state";
-  } else if (status == kReady) {
+  } else if (state == kReady) {
     return;
-  } else if (status == kBusy) {
-    throw cms::Exception("MPI") << "MPIChannel::wait() cannot resolve a kBusy status";
-    return;
-  } else if (status == kSync) {
-    assert(request_ != MPI_REQUEST_NULL);
-    // TODO check status and return value
-    MPI_Wait(&request_, MPI_STATUS_IGNORE);
-    // if the barrier was reached, MPI_Test resets the request object to MPI_REQUEST_NULL
-    assert(request_ == MPI_REQUEST_NULL);
-    status_.store(kReady, std::memory_order_release);
-    LogDebug("MPI") << "channel " << slot_ << " transitioned to kReady";
-    return;
+  } else if (state == kSync) {
+    std::lock_guard lock(mutex_);
+    // reload state_, since at this point it could have been changed by ready().
+    state = state_.load(std::memory_order_acquire);
+    if (state == kReady) {
+      return;
+    } else if (state == kSync) {
+      assert(request_ != MPI_REQUEST_NULL);
+      // TODO check state and return value
+      MPI_Wait(&request_, MPI_STATUS_IGNORE);
+      // if the barrier was reached, MPI_Wait resets the request object to MPI_REQUEST_NULL
+      assert(request_ == MPI_REQUEST_NULL);
+      state_.store(kReady, std::memory_order_release);
+      state_.notify_one();
+      LogDebug("MPI") << "channel " << slot_ << " transitioned to kReady";
+      return;
+    }
+    // kSync cannot transition to any state other than kReady
+  } else {
+    throw cms::Exception("MPI") << "MPIChannel " << slot_ << " is in an unexpected invalid state";
   }
   __builtin_unreachable();
 }
 
 // close the underlying communicator and reset the MPIChannel to an invalid state
 void MPIChannel::reset() {
+  // Complete any pending MPI_Request
+  if (request_ != MPI_REQUEST_NULL) {
+    MPI_Wait(&request_, MPI_STATUS_IGNORE);
+    assert(request_ == MPI_REQUEST_NULL);
+  }
   // This is a blocking collective operation.
   MPI_Comm_disconnect(&comm_);
   dest_ = MPI_UNDEFINED;
@@ -252,9 +286,23 @@ void MPIChannel::sendMetadata(int instance, std::shared_ptr<ProductMetadataBuild
   MPI_Ssend(meta->data(), meta->size(), MPI_BYTE, dest_, tag, comm_);
 }
 
+MPI_Request MPIChannel::sendMetadataAsync(int instance, std::shared_ptr<ProductMetadataBuilder> meta) {
+  int tag = EDM_MPI_SendMetadata | instance * EDM_MPI_MessageTagWidth_;
+  MPI_Request request;
+  MPI_Isend(meta->data(), meta->size(), MPI_BYTE, dest_, tag, comm_, &request);
+  return request;
+}
+
+void MPIChannel::waitMetadata(MPI_Request& request) { MPI_Wait(&request, MPI_STATUS_IGNORE); }
+
 void MPIChannel::receiveMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta) {
   int tag = EDM_MPI_SendMetadata | instance * EDM_MPI_MessageTagWidth_;
   meta->receiveMetadata(dest_, tag, comm_);
+}
+
+void MPIChannel::receiveMetadataAsync(int instance, std::shared_ptr<ProductMetadataBuilder> meta) {
+  int tag = EDM_MPI_SendMetadata | instance * EDM_MPI_MessageTagWidth_;
+  meta->receiveMetadataAsync(dest_, tag, comm_);
 }
 
 void MPIChannel::sendBuffer(const void* buf, size_t size, int instance, EDM_MPI_MessageTag tag) {
@@ -295,15 +343,25 @@ void MPIChannel::receiveSerializedProduct_(int instance, TClass const* type, voi
   type->Streamer(product, buffer);
 }
 
-void MPIChannel::sendTrivialCopyProduct(int instance, const ngt::ReaderBase& reader) {
+void MPIChannel::sendTrivialCopyProduct(int instance, std::vector<std::span<const std::byte>> const& regions) {
   int tag = EDM_MPI_SendTrivialCopyProduct | instance * EDM_MPI_MessageTagWidth_;
-  // transfer the memory regions
-  auto regions = reader.regions();
   // TODO send the number of regions ?
   for (size_t i = 0; i < regions.size(); ++i) {
     assert(regions[i].data() != nullptr);
     MPI_Send(regions[i].data(), regions[i].size_bytes(), MPI_BYTE, dest_, tag, comm_);
   }
+}
+
+void MPIChannel::sendTrivialCopyProduct(int instance, const ngt::ReaderBase& reader) {
+  auto regions = reader.regions();
+  sendTrivialCopyProduct(instance, regions);
+}
+
+void MPIChannel::waitAll(std::vector<MPI_Request>& requests) {
+  if (requests.empty()) {
+    return;
+  }
+  MPI_Waitall(requests.size(), requests.data(), MPI_STATUSES_IGNORE);
 }
 
 void MPIChannel::receiveInitializedTrivialCopy(int instance, ngt::WriterBase& writer) {
@@ -316,4 +374,22 @@ void MPIChannel::receiveInitializedTrivialCopy(int instance, ngt::WriterBase& wr
     assert(regions[i].data() != nullptr);
     MPI_Recv(regions[i].data(), regions[i].size_bytes(), MPI_BYTE, dest_, tag, comm_, &status);
   }
+}
+
+void MPIChannel::receiveInitializedTrivialCopyAsync(int instance,
+                                                    ngt::WriterBase& writer,
+                                                    std::vector<MPI_Request>& requests) {
+  int tag = EDM_MPI_SendTrivialCopyProduct | instance * EDM_MPI_MessageTagWidth_;
+  auto regions = writer.regions();
+  size_t base = requests.size();
+  requests.resize(base + regions.size());
+  for (size_t i = 0; i < regions.size(); ++i) {
+    assert(regions[i].data() != nullptr);
+    MPI_Irecv(regions[i].data(), regions[i].size_bytes(), MPI_BYTE, dest_, tag, comm_, &requests[base + i]);
+  }
+}
+
+void MPIChannel::sendModulesInfo(std::vector<char> const& buffer) {
+  int tag = EDM_MPI_SendModulesInfo;
+  MPI_Send(buffer.data(), buffer.size(), MPI_BYTE, dest_, tag, comm_);
 }

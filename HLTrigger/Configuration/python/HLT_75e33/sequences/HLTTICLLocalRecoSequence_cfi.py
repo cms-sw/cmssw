@@ -19,6 +19,7 @@ from ..modules.hltBarrelLayerClustersHB_cfi import *
 from ..sequences.HLTPfRecHitUnseededSequence_cfi import *
 
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
+from Configuration.ProcessModifiers.alpakaValidationHLT_cff import alpakaValidationHLT
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 
 HLTTICLLocalRecoSequence = cms.Sequence(
@@ -40,6 +41,27 @@ _HLTTICLLocalRecoSequence_heterogeneous = cms.Sequence(
         hltHgcalLayerClustersHSi+
         hltMergeLayerClusters)
 (alpaka & (~ticl_barrel)).toReplaceWith(HLTTICLLocalRecoSequence, _HLTTICLLocalRecoSequence_heterogeneous)
+
+#Define a GPU+CPU instance of TICLLocalRecoSequence, to be triggered by 'alpakaValidationHLT' procModifier
+_HLTTICLLocalRecoSequence_heterogeneousGPUCPU = cms.Sequence(
+        #GPU part: copied from _HLTTICLLocalRecoSequence_heterogeneous
+        hltHGCalUncalibRecHit+
+        hltHGCalRecHit+
+        hltHgcalSoARecHitsProducer+
+        hltHgcalSoARecHitsLayerClustersProducer+
+        hltHgcalSoALayerClustersProducer+
+        hltHgCalLayerClustersFromSoAProducer+
+        hltHgcalLayerClustersEE+
+        hltHgcalLayerClustersHSci+
+        hltHgcalLayerClustersHSi+
+        hltMergeLayerClusters+
+        #CPU part: runs dedicated 'SerialSync' modules on CPU
+        hltHgcalSoARecHitsProducerSerialSync+
+        hltHgcalSoARecHitsLayerClustersProducerSerialSync+
+        hltHgcalSoALayerClustersProducerSerialSync+
+        hltHgCalLayerClustersFromSoAProducerSerialSync+
+        hltMergeLayerClustersSerialSync)
+alpakaValidationHLT.toReplaceWith(HLTTICLLocalRecoSequence, _HLTTICLLocalRecoSequence_heterogeneousGPUCPU)
 
 _HLTTICLLocalRecoSequence_withBarrel = cms.Sequence(
         hltHGCalUncalibRecHit+

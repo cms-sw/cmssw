@@ -65,7 +65,6 @@
 namespace edm {
   namespace eventsetup {
     class EventSetupRecordKey;
-    class EventSetupProvider;
   }  // namespace eventsetup
   class ExceptionToActionTable;
   class ProcessContext;
@@ -90,7 +89,7 @@ namespace edm {
     void doStartingNewLoop();
     Status doDuringLoop(EventPrincipal& eventPrincipal, EventSetupImpl const& es, ProcessingController&, StreamContext*);
     Status doEndOfLoop(EventSetupImpl const& es);
-    void prepareForNextLoop(eventsetup::EventSetupProvider* esp);
+    void prepareForNextLoop();
     void doBeginRun(RunPrincipal&, EventSetupImpl const&, ProcessContext*);
     void doEndRun(RunPrincipal&, EventSetupImpl const&, ProcessContext*);
     void doBeginLuminosityBlock(LuminosityBlockPrincipal&, EventSetupImpl const&, ProcessContext*);

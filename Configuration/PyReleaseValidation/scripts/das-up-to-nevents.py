@@ -184,7 +184,7 @@ if __name__ == '__main__':
             json_list_full = get_url_clean(web_path).split("\n")
             logger.info(f"Found JSON files on web: {json_list_full}")
 
-        pattern = re.compile("(cert_collisions\d{4}_\d*_\d*_golden.json)(\s|$)", re.IGNORECASE)
+        pattern = re.compile(r"(cert_collisions\d{4}_\d*_\d*_golden.json)(\s|$)", re.IGNORECASE)
         json_list = [match.group(1) for entry in json_list_full for match in [re.search(pattern, entry)] if match and match.group(1)]
         if len(json_list)==0:
             logger.error(f"No matching JSON files found from {source} ({path}). The full list was:\n{list_full}")

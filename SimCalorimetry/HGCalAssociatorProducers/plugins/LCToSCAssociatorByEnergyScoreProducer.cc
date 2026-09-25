@@ -2,14 +2,16 @@
 
 #include <memory>
 
+#include "FWCore/Utilities/interface/ESInputTag.h"
+
 template <typename HIT, typename CLUSTER>
 LCToSCAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::LCToSCAssociatorByEnergyScoreProducerT(const edm::ParameterSet &ps)
     : hitMap_(consumes<std::unordered_map<DetId, const unsigned int>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
-      caloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      ticlGeomToken_(esConsumes(edm::ESInputTag("", ""))),
+      ticlGeomLookupToken_(esConsumes(edm::ESInputTag("", ""))),
+      ticlGeomLayersToken_(esConsumes(edm::ESInputTag("", ""))),
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")),
       hits_token_(consumes<multiCollectionT>(ps.getParameter<edm::InputTag>("hits"))) {
-  rhtools_ = std::make_shared<hgcal::RecHitTools>();
-
   // Register the product
   produces<ticl::LayerClusterToSimClusterAssociatorT<CLUSTER>>();
 }
@@ -21,8 +23,8 @@ template <typename HIT, typename CLUSTER>
 void LCToSCAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID,
                                                                    edm::Event &iEvent,
                                                                    const edm::EventSetup &es) const {
-  edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeometry_);
-  rhtools_->setGeometry(*geom);
+  auto rhtools_ = std::make_shared<ticlgeom::Tools>();
+  rhtools_->setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
 
   if (!iEvent.getHandle(hitMap_) || !iEvent.getHandle(hits_token_)) {
     if (!iEvent.getHandle(hitMap_)) {
@@ -46,8 +48,7 @@ void LCToSCAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID
   const auto hits = iEvent.get(hits_token_);
   for (std::size_t index = 0; const auto &hgcRecHitCollection : hits) {
     if (hgcRecHitCollection->empty()) {
-      edm::LogWarning("LCToSCAssociatorByEnergyScoreProducerT")
-          << "HGCRecHitCollections #" << index << " is not valid.";
+      LogDebug("LCToSCAssociatorByEnergyScoreProducerT") << "HGCRecHitCollections #" << index << " is empty.";
     }
     index++;
   }

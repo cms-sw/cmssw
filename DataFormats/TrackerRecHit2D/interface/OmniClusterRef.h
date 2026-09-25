@@ -9,102 +9,108 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/FTLRecHit/interface/FTLClusterCollections.h"
 
-class OmniClusterRef {
-  static const unsigned int kInvalid = 0x80000000;  // bit 31 on
-  static const unsigned int kIsStrip = 0x20000000;  // bit 29 on
-  // FIXME:: need to check when introducing phase2 pixel
-  static const unsigned int kIsPhase2 = 0x40000000;    // bit 30 on
-  static const unsigned int kIsTiming = 0x10000000;    // bit 28 on
-  static const unsigned int kIsRegional = 0x60000000;  // bit 30 and 29 on  (will become fastsim???)
+namespace io_v1 {
 
-  static const unsigned int indexMask = 0xFFFFFF;
-  static const unsigned int subClusMask = 0xF000000;
-  static const unsigned int subClusShift = 24;
+  class OmniClusterRef {
+    static const unsigned int kInvalid = 0x80000000;  // bit 31 on
+    static const unsigned int kIsStrip = 0x20000000;  // bit 29 on
+    // FIXME:: need to check when introducing phase2 pixel
+    static const unsigned int kIsPhase2 = 0x40000000;    // bit 30 on
+    static const unsigned int kIsTiming = 0x10000000;    // bit 28 on
+    static const unsigned int kIsRegional = 0x60000000;  // bit 30 and 29 on  (will become fastsim???)
 
-public:
-  typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> ClusterPixelRef;
-  typedef edm::Ref<edmNew::DetSetVector<SiStripCluster>, SiStripCluster> ClusterStripRef;
-  typedef edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>, Phase2TrackerCluster1D> Phase2Cluster1DRef;
-  typedef edm::Ref<FTLClusterCollection, FTLCluster> ClusterMTDRef;
+    static const unsigned int indexMask = 0xFFFFFF;
+    static const unsigned int subClusMask = 0xF000000;
+    static const unsigned int subClusShift = 24;
 
-  OmniClusterRef() : me(edm::RefCore(), kInvalid) {}
-  OmniClusterRef(edm::ProductID const& id, SiStripCluster const* clu, unsigned int key) : me(id, clu, key | kIsStrip) {}
-  explicit OmniClusterRef(ClusterPixelRef const& ref, unsigned int subClus = 0)
-      : me(ref.refCore(), (ref.isNonnull() ? ref.key() | (subClus << subClusShift) : kInvalid)) {}
-  explicit OmniClusterRef(ClusterStripRef const& ref, unsigned int subClus = 0)
-      : me(ref.refCore(), (ref.isNonnull() ? (ref.key() | kIsStrip) | (subClus << subClusShift) : kInvalid)) {}
-  explicit OmniClusterRef(Phase2Cluster1DRef const& ref, unsigned int subClus = 0)
-      : me(ref.refCore(), (ref.isNonnull() ? (ref.key() | kIsPhase2) | (subClus << subClusShift) : kInvalid)) {}
-  explicit OmniClusterRef(ClusterMTDRef const& ref)
-      : me(ref.refCore(), (ref.isNonnull() ? (ref.key() | kIsTiming) : kInvalid)) {}
+  public:
+    typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> ClusterPixelRef;
+    typedef edm::Ref<edmNew::DetSetVector<SiStripCluster>, SiStripCluster> ClusterStripRef;
+    typedef edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>, Phase2TrackerCluster1D> Phase2Cluster1DRef;
+    typedef edm::Ref<FTLClusterCollection, FTLCluster> ClusterMTDRef;
 
-  ClusterPixelRef cluster_pixel() const {
-    return (isPixel() && isValid()) ? ClusterPixelRef(me.toRefCore(), index()) : ClusterPixelRef();
-  }
+    OmniClusterRef() : me(edm::RefCore(), kInvalid) {}
+    OmniClusterRef(edm::ProductID const& id, SiStripCluster const* clu, unsigned int key)
+        : me(id, clu, key | kIsStrip) {}
+    explicit OmniClusterRef(ClusterPixelRef const& ref, unsigned int subClus = 0)
+        : me(ref.refCore(), (ref.isNonnull() ? ref.key() | (subClus << subClusShift) : kInvalid)) {}
+    explicit OmniClusterRef(ClusterStripRef const& ref, unsigned int subClus = 0)
+        : me(ref.refCore(), (ref.isNonnull() ? (ref.key() | kIsStrip) | (subClus << subClusShift) : kInvalid)) {}
+    explicit OmniClusterRef(Phase2Cluster1DRef const& ref, unsigned int subClus = 0)
+        : me(ref.refCore(), (ref.isNonnull() ? (ref.key() | kIsPhase2) | (subClus << subClusShift) : kInvalid)) {}
+    explicit OmniClusterRef(ClusterMTDRef const& ref)
+        : me(ref.refCore(), (ref.isNonnull() ? (ref.key() | kIsTiming) : kInvalid)) {}
 
-  ClusterStripRef cluster_strip() const {
-    return isStrip() ? ClusterStripRef(me.toRefCore(), index()) : ClusterStripRef();
-  }
+    ClusterPixelRef cluster_pixel() const {
+      return (isPixel() && isValid()) ? ClusterPixelRef(me.toRefCore(), index()) : ClusterPixelRef();
+    }
 
-  Phase2Cluster1DRef cluster_phase2OT() const {
-    return isPhase2() ? Phase2Cluster1DRef(me.toRefCore(), index()) : Phase2Cluster1DRef();
-  }
+    ClusterStripRef cluster_strip() const {
+      return isStrip() ? ClusterStripRef(me.toRefCore(), index()) : ClusterStripRef();
+    }
 
-  ClusterMTDRef cluster_mtd() const { return isTiming() ? ClusterMTDRef(me.toRefCore(), index()) : ClusterMTDRef(); }
+    Phase2Cluster1DRef cluster_phase2OT() const {
+      return isPhase2() ? Phase2Cluster1DRef(me.toRefCore(), index()) : Phase2Cluster1DRef();
+    }
 
-  SiPixelCluster const& pixelCluster() const { return *ClusterPixelRef(me.toRefCore(), index()); }
-  SiStripCluster const& stripCluster() const { return *ClusterStripRef(me.toRefCore(), index()); }
-  Phase2TrackerCluster1D const& phase2OTCluster() const { return *Phase2Cluster1DRef(me.toRefCore(), index()); }
-  FTLCluster const& mtdCluster() const { return *ClusterMTDRef(me.toRefCore(), index()); }
+    ClusterMTDRef cluster_mtd() const { return isTiming() ? ClusterMTDRef(me.toRefCore(), index()) : ClusterMTDRef(); }
 
-  bool operator==(OmniClusterRef const& lh) const {
-    return rawIndex() == lh.rawIndex();  // in principle this is enough!
-  }
+    SiPixelCluster const& pixelCluster() const { return *ClusterPixelRef(me.toRefCore(), index()); }
+    SiStripCluster const& stripCluster() const { return *ClusterStripRef(me.toRefCore(), index()); }
+    Phase2TrackerCluster1D const& phase2OTCluster() const { return *Phase2Cluster1DRef(me.toRefCore(), index()); }
+    FTLCluster const& mtdCluster() const { return *ClusterMTDRef(me.toRefCore(), index()); }
 
-  bool operator<(OmniClusterRef const& lh) const {
-    return rawIndex() < lh.rawIndex();  // in principle this is enough!
-  }
+    bool operator==(OmniClusterRef const& lh) const {
+      return rawIndex() == lh.rawIndex();  // in principle this is enough!
+    }
 
-  bool const stripOverlap(OmniClusterRef const& lh, bool includeEdges = true) const {
-    if (!isStrip())
-      return false;
-    const auto& tc = stripCluster();
-    const uint16_t tf = tc.firstStrip();
-    const uint16_t tl = tf + tc.amplitudes().size() - 1;
-    const auto& oc = lh.stripCluster();
-    const uint16_t of = oc.firstStrip();
-    const uint16_t ol = of + oc.amplitudes().size() - 1;
-    // By default, include edge overlaps
-    // For single-strip clusters with non-matching edges, edge overlaps are excluded
-    if (((tl - tf) <= 1 || (ol - of) <= 1) && (tf != of || tl != ol))
-      includeEdges = false;
-    const auto e = includeEdges ? 1 : 0;
-    // Check that last strip of "other" cluster is within first and last strip of "this", or viceversa
-    // Edge strips are considered for determining overlap (e=1) if includeEdges = true (default)
-    return (((ol + e) > tf && ol < (tl + e)) || ((tl + e) > of && tl < (ol + e)));
-  }
+    bool operator<(OmniClusterRef const& lh) const {
+      return rawIndex() < lh.rawIndex();  // in principle this is enough!
+    }
 
-public:
-  // edm Ref interface
-  /* auto */ edm::ProductID id() const { return me.id(); }
-  unsigned int key() const { return index(); }
+    bool const stripOverlap(OmniClusterRef const& lh, bool includeEdges = true) const {
+      if (!isStrip())
+        return false;
+      const auto& tc = stripCluster();
+      const uint16_t tf = tc.firstStrip();
+      const uint16_t tl = tf + tc.amplitudes().size() - 1;
+      const auto& oc = lh.stripCluster();
+      const uint16_t of = oc.firstStrip();
+      const uint16_t ol = of + oc.amplitudes().size() - 1;
+      // By default, include edge overlaps
+      // For single-strip clusters with non-matching edges, edge overlaps are excluded
+      if (((tl - tf) <= 1 || (ol - of) <= 1) && (tf != of || tl != ol))
+        includeEdges = false;
+      const auto e = includeEdges ? 1 : 0;
+      // Check that last strip of "other" cluster is within first and last strip of "this", or viceversa
+      // Edge strips are considered for determining overlap (e=1) if includeEdges = true (default)
+      return (((ol + e) > tf && ol < (tl + e)) || ((tl + e) > of && tl < (ol + e)));
+    }
 
-  unsigned int rawIndex() const { return me.index(); }
+  public:
+    // edm Ref interface
+    /* auto */ edm::ProductID id() const { return me.id(); }
+    unsigned int key() const { return index(); }
 
-  unsigned int index() const { return rawIndex() & indexMask; }
+    unsigned int rawIndex() const { return me.index(); }
 
-  unsigned int subCluster() const { return (rawIndex() & subClusMask) >> subClusShift; }
+    unsigned int index() const { return rawIndex() & indexMask; }
 
-  bool isValid() const { return !(rawIndex() & kInvalid); }
-  bool isPixel() const { return !isStrip() && !isPhase2(); }  //NOTE: non-valid will also show up as a pixel
-  bool isStrip() const { return rawIndex() & kIsStrip; }
-  bool isPhase2() const { return rawIndex() & kIsPhase2; }
-  bool isTiming() const { return rawIndex() & kIsTiming; }
-  // bool isRegional() const { return (rawIndex() & kIsRegional)==kIsRegional; }
-  // bool isNonRegionalStrip() const {return (rawIndex() & kIsRegional)==kIsStrip;}
+    unsigned int subCluster() const { return (rawIndex() & subClusMask) >> subClusShift; }
 
-private:
-  edm::RefCoreWithIndex me;
-};
+    bool isValid() const { return !(rawIndex() & kInvalid); }
+    bool isPixel() const { return !isStrip() && !isPhase2(); }  //NOTE: non-valid will also show up as a pixel
+    bool isStrip() const { return rawIndex() & kIsStrip; }
+    bool isPhase2() const { return rawIndex() & kIsPhase2; }
+    bool isTiming() const { return rawIndex() & kIsTiming; }
+    // bool isRegional() const { return (rawIndex() & kIsRegional)==kIsRegional; }
+    // bool isNonRegionalStrip() const {return (rawIndex() & kIsRegional)==kIsStrip;}
+
+  private:
+    edm::RefCoreWithIndex me;
+  };
+
+}  // namespace io_v1
+using OmniClusterRef = io_v1::OmniClusterRef;
 
 #endif  // TrackerRecHit2D_OmniClusterRef_H

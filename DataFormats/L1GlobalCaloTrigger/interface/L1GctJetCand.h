@@ -14,88 +14,90 @@
 /// \date June 2006
 ///
 
-class L1GctJetCand : public L1GctCand {
-public:
-  /// default constructor (for vector initialisation etc.)
-  L1GctJetCand();
+namespace io_v1 {
+  class L1GctJetCand : public L1GctCand {
+  public:
+    /// default constructor (for vector initialisation etc.)
+    L1GctJetCand();
 
-  /// construct from raw data - used in GT
-  L1GctJetCand(uint16_t rawData, bool isTau, bool isFor);
+    /// construct from raw data - used in GT
+    L1GctJetCand(uint16_t rawData, bool isTau, bool isFor);
 
-  /// construct from raw data with source - uesd in GCT unpacker
-  L1GctJetCand(uint16_t rawData, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
+    /// construct from raw data with source - uesd in GCT unpacker
+    L1GctJetCand(uint16_t rawData, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
 
-  /// construct from rank, eta, phi, isolation - used in GCT emulator
-  /// NB - eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
-  L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau, bool isFor);
+    /// construct from rank, eta, phi, isolation - used in GCT emulator
+    /// NB - eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
+    L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau, bool isFor);
 
-  /// construct from rank, eta, phi, isolation - will be used in GCT emulator?
-  /// NB - eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
-  L1GctJetCand(
-      unsigned rank, unsigned phi, unsigned eta, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
+    /// construct from rank, eta, phi, isolation - will be used in GCT emulator?
+    /// NB - eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
+    L1GctJetCand(
+        unsigned rank, unsigned phi, unsigned eta, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
 
-  /// destructor (virtual to prevent compiler warnings)
-  ~L1GctJetCand() override;
+    /// destructor (virtual to prevent compiler warnings)
+    ~L1GctJetCand() override;
 
-  /// region associated with the candidate
-  L1CaloRegionDetId regionId() const override;
+    /// region associated with the candidate
+    L1CaloRegionDetId regionId() const override;
 
-  /// name of object
-  std::string name() const;
+    /// name of object
+    std::string name() const;
 
-  /// was an object really found?
-  bool empty() const override { return (rank() == 0); }
+    /// was an object really found?
+    bool empty() const override { return (rank() == 0); }
 
-  /// get the raw data
-  uint16_t raw() const { return m_data; }
+    /// get the raw data
+    uint16_t raw() const { return m_data; }
 
-  /// get rank bits
-  unsigned rank() const override { return m_data & 0x3f; }
+    /// get rank bits
+    unsigned rank() const override { return m_data & 0x3f; }
 
-  /// get eta index (bit 3 is sign, 1 for -ve Z, 0 for +ve Z)
-  unsigned etaIndex() const override { return (m_data >> 6) & 0xf; }
+    /// get eta index (bit 3 is sign, 1 for -ve Z, 0 for +ve Z)
+    unsigned etaIndex() const override { return (m_data >> 6) & 0xf; }
 
-  /// get eta sign bit (1 for -ve Z, 0 for +ve Z)
-  unsigned etaSign() const override { return (m_data >> 9) & 0x1; }
+    /// get eta sign bit (1 for -ve Z, 0 for +ve Z)
+    unsigned etaSign() const override { return (m_data >> 9) & 0x1; }
 
-  /// get phi index (0-17)
-  unsigned phiIndex() const override { return (m_data >> 10) & 0x1f; }
+    /// get phi index (0-17)
+    unsigned phiIndex() const override { return (m_data >> 10) & 0x1f; }
 
-  /// check if this is a central jet
-  bool isCentral() const { return (!m_isTau) && (!m_isFor); }
+    /// check if this is a central jet
+    bool isCentral() const { return (!m_isTau) && (!m_isFor); }
 
-  /// check if this is a tau
-  bool isTau() const { return m_isTau; }
+    /// check if this is a tau
+    bool isTau() const { return m_isTau; }
 
-  /// check if this is a forward jet
-  bool isForward() const { return m_isFor; }
+    /// check if this is a forward jet
+    bool isForward() const { return m_isFor; }
 
-  /// which capture block did this come from
-  unsigned capBlock() const { return m_captureBlock; }
+    /// which capture block did this come from
+    unsigned capBlock() const { return m_captureBlock; }
 
-  /// what index within capture block
-  unsigned capIndex() const { return m_captureIndex; }
+    /// what index within capture block
+    unsigned capIndex() const { return m_captureIndex; }
 
-  /// get bunch-crossing index
-  int16_t bx() const { return m_bx; }
+    /// get bunch-crossing index
+    int16_t bx() const { return m_bx; }
 
-  /// equality operator
-  int operator==(const L1GctJetCand& c) const {
-    return ((m_data == c.raw() && m_isTau == c.isTau() && m_isFor == c.isForward()) || (this->empty() && c.empty()));
-  }
+    /// equality operator
+    int operator==(const L1GctJetCand& c) const {
+      return ((m_data == c.raw() && m_isTau == c.isTau() && m_isFor == c.isForward()) || (this->empty() && c.empty()));
+    }
 
-  /// inequality operator
-  int operator!=(const L1GctJetCand& c) const { return !(*this == c); }
+    /// inequality operator
+    int operator!=(const L1GctJetCand& c) const { return !(*this == c); }
 
-private:
-  uint16_t m_data;
-  bool m_isTau;
-  bool m_isFor;
-  uint16_t m_captureBlock;
-  uint8_t m_captureIndex;
-  int16_t m_bx;
-};
+  private:
+    uint16_t m_data;
+    bool m_isTau;
+    bool m_isFor;
+    uint16_t m_captureBlock;
+    uint8_t m_captureIndex;
+    int16_t m_bx;
+  };
 
-std::ostream& operator<<(std::ostream& s, const L1GctJetCand& cand);
-
+  std::ostream& operator<<(std::ostream& s, const L1GctJetCand& cand);
+}  // namespace io_v1
+using L1GctJetCand = io_v1::L1GctJetCand;
 #endif

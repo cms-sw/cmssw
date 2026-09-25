@@ -36,15 +36,15 @@ TEST_CASE("Test ScitagConfig", "[scitagconfig]") {
 
     std::string pfn1 = "root://example.com//store/data/file.root";
     scitagConfig->modify(edm::SciTagCategory::Primary, pfn1);
-    CHECK(pfn1 == "root://example.com//store/data/file.root?scitag.flow=196664");
+    CHECK(pfn1 == "root://example.com//store/data/file.root?scitag.flow=206");
 
     std::string pfn2 = "root://example.com//store/data/file.root";
     scitagConfig->modify(edm::SciTagCategory::Embedded, pfn2);
-    CHECK(pfn2 == "root://example.com//store/data/file.root?scitag.flow=196700");
+    CHECK(pfn2 == "root://example.com//store/data/file.root?scitag.flow=215");
 
     std::string pfn3 = "root://example.com//store/data/file.root";
     scitagConfig->modify(edm::SciTagCategory::PreMixedPileup, pfn3);
-    CHECK(pfn3 == "root://example.com//store/data/file.root?scitag.flow=196704");
+    CHECK(pfn3 == "root://example.com//store/data/file.root?scitag.flow=216");
   }
 
   SECTION("scitagconfig default parameters except production case") {
@@ -59,15 +59,15 @@ TEST_CASE("Test ScitagConfig", "[scitagconfig]") {
 
     std::string pfn1 = "root://example.com//store/data/file.root";
     scitagConfig->modify(edm::SciTagCategory::Primary, pfn1);
-    CHECK(pfn1 == "root://example.com//store/data/file.root?scitag.flow=196656");
+    CHECK(pfn1 == "root://example.com//store/data/file.root?scitag.flow=204");
 
     std::string pfn2 = "root://example.com//store/data/file.root";
     scitagConfig->modify(edm::SciTagCategory::Embedded, pfn2);
-    CHECK(pfn2 == "root://example.com//store/data/file.root?scitag.flow=196700");
+    CHECK(pfn2 == "root://example.com//store/data/file.root?scitag.flow=215");
 
     std::string pfn3 = "root://example.com//store/data/file.root";
     scitagConfig->modify(edm::SciTagCategory::PreMixedPileup, pfn3);
-    CHECK(pfn3 == "root://example.com//store/data/file.root?scitag.flow=196704");
+    CHECK(pfn3 == "root://example.com//store/data/file.root?scitag.flow=216");
   }
 
   SECTION("scitagconfig analysis case") {
@@ -75,9 +75,9 @@ TEST_CASE("Test ScitagConfig", "[scitagconfig]") {
     pset.addUntrackedParameter<bool>("enable", true);
     pset.addUntrackedParameter<bool>("productionCase", false);
     edm::ParameterSet analysisPSet;
-    analysisPSet.addUntrackedParameter<unsigned int>("primarySciTag", 196612);
-    analysisPSet.addUntrackedParameter<unsigned int>("embeddedSciTag", 196860);
-    analysisPSet.addUntrackedParameter<unsigned int>("preMixedPileupSciTag", 196705);
+    analysisPSet.addUntrackedParameter<unsigned int>("primarySciTag", 193);
+    analysisPSet.addUntrackedParameter<unsigned int>("embeddedSciTag", 216);
+    analysisPSet.addUntrackedParameter<unsigned int>("preMixedPileupSciTag", 203);
     pset.addUntrackedParameter<edm::ParameterSet>("analysis", analysisPSet);
     edm::ParameterSet productionPSet;
     productionPSet.addUntrackedParameter<unsigned int>("primarySciTag", 396656);
@@ -93,15 +93,15 @@ TEST_CASE("Test ScitagConfig", "[scitagconfig]") {
 
     std::string pfn1 = "root://example.com//store/data/file.root";
     scitagConfig->modify(edm::SciTagCategory::Primary, pfn1);
-    CHECK(pfn1 == "root://example.com//store/data/file.root?scitag.flow=196612");
+    CHECK(pfn1 == "root://example.com//store/data/file.root?scitag.flow=193");
 
     std::string pfn2 = "root://example.com//store/data/file.root";
     scitagConfig->modify(edm::SciTagCategory::Embedded, pfn2);
-    CHECK(pfn2 == "root://example.com//store/data/file.root?scitag.flow=196860");
+    CHECK(pfn2 == "root://example.com//store/data/file.root?scitag.flow=216");
 
     std::string pfn3 = "root://example.com//store/data/file.root";
     scitagConfig->modify(edm::SciTagCategory::PreMixedPileup, pfn3);
-    CHECK(pfn3 == "root://example.com//store/data/file.root?scitag.flow=196705");
+    CHECK(pfn3 == "root://example.com//store/data/file.root?scitag.flow=203");
 
     std::string pfn4 = "root://example.com//store/data/file.root";
     scitagConfig->modify(edm::SciTagCategory::Undefined, pfn4);
@@ -117,7 +117,7 @@ TEST_CASE("Test ScitagConfig", "[scitagconfig]") {
 
     std::string pfn7 = "root://example.com//store/data/file.root?eos.app=cmst0";
     scitagConfig->modify(edm::SciTagCategory::Primary, pfn7);
-    CHECK(pfn7 == "root://example.com//store/data/file.root?eos.app=cmst0&scitag.flow=196612");
+    CHECK(pfn7 == "root://example.com//store/data/file.root?eos.app=cmst0&scitag.flow=193");
 
     std::string pfn8 = "root://example.com//store/data/file.root?eos.app=cmst0";
     CHECK_THROWS(scitagConfig->modify(static_cast<edm::SciTagCategory>(4), pfn8));
@@ -127,9 +127,9 @@ TEST_CASE("Test ScitagConfig", "[scitagconfig]") {
     edm::ParameterSet pset = defaultPSet;
     pset.addUntrackedParameter<bool>("productionCase", true);
     edm::ParameterSet productionPSet;
-    productionPSet.addUntrackedParameter<unsigned int>("primarySciTag", 196656);
-    productionPSet.addUntrackedParameter<unsigned int>("embeddedSciTag", 196702);
-    productionPSet.addUntrackedParameter<unsigned int>("preMixedPileupSciTag", 196706);
+    productionPSet.addUntrackedParameter<unsigned int>("primarySciTag", 204);
+    productionPSet.addUntrackedParameter<unsigned int>("embeddedSciTag", 194);
+    productionPSet.addUntrackedParameter<unsigned int>("preMixedPileupSciTag", 215);
     pset.addUntrackedParameter<edm::ParameterSet>("production", productionPSet);
 
     std::vector<edm::ParameterSet> psets = {pset};
@@ -140,15 +140,15 @@ TEST_CASE("Test ScitagConfig", "[scitagconfig]") {
 
     std::string pfn1 = "root://example.com//store/data/file.root";
     scitagConfig->modify(edm::SciTagCategory::Primary, pfn1);
-    CHECK(pfn1 == "root://example.com//store/data/file.root?scitag.flow=196656");
+    CHECK(pfn1 == "root://example.com//store/data/file.root?scitag.flow=204");
 
     std::string pfn2 = "root://example.com//store/data/file.root";
     scitagConfig->modify(edm::SciTagCategory::Embedded, pfn2);
-    CHECK(pfn2 == "root://example.com//store/data/file.root?scitag.flow=196702");
+    CHECK(pfn2 == "root://example.com//store/data/file.root?scitag.flow=194");
 
     std::string pfn3 = "root://example.com//store/data/file.root";
     scitagConfig->modify(edm::SciTagCategory::PreMixedPileup, pfn3);
-    CHECK(pfn3 == "root://example.com//store/data/file.root?scitag.flow=196706");
+    CHECK(pfn3 == "root://example.com//store/data/file.root?scitag.flow=215");
 
     std::string pfn4 = "root://example.com//store/data/file.root";
     scitagConfig->modify(edm::SciTagCategory::Undefined, pfn4);
@@ -164,7 +164,7 @@ TEST_CASE("Test ScitagConfig", "[scitagconfig]") {
 
     std::string pfn7 = "root://example.com//store/data/file.root?eos.app=cmst0";
     scitagConfig->modify(edm::SciTagCategory::Primary, pfn7);
-    CHECK(pfn7 == "root://example.com//store/data/file.root?eos.app=cmst0&scitag.flow=196656");
+    CHECK(pfn7 == "root://example.com//store/data/file.root?eos.app=cmst0&scitag.flow=204");
   }
 
   SECTION("scitagconfig enable is false") {
@@ -186,7 +186,7 @@ TEST_CASE("Test ScitagConfig", "[scitagconfig]") {
     edm::ParameterSet pset = defaultPSet;
 
     edm::ParameterSet analysisPSet;
-    analysisPSet.addUntrackedParameter<unsigned int>("primarySciTag", 196611);
+    analysisPSet.addUntrackedParameter<unsigned int>("primarySciTag", 192);
     pset.addUntrackedParameter<edm::ParameterSet>("analysis", analysisPSet);
 
     std::vector<edm::ParameterSet> psets = {pset};
@@ -197,7 +197,7 @@ TEST_CASE("Test ScitagConfig", "[scitagconfig]") {
     edm::ParameterSet pset = defaultPSet;
 
     edm::ParameterSet analysisPSet;
-    analysisPSet.addUntrackedParameter<unsigned int>("embeddedSciTag", 196861);
+    analysisPSet.addUntrackedParameter<unsigned int>("embeddedSciTag", 217);
     pset.addUntrackedParameter<edm::ParameterSet>("analysis", analysisPSet);
 
     std::vector<edm::ParameterSet> psets = {pset};

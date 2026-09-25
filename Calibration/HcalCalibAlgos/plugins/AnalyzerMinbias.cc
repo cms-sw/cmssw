@@ -306,10 +306,16 @@ void AnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     const edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord = iEvent.getHandle(tok_hltL1GtMap_);
     if (gtObjectMapRecord.isValid()) {
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
+#ifdef EDM_ML_DEBUG
       int ii(0);
+#endif
       bool ok(false), fill(true);
       for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin(); itMap != objMapVec.end();
+#ifdef EDM_ML_DEBUG
            ++itMap, ++ii) {
+#else
+           ++itMap) {
+#endif
         bool resultGt = (*itMap).algoGtlResult();
         if (resultGt == 1) {
           ok = true;

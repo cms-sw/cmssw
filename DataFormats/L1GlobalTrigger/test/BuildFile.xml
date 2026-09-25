@@ -1,5 +1,5 @@
 <use name="DataFormats/L1GlobalTrigger"/>
 <use name="FWCore/ParameterSet"/>
-<use name="DataFormats/Provenance"/>
+<use name="DataFormats/Provenance" source_only="1"/>
 <bin file="L1GlobalTriggerObjectMaps_t.cc">
 </bin>

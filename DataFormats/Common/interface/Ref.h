@@ -261,7 +261,7 @@ namespace edm {
     RefCore const& refCore() const { return product_; }
 
     //Used by ROOT storage
-    CMS_CLASS_VERSION(10)
+    CMS_CLASS_VERSION(3)
     //  private:
     // Constructor from member of RefVector
     Ref(RefCore const& iRefCore, key_type const& iKey) : product_(iRefCore), index_(iKey) {}
@@ -410,7 +410,7 @@ namespace edm {
     RefCore const& refCore() const { return product_.toRefCore(); }
 
     //Used by ROOT storage
-    CMS_CLASS_VERSION(11)
+    CMS_CLASS_VERSION(3)
     //  private:
     // Constructor from member of RefVector
     Ref(RefCore const& iRefCore, key_type const& iKey) : product_(iRefCore, iKey) {}

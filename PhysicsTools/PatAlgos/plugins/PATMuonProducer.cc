@@ -36,7 +36,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/transform.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"

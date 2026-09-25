@@ -40,8 +40,6 @@ namespace edmtest {
     void setIntervalFor(edm::eventsetup::EventSetupRecordKey const&,
                         edm::IOVSyncValue const&,
                         edm::ValidityInterval&) override;
-
-    bool isConcurrentFinder() const override { return true; }
   };
 
   RunLumiESSource::RunLumiESSource(edm::ParameterSet const&) {

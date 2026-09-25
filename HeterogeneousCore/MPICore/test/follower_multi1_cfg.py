@@ -15,6 +15,7 @@ process.MessageLogger.cerr.MPI = cms.untracked.PSet(
 )
 
 process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
+process.load("HeterogeneousCore.MPIServices.MPIConsistencyChecker_cfi")
 
 from HeterogeneousCore.MPICore.modules import *
 
@@ -50,7 +51,10 @@ process.otherreceiver = MPIReceiver(
 process.sender = MPISender(
     upstream = "otherreceiver", # guarantees that this module will only run after otherreceiver has run
     instance = 13,
-    products = [ "edmEventID_otherreceiver__*" ]
+    products = cms.VPSet(cms.PSet(
+        type = cms.string("edm::EventID"),
+        name = cms.InputTag('otherreceiver')
+    ))
 )
 
 process.analyzer = cms.EDAnalyzer("edmtest::EventIDValidator",

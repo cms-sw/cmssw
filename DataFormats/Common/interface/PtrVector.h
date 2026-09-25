@@ -174,7 +174,7 @@ namespace edm {
     void fillView(std::vector<void const*>& pointers, FillViewHelperVector& helpers) const;
 
     //Used by ROOT storage
-    CMS_CLASS_VERSION(8)
+    CMS_CLASS_VERSION(3)
 
   private:
     //PtrVector const& operator=(PtrVector const&); // stop default

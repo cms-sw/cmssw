@@ -75,7 +75,7 @@ int main(void) {
   SFrame sf1(f1.position().x(), f1.position().y(), f1.position().z(), f1.rotation());
 
   auto d_sf = cms::cuda::make_device_unique<char[]>(sizeof(SFrame), nullptr);
-  cudaCheck(cudaMemcpy(d_sf.get(), &sf1, sizeof(SFrame), cudaMemcpyHostToDevice));
+  CUDA_CHECK(cudaMemcpy(d_sf.get(), &sf1, sizeof(SFrame), cudaMemcpyHostToDevice));
 
   for (auto i = 0U; i < size; ++i) {
     xl[i] = yl[i] = 0.1f * float(i) - float(size / 2);
@@ -86,9 +86,9 @@ int main(void) {
   std::shuffle(xl, xl + size, g);
   std::shuffle(yl, yl + size, g);
 
-  cudaCheck(cudaMemcpy(d_xl.get(), xl, size32, cudaMemcpyHostToDevice));
-  cudaCheck(cudaMemcpy(d_yl.get(), yl, size32, cudaMemcpyHostToDevice));
-  cudaCheck(cudaMemcpy(d_le.get(), le, 3 * size32, cudaMemcpyHostToDevice));
+  CUDA_CHECK(cudaMemcpy(d_xl.get(), xl, size32, cudaMemcpyHostToDevice));
+  CUDA_CHECK(cudaMemcpy(d_yl.get(), yl, size32, cudaMemcpyHostToDevice));
+  CUDA_CHECK(cudaMemcpy(d_le.get(), le, 3 * size32, cudaMemcpyHostToDevice));
 
   toGlobalWrapper((SFrame const *)(d_sf.get()),
                   d_xl.get(),
@@ -99,10 +99,10 @@ int main(void) {
                   d_le.get(),
                   d_ge.get(),
                   size);
-  cudaCheck(cudaMemcpy(x, d_x.get(), size32, cudaMemcpyDeviceToHost));
-  cudaCheck(cudaMemcpy(y, d_y.get(), size32, cudaMemcpyDeviceToHost));
-  cudaCheck(cudaMemcpy(z, d_z.get(), size32, cudaMemcpyDeviceToHost));
-  cudaCheck(cudaMemcpy(ge, d_ge.get(), 6 * size32, cudaMemcpyDeviceToHost));
+  CUDA_CHECK(cudaMemcpy(x, d_x.get(), size32, cudaMemcpyDeviceToHost));
+  CUDA_CHECK(cudaMemcpy(y, d_y.get(), size32, cudaMemcpyDeviceToHost));
+  CUDA_CHECK(cudaMemcpy(z, d_z.get(), size32, cudaMemcpyDeviceToHost));
+  CUDA_CHECK(cudaMemcpy(ge, d_ge.get(), 6 * size32, cudaMemcpyDeviceToHost));
 
   float eps = 0.;
   for (auto i = 0U; i < size; ++i) {

@@ -36,6 +36,7 @@
 
 #include <memory>
 #include <sstream>
+#include <optional>
 
 //#define DEBUG 1
 
@@ -87,12 +88,6 @@ private:
 
   vector<ConfigBlock> configuration;
 
-  /// index of the current block in 'configuration' array
-  unsigned int currentBlock;
-
-  /// flag whether the 'currentBlock' index is valid
-  bool currentBlockValid;
-
   /// enumeration of XML node types
   enum NodeType { nUnknown, nSkip, nTop, nArm, nRPStation, nRPPot, nRPixPlane, nROC, nPixel };
 
@@ -140,7 +135,10 @@ private:
     return ((type == nArm) || (type == nRPStation) || (type == nRPPot) || (type == nRPixPlane) || (type == nROC));
   }
 
-protected:
+  bool isConcurrentFinder() const override { return false; }
+
+  std::optional<unsigned int> findBlockFor(const edm::IOVSyncValue &) const;
+
   /// sets infinite validity of this data
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
                       const edm::IOVSyncValue &,
@@ -170,9 +168,7 @@ static const unsigned int offsetROCinDetId = 13;
 
 CTPPSPixelDAQMappingESSourceXML::CTPPSPixelDAQMappingESSourceXML(const edm::ParameterSet &conf)
     : verbosity(conf.getUntrackedParameter<unsigned int>("verbosity", 0)),
-      subSystemName(conf.getUntrackedParameter<string>("subSystem")),
-      currentBlock(0),
-      currentBlockValid(false) {
+      subSystemName(conf.getUntrackedParameter<string>("subSystem")) {
   for (const auto &it : conf.getParameter<vector<ParameterSet>>("configuration")) {
     ConfigBlock b;
     b.validityRange = it.getParameter<EventRange>("validityRange");
@@ -190,6 +186,21 @@ CTPPSPixelDAQMappingESSourceXML::CTPPSPixelDAQMappingESSourceXML(const edm::Para
   LogVerbatim("CTPPSPixelDAQMappingESSourceXML") << " Inside  CTPPSPixelDAQMappingESSourceXML";
 }
 
+std::optional<unsigned int> CTPPSPixelDAQMappingESSourceXML::findBlockFor(const edm::IOVSyncValue &iosv) const {
+  for (unsigned int idx = 0; idx < configuration.size(); ++idx) {
+    const auto &bl = configuration[idx];
+
+    EventID startEventID = bl.validityRange.startEventID();
+    if (startEventID == EventID(1, 0, 1))
+      startEventID = EventID(1, 0, 0);
+
+    if (startEventID <= iosv.eventID() && iosv.eventID() <= bl.validityRange.endEventID()) {
+      return idx;
+    }
+  }
+  return std::nullopt;
+}
+
 void CTPPSPixelDAQMappingESSourceXML::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
                                                      const edm::IOVSyncValue &iosv,
                                                      edm::ValidityInterval &oValidity) {
@@ -199,33 +210,25 @@ void CTPPSPixelDAQMappingESSourceXML::setIntervalFor(const edm::eventsetup::Even
   LogVerbatim("CTPPSPixelDAQMappingESSourceXML")
       << "    run=" << iosv.eventID().run() << ", event=" << iosv.eventID().event();
 
-  currentBlockValid = false;
-  for (unsigned int idx = 0; idx < configuration.size(); ++idx) {
-    const auto &bl = configuration[idx];
-
+  auto findBlock = findBlockFor(iosv);
+  if (findBlock) {
+    auto const &bl = configuration[*findBlock];
     EventID startEventID = bl.validityRange.startEventID();
-    if (startEventID == EventID(1, 0, 1))
+    if (startEventID == EventID(1, 0, 1)) {
       startEventID = EventID(1, 0, 0);
-
-    if (startEventID <= iosv.eventID() && iosv.eventID() <= bl.validityRange.endEventID()) {
-      currentBlockValid = true;
-      currentBlock = idx;
-
-      const IOVSyncValue begin(startEventID);
-      const IOVSyncValue end(bl.validityRange.endEventID());
-      oValidity = ValidityInterval(begin, end);
-
-      LogVerbatim("CTPPSPixelDAQMappingESSourceXML") << "    block found: index=" << currentBlock << ", interval=("
-                                                     << startEventID << " - " << bl.validityRange.endEventID() << ")";
-
-      return;
     }
+    const IOVSyncValue begin(startEventID);
+    const IOVSyncValue end(bl.validityRange.endEventID());
+    oValidity = ValidityInterval(begin, end);
+
+    LogVerbatim("CTPPSPixelDAQMappingESSourceXML")
+        << "    block found: index=" << *findBlock << ", interval=(" << startEventID << " - " << end.eventID() << ")";
+
+    return;
   }
 
-  if (!currentBlockValid) {
-    throw cms::Exception("CTPPSPixelDAQMappingESSourceXML::setIntervalFor")
-        << "No configuration for event " << iosv.eventID();
-  }
+  throw cms::Exception("CTPPSPixelDAQMappingESSourceXML::setIntervalFor")
+      << "No configuration for event " << iosv.eventID();
 }
 
 CTPPSPixelDAQMappingESSourceXML::~CTPPSPixelDAQMappingESSourceXML() {}
@@ -236,8 +239,10 @@ string CTPPSPixelDAQMappingESSourceXML::CompleteFileName(const string &fn) {
 }
 
 std::unique_ptr<CTPPSPixelDAQMapping> CTPPSPixelDAQMappingESSourceXML::produceCTPPSPixelDAQMapping(
-    const CTPPSPixelDAQMappingRcd &) {
-  assert(currentBlockValid);
+    const CTPPSPixelDAQMappingRcd &iRcd) {
+  auto findBlock = findBlockFor(iRcd.validityInterval().first());
+  assert(findBlock);
+  const auto currentBlock = *findBlock;
 
   auto mapping = std::make_unique<CTPPSPixelDAQMapping>();
   auto mask = std::make_unique<CTPPSPixelAnalysisMask>();
@@ -262,8 +267,10 @@ std::unique_ptr<CTPPSPixelDAQMapping> CTPPSPixelDAQMappingESSourceXML::produceCT
 }
 
 std::unique_ptr<CTPPSPixelAnalysisMask> CTPPSPixelDAQMappingESSourceXML::produceCTPPSPixelAnalysisMask(
-    const CTPPSPixelAnalysisMaskRcd &) {
-  assert(currentBlockValid);
+    const CTPPSPixelAnalysisMaskRcd &iRcd) {
+  auto findBlock = findBlockFor(iRcd.validityInterval().first());
+  assert(findBlock);
+  const auto currentBlock = *findBlock;
 
   auto mapping = std::make_unique<CTPPSPixelDAQMapping>();
   auto mask = std::make_unique<CTPPSPixelAnalysisMask>();

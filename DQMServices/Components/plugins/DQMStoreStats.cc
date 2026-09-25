@@ -506,8 +506,7 @@ void DQMStoreStats::calcIgProfDump(Folder& root) {
   root.mainrows_cumulative(sql_statement);
   root.summary(sql_statement);
   VIterator<Folder*> subsystems = root.CreateIterator();
-  size_t ii = 0;
-  for (subsystems.First(); !subsystems.IsDone(); subsystems.Next(), ++ii) {
+  for (subsystems.First(); !subsystems.IsDone(); subsystems.Next()) {
     subsystems.CurrentItem()->mainrows(sql_statement);
     subsystems.CurrentItem()->parents(sql_statement);
     subsystems.CurrentItem()->children(sql_statement);

@@ -48,23 +48,24 @@ bool CTPPSTimingLocalTrack::containsHit(const CTPPSTimingRecHit& recHit, float t
 //====================================================================================================
 // Other methods implementation
 //====================================================================================================
-
-bool operator<(const CTPPSTimingLocalTrack& lhs, const CTPPSTimingLocalTrack& rhs) {
-  // start to sort by temporal coordinate
-  if (lhs.time() < rhs.time())
-    return true;
-  if (lhs.time() > rhs.time())
-    return false;
-  // then sort by x-position
-  if (lhs.x0() < rhs.x0())
-    return true;
-  if (lhs.x0() > rhs.x0())
-    return false;
-  // ...and y-position
-  if (lhs.y0() < rhs.y0())
-    return true;
-  if (lhs.y0() > rhs.y0())
-    return false;
-  // ...and z-position
-  return (lhs.z0() < rhs.z0());
-}
+namespace io_v1 {
+  bool operator<(const CTPPSTimingLocalTrack& lhs, const CTPPSTimingLocalTrack& rhs) {
+    // start to sort by temporal coordinate
+    if (lhs.time() < rhs.time())
+      return true;
+    if (lhs.time() > rhs.time())
+      return false;
+    // then sort by x-position
+    if (lhs.x0() < rhs.x0())
+      return true;
+    if (lhs.x0() > rhs.x0())
+      return false;
+    // ...and y-position
+    if (lhs.y0() < rhs.y0())
+      return true;
+    if (lhs.y0() > rhs.y0())
+      return false;
+    // ...and z-position
+    return (lhs.z0() < rhs.z0());
+  }
+}  // namespace io_v1

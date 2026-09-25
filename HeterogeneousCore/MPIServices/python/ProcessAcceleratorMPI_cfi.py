@@ -1,0 +1,3 @@
+from HeterogeneousCore.MPIServices.ProcessAcceleratorMPI import ProcessAcceleratorMPI as _ProcessAcceleratorMPI
+
+ProcessAcceleratorMPI = _ProcessAcceleratorMPI()

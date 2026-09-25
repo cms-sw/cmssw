@@ -13,7 +13,7 @@ process.source = process.source = cms.Source("PoolSource",
     firstEvent = cms.untracked.uint64(10123456792)
 )
 
-from FWCore.Framework.modules import RunLumiEventAnalyzer
+from FWCore.TestModules.modules import RunLumiEventAnalyzer
 process.test = RunLumiEventAnalyzer(
     verbose = False,
     expectedRunLumiEvents = [

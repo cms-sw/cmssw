@@ -29,9 +29,3 @@ CSCNoiseMatrixDBConditions::ReturnType CSCNoiseMatrixDBConditions::produceDBNois
   // need a new object so to not be deleted at exit
   return CSCNoiseMatrixDBConditions::ReturnType(prefillDBNoiseMatrix());
 }
-
-void CSCNoiseMatrixDBConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                                const edm::IOVSyncValue &,
-                                                edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}

@@ -20,7 +20,10 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addQuintupletToMemory(TripletsConst triplets,
+                                                            SegmentsConst segments,
                                                             Quintuplets quintuplets,
+                                                            QuintupletsByMD quintupletsByMD0,
+                                                            QuintupletsByMD quintupletsByMD1,
                                                             unsigned int innerTripletIndex,
                                                             unsigned int outerTripletIndex,
                                                             uint16_t lowerModule1,
@@ -45,6 +48,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                             float scores,
                                                             uint8_t layer,
                                                             unsigned int quintupletIndex,
+                                                            unsigned int quintupletByMD0Index,
+                                                            unsigned int quintupletByMD1Index,
                                                             const float (&t5Embed)[Params_T5::kEmbed],
                                                             bool tightCutFlag,
                                                             float dnnScore) {
@@ -63,6 +68,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quintuplets.phi()[quintupletIndex] = __F2H(phi);
     quintuplets.score_rphisum()[quintupletIndex] = __F2H(scores);
     quintuplets.isDup()[quintupletIndex] = 0;
+    quintuplets.nLayers()[quintupletIndex] = Params_T5::kBaseLayers;
     quintuplets.tightCutFlag()[quintupletIndex] = tightCutFlag;
     quintuplets.regressionRadius()[quintupletIndex] = regressionRadius;
     quintuplets.regressionCenterX()[quintupletIndex] = regressionCenterX;
@@ -96,6 +102,33 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     CMS_UNROLL_LOOP
     for (unsigned int i = 0; i < Params_T5::kEmbed; ++i) {
       quintuplets.t5Embed()[quintupletIndex][i] = t5Embed[i];
+    }
+
+    // Initialize extended layer slots with sentinel values
+    for (int i = Params_T5::kBaseLayers; i < Params_T5::kLayers; ++i) {
+      quintuplets.logicalLayers()[quintupletIndex][i] = 0;
+      quintuplets.lowerModuleIndices()[quintupletIndex][i] = lst::kTCEmptyLowerModule;
+      quintuplets.hitIndices()[quintupletIndex][2 * i] = lst::kTCEmptyHitIdx;
+      quintuplets.hitIndices()[quintupletIndex][2 * i + 1] = lst::kTCEmptyHitIdx;
+    }
+
+    auto const& lsIdx = triplets.segmentIndices();
+    auto const& mdIdx = segments.mdIndices();
+    const uint32_t md1Bar = mdIdx[lsIdx[innerTripletIndex][1]][0] & kT5ByMDBarCodeMask;
+    const uint32_t md2Bar = mdIdx[lsIdx[innerTripletIndex][1]][1] & kT5ByMDBarCodeMask;
+    const uint32_t md3Bar = mdIdx[lsIdx[outerTripletIndex][1]][0] & kT5ByMDBarCodeMask;
+    const uint32_t md4Bar = mdIdx[lsIdx[outerTripletIndex][1]][1] & kT5ByMDBarCodeMask;
+    const uint32_t md1234Bar =
+        md1Bar | (md2Bar << kT5ByMDBarOffset) | (md3Bar << (kT5ByMDBarOffset * 2)) | (md4Bar << (kT5ByMDBarOffset * 3));
+    if (quintupletByMD0Index != kInvalidU32Idx) {
+      quintupletsByMD0.quintupletIndex()[quintupletByMD0Index] = quintupletIndex;
+      quintupletsByMD0.mdBarCode()[quintupletByMD0Index] = md1234Bar;
+    }
+    if (quintupletByMD1Index != kInvalidU32Idx) {
+      quintupletsByMD1.quintupletIndex()[quintupletByMD1Index] = quintupletIndex;
+      //save the starting logical layer index instead of md1Bar
+      quintupletsByMD1.mdBarCode()[quintupletByMD1Index] =
+          (quintuplets.logicalLayers()[quintupletIndex][0] & kT5ByMDBarCodeMask) | (md1234Bar & ~kT5ByMDBarCodeMask);
     }
   }
 
@@ -667,9 +700,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       // Computing sigmas is a very tricky affair
       // if the module is tilted or endcap, we need to use the slopes properly!
 
-      absArctanSlope = ((slopes[i] != kVerticalModuleSlope && edm::isFinite(slopes[i]))
-                            ? alpaka::math::abs(acc, alpaka::math::atan(acc, slopes[i]))
-                            : kPi / 2.f);
+      absArctanSlope =
+          (edm::isFinite(slopes[i]) ? alpaka::math::abs(acc, alpaka::math::atan(acc, slopes[i])) : kPi / 2.f);
 
       if (xs[i] > 0 and ys[i] > 0) {
         angleM = kPi / 2.f - absArctanSlope;
@@ -751,9 +783,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float chiSquared = 0.f;
     float absArctanSlope, angleM, xPrime, yPrime, sigma2;
     for (size_t i = 0; i < nPoints; i++) {
-      absArctanSlope = ((slopes[i] != kVerticalModuleSlope && edm::isFinite(slopes[i]))
-                            ? alpaka::math::abs(acc, alpaka::math::atan(acc, slopes[i]))
-                            : kPi / 2.f);
+      absArctanSlope =
+          (edm::isFinite(slopes[i]) ? alpaka::math::abs(acc, alpaka::math::atan(acc, slopes[i])) : kPi / 2.f);
       if (xs[i] > 0 and ys[i] > 0) {
         angleM = kPi / 2.f - absArctanSlope;
       } else if (xs[i] < 0 and ys[i] > 0) {
@@ -784,18 +815,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void runDeltaBetaIterations(TAcc const& acc,
                                                              float& betaIn,
                                                              float& betaOut,
-                                                             float betaAv,
                                                              float& pt_beta,
                                                              float sdIn_dr,
                                                              float sdOut_dr,
                                                              float dr,
-                                                             float lIn) {
+                                                             float lIn,
+                                                             bool useBetaInSign = false) {
     if (lIn == 0) {
       betaOut += alpaka::math::copysign(
           acc,
           alpaka::math::asin(
               acc, alpaka::math::min(acc, sdOut_dr * k2Rinv1GeVf / alpaka::math::abs(acc, pt_beta), kSinAlphaMax)),
-          betaOut);
+          useBetaInSign ? betaIn : betaOut);
       return;
     }
 
@@ -818,7 +849,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               alpaka::math::asin(
                   acc, alpaka::math::min(acc, sdOut_dr * k2Rinv1GeVf / alpaka::math::abs(acc, pt_beta), kSinAlphaMax)),
               betaOut);  //FIXME: need a faster version
-      betaAv = 0.5f * (betaInUpd + betaOutUpd);
+      float betaAv = 0.5f * (betaInUpd + betaOutUpd);
 
       //1st update
       const float pt_beta_inv =
@@ -856,9 +887,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                   acc,
                   alpaka::math::min(acc, sdOut_dr * k2Rinv1GeVf / alpaka::math::abs(acc, pt_betaIn), kSinAlphaMax)),
               betaIn);  //FIXME: need a faster version
-      betaAv = (alpaka::math::abs(acc, betaOut) > 0.2f * alpaka::math::abs(acc, betaIn))
-                   ? (0.5f * (betaInUpd + betaOutUpd))
-                   : betaInUpd;
+      float betaAv = (alpaka::math::abs(acc, betaOut) > 0.2f * alpaka::math::abs(acc, betaIn))
+                         ? (0.5f * (betaInUpd + betaOutUpd))
+                         : betaInUpd;
 
       //1st update
       pt_beta = dr * k2Rinv1GeVf / alpaka::math::sin(acc, betaAv);  //get a better pt estimate
@@ -1004,7 +1035,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                 (mds.anchorY()[fourthMDIndex] - mds.anchorY()[thirdMDIndex]));
     float sdOut_d = mds.anchorRt()[fourthMDIndex] - mds.anchorRt()[thirdMDIndex];
 
-    runDeltaBetaIterations(acc, betaIn, betaOut, betaAv, pt_beta, rt_InSeg, sdOut_dr, drt_tl_axis, lIn);
+    runDeltaBetaIterations(acc, betaIn, betaOut, pt_beta, rt_InSeg, sdOut_dr, drt_tl_axis, lIn);
 
     const float betaInMMSF = (alpaka::math::abs(acc, betaInRHmin + betaInRHmax) > 0)
                                  ? (2.f * betaIn / alpaka::math::abs(acc, betaInRHmin + betaInRHmax))
@@ -1170,7 +1201,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                 (mds.anchorY()[fourthMDIndex] - mds.anchorY()[thirdMDIndex]));
     float sdOut_d = mds.anchorRt()[fourthMDIndex] - mds.anchorRt()[thirdMDIndex];
 
-    runDeltaBetaIterations(acc, betaIn, betaOut, betaAv, pt_beta, sdIn_dr, sdOut_dr, dr, lIn);
+    runDeltaBetaIterations(acc, betaIn, betaOut, pt_beta, sdIn_dr, sdOut_dr, dr, lIn);
 
     const float betaInMMSF = (alpaka::math::abs(acc, betaInRHmin + betaInRHmax) > 0)
                                  ? (2.f * betaIn / alpaka::math::abs(acc, betaInRHmin + betaInRHmax))
@@ -1315,7 +1346,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                 (mds.anchorY()[fourthMDIndex] - mds.anchorY()[thirdMDIndex]));
     float sdOut_d = mds.anchorRt()[fourthMDIndex] - mds.anchorRt()[thirdMDIndex];
 
-    runDeltaBetaIterations(acc, betaIn, betaOut, betaAv, pt_beta, sdIn_dr, sdOut_dr, dr, lIn);
+    runDeltaBetaIterations(acc, betaIn, betaOut, pt_beta, sdIn_dr, sdOut_dr, dr, lIn);
 
     const float betaInMMSF = (alpaka::math::abs(acc, betaInRHmin + betaInRHmax) > 0)
                                  ? (2.f * betaIn / alpaka::math::abs(acc, betaInRHmin + betaInRHmax))
@@ -1538,8 +1569,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                               outerRadius,
                                               bridgeRadius,
                                               dnnScore);
-    tightCutFlag = tightCutFlag and inference;  // T5-in-TC cut
-    if (!inference)                             // T5-building cut
+    if (!inference)  // T5-building cut
       return false;
 
     if (not runQuintupletdBetaAlgoSelector(acc,
@@ -1604,6 +1634,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                tightCutFlag))
       return false;
 
+    // Promoted on the tight r-z flag or on the score above the 93% working point, binned on the layer-2 anchor eta.
+    const unsigned int layer2MDIndex = (modules.layers()[lowerModuleIndex1] == 1) ? secondMDIndex : firstMDIndex;
+    const float absEta = alpaka::math::abs(acc, mds.anchorEta()[layer2MDIndex]);
+    const uint8_t ptIndex = (innerRadius * k2Rinv1GeVf * 2 > 5.0f);
+    const uint8_t etaBin = (absEta > 2.5f) ? (dnn::kEtaBins - 1) : static_cast<unsigned int>(absEta / dnn::kEtaSize);
+    tightCutFlag = tightCutFlag || dnnScore >= dnn::t5dnn::kWp93[ptIndex][etaBin];
+
     lst::t5embdnn::runEmbed(acc,
                             mds,
                             firstMDIndex,
@@ -1633,7 +1670,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     computeSigmasForRegression(acc, modules, lowerModuleIndices, delta1, delta2, slopes, isFlat);
     regressionRadius = computeRadiusUsingRegression(acc,
-                                                    Params_T5::kLayers,
+                                                    Params_T5::kBaseLayers,
                                                     xVec,
                                                     yVec,
                                                     delta1,
@@ -1647,7 +1684,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     //compute the other chisquared
     //non anchor is always shifted for tilted and endcap!
-    float nonAnchorDelta1[Params_T5::kLayers], nonAnchorDelta2[Params_T5::kLayers], nonAnchorSlopes[Params_T5::kLayers];
+    float nonAnchorDelta1[Params_T5::kBaseLayers], nonAnchorDelta2[Params_T5::kBaseLayers],
+        nonAnchorSlopes[Params_T5::kBaseLayers];
     float nonAnchorxs[] = {mds.outerX()[firstMDIndex],
                            mds.outerX()[secondMDIndex],
                            mds.outerX()[thirdMDIndex],
@@ -1666,10 +1704,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                nonAnchorDelta2,
                                nonAnchorSlopes,
                                isFlat,
-                               Params_T5::kLayers,
+                               Params_T5::kBaseLayers,
                                false);
     nonAnchorChiSquared = computeChiSquared(acc,
-                                            Params_T5::kLayers,
+                                            Params_T5::kBaseLayers,
                                             nonAnchorxs,
                                             nonAnchorys,
                                             nonAnchorDelta1,
@@ -1682,15 +1720,161 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return true;
   }
 
-  struct CreateQuintuplets {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void tryAddQuintuplet(Acc3D const& acc,
+                                                       ModulesConst modules,
+                                                       MiniDoubletsConst mds,
+                                                       SegmentsConst segments,
+                                                       Triplets triplets,
+                                                       Quintuplets quintuplets,
+                                                       QuintupletsOccupancy quintupletsOccupancy,
+                                                       QuintupletsRanges quintupletsRangesByMD0,
+                                                       QuintupletsByMD quintupletsByMD0,
+                                                       QuintupletsRanges quintupletsRangesByMD1,
+                                                       QuintupletsByMD quintupletsByMD1,
+                                                       ObjectRangesConst ranges,
+                                                       unsigned int innerTripletIndex,
+                                                       unsigned int outerTripletIndex,
+                                                       uint16_t lowerModule1,
+                                                       const float ptCut) {
+    const auto& mdIndices = segments.mdIndices();
+    const auto& segIdx = triplets.segmentIndices();
+    const auto& lmIdx = triplets.lowerModuleIndices();
+    uint16_t lowerModule2 = lmIdx[innerTripletIndex][1];
+    uint16_t lowerModule3 = lmIdx[innerTripletIndex][2];
+    uint16_t lowerModule4 = lmIdx[outerTripletIndex][1];
+    uint16_t lowerModule5 = lmIdx[outerTripletIndex][2];
+
+    float innerRadius, outerRadius, bridgeRadius, regressionCenterX, regressionCenterY, regressionRadius, rzChiSquared,
+        chiSquared, nonAnchorChiSquared, dBeta1, dBeta2,
+        dnnScore;  //required for making distributions
+
+    float t5Embed[Params_T5::kEmbed] = {0.f};
+
+    bool tightCutFlag = false;
+
+    bool success = runQuintupletDefaultAlgo(acc,
+                                            modules,
+                                            mds,
+                                            segments,
+                                            triplets,
+                                            lowerModule1,
+                                            lowerModule2,
+                                            lowerModule3,
+                                            lowerModule4,
+                                            lowerModule5,
+                                            innerTripletIndex,
+                                            outerTripletIndex,
+                                            innerRadius,
+                                            outerRadius,
+                                            bridgeRadius,
+                                            regressionCenterX,
+                                            regressionCenterY,
+                                            regressionRadius,
+                                            rzChiSquared,
+                                            chiSquared,
+                                            nonAnchorChiSquared,
+                                            dBeta1,
+                                            dBeta2,
+                                            dnnScore,
+                                            tightCutFlag,
+                                            t5Embed,
+                                            ptCut);
+    if (success) {
+      int totOccupancyQuintuplets = alpaka::atomicAdd(
+          acc, &quintupletsOccupancy.totOccupancyQuintuplets()[lowerModule1], 1u, alpaka::hierarchy::Threads{});
+      if (totOccupancyQuintuplets >= ranges.quintupletModuleOccupancy()[lowerModule1]) {
+#ifdef WARNINGS
+        printf("Quintuplet excess alert! Module index = %d, Occupancy = %d\n", lowerModule1, totOccupancyQuintuplets);
+#endif
+      } else {
+        int quintupletModuleIndex = alpaka::atomicAdd(
+            acc, &quintupletsOccupancy.nQuintuplets()[lowerModule1], 1u, alpaka::hierarchy::Threads{});
+        unsigned int quintupletIndex = ranges.quintupletModuleIndices()[lowerModule1] + quintupletModuleIndex;
+        auto const ls0Index = segIdx[innerTripletIndex][0];
+        auto const md0Index = mdIndices[ls0Index][0];
+        auto const quintupletByMD0Local =
+            alpaka::atomicAdd(acc, &quintupletsRangesByMD0.n()[md0Index], 1u, alpaka::hierarchy::Threads{});
+        auto quintupletByMD0Index = quintupletByMD0Local + quintupletsRangesByMD0.offset()[md0Index];
+        if (quintupletByMD0Local >= mds.connectedT5s0Max()[md0Index]) {
+          alpaka::atomicSub(acc, &quintupletsRangesByMD0.n()[md0Index], 1u, alpaka::hierarchy::Threads{});
+          quintupletByMD0Index = kInvalidU32Idx;
+        }
+        auto const md1Index = mdIndices[ls0Index][1];
+        auto const quintupletByMD1Local =
+            alpaka::atomicAdd(acc, &quintupletsRangesByMD1.n()[md1Index], 1u, alpaka::hierarchy::Blocks{});
+        auto quintupletByMD1Index = quintupletByMD1Local + quintupletsRangesByMD1.offset()[md1Index];
+        if (quintupletByMD1Local >= mds.connectedT5s1Max()[md1Index]) {
+          alpaka::atomicSub(acc, &quintupletsRangesByMD1.n()[md1Index], 1u, alpaka::hierarchy::Blocks{});
+          quintupletByMD1Index = kInvalidU32Idx;
+        }
+
+        auto const layer = modules.layers()[lowerModule1];
+        //get upper segment to be in second layer
+        //assumes only 1 and 2 are possible here (isValidQuintRegion)
+        const short layer2_adjustment = layer == 1 ? 1 : 0;
+
+        float phi = mds.anchorPhi()[mdIndices[ls0Index][layer2_adjustment]];
+        float eta = mds.anchorEta()[mdIndices[ls0Index][layer2_adjustment]];
+        float pt = (innerRadius + outerRadius) * k2Rinv1GeVf;
+        float scores = chiSquared + nonAnchorChiSquared;
+        addQuintupletToMemory(triplets,
+                              segments,
+                              quintuplets,
+                              quintupletsByMD0,
+                              quintupletsByMD1,
+                              innerTripletIndex,
+                              outerTripletIndex,
+                              lowerModule1,
+                              lowerModule2,
+                              lowerModule3,
+                              lowerModule4,
+                              lowerModule5,
+                              innerRadius,
+                              bridgeRadius,
+                              outerRadius,
+                              regressionCenterX,
+                              regressionCenterY,
+                              regressionRadius,
+                              rzChiSquared,
+                              chiSquared,
+                              nonAnchorChiSquared,
+                              dBeta1,
+                              dBeta2,
+                              pt,
+                              eta,
+                              phi,
+                              scores,
+                              layer,
+                              quintupletIndex,
+                              quintupletByMD0Index,
+                              quintupletByMD1Index,
+                              t5Embed,
+                              tightCutFlag,
+                              dnnScore);
+
+        triplets.partOfT5()[quintuplets.tripletIndices()[quintupletIndex][0]] = true;
+        triplets.partOfT5()[quintuplets.tripletIndices()[quintupletIndex][1]] = true;
+      }
+    }
+  };  //tryAddQuintuplet
+
+  template <bool ReduceMem>
+  struct CreateQuintupletsT {
     ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
                                   MiniDoubletsConst mds,
+                                  MiniDoubletsOccupancyConst mdOccupancy,
                                   SegmentsConst segments,
                                   Triplets triplets,
                                   TripletsOccupancyConst tripletsOccupancy,
+                                  TripletsByMDConst tripletsByMD,
+                                  TripletsRangesConst tripletsRangesByMD,
                                   Quintuplets quintuplets,
                                   QuintupletsOccupancy quintupletsOccupancy,
+                                  QuintupletsRanges quintupletsRangesByMD0,
+                                  QuintupletsByMD quintupletsByMD0,
+                                  QuintupletsRanges quintupletsRangesByMD1,
+                                  QuintupletsByMD quintupletsByMD1,
                                   ObjectRangesConst ranges,
                                   uint16_t nEligibleT5Modules,
                                   const float ptCut) const {
@@ -1710,158 +1894,82 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       const int flatThreadIdxXY = threadIdY * blockSizeX + threadIdX;
       const int flatThreadExtent = blockSize;  // total threads per block
 
+      const auto& mdIndices = segments.mdIndices();
+      const auto& segIdx = triplets.segmentIndices();
+      const auto& lmIdx = triplets.lowerModuleIndices();
+      const auto& tripIdx = ranges.tripletModuleIndices();
+
       for (int iter : cms::alpakatools::uniform_groups_z(acc, nEligibleT5Modules)) {
         uint16_t lowerModule1 = ranges.indicesOfEligibleT5Modules()[iter];
+
+        if (ranges.quintupletModuleIndices()[lowerModule1] == -1) {
+#ifdef WARNINGS
+          printf("Quintuplets : no memory for module at module index = %d\n", lowerModule1);
+#endif
+          continue;
+        }
 
         if (cms::alpakatools::once_per_block(acc)) {
           matchCount = 0;
         }
+        alpaka::syncBlockThreads(acc);
 
-        short layer2_adjustment;
         int layer = modules.layers()[lowerModule1];
-        if (layer == 1) {
-          layer2_adjustment = 1;
-        }  // get upper segment to be in second layer
-        else if (layer == 2) {
-          layer2_adjustment = 0;
-        }  // get lower segment to be in second layer
-        else {
+        //redundant wrt isValidQuintRegion in CreateEligibleModulesListForQuintuplets
+        if (layer > 2)
           continue;
-        }
 
         unsigned int nInnerTriplets = tripletsOccupancy.nTriplets()[lowerModule1];
-
-        alpaka::syncBlockThreads(acc);
+        if (nInnerTriplets == 0)
+          continue;
+        const auto innerTripletOffset = tripIdx[lowerModule1];
 
         // Step 1: Make inner and outer triplet pairs
         for (unsigned int innerTripletArrayIndex : cms::alpakatools::uniform_elements_y(acc, nInnerTriplets)) {
-          unsigned int innerTripletIndex = ranges.tripletModuleIndices()[lowerModule1] + innerTripletArrayIndex;
-          uint16_t lowerModule3 = triplets.lowerModuleIndices()[innerTripletIndex][2];
+          unsigned int innerTripletIndex = innerTripletOffset + innerTripletArrayIndex;
+          if (triplets.connectedMax()[innerTripletIndex] == 0)
+            continue;
+
+          uint16_t lowerModule3 = lmIdx[innerTripletIndex][2];
           unsigned int nOuterTriplets = tripletsOccupancy.nTriplets()[lowerModule3];
-          for (unsigned int outerTripletArrayIndex : cms::alpakatools::uniform_elements_x(acc, nOuterTriplets)) {
-            unsigned int outerTripletIndex = ranges.tripletModuleIndices()[lowerModule3] + outerTripletArrayIndex;
+          if (nOuterTriplets == 0)
+            continue;
 
-            unsigned int secondSegmentIndex = triplets.segmentIndices()[innerTripletIndex][1];
-            unsigned int thirdSegmentIndex = triplets.segmentIndices()[outerTripletIndex][0];
+          const unsigned int secondSegIdx = segIdx[innerTripletIndex][1];
+          const unsigned int secondMDOuter = mdIndices[secondSegIdx][1];
+          const unsigned int nOuterTripletsByMD = tripletsRangesByMD.n()[secondMDOuter];
+          if (nOuterTripletsByMD == 0)
+            continue;
 
-            unsigned int miniDoublet3Index =
-                segments.mdIndices()[secondSegmentIndex][1];  //inner triplet outer segment outer MD index
-            unsigned int outerInnerInnerMiniDoubletIndex =
-                segments.mdIndices()[thirdSegmentIndex][0];  //outer triplet inner segment inner MD index
-
-            //this cut reduces the number of candidates by a factor of 3, i.e., 2 out of 3 warps can end right here!
-            if (miniDoublet3Index != outerInnerInnerMiniDoubletIndex)
-              continue;
+          const auto outerOffset = tripletsRangesByMD.offset()[secondMDOuter];
+          for (unsigned int outerIndex : cms::alpakatools::uniform_elements_x(acc, nOuterTripletsByMD)) {
+            unsigned int outerTripletIndex = tripletsByMD.tripletIndex()[outerOffset + outerIndex];
 
             // If densely connected, do not attempt parallel processing to avoid truncation
-            if (nInnerTriplets >= kNTripletThreshold || nOuterTriplets >= kNTripletThreshold) {
-              uint16_t lowerModule2 = triplets.lowerModuleIndices()[innerTripletIndex][1];
-              uint16_t lowerModule4 = triplets.lowerModuleIndices()[outerTripletIndex][1];
-              uint16_t lowerModule5 = triplets.lowerModuleIndices()[outerTripletIndex][2];
-
-              float innerRadius, outerRadius, bridgeRadius, regressionCenterX, regressionCenterY, regressionRadius,
-                  rzChiSquared, chiSquared, nonAnchorChiSquared, dBeta1, dBeta2,
-                  dnnScore;  //required for making distributions
-
-              float t5Embed[Params_T5::kEmbed] = {0.f};
-
-              bool tightCutFlag = false;
-
-              bool success = runQuintupletDefaultAlgo(acc,
-                                                      modules,
-                                                      mds,
-                                                      segments,
-                                                      triplets,
-                                                      lowerModule1,
-                                                      lowerModule2,
-                                                      lowerModule3,
-                                                      lowerModule4,
-                                                      lowerModule5,
-                                                      innerTripletIndex,
-                                                      outerTripletIndex,
-                                                      innerRadius,
-                                                      outerRadius,
-                                                      bridgeRadius,
-                                                      regressionCenterX,
-                                                      regressionCenterY,
-                                                      regressionRadius,
-                                                      rzChiSquared,
-                                                      chiSquared,
-                                                      nonAnchorChiSquared,
-                                                      dBeta1,
-                                                      dBeta2,
-                                                      dnnScore,
-                                                      tightCutFlag,
-                                                      t5Embed,
-                                                      ptCut);
-              if (success) {
-                int totOccupancyQuintuplets =
-                    alpaka::atomicAdd(acc,
-                                      &quintupletsOccupancy.totOccupancyQuintuplets()[lowerModule1],
-                                      1u,
-                                      alpaka::hierarchy::Threads{});
-                if (totOccupancyQuintuplets >= ranges.quintupletModuleOccupancy()[lowerModule1]) {
-#ifdef WARNINGS
-                  printf("Quintuplet excess alert! Module index = %d, Occupancy = %d\n",
-                         lowerModule1,
-                         totOccupancyQuintuplets);
-#endif
-                } else {
-                  int quintupletModuleIndex = alpaka::atomicAdd(
-                      acc, &quintupletsOccupancy.nQuintuplets()[lowerModule1], 1u, alpaka::hierarchy::Threads{});
-                  if (ranges.quintupletModuleIndices()[lowerModule1] == -1) {
-#ifdef WARNINGS
-                    printf("Quintuplets : no memory for module at module index = %d\n", lowerModule1);
-#endif
-                  } else {
-                    unsigned int quintupletIndex =
-                        ranges.quintupletModuleIndices()[lowerModule1] + quintupletModuleIndex;
-                    float phi = mds.anchorPhi()[segments.mdIndices()[triplets.segmentIndices()[innerTripletIndex][0]]
-                                                                    [layer2_adjustment]];
-                    float eta = mds.anchorEta()[segments.mdIndices()[triplets.segmentIndices()[innerTripletIndex][0]]
-                                                                    [layer2_adjustment]];
-                    float pt = (innerRadius + outerRadius) * k2Rinv1GeVf;
-                    float scores = chiSquared + nonAnchorChiSquared;
-                    addQuintupletToMemory(triplets,
-                                          quintuplets,
-                                          innerTripletIndex,
-                                          outerTripletIndex,
-                                          lowerModule1,
-                                          lowerModule2,
-                                          lowerModule3,
-                                          lowerModule4,
-                                          lowerModule5,
-                                          innerRadius,
-                                          bridgeRadius,
-                                          outerRadius,
-                                          regressionCenterX,
-                                          regressionCenterY,
-                                          regressionRadius,
-                                          rzChiSquared,
-                                          chiSquared,
-                                          nonAnchorChiSquared,
-                                          dBeta1,
-                                          dBeta2,
-                                          pt,
-                                          eta,
-                                          phi,
-                                          scores,
-                                          layer,
-                                          quintupletIndex,
-                                          t5Embed,
-                                          tightCutFlag,
-                                          dnnScore);
-
-                    triplets.partOfT5()[quintuplets.tripletIndices()[quintupletIndex][0]] = true;
-                    triplets.partOfT5()[quintuplets.tripletIndices()[quintupletIndex][1]] = true;
-                  }
-                }
-              }
+            if (ReduceMem || nInnerTriplets >= kNTripletThreshold || nOuterTriplets >= kNTripletThreshold) {
+              tryAddQuintuplet(acc,
+                               modules,
+                               mds,
+                               segments,
+                               triplets,
+                               quintuplets,
+                               quintupletsOccupancy,
+                               quintupletsRangesByMD0,
+                               quintupletsByMD0,
+                               quintupletsRangesByMD1,
+                               quintupletsByMD1,
+                               ranges,
+                               innerTripletIndex,
+                               outerTripletIndex,
+                               lowerModule1,
+                               ptCut);
               continue;
             }
 
             // Match inner Sg and Outer Sg
             int mIdx = alpaka::atomicAdd(acc, &matchCount, 1, alpaka::hierarchy::Threads{});
+            if (mIdx >= ranges.quintupletModuleOccupancy()[lowerModule1])
+              continue;
             unsigned int quintupletIndex = ranges.quintupletModuleIndices()[lowerModule1] + mIdx;
 
 #ifdef WARNINGS
@@ -1882,121 +1990,46 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           }
         }
 
+        if constexpr (ReduceMem)
+          continue;
+
         alpaka::syncBlockThreads(acc);
         if (matchCount == 0) {
           continue;
         }
 
         // Step 2: Parallel processing of triplet pairs
-        for (int i = flatThreadIdxXY; i < matchCount; i += flatThreadExtent) {
+        const int stage2Bound = matchCount < ranges.quintupletModuleOccupancy()[lowerModule1]
+                                    ? matchCount
+                                    : ranges.quintupletModuleOccupancy()[lowerModule1];
+        for (int i = flatThreadIdxXY; i < stage2Bound; i += flatThreadExtent) {
           unsigned int quintupletIndex = ranges.quintupletModuleIndices()[lowerModule1] + i;
           int innerTripletIndex = quintuplets.preAllocatedTripletIndices()[quintupletIndex][0];
           int outerTripletIndex = quintuplets.preAllocatedTripletIndices()[quintupletIndex][1];
 
-          uint16_t lowerModule2 = triplets.lowerModuleIndices()[innerTripletIndex][1];
-          uint16_t lowerModule3 = triplets.lowerModuleIndices()[innerTripletIndex][2];
-          uint16_t lowerModule4 = triplets.lowerModuleIndices()[outerTripletIndex][1];
-          uint16_t lowerModule5 = triplets.lowerModuleIndices()[outerTripletIndex][2];
-
-          float innerRadius, outerRadius, bridgeRadius, regressionCenterX, regressionCenterY, regressionRadius,
-              rzChiSquared, chiSquared, nonAnchorChiSquared, dBeta1, dBeta2,
-              dnnScore;  //required for making distributions
-
-          float t5Embed[Params_T5::kEmbed] = {0.f};
-
-          bool tightCutFlag = false;
-
-          bool success = runQuintupletDefaultAlgo(acc,
-                                                  modules,
-                                                  mds,
-                                                  segments,
-                                                  triplets,
-                                                  lowerModule1,
-                                                  lowerModule2,
-                                                  lowerModule3,
-                                                  lowerModule4,
-                                                  lowerModule5,
-                                                  innerTripletIndex,
-                                                  outerTripletIndex,
-                                                  innerRadius,
-                                                  outerRadius,
-                                                  bridgeRadius,
-                                                  regressionCenterX,
-                                                  regressionCenterY,
-                                                  regressionRadius,
-                                                  rzChiSquared,
-                                                  chiSquared,
-                                                  nonAnchorChiSquared,
-                                                  dBeta1,
-                                                  dBeta2,
-                                                  dnnScore,
-                                                  tightCutFlag,
-                                                  t5Embed,
-                                                  ptCut);
-          if (success) {
-            int totOccupancyQuintuplets = alpaka::atomicAdd(
-                acc, &quintupletsOccupancy.totOccupancyQuintuplets()[lowerModule1], 1u, alpaka::hierarchy::Threads{});
-            if (totOccupancyQuintuplets >= ranges.quintupletModuleOccupancy()[lowerModule1]) {
-#ifdef WARNINGS
-              printf("Quintuplet excess alert! Module index = %d, Occupancy = %d\n",
-                     lowerModule1,
-                     totOccupancyQuintuplets);
-#endif
-            } else {
-              int quintupletModuleIndex = alpaka::atomicAdd(
-                  acc, &quintupletsOccupancy.nQuintuplets()[lowerModule1], 1u, alpaka::hierarchy::Threads{});
-              //this if statement should never get executed!
-              if (ranges.quintupletModuleIndices()[lowerModule1] == -1) {
-#ifdef WARNINGS
-                printf("Quintuplets : no memory for module at module index = %d\n", lowerModule1);
-#endif
-              } else {
-                unsigned int quintupletIndex = ranges.quintupletModuleIndices()[lowerModule1] + quintupletModuleIndex;
-                float phi = mds.anchorPhi()[segments.mdIndices()[triplets.segmentIndices()[innerTripletIndex][0]]
-                                                                [layer2_adjustment]];
-                float eta = mds.anchorEta()[segments.mdIndices()[triplets.segmentIndices()[innerTripletIndex][0]]
-                                                                [layer2_adjustment]];
-                float pt = (innerRadius + outerRadius) * k2Rinv1GeVf;
-                float scores = chiSquared + nonAnchorChiSquared;
-                addQuintupletToMemory(triplets,
-                                      quintuplets,
-                                      innerTripletIndex,
-                                      outerTripletIndex,
-                                      lowerModule1,
-                                      lowerModule2,
-                                      lowerModule3,
-                                      lowerModule4,
-                                      lowerModule5,
-                                      innerRadius,
-                                      bridgeRadius,
-                                      outerRadius,
-                                      regressionCenterX,
-                                      regressionCenterY,
-                                      regressionRadius,
-                                      rzChiSquared,
-                                      chiSquared,
-                                      nonAnchorChiSquared,
-                                      dBeta1,
-                                      dBeta2,
-                                      pt,
-                                      eta,
-                                      phi,
-                                      scores,
-                                      layer,
-                                      quintupletIndex,
-                                      t5Embed,
-                                      tightCutFlag,
-                                      dnnScore);
-
-                triplets.partOfT5()[quintuplets.tripletIndices()[quintupletIndex][0]] = true;
-                triplets.partOfT5()[quintuplets.tripletIndices()[quintupletIndex][1]] = true;
-              }
-            }
-          }
+          tryAddQuintuplet(acc,
+                           modules,
+                           mds,
+                           segments,
+                           triplets,
+                           quintuplets,
+                           quintupletsOccupancy,
+                           quintupletsRangesByMD0,
+                           quintupletsByMD0,
+                           quintupletsRangesByMD1,
+                           quintupletsByMD1,
+                           ranges,
+                           innerTripletIndex,
+                           outerTripletIndex,
+                           lowerModule1,
+                           ptCut);
         }
       }
     }
   };
+
+  using CreateQuintuplets = CreateQuintupletsT<false>;
+  using CreateQuintupletsReduceMem = CreateQuintupletsT<true>;
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool isValidQuintRegion(ModulesConst modules, uint16_t lowerModule) {
     const short layer = modules.layers()[lowerModule];
@@ -2005,24 +2038,34 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return (subdet == Barrel && layer < 3) || (subdet == Endcap && layer <= 1);
   }
 
-  struct CountTripletConnections {
+  template <bool ReduceMem>
+  struct CountTripletConnectionsT {
     ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
-                                  MiniDoubletsConst mds,
+                                  MiniDoublets mds,
                                   SegmentsConst segments,
                                   Triplets triplets,
                                   TripletsOccupancyConst tripletsOcc,
+                                  TripletsByMDConst tripletsByMD,
+                                  TripletsRangesConst tripletsRangesByMD,
                                   ObjectRangesConst ranges,
                                   const float ptCut) const {
       // The atomicAdd below with hierarchy::Threads{} requires one block in x, y dimensions.
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1) &&
                         (alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[2] == 1));
+      unsigned int& denseMatchCount = alpaka::declareSharedVar<unsigned int, __COUNTER__>(acc);
+
       const auto& mdIndices = segments.mdIndices();
       const auto& segIdx = triplets.segmentIndices();
       const auto& lmIdx = triplets.lowerModuleIndices();
       const auto& tripIdx = ranges.tripletModuleIndices();
 
       for (uint16_t lowerModule1 : cms::alpakatools::uniform_groups_z(acc, modules.nLowerModules())) {
+        if (cms::alpakatools::once_per_block(acc)) {
+          denseMatchCount = 0;
+        }
+        alpaka::syncBlockThreads(acc);
+
         if (!isValidQuintRegion(modules, lowerModule1))
           continue;
 
@@ -2040,57 +2083,72 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
           const unsigned int secondSegIdx = segIdx[innerTripletIndex][1];
           const unsigned int secondMDOuter = mdIndices[secondSegIdx][1];
+          const unsigned int nOuterTripletsByMD = tripletsRangesByMD.n()[secondMDOuter];
+          if (nOuterTripletsByMD == 0)
+            continue;
 
-          for (unsigned int outerTripletArrayIndex : cms::alpakatools::uniform_elements_x(acc, nOuterTriplets)) {
-            const unsigned int outerTripletIndex = tripIdx[lowerModule3] + outerTripletArrayIndex;
-            const unsigned int thirdSegIdx = segIdx[outerTripletIndex][0];
-            const unsigned int thirdMDInner = mdIndices[thirdSegIdx][0];
+          const auto outerOffset = tripletsRangesByMD.offset()[secondMDOuter];
+          for (unsigned int outerIndex : cms::alpakatools::uniform_elements_x(acc, nOuterTripletsByMD)) {
+            const unsigned int outerTripletIndex = tripletsByMD.tripletIndex()[outerOffset + outerIndex];
 
-            if (secondMDOuter == thirdMDInner) {
-              // Will only perform runQuintupletDefaultAlgorithm() checks if densely connected
-              if (nInnerTriplets < kNTripletThreshold && nOuterTriplets < kNTripletThreshold) {
+            // Will only perform runQuintupletDefaultAlgorithm() checks if densely connected
+            if (!ReduceMem && nInnerTriplets < kNTripletThreshold && nOuterTriplets < kNTripletThreshold) {
+              alpaka::atomicAdd(acc, &triplets.connectedMax()[innerTripletIndex], 1u, alpaka::hierarchy::Threads{});
+              auto const ls0Index = segIdx[innerTripletIndex][0];
+              auto const md0Index = mdIndices[ls0Index][0];
+              alpaka::atomicAdd(acc, &mds.connectedT5s0Max()[md0Index], 1u, alpaka::hierarchy::Threads{});
+              auto const md1Index = mdIndices[ls0Index][1];
+              alpaka::atomicAdd(acc, &mds.connectedT5s1Max()[md1Index], 1u, alpaka::hierarchy::Blocks{});
+            } else {
+              //asynchronous stop; exact truncation here is not important
+              if (denseMatchCount > kNQuintupletThreshold)
+                break;
+
+              const uint16_t lowerModule2 = lmIdx[innerTripletIndex][1];
+              const uint16_t lowerModule4 = lmIdx[outerTripletIndex][1];
+              const uint16_t lowerModule5 = lmIdx[outerTripletIndex][2];
+
+              float innerRadius, outerRadius, bridgeRadius;
+              float regCx, regCy, regR;
+              float rzChi2, chi2, nonAnchorChi2, dBeta1, dBeta2, dnnScore;
+              float t5Embed[Params_T5::kEmbed] = {0.f};
+              bool tightFlag = false;
+
+              const bool ok = runQuintupletDefaultAlgo(acc,
+                                                       modules,
+                                                       mds,
+                                                       segments,
+                                                       triplets,
+                                                       lowerModule1,
+                                                       lowerModule2,
+                                                       lowerModule3,
+                                                       lowerModule4,
+                                                       lowerModule5,
+                                                       innerTripletIndex,
+                                                       outerTripletIndex,
+                                                       innerRadius,
+                                                       outerRadius,
+                                                       bridgeRadius,
+                                                       regCx,
+                                                       regCy,
+                                                       regR,
+                                                       rzChi2,
+                                                       chi2,
+                                                       nonAnchorChi2,
+                                                       dBeta1,
+                                                       dBeta2,
+                                                       dnnScore,
+                                                       tightFlag,
+                                                       t5Embed,
+                                                       ptCut);
+              if (ok) {
                 alpaka::atomicAdd(acc, &triplets.connectedMax()[innerTripletIndex], 1u, alpaka::hierarchy::Threads{});
-              } else {
-                const uint16_t lowerModule2 = lmIdx[innerTripletIndex][1];
-                const uint16_t lowerModule4 = lmIdx[outerTripletIndex][1];
-                const uint16_t lowerModule5 = lmIdx[outerTripletIndex][2];
-
-                float innerRadius, outerRadius, bridgeRadius;
-                float regCx, regCy, regR;
-                float rzChi2, chi2, nonAnchorChi2, dBeta1, dBeta2, dnnScore;
-                float t5Embed[Params_T5::kEmbed] = {0.f};
-                bool tightFlag = false;
-
-                const bool ok = runQuintupletDefaultAlgo(acc,
-                                                         modules,
-                                                         mds,
-                                                         segments,
-                                                         triplets,
-                                                         lowerModule1,
-                                                         lowerModule2,
-                                                         lowerModule3,
-                                                         lowerModule4,
-                                                         lowerModule5,
-                                                         innerTripletIndex,
-                                                         outerTripletIndex,
-                                                         innerRadius,
-                                                         outerRadius,
-                                                         bridgeRadius,
-                                                         regCx,
-                                                         regCy,
-                                                         regR,
-                                                         rzChi2,
-                                                         chi2,
-                                                         nonAnchorChi2,
-                                                         dBeta1,
-                                                         dBeta2,
-                                                         dnnScore,
-                                                         tightFlag,
-                                                         t5Embed,
-                                                         ptCut);
-                if (ok) {
-                  alpaka::atomicAdd(acc, &triplets.connectedMax()[innerTripletIndex], 1u, alpaka::hierarchy::Threads{});
-                }
+                auto const ls0Index = segIdx[innerTripletIndex][0];
+                auto const md0Index = mdIndices[ls0Index][0];
+                alpaka::atomicAdd(acc, &mds.connectedT5s0Max()[md0Index], 1u, alpaka::hierarchy::Threads{});
+                auto const md1Index = mdIndices[ls0Index][1];
+                alpaka::atomicAdd(acc, &mds.connectedT5s1Max()[md1Index], 1u, alpaka::hierarchy::Blocks{});
+                alpaka::atomicAdd(acc, &denseMatchCount, 1u, alpaka::hierarchy::Threads{});
               }
             }
           }
@@ -2099,20 +2157,31 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   };
 
+  using CountTripletConnections = CountTripletConnectionsT<false>;
+  using CountTripletConnectionsReduceMem = CountTripletConnectionsT<true>;
+
   struct CreateEligibleModulesListForQuintuplets {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   ModulesConst modules,
                                   TripletsOccupancyConst tripletsOcc,
                                   ObjectRanges ranges,
-                                  TripletsConst triplets) const {
+                                  TripletsConst triplets,
+                                  MiniDoubletsConst mds,
+                                  MiniDoubletsOccupancyConst mdsOcc,
+                                  QuintupletsRanges quintupletsRangesByMD0,
+                                  QuintupletsRanges quintupletsRangesByMD1) const {
       // Single-block kernel
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
 
       int& nEligibleT5Modulesx = alpaka::declareSharedVar<int, __COUNTER__>(acc);
       int& nTotalQuintupletsx = alpaka::declareSharedVar<int, __COUNTER__>(acc);
+      int& nTotalQuintuplets0x = alpaka::declareSharedVar<int, __COUNTER__>(acc);
+      int& nTotalQuintuplets1x = alpaka::declareSharedVar<int, __COUNTER__>(acc);
       if (cms::alpakatools::once_per_block(acc)) {
-        nTotalQuintupletsx = 0;
         nEligibleT5Modulesx = 0;
+        nTotalQuintupletsx = 0;
+        nTotalQuintuplets0x = 0;
+        nTotalQuintuplets1x = 0;
       }
       alpaka::syncBlockThreads(acc);
 
@@ -2134,6 +2203,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
         if (dynamic_count == 0)
           continue;
+        if (dynamic_count > kNQuintupletThreshold)
+          dynamic_count = kNQuintupletThreshold;
 
         int nEligibleT5Modules = alpaka::atomicAdd(acc, &nEligibleT5Modulesx, 1, alpaka::hierarchy::Threads{});
         int nTotQ = alpaka::atomicAdd(acc, &nTotalQuintupletsx, dynamic_count, alpaka::hierarchy::Threads{});
@@ -2143,11 +2214,46 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         ranges.quintupletModuleOccupancy()[lowerModule] = dynamic_count;
       }
 
+      auto setMDranges = [&](uint16_t const lowerModule,
+                             unsigned int const nMDs,
+                             unsigned int const* __restrict__ connectedMax,
+                             QuintupletsRanges qRanges,
+                             int& nTotal) {
+        // Sum the real connectivity for MDs in this module
+        // There should be no truncation (unlike in nTotalQuintupletsx),
+        // else need to keep track which T3's MD can be used in T5 reco
+        int connectedInModule = 0;
+        const unsigned int firstIdx = ranges.miniDoubletModuleIndices()[lowerModule];
+        for (unsigned int idx = 0; idx < nMDs; ++idx) {
+          unsigned int mdIndex = firstIdx + idx;
+          connectedInModule += connectedMax[mdIndex];
+        }
+
+        int nStart = alpaka::atomicAdd(acc, &nTotal, connectedInModule, alpaka::hierarchy::Threads{});
+
+        for (unsigned int idx = 0; idx < nMDs; ++idx) {
+          unsigned int mdIndex = firstIdx + idx;
+          qRanges.offset()[mdIndex] = nStart;
+          qRanges.n()[mdIndex] = 0;
+          nStart += connectedMax[mdIndex];
+        }
+      };
+      for (uint16_t lowerModule : cms::alpakatools::uniform_elements(acc, modules.nLowerModules())) {
+        unsigned int nMDs = mdsOcc.nMDs()[lowerModule];
+        if (nMDs == 0)
+          continue;
+
+        setMDranges(lowerModule, nMDs, mds.connectedT5s0Max().data(), quintupletsRangesByMD0, nTotalQuintuplets0x);
+        setMDranges(lowerModule, nMDs, mds.connectedT5s1Max().data(), quintupletsRangesByMD1, nTotalQuintuplets1x);
+      }
+
       // Wait for all threads to finish before reporting final values
       alpaka::syncBlockThreads(acc);
       if (cms::alpakatools::once_per_block(acc)) {
         ranges.nEligibleT5Modules() = static_cast<uint16_t>(nEligibleT5Modulesx);
         ranges.nTotalQuints() = static_cast<unsigned int>(nTotalQuintupletsx);
+        ranges.nTotalQuintsByMD0() = static_cast<unsigned int>(nTotalQuintuplets0x);
+        ranges.nTotalQuintsByMD1() = static_cast<unsigned int>(nTotalQuintuplets1x);
       }
     }
   };

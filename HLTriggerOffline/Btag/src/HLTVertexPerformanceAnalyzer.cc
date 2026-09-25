@@ -1,4 +1,6 @@
 #include "HLTriggerOffline/Btag/interface/HLTVertexPerformanceAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 using namespace edm;
 using namespace reco;
@@ -20,8 +22,6 @@ HLTVertexPerformanceAnalyzer::HLTVertexPerformanceAnalyzer(const edm::ParameterS
     VertexCollection_Label.push_back(label.module);
   }
 }
-
-HLTVertexPerformanceAnalyzer::~HLTVertexPerformanceAnalyzer() {}
 
 void HLTVertexPerformanceAnalyzer::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
   triggerConfChanged_ = true;
@@ -150,6 +150,24 @@ void HLTVertexPerformanceAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
       }
     }
   }
+}
+
+void HLTVertexPerformanceAnalyzer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("SimVertexCollection", edm::InputTag("g4SimHits"));
+  desc.add<edm::InputTag>("TriggerResults", edm::InputTag("TriggerResults", "", "HLT"));
+  desc.add<std::string>("mainFolder", "HLT/BTV/Validation");
+  desc.add<std::vector<std::string>>("HLTPathNames",
+                                     {"HLT_PFMET120_PFMHT120_IDTight_v",
+                                      "HLT_PFHT330PT30_QuadPFJet_75_60_45_40_v",
+                                      "HLT_PFHT400_SixPFJet32_PNet2BTagMean0p50_v",
+                                      "HLT_PFHT450_SixPFJet36_PNetBTag0p35_v",
+                                      "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_v",
+                                      "HLT_BTagMu_AK4DiJet20_Mu5_v",
+                                      "HLT_BTagMu_AK4DiJet20_Mu5_v",
+                                      "HLT_BTagMu_AK4DiJet20_Mu5_v"});
+  desc.add<std::vector<edm::InputTag>>("Vertex", {edm::InputTag("hltVerticesPF")});
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(HLTVertexPerformanceAnalyzer);

@@ -47,7 +47,7 @@ Double_t increaseby = .1;
 
 TString xvariables[xsize] = {"", "pt", "eta", "phi", "dz", "dxy", "theta", "qoverpt"};
 TString yvariables[ysize] = {"pt", "pt", "eta", "phi", "dz", "dxy", "theta", "qoverpt", ""};
-Bool_t relativearray[ysize] = {true, false, false, false, false, false, false, false, false};
+constexpr Bool_t relativearray[ysize] = {true, false, false, false, false, false, false, false, false};
 
 TList *stufftodelete = new TList();
 

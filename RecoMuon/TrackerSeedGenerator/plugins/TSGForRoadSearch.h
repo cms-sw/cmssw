@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include <RecoTracker/MeasurementDet/interface/MeasurementTracker.h>
 #include <RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h>
 #include "MagneticField/Engine/interface/MagneticField.h"

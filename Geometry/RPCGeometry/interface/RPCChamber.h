@@ -11,7 +11,7 @@
  *  \author R. Trentadue
  */
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 class RPCRoll;

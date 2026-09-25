@@ -2,8 +2,8 @@
 
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
 #include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
@@ -176,7 +176,7 @@ const MTDGeomDet* MTDGeometry::idToDet(DetId s) const {
   return nullptr;
 }
 
-const GeomDetEnumerators::SubDetector MTDGeometry::geomDetSubDetector(int subdet) const {
+GeomDetEnumerators::SubDetector MTDGeometry::geomDetSubDetector(int subdet) const {
   if (subdet >= 1 && subdet <= 2) {
     return theSubDetTypeMap[subdet - 1];
   } else {

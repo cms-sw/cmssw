@@ -2,6 +2,7 @@
 <use name="SimDataFormats/EncodedEventId"/>
 <use name="DataFormats/MuonDetId"/>
 <use name="DataFormats/MuonData" source_only="1"/>
+<use name="rootcling"/>
 <use name="boost"/>
 <export>
   <lib name="1"/>

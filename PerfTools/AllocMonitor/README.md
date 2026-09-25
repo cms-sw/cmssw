@@ -3,7 +3,7 @@
 ## Introduction
 
 This package works with the PerfTools/AllocMonitorPreload package to provide a general facility to watch allocations and deallocations.
-This is accomplished by using LD_PRELOAD with libPerfToolsAllocMonitorPreload.so and registering a class inheriting from `AllocMonotorBase`
+This is accomplished by setting `LD_PRELOAD=libPerfToolsAllocMonitorPreload.so` environment variable and registering a class inheriting from `AllocMonitorBase`
 with `AllocMonitorRegistry`. The preloaded library puts in proxies for the C and C++ allocation methods (and forwards the calls to the
 original job methods). These proxies communicate with `AllocMonitorRegistry` which, in turn, call methods of the registered monitors.
 
@@ -128,7 +128,7 @@ This service registers a monitor when the service is created (after python parsi
 have been loaded into cmsRun) and writes module related information to the specified file. The file name, an optional
 list of module names, and  an optional number of initial events to skip are specified by setting parameters of the
 service in the configuration. The parameters are
-- `filename`: name of file to which to write reports
+- `fileName`: name of file to which to write reports
 - `moduleNames`: list of modules which should have their information added to the file. An empty list specifies all modules should be included.
 - `skippedModuleNames`: list of module which should have their information skipped. 
 - `nEventsToSkip`: the number of initial events that must be processed before reporting happens.
@@ -146,7 +146,7 @@ deallocation using the same address. The list of addresses are kept until the ev
 time the dallocations are paired with allocations done in a module. The list of addresses are then cleared (to keep memory usage down) but the amount of unassociated deallocations for each module is recorded per event.
 The file name, an optional list of module names, and  an optional number of initial events to skip are specified by setting parameters of the
 service in the configuration. The parameters are
-- `filename`: name of file to which to write reports
+- `fileName`: name of file to which to write reports
 - `moduleNames`: list of modules which should have their information added to the file. An empty list specifies all modules should be included.
 - `nEventsToSkip`: the number of initial events that must be processed before reporting happens.
 
@@ -222,15 +222,40 @@ Following quantities are reported for the aggregated stack traces
 The Service has the following configuration parameters
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| `filePattern` | empty | If empty, print the repots with MessageLogger. If non-empty, specifies the pattern for output text files. Must contain at least one `%I` for a file counter, and `%M` for the measurement name. |
+| `filePattern` | empty | If empty, print the repots with MessageLogger. If non-empty, specifies the pattern for output text files. Must contain at least one `%I` for a file counter, and `%T` for the measurement name. |
 | `statistics` | `False` | If `True`, print internal statistics to the log. |
 | `deallocationReport` | `True` | Allows to disable deallocation report (can speed up the profiling in presence of deep stack traces) |
 | `churnReport` | `True` | Allows to disable churn report (can speed up the profiling in presence of deep stack traces) |
 
 By default all reports are printed with MessageLogger. With `filePattern` the reports are written into files, with the file names being printed with MessageLogger at the time when each measurment ends. The `edmIntrusiveAllocProfilerFoldStacks.py` script can be used to "fold" the stack traces to a format understood e.g. flamegraph tools such as https://github.com/brendangregg/FlameGraph for one quantity at a time. An example
 ```sh
-edmIntrusiveAllocProfilerFoldStacks.py -q actual report.txt | flamegraph.pl > report_flamegraph.svg
+edmAllocProfilerFoldStacks.py -q actual report.txt | flamegraph.pl > report_flamegraph.svg
 ```
+
+### ModuleAllocProfiler (C++23)
+
+The `ModuleAllocProfiler` combines the stack-trace recording of [`IntrusiveAllocProfiler`](#intrusiveallocprofiler-c23) to the module-based monitoring of [`ModuleAllocMonitor`](#moduleallocmonitor). In contrast to `ModuleAllocMonitor`, the set of modules to be profiled must be set explicitly. This is because the profiling is substantially slower, and produces substantially more data, than the counting monitoring of `ModuleAllocMonitor`. The stack traces are reported either via MessageLogger (default), or to per-module-per-transition files.
+
+The report types and quantities are the same as in [`IntrusiveAllocProfiler`](#intrusiveallocprofiler-c23).
+
+The Service has the following configuration parameters
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `moduleNames` | - | List of modules to be profiled. Must be set to non-empty. |
+| `nEventsToSkip` | 0 | Number of initial events that must be processed before reporting happens. |
+| `filePattern` | empty | If empty, print the repots with MessageLogger. If non-empty, specifies the pattern for output text files. See the table below for the special markers in the pattern (each must be present). |
+| `statistics` | `False` | If `True`, print internal statistics to the log. |
+| `deallocationReport` | `True` | Allows to disable deallocation report (can speed up the profiling in presence of deep stack traces) |
+| `churnReport` | `True` | Allows to disable churn report (can speed up the profiling in presence of deep stack traces) |
+
+File name pattern
+| Marker | Description |
+|--------|-------------|
+| `%M`   | Module label |
+| `%S`   | Signal (transition) name |
+| `%I`   | Per-signal occurrence counter |
+| `%C`   | ESModule call ID (will be 0 for everything else) |
+| `%T`   | Measurement type |
 
 ### ThresholdAbortAllocMonitor
 

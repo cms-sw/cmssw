@@ -1,12 +1,13 @@
 <use name="DataFormats/EcalDetId"/>
 <use name="DataFormats/HcalDetId"/>
-<use name="DataFormats/CaloTowers"/>
+<use name="DataFormats/CaloTowers" source_only="1"/>
 <use name="DataFormats/GeometryVector"/>
-<use name="DataFormats/DetId"/>
+<use name="DataFormats/DetId" source_only="1"/>
 <use name="DataFormats/Math"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
 <use name="clhep"/>
+<use name="rootmath"/>
 <export>
   <lib name="1"/>
 </export>

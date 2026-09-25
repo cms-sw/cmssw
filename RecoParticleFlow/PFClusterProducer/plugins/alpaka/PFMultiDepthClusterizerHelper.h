@@ -165,12 +165,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     if constexpr (all) {
       const unsigned int high_lane_idx = w_extent - 1;
 
-      // send last lane value (total tile offset) to lane idx = low_lane_idx:
-      const warp::warp_mask_t active_mask = 1 | get_lane_mask(high_lane_idx);
-      const unsigned int tmp = warp::shfl_mask(acc, active_mask, local_offset, high_lane_idx, w_extent);
+      if (lane_idx == 0 || lane_idx == high_lane_idx) {
+        // send last lane value (total tile offset) to lane idx = low_lane_idx:
+        const warp::warp_mask_t active_mask = static_cast<warp::warp_mask_t>(1) | get_lane_mask(high_lane_idx);
+        const std::uint32_t tmp = warp::shfl_mask(acc, active_mask, local_offset, high_lane_idx, w_extent);
 
-      if (lane_idx == 0)
-        local_offset = tmp;  //lane 0 keeps full (inclusive for the last lane) sum
+        if (lane_idx == 0)
+          local_offset = tmp;  //lane 0 keeps full (inclusive for the last lane) sum, nop for high_lane_idx
+      }
     }
     return lane_idx == 0 ? local_offset : local_offset - val;  //we return exclusive sum!
   }

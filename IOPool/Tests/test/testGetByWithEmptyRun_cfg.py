@@ -22,7 +22,7 @@ process.source = PoolSource(
 from IOPool.Output.modules import PoolOutputModule
 process.out = PoolOutputModule(fileName = 'testGetByWithEmptyRun.root')
 
-from FWCore.Framework.modules import RunLumiEventAnalyzer
+from FWCore.TestModules.modules import RunLumiEventAnalyzer
 process.test = RunLumiEventAnalyzer(
     verbose = True,
     expectedRunLumiEvents = [

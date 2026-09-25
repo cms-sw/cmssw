@@ -9,7 +9,7 @@
 
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
-#include "FWStorage/Catalog/interface/FromFiles.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 
 class HepMCFileReader;
 
@@ -36,7 +36,7 @@ namespace edm {
 
     edm::propagate_const<HepMCFileReader*> reader_;
     edm::propagate_const<HepMC::GenEvent*> evt_;
-    edm::FromFiles fromFiles_;
+    edm::InputFileCatalog inputFileCatalog_;
     bool useExtendedAscii_;
   };
 }  // namespace edm

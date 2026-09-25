@@ -15,41 +15,44 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 
-class L2MuonTrajectorySeed : public TrajectorySeed {
-public:
-  /// Default constructor
-  L2MuonTrajectorySeed();
+namespace io_v1 {
+  class L2MuonTrajectorySeed : public TrajectorySeed {
+  public:
+    /// Default constructor
+    L2MuonTrajectorySeed();
 
-  /// Constructor
-  L2MuonTrajectorySeed(PTrajectoryStateOnDet const& ptsos,
-                       RecHitContainer const& rh,
-                       PropagationDirection dir,
-                       l1extra::L1MuonParticleRef l1Ref);
+    /// Constructor
+    L2MuonTrajectorySeed(PTrajectoryStateOnDet const& ptsos,
+                         RecHitContainer const& rh,
+                         PropagationDirection dir,
+                         l1extra::L1MuonParticleRef l1Ref);
 
-  /// Constructor for stage2 L1
-  L2MuonTrajectorySeed(PTrajectoryStateOnDet const& ptsos,
-                       RecHitContainer const& rh,
-                       PropagationDirection dir,
-                       l1t::MuonRef l1Ref);
+    /// Constructor for stage2 L1
+    L2MuonTrajectorySeed(PTrajectoryStateOnDet const& ptsos,
+                         RecHitContainer const& rh,
+                         PropagationDirection dir,
+                         l1t::MuonRef l1Ref);
 
-  L2MuonTrajectorySeed(PTrajectoryStateOnDet const& ptsos,
-                       RecHitContainer const& rh,
-                       PropagationDirection dir,
-                       l1t::TrackerMuonRef l1TkMuRef);
+    L2MuonTrajectorySeed(PTrajectoryStateOnDet const& ptsos,
+                         RecHitContainer const& rh,
+                         PropagationDirection dir,
+                         l1t::TrackerMuonRef l1TkMuRef);
 
-  /// Destructor
-  ~L2MuonTrajectorySeed() override {}
+    /// Destructor
+    ~L2MuonTrajectorySeed() override {}
 
-  // Operations
+    // Operations
 
-  /// Get L1 info
-  inline l1extra::L1MuonParticleRef l1Particle() const { return theL1Particle; }
-  inline l1t::MuonRef l1tParticle() const { return theL1TParticle; }
-  inline l1t::TrackerMuonRef l1TkMu() const { return theL1TkMu; }
+    /// Get L1 info
+    inline l1extra::L1MuonParticleRef l1Particle() const { return theL1Particle; }
+    inline l1t::MuonRef l1tParticle() const { return theL1TParticle; }
+    inline l1t::TrackerMuonRef l1TkMu() const { return theL1TkMu; }
 
-private:
-  l1extra::L1MuonParticleRef theL1Particle;
-  l1t::MuonRef theL1TParticle;
-  l1t::TrackerMuonRef theL1TkMu;
-};
+  private:
+    l1extra::L1MuonParticleRef theL1Particle;
+    l1t::MuonRef theL1TParticle;
+    l1t::TrackerMuonRef theL1TkMu;
+  };
+}  // namespace io_v1
+using L2MuonTrajectorySeed = io_v1::L2MuonTrajectorySeed;
 #endif

@@ -2,6 +2,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace reco;
+using namespace reco::io_v1;
 
 CompositePtrCandidate::~CompositePtrCandidate() {}
 

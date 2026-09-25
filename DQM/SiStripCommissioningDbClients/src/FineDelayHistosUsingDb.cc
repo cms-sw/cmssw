@@ -7,8 +7,8 @@
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include <Geometry/CommonTopologies/interface/Topology.h>
 #include <CondFormats/DataRecord/interface/SiStripFedCablingRcd.h>
 #include <CondFormats/SiStripObjects/interface/SiStripFedCabling.h>

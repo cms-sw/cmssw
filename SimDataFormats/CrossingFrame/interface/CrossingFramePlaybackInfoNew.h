@@ -19,43 +19,49 @@
 #include <vector>
 #include <utility>
 
-class CrossingFramePlaybackInfoNew {
-public:
-  // con- and destructors
+namespace io_v1 {
 
-  CrossingFramePlaybackInfoNew() {}
-  CrossingFramePlaybackInfoNew(int minBunch, int maxBunch, unsigned int maxNbSources);
+  class CrossingFramePlaybackInfoNew {
+  public:
+    // con- and destructors
 
-  ~CrossingFramePlaybackInfoNew() {}
+    CrossingFramePlaybackInfoNew() {}
+    CrossingFramePlaybackInfoNew(int minBunch, int maxBunch, unsigned int maxNbSources);
 
-  typedef std::vector<edm::SecondaryEventIDAndFileInfo>::iterator iterator;
-  typedef std::pair<iterator, iterator> range;
+    ~CrossingFramePlaybackInfoNew() {}
 
-  // setter
-  void setInfo(std::vector<edm::SecondaryEventIDAndFileInfo>& eventInfo, std::vector<size_t>& sizes) {
-    sizes_.swap(sizes);
-    eventInfo_.swap(eventInfo);
-  }
+    typedef std::vector<edm::SecondaryEventIDAndFileInfo>::iterator iterator;
+    typedef std::pair<iterator, iterator> range;
 
-  // getters
-  std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator getEventId(size_t offset) const {
-    std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator iter = eventInfo_.begin();
-    std::advance(iter, offset);
-    return iter;
-  }
+    // setter
+    void setInfo(std::vector<edm::SecondaryEventIDAndFileInfo>& eventInfo, std::vector<size_t>& sizes) {
+      sizes_.swap(sizes);
+      eventInfo_.swap(eventInfo);
+    }
 
-  size_t getNumberOfEvents(int bunchIdx, size_t sourceNumber) const {
-    return sizes_[((bunchIdx - minBunch_) * maxNbSources_) + sourceNumber];
-  }
+    // getters
+    std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator getEventId(size_t offset) const {
+      std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator iter = eventInfo_.begin();
+      std::advance(iter, offset);
+      return iter;
+    }
 
-  //private:
+    size_t getNumberOfEvents(int bunchIdx, size_t sourceNumber) const {
+      return sizes_[((bunchIdx - minBunch_) * maxNbSources_) + sourceNumber];
+    }
 
-  // we need the same info for each bunchcrossing
-  unsigned int maxNbSources_;
-  int nBcrossings_;
-  std::vector<size_t> sizes_;
-  std::vector<edm::SecondaryEventIDAndFileInfo> eventInfo_;
-  int minBunch_;
-};
+    //private:
+
+    // we need the same info for each bunchcrossing
+    unsigned int maxNbSources_;
+    int nBcrossings_;
+    std::vector<size_t> sizes_;
+    std::vector<edm::SecondaryEventIDAndFileInfo> eventInfo_;
+    int minBunch_;
+  };
+
+}  // namespace io_v1
+
+using CrossingFramePlaybackInfoNew = io_v1::CrossingFramePlaybackInfoNew;
 
 #endif

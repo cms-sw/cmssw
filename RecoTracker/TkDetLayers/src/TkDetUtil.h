@@ -1,7 +1,7 @@
 #ifndef TkDetLayers_TkDetUtil_h
 #define TkDetLayers_TkDetUtil_h
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"

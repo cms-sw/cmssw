@@ -7,7 +7,7 @@
 
 #include "RecoMTD/DetLayers/interface/MTDTrayBarrelLayer.h"
 #include "RecoMTD/DetLayers/interface/MTDDetTray.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"

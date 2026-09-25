@@ -26,20 +26,21 @@
 
 // user include files
 #include "FWCore/Framework/interface/ComponentDescription.h"
+#include "FWCore/Framework/interface/ComponentInterfaceHolder.h"
 #include "FWCore/Framework/interface/ESProductResolverProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
-#include "FWCore/Framework/interface/ComponentConstructionSentry.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/SignalSentry.h"
 
 namespace edm {
   namespace eventsetup {
 
     // forward declarations
-    class EventSetupProvider;
+    class ComponentInterfaceHolder;
 
     class ComponentMakerBaseHelper {
     public:
@@ -53,7 +54,8 @@ namespace edm {
     class ComponentMakerBase : public ComponentMakerBaseHelper {
     public:
       typedef typename T::base_type base_type;
-      virtual std::shared_ptr<base_type> addTo(EventSetupProvider& iProvider, ParameterSet& iConfiguration) const = 0;
+      virtual std::shared_ptr<base_type> addTo(ComponentInterfaceHolder& iProvider,
+                                               ParameterSet& iConfiguration) const = 0;
     };
 
     template <class T, class TComponent>
@@ -64,7 +66,8 @@ namespace edm {
       const ComponentMaker& operator=(const ComponentMaker&) = delete;  // stop default
       typedef typename T::base_type base_type;
 
-      std::shared_ptr<base_type> addTo(EventSetupProvider& iProvider, ParameterSet& iConfiguration) const override;
+      std::shared_ptr<base_type> addTo(ComponentInterfaceHolder& iInterfaceHolder,
+                                       ParameterSet& iConfiguration) const override;
 
     private:
       void setDescription(ESProductResolverProvider* iProv, const ComponentDescription& iDesc) const {
@@ -85,7 +88,7 @@ namespace edm {
 
     template <class T, class TComponent>
     std::shared_ptr<typename ComponentMaker<T, TComponent>::base_type> ComponentMaker<T, TComponent>::addTo(
-        EventSetupProvider& iProvider, ParameterSet& iConfiguration) const {
+        ComponentInterfaceHolder& iInterfaceHolder, ParameterSet& iConfiguration) const {
       {
         auto modtype = iConfiguration.getParameter<std::string>("@module_type");
         auto moduleLabel = iConfiguration.getParameter<std::string>("@module_label");
@@ -106,7 +109,9 @@ namespace edm {
       const ComponentDescription description = this->createComponentDescription(iConfiguration);
       std::shared_ptr<TComponent> component;
       {
-        ComponentConstructionSentry sentry(iProvider, description);
+        auto sentry = signalslot::make_sentry(
+            [&iInterfaceHolder, &description]() { iInterfaceHolder.postConstructionSignal().emit(description); });
+        iInterfaceHolder.preConstructionSignal().emit(description);
         component = std::make_shared<TComponent>(iConfiguration);
         sentry.succeeded();
       }
@@ -115,7 +120,7 @@ namespace edm {
       this->setDescriptionForFinder(component.get(), description);
       this->setPostConstruction(component.get(), iConfiguration);
 
-      T::addTo(iProvider, component);
+      T::addTo(iInterfaceHolder, component);
 
       return component;
     }

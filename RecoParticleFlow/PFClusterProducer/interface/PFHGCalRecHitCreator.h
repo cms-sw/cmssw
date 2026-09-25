@@ -20,8 +20,6 @@
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
-
 template <typename DET, PFLayer::Layer Layer, DetId::Detector det, unsigned subdet>
 class PFHGCalRecHitCreator : public PFRecHitCreatorBase {
 public:
@@ -35,9 +33,7 @@ public:
                      std::unique_ptr<reco::PFRecHitCollection>& cleaned,
                      const edm::Event& iEvent,
                      const edm::EventSetup& iSetup) override {
-    // Setup RecHitTools to properly compute the position of the HGCAL Cells vie their DetIds
     edm::ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(geomToken_);
-    recHitTools_.setGeometry(*geoHandle);
 
     for (unsigned int i = 0; i < qualityTests_.size(); ++i) {
       qualityTests_.at(i)->beginEvent(iEvent, iSetup);
@@ -99,7 +95,6 @@ protected:
   std::string geometryInstance_;
 
 private:
-  hgcal::RecHitTools recHitTools_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
 };
 

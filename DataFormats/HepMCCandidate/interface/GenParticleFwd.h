@@ -10,7 +10,10 @@
 #include "DataFormats/Common/interface/Association.h"
 
 namespace reco {
-  class GenParticle;
+  namespace io_v1 {
+    class GenParticle;
+  }
+  using GenParticle = io_v1::GenParticle;
   /// collection of GenParticles
   typedef std::vector<GenParticle> GenParticleCollection;
   /// persistent reference to a GenParticle

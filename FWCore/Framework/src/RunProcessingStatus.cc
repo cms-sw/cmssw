@@ -15,6 +15,23 @@ namespace edm {
         nStreamsStillProcessingBeginRun_(iNStreams),
         nStreamsStillProcessingRun_(iNStreams) {}
 
+  std::optional<WaitingTaskHolder> RunProcessingStatus::releaseHolderOfTaskInProcessRuns() {
+    if (not holderOfTaskInProcessRunsIsDone_.exchange(true)) {
+      return std::move(holderOfTaskInProcessRuns_);
+    }
+    return std::nullopt;
+  }
+  void RunProcessingStatus::setHolderOfTaskInProcessRuns(WaitingTaskHolder const& holder) {
+    holderOfTaskInProcessRuns_ = holder;
+    holderOfTaskInProcessRunsIsDone_ = false;
+  }
+  void RunProcessingStatus::setHolderOfTaskInProcessRunsDoneWaiting() {
+    auto temp = releaseHolderOfTaskInProcessRuns();
+    if (temp) {
+      temp->doneWaiting(std::exception_ptr{});
+    }
+  }
+
   void RunProcessingStatus::resetBeginResources() {
     endIOVWaitingTasks_.doneWaiting(std::exception_ptr{});
     eventSetupImpl_.reset();

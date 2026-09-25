@@ -8,4 +8,4 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<test name="runtestRecoEgammaElectronIdentification" command="runtests.sh"/>
+<!-- <test name="runtestRecoEgammaElectronIdentification" command="runtests.sh"/> COMMENT: reads old format file -->

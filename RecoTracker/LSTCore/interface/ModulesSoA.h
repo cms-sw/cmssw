@@ -33,6 +33,7 @@ namespace lst {
                       SOA_COLUMN(short, subdets),
                       SOA_COLUMN(short, sides),
                       SOA_COLUMN(float, eta),
+                      SOA_COLUMN(float, phi),
                       SOA_COLUMN(float, r),
                       SOA_COLUMN(float, z),
                       SOA_COLUMN(bool, isInverted),

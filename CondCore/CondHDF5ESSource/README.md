@@ -11,8 +11,10 @@ CondHDF5ESSource is an EventSetup source that can read conditions data from an H
 In general, one will specify the file to read and the global tag stored within that file to use. E.g.
 
 ```python
-
-globalTag = cms.ESSource("CondHDF5ESSource", filename = cms.string("JobConditions.h5cond"), globalTag = cms.string("SomeTag") ) 
+process.GlobalTag = cms.ESSource("CondHDF5ESSource",
+    filename = cms.untracked.string("JobConditions.h5cond"),
+    globalTag = cms.string("SomeTag")
+)
 ```
 
 ## Utilities for creating an HDF5 conditions file

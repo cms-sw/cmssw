@@ -43,7 +43,7 @@ namespace edm {
 
   // fromString is used only in a unit test, so performance is not critical.
   Guid const& Guid::fromString(std::string const& source) {
-    auto err = ::uuid_parse(source.c_str(), data_);
+    [[maybe_unused]] auto err = ::uuid_parse(source.c_str(), data_);
     assert(err == 0);
     return *this;
   }

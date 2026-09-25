@@ -11,8 +11,6 @@
 #include "PatternRecognitionbyCLUE3D.h"
 
 #include "TrackstersPCA.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 using namespace ticl;
@@ -20,33 +18,32 @@ using namespace ticl;
 template <typename TILES>
 PatternRecognitionbyCLUE3D<TILES>::PatternRecognitionbyCLUE3D(const edm::ParameterSet &conf, edm::ConsumesCollector iC)
     : PatternRecognitionAlgoBaseT<TILES>(conf, iC),
-      caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
-      criticalDensity_(conf.getParameter<std::vector<double>>("criticalDensity")),
-      criticalSelfDensity_(conf.getParameter<std::vector<double>>("criticalSelfDensity")),
+      criticalDensity_(conf.getParameter<std::vector<float>>("criticalDensity")),
+      criticalSelfDensity_(conf.getParameter<std::vector<float>>("criticalSelfDensity")),
       densitySiblingLayers_(conf.getParameter<std::vector<int>>("densitySiblingLayers")),
-      densityEtaPhiDistanceSqr_(conf.getParameter<std::vector<double>>("densityEtaPhiDistanceSqr")),
-      densityXYDistanceSqr_(conf.getParameter<std::vector<double>>("densityXYDistanceSqr")),
-      kernelDensityFactor_(conf.getParameter<std::vector<double>>("kernelDensityFactor")),
+      densityEtaPhiDistanceSqr_(conf.getParameter<std::vector<float>>("densityEtaPhiDistanceSqr")),
+      densityXYDistanceSqr_(conf.getParameter<std::vector<float>>("densityXYDistanceSqr")),
+      kernelDensityFactor_(conf.getParameter<std::vector<float>>("kernelDensityFactor")),
       densityOnSameLayer_(conf.getParameter<bool>("densityOnSameLayer")),
       nearestHigherOnSameLayer_(conf.getParameter<bool>("nearestHigherOnSameLayer")),
       useAbsoluteProjectiveScale_(conf.getParameter<bool>("useAbsoluteProjectiveScale")),
       useClusterDimensionXY_(conf.getParameter<bool>("useClusterDimensionXY")),
       rescaleDensityByZ_(conf.getParameter<bool>("rescaleDensityByZ")),
-      criticalEtaPhiDistance_(conf.getParameter<std::vector<double>>("criticalEtaPhiDistance")),
-      criticalXYDistance_(conf.getParameter<std::vector<double>>("criticalXYDistance")),
+      criticalEtaPhiDistance_(conf.getParameter<std::vector<float>>("criticalEtaPhiDistance")),
+      criticalXYDistance_(conf.getParameter<std::vector<float>>("criticalXYDistance")),
       criticalZDistanceLyr_(conf.getParameter<std::vector<int>>("criticalZDistanceLyr")),
-      outlierMultiplier_(conf.getParameter<std::vector<double>>("outlierMultiplier")),
+      outlierMultiplier_(conf.getParameter<std::vector<float>>("outlierMultiplier")),
       minNumLayerCluster_(conf.getParameter<std::vector<int>>("minNumLayerCluster")),
       doPidCut_(conf.getParameter<bool>("doPidCut")),
-      cutHadProb_(conf.getParameter<double>("cutHadProb")),
+      cutHadProb_(conf.getParameter<float>("cutHadProb")),
       computeLocalTime_(conf.getParameter<bool>("computeLocalTime")),
       usePCACleaning_(conf.getParameter<bool>("usePCACleaning")){};
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::dumpTiles(const TILES &tiles) const {
   constexpr int nEtaBin = TILES::constants_type_t::nEtaBins;
   constexpr int nPhiBin = TILES::constants_type_t::nPhiBins;
-  auto lastLayerPerSide = static_cast<int>(rhtools_.lastLayer(false));
-  int maxLayer = 2 * lastLayerPerSide - 1;
+  auto lastLayerPerSide = static_cast<int>(this->rhtools_->lastLayer(false));
+  int maxLayer = isBarrel_ ? this->rhtools_->lastLayerBarrel() : 2 * lastLayerPerSide - 1;
   for (int layer = 0; layer <= maxLayer; layer++) {
     for (int ieta = 0; ieta < nEtaBin; ieta++) {
       auto offset = ieta * nPhiBin;
@@ -145,6 +142,29 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpClusters(const TILES &tiles,
 }
 
 template <typename TILES>
+void PatternRecognitionbyCLUE3D<TILES>::setGeometry(ticlgeom::Tools const &rhtools) {
+  // Non-owning pointer: valid because TrackstersProducer owns rhtools_ for the module lifetime (per stream).
+  this->rhtools_ = &rhtools;
+
+  layersPosZ_.clear();
+  const unsigned int nLayers = (isBarrel_) ? this->rhtools_->lastLayerBarrel() : this->rhtools_->lastLayer();
+  layersPosZ_.reserve(nLayers);
+
+  // Layers inside the HGCAL geometry start from 1.
+  for (unsigned int i = 0; i < nLayers; ++i) {
+    if constexpr (isBarrel_) {
+      auto x2 = std::pow(this->rhtools_->getPositionLayer(i, false, true).x(), 2);
+      auto y2 = std::pow(this->rhtools_->getPositionLayer(i, false, true).y(), 2);
+      layersPosZ_.push_back(std::sqrt(x2 + y2));
+    } else {
+      layersPosZ_.push_back(static_cast<float>(this->rhtools_->getPositionLayer(i + 1).z()));
+    }
+  }
+
+  this->geometryReady_ = true;
+}
+
+template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     const typename PatternRecognitionAlgoBaseT<TILES>::Inputs &input,
     std::vector<Trackster> &result,
@@ -153,28 +173,26 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
   if (input.regions.empty())
     return;
 
-  const int eventNumber = input.ev.eventAuxiliary().event();
+  int eventNumber = -1;
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
     edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "New Event";
+    eventNumber = input.ev.eventAuxiliary().event();
   }
+  auto const *rhtools = this->rhtools_;
 
-  edm::EventSetup const &es = input.es;
-  const CaloGeometry &geom = es.getData(caloGeomToken_);
-  rhtools_.setGeometry(geom);
-
-  // Assume identical Z-positioning between positive and negative sides.
-  // Also, layers inside the HGCAL geometry start from 1.
-  for (unsigned int i = 0; i < rhtools_.lastLayer(); ++i) {
-    layersPosZ_.push_back(rhtools_.getPositionLayer(i + 1).z());
-    if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
-      edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "Layer " << i << " located at Z: " << layersPosZ_.back();
-    }
+  if (UNLIKELY(!this->geometryReady_ || rhtools == nullptr)) {
+    throw cms::Exception("LogicError")
+        << "PatternRecognitionbyCLUE3D::setGeometry() must be called in beginRun() before makeTracksters().";
   }
 
   clusters_.clear();
   tracksterSeedAlgoId_.clear();
 
-  clusters_.resize(2 * rhtools_.lastLayer(false));
+  clusters_.resize(2 * rhtools->lastLayer(false));
+  if constexpr (isBarrel_)
+    clusters_.resize(rhtools->lastLayerBarrel() + 1);
+  else
+    clusters_.resize(2 * rhtools->lastLayer(false));
   std::vector<std::pair<int, int>> layerIdx2layerandSoa;  //used everywhere also to propagate cluster masking
 
   layerIdx2layerandSoa.reserve(input.layerClusters.size());
@@ -189,8 +207,9 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
       continue;
     }
     const auto firstHitDetId = lc.hitsAndFractions()[0].first;
-    int layer = rhtools_.getLayerWithOffset(firstHitDetId) - 1 +
-                rhtools_.lastLayer(false) * ((rhtools_.zside(firstHitDetId) + 1) >> 1);
+    int layer = rhtools->getLayerWithOffset(firstHitDetId);
+    if (!isBarrel_)
+      layer += rhtools->lastLayer() * ((rhtools->zside(firstHitDetId) + 1) >> 1) - 1;
     assert(layer >= 0);
     auto detId = lc.hitsAndFractions()[0].first;
     int layerClusterIndexInLayer = clusters_[layer].x.size();
@@ -203,7 +222,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     float ref_y = lc.y();
     float invClsize = 1. / lc.hitsAndFractions().size();
     for (auto const &hitsAndFractions : lc.hitsAndFractions()) {
-      auto const &point = rhtools_.getPosition(hitsAndFractions.first);
+      auto const &point = rhtools->getPosition(hitsAndFractions.first);
       sum_x += point.x() - ref_x;
       sum_sqr_x += (point.x() - ref_x) * (point.x() - ref_x);
       sum_y += point.y() - ref_y;
@@ -214,8 +233,12 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     // radius. On the other hand, while averaging the x and y radius, we would
     // end up dividing by 2. Hence we omit the value here and in the average
     // below, too.
-    float radius_x = sqrt((sum_sqr_x - (sum_x * sum_x) * invClsize) * invClsize);
-    float radius_y = sqrt((sum_sqr_y - (sum_y * sum_y) * invClsize) * invClsize);
+    // Clamp the variance at zero: for point-like multi-cell clusters the
+    // difference can cancel slightly below zero in floating point, and the
+    // sqrt of a negative value yields a NaN radius whose comparisons are
+    // all false downstream (seed and density decisions).
+    float radius_x = sqrt(std::max(0.f, (sum_sqr_x - (sum_x * sum_x) * invClsize) * invClsize));
+    float radius_y = sqrt(std::max(0.f, (sum_sqr_y - (sum_y * sum_y) * invClsize) * invClsize));
     if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
       edm::LogVerbatim("PatternRecognitionbyCLUE3D")
           << "cluster rx: " << std::setw(5) << radius_x << ", ry: " << std::setw(5) << radius_y
@@ -227,15 +250,15 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
 
     if (invClsize == 1.) {
       // Silicon case
-      if (rhtools_.isSilicon(detId)) {
-        radius_x = radius_y = rhtools_.getRadiusToSide(detId);
+      if (rhtools->isSilicon(detId)) {
+        radius_x = radius_y = rhtools->getRadiusToSide(detId);
         if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
           edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "Single cell cluster in silicon, rx: " << std::setw(5)
                                                          << radius_x << ", ry: " << std::setw(5) << radius_y;
         }
       } else {
-        auto const &point = rhtools_.getPosition(detId);
-        auto const &eta_phi_window = rhtools_.getScintDEtaDPhi(detId);
+        auto const &point = rhtools->getPosition(detId);
+        auto const &eta_phi_window = rhtools->getScintDEtaDPhi(detId);
         radius_x = radius_y = point.perp() * eta_phi_window.second;
         if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
           edm::LogVerbatim("PatternRecognitionbyCLUE3D")
@@ -255,8 +278,12 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     clusters_[layer].eta.emplace_back(lc.eta());
     clusters_[layer].phi.emplace_back(lc.phi());
     clusters_[layer].cells.push_back(lc.hitsAndFractions().size());
-    clusters_[layer].algoId.push_back(lc.algo() - reco::CaloCluster::hgcal_em);
-    clusters_[layer].isSilicon.push_back(rhtools_.isSilicon(detId));
+    if constexpr (!isBarrel_) {
+      clusters_[layer].algoId.push_back(lc.algo() - reco::CaloCluster::hgcal_em);
+    } else {
+      clusters_[layer].algoId.push_back(lc.algo() - reco::CaloCluster::barrel_em);
+    }
+    clusters_[layer].isSilicon.push_back(rhtools->isSilicon(detId));
     clusters_[layer].energy.emplace_back(lc.energy());
     clusters_[layer].isSeed.push_back(false);
     clusters_[layer].clusterIndex.emplace_back(-1);
@@ -271,8 +298,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     clusters_[layer].followers.resize(clusters_[layer].x.size());
   }
 
-  auto lastLayerPerSide = static_cast<int>(rhtools_.lastLayer(false));
-  int maxLayer = 2 * lastLayerPerSide - 1;
+  int maxLayer = (isBarrel_) ? rhtools->lastLayerBarrel() : 2 * static_cast<int>(rhtools->lastLayer(false)) - 1;
   std::vector<int> numberOfClustersPerLayer(maxLayer, 0);
   for (int i = 0; i <= maxLayer; i++) {
     calculateLocalDensity(input.tiles, i, layerIdx2layerandSoa);
@@ -326,14 +352,23 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
 
   result.shrink_to_fit();
 
+  double limit_em = 0.f;
+  if constexpr (isBarrel_) {
+    auto x2 = std::pow(rhtools->getPositionLayer(1, false, true).x(), 2);
+    auto y2 = std::pow(rhtools->getPositionLayer(1, false, true).y(), 2);
+    limit_em = std::sqrt(x2 + y2);
+  } else {
+    limit_em = rhtools->getPositionLayer(rhtools->lastLayerEE(false), false).z();
+  }
   ticl::assignPCAtoTracksters(result,
                               input.layerClusters,
                               input.layerClustersTime,
-                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(false), false).z(),
-                              rhtools_,
+                              limit_em,
+                              *rhtools,
                               computeLocalTime_,
                               true,  // energy weighting
-                              usePCACleaning_);
+                              usePCACleaning_,
+                              isBarrel_);
 
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
     for (auto const &t : result) {
@@ -382,6 +417,7 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
     const TILES &tiles, const int layerId, const std::vector<std::pair<int, int>> &layerIdx2layerandSoa) {
   constexpr int nEtaBin = TILES::constants_type_t::nEtaBins;
   constexpr int nPhiBin = TILES::constants_type_t::nPhiBins;
+  constexpr bool isBarrel_ = std::is_same<TILES, TICLLayerTilesBarrel>::value;
   auto &clustersOnLayer = clusters_[layerId];
   unsigned int numberOfClusters = clustersOnLayer.x.size();
 
@@ -396,9 +432,14 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateLocalDensity(
   for (unsigned int i = 0; i < numberOfClusters; i++) {
     auto algoId = clustersOnLayer.algoId[i];
     // We need to partition the two sides of the HGCAL detector
-    auto lastLayerPerSide = static_cast<int>(rhtools_.lastLayer(false));
+    auto lastLayerPerSide = static_cast<int>(this->rhtools_->lastLayer(false));
     int minLayer = 0;
     int maxLayer = 2 * lastLayerPerSide - 1;
+    if constexpr (isBarrel_) {
+      lastLayerPerSide = this->rhtools_->lastLayerBarrel();
+      maxLayer = lastLayerPerSide;
+    }
+
     if (layerId < lastLayerPerSide) {
       minLayer = std::max(layerId - densitySiblingLayers_[algoId], minLayer);
       maxLayer = std::min(layerId + densitySiblingLayers_[algoId], lastLayerPerSide - 1);
@@ -548,6 +589,7 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
     const TILES &tiles, const int layerId, const std::vector<std::pair<int, int>> &layerIdx2layerandSoa) {
   constexpr int nEtaBin = TILES::constants_type_t::nEtaBins;
   constexpr int nPhiBin = TILES::constants_type_t::nPhiBins;
+
   auto &clustersOnLayer = clusters_[layerId];
   unsigned int numberOfClusters = clustersOnLayer.x.size();
 
@@ -564,15 +606,19 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
           << tiles[layerId].phiBin(clustersOnLayer.phi[i]);
     }
     // We need to partition the two sides of the HGCAL detector
-    auto lastLayerPerSide = static_cast<int>(rhtools_.lastLayer(false));
+    auto lastLayerPerSide = static_cast<int>(this->rhtools_->lastLayer(false));
     int minLayer = 0;
     int maxLayer = 2 * lastLayerPerSide - 1;
     auto algoId = clustersOnLayer.algoId[i];
+    if constexpr (isBarrel_) {
+      lastLayerPerSide = this->rhtools_->lastLayerBarrel();
+      maxLayer = lastLayerPerSide;
+    }
     if (layerId < lastLayerPerSide) {
       minLayer = std::max(layerId - densitySiblingLayers_[algoId], minLayer);
       maxLayer = std::min(layerId + densitySiblingLayers_[algoId], lastLayerPerSide - 1);
     } else {
-      minLayer = std::max(layerId - densitySiblingLayers_[algoId], lastLayerPerSide + 1);
+      minLayer = std::max(layerId - densitySiblingLayers_[algoId], lastLayerPerSide);
       maxLayer = std::min(layerId + densitySiblingLayers_[algoId], maxLayer);
     }
     constexpr float maxDelta = std::numeric_limits<float>::max();
@@ -656,8 +702,13 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
   std::vector<std::pair<int, int>> localStack;
   const auto &critical_transverse_distance =
       useAbsoluteProjectiveScale_ ? criticalXYDistance_ : criticalEtaPhiDistance_;
+
   // find cluster seeds and outlier
-  for (unsigned int layer = 0; layer < 2 * rhtools_.lastLayer(); layer++) {
+  unsigned int maxLayer = (isBarrel_) ? this->rhtools_->lastLayerBarrel() + 1 : 2 * this->rhtools_->lastLayer();
+
+  std::vector<std::pair<unsigned int, unsigned int>> seed_clusterIdx_map;
+
+  for (unsigned int layer = 0; layer < maxLayer; layer++) {
     auto &clustersOnLayer = clusters_[layer];
     unsigned int numberOfClusters = clustersOnLayer.x.size();
     for (unsigned int i = 0; i < numberOfClusters; i++) {
@@ -684,6 +735,7 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
         }
         clustersOnLayer.clusterIndex[i] = nTracksters++;
         tracksterSeedAlgoId_.push_back(algoId);
+        seed_clusterIdx_map.emplace_back(layer, i);
         clustersOnLayer.isSeed[i] = true;
         localStack.emplace_back(layer, i);
       } else if (!isOutlier) {
@@ -705,16 +757,88 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
     }
   }
 
+  //vector keeping the soaIdx of the ECAL cluster inside a trackster (not the seed)
+  std::vector<int> ecal_LC_content_idx(nTracksters, -1);
+
   // Propagate cluster index
   while (!localStack.empty()) {
     auto [lyrIdx, soaIdx] = localStack.back();
     auto &thisSeed = clusters_[lyrIdx].followers[soaIdx];
+
+    // This is the algo ID
+    auto current_algoId = clusters_[lyrIdx].algoId[soaIdx];
+    auto current_tracksterid = clusters_[lyrIdx].clusterIndex[soaIdx];
+
+    if (isBarrel_) {
+      if ((current_algoId == 0) && (!clusters_[lyrIdx].isSeed[soaIdx]) &&
+          ((current_algoId == tracksterSeedAlgoId_[current_tracksterid]))) {
+        //skip this connection --> create a new trackster
+        clusters_[lyrIdx].clusterIndex[soaIdx] = nTracksters++;
+        tracksterSeedAlgoId_.push_back(current_algoId);
+        ecal_LC_content_idx.emplace_back(-1);  // Only the ECAL LC not seeds are saved
+        clusters_[lyrIdx].isSeed[soaIdx] = true;
+        // Do not pop from the stack, it will be reanalyze
+        continue;
+      }
+
+      if ((current_algoId == 0) && (!clusters_[lyrIdx].isSeed[soaIdx]) &&
+          (tracksterSeedAlgoId_[current_tracksterid] != 0)) {
+        if (ecal_LC_content_idx[current_tracksterid] != -1) {
+          // We need to compare ECAL LCs
+          // We need to get the cluster index of the seed cluster from the trackster seed idx
+          auto [seed_lyrIdx, seed_soaIdx] = seed_clusterIdx_map[current_tracksterid];
+          auto otherEcal_soaIdx = ecal_LC_content_idx[current_tracksterid];
+          constexpr unsigned int otherEcal_lyrIdx = 0;
+
+          auto dist_first = reco::deltaR2(clusters_[lyrIdx].eta[soaIdx],
+                                          clusters_[lyrIdx].phi[soaIdx],
+                                          clusters_[seed_lyrIdx].eta[seed_soaIdx],
+                                          clusters_[seed_lyrIdx].phi[seed_soaIdx]);
+
+          auto dist_second = reco::deltaR2(clusters_[otherEcal_lyrIdx].eta[otherEcal_soaIdx],
+                                           clusters_[otherEcal_lyrIdx].phi[otherEcal_soaIdx],
+                                           clusters_[seed_lyrIdx].eta[seed_soaIdx],
+                                           clusters_[seed_lyrIdx].phi[seed_soaIdx]);
+
+          if (dist_first < dist_second) {
+            // swap
+            ecal_LC_content_idx[current_tracksterid] = soaIdx;  // I become the ECAL LC of that trackster
+            // Now remove the other , create a new trackster
+            clusters_[otherEcal_lyrIdx].clusterIndex[otherEcal_soaIdx] = nTracksters++;
+            tracksterSeedAlgoId_.push_back(current_algoId);
+            ecal_LC_content_idx.emplace_back(-1);
+            clusters_[otherEcal_lyrIdx].isSeed[otherEcal_soaIdx] = true;
+            localStack.emplace_back(otherEcal_lyrIdx, otherEcal_soaIdx);
+          } else {
+            //skip this connection --> create a new trackster
+            //Pruning
+            clusters_[lyrIdx].clusterIndex[soaIdx] = nTracksters++;
+            tracksterSeedAlgoId_.push_back(current_algoId);
+            ecal_LC_content_idx.emplace_back(-1);
+            clusters_[lyrIdx].isSeed[soaIdx] = true;
+            // Do not pop from the stack, it will be reanalyzed
+            continue;
+          }
+
+        } else {
+          // I'm ECAL, there is nobody else, I take this trackster
+          ecal_LC_content_idx[current_tracksterid] = soaIdx;  // Now I'm the ECAL LC of that trackster
+        }
+      }  // end of check for other ECAL LC
+    }
+    // We arrive here if
+    // - the cluster is the seed
+    // - the cluster is not ECAL
+    // - the cluster is ECAL, gets assigned to the trackster as the best ECAL
     localStack.pop_back();
 
     // loop over followers
     for (auto [follower_lyrIdx, follower_soaIdx] : thisSeed) {
       // pass id to a follower
-      clusters_[follower_lyrIdx].clusterIndex[follower_soaIdx] = clusters_[lyrIdx].clusterIndex[soaIdx];
+      if (clusters_[follower_lyrIdx].isSeed[follower_soaIdx]) {
+        continue;
+      }
+      clusters_[follower_lyrIdx].clusterIndex[follower_soaIdx] = current_tracksterid;
       // push this follower to localStack
       localStack.emplace_back(follower_lyrIdx, follower_soaIdx);
     }
@@ -725,17 +849,17 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
 template <typename TILES>
 void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDescription &iDesc) {
   iDesc.add<int>("algo_verbosity", 0);
-  iDesc.add<std::vector<double>>("criticalDensity", {4, 4, 4})->setComment("in GeV");
-  iDesc.add<std::vector<double>>("criticalSelfDensity", {0.15, 0.15, 0.15} /* roughly 1/(densitySiblingLayers+1) */)
+  iDesc.add<std::vector<float>>("criticalDensity", {4, 4, 4})->setComment("in GeV");
+  iDesc.add<std::vector<float>>("criticalSelfDensity", {0.15, 0.15, 0.15} /* roughly 1/(densitySiblingLayers+1) */)
       ->setComment("Minimum ratio of self_energy/local_density to become a seed.");
   iDesc.add<std::vector<int>>("densitySiblingLayers", {3, 3, 3})
       ->setComment(
           "inclusive, layers to consider while computing local density and searching for nearestHigher higher");
-  iDesc.add<std::vector<double>>("densityEtaPhiDistanceSqr", {0.0008, 0.0008, 0.0008})
+  iDesc.add<std::vector<float>>("densityEtaPhiDistanceSqr", {0.0008, 0.0008, 0.0008})
       ->setComment("in eta,phi space, distance to consider for local density");
-  iDesc.add<std::vector<double>>("densityXYDistanceSqr", {3.24, 3.24, 3.24})
+  iDesc.add<std::vector<float>>("densityXYDistanceSqr", {3.24, 3.24, 3.24})
       ->setComment("in cm, distance on the transverse plane to consider for local density");
-  iDesc.add<std::vector<double>>("kernelDensityFactor", {0.2, 0.2, 0.2})
+  iDesc.add<std::vector<float>>("kernelDensityFactor", {0.2, 0.2, 0.2})
       ->setComment("Kernel factor to be applied to other LC while computing the local density");
   iDesc.add<bool>("densityOnSameLayer", false);
   iDesc.add<bool>("nearestHigherOnSameLayer", false)
@@ -750,20 +874,21 @@ void PatternRecognitionbyCLUE3D<TILES>::fillPSetDescription(edm::ParameterSetDes
       ->setComment(
           "Rescale local density by the extension of the Z 'volume' explored. The transvere dimension is, at present, "
           "fixed and factored out.");
-  iDesc.add<std::vector<double>>("criticalEtaPhiDistance", {0.025, 0.025, 0.025})
+  iDesc.add<std::vector<float>>("criticalEtaPhiDistance", {0.025, 0.025, 0.025})
       ->setComment("Minimal distance in eta,phi space from nearestHigher to become a seed");
-  iDesc.add<std::vector<double>>("criticalXYDistance", {1.8, 1.8, 1.8})
+  iDesc.add<std::vector<float>>("criticalXYDistance", {1.8, 1.8, 1.8})
       ->setComment("Minimal distance in cm on the XY plane from nearestHigher to become a seed");
   iDesc.add<std::vector<int>>("criticalZDistanceLyr", {5, 5, 5})
       ->setComment("Minimal distance in layers along the Z axis from nearestHigher to become a seed");
-  iDesc.add<std::vector<double>>("outlierMultiplier", {2, 2, 2})
+  iDesc.add<std::vector<float>>("outlierMultiplier", {2, 2, 2})
       ->setComment("Minimal distance in transverse space from nearestHigher to become an outlier");
   iDesc.add<std::vector<int>>("minNumLayerCluster", {2, 2, 2})->setComment("Not Inclusive");
   iDesc.add<bool>("doPidCut", false);
-  iDesc.add<double>("cutHadProb", 0.5);
-  iDesc.add<bool>("computeLocalTime", false);
-  iDesc.add<bool>("usePCACleaning", false)->setComment("Enable PCA cleaning alorithm");
+  iDesc.add<float>("cutHadProb", 0.5);
+  iDesc.add<bool>("computeLocalTime", true);
+  iDesc.add<bool>("usePCACleaning", true)->setComment("Enable PCA cleaning algorithm");
 }
 
 template class ticl::PatternRecognitionbyCLUE3D<TICLLayerTiles>;
 template class ticl::PatternRecognitionbyCLUE3D<TICLLayerTilesHFNose>;
+template class ticl::PatternRecognitionbyCLUE3D<TICLLayerTilesBarrel>;

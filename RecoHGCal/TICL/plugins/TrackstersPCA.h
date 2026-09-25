@@ -1,10 +1,10 @@
-#ifndef RECOHGCAL_TICL_TRACKSTERSPCA_H
-#define RECOHGCAL_TICL_TRACKSTERSPCA_H
+#ifndef RecoHGCal_TICL_TrackstersPCA_h
+#define RecoHGCal_TICL_TrackstersPCA_h
 
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include <vector>
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
 namespace ticl {
   /**
@@ -22,10 +22,11 @@ namespace ticl {
                              const std::vector<reco::CaloCluster> &layerClusters,
                              const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
                              double z_limit_em,
-                             hgcal::RecHitTools const &rhTools,
-                             bool computeLocalTime = false,
+                             ticlgeom::Tools const &rhTools,
+                             bool computeLocalTime = true,
                              bool energyWeight = true,
                              bool clean = false,
+                             bool isBarrel = false,
                              int minLayer = 10,
                              int maxLayer = 10);
   std::pair<float, float> computeLocalTracksterTime(const Trackster &trackster,
@@ -37,16 +38,14 @@ namespace ticl {
                                                const edm::ValueMap<std::pair<float, float>> &layerClustersTime,
                                                size_t N);
 
-  inline unsigned getLayerFromLC(const reco::CaloCluster &LC, const hgcal::RecHitTools &rhtools) {
-    std::vector<std::pair<DetId, float>> thisclusterHits = LC.hitsAndFractions();
-    auto layer = rhtools.getLayerWithOffset(thisclusterHits[0].first);
-    return layer;
+  inline unsigned getLayerFromLC(const reco::CaloCluster &LC, const ticlgeom::Tools &rhtools) {
+    return rhtools.getLayerWithOffset(LC.hitsAndFractions()[0].first);
   }
 
   // Sort the layer clusters in the given trackster in bins of layer. Returns : vector[index=layer, value=vector[LC index]]]
   inline std::vector<std::vector<unsigned>> sortByLayer(const Trackster &ts,
                                                         const std::vector<reco::CaloCluster> &layerClusters,
-                                                        const hgcal::RecHitTools &rhtools) {
+                                                        const ticlgeom::Tools &rhtools) {
     size_t N = ts.vertices().size();
 
     std::vector<std::vector<unsigned>> result;

@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -17,9 +17,9 @@
 #include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCBadChambersConditions : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class CSCBadChambersConditions : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  CSCBadChambersConditions(const edm::ParameterSet &);
+  explicit CSCBadChambersConditions(const edm::ParameterSet &);
   ~CSCBadChambersConditions() override;
 
   inline static CSCBadChambers *prefillBadChambers();
@@ -30,10 +30,6 @@ public:
 
 private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                      const edm::IOVSyncValue &,
-                      edm::ValidityInterval &) override;
-  CSCBadChambers *cndbBadChambers;
 };
 
 #include <fstream>

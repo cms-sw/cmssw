@@ -25,8 +25,8 @@
 #include "TrackingTools/TrackAssociator/interface/TAMuonChamberMatch.h"
 #include "TrackingTools/TrackAssociator/interface/FiducialVolume.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include <deque>
 #include "FWCore/Utilities/interface/Visibility.h"

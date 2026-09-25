@@ -38,6 +38,7 @@ summaryTimeWindow = 7.
 
 ecalTimingTask = cms.untracked.PSet(
     params = cms.untracked.PSet(
+        doEndcaps = cms.untracked.bool(True),
         bxBins = cms.untracked.vint32(bxBins),
         bxBinsFine = cms.untracked.vint32(bxBinsFine),
         chi2ThresholdEE = cms.untracked.double(chi2ThresholdEE),
@@ -345,3 +346,5 @@ ecalTimingTask = cms.untracked.PSet(
         )
     )
 )
+
+ecalTimingTaskPhase2 = ecalTimingTask.clone(params = dict(doEndcaps = False))

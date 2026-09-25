@@ -129,7 +129,7 @@ namespace reco {
     TaggingVariableList taggingVariables(void) const override;
 
     // Used by ROOT storage
-    CMS_CLASS_VERSION(2)
+    CMS_CLASS_VERSION(3)
 
   private:
     LeptonMap m_leptons;

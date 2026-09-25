@@ -5,7 +5,7 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 void MuonIdTruthInfo::registerConsumes(edm::ConsumesCollector& iC) {

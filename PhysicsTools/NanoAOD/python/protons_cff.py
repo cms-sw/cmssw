@@ -49,7 +49,13 @@ if singleRPProtons: protonTablesTask.add(singleRPTable)
 
 # GEN-level signal/PU protons collection
 genProtonTable = _genproton.clone(
-    cut = cms.string('(pdgId == 2212) && (abs(pz) > 5200) && (abs(pz) < 6467.5)') # xi in [0.015, 0.2]
+    cut = cms.string('(pdgId == 2212) && (abs(pz) > 5200.0) && (abs(pz) < 6435.0)') # Run 2 xi in [0.01, 0.2]
+)
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(
+    genProtonTable,
+    cut = '(pdgId == 2212) && (abs(pz) > 5440) && (abs(pz) < 6732)' # Run 3, xi in [0.01, 0.2]
 )
 
 genProtonTablesTask = cms.Task(genProtonTable)

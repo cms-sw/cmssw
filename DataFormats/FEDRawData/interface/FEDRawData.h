@@ -5,7 +5,7 @@
  *
  *  Class representing the raw data for one FED.
  *  The raw data is owned as a binary buffer. It is required that the 
- *  lenght of the data is a multiple of the S-Link64 word lenght (8 byte).
+ *  length of the data is a multiple of the S-Link64 word length (8 byte).
  *  The FED data should include the standard FED header and trailer.
  *
  *  \author G. Bruno - CERN, EP Division
@@ -18,11 +18,18 @@
 
 class FEDRawData {
 public:
-  typedef std::vector<unsigned char> Data;
-  typedef Data::iterator iterator;
+  using Data = std::vector<unsigned char>;
+  using value_type = unsigned char;
+  using size_type = size_t;
+  using reference = Data::reference;
+  using const_reference = Data::const_reference;
+  using pointer = Data::pointer;
+  using const_pointer = Data::const_pointer;
+  using iterator = Data::iterator;
+  using const_iterator = Data::const_iterator;
 
   /// Default ctor
-  FEDRawData();
+  FEDRawData() = default;
 
   /// Ctor specifying the size to be preallocated, in bytes.
   /// It is required that the size is a multiple of the size of a FED
@@ -30,22 +37,37 @@ public:
   FEDRawData(size_t newsize, size_t wordsize = 8);
 
   /// Copy constructor
-  FEDRawData(const FEDRawData &);
+  FEDRawData(const FEDRawData &) = default;
 
   /// Assignment operator
   FEDRawData &operator=(const FEDRawData &) = default;
 
+  /// Move constructor
+  FEDRawData(FEDRawData &&) = default;
+
+  /// Move assignment operator
+  FEDRawData &operator=(FEDRawData &&) = default;
+
   /// Dtor
-  ~FEDRawData();
+  ~FEDRawData() = default;
 
   /// Return a const pointer to the beginning of the data buffer
-  const unsigned char *data() const;
+  const unsigned char *data() const noexcept { return data_.data(); }
 
   /// Return a pointer to the beginning of the data buffer
-  unsigned char *data();
+  unsigned char *data() noexcept { return data_.data(); }
 
-  /// Lenght of the data buffer in bytes
-  size_t size() const { return data_.size(); }
+  /// Length of the data buffer in bytes
+  size_t size() const noexcept { return data_.size(); }
+
+  auto begin() const noexcept { return data_.begin(); }
+  auto end() const noexcept { return data_.end(); }
+
+  auto begin() noexcept { return data_.begin(); }
+  auto end() noexcept { return data_.end(); }
+
+  auto cbegin() noexcept { return data_.cbegin(); }
+  auto cend() noexcept { return data_.cend(); }
 
   /// Resize to the specified size in bytes. It is required that
   /// the size is a multiple of the size of a FED word (8 bytes default)

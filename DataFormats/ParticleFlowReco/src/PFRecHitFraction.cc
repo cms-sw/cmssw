@@ -5,8 +5,9 @@
 
 using namespace std;
 using namespace reco;
+using namespace reco::io_v1;
 
-ostream& reco::operator<<(std::ostream& out, const PFRecHitFraction& hit) {
+ostream& reco::io_v1::operator<<(std::ostream& out, const PFRecHitFraction& hit) {
   if (!out)
     return out;
 

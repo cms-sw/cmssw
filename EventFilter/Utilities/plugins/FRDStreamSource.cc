@@ -21,12 +21,12 @@ using namespace edm::streamer;
 
 FRDStreamSource::FRDStreamSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc)
     : ProducerSourceBase(pset, desc, true),
-      fromFiles_(pset),
+      inputFileCatalog_(pset),
       verifyAdler32_(pset.getUntrackedParameter<bool>("verifyAdler32", true)),
       verifyChecksum_(pset.getUntrackedParameter<bool>("verifyChecksum", true)),
       useL1EventID_(pset.getUntrackedParameter<bool>("useL1EventID", false)) {
-  fileNames_ = fromFiles_.fileNames(0), itFileName_ = fileNames_.begin();
-  endFileName_ = fileNames_.end();
+  physicalFileNames_ = inputFileCatalog_.allPFNsFromFirstCatalog(), itFileName_ = physicalFileNames_.begin();
+  endFileName_ = physicalFileNames_.end();
   openFile(*itFileName_);
   produces<FEDRawDataCollection>();
 }

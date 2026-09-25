@@ -5,7 +5,7 @@
 // change to use Lorentz angle from DB Lotte Wilke, Jan. 31st, 2008
 // Change to use Generic error & Template calibration from DB - D.Fehling 11/08
 
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 
 #define CORRECT_FOR_BIG_PIXELS

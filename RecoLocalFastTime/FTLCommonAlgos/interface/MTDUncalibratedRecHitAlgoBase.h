@@ -2,6 +2,7 @@
 #define RecoLocalFastTime_FTLCommonAlgos_MTDUncalibratedRecHitRecAlgoBase_HH
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/FTLDigi/interface/FTLDigiCollections.h"

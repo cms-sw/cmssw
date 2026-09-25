@@ -1,0 +1,21 @@
+<!-- Original Author: Felice Pantaleo, CERN, felice.pantaleo@cern.ch -->
+<test name="testPyTICLReproduceV5"
+      command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_reproduce_v5.py"/>
+<test name="testPyTICLCatalogSchema"
+      command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_catalog_schema.py"/>
+<test name="testPyTICLPlumbing"
+      command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_plumbing.py"/>
+<test name="testPyTICLExportCff"
+      command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_export_cff.py"/>
+<test name="testPyTICLReproduceHLT"
+      command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_reproduce_hlt.py"/>
+<test name="testPyTICLValidation"
+      command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_validation.py"/>
+<test name="testPyTICLBackend"
+      command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_backend.py"/>
+<test name="testPyTICLReproduceBarrel"
+      command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_reproduce_barrel.py"/>
+<test name="testPyTICLLocalReco"
+      command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_localreco.py"/>
+<test name="testPyTICLGraph"
+      command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_graph.py"/>

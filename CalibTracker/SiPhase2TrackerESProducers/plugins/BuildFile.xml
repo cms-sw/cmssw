@@ -6,7 +6,7 @@
 <use name="FWCore/AbstractServices"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
-<use name="Geometry/CommonDetUnit" source_only="1"/>
+<use name="Geometry/CommonTopologies" source_only="1"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerNumberingBuilder"/>
 <library file="*.cc" name="CalibTrackerSiPhase2TrackerESProducersPlugins">

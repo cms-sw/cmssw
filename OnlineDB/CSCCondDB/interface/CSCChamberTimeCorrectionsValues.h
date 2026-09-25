@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -20,9 +20,9 @@
 
 #include "DataFormats/MuonDetId/interface/CSCIndexer.h"
 
-class CSCChamberTimeCorrectionsValues : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class CSCChamberTimeCorrectionsValues : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  CSCChamberTimeCorrectionsValues(const edm::ParameterSet &);
+  explicit CSCChamberTimeCorrectionsValues(const edm::ParameterSet &);
   ~CSCChamberTimeCorrectionsValues() override;
 
   typedef std::unique_ptr<CSCChamberTimeCorrections> ReturnType;
@@ -32,11 +32,6 @@ public:
   ReturnType produceChamberTimeCorrections(const CSCChamberTimeCorrectionsRcd &);
 
 private:
-  // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                      const edm::IOVSyncValue &,
-                      edm::ValidityInterval &) override;
-
   //Flag for determining if this is for setting MC or data corrections
   bool isForMC;
   float ME11offsetMC;

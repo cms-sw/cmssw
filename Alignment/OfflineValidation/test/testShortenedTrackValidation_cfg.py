@@ -2,22 +2,25 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.Utilities.FileUtils as FileUtils
 from FWCore.ParameterSet.VarParsing import VarParsing
 
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+
 options = VarParsing('analysis')
 options.register('scenario', 
-                 '0',
+                 'null',
                  VarParsing.multiplicity.singleton,
                  VarParsing.varType.string,
                  "Name of input misalignment scenario")
 options.parseArguments()
 
-valid_scenarios = ['-10e-6','-8e-6','-6e-6','-4e-6','-2e-6','0','2e-6','4e-6','6e-6','8e-6','10e-6']
+valid_scenarios = ['null', '-10e-6','-8e-6','-6e-6','-4e-6','-2e-6','0','2e-6','4e-6','6e-6','8e-6','10e-6']
 
 if options.scenario not in valid_scenarios:
     print("Error: Invalid scenario specified. Please choose from the following list: ")
     print(valid_scenarios)
     exit(1)
 
-process = cms.Process("TrackingResolution")
+process = cms.Process("TrackingResolution",_PH2_ERA)
 
 #####################################################################
 # import of standard configurations
@@ -27,7 +30,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.cerr.FwkReport.reportEvery = 100000
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
@@ -41,7 +44,8 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 #####################################################################
 process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi") 
 process.MeasurementTrackerEvent.pixelClusterProducer = "ALCARECOTkAlDiMuon"
-process.MeasurementTrackerEvent.stripClusterProducer = "ALCARECOTkAlDiMuon"
+process.MeasurementTrackerEvent.stripClusterProducer = ""
+process.MeasurementTrackerEvent.Phase2TrackerCluster1DProducer = "ALCARECOTkAlDiMuon"
 process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
 process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag()
 
@@ -54,8 +58,8 @@ process.maxEvents = cms.untracked.PSet(
 #####################################################################
 # filelist = FileUtils.loadListFromFile("listOfFiles_idealMC_TkAlDiMuonAndVertex.txt")
 # readFiles = cms.untracked.vstring( *filelist)
-# events taken from /DYJetsToMuMu_M-50_TuneCP5_13p6TeV-madgraphMLM-pythia8/Run3Winter23Reco-TkAlDiMuonAndVertex-TRKDesignNoPU_AlcaRecoTRKMu_designGaussSigmaZ4cm_125X_mcRun3_2022_design_v6-v1/ALCARECO
-readFiles = cms.untracked.vstring('/store/mc/Run3Winter23Reco/DYJetsToMuMu_M-50_TuneCP5_13p6TeV-madgraphMLM-pythia8/ALCARECO/TkAlDiMuonAndVertex-TRKDesignNoPU_AlcaRecoTRKMu_designGaussSigmaZ4cm_125X_mcRun3_2022_design_v6-v1/60000/d3af17a5-2409-4551-9c3d-00deb2f3f64f.root')
+# events taken from /RelValZMM_14/CMSSW_20_0_0_pre1-TkAlDiMuonAndVertex-150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/ALCARECO
+readFiles = cms.untracked.vstring('/store/relval/CMSSW_20_0_0_pre1/RelValZMM_14/ALCARECO/TkAlDiMuonAndVertex-150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/b245c25c-c9cd-4329-b081-38a95f3b6bbe.root')
 process.source = cms.Source("PoolSource",fileNames = readFiles)
 
 process.options = cms.untracked.PSet()
@@ -70,11 +74,12 @@ process.TFileService = cms.Service("TFileService",
 # Other statements
 #####################################################################
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, "125X_mcRun3_2022_design_v6", '')
+process.GlobalTag = GlobalTag(process.GlobalTag, _PH2_GLOBAL_TAG, '')
 if (options.scenario=='null'):
     print("null scenario, do nothing")
     pass
 else:
+    # TO-DO develop the Phase-2 version of these scenarios!
     process.GlobalTag.toGet = cms.VPSet(cms.PSet(connect = cms.string("frontier://FrontierPrep/CMS_CONDITIONS"),
                                                  record = cms.string('TrackerAlignmentRcd'),
                                                  tag = cms.string("LayerRotation_"+options.scenario)))

@@ -1,5 +1,6 @@
+<use name="rootcling"/>
 <use name="DataFormats/Common"/>
-<use name="DataFormats/Provenance"/>
+<use name="DataFormats/Provenance" source_only="1"/>
 <export>
   <lib name="1"/>
 </export>

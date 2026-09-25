@@ -132,7 +132,7 @@ double PFBlock::dist(unsigned ie1, unsigned ie2, const LinkData& linkData) const
   return Dist;
 }
 
-ostream& reco::operator<<(ostream& out, const reco::PFBlock& block) {
+ostream& reco::io_v1::operator<<(ostream& out, const reco::PFBlock& block) {
   if (!out)
     return out;
   const edm::OwnVector<reco::PFBlockElement>& elements = block.elements();

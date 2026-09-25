@@ -1,5 +1,5 @@
-#ifndef SimCalorimetry_HGCalAssociatorProducers_HitToTracksterAssociatorProducer_h
-#define SimCalorimetry_HGCalAssociatorProducers_HitToTracksterAssociatorProducer_h
+#ifndef SimCalorimetry_HGCalAssociatorProducers_HitToTracksterAssociatorProducerT_h
+#define SimCalorimetry_HGCalAssociatorProducers_HitToTracksterAssociatorProducerT_h
 
 // Author: Felice Pantaleo, felice.pantaleo@cern.ch 06/2024
 
@@ -17,11 +17,13 @@
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
-class HitToTracksterAssociatorProducer : public edm::global::EDProducer<> {
+template <typename HIT>
+class HitToTracksterAssociatorProducerT : public edm::global::EDProducer<> {
 public:
-  explicit HitToTracksterAssociatorProducer(const edm::ParameterSet &);
-  ~HitToTracksterAssociatorProducer() override;
+  explicit HitToTracksterAssociatorProducerT(const edm::ParameterSet &);
+  ~HitToTracksterAssociatorProducerT() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
@@ -31,7 +33,7 @@ private:
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> LCCollectionToken_;
   edm::EDGetTokenT<std::vector<ticl::Trackster>> tracksterCollectionToken_;
   edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMapToken_;
-  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hitsTokens_;
+  std::vector<edm::EDGetTokenT<std::vector<HIT>>> hitsTokens_;
 };
 
 #endif

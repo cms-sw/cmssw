@@ -27,12 +27,3 @@ std::unique_ptr<SiStripNoises> SiStripNoiseESSource::produce(const SiStripNoises
   std::unique_ptr<SiStripNoises> ptr(noise);
   return ptr;
 }
-
-// -----------------------------------------------------------------------------
-//
-void SiStripNoiseESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                          const edm::IOVSyncValue& iosv,
-                                          edm::ValidityInterval& oValidity) {
-  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
-  oValidity = infinity;
-}

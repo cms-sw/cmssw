@@ -3,8 +3,10 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.JetMCAlgos.AK4GenJetFlavourInfos_cfi import *
 from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import *
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.jetMC_cff import *
 from PhysicsTools.NanoAOD.genparticles_cff import *
+from PhysicsTools.NanoAOD.genVertex_cff import *
+from PhysicsTools.NanoAOD.jetMC_cff import *
+from PhysicsTools.NanoAOD.taus_cff import *
 from PhysicsTools.PatAlgos.slimming.genParticles_cff import *
 from PhysicsTools.PatAlgos.slimming.packedGenParticles_cfi import *
 from PhysicsTools.PatAlgos.slimming.prunedGenParticles_cfi import *
@@ -18,6 +20,7 @@ from HLTrigger.NGTScouting.hltPhotons_cfi import *
 from HLTrigger.NGTScouting.hltElectrons_cfi import *
 from HLTrigger.NGTScouting.hltMuons_cfi import *
 from HLTrigger.NGTScouting.hltTracks_cfi import *
+from HLTrigger.NGTScouting.hltGsfTracks_cfi import *
 from HLTrigger.NGTScouting.hltJets_cfi import *
 from HLTrigger.NGTScouting.hltTaus_cfi import *
 from HLTrigger.NGTScouting.hltTracksters_cfi import *
@@ -25,6 +28,7 @@ from HLTrigger.NGTScouting.hltTICLCandidates_cfi import *
 from HLTrigger.NGTScouting.hltTICLSuperClusters_cfi import *
 from HLTrigger.NGTScouting.hltLayerClusters_cfi import * 
 from HLTrigger.NGTScouting.hltSums_cfi import *
+from HLTrigger.NGTScouting.hltTriggerObjects_cff import *
 from HLTrigger.NGTScouting.hltTriggerAcceptFilter_cfi import hltTriggerAcceptFilter,dstTriggerAcceptFilter
 
 ######################################
@@ -37,6 +41,7 @@ NanoGenTables = cms.Sequence(
     + prunedGenParticles
     + finalGenParticles
     + genParticleTable
+    + genVertexTable
     + genParticlesForJetsNoNu
     + ak4GenJetsNoNu
     + selectedHadronsAndPartonsForGenJetsFlavourInfos
@@ -46,14 +51,21 @@ NanoGenTables = cms.Sequence(
     + slimmedGenJetsFlavourInfos
     + genJetTable
     + genJetFlavourTable
+    + tauGenJetsForNano
+    + tauGenJetsSelectorAllHadronsForNano
+    + genVisTaus
+    + genVisTauTable
 )
 
 # Store hlt objects for NGT scouting
 NanoHltTables = cms.Sequence(
-    hltVertexTable
+    hltTriggerObjP4Table
+    + hltVertexTable
     + hltPixelVertexTable
     + hltGeneralTrackTable
     + hltGeneralTrackExtTable
+    + hltGsfTracksL1SeededTable
+    + hltGsfTracksUnseededTable
     + hltEgammaPacker
     + hltPhotonTable
     + hltElectronTable
@@ -90,6 +102,8 @@ NanoValTables = cms.Sequence(
     + hltSimTiclCandidateTable
     + hltSimTiclCandidateExtraTable
     + hltLayerClustersTableSequence
+    + hltTrackingParticleRecoTrackAssociationTable
+    + hltRecoTrackTrackingParticleAssociationTable
 )
 
 ######################################
@@ -98,8 +112,7 @@ NanoValTables = cms.Sequence(
 
 # NGT Scouting Nano flavour (NANO:@NGTScouting)
 dstNanoFlavour = cms.Sequence(
-    dstTriggerAcceptFilter
-    + NanoHltTables
+    NanoHltTables.copyAndExclude([hltGsfTracksL1SeededTable])
 )
 
 # NGT Scouting Nano flavour with MC/HGCal info (NANO:@NGTScoutingVal)
@@ -132,6 +145,9 @@ hltPixelOnlyNanoFlavour = cms.Sequence(
     + NanoPixelTables
 )
 
+from Configuration.ProcessModifiers.nano_l1_hlt_cff import nano_l1_hlt
+nano_l1_hlt.toReplaceWith(dstValidationNanoFlavour, dstValidationNanoFlavour.copyAndExclude([dstTriggerAcceptFilter]))
+
 ######################################
 # Customization
 ######################################
@@ -142,6 +158,9 @@ def hltNanoCustomize(process):
         # process.genJetTable.cut = "pt > 10"
         # process.genJetFlavourTable.deltaR = 0.3
         process.genParticleTable.externalVariables = cms.PSet() # remove iso as external variable from PhysicsTools/NanoAOD/python/genparticles_cff.py:37 (hopefully temporarily)
+        process.genParticleTable.variables.vx = Var("vx", float, precision=10, doc="x coordinate of production vertex")
+        process.genParticleTable.variables.vy = Var("vy", float, precision=10, doc="y coordinate of production vertex")
+        process.genParticleTable.variables.vz = Var("vz", float, precision=16, doc="z coordinate of production vertex")
         process.NANOAODSIMoutput.outputCommands.append(
             "keep nanoaodFlatTable_*Table*_*_*"
         )
@@ -149,6 +168,12 @@ def hltNanoCustomize(process):
             SelectEvents = cms.vstring(
                 [p for p in process.paths if p.startswith('HLT_') or p.startswith('MC_') or p.startswith('DST_')]
             )
+        )
+
+        # disable SelectEvents for nano_l1_hlt
+        nano_l1_hlt.toModify(
+            process.NANOAODSIMoutput,
+            SelectEvents = cms.untracked.PSet()
         )
 
     return process

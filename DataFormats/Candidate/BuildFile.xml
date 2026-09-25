@@ -2,7 +2,7 @@
 <use name="DataFormats/GeometryVector"/>
 <use name="DataFormats/Math"/>
 <use name="FWCore/Utilities"/>
-<use name="rootmath"/>
+<use name="rootmathcore"/>
 <export>
   <lib name="1"/>
 </export>

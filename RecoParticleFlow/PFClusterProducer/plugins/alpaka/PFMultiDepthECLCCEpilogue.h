@@ -130,7 +130,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   };
 
-  template <unsigned int max_w_items = 32, bool is_cooperative = false>
+  template <unsigned int max_w_items = 32, bool is_cooperative = true>
   class ECLCCEpilogueKernel {
   public:
     ALPAKA_FN_ACC void operator()(
@@ -160,6 +160,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       //block-local number of components
       unsigned int& localNComponents = alpaka::declareSharedVar<uint32_t, __COUNTER__>(acc);
+
+      // Warning: This algorithm relies on thread-private variables (vertex_idx, rep_idx)
+      // For correctness on non-GPU architectures, the launch parameters
+      // must guarantee that these variables remain private to each thread.
 
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
         if (group > 0)

@@ -1,41 +1,43 @@
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 
-l1t::CaloTower::CaloTower(const LorentzVector& p4,
-                          double etEm,
-                          double etHad,
-                          int pt,
-                          int eta,
-                          int phi,
-                          int qual,
-                          int hwEtEm,
-                          int hwEtHad,
-                          int hwEtRatio)
-    : L1Candidate(p4, pt, eta, phi, qual),
-      etEm_(etEm),
-      etHad_(etHad),
-      hwEtEm_(hwEtEm),
-      hwEtHad_(hwEtHad),
-      hwEtRatio_(hwEtRatio) {}
+namespace l1t::io_v1 {
+  CaloTower::CaloTower(const LorentzVector& p4,
+                       double etEm,
+                       double etHad,
+                       int pt,
+                       int eta,
+                       int phi,
+                       int qual,
+                       int hwEtEm,
+                       int hwEtHad,
+                       int hwEtRatio)
+      : L1Candidate(p4, pt, eta, phi, qual),
+        etEm_(etEm),
+        etHad_(etHad),
+        hwEtEm_(hwEtEm),
+        hwEtHad_(hwEtHad),
+        hwEtRatio_(hwEtRatio) {}
 
-l1t::CaloTower::~CaloTower() {}
+  CaloTower::~CaloTower() {}
 
-void l1t::CaloTower::setEtEm(double et) { etEm_ = et; }
+  void CaloTower::setEtEm(double et) { etEm_ = et; }
 
-void l1t::CaloTower::setEtHad(double et) { etHad_ = et; }
+  void CaloTower::setEtHad(double et) { etHad_ = et; }
 
-void l1t::CaloTower::setHwEtEm(int et) { hwEtEm_ = et; }
+  void CaloTower::setHwEtEm(int et) { hwEtEm_ = et; }
 
-void l1t::CaloTower::setHwEtHad(int et) { hwEtHad_ = et; }
+  void CaloTower::setHwEtHad(int et) { hwEtHad_ = et; }
 
-void l1t::CaloTower::setHwEtRatio(int ratio) { hwEtRatio_ = ratio; }
+  void CaloTower::setHwEtRatio(int ratio) { hwEtRatio_ = ratio; }
 
-double l1t::CaloTower::etEm() const { return etEm_; }
+  double CaloTower::etEm() const { return etEm_; }
 
-double l1t::CaloTower::etHad() const { return etHad_; }
+  double CaloTower::etHad() const { return etHad_; }
 
-int l1t::CaloTower::hwEtEm() const { return hwEtEm_; }
+  int CaloTower::hwEtEm() const { return hwEtEm_; }
 
-int l1t::CaloTower::hwEtHad() const { return hwEtHad_; }
+  int CaloTower::hwEtHad() const { return hwEtHad_; }
 
-int l1t::CaloTower::hwEtRatio() const { return hwEtRatio_; }
+  int CaloTower::hwEtRatio() const { return hwEtRatio_; }
+}  // namespace l1t::io_v1

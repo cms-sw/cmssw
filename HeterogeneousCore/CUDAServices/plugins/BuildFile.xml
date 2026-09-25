@@ -3,7 +3,7 @@
   <use name="tbb"/>
   <use name="fmt"/>
   <use name="DataFormats/Common"/>
-  <use name="DataFormats/Provenance"/>
+  <use name="DataFormats/Provenance" source_only="1"/>
   <use name="FWCore/AbstractServices"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
@@ -13,6 +13,10 @@
   <use name="HeterogeneousCore/CUDAServices"/>
   <use name="HeterogeneousCore/CUDAUtilities"/>
   <library file="CUDAMonitoringService.cc CUDAService.cc NVProfilerService.cc" name="HeterogeneousCoreCUDAServicesPlugins">
+    <flags EDM_PLUGIN="1"/>
+  </library>
+  <library file="CuptiKernelLoggerService.cc" name="HeterogeneousCoreCUDAServicesCuptiKernelLogger">
+    <use name="cupti"/>
     <flags EDM_PLUGIN="1"/>
   </library>
 </iftool>

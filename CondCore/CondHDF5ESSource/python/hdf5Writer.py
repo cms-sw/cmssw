@@ -1,7 +1,46 @@
+import sys
 import h5py
 import zlib
 import lzma
+if sys.version_info >= (3, 14):
+    from compression import zstd
+else:
+    from backports import zstd
 import numpy as np
+from typing import Optional
+
+
+class ZLibWrapper:
+    @staticmethod
+    def compress(data: bytes, level: Optional[int] = None) -> bytes:
+        """
+        Compresses the provided data using the zlib algorithm.
+
+        :param data: The bytes-like object to compress.
+        :param level: The compression level (0-9). If None, the level argument is omitted.
+        :return: The compressed bytes.
+        """
+        if level is None:
+            return zlib.compress(data)
+        else:
+            return zlib.compress(data, level=level)
+
+
+class LZMAWrapper:
+    @staticmethod
+    def compress(data: bytes, level: Optional[int] = None) -> bytes:
+        """
+        Compresses the provided data using the LZMA algorithm.
+
+        :param data: The bytes-like object to compress.
+        :param level: The compression level (0-9). If None, the preset argument is omitted.
+        :return: The compressed bytes.
+        """
+        if level is None:
+            return lzma.compress(data)
+        else:
+            return lzma.compress(data, preset=level)
+
 
 #The file structure
 #
@@ -60,14 +99,14 @@ def writeTagImpl(tagsGroup, name, recName, time_type, IOV_payloads, payloadToRef
     tagGroup.create_dataset("payload", data=payloads, dtype=h5py.ref_dtype, compression = compressor)
     return tagGroup.ref
 
-    
+
 def writeTag(tagsGroup, time_type, IOV_payloads, payloadToRefs, originalTagNames, recName, productNames):
     name = originalTagNames[0]
     if len(originalTagNames) != 1:
         name = name+"@joined"
     return writeTagImpl(tagsGroup, name, recName, time_type, IOV_payloads, payloadToRefs, productNames, originalTagNames)
 
-def writeH5File(fileName, globalTags, excludeRecords, includeRecords, tagReader, compressorName):
+def writeH5File(fileName, globalTags, excludeRecords, includeRecords, tagReader, compressorName, compressionLevel=None):
     #what are key lists??? They seem to hold objects of type 'cond::persistency::KeyList'
     # and have their own proxy type
     keyListRecords = set(["ExDwarfListRcd", "DTKeyedConfigListRcd", "DTKeyedConfigContainerRcd"])
@@ -76,9 +115,11 @@ def writeH5File(fileName, globalTags, excludeRecords, includeRecords, tagReader,
     print(default_compressor_name)
     default_compressor = None
     if default_compressor_name == "zlib":
-        default_compressor = zlib
+        default_compressor = ZLibWrapper
     elif default_compressor_name == "lzma":
-        default_compressor = lzma
+        default_compressor = LZMAWrapper
+    elif default_compressor_name == "zstd":
+        default_compressor = zstd
     with h5py.File(fileName, 'w') as h5file:
         h5file.attrs["file_format"] = 1
         h5file.attrs["default_payload_compressor"] = default_compressor_name.encode("ascii")
@@ -86,7 +127,7 @@ def writeH5File(fileName, globalTags, excludeRecords, includeRecords, tagReader,
         globalTagsGroup = h5file.create_group("GlobalTags")
         null_dataset = h5file.create_dataset("null_payload", data=np.array([], dtype='b') )
         tagGroupRefs = []
-        
+
         for name in globalTags:
             gt = tagReader(name)
             for tag in gt.tags():
@@ -98,9 +139,10 @@ def writeH5File(fileName, globalTags, excludeRecords, includeRecords, tagReader,
                 if includeRecords and (not rcd in includeRecords):
                     continue
                 recordDataSize = 0
-                
+                compressedSize = 0
+
                 payloadToRefs = { None: null_dataset.ref}
-                
+
                 recordGroup = recordsGroup.create_group(rcd)
                 tagsGroup = recordGroup.create_group("Tags")
                 dataProductsGroup = recordGroup.create_group("DataProducts")
@@ -113,23 +155,33 @@ def writeH5File(fileName, globalTags, excludeRecords, includeRecords, tagReader,
                     payloadsGroup = dataProductGroup.create_group("Payloads")
                     print(" product: %s"%dataProduct.name())
                     for p_index, payload in enumerate(dataProduct.payloads()):
-                        print("  %i payload: %s size: %i"%(p_index,payload.name(),len(payload.data())))
-                        recordDataSize +=len(payload.data())
+                        print("  %i payload: %s size: %i"%(p_index,payload.name(),len(payload.data())), end="")
+                        recordDataSize += len(payload.data())
                         if default_compressor:
-                            b = default_compressor.compress(payload.data())
-                            if len(b) >= len(payload.data()):
+                            b = default_compressor.compress(payload.data(), level=compressionLevel)
+                            if len(b) < len(payload.data()):
+                                print(", compressed size: %i"%(len(b)))
+                            else:
                                 #compressing isn't helping
                                 b = payload.data()
+                                print(", uncompressed")
                         else:
                             b = payload.data()
+                            print(", uncompressed")
+                        compressedSize += len(b)
                         pl = payloadsGroup.create_dataset(payload.name(), data=np.frombuffer(b,dtype='b'))
                         pl.attrs["memsize"] = len(payload.data())
                         pl.attrs["type"] = payload.actualType()
                         payloadToRefs[payload.name()] = pl.ref
-                        
+
                 tagGroupRefs.append(writeTag(tagsGroup, tag.time_type(), tag.iovsNPayloadNames(), payloadToRefs, tag.originalTagNames(), rcd, productNames))
-                print(" total size:",recordDataSize)
+                print(" total size:", recordDataSize, end="")
+                if (recordDataSize == compressedSize):
+                    print(", uncompressed")
+                else:
+                    print(", compressed size:", compressedSize)
                 recordDataSize = 0
+                compressedSize = 0
 
             globalTagGroup = globalTagsGroup.create_group(name)
             globalTagGroup.create_dataset("Tags", data=tagGroupRefs, dtype=h5py.ref_dtype)

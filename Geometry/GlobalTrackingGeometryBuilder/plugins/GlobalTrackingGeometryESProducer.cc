@@ -5,7 +5,7 @@
 
 #include "Geometry/GlobalTrackingGeometryBuilder/plugins/GlobalTrackingGeometryESProducer.h"
 #include "Geometry/GlobalTrackingGeometryBuilder/plugins/GlobalTrackingGeometryBuilder.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 

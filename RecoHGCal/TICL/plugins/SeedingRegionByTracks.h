@@ -20,7 +20,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"

@@ -3,7 +3,7 @@
 <use name="DataFormats/MuonDetId"/>
 <use name="DataFormats/GEMDigi"/>
 <use name="DataFormats/GEMRecHit"/>
-<use name="Geometry/CommonDetUnit" source_only="1"/>
+<use name="Geometry/CommonTopologies" source_only="1"/>
 <use name="Geometry/GEMGeometry"/>
 <use name="Geometry/CSCGeometry"/>
 <use name="Geometry/Records"/>

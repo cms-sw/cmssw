@@ -15,6 +15,13 @@ process.options = cms.untracked.PSet(
   Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
 
+#Contents of files
+#testRunMerge1.root  "PROD" [run:1,lumi:1, ev:11-20]
+#testRunMerge2.root  "PROD" [run:1, lumi:1, ev:21-25] [run:2,lumi:1, ev:1-5]
+#testRunMerge3.root  "PROD" [run:1, lumi:1, ev:1-10]
+#testRunMerge4.root  "PROD" [run:11, lumi:1, ev:1]
+#testRunMerge5.root  "PROD" [run:11-21, lumi:2-4, ev:1-9]
+
 from IOPool.Input.modules import PoolSource
 process.source = PoolSource(
     fileNames = [
@@ -42,7 +49,7 @@ process.thingWithMergeProducer = ThingWithMergeProducer()
 from IOPool.Output.modules import PoolOutputModule
 process.out = PoolOutputModule(fileName = 'testRunMerge_a.root')
 
-from FWCore.Framework.modules import RunLumiEventAnalyzer
+from FWCore.TestModules.modules import RunLumiEventAnalyzer
 process.test = RunLumiEventAnalyzer(
     verbose = True,
     expectedRunLumiEvents = [

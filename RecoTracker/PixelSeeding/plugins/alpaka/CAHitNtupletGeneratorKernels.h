@@ -155,12 +155,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     CellToCell const* cellToCell() const { return device_cellToNeighbors_->data(); }
     CellToTrack const* cellToTrack() const { return device_cellToTracks_->data(); }
 
-    void prepareHits(const HitsConstView& hh,
-                     const HitModulesConstView& mm,
+    void prepareHits(const HitsMultiView& hh,
+                     const ModulesMultiView& mm,
                      const ::reco::CALayersSoAConstView& ll,
                      Queue& queue);
 
-    void launchKernels(const HitsConstView& hh,
+    void launchKernels(const HitsMultiView& hh,
                        uint32_t offsetBPIX2,
                        uint16_t nLayers,
                        TkSoABlocksView& view,
@@ -168,9 +168,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                        const ::reco::CAGraphSoAConstView& cc,
                        Queue& queue);
 
-    void classifyTuples(const HitsConstView& hh, TkSoAView& track_view, Queue& queue);
+    void classifyTuples(const HitsMultiView& hh, TkSoAView& track_view, Queue& queue);
 
-    void buildDoublets(const HitsConstView& hh,
+    void buildDoublets(const HitsMultiView& hh,
                        const ::reco::CAGraphSoAConstView& cc,
                        const ::reco::CALayersSoAConstView& ll,
                        uint32_t offsetBPIX2,
@@ -200,6 +200,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::optional<cms::alpakatools::device_buffer<Device, PhiBinnerStorageType[]>> device_phiBinnerStorage_;
     PhiBinnerView device_hitPhiView_;
     std::optional<cms::alpakatools::device_buffer<Device, hindex_type[]>> device_layerStarts_;
+
+    // Scratch int32 mirror of the track quality used by the duplicate-removal kernels to make them
+    // order/backend independent. The cell-parallel fast remover accumulates demotions here via atomicMin
+    // and copies them back; the track-parallel hit-based removers instead use it as a frozen read-only
+    // quality snapshot while each thread writes its own track's quality directly. See the helper kernels
+    // Kernel_snapshotQuality / Kernel_applyQuality in CAHitNtupletGeneratorKernelsImpl.h
+    std::optional<cms::alpakatools::device_buffer<Device, int32_t[]>> device_qualityScratch_;
 
     // Cells-> Neighbor Cells
     DeviceGenericContainerBuffer device_cellToNeighbors_;

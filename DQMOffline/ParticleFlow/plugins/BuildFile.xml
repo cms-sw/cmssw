@@ -10,6 +10,7 @@
 <use name="DataFormats/RecoCandidate"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Math"/>
+<use name="fastjet"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="JetMETCorrections/JetCorrector"/>
 <use name="SimDataFormats/GeneratorProducts"/>

@@ -6,7 +6,7 @@
 #include <map>
 #include "Geometry/TrackerGeometryBuilder/interface/PlaneBuilderFromGeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerAdditionalParametersPerDet.h"
 
 class TrackerGeometry;

@@ -21,7 +21,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
@@ -61,6 +61,7 @@ public:
                                   const std::string& propagator = "SmartPropagatorAnyRK",
                                   const std::string& refitDirection = "alongMomentum",
                                   bool refitRPCHits = true,
+                                  bool refitMuonHits = true,
                                   const std::string& trackerRecHitBuilder = "WithTrackAngle",
                                   const std::string& muonRecHitBuilder = "MuonRecHitBuilder",
                                   const std::string& mtdRecHitBuilder = "MTDRecHitBuilder");
@@ -98,7 +99,7 @@ private:
 
   unsigned long long theCacheId_TRH = 0;
 
-  const bool theRPCInTheFit;
+  const bool theRPCInTheFit, theMuonInTheFit;
 
   const bool theDoPredictionsOnly;
   const RefitDirection theRefitDirection;

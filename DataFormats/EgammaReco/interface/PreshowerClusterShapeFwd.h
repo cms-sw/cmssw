@@ -10,7 +10,10 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 namespace reco {
-  class PreshowerClusterShape;
+  namespace io_v1 {
+    class PreshowerClusterShape;
+  }
+  using PreshowerClusterShape = io_v1::PreshowerClusterShape;
 
   /// collection of PreshowerClusterShape objects
   typedef std::vector<PreshowerClusterShape> PreshowerClusterShapeCollection;

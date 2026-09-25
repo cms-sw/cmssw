@@ -1,7 +1,7 @@
 #ifndef Geometry_MTDGeometryBuilder_MTDGeomDetType_H
 #define Geometry_MTDGeometryBuilder_MTDGeomDetType_H
 
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 #include <memory>

@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "CalibTracker/SiPixelConnectivity/interface/SiPixelFedCablingMapBuilder.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include <ostream>
@@ -14,7 +14,7 @@
 #include "CalibTracker/SiPixelConnectivity/interface/PixelBarrelLinkMaker.h"
 #include "CalibTracker/SiPixelConnectivity/interface/PixelEndcapLinkMaker.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"

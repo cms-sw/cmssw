@@ -13,30 +13,35 @@
 #include <cstdint>
 #include <iosfwd>
 
-class GEMCoPadDigi {
-public:
-  explicit GEMCoPadDigi(uint8_t roll, GEMPadDigi pad1, GEMPadDigi pad2);
-  GEMCoPadDigi();
+namespace io_v1 {
 
-  bool operator==(const GEMCoPadDigi& digi) const;
-  bool operator!=(const GEMCoPadDigi& digi) const;
-  bool isValid() const;
+  class GEMCoPadDigi {
+  public:
+    explicit GEMCoPadDigi(uint8_t roll, GEMPadDigi pad1, GEMPadDigi pad2);
+    GEMCoPadDigi();
 
-  int roll() const { return roll_; }
-  int pad(int l) const;
-  int bx(int l) const;
+    bool operator==(const GEMCoPadDigi& digi) const;
+    bool operator!=(const GEMCoPadDigi& digi) const;
+    bool isValid() const;
 
-  GEMPadDigi first() const { return first_; }
-  GEMPadDigi second() const { return second_; }
+    int roll() const { return roll_; }
+    int pad(int l) const;
+    int bx(int l) const;
 
-  void print() const;
+    GEMPadDigi first() const { return first_; }
+    GEMPadDigi second() const { return second_; }
 
-private:
-  uint8_t roll_;
-  GEMPadDigi first_;
-  GEMPadDigi second_;
-};
+    void print() const;
 
-std::ostream& operator<<(std::ostream& o, const GEMCoPadDigi& digi);
+  private:
+    uint8_t roll_;
+    GEMPadDigi first_;
+    GEMPadDigi second_;
+  };
+
+  std::ostream& operator<<(std::ostream& o, const GEMCoPadDigi& digi);
+
+}  // namespace io_v1
+using GEMCoPadDigi = io_v1::GEMCoPadDigi;
 
 #endif

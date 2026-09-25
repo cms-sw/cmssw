@@ -5,7 +5,7 @@
 <use name="FWCore/Utilities"/>
 <use name="FWCore/Common"/>
 <use name="DataFormats/Common"/>
-<use name="DataFormats/Provenance"/>
+<use name="DataFormats/Provenance" source_only="1"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="DataFormats/MuonReco"/>
 <use name="DataFormats/PatCandidates"/>

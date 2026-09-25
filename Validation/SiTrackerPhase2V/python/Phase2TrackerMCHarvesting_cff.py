@@ -15,6 +15,7 @@ Phase2ITtrackingrechitHarvester=Phase2ITRechitHarvester.clone(
 ##As of now this is to be used in standalone mode
 Phase2OTRechitHarvester_PS=Phase2ITRechitHarvester.clone(
     TopFolder = cms.string('TrackerPhase2OTRecHitV'),
+    ShellNames = ["PLUS", "MINUS"],
     NbarrelLayers = cms.uint32(3),
     NDisk1Rings = cms.uint32(10),
     NDisk2Rings = cms.uint32(7),
@@ -66,6 +67,7 @@ trackerphase2ValidationHarvesting = cms.Sequence(Phase2ITRechitHarvester
                                                  * Phase2ITtrackingrechitHarvester
                                                  * Phase2OTTrackingRechitHarvester_PS
                                                  * Phase2OTTrackingRechitHarvester_2S
+                                                 * Phase2OTHarvestTracks
                                                  * phase2OTEffClientSeq
 )
 

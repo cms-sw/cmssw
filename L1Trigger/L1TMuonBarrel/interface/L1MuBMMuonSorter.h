@@ -31,9 +31,9 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackFwd.h"
 
 class L1MuBMTrackFinder;
-class L1MuBMTrack;
 class L1MuBMSecProcId;
 
 //              ---------------------

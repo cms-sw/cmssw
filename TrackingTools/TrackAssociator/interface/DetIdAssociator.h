@@ -38,7 +38,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 #include "TrackingTools/TrackAssociator/interface/FiducialVolume.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include <set>
 #include <vector>
 

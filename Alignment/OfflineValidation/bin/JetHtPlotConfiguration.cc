@@ -1535,7 +1535,7 @@ const char* JetHtPlotConfiguration::iovListForSlides() const { return fIovListFo
 
 // Expand environmental variables updating the input string
 void JetHtPlotConfiguration::autoExpandEnvironmentVariables(std::string& text) const {
-  static std::regex env("\\$\\{?([^}\\/]+)\\}?\\/");
+  static const std::regex env("\\$\\{?([^}\\/]+)\\}?\\/");
   std::smatch match;
   while (std::regex_search(text, match, env)) {
     const char* s = getenv(match[1].str().c_str());

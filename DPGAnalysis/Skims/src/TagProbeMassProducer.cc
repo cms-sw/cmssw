@@ -82,9 +82,8 @@ void TagProbeMassProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       vprobes.push_back(probes->refAt(i));
     }
 
-    int itag = 0;
     edm::RefToBaseVector<reco::Candidate>::const_iterator tag = vtags.begin();
-    for (; tag != vtags.end(); ++tag, ++itag) {
+    for (; tag != vtags.end(); ++tag) {
       int iprobe = 0;
       edm::RefToBaseVector<reco::Candidate>::const_iterator probe = vprobes.begin();
       for (; probe != vprobes.end(); ++probe, ++iprobe) {

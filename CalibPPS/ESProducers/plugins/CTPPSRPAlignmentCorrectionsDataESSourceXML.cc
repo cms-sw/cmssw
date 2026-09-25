@@ -42,12 +42,14 @@ public:
   ~CTPPSRPAlignmentCorrectionsDataESSourceXML() override;
 
 protected:
-  std::unique_ptr<CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon> ctppsRPAlignmentCorrectionsDataESSourceXMLCommon;
+  std::unique_ptr<CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon const>
+      ctppsRPAlignmentCorrectionsDataESSourceXMLCommon;
 
   std::unique_ptr<CTPPSRPAlignmentCorrectionsData> produceMeasured(const CTPPSRPAlignmentCorrectionsDataRcd &);
   std::unique_ptr<CTPPSRPAlignmentCorrectionsData> produceReal(const RPRealAlignmentRecord &);
   std::unique_ptr<CTPPSRPAlignmentCorrectionsData> produceMisaligned(const RPMisalignedAlignmentRecord &);
 
+  bool isConcurrentFinder() const override { return true; }
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
                       const edm::IOVSyncValue &,
                       edm::ValidityInterval &) override;
@@ -75,23 +77,36 @@ CTPPSRPAlignmentCorrectionsDataESSourceXML::~CTPPSRPAlignmentCorrectionsDataESSo
 
 std::unique_ptr<CTPPSRPAlignmentCorrectionsData> CTPPSRPAlignmentCorrectionsDataESSourceXML::produceMeasured(
     const CTPPSRPAlignmentCorrectionsDataRcd &iRecord) {
-  return std::make_unique<CTPPSRPAlignmentCorrectionsData>(
-      ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->acMeasured);
+  auto data = CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon::dataFor(
+      iRecord.validityInterval().first(), ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->acsMeasured);
+  if (data) {
+    return std::make_unique<CTPPSRPAlignmentCorrectionsData>(*data);
+  }
+  return std::make_unique<CTPPSRPAlignmentCorrectionsData>();
 }
 
 //----------------------------------------------------------------------------------------------------
 
 std::unique_ptr<CTPPSRPAlignmentCorrectionsData> CTPPSRPAlignmentCorrectionsDataESSourceXML::produceReal(
     const RPRealAlignmentRecord &iRecord) {
-  return std::make_unique<CTPPSRPAlignmentCorrectionsData>(ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->acReal);
+  auto data = CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon::dataFor(
+      iRecord.validityInterval().first(), ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->acsReal);
+  if (data) {
+    return std::make_unique<CTPPSRPAlignmentCorrectionsData>(*data);
+  }
+  return std::make_unique<CTPPSRPAlignmentCorrectionsData>();
 }
 
 //----------------------------------------------------------------------------------------------------
 
 std::unique_ptr<CTPPSRPAlignmentCorrectionsData> CTPPSRPAlignmentCorrectionsDataESSourceXML::produceMisaligned(
     const RPMisalignedAlignmentRecord &iRecord) {
-  return std::make_unique<CTPPSRPAlignmentCorrectionsData>(
-      ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->acMisaligned);
+  auto data = CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon::dataFor(
+      iRecord.validityInterval().first(), ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->acsMisaligned);
+  if (data) {
+    return std::make_unique<CTPPSRPAlignmentCorrectionsData>(*data);
+  }
+  return std::make_unique<CTPPSRPAlignmentCorrectionsData>();
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -110,79 +125,30 @@ void CTPPSRPAlignmentCorrectionsDataESSourceXML::setIntervalFor(const edm::event
   }
 
   // // determine what sequence and corrections should be used
-  CTPPSRPAlignmentCorrectionsDataSequence *p_seq = nullptr;
-  CTPPSRPAlignmentCorrectionsData *p_corr = nullptr;
+  CTPPSRPAlignmentCorrectionsDataSequence const *p_seq = nullptr;
 
+  bool knownRecord = false;
   if (strcmp(key.name(), "CTPPSRPAlignmentCorrectionsDataRcd") == 0) {
     p_seq = &(ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->acsMeasured);
-    p_corr = &(ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->acMeasured);
+    knownRecord = true;
   }
 
   if (strcmp(key.name(), "RPRealAlignmentRecord") == 0) {
     p_seq = &(ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->acsReal);
-    p_corr = &(ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->acReal);
+    knownRecord = true;
   }
 
   if (strcmp(key.name(), "RPMisalignedAlignmentRecord") == 0) {
     p_seq = &(ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->acsMisaligned);
-    p_corr = &(ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->acMisaligned);
+    knownRecord = true;
   }
 
-  if (p_corr == nullptr)
+  if (not knownRecord)
     throw cms::Exception("CTPPSRPAlignmentCorrectionsDataESSourceXML::setIntervalFor")
         << "Unknown record " << key.name();
 
-  // // find the corresponding interval
-  bool next_exists = false;
-  const edm::EventID &event_curr = iosv.eventID();
-  edm::EventID event_next_start(edm::EventID::maxRunNumber(), edm::EventID::maxLuminosityBlockNumber(), 1);
-
-  for (const auto &it : *p_seq) {
-    const auto &it_event_first = it.first.first().eventID();
-    const auto &it_event_last = it.first.last().eventID();
-
-    bool it_contained_lo = ((it_event_first.run() < event_curr.run()) ||
-                            ((it_event_first.run() == event_curr.run()) &&
-                             (it_event_first.luminosityBlock() <= event_curr.luminosityBlock())));
-
-    bool it_contained_up = ((it_event_last.run() > event_curr.run()) ||
-                            ((it_event_last.run() == event_curr.run()) &&
-                             (it_event_last.luminosityBlock() >= event_curr.luminosityBlock())));
-
-    if (it_contained_lo && it_contained_up) {
-      valInt = it.first;
-      *p_corr = it.second;
-
-      if (ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->verbosity) {
-        LogInfo("PPS") << "    setting validity interval ["
-                       << CTPPSRPAlignmentCorrectionsMethods::iovValueToString(valInt.first()) << ", "
-                       << CTPPSRPAlignmentCorrectionsMethods::iovValueToString(valInt.last()) << "]";
-      }
-
-      return;
-    }
-
-    bool it_in_future = ((it_event_first.run() > event_curr.run()) ||
-                         ((it_event_first.run() == event_curr.run() &&
-                           (it_event_first.luminosityBlock() > event_curr.luminosityBlock()))));
-
-    if (it_in_future) {
-      next_exists = true;
-      if (event_next_start > it_event_first)
-        event_next_start = it_event_first;
-    }
-  }
-
-  // no interval found, set empty corrections
-  *p_corr = CTPPSRPAlignmentCorrectionsData();
-
-  if (!next_exists) {
-    valInt = ValidityInterval(iosv, iosv.endOfTime());
-  } else {
-    const EventID &event_last = ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->previousLS(event_next_start);
-    valInt = ValidityInterval(iosv, IOVSyncValue(event_last));
-  }
-
+  valInt = CTPPSRPAlignmentCorrectionsDataESSourceXMLCommon::intervalFor(
+      iosv, *p_seq, ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->verbosity);
   if (ctppsRPAlignmentCorrectionsDataESSourceXMLCommon->verbosity) {
     LogInfo("PPS") << "    setting validity interval ["
                    << CTPPSRPAlignmentCorrectionsMethods::iovValueToString(valInt.first()) << ", "

@@ -8,7 +8,7 @@
 #include <iomanip>  // std::setw
 
 // user include files
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "TrackerGeometry.h"

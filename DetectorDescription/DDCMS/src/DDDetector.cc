@@ -74,7 +74,7 @@ namespace cms {
     return m_description->world();
   }
 
-  TGeoManager& DDDetector::manager() const {
+  const TGeoManager& DDDetector::manager() const {
     assert(m_description);
     return m_description->manager();
   }

@@ -34,12 +34,6 @@ HBHEDarkeningEP::HBHEDarkeningEP(const edm::ParameterSet& pset)
 
 HBHEDarkeningEP::~HBHEDarkeningEP() {}
 
-void HBHEDarkeningEP::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& iKey,
-                                     const edm::IOVSyncValue& iTime,
-                                     edm::ValidityInterval& oInterval) {
-  oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());  //infinite
-}
-
 void HBHEDarkeningEP::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<int>("ieta_shift");

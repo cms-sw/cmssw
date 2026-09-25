@@ -1,0 +1,8 @@
+<lcgdict>
+  <!-- std::pair / std::vector<std::pair<unsigned,unsigned>> dictionaries already
+       come from DataFormatsStdDictionaries; only the wrapper class is new. -->
+  <class name="hgcal::DetIdRecHitMap"/>
+  <!-- Transient product: hgcal::DetIdRecHitMap lives in a non-DataFormats package,
+       so its Wrapper is not persisted. -->
+  <class name="edm::Wrapper<hgcal::DetIdRecHitMap>" persistent="false"/>
+</lcgdict>

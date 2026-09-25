@@ -25,6 +25,9 @@
 #include "CondFormats/DataRecord/interface/HBHENegativeEFilterRcd.h"
 #include "CondFormats/HcalObjects/interface/HBHENegativeEFilter.h"
 
+#include "CondFormats/DataRecord/interface/HcalInterpolatedPulseMapRcd.h"
+#include "CondFormats/HcalObjects/interface/HcalInterpolatedPulseMap.h"
+
 #include "CondFormats/DataRecord/interface/HFPhase1PMTParamsRcd.h"
 #include "CondFormats/HcalObjects/interface/HFPhase1PMTParams.h"
 
@@ -75,6 +78,7 @@ REGISTER_PLUGIN(HcalPedestalWidthsRcd, HcalPedestalWidths);
 REGISTER_PLUGIN(HcalGainsRcd, HcalGains);
 REGISTER_PLUGIN(HcalGainWidthsRcd, HcalGainWidths);
 REGISTER_PLUGIN(HcalPFCutsRcd, HcalPFCuts);
+REGISTER_PLUGIN(HcalPulseDelaysRcd, HcalPulseDelays);
 REGISTER_PLUGIN_INIT(HcalElectronicsMapRcd, HcalElectronicsMap, InitHcalElectronicsMap);
 REGISTER_PLUGIN_INIT(HcalFrontEndMapRcd, HcalFrontEndMap, InitHcalFrontEndMap);
 REGISTER_PLUGIN(HcalChannelQualityRcd, HcalChannelQuality);
@@ -102,6 +106,7 @@ REGISTER_PLUGIN(HcalOOTPileupCompatibilityRcd, OOTPileupCorrectionBuffer);
 REGISTER_PLUGIN(HcalOOTPileupCorrectionMapCollRcd, OOTPileupCorrectionMapColl);
 REGISTER_PLUGIN(HcalInterpolatedPulseCollRcd, HcalInterpolatedPulseColl);
 REGISTER_PLUGIN(HBHENegativeEFilterRcd, HBHENegativeEFilter);
+REGISTER_PLUGIN(HcalInterpolatedPulseMapRcd, HcalInterpolatedPulseMap);
 REGISTER_PLUGIN(HcalSiPMParametersRcd, HcalSiPMParameters);
 REGISTER_PLUGIN_INIT(HcalSiPMCharacteristicsRcd, HcalSiPMCharacteristics, InitHcalSiPMCharacteristics);
 REGISTER_PLUGIN(HcalTPParametersRcd, HcalTPParameters);

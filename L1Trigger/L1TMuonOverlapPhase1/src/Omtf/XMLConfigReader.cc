@@ -34,7 +34,10 @@ XERCES_CPP_NAMESPACE_USE
 // XMLConfigReader
 //////////////////////////////////
 inline std::string _toString(XMLCh const *toTranscode) {
-  std::string tmp(xercesc::XMLString::transcode(toTranscode));
+  // XMLString::transcode returns a temporary char* that must be released with XMLString::release
+  char *tmpC = xercesc::XMLString::transcode(toTranscode);
+  std::string tmp(tmpC);
+  XMLString::release(&tmpC);
   return tmp;
 }
 
@@ -42,6 +45,31 @@ inline XMLCh *_toDOMS(std::string temp) {
   XMLCh *buff = XMLString::transcode(temp.c_str());
   return buff;
 }
+
+// RAII guard for XMLCh* allocated by XMLString::transcode
+// Ensures XMLString::release is called on destruction and is non-copyable (moveable).
+struct XMLChGuard {
+  XMLCh *p_;
+  explicit XMLChGuard(XMLCh *p = nullptr) : p_(p) {}
+  XMLChGuard(const XMLChGuard &) = delete;
+  XMLChGuard &operator=(const XMLChGuard &) = delete;
+  XMLChGuard(XMLChGuard &&o) noexcept : p_(o.p_) { o.p_ = nullptr; }
+  XMLChGuard &operator=(XMLChGuard &&o) noexcept {
+    if (this != &o) {
+      if (p_)
+        xercesc::XMLString::release(&p_);
+      p_ = o.p_;
+      o.p_ = nullptr;
+    }
+    return *this;
+  }
+  ~XMLChGuard() {
+    if (p_)
+      xercesc::XMLString::release(&p_);
+  }
+  XMLCh *get() const { return p_; }
+  operator XMLCh *() const { return p_; }
+};
 ////////////////////////////////////
 ////////////////////////////////////
 XMLConfigReader::XMLConfigReader() { cms::concurrency::xercesInitialize(); }
@@ -218,14 +246,12 @@ unsigned int XMLConfigReader::getPatternsVersion() const {
     xercesc::DOMDocument *doc = parser.getDocument();
     assert(doc);
 
-    XMLCh *xmlOmtf = _toDOMS("OMTF");
-    XMLCh *xmlVersion = _toDOMS("version");
+    XMLChGuard xmlOmtf(_toDOMS("OMTF"));
+    XMLChGuard xmlVersion(_toDOMS("version"));
     DOMNode *aNode = doc->getElementsByTagName(xmlOmtf)->item(0);
     DOMElement *aOMTFElement = static_cast<DOMElement *>(aNode);
 
     version = std::stoul(_toString(aOMTFElement->getAttribute(xmlVersion)), nullptr, 16);
-    XMLString::release(&xmlOmtf);
-    XMLString::release(&xmlVersion);
     parser.resetDocumentPool();
   }
 
@@ -329,33 +355,33 @@ std::unique_ptr<GoldenPatternType> XMLConfigReader::buildGP(DOMElement *aGPEleme
                                                             unsigned int patternGroup,
                                                             unsigned int index,
                                                             unsigned int aGPNumber) {
-  XMLCh *xmliEta = _toDOMS("iEta");
+  XMLChGuard xmliEta(_toDOMS("iEta"));
   //index 0 means no number at the end
   std::ostringstream stringStr;
   if (index > 0)
     stringStr << "iPt" << index;
   else
     stringStr.str("iPt");
-  XMLCh *xmliPt = _toDOMS(stringStr.str());
+  XMLChGuard xmliPt(_toDOMS(stringStr.str()));
   stringStr.str("");
 
   if (index > 0)
     stringStr << "value" << index;
   else
     stringStr.str("value");
-  XMLCh *xmlValue = _toDOMS(stringStr.str());
+  XMLChGuard xmlValue(_toDOMS(stringStr.str()));
 
-  XMLCh *xmliCharge = _toDOMS("iCharge");
-  XMLCh *xmlLayer = _toDOMS("Layer");
-  XMLCh *xmlRefLayer = _toDOMS("RefLayer");
-  XMLCh *xmlmeanDistPhi = _toDOMS("meanDistPhi");  //for old version
+  XMLChGuard xmliCharge(_toDOMS("iCharge"));
+  XMLChGuard xmlLayer(_toDOMS("Layer"));
+  XMLChGuard xmlRefLayer(_toDOMS("RefLayer"));
+  XMLChGuard xmlmeanDistPhi(_toDOMS("meanDistPhi"));  //for old version
 
-  XMLCh *xmlmeanDistPhi0 = _toDOMS("meanDistPhi0");  //for new version
-  XMLCh *xmlmeanDistPhi1 = _toDOMS("meanDistPhi1");  //for new version
+  XMLChGuard xmlmeanDistPhi0(_toDOMS("meanDistPhi0"));  //for new version
+  XMLChGuard xmlmeanDistPhi1(_toDOMS("meanDistPhi1"));  //for new version
 
-  XMLCh *xmlSelDistPhiShift = _toDOMS("selDistPhiShift");
+  XMLChGuard xmlSelDistPhiShift(_toDOMS("selDistPhiShift"));
 
-  XMLCh *xmlPDF = _toDOMS("PDF");
+  XMLChGuard xmlPDF(_toDOMS("PDF"));
 
   unsigned int iPt = std::atoi(_toString(aGPElement->getAttribute(xmliPt)).c_str());
   int iEta = std::atoi(_toString(aGPElement->getAttribute(xmliEta)).c_str());
@@ -377,12 +403,12 @@ std::unique_ptr<GoldenPatternType> XMLConfigReader::buildGP(DOMElement *aGPEleme
   }
 
   stringStr.str("");
-  XMLCh *xmlRefLayerThresh = _toDOMS("RefLayerThresh");
+  XMLChGuard xmlRefLayerThresh(_toDOMS("RefLayerThresh"));
   if (index > 0)
     stringStr << "tresh" << index;
   else
     stringStr.str("tresh");
-  XMLCh *xmlTresh = _toDOMS(stringStr.str());
+  XMLChGuard xmlTresh(_toDOMS(stringStr.str()));
   stringStr.str("");
 
   std::vector<PdfValueType> thresholds(aConfig.nRefLayers(), 0);
@@ -446,14 +472,6 @@ std::unique_ptr<GoldenPatternType> XMLConfigReader::buildGP(DOMElement *aGPEleme
       }
     }
   }
-  XMLString::release(&xmliEta);
-  XMLString::release(&xmliPt);
-  XMLString::release(&xmliCharge);
-  XMLString::release(&xmlLayer);
-  XMLString::release(&xmlRefLayer);
-  XMLString::release(&xmlmeanDistPhi);
-  XMLString::release(&xmlPDF);
-  XMLString::release(&xmlValue);
 
   return aGP;
 }
@@ -470,51 +488,51 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const {
     parser.setValidationScheme(XercesDOMParser::Val_Auto);
     parser.setDoNamespaces(false);
 
-    XMLCh *xmlOMTF = _toDOMS("OMTF");
-    XMLCh *xmlversion = _toDOMS("version");
-    XMLCh *xmlGlobalData = _toDOMS("GlobalData");
-    XMLCh *xmlnPdfAddrBits = _toDOMS("nPdfAddrBits");
-    XMLCh *xmlnPdfValBits = _toDOMS("nPdfValBits");
-    XMLCh *xmlnPhiBits = _toDOMS("nPhiBits");
-    XMLCh *xmlnPhiBins = _toDOMS("nPhiBins");
-    XMLCh *xmlnProcessors = _toDOMS("nProcessors");
-    XMLCh *xmlnLogicRegions = _toDOMS("nLogicRegions");
-    XMLCh *xmlnInputs = _toDOMS("nInputs");
-    XMLCh *xmlnLayers = _toDOMS("nLayers");
-    XMLCh *xmlnRefLayers = _toDOMS("nRefLayers");
-    XMLCh *xmliProcessor = _toDOMS("iProcessor");
-    XMLCh *xmlbarrelMin = _toDOMS("barrelMin");
-    XMLCh *xmlbarrelMax = _toDOMS("barrelMax");
-    XMLCh *xmlendcap10DegMin = _toDOMS("endcap10DegMin");
-    XMLCh *xmlendcap10DegMax = _toDOMS("endcap10DegMax");
-    XMLCh *xmlendcap20DegMin = _toDOMS("endcap20DegMin");
-    XMLCh *xmlendcap20DegMax = _toDOMS("endcap20DegMax");
-    XMLCh *xmlLayerMap = _toDOMS("LayerMap");
-    XMLCh *xmlhwNumber = _toDOMS("hwNumber");
-    XMLCh *xmllogicNumber = _toDOMS("logicNumber");
-    XMLCh *xmlbendingLayer = _toDOMS("bendingLayer");
-    XMLCh *xmlconnectedToLayer = _toDOMS("connectedToLayer");
-    XMLCh *xmlRefLayerMap = _toDOMS("RefLayerMap");
-    XMLCh *xmlrefLayer = _toDOMS("refLayer");
-    XMLCh *xmlProcessor = _toDOMS("Processor");
-    XMLCh *xmlRefLayer = _toDOMS("RefLayer");
-    XMLCh *xmliRefLayer = _toDOMS("iRefLayer");
-    XMLCh *xmliGlobalPhiStart = _toDOMS("iGlobalPhiStart");
-    XMLCh *xmlRefHit = _toDOMS("RefHit");
-    XMLCh *xmliRefHit = _toDOMS("iRefHit");
-    XMLCh *xmliPhiMin = _toDOMS("iPhiMin");
-    XMLCh *xmliPhiMax = _toDOMS("iPhiMax");
-    XMLCh *xmliInput = _toDOMS("iInput");
-    XMLCh *xmliRegion = _toDOMS("iRegion");
-    XMLCh *xmlLogicRegion = _toDOMS("LogicRegion");
-    XMLCh *xmlLayer = _toDOMS("Layer");
-    XMLCh *xmliLayer = _toDOMS("iLayer");
-    XMLCh *xmliFirstInput = _toDOMS("iFirstInput");
-    XMLCh *xmlnHitsPerLayer = _toDOMS("nHitsPerLayer");
-    XMLCh *xmlnRefHits = _toDOMS("nRefHits");
-    XMLCh *xmlnTestRefHits = _toDOMS("nTestRefHits");
-    XMLCh *xmlnGoldenPatterns = _toDOMS("nGoldenPatterns");
-    XMLCh *xmlConnectionMap = _toDOMS("ConnectionMap");
+    XMLChGuard xmlOMTF(_toDOMS("OMTF"));
+    XMLChGuard xmlversion(_toDOMS("version"));
+    XMLChGuard xmlGlobalData(_toDOMS("GlobalData"));
+    XMLChGuard xmlnPdfAddrBits(_toDOMS("nPdfAddrBits"));
+    XMLChGuard xmlnPdfValBits(_toDOMS("nPdfValBits"));
+    XMLChGuard xmlnPhiBits(_toDOMS("nPhiBits"));
+    XMLChGuard xmlnPhiBins(_toDOMS("nPhiBins"));
+    XMLChGuard xmlnProcessors(_toDOMS("nProcessors"));
+    XMLChGuard xmlnLogicRegions(_toDOMS("nLogicRegions"));
+    XMLChGuard xmlnInputs(_toDOMS("nInputs"));
+    XMLChGuard xmlnLayers(_toDOMS("nLayers"));
+    XMLChGuard xmlnRefLayers(_toDOMS("nRefLayers"));
+    XMLChGuard xmliProcessor(_toDOMS("iProcessor"));
+    XMLChGuard xmlbarrelMin(_toDOMS("barrelMin"));
+    XMLChGuard xmlbarrelMax(_toDOMS("barrelMax"));
+    XMLChGuard xmlendcap10DegMin(_toDOMS("endcap10DegMin"));
+    XMLChGuard xmlendcap10DegMax(_toDOMS("endcap10DegMax"));
+    XMLChGuard xmlendcap20DegMin(_toDOMS("endcap20DegMin"));
+    XMLChGuard xmlendcap20DegMax(_toDOMS("endcap20DegMax"));
+    XMLChGuard xmlLayerMap(_toDOMS("LayerMap"));
+    XMLChGuard xmlhwNumber(_toDOMS("hwNumber"));
+    XMLChGuard xmllogicNumber(_toDOMS("logicNumber"));
+    XMLChGuard xmlbendingLayer(_toDOMS("bendingLayer"));
+    XMLChGuard xmlconnectedToLayer(_toDOMS("connectedToLayer"));
+    XMLChGuard xmlRefLayerMap(_toDOMS("RefLayerMap"));
+    XMLChGuard xmlrefLayer(_toDOMS("refLayer"));
+    XMLChGuard xmlProcessor(_toDOMS("Processor"));
+    XMLChGuard xmlRefLayer(_toDOMS("RefLayer"));
+    XMLChGuard xmliRefLayer(_toDOMS("iRefLayer"));
+    XMLChGuard xmliGlobalPhiStart(_toDOMS("iGlobalPhiStart"));
+    XMLChGuard xmlRefHit(_toDOMS("RefHit"));
+    XMLChGuard xmliRefHit(_toDOMS("iRefHit"));
+    XMLChGuard xmliPhiMin(_toDOMS("iPhiMin"));
+    XMLChGuard xmliPhiMax(_toDOMS("iPhiMax"));
+    XMLChGuard xmliInput(_toDOMS("iInput"));
+    XMLChGuard xmliRegion(_toDOMS("iRegion"));
+    XMLChGuard xmlLogicRegion(_toDOMS("LogicRegion"));
+    XMLChGuard xmlLayer(_toDOMS("Layer"));
+    XMLChGuard xmliLayer(_toDOMS("iLayer"));
+    XMLChGuard xmliFirstInput(_toDOMS("iFirstInput"));
+    XMLChGuard xmlnHitsPerLayer(_toDOMS("nHitsPerLayer"));
+    XMLChGuard xmlnRefHits(_toDOMS("nRefHits"));
+    XMLChGuard xmlnTestRefHits(_toDOMS("nTestRefHits"));
+    XMLChGuard xmlnGoldenPatterns(_toDOMS("nGoldenPatterns"));
+    XMLChGuard xmlConnectionMap(_toDOMS("ConnectionMap"));
     parser.parse(configFile.c_str());
     xercesc::DOMDocument *doc = parser.getDocument();
     assert(doc);
@@ -711,52 +729,6 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const {
 
     // Reset the documents vector pool and release all the associated memory back to the system.
     parser.resetDocumentPool();
-
-    XMLString::release(&xmlOMTF);
-    XMLString::release(&xmlversion);
-    XMLString::release(&xmlGlobalData);
-    XMLString::release(&xmlnPdfAddrBits);
-    XMLString::release(&xmlnPdfValBits);
-    XMLString::release(&xmlnPhiBits);
-    XMLString::release(&xmlnPhiBins);
-    XMLString::release(&xmlnProcessors);
-    XMLString::release(&xmlnLogicRegions);
-    XMLString::release(&xmlnInputs);
-    XMLString::release(&xmlnLayers);
-    XMLString::release(&xmlnRefLayers);
-    XMLString::release(&xmliProcessor);
-    XMLString::release(&xmlbarrelMin);
-    XMLString::release(&xmlbarrelMax);
-    XMLString::release(&xmlendcap10DegMin);
-    XMLString::release(&xmlendcap10DegMax);
-    XMLString::release(&xmlendcap20DegMin);
-    XMLString::release(&xmlendcap20DegMax);
-    XMLString::release(&xmlLayerMap);
-    XMLString::release(&xmlhwNumber);
-    XMLString::release(&xmllogicNumber);
-    XMLString::release(&xmlbendingLayer);
-    XMLString::release(&xmlconnectedToLayer);
-    XMLString::release(&xmlRefLayerMap);
-    XMLString::release(&xmlrefLayer);
-    XMLString::release(&xmlProcessor);
-    XMLString::release(&xmlRefLayer);
-    XMLString::release(&xmliRefLayer);
-    XMLString::release(&xmliGlobalPhiStart);
-    XMLString::release(&xmlRefHit);
-    XMLString::release(&xmliRefHit);
-    XMLString::release(&xmliPhiMin);
-    XMLString::release(&xmliPhiMax);
-    XMLString::release(&xmliInput);
-    XMLString::release(&xmliRegion);
-    XMLString::release(&xmlLogicRegion);
-    XMLString::release(&xmlLayer);
-    XMLString::release(&xmliLayer);
-    XMLString::release(&xmliFirstInput);
-    XMLString::release(&xmlnHitsPerLayer);
-    XMLString::release(&xmlnRefHits);
-    XMLString::release(&xmlnTestRefHits);
-    XMLString::release(&xmlnGoldenPatterns);
-    XMLString::release(&xmlConnectionMap);
   }
 }
 //////////////////////////////////////////////////

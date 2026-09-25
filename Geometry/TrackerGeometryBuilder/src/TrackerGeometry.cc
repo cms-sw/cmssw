@@ -2,8 +2,8 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -200,7 +200,7 @@ const TrackerGeomDet* TrackerGeometry::idToDet(DetId s) const {
   }
 }
 
-const GeomDetEnumerators::SubDetector TrackerGeometry::geomDetSubDetector(int subdet) const {
+GeomDetEnumerators::SubDetector TrackerGeometry::geomDetSubDetector(int subdet) const {
   if (subdet >= 1 && subdet <= 6) {
     return theSubDetTypeMap[subdet - 1];
   } else {

@@ -326,8 +326,7 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   h_nMuons->Fill(theMuonData);
 
   //Fill historgams concerning muon isolation
-  uint iMuon = 0;
-  for (MuonIterator muon = muonsHandle->begin(); muon != muonsHandle->end(); ++muon, ++iMuon) {
+  for (MuonIterator muon = muonsHandle->begin(); muon != muonsHandle->end(); ++muon) {
     ++nIncMuons;
     if (requireCombinedMuon) {
       if (muon->combinedMuon().isNull())

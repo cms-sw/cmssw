@@ -94,7 +94,7 @@ namespace cms {
     // wrappers for cudaLaunchKernel
 
     inline void launch(void (*kernel)(), LaunchParameters config) {
-      cudaCheck(cudaLaunchKernel(
+      CUDA_CHECK(cudaLaunchKernel(
           (const void*)kernel, config.gridDim, config.blockDim, nullptr, config.sharedMem, config.stream));
     }
 
@@ -112,14 +112,14 @@ namespace cms {
       void const* pointers[size];
 
       detail::pointer_setter<size>()(pointers, args_copy);
-      cudaCheck(cudaLaunchKernel(
+      CUDA_CHECK(cudaLaunchKernel(
           (const void*)kernel, config.gridDim, config.blockDim, (void**)pointers, config.sharedMem, config.stream));
     }
 
     // wrappers for cudaLaunchCooperativeKernel
 
     inline void launch_cooperative(void (*kernel)(), LaunchParameters config) {
-      cudaCheck(cudaLaunchCooperativeKernel(
+      CUDA_CHECK(cudaLaunchCooperativeKernel(
           (const void*)kernel, config.gridDim, config.blockDim, nullptr, config.sharedMem, config.stream));
     }
 
@@ -137,7 +137,7 @@ namespace cms {
       void const* pointers[size];
 
       detail::pointer_setter<size>()(pointers, args_copy);
-      cudaCheck(cudaLaunchCooperativeKernel(
+      CUDA_CHECK(cudaLaunchCooperativeKernel(
           (const void*)kernel, config.gridDim, config.blockDim, (void**)pointers, config.sharedMem, config.stream));
     }
 

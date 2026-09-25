@@ -9,37 +9,40 @@
 
 #include <vector>
 
-class MtdCaloParticle : public CaloParticle {
-  friend std::ostream &operator<<(std::ostream &s, MtdCaloParticle const &tp);
+namespace io_v1 {
+  class MtdCaloParticle : public CaloParticle {
+    friend std::ostream &operator<<(std::ostream &s, MtdCaloParticle const &tp);
 
-public:
-  typedef MtdSimClusterRefVector::iterator mtdsc_iterator;
+  public:
+    typedef MtdSimClusterRefVector::iterator mtdsc_iterator;
 
-  MtdCaloParticle();
+    MtdCaloParticle();
 
-  MtdCaloParticle(const SimTrack &simtrk);
-  MtdCaloParticle(EncodedEventId eventID, uint32_t particleID);  // for PU
+    MtdCaloParticle(const SimTrack &simtrk);
+    MtdCaloParticle(EncodedEventId eventID, uint32_t particleID);  // for PU
 
-  // destructor
-  ~MtdCaloParticle();
+    // destructor
+    ~MtdCaloParticle();
 
-  void addSimCluster(const MtdSimClusterRef &ref) { mtdsimClusters_.push_back(ref); }
+    void addSimCluster(const MtdSimClusterRef &ref) { mtdsimClusters_.push_back(ref); }
 
-  /// iterators
-  mtdsc_iterator simCluster_begin() const { return mtdsimClusters_.begin(); }
-  mtdsc_iterator simCluster_end() const { return mtdsimClusters_.end(); }
+    /// iterators
+    mtdsc_iterator simCluster_begin() const { return mtdsimClusters_.begin(); }
+    mtdsc_iterator simCluster_end() const { return mtdsimClusters_.end(); }
 
-  const MtdSimClusterRefVector &simClusters() const { return mtdsimClusters_; }
-  void clearSimClusters() { mtdsimClusters_.clear(); }
+    const MtdSimClusterRefVector &simClusters() const { return mtdsimClusters_; }
+    void clearSimClusters() { mtdsimClusters_.clear(); }
 
-  /** @brief add simhit's energy to cluster */
-  void addSimHit(PSimHit &hit) {
-    simhit_energy_ += hit.energyLoss();
-    ++nsimhits_;
-  }
+    /** @brief add simhit's energy to cluster */
+    void addSimHit(PSimHit &hit) {
+      simhit_energy_ += hit.energyLoss();
+      ++nsimhits_;
+    }
 
-private:
-  MtdSimClusterRefVector mtdsimClusters_;
-};
+  private:
+    MtdSimClusterRefVector mtdsimClusters_;
+  };
+}  // namespace io_v1
+using MtdCaloParticle = io_v1::MtdCaloParticle;
 
 #endif  // SimDataFormats_MtdCaloParticle_H

@@ -78,7 +78,7 @@ namespace reco {
     /// set mother product ID
     void resetMothers(const edm::ProductID& id) { mom = mothers(id); }
 
-    CMS_CLASS_VERSION(13)
+    CMS_CLASS_VERSION(3)
 
   private:
     /// collection of references to daughters

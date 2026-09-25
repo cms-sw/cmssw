@@ -13,7 +13,7 @@
 #include "DQM/SiPixelPhase1Common/interface/SiPixelCoordinates.h"
 
 // Tracker Geometry/Topology  stuff
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"

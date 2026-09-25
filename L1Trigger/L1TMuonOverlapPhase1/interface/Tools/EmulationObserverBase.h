@@ -27,7 +27,7 @@ public:
                                 const std::shared_ptr<OMTFinput>& input,
                                 const AlgoMuons& algoCandidates,
                                 const AlgoMuons& gbCandidates,
-                                const std::vector<l1t::RegionalMuonCand>& candMuons) override;
+                                const FinalMuons& finalMuons) override;
 
   void observeEventBegin(const edm::Event& iEvent) override;
 
@@ -41,7 +41,7 @@ public:
   const std::vector<const reco::GenParticle*> findGenMuon(const edm::Event& event);
 
 protected:
-  edm::ParameterSet edmCfg;
+  const edm::ParameterSet& edmCfg;
   const OMTFConfiguration* omtfConfig;
 
   const SimTrack* simMuon = nullptr;
@@ -49,7 +49,7 @@ protected:
   //candidate found by omtf in a given event
   AlgoMuons::value_type omtfCand;
 
-  l1t::RegionalMuonCand regionalMuonCand;
+  FinalMuonPtr finalMuon;
 
   //AlgoMuons algoCandidates;
 

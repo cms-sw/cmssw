@@ -4,7 +4,7 @@ hltEgammaElectronPixelSeedsL1Seeded = cms.EDProducer("ElectronNHitSeedProducer",
     beamSpot = cms.InputTag("hltOnlineBeamSpot"),
     initialSeeds = cms.InputTag("hltElePixelSeedsCombinedL1Seeded"),
     matcherConfig = cms.PSet(
-        detLayerGeom = cms.ESInputTag("","GlobalDetLayerGeometry"),
+        detLayerGeom = cms.ESInputTag("","hltESPGlobalDetLayerGeometry"),
         enableHitSkipping = cms.bool(True),
         matchingCuts = cms.VPSet(
             cms.PSet(

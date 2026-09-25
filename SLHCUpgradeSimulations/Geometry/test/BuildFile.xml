@@ -16,7 +16,7 @@
     <use name="Geometry/Records"/>
     <use name="Geometry/TrackerGeometryBuilder"/>
     <use name="Geometry/TrackerNumberingBuilder"/>
-    <use name="Geometry/CommonDetUnit"/>
+    <use name="Geometry/CommonTopologies"/>
   </library>
 
   <library file="Phase2PixelNtuple.cc" name="Phase2PixelNtuple">
@@ -40,7 +40,7 @@
     <use name="RecoTracker/TransientTrackingRecHit"/>
   </library>
 
-  <test name="testPhase2PixelNtuple" command="phase2_digi_reco_pixelntuple.sh"/>
+  <!-- <test name="testPhase2PixelNtuple" command="phase2_digi_reco_pixelntuple.sh"/> COMMENT: reads old format file -->
 
   <test name="testPhase2SkimmedGeometry" command="phase2_skimmed_geometry.sh"/>
 

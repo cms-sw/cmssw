@@ -2,7 +2,7 @@
 #define Geometry_GEMGeometry_ME0Geometry_h
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/TrackingGeometry.h"
 #include "Geometry/GEMGeometry/interface/ME0EtaPartition.h"
 #include "Geometry/GEMGeometry/interface/ME0Layer.h"
 #include "Geometry/GEMGeometry/interface/ME0Chamber.h"

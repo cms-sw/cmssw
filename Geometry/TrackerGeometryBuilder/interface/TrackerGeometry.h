@@ -3,9 +3,9 @@
 
 #include <cassert>
 
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
-#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
+#include "Geometry/CommonTopologies/interface/TrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GeomDetEnumerators.h"
+#include "Geometry/CommonTopologies/interface/TrackerGeomDet.h"
 
 class GeometricDet;
 
@@ -75,7 +75,7 @@ public:
   const TrackerGeomDet* idToDetUnit(DetId) const override;
   const TrackerGeomDet* idToDet(DetId) const override;
 
-  const GeomDetEnumerators::SubDetector geomDetSubDetector(int subdet) const;
+  GeomDetEnumerators::SubDetector geomDetSubDetector(int subdet) const;
   unsigned int numberOfLayers(int subdet) const;
   bool isThere(GeomDetEnumerators::SubDetector subdet) const;
 

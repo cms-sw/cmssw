@@ -9,7 +9,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
-#include <cassert>
+#include "Require.h"
+
 #include <memory>
 #include <vector>
 
@@ -64,14 +65,14 @@ namespace edmtest {
     }
 
     void analyze(edm::StreamID id, edm::Event const& iEvent, edm::EventSetup const&) const override {
-      assert(iEvent.get(intToken_) == 1);
+      REQUIRE(iEvent.get(intToken_) == 1);
 
       const auto& vecUniqInt = iEvent.get(vecUniqIntToken_);
-      assert(vecUniqInt.size() == 1);
+      REQUIRE(vecUniqInt.size() == 1);
       for (const auto& elem : vecUniqInt) {
         if (testVecUniqInt_) {
-          assert(elem.get() != nullptr);
-          assert(*elem == 1);
+          REQUIRE(elem.get() != nullptr);
+          REQUIRE(*elem == 1);
         } else {
           if (elem) {
             edm::LogError("ExistingDictionaryTestAnalyzer")
@@ -81,10 +82,10 @@ namespace edmtest {
       }
 
       const auto& vecUniqIntProd = iEvent.get(vecUniqIntProdToken_);
-      assert(vecUniqIntProd.size() == 1);
+      REQUIRE(vecUniqIntProd.size() == 1);
       for (const auto& elem : vecUniqIntProd) {
-        assert(elem.get() != nullptr);
-        assert(elem->value == 1);
+        REQUIRE(elem.get() != nullptr);
+        REQUIRE(elem->value == 1);
       }
     }
 

@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cmath>
 
-typedef ROOT::Math::Transform3DPJ::Point Point;
+typedef ROOT::Math::Transform3D::Point Point;
 
 HcalHitMaker::HcalHitMaker(EcalHitMaker& grid, unsigned shower)
     : CaloHitMaker(grid.getCalorimeter(),

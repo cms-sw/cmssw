@@ -21,6 +21,6 @@
 </test>
 <test name="test_ZMuMuMassConstraintParameterFinder" command="test_ZMuMuMassConstraintParameterFinder.sh"/>
 <bin file="testFindMassContraintParameters.cpp" name="test_ExtractMassConstraint">
-  <flags PRE_TEST="test_ZMuMuMassConstraintParameterFinder"/>
+  <flags PRE_TEST="test_ZMuMuMassConstraintParameterFinder"/> 
   <use name="roothistmatrix"/>
 </bin>

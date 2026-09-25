@@ -84,10 +84,8 @@ void CSCTFanalyzer::analyze(edm::Event const& e, edm::EventSetup const& es) {
 
     for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc = LCTs.product()->begin(); csc != LCTs.product()->end();
          csc++) {
-      int lctId = 0;
-
       CSCCorrelatedLCTDigiCollection::Range range1 = LCTs.product()->get((*csc).first);
-      for (CSCCorrelatedLCTDigiCollection::const_iterator lct = range1.first; lct != range1.second; lct++, lctId++) {
+      for (CSCCorrelatedLCTDigiCollection::const_iterator lct = range1.first; lct != range1.second; lct++) {
         int station = (*csc).first.station() - 1;
         int cscId = (*csc).first.triggerCscId() - 1;
         int sector = (*csc).first.triggerSector() - 1 + ((*csc).first.endcap() == 1 ? 0 : 6);

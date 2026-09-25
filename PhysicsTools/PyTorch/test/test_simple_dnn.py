@@ -3,9 +3,13 @@
 import sys
 import os
 import torch
+from torch_utils import check_torch_gpu
+gpu, device, gpu_name = check_torch_gpu(torch, sys.argv[1])
+if not gpu:
+  exit(1)
 
-if len(sys.argv)>=2:
-    datadir=sys.argv[1]
+if len(sys.argv)>=3:
+    datadir=sys.argv[2]
 else:
     thisdir=os.path.dirname(os.path.abspath(__file__))
     datadir=os.path.join(os.path.dirname(thisdir), "bin", "data")
@@ -20,7 +24,6 @@ tm.eval()
 x = torch.ones(10)
 
 # optional: run on gpu if available
-device = "cuda" if torch.cuda.is_available() else "cpu"
 tm.to(device)
 x = x.to(device)
 
@@ -28,4 +31,4 @@ with torch.no_grad():
     y = tm(x)
 
 print("ok. output:", y.item())
-print("device:", device)
+print("device:", gpu_name)

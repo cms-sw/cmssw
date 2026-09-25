@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
@@ -40,10 +40,10 @@ struct BarrelValidatorHistograms {
 class BarrelValidator : public DQMGlobalEDAnalyzer<BarrelValidatorHistograms> {
 public:
   using Histograms = BarrelValidatorHistograms;
-  using TracksterToTracksterMap =
-      ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>;
+  using TracksterToTracksterMap = ticl::
+      TICLAssociationMap<ticl::mapWithSharedEnergyAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>;
   using SimClusterToCaloParticleMap =
-      ticl::AssociationMap<ticl::oneToOneMapWithFraction, std::vector<SimCluster>, std::vector<CaloParticle>>;
+      ticl::TICLAssociationMap<ticl::oneToOneMapWithFraction, std::vector<SimCluster>, std::vector<CaloParticle>>;
 
   /// Constructor
   BarrelValidator(const edm::ParameterSet& pset);
@@ -67,10 +67,16 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
+  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
+  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   edm::InputTag lclTag_;
   edm::InputTag sclTag_;
   edm::InputTag rechitmapTag_;
+  std::vector<edm::InputTag> label_tst;
+  std::vector<edm::InputTag> allTracksterTracksterAssociatorsLabels_;
+  std::vector<edm::InputTag> allTracksterTracksterByHitsAssociatorsLabels_;
+  edm::InputTag label_simTS, label_simTSFromCP;
   std::vector<edm::InputTag> associator_;
   std::vector<edm::InputTag> associatorSim_;
   const bool SaveGeneralInfo_;
@@ -82,10 +88,16 @@ protected:
   const bool doLayerClustersPlots_;
   std::string label_layerClustersPlots_, label_LCToCPLinking_;
   std::vector<edm::InputTag> clustersmaskTags_;
+  const bool doTrackstersPlots_;
+  std::string label_TS_, label_TSbyHitsCP_, label_TSbyHits_, label_TSbyLCsCP_, label_TSbyLCs_;
 
   edm::EDGetTokenT<std::vector<SimCluster>> simClusters_;
   edm::EDGetTokenT<reco::CaloClusterCollection> layerClusters_;
   edm::EDGetTokenT<std::vector<CaloParticle>> cpToken_;
+  std::vector<edm::EDGetTokenT<ticl::TracksterCollection>> label_tstTokens;
+  edm::EDGetTokenT<ticl::TracksterCollection> simTracksters_;
+  edm::EDGetTokenT<ticl::TracksterCollection> simTracksters_fromCPs_;
+  edm::EDGetTokenT<std::map<uint, std::vector<uint>>> simTrackstersMap_;
   edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;
   std::vector<edm::EDGetTokenT<std::vector<float>>> clustersMaskTokens_;
   edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> barrelHitMap_;
@@ -97,12 +109,14 @@ protected:
       associatorMapRtSim;
   std::unique_ptr<BarrelVHistoProducerAlgo> histoProducerAlgo_;
   edm::EDGetTokenT<edm::RefProdVector<reco::PFRecHitCollection>> hitsToken_;
+  std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterAssociatorsTokens_;
+  std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterByHitsAssociatorsTokens_;
   edm::EDGetTokenT<SimClusterToCaloParticleMap> scToCpMapToken_;
   edm::InputTag cpTag_;
 
 private:
   CaloParticleSelector cpSelector;
-  std::shared_ptr<hgcal::RecHitTools> tools_;
+  std::shared_ptr<ticlgeom::Tools> tools_;
   std::vector<int> particles_to_monitor_;
   unsigned totallayers_to_monitor_;
   std::string dirName_;

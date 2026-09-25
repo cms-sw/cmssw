@@ -27,6 +27,7 @@ namespace lst {
                       SOA_COLUMN(FPX, centerX),  // T3-based circle center x
                       SOA_COLUMN(FPX, centerY),  // T3-based circle center y
                       SOA_COLUMN(bool, isDup),
+                      SOA_COLUMN(unsigned int, nLayers),
                       SOA_SCALAR(unsigned int, nPixelQuintuplets),
                       SOA_SCALAR(unsigned int, totOccupancyPixelQuintuplets));
 

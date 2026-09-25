@@ -5,26 +5,23 @@
   <class name="edm::Wrapper<LumiInfoRunHeader>" />
   <class name="edm::Wrapper<LumiSummary>" />
   <class name="edm::Wrapper<LumiSummaryRunHeader>" />
-  <class name="LumiSummaryRunHeader" ClassVersion="10">
-   <version ClassVersion="10" checksum="2308070716"/>
+  <class name="LumiSummaryRunHeader" ClassVersion="3">
+   <version ClassVersion="3" checksum="2308070716"/>
   </class>
-  <class name="LumiSummary" ClassVersion="12">
-   <version ClassVersion="12" checksum="554374187"/>
-   <version ClassVersion="11" checksum="2908285481"/>
-   <version ClassVersion="10" checksum="2670120703"/>
+  <class name="LumiSummary" ClassVersion="3">
+   <version ClassVersion="3" checksum="554374187"/>
   </class>
-  <class name="LumiDetails" ClassVersion="10">
-   <version ClassVersion="10" checksum="3520498663"/>
+  <class name="LumiDetails" ClassVersion="3">
+   <version ClassVersion="3" checksum="3520498663"/>
   </class>
-  <class name="LumiInfoRunHeader"  ClassVersion="10">
-   <version ClassVersion="10" checksum="3459250671"/>
+  <class name="LumiInfoRunHeader"  ClassVersion="3">
+   <version ClassVersion="3" checksum="3459250671"/>
   </class>
-  <class name="LumiInfo"  ClassVersion="11">
-   <version ClassVersion="11" checksum="323813487"/>
-   <version ClassVersion="10" checksum="4234044727"/>
+  <class name="LumiInfo"  ClassVersion="3">
+   <version ClassVersion="3" checksum="323813487"/>
   </class>
-  <class name="BeamCurrentInfo" ClassVersion="10">
-   <version ClassVersion="10" checksum="706652033"/>
+  <class name="BeamCurrentInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="706652033"/>
    <field name="beam1IntensitiesUnpacked_" transient="true"/>
    <field name="beam2IntensitiesUnpacked_" transient="true"/>
   </class>
@@ -36,24 +33,20 @@
   <![CDATA[ BeamCurrentInfo::unpackData(onfile.beam2IntensitiesPacked_,beam2IntensitiesUnpacked_);
   ]]>
   </ioread>
-  <class name="LumiSummary::HLT" ClassVersion="11">
-   <version ClassVersion="11" checksum="4065059464"/>
-   <version ClassVersion="10" checksum="2862036727"/>
+  <class name="LumiSummary::HLT" ClassVersion="3">
+   <version ClassVersion="3" checksum="4065059464"/>
   </class>
-  <class name="LumiSummary::L1" ClassVersion="11">
-   <version ClassVersion="11" checksum="3404293530"/>
-   <version ClassVersion="10" checksum="3790082860"/>
+  <class name="LumiSummary::L1" ClassVersion="3">
+   <version ClassVersion="3" checksum="3404293530"/>
   </class>
   <class name="std::vector<LumiSummary::L1>"/>
   <class name="std::vector<LumiSummary::HLT>"/>
-  <class name="reco::PixelClusterCounts" ClassVersion="4">
-   <version ClassVersion="4" checksum="63275688"/>
-   <version ClassVersion="3" checksum="1474294271"/>
+  <class name="reco::PixelClusterCounts" ClassVersion="3">
+   <version ClassVersion="3" checksum="63275688"/>
   </class>
   <class name="edm::Wrapper<reco::PixelClusterCounts>"/>
-  <class name="reco::PixelClusterCountsInEvent" ClassVersion="4">
-   <version ClassVersion="4" checksum="3986679997"/>
-   <version ClassVersion="3" checksum="3776858548"/>
+  <class name="reco::PixelClusterCountsInEvent" ClassVersion="3">
+   <version ClassVersion="3" checksum="3986679997"/>
   </class>
   <class name="edm::Wrapper<reco::PixelClusterCountsInEvent>"/>
 </lcgdict>

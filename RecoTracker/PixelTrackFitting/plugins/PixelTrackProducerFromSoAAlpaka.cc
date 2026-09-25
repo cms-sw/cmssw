@@ -479,6 +479,15 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     GlobalVector pp = gp.momentum();
     math::XYZVector mom(pp.x(), pp.y(), pp.z());
 
+    // A device fit that failed numerically can leave finite SoA parameters that still map to a
+    // non-finite reco trajectory (through transformToPerigeePlane / the local->global transform).
+    // Never emit such a track: drop it and free the edm index reserved above.
+    if (not(std::isfinite(chi2) and std::isfinite(mom.x()) and std::isfinite(mom.y()) and std::isfinite(mom.z()))) {
+      indToEdm[it] = pixelTrack::skippedTrack;
+      --nt;
+      continue;
+    }
+
     auto track = std::make_unique<reco::Track>(chi2, ndof, pos, mom, gp.charge(), CurvilinearTrajectoryError(mo));
 
     // bad and edup not supported as fit not present or not reliable

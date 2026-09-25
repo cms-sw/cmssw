@@ -31,8 +31,8 @@ Description: Create monitorElements for the Errors in created in the reduction o
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetType.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"

@@ -4,8 +4,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SiChargeCollectionDrifter.h"
 #include "SiChargeDivider.h"

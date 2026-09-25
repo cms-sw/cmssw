@@ -39,7 +39,7 @@ namespace edm {
       bool isTransient() const override { return ref_.isTransient(); }
 
       //Needed for ROOT storage
-      CMS_CLASS_VERSION(10)
+      CMS_CLASS_VERSION(3)
     private:
       void const* pointerToType(std::type_info const& iToType) const override;
       REF ref_;

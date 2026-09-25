@@ -60,8 +60,7 @@ void HcalGeometryDump::analyze(const edm::Event& /*iEvent*/, const edm::EventSet
     }
     edm::LogVerbatim("HCalGeom") << detIds.size() << " valid Ids for subdetector " << subdet;
     std::sort(detIds.begin(), detIds.end());
-    int counter = 0;
-    for (std::vector<unsigned int>::const_iterator i = detIds.begin(); i != detIds.end(); ++i, ++counter) {
+    for (std::vector<unsigned int>::const_iterator i = detIds.begin(); i != detIds.end(); ++i) {
       HcalDetId hid = HcalDetId(*i);
       auto cell = caloGeom->getGeometry(*i);
       edm::LogVerbatim("HCalGeom") << hid << "\tCaloCellGeometry " << cell->getPosition() << "\tHcalGeometry "

@@ -14,7 +14,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 #include "FWStorage/Catalog/interface/SiteLocalConfig.h"
 
 #include "CLHEP/Random/RandFlat.h"
@@ -135,9 +134,9 @@ namespace edm::rntuple_temp {
   }
 
   RootEmbeddedFileSequence::RootFileSharedPtr RootEmbeddedFileSequence::makeRootFile(
-      std::shared_ptr<InputFile> filePtr) {
+      std::shared_ptr<InputFile> filePtr, std::string const& physicalFileNameFirstCatalog) {
     size_t currentIndexIntoFile = sequenceNumberOfFile();
-    return std::make_shared<RootFile>(RootFile::FileOptions{.fileName = fileNames()[0],
+    return std::make_shared<RootFile>(RootFile::FileOptions{.fileName = physicalFileNameFirstCatalog,
                                                             .logicalFileName = logicalFileName(),
                                                             .filePtr = filePtr,
                                                             .bypassVersionCheck = input_.bypassVersionCheck(),
@@ -192,7 +191,7 @@ namespace edm::rntuple_temp {
       rootFile()->setAtEventEntry(IndexIntoFile::invalidEntry);
       return readOneSequential(cache, fileNameHash, nullptr, nullptr, recycleFiles);
     }
-    fileNameHash = lfnHash();
+    fileNameHash = cfnHash();
     return true;
   }
 
@@ -233,7 +232,7 @@ namespace edm::rntuple_temp {
       }
       return readOneSequentialWithID(cache, fileNameHash, nullptr, idp, recycleFiles);
     }
-    fileNameHash = lfnHash();
+    fileNameHash = cfnHash();
     return true;
   }
 
@@ -253,7 +252,7 @@ namespace edm::rntuple_temp {
     assert(found);
     fileNameHash = idx.fileNameHash();
     if (fileNameHash == 0U) {
-      fileNameHash = lfnHash();
+      fileNameHash = cfnHash();
     }
   }
 
@@ -265,7 +264,7 @@ namespace edm::rntuple_temp {
     while (eventsRemainingInFile_ == 0) {
       bool opened{false};
       while (!opened && badFilesSkipped_ < maxFileSkips_) {
-        unsigned int newSeqNumber = CLHEP::RandFlat::shootInt(engine, fileCatalogItems().size());
+        unsigned int newSeqNumber = CLHEP::RandFlat::shootInt(engine, configuredFileNames().size());
         setAtFileSequenceNumber(newSeqNumber);
         if (newSeqNumber != currentSeqNumber) {
           initFile(input_.skipBadFiles());
@@ -276,10 +275,11 @@ namespace edm::rntuple_temp {
           if (eventsRemainingInFile_ == 0) {
             if (!input_.skipBadFiles()) {
               throw Exception(errors::NotFound) << "RootEmbeddedFileSequence::readOneRandom(): Secondary Input file "
-                                                << fileNames()[0] << " contains no events.\n";
+                                                << rootFile()->file() << " contains no events.\n";
             }
-            LogWarning("RootEmbeddedFileSequence") << "RootEmbeddedFileSequence::readOneRandom(): Secondary Input file "
-                                                   << fileNames()[0] << " contains no events and will be skipped.\n";
+            LogWarning("RootEmbeddedFileSequence")
+                << "RootEmbeddedFileSequence::readOneRandom(): Secondary Input file " << rootFile()->file()
+                << " contains no events and will be skipped.\n";
             ++badFilesSkipped_;
           } else {
             opened = true;
@@ -304,7 +304,7 @@ namespace edm::rntuple_temp {
       auto [found2, succeeded] = rootFile()->readCurrentEvent(cache);
       assert(found2);
     }
-    fileNameHash = lfnHash();
+    fileNameHash = cfnHash();
     --eventsRemainingInFile_;
     return true;
   }
@@ -348,7 +348,7 @@ namespace edm::rntuple_temp {
       }
       return readOneRandomWithID(cache, fileNameHash, engine, idp, recycleFiles);
     }
-    fileNameHash = lfnHash();
+    fileNameHash = cfnHash();
     return true;
   }
 

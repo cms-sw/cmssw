@@ -26,36 +26,39 @@
 
 // forward declarations
 
-class GlobalExtBlk;
+namespace io_v1 {
+  class GlobalExtBlk;
+}
+using GlobalExtBlk = io_v1::GlobalExtBlk;
 typedef BXVector<GlobalExtBlk> GlobalExtBlkBxCollection;
 
 // class interface
+namespace io_v1 {
+  class GlobalExtBlk {
+  public:
+    /// constructors
+    GlobalExtBlk();  // empty constructor, all members set to zero;
 
-class GlobalExtBlk {
-public:
-  /// constructors
-  GlobalExtBlk();  // empty constructor, all members set to zero;
+    /// destructor
+    virtual ~GlobalExtBlk();
 
-  /// destructor
-  virtual ~GlobalExtBlk();
+  public:
+    const static unsigned int maxExternalConditions = 256;
 
-public:
-  const static unsigned int maxExternalConditions = 256;
+    /// Set decision bits
+    void setExternalDecision(unsigned int bit, bool val);
 
-  /// Set decision bits
-  void setExternalDecision(unsigned int bit, bool val);
+    /// Get decision bits
+    bool getExternalDecision(unsigned int bit) const;
 
-  /// Get decision bits
-  bool getExternalDecision(unsigned int bit) const;
+    /// reset the content of a GlobalExtBlk
+    void reset();
 
-  /// reset the content of a GlobalExtBlk
-  void reset();
+    /// pretty print the content of a GlobalExtBlk
+    void print(std::ostream& myCout) const;
 
-  /// pretty print the content of a GlobalExtBlk
-  void print(std::ostream& myCout) const;
-
-private:
-  std::vector<bool> m_extDecision;
-};
-
+  private:
+    std::vector<bool> m_extDecision;
+  };
+}  // namespace io_v1
 #endif /*L1Trigger_GlobalExtBlk_h*/

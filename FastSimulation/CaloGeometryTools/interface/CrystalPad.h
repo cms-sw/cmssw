@@ -5,8 +5,8 @@
 
 #include "CLHEP/Vector/TwoVector.h"
 #include "DataFormats/Math/interface/Vector3D.h"
-//#include "Math/GenVector/Transform3D.h"
-#include "FastSimulation/CaloGeometryTools/interface/Transform3DPJ.h"
+#include "Math/Transform3D.h"
+
 //C++ headers
 #include <vector>
 
@@ -14,8 +14,8 @@ class CrystalPad {
 public:
   typedef math::XYZVector XYZVector;
   typedef math::XYZVector XYZPoint;
-  typedef ROOT::Math::Transform3DPJ Transform3D;
-  typedef ROOT::Math::Transform3DPJ::Point Point;
+  typedef ROOT::Math::Transform3D Transform3D;
+  typedef ROOT::Math::Transform3D::Point Point;
 
   CrystalPad() { dummy_ = true; };
   /// Order matters. 1234 2341 3412 4123 are ok but not 1324 ....
@@ -44,11 +44,6 @@ public:
 
   /// Check that the point (in the local frame) is inside the crystal.
   bool inside(const CLHEP::Hep2Vector& point, bool debug = false) const;
-  /// Check that the point (in the global frame) is inside the crystal.
-  //  bool globalinside(XYZPoint) const;
-
-  /// coordinates of the point in the local frame
-  //  CLHEP::Hep2Vector localPoint(XYZPoint point) const;
 
   /// get the corners
   inline const std::vector<CLHEP::Hep2Vector>& getCorners() const { return corners_; }
@@ -72,19 +67,7 @@ public:
   /// access to the number
   inline unsigned getNumber() const { return number_; };
 
-  /// get the coordinates in the original frame
-  /*
-  inline XYZPoint originalCoordinates(CLHEP::Hep2Vector point) const
-    {
-      XYZPoint p(point.x(),point.y(),0.);
-      return trans_.Inverse() * p;
-    }
-  */
-
-  inline bool operator==(const CrystalPad& quad) const {
-    //      std::cout << " First " << quad.getCellID() << " Second " << this->getCellID() << std::endl;
-    return quad.getNumber() == this->getNumber();
-  }
+  inline bool operator==(const CrystalPad& quad) const { return quad.getNumber() == this->getNumber(); }
 
   inline bool operator<(const CrystalPad& quad) const { return (center_.mag() < quad.center().mag()); }
 
@@ -116,10 +99,7 @@ public:
   /// equality operator
   class padEqual {
   public:
-    padEqual(unsigned cell)
-        : ref_(cell) {
-            //	    std::cout << " quadEqual " << ref_ << std::endl;
-          };
+    padEqual(unsigned cell) : ref_(cell) {};
     ~padEqual() { ; };
     inline bool operator()(const CrystalPad& quad) const { return (ref_ == quad.getNumber()); }
 

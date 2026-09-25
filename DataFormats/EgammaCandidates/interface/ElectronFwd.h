@@ -6,7 +6,10 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
-  class Electron;
+  namespace io_v1 {
+    class Electron;
+  }
+  using Electron = io_v1::Electron;
 
   /// collectin of Electron objects
   typedef std::vector<Electron> ElectronCollection;

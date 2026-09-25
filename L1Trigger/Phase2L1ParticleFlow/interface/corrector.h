@@ -3,14 +3,11 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include "DataFormats/L1TParticleFlow/interface/PFClusterFwd.h"
 
 #ifdef CMSSW_GIT_HASH
 #define L1PF_USE_ROOT
 #endif
-
-namespace l1t {
-  class PFCluster;
-}
 
 // Define this macro to enable ROOT-dependent interfaces
 #ifdef L1PF_USE_ROOT

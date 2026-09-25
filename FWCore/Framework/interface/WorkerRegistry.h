@@ -30,6 +30,7 @@ namespace edm {
      are owned.
   */
 
+  template <typename TI, typename TP>
   class WorkerRegistry {
   public:
     WorkerRegistry(std::shared_ptr<ActivityRegistry> areg, std::shared_ptr<ModuleRegistry> iModReg);

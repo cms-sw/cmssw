@@ -165,8 +165,8 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
       //       cout << "HW muons" << endl ;
       vector<L1MuGMTExtendedCand>::const_iterator muItr = hwMuCands.begin();
       vector<L1MuGMTExtendedCand>::const_iterator muEnd = hwMuCands.end();
-      for (int i = 0; muItr != muEnd; ++muItr, ++i) {
-        // 	 cout << "#" << i
+      for (; muItr != muEnd; ++muItr) {
+        // 	 cout << "#"
         // 	      << " name " << muItr->name()
         // 	      << " empty " << muItr->empty()
         // 	      << " pt " << muItr->ptIndex()

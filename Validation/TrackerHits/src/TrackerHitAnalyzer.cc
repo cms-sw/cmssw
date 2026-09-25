@@ -15,8 +15,8 @@
 // tracker info
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/TrackingGeometry.h"
 
 // data in edm::event
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"

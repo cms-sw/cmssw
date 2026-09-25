@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/DataRecord/interface/HeavyIonRcd.h"
 #include "CondFormats/HIObjects/interface/CentralityTable.h"
@@ -27,15 +27,9 @@ using namespace std;
 // class decleration
 //
 
-class HiTrivialConditionRetriever : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class HiTrivialConditionRetriever : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   HiTrivialConditionRetriever(const edm::ParameterSet&);
-
-protected:
-  //overriding from ContextRecordIntervalFinder
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
 
 private:
   virtual std::unique_ptr<CentralityTable> produceTable(const HeavyIonRcd&);
@@ -97,16 +91,6 @@ void HiTrivialConditionRetriever::printBin(const CentralityTable::CBin* thisBin)
   cout << "B     = " << thisBin->b.mean << endl;
   cout << "sigma = " << thisBin->b.var << endl;
   cout << "__________________________________________________" << endl;
-}
-
-void HiTrivialConditionRetriever::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& rk,
-                                                 const edm::IOVSyncValue& iTime,
-                                                 edm::ValidityInterval& oValidity) {
-  if (verbose_ >= 1)
-    std::cout << "HiTrivialConditionRetriever::setIntervalFor(): record key = " << rk.name()
-              << "\ttime: " << iTime.time().value() << std::endl;
-  //For right now, we will just use an infinite interval of validity
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }
 
 //define this as a plug-in

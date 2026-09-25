@@ -12,7 +12,7 @@
  */
 
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
-#include "Geometry/CommonDetUnit/interface/StackGeomDet.h"
+#include "Geometry/CommonTopologies/interface/StackGeomDet.h"
 
 class AlignTransformErrorExtended;
 class Bounds;

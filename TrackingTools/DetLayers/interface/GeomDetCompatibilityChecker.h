@@ -1,7 +1,7 @@
 #ifndef DetLayers_GeomDetCompatibilityChecker_h
 #define DetLayers_GeomDetCompatibilityChecker_h
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 

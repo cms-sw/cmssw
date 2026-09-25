@@ -70,12 +70,13 @@ namespace edm {
       virtual bool wantsGlobalLuminosityBlocks() const noexcept = 0;
       bool wantsStreamRuns() const noexcept { return false; }
       bool wantsStreamLuminosityBlocks() const noexcept { return false; };
+      constexpr static bool wantsWrites() noexcept { return false; }
 
       virtual SerialTaskQueue* globalRunsQueue();
       virtual SerialTaskQueue* globalLuminosityBlocksQueue();
 
     private:
-      bool doEvent(EventTransitionInfo const&, ActivityRegistry*, ModuleCallingContext const*);
+      bool doEvent(EventTransitionInfo const&, ModuleCallingContext const*);
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder,
                                                     ModuleCallingContext const&,

@@ -112,6 +112,12 @@ seedingDeepCore.toModify(_multipleSeedProducers_trackingPhase1, func=lambda x: x
 
 
 _multipleSeedProducers_trackingPhase2PU140 = {}
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
+from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
+from Configuration.ProcessModifiers.trackingMkFitHighPtTripletStep_cff import trackingMkFitHighPtTripletStep
+(trackingPhase2PU140 & seedingLST & trackingLST & trackingMkFitHighPtTripletStep).toModify(_multipleSeedProducers_trackingPhase2PU140, func=lambda x: x.update({"highPtTripletStep": ["PixelsOnly", "PixelsWithLST"]}))
+
 _oldStyleHasSelector = set([
     "InitialStep",
     "HighPtTripletStep",
@@ -189,8 +195,6 @@ def iterationAlgos(postfix, includeSequenceName=False):
     else:
         return [_modulePrefix(i) for i in iterations]
 
-from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
-from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
 def _seedOrTrackProducers(postfix, typ):
     ret = []
     iters = globals()["_iterations"+postfix]

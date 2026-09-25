@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("L1TMuonEmulation")
+from Configuration.Eras.Era_Run3_2025_cff import Run3_2025
+process = cms.Process("L1TMuonEmulation", Run3_2025)
 import os
 import sys
 
@@ -42,8 +43,8 @@ if not verbose:
     
     
 # PostLS1 geometry used
-process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2015_cff')
+#process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2023_cff')
 ############################
 #process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 #from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
@@ -53,18 +54,17 @@ process.load('Configuration.Geometry.GeometryExtended2015_cff')
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
-process.load('Configuration.EventContent.EventContent_cff')
-process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-#process.load('Configuration.Geometry.GeometryExtended2023D41Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2023D41_cff')
-process.load('Configuration.StandardSequences.MagneticField_cff')
+#process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 #process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, '103X_upgrade2023_realistic_v2', '') 
+#process.GlobalTag = GlobalTag(process.GlobalTag, '103X_upgrade2023_realistic_v2', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_mc_FULL', '')
 
 
 process.source = cms.Source('PoolSource',
@@ -107,8 +107,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
 
 ####Event Setup Producer
-process.load('L1Trigger.L1TMuonOverlapPhase1.fakeOmtfParams_cff')
-process.omtfParams.configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0008.xml")
+#process.load('L1Trigger.L1TMuonOverlapPhase1.fakeOmtfParams_cff')
+#process.omtfParams.configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0008.xml")
 # process.omtfParams.patternsXMLFiles = cms.VPSet(
 #         cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x00012_oldSample_3_30Files_grouped1_classProb17_recalib2.xml")),
 #         #cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0009_oldSample_3_10Files_classProb1.xml") ),
@@ -133,6 +133,7 @@ process.simOmtfDigis.bxMax = cms.int32(0)
 process.simOmtfDigis.dumpResultToXML = cms.bool(True)
 process.simOmtfDigis.eventCaptureDebug = cms.bool(True)
 
+
 #process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuonBayes/test/expert/omtf/Patterns_0x0009_oldSample_3_10Files.xml")
 #process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0009_oldSample_3_10Files.xml")
 #process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0003.xml")
@@ -142,21 +143,21 @@ process.simOmtfDigis.eventCaptureDebug = cms.bool(True)
 #process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x00012_oldSample_3_30Files_grouped1_classProb1_recalib.xml")
 #process.simOmtfDigis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x00012_oldSample_3_30Files_grouped1_classProb17_recalib2.xml")
 
-process.simOmtfDigis.sorterType = cms.string("byLLH")
-
-process.simOmtfDigis.rpcMaxClusterSize = cms.int32(3)
-process.simOmtfDigis.rpcMaxClusterCnt = cms.int32(2)
-process.simOmtfDigis.rpcDropAllClustersIfMoreThanMax = cms.bool(True)
-
-process.simOmtfDigis.goldenPatternResultFinalizeFunction = cms.int32(9) #valid values are 0, 1, 2, 3, 5
-
-process.simOmtfDigis.noHitValueInPdf = cms.bool(True) #!!!!!!!!!!!!!! cab be true only of the patterns has the noHitValues in the bin 0 of the PDFs
-
-process.simOmtfDigis.minDtPhiQuality = cms.int32(2)
-process.simOmtfDigis.minDtPhiBQuality = cms.int32(2)
-
-
-process.simOmtfDigis.lctCentralBx = cms.int32(8)#<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!TODO this was changed in CMSSW 10(?) to 8. if the data were generated with the previous CMSSW then you have to use 6
+# process.simOmtfDigis.sorterType = cms.string("byLLH")
+#
+# process.simOmtfDigis.rpcMaxClusterSize = cms.int32(3)
+# process.simOmtfDigis.rpcMaxClusterCnt = cms.int32(2)
+# process.simOmtfDigis.rpcDropAllClustersIfMoreThanMax = cms.bool(True)
+#
+# process.simOmtfDigis.goldenPatternResultFinalizeFunction = cms.int32(9) #valid values are 0, 1, 2, 3, 5
+#
+# process.simOmtfDigis.noHitValueInPdf = cms.bool(True) #!!!!!!!!!!!!!! cab be true only of the patterns has the noHitValues in the bin 0 of the PDFs
+#
+# process.simOmtfDigis.minDtPhiQuality = cms.int32(2)
+# process.simOmtfDigis.minDtPhiBQuality = cms.int32(2)
+#
+#
+# process.simOmtfDigis.lctCentralBx = cms.int32(8)#<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!!!!!!!TODO this was changed in CMSSW 10(?) to 8. if the data were generated with the previous CMSSW then you have to use 6
 
 #process.simOmtfDigis.rpcSimHitsInputTag = cms.InputTag("g4SimHits", "MuonRPCHits")
 

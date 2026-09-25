@@ -5,7 +5,7 @@
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"

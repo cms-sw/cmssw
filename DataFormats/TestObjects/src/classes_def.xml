@@ -1,61 +1,55 @@
 <lcgdict>
- <class name="edmtest::DummyProduct" ClassVersion="10">
-  <version ClassVersion="10" checksum="4017626975"/>
+ <class name="edmtest::DummyProduct" ClassVersion="3">
+  <version ClassVersion="3" checksum="4017626975"/>
  </class>
- <class name="edmtest::IntProduct" ClassVersion="10">
-  <version ClassVersion="10" checksum="4286676158"/>
+ <class name="edmtest::IntProduct" ClassVersion="3">
+  <version ClassVersion="3" checksum="4286676158"/>
  </class>
  <class name="std::pair<edmtest::IntProduct, edm::RandomNumberGeneratorState>"/>
  <class name="edmtest::MaybeUninitializedIntProduct" ClassVersion="3">
   <version ClassVersion="3" checksum="3324182225"/>
  </class>
- <class name="edmtest::UInt64Product" ClassVersion="11">
-  <version ClassVersion="11" checksum="3240540910"/>
-  <version ClassVersion="10" checksum="380152127"/>
+ <class name="edmtest::UInt64Product" ClassVersion="3">
+  <version ClassVersion="3" checksum="3240540910"/>
  </class>
- <class name="edmtest::EnumProduct" ClassVersion="11">
-  <version ClassVersion="11" checksum="3817882977"/>
-  <version ClassVersion="10" checksum="3025325436"/>
+ <class name="edmtest::EnumProduct" ClassVersion="3">
+  <version ClassVersion="3" checksum="3817882977"/>
  </class>
  <enum name="edmtest::TheEnumProduct"/>
- <class name="edmtest::ArrayProduct" ClassVersion="10">
-  <version ClassVersion="10" checksum="3635152897"/>
+ <class name="edmtest::ArrayProduct" ClassVersion="3">
+  <version ClassVersion="3" checksum="3635152897"/>
  </class>
- <class name="edmtest::TransientIntProduct" ClassVersion="11">
-  <version ClassVersion="10" checksum="304339852"/>
-  <version ClassVersion="11" checksum="639295444"/>
+ <class name="edmtest::TransientIntProduct" ClassVersion="3">
+  <version ClassVersion="3" checksum="639295444"/>
   <field name="dummy" transient="true"/>
  </class>
  <class name="edmtest::ATransientIntProduct" ClassVersion="3">
   <version ClassVersion="3" checksum="2661369959"/>
   <field name="dummy" transient="true"/>
  </class>
- <class name="edmtest::Int16_tProduct" ClassVersion="10">
-  <version ClassVersion="10" checksum="1443289058"/>
+ <class name="edmtest::Int16_tProduct" ClassVersion="3">
+  <version ClassVersion="3" checksum="1443289058"/>
  </class>
- <class name="edmtest::DoubleProduct" ClassVersion="10">
-  <version ClassVersion="10" checksum="927325064"/>
+ <class name="edmtest::DoubleProduct" ClassVersion="3">
+  <version ClassVersion="3" checksum="927325064"/>
  </class>
- <class name="edmtest::StringProduct" ClassVersion="10">
-  <version ClassVersion="10" checksum="2737503723"/>
+ <class name="edmtest::StringProduct" ClassVersion="3">
+  <version ClassVersion="3" checksum="2737503723"/>
  </class>
- <class name="edmtest::Prodigal" ClassVersion="11">
-  <version ClassVersion="10" checksum="3510691703"/>
-  <version ClassVersion="11" checksum="1159264709"/>
+ <class name="edmtest::Prodigal" ClassVersion="3">
+  <version ClassVersion="3" checksum="1159264709"/>
  </class>
- <class name="edmtest::Simple" ClassVersion="10">
-  <version ClassVersion="10" checksum="2533881336"/>
+ <class name="edmtest::Simple" ClassVersion="3">
+  <version ClassVersion="3" checksum="2533881336"/>
  </class>
- <class name="edmtest::SimpleDerived" ClassVersion="11">
-  <version ClassVersion="10" checksum="3753531674"/>
-  <version ClassVersion="11" checksum="802041948"/>
+ <class name="edmtest::SimpleDerived" ClassVersion="3">
+  <version ClassVersion="3" checksum="802041948"/>
  </class>
- <class name="edmtest::Sortable" ClassVersion="10">
-  <version ClassVersion="10" checksum="1166695033"/>
+ <class name="edmtest::Sortable" ClassVersion="3">
+  <version ClassVersion="3" checksum="1166695033"/>
  </class>
- <class name="edmtest::Unsortable" ClassVersion="11">
-  <version ClassVersion="10" checksum="2720085305"/>
-  <version ClassVersion="11" checksum="3812549796"/>
+ <class name="edmtest::Unsortable" ClassVersion="3">
+  <version ClassVersion="3" checksum="3812549796"/>
  </class>
  <class name="edm::SortedCollection<edmtest::Simple, edm::StrictWeakOrdering<edmtest::Simple> >"/>
  <class name="edm::OwnVector<edmtest::Simple, edm::ClonePolicy<edmtest::Simple> >"/>
@@ -109,17 +103,17 @@
  <class name="edm::Wrapper<edmNew::DetSetVector<edmtest::SimpleDerived> >"/>
 
 
- <class name="edmtest::Thing" ClassVersion="10">
-  <version ClassVersion="10" checksum="2534966692"/>
+ <class name="edmtest::Thing" ClassVersion="3">
+  <version ClassVersion="3" checksum="2534966692"/>
  </class>
- <class name="edmtest::ThingWithMerge" ClassVersion="10">
-  <version ClassVersion="10" checksum="1109971102"/>
+ <class name="edmtest::ThingWithMerge" ClassVersion="3">
+  <version ClassVersion="3" checksum="1109971102"/>
  </class>
- <class name="edmtest::ThingWithIsEqual" ClassVersion="10">
-  <version ClassVersion="10" checksum="1399583220"/>
+ <class name="edmtest::ThingWithIsEqual" ClassVersion="3">
+  <version ClassVersion="3" checksum="1399583220"/>
  </class>
- <class name="edmtest::OtherThing" ClassVersion="10">
-  <version ClassVersion="10" checksum="3424405714"/>
+ <class name="edmtest::OtherThing" ClassVersion="3">
+  <version ClassVersion="3" checksum="3424405714"/>
  </class>
  <class name="std::vector<edmtest::Thing>"/>
  <class name="std::vector<edmtest::OtherThing>"/>
@@ -135,8 +129,8 @@
  <class name="edm::PtrVector<edmtest::Thing>"/>
  <class name="edm::Ref<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> >"/>
  <class name="edm::RefVector<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> >"/>
- <class name="edmtest::TrackOfThings" ClassVersion="6">
-  <version ClassVersion="6" checksum="545056495"/>
+ <class name="edmtest::TrackOfThings" ClassVersion="3">
+  <version ClassVersion="3" checksum="545056495"/>
  </class>
  <class name="std::vector<edmtest::TrackOfThings>"/>
  <class name="edm::Wrapper<std::vector<edmtest::TrackOfThings> >"/>
@@ -166,8 +160,8 @@
  <class name="std::vector<edmtest::TrackOfDSVThings>"/>
  <class name="edm::Wrapper<std::vector<edmtest::TrackOfDSVThings> >"/>
 
- <class name="edmtestprod::Simple" ClassVersion="10">
-  <version ClassVersion="10" checksum="2751437416"/>
+ <class name="edmtestprod::Simple" ClassVersion="3">
+  <version ClassVersion="3" checksum="2751437416"/>
  </class>
  <class name="edmtestprod::Ord<edmtestprod::Simple>"/>
  <class name="edmtestprod::StreamTestTmpl<edmtestprod::Ord<edmtestprod::Simple> >"/>
@@ -175,12 +169,12 @@
  <class name="std::vector<edmtestprod::Simple>"/>
  <class name="edm::SortedCollection<edmtestprod::Simple,edm::StrictWeakOrdering<edmtestprod::Simple> >"/>
  <class name="edm::Wrapper<edm::SortedCollection<edmtestprod::Simple,edm::StrictWeakOrdering<edmtestprod::Simple> > >"/>
- <class name="edmtestprod::StreamTestThing" ClassVersion="10">
-  <version ClassVersion="10" checksum="1618121316"/>
+ <class name="edmtestprod::StreamTestThing" ClassVersion="3">
+  <version ClassVersion="3" checksum="1618121316"/>
  </class>
  <class name="edm::Wrapper<edmtestprod::StreamTestThing>"/>
- <class name="edmtestprod::X0123456789012345678901234567890123456789012345678901234567890123456789012345678901" ClassVersion="10">
-  <version ClassVersion="10" checksum="3326113499"/>
+ <class name="edmtestprod::X0123456789012345678901234567890123456789012345678901234567890123456789012345678901" ClassVersion="3">
+  <version ClassVersion="3" checksum="3326113499"/>
  </class>
  <class name="edm::Wrapper<edmtestprod::X0123456789012345678901234567890123456789012345678901234567890123456789012345678901>"/>
  <class name="edmtest::DeleteEarly" ClassVersion="3">
@@ -221,42 +215,42 @@
  <class name="edm::Wrapper<edm::EventID>"/>
  <class name="edm::Wrapper<edm::ProductID>"/>
 
- <class name="edmtest::MissingDictionaryTestA" ClassVersion="10">
-  <version ClassVersion="10" checksum="924871709"/>
+ <class name="edmtest::MissingDictionaryTestA" ClassVersion="3">
+  <version ClassVersion="3" checksum="924871709"/>
  </class>
- <class name="edmtest::MissingDictionaryTestB" ClassVersion="10">
-  <version ClassVersion="10" checksum="3237077045"/>
+ <class name="edmtest::MissingDictionaryTestB" ClassVersion="3">
+  <version ClassVersion="3" checksum="3237077045"/>
  </class>
- <class name="edmtest::MissingDictionaryTestC" ClassVersion="10">
-  <version ClassVersion="10" checksum="276188887"/>
+ <class name="edmtest::MissingDictionaryTestC" ClassVersion="3">
+  <version ClassVersion="3" checksum="276188887"/>
  </class>
- <class name="edmtest::MissingDictionaryTestD" ClassVersion="10">
-  <version ClassVersion="10" checksum="525992233"/>
+ <class name="edmtest::MissingDictionaryTestD" ClassVersion="3">
+  <version ClassVersion="3" checksum="525992233"/>
  </class>
- <class name="edmtest::MissingDictionaryTestE" ClassVersion="10">
-  <version ClassVersion="10" checksum="525992341"/>
+ <class name="edmtest::MissingDictionaryTestE" ClassVersion="3">
+  <version ClassVersion="3" checksum="525992341"/>
  </class>
 <!--
 Commenting this out to intentionally cause the missing dictionary
 exception when running testMissingDictionaryChecking_cfg.py.
- <class name="edmtest::MissingDictionaryTestF" ClassVersion="10">
-  <version ClassVersion="10" checksum="3318785451"/>
+ <class name="edmtest::MissingDictionaryTestF" ClassVersion="3">
+  <version ClassVersion="3" checksum="3318785451"/>
  </class>
 -->
- <class name="edmtest::MissingDictionaryTestG" ClassVersion="10">
-  <version ClassVersion="10" checksum="525992557"/>
+ <class name="edmtest::MissingDictionaryTestG" ClassVersion="3">
+  <version ClassVersion="3" checksum="525992557"/>
  </class>
- <class name="edmtest::MissingDictionaryTestH" ClassVersion="10">
-  <version ClassVersion="10" checksum="525992665"/>
+ <class name="edmtest::MissingDictionaryTestH" ClassVersion="3">
+  <version ClassVersion="3" checksum="525992665"/>
  </class>
- <class name="edmtest::MissingDictionaryTestI" ClassVersion="10">
-  <version ClassVersion="10" checksum="325955792"/>
+ <class name="edmtest::MissingDictionaryTestI" ClassVersion="3">
+  <version ClassVersion="3" checksum="325955792"/>
  </class>
- <class name="edmtest::MissingDictionaryTestJ" ClassVersion="10">
-  <version ClassVersion="10" checksum="525992881"/>
+ <class name="edmtest::MissingDictionaryTestJ" ClassVersion="3">
+  <version ClassVersion="3" checksum="525992881"/>
  </class>
- <class name="edmtest::MissingDictionaryTestK" ClassVersion="10">
-  <version ClassVersion="10" checksum="525992989"/>
+ <class name="edmtest::MissingDictionaryTestK" ClassVersion="3">
+  <version ClassVersion="3" checksum="525992989"/>
  </class>
 
  <class name="std::vector<edmtest::MissingDictionaryTestA>"/>

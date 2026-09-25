@@ -2033,6 +2033,110 @@ hadDefault = 'default'
     CHECK(edm::parameterTypeEnumToString(par->type()) == std::string("FileInPath"));
   }
 
+  SECTION("Corner cases of double") {
+    using Catch::Matchers::Equals;
+    SECTION("Min") {
+      edm::ParameterSetDescription psetDesc;
+      psetDesc.add<double>("name", std::numeric_limits<double>::min());
+      std::ostringstream os;
+      edm::CfiOptions ops = edm::cfi::Typed{};
+      psetDesc.writeCfi(os, false, 0, ops);
+      REQUIRE_THAT(os.str(), Equals("\nname = cms.double(2.2250738585072014e-308)\n"));
+    }
+    SECTION("Max") {
+      edm::ParameterSetDescription psetDesc;
+      psetDesc.add<double>("name", std::numeric_limits<double>::max());
+      std::ostringstream os;
+      edm::CfiOptions ops = edm::cfi::Typed{};
+      psetDesc.writeCfi(os, false, 0, ops);
+      REQUIRE_THAT(os.str(), Equals("\nname = cms.double(1.7976931348623157e+308)\n"));
+    }
+    SECTION("Denorm min") {
+      edm::ParameterSetDescription psetDesc;
+      psetDesc.add<double>("name", std::numeric_limits<double>::denorm_min());
+      std::ostringstream os;
+      edm::CfiOptions ops = edm::cfi::Typed{};
+      psetDesc.writeCfi(os, false, 0, ops);
+      REQUIRE_THAT(os.str(), Equals("\nname = cms.double(4.9406564584124654e-324)\n"));
+    }
+    SECTION("Infinity") {
+      edm::ParameterSetDescription psetDesc;
+      psetDesc.add<double>("name", std::numeric_limits<double>::infinity());
+      std::ostringstream os;
+      edm::CfiOptions ops = edm::cfi::Typed{};
+      psetDesc.writeCfi(os, false, 0, ops);
+      REQUIRE_THAT(os.str(), Equals("\nname = cms.double(float('inf'))\n"));
+    }
+    SECTION("Negative infinity") {
+      edm::ParameterSetDescription psetDesc;
+      psetDesc.add<double>("name", -std::numeric_limits<double>::infinity());
+      std::ostringstream os;
+      edm::CfiOptions ops = edm::cfi::Typed{};
+      psetDesc.writeCfi(os, false, 0, ops);
+      REQUIRE_THAT(os.str(), Equals("\nname = cms.double(float('-inf'))\n"));
+    }
+    SECTION("NaN") {
+      edm::ParameterSetDescription psetDesc;
+      psetDesc.add<double>("name", std::numeric_limits<double>::quiet_NaN());
+      std::ostringstream os;
+      edm::CfiOptions ops = edm::cfi::Typed{};
+      psetDesc.writeCfi(os, false, 0, ops);
+      REQUIRE_THAT(os.str(), Equals("\nname = cms.double(float('nan'))\n"));
+    }
+  }
+
+  SECTION("Corner cases of float") {
+    using Catch::Matchers::Equals;
+    SECTION("Min") {
+      edm::ParameterSetDescription psetDesc;
+      psetDesc.add<float>("name", std::numeric_limits<float>::min());
+      std::ostringstream os;
+      edm::CfiOptions ops = edm::cfi::Typed{};
+      psetDesc.writeCfi(os, false, 0, ops);
+      REQUIRE_THAT(os.str(), Equals("\nname = cms.float(1.17549435e-38)\n"));
+    }
+    SECTION("Max") {
+      edm::ParameterSetDescription psetDesc;
+      psetDesc.add<float>("name", std::numeric_limits<float>::max());
+      std::ostringstream os;
+      edm::CfiOptions ops = edm::cfi::Typed{};
+      psetDesc.writeCfi(os, false, 0, ops);
+      REQUIRE_THAT(os.str(), Equals("\nname = cms.float(3.40282347e+38)\n"));
+    }
+    SECTION("Denorm min") {
+      edm::ParameterSetDescription psetDesc;
+      psetDesc.add<float>("name", std::numeric_limits<float>::denorm_min());
+      std::ostringstream os;
+      edm::CfiOptions ops = edm::cfi::Typed{};
+      psetDesc.writeCfi(os, false, 0, ops);
+      REQUIRE_THAT(os.str(), Equals("\nname = cms.float(1.4013e-45)\n"));
+    }
+    SECTION("Infinity") {
+      edm::ParameterSetDescription psetDesc;
+      psetDesc.add<float>("name", std::numeric_limits<float>::infinity());
+      std::ostringstream os;
+      edm::CfiOptions ops = edm::cfi::Typed{};
+      psetDesc.writeCfi(os, false, 0, ops);
+      REQUIRE_THAT(os.str(), Equals("\nname = cms.float(float('inf'))\n"));
+    }
+    SECTION("Negative infinity") {
+      edm::ParameterSetDescription psetDesc;
+      psetDesc.add<float>("name", -std::numeric_limits<float>::infinity());
+      std::ostringstream os;
+      edm::CfiOptions ops = edm::cfi::Typed{};
+      psetDesc.writeCfi(os, false, 0, ops);
+      REQUIRE_THAT(os.str(), Equals("\nname = cms.float(float('-inf'))\n"));
+    }
+    SECTION("NaN") {
+      edm::ParameterSetDescription psetDesc;
+      psetDesc.add<float>("name", std::numeric_limits<float>::quiet_NaN());
+      std::ostringstream os;
+      edm::CfiOptions ops = edm::cfi::Typed{};
+      psetDesc.writeCfi(os, false, 0, ops);
+      REQUIRE_THAT(os.str(), Equals("\nname = cms.float(float('nan'))\n"));
+    }
+  }
+
   SECTION("main") {
     edm::ParameterSetDescription psetDesc;
     edm::ParameterSet pset;
@@ -2104,6 +2208,15 @@ hadDefault = 'default'
     CHECK(par->type() == edm::k_double);
     CHECK(par->isTracked() == true);
     CHECK(edm::parameterTypeEnumToString(par->type()) == std::string("double"));
+
+    float myfloat = 5;
+    par = psetDesc.addOptional<float>(std::string("floatvalue"), myfloat);
+    pset.addParameter<float>("floatvalue", myfloat);
+    CHECK(par != 0);
+    CHECK(par->label() == std::string("floatvalue"));
+    CHECK(par->type() == edm::k_float);
+    CHECK(par->isTracked() == true);
+    CHECK(edm::parameterTypeEnumToString(par->type()) == std::string("float"));
 
     bool f = true;
     par = psetDesc.addOptional<bool>("bvalue", f);
@@ -2179,6 +2292,12 @@ hadDefault = 'default'
     pset.addParameter<std::vector<double>>("v5", v5);
     CHECK(par->type() == edm::k_vdouble);
     CHECK(edm::parameterTypeEnumToString(par->type()) == std::string("vdouble"));
+
+    std::vector<float> v5f;
+    par = psetDesc.add<std::vector<float>>("v5f", v5f);
+    pset.addParameter<std::vector<float>>("v5f", v5f);
+    CHECK(par->type() == edm::k_vfloat);
+    CHECK(edm::parameterTypeEnumToString(par->type()) == std::string("vfloat"));
 
     std::vector<std::string> v6;
     par = psetDesc.add<std::vector<std::string>>("v6", v6);

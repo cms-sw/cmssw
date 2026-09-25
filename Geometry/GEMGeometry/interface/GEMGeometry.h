@@ -9,7 +9,7 @@
  */
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/TrackingGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 #include "Geometry/GEMGeometry/interface/GEMChamber.h"
 #include "Geometry/GEMGeometry/interface/GEMSuperChamber.h"

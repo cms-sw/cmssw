@@ -4,7 +4,7 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 
 //using namespace std;
-namespace reco {
+namespace reco::io_v1 {
 
   PFTau::PFTau() {
     leadPFChargedHadrCandsignedSipt_ = NAN;
@@ -449,4 +449,4 @@ namespace reco {
     return out;
   }
 
-}  // namespace reco
+}  // namespace reco::io_v1

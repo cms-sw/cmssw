@@ -6,6 +6,7 @@
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
+#include "RecoHGCal/TICL/interface/TICLUtils.h"
 #include "RecoHGCal/TICL/interface/TracksterLinkingAlgoBase.h"
 #include "RecoHGCal/TICL/plugins/TracksterLinkingbySkeletons.h"
 #include "TICLGraph.h"
@@ -60,56 +61,42 @@ TracksterLinkingbySkeletons::TracksterLinkingbySkeletons(const edm::ParameterSet
                                                          edm::ConsumesCollector iC,
                                                          cms::Ort::ONNXRuntime const *onnxRuntime)
     : TracksterLinkingAlgoBase(conf, iC),
-      lower_boundary_(conf.getParameter<std::vector<double>>("lower_boundary")),
-      upper_boundary_(conf.getParameter<std::vector<double>>("upper_boundary")),
-      upper_distance_projective_sqr_(conf.getParameter<std::vector<double>>("upper_distance_projective_sqr")),
-      lower_distance_projective_sqr_(conf.getParameter<std::vector<double>>("lower_distance_projective_sqr")),
-      min_distance_z_(conf.getParameter<std::vector<double>>("min_distance_z")),
+      lower_boundary_(conf.getParameter<std::vector<float>>("lower_boundary")),
+      upper_boundary_(conf.getParameter<std::vector<float>>("upper_boundary")),
+      upper_distance_projective_sqr_(conf.getParameter<std::vector<float>>("upper_distance_projective_sqr")),
+      lower_distance_projective_sqr_(conf.getParameter<std::vector<float>>("lower_distance_projective_sqr")),
+      min_distance_z_(conf.getParameter<std::vector<float>>("min_distance_z")),
       upper_distance_projective_sqr_closest_points_(
-          conf.getParameter<std::vector<double>>("upper_distance_projective_sqr_closest_points")),
+          conf.getParameter<std::vector<float>>("upper_distance_projective_sqr_closest_points")),
       lower_distance_projective_sqr_closest_points_(
-          conf.getParameter<std::vector<double>>("lower_distance_projective_sqr_closest_points")),
-      max_z_distance_closest_points_(conf.getParameter<std::vector<double>>("max_z_distance_closest_points")),
-      cylinder_radius_sqr_(conf.getParameter<std::vector<double>>("cylinder_radius_sqr")),
-      cylinder_radius_sqr_split_(conf.getParameter<double>("cylinder_radius_sqr_split")),
-      proj_distance_split_(conf.getParameter<double>("proj_distance_split")),
-      timing_quality_threshold_(conf.getParameter<double>("track_time_quality_threshold")),
-      min_trackster_energy_(conf.getParameter<double>("min_trackster_energy")),
-      pca_quality_th_(conf.getParameter<double>("pca_quality_th")),
-      dot_prod_th_(conf.getParameter<double>("dot_prod_th")),
-      deltaRxy_(conf.getParameter<double>("deltaRxy")),
+          conf.getParameter<std::vector<float>>("lower_distance_projective_sqr_closest_points")),
+      max_z_distance_closest_points_(conf.getParameter<std::vector<float>>("max_z_distance_closest_points")),
+      cylinder_radius_sqr_(conf.getParameter<std::vector<float>>("cylinder_radius_sqr")),
+      cylinder_radius_sqr_split_(conf.getParameter<float>("cylinder_radius_sqr_split")),
+      proj_distance_split_(conf.getParameter<float>("proj_distance_split")),
+      timing_quality_threshold_(conf.getParameter<float>("track_time_quality_threshold")),
+      min_trackster_energy_(conf.getParameter<float>("min_trackster_energy")),
+      pca_quality_th_(conf.getParameter<float>("pca_quality_th")),
+      dot_prod_th_(conf.getParameter<float>("dot_prod_th")),
+      deltaRxy_(conf.getParameter<float>("deltaRxy")),
       min_num_lcs_(conf.getParameter<unsigned int>("min_num_lcs"))
 
 {}
 
+// Geometry construction
 void TracksterLinkingbySkeletons::buildLayers() {
-  // build disks at HGCal front & EM-Had interface for track propagation
+  // Build propagation disks at HGCal front face and CE-E CE-H interface
+  auto firstDisks = ticl::utils::buildHGCalFirstDisks(*hgcons_);
+  auto interfaceDisks = ticl::utils::buildHGCalInterfaceDisks(*hgcons_, rhtools_);
 
-  float zVal = hgcons_->waferZ(1, true);
-  std::pair<float, float> rMinMax = hgcons_->rangeR(zVal, true);
-
-  float zVal_interface = rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z();
-  std::pair<float, float> rMinMax_interface = hgcons_->rangeR(zVal_interface, true);
-
-  for (int iSide = 0; iSide < 2; ++iSide) {
-    float zSide = (iSide == 0) ? (-1. * zVal) : zVal;
-    firstDisk_[iSide] =
-        std::make_unique<GeomDet>(Disk::build(Disk::PositionType(0, 0, zSide),
-                                              Disk::RotationType(),
-                                              SimpleDiskBounds(rMinMax.first, rMinMax.second, zSide - 0.5, zSide + 0.5))
-                                      .get());
-
-    zSide = (iSide == 0) ? (-1. * zVal_interface) : zVal_interface;
-    interfaceDisk_[iSide] = std::make_unique<GeomDet>(
-        Disk::build(Disk::PositionType(0, 0, zSide),
-                    Disk::RotationType(),
-                    SimpleDiskBounds(rMinMax_interface.first, rMinMax_interface.second, zSide - 0.5, zSide + 0.5))
-            .get());
+  for (int side = 0; side < 2; ++side) {
+    firstDisk_[side] = std::move(firstDisks[side]);
+    interfaceDisk_[side] = std::move(interfaceDisks[side]);
   }
 }
 
 void TracksterLinkingbySkeletons::initialize(const HGCalDDDConstants *hgcons,
-                                             const hgcal::RecHitTools rhtools,
+                                             const ticlgeom::Tools rhtools,
                                              const edm::ESHandle<MagneticField> bfieldH,
                                              const edm::ESHandle<Propagator> propH) {
   hgcons_ = hgcons;
@@ -139,7 +126,7 @@ std::array<ticl::Vector, 3> TracksterLinkingbySkeletons::findSkeletonNodes(
     float lower_percentage,
     float upper_percentage,
     const std::vector<reco::CaloCluster> &layerClusters,
-    const hgcal::RecHitTools &rhtools) {
+    const ticlgeom::Tools &rhtools) {
   auto const &vertices = trackster.vertices();
   auto const trackster_raw_energy = trackster.raw_energy();
   // sort vertices by layerId
@@ -480,7 +467,8 @@ void TracksterLinkingbySkeletons::linkTracksters(
           auto const &tracksterOut = tracksters[n];
           auto const &skeletonOut = skeletons[n];
           auto const deltaphi = reco::deltaPhi(trackster.barycenter().phi(), tracksterOut.barycenter().phi());
-          if (abs(trackster.barycenter().eta() - tracksterOut.barycenter().eta()) <= window && deltaphi <= window) {
+          if (abs(trackster.barycenter().eta() - tracksterOut.barycenter().eta()) <= window &&
+              std::abs(deltaphi) <= window) {
             bool isInGood = isGoodTrackster(trackster, skeleton, min_num_lcs_, min_trackster_energy_, pca_quality_th_);
             bool isOutGood =
                 isGoodTrackster(tracksterOut, skeletonOut, min_num_lcs_, min_trackster_energy_, pca_quality_th_);

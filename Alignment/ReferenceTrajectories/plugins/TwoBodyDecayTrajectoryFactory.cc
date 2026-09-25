@@ -8,7 +8,7 @@
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
+#include "Geometry/CommonTopologies/interface/TrackerGeomDet.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 

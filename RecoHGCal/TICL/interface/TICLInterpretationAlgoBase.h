@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_PatternRecognitionAlgoBase_H__
-#define RecoHGCal_TICL_PatternRecognitionAlgoBase_H__
+#ifndef RecoHGCal_TICL_TICLInterpretationAlgoBase_h
+#define RecoHGCal_TICL_TICLInterpretationAlgoBase_h
 
 #include <memory>
 #include <vector>
@@ -16,12 +16,10 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include "RecoHGCal/TICL/interface/GlobalCache.h"
 #include "DataFormats/HGCalReco/interface/Common.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
@@ -30,6 +28,11 @@ namespace edm {
   class EventSetup;
 }  // namespace edm
 namespace ticl {
+  // Sentinel a muon interpretation pass writes into resultCandidate for a track it
+  // rejected (the trajectory points to a shower, so it is not a muon). The producer
+  // routes such tracks to the next (general) pass instead of building a muon candidate.
+  constexpr int kMuonRejected = -2;
+
   template <typename T>
   class TICLInterpretationAlgoBase {
   public:
@@ -42,7 +45,6 @@ namespace ticl {
       const std::vector<reco::CaloCluster>& layerClusters;
       const edm::ValueMap<std::pair<float, float>>& layerClustersTime;
       const edm::MultiSpan<Trackster>& tracksters;
-      const std::vector<std::vector<unsigned int>>& linkedResultTracksters;
       const edm::Handle<std::vector<T>> tracksHandle;
       const std::vector<bool>& maskedTracks;
 
@@ -51,7 +53,6 @@ namespace ticl {
              const std::vector<reco::CaloCluster>& lC,
              const edm::ValueMap<std::pair<float, float>>& lcT,
              const edm::MultiSpan<Trackster>& tS,
-             const std::vector<std::vector<unsigned int>>& links,
              const edm::Handle<std::vector<T>> trks,
              const std::vector<bool>& mT)
           : ev(eV),
@@ -59,7 +60,6 @@ namespace ticl {
             layerClusters(lC),
             layerClustersTime(lcT),
             tracksters(tS),
-            linkedResultTracksters(links),
             tracksHandle(trks),
             maskedTracks(mT) {}
     };
@@ -81,13 +81,18 @@ namespace ticl {
           : tkTime_h(tkT), tkTimeErr_h(tkTE), tkQuality_h(tkQ), tkBeta_h(tkB), tkPath_h(tkP), tkMtdPos_h(mtdPos) {}
     };
 
+    // maskedTracksters is indexed over input.tracksters and lets several interpretation
+    // passes run in sequence. A pass grows it to input.tracksters.size(), skips the
+    // tracksters it finds marked, and marks every trackster it consumes.
     virtual void makeCandidates(const Inputs& input,
                                 edm::Handle<MtdHostCollection> inputTiming_h,
                                 std::vector<Trackster>& resultTracksters,
-                                std::vector<int>& resultCandidate) = 0;
+                                std::vector<int>& resultCandidate,
+                                std::vector<bool>& maskedTracksters,
+                                std::vector<std::vector<unsigned int>>& linkedResultTracksters) = 0;
 
     virtual void initialize(const HGCalDDDConstants* hgcons,
-                            const hgcal::RecHitTools rhtools,
+                            const ticlgeom::Tools rhtools,
                             const edm::ESHandle<MagneticField> bfieldH,
                             const edm::ESHandle<Propagator> propH) = 0;
 

@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_ClusterFilterFactory_H
-#define RecoHGCal_TICL_ClusterFilterFactory_H
+#ifndef RecoHGCal_TICL_ClusterFilterFactory_h
+#define RecoHGCal_TICL_ClusterFilterFactory_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"

@@ -2,7 +2,7 @@
 
 #include "DataFormats/JetReco/interface/Jet.h"
 
-pat::tau::TauPFSpecific::TauPFSpecific(const reco::PFTau& tau)
+pat::tau::io_v1::TauPFSpecific::TauPFSpecific(const reco::PFTau& tau)
     :  // reference to PFJet from which PFTau was made
       pfJetRef_(tau.jetRef()),
       // Leading track/charged candidate

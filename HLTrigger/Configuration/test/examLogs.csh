@@ -2,7 +2,8 @@
 
 set base = RelVal_HLT
 
-foreach gtag ( MC DATA )
+#foreach gtag ( MC DATA ) do not run MC based tests in CMSSW_20_0_X
+foreach gtag ( DATA )
 
   echo
   echo $gtag

@@ -16,7 +16,7 @@
 <use name="SimTracker/TrackerHitAssociation"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonTopologies"/>
 <use name="DQMServices/Core"/>
 <use name="DQM/SiTrackerPhase2"/>
 <use name="Validation/SiTrackerPhase2V"/>

@@ -50,6 +50,7 @@ kSourceFindEvent = "sourceFindEvent"
 kSourceDelayedRead ="sourceDelayedRead"
 #this value is defined in the framework itself
 kLargestLumiNumber = 4294967295
+kSummaryIndent = "  "
 
 #these values must match the enum class Phase in tracer_setupFile.cc
 class Phase (object):
@@ -187,6 +188,13 @@ globalTransitions_ = {
 def transitionIsGlobal(transition):
     return transition in globalTransitions_;
 
+def transitionUseCallID(transition):
+    return transition in [Phase.beginProcessBlock, Phase.endProcessBlock, Phase.accessInputProcessBlock,
+                               Phase.globalBeginRun, Phase.globalEndRun, Phase.globalBeginLumi,
+                               Phase.globalEndLumi, Phase.streamBeginRun, Phase.streamEndRun,
+                               Phase.streamBeginLumi, Phase.streamEndLumi, Phase.Event]
+
+     
 def textPrefix_(time, indentLevel):
     #using 11 spaces for time should accomodate a job that runs 24 hrs
     return f'{time:>11} '+"++"*indentLevel
@@ -195,31 +203,31 @@ class AllocInfo(object):
     """Container for memory allocation information from CMSSW module transitions.
     
     Attributes:
-        nAllocs: Number of memory allocations
-        nDeallocs: Number of memory deallocations  
+        nAlloc: Number of memory allocations
+        nDealloc: Number of memory deallocations
         added: Net memory added (in bytes)
         minTemp: Minimum temporary memory usage
         maxTemp: Maximum temporary memory usage
         max1Alloc: Largest single allocation
     """
     def __init__(self,payload):
-        self.nAllocs = int(payload[0])
-        self.nDeallocs = int(payload[1])
+        self.nAlloc = int(payload[0])
+        self.nDealloc = int(payload[1])
         self.added = int(payload[2])
         self.minTemp = int(payload[3])
         self.maxTemp = int(payload[4])
         self.max1Alloc = int(payload[5])
     def inject(self, transition):
-        transition["nAllocs"]=self.nAllocs
-        transition["nDeallocs"]=self.nDeallocs
+        transition["nAlloc"]=self.nAlloc
+        transition["nDealloc"]=self.nDealloc
         transition["added"]=self.added
         transition["minTemp"]=self.minTemp
         transition["maxTemp"]=self.maxTemp
         transition["max1Alloc"]=self.max1Alloc
     def __repr__(self):
-        return "{{'nAlloc': {}, 'nDealloc': {}, 'added': {}, 'minTemp': {}, 'maxTemp': {}, 'max1Alloc': {} }}".format(self.nAllocs, self.nDeallocs, self.added, self.minTemp, self.maxTemp, self.max1Alloc)
+        return "{{'nAlloc': {}, 'nDealloc': {}, 'added': {}, 'minTemp': {}, 'maxTemp': {}, 'max1Alloc': {} }}".format(self.nAlloc, self.nDealloc, self.added, self.minTemp, self.maxTemp, self.max1Alloc)
     def toSimpleDict(self):
-        return {'nAlloc' : self.nAllocs, 'nDealloc' :self.nDeallocs, 'added' : self.added, 'minTemp' : self.minTemp, 'maxTemp' : self.maxTemp, 'max1Alloc' : self.max1Alloc }
+        return {'nAlloc' : self.nAlloc, 'nDealloc' :self.nDealloc, 'added' : self.added, 'minTemp' : self.minTemp, 'maxTemp' : self.maxTemp, 'max1Alloc' : self.max1Alloc }
         
 class SyncValues(object):
     def __init__(self):
@@ -268,11 +276,11 @@ class TempModuleTransitionInfos(object):
     def __init__(self):
         self._times = {}
         self._esTimes = {}
-    def insertTime(self, label, transition, index, time):
-        self._times[(label, transition, index)] = time
-    def findTime(self, label, transition, index):
-        time = self._times[(label, transition, index)]
-        del self._times[(label, transition, index)]
+    def insertTime(self, label, transition, index, call, time):
+        self._times[(label, transition, call, index)] = time
+    def findTime(self, label, transition, index, call):
+        time = self._times[(label, transition, call, index)]
+        del self._times[(label, transition, call, index)]
         return time
     def insertTimeES(self, label, transition, index, record, call, time):
         self._esTimes[(label, transition, index, record, call)] = time
@@ -290,10 +298,22 @@ class ModuleData(object):
         self.allocInfo = allocInfo
         self.record = (recordName, callID)
     def __repr__(self):
-        if self.record[0]:
-            return "{{ 'timeRange': {}, 'transition': {}, 'sync' :{}, 'activity':{}, 'record': {{'name' : {}, 'callID' :{} }}, 'alloc':{} }}".format(self.timeRange, self.transition, self.sync, self.activity, self.record[0], self.record[1], self.allocInfo)
+        recordName, callID = self.record
+        data = {
+            'timeRange': self.timeRange,
+            'transition': self.transition,
+            'sync': self.sync,
+            'activity': self.activity,
+            'alloc': self.allocInfo
+            }
+        if callID is not None:
+            data['record'] = {}
+            if transitionUseCallID(self.transition):
+                data['record']['callID'] = callID
+            if recordName is not None:
+                data['record']['name'] = recordName
+        return data
 
-        return "{{ 'timeRange': {}, 'transition': {}, 'sync' :{}, 'activity':{}, 'alloc':{} }}".format(self.timeRange, self.transition, self.sync, self.activity, self.allocInfo)
     def syncToSimpleDict(self):
         if len(self.sync) == 0:
             return self.sync
@@ -303,10 +323,23 @@ class ModuleData(object):
             return {'run' : self.sync[0], 'lumi' : self.sync[1] }
         return {'run' : self.sync[0], 'lumi' : self.sync[1], 'event' : self.sync[2] }
     def toSimpleDict(self) :
-        if self.record[0]:
-            return {'timeRange': self.timeRange, 'transition': transitionName(self.transition), 'sync' : self.syncToSimpleDict(), 'activity' : activityName(self.activity), 'record' :{'name': self.record[0], 'callID' : self.record[1]}, 'alloc' : self.allocInfo.toSimpleDict() }
-        return {'timeRange': self.timeRange, 'transition': transitionName(self.transition), 'sync' : self.syncToSimpleDict(), 'activity': activityName(self.activity), 'alloc' : self.allocInfo.toSimpleDict() }
-        
+        recordName, callID = self.record
+        result = {
+            'timeRange': self.timeRange,
+            'transition': transitionName(self.transition),
+            'sync': self.syncToSimpleDict(),
+            'activity': activityName(self.activity),
+            'alloc': self.allocInfo.toSimpleDict()
+            }
+
+        if callID is not None:
+            result['record'] = {}
+            if transitionUseCallID(self.transition) :
+                result['record']['callID'] = callID
+            if recordName is not None:
+                result['record']['name'] = recordName
+        return result
+
 class ModuleInfo(object):
     def __init__(self, name, cpptype):
         self._name = name
@@ -470,7 +503,7 @@ class PreFrameworkTransitionParser (FrameworkTransitionParser):
             syncs.setStream(self.index, self.sync[0], self.sync[1], self.sync[2])
             isSourceTrans = True
         elif self.transition == Phase.clearEvent:
-            temp.insertTime("clearEvent", self.transition, self.index, self.time)
+            temp.insertTime("clearEvent", self.transition, self.index, 0, self.time)
         elif not transitionIsGlobal(self.index):
             syncs.setStream(self.index, self.sync[0], self.sync[1], self.sync[2])
         if isSourceTrans:
@@ -522,7 +555,7 @@ class PostFrameworkTransitionParser (FrameworkTransitionParser):
         return "finished"
     def jsonInfo(self, syncs, temp, data):
         if self.transition == Phase.clearEvent:
-            start = temp.findTime("clearEvent", self.transition, self.index)
+            start = temp.findTime("clearEvent", self.transition, self.index, 0)
             data.insert( "clearEvent" , "clearEventType", start, self.time, self.transition, self.index, syncs.get(Phase.Event, self.index) , Activity.process, self.alloc)
     def jsonVisInfo(self,  data):
         if transitionIsGlobal(self.transition):
@@ -574,7 +607,7 @@ class PreSourceTransitionParser(SourceTransitionParser):
     def textSpecial(self):
         return "starting"
     def jsonInfo(self, syncs, temp, data):
-        temp.insertTime("source", self.transition, self.index, self.time)
+        temp.insertTime("source", self.transition, self.index, 0, self.time)
     def jsonVisInfo(self,  data):
         if self.transition == Phase.getNextTransition:
             data._nextTrans.append(jsonTransition(type=self.transition, id=self.index, sync=[0,0,0], start=self.time, finish=0, isSrc=True))
@@ -630,7 +663,7 @@ class PostSourceTransitionParser(SourceTransitionParser):
     def textSpecial(self):
         return "finished"
     def jsonInfo(self, syncs, temp, data):
-        start = temp.findTime("source", self.transition, self.index)
+        start = temp.findTime("source", self.transition, self.index, 0)
         #we do not know the sync yet so have to wait until the framework transition
         if self.transition in [ Phase.construction, Phase.getNextTransition, Phase.destruction, Phase.openFile]:
             data.insert( "source" , self._sourceInfo._cpptype, start, self.time, self.transition, self.index, (0,) , Activity.process, self.allocInfo)
@@ -722,11 +755,21 @@ class EDModuleTransitionParser(object):
             alloc.inject(item)
             if injectAfter:
                 slot.append(injectAfter)
-    def _preJsonInfo(self, temp):
-        temp.insertTime(self.moduleInfo._name, self.transition, self.index, self.time)
-    def _postJsonInfo(self, syncs, temp, data, activity):
-        start = temp.findTime(self.moduleInfo._name, self.transition, self.index)
-        data.insert( self.moduleInfo._name, self.moduleInfo._cpptype, start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , activity, self.allocInfo)
+    def _preJsonInfo(self, temp, append=None):
+        name = self.moduleInfo._name
+        if append:
+            name = name + append
+        temp.insertTime(name, self.transition, self.index, self.callID, self.time)
+    def _postJsonInfo(self, syncs, temp, data, activity, append=None):
+        try:
+            name = self.moduleInfo._name
+            if append:
+                name = name + append
+            start = temp.findTime(name, self.transition, self.index, self.callID)
+        except KeyError as e:
+            print(" time ", self.time, e)
+            raise
+        data.insert( self.moduleInfo._name, self.moduleInfo._cpptype, start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , activity, self.allocInfo, None, self.callID)
 
                 
 class PreEDModuleTransitionParser(EDModuleTransitionParser):
@@ -762,7 +805,8 @@ class PreEDModuleAcquireParser(EDModuleTransitionParser):
     def jsonVisInfo(self,  data):
         return self._preJsonVis(Activity.acquire, data, mayUseTemp=self._moduleCentric)
     def jsonInfo(self, syncs, temp, data):
-        self._preJsonInfo(temp)
+        #some cases acquire and produce are in the log in the wrong order
+        self._preJsonInfo(temp, append=':a')
 
 
 class PostEDModuleAcquireParser(EDModuleTransitionParser):
@@ -775,10 +819,11 @@ class PostEDModuleAcquireParser(EDModuleTransitionParser):
     def jsonVisInfo(self,  data):
         if self._moduleCentric:
             #inject an external work at end of the same slot to guarantee module run is in that slot
-            return self._postJsonVis( data, jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, callID=self.callID, activity=Activity.externalWork, start=self.time))
+            return self._postJsonVis(data, self.allocInfo, injectAfter=jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, callID=self.callID, activity=Activity.externalWork, start=self.time))
         return self._postJsonVis(data, self.allocInfo)
     def jsonInfo(self, syncs, temp, data):
-        self._postJsonInfo(syncs, temp, data, Activity.acquire)
+        #some cases acquire and produce are in the log in the wrong order
+        self._postJsonInfo(syncs, temp, data, Activity.acquire, append=':a')
 
 class PreEDModuleEventDelayedGetParser(EDModuleTransitionParser):
     def __init__(self, payload, infos):
@@ -813,7 +858,7 @@ class PreEventReadFromSourceParser(EDModuleTransitionParser):
         slot['isSrc'] = True
         return slot
     def jsonInfo(self, syncs, temp, data):
-        temp.insertTime(self.moduleInfo._name+'source', self.transition, self.index, self.time)
+        temp.insertTime(self.moduleInfo._name+'source', self.transition, self.index, self.callID,  self.time)
 
 class PostEventReadFromSourceParser(EDModuleTransitionParser):
     def __init__(self, payload, infos):
@@ -824,7 +869,7 @@ class PostEventReadFromSourceParser(EDModuleTransitionParser):
     def jsonVisInfo(self,  data):
         return self._postJsonVis(data, self.allocInfo)
     def jsonInfo(self, syncs, temp, data):
-        start = temp.findTime(self.moduleInfo._name+'source', self.transition, self.index)
+        start = temp.findTime(self.moduleInfo._name+'source', self.transition, self.index, self.callID)
         data.insert( "source" , self.moduleInfo._cpptype, start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , Activity.delayedGet, self.allocInfo)
 
 class ESModuleTransitionParser(object):
@@ -835,7 +880,7 @@ class ESModuleTransitionParser(object):
         self.moduleInfo = esModuleInfos[self.moduleID]
         self.recordID = int(payload[3])
         if not self.recordID:
-            self.recordName = ''
+            self.recordName = None
         else:
             self.recordName = recordNames[self.recordID]
         self.callID = int(payload[4])
@@ -1032,6 +1077,124 @@ def textOutput( parser ):
     context = {}
     for p in parser.processingSteps():
         print(p.text(context))
+
+kSummaryFields = ("nAlloc", "nDealloc", "added", "minTemp", "maxTemp", "max1Alloc")
+
+def summaryData( parser ):
+    """Return an ordered summary of averaged alloc info.
+    Structure:
+      [ (label, [ (transitionName, [ (activityName, record, count, {field: avgInt}) ]) ]) ]
+    where record is None, (recordName, callID) for EventSetup modules, or
+    (None, callID) for ED modules with a nonzero callID (used by Transform /
+    TransformAsync / ExternalWork-style callbacks). The grouping key is
+    (transition, activity, record) so that EventSetup entries with different
+    records/callIDs, and ED-module entries with different nonzero callIDs,
+    are reported separately.
+
+    Ordering: labels and transitions keep first-seen / insertion order.
+    Within a transition, entries are grouped by record name (None counts as
+    its own "no record" group, used by ED modules and by EventSetup entries
+    with no distinguishing record). The "no record" group, if present, comes
+    first; any actual EventSetup record names are then sorted alphabetically
+    ascending. Within each record-name group, activities are sorted by
+    ascending callID and, for a given callID, by activity (acquire before
+    process) - regardless of the order they first appeared in the trace.
+    """
+    data = jsonInfo(parser, False)   # ModuleCentricModuleData, module-centric
+    result = []
+    for label, entries in data.data().items():
+        if not entries:
+            continue
+        # group by (transition, activity, record), preserving first-seen order
+        groups = {}          # (transition, activity, record) -> list[AllocInfo]
+        transOrder = []      # first-seen transition ints
+        actOrder = {}        # transition -> first-seen list of (activity, record)
+        for e in entries:
+            # e.record is (recordName, callID). EventSetup entries carry a
+            # record name and always keep (name, callID). ED module entries
+            # have no record name, but a nonzero callID (used by Transform /
+            # TransformAsync / ExternalWork-style callbacks) must still be
+            # kept distinct so different callbacks are not averaged
+            # together. callID == 0 (or missing) means "no distinguishing
+            # information".
+            recordName, callID = e.record
+            if recordName is not None:
+                record = (recordName, callID)
+            elif callID:
+                record = (None, callID)
+            else:
+                record = None
+            key = (e.transition, e.activity, record)
+            if key not in groups:
+                groups[key] = []
+                if e.transition not in actOrder:
+                    actOrder[e.transition] = []
+                    transOrder.append(e.transition)
+                actOrder[e.transition].append((e.activity, record))
+            groups[key].append(e.allocInfo)
+        # activity is sorted first (acquire before process) so that, for a
+        # given callID, acquire is always listed before process.
+        activityRank = {Activity.acquire: 0, Activity.process: 1}
+        def recordNameOf(record):
+            return None if record is None else record[0]
+        def callIDOf(record):
+            return 0 if record is None else (record[1] or 0)
+        transitions = []
+        for transition in transOrder:
+            # Group by record name (None is its own group: "no record",
+            # used by ED modules and by EventSetup entries with no
+            # distinguishing record). The "no record" group comes first,
+            # then EventSetup record names are sorted alphabetically
+            # ascending. Within each record-name group, sort by (callID,
+            # activity) so callIDs are ascending and, for a given callID,
+            # acquire comes before process.
+            byRecordName = defaultdict(list)
+            for activity, record in actOrder[transition]:
+                rn = recordNameOf(record)
+                byRecordName[rn].append( (activity, record) )
+            recordNameOrder = sorted(byRecordName.keys(), key=lambda rn: (rn is not None, rn))
+            sortedActRecords = []
+            for rn in recordNameOrder:
+                group = byRecordName[rn]
+                group.sort(key=lambda ar: (callIDOf(ar[1]), activityRank.get(ar[0], 2)))
+                sortedActRecords.extend(group)
+            activities = []
+            for activity, record in sortedActRecords:
+                infos = groups[(transition, activity, record)]
+                n = len(infos)
+                avg = {}
+                for field in kSummaryFields:
+                    avg[field] = int(round(sum(getattr(i, field) for i in infos) / n))
+                activities.append((activityName(activity), record, n, avg))
+            transitions.append((transitionName(transition), activities))
+        result.append((label, transitions))
+    return result
+
+def summaryOutput( parser, field=None ):
+    """Print the per-module/per-transition/per-activity averaged summary.
+    If field is None (default), all six alloc quantities (kSummaryFields)
+    are printed on one row. If field is one of kSummaryFields, only that
+    quantity is printed.
+    """
+    fields = (field,) if field else kSummaryFields
+    for label, transitions in summaryData(parser):
+        if label == "clearEvent":
+            print(f"{label} transition:")
+        else:
+            print(f"Module label {label}, transitions:")
+        for transitionName_, activities in transitions:
+            print(f"{kSummaryIndent}{transitionName_}")
+            for activityName_, record, n, avg in activities:
+                if record is not None:
+                    recordName, callID = record
+                    if recordName is not None:
+                        print(f"{kSummaryIndent*2}{activityName_} record {recordName} callID {callID} ({n} calls)")
+                    else:
+                        print(f"{kSummaryIndent*2}{activityName_} callID {callID} ({n} calls)")
+                else:
+                    print(f"{kSummaryIndent*2}{activityName_} ({n} calls)")
+                print(kSummaryIndent*3 + " ".join(f"{f} {avg[f]}" for f in fields))
+        print()
 
 def showSourceTypes( parser ):
     print("Source Module Types:")
@@ -1356,6 +1519,7 @@ class TestModuleCommand(unittest.TestCase):
         
         self.tracerFile.extend([
             '#R 1 Record',
+            '#R 2 Alpha',
             '#M 1 Module ModuleType',
             '#N 1 ESModule ESModuleType',
             '#S 1 Source SourceType',
@@ -1412,10 +1576,33 @@ class TestModuleCommand(unittest.TestCase):
              f'F {Phase.Event} 1 1 1 2 {incr(t)}',
              f'N {Phase.Event} 0 1 1 0 {incr(t)}',
              f'n {Phase.Event} 0 1 1 0 {incr(t)} 6 5 30 0 100 80',
+             # Second EventSetup record ("Alpha") with multiple callIDs,
+             # deliberately traced out of both alphabetical (Alpha is
+             # traced after Record) and numeric (callIDs 2, 0, 1) order, so
+             # testSummary can verify summaryData() sorts EventSetup record
+             # names alphabetically and callIDs numerically ascending
+             # rather than relying on first-seen trace order.
+             f'N {Phase.Event} 0 1 2 2 {incr(t)}',
+             f'n {Phase.Event} 0 1 2 2 {incr(t)} 4 3 12 0 40 20',
+             f'N {Phase.Event} 0 1 2 0 {incr(t)}',
+             f'n {Phase.Event} 0 1 2 0 {incr(t)} 1 1 2 0 10 5',
+             f'N {Phase.Event} 0 1 2 1 {incr(t)}',
+             f'n {Phase.Event} 0 1 2 1 {incr(t)} 2 2 4 0 20 10',
+             f'A {Phase.Event} 0 1 0 {incr(t)}',
+             f'a {Phase.Event} 0 1 0 {incr(t)} 2 1 10 0 20 15',
              f'M {Phase.Event} 0 1 0 {incr(t)}',
              f'M {Phase.Event} 1 1 0 {incr(t)}',
              f'm {Phase.Event} 1 1 0 {incr(t)} 3 2 20 0 50 25',
              f'm {Phase.Event} 0 1 0 {incr(t)} 3 2 20 0 50 25',
+             # callID 2 appears in the trace before callID 1 so testSummary
+             # can verify summaryData() sorts by callID ascending rather than
+             # by first-seen trace order.
+             f'M {Phase.Event} 0 1 2 {incr(t)}',
+             f'm {Phase.Event} 0 1 2 {incr(t)} 7 6 70 0 90 45',
+             f'A {Phase.Event} 0 1 1 {incr(t)}',
+             f'a {Phase.Event} 0 1 1 {incr(t)} 2 1 10 0 20 15',
+             f'M {Phase.Event} 0 1 1 {incr(t)}',
+             f'm {Phase.Event} 0 1 1 {incr(t)} 5 4 40 0 60 30',
              f'f {Phase.Event} 0 1 1 1 {incr(t)}',
              f'f {Phase.Event} 1 1 1 2 {incr(t)}'])
 
@@ -1455,12 +1642,69 @@ class TestModuleCommand(unittest.TestCase):
         j = jsonInfo(parser, False)
         self.assertEqual(len(j.data()),3) 
         self.assertEqual(len(j.data()["source"]), 10)
-        self.assertEqual(len(j.data()["Module"]), 8)
-        self.assertEqual(len(j.data()["ESModule"]), 1)
+        self.assertEqual(len(j.data()["Module"]), 12)
+        self.assertEqual(len(j.data()["ESModule"]), 4)
+    def testSummary(self):
+        parser = ModuleAllocCompactFileParser(self.tracerFile, False)
+        s = summaryData(parser)
+        labels = [label for label, _ in s]
+        self.assertEqual(labels, ['source', 'Module', 'ESModule'])
+        summ = dict(s)
+        # helper: transition -> {(activity, record): (count, avgdict)}
+        def byName(transitions):
+            return {tn: {(an, rec): (n, avg) for an, rec, n, avg in acts} for tn, acts in transitions}
+        src = byName(summ['source'])
+        self.assertEqual(src['get next transition'][('process', None)][0], 5)
+        self.assertEqual(src['event'][('process', None)][0], 2)
+        mod = byName(summ['Module'])
+        self.assertEqual(mod['stream begin run'][('process', None)][0], 2)
+        self.assertEqual(mod['event'][('process', None)][1]['nAlloc'], 3)
+        self.assertEqual(mod['event'][('process', None)][1]['nDealloc'], 2)
+        self.assertEqual(mod['event'][('process', None)][1]['added'], 20)
+        self.assertEqual(mod['event'][('process', None)][1]['max1Alloc'], 25)
+        # ED-module nonzero callID (Transform/ExternalWork-style callback) must
+        # stay distinct from the callID 0 group instead of being averaged in.
+        self.assertEqual(mod['event'][('process', (None, 1))][0], 1)
+        self.assertEqual(mod['event'][('process', (None, 1))][1]['nAlloc'], 5)
+        self.assertEqual(mod['event'][('acquire', (None, 1))][0], 1)
+        self.assertEqual(mod['event'][('acquire', (None, 1))][1]['nAlloc'], 2)
+        # Even though callID 2 appears in the trace before callID 1 (see
+        # fixture), the "event" activities must be sorted by ascending
+        # callID, and acquire must precede process for the same callID.
+        modTransitions = dict(summ['Module'])
+        eventActs = [(an, rec) for an, rec, n, avg in modTransitions['event']]
+        self.assertEqual(eventActs, [
+            ('acquire', None),
+            ('process', None),
+            ('acquire', (None, 1)),
+            ('process', (None, 1)),
+            ('process', (None, 2)),
+        ])
+        es = byName(summ['ESModule'])
+        # EventSetup entry carries a record (name, callID) in the grouping key
+        self.assertEqual(es['event'][('process', ('Record', 0))][0], 1)
+        self.assertEqual(es['event'][('process', ('Record', 0))][1]['nAlloc'], 6)
+        self.assertEqual(es['event'][('process', ('Record', 0))][1]['nDealloc'], 5)
+        self.assertEqual(es['event'][('process', ('Record', 0))][1]['added'], 30)
+        self.assertEqual(es['event'][('process', ('Alpha', 0))][1]['nAlloc'], 1)
+        self.assertEqual(es['event'][('process', ('Alpha', 1))][1]['nAlloc'], 2)
+        self.assertEqual(es['event'][('process', ('Alpha', 2))][1]['nAlloc'], 4)
+        # "Alpha" is traced after "Record" and with callIDs out of numeric
+        # order (2, 0, 1); the summary must still list EventSetup records
+        # sorted alphabetically ascending by record name, and within a
+        # record, callIDs sorted numerically ascending.
+        esModTransitions = dict(summ['ESModule'])
+        esEventActs = [(an, rec) for an, rec, n, avg in esModTransitions['event']]
+        self.assertEqual(esEventActs, [
+            ('process', ('Alpha', 0)),
+            ('process', ('Alpha', 1)),
+            ('process', ('Alpha', 2)),
+            ('process', ('Record', 0)),
+        ])
     def testJsonTemporal(self):
         parser = ModuleAllocCompactFileParser(self.tracerFile, True)
         j = jsonInfo(parser, True)
-        self.assertEqual(len(j.data()),19)
+        self.assertEqual(len(j.data()),26)
     def testSortBy(self):
         parser = ModuleAllocCompactFileParser(self.tracerFile, True)
         d = sortByAttribute(parser, 'maxTemp')
@@ -1482,7 +1726,7 @@ class TestModuleCommand(unittest.TestCase):
         self.assertEqual(len(j["transitions"][0]["slots"][1]), 4)
         self.assertEqual(len(j["transitions"][1]["slots"]), 2)
         self.assertEqual(len(j["transitions"][1]["slots"][0]), 5)
-        self.assertEqual(len(j["transitions"][1]["slots"][1]), 3)
+        self.assertEqual(len(j["transitions"][1]["slots"][1]), 10)
         self.assertEqual(len(j["transitions"][2]["slots"]), 2)
         self.assertEqual(len(j["transitions"][2]["slots"][0]), 5)
         self.assertEqual(len(j["transitions"][2]["slots"][1]), 2)
@@ -1505,11 +1749,11 @@ class TestModuleCommand(unittest.TestCase):
         self.assertEqual(len(j["transitions"][2]["slots"]), 1)
         self.assertEqual(len(j["transitions"][2]["slots"][0]), 5)
         self.assertEqual(len(j["transitions"][4]["slots"]), 2)
-        self.assertEqual(len(j["transitions"][4]["slots"][0]), 7)
+        self.assertEqual(len(j["transitions"][4]["slots"][0]), 13)
         self.assertEqual(len(j["transitions"][4]["slots"][1]), 1)
         self.assertTrue(j["transitions"][4]["slots"][1][-1]['finish'] != 0.0)
         self.assertEqual(len(j["transitions"][5]["slots"]), 1)
-        self.assertEqual(len(j["transitions"][5]["slots"][0]), 1)
+        self.assertEqual(len(j["transitions"][5]["slots"][0]), 4)
 
 def runTests():
     return unittest.main(argv=sys.argv[:1])
@@ -1534,7 +1778,7 @@ if __name__=="__main__":
     parser.add_argument('-s', '--sortBy',
                         default = '',
                         type = str,
-                        help="sort modules by attribute. Allowed values 'nAllocs', 'nDeallocs', 'added', 'minTemp', 'maxTemp', and 'max1Alloc'")
+                        help="sort modules by attribute. Allowed values 'nAlloc', 'nDealloc', 'added', 'minTemp', 'maxTemp', and 'max1Alloc'")
 #    parser.add_argument('-w', '--web',
 #                        action='store_true',
 #                        help='''Writes data.js file that can be used with the web based inspector. To use, copy directory ${CMSSW_RELEASE_BASE}/src/FWCore/Services/template/web to a web accessible area and move data.js into that directory.''')
@@ -1547,6 +1791,13 @@ if __name__=="__main__":
     parser.add_argument('--showSourceTypes',
                         action='store_true', 
                         help='''Display source module types.''')
+    parser.add_argument('--trace',
+                        action='store_true',
+                        help='''Print the detailed per-transition trace (previous default output).''')
+    parser.add_argument('--summaryField',
+                        default = None,
+                        choices = kSummaryFields,
+                        help='''For the default summary output, print only this quantity instead of all six. Allowed values 'nAlloc', 'nDealloc', 'added', 'minTemp', 'maxTemp', and 'max1Alloc'.''')
 
     args = parser.parse_args()
 
@@ -1569,5 +1820,7 @@ if __name__=="__main__":
             print(json.dumps(sortByAttribute(parser, args.sortBy), indent=2))
         elif args.showSourceTypes:
             showSourceTypes(parser)
-        else:
+        elif args.trace:
             textOutput(parser)
+        else:
+            summaryOutput(parser, args.summaryField)

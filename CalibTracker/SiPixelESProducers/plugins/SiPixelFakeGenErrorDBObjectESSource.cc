@@ -6,7 +6,7 @@
 #include "CondFormats/DataRecord/interface/SiPixelGenErrorDBObjectRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGenErrorDBObject.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -15,21 +15,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-class SiPixelFakeGenErrorDBObjectESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class SiPixelFakeGenErrorDBObjectESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  SiPixelFakeGenErrorDBObjectESSource(const edm::ParameterSet&);
+  explicit SiPixelFakeGenErrorDBObjectESSource(const edm::ParameterSet&);
   ~SiPixelFakeGenErrorDBObjectESSource() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   typedef std::vector<std::string> vstring;
 
-  virtual std::unique_ptr<SiPixelGenErrorDBObject> produce(const SiPixelGenErrorDBObjectRcd&);
-
-protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
+  std::unique_ptr<SiPixelGenErrorDBObject> produce(const SiPixelGenErrorDBObjectRcd&);
 
 private:
   vstring GenErrorCalibrations_;
@@ -119,13 +114,6 @@ std::unique_ptr<SiPixelGenErrorDBObject> SiPixelFakeGenErrorDBObjectESSource::pr
 
   //std::cout << *obj << std::endl;
   return std::unique_ptr<SiPixelGenErrorDBObject>(obj);
-}
-
-void SiPixelFakeGenErrorDBObjectESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                                         const edm::IOVSyncValue& iosv,
-                                                         edm::ValidityInterval& oValidity) {
-  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
-  oValidity = infinity;
 }
 
 void SiPixelFakeGenErrorDBObjectESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

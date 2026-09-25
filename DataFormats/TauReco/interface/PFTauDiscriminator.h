@@ -9,14 +9,17 @@
 namespace reco {
   typedef edm::AssociationVector<PFTauRefProd, std::vector<float> > PFTauDiscriminatorBase;
 
-  class PFTauDiscriminator : public PFTauDiscriminatorBase {
-  public:
-    PFTauDiscriminator() : PFTauDiscriminatorBase() {}
+  namespace io_v1 {
+    class PFTauDiscriminator : public PFTauDiscriminatorBase {
+    public:
+      PFTauDiscriminator() : PFTauDiscriminatorBase() {}
 
-    PFTauDiscriminator(const reco::PFTauRefProd &ref) : PFTauDiscriminatorBase(ref) {}
+      PFTauDiscriminator(const reco::PFTauRefProd &ref) : PFTauDiscriminatorBase(ref) {}
 
-    PFTauDiscriminator(const PFTauDiscriminatorBase &v) : PFTauDiscriminatorBase(v) {}
-  };
+      PFTauDiscriminator(const PFTauDiscriminatorBase &v) : PFTauDiscriminatorBase(v) {}
+    };
+  }  // namespace io_v1
+  using PFTauDiscriminator = io_v1::PFTauDiscriminator;
 
   typedef PFTauDiscriminator::value_type PFTauDiscriminatorVT;
   typedef edm::Ref<PFTauDiscriminator> PFTauDiscriminatorRef;

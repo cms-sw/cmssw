@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 
 #include "CondFormats/DataRecord/interface/CSCL1TPLookupTableCCLUTRcd.h"
 #include "CondFormats/DataRecord/interface/CSCL1TPLookupTableME11ILTRcd.h"
@@ -20,19 +20,14 @@
 #include <vector>
 #include <unordered_map>
 
-class CSCL1TPLookupTableEP : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class CSCL1TPLookupTableEP : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  CSCL1TPLookupTableEP(const edm::ParameterSet&);
+  explicit CSCL1TPLookupTableEP(const edm::ParameterSet&);
   ~CSCL1TPLookupTableEP() override {}
 
   std::unique_ptr<CSCL1TPLookupTableCCLUT> produceCCLUT(const CSCL1TPLookupTableCCLUTRcd&);
   std::unique_ptr<CSCL1TPLookupTableME11ILT> produceME11ILT(const CSCL1TPLookupTableME11ILTRcd&);
   std::unique_ptr<CSCL1TPLookupTableME21ILT> produceME21ILT(const CSCL1TPLookupTableME21ILTRcd&);
-
-protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
 
 private:
   std::vector<unsigned> load(std::string fileName) const;
@@ -46,13 +41,6 @@ CSCL1TPLookupTableEP::CSCL1TPLookupTableEP(const edm::ParameterSet& pset) : pset
   findingRecord<CSCL1TPLookupTableCCLUTRcd>();
   findingRecord<CSCL1TPLookupTableME11ILTRcd>();
   findingRecord<CSCL1TPLookupTableME21ILTRcd>();
-}
-
-void CSCL1TPLookupTableEP::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& iKey,
-                                          const edm::IOVSyncValue& iosv,
-                                          edm::ValidityInterval& oValidity) {
-  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
-  oValidity = infinity;
 }
 
 std::unique_ptr<CSCL1TPLookupTableCCLUT> CSCL1TPLookupTableEP::produceCCLUT(const CSCL1TPLookupTableCCLUTRcd&) {

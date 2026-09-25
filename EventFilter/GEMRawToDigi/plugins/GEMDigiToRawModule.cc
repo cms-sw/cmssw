@@ -124,14 +124,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
         else
           bx = 0;
       }
-      auto search = gemBxMap.find(bx);
-      if (search != gemBxMap.end()) {
-        search->second.insertDigi(gemId, *digi);
-      } else {
-        GEMDigiCollection newGDC;
-        newGDC.insertDigi(gemId, *digi);
-        gemBxMap.insert(std::pair<int, GEMDigiCollection>(bx, newGDC));
-      }
+      gemBxMap[bx].insertDigi(gemId, *digi);
     }
   }
 
@@ -167,7 +160,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
               uint64_t lsData = 0;  ///<channels from 1to64
               uint64_t msData = 0;  ///<channels from 65to128
 
-              GEMDigiCollection inBxGemDigis = gemBx.second;
+              const GEMDigiCollection& inBxGemDigis = gemBx.second;
               const GEMDigiCollection::Range& range = inBxGemDigis.get(gemId);
 
               for (GEMDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt) {

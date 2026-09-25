@@ -6,7 +6,7 @@
  */
 
 #include "RecoMTD/DetLayers/interface/MTDDetTray.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

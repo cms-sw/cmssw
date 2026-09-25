@@ -5,9 +5,7 @@
 // Package:     Tracks
 // Class  :     estimate_field
 //
-namespace reco {
-  class Track;
-}
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace fw {
   double estimate_field(const reco::Track& track, bool highQuality = false);

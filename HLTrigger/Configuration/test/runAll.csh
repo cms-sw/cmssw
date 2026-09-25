@@ -20,27 +20,27 @@ echo "Running selected cfg files from:"
 pwd
 
 rm -f                           ./runOne.log 
-time ./runOne.csh DATA    $1 >& ./runOne.log &
-time ./runOne.csh MC      $1
+time ./runOne.csh DATA    $1   # >& ./runOne.log
+# & time ./runOne.csh MC  $1   # do not run MC based test in CMSSW_20_0_X
 
-  set N = 0
-  cp -f ./runOne.log ./runOne.tmp  
-  grep -q Finished   ./runOne.tmp
-  set F = $?
+#   set N = 0
+#   cp -f ./runOne.log ./runOne.tmp  
+#   grep -q Finished   ./runOne.tmp
+#   set F = $?
 
-while ( $F )
-  awk "{if (NR>$N) {print}}"  ./runOne.tmp
-  set N = `cat ./runOne.tmp | wc -l`
-  sleep 13
-  cp -f ./runOne.log ./runOne.tmp  
-  grep -q Finished   ./runOne.tmp
-  set F = $?
-end
+# while ( $F )
+#   awk "{if (NR>$N) {print}}"  ./runOne.tmp
+#   set N = `cat ./runOne.tmp | wc -l`
+#   sleep 13
+#   cp -f ./runOne.log ./runOne.tmp  
+#   grep -q Finished   ./runOne.tmp
+#   set F = $?
+# end
 
-wait
+# wait
 
-  awk "{if (NR>$N) {print}}"  ./runOne.log
-  rm -f ./runOne.{log,tmp}
+#   awk "{if (NR>$N) {print}}"  ./runOne.log
+#   rm -f ./runOne.{log,tmp}
 
 echo
 echo "Resulting log files:"

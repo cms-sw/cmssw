@@ -455,7 +455,6 @@ namespace TopSingleLepton {
     unsigned int mMult = 0, mTight = 0, mTightId = 0;
 
     edm::Handle<edm::View<reco::Muon>> muons;
-    edm::View<reco::Muon>::const_iterator muonit;
 
     if (!event.getByToken(muons_, muons))
       return;

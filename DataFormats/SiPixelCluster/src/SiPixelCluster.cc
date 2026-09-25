@@ -14,56 +14,58 @@
 //!  \author Petar Maksimovic, JHU
 //---------------------------------------------------------------------------
 
-SiPixelCluster::SiPixelCluster(const SiPixelCluster::PixelPos& pix, int adc)
-    : theMinPixelRow(pix.row()), theMinPixelCol(pix.col()) {
-  // First pixel in this cluster.
-  thePixelADC.push_back(adc);
-  thePixelOffset.push_back(0);
-  thePixelOffset.push_back(0);
-}
-
-void SiPixelCluster::add(const SiPixelCluster::PixelPos& pix, int adc) {
-  int ominRow = minPixelRow();
-  int ominCol = minPixelCol();
-  bool recalculate = false;
-
-  int minRow = ominRow;
-  int minCol = ominCol;
-
-  if (pix.row() < minRow) {
-    minRow = pix.row();
-    recalculate = true;
-  }
-  if (pix.col() < minCol) {
-    minCol = pix.col();
-    recalculate = true;
+namespace io_v1 {
+  SiPixelCluster::SiPixelCluster(const SiPixelCluster::PixelPos& pix, int adc)
+      : theMinPixelRow(pix.row()), theMinPixelCol(pix.col()) {
+    // First pixel in this cluster.
+    thePixelADC.push_back(adc);
+    thePixelOffset.push_back(0);
+    thePixelOffset.push_back(0);
   }
 
-  if (recalculate) {
-    int maxCol = 0;
-    int maxRow = 0;
-    int isize = thePixelADC.size();
-    for (int i = 0; i < isize; ++i) {
-      int xoffset = thePixelOffset[i * 2] + ominRow - minRow;
-      int yoffset = thePixelOffset[i * 2 + 1] + ominCol - minCol;
-      thePixelOffset[i * 2] = std::min(int(MAXSPAN), xoffset);
-      thePixelOffset[i * 2 + 1] = std::min(int(MAXSPAN), yoffset);
-      if (xoffset > maxRow)
-        maxRow = xoffset;
-      if (yoffset > maxCol)
-        maxCol = yoffset;
+  void SiPixelCluster::add(const SiPixelCluster::PixelPos& pix, int adc) {
+    int ominRow = minPixelRow();
+    int ominCol = minPixelCol();
+    bool recalculate = false;
+
+    int minRow = ominRow;
+    int minCol = ominCol;
+
+    if (pix.row() < minRow) {
+      minRow = pix.row();
+      recalculate = true;
     }
-    packRow(minRow, maxRow);
-    packCol(minCol, maxCol);
+    if (pix.col() < minCol) {
+      minCol = pix.col();
+      recalculate = true;
+    }
+
+    if (recalculate) {
+      int maxCol = 0;
+      int maxRow = 0;
+      int isize = thePixelADC.size();
+      for (int i = 0; i < isize; ++i) {
+        int xoffset = thePixelOffset[i * 2] + ominRow - minRow;
+        int yoffset = thePixelOffset[i * 2 + 1] + ominCol - minCol;
+        thePixelOffset[i * 2] = std::min(int(MAXSPAN), xoffset);
+        thePixelOffset[i * 2 + 1] = std::min(int(MAXSPAN), yoffset);
+        if (xoffset > maxRow)
+          maxRow = xoffset;
+        if (yoffset > maxCol)
+          maxCol = yoffset;
+      }
+      packRow(minRow, maxRow);
+      packCol(minCol, maxCol);
+    }
+
+    if ((!overflowRow()) && pix.row() > maxPixelRow())
+      packRow(minRow, pix.row() - minRow);
+
+    if ((!overflowCol()) && pix.col() > maxPixelCol())
+      packCol(minCol, pix.col() - minCol);
+
+    thePixelADC.push_back(adc);
+    thePixelOffset.push_back(std::min(int(MAXSPAN), pix.row() - minRow));
+    thePixelOffset.push_back(std::min(int(MAXSPAN), pix.col() - minCol));
   }
-
-  if ((!overflowRow()) && pix.row() > maxPixelRow())
-    packRow(minRow, pix.row() - minRow);
-
-  if ((!overflowCol()) && pix.col() > maxPixelCol())
-    packCol(minCol, pix.col() - minCol);
-
-  thePixelADC.push_back(adc);
-  thePixelOffset.push_back(std::min(int(MAXSPAN), pix.row() - minRow));
-  thePixelOffset.push_back(std::min(int(MAXSPAN), pix.col() - minCol));
-}
+}  // namespace io_v1

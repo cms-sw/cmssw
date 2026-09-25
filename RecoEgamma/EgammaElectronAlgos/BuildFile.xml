@@ -2,7 +2,6 @@
 <use name="TrackingTools/MaterialEffects"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="clhep"/>
 <use name="MagneticField/Engine"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/TrackingRecHit"/>

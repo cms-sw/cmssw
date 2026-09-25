@@ -14,90 +14,98 @@ namespace HepMC {
  *
  */
 
-class GenEventInfoProduct {
-public:
-  GenEventInfoProduct();
-  GenEventInfoProduct(const HepMC::GenEvent *evt);
-  GenEventInfoProduct(const GenEventInfoProduct &other);
-  GenEventInfoProduct(GenEventInfoProduct &&other);
-  virtual ~GenEventInfoProduct();
+namespace io_v1 {
 
-  GenEventInfoProduct &operator=(const GenEventInfoProduct &other);
-  GenEventInfoProduct &operator=(GenEventInfoProduct &&other);
+  class GenEventInfoProduct {
+  public:
+    GenEventInfoProduct();
+    GenEventInfoProduct(const HepMC::GenEvent *evt);
+    GenEventInfoProduct(const GenEventInfoProduct &other);
+    GenEventInfoProduct(GenEventInfoProduct &&other);
+    virtual ~GenEventInfoProduct();
 
-  typedef gen::PdfInfo PDF;
+    GenEventInfoProduct &operator=(const GenEventInfoProduct &other);
+    GenEventInfoProduct &operator=(GenEventInfoProduct &&other);
 
-  // getters
+    typedef gen::PdfInfo PDF;
 
-  std::vector<double> &weights() { return weights_; }
-  const std::vector<double> &weights() const { return weights_; }
+    // getters
 
-  double weight() const { return weights_.empty() ? 1.0 : weights_[0]; }
+    std::vector<double> &weights() { return weights_; }
+    const std::vector<double> &weights() const { return weights_; }
 
-  double weightProduct() const;
+    double weight() const { return weights_.empty() ? 1.0 : weights_[0]; }
 
-  unsigned int signalProcessID() const { return signalProcessID_; }
+    double weightProduct() const;
 
-  double qScale() const { return qScale_; }
-  double alphaQCD() const { return alphaQCD_; }
-  double alphaQED() const { return alphaQED_; }
+    unsigned int signalProcessID() const { return signalProcessID_; }
 
-  const PDF *pdf() const { return pdf_.get(); }
-  bool hasPDF() const { return pdf() != nullptr; }
+    double qScale() const { return qScale_; }
+    double alphaQCD() const { return alphaQCD_; }
+    double alphaQED() const { return alphaQED_; }
 
-  const std::vector<double> &binningValues() const { return binningValues_; }
-  bool hasBinningValues() const { return !binningValues_.empty(); }
+    const PDF *pdf() const { return pdf_.get(); }
+    bool hasPDF() const { return pdf() != nullptr; }
 
-  const std::vector<float> &DJRValues() const { return DJRValues_; }
-  bool hasDJRValues() const { return !DJRValues_.empty(); }
+    const std::vector<double> &binningValues() const { return binningValues_; }
+    bool hasBinningValues() const { return !binningValues_.empty(); }
 
-  int nMEPartons() const { return nMEPartons_; }
+    const std::vector<float> &DJRValues() const { return DJRValues_; }
+    bool hasDJRValues() const { return !DJRValues_.empty(); }
 
-  int nMEPartonsFiltered() const { return nMEPartonsFiltered_; }
+    int nMEPartons() const { return nMEPartons_; }
 
-  // setters
+    int nMEPartonsFiltered() const { return nMEPartonsFiltered_; }
 
-  void setWeights(const std::vector<double> &weights) { weights_ = weights; }
+    // setters
 
-  void setSignalProcessID(unsigned int procID) { signalProcessID_ = procID; }
+    void setWeights(const std::vector<double> &weights) { weights_ = weights; }
 
-  void setScales(double q = -1., double qcd = -1., double qed = -1.) { qScale_ = q, alphaQCD_ = qcd, alphaQED_ = qed; }
+    void setSignalProcessID(unsigned int procID) { signalProcessID_ = procID; }
 
-  void setPDF(const PDF *pdf) { pdf_.reset(pdf ? new PDF(*pdf) : nullptr); }
+    void setScales(double q = -1., double qcd = -1., double qed = -1.) {
+      qScale_ = q, alphaQCD_ = qcd, alphaQED_ = qed;
+    }
 
-  void setBinningValues(const std::vector<double> &values) { binningValues_ = values; }
+    void setPDF(const PDF *pdf) { pdf_.reset(pdf ? new PDF(*pdf) : nullptr); }
 
-  void setDJR(const std::vector<float> &values) { DJRValues_ = values; }
+    void setBinningValues(const std::vector<double> &values) { binningValues_ = values; }
 
-  void setNMEPartons(int n) { nMEPartons_ = n; }
+    void setDJR(const std::vector<float> &values) { DJRValues_ = values; }
 
-  void setNMEPartonsFiltered(int n) { nMEPartonsFiltered_ = n; }
+    void setNMEPartons(int n) { nMEPartons_ = n; }
 
-private:
-  // HepMC::GenEvent provides a list of weights
-  std::vector<double> weights_;
+    void setNMEPartonsFiltered(int n) { nMEPartonsFiltered_ = n; }
 
-  // generator-dependent process ID
-  unsigned int signalProcessID_;
+  private:
+    // HepMC::GenEvent provides a list of weights
+    std::vector<double> weights_;
 
-  // information about scales
-  double qScale_;
-  double alphaQCD_, alphaQED_;
+    // generator-dependent process ID
+    unsigned int signalProcessID_;
 
-  // optional PDF info
-  std::unique_ptr<PDF> pdf_;
+    // information about scales
+    double qScale_;
+    double alphaQCD_, alphaQED_;
 
-  // If event was produced in bis, this contains
-  // the values that were used to define which
-  // bin the event belongs in
-  // This replaces the genEventScale, which only
-  // corresponds to Pythia pthat.  The RunInfo
-  // will contain the information what physical
-  // quantity these values actually belong to
-  std::vector<double> binningValues_;
-  std::vector<float> DJRValues_;
-  int nMEPartons_;
-  int nMEPartonsFiltered_;
-};
+    // optional PDF info
+    std::unique_ptr<PDF> pdf_;
+
+    // If event was produced in bis, this contains
+    // the values that were used to define which
+    // bin the event belongs in
+    // This replaces the genEventScale, which only
+    // corresponds to Pythia pthat.  The RunInfo
+    // will contain the information what physical
+    // quantity these values actually belong to
+    std::vector<double> binningValues_;
+    std::vector<float> DJRValues_;
+    int nMEPartons_;
+    int nMEPartonsFiltered_;
+  };
+
+}  // namespace io_v1
+
+using GenEventInfoProduct = io_v1::GenEventInfoProduct;
 
 #endif  // SimDataFormats_GeneratorProducts_GenEventInfoProduct_h

@@ -615,7 +615,7 @@ class PreEDModuleEventDelayedGetParser(EDModuleTransitionParser):
         #a pre delayed get is effectively a post transition as the system assumes one state per module per transition instance
         if self._moduleCentric:
             #inject a dummy at end of the same slot to guarantee module run is in that slot
-            return self._postJson(data, jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, callID=self.callID, activity=Activity.temporary, start=self.time))
+            return self._postJson(data, jsonModuleTransition(type=self.transition, id=self.index, modID=self.moduleID, callID=self.callID, requestingMod=self.requestingModuleID, requestingCall=self.requestingCallID, activity=Activity.temporary, start=self.time))
         return self._postJson(data)
         #return self._preJson(Activity.delayedGet, data)
 

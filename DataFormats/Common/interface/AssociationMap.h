@@ -242,7 +242,7 @@ namespace edm {
     };
 
     //Used by ROOT storage
-    CMS_CLASS_VERSION(10)
+    CMS_CLASS_VERSION(3)
 
   private:
     /// reference set

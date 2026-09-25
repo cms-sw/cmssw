@@ -2,7 +2,7 @@
 #define PreshowerHitMaker_h
 
 #include "FastSimulation/CaloHitMakers/interface/CaloHitMaker.h"
-#include "FastSimulation/CaloGeometryTools/interface/Transform3DPJ.h"
+#include "Math/Transform3D.h"
 
 class CaloGeometryHelper;
 class LandauFluctuationGenerator;
@@ -12,7 +12,7 @@ class PreshowerHitMaker : public CaloHitMaker {
 public:
   typedef math::XYZVector XYZVector;
   typedef math::XYZVector XYZPoint;
-  typedef ROOT::Math::Transform3DPJ Transform3D;
+  typedef ROOT::Math::Transform3D Transform3D;
 
   PreshowerHitMaker(CaloGeometryHelper* calo,
                     const XYZPoint&,

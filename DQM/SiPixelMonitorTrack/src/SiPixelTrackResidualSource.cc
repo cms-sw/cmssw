@@ -28,7 +28,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"

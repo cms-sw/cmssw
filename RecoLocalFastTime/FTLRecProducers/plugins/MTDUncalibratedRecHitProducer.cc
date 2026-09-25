@@ -6,6 +6,9 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FTLDigi/interface/FTLDigiCollections.h"
 #include "DataFormats/FTLRecHit/interface/FTLRecHitCollections.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/PluginDescription.h"
 
 #include "RecoLocalFastTime/FTLCommonAlgos/interface/MTDUncalibratedRecHitAlgoBase.h"
 
@@ -14,8 +17,9 @@
 class MTDUncalibratedRecHitProducer : public edm::stream::EDProducer<> {
 public:
   explicit MTDUncalibratedRecHitProducer(const edm::ParameterSet& ps);
-  ~MTDUncalibratedRecHitProducer() override;
+  ~MTDUncalibratedRecHitProducer() override = default;
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   const edm::EDGetTokenT<BTLDigiCollection> ftlbDigis_;  // collection of BTL digis
@@ -48,8 +52,6 @@ MTDUncalibratedRecHitProducer::MTDUncalibratedRecHitProducer(const edm::Paramete
   endcap_ = std::unique_ptr<ETLUncalibratedRecHitAlgoBase>{
       ETLUncalibratedRecHitAlgoFactory::get()->create(endcapAlgo, endcap, sumes)};
 }
-
-MTDUncalibratedRecHitProducer::~MTDUncalibratedRecHitProducer() {}
 
 void MTDUncalibratedRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   // tranparently get things from event setup
@@ -88,6 +90,25 @@ void MTDUncalibratedRecHitProducer::produce(edm::Event& evt, const edm::EventSet
   // put the collection of recunstructed hits in the event
   evt.put(std::move(barrelRechits), ftlbInstance_);
   evt.put(std::move(endcapRechits), ftleInstance_);
+}
+
+void MTDUncalibratedRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("barrelDigis", edm::InputTag("mix", "FTLBarrel"));
+  desc.add<edm::InputTag>("endcapDigis", edm::InputTag("mix", "FTEndcap"));
+
+  desc.add<std::string>("BarrelHitsName", "FTLBarrel");
+  desc.add<std::string>("EndcapHitsName", "FTLEndcap");
+
+  edm::ParameterSetDescription barrelDesc;
+  barrelDesc.addNode(edm::PluginDescription<BTLUncalibratedRecHitAlgoFactory>("algoName", true));
+  desc.add<edm::ParameterSetDescription>("barrel", barrelDesc);
+
+  edm::ParameterSetDescription endcapDesc;
+  endcapDesc.addNode(edm::PluginDescription<ETLUncalibratedRecHitAlgoFactory>("algoName", true));
+  desc.add<edm::ParameterSetDescription>("endcap", endcapDesc);
+
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

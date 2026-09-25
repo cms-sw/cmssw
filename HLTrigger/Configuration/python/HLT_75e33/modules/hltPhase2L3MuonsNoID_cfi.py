@@ -234,6 +234,7 @@ hltPhase2L3MuonsNoID = cms.EDProducer("MuonIdProducer",
         OverlapDPhi = cms.double(0.0786),
         OverlapDTheta = cms.double(0.02)
     ),
+    isPhase2 = cms.bool(True),
     debugWithTruthMatching = cms.bool(False),
     ecalDepositName = cms.string('ecal'),
     fillCaloCompatibility = cms.bool(False),

@@ -6,6 +6,7 @@
 #include "DD4hep/Shapes.h"
 #include <TGeoBBox.h>
 #include <TGeoBoolNode.h>
+#include <TGeoTrd1.h>
 #include <charconv>
 
 using namespace cms;
@@ -552,6 +553,9 @@ const std::vector<double> DDFilteredView::parameters() const {
       double param[4];
       pcon->GetBoundingCylinder(param);
       return {param[0], param[1], param[2], param[3]};
+    } else if (boolean->GetLeftShape()->IsA() == TGeoTrd1::Class()) {
+      const TGeoTrd1* trd1 = static_cast<const TGeoTrd1*>(boolean->GetLeftShape());
+      return {trd1->GetDx1(), trd1->GetDx2(), trd1->GetDy(), trd1->GetDz()};
     } else {
       throw cms::Exception("DDFilteredView") << "Unknown boolean solid component";
     }

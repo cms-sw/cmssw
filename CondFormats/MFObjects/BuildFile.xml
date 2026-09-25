@@ -1,3 +1,4 @@
+<use name="rootcling"/>
 <use name="CondFormats/Serialization"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>

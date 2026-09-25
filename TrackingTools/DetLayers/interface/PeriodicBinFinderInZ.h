@@ -2,7 +2,7 @@
 #define DetLayers_PeriodicBinFinderInZ_H
 
 #include "Utilities/BinningTools/interface/BaseBinFinder.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include <cmath>
 
 /** Bin finder along the global Z for (almost) equidistant bins.

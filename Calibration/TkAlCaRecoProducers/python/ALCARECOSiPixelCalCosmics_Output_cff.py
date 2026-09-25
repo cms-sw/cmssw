@@ -7,7 +7,8 @@ OutALCARECOSiPixelCalCosmics_noDrop = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'keep *_ALCARECOSiPixelCalCosmics_*_*',
         'keep *_muons__*',
-        'keep *_*riggerResults_*_HLT'
+        'keep *_*riggerResults_*_HLT',
+        'keep PixelFEDChanneledmNewDetSetVector_siPixelDigis_*_*'
     )
 )
 import copy

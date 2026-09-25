@@ -118,16 +118,6 @@ ESTrivialConditionRetriever::~ESTrivialConditionRetriever() {}
 //
 // member functions
 //
-void ESTrivialConditionRetriever::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& rk,
-                                                 const edm::IOVSyncValue& iTime,
-                                                 edm::ValidityInterval& oValidity) {
-  if (verbose_ >= 1)
-    std::cout << "ESTrivialConditionRetriever::setIntervalFor(): record key = " << rk.name()
-              << "\ttime: " << iTime.time().value() << std::endl;
-  //For right now, we will just use an infinite interval of validity
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}
-
 //produce methods
 std::unique_ptr<ESPedestals> ESTrivialConditionRetriever::produceESPedestals(const ESPedestalsRcd&) {
   std::cout << " producing pedestals" << std::endl;

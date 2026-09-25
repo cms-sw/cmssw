@@ -33,9 +33,3 @@ CSCChipSpeedCorrectionDBConditions::ReturnType CSCChipSpeedCorrectionDBCondition
   return CSCChipSpeedCorrectionDBConditions::ReturnType(
       prefillDBChipSpeedCorrection(isForMC, dataCorrFileName, dataOffset));
 }
-
-void CSCChipSpeedCorrectionDBConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                                        const edm::IOVSyncValue &,
-                                                        edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}

@@ -74,9 +74,8 @@ void HGCalMulticlusteringImpl::clusterizeDR(const std::vector<edm::Ptr<l1t::HGCa
                                             const HGCalTriggerGeometryBase& triggerGeometry) {
   std::vector<l1t::HGCalMulticluster> multiclustersTmp;
 
-  int iclu = 0;
   for (std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end();
-       ++clu, ++iclu) {
+       ++clu) {
     double minDist = dr_;
     int targetMulticlu = -1;
 

@@ -73,7 +73,6 @@ namespace edmtest {
     std::vector<edm::eventsetup::ESModuleProducesInfo> producesInfo() const override;
 
   private:
-    bool isConcurrentFinder() const override { return true; }
     void setIntervalFor(EventSetupRecordKey const&, edm::IOVSyncValue const&, edm::ValidityInterval&) override;
     KeyedResolversVector registerResolvers(EventSetupRecordKey const&, unsigned int iovIndex) override;
     void initConcurrentIOVs(EventSetupRecordKey const&, unsigned int nConcurrentIOVs) override;

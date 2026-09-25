@@ -288,7 +288,6 @@ void EcalTestPulseAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
   double chi2pn = 0;
   double ypnrange[50];
   double dsum = 0.;
-  double dsum1 = 0.;
   double bl = 0.;
   double val_max = 0.;
   int samplemax = 0;
@@ -435,10 +434,8 @@ void EcalTestPulseAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
       }
       // Remove pedestal
       //====================
-      for (dsum = 0., dsum1 = 0., k = 0; k < _presample; k++) {
+      for (dsum = 0., k = 0; k < _presample; k++) {
         dsum += adc[k];
-        if (k < _presample - 1)
-          dsum1 += adc[k];
       }
 
       bl = dsum / ((double)_presample);
@@ -561,10 +558,8 @@ void EcalTestPulseAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
 
       // Remove pedestal
       //====================
-      for (dsum = 0., dsum1 = 0., k = 0; k < _presample; k++) {
+      for (dsum = 0., k = 0; k < _presample; k++) {
         dsum += adc[k];
-        if (k < _presample - 1)
-          dsum1 += adc[k];
       }
 
       bl = dsum / ((double)_presample);

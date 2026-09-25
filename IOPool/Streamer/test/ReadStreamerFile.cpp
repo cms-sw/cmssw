@@ -83,7 +83,7 @@ int readMultipleStreams(bool verbose) {
 
     edm::InputFileCatalog catalog(streamFiles, "", false, edm::SciTagCategory::Undefined);
 
-    StreamerInputFile stream_reader(catalog.fileCatalogItems());
+    StreamerInputFile stream_reader(catalog);
 
     std::cout << "Trying to Read The Init message from Streamer File: "
               << "teststreamfile.dat" << std::endl;
@@ -129,7 +129,7 @@ int readInvalidLFN(bool verbose) {
 
     edm::InputFileCatalog catalog(streamFiles, "", false, edm::SciTagCategory::Undefined);
 
-    StreamerInputFile stream_reader(catalog.fileCatalogItems());
+    StreamerInputFile stream_reader(catalog);
 
     std::cout << "Trying to Read The Init message from Streamer File: "
               << "teststreamfile.dat" << std::endl;

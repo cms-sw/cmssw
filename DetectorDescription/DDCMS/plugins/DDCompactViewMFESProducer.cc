@@ -19,6 +19,7 @@
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -32,7 +33,7 @@
 using namespace std;
 using namespace cms;
 
-class DDCompactViewMFESProducer : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class DDCompactViewMFESProducer : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   DDCompactViewMFESProducer(const edm::ParameterSet &);
   ~DDCompactViewMFESProducer() override;
@@ -42,11 +43,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
   ReturnType produce(const IdealMagneticFieldRecord &);
-
-protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                      const edm::IOVSyncValue &,
-                      edm::ValidityInterval &) override;
 
 private:
   const edm::ESGetToken<DDDetector, IdealMagneticFieldRecord> m_detToken;
@@ -68,13 +64,6 @@ void DDCompactViewMFESProducer::fillDescriptions(edm::ConfigurationDescriptions 
 DDCompactViewMFESProducer::ReturnType DDCompactViewMFESProducer::produce(const IdealMagneticFieldRecord &iRecord) {
   auto product = std::make_unique<DDCompactView>(iRecord.get(m_detToken));
   return product;
-}
-
-void DDCompactViewMFESProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                               const edm::IOVSyncValue &iosv,
-                                               edm::ValidityInterval &oValidity) {
-  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
-  oValidity = infinity;
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(DDCompactViewMFESProducer);

@@ -381,7 +381,21 @@ def getSequence(process, collection,
 
         if g4Refitting:
             customlog("Here we must include geopro first")
-            process.load('Configuration.StandardSequences.GeometryDB_cff')
+
+            def _loadGeometryPhase2(process):
+                customlog("Phase2 era detected, loading Phase2 geometry")
+                process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
+
+            from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+            loadPhase2geom = phase2_common.makeProcessModifier(_loadGeometryPhase2)
+
+            def _loadGeometryRun3(process):
+                customlog("Non-Phase2 era, loading standard geometry")
+                process.load('Configuration.StandardSequences.GeometryDB_cff')
+
+            from Configuration.Eras.Modifier_run3_common_cff import run3_common
+            loadRun3geom = run3_common.makeProcessModifier(_loadGeometryRun3)
+
             process.load("TrackPropagation.Geant4e.geantRefit_cff")
             modules.append(getattr(process,"geopro"))
 

@@ -15,35 +15,38 @@
 #include <limits>
 
 namespace reco {
-  class BaseTau : public RecoCandidate {
-  public:
-    BaseTau();
-    BaseTau(Charge q, const LorentzVector&, const Point& = Point(0, 0, 0));
-    ~BaseTau() override {}
-    BaseTau* clone() const override;
+  namespace io_v1 {
+    class BaseTau : public RecoCandidate {
+    public:
+      BaseTau();
+      BaseTau(Charge q, const LorentzVector&, const Point& = Point(0, 0, 0));
+      ~BaseTau() override {}
+      BaseTau* clone() const override;
 
-    // rec. jet Lorentz-vector combining (Tracks and neutral ECAL Island BasicClusters) or (charged hadr. PFCandidates and gamma PFCandidates)
-    math::XYZTLorentzVector alternatLorentzVect() const;
-    void setalternatLorentzVect(const math::XYZTLorentzVector&);
+      // rec. jet Lorentz-vector combining (Tracks and neutral ECAL Island BasicClusters) or (charged hadr. PFCandidates and gamma PFCandidates)
+      math::XYZTLorentzVector alternatLorentzVect() const;
+      void setalternatLorentzVect(const math::XYZTLorentzVector&);
 
-    // leading Track
-    virtual reco::TrackRef leadTrack() const;
-    void setleadTrack(const TrackRef&);
+      // leading Track
+      virtual reco::TrackRef leadTrack() const;
+      void setleadTrack(const TrackRef&);
 
-    // Tracks which passed quality cuts and are inside a tracker signal cone around leading Track
-    virtual const reco::TrackRefVector& signalTracks() const;
-    void setsignalTracks(const TrackRefVector&);
+      // Tracks which passed quality cuts and are inside a tracker signal cone around leading Track
+      virtual const reco::TrackRefVector& signalTracks() const;
+      void setsignalTracks(const TrackRefVector&);
 
-    // Tracks which passed quality cuts and are inside a tracker isolation annulus around leading Track
-    virtual const reco::TrackRefVector& isolationTracks() const;
-    void setisolationTracks(const TrackRefVector&);
+      // Tracks which passed quality cuts and are inside a tracker isolation annulus around leading Track
+      virtual const reco::TrackRefVector& isolationTracks() const;
+      void setisolationTracks(const TrackRefVector&);
 
-  private:
-    // check overlap with another candidate
-    bool overlap(const Candidate&) const override;
-    math::XYZTLorentzVector alternatLorentzVect_;
-    reco::TrackRef leadTrack_;
-    reco::TrackRefVector signalTracks_, isolationTracks_;
-  };
+    private:
+      // check overlap with another candidate
+      bool overlap(const Candidate&) const override;
+      math::XYZTLorentzVector alternatLorentzVect_;
+      reco::TrackRef leadTrack_;
+      reco::TrackRefVector signalTracks_, isolationTracks_;
+    };
+  }  // namespace io_v1
+  using BaseTau = io_v1::BaseTau;
 }  // namespace reco
 #endif

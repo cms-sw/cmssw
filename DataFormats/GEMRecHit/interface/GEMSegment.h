@@ -15,88 +15,93 @@
 
 #include <iosfwd>
 
-class GEMSegment final : public RecSegment {
-public:
-  /// Default constructor
-  GEMSegment() : theChi2(0.) {}
+namespace io_v1 {
 
-  /// Constructor
-  GEMSegment(const std::vector<const GEMRecHit*>& proto_segment,
-             const LocalPoint& origin,
-             const LocalVector& direction,
-             const AlgebraicSymMatrix& errors,
-             double chi2);
+  class GEMSegment final : public RecSegment {
+  public:
+    /// Default constructor
+    GEMSegment() : theChi2(0.) {}
 
-  GEMSegment(const std::vector<const GEMRecHit*>& proto_segment,
-             const LocalPoint& origin,
-             const LocalVector& direction,
-             const AlgebraicSymMatrix& errors,
-             double chi2,
-             float bx);
+    /// Constructor
+    GEMSegment(const std::vector<const GEMRecHit*>& proto_segment,
+               const LocalPoint& origin,
+               const LocalVector& direction,
+               const AlgebraicSymMatrix& errors,
+               double chi2);
 
-  GEMSegment(const std::vector<const GEMRecHit*>& proto_segment,
-             const LocalPoint& origin,
-             const LocalVector& direction,
-             const AlgebraicSymMatrix& errors,
-             double chi2,
-             float bx,
-             float deltaPhi);
+    GEMSegment(const std::vector<const GEMRecHit*>& proto_segment,
+               const LocalPoint& origin,
+               const LocalVector& direction,
+               const AlgebraicSymMatrix& errors,
+               double chi2,
+               float bx);
 
-  /// Destructor
-  ~GEMSegment() override;
+    GEMSegment(const std::vector<const GEMRecHit*>& proto_segment,
+               const LocalPoint& origin,
+               const LocalVector& direction,
+               const AlgebraicSymMatrix& errors,
+               double chi2,
+               float bx,
+               float deltaPhi);
 
-  //--- Base class interface
-  GEMSegment* clone() const override { return new GEMSegment(*this); }
+    /// Destructor
+    ~GEMSegment() override;
 
-  LocalPoint localPosition() const override { return theOrigin; }
-  LocalError localPositionError() const override;
+    //--- Base class interface
+    GEMSegment* clone() const override { return new GEMSegment(*this); }
 
-  LocalVector localDirection() const override { return theLocalDirection; }
-  LocalError localDirectionError() const override;
+    LocalPoint localPosition() const override { return theOrigin; }
+    LocalError localPositionError() const override;
 
-  /// Parameters of the segment, for the track fit in the order (dx/dz, dy/dz, x, y )
-  AlgebraicVector parameters() const override;
+    LocalVector localDirection() const override { return theLocalDirection; }
+    LocalError localDirectionError() const override;
 
-  /// Covariance matrix of parameters()
-  AlgebraicSymMatrix parametersError() const override { return theCovMatrix; }
+    /// Parameters of the segment, for the track fit in the order (dx/dz, dy/dz, x, y )
+    AlgebraicVector parameters() const override;
 
-  /// The projection matrix relates the trajectory state parameters to the segment parameters().
-  AlgebraicMatrix projectionMatrix() const override;
+    /// Covariance matrix of parameters()
+    AlgebraicSymMatrix parametersError() const override { return theCovMatrix; }
 
-  std::vector<const TrackingRecHit*> recHits() const override;
+    /// The projection matrix relates the trajectory state parameters to the segment parameters().
+    AlgebraicMatrix projectionMatrix() const override;
 
-  std::vector<TrackingRecHit*> recHits() override;
+    std::vector<const TrackingRecHit*> recHits() const override;
 
-  double chi2() const override { return theChi2; };
+    std::vector<TrackingRecHit*> recHits() override;
 
-  int dimension() const override { return 4; }
+    double chi2() const override { return theChi2; };
 
-  int degreesOfFreedom() const override { return 2 * nRecHits() - 4; }
+    int dimension() const override { return 4; }
 
-  //--- Extension of the interface
+    int degreesOfFreedom() const override { return 2 * nRecHits() - 4; }
 
-  const std::vector<GEMRecHit>& specificRecHits() const { return theGEMRecHits; }
+    //--- Extension of the interface
 
-  int nRecHits() const { return theGEMRecHits.size(); }
+    const std::vector<GEMRecHit>& specificRecHits() const { return theGEMRecHits; }
 
-  GEMDetId gemDetId() const { return geographicalId(); }
+    int nRecHits() const { return theGEMRecHits.size(); }
 
-  float bunchX() const { return theBX; }
+    GEMDetId gemDetId() const { return geographicalId(); }
 
-  float deltaPhi() const { return theDeltaPhi; }
+    float bunchX() const { return theBX; }
 
-  void print() const;
+    float deltaPhi() const { return theDeltaPhi; }
 
-private:
-  std::vector<GEMRecHit> theGEMRecHits;
-  LocalPoint theOrigin;             // in chamber frame - the GeomDet local coordinate system
-  LocalVector theLocalDirection;    // in chamber frame - the GeomDet local coordinate system
-  AlgebraicSymMatrix theCovMatrix;  // the covariance matrix
-  double theChi2;                   // the Chi squared of the segment fit
-  float theBX;                      // the bunch crossing
-  float theDeltaPhi;                // Difference in segment phi position: outer layer - inner lay
-};
+    void print() const;
 
-std::ostream& operator<<(std::ostream& os, const GEMSegment& seg);
+  private:
+    std::vector<GEMRecHit> theGEMRecHits;
+    LocalPoint theOrigin;             // in chamber frame - the GeomDet local coordinate system
+    LocalVector theLocalDirection;    // in chamber frame - the GeomDet local coordinate system
+    AlgebraicSymMatrix theCovMatrix;  // the covariance matrix
+    double theChi2;                   // the Chi squared of the segment fit
+    float theBX;                      // the bunch crossing
+    float theDeltaPhi;                // Difference in segment phi position: outer layer - inner lay
+  };
+
+  std::ostream& operator<<(std::ostream& os, const GEMSegment& seg);
+
+}  // namespace io_v1
+using GEMSegment = io_v1::GEMSegment;
 
 #endif

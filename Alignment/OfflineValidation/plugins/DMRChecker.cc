@@ -49,6 +49,7 @@
 
 // user system includes
 
+#include "Alignment/OfflineValidation/interface/OfflineValidationUtils.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -76,7 +77,6 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -85,11 +85,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackResiduals.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -117,35 +113,14 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
+// shared with FastDMRChecker: running-mean/variance estimator, split-DMR
+// booking, and by-(subdet,layer) residual/pull booking.
+#include "Alignment/OfflineValidation/interface/DMRHelper.h"
+
 #define DEBUG 0
 
 using namespace std;
 using namespace edm;
-
-const int kBPIX = PixelSubdetector::PixelBarrel;
-const int kFPIX = PixelSubdetector::PixelEndcap;
-constexpr float cmToUm = 10000.;
-
-/**
- * Auxilliary POD to store the data for
- * the running mean algorithm.
- */
-
-namespace running {
-  struct Estimators {
-    int rDirection;
-    int zDirection;
-    int rOrZDirection;
-    int hitCount;
-    float runningMeanOfRes_;
-    float runningVarOfRes_;
-    float runningNormMeanOfRes_;
-    float runningNormVarOfRes_;
-  };
-
-  using estimatorMap = std::map<uint32_t, running::Estimators>;
-
-}  // namespace running
 
 class DMRChecker : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
@@ -496,17 +471,17 @@ private:
 
   // Pixel
 
-  running::estimatorMap resDetailsBPixX_;
-  running::estimatorMap resDetailsBPixY_;
-  running::estimatorMap resDetailsFPixX_;
-  running::estimatorMap resDetailsFPixY_;
+  DMRHelper::EstimatorMap resDetailsBPixX_;
+  DMRHelper::EstimatorMap resDetailsBPixY_;
+  DMRHelper::EstimatorMap resDetailsFPixX_;
+  DMRHelper::EstimatorMap resDetailsFPixY_;
 
   // Strips
 
-  running::estimatorMap resDetailsTIB_;
-  running::estimatorMap resDetailsTOB_;
-  running::estimatorMap resDetailsTID_;
-  running::estimatorMap resDetailsTEC_;
+  DMRHelper::EstimatorMap resDetailsTIB_;
+  DMRHelper::EstimatorMap resDetailsTOB_;
+  DMRHelper::EstimatorMap resDetailsTID_;
+  DMRHelper::EstimatorMap resDetailsTEC_;
 
   void analyze(const edm::Event &event, const edm::EventSetup &setup) override {
     ievt++;
@@ -555,8 +530,9 @@ private:
       unsigned int nHit2D = 0;
       int h_index = 0;
       for (trackingRecHit_iterator iHit = track.recHitsBegin(); iHit != track.recHitsEnd(); ++iHit, ++h_index) {
-        if (this->isHit2D(**iHit))
+        if (alignment::offlineValidationUtils::isHit2D(**iHit, trackerGeometry_, phase_)) {
           ++nHit2D;
+        }
 
         double resX = residuals.residualX(h_index);
         double resY = residuals.residualY(h_index);
@@ -601,17 +577,17 @@ private:
               resDetailsTIB_[detid_db].rOrZDirection = resDetailsTIB_[detid_db].rDirection;  // barrel (split in r)
             }
 
-            hTIBResXPrime->Fill(uOrientation * resX * cmToUm);
+            hTIBResXPrime->Fill(uOrientation * resX * DMRHelper::cmToUm);
             hTIBResXPull->Fill(pullX);
 
             // update residuals
-            this->updateOnlineMomenta(resDetailsTIB_, detid_db, uOrientation * resX * cmToUm, pullX);
+            DMRHelper::updateOnlineMomenta(resDetailsTIB_, detid_db, uOrientation * resX * DMRHelper::cmToUm, pullX);
 
           } else if (subid == StripSubdetector::TOB) {
             uOrientation = deltaPhi(gUDirection.barePhi(), gPModule.barePhi()) >= 0. ? +1.F : -1.F;
             //vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F; // not used for Strips
 
-            hTOBResXPrime->Fill(uOrientation * resX * cmToUm);
+            hTOBResXPrime->Fill(uOrientation * resX * DMRHelper::cmToUm);
             hTOBResXPull->Fill(pullX);
 
             // if the detid has never occcurred yet, set the local orientations
@@ -622,27 +598,27 @@ private:
             }
 
             // update residuals
-            this->updateOnlineMomenta(resDetailsTOB_, detid_db, uOrientation * resX * cmToUm, pullX);
+            DMRHelper::updateOnlineMomenta(resDetailsTOB_, detid_db, uOrientation * resX * DMRHelper::cmToUm, pullX);
 
           } else if (subid == StripSubdetector::TID) {
             uOrientation = deltaPhi(gUDirection.barePhi(), gPModule.barePhi()) >= 0. ? +1.F : -1.F;
             //vOrientation = gVDirection.perp() - gPModule.perp() >= 0. ? +1.F : -1.F; // not used for Strips
 
-            hTIDResXPrime->Fill(uOrientation * resX * cmToUm);
+            hTIDResXPrime->Fill(uOrientation * resX * DMRHelper::cmToUm);
             hTIDResXPull->Fill(pullX);
 
             // update residuals
-            this->updateOnlineMomenta(resDetailsTID_, detid_db, uOrientation * resX * cmToUm, pullX);
+            DMRHelper::updateOnlineMomenta(resDetailsTID_, detid_db, uOrientation * resX * DMRHelper::cmToUm, pullX);
 
           } else if (subid == StripSubdetector::TEC) {
             uOrientation = deltaPhi(gUDirection.barePhi(), gPModule.barePhi()) >= 0. ? +1.F : -1.F;
             //vOrientation = gVDirection.perp() - gPModule.perp() >= 0. ? +1.F : -1.F; // not used for Strips
 
-            hTECResXPrime->Fill(uOrientation * resX * cmToUm);
+            hTECResXPrime->Fill(uOrientation * resX * DMRHelper::cmToUm);
             hTECResXPull->Fill(pullX);
 
             // update residuals
-            this->updateOnlineMomenta(resDetailsTEC_, detid_db, uOrientation * resX * cmToUm, pullX);
+            DMRHelper::updateOnlineMomenta(resDetailsTEC_, detid_db, uOrientation * resX * DMRHelper::cmToUm, pullX);
           }
         }
 
@@ -689,8 +665,8 @@ private:
                 hHitCountVsXBPix->Fill(GP.x());
                 hHitCountVsYBPix->Fill(GP.y());
 
-                hBPixResXPrime->Fill(uOrientation * resX * cmToUm);
-                hBPixResYPrime->Fill(vOrientation * resY * cmToUm);
+                hBPixResXPrime->Fill(uOrientation * resX * DMRHelper::cmToUm);
+                hBPixResYPrime->Fill(vOrientation * resY * DMRHelper::cmToUm);
                 hBPixResXPull->Fill(pullX);
                 hBPixResYPull->Fill(pullY);
 
@@ -698,14 +674,16 @@ private:
                   edm::LogVerbatim("DMRChecker") << "layer: " << layer_num << std::endl;
 
                 // update residuals X
-                this->updateOnlineMomenta(resDetailsBPixX_, detid_db, uOrientation * resX * cmToUm, pullX);
+                DMRHelper::updateOnlineMomenta(
+                    resDetailsBPixX_, detid_db, uOrientation * resX * DMRHelper::cmToUm, pullX);
 
                 // update residuals Y
-                this->updateOnlineMomenta(resDetailsBPixY_, detid_db, vOrientation * resY * cmToUm, pullY);
+                DMRHelper::updateOnlineMomenta(
+                    resDetailsBPixY_, detid_db, vOrientation * resY * DMRHelper::cmToUm, pullY);
 
-                fillByIndex(barrelLayersResidualsX, layer_num, uOrientation * resX * cmToUm);
+                fillByIndex(barrelLayersResidualsX, layer_num, uOrientation * resX * DMRHelper::cmToUm);
                 fillByIndex(barrelLayersPullsX, layer_num, pullX);
-                fillByIndex(barrelLayersResidualsY, layer_num, vOrientation * resY * cmToUm);
+                fillByIndex(barrelLayersResidualsY, layer_num, vOrientation * resY * DMRHelper::cmToUm);
                 fillByIndex(barrelLayersPullsY, layer_num, pullY);
 
               } else if (subid == PixelSubdetector::PixelEndcap) {
@@ -728,14 +706,14 @@ private:
                 hHitCountVsXFPix->Fill(GP.x());
                 hHitCountVsYFPix->Fill(GP.y());
 
-                hFPixResXPrime->Fill(uOrientation * resX * cmToUm);
-                hFPixResYPrime->Fill(vOrientation * resY * cmToUm);
+                hFPixResXPrime->Fill(uOrientation * resX * DMRHelper::cmToUm);
+                hFPixResYPrime->Fill(vOrientation * resY * DMRHelper::cmToUm);
                 hFPixResXPull->Fill(pullX);
                 hFPixResYPull->Fill(pullY);
 
-                fillByIndex(endcapDisksResidualsX, packedTopo, uOrientation * resX * cmToUm);
+                fillByIndex(endcapDisksResidualsX, packedTopo, uOrientation * resX * DMRHelper::cmToUm);
                 fillByIndex(endcapDisksPullsX, packedTopo, pullX);
-                fillByIndex(endcapDisksResidualsY, packedTopo, vOrientation * resY * cmToUm);
+                fillByIndex(endcapDisksResidualsY, packedTopo, vOrientation * resY * DMRHelper::cmToUm);
                 fillByIndex(endcapDisksPullsY, packedTopo, pullY);
 
                 // if the detid has never occcurred yet, set the local orientations
@@ -755,10 +733,12 @@ private:
                 }
 
                 // update residuals X
-                this->updateOnlineMomenta(resDetailsFPixX_, detid_db, uOrientation * resX * cmToUm, pullX);
+                DMRHelper::updateOnlineMomenta(
+                    resDetailsFPixX_, detid_db, uOrientation * resX * DMRHelper::cmToUm, pullX);
 
                 // update residuals Y
-                this->updateOnlineMomenta(resDetailsFPixY_, detid_db, vOrientation * resY * cmToUm, pullY);
+                DMRHelper::updateOnlineMomenta(
+                    resDetailsFPixY_, detid_db, vOrientation * resY * DMRHelper::cmToUm, pullY);
 
                 if (side_num == 1) {
                   hHitCountVsXFPixMinus->Fill(GP.x());
@@ -767,8 +747,8 @@ private:
                   hHitCountVsThetaFPixMinus->Fill(GP.theta());
                   hHitCountVsPhiFPixMinus->Fill(GP.phi());
 
-                  hFPixZMinusResXPrime->Fill(uOrientation * resX * cmToUm);
-                  hFPixZMinusResYPrime->Fill(vOrientation * resY * cmToUm);
+                  hFPixZMinusResXPrime->Fill(uOrientation * resX * DMRHelper::cmToUm);
+                  hFPixZMinusResYPrime->Fill(vOrientation * resY * DMRHelper::cmToUm);
                   hFPixZMinusResXPull->Fill(pullX);
                   hFPixZMinusResYPull->Fill(pullY);
 
@@ -779,8 +759,8 @@ private:
                   hHitCountVsThetaFPixPlus->Fill(GP.theta());
                   hHitCountVsPhiFPixPlus->Fill(GP.phi());
 
-                  hFPixZPlusResXPrime->Fill(uOrientation * resX * cmToUm);
-                  hFPixZPlusResYPrime->Fill(vOrientation * resY * cmToUm);
+                  hFPixZPlusResXPrime->Fill(uOrientation * resX * DMRHelper::cmToUm);
+                  hFPixZPlusResYPrime->Fill(vOrientation * resY * DMRHelper::cmToUm);
                   hFPixZPlusResXPull->Fill(pullX);
                   hFPixZPlusResYPull->Fill(pullY);
                 }
@@ -1573,14 +1553,14 @@ private:
 
     TFileDirectory DMeanRSplit = fs->mkdir("SplitDMRs");
 
-    DMRBPixXSplit_ = bookSplitDMRHistograms(DMeanRSplit, "BPix", "X", true);
-    DMRBPixYSplit_ = bookSplitDMRHistograms(DMeanRSplit, "BPix", "Y", true);
+    DMRBPixXSplit_ = DMRHelper::bookSplitDMRHistograms<DMRHelper::FullDMRBinning>(DMeanRSplit, "BPix", "X", true);
+    DMRBPixYSplit_ = DMRHelper::bookSplitDMRHistograms<DMRHelper::FullDMRBinning>(DMeanRSplit, "BPix", "Y", true);
 
-    DMRFPixXSplit_ = bookSplitDMRHistograms(DMeanRSplit, "FPix", "X", false);
-    DMRFPixYSplit_ = bookSplitDMRHistograms(DMeanRSplit, "FPix", "Y", false);
+    DMRFPixXSplit_ = DMRHelper::bookSplitDMRHistograms<DMRHelper::FullDMRBinning>(DMeanRSplit, "FPix", "X", false);
+    DMRFPixYSplit_ = DMRHelper::bookSplitDMRHistograms<DMRHelper::FullDMRBinning>(DMeanRSplit, "FPix", "Y", false);
 
-    DMRTIBSplit_ = bookSplitDMRHistograms(DMeanRSplit, "TIB", "X", true);
-    DMRTOBSplit_ = bookSplitDMRHistograms(DMeanRSplit, "TOB", "X", true);
+    DMRTIBSplit_ = DMRHelper::bookSplitDMRHistograms<DMRHelper::FullDMRBinning>(DMeanRSplit, "TIB", "X", true);
+    DMRTOBSplit_ = DMRHelper::bookSplitDMRHistograms<DMRHelper::FullDMRBinning>(DMeanRSplit, "TOB", "X", true);
 
     // DRnRs
     TFileDirectory DRnRs = fs->mkdir("DRnRs");
@@ -1880,81 +1860,6 @@ private:
   }
 
   //*************************************************************
-  // check if the hit is 2D
-  //*************************************************************
-  bool isHit2D(const TrackingRecHit &hit) {
-    bool countStereoHitAs2D_ = true;
-    // we count SiStrip stereo modules as 2D if selected via countStereoHitAs2D_
-    // (since they provide theta information)
-    if (!hit.isValid() ||
-        (hit.dimension() < 2 && !countStereoHitAs2D_ && !dynamic_cast<const SiStripRecHit1D *>(&hit))) {
-      return false;  // real RecHit1D - but SiStripRecHit1D depends on countStereoHitAs2D_
-    } else {
-      const DetId detId(hit.geographicalId());
-      if (detId.det() == DetId::Tracker) {
-        if (detId.subdetId() == kBPIX || detId.subdetId() == kFPIX) {
-          return true;  // pixel is always 2D
-        } else {        // should be SiStrip now
-          const SiStripDetId stripId(detId);
-          if (stripId.stereo())
-            return countStereoHitAs2D_;  // stereo modules
-          else if (dynamic_cast<const SiStripRecHit1D *>(&hit) || dynamic_cast<const SiStripRecHit2D *>(&hit))
-            return false;  // rphi modules hit
-          //the following two are not used any more since ages...
-          else if (dynamic_cast<const SiStripMatchedRecHit2D *>(&hit))
-            return true;  // matched is 2D
-          else if (dynamic_cast<const ProjectedSiStripRecHit2D *>(&hit)) {
-            const ProjectedSiStripRecHit2D *pH = static_cast<const ProjectedSiStripRecHit2D *>(&hit);
-            return (countStereoHitAs2D_ && this->isHit2D(pH->originalHit()));  // depends on original...
-          } else {
-            edm::LogError("UnknownType") << "@SUB=DMRChecker::isHit2D"
-                                         << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
-                                         << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
-            return false;
-          }
-        }
-      } else {  // not tracker??
-        edm::LogWarning("DetectorMismatch") << "@SUB=DMRChecker::isHit2D"
-                                            << "Hit not in tracker with 'official' dimension >=2.";
-        return true;  // dimension() >= 2 so accept that...
-      }
-    }
-    // never reached...
-  }
-
-  //*************************************************************
-  // Generic booker of split DMRs
-  //*************************************************************
-  std::array<TH1D *, 2> bookSplitDMRHistograms(TFileDirectory dir,
-                                               std::string subdet,
-                                               std::string vartype,
-                                               bool isBarrel) {
-    TH1F::SetDefaultSumw2(kTRUE);
-
-    std::array<TH1D *, 2> out;
-    std::array<std::string, 2> sign_name = {{"plus", "minus"}};
-    std::array<std::string, 2> sign = {{">0", "<0"}};
-    for (unsigned int i = 0; i < 2; i++) {
-      const char *name_;
-      const char *title_;
-      const char *axisTitle_;
-
-      if (isBarrel) {
-        name_ = Form("DMR%s_%s_rDir%s", subdet.c_str(), vartype.c_str(), sign_name[i].c_str());
-        title_ = Form("Split DMR of %s-%s (rDir%s)", subdet.c_str(), vartype.c_str(), sign[i].c_str());
-        axisTitle_ = Form("mean of %s-residuals (rDir%s);modules", vartype.c_str(), sign[i].c_str());
-      } else {
-        name_ = Form("DMR%s_%s_zDir%s", subdet.c_str(), vartype.c_str(), sign_name[i].c_str());
-        title_ = Form("Split DMR of %s-%s (zDir%s)", subdet.c_str(), vartype.c_str(), sign[i].c_str());
-        axisTitle_ = Form("mean of %s-residuals (zDir%s);modules", vartype.c_str(), sign[i].c_str());
-      }
-
-      out[i] = dir.make<TH1D>(name_, fmt::sprintf("%s;%s", title_, axisTitle_).c_str(), 100., -200, 200);
-    }
-    return out;
-  }
-
-  //*************************************************************
   // Generic booker function
   //*************************************************************
   std::map<unsigned int, TH1D *> bookResidualsHistogram(
@@ -2041,36 +1946,9 @@ private:
   }
 
   //*************************************************************
-  // Implementation of the online variance algorithm
-  // as in https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
-  //*************************************************************
-  void updateOnlineMomenta(running::estimatorMap &myDetails, uint32_t theID, float the_data, float the_pull) {
-    myDetails[theID].hitCount += 1;
-
-    float delta = 0;
-    float n_delta = 0;
-
-    if (myDetails[theID].hitCount != 1) {
-      delta = the_data - myDetails[theID].runningMeanOfRes_;
-      n_delta = the_pull - myDetails[theID].runningNormMeanOfRes_;
-      myDetails[theID].runningMeanOfRes_ += (delta / myDetails[theID].hitCount);
-      myDetails[theID].runningNormMeanOfRes_ += (n_delta / myDetails[theID].hitCount);
-    } else {
-      myDetails[theID].runningMeanOfRes_ = the_data;
-      myDetails[theID].runningNormMeanOfRes_ = the_pull;
-    }
-
-    float delta2 = the_data - myDetails[theID].runningMeanOfRes_;
-    float n_delta2 = the_pull - myDetails[theID].runningNormMeanOfRes_;
-
-    myDetails[theID].runningVarOfRes_ += delta * delta2;
-    myDetails[theID].runningNormVarOfRes_ += n_delta * n_delta2;
-  }
-
-  //*************************************************************
-  // Fill the histograms using the running::estimatorMap
+  // Fill the histograms using the DMRHelper::EstimatorMap
   //**************************************************************
-  void fillDMRs(const running::estimatorMap &myDetails,
+  void fillDMRs(const DMRHelper::EstimatorMap &myDetails,
                 TH1D *DMR,
                 TH1D *DRnR,
                 std::array<TH1D *, 2> DMRSplit,

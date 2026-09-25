@@ -1,6 +1,6 @@
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Framework"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonTopologies"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/DTGeometry"/>

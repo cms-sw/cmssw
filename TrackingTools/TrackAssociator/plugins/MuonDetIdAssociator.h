@@ -21,8 +21,8 @@
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TAMuonChamberMatch.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
 

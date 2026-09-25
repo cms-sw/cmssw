@@ -80,7 +80,6 @@ namespace edm {
     std::string const mergeableRunProductMetadata = "MergeableRunProductMetadata";
     std::string const processBlockHelper = "ProcessBlockHelper";
     std::string const eventHistory = "EventHistory";
-    std::string const eventBranchMapper = "EventBranchMapper";
 
     std::string const eventSelections = "EventSelections";
     std::string const branchListIndexes = "BranchListIndexes";

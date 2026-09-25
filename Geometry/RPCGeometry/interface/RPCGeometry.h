@@ -9,7 +9,7 @@
  */
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/TrackingGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/RPCGeometry/interface/RPCChamber.h"
 #include <vector>

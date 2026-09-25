@@ -1,6 +1,7 @@
 <use name="CondFormats/Serialization"/>
 <use name="DataFormats/EcalDetId"/>
 <use name="FWCore/Utilities"/>
+<use name="rootcling"/>
 <use name="boost"/>
 <use name="boost_serialization"/>
 <export>

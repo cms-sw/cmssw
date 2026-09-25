@@ -8,5 +8,5 @@ hltMkFitSiStripHits = cms.EDProducer("MkFitSiStripHitConverter",
         ),
         rphiHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
         stereoHits = cms.InputTag("siStripMatchedRecHits","stereoRecHit"),
-        ttrhBuilder = cms.ESInputTag("","WithTrackAngle")
+        ttrhBuilder = cms.ESInputTag("","hltESPTTRHBuilderWithTrackAngle")
 )

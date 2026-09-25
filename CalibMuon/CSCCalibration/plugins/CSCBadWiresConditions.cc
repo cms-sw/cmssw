@@ -27,9 +27,3 @@ CSCBadWiresConditions::ReturnType CSCBadWiresConditions::produceBadWires(const C
   // need a new object so to not be deleted at exit
   return CSCBadWiresConditions::ReturnType(prefillBadWires());
 }
-
-void CSCBadWiresConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                           const edm::IOVSyncValue &,
-                                           edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}

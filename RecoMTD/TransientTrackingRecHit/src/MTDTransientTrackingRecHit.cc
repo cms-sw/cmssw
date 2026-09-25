@@ -3,7 +3,7 @@
  */
 
 #include "RecoMTD/TransientTrackingRecHit/interface/MTDTransientTrackingRecHit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"

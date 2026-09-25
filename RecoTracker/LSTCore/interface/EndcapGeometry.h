@@ -1,6 +1,9 @@
 #ifndef RecoTracker_LSTCore_interface_EndcapGeometry_h
 #define RecoTracker_LSTCore_interface_EndcapGeometry_h
 
+#include "RecoTracker/LSTGeometry/interface/Sensor.h"
+#include "RecoTracker/LSTGeometry/interface/Slope.h"
+
 #include <map>
 #include <string>
 #include <vector>
@@ -18,9 +21,11 @@ namespace lst {
     unsigned int nEndCapMap;
 
     EndcapGeometry() = default;
-    EndcapGeometry(std::string const& filename);
+    EndcapGeometry(std::string const&);
+    EndcapGeometry(lstgeometry::Slopes const&, lstgeometry::Sensors const& sensors);
 
     void load(std::string const&);
+    void load(lstgeometry::Slopes const&, lstgeometry::Sensors const& sensors);
     void fillGeoMapArraysExplicit();
     float getdxdy_slope(unsigned int detid) const;
   };

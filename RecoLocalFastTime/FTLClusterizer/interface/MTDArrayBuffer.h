@@ -12,7 +12,7 @@
 
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
+#include "Geometry/CommonTopologies/interface/GeomDetEnumerators.h"
 
 #include <vector>
 #include <iostream>

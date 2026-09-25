@@ -21,7 +21,7 @@ from RecoLocalTracker.Phase2TrackerRecHits.Phase2TrackerRecHits_cfi import *
 _pixeltrackerlocalrecoTask_phase2 = pixeltrackerlocalrecoTask.copy()
 _pixeltrackerlocalrecoTask_phase2.add(siPhase2Clusters)
 _pixeltrackerlocalrecoTask_phase2.add(siPhase2RecHits)
-#_pixeltrackerlocalrecoTask_phase2.add(siPhase2VectorHits)
+_pixeltrackerlocalrecoTask_phase2.add(siPhase2VectorHits)
 phase2_tracker.toReplaceWith(pixeltrackerlocalrecoTask, _pixeltrackerlocalrecoTask_phase2)
 phase2_tracker.toReplaceWith(trackerlocalrecoTask, trackerlocalrecoTask.copyAndExclude([striptrackerlocalrecoTask]))
 

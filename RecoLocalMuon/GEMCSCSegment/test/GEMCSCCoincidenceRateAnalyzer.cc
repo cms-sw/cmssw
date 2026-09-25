@@ -170,10 +170,7 @@ void GEMCSCCoincidenceRateAnalyzer::analyze(const edm::Event& event, const edm::
   /////////////////////////////////////////////////////////////////////////////
   const std::vector<const CSCSegment*> muon_segment_vec = findMuonSegments(muon_collection);
 
-  for (edm::OwnVector<GEMCSCSegment>::const_iterator iter = gem_csc_segment_collection->begin();
-       iter != gem_csc_segment_collection->end();
-       iter++) {
-    const GEMCSCSegment& gem_csc_segment = *iter;
+  for (auto const& gem_csc_segment : *gem_csc_segment_collection) {
     if (not checkCSCChamberType(gem_csc_segment.cscDetId())) {
       continue;
     }

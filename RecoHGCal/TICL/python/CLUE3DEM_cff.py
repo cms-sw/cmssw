@@ -30,9 +30,6 @@ ticlTrackstersCLUE3DEM = _trackstersProducer.clone(
 
 )
 
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
-ticl_v5.toModify(ticlTrackstersCLUE3DEM.pluginPatternRecognitionByCLUE3D, computeLocalTime = cms.bool(True))
-
 ticlCLUE3DEMStepTask = cms.Task(ticlSeedingGlobal
     ,filteredLayerClustersCLUE3DEM
     ,ticlTrackstersCLUE3DEM)

@@ -30,32 +30,34 @@
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuDTTrackContainer {
-public:
-  typedef std::vector<L1MuDTTrackCand> TrackContainer;
-  typedef TrackContainer::const_iterator Trackiterator;
-  typedef TrackContainer::iterator TrackIterator;
+namespace io_v1 {
+  class L1MuDTTrackContainer {
+  public:
+    typedef std::vector<L1MuDTTrackCand> TrackContainer;
+    typedef TrackContainer::const_iterator Trackiterator;
+    typedef TrackContainer::iterator TrackIterator;
 
-  //  Constructors
-  L1MuDTTrackContainer();
+    //  Constructors
+    L1MuDTTrackContainer();
 
-  //  Destructor
-  ~L1MuDTTrackContainer();
+    //  Destructor
+    ~L1MuDTTrackContainer();
 
-  void setContainer(const TrackContainer& inputTracks);
+    void setContainer(const TrackContainer& inputTracks);
 
-  TrackContainer const* getContainer() const;
+    TrackContainer const* getContainer() const;
 
-  bool bxEmpty(int step) const;
+    bool bxEmpty(int step) const;
 
-  int bxSize(int step1, int step2) const;
+    int bxSize(int step1, int step2) const;
 
-  L1MuDTTrackCand const* dtTrackCand1(int wheel, int sect, int bx) const;
+    L1MuDTTrackCand const* dtTrackCand1(int wheel, int sect, int bx) const;
 
-  L1MuDTTrackCand const* dtTrackCand2(int wheel, int sect, int bx) const;
+    L1MuDTTrackCand const* dtTrackCand2(int wheel, int sect, int bx) const;
 
-private:
-  TrackContainer dtTracks;
-};
-
+  private:
+    TrackContainer dtTracks;
+  };
+}  // namespace io_v1
+using L1MuDTTrackContainer = io_v1::L1MuDTTrackContainer;
 #endif

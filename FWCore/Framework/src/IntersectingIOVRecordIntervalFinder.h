@@ -45,10 +45,6 @@ namespace edm {
     private:
       void doResetInterval(const eventsetup::EventSetupRecordKey&) override;
 
-      bool isConcurrentFinder() const override;
-
-      bool isNonconcurrentAndIOVNeedsUpdate(const EventSetupRecordKey&, const IOVSyncValue&) const override;
-
       // ---------- member data --------------------------------
       std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>> finders_;
     };

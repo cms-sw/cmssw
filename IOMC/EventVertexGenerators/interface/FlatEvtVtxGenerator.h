@@ -13,7 +13,9 @@
  *
  */
 
+#include <optional>
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -26,7 +28,9 @@ public:
   FlatEvtVtxGenerator(const FlatEvtVtxGenerator& p) = delete;
   /** Copy assignment operator */
   FlatEvtVtxGenerator& operator=(const FlatEvtVtxGenerator& rhs) = delete;
-  ~FlatEvtVtxGenerator() override;
+  ~FlatEvtVtxGenerator() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   /// return a new event vertex
   ROOT::Math::XYZTVector vertexShift(CLHEP::HepRandomEngine*) const override;
@@ -34,22 +38,38 @@ public:
   const TMatrixD* GetInvLorentzBoost() const override { return nullptr; }
 
   /// set min in X in cm
-  void minX(double m = 0.0);
+  inline void minX(double m = 0.0) { fMinX = m; }
   /// set min in Y in cm
-  void minY(double m = 0.0);
+  inline void minY(double m = 0.0) { fMinY = m; }
   /// set min in Z in cm
-  void minZ(double m = 0.0);
+  inline void minZ(double m = 0.0) { fMinZ = m; }
+  /// set min in R in cm
+  inline void minR(double m = 0.0) { fMinR = m; }
+  /// set min in phi in rad
+  inline void minPhi(double m = 0.0) { fMinPhi = m; }
 
   /// set max in X in cm
-  void maxX(double m = 0);
+  inline void maxX(double m = 0) { fMaxX = m; }
   /// set max in Y in cm
-  void maxY(double m = 0);
+  inline void maxY(double m = 0) { fMaxY = m; }
   /// set max in Z in cm
-  void maxZ(double m = 0);
+  inline void maxZ(double m = 0) { fMaxZ = m; }
+  /// set max in R in cm
+  inline void maxR(double m = 0.0) { fMaxR = m; }
+  /// set max in phi in rad
+  inline void maxPhi(double m = 0.0) { fMaxPhi = m; }
 
 private:
-  double fMinX, fMinY, fMinZ, fMinT;
-  double fMaxX, fMaxY, fMaxZ, fMaxT;
+  // parameters always configured
+  const bool fUseCylindricalCoords;
+  double fMinZ, fMaxZ;
+  double fMinT, fMaxT;
+
+  // parameters conditionally configured
+  std::optional<double> fMaxX, fMaxY;
+  std::optional<double> fMinX, fMinY;
+  std::optional<double> fMinR, fMaxR;
+  std::optional<double> fMinPhi, fMaxPhi;
 };
 
 #endif

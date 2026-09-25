@@ -2,7 +2,7 @@
 
 #include <RecoMTD/DetLayers/interface/MTDSectorForwardLayer.h>
 #include <RecoMTD/DetLayers/interface/MTDDetSector.h>
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <Geometry/CommonTopologies/interface/GeomDet.h>
 #include <DataFormats/GeometrySurface/interface/DiskSectorBounds.h>
 #include <TrackingTools/GeomPropagators/interface/Propagator.h>
 #include <TrackingTools/DetLayers/interface/MeasurementEstimator.h>

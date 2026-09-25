@@ -27,20 +27,23 @@
 //              -- Class Interface --
 //              ---------------------
 
-class L1Phase2MuDTShowerContainer {
-public:
-  typedef std::vector<L1Phase2MuDTShower> Shower_Container;
-  typedef Shower_Container::const_iterator Shower_iterator;
+namespace io_v1 {
+  class L1Phase2MuDTShowerContainer {
+  public:
+    typedef std::vector<L1Phase2MuDTShower> Shower_Container;
+    typedef Shower_Container::const_iterator Shower_iterator;
 
-  //  Constructor
-  L1Phase2MuDTShowerContainer();
+    //  Constructor
+    L1Phase2MuDTShowerContainer();
 
-  void setContainer(const Shower_Container& inputShowers);
+    void setContainer(const Shower_Container& inputShowers);
 
-  Shower_Container const* getContainer() const;
+    Shower_Container const* getContainer() const;
 
-private:
-  Shower_Container m_showers;
-};
+  private:
+    Shower_Container m_showers;
+  };
+}  // namespace io_v1
+using L1Phase2MuDTShowerContainer = io_v1::L1Phase2MuDTShowerContainer;
 
 #endif

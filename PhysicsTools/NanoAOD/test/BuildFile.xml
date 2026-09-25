@@ -4,8 +4,8 @@
   <use name="catch2"/>
 </bin>
 
-<test name="test-btvNano-run" command="test-btvNano.sh"/>
-<test name="test-btvNano-runDY" command="test-btvNanoDY.sh"/>
-<test name="test-btvNano-check" command="test-btvNano.py">
+<!-- <test name="test-btvNano-run" command="test-btvNano.sh"/> COMMENT: reads old format files -->
+<!-- <test name="test-btvNano-runDY" command="test-btvNanoDY.sh"/> COMMENT: reads old format files -->
+<!-- <test name="test-btvNano-check" command="test-btvNano.py"> COMMENT: depends on disabled test 
   <flags PRE_TEST="test-btvNano-run"/>
-</test>
+</test> -->

@@ -18,50 +18,54 @@
 
 namespace pat {
   namespace tau {
+    namespace io_v1 {
 
-    struct TauPFEssential {
-      // define a float-precision version of the typedefs in reco::PFTauTransverseImpactParameter class
-      typedef math::PtEtaPhiMLorentzVectorF LorentzVector;
-      typedef math::XYZPointF Point;
-      typedef math::XYZVectorF Vector;
-      typedef math::ErrorF<3>::type CovMatrix;
+      struct TauPFEssential {
+        // define a float-precision version of the typedefs in reco::PFTauTransverseImpactParameter class
+        typedef math::PtEtaPhiMLorentzVectorF LorentzVector;
+        typedef math::XYZPointF Point;
+        typedef math::XYZVectorF Vector;
+        typedef math::ErrorF<3>::type CovMatrix;
 
-      // dummy constructor for ROOT I/O
-      TauPFEssential() {}
-      // constructor from PFTau
-      TauPFEssential(const reco::PFTau& tau);
-      // datamembers
-      LorentzVector p4Jet_;
-      LorentzVector p4CorrJet_;
+        // dummy constructor for ROOT I/O
+        TauPFEssential() {}
+        // constructor from PFTau
+        TauPFEssential(const reco::PFTau& tau);
+        // datamembers
+        LorentzVector p4Jet_;
+        LorentzVector p4CorrJet_;
 
-      int decayMode_;
+        int decayMode_;
 
-      Point dxy_PCA_;
-      float dxy_;
-      float dxy_error_;
-      float dxy_Sig_;
-      reco::VertexRef pv_;
-      Point pvPos_;
-      CovMatrix pvCov_;
-      bool hasSV_;
-      Vector flightLength_;
-      float flightLengthSig_;
-      reco::VertexRef sv_;
-      Point svPos_;
-      CovMatrix svCov_;
-      float ip3d_;
-      float ip3d_error_;
-      float ecalEnergy_;
-      float hcalEnergy_;
-      float leadingTrackNormChi2_;
-      float phiAtEcalEntrance_;
-      float etaAtEcalEntrance_;
-      float ecalEnergyLeadChargedHadrCand_;
-      float hcalEnergyLeadChargedHadrCand_;
-      float etaAtEcalEntranceLeadChargedCand_;
-      float ptLeadChargedCand_;
-      float emFraction_;
-    };
+        Point dxy_PCA_;
+        float dxy_;
+        float dxy_error_;
+        float dxy_Sig_;
+        reco::VertexRef pv_;
+        Point pvPos_;
+        CovMatrix pvCov_;
+        bool hasSV_;
+        Vector flightLength_;
+        float flightLengthSig_;
+        reco::VertexRef sv_;
+        Point svPos_;
+        CovMatrix svCov_;
+        float ip3d_;
+        float ip3d_error_;
+        float ecalEnergy_;
+        float hcalEnergy_;
+        float leadingTrackNormChi2_;
+        float phiAtEcalEntrance_;
+        float etaAtEcalEntrance_;
+        float ecalEnergyLeadChargedHadrCand_;
+        float hcalEnergyLeadChargedHadrCand_;
+        float etaAtEcalEntranceLeadChargedCand_;
+        float ptLeadChargedCand_;
+        float emFraction_;
+      };
+
+    }  // namespace io_v1
+    using TauPFEssential = io_v1::TauPFEssential;
 
   }  // namespace tau
 }  // namespace pat

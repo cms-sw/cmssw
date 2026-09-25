@@ -9,7 +9,7 @@
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include <TDirectory.h>
-#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
+#include "Geometry/CommonTopologies/interface/GluedGeomDet.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"

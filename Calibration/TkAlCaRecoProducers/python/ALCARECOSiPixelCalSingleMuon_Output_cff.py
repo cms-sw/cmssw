@@ -8,7 +8,8 @@ OutALCARECOSiPixelCalSingleMuon_noDrop = cms.PSet(
       'keep *_ALCARECOSiPixelCalSingleMuon_*_*',
       'keep *_muons__*',
       'keep *_offlinePrimaryVertices_*_*',
-      'keep *_*riggerResults_*_HLT'
+      'keep *_*riggerResults_*_HLT',
+      'keep PixelFEDChanneledmNewDetSetVector_siPixelDigis_*_*'
      )
 )
 

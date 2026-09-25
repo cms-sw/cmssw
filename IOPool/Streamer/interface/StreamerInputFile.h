@@ -15,14 +15,14 @@
 
 namespace edm {
   class EventSkipperByID;
-  class FileCatalogItem;
+  class InputFileCatalog;
 }  // namespace edm
 namespace edm::streamer {
   class StreamerInputFile {
   public:
     /**Reads a Streamer file */
-    explicit StreamerInputFile(std::string const& name,
-                               std::string const& LFN,
+    explicit StreamerInputFile(std::string pfn,
+                               std::string const& lfn,
                                std::shared_ptr<EventSkipperByID> eventSkipperByID = std::shared_ptr<EventSkipperByID>(),
                                unsigned int prefetchMBytes = 0);
     explicit StreamerInputFile(std::string const& name,
@@ -30,7 +30,7 @@ namespace edm::streamer {
                                unsigned int prefetchMBytes = 0);
 
     /** Multiple Streamer files */
-    explicit StreamerInputFile(std::vector<FileCatalogItem> const& names,
+    explicit StreamerInputFile(InputFileCatalog const& inputFileCatalog,
                                std::shared_ptr<EventSkipperByID> eventSkipperByID = std::shared_ptr<EventSkipperByID>(),
                                unsigned int prefetchMBytes = 0);
 
@@ -55,7 +55,7 @@ namespace edm::streamer {
     bool openNextFile();
 
   private:
-    void openStreamerFile(std::string const& name, std::string const& LFN);
+    void openStreamerFile(std::string pfn, std::string const& lfn);
     std::pair<storage::IOSize, char*> readBytes(char* buf,
                                                 storage::IOSize nBytes,
                                                 bool zeroCopy,
@@ -81,9 +81,9 @@ namespace edm::streamer {
     unsigned int tempLen_ = 0;
     unsigned int tempPos_ = 0;
 
-    unsigned int currentFile_;                   /** keeps track of which file is in use at the moment*/
-    std::vector<FileCatalogItem> streamerNames_; /** names of Streamer files */
-    bool multiStreams_;                          /** True if Multiple Streams are Read */
+    unsigned int currentFile_; /** keeps track of which file is in use at the moment*/
+    InputFileCatalog const* inputFileCatalog_;
+    bool multiStreams_; /** True if Multiple Streams are Read */
     std::string currentFileName_;
     bool currentFileOpen_;
 

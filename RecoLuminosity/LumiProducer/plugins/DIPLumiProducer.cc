@@ -65,9 +65,9 @@ DIPLumiProducer::DIPLumiProducer(const edm::ParameterSet& iConfig)
   m_cachesize = iConfig.getUntrackedParameter<unsigned int>("ncacheEntries", 3);
 }
 
-DIPLumiProducer::ReturnSummaryType DIPLumiProducer::produceSummary(const DIPLuminosityRcd&) {
-  unsigned int currentrun = m_pcurrentTime->eventID().run();
-  unsigned int currentls = m_pcurrentTime->luminosityBlockNumber();
+DIPLumiProducer::ReturnSummaryType DIPLumiProducer::produceSummary(const DIPLuminosityRcd& iRcd) {
+  const unsigned int currentrun = iRcd.validityInterval().first().eventID().run();
+  const unsigned int currentls = iRcd.validityInterval().first().luminosityBlockNumber();
   if (currentls == 0 || currentls == 4294967295) {
     return std::make_shared<const DIPLumiSummary>();
   }
@@ -97,9 +97,9 @@ DIPLumiProducer::ReturnSummaryType DIPLumiProducer::produceSummary(const DIPLumi
   }
   return m_summaryresult;
 }
-DIPLumiProducer::ReturnDetailType DIPLumiProducer::produceDetail(const DIPLuminosityRcd&) {
-  unsigned int currentrun = m_pcurrentTime->eventID().run();
-  unsigned int currentls = m_pcurrentTime->luminosityBlockNumber();
+DIPLumiProducer::ReturnDetailType DIPLumiProducer::produceDetail(const DIPLuminosityRcd& iRcd) {
+  const unsigned int currentrun = iRcd.validityInterval().first().eventID().run();
+  const unsigned int currentls = iRcd.validityInterval().first().luminosityBlockNumber();
   if (currentls == 0 || currentls == 4294967295) {
     return std::make_shared<const DIPLumiDetail>();
   }
@@ -133,7 +133,6 @@ DIPLumiProducer::ReturnDetailType DIPLumiProducer::produceDetail(const DIPLumino
 void DIPLumiProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& iKey,
                                      const edm::IOVSyncValue& iTime,
                                      edm::ValidityInterval& oValidity) {
-  m_pcurrentTime = &iTime;
   oValidity.setFirst(iTime);
   oValidity.setLast(iTime);
 }

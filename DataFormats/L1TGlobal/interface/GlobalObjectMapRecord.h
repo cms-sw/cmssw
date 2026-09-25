@@ -74,5 +74,4 @@ private:
 };
 
 inline void swap(GlobalObjectMapRecord& lh, GlobalObjectMapRecord& rh) { lh.swap(rh); }
-
 #endif

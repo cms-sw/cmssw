@@ -5,6 +5,7 @@
 #include "RecoTracker/LSTCore/interface/EndcapGeometryDevHostCollection.h"
 #include "RecoTracker/LSTCore/interface/ModulesHostCollection.h"
 #include "RecoTracker/LSTCore/interface/PixelMap.h"
+#include "RecoTracker/LSTGeometry/interface/Geometry.h"
 
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
 
@@ -40,7 +41,8 @@ namespace lst {
           pixelMapping(pixelMappingIn) {}
   };
 
-  std::unique_ptr<LSTESData<alpaka_common::DevHost>> loadAndFillESHost(std::string& ptCutLabel);
+  std::unique_ptr<LSTESData<alpaka_common::DevHost>> loadAndFillESDataHost(std::string& ptCutLabel);
+  std::unique_ptr<LSTESData<alpaka_common::DevHost>> fillESDataHost(lstgeometry::Geometry const& lstg);
 
 }  // namespace lst
 

@@ -13,6 +13,9 @@ process.options = cms.untracked.PSet(
   Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
 
+#Contents of files
+#testRunMerge1.root  "PROD" [run:1,lumi:1, ev:11-20]
+
 from FWIO.RNTupleTempInput.modules import RNTupleTempSource
 process.source = RNTupleTempSource(
     fileNames = [
@@ -28,7 +31,7 @@ process.source = RNTupleTempSource(
     ]
 )
 
-from FWCore.Framework.modules import RunLumiEventAnalyzer
+from FWCore.TestModules.modules import RunLumiEventAnalyzer
 process.test = RunLumiEventAnalyzer(
     verbose = True
     , expectedRunLumiEvents = [

@@ -1,5 +1,5 @@
 #include <algorithm>
-#include <sstream>
+#include <string_view>
 #include <utility>
 
 #include <boost/algorithm/string/replace.hpp>
@@ -13,14 +13,13 @@ namespace {
 
   std::string replaceWithRegexp(std::smatch const& matches, std::string const& outputFormat) {
     std::string result = outputFormat;
-    std::stringstream str;
 
     for (size_t i = 1; i < matches.size(); ++i) {
-      str.str("");
-      str << "$" << i;
-      std::string const matchedString(matches[i].first, matches[i].second);
-      if (!matchedString.empty())
-        boost::algorithm::replace_all(result, str.str(), matchedString);
+      std::string_view const matchedString(matches[i].first, matches[i].second);
+      if (!matchedString.empty()) {
+        std::string placeholder = "$" + std::to_string(i);
+        boost::algorithm::replace_all(result, placeholder, matchedString);
+      }
     }
     return result;
   }
@@ -35,10 +34,11 @@ namespace pt = boost::property_tree;
 namespace edm {
 
   FileLocator::FileLocator(CatalogAttributes const& catalogAttributes, std::filesystem::path const& filename_storage) {
-    //now read json
+    // now read json (usually from file named storage.json
+    // whose location is from the SiteLocalConfig service)
     pt::ptree json;
     try {
-      boost::property_tree::read_json(filename_storage.string(), json);
+      pt::read_json(filename_storage.string(), json);
     } catch (std::exception& e) {
       cms::Exception ex("FileCatalog");
       ex << "Can not open storage.json (" << filename_storage.string()
@@ -46,6 +46,9 @@ namespace edm {
       ex.addContext("edm::FileLocator:init()");
       throw ex;
     }
+
+    // Find entry in storage.json that matches storageSite and volume from catalogAttributes.
+    // Usually the catalogAttributes are from site-local-config.xml.
     auto found_site = std::find_if(json.begin(), json.end(), [&](pt::ptree::value_type const& site) {
       //get site name
       std::string siteName = site.second.get("site", kEmptyString);
@@ -53,10 +56,6 @@ namespace edm {
       std::string volName = site.second.get("volume", kEmptyString);
       return catalogAttributes.storageSite == siteName && catalogAttributes.volume == volName;
     });
-
-    // enforce that site-local-config.xml and storage.json contain
-    // valid catalogs in <data-access>, in which the site defined in
-    // site-local-config.xml <data-access> should be found in storage.json
     if (found_site == json.end()) {
       cms::Exception ex("FileCatalog");
       ex << "Can not find storage site \"" << catalogAttributes.storageSite << "\" and volume \""
@@ -66,14 +65,13 @@ namespace edm {
       throw ex;
     }
 
+    // The matching top level entry should contain a list of protocols.
+    // Find the protocol that matches the protocol from catalogAttributes.
     const pt::ptree& protocols = found_site->second.find("protocols")->second;
     auto found_protocol = std::find_if(protocols.begin(), protocols.end(), [&](pt::ptree::value_type const& protocol) {
       std::string protName = protocol.second.get("protocol", kEmptyString);
       return catalogAttributes.protocol == protName;
     });
-
-    // enforce that site-local-config.xml and storage.json contain valid catalogs, in which
-    // the protocol defined in site-local-config.xml <data-access> should be found in storage.json
     if (found_protocol == protocols.end()) {
       cms::Exception ex("FileCatalog");
       ex << "Can not find protocol \"" << catalogAttributes.protocol << "\" for the storage site \""
@@ -85,11 +83,12 @@ namespace edm {
 
     m_protocol = found_protocol->second.get("protocol", kEmptyString);
 
-    // store all prefixes and rules to m_directRules. We need to do this so that "applyRules"
-    // can find the rule in the case that chaining is used loop over protocols
+    // Store prefixes and rules in m_directRules for all protocols
+    // for this site and volume. We need to store for all protocols so
+    // that "applyRules" can find them in the case that chaining is used.
     for (pt::ptree::value_type const& protocol : protocols) {
       std::string protName = protocol.second.get("protocol", kEmptyString);
-      // loop over rules
+      // if there is not a prefix, loop over rules
       std::string prefixTmp = protocol.second.get("prefix", kEmptyString);
       if (prefixTmp == kEmptyString) {
         const pt::ptree& rules = protocol.second.find("rules")->second;
@@ -97,7 +96,7 @@ namespace edm {
           parseRule(storageRule, protName, m_directRules);
         }
       }
-      // now convert prefix to a rule and save it
+      // If there is a prefix, convert it to a single rule and save it
       else {
         Rule rule;
         rule.pathMatch.assign("/?(.*)");
@@ -108,12 +107,12 @@ namespace edm {
     }
   }
 
-  std::string FileLocator::pfn(std::string const& ilfn) const {
-    // check if ilfn is an authentic LFN
-    if (ilfn.compare(0, 7, kLFNPrefix) != 0) {
+  std::string FileLocator::pfn(std::string const& lfn) const {
+    // check if lfn is an authentic LFN
+    if (lfn.compare(0, 7, kLFNPrefix) != 0) {
       return "";
     }
-    return applyRules(m_directRules, m_protocol, ilfn);
+    return applyRules(m_directRules, m_protocol, lfn);
   }
 
   void FileLocator::parseRule(pt::ptree::value_type const& storageRule,
@@ -146,19 +145,21 @@ namespace edm {
 
     // Look for a matching rule
     for (auto const& rule : rules) {
-      if (!std::regex_match(name, rule.pathMatch)) {
+      if (!std::regex_match(name, nameMatches, rule.pathMatch)) {
         continue;
       }
 
-      std::string const& chain = rule.chain;
-      if (!chain.empty()) {
-        name = applyRules(protocolRules, chain, name);
+      if (!rule.chain.empty()) {
+        // Chain is the protocol in the recursive call to applyRules
+        std::string const& protocol = rule.chain;
+        name = applyRules(protocolRules, protocol, name);
+
         if (name.empty()) {
           return "";
         }
+        std::regex_match(name, nameMatches, rule.pathMatch);
       }
 
-      std::regex_match(name, nameMatches, rule.pathMatch);
       return replaceWithRegexp(nameMatches, rule.result);
     }
     return "";

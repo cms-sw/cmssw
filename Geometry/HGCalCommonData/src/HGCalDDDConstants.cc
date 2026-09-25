@@ -654,6 +654,26 @@ std::pair<double, double> HGCalDDDConstants::getXY(int layer, double x, double y
       y0 = y * hgpar_->layerRotV_[ll].first + x * hgpar_->layerRotV_[ll].second;
     }
   }
+  if (coldBoxMode()) {
+    double x1(x0), y1(y0);
+    if (ll < static_cast<int>(hgpar_->layerRotV_.size())) {
+      if (forwd) {
+        x1 = x0 * hgpar_->layerRotV_[ll].first - y0 * hgpar_->layerRotV_[ll].second;
+        y1 = y0 * hgpar_->layerRotV_[ll].first + x0 * hgpar_->layerRotV_[ll].second;
+      } else {
+        x1 = x0 * hgpar_->layerRotV_[ll].first + y0 * hgpar_->layerRotV_[ll].second;
+        y1 = y0 * hgpar_->layerRotV_[ll].first - x0 * hgpar_->layerRotV_[ll].second;
+      }
+      x0 = x1;
+      y0 = y1;
+    }
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "CBox HGCalDDDConstants: Layer " << layer << ":" << ll << ":" << layer << " mode "
+                                  << forwd << " x " << x << ":" << x0 << ":" << x1 << " y " << y << ":" << y0 << ":"
+                                  << y1 << " " << hgpar_->layerRotV_[ll].first << " " << hgpar_->layerRotV_[ll].second;
+#endif
+  }
+
 #ifdef EDM_ML_DEBUG
   double x1(x0), y1(y0);
   if (ll < static_cast<int>(hgpar_->layerRotV_.size())) {
@@ -832,6 +852,11 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, int cellU, in
   return isValidCell8(layer, modU, modV, cellU, cellV, type);
 }
 
+bool HGCalDDDConstants::isValidSilicon(unsigned int id) const {
+  HGCSiliconDetId detId(id);
+  return waferExist(detId.layer(), detId.waferU(), detId.waferV());
+}
+
 bool HGCalDDDConstants::isValidTrap(int zside, int layer, int irad, int iphi) const {
   // Check validity for a layer|eta|phi of scintillator
   const auto& indx = getIndex(layer, true);
@@ -888,6 +913,8 @@ std::pair<float, float> HGCalDDDConstants::localToGlobal8(
   double x(localX), y(localY);
   bool rotx =
       ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[lay - hgpar_->firstLayer_] == HGCalTypes::WaferCenterR));
+  if (coldBoxMode())
+    rotx = (!hgpar_->layerType_.empty());
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "LocalToGlobal8 " << lay << ":" << (lay - hgpar_->firstLayer_) << ":" << rotx
                                   << " Local (" << x << ":" << y << ") Reco " << reco;
@@ -973,6 +1000,8 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int zside,
   int fineCoarse = (type == HGCSiliconDetId::HGCalHD120) || (type == HGCSiliconDetId::HGCalHD200) ? 0 : 1;
   int layertype = layerType(lay);
   bool rotx = (norot) ? false : (layertype == HGCalTypes::WaferCenterR);
+  if (coldBoxMode())
+    rotx = (!norot);
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "LocateCell " << lay << ":" << (lay - hgpar_->firstLayer_) << ":" << layertype
                                   << ":" << rotx << ":" << waferU << ":" << waferV << ":" << indx << ":"
@@ -1388,18 +1417,42 @@ int HGCalDDDConstants::numberCellsHexagon(int lay, int waferU, int waferV, bool 
 }
 
 int32_t HGCalDDDConstants::placementIndex(const HGCSiliconDetId& id) const {
-  int32_t place(0);
   int32_t layer = id.layer();
   int32_t layertype = layerType(layer);
   int32_t waferU = (id.zside() > 0) ? -id.waferU() : id.waferU();
   int32_t indx = HGCalWaferIndex::waferIndex(layer, waferU, id.waferV());
   auto ktr = hgpar_->waferInfoMap_.find(indx);
-  if (ktr != hgpar_->waferInfoMap_.end()) {
-    place = HGCalCell::cellPlacementIndex(id.zside(), layertype, (ktr->second).orient);
-  }
+  int32_t orient = (ktr == hgpar_->waferInfoMap_.end()) ? -1 : (ktr->second).orient;
+  int32_t place =
+      (ktr == hgpar_->waferInfoMap_.end()) ? 0 : HGCalCell::cellPlacementIndex(id.zside(), layertype, orient);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "ID: " << id << " Layer " << layer << ":" << layertype << " Index " << indx << ":"
-                                << (ktr != hgpar_->waferInfoMap_.end()) << " Place " << place;
+  edm::LogVerbatim("HGCalGeom") << "ID: " << id << " Layer " << layer << " Layer Type " << layertype << " Zside "
+                                << id.zside() << " Orient " << orient << " Index " << indx << ":"
+                                << (ktr != hgpar_->waferInfoMap_.end()) << " Placement Index " << place;
+#endif
+  return place;
+}
+
+int32_t HGCalDDDConstants::placementIndexMod(const HGCSiliconDetId& id) const {
+  int32_t layer = id.layer();
+  int32_t layertype = layerType(layer);
+  if (layertype == 1)
+    layertype = 0;
+  else
+    layertype = 1;
+  int32_t indx = HGCalWaferIndex::waferIndex(layer, id.waferU(), id.waferV());
+  auto ktr = hgpar_->waferInfoMap_.find(indx);
+  if (ktr == hgpar_->waferInfoMap_.end()) {
+    indx = HGCalWaferIndex::waferIndex(layer, -id.waferU(), id.waferV());
+    ktr = hgpar_->waferInfoMap_.find(indx);
+  }
+  int32_t orient = (ktr == hgpar_->waferInfoMap_.end()) ? -1 : (ktr->second).orient;
+  int32_t place = HGCalCell::cellPlacementIndex(id.zside(), layertype, orient);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "PlacementIndex2::ID: " << id << " Layer " << layer << " Layer Type " << layertype
+                                << " Zside " << id.zside() << " Wafer " << id.waferU() << ":" << id.waferV()
+                                << " Orient " << orient << " Index " << indx << ":"
+                                << (ktr != hgpar_->waferInfoMap_.end()) << " Placement Index " << place;
 #endif
   return place;
 }
@@ -1775,6 +1828,8 @@ void HGCalDDDConstants::waferFromPosition(const double x,
   int ll = layer - hgpar_->firstLayer_;
   int layertype = layerType(layer);
   bool rotx = ((!hgpar_->layerType_.empty()) && (layertype == HGCalTypes::WaferCenterR));
+  if (coldBoxMode())
+    rotx = (!hgpar_->layerType_.empty());
   double xx(0), yy(0);
   if (rotx) {
     std::pair<double, double> xy =
@@ -2005,6 +2060,8 @@ std::pair<double, double> HGCalDDDConstants::waferPosition(
     int lay, int waferU, int waferV, bool reco, bool debug) const {
   int ll = lay - hgpar_->firstLayer_;
   bool rotx = ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[ll] == HGCalTypes::WaferCenterR));
+  if (coldBoxMode())
+    rotx = (!hgpar_->layerType_.empty());  //to check
 #ifdef EDM_ML_DEBUG
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "Layer " << lay << ":" << ll << " Rotation " << rotx << " U:V " << waferU << ":"
@@ -2029,6 +2086,8 @@ std::pair<double, double> HGCalDDDConstants::waferPositionWithCshift(
   auto ktr = hgpar_->waferInfoMap_.end();
   int ll = lay - hgpar_->firstLayer_;
   bool rotx = (norot) ? false : ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[ll] == HGCalTypes::WaferCenterR));
+  if (coldBoxMode())
+    rotx = (!hgpar_->layerType_.empty());  //to check
   if (waferHexagon8File()) {
     if (cassetteMode()) {
       ktr = hgpar_->waferInfoMap_.find(indx);

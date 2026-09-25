@@ -1,6 +1,7 @@
 <lcgdict>
- <class name="ClusterSummary">
+  <class name="io_v1::ClusterSummary" ClassVersion="3">
+    <version ClassVersion="3" checksum="234154856"/>
  </class>
- <class name="edm::Wrapper<ClusterSummary>"/>
+ <class name="edm::Wrapper<io_v1::ClusterSummary>"/>
 </lcgdict>
 

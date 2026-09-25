@@ -15,18 +15,12 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-
-#
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-
-namespace reco {
-  class Track;
-}
 
 class InputTag;
 class TrackAssociatorBase;

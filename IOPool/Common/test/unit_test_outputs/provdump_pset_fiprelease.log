@@ -1,0 +1,280 @@
+---------Processing histories---------
+History: {
+  TEST [1]
+}
+---------Processes---------
+Process: TEST [1]
+  PSet id: 06ff301ff986ab42360f23d8f7e56093
+  accelerators: cpu
+
+---------Event filtering---------
+Event filtering information for 1 processing steps is available.
+The ParameterSets are printed out with the oldest process first.
+Event filtering:
+  PSet id: ac8cc72f91415b13ee6206f72fdf173d
+  parameters: {
+    EndPathPositions: vint32 tracked  = {+0}
+    EndPaths: vstring tracked  = {'ep'}
+    InProcessHistory: bool tracked  = true
+    SelectEvents: vstring tracked  = {}
+  }
+---------Producers with data in file---------
+Module: TriggerResults TEST
+ Process: TEST [1]
+ PSet id:bc062f96ca11b3ec4f5336bf73071de9
+ products: {
+  edmTriggerResults_TriggerResults__TEST. BranchID 1219944505
+ }
+ parameters: {
+  @trigger_paths: vstring tracked  = {'t'}
+ }
+
+Module: testProducerWithPsetDesc TEST
+ Process: TEST [1]
+ PSet id:7cf8d7caed6699c1fee274043c7d2199
+ products: {
+  edmtestThings_testProducerWithPsetDesc__TEST. BranchID 495169315
+ }
+ parameters: {
+  @module_edm_type: string tracked  = 'EDProducer'
+  @module_label: string tracked  = 'testProducerWithPsetDesc'
+  @module_type: string tracked  = 'ProducerWithPSetDesc'
+  boolv1: bool tracked  = true
+  boolv2: bool tracked  = false
+  doublev1: double tracked  = 2.2250738585072014e-308
+  doublev4: double tracked  = 1.7976931348623157e+308
+  doublev5: double tracked  = inf
+  doublev6: double tracked  = nan
+  esinputTagv1: ESInputTag tracked  = One:Two
+  esinputTagv2: ESInputTag tracked  = One
+  esinputTagv3: ESInputTag tracked  = :Two
+  eventIDv1: EventID tracked  = 11:12
+  eventIDv2: EventID tracked  = 101:102
+  eventRangev1: EventRange tracked  = 1:1-8:8
+  eventRangev2: EventRange tracked  = 3:4-1001:1002
+  fileInPath: FileInPath tracked  = V001 FWCore/Integration/plugins/ProducerWithPSetDesc.cc 2 /src/FWCore/Integration/plugins/ProducerWithPSetDesc.cc
+  floatv1: float tracked  = 1.17549435e-38
+  floatv4: float tracked  = 3.40282347e+38
+  floatv5: float tracked  = inf
+  floatv6: float tracked  = nan
+  inputTagv1: InputTag tracked  = One:Two:Three
+  inputTagv2: InputTag tracked  = One:Two
+  inputTagv3: InputTag tracked  = One
+  inputTagv4: InputTag tracked  = One::Three
+  int64v1: int64 tracked  = +9000000000000000000
+  int64v2: int64 tracked  = -9000000000000000000
+  int64v3: int64 tracked  = +0
+  lumiRangev1: LuminosityBlockRange tracked  = 1:1-9:9
+  lumiRangev2: LuminosityBlockRange tracked  = 3:4-1000:1000
+  luminosityIDv1: LuminosityBlockID tracked  = 11:12
+  luminosityIDv2: LuminosityBlockID tracked  = 101:102
+  p_int: int32 tracked  = 2147483647
+  p_int_opt_nd: int32 tracked  = 11
+  stringv1: string tracked  = 'Hello'
+  stringv2: string tracked  = ''
+  test1: double tracked  = 0.10000000000000001
+  uint1: uint32 tracked  = 4294967295
+  uint64v1: uint64 tracked  = 18000000000000000000
+  vESInputTagv1: VESInputTag tracked  = {}
+  vESInputTagv2: VESInputTag tracked  = {One:Two}
+  vESInputTagv3: VESInputTag tracked  = {One:Two,One:}
+  vESInputTagv4: VESInputTag tracked  = {One:Two,One:,:Two}
+  vEventIDv1: VEventID tracked  = {}
+  vEventIDv2: VEventID tracked  = {1000:1100}
+  vEventIDv3: VEventID tracked  = {1000:1100,10000:11000}
+  vEventIDv4: VEventID tracked  = {1000:1100,10000:11000,100000:110000}
+  vEventRangev1: VEventRange tracked  = {}
+  vEventRangev2: VEventRange tracked  = {1:1-8:8}
+  vEventRangev3: VEventRange tracked  = {1:1-8:8,3:4-1001:1002}
+  vInputTagv1: VInputTag tracked  = {}
+  vInputTagv2: VInputTag tracked  = {One:Two:Three}
+  vInputTagv3: VInputTag tracked  = {One:Two:Three,One:Two}
+  vInputTagv4: VInputTag tracked  = {One:Two:Three,One:Two,One}
+  vInputTagv5: VInputTag tracked  = {One:Two:Three,One:Two,One,One::Three}
+  vLumiRangev1: VLuminosityBlockRange tracked  = {}
+  vLumiRangev2: VLuminosityBlockRange tracked  = {1:1-9:9}
+  vLumiRangev3: VLuminosityBlockRange tracked  = {1:1-9:9,3:4-1000:1000}
+  vLuminosityBlockIDv1: VLuminosityBlockID tracked  = {}
+  vLuminosityBlockIDv2: VLuminosityBlockID tracked  = {1000:1100}
+  vLuminosityBlockIDv3: VLuminosityBlockID tracked  = {1000:1100,10000:11000}
+  vLuminosityBlockIDv4: VLuminosityBlockID tracked  = {1000:1100,10000:11000,100000:110000}
+  vdoublev1: vdouble tracked  = {}
+  vdoublev2: vdouble tracked  = {1.0000000000000001e+300}
+  vdoublev3: vdouble tracked  = {1.0000000000000001e+300,0}
+  vdoublev4: vdouble tracked  = {1.0000000000000001e+300,0,11}
+  vdoublev5: vdouble tracked  = {1.0000000000000001e+300,0,11,0.29999999999999999}
+  vfloatv1: vfloat tracked  = {}
+  vfloatv2: vfloat tracked  = {1.00000002e+30}
+  vfloatv3: vfloat tracked  = {1.00000002e+30,0}
+  vfloatv4: vfloat tracked  = {1.00000002e+30,0,11}
+  vfloatv5: vfloat tracked  = {1.00000002e+30,0,11,0.300000012}
+  vint1: vint32 tracked  = {}
+  vint2: vint32 tracked  = {+2147483647}
+  vint3: vint32 tracked  = {+2147483647,-2147483647}
+  vint4: vint32 tracked  = {+2147483647,-2147483647,+0}
+  vint64v1: vint64 tracked  = {}
+  vint64v2: vint64 tracked  = {+9000000000000000000}
+  vint64v3: vint64 tracked  = {+9000000000000000000,-9000000000000000000}
+  vint64v4: vint64 tracked  = {+9000000000000000000,-9000000000000000000,+0}
+  vstringv1: vstring tracked  = {}
+  vstringv2: vstring tracked  = {'Hello'}
+  vstringv3: vstring tracked  = {'Hello','World'}
+  vstringv4: vstring tracked  = {'Hello','World',''}
+  vuint1: vuint32 tracked  = {}
+  vuint2: vuint32 tracked  = {4294967295}
+  vuint3: vuint32 tracked  = {4294967295,0}
+  vuint4: vuint32 tracked  = {4294967295,0,11}
+  vuint5: vuint32 tracked  = {4294967295,0,11,21,31,41}
+  vuint64v1: vuint64 tracked  = {}
+  vuint64v2: vuint64 tracked  = {18000000000000000000}
+  vuint64v3: vuint64 tracked  = {18000000000000000000,0}
+  vuint64v4: vuint64 tracked  = {18000000000000000000,0,11}
+  allowedLabelsPset: PSet tracked = ({
+   i1: int32 tracked  = 1
+   i2: int32 tracked  = 2
+   i3: int32 tracked  = 3
+   oi1: int32 tracked  = 1
+   oi2: int32 tracked  = 2
+   oi3: int32 tracked  = 3
+   testAllowedLabels: vstring tracked  = {'i1','i2','i3'}
+   testOptAllowedLabels: vstring tracked  = {'oi1','oi2','oi3'}
+  })
+  andPset: PSet tracked = ({
+   a1: string tracked  = '11'
+   a2: uint32 tracked  = 11
+   b1: string tracked  = '11'
+   b2: uint32 tracked  = 11
+   b3: uint32 tracked  = 11
+   b4: uint32 tracked  = 11
+   b5: uint32 tracked  = 11
+   b6: uint32 tracked  = 11
+   x1: string tracked  = '11'
+   x2: uint32 tracked  = 11
+   y1: string tracked  = '11'
+   y2: uint32 tracked  = 11
+   z1: string tracked  = '11'
+   z2: uint32 tracked  = 11
+  })
+  bar: PSet tracked = ({
+   Drinks: uint32 tracked  = 5
+  })
+  ifExistsPset: PSet tracked = ({
+   x1: uint32 tracked  = 11
+   x2: string tracked  = '11'
+   y1: uint32 tracked  = 11
+   z1: uint32 tracked  = 11
+   z2: string tracked  = '11'
+  })
+  noDefaultPset3: PSet tracked = ({
+  })
+  noDefaultPset4: PSet tracked = ({
+  })
+  orPset: PSet tracked = ({
+   x2: uint32 tracked  = 11
+   y1: string tracked  = '11'
+   y2: uint32 tracked  = 11
+  })
+  plugin: PSet tracked = ({
+   type: string tracked  = 'edmtestAnotherValueMaker'
+   value: int32 tracked  = 5
+  })
+  plugin1: PSet tracked = ({
+   type: string tracked  = 'edmtestAnotherValueMaker'
+   value: int32 tracked  = 5
+  })
+  plugin4: PSet tracked = ({
+   type: string tracked  = 'edmtestAnotherMakerWithRecursivePlugin'
+   value: int32 tracked  = 5
+   pluginRecursive: PSet tracked = ({
+    type: string tracked  = 'edmtestAnotherValueMaker'
+    value: int32 tracked  = 5
+   })
+  })
+  switchPset: PSet tracked = ({
+   addTeVRefits: bool tracked  = false
+   iswitch: int32 tracked  = 2
+   ivalue: string tracked  = '102'
+  })
+  testDeeplyNested2: PSet tracked = ({
+   bswitch: bool tracked  = false
+   bvalue1: double tracked  = 101
+   bvalue2: double tracked  = 101
+   iswitch: int32 tracked  = 1
+   ivalue1: double tracked  = 101
+   sswitch: string tracked  = '1'
+   svalue1: double tracked  = 101
+   svalue2: double tracked  = 101
+   testint: int32 tracked  = 1000
+  })
+  wildcardPset: PSet tracked = ({
+   a: int32 tracked  = 1
+  })
+  xorPset: PSet tracked = ({
+   name: uint32 tracked  = 11
+   name1: string tracked  = '11'
+   name3: string tracked  = '11'
+  })
+  bars: VPSet tracked = ({
+   {
+    Drinks: uint32 tracked  = 5
+    oDrinks: uint32 tracked  = 11
+    testDeeplyNested: PSet tracked = ({
+     bswitch: bool tracked  = false
+     bvalue1: double tracked  = 101
+     bvalue2: double tracked  = 101
+     iswitch: int32 tracked  = 1
+     ivalue1: double tracked  = 101
+     sswitch: string tracked  = '1'
+     svalue1: double tracked  = 101
+     svalue2: double tracked  = 101
+     testint: int32 tracked  = 1000
+    })
+    anotherVPSet: VPSet tracked = ({
+     {
+      xvalue: int32 tracked  = 7
+     },
+     {
+      xvalue: int32 tracked  = 100
+     }
+    })
+   },
+   {
+    Drinks: uint32 tracked  = 5
+    oDrinks: uint32 tracked  = 11
+    testDeeplyNested: PSet tracked = ({
+     bswitch: bool tracked  = false
+     bvalue1: double tracked  = 101
+     bvalue2: double tracked  = 101
+     iswitch: int32 tracked  = 1
+     ivalue1: double tracked  = 101
+     sswitch: string tracked  = '1'
+     svalue1: double tracked  = 101
+     svalue2: double tracked  = 101
+     testint: int32 tracked  = 2
+    })
+    anotherVPSet: VPSet tracked = ({
+     {
+      xvalue: int32 tracked  = 7
+     },
+     {
+      xvalue: int32 tracked  = 17
+     }
+    })
+   }
+  })
+  plugin2: VPSet tracked = ({
+  })
+  plugin3: VPSet tracked = ({
+   {
+    type: string tracked  = 'edmtestAnotherOneMaker'
+   },
+   {
+    type: string tracked  = 'edmtestAnotherValueMaker'
+    value: int32 tracked  = 11
+   }
+  })
+  plugin5: VPSet tracked = ({
+  })
+ }
+
+---------EventSetup---------

@@ -1,8 +1,7 @@
 <lcgdict>
- <class name="SiPixelRawDataError" ClassVersion="11">
-  <version ClassVersion="11" checksum="3705435043"/>
-  <version ClassVersion="10" checksum="3703023458"/>
-   <field name="errorMessage_" transient="true"/>
+ <class name="SiPixelRawDataError" ClassVersion="4">
+  <version ClassVersion="4" checksum="115097919"/>
+  <version ClassVersion="3" checksum="3705435043"/>
  </class>
  <class name="std::vector<SiPixelRawDataError>"/>
  <class name="edm::Wrapper<std::vector<SiPixelRawDataError> >"/>

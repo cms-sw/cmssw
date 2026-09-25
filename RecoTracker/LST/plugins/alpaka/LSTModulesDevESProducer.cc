@@ -1,5 +1,7 @@
 // LST includes
 #include "RecoTracker/LSTCore/interface/alpaka/LST.h"
+#include "RecoTracker/LSTGeometry/interface/Common.h"
+#include "RecoTracker/LSTGeometry/interface/Geometry.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -14,22 +16,27 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class LSTModulesDevESProducer : public ESProducer {
   private:
-    std::string ptCutLabel_;
+    double ptCut_;
+    edm::ESGetToken<lstgeometry::Geometry, TrackerRecoGeometryRecord> lstGeoToken_;
 
   public:
     LSTModulesDevESProducer(edm::ParameterSet const& iConfig)
-        : ESProducer(iConfig), ptCutLabel_(iConfig.getParameter<std::string>("ptCutLabel")) {
-      setWhatProduced(this, ptCutLabel_);
+        : ESProducer(iConfig), ptCut_(iConfig.getParameter<double>("ptCut")) {
+      std::string ptCutStr = lst::floatToStr(ptCut_, 1);
+
+      auto cc = setWhatProduced(this, ptCutStr);
+      lstGeoToken_ = cc.consumes<lstgeometry::Geometry>(edm::ESInputTag("", ptCutStr));
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
-      desc.add<std::string>("ptCutLabel", "0.8");
+      desc.add<double>("ptCut", 0.8);
       descriptions.addWithDefaultLabel(desc);
     }
 
     std::unique_ptr<lst::LSTESData<DevHost>> produce(TrackerRecoGeometryRecord const& iRecord) {
-      return lst::loadAndFillESHost(ptCutLabel_);
+      const auto& lstg = iRecord.get(lstGeoToken_);
+      return lst::fillESDataHost(lstg);
     }
   };
 

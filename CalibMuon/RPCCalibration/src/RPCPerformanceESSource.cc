@@ -24,9 +24,3 @@ unique_ptr<RPCStripNoises> RPCPerformanceESSource::produce(const RPCStripNoisesR
 
 // -----------------------------------------------------------------------------
 //
-void RPCPerformanceESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                            const edm::IOVSyncValue &iosv,
-                                            edm::ValidityInterval &oValidity) {
-  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
-  oValidity = infinity;
-}

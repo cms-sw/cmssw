@@ -1,2 +1,8 @@
 <!-- test of HLT monitoring plugins (DQM + Harvesting) -->
 <test name="testTriggerMonitors" command="testTriggerMonitors.sh"/>
+<environment>
+  <bin file="testScoutingCollectionMonitor.cc" name="testScoutingCollectionMonitor">
+    <use name="FWCore/TestProcessor"/>
+    <use name="catch2"/>
+  </bin>
+</environment>

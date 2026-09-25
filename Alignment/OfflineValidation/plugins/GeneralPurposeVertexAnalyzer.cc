@@ -247,7 +247,7 @@ void GeneralPurposeVertexAnalyzer::IPMonitoring::bookIPMonitor(const edm::Parame
                          //VarBin,
                          VarMin,
                          VarMax);
-  IPVsPhi_->SetXTitle("PV track (p_{T} > 1 GeV) #phi");
+  IPVsPhi_->SetXTitle(fmt::format("PV track (p_{{T}} > {} GeV) #phi", pTcut_).c_str());
   IPVsPhi_->SetYTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_).c_str());
 
   IPVsEta_ =
@@ -259,7 +259,7 @@ void GeneralPurposeVertexAnalyzer::IPMonitoring::bookIPMonitor(const edm::Parame
                          //VarBin,
                          VarMin,
                          VarMax);
-  IPVsEta_->SetXTitle("PV track (p_{T} > 1 GeV) #eta");
+  IPVsEta_->SetXTitle(fmt::format("PV track (p_{{T}} > {} GeV) #eta", pTcut_).c_str());
   IPVsEta_->SetYTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_).c_str());
 
   IPVsPt_ = gpVertexAnalyzer::makeProfileIfLog(
@@ -274,7 +274,7 @@ void GeneralPurposeVertexAnalyzer::IPMonitoring::bookIPMonitor(const edm::Parame
       VarMin,
       VarMax,
       "");
-  IPVsPt_->SetXTitle("PV track (p_{T} > 1 GeV) p_{T} [GeV]");
+  IPVsPt_->SetXTitle(fmt::format("PV track (p_{{T}} > {} GeV) p_{{T}} [GeV]", pTcut_).c_str());
   IPVsPt_->SetYTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_).c_str());
 
   IPErrVsPhi_ =
@@ -286,7 +286,7 @@ void GeneralPurposeVertexAnalyzer::IPMonitoring::bookIPMonitor(const edm::Parame
                          //VarBin,
                          0.,
                          (varname_.find("xy") != std::string::npos) ? 100. : 200.);
-  IPErrVsPhi_->SetXTitle("PV track (p_{T} > 1 GeV) #phi");
+  IPErrVsPhi_->SetXTitle(fmt::format("PV track (p_{{T}} > {} GeV) #phi", pTcut_).c_str());
   IPErrVsPhi_->SetYTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_).c_str());
 
   IPErrVsEta_ =
@@ -298,7 +298,7 @@ void GeneralPurposeVertexAnalyzer::IPMonitoring::bookIPMonitor(const edm::Parame
                          //VarBin,
                          0.,
                          (varname_.find("xy") != std::string::npos) ? 100. : 200.);
-  IPErrVsEta_->SetXTitle("PV track (p_{T} > 1 GeV) #eta");
+  IPErrVsEta_->SetXTitle(fmt::format("PV track (p_{{T}} > {} GeV) #eta", pTcut_).c_str());
   IPErrVsEta_->SetYTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_).c_str());
 
   IPErrVsPt_ = gpVertexAnalyzer::makeProfileIfLog(
@@ -313,7 +313,7 @@ void GeneralPurposeVertexAnalyzer::IPMonitoring::bookIPMonitor(const edm::Parame
       VarMin,
       VarMax,
       "");
-  IPErrVsPt_->SetXTitle("PV track (p_{T} > 1 GeV) p_{T} [GeV]");
+  IPErrVsPt_->SetXTitle(fmt::format("PV track (p_{{T}} > {} GeV) p_{{T}} [GeV]", pTcut_).c_str());
   IPErrVsPt_->SetYTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_).c_str());
 
   IPVsEtaVsPhi_ = fs->make<TProfile2D>(
@@ -328,8 +328,8 @@ void GeneralPurposeVertexAnalyzer::IPMonitoring::bookIPMonitor(const edm::Parame
       //VarBin,
       VarMin,
       VarMax);
-  IPVsEtaVsPhi_->SetXTitle("PV track (p_{T} > 1 GeV) #eta");
-  IPVsEtaVsPhi_->SetYTitle("PV track (p_{T} > 1 GeV) #phi");
+  IPVsEtaVsPhi_->SetXTitle(fmt::format("PV track (p_{{T}} > {} GeV) #eta", pTcut_).c_str());
+  IPVsEtaVsPhi_->SetYTitle(fmt::format("PV track (p_{{T}} > {} GeV) #phi", pTcut_).c_str());
   IPVsEtaVsPhi_->SetZTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_).c_str());
 
   IPErrVsEtaVsPhi_ = fs->make<TProfile2D>(
@@ -344,8 +344,8 @@ void GeneralPurposeVertexAnalyzer::IPMonitoring::bookIPMonitor(const edm::Parame
       // VarBin,
       0.,
       (varname_.find("xy") != std::string::npos) ? 100. : 200.);
-  IPErrVsEtaVsPhi_->SetXTitle("PV track (p_{T} > 1 GeV) #eta");
-  IPErrVsEtaVsPhi_->SetYTitle("PV track (p_{T} > 1 GeV) #phi");
+  IPErrVsEtaVsPhi_->SetXTitle(fmt::format("PV track (p_{{T}} > {} GeV) #eta", pTcut_).c_str());
+  IPErrVsEtaVsPhi_->SetYTitle(fmt::format("PV track (p_{{T}} > {} GeV) #phi", pTcut_).c_str());
   IPErrVsEtaVsPhi_->SetZTitle(
       fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_).c_str());
 }

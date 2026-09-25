@@ -146,3 +146,9 @@ TEST_CASE("ScoutingTrackMonitor tests", "[ScoutingTrackMonitor]") {
   const std::string baseConfig = generateBaseConfig("scoutingTrackMonitor");
   runTestForAnalyzer(baseConfig, "ScoutingTrackMonitor");
 }
+
+//___________________________________________________________________________________________
+TEST_CASE("ScoutingDiMuonVertexMonitor tests", "[ScoutingDiMuonVertexMonitor]") {
+  const std::string baseConfig = generateBaseConfig("scoutingDiMuonVertexMonitor");
+  runTestForAnalyzer(baseConfig, "ScoutingDiMuonVertexMonitor");
+}

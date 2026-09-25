@@ -5,15 +5,15 @@ hltTiclCandidate = cms.EDProducer("TICLCandidateProducer",
     regressionAndPid = cms.bool(True),
     pluginInferenceAlgoTracksterInferenceByPFN = cms.PSet(
       algo_verbosity = cms.int32(0),
-      onnxPIDModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/id_v0.onnx'),
-      onnxEnergyModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/energy_v1.onnx'),
+      onnxPIDModelPath = cms.string('RecoHGCal/TICL/data/ticlv5/onnx_models/CNN/linking/id_v0.onnx'),
+      onnxEnergyModelPath = cms.string('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/energy_v1.onnx'),
       inputNames = cms.vstring(
         'input',
         'input_tr_features'
       ),
       output_en = cms.vstring('enreg_output'),
       output_id = cms.vstring('pid_output'),
-      eid_min_cluster_energy = cms.double(2.5),
+      eid_min_cluster_energy = cms.float(2.5),
       eid_n_layers = cms.int32(50),
       eid_n_clusters = cms.int32(10),
       doPID = cms.int32(1),
@@ -28,9 +28,9 @@ hltTiclCandidate = cms.EDProducer("TICLCandidateProducer",
     general_tracksters_collections = cms.VInputTag("hltTiclTracksterLinks"),
     interpretationDescPSet = cms.PSet(
         algo_verbosity = cms.int32(0),
-        delta_tk_ts_interface = cms.double(0.03),
-        delta_tk_ts_layer1 = cms.double(0.02),
-        timing_quality_threshold = cms.double(0.5),
+        delta_tk_ts_interface = cms.float(0.03),
+        delta_tk_ts_layer1 = cms.float(0.02),
+        timing_quality_threshold = cms.float(0.5),
         type = cms.string('General')
     ),
     layer_clusters = cms.InputTag("hltMergeLayerClusters"),
@@ -39,22 +39,22 @@ hltTiclCandidate = cms.EDProducer("TICLCandidateProducer",
     muons = cms.InputTag("hltPhase2L3Muons"),
     original_masks = cms.VInputTag("hltMergeLayerClusters:InitialLayerClustersMask"),
     propagator = cms.string('PropagatorWithMaterial'),
-    timingQualityThreshold = cms.double(0.5),
+    timingQualityThreshold = cms.float(0.5),
     timingSoA = cms.InputTag("mtdSoA"),
     tracks = cms.InputTag("hltGeneralTracks"),
     useMTDTiming = cms.bool(False),
     useTimingAverage = cms.bool(False)
 )
 
-from Configuration.ProcessModifiers.ticlv5_TrackLinkingGNN_cff import ticl_v5_TrackLinkingGNN
-ticl_v5_TrackLinkingGNN.toModify(hltTiclCandidate,
+from Configuration.ProcessModifiers.ticlv5_TrackLinkingGNN_cff import ticlv5_TrackLinkingGNN
+ticlv5_TrackLinkingGNN.toModify(hltTiclCandidate,
     interpretationDescPSet = cms.PSet(
         onnxTrkLinkingModelFirstDisk = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/TrackLinking_GNN/FirstDiskPropGNN_v0.onnx'),
         onnxTrkLinkingModelInterfaceDisk = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/TrackLinking_GNN/InterfaceDiskPropGNN_v0.onnx'),
         inputNames = cms.vstring('x', 'edge_index', 'edge_attr'),
         output = cms.vstring('output'),
-        delta_tk_ts = cms.double(0.1),
-        thr_gnn = cms.double(0.5),
+        delta_tk_ts = cms.float(0.1),
+        thr_gnn = cms.float(0.5),
         type = cms.string('GNNLink')
     )
 )

@@ -1,5 +1,4 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 namespace edm {
@@ -21,7 +20,7 @@ namespace edm {
 
   void LuminosityBlockPrincipal::put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp) const {
     auto phb = getProductResolverByIndex(index);
-    dynamic_cast<ProductPutterBase const*>(phb)->putProduct(std::move(edp));
+    phb->putProduct(std::move(edp));
   }
 
   unsigned int LuminosityBlockPrincipal::transitionIndex_() const { return index().value(); }

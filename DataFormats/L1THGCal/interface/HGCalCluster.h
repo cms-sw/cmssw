@@ -8,22 +8,24 @@
 
 namespace l1t {
 
-  class HGCalCluster : public HGCalClusterT<l1t::HGCalTriggerCell> {
-  public:
-    HGCalCluster() {}
-    HGCalCluster(const LorentzVector p4, int pt = 0, int eta = 0, int phi = 0);
+  namespace io_v1 {
+    class HGCalCluster : public HGCalClusterT<l1t::HGCalTriggerCell> {
+    public:
+      HGCalCluster() {}
+      HGCalCluster(const LorentzVector p4, int pt = 0, int eta = 0, int phi = 0);
 
-    HGCalCluster(const edm::Ptr<l1t::HGCalTriggerCell> &tc);
+      HGCalCluster(const edm::Ptr<l1t::HGCalTriggerCell>& tc);
 
-    ~HGCalCluster() override;
+      ~HGCalCluster() override;
 
-    void setModule(uint32_t module) { module_ = module; }
-    uint32_t module() const { return module_; }
+      void setModule(uint32_t module) { module_ = module; }
+      uint32_t module() const { return module_; }
 
-  private:
-    uint32_t module_;
-  };
-
+    private:
+      uint32_t module_;
+    };
+  }  // namespace io_v1
+  using HGCalCluster = io_v1::HGCalCluster;
   typedef BXVector<HGCalCluster> HGCalClusterBxCollection;
 
 }  // namespace l1t

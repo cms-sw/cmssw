@@ -10,7 +10,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/SimMappers/RealisticHitToClusterAssociator.h"
@@ -38,7 +38,13 @@ public:
         hadronCalib_(conf.getParameter<std::vector<double> >("hadronCalib")),
         egammaCalib_(conf.getParameter<std::vector<double> >("egammaCalib")),
         simClusterToken_(cc.consumes<SimClusterCollection>(conf.getParameter<edm::InputTag>("simClusterSrc"))),
-        geomToken_(cc.esConsumes<edm::Transition::BeginRun>()) {}
+        ticlGeomToken_(
+            cc.esConsumes<TICLGeomHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
+        ticlGeomLookupToken_(
+            cc.esConsumes<TICLGeomLookupHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))),
+        ticlGeomLayersToken_(
+            cc.esConsumes<TICLGeomLayersHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""))) {
+  }
 
   ~RealisticSimClusterMapper() override {}
   RealisticSimClusterMapper(const RealisticSimClusterMapper&) = delete;
@@ -54,7 +60,7 @@ public:
                      const HcalPFCuts*) override;
 
 private:
-  hgcal::RecHitTools rhtools_;
+  ticlgeom::Tools rhtools_;
   const float invisibleFraction_ = 0.3f;
   const float exclusiveFraction_ = 0.7f;
   const bool maxDistanceFilter_ = false;
@@ -71,7 +77,9 @@ private:
   edm::EDGetTokenT<SimClusterCollection> simClusterToken_;
   edm::Handle<SimClusterCollection> simClusterH_;
 
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
+  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
+  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
+  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
 };
 
 DEFINE_EDM_PLUGIN(InitialClusteringStepFactory, RealisticSimClusterMapper, "RealisticSimClusterMapper");
@@ -105,7 +113,9 @@ namespace {
 
 void RealisticSimClusterMapper::updateEvent(const edm::Event& ev) { ev.getByToken(simClusterToken_, simClusterH_); }
 
-void RealisticSimClusterMapper::update(const edm::EventSetup& es) { rhtools_.setGeometry(es.getData(geomToken_)); }
+void RealisticSimClusterMapper::update(const edm::EventSetup& es) {
+  rhtools_.setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
+}
 
 void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
                                               const std::vector<bool>& rechitMask,

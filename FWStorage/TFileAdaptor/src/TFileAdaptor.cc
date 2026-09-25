@@ -192,10 +192,12 @@ TFileAdaptor::TFileAdaptor(edm::ParameterSet const& pset, edm::ActivityRegistry&
     addType(mgr, "^dcap:");
   if (!native("gsidcap"))
     addType(mgr, "^gsidcap:");
-  if (!native("root"))
-    addType(mgr, "^root:", 1);  // See comments in addType
-  if (!native("root"))
-    addType(mgr, "^[x]?root:", 1);  // See comments in addType
+  if (!native("root")) {
+    // See comments in addType
+    addType(mgr, "^root:", 1);
+    addType(mgr, "^[x]?root:", 1);
+    addType(mgr, "^[x]?root[s]?:", 1);
+  }
 
   // Make sure the TStorageFactoryFile can be loaded regardless of the header auto-parsing setting
   {

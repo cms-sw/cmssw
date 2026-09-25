@@ -15,7 +15,7 @@
 #include <Geometry/DTGeometry/interface/DTLayer.h>
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 // Muon  components
 #include "Alignment/MuonAlignment/interface/AlignableDTBarrel.h"
 #include "Alignment/MuonAlignment/interface/AlignableDTStation.h"

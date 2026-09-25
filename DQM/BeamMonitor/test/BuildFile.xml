@@ -2,4 +2,4 @@
   <use name="FWCore/TestProcessor"/>
   <use name="catch2"/>
 </bin>
-<test name="testOnlineBeamMonitor" command="testOnlineBeamMonitor.sh"/>
+<!-- <test name="testOnlineBeamMonitor" command="testOnlineBeamMonitor.sh"/> COMMENT: reads old format file -->

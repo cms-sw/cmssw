@@ -236,7 +236,7 @@ namespace gs {
     std::string cmode(modeIn ? modeIn : "");
     if (cmode.empty())
       return true;
-    char *mode = const_cast<char *>(cmode.c_str());
+    char *mode = &cmode[0];
 
     unsigned cnt = 0;
     for (char *opt = strtok(mode, ":"); opt; opt = strtok(nullptr, ":"), ++cnt) {

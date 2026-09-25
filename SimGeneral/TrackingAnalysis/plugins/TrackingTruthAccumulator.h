@@ -137,8 +137,12 @@ private:
 
   /// As of 11/Feb/2013 this option hasn't been implemented yet.
   const bool removeDeadModules_;
-  const edm::InputTag simTrackLabel_;
-  const edm::InputTag simVertexLabel_;
+  edm::InputTag simTrackLabel_;
+  edm::InputTag simVertexLabel_;
+  edm::InputTag simTrackLabelSig_;
+  edm::InputTag simVertexLabelSig_;
+  edm::InputTag simTrackLabelPU_;
+  edm::InputTag simVertexLabelPU_;
   std::vector<edm::InputTag> collectionTags_;
   edm::InputTag genParticleLabel_;
   /// Needed to add HepMC::GenVertex to SimVertex

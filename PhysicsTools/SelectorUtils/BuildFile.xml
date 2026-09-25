@@ -8,7 +8,7 @@
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/Common"/>
-<use name="DataFormats/Provenance"/>
+<use name="DataFormats/Provenance" source_only="1"/>
 <use name="DataFormats/VertexReco"/>
 <use name="FWCore/Common"/>
 <use name="FWCore/Framework"/>

@@ -41,6 +41,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include <mutex>
 
 #include "TFile.h"
 #include "TH2D.h"
@@ -105,7 +106,8 @@ private:
 
   // profile variables
   std::vector<BinData<ProfileData>> profile_bins_;
-  const ProfileData *currentProfile_;
+  std::vector<std::pair<edm::IOVSyncValue, int>> startIOVToBinIndex_;
+  mutable std::mutex protectIndex_;  //can't write while reading startIOVToBinIndex_;
 
   // random engine
   std::unique_ptr<CLHEP::HepRandomEngine> m_engine_;
@@ -130,7 +132,11 @@ private:
   // method set IOV (common to all products)
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
                       const edm::IOVSyncValue &,
-                      edm::ValidityInterval &) override;
+                      edm::ValidityInterval &) final;
+
+  bool isConcurrentFinder() const final { return true; }
+
+  const ProfileData &findProfileFor(edm::ValidityInterval const &) const;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -427,36 +433,54 @@ void CTPPSCompositeESSource::setIntervalFor(const edm::eventsetup::EventSetupRec
   edm::EventID endEvent(beginEvent.run(), beginEvent.luminosityBlock(), beginEvent.event() + generateEveryNEvents_);
   oValidity = edm::ValidityInterval(edm::IOVSyncValue(beginEvent), edm::IOVSyncValue(endEvent));
 
-  // stop if new profile has already been generated
-  if (beginEvent.run() == previously_set_eventID_.run() &&
-      beginEvent.luminosityBlock() == previously_set_eventID_.luminosityBlock())
-    return;
-
-  previously_set_eventID_ = beginEvent;
+  std::lock_guard guard(protectIndex_);
+  if (not startIOVToBinIndex_.empty()) {
+    if (oValidity.first() == startIOVToBinIndex_.back().first) {
+      return;
+    }
+  }
 
   // randomly pick the next profile
   const double u = CLHEP::RandFlat::shoot(m_engine_.get(), 0., 1.);
-
+  size_t index = 0;
   for (const auto &bin : profile_bins_) {
     if (bin.min <= u && u <= bin.max) {
-      currentProfile_ = &bin.data;
+      break;
+    }
+    ++index;
+  }
+  assert(index != profile_bins_.size());
+  startIOVToBinIndex_.emplace_back(beginEvent, index);
+}
+
+//----------------------------------------------------------------------------------------------------
+const CTPPSCompositeESSource::ProfileData &CTPPSCompositeESSource::findProfileFor(
+    edm::ValidityInterval const &iIOV) const {
+  std::lock_guard guard{protectIndex_};
+  size_t index = profile_bins_.size();
+  for (auto it = startIOVToBinIndex_.rbegin(); it != startIOVToBinIndex_.rend(); ++it) {
+    if (iIOV.validFor(it->first) or
+        (iIOV.last() == edm::IOVSyncValue::invalidIOVSyncValue() and iIOV.first() <= it->first)) {
+      index = it->second;
       break;
     }
   }
+  assert(index < profile_bins_.size());
+  return profile_bins_[index].data;
 }
 
 //----------------------------------------------------------------------------------------------------
 
 std::shared_ptr<CTPPSRPAlignmentCorrectionsData> CTPPSCompositeESSource::produceRealAlignments(
-    const RPRealAlignmentRecord &) {
-  return currentProfile_->acReal;
+    const RPRealAlignmentRecord &iRecord) {
+  return findProfileFor(iRecord.validityInterval()).acReal;
 }
 
 //----------------------------------------------------------------------------------------------------
 
 std::shared_ptr<CTPPSRPAlignmentCorrectionsData> CTPPSCompositeESSource::produceMisalignedAlignments(
-    const RPMisalignedAlignmentRecord &) {
-  return currentProfile_->acMisaligned;
+    const RPMisalignedAlignmentRecord &iRecord) {
+  return findProfileFor(iRecord.validityInterval()).acMisaligned;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -465,7 +489,7 @@ std::shared_ptr<CTPPSGeometry> CTPPSCompositeESSource::produceRealTG(const VeryF
   if (!geometryBuilt_)
     buildGeometry(iRecord.getRecord<IdealGeometryRecord>().get(tokenCompactViewReal_));
 
-  return currentProfile_->realTG;
+  return findProfileFor(iRecord.validityInterval()).realTG;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -475,31 +499,32 @@ std::shared_ptr<CTPPSGeometry> CTPPSCompositeESSource::produceMisalignedTG(
   if (!geometryBuilt_)
     buildGeometry(iRecord.getRecord<IdealGeometryRecord>().get(tokenCompactViewMisaligned_));
 
-  return currentProfile_->misalignedTG;
+  return findProfileFor(iRecord.validityInterval()).misalignedTG;
 }
 
 //----------------------------------------------------------------------------------------------------
 
 std::unique_ptr<PPSDirectSimulationData> CTPPSCompositeESSource::produceDirectSimuData(
-    const PPSDirectSimulationDataRcd &) {
-  return std::make_unique<PPSDirectSimulationData>(currentProfile_->directSimuData);
+    const PPSDirectSimulationDataRcd &iRecord) {
+  return std::make_unique<PPSDirectSimulationData>(findProfileFor(iRecord.validityInterval()).directSimuData);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<LHCOpticalFunctionsSetCollection> CTPPSCompositeESSource::produceOptics(const CTPPSOpticsRcd &) {
-  return std::make_unique<LHCOpticalFunctionsSetCollection>(currentProfile_->lhcOptical);
+std::unique_ptr<LHCOpticalFunctionsSetCollection> CTPPSCompositeESSource::produceOptics(const CTPPSOpticsRcd &iRecord) {
+  return std::make_unique<LHCOpticalFunctionsSetCollection>(findProfileFor(iRecord.validityInterval()).lhcOptical);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<LHCInfo> CTPPSCompositeESSource::produceLhcInfo(const LHCInfoRcd &) {
-  double xangle = currentProfile_->xangle;
-  double betaStar = currentProfile_->betaStar;
+std::unique_ptr<LHCInfo> CTPPSCompositeESSource::produceLhcInfo(const LHCInfoRcd &iRecord) {
+  auto const &profile = findProfileFor(iRecord.validityInterval());
+  double xangle = profile.xangle;
+  double betaStar = profile.betaStar;
 
-  if (currentProfile_->xangle < 0) {
+  if (profile.xangle < 0) {
     const double u = CLHEP::RandFlat::shoot(m_engine_.get(), 0., 1.);
-    for (const auto &d : currentProfile_->xangleBetaStarBins) {
+    for (const auto &d : profile.xangleBetaStarBins) {
       if (d.min <= u && u <= d.max) {
         xangle = d.data.first;
         betaStar = d.data.second;
@@ -509,7 +534,7 @@ std::unique_ptr<LHCInfo> CTPPSCompositeESSource::produceLhcInfo(const LHCInfoRcd
   }
 
   auto lhcInfo = std::make_unique<LHCInfo>();
-  lhcInfo->setEnergy(currentProfile_->beamEnergy);
+  lhcInfo->setEnergy(profile.beamEnergy);
   lhcInfo->setCrossingAngle(xangle);
   lhcInfo->setBetaStar(betaStar);
 

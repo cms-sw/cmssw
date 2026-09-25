@@ -1,9 +1,10 @@
+<use name="rootcling"/>
 <use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/GsfTrackReco"/>
 <use name="DataFormats/TrackReco"/>
 <use name="FWCore/Framework"/>
-<use name="Geometry/CommonDetUnit" source_only="1"/>
+<use name="Geometry/CommonTopologies" source_only="1"/>
 <use name="Geometry/Records"/>
 <use name="TrackingTools/GeomPropagators"/>
 <use name="TrackingTools/GsfTools"/>

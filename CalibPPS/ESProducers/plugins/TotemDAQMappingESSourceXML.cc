@@ -42,6 +42,7 @@
 
 #include <memory>
 #include <sstream>
+#include <optional>
 
 //#define DEBUG 1
 
@@ -92,6 +93,7 @@ public:
   edm::ESProducts<std::unique_ptr<TotemDAQMapping>, std::unique_ptr<TotemAnalysisMask>> produce(const TotemReadoutRcd &);
 
 private:
+  std::optional<unsigned int> findBlockFor(edm::IOVSyncValue const &) const;
   unsigned int verbosity;
 
   /// label of the CTPPS sub-system
@@ -118,12 +120,6 @@ private:
   };
 
   vector<ConfigBlock> configuration;
-
-  /// index of the current block in 'configuration' array
-  unsigned int currentBlock;
-
-  /// flag whether the 'currentBlock' index is valid
-  bool currentBlockValid;
 
   /// enumeration of XML node types
   enum NodeType {
@@ -232,6 +228,8 @@ private:
   bool CommonNode(NodeType type) { return ((type == nChip) || (type == nArm)); }
 
 protected:
+  bool isConcurrentFinder() const override { return true; }
+
   /// sets infinite validity of this data
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
                       const edm::IOVSyncValue &,
@@ -280,9 +278,7 @@ TotemDAQMappingESSourceXML::TotemDAQMappingESSourceXML(const edm::ParameterSet &
     : verbosity(conf.getUntrackedParameter<unsigned int>("verbosity", 0)),
       subSystemName(conf.getUntrackedParameter<string>("subSystem")),
       sampicSubDetId(conf.getParameter<unsigned int>("sampicSubDetId")),
-      packedPayload(conf.getParameter<bool>("multipleChannelsPerPayload")),
-      currentBlock(0),
-      currentBlockValid(false) {
+      packedPayload(conf.getParameter<bool>("multipleChannelsPerPayload")) {
   for (const auto &it : conf.getParameter<vector<ParameterSet>>("configuration")) {
     ConfigBlock b;
     b.validityRange = it.getParameter<EventRange>("validityRange");
@@ -305,7 +301,23 @@ void TotemDAQMappingESSourceXML::setIntervalFor(const edm::eventsetup::EventSetu
   LogVerbatim("TotemDAQMappingESSourceXML")
       << "    run=" << iosv.eventID().run() << ", event=" << iosv.eventID().event();
 
-  currentBlockValid = false;
+  auto currentBlock = findBlockFor(iosv);
+  if (currentBlock) {
+    edm::EventRange range = configuration[*currentBlock].validityRange;
+
+    const IOVSyncValue begin(range.startEventID());
+    const IOVSyncValue end(range.endEventID());
+    oValidity = edm::ValidityInterval(begin, end);
+
+    LogVerbatim("TotemDAQMappingESSourceXML") << "    block found: index=" << *currentBlock << ", interval=("
+                                              << range.startEventID() << " - " << range.endEventID() << ")";
+
+  } else {
+    throw cms::Exception("TotemDAQMappingESSourceXML::setIntervalFor")
+        << "No configuration for event " << iosv.eventID();
+  }
+}
+std::optional<unsigned int> TotemDAQMappingESSourceXML::findBlockFor(const edm::IOVSyncValue &iosv) const {
   for (unsigned int idx = 0; idx < configuration.size(); ++idx) {
     const auto &bl = configuration[idx];
 
@@ -318,24 +330,10 @@ void TotemDAQMappingESSourceXML::setIntervalFor(const edm::eventsetup::EventSetu
       range = edm::EventRange(edm::EventID(range.startEventID().run(), 0, 0), range.endEventID());
 
     if (edm::contains(range, iosv.eventID())) {
-      currentBlockValid = true;
-      currentBlock = idx;
-
-      const IOVSyncValue begin(range.startEventID());
-      const IOVSyncValue end(range.endEventID());
-      oValidity = edm::ValidityInterval(begin, end);
-
-      LogVerbatim("TotemDAQMappingESSourceXML") << "    block found: index=" << currentBlock << ", interval=("
-                                                << range.startEventID() << " - " << range.endEventID() << ")";
-
-      return;
+      return idx;
     }
   }
-
-  if (!currentBlockValid) {
-    throw cms::Exception("TotemDAQMappingESSourceXML::setIntervalFor")
-        << "No configuration for event " << iosv.eventID();
-  }
+  return std::nullopt;
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -353,8 +351,10 @@ string TotemDAQMappingESSourceXML::CompleteFileName(const string &fn) {
 static inline std::string to_string(const XMLCh *ch) { return XERCES_CPP_NAMESPACE_QUALIFIER XMLString::transcode(ch); }
 
 edm::ESProducts<std::unique_ptr<TotemDAQMapping>, std::unique_ptr<TotemAnalysisMask>>
-TotemDAQMappingESSourceXML::produce(const TotemReadoutRcd &) {
-  assert(currentBlockValid);
+TotemDAQMappingESSourceXML::produce(const TotemReadoutRcd &iRcd) {
+  auto findBlock = findBlockFor(iRcd.validityInterval().first());
+  assert(findBlock);
+  auto currentBlock = *findBlock;
 
   auto mapping = std::make_unique<TotemDAQMapping>();
   auto mask = std::make_unique<TotemAnalysisMask>();

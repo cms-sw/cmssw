@@ -468,8 +468,6 @@ namespace edm {
     mutable std::shared_ptr<RunAuxiliary> runAuxiliary_;
     mutable std::shared_ptr<LuminosityBlockAuxiliary> lumiAuxiliary_;
     std::string statusFileName_;
-
-    unsigned int numberOfEventsBeforeBigSkip_;
   };
 }  // namespace edm
 

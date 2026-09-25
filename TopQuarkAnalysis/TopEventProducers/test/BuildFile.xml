@@ -1,1 +1,1 @@
-<test name="runtestTqafTopEventProducers" command="runtests.sh"/>
+<!-- <test name="runtestTqafTopEventProducers" command="runtests.sh"/> COMMENT: reads old format files -->

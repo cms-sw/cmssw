@@ -1,0 +1,6 @@
+<library file="*.cc" name="DQMHGCAL_plugins">
+</library>
+<use name="DQMServices/Core"/>
+<use name="FWCore/Framework"/>
+<use name="DataFormats/Candidate"/>
+<use name="DataFormats/CaloRecHit"/>

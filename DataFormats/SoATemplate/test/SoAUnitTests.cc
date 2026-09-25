@@ -6,15 +6,24 @@
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
+enum class TestEnum : int16_t { s0 = -2, s1 = -1, s2 = 0, s3 = 1, s4 = 2 };
+
 // clang-format off
 GENERATE_SOA_LAYOUT(SimpleLayoutTemplate,
   SOA_COLUMN(float, x),
   SOA_COLUMN(float, y),
   SOA_COLUMN(float, z),
-  SOA_COLUMN(float, t))
+  SOA_SCALAR(int, s),
+  SOA_COLUMN(float, t),
+  SOA_COLUMN(TestEnum, e))
 // clang-format on
 
 using SimpleLayout = SimpleLayoutTemplate<>;
+
+namespace {
+  template <typename TView>
+  concept Immutable = requires(TView view) { requires !requires { view[0] = decltype(view[0]){}; }; };
+}  // namespace
 
 TEST_CASE("SoATemplate") {
   // number of elements
@@ -22,19 +31,21 @@ TEST_CASE("SoATemplate") {
   // size in bytes
   const std::size_t slBufferSize = SimpleLayout::computeDataSize(slSize);
   // memory buffer aligned according to the layout requirements
-  std::unique_ptr<std::byte, decltype(std::free) *> slBuffer{
-      reinterpret_cast<std::byte *>(aligned_alloc(SimpleLayout::alignment, slBufferSize)), std::free};
+  std::unique_ptr<std::byte, decltype(std::free)*> slBuffer{
+      reinterpret_cast<std::byte*>(aligned_alloc(SimpleLayout::alignment, slBufferSize)), std::free};
   // SoA layout
   SimpleLayout sl{slBuffer.get(), slSize};
 
   SECTION("Row wide copies, row") {
     SimpleLayout::View slv{sl};
     SimpleLayout::ConstView slcv{sl};
+    slv.s() = 42;
     auto slv0 = slv[0];
     slv0.x() = 1;
     slv0.y() = 2;
     slv0.z() = 3;
     slv0.t() = 5;
+    slv0.e() = TestEnum::s3;
     // Fill up
     for (SimpleLayout::View::size_type i = 1; i < slv.metadata().size(); ++i) {
       auto slvi = slv[i];
@@ -47,9 +58,15 @@ TEST_CASE("SoATemplate") {
     }
     // Verification and const view access
     float x = 1, y = 2, z = 3, t = 5;
+    REQUIRE(slcv.s() == 42);
     for (SimpleLayout::View::size_type i = 0; i < slv.metadata().size(); ++i) {
       auto slvi = slv[i];
       auto slcvi = slcv[i];
+
+      // check that SCALAR accessors are not available an SoA element
+      STATIC_REQUIRE(![](auto& x) { return requires { x.s(); }; }(slvi));
+      STATIC_REQUIRE(![](auto& x) { return requires { x.s(); }; }(slcvi));
+
       REQUIRE(slvi.x() == x);
       REQUIRE(slvi.y() == y);
       REQUIRE(slvi.z() == z);
@@ -58,6 +75,7 @@ TEST_CASE("SoATemplate") {
       REQUIRE(slcvi.y() == y);
       REQUIRE(slcvi.z() == z);
       REQUIRE(slcvi.t() == t);
+      REQUIRE(slcvi.e() == TestEnum::s3);
       auto tx = x;
       x += y;
       y += z;
@@ -74,7 +92,7 @@ TEST_CASE("SoATemplate") {
     View slv{sl};
     ConstView slcv{sl};
     auto slv0 = slv[0];
-    slv0 = {7, 11, 13, 17};
+    slv0 = {7, 11, 13, 17, TestEnum::s3};
     // Fill up
     for (SimpleLayout::View::size_type i = 1; i < slv.metadata().size(); ++i) {
       auto slvi = slv[i];
@@ -134,5 +152,50 @@ TEST_CASE("SoATemplate") {
     // Check for under-and overflow in the element accessors
     REQUIRE_THROWS_AS(slcv.x(underflow), std::out_of_range);
     REQUIRE_THROWS_AS(slcv.x(overflow), std::out_of_range);
+  }
+
+  SECTION("Range checking View Extended") {
+    // Enable range checking
+    using View = SimpleLayout::ViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::extended>;
+    View slv{sl};
+    int underflow = -1;
+    int overflow = slv.metadata().size();
+
+    REQUIRE_THROWS_WITH(slv[underflow], Catch::Matchers::ContainsSubstring("at file"));
+    REQUIRE_THROWS_WITH(slv[overflow], Catch::Matchers::ContainsSubstring("at file"));
+
+    REQUIRE_THROWS_WITH(slv.x(underflow), Catch::Matchers::ContainsSubstring("at file"));
+    REQUIRE_THROWS_WITH(slv.x(overflow), Catch::Matchers::ContainsSubstring("at file"));
+  }
+
+  SECTION("Range checking ConstView Extended") {
+    // Enable range checking
+    using ConstView =
+        SimpleLayout::ConstViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::extended>;
+    ConstView slcv{sl};
+    int underflow = -1;
+    int overflow = slcv.metadata().size();
+
+    // Check for under- and overflow in the row accessor
+    REQUIRE_THROWS_WITH(slcv[underflow], Catch::Matchers::ContainsSubstring("at file"));
+    REQUIRE_THROWS_WITH(slcv[overflow], Catch::Matchers::ContainsSubstring("at file"));
+
+    // Check for under- and overflow in the element accessors
+    REQUIRE_THROWS_WITH(slcv.x(underflow), Catch::Matchers::ContainsSubstring("at file"));
+    REQUIRE_THROWS_WITH(slcv.x(overflow), Catch::Matchers::ContainsSubstring("at file"));
+  }
+
+  SECTION("Check immutability of ConstView") {
+    using ConstView =
+        SimpleLayout::ConstViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::extended>;
+    static_assert(Immutable<ConstView>);
+  }
+
+  SECTION("Check views conversions") {
+    using ConstView =
+        SimpleLayout::ConstViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::extended>;
+    using View = SimpleLayout::ViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::extended>;
+    static_assert(std::convertible_to<View, ConstView>);
+    static_assert(!std::convertible_to<ConstView, View>);
   }
 }

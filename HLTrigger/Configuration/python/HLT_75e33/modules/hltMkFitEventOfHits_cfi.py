@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # MkFitEventOfHits options
 hltMkFitEventOfHits = cms.EDProducer("MkFitEventOfHitsProducer",
-    beamSpot = cms.InputTag("offlineBeamSpot"),
+    beamSpot = cms.InputTag("hltOnlineBeamSpot"),
     mightGet = cms.optional.untracked.vstring,
     pixelHits = cms.InputTag("hltMkFitSiPixelHits"),
     stripHits = cms.InputTag("hltMkFitSiPhase2Hits"),

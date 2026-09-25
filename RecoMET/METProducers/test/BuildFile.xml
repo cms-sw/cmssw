@@ -1,1 +1,1 @@
-<test name="testRecoMETMETProducers" command="runtests.sh"/>
+<!-- <test name="testRecoMETMETProducers" command="runtests.sh"/> COMMENT: reads old format file -->

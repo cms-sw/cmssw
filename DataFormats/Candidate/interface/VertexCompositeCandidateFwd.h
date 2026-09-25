@@ -2,10 +2,7 @@
 #define DataFormats_Candidate_VertexCompositeCandidateFwd_h
 #include "DataFormats/Common/interface/OwnVector.h"
 
-namespace reco {
-  class VertexCompositeCandidate;
-}
-
+#include "DataFormats/Candidate/interface/VertexCompositeCandidateOnlyFwd.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"

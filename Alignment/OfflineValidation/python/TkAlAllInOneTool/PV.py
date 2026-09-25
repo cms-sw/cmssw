@@ -187,7 +187,10 @@ def PV(config, validationDir):
             for iname, singleName in enumerate(config["validations"]["PV"][pvType][trendName]["singles"]):
                 isMC = (len(IOVs[singleName]) == 1 and int(IOVs[singleName][0]) == 1)
                 if isMC:
-                    raise Exception("Trend jobs are not implemented for treating MC.")  
+                    if "doUnitTest" in config["validations"]["PV"][pvType][trendName].keys() and config["validations"]["PV"][pvType][trendName]["doUnitTest"]:
+                        pass
+                    else:    
+                        raise Exception("Trend jobs are not implemented for treating MC.")  
                 if iname == 0: 
                     trendIOVs = IOVs[singleName] 
                 else:

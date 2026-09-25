@@ -1,9 +1,11 @@
 #include <cmath>
 #include <string>
+#include "RecoHGCal/TICL/interface/TICLUtils.h"
 #include "RecoHGCal/TICL/plugins/LinkingAlgoByDirectionGeometric.h"
 
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "DataFormats/HGCalReco/interface/Common.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -16,17 +18,17 @@ using namespace ticl;
 
 LinkingAlgoByDirectionGeometric::LinkingAlgoByDirectionGeometric(const edm::ParameterSet &conf)
     : LinkingAlgoBase(conf),
-      del_tk_ts_layer1_(conf.getParameter<double>("delta_tk_ts_layer1")),
-      del_tk_ts_int_(conf.getParameter<double>("delta_tk_ts_interface")),
-      del_ts_em_had_(conf.getParameter<double>("delta_ts_em_had")),
-      del_ts_had_had_(conf.getParameter<double>("delta_ts_had_had")),
-      timing_quality_threshold_(conf.getParameter<double>("track_time_quality_threshold")),
+      del_tk_ts_layer1_(conf.getParameter<float>("delta_tk_ts_layer1")),
+      del_tk_ts_int_(conf.getParameter<float>("delta_tk_ts_interface")),
+      del_ts_em_had_(conf.getParameter<float>("delta_ts_em_had")),
+      del_ts_had_had_(conf.getParameter<float>("delta_ts_had_had")),
+      timing_quality_threshold_(conf.getParameter<float>("track_time_quality_threshold")),
       cutTk_(conf.getParameter<std::string>("cutTk")) {}
 
 LinkingAlgoByDirectionGeometric::~LinkingAlgoByDirectionGeometric() {}
 
 void LinkingAlgoByDirectionGeometric::initialize(const HGCalDDDConstants *hgcons,
-                                                 const hgcal::RecHitTools rhtools,
+                                                 const ticlgeom::Tools rhtools,
                                                  const edm::ESHandle<MagneticField> bfieldH,
                                                  const edm::ESHandle<Propagator> propH) {
   hgcons_ = hgcons;
@@ -105,8 +107,9 @@ void LinkingAlgoByDirectionGeometric::findTrackstersInWindow(
         const auto &in_tile = tile[tile.globalBin(eta_i, (phi_i % TileConstants::nPhiBins))];
         for (const unsigned &t_i : in_tile) {
           // calculate actual distances of tracksters to the seed for a more accurate cut
-          auto sep2 = (tracksterPropPoints[t_i].Eta() - seed_eta) * (tracksterPropPoints[t_i].Eta() - seed_eta) +
-                      (tracksterPropPoints[t_i].Phi() - seed_phi) * (tracksterPropPoints[t_i].Phi() - seed_phi);
+          const auto dphi = reco::deltaPhi(tracksterPropPoints[t_i].Phi(), seed_phi);
+          auto sep2 =
+              (tracksterPropPoints[t_i].Eta() - seed_eta) * (tracksterPropPoints[t_i].Eta() - seed_eta) + dphi * dphi;
           if (sep2 < delta2) {
             in_delta.push_back(t_i);
             distances2.push_back(sep2);
@@ -204,29 +207,15 @@ void LinkingAlgoByDirectionGeometric::dumpLinksFound(std::vector<std::vector<uns
 #endif  // EDM_ML_DEBUG
 }
 
+// Geometry construction
 void LinkingAlgoByDirectionGeometric::buildLayers() {
-  // build disks at HGCal front & EM-Had interface for track propagation
+  // Build propagation disks at HGCal front face and CE-E CE-H interface
+  auto firstDisks = ticl::utils::buildHGCalFirstDisks(*hgcons_);
+  auto interfaceDisks = ticl::utils::buildHGCalInterfaceDisks(*hgcons_, rhtools_);
 
-  float zVal = hgcons_->waferZ(1, true);
-  std::pair<float, float> rMinMax = hgcons_->rangeR(zVal, true);
-
-  float zVal_interface = rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z();
-  std::pair<float, float> rMinMax_interface = hgcons_->rangeR(zVal_interface, true);
-
-  for (int iSide = 0; iSide < 2; ++iSide) {
-    float zSide = (iSide == 0) ? (-1. * zVal) : zVal;
-    firstDisk_[iSide] =
-        std::make_unique<GeomDet>(Disk::build(Disk::PositionType(0, 0, zSide),
-                                              Disk::RotationType(),
-                                              SimpleDiskBounds(rMinMax.first, rMinMax.second, zSide - 0.5, zSide + 0.5))
-                                      .get());
-
-    zSide = (iSide == 0) ? (-1. * zVal_interface) : zVal_interface;
-    interfaceDisk_[iSide] = std::make_unique<GeomDet>(
-        Disk::build(Disk::PositionType(0, 0, zSide),
-                    Disk::RotationType(),
-                    SimpleDiskBounds(rMinMax_interface.first, rMinMax_interface.second, zSide - 0.5, zSide + 0.5))
-            .get());
+  for (int side = 0; side < 2; ++side) {
+    firstDisk_[side] = std::move(firstDisks[side]);
+    interfaceDisk_[side] = std::move(interfaceDisks[side]);
   }
 }
 
@@ -571,10 +560,10 @@ void LinkingAlgoByDirectionGeometric::fillPSetDescription(edm::ParameterSetDescr
   desc.add<std::string>("cutTk",
                         "1.48 < abs(eta) < 3.0 && pt > 1. && quality(\"highPurity\") && "
                         "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 5");
-  desc.add<double>("delta_tk_ts_layer1", 0.02);
-  desc.add<double>("delta_tk_ts_interface", 0.03);
-  desc.add<double>("delta_ts_em_had", 0.03);
-  desc.add<double>("delta_ts_had_had", 0.03);
-  desc.add<double>("track_time_quality_threshold", 0.5);
+  desc.add<float>("delta_tk_ts_layer1", 0.02);
+  desc.add<float>("delta_tk_ts_interface", 0.03);
+  desc.add<float>("delta_ts_em_had", 0.03);
+  desc.add<float>("delta_ts_had_had", 0.03);
+  desc.add<float>("track_time_quality_threshold", 0.5);
   LinkingAlgoBase::fillPSetDescription(desc);
 }

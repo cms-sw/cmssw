@@ -30,7 +30,7 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"

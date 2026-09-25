@@ -6,7 +6,7 @@
 #include <string>
 
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CondFormats/DataRecord/interface/HcalTPParametersRcd.h"
@@ -18,6 +18,7 @@ class HcalPedestalWidthsRcd;
 class HcalGainsRcd;
 class HcalGainWidthsRcd;
 class HcalPFCutsRcd;
+class HcalPulseDelaysRcd;
 class HcalQIEDataRcd;
 class HcalQIETypesRcd;
 class HcalChannelQualityRcd;
@@ -44,12 +45,10 @@ class HcalSiPMCharacteristicsRcd;
 class HcalTPChannelParametersRcd;
 class HcalTPParaamersRcd;
 
-class HcalTextCalibrations : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class HcalTextCalibrations : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  HcalTextCalibrations(const edm::ParameterSet&);
+  explicit HcalTextCalibrations(const edm::ParameterSet&);
   ~HcalTextCalibrations() override;
-
-  void produce() {}
 
   template <class T>
   class CheckGetObject {
@@ -86,10 +85,6 @@ public:
   };
 
 protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
-
   std::unique_ptr<HcalPedestals> producePedestals(const HcalPedestalsRcd& rcd);
   std::unique_ptr<HcalPedestalWidths> producePedestalWidths(const HcalPedestalWidthsRcd& rcd);
   std::unique_ptr<HcalPedestals> produceEffectivePedestals(const HcalPedestalsRcd& rcd);
@@ -97,6 +92,7 @@ protected:
   std::unique_ptr<HcalGains> produceGains(const HcalGainsRcd& rcd);
   std::unique_ptr<HcalGainWidths> produceGainWidths(const HcalGainWidthsRcd& rcd);
   std::unique_ptr<HcalPFCuts> producePFCuts(const HcalPFCutsRcd& rcd);
+  std::unique_ptr<HcalPulseDelays> producePulseDelays(const HcalPulseDelaysRcd& rcd);
   std::unique_ptr<HcalQIEData> produceQIEData(const HcalQIEDataRcd& rcd);
   std::unique_ptr<HcalQIETypes> produceQIETypes(const HcalQIETypesRcd& rcd);
   std::unique_ptr<HcalChannelQuality> produceChannelQuality(const HcalChannelQualityRcd& rcd);

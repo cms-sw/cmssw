@@ -489,7 +489,6 @@ namespace TopSingleLepton_miniAOD {
     unsigned int mMult = 0, mTight = 0, mTightId = 0;
 
     edm::Handle<edm::View<pat::Muon>> muons;
-    edm::View<pat::Muon>::const_iterator muonit;
 
     if (!event.getByToken(muons_, muons))
       return;

@@ -10,8 +10,10 @@
 #include "DataFormats/Common/interface/Association.h"
 
 namespace reco {
-
-  class Track;
+  namespace io_v1 {
+    class Track;
+  }
+  using Track = io_v1::Track;
 
   /// collection of Tracks
   typedef std::vector<Track> TrackCollection;

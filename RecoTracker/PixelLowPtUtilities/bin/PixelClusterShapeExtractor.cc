@@ -20,7 +20,7 @@
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
 
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #
 

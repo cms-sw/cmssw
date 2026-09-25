@@ -55,13 +55,12 @@ int main(int argc, char* argv[]) {
   // ----------------------------------------------------------------------
 
   // loop the events
-  unsigned int iEvent = 0;
   fwlite::Event ev(inFile);
   TStopwatch timer;
   timer.Start();
 
   unsigned int nEventsAnalyzed = 0;
-  for (ev.toBegin(); !ev.atEnd(); ++ev, ++iEvent) {
+  for (ev.toBegin(); !ev.atEnd(); ++ev) {
     edm::EventBase const& event = ev;
 
     // Handle to the jet collection

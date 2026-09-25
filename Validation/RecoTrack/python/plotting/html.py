@@ -697,7 +697,8 @@ class TrackingPageSet(PageSet):
         ret.extend(algos)
         return ret
 
-
+def _dqmSubFolderTranslatedToSectionName(algoQuality):
+    return algoQuality[0]
 
 class IndexSection:
     def __init__(self, sample, title, fastVsFull, pileupComparison):
@@ -731,7 +732,7 @@ class IndexSection:
         self._miniaodPage = PageSet(*params)
         self._timingPage = PageSet(*params)
         self._pfPages = PageSet(*params)
-        self._hltPages = PageSet(*params, dqmSubFolderTranslatedToSectionName=lambda algoQuality: algoQuality[0])
+        self._hltPages = PageSet(*params, dqmSubFolderTranslatedToSectionName=_dqmSubFolderTranslatedToSectionName)
         self._pixelPages = TrackingPageSet(*params)
         self._otherPages = PageSet(*params)
 
@@ -839,6 +840,31 @@ class HtmlReport:
             f.write(line)
             f.write("\n")
         f.close()
+
+
+    @staticmethod
+    def writeTopIndex(output_dir, title, entries):
+        """Create a single top-level index.html linking to per-flavour reports."""
+        index_path = os.path.join(output_dir, "index.html")
+        lines = []
+        lines.append("<!doctype html>")
+        lines.append("<html lang='en'>")
+        lines.append("<head>")
+        lines.append("  <meta charset='utf-8'>")
+        lines.append("  <meta name='viewport' content='width=device-width, initial-scale=1'>")
+        lines.append("  <title>" + title + "</title>")
+        lines.append("  <style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem}ul{line-height:1.8}</style>")
+        lines.append("</head>")
+        lines.append("<body>")
+        lines.append("  <h1>" + title + "</h1>")
+        lines.append("  <ul>")
+        for label, rel_index in entries:
+            lines.append(f"    <li><a href='{rel_index}'>{label}</a></li>")
+        lines.append("  </ul>")
+        lines.append("</body>")
+        lines.append("</html>")
+        with open(index_path, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines))
 
 class HtmlReportDummy:
     def __init__(self):

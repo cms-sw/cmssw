@@ -2,7 +2,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 #include <TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h>
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <Geometry/CommonTopologies/interface/GeomDet.h>
 
 #include "DataFormats/Math/interface/deltaR.h"
 //#include "PhysicsTools/Utilities/interface/DeltaR.h"

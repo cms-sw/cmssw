@@ -39,8 +39,7 @@
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/Common/interface/RangeMap.h"
+#include "DataFormats/Common/interface/IdToHitRange.h"
 
 typedef CollectionMerger<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> PixelColMerger;
 typedef CollectionMerger<edmNew::DetSetVector<SiStripCluster>, SiStripCluster> StripColMerger;
@@ -53,9 +52,9 @@ typedef CollectionMerger<edm::SortedCollection<HFRecHit>, HFRecHit> HFRecHitColM
 typedef CollectionMerger<edm::SortedCollection<HORecHit>, HORecHit> HORecHitColMerger;
 typedef CollectionMerger<edm::SortedCollection<ZDCRecHit>, ZDCRecHit> ZDCRecHitColMerger;
 
-typedef CollectionMerger<edm::RangeMap<DTLayerId, edm::OwnVector<DTRecHit1DPair>>, DTRecHit1DPair> DTRecHitColMerger;
-typedef CollectionMerger<edm::RangeMap<CSCDetId, edm::OwnVector<CSCRecHit2D>>, CSCRecHit2D> CSCRecHitColMerger;
-typedef CollectionMerger<edm::RangeMap<RPCDetId, edm::OwnVector<RPCRecHit>>, RPCRecHit> RPCRecHitColMerger;
+typedef CollectionMerger<edm::IdToHitRange<DTLayerId, DTRecHit1DPair>, DTRecHit1DPair> DTRecHitColMerger;
+typedef CollectionMerger<edm::IdToHitRange<CSCDetId, CSCRecHit2D>, CSCRecHit2D> CSCRecHitColMerger;
+typedef CollectionMerger<edm::IdToHitRange<RPCDetId, RPCRecHit>, RPCRecHit> RPCRecHitColMerger;
 
 template <typename T1, typename T2>
 CollectionMerger<T1, T2>::CollectionMerger(const edm::ParameterSet &iConfig) {
@@ -343,7 +342,7 @@ void CollectionMerger<edm::SortedCollection<ZDCRecHit>, ZDCRecHit>::fill_output_
 }
 
 template <>
-void CollectionMerger<edm::RangeMap<DTLayerId, edm::OwnVector<DTRecHit1DPair>>, DTRecHit1DPair>::fill_output_obj(
+void CollectionMerger<edm::IdToHitRange<DTLayerId, DTRecHit1DPair>, DTRecHit1DPair>::fill_output_obj(
     edm::Event &iEvent,
     std::unique_ptr<MergeCollection> &output,
     std::vector<edm::Handle<MergeCollection>> &inputCollections) {
@@ -351,7 +350,7 @@ void CollectionMerger<edm::RangeMap<DTLayerId, edm::OwnVector<DTRecHit1DPair>>, 
 }
 
 template <>
-void CollectionMerger<edm::RangeMap<CSCDetId, edm::OwnVector<CSCRecHit2D>>, CSCRecHit2D>::fill_output_obj(
+void CollectionMerger<edm::IdToHitRange<CSCDetId, CSCRecHit2D>, CSCRecHit2D>::fill_output_obj(
     edm::Event &iEvent,
     std::unique_ptr<MergeCollection> &output,
     std::vector<edm::Handle<MergeCollection>> &inputCollections) {
@@ -359,7 +358,7 @@ void CollectionMerger<edm::RangeMap<CSCDetId, edm::OwnVector<CSCRecHit2D>>, CSCR
 }
 
 template <>
-void CollectionMerger<edm::RangeMap<RPCDetId, edm::OwnVector<RPCRecHit>>, RPCRecHit>::fill_output_obj(
+void CollectionMerger<edm::IdToHitRange<RPCDetId, RPCRecHit>, RPCRecHit>::fill_output_obj(
     edm::Event &iEvent,
     std::unique_ptr<MergeCollection> &output,
     std::vector<edm::Handle<MergeCollection>> &inputCollections) {

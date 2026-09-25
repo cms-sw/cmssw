@@ -34,7 +34,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 // other
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "CondFormats/External/interface/DetID.h"
 
 ///////////////////////////////////////////////

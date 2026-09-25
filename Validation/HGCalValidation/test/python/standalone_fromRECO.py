@@ -54,11 +54,11 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '')
 
+process.load("RecoHGCal.TICL.TICLGeom_cff")
 process.load("Validation.HGCalValidation.hgcalHitValidation_cfi")
 process.load("Validation.HGCalValidation.hgcalHitCalibration_cfi")
-process.load("Validation.HGCalValidation.caloparticlevalidation_cfi")
 
-process.dqmoffline_step = cms.EndPath(process.hgcalHitValidation+process.hgcalHitCalibration+process.caloparticlevalidation)
+process.dqmoffline_step = cms.EndPath(process.hgcalHitValidation+process.hgcalHitCalibration)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
 # Schedule definition

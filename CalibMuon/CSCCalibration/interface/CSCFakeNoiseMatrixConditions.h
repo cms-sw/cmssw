@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -16,20 +16,17 @@
 #include "CondFormats/DataRecord/interface/CSCNoiseMatrixRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCFakeNoiseMatrixConditions : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class CSCFakeNoiseMatrixConditions : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  CSCFakeNoiseMatrixConditions(const edm::ParameterSet &);
+  explicit CSCFakeNoiseMatrixConditions(const edm::ParameterSet &);
   ~CSCFakeNoiseMatrixConditions() override;
 
-  CSCNoiseMatrix *prefillNoiseMatrix();
+  static CSCNoiseMatrix *prefillNoiseMatrix();
 
   typedef std::unique_ptr<CSCNoiseMatrix> ReturnType;
   ReturnType produceNoiseMatrix(const CSCNoiseMatrixRcd &);
 
 private:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                      const edm::IOVSyncValue &,
-                      edm::ValidityInterval &) override;
 };
 
 #endif

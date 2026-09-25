@@ -100,4 +100,3 @@ hltTauValTagAndProbe = hltTauValIdealMonitorMC.clone(
 
 #hltTauValIdeal = cms.Sequence(hltTauValIdealMonitorMC+hltTauValIdealMonitorPF)
 hltTauValIdeal = cms.Sequence(hltTauValIdealMonitorMC+hltTauValIdealMonitorPF+hltTauValIdealMonitorPNet+hltTauValTagAndProbe)
-

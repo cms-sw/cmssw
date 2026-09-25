@@ -76,6 +76,8 @@ namespace {
       return Compression::kZLIB;
     } else if (iName == "lzma") {
       return Compression::kLZMA;
+    } else if (iName == "zstd") {
+      return Compression::kZSTD;
     } else if (iName == "none") {
       return Compression::kNone;
     } else {

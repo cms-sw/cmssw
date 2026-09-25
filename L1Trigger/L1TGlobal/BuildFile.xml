@@ -5,13 +5,14 @@
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/Serialization"/>
 <use name="DataFormats/L1Trigger"/>
-<use name="DataFormats/Provenance"/>
+<use name="DataFormats/Provenance" source_only="1"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
 <use name="xerces-c"/>
 <use name="hls"/>
 <use name="hls4mlEmulatorExtras"/>
 <use name="AXOL1TL"/>
+<use name="rootcling"/>
 <export>
   <lib name="1"/>
 </export>

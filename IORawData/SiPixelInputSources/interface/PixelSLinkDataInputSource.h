@@ -30,7 +30,7 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
-#include "FWStorage/Catalog/interface/FromFiles.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 #include "FWStorage/StorageFactory/interface/Storage.h"
 #include "FWStorage/StorageFactory/interface/StorageAccount.h"
 #include "FWStorage/StorageFactory/interface/StorageFactory.h"
@@ -59,6 +59,6 @@ private:
   int32_t m_eventnumber_shift;
   int getEventNumberFromFillWords(const std::vector<uint64_t> &data, uint32_t &totword);
   std::unique_ptr<FEDRawDataCollection> buffers;
-  edm::FromFiles m_fromFiles;
+  edm::InputFileCatalog m_inputFileCatalog;
 };
 #endif

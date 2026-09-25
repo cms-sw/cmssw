@@ -117,7 +117,7 @@ namespace edm {
     Ptr<value_type> const& backPtr() const { return backPtr_; }
 
     //Used by ROOT storage
-    CMS_CLASS_VERSION(10)
+    CMS_CLASS_VERSION(3)
 
   private:
     Ptr<value_type> ptr_;

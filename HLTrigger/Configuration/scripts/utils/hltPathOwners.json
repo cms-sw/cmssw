@@ -2596,6 +2596,18 @@
       "TSG"
     ]
   },
+  "HLT_HIBeamBackgroundMonitoring_BptxAND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIBeamBackgroundMonitoring_NotBptxOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HICentrality30100_FirstCollisionAfterAbortGap_v": {
     "online?": true,
     "owners": [
@@ -3036,6 +3048,18 @@
     ]
   },
   "HLT_HIL1SingleMu0_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIL1SingleMu3_SinglePuAK4CaloJet40_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIL1SingleMu3_SinglePuAK4CaloJet60_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -3488,6 +3512,12 @@
       "HIN"
     ]
   },
+  "HLT_HITestDataScouting_v": {
+    "online?": true,
+    "owners": [
+      "TSG"
+    ]
+  },
   "HLT_HIUPC_DoubleEG2_BptxAND_SinglePixelTrack_MaxPixelTrack_v": {
     "online?": true,
     "owners": [
@@ -3525,6 +3555,42 @@
     ]
   },
   "HLT_HIUPC_DoubleEG2er2p1_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleEG3_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleEG3_DeltaPhi2p0_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleEG3_DeltaPhi2p0_NotMBHF2AND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleEG3_DeltaPhi2p5_NotMBHF2AND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleEG3_DeltaPhi2p5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleEG3_DeltaPhi2p5_NotMBHF2AND_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -3776,7 +3842,25 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_MinPixelThrust0p85_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_MinPixelThrust0p85_MinNSatPixel2_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_MinPixelThrust0p8_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_MinPixelThrust0p8_MinNSatPixel2_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -4202,6 +4286,12 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_SingleMuOpen_BptxAND_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_SingleMuOpen_BptxAND_MaxPixelCluster1000_v": {
     "online?": true,
     "owners": [
@@ -4484,6 +4574,24 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_ZDC1nOR_MinPixelCluster500_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nOR_MinPixelCluster600_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nOR_MinPixelCluster700_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_ZDC1nOR_RapGap_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
@@ -4491,6 +4599,24 @@
     ]
   },
   "HLT_HIUPC_ZDC1nOR_SinglePixelTrackLowPt_MaxPixelCluster400_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nOR_SinglePixelTrackLowPt_MaxPixelCluster500_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nOR_SinglePixelTrackLowPt_MaxPixelCluster600_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZDC1nOR_SinglePixelTrackLowPt_MaxPixelCluster700_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -4622,7 +4748,43 @@
       "HIN"
     ]
   },
+  "HLT_HIUPC_ZeroBias_MinPixelCluster500_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZeroBias_MinPixelCluster600_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZeroBias_MinPixelCluster700_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIUPC_ZeroBias_SinglePixelTrackLowPt_MaxPixelCluster400_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZeroBias_SinglePixelTrackLowPt_MaxPixelCluster500_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZeroBias_SinglePixelTrackLowPt_MaxPixelCluster600_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_ZeroBias_SinglePixelTrackLowPt_MaxPixelCluster700_v": {
     "online?": true,
     "owners": [
       "HIN"

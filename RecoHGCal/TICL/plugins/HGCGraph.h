@@ -1,8 +1,8 @@
 // Author: Felice Pantaleo - felice.pantaleo@cern.ch
 // Date: 11/2018
 
-#ifndef __RecoHGCal_TICL_HGCGraph_H__
-#define __RecoHGCal_TICL_HGCGraph_H__
+#ifndef RecoHGCal_TICL_HGCGraph_h
+#define RecoHGCal_TICL_HGCGraph_h
 
 #include <vector>
 
@@ -31,7 +31,7 @@ public:
                               float maxDeltaTime,
                               int lastLayerEE,
                               int lastLayerFH,
-                              const std::vector<double> &siblings_maxRSquared);
+                              const std::vector<float> &siblings_maxRSquared);
 
   bool areTimeCompatible(int innerIdx,
                          int outerIdx,

@@ -1,7 +1,7 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "FWCore/Framework/interface/ESHandle.h"

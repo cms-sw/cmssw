@@ -5,7 +5,6 @@ import os
 from  .Options import Options
 options = Options()
 
-
 ## imports
 import sys
 from typing import Union
@@ -241,7 +240,7 @@ class Process(object):
                               accelerators = untracked.vstring('*'),
                               wantSummary = untracked.bool(False),
                               fileMode = untracked.string('FULLMERGE'),
-                              forceEventSetupCacheClearOnNewRun = untracked.bool(False),
+                              forceEventSetupCacheClearOnNewRun = obsolete.untracked.bool,
                               throwIfIllegalParameter = untracked.bool(True),
                               printDependencies = untracked.bool(False),
                               deleteNonConsumedUnscheduledModules = untracked.bool(True),
@@ -1915,6 +1914,10 @@ if __name__=="__main__":
             self.__insertValue(tracked,label,value)
         def addVDouble(self,tracked,label,value):
             self.__insertValue(tracked,label,value)
+        def addFloat(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
+        def addVFloat(self,tracked,label,value):
+            self.__insertValue(tracked,label,value)
         def addBool(self,tracked,label,value):
             self.__insertValue(tracked,label,value)
         def addString(self,tracked,label,value):
@@ -2225,7 +2228,7 @@ process.options = cms.untracked.PSet(
         numberOfConcurrentIOVs = cms.untracked.uint32(0)
     ),
     fileMode = cms.untracked.string('FULLMERGE'),
-    forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
+    forceEventSetupCacheClearOnNewRun = cms.obsolete.untracked.bool,
     holdsReferencesToDeleteEarly = cms.untracked.VPSet(),
     makeTriggerResults = cms.obsolete.untracked.bool,
     modulesToCallForTryToContinue = cms.untracked.vstring(),
@@ -2327,6 +2330,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     suppressFwkInfo = cms.untracked.vstring(),
     suppressInfo = cms.untracked.vstring(),
     suppressWarning = cms.untracked.vstring(),
+    useContext = cms.untracked.bool(True),
     allowAnyLabel_=cms.optional.untracked.PSetTemplate(
         limit = cms.optional.untracked.int32,
         reportEvery = cms.untracked.int32(1),
@@ -3833,7 +3837,7 @@ process.options = cms.untracked.PSet(
         numberOfConcurrentIOVs = cms.untracked.uint32(0)
     ),
     fileMode = cms.untracked.string('FULLMERGE'),
-    forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
+    forceEventSetupCacheClearOnNewRun = cms.obsolete.untracked.bool,
     holdsReferencesToDeleteEarly = cms.untracked.VPSet(),
     makeTriggerResults = cms.obsolete.untracked.bool,
     modulesToCallForTryToContinue = cms.untracked.vstring(),

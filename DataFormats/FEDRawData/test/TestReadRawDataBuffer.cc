@@ -12,8 +12,8 @@
   format changes. In unit tests, we read each of those saved files to verify
   that the current releases can read older versions of the data format.
 */
-// Original Author:  W. David Dagenhart
-//         Created:  1 May 2023
+// Original Author:  S. Morovic
+//         Created:  16 June 2025
 
 #include "DataFormats/FEDRawData/interface/RawDataBuffer.h"
 #include "DataFormats/FEDRawData/interface/SLinkRocketHeaders.h"
@@ -41,11 +41,6 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
-    // Two FEDRawData elements should be enough to verify we can read
-    // and write the whole collection. I arbitrarily chose elements
-    // 0 and 3 of the Collection. Values are meaningless, we just
-    // verify what we read matches what we wrote. For purposes of
-    // this test that is enough.
     std::vector<unsigned int> dataPattern1_;
     std::vector<unsigned int> dataPattern2_;
     edm::EDGetTokenT<RawDataBuffer> rawDataBufferToken_;

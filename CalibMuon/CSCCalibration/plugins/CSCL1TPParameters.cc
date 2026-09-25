@@ -29,9 +29,3 @@ CSCL1TPParametersConditions::ReturnType CSCL1TPParametersConditions::produceCSCL
   // need a new object so to not be deleted at exit
   return CSCL1TPParametersConditions::ReturnType(prefillCSCL1TPParameters());
 }
-
-void CSCL1TPParametersConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                                 const edm::IOVSyncValue &,
-                                                 edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}

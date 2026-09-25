@@ -4,7 +4,6 @@
 <use name="DetectorDescription/Core"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
-<use name="Geometry/CommonDetUnit"/>
 <use name="Geometry/CommonTopologies"/>
 <use name="Geometry/TrackerNumberingBuilder"/>
 <use name="CondFormats/GeometryObjects"/>

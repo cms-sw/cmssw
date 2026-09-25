@@ -48,7 +48,7 @@ _hgcalTracksterMapper_HGCal = cms.PSet(
     algoName = cms.string("PFClusterFromHGCalTrackster"),
     thresholdsByDetector = cms.VPSet(
     ),
-    tracksterSrc = cms.InputTag("ticlTrackstersMerge"),
+    tracksterSrc = cms.InputTag("ticlCandidate"),
     clusterSrc = cms.InputTag("hgcalMergeLayerClusters"),
     filterByTracksterPID = cms.bool(True),
     pid_threshold = cms.double(0.8),
@@ -74,5 +74,3 @@ particleFlowClusterHGCalFromSimCl = particleFlowClusterHGCal.clone(
     initialClusteringStep = _simClusterMapper_HGCal
 )
 
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
-ticl_v5.toModify(particleFlowClusterHGCal.initialClusteringStep, tracksterSrc = "ticlCandidate")

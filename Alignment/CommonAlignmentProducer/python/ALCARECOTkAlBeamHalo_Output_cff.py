@@ -14,7 +14,8 @@ OutALCARECOTkAlBeamHalo_noDrop = cms.PSet(
         'keep L1AcceptBunchCrossings_*_*_*',
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         'keep *_TriggerResults_*_*',
-        'keep DcsStatuss_scalersRawToDigi_*_*')
+        'keep DcsStatuss_scalersRawToDigi_*_*',
+        'keep PixelFEDChanneledmNewDetSetVector_siPixelDigis_*_*')
 )
 
 # in Run3, SCAL digis replaced by onlineMetaDataDigis

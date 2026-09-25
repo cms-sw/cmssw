@@ -2,7 +2,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/PluginDescription.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FTLDigi/interface/FTLDigiCollections.h"
 #include "DataFormats/FTLRecHit/interface/FTLRecHitCollections.h"
@@ -22,8 +23,9 @@
 class MTDRecHitProducer : public edm::stream::EDProducer<> {
 public:
   explicit MTDRecHitProducer(const edm::ParameterSet& ps);
-  ~MTDRecHitProducer() override;
+  ~MTDRecHitProducer() override = default;
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   const edm::EDGetTokenT<FTLUncalibratedRecHitCollection> ftlbURecHits_;  // collection of barrel digis
@@ -35,7 +37,7 @@ private:
   std::unique_ptr<MTDRecHitAlgoBase> barrel_, endcap_;
 
   const MTDGeometry* geom_;
-  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
+  const edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
 };
 
 MTDRecHitProducer::MTDRecHitProducer(const edm::ParameterSet& ps)
@@ -44,13 +46,12 @@ MTDRecHitProducer::MTDRecHitProducer(const edm::ParameterSet& ps)
       ftleURecHits_(
           consumes<FTLUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("endcapUncalibratedRecHits"))),
       ftlbInstance_(ps.getParameter<std::string>("BarrelHitsName")),
-      ftleInstance_(ps.getParameter<std::string>("EndcapHitsName")) {
+      ftleInstance_(ps.getParameter<std::string>("EndcapHitsName")),
+      mtdgeoToken_(esConsumes<MTDGeometry, MTDDigiGeometryRecord>()) {
   produces<FTLRecHitCollection>(ftlbInstance_);
   produces<FTLRecHitCollection>(ftleInstance_);
 
   auto sumes = consumesCollector();
-  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
-
   const edm::ParameterSet& barrel = ps.getParameterSet("barrel");
   const std::string& barrelAlgo = barrel.getParameter<std::string>("algoName");
   barrel_ = MTDRecHitAlgoFactory::get()->create(barrelAlgo, barrel, sumes);
@@ -59,8 +60,6 @@ MTDRecHitProducer::MTDRecHitProducer(const edm::ParameterSet& ps)
   const std::string& endcapAlgo = endcap.getParameter<std::string>("algoName");
   endcap_ = MTDRecHitAlgoFactory::get()->create(endcapAlgo, endcap, sumes);
 }
-
-MTDRecHitProducer::~MTDRecHitProducer() {}
 
 void MTDRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   auto geom = es.getTransientHandle(mtdgeoToken_);
@@ -108,6 +107,25 @@ void MTDRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   // put the collection of recunstructed hits in the event
   evt.put(std::move(barrelRechits), ftlbInstance_);
   evt.put(std::move(endcapRechits), ftleInstance_);
+}
+
+void MTDRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("barrelUncalibratedRecHits", edm::InputTag("mtdUncalibratedRecHits:FTLBarrel"));
+  desc.add<edm::InputTag>("endcapUncalibratedRecHits", edm::InputTag("mtdUncalibratedRecHits:FTLEndcap"));
+  desc.add<std::string>("BarrelHitsName", "FTLBarrel");
+  desc.add<std::string>("EndcapHitsName", "FTLEndcap");
+
+  edm::ParameterSetDescription barrelDesc;
+  barrelDesc.addNode(edm::PluginDescription<MTDRecHitAlgoFactory>("algoName", true));
+  desc.add<edm::ParameterSetDescription>("barrel", barrelDesc);
+
+  edm::ParameterSetDescription endcapDesc;
+  endcapDesc.addNode(edm::PluginDescription<MTDRecHitAlgoFactory>("algoName", true));
+  desc.add<edm::ParameterSetDescription>("endcap", endcapDesc);
+
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

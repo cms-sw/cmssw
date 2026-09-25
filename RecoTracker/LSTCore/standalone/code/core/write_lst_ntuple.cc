@@ -517,6 +517,14 @@ void createQuintupletBranches() {
   ana.tx->createBranch<std::vector<float>>("t5_pMatched");
   ana.tx->createBranch<std::vector<float>>("t5_sim_vxy");
   ana.tx->createBranch<std::vector<float>>("t5_sim_vz");
+  ana.tx->createBranch<std::vector<int>>("t5_nLayers");       // 5 base
+  ana.tx->createBranch<std::vector<int>>("t5_isDupBitmask");  // dup-cleaning bitmask
+  ana.tx->createBranch<std::vector<int>>("t5_partOfPT5");
+  ana.tx->createBranch<std::vector<int>>("t5_tightCutFlag");
+  ana.tx->createBranch<std::vector<float>>("t5_score_rphisum");
+  ana.tx->createBranch<std::vector<std::vector<int>>>("t5_hitIndices");     // SoA hit indices, length 2*nLayers
+  ana.tx->createBranch<std::vector<std::vector<int>>>("t5_logicalLayers");  // logical layer ids, length nLayers
+  ana.tx->createBranch<std::vector<int>>("t5_moduleIdx");                   // T5's lower module index
 }
 
 //________________________________________________________________________________________________________________________________
@@ -579,13 +587,14 @@ void createPixelTripletBranches() {
 #endif
   ana.tx->createBranch<std::vector<int>>("sim_pT3_matched");
   ana.tx->createBranch<std::vector<float>>("pT3_score");
-  ana.tx->createBranch<std::vector<float>>("pT3_pt");         // pt (taken from the pLS)
-  ana.tx->createBranch<std::vector<float>>("pT3_eta");        // eta (taken from the pLS)
-  ana.tx->createBranch<std::vector<float>>("pT3_phi");        // phi (taken from the pLS)
-  ana.tx->createBranch<std::vector<int>>("pT3_plsIdx");       // idx to pLS
-  ana.tx->createBranch<std::vector<int>>("pT3_t3Idx");        // idx to T3
-  ana.tx->createBranch<std::vector<int>>("pT3_isFake");       // 1 if pT3 is fake 0 other if not
-  ana.tx->createBranch<std::vector<int>>("pT3_isDuplicate");  // 1 if pT3 is duplicate 0 other if not
+  ana.tx->createBranch<std::vector<float>>("pT3_pt");                       // pt (taken from the pLS)
+  ana.tx->createBranch<std::vector<float>>("pT3_eta");                      // eta (taken from the pLS)
+  ana.tx->createBranch<std::vector<float>>("pT3_phi");                      // phi (taken from the pLS)
+  ana.tx->createBranch<std::vector<int>>("pT3_plsIdx");                     // idx to pLS
+  ana.tx->createBranch<std::vector<int>>("pT3_t3Idx");                      // idx to T3
+  ana.tx->createBranch<std::vector<std::vector<int>>>("pT3_otHitIndices");  // OT hit indices from the T3
+  ana.tx->createBranch<std::vector<int>>("pT3_isFake");                     // 1 if pT3 is fake 0 other if not
+  ana.tx->createBranch<std::vector<int>>("pT3_isDuplicate");                // 1 if pT3 is duplicate 0 other if not
   ana.tx->createBranch<std::vector<int>>("pT3_simIdx");  // idx of best matched (highest nhit and > 75%) simulated track
   ana.tx->createBranch<std::vector<float>>("pT3_pix_eta");
   ana.tx->createBranch<std::vector<float>>("pT3_pix_phi");
@@ -1649,6 +1658,25 @@ std::map<unsigned int, unsigned int> setQuintupletBranches(LSTEvent* event,
       ana.tx->pushbackToBranch<std::vector<float>>("t5_embed", current_t5_embed);
       ana.tx->pushbackToBranch<float>("t5_dnnScore", quintuplets.dnnScore()[t5Idx]);
 
+      unsigned int nL = quintuplets.nLayers()[t5Idx];
+      ana.tx->pushbackToBranch<int>("t5_nLayers", static_cast<int>(nL));
+      ana.tx->pushbackToBranch<int>("t5_moduleIdx", static_cast<int>(idx));
+      std::vector<int> hitIdxVec;
+      std::vector<int> logLayerVec;
+      hitIdxVec.reserve(2 * nL);
+      logLayerVec.reserve(nL);
+      for (unsigned int iL = 0; iL < nL; ++iL) {
+        hitIdxVec.push_back(static_cast<int>(quintuplets.hitIndices()[t5Idx][2 * iL]));
+        hitIdxVec.push_back(static_cast<int>(quintuplets.hitIndices()[t5Idx][2 * iL + 1]));
+        logLayerVec.push_back(static_cast<int>(quintuplets.logicalLayers()[t5Idx][iL]));
+      }
+      ana.tx->pushbackToBranch<std::vector<int>>("t5_hitIndices", hitIdxVec);
+      ana.tx->pushbackToBranch<std::vector<int>>("t5_logicalLayers", logLayerVec);
+      ana.tx->pushbackToBranch<int>("t5_isDupBitmask", static_cast<int>(quintuplets.isDup()[t5Idx]));
+      ana.tx->pushbackToBranch<int>("t5_partOfPT5", quintuplets.partOfPT5()[t5Idx] ? 1 : 0);
+      ana.tx->pushbackToBranch<int>("t5_tightCutFlag", quintuplets.tightCutFlag()[t5Idx] ? 1 : 0);
+      ana.tx->pushbackToBranch<float>("t5_score_rphisum", __H2F(quintuplets.score_rphisum()[t5Idx]));
+
       bool isfake = true;
       for (size_t isim = 0; isim < simidx.size(); ++isim) {
         if (simidxfrac[isim] > matchfrac) {
@@ -1944,6 +1972,10 @@ std::map<unsigned int, unsigned int> setPixelTripletBranches(LSTEvent* event,
       unsigned int t3_idx = t3_idx_map.at(t3Idx);
       ana.tx->pushbackToBranch<int>("pT3_t3Idx", t3_idx);
     }
+    std::vector<int> otHits;
+    for (int ih = Params_pLS::kHits; ih < Params_pT3::kHits; ++ih)
+      otHits.push_back(static_cast<int>(pixelTriplets.hitIndices()[ipT3][ih]));
+    ana.tx->pushbackToBranch<std::vector<int>>("pT3_otHitIndices", otHits);
     bool isfake = true;
     for (size_t isim = 0; isim < simidx.size(); ++isim) {
       if (simidxfrac[isim] > matchfrac) {

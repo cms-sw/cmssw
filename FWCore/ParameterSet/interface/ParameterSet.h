@@ -396,6 +396,15 @@ namespace edm {
   std::vector<double> ParameterSet::getParameter<std::vector<double>>(std::string const& name) const;
 
   // ----------------------------------------------------------------------
+  // Float, vFloat
+
+  template <>
+  float ParameterSet::getParameter<float>(std::string const& name) const;
+
+  template <>
+  std::vector<float> ParameterSet::getParameter<std::vector<float>>(std::string const& name) const;
+
+  // ----------------------------------------------------------------------
   // String, vString
 
   template <>
@@ -619,6 +628,22 @@ namespace edm {
   std::vector<double> ParameterSet::getUntrackedParameter<std::vector<double>>(std::string const& name) const;
 
   // ----------------------------------------------------------------------
+  // Float, vFloat
+
+  template <>
+  float ParameterSet::getUntrackedParameter<float>(std::string const& name, float const& defaultValue) const;
+
+  template <>
+  float ParameterSet::getUntrackedParameter<float>(std::string const& name) const;
+
+  template <>
+  std::vector<float> ParameterSet::getUntrackedParameter<std::vector<float>>(
+      std::string const& name, std::vector<float> const& defaultValue) const;
+
+  template <>
+  std::vector<float> ParameterSet::getUntrackedParameter<std::vector<float>>(std::string const& name) const;
+
+  // ----------------------------------------------------------------------
   // String, vString
 
   template <>
@@ -777,6 +802,15 @@ namespace edm {
 
   template <>
   std::vector<double> ParameterSet::getParameter<std::vector<double>>(char const* name) const;
+
+  // ----------------------------------------------------------------------
+  // Float, vFloat
+
+  template <>
+  float ParameterSet::getParameter<float>(char const* name) const;
+
+  template <>
+  std::vector<float> ParameterSet::getParameter<std::vector<float>>(char const* name) const;
 
   // ----------------------------------------------------------------------
   // String, vString
@@ -968,6 +1002,22 @@ namespace edm {
 
   template <>
   std::vector<double> ParameterSet::getUntrackedParameter<std::vector<double>>(char const* name) const;
+
+  // ----------------------------------------------------------------------
+  // Float, vFloat
+
+  template <>
+  float ParameterSet::getUntrackedParameter<float>(char const* name, float const& defaultValue) const;
+
+  template <>
+  float ParameterSet::getUntrackedParameter<float>(char const* name) const;
+
+  template <>
+  std::vector<float> ParameterSet::getUntrackedParameter<std::vector<float>>(
+      char const* name, std::vector<float> const& defaultValue) const;
+
+  template <>
+  std::vector<float> ParameterSet::getUntrackedParameter<std::vector<float>>(char const* name) const;
 
   // ----------------------------------------------------------------------
   // String, vString

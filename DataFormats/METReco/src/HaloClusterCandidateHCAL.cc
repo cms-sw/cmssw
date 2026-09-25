@@ -1,6 +1,7 @@
 #include "DataFormats/METReco/interface/HaloClusterCandidateHCAL.h"
 
 using namespace reco;
+using namespace reco::io_v1;
 HaloClusterCandidateHCAL::HaloClusterCandidateHCAL()
     : et(0),
       seed_et(0),

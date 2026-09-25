@@ -12,7 +12,7 @@
 #include "Alignment/CommonAlignment/interface/StructureType.h"
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 
 class AlignableGEMSuperChamber : public AlignableDet {

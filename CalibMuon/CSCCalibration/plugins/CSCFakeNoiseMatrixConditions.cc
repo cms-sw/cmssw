@@ -212,9 +212,3 @@ CSCFakeNoiseMatrixConditions::ReturnType CSCFakeNoiseMatrixConditions::produceNo
     const CSCNoiseMatrixRcd &iRecord) {
   return CSCFakeNoiseMatrixConditions::ReturnType(prefillNoiseMatrix());
 }
-
-void CSCFakeNoiseMatrixConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                                  const edm::IOVSyncValue &,
-                                                  edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}

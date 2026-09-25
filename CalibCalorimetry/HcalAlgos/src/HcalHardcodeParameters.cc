@@ -14,7 +14,8 @@ HcalHardcodeParameters::HcalHardcodeParameters(const double pedestal,
                                                const std::vector<double>& darkCurrent,
                                                const std::vector<double>& noiseCorrelation,
                                                const double noiseTh,
-                                               const double seedTh)
+                                               const double seedTh,
+                                               const double delay)
     : pedestal_(pedestal),
       pedestalWidth_(pedestalWidth),
       gain_(gain),
@@ -30,7 +31,8 @@ HcalHardcodeParameters::HcalHardcodeParameters(const double pedestal,
       noiseCorrelation_(noiseCorrelation),
       doSipmRadiationDamage_(false),
       noiseThreshold_(noiseTh),
-      seedThreshold_(seedTh) {}
+      seedThreshold_(seedTh),
+      pulseDelay_(delay) {}
 
 HcalHardcodeParameters::HcalHardcodeParameters(const edm::ParameterSet& p)
     : pedestal_(p.getParameter<double>("pedestal")),
@@ -48,7 +50,8 @@ HcalHardcodeParameters::HcalHardcodeParameters(const edm::ParameterSet& p)
       noiseCorrelation_(p.getParameter<std::vector<double>>("noiseCorrelation")),
       doSipmRadiationDamage_(p.getParameter<bool>("doRadiationDamage")),
       noiseThreshold_(p.getParameter<double>("noiseThreshold")),
-      seedThreshold_(p.getParameter<double>("seedThreshold")) {
+      seedThreshold_(p.getParameter<double>("seedThreshold")),
+      pulseDelay_(p.getParameter<double>("pulseDelay")) {
   if (doSipmRadiationDamage_)
     sipmRadiationDamage_ = HcalSiPMRadiationDamage(darkCurrent_, p.getParameter<edm::ParameterSet>("radiationDamage"));
 }

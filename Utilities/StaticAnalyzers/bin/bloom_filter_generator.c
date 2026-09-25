@@ -41,6 +41,7 @@ int generate_bloom_filter(const char *bloom_file, const char *words_file) {
     scaling_bloom_add(bloom, word, strlen(word), i);
   }
 
+  fclose(fp);
   int result = bitmap_flush(bloom->bitmap);
 
   return result;

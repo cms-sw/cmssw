@@ -32,7 +32,6 @@
 #include <unordered_set>
 #include <vector>
 
-#define EDM_ML_DEBUG
 using namespace angle_units::operators;
 
 class DDHGCalTBSiliconRotatedCassette : public DDAlgorithm {
@@ -557,11 +556,11 @@ void DDHGCalTBSiliconRotatedCassette::positionPassive(const DDLogicalPart& glog,
   int kount(0);
 #endif
   bool type = (absType <= passiveTypes_);
-  int num = type ? (passiveAbsorb_.size() / (cassettes_ * layers_.size()))
-                 : (passiveCool_.size() / (cassettes_ * layers_.size()));
   int absnum = type ? (absType - 1) : (absType - 1 - passiveTypes_);
   absnum *= (cassettes_ * layers_.size());
 #ifdef EDM_ML_DEBUG
+  int num = type ? (passiveAbsorb_.size() / (cassettes_ * layers_.size()))
+                 : (passiveCool_.size() / (cassettes_ * layers_.size()));
   edm::LogVerbatim("HGCalGeom") << "DDHGCalTBSiliconRotatedCassette: Type " << type << ":" << absnum
                                 << " number per cassette " << num;
 #endif

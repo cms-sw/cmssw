@@ -118,8 +118,7 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon,
       if (alltm.size() > 5)
         alltm.erase(alltm.begin() + 5, alltm.end());
 
-      int i = 0;
-      for (std::vector<TrajectoryMeasurement>::const_iterator itm = alltm.begin(); itm != alltm.end(); itm++, i++) {
+      for (std::vector<TrajectoryMeasurement>::const_iterator itm = alltm.begin(); itm != alltm.end(); itm++) {
         TrajectoryStateOnSurface updatedTSOS = updator()->update(itm->predictedState(), *(itm->recHit()));
         if (updatedTSOS.isValid() && passSelection(updatedTSOS)) {
           edm::OwnVector<TrackingRecHit> container;

@@ -11,7 +11,7 @@
 #include "TGraphAsymmErrors.h"
 
 /// Geometry
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "Geometry/CommonTopologies/interface/StripTopology.h"

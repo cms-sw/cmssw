@@ -54,8 +54,8 @@
 #include "DataFormats/Alignment/interface/TkFittedLasBeam.h"
 #include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"

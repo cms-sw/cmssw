@@ -48,7 +48,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/Math/interface/angle_units.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -115,7 +115,9 @@ private:
   const std::string name_;
   const edm::FileInPath geometryFileName_;
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
-  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+  const edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
+  const edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
+  const edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   const std::string layers_;
 
   TH1D *hCharge;
@@ -347,7 +349,7 @@ private:
 
   std::vector<Int_t> layerList;
 
-  hgcal::RecHitTools rhtools_;
+  ticlgeom::Tools rhtools_;
   std::vector<waferinfo> winfo;
   int evt;
 };
@@ -361,7 +363,9 @@ HGCalCellHitSum::HGCalCellHitSum(const edm::ParameterSet &iConfig)
       name_(iConfig.getParameter<std::string>("detector")),
       geometryFileName_(iConfig.getParameter<edm::FileInPath>("geometryFileName")),
       geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name_})),
-      caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+      ticlGeomLookupToken_(esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+      ticlGeomLayersToken_(esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
       layers_(iConfig.getParameter<std::string>("layerList")),
       evt(0) {
   //now do what ever initialization is needed
@@ -1123,8 +1127,8 @@ void HGCalCellHitSum::analyze(const edm::Event &iEvent, const edm::EventSetup &i
   // Two ways to access the geometry object
   //================================================================================================================
   // Method 1
-  const CaloGeometry &geomCalo = iSetup.getData(caloGeomToken_);
-  rhtools_.setGeometry(geomCalo);
+  rhtools_.setGeometry(
+      iSetup.getData(ticlGeomToken_), iSetup.getData(ticlGeomLookupToken_), iSetup.getData(ticlGeomLayersToken_));
 
   // Method 2
   const HGCalGeometry *geom = &iSetup.getData(geomToken_);

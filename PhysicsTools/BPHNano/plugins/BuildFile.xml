@@ -15,7 +15,7 @@
 <use   name="HLTrigger/HLTcore"/>
 <use   name="DataFormats/HLTReco"/>
 <use   name="CondFormats/DataRecord"/>
-<use   name="DataFormats/Provenance"/>
+<use   name="DataFormats/Provenance" source_only="1"/>
 <use   name="roothistmatrix"/>
 <use   name="RecoVertex/VertexTools"/>
 <use   name="RecoVertex/VertexPrimitives"/>

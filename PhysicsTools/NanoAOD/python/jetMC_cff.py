@@ -143,6 +143,7 @@ trackGenJetAK4Table.variables.phi.precision = 8
 trackGenJetsAK4Pt10 = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4GenJetsChargedOnly"), cut = cms.string('pt>10'))
 trackGenJetsAK4Pt5 = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4GenJetsChargedOnly"), cut = cms.string('pt>5'))
 trackGenJetsAK4Pt2 = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4GenJetsChargedOnly"), cut = cms.string('pt>2'))
+trackGenJetsAK4Pt1 = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4GenJetsChargedOnly"), cut = cms.string('pt>1'))
 
 # Event-level scalar pT sums of TrackGenJets
 trackGenJetSoftActivityTable = globalVariablesTableProducer.clone(
@@ -150,12 +151,14 @@ trackGenJetSoftActivityTable = globalVariablesTableProducer.clone(
         TrackGenJetSoftActivityHT10 = ExtVar( cms.InputTag("trackGenJetsAK4Pt10"), "candidatescalarsum", doc = "scalar sum of TrackGenJetAK4 pt, pt>10" ),
         TrackGenJetSoftActivityHT5 = ExtVar( cms.InputTag("trackGenJetsAK4Pt5"), "candidatescalarsum", doc = "scalar sum of TrackGenJetAK4 pt, pt>5" ),
         TrackGenJetSoftActivityHT2 = ExtVar( cms.InputTag("trackGenJetsAK4Pt2"), "candidatescalarsum", doc = "scalar sum of TrackGenJetAK4 pt, pt>2" ),
+        TrackGenJetSoftActivityHT1 = ExtVar( cms.InputTag("trackGenJetsAK4Pt1"), "candidatescalarsum", doc = "scalar sum of TrackGenJetAK4 pt, pt>1" ),
         TrackGenJetAK4Njets10 = ExtVar( cms.InputTag("trackGenJetsAK4Pt10"), "candidatesize", doc = "number of TrackGenJetAK4 with pt>10" ),
         TrackGenJetAK4Njets5 = ExtVar( cms.InputTag("trackGenJetsAK4Pt5"), "candidatesize", doc = "number of TrackGenJetAK4 with pt>5" ),
         TrackGenJetAK4Njets2 = ExtVar( cms.InputTag("trackGenJetsAK4Pt2"), "candidatesize", doc = "number of TrackGenJetAK4 with pt>2" ),
+        TrackGenJetAK4Njets1 = ExtVar( cms.InputTag("trackGenJetsAK4Pt1"), "candidatesize", doc = "number of TrackGenJetAK4 with pt>1" ),
     )
 )
 
-jetMCTaskak4 = cms.Task(jetMCTable,genJetTable,patJetPartonsNano,genJetFlavourTable,genParticlesForJetsCharged,ak4GenJetsChargedOnly,trackGenJetAK4Table,trackGenJetsAK4Pt10,trackGenJetsAK4Pt5,trackGenJetsAK4Pt2,trackGenJetSoftActivityTable)
+jetMCTaskak4 = cms.Task(jetMCTable,genJetTable,patJetPartonsNano,genJetFlavourTable,genParticlesForJetsCharged,ak4GenJetsChargedOnly,trackGenJetAK4Table,trackGenJetsAK4Pt10,trackGenJetsAK4Pt5,trackGenJetsAK4Pt2,trackGenJetsAK4Pt1,trackGenJetSoftActivityTable)
 jetMCTaskak8 = cms.Task(genJetAK8Table,genJetAK8FlavourAssociation,genJetAK8FlavourTable,fatJetMCTable,genSubJetAK8Table,subjetMCTable)
 jetMCTask = jetMCTaskak4.copyAndAdd(jetMCTaskak8)

@@ -7,7 +7,10 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
-  class TrackExtra;
+  namespace io_v1 {
+    class TrackExtra;
+  }
+  using TrackExtra = io_v1::TrackExtra;
 
   /// collection of TrackExtra objects
   typedef std::vector<TrackExtra> TrackExtraCollection;

@@ -1,5 +1,5 @@
 <test name="testAlCaHarvesting" command="testAlCaHarvesting.sh"/>
-<test name="testBeamSpotWorkflow" command="testBeamSpotWorkflow.sh"/>
+<!-- <test name="testBeamSpotWorkflow" command="testBeamSpotWorkflow.sh"/> COMMENT: reads old format file -->
 
 <use name="DQMServices/Core"/>
 <use name="FWCore/Framework"/>

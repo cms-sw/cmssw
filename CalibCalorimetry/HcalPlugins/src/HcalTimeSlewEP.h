@@ -7,7 +7,7 @@
 //user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "CondFormats/DataRecord/interface/HcalTimeSlewRecord.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
@@ -15,9 +15,9 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class HcalTimeSlewEP : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class HcalTimeSlewEP : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  HcalTimeSlewEP(const edm::ParameterSet&);
+  explicit HcalTimeSlewEP(const edm::ParameterSet&);
   ~HcalTimeSlewEP() override;
 
   typedef std::unique_ptr<HcalTimeSlew> ReturnType;
@@ -25,11 +25,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   ReturnType produce(const HcalTimeSlewRecord&);
-
-protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
 
 private:
   struct M2Parameters {

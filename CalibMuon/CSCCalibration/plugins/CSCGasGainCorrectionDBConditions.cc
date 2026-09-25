@@ -31,9 +31,3 @@ CSCGasGainCorrectionDBConditions::ReturnType CSCGasGainCorrectionDBConditions::p
   // need a new object so to not be deleted at exit
   return CSCGasGainCorrectionDBConditions::ReturnType(prefillDBGasGainCorrection(isForMC, dataCorrFileName));
 }
-
-void CSCGasGainCorrectionDBConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                                      const edm::IOVSyncValue &,
-                                                      edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}

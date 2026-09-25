@@ -36,17 +36,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     void produce(device::Event &event, const device::EventSetup &event_setup) override {
       // in/out collections
       const auto &particles = event.get(particles_token_);
-      const auto batch_size = particles.const_view().metadata().size();
-      auto multi_head_output = portabletest::MultiHeadNetDeviceCollection(event.queue(), batch_size);
+      const auto total_size = particles.const_view().metadata().size();
+      auto multi_head_output = portabletest::MultiHeadNetDeviceCollection(event.queue(), total_size);
 
       // records
       auto input_records = particles.const_view().records();
       auto output_records = multi_head_output.view().records();
       // input tensor definition
-      cms::torch::alpakatools::TensorCollection<Queue> inputs(batch_size);
+      cms::torch::alpakatools::TensorCollection<Queue> inputs(total_size);
       inputs.add<portabletest::ParticleSoA>("particles", input_records.pt(), input_records.eta(), input_records.phi());
       // output tensor definition
-      cms::torch::alpakatools::TensorCollection<Queue> outputs(batch_size);
+      cms::torch::alpakatools::TensorCollection<Queue> outputs(total_size);
       outputs.add<portabletest::MultiHeadNetSoA>("regression_head", output_records.regression_head());
       outputs.add<portabletest::MultiHeadNetSoA>("classification_head", output_records.classification_head());
 

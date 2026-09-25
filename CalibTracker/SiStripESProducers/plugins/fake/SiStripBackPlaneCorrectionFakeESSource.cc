@@ -16,7 +16,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -25,14 +25,11 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/TrackerNumberingBuilder/interface/utils.h"
 
-class SiStripBackPlaneCorrectionFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class SiStripBackPlaneCorrectionFakeESSource : public edm::ESProducer,
+                                               public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  SiStripBackPlaneCorrectionFakeESSource(const edm::ParameterSet&);
+  explicit SiStripBackPlaneCorrectionFakeESSource(const edm::ParameterSet&);
   ~SiStripBackPlaneCorrectionFakeESSource() override;
-
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue& iov,
-                      edm::ValidityInterval& iValidity) override;
 
   typedef std::unique_ptr<SiStripBackPlaneCorrection> ReturnType;
   ReturnType produce(const SiStripBackPlaneCorrectionRcd&);
@@ -53,12 +50,6 @@ SiStripBackPlaneCorrectionFakeESSource::SiStripBackPlaneCorrectionFakeESSource(c
 }
 
 SiStripBackPlaneCorrectionFakeESSource::~SiStripBackPlaneCorrectionFakeESSource() {}
-
-void SiStripBackPlaneCorrectionFakeESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                                            const edm::IOVSyncValue& iov,
-                                                            edm::ValidityInterval& iValidity) {
-  iValidity = edm::ValidityInterval{iov.beginOfTime(), iov.endOfTime()};
-}
 
 // ------------ method called to produce the data  ------------
 SiStripBackPlaneCorrectionFakeESSource::ReturnType SiStripBackPlaneCorrectionFakeESSource::produce(

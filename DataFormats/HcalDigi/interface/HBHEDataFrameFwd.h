@@ -1,6 +1,9 @@
 #ifndef DataFormats_HcalDigi_HBHEDataFrameFwd_h
 #define DataFormats_HcalDigi_HBHEDataFrameFwd_h
 
-class HBHEDataFrame;
+namespace io_v1 {
+  class HBHEDataFrame;
+}
+using HBHEDataFrame = io_v1::HBHEDataFrame;
 
 #endif

@@ -9,8 +9,6 @@
 #include "PatternRecognitionbyCA.h"
 
 #include "TrackstersPCA.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 using namespace ticl;
@@ -18,34 +16,38 @@ using namespace ticl;
 template <typename TILES>
 PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &conf, edm::ConsumesCollector iC)
     : PatternRecognitionAlgoBaseT<TILES>(conf, iC),
-      caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
       theGraph_(std::make_unique<HGCGraphT<TILES>>()),
       oneTracksterPerTrackSeed_(conf.getParameter<bool>("oneTracksterPerTrackSeed")),
       promoteEmptyRegionToTrackster_(conf.getParameter<bool>("promoteEmptyRegionToTrackster")),
       out_in_dfs_(conf.getParameter<bool>("out_in_dfs")),
       max_out_in_hops_(conf.getParameter<int>("max_out_in_hops")),
-      min_cos_theta_(conf.getParameter<double>("min_cos_theta")),
-      min_cos_pointing_(conf.getParameter<double>("min_cos_pointing")),
+      min_cos_theta_(conf.getParameter<float>("min_cos_theta")),
+      min_cos_pointing_(conf.getParameter<float>("min_cos_pointing")),
       root_doublet_max_distance_from_seed_squared_(
-          conf.getParameter<double>("root_doublet_max_distance_from_seed_squared")),
-      etaLimitIncreaseWindow_(conf.getParameter<double>("etaLimitIncreaseWindow")),
+          conf.getParameter<float>("root_doublet_max_distance_from_seed_squared")),
+      etaLimitIncreaseWindow_(conf.getParameter<float>("etaLimitIncreaseWindow")),
       skip_layers_(conf.getParameter<int>("skip_layers")),
       max_missing_layers_in_trackster_(conf.getParameter<int>("max_missing_layers_in_trackster")),
       check_missing_layers_(max_missing_layers_in_trackster_ < 100),
       shower_start_max_layer_(conf.getParameter<int>("shower_start_max_layer")),
       min_layers_per_trackster_(conf.getParameter<int>("min_layers_per_trackster")),
       filter_on_categories_(conf.getParameter<std::vector<int>>("filter_on_categories")),
-      pid_threshold_(conf.getParameter<double>("pid_threshold")),
-      energy_em_over_total_threshold_(conf.getParameter<double>("energy_em_over_total_threshold")),
-      max_longitudinal_sigmaPCA_(conf.getParameter<double>("max_longitudinal_sigmaPCA")),
+      pid_threshold_(conf.getParameter<float>("pid_threshold")),
+      energy_em_over_total_threshold_(conf.getParameter<float>("energy_em_over_total_threshold")),
+      max_longitudinal_sigmaPCA_(conf.getParameter<float>("max_longitudinal_sigmaPCA")),
       min_clusters_per_ntuplet_(min_layers_per_trackster_),
-      max_delta_time_(conf.getParameter<double>("max_delta_time")),
+      max_delta_time_(conf.getParameter<float>("max_delta_time")),
       computeLocalTime_(conf.getParameter<bool>("computeLocalTime")),
-      siblings_maxRSquared_(conf.getParameter<std::vector<double>>("siblings_maxRSquared")){};
+      siblings_maxRSquared_(conf.getParameter<std::vector<float>>("siblings_maxRSquared")){};
 
 template <typename TILES>
 PatternRecognitionbyCA<TILES>::~PatternRecognitionbyCA(){};
 
+template <typename TILES>
+void PatternRecognitionbyCA<TILES>::setGeometry(ticlgeom::Tools const &rhtools) {
+  this->rhtools_ = &rhtools;
+  this->geometryReady_ = true;
+}
 template <typename TILES>
 void PatternRecognitionbyCA<TILES>::makeTracksters(
     const typename PatternRecognitionAlgoBaseT<TILES>::Inputs &input,
@@ -55,9 +57,12 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
   if (input.regions.empty())
     return;
 
-  edm::EventSetup const &es = input.es;
-  const CaloGeometry &geom = es.getData(caloGeomToken_);
-  rhtools_.setGeometry(geom);
+  if (UNLIKELY(!this->geometryReady_ || this->rhtools_ == nullptr)) {
+    throw cms::Exception("LogicError")
+        << "PatternRecognitionbyCA::setGeometry() must be called in beginRun() before makeTracksters().";
+  }
+
+  auto const *rhtools = this->rhtools_;
 
   theGraph_->setVerbosity(PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_);
   theGraph_->clear();
@@ -86,10 +91,10 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
                                     root_doublet_max_distance_from_seed_squared_,
                                     etaLimitIncreaseWindow_,
                                     skip_layers_,
-                                    rhtools_.lastLayer(isHFnose),
+                                    rhtools->lastLayer(isHFnose),
                                     max_delta_time_,
-                                    rhtools_.lastLayerEE(isHFnose),
-                                    rhtools_.lastLayerFH(),
+                                    rhtools->lastLayerEE(isHFnose),
+                                    rhtools->lastLayerFH(),
                                     siblings_maxRSquared_);
 
   theGraph_->findNtuplets(foundNtuplets, seedIndices, min_clusters_per_ntuplet_, out_in_dfs_, max_out_in_hops_);
@@ -129,7 +134,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
     lcIdAndLayer.reserve(effective_cluster_idx.size());
     for (auto const i : effective_cluster_idx) {
       auto const &haf = input.layerClusters[i].hitsAndFractions();
-      auto layerId = rhtools_.getLayerWithOffset(haf[0].first);
+      auto layerId = rhtools->getLayerWithOffset(haf[0].first);
       showerMinLayerId = std::min(layerId, showerMinLayerId);
       uniqueLayerIds.push_back(layerId);
       lcIdAndLayer.emplace_back(i, layerId);
@@ -175,8 +180,8 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
   ticl::assignPCAtoTracksters(result,
                               input.layerClusters,
                               input.layerClustersTime,
-                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(isHFnose), isHFnose).z(),
-                              rhtools_,
+                              rhtools->getPositionLayer(rhtools->lastLayerEE(isHFnose), isHFnose).z(),
+                              *rhtools,
                               computeLocalTime_);
 
   theGraph_->clear();
@@ -280,22 +285,21 @@ void PatternRecognitionbyCA<TILES>::fillPSetDescription(edm::ParameterSetDescrip
   iDesc.add<bool>("promoteEmptyRegionToTrackster", false);
   iDesc.add<bool>("out_in_dfs", true);
   iDesc.add<int>("max_out_in_hops", 10);
-  iDesc.add<double>("min_cos_theta", 0.915);
-  iDesc.add<double>("min_cos_pointing", -1.);
-  iDesc.add<double>("root_doublet_max_distance_from_seed_squared", 9999);
-  iDesc.add<double>("etaLimitIncreaseWindow", 2.1);
+  iDesc.add<float>("min_cos_theta", 0.915);
+  iDesc.add<float>("min_cos_pointing", -1.);
+  iDesc.add<float>("root_doublet_max_distance_from_seed_squared", 9999);
+  iDesc.add<float>("etaLimitIncreaseWindow", 2.1);
   iDesc.add<int>("skip_layers", 0);
   iDesc.add<int>("max_missing_layers_in_trackster", 9999);
   iDesc.add<int>("shower_start_max_layer", 9999)->setComment("make default such that no filtering is applied");
   iDesc.add<int>("min_layers_per_trackster", 10);
   iDesc.add<std::vector<int>>("filter_on_categories", {0});
-  iDesc.add<double>("pid_threshold", 0.)->setComment("make default such that no filtering is applied");
-  iDesc.add<double>("energy_em_over_total_threshold", -1.)
-      ->setComment("make default such that no filtering is applied");
-  iDesc.add<double>("max_longitudinal_sigmaPCA", 9999);
-  iDesc.add<double>("max_delta_time", 3.)->setComment("nsigma");
-  iDesc.add<bool>("computeLocalTime", false);
-  iDesc.add<std::vector<double>>("siblings_maxRSquared", {6e-4, 6e-4, 6e-4});
+  iDesc.add<float>("pid_threshold", 0.)->setComment("make default such that no filtering is applied");
+  iDesc.add<float>("energy_em_over_total_threshold", -1.)->setComment("make default such that no filtering is applied");
+  iDesc.add<float>("max_longitudinal_sigmaPCA", 9999);
+  iDesc.add<float>("max_delta_time", 3.)->setComment("nsigma");
+  iDesc.add<bool>("computeLocalTime", true);
+  iDesc.add<std::vector<float>>("siblings_maxRSquared", {6e-4, 6e-4, 6e-4});
 }
 
 template class ticl::PatternRecognitionbyCA<TICLLayerTiles>;

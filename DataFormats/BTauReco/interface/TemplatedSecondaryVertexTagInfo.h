@@ -55,7 +55,7 @@ namespace reco {
       GlobalVector direction;
 
       // Used by ROOT storage
-      CMS_CLASS_VERSION(12)
+      CMS_CLASS_VERSION(3)
     };
 
     struct TrackFinder {

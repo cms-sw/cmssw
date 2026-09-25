@@ -43,8 +43,7 @@ RecoParticleFlowAOD = cms.PSet(
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_hgcal.toModify( RecoParticleFlowAOD,  
-    outputCommands = RecoParticleFlowAOD.outputCommands + ['keep recoPFRecHits_particleFlowRecHitHGC_Cleaned_*',
-                                                           'keep recoSuperClusters_simPFProducer_*_*'])
+    outputCommands = RecoParticleFlowAOD.outputCommands + ['keep recoPFRecHits_particleFlowRecHitHGC_Cleaned_*'])
 phase2_timing.toModify( RecoParticleFlowAOD,
     outputCommands = RecoParticleFlowAOD.outputCommands + ['keep *_ecalBarrelClusterFastTimer_*_*'])
 
@@ -67,8 +66,7 @@ RecoParticleFlowRECO = cms.PSet(
 RecoParticleFlowRECO.outputCommands.extend(RecoParticleFlowAOD.outputCommands)
 
 phase2_hgcal.toModify( RecoParticleFlowRECO,
-    outputCommands = RecoParticleFlowRECO.outputCommands + ['keep *_particleFlowSuperClusterHGCal_*_*',
-                                                            'keep recoPFBlocks_simPFProducer_*_*'])
+    outputCommands = RecoParticleFlowRECO.outputCommands + ['keep *_particleFlowSuperClusterHGCal_*_*'])
 
 # Full Event content
 RecoParticleFlowFEVT = cms.PSet(
@@ -78,6 +76,5 @@ RecoParticleFlowFEVT.outputCommands.extend(RecoParticleFlowRECO.outputCommands)
     
 phase2_hgcal.toModify( RecoParticleFlowFEVT, 
     outputCommands = RecoParticleFlowFEVT.outputCommands + ['keep recoPFRecHits_particleFlowClusterECAL__*',
-                                                            'keep recoPFRecHits_particleFlowRecHitHGC__*',
-                                                            'keep *_simPFProducer_*_*'])
+                                                            'keep recoPFRecHits_particleFlowRecHitHGC__*'])
 

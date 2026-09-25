@@ -26,7 +26,6 @@ namespace CLHEP {
 namespace edm {
 
   class ConfigurationDescriptions;
-  class FileCatalogItem;
   class InputSourceRunHelperBase;
   class RootEmbeddedFileSequence;
   struct VectorInputSourceDescription;

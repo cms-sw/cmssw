@@ -979,7 +979,7 @@ int GenHFHadronMatcher::findInMothers(int idx,
     }
     int pdg_2 = hadMothers[idx2].pdgId();
     // Inverting the flavour if bb oscillation detected
-    if (isHadronPdgId(pdgId, pdg_1) && isHadronPdgId(pdgId, pdg_2) && pdg_1 * pdg_2 < 0) {
+    if (isHadronPdgId(pdgId, pdg_1) && isHadronPdgId(pdgId, pdg_2) && ((pdg_1 < 0) != (pdg_2 < 0))) {
       pdgId *= -1;
       if (verbose)
         printf("######### Inverting flavour of the hadron\n");

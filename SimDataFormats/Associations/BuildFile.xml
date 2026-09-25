@@ -18,6 +18,7 @@
 <use name="SimDataFormats/TrackingHit"/>
 <use name="SimDataFormats/Vertex"/>
 <use name="DataFormats/ParticleFlowReco"/>
+<use name="rootcling"/>
 <use name="clhep"/>
 <export>
   <lib name="1"/>

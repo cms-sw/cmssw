@@ -19,7 +19,10 @@
 
 // Define typedefs for convenience
 namespace pat {
-  class CompositeCandidate;
+  namespace io_v1 {
+    class CompositeCandidate;
+  }
+  using CompositeCandidate = io_v1::CompositeCandidate;
   typedef std::vector<CompositeCandidate> CompositeCandidateCollection;
   typedef edm::Ref<CompositeCandidateCollection> CompositeCandidateRef;
   typedef edm::RefVector<CompositeCandidateCollection> CompositeCandidateRefVector;
@@ -27,20 +30,20 @@ namespace pat {
 
 // Class definition
 namespace pat {
+  namespace io_v1 {
+    class CompositeCandidate : public PATObject<reco::CompositeCandidate> {
+    public:
+      /// default constructor
+      CompositeCandidate();
+      /// constructor from a composite candidate
+      CompositeCandidate(const reco::CompositeCandidate& aCompositeCandidate);
+      /// destructor
+      ~CompositeCandidate() override;
 
-  class CompositeCandidate : public PATObject<reco::CompositeCandidate> {
-  public:
-    /// default constructor
-    CompositeCandidate();
-    /// constructor from a composite candidate
-    CompositeCandidate(const reco::CompositeCandidate& aCompositeCandidate);
-    /// destructor
-    ~CompositeCandidate() override;
-
-    /// required reimplementation of the Candidate's clone method
-    CompositeCandidate* clone() const override { return new CompositeCandidate(*this); }
-  };
-
+      /// required reimplementation of the Candidate's clone method
+      CompositeCandidate* clone() const override { return new CompositeCandidate(*this); }
+    };
+  }  // namespace io_v1
 }  // namespace pat
 
 #endif

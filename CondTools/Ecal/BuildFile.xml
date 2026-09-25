@@ -6,7 +6,7 @@
 <use name="CondFormats/ESObjects"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/EcalDetId"/>
-<use name="DataFormats/Provenance"/>
+<use name="DataFormats/Provenance" source_only="1"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
@@ -17,10 +17,8 @@
 <use name="SimCalorimetry/EcalSelectiveReadoutProducers"/>
 <use name="Geometry/EcalMapping"/>
 <use name="CalibCalorimetry/EcalLaserCorrection"/>
-<use name="root"/>
 <use name="rootcore"/>
-<use name="rootphysics"/>
-<use name="rootgraphics"/>
+<use name="rootrio"/>
 <export>
   <lib name="1"/>
 </export>

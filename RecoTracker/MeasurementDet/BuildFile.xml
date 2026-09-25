@@ -23,3 +23,4 @@
 <use name="RecoLocalTracker/Phase2TrackerRecHits"/>
 <use name="TrackingTools/DetLayers"/>
 <use name="TrackingTools/MeasurementDet"/>
+<use name="rootcling"/>

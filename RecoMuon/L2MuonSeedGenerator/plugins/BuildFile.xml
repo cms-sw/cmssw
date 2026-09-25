@@ -9,7 +9,7 @@
     <use name="FWCore/Framework"/>
     <use name="FWCore/MessageLogger"/>
     <use name="FWCore/ParameterSet"/>
-    <use name="Geometry/CommonDetUnit" source_only="1"/>
+    <use name="Geometry/CommonTopologies" source_only="1"/>
     <use name="RecoMuon/TrackingTools"/>
     <use name="TrackingTools/DetLayers"/>
     <use name="TrackingTools/KalmanUpdators"/>

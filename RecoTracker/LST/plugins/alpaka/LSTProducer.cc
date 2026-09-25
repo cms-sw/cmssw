@@ -1,6 +1,7 @@
 #include <alpaka/alpaka.hpp>
 
 #include "RecoTracker/LSTCore/interface/alpaka/LST.h"
+#include "RecoTracker/LSTGeometry/interface/Common.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -25,13 +26,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     LSTProducer(edm::ParameterSet const& config)
         : EDProducer(config),
-          lstInputToken_{consumes(config.getParameter<edm::InputTag>("lstInput"))},
-          lstESToken_{esConsumes(edm::ESInputTag("", config.getParameter<std::string>("ptCutLabel")))},
           verbose_(config.getParameter<bool>("verbose")),
           ptCut_(config.getParameter<double>("ptCut")),
+          ptCutStr_(lst::floatToStr(ptCut_, 1)),
           clustSizeCut_(static_cast<uint16_t>(config.getParameter<uint32_t>("clustSizeCut"))),
           nopLSDupClean_(config.getParameter<bool>("nopLSDupClean")),
           tcpLSTriplets_(config.getParameter<bool>("tcpLSTriplets")),
+          reduceMemByFullPrecompute_(config.getParameter<bool>("reduceMemByFullPrecompute")),
+          lstInputToken_{consumes(config.getParameter<edm::InputTag>("lstInput"))},
+          lstESToken_{esConsumes(edm::ESInputTag("", ptCutStr_))},
           lstOutputToken_{produces()} {}
 
     void produce(edm::StreamID sid, device::Event& iEvent, const device::EventSetup& iSetup) const override {
@@ -42,12 +45,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       lst.run(iEvent.queue(),
               verbose_,
-              static_cast<float>(ptCut_),
+              ptCut_,
               clustSizeCut_,
               &lstESDeviceData,
               &lstInputDC,
               nopLSDupClean_,
-              tcpLSTriplets_);
+              tcpLSTriplets_,
+              reduceMemByFullPrecompute_);
 
       // Output
       auto lstTrackCandidates = lst.getTrackCandidates();
@@ -60,20 +64,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       desc.add<bool>("verbose", false);
       desc.add<double>("ptCut", 0.8);
       desc.add<uint32_t>("clustSizeCut", 16);
-      desc.add<std::string>("ptCutLabel", "0.8");
       desc.add<bool>("nopLSDupClean", false);
       desc.add<bool>("tcpLSTriplets", false);
+      desc.add<bool>("reduceMemByFullPrecompute", false)
+          ->setComment(
+              "If true, run extra counting kernels that exactly size the MD/LS/T3/T5/T4 "
+              "buffers, reducing average per-event memory at a small CPU/GPU runtime cost. "
+              "If false (default), buffers use cheaper, looser occupancy estimates.");
       descriptions.addWithDefaultLabel(desc);
     }
 
   private:
-    const device::EDGetToken<lst::LSTInputDeviceCollection> lstInputToken_;
-    const device::ESGetToken<lst::LSTESData<Device>, TrackerRecoGeometryRecord> lstESToken_;
     const bool verbose_;
     const double ptCut_;
+    const std::string ptCutStr_;
     const uint16_t clustSizeCut_;
     const bool nopLSDupClean_;
     const bool tcpLSTriplets_;
+    const bool reduceMemByFullPrecompute_;
+    const device::EDGetToken<lst::LSTInputDeviceCollection> lstInputToken_;
+    const device::ESGetToken<lst::LSTESData<Device>, TrackerRecoGeometryRecord> lstESToken_;
     const device::EDPutToken<lst::TrackCandidatesBaseDeviceCollection> lstOutputToken_;
   };
 

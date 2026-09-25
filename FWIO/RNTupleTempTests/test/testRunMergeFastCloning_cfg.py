@@ -23,6 +23,8 @@ process.options = cms.untracked.PSet(
   Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
 
+#Contents of file
+#testRunMerge6.root  "PROD" [run:11, lumi:2-4, ev:2-12]&[run:12, lumi:2 ev:2]
 process.source = cms.Source("RNTupleTempSource",
     fileNames = cms.untracked.vstring(
         'file:testRunMerge6.root'

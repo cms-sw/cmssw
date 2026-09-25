@@ -3,7 +3,7 @@
 
 #include "Alignment/CommonAlignmentMonitor/plugins/AlignmentMonitorGeneric.h"
 #include <DataFormats/GeometrySurface/interface/LocalError.h>
-#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
+#include "Geometry/CommonTopologies/interface/TrackerGeomDet.h"
 #include "TObject.h"
 
 #include <TString.h>

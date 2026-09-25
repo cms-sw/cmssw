@@ -106,16 +106,20 @@ void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::loopOnTracks() {
     return;
   }
 
-  size_t idx = 0;
   _countSeedTracks = 0;
 
 #ifdef debugTSPFSLA
+  size_t idx = 0;
   size_t sel = 0;
   ss.str("");
 #endif
 
   for (reco::TrackCollection::const_iterator tr = trackCollectionH->begin(); tr != trackCollectionH->end();
+#ifdef debugTSPFSLA
        tr++, idx++) {
+#else
+       tr++) {
+#endif
     if (rejectTrack(*tr))
       continue;
     std::vector<reco::Vertex> selectedPriVtxCompatibleWithTrack;

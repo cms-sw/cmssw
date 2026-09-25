@@ -50,6 +50,8 @@ namespace {
     findTheRightFunction[edm::k_vuint64] = &fillDescriptionFromParameter<std::vector<unsigned long long>>;
     findTheRightFunction[edm::k_double] = &fillDescriptionFromParameter<double>;
     findTheRightFunction[edm::k_vdouble] = &fillDescriptionFromParameter<std::vector<double>>;
+    findTheRightFunction[edm::k_float] = &fillDescriptionFromParameter<float>;
+    findTheRightFunction[edm::k_vfloat] = &fillDescriptionFromParameter<std::vector<float>>;
     findTheRightFunction[edm::k_bool] = &fillDescriptionFromParameter<bool>;
     findTheRightFunction[edm::k_stringRaw] = &fillDescriptionFromParameter<std::string>;
     findTheRightFunction[edm::k_vstringRaw] = &fillDescriptionFromParameter<std::vector<std::string>>;

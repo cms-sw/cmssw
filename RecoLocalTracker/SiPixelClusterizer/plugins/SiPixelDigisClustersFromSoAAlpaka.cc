@@ -80,6 +80,7 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
 
   const auto& ttopo = iSetup.getData(topoToken_);
   constexpr auto maxModules = TrackerTraits::numberOfModules;
+  constexpr int32_t maxNumClustersPerModules = TrackerTraits::maxNumClustersPerModules;
 
   std::unique_ptr<edm::DetSetVector<PixelDigi>> outputDigis;
   if (produceDigis_)
@@ -92,15 +93,34 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
   edm::DetSet<PixelDigi>* detDigis = nullptr;
   uint32_t detId = 0;
 
+  // Get the first valid detId (same conditions below)
   for (uint32_t i = 0; i < nDigis; i++) {
     // check for uninitialized digis
-    // this is set in RawToDigi_kernel in SiPixelRawToClusterGPUKernel.cu
     if (digisView[i].rawIdArr() == 0)
       continue;
-
     // check for noisy/dead pixels (electrons set to 0)
     if (digisView[i].adc() == 0)
       continue;
+    // from clusters killed by charge cut
+    if (digisView[i].moduleId() == pixelClustering::invalidModuleId)
+      continue;
+    // not in cluster; TODO add an assert for the size
+    if (digisView[i].clus() == pixelClustering::invalidClusterId) {
+      continue;
+    }
+    // unexpected invalid value
+    if (digisView[i].clus() < 0) {
+      edm::LogError("SiPixelDigisClustersFromSoAAlpaka")
+          << "Skipping pixel digi with unexpected invalid cluster id " << digisView[i].clus();
+      continue;
+    }
+    // unexpected out-of-range value: it would index outside of the `aclusters` buffer below
+    if (digisView[i].clus() >= maxNumClustersPerModules) {
+      edm::LogError("SiPixelDigisClustersFromSoAAlpaka")
+          << "Skipping pixel digi with out-of-range cluster id " << digisView[i].clus()
+          << " (>= " << maxNumClustersPerModules << ") in module " << digisView[i].rawIdArr();
+      continue;
+    }
 
     detId = digisView[i].rawIdArr();
     if (storeDigis_) {
@@ -167,19 +187,26 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
     // check for noisy/dead pixels (electrons set to 0)
     if (digisView[i].adc() == 0)
       continue;
+    // from clusters killed by charge cut
+    if (digisView[i].moduleId() == pixelClustering::invalidModuleId)
+      continue;
     // not in cluster; TODO add an assert for the size
     if (digisView[i].clus() == pixelClustering::invalidClusterId) {
       continue;
     }
     // unexpected invalid value
-    if (digisView[i].clus() < pixelClustering::invalidClusterId) {
+    if (digisView[i].clus() < 0) {
       edm::LogError("SiPixelDigisClustersFromSoAAlpaka")
           << "Skipping pixel digi with unexpected invalid cluster id " << digisView[i].clus();
       continue;
     }
-    // from clusters killed by charge cut
-    if (digisView[i].clus() == pixelClustering::invalidModuleId)
+    // unexpected out-of-range value: it would index outside of the `aclusters` buffer below
+    if (digisView[i].clus() >= maxNumClustersPerModules) {
+      edm::LogError("SiPixelDigisClustersFromSoAAlpaka")
+          << "Skipping pixel digi with out-of-range cluster id " << digisView[i].clus()
+          << " (>= " << maxNumClustersPerModules << ") in module " << digisView[i].rawIdArr();
       continue;
+    }
 
 #ifdef EDM_ML_DEBUG
     assert(digisView[i].rawIdArr() > 109999);

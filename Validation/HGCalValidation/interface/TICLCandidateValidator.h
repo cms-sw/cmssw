@@ -23,8 +23,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 namespace ticl {
-  using TracksterToTracksterMap =
-      ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>;
+  using TracksterToTracksterMap = ticl::
+      TICLAssociationMap<ticl::mapWithSharedEnergyAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>;
 }
 
 struct TICLCandidateValidatorHistograms {
@@ -145,8 +145,7 @@ public:
                          edm::EDGetTokenT<std::vector<reco::Track>> recoTracksToken,
                          edm::EDGetTokenT<std::vector<ticl::Trackster>> trackstersToken,
                          edm::EDGetTokenT<ticl::TracksterToTracksterMap> associatorMapRtSToken,
-                         edm::EDGetTokenT<ticl::TracksterToTracksterMap> associatorMapStRToken,
-                         bool isTICLv5);
+                         edm::EDGetTokenT<ticl::TracksterToTracksterMap> associatorMapStRToken);
   ~TICLCandidateValidator();
 
   using Histograms = TICLCandidateValidatorHistograms;
@@ -165,7 +164,6 @@ private:
   edm::EDGetTokenT<std::vector<ticl::Trackster>> trackstersToken_;
   edm::EDGetTokenT<ticl::TracksterToTracksterMap> associatorMapRtSToken_;
   edm::EDGetTokenT<ticl::TracksterToTracksterMap> associatorMapStRToken_;
-  bool isTICLv5_ = false;
 };
 
 #endif

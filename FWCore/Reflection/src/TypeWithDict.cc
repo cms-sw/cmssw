@@ -144,7 +144,7 @@ namespace edm {
       char const* s = dimensions.c_str();
       while (true) {
         size_t x = 0;
-        int count = sscanf(s, "[%lu]", &x);
+        [[maybe_unused]] int count = sscanf(s, "[%lu]", &x);
         assert(count == 1);
         ret.arrayDimensions_->push_back(x);
         ++s;

@@ -16,6 +16,9 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
 namespace lst {
+  // TODO: At some point it might be good to move some of these things to LSTGeometry
+  // or replace the functions with values computed from standard geometry/topology methods
+
   struct ModuleMetaData {
     std::map<unsigned int, uint16_t> detIdToIndex;
     std::map<unsigned int, float> module_x;
@@ -138,6 +141,15 @@ namespace lst {
       uint16_t index = it->second;
       auto& connectedModules = moduleConnectionMap.getConnectedModuleDetIds(detId);
       nConnectedModules[index] = connectedModules.size();
+      if (nConnectedModules[index] > max_connected_modules) {
+#ifdef WARNINGS
+        printf("Warning: module %u has %u connections, exceeding max_connected_modules=%u. Truncating.\n",
+               detId,
+               nConnectedModules[index],
+               max_connected_modules);
+#endif
+        nConnectedModules[index] = max_connected_modules;
+      }
       for (uint16_t i = 0; i < nConnectedModules[index]; i++) {
         moduleMap[index][i] = mmd.detIdToIndex.at(connectedModules[i]);
       }
@@ -169,6 +181,7 @@ namespace lst {
                                    float m_y,
                                    float m_z,
                                    float& eta,
+                                   float& phi,
                                    float& r) {
     subdet = (detId & (7 << 25)) >> 25;
     side = (subdet == Endcap) ? (detId & (3 << 23)) >> 23 : (detId & (3 << 18)) >> 18;
@@ -179,6 +192,7 @@ namespace lst {
 
     r = std::sqrt(m_x * m_x + m_y * m_y + m_z * m_z);
     eta = ((m_z > 0) - (m_z < 0)) * std::acosh(r / std::sqrt(m_x * m_x + m_y * m_y));
+    phi = std::atan2(m_y, m_x);
   }
 
   inline void loadCentroidsFromFile(const char* filePath, ModuleMetaData& mmd, uint16_t& nModules) {
@@ -213,24 +227,21 @@ namespace lst {
       }
     }
 
-    mmd.detIdToIndex[1] = counter;  //pixel module is the last module in the module list
+    mmd.detIdToIndex[kPixelModuleId] = counter;  //pixel module is the last module in the module list
     counter++;
     nModules = counter;
   }
 
-  inline std::shared_ptr<ModulesHostCollection> loadModulesFromFile(MapPLStoLayer const& pLStoLayer,
-                                                                    const char* moduleMetaDataFilePath,
-                                                                    uint16_t& nModules,
-                                                                    uint16_t& nLowerModules,
-                                                                    unsigned int& nPixels,
-                                                                    PixelMap& pixelMapping,
-                                                                    const EndcapGeometry& endcapGeometry,
-                                                                    const TiltedGeometry& tiltedGeometry,
-                                                                    const ModuleConnectionMap& moduleConnectionMap) {
-    ModuleMetaData mmd;
-
-    loadCentroidsFromFile(moduleMetaDataFilePath, mmd, nModules);
-
+  inline std::shared_ptr<ModulesHostCollection> constructModuleCollection(
+      MapPLStoLayer const& pLStoLayer,
+      ModuleMetaData& mmd,
+      uint16_t& nModules,
+      uint16_t& nLowerModules,
+      unsigned int& nPixels,
+      PixelMap& pixelMapping,
+      const EndcapGeometry& endcapGeometry,
+      const TiltedGeometry& tiltedGeometry,
+      const ModuleConnectionMap& moduleConnectionMap) {
     // TODO: this whole section could use some refactoring
     auto [totalSizes,
           connectedModuleDetIds,
@@ -252,6 +263,7 @@ namespace lst {
     std::span<short> host_subdets = modules_view.subdets();
     std::span<short> host_sides = modules_view.sides();
     std::span<float> host_eta = modules_view.eta();
+    std::span<float> host_phi = modules_view.phi();
     std::span<float> host_r = modules_view.r();
     std::span<float> host_z = modules_view.z();
     std::span<bool> host_isInverted = modules_view.isInverted();
@@ -279,7 +291,7 @@ namespace lst {
       float m_z = mmd.module_z[detId];
       unsigned int m_t = mmd.module_type[detId];
 
-      float eta, r;
+      float eta, phi, r;
 
       uint16_t index;
       unsigned short layer, ring, rod, module, subdet, side;
@@ -294,9 +306,10 @@ namespace lst {
         isInverted = false;
         isLower = false;
         eta = 0;
+        phi = 0;
         r = 0;
       } else {
-        setDerivedQuantities(detId, layer, ring, rod, module, subdet, side, m_x, m_y, m_z, eta, r);
+        setDerivedQuantities(detId, layer, ring, rod, module, subdet, side, m_x, m_y, m_z, eta, phi, r);
         isInverted = parseIsInverted(subdet, side, module, layer);
         isLower = parseIsLower(isInverted, detId);
       }
@@ -319,6 +332,7 @@ namespace lst {
       host_subdets[index] = subdet;
       host_sides[index] = side;
       host_eta[index] = eta;
+      host_phi[index] = phi;
       host_r[index] = r;
       host_z[index] = m_z;
       host_isInverted[index] = isInverted;
@@ -382,7 +396,7 @@ namespace lst {
     *host_nLowerModules = nLowerModules;
 
     // Fill pixel part
-    pixelMapping.pixelModuleIndex = mmd.detIdToIndex.at(1);
+    pixelMapping.pixelModuleIndex = mmd.detIdToIndex.at(kPixelModuleId);
 
     auto modulesPixel_view = modulesHC->view().modulesPixel();
     auto connectedPixels =
@@ -402,5 +416,29 @@ namespace lst {
 
     return modulesHC;
   }
+
+  inline std::shared_ptr<ModulesHostCollection> loadModulesFromFile(MapPLStoLayer const& pLStoLayer,
+                                                                    const char* moduleMetaDataFilePath,
+                                                                    uint16_t& nModules,
+                                                                    uint16_t& nLowerModules,
+                                                                    unsigned int& nPixels,
+                                                                    PixelMap& pixelMapping,
+                                                                    const EndcapGeometry& endcapGeometry,
+                                                                    const TiltedGeometry& tiltedGeometry,
+                                                                    const ModuleConnectionMap& moduleConnectionMap) {
+    ModuleMetaData mmd;
+
+    loadCentroidsFromFile(moduleMetaDataFilePath, mmd, nModules);
+    return constructModuleCollection(pLStoLayer,
+                                     mmd,
+                                     nModules,
+                                     nLowerModules,
+                                     nPixels,
+                                     pixelMapping,
+                                     endcapGeometry,
+                                     tiltedGeometry,
+                                     moduleConnectionMap);
+  }
+
 }  // namespace lst
 #endif

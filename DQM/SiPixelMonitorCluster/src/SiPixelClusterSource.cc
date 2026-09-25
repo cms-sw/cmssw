@@ -27,7 +27,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 // Geometry
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"

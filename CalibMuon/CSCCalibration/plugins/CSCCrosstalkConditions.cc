@@ -296,9 +296,3 @@ CSCCrosstalkConditions::ReturnType CSCCrosstalkConditions::produceCrosstalk(cons
   // Added by Zhen, need a new object so to not be deleted at exit
   return CSCCrosstalkConditions::ReturnType(prefillCrosstalk());
 }
-
-void CSCCrosstalkConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                            const edm::IOVSyncValue &,
-                                            edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}

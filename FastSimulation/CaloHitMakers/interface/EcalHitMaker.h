@@ -2,16 +2,12 @@
 #define FastSimulation_CaloHitMakers_EcalHitMaker_h
 
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
-
-//#include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/CaloHitMakers/interface/CaloHitMaker.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloPoint.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloSegment.h"
 #include "FastSimulation/CaloGeometryTools/interface/CrystalPad.h"
 #include "FastSimulation/CaloGeometryTools/interface/Crystal.h"
 #include "FastSimulation/Utilities/interface/FamosDebug.h"
-
-//#include <boost/cstdint.hpp>
 
 #include <vector>
 

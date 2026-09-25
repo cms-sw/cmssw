@@ -1,2 +1,2 @@
 <test name="testMakeTrackValidationPlots" command="test_makeTrackValidationPlots.sh"/>
-<test name="testSimpleTrackValidation" command="test_SimpleTrackValidation.sh"/>
+<!-- <test name="testSimpleTrackValidation" command="test_SimpleTrackValidation.sh"/> COMMENT: reads old format file -->

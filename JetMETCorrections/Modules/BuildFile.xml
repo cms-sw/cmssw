@@ -6,6 +6,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="JetMETCorrections/JetCorrector"/>
 <use name="FWCore/Utilities"/>
+<use name="rootcling"/>
 <use name="boost"/>
 <export>
   <lib name="1"/>

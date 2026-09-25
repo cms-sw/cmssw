@@ -16,7 +16,7 @@
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <Geometry/CommonTopologies/interface/GeomDet.h>
 #include <Geometry/RPCGeometry/interface/RPCChamber.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 

@@ -19,6 +19,7 @@
 #include "CondFormats/PPSObjects/interface/PPSAssociationCuts.h"
 #include "CondFormats/DataRecord/interface/PPSAssociationCutsRcd.h"
 #include <vector>
+#include <optional>
 
 using namespace std;
 
@@ -33,11 +34,14 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
 protected:
+  bool isConcurrentFinder() const override { return true; }
+
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
                       const edm::IOVSyncValue &,
                       edm::ValidityInterval &) override;
 
 private:
+  std::optional<unsigned int> associationCutIndexFor(const edm::IOVSyncValue &) const;
   static edm::ParameterSetDescription getIOVDefaultParameters();
   bool currentAssociationCutValid_;
   unsigned int currentAssociationCutIdx_;
@@ -59,22 +63,25 @@ PPSAssociationCutsESSource::PPSAssociationCutsESSource(const edm::ParameterSet &
 
 //----------------------------------------------------------------------------------------------------
 
-void PPSAssociationCutsESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
-                                                const edm::IOVSyncValue &iosv,
-                                                edm::ValidityInterval &oValidity) {
+std::optional<unsigned int> PPSAssociationCutsESSource::associationCutIndexFor(const edm::IOVSyncValue &iosv) const {
   for (unsigned int idx = 0; idx < ppsAssociationCuts_.size(); ++idx) {
     // is within an entry ?
     if (edm::contains(validityRanges_[idx], iosv.eventID())) {
-      currentAssociationCutValid_ = true;
-      currentAssociationCutIdx_ = idx;
-      oValidity = edm::ValidityInterval(edm::IOVSyncValue(validityRanges_[idx].startEventID()),
-                                        edm::IOVSyncValue(validityRanges_[idx].endEventID()));
-      return;
+      return idx;
     }
   }
+  return std::nullopt;
+}
 
-  currentAssociationCutValid_ = false;
-  currentAssociationCutIdx_ = 0;
+void PPSAssociationCutsESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
+                                                const edm::IOVSyncValue &iosv,
+                                                edm::ValidityInterval &oValidity) {
+  auto cutIdx = associationCutIndexFor(iosv);
+  if (cutIdx) {
+    oValidity = edm::ValidityInterval(edm::IOVSyncValue(validityRanges_[*cutIdx].startEventID()),
+                                      edm::IOVSyncValue(validityRanges_[*cutIdx].endEventID()));
+    return;
+  }
 
   edm::LogInfo("PPSAssociationCutsESSource")
       << ">> PPSAssociationCutsESSource::setIntervalFor(" << key.name() << ")\n"
@@ -87,11 +94,13 @@ void PPSAssociationCutsESSource::setIntervalFor(const edm::eventsetup::EventSetu
 
 //----------------------------------------------------------------------------------------------------
 
-std::shared_ptr<PPSAssociationCuts> PPSAssociationCutsESSource::produce(const PPSAssociationCutsRcd &) {
+std::shared_ptr<PPSAssociationCuts> PPSAssociationCutsESSource::produce(const PPSAssociationCutsRcd &iRcd) {
   auto output = std::make_shared<PPSAssociationCuts>();
 
-  if (currentAssociationCutValid_) {
-    const auto &associationCut = ppsAssociationCuts_[currentAssociationCutIdx_];
+  auto cutIdx = associationCutIndexFor(iRcd.validityInterval().first());
+
+  if (cutIdx) {
+    const auto &associationCut = ppsAssociationCuts_[*cutIdx];
     output = associationCut;
   }
 

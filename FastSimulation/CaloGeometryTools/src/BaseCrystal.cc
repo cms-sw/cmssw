@@ -70,7 +70,6 @@ void BaseCrystal::setCorners(const CaloCellGeometry::CornersVec &vec, const Glob
 }
 
 void BaseCrystal::computeBasicProperties() {
-  //if(corners_.size()==0) return;
   center_ = XYZPoint(0., 0., 0.);
   for (unsigned ic = 0; ic < 8; ++ic) {
     center_ += corners_[ic];
@@ -78,13 +77,11 @@ void BaseCrystal::computeBasicProperties() {
 
   center_ *= 0.125;
 
-  //  std::cout << " Ncorners ? " << corners_.size() << std::endl;
   frontcenter_ = 0.25 * (corners_[0] + corners_[1] + corners_[2] + corners_[3]);
   backcenter_ = 0.25 * (corners_[4] + corners_[5] + corners_[6] + corners_[7]);
   crystalaxis_ = backcenter_ - frontcenter_;
   firstedgedirection_ = -(corners_[1] - corners_[0]).Unit();
   fifthedgedirection_ = -(corners_[5] - corners_[4]).Unit();
-  //  std::cout << " Direction laterales " << std::endl;
   for (unsigned il = 0; il < 4; ++il) {
     lateraldirection_[il] = -(corners_[(il + 1) % 4] - corners_[il]).Unit();
   }

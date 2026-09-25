@@ -3,13 +3,11 @@
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
-namespace reco {
-  class Track;
-}
 namespace edm {
   class EventSetup;
   class ConsumesCollector;

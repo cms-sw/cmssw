@@ -33,11 +33,11 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // my includes
-//#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+//#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetType.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"  //
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"

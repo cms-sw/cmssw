@@ -9,12 +9,9 @@
 
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHit.h"
-#include "DataFormats/Common/interface/RangeMap.h"
-#include "DataFormats/Common/interface/ClonePolicy.h"
-#include "DataFormats/Common/interface/OwnVector.h"
-#include <functional>
+#include "DataFormats/Common/interface/IdToHitRange.h"
 
-typedef edm::RangeMap<GEMDetId, edm::OwnVector<GEMRecHit, edm::ClonePolicy<GEMRecHit> >, edm::ClonePolicy<GEMRecHit> >
-    GEMRecHitCollection;
+using GEMRecHitCollection = edm::IdToHitRange<GEMDetId, GEMRecHit>;
+;
 
 #endif

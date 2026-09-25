@@ -22,7 +22,7 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/TrackingGeometry.h"
 #include <string>
 #include <vector>
 

@@ -1,28 +1,32 @@
 #include "DataFormats/GEMDigi/interface/GEMDigi.h"
 #include <iostream>
 
-GEMDigi::GEMDigi(uint16_t strip, int16_t bx) : strip_(strip), bx_(bx) {}
+namespace io_v1 {
 
-GEMDigi::GEMDigi() : strip_(65535), bx_(-99) {}
+  GEMDigi::GEMDigi(uint16_t strip, int16_t bx) : strip_(strip), bx_(bx) {}
 
-// Comparison
-bool GEMDigi::operator==(const GEMDigi& digi) const { return strip_ == digi.strip() and bx_ == digi.bx(); }
+  GEMDigi::GEMDigi() : strip_(65535), bx_(-99) {}
 
-// Comparison
-bool GEMDigi::operator!=(const GEMDigi& digi) const { return strip_ != digi.strip() or bx_ != digi.bx(); }
+  // Comparison
+  bool GEMDigi::operator==(const GEMDigi& digi) const { return strip_ == digi.strip() and bx_ == digi.bx(); }
 
-///Precedence operator
-bool GEMDigi::operator<(const GEMDigi& digi) const {
-  if (digi.bx() == bx_)
-    return digi.strip() < strip_;
-  else
-    return digi.bx() < bx_;
-}
+  // Comparison
+  bool GEMDigi::operator!=(const GEMDigi& digi) const { return strip_ != digi.strip() or bx_ != digi.bx(); }
 
-bool GEMDigi::isValid() const { return bx_ != -99 and strip_ != 65535; }
+  ///Precedence operator
+  bool GEMDigi::operator<(const GEMDigi& digi) const {
+    if (digi.bx() == bx_)
+      return digi.strip() < strip_;
+    else
+      return digi.bx() < bx_;
+  }
 
-std::ostream& operator<<(std::ostream& o, const GEMDigi& digi) {
-  return o << " GEMDigi strip = " << digi.strip() << " bx = " << digi.bx();
-}
+  bool GEMDigi::isValid() const { return bx_ != -99 and strip_ != 65535; }
 
-void GEMDigi::print() const { std::cout << "Strip " << strip() << " bx " << bx() << std::endl; }
+  std::ostream& operator<<(std::ostream& o, const GEMDigi& digi) {
+    return o << " GEMDigi strip = " << digi.strip() << " bx = " << digi.bx();
+  }
+
+  void GEMDigi::print() const { std::cout << "Strip " << strip() << " bx " << bx() << std::endl; }
+
+}  // namespace io_v1

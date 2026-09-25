@@ -31,7 +31,8 @@ HcalDbHardcode::HcalDbHardcode()
                             {0.0},                 //dark current
                             {0.0},                 //noise correlation
                             0.0,                   //PF noise threshold
-                            0.1                    //PF seed threshold
+                            0.1,                   //PF seed threshold
+                            0.0                    //Extra pulse delay
                             ),
       setHB_(false),
       setHE_(false),
@@ -176,6 +177,11 @@ HcalGainWidth HcalDbHardcode::makeGainWidth(HcalGenericDetId fId) const {  // Ge
   float value = getParameters(fId).gainWidth(getGainIndex(fId));
   HcalGainWidth result(fId.rawId(), value, value, value, value);
   return result;
+}
+
+HcalPulseDelay HcalDbHardcode::makePulseDelay(HcalGenericDetId fId) const {  // ns
+  const float value0 = getParameters(fId).pulseDelay();
+  return HcalPulseDelay(fId, "default", value0);
 }
 
 HcalPFCut HcalDbHardcode::makePFCut(HcalGenericDetId fId, double intLumi, bool noHE) const {  // GeV

@@ -5,7 +5,10 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
-  class HFEMClusterShape;
+  namespace io_v1 {
+    class HFEMClusterShape;
+  }
+  using HFEMClusterShape = io_v1::HFEMClusterShape;
   // collection of HFEMClusterShape objects
   typedef std::vector<HFEMClusterShape> HFEMClusterShapeCollection;
 

@@ -100,60 +100,63 @@ private:
   std::vector<int> error_;
 };
 
-class DTuROSFEDData {
-public:
-  /// Constructor
-  DTuROSFEDData() : header1_(0), header2_(0), trailer_(0), fed_(-1), nslots_(0), evtLgth_(0) {
-    for (int i = 0; i < DOCESLOTS; i++)
-      rsize_[i] = 0;
-  }
+namespace io_v1 {
+  class DTuROSFEDData {
+  public:
+    /// Constructor
+    DTuROSFEDData() : header1_(0), header2_(0), trailer_(0), fed_(-1), nslots_(0), evtLgth_(0) {
+      for (int i = 0; i < DOCESLOTS; i++)
+        rsize_[i] = 0;
+    }
 
-  /// Destructor
-  ~DTuROSFEDData() {}
+    /// Destructor
+    ~DTuROSFEDData() {}
 
-  void setfed(int fed) { fed_ = fed; }
+    void setfed(int fed) { fed_ = fed; }
 
-  void setheader1(long dword) { header1_ = dword; }
+    void setheader1(long dword) { header1_ = dword; }
 
-  void setheader2(long dword) { header2_ = dword; }
+    void setheader2(long dword) { header2_ = dword; }
 
-  void settrailer(long dword) { trailer_ = dword; }
+    void settrailer(long dword) { trailer_ = dword; }
 
-  void setnslots(int nslots) { nslots_ = nslots; }
+    void setnslots(int nslots) { nslots_ = nslots; }
 
-  void setevtlgth(int evtLgth) { evtLgth_ = evtLgth; }
+    void setevtlgth(int evtLgth) { evtLgth_ = evtLgth; }
 
-  void setslotsize(int slot, int size) { rsize_[slot - 1] = size; }
+    void setslotsize(int slot, int size) { rsize_[slot - 1] = size; }
 
-  void setuROS(int slot, DTuROSROSData rwords) { rdata_[slot - 1] = rwords; }
+    void setuROS(int slot, DTuROSROSData rwords) { rdata_[slot - 1] = rwords; }
 
-  int getfed() const { return fed_; }
+    int getfed() const { return fed_; }
 
-  long getheader1() const { return header1_; }
+    long getheader1() const { return header1_; }
 
-  long getheader2() const { return header2_; }
+    long getheader2() const { return header2_; }
 
-  long gettrailer() const { return trailer_; }
+    long gettrailer() const { return trailer_; }
 
-  int getnslots() const { return nslots_; }
+    int getnslots() const { return nslots_; }
 
-  int getevtlgth() const { return evtLgth_; }
+    int getevtlgth() const { return evtLgth_; }
 
-  int getslotsize(int slot) const { return rsize_[slot - 1]; }
+    int getslotsize(int slot) const { return rsize_[slot - 1]; }
 
-  int getBXId() const { return (getheader1() >> 20) & 0xFFF; }
+    int getBXId() const { return (getheader1() >> 20) & 0xFFF; }
 
-  int getTTS() const { return (gettrailer() >> 4) & 0xF; }
+    int getTTS() const { return (gettrailer() >> 4) & 0xF; }
 
-  DTuROSROSData getuROS(int slot) const { return rdata_[slot - 1]; }
+    DTuROSROSData getuROS(int slot) const { return rdata_[slot - 1]; }
 
-private:
-  long header1_, header2_, trailer_;
+  private:
+    long header1_, header2_, trailer_;
 
-  int fed_, nslots_, evtLgth_, rsize_[DOCESLOTS];
+    int fed_, nslots_, evtLgth_, rsize_[DOCESLOTS];
 
-  DTuROSROSData rdata_[DOCESLOTS];
-};
+    DTuROSROSData rdata_[DOCESLOTS];
+  };
+}  // namespace io_v1
+using DTuROSFEDData = io_v1::DTuROSFEDData;
 
 typedef std::vector<DTuROSFEDData> DTuROSFEDDataCollection;
 #endif

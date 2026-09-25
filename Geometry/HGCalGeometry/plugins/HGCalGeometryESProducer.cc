@@ -28,6 +28,7 @@
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometryLoader.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 //#define EDM_ML_DEBUG
 
@@ -42,6 +43,8 @@ public:
 
   using ReturnType = std::unique_ptr<HGCalGeometry>;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
   ReturnType produce(const IdealGeometryRecord&);
 
 private:
@@ -51,7 +54,7 @@ private:
 };
 
 HGCalGeometryESProducer::HGCalGeometryESProducer(const edm::ParameterSet& iConfig) {
-  name_ = iConfig.getUntrackedParameter<std::string>("Name");
+  name_ = iConfig.getParameter<std::string>("name");
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Constructing HGCalGeometry for " << name_;
 #endif
@@ -64,6 +67,11 @@ HGCalGeometryESProducer::~HGCalGeometryESProducer() {}
 //
 // member functions
 //
+void HGCalGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("name", "HGCalEESensitive");
+  descriptions.add("hgcalEEGeometryESProducer", desc);
+}
 
 // ------------ method called to produce the data  ------------
 HGCalGeometryESProducer::ReturnType HGCalGeometryESProducer::produce(const IdealGeometryRecord& iRecord) {

@@ -6,7 +6,7 @@
 #include "CondFormats/DataRecord/interface/SiPixelTemplateDBObjectRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -15,21 +15,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-class SiPixelFakeTemplateDBObjectESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class SiPixelFakeTemplateDBObjectESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  SiPixelFakeTemplateDBObjectESSource(const edm::ParameterSet&);
+  explicit SiPixelFakeTemplateDBObjectESSource(const edm::ParameterSet&);
   ~SiPixelFakeTemplateDBObjectESSource() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   typedef std::vector<std::string> vstring;
 
-  virtual std::unique_ptr<SiPixelTemplateDBObject> produce(const SiPixelTemplateDBObjectRcd&);
-
-protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
+  std::unique_ptr<SiPixelTemplateDBObject> produce(const SiPixelTemplateDBObjectRcd&);
 
 private:
   vstring templateCalibrations_;
@@ -124,13 +119,6 @@ std::unique_ptr<SiPixelTemplateDBObject> SiPixelFakeTemplateDBObjectESSource::pr
 
   //std::cout << *obj << std::endl;
   return std::unique_ptr<SiPixelTemplateDBObject>(obj);
-}
-
-void SiPixelFakeTemplateDBObjectESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                                         const edm::IOVSyncValue& iosv,
-                                                         edm::ValidityInterval& oValidity) {
-  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
-  oValidity = infinity;
 }
 
 void SiPixelFakeTemplateDBObjectESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

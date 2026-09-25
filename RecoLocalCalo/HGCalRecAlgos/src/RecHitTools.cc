@@ -79,40 +79,59 @@ namespace {
     return ddd;
   }
 
-  enum CellType {
-    CE_E_120 = 0,
-    CE_E_200 = 1,
-    CE_E_300 = 2,
-    CE_H_120 = 3,
-    CE_H_200 = 4,
-    CE_H_300 = 5,
-    CE_H_SCINT = 6,
-    EnumSize = 7
-  };
-
 }  // namespace
 
 void RecHitTools::setGeometry(const CaloGeometry& geom) {
   geom_ = &geom;
   unsigned int wmaxEE(0), wmaxFH(0);
+
   auto geomEE = static_cast<const HGCalGeometry*>(
       geom_->getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));
-  //check if it's the new geometry
+
   if (geomEE) {
-    geometryType_ = 1;
-    eeOffset_ = (geomEE->topology().dddConstants()).getLayerOffset();
-    wmaxEE = (geomEE->topology().dddConstants()).waferCount(0);
     auto geomFH = static_cast<const HGCalGeometry*>(
         geom_->getSubdetectorGeometry(DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty));
-    fhOffset_ = (geomFH->topology().dddConstants()).getLayerOffset();
-    wmaxFH = (geomFH->topology().dddConstants()).waferCount(0);
-    fhLastLayer_ = fhOffset_ + (geomFH->topology().dddConstants()).lastLayer(true);
     auto geomBH = static_cast<const HGCalGeometry*>(
         geom_->getSubdetectorGeometry(DetId::HGCalHSc, ForwardSubdetector::ForwardEmpty));
-    bhOffset_ = (geomBH->topology().dddConstants()).getLayerOffset();
-    bhFirstLayer_ = bhOffset_ + (geomBH->topology().dddConstants()).firstLayer();
-    bhLastLayer_ = bhOffset_ + (geomBH->topology().dddConstants()).lastLayer(true);
-    bhMaxIphi_ = geomBH->topology().dddConstants().maxCells(true);
+
+    geometryType_ = 1;
+    eeOffset_ = (geomEE->topology().dddConstants()).getLayerOffset();
+    int eeFirstLayer_ = eeOffset_ + (geomEE->topology().dddConstants()).firstLayer();
+    eeLastLayer_ = eeOffset_ + (geomEE->topology().dddConstants()).lastLayer(true);
+    wmaxEE = (geomEE->topology().dddConstants()).waferCount(0);
+    theFirstLayersOfComp_.push_back(eeFirstLayer_);
+    theNumberOfLayersOfComp_.push_back(eeLastLayer_ - eeFirstLayer_ + 1);
+
+    if (geomFH) {
+      fhOffset_ = (geomFH->topology().dddConstants()).getLayerOffset();
+      wmaxFH = (geomFH->topology().dddConstants()).waferCount(0);
+      int fhFirstLayer_ = fhOffset_ + (geomFH->topology().dddConstants()).firstLayer();
+      fhLastLayer_ = fhOffset_ + (geomFH->topology().dddConstants()).lastLayer(true);
+      theFirstLayersOfComp_.push_back(fhFirstLayer_);
+      theNumberOfLayersOfComp_.push_back(fhLastLayer_ - fhFirstLayer_ + 1);
+    } else {
+      fhOffset_ = eeLastLayer_;
+      wmaxFH = 0;
+      int fhFirstLayer_ = eeLastLayer_;
+      fhLastLayer_ = eeLastLayer_;
+      theFirstLayersOfComp_.push_back(fhFirstLayer_);
+      theNumberOfLayersOfComp_.push_back(0);
+    }
+    if (geomBH) {
+      bhOffset_ = (geomBH->topology().dddConstants()).getLayerOffset();
+      bhFirstLayer_ = bhOffset_ + (geomBH->topology().dddConstants()).firstLayer();
+      bhLastLayer_ = bhOffset_ + (geomBH->topology().dddConstants()).lastLayer(true);
+      bhMaxIphi_ = geomBH->topology().dddConstants().maxCells(true);
+      theFirstLayersOfComp_.push_back(bhFirstLayer_);
+      theNumberOfLayersOfComp_.push_back(bhLastLayer_ - bhFirstLayer_ + 1);
+    } else {
+      bhOffset_ = eeLastLayer_;
+      bhFirstLayer_ = eeLastLayer_;
+      bhLastLayer_ = eeLastLayer_;
+      bhMaxIphi_ = 0;
+      theFirstLayersOfComp_.push_back(bhFirstLayer_);
+      theNumberOfLayersOfComp_.push_back(0);
+    }
   } else {
     geometryType_ = 0;
     geomEE =
@@ -129,11 +148,14 @@ void RecHitTools::setGeometry(const CaloGeometry& geom) {
     auto geomBH =
         static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal, HcalSubdetector::HcalEndcap));
     bhLastLayer_ = bhOffset_ + (geomBH->topology().dddConstants())->getMaxDepth(1);
+    theNumberOfLayersOfComp_.push_back(0);
+    theFirstLayersOfComp_.push_back(1);
   }
   maxNumberOfWafersPerLayer_ = std::max(wmaxEE, wmaxFH);
   // For nose geometry
   auto geomNose =
       static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward, ForwardSubdetector::HFNose));
+
   if (geomNose) {
     maxNumberOfWafersNose_ = (geomNose->topology().dddConstants()).waferCount(0);
     noseLastLayer_ = (geomNose->topology().dddConstants()).layers(true);
@@ -479,36 +501,88 @@ bool RecHitTools::isHalfCell(const DetId& id) const {
 int RecHitTools::getCellType(const DetId& id) const {
   checkGeometry();
   auto layer_number = getLayerWithOffset(id);
-  auto thickness = getSiThickIndex(id);
   auto geomNose =
       static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward, ForwardSubdetector::HFNose));
   auto isNose = geomNose ? true : false;
   auto isEELayer = (layer_number <= lastLayerEE(isNose));
   auto isScint = isScintillator(id);
+  HGCalDetId hid(id);
+  auto geom = getSubdetectorGeometry(hid);
+  auto ddd = get_ddd(geom, hid);
+  const int waferType = ddd->waferTypeT(hid.waferType());
   int layerType = -1;
-
   if (isScint) {
-    layerType = CE_H_SCINT;
-  }
-  if (isEELayer) {
-    if (thickness == 0) {
-      layerType = CE_E_120;
-    } else if (thickness == 1) {
-      layerType = CE_E_200;
-    } else if (thickness == 2) {
-      layerType = CE_E_300;
+    layerType = CE_H_Tile_HD;
+  } else if (isNose) {
+    if (isEELayer) {
+      layerType = CE_E_120_HD;
+    } else {
+      layerType = CE_H_120_Fine_HD;
     }
   } else {
-    if (thickness == 0) {
-      layerType = CE_H_120;
-    } else if (thickness == 1) {
-      layerType = CE_H_200;
-    } else if (thickness == 2) {
-      layerType = CE_H_300;
+    HGCSiliconDetId siHid(id);
+    auto type = siHid.type();
+    if (isEELayer) {
+      if (type == HGCSiliconDetId::HGCalLD200) {
+        layerType = CE_E_200_LD;
+      } else if (type == HGCSiliconDetId::HGCalLD300) {
+        layerType = CE_E_300_LD;
+      } else if (type == HGCSiliconDetId::HGCalHD120) {
+        layerType = CE_E_120_HD;
+      } else {
+        layerType = CE_E_200_HD;
+      }
+    } else {
+      if (waferType == 1) {
+        if (type == HGCSiliconDetId::HGCalLD200) {
+          layerType = CE_H_200_Fine_LD;
+        } else if (type == HGCSiliconDetId::HGCalLD300) {
+          layerType = CE_H_300_Fine_LD;
+        } else if (type == HGCSiliconDetId::HGCalHD120) {
+          layerType = CE_H_120_Fine_HD;
+        } else {
+          layerType = CE_H_200_Fine_HD;
+        }
+      } else {
+        if (type == HGCSiliconDetId::HGCalLD200) {
+          layerType = CE_H_200_Coarse_LD;
+        } else if (type == HGCSiliconDetId::HGCalLD300) {
+          layerType = CE_H_300_Coarse_LD;
+        } else if (type == HGCSiliconDetId::HGCalHD120) {
+          layerType = CE_H_120_Coarse_HD;
+        } else {
+          layerType = CE_H_200_Coarse_HD;
+        }
+      }
     }
   }
   assert(layerType != -1);
   return layerType;
+}
+
+int RecHitTools::getSensorGroup(const DetId& id) const {
+  int cellType = getCellType(id);
+  switch (cellType) {
+    case CE_E_200_LD:
+    case CE_E_300_LD:
+      return CEE_LD;
+    case CE_E_120_HD:
+    case CE_E_200_HD:
+      return CEE_HD;
+    case CE_H_200_Fine_LD:
+    case CE_H_300_Fine_LD:
+    case CE_H_200_Coarse_LD:
+    case CE_H_300_Coarse_LD:
+      return CEH_LD;
+    case CE_H_120_Fine_HD:
+    case CE_H_200_Fine_HD:
+    case CE_H_120_Coarse_HD:
+    case CE_H_200_Coarse_HD:
+    case CE_H_Tile_HD:
+      return CEH_HD;
+    default:
+      return UNKNOWN;
+  }
 }
 
 bool RecHitTools::isSilicon(const DetId& id) const {

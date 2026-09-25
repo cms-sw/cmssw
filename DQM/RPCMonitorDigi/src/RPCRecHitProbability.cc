@@ -1,6 +1,6 @@
 #include "DQM/RPCMonitorDigi/interface/RPCRecHitProbability.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"

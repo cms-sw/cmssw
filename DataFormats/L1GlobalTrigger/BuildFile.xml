@@ -1,9 +1,10 @@
 <use name="DataFormats/Common"/>
-<use name="DataFormats/Provenance"/>
+<use name="DataFormats/Provenance" source_only="1"/>
 <use name="DataFormats/L1GlobalMuonTrigger"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
 <use name="boost"/>
+<use name="rootcling"/>
 <export>
   <lib name="1"/>
 </export>

@@ -11,110 +11,114 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
-  class DeDxHitInfo {
-  public:
-    class DeDxHitInfoContainer {
+  namespace io_v1 {
+    class DeDxHitInfo {
     public:
-      DeDxHitInfoContainer() : charge_(0.0f), pathlength_(0.0f) {}
-      DeDxHitInfoContainer(
-          const float charge, const float pathlength, const DetId& detId, const LocalPoint& pos, const uint8_t& type)
-          : charge_(charge), pathlength_(pathlength), detId_(detId), pos_(pos), type_(type) {}
+      class DeDxHitInfoContainer {
+      public:
+        DeDxHitInfoContainer() : charge_(0.0f), pathlength_(0.0f) {}
+        DeDxHitInfoContainer(
+            const float charge, const float pathlength, const DetId& detId, const LocalPoint& pos, const uint8_t& type)
+            : charge_(charge), pathlength_(pathlength), detId_(detId), pos_(pos), type_(type) {}
 
-      float charge() const { return charge_; }
-      float pathlength() const { return pathlength_; }
-      const DetId& detId() const { return detId_; }
-      const LocalPoint& pos() const { return pos_; }
-      const uint8_t& type() const { return type_; }
+        float charge() const { return charge_; }
+        float pathlength() const { return pathlength_; }
+        const DetId& detId() const { return detId_; }
+        const LocalPoint& pos() const { return pos_; }
+        const uint8_t& type() const { return type_; }
+
+      private:
+        //! total cluster charge
+        float charge_;
+        //! path length inside a module
+        float pathlength_;
+        DetId detId_;
+        //! hit position
+        LocalPoint pos_;
+        uint8_t type_;
+      };
+
+      static constexpr int Complete = 0, Compatible = 1, Calibration = 2;
+      typedef std::vector<DeDxHitInfo::DeDxHitInfoContainer> DeDxHitInfoContainerCollection;
+
+    public:
+      DeDxHitInfo() {}
+      size_t size() const { return infos_.size(); }
+      float charge(size_t i) const { return infos_[i].charge(); }
+      float pathlength(size_t i) const { return infos_[i].pathlength(); }
+      DetId detId(size_t i) const { return infos_[i].detId(); }
+      const LocalPoint pos(size_t i) const { return infos_[i].pos(); }
+      const uint8_t type(size_t i) const { return infos_[i].type(); }
+      const SiPixelCluster* pixelCluster(size_t i) const {
+        size_t P = 0;
+        bool isPixel = false;
+        bool isFirst = true;
+        for (size_t j = 0; j <= i && j < infos_.size(); j++) {
+          if (detId(j).subdetId() < SiStripDetId::TIB) {
+            if (isFirst)
+              isFirst = false;
+            else
+              P++;
+            isPixel = true;
+          } else {
+            isPixel = false;
+          }
+        }
+        if (isPixel && pixelClusters_.size() > P) {
+          return &(pixelClusters_[P]);
+        }
+        return nullptr;
+      }
+      const SiStripCluster* stripCluster(size_t i) const {
+        size_t S = 0;
+        bool isStrip = false;
+        bool isFirst = true;
+        for (size_t j = 0; j <= i && j < infos_.size(); j++) {
+          if (detId(j).subdetId() >= SiStripDetId::TIB) {
+            if (isFirst) {
+              isFirst = false;
+            } else
+              S++;
+            isStrip = true;
+          } else {
+            isStrip = false;
+          }
+        }
+        if (isStrip && stripClusters_.size() > S) {
+          return &(stripClusters_[S]);
+        }
+        return nullptr;
+      }
+      const std::vector<SiStripCluster>& stripClusters() const { return stripClusters_; }
+      const std::vector<SiPixelCluster>& pixelClusters() const { return pixelClusters_; }
+
+      void addHit(const float charge,
+                  const float pathlength,
+                  const DetId& detId,
+                  const LocalPoint& pos,
+                  const uint8_t& type,
+                  const SiStripCluster& stripCluster) {
+        infos_.push_back(DeDxHitInfoContainer(charge, pathlength, detId, pos, type));
+        stripClusters_.push_back(stripCluster);
+      }
+      void addHit(const float charge,
+                  const float pathlength,
+                  const DetId& detId,
+                  const LocalPoint& pos,
+                  const uint8_t& type,
+                  const SiPixelCluster& pixelCluster) {
+        infos_.push_back(DeDxHitInfoContainer(charge, pathlength, detId, pos, type));
+        pixelClusters_.push_back(pixelCluster);
+      }
 
     private:
-      //! total cluster charge
-      float charge_;
-      //! path length inside a module
-      float pathlength_;
-      DetId detId_;
-      //! hit position
-      LocalPoint pos_;
-      uint8_t type_;
+      std::vector<DeDxHitInfoContainer> infos_;
+      std::vector<SiStripCluster> stripClusters_;
+      std::vector<SiPixelCluster> pixelClusters_;
     };
 
-    static constexpr int Complete = 0, Compatible = 1, Calibration = 2;
-    typedef std::vector<DeDxHitInfo::DeDxHitInfoContainer> DeDxHitInfoContainerCollection;
-
-  public:
-    DeDxHitInfo() {}
-    size_t size() const { return infos_.size(); }
-    float charge(size_t i) const { return infos_[i].charge(); }
-    float pathlength(size_t i) const { return infos_[i].pathlength(); }
-    DetId detId(size_t i) const { return infos_[i].detId(); }
-    const LocalPoint pos(size_t i) const { return infos_[i].pos(); }
-    const uint8_t type(size_t i) const { return infos_[i].type(); }
-    const SiPixelCluster* pixelCluster(size_t i) const {
-      size_t P = 0;
-      bool isPixel = false;
-      bool isFirst = true;
-      for (size_t j = 0; j <= i && j < infos_.size(); j++) {
-        if (detId(j).subdetId() < SiStripDetId::TIB) {
-          if (isFirst)
-            isFirst = false;
-          else
-            P++;
-          isPixel = true;
-        } else {
-          isPixel = false;
-        }
-      }
-      if (isPixel && pixelClusters_.size() > P) {
-        return &(pixelClusters_[P]);
-      }
-      return nullptr;
-    }
-    const SiStripCluster* stripCluster(size_t i) const {
-      size_t S = 0;
-      bool isStrip = false;
-      bool isFirst = true;
-      for (size_t j = 0; j <= i && j < infos_.size(); j++) {
-        if (detId(j).subdetId() >= SiStripDetId::TIB) {
-          if (isFirst) {
-            isFirst = false;
-          } else
-            S++;
-          isStrip = true;
-        } else {
-          isStrip = false;
-        }
-      }
-      if (isStrip && stripClusters_.size() > S) {
-        return &(stripClusters_[S]);
-      }
-      return nullptr;
-    }
-    const std::vector<SiStripCluster>& stripClusters() const { return stripClusters_; }
-    const std::vector<SiPixelCluster>& pixelClusters() const { return pixelClusters_; }
-
-    void addHit(const float charge,
-                const float pathlength,
-                const DetId& detId,
-                const LocalPoint& pos,
-                const uint8_t& type,
-                const SiStripCluster& stripCluster) {
-      infos_.push_back(DeDxHitInfoContainer(charge, pathlength, detId, pos, type));
-      stripClusters_.push_back(stripCluster);
-    }
-    void addHit(const float charge,
-                const float pathlength,
-                const DetId& detId,
-                const LocalPoint& pos,
-                const uint8_t& type,
-                const SiPixelCluster& pixelCluster) {
-      infos_.push_back(DeDxHitInfoContainer(charge, pathlength, detId, pos, type));
-      pixelClusters_.push_back(pixelCluster);
-    }
-
-  private:
-    std::vector<DeDxHitInfoContainer> infos_;
-    std::vector<SiStripCluster> stripClusters_;
-    std::vector<SiPixelCluster> pixelClusters_;
-  };
+  }  // namespace io_v1
+  using DeDxHitInfo = io_v1::DeDxHitInfo;
 
   typedef std::vector<DeDxHitInfo> DeDxHitInfoCollection;
   typedef edm::Ref<DeDxHitInfoCollection> DeDxHitInfoRef;

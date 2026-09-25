@@ -23,7 +23,6 @@ namespace CLHEP {
 namespace edm {
 
   class BranchID;
-  class FileCatalogItem;
   class InputFileCatalog;
   class ParameterSetDescription;
   class EmbeddedRootSource;
@@ -57,7 +56,8 @@ namespace edm {
   private:
     void closeFile_() override;
     void initFile_(bool skipBadFiles) override;
-    RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) override;
+    RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr,
+                                   std::string const& physicalFileNameFirstCatalog) override;
 
     EmbeddedRootSource& input_;
 

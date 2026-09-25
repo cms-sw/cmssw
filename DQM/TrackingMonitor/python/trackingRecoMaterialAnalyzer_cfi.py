@@ -14,6 +14,7 @@ materialDumperAnalyzer = DQMEDAnalyzer('TrackingRecoMaterialAnalyser',
                                         MTDRecHitBuilder = cms.string('MTDRecHitBuilder'),
                                         RefitDirection = cms.string('alongMomentum'),
                                         RefitRPCHits = cms.bool(True),
+                                        RefitMuonHits = cms.bool(True),
                                         Propagator = cms.string('SmartPropagatorAnyRKOpposite'),
                                         #Propagators
                                         PropagatorAlong = cms.string("RungeKuttaTrackerPropagator"),

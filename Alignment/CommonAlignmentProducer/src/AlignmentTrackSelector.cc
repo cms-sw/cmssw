@@ -1,24 +1,23 @@
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentTrackSelector.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/Framework/interface/Event.h"
-
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/Alignment/interface/AliClusterValueMap.h"
+#include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerMultiRecHit.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/Alignment/interface/AlignmentClusterFlag.h"
-#include "DataFormats/Alignment/interface/AliClusterValueMap.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 
 #include <cmath>
 
@@ -550,7 +549,7 @@ bool AlignmentTrackSelector::isHit2D(const TrackingRecHit& hit) const {
   } else {
     const DetId detId(hit.geographicalId());
     if (detId.det() == DetId::Tracker) {
-      if (detId.subdetId() == kBPIX || detId.subdetId() == kFPIX) {
+      if (hit.detUnit() && hit.detUnit()->type().isTrackerPixel()) {
         return true;  // pixel is always 2D
       } else {        // should be SiStrip now
         const SiStripDetId stripId(detId);

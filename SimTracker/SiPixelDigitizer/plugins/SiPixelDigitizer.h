@@ -89,9 +89,11 @@ namespace cms {
 * The key is the name of the sim hit collection. */
     std::map<std::string, size_t> crossingSimHitIndexOffset_;
 
-    typedef std::vector<std::string> vstring;
+    using vstring = std::vector<std::string>;
     const std::string hitsProducer;
+    const std::string hitsProducerPU;
     const vstring trackerContainers;
+    const vstring trackerContainersPU;
     const TrackerGeometry* pDD = nullptr;
     const MagneticField* pSetup = nullptr;
     std::map<unsigned int, PixelGeomDetUnit const*> detectorUnits;

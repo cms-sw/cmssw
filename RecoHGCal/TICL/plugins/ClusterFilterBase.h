@@ -1,12 +1,12 @@
 // Author: Felice Pantaleo, Marco Rovere - felice.pantaleo@cern.ch, marco.rovere@cern.ch
 // Date: 09/2018
 
-#ifndef RecoHGCal_TICL_ClusterFilterBase_H__
-#define RecoHGCal_TICL_ClusterFilterBase_H__
+#ifndef RecoHGCal_TICL_ClusterFilterBase_h
+#define RecoHGCal_TICL_ClusterFilterBase_h
 
 #include "DataFormats/HGCalReco/interface/Common.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
 #include <memory>
 #include <vector>
@@ -22,7 +22,7 @@ namespace ticl {
 
     virtual void filter(const std::vector<reco::CaloCluster>& layerClusters,
                         std::vector<float>& layerClustersMask,
-                        hgcal::RecHitTools& rhtools) const = 0;
+                        ticlgeom::Tools& rhtools) const = 0;
   };
 }  // namespace ticl
 

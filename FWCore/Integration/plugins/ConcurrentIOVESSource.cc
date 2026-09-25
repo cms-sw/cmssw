@@ -46,14 +46,11 @@ namespace edmtest {
                         edm::IOVSyncValue const&,
                         edm::ValidityInterval&) override;
 
-    bool isConcurrentFinder() const override { return concurrentFinder_; }
-
     // These are thread safe because after the constructor we do not
     // modify their state.
     const bool iovIsTime_;
     std::set<edm::IOVSyncValue> setOfIOV_;
     std::set<edm::IOVSyncValue> setOfInvalidIOV_;
-    const bool concurrentFinder_;
     const bool testForceESSourceMode_;
     const bool findForRecordA_;
     edm::WallclockTimer wallclockTimer_;
@@ -61,13 +58,12 @@ namespace edmtest {
     // Be careful with this. It is modified in setIntervalFor
     // and the setIntervalFor function is called serially (nonconcurrent
     // with itself). But it is not thread safe to use this data member
-    // in the produce methods unless concurrentFinder_ is false.
+    // in the produce methods.
     edm::ValidityInterval validityInterval_;
   };
 
   ConcurrentIOVESSource::ConcurrentIOVESSource(edm::ParameterSet const& pset)
       : iovIsTime_(!pset.getParameter<bool>("iovIsRunNotTime")),
-        concurrentFinder_(pset.getParameter<bool>("concurrentFinder")),
         testForceESSourceMode_(pset.getParameter<bool>("testForceESSourceMode")),
         findForRecordA_(pset.getParameter<bool>("findForRecordA")) {
     wallclockTimer_.start();
@@ -106,13 +102,6 @@ namespace edmtest {
         << " endIOV = " << iov.last().luminosityBlockNumber() << " IOV index = " << record.iovIndex()
         << " cache identifier = " << record.cacheIdentifier() << " time = " << wallclockTimer_.realTime();
 
-    if (!concurrentFinder_) {
-      if (validityInterval_ != iov) {
-        throw cms::Exception("TestError")
-            << "ConcurrentIOVESSource::produce, testing as nonconcurrent finder and IOV changed!";
-      }
-    }
-
     data->iovStartRun_ = iov.first().eventID().run();
     data->iovEndRun_ = iov.last().eventID().run();
     data->iovStartLumi_ = iov.first().luminosityBlockNumber();
@@ -128,7 +117,11 @@ namespace edmtest {
       // This criteria should never fail because the EventSetupRecord class
       // is hard coded to allow only one IOV at a time.
       throw cms::Exception("TestError")
-          << "ConcurrentIOVESSource::produce, more than one concurrent IOV for type ESTestRecordA!";
+          .format(
+              "ConcurrentIOVESSource::produce, more than one concurrent IOV for type ESTestRecordA!\n"
+
+              "iovIndex = {}",
+              record.iovIndex());
     }
     edm::LogAbsolute("ConcurrentIOVESSource")
         << "ConcurrentIOVESSource::produceA startIOV = " << iov.first().luminosityBlockNumber()
@@ -141,7 +134,6 @@ namespace edmtest {
     edm::ParameterSetDescription desc;
     std::vector<unsigned int> emptyVector;
     desc.add<bool>("iovIsRunNotTime", true);
-    desc.add<bool>("concurrentFinder", true);
     desc.add<bool>("testForceESSourceMode", false);
     desc.add<bool>("findForRecordA", false);
     desc.add<std::vector<unsigned int>>("firstValidLumis", emptyVector);

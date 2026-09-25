@@ -10,7 +10,7 @@
 
 #include <DataFormats/DetId/interface/DetId.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <Geometry/CommonDetUnit/interface/TrackingGeometry.h>
+#include <Geometry/CommonTopologies/interface/TrackingGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <vector>
 #include <map>

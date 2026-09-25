@@ -18,9 +18,21 @@
 #include <iostream>
 #include <memory>
 
-using namespace reco;
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "TrackingTools/PatternTools/interface/ClusterRemovalRefSetter.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+
+#include <tuple>
+#include <array>
+#include "CommonTools/Utils/interface/DynArray.h"
 
 namespace {
+  using namespace reco;
+
   class TrackCollectionFilterCloner final : public edm::global::EDProducer<> {
   public:
     /// constructor
@@ -51,21 +63,7 @@ namespace {
 
     const reco::TrackBase::TrackQuality minQuality_;
   };
-}  // namespace
 
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "TrackingTools/PatternTools/interface/ClusterRemovalRefSetter.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
-
-#include <tuple>
-#include <array>
-#include "CommonTools/Utils/interface/DynArray.h"
-
-namespace {
   void TrackCollectionFilterCloner::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("originalSource", edm::InputTag());

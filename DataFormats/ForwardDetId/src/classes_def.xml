@@ -1,40 +1,35 @@
 <lcgdict>
-  <class name="HGCTriggerDetId" ClassVersion="11">
-   <version ClassVersion="11" checksum="593085218"/>
+  <class name="HGCTriggerDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="593085218"/>
   </class>
-  <class name="HGCEEDetId" ClassVersion="13">
-   <version ClassVersion="13" checksum="2559951294"/>
-   <version ClassVersion="12" checksum="511816684"/>
+  <class name="HGCEEDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="2559951294"/>
   </class>
-  <class name="HGCHEDetId" ClassVersion="13">
-   <version ClassVersion="13" checksum="2561545617"/>
-   <version ClassVersion="12" checksum="512348125"/>
+  <class name="HGCHEDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="2561545617"/>
   </class>
-  <class name="HGCalDetId" ClassVersion="14">
-   <version ClassVersion="14" checksum="2581740375"/>
-   <version ClassVersion="13" checksum="519079711"/>
+  <class name="HGCalDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="2581740375"/>
   </class>
-  <class name="HGCSiliconDetId" ClassVersion="15">
-   <version ClassVersion="15" checksum="127365755"/>
+  <class name="HGCSiliconDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="127365755"/>
   </class>
-  <class name="HGCScintillatorDetId" ClassVersion="15">
-   <version ClassVersion="15" checksum="1085028962"/>
+  <class name="HGCScintillatorDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="1085028962"/>
   </class>
-  <class name="MTDDetId" ClassVersion="3">
-   <version ClassVersion="3" checksum="1210976889"/>
+  <class name="io_v1::MTDDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="1840971769"/>
   </class>
-  <class name="BTLDetId" ClassVersion="3">
-   <version ClassVersion="3" checksum="1515591716"/>
+  <class name="io_v1::BTLDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="462326476"/>
   </class>
-  <class name="ETLDetId" ClassVersion="4">
-   <version ClassVersion="4" checksum="1644731879"/>
-   <version ClassVersion="3" checksum="1644731879"/>
+  <class name="io_v1::ETLDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="3718988717"/>
   </class>
-  <class name="HFNoseDetId" ClassVersion="0">
-   <version ClassVersion="0" checksum="1469396081"/>
+  <class name="HFNoseDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="1469396081"/>
   </class>
-  <class name="HFNoseTriggerDetId" ClassVersion="-1">
-   <version ClassVersion="-1" checksum="1686145543"/>
-   <version ClassVersion="0" checksum="1469396081"/>
+  <class name="HFNoseTriggerDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="1686145543"/>
   </class>
 </lcgdict>

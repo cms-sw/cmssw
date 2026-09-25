@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -17,7 +17,7 @@
 #include "CondFormats/DataRecord/interface/CSCDBNoiseMatrixRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCFakeDBNoiseMatrix : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class CSCFakeDBNoiseMatrix : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   CSCFakeDBNoiseMatrix(const edm::ParameterSet &);
   ~CSCFakeDBNoiseMatrix() override;
@@ -30,10 +30,6 @@ public:
 
 private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                      const edm::IOVSyncValue &,
-                      edm::ValidityInterval &) override;
-  Pointer cndbNoiseMatrix;
 };
 
 #include <fstream>

@@ -62,7 +62,7 @@ namespace edm {
       virtual bool isTransient() const = 0;
 
       //Used by ROOT storage
-      CMS_CLASS_VERSION(10)
+      CMS_CLASS_VERSION(3)
 
     protected:
       // We want the following called only by derived classes.

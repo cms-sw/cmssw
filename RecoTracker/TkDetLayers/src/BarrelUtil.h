@@ -1,7 +1,7 @@
 #ifndef TkDetLayers_BarrelUtil_h
 #define TkDetLayers_BarrelUtil_h
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"

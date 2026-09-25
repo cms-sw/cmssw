@@ -19,6 +19,8 @@
 //
 
 // system include files
+#include <iosfwd>
+#include <format>
 
 // user include files
 #include "FWCore/Framework/interface/IOVSyncValue.h"
@@ -56,6 +58,16 @@ namespace edm {
     IOVSyncValue first_;
     IOVSyncValue last_;
   };
+  std::ostream& operator<<(std::ostream& oStream, ValidityInterval const& iInterval);
 
 }  // namespace edm
+
+template <>
+struct std::formatter<edm::ValidityInterval> : std::formatter<std::string_view> {
+  auto format(const edm::ValidityInterval& interval, auto& ctx) {
+    std::string temp;
+    std::format_to(std::back_inserter(temp), "ValidityInterval{{ {}, {} }}", interval.first(), interval.last());
+    return std::formatter<std::string_view>::format(temp, ctx);
+  }
+};
 #endif

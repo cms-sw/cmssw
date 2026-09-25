@@ -1,7 +1,7 @@
 #include "RecoTracker/PixelLowPtUtilities/interface/ClusterShape.h"
 #include "RecoTracker/PixelLowPtUtilities/interface/ClusterData.h"
 
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"

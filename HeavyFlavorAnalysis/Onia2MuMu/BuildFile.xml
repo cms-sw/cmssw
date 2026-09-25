@@ -8,6 +8,7 @@
 <use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/Candidate"/>
 <use name="DataFormats/MuonReco"/>
+<use name="DataFormats/Provenance"/>
 <use name="DataFormats/VertexReco"/>
 <use name="DataFormats/TrackReco"/>
 <use name="TrackingTools/PatternTools"/>

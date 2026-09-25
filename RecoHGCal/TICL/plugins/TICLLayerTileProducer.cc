@@ -12,7 +12,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 
 class TICLLayerTileProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
@@ -25,32 +25,41 @@ public:
 private:
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_HFNose_token_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
-  hgcal::RecHitTools rhtools_;
+  edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
+  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
+  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
+  ticlgeom::Tools rhtools_;
   std::string detector_;
   bool doNose_;
+  bool doBarrel_;
 };
 
 TICLLayerTileProducer::TICLLayerTileProducer(const edm::ParameterSet &ps)
     : detector_(ps.getParameter<std::string>("detector")) {
-  geometry_token_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
+  ticlGeomToken_ = esConsumes<TICLGeomHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""));
+  ticlGeomLookupToken_ =
+      esConsumes<TICLGeomLookupHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""));
+  ticlGeomLayersToken_ =
+      esConsumes<TICLGeomLayersHost, CaloGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", ""));
 
   doNose_ = (detector_ == "HFNose");
+  doBarrel_ = (detector_ == "Barrel");
 
   if (doNose_) {
     clusters_HFNose_token_ =
         consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_HFNose_clusters"));
     produces<TICLLayerTilesHFNose>();
   } else {
+    if (doBarrel_) {
+      produces<TICLLayerTilesBarrel>("ticlLayerTilesBarrel");
+    }
     clusters_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"));
     produces<TICLLayerTiles>();
-    produces<TICLLayerTilesBarrel>("ticlLayerTilesBarrel");
   }
 }
 
 void TICLLayerTileProducer::beginRun(edm::Run const &, edm::EventSetup const &es) {
-  edm::ESHandle<CaloGeometry> geom = es.getHandle(geometry_token_);
-  rhtools_.setGeometry(*geom);
+  rhtools_.setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
 }
 
 void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
@@ -60,7 +69,8 @@ void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
   if (doNose_) {
     resultHFNose = std::make_unique<TICLLayerTilesHFNose>();
   } else {
-    resultBarrel = std::make_unique<TICLLayerTilesBarrel>();
+    if (doBarrel_)
+      resultBarrel = std::make_unique<TICLLayerTilesBarrel>();
     result = std::make_unique<TICLLayerTiles>();
   }
 
@@ -83,21 +93,30 @@ void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
 
     if (doNose_) {
       resultHFNose->fill(layer, lc.eta(), lc.phi(), lcId);
-    } else if (isBarrelLC) {
+      LogDebug("TICLLayerTileProducer") << "Adding layerClusterId: " << lcId << " into bin [eta,phi]: [ "
+                                        << (*resultHFNose)[layer].etaBin(lc.eta()) << ", "
+                                        << (*resultHFNose)[layer].phiBin(lc.phi()) << "] for layer: " << layer;
+    } else if (doBarrel_ && isBarrelLC) {
       resultBarrel->fill(layer, lc.eta(), lc.phi(), lcId);
-    } else {
+      LogDebug("TICLLayerTileProducer") << "Adding layerClusterId: " << lcId << " into bin [eta,phi]: [ "
+                                        << (*resultBarrel)[layer].etaBin(lc.eta()) << ", "
+                                        << (*resultBarrel)[layer].phiBin(lc.phi()) << "] for layer: " << layer;
+    } else if (!isBarrelLC) {
       result->fill(layer, lc.eta(), lc.phi(), lcId);
+      LogDebug("TICLLayerTileProducer") << "Adding layerClusterId: " << lcId << " into bin [eta,phi]: [ "
+                                        << (*result)[layer].etaBin(lc.eta()) << ", "
+                                        << (*result)[layer].phiBin(lc.phi()) << "] for layer: " << layer;
     }
-    LogDebug("TICLLayerTileProducer") << "Adding layerClusterId: " << lcId << " into bin [eta,phi]: [ "
-                                      << (*result)[layer].etaBin(lc.eta()) << ", " << (*result)[layer].phiBin(lc.phi())
-                                      << "] for layer: " << layer << std::endl;
     lcId++;
   }
+
   if (doNose_)
     evt.put(std::move(resultHFNose));
   else {
-    evt.put(std::move(resultBarrel), "ticlLayerTilesBarrel");
-    evt.put(std::move(result));
+    if (doBarrel_)
+      evt.put(std::move(resultBarrel), "ticlLayerTilesBarrel");
+    else
+      evt.put(std::move(result));
   }
 }
 

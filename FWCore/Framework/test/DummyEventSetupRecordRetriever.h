@@ -23,6 +23,7 @@
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 
 #include "FWCore/Framework/test/DummyEventSetupRecord.h"
 #include "FWCore/Framework/test/DummyEventSetupData.h"
@@ -31,7 +32,8 @@
 namespace edm {
   class DummyEventSetupRecordRetriever : public EventSetupRecordIntervalFinder, public ESProducer {
   public:
-    DummyEventSetupRecordRetriever() {
+    explicit DummyEventSetupRecordRetriever(edm::IOVSyncValue const& iStart = edm::IOVSyncValue::invalidIOVSyncValue())
+        : m_start(iStart) {
       this->findingRecord<DummyEventSetupRecord>();
       setWhatProduced(this);
     }
@@ -41,18 +43,30 @@ namespace edm {
     }
 
   protected:
-    virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                const edm::IOVSyncValue& /*iTime*/,
-                                edm::ValidityInterval& iInterval) {
-      iInterval = edm::ValidityInterval(IOVSyncValue::beginOfTime(), IOVSyncValue::endOfTime());
+    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                        const edm::IOVSyncValue& iTime,
+                        edm::ValidityInterval& iInterval) final {
+      if (m_start == edm::IOVSyncValue::invalidIOVSyncValue()) {
+        iInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
+      } else {
+        edm::ValidityInterval temp(m_start, edm::IOVSyncValue::endOfTime());
+        if (temp.validFor(iTime)) {
+          iInterval = temp;
+        } else {
+          iInterval = edm::ValidityInterval();
+        }
+      }
     }
 
-  private:
-    DummyEventSetupRecordRetriever(const DummyEventSetupRecordRetriever&);  // stop default
+    bool isConcurrentFinder() const final { return true; }
 
-    const DummyEventSetupRecordRetriever& operator=(const DummyEventSetupRecordRetriever&);  // stop default
+  private:
+    DummyEventSetupRecordRetriever(const DummyEventSetupRecordRetriever&) = delete;  // stop default
+
+    const DummyEventSetupRecordRetriever& operator=(const DummyEventSetupRecordRetriever&) = delete;  // stop default
 
     // ---------- member data --------------------------------
+    edm::IOVSyncValue m_start;
   };
 }  // namespace edm
 #endif

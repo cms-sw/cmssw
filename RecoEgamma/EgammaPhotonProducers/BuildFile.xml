@@ -21,6 +21,5 @@
 <use name="RecoTracker/TrackProducer"/>
 <use name="DataFormats/HcalRecHit"/>
 <use name="RecoCaloTools/Selectors" source_only="1"/>
-<use name="clhep"/>
 <use name="PhysicsTools/ONNXRuntime" />
 <flags EDM_PLUGIN="1"/>

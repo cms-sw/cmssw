@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_TracksterMomentumPluginBase_H__
-#define RecoHGCal_TICL_TracksterMomentumPluginBase_H__
+#ifndef RecoHGCal_TICL_TracksterMomentumPluginBase_h
+#define RecoHGCal_TICL_TracksterMomentumPluginBase_h
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"

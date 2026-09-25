@@ -72,8 +72,13 @@ public:
   std::vector<double> cellThickness() const;
   double cellThickness(int layer, int waferU, int waferV) const;
   int32_t cellType(int type, int waferU, int waferV, int iz, int fwdBack, int orient) const;
+  inline bool coldBoxMode() const { return (hgpar_->coldBoxMode_ > 0); }
+  inline double coldBoxRots(unsigned int k) const {
+    return ((k < hgpar_->coldBoxRots_.size()) ? hgpar_->coldBoxRots_[k] : 0);
+  }
   double distFromEdgeHex(double x, double y, double z) const;
   double distFromEdgeTrap(double x, double y, double z) const;
+  int endcaps() const { return (coldBoxMode() ? 1 : 2); }
   void etaPhiFromPosition(const double x,
                           const double y,
                           const double z,
@@ -107,6 +112,7 @@ public:
   bool isValidHex(int lay, int mod, int cell, bool reco) const;
   bool isValidHex8(int lay, int waferU, int waferV, bool fullAndPart) const;
   bool isValidHex8(int lay, int modU, int modV, int cellU, int cellV, bool fullAndPart) const;
+  bool isValidSilicon(unsigned int id) const;
   bool isValidTrap(int zside, int lay, int ieta, int iphi) const;
   int lastLayer(bool reco) const;
   int layerIndex(int lay, bool reco) const;
@@ -158,6 +164,7 @@ public:
     return part;
   }
   int32_t placementIndex(const HGCSiliconDetId&) const;
+  int32_t placementIndexMod(const HGCSiliconDetId&) const;
   std::pair<double, double> rangeR(double z, bool reco) const;
   std::pair<double, double> rangeRLayer(int lay, bool reco) const;
   std::pair<double, double> rangeZ(bool reco) const;

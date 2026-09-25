@@ -14,7 +14,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>
-<use name="Geometry/CommonDetUnit" source_only="1"/>
+<use name="Geometry/CommonTopologies" source_only="1"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="MagneticField/Engine"/>
 <use name="RecoTracker/TkHitPairs"/>

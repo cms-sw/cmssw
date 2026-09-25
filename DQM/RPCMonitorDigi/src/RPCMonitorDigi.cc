@@ -2,7 +2,7 @@
 #include "DQM/RPCMonitorClient/interface/utils.h"
 #include "DQM/RPCMonitorClient/interface/RPCNameHelper.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
 #include "DataFormats/Common/interface/Handle.h"

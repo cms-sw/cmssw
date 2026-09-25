@@ -35,6 +35,11 @@ ALCARECOTkAlHLTTracksZMuMu = Alignment.CommonAlignmentProducer.AlignmentTrackSel
 ALCARECOTkAlHLTTracksZMuMu.src = cms.InputTag("hltMergedTracks") 
 ALCARECOTkAlHLTTracksZMuMu.filter = True ##do not store empty events
 
+## modify input tracks for HLT Aligmment PCL during Heavy Ions
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(ALCARECOTkAlHLTTracksZMuMu,
+                         src = "hltMergedTracksPPOnAA")
+
 ALCARECOTkAlHLTTracksZMuMu.applyBasicCuts = True
 ALCARECOTkAlHLTTracksZMuMu.ptMin = 15.0 ##GeV
 ALCARECOTkAlHLTTracksZMuMu.etaMin = -3.5
@@ -65,6 +70,11 @@ ALCARECOTkAlHLTPixelZMuMuVertexTracks = _TracksFromPixelVertex.AlignmentTracksFr
     leptonTracks = 'ALCARECOTkAlHLTTracksZMuMu',
     useClosestVertexToDilepton = True,
 )
+
+pp_on_PbPb_run3.toModify(ALCARECOTkAlHLTPixelZMuMuVertexTracks,
+                         src = 'hltPixelTracksPPOnAA',
+                         vertices = 'hltPixelVerticesPPOnAA')
+
 
 seqALCARECOTkAlHLTTracksZMuMu = cms.Sequence(ALCARECOTkAlHLTTracksZMuMuHLT+
                                              ALCARECOTkAlHLTTracksZMuMuDCSFilter+

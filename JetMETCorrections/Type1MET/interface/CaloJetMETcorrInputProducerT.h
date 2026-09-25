@@ -38,7 +38,7 @@ namespace CaloJetMETcorrInputProducer_namespace {
   class InputTypeCheckerT {
   public:
     void operator()(const T&) const {}  // no type-checking needed for reco::CaloJet input
-    bool isPatJet(const T&) const { return std::is_base_of<class pat::Jet, T>::value; }
+    bool isPatJet(const T&) const { return std::is_base_of<pat::Jet, T>::value; }
   };
 
   template <typename T>

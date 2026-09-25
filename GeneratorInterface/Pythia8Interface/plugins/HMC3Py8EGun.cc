@@ -17,6 +17,7 @@ namespace gen {
     HMC3Py8EGun(edm::ParameterSet const&);
     ~HMC3Py8EGun() override {}
 
+    bool initializeForInternalPartons() override;
     bool generatePartonsAndHadronize() override;
     const char* classname() const override;
     void evtGenDecay();
@@ -40,13 +41,17 @@ namespace gen {
     fMinE = pgun_params.getParameter<double>("MinE");                                      // ,  0.);
     fMaxE = pgun_params.getParameter<double>("MaxE");                                      // ,  0.);
     fAddAntiParticle = pgun_params.getParameter<bool>("AddAntiParticle");                  //, false) ;
+  }
 
+  bool HMC3Py8EGun::initializeForInternalPartons() {
+    initializeGen();
     if (useEvtGen) {
       edm::LogInfo("Pythia8Interface") << "Creating and initializing pythia8 EvtGen plugin";
       evtgenDecays = std::make_shared<Pythia8::EvtGenDecays>(fMasterGen.get(), evtgenDecFile, evtgenPdlFile);
       for (unsigned int i = 0; i < evtgenUserFiles.size(); i++)
         evtgenDecays->readDecayFile(evtgenUserFiles.at(i));
     }
+    return true;
   }
 
   bool HMC3Py8EGun::generatePartonsAndHadronize() {

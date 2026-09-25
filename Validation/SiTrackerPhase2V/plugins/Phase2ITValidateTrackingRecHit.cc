@@ -31,10 +31,10 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/TrackerGeomDet.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetType.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 //--- for SimHit association
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -133,8 +133,9 @@ void Phase2ITValidateTrackingRecHit::fillITHistos(const edm::Event& iEvent,
       const GeomDetUnit* geomDetunit(tkGeom_->idToDetUnit(id));
       if (!geomDetunit)
         continue;
+      GlobalPoint detPos = geomDetunit->surface().toGlobal(Local2DPoint(0, 0));
       // determine the detector we are in
-      std::string key = phase2tkutil::getITHistoId(id.rawId(), tTopo_);
+      std::string key = phase2tkutil::getITHistoId(id.rawId(), tTopo_, detPos.phi());
       if (nrechitLayerMap_primary.find(key) == nrechitLayerMap_primary.end()) {
         nrechitLayerMap_primary.emplace(key, 1);
       } else {

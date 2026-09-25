@@ -1,7 +1,7 @@
 <use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/Candidate"/>
 <use name="DataFormats/Math"/>
-<use name="DataFormats/Provenance"/>
+<use name="DataFormats/Provenance" source_only="1"/>
 <use name="FWCore/ParameterSet"/>
 <use name="CommonTools/BaseParticlePropagator"/>
 <use name="FastSimulation/Particle"/>

@@ -18,8 +18,8 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 // Geometry
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 // template object
 #include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
 

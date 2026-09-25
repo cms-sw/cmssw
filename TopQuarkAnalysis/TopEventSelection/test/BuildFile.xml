@@ -1,1 +1,1 @@
-<test name="runtestTqafTopEventSelection" command="runtests.sh"/>
+<!-- <test name="runtestTqafTopEventSelection" command="runtests.sh"/> COMMENT: reads old format files -->

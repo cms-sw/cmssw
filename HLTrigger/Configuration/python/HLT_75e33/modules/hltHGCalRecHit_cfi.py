@@ -62,6 +62,8 @@ hltHGCalRecHit = cms.EDProducer("HGCalRecHitProducer",
 )
 
 phase2_hgcalV19.toModify(hltHGCalRecHit, 
+                         #four silicon thickness slots in v19: the CE-H offset moves from 3 to 4
+                         deltasi_index_regemfac = 4,
                          HGCEE_fCPerMIP = HGCAL_reco_constants.fcPerMip[0:4],
                          HGCHEF_fCPerMIP = HGCAL_reco_constants.fcPerMip[4:8],
                          HGCHFNose_fCPerMIP = [1.25, 2.57, 3.88, 2.57],

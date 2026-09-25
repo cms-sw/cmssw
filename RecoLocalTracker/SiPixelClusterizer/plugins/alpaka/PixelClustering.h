@@ -190,10 +190,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
             printf("start clusterizer for module %4d in block %4d\n", thisModuleId, block);
 #endif
 
-        // Find the index of the first pixel not belonging to this module (or invalid).
+        // Find the index just past the last pixel belonging to this module.
+        // Invalid pixels (e.g. ROCs/modules masked via quality info) leave holes in digi_view. Trailing holes
+        // from fully-masked modules must be excluded from the range: otherwise they inflate `lastPixel - firstPixel`
+        // and spuriously trip the "too many pixels" guard below (and would skew the clamp applied there).
         // Note: modules are not consecutive in clus_view, so we cannot use something like
         // lastPixel = (module + 1 == lastModule) ? numElements : clus_view[2 + module].moduleStart();
-        lastPixel = numElements;
+        lastPixel = firstPixel;
         const uint32_t firstFake = maxFakesInModule * block;
         fakePixels = 0;
 #ifdef GPU_DEBUG
@@ -203,14 +206,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
 
         for (uint32_t i : cms::alpakatools::independent_group_elements(acc, firstPixel, numElements)) {
           auto id = digi_view[i].moduleId();
-          // skip invalid pixels
+          // skip invalid pixels (holes left by masked ROCs/modules)
           if (id == ::pixelClustering::invalidModuleId)
             continue;
-          // find the first pixel in a different module
-          if (id != thisModuleId) {
-            alpaka::atomicMin(acc, &lastPixel, i, alpaka::hierarchy::Threads{});
+          // the first valid pixel of a different module marks the end of this module's region
+          if (id != thisModuleId)
             break;
-          }
+          // valid pixel of this module: extend the range to just past it, ignoring any trailing holes
+          alpaka::atomicMax(acc, &lastPixel, i + 1, alpaka::hierarchy::Threads{});
         }
 
         // clear the fake pixels
@@ -257,6 +260,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
         // FIXME if this happens frequently (and not only in simulation with low threshold) one will need to implement something cleverer.
         if (cms::alpakatools::once_per_block(acc)) {
           if (lastPixel - firstPixel > TrackerTraits::maxPixInModule) {
+            // The pixels past the clamp point are never clustered, so they still carry
+            // clus == their digi index (set by CountModules) together with a valid moduleId.
+            // Drop them explicitly
+            for (uint32_t i = TrackerTraits::maxPixInModule + firstPixel; i < lastPixel; ++i) {
+              digi_view[i].moduleId() = ::pixelClustering::invalidModuleId;
+              digi_view[i].clus() = ::pixelClustering::invalidClusterId;
+            }
             printf("Too many pixels in module %u: %u > %u\n",
                    thisModuleId,
                    lastPixel - firstPixel,

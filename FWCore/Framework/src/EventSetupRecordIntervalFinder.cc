@@ -49,19 +49,6 @@ namespace edm {
 
   bool EventSetupRecordIntervalFinder::isConcurrentFinder() const { return false; }
 
-  bool EventSetupRecordIntervalFinder::isNonconcurrentAndIOVNeedsUpdate(const eventsetup::EventSetupRecordKey& iKey,
-                                                                        const IOVSyncValue& iTime) const {
-    if (!isConcurrentFinder()) {
-      if (iTime == IOVSyncValue::invalidIOVSyncValue()) {
-        return true;
-      }
-      Intervals::const_iterator itFound = intervals_.find(iKey);
-      assert(itFound != intervals_.end());
-      return !itFound->second.validFor(iTime);
-    }
-    return false;
-  }
-
   void EventSetupRecordIntervalFinder::delaySettingRecords() {}
 
   std::set<EventSetupRecordKey> EventSetupRecordIntervalFinder::findingForRecords() const {

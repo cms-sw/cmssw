@@ -2,6 +2,7 @@
 <use name="DataFormats/MuonDetId"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
+<use name="rootcling"/>
 <use name="boost"/>
 <use name="CondFormats/L1TObjects"/>
 <use name="CondFormats/Serialization"/>

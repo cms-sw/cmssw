@@ -1,6 +1,10 @@
 #ifndef FWStorage_Catalog_FileLocator_h
 #define FWStorage_Catalog_FileLocator_h
 
+// Class FileLocator converts a Logical File Name (LFN)
+// to a Physical File Name (PFN) using rules from storage.json.
+// This is used by InputFileCatalog.
+
 #include <filesystem>
 #include <map>
 #include <regex>
@@ -17,7 +21,7 @@ namespace edm {
   public:
     explicit FileLocator(CatalogAttributes const& catalogAttributes, std::filesystem::path const& filename_storage);
 
-    std::string pfn(std::string const& ilfn) const;
+    std::string pfn(std::string const& lfn) const;
 
   private:
     struct Rule {

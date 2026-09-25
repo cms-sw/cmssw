@@ -57,7 +57,7 @@
 #include <Geometry/GEMGeometry/interface/GEMEtaPartition.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <Geometry/CommonTopologies/interface/GeomDet.h>
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
 #include <Geometry/GEMGeometry/interface/GEMGeometry.h>
@@ -69,7 +69,7 @@
 #include <DataFormats/MuonDetId/interface/GEMDetId.h>
 #include <DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h>
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <Geometry/CommonTopologies/interface/GeomDet.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/CommonTopologies/interface/GEMStripTopology.h>
 

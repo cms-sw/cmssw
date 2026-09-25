@@ -11,7 +11,7 @@
 #include "TIDLayerBuilder.h"
 #include "TECLayerBuilder.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 using namespace std;

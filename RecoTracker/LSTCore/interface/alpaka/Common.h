@@ -32,8 +32,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       25.007152356, 37.2186993757, 52.3104270826, 68.6658656666, 85.9770373007, 108.301772384};
   HOST_DEVICE_CONSTANT float kMiniRminMeanEndcap[5] = {
       130.992832231, 154.813883559, 185.352604327, 221.635123002, 265.022076742};
-  HOST_DEVICE_CONSTANT float k2Rinv1GeVf = (2.99792458e-3 * 3.8) / 2;
-  HOST_DEVICE_CONSTANT float kR1GeVf = 1. / (2.99792458e-3 * 3.8);
+  HOST_DEVICE_CONSTANT float k2Rinv1GeVf = (kC * kB) / 2;
+  HOST_DEVICE_CONSTANT float kR1GeVf = 1. / (kC * kB);
   HOST_DEVICE_CONSTANT float kSinAlphaMax = 0.95;
   HOST_DEVICE_CONSTANT float kDeltaZLum = 15.0;
   HOST_DEVICE_CONSTANT float kPixelPSZpitch = 0.15;
@@ -44,9 +44,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   HOST_DEVICE_CONSTANT float kWidthPS = 0.01;
   HOST_DEVICE_CONSTANT float kPt_betaMax = 7.0;
   HOST_DEVICE_CONSTANT int kNTripletThreshold = 1000;
-  // To be updated with std::numeric_limits<float>::infinity() in the code and data files
-  HOST_DEVICE_CONSTANT float kVerticalModuleSlope = 123456789.0;
+  HOST_DEVICE_CONSTANT int kNQuintupletThreshold = 100000;
   HOST_DEVICE_CONSTANT int kLogicalOTLayers = 11;  // logical OT layers are 1..11
+  HOST_DEVICE_CONSTANT auto kMaxPLSHitBitsInHitsSoA = ::lst::kMaxPLSHitBitsInHitsSoA;
 
   HOST_DEVICE_CONSTANT float kMiniDeltaTilted[3] = {0.26f, 0.26f, 0.26f};
   HOST_DEVICE_CONSTANT float kMiniDeltaFlat[6] = {0.26f, 0.16f, 0.16f, 0.18f, 0.18f, 0.18f};
@@ -90,9 +90,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       HOST_DEVICE_CONSTANT float kEta_norm = 2.5f;
       HOST_DEVICE_CONSTANT float kZ_max = 267.2349854f;
       HOST_DEVICE_CONSTANT float kR_max = 110.1099396f;
-      HOST_DEVICE_CONSTANT float kWp[kPtBins][kEtaBins] = {
+      HOST_DEVICE_CONSTANT float kWp98[kPtBins][kEtaBins] = {
           {0.4493f, 0.4939f, 0.5715f, 0.6488f, 0.5709f, 0.5938f, 0.7164f, 0.7565f, 0.8103f, 0.8593f},
           {0.4488f, 0.4448f, 0.5067f, 0.5929f, 0.4836f, 0.4112f, 0.4968f, 0.4403f, 0.5597f, 0.5067f}};
+      // 93% retention working points, same binning as kWp98.
+      HOST_DEVICE_CONSTANT float kWp93[kPtBins][kEtaBins] = {
+          {0.7831f, 0.8153f, 0.8313f, 0.823f, 0.7426f, 0.7532f, 0.8392f, 0.8636f, 0.9172f, 0.9389f},
+          {0.6982f, 0.7335f, 0.7395f, 0.8015f, 0.7356f, 0.6149f, 0.6848f, 0.6468f, 0.7187f, 0.7079f}};
     }  // namespace t5dnn
 
     namespace pt3dnn {

@@ -1,1 +1,1 @@
-<test name="test_DetectorStateFilter" command="test_DetectorStateFilter.sh"/>
+<!-- <test name="test_DetectorStateFilter" command="test_DetectorStateFilter.sh"/> COMMENT: reads old format files -->

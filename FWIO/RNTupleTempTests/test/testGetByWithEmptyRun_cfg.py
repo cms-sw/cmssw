@@ -22,7 +22,7 @@ process.source = RNTupleTempSource(
 from FWIO.RNTupleTempOutput.modules import RNTupleTempOutputModule
 process.out = RNTupleTempOutputModule(fileName = 'testGetByWithEmptyRun.root')
 
-from FWCore.Framework.modules import RunLumiEventAnalyzer
+from FWCore.TestModules.modules import RunLumiEventAnalyzer
 process.test = RunLumiEventAnalyzer(
     verbose = True,
     expectedRunLumiEvents = [

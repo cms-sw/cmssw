@@ -15,12 +15,12 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h"
 
 namespace l1t {
-
-  class TkJetWord {
-  public:
-    // ----------constants, enums and typedefs ---------
-    static constexpr double MAX_Z0 = 30.;
-    static constexpr double MAX_ETA = 2 * M_PI;
+  namespace io_v1 {
+    class TkJetWord {
+    public:
+      // ----------constants, enums and typedefs ---------
+      static constexpr double MAX_Z0 = 30.;
+      static constexpr double MAX_ETA = 2 * M_PI;
 
     enum TkJetBitWidths {
       kValidSize = 1,
@@ -83,16 +83,16 @@ namespace l1t {
               dispflag_t dispflag,
               tkjetunassigned_t unassigned);
 
-    ~TkJetWord() {}
+      ~TkJetWord() {}
 
-    // ----------copy constructor ----------------------
-    TkJetWord(const TkJetWord& word) { tkJetWord_ = word.tkJetWord_; }
+      // ----------copy constructor ----------------------
+      TkJetWord(const TkJetWord& word) { tkJetWord_ = word.tkJetWord_; }
 
-    // ----------operators -----------------------------
-    TkJetWord& operator=(const TkJetWord& word) {
-      tkJetWord_ = word.tkJetWord_;
-      return *this;
-    }
+      // ----------operators -----------------------------
+      TkJetWord& operator=(const TkJetWord& word) {
+        tkJetWord_ = word.tkJetWord_;
+        return *this;
+      }
 
     // ----------member functions (getters) ------------
     // These functions return arbitarary precision words (lists of bits) for each quantity
@@ -137,10 +137,10 @@ namespace l1t {
       return ret;
     }
 
-    tkjetunassigned_t unassignedWord() const {
-      return tkJetWord()(TkJetBitLocations::kUnassignedMSB, TkJetBitLocations::kUnassignedLSB);
-    }
-    tkjetword_t tkJetWord() const { return tkjetword_t(tkJetWord_.to_string().c_str(), 2); }
+      tkjetunassigned_t unassignedWord() const {
+        return tkJetWord()(TkJetBitLocations::kUnassignedMSB, TkJetBitLocations::kUnassignedLSB);
+      }
+      tkjetword_t tkJetWord() const { return tkjetword_t(tkJetWord_.to_string().c_str(), 2); }
 
     // These functions return the packed bits in integer format for each quantity
     // Signed quantities have the sign enconded in the left-most bit.
@@ -185,22 +185,23 @@ namespace l1t {
                       dispflag_t dispflag,
                       tkjetunassigned_t unassigned);
 
-  private:
-    // ----------private member functions --------------
-    double unpackSignedValue(unsigned int bits, unsigned int nBits, double lsb) const {
-      int isign = 1;
-      unsigned int digitized_maximum = (1 << nBits) - 1;
-      if (bits & (1 << (nBits - 1))) {  // check the sign
-        isign = -1;
-        bits = (1 << (nBits + 1)) - bits;  // if negative, flip everything for two's complement encoding
+    private:
+      // ----------private member functions --------------
+      double unpackSignedValue(unsigned int bits, unsigned int nBits, double lsb) const {
+        int isign = 1;
+        unsigned int digitized_maximum = (1 << nBits) - 1;
+        if (bits & (1 << (nBits - 1))) {  // check the sign
+          isign = -1;
+          bits = (1 << (nBits + 1)) - bits;  // if negative, flip everything for two's complement encoding
+        }
+        return (double(bits & digitized_maximum) + 0.5) * lsb * isign;
       }
-      return (double(bits & digitized_maximum) + 0.5) * lsb * isign;
-    }
 
-    // ----------member data ---------------------------
-    tkjetword_bs_t tkJetWord_;
-  };
-
+      // ----------member data ---------------------------
+      tkjetword_bs_t tkJetWord_;
+    };
+  }  // namespace io_v1
+  using TkJetWord = io_v1::TkJetWord;
   typedef std::vector<l1t::TkJetWord> TkJetWordCollection;
 
 }  // namespace l1t

@@ -1,6 +1,6 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGeneric.h"
 
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 // Pixel templates contain the rec hit error parameterizaiton

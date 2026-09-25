@@ -11,7 +11,7 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
 namespace reco {

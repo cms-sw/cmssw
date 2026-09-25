@@ -98,7 +98,7 @@ private:
 class OMTFinputMaker : public MuonStubMakerBase {
 public:
   OMTFinputMaker(const edm::ParameterSet& edmParameterSet,
-                 MuStubsInputTokens& muStubsInputTokens,
+                 const MuStubsInputTokens& muStubsInputTokens,
                  const OMTFConfiguration* config,
                  std::unique_ptr<OmtfAngleConverter> angleConverter);
 

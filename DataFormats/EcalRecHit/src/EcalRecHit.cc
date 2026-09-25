@@ -6,13 +6,15 @@
 #include <cassert>
 #include <cmath>
 
-std::ostream& operator<<(std::ostream& s, const EcalRecHit& hit) {
-  if (hit.detid().det() == DetId::Ecal && hit.detid().subdetId() == EcalBarrel)
-    return s << EBDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
-  else if (hit.detid().det() == DetId::Ecal && hit.detid().subdetId() == EcalEndcap)
-    return s << EEDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
-  else if (hit.detid().det() == DetId::Ecal && hit.detid().subdetId() == EcalPreshower)
-    return s << ESDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
-  else
-    return s << "EcalRecHit undefined subdetector";
-}
+namespace io_v1 {
+  std::ostream& operator<<(std::ostream& s, const EcalRecHit& hit) {
+    if (hit.detid().det() == DetId::Ecal && hit.detid().subdetId() == EcalBarrel)
+      return s << EBDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
+    else if (hit.detid().det() == DetId::Ecal && hit.detid().subdetId() == EcalEndcap)
+      return s << EEDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
+    else if (hit.detid().det() == DetId::Ecal && hit.detid().subdetId() == EcalPreshower)
+      return s << ESDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
+    else
+      return s << "EcalRecHit undefined subdetector";
+  }
+}  // namespace io_v1

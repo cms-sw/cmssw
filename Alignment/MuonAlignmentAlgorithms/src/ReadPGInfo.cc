@@ -240,7 +240,7 @@ static char mapping[][2][20] = {
 
 */
 
-static char chambers[TOTALCHAMBERS][20] = {
+static const char chambers[TOTALCHAMBERS][20] = {
     "351010100100009", "351010100100016", "351010100100014", "351010100100017", "351010100100011", "351010100100038",
     "351010100100035", "351010100100023", "351010100100036", "351010100100072", "351010100200013", "351010100200015",
     "351010100200020", "351010100200019", "351010100200010", "351010100200025", "351010100200037", "351010100200028",
@@ -286,7 +286,7 @@ static char chambers[TOTALCHAMBERS][20] = {
     "351010103600031", "351010103600032", "351010103600033", "351010103600049", "351010103600046", "351030103700058",
     "351030103800032", "351030103800057", "351030103900056", "351030104000029", "351030104000055", "351040104100001"};
 
-static int position[TOTALCHAMBERS][3] = {
+static const int position[TOTALCHAMBERS][3] = {
     {2, 3, 1},   {2, 5, 1},   {2, 9, 1},   {2, 11, 1},  {1, 2, 1},   {1, 6, 1},   {1, 12, 1},  {1, 10, 1},  {1, 8, 1},
     {0, 0, 0},   {2, 6, 1},   {2, 10, 1},  {2, 12, 1},  {1, 5, 1},   {2, 8, 1},   {1, 11, 1},  {1, 3, 1},   {2, 2, 1},
     {2, 4, 1},   {1, 9, 1},   {0, 0, 0},   {0, 0, 0},   {0, 0, 0},   {1, 8, 2},   {2, 5, 2},   {2, 11, 2},  {1, 12, 2},
@@ -326,7 +326,7 @@ ReadPGInfo::ReadPGInfo(const char *name) {
 
 ReadPGInfo::~ReadPGInfo() { delete rootFile; }
 
-char *ReadPGInfo::getId(int wheel, int station, int sector) {
+const char *ReadPGInfo::getId(int wheel, int station, int sector) {
   for (int counter = 0; counter < TOTALCHAMBERS; ++counter) {
     if (wheel == position[counter][0] && sector == position[counter][1] && station == position[counter][2])
       return chambers[counter];
@@ -336,7 +336,7 @@ char *ReadPGInfo::getId(int wheel, int station, int sector) {
 
 TMatrixD ReadPGInfo::giveR(int wheel, int station, int sector) {
   TMatrixD *empty = new TMatrixD(0, 0);
-  char *id = getId(wheel, station, sector);
+  const char *id = getId(wheel, station, sector);
   if (id == nullptr)
     return *empty;
   TDirectoryFile *myDir = (TDirectoryFile *)rootFile->Get(id);
@@ -370,7 +370,7 @@ TMatrixD ReadPGInfo::giveQCCal(int wheel, int station, int sector) {
 
 TMatrixD ReadPGInfo::giveQC(int wheel, int station, int sector) {
   TMatrixD *empty = new TMatrixD(0, 0);
-  char *id = getId(wheel, station, sector);
+  const char *id = getId(wheel, station, sector);
   if (id == nullptr)
     return *empty;
   TDirectoryFile *myDir = (TDirectoryFile *)rootFile->Get(id);
@@ -386,7 +386,7 @@ TMatrixD ReadPGInfo::giveQC(int wheel, int station, int sector) {
 
 TMatrixD ReadPGInfo::giveSurvey(int wheel, int station, int sector) {
   TMatrixD *empty = new TMatrixD(0, 0);
-  char *id = getId(wheel, station, sector);
+  const char *id = getId(wheel, station, sector);
   if (id == nullptr)
     return *empty;
   TDirectoryFile *myDir = (TDirectoryFile *)rootFile->Get(id);

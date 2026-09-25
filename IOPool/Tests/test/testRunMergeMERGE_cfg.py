@@ -16,6 +16,12 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(32)
 )
 
+#Contents of files
+#testRunMerge1.root  "PROD" [run:1,lumi:1, ev:11-20]
+#testRunMerge2.root  "PROD" [run:1, lumi:1, ev:21-25] [run:2,lumi:1, ev:1-5]
+#testRunMerge3.root  "PROD" [run:1, lumi:1, ev:1-10]
+#testRunMerge4.root  "PROD" [run:11, lumi:1, ev:1]
+#testRunMerge5.root  "PROD" [run:11-21, lumi:2-4, ev:1-9]
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         'file:testRunMerge1.root', 
@@ -116,6 +122,9 @@ process.out = cms.OutputModule("PoolOutputModule",
         'drop *_J_*_*'
     )
 )
+#Contents of file
+#testRunMerge.root "PROD" and "MERGE" [run:1, lumi:1, ev:1-25]&[run:2, lumi:1, ev:1-5]&[run:11, lumi:1, ev:1]&[run:11-21, lumi:2-4, ev:1-9] (run 1 is split with run 2 between)
+
 
 process.checker = cms.OutputModule("GetProductCheckerOutputModule")
 

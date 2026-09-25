@@ -35,6 +35,8 @@
   <test name="TestIOPoolStreamerReducedProcessHistoryVersion" command="run_TestReducedProcessHistoryVersion.sh"/>
   <test name="TestIOPoolStreamerReducedProcessHistoryHardwareResources" command="run_TestReducedProcessHistoryHardwareResources.sh"/>
 
+  <test name="TestIOPoolStreamerDiagStreamerFile" command="run_TestDiagStreamerFile.sh"/>
+
   <library file="StreamThingProducer.cc" name="StreamThingProducer">
     <flags EDM_PLUGIN="1"/>
     <use name="DataFormats/TestObjects"/>

@@ -31,6 +31,6 @@
 <use name="DataFormats/HcalRecHit"/>
 <use name="DataFormats/EgammaReco"/>
 <use name="PhysicsTools/SelectorUtils"/>
-<use name="DataFormats/Provenance"/>
+<use name="DataFormats/Provenance" source_only="1"/>
 <use name="DataFormats/OnlineMetaData"/>
 <flags EDM_PLUGIN="1"/>

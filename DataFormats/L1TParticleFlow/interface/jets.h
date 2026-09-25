@@ -12,53 +12,59 @@
 
 namespace l1ct {
 
-  // all possible tag categories (can be extended for new / separate taggers)
-  class JetTagClass {
-  public:
-    enum JetTagClassValue : uint8_t { b, c, uds, g, tau_p, tau_n, mu, e };
-    JetTagClass() = default;
-    JetTagClass(JetTagClassValue aJetTagClassValue) : value_(aJetTagClassValue) {}
-    JetTagClass(std::string aJetTagClassValueString) {
-      auto it = labels_.find(aJetTagClassValueString);
-      if (it != labels_.end()) {
-        value_ = it->second;
-      } else {
-        // TODO throw an error
-        value_ = JetTagClass::JetTagClassValue::uds;
+  namespace io_v1 {
+
+    // all possible tag categories (can be extended for new / separate taggers)
+    class JetTagClass {
+    public:
+      enum JetTagClassValue : uint8_t { b, c, uds, g, tau_p, tau_n, mu, e };
+      JetTagClass() = default;
+      JetTagClass(JetTagClassValue aJetTagClassValue) : value_(aJetTagClassValue) {}
+      JetTagClass(std::string aJetTagClassValueString) {
+        auto it = labels_.find(aJetTagClassValueString);
+        if (it != labels_.end()) {
+          value_ = it->second;
+        } else {
+          // TODO throw an error
+          value_ = JetTagClass::JetTagClassValue::uds;
+        }
       }
-    }
 
-    inline bool operator==(const JetTagClass &other) const { return value_ == other.value_; }
+      inline bool operator==(const JetTagClass &other) const { return value_ == other.value_; }
 
-  private:
-    JetTagClassValue value_;
-    static const std::unordered_map<std::string, JetTagClassValue> labels_;
+    private:
+      JetTagClassValue value_;
+      static const std::unordered_map<std::string, JetTagClassValue> labels_;
 
-    friend std::ostream &operator<<(std::ostream &ost, const l1ct::JetTagClass &jtc) {
-      auto it = std::find_if(
-          std::begin(jtc.labels_), std::end(jtc.labels_), [&jtc](auto &&p) { return p.second == jtc.value_; });
-      if (it != std::end(jtc.labels_)) {
-        ost << it->first;
+      friend std::ostream &operator<<(std::ostream &ost, const l1ct::io_v1::JetTagClass &jtc) {
+        auto it = std::find_if(
+            std::begin(jtc.labels_), std::end(jtc.labels_), [&jtc](auto &&p) { return p.second == jtc.value_; });
+        if (it != std::end(jtc.labels_)) {
+          ost << it->first;
+        }
+        return ost;
       }
-      return ost;
-    }
 
-  };  // JetTagClass
+    };  // JetTagClass
 
-  // Define a separate class/struct for jet tag handling
-  struct JetTagClassHandler {
-    static const unsigned NTagFields = 8;
-    static const JetTagClass tagClassesDefault_[NTagFields];
+    // Define a separate class/struct for jet tag handling
+    struct JetTagClassHandler {
+      static const unsigned NTagFields = 8;
+      static const JetTagClass tagClassesDefault_[NTagFields];
 
-    JetTagClass tagClassesArray[NTagFields];
+      JetTagClass tagClassesArray[NTagFields];
 
-    JetTagClassHandler() {
-      // Copy the default values to the array
-      for (unsigned i = 0; i < NTagFields; i++) {
-        tagClassesArray[i] = tagClassesDefault_[i];
+      JetTagClassHandler() {
+        // Copy the default values to the array
+        for (unsigned i = 0; i < NTagFields; i++) {
+          tagClassesArray[i] = tagClassesDefault_[i];
+        }
       }
-    }
-  };
+    };
+
+  }  // namespace io_v1
+  using JetTagClass = io_v1::JetTagClass;
+  using JetTagClassHandler = io_v1::JetTagClassHandler;
 
   struct Jet {
     pt_t hwPt;

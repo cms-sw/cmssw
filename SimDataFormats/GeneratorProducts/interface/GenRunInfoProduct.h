@@ -5,61 +5,67 @@
  *
  */
 
-class GenRunInfoProduct {
-public:
-  // a few forward declarations
-  struct XSec;
+namespace io_v1 {
 
-  // constructors, destructors
-  GenRunInfoProduct();
-
-  // getters
-
-  const XSec &internalXSec() const { return internalXSec_; }
-  const XSec &externalXSecLO() const { return externalXSecLO_; }
-  const XSec &externalXSecNLO() const { return externalXSecNLO_; }
-  double filterEfficiency() const { return externalFilterEfficiency_; }
-
-  // setters
-
-  void setInternalXSec(const XSec &xsec) { internalXSec_ = xsec; }
-  void setExternalXSecLO(const XSec &xsec) { externalXSecLO_ = xsec; }
-  void setExternalXSecNLO(const XSec &xsec) { externalXSecNLO_ = xsec; }
-  void setFilterEfficiency(double effic) { externalFilterEfficiency_ = effic; }
-
-  // struct definitions
-  struct XSec {
+  class GenRunInfoProduct {
   public:
-    XSec() : value_(-1.), error_(-1.) {}
-    XSec(double value, double error = -1.) : value_(value), error_(error) {}
+    // a few forward declarations
+    struct XSec;
 
-    double value() const { return value_; }
-    double error() const { return error_; }
+    // constructors, destructors
+    GenRunInfoProduct();
 
-    bool isSet() const { return value_ >= 0.; }
-    bool hasError() const { return error_ >= 0.; }
+    // getters
 
-    operator double() const { return value_; }
-    operator bool() const { return isSet(); }
+    const XSec &internalXSec() const { return internalXSec_; }
+    const XSec &externalXSecLO() const { return externalXSecLO_; }
+    const XSec &externalXSecNLO() const { return externalXSecNLO_; }
+    double filterEfficiency() const { return externalFilterEfficiency_; }
 
-    bool operator==(const XSec &other) const { return value_ == other.value_ && error_ == other.error_; }
-    bool operator!=(const XSec &other) const { return !(*this == other); }
+    // setters
+
+    void setInternalXSec(const XSec &xsec) { internalXSec_ = xsec; }
+    void setExternalXSecLO(const XSec &xsec) { externalXSecLO_ = xsec; }
+    void setExternalXSecNLO(const XSec &xsec) { externalXSecNLO_ = xsec; }
+    void setFilterEfficiency(double effic) { externalFilterEfficiency_ = effic; }
+
+    // struct definitions
+    struct XSec {
+    public:
+      XSec() : value_(-1.), error_(-1.) {}
+      XSec(double value, double error = -1.) : value_(value), error_(error) {}
+
+      double value() const { return value_; }
+      double error() const { return error_; }
+
+      bool isSet() const { return value_ >= 0.; }
+      bool hasError() const { return error_ >= 0.; }
+
+      operator double() const { return value_; }
+      operator bool() const { return isSet(); }
+
+      bool operator==(const XSec &other) const { return value_ == other.value_ && error_ == other.error_; }
+      bool operator!=(const XSec &other) const { return !(*this == other); }
+
+    private:
+      double value_, error_;
+    };
+
+    // convenience (return the value, prefer externally specified over internal one)
+    double crossSection() const { return externalXSecLO_ ? externalXSecLO_.value() : internalXSec_.value(); }
+
+    // methods used by EDM
+    bool isProductEqual(const GenRunInfoProduct &other) const;
 
   private:
-    double value_, error_;
+    // cross sections
+    XSec internalXSec_;                      // the one computed during cmsRun
+    XSec externalXSecLO_, externalXSecNLO_;  // from config file
+    double externalFilterEfficiency_;        // from config file
   };
 
-  // convenience (return the value, prefer externally specified over internal one)
-  double crossSection() const { return externalXSecLO_ ? externalXSecLO_.value() : internalXSec_.value(); }
+}  // namespace io_v1
 
-  // methods used by EDM
-  bool isProductEqual(const GenRunInfoProduct &other) const;
-
-private:
-  // cross sections
-  XSec internalXSec_;                      // the one computed during cmsRun
-  XSec externalXSecLO_, externalXSecNLO_;  // from config file
-  double externalFilterEfficiency_;        // from config file
-};
+using GenRunInfoProduct = io_v1::GenRunInfoProduct;
 
 #endif  // SimDataFormats_GeneratorProducts_GenRunInfoProduct_h

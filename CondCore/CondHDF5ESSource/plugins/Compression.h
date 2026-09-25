@@ -25,7 +25,7 @@
 // forward declarations
 
 namespace cond::hdf5 {
-  enum class Compression { kNone, kZLIB, kLZMA };
+  enum class Compression { kNone, kZLIB, kLZMA, kZSTD };
 }
 
 #endif

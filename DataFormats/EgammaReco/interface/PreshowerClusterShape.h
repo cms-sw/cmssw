@@ -10,39 +10,42 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 namespace reco {
+  namespace io_v1 {
 
-  class PreshowerClusterShape {
-  public:
-    /// default constructor
-    PreshowerClusterShape() {}
+    class PreshowerClusterShape {
+    public:
+      /// default constructor
+      PreshowerClusterShape() {}
 
-    virtual ~PreshowerClusterShape();
+      virtual ~PreshowerClusterShape();
 
-    /// constructor from strip energies
-    PreshowerClusterShape(const std::vector<float>& stripEnergies, const int plane);
+      /// constructor from strip energies
+      PreshowerClusterShape(const std::vector<float>& stripEnergies, const int plane);
 
-    /// Copy contructor
-    PreshowerClusterShape(const PreshowerClusterShape&);
+      /// Copy contructor
+      PreshowerClusterShape(const PreshowerClusterShape&);
 
-    /// Preshower plane
-    int plane() const { return plane_; }
+      /// Preshower plane
+      int plane() const { return plane_; }
 
-    /// Associated SuperCluster;
-    SuperClusterRef superCluster() const { return sc_ref_; }
+      /// Associated SuperCluster;
+      SuperClusterRef superCluster() const { return sc_ref_; }
 
-    /// Energies of component strips
-    virtual std::vector<float> getStripEnergies() const { return stripEnergies_; }
+      /// Energies of component strips
+      virtual std::vector<float> getStripEnergies() const { return stripEnergies_; }
 
-    void setSCRef(const SuperClusterRef& r) { sc_ref_ = r; }
+      void setSCRef(const SuperClusterRef& r) { sc_ref_ = r; }
 
-  private:
-    int plane_;
+    private:
+      int plane_;
 
-    /// Associated super cluster;
-    SuperClusterRef sc_ref_;
+      /// Associated super cluster;
+      SuperClusterRef sc_ref_;
 
-    /// used strip energies
-    std::vector<float> stripEnergies_;
-  };
+      /// used strip energies
+      std::vector<float> stripEnergies_;
+    };
+  }  // namespace io_v1
+  using PreshowerClusterShape = io_v1::PreshowerClusterShape;
 }  // namespace reco
 #endif

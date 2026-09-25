@@ -145,7 +145,6 @@ public:
     REGISTER(PreCloseOutputFiles);
     REGISTER(PostCloseOutputFiles);
 
-    REGISTER(JobFailure);
     REGISTER(BeginProcessing);
     REGISTER(EndProcessing);
 

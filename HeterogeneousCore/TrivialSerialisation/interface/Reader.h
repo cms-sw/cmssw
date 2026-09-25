@@ -1,16 +1,19 @@
 #ifndef HeterogeneousCore_TrivialSerialisation_interface_Reader_h
 #define HeterogeneousCore_TrivialSerialisation_interface_Reader_h
 
-#include <vector>
-#include <span>
 #include <cstddef>
+#include <span>
+#include <vector>
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/TrivialSerialisation/interface/MemoryCopyTraits.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/AnyBuffer.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/Common.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/ReaderBase.h"
+
+namespace ngt::detail {
+  [[noreturn]] void throwEmptyWrapperError();
+}
 
 namespace ngt {
 
@@ -32,7 +35,7 @@ namespace ngt {
     const T& object() const {
       const WrapperType& w = static_cast<const WrapperType&>(*ptr_);
       if (not w.isPresent()) {
-        throw edm::Exception(edm::errors::LogicError) << "Attempt to access an empty Wrapper";
+        detail::throwEmptyWrapperError();
       }
       return w.bareProduct();
     }

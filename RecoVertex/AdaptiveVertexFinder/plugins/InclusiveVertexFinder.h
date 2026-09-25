@@ -229,15 +229,13 @@ void TemplatedInclusiveVertexFinder<InputContainer, VTX>::produce(edm::Event &ev
     }
     BeamSpot bs(pv.position(), 0.0, 0.0, 0.0, 0.0, cov, BeamSpot::Unknown);
 
-    int i = 0;
 #ifdef VTXDEBUG
-
     std::cout << "CLUSTERS " << clusters.size() << std::endl;
 #endif
 
     for (std::vector<TracksClusteringFromDisplacedSeed::Cluster>::iterator cluster = clusters.begin();
          cluster != clusters.end();
-         ++cluster, ++i) {
+         ++cluster) {
       if (cluster->tracks.size() < 2 || cluster->tracks.size() > maxNTracks)
         continue;
       std::vector<TransientVertex> vertices;

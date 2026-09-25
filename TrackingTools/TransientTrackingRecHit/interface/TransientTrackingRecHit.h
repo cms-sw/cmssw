@@ -2,7 +2,7 @@
 #define TransientTrackingRecHit_H
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 

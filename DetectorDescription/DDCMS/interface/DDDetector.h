@@ -27,7 +27,7 @@ namespace cms {
     dd4hep::DetElement world() const;
 
     //! The geometry manager of this instance
-    TGeoManager& manager() const;
+    const TGeoManager& manager() const;
 
     //! Find DetElement as child of the top level volume by it's absolute path
     dd4hep::DetElement findElement(const std::string&) const;

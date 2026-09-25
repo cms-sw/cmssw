@@ -19,7 +19,7 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
 // EventSetup data types
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"

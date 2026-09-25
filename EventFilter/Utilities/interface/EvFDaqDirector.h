@@ -110,14 +110,6 @@ namespace evf {
     std::string getRunOpenDirPath() const { return run_dir_ + "/open"; }
     bool outputAdler32Recheck() const { return outputAdler32Recheck_; }
     void removeFile(std::string);
-
-    FileStatus updateFuLock(unsigned int& ls,
-                            std::string& nextFile,
-                            uint32_t& fsize,
-                            uint16_t& rawHeaderSize,
-                            uint64_t& lockWaitTime,
-                            bool& setExceptionState);
-    void tryInitializeFuLockFile();
     unsigned int getRunNumber() const { return run_; }
     void lockInitLock();
     void unlockInitLock();
@@ -254,7 +246,6 @@ namespace evf {
     std::string fileBrokerPort_;
     bool fileBrokerKeepAlive_;
     bool fileBrokerUseLocalLock_;
-    unsigned int fuLockPollInterval_;
     bool outputAdler32Recheck_;
     bool directorBU_;
     std::string hltSourceDirectory_;
@@ -269,30 +260,13 @@ namespace evf {
     std::string run_dir_;
     std::string bu_run_dir_;
     std::string bu_run_open_dir_;
-    std::string fulockfile_;
 
-    int bu_readlock_fd_;
-    int bu_writelock_fd_;
-    int fu_readwritelock_fd_;
     int fulocal_rwlock_fd_;
     int fulocal_rwlock_fd2_;
-
-    FILE* bu_w_lock_stream;
-    FILE* bu_r_lock_stream;
-    FILE* fu_rw_lock_stream;
-    FILE* bu_w_monitor_stream;
-    FILE* bu_t_monitor_stream;
 
     DirManager dirManager_;
 
     unsigned long previousFileSize_;
-
-    struct flock bu_w_flk;
-    struct flock bu_r_flk;
-    struct flock bu_w_fulk;
-    struct flock bu_r_fulk;
-    struct flock fu_rw_flk;
-    struct flock fu_rw_fulk;
 
     evf::FastMonitoringService* fms_ = nullptr;
 

@@ -3,6 +3,7 @@
 <use name="roothistmatrix"/>
 <use name="tbb"/>
 <use name="fmt"/>
+<use name="DataFormats/Provenance"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>

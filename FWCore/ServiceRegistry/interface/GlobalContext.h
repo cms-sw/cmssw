@@ -43,9 +43,7 @@ namespace edm {
       kEndRun,
       kEndProcessBlock,
       kEndJob,
-      kWriteProcessBlock,
-      kWriteRun,
-      kWriteLuminosityBlock
+      kWriteProcessBlock
     };
 
     GlobalContext(Transition transition,
@@ -59,8 +57,7 @@ namespace edm {
     Transition transition() const { return transition_; }
     bool isAtEndTransition() const {
       return transition() == Transition::kEndLuminosityBlock or transition() == Transition::kEndRun or
-             transition() == Transition::kEndProcessBlock or transition() == Transition::kWriteRun or
-             transition() == Transition::kWriteLuminosityBlock or transition() == Transition::kWriteProcessBlock;
+             transition() == Transition::kEndProcessBlock or transition() == Transition::kWriteProcessBlock;
     }
 
     LuminosityBlockID const& luminosityBlockID() const { return luminosityBlockID_; }

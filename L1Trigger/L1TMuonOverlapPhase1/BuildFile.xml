@@ -35,4 +35,3 @@
 <use name="roofit"/>
 <use name="root"/>
 <use name="xerces-c"/>
-<use name="Utilities/Xerces"/>

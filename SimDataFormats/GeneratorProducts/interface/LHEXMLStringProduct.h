@@ -9,28 +9,34 @@
 #include <vector>
 #include <cstdint>
 
-class LHEXMLStringProduct {
-public:
-  // constructors, destructors
-  LHEXMLStringProduct();
-  LHEXMLStringProduct(const std::string& content);
-  virtual ~LHEXMLStringProduct();
+namespace io_v1 {
 
-  // getters
-  const std::vector<std::string>& getStrings() const { return content_; }
+  class LHEXMLStringProduct {
+  public:
+    // constructors, destructors
+    LHEXMLStringProduct();
+    LHEXMLStringProduct(const std::string& content);
+    virtual ~LHEXMLStringProduct();
 
-  const std::vector<std::vector<uint8_t> >& getCompressed() const { return compressedContent_; }
+    // getters
+    const std::vector<std::string>& getStrings() const { return content_; }
 
-  void fillCompressedContent(std::istream& input, unsigned int initialSize = 4 * 1024 * 1024);
-  void writeCompressedContent(std::ostream& output, unsigned int i) const;
+    const std::vector<std::vector<uint8_t> >& getCompressed() const { return compressedContent_; }
 
-  // merge method. It will be used when merging different jobs populating the same lumi section
-  bool mergeProduct(LHEXMLStringProduct const& other);
-  void swap(LHEXMLStringProduct& other);
+    void fillCompressedContent(std::istream& input, unsigned int initialSize = 4 * 1024 * 1024);
+    void writeCompressedContent(std::ostream& output, unsigned int i) const;
 
-private:
-  std::vector<std::string> content_;
-  std::vector<std::vector<uint8_t> > compressedContent_;
-};
+    // merge method. It will be used when merging different jobs populating the same lumi section
+    bool mergeProduct(LHEXMLStringProduct const& other);
+    void swap(LHEXMLStringProduct& other);
+
+  private:
+    std::vector<std::string> content_;
+    std::vector<std::vector<uint8_t> > compressedContent_;
+  };
+
+}  // namespace io_v1
+
+using LHEXMLStringProduct = io_v1::LHEXMLStringProduct;
 
 #endif  // SimDataFormats_GeneratorProducts_LHEXMLStringProduct_h

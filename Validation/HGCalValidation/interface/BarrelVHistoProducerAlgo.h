@@ -22,7 +22,7 @@
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
-#include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "RecoLocalCalo/HGCalRecAlgos/interface/TICLGeomTools.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
@@ -199,10 +199,10 @@ class BarrelVHistoProducerAlgo {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
-  using TracksterToTracksterMap =
-      ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>;
+  using TracksterToTracksterMap = ticl::
+      TICLAssociationMap<ticl::mapWithSharedEnergyAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>;
   using SimClusterToCaloParticleMap =
-      ticl::AssociationMap<ticl::oneToOneMapWithFraction, std::vector<SimCluster>, std::vector<CaloParticle>>;
+      ticl::TICLAssociationMap<ticl::oneToOneMapWithFraction, std::vector<SimCluster>, std::vector<CaloParticle>>;
   enum validationType { byHits_CP = 0, byLCs, byLCs_CP, byHits };
 
   BarrelVHistoProducerAlgo(const edm::ParameterSet& pset);
@@ -304,10 +304,36 @@ public:
       edm::MultiSpan<reco::PFRecHit> const& barrelHits) const;
   void fill_cluster_histos(const Histograms& histograms, const int count, const reco::CaloCluster& cluster) const;
 
+  void fill_trackster_histos(const Histograms& histograms,
+                             const int count,
+                             const ticl::TracksterCollection& tracksters,
+                             const reco::CaloClusterCollection& layerClusters,
+                             const ticl::TracksterCollection& simTSs,
+                             const ticl::TracksterCollection& simTSs_fromCP,
+                             const std::map<unsigned int, std::vector<unsigned int>>& cpToSc_SimTrackstersMap,
+                             std::vector<SimCluster> const& sC,
+                             const edm::ProductID& cPHandle_id,
+                             std::vector<CaloParticle> const& cP,
+                             std::vector<size_t> const& cPIndices,
+                             std::vector<size_t> const& cPSelectedIndices,
+                             std::unordered_map<DetId, const unsigned int> const& hitMap,
+                             unsigned int layers,
+                             edm::MultiSpan<reco::PFRecHit> const& hits,
+                             bool mapsFound,
+                             const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersByLCsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& simTrackstersToTrackstersByLCsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersFromCPsByLCsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& simTrackstersFromCPsToTrackstersByLCsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersByHitsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& simTrackstersToTrackstersByHitsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersFromCPsByHitsMapH,
+                             const edm::Handle<TracksterToTracksterMap>& simTrackstersFromCPsToTrackstersByHitsMapH,
+                             const SimClusterToCaloParticleMap& scToCpMap) const;
+
   double distance2(const double x1, const double y1, const double x2, const double y2) const;
   double distance(const double x1, const double y1, const double x2, const double y2) const;
 
-  void setRecHitTools(std::shared_ptr<hgcal::RecHitTools> recHitTools);
+  void setRecHitTools(std::shared_ptr<ticlgeom::Tools> recHitTools);
 
   DetId findmaxhit(const reco::CaloCluster& cluster,
                    std::unordered_map<DetId, const unsigned int> const&,
@@ -336,7 +362,7 @@ public:
 private:
   double getEta(double eta) const;
 
-  std::shared_ptr<hgcal::RecHitTools> recHitTools_;
+  std::shared_ptr<ticlgeom::Tools> recHitTools_;
   constexpr static int numberOfValidationTypes_ = 4;
   std::array<std::string, numberOfValidationTypes_> ref_ = {
       {"SimTrackster_fromCP_byHits", "SimTrackster_byLCs", "SimTrackster_fromCP_byLCs", "SimTrackster_byHits"}};

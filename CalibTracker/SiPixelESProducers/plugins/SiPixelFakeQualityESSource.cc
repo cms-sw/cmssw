@@ -24,7 +24,7 @@
 #include "CondFormats/DataRecord/interface/SiPixelQualityFromDbRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -39,19 +39,14 @@
 // class decleration
 //
 
-class SiPixelFakeQualityESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class SiPixelFakeQualityESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  SiPixelFakeQualityESSource(const edm::ParameterSet&);
+  explicit SiPixelFakeQualityESSource(const edm::ParameterSet&);
   ~SiPixelFakeQualityESSource() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  virtual std::unique_ptr<SiPixelQuality> produce(const SiPixelQualityFromDbRcd&);
-
-protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
+  std::unique_ptr<SiPixelQuality> produce(const SiPixelQualityFromDbRcd&);
 
 private:
   edm::FileInPath fp_;
@@ -86,13 +81,6 @@ std::unique_ptr<SiPixelQuality> SiPixelFakeQualityESSource::produce(const SiPixe
   obj->addDisabledModule(BadModule);
 
   return std::unique_ptr<SiPixelQuality>(obj);
-}
-
-void SiPixelFakeQualityESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                                const edm::IOVSyncValue& iosv,
-                                                edm::ValidityInterval& oValidity) {
-  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
-  oValidity = infinity;
 }
 
 void SiPixelFakeQualityESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

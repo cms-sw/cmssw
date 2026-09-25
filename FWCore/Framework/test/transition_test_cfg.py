@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-import sys
+import argparse
 
 def chooseTrans(index):
     d = (
@@ -364,19 +364,68 @@ def chooseTrans(index):
                         cms.PSet(type = cms.untracked.string("IsStop"),
                                  id = cms.untracked.EventID(0,0,0))
                         ) ],
+                        ["Less events than streams", #18
+    cms.untracked.VPSet(
+                        cms.PSet(type = cms.untracked.string("IsFile"),
+                                 id = cms.untracked.EventID(0,0,0)),
+                        cms.PSet(type = cms.untracked.string("IsRun"),
+                                 id = cms.untracked.EventID(1,0,0)),
+                        cms.PSet(type = cms.untracked.string("IsLumi"),
+                                 id = cms.untracked.EventID(1,1,0)),
+                        cms.PSet(type = cms.untracked.string("IsEvent"),
+                                 id = cms.untracked.EventID(1,1,1)),
+                         cms.PSet(type = cms.untracked.string("IsLumi"),
+                                 id = cms.untracked.EventID(1,2,0)),
+                         cms.PSet(type = cms.untracked.string("IsEvent"),
+                                 id = cms.untracked.EventID(1,2,2)),
+                         cms.PSet(type = cms.untracked.string("IsLumi"),
+                                 id = cms.untracked.EventID(1,3,0)),
+                         cms.PSet(type = cms.untracked.string("IsEvent"),
+                                 id = cms.untracked.EventID(1,3,3)),
+                         cms.PSet(type = cms.untracked.string("IsLumi"),
+                                 id = cms.untracked.EventID(1,4,0)),
+                         cms.PSet(type = cms.untracked.string("IsEvent"),
+                                 id = cms.untracked.EventID(1,4,4)),
+                        cms.PSet(type = cms.untracked.string("IsStop"),
+                                 id = cms.untracked.EventID(0,0,0))
+                        ) ],
     )
     print('****************************************')
     print('Test:', d[index][0])
     print('****************************************')
     return d[index][1]
 
-trans = chooseTrans(int(sys.argv[1]))
+def parse_args():
+     parser = argparse.ArgumentParser(
+          description="Run a transition test configuration."
+     )
+     parser.add_argument(
+          "test_index",
+          type=int,
+          help="Index of the transition test to run.",
+     )
+     parser.add_argument(
+          "--tracer",
+          action="store_true",
+          help="Enable the Tracer service.",
+     )
+     parser.add_argument(
+          "--threads",
+          type=int,
+          default=2,
+          help="Number of threads to run with (default: 2).",
+     )
+     return parser.parse_args()
+
+args = parse_args()
+trans = chooseTrans(args.test_index)
 
 process = cms.Process("TEST")
 process.source = cms.Source("TestSource", 
                             transitions = trans)
-#process.add_(cms.Service("Tracer"))
 process.add_(cms.Service("CheckTransitions", 
                          transitions = trans))
-process.options = cms.untracked.PSet(numberOfThreads = cms.untracked.uint32(2),
-                                     numberOfStreams = cms.untracked.uint32(0))
+process.options = cms.untracked.PSet(numberOfThreads = cms.untracked.uint32(args.threads),
+                                     numberOfStreams = cms.untracked.uint32(2))
+if args.tracer:
+    process.add_(cms.Service("Tracer"))

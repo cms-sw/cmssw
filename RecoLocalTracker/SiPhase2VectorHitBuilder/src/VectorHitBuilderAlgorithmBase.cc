@@ -4,8 +4,8 @@
 #include "RecoLocalTracker/Records/interface/TkPhase2OTCPERecord.h"
 
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

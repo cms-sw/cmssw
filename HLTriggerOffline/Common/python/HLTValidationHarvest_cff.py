@@ -11,6 +11,7 @@ from HLTriggerOffline.Exotica.hltExoticaPostProcessors_cff import *
 from HLTriggerOffline.SMP.HLTSMPPostVal_cff import *
 from Validation.RecoTrack.HLTpostProcessorTracker_cfi import *
 from Validation.RecoVertex.HLTpostProcessorVertex_cfi import *
+from Validation.RecoVertex.HLTSecondaryVertexPostProcessor_cff import *
 #from HLTriggerOffline.Common.PostProcessorExample_cfi import *
 from HLTriggerOffline.Common.HLTValidationQT_cff import *
 from HLTriggerOffline.Btag.HltBtagPostValidation_cff import *
@@ -18,11 +19,13 @@ from HLTriggerOffline.Egamma.HLTpostProcessorGsfTracker_cfi import *
 from Validation.HGCalValidation.HLTHGCalPostProcessor_cff import *
 from Validation.HLTrigger.HLTGenValidationHarvesting_cff import *
 from Validation.HGCalValidation.BarrelPostProcessor_cff import *
+from Validation.MtdValidation.hltMtdPostProcessor_cff import *
 
 hltpostvalidation = cms.Sequence( 
     postProcessorHLTtrackingSequence
     +postProcessorHLTvertexing
     +postProcessorHLTvertexingReconstructableSim
+    +HLTSecondaryVertexPostProcessorSequence
     +HLTMuonPostVal
     +HLTTauPostVal
     +EgammaPostVal
@@ -43,7 +46,7 @@ from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
 # Temporary Phase-2 configuration
 # Exclude everything except JetMET for now
-_phase2_hltpostvalidation =  hltpostvalidation.copyAndExclude([HLTTauPostVal,
+_phase2_hltpostvalidation =  hltpostvalidation.copyAndExclude([#HLTTauPostVal,
                                                                EgammaPostVal,
                                                                heavyFlavorValidationHarvestingSequence,
                                                                #HLTJetMETPostVal,
@@ -61,6 +64,13 @@ _phase2_hltpostvalidation += hltHcalValidatorPostProcessor
 
 # Add HLT gen validation
 _phase2_hltpostvalidation += hltGenValidationClient
+
+from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
+# Add MTD validation only when mtd_at_hlt is active
+mtd_at_hlt.toModify(
+    _phase2_hltpostvalidation,
+    func=lambda seq: seq.insert(-1, hltMtdValidationPostProcessor)
+)
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toReplaceWith(hltpostvalidation, _phase2_hltpostvalidation)

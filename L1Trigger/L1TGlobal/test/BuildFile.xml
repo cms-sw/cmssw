@@ -1,1 +1,1 @@
-<test name="testL1TGlobalProducer" command="testL1TGlobalProducer.sh"/>
+<!-- <test name="testL1TGlobalProducer" command="testL1TGlobalProducer.sh"/> COMMENT: reads old format file -->

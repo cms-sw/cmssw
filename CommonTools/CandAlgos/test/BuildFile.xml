@@ -1,1 +1,1 @@
-<test name="testCandView" command="cmsRun ${LOCALTOP}/src/CommonTools/CandAlgos/test/candview_tester.py"/>
+<!-- <test name="testCandView" command="cmsRun ${LOCALTOP}/src/CommonTools/CandAlgos/test/candview_tester.py"/> COMMENT: reads old format file -->

@@ -63,7 +63,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 process.p = cms.Path(
     process.ak4PFPuppiL1FastL2L3ResidualCorrectorChain+
     process.ak4PFJetsPuppiCorrected+
-    process.PFAnalyzer)
+    process.DQMOfflinePFAnalyzer)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
 

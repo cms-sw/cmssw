@@ -59,7 +59,7 @@ namespace edm {
     void swap(ContainerMask<T>& iOther);
 
     //Used by ROOT storage
-    CMS_CLASS_VERSION(10)
+    CMS_CLASS_VERSION(3)
 
   private:
     //ContainerMask(const ContainerMask&); // stop default

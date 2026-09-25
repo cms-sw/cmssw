@@ -1083,10 +1083,9 @@ int StudyCaloResponse::trackPID(const reco::Track* pTrack,
                                 const edm::Handle<reco::GenParticleCollection>& genParticles) {
   int id(0);
   if (genParticles.isValid()) {
-    unsigned int indx;
     reco::GenParticleCollection::const_iterator p;
     double mindR(999.9);
-    for (p = genParticles->begin(), indx = 0; p != genParticles->end(); ++p, ++indx) {
+    for (p = genParticles->begin(); p != genParticles->end(); ++p) {
       int pdgId = std::abs(p->pdgId());
       int idx = (pdgId == 11) ? 1 : ((pdgId == 211) ? 2 : ((pdgId == 321) ? 3 : ((pdgId == 2212) ? 4 : 0)));
       if (idx > 0) {

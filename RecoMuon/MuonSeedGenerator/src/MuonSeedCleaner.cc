@@ -17,7 +17,7 @@
 #include <DataFormats/DTRecHit/interface/DTRecSegment4D.h>
 
 // Geometry
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <Geometry/CommonTopologies/interface/GeomDet.h>
 #include <TrackingTools/DetLayers/interface/DetLayer.h>
 #include <RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h>
 #include <RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h>

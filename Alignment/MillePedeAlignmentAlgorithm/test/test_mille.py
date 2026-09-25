@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("Alignment")
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+process = cms.Process("Alignment", _PH2_ERA)
 
 options = VarParsing.VarParsing()
 options.register ('algoMode',
@@ -21,14 +23,14 @@ options.parseArguments()
 # Variables edited by mps_alisetup.py. Used in functions below.
 # You can change them manually as well.
 # ------------------------------------------------------------------------------
-setupGlobaltag = "140X_dataRun3_ForTkAlReReco_v1"
+setupGlobaltag = _PH2_GLOBAL_TAG
 setupCollection = "ALCARECOTkAlZMuMu"
 setupCosmicsDecoMode  = False
 setupCosmicsZeroTesla = False
 setupPrimaryWidth     = -1.0
-setupRecoGeometry     = "" # empty string defaults to DB
+setupRecoGeometry     = "ExtendedRun4Default" # empty string defaults to DB
 setupJson = ""
-setupRunStartGeometry = 362350
+setupRunStartGeometry = 1
 
 ################################################################################
 # Variables edited by MPS (mps_setup and mps_merge). Be careful.
@@ -42,12 +44,7 @@ setupBinaryFile       = "milleBinary101.dat"
 
 # Input files. Edited by mps_splice.py
 readFiles = cms.untracked.vstring()
-readFiles.extend([
-    '/store/data/Run2022G/Muon/ALCARECO/TkAlZMuMu-PromptReco-v1/000/362/362/00000/d6641b44-f4e4-4054-b5b0-f038e567c61e.root',
-    '/store/data/Run2022G/Muon/ALCARECO/TkAlZMuMu-PromptReco-v1/000/362/433/00000/1f93221e-23ce-4731-906a-48c9fe405515.root',
-    '/store/data/Run2022G/Muon/ALCARECO/TkAlZMuMu-PromptReco-v1/000/362/435/00000/df6e27d1-5367-4192-83ed-2be9303d7837.root',
-    '/store/data/Run2022G/Muon/ALCARECO/TkAlZMuMu-PromptReco-v1/000/362/437/00000/7ce5bac8-0b29-40f3-a63b-fd0813d5678d.root',
-    '/store/data/Run2022G/Muon/ALCARECO/TkAlZMuMu-PromptReco-v1/000/362/437/00000/ea6b065d-1912-491e-9cce-732eaf6fa038.root'])
+readFiles.extend(['/store/relval/CMSSW_20_0_0_pre1/RelValZMM_14/ALCARECO/TkAlZMuMu-150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/d42b4f5d-7e50-461a-924c-9e95ad81194b.root'])
 ################################################################################
 
 ################################################################################
@@ -105,52 +102,12 @@ process.AlignmentProducer.ParameterBuilder.parameterTypes = [
 # # Define the high-level structure alignables
 process.AlignmentProducer.ParameterBuilder.SelectorRigid = cms.PSet(
      alignParams = cms.vstring(
-         "TrackerP1PXBLadder,111111",
-         "TrackerP1PXECPanel,111111",
-         "TrackerTIBHalfBarrel,111111",
-         "TrackerTOBHalfBarrel,rrrrrr",
-         "TrackerTIDEndcap,111111",
-         "TrackerTECEndcap,111111",
+         "TrackerP2PXBLadder,111111",
+         "TrackerP2PXECPanel,111111",
+         "TrackerP2OTBHalfBarrel,rrrrrr",
+         "TrackerP2OTECEndcap,111111",
      )
 )
-
-process.AlignmentProducer.RunRangeSelection = [
-    cms.PSet(
-        RunRanges = cms.vstring(
-            "362350",
-            "362440",
-            "362446",
-            "362617",
-            "362632",
-            "362640",
-            "362641",
-            "362645",
-            "362663",
-            "362670",
-            "362679",
-            "362683",
-            "362697",
-            "362711",
-            "362744"
-        ),
-        selector = cms.vstring(
-            "TrackerP1PXBLadder,111111",
-            "TrackerP1PXECPanel,111111"
-        )
-    ),
-    
-    cms.PSet(
-        RunRanges = cms.vstring(
-            "362350",
-            "362520"
-        ),
-        selector = cms.vstring(
-            "TrackerTIBHalfBarrel,111111",
-            "TrackerTIDEndcap,111111",
-            "TrackerTECEndcap,111111"
-        )
-    )
-] # end of process.AlignmentProducer.RunRangeSelection
 
 #########################
 ## insert Pedesettings ##

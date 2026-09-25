@@ -8,7 +8,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include <DataFormats/GeometrySurface/interface/GloballyPositioned.h>
 #include <DataFormats/GeometrySurface/interface/Surface.h>
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <Geometry/CommonTopologies/interface/GeomDet.h>
 
 class TrajectoryStateClosestToBeamLineBuilder;
 

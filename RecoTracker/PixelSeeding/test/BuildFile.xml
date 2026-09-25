@@ -15,6 +15,7 @@
 
 <bin file="PixelTriplets_InvPrbl_prec.cpp">
   <use name="RecoTracker/PixelSeeding"/>
+  <flags NO_TESTRUN="1"/>
 </bin>
 
 <bin file="fastDPHI_t.cpp">

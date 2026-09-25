@@ -29,6 +29,7 @@ public:
 
 private:
   edm::EDGetTokenT<double> rhoToken_;
+  bool skipMissingProduct_;
 };
 
 class L1FastjetCorrectorImpl : public reco::JetCorrectorImpl {

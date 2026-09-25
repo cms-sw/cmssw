@@ -71,7 +71,7 @@
 
 <library file="LumiProducer.cc" name="LumiProducer">
   <use name="RecoLuminosity/LumiProducer"/>
-  <use name="DataFormats/Provenance"/>
+  <use name="DataFormats/Provenance" source_only="1"/>
   <use name="DataFormats/Luminosity"/>
   <use name="Utilities/Xerces"/>
   <use name="xerces-c"/>
@@ -79,13 +79,13 @@
 </library>
 
 <library file="BunchSpacingProducer.cc" name="BunchSpacingProducer">
-  <use name="DataFormats/Provenance"/>
+  <use name="DataFormats/Provenance" source_only="1"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
 <library file="ExpressLumiProducer.cc" name="ExpressLumiProducer">
   <use name="RecoLuminosity/LumiProducer"/>
-  <use name="DataFormats/Provenance"/>
+  <use name="DataFormats/Provenance" source_only="1"/>
   <use name="DataFormats/Luminosity"/>
   <flags EDM_PLUGIN="1"/>
 </library>

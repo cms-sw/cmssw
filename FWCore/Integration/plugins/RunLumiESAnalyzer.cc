@@ -121,13 +121,36 @@ namespace edmtest {
       if (iovTestInfo->iovStartRun_ != run || iovTestInfo->iovEndRun_ != run ||
           iovTestInfo->iovStartLumi_ != lumiNumber || iovTestInfo->iovEndLumi_ != lumiNumber) {
         throw cms::Exception("TestFailure")
-            << functionName << ": values read from EventSetup do not agree with auxiliary";
+            .format(
+                "{}: values read from EventSetup do not agree with auxiliary.\n"
+                "expected startRun = {}, expected startLumi = {},\n"
+                "expected endRun = {}, expected endLumi = {},\n"
+                "actual run = {}, actual lumi = {}",
+                functionName,
+                iovTestInfo->iovStartRun_,
+                iovTestInfo->iovStartLumi_,
+                iovTestInfo->iovEndRun_,
+                iovTestInfo->iovEndLumi_,
+                run,
+                lumiNumber);
       }
     }
 
     if (iov.first().eventID().run() != run || iov.last().eventID().run() != run ||
         iov.first().luminosityBlockNumber() != lumiNumber || iov.last().luminosityBlockNumber() != lumiNumber) {
-      throw cms::Exception("TestFailure") << functionName << ": values from EventSetup IOV do not agree with auxiliary";
+      throw cms::Exception("TestFailure")
+          .format(
+              "{}: values from EventSetup IOV do not agree with auxiliary\n"
+              "expected startRun = {}, expected startLumi = {},\n"
+              "expected endRun = {}, expected endLumi = {},\n"
+              "actual run = {}, actual lumi = {}",
+              functionName,
+              iov.first().eventID().run(),
+              iov.first().luminosityBlockNumber(),
+              iov.last().eventID().run(),
+              iov.last().luminosityBlockNumber(),
+              run,
+              lumiNumber);
     }
   }
 

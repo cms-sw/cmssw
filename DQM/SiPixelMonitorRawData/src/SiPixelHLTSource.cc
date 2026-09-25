@@ -27,10 +27,10 @@
 #include "DQM/SiPixelMonitorRawData/interface/SiPixelHLTSource.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 // Geometry
-#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
+#include "Geometry/CommonTopologies/interface/GeomDetEnumerators.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"

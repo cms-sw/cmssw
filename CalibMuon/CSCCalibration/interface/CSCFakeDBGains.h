@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -17,9 +17,9 @@
 #include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-class CSCFakeDBGains : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class CSCFakeDBGains : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  CSCFakeDBGains(const edm::ParameterSet &);
+  explicit CSCFakeDBGains(const edm::ParameterSet &);
   ~CSCFakeDBGains() override;
 
   inline static CSCDBGains *prefillDBGains();
@@ -28,12 +28,6 @@ public:
   Pointer produceDBGains(const CSCDBGainsRcd &);
 
 private:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                      const edm::IOVSyncValue &,
-                      edm::ValidityInterval &) override;
-
-  // member data
-  Pointer cndbGains;
 };
 
 #include <fstream>

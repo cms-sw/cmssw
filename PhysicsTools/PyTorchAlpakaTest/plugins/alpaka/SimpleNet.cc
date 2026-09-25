@@ -23,11 +23,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
           particles_token_(consumes(params.getParameter<edm::InputTag>("particles"))),
           simple_net_token_{produces()},
           model_(params.getParameter<edm::FileInPath>("model").fullPath()),
-          environment_{static_cast<::torchtest::Environment>(params.getUntrackedParameter<int>("environment"))} {}
+          convertToFP16_(params.getParameter<bool>("convertToFP16")),
+          environment_{static_cast<::torchtest::Environment>(params.getUntrackedParameter<int>("environment"))} {
+      // Cast the model in half precision if required.
+      // Note: this passage can be skipped if you exported the model in FP16 precision in the .pt file
+      if (convertToFP16_)
+        model_.to(::torch::kHalf);
+    }
 
     static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
       edm::ParameterSetDescription desc;
       desc.add<edm::FileInPath>("model");
+      desc.add<bool>("convertToFP16");
       desc.add<edm::InputTag>("particles");
       desc.addUntracked<int>("environment", static_cast<int>(::torchtest::Environment::kProduction));
       descriptions.addWithDefaultLabel(desc);
@@ -36,20 +43,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     void produce(device::Event &event, const device::EventSetup &event_setup) override {
       // in/out collections
       const auto &particles = event.get(particles_token_);
-      const auto batch_size = particles.const_view().metadata().size();
-      auto regression_collection = portabletest::SimpleNetDeviceCollection(event.queue(), batch_size);
+      const auto total_size = particles.const_view().metadata().size();
+      auto regression_collection = portabletest::SimpleNetDeviceCollection(event.queue(), total_size);
 
       // records
       auto input_records = particles.const_view().records();
       auto output_records = regression_collection.view().records();
       // input tensor definition
-      cms::torch::alpakatools::TensorCollection<Queue> inputs(batch_size);
+      cms::torch::alpakatools::TensorCollection<Queue> inputs(total_size);
       inputs.add<portabletest::ParticleSoA>("particles", input_records.pt(), input_records.eta(), input_records.phi());
       // output tensor definition
-      cms::torch::alpakatools::TensorCollection<Queue> outputs(batch_size);
+      cms::torch::alpakatools::TensorCollection<Queue> outputs(total_size);
       outputs.add<portabletest::SimpleNetSoA>("regression_head", output_records.reco_pt());
 
-      model_.forward(event.queue(), inputs, outputs);
+      if (convertToFP16_)
+        model_.forward(event.queue(), inputs, outputs, ::torch::kHalf);
+      else
+        model_.forward(event.queue(), inputs, outputs);
       // put device-side product into event
       event.emplace(simple_net_token_, std::move(regression_collection));
     }
@@ -60,6 +70,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     const device::EDPutToken<portabletest::SimpleNetDeviceCollection> simple_net_token_;
     // model
     torch::AlpakaModel model_;
+    const bool convertToFP16_;
     // debug mode flag
     const ::torchtest::Environment environment_;
   };

@@ -26,12 +26,13 @@
 class MuonCaloCompatibility {
 public:
   MuonCaloCompatibility() : isConfigured_(false) {}
-  void configure(const edm::ParameterSet&);
+  void configure(const edm::ParameterSet&, const bool);
   double evaluate(const reco::Muon&);
 
 private:
   bool accessing_overflow(const TH2D& histo, double x, double y);
   bool isConfigured_;
+  bool isPhase2_;
 
   // used input templates for given eta
   std::shared_ptr<TH2D> pion_template_em;

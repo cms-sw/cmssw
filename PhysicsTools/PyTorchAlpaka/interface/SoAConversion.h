@@ -24,10 +24,15 @@ namespace cms::torch::alpakatools::detail {
   }
 
   template <typename TQueue>
-  inline std::vector<::torch::IValue> convertInput(TensorCollection<TQueue>& inputs, ::torch::Device device) {
+  inline std::vector<::torch::IValue> convertInput(TensorCollection<TQueue>& inputs,
+                                                   ::torch::Device device,
+                                                   std::optional<::torch::Dtype> dtype = std::nullopt) {
     std::vector<::torch::IValue> tensors(inputs.size());
     for (size_t i = 0; i < inputs.size(); i++) {
-      tensors[i] = cms::torch::alpakatools::detail::arrayToTensor(device, inputs[i]);
+      if (dtype)
+        tensors[i] = cms::torch::alpakatools::detail::arrayToTensor(device, inputs[i]).to(*dtype);
+      else
+        tensors[i] = cms::torch::alpakatools::detail::arrayToTensor(device, inputs[i]);
     }
     return tensors;
   }

@@ -16,7 +16,7 @@
 </bin>
 
 <!-- test the HLTPrescaleExample plugin -->
-<test name="testHLTPrescaleExample" command="testHLTPrescaleExample.sh"/>
+<!-- <test name="testHLTPrescaleExample" command="testHLTPrescaleExample.sh"/> COMMENT: reads old format file -->
 
 <!-- test EDAnalyzers using TriggerEvent and TriggerEventWithRefs -->
-<test name="testTriggerEventAnalyzers" command="testTriggerEventAnalyzers.sh"/>
+<!-- <test name="testTriggerEventAnalyzers" command="testTriggerEventAnalyzers.sh"/> COMMENT: reads old format file -->

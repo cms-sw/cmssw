@@ -19,9 +19,11 @@ namespace lst {
                       SOA_COLUMN(Params_T5::ArrayFxEmbed, t5Embed),                // t5 embedding vector
                       SOA_COLUMN(FPX, eta),
                       SOA_COLUMN(FPX, phi),
-                      SOA_COLUMN(FPX, score_rphisum),  // r-phi based score
-                      SOA_COLUMN(char, isDup),         // duplicate flag
-                      SOA_COLUMN(bool, tightCutFlag),  // tight pass to be a TC
+                      SOA_COLUMN(FPX, score_rphisum),     // r-phi based score
+                      SOA_COLUMN(char, isDup),            // duplicate flag
+                      SOA_COLUMN(unsigned int, nLayers),  // number of active layers (5 base)
+                      SOA_COLUMN(bool, tightCutFlag),     // tight pass to be a TC
+                      SOA_COLUMN(bool, partOfPT5),
                       SOA_COLUMN(float, regressionRadius),
                       SOA_COLUMN(float, regressionCenterX),
                       SOA_COLUMN(float, regressionCenterY),
@@ -29,15 +31,16 @@ namespace lst {
                       SOA_COLUMN(FPX, innerRadius),   // inner triplet circle radius
                       SOA_COLUMN(FPX, bridgeRadius),  // "middle"/bridge triplet radius
                       SOA_COLUMN(FPX, outerRadius),   // outer triplet radius
-                      SOA_COLUMN(FPX, pt),
+                      SOA_COLUMN(FPX, pt)
 #ifdef CUT_VALUE_DEBUG
+                          ,
                       SOA_COLUMN(float, rzChiSquared),  // r-z only chi2
                       SOA_COLUMN(float, chiSquared),
                       SOA_COLUMN(float, nonAnchorChiSquared),
                       SOA_COLUMN(float, dBeta1),
-                      SOA_COLUMN(float, dBeta2),
+                      SOA_COLUMN(float, dBeta2)
 #endif
-                      SOA_COLUMN(bool, partOfPT5));
+  );
 
   using QuintupletsSoA = QuintupletsSoALayout<>;
   using Quintuplets = QuintupletsSoA::View;
@@ -51,9 +54,29 @@ namespace lst {
   using QuintupletsOccupancy = QuintupletsOccupancySoA::View;
   using QuintupletsOccupancyConst = QuintupletsOccupancySoA::ConstView;
 
+  // index and fast cached data if any
+  GENERATE_SOA_LAYOUT(QuintupletsBySegmentSoALayout, SOA_COLUMN(unsigned int, quintupletIndex));
+
+  using QuintupletsBySegmentSoA = QuintupletsBySegmentSoALayout<>;
+  using QuintupletsBySegment = QuintupletsBySegmentSoA::View;
+  using QuintupletsBySegmentConst = QuintupletsBySegmentSoA::ConstView;
+
+  // index and fast cached data if any
+  GENERATE_SOA_LAYOUT(QuintupletsByMDSoALayout,
+                      SOA_COLUMN(unsigned int, quintupletIndex),
+                      SOA_COLUMN(uint32_t, mdBarCode));
+  constexpr uint32_t kT5ByMDBarCodeMask = 0xFF;
+  constexpr short kT5ByMDBarOffset = 8;
+
+  using QuintupletsByMDSoA = QuintupletsByMDSoALayout<>;
+  using QuintupletsByMD = QuintupletsByMDSoA::View;
+  using QuintupletsByMDConst = QuintupletsByMDSoA::ConstView;
+
   GENERATE_SOA_BLOCKS(QuintupletsSoABlocksLayout,
                       SOA_BLOCK(quintuplets, QuintupletsSoALayout),
-                      SOA_BLOCK(quintupletsOccupancy, QuintupletsOccupancySoALayout))
+                      SOA_BLOCK(quintupletsOccupancy, QuintupletsOccupancySoALayout),
+                      SOA_BLOCK(quintupletsByMD0, QuintupletsByMDSoALayout),
+                      SOA_BLOCK(quintupletsByMD1, QuintupletsByMDSoALayout))
 
   using QuintupletsSoABlocks = QuintupletsSoABlocksLayout<>;
   using QuintupletsSoABlocksView = QuintupletsSoABlocks::View;

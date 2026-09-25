@@ -64,11 +64,9 @@ namespace edm {
   PoolSource::PoolSource(ParameterSet const& pset, InputSourceDescription const& desc)
       : InputSource(pset, desc),
         rootServiceChecker_(),
-        catalog_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"),
-                 pset.getUntrackedParameter<std::string>("overrideCatalog", std::string())),
-        secondaryCatalog_(
-            pset.getUntrackedParameter<std::vector<std::string> >("secondaryFileNames", std::vector<std::string>()),
-            pset.getUntrackedParameter<std::string>("overrideCatalog", std::string())),
+        catalog_(pset),
+        secondaryCatalog_(pset.getUntrackedParameter<std::vector<std::string> >("secondaryFileNames"),
+                          pset.getUntrackedParameter<std::string>("overrideCatalog")),
         secondaryRunPrincipal_(),
         secondaryLumiPrincipal_(),
         secondaryEventPrincipals_(),
@@ -293,12 +291,11 @@ namespace edm {
 
     std::vector<std::string> defaultStrings;
     desc.setComment("Reads EDM/Root files.");
-    desc.addUntracked<std::vector<std::string> >("fileNames")->setComment("Names of files to be processed.");
+    InputFileCatalog::fillDescription(desc);
     desc.addUntracked<std::vector<std::string> >("secondaryFileNames", defaultStrings)
         ->setComment("Names of secondary files to be processed.");
     desc.addUntracked<bool>("needSecondaryFileNames", false)
         ->setComment("If True, 'secondaryFileNames' must be specified and be non-empty.");
-    desc.addUntracked<std::string>("overrideCatalog", std::string());
     desc.addUntracked<bool>("skipBadFiles", false)
         ->setComment(
             "True:  Ignore any missing or unopenable input file.\n"

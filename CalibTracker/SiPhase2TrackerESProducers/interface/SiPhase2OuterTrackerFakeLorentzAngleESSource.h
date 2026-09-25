@@ -24,7 +24,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "CondFormats/SiPhase2TrackerObjects/interface/SiPhase2OuterTrackerLorentzAngle.h"
 #include "CondFormats/DataRecord/interface/SiPhase2OuterTrackerLorentzAngleRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -35,19 +35,14 @@
 //
 
 class SiPhase2OuterTrackerFakeLorentzAngleESSource : public edm::ESProducer,
-                                                     public edm::EventSetupRecordIntervalFinder {
+                                                     public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   SiPhase2OuterTrackerFakeLorentzAngleESSource(const edm::ParameterSet &);
   ~SiPhase2OuterTrackerFakeLorentzAngleESSource() override;
 
-  void produce() {}
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
 protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                      const edm::IOVSyncValue &,
-                      edm::ValidityInterval &) override;
-
   virtual std::unique_ptr<SiPhase2OuterTrackerLorentzAngle> produceOTLA(const SiPhase2OuterTrackerLorentzAngleRcd &);
   virtual std::unique_ptr<SiPhase2OuterTrackerLorentzAngle> produceOTSimLA(
       const SiPhase2OuterTrackerLorentzAngleSimRcd &);

@@ -25,7 +25,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <Geometry/CommonTopologies/interface/GeomDet.h>
 #include <Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h>
 #include <Geometry/Records/interface/TrackerDigiGeometryRecord.h>
 #include <MagneticField/Engine/interface/MagneticField.h>

@@ -1,7 +1,7 @@
 #include "TrackingTools/KalmanUpdators/interface/KFSwitching1DUpdator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 TrajectoryStateOnSurface KFSwitching1DUpdator::update(const TSOS& aTsos, const TrackingRecHit& aHit) const {
   if (!aHit.detUnit() || aHit.detUnit()->type().isTrackerPixel() ||

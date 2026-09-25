@@ -24,10 +24,10 @@
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/TrackerGeomDet.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetType.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
@@ -907,9 +907,8 @@ unsigned int Phase2TrackerValidateDigi::getSimTrackId(const edm::DetSetVector<Pi
 
   edm::DetSet<PixelDigiSimLink> link_detset = (*simLinks)[detId];
   // Loop over DigiSimLink in this det unit
-  int iSimLink = 0;
   for (edm::DetSet<PixelDigiSimLink>::const_iterator it = link_detset.data.begin(); it != link_detset.data.end();
-       it++, iSimLink++) {
+       it++) {
     if (channel == it->channel()) {
       simTrkId = it->SimTrackId();
       break;
@@ -1049,9 +1048,11 @@ void Phase2TrackerValidateDigi::fillHitsPerTrack() {
 }
 */
 std::string Phase2TrackerValidateDigi::getHistoId(uint32_t det_id, bool flag) {
-  if (flag)
-    return phase2tkutil::getITHistoId(det_id, tTopo_);
-  else
+  if (flag) {
+    const GeomDet* geomDet = tkGeom_->idToDet(det_id);
+    GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
+    return phase2tkutil::getITHistoId(det_id, tTopo_, detPos.phi());
+  } else
     return phase2tkutil::getOTHistoId(det_id, tTopo_);
 }
 

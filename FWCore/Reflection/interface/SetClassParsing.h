@@ -18,7 +18,7 @@ namespace edm {
   public:
     SetClassParsing(bool enable) {
       bool expected = false;
-      const bool used_concurrently_but_shouldnt = active_.compare_exchange_strong(expected, true);
+      [[maybe_unused]] const bool used_concurrently_but_shouldnt = active_.compare_exchange_strong(expected, true);
       assert(used_concurrently_but_shouldnt);
       previous_ = gInterpreter->SetClassAutoparsing(enable);
     }

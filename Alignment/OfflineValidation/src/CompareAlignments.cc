@@ -27,7 +27,9 @@ void CompareAlignments::doComparison(TString namesandlabels,
       TFile *currentFile = TFile::Open(aFileLegPair->At(0)->GetName());
       if (currentFile != nullptr && !currentFile->IsZombie()) {
         FileList->Add(currentFile);  // 2
-        if (currentFile->Get("TrackerOfflineValidation/Pixel/P1PXBBarrel_1")) {
+        if (currentFile->Get("TrackerOfflineValidation/Pixel/P2PXBBarrel_1")) {
+          phases.push_back(2);
+        } else if (currentFile->Get("TrackerOfflineValidation/Pixel/P1PXBBarrel_1")) {
           phases.push_back(1);
         } else if (currentFile->Get("TrackerOfflineValidation/Pixel/TPBBarrel_1")) {
           phases.push_back(0);
@@ -86,6 +88,12 @@ void CompareAlignments::doComparison(TString namesandlabels,
   lowestlevels.push_back("P1PXBLadder");
   lowestlevels.push_back("P1PXECPanel");
 
+  // phase 2
+  lowestlevels.push_back("P2PXBLadder");
+  lowestlevels.push_back("P2PXECPanel");
+  lowestlevels.push_back("P2OTBRod");
+  lowestlevels.push_back("P2OTECSide");
+
   MergeRootfile(Target, FileList, LabelList, bigtext);
 }
 
@@ -95,7 +103,7 @@ void CompareAlignments::MergeRootfile(TDirectory *target, TList *sourcelist, TLi
     return;
   }
 
-  TString path((char *)strstr(target->GetPath(), ":"));
+  TString path(std::strstr(target->GetPath(), ":"));
   path.Remove(0, 2);
 
   TFile *first_source = (TFile *)sourcelist->First();

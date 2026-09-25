@@ -20,13 +20,12 @@ void EcalEBPhase2TPFormatter::process(std::vector<int> &amp,
   }
 
   for (unsigned int i = 0; i < size; ++i) {
-    // this is the energy compression to 12 bits to go in the DF. To be done as last thing before building the TP
-    //Bit shift by 1 to go from 13 bits to 12
+    // this is the energy compression to 12 bits, then truncated to 10 bits to go in the DF. To be done as last thing before building the TP
+    //Bit shift by 1 to go from 13 bits to 12, then truncate to 10 bits
     outEt[i] = outEt[i] >> 1;
-    if (outEt[i] > 0xFFF)
-      outEt[i] = 0xFFF;
+    if (outEt[i] > 0x3FF)
+      outEt[i] = 0x3FF;
   }
-
   for (unsigned int i = 0; i < size; ++i) {
     // this is the time compression to 5 bits to go in the DF.
     outTime[i] = outTime[i] >> 6;

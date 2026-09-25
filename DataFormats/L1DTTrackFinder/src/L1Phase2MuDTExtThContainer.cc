@@ -31,13 +31,17 @@
 //----------------
 // Constructors --
 //----------------
-L1Phase2MuDTExtThContainer::L1Phase2MuDTExtThContainer() {}
+namespace io_v1 {
 
-//--------------
-// Operations --
-//--------------
-void L1Phase2MuDTExtThContainer::setContainer(const Segment_Container& inputSegments) { m_segments = inputSegments; }
+  L1Phase2MuDTExtThContainer::L1Phase2MuDTExtThContainer() {}
 
-L1Phase2MuDTExtThContainer::Segment_Container const* L1Phase2MuDTExtThContainer::getContainer() const {
-  return &m_segments;
-}
+  //--------------
+  // Operations --
+  //--------------
+  void L1Phase2MuDTExtThContainer::setContainer(const Segment_Container& inputSegments) { m_segments = inputSegments; }
+
+  L1Phase2MuDTExtThContainer::Segment_Container const* L1Phase2MuDTExtThContainer::getContainer() const {
+    return &m_segments;
+  }
+
+}  // namespace io_v1

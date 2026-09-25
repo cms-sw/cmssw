@@ -9,7 +9,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
+#include "Geometry/CommonTopologies/interface/GeomDetEnumerators.h"
 #include "DataFormats/TrackerCommon/interface/TrackerDetSide.h"
 #include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHitCollection.h"

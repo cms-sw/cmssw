@@ -29,9 +29,9 @@
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/Framework/interface/ProcessBlockForOutput.h"
 #include "FWCore/Framework/interface/RunForOutput.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-#include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -255,11 +255,8 @@ namespace edm {
       return s.wantEvent(e);
     }
 
-    bool OutputModuleCore::doEvent_(EventTransitionInfo const& info,
-                                    ActivityRegistry* act,
-                                    ModuleCallingContext const* mcc) {
+    bool OutputModuleCore::doEvent_(EventTransitionInfo const& info, ModuleCallingContext const* mcc) {
       {
-        EventSignalsSentry sentry(act, mcc);
         EventForOutput e(info, moduleDescription_, mcc);
         e.setConsumer(this);
         write(e);
@@ -288,10 +285,8 @@ namespace edm {
       writeProcessBlock(pb);
     }
 
-    void OutputModuleCore::doWriteRun(RunPrincipal const& rp,
-                                      ModuleCallingContext const* mcc,
-                                      MergeableRunProductMetadata const* mrpm) {
-      RunForOutput r(rp, moduleDescription_, mcc, true, mrpm);
+    void OutputModuleCore::doWriteRun(RunPrincipal const& rp, ModuleCallingContext const* mcc) {
+      RunForOutput r(rp, moduleDescription_, mcc, true, rp.mergeableRunProductMetadata());
       r.setConsumer(this);
       writeRun(r);
     }

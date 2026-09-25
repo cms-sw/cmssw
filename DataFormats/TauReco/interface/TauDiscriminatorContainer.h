@@ -6,13 +6,16 @@
 #include <vector>
 
 namespace reco {
-  struct SingleTauDiscriminatorContainer {
-    std::vector<float> rawValues;     // stores floating point discriminators, like MVA raw values or pt sums.
-    std::vector<bool> workingPoints;  // stores boolean discriminators computed with the raw values.
+  namespace io_v1 {
+    struct SingleTauDiscriminatorContainer {
+      std::vector<float> rawValues;     // stores floating point discriminators, like MVA raw values or pt sums.
+      std::vector<bool> workingPoints;  // stores boolean discriminators computed with the raw values.
 
-    SingleTauDiscriminatorContainer() {}
-    SingleTauDiscriminatorContainer(float rawInit) { rawValues.push_back(rawInit); }
-  };
+      SingleTauDiscriminatorContainer() {}
+      SingleTauDiscriminatorContainer(float rawInit) { rawValues.push_back(rawInit); }
+    };
+  }  // namespace io_v1
+  using SingleTauDiscriminatorContainer = io_v1::SingleTauDiscriminatorContainer;
 
   typedef edm::ValueMap<SingleTauDiscriminatorContainer> TauDiscriminatorContainer;
 }  // namespace reco

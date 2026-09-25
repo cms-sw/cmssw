@@ -7,13 +7,7 @@ source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = se
 
 
 readFiles.extend( [
-"/store/mc/Run3Winter22DRPremix/WJetsToLNu_TuneCP5_13p6TeV-madgraphMLM-pythia8/ALCARECO/TkAlMuonIsolated-TRKALCADesign_design_geometry_122X_mcRun3_2021_design_v9-v2/2520000/0027e6ed-2626-4ede-97a5-f0a44164b81b.root",
-"/store/mc/Run3Winter22DRPremix/WJetsToLNu_TuneCP5_13p6TeV-madgraphMLM-pythia8/ALCARECO/TkAlMuonIsolated-TRKALCADesign_design_geometry_122X_mcRun3_2021_design_v9-v2/2520000/00899b9d-32ab-46f2-b77b-0b0a8d666027.root",
-"/store/mc/Run3Winter22DRPremix/WJetsToLNu_TuneCP5_13p6TeV-madgraphMLM-pythia8/ALCARECO/TkAlMuonIsolated-TRKALCADesign_design_geometry_122X_mcRun3_2021_design_v9-v2/2520000/07851676-0c65-4630-bbab-7406defeb670.root",
-"/store/mc/Run3Winter22DRPremix/WJetsToLNu_TuneCP5_13p6TeV-madgraphMLM-pythia8/ALCARECO/TkAlMuonIsolated-TRKALCADesign_design_geometry_122X_mcRun3_2021_design_v9-v2/2520000/0a54c512-0f69-44e1-90bc-16da035cbe02.root",
-   ] );
-
-
+    "/store/relval/CMSSW_20_0_0_pre1/RelValSingleMuPt1000/ALCARECO/TkAlMuonIsolated-150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/f71df48e-af79-4e74-ab94-352f508449dd.root"] );
 
 secFiles.extend( [
                ] )

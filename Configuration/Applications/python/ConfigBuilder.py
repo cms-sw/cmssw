@@ -37,6 +37,7 @@ defaultOptions.harvesting= 'AtRunEnd'
 defaultOptions.gflash = False
 defaultOptions.number = -1
 defaultOptions.number_out = None
+defaultOptions.skipEvents = -1
 defaultOptions.arguments = ""
 defaultOptions.name = "NO NAME GIVEN"
 defaultOptions.evt_type = ""
@@ -417,7 +418,7 @@ class ConfigBuilder(object):
         if self._options.number_out:
             self.process.maxEvents.output = self._options.number_out
         self.addedObjects.append(("","maxEvents"))
-
+        
     def addSource(self):
         """Here the source is built. Priority: file, generator"""
         self.addedObjects.append(("Input source","source"))
@@ -920,6 +921,8 @@ class ConfigBuilder(object):
             if not self._options.dropDescendant:
                 self.process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
 
+        if self._options.skipEvents >= 0:
+            self.process.source.skipEvents = cms.untracked.uint32(self._options.skipEvents)
 
         return
 

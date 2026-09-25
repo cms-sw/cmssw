@@ -11,9 +11,6 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 from Validation.RecoTrack.plotting.plotting import Plot, PlotGroup, PlotFolder, Plotter, PlotOnSideGroup
 from Validation.RecoTrack.plotting.html import PlotPurpose
-import Validation.RecoTrack.plotting.plotting as plotting
-import Validation.RecoTrack.plotting.validation as validation
-import Validation.RecoTrack.plotting.html as html
 
 from Validation.HGCalValidation.HGCalValidator_cff import hgcalValidator
 from Validation.HGCalValidation.PostProcessorHGCAL_cfi import lcToCP_linking, simDict, TSbyHits_CP, TSbyLCs, TSbyLCs_CP, TSbyHits, variables
@@ -1729,9 +1726,9 @@ _clusternum_in_trackster_vs_layer = PlotGroup("NumberofLayerClustersinTracksterP
 
 _common["scale"] = 100.
 #, ztitle = "% of clusters" normalizeToUnitArea=True
-_multiplicity_numberOfEventsHistogram = hgcVal_dqm + "ticlTrackstersMerge/multiplicity_numberOfEventsHistogram"
-_multiplicity_zminus_numberOfEventsHistogram = hgcVal_dqm + "ticlTrackstersMerge/multiplicity_zminus_numberOfEventsHistogram"
-_multiplicity_zplus_numberOfEventsHistogram = hgcVal_dqm + "ticlTrackstersMerge/multiplicity_zplus_numberOfEventsHistogram"
+_multiplicity_numberOfEventsHistogram = hgcVal_dqm + "ticlCandidate/multiplicity_numberOfEventsHistogram"
+_multiplicity_zminus_numberOfEventsHistogram = hgcVal_dqm + "ticlCandidate/multiplicity_zminus_numberOfEventsHistogram"
+_multiplicity_zplus_numberOfEventsHistogram = hgcVal_dqm + "ticlCandidate/multiplicity_zplus_numberOfEventsHistogram"
 
 _multiplicityOfLCinTST_plots = [Plot("multiplicityOfLCinTST",
                                 drawCommand = "colz text45", normalizeToNumberOfEvents = True, **_common)]
@@ -1782,6 +1779,9 @@ _trackster_eppe_plots = [Plot("trackster_eta", **_common)]
 _trackster_eppe_plots.extend([Plot("trackster_phi", **_common)])
 _trackster_eppe_plots.extend([Plot("trackster_pt", **_common)])
 _trackster_eppe_plots.extend([Plot("trackster_energy", **_common)])
+_trackster_eppe_plots.extend([Plot("trackster_R", **_common)])
+_trackster_eppe_plots.extend([Plot("trackster_alpha", **_common)])
+_trackster_eppe_plots.extend([Plot("trackster_time", **_common)])
 _trackster_eppe = PlotGroup("EtaPhiPtEnergy", _trackster_eppe_plots, ncols=2)
 
 _trackster_xyz_plots = [Plot("trackster_x", **_common)]
@@ -2399,6 +2399,9 @@ lc_zplus_extended = [
 
 def append_hgcalLayerClustersPlots(collection = hgcalValidator.label_layerClustersPlots.value(), name_collection = layerClustersLabel, extended = False):
   print('extended : ',extended)
+  if hasattr(collection, 'value'):
+     collection = collection.value()
+  collection = str(collection)
   regions_ClusterLevel       = ["General: Cluster Level", "Z-minus: Cluster Level", "Z-plus: Cluster Level"]
   regions_CellLevel          = ["Z-minus: Cell Level", "Z-plus: Cell Level"]
   regions_LCtoCP_association = ["Z-minus: LC_CP association", "Z-plus: LC_CP association"]
@@ -2951,19 +2954,29 @@ hgcalHitCalibPlotter.append("EcalDrivenGsfElectronsFromTrackster_Closest_EoverCP
         purpose=PlotPurpose.Timing, page=hitCalibrationLabel, section=hitCalibrationLabel
         ))
 
-hgcalTICLCandPlotter = Plotter()
+def hgcalTICLCandPlotter(labels):
+  """Build the TICL candidates plotter for a given HGCalValidator base folder."""
+  plotter = Plotter()
 
-hgcalTICLCandPlotter.append('ticlCandidates', [
-             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/"+hgcalValidator.ticlCandidates.value(),
-            ], PlotFolder(
-            *_candidatesPlots,
-            loopSubFolders=False,
-            purpose=PlotPurpose.Timing, page="General", section="Candidates"))
+  for label in labels:
+      plotter.append('ticlCandidates', [
+          hgcVal_dqm + label,
+      ], PlotFolder(
+          *_candidatesPlots,
+          loopSubFolders=False,
+          purpose=PlotPurpose.Timing, page="General", section="Candidates"))
 
-for i in range(6):
-    hgcalTICLCandPlotter.append('ticlCandidates', [
-             "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/"+hgcalValidator.ticlCandidates.value()+"/"+cand_type[i],
-            ], PlotFolder(
+      for i in range(6):
+        plotter.append('ticlCandidates', [
+            hgcVal_dqm + label + "/" + cand_type[i],
+        ], PlotFolder(
             *_allCandidatesPlots[i],
             loopSubFolders=False,
             purpose=PlotPurpose.Timing, page=cand_type[i], section="Candidates"))
+
+  return plotter
+
+def set_hgcVal_dqm(dqm_base):
+  """Override the HGCalValidator base folder and rebuild dependent plotters."""
+  global hgcVal_dqm
+  hgcVal_dqm = dqm_base

@@ -19,9 +19,13 @@ print("Input sample: ", options.sample)
 ##
 ## Process definition
 ##
-process = cms.Process("ApeSkim")
 
-
+if options.sample == 'UnitTest':
+    import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+    _PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+    process = cms.Process("ApeSkim", _PH2_ERA)
+else:
+    process = cms.Process("ApeSkim")
 
 ##
 ## Message Logger
@@ -100,9 +104,8 @@ if options.sample == 'UnitTest':
     process.load("Alignment.APEEstimation.samples.MC_UnitTest_TkAlMuonIsolated_cff")
     outputName = 'MC_UnitTest_TkAlMuonIsolated.root'
     maxEvents = 1000
-    globalTag = "auto:phase1_2022_design"
+    globalTag = "auto:phase2_realistic"
     trackSelection = "SingleMu"
-
 
 print("Using output name %s"%(outputName))
 if outputPath:
@@ -122,7 +125,11 @@ else:
 print("Using global tag "+process.GlobalTag.globaltag._value)
 
 process.load("Configuration.StandardSequences.Services_cff")
-process.load("Configuration.Geometry.GeometryRecoDB_cff")
+if options.sample == 'UnitTest':
+    process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
+else :
+    process.load("Configuration.Geometry.GeometryRecoDB_cff")
+
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 

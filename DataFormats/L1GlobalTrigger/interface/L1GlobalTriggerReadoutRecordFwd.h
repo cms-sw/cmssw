@@ -1,6 +1,8 @@
 #ifndef DataFormats_L1GlobalTrigger_L1GlobalTriggerReadoutRecordFwd_h
 #define DataFormats_L1GlobalTrigger_L1GlobalTriggerReadoutRecordFwd_h
 
-class L1GlobalTriggerReadoutRecord;
-
+namespace io_v1 {
+  class L1GlobalTriggerReadoutRecord;
+}
+using L1GlobalTriggerReadoutRecord = io_v1::L1GlobalTriggerReadoutRecord;
 #endif

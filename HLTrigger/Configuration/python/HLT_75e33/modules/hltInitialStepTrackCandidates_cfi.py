@@ -26,7 +26,7 @@ hltInitialStepTrackCandidates = cms.EDProducer('MkFitOutputConverter',
     seeds = cms.InputTag("hltInitialStepTrajectorySeedsLST"),
     tfDnnLabel = cms.string('trackSelectionTf'),
     tracks = cms.InputTag("hltInitialStepTrackCandidatesMkFit"),
-    ttrhBuilder = cms.ESInputTag("","WithTrackAngle")
+    ttrhBuilder = cms.ESInputTag("","hltESPTTRHBuilderWithTrackAngle")
 )
 
 
@@ -37,11 +37,11 @@ _hltInitialStepTrackCandidatesLegacy = cms.EDProducer("CkfTrackCandidateMaker",
     TrajectoryBuilderPSet = cms.PSet(
         refToPSet_ = cms.string('initialStepTrajectoryBuilder')
     ),
-    TrajectoryCleaner = cms.string('TrajectoryCleanerBySharedHits'),
+    TrajectoryCleaner = cms.string('hltESPInitialStepTrajectoryCleanerBySharedHits'),
     TransientInitialStateEstimatorParameters = cms.PSet(
         numberMeasurementsForFit = cms.int32(4),
         propagatorAlongTISE = cms.string('PropagatorWithMaterialParabolicMf'),
-        propagatorOppositeTISE = cms.string('PropagatorWithMaterialParabolicMfOpposite')
+        propagatorOppositeTISE = cms.string('hltOppositeMaterialPropagatorParabolicMF')
     ),
     cleanTrajectoryAfterInOut = cms.bool(True),
     doSeedingRegionRebuilding = cms.bool(True),
@@ -64,6 +64,10 @@ _hltInitialStepTrackCandidatesLST = cms.EDProducer('LSTOutputConverter',
     lstPixelSeeds = cms.InputTag('hltInputLST'),
     includeT5s = cms.bool(True),
     includeNonpLSTSs = cms.bool(False),
+    dropOTHitsPurePLS = cms.bool(True),
+    maxITHitsToDropOTHitsPurePLS = cms.int32(3),
+    produceSeeds = cms.bool(False),
+    produceTrackCandidates = cms.bool(True),
     propagatorAlong = cms.ESInputTag('', 'PropagatorWithMaterial'),
     propagatorOpposite = cms.ESInputTag('', 'PropagatorWithMaterialOpposite'),
     SeedCreatorPSet = cms.PSet(
@@ -73,7 +77,7 @@ _hltInitialStepTrackCandidatesLST = cms.EDProducer('LSTOutputConverter',
         OriginTransverseErrorMultiplier = cms.double(1),
         MinOneOverPtError = cms.double(1),
         magneticField = cms.string(''),
-        TTRHBuilder = cms.string('WithTrackAngle'),
+        TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
         forceKinematicWithRegionDirection = cms.bool(False)
     )
 )

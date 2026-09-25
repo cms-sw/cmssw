@@ -28,9 +28,7 @@
 class TEveScalableStraightLineSet;
 class FWViewContext;
 
-namespace reco {
-  class BaseTau;
-}  // namespace reco
+#include "DataFormats/TauReco/interface/BaseTauFwd.h"
 
 namespace fireworks {
   class Context;

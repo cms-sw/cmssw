@@ -177,6 +177,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                    const uint32_t numDigis,
                                    const uint32_t offsetBPIX2);
 
+      void zeroInitializePhase2Clusters(Queue& queue);
+
       SiPixelDigisSoACollection getDigis() {
         digis_d->setNModules(nModules_Clusters_h[0]);
         return std::move(*digis_d);

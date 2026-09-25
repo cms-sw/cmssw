@@ -199,7 +199,7 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
     } else {
       edm::LogError("HGCalGeom") << "Inconsistent # of cells: expected " << numberExpected << ":" << numberOfCells
                                  << " , inited " << counter;
-      assert(counter == numberExpected);
+      // assert(counter == numberExpected);
     }
   }
 

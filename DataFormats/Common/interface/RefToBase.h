@@ -128,7 +128,7 @@ namespace edm {
     bool isTransient() const { return holder_ ? holder_->isTransient() : false; }
 
     //Needed for ROOT storage
-    CMS_CLASS_VERSION(10)
+    CMS_CLASS_VERSION(3)
   private:
     value_type const* getPtrImpl() const;
     reftobase::BaseHolder<value_type>* holder_;

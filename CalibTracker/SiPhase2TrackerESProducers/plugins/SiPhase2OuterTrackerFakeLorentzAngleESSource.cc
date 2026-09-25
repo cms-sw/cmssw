@@ -17,7 +17,7 @@
 // user include files
 #include "CondFormats/DataRecord/interface/SiPhase2OuterTrackerLorentzAngleRcd.h"
 #include "CondFormats/SiPhase2TrackerObjects/interface/SiPhase2OuterTrackerLorentzAngle.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "CalibTracker/SiPhase2TrackerESProducers/interface/SiPhase2OuterTrackerFakeLorentzAngleESSource.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -77,13 +77,6 @@ std::unique_ptr<SiPhase2OuterTrackerLorentzAngle> SiPhase2OuterTrackerFakeLorent
     const SiPhase2OuterTrackerLorentzAngleSimRcd& rcd) {
   const auto& geomDet = rcd.get(m_geomDetToken);
   return fakeOTLA::produceRecord<SiPhase2OuterTrackerLorentzAngle>(LAvalue_, geomDet);
-}
-
-void SiPhase2OuterTrackerFakeLorentzAngleESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                                                  const edm::IOVSyncValue& iosv,
-                                                                  edm::ValidityInterval& oValidity) {
-  edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
-  oValidity = infinity;
 }
 
 void SiPhase2OuterTrackerFakeLorentzAngleESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

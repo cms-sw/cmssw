@@ -43,80 +43,111 @@
 
 constexpr double nSigmaEta = 0.01234;
 constexpr double nSigmaPhi = 0.2678;
+// 21
+static constexpr unsigned int nStreams = 1;  //T4:40 RTX:72 L40S:142 4090:128 5080:84
+
+static constexpr unsigned int nIters = 100;
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class ConstructLinksTest {
   public:
-    void apply(Queue& queue,
-               reco::PFMultiDepthClusteringCCLabelsDeviceCollection& mdpfCCLabels,
-               const reco::PFMultiDepthClusteringVarsDeviceCollection& mdpfClusteringVars,
+    void apply(std::vector<Queue>& queues,
+               std::vector<reco::PFMultiDepthClusteringCCLabelsDeviceCollection>& mdpfCCLabels,
+               const std::vector<reco::PFMultiDepthClusteringVarsDeviceCollection>& mdpfClusteringVars,
                const PFMultiDepthClusterParams* nSigma) const;
   };
 
-  void ConstructLinksTest::apply(Queue& queue,
-                                 reco::PFMultiDepthClusteringCCLabelsDeviceCollection& mdpfCCLabels,
-                                 const reco::PFMultiDepthClusteringVarsDeviceCollection& mdpfClusteringVars,
+  void ConstructLinksTest::apply(std::vector<Queue>& queues,
+                                 std::vector<reco::PFMultiDepthClusteringCCLabelsDeviceCollection>& mdpfCCLabels,
+                                 const std::vector<reco::PFMultiDepthClusteringVarsDeviceCollection>& mdpfClusteringVars,
                                  const PFMultiDepthClusterParams* nSigma) const {
-    uint32_t items = std::is_same_v<Device, alpaka::DevCpu> ? 1 : 64;
+    uint32_t items = std::is_same_v<Device, alpaka::DevCpu> ? 1 : 128;
 
-    auto n = static_cast<uint32_t>(mdpfClusteringVars->metadata().size());
-    uint32_t groups = cms::alpakatools::divide_up_by(n, items);
+    auto n = static_cast<uint32_t>(mdpfClusteringVars[0]->metadata().size());
+    uint32_t groups = ::cms::alpakatools::divide_up_by(n, items);
 
     if (groups < 1) {
       printf("Skip kernel launch...\n");
       return;
-    } else {
-      printf("Run kernel in %d threads, %d groups.\n", n, groups);
     }
 
-    auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(groups, items);
+    auto workDiv = ::cms::alpakatools::make_workdiv<Acc1D>(groups, items);
 
-    alpaka::exec<Acc1D>(queue, workDiv, ConstructLinksKernel{}, mdpfCCLabels.view(), mdpfClusteringVars.view(), nSigma);
+    double wall_time = 0.0;
+    for (unsigned int i = 0; i < nIters; i++) {
+      auto wall_start = std::chrono::high_resolution_clock::now();
 
-    alpaka::wait(queue);
+      for (unsigned int s = 0; s < nStreams; s++) {
+        alpaka::exec<Acc1D>(
+            queues[0], workDiv, ConstructLinksKernel{}, mdpfCCLabels[s].view(), mdpfClusteringVars[s].view(), nSigma);
+      }
+
+      for (unsigned int s = 0; s < nStreams; s++)
+        alpaka::wait(queues[s]);
+
+      auto wall_stop = std::chrono::high_resolution_clock::now();
+      //
+      auto wall_diff = wall_stop - wall_start;
+
+      wall_time += static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(wall_diff).count()) / 1e6;
+    }
+
+    printf("Wall time: %f sec per iter, %f per stream per iter\n", wall_time / nIters, wall_time / (nIters * nStreams));
   }
 
-  void launch_construct_links_test(Queue& queue,
-                                   ::reco::PFMultiDepthClusteringCCLabelsHostCollection& hostClusteringCCLabels,
-                                   const ::reco::PFMultiDepthClusteringVarsHostCollection& hostClusteringVars) {
+  void launch_construct_links_test(
+      std::vector<Queue>& queues,
+      std::vector<::reco::PFMultiDepthClusteringCCLabelsHostCollection>& hostClusteringCCLabels,
+      const std::vector<::reco::PFMultiDepthClusteringVarsHostCollection>& hostClusteringVars) {
     ConstructLinksTest construct_links_test{};
-
-    auto hClusteringVars = hostClusteringVars.view();
-
-    const int nClusters = hClusteringVars.size();
-
-    reco::PFMultiDepthClusteringVarsDeviceCollection devClusteringVars{queue, nClusters};
-
-    alpaka::memcpy(queue, devClusteringVars.buffer(), hostClusteringVars.buffer());
-
-    reco::PFMultiDepthClusteringCCLabelsDeviceCollection devClusteringCCLabels{queue, nClusters + 1};
 
     auto params_h = cms::alpakatools::make_host_buffer<PFMultiDepthClusterParams, Platform>();
 
     params_h->nSigmaEta = nSigmaEta;
     params_h->nSigmaPhi = nSigmaPhi;
 
-    auto params_d = cms::alpakatools::make_device_buffer<PFMultiDepthClusterParams>(queue);
+    auto params_d = cms::alpakatools::make_device_buffer<PFMultiDepthClusterParams>(queues[0]);
 
-    alpaka::memcpy(queue, params_d, params_h);
+    alpaka::memcpy(queues[0], params_d, params_h);
 
-    construct_links_test.apply(queue, devClusteringCCLabels, devClusteringVars, params_d.data());
+    auto hClusteringVars = hostClusteringVars[0].view();
 
-    alpaka::memcpy(queue, hostClusteringCCLabels.buffer(), devClusteringCCLabels.buffer());
+    const int nClusters = hClusteringVars.size();
 
-    alpaka::wait(queue);
+    std::vector<reco::PFMultiDepthClusteringVarsDeviceCollection> devClusteringVars;
+    devClusteringVars.reserve(nStreams);
+
+    std::vector<reco::PFMultiDepthClusteringCCLabelsDeviceCollection> devClusteringCCLabels;
+    devClusteringVars.reserve(nStreams);
+
+    for (unsigned int s = 0; s < nStreams; s++) {
+      //
+      auto dev_clustering_vars = reco::PFMultiDepthClusteringVarsDeviceCollection{queues[s], nClusters};
+      //
+      alpaka::memcpy(queues[s], dev_clustering_vars.buffer(), hostClusteringVars[s].buffer());
+
+      devClusteringVars.emplace_back(std::move(dev_clustering_vars));
+
+      devClusteringCCLabels.emplace_back(
+          reco::PFMultiDepthClusteringCCLabelsDeviceCollection(queues[s], nClusters + 1));
+
+      alpaka::wait(queues[s]);
+    }
+
+    construct_links_test.apply(queues, devClusteringCCLabels, devClusteringVars, params_d.data());
+
+    alpaka::memcpy(queues[0], hostClusteringCCLabels[0].buffer(), devClusteringCCLabels[0].buffer());
+
+    for (unsigned int s = 0; s < nStreams; s++)
+      alpaka::wait(queues[s]);
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 
-void create(::reco::PFClusterCollection& clusters,
-            ::reco::PFMultiDepthClusteringVarsHostCollection& hostClusteringVars,
-            const int nClusters) {
-  auto hClusteringVars = hostClusteringVars.view();
-
+void create(::reco::PFClusterCollection& clusters, const int nClusters) {
   std::mt19937 rng(12345);
 
   // E in [0.5, 120], r in [174, 180], phi in [0, 0.25], z = 0
@@ -124,15 +155,14 @@ void create(::reco::PFClusterCollection& clusters,
   std::uniform_real_distribution<double> r_dist(174.0, 180.0);
   std::uniform_real_distribution<double> phi_dist(0.0, 0.25);
   std::uniform_real_distribution<double> z_dist(0.0, 0.5);
-  std::uniform_real_distribution<double> epRMS2_dist(0.001, 0.05);
 
   std::uniform_int_distribution<int> depth_distr(1, 4);
 
   for (int i = 0; i < nClusters; ++i) {
     const bool is_depth1 = (i % 2 == 0);
     const PFLayer::Layer layer = is_depth1 ? PFLayer::Layer::HCAL_BARREL1 : PFLayer::Layer::HCAL_BARREL2;
-    const double depth = depth_distr(rng);
 
+    const double depth = depth_distr(rng);
     const double energy = energies_dist(rng);
 
     const double r = r_dist(rng);
@@ -142,23 +172,37 @@ void create(::reco::PFClusterCollection& clusters,
     const double y = r * std::sin(phi);
     const double z = z_dist(rng);
 
-    const double etaRMS2_ = epRMS2_dist(rng);
-    const double phiRMS2_ = epRMS2_dist(rng);
-
-    hClusteringVars[i].depth() = depth;
-    hClusteringVars[i].energy() = energy;
-
-    hClusteringVars[i].etaRMS2() = etaRMS2_;
-    hClusteringVars[i].phiRMS2() = phiRMS2_;
-
     ::reco::PFCluster cluster(layer, energy, x, y, z);
     cluster.setDepth(depth);
+
+    clusters.emplace_back(std::move(cluster));
+  }
+}
+
+void load(::reco::PFMultiDepthClusteringVarsHostCollection& hostClusteringVars,
+          const ::reco::PFClusterCollection& clusters) {
+  const int nClusters = clusters.size();
+  auto hClusteringVars = hostClusteringVars.view();
+
+  hClusteringVars.size() = nClusters;
+
+  std::mt19937 rng(12355);
+
+  std::uniform_real_distribution<double> epRMS2_dist(0.001, 0.05);
+
+  for (int i = 0; i < nClusters; ++i) {
+    const ::reco::PFCluster& cluster = clusters[i];
+
+    hClusteringVars[i].depth() = cluster.depth();
+    hClusteringVars[i].energy() = cluster.energy();
+
+    hClusteringVars[i].etaRMS2() = epRMS2_dist(rng);
+    hClusteringVars[i].phiRMS2() = epRMS2_dist(rng);
 
     auto const& crep = cluster.positionREP();
 
     hClusteringVars[i].eta() = crep.eta();
     hClusteringVars[i].phi() = crep.phi();
-    clusters.emplace_back(std::move(cluster));
   }
 }
 
@@ -223,13 +267,15 @@ std::vector<ClusterLink> link(const ::reco::PFClusterCollection& clusters,
   return links;
 }
 
+template <bool verbose = false>
 std::vector<ClusterLink> prune(std::vector<ClusterLink>& links, std::vector<bool>& linkedClusters) {
   std::vector<ClusterLink> goodLinks;
   std::vector<bool> mask(links.size(), false);
   if (links.empty())
     return goodLinks;
 
-  printf("Total number of links : %lu\n", links.size());
+  if constexpr (verbose)
+    printf("Total number of links : %lu\n", links.size());
 
   for (unsigned int i = 0; i < links.size() - 1; ++i) {
     if (mask[i])
@@ -277,11 +323,38 @@ std::vector<ClusterLink> prune(std::vector<ClusterLink>& links, std::vector<bool
     linkedClusters[links[i].to()] = true;
   }
 
-  printf("Total pruned links %u\n", pruned_links);
+  if constexpr (verbose)
+    printf("Total pruned links %u\n", pruned_links);
 
-  printf("Total number of selected links : %lu\n", goodLinks.size());
+  if constexpr (verbose)
+    printf("Total number of selected links : %lu\n", goodLinks.size());
 
   return goodLinks;
+}
+
+void runPruningTest(const ::reco::PFClusterCollection& clusters,
+                    const std::vector<double>& etaRMS2,
+                    const std::vector<double>& phiRMS2) {
+  double dummyEn = 0.;
+  // Time loop
+  auto start = std::chrono::steady_clock::now();
+
+  for (unsigned int i = 0; i < nIters; i++) {
+    //link
+    auto&& links = link(clusters, etaRMS2, phiRMS2);
+
+    std::vector<bool> linked(clusters.size(), false);
+    //prune
+    auto&& prunedLinks = prune(links, linked);
+
+    dummyEn += prunedLinks[0].energy();
+  }
+
+  auto seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
+
+  std::cout << "Legacy function execution time : " << seconds / nIters << " sec per stream per iter." << std::endl;
+
+  std::cout << "Link 0 energy " << dummyEn / nIters << std::endl;
 }
 
 int checkConstructLinks(const ::reco::PFClusterCollection& clusters,
@@ -298,6 +371,9 @@ int checkConstructLinks(const ::reco::PFClusterCollection& clusters,
     etaRMS2[i] = hClusteringVars[i].etaRMS2();
     phiRMS2[i] = hClusteringVars[i].phiRMS2();
   }
+  // Check time:
+  runPruningTest(clusters, etaRMS2, phiRMS2);
+
   //link
   auto&& links = link(clusters, etaRMS2, phiRMS2);
 
@@ -347,27 +423,40 @@ int main() {
     exit(EXIT_FAILURE);
   }
 
-  const int nClusters = 145;
+  const int nClusters = 1024;
+
+  ::reco::PFClusterCollection clusters;
+  clusters.reserve(nClusters);
+  create(clusters, nClusters);
 
   // run the test on each device
   for (auto const& device : devices) {
-    auto queue = Queue(device);
+    std::vector<Queue> queues;
+    queues.reserve(nStreams);
 
-    ::reco::PFClusterCollection clusters;
-    clusters.reserve(nClusters);
+    std::vector<::reco::PFMultiDepthClusteringVarsHostCollection> hostClusteringVars;
+    hostClusteringVars.reserve(nStreams);
 
-    ::reco::PFMultiDepthClusteringVarsHostCollection hostClusteringVars{queue, nClusters};
+    std::vector<::reco::PFMultiDepthClusteringCCLabelsHostCollection> hostClusteringCCLabels;
+    hostClusteringCCLabels.reserve(nStreams);
 
-    ::reco::PFMultiDepthClusteringCCLabelsHostCollection hostClusteringCCLabels{queue, nClusters + 1};
+    for (unsigned int s = 0; s < nStreams; s++) {
+      auto queue = Queue(device);
 
-    auto hClusteringVars = hostClusteringVars.view();
-    hClusteringVars.size() = nClusters;
+      auto host_clustering_vars = ::reco::PFMultiDepthClusteringVarsHostCollection(queue, nClusters);
 
-    create(clusters, hostClusteringVars, nClusters);
+      load(host_clustering_vars, clusters);
 
-    launch_construct_links_test(queue, hostClusteringCCLabels, hostClusteringVars);
+      hostClusteringVars.emplace_back(std::move(host_clustering_vars));
 
-    auto nerrors = checkConstructLinks(clusters, hostClusteringCCLabels, hostClusteringVars);
+      hostClusteringCCLabels.emplace_back(::reco::PFMultiDepthClusteringCCLabelsHostCollection(queue, nClusters + 1));
+
+      queues.emplace_back(std::move(queue));
+    }
+
+    launch_construct_links_test(queues, hostClusteringCCLabels, hostClusteringVars);
+
+    auto nerrors = checkConstructLinks(clusters, hostClusteringCCLabels[0], hostClusteringVars[0]);
 
     if (nerrors != 0) {
       std::cerr << nerrors << " errors detected, exiting." << std::endl;

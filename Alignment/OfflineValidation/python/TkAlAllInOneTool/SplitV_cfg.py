@@ -9,7 +9,9 @@ from Alignment.OfflineValidation.TkAlAllInOneTool.utils import _byteify
 ###################################################################
 # Define process 
 ###################################################################
-process = cms.Process("PrimaryVertexResolution")
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+process = cms.Process("PrimaryVertexResolution",_PH2_ERA)
 
 ###################################################################
 # Argument parsing
@@ -48,6 +50,14 @@ else:
                                 fileNames = filesDefaultMC_NoPU,
                                 skipEvents = cms.untracked.uint32(0)
                                ) 
+
+# Workaround after renaming SimDataFormats' ticl::AssociationMap
+# TODO: revert after new relvals
+process.source.inputCommands = cms.untracked.vstring([
+    "keep *",
+    "drop ticlFractionTypeticlAssociationElementsSimClustersCaloParticlesticlAssociationMap_*_*_*",
+    "drop ticlSharedEnergyTypefloatstdpairticlAssociationElementssticlTrackstersticlTrackstersticlAssociationMap_*_*_*",
+    ])
 
 ###################################################################
 # Get good lumi section and load data or handle MC
@@ -100,7 +110,7 @@ process.MessageLogger.cout.enableStatistics = cms.untracked.bool(True)
 # Basic modules
 ###################################################################
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-process.load("Configuration.Geometry.GeometryDB_cff")
+process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -117,7 +127,7 @@ process.TrackRefitter.NavigationSchool = ""
 ####################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", "105X_upgrade2018_realistic_v4"))
+process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", _PH2_GLOBAL_TAG))
 
 ####################################################################
 # Load conditions if wished

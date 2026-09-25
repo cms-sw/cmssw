@@ -1,28 +1,6 @@
-#include "RecoLocalFastTime/FTLCommonAlgos/interface/MTDRecHitAlgoBase.h"
-
 #include "RecoLocalFastTime/Records/interface/MTDTimeCalibRecord.h"
 #include "RecoLocalFastTime/FTLCommonAlgos/interface/MTDTimeCalib.h"
-
-class MTDRecHitAlgo : public MTDRecHitAlgoBase {
-public:
-  /// Constructor
-  MTDRecHitAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes);
-
-  /// Destructor
-  ~MTDRecHitAlgo() override {}
-
-  /// get event and eventsetup information
-  void getEvent(const edm::Event&) final {}
-  void getEventSetup(const edm::EventSetup&) final;
-
-  /// make the rec hit
-  FTLRecHit makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags) const final;
-
-private:
-  double thresholdToKeep_, calibration_;
-  const MTDTimeCalib* time_calib_;
-  edm::ESGetToken<MTDTimeCalib, MTDTimeCalibRecord> tcToken_;
-};
+#include "MTDRecHitAlgo.h"
 
 MTDRecHitAlgo::MTDRecHitAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
     : MTDRecHitAlgoBase(conf, sumes),
@@ -95,5 +73,7 @@ FTLRecHit MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32
   return rh;
 }
 
-#include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_EDM_PLUGIN(MTDRecHitAlgoFactory, MTDRecHitAlgo, "MTDRecHitAlgo");
+void MTDRecHitAlgo::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<double>("thresholdToKeep", 1.0)->setComment("Threshold below which rechits are killed");
+  desc.add<double>("calibrationConstant", 1.0)->setComment("Energy calibration factor");
+}

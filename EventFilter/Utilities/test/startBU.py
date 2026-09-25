@@ -88,13 +88,26 @@ options.register ('eventDataType',
                   VarParsing.VarParsing.varType.int,
                   "Event data type value in FRD file header v2")
 
+options.register ('cleanup',
+                  False,
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.bool,
+                  "Delete any existing output directory")
+
+
 options.parseArguments()
+
+basePath = os.path.join(options.fffBaseDir, options.buBaseDir)
 
 #try to create 'ramdisk' directory
 try:
-    os.makedirs(options.fffBaseDir+"/"+options.buBaseDir)
+    os.makedirs(basePath)
 except:pass
 
+if options.cleanup:
+    import shutil
+    for outrundir in os.listdir(basePath):
+        shutil.rmtree(os.path.join(basePath,outrundir))
 
 cmsswbase = os.path.expandvars("$CMSSW_BASE/")
 

@@ -36,9 +36,16 @@ def parse_args():
     )
 
     parser.add_argument(
+        "-ts", "--totalSize",
+        type=int,
+        default=35,
+        help="Total size"
+    )
+
+    parser.add_argument(
         "-bs", "--batchSize",
         type=int,
-        default=8,
+        default=32,
         help="Batch size"
     )
 
@@ -56,6 +63,14 @@ def parse_args():
         default="PhysicsTools/PyTorchAlpakaTest/data/SimpleNet.pt",
         help="SimpleNet model (just-in-time compiled)"
     )
+
+    parser.add_argument(
+        "--simpleNetMiniBatch",
+        type=str,
+        default="PhysicsTools/PyTorchAlpakaTest/data/SimpleNet.pt",
+        help="SimpleNetMiniBatch model (just-in-time compiled)"
+    )
+
 
     parser.add_argument(
         "--maskedNet",
@@ -79,10 +94,17 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--tinyResNetMiniBatch",
+        type=str,
+        default="PhysicsTools/PyTorchAlpakaTest/data/TinyResNet.pt",
+        help="TinyResNetMiniBatch model (just-in-time compiled)"
+    )
+
+    parser.add_argument(
         "-o", "--only",
         nargs="+",
-        default=["SimpleNet", "MultiHeadNet", "MaskedNet", "TinyResNet"],
-        choices=["SimpleNet", "MaskedNet", "MultiHeadNet", "TinyResNet"],
+        default=["SimpleNet", "SimpleNetMiniBatch", "MultiHeadNet", "MaskedNet", "TinyResNet", "TinyResNetMiniBatch"],
+        choices=["SimpleNet", "SimpleNetMiniBatch", "MultiHeadNet", "MaskedNet", "TinyResNet", "TinyResNetMiniBatch"],
         help="Run selected test(s). Default: all modules run in parallel."
     )
 

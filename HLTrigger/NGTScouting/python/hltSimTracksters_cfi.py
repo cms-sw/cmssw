@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.nano_cff import nanoMetadata
-from Validation.HGCalValidation.HLT_TICLIterLabels_cff import hltTiclIterLabels
+from Validation.HGCalValidation.HLT_TICLIterLabels_cff import hltTiclIterLabelsPSet
 
 hltUpgradeNanoTask = cms.Task(nanoMetadata)
 

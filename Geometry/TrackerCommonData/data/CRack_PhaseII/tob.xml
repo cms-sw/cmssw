@@ -22,7 +22,11 @@
 	<!-- In case you want to flip Y' instead of X' --> 
 	<!--Rotation name="faceupmodule" thetaX="90*deg" phiX="0*deg" thetaY="180*deg" phiY="0*deg" thetaZ="90*deg" phiZ="90*deg"/-->
         <Rotation name="facedownmodule" thetaX="90*deg" phiX="0*deg" thetaY="0*deg" phiY="0*deg" thetaZ="90*deg" phiZ="270*deg"/>
-        <Rotation name="faceupmodule" thetaX="90*deg" phiX="180*deg" thetaY="0*deg" phiY="0*deg" thetaZ="90*deg" phiZ="90*deg"/>
+	<Rotation name="faceupmodule_2" thetaX="90*deg" phiX="180*deg" thetaY="0*deg" phiY="0*deg" thetaZ="90*deg" phiZ="90*deg"/>
+
+
+        <Rotation name="facedownmodule_2" thetaX="270*deg" phiX="0*deg" thetaY="180*deg" phiY="0*deg" thetaZ="90*deg" phiZ="270*deg"/>
+        <Rotation name="faceupmodule" thetaX="90*deg" phiX="0*deg" thetaY="180*deg" phiY="0*deg" thetaZ="90*deg" phiZ="90*deg"/>
 </RotationSection>
 
 <MaterialSection label="tob.xml">
@@ -540,91 +544,93 @@
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M1"/>
-<rRotation name="tob:faceupmodule"/>
-<Translation x="0.0*mm" y="2.9*mm" z="55.4912*mm"/>
+<rRotation name="tob:faceupmodule_2"/>
+<Translation x="0.0*mm" y="2.25*mm" z="44.308*mm"/>
 </PosPart>
 
 <PosPart copyNumber="2">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M1"/>
-<rRotation name="tob:facedownmodule"/>
-<Translation x="0.0*mm" y="-2.9*mm" z="-44.3082*mm"/>
+<rRotation name="tob:facedownmodule_2"/>
+<Translation x="0.0*mm" y="-2.25*mm" z="144.891*mm"/>
 </PosPart>
+
 
 
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M2"/>
-<rRotation name="tob:facedownmodule"/>
-<Translation x="0.0*mm" y="-2.9*mm" z="154.09*mm"/>
+<rRotation name="tob:faceupmodule"/>
+<Translation x="0.0*mm" y="2.25*mm" z="242.523*mm"/>
 </PosPart>
+
 
 <PosPart copyNumber="2">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M2"/>
-<rRotation name="tob:faceupmodule"/>
-<Translation x="0.0*mm" y="2.9*mm" z="-144.891*mm"/>
+<rRotation name="tob:facedownmodule_2"/>
+<Translation x="0.0*mm" y="-2.25*mm" z="343.774*mm"/>
 </PosPart>
 
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M3"/>
 <rRotation name="tob:faceupmodule"/>
-<Translation x="0.0*mm" y="2.9*mm" z="255.043*mm"/>
+<Translation x="0.0*mm" y="2.25*mm" z="439.255*mm"/>
 </PosPart>
 
 <PosPart copyNumber="2">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M3"/>
-<rRotation name="tob:facedownmodule"/>
-<Translation x="0.0*mm" y="-2.9*mm" z="-242.523*mm"/>
+<rRotation name="tob:facedownmodule_2"/>
+<Translation x="0.0*mm" y="-2.25*mm" z="541.17*mm"/>
 </PosPart>
-
 
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M4"/>
-<rRotation name="tob:facedownmodule"/>
-<Translation x="0.0*mm" y="-2.9*mm" z="351.484*mm"/>
+<rRotation name="tob:faceupmodule"/>
+<Translation x="0.0*mm" y="2.25*mm" z="634.17*mm"/>
 </PosPart>
 
 <PosPart copyNumber="2">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M4"/>
-<rRotation name="tob:faceupmodule"/>
-<Translation x="0.0*mm" y="2.9*mm" z="-343.774*mm"/>
+<rRotation name="tob:facedownmodule_2"/>
+<Translation x="0.0*mm" y="-2.25*mm" z="736.742*mm"/>
 </PosPart>
+
 
 
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M5"/>
 <rRotation name="tob:faceupmodule"/>
-<Translation x="0.0*mm" y="2.9*mm" z="453.103*mm"/>
+<Translation x="0.0*mm" y="2.25*mm" z="827.742*mm"/>
 </PosPart>
 
 <PosPart copyNumber="2">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M5"/>
-<rRotation name="tob:facedownmodule"/>
-<Translation x="0.0*mm" y="-2.9*mm" z="-439.255*mm"/>
+<rRotation name="tob:facedownmodule_2"/>
+<Translation x="0.0*mm" y="-2.25*mm" z="930.968*mm"/>
 </PosPart>
-
 
 
 <PosPart copyNumber="1">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M6"/>
-<rRotation name="tob:facedownmodule"/>
-<Translation x="0.0*mm" y="-2.9*mm" z="546.103*mm"/>
+<rRotation name="tob:faceupmodule"/>
+<Translation x="0.0*mm" y="2.25*mm" z="1020.096*mm"/>
 </PosPart>
 
 <PosPart copyNumber="2">
 <rParent name="tob:CRACKL1"/>
 <rChild name="tob:CRACKL1M6"/>
-<rRotation name="tob:faceupmodule"/>
-<Translation x="0.0*mm" y="2.9*mm" z="-541.17*mm"/>
+<rRotation name="tob:facedownmodule"/>
+<Translation x="0.0*mm" y="-2.25*mm" z="1123.971*mm"/>
 </PosPart>
+
 
 <!-- Module composition-->
 
