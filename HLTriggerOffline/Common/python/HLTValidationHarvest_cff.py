@@ -99,7 +99,7 @@ hltpostvalidation_preprod = cms.Sequence(
     +heavyFlavorValidationHarvestingSequence
     +SusyExoPostVal
     + postProcessorHLTgsfTrackingSequence
-   #+HLTHiggsPostVal
+    #+HLTHiggsPostVal
     )
 
 hltpostvalidation_prod = cms.Sequence( 

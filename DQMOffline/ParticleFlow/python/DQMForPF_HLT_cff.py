@@ -43,9 +43,6 @@ def createOffsetVPSetPhase2():
                                default.eHighOffset, default.etaBinsOffset)]
     return plots
 
-# useAOD: reco::PFCandidate input, so PV attachment is decided by matching the
-# candidate trackRef against the tracks fitted to a good primary vertex, rather
-# than reading pat::PackedCandidate::fromPV().
 offsetAnalyzerDQMHLT = offsetAnalyzerDQM.clone(
     dqmDir = "HLT/ParticleFlow/Offset/",
     pfTag  = "hltParticleFlowTmp",
@@ -55,7 +52,6 @@ offsetAnalyzerDQMHLT = offsetAnalyzerDQM.clone(
     npvHigh = NPV_HIGH_PHASE2,
     offsetPlots = createOffsetVPSetPhase2(),
 )
-
 
 # ---------------------------------------------------------------------------
 # DQMOffline/ParticleFlow PFAnalyzer, HLT instance.
@@ -77,11 +73,11 @@ pfAnalyzerDQMHLT = pfAnalyzerDQM.clone(
     pfJetCollection     = "hltAK4PFPuppiJets",
     PVCollection        = "hltOfflinePrimaryVertices",
     puppiWeight         = "hltPFPuppi",
-    TriggerResultsLabel = cms.InputTag("TriggerResults", "", "reHLT"),
+    TriggerResultsLabel = cms.InputTag("TriggerResults::HLT"),
     # passesTriggerSelection accepts everything only if the list contains an
     # EMPTY STRING; an empty list makes its inner loop never run, so every
     # event is rejected and nothing fills.
-    TriggerNames        = [""],
+    TriggerNames        = [""], #HLT_PFJet450
     eventSelection      = "nocut",     # W' is not a dijet sample
     pfAnalysis = cms.PSet(
         NPVBins = cms.vdouble(0, 100, 250),

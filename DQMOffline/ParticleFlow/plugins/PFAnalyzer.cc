@@ -186,7 +186,7 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
       m_cutList2D[i].erase(0, pos + 1);
     }
   }
- 
+
   for (unsigned int i = 0; i < m_fullCutList2D.size(); i++) {
     m_binList2D.push_back(std::vector<std::vector<double>>());
     for (unsigned int j = 0; j < m_fullCutList2D[i].size(); j++) {
@@ -207,7 +207,7 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   //
   for (unsigned int i = 0; i < m_jetCutList.size(); i++) {
     m_fullJetCutList.push_back(std::vector<std::string>());
-	size_t pos;
+    size_t pos;
     while ((pos = m_jetCutList[i].find(']')) != std::string::npos) {
       m_fullJetCutList[i].push_back(m_jetCutList[i].substr(1, pos));
       m_jetCutList[i].erase(0, pos + 1);
@@ -249,25 +249,24 @@ void PFAnalyzer::fillME2D(const std::string& key, double valX, double valY, doub
 }
 
 void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const&) {
-
   //for phi binnings
   double nPhiBins = 73;
   double phiBinWidth = M_PI / (nPhiBins - 1) * 2.;
 
   for (unsigned int m = 0; m < m_pfNames.size(); m++) {
-	std::string& pType = m_pfNames[m];
-	ibooker.setCurrentFolder(mDir + "/DQM_PFCs_" + m_pfNames[m]);
-	
+    std::string& pType = m_pfNames[m];
+    ibooker.setCurrentFolder(mDir + "/DQM_PFCs_" + m_pfNames[m]);
+
     map_of_MEs[pType + "_Eta"] = ibooker.book1D(pType + "_Eta", pType + "Eta", 100, -5.2, 5.2);
     map_of_MEs[pType + "_Log10Pt"] = ibooker.book1D(pType + "_Log10Pt", pType + "_Log10Pt", 120, -1.5, 3.);
-    map_of_MEs[pType + "_Phi"]     = ibooker.book1D(pType + "_Phi", pType + "_Phi",
-													nPhiBins, -M_PI - 0.25 * phiBinWidth, +M_PI + 0.75 * phiBinWidth);
-    map_of_MEs[pType + "_Charge"]  = ibooker.book1D(pType + "_Charge", pType + "_Charge", 3, -1.5, 1.5);
-    map_of_MEs[pType + "_PtLow"]   = ibooker.book1D(pType + "_PtLow", pType + "_PtLow", 100, 0., 5.);
-    map_of_MEs[pType + "_PtMid"]   = ibooker.book1D(pType + "_PtMid", pType + "_PtMid", 100, 0., 200.);
-    map_of_MEs[pType + "_PtHigh"]  = ibooker.book1D(pType + "_PtHigh", pType + "_PtHigh", 100, 0., 1000.);
+    map_of_MEs[pType + "_Phi"] = ibooker.book1D(
+        pType + "_Phi", pType + "_Phi", nPhiBins, -M_PI - 0.25 * phiBinWidth, +M_PI + 0.75 * phiBinWidth);
+    map_of_MEs[pType + "_Charge"] = ibooker.book1D(pType + "_Charge", pType + "_Charge", 3, -1.5, 1.5);
+    map_of_MEs[pType + "_PtLow"] = ibooker.book1D(pType + "_PtLow", pType + "_PtLow", 100, 0., 5.);
+    map_of_MEs[pType + "_PtMid"] = ibooker.book1D(pType + "_PtMid", pType + "_PtMid", 100, 0., 200.);
+    map_of_MEs[pType + "_PtHigh"] = ibooker.book1D(pType + "_PtHigh", pType + "_PtHigh", 100, 0., 1000.);
   }
-  
+
   for (unsigned int i = 0; i < m_fullCutList.size(); i++) {
     m_allSuffixes.push_back(getAllSuffixes(m_fullCutList[i], m_binList[i]));
   }
@@ -352,8 +351,7 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
                                             npvString.c_str());
                 MonitorElement* mHistInJet = ibooker.book1D(
                     histName, Form(";%s;", obsInfo.axisName.c_str()), obsInfo.nBins, obsInfo.binMin, obsInfo.binMax);
-                map_of_MEs.insert(
-                    std::pair<std::string, MonitorElement*>(mDir + "/PFCinJet/" + histName, mHistInJet));
+                map_of_MEs.insert(std::pair<std::string, MonitorElement*>(mDir + "/PFCinJet/" + histName, mHistInJet));
               }
             }
           }
@@ -416,8 +414,7 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
                                         npvString.c_str());
             MonitorElement* mHistInJet =
                 ibooker.book1D(histName, Form(";%s;", axisString.c_str()), nBinsJet, binMinJet, binMaxJet);
-            map_of_MEs.insert(
-                std::pair<std::string, MonitorElement*>(mDir + "/PFCinJet/" + histName, mHistInJet));
+            map_of_MEs.insert(std::pair<std::string, MonitorElement*>(mDir + "/PFCinJet/" + histName, mHistInJet));
           }
         }
       }
@@ -448,8 +445,7 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
                                                             pfInJetInfo.nBins,
                                                             pfInJetInfo.binMin,
                                                             pfInJetInfo.binMax);
-                map_of_MEs.insert(
-                    std::pair<std::string, MonitorElement*>(mDir + "/PFCinJet/" + histName, mHistInJet));
+                map_of_MEs.insert(std::pair<std::string, MonitorElement*>(mDir + "/PFCinJet/" + histName, mHistInJet));
               }
             }
           }
@@ -820,32 +816,33 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
   for (const auto& cand : pfCollection) {
-    if (!cand) continue;
+    if (!cand)
+      continue;
 
-	// all candidates
-	bool hasAllHist = std::find(m_pfNames.begin(), m_pfNames.end(), "allPFC") != m_pfNames.end();
-	if (hasAllHist) {
-	  fillME("allPFC_Log10Pt", cand->pt() > 0 ? log10(cand->pt()) : -10);
-	  fillME("allPFC_Eta", cand->eta());
-	  fillME("allPFC_Phi", cand->phi());
-	  fillME("allPFC_Charge", cand->charge());
-	  fillME("allPFC_PtLow", cand->pt());
-	  fillME("allPFC_PtMid", cand->pt());
-	  fillME("allPFC_PtHigh", cand->pt());
-	}
-	  
+    // all candidates
+    bool hasAllHist = std::find(m_pfNames.begin(), m_pfNames.end(), "allPFC") != m_pfNames.end();
+    if (hasAllHist) {
+      fillME("allPFC_Log10Pt", cand->pt() > 0 ? log10(cand->pt()) : -10);
+      fillME("allPFC_Eta", cand->eta());
+      fillME("allPFC_Phi", cand->phi());
+      fillME("allPFC_Charge", cand->charge());
+      fillME("allPFC_PtLow", cand->pt());
+      fillME("allPFC_PtMid", cand->pt());
+      fillME("allPFC_PtHigh", cand->pt());
+    }
+
     reco::PFCandidate::ParticleType pfType = particleType(cand);
     bool hasTypeHist = m_particleTypeName.find(pfType) != m_particleTypeName.end();
 
-	if (hasTypeHist) {
-	  fillME(m_particleTypeName[pfType] + "_Log10Pt", cand->pt() > 0 ? log10(cand->pt()) : -10);
-	  fillME(m_particleTypeName[pfType] + "_Eta", cand->eta());
-	  fillME(m_particleTypeName[pfType] + "_Phi", cand->phi());
-	  fillME(m_particleTypeName[pfType] + "_Charge", cand->charge());
-	  fillME(m_particleTypeName[pfType] + "_PtLow", cand->pt());
-	  fillME(m_particleTypeName[pfType] + "_PtMid", cand->pt());
-	  fillME(m_particleTypeName[pfType] + "_PtHigh", cand->pt());
-	}
+    if (hasTypeHist) {
+      fillME(m_particleTypeName[pfType] + "_Log10Pt", cand->pt() > 0 ? log10(cand->pt()) : -10);
+      fillME(m_particleTypeName[pfType] + "_Eta", cand->eta());
+      fillME(m_particleTypeName[pfType] + "_Phi", cand->phi());
+      fillME(m_particleTypeName[pfType] + "_Charge", cand->charge());
+      fillME(m_particleTypeName[pfType] + "_PtLow", cand->pt());
+      fillME(m_particleTypeName[pfType] + "_PtMid", cand->pt());
+      fillME(m_particleTypeName[pfType] + "_PtHigh", cand->pt());
+    }
 
     for (unsigned int j = 0; j < m_fullCutList.size(); j++) {
       int binNumber = getPFBin(cand, j, puppiWeight);
@@ -862,9 +859,9 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         double valX = m_funcMap[m_fullCutList2D[i][0]](cand, puppiWeight);
         double valY = m_funcMap[m_fullCutList2D[i][1]](cand, puppiWeight);
 
-		fillME2D(mDir + "/Hists2D/allPFC_" + histName, valX, valY, eventWeight);
+        fillME2D(mDir + "/Hists2D/allPFC_" + histName, valX, valY, eventWeight);
         if (hasTypeHist)
-		  fillME2D(mDir + "/Hists2D/" + m_particleTypeName[pfType] + "_" + histName, valX, valY, eventWeight);
+          fillME2D(mDir + "/Hists2D/" + m_particleTypeName[pfType] + "_" + histName, valX, valY, eventWeight);
       }
 
       // Eventually, we might want the hist name to include the cuts that we are applying,
@@ -874,10 +871,10 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         std::string histName = Form("%s%s_%s", m_observableNames[i].c_str(), binString.c_str(), npvString.c_str());
         double val = m_funcMap[m_observableNames[i]](cand, puppiWeight);
 
-		fillME(mDir + "/PFCs/allPFC_" + histName, val, eventWeight);
-		if (hasTypeHist) {
-		  fillME(mDir + "/PFCs/" + m_particleTypeName[pfType] + "_" + histName, val, eventWeight);
-		}
+        fillME(mDir + "/PFCs/allPFC_" + histName, val, eventWeight);
+        if (hasTypeHist) {
+          fillME(mDir + "/PFCs/" + m_particleTypeName[pfType] + "_" + histName, val, eventWeight);
+        }
       }
     }
   }
@@ -885,19 +882,21 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   for (unsigned int i = 0; i < m_eventObservableNames.size(); i++) {
     std::string histName = Form("%s_%s", m_eventObservableNames[i].c_str(), npvString.c_str());
 
-	fillME(mDir + "/PFCs/allPFC_" + histName,
-		   m_eventFuncMap[m_eventObservableNames[i]](pfCollection, reco::PFCandidate::ParticleType::X), eventWeight);
+    fillME(mDir + "/PFCs/allPFC_" + histName,
+           m_eventFuncMap[m_eventObservableNames[i]](pfCollection, reco::PFCandidate::ParticleType::X),
+           eventWeight);
     for (const auto& mypair : m_particleTypeName) {
-	  fillME(mDir + "/PFCs/" + mypair.second + "_" + histName,
-			 m_eventFuncMap[m_eventObservableNames[i]](pfCollection, mypair.first), eventWeight);
+      fillME(mDir + "/PFCs/" + mypair.second + "_" + histName,
+             m_eventFuncMap[m_eventObservableNames[i]](pfCollection, mypair.first),
+             eventWeight);
     }
   }
 
   // Plots for generic debugging
   fillME(mDir + "/NPV", numPV, eventWeight);
   if (numJets) {
-	fillME(mDir + Form("/JetKinematics/jetPtLead_%s", npvString.c_str()), jets[0].pt(), eventWeight);
-	fillME(mDir + Form("/JetKinematics/jetEtaLead_%s", npvString.c_str()), jets[0].eta(), eventWeight);
+    fillME(mDir + Form("/JetKinematics/jetPtLead_%s", npvString.c_str()), jets[0].pt(), eventWeight);
+    fillME(mDir + Form("/JetKinematics/jetEtaLead_%s", npvString.c_str()), jets[0].eta(), eventWeight);
   }
 
   // Make plots of all observables, this time for PF candidates within jets
@@ -908,69 +907,69 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     // miniAOD case without needing to know the concrete jet type.
     const std::vector<reco::CandidatePtr> pfConstits = cjet.getJetConstituents();
 
-	fillME(mDir + Form("/JetKinematics/jetPt_%s", npvString.c_str()), cjet.pt(), eventWeight);
-	fillME(mDir + Form("/JetKinematics/jetEta_%s", npvString.c_str()), cjet.eta(), eventWeight);
-	for (unsigned int k = 0; k < m_fullJetCutList.size(); k++) {
-	  int jetBinNumber = getJetBin(cjet, pfConstits, k);
-	  if (jetBinNumber < 0)
-		continue;
-	  if (jetBinNumber >= int(m_allJetSuffixes[k].size()))
-		continue;
-	  std::string jetBinString = m_allJetSuffixes[k][jetBinNumber];
+    fillME(mDir + Form("/JetKinematics/jetPt_%s", npvString.c_str()), cjet.pt(), eventWeight);
+    fillME(mDir + Form("/JetKinematics/jetEta_%s", npvString.c_str()), cjet.eta(), eventWeight);
+    for (unsigned int k = 0; k < m_fullJetCutList.size(); k++) {
+      int jetBinNumber = getJetBin(cjet, pfConstits, k);
+      if (jetBinNumber < 0)
+        continue;
+      if (jetBinNumber >= int(m_allJetSuffixes[k].size()))
+        continue;
+      std::string jetBinString = m_allJetSuffixes[k][jetBinNumber];
 
-	  for (const auto& constit : pfConstits) {
-		if (!constit)
-		  continue;
-		reco::PFCandidate::ParticleType pfType = particleType(constit);
-		bool hasTypeHist = m_particleTypeName.find(pfType) != m_particleTypeName.end();
+      for (const auto& constit : pfConstits) {
+        if (!constit)
+          continue;
+        reco::PFCandidate::ParticleType pfType = particleType(constit);
+        bool hasTypeHist = m_particleTypeName.find(pfType) != m_particleTypeName.end();
 
-		for (unsigned int j = 0; j < m_fullCutList.size(); j++) {
-		  int binNumber = getPFBin(constit, j, puppiWeight);
-		  if (binNumber < 0)
-			continue;
-		  if (binNumber >= int(m_allSuffixes[j].size())) {
-			continue;
-		  }
-		  std::string binString = m_allSuffixes[j][binNumber];
+        for (unsigned int j = 0; j < m_fullCutList.size(); j++) {
+          int binNumber = getPFBin(constit, j, puppiWeight);
+          if (binNumber < 0)
+            continue;
+          if (binNumber >= int(m_allSuffixes[j].size())) {
+            continue;
+          }
+          std::string binString = m_allSuffixes[j][binNumber];
 
-		  for (unsigned int i = 0; i < m_observableNames.size(); i++) {
-			std::string histName = Form("%s%s_jetCuts%s_%s",
-										m_observableNames[i].c_str(),
-										binString.c_str(),
-										jetBinString.c_str(),
-										npvString.c_str());
-			double val = m_funcMap[m_observableNames[i]](constit, puppiWeight);
-			fillME(mDir + "/PFCinJet/allPFC_jetMatched_" + histName, val, eventWeight);
-			if (hasTypeHist)
-			  fillME(mDir + "/PFCinJet/" + m_particleTypeName[pfType] + "_jetMatched_" + histName, val, eventWeight);
-		  }
+          for (unsigned int i = 0; i < m_observableNames.size(); i++) {
+            std::string histName = Form("%s%s_jetCuts%s_%s",
+                                        m_observableNames[i].c_str(),
+                                        binString.c_str(),
+                                        jetBinString.c_str(),
+                                        npvString.c_str());
+            double val = m_funcMap[m_observableNames[i]](constit, puppiWeight);
+            fillME(mDir + "/PFCinJet/allPFC_jetMatched_" + histName, val, eventWeight);
+            if (hasTypeHist)
+              fillME(mDir + "/PFCinJet/" + m_particleTypeName[pfType] + "_jetMatched_" + histName, val, eventWeight);
+          }
 
-		  for (unsigned int i = 0; i < m_pfInJetObservableNames.size(); i++) {
-			std::string histName = Form("%s%s_jetCuts%s_%s",
-										m_pfInJetObservableNames[i].c_str(),
-										binString.c_str(),
-										jetBinString.c_str(),
-										npvString.c_str());
-			double val = m_pfInJetFuncMap[m_pfInJetObservableNames[i]](constit, cjet);
-			fillME(mDir + "/PFCinJet/allPFC_jetMatched_" + histName, val, eventWeight);
-			if (hasTypeHist)
-			  fillME(mDir + "/PFCinJet/" + m_particleTypeName[pfType] + "_jetMatched_" + histName, val, eventWeight);
-		  }
-		}
+          for (unsigned int i = 0; i < m_pfInJetObservableNames.size(); i++) {
+            std::string histName = Form("%s%s_jetCuts%s_%s",
+                                        m_pfInJetObservableNames[i].c_str(),
+                                        binString.c_str(),
+                                        jetBinString.c_str(),
+                                        npvString.c_str());
+            double val = m_pfInJetFuncMap[m_pfInJetObservableNames[i]](constit, cjet);
+            fillME(mDir + "/PFCinJet/allPFC_jetMatched_" + histName, val, eventWeight);
+            if (hasTypeHist)
+              fillME(mDir + "/PFCinJet/" + m_particleTypeName[pfType] + "_jetMatched_" + histName, val, eventWeight);
+          }
+        }
 
-		for (unsigned int i = 0; i < m_eventObservableNames.size(); i++) {
-		  std::string histName =
-			Form("%s_jetCuts%s_%s", m_eventObservableNames[i].c_str(), jetBinString.c_str(), npvString.c_str());
-		  fillME(mDir + "/PFCinJet/allPFC_jetMatched_" + histName,
-				 m_jetWideFuncMap[m_eventObservableNames[i]](pfConstits, reco::PFCandidate::ParticleType::X, cjet),
-				 eventWeight);
-		  for (const auto& mypair : m_particleTypeName) {
-			fillME(mDir + "/PFCinJet/" + mypair.second + "_jetMatched_" + histName,
-				   m_jetWideFuncMap[m_eventObservableNames[i]](pfConstits, mypair.first, cjet),
-				   eventWeight);
-		  }
-		}
-	  }
-	}
+        for (unsigned int i = 0; i < m_eventObservableNames.size(); i++) {
+          std::string histName =
+              Form("%s_jetCuts%s_%s", m_eventObservableNames[i].c_str(), jetBinString.c_str(), npvString.c_str());
+          fillME(mDir + "/PFCinJet/allPFC_jetMatched_" + histName,
+                 m_jetWideFuncMap[m_eventObservableNames[i]](pfConstits, reco::PFCandidate::ParticleType::X, cjet),
+                 eventWeight);
+          for (const auto& mypair : m_particleTypeName) {
+            fillME(mDir + "/PFCinJet/" + mypair.second + "_jetMatched_" + histName,
+                   m_jetWideFuncMap[m_eventObservableNames[i]](pfConstits, mypair.first, cjet),
+                   eventWeight);
+          }
+        }
+      }
+    }
   }
 }

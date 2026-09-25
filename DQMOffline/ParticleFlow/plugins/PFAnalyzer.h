@@ -65,7 +65,7 @@ public:
   MonitorElement* getME(const std::string& key) const;
   void fillME(const std::string& key, double val, double weight) const;
   void fillME2D(const std::string& key, double valX, double valY, double weight) const;
-	
+
   // Initialize parameters for histo binning
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
@@ -79,7 +79,7 @@ public:
 
 private:
   struct binInfo;
-  
+
   // The input collections are read polymorphically, so that the same code can
   // handle RECO / AOD / HLT (reco::PFCandidate / reco::PFJet) and miniAOD
   // (pat::PackedCandidate / pat::Jet) inputs without duplicating anything.
