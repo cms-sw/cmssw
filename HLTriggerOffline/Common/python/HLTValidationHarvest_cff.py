@@ -20,7 +20,7 @@ from Validation.HGCalValidation.HLTHGCalPostProcessor_cff import *
 from Validation.HLTrigger.HLTGenValidationHarvesting_cff import *
 from Validation.HGCalValidation.BarrelPostProcessor_cff import *
 from Validation.MtdValidation.hltMtdPostProcessor_cff import *
-from Validation.RecoParticleFlow.DQMForPF_HLT_cff import *
+from DQMOffline.ParticleFlow.DQMForPF_HLT_cff import *
 
 hltpostvalidation = cms.Sequence( 
     postProcessorHLTtrackingSequence

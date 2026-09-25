@@ -1,11 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    Validation/RecoParticleFlow
-// Class:      OffsetDQMPostProcessor.cc
-//
-// Original Author:  "Kenichi Hatakeyama"
-//
-
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
