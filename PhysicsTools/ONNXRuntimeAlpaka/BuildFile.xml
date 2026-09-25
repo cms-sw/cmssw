@@ -1,0 +1,10 @@
+<use name="alpaka"/>
+<use name="eigen"/>
+<use name="onnxruntime"/>
+<use name="DataFormats/SoATemplate"/>
+<use name="FWCore/Utilities"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<flags ALPAKA_BACKENDS="1"/>
+<export>
+  <lib name="1"/>
+</export>
