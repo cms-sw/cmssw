@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include <Eigen/Core>
 #include <Eigen/Dense>
 
@@ -35,10 +37,12 @@ GENERATE_SOA_BLOCKS(SoABlocksTemplate,
 GENERATE_SOA_BLOCKS(NestedBlocksTemplate, SOA_BLOCK(blocks, SoABlocksTemplate), SOA_BLOCK(simple, SimpleLayoutTemplate))
 
 using SoABlocks = SoABlocksTemplate<>;
+using AoSBlocks = SoABlocks::AoSWrapper;
 using SoABlocksView = SoABlocks::View;
 using SoABlocksConstView = SoABlocks::ConstView;
 
 using NestedBlocks = NestedBlocksTemplate<>;
+using NestedAoSBlocks = NestedBlocks::AoSWrapper;
 using NestedBlocksView = NestedBlocks::View;
 using NestedBlocksConstView = NestedBlocks::ConstView;
 
@@ -53,22 +57,6 @@ TEST_CASE("SoABlocks") {
   SoABlocks blocks(buffer.get(), sizes);
   SoABlocksView blocksView{blocks};
   SoABlocksConstView blocksConstView{blocks};
-
-  REQUIRE(SoABlocks::alignment == cms::soa::CacheLineSize::defaultSize);
-  REQUIRE(SoABlocks::alignmentEnforcement == cms::soa::AlignmentEnforcement::relaxed);
-
-  REQUIRE(blocks.position().alignment == cms::soa::CacheLineSize::defaultSize);
-  REQUIRE(blocks.position().alignmentEnforcement == cms::soa::AlignmentEnforcement::relaxed);
-
-  REQUIRE(blocks.pca().alignment == cms::soa::CacheLineSize::defaultSize);
-  REQUIRE(blocks.pca().alignmentEnforcement == cms::soa::AlignmentEnforcement::relaxed);
-
-  REQUIRE(blocks.scalars().alignment == cms::soa::CacheLineSize::defaultSize);
-  REQUIRE(blocks.scalars().alignmentEnforcement == cms::soa::AlignmentEnforcement::relaxed);
-
-  // Verify position data
-  REQUIRE(blocks.position().metadata().nextByte() == blocks.metadata().addressOf_pca());
-  REQUIRE(blocks.pca().metadata().nextByte() == blocks.metadata().addressOf_scalars());
 
   // Fill the blocks with some data
   blocksView.position().detectorType() = 1;
@@ -85,84 +73,99 @@ TEST_CASE("SoABlocks") {
   blocksView.scalars().type() = 1;
   blocksView.scalars().energy() = 100.0f;
 
-  SECTION("SoABlocks View") {
-    // Verify metadata
-    REQUIRE(blocksView.metadata().size()[0] == 10);
-    REQUIRE(blocksView.position().metadata().size() == 10);
-    REQUIRE(blocksView.metadata().size()[1] == 20);
-    REQUIRE(blocksView.pca().metadata().size() == 20);
-    REQUIRE(blocksView.metadata().size()[2] == 1);
-    REQUIRE(blocksView.scalars().metadata().size() == 1);
+  const auto aosBufferSize = AoSBlocks::computeDataSize(sizes);
+  const auto checkBufferSize = SoAPositionTemplate<>::AoSWrapper::computeDataSize(sizes[0]) +
+                               SoAPCATemplate<>::AoSWrapper::computeDataSize(sizes[1]) +
+                               SoATemplate<>::AoSWrapper::computeDataSize(sizes[2]);
 
-    // Verify data
-    for (int i = 0; i < blocksView.position().metadata().size(); ++i) {
-      auto pos = blocksView.position()[i];
-      REQUIRE(pos.x() == 0.1f);
-      REQUIRE(pos.y() == 0.2f);
-      REQUIRE(pos.z() == 0.3f);
-    }
-    for (int i = 0; i < blocksView.pca().metadata().size(); ++i) {
-      auto pca = blocksView.pca()[i];
-      REQUIRE(pca.vector_1() == 0.0f);
-      REQUIRE(pca.vector_2() == 0.0f);
-      REQUIRE(pca.vector_3() == 1.0f);
-      REQUIRE(pca.candidateDirection()(0) == 1.0);
-      REQUIRE(pca.candidateDirection()(1) == 0.0);
-      REQUIRE(pca.candidateDirection()(2) == 0.0);
-    }
+  REQUIRE(aosBufferSize == checkBufferSize);
+
+  std::unique_ptr<std::byte, decltype(std::free) *> aosBuffer{reinterpret_cast<std::byte *>(std::malloc(aosBufferSize)),
+                                                              std::free};
+
+  AoSBlocks aosBlocks{aosBuffer.get(), sizes};
+  AoSBlocks::View aosBlocksView{aosBlocks};
+  AoSBlocks::ConstView aosBlocksConstView{aosBlocks};
+
+  // Copy to AoS
+  const auto largestSize = *std::max_element(sizes.begin(), sizes.end());
+  for (auto i = 0; i < largestSize; i++) {
+    aosBlocksView.transpose(blocksConstView, i);
   }
 
-  SECTION("SoABlocks ConstView") {
-    // Verify metadata
-    REQUIRE(blocksConstView.metadata().size()[0] == 10);
-    REQUIRE(blocksConstView.position().metadata().size() == 10);
-    REQUIRE(blocksConstView.metadata().size()[1] == 20);
-    REQUIRE(blocksConstView.pca().metadata().size() == 20);
-    REQUIRE(blocksConstView.metadata().size()[2] == 1);
-    REQUIRE(blocksConstView.scalars().metadata().size() == 1);
+  SECTION("Check Blocks template parameters") {
+    REQUIRE(SoABlocks::alignment == cms::soa::CacheLineSize::defaultSize);
+    REQUIRE(SoABlocks::alignmentEnforcement == cms::soa::AlignmentEnforcement::relaxed);
 
-    // Verify data
-    for (int i = 0; i < blocksConstView.position().metadata().size(); ++i) {
-      auto pos = blocksConstView.position()[i];
-      REQUIRE(pos.x() == 0.1f);
-      REQUIRE(pos.y() == 0.2f);
-      REQUIRE(pos.z() == 0.3f);
-    }
-    for (int i = 0; i < blocksConstView.pca().metadata().size(); ++i) {
-      auto pca = blocksConstView.pca()[i];
-      REQUIRE(pca.vector_1() == 0.0f);
-      REQUIRE(pca.vector_2() == 0.0f);
-      REQUIRE(pca.vector_3() == 1.0f);
-      REQUIRE(pca.candidateDirection()(0) == 1.0);
-      REQUIRE(pca.candidateDirection()(1) == 0.0);
-      REQUIRE(pca.candidateDirection()(2) == 0.0);
-    }
+    REQUIRE(blocks.position().alignment == cms::soa::CacheLineSize::defaultSize);
+    REQUIRE(blocks.position().alignmentEnforcement == cms::soa::AlignmentEnforcement::relaxed);
+
+    REQUIRE(blocks.pca().alignment == cms::soa::CacheLineSize::defaultSize);
+    REQUIRE(blocks.pca().alignmentEnforcement == cms::soa::AlignmentEnforcement::relaxed);
+
+    REQUIRE(blocks.scalars().alignment == cms::soa::CacheLineSize::defaultSize);
+    REQUIRE(blocks.scalars().alignmentEnforcement == cms::soa::AlignmentEnforcement::relaxed);
+
+    // Verify position data
+    REQUIRE(blocks.position().metadata().nextByte() == blocks.metadata().addressOf_pca());
+    REQUIRE(blocks.pca().metadata().nextByte() == blocks.metadata().addressOf_scalars());
+  }
+
+  SECTION("SoABlocks check data correctness") {
+    auto testView = [](auto &view) {
+      REQUIRE(view.metadata().size()[0] == 10);
+      REQUIRE(view.position().metadata().size() == 10);
+      REQUIRE(view.metadata().size()[1] == 20);
+      REQUIRE(view.pca().metadata().size() == 20);
+      REQUIRE(view.metadata().size()[2] == 1);
+      REQUIRE(view.scalars().metadata().size() == 1);
+
+      // Verify position data
+      for (decltype(view.position().metadata().size()) i = 0; i < view.position().metadata().size(); ++i) {
+        auto pos = view.position()[i];
+        REQUIRE(pos.x() == 0.1f);
+        REQUIRE(pos.y() == 0.2f);
+        REQUIRE(pos.z() == 0.3f);
+      }
+
+      // Verify PCA data
+      for (decltype(view.pca().metadata().size()) i = 0; i < view.pca().metadata().size(); ++i) {
+        auto pca = view.pca()[i];
+        REQUIRE(pca.vector_1() == 0.0f);
+        REQUIRE(pca.vector_2() == 0.0f);
+        REQUIRE(pca.vector_3() == 1.0f);
+        REQUIRE(pca.candidateDirection()(0) == 1.0);
+        REQUIRE(pca.candidateDirection()(1) == 0.0);
+        REQUIRE(pca.candidateDirection()(2) == 0.0);
+      }
+    };
+
+    testView(blocksView);
+    testView(blocksConstView);
+
+    testView(aosBlocksView);
+    testView(aosBlocksConstView);
   }
 
   SECTION("Range checking View") {
-    // Range checking is enabled by default
-    // TODO: give possibility to disable range checking
-    int underflow = -1;
-    int overflow = blocksView.position().metadata().size();
-    // Check for under-and overflow in the row accessor
-    REQUIRE_THROWS_AS(blocksView.position()[underflow], std::out_of_range);
-    REQUIRE_THROWS_AS(blocksView.position()[overflow], std::out_of_range);
-    // Check for under-and overflow in the element accessors
-    REQUIRE_THROWS_AS(blocksView.position().x(underflow), std::out_of_range);
-    REQUIRE_THROWS_AS(blocksView.position().x(overflow), std::out_of_range);
-  }
+    auto testView = [](auto &view) {
+      // Range checking is enabled by default
+      // TODO: give possibility to disable range checking
+      int underflow = -1;
+      int overflow = view.position().metadata().size();
+      // Check for under-and overflow in the row accessor
+      REQUIRE_THROWS_AS(view.position()[underflow], std::out_of_range);
+      REQUIRE_THROWS_AS(view.position()[overflow], std::out_of_range);
+      // Check for under-and overflow in the element accessors
+      REQUIRE_THROWS_AS(view.position().x(underflow), std::out_of_range);
+      REQUIRE_THROWS_AS(view.position().x(overflow), std::out_of_range);
+    };
 
-  SECTION("Range checking ConstView") {
-    // Range checking is enabled by default
-    // TODO: give possibility to disable range checking
-    int underflow = -1;
-    int overflow = blocksConstView.pca().metadata().size();
-    // Check for under-and overflow in the row accessor
-    REQUIRE_THROWS_AS(blocksConstView.pca()[underflow], std::out_of_range);
-    REQUIRE_THROWS_AS(blocksConstView.pca()[overflow], std::out_of_range);
-    // Check for under-and overflow in the element accessors
-    REQUIRE_THROWS_AS(blocksConstView.pca().vector_1(underflow), std::out_of_range);
-    REQUIRE_THROWS_AS(blocksConstView.pca().vector_1(overflow), std::out_of_range);
+    testView(blocksView);
+    testView(blocksConstView);
+
+    testView(aosBlocksView);
+    testView(aosBlocksConstView);
   }
 
   SECTION("Check template parameters") {
@@ -246,6 +249,32 @@ TEST_CASE("SoABlocks") {
     REQUIRE(noRestrictBlockConstView.scalars().rangeChecking == cms::soa::RangeChecking::Default);
   }
 
+  SECTION("Check AoS view template parameters") {
+    AoSBlocks::ViewTemplate<cms::soa::RangeChecking::disabled> noRangeCheckBlockView{aosBlocks};
+
+    REQUIRE(noRangeCheckBlockView.rangeChecking == cms::soa::RangeChecking::disabled);
+    REQUIRE(noRangeCheckBlockView.position().rangeChecking == cms::soa::RangeChecking::disabled);
+    REQUIRE(noRangeCheckBlockView.pca().rangeChecking == cms::soa::RangeChecking::disabled);
+    REQUIRE(noRangeCheckBlockView.scalars().rangeChecking == cms::soa::RangeChecking::disabled);
+
+    REQUIRE(aosBlocksView.rangeChecking == cms::soa::RangeChecking::enabled);
+    REQUIRE(aosBlocksView.position().rangeChecking == cms::soa::RangeChecking::enabled);
+    REQUIRE(aosBlocksView.pca().rangeChecking == cms::soa::RangeChecking::enabled);
+    REQUIRE(aosBlocksView.scalars().rangeChecking == cms::soa::RangeChecking::enabled);
+
+    AoSBlocks::ConstViewTemplate<cms::soa::RangeChecking::disabled> noRangeCheckBlockConstView{aosBlocks};
+
+    REQUIRE(noRangeCheckBlockConstView.rangeChecking == cms::soa::RangeChecking::disabled);
+    REQUIRE(noRangeCheckBlockConstView.position().rangeChecking == cms::soa::RangeChecking::disabled);
+    REQUIRE(noRangeCheckBlockConstView.pca().rangeChecking == cms::soa::RangeChecking::disabled);
+    REQUIRE(noRangeCheckBlockConstView.scalars().rangeChecking == cms::soa::RangeChecking::disabled);
+
+    REQUIRE(aosBlocksConstView.rangeChecking == cms::soa::RangeChecking::enabled);
+    REQUIRE(aosBlocksConstView.position().rangeChecking == cms::soa::RangeChecking::enabled);
+    REQUIRE(aosBlocksConstView.pca().rangeChecking == cms::soa::RangeChecking::enabled);
+    REQUIRE(aosBlocksConstView.scalars().rangeChecking == cms::soa::RangeChecking::enabled);
+  }
+
   SECTION("Check extended blocks layout") {
     std::array<cms::soa::size_type, 4> sizes{{11, 12, 13, 14}};
     const std::size_t blocksExtendedBufferSize = NestedBlocks::computeDataSize(sizes);
@@ -276,35 +305,72 @@ TEST_CASE("SoABlocks") {
       nestedBlocksView.simple()[i] = {2.1f, 2.2f, 2.3f, 2.4f};
     }
 
-    REQUIRE(NestedBlocksSoA.blocks().position().metadata().size() == 11);
-    REQUIRE(NestedBlocksSoA.blocks().pca().metadata().size() == 12);
-    REQUIRE(NestedBlocksSoA.blocks().scalars().metadata().size() == 13);
-    REQUIRE(NestedBlocksSoA.simple().metadata().size() == 14);
+    const auto aosBlocksExtendedBufferSize = NestedAoSBlocks::computeDataSize(sizes);
+    std::unique_ptr<std::byte, decltype(std::free) *> aosBuffer{
+        reinterpret_cast<std::byte *>(std::malloc(aosBlocksExtendedBufferSize)), std::free};
 
-    REQUIRE(nestedBlocksConstView.blocks().position().detectorType() == 1);
-    for (int i = 0; i < nestedBlocksConstView.metadata().size()[0]; ++i) {
-      REQUIRE_THAT(nestedBlocksConstView.blocks().position()[i].x(), WithinRel(0.1f));
-      REQUIRE_THAT(nestedBlocksConstView.blocks().position()[i].y(), WithinRel(0.2f));
-      REQUIRE_THAT(nestedBlocksConstView.blocks().position()[i].z(), WithinRel(0.3f));
+    NestedAoSBlocks nestedAoSBlocks{aosBuffer.get(), sizes};
+    NestedAoSBlocks::View nestedAoSBlocksView{nestedAoSBlocks};
+    NestedAoSBlocks::ConstView nestedAoSBlocksConstView{nestedAoSBlocks};
+
+    // Copy to AoS
+    const auto largestSize = *std::max_element(sizes.begin(), sizes.end());
+    for (auto i = 0; i < largestSize; i++) {
+      nestedAoSBlocksView.transpose(nestedBlocksConstView, i);
     }
 
-    for (int i = 0; i < nestedBlocksConstView.metadata().size()[1]; ++i) {
-      REQUIRE_THAT(nestedBlocksConstView.blocks().pca()[i].vector_1(), WithinRel(0.0f));
-      REQUIRE_THAT(nestedBlocksConstView.blocks().pca()[i].vector_2(), WithinRel(0.0f));
-      REQUIRE_THAT(nestedBlocksConstView.blocks().pca()[i].vector_3(), WithinRel(1.0f));
-      REQUIRE_THAT(nestedBlocksConstView.blocks().pca()[i].candidateDirection()[0], WithinRel(1.0));
-      REQUIRE_THAT(nestedBlocksConstView.blocks().pca()[i].candidateDirection()[1], WithinRel(0.0));
-      REQUIRE_THAT(nestedBlocksConstView.blocks().pca()[i].candidateDirection()[2], WithinRel(0.0));
-    }
-    REQUIRE(nestedBlocksConstView.blocks().scalars().id() == 42);
-    REQUIRE(nestedBlocksConstView.blocks().scalars().type() == 1);
-    REQUIRE_THAT(nestedBlocksConstView.blocks().scalars().energy(), WithinRel(100.0f));
+    auto testView = [](auto &view) {
+      REQUIRE(view.blocks().position().metadata().size() == 11);
+      REQUIRE(view.blocks().pca().metadata().size() == 12);
+      REQUIRE(view.blocks().scalars().metadata().size() == 13);
+      REQUIRE(view.simple().metadata().size() == 14);
 
-    for (int i = 0; i < nestedBlocksConstView.metadata().size()[3]; ++i) {
-      REQUIRE_THAT(nestedBlocksConstView.simple()[i].x(), WithinRel(2.1f));
-      REQUIRE_THAT(nestedBlocksConstView.simple()[i].y(), WithinRel(2.2f));
-      REQUIRE_THAT(nestedBlocksConstView.simple()[i].z(), WithinRel(2.3f));
-      REQUIRE_THAT(nestedBlocksConstView.simple()[i].t(), WithinRel(2.4f));
+      REQUIRE(view.blocks().position().detectorType() == 1);
+      for (int i = 0; i < view.metadata().size()[0]; ++i) {
+        REQUIRE_THAT(view.blocks().position()[i].x(), WithinRel(0.1f));
+        REQUIRE_THAT(view.blocks().position()[i].y(), WithinRel(0.2f));
+        REQUIRE_THAT(view.blocks().position()[i].z(), WithinRel(0.3f));
+      }
+
+      for (int i = 0; i < view.metadata().size()[1]; ++i) {
+        REQUIRE_THAT(view.blocks().pca()[i].vector_1(), WithinRel(0.0f));
+        REQUIRE_THAT(view.blocks().pca()[i].vector_2(), WithinRel(0.0f));
+        REQUIRE_THAT(view.blocks().pca()[i].vector_3(), WithinRel(1.0f));
+        REQUIRE_THAT(view.blocks().pca()[i].candidateDirection()[0], WithinRel(1.0));
+        REQUIRE_THAT(view.blocks().pca()[i].candidateDirection()[1], WithinRel(0.0));
+        REQUIRE_THAT(view.blocks().pca()[i].candidateDirection()[2], WithinRel(0.0));
+      }
+      REQUIRE(view.blocks().scalars().id() == 42);
+      REQUIRE(view.blocks().scalars().type() == 1);
+      REQUIRE_THAT(view.blocks().scalars().energy(), WithinRel(100.0f));
+
+      for (int i = 0; i < view.metadata().size()[3]; ++i) {
+        REQUIRE_THAT(view.simple()[i].x(), WithinRel(2.1f));
+        REQUIRE_THAT(view.simple()[i].y(), WithinRel(2.2f));
+        REQUIRE_THAT(view.simple()[i].z(), WithinRel(2.3f));
+        REQUIRE_THAT(view.simple()[i].t(), WithinRel(2.4f));
+      }
+    };
+
+    testView(nestedBlocksView);
+    testView(nestedBlocksConstView);
+    testView(nestedAoSBlocksView);
+    testView(nestedAoSBlocksConstView);
+
+    // Check return to AoS Layout
+    std::unique_ptr<std::byte, decltype(std::free) *> buffer2{
+        reinterpret_cast<std::byte *>(aligned_alloc(NestedBlocks::alignment, blocksExtendedBufferSize)), std::free};
+
+    NestedBlocks NestedBlocksSoA2(buffer2.get(), sizes);
+    NestedBlocksView nestedBlocksView2{NestedBlocksSoA2};
+    NestedBlocksConstView nestedBlocksConstView2{NestedBlocksSoA2};
+
+    // Copy to SoA
+    for (auto i = 0; i < largestSize; i++) {
+      nestedBlocksView2.transpose(nestedAoSBlocksConstView, i);
     }
+
+    testView(nestedBlocksView2);
+    testView(nestedBlocksConstView2);
   }
 }
