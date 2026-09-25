@@ -49,7 +49,7 @@ from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
 
 # online dqm:
 from DQMOffline.Trigger.HLTMonTau_cfi import *
-from Validation.RecoParticleFlow.DQMForPF_HLT_cff import *
+from DQMOffline.ParticleFlow.DQMForPF_HLT_cff import *
 
 # additional producer sequence prior to hltvalidation
 # to evacuate producers/filters from the EndPath
