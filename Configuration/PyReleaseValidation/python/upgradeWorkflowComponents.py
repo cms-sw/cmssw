@@ -5,6 +5,7 @@ import re
 
 run3_years = ['2022','2023','2024','2025','2026']
 undefInput = "UNDEF"
+localPUname = 'stepMB.root'
 
 U2000by1={'--relval': '2000,1'}
 
@@ -265,6 +266,12 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'HARVESTFastRun3',
         'FastSimRun4',
         'HARVESTFastRun4',
+        'MinBias13',
+        'MinBias',
+        'MinBiasHLBeamSpot',
+        'MinBiasHLBeamSpot14',
+        'MinBiasFSRun3',
+        'MinBiasFSRun4',
     ],
     PU =  [
         'DigiTrigger',
@@ -3190,7 +3197,7 @@ class UpgradeWorkflowPremix(UpgradeWorkflow):
     def workflow_(self, workflows, num, fragment, stepList, key):
         fragmentTmp = fragment
         if self.suffix.endswith("S1"):
-            fragmentTmp = 'PREMIXUP' + key[2:].replace("PU", "").replace("Design", "") + '_PU25'
+            fragmentTmp = 'PREMIXUP' + key[2:].replace("n4", "").replace("PU", "").replace("Design", "") + '_PU25'
         super(UpgradeWorkflowPremix,self).workflow_(workflows, num, fragmentTmp, stepList, key)
 # Premix stage1
 upgradeWFs['PMXS1'] = UpgradeWorkflowPremix(
@@ -3361,48 +3368,40 @@ upgradeWFs['PMXS1S2ProdLike'] = UpgradeWorkflowPremixProdLike(
 
 class UpgradeWorkflowHybridPU(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        # just copy steps
-        stepDict[stepName][k] = merge([stepDict[step][k]])
-    def setupPU_(self, step, stepName, stepDict, k, properties):
-        # make new step for S1
-        # this gets inserted in relval_upgrade.py
-        if "GenSim" in stepName:
-            # go back to non-PU step version
-            d = merge([stepDict[self.getStepName(step)][k]])
-            stepNameS1 = stepName.replace('GenSim','GenSimFS')
-            if not stepNameS1 in stepDict: stepDict[stepNameS1] = {}
-            stepDict[stepNameS1][k] = merge([{
-                '--fast': '',
-                '--era': stepDict[stepName][k]['--era'],
-                '--eventcontent': 'FASTPU',
-                '--processName': 'FASTSIM',
-            }, d])
-        else:
-            # include modifier in all subsequent steps in case any of them use PU replay
-            if "--procModifiers" in stepDict[stepName][k]:
-                stepDict[stepName][k]["--procModifiers"] += ",fastSimPU"
+        if 'MinBias' in step:
+            stepMap = {
+                'MinBias': 'MinBiasFSRun3', 'MinBias13': 'MinBiasFSRun3',
+                'MinBiasHLBeamSpot': 'MinBiasFSRun4', 'MinBiasHLBeamSpot14': 'MinBiasFSRun4',
+            }
+            if 'S1S2' in self.suffix:
+                # swap to FastSim version of MinBias
+                # remove unnecessary step
+                stepDict[stepName][k] = merge([{'-s': 'GEN,SIM', '--datatier': 'GEN-SIM'},stepDict[stepMap[step]][k]])
             else:
-                stepDict[stepName][k]["--procModifiers"] = "fastSimPU"
+                # remove local PU step
+                stepDict[stepName][k] = None
+        else:
+            # just copy steps
+            stepDict[stepName][k] = merge([stepDict[step][k]])
+    def setupPU_(self, step, stepName, stepDict, k, properties):
+        # include modifier in all subsequent steps in case any of them use PU replay
+        if "--procModifiers" in stepDict[stepName][k]:
+            stepDict[stepName][k]["--procModifiers"] += ",fastSimPU"
+        else:
+            stepDict[stepName][k]["--procModifiers"] = "fastSimPU"
 
-            if "Digi" in stepName:
-                stepDict[stepName][k] = merge([digiPremixLocalPileup, stepDict[stepName][k]])
-            elif 'S1S2' in self.suffix:
-                # increment inputs for subsequent steps in combined case
-                # also reset pileup input
-                digiPremixLocalPileupTmp = deepcopy(digiPremixLocalPileup)
-                filein = stepDict[stepName][k].get("--filein","")
-                m = re.search("step(?P<ind>\\d+)", filein)
-                if m:
-                    digiPremixLocalPileupTmp['--filein'] = filein.replace(m.group(), "step%d"%(int(m.group("ind"))+1))
-                else:
-                    digiPremixLocalPileupTmp.pop('--filein')
-                stepDict[stepName][k] = merge([digiPremixLocalPileupTmp, stepDict[stepName][k]])
+        stepDict[stepName][k] = merge([{'--pileup_input': f'file:{localPUname}'}, stepDict[stepName][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return (fragment=='TTbar_14TeV' and 'PU' in key and key.startswith('202') and not 'FS' in key)
 # stage1 is just FastSim MinBias, no separate workflow needed
 # HybridPU stage2
 upgradeWFs['HybridPUS2'] = UpgradeWorkflowHybridPU(
-    steps = [],
+    steps = [
+        'MinBias13',
+        'MinBias',
+        'MinBiasHLBeamSpot',
+        'MinBiasHLBeamSpot14',
+    ],
     PU = [
         'Digi',
         'DigiTrigger',
@@ -3412,11 +3411,13 @@ upgradeWFs['HybridPUS2'] = UpgradeWorkflowHybridPU(
 )
 # HybridPU combined stage1+stage2
 upgradeWFs['HybridPUS1S2'] = UpgradeWorkflowHybridPU(
-    steps = [],
+    steps = [
+        'MinBias13',
+        'MinBias',
+        'MinBiasHLBeamSpot',
+        'MinBiasHLBeamSpot14',
+    ],
     PU = [
-        'GenSim',
-        'GenSimHLBeamSpot',
-        'GenSimHLBeamSpot14',
         'Digi',
         'DigiTrigger',
         'RecoLocal',
@@ -3929,8 +3930,10 @@ for key in list(upgradeProperties[2017].keys()):
             scenToRun[idx] += 'PU'*(val.startswith('Digi') or val.startswith('Reco') or val.startswith('HARVEST'))
         # remove ALCA
         upgradeProperties[2017][key+'PU']['ScenToRun'] = [foo for foo in scenToRun if foo != 'ALCA']
+        # insert minbias at beginning
+        upgradeProperties[2017][key+'PU']['ScenToRun'].insert(0, 'MinBias13' if key.startswith('201') else 'MinBias')
     else:
-        upgradeProperties[2017][key+'PU']['ScenToRun'] = ['Gen','FastSimRun3PU','HARVESTFastRun3PU']
+        upgradeProperties[2017][key+'PU']['ScenToRun'] = ['MinBiasFSRun3','Gen','FastSimRun3PU','HARVESTFastRun3PU']
 
 upgradeProperties['Run4'] = {
     'Run4D104' : {
@@ -4097,9 +4100,9 @@ for key in list(upgradeProperties['Run4'].keys()):
         continue
     upgradeProperties['Run4'][key+'PU'] = deepcopy(upgradeProperties['Run4'][key])
     if 'FS' not in key:
-        upgradeProperties['Run4'][key+'PU']['ScenToRun'] = ['GenSimHLBeamSpot','DigiTriggerPU','RecoGlobalPU', 'HARVESTGlobalPU']
+        upgradeProperties['Run4'][key+'PU']['ScenToRun'] = ['MinBiasHLBeamSpot','GenSimHLBeamSpot','DigiTriggerPU','RecoGlobalPU', 'HARVESTGlobalPU']
     else:
-        upgradeProperties['Run4'][key+'PU']['ScenToRun'] = ['GenHLBeamSpot','FastSimRun4PU','HARVESTFastRun4PU']
+        upgradeProperties['Run4'][key+'PU']['ScenToRun'] = ['MinBiasFSRun4','GenHLBeamSpot','FastSimRun4PU','HARVESTFastRun4PU']
 
 # for relvals
 defaultDataSets = {}

@@ -394,6 +394,12 @@ if __name__ == '__main__':
                         default=False,
                         action='store_true')
 
+    parser.add_argument('--noLocalPU',
+                        help='Remove local PU step (MinBias GEN-SIM)',
+                        dest='noLocalPU',
+                        default=False,
+                        action='store_true')
+
     parser.add_argument('--das-options',
                         help='Options to be passed to dasgoclient.',
                         dest='dasOptions',

@@ -1188,7 +1188,6 @@ steps['BeamHalo_UP21']=merge([{'cfg':'BeamHalo_13TeV_cfi.py','-n':'500','--condi
 # steps['CosmicsINPUT']={'INPUT':InputInfo(dataSet='/RelValCosmics/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 
 # Phase2 HGCAL test beam
-from Configuration.PyReleaseValidation.upgradeWorkflowComponents import upgradeProperties
 hgcalTB=upgradeProperties['Run4']['Run4D104'] # so if the default changes, change wf only here
 steps['HGCal_TestBeam']={'--conditions':hgcalTB['GT'],'--era':hgcalTB['Era'],'--customise':'RecoLocalCalo/Configuration/hgcalTestBeamLocalReco_cff.runRecoForSep2024TB','-s':'NONE','--datatier':'RECO','--eventcontent':'FEVTDEBUG','--data':'','--process':'RECO','-n':'10','--filein':'/store/group/dpg_hgcal/comm_hgcal/relval/RAW2DIGI.root'}
 
@@ -4729,28 +4728,29 @@ for gen in upgradeFragments:
             version = versionOverrides[key]
         baseDataSetReleaseBetter[key]=defaultDataSets[ds]+version
 
+from Configuration.PyReleaseValidation.upgradeWorkflowComponents import localPUname
 PUDataSets={}
 for ds in defaultDataSets:
     if "GenOnly" in ds:
         continue
     key='MinBias_14TeV_pythia8_TuneCP5'+'_'+ds
     name=baseDataSetReleaseBetter[key]
+    puProperties = {'pu': 'AVE_35_BX_25ns', 'frag': 'RelValMinBias_14TeV', 'tier': 'GEN-SIM'}
     if '2017' in ds:
-        PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
+        puProperties.update({'pu': 'AVE_35_BX_25ns', 'frag': 'RelValMinBias_13'})
     elif '2018' in ds or 'postLS2' in ds:
-        PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
+        puProperties.update({'pu': 'AVE_50_BX_25ns', 'frag': 'RelValMinBias_13'})
     elif any(year in ds for year in run3_years):
-        if 'FS' not in ds:
-            PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
-        else:
-            PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM-RECO'%(name,)}
+        puProperties['pu'] = 'Run3_Flat55To75_PoissonOOTPU'
+        if 'FS' in ds:
+            puProperties['tier'] = 'GEN-SIM-RECO'
     elif 'Run4' in ds:
-        PUDataSets[ds]={'-n':10,'--pileup':'AVE_200_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
-    else:
-        PUDataSets[ds]={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
+        puProperties['pu'] = 'AVE_200_BX_25ns'
 
-    #PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
-    #PUDataSets[ds]={'-n':10,'--pileup':'AVE_70_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
+    puInput = f'das:/{puProperties["frag"]}/{name}/{puProperties["tier"]}'
+    if undefInput in name:
+        puInput = f'file:{localPUname}'
+    PUDataSets[ds] = {'-n': 10, '--pileup': puProperties['pu'], '--pileup_input': puInput}
 
 upgradeStepDict={}
 for specialType,specialWF in upgradeWFs.items():
@@ -4789,9 +4789,19 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--eventcontent': 'FEVTDEBUG',
                                     '--geometry' : geom
                                     }
-    
     if beamspot is not None: upgradeStepDict['GenSim'][k]['--beamspot']=beamspot
-    
+
+    upgradeStepDict['MinBias13'][k] = merge([
+        {'--evt_type': 'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi', '--fileout': localPUname},
+        Kby(90,100),
+        upgradeStepDict['GenSim'][k]
+    ])
+    upgradeStepDict['MinBias'][k] = merge([
+        {'--evt_type': 'MinBias_14TeV_pythia8_TuneCP5_cfi', '--fileout': localPUname},
+        Kby(90,100),
+        upgradeStepDict['GenSim'][k]
+    ])
+
     upgradeStepDict['GenSimCloseBy'][k] = deepcopy(upgradeStepDict['GenSim'][k])
     upgradeStepDict['GenSimCloseBy'][k]['--beamspot'] = 'CloseBy'
 
@@ -4806,9 +4816,19 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                               '--eventcontent': 'FEVTDEBUG',
                                               '--geometry' : geom
                                               }
+    upgradeStepDict['MinBiasHLBeamSpot'][k] = merge([
+        {'--evt_type': 'MinBias_14TeV_pythia8_TuneCP5_cfi', '--fileout': localPUname},
+        Kby(90,100),
+        upgradeStepDict['GenSimHLBeamSpot'][k]
+    ])
 
     upgradeStepDict['GenSimHLBeamSpot14'][k] = deepcopy(upgradeStepDict['GenSimHLBeamSpot'][k])
     upgradeStepDict['GenSimHLBeamSpot14'][k]['--conditions'] = gt
+    upgradeStepDict['MinBiasHLBeamSpot14'][k] = merge([
+        {'--evt_type': 'MinBias_14TeV_pythia8_TuneCP5_cfi', '--fileout': localPUname},
+        Kby(90,100),
+        upgradeStepDict['GenSimHLBeamSpot14'][k]
+    ])
 
     upgradeStepDict['GenSimHLBeamSpotCloseBy'][k] = deepcopy(upgradeStepDict['GenSimCloseBy'][k])
     
@@ -4978,6 +4998,12 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,NANOEDMAODSIM,DQM',
                                        '--datatier':'GEN-SIM-DIGI-RECO,MINIAODSIM,NANOAODSIM,DQMIO',
                                        }
+    upgradeStepDict['MinBiasFSRun3'][k] = merge([
+        {'--evt_type': 'MinBias_14TeV_pythia8_TuneCP5_cfi', '--fileout': localPUname,
+        '-s': 'GEN,SIM,RECOBEFMIX', '--eventcontent': 'FASTPU', '--datatier': 'GEN-SIM-RECO'},
+        Kby(90,100),
+        upgradeStepDict['FastSimRun3'][k]
+    ])
 
     upgradeStepDict['HARVESTFastRun3'][k]={'-s':'HARVESTING:validationHarvesting+@miniAODValidation+@miniAODDQM+@nanoAODDQM',
                                            '--conditions':gt,
@@ -5021,6 +5047,12 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--eventcontent':'RECOSIM,DQM',
                                        '--datatier':'GEN-SIM-RECO,DQMIO',
                                        }
+    upgradeStepDict['MinBiasFSRun4'][k] = merge([
+        {'--evt_type': 'MinBias_14TeV_pythia8_TuneCP5_cfi', '--fileout': localPUname,
+        '-s': 'GEN,SIM,RECOBEFMIX', '--eventcontent': 'FASTPU', '--datatier': 'GEN-SIM-RECO'},
+        Kby(90,100),
+        upgradeStepDict['FastSimRun4'][k]
+    ])
 
     upgradeStepDict['HARVESTFastRun4'][k]={'-s':'HARVESTING:@trackingOnlyValidation',
                                            '--conditions':gt,
@@ -5045,6 +5077,14 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                     upgradeStepDict[stepNamePU][k] = None
                 else:
                     upgradeStepDict[stepNamePU][k]=merge([PUDataSets[k2],upgradeStepDict[stepName][k]])
+
+            # knock out the manual MinBias creation step only if relval is claimed to be available
+            for step in specialWF.steps:
+                stepName = specialWF.getStepName(step)
+                stepNamePU = specialWF.getStepNamePU(step)
+                # always needed for hybrid PU
+                if 'MinBias' in stepName and not localPUname in PUDataSets[k2]['--pileup_input'] and not 'Hybrid' in specialType:
+                    upgradeStepDict[stepName][k] = None
 
             # in case special WF has PU-specific changes: apply *after* basic PU step is created
             specialWF.setupPU(upgradeStepDict, k, upgradeProperties[year][k])
@@ -5084,14 +5124,6 @@ for step in upgradeStepDict.keys():
                         #    else: #For FastSim to recycle GEN
                         #        steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN'%(baseDataSetReleaseBetter[s],),location='STD')}
                         # end COMMENT: reads old format file 
-                        # this condition is checked here to avoid skipping the creation of default steps for other fragments
-                        if 'HybridPU' in step:
-                            # minbias fastsim for PU mixing
-                            if not 'MinBias_14TeV' in frag:
-                                continue
-                            stepKey = 'HYBRID_'+key+'_'+step
-                            howMuch = Kby(100,100)
-                            steps[stepKey]=merge([ {'--evt_type':frag},howMuch,upgradeStepDict[step][key]])
     else:
         for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
             k=step+'_'+key
