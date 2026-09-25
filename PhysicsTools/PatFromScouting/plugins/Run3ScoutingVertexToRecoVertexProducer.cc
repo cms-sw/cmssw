@@ -42,19 +42,29 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   const edm::EDGetTokenT<Run3ScoutingVertexCollection> vertexToken_;
+  const bool skipMissingProduct_;
 };
 
 Run3ScoutingVertexToRecoVertexProducer::Run3ScoutingVertexToRecoVertexProducer(const edm::ParameterSet& iConfig)
-    : vertexToken_(consumes<Run3ScoutingVertexCollection>(iConfig.getParameter<edm::InputTag>("src"))) {
+    : vertexToken_(consumes<Run3ScoutingVertexCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+      skipMissingProduct_(iConfig.getParameter<bool>("skipMissingProduct")) {
   produces<reco::VertexCollection>();
 }
 
 void Run3ScoutingVertexToRecoVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   auto recoVertices = std::make_unique<reco::VertexCollection>();
 
-  const auto& scoutingVertices = iEvent.get(vertexToken_);
+  const auto& scoutingVerticesH = iEvent.getHandle(vertexToken_);
+  if (!scoutingVerticesH.isValid()) {
+    if (skipMissingProduct_) {
+      return;
+    } else {
+      throw cms::Exception("Run3ScoutingVertexToRecoVertexProducer")
+          << "Scoutiing Vertex input product is missing and skipMissingProduct is set to false.";
+    }
+  }
 
-  for (const auto& sVtx : scoutingVertices) {
+  for (const auto& sVtx : *scoutingVerticesH) {
     if (!sVtx.isValidVtx()) {
       continue;
     }
@@ -69,6 +79,7 @@ void Run3ScoutingVertexToRecoVertexProducer::produce(edm::Event& iEvent, const e
 void Run3ScoutingVertexToRecoVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("hltScoutingPrimaryVertexPacker", "primaryVtx"));
+  desc.add<bool>("skipMissingProduct", false);
   descriptions.addWithDefaultLabel(desc);
 }
 
