@@ -14,16 +14,14 @@ import FWCore.ParameterSet.Config as cms
 # The jet-level part of the offline sequence is deliberately not reproduced:
 # Validation/RecoJets already provides hltJetValidation for
 # hltAK4PFPuppiJets / hltAK4PFJets / hltAK4PFCHSJets.
-from Validation.RecoParticleFlow.offsetAnalyzerDQM_cff import offsetAnalyzerDQM
-from Validation.RecoParticleFlow.offsetAnalyzerDQM_cff import offsetDQMPostProcessor
-
+#
 # The offset plots are booked one per (candidate type, mu) and (type, npv), and
 # the analyzer returns without filling if the event's mu or npv has no
 # corresponding plot.  The defaults stop at 100, so at 200 PU EVERY event falls
 # outside and all offset plots come out empty -- measured: mu = 200 against an
 # axis ending at 100.  Rebuild the VPSet over Phase-2 ranges.
+from DQMOffline.ParticleFlow.offsetAnalyzerDQM_cff import offsetAnalyzerDQM, offsetDQMPostProcessor, plotPSet
 import Validation.RecoParticleFlow.defaults_cfi as default
-from Validation.RecoParticleFlow.offsetAnalyzerDQM_cff import plotPSet
 
 MU_HIGH_PHASE2 = 260
 NPV_HIGH_PHASE2 = 160
@@ -70,7 +68,7 @@ offsetAnalyzerDQMHLT = offsetAnalyzerDQM.clone(
 # 2.9, 3.0) that the package's own config carries commented out -- that is the
 # region where JME reported the TICLv5 jet structure, so the PF candidate
 # spectra are binned to resolve it.
-from Validation.RecoParticleFlow.particleFlowDQM_cff import pfAnalyzerDQM
+from DQMOffline.ParticleFlow.particleFlowDQM_cff import pfAnalyzerDQM
 
 pfAnalyzerDQMHLT = pfAnalyzerDQM.clone(
     isHLT               = True,
