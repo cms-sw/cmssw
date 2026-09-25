@@ -21,6 +21,7 @@ namespace lhef {
 
 namespace gen {
 
+  class EvtGenThreadOwner;
   class EvtGenInterfaceBase;
   class TauolaInterfaceBase;
   class PhotosInterfaceBase;
@@ -45,8 +46,9 @@ namespace gen {
 
   private:
     bool fIsInitialized;
+    std::unique_ptr<EvtGenThreadOwner> fThreadOwner;
+    std::unique_ptr<EvtGenInterfaceBase> fEvtGenInterface;
     //std::unique_ptr<TauolaInterfaceBase> fTauolaInterface;
-    //std::unique_ptr<EvtGenInterfaceBase> fEvtGenInterface;
     //std::unique_ptr<PhotosInterfaceBase> fPhotosInterface;
     std::vector<int> fPDGs;
     std::vector<std::string> fSpecialSettings;

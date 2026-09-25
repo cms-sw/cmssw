@@ -32,6 +32,10 @@ public:
 
   double random() override;
 
+  void setSeed(unsigned long int seed) override;
+
+  unsigned long int lastSeed() const override;
+
   void setRandomEngine(CLHEP::HepRandomEngine* v) { the_engine = v; }
 
   CLHEP::HepRandomEngine* engine() const { return the_engine; }
@@ -40,5 +44,6 @@ private:
   void throwNullPtr() const;
 
   CLHEP::HepRandomEngine* the_engine;
+  unsigned long int m_lastSeed = 0;
 };
 #endif
