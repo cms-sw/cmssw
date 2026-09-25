@@ -131,6 +131,10 @@ void L1TSC4NGJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
                             gtHWTaggedJet.v3.phi.V);
     edmTaggedJet.setEncodedJet(l1t::PFJet::HWEncoding::CT, ctHWTaggedJet.pack());
     edmTaggedJet.setEncodedJet(l1t::PFJet::HWEncoding::GT, gtHWTaggedJet.pack());
+    
+    // Convert corrected hwPt to float (GeV)
+    float correctedPt = ctHWTaggedJet.floatPt();
+    edmTaggedJet.calibratePt(correctedPt);
 
     std::vector<edm::Ptr<l1t::PFCandidate>> constituents;
     std::for_each(srcjet.constituents().begin(), srcjet.constituents().end(), [&](auto constituent) {

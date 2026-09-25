@@ -40,8 +40,8 @@ L1TSC4NGJetID::L1TSC4NGJetID(const std::shared_ptr<hls4mlEmulator::Model> model,
   fId_ = std::make_unique<inputtype[]>(fNParticles_);
   fCharge_ = std::make_unique<inputtype[]>(fNParticles_);
 
-  fJetPt_ = 0;
   fJetEta_ = 0;
+  fJetPtLog_ = 0;
 }
 
 void L1TSC4NGJetID::setVectors() {
@@ -148,8 +148,8 @@ void L1TSC4NGJetID::setVectors() {
     }
   }
   // After the particle loop
-  jet_vector_.push_back(fJetPt_);
   jet_vector_.push_back(fJetEta_);
+  jet_vector_.push_back(fJetPtLog_);
 }
 
 L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::EvaluateNNFixed() {
@@ -225,6 +225,10 @@ L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::EvaluateNNFixed() {
 }  //end EvaluateNNFixed
 
 L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::computeFixed(const l1t::PFJet& iJet) {
+  
+  constexpr int LOG_LUT_SIZE = 256; // Size of the log pT look up table
+  constexpr int INV_LUT_SIZE = 1024;// Size of the inverse pT look up table
+
   for (int i0 = 0; i0 < fNParticles_; i0++) {
     fPt_rel_.get()[i0] = 0;
     fPt_.get()[i0] = 0;
@@ -255,8 +259,8 @@ L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::computeFixed(const l1t::PFJet& iJet
   inputtype jet_phi_ = inputtype(ctJet.hwPhi);
 
   // Fill jet level features
-  fJetPt_ = jet_pt_;
   fJetEta_ = jet_eta_;
+  fJetPtLog_ = l1ct::log_with_shift<l1ct::pt_t, log_pt_t, LOG_LUT_SIZE>(jet_pt_);
 
   for (unsigned int i0 = 0; i0 < iParts.size(); i0++) {
     if (i0 >= (unsigned int)fNParticles_)
@@ -264,8 +268,7 @@ L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::computeFixed(const l1t::PFJet& iJet
     l1ct::PuppiObj puppicand = l1ct::PuppiObj::unpack(iParts[i0]->encodedPuppi64());
     fPt_.get()[i0] = inputtype(puppicand.hwPt);
 
-    constexpr int INV_LUT_SIZE = 1024;
-    inputtype inv_jet_pt = l1ct::invert_with_shift<l1ct::pt_t, l1ct::pt_t, INV_LUT_SIZE>(jet_pt_);
+    inputtype inv_jet_pt = l1ct::invert_with_shift<l1ct::pt_t, inv_pt_t, INV_LUT_SIZE>(jet_pt_);
 
     fPt_rel_.get()[i0] = inputtype(puppicand.hwPt) * inv_jet_pt;
 
@@ -282,15 +285,13 @@ L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::computeFixed(const l1t::PFJet& iJet
     fDEta_.get()[i0] = jet_eta_ - inputtype(puppicand.hwEta);
     fDPhi_.get()[i0] = dphiw;
 
-    constexpr int LOG_LUT_SIZE = 256;
-    inputtype log_pt = l1ct::log_with_shift<l1ct::pt_t, l1ct::pt_t, LOG_LUT_SIZE>(puppicand.hwPt);
+    inputtype log_pt = l1ct::log_with_shift<l1ct::pt_t, log_pt_t, LOG_LUT_SIZE>(puppicand.hwPt);
     fPt_log_.get()[i0] = log_pt;
 
     inputtype massCand = L1TSC4NGJet::candidate_mass<inputtype>(puppicand);
     fMass_.get()[i0] = inputtype(massCand);
 
-    inputtype const_eta = inputtype(puppicand.hwEta);
-    fEta_.get()[i0] = (const_eta < 0) ? inputtype(-const_eta) : inputtype(const_eta);
+    fEta_.get()[i0] = inputtype(puppicand.hwEta);
 
     fZ0_.get()[i0] = puppicand.hwId.charged() ? inputtype(puppicand.hwZ0()) : inputtype(0);
     fDxy_.get()[i0] = puppicand.hwId.charged() ? inputtype(puppicand.hwDxy()) : inputtype(0);
