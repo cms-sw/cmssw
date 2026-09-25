@@ -1,6 +1,7 @@
 <test name="TestSCRAM" command="run.sh"/>
 <test name="SCRAM_TestPass" command="true"/>
 <test name="SCRAM_TestFail" command="! false"/>
+<test name="SCRAM_TestEcho" command="echo OK"/>
 <test name="test-gdb-python" command="gdb/test-gdb-python.sh">
   <use name="gdb"/>
 </test>
