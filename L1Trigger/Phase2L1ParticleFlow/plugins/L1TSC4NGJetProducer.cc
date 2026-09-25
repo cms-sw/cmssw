@@ -132,6 +132,10 @@ void L1TSC4NGJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     edmTaggedJet.setEncodedJet(l1t::PFJet::HWEncoding::CT, ctHWTaggedJet.pack());
     edmTaggedJet.setEncodedJet(l1t::PFJet::HWEncoding::GT, gtHWTaggedJet.pack());
 
+    // Convert corrected hwPt to float (GeV)
+    float correctedPt = ctHWTaggedJet.floatPt();
+    edmTaggedJet.calibratePt(correctedPt);
+
     std::vector<edm::Ptr<l1t::PFCandidate>> constituents;
     std::for_each(srcjet.constituents().begin(), srcjet.constituents().end(), [&](auto constituent) {
       edmTaggedJet.addConstituent(constituent);
@@ -152,7 +156,7 @@ void L1TSC4NGJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<bool>("returnRawPt", false);
   desc.add<std::string>("correctorFile", "");
   desc.add<std::string>("correctorDir", "");
-  desc.add<std::string>("l1tSC4NGJetModelPath", std::string("L1TSC4NGJetModel_v1_0_1"));
+  desc.add<std::string>("l1tSC4NGJetModelPath", std::string("L1TSC4NGJetModel_v2_0_0"));
   desc.add<int>("maxJets", 16);
   desc.add<int>("nParticles", 16);
   desc.add<double>("minPt", 10);
