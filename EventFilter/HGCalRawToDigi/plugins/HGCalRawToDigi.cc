@@ -92,15 +92,19 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   const auto& config = iSetup.getData(configToken_);
 
   hgcaldigi::HGCalDigiHost digis(cms::alpakatools::host(), moduleIndexer.maxDataSize());
+  for (int32_t i = 0; i < digis.view().metadata().size(); i++) {
+    digis.view()[i].flags() = hgcal::DIGI_FLAG::NotAvailable;
+  }
   hgcaldigi::HGCalECONDPacketInfoHost econdPacketInfo(cms::alpakatools::host(), moduleIndexer.maxModulesCount());
+  for (int32_t i = 0; i < econdPacketInfo.view().metadata().size(); i++) {
+    econdPacketInfo.view()[i].cbFlag() = 0;
+    econdPacketInfo.view()[i].econdFlag() = 0;
+    econdPacketInfo.view()[i].exception() = 0;
+  }
   hgcaldigi::HGCalFEDPacketInfoHost fedPacketInfo(cms::alpakatools::host(), moduleIndexer.fedCount());
 
   // retrieve the FED raw data
   const auto& fedBuffer = iEvent.get(fedRawToken_);
-
-  for (int32_t i = 0; i < digis.view().metadata().size(); i++) {
-    digis.view()[i].flags() = hgcal::DIGI_FLAG::NotAvailable;
-  }
 
   //serial unpacking calls
   if (doSerial_) {

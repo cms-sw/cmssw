@@ -177,34 +177,38 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
       auto econd_pkt_status = (cb_header >> (3 * econdIdx)) & 0b111;
       LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
                                   << ", econdIdx = " << econdIdx << ", econd_pkt_status = " << econd_pkt_status;
-      if (econd_pkt_status != backend::ECONDPacketStatus::InactiveECOND) {
-        // always increment the global ECON-D index (unless inactive/unconnected)
-        globalECONDIdx++;
 
-        //stop if we have all the ECON-Ds expected
-        if (globalECONDIdx >= fedReadoutSequence.totalECONs_) {
-          return (0x1 << hgcaldigi::FEDUnpackingFlags::GenericUnpackWarning);
-        }
+      //nothing to do if it's inactive/unconnected
+      if (econd_pkt_status == backend::ECONDPacketStatus::InactiveECOND)
+        continue;
+
+      //stop if we have all the ECON-Ds expected
+      globalECONDIdx++;
+      if (globalECONDIdx >= fedReadoutSequence.totalECONs_) {
+        return (0x1 << hgcaldigi::FEDUnpackingFlags::GenericUnpackWarning);
       }
+
+      //save CB flag
+      const auto ECONDdenseIdx = moduleIndexer.getIndexForModule(fedId, globalECONDIdx);
+      econdPacketInfo.view()[ECONDdenseIdx].cbFlag() = (uint16_t)econd_pkt_status;
       LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
                                   << ", econdIdx = " << econdIdx << ", globalECONDIdx = " << (int)globalECONDIdx
                                   << ", econd_pkt_status = " << econd_pkt_status;
-      hasActiveCBFlags = (econd_pkt_status != backend::ECONDPacketStatus::Normal) &&
-                         (econd_pkt_status != backend::ECONDPacketStatus::InactiveECOND);
+      hasActiveCBFlags |= (econd_pkt_status != backend::ECONDPacketStatus::Normal);
+
+      //check if packet survived BE selection
       bool pkt_exists =
           (econd_pkt_status == backend::ECONDPacketStatus::Normal) ||
           (econd_pkt_status == backend::ECONDPacketStatus::PayloadCRCError) ||
           (econd_pkt_status == backend::ECONDPacketStatus::EventIDMismatch) ||
           (fedConfig.mismatchPassthroughMode && econd_pkt_status == backend::ECONDPacketStatus::BCIDOrbitIDMismatch);
-      if (!pkt_exists) {
+      if (!pkt_exists)
         continue;
-      }
 
       // ECON-D header (two 32b words)
       LogDebug("[HGCalUnpacker]") << "@" << std::setw(8) << std::distance(header, ptr) << ": 0x" << std::hex
                                   << std::setfill('0') << std::setw(16) << *ptr << std::dec;
       auto econd_headers = to_32b_words(ptr);
-      uint32_t ECONDdenseIdx = moduleIndexer.getIndexForModule(fedId, globalECONDIdx);
       econdPacketInfo.view()[ECONDdenseIdx].location() = (uint32_t)(ptr - header);
       const auto econd_payload_length = ((econd_headers[0] >> ECOND_FRAME::PAYLOAD_POS) & ECOND_FRAME::PAYLOAD_MASK);
 
@@ -281,8 +285,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
       if ((((econd_headers[0] >> ECOND_FRAME::HT_POS) & ECOND_FRAME::HT_MASK) >= 0b10) ||
           (((econd_headers[0] >> ECOND_FRAME::EBO_POS) & ECOND_FRAME::EBO_MASK) >= 0b10) ||
           (((econd_headers[0] >> ECOND_FRAME::BITM_POS) & 0b1) == 0) || econd_payload_length == 0 ||
-          econd_pkt_status == backend::ECONDPacketStatus::OfflinePayloadCRCError ||
-          econd_pkt_status == backend::ECONDPacketStatus::InactiveECOND || headerOnlyMode) {
+          econd_pkt_status == backend::ECONDPacketStatus::OfflinePayloadCRCError || headerOnlyMode) {
         continue;
       }
 
