@@ -4,10 +4,9 @@ hltInitialStepTrackTorchClassifierOutput = cms.EDProducer("TrackTorchClassifierF
     src = cms.InputTag("hltInitialStepTracks"),
     scores = cms.InputTag("hltInitialStepTrackTorchClassifier"),
     features = cms.InputTag("hltInitialStepTrackFeatureExtractor"),
-    copyTrajectories = cms.bool(False),
-    minScore = cms.double(0.377),
+    qualityCutsPrompt = cms.vdouble(0.377, 0.377, 0.377), #all 99.5%
     dxyThreshold = cms.double(0.5),
-    highDxyMinScore = cms.double(0.267)
+    qualityCutsDisplaced = cms.vdouble(0.267, 0.267, 0.267) #all 99.5%
 )
 
 from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
