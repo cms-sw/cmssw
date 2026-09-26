@@ -48,8 +48,8 @@ check_logs_for_errors() {
 
 ensure_patatrack_scripts() {
     if [[ ! -d patatrack-scripts ]]; then
-        git clone https://github.com/cms-externals/patatrack-scripts --depth 1
-        #git clone https://github.com/cms-patatrack/patatrack-scripts --depth 1
+        #git clone https://github.com/cms-externals/patatrack-scripts --depth 1
+        git clone https://github.com/cms-patatrack/patatrack-scripts --depth 1
     fi
 }
 
@@ -169,6 +169,16 @@ run_benchmark() {
 # Workflows
 ############################
 
+run_wakeup() {
+    run_cmsdriver \
+        "Phase2" \
+        "L1P2GT,HLT:75e33_timing" \
+        "HLTX" \
+        "wakeup.py" \
+        ""
+    cmsRun -n 32 wakeup.py
+}
+
 run_phase2_gpu() {
 
     run_cmsdriver \
@@ -223,6 +233,7 @@ main() {
     fetch_files
     build_input_file_string
 
+    run_wakeup
     run_phase2_gpu
     run_phase2_cpu
     run_ngt_scouting
