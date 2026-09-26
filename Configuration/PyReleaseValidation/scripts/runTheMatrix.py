@@ -277,7 +277,7 @@ if __name__ == '__main__':
                         action='store_true')
 
     parser.add_argument('-l','--list',
-                        help='Comma separated list of workflow to be shown or ran. Possible keys are also '+str(predefinedSet.keys())+'. and wild card like muon, or mc',
+                        help='Comma separated list of workflow to be shown or ran. Possible keys are also '+', '.join(predefinedSet.keys())+'. and wild card like muon, or mc',
                         dest='testList',
                         default=None)
 
@@ -534,7 +534,7 @@ if __name__ == '__main__':
                     raise Exception('Launched with --gpu required and no GPU available (among those available)!')
     
     if opt.command: opt.command = ' '.join(opt.command)
-    os.environ["CMSSW_DAS_QUERY_SITES"]=opt.dasSites
+    os.environ["CMSSW_DAS_QUERY_SITES"] = opt.dasSites
     if opt.failed_from:
         rerunthese=[]
         with open(opt.failed_from,'r') as report:
@@ -548,11 +548,11 @@ if __name__ == '__main__':
             opt.testList = ','.join(rerunthese)
 
     if opt.IBEos:
-      os.environ["CMSSW_USE_IBEOS"]="true"
+      os.environ["CMSSW_USE_IBEOS"] = "true"
     if opt.restricted:
         print('Deprecated, please use -l limited')
-        if opt.testList:            opt.testList+=',limited'
-        else:            opt.testList='limited'
+        if opt.testList: opt.testList += ',limited'
+        else:            opt.testList = 'limited'
 
     def stepOrIndex(s):
         if s.isdigit():
@@ -560,9 +560,9 @@ if __name__ == '__main__':
         else:
             return s
     if opt.apply:
-        opt.apply=map(stepOrIndex,opt.apply.split(','))
+        opt.apply = list(map(stepOrIndex,opt.apply.split(',')))
     if opt.keep:
-        opt.keep=map(stepOrIndex,opt.keep.split(','))
+        opt.keep = list(map(stepOrIndex,opt.keep.split(',')))
 
     if opt.testList:
         testList=[]
@@ -585,7 +585,7 @@ if __name__ == '__main__':
     if opt.wmcontrol:
         performInjectionOptionTest(opt)
     if opt.overWrite:
-        opt.overWrite=eval(opt.overWrite)
+        opt.overWrite = eval(opt.overWrite)
     if opt.interactive:
         import cmd
         from colorama import Fore, Style
@@ -645,7 +645,7 @@ if __name__ == '__main__':
                 if text and len(text) > 0:
                     return [t for t in predefinedSet.keys() if t.startswith(text)]
                 else:
-                    return predefinedSet.keys()
+                    return list(predefinedSet.keys())
 
             def do_predefined(self, arg):
                 """Print the list of predefined workflows"""
@@ -653,10 +653,10 @@ if __name__ == '__main__':
                 if arg:
                     for w in arg.split():
                         if w in predefinedSet.keys():
-                            print("Predefined Set: %s" % w)
+                            print(f"Predefined Set: {w}")
                             print(predefinedSet[w])
                         else:
-                            print("Unknown Set: %s" % w)
+                            print(f"Unknown Set: {w}")
                 else:
                     print(
                         "[ "
@@ -681,7 +681,7 @@ if __name__ == '__main__':
                 if text and len(text) > 0:
                     return [t for t in self.matrices_.keys() if t.startswith(text)]
                 else:
-                    return self.matrices_.keys()
+                    return list(self.matrices_.keys())
 
             def do_showWorkflow(self, arg):
                 if arg == "":
@@ -693,7 +693,7 @@ if __name__ == '__main__':
                     selected = arg.split()
                     for k in selected:
                         if k not in self.matrices_.keys():
-                            print("Unknown workflow %s: skipping" % k)
+                            print(f"Unknown workflow {k}: skipping")
                         else:
                             for wfl in self.matrices_[k].workFlows:
                                 print(
@@ -727,24 +727,22 @@ if __name__ == '__main__':
                     Fore.YELLOW + Style.BRIGHT + "Running with the following options:\n"
                 )
                 print(
-                    Fore.GREEN
-                    + Style.BRIGHT
-                    + "Workflow class: {}".format(workflow_class)
+                    Fore.GREEN + Style.BRIGHT
+                    + f"Workflow class: {workflow_class}"
                 )
                 print(
-                    Fore.GREEN + Style.BRIGHT + "Workflow ID:    {}".format(workflow_id)
+                    Fore.GREEN + Style.BRIGHT
+                    + f"Workflow ID:    {workflow_id}"
                 )
                 print(
-                    Fore.GREEN
-                    + Style.BRIGHT
-                    + "Additional runTheMatrix options: {}".format(passed_down_args)
+                    Fore.GREEN + Style.BRIGHT
+                    + f"Additional runTheMatrix options: {passed_down_args}"
                 )
                 print(Style.RESET_ALL)
                 if workflow_class not in self.matrices_.keys():
                     print(
-                        Fore.RED
-                        + Style.BRIGHT
-                        + "Unknown workflow selected: {}".format(workflow_class)
+                        Fore.RED + Style.BRIGHT
+                        + f"Unknown workflow selected: {workflow_class}"
                     )
                     print("Available workflows:")
                     for k in self.matrices_.keys():
@@ -754,9 +752,8 @@ if __name__ == '__main__':
                 wflnums = [x.numId for x in self.matrices_[workflow_class].workFlows]
                 if float(workflow_id) not in wflnums:
                     print(
-                        Fore.RED
-                        + Style.BRIGHT
-                        + "Unknown workflow {}".format(workflow_id)
+                        Fore.RED + Style.BRIGHT
+                        + f"Unknown workflow {workflow_id}"
                     )
                     print(Fore.GREEN + Style.BRIGHT)
                     print(wflnums)
@@ -766,9 +763,8 @@ if __name__ == '__main__':
                     # Check if the process is still active
                     if self.processes_[workflow_id][0].poll() is None:
                         print(
-                            Fore.RED
-                            + Style.BRIGHT
-                            + "Workflow {} already running!".format(workflow_id)
+                            Fore.RED + Style.BRIGHT
+                            + f"Workflow {workflow_id} already running!"
                         )
                         print(Style.RESET_ALL)
                         return
@@ -776,7 +772,7 @@ if __name__ == '__main__':
                 # run a job, redirecting standard output and error to files
                 lognames = ["stdout", "stderr"]
                 logfiles = tuple(
-                    "%s_%s_%s.log" % (workflow_class, workflow_id, name)
+                    f"{workflow_class}_{workflow_id}_{name}.log"
                     for name in lognames
                 )
                 stdout = open(logfiles[0], "w")
@@ -792,7 +788,7 @@ if __name__ == '__main__':
                 if text and len(text) > 0:
                     return [t for t in self.matrices_.keys() if t.startswith(text)]
                 else:
-                    return self.matrices_.keys()
+                    return list(self.matrices_.keys())
 
             def help_runWorkflow(self):
                 print(
@@ -825,14 +821,11 @@ if __name__ == '__main__':
                 for w in self.processes_.keys():
                     if self.processes_[w][0].poll() is None:
                         print(
-                            Fore.YELLOW
-                            + Style.BRIGHT
-                            + "Active job: {} since {:.2f} seconds.".format(
-                                w, time.time() - self.processes_[w][1]
-                            )
+                            Fore.YELLOW + Style.BRIGHT
+                            + f"Active job: {w} since {time.time() - self.processes_[w][1]:.2f} seconds."
                         )
                     else:
-                        print(Fore.RED + Style.BRIGHT + "Done job: {}".format(w))
+                        print(Fore.RED + Style.BRIGHT + f"Done job: {w}")
                 print(Style.RESET_ALL)
 
             def help_jobs(self):
@@ -918,7 +911,7 @@ if __name__ == '__main__':
                 if text and len(text) > 0:
                     return [t for t in self.matrices_.keys() if t.startswith(text)]
                 else:
-                    return self.matrices_.keys()
+                    return list(self.matrices_.keys())
 
             def help_searchInWorkflow(self):
                 print(
@@ -935,7 +928,7 @@ if __name__ == '__main__':
                 if text and len(text) > 0:
                     return [t for t in self.matrices_.keys() if t.startswith(text)]
                 else:
-                    return self.matrices_.keys()
+                    return list(self.matrices_.keys())
 
             def do_searchInWorkflow(self, arg):
                 args = arg.split()
@@ -951,7 +944,7 @@ if __name__ == '__main__':
                 try:
                     pattern = re.compile(args[1])
                 except:
-                    print("Failed to compile regexp %s" % args[1])
+                    print(f"Failed to compile regexp {args[1]}")
                     return
                 counter = 0
                 for wfl in self.matrices_[args[0]].workFlows:
@@ -1031,9 +1024,9 @@ if __name__ == '__main__':
                                                 (str(s) + " "),
                                             )
                                         )
-                                    print("\nWorkflow found in %s." % key)
+                                    print(f"\nWorkflow found in {key}.")
                                 else:
-                                    print("Workflow also found in %s." % key)
+                                    print(f"Workflow also found in {key}.")
 
             do_EOF = do_exit
 
