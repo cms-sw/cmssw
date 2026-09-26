@@ -22,3 +22,8 @@ _hltPhase2PixelTracksLegacy = cms.EDProducer("PixelTrackProducer",
     passLabel = cms.string('hltPhase2PixelTracks')
 )
 hltPhase2LegacyTracking.toReplaceWith(hltPhase2PixelTracks, _hltPhase2PixelTracksLegacy)
+
+from Configuration.ProcessModifiers.phase2CAStubs_cff import phase2CAStubs
+from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
+from .hltPhase2PixelTracksWithStubs_cfi import hltPhase2PixelTracksWithStubs as _hltPhase2PixelTracksWithStubs
+(phase2CAStubs | ngtScouting).toReplaceWith(hltPhase2PixelTracks, _hltPhase2PixelTracksWithStubs)

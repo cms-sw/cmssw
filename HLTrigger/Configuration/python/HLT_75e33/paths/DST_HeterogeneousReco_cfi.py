@@ -28,12 +28,21 @@ from ..sequences.HLTEndSequence_cfi import *
 
 #hltExtendedPhase2PixelVerticesSoA = hltPhase2PixelVerticesSoA.clone(pixelTrackSrc = 'hltExtendedPhase2PixelTracksSoA')
 
+# This path lists every heterogeneous module the menu defines, whichever process modifiers a
+# job turns on (the menu test checks the path against the whole heterogeneous content of the
+# menu). The stub-based local reconstruction (seeding OT rechit SoA, stub producer, pixel/stub
+# merger) therefore sits next to the extended pixel+OT rechit SoA it replaces under phase2CAStubs.
+from ..modules.hltPixelSeedingOTRecHitsSoA_cfi import hltPixelSeedingOTRecHitsSoA
+from ..modules.hltOTStubProducer_cfi import hltOTStubProducer
+
 HLTLocalTrackerSequence = cms.Sequence(
     hltPhase2SiPixelClustersSoA
     + hltPhase2SiPixelRecHitsSoA
     + hltSiPhase2Clusters
     + hltSiPhase2RecHits
     + hltPhase2OtRecHitsSoA
+    + hltPixelSeedingOTRecHitsSoA
+    + hltOTStubProducer
     + hltSiPixelClusters
     + hltSiPixelRecHits
 )

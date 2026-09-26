@@ -21,6 +21,7 @@
 
 <bin file="testFits.cpp" name="testBrokenLineFit">
   <use name="eigen"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
   <flags CXXFLAGS="-g -DUSE_BL"/>
 </bin>
 
@@ -38,6 +39,7 @@
 <bin file="PixelTrackFits.cc" name="PixelTrackBrokenLineFit">
   <use name="eigen"/>
   <use name="root"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
   <flags CXXFLAGS="-DEIGEN_NO_DEBUG -DUSE_BL"/>
 </bin>
 
@@ -47,7 +49,7 @@
   <flags CXXFLAGS="-g"/>
 </bin>
 
-<bin file="testEigenJacobian.cpp">  
+<bin file="testEigenJacobian.cpp">
   <use name="eigen"/>
   <use name="DataFormats/GeometrySurface"/>
   <use name="MagneticField/Engine"/>
@@ -55,3 +57,118 @@
   <use name="TrackingTools/TrajectoryParametrization"/>
   <flags CXXFLAGS="-g"/>
 </bin>
+
+<bin name="testBLStubCovDevice" file="alpaka/testBLStubCovDevice.dev.cc">
+  <use name="alpaka"/>
+  <use name="catch2"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+
+<bin name="testBLFastFieldDevice" file="alpaka/testBLFastFieldDevice.dev.cc">
+  <use name="alpaka"/>
+  <use name="catch2"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+
+<!-- The Landau energy-loss law of a composite ionization column (BLMaterialMap.h). -->
+<bin file="testBLElossColumn.cc" name="testBLElossColumn">
+  <use name="eigen"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
+</bin>
+
+<!-- The material-map binary file format: bit-exact round trip and the malformed-file refusals. -->
+<bin file="testBLMaterialMapFile.cc" name="testBLMaterialMapFile">
+  <use name="FWCore/Utilities"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
+</bin>
+
+<!-- Regeneration of the binary material maps (blMaterialMap/blMaterialMapRun.sh): needs step trees as
+     arguments; NO_TESTRUN skips the argument-less runtests. -->
+<bin file="blMaterialMap/blMaterialMapBuild.cc" name="blMaterialMapBuild">
+  <use name="root"/>
+  <flags NO_TESTRUN="1"/>
+</bin>
+
+<!-- SimWatcher that writes the run's Geant4 material table (density, X0, electron density, I, Sternheimer
+     parameters) next to the step trees; blMaterialMapBuild reads the dE/dx weights from it. -->
+<library file="blMaterialMap/BLMaterialTableDump.cc" name="RecoTrackerPixelTrackFittingBLMaterialTableDump">
+  <use name="geant4core"/>
+  <use name="clhep"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="SimG4Core/Notification"/>
+  <use name="SimG4Core/Watcher"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<!-- Checks the two EventSetup maps the fits read against their sources (blMapsCheck_cfg.py). -->
+<library file="BLMapsCheck.cc" name="RecoTrackerPixelTrackFittingTestBLMapsCheck">
+  <use name="DataFormats/GeometryVector"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="MagneticField/Engine"/>
+  <use name="MagneticField/Records"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
+  <use name="RecoTracker/Record"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+<test name="testBLMapsCheck" command="cmsRun ${LOCALTOP}/src/RecoTracker/PixelTrackFitting/test/blMapsCheck_cfg.py"/>
+<bin file="testPerigeeJacobian.cc" name="testPerigeeJacobian">
+  <use name="eigen"/>
+  <use name="DataFormats/GeometryVector"/>
+  <use name="RecoTracker/PixelTrackFitting"/>
+  <use name="DataFormats/GeometrySurface"/>
+  <use name="DataFormats/TrajectoryState"/>
+  <flags CXXFLAGS="-g"/>
+</bin>
+
+<library file="BLElossTruthDump.cc" name="RecoTrackerPixelTrackFittingTestBLElossTruthDump">
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="DataFormats/DetId"/>
+  <use name="DataFormats/TrackerCommon"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="Geometry/CommonTopologies"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/TrackerGeometryBuilder"/>
+  <use name="SimDataFormats/Track"/>
+  <use name="SimDataFormats/TrackingHit"/>
+  <use name="SimDataFormats/Vertex"/>
+  <use name="root"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="BLUpstreamTruthDump.cc" name="RecoTrackerPixelTrackFittingTestBLUpstreamTruthDump">
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="DataFormats/BeamSpot"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/DetId"/>
+  <use name="DataFormats/Phase2TrackerCluster"/>
+  <use name="DataFormats/SiPixelCluster"/>
+  <use name="DataFormats/TrackReco"/>
+  <use name="DataFormats/TrackerCommon"/>
+  <use name="DataFormats/TrackerRecHit2D"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="Geometry/CommonTopologies"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/TrackerGeometryBuilder"/>
+  <use name="SimDataFormats/Associations"/>
+  <use name="SimDataFormats/Track"/>
+  <use name="SimDataFormats/TrackingAnalysis"/>
+  <use name="SimDataFormats/TrackingHit"/>
+  <use name="SimTracker/TrackAssociation"/>
+  <use name="SimTracker/TrackerHitAssociation"/>
+  <use name="root"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

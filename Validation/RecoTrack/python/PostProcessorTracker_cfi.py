@@ -380,3 +380,18 @@ postProcessorTrackSequenceTrackingOnly = cms.Sequence(
 
 fastSim.toModify(postProcessorTrackTrackingOnly,subDirs = [e for e in _defaultSubdirs if e not in ["Tracking/TrackGsf/*","Tracking/TrackConversion/*","Tracking/TrackBHadron/*"]])
 fastSim.toModify(postProcessorTrackSummaryTrackingOnly,subDirs = [e for e in _defaultSubdirsSummary if e not in ["Tracking/TrackGsf","Tracking/TrackConversion","Tracking/TrackBHadron"]])
+
+# Detailed pull diagnostics harvested only when the stub-seeded validation books them
+from Configuration.ProcessModifiers.phase2CAStubs_cff import phase2CAStubs
+_postProcessorTrackDetailedPulls = postProcessorTrack.clone()
+_postProcessorTrackDetailedPulls.resolution.extend([
+    "h_ptpullnhits 'p_{T} Pull vs nhits' ptpull_vs_nhits",
+    "h_dxypullnhits 'd_{xy} Pull vs nhits' dxypull_vs_nhits",
+    "h_dzpullnhits 'd_{z} Pull vs nhits' dzpull_vs_nhits",
+    "h_dxypulldxyerr 'd_{xy} Pull vs #sigma(d_{xy})' dxypull_vs_dxyerr",
+    "h_dzpulldzerr 'd_{z} Pull vs #sigma(d_{z})' dzpull_vs_dzerr",
+    "h_ptpullpterr 'p_{T} Pull vs #sigma(p_{T})/p_{T}' ptpull_vs_pterr",
+    "h_dxypulldxysim 'd_{xy} Pull vs d_{xy}^{sim}' dxypull_vs_dxysim",
+    "h_dzpulldzsim 'd_{z} Pull vs d_{z}^{sim}' dzpull_vs_dzsim",
+])
+phase2CAStubs.toReplaceWith(postProcessorTrack, _postProcessorTrackDetailedPulls)
