@@ -50,7 +50,7 @@ horeco = _hcalLocalReco_cff.horeco.clone(
     tsFromDB = False,
     recoParamsFromDB = False,
 )
-zdcreco = _hcalLocalReco_cff.zdcreco.clone(
+zdcreco = _hcalLocalReco_cff.zdcrecoPhase1.clone(
 #    firstSample = 1,
 #    samplesToAdd = 8,
     correctForTimeslew = True,
@@ -110,8 +110,6 @@ calolocalrecoCosmicsNZS = cms.Sequence(calolocalrecoTaskCosmicsNZS)
 
 #--- for Run 3 and later
 _run3_hcalLocalRecoTask = _phase1_hcalLocalRecoTask.copy()
-from RecoLocalCalo.HcalRecProducers.zdcrecoRun3_cfi import zdcrecoRun3
-_run3_hcalLocalRecoTask.remove(zdcreco)
-_run3_hcalLocalRecoTask.add(zdcrecoRun3)
+from RecoLocalCalo.HcalRecProducers.zdcrecoRun3_cfi import zdcrecoRun3 as _zdcrecoRun3
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
-run3_common.toReplaceWith(hcalLocalRecoTask, _run3_hcalLocalRecoTask)
+run3_common.toReplaceWith(zdcreco, _zdcrecoRun3.clone())

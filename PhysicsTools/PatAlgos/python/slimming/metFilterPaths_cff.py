@@ -10,6 +10,7 @@ from RecoMET.METFilters.metFilters_cff import chargedHadronTrackResolutionFilter
 from RecoMET.METFilters.metFilters_cff import BadChargedCandidateFilter, BadPFMuonFilter, BadPFMuonDzFilter #2016 post-ICHEPversion
 from RecoMET.METFilters.metFilters_cff import BadChargedCandidateSummer16Filter, BadPFMuonSummer16Filter #2016 ICHEP version
 from RecoMET.METFilters.metFilters_cff import hfNoisyHitsFilter
+from RecoMET.METFilters.metFilters_cff import hcalBadDigiFilter
 
 # individual filters
 Flag_HBHENoiseFilter = cms.Path(HBHENoiseFilterResultProducer * HBHENoiseFilter)
@@ -37,6 +38,7 @@ Flag_BadChargedCandidateSummer16Filter = cms.Path(BadChargedCandidateSummer16Fil
 Flag_BadPFMuonSummer16Filter = cms.Path(BadPFMuonSummer16Filter)
 Flag_BadPFMuonDzFilter  = cms.Path(BadPFMuonDzFilter)
 Flag_hfNoisyHitsFilter  = cms.Path(hfNoisyHitsFilter)
+Flag_hcalBadDigiFilter  = cms.Path()
 
 # and the sub-filters
 Flag_trkPOG_manystripclus53X = cms.Path(~manystripclus53X)
@@ -69,6 +71,9 @@ phase2_common.toReplaceWith( Flag_trkPOGFilters, cms.Path(~logErrorTooManyCluste
 
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
 run2_common.toReplaceWith( Flag_ecalBadCalibFilter, cms.Path(ecalBadCalibFilter) )
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toReplaceWith( Flag_hcalBadDigiFilter, cms.Path(hcalBadDigiFilter) )
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith( Flag_HBHENoiseFilter, cms.Path() )
@@ -103,6 +108,7 @@ metFilterPathsTask = cms.Task(
     BadPFMuonFilter,
     BadPFMuonDzFilter,
     hfNoisyHitsFilter,
+    hcalBadDigiFilter,
     BadChargedCandidateSummer16Filter,
     BadPFMuonSummer16Filter
 )

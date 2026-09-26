@@ -46,3 +46,14 @@ muonSimHitMatcherPSet = cms.PSet(
         minNHitsChamber = cms.int32(4),
     )
 )
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(muonSimHitMatcherPSet,
+                 simTrack = dict(inputTag = "fastSimProducer"),
+                 simVertex = dict(inputTag = "fastSimProducer"),
+                 gemSimHit = dict(inputTag = "MuonSimHits:MuonGEMHits"),
+                 me0SimHit = dict(inputTag = "MuonSimHits:MuonME0Hits"),
+                 rpcSimHit = dict(inputTag = "MuonSimHits:MuonRPCHits"),
+                 cscSimHit = dict(inputTag = "MuonSimHits:MuonCSCHits"),
+                 dtSimHit = dict(inputTag = "MuonSimHits:MuonDTHits"),
+)

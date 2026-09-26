@@ -285,3 +285,52 @@ from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_low
 )
 
 egamma_lowPt_exclusive.toReplaceWith(regressionModifier,regressionModifier103XLowPtPho)
+
+# Regression for heavy-ion data
+regressionModifierHIN = regressionModifierRun3.clone(
+    rhoMaps = ["hiRhoForEGReg:mapEtaEdges", "hiRhoForEGReg:mapToRho"],
+    eleRegs = dict(
+        ecalOnlyMean = dict(
+            ebLowEtForestName = cms.ESInputTag("", "electron_eb_ecalOnly_HIN_1To500_0p2To2_mean"),
+            ebHighEtForestName = cms.ESInputTag("", "electron_eb_ecalOnly_HIN_1To500_0p2To2_mean"),
+            eeLowEtForestName = cms.ESInputTag("", "electron_ee_ecalOnly_HIN_1To500_0p2To2_mean"),
+            eeHighEtForestName = cms.ESInputTag("", "electron_ee_ecalOnly_HIN_1To500_0p2To2_mean"),
+        ),
+        ecalOnlySigma = dict(
+            ebLowEtForestName = cms.ESInputTag("", "electron_eb_ecalOnly_HIN_1To500_0p0002To0p5_sigma"),
+            ebHighEtForestName = cms.ESInputTag("", "electron_eb_ecalOnly_HIN_1To500_0p0002To0p5_sigma"),
+            eeLowEtForestName = cms.ESInputTag("", "electron_ee_ecalOnly_HIN_1To500_0p0002To0p5_sigma"),
+            eeHighEtForestName = cms.ESInputTag("", "electron_ee_ecalOnly_HIN_1To500_0p0002To0p5_sigma"),
+        ),
+        epComb = dict(
+            ecalTrkRegressionConfig = dict(
+                ebLowEtForestName = cms.ESInputTag("", 'electron_eb_ecalTrk_HIN_1To500_0p2To2_mean'),
+                ebHighEtForestName = cms.ESInputTag("", 'electron_eb_ecalTrk_HIN_1To500_0p2To2_mean'),
+                eeLowEtForestName = cms.ESInputTag("", 'electron_ee_ecalTrk_HIN_1To500_0p2To2_mean'),
+                eeHighEtForestName = cms.ESInputTag("", 'electron_ee_ecalTrk_HIN_1To500_0p2To2_mean'),
+            ),
+            ecalTrkRegressionUncertConfig = dict(
+                ebLowEtForestName = cms.ESInputTag("", 'electron_eb_ecalTrk_HIN_1To500_0p0002To0p5_sigma'),
+                ebHighEtForestName = cms.ESInputTag("", 'electron_eb_ecalTrk_HIN_1To500_0p0002To0p5_sigma'),
+                eeLowEtForestName = cms.ESInputTag("", 'electron_ee_ecalTrk_HIN_1To500_0p0002To0p5_sigma'),
+                eeHighEtForestName = cms.ESInputTag("", 'electron_ee_ecalTrk_HIN_1To500_0p0002To0p5_sigma'),
+            )
+        )
+    ),
+    phoRegs = dict(
+        ecalOnlyMean = dict(
+            ebLowEtForestName = cms.ESInputTag("", "photon_eb_ecalOnly_HIN_10To500_0p2To2_mean"),
+            ebHighEtForestName = cms.ESInputTag("", "photon_eb_ecalOnly_HIN_10To500_0p2To2_mean"),
+            eeLowEtForestName = cms.ESInputTag("", "photon_ee_ecalOnly_HIN_10To500_0p2To2_mean"),
+            eeHighEtForestName = cms.ESInputTag("", "photon_ee_ecalOnly_HIN_10To500_0p2To2_mean"),
+        ),
+        ecalOnlySigma = dict(
+            ebLowEtForestName = cms.ESInputTag("", "photon_eb_ecalOnly_HIN_10To500_0p0002To0p5_sigma"),
+            ebHighEtForestName = cms.ESInputTag("", "photon_eb_ecalOnly_HIN_10To500_0p0002To0p5_sigma"),
+            eeLowEtForestName = cms.ESInputTag("", "photon_ee_ecalOnly_HIN_10To500_0p0002To0p5_sigma"),
+            eeHighEtForestName = cms.ESInputTag("", "photon_ee_ecalOnly_HIN_10To500_0p0002To0p5_sigma"),
+        )
+    )
+)
+from Configuration.ProcessModifiers.hiEGReg_cff import hiEGReg
+hiEGReg.toReplaceWith(regressionModifier,regressionModifierHIN)

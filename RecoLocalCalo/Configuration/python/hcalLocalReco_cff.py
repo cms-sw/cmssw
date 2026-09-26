@@ -56,10 +56,6 @@ hcalOnlyLegacyLocalRecoTask.add(hbheprerecoLegacy)
 #--- for Run 3 and later
 _run3_hcalLocalRecoTask = _phase1_hcalLocalRecoTask.copy()
 _run3_hcalLocalRecoTask.remove(hbheprereco)
-
-from RecoLocalCalo.HcalRecProducers.zdcrecoRun3_cfi import zdcrecoRun3
-_run3_hcalLocalRecoTask.remove(zdcreco)
-_run3_hcalLocalRecoTask.add(zdcrecoRun3)
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toReplaceWith(hcalLocalRecoTask, _run3_hcalLocalRecoTask)
 
@@ -71,7 +67,7 @@ _run3_hcalLocalRecoPortableTask.add(hbheRecHitProducerPortableTask)
 alpaka.toReplaceWith(hcalLocalRecoTask, _run3_hcalLocalRecoPortableTask)
 
 #--- HCAL-only workflow
-hcalOnlyLocalRecoTask = hcalLocalRecoTask.copyAndExclude([zdcreco,zdcrecoRun3])
+hcalOnlyLocalRecoTask = hcalLocalRecoTask.copyAndExclude([zdcreco])
 
 #--- HCAL-only workflow for Run 2 on GPU
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
@@ -79,6 +75,6 @@ from RecoLocalCalo.HcalRecProducers.hcalRecHitSoAToLegacy_cfi import hcalRecHitS
 (alpaka & ~run3_HB).toReplaceWith(hbheprereco, hcalRecHitSoAToLegacy.clone())
 
 #--- for FastSim
-_fastSim_hcalLocalRecoTask = hcalLocalRecoTask.copyAndExclude([zdcreco,zdcrecoRun3])
+_fastSim_hcalLocalRecoTask = hcalLocalRecoTask.copyAndExclude([zdcreco])
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(hcalLocalRecoTask, _fastSim_hcalLocalRecoTask)

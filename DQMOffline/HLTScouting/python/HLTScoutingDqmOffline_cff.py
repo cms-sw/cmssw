@@ -60,8 +60,8 @@ hltScoutingDileptonMonitor = cms.Sequence(ScoutingDileptonMonitor)
 hltScoutingPi0Monitor = cms.Sequence(ScoutingPi0Monitor)
 hltScoutingDiMuonVertexMonitor = cms.Sequence(ScoutingDiMuonVertexMonitor)
 
-hltScoutingDqmOffline = cms.Sequence(hltScoutingTrackMonitor +
-                                     recoTrackFromScoutingMonitorSequence +
+hltScoutingDqmOffline = cms.Sequence(recoTrackFromScoutingMonitorSequence +
+                                     hltScoutingTrackMonitor +
                                      hltScoutingMuonDqmOffline +
                                      hltScoutingEGammaDqmOffline +
                                      hltScoutingJetDqmOffline +

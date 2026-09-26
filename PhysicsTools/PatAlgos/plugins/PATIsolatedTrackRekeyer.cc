@@ -24,13 +24,13 @@ private:
 
   edm::EDGetTokenT<IsoTracksC> input_tracks_token_;
   edm::EDGetTokenT<PackedCandsC> packed_cands_token_;
-  edm::EDGetTokenT<PackedCandsC> lost_cands_token_;
+  edm::EDGetTokenT<PackedCandsC> ori_packed_cands_token_;
 
 public:
   PATIsolatedTrackRekeyer(edm::ParameterSet const& params)
       : input_tracks_token_{consumes<IsoTracksC>(params.getParameter<edm::InputTag>("src"))},
         packed_cands_token_{consumes<PackedCandsC>(params.getParameter<edm::InputTag>("packedCands"))},
-        lost_cands_token_{consumes<PackedCandsC>(params.getParameter<edm::InputTag>("lostTrackCands"))} {
+        ori_packed_cands_token_{consumes<PackedCandsC>(params.getParameter<edm::InputTag>("packedCandsOri"))} {
     produces<IsoTracksC>();
   }
 
@@ -45,19 +45,20 @@ public:
     edm::Handle<pat::PackedCandidateCollection> packed_cands;
     iEvent.getByToken(packed_cands_token_, packed_cands);
 
-    edm::Handle<pat::PackedCandidateCollection> lost_cands;
-    iEvent.getByToken(lost_cands_token_, lost_cands);
+    edm::Handle<pat::PackedCandidateCollection> ori_packed_cands;
+    iEvent.getByToken(ori_packed_cands_token_, ori_packed_cands);
+
+    auto rekey = [&](pat::PackedCandidateRef const& ref) {
+      return (ref.isNonnull() && ref.id() == ori_packed_cands.id()) ? pat::PackedCandidateRef(packed_cands, ref.key())
+                                                                    : ref;
+    };
 
     for (const auto& track : *input_tracks) {
       // copy original pat object and append to vector
 
-      auto const cand_ref = edm::Ref(packed_cands, track.packedCandRef().key());
-      auto const near_ref = track.nearestPFPackedCandRef().isNonnull()
-                                ? edm::Ref(packed_cands, track.packedCandRef().key())
-                                : track.nearestPFPackedCandRef();
-      auto const lost_ref = track.nearestLostTrackPackedCandRef().isNonnull()
-                                ? edm::Ref(lost_cands, track.packedCandRef().key())
-                                : track.nearestLostTrackPackedCandRef();
+      auto const cand_ref = rekey(track.packedCandRef());
+      auto const near_ref = rekey(track.nearestPFPackedCandRef());
+      auto const lost_ref = rekey(track.nearestLostTrackPackedCandRef());
 
       out_tracks->emplace_back((pat::IsolatedTrack(track.pfIsolationDR03(),
                                                    track.miniPFIsolation(),

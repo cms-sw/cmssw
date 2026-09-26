@@ -179,15 +179,15 @@ void ZdcHitReconstructor_Run3::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<bool>("dropZSmarkedPassed", true);
   desc.add<bool>("skipRPD", true);
   desc.add<int>("recoMethod", 1);
-  desc.add<int>("correctionMethodEM", 1);
-  desc.add<int>("correctionMethodHAD", 1);
+  desc.add<int>("correctionMethodEM", 0);
+  desc.add<int>("correctionMethodHAD", 0);
   desc.add<int>("correctionMethodRPD", 0);
-  desc.add<double>("ootpuRatioEM", 3.0);
-  desc.add<double>("ootpuRatioHAD", 3.0);
+  desc.add<double>("ootpuRatioEM", -1.0);
+  desc.add<double>("ootpuRatioHAD", -1.0);
   desc.add<double>("ootpuRatioRPD", -1.0);
   desc.add<double>("ootpuFracEM", 1.0);
   desc.add<double>("ootpuFracHAD", 1.0);
-  desc.add<double>("ootpuFracRPD", 0.0);
+  desc.add<double>("ootpuFracRPD", 1.0);
   desc.add<std::vector<double>>("chargeRatiosEM",
                                 {
                                     1.0,
@@ -225,7 +225,7 @@ void ZdcHitReconstructor_Run3::fillDescriptions(edm::ConfigurationDescriptions& 
                                       {
                                           1,
                                       });
-  desc.add<bool>("setSaturationFlags", true);
+  desc.add<bool>("setSaturationFlags", false);
   {
     edm::ParameterSetDescription psd0;
     psd0.add<int>("maxADCvalue", 255);

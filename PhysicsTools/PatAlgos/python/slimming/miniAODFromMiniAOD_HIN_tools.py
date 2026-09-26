@@ -10,7 +10,12 @@ def miniAODFromMiniAOD_customizeCommon(process):
     # Update egamma regression
     ###########################################################################
     def _updateEGRegression(process):
-        from RecoEgamma.EgammaTools.regressionModifier_cfi import regressionModifier
+        process.load('RecoHI.HiJetAlgos.PackedPFTowers_cfi')
+        from RecoHI.HiJetAlgos.hiPuRhoProducer_cfi import hiPuRhoProducer
+        process.hiRhoForEGReg = hiPuRhoProducer.clone(src = 'PackedPFTowers')
+        task.add(process.PackedPFTowers)
+        task.add(process.hiRhoForEGReg)
+        from RecoEgamma.EgammaTools.regressionModifier_cfi import regressionModifierHIN as regressionModifier
         for obj in ['Electron','Photon']:
             setattr(process,f'slimmed{obj}s',cms.EDProducer(f"Modified{obj}Producer",
                 src = cms.InputTag(f'slimmed{obj}s::@skipCurrentProcess'),
@@ -19,8 +24,9 @@ def miniAODFromMiniAOD_customizeCommon(process):
             task.add(getattr(process,f'slimmed{obj}s'))
             cols.append(f'slimmed{obj}s')
 
+    from Configuration.ProcessModifiers.hiEGReg_cff import hiEGReg
     from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
-    pp_on_PbPb_run3.toModify(process, _updateEGRegression)
+    (hiEGReg & pp_on_PbPb_run3).toModify(process, _updateEGRegression)
 
     ###########################################################################
     # Add secondary vertex

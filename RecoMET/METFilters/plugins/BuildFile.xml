@@ -15,6 +15,7 @@
   <use name="CondFormats/DataRecord"/>
   <use name="DataFormats/HcalRecHit"/>
   <use name="RecoJets/JetProducers"/>
+  <use name="RecoLocalCalo/HcalRecAlgos"/>
   <use name="root"/>
   <flags EDM_PLUGIN="1"/>
 </library>
