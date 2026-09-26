@@ -9,6 +9,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "SimDataFormats/TruthInfo/interface/Checkpoint.h"
+#include "SimDataFormats/TruthInfo/interface/InteractionId.h"
 
 namespace truth {
 
@@ -19,7 +20,7 @@ namespace truth {
   // with levelAntichain() (Signal and ReconstructableFromSignal from the seed lists
   // recorded on the Graph), which is what the dumper audit and LevelFlags_t check.
   enum class LevelFlag : uint32_t {
-    StableLegsFromUpstream = 1u << 0,
+    StableLegsFromInitialState = 1u << 0,
     HardProcess = 1u << 1,
     StableDecayProducts = 1u << 2,
     CaloBoundary = 1u << 3,
@@ -32,7 +33,7 @@ namespace truth {
     // detector cannot see as objects, and drops invisible species.
     ReconstructableFromSignal = 1u << 5,
     // Stable legs of the artificial UnderlyingEvent vertex, the spectator counterpart
-    // of StableLegsFromUpstream. Empty without a selection preset, not wrong.
+    // of StableLegsFromInitialState. Empty without a selection preset, not wrong.
     UnderlyingEvent = 1u << 6,
     // One root per parton-initiated jet: the hard-process legs that are partons, each
     // standing for its descendant subgraph; no clustering, flavour = the parton's own
@@ -53,7 +54,11 @@ namespace truth {
     // Hadronically decaying taus, one per physical tau: the last tau of each radiative
     // chain, with a GEN decay record and no electron and no muon among its decay children.
     // The object tau identification measures efficiency against.
-    VisibleTau = 1u << 11,
+    TauVisibleHadronic = 1u << 11,
+    // Taus that decay to an electron or a muon, one per physical tau, by the same
+    // last-copy rule. A tau with a tau child is a radiative copy and is in neither tau
+    // level.
+    TauVisibleLeptonic = 1u << 12,
   };
 
   // What a particle IS, mirroring VertexRole on the vertex side. Absence of a GEN and a
@@ -63,7 +68,7 @@ namespace truth {
   enum class ParticleRole : uint8_t {
     // A generator or Geant4 particle.
     Normal = 0,
-    // Artificial: produced at an Interaction vertex and decaying at the Upstream or
+    // Artificial: produced at an Interaction vertex and decaying at the InitialState or
     // UnderlyingEvent sub-vertex, so those descend from one interaction root.
     Connector = 1,
     // Artificial: stands in for a resonance the generator never wrote, so the signal
@@ -71,6 +76,18 @@ namespace truth {
     // over the hard-process legs and is not a generator quantity.
     SignalStandIn = 2,
   };
+
+  [[nodiscard]] inline const char* particleRoleName(ParticleRole role) {
+    switch (role) {
+      case ParticleRole::Normal:
+        return "Normal";
+      case ParticleRole::Connector:
+        return "Connector";
+      case ParticleRole::SignalStandIn:
+        return "SignalStandIn";
+    }
+    return "Normal";
+  }
 
   struct ParticleData {
     // Optional provenance/debug back-references to the raw TruthGraph nodes.
@@ -128,6 +145,17 @@ namespace truth {
     // True for anything the graph invented. Never read the momentum of such a particle
     // as a generator quantity.
     [[nodiscard]] bool isSynthetic() const { return particleRole() != ParticleRole::Normal; }
+
+    // The interaction this particle belongs to. isSignal() is the one test that decides
+    // signal from pile-up; do not compare eventId to 0 by hand.
+    [[nodiscard]] int bunchCrossing() const { return bunchCrossingOf(eventId); }
+    [[nodiscard]] int eventIndex() const { return eventIndexOf(eventId); }
+    [[nodiscard]] bool isSignal() const { return isSignalEventId(eventId); }
+    [[nodiscard]] bool isFromPileup() const { return !isSignal(); }
+
+    // False when no momentum is known: a GEN particle of a pile-up interaction that no
+    // decay product and no SimTrack gives one.
+    [[nodiscard]] bool hasMomentum() const { return momentum.E() > 0.; }
 
     [[nodiscard]] bool isAtLevel(LevelFlag flag) const { return (levelFlags & static_cast<uint32_t>(flag)) != 0; }
     void setLevel(LevelFlag flag) { levelFlags |= static_cast<uint32_t>(flag); }

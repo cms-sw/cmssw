@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <limits>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -19,6 +20,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -28,6 +30,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloAnalysis/interface/MtdSimLayerClusterFwd.h"
 #include "SimDataFormats/Associations/interface/MtdSimLayerClusterToRecoClusterAssociationMap.h"
@@ -37,6 +40,7 @@
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
 #include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndexBuilder.h"
+#include "PhysicsTools/TruthInfo/interface/TrackerCells.h"
 #include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 
 #include "SimCalorimetry/HGCalAssociatorProducers/interface/DetIdRecHitMap.h"
@@ -141,7 +145,7 @@ private:
                    truth::LogicalGraphHitIndexBuilder& builder,
                    hgcal::DetIdRecHitMap const* recHitMap) const;
 
-  void fillTrackerSimHits(edm::Event& event, truth::LogicalGraphHitIndexBuilder& builder) const;
+  void fillTrackerCells(edm::Event& event, truth::LogicalGraphHitIndexBuilder& builder) const;
 
   // Muon chambers (DT/CSC/RPC/GEM/ME0): PSimHits keyed by trackId, like the tracker
   // channel (energy = energyLoss, no recHit link).
@@ -165,9 +169,12 @@ private:
   std::vector<edm::InputTag> simHitTags_;
   std::vector<edm::EDGetTokenT<std::vector<PCaloHit>>> simHitTokens_;
 
-  std::vector<edm::InputTag> trackerSimHitTags_;
-  std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> trackerSimHitTokens_;
-
+  // Per-cell truth of the tracker, written by the digitizer: (channel, trackId,
+  // eventId, charge fraction).
+  std::vector<edm::InputTag> digiSimLinkTags_;
+  std::vector<edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink>>> digiSimLinkTokens_;
+  // One warning per job per collection that is missing from the input.
+  mutable std::vector<std::once_flag> digiSimLinkWarned_;
   std::vector<edm::InputTag> muonSimHitTags_;
   std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> muonSimHitTokens_;
 
@@ -192,7 +199,7 @@ TruthLogicalGraphHitIndexProducer::TruthLogicalGraphHitIndexProducer(edm::Parame
       rawGraphToken_(consumes<TruthGraph>(cfg.getParameter<edm::InputTag>("rawSrc"))),
       recHitMapToken_(consumes<hgcal::DetIdRecHitMap>(cfg.getParameter<edm::InputTag>("recHitMap"))),
       simHitTags_(cfg.getParameter<std::vector<edm::InputTag>>("simHitCollections")),
-      trackerSimHitTags_(cfg.getParameter<std::vector<edm::InputTag>>("trackerSimHitCollections")),
+      digiSimLinkTags_(cfg.getParameter<std::vector<edm::InputTag>>("trackerDigiSimLinks")),
       muonSimHitTags_(cfg.getParameter<std::vector<edm::InputTag>>("muonSimHitCollections")),
       geomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       doHGCalRelabelling_(cfg.getParameter<bool>("doHGCalRelabelling")),
@@ -203,10 +210,11 @@ TruthLogicalGraphHitIndexProducer::TruthLogicalGraphHitIndexProducer(edm::Parame
     simHitTokens_.push_back(consumes<std::vector<PCaloHit>>(tag));
   }
 
-  trackerSimHitTokens_.reserve(trackerSimHitTags_.size());
-  for (auto const& tag : trackerSimHitTags_) {
-    trackerSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
+  digiSimLinkTokens_.reserve(digiSimLinkTags_.size());
+  for (auto const& tag : digiSimLinkTags_) {
+    digiSimLinkTokens_.push_back(consumes<edm::DetSetVector<PixelDigiSimLink>>(tag));
   }
+  digiSimLinkWarned_ = std::vector<std::once_flag>(digiSimLinkTags_.size());
 
   muonSimHitTokens_.reserve(muonSimHitTags_.size());
   for (auto const& tag : muonSimHitTags_) {
@@ -244,26 +252,25 @@ void TruthLogicalGraphHitIndexProducer::fillDescriptions(edm::ConfigurationDescr
           "Detector channels to fill (subdetector selection): any of Calo, Tracker, MTD, Muon. Each reads its "
           "own per-subdetector hit collections below; channels left out of this list stay empty in the index.");
 
+  // The same calorimeter list TruthLogicalGraphProducer prunes on. The pruner deletes
+  // any SIM particle whose subgraph carries no hit in the collections IT reads, so a
+  // shorter list here leaves a kept particle with an empty footprint: a barrel particle
+  // would show zero calorimeter hits and every per-cell fraction over it would be wrong.
+  // Keep the two defaults equal.
   desc.add<std::vector<edm::InputTag>>("simHitCollections",
                                        {edm::InputTag("g4SimHits", "HGCHitsEE"),
                                         edm::InputTag("g4SimHits", "HGCHitsHEfront"),
-                                        edm::InputTag("g4SimHits", "HGCHitsHEback")});
+                                        edm::InputTag("g4SimHits", "HGCHitsHEback"),
+                                        edm::InputTag("g4SimHits", "EcalHitsEB"),
+                                        edm::InputTag("g4SimHits", "HcalHits")});
 
-  desc.add<std::vector<edm::InputTag>>("trackerSimHitCollections",
-                                       {edm::InputTag("g4SimHits", "TrackerHitsPixelBarrelLowTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsPixelBarrelHighTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsPixelEndcapLowTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsPixelEndcapHighTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsTIBLowTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsTIBHighTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsTIDLowTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsTIDHighTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsTOBLowTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsTOBHighTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsTECLowTof"),
-                                        edm::InputTag("g4SimHits", "TrackerHitsTECHighTof")})
-      ->setComment("Tracker PSimHit collections matched to particles via PSimHit::trackId()");
-
+  desc.add<std::vector<edm::InputTag>>(
+          "trackerDigiSimLinks",
+          {edm::InputTag("simSiPixelDigis", "Pixel"), edm::InputTag("simSiPixelDigis", "Tracker")})
+      ->setComment(
+          "Digi sim links of the tracker, the inner one and the outer one. The tracker truth is keyed by "
+          "(module, cell) and comes from these alone, which is what separates two particles crossing one module. "
+          "A module no links product covers carries no tracker truth");
   desc.add<std::vector<edm::InputTag>>("muonSimHitCollections",
                                        {edm::InputTag("g4SimHits", "MuonDTHits"),
                                         edm::InputTag("g4SimHits", "MuonCSCHits"),
@@ -321,8 +328,13 @@ void TruthLogicalGraphHitIndexProducer::produce(edm::StreamID, edm::Event& event
   // Each subdetector channel is filled only when selected (see "subdetectors").
   if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::Calo)])
     fillSimHits(event, setup, builder, recHitMap);
-  if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::Tracker)])
-    fillTrackerSimHits(event, builder);
+  if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::Tracker)]) {
+    // The tracker truth is keyed by (module, cell) and comes from the digi sim links
+    // alone: a tracker DetId names a module, and the cell is what separates two
+    // particles crossing one.
+    builder.setCellKeyed(truth::HitChannel::Tracker, true);
+    fillTrackerCells(event, builder);
+  }
   if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::Muon)])
     fillMuonSimHits(event, builder);
   if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::MTD)])
@@ -331,9 +343,9 @@ void TruthLogicalGraphHitIndexProducer::produce(edm::StreamID, edm::Event& event
   auto output = std::make_unique<truth::LogicalGraphHitIndex>(builder.finish());
   if (sharedSubgraphStore_ && !builder.usedSharedStore()) {
     // The materialised layout stores each hit once PER ANCESTOR, and on a large event
-    // that can exceed ROOT's 1 GiB single-object limit and kill the output module. The
-    // fallback was silent when that happened on heavy-ion events (cms-sw/cmssw#51638):
-    // the one symptom was a crash three modules away. Never fall back quietly.
+    // that can exceed ROOT's 1 GiB single-object limit and kill the output module. A
+    // silent fallback shows up only as a crash three modules away, on heavy-ion events
+    // (cms-sw/cmssw#51638), so the fallback is always announced.
     edm::LogWarning("LogicalGraphHitIndexProducer")
         << "shared subgraph store requested but the hit-carrying particles do not form a forest; "
            "fell back to the MATERIALISED layout, which duplicates every hit per ancestor. On a "
@@ -533,26 +545,34 @@ void TruthLogicalGraphHitIndexProducer::fillSimHits(edm::Event& event,
   }
 }
 
-void TruthLogicalGraphHitIndexProducer::fillTrackerSimHits(edm::Event& event,
-                                                           truth::LogicalGraphHitIndexBuilder& builder) const {
-  for (uint32_t tokenIndex = 0; tokenIndex < trackerSimHitTokens_.size(); ++tokenIndex) {
-    edm::Handle<edm::PSimHitContainer> hSimHits;
-    event.getByToken(trackerSimHitTokens_[tokenIndex], hSimHits);
+void TruthLogicalGraphHitIndexProducer::fillTrackerCells(edm::Event& event,
+                                                         truth::LogicalGraphHitIndexBuilder& builder) const {
+  for (uint32_t tokenIndex = 0; tokenIndex < digiSimLinkTokens_.size(); ++tokenIndex) {
+    edm::Handle<edm::DetSetVector<PixelDigiSimLink>> hLinks;
+    event.getByToken(digiSimLinkTokens_[tokenIndex], hLinks);
 
-    if (!hSimHits.isValid()) {
-      edm::LogWarning("TruthLogicalGraphHitIndexProducer")
-          << "Missing tracker PSimHit collection " << trackerSimHitTags_[tokenIndex].encode() << ". Skipping it.";
+    if (!hLinks.isValid()) {
+      std::call_once(digiSimLinkWarned_[tokenIndex], [this, tokenIndex]() {
+        edm::LogWarning("TruthLogicalGraphHitIndexProducer")
+            << "Missing digi sim links " << digiSimLinkTags_[tokenIndex].encode()
+            << ". The modules they cover carry no tracker truth for this job.";
+      });
       continue;
     }
 
-    for (auto const& simHit : *hSimHits) {
-      // PSimHit::trackId() is the G4 trackId of the SimTrack that made the hit,
-      // the same id space used to associate calorimeter simhits to particles.
-      builder.addHit(truth::HitChannel::Tracker,
-                     simHit.eventId().rawId(),
-                     simHit.trackId(),
-                     simHit.detUnitId(),
-                     simHit.energyLoss());
+    for (auto const& detSet : *hLinks) {
+      for (auto const& link : detSet) {
+        // The energy of a cell-keyed hit is the charge fraction the digitizer recorded
+        // for this particle on this cell. The tracker metric counts cells, so the value
+        // is informational, but it must be positive or the builder drops the hit.
+        const float fraction = link.fraction() > 0.f ? link.fraction() : 1.f;
+        builder.addHit(truth::HitChannel::Tracker,
+                       link.eventId().rawId(),
+                       link.SimTrackId(),
+                       detSet.detId(),
+                       fraction,
+                       static_cast<uint32_t>(link.channel()));
+      }
     }
   }
 }

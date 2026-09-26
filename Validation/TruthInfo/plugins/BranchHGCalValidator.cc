@@ -42,6 +42,7 @@
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
 #include "PhysicsTools/TruthInfo/interface/SubgraphHitView.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/InteractionId.h"
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
 #include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 
@@ -101,7 +102,7 @@ private:
                 TruthGraph const& raw,
                 truth::SubgraphHitView& hitIndex,
                 truth::BranchHitAssociator const& assoc,
-                std::unordered_map<uint32_t, uint32_t> const& tidToParticle,
+                std::unordered_map<uint64_t, uint32_t> const& tidToParticle,
                 std::unordered_map<uint32_t, float> const& cellSimEnergy,
                 std::unordered_map<uint32_t, float> const& recHitEnergyByDetId,
                 Plots& plots);
@@ -253,9 +254,10 @@ void BranchHGCalValidator::bookHistograms(DQMStore::IBooker& ib, edm::Run const&
 }
 
 namespace {
-  // logical-particle id <- SimTrack trackId, via the raw-graph node back-reference.
-  std::unordered_map<uint32_t, uint32_t> buildTrackIdToParticle(truth::Graph const& graph, TruthGraph const& raw) {
-    std::unordered_map<uint32_t, uint32_t> out;
+
+  // (EncodedEventId, SimTrack trackId) -> logical particle.
+  std::unordered_map<uint64_t, uint32_t> buildTrackIdToParticle(truth::Graph const& graph, TruthGraph const& raw) {
+    std::unordered_map<uint64_t, uint32_t> out;
     out.reserve(graph.nParticles());
     for (uint32_t i = 0; i < graph.nParticles(); ++i) {
       const int32_t simNode = graph.particles()[i].simNode;
@@ -263,7 +265,7 @@ namespace {
         continue;
       auto const& nr = raw.nodeRef(static_cast<uint32_t>(simNode));
       if (nr.kind == TruthGraph::NodeKind::SimTrack)
-        out[static_cast<uint32_t>(nr.key)] = i;
+        out[truth::simObjectKey(raw.nodeEventId(static_cast<uint32_t>(simNode)), static_cast<uint32_t>(nr.key))] = i;
     }
     return out;
   }
@@ -275,7 +277,7 @@ void BranchHGCalValidator::validate(Collection const& objects,
                                     TruthGraph const& raw,
                                     truth::SubgraphHitView& hitIndex,
                                     truth::BranchHitAssociator const& assoc,
-                                    std::unordered_map<uint32_t, uint32_t> const& tidToParticle,
+                                    std::unordered_map<uint64_t, uint32_t> const& tidToParticle,
                                     std::unordered_map<uint32_t, float> const& cellSimEnergy,
                                     std::unordered_map<uint32_t, float> const& recHitEnergyByDetId,
                                     Plots& plots) {
@@ -302,8 +304,8 @@ void BranchHGCalValidator::validate(Collection const& objects,
     plots.denomPt->Fill(pt);
     plots.denomEnergy->Fill(energy);
 
-    const uint32_t trackId = obj.g4Tracks().front().trackId();
-    auto it = tidToParticle.find(trackId);
+    auto it = tidToParticle.find(
+        truth::simObjectKey(obj.g4Tracks().front().eventId().rawId(), obj.g4Tracks().front().trackId()));
     if (it == tidToParticle.end())
       continue;  // unmapped -> counts as inefficiency
     const uint32_t particleId = it->second;
@@ -530,10 +532,10 @@ void BranchHGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& desc
                                         edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
                                         edm::InputTag("HGCalRecHit", "HGCHEBRecHits")});
   desc.add<std::vector<edm::InputTag>>("pfRecHits",
-                                       {edm::InputTag("particleFlowRecHitECAL", "Cleaned"),
-                                        edm::InputTag("particleFlowRecHitHBHE", "Cleaned"),
-                                        edm::InputTag("particleFlowRecHitHF", "Cleaned"),
-                                        edm::InputTag("particleFlowRecHitHO", "Cleaned")});
+                                       {edm::InputTag("particleFlowRecHitECAL"),
+                                        edm::InputTag("particleFlowRecHitHBHE"),
+                                        edm::InputTag("particleFlowRecHitHF"),
+                                        edm::InputTag("particleFlowRecHitHO")});
   descriptions.addWithDefaultLabel(desc);
 }
 

@@ -406,6 +406,9 @@ public:
       const auto pdg = g.nodePdgId(i);
       const auto st = g.nodeStatus(i);
       const auto eid = g.nodeEventId(i);
+      // The HepMC and SIM inputs of this module hold the signal only, and node keys restart
+      // in every pileup interaction, so only a signal node may be enriched from them.
+      const bool signalNode = (eid == 0);
       const auto flags = g.nodeStatusFlags(i);
       const std::string flagsLabel = statusFlagsLabel(flags);
 
@@ -414,7 +417,7 @@ public:
       bool haveSim = false;
       SimTrack const* simt = nullptr;
 
-      if (r.kind == TruthGraph::NodeKind::SimTrack && hSimTracks.isValid()) {
+      if (r.kind == TruthGraph::NodeKind::SimTrack && signalNode && hSimTracks.isValid()) {
         const int64_t key = r.key;  // trackId
         if (key >= 0 && key <= static_cast<int64_t>(std::numeric_limits<uint32_t>::max())) {
           auto it = tidToIndex.find(static_cast<uint32_t>(key));
@@ -440,7 +443,7 @@ public:
         } else if (have3) {
           os << "HepMCversion=3, event=" << ev3.event_number() << ",";
         }
-      } else if (r.kind == TruthGraph::NodeKind::GenParticle) {
+      } else if (r.kind == TruthGraph::NodeKind::GenParticle && signalNode) {
         const int bc = static_cast<int>(r.key);
         if (ev2) {
           auto it = bc2p.find(bc);
@@ -462,7 +465,7 @@ public:
                << ", prodVtx=" << prod << ", endVtx=" << endv << ",";
           }
         }
-      } else if (r.kind == TruthGraph::NodeKind::GenVertex) {
+      } else if (r.kind == TruthGraph::NodeKind::GenVertex && signalNode) {
         const int bc = static_cast<int>(r.key);
         if (ev2) {
           auto it = bc2v.find(bc);
@@ -479,7 +482,7 @@ public:
                << ", nIn=" << v->particles_in().size() << ", nOut=" << v->particles_out().size() << ",";
           }
         }
-      } else if (r.kind == TruthGraph::NodeKind::SimVertex && hSimVertices.isValid()) {
+      } else if (r.kind == TruthGraph::NodeKind::SimVertex && signalNode && hSimVertices.isValid()) {
         // SimVertex node key == index into the SimVertexContainer (see TruthGraphProducer).
         const int64_t idx = r.key;
         if (idx >= 0 && static_cast<uint32_t>(idx) < hSimVertices->size()) {
@@ -531,7 +534,7 @@ public:
         } else if (have3) {
           os << "      <TR><TD>HepMC3: event=" << ev3.event_number() << "</TD></TR>\n";
         }
-      } else if (r.kind == TruthGraph::NodeKind::GenParticle) {
+      } else if (r.kind == TruthGraph::NodeKind::GenParticle && signalNode) {
         const int bc = static_cast<int>(r.key);
         if (ev2) {
           auto it = bc2p.find(bc);
@@ -557,7 +560,7 @@ public:
             os << "      <TR><TD>prodVtx: " << prod << " endVtx: " << endv << "</TD></TR>\n";
           }
         }
-      } else if (r.kind == TruthGraph::NodeKind::GenVertex) {
+      } else if (r.kind == TruthGraph::NodeKind::GenVertex && signalNode) {
         const int bc = static_cast<int>(r.key);
         if (ev2) {
           auto it = bc2v.find(bc);
@@ -578,7 +581,7 @@ public:
                << "</TD></TR>\n";
           }
         }
-      } else if (r.kind == TruthGraph::NodeKind::SimVertex && hSimVertices.isValid()) {
+      } else if (r.kind == TruthGraph::NodeKind::SimVertex && signalNode && hSimVertices.isValid()) {
         const int64_t idx = r.key;
         if (idx >= 0 && static_cast<uint32_t>(idx) < hSimVertices->size()) {
           auto const& sv = (*hSimVertices)[static_cast<uint32_t>(idx)];

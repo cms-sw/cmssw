@@ -7,6 +7,7 @@
 
 import FWCore.ParameterSet.Config as cms
 from SimGeneral.MixingModule.fullMixCustomize_cff import setCrossingFrameOn
+from PhysicsTools.TruthInfo.truthGraphMixedDigi_cff import reconstructablePdgIds
 
 
 def addMixedTruthGraph(process):
@@ -83,8 +84,10 @@ def addTruthGraphAccumulator(process,
         mtdHits=mtdHits,
         pileupBunchCrossings=cms.vint32(*pileupBunchCrossings),
         collapsePileupGen=cms.bool(collapsePileupGen),
+        collapsedGenKeptPdgIds=cms.vint32(*reconstructablePdgIds),
         collapseSignalGen=cms.bool(False),
         collapseGenShower=cms.bool(True),
+        collapseGenShowerSignal=cms.bool(False),
         # Prototype energy-budget closure: sum per-cell HGCal energy over ALL bunch
         # crossings (in-time + out-of-time) into cellTotalEnergy/cellTotalDetId, so
         # "untracked" energy (out-of-time pileup + dropped in-time) can be measured
@@ -93,9 +96,9 @@ def addTruthGraphAccumulator(process,
     )
 
     # Persistence is owned by truthEventContent_cff (the compact/full verbosity
-    # levels), applied via customiseTruthDigi. The accumulator products
-    # (TruthGraph_mix, mix:merged*Hits) are kept only at the 'full' level; the
-    # compact default persists the graph + unresolved index built below instead.
+    # levels), applied via customiseTruthDigi. Both levels keep the raw
+    # TruthGraph_mix (the validators read it as rawSrc); the merged sim-hit
+    # collections (mix:merged*Hits) are kept only at the 'full' level.
     return process
 
 
@@ -142,18 +145,23 @@ def buildCompactTruthAtDigi(process, includeTrackingHits=True):
     # out here has its particles pruned as hitless even though they do carry hits.
     process.truthLogicalGraphProducer = truthLogicalGraphProducer.clone(
         src=cms.InputTag("mix"),
+        simTracks=cms.InputTag("mix", "mergedSimTracks"),
+        simVertices=cms.InputTag("mix", "mergedSimVertices"),
         simHitCollections=caloSimHits,
         trackerSimHitCollections=trackerSimHits,
         muonSimHitCollections=muonSimHits,
     )
+    process.truthLogicalGraphProducer.postProcessing.reconstructablePdgIds = cms.vint32(*reconstructablePdgIds)
 
     process.truthLogicalGraphHitIndexProducer = truthLogicalGraphHitIndexProducer.clone(
         src=cms.InputTag("truthLogicalGraphProducer"),
         rawSrc=cms.InputTag("mix"),
         recHitMap=cms.InputTag(""),   # UNRESOLVED: association is by DetId
         subdetectors=cms.vstring(*subdetectors),
+        # See truthGraphMixedDigi_cff: the tracker is keyed by (module, cell).
+        trackerDigiSimLinks=cms.VInputTag(cms.InputTag("simSiPixelDigis", "Pixel"),
+                                          cms.InputTag("simSiPixelDigis", "Tracker")),
         simHitCollections=caloSimHits,
-        trackerSimHitCollections=trackerSimHits,
         muonSimHitCollections=muonSimHits,
     )
 
@@ -200,7 +208,6 @@ def customiseTruthReduced(process):
     acc.trackerHits = cms.VInputTag()
     idx = process.truthLogicalGraphHitIndexProducer
     idx.subdetectors = cms.vstring("Calo", "Muon")
-    idx.trackerSimHitCollections = cms.VInputTag()
     # The pruning's detector scope stays equal to the index's, otherwise it prunes on
     # tracker hits that are no longer accumulated.
     process.truthLogicalGraphProducer.trackerSimHitCollections = cms.VInputTag()
