@@ -55,14 +55,14 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::updateStubs(
       bool upperOK = false;
 
       for (clusterIter = lowerClusters.begin(); clusterIter != lowerClusters.end() && !lowerOK; ++clusterIter) {
-        if (clusterIter->getHits() == lowerClusterToBeReplaced->getHits()) {
+        if (*clusterIter == *lowerClusterToBeReplaced) {
           tempTTStub.addClusterRef(edmNew::makeRefTo(clusterHandle, clusterIter));
           lowerOK = true;
         }
       }
 
       for (clusterIter = upperClusters.begin(); clusterIter != upperClusters.end() && !upperOK; ++clusterIter) {
-        if (clusterIter->getHits() == upperClusterToBeReplaced->getHits()) {
+        if (*clusterIter == *upperClusterToBeReplaced) {
           tempTTStub.addClusterRef(edmNew::makeRefTo(clusterHandle, clusterIter));
           upperOK = true;
         }
