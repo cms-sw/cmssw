@@ -21,15 +21,22 @@ THREADS=4
 ############################
 
 check_logs_for_errors() {
-    local log_dirs=${1:-"logs/step*/pid*"}
+    local log_dirs=${1:-"logs.*/step*/pid*"}
     local error_found=0
+    local pattern='fatal|fail|exception|traceback'
 
     for f in $log_dirs/stdout $log_dirs/stderr; do
-        if [[ -f "$f" ]]; then
-            if grep -qiE 'error|fail|exception|traceback' "$f"; then
-                echo "Error keyword found in: $f"
-                error_found=1
-            fi
+        [[ -f "$f" ]] || continue
+
+        if grep -qiE "$pattern" "$f"; then
+            echo "Error keyword found in: $f"
+
+            grep -inE "$pattern" "$f" | while IFS=: read -r lineno line; do
+                keyword=$(grep -ioE "$pattern" <<<"$line" | head -1)
+                echo "  Line $lineno [$keyword]: $line"
+            done
+
+            error_found=1
         fi
     done
 
@@ -53,8 +60,8 @@ fetch_files() {
 
     mapfile -t FILES < <(
         dasgoclient -query="file dataset=${DATASET}" --limit=-1 |
-        sort |
-        head -4
+            sort |
+            head -4
     )
 
     for f in "${FILES[@]}"; do
@@ -142,12 +149,18 @@ run_benchmark() {
         --slot "numa=0-3:mem=0-3" \
         --event-skip 100 \
         --event-resolution 10 \
-        -k Phase2Timing_resources.json \
+        --output-log \
+        --debug-logs \
+        --logdir "$logdir" \
         -- ${cfg}
 
     check_logs_for_errors || exit 1
 
-    mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json > ${output_json}
+    # benchmark auto-detects and merges the FastTimerService JSON into the
+    # logdir; copy it to the working directory under the expected name
+    local json_name
+    json_name=$(python3 -c 'from HLTrigger.Configuration.HLT_75e33.services.FastTimerService_cfi import FastTimerService; print(FastTimerService.jsonFileName.value())' 2>/dev/null) || json_name="resources.json"
+    [[ -f "${logdir}/${json_name}" ]] && cp "${logdir}/${json_name}" "${output_json}"
 }
 
 ############################
@@ -205,7 +218,6 @@ run_ngt_scouting() {
 ############################
 
 main() {
-
     fetch_files
     build_input_file_string
 
