@@ -87,6 +87,12 @@ and can define multiple methods. Note that `SOA_ELEMENT_METHODS` and `SOA_CONST_
 with the macro SOA_HOST_DEVICE.  This ensures that the methods can also be executed in device kernels.
 [An example is shown below.](#examples)
 
+Additionally, it is possible to generate methods for the `View` and `ConstView` classes 
+using the macros `SOA_VIEW_METHODS` and `SOA_CONST_VIEW_METHODS`. 
+Like the macros for the element methods, this can also be called only once, and if more methods
+have to be generated, they must be listed inside the same macro call. Since these methods can be called from the device,
+they must be prefixed with the `SOA_HOST_DEVICE` macro and, when possible, with the `constexpr` keyword.
+
 ## Blocks
 
 `SoABlocks` is a macro-generated templated class that enables structured composition of multiple `SoALayouts` 
@@ -102,10 +108,7 @@ mirroring the structure of the underlying structs. The blocks are built via comp
 and access to individual layouts and views is provided by name.
 
 `SoABlocks` also have the possibility of generating methods for the `View` and `ConstView` classes 
-using the macros `SOA_VIEW_METHODS` and `SOA_CONST_VIEW_METHODS`. 
-Like the macros for the element methods, this can also be called only once, and if more methods
-have to be generated, they must be listed inside the same macro call. Since these methods can be called from the device,
-they must be prefixed with the `SOA_HOST_DEVICE` macro and, when possible, with the `constexpr` keyword.
+using the macros `SOA_VIEW_METHODS` and `SOA_CONST_VIEW_METHODS`. They work in the same way as for normal SoA layouts
 
 [An example of utilization is shown below.](#examples)
 

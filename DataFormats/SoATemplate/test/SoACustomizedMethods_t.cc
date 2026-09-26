@@ -31,6 +31,7 @@ TEST_CASE("SoACustomizedMethods") {
   view.detectorType() = 42;
 
   SECTION("ConstElement methods") {
+    REQUIRE(const_view.sizeMinusOne() == elems - 1);
     // arrays of norms
     std::array<float, elems> position_norms;
     std::array<double, elems> velocity_norms;
@@ -44,9 +45,18 @@ TEST_CASE("SoACustomizedMethods") {
       REQUIRE(position_norms[i] == const_view[i].square_norm_position());
       REQUIRE(velocity_norms[i] == const_view[i].square_norm_velocity());
     }
+
+    for (int i = 0; i < const_view.sizeMinusOne(); i++) {
+      auto pi = const_view[i];
+      auto pj = const_view[i + 1];
+      const float distance = (pi.x() - pj.x()) * (pi.x() - pj.x()) + (pi.y() - pj.y()) * (pi.y() - pj.y()) +
+                             (pi.z() - pj.z()) * (pi.z() - pj.z());
+      REQUIRE(const_view.distance2(i, i + 1) == distance);
+    }
   }
 
   SECTION("Element methods") {
+    REQUIRE(view.sizeMinusOne() == elems - 1);
     // array of times
     std::array<double, elems> times;
 
@@ -54,7 +64,9 @@ TEST_CASE("SoACustomizedMethods") {
     times[0] = 0.;
     for (size_t i = 0; i < elems; i++) {
       if (not(i == 0))
-        times[i] = view[i].x() / view[i].v_x();
+        times[i] = 1.5 * view[i].x() / view[i].v_x();
+
+      view.update_position(i, 0.5f);
       REQUIRE(times[i] == SoAView::const_element::time(view[i].x(), view[i].v_x()));
     }
 
