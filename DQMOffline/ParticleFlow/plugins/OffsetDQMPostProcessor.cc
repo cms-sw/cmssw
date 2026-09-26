@@ -1,11 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    Validation/RecoParticleFlow
-// Class:      OffsetDQMPostProcessor.cc
-//
-// Original Author:  "Kenichi Hatakeyama"
-//
-
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -17,9 +9,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 //
-// class decleration
+// class declaration
 //
-
 class OffsetDQMPostProcessor : public DQMEDHarvester {
 public:
   explicit OffsetDQMPostProcessor(const edm::ParameterSet&);
@@ -42,15 +33,14 @@ private:
 //
 // constructors and destructor
 //
-OffsetDQMPostProcessor::OffsetDQMPostProcessor(const edm::ParameterSet& iConfig) {
-  offsetPlotBaseName = iConfig.getParameter<std::string>("offsetPlotBaseName");
-  offsetDir = iConfig.getParameter<std::string>("offsetDir");
-  offsetVariableTypes = iConfig.getParameter<std::vector<std::string> >("offsetVariableTypes");
-  offsetR = iConfig.getUntrackedParameter<double>("offsetR");
-  pftypes = iConfig.getParameter<std::vector<std::string> >("pftypes");
-  muHigh = iConfig.getUntrackedParameter<int>("muHigh");
-  npvHigh = iConfig.getUntrackedParameter<int>("npvHigh");
-};
+OffsetDQMPostProcessor::OffsetDQMPostProcessor(const edm::ParameterSet& iConfig)
+    : offsetPlotBaseName(iConfig.getParameter<std::string>("offsetPlotBaseName")),
+      offsetDir(iConfig.getParameter<std::string>("offsetDir")),
+      offsetR(iConfig.getUntrackedParameter<double>("offsetR")),
+      pftypes(iConfig.getParameter<std::vector<std::string> >("pftypes")),
+      offsetVariableTypes(iConfig.getParameter<std::vector<std::string> >("offsetVariableTypes")),
+      muHigh(iConfig.getUntrackedParameter<int>("muHigh")),
+      npvHigh(iConfig.getUntrackedParameter<int>("npvHigh")) {}
 
 OffsetDQMPostProcessor::~OffsetDQMPostProcessor() {}
 
@@ -82,7 +72,7 @@ void OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGet
       continue;
     mtmp = iget_.get(stitle);
     float avg = mtmp->getMean();
-    int iavg = int(avg + 0.5);  // integer version for identifying correcping ME, in order to get the rounding correctly
+    int iavg = int(avg + 0.5);  // integer version for identifying correct ME, in order to get the rounding correctly
 
     if (avg < 1.)
       avg = 1.;  // protection against this value going too low

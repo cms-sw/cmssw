@@ -107,6 +107,9 @@ DQMOffline_SecondStepTrigger = cms.Sequence( triggerOfflineDQMClient *
 # HLT Heterogeneous monitoring sequence
 DQMHarvestHLTGPUvsCPU = cms.Sequence( HLTHeterogeneousMonitoringHarvesting )
 
+# Offline Heterogeneous monitoring sequence
+DQMHarvestGPUvsCPU = cms.Sequence( HeterogeneousMonitoringHarvesting )
+
 DQMOffline_SecondStepBTag = cms.Sequence( bTagCollectorSequenceDATA )
 
 DQMOffline_SecondStepBeam = cms.Sequence( alcaBeamMonitorClient )
@@ -277,7 +280,7 @@ DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )
 DQMHarvestHLTScouting = cms.Sequence( hltScoutingPostProcessing )
 
 from PhysicsTools.NanoAOD.nanoDQM_cff import *
-from Validation.RecoParticleFlow.DQMForPF_MiniAOD_cff import *
+from DQMOffline.ParticleFlow.DQMForPF_MiniAOD_cff import *
 from DQMOffline.RecoB.bTagMiniDQM_cff import *
 
 DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD * DQMHarvestPF * bTagMiniDQMHarvesting)

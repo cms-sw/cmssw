@@ -12,7 +12,7 @@ from HLTriggerOffline.SMP.HLTSMPPostVal_cff import *
 from Validation.RecoTrack.HLTpostProcessorTracker_cfi import *
 from Validation.RecoVertex.HLTpostProcessorVertex_cfi import *
 from Validation.RecoVertex.HLTSecondaryVertexPostProcessor_cff import *
-#from HLTriggerOffline.Common.PostProcessorExample_cfi import *
+
 from HLTriggerOffline.Common.HLTValidationQT_cff import *
 from HLTriggerOffline.Btag.HltBtagPostValidation_cff import *
 from HLTriggerOffline.Egamma.HLTpostProcessorGsfTracker_cfi import *
@@ -20,6 +20,7 @@ from Validation.HGCalValidation.HLTHGCalPostProcessor_cff import *
 from Validation.HLTrigger.HLTGenValidationHarvesting_cff import *
 from Validation.HGCalValidation.BarrelPostProcessor_cff import *
 from Validation.MtdValidation.hltMtdPostProcessor_cff import *
+from DQMOffline.ParticleFlow.DQMForPF_HLT_cff import *
 
 hltpostvalidation = cms.Sequence( 
     postProcessorHLTtrackingSequence
@@ -34,31 +35,32 @@ hltpostvalidation = cms.Sequence(
     +HLTJetMETPostVal
     #+HLTAlCaPostVal
     +SusyExoPostVal
-   #+ExamplePostVal
     +hltvalidationqt
     +HLTHiggsPostVal
     +hltExoticaPostProcessors
     +b2gHLTriggerValidationHarvest
     +HLTSMPPostVal
     +HltBTagPostVal
+    +hltPFDQMHarvest
     )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
 # Temporary Phase-2 configuration
 # Exclude everything except JetMET for now
-_phase2_hltpostvalidation =  hltpostvalidation.copyAndExclude([#HLTTauPostVal,
-                                                               EgammaPostVal,
-                                                               heavyFlavorValidationHarvestingSequence,
-                                                               #HLTJetMETPostVal,
-                                                               #HLTAlCaPostVal,
-                                                               SusyExoPostVal,
-                                                               #ExamplePostVal,
-                                                               hltvalidationqt,
-                                                               HLTHiggsPostVal,
-                                                               hltExoticaPostProcessors,
-                                                               b2gHLTriggerValidationHarvest,
-                                                               HLTSMPPostVal,
-                                                               HltBTagPostVal])
+_phase2_hltpostvalidation = hltpostvalidation.copyAndExclude([#HLTTauPostVal,
+                                                              EgammaPostVal,
+                                                              heavyFlavorValidationHarvestingSequence,
+                                                              #HLTJetMETPostVal,
+                                                              #HLTAlCaPostVal,
+                                                              SusyExoPostVal,
+                                                              hltvalidationqt,
+                                                              HLTHiggsPostVal,
+                                                              hltExoticaPostProcessors,
+                                                              b2gHLTriggerValidationHarvest,
+                                                              HLTSMPPostVal,
+                                                              HltBTagPostVal,
+                                                              #hltPFDQMHarvest,
+                                                              ])
 # Add HGCal validation
 _phase2_hltpostvalidation += hltHcalValidatorPostProcessor
 

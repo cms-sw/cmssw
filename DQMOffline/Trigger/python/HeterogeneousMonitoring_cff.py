@@ -15,13 +15,21 @@ import FWCore.ParameterSet.Config as cms
 # )
 
 # Particle Flow 
-from DQM.PFTasks.pfHcalGPUComparisonTask_cfi import *  
+from DQM.PFTasks.pfHcalGPUComparisonTask_cfi import *
 
+# offline
+pfClusterHBHEOnlyAlpakaComparison = pfHcalGPUComparisonTask.clone(
+    compDir = cms.untracked.string('HeterogeneousComparisons/ParticleFlow'),
+    pfClusterToken_ref = cms.untracked.InputTag('particleFlowClusterHBHEOnlyLegacy'),
+    pfClusterToken_target = cms.untracked.InputTag('particleFlowClusterHBHEOnly'),
+)
+
+# hlt
 hltPfHcalGPUComparisonTask = pfHcalGPUComparisonTask.clone(
-    subsystem = cms.untracked.string("HLT"),
-    name = cms.untracked.string('HeterogeneousComparisons/ParticleFlow'),
+    subsystem = cms.untracked.string('HLT'),
+    compDir = cms.untracked.string('HLT/HeterogeneousComparisons/ParticleFlow'),
     pfClusterToken_ref = cms.untracked.InputTag('hltParticleFlowClusterHCALSerialSync'),
-    pfClusterToken_target = cms.untracked.InputTag('hltParticleFlowClusterHCAL'),   
+    pfClusterToken_target = cms.untracked.InputTag('hltParticleFlowClusterHCAL'),
 )
 
 # Tracker
@@ -42,14 +50,14 @@ hltSiPixelPhase1CompareRecHits = siPixelCompareRecHitsSoA.clone(
 hltSiPixelPhase1CompareTracks = siPixelCompareTracksSoA.clone(
     pixelTrackReferenceSoA = 'hltPixelTracksSoASerialSync',
     pixelTrackTargetSoA = 'hltPixelTracksSoA',
-    topFolderName = 'HLT/HeterogeneousComparisons/PixelTracks'
+    topFolderName = 'HLT/HeterogeneousComparisons/PixelTracks',
 )
 
 hltSiPixelCompareVertices = siPixelCompareVerticesSoA.clone(
     pixelVertexReferenceSoA = 'hltPixelVerticesSoASerialSync',
     pixelVertexTargetSoA = 'hltPixelVerticesSoA',
     beamSpotSrc = 'hltOnlineBeamSpot',
-    topFolderName = 'HLT/HeterogeneousComparisons/PixelVertices'
+    topFolderName = 'HLT/HeterogeneousComparisons/PixelVertices',
 )
 
 # Ecal
@@ -112,6 +120,10 @@ hltHcalGPUComparisonTask = hcalGPUComparisonTask.clone(
     tagHBHE_target = "hltHbhereco"
 )
 
+HeterogeneousMonitoringSequence = cms.Sequence(
+    pfClusterHBHEOnlyAlpakaComparison
+)
+
 HLTHeterogeneousMonitoringSequence = cms.Sequence(
     hltPfHcalGPUComparisonTask +
     hltSiPixelPhase1CompareDigiErrors +
@@ -122,5 +134,15 @@ HLTHeterogeneousMonitoringSequence = cms.Sequence(
     hltHcalGPUComparisonTask
 )
 
+_phase2_HLTHeterogeneousMonitoringSequence = HLTHeterogeneousMonitoringSequence.copyAndExclude([
+    # hltPfHcalGPUComparisonTask +
+    hltSiPixelPhase1CompareDigiErrors +
+    hltSiPixelPhase1CompareRecHits +
+    hltSiPixelPhase1CompareTracks +
+    hltSiPixelCompareVertices +
+    hltEcalMonitorTask +
+    hltHcalGPUComparisonTask
+])
+
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toReplaceWith(HLTHeterogeneousMonitoringSequence,cms.Sequence())
+phase2_common.toReplaceWith(HLTHeterogeneousMonitoringSequence, _phase2_HLTHeterogeneousMonitoringSequence)
