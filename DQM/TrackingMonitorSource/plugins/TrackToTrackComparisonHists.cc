@@ -6,6 +6,7 @@
 
 // user include files
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+#include "DQM/TrackingMonitorSource/interface/TrackAssociatorByDetId.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -37,6 +38,7 @@ public:
     std::string label;
     MonitorElement *h_tracks, *h_pt, *h_eta, *h_phi, *h_dxy, *h_dz, *h_dxyWRTpv, *h_dzWRTpv, *h_charge, *h_hits;
     MonitorElement *h_dRmin, *h_dRmin_l;
+    MonitorElement* h_sharedHitFraction = nullptr;  // only booked for hit-based matching
     MonitorElement* h_pt_vs_eta;
     MonitorElement *h_onlinelumi, *h_PU, *h_ls;
   };
@@ -47,7 +49,13 @@ public:
     MonitorElement *h_dPt, *h_dEta, *h_dPhi, *h_dDxy, *h_dDz, *h_dDxyWRTpv, *h_dDzWRTpv, *h_dCharge, *h_dHits;
   };
 
-  typedef std::vector<std::pair<int, std::map<double, int>>> idx2idxByDoubleColl;
+  // best candidate in the other collection for each track of a collection
+  struct BestMatch {
+    int index = -1;
+    float dR = 1e9;
+    float sharedHitFraction = 0.f;
+    bool matched = false;
+  };
 
   explicit TrackToTrackComparisonHists(const edm::ParameterSet&);
   ~TrackToTrackComparisonHists() override;
@@ -62,8 +70,12 @@ protected:
 
   void fillMap(const edm::View<reco::Track>& tracks1,
                const edm::View<reco::Track>& tracks2,
-               idx2idxByDoubleColl& map,
-               float dRMin);
+               std::vector<BestMatch>& matches) const;
+  void fillMapFromHits(const TrackAssociatorByDetId::Matches& hitMatches,
+                       const edm::View<reco::Track>& tracks1,
+                       const edm::View<reco::Track>& tracks2,
+                       std::vector<BestMatch>& matches) const;
+  void fill_match_quality_histos(generalME& mes, const BestMatch& match) const;
 
   void initialize_parameter(const edm::ParameterSet& iConfig);
   void bookHistos(DQMStore::IBooker& ibooker, generalME& mes, TString label, std::string& dir);
@@ -102,6 +114,7 @@ private:
   const bool isCosmics_;
   const std::string topDirName_;
   const double dRmin_;
+  const bool matchByHits_;
   const double pTCutForPlateau_;
   const double dxyCutForPlateau_;
   const double dzWRTPvCut_;
@@ -121,6 +134,11 @@ private:
 
   // Track matching statistics
   matchingME matchTracksMEs_;
+
+  // per-stream association buffers
+  TrackAssociatorByDetId hitAssociator_;
+  std::vector<BestMatch> monitored2reference_;
+  std::vector<BestMatch> reference2monitored_;
 
   double Eta_rangeMin, Eta_rangeMax;
   unsigned int Eta_nbin;
@@ -171,13 +189,15 @@ TrackToTrackComparisonHists::TrackToTrackComparisonHists(const edm::ParameterSet
       isCosmics_(iConfig.getParameter<bool>("isCosmics")),
       topDirName_(iConfig.getParameter<std::string>("topDirName")),
       dRmin_(iConfig.getParameter<double>("dRmin")),
+      matchByHits_(iConfig.getParameter<bool>("matchByHits")),
       pTCutForPlateau_(iConfig.getParameter<double>("pTCutForPlateau")),
       dxyCutForPlateau_(iConfig.getParameter<double>("dxyCutForPlateau")),
       dzWRTPvCut_(iConfig.getParameter<double>("dzWRTPvCut")),
       requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
       ignoreLumiPUPlots_(iConfig.getParameter<bool>("ignoreLumiPUPlots")),
       genTriggerEventFlag_(new GenericTriggerEventFlag(
-          iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this))
+          iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this)),
+      hitAssociator_(iConfig.getParameter<double>("minSharedHitFraction"))
 
 {
   initialize_parameter(iConfig);
@@ -311,13 +331,16 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
       << referenceTrackInputTag_.label() << ":" << referenceTrackInputTag_.instance() << " \n";
 
   //
-  // Build the dR maps
+  // Associate the two collections, in both directions
   //
-  idx2idxByDoubleColl monitored2referenceColl;
-  fillMap(*monitoredTracks, *referenceTracks, monitored2referenceColl, dRmin_);
-
-  idx2idxByDoubleColl reference2monitoredColl;
-  fillMap(*referenceTracks, *monitoredTracks, reference2monitoredColl, dRmin_);
+  if (matchByHits_) {
+    hitAssociator_.associate(*monitoredTracks, *referenceTracks);
+    fillMapFromHits(hitAssociator_.monitoredToReference(), *monitoredTracks, *referenceTracks, monitored2reference_);
+    fillMapFromHits(hitAssociator_.referenceToMonitored(), *referenceTracks, *monitoredTracks, reference2monitored_);
+  } else {
+    fillMap(*monitoredTracks, *referenceTracks, monitored2reference_);
+    fillMap(*referenceTracks, *monitoredTracks, reference2monitored_);
+  }
 
   unsigned int nReferenceTracks(0);           // Counts the number of refernce tracks
   unsigned int nMatchedReferenceTracks(0);    // Counts the number of matched refernce tracks
@@ -328,7 +351,7 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
   // loop over reference tracks
   //
   LogDebug("TrackToTrackComparisonHists") << "\n# of tracks (reference): " << referenceTracks->size() << "\n";
-  for (const auto& [trackIdx, trackDR2map] : reference2monitoredColl) {
+  for (unsigned int trackIdx = 0; trackIdx < referenceTracks->size(); ++trackIdx) {
     nReferenceTracks++;
 
     const reco::Track& track = referenceTracks->at(trackIdx);
@@ -339,27 +362,16 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
 
     fill_generic_tracks_histos(*&referenceTracksMEs_, &track, &referenceBS, &referencePV, ls, onlinelumi, PU);
 
-    if (trackDR2map.empty()) {
-      matchedReferenceTracksMEs_.h_dRmin->Fill(-1.);
-      matchedReferenceTracksMEs_.h_dRmin_l->Fill(-1.);
-      continue;
-    }
+    const BestMatch& match = reference2monitored_[trackIdx];
+    fill_match_quality_histos(referenceTracksMEs_, match);
 
-    const double dR2min = trackDR2map.begin()->first;
-    const double dRmin = std::sqrt(dR2min);
-    referenceTracksMEs_.h_dRmin->Fill(dRmin);
-    referenceTracksMEs_.h_dRmin_l->Fill(dRmin);
-
-    if (dRmin < dRmin_) {
+    if (match.matched) {
       nMatchedReferenceTracks++;
 
       fill_generic_tracks_histos(*&matchedReferenceTracksMEs_, &track, &referenceBS, &referencePV, ls, onlinelumi, PU);
+      fill_match_quality_histos(matchedReferenceTracksMEs_, match);
 
-      matchedReferenceTracksMEs_.h_dRmin->Fill(dRmin);
-      matchedReferenceTracksMEs_.h_dRmin_l->Fill(dRmin);
-
-      const int matchedTrackIndex = trackDR2map.at(dR2min);
-      const reco::Track& matchedTrack = monitoredTracks->at(matchedTrackIndex);
+      const reco::Track& matchedTrack = monitoredTracks->at(match.index);
 
       fill_matching_tracks_histos(*&matchTracksMEs_, &track, &matchedTrack, &referenceBS, &referencePV);
     }
@@ -369,7 +381,7 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
   // loop over monitoed tracks
   //
   LogDebug("TrackToTrackComparisonHists") << "\n# of tracks (monitored): " << monitoredTracks->size() << "\n";
-  for (const auto& [trackIdx, trackDR2map] : monitored2referenceColl) {
+  for (unsigned int trackIdx = 0; trackIdx < monitoredTracks->size(); ++trackIdx) {
     nMonitoredTracks++;
 
     const reco::Track& track = monitoredTracks->at(trackIdx);
@@ -380,25 +392,15 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
 
     fill_generic_tracks_histos(*&monitoredTracksMEs_, &track, &monitoredBS, &monitoredPV, ls, onlinelumi, PU);
 
-    if (trackDR2map.empty()) {
-      unMatchedMonitoredTracksMEs_.h_dRmin->Fill(-1.);
-      unMatchedMonitoredTracksMEs_.h_dRmin_l->Fill(-1.);
-      continue;
-    }
+    const BestMatch& match = monitored2reference_[trackIdx];
+    fill_match_quality_histos(monitoredTracksMEs_, match);
 
-    const double dR2min = trackDR2map.begin()->first;
-    const double dRmin = std::sqrt(dR2min);
-    monitoredTracksMEs_.h_dRmin->Fill(dRmin);
-    monitoredTracksMEs_.h_dRmin_l->Fill(dRmin);
-
-    if (dRmin >= dRmin_) {
+    if (!match.matched) {
       nUnmatchedMonitoredTracks++;
 
       fill_generic_tracks_histos(
           *&unMatchedMonitoredTracksMEs_, &track, &monitoredBS, &monitoredPV, ls, onlinelumi, PU);
-
-      unMatchedMonitoredTracksMEs_.h_dRmin->Fill(dRmin);
-      unMatchedMonitoredTracksMEs_.h_dRmin_l->Fill(dRmin);
+      fill_match_quality_histos(unMatchedMonitoredTracksMEs_, match);
     }
   }  // over monitored tracks
 
@@ -455,7 +457,11 @@ void TrackToTrackComparisonHists::fillDescriptions(edm::ConfigurationDescription
   desc.add<edm::InputTag>("onlineMetaDataDigis", edm::InputTag("onlineMetaDataDigis"));
 
   desc.add<std::string>("topDirName", "HLT/Tracking/ValidationWRTOffline");
-  desc.add<double>("dRmin", 0.002);
+  desc.add<double>("dRmin", 0.002)->setComment("dR matching cone (dR-based matching only)");
+  desc.add<bool>("matchByHits", false)
+      ->setComment("associate tracks by the fraction of shared valid-hit DetIds instead of by dR");
+  desc.add<double>("minSharedHitFraction", 0.75)
+      ->setComment("min. nShared / min(nHits monitored, nHits reference) (hit-based matching only)");
 
   desc.add<double>("pTCutForPlateau", 0.9);
   desc.add<double>("dxyCutForPlateau", 2.5);
@@ -474,45 +480,64 @@ void TrackToTrackComparisonHists::fillDescriptions(edm::ConfigurationDescription
 
 void TrackToTrackComparisonHists::fillMap(const edm::View<reco::Track>& tracks1,
                                           const edm::View<reco::Track>& tracks2,
-                                          idx2idxByDoubleColl& map,
-                                          float dRMin) {
+                                          std::vector<BestMatch>& matches) const {
+  matches.assign(tracks1.size(), BestMatch{});
+
   //
   // loop on tracks1
   //
-  int i = 0;
-  for (const auto& track1 : tracks1) {
-    std::map<double, int> tmp;
-    int j = 0;
+  for (unsigned int i = 0; i < tracks1.size(); ++i) {
+    const auto& track1 = tracks1[i];
     float smallest_dR2 = 1e9 * 1e9;
     int smallest_dR2_j = -1;
 
     //
     // loop on tracks2
     //
-    for (const auto& track2 : tracks2) {
+    for (unsigned int j = 0; j < tracks2.size(); ++j) {
+      const auto& track2 = tracks2[j];
       double dR2 = reco::deltaR2(track1.eta(), track1.phi(), track2.eta(), track2.phi());
 
       if (dR2 < smallest_dR2) {
         smallest_dR2 = dR2;
         smallest_dR2_j = j;
       }
-
-      if (dR2 < dRMin * dRMin) {
-        tmp[dR2] = j;
-      }
-
-      j++;
     }
 
-    //
-    // If there are no tracks that pass the dR store the smallest (for debugging/validating matching)
-    //
-    if (tmp.empty())
-      tmp[smallest_dR2] = smallest_dR2_j;
-
-    map.push_back(std::make_pair(i, tmp));
-    i++;
+    auto& match = matches[i];
+    match.index = smallest_dR2_j;
+    match.dR = std::sqrt(smallest_dR2);
+    match.matched = (match.dR < dRmin_);
   }
+}
+
+void TrackToTrackComparisonHists::fillMapFromHits(const TrackAssociatorByDetId::Matches& hitMatches,
+                                                  const edm::View<reco::Track>& tracks1,
+                                                  const edm::View<reco::Track>& tracks2,
+                                                  std::vector<BestMatch>& matches) const {
+  matches.assign(tracks1.size(), BestMatch{});
+
+  for (unsigned int i = 0; i < tracks1.size(); ++i) {
+    const auto& hitMatch = hitMatches[i];
+    if (hitMatch.nShared == 0)
+      continue;
+
+    const auto& track1 = tracks1[i];
+    const auto& track2 = tracks2[hitMatch.index];
+
+    auto& match = matches[i];
+    match.index = hitMatch.index;
+    match.dR = reco::deltaR(track1.eta(), track1.phi(), track2.eta(), track2.phi());
+    match.sharedHitFraction = hitMatch.sharedFraction;
+    match.matched = hitMatch.matched;
+  }
+}
+
+void TrackToTrackComparisonHists::fill_match_quality_histos(generalME& mes, const BestMatch& match) const {
+  mes.h_dRmin->Fill(match.dR);
+  mes.h_dRmin_l->Fill(match.dR);
+  if (matchByHits_)
+    mes.h_sharedHitFraction->Fill(match.sharedHitFraction);
 }
 
 void TrackToTrackComparisonHists::bookHistos(DQMStore::IBooker& ibooker,
@@ -542,6 +567,10 @@ void TrackToTrackComparisonHists::book_generic_tracks_histos(DQMStore::IBooker& 
   (mes.h_hits) = ibooker.book1D(label + "_hits", "track number of hits", 35, -0.5, 34.5);
   (mes.h_dRmin) = ibooker.book1D(label + "_dRmin", "track min dR", 100, 0., 0.01);
   (mes.h_dRmin_l) = ibooker.book1D(label + "_dRmin_l", "track min dR", 100, 0., 0.4);
+  if (matchByHits_) {
+    (mes.h_sharedHitFraction) =
+        ibooker.book1D(label + "_sharedHitFraction", "fraction of hit DetIds shared with the best match", 110, 0., 1.1);
+  }
 
   (mes.h_pt_vs_eta) = ibooker.book2D(label + "_ptVSeta",
                                      "track p_{T} vs #eta",
