@@ -8,6 +8,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   using SegmentsDeviceCollection = PortableCollection<SegmentsSoABlocks>;
+  using SegmentCandidatesDeviceCollection = PortableCollection<SegmentCandidatesSoABlocks>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::lst
 
 #endif

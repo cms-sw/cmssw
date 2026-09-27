@@ -305,71 +305,62 @@ void LSTEvent::createMiniDoublets() {
 }
 
 void LSTEvent::createSegmentsWithModuleMap() {
-  if (!segmentsDC_) {
-    auto const countMDConn_wd = cms::alpakatools::make_workdiv<Acc3D>({nLowerModules_, 1, 1}, {1, 8, 32});
+  // Called once per event: the segments are created into a loose-sized candidate scratch (MD pair + outer
+  // module only), then written at exact, module-ordered slots by compactSegments(); the scratch is freed there.
+  auto const countMDConn_wd = cms::alpakatools::make_workdiv<Acc3D>({nLowerModules_, 1, 1}, {1, 8, 32});
 
-    auto execCountMDConn = [&](auto kernel) {
-      alpaka::exec<Acc3D>(queue_,
-                          countMDConn_wd,
-                          kernel,
-                          modules_.const_view().modules(),
-                          miniDoubletsDC_->view().miniDoublets(),
-                          miniDoubletsDC_->const_view().miniDoubletsOccupancy(),
-                          rangesDC_->const_view(),
-                          ptCut_);
-    };
-    if (reduceMemByFullPrecompute_)
-      execCountMDConn(CountMiniDoubletConnectionsReduceMem{});
-    else
-      execCountMDConn(CountMiniDoubletConnections{});
-
-    auto const createSegmentArrayRanges_workDiv = cms::alpakatools::make_workdiv<Acc1D>(1, 1024);
-
-    alpaka::exec<Acc1D>(queue_,
-                        createSegmentArrayRanges_workDiv,
-                        CreateSegmentArrayRanges{},
+  auto execCountMDConn = [&](auto kernel) {
+    alpaka::exec<Acc3D>(queue_,
+                        countMDConn_wd,
+                        kernel,
                         modules_.const_view().modules(),
-                        rangesDC_->view(),
-                        miniDoubletsDC_->const_view().miniDoublets(),
-                        miniDoubletsDC_->const_view().miniDoubletsOccupancy());
+                        miniDoubletsDC_->view().miniDoublets(),
+                        miniDoubletsDC_->const_view().miniDoubletsOccupancy(),
+                        rangesDC_->const_view(),
+                        ptCut_);
+  };
+  if (reduceMemByFullPrecompute_)
+    execCountMDConn(CountMiniDoubletConnectionsReduceMem{});
+  else
+    execCountMDConn(CountMiniDoubletConnections{});
 
-    auto rangesOccupancy = rangesDC_->view();
-    auto nTotalSegments_view_h = cms::alpakatools::make_host_view(nTotalSegments_);
-    auto nTotalSegments_view_d = cms::alpakatools::make_device_view(queue_, rangesOccupancy.nTotalSegs());
-    alpaka::memcpy(queue_, nTotalSegments_view_h, nTotalSegments_view_d);
-    alpaka::wait(queue_);  // wait to get the value before manipulation
+  auto const createSegmentArrayRanges_workDiv = cms::alpakatools::make_workdiv<Acc1D>(1, 1024);
 
-    nTotalSegmentsOT_ = nTotalSegments_;
-    nTotalSegments_ += pixelSize_;
+  alpaka::exec<Acc1D>(queue_,
+                      createSegmentArrayRanges_workDiv,
+                      CreateSegmentArrayRanges{},
+                      modules_.const_view().modules(),
+                      rangesDC_->view(),
+                      miniDoubletsDC_->const_view().miniDoublets(),
+                      miniDoubletsDC_->const_view().miniDoubletsOccupancy());
 
-    segmentsDC_.emplace(queue_, nTotalSegments_, nLowerModules_ + 1);
-    if (objectsStatistics_) {
-      double mb = alpaka::getExtentProduct(segmentsDC_->buffer()) / 1e6;
-      memoryAllocatedMB_ += mb;
-      lstWarning(std::format("[MEM] Segments: {} allocated ({:.1f} MB)", nTotalSegments_, mb));
-    }
+  auto rangesOccupancy = rangesDC_->view();
+  auto nTotalSegments_view_h = cms::alpakatools::make_host_view(nTotalSegmentsOT_);
+  auto nTotalSegments_view_d = cms::alpakatools::make_device_view(queue_, rangesOccupancy.nTotalSegs());
+  alpaka::memcpy(queue_, nTotalSegments_view_h, nTotalSegments_view_d);
+  alpaka::wait(queue_);  // wait to get the value before manipulation
 
-    auto segmentsOccupancy = segmentsDC_->view().segmentsOccupancy();
-    auto segments = segmentsDC_->view().segments();
-    auto nSegments_view = cms::alpakatools::make_device_view(queue_, segmentsOccupancy.nSegments());
-    auto totOccupancySegments_view =
-        cms::alpakatools::make_device_view(queue_, segmentsOccupancy.totOccupancySegments());
-    alpaka::memset(queue_, nSegments_view, 0u);
-    alpaka::memset(queue_, totOccupancySegments_view, 0u);
-    auto conn_view = cms::alpakatools::make_device_view(queue_, segments.connectedMax());
-    alpaka::memset(queue_, conn_view, 0u);
-
-    auto src_view_size = cms::alpakatools::make_host_view(pixelSize_);
-
-    auto dst_view_segments =
-        cms::alpakatools::make_device_view(queue_, segmentsOccupancy.nSegments()[pixelModuleIndex_]);
-    alpaka::memcpy(queue_, dst_view_segments, src_view_size);
-
-    auto dst_view_totOccupancySegments =
-        cms::alpakatools::make_device_view(queue_, segmentsOccupancy.totOccupancySegments()[pixelModuleIndex_]);
-    alpaka::memcpy(queue_, dst_view_totOccupancySegments, src_view_size);
-    alpaka::wait(queue_);
+  SegmentCandidatesDeviceCollection candidatesDC(queue_, nTotalSegmentsOT_, nLowerModules_ + 1);
+  if (objectsStatistics_) {
+    // Transient: freed in compactSegments, so it is reported but not added to the total.
+    double mb = alpaka::getExtentProduct(candidatesDC.buffer()) / 1e6;
+    lstWarning(std::format("[MEM] (transient) SegmentCandidates: {} allocated ({:.1f} MB)", nTotalSegmentsOT_, mb));
   }
+
+  auto segmentsOccupancy = candidatesDC.view().segmentsOccupancy();
+  auto nSegments_view = cms::alpakatools::make_device_view(queue_, segmentsOccupancy.nSegments());
+  auto totOccupancySegments_view = cms::alpakatools::make_device_view(queue_, segmentsOccupancy.totOccupancySegments());
+  alpaka::memset(queue_, nSegments_view, 0u);
+  alpaka::memset(queue_, totOccupancySegments_view, 0u);
+
+  auto src_view_size = cms::alpakatools::make_host_view(pixelSize_);
+
+  auto dst_view_segments = cms::alpakatools::make_device_view(queue_, segmentsOccupancy.nSegments()[pixelModuleIndex_]);
+  alpaka::memcpy(queue_, dst_view_segments, src_view_size);
+
+  auto dst_view_totOccupancySegments =
+      cms::alpakatools::make_device_view(queue_, segmentsOccupancy.totOccupancySegments()[pixelModuleIndex_]);
+  alpaka::memcpy(queue_, dst_view_totOccupancySegments, src_view_size);
 
   auto const createSegments_workDiv = cms::alpakatools::make_workdiv<Acc3D>({nLowerModules_, 1, 1}, {1, 8, 32});
 
@@ -379,10 +370,12 @@ void LSTEvent::createSegmentsWithModuleMap() {
                       modules_.const_view().modules(),
                       miniDoubletsDC_->const_view().miniDoublets(),
                       miniDoubletsDC_->const_view().miniDoubletsOccupancy(),
-                      segmentsDC_->view().segments(),
-                      segmentsDC_->view().segmentsOccupancy(),
+                      candidatesDC.view().candidates(),
+                      candidatesDC.view().segmentsOccupancy(),
                       rangesDC_->const_view(),
                       ptCut_);
+
+  compactSegments(candidatesDC);
 
   auto const addSegmentRangesToEventExplicit_workDiv = cms::alpakatools::make_workdiv<Acc1D>(1, 1024);
 
@@ -395,6 +388,65 @@ void LSTEvent::createSegmentsWithModuleMap() {
 
   if (objectsStatistics_) {
     addSegmentsToEventExplicit();
+  }
+}
+
+void LSTEvent::compactSegments(SegmentCandidatesDeviceCollection const& candidatesDC) {
+  // Compact segment collection: OT segments at module-ordered offsets (prefix sum of nSegments), then the pLS
+  // slots (filled later by addPixelSegmentToEventFinalize at segmentModuleIndices[pixel] = nCompactOT).
+  auto compactOffsets_buf = cms::alpakatools::make_device_buffer<int[]>(queue_, nLowerModules_ + 1);
+  auto nRecomputeFails_buf = cms::alpakatools::make_device_buffer<unsigned int[]>(queue_, 1u);
+  alpaka::memset(queue_, nRecomputeFails_buf, 0u);
+
+  alpaka::exec<Acc1D>(queue_,
+                      cms::alpakatools::make_workdiv<Acc1D>(1, 1024),
+                      ComputeCompactSegmentOffsets{},
+                      modules_.const_view().modules(),
+                      candidatesDC.const_view().segmentsOccupancy(),
+                      rangesDC_->view(),
+                      compactOffsets_buf.data());
+
+  auto nCompactOT_view_h = cms::alpakatools::make_host_view(nTotalSegmentsOT_);
+  auto nCompactOT_view_d = cms::alpakatools::make_device_view(queue_, rangesDC_->view().nTotalSegs());
+  alpaka::memcpy(queue_, nCompactOT_view_h, nCompactOT_view_d);
+  alpaka::wait(queue_);
+  nTotalSegments_ = nTotalSegmentsOT_ + pixelSize_;
+
+  segmentsDC_.emplace(queue_, nTotalSegments_, nLowerModules_ + 1);
+  auto conn_view = cms::alpakatools::make_device_view(queue_, segmentsDC_->view().segments().connectedMax());
+  alpaka::memset(queue_, conn_view, 0u);
+
+  alpaka::exec<Acc1D>(queue_,
+                      cms::alpakatools::make_workdiv<Acc1D>(nLowerModules_, 128),
+                      FillCompactSegments{},
+                      modules_.const_view().modules(),
+                      miniDoubletsDC_->const_view().miniDoublets(),
+                      rangesDC_->const_view(),
+                      candidatesDC.const_view().candidates(),
+                      candidatesDC.const_view().segmentsOccupancy(),
+                      compactOffsets_buf.data(),
+                      segmentsDC_->view().segments(),
+                      nRecomputeFails_buf.data(),
+                      ptCut_);
+
+  alpaka::exec<Acc1D>(queue_,
+                      cms::alpakatools::make_workdiv<Acc1D>(1, 1024),
+                      SetCompactSegmentModuleIndices{},
+                      modules_.const_view().modules(),
+                      candidatesDC.const_view().segmentsOccupancy(),
+                      compactOffsets_buf.data(),
+                      segmentsDC_->view().segmentsOccupancy(),
+                      rangesDC_->view());
+
+  if (objectsStatistics_) {
+    auto nRecomputeFails_h = cms::alpakatools::make_host_buffer<unsigned int[]>(queue_, 1u);
+    alpaka::memcpy(queue_, nRecomputeFails_h, nRecomputeFails_buf);
+    alpaka::wait(queue_);
+    if (*nRecomputeFails_h.data() != 0)
+      lstWarning(std::format("[SEG] {} segments failed the payload recompute", *nRecomputeFails_h.data()));
+    double mb = alpaka::getExtentProduct(segmentsDC_->buffer()) / 1e6;
+    memoryAllocatedMB_ += mb;
+    lstWarning(std::format("[MEM] Segments: {} allocated ({:.1f} MB)", nTotalSegments_, mb));
   }
 }
 

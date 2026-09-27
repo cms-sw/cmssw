@@ -37,6 +37,15 @@ namespace lst {
                       SOA_BLOCK(segments, SegmentsSoALayout),
                       SOA_BLOCK(segmentsOccupancy, SegmentsOccupancySoALayout))
 
+  // Loose-sized scratch filled by CreateSegments: only the MD pair and outer module of each produced segment.
+  GENERATE_SOA_LAYOUT(SegmentCandidatesSoALayout,
+                      SOA_COLUMN(uint16_t, outerLowerModuleIndices),
+                      SOA_COLUMN(Params_LS::ArrayUxLayers, mdIndices))
+
+  GENERATE_SOA_BLOCKS(SegmentCandidatesSoABlocksLayout,
+                      SOA_BLOCK(candidates, SegmentCandidatesSoALayout),
+                      SOA_BLOCK(segmentsOccupancy, SegmentsOccupancySoALayout))
+
   using SegmentsSoA = SegmentsSoALayout<>;
   using SegmentsOccupancySoA = SegmentsOccupancySoALayout<>;
 
@@ -44,6 +53,11 @@ namespace lst {
   using SegmentsConst = SegmentsSoA::ConstView;
   using SegmentsOccupancy = SegmentsOccupancySoA::View;
   using SegmentsOccupancyConst = SegmentsOccupancySoA::ConstView;
+
+  using SegmentCandidatesSoA = SegmentCandidatesSoALayout<>;
+  using SegmentCandidates = SegmentCandidatesSoA::View;
+  using SegmentCandidatesConst = SegmentCandidatesSoA::ConstView;
+  using SegmentCandidatesSoABlocks = SegmentCandidatesSoABlocksLayout<>;
 
   using SegmentsSoABlocks = SegmentsSoABlocksLayout<>;
   using SegmentsSoABlocksView = SegmentsSoABlocks::View;

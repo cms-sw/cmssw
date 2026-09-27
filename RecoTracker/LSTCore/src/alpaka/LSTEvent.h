@@ -139,6 +139,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     void createMiniDoublets();
     void addPixelSegmentToEventFinalize();
     void createSegmentsWithModuleMap();
+    void compactSegments(SegmentCandidatesDeviceCollection const& candidatesDC);
     void createTriplets();
     void createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets);
     void createPixelTriplets();
