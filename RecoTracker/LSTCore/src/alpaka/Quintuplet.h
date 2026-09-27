@@ -1985,7 +1985,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       int totOccupancyQuintuplets = alpaka::atomicAdd(
           acc, &quintupletsOccupancy.totOccupancyQuintuplets()[lowerModule1], 1u, alpaka::hierarchy::Threads{});
       if (totOccupancyQuintuplets >= ranges.quintupletModuleOccupancy()[lowerModule1]) {
-        alpaka::atomicAdd(acc, &ranges.nQuintupletOverflows(), 1u, alpaka::hierarchy::Blocks{});
+        // A module at the fixed cap kNQuintupletThreshold drops by design; anything else is a counting shortfall.
+        alpaka::atomicAdd(acc,
+                          ranges.quintupletModuleOccupancy()[lowerModule1] == kNQuintupletThreshold
+                              ? &ranges.nQuintupletCapDrops()
+                              : &ranges.nQuintupletOverflows(),
+                          1u,
+                          alpaka::hierarchy::Blocks{});
 #ifdef WARNINGS
         printf("Quintuplet excess alert! Module index = %d, Occupancy = %d\n", lowerModule1, totOccupancyQuintuplets);
 #endif
@@ -2001,7 +2007,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         if (quintupletByMD0Local >= mdT5Counts.connectedT5s0Max()[md0Index]) {
           alpaka::atomicSub(acc, &quintupletsRangesByMD0.n()[md0Index], 1u, alpaka::hierarchy::Threads{});
           quintupletByMD0Index = kInvalidU32Idx;
-          alpaka::atomicAdd(acc, &ranges.nQuintupletOverflows(), 1u, alpaka::hierarchy::Blocks{});
+          alpaka::atomicAdd(acc, &ranges.nT5byMDOverflows(), 1u, alpaka::hierarchy::Blocks{});
         }
         auto const md1Index = mdIndices[ls0Index][1];
         auto const quintupletByMD1Local =
@@ -2010,7 +2016,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         if (quintupletByMD1Local >= mdT5Counts.connectedT5s1Max()[md1Index]) {
           alpaka::atomicSub(acc, &quintupletsRangesByMD1.n()[md1Index], 1u, alpaka::hierarchy::Blocks{});
           quintupletByMD1Index = kInvalidU32Idx;
-          alpaka::atomicAdd(acc, &ranges.nQuintupletOverflows(), 1u, alpaka::hierarchy::Blocks{});
+          alpaka::atomicAdd(acc, &ranges.nT5byMDOverflows(), 1u, alpaka::hierarchy::Blocks{});
         }
 
         // The fits and the full quintuplet are written by FinalizeQuintuplets into the compact collection.
@@ -2297,7 +2303,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             // Match inner Sg and Outer Sg
             int mIdx = alpaka::atomicAdd(acc, &matchCount, 1, alpaka::hierarchy::Threads{});
             if (mIdx >= ranges.quintupletModuleOccupancy()[lowerModule1]) {
-              alpaka::atomicAdd(acc, &ranges.nQuintupletOverflows(), 1u, alpaka::hierarchy::Blocks{});
+              alpaka::atomicAdd(acc,
+                                ranges.quintupletModuleOccupancy()[lowerModule1] == kNQuintupletThreshold
+                                    ? &ranges.nQuintupletCapDrops()
+                                    : &ranges.nQuintupletOverflows(),
+                                1u,
+                                alpaka::hierarchy::Blocks{});
               continue;
             }
             unsigned int quintupletIndex = ranges.quintupletModuleIndices()[lowerModule1] + mIdx;
@@ -2596,6 +2607,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         ranges.nTotalQuintsByMD0() = static_cast<unsigned int>(nTotalQuintuplets0x);
         ranges.nTotalQuintsByMD1() = static_cast<unsigned int>(nTotalQuintuplets1x);
         ranges.nQuintupletOverflows() = 0;
+        ranges.nT5byMDOverflows() = 0;
+        ranges.nQuintupletCapDrops() = 0;
       }
     }
   };
