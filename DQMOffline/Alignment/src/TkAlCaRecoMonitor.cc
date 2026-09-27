@@ -13,6 +13,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CommonTopologies/interface/GeomDet.h"
 
+#include <cmath>
 #include <string>
 #include "TLorentzVector.h"
 
@@ -197,7 +198,7 @@ void TkAlCaRecoMonitor::analyze(const edm::Event &iEvent, const edm::EventSetup 
 
   edm::Handle<reco::TrackCollection> referenceTrackCollection;
   iEvent.getByToken(referenceTrackProducer_, referenceTrackCollection);
-  if (!trackCollection.isValid()) {
+  if (!referenceTrackCollection.isValid()) {
     edm::LogError("Alignment") << "invalid reference track-collection encountered!";
     return;
   }
@@ -205,6 +206,7 @@ void TkAlCaRecoMonitor::analyze(const edm::Event &iEvent, const edm::EventSetup 
   const auto &geometry = iSetup.getHandle(tkGeomToken_);
   if (!geometry.isValid()) {
     edm::LogError("Alignment") << "invalid geometry found in event setup!";
+    return;
   }
 
   const auto &magneticField = iSetup.getHandle(mfToken_);
@@ -218,13 +220,22 @@ void TkAlCaRecoMonitor::analyze(const edm::Event &iEvent, const edm::EventSetup 
     iEvent.getByToken(jetCollection_, jets);
     if (!jets.isValid()) {
       edm::LogError("Alignment") << "no jet collection found in event!";
+      return;
     }
   }
   // fill only once - not yet in beginJob since no access to geometry
   if (fillRawIdMap_ && binByRawId_.empty())
     this->fillRawIdMap(*geometry);
 
-  AlCaRecoTrackEfficiency_->Fill(static_cast<double>((*trackCollection).size()) / (*referenceTrackCollection).size());
+  if (!referenceTrackCollection->empty()) {
+    AlCaRecoTrackEfficiency_->Fill(static_cast<double>(trackCollection->size()) / referenceTrackCollection->size());
+  }
+
+  if (runsOnReco_) {
+    for (const auto &itJet : *jets) {
+      jetPt_->Fill(itJet.pt());
+    }
+  }
 
   double sumOfCharges = 0;
   for (const auto &track : *trackCollection) {
@@ -232,7 +243,6 @@ void TkAlCaRecoMonitor::analyze(const edm::Event &iEvent, const edm::EventSetup 
     if (runsOnReco_) {
       double minJetDeltaR2 = 10 * 10;  // some number > 2pi
       for (const auto &itJet : *jets) {
-        jetPt_->Fill(itJet.pt());
         dR2 = deltaR2(track, itJet);
         if (itJet.pt() > maxJetPt_ && dR2 < minJetDeltaR2)
           minJetDeltaR2 = dR2;
@@ -306,13 +316,17 @@ void TkAlCaRecoMonitor::fillHitmaps(const reco::Track &track, const TrackerGeome
       const GlobalPoint globP(gd->toGlobal(Local3DPoint(0., 0., 0.)));
       double r = sqrt(globP.x() * globP.x() + globP.y() * globP.y());
       if (useSignedR_)
-        r *= globP.y() / fabs(globP.y());
+        r = std::copysign(r, globP.y());
 
       Hits_ZvsR_->Fill(globP.z(), r);
       Hits_XvsY_->Fill(globP.x(), globP.y());
 
-      if (fillRawIdMap_)
-        Hits_perDetId_->Fill(binByRawId_[geoId.rawId()]);
+      if (fillRawIdMap_) {
+        const auto binIt = binByRawId_.find(geoId.rawId());
+        if (binIt != binByRawId_.end()) {
+          Hits_perDetId_->Fill(binIt->second);
+        }
+      }
     }
   }
 }
@@ -341,7 +355,7 @@ void TkAlCaRecoMonitor::fillDescriptions(edm::ConfigurationDescriptions &descrip
   edm::ParameterSetDescription desc;
   desc.setComment("Generic track analyzer to check ALCARECO Tracker Alignment specific sample quantities");
   desc.add<edm::InputTag>("TrackProducer", edm::InputTag("generalTracks"));
-  desc.add<edm::InputTag>("ReferenceTrackProducer", edm::InputTag("generalTrakcs"));
+  desc.add<edm::InputTag>("ReferenceTrackProducer", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("CaloJetCollection", edm::InputTag("ak4CaloJets"));
   desc.add<std::string>("AlgoName", "testTkAlCaReco");
   desc.add<std::string>("FolderName", "TkAlCaRecoMonitor");
