@@ -66,6 +66,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     std::optional<ObjectRangesDeviceCollection> rangesDC_;
     std::optional<HitsDeviceCollection> hitsDC_;
     std::optional<MiniDoubletsDeviceCollection> miniDoubletsDC_;
+    std::optional<MiniDoubletsBuildDeviceCollection> miniDoubletsBuildDC_;        // MD -> LS stage only
+    std::optional<MiniDoubletsT3CountsDeviceCollection> miniDoubletsT3CountsDC_;  // T3 stage only
+    std::optional<SegmentsT3CountsDeviceCollection> segmentsT3CountsDC_;          // T3 stage only
+    std::optional<MiniDoubletsT5BuildDeviceCollection> miniDoubletsT5BuildDC_;    // T5 stage only
     std::optional<SegmentsDeviceCollection> segmentsDC_;
     std::optional<PixelSegmentsDeviceCollection> pixelSegmentsDC_;
     std::optional<TripletsDeviceCollection> tripletsDC_;
@@ -81,6 +85,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     std::optional<ObjectRangesHostCollection> rangesHC_;
     std::optional<HitsHostCollection> hitsHC_;
     std::optional<MiniDoubletsHostCollection> miniDoubletsHC_;
+    std::optional<MiniDoubletsBuildHostCollection> miniDoubletsBuildHC_;
     std::optional<SegmentsHostCollection> segmentsHC_;
     std::optional<PixelSegmentsHostCollection> pixelSegmentsHC_;
     std::optional<TripletsHostCollection> tripletsHC_;
@@ -100,7 +105,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     PixelMap const& pixelMapping_;
     EndcapGeometryDevDeviceCollection const& endcapGeometry_;
     bool objectsStatistics_ = false;
+    bool keepHostCopies_ = false;  // copy a device collection to host before it is released (standalone writer)
     double memoryAllocatedMB_ = 0;
+    double memoryLiveMB_ = 0;
+    double memoryPeakLiveMB_ = 0;
+
+    void trackAllocatedMB(double mb);
+    // Releases a device collection after its last use; with keepHostCopies_ its host copy is made first.
+    template <typename TDC, typename THC>
+    void releaseDeviceCollection(std::optional<TDC>& dc, std::optional<THC>& hc);
+    template <typename TDC>
+    void releaseDeviceCollection(std::optional<TDC>& dc);  // stage-local collection without a host reader
 
   public:
     // Constructor used for CMSSW integration. Uses an external queue.
@@ -130,14 +145,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     void initSync();        // synchronizes, for standalone usage
     void resetEventSync();  // synchronizes, for standalone usage
     void wait() const { alpaka::wait(queue_); }
+    void setKeepHostCopies(bool keep) { keepHostCopies_ = keep; }
 
     void addInputToEvent(LSTInputDeviceCollection const* lstInputDC);
     // Calls the appropriate hit function, then increments the counter
     void addHitToEvent();
-    void addPixelSegmentToEventStart();
 
     void createMiniDoublets();
-    void addPixelSegmentToEventFinalize();
+    void addPixelSegmentToEvent();
     void createSegmentsWithModuleMap();
     void compactSegments(SegmentCandidatesDeviceCollection const& candidatesDC);
     void createTriplets();
@@ -188,6 +203,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     unsigned int getNumberOfQuadrupletsByLayerEndcap(unsigned int layer);
 
     double getMemoryAllocatedMB() const { return memoryAllocatedMB_; }
+    double getMemoryPeakLiveMB() const { return memoryPeakLiveMB_; }
 
     // sync adds alpaka::wait at the end of filling a buffer during lazy fill
     // (has no effect on repeated calls)
@@ -201,6 +217,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     ObjectRangesConst getRanges(bool sync = true);
     template <typename TSoA, typename TDev = Device>
     typename TSoA::ConstView getMiniDoublets(bool sync = true);
+    // build-only MD columns; after the LS stage only available with setKeepHostCopies(true)
+    template <typename TDev = Device>
+    MiniDoubletsBuildConst getMiniDoubletsBuild(bool sync = true);
     template <typename TSoA, typename TDev = Device>
     typename TSoA::ConstView getSegments(bool sync = true);
     template <typename TSoA, typename TDev = Device>

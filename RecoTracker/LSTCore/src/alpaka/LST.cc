@@ -23,7 +23,6 @@ void LST::run(Queue& queue,
 
   event.addInputToEvent(lstInputDC);
   event.addHitToEvent();
-  event.addPixelSegmentToEventStart();
   event.createMiniDoublets();
   if (verbose) {
     alpaka::wait(queue);  // event calls are asynchronous: wait before printing
@@ -92,7 +91,7 @@ void LST::run(Queue& queue,
     printf("# of Quintuplets produced endcap layer 5: %d\n", event.getNumberOfQuintupletsByLayerEndcap(4));
   }
 
-  event.addPixelSegmentToEventFinalize();
+  event.addPixelSegmentToEvent();
 
   event.pixelLineSegmentCleaning(no_pls_dupclean);
 
@@ -135,6 +134,7 @@ void LST::run(Queue& queue,
     printf("        # of pLS TrackCandidates produced: %d\n", event.getNumberOfPLSTrackCandidates());
     printf("        # of T5 TrackCandidates produced: %d\n", event.getNumberOfT5TrackCandidates());
     printf("        # of T4 TrackCandidates produced: %d\n", event.getNumberOfT4TrackCandidates());
+    lstWarning(std::format("[MEM] Peak live: {:.1f} MB", event.getMemoryPeakLiveMB()));
     lstWarning(std::format("[MEM] Total: {:.1f} MB", event.getMemoryAllocatedMB()));
   }
 

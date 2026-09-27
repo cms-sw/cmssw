@@ -448,6 +448,7 @@ void run_lst() {
   for (int s = 0; s < ana.streams; s++) {
     LSTEvent *event = new LSTEvent(
         ana.verbose >= 2, ana.ptCut, ana.clustSizeCut, queues[s], &deviceESData, ana.reduce_mem_by_full_precompute);
+    event->setKeepHostCopies(ana.do_write_ntuple);  // the ntuple writer reads collections released during the event
     events.push_back(event);
     event_queues.push_back(&queues[s]);
   }

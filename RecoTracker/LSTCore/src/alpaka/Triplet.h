@@ -520,6 +520,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
                                   MiniDoubletsConst mds,
+                                  MiniDoubletsT3CountsConst mdT3Counts,
+                                  SegmentsT3CountsConst segT3Counts,
                                   MiniDoubletsOccupancyConst mdOccupancy,
                                   SegmentsConst segments,
                                   SegmentsOccupancyConst segmentsOccupancy,
@@ -651,7 +653,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               unsigned int innerSegmentIndex = innerSegmentOffset + idx;
               tripletsRangesBySegment.offset()[innerSegmentIndex] = tripletOffset;
               tripletsRangesBySegment.n()[innerSegmentIndex] = 0;
-              tripletOffset += segments.connectedMax()[innerSegmentIndex];
+              tripletOffset += segT3Counts.connectedMax()[innerSegmentIndex];
             }
           }
           {
@@ -662,7 +664,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               unsigned int innerMDIndex = innerMDOffset + idx;
               tripletsRangesByMD.offset()[innerMDIndex] = tripletOffset;
               tripletsRangesByMD.n()[innerMDIndex] = 0;
-              tripletOffset += mds.connectedT3sMax()[innerMDIndex];
+              tripletOffset += mdT3Counts.connectedT3sMax()[innerMDIndex];
             }
           }
         }
@@ -672,7 +674,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         // Step 1: Make inner and outer SG pairs
         for (unsigned int innerSegmentArrayIndex : cms::alpakatools::uniform_elements_y(acc, nInnerSegments)) {
           unsigned int innerSegmentIndex = innerSegmentOffset + innerSegmentArrayIndex;
-          if (segments.connectedMax()[innerSegmentIndex] == 0)
+          if (segT3Counts.connectedMax()[innerSegmentIndex] == 0)
             continue;
 
           uint16_t middleLowerModuleIndex = segments.outerLowerModuleIndices()[innerSegmentIndex];
@@ -770,7 +772,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   struct CountSegmentConnectionsT {
     ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
-                                  MiniDoublets mds,
+                                  MiniDoubletsConst mds,
+                                  MiniDoubletsT3Counts mdT3Counts,
+                                  SegmentsT3Counts segT3Counts,
                                   Segments segments,
                                   SegmentsOccupancyConst segOcc,
                                   ObjectRangesConst ranges,
@@ -838,9 +842,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                     charge);
             }
             if (counts) {
-              alpaka::atomicAdd(acc, &segments.connectedMax()[innerSegmentIndex], 1u, alpaka::hierarchy::Threads{});
+              alpaka::atomicAdd(acc, &segT3Counts.connectedMax()[innerSegmentIndex], 1u, alpaka::hierarchy::Threads{});
               auto const innerMDIndex = mdIndices[innerSegmentIndex][0];
-              alpaka::atomicAdd(acc, &mds.connectedT3sMax()[innerMDIndex], 1u, alpaka::hierarchy::Threads{});
+              alpaka::atomicAdd(acc, &mdT3Counts.connectedT3sMax()[innerMDIndex], 1u, alpaka::hierarchy::Threads{});
             }
           }
         }
@@ -855,7 +859,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   ModulesConst modules,
                                   ObjectRanges ranges,
-                                  SegmentsConst segments,
+                                  SegmentsT3CountsConst segT3Counts,
                                   SegmentsOccupancyConst segOcc) const {
       // 1-block kernel
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
@@ -877,7 +881,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         const unsigned int firstSegIdx = ranges.segmentRanges()[innerLowerModuleArrayIdx][0];
         int dynamicCount = 0;
         for (unsigned int s = 0; s < nInnerSegments; ++s) {
-          dynamicCount += segments.connectedMax()[firstSegIdx + s];
+          dynamicCount += segT3Counts.connectedMax()[firstSegIdx + s];
         }
 
         ranges.tripletModuleOccupancy()[innerLowerModuleArrayIdx] = dynamicCount;

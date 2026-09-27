@@ -958,6 +958,7 @@ std::map<unsigned int, unsigned int> setMiniDoubletBranches(LSTEvent* event,
   auto const& ranges = event->getRanges();
   auto const& miniDoublets = event->getMiniDoublets<MiniDoubletsSoA>();
   auto const& miniDoubletsOccupancy = event->getMiniDoublets<MiniDoubletsOccupancySoA>();
+  auto const& miniDoubletsBuild = event->getMiniDoubletsBuild();
 
   // Following are some vectors to keep track of the information to write to the ntuple
   // N.B. following two branches have a length for the entire sim track, but what actually will be written in sim_mdIdxAll branch is NOT that long
@@ -1014,9 +1015,9 @@ std::map<unsigned int, unsigned int> setMiniDoubletBranches(LSTEvent* event,
       lst_math::Hit anchor_hit(anchor_x, anchor_y, anchor_z, lowerHitIndex);
 
       // Pt is computed via dphichange and the eta and phi are computed based on anchor hit
-      float dphichange = miniDoublets.dphichanges()[mdIdx];
-      float dphi = miniDoublets.dphis()[mdIdx];
-      float dz = miniDoublets.dzs()[mdIdx];
+      float dphichange = miniDoubletsBuild.dphichanges()[mdIdx];
+      float dphi = miniDoubletsBuild.dphis()[mdIdx];
+      float dz = miniDoubletsBuild.dzs()[mdIdx];
       float k2Rinv1GeVf = (2.99792458e-3 * 3.8) / 2;
       float pt = anchor_hit.rt() * k2Rinv1GeVf / sin(dphichange);
       float eta = anchor_hit.eta();

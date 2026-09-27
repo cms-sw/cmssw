@@ -11,9 +11,6 @@ namespace lst {
                       SOA_COLUMN(unsigned int, anchorHitIndices),
                       SOA_COLUMN(unsigned int, outerHitIndices),
                       SOA_COLUMN(uint16_t, moduleIndices),
-                      SOA_COLUMN(float, dphichanges),
-                      SOA_COLUMN(float, dzs),
-                      SOA_COLUMN(float, dphis),
                       SOA_COLUMN(float, anchorX),
                       SOA_COLUMN(float, anchorY),
                       SOA_COLUMN(float, anchorZ),
@@ -28,7 +25,6 @@ namespace lst {
                       SOA_COLUMN(float, anchorHighEdgePhi),
                       SOA_COLUMN(float, outerX),
                       SOA_COLUMN(float, outerY),
-                      SOA_COLUMN(float, outerZ),
 #ifdef CUT_VALUE_DEBUG
                       SOA_COLUMN(float, outerRt),
                       SOA_COLUMN(float, outerPhi),
@@ -43,10 +39,18 @@ namespace lst {
                       SOA_COLUMN(float, noShiftedDphis),
                       SOA_COLUMN(float, noShiftedDphiChanges),
 #endif
-                      SOA_COLUMN(unsigned int, connectedMax),
-                      SOA_COLUMN(unsigned int, connectedT3sMax),
-                      SOA_COLUMN(unsigned int, connectedT5s0Max),
-                      SOA_COLUMN(unsigned int, connectedT5s1Max))
+                      SOA_COLUMN(float, outerZ))
+
+  // Build-only MD columns (MD creation -> segment creation), in their own collection released after the LS stage
+  GENERATE_SOA_LAYOUT(MiniDoubletsBuildSoALayout,
+                      SOA_COLUMN(float, dphichanges),
+                      SOA_COLUMN(float, dzs),
+                      SOA_COLUMN(float, dphis),
+                      SOA_COLUMN(unsigned int, connectedMax))
+
+  using MiniDoubletsBuildSoA = MiniDoubletsBuildSoALayout<>;
+  using MiniDoubletsBuild = MiniDoubletsBuildSoA::View;
+  using MiniDoubletsBuildConst = MiniDoubletsBuildSoA::ConstView;
 
   GENERATE_SOA_LAYOUT(MiniDoubletsOccupancySoALayout,
                       SOA_COLUMN(unsigned int, nMDs),
@@ -58,11 +62,31 @@ namespace lst {
   using QuintupletsRanges = QuintupletsRangesSoA::View;
   using QuintupletsRangesConst = QuintupletsRangesSoA::ConstView;
 
-  GENERATE_SOA_BLOCKS(MiniDoubletsSoABlocksLayout,
-                      SOA_BLOCK(miniDoublets, MiniDoubletsSoALayout),
-                      SOA_BLOCK(miniDoubletsOccupancy, MiniDoubletsOccupancySoALayout),
+  // Per-MD T3 counter (T3 count -> T3 create), in a collection that lives only in the T3 stage
+  GENERATE_SOA_LAYOUT(MiniDoubletsT3CountsSoALayout, SOA_COLUMN(unsigned int, connectedT3sMax))
+
+  using MiniDoubletsT3CountsSoA = MiniDoubletsT3CountsSoALayout<>;
+  using MiniDoubletsT3Counts = MiniDoubletsT3CountsSoA::View;
+  using MiniDoubletsT3CountsConst = MiniDoubletsT3CountsSoA::ConstView;
+
+  // Per-MD T5 counters and T5-by-MD ranges, in a collection that lives only in the T5 stage
+  GENERATE_SOA_LAYOUT(MiniDoubletsT5CountsSoALayout,
+                      SOA_COLUMN(unsigned int, connectedT5s0Max),
+                      SOA_COLUMN(unsigned int, connectedT5s1Max))
+
+  GENERATE_SOA_BLOCKS(MiniDoubletsT5BuildSoABlocksLayout,
+                      SOA_BLOCK(t5Counts, MiniDoubletsT5CountsSoALayout),
                       SOA_BLOCK(quintupletsRangesByMD0, QuintupletsRangesSoALayout),
                       SOA_BLOCK(quintupletsRangesByMD1, QuintupletsRangesSoALayout))
+
+  using MiniDoubletsT5CountsSoA = MiniDoubletsT5CountsSoALayout<>;
+  using MiniDoubletsT5Counts = MiniDoubletsT5CountsSoA::View;
+  using MiniDoubletsT5CountsConst = MiniDoubletsT5CountsSoA::ConstView;
+  using MiniDoubletsT5BuildSoABlocks = MiniDoubletsT5BuildSoABlocksLayout<>;
+
+  GENERATE_SOA_BLOCKS(MiniDoubletsSoABlocksLayout,
+                      SOA_BLOCK(miniDoublets, MiniDoubletsSoALayout),
+                      SOA_BLOCK(miniDoubletsOccupancy, MiniDoubletsOccupancySoALayout))
 
   using MiniDoubletsSoA = MiniDoubletsSoALayout<>;
   using MiniDoubletsOccupancySoA = MiniDoubletsOccupancySoALayout<>;

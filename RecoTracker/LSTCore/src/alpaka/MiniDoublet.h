@@ -42,6 +42,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addMDToMemory(TAcc const& acc,
                                                     MiniDoublets mds,
+                                                    MiniDoubletsBuild mdsBuild,
                                                     HitsBaseConst hitsBase,
                                                     HitsExtendedConst hitsExtended,
                                                     ModuleMDData const& mod,
@@ -75,9 +76,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       outerHitIndex = upperHitIdx;
     }
 
-    mds.dphichanges()[idx] = dPhiChange;
-    mds.dphis()[idx] = dPhi;
-    mds.dzs()[idx] = dz;
+    mdsBuild.dphichanges()[idx] = dPhiChange;
+    mdsBuild.dphis()[idx] = dPhi;
+    mdsBuild.dzs()[idx] = dz;
 #ifdef CUT_VALUE_DEBUG
     mds.shiftedXs()[idx] = shiftedX;
     mds.shiftedYs()[idx] = shiftedY;
@@ -124,6 +125,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addMDToMemory(TAcc const& acc,
                                                     MiniDoublets mds,
+                                                    MiniDoubletsBuild mdsBuild,
                                                     HitsBaseConst hitsBase,
                                                     HitsExtendedConst hitsExtended,
                                                     ModulesConst modules,
@@ -147,6 +149,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     mod.isEndcapTwoS = (mod.subdet == Endcap && mod.moduleType == TwoS);
     addMDToMemory(acc,
                   mds,
+                  mdsBuild,
                   hitsBase,
                   hitsExtended,
                   mod,
@@ -718,6 +721,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   HitsExtendedConst hitsExtended,
                                   HitsRangesConst hitsRanges,
                                   MiniDoublets mds,
+                                  MiniDoubletsBuild mdsBuild,
                                   MiniDoubletsOccupancy mdsOccupancy,
                                   ObjectRangesConst ranges,
                                   const float ptCut,
@@ -791,6 +795,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
               addMDToMemory(acc,
                             mds,
+                            mdsBuild,
                             hitsBase,
                             hitsExtended,
                             mod,

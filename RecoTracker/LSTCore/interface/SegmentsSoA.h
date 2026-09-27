@@ -26,8 +26,14 @@ namespace lst {
                       SOA_COLUMN(FPX, dAlphaInnerOuters),
 #endif
                       SOA_COLUMN(uint16_t, outerLowerModuleIndices),
-                      SOA_COLUMN(Params_LS::ArrayUxLayers, mdIndices),
-                      SOA_COLUMN(unsigned int, connectedMax))
+                      SOA_COLUMN(Params_LS::ArrayUxLayers, mdIndices))
+
+  // Per-segment T3 counter (T3 count -> T3 create), in a collection that lives only in the T3 stage
+  GENERATE_SOA_LAYOUT(SegmentsT3CountsSoALayout, SOA_COLUMN(unsigned int, connectedMax))
+
+  using SegmentsT3CountsSoA = SegmentsT3CountsSoALayout<>;
+  using SegmentsT3Counts = SegmentsT3CountsSoA::View;
+  using SegmentsT3CountsConst = SegmentsT3CountsSoA::ConstView;
 
   GENERATE_SOA_LAYOUT(SegmentsOccupancySoALayout,
                       SOA_COLUMN(unsigned int, nSegments),  //number of segments per inner lower module
