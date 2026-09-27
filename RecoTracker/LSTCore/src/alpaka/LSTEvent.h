@@ -117,6 +117,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     void releaseDeviceCollection(std::optional<TDC>& dc, std::optional<THC>& hc);
     template <typename TDC>
     void releaseDeviceCollection(std::optional<TDC>& dc);  // stage-local collection without a host reader
+    // Shrink pT5 and pT3 (fixed caps) and T4 (counting-kernel size) to the produced objects; each waits on the queue.
+    void compactPixelQuintuplets(Queue& queue);
+    void compactPixelTriplets(Queue& queue);
+    void compactQuadruplets(Queue& queue, uint16_t nEligibleT4Modules);
 
   public:
     // Constructor used for CMSSW integration. Uses an external queue.

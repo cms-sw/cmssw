@@ -966,8 +966,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           triplets.displacedScore()[dst] = looseTriplets.displacedScore()[src];
           triplets.charge()[dst] = looseTriplets.charge()[src];
           triplets.flags()[dst] = looseTriplets.flags()[src];
-          triplets.connectedMax()[dst] = 0;
-          triplets.connectedLSMax()[dst] = 0;
           triplets.partOfPT5()[dst] = false;
           triplets.partOfT5()[dst] = false;
           triplets.partOfPT3()[dst] = false;
