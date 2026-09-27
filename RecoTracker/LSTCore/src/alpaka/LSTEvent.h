@@ -62,6 +62,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     unsigned int nSegmentOverflows_ = 0;  // created but found no slot in the counting-kernel allocation
     unsigned int nTripletOverflows_ = 0;
     unsigned int nQuintupletOverflows_ = 0;
+    unsigned int nT5byMDOverflows_ = 0;  // T5s kept but missing from their by-MD list
+    unsigned int nT5CapDrops_ = 0;       // T5s dropped at the fixed per-module cap kNQuintupletThreshold
 
     //Device stuff
     LSTInputDeviceCollection const* lstInputDC_;  // not owned

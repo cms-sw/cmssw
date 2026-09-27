@@ -33,6 +33,8 @@ namespace lst {
                       SOA_SCALAR(unsigned int, nSegmentOverflows),
                       SOA_SCALAR(unsigned int, nTripletOverflows),
                       SOA_SCALAR(unsigned int, nQuintupletOverflows),
+                      SOA_SCALAR(unsigned int, nT5byMDOverflows),
+                      SOA_SCALAR(unsigned int, nQuintupletCapDrops),
                       SOA_SCALAR(uint16_t, nEligibleT4Modules),
                       SOA_SCALAR(uint16_t, nEligibleT5Modules))
 
