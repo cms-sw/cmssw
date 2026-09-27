@@ -111,6 +111,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     double memoryPeakLiveMB_ = 0;
 
     void trackAllocatedMB(double mb);
+    void trackTransientMB(double mb);  // live (peak) accounting only, not added to the allocated total
     // Releases a device collection after its last use; with keepHostCopies_ its host copy is made first.
     template <typename TDC, typename THC>
     void releaseDeviceCollection(std::optional<TDC>& dc, std::optional<THC>& hc);

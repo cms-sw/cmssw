@@ -57,5 +57,62 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   };
 
+  // Copy the produced rows of every eligible module from the loose collection to the compact one, and copy the
+  // per-module occupancy block unchanged.
+  struct CompactModuleObjects {
+    template <typename TConst, typename TView, typename TOccConst, typename TOccView>
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  unsigned int nLowerModules,
+                                  uint16_t const* __restrict__ eligibleModules,
+                                  unsigned int nEligibleModules,
+                                  unsigned int const* __restrict__ nObjects,
+                                  int const* __restrict__ looseIndices,
+                                  int const* __restrict__ compactIndices,
+                                  TConst src,
+                                  TView dst,
+                                  TOccConst srcOcc,
+                                  TOccView dstOcc) const {
+      for (unsigned int m : cms::alpakatools::uniform_elements(acc, nLowerModules)) {
+        dstOcc[m] = srcOcc[m];
+      }
+      for (unsigned int iter : cms::alpakatools::independent_groups(acc, nEligibleModules)) {
+        const uint16_t lowerModule = eligibleModules[iter];
+        const int loose = looseIndices[lowerModule];
+        if (loose == -1)
+          continue;
+        const int compact = compactIndices[lowerModule];
+        for (unsigned int k : cms::alpakatools::independent_group_elements(acc, nObjects[lowerModule])) {
+          dst[compact + k] = src[loose + k];
+        }
+      }
+    }
+  };
+
+  // After CompactModuleObjects: point the module ranges at the compact rows.
+  struct SetCompactModuleIndices {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  unsigned int nLowerModules,
+                                  unsigned int const* __restrict__ nObjects,
+                                  int const* __restrict__ compactIndices,
+                                  int* __restrict__ moduleIndices,
+                                  int* __restrict__ moduleOccupancy) const {
+      for (unsigned int m : cms::alpakatools::uniform_elements(acc, nLowerModules)) {
+        moduleIndices[m] = compactIndices[m];
+        if (compactIndices[m] != -1)
+          moduleOccupancy[m] = static_cast<int>(nObjects[m]);
+      }
+    }
+  };
+
+  // Copy the first n rows (objects filled through one global atomic counter) to a collection of size n.
+  struct CompactPrefixObjects {
+    template <typename TConst, typename TView>
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, unsigned int nObjects, TConst src, TView dst) const {
+      for (unsigned int i : cms::alpakatools::uniform_elements(acc, nObjects)) {
+        dst[i] = src[i];
+      }
+    }
+  };
+
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::lst
 #endif
