@@ -691,8 +691,14 @@ void LSTEvent::compactPixelQuintuplets(Queue& queue) {
   auto nPT5_buf_h = cms::alpakatools::make_host_buffer<unsigned int>(queue);
   alpaka::memcpy(
       queue, nPT5_buf_h, cms::alpakatools::make_device_view(queue, (*pixelQuintupletsDC_)->nPixelQuintuplets()));
+  auto triedPT5_buf_h = cms::alpakatools::make_host_buffer<unsigned int>(queue);
+  alpaka::memcpy(queue,
+                 triedPT5_buf_h,
+                 cms::alpakatools::make_device_view(queue, (*pixelQuintupletsDC_)->totOccupancyPixelQuintuplets()));
   alpaka::wait(queue);  // the compact size is needed on the host
   const unsigned int nPT5 = *nPT5_buf_h.data();
+  if (*triedPT5_buf_h.data() > nPT5)
+    lstWarning(std::format("Capacity overflow, objects dropped: {} pT5", *triedPT5_buf_h.data() - nPT5));
 
   if (objectsStatistics_)
     memoryLiveMB_ -= alpaka::getExtentProduct(pixelQuintupletsDC_->buffer()) / 1e6;
@@ -721,8 +727,14 @@ void LSTEvent::compactPixelQuintuplets(Queue& queue) {
 void LSTEvent::compactPixelTriplets(Queue& queue) {
   auto nPT3_buf_h = cms::alpakatools::make_host_buffer<unsigned int>(queue);
   alpaka::memcpy(queue, nPT3_buf_h, cms::alpakatools::make_device_view(queue, (*pixelTripletsDC_)->nPixelTriplets()));
+  auto triedPT3_buf_h = cms::alpakatools::make_host_buffer<unsigned int>(queue);
+  alpaka::memcpy(queue,
+                 triedPT3_buf_h,
+                 cms::alpakatools::make_device_view(queue, (*pixelTripletsDC_)->totOccupancyPixelTriplets()));
   alpaka::wait(queue);  // the compact size is needed on the host
   const unsigned int nPT3 = *nPT3_buf_h.data();
+  if (*triedPT3_buf_h.data() > nPT3)
+    lstWarning(std::format("Capacity overflow, objects dropped: {} pT3", *triedPT3_buf_h.data() - nPT3));
 
   if (objectsStatistics_)
     memoryLiveMB_ -= alpaka::getExtentProduct(pixelTripletsDC_->buffer()) / 1e6;
@@ -763,8 +775,22 @@ void LSTEvent::compactQuadruplets(Queue& queue, uint16_t nEligibleT4Modules) {
   auto nT4_buf_h = cms::alpakatools::make_host_buffer<int>(queue);
   alpaka::memcpy(
       queue, nT4_buf_h, cms::alpakatools::make_device_view(queue, compactT4Indices_buf.data()[nLowerModules_]));
+  // Same sum over the attempts, for the capacity-overflow check.
+  auto triedT4Indices_buf = cms::alpakatools::make_device_buffer<int[]>(queue, nLowerModules_ + 1);
+  alpaka::exec<Acc1D>(queue,
+                      cms::alpakatools::make_workdiv<Acc1D>(1, 1024),
+                      CompactModuleOffsetsKernel{},
+                      static_cast<unsigned int>(nLowerModules_),
+                      quadrupletsOccupancyLoose.totOccupancyQuadruplets().data(),
+                      rangesOccupancy.quadrupletModuleIndices().data(),
+                      triedT4Indices_buf.data());
+  auto triedT4_buf_h = cms::alpakatools::make_host_buffer<int>(queue);
+  alpaka::memcpy(
+      queue, triedT4_buf_h, cms::alpakatools::make_device_view(queue, triedT4Indices_buf.data()[nLowerModules_]));
   alpaka::wait(queue);  // the compact size is needed on the host
   const unsigned int nT4 = *nT4_buf_h.data();
+  if (*triedT4_buf_h.data() > *nT4_buf_h.data())
+    lstWarning(std::format("Capacity overflow, objects dropped: {} T4", *triedT4_buf_h.data() - *nT4_buf_h.data()));
 
   if (objectsStatistics_)
     memoryLiveMB_ -= alpaka::getExtentProduct(quadrupletsDC_->buffer()) / 1e6;
@@ -911,10 +937,11 @@ void LSTEvent::createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets)
                  cms::alpakatools::make_device_view(queue_, rangesView.nQuintupletOverflows()));
   alpaka::wait(queue_);  // wait to get counts before allocation
   if (nSegmentOverflows_ + nTripletOverflows_ + nQuintupletOverflows_ > 0)
-    lstWarning(std::format("Counting-kernel overflow, objects dropped: {} segments, {} triplets, {} quintuplets",
-                           nSegmentOverflows_,
-                           nTripletOverflows_,
-                           nQuintupletOverflows_));
+    lstWarning(
+        std::format("Counting-kernel overflow, objects dropped or unlisted: {} segments, {} triplets, {} quintuplets",
+                    nSegmentOverflows_,
+                    nTripletOverflows_,
+                    nQuintupletOverflows_));
   if (objectsStatistics_)
     lstWarning(std::format("[CNT] overflows: {} {} {}", nSegmentOverflows_, nTripletOverflows_, nQuintupletOverflows_));
 
