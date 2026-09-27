@@ -22,36 +22,31 @@
 
 #include <onnxruntime/onnxruntime_cxx_api.h>
 
-#include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Utilities/interface/StreamID.h"
+#include "PhysicsTools/ONNXRuntime/interface/Backend.h"
 
 namespace cms::Ort {
 
   typedef std::vector<std::vector<float>> FloatArrays;
 
-  enum class Backend {
-    cpu,
-    cuda,  // NVIDIA GPUs, using the CUDA execution provider
-    rocm,  // AMD GPUs, using the MIGraphX execution provider
-           // note: MIGraphX recompiles the model whenever the input shapes change from one call to the next,
-           // so it is best suited for models with fixed input shapes (e.g. a fixed or padded batch size)
-  };
-
   class ONNXRuntime {
   public:
     ONNXRuntime(const std::string& model_path, const ::Ort::SessionOptions* session_options = nullptr);
+
+    // Create a session for the given backend on the device chosen by the ONNXService for the given framework stream.
+    // On a GPU backend the session creates and owns its own compute stream, so a module that creates one ONNXRuntime
+    // per framework stream runs each framework stream in a different compute stream.
+    // On the CPU backend the session runs in the caller thread, so it can be shared among all framework streams.
+    ONNXRuntime(const std::string& model_path, Backend backend, edm::StreamID id);
+
     ONNXRuntime(const ONNXRuntime&) = delete;
     ONNXRuntime& operator=(const ONNXRuntime&) = delete;
     ~ONNXRuntime();
 
-    // Create the default session options for the given backend.
-    // The GPU backends (Backend::cuda and Backend::rocm) check the GPUs available in the job using the
-    // ResourceInformation service, filled by the CUDAService or ROCmService: these services must be available in the
-    // calling thread (as is the case within cmsRun), and an edm::Exception with category UnavailableAccelerator is
-    // thrown if no suitable GPU is available.
+    // Create the default session options for the given backend and device, using the ONNXService.
     // `device` is the CUDA or HIP runtime index of the GPU to use, as seen by the job (i.e. after applying
     // CUDA_VISIBLE_DEVICES or ROCR_VISIBLE_DEVICES); it is ignored by Backend::cpu.
-    // For Backend::cuda an edm::Exception is thrown if the device is not available; for Backend::rocm the device is
-    // not validated, and an invalid device makes the MIGraphX execution provider terminate the process.
+    // Prefer the constructor taking an edm::StreamID, which spreads the framework streams over the available devices.
     static ::Ort::SessionOptions defaultSessionOptions(Backend backend = Backend::cpu, int device = 0);
 
     // Run inference and get outputs
@@ -92,8 +87,8 @@ namespace cms::Ort {
     const std::vector<int64_t>& getOutputShape(const std::string& output_name) const;
 
   private:
-    // non-const to register the execution provider libraries; the Ort::Env methods are thread safe
-    CMS_THREAD_SAFE static ::Ort::Env env_;
+    void initialize(const std::string& model_path, const ::Ort::SessionOptions& session_options);
+
     std::unique_ptr<::Ort::Session> session_;
 
     std::vector<std::string> input_node_strings_;
