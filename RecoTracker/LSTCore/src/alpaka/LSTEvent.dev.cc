@@ -453,8 +453,6 @@ void LSTEvent::compactSegments(SegmentCandidatesDeviceCollection const& candidat
   // Compact segment collection: OT segments at module-ordered offsets (prefix sum of nSegments), then the pLS
   // slots (filled later by addPixelSegmentToEvent at segmentModuleIndices[pixel] = nCompactOT).
   auto compactOffsets_buf = cms::alpakatools::make_device_buffer<int[]>(queue_, nLowerModules_ + 1);
-  auto nRecomputeFails_buf = cms::alpakatools::make_device_buffer<unsigned int[]>(queue_, 1u);
-  alpaka::memset(queue_, nRecomputeFails_buf, 0u);
 
   alpaka::exec<Acc1D>(queue_,
                       cms::alpakatools::make_workdiv<Acc1D>(1, 1024),
@@ -478,12 +476,12 @@ void LSTEvent::compactSegments(SegmentCandidatesDeviceCollection const& candidat
                       modules_.const_view().modules(),
                       miniDoubletsDC_->const_view().miniDoublets(),
                       miniDoubletsBuildDC_->const_view(),
+                      miniDoubletsDC_->const_view().miniDoubletsOccupancy(),
                       rangesDC_->const_view(),
                       candidatesDC.const_view().candidates(),
                       candidatesDC.const_view().segmentsOccupancy(),
                       compactOffsets_buf.data(),
                       segmentsDC_->view().segments(),
-                      nRecomputeFails_buf.data(),
                       ptCut_);
 
   alpaka::exec<Acc1D>(queue_,
@@ -496,11 +494,6 @@ void LSTEvent::compactSegments(SegmentCandidatesDeviceCollection const& candidat
                       rangesDC_->view());
 
   if (objectsStatistics_) {
-    auto nRecomputeFails_h = cms::alpakatools::make_host_buffer<unsigned int[]>(queue_, 1u);
-    alpaka::memcpy(queue_, nRecomputeFails_h, nRecomputeFails_buf);
-    alpaka::wait(queue_);
-    if (*nRecomputeFails_h.data() != 0)
-      lstWarning(std::format("[SEG] {} segments failed the payload recompute", *nRecomputeFails_h.data()));
     double mb = alpaka::getExtentProduct(segmentsDC_->buffer()) / 1e6;
     trackAllocatedMB(mb);
     lstWarning(std::format("[MEM] Segments: {} allocated ({:.1f} MB)", nTotalSegments_, mb));

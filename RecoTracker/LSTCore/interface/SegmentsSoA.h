@@ -43,10 +43,12 @@ namespace lst {
                       SOA_BLOCK(segments, SegmentsSoALayout),
                       SOA_BLOCK(segmentsOccupancy, SegmentsOccupancySoALayout))
 
-  // Loose-sized scratch filled by CreateSegments: only the MD pair and outer module of each produced segment.
+  // Loose-sized scratch filled by CreateSegments, 5 B per slot: the MD pair of each produced segment as its index
+  // in the inner x outer MD product of the module pair, and the outer module as its slot in the inner module's map.
   GENERATE_SOA_LAYOUT(SegmentCandidatesSoALayout,
-                      SOA_COLUMN(uint16_t, outerLowerModuleIndices),
-                      SOA_COLUMN(Params_LS::ArrayUxLayers, mdIndices))
+                      SOA_COLUMN(uint32_t, mdPairIndices),
+                      SOA_COLUMN(uint8_t, connectedModuleSlots))
+  static_assert(max_connected_modules <= 256, "connectedModuleSlots is a uint8_t");
 
   GENERATE_SOA_BLOCKS(SegmentCandidatesSoABlocksLayout,
                       SOA_BLOCK(candidates, SegmentCandidatesSoALayout),
