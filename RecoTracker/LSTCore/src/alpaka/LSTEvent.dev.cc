@@ -2102,8 +2102,7 @@ LSTInputConstView LSTEvent::getInput(bool sync) {
   if constexpr (std::is_same_v<TDev, DevHost>) {
     return lstInputDC_->const_view();
   } else {
-    // In case getTrimmedInput was called first
-    if (!lstInputHC_ || lstInputHC_->size()[1] == 0) {
+    if (!lstInputHC_) {
       lstInputHC_.emplace(
           cms::alpakatools::CopyToHost<PortableDeviceCollection<TDev, LSTInputSoA>>::copyAsync(queue_, *lstInputDC_));
       if (sync)
@@ -2116,15 +2115,18 @@ template LSTInputConstView LSTEvent::getInput<>(bool);
 
 template <typename TSoA, typename TDev>
 typename TSoA::ConstView LSTEvent::getHits(bool sync) {
+  if (!hitsDC_ && !hitsHC_)
+    lstLogicError("LSTEvent::getHits: hits released after the MD stage; call setKeepHostCopies(true)");
   if constexpr (std::is_same_v<TDev, DevHost>) {
     return HitsViewAccessor<TSoA>::get(hitsDC_ ? hitsDC_->const_view() : hitsHC_->const_view());
   } else {
     if (!hitsHC_) {
       hitsHC_.emplace(
           cms::alpakatools::CopyToHost<PortableDeviceCollection<TDev, HitsSoA>>::copyAsync(queue_, *hitsDC_));
-      if (sync)
-        alpaka::wait(queue_);  // host consumers expect filled data
     }
+    // releaseDeviceCollection may have started the copy already
+    if (sync)
+      alpaka::wait(queue_);  // host consumers expect filled data
     return HitsViewAccessor<TSoA>::get(hitsHC_->const_view());
   }
 }
@@ -2167,6 +2169,8 @@ template MiniDoubletsOccupancyConst LSTEvent::getMiniDoublets<MiniDoubletsOccupa
 
 template <typename TDev>
 MiniDoubletsBuildConst LSTEvent::getMiniDoubletsBuild(bool sync) {
+  if (!miniDoubletsBuildDC_ && !miniDoubletsBuildHC_)
+    lstLogicError("LSTEvent::getMiniDoubletsBuild: released after the LS stage; call setKeepHostCopies(true)");
   if constexpr (std::is_same_v<TDev, DevHost>) {
     return miniDoubletsBuildDC_ ? miniDoubletsBuildDC_->const_view() : miniDoubletsBuildHC_->const_view();
   } else {
@@ -2174,9 +2178,10 @@ MiniDoubletsBuildConst LSTEvent::getMiniDoubletsBuild(bool sync) {
       miniDoubletsBuildHC_.emplace(
           cms::alpakatools::CopyToHost<PortableDeviceCollection<TDev, MiniDoubletsBuildSoA>>::copyAsync(
               queue_, *miniDoubletsBuildDC_));
-      if (sync)
-        alpaka::wait(queue_);  // host consumers expect filled data
     }
+    // releaseDeviceCollection may have started the copy already
+    if (sync)
+      alpaka::wait(queue_);  // host consumers expect filled data
     return miniDoubletsBuildHC_->const_view();
   }
 }
