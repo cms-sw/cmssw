@@ -66,13 +66,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     std::optional<ObjectRangesDeviceCollection> rangesDC_;
     std::optional<HitsDeviceCollection> hitsDC_;
     std::optional<MiniDoubletsDeviceCollection> miniDoubletsDC_;
-    std::optional<MiniDoubletsBuildDeviceCollection> miniDoubletsBuildDC_;        // MD -> LS stage only
-    std::optional<MiniDoubletsT3CountsDeviceCollection> miniDoubletsT3CountsDC_;  // T3 stage only
-    std::optional<SegmentsT3CountsDeviceCollection> segmentsT3CountsDC_;          // T3 stage only
-    std::optional<MiniDoubletsT5BuildDeviceCollection> miniDoubletsT5BuildDC_;    // T5 stage only
+    std::optional<MiniDoubletsBuildDeviceCollection> miniDoubletsBuildDC_;      // MD -> LS stage only
+    std::optional<SegmentsT3CountsDeviceCollection> segmentsT3CountsDC_;        // T3 stage only
+    std::optional<MiniDoubletsT5BuildDeviceCollection> miniDoubletsT5BuildDC_;  // T5 stage only
     std::optional<SegmentsDeviceCollection> segmentsDC_;
     std::optional<PixelSegmentsDeviceCollection> pixelSegmentsDC_;
     std::optional<TripletsDeviceCollection> tripletsDC_;
+    std::optional<TripletsListRangesDeviceCollection> tripletsListRangesDC_;
     std::optional<QuintupletsDeviceCollection> quintupletsDC_;
     std::optional<QuadrupletsDeviceCollection> quadrupletsDC_;
     std::optional<TrackCandidatesBaseDeviceCollection> trackCandidatesBaseDC_;

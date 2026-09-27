@@ -62,13 +62,6 @@ namespace lst {
   using QuintupletsRanges = QuintupletsRangesSoA::View;
   using QuintupletsRangesConst = QuintupletsRangesSoA::ConstView;
 
-  // Per-MD T3 counter (T3 count -> T3 create), in a collection that lives only in the T3 stage
-  GENERATE_SOA_LAYOUT(MiniDoubletsT3CountsSoALayout, SOA_COLUMN(unsigned int, connectedT3sMax))
-
-  using MiniDoubletsT3CountsSoA = MiniDoubletsT3CountsSoALayout<>;
-  using MiniDoubletsT3Counts = MiniDoubletsT3CountsSoA::View;
-  using MiniDoubletsT3CountsConst = MiniDoubletsT3CountsSoA::ConstView;
-
   // Per-MD T5 counters and T5-by-MD ranges, in a collection that lives only in the T5 stage
   GENERATE_SOA_LAYOUT(MiniDoubletsT5CountsSoALayout,
                       SOA_COLUMN(unsigned int, connectedT5s0Max),
