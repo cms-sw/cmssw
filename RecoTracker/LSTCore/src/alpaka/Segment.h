@@ -92,6 +92,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float moduleGapSize;
     float segMiniTilt2;  // 0.25 * kPixelPSZpitch^2 * drdz^2 / (1+drdz^2) / gap^2; 0 if not tilted
     float sdMuls;        // kMiniMulsPtScale[iL] * 3 / ptCut
+    float edgeDx;        // 2S endcap strip half-vector (0 elsewhere)
+    float edgeDy;
 
     unsigned int iL;  // layer - 1
 
@@ -113,6 +115,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     mod.iL = mod.layer - 1;
     mod.moduleType = modules.moduleType()[moduleIndex];
     mod.drdz = modules.drdzs()[moduleIndex];
+    mod.edgeDx = modules.edgeDx()[moduleIndex];
+    mod.edgeDy = modules.edgeDy()[moduleIndex];
     mod.moduleGapSize = moduleGapSize_seg(modules, moduleIndex);
     mod.isTilted = (mod.subdet == Barrel and mod.side != Center);
     mod.segMiniTilt2 = mod.isTilted ? (0.25f * (kPixelPSZpitch * kPixelPSZpitch) * (mod.drdz * mod.drdz) /
@@ -581,10 +585,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       return false;
 
     if (outerLayerEndcapTwoS) {
-      float dPhiPosHigh =
-          cms::alpakatools::reducePhiRange(acc, mds.anchorHighEdgePhi()[outerMDIndex] - mds.anchorPhi()[innerMDIndex]);
-      float dPhiPosLow =
-          cms::alpakatools::reducePhiRange(acc, mds.anchorLowEdgePhi()[outerMDIndex] - mds.anchorPhi()[innerMDIndex]);
+      float dPhiPosHigh = cms::alpakatools::reducePhiRange(
+          acc,
+          alpaka::math::atan2(acc, yOut + outerMod.edgeDy, xOut + outerMod.edgeDx) - mds.anchorPhi()[innerMDIndex]);
+      float dPhiPosLow = cms::alpakatools::reducePhiRange(
+          acc,
+          alpaka::math::atan2(acc, yOut - outerMod.edgeDy, xOut - outerMod.edgeDx) - mds.anchorPhi()[innerMDIndex]);
 
       dPhiMax = alpaka::math::abs(acc, dPhiPosHigh) > alpaka::math::abs(acc, dPhiPosLow) ? dPhiPosHigh : dPhiPosLow;
       dPhiMin = alpaka::math::abs(acc, dPhiPosHigh) > alpaka::math::abs(acc, dPhiPosLow) ? dPhiPosLow : dPhiPosHigh;

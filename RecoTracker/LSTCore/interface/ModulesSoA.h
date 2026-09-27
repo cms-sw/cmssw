@@ -25,6 +25,9 @@ namespace lst {
                       SOA_COLUMN(uint16_t, nConnectedModules),
                       SOA_COLUMN(float, drdzs),
                       SOA_COLUMN(float, dxdys),
+                      // 2S endcap: strip half-vector (2.5 cm), hit edges = hit xy +- it; 0 elsewhere
+                      SOA_COLUMN(float, edgeDx),
+                      SOA_COLUMN(float, edgeDy),
                       SOA_COLUMN(uint16_t, partnerModuleIndices),
                       SOA_COLUMN(short, layers),
                       SOA_COLUMN(short, rings),

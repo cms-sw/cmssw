@@ -532,7 +532,9 @@ void createQuintupletBranches() {
   ana.tx->createBranch<std::vector<std::vector<float>>>("t5_simIdxAllFrac");
   ana.tx->createBranch<std::vector<float>>("t5_innerRadius");
   ana.tx->createBranch<std::vector<float>>("t5_outerRadius");
+#ifdef CUT_VALUE_DEBUG
   ana.tx->createBranch<std::vector<float>>("t5_bridgeRadius");
+#endif
   ana.tx->createBranch<std::vector<float>>("t5_pMatched");
   ana.tx->createBranch<std::vector<float>>("t5_sim_vxy");
   ana.tx->createBranch<std::vector<float>>("t5_sim_vz");
@@ -1622,6 +1624,7 @@ std::map<unsigned int, unsigned int> setQuintupletBranches(LSTEvent* event,
   auto const& ranges = event->getRanges();
   auto const& quintuplets = event->getQuintuplets<QuintupletsSoA>();
   auto const& quintupletOccupancies = event->getQuintuplets<QuintupletsOccupancySoA>();
+  auto const& t5Triplets = event->getTriplets<TripletsSoA>();
 
   int n_total_simtrk = trk_sim_pt.size();
   std::vector<int> sim_t5_matched(n_accepted_simtrk);
@@ -1664,8 +1667,11 @@ std::map<unsigned int, unsigned int> setQuintupletBranches(LSTEvent* event,
       ana.tx->pushbackToBranch<float>("t5_eta", eta);
       ana.tx->pushbackToBranch<float>("t5_phi", phi);
       ana.tx->pushbackToBranch<float>("t5_innerRadius", __H2F(quintuplets.innerRadius()[t5Idx]));
+#ifdef CUT_VALUE_DEBUG
       ana.tx->pushbackToBranch<float>("t5_bridgeRadius", __H2F(quintuplets.bridgeRadius()[t5Idx]));
-      ana.tx->pushbackToBranch<float>("t5_outerRadius", __H2F(quintuplets.outerRadius()[t5Idx]));
+#endif
+      // the T5 outer radius is the outer T3's circle radius
+      ana.tx->pushbackToBranch<float>("t5_outerRadius", t5Triplets.radius()[quintuplets.tripletIndices()[t5Idx][1]]);
       ana.tx->pushbackToBranch<float>("t5_pMatched", percent_matched);
 
       std::vector<float> current_t5_embed;
