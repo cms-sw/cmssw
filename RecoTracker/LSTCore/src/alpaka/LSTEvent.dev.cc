@@ -2093,8 +2093,7 @@ LSTInputConstView LSTEvent::getInput(bool sync) {
   if constexpr (std::is_same_v<TDev, DevHost>) {
     return lstInputDC_->const_view();
   } else {
-    // In case getTrimmedInput was called first
-    if (!lstInputHC_ || lstInputHC_->size()[1] == 0) {
+    if (!lstInputHC_) {
       lstInputHC_.emplace(
           cms::alpakatools::CopyToHost<PortableDeviceCollection<TDev, LSTInputSoA>>::copyAsync(queue_, *lstInputDC_));
       if (sync)
@@ -2107,6 +2106,8 @@ template LSTInputConstView LSTEvent::getInput<>(bool);
 
 template <typename TSoA, typename TDev>
 typename TSoA::ConstView LSTEvent::getHits(bool sync) {
+  if (!hitsDC_ && !hitsHC_)
+    lstLogicError("LSTEvent::getHits: hits released after the MD stage; call setKeepHostCopies(true)");
   if constexpr (std::is_same_v<TDev, DevHost>) {
     return HitsViewAccessor<TSoA>::get(hitsDC_ ? hitsDC_->const_view() : hitsHC_->const_view());
   } else {
@@ -2158,6 +2159,8 @@ template MiniDoubletsOccupancyConst LSTEvent::getMiniDoublets<MiniDoubletsOccupa
 
 template <typename TDev>
 MiniDoubletsBuildConst LSTEvent::getMiniDoubletsBuild(bool sync) {
+  if (!miniDoubletsBuildDC_ && !miniDoubletsBuildHC_)
+    lstLogicError("LSTEvent::getMiniDoubletsBuild: released after the LS stage; call setKeepHostCopies(true)");
   if constexpr (std::is_same_v<TDev, DevHost>) {
     return miniDoubletsBuildDC_ ? miniDoubletsBuildDC_->const_view() : miniDoubletsBuildHC_->const_view();
   } else {
