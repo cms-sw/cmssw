@@ -43,7 +43,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     Queue& queue_;
     const float ptCut_;
     const uint16_t clustSizeCut_;
-    const bool reduceMemByFullPrecompute_;
 
     std::array<unsigned int, 6> n_minidoublets_by_layer_barrel_{};
     std::array<unsigned int, 5> n_minidoublets_by_layer_endcap_{};
@@ -60,6 +59,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     unsigned int nTotalSegmentsOT_;
     unsigned int pixelSize_;
     uint16_t pixelModuleIndex_;
+    unsigned int nSegmentOverflows_ = 0;  // created but found no slot in the counting-kernel allocation
+    unsigned int nTripletOverflows_ = 0;
+    unsigned int nQuintupletOverflows_ = 0;
 
     //Device stuff
     LSTInputDeviceCollection const* lstInputDC_;  // not owned
@@ -118,16 +120,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
   public:
     // Constructor used for CMSSW integration. Uses an external queue.
-    LSTEvent(bool verbose,
-             const float ptCut,
-             const uint16_t clustSizeCut,
-             Queue& q,
-             const LSTESData<Device>* deviceESData,
-             bool reduce_mem_by_full_precompute)
+    LSTEvent(
+        bool verbose, const float ptCut, const uint16_t clustSizeCut, Queue& q, const LSTESData<Device>* deviceESData)
         : queue_(q),
           ptCut_(ptCut),
           clustSizeCut_(clustSizeCut),
-          reduceMemByFullPrecompute_(reduce_mem_by_full_precompute),
           nModules_(deviceESData->nModules),
           nLowerModules_(deviceESData->nLowerModules),
           nPixels_(deviceESData->nPixels),
