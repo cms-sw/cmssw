@@ -91,7 +91,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     mds.anchorZ()[idx] = hitsBase.zs()[anchorHitIndex];
     mds.anchorRt()[idx] = hitsExtended.rts()[anchorHitIndex];
     mds.anchorPhi()[idx] = hitsExtended.phis()[anchorHitIndex];
-    mds.anchorEta()[idx] = hitsExtended.etas()[anchorHitIndex];
+    // hit eta, computed only for the MD anchor hits (the Hits collection does not store it)
+    float const anchorX = hitsBase.xs()[anchorHitIndex];
+    float const anchorY = hitsBase.ys()[anchorHitIndex];
+    float const anchorZ = hitsBase.zs()[anchorHitIndex];
+    mds.anchorEta()[idx] =
+        ((anchorZ > 0) - (anchorZ < 0)) *
+        alpaka::math::acosh(acc,
+                            alpaka::math::sqrt(acc, anchorX * anchorX + anchorY * anchorY + anchorZ * anchorZ) /
+                                hitsExtended.rts()[anchorHitIndex]);
 
     mds.outerX()[idx] = hitsBase.xs()[outerHitIndex];
     mds.outerY()[idx] = hitsBase.ys()[outerHitIndex];
@@ -99,7 +107,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 #ifdef CUT_VALUE_DEBUG
     mds.outerRt()[idx] = hitsExtended.rts()[outerHitIndex];
     mds.outerPhi()[idx] = hitsExtended.phis()[outerHitIndex];
-    mds.outerEta()[idx] = hitsExtended.etas()[outerHitIndex];
+    {
+      float const outerX = hitsBase.xs()[outerHitIndex];
+      float const outerY = hitsBase.ys()[outerHitIndex];
+      float const outerZ = hitsBase.zs()[outerHitIndex];
+      mds.outerEta()[idx] =
+          ((outerZ > 0) - (outerZ < 0)) *
+          alpaka::math::acosh(acc,
+                              alpaka::math::sqrt(acc, outerX * outerX + outerY * outerY + outerZ * outerZ) /
+                                  hitsExtended.rts()[outerHitIndex]);
+    }
 #endif
   }
 

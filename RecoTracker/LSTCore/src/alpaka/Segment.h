@@ -1241,6 +1241,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   ObjectRangesConst ranges,
                                   HitsBaseConst hitsBase,
+                                  HitsITConst hitsIT,
                                   PixelSeedsConst pixelSeeds,
                                   MiniDoubletsConst mds,
                                   Segments segments,
@@ -1259,10 +1260,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             (mds.anchorRt()[outerMDIndex] * slope + intercept) - (hitsBase.zs()[mds.anchorHitIndices()[outerMDIndex]]);
         score_lsq = score_lsq * score_lsq;
 
-        const Params_pLS::ArrayUxHits hits1{{packedHitIdx(mds.anchorHitIndices()[innerMDIndex], hitsBase),
-                                             packedHitIdx(mds.anchorHitIndices()[outerMDIndex], hitsBase),
-                                             packedHitIdx(mds.outerHitIndices()[innerMDIndex], hitsBase),
-                                             packedHitIdx(mds.outerHitIndices()[outerMDIndex], hitsBase)}};
+        const Params_pLS::ArrayUxHits hits1{{packedHitIdx(mds.anchorHitIndices()[innerMDIndex], hitsBase, hitsIT),
+                                             packedHitIdx(mds.anchorHitIndices()[outerMDIndex], hitsBase, hitsIT),
+                                             packedHitIdx(mds.outerHitIndices()[innerMDIndex], hitsBase, hitsIT),
+                                             packedHitIdx(mds.outerHitIndices()[outerMDIndex], hitsBase, hitsIT)}};
 
         addPixelSegmentToMemory(acc,
                                 segments,

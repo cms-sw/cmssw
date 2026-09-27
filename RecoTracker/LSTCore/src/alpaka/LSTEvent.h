@@ -203,8 +203,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     // (has no effect on repeated calls)
     // set to false may allow faster operation with concurrent calls of get*
     // HANDLE WITH CARE
-    template <typename TSoA, typename TDev = Device>
-    typename TSoA::ConstView getInput(bool sync = true);
+    template <typename TDev = Device>
+    LSTInputConstView getInput(bool sync = true);
     template <typename TSoA, typename TDev = Device>
     typename TSoA::ConstView getHits(bool sync = true);
     template <typename TDev = Device>

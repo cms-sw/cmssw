@@ -12,8 +12,7 @@ namespace lst {
   GENERATE_SOA_LAYOUT(HitsExtendedSoALayout,
                       SOA_COLUMN(uint16_t, moduleIndices),
                       SOA_COLUMN(float, rts),
-                      SOA_COLUMN(float, phis),
-                      SOA_COLUMN(float, etas))
+                      SOA_COLUMN(float, phis))
 
   GENERATE_SOA_LAYOUT(HitsRangesSoALayout,
                       SOA_COLUMN(ArrayIx2, hitRanges),

@@ -49,7 +49,7 @@ namespace lst {
                       SOA_SCALAR(uint16_t, nModules),
                       SOA_SCALAR(uint16_t, nLowerModules))
 
-  GENERATE_SOA_LAYOUT(ModulesPixelSoALayout, SOA_COLUMN(unsigned int, connectedPixels))
+  GENERATE_SOA_LAYOUT(ModulesPixelSoALayout, SOA_COLUMN(uint16_t, connectedPixels))
 
   GENERATE_SOA_BLOCKS(ModulesSoABlocksLayout,
                       SOA_BLOCK(modules, ModulesSoALayout),
