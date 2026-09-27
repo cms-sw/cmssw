@@ -172,11 +172,7 @@ void LSTEvent::addHitToEvent() {
   alpaka::exec<Acc1D>(queue_,
                       hit_loop_workdiv,
                       HitLoopKernel{},
-                      Endcap,
-                      TwoS,
                       nModules_,
-                      nEndCapMap_,
-                      endcapGeometry_.const_view(),
                       modules_.const_view().modules(),
                       lstInputDC_->const_view().hits(),
                       hitsDC_->view().extended(),
@@ -710,15 +706,6 @@ void LSTEvent::createTriplets() {
   if (objectsStatistics_)
     memoryLiveMB_ -= looseMB;
 
-  auto const addTripletRangesToEventExplicit_workDiv = cms::alpakatools::make_workdiv<Acc1D>(1, 1024);
-
-  alpaka::exec<Acc1D>(queue_,
-                      addTripletRangesToEventExplicit_workDiv,
-                      AddTripletRangesToEventExplicit{},
-                      modules_.const_view().modules(),
-                      tripletsDC_->const_view().tripletsOccupancy(),
-                      rangesDC_->view());
-
   if (objectsStatistics_) {
     addTripletsToEventExplicit();
   }
@@ -833,12 +820,6 @@ void LSTEvent::createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets)
                         rangesOccupancy.quadrupletModuleIndices().data(),
                         rangesOccupancy.quadrupletModuleOccupancy().data());
     quadrupletsDC_.emplace(std::move(compactT4));
-    alpaka::exec<Acc1D>(queue_,
-                        cms::alpakatools::make_workdiv<Acc1D>(1, 1024),
-                        AddQuadrupletRangesToEventExplicit{},
-                        modules_.const_view().modules(),
-                        quadrupletsDC_->const_view().quadrupletsOccupancy(),
-                        rangesDC_->view());
 
     if (objectsStatistics_) {
       double mb = alpaka::getExtentProduct(pixelQuintupletsDC_->buffer()) / 1e6;
@@ -963,6 +944,9 @@ void LSTEvent::createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets)
                       addpT5asTrackCandidate_workDiv,
                       AddpT5asTrackCandidate{},
                       nLowerModules_,
+                      miniDoubletsDC_->const_view().miniDoublets(),
+                      segmentsDC_->const_view().segments(),
+                      quintupletsDC_->const_view().quintuplets(),
                       pixelQuintupletsDC_->const_view(),
                       trackCandidatesBaseDC_->view(),
                       trackCandidatesExtendedDC_->view(),
@@ -1408,15 +1392,6 @@ void LSTEvent::createQuintuplets() {
                       quintupletsDC_->const_view().quintupletsOccupancy(),
                       rangesDC_->const_view());
 
-  auto const addQuintupletRangesToEventExplicit_workDiv = cms::alpakatools::make_workdiv<Acc1D>(1, 1024);
-
-  alpaka::exec<Acc1D>(queue_,
-                      addQuintupletRangesToEventExplicit_workDiv,
-                      AddQuintupletRangesToEventExplicit{},
-                      modules_.const_view().modules(),
-                      quintupletsDC_->const_view().quintupletsOccupancy(),
-                      rangesDC_->view());
-
   if (objectsStatistics_) {
     memoryLiveMB_ -= looseMB;
     addQuintupletsToEventExplicit();
@@ -1558,6 +1533,9 @@ void LSTEvent::createPixelQuintuplets() {
   alpaka::exec<Acc2D>(queue_,
                       removeDupPixelQuintupletsFromMap_workDiv,
                       RemoveDupPixelQuintupletsFromMap{},
+                      miniDoubletsDC_->const_view().miniDoublets(),
+                      segmentsDC_->const_view().segments(),
+                      quintupletsDC_->const_view().quintuplets(),
                       pixelQuintupletsDC_->view());
 
 #ifdef WARNINGS
@@ -1674,15 +1652,6 @@ void LSTEvent::createQuadruplets() {
                       quadrupletsDC_->view().quadruplets(),
                       quadrupletsDC_->const_view().quadrupletsOccupancy(),
                       rangesDC_->const_view());
-
-  auto const addQuadrupletRangesToEventExplicit_workDiv = cms::alpakatools::make_workdiv<Acc1D>(1, 1024);
-
-  alpaka::exec<Acc1D>(queue_,
-                      addQuadrupletRangesToEventExplicit_workDiv,
-                      AddQuadrupletRangesToEventExplicit{},
-                      modules_.const_view().modules(),
-                      quadrupletsDC_->const_view().quadrupletsOccupancy(),
-                      rangesDC_->view());
 
   if (objectsStatistics_) {
     addQuadrupletsToEventExplicit();

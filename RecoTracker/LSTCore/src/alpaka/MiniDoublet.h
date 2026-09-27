@@ -35,7 +35,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     short moduleLayerType;
 
     bool isTilted;
-    bool isEndcapTwoS;
     bool isGloballyInner;
   };
 
@@ -60,7 +59,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     //the index into which this MD needs to be written will be computed in the kernel
     //nMDs variable will be incremented in the kernel, no need to worry about that here
 
-    mds.moduleIndices()[idx] = mod.lowerModuleIndex;
     unsigned int anchorHitIndex, outerHitIndex;
     if (mod.moduleType == PS and mod.moduleLayerType == Strip) {
       mds.anchorHitIndices()[idx] = upperHitIdx;
@@ -94,18 +92,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     mds.anchorRt()[idx] = hitsExtended.rts()[anchorHitIndex];
     mds.anchorPhi()[idx] = hitsExtended.phis()[anchorHitIndex];
     mds.anchorEta()[idx] = hitsExtended.etas()[anchorHitIndex];
-    mds.anchorHighEdgeX()[idx] = hitsExtended.highEdgeXs()[anchorHitIndex];
-    mds.anchorHighEdgeY()[idx] = hitsExtended.highEdgeYs()[anchorHitIndex];
-    mds.anchorLowEdgeX()[idx] = hitsExtended.lowEdgeXs()[anchorHitIndex];
-    mds.anchorLowEdgeY()[idx] = hitsExtended.lowEdgeYs()[anchorHitIndex];
-    // Edge phi only read downstream when outerLayerEndcapTwoS is true; skip atan2 for other modules.
-    if (mod.isEndcapTwoS) {
-      mds.anchorHighEdgePhi()[idx] = alpaka::math::atan2(acc, mds.anchorHighEdgeY()[idx], mds.anchorHighEdgeX()[idx]);
-      mds.anchorLowEdgePhi()[idx] = alpaka::math::atan2(acc, mds.anchorLowEdgeY()[idx], mds.anchorLowEdgeX()[idx]);
-    } else {
-      mds.anchorHighEdgePhi()[idx] = 0.f;
-      mds.anchorLowEdgePhi()[idx] = 0.f;
-    }
 
     mds.outerX()[idx] = hitsBase.xs()[outerHitIndex];
     mds.outerY()[idx] = hitsBase.ys()[outerHitIndex];
@@ -114,10 +100,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     mds.outerRt()[idx] = hitsExtended.rts()[outerHitIndex];
     mds.outerPhi()[idx] = hitsExtended.phis()[outerHitIndex];
     mds.outerEta()[idx] = hitsExtended.etas()[outerHitIndex];
-    mds.outerHighEdgeX()[idx] = hitsExtended.highEdgeXs()[outerHitIndex];
-    mds.outerHighEdgeY()[idx] = hitsExtended.highEdgeYs()[outerHitIndex];
-    mds.outerLowEdgeX()[idx] = hitsExtended.lowEdgeXs()[outerHitIndex];
-    mds.outerLowEdgeY()[idx] = hitsExtended.lowEdgeYs()[outerHitIndex];
 #endif
   }
 
@@ -146,7 +128,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     mod.moduleType = modules.moduleType()[lowerModuleIdx];
     mod.moduleLayerType = modules.moduleLayerType()[lowerModuleIdx];
     mod.subdet = modules.subdets()[lowerModuleIdx];
-    mod.isEndcapTwoS = (mod.subdet == Endcap && mod.moduleType == TwoS);
     addMDToMemory(acc,
                   mds,
                   mdsBuild,
@@ -685,7 +666,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     mod.moduleLayerType = modules.moduleLayerType()[lowerModuleIndex];
     mod.iL = modules.layers()[lowerModuleIndex] - 1;
     mod.isTilted = (mod.subdet == Barrel && mod.side != Center);
-    mod.isEndcapTwoS = (mod.subdet == Endcap && mod.moduleType == TwoS);
     mod.isGloballyInner = modules.isGloballyInner()[lowerModuleIndex];
     mod.slope = modules.dxdys()[lowerModuleIndex];
     mod.drdz = modules.drdzs()[lowerModuleIndex];

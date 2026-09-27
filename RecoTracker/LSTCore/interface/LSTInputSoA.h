@@ -1,10 +1,6 @@
 #ifndef RecoTracker_LSTCore_interface_LSTInputSoA_h
 #define RecoTracker_LSTCore_interface_LSTInputSoA_h
 
-#ifndef LST_STANDALONE
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#endif
-
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 #include "DataFormats/SoATemplate/interface/SoABlocks.h"
 #include "DataFormats/Portable/interface/PortableCollection.h"
@@ -20,9 +16,6 @@ namespace lst {
                       SOA_COLUMN(unsigned int, idxs),
                       SOA_COLUMN(unsigned int, detid),
                       SOA_COLUMN(uint16_t, clustsize),
-#ifndef LST_STANDALONE
-                      SOA_COLUMN(TrackingRecHit const*, hits),
-#endif
                       SOA_SCALAR(unsigned int, nHitsOT))
 
   GENERATE_SOA_LAYOUT(PixelSeedsSoALayout,

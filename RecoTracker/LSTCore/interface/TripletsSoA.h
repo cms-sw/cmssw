@@ -20,7 +20,7 @@ namespace lst {
                       SOA_COLUMN(float, displacedScore),       // DNN confidence score for real (displaced) t3
                       SOA_COLUMN(unsigned int, connectedMax),  // number of outer-triplets that pass the MD-equality cut
                       SOA_COLUMN(unsigned int, connectedLSMax),  // n of outer-triplets that pass the LS-equality cut
-                      SOA_COLUMN(short, charge),
+                      SOA_COLUMN(int8_t, charge),                // +-1
 #ifdef CUT_VALUE_DEBUG
                       SOA_COLUMN(FPX, betaIn),  // beta/chord angle of the inner segment
                       SOA_COLUMN(float, betaInCut),
@@ -94,7 +94,7 @@ namespace lst {
                       SOA_COLUMN(float, fakeScore),
                       SOA_COLUMN(float, promptScore),
                       SOA_COLUMN(float, displacedScore),
-                      SOA_COLUMN(short, charge),
+                      SOA_COLUMN(int8_t, charge),
 #ifdef CUT_VALUE_DEBUG
                       SOA_COLUMN(FPX, betaIn),
                       SOA_COLUMN(float, betaInCut),

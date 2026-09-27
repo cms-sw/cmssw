@@ -23,6 +23,7 @@
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
 
 #include "RecoTracker/LSTCore/interface/LSTInputHostCollection.h"
+#include "RecoTracker/LSTCore/interface/LSTOTHits.h"
 #include "RecoTracker/LSTCore/interface/LSTPrepareInput.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -47,6 +48,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const edm::EDPutTokenT<TrajectorySeedCollection> lstPixelSeedsPutToken_;
 
     const edm::EDPutTokenT<lst::LSTInputHostCollection> lstInputPutToken_;
+    // OT hit pointers stay on the host (read only by LSTOutputConverter), same order as the OT hits of lstInput
+    const edm::EDPutTokenT<lst::LSTOTHits> lstOTHitsPutToken_;
   };
 
   LSTInputProducer::LSTInputProducer(edm::ParameterSet const& iConfig)
@@ -59,7 +62,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag>>("pixelSeeds"),
                                   [&](const edm::InputTag& tag) { return consumes<TrajectorySeedCollection>(tag); })),
         lstPixelSeedsPutToken_(produces()),
-        lstInputPutToken_(produces()) {}
+        lstInputPutToken_(produces()),
+        lstOTHitsPutToken_(produces()) {}
 
   void LSTInputProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -241,12 +245,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                         ph2_x,
                                         ph2_y,
                                         ph2_z,
-                                        ph2_hits,
                                         ptCut_,
                                         iEvent.queue());
 
     iEvent.emplace(lstInputPutToken_, std::move(lstInputHC));
     iEvent.emplace(lstPixelSeedsPutToken_, std::move(see_seeds));
+    iEvent.emplace(lstOTHitsPutToken_, lst::LSTOTHits{std::move(ph2_hits)});
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

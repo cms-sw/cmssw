@@ -442,7 +442,20 @@ std::vector<unsigned int> getpLSHitsFrompT5(LSTEvent* event, unsigned int pT5) {
 
 //____________________________________________________________________________________________
 std::vector<unsigned int> getHitsFrompT5(LSTEvent* event, unsigned int pT5) {
-  auto const& allHits = event->getPixelQuintuplets().hitIndices()[pT5];
+  // pT5 hits = the pLS pixel-MD hits followed by the T5 hit slots (see getPixelQuintupletHitIndices)
+  auto const& pixelQuintuplets = event->getPixelQuintuplets();
+  SegmentsConst segments = event->getSegments<SegmentsSoA>();
+  MiniDoubletsConst miniDoublets = event->getMiniDoublets<MiniDoubletsSoA>();
+  auto const& quintuplets = event->getQuintuplets<QuintupletsSoA>();
+  unsigned int const pixelIndex = pixelQuintuplets.pixelSegmentIndices()[pT5];
+  unsigned int const pixelInnerMD = segments.mdIndices()[pixelIndex][0];
+  unsigned int const pixelOuterMD = segments.mdIndices()[pixelIndex][1];
+  std::vector<unsigned int> allHits = {miniDoublets.anchorHitIndices()[pixelInnerMD],
+                                       miniDoublets.outerHitIndices()[pixelInnerMD],
+                                       miniDoublets.anchorHitIndices()[pixelOuterMD],
+                                       miniDoublets.outerHitIndices()[pixelOuterMD]};
+  for (auto const hit : quintuplets.hitIndices()[pixelQuintuplets.quintupletIndices()[pT5]])
+    allHits.push_back(hit);
   std::vector<unsigned int> hits;
   hits.reserve(allHits.size());
   for (auto const hit : allHits)

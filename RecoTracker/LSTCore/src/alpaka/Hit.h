@@ -42,18 +42,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
   struct HitLoopKernel {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
-                                  uint16_t Endcap,          // Integer corresponding to endcap in module subdets
-                                  uint16_t TwoS,            // Integer corresponding to TwoS in moduleType
-                                  unsigned int nModules,    // Number of modules
-                                  unsigned int nEndCapMap,  // Number of elements in endcap map
-                                  EndcapGeometryDevConst endcapGeometry,
+                                  unsigned int nModules,  // Number of modules
                                   ModulesConst modules,
                                   HitsBaseConst hitsBase,
                                   HitsExtended hitsExtended,
                                   HitsRanges hitsRanges) const  // Total number of hits in event
     {
-      auto geoMapDetId = endcapGeometry.geoMapDetId();  // DetId's from endcap map
-      auto geoMapPhi = endcapGeometry.geoMapPhi();      // Phi values from endcap map
       int nHits = hitsExtended.metadata().size();
       auto const nHitsOT = hitsBase.nHitsOT();
       ALPAKA_ASSERT_ACC(nHits == hitsBase.metadata().size());
@@ -78,18 +72,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
         hitsExtended.moduleIndices()[ihit] = lastModuleIndex;
 
-        if (modules.subdets()[lastModuleIndex] == Endcap && modules.moduleType()[lastModuleIndex] == TwoS) {
-          found_pointer = alpaka_std::lower_bound(geoMapDetId.data(), geoMapDetId.data() + nEndCapMap, iDetId);
-          ALPAKA_ASSERT_ACC(found_pointer != geoMapDetId.data() + nEndCapMap);
-          found_index = std::distance(geoMapDetId.data(), found_pointer);
-          float phi = geoMapPhi[found_index];
-          float cos_phi = alpaka::math::cos(acc, phi);
-          hitsExtended.highEdgeXs()[ihit] = ihit_x + 2.5f * cos_phi;
-          hitsExtended.lowEdgeXs()[ihit] = ihit_x - 2.5f * cos_phi;
-          float sin_phi = alpaka::math::sin(acc, phi);
-          hitsExtended.highEdgeYs()[ihit] = ihit_y + 2.5f * sin_phi;
-          hitsExtended.lowEdgeYs()[ihit] = ihit_y - 2.5f * sin_phi;
-        }
         // hits above nHitsOT are from seed tracks: don't reindex the full OT hits (all below nHitsOT)
         if (ihit < nHitsOT || iDetId == kPixelModuleId) {
           // Need to set initial value if index hasn't been seen before.

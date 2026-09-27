@@ -96,7 +96,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     triplets.radius()[tripletIndex] = circleRadius;
     triplets.centerX()[tripletIndex] = circleCenterX;
     triplets.centerY()[tripletIndex] = circleCenterY;
-    triplets.charge()[tripletIndex] = charge;
+    triplets.charge()[tripletIndex] = static_cast<int8_t>(charge);
     triplets.flags()[tripletIndex] = flags;
 #ifdef CUT_VALUE_DEBUG
     triplets.betaIn()[tripletIndex] = __F2H(betaIn);
@@ -839,26 +839,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       alpaka::syncBlockThreads(acc);
       if (cms::alpakatools::once_per_block(acc))
         ranges.nTotalTrips() = nTotalTriplets;
-    }
-  };
-
-  struct AddTripletRangesToEventExplicit {
-    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
-                                  ModulesConst modules,
-                                  TripletsOccupancyConst tripletsOccupancy,
-                                  ObjectRanges ranges) const {
-      // implementation is 1D with a single block
-      ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
-
-      for (uint16_t i : cms::alpakatools::uniform_elements(acc, modules.nLowerModules())) {
-        if (tripletsOccupancy.nTriplets()[i] == 0) {
-          ranges.tripletRanges()[i][0] = -1;
-          ranges.tripletRanges()[i][1] = -1;
-        } else {
-          ranges.tripletRanges()[i][0] = ranges.tripletModuleIndices()[i];
-          ranges.tripletRanges()[i][1] = ranges.tripletModuleIndices()[i] + tripletsOccupancy.nTriplets()[i] - 1;
-        }
-      }
     }
   };
 

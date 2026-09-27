@@ -100,10 +100,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     const uint16_t nModules_;
     const uint16_t nLowerModules_;
     const unsigned int nPixels_;
-    const unsigned int nEndCapMap_;
     ModulesDeviceCollection const& modules_;
     PixelMap const& pixelMapping_;
-    EndcapGeometryDevDeviceCollection const& endcapGeometry_;
     bool objectsStatistics_ = false;
     bool keepHostCopies_ = false;  // copy a device collection to host before it is released (standalone writer)
     double memoryAllocatedMB_ = 0;
@@ -133,10 +131,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           nModules_(deviceESData->nModules),
           nLowerModules_(deviceESData->nLowerModules),
           nPixels_(deviceESData->nPixels),
-          nEndCapMap_(deviceESData->nEndCapMap),
           modules_(*deviceESData->modules),
           pixelMapping_(*deviceESData->pixelMapping),
-          endcapGeometry_(*deviceESData->endcapGeometry),
           objectsStatistics_(verbose) {
       if (ptCut < 0.6f) {
         throw std::invalid_argument("Minimum pT cut must be at least 0.6 GeV. Provided value: " +

@@ -36,7 +36,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                             uint16_t lowerModule5,
                                                             float innerRadius,
                                                             float bridgeRadius,
-                                                            float outerRadius,
                                                             float regressionCenterX,
                                                             float regressionCenterY,
                                                             float regressionRadius,
@@ -44,7 +43,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                             float rPhiChiSquared,
                                                             float dBeta1,
                                                             float dBeta2,
-                                                            float pt,
                                                             float eta,
                                                             float phi,
                                                             uint8_t layer,
@@ -62,8 +60,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quintuplets.lowerModuleIndices()[quintupletIndex][3] = lowerModule4;
     quintuplets.lowerModuleIndices()[quintupletIndex][4] = lowerModule5;
     quintuplets.innerRadius()[quintupletIndex] = __F2H(innerRadius);
-    quintuplets.outerRadius()[quintupletIndex] = __F2H(outerRadius);
-    quintuplets.pt()[quintupletIndex] = __F2H(pt);
     quintuplets.eta()[quintupletIndex] = __F2H(eta);
     quintuplets.phi()[quintupletIndex] = __F2H(phi);
     quintuplets.isDup()[quintupletIndex] = 0;
@@ -96,8 +92,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quintuplets.hitIndices()[quintupletIndex][7] = outerT3Hits[3];
     quintuplets.hitIndices()[quintupletIndex][8] = outerT3Hits[4];
     quintuplets.hitIndices()[quintupletIndex][9] = outerT3Hits[5];
-    quintuplets.bridgeRadius()[quintupletIndex] = bridgeRadius;
 #ifdef CUT_VALUE_DEBUG
+    quintuplets.bridgeRadius()[quintupletIndex] = bridgeRadius;
     quintuplets.rzChiSquared()[quintupletIndex] = rzChiSquared;
     quintuplets.chiSquared()[quintupletIndex] = rPhiChiSquared;
     quintuplets.dBeta1()[quintupletIndex] = dBeta1;
@@ -948,33 +944,37 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float betaOutRHmin = betaOut;
     float betaOutRHmax = betaOut;
 
+    // outer MD strip edges (2S endcap only): anchor xy +- the module's strip half-vector
+    float highEdgeX_OutUp = 0.f, highEdgeY_OutUp = 0.f, lowEdgeX_OutUp = 0.f, lowEdgeY_OutUp = 0.f;
     if (isEC_lastLayer) {
+      highEdgeX_OutUp = mds.anchorX()[fourthMDIndex] + modules.edgeDx()[outerOuterLowerModuleIndex];
+      highEdgeY_OutUp = mds.anchorY()[fourthMDIndex] + modules.edgeDy()[outerOuterLowerModuleIndex];
+      lowEdgeX_OutUp = mds.anchorX()[fourthMDIndex] - modules.edgeDx()[outerOuterLowerModuleIndex];
+      lowEdgeY_OutUp = mds.anchorY()[fourthMDIndex] - modules.edgeDy()[outerOuterLowerModuleIndex];
+      const float highEdgePhi_OutUp = alpaka::math::atan2(acc, highEdgeY_OutUp, highEdgeX_OutUp);
+      const float lowEdgePhi_OutUp = alpaka::math::atan2(acc, lowEdgeY_OutUp, lowEdgeX_OutUp);
       alpha_OutUp_highEdge = cms::alpakatools::reducePhiRange(
           acc,
-          cms::alpakatools::phi(acc,
-                                mds.anchorHighEdgeX()[fourthMDIndex] - mds.anchorX()[thirdMDIndex],
-                                mds.anchorHighEdgeY()[fourthMDIndex] - mds.anchorY()[thirdMDIndex]) -
-              mds.anchorHighEdgePhi()[fourthMDIndex]);
+          cms::alpakatools::phi(
+              acc, highEdgeX_OutUp - mds.anchorX()[thirdMDIndex], highEdgeY_OutUp - mds.anchorY()[thirdMDIndex]) -
+              highEdgePhi_OutUp);
       alpha_OutUp_lowEdge = cms::alpakatools::reducePhiRange(
           acc,
-          cms::alpakatools::phi(acc,
-                                mds.anchorLowEdgeX()[fourthMDIndex] - mds.anchorX()[thirdMDIndex],
-                                mds.anchorLowEdgeY()[fourthMDIndex] - mds.anchorY()[thirdMDIndex]) -
-              mds.anchorLowEdgePhi()[fourthMDIndex]);
+          cms::alpakatools::phi(
+              acc, lowEdgeX_OutUp - mds.anchorX()[thirdMDIndex], lowEdgeY_OutUp - mds.anchorY()[thirdMDIndex]) -
+              lowEdgePhi_OutUp);
 
-      tl_axis_highEdge_x = mds.anchorHighEdgeX()[fourthMDIndex] - mds.anchorX()[firstMDIndex];
-      tl_axis_highEdge_y = mds.anchorHighEdgeY()[fourthMDIndex] - mds.anchorY()[firstMDIndex];
-      tl_axis_lowEdge_x = mds.anchorLowEdgeX()[fourthMDIndex] - mds.anchorX()[firstMDIndex];
-      tl_axis_lowEdge_y = mds.anchorLowEdgeY()[fourthMDIndex] - mds.anchorY()[firstMDIndex];
+      tl_axis_highEdge_x = highEdgeX_OutUp - mds.anchorX()[firstMDIndex];
+      tl_axis_highEdge_y = highEdgeY_OutUp - mds.anchorY()[firstMDIndex];
+      tl_axis_lowEdge_x = lowEdgeX_OutUp - mds.anchorX()[firstMDIndex];
+      tl_axis_lowEdge_y = lowEdgeY_OutUp - mds.anchorY()[firstMDIndex];
 
-      betaOutRHmin = -alpha_OutUp_highEdge + cms::alpakatools::reducePhiRange(
-                                                 acc,
-                                                 cms::alpakatools::phi(acc, tl_axis_highEdge_x, tl_axis_highEdge_y) -
-                                                     mds.anchorHighEdgePhi()[fourthMDIndex]);
+      betaOutRHmin = -alpha_OutUp_highEdge +
+                     cms::alpakatools::reducePhiRange(
+                         acc, cms::alpakatools::phi(acc, tl_axis_highEdge_x, tl_axis_highEdge_y) - highEdgePhi_OutUp);
       betaOutRHmax = -alpha_OutUp_lowEdge +
-                     cms::alpakatools::reducePhiRange(acc,
-                                                      cms::alpakatools::phi(acc, tl_axis_lowEdge_x, tl_axis_lowEdge_y) -
-                                                          mds.anchorLowEdgePhi()[fourthMDIndex]);
+                     cms::alpakatools::reducePhiRange(
+                         acc, cms::alpakatools::phi(acc, tl_axis_lowEdge_x, tl_axis_lowEdge_y) - lowEdgePhi_OutUp);
     }
 
     //beta computation
@@ -1030,12 +1030,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     float dBetaROut = 0;
     if (isEC_lastLayer) {
-      dBetaROut = (alpaka::math::sqrt(acc,
-                                      mds.anchorHighEdgeX()[fourthMDIndex] * mds.anchorHighEdgeX()[fourthMDIndex] +
-                                          mds.anchorHighEdgeY()[fourthMDIndex] * mds.anchorHighEdgeY()[fourthMDIndex]) -
-                   alpaka::math::sqrt(acc,
-                                      mds.anchorLowEdgeX()[fourthMDIndex] * mds.anchorLowEdgeX()[fourthMDIndex] +
-                                          mds.anchorLowEdgeY()[fourthMDIndex] * mds.anchorLowEdgeY()[fourthMDIndex])) *
+      dBetaROut = (alpaka::math::sqrt(acc, highEdgeX_OutUp * highEdgeX_OutUp + highEdgeY_OutUp * highEdgeY_OutUp) -
+                   alpaka::math::sqrt(acc, lowEdgeX_OutUp * lowEdgeX_OutUp + lowEdgeY_OutUp * lowEdgeY_OutUp)) *
                   sinDPhi / drt_tl_axis;
     }
 
@@ -1197,12 +1193,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     const float dBetaRIn2 = 0;  // TODO-RH
     float dBetaROut = 0;
     if (modules.moduleType()[outerOuterLowerModuleIndex] == TwoS) {
-      dBetaROut = (alpaka::math::sqrt(acc,
-                                      mds.anchorHighEdgeX()[fourthMDIndex] * mds.anchorHighEdgeX()[fourthMDIndex] +
-                                          mds.anchorHighEdgeY()[fourthMDIndex] * mds.anchorHighEdgeY()[fourthMDIndex]) -
-                   alpaka::math::sqrt(acc,
-                                      mds.anchorLowEdgeX()[fourthMDIndex] * mds.anchorLowEdgeX()[fourthMDIndex] +
-                                          mds.anchorLowEdgeY()[fourthMDIndex] * mds.anchorLowEdgeY()[fourthMDIndex])) *
+      // outer MD strip edges: anchor xy +- the module's strip half-vector
+      const float highEdgeX_OutUp = mds.anchorX()[fourthMDIndex] + modules.edgeDx()[outerOuterLowerModuleIndex];
+      const float highEdgeY_OutUp = mds.anchorY()[fourthMDIndex] + modules.edgeDy()[outerOuterLowerModuleIndex];
+      const float lowEdgeX_OutUp = mds.anchorX()[fourthMDIndex] - modules.edgeDx()[outerOuterLowerModuleIndex];
+      const float lowEdgeY_OutUp = mds.anchorY()[fourthMDIndex] - modules.edgeDy()[outerOuterLowerModuleIndex];
+      dBetaROut = (alpaka::math::sqrt(acc, highEdgeX_OutUp * highEdgeX_OutUp + highEdgeY_OutUp * highEdgeY_OutUp) -
+                   alpaka::math::sqrt(acc, lowEdgeX_OutUp * lowEdgeX_OutUp + lowEdgeY_OutUp * lowEdgeY_OutUp)) *
                   sinDPhi / dr;
     }
 
@@ -2039,7 +2036,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           auto const ls0Index = segIdx[innerTripletIndex][0];
           float phi = mds.anchorPhi()[mdIndices[ls0Index][layer2_adjustment]];
           float eta = mds.anchorEta()[mdIndices[ls0Index][layer2_adjustment]];
-          float pt = (innerRadius + outerRadius) * k2Rinv1GeVf;
           addQuintupletToMemory(modules,
                                 mds,
                                 segments,
@@ -2056,7 +2052,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                 lowerModule5,
                                 innerRadius,
                                 bridgeRadius,
-                                outerRadius,
                                 regressionCenterX,
                                 regressionCenterY,
                                 regressionRadius,
@@ -2064,7 +2059,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                 chiSquared,
                                 dBeta1,
                                 dBeta2,
-                                pt,
                                 eta,
                                 phi,
                                 layer,
@@ -2498,27 +2492,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         ranges.nTotalQuints() = static_cast<unsigned int>(nTotalQuintupletsx);
         ranges.nTotalQuintsByMD0() = static_cast<unsigned int>(nTotalQuintuplets0x);
         ranges.nTotalQuintsByMD1() = static_cast<unsigned int>(nTotalQuintuplets1x);
-      }
-    }
-  };
-
-  struct AddQuintupletRangesToEventExplicit {
-    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
-                                  ModulesConst modules,
-                                  QuintupletsOccupancyConst quintupletsOccupancy,
-                                  ObjectRanges ranges) const {
-      // implementation is 1D with a single block
-      ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
-
-      for (uint16_t i : cms::alpakatools::uniform_elements(acc, modules.nLowerModules())) {
-        if (quintupletsOccupancy.nQuintuplets()[i] == 0 or ranges.quintupletModuleIndices()[i] == -1) {
-          ranges.quintupletRanges()[i][0] = -1;
-          ranges.quintupletRanges()[i][1] = -1;
-        } else {
-          ranges.quintupletRanges()[i][0] = ranges.quintupletModuleIndices()[i];
-          ranges.quintupletRanges()[i][1] =
-              ranges.quintupletModuleIndices()[i] + quintupletsOccupancy.nQuintuplets()[i] - 1;
-        }
       }
     }
   };

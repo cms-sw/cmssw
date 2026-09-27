@@ -1057,26 +1057,5 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       }
     }
   };
-
-  struct AddQuadrupletRangesToEventExplicit {
-    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
-                                  ModulesConst modules,
-                                  QuadrupletsOccupancyConst quadrupletsOccupancy,
-                                  ObjectRanges ranges) const {
-      // implementation is 1D with a single block
-      ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
-
-      for (uint16_t i : cms::alpakatools::uniform_elements(acc, modules.nLowerModules())) {
-        if (quadrupletsOccupancy.nQuadruplets()[i] == 0 or ranges.quadrupletModuleIndices()[i] == -1) {
-          ranges.quadrupletRanges()[i][0] = -1;
-          ranges.quadrupletRanges()[i][1] = -1;
-        } else {
-          ranges.quadrupletRanges()[i][0] = ranges.quadrupletModuleIndices()[i];
-          ranges.quadrupletRanges()[i][1] =
-              ranges.quadrupletModuleIndices()[i] + quadrupletsOccupancy.nQuadruplets()[i] - 1;
-        }
-      }
-    }
-  };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::lst
 #endif

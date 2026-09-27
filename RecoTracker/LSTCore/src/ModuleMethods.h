@@ -1,6 +1,8 @@
 #ifndef RecoTracker_LSTCore_src_ModuleMethods_h
 #define RecoTracker_LSTCore_src_ModuleMethods_h
 
+#include <algorithm>
+#include <cmath>
 #include <map>
 #include <iostream>
 
@@ -274,6 +276,8 @@ namespace lst {
     std::span<ModuleLayerType> host_moduleLayerType = modules_view.moduleLayerType();
     std::span<float> host_dxdys = modules_view.dxdys();
     std::span<float> host_drdzs = modules_view.drdzs();
+    std::span<float> host_edgeDx = modules_view.edgeDx();
+    std::span<float> host_edgeDy = modules_view.edgeDy();
     uint16_t* host_nModules = &modules_view.nModules();
     uint16_t* host_nLowerModules = &modules_view.nLowerModules();
     std::span<uint16_t> host_partnerModuleIndices = modules_view.partnerModuleIndices();
@@ -363,6 +367,19 @@ namespace lst {
 
       host_lstLayers[index] =
           layer + 6 * (subdet == lst::Endcap) + 5 * (subdet == lst::Endcap and host_moduleType[index] == lst::TwoS);
+
+      host_edgeDx[index] = 0.f;
+      host_edgeDy[index] = 0.f;
+      if (subdet == lst::Endcap and host_moduleType[index] == lst::TwoS) {
+        // same lookup the hit kernel used to do per hit
+        auto const& geoDetIds = endcapGeometry.geoMapDetId_buf;
+        auto const found = std::lower_bound(geoDetIds.begin(), geoDetIds.end(), detId);
+        if (found != geoDetIds.end()) {
+          float const edgePhi = endcapGeometry.geoMapPhi_buf[std::distance(geoDetIds.begin(), found)];
+          host_edgeDx[index] = 2.5f * std::cos(edgePhi);
+          host_edgeDy[index] = 2.5f * std::sin(edgePhi);
+        }
+      }
     }
 
     //partner module stuff, and slopes and drdz move around

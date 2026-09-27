@@ -13,7 +13,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "RecoTracker/LSTCore/interface/LSTInputHostCollection.h"
+#include "RecoTracker/LSTCore/interface/LSTOTHits.h"
 #include "RecoTracker/LSTCore/interface/TrackCandidatesHostCollection.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 
@@ -38,7 +38,7 @@ private:
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   const edm::EDGetTokenT<lst::TrackCandidatesBaseHostCollection> lstOutputToken_;
-  const edm::EDGetTokenT<lst::LSTInputHostCollection> lstInputToken_;
+  const edm::EDGetTokenT<lst::LSTOTHits> lstOTHitsToken_;
   const edm::EDGetTokenT<TrajectorySeedCollection> lstPixelSeedToken_;
   const bool includeT5s_;
   const bool includeNonpLSTSs_;
@@ -68,7 +68,7 @@ private:
 
 LSTOutputConverter::LSTOutputConverter(edm::ParameterSet const& iConfig)
     : lstOutputToken_(consumes(iConfig.getParameter<edm::InputTag>("lstOutput"))),
-      lstInputToken_{consumes(iConfig.getParameter<edm::InputTag>("lstInput"))},
+      lstOTHitsToken_{consumes(iConfig.getParameter<edm::InputTag>("lstInput"))},
       lstPixelSeedToken_{consumes(iConfig.getParameter<edm::InputTag>("lstPixelSeeds"))},
       includeT5s_(iConfig.getParameter<bool>("includeT5s")),
       includeNonpLSTSs_(iConfig.getParameter<bool>("includeNonpLSTSs")),
@@ -140,7 +140,6 @@ void LSTOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& descri
 void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Setup
   auto const& lstOutput = iEvent.get(lstOutputToken_);
-  auto const& lstInputHC = iEvent.get(lstInputToken_);
   auto const& pixelSeeds = iEvent.get(lstPixelSeedToken_);
   auto const& pixelSeedsRBP = edm::RefToBaseProd<TrajectorySeed>(iEvent.getHandle(lstPixelSeedToken_));
   auto const& mf = iSetup.getData(mfToken_);
@@ -165,7 +164,7 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   outputpTTC.reserve(nTrackCandidates);
   outputpLSTC.reserve(nTrackCandidates);
 
-  auto OTHits = lstInputHC.const_view().hits().hits();
+  auto const& otHits = iEvent.get(lstOTHitsToken_).hits;
 
   TrajectorySeedCollection seeds;
   using Hit = SeedingHitSet::ConstRecHitPointer;
@@ -204,12 +203,12 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
             continue;
           bool hitOK = true;
           for (auto const& hit : recHits)
-            if (hit.sharesInput(OTHits[hitIdx], TrackingRecHit::all)) {
+            if (hit.sharesInput(otHits[hitIdx], TrackingRecHit::all)) {
               hitOK = false;
               break;
             }
           if (hitOK)
-            recHits.push_back(OTHits[hitIdx]->clone());
+            recHits.push_back(otHits[hitIdx]->clone());
         }
       }
 
