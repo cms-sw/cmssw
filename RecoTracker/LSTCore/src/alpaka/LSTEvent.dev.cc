@@ -214,6 +214,7 @@ void LSTEvent::addPixelSegmentToEvent() {
                       AddPixelSegmentToEventKernel{},
                       rangesDC_->const_view(),
                       lstInputDC_->const_view().hits(),
+                      lstInputDC_->const_view().hitsIT(),
                       lstInputDC_->const_view().pixelSeeds(),
                       miniDoubletsDC_->const_view().miniDoublets(),
                       segmentsDC_->view().segments(),
@@ -2045,10 +2046,10 @@ unsigned int LSTEvent::getNumberOfQuadrupletsByLayerEndcap(unsigned int layer) {
   return n_quadruplets_by_layer_endcap_[layer];
 }
 
-template <typename TSoA, typename TDev>
-typename TSoA::ConstView LSTEvent::getInput(bool sync) {
+template <typename TDev>
+LSTInputConstView LSTEvent::getInput(bool sync) {
   if constexpr (std::is_same_v<TDev, DevHost>) {
-    return LSTInputViewAccessor<TSoA>::get(lstInputDC_->const_view());
+    return lstInputDC_->const_view();
   } else {
     // In case getTrimmedInput was called first
     if (!lstInputHC_ || lstInputHC_->size()[1] == 0) {
@@ -2057,11 +2058,10 @@ typename TSoA::ConstView LSTEvent::getInput(bool sync) {
       if (sync)
         alpaka::wait(queue_);  // host consumers expect filled data
     }
-    return LSTInputViewAccessor<TSoA>::get(lstInputHC_->const_view());
+    return lstInputHC_->const_view();
   }
 }
-template HitsBaseConst LSTEvent::getInput<HitsBaseSoA>(bool);
-template PixelSeedsConst LSTEvent::getInput<PixelSeedsSoA>(bool);
+template LSTInputConstView LSTEvent::getInput<>(bool);
 
 template <typename TSoA, typename TDev>
 typename TSoA::ConstView LSTEvent::getHits(bool sync) {

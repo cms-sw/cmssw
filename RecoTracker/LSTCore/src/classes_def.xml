@@ -5,6 +5,7 @@
   <class name="lst::LSTInputSoALayout<128,false>"/> 
   <class name="lst::HitsBaseSoALayout<128,false>"/>
   <class name="lst::PixelSeedsSoALayout<128,false>"/>
+  <class name="lst::HitsITSoALayout<128,false>"/>
   <class name="edm::Wrapper<lst::LSTInputHostCollection>" splitLevel="0" persistent="false"/>
   <class name="lst::LSTOTHits" persistent="false">
     <field name="hits" transient="true"/>

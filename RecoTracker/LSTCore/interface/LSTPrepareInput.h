@@ -221,7 +221,7 @@ namespace lst {
       nPixelSeeds = n_max_pixel_segments_per_module;
     }
 
-    LSTInputHostCollection lstInputHC(queue, nHitsIT + nHitsOT, nPixelSeeds);
+    LSTInputHostCollection lstInputHC(queue, nHitsIT + nHitsOT, nPixelSeeds, nHitsIT);
 
     auto hits = lstInputHC.view().hits();
     hits.nHitsOT() = nHitsOT;
@@ -237,7 +237,8 @@ namespace lst {
     std::copy_n(hitId.data(), nHitsIT, hits.detid().data() + nHitsOT);
     std::copy_n(hitClustSize.data(), nHitsIT, hits.clustsize().data() + nHitsOT);
 
-    std::copy_n(hitIdxs.data(), nHitsIT + nHitsOT, hits.idxs().data());
+    // the OT part of hitIdxs is the identity (hitOrigIdx); only the pLS section is stored
+    std::copy_n(hitIdxs.data() + nHitsOT, nHitsIT, lstInputHC.view().hitsIT().idxs().data());
 
     auto pixelSeeds = lstInputHC.view().pixelSeeds();
     std::copy_n(firstHit_vec.data(), nPixelSeeds, pixelSeeds.firstHit().data());

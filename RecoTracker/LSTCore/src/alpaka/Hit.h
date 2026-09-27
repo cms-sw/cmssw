@@ -16,9 +16,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return cms::alpakatools::deltaPhi(acc, x1, y1, x2 - x1, y2 - y1);
   }
 
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE unsigned int packedHitIdx(unsigned int ih, HitsBaseConst hitsBase) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE unsigned int packedHitIdx(unsigned int ih,
+                                                           HitsBaseConst hitsBase,
+                                                           HitsITConst hitsIT) {
     constexpr int kOTBit = 1 << 31;
-    return hitsBase.idxs()[ih] | (hitsBase.detid()[ih] == kPixelModuleId ? 0 : kOTBit);
+    return hitOrigIdx(hitsBase, hitsIT, ih) | (hitsBase.detid()[ih] == kPixelModuleId ? 0 : kOTBit);
   }
 
   struct ModuleRangesKernel {
@@ -54,16 +56,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       for (unsigned int ihit : cms::alpakatools::uniform_elements(acc, nHits)) {
         float ihit_x = hitsBase.xs()[ihit];
         float ihit_y = hitsBase.ys()[ihit];
-        float ihit_z = hitsBase.zs()[ihit];
         int iDetId = hitsBase.detid()[ihit];
 
         hitsExtended.rts()[ihit] = alpaka::math::sqrt(acc, ihit_x * ihit_x + ihit_y * ihit_y);
         hitsExtended.phis()[ihit] = cms::alpakatools::phi(acc, ihit_x, ihit_y);
-        hitsExtended.etas()[ihit] =
-            ((ihit_z > 0) - (ihit_z < 0)) *
-            alpaka::math::acosh(acc,
-                                alpaka::math::sqrt(acc, ihit_x * ihit_x + ihit_y * ihit_y + ihit_z * ihit_z) /
-                                    hitsExtended.rts()[ihit]);
         auto found_pointer =
             alpaka_std::lower_bound(modules.mapdetId().data(), modules.mapdetId().data() + nModules, iDetId);
         ALPAKA_ASSERT_ACC(found_pointer != modules.mapdetId().data() + nModules);
