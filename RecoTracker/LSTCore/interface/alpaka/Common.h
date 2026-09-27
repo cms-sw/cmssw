@@ -35,6 +35,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   HOST_DEVICE_CONSTANT float k2Rinv1GeVf = (kC * kB) / 2;
   HOST_DEVICE_CONSTANT float kR1GeVf = 1. / (kC * kB);
   HOST_DEVICE_CONSTANT float kSinAlphaMax = 0.95;
+  // Relative slack on a creation cut copied into a counting kernel, so that codegen differences can never make the
+  // count reject a candidate that creation accepts.
+  HOST_DEVICE_CONSTANT float kCountCutSlack = 1.001f;
   HOST_DEVICE_CONSTANT float kDeltaZLum = 15.0;
   HOST_DEVICE_CONSTANT float kPixelPSZpitch = 0.15;
   HOST_DEVICE_CONSTANT float kStripPSZpitch = 2.4;

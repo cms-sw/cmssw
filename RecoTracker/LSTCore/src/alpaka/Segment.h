@@ -737,7 +737,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   MiniDoubletsOccupancyConst mdsOccupancy,
                                   SegmentCandidates candidates,
                                   SegmentsOccupancy segmentsOccupancy,
-                                  ObjectRangesConst ranges,
+                                  ObjectRanges ranges,
                                   const float ptCut) const {
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1) &&
                         (alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[2] == 1));
@@ -812,6 +812,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                     1u,
                                     alpaka::hierarchy::Threads{});
               if (static_cast<int>(totOccupancySegments) >= ranges.segmentModuleOccupancy()[innerLowerModuleIndex]) {
+                alpaka::atomicAdd(acc, &ranges.nSegmentOverflows(), 1u, alpaka::hierarchy::Blocks{});
 #ifdef WARNINGS
                 printf("Segment excess alert! Module index = %d, Occupancy = %d\n",
                        innerLowerModuleIndex,
@@ -913,8 +914,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   }
 
-  template <bool ReduceMem>
-  struct CountMiniDoubletConnectionsT {
+  struct CountMiniDoubletConnections {
     ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
                                   MiniDoubletsConst mds,
@@ -955,40 +955,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             const unsigned int innerMDIndex = mdRanges[innerLowerModuleIndex][0] + innerMDArrayIdx;
             const unsigned int outerMDIndex = mdRanges[outerLowerModuleIndex][0] + outerMDArrayIdx;
 
-            // Increment the connected max if the LS passes the delta phi cuts.
-            bool pass;
-            if constexpr (ReduceMem) {
-              float dPhi, dPhiMin, dPhiMax, dPhiChange, dPhiChangeMin, dPhiChangeMax;
-#ifdef CUT_VALUE_DEBUG
-              float dAlphaInner, dAlphaOuter, dAlphaIO, zLo, zHi, rtLo, rtHi;
-#endif
-              pass = runSegmentDefaultAlgo(acc,
-                                           innerMod,
-                                           outerMod,
-                                           mds,
-                                           mdsBuild,
-                                           innerMDIndex,
-                                           outerMDIndex,
-                                           dPhi,
-                                           dPhiMin,
-                                           dPhiMax,
-                                           dPhiChange,
-                                           dPhiChangeMin,
-                                           dPhiChangeMax,
-#ifdef CUT_VALUE_DEBUG
-                                           dAlphaInner,
-                                           dAlphaOuter,
-                                           dAlphaIO,
-                                           zLo,
-                                           zHi,
-                                           rtLo,
-                                           rtHi,
-#endif
-                                           ptCut);
-            } else {
-              pass = passLooseSegmentCuts(acc, innerMod, outerMod, mds, innerMDIndex, outerMDIndex, ptCut);
-            }
-            if (pass) {
+            // Increment the connected max if the LS passes the loose delta phi cuts.
+            if (passLooseSegmentCuts(acc, innerMod, outerMod, mds, innerMDIndex, outerMDIndex, ptCut)) {
               alpaka::atomicAdd(acc, &mdsBuild.connectedMax()[innerMDIndex], 1u, alpaka::hierarchy::Threads{});
             }
           }
@@ -996,9 +964,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       }
     }
   };
-
-  using CountMiniDoubletConnections = CountMiniDoubletConnectionsT<false>;
-  using CountMiniDoubletConnectionsReduceMem = CountMiniDoubletConnectionsT<true>;
 
   struct CreateSegmentArrayRanges {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
@@ -1040,6 +1005,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       if (cms::alpakatools::once_per_block(acc)) {
         ranges.segmentModuleIndices()[modules.nLowerModules()] = nTotalSegments;
         ranges.nTotalSegs() = nTotalSegments;
+        ranges.nSegmentOverflows() = 0;
       }
     }
   };
