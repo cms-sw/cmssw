@@ -17,17 +17,21 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
-// Create the ResourceInformationService and the given accelerator service (e.g. CUDAService or ROCmService), that
-// are used by cms::Ort::ONNXRuntime::defaultSessionOptions() to check which GPU backends are available in the job.
+// Create the ResourceInformationService, the given accelerator service (e.g. CUDAService or ROCmService, or none) and
+// the ONNXService, which uses them to find the backends and devices available in the job.
 // The services are available while the returned token is used with an edm::ServiceRegistry::Operate object.
-inline edm::ServiceToken makeServices(std::string const& acceleratorService) {
+inline edm::ServiceToken makeServices(std::string const& acceleratorService = "") {
   if (not edmplugin::PluginManager::isAvailable()) {
     edmplugin::PluginManager::configure(edmplugin::standard::config());
   }
 
   // the parameters of each service are validated and filled with their default values when the service is created
   std::vector<edm::ParameterSet> psets;
-  for (std::string const& service : {std::string("ResourceInformationService"), acceleratorService}) {
+  for (std::string const& service :
+       {std::string("ResourceInformationService"), acceleratorService, std::string("ONNXService")}) {
+    if (service.empty()) {
+      continue;
+    }
     edm::ParameterSet pset;
     pset.addParameter<std::string>("@service_type", service);
     psets.push_back(pset);
