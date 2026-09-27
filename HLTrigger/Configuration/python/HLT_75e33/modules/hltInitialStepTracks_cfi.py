@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltInitialStepTracks = cms.EDProducer("TrackProducer",
     AlgorithmName = cms.string('initialStep'),
-    Fitter = cms.string('hltESPFlexibleKFFittingSmoother'),
+    Fitter = cms.string('hltESPFlexibleKFFittingSmootherForLSTStep'),
     GeometricInnerState = cms.bool(False),
     MeasurementTracker = cms.string('hltESPMeasurementTracker'),
     MeasurementTrackerEvent = cms.InputTag("hltMeasurementTrackerEvent"),
