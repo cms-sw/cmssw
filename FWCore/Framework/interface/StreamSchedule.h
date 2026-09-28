@@ -365,7 +365,7 @@ namespace edm {
             return;
           }
 
-          workerManager.template processOneOccurrenceAsync<T>(
+          workerManager.template processOneOccurrenceAsync<T::transitionEdge_>(
               h, info, token, streamID_, &streamContext_, &streamContext_);
         });
 

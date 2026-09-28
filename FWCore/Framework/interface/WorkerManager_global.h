@@ -20,9 +20,7 @@ namespace edm {
     using AllWorkers = typename WorkerManagerCore<TI, TransitionPhaseGlobal>::AllWorkers;
 
     //Called by SecondaryEventProvider
-    template <typename T, typename U>
-      requires std::is_same_v<TI, typename T::TransitionInfoType> &&
-               std::is_same_v<typename TransitionPhaseGlobal::ContextType, typename T::Context>
+    template <TransitionEdge E, typename U>
     void processOneOccurrenceAsync(WaitingTaskHolder task,
                                    TI& info,
                                    ServiceToken const& token,
@@ -46,7 +44,7 @@ namespace edm {
           // global begin/end run/lumi transitions through here. They shouldn't
           // need prefetching either and for some years nothing has been using
           // that part of the code anyway...)
-          worker->template doWorkNoPrefetchingAsync<T::transitionEdge_>(
+          worker->template doWorkNoPrefetchingAsync<E>(
               task, info, token, streamID, parentContext, topContext);
         }
       }
