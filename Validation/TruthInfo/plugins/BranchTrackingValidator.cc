@@ -40,6 +40,7 @@
 #include "PhysicsTools/TruthInfo/interface/RecoHitAdapters.h"
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
 
+#include "PhysicsTools/TruthInfo/interface/Branch.h"
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
 #include "PhysicsTools/TruthInfo/interface/SubgraphHitView.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
@@ -184,8 +185,17 @@ void BranchTrackingValidator::analyze(edm::Event const& event, edm::EventSetup c
   auto const& clusterTP = event.get(clusterTPToken_);
 
   const auto tidToParticle = buildTrackIdToParticle(graph, raw);
-  truth::BranchHitAssociator assoc(
-      hitIndex, {}, truth::BranchHitAssociator::Metric::SharedHits, truth::HitChannel::Tracker);
+  // The same tie rule as the track association: a particle before an ancestor that owns
+  // the same cells.
+  const auto generations = truth::particleGenerations(graph);
+  truth::BranchHitAssociator assoc(hitIndex,
+                                   {},
+                                   truth::BranchHitAssociator::Metric::SharedHits,
+                                   truth::HitChannel::Tracker,
+                                   /*emptyRootsMeansAll=*/true,
+                                   truth::BranchHitAssociator::kAllDetectors,
+                                   /*recHitEnergies=*/nullptr,
+                                   generations);
 
   for (auto const& track : tracks) {
     const double eta = track.eta();

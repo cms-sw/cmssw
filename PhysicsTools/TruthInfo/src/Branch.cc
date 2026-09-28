@@ -3,6 +3,7 @@
 #include "PhysicsTools/TruthInfo/interface/Branch.h"
 
 #include <algorithm>
+#include <limits>
 #include <queue>
 #include <utility>
 
@@ -249,6 +250,58 @@ namespace truth {
       branches.emplace_back(&graph, member, spec);
     }
     return branches;
+  }
+
+  std::vector<uint32_t> particleGenerations(Graph const& graph) {
+    constexpr uint32_t kUnset = std::numeric_limits<uint32_t>::max();
+    constexpr uint32_t kOpen = kUnset - 1u;
+    const uint32_t nParticles = graph.nParticles();
+    std::vector<uint32_t> generation(nParticles, kUnset);
+
+    auto forEachParent = [&graph, nParticles](uint32_t id, auto&& visit) {
+      for (const uint32_t vertexId : graph.productionVertices(id)) {
+        if (vertexId >= graph.nVertices())
+          continue;
+        for (const uint32_t parent : graph.incomingParticles(vertexId)) {
+          if (parent != id && parent < nParticles)
+            visit(parent);
+        }
+      }
+    };
+
+    // Depth-first up the parents. A particle is resolved after all its parents, and a
+    // parent still open is on the current path, so a cycle ends the walk instead of
+    // looping.
+    std::vector<std::pair<uint32_t, bool>> stack;
+    for (uint32_t start = 0; start < nParticles; ++start) {
+      if (generation[start] != kUnset)
+        continue;
+      stack.emplace_back(start, false);
+      while (!stack.empty()) {
+        const auto [id, expanded] = stack.back();
+        if (!expanded) {
+          if (generation[id] != kUnset) {
+            stack.pop_back();
+            continue;
+          }
+          generation[id] = kOpen;
+          stack.back().second = true;
+          forEachParent(id, [&](uint32_t parent) {
+            if (generation[parent] == kUnset)
+              stack.emplace_back(parent, false);
+          });
+          continue;
+        }
+        uint32_t value = 0;
+        forEachParent(id, [&](uint32_t parent) {
+          if (generation[parent] < kOpen)
+            value = std::max(value, generation[parent] + 1u);
+        });
+        generation[id] = value;
+        stack.pop_back();
+      }
+    }
+    return generation;
   }
 
 }  // namespace truth

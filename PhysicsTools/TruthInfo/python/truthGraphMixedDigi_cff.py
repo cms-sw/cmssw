@@ -13,8 +13,9 @@
 # plus tracker shared hits) needs the tracker channel, so it is in the default. The
 # tracker is the largest sim-hit family and the dominant cost, so the reduced variant
 # (mixedTruthGraphCustomize.customiseTruthReduced) drops it for cost-sensitive runs,
-# leaving calo + MTD + muon. MTD sim-hits are captured here; the MTD channel of the
-# hit index is resolved at RECO (it needs reco MTD cluster associations).
+# leaving calo + MTD + muon. MTD sim-hits are captured here. The MTD channel of the
+# hit index is not in the default list below; adding "MTD" to subdetectors fills it
+# from mix:MergedMtdTruthLC and the MTD topology, here or in a later job.
 
 import FWCore.ParameterSet.Config as cms
 
@@ -78,9 +79,12 @@ from Validation.Configuration.truthPrevalidation_cff import (
 truthLogicalGraphProducer = _truthLogicalGraphProducer.clone(
     src=cms.InputTag("mix"),
     # Every sub-event's SimTracks and SimVertices, tagged with their sub-event id, so a
-    # pileup particle takes its own momentum and position.
+    # pileup SIM particle takes its own momentum and position.
     simTracks=cms.InputTag("mix", "mergedSimTracks"),
     simVertices=cms.InputTag("mix", "mergedSimVertices"),
+    # The GEN payload of every sub-event, which the pile-up GEN nodes need: after mixing
+    # the event holds only the signal HepMC.
+    rawGenPayload=cms.InputTag("mix", "genPayload"),
     simHitCollections=cms.VInputTag(
         cms.InputTag("mix", "mergedHGCHits"),
         cms.InputTag("mix", "mergedEcalHits"),
@@ -99,7 +103,7 @@ truthLogicalGraphHitIndexProducer = _truthLogicalGraphHitIndexProducer.clone(
     # them to the reco HcalDetIds the association matches on. ECAL barrel and the Run4
     # HGCAL geometries carry reco DetIds already, so only the HCAL switch is set here.
     doHcalRelabelling=cms.bool(True),
-    subdetectors=cms.vstring("Calo", "Muon", "Tracker"),  # full; MTD resolved at RECO
+    subdetectors=cms.vstring("Calo", "Muon", "Tracker"),  # MTD on request, see the header
     # The tracker truth is keyed by (module, cell): a tracker DetId names a module, so
     # without the cell two particles crossing one module share every hit they leave
     # there. The links are the digitizer's own record of which cell each particle fired.

@@ -22,6 +22,8 @@
 <use name="Geometry/HGCalGeometry"/>
 <use name="Geometry/HcalCommonData"/>
 <use name="Geometry/HcalTowerAlgo"/>
+<use name="Geometry/MTDCommonData"/>
+<use name="Geometry/MTDGeometryBuilder"/>
 <use name="Geometry/Records"/>
 <use name="SimDataFormats/CaloHit"/>
 <use name="SimDataFormats/CaloTest"/>

@@ -39,6 +39,7 @@
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
 
+#include "PhysicsTools/TruthInfo/interface/Branch.h"
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
 #include "PhysicsTools/TruthInfo/interface/SubgraphHitView.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
@@ -483,7 +484,15 @@ void BranchHGCalValidator::analyze(edm::Event const& event, edm::EventSetup cons
   truth::SubgraphHitView hitIndex(hitIndexProduct);
 
   const auto tidToParticle = buildTrackIdToParticle(graph, raw);
-  truth::BranchHitAssociator assoc(hitIndexProduct, {}, truth::BranchHitAssociator::Metric::SharedHits);
+  const auto generations = truth::particleGenerations(graph);
+  truth::BranchHitAssociator assoc(hitIndexProduct,
+                                   {},
+                                   truth::BranchHitAssociator::Metric::SharedHits,
+                                   truth::HitChannel::Calo,
+                                   /*emptyRootsMeansAll=*/true,
+                                   truth::BranchHitAssociator::kAllDetectors,
+                                   /*recHitEnergies=*/nullptr,
+                                   generations);
 
   // Per-cell deposited (sim) energy = sum of every particle's direct Calo hits
   // in that cell (each PCaloHit belongs to exactly one SimTrack), and per-cell
