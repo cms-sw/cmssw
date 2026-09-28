@@ -36,7 +36,7 @@ autoCond = {
     # GlobalTag for Run3 data relvals (express GT): same as 161X_dataRun3_Express_v1 but with snapshot at 2026-05-20 10:12:15 (UTC)
     'run3_data_express'            :    '161X_dataRun3_Express_frozen260520_v1',
     # GlobalTag for Run3 data relvals (prompt GT): same as 161X_dataRun3_Prompt_v1 but with snapshot at 2026-05-20 10:14:30 (UTC)
-    'run3_data_prompt'             :    '161X_dataRun3_Prompt_frozen260520_v1',
+    'run3_data_prompt'             :    '161X_dataRun3_Prompt_v2',
     # GlobalTag for Run3 offline data reprocessing - snapshot at 2026-03-30 15:14:30 (UTC)
     'run3_data'                    :    '150X_dataRun3_v8',
     # GlobalTag for Run3 offline data reprocessing with Prompt GT, currently for 2022FG - snapshot at 2024-05-31 08:53:25 (UTC)
@@ -88,7 +88,7 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with perfectly aligned and calibrated detector for Phase1 2023, Strip tracker in DECO mode
     'phase1_2023_cosmics_design'   :    '140X_mcRun3_2023cosmics_design_deco_v1',
     # GlobalTag for MC production with realistic conditions for Phase1 2023 detector for Heavy Ion
-    'phase1_2023_realistic_hi'     :    '141X_mcRun3_2023_realistic_HI_v11',
+    'phase1_2023_realistic_hi'     :    '141X_mcRun3_2023_realistic_HI_Candidate_2026_09_21_12_30_16',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2024
     'phase1_2024_design'           :    '140X_mcRun3_2024_design_v11',
     # GlobalTag for MC production with realistic conditions for Phase1 2024
@@ -98,7 +98,7 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with perfectly aligned and calibrated detector for Phase1 2024, Strip tracker in DECO mode
     'phase1_2024_cosmics_design'   :    '140X_mcRun3_2024cosmics_design_deco_v11',
     # GlobalTag for MC production with realistic conditions for Phase1 2024 detector for Heavy Ion
-    'phase1_2024_realistic_hi'     :    '141X_mcRun3_2024_realistic_HI_v17',
+    'phase1_2024_realistic_hi'     :    '141X_mcRun3_2024_realistic_HI_Candidate_2026_09_21_12_00_15',
     # GlobalTag for MC production with realistic conditions for Phase1 2024 detector for ppRef5TeV
     'phase1_2024_realistic_ppRef5TeV' : '141X_mcRun3_2024_realistic_ppRef5TeV_v7',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2025
@@ -108,7 +108,7 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2025, Strip tracker in DECO mode
     'phase1_2025_cosmics'          :    '150X_mcRun3_2025cosmics_realistic_deco_v4',
     # GlobalTag for MC production with realistic conditions for Phase1 2025 detector for Heavy Ion
-    'phase1_2025_realistic_hi'     :    '151X_mcRun3_2025_realistic_HI_v5',
+    'phase1_2025_realistic_hi'     :    '151X_mcRun3_2025_realistic_HI_Candidate_2026_09_21_12_01_05',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2026
     'phase1_2026_design'           :    '160X_mcRun3_2026_design_v2',
     # GlobalTag for MC production with realistic conditions for Phase1 2026
