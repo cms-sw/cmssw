@@ -46,12 +46,14 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   const edm::EDGetTokenT<Run3ScoutingTrackCollection> trackToken_;
+  const bool skipMissingProduct_;
 
   std::vector<int> vertexIndex_;
 };
 
 Run3ScoutingTrackToRecoTrackProducer::Run3ScoutingTrackToRecoTrackProducer(const edm::ParameterSet& iConfig)
-    : trackToken_(consumes<Run3ScoutingTrackCollection>(iConfig.getParameter<edm::InputTag>("src"))) {
+    : trackToken_(consumes<Run3ScoutingTrackCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+      skipMissingProduct_(iConfig.getParameter<bool>("skipMissingProduct")) {
   produces<reco::TrackCollection>();
   produces<edm::ValueMap<int>>("vertexIndex");
 }
@@ -61,9 +63,17 @@ void Run3ScoutingTrackToRecoTrackProducer::produce(edm::Event& iEvent, const edm
 
   vertexIndex_.clear();
 
-  const auto& scoutingTracks = iEvent.get(trackToken_);
+  const auto& scoutingTracksH = iEvent.getHandle(trackToken_);
+  if (!scoutingTracksH.isValid()) {
+    if (skipMissingProduct_) {
+      return;
+    } else {
+      throw cms::Exception("Run3ScoutingTrackToRecoTrackProducer")
+          << "Scouting Track input product is missing and skipMissingProduct is set to false.";
+    }
+  }
 
-  for (const auto& sTrack : scoutingTracks) {
+  for (const auto& sTrack : *scoutingTracksH) {
     reco::Track recoTrack = pat::makeRecoTrack(sTrack);
 
     // Populate hit pattern from scouting hit counts.
@@ -118,6 +128,7 @@ void Run3ScoutingTrackToRecoTrackProducer::produce(edm::Event& iEvent, const edm
 void Run3ScoutingTrackToRecoTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("hltScoutingTrackPacker"));
+  desc.add<bool>("skipMissingProduct", false);
   descriptions.addWithDefaultLabel(desc);
 }
 
