@@ -64,14 +64,14 @@ TEST_CASE("AoS Unit Tests") {
   // So the total memory is sizeof(SoA::Metadata::value_element) * elems + the size of the scalar members
   const auto expectedBufferSize = sizeof(SoA::Metadata::value_element) * elems + sizeof(int8_t) + sizeof(float) +
                                   sizeof(int64_t) + sizeof(double) + sizeof(const char *);
-  REQUIRE(expectedBufferSize == aosBufferSize);
+  REQUIRE(cms::soa::alignSize(expectedBufferSize, SoA::alignment) == aosBufferSize);
 
   // memory buffer for the SoA
   std::unique_ptr<std::byte, decltype(std::free) *> soaBuffer{
       reinterpret_cast<std::byte *>(aligned_alloc(SoA::alignment, soaBufferSize)), std::free};
 
-  std::unique_ptr<std::byte, decltype(std::free) *> aosBuffer{reinterpret_cast<std::byte *>(std::malloc(aosBufferSize)),
-                                                              std::free};
+  std::unique_ptr<std::byte, decltype(std::free) *> aosBuffer{
+      reinterpret_cast<std::byte *>(aligned_alloc(SoA::alignment, aosBufferSize)), std::free};
 
   // SoA Layout
   SoA soa{soaBuffer.get(), elems};
@@ -369,14 +369,14 @@ TEST_CASE("AoS Unit Tests Scalar only") {
   // Size of an empty struct is 1 byte!
   const auto expectedBufferSize = elems + sizeof(int8_t) + sizeof(float) + sizeof(int64_t) + sizeof(double);
   REQUIRE(sizeof(SoAOnlyScalars::Metadata::value_element) == 1);
-  REQUIRE(expectedBufferSize == aosBufferSize);
+  REQUIRE(cms::soa::alignSize(expectedBufferSize, SoAOnlyScalars::alignment) == aosBufferSize);
 
   // memory buffer for the SoA of positions
   std::unique_ptr<std::byte, decltype(std::free) *> soaBuffer{
-      reinterpret_cast<std::byte *>(aligned_alloc(SoA::alignment, soaBufferSize)), std::free};
+      reinterpret_cast<std::byte *>(aligned_alloc(SoAOnlyScalars::alignment, soaBufferSize)), std::free};
 
-  std::unique_ptr<std::byte, decltype(std::free) *> aosBuffer{reinterpret_cast<std::byte *>(std::malloc(aosBufferSize)),
-                                                              std::free};
+  std::unique_ptr<std::byte, decltype(std::free) *> aosBuffer{
+      reinterpret_cast<std::byte *>(aligned_alloc(SoAOnlyScalars::alignment, aosBufferSize)), std::free};
 
   // SoA Layout
   SoAOnlyScalars soa{soaBuffer.get(), elems};
