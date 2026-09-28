@@ -34,32 +34,34 @@ namespace {
   // The first child whose species is in the list, without building the child vector.
   std::optional<truth::Particle> firstChildWithPdgId(truth::Particle const& copy, std::vector<int32_t> const& pdgIds) {
     const truth::Particle particle = copy.lastCopy();
-    std::optional<truth::Particle> found;
-    particle.forEachChildId([&](uint32_t child) {
-      if (found) {
-        return;
+    truth::Graph const& graph = *particle.graph();
+    for (const uint32_t vertex : graph.decayVertices(particle.id())) {
+      for (const uint32_t child : graph.outgoingParticles(vertex)) {
+        const int32_t pdgId = std::abs(graph.particles()[child].pdgId);
+        if (std::find(pdgIds.begin(), pdgIds.end(), pdgId) != pdgIds.end()) {
+          return truth::Particle(&graph, child);
+        }
       }
-      const int32_t pdgId = std::abs(particle.graph()->particles()[child].pdgId);
-      if (std::find(pdgIds.begin(), pdgIds.end(), pdgId) != pdgIds.end()) {
-        found.emplace(particle.graph(), child);
-      }
-    });
-    return found;
+    }
+    return std::nullopt;
   }
 
   // leptonic, hadronic or none, from the children of a W or a Z. A tau counts as a lepton
   // here, so W -> tau nu is leptonic whatever the tau does next.
   std::string decayMode(truth::Particle const& copy) {
     const truth::Particle boson = copy.lastCopy();
+    truth::Graph const& graph = *boson.graph();
     std::string mode = "none";
-    boson.forEachChildId([&](uint32_t child) {
-      const int32_t pdgId = boson.graph()->particles()[child].pdgId;
-      if (truth::isLepton(pdgId)) {
-        mode = "leptonic";
-      } else if (truth::isParton(pdgId) && mode == "none") {
-        mode = "hadronic";
+    for (const uint32_t vertex : graph.decayVertices(boson.id())) {
+      for (const uint32_t child : graph.outgoingParticles(vertex)) {
+        const int32_t pdgId = graph.particles()[child].pdgId;
+        if (truth::isLepton(pdgId)) {
+          mode = "leptonic";
+        } else if (truth::isParton(pdgId) && mode == "none") {
+          mode = "hadronic";
+        }
       }
-    });
+    }
     return mode;
   }
 

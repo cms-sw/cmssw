@@ -573,7 +573,7 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
         if (!truth::Branch(&graph, root).isInTime()) {
           continue;
         }
-        if (graph.particle(root).threeCharge() == 0) {
+        if (graph.particle(root).charge() == 0.) {
           continue;
         }
         if (trackerTruthPresent && hitIndex.directHits(truth::HitChannel::Tracker, root).empty()) {
