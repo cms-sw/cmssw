@@ -26,6 +26,20 @@ def _withRegions(folders, regions=None):
     return [f + ("" if not r else "/" + r) for f in folders for r in bands]
 
 
+def _harvestedFolders(domain, suffixes):
+    """The folders one harvester reads, one per collection and suffix.
+
+    The trackster collections of a reconstruction job are found from its schedule and its
+    input, which a harvesting job does not have. Their folders are therefore matched by a
+    pattern, and DQMGenericClient also takes the eta-region folders below a match.
+    """
+    if domain["name"] == "tracksters":
+        return [domain["dirName"] + "*_" + suffix + "$" for suffix in suffixes]
+    folders = [domain["dirName"] + instanceKey(label) + "_" + suffix
+               for label in recoLabels(domain["name"], domain["flavour"]) for suffix in suffixes]
+    return _withRegions(folders, domain.get("etaRegions"))
+
+
 from SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociationLabels_cff import (
     truthBranchWorkingPointsPSet,
     recoLabels,
@@ -454,11 +468,9 @@ for _d in _domains:
     # Two harvesters per domain because DQMGenericClient applies one string list to all
     # its subDirs: the per-WP folders carry only reco-driven MEs, the per-level folders
     # only truth-driven ones, and asking a folder for a ratio it never booked is noise.
-    _wpFolders = [_d["dirName"] + instanceKey(_label) + "_" + _wp
-                  for _label in recoLabels(_d["name"], _d["flavour"]) for _wp in _wps]
     _harvester = DQMEDHarvester(
         "DQMGenericClient",
-        subDirs=cms.untracked.vstring(*_withRegions(_wpFolders, _d.get("etaRegions"))),
+        subDirs=cms.untracked.vstring(*_harvestedFolders(_d, _wps)),
         efficiency=cms.vstring(*_recoDrivenStrings(
             _d["recoVariables"],
             strict="minSharedEnergyFractionForIndividual" in _d["thresholds"])),
@@ -475,11 +487,9 @@ for _d in _domains:
     else:
         truthBranchHarvestingSequence += _harvester
 
-    _truthFolders = [_d["dirName"] + instanceKey(_label) + "_" + _suffix
-                     for _label in recoLabels(_d["name"], _d["flavour"]) for _suffix in _truthSuffixes]
     _truthHarvester = DQMEDHarvester(
         "DQMGenericClient",
-        subDirs=cms.untracked.vstring(*_withRegions(_truthFolders, _d.get("etaRegions"))),
+        subDirs=cms.untracked.vstring(*_harvestedFolders(_d, _truthSuffixes)),
         efficiency=cms.vstring(*_truthDrivenStrings(
             _d.get("truthVariables"),
             duplicate="minSharedEnergyFractionForIndividual" not in _d["thresholds"])),

@@ -16,9 +16,8 @@ _validationCff = "Validation.TruthInfo.truthBranchValidation_cff"
 def _loadAssociators(process):
     """Label the association producers on the process."""
     # The associator cff builds its modules from the trackster label lists at import
-    # time, so the lists can only be retargeted while it is not imported yet. A job with
-    # VALIDATION imports it through globalValidation_cff, and there the labels are the
-    # ones of the registry.
+    # time, so the lists can only be retargeted while it is not imported yet. A job that
+    # imported it before this call keeps the labels of the registry.
     if _associatorsCff not in sys.modules:
         from SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociationLabels_cff import (
             setTracksterLabelsFromProcess,

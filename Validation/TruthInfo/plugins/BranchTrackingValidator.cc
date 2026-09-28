@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <mutex>
 #include <span>
 #include <string>
 #include <unordered_map>
@@ -30,6 +31,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/Common/interface/View.h"
@@ -43,6 +45,7 @@
 #include "PhysicsTools/TruthInfo/interface/Branch.h"
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
 #include "PhysicsTools/TruthInfo/interface/SubgraphHitView.h"
+#include "PhysicsTools/TruthInfo/interface/TrackerCells.h"
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
 #include "SimDataFormats/TruthInfo/interface/InteractionId.h"
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
@@ -78,6 +81,8 @@ private:
   const edm::EDGetTokenT<truth::LogicalGraphHitIndex> hitIndexToken_;
   const edm::EDGetTokenT<edm::View<reco::Track>> trackToken_;
   const edm::EDGetTokenT<ClusterTPAssociation> clusterTPToken_;
+  // One warning per job for an input whose tracker truth carries no cells.
+  std::once_flag moduleKeyedWarned_;
 
   const std::string folder_;
   const double minPt_;
@@ -180,6 +185,13 @@ void BranchTrackingValidator::analyze(edm::Event const& event, edm::EventSetup c
   auto const& graph = event.get(graphToken_);
   auto const& raw = event.get(rawToken_);
   auto const& hitIndex = event.get(hitIndexToken_);
+  if (truth::isModuleKeyedTracker(hitIndex)) {
+    std::call_once(moduleKeyedWarned_, [] {
+      edm::LogWarning("BranchTrackingValidator")
+          << "the tracker truth of the input carries no cells, so no track matches it and the efficiency reads 0. "
+             "The input was digitised before the tracker truth was keyed by cell; reprocess it from the DIGI step.";
+    });
+  }
   truth::SubgraphHitView subgraphView(hitIndex);
   auto const& tracks = event.get(trackToken_);
   auto const& clusterTP = event.get(clusterTPToken_);
@@ -276,7 +288,7 @@ void BranchTrackingValidator::analyze(edm::Event const& event, edm::EventSetup c
 void BranchTrackingValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("truthLogicalGraphProducer"));
-  desc.add<edm::InputTag>("rawSrc", edm::InputTag("truthGraphProducer"));
+  desc.add<edm::InputTag>("rawSrc", edm::InputTag("mix"));
   desc.add<edm::InputTag>("hitIndex", edm::InputTag("truthLogicalGraphHitIndexProducer"));
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("clusterTPMap", edm::InputTag("tpClusterProducer"));

@@ -123,7 +123,9 @@ void TruthBranchTargetsProducer::produce(edm::StreamID, edm::Event& event, edm::
     // collection can be asked about, and the main event carries its whole shower: on one
     // ttbar event that is 176 partons and 2 diquarks. The levels that do ask about a
     // parton, partonJets and hardProcess, add their own members to the candidates below.
-    if (truth::isShowerObject(graph.particles()[id].pdgId)) {
+    // The top decays before it hadronizes, so it stays a candidate: the top presets seed
+    // on it.
+    if (truth::hadronizes(graph.particles()[id].pdgId)) {
       continue;
     }
     if (branchSelector_(truth::Branch(&graph, id))) {

@@ -52,10 +52,11 @@ namespace truth {
       if (!hit->isValid()) {
         continue;
       }
-      // A stub or a matched hit is not a single hit and carries no cluster of its own.
-      // The RTTI tag is an int compare, where a dynamic_cast on every hit of every track
-      // shows up in a PU200 profile.
-      if (!trackerHitRTTI::isSingle(*hit)) {
+      // A stub or a matched hit is not a single hit and carries no cluster of its own. A
+      // FastSim single hit is not a TrackerSingleRecHit and carries no cluster either, so
+      // the tag must be exactly single. The RTTI tag is an int compare, where a
+      // dynamic_cast on every hit of every track shows up in a PU200 profile.
+      if (trackerHitRTTI::rtti(*hit) != trackerHitRTTI::single) {
         continue;
       }
       const uint32_t detId = hit->geographicalId().rawId();

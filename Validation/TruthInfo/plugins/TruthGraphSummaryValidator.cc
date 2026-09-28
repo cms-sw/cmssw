@@ -71,8 +71,8 @@ public:
     histograms.particlesWithoutMomentum =
         booker.book1D("particles_without_momentum", "particles with no momentum per event", 200, 0., 100000.);
 
-    histograms.vertexRoles =
-        booker.book1D("vertex_roles", "vertices per role per event", kNVertexRoles, -0.5, kNVertexRoles - 0.5);
+    histograms.vertexRoles = booker.book1D(
+        "vertex_roles", "vertices per role, summed over the events", kNVertexRoles, -0.5, kNVertexRoles - 0.5);
     for (int role = 0; role < kNVertexRoles; ++role) {
       histograms.vertexRoles->setBinLabel(role + 1, truth::vertexRoleName(static_cast<truth::VertexRole>(role)));
     }
@@ -86,8 +86,8 @@ public:
       me->setBinLabel(bin, truth::kSignalLevelName);
       return me;
     };
-    histograms.levelMembersSignal = bookLevels("level_members_signal", "signal level members per event");
-    histograms.levelMembersPileup = bookLevels("level_members_pileup", "pileup level members per event");
+    histograms.levelMembersSignal = bookLevels("level_members_signal", "signal level members, summed over the events");
+    histograms.levelMembersPileup = bookLevels("level_members_pileup", "pileup level members, summed over the events");
   }
 
   void dqmAnalyze(edm::Event const& event, edm::EventSetup const&, Histograms const& histograms) const override {

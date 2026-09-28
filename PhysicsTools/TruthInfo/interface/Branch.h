@@ -72,15 +72,23 @@ namespace truth {
     // Only the members that meet the closure condition, ascending particle id.
     [[nodiscard]] std::vector<Particle> closureLeaves() const;
 
-    // Members that are stable leaves (up to and including the closure), ascending particle id.
+    // Members with no child, ascending particle id. On a branch that continues into Geant4
+    // these are the last secondaries of the simulation, not the generator final state.
     [[nodiscard]] std::vector<Particle> stableLeaves() const;
 
     // The members no other member covers: the final-state leaves of a full subtree,
     // or the particles the closure stopped at when it truncates.
     [[nodiscard]] std::vector<uint32_t> leaves() const;
 
-    // Kinematics, summed over the "frontier" leaves, so a truncated closure counts the particle
-    // it stopped at and never counts a particle together with its own ancestor.
+    // The particles the branch hands to the detector simulation, ascending particle id: a
+    // member Geant4 tracked, without its Geant4 descendants, and a member Geant4 never
+    // tracked that has no member child. A truncated closure contributes the particle it
+    // stopped at. This is the generator final state of a tau or a Z, and the particle
+    // itself for a branch rooted at a tracked particle.
+    [[nodiscard]] std::vector<Particle> finalState() const;
+
+    // Kinematics, summed over finalState(), so a particle is never counted together with
+    // its own ancestor or with the secondaries Geant4 made from it.
     [[nodiscard]] math::XYZTLorentzVectorD p4() const;
     [[nodiscard]] math::XYZTLorentzVectorD visibleP4() const;  // excludes neutrinos
     [[nodiscard]] double energy() const { return p4().energy(); }
@@ -109,6 +117,7 @@ namespace truth {
     [[nodiscard]] Branch merged(Branch const& other) const;
 
   private:
+    [[nodiscard]] std::vector<uint32_t> finalStateIds() const;
     void validate();
     // Fills stopIds (when non-null) with the particles where the closure stops
     [[nodiscard]] std::vector<uint32_t> traverse(std::vector<uint32_t>* stopIds = nullptr) const;

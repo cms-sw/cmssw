@@ -51,6 +51,7 @@ truthGraphAccumulator = cms.PSet(
     muonHits=_tags("MuonDTHits", "MuonCSCHits", "MuonRPCHits", "MuonGEMHits", "MuonME0Hits"),
     mtdHits=_tags("FastTimerHitsBarrel", "FastTimerHitsEndcap"),
     pileupBunchCrossings=cms.vint32(0),   # in-time pileup for the per-particle graph
+    bunchSpace=cms.int32(25),             # ns, the bunch spacing of the mixing
     collapsePileupGen=cms.bool(True),    # pileup keeps its stable GEN particles and the
                                          # species of collapsedGenKeptPdgIds
     collapsedGenKeptPdgIds=cms.vint32(*reconstructablePdgIds),  # decaying species the

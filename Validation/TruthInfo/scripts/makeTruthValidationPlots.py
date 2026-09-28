@@ -563,9 +563,8 @@ def _configured_values():
 def definitions_html():
     """A section showing the real definitions: configured values and predicate source."""
     out = ["<h2>Definitions, as the code actually has them</h2>",
-           "<p>Read at plot time from the release this file was made with, so nothing here can drift "
-           "out of date against the numbers on these pages. No file-and-line citations: those go stale "
-           "silently the moment a line is inserted above them.</p>"]
+           "<p>Read at plot time from the CMSSW area that runs this script. Run it in the release "
+           "that made the DQM file, or these definitions can differ from the ones behind the plots.</p>"]
     rows, seeds = _configured_values()
     out.append("<h3>Thresholds each domain is judged by</h3><ul class='idx'>")
     for name, th in rows:

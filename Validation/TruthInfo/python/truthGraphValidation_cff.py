@@ -1,8 +1,7 @@
 # Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
 
-# Branch performance-plot validation: the truth-graph producers, the Branch<->reco
-# association maps, and the DQM analyzers that turn them into plots comparing the
-# truth::Branch graph to the legacy truth objects. Harvesting (efficiency) lives in
+# Branch performance-plot validation: the DQM analyzers that compare the truth::Branch
+# graph to the legacy truth objects, and the cluster-to-TrackingParticle map they read. Harvesting (efficiency) lives in
 # truthGraphDQMHarvester_cff. Hooked into globalValidation behind enableTruth.
 
 import FWCore.ParameterSet.Config as cms
@@ -27,9 +26,9 @@ branchHGCalValidator = DQMEDAnalyzer(
 )
 
 # Tracker counterpart. A TrackingParticle has no hits of its own, so the
-# Branch<->TrackingParticle comparison is mediated by the reco track: the
-# association producer matches reco tracks to branches by shared tracker simhits,
-# and the validator closes the loop to the TrackingParticle via ClusterTPAssociation.
+# Branch<->TrackingParticle comparison is mediated by the reco track: the validator
+# matches each track to branches by shared tracker cells and to TrackingParticles
+# through ClusterTPAssociation.
 # Phase-2 tracker: pixel + outer-tracker (Phase2TrackerCluster1D), no strips.
 from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import tpClusterProducer as _tpClusterProducer
 truthTpClusterProducer = _tpClusterProducer.clone(

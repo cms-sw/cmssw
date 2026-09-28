@@ -187,9 +187,10 @@ namespace truth {
   [[nodiscard]] inline bool hadronizes(int32_t pdgId) { return isShowerObject(pdgId) && std::abs(pdgId) != 6; }
 
   // The physical reason a GEN-only vertex exists, from the species and the generator
-  // status codes of the particles that meet there. Returns Unknown for a vertex with a
-  // SIM side, which keeps its Geant4 reason, for an artificial vertex, and for anything
-  // the rules do not cover. The graph must have its adjacency built.
+  // status codes of the particles that meet there. Returns Unknown for a vertex with no
+  // GEN side, for an artificial vertex, and for anything the rules do not cover. The
+  // caller decides whether a vertex with a SIM side keeps its Geant4 reason instead. The
+  // graph must have its adjacency built.
   [[nodiscard]] inline VertexReason genVertexReason(Graph const& graph, uint32_t vertexId) {
     const std::size_t next = static_cast<std::size_t>(vertexId) + 1;
     if (next >= graph.vertexToIncomingParticleOffsets().size() ||
@@ -197,7 +198,7 @@ namespace truth {
       return VertexReason::Unknown;
 
     auto const& vertex = graph.vertices()[vertexId];
-    if (vertex.isArtificial() || vertex.hasSim() || !vertex.hasGen())
+    if (vertex.isArtificial() || !vertex.hasGen())
       return VertexReason::Unknown;
 
     const auto incoming = graph.incomingParticles(vertexId);
@@ -244,6 +245,12 @@ namespace truth {
         std::any_of(outgoing.begin(), outgoing.end(), [&](uint32_t id) { return !isShowerObject(pdgIdOf(id)); });
     if (fromString || (fromShower && (toHadron || anyOutgoingStatus(71, 79))))
       return VertexReason::Hadronization;
+
+    // A particle that comes out of its own vertex radiated, it did not decay: QED
+    // radiation off a lepton is a shower branching with the lepton on both sides.
+    if (incoming.size() == 1 && anyOutgoingStatus(41, 59) &&
+        std::any_of(outgoing.begin(), outgoing.end(), [&](uint32_t id) { return pdgIdOf(id) == pdgIdOf(incoming[0]); }))
+      return VertexReason::ShowerBranching;
 
     if (incoming.size() == 1 && !hadronizes(pdgIdOf(incoming[0])))
       return VertexReason::Decay;
@@ -356,9 +363,8 @@ namespace truth {
         return false;
       case Level::HardProcess:
         // The hard-scatter legs, not the resonance: see the header note.
-        // isHardProcess alone: isHardProcess and isLastCopy are never set on the same
-        // copy (0.00 per event on the generator record of ttbar, DYToLL and VBFHZZ4Nu),
-        // so repeated copies are removed by the deepest-element antichain below instead.
+        // isHardProcess alone. The copy collapse ORs the flags of a chain onto one
+        // particle, and the deepest-element antichain below removes repeated copies.
         return (data.statusFlags & detail::kIsHardProcess) != 0;
       case Level::StableDecayProducts:
         // Final-state generator particles. Stable at GEN means no GEN descendant, so
@@ -377,7 +383,8 @@ namespace truth {
         // than a per-particle rule, and is answered by partonJets().
         return false;
       case Level::BHadrons:
-        // The earliest-element antichain then keeps the B* and drops the B below it.
+        // The deepest-element antichain then keeps the weakly decaying hadron and drops
+        // the B* above it.
         return hadronHasQuark(data.pdgId, 5);
       case Level::ReconstructableFinalState:
         // A walk from the GEN roots, answered by reconstructableFinalState, so it never
@@ -399,9 +406,11 @@ namespace truth {
     return false;
   }
 
-  // Stable legs hanging off every artificial vertex of one role. InitialState collects the
-  // beam, hard-scatter and ISR side of the interaction, UnderlyingEvent the spectators; the walk is
-  // identical, so it is written once. A leg is a particle that produced nothing further,
+  // Stable legs hanging off every artificial vertex of one role. The InitialState vertex
+  // replaces the production context of the selected roots, so its legs are the stable
+  // descendants of those roots. The UnderlyingEvent vertex takes every stable particle
+  // outside them, initial-state radiation included. The walk is identical, so it is
+  // written once. A leg is a particle that produced nothing further,
   // which makes the result an antichain by construction.
   [[nodiscard]] inline std::vector<uint32_t> stableLegsFromRole(Graph const& graph, VertexRole role) {
     std::vector<uint32_t> legs;
