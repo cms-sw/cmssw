@@ -258,22 +258,15 @@ private:
   const edm::EDGetTokenT<truth::LogicalGraphHitIndex> hitIndexToken_;
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> layerClustersToken_;
   // Calorimetric domains only: the rechit collections whose energies weight every
-  // cell of the shared-energy metric, as the TICL associators weight them.
+  // cell of the shared-energy metric, as the TICL associators weight them. With no
+  // collection configured the metric weights the cells by their sim energy.
   std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hgcalRecHitTokens_;
   std::vector<edm::EDGetTokenT<reco::PFRecHitCollection>> pfRecHitTokens_;
-  // One warning per job when no rechit collection is present, because the metric
-  // then falls back to sim-energy weights and its scores are not the TICL ones.
-  mutable std::once_flag recHitsWarned_;
+  // One warning per job for an input condition that the maps cannot repair.
   mutable std::once_flag moduleKeyedWarned_;
-  mutable std::once_flag rowOutOfRangeWarned_;
   mutable std::once_flag placeholderVertexWarned_;
-  mutable std::once_flag layerClustersWarned_;
 
   std::vector<std::pair<std::string, edm::EDGetTokenT<std::vector<RECO>>>> recoTokens_;
-  // One warning per collection per job when its input is absent: a silently empty map
-  // is indistinguishable from a perfectly working associator on a bad label, and the
-  // downstream symptom is a fully booked, zero-entry DQM folder.
-  mutable std::vector<std::once_flag> missingWarned_;
   // One warning per collection per job when none of its hits is in the configured
   // denominator scope, because every shared-energy fraction is then zero, which reads
   // like a reconstruction that matches nothing. A barrel trackster collection under an
@@ -421,7 +414,6 @@ AllRecoToTruthBranchAssociatorsProducer<RECO>::AllRecoToTruthBranchAssociatorsPr
     }
     produces<MapType>(key + "TruthToReco");
   }
-  missingWarned_ = std::vector<std::once_flag>(recoTokens_.size());
   outOfScopeWarned_ = std::vector<std::once_flag>(recoTokens_.size());
 }
 
@@ -436,59 +428,36 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
     if (Traits::channel == truth::HitChannel::Tracker && truth::isModuleKeyedTracker(hitIndex)) {
       std::call_once(moduleKeyedWarned_, [] {
         edm::LogWarning("AllRecoToTruthBranchAssociatorsProducer")
-            << "the tracker truth of the input carries no cells, so no track matches it. The input was "
+            << "an input event has tracker truth with no cells, so no track of that event matches it. Its input was "
                "digitised before the tracker truth was keyed by cell; reprocess it from the DIGI step.";
       });
     }
   }
 
   std::vector<reco::CaloCluster> const* layerClusters = nullptr;
-  // The rechit energy of every cell, the weight of the shared-energy metric. Absent
-  // collections are skipped; an empty table makes the associator weight cells by their
-  // sim energy instead, so the job still produces maps. The barrel PFRecHits (DetId
-  // detectors 3 and 4) go in before the HGCAL rechits (8 to 10), and each collection is
-  // sorted by DetId, so the table is built in order and finalize() does not sort.
+  // The rechit energy of every cell, the weight of the shared-energy metric. Every
+  // configured collection is required. The barrel PFRecHits (DetId detectors 3 and 4) go
+  // in before the HGCAL rechits (8 to 10), and each collection is sorted by DetId, so the
+  // table is built in order and finalize() does not sort.
   truth::CellEnergyTable recHitEnergies;
   truth::CellEnergyTable const* recHitEnergiesPtr = nullptr;
   if constexpr (LayerClusterBackedRecoHits<RECO>) {
     for (auto const& token : pfRecHitTokens_) {
-      const edm::Handle<reco::PFRecHitCollection> handle = event.getHandle(token);
-      if (!handle.isValid())
-        continue;
-      recHitEnergies.reserve(recHitEnergies.size() + handle->size());
-      for (auto const& hit : *handle)
+      auto const& hits = event.get(token);
+      recHitEnergies.reserve(recHitEnergies.size() + hits.size());
+      for (auto const& hit : hits)
         recHitEnergies.add(hit.detId(), hit.energy());
     }
     for (auto const& token : hgcalRecHitTokens_) {
-      const edm::Handle<HGCRecHitCollection> handle = event.getHandle(token);
-      if (!handle.isValid())
-        continue;
-      recHitEnergies.reserve(recHitEnergies.size() + handle->size());
-      for (auto const& hit : *handle)
+      auto const& hits = event.get(token);
+      recHitEnergies.reserve(recHitEnergies.size() + hits.size());
+      for (auto const& hit : hits)
         recHitEnergies.add(hit.id().rawId(), hit.energy());
     }
     recHitEnergies.finalize();
-    if (recHitEnergies.empty()) {
-      std::call_once(recHitsWarned_, [] {
-        edm::LogWarning("AllRecoToTruthBranchAssociatorsProducer")
-            << "no rechit collection present; the shared-energy metric weights cells by sim energy";
-      });
-    } else {
+    if (!pfRecHitTokens_.empty() || !hgcalRecHitTokens_.empty())
       recHitEnergiesPtr = &recHitEnergies;
-    }
-    // Tolerant like the reco collections below: the HLT twin runs in jobs whose input
-    // may carry no HLT reconstruction at all, and then it must produce empty maps
-    // rather than throw. Trackster collections cannot be adapted without the clusters,
-    // so they are skipped when the clusters are absent.
-    const edm::Handle<std::vector<reco::CaloCluster>> handle = event.getHandle(layerClustersToken_);
-    if (handle.isValid()) {
-      layerClusters = &(*handle);
-    } else {
-      std::call_once(layerClustersWarned_, [] {
-        edm::LogWarning("AllRecoToTruthBranchAssociatorsProducer")
-            << "layer clusters absent; trackster collections produce empty maps. Reported once per job.";
-      });
-    }
+    layerClusters = &event.get(layerClustersToken_);
   }
 
   const unsigned int nBranches = graph.nParticles();
@@ -657,21 +626,8 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
 
   for (std::size_t collectionIndex = 0; collectionIndex < recoTokens_.size(); ++collectionIndex) {
     auto const& [key, token] = recoTokens_[collectionIndex];
-    edm::Handle<std::vector<RECO>> handle;
-    event.getByToken(token, handle);
-    // A trackster collection without its layer clusters cannot be adapted to hits, so
-    // it is treated exactly like an absent collection: valid empty maps.
-    bool valid = handle.isValid();
-    if constexpr (LayerClusterBackedRecoHits<RECO>) {
-      valid = valid && layerClusters != nullptr;
-    }
-    const unsigned int nReco = valid ? handle->size() : 0u;
-    if (!valid) {
-      std::call_once(missingWarned_[collectionIndex], [&key] {
-        edm::LogWarning("AllRecoToTruthBranchAssociatorsProducer")
-            << "input collection '" << key << "' absent; its association maps will be empty for this job";
-      });
-    }
+    auto const& collection = event.get(token);
+    const unsigned int nReco = collection.size();
 
     // Truth-driven direction, built ONCE: the truth target is fixed a priori, so the
     // reco-driven working point plays no part in it. Its score is 1 - truth purity.
@@ -685,9 +641,9 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
       recoHitsPerObject.resize(nReco);
       for (unsigned int i = 0; i < nReco; ++i) {
         if constexpr (LayerClusterBackedRecoHits<RECO>) {
-          recoHitsPerObject[i] = truth::recoHits((*handle)[i], *layerClusters);
+          recoHitsPerObject[i] = truth::recoHits(collection[i], *layerClusters);
         } else {
-          recoHitsPerObject[i] = truth::recoHits((*handle)[i]);
+          recoHitsPerObject[i] = truth::recoHits(collection[i]);
         }
       }
       if constexpr (Traits::metric == truth::BranchHitAssociator::Metric::SharedEnergy) {
@@ -751,7 +707,7 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
         // purity.
         auto const& constituentMap = event.get(constituentMapTokens_[collectionIndex][wpIndex]);
         for (unsigned int i = 0; i < nReco; ++i) {
-          auto const& object = (*handle)[i];
+          auto const& object = collection[i];
           // Summed in its own pass, not fused into the scan below: fusing changes the
           // inlining context of the float accumulation and with it the rounding of the
           // pt^2 sums, which moves association scores in the last ulp.
@@ -890,15 +846,11 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
         for (auto const& match : matches) {
           // The row index comes from the hit index and the map is sized from the graph.
           // A candidate outside the graph means the two products were built from
-          // different events, which is a configuration error, not a row to write.
+          // different events, which is a configuration error.
           if (match.rootParticleId >= nTruthRows) {
-            std::call_once(rowOutOfRangeWarned_, [&key] {
-              edm::LogWarning("AllRecoToTruthBranchAssociators")
-                  << "Hit index and truth graph disagree on the particle count for '" << key
-                  << "'; the candidates outside the graph are dropped. Check that both products come from the same "
-                     "event.";
-            });
-            continue;
+            throw cms::Exception("Configuration")
+                << "the hit index and the truth graph disagree on the particle count for '" << key
+                << "'. Both products must come from the same event.";
           }
           const float truthValue = sharedEnergyMetric ? match.sharedEnergyFraction : match.sharedEnergy;
           truthToReco->insert(match.rootParticleId, i, truthValue, match.reverseScore);
@@ -980,12 +932,14 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::fillDescriptions(edm::Config
                                          {edm::InputTag("HGCalRecHit", "HGCEERecHits"),
                                           edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
                                           edm::InputTag("HGCalRecHit", "HGCHEBRecHits")})
-        ->setComment("HGCAL rechits whose energies weight the cells of the shared-energy metric");
+        ->setComment(
+            "HGCAL rechits whose energies weight the cells of the shared-energy metric. Every listed collection is "
+            "required. With this list and pfRecHits both empty the cells are weighted by their sim energy");
     desc.add<std::vector<edm::InputTag>>(
             "pfRecHits", {edm::InputTag("particleFlowRecHitECAL"), edm::InputTag("particleFlowRecHitHBHE")})
         ->setComment(
             "Barrel PFRecHits whose energies weight the cells of the shared-energy metric; the collections the "
-            "barrel layer clusters are built from, not the Cleaned instances");
+            "barrel layer clusters are built from, not the Cleaned instances. Every listed collection is required");
   }
   if constexpr (ConstituentBasedDomain<RECO>) {
     desc.add<std::string>("constituentAssociator", "allTrackToTruthBranchAssociators")
