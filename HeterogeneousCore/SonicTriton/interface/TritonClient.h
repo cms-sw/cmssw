@@ -54,7 +54,7 @@ public:
   bool isLocal() const { return isLocal_; }
   const TritonService* service() const;
   const TritonService* localService() const;
-  std::string modelName() const { return options_[0].model_name_; }
+  std::string const& modelName() const { return options_[0].model_name_; }
   std::string const& serverName() const { return serverName_; }
   virtual void updateServer(const std::string& serverName);
   virtual void switchToFallback();

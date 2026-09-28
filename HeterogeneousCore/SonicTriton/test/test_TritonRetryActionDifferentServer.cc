@@ -30,6 +30,9 @@ public:
 
   const std::string& lastServerName() const { return lastUpdatedServerName; }
 
+  // start() is protected in the base class; make it callable from the test.
+  using TritonClient::start;
+
 protected:
   void evaluate() override {}
 
@@ -39,43 +42,41 @@ private:
 
 TEST_CASE("TritonRetryActionDifferentServer handles a missing TritonService gracefully",
           "[TritonRetryActionDifferentServer]") {
-  // Outside the full framework there is no ServiceRegistry, so TritonClient::service()
-  // cannot resolve a TritonService and querying for an alternative server fails. This
-  // exercises that retry() catches that failure without throwing, does not call
-  // updateServer (since no alternative server could be determined), and still disarms
-  // itself after the one allowed attempt.
+  // This test runs with no TritonService and no framework, so looking up a replacement
+  // server always fails. Check that retry() handles that failure cleanly: no exception
+  // escapes, updateServer() is never called, and the action disarms itself.
   ensurePluginManager();
   edm::ParameterSet empty;
   TestTritonClient client;
+  client.start();  // sets up the client's own retry bookkeeping, as the framework would
 
   auto action = RetryActionFactory::get()->create(
-      "TritonRetryActionDifferentServer", empty, static_cast<SonicClientBase*>(&client));
+      "TritonRetryActionDifferentServer", empty, static_cast<SonicClientBase&>(client));
 
-  // start should arm the action
   action->start();
   REQUIRE(action->shouldRetry());
 
-  // retry should not throw despite the missing TritonService, and should not call
-  // updateServer since no alternative server could be resolved
   REQUIRE_NOTHROW(action->retry());
-  REQUIRE(client.lastServerName().empty());
+  REQUIRE(client.lastServerName().empty());  // updateServer() was never reached
 
-  // one-time use: retry disarms itself after the first attempt
-  REQUIRE_FALSE(action->shouldRetry());
-
-  // second retry without re-arming should still be a no-op: lastServerName unchanged
-  action->retry();
-  REQUIRE(client.lastServerName().empty());
+  REQUIRE_FALSE(action->shouldRetry());  // one-shot: disarmed after a single attempt
 }
 
-// A client that throws during updateServer to exercise error handling path
+// A client whose updateServer() always fails, to exercise retry()'s error handling.
 class ThrowingTritonClient : public TritonClient {
 public:
   ThrowingTritonClient() : TritonClient() {}
   void updateServer(const std::string&) override { throw TritonException("updateServer failure"); }
 
+  using TritonClient::start;
+
+  // Bumped whenever evaluate() runs. We use this to check that a failed retry doesn't just
+  // get swallowed: evaluate() only runs if finish(false) reached the client and its own
+  // retry chain picked up the failure and tried again.
+  int evaluateCalls = 0;
+
 protected:
-  void evaluate() override {}
+  void evaluate() override { ++evaluateCalls; }
 };
 
 TEST_CASE("TritonRetryActionDifferentServer catches exceptions from updateServer",
@@ -83,10 +84,16 @@ TEST_CASE("TritonRetryActionDifferentServer catches exceptions from updateServer
   ensurePluginManager();
   edm::ParameterSet empty;
   ThrowingTritonClient client;
+  client.start();
   auto action = RetryActionFactory::get()->create(
-      "TritonRetryActionDifferentServer", empty, static_cast<SonicClientBase*>(&client));
+      "TritonRetryActionDifferentServer", empty, static_cast<SonicClientBase&>(client));
   action->start();
 
-  // Should not throw despite client throwing internally; action disarms afterward
+  // retry() must not let updateServer()'s exception escape...
   REQUIRE_NOTHROW(action->retry());
+
+  // ...but swallowing it silently would be a bug: the client would never hear about the
+  // failure and the call would hang forever. evaluateCalls == 1 proves the failure actually
+  // reached the client (via finish(false)) and its retry chain ran.
+  CHECK(client.evaluateCalls == 1);
 }

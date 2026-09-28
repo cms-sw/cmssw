@@ -104,12 +104,12 @@ def applyOptions(process, options, applyToModules=False):
 
 def getClientOptions(options):
     action = cms.PSet(
-                retryType = cms.string('SonicRetrySameServerAction'),
+                retryType = cms.untracked.string('SonicRetrySameServerAction'),
                 allowedTries = cms.untracked.uint32(options.tries))
     if options.retryAction != 'same':
-        action.retryType = cms.string('TritonRetryActionDifferentServer')
+        action.retryType = cms.untracked.string('TritonRetryActionDifferentServer')
 
-    fallback = cms.PSet(retryType = cms.string('TritonRetryFallbackServerAction'))
+    fallback = cms.PSet(retryType = cms.untracked.string('TritonRetryFallbackServerAction'))
     return dict(
         compression = cms.untracked.string(options.compression),
         useSharedMemory = cms.untracked.bool(not options.noShm),

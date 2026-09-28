@@ -19,9 +19,9 @@ SonicClientBase::SonicClientBase(const edm::ParameterSet& params,
   const auto& retryPSetList = params.getParameter<std::vector<edm::ParameterSet>>("Retry");
 
   for (const auto& retryPSet : retryPSetList) {
-    const std::string& actionType = retryPSet.getParameter<std::string>("retryType");
+    const std::string& actionType = retryPSet.getUntrackedParameter<std::string>("retryType");
 
-    auto retryAction = RetryActionFactory::get()->create(actionType, retryPSet, this);
+    auto retryAction = RetryActionFactory::get()->tryToCreate(actionType, retryPSet, *this);
     if (retryAction) {
       //Convert to  RetryActionPtr Type from raw pointer of retryAction
       retryActions_.emplace_back(RetryActionPtr(retryAction.release()));
@@ -108,12 +108,12 @@ void SonicClientBase::fillBasePSetDescription(edm::ParameterSetDescription& desc
 
   // Defines the structure of each entry in the VPSet
   edm::ParameterSetDescription retryDesc;
-  retryDesc.add<std::string>("retryType", defaultRetryType);
+  retryDesc.addUntracked<std::string>("retryType", defaultRetryType);
   retryDesc.addUntracked<unsigned>("allowedTries", 0);  //used by SonicRetrySameServerAction only
 
   // Define a default retry action
   edm::ParameterSet defaultRetry;
-  defaultRetry.addParameter<std::string>("retryType", defaultRetryType);
+  defaultRetry.addUntrackedParameter<std::string>("retryType", defaultRetryType);
   defaultRetry.addUntrackedParameter<unsigned>("allowedTries", 0);
 
   // Add the VPSet with the default retry action

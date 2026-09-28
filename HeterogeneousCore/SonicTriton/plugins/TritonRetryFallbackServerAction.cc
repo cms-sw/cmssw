@@ -12,24 +12,24 @@
 //   - The model must have a modelConfigPath / repository path known to
 //     TritonService so it can be loaded dynamically.
 
-#include "HeterogeneousCore/SonicCore/interface/SonicRetryActionBase.h"
+#include "HeterogeneousCore/SonicTriton/interface/TritonRetryActionBase.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonClient.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-class TritonRetryFallbackServerAction : public SonicRetryActionBase {
+class TritonRetryFallbackServerAction : public TritonRetryActionBase {
 public:
-  TritonRetryFallbackServerAction(const edm::ParameterSet& conf, SonicClientBase* client);
+  TritonRetryFallbackServerAction(const edm::ParameterSet& conf, SonicClientBase& client);
   ~TritonRetryFallbackServerAction() override = default;
 
   void retry() override;
   void start() override;
 };
 
-TritonRetryFallbackServerAction::TritonRetryFallbackServerAction(const edm::ParameterSet& conf, SonicClientBase* client)
-    : SonicRetryActionBase(conf, client) {}
+TritonRetryFallbackServerAction::TritonRetryFallbackServerAction(const edm::ParameterSet& conf, SonicClientBase& client)
+    : TritonRetryActionBase(conf, client) {}
 
 void TritonRetryFallbackServerAction::start() { this->shouldRetry_ = true; }
 
@@ -37,19 +37,10 @@ void TritonRetryFallbackServerAction::retry() {
   // Allow only one fallback attempt per inference call.
   shouldRetry_ = false;
 
-  auto* tc = dynamic_cast<TritonClient*>(client_);
-  if (!tc) {
-    // Should never happen in a correctly configured job.
-    edm::LogWarning("TritonRetryFallbackServerAction")
-        << "client_ is not a TritonClient — cannot redirect to fallback server";
-    finish(false);
-    return;
-  }
-
   CMS_SA_ALLOW try {
     // Start the fallback server (idempotent), load the model, and point
     // the client's gRPC connection at the fallback URL.
-    tc->switchToFallback();
+    tritonClient().switchToFallback();
     // Re-run the inference on the fallback server.
     eval();
   } catch (...) {

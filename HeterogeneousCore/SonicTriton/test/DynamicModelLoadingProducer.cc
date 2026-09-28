@@ -6,7 +6,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <memory>
-#include <atomic>
 #include <chrono>
 #include <thread>
 
@@ -21,18 +20,21 @@ public:
     putToken_ = produces<edmtest::IntProduct>();
   }
 
-  void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
-    edm::Service<TritonService> ts;
-    const std::string& modelName = client_->modelName();
+  void beginStream(edm::StreamID id) override {
+    TritonEDProducer<>::beginStream(id);
 
     // Dynamic load/unload is only supported on the fallback server (see TritonService),
     // so pin the connection there explicitly rather than relying on preferredServer/SITECONF-based
     // discovery, which could otherwise resolve this client to a different (remote) server than the
-    // one being loaded/unloaded below. Done once per stream, on first acquire() (module construction
-    // is too early: the fallback server may still be starting up as part of framework setup).
-    if (!fallbackPinned_.exchange(true)) {
-      client_->switchToFallback();
-    }
+    // one being loaded/unloaded below. Done once per stream, in beginStream() (module construction
+    // is too early: the fallback server is only guaranteed to be up once TritonService::preBeginJob()
+    // has run, which is before beginStream() but not before the module constructor).
+    client_->switchToFallback();
+  }
+
+  void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
+    edm::Service<TritonService> ts;
+    const std::string& modelName = client_->modelName();
 
     // Test dynamic loading and unloading
     if (testConcurrency_) {
@@ -93,7 +95,6 @@ public:
 private:
   int loadUnloadCycles_;
   bool testConcurrency_;
-  std::atomic<bool> fallbackPinned_{false};
   edm::EDPutTokenT<edmtest::IntProduct> putToken_;
 };
 

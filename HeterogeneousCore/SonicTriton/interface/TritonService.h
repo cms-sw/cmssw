@@ -7,7 +7,6 @@
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
-#include <map>
 #include <string>
 #include <functional>
 #include <utility>
@@ -176,9 +175,7 @@ private:
   mutable std::atomic<int> callFails_;
   std::string pid_;
   //this represents a many:many:many map
-  //ordered (not unordered_map) since iteration order must be deterministic: it drives
-  //server-assignment decisions, and the list is short enough that map's overhead doesn't matter
-  std::map<std::string, Server> servers_;
+  std::unordered_map<std::string, Server> servers_;
   std::unordered_map<std::string, Model> models_;
   std::unordered_map<unsigned, Module> modules_;
   int numberOfThreads_;
