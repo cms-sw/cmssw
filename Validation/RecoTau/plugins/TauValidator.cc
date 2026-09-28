@@ -350,29 +350,40 @@ void TauValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
     for (const auto& dm : decayModes_) {
       const std::string key = dm + "_" + hVar.first;
 
-      h_genTau_[key] =
-          ibooker.book1D("genTau_" + key, "#tau^{gen} " + dm + ";" + hVar.first + ";", nBins, hMin, hMax);
+      h_genTau_[key] = ibooker.book1D("genTau_" + key, "#tau^{gen} " + dm + ";" + hVar.first + ";", nBins, hMin, hMax);
 
-      h_genTauMatched_[key] =
-          ibooker.book1D("genTauMatched_" + key, "#tau^{gen} " + dm + " matched;" + hVar.first + ";", nBins, hMin, hMax);
+      h_genTauMatched_[key] = ibooker.book1D(
+          "genTauMatched_" + key, "#tau^{gen} " + dm + " matched;" + hVar.first + ";", nBins, hMin, hMax);
 
-      h_genTauMultiMatched_[key] =
-          ibooker.book1D("genTauMultiMatched_" + key, "#tau^{gen} " + dm + " multi-matched;" + hVar.first + ";", nBins, hMin, hMax);
+      h_genTauMultiMatched_[key] = ibooker.book1D(
+          "genTauMultiMatched_" + key, "#tau^{gen} " + dm + " multi-matched;" + hVar.first + ";", nBins, hMin, hMax);
 
       h_recoTau_[key] =
           ibooker.book1D("recoTau_" + key, "#tau^{reco} " + dm + ";" + hVar.first + ";", nBins, hMin, hMax);
 
-      h_recoTauMatched_[key] =
-          ibooker.book1D("recoTauMatched_" + key, "#tau^{reco} " + dm + " matched;" + hVar.first + ";", nBins, hMin, hMax);
+      h_recoTauMatched_[key] = ibooker.book1D(
+          "recoTauMatched_" + key, "#tau^{reco} " + dm + " matched;" + hVar.first + ";", nBins, hMin, hMax);
 
-      h_recoTauMultiMatched_[key] =
-          ibooker.book1D("recoTauMultiMatched_" + key, "#tau^{reco} " + dm + " multi-matched;" + hVar.first + ";", nBins, hMin, hMax);
+      h_recoTauMultiMatched_[key] = ibooker.book1D(
+          "recoTauMultiMatched_" + key, "#tau^{reco} " + dm + " multi-matched;" + hVar.first + ";", nBins, hMin, hMax);
 
-      h2d_responsePt_[key] =
-          ibooker.book2D("responsePt_" + key, "#tau^{gen} " + dm + ";" + hVar.first + ";#tau p_{T} response", nBins, hMin, hMax, 50, 0., 2.);
+      h2d_responsePt_[key] = ibooker.book2D("responsePt_" + key,
+                                            "#tau^{gen} " + dm + ";" + hVar.first + ";#tau p_{T} response",
+                                            nBins,
+                                            hMin,
+                                            hMax,
+                                            50,
+                                            0.,
+                                            2.);
 
-      h2d_responseMass_[key] =
-          ibooker.book2D("responseMass_" + key, "#tau^{gen} " + dm + ";" + hVar.first + ";#tau mass response", nBins, hMin, hMax, 50, 0., 2.);
+      h2d_responseMass_[key] = ibooker.book2D("responseMass_" + key,
+                                              "#tau^{gen} " + dm + ";" + hVar.first + ";#tau mass response",
+                                              nBins,
+                                              hMin,
+                                              hMax,
+                                              50,
+                                              0.,
+                                              2.);
     }
   }
   ibooker.setCurrentFolder(outFolder);
@@ -482,7 +493,8 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
       recoTauIDValues.push_back(idValuesForTau);
       recoTauWPValues.push_back(wpValuesForTau);
       recoTaus.push_back(tauFromPat);
-      recoTauDecayModes.push_back(reco::tau::translateRecoDecayModeToGen(static_cast<reco::PFTau::hadronicDecayMode>(patTaus->at(itau).decayMode())));
+      recoTauDecayModes.push_back(reco::tau::translateRecoDecayModeToGen(
+          static_cast<reco::PFTau::hadronicDecayMode>(patTaus->at(itau).decayMode())));
     }
   }
 
@@ -503,7 +515,6 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
     h2d_genTau_["pt_mass"]->Fill(genTau.pt(), genTau.mass());
     h2d_genTau_["mass_eta"]->Fill(genTau.mass(), genTau.eta());
     h2d_genTau_["mass_phi"]->Fill(genTau.mass(), genTau.phi());
-
 
     const std::string genDM = JetMCTagUtils::genTauDecayMode(genTau);
     if (std::find(decayModes_.begin(), decayModes_.end(), genDM) == decayModes_.end()) {
@@ -608,7 +619,7 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
     h2d_recoTau_["mass_phi"]->Fill(recoTau.mass(), recoTau.phi());
 
     // For recotau decay modes:
-    const std::string recoDM = recoTauDecayModes[itau];
+    const std::string& recoDM = recoTauDecayModes[itau];
     if (std::find(decayModes_.begin(), decayModes_.end(), recoDM) == decayModes_.end()) {
       edm::LogWarning("TauValidator") << "Unexpected reco tau decay mode: '" << recoDM << "'";
       continue;
@@ -729,18 +740,16 @@ void TauValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   ps_presel.add<double>("EtaMaxRecoCut", 3.);
 
   desc.add<edm::ParameterSetDescription>("TauPreSelection", ps_presel);
-  desc.add<std::vector<std::string>>(
-      "decayModes",
-      std::vector<std::string>{
-          "oneProng0Pi0",
-          "oneProng1Pi0",
-          "oneProng2Pi0",
-          "oneProngOther",
-          "threeProng0Pi0",
-          "threeProng1Pi0",
-          "threeProngOther",
-          "rare",
-          "unknown"});
+  desc.add<std::vector<std::string>>("decayModes",
+                                     std::vector<std::string>{"oneProng0Pi0",
+                                                              "oneProng1Pi0",
+                                                              "oneProng2Pi0",
+                                                              "oneProngOther",
+                                                              "threeProng0Pi0",
+                                                              "threeProng1Pi0",
+                                                              "threeProngOther",
+                                                              "rare",
+                                                              "unknown"});
   descriptions.addWithDefaultLabel(desc);
 }
 
