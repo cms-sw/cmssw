@@ -340,6 +340,9 @@ void TauValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
                                                            hMaxY);
   }
 
+  // Keep decay-mode histograms separate for each inclusive/ID selection.
+  ibooker.setCurrentFolder(outFolder + "/DecayModes");
+
   // Book histograms per decay mode.
   for (const auto& hVar : histoVars) {
     auto [nBins, hMin, hMax] = hVar.second;
@@ -372,7 +375,7 @@ void TauValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
           ibooker.book2D("responseMass_" + key, "#tau^{gen} " + dm + ";" + hVar.first + ";#tau mass response", nBins, hMin, hMax, 50, 0., 2.);
     }
   }
-
+  ibooker.setCurrentFolder(outFolder);
 }
 
 //------------------------------------------------------------------------------
