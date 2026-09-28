@@ -236,6 +236,12 @@ namespace {
 
   template <typename RECO>
   concept ConstituentBasedDomain = TruthAssociationTraits<RECO>::strategy == AssociationStrategy::ConstituentBased;
+
+  // A domain matched on shared calorimeter energy, whose cells are weighted by their
+  // rechit energy as the TICL associators weight them.
+  template <typename RECO>
+  concept RecHitWeightedDomain =
+      HitBasedDomain<RECO> && TruthAssociationTraits<RECO>::metric == truth::BranchHitAssociator::Metric::SharedEnergy;
 }  // namespace
 
 template <typename RECO>
@@ -310,6 +316,8 @@ AllRecoToTruthBranchAssociatorsProducer<RECO>::AllRecoToTruthBranchAssociatorsPr
       heavyFlavorOnly_(cfg.getParameter<bool>("heavyFlavorOnly")) {
   if constexpr (LayerClusterBackedRecoHits<RECO>) {
     layerClustersToken_ = consumes<std::vector<reco::CaloCluster>>(cfg.getParameter<edm::InputTag>("layerClusters"));
+  }
+  if constexpr (RecHitWeightedDomain<RECO>) {
     for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("hgcalRecHits"))
       hgcalRecHitTokens_.push_back(consumes<HGCRecHitCollection>(tag));
     for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("pfRecHits"))
@@ -441,7 +449,7 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
   // table is built in order and finalize() does not sort.
   truth::CellEnergyTable recHitEnergies;
   truth::CellEnergyTable const* recHitEnergiesPtr = nullptr;
-  if constexpr (LayerClusterBackedRecoHits<RECO>) {
+  if constexpr (RecHitWeightedDomain<RECO>) {
     for (auto const& token : pfRecHitTokens_) {
       auto const& hits = event.get(token);
       recHitEnergies.reserve(recHitEnergies.size() + hits.size());
@@ -457,6 +465,8 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
     recHitEnergies.finalize();
     if (!pfRecHitTokens_.empty() || !hgcalRecHitTokens_.empty())
       recHitEnergiesPtr = &recHitEnergies;
+  }
+  if constexpr (LayerClusterBackedRecoHits<RECO>) {
     layerClusters = &event.get(layerClustersToken_);
   }
 
@@ -934,10 +944,16 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::fillDescriptions(edm::Config
   desc.add<std::vector<float>>("adaptiveMaxReverseScore", {0.f});
   if constexpr (LayerClusterBackedRecoHits<RECO>) {
     desc.add<edm::InputTag>("layerClusters", edm::InputTag("hgcalMergeLayerClusters"));
-    desc.add<std::vector<edm::InputTag>>("hgcalRecHits",
-                                         {edm::InputTag("HGCalRecHit", "HGCEERecHits"),
-                                          edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
-                                          edm::InputTag("HGCalRecHit", "HGCHEBRecHits")})
+  }
+  if constexpr (RecHitWeightedDomain<RECO>) {
+    // A barrel particle-flow cluster has no HGCAL cell.
+    std::vector<edm::InputTag> hgcalRecHits;
+    if constexpr (LayerClusterBackedRecoHits<RECO>) {
+      hgcalRecHits = {edm::InputTag("HGCalRecHit", "HGCEERecHits"),
+                      edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
+                      edm::InputTag("HGCalRecHit", "HGCHEBRecHits")};
+    }
+    desc.add<std::vector<edm::InputTag>>("hgcalRecHits", hgcalRecHits)
         ->setComment(
             "HGCAL rechits whose energies weight the cells of the shared-energy metric. Every listed collection is "
             "required. With this list and pfRecHits both empty the cells are weighted by their sim energy");
