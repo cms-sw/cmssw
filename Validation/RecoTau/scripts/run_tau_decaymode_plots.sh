@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
 
-set -u
+set -euo pipefail
 
 : <<'COMMENT'
 Usage:
-  run_tau_decaymode_plots.sh [HLT|RECO] [SUBDIR] [DQM_FILE]
+  run_tau_decaymode_plots.sh [HLT|RECO] [SUBDIR] [DQM_FILE] [MATCHING_DR]
 
 Arguments:
   [HLT|RECO]   Which DQM path to use. Default: HLT
   [SUBDIR]     Optional TauValidation subdirectory, e.g. CutWP_VSjet0 or CutID_VSjet0p70
-               Leave empty to use the default TauValidation directory.
+               Leave empty to use TauValidation/DecayModes.
+               With SUBDIR, read TauValidation/SUBDIR/DecayModes.
   [DQM_FILE]   Optional harvested DQM ROOT file.
                Default: DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root
+  [MATCHING_DR] Matching radius used to PRODUCE the input, for labels only. Default: 0.3
 
 Examples:
   ./run_tau_decaymode_plots.sh HLT
@@ -23,13 +25,14 @@ Examples:
 
 This script overlays tau validation quantities split by decay mode.
 
-For DeltaR = 0.1, use the default TauValidation folder.
-Do not use TauValidation_DeltaR unless you explicitly enabled the DeltaR scan sequence.
+The default HLT and RECO configuration uses DeltaR = 0.3.
 COMMENT
 
 STEP_IN="${1:-HLT}"
 SUB_DIR="${2:-}"
-DQM_FILE="${3:-DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root}"
+DQM_FILE="${3:-/eos/user/s/smeriano/UCLouvain/Authorship_task/CMSSW_20_1_0_pre3/src/local_run_28_Sept_v1_condor_HLT_condor_HLT_HARVESTING_ALL_DELTAR_0p3/step3_hlt_HARVESTING_local.root}"
+
+MATCHING_DR="${4:-0.3}"
 
 STEP_UPPER="${STEP_IN^^}"
 
@@ -54,14 +57,14 @@ MAKE_COMPARISON="${SCRIPT_DIR}/makeComparisonPlots.py"
 MAKE_TAU_VALIDATION="${SCRIPT_DIR}/makeTauValidationPlots.py"
 
 ENERGY_TEXT="Ten Tau | 14 TeV"
-LABEL_TEXT="${STEP} Tau validation, $\Delta R = 0.1$"
+LABEL_TEXT="${STEP} Tau validation, $\Delta R < ${MATCHING_DR}$"
 
 if [ -n "$SUB_DIR" ]; then
-    SELECTED_DIR="${BASE_DIR}/${SUB_DIR}"
+    SELECTED_DIR="${BASE_DIR}/${SUB_DIR}/DecayModes"
     OUTDIR="TauValidationPlots/DecayModes_${STEP_UPPER}_${SUB_DIR}"
     LABEL_TEXT="${LABEL_TEXT}, ${SUB_DIR}"
 else
-    SELECTED_DIR="${BASE_DIR}"
+    SELECTED_DIR="${BASE_DIR}/DecayModes"
     OUTDIR="TauValidationPlots/DecayModes_${STEP_UPPER}_NoCut"
 fi
 
@@ -386,6 +389,12 @@ make_all_decaymode_summary_plots() {
     make_decaymode_summary_plot "Dup" "mass" "Summary_Dup_vs_mass" '$\tau$ mass [GeV]'  "Duplicate rate" "0,2" "0,1.2" "2"        "reco" "recoTau" "recoTauMultiMatched" "Duplicate rate" "Reco $\tau$'s" "Reco $\tau$'s matched to multiple gen $\tau$'s"
 }
 
+if ! rootls "$DQM_FILE:$SELECTED_DIR" >/dev/null 2>&1; then
+    echo "Cannot read decay-mode directory: $SELECTED_DIR" >&2
+    echo "Check the input file and ROOT environment. Regenerate and harvest files using the DecayModes layout." >&2
+    exit 1
+fi
+
 mkdir -p "$OUTDIR" "$OUTDIR_SUMMARY"
 
 echo "Input file:"
@@ -396,7 +405,7 @@ echo "Selected DQM directory:"
 echo "$SELECTED_DIR"
 
 echo
-echo "Making decay-mode plots for ${STEP_UPPER}, DeltaR = 0.1"
+echo "Making decay-mode plots for ${STEP_UPPER}, DeltaR < ${MATCHING_DR}"
 
 make_all_decaymode_summary_plots
 
