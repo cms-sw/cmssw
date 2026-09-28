@@ -952,6 +952,29 @@ public:
     b.graph.particles()[7].status = 52;
     truth::Graph withCopyStatus = b.finish();
     CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Hadronization, truth::genVertexReason(withCopyStatus, 2));
+
+    // A lepton that radiates a photon comes out of its own vertex: a shower branching,
+    // not a decay. A tau that decays keeps Decay.
+    GraphBuilder qed(5, 2);
+    auto setQed = [&qed](uint32_t id, int32_t pdgId, int16_t status) {
+      auto& p = qed.graph.particles()[id];
+      p.genNode = 100 + static_cast<int32_t>(id);
+      p.pdgId = pdgId;
+      p.status = status;
+    };
+    setQed(0, -11, 23);
+    setQed(1, -11, 1);
+    setQed(2, 22, 51);
+    setQed(3, 15, 2);
+    setQed(4, 16, 1);
+    qed.addDecay(0, 0);
+    qed.addProduction(0, 1);
+    qed.addProduction(0, 2);
+    qed.addDecay(3, 1);
+    qed.addProduction(1, 4);
+    truth::Graph radiation = qed.finish();
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::ShowerBranching, truth::genVertexReason(radiation, 0));
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Decay, truth::genVertexReason(radiation, 1));
   }
 
   // REQUIRED: the hard scatter is found without the status flags, which buildFromHepMC3
@@ -1036,8 +1059,8 @@ public:
     CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Decay, truth::genVertexReason(g, 0));
   }
 
-  // REQUIRED: only GEN-only vertices are classified here. A vertex with a SIM side keeps
-  // the Geant4 reason and an artificial vertex has none.
+  // REQUIRED: a vertex with a GEN side is classified from it, also when it is merged with
+  // a SimVertex. A vertex with no GEN side and an artificial vertex have no GEN reason.
   void testGenVertexReasonLeavesSimAndArtificialVertices() {
     GraphBuilder b(2, 2);
 
@@ -1058,7 +1081,7 @@ public:
     b.graph.vertices()[1].role = static_cast<uint8_t>(truth::VertexRole::UnderlyingEvent);
 
     truth::Graph g = b.finish();
-    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Unknown, truth::genVertexReason(g, 0));
+    CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Decay, truth::genVertexReason(g, 0));
     CPPUNIT_ASSERT_EQUAL(truth::VertexReason::Unknown, truth::genVertexReason(g, 1));
   }
 

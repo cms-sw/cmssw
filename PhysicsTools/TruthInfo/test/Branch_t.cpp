@@ -140,6 +140,7 @@ class TestBranch : public CppUnit::TestFixture {
   CPPUNIT_TEST(testChildAndSiblingLookups);
   CPPUNIT_TEST(testLevelReaders);
   CPPUNIT_TEST(testGenerations);
+  CPPUNIT_TEST(testFinalStateStopsAtGeant4);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -158,6 +159,7 @@ public:
   void testChildAndSiblingLookups();
   void testLevelReaders();
   void testGenerations();
+  void testFinalStateStopsAtGeant4();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranch);
@@ -578,4 +580,46 @@ void TestBranch::testGenerations() {
   CPPUNIT_ASSERT(cut[1] > cut[0]);
 
   CPPUNIT_ASSERT(truth::particleGenerations(GraphBuilder(0, 0).finish()).empty());
+}
+
+// REQUIRED: the kinematics of a branch are summed where the generator hands particles to
+// Geant4. A tracked particle counts with its own momentum and its Geant4 secondaries do
+// not; a particle Geant4 never tracked counts through its members below it.
+void TestBranch::testFinalStateStopsAtGeant4() {
+  // tau -> pi+ pi0 nu, pi0 -> gamma gamma, and the pi+ makes a delta-ray electron in Geant4.
+  GraphBuilder b(7, 3);
+  b.setParticle(0, 15, 2, 100.);  // tau, GEN only
+  b.setParticle(1, 211, 1, 50.);  // pi+, tracked
+  b.setParticle(2, 111, 2, 30.);  // pi0, GEN only
+  b.setParticle(3, 16, 1, 20.);   // nu_tau
+  b.setParticle(4, 22, 1, 16.);   // photon, tracked
+  b.setParticle(5, 22, 1, 14.);   // photon, tracked
+  b.setParticle(6, 11, 0, 0.5);   // delta ray, Geant4 only
+  b.addDecay(0, 0);
+  b.addProduction(0, 1);
+  b.addProduction(0, 2);
+  b.addProduction(0, 3);
+  b.addDecay(2, 1);
+  b.addProduction(1, 4);
+  b.addProduction(1, 5);
+  b.addDecay(1, 2);
+  b.addProduction(2, 6);
+  truth::Graph graph = b.finish();
+  for (const uint32_t tracked : {1u, 4u, 5u, 6u})
+    graph.particles()[tracked].simNode = 200 + tracked;
+  graph.particles()[6].genNode = -1;
+
+  const truth::Branch tau(&graph, 0);
+  std::vector<uint32_t> ids;
+  for (auto const& particle : tau.finalState())
+    ids.push_back(particle.id());
+  CPPUNIT_ASSERT(ids == (std::vector<uint32_t>{1, 3, 4, 5}));
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(80., tau.visibleEnergy(), 1e-9);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(100., tau.energy(), 1e-9);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(20., tau.invisibleEnergy(), 1e-9);
+
+  // A branch rooted at a tracked particle is that particle.
+  const truth::Branch pion(&graph, 1);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), pion.finalState().size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(50., pion.energy(), 1e-9);
 }

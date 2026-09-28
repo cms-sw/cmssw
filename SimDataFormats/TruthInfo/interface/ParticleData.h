@@ -106,7 +106,10 @@ namespace truth {
     // SIM event id when available, 0 otherwise.
     uint64_t eventId = 0;
 
-    // GEN connected component id from the raw TruthGraph, -1 if not applicable.
+    // The GEN record the node comes from, -1 if not applicable. An unmixed graph numbers
+    // the connected components of its GEN record. A mixed graph gives 0 to the signal and
+    // the pile-up index inside the bunch crossing to a pile-up interaction, so two
+    // crossings can share a value: eventId is the key of an interaction.
     int32_t genEvent = -1;
 
     // Bitwise OR of the LevelFlag values this particle belongs to. fillLevelFlags owns
