@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.helpers  import getPatAlgosToolsTask, addToProcessAndTask
 
 def miniAODFromMiniAOD_customizeCommon(process):
+    # the ONNX Runtime based taggers require the ONNXService
+    process.load("PhysicsTools.ONNXRuntime.ONNXService_cfi")
+
 
     task = getPatAlgosToolsTask(process)
 
