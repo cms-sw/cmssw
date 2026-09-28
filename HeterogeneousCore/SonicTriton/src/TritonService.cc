@@ -33,6 +33,8 @@ const std::string TritonService::Server::fallbackAddress{"0.0.0.0"};
 const std::string TritonService::Server::siteconfName{"SONIC_LOCAL_BALANCER"};
 
 namespace {
+  constexpr double nsPerMs = 1e6;
+
   std::pair<std::string, int> execSys(const std::string& cmd) {
     //redirect stderr to stdout
     auto pipe = popen((cmd + " 2>&1").c_str(), "r");
@@ -316,7 +318,7 @@ std::vector<std::pair<std::string, TritonService::ServerHealth>> TritonService::
         health.inferenceCount = infer.success().count();
         health.failureCount = infer.fail().count();
         health.avgSuccessTimeMs =
-            (health.inferenceCount > 0) ? infer.success().ns() / 1e6 / health.inferenceCount : 0.0;
+            (health.inferenceCount > 0) ? infer.success().ns() / nsPerMs / health.inferenceCount : 0.0;
       }
 
       healths.emplace_back(serverName, health);
