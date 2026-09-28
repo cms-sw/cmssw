@@ -22,7 +22,7 @@
 #include "TLorentzVector.h"
 
 namespace {
-  constexpr float cmToum = 10e4;
+  constexpr float cmToum = 1.e4;
   constexpr float mumass2 = 0.105658367 * 0.105658367;  //mu mass squared (GeV^2/c^4)
 }  // namespace
 
@@ -73,7 +73,7 @@ void DiMuonVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run co
   ts = fmt::sprintf("%s;PV-%sV xy distance error [#mum];%s", histTit, motherName_, ps);
   hSVDistErr_ = iBooker.book1D("VtxDistErr", ts, 100, 0., 1000.);
 
-  ts = fmt::sprintf("%s;PV-%sV xy distance signficance;%s", histTit, motherName_, ps);
+  ts = fmt::sprintf("%s;PV-%sV xy distance significance;%s", histTit, motherName_, ps);
   hSVDistSig_ = iBooker.book1D("VtxDistSig", ts, 100, 0., 5.);
 
   ts = fmt::sprintf("compatibility of %s vertex; compatibility of %s vertex; %s", motherName_, motherName_, ps);
@@ -85,7 +85,7 @@ void DiMuonVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run co
   ts = fmt::sprintf("%s;PV-%sV 3D distance error [#mum];%s", histTit, motherName_, ps);
   hSVDist3DErr_ = iBooker.book1D("VtxDist3DErr", ts, 100, 0., 1000.);
 
-  ts = fmt::sprintf("%s;PV-%sV 3D distance signficance;%s", histTit, motherName_, ps);
+  ts = fmt::sprintf("%s;PV-%sV 3D distance significance;%s", histTit, motherName_, ps);
   hSVDist3DSig_ = iBooker.book1D("VtxDist3DSig", ts, 100, 0., 5.);
 
   ts = fmt::sprintf("3D compatibility of %s vertex;3D compatibility of %s vertex; %s", motherName_, motherName_, ps);
@@ -159,6 +159,11 @@ void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
     return;
   }
 
+  if (myTracks[0]->charge() + myTracks[1]->charge() != 0) {
+    edm::LogWarning("DiMuonVertexMonitor") << "The two tracks do not have opposite charge!";
+    return;
+  }
+
   const auto& t1 = myTracks[1]->momentum();
   const auto& t0 = myTracks[0]->momentum();
   const auto& ditrack = t1 + t0;
@@ -198,22 +203,22 @@ void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
   KalmanVertexFitter kalman(true);
   mumuTransientVtx = kalman.vertex(tks);
 
+  if (!mumuTransientVtx.isValid())
+    return;
+
   double SVProb = TMath::Prob(mumuTransientVtx.totalChiSquared(), (int)mumuTransientVtx.degreesOfFreedom());
   hSVProb_->Fill(SVProb);
   hSVChi2_->Fill(mumuTransientVtx.totalChiSquared());
   hSVNormChi2_->Fill(mumuTransientVtx.totalChiSquared() / (int)mumuTransientVtx.degreesOfFreedom());
 
-  if (!mumuTransientVtx.isValid())
-    return;
-
   const reco::Vertex* theClosestVertex;
   // get collection of reconstructed vertices from event
   edm::Handle<reco::VertexCollection> vertexHandle = iEvent.getHandle(vertexToken_);
-  if (vertexHandle.isValid()) {
+  if (vertexHandle.isValid() && !vertexHandle->empty()) {
     const reco::VertexCollection* vertices = vertexHandle.product();
     theClosestVertex = this->findClosestVertex(mumuTransientVtx, vertices);
   } else {
-    edm::LogWarning("DiMuonVertexMonitor") << "invalid vertex collection encountered Skipping event!";
+    edm::LogWarning("DiMuonVertexMonitor") << "invalid or empty vertex collection encountered Skipping event!";
     return;
   }
 
@@ -403,7 +408,7 @@ void DiMuonVertexMonitor::fillDescriptions(edm::ConfigurationDescriptions& descr
     edm::ParameterSetDescription psSVDistSig;
     psSVDistSig.add<std::string>("name", "SVDistSig");
     psSVDistSig.add<std::string>("title", "PV-SV distance significance");
-    psSVDistSig.add<std::string>("yUnits", "[#mum]");
+    psSVDistSig.add<std::string>("yUnits", "");
     psSVDistSig.add<int>("NxBins", 24);
     psSVDistSig.add<int>("NyBins", 100);
     psSVDistSig.add<double>("ymin", 0.);
@@ -429,7 +434,7 @@ void DiMuonVertexMonitor::fillDescriptions(edm::ConfigurationDescriptions& descr
     edm::ParameterSetDescription psSVDist3DSig;
     psSVDist3DSig.add<std::string>("name", "SVDist3DSig");
     psSVDist3DSig.add<std::string>("title", "PV-SV 3D distance significance");
-    psSVDist3DSig.add<std::string>("yUnits", "[#mum]");
+    psSVDist3DSig.add<std::string>("yUnits", "");
     psSVDist3DSig.add<int>("NxBins", 24);
     psSVDist3DSig.add<int>("NyBins", 100);
     psSVDist3DSig.add<double>("ymin", 0.);
