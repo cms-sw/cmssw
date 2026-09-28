@@ -1971,12 +1971,13 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       template <typename AoSConstView>                                                                                 \
       requires (!AoSConstView::isSoA)                                                                                  \
       SOA_HOST_DEVICE SOA_INLINE void transpose(AoSConstView const& view, size_type index) {                           \
-        if (index == 0) {                                                                                              \
-          _ITERATE_ON_ALL(_COPY_AOS_SCALAR_MEMBERS, ~, __VA_ARGS__)                                                    \
+        if (index < base_type::elements_) {                                                                            \
+          (*this)[index] = view[index];                                                                                \
+          if (index == base_type::elements_ - 1){                                                                      \
+            _ITERATE_ON_ALL(_COPY_AOS_SCALAR_MEMBERS, ~, __VA_ARGS__)                                                  \
+          }                                                                                                            \
         }                                                                                                              \
-        if(index < base_type::elements_){(*this)[index] = view[index];}                                                \
       }                                                                                                                \
-                                                                                                                       \
                                                                                                                        \
       /* dump the SoA internal structure */                                                                            \
       template <typename T>                                                                                            \
@@ -1991,13 +1992,16 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     /* AoS as subclass of the SoA  */                                                                                  \
     struct AoSWrapper {                                                                                                \
       friend CLASS;                                                                                                    \
+      using value_element = typename CLASS::Metadata::value_element;                                                   \
+      static constexpr byte_size_type alignment = CLASS::alignment;                                                    \
       static constexpr bool isSoA = false;                                                                             \
                                                                                                                        \
       /* Helper function used by caller to externally allocate the storage */                                          \
       static constexpr byte_size_type computeDataSize(size_type elements) {                                            \
-        byte_size_type _aos_impl_ret = elements * sizeof(typename CLASS::Metadata::value_element);                     \
+        byte_size_type _aos_impl_ret = elements * sizeof(value_element);                                               \
         _ITERATE_ON_ALL(_ACCUMULATE_AOS_SCALARS, ~, __VA_ARGS__)                                                       \
-        return _aos_impl_ret;                                                                                          \
+        /* Align the total buffer size. Important when multiple layouts use the same buffer */                         \
+        return cms::soa::alignSize(_aos_impl_ret, alignment);                                                          \
       }                                                                                                                \
                                                                                                                        \
       /* Default constructor */                                                                                        \
@@ -2008,11 +2012,14 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         : mem_{mem},                                                                                                   \
           byteSize_{computeDataSize(elements)},                                                                        \
           elements_{elements},                                                                                         \
-          aos_{reinterpret_cast<typename CLASS::Metadata::value_element*>(mem)} {                                      \
+          aos_{reinterpret_cast<value_element*>(mem)} {                                                                \
+        if (reinterpret_cast<std::uintptr_t>(mem) % alignof(value_element) != 0)                                       \
+          cms::soa::detail::throwRuntimeError("In " #CLASS "::AoSWrapper: misaligned memory.");                        \
         auto _aos_impl_curMem = mem_;                                                                                  \
-        _aos_impl_curMem += elements * sizeof(typename CLASS::Metadata::value_element);                                \
+        _aos_impl_curMem += elements * sizeof(value_element);                                                          \
         _ITERATE_ON_ALL(_ASSIGN_AOS_SCALAR_MEMBERS, ~, __VA_ARGS__)                                                    \
-        if (mem_ + byteSize_ != _aos_impl_curMem)                                                                      \
+        auto padding = (alignment - (reinterpret_cast<std::uintptr_t>(_aos_impl_curMem) % alignment)) % alignment;     \
+        if (mem_ + byteSize_ != _aos_impl_curMem + padding)                                                            \
           cms::soa::detail::throwRuntimeError("In " #CLASS "::AoSWrapper: unexpected end pointer.");                   \
       }                                                                                                                \
                                                                                                                        \
@@ -2225,10 +2232,12 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template <typename SoAConstView>                                                                               \
         requires (SoAConstView::isSoA)                                                                                 \
         SOA_HOST_DEVICE SOA_INLINE void transpose(SoAConstView const& view, size_type index) {                         \
-          if (index == 0) {                                                                                            \
-            _ITERATE_ON_ALL(_COPY_AOS_SCALAR_MEMBERS, ~, __VA_ARGS__)                                                  \
+          if (index < this->elements_){                                                                                \
+            (*this)[index] = view[index];                                                                              \
+            if(index == this->elements_ - 1){                                                                          \
+              _ITERATE_ON_ALL(_COPY_AOS_SCALAR_MEMBERS, ~, __VA_ARGS__)                                                \
+            }                                                                                                          \
           }                                                                                                            \
-          if (index < this->elements_){(*this)[index] = view[index];}                                                  \
         }                                                                                                              \
       };                                                                                                               \
       using View = ViewTemplate<cms::soa::RangeChecking::Default>;                                                     \
@@ -2236,7 +2245,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       /* Declarations to make compatible with PortableCollections */                                                   \
       struct Descriptor;                                                                                               \
       struct ConstDescriptor;                                                                                          \
-      static constexpr byte_size_type alignment = CLASS::alignment;                                                    \
                                                                                                                        \
       template <cms::soa::RangeChecking::Mode RANGE_CHECKING>                                                          \
       SOA_HOST_DEVICE SOA_INLINE static ViewTemplate<RANGE_CHECKING> const_cast_View(                                  \

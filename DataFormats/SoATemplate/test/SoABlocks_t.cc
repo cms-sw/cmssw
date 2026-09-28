@@ -80,8 +80,8 @@ TEST_CASE("SoABlocks") {
 
   REQUIRE(aosBufferSize == checkBufferSize);
 
-  std::unique_ptr<std::byte, decltype(std::free) *> aosBuffer{reinterpret_cast<std::byte *>(std::malloc(aosBufferSize)),
-                                                              std::free};
+  std::unique_ptr<std::byte, decltype(std::free) *> aosBuffer{
+      reinterpret_cast<std::byte *>(aligned_alloc(SoABlocks::alignment, aosBufferSize)), std::free};
 
   AoSBlocks aosBlocks{aosBuffer.get(), sizes};
   AoSBlocks::View aosBlocksView{aosBlocks};
@@ -307,7 +307,8 @@ TEST_CASE("SoABlocks") {
 
     const auto aosBlocksExtendedBufferSize = NestedAoSBlocks::computeDataSize(sizes);
     std::unique_ptr<std::byte, decltype(std::free) *> aosBuffer{
-        reinterpret_cast<std::byte *>(std::malloc(aosBlocksExtendedBufferSize)), std::free};
+        reinterpret_cast<std::byte *>(aligned_alloc(NestedAoSBlocks::alignment, aosBlocksExtendedBufferSize)),
+        std::free};
 
     NestedAoSBlocks nestedAoSBlocks{aosBuffer.get(), sizes};
     NestedAoSBlocks::View nestedAoSBlocksView{nestedAoSBlocks};
