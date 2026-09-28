@@ -373,7 +373,7 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
 
       const reco::Track& matchedTrack = monitoredTracks->at(match.index);
 
-      fill_matching_tracks_histos(*&matchTracksMEs_, &track, &matchedTrack, &referenceBS, &referencePV);
+      fill_matching_tracks_histos(*&matchTracksMEs_, &matchedTrack, &track, &referenceBS, &referencePV);
     }
   }  // over reference tracks
 
@@ -726,7 +726,7 @@ void TrackToTrackComparisonHists::fill_matching_tracks_histos(
 
   (mes.h_dPt)->Fill(ref_pt - mon_pt);
   (mes.h_dEta)->Fill(ref_eta - mon_eta);
-  (mes.h_dPhi)->Fill(ref_phi - mon_phi);
+  (mes.h_dPhi)->Fill(reco::deltaPhi(ref_phi, mon_phi));
   (mes.h_dDxy)->Fill(ref_dxy - mon_dxy);
   (mes.h_dDz)->Fill(ref_dz - mon_dz);
   (mes.h_dDxyWRTpv)->Fill(ref_dxyWRTpv - mon_dxyWRTpv);
