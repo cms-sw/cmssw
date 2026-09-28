@@ -67,6 +67,18 @@ truthGraphAccumulator = cms.PSet(
     computeCellEnergyBudget=cms.bool(False),  # prototype energy-budget map, off by default
 )
 
+# The Phase-2 tracker, inner and outer, writes its sim hits into the four Pixel
+# collections only. The others exist in the file but are empty, and each would warn in
+# every event that it is not found.
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(
+    truthGraphAccumulator,
+    trackerHits=_tags(
+        "TrackerHitsPixelBarrelLowTof", "TrackerHitsPixelBarrelHighTof",
+        "TrackerHitsPixelEndcapLowTof", "TrackerHitsPixelEndcapHighTof",
+    ),
+)
+
 # The post-mixing build: logical graph + unresolved hit index from the mixed raw
 # graph (label mix) and the accumulator's merged simHits.
 from Validation.Configuration.truthPrevalidation_cff import (
