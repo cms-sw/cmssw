@@ -8,6 +8,3 @@ hltInitialStepTrackTorchClassifierOutput = cms.EDProducer("TrackTorchClassifierF
     dxyThreshold = cms.double(0.5),
     qualityCutsDisplaced = cms.vdouble(0.267, 0.267, 0.267) #all 99.5%
 )
-
-from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
-mtd_at_hlt.toModify(hltInitialStepTrackTorchClassifierOutput, copyTrajectories = True)
