@@ -29,16 +29,9 @@ branchHGCalValidator = DQMEDAnalyzer(
 # Branch<->TrackingParticle comparison is mediated by the reco track: the validator
 # matches each track to branches by shared tracker cells and to TrackingParticles
 # through ClusterTPAssociation.
-# Phase-2 tracker: pixel + outer-tracker (Phase2TrackerCluster1D), no strips.
-from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import tpClusterProducer as _tpClusterProducer
-truthTpClusterProducer = _tpClusterProducer.clone(
-    pixelClusterSrc=cms.InputTag("siPixelClusters"),
-    phase2OTClusterSrc=cms.InputTag("siPhase2Clusters"),
-    pixelSimLinkSrc=cms.InputTag("simSiPixelDigis", "Pixel"),
-    phase2OTSimLinkSrc=cms.InputTag("simSiPixelDigis", "Tracker"),
-    trackingParticleSrc=cms.InputTag("mix", "MergedTrackTruth"),
-    throwOnMissingCollections=cms.bool(False),
-)
+# The map is the one of the tracking validation, the same module, so it runs once per
+# event however many sequences hold it.
+from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import tpClusterProducer
 
 branchTrackingValidator = DQMEDAnalyzer(
     "BranchTrackingValidator",
@@ -46,7 +39,7 @@ branchTrackingValidator = DQMEDAnalyzer(
     rawSrc=cms.InputTag("mix"),  # merged raw graph, built at DIGI by the accumulator
     hitIndex=cms.InputTag("truthLogicalGraphHitIndexProducer"),
     tracks=cms.InputTag("generalTracks"),
-    clusterTPMap=cms.InputTag("truthTpClusterProducer"),
+    clusterTPMap=cms.InputTag("tpClusterProducer"),
     folder=cms.string("Tracking/BranchValidator"),
     minPt=cms.double(0.9),
     maxEta=cms.double(3.0),
@@ -68,7 +61,7 @@ truthGraphSummaryValidator = DQMEDAnalyzer(
     folder=cms.string("TruthInfo/Graph"),
 )
 
-truthGraphValidationProducers = cms.Sequence(truthTpClusterProducer)
+truthGraphValidationProducers = cms.Sequence(tpClusterProducer)
 truthGraphValidationAnalyzers = cms.Sequence(
     branchHGCalValidator
     + branchTrackingValidator
