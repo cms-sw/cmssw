@@ -79,7 +79,7 @@ private:
     MonitorElement* clusterSizeY = nullptr;
     unsigned int recHitCounter;
   };
-  std::map<std::string, RecHitME> layerMEs_;
+  std::map<int, RecHitME> layerMEs_;
   enum Level { IT = 1, SUBSTRUCTURE, SHELL, ENDCAP_RING, ENDCAP_WHEEL, LAYER };
 };
 #include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
@@ -137,7 +137,7 @@ void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent) {
         if ((fillingDepth == ENDCAP_RING || fillingDepth == ENDCAP_WHEEL) &&
             DetId(detId).subdetId() == PixelSubdetector::PixelBarrel)
           continue;
-        std::string key = phase2tkutil::getHistoId(detId.rawId(), tTopo_, detPos.phi(), fillingDepth, false);
+        int key = phase2tkutil::getNumericHistoId(detId.rawId(), tTopo_, detPos.phi(), fillingDepth);
 
         if (layerMEs_[key].clusterSizeX)
           layerMEs_[key].clusterSizeX->Fill(rechit.cluster()->sizeX());
@@ -216,14 +216,15 @@ void Phase2ITMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned
         DetId(det_id).subdetId() == PixelSubdetector::PixelBarrel)
       continue;
 
-    std::string key = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, false);
+    int key = phase2tkutil::getNumericHistoId(det_id, tTopo_, detPos.phi(), bookingDepth);
+    std::string folder = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, false);
     std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, true);
 
     if (layerMEs_.find(key) == layerMEs_.end()) {
       ibooker.cd();
       RecHitME local_histos;
-      ibooker.setCurrentFolder(subdir + "/" + key);
-      edm::LogInfo("Phase2ITMonitorRecHit") << " Booking Histograms in : " << (subdir + "/" + key);
+      ibooker.setCurrentFolder(subdir + "/" + folder);
+      edm::LogInfo("Phase2ITMonitorRecHit") << " Booking Histograms in : " << (subdir + "/" + folder);
 
       local_histos.numberRecHits = phase2tkutil::book1DFromPSet(
           config_.getParameter<edm::ParameterSet>("LocalNumberRecHits"), ibooker, prettyName, bookingDepth);

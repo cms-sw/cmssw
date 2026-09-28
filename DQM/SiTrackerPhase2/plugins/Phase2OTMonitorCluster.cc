@@ -71,7 +71,7 @@ private:
 
   void bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_it, std::string& subdir);
 
-  std::map<std::string, ClusterMEs> layerMEs_;
+  std::map<int, ClusterMEs> layerMEs_;
   enum Level { OT = 1, SUBSTRUCTURE, ENDCAP_SIDE, ENDCAP_RING, ENDCAP_WHEEL, LAYER };
 
   edm::ParameterSet config_;
@@ -160,7 +160,7 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
         // Skip filling for barrel detIds on endcap-only depths
         if ((fillingDepth >= ENDCAP_SIDE && fillingDepth < LAYER) && DetId(detId).subdetId() == SiStripSubdetector::TOB)
           continue;
-        std::string folderkey = phase2tkutil::getHistoId(detId, tTopo_, 0, fillingDepth, false);
+        int folderkey = phase2tkutil::getNumericHistoId(detId, tTopo_, 0, fillingDepth);
 
         auto layerMEit = layerMEs_.find(folderkey);
         if (layerMEit == layerMEs_.end())
@@ -286,8 +286,9 @@ void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
 
     std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, false);
     std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, true);
+    int key = phase2tkutil::getNumericHistoId(det_id, tTopo_, 0.0, bookingDepth);
 
-    if (layerMEs_.find(folderName) == layerMEs_.end()) {
+    if (layerMEs_.find(key) == layerMEs_.end()) {
       ibooker.cd();
       ibooker.setCurrentFolder(subdir + "/" + folderName);
       edm::LogInfo("Phase2OTMonitorCluster") << " Booking Histograms in: " << subdir + "/" + folderName;
@@ -359,7 +360,7 @@ void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
       local_mes.ClusterSize_S =
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSize_S"), ibooker, prettyName);
 
-      layerMEs_.emplace(folderName, local_mes);
+      layerMEs_.emplace(key, local_mes);
     }  //if block layerME find
   }
 }

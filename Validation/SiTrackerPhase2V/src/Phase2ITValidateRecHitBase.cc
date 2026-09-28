@@ -52,7 +52,8 @@ void Phase2ITValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, uns
   ibooker.cd();
   const GeomDet* geomDet = tkGeom_->idToDet(det_id);
   GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
-  std::string key = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), 6, false);
+  int key = phase2tkutil::getNumericHistoId(det_id, tTopo_, detPos.phi(), 6);
+  std::string folder = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), 6, false);
   if (layerMEs_.find(key) == layerMEs_.end()) {
     ibooker.cd();
     RecHitME local_histos;
@@ -61,7 +62,7 @@ void Phase2ITValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, uns
         phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi_barrel"), ibooker);
     local_histos.deltaPhi_endcaps =
         phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Phi_endcaps"), ibooker);
-    ibooker.setCurrentFolder(subdir + "/" + key);
+    ibooker.setCurrentFolder(subdir + "/" + folder);
     edm::LogInfo("Phase2ITValidateRecHit") << " Booking Histograms in : " << (subdir + "/" + key);
 
     local_histos.deltaX = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DeltaX"), ibooker);
@@ -106,7 +107,7 @@ void Phase2ITValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, uns
 
     local_histos.pullY_eta =
         phase2tkutil::bookProfile1DFromPSet(config_.getParameter<edm::ParameterSet>("PullY_eta"), ibooker);
-    ibooker.setCurrentFolder(subdir + "/" + key + "/PrimarySimHits");
+    ibooker.setCurrentFolder(subdir + "/" + folder + "/PrimarySimHits");
     //all histos for Primary particles
     local_histos.numberRecHitsprimary =
         phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("nRecHits_primary"), ibooker);
@@ -130,11 +131,11 @@ void Phase2ITValidateRecHitBase::bookLayerHistos(DQMStore::IBooker& ibooker, uns
 void Phase2ITValidateRecHitBase::fillRechitHistos(const PSimHit* simhitClosest,
                                                   const SiPixelRecHit* rechit,
                                                   const std::map<unsigned int, SimTrack>& selectedSimTrackMap,
-                                                  std::map<std::string, unsigned int>& nrechitLayerMap_primary) {
+                                                  std::map<int, unsigned int>& nrechitLayerMap_primary) {
   auto id = rechit->geographicalId();
   const GeomDet* geomDet = tkGeom_->idToDet(id);
   GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
-  std::string key = phase2tkutil::getHistoId(id.rawId(), tTopo_, detPos.phi(), 6, false);
+  int key = phase2tkutil::getNumericHistoId(id.rawId(), tTopo_, detPos.phi(), 6);
   const GeomDetUnit* geomDetunit(tkGeom_->idToDetUnit(id));
   if (!geomDetunit)
     return;

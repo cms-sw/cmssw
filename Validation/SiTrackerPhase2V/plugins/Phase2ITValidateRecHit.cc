@@ -114,7 +114,7 @@ void Phase2ITValidateRecHit::fillITHistos(const edm::Event& iEvent,
   const auto& rechits = iEvent.getHandle(tokenRecHitsIT_);
   if (!rechits.isValid())
     return;
-  std::map<std::string, unsigned int> nrechitLayerMap_primary;
+  std::map<int, unsigned int> nrechitLayerMap_primary;
   // Loop over modules
   for (const auto& DSViter : *rechits) {
     // Get the detector unit's id
@@ -123,7 +123,7 @@ void Phase2ITValidateRecHit::fillITHistos(const edm::Event& iEvent,
     const GeomDet* geomDet = tkGeom_->idToDet(detId);
     GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
     // determine the detector we are in
-    std::string key = phase2tkutil::getHistoId(detId.rawId(), tTopo_, detPos.phi(), 6, false);
+    int key = phase2tkutil::getNumericHistoId(detId.rawId(), tTopo_, detPos.phi(), 6);
     if (nrechitLayerMap_primary.find(key) == nrechitLayerMap_primary.end()) {
       nrechitLayerMap_primary.emplace(key, DSViter.size());
     } else {

@@ -60,7 +60,6 @@ public:
     MonitorElement* NumberOfDigisPerDet{nullptr};
     MonitorElement* DigiOccupancyP{nullptr};
     MonitorElement* DigiOccupancyS{nullptr};
-    MonitorElement* ChargeXYMap{nullptr};
     MonitorElement* ChargeOfDigis{nullptr};
     MonitorElement* ChargeOfDigisVsWidth{nullptr};
     MonitorElement* TotalNumberOfDigisPerLayer{nullptr};
@@ -93,7 +92,7 @@ private:
   void fillDigiClusters(DigiMEs& mes, std::vector<Ph2DigiCluster>& digi_clusters);
 
   const edm::ParameterSet config_;
-  std::map<std::string, DigiMEs> layerMEs;
+  std::map<int, DigiMEs> layerMEs;
   enum Level { ITOT = 1, SUBSTRUCTURE, SHELL_SIDE, ENDCAP_RING, ENDCAP_WHEEL, LAYER };
   const bool pixelFlag_;
   const bool clsFlag_;
@@ -229,8 +228,8 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
             DetId(detId).subdetId() == PixelSubdetector::PixelBarrel)
           continue;
 
-        std::string key = phase2tkutil::getHistoId(detId, tTopo_, detPos.phi(), fillingDepth, false);
-        std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
+        int key = phase2tkutil::getNumericHistoId(detId, tTopo_, detPos.phi(), fillingDepth);
+        std::map<int, DigiMEs>::iterator pos = layerMEs.find(key);
         if (pos == layerMEs.end())
           continue;
         DigiMEs& local_mes = pos->second;
@@ -239,9 +238,6 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
 
         if (clsFlag_)
           fillDigiClusters(local_mes, digiClusters);
-
-        if (local_mes.ChargeXYMap)
-          local_mes.ChargeXYMap->Fill(col, row, adc);
 
         if (local_mes.ChargeOfDigis)
           local_mes.ChargeOfDigis->Fill(adc);
@@ -366,8 +362,8 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
         // Skip filling for barrel detIds on endcap-only depths
         if ((fillingDepth >= SHELL_SIDE && fillingDepth < LAYER) && DetId(detId).subdetId() == SiStripSubdetector::TOB)
           continue;
-        std::string key = phase2tkutil::getHistoId(detId, tTopo_, detPos.phi(), fillingDepth, false);
-        std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
+        int key = phase2tkutil::getNumericHistoId(detId, tTopo_, detPos.phi(), fillingDepth);
+        std::map<int, DigiMEs>::iterator pos = layerMEs.find(key);
         if (pos == layerMEs.end())
           continue;
         DigiMEs& local_mes = pos->second;
@@ -500,9 +496,10 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
         ((bookingDepth >= SHELL_SIDE && bookingDepth < LAYER) && DetId(det_id).subdetId() == SiStripSubdetector::TOB))
       continue;
 
-    std::string key = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, false);
+    int key = phase2tkutil::getNumericHistoId(det_id, tTopo_, detPos.phi(), bookingDepth);
+    std::string folderKey = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, false);
     std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, true);
-    std::map<std::string, DigiMEs>::iterator pos = layerMEs.find(key);
+    std::map<int, DigiMEs>::iterator pos = layerMEs.find(key);
 
     if (pos == layerMEs.end()) {
       std::string top_folder = config_.getParameter<std::string>("TopFolderName");
@@ -513,7 +510,7 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
       bool isPtypeSensor = (pixelFlag_ || moduleType == TrackerGeometry::ModuleType::Ph2PSP);
 
       ibooker.cd();
-      ibooker.setCurrentFolder(top_folder + "/" + key);
+      ibooker.setCurrentFolder(top_folder + "/" + folderKey);
       LogDebug("Phase2TrackerMonitorDigi") << " Booking Histograms in : " << key;
 
       DigiMEs local_mes;
@@ -527,8 +524,6 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
 
       // Plots only for the inner pixel
       if (pixelFlag_) {
-        local_mes.ChargeXYMap =
-            phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("ChargeXYMapH"), ibooker, prettyName);
         local_mes.ChargeOfDigis =
             phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("DigiChargeH"), ibooker, prettyName);
         // For standalone clusteriser

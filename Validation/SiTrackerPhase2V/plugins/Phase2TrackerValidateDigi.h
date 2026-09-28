@@ -116,7 +116,7 @@ private:
   void fillHitsPerTrack();
 
   edm::ParameterSet config_;
-  std::map<std::string, DigiMEs> layerMEs;
+  std::map<int, DigiMEs> layerMEs;
 
   bool pixelFlag_;
   std::string geomType_;

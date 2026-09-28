@@ -90,7 +90,7 @@ private:
 
   void bookLayerHistos(DQMStore::IBooker &ibooker, uint32_t det_id, std::string &subdir);
 
-  std::map<std::string, TTClusterMEs> layerMEs_;
+  std::map<int, TTClusterMEs> layerMEs_;
   enum Level { OT = 1, SUBSTRUCTURE, ENDCAP_SIDE, ENDCAP_RING, ENDCAP_WHEEL, LAYER };
 
   edm::ParameterSet conf_;
@@ -156,8 +156,8 @@ void Phase2OTMonitorTTCluster::analyze(const edm::Event &iEvent, const edm::Even
       const GeomDet *theGeomDet = tkGeom_->idToDet(detIdClu);
       Global3DPoint posClu = theGeomDet->surface().toGlobal(theGeomDet->topology().localPosition(mp));
 
-      double r = posClu.perp();
-      double z = posClu.z();
+      float r = posClu.perp();
+      float z = posClu.z();
 
       Cluster_W->Fill(widClu, memberClu);
       Cluster_Eta->Fill(posClu.eta());
@@ -188,8 +188,8 @@ void Phase2OTMonitorTTCluster::analyze(const edm::Event &iEvent, const edm::Even
         if ((fillingDepth >= ENDCAP_SIDE && fillingDepth < LAYER) &&
             DetId(detIdClu).subdetId() == SiStripSubdetector::TOB)
           continue;
-        std::string folderKey = phase2tkutil::getHistoId(detIdClu, tTopo_, 0, fillingDepth, false);
-        auto layerMEiter = layerMEs_.find(folderKey);
+        int key = phase2tkutil::getNumericHistoId(detIdClu, tTopo_, 0, fillingDepth);
+        auto layerMEiter = layerMEs_.find(key);
         if (layerMEiter == layerMEs_.end())
           continue;
         TTClusterMEs &local_mes = layerMEiter->second;
@@ -287,8 +287,9 @@ void Phase2OTMonitorTTCluster::bookLayerHistos(DQMStore::IBooker &ibooker, uint3
   for (enum Level bookingDepth = OT; bookingDepth <= LAYER; bookingDepth = Level(bookingDepth + 1)) {
     std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, false);
     std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, true);
+    int key = phase2tkutil::getNumericHistoId(det_id, tTopo_, 0.0, bookingDepth);
 
-    if (layerMEs_.find(folderName) == layerMEs_.end()) {
+    if (layerMEs_.find(key) == layerMEs_.end()) {
       ibooker.cd();
       ibooker.setCurrentFolder(subdir + "/" + folderName);
       edm::LogInfo("Phase2OTMonitorTTCluster") << " Booking Histograms in: " << subdir + "/" + folderName;
@@ -326,7 +327,7 @@ void Phase2OTMonitorTTCluster::bookLayerHistos(DQMStore::IBooker &ibooker, uint3
           }
         }
       }
-      layerMEs_.emplace(folderName, local_mes);
+      layerMEs_.emplace(key, local_mes);
     }
   }
 }

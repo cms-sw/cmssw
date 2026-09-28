@@ -78,7 +78,7 @@ private:
                                           const DetId& detId,
                                           unsigned int channel);
 
-  std::map<std::string, ClusterMEs> layerMEs_;
+  std::map<int, ClusterMEs> layerMEs_;
 
   edm::ParameterSet config_;
   double simtrackminpt_;
@@ -178,7 +178,7 @@ void Phase2ITValidateCluster::fillITHistos(const edm::Event& iEvent,
       continue;
 
     GlobalPoint detPos = geomDetUnit->surface().toGlobal(Local2DPoint(0, 0));
-    std::string folderkey = phase2tkutil::getHistoId(detId, tTopo_, detPos.phi(), 6, false);
+    int folderkey = phase2tkutil::getNumericHistoId(detId, tTopo_, detPos.phi(), 6);
     for (const auto& clusterItr : DSVItr) {
       MeasurementPoint mpCluster(clusterItr.x(), clusterItr.y());
       Local3DPoint localPosCluster = geomDetUnit->topology().localPosition(mpCluster);
@@ -284,12 +284,13 @@ void Phase2ITValidateCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32
   const GeomDet* geomDet = tkGeom_->idToDet(det_id);
   GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
   std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), 6, false);
+  int key = phase2tkutil::getNumericHistoId(det_id, tTopo_, detPos.phi(), 6);
   if (folderName.empty()) {
     edm::LogWarning("Phase2ITValidateCluster") << ">>>> Invalid histo_id ";
     return;
   }
 
-  if (layerMEs_.find(folderName) == layerMEs_.end()) {
+  if (layerMEs_.find(key) == layerMEs_.end()) {
     ibooker.cd();
     ClusterMEs local_mes;
     ibooker.setCurrentFolder(subdir);
@@ -317,7 +318,7 @@ void Phase2ITValidateCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32
 
     local_mes.deltaY_P_primary =
         phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("Delta_Y_Pixel_Primary"), ibooker);
-    layerMEs_.emplace(folderName, local_mes);
+    layerMEs_.emplace(key, local_mes);
   }
 }
 

@@ -67,7 +67,7 @@ private:
 
   void bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_it, std::string& subdir);
 
-  std::map<std::string, ClusterMEs> layerMEs_;
+  std::map<int, ClusterMEs> layerMEs_;
   enum Level { IT = 1, SUBSTRUCTURE, SHELL, ENDCAP_RING, ENDCAP_WHEEL, LAYER };
   edm::ParameterSet config_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> itPixelClusterToken_;
@@ -150,8 +150,8 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
         if ((fillingDepth == ENDCAP_RING || fillingDepth == ENDCAP_WHEEL) &&
             DetId(detId).subdetId() == PixelSubdetector::PixelBarrel)
           continue;
-        std::string folderkey = phase2tkutil::getHistoId(detId, tTopo_, detPos.phi(), fillingDepth, false);
-        auto local_mesIT = layerMEs_.find(folderkey);
+        int key = phase2tkutil::getNumericHistoId(detId, tTopo_, detPos.phi(), fillingDepth);
+        auto local_mesIT = layerMEs_.find(key);
         if (local_mesIT == layerMEs_.end())
           continue;
         ClusterMEs& local_mes = local_mesIT->second;
@@ -237,8 +237,9 @@ void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
 
     std::string folderName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, false);
     std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, true);
+    int key = phase2tkutil::getNumericHistoId(det_id, tTopo_, detPos.phi(), bookingDepth);
 
-    std::map<std::string, ClusterMEs>::iterator pos = layerMEs_.find(folderName);
+    std::map<int, ClusterMEs>::iterator pos = layerMEs_.find(key);
 
     if (pos == layerMEs_.end()) {
       ibooker.cd();
@@ -320,7 +321,7 @@ void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
           }
         }
       }
-      layerMEs_.emplace(folderName, local_mes);
+      layerMEs_.emplace(key, local_mes);
     }
   }
 }

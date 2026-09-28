@@ -87,6 +87,72 @@ std::string phase2tkutil::getHistoId(uint32_t det_id, const TrackerTopology* tTo
   return foldername.str();
 }
 
+int phase2tkutil::getNumericHistoId(uint32_t det_id, const TrackerTopology* tTopo, float phi, int LEVEL) {
+  int numericID;
+  int inout = 0b00, structure = 0b00, side = 0b00, shellIO = 0b00, wheel = 0b0000, ring = 0b0000, layer = 0b000;
+  bool inner = (DetId(det_id).subdetId() == PixelSubdetector::PixelBarrel ||
+                DetId(det_id).subdetId() == PixelSubdetector::PixelEndcap);
+
+  if (inner) {
+    inout = 0b01;
+    if (DetId(det_id).subdetId() == PixelSubdetector::PixelBarrel) {
+      structure = 0b01;
+      layer = tTopo->getITPixelLayerNumber(det_id);
+    } else {
+      wheel = tTopo->pxfDisk(det_id);
+      ring = tTopo->pxfBlade(det_id);
+      if (wheel < 9) {
+        //Forward Pixel
+        structure = 0b10;
+      } else {
+        // Endcap Pixel
+        structure = 0b11;
+      }
+    }
+    std::string shell = getITShell(det_id, tTopo, phi);
+    if (shell == "mI") {
+      side = 0b01;
+      shellIO = 0b01;
+    } else if (shell == "mO") {
+      side = 0b01;
+      shellIO = 0b10;
+    } else if (shell == "pI") {
+      side = 0b10;
+      shellIO = 0b01;
+    } else {
+      side = 0b10;
+      shellIO = 0b10;
+    }
+  }  // end of inner tracker
+  else {
+    inout = 0b10;
+    if (DetId(det_id).subdetId() == SiStripSubdetector::TOB) {
+      structure = 0b01;
+      layer = tTopo->getOTLayerNumber(det_id);
+    } else {
+      structure = 0b11;
+      side = tTopo->tidSide(det_id);
+      wheel = tTopo->tidWheel(det_id);
+      ring = tTopo->tidRing(det_id);
+    }
+  }  // end of outer tracker
+
+  if (LEVEL == 1)
+    numericID = (inout << 17);
+  if (LEVEL == 2)
+    numericID = (inout << 17) | (structure << 15);
+  if (LEVEL == 3)
+    numericID = (inout << 17) | (structure << 15) | (side << 13) | (shellIO << 11);
+  if (LEVEL == 4)
+    numericID = (inout << 17) | (structure << 15) | (side << 13) | (shellIO << 11) | (0b00 << 7) | (ring << 3);
+  if (LEVEL == 5)
+    numericID = (inout << 17) | (structure << 15) | (side << 13) | (shellIO << 11) | (wheel << 7);
+  if (LEVEL == 6)
+    numericID = (inout << 17) | (structure << 15) | (side << 13) | (shellIO << 11) | (wheel << 7) | (ring << 3) | layer;
+
+  return numericID;
+}
+
 std::string phase2tkutil::getITShell(uint32_t det_id, const TrackerTopology* tTopo, float phi) {
   std::string Side, Inner;
   std::ostringstream shellname;

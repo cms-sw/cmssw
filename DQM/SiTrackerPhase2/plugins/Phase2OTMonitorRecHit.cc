@@ -85,7 +85,7 @@ private:
     unsigned int recHitCounter_P = 0;
     unsigned int recHitCounter_S = 0;
   };
-  std::map<std::string, RecHitME> layerMEs_;
+  std::map<int, RecHitME> layerMEs_;
   enum Level { OT = 1, SUBSTRUCTURE, ENDCAP_SIDE, ENDCAP_RING, ENDCAP_WHEEL, LAYER };
 };
 
@@ -157,7 +157,7 @@ void Phase2OTMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
         // Skip filling for barrel detIds on endcap-only depths
         if ((fillingDepth >= ENDCAP_SIDE && fillingDepth < LAYER) && DetId(detId).subdetId() == SiStripSubdetector::TOB)
           continue;
-        std::string key = phase2tkutil::getHistoId(detId, tTopo_, 0.0, fillingDepth, false);
+        int key = phase2tkutil::getNumericHistoId(detId, tTopo_, 0.0, fillingDepth);
 
         if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
           if (layerMEs_[key].clusterSize_P)
@@ -228,12 +228,12 @@ void Phase2OTMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned
     // If this det is a barrel det AND bookingDepth is an endcap-only depth, DO NOT BOOK
     if ((bookingDepth >= ENDCAP_SIDE && bookingDepth < LAYER) && DetId(det_id).subdetId() == SiStripSubdetector::TOB)
       continue;
-    std::string key = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, false);
+    int key = phase2tkutil::getNumericHistoId(det_id, tTopo_, 0.0, bookingDepth);
     std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, true);
 
     if (layerMEs_.find(key) == layerMEs_.end()) {
       ibooker.cd();
-      ibooker.setCurrentFolder(subdir + "/" + key);
+      ibooker.setCurrentFolder(subdir + "/" + phase2tkutil::getHistoId(det_id, tTopo_, 0.0, bookingDepth, false));
 
       RecHitME local_histos;
       edm::LogInfo("Phase2OTMonitorRecHit") << " Booking Histograms in : " << key;
