@@ -99,7 +99,7 @@ namespace {
       auto worker = dynamic_cast<
           edm::TransitionWorker<typename Traits::TransitionInfoType, typename Traits::TransitionPhaseType>*>(iBase);
       assert(worker != nullptr);
-      worker->template doWorkAsync<Traits::transitionAction_>(
+      worker->template doWorkAsync<Traits::transitionEdge_>(
           edm::WaitingTaskHolder(group, &task), info, token, s_streamID0, iContext, nullptr);
       task.wait();
     }

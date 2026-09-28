@@ -472,12 +472,12 @@ namespace edm {
 
       ParentContext parentContext(mcc);
       EventTransitionInfo const& info = aux_->eventTransitionInfo();
-      worker_->doWorkAsync<TransitionActionGlobalBegin>(WaitingTaskHolder(*waitTask.group(), t),
-                                                        info,
-                                                        token,
-                                                        info.principal().streamID(),
-                                                        parentContext,
-                                                        mcc->getStreamContext());
+      worker_->doWorkAsync<TransitionEdge::kBegin>(WaitingTaskHolder(*waitTask.group(), t),
+                                                   info,
+                                                   token,
+                                                   info.principal().streamID(),
+                                                   parentContext,
+                                                   mcc->getStreamContext());
     }
   }
 

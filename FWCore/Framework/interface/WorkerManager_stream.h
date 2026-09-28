@@ -49,7 +49,7 @@ namespace edm {
           // global begin/end run/lumi transitions through here. They shouldn't
           // need prefetching either and for some years nothing has been using
           // that part of the code anyway...)
-          worker->template doWorkNoPrefetchingAsync<T::transitionAction_>(
+          worker->template doWorkNoPrefetchingAsync<T::transitionEdge_>(
               task, info, token, streamID, parentContext, topContext);
         }
       }

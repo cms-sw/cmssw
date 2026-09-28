@@ -71,7 +71,7 @@ namespace edm {
                               ParentContext const& parentContext,
                               StreamContext const* context) noexcept {
       for (auto worker : accumulatorWorkers_) {
-        worker->doWorkAsync<TransitionActionGlobalBegin>(task, info, token, streamID, parentContext, context);
+        worker->doWorkAsync<TransitionEdge::kBegin>(task, info, token, streamID, parentContext, context);
       }
     }
 

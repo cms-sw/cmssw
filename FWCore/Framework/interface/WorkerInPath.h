@@ -85,7 +85,7 @@ namespace edm {
                                            StreamID streamID,
                                            StreamContext const* context) noexcept {
     ParentContext parentContext(&placeInPathContext_);
-    worker_->doWorkAsync<TransitionActionGlobalBegin>(std::move(iTask), info, token, streamID, parentContext, context);
+    worker_->doWorkAsync<TransitionEdge::kBegin>(std::move(iTask), info, token, streamID, parentContext, context);
   }
 }  // namespace edm
 
