@@ -3,7 +3,7 @@
 
 class SonicRetrySameServerAction : public SonicRetryActionBase {
 public:
-  SonicRetrySameServerAction(const edm::ParameterSet& pset, SonicClientBase* client)
+  SonicRetrySameServerAction(const edm::ParameterSet& pset, SonicClientBase& client)
       : SonicRetryActionBase(pset, client), allowedTries_(pset.getUntrackedParameter<unsigned>("allowedTries", 0)) {}
 
   void start() override { tries_ = 0; };

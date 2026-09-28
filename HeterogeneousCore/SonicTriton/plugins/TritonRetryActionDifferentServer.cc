@@ -1,4 +1,4 @@
-#include "HeterogeneousCore/SonicCore/interface/SonicRetryActionBase.h"
+#include "HeterogeneousCore/SonicTriton/interface/TritonRetryActionBase.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonClient.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -6,7 +6,7 @@
 
 /**
  * @class TritonRetryActionDifferentServer
- * @brief A concrete implementation of SonicRetryActionBase that attempts to retry an inference
+ * @brief A concrete implementation of TritonRetryActionBase that attempts to retry an inference
  * request on a different Triton server.
  *
  * This class provides a fallback mechanism. If an initial inference request fails
@@ -18,9 +18,9 @@
  * call.
  */
 
-class TritonRetryActionDifferentServer : public SonicRetryActionBase {
+class TritonRetryActionDifferentServer : public TritonRetryActionBase {
 public:
-  TritonRetryActionDifferentServer(const edm::ParameterSet& conf, SonicClientBase* client);
+  TritonRetryActionDifferentServer(const edm::ParameterSet& conf, SonicClientBase& client);
   ~TritonRetryActionDifferentServer() override = default;
 
   void retry() override;
@@ -31,8 +31,8 @@ private:
 };
 
 TritonRetryActionDifferentServer::TritonRetryActionDifferentServer(const edm::ParameterSet& conf,
-                                                                   SonicClientBase* client)
-    : SonicRetryActionBase(conf, client) {}
+                                                                   SonicClientBase& client)
+    : TritonRetryActionBase(conf, client) {}
 
 void TritonRetryActionDifferentServer::start() {
   this->shouldRetry_ = true;
@@ -46,22 +46,21 @@ void TritonRetryActionDifferentServer::retry() {
     edm::LogInfo("TritonRetryActionDifferentServer") << "Max retry attempts reached. No further retries.";
   }
   try {
-    auto* tritonClient = static_cast<TritonClient*>(client_);
     edm::LogInfo("TritonRetryActionDifferentServer") << "Asking for a different server from TritonService";
-    auto ts = tritonClient->service();
+    auto& tc = tritonClient();
+    auto ts = tc.service();
 
     // First, try to find another remote server
-    auto bestServerName = ts->getBestServer(tritonClient->modelName(), tritonClient->serverName());
+    auto bestServerName = ts->getBestServer(tc.modelName(), tc.serverName());
 
     if (bestServerName) {
       edm::LogInfo("TritonRetryActionDifferentServer") << "Got best server from service";
-      tritonClient->updateServer(*bestServerName);
+      tc.updateServer(*bestServerName);
       edm::LogInfo("TritonRetryActionDifferentServer") << "eval() with new server";
       eval();
       return;
     } else {
-      edm::LogWarning("TritonRetryActionDifferentServer")
-          << "No alternative server found for model " << tritonClient->modelName();
+      edm::LogWarning("TritonRetryActionDifferentServer") << "No alternative server found for model " << tc.modelName();
       finish(false);
       return;
     }
@@ -72,6 +71,10 @@ void TritonRetryActionDifferentServer::retry() {
   } catch (...) {
     edm::LogError("TritonRetryActionDifferentServer: UnknownFailure") << "An unknown exception was thrown";
   }
+  // Every caught path above means this attempt did not eval(): the failure must still be
+  // propagated so the client can move on to its next retry action (or a final exception),
+  // rather than leaving the pending call unresolved.
+  finish(false);
 }
 
 DEFINE_RETRY_ACTION(TritonRetryActionDifferentServer);

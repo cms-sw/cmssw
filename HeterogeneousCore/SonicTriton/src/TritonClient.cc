@@ -35,7 +35,7 @@ namespace {
     params.addParameter<std::string>("mode", "PseudoAsync");
 
     edm::ParameterSet defaultRetry;
-    defaultRetry.addParameter<std::string>("retryType", "SonicRetrySameServerAction");
+    defaultRetry.addUntrackedParameter<std::string>("retryType", "SonicRetrySameServerAction");
     defaultRetry.addUntrackedParameter<unsigned>("allowedTries", 0u);
     std::vector<edm::ParameterSet> retryVec{defaultRetry};
     params.addParameter<std::vector<edm::ParameterSet>>("Retry", retryVec);
@@ -659,8 +659,8 @@ void TritonClient::switchToFallback() {
   edm::ServiceRegistry::Operate op(token_);
   edm::Service<TritonService> ts;
 
-  // Start the fallback server if it has not been started yet (idempotent).
-  ts->startFallbackServer();
+  // TritonService::preBeginJob() is solely responsible for starting the fallback server,
+  // before any event processing (and thus any call to switchToFallback()) begins.
   if (!ts->fallbackStarted())
     throw TritonException("LocalFailure")
         << "TritonClient::switchToFallback: fallback server is not available "
