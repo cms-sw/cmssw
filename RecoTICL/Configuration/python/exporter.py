@@ -15,6 +15,10 @@ _HEADER = "import FWCore.ParameterSet.Config as cms"
 def render_cff(assembled):
     """Return the text of a self-contained cff fragment for ``assembled``."""
     blocks = [_HEADER, ""]
+    if assembled.uses_onnx():
+        blocks.append("# the ONNX Runtime based algorithms require the ONNXService")
+        blocks.append("from PhysicsTools.ONNXRuntime.ONNXService_cfi import ONNXService")
+        blocks.append("")
     for label in sorted(assembled.modules):
         blocks.append("%s = %s" % (label, assembled.modules[label].dumpPython()))
     blocks.append("")
