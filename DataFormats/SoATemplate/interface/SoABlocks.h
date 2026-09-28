@@ -8,57 +8,47 @@
 #include "SoACommon.h"
 #include "SoALayout.h"
 
-// clang-format off
-#define _DECLARE_SOA_BLOCKS_STREAM_INFO_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME)                   \
+#define _DECLARE_SOA_BLOCKS_STREAM_INFO_IMPL(NAME, LAYOUT_NAME)                               \
   _soa_impl_os << BOOST_PP_CAT(NAME, _);                                                      \
   _soa_impl_offset += LayoutFor<LAYOUT_NAME>::computeDataSize(                                \
       cms::soa::detail::extractSegment<LayoutFor<LAYOUT_NAME>, blocksNumber>(sizes_, index)); \
   index += cms::soa::detail::nBlocks<LayoutFor<LAYOUT_NAME>>();
-// clang-format on
 
-#define _DECLARE_SOA_BLOCKS_STREAM_INFO(R, DATA, NAME)                           \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_DECLARE_SOA_BLOCKS_STREAM_INFO_IMPL NAME))
+#define _DECLARE_SOA_BLOCKS_STREAM_INFO(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_SOA_BLOCKS_STREAM_INFO_IMPL, (_BLOCK_GET_NAME(SPEC), _BLOCK_GET_LAYOUT(SPEC)))
 
 /*
  * Declare accessors for the View of each block
  */
-#define _DECLARE_ACCESSORS_VIEW_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME)                \
+#define _DECLARE_ACCESSORS_VIEW_BLOCKS_IMPL(NAME, LAYOUT_NAME)                            \
   SOA_HOST_DEVICE SOA_INLINE ViewFor<LayoutFor<LAYOUT_NAME>> NAME() {                     \
     return LayoutFor<LAYOUT_NAME>::const_cast_View(base_type::BOOST_PP_CAT(NAME, View_)); \
   }
 
-#define _DECLARE_ACCESSORS_VIEW_BLOCKS(R, DATA, NAME)                            \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_DECLARE_ACCESSORS_VIEW_BLOCKS_IMPL NAME))
+#define _DECLARE_ACCESSORS_VIEW_BLOCKS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_ACCESSORS_VIEW_BLOCKS_IMPL, (_BLOCK_GET_NAME(SPEC), _BLOCK_GET_LAYOUT(SPEC)))
 
 /*
  * Declare parameters for contructing the View of an SoA by blocks
  * using different views for each block
  */
-#define _DECLARE_VIEW_CONSTRUCTOR_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) (ViewFor<LayoutFor<LAYOUT_NAME>> NAME)
+#define _DECLARE_VIEW_CONSTRUCTOR_BLOCKS_IMPL(NAME, LAYOUT_NAME) (ViewFor<LayoutFor<LAYOUT_NAME>> NAME)
 
-#define _DECLARE_VIEW_CONSTRUCTOR_BLOCKS(R, DATA, NAME)                          \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_DECLARE_VIEW_CONSTRUCTOR_BLOCKS_IMPL NAME))
+#define _DECLARE_VIEW_CONSTRUCTOR_BLOCKS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_VIEW_CONSTRUCTOR_BLOCKS_IMPL, (_BLOCK_GET_NAME(SPEC), _BLOCK_GET_LAYOUT(SPEC)))
 
 /*
  * Build the View of each block
  */
-#define _INITIALIZE_MEMBER_VIEW_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) (NAME)
+#define _INITIALIZE_MEMBER_VIEW_BLOCKS_IMPL(NAME) (NAME)
 
-#define _INITIALIZE_MEMBER_VIEW_BLOCKS(R, DATA, NAME)                            \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_INITIALIZE_MEMBER_VIEW_BLOCKS_IMPL NAME))
+#define _INITIALIZE_MEMBER_VIEW_BLOCKS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _INITIALIZE_MEMBER_VIEW_BLOCKS_IMPL, (_BLOCK_GET_NAME(SPEC)))
 
 /**
  * Pointers to blocks for referencing by name
  */
-#define _DECLARE_BLOCKS_POINTERS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME)              \
+#define _DECLARE_BLOCKS_POINTERS_IMPL(NAME)                                       \
   SOA_HOST_DEVICE SOA_INLINE auto const* BOOST_PP_CAT(addressOf_, NAME)() const { \
     return parent_.BOOST_PP_CAT(NAME, _).metadata().data();                       \
   }                                                                               \
@@ -66,61 +56,50 @@
     return parent_.BOOST_PP_CAT(NAME, _).metadata().data();                       \
   }
 
-#define _DECLARE_BLOCKS_POINTERS(R, DATA, TYPE_NAME)                                  \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                       \
-              BOOST_PP_EXPAND(_DECLARE_BLOCKS_POINTERS_IMPL TYPE_NAME))
+#define _DECLARE_BLOCKS_POINTERS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_BLOCKS_POINTERS_IMPL, (_BLOCK_GET_NAME(SPEC)))
 
 /*
  * Declare accessors for the ConstView of each block
  */
-#define _DECLARE_ACCESSORS_CONST_VIEW_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME)       \
+#define _DECLARE_ACCESSORS_CONST_VIEW_BLOCKS_IMPL(NAME, LAYOUT_NAME)                   \
   SOA_HOST_DEVICE SOA_INLINE const ConstViewFor<LayoutFor<LAYOUT_NAME>> NAME() const { \
     return BOOST_PP_CAT(NAME, View_);                                                  \
   }
 
-#define _DECLARE_ACCESSORS_CONST_VIEW_BLOCKS(R, DATA, NAME)                      \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_DECLARE_ACCESSORS_CONST_VIEW_BLOCKS_IMPL NAME))
+#define _DECLARE_ACCESSORS_CONST_VIEW_BLOCKS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_ACCESSORS_CONST_VIEW_BLOCKS_IMPL, (_BLOCK_GET_NAME(SPEC), _BLOCK_GET_LAYOUT(SPEC)))
 
 /*
  * Build the ConstView of each block from the corresponding Layout
  */
-#define _DECLARE_MEMBER_CONST_VIEW_CONSTRUCTION_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
+#define _DECLARE_MEMBER_CONST_VIEW_CONSTRUCTION_BLOCKS_IMPL(NAME) \
   (BOOST_PP_CAT(NAME, View_)(blocks.BOOST_PP_CAT(NAME, _)))
 
-#define _DECLARE_MEMBER_CONST_VIEW_CONSTRUCTION_BLOCKS(R, DATA, NAME)            \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_DECLARE_MEMBER_CONST_VIEW_CONSTRUCTION_BLOCKS_IMPL NAME))
+#define _DECLARE_MEMBER_CONST_VIEW_CONSTRUCTION_BLOCKS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_MEMBER_CONST_VIEW_CONSTRUCTION_BLOCKS_IMPL, (_BLOCK_GET_NAME(SPEC)))
 
 /*
  * Declare parameters for contructing the ConstView of an SoA by blocks
  * using different const views for each block
  */
-#define _DECLARE_CONST_VIEW_CONSTRUCTOR_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
-  (ConstViewFor<LayoutFor<LAYOUT_NAME>> NAME)
+#define _DECLARE_CONST_VIEW_CONSTRUCTOR_BLOCKS_IMPL(NAME, LAYOUT_NAME) (ConstViewFor<LayoutFor<LAYOUT_NAME>> NAME)
 
-#define _DECLARE_CONST_VIEW_CONSTRUCTOR_BLOCKS(R, DATA, NAME)                    \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_DECLARE_CONST_VIEW_CONSTRUCTOR_BLOCKS_IMPL NAME))
+#define _DECLARE_CONST_VIEW_CONSTRUCTOR_BLOCKS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_CONST_VIEW_CONSTRUCTOR_BLOCKS_IMPL, (_BLOCK_GET_NAME(SPEC), _BLOCK_GET_LAYOUT(SPEC)))
 
 /*
  * Build the ConstView of each block
  */
-#define _INITIALIZE_MEMBER_CONST_VIEW_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) (BOOST_PP_CAT(NAME, View_){NAME})
+#define _INITIALIZE_MEMBER_CONST_VIEW_BLOCKS_IMPL(NAME) (BOOST_PP_CAT(NAME, View_){NAME})
 
-#define _INITIALIZE_MEMBER_CONST_VIEW_BLOCKS(R, DATA, NAME)                      \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_INITIALIZE_MEMBER_CONST_VIEW_BLOCKS_IMPL NAME))
+#define _INITIALIZE_MEMBER_CONST_VIEW_BLOCKS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _INITIALIZE_MEMBER_CONST_VIEW_BLOCKS_IMPL, (_BLOCK_GET_NAME(SPEC)))
 
 /*
  * Initialize the array of sizes for the View of an SoA by blocks
  */
-#define _DECLARE_CONST_VIEW_SIZES_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME)      \
+#define _DECLARE_CONST_VIEW_SIZES_IMPL(NAME, LAYOUT_NAME)                  \
   if constexpr (requires { LayoutFor<LAYOUT_NAME>::blocksNumber; }) {      \
     const auto sizes = BOOST_PP_CAT(NAME, View_).metadata().size();        \
     for (size_type i = 0; i < LayoutFor<LAYOUT_NAME>::blocksNumber; ++i) { \
@@ -130,214 +109,168 @@
     sizes_[idx++] = BOOST_PP_CAT(NAME, View_).metadata().size();           \
   }
 
-#define _DECLARE_CONST_VIEW_SIZES(R, DATA, NAME)                                 \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_DECLARE_CONST_VIEW_SIZES_IMPL NAME))
+#define _DECLARE_CONST_VIEW_SIZES(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_CONST_VIEW_SIZES_IMPL, (_BLOCK_GET_NAME(SPEC), _BLOCK_GET_LAYOUT(SPEC)))
 
 /*
  * Declare the data members for the ConstView of the SoA by blocks
  */
-#define _DECLARE_MEMBERS_CONST_VIEW_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
+#define _DECLARE_MEMBERS_CONST_VIEW_BLOCKS_IMPL(NAME, LAYOUT_NAME) \
   ConstViewFor<LayoutFor<LAYOUT_NAME>> BOOST_PP_CAT(NAME, View_);
 
-#define _DECLARE_MEMBERS_CONST_VIEW_BLOCKS(R, DATA, NAME)                        \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_DECLARE_MEMBERS_CONST_VIEW_BLOCKS_IMPL NAME))
+#define _DECLARE_MEMBERS_CONST_VIEW_BLOCKS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_MEMBERS_CONST_VIEW_BLOCKS_IMPL, (_BLOCK_GET_NAME(SPEC), _BLOCK_GET_LAYOUT(SPEC)))
 
 /**
  * Declare the const_cast version of the blocks
  * This is used to convert a ConstView into a View
  */
-#define _DECLARE_CONST_CAST_VIEWS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
-  (LayoutFor<LAYOUT_NAME>::const_cast_View(view.NAME()))
+#define _DECLARE_CONST_CAST_VIEWS_IMPL(NAME, LAYOUT_NAME) (LayoutFor<LAYOUT_NAME>::const_cast_View(view.NAME()))
 
-#define _DECLARE_CONST_CAST_VIEWS(R, DATA, NAME)                                 \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_DECLARE_CONST_CAST_VIEWS_IMPL NAME))
+#define _DECLARE_CONST_CAST_VIEWS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_CONST_CAST_VIEWS_IMPL, (_BLOCK_GET_NAME(SPEC), _BLOCK_GET_LAYOUT(SPEC)))
 
 /*
  * Declare accessors for the Layout of each block
  */
-#define _DECLARE_LAYOUTS_ACCESSORS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
+#define _DECLARE_LAYOUTS_ACCESSORS_IMPL(NAME, LAYOUT_NAME) \
   LayoutFor<LAYOUT_NAME> NAME() { return BOOST_PP_CAT(NAME, _); }
 
-#define _DECLARE_LAYOUTS_ACCESSORS(R, DATA, NAME)                                \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_DECLARE_LAYOUTS_ACCESSORS_IMPL NAME))
+#define _DECLARE_LAYOUTS_ACCESSORS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_LAYOUTS_ACCESSORS_IMPL, (_BLOCK_GET_NAME(SPEC), _BLOCK_GET_LAYOUT(SPEC)))
 
 /*
  * Computation of the size for each block
  */
-#define _ACCUMULATE_SOA_BLOCKS_SIZE_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME)                      \
+#define _ACCUMULATE_SOA_BLOCKS_SIZE_IMPL(LAYOUT_NAME)                                        \
   _soa_impl_ret += LayoutFor<LAYOUT_NAME>::computeDataSize(                                  \
       cms::soa::detail::extractSegment<LayoutFor<LAYOUT_NAME>, blocksNumber>(sizes, index)); \
   index += cms::soa::detail::nBlocks<LayoutFor<LAYOUT_NAME>>();
 
-#define _ACCUMULATE_SOA_BLOCKS_SIZE(R, DATA, NAME)                               \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_ACCUMULATE_SOA_BLOCKS_SIZE_IMPL NAME))
+#define _ACCUMULATE_SOA_BLOCKS_SIZE(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _ACCUMULATE_SOA_BLOCKS_SIZE_IMPL, (_BLOCK_GET_LAYOUT(SPEC)))
 
 /*
  * Assignment of spans to each block
  */
-#define _ASSIGN_SPANS_TO_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
-  (typename LayoutFor<LAYOUT_NAME>::Descriptor(view.NAME()))
+#define _ASSIGN_SPANS_TO_BLOCKS_IMPL(NAME, LAYOUT_NAME) (typename LayoutFor<LAYOUT_NAME>::Descriptor(view.NAME()))
 
-#define _ASSIGN_SPANS_TO_BLOCKS(R, DATA, NAME)                                   \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_ASSIGN_SPANS_TO_BLOCKS_IMPL NAME))
+#define _ASSIGN_SPANS_TO_BLOCKS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _ASSIGN_SPANS_TO_BLOCKS_IMPL, (_BLOCK_GET_NAME(SPEC), _BLOCK_GET_LAYOUT(SPEC)))
 
 /*
  * Assignment of const spans to each block
  */
-#define _ASSIGN_CONST_SPANS_TO_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
+#define _ASSIGN_CONST_SPANS_TO_BLOCKS_IMPL(NAME, LAYOUT_NAME) \
   (typename LayoutFor<LAYOUT_NAME>::ConstDescriptor(view.NAME()))
 
-#define _ASSIGN_CONST_SPANS_TO_BLOCKS(R, DATA, NAME)                             \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_ASSIGN_CONST_SPANS_TO_BLOCKS_IMPL NAME))
+#define _ASSIGN_CONST_SPANS_TO_BLOCKS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _ASSIGN_CONST_SPANS_TO_BLOCKS_IMPL, (_BLOCK_GET_NAME(SPEC), _BLOCK_GET_LAYOUT(SPEC)))
 
 /*
  * Declaration of the descriptor by composition of descriptors of each block
  */
-#define _DECLARE_DESCRIPTOR_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) (typename LayoutFor<LAYOUT_NAME>::Descriptor)
+#define _DECLARE_DESCRIPTOR_BLOCKS_IMPL(LAYOUT_NAME) (typename LayoutFor<LAYOUT_NAME>::Descriptor)
 
-#define _DECLARE_DESCRIPTOR_BLOCKS(R, DATA, NAME)                                \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_DECLARE_DESCRIPTOR_BLOCKS_IMPL NAME))
+#define _DECLARE_DESCRIPTOR_BLOCKS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_DESCRIPTOR_BLOCKS_IMPL, (_BLOCK_GET_LAYOUT(SPEC)))
 
 /*
  * Declaration of the const descriptor by composition of descriptors of each block
  */
-#define _DECLARE_CONST_DESCRIPTOR_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
-  (typename LayoutFor<LAYOUT_NAME>::ConstDescriptor)
+#define _DECLARE_CONST_DESCRIPTOR_BLOCKS_IMPL(LAYOUT_NAME) (typename LayoutFor<LAYOUT_NAME>::ConstDescriptor)
 
-#define _DECLARE_CONST_DESCRIPTOR_BLOCKS(R, DATA, NAME)                          \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_DECLARE_CONST_DESCRIPTOR_BLOCKS_IMPL NAME))
+#define _DECLARE_CONST_DESCRIPTOR_BLOCKS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_CONST_DESCRIPTOR_BLOCKS_IMPL, (_BLOCK_GET_LAYOUT(SPEC)))
 
 /*
  * Computation of the block location in the memory layout (at SoA by blocks construction time)
  */
-#define _DECLARE_MEMBER_CONSTRUCTION_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME)                             \
+#define _DECLARE_MEMBER_CONSTRUCTION_BLOCKS_IMPL(NAME, LAYOUT_NAME)                                         \
   BOOST_PP_CAT(NAME, _) = LayoutFor<LAYOUT_NAME>(                                                           \
       mem + offset, cms::soa::detail::extractSegment<LayoutFor<LAYOUT_NAME>, blocksNumber>(sizes_, index)); \
   offset += LayoutFor<LAYOUT_NAME>::computeDataSize(                                                        \
       cms::soa::detail::extractSegment<LayoutFor<LAYOUT_NAME>, blocksNumber>(sizes_, index));               \
   index += cms::soa::detail::nBlocks<LayoutFor<LAYOUT_NAME>>();
 
-#define _DECLARE_MEMBER_CONSTRUCTION_BLOCKS(R, DATA, NAME)                       \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_DECLARE_MEMBER_CONSTRUCTION_BLOCKS_IMPL NAME))
+#define _DECLARE_MEMBER_CONSTRUCTION_BLOCKS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_MEMBER_CONSTRUCTION_BLOCKS_IMPL, (_BLOCK_GET_NAME(SPEC), _BLOCK_GET_LAYOUT(SPEC)))
 
 /*
  * Call default constructor for each block
  */
-#define _DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) (BOOST_PP_CAT(NAME, _)())
+#define _DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_BLOCKS_IMPL(NAME) (BOOST_PP_CAT(NAME, _)())
 
-#define _DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_BLOCKS(R, DATA, NAME)               \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_BLOCKS_IMPL NAME))
+#define _DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_BLOCKS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_BLOCKS_IMPL, (_BLOCK_GET_NAME(SPEC)))
 
 /*
  * Computate number of blocks
  */
-#define _COUNT_SOA_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
-  soa_blocks_count += cms::soa::detail::nBlocks<LayoutFor<LAYOUT_NAME>>();
+#define _COUNT_SOA_BLOCKS_IMPL(LAYOUT_NAME) soa_blocks_count += cms::soa::detail::nBlocks<LayoutFor<LAYOUT_NAME>>();
 
-#define _COUNT_SOA_BLOCKS(R, DATA, NAME)                                         \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_COUNT_SOA_BLOCKS_IMPL NAME))
+#define _COUNT_SOA_BLOCKS(R, DATA, SPEC) _EXEC_IF_BLOCK(SPEC, _COUNT_SOA_BLOCKS_IMPL, (_BLOCK_GET_LAYOUT(SPEC)))
 
 /*
  * Call the copy constructor for each block
  */
-#define _DECLARE_BLOCK_MEMBER_COPY_CONSTRUCTION_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
+#define _DECLARE_BLOCK_MEMBER_COPY_CONSTRUCTION_IMPL(NAME) \
   (BOOST_PP_CAT(NAME, _)(_soa_impl_other.BOOST_PP_CAT(NAME, _)))
 
-#define _DECLARE_BLOCK_MEMBER_COPY_CONSTRUCTION(R, DATA, NAME)                   \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_DECLARE_BLOCK_MEMBER_COPY_CONSTRUCTION_IMPL NAME))
+#define _DECLARE_BLOCK_MEMBER_COPY_CONSTRUCTION(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_BLOCK_MEMBER_COPY_CONSTRUCTION_IMPL, (_BLOCK_GET_NAME(SPEC)))
 
 /*
  * Call the assignment operator for each block
  */
-#define _DECLARE_BLOCKS_MEMBER_ASSIGNMENT_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
-  BOOST_PP_CAT(NAME, _) = _soa_impl_other.BOOST_PP_CAT(NAME, _);
+#define _DECLARE_BLOCKS_MEMBER_ASSIGNMENT_IMPL(NAME) BOOST_PP_CAT(NAME, _) = _soa_impl_other.BOOST_PP_CAT(NAME, _);
 
-#define _DECLARE_BLOCKS_MEMBER_ASSIGNMENT(R, DATA, NAME)                         \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_DECLARE_BLOCKS_MEMBER_ASSIGNMENT_IMPL NAME))
+#define _DECLARE_BLOCKS_MEMBER_ASSIGNMENT(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_BLOCKS_MEMBER_ASSIGNMENT_IMPL, (_BLOCK_GET_NAME(SPEC)))
 
 /*
  * Check the equality of sizes for each block
  */
-#define _CHECK_VIEW_SIZES_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME, CLASS_NAME)                                             \
+#define _CHECK_VIEW_SIZES_IMPL(NAME, CLASS_NAME)                                                                      \
   if (sizes_[index] < view.NAME().metadata().size()) {                                                                \
     throw std::runtime_error("In " #CLASS_NAME "::deepCopy method: number of elements mismatch for block " #NAME ""); \
   }                                                                                                                   \
   index++;
 
-#define _CHECK_VIEW_SIZES(R, DATA, NAME)                                         \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_CHECK_VIEW_SIZES_IMPL BOOST_PP_TUPLE_PUSH_BACK(NAME, DATA)))
+#define _CHECK_VIEW_SIZES(R, DATA, SPEC) _EXEC_IF_BLOCK(SPEC, _CHECK_VIEW_SIZES_IMPL, (_BLOCK_GET_NAME(SPEC), DATA))
 
 /*
  * Call the deepCopy method for each block
  */
-#define _DEEP_COPY_VIEW_COLUMNS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) BOOST_PP_CAT(NAME, _).deepCopy(view.NAME());
+#define _DEEP_COPY_VIEW_COLUMNS_IMPL(NAME) BOOST_PP_CAT(NAME, _).deepCopy(view.NAME());
 
-#define _DEEP_COPY_VIEW_COLUMNS(R, DATA, NAME)                                   \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_DEEP_COPY_VIEW_COLUMNS_IMPL NAME))
+#define _DEEP_COPY_VIEW_COLUMNS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DEEP_COPY_VIEW_COLUMNS_IMPL, (_BLOCK_GET_NAME(SPEC)))
 
 /*
  * Call ROOTReadstreamer for each block.
  */
-#define _STREAMER_READ_SOA_BLOCK_DATA_MEMBER_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
+#define _STREAMER_READ_SOA_BLOCK_DATA_MEMBER_IMPL(NAME) \
   BOOST_PP_CAT(NAME, _).ROOTReadStreamer(onfile.BOOST_PP_CAT(NAME, _));
 
-#define _STREAMER_READ_SOA_BLOCK_DATA_MEMBER(R, DATA, NAME)                      \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_STREAMER_READ_SOA_BLOCK_DATA_MEMBER_IMPL NAME))
+#define _STREAMER_READ_SOA_BLOCK_DATA_MEMBER(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _STREAMER_READ_SOA_BLOCK_DATA_MEMBER_IMPL, (_BLOCK_GET_NAME(SPEC)))
 
 /*
  * Call ROOTStreamerCleaner for each block.
  */
-#define _ROOT_FREE_SOA_BLOCK_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
-  BOOST_PP_CAT(NAME, _).ROOTStreamerCleaner();
+#define _ROOT_FREE_SOA_BLOCK_COLUMN_OR_SCALAR_IMPL(NAME) BOOST_PP_CAT(NAME, _).ROOTStreamerCleaner();
 
-#define _ROOT_FREE_SOA_BLOCK_COLUMN_OR_SCALAR(R, DATA, NAME)                     \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_ROOT_FREE_SOA_BLOCK_COLUMN_OR_SCALAR_IMPL NAME))
-
-#define _DECLARE_MEMBERS_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) LayoutFor<LAYOUT_NAME> BOOST_PP_CAT(NAME, _);
+#define _ROOT_FREE_SOA_BLOCK_COLUMN_OR_SCALAR(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _ROOT_FREE_SOA_BLOCK_COLUMN_OR_SCALAR_IMPL, (_BLOCK_GET_NAME(SPEC)))
 
 /*
  * Declare the data members for the SoA by blocks
  */
-#define _DECLARE_MEMBERS_BLOCKS(R, DATA, NAME)                                   \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_DECLARE_MEMBERS_BLOCKS_IMPL NAME))
+#define _DECLARE_MEMBERS_BLOCKS_IMPL(NAME, LAYOUT_NAME) LayoutFor<LAYOUT_NAME> BOOST_PP_CAT(NAME, _);
+
+#define _DECLARE_MEMBERS_BLOCKS(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_MEMBERS_BLOCKS_IMPL, (_BLOCK_GET_NAME(SPEC), _BLOCK_GET_LAYOUT(SPEC)))
 
 /*
  * A macro defining a SoA by blocks layout (collection of SoA layouts)
