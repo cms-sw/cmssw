@@ -134,6 +134,7 @@ class TestBranch : public CppUnit::TestFixture {
   CPPUNIT_TEST(testInvalidViews);
   CPPUNIT_TEST(testBranchesAtLevel);
   CPPUNIT_TEST(testNavigationWithoutAllocation);
+  CPPUNIT_TEST(testChargeAndPileup);
   CPPUNIT_TEST(testProvenanceComesFromTheRoot);
   CPPUNIT_TEST(testAncestorCount);
   CPPUNIT_TEST(testChildAndSiblingLookups);
@@ -151,6 +152,7 @@ public:
   void testInvalidViews();
   void testBranchesAtLevel();
   void testNavigationWithoutAllocation();
+  void testChargeAndPileup();
   void testProvenanceComesFromTheRoot();
   void testAncestorCount();
   void testChildAndSiblingLookups();
@@ -383,8 +385,8 @@ void TestBranch::testBranchesAtLevel() {
   CPPUNIT_ASSERT(truth::branchesAtLevel(graph, truth::Level::CaloBoundary).empty());
 }
 
-// REQUIRED: the allocation-free navigation reports the same ids as the vector-returning
-// one, so a hot loop can use it without changing what it sees.
+// REQUIRED: the CSR spans of the graph report the same ids as the vector-returning
+// navigation, so a hot loop can use them without changing what it sees.
 void TestBranch::testNavigationWithoutAllocation() {
   truth::Graph graph = buildTtbarLike();
 
@@ -392,7 +394,11 @@ void TestBranch::testNavigationWithoutAllocation() {
     const truth::Particle particle(&graph, id);
 
     std::vector<uint32_t> visited;
-    particle.forEachChildId([&visited](uint32_t child) { visited.push_back(child); });
+    for (const uint32_t vertex : graph.decayVertices(id)) {
+      for (const uint32_t child : graph.outgoingParticles(vertex)) {
+        visited.push_back(child);
+      }
+    }
     std::vector<uint32_t> expected;
     for (auto const& child : particle.children()) {
       expected.push_back(child.id());
@@ -401,12 +407,48 @@ void TestBranch::testNavigationWithoutAllocation() {
 
     visited.clear();
     expected.clear();
-    particle.forEachParentId([&visited](uint32_t parent) { visited.push_back(parent); });
+    for (const uint32_t vertex : graph.productionVertices(id)) {
+      for (const uint32_t parent : graph.incomingParticles(vertex)) {
+        visited.push_back(parent);
+      }
+    }
     for (auto const& parent : particle.parents()) {
       expected.push_back(parent.id());
     }
     CPPUNIT_ASSERT(visited == expected);
   }
+}
+
+// REQUIRED: charge() is the charge in units of e, fractional for a quark, and
+// isFromPileup() is true for every interaction except the in-time one with index 0.
+void TestBranch::testChargeAndPileup() {
+  truth::Graph graph = buildTtbarLike();
+  auto& data = graph.particles()[0];
+  const truth::Particle particle(&graph, 0);
+
+  data.pdgId = 11;
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-1., particle.charge(), 1e-12);
+  data.pdgId = 2;
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(2. / 3., particle.charge(), 1e-12);
+  data.pdgId = 22;
+  CPPUNIT_ASSERT(particle.charge() == 0.);
+
+  data.eventId = 0;
+  CPPUNIT_ASSERT(particle.isSignal() && !particle.isFromPileup());
+  data.eventId = 5;  // in time, interaction 5
+  CPPUNIT_ASSERT(particle.isFromPileup());
+  data.eventId = uint64_t{2} << 16;  // bunch crossing 2, interaction 0
+  CPPUNIT_ASSERT(particle.isFromPileup());
+
+  auto& vertexData = graph.vertices()[0];
+  const truth::Vertex vertex(&graph, 0);
+  vertexData.eventId = 0;
+  CPPUNIT_ASSERT(vertex.isSignal() && !vertex.isFromPileup());
+  vertexData.eventId = 5;
+  CPPUNIT_ASSERT(vertex.isFromPileup());
+
+  CPPUNIT_ASSERT(!truth::Particle().isSignal() && !truth::Particle().isFromPileup());
+  CPPUNIT_ASSERT(!truth::Vertex().isSignal() && !truth::Vertex().isFromPileup());
 }
 
 // REQUIRED: a branch reports the interaction of its root, and a bunch crossing other than
@@ -516,4 +558,24 @@ void TestBranch::testGenerations() {
   for (uint32_t id = 0; id < rec.nParticles(); ++id)
     for (auto const& ancestor : truth::Particle(&rec, id).ancestors())
       CPPUNIT_ASSERT(generations[id] > generations[ancestor.id()]);
+
+  // A cycle, 0 -> 1 -> 2 -> 1, is cut where the walk meets it: the walk ends, every
+  // particle gets a finite generation, and 1 stays below its parent 0 outside the cycle.
+  GraphBuilder b(3, 3);
+  for (uint32_t id = 0; id < 3; ++id)
+    b.setParticle(id, 211, 2);
+  b.addDecay(0, 0);
+  b.addProduction(0, 1);
+  b.addDecay(1, 1);
+  b.addProduction(1, 2);
+  b.addDecay(2, 2);
+  b.addProduction(2, 1);
+  const auto cut = truth::particleGenerations(b.finish());
+  CPPUNIT_ASSERT_EQUAL(std::size_t(3), cut.size());
+  for (const uint32_t generation : cut)
+    CPPUNIT_ASSERT(generation < 3u);
+  CPPUNIT_ASSERT_EQUAL(uint32_t(0), cut[0]);
+  CPPUNIT_ASSERT(cut[1] > cut[0]);
+
+  CPPUNIT_ASSERT(truth::particleGenerations(GraphBuilder(0, 0).finish()).empty());
 }

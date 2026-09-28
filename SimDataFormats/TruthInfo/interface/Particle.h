@@ -20,7 +20,7 @@ namespace truth {
 
   // A lightweight, copyable view of one logical particle. It stores only a graph
   // pointer and an id; all accessors read through to the owning Graph (the heavy
-  // method bodies live in Graph.cc).
+  // method bodies live in Particle.cc).
   class Particle {
   public:
     Particle() = default;
@@ -42,9 +42,12 @@ namespace truth {
     [[nodiscard]] bool backscattered() const;
     [[nodiscard]] const math::XYZTLorentzVectorD& momentum() const;
     [[nodiscard]] const math::XYZTLorentzVectorD& p4() const { return momentum(); }  // alias
-    // Three times the electric charge, as HepPDT reports it: an electron gives -3. The
-    // name says so, because a charge of -3 read as the charge itself is a factor 3.
-    [[nodiscard]] int threeCharge() const;
+    // The electric charge in units of e, from HepPDT. It is fractional for a quark.
+    [[nodiscard]] double charge() const;
+    // The signal is the in-time interaction with index 0. Anything else is pile-up. An
+    // invalid view is neither.
+    [[nodiscard]] bool isSignal() const;
+    [[nodiscard]] bool isFromPileup() const;
 
     [[nodiscard]] std::span<const Checkpoint> checkpoints() const;
     [[nodiscard]] bool hasCheckpoints() const;
@@ -57,8 +60,8 @@ namespace truth {
     [[nodiscard]] std::vector<Vertex> decayVertices() const;
 
     // These four build a vector on every call, and ancestors() and descendants() walk the
-    // whole subgraph to do it. In a loop over particles use forEachChildId and
-    // forEachParentId below, or the CSR spans of Graph, which allocate nothing.
+    // whole subgraph to do it. In a loop over particles use the CSR spans of Graph,
+    // which allocate nothing.
     [[nodiscard]] std::vector<Particle> parents() const;
     [[nodiscard]] std::vector<Particle> children() const;
 
@@ -68,14 +71,6 @@ namespace truth {
     // How many particles sit above this one, which is ancestors().size() without
     // building the list.
     [[nodiscard]] uint32_t ancestorCount() const;
-
-    // The ids of the particles this one decays into, and of those it comes from, passed
-    // to the callable one at a time. An id can repeat when two vertices share a particle.
-    // Defined in Graph.h, which a caller has to include.
-    template <typename F>
-    void forEachChildId(F&& visit) const;
-    template <typename F>
-    void forEachParentId(F&& visit) const;
 
     [[nodiscard]] bool hasAncestorPdgId(int pdgId) const;
     [[nodiscard]] std::optional<Particle> firstAncestorWithPdgId(int pdgId) const;
