@@ -581,6 +581,15 @@ public:
     CPPUNIT_ASSERT(truth::hadronHasQuark(5122, 5));
     CPPUNIT_ASSERT(truth::hadronHasQuark(421, 4));
     CPPUNIT_ASSERT(truth::hadronHasQuark(4122, 4));
+
+    // REQUIRED: quarkonium is a meson of one flavour and its own antiflavour, excited
+    // states included; an open-flavour hadron and a baryon are not.
+    for (const int32_t charmonium : {443, 100443, 10441, 445})
+      CPPUNIT_ASSERT(truth::isQuarkonium(charmonium, 4));
+    for (const int32_t bottomonium : {553, 100553, 10551})
+      CPPUNIT_ASSERT(truth::isQuarkonium(bottomonium, 5));
+    for (const int32_t open : {421, 541, 511, 4122, 5122, 4444})
+      CPPUNIT_ASSERT(!truth::isQuarkonium(open, 4) && !truth::isQuarkonium(open, 5));
   }
 
   // Every level answers on a graph with no particles, and stamping one is a no-op.

@@ -578,6 +578,12 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
         return vertices;
       for (const truth::Level level : {truth::Level::BHadrons, truth::Level::CHadrons}) {
         for (const uint32_t id : truth::levelAntichain(graph, level)) {
+          // A quarkonium decays where it was produced, so its decay vertex is not a
+          // secondary vertex: at the primary vertex for a prompt J/psi, at the B decay
+          // vertex for a B to J/psi K.
+          const int32_t pdgId = graph.particles()[id].pdgId;
+          if (truth::isQuarkonium(pdgId, 4) || truth::isQuarkonium(pdgId, 5))
+            continue;
           for (const uint32_t vertexId : graph.decayVertices(id)) {
             vertices.insert(vertexId);
           }

@@ -275,6 +275,15 @@ namespace truth {
     return nq1 == flavor || nq2 == flavor || nq3 == flavor;
   }
 
+  // A meson made of a quark and its own antiquark of this flavour: charmonium for 4,
+  // bottomonium for 5. It decays strongly or electromagnetically where it is produced.
+  [[nodiscard]] inline bool isQuarkonium(int32_t pdgId, int32_t flavor) {
+    const int64_t id = std::abs(static_cast<int64_t>(pdgId));
+    if (id < 100 || id >= 1000000000 || (id / 1000) % 10 != 0)
+      return false;
+    return (id / 100) % 10 == flavor && (id / 10) % 10 == flavor;
+  }
+
   // Whether a seed pdgId list names a RESONANCE to look for.
   //
   // Two spellings mean "no selection" and both must be read that way: an EMPTY list, which
