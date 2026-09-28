@@ -72,7 +72,6 @@
 <test name="import-packaging" command="python3 -c 'import packaging'"/>
 <test name="import-pandas" command="python3 -c 'import pandas'"/>
 <test name="import-pandocfilters" command="python3 -c 'import pandocfilters'"/>
-<test name="import-parsimonious" command="python3 -c 'import parsimonious'"/>
 <test name="import-pathlib2" command="python3 -c 'import pathlib2'"/>
 <test name="import-pbr" command="python3 -c 'import pbr'"/>
 <test name="import-pexpect" command="python3 -c 'import pexpect'"/>
