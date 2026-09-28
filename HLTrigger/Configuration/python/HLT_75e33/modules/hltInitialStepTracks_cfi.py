@@ -21,6 +21,11 @@ hltInitialStepTracks = cms.EDProducer("TrackProducer",
 from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
 mtd_at_hlt.toModify(hltInitialStepTracks, TrajectoryInEvent = True)
 
+# The outlier-tolerant fit is for the LST + mkFit step; the other initial-step configurations keep the default fit.
+from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
+from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
+(trackingLST | hltPhase2LegacyTracking).toModify(hltInitialStepTracks, Fitter = 'hltESPFlexibleKFFittingSmoother')
+
 _hltInitialStepTracksMkFitFit = cms.EDProducer("MkFitOutputTrackConverter",
     mkFitEventOfHits = cms.InputTag("hltMkFitEventOfHits"),
     mkFitPixelHits = cms.InputTag("hltMkFitSiPixelHits"),
