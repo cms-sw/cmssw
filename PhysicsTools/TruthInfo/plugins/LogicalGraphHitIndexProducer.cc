@@ -32,10 +32,16 @@
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/TrackingHit/interface/SimHitCategory.h"
+#include "SimDataFormats/CaloAnalysis/interface/MtdSimLayerCluster.h"
 #include "SimDataFormats/CaloAnalysis/interface/MtdSimLayerClusterFwd.h"
-#include "SimDataFormats/Associations/interface/MtdSimLayerClusterToRecoClusterAssociationMap.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
-#include "DataFormats/FTLRecHit/interface/FTLClusterCollections.h"
+#include "DataFormats/ForwardDetId/interface/BTLDetId.h"
+#include "DataFormats/ForwardDetId/interface/ETLDetId.h"
+#include "DataFormats/ForwardDetId/interface/MTDDetId.h"
+#include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
+#include "Geometry/Records/interface/MTDTopologyRcd.h"
 
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
@@ -151,9 +157,9 @@ private:
   // channel (energy = energyLoss, no recHit link).
   void fillMuonSimHits(edm::Event& event, truth::LogicalGraphHitIndexBuilder& builder) const;
 
-  // MTD (BTL/ETL): fill the MTD channel from the trackId-keyed MtdSimLayerClusters,
-  // restricted to the signal interaction (the logical graph is signal-only).
-  void fillMtdHits(edm::Event& event, truth::LogicalGraphHitIndexBuilder& builder) const;
+  // MTD (BTL/ETL): fill the MTD channel from the MtdSimLayerClusters of every
+  // interaction, one hit per (sensor module, cell, category) with its earliest time.
+  void fillMtdHits(edm::Event& event, edm::EventSetup const& setup, truth::LogicalGraphHitIndexBuilder& builder) const;
 
   RelabelContext makeRelabelContext(edm::EventSetup const& setup) const;
 
@@ -179,9 +185,7 @@ private:
   std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> muonSimHitTokens_;
 
   edm::EDGetTokenT<MtdSimLayerClusterCollection> mtdSimLayerClusterToken_;
-  edm::EDGetTokenT<MtdSimLayerClusterToRecoClusterAssociationMap> mtdSimToRecoAssocToken_;
-  edm::EDGetTokenT<FTLClusterCollection> mtdBarrelClusterToken_;
-  edm::EDGetTokenT<FTLClusterCollection> mtdEndcapClusterToken_;
+  edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdTopologyToken_;
 
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
 
@@ -223,10 +227,6 @@ TruthLogicalGraphHitIndexProducer::TruthLogicalGraphHitIndexProducer(edm::Parame
 
   mtdSimLayerClusterToken_ =
       consumes<MtdSimLayerClusterCollection>(cfg.getParameter<edm::InputTag>("mtdSimLayerClusters"));
-  mtdSimToRecoAssocToken_ = consumes<MtdSimLayerClusterToRecoClusterAssociationMap>(
-      cfg.getParameter<edm::InputTag>("mtdRecoClusterAssociation"));
-  mtdBarrelClusterToken_ = consumes<FTLClusterCollection>(cfg.getParameter<edm::InputTag>("mtdBarrelClusters"));
-  mtdEndcapClusterToken_ = consumes<FTLClusterCollection>(cfg.getParameter<edm::InputTag>("mtdEndcapClusters"));
 
   for (auto const& name : cfg.getParameter<std::vector<std::string>>("subdetectors")) {
     truth::HitChannel channel;
@@ -236,6 +236,8 @@ TruthLogicalGraphHitIndexProducer::TruthLogicalGraphHitIndexProducer(edm::Parame
       edm::LogWarning("TruthLogicalGraphHitIndexProducer")
           << "Unknown subdetector channel '" << name << "'; ignoring it.";
   }
+  if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::MTD)])
+    mtdTopologyToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
 
   produces<truth::LogicalGraphHitIndex>();
 }
@@ -299,14 +301,10 @@ void TruthLogicalGraphHitIndexProducer::fillDescriptions(edm::ConfigurationDescr
 
   desc.add<edm::InputTag>("mtdSimLayerClusters", edm::InputTag("mix", "MergedMtdTruthLC"))
       ->setComment(
-          "MtdSimLayerCluster collection (BTL/ETL); keyed by SimTrack trackId via particleId(). The signal "
-          "interaction is selected by EncodedEventId; pile-up clusters are skipped.");
-  desc.add<edm::InputTag>("mtdRecoClusterAssociation", edm::InputTag("mtdRecoClusterToSimLayerClusterAssociation"))
-      ->setComment("MtdSimLayerCluster -> FTLCluster association; sets the MTD recHitIndex when available.");
-  desc.add<edm::InputTag>("mtdBarrelClusters", edm::InputTag("mtdClusters", "FTLBarrel"));
-  desc.add<edm::InputTag>("mtdEndcapClusters", edm::InputTag("mtdClusters", "FTLEndcap"))
-      ->setComment(
-          "Reco FTLClusters; the MTD recHitIndex is the global index in the barrel-then-endcap concatenation.");
+          "MtdSimLayerCluster collection (BTL/ETL), keyed by (EncodedEventId, SimTrack trackId). The MTD "
+          "channel is cell keyed: detId is the sensor module, recHitIndex the cell as "
+          "category << 24 | row << 16 | col. Bits 0 to 23 are the (row, col) of an FTLCluster pixel on "
+          "that module, so a consumer masks the category before it compares with a reco pixel.");
 
   descriptions.addWithDefaultLabel(desc);
 }
@@ -337,8 +335,10 @@ void TruthLogicalGraphHitIndexProducer::produce(edm::StreamID, edm::Event& event
   }
   if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::Muon)])
     fillMuonSimHits(event, builder);
-  if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::MTD)])
-    fillMtdHits(event, builder);
+  if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::MTD)]) {
+    builder.setCellKeyed(truth::HitChannel::MTD, true);
+    fillMtdHits(event, setup, builder);
+  }
 
   auto output = std::make_unique<truth::LogicalGraphHitIndex>(builder.finish());
   if (sharedSubgraphStore_ && !builder.usedSharedStore()) {
@@ -595,59 +595,39 @@ void TruthLogicalGraphHitIndexProducer::fillMuonSimHits(edm::Event& event,
 }
 
 void TruthLogicalGraphHitIndexProducer::fillMtdHits(edm::Event& event,
+                                                    edm::EventSetup const& setup,
                                                     truth::LogicalGraphHitIndexBuilder& builder) const {
   edm::Handle<MtdSimLayerClusterCollection> hClusters;
   event.getByToken(mtdSimLayerClusterToken_, hClusters);
   if (!hClusters.isValid())
     return;
 
-  // Optional reco-cluster link: the MtdSimLayerCluster -> FTLCluster association plus
-  // the two FTLCluster collections give the MTD recHitIndex as the global index in the
-  // barrel-then-endcap concatenation. Absent (e.g. no MTD reco) -> recHitIndex invalid.
-  edm::Handle<MtdSimLayerClusterToRecoClusterAssociationMap> hAssoc;
-  event.getByToken(mtdSimToRecoAssocToken_, hAssoc);
-  edm::Handle<FTLClusterCollection> hBarrel;
-  event.getByToken(mtdBarrelClusterToken_, hBarrel);
-  edm::Handle<FTLClusterCollection> hEndcap;
-  event.getByToken(mtdEndcapClusterToken_, hEndcap);
-  const bool haveReco = hAssoc.isValid() && hBarrel.isValid() && hEndcap.isValid();
-  const uint32_t nBarrelClusters = haveReco ? static_cast<uint32_t>(hBarrel->dataSize()) : 0;
+  // A BTL sim hit carries the DetId of its crystal, while a reco cluster carries the
+  // sensor module; the crystal layout of the topology maps one to the other, as
+  // MTDGeomUtil::sensorModuleId does. An ETL sim hit already names its module.
+  const auto crystalLayout =
+      MTDTopologyMode::crysLayoutFromTopoMode(setup.getData(mtdTopologyToken_).getMTDTopologyMode());
 
-  for (uint32_t i = 0; i < hClusters->size(); ++i) {
-    auto const& cluster = (*hClusters)[i];
-
-    // Only the signal interaction (bx 0, event 0): the logical graph is signal-only,
-    // so its trackId space matches the signal MtdSimLayerClusters; pile-up clusters
-    // (different EncodedEventId) could collide numerically and are skipped.
-    const EncodedEventId eid = cluster.eventId();
-    if (eid.bunchCrossing() != 0 || eid.event() != 0)
-      continue;
-
-    // The best-matched reco FTLCluster -> a global index across the two collections.
-    uint32_t recHitIndex = truth::LogicalGraphHitIndex::Hit::kInvalidRecHitIndex;
-    if (haveReco) {
-      const MtdSimLayerClusterRef simRef(hClusters, i);
-      const auto range = hAssoc->equal_range(simRef);
-      if (range.first != range.second && !range.first->second.empty()) {
-        FTLClusterRef const& recoRef = range.first->second.front();
-        if (recoRef.id() == hBarrel.id())
-          recHitIndex = static_cast<uint32_t>(recoRef.key());
-        else if (recoRef.id() == hEndcap.id())
-          recHitIndex = nBarrelClusters + static_cast<uint32_t>(recoRef.key());
-      }
-    }
-
-    // particleId() carries the producing SimTrack trackId; hits_and_energies() returns
-    // (packed sensor-module DetId << 32 | row << 16 | col, energy). The builder
-    // coalesces per module DetId; every hit of the cluster shares the matched FTLCluster.
+  for (auto const& cluster : *hClusters) {
+    // Every interaction: the graph keys its particles by (EncodedEventId, trackId), as
+    // the other channels do.
+    const uint64_t eventId = cluster.eventId().rawId();
     const auto trackId = static_cast<uint32_t>(cluster.particleId());
-    for (auto const& [packedHit, energy] : cluster.hits_and_energies()) {
-      const uint32_t moduleDetId = static_cast<uint32_t>(packedHit >> 32);
-      // eventId 0 is correct only because the clusters above are filtered to the signal
-      // interaction (bx 0, event 0), so simKey(0, trackId) matches the signal track.
-      // If a merged pileup MTD collection is ever added, this must pass the real
-      // eventId like the calo/tracker channels or pileup tracks would alias the signal.
-      builder.addHit(truth::HitChannel::MTD, 0ull, trackId, moduleDetId, energy, recHitIndex);
+    const uint32_t category = cluster.hitProdType();
+    const auto energies = cluster.hits_and_energies();
+    const auto times = cluster.hits_and_times();
+    for (std::size_t i = 0; i < energies.size(); ++i) {
+      // Packed as the sim DetId << 32 | row << 16 | col, the row and col are 8 bits each.
+      const uint64_t packed = energies[i].first;
+      const MTDDetId simId(static_cast<uint32_t>(packed >> 32));
+      const uint32_t moduleId = simId.mtdSubDetector() == MTDDetId::BTL
+                                    ? BTLDetId(simId.rawId()).geographicalId(crystalLayout).rawId()
+                                    : ETLDetId(simId.rawId()).geographicalId().rawId();
+      using Hit = truth::LogicalGraphHitIndex::Hit;
+      static_assert(SimHitCategory::nCategoriesMTD <= (1u << (32 - Hit::kMtdCategoryShift)));
+      const uint32_t cell = category << Hit::kMtdCategoryShift | (static_cast<uint32_t>(packed) & Hit::kMtdCellMask);
+      builder.addTimedHit(
+          truth::HitChannel::MTD, eventId, trackId, moduleId, energies[i].second, cell, times[i].second);
     }
   }
 }

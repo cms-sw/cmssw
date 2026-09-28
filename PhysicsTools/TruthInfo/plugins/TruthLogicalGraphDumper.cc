@@ -728,30 +728,33 @@ public:
       const HitSummary directSummary = hasHitInfo ? summarizeHits(directHits, recHitEnergies) : HitSummary();
       const HitSummary subgraphSummary = hasHitInfo ? summarizeHits(subgraphHits, recHitEnergies) : HitSummary();
 
-      // Tracker simhits (separate channel, no recHit association). Reusing
-      // summarizeHits is fine: tracker hits have an invalid recHitIndex, so only
-      // nSimHits and simHitEnergy (energy loss) carry meaning.
+      // Only the Calo channel holds rechit indices. The other channels hold cells or
+      // cluster indices, so they are summarised without the rechit table and only
+      // nSimHits and simHitEnergy carry meaning.
+      const std::vector<float> noRecHitEnergies;
       const bool hasTrackerInfo = hasHitInfo && hitIndex->hasChannel(truth::HitChannel::Tracker);
       const auto trackerDirectHits = hasTrackerInfo ? hitIndex->directHits(truth::HitChannel::Tracker, i)
                                                     : std::span<const truth::LogicalGraphHitIndex::Hit>();
       const auto trackerSubgraphHits = hasTrackerInfo ? hitIndex->subgraphHits(truth::HitChannel::Tracker, i)
                                                       : std::span<const truth::LogicalGraphHitIndex::Hit>();
       const HitSummary trackerDirectSummary =
-          hasTrackerInfo ? summarizeHits(trackerDirectHits, recHitEnergies) : HitSummary();
+          hasTrackerInfo ? summarizeHits(trackerDirectHits, noRecHitEnergies) : HitSummary();
       const HitSummary trackerSubgraphSummary =
-          hasTrackerInfo ? summarizeHits(trackerSubgraphHits, recHitEnergies) : HitSummary();
+          hasTrackerInfo ? summarizeHits(trackerSubgraphHits, noRecHitEnergies) : HitSummary();
 
       // MTD (BTL/ETL) simhits from the MtdSimLayerCluster channel.
       const bool hasMtdInfo = hasHitInfo && hitIndex->hasChannel(truth::HitChannel::MTD);
+      const bool mtdCellKeyed = hasMtdInfo && hitIndex->isCellKeyed(truth::HitChannel::MTD);
       const HitSummary mtdDirectSummary =
-          hasMtdInfo ? summarizeHits(hitIndex->directHits(truth::HitChannel::MTD, i), recHitEnergies) : HitSummary();
+          hasMtdInfo ? summarizeHits(hitIndex->directHits(truth::HitChannel::MTD, i), noRecHitEnergies) : HitSummary();
       const HitSummary mtdSubgraphSummary =
-          hasMtdInfo ? summarizeHits(hitIndex->subgraphHits(truth::HitChannel::MTD, i), recHitEnergies) : HitSummary();
+          hasMtdInfo ? summarizeHits(hitIndex->subgraphHits(truth::HitChannel::MTD, i), noRecHitEnergies)
+                     : HitSummary();
 
-      // MTD recHitIndex points into the FTLCluster ordering (channel-relative, not
-      // the HGCal recHit ordering), so count the FTLCluster-linked hits directly.
+      // An MTD channel that is not cell keyed holds an FTLCluster index in recHitIndex;
+      // count the hits that carry one.
       uint32_t mtdSubgraphRecHitLinked = 0;
-      if (hasMtdInfo)
+      if (hasMtdInfo && !mtdCellKeyed)
         for (auto const& h : hitIndex->subgraphHits(truth::HitChannel::MTD, i))
           mtdSubgraphRecHitLinked += static_cast<uint32_t>(h.hasRecHit());
 

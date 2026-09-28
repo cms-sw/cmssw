@@ -26,6 +26,13 @@ namespace {
   // case for the incoming beam particles.
   constexpr int kNoVertex = std::numeric_limits<int>::min();
 
+  constexpr int kBeamStatus = 4;
+
+  template <typename P>
+  [[nodiscard]] math::XYZTLorentzVectorD hepmcPosition(P const& position, double toMm = 1.) {
+    return truth::graphPosition(position.x() * toMm, position.y() * toMm, position.z() * toMm, position.t() * toMm);
+  }
+
   template <typename V>
   [[nodiscard]] V lookup(std::unordered_map<int, V> const& map, int key, V fallback) {
     const auto it = map.find(key);
@@ -76,8 +83,10 @@ namespace truth {
 
       const int vbc = (*v)->barcode();
 
-      if (seenV.insert(vbc).second)
+      if (seenV.insert(vbc).second) {
         gb.vtxBarcodes.push_back(vbc);
+        gb.vertexPositionByBarcode.emplace(vbc, hepmcPosition((*v)->position()));
+      }
 
       for (auto po = (*v)->particles_out_const_begin(); po != (*v)->particles_out_const_end(); ++po) {
         if (*po == nullptr)
@@ -101,6 +110,8 @@ namespace truth {
           gb.partBarcodes.push_back(pbc);
 
         gb.partToVtx.emplace_back(pbc, vbc);
+        if ((*pi)->status() == kBeamStatus)
+          gb.interactionPosition = gb.vertexPositionByBarcode.at(vbc);
       }
     }
 
@@ -114,6 +125,8 @@ namespace truth {
       gb.particleBarcodeByIndex.push_back(pbc);
       gb.particlePdgIdByBarcode.emplace(pbc, (*p)->pdg_id());
       gb.particleStatusByBarcode.emplace(pbc, static_cast<int16_t>((*p)->status()));
+      auto const& p4 = (*p)->momentum();
+      gb.particleMomentumByBarcode.emplace(pbc, math::XYZTLorentzVectorD(p4.px(), p4.py(), p4.pz(), p4.e()));
 
       if (withStatusFlags) {
         reco::GenStatusFlags flags;
@@ -130,6 +143,8 @@ namespace truth {
 
   GenBuild buildFromHepMC3(HepMC3::GenEvent const& ev) {
     GenBuild gb;
+    const double toMm = ev.length_unit() == HepMC3::Units::CM ? 10. : 1.;
+    const double toGeV = ev.momentum_unit() == HepMC3::Units::MEV ? 1.e-3 : 1.;
 
     std::unordered_set<int> seenV;
     std::unordered_set<int> seenP;
@@ -144,8 +159,10 @@ namespace truth {
 
       const int vbc = vptr->id();
 
-      if (seenV.insert(vbc).second)
+      if (seenV.insert(vbc).second) {
         gb.vtxBarcodes.push_back(vbc);
+        gb.vertexPositionByBarcode.emplace(vbc, hepmcPosition(vptr->position(), toMm));
+      }
 
       for (auto const& po : vptr->particles_out()) {
         if (!po)
@@ -169,6 +186,8 @@ namespace truth {
           gb.partBarcodes.push_back(pbc);
 
         gb.partToVtx.emplace_back(pbc, vbc);
+        if (pi->status() == kBeamStatus)
+          gb.interactionPosition = gb.vertexPositionByBarcode.at(vbc);
       }
     }
 
@@ -181,6 +200,9 @@ namespace truth {
       gb.particleBarcodeByIndex.push_back(pbc);
       gb.particlePdgIdByBarcode.emplace(pbc, pptr->pid());
       gb.particleStatusByBarcode.emplace(pbc, static_cast<int16_t>(pptr->status()));
+      auto const& p4 = pptr->momentum();
+      gb.particleMomentumByBarcode.emplace(
+          pbc, math::XYZTLorentzVectorD(p4.px() * toGeV, p4.py() * toGeV, p4.pz() * toGeV, p4.e() * toGeV));
 
       if (seenP.insert(pbc).second)
         gb.partBarcodes.push_back(pbc);
@@ -331,6 +353,7 @@ namespace truth {
     pruneMap(gb.particlePdgIdByBarcode, keptBarcodes);
     pruneMap(gb.particleStatusByBarcode, keptBarcodes);
     pruneMap(gb.particleStatusFlagsByBarcode, keptBarcodes);
+    pruneMap(gb.particleMomentumByBarcode, keptBarcodes);
 
     gb.partBarcodes = std::move(partBarcodes);
     gb.vtxBarcodes = std::move(vtxBarcodes);
@@ -389,7 +412,14 @@ namespace truth {
       const int16_t status = statusOf(barcode);
       const auto itDecay = decayVertex.find(barcode);
       const int decay = (status != 1 && itDecay != decayVertex.end()) ? itDecay->second : 0;
-      out.push_back({barcode, pdgIdOf(barcode), status, parent, decay});
+      out.push_back({barcode,
+                     pdgIdOf(barcode),
+                     status,
+                     parent,
+                     decay,
+                     lookup(gb.particleMomentumByBarcode, barcode, math::XYZTLorentzVectorD()),
+                     decay != 0 ? lookup(gb.vertexPositionByBarcode, decay, math::XYZTLorentzVectorD())
+                                : math::XYZTLorentzVectorD()});
     }
     return out;
   }

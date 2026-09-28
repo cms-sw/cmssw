@@ -11,6 +11,14 @@
 #include "DataFormats/HepMCCandidate/interface/GenStatusFlags.h"
 #include "PhysicsTools/TruthInfo/interface/GenGraphBuild.h"
 
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
+#include "HepMC/GenVertex.h"
+#include "HepMC3/GenEvent.h"
+#include "HepMC3/GenParticle.h"
+#include "HepMC3/GenVertex.h"
+#include "HepMC3/Units.h"
+
 namespace {
 
   constexpr uint16_t kHardProcess = 1u << reco::GenStatusFlags::kIsHardProcess;
@@ -198,6 +206,9 @@ class TestGenGraphBuild : public CppUnit::TestFixture {
   CPPUNIT_TEST(testCompactKeepsListedSpecies);
   CPPUNIT_TEST(testCompactChainsThroughKeptSpecies);
   CPPUNIT_TEST(testCompactEdgeCases);
+  CPPUNIT_TEST(testHepMC2Payload);
+  CPPUNIT_TEST(testCompactCarriesPayload);
+  CPPUNIT_TEST(testHepMC3PayloadInGraphUnits);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -210,6 +221,9 @@ public:
   void testCompactKeepsListedSpecies();
   void testCompactChainsThroughKeptSpecies();
   void testCompactEdgeCases();
+  void testHepMC2Payload();
+  void testCompactCarriesPayload();
+  void testHepMC3PayloadInGraphUnits();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestGenGraphBuild);
@@ -445,4 +459,96 @@ void TestGenGraphBuild::testCompactEdgeCases() {
 
   CPPUNIT_ASSERT_EQUAL(0, findCompact(record, 8)->parent);
   CPPUNIT_ASSERT_EQUAL(std::size_t{4}, record.size());
+}
+
+// REQUIRED: the record keeps each particle's momentum and each vertex's position in
+// (cm, ns), and the interaction is the vertex where the beam particles end, even when
+// another vertex comes first in the record; a record with no beam has none.
+void TestGenGraphBuild::testHepMC2Payload() {
+  HepMC::GenEvent event;
+  auto* early = new HepMC::GenVertex(HepMC::FourVector(50., 0., 0., 0.));
+  auto* beams = new HepMC::GenVertex(HepMC::FourVector(1., 2., 30., 299.792458));
+  event.add_vertex(early);
+  event.add_vertex(beams);
+  auto* proton = new HepMC::GenParticle(HepMC::FourVector(0., 0., 7000., 7000.), 2212, 4);
+  auto* pion = new HepMC::GenParticle(HepMC::FourVector(1., 2., 3., 4.), 211, 1);
+  auto* photon = new HepMC::GenParticle(HepMC::FourVector(0., 0., 1., 1.), 22, 1);
+  beams->add_particle_in(proton);
+  beams->add_particle_out(pion);
+  early->add_particle_out(photon);
+
+  const auto gb = truth::buildFromHepMC2(event, false);
+  auto const& position = gb.vertexPositionByBarcode.at(beams->barcode());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.1, position.X(), 1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.2, position.Y(), 1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.0, position.Z(), 1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, position.T(), 1e-12);
+  CPPUNIT_ASSERT(gb.interactionPosition && *gb.interactionPosition == position);
+  auto const& momentum = gb.particleMomentumByBarcode.at(pion->barcode());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1., momentum.Px(), 1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(4., momentum.E(), 1e-12);
+
+  // A record with no beam particle, a particle gun, has no interaction position.
+  HepMC::GenEvent gun;
+  auto* gunVertex = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0., 0.));
+  gun.add_vertex(gunVertex);
+  gunVertex->add_particle_out(new HepMC::GenParticle(HepMC::FourVector(0., 0., 5., 5.), 22, 1));
+  CPPUNIT_ASSERT(!truth::buildFromHepMC2(gun, false).interactionPosition);
+}
+
+// REQUIRED: the compact record carries each survivor's momentum and, for a decaying
+// survivor, the position it decays at; the shower collapse keeps the momentum map in
+// step with the particles it keeps.
+void TestGenGraphBuild::testCompactCarriesPayload() {
+  auto gb = buildMinBiasRecord();
+  for (const int barcode : gb.partBarcodes)
+    gb.particleMomentumByBarcode.emplace(barcode, math::XYZTLorentzVectorD(0., 0., barcode, barcode));
+  gb.vertexPositionByBarcode.emplace(-3, math::XYZTLorentzVectorD(0.1, 0.2, 0.3, 0.4));
+
+  const auto record = truth::compactGen(gb, {111});
+  auto const* pi0 = findCompact(record, 4);
+  CPPUNIT_ASSERT(pi0 != nullptr);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(4., pi0->momentum.E(), 1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.4, pi0->decayPosition.T(), 1e-12);
+  // A stable particle has no decay position.
+  CPPUNIT_ASSERT(findCompact(record, 7)->decayPosition == math::XYZTLorentzVectorD());
+
+  auto shower = buildRecord();
+  for (const int barcode : shower.partBarcodes)
+    shower.particleMomentumByBarcode.emplace(barcode, math::XYZTLorentzVectorD(0., 0., 1., 1.));
+  CPPUNIT_ASSERT(truth::collapseGenShower(shower, {}));
+  CPPUNIT_ASSERT_EQUAL(shower.partBarcodes.size(), shower.particleMomentumByBarcode.size());
+}
+
+// REQUIRED: a HepMC3 record written in MeV and cm reads in GeV and (cm, ns), with or
+// without a conversion to GeV and mm first, and its interaction is where the beams end.
+void TestGenGraphBuild::testHepMC3PayloadInGraphUnits() {
+  HepMC3::GenEvent event(HepMC3::Units::MEV, HepMC3::Units::CM);
+  auto beams = std::make_shared<HepMC3::GenVertex>(HepMC3::FourVector(0.1, 0.2, 3.0, 29.9792458));
+  beams->add_particle_in(std::make_shared<HepMC3::GenParticle>(HepMC3::FourVector(0., 0., 7.e6, 7.e6), 2212, 4));
+  beams->add_particle_out(std::make_shared<HepMC3::GenParticle>(HepMC3::FourVector(1000., 0., 0., 2000.), 211, 1));
+  event.add_vertex(beams);
+  const auto unconverted = truth::buildFromHepMC3(event);
+  event.set_units(HepMC3::Units::GEV, HepMC3::Units::MM);
+  const auto gb = truth::buildFromHepMC3(event);
+  CPPUNIT_ASSERT(unconverted.interactionPosition);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.1, unconverted.interactionPosition->X(), 1e-9);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, unconverted.interactionPosition->T(), 1e-9);
+  for (auto const& [barcode, momentum] : unconverted.particleMomentumByBarcode) {
+    if (unconverted.particlePdgIdByBarcode.at(barcode) == 211)
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(2., momentum.E(), 1e-9);
+  }
+  CPPUNIT_ASSERT(gb.interactionPosition);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.1, gb.interactionPosition->X(), 1e-9);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.0, gb.interactionPosition->Z(), 1e-9);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, gb.interactionPosition->T(), 1e-9);
+  bool pionFound = false;
+  for (auto const& [barcode, momentum] : gb.particleMomentumByBarcode) {
+    if (gb.particlePdgIdByBarcode.at(barcode) == 211) {
+      pionFound = true;
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(1., momentum.Px(), 1e-9);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(2., momentum.E(), 1e-9);
+    }
+  }
+  CPPUNIT_ASSERT(pionFound);
 }

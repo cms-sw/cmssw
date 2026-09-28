@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <numeric>
 #include <utility>
 
 namespace truth {
@@ -32,18 +33,43 @@ namespace truth {
     children_[parentParticleId].push_back(childParticleId);
   }
 
-  void LogicalGraphHitIndexBuilder::addHit(
+  bool LogicalGraphHitIndexBuilder::addHit(
       HitChannel channel, uint64_t eventId, uint32_t trackId, uint32_t detId, float energy, uint32_t recHitIndex) {
     if (energy <= 0.f)
-      return;
+      return false;
 
     auto it = trackIdToParticle_.find(simKey(eventId, trackId));
     if (it == trackIdToParticle_.end())
-      return;
+      return false;
 
     const std::size_t ch = static_cast<std::size_t>(channel);
     appendHit(directHits_[ch][it->second], detId, recHitIndex, energy);
     channelTouched_[ch] = true;
+    return true;
+  }
+
+  bool LogicalGraphHitIndexBuilder::addTimedHit(HitChannel channel,
+                                                uint64_t eventId,
+                                                uint32_t trackId,
+                                                uint32_t detId,
+                                                float energy,
+                                                uint32_t recHitIndex,
+                                                float time) {
+    const std::size_t ch = static_cast<std::size_t>(channel);
+    if (!timed_[ch]) {
+      timed_[ch] = true;
+      directTimes_[ch].resize(nParticles_);
+    }
+    // The time goes in only when the hit does, so the two lists stay in step.
+    if (energy <= 0.f)
+      return false;
+    auto it = trackIdToParticle_.find(simKey(eventId, trackId));
+    if (it == trackIdToParticle_.end())
+      return false;
+    appendHit(directHits_[ch][it->second], detId, recHitIndex, energy);
+    directTimes_[ch][it->second].push_back(time);
+    channelTouched_[ch] = true;
+    return true;
   }
 
   void LogicalGraphHitIndexBuilder::appendHit(HitList& hits, uint32_t detId, uint32_t recHitIndex, float energy) {
@@ -80,6 +106,59 @@ namespace truth {
     hits.resize(w);
 
     hits.erase(std::remove_if(hits.begin(), hits.end(), [](Hit const& h) { return h.energy <= 0.f; }), hits.end());
+  }
+
+  bool LogicalGraphHitIndexBuilder::timesInStep(std::vector<HitList> const& hits,
+                                                std::vector<std::vector<float>> const& times) {
+    if (hits.size() != times.size())
+      return false;
+    for (std::size_t particleId = 0; particleId < hits.size(); ++particleId) {
+      if (hits[particleId].size() != times[particleId].size())
+        return false;
+    }
+    return true;
+  }
+
+  void LogicalGraphHitIndexBuilder::coalesce(HitList& hits, std::vector<float>& times, bool cellKeyed) {
+    if (hits.empty())
+      return;
+
+    // The order coalesce(hits, cellKeyed) sorts into, applied to both lists.
+    std::vector<uint32_t> order(hits.size());
+    std::iota(order.begin(), order.end(), 0u);
+    std::stable_sort(order.begin(), order.end(), [&hits](uint32_t a, uint32_t b) {
+      if (hits[a].detId != hits[b].detId)
+        return hits[a].detId < hits[b].detId;
+      return hits[a].recHitIndex < hits[b].recHitIndex;
+    });
+
+    HitList mergedHits;
+    std::vector<float> mergedTimes;
+    mergedHits.reserve(hits.size());
+    mergedTimes.reserve(hits.size());
+    for (const uint32_t r : order) {
+      Hit const& hit = hits[r];
+      const bool sameKey = !mergedHits.empty() && mergedHits.back().detId == hit.detId &&
+                           (!cellKeyed || mergedHits.back().recHitIndex == hit.recHitIndex);
+      if (sameKey) {
+        mergedHits.back().energy += hit.energy;
+        if (mergedHits.back().recHitIndex == Hit::kInvalidRecHitIndex && hit.recHitIndex != Hit::kInvalidRecHitIndex)
+          mergedHits.back().recHitIndex = hit.recHitIndex;
+        mergedTimes.back() = std::min(mergedTimes.back(), times[r]);
+      } else {
+        mergedHits.push_back(hit);
+        mergedTimes.push_back(times[r]);
+      }
+    }
+
+    hits.clear();
+    times.clear();
+    for (std::size_t i = 0; i < mergedHits.size(); ++i) {
+      if (mergedHits[i].energy > 0.f) {
+        hits.push_back(mergedHits[i]);
+        times.push_back(mergedTimes[i]);
+      }
+    }
   }
 
   void LogicalGraphHitIndexBuilder::collectSubgraphParticles(uint32_t particleId,
@@ -433,10 +512,18 @@ namespace truth {
         continue;
 
       auto& direct = directHits_[ch];
-      for (auto& hits : direct)
-        coalesce(hits, cellKeyed_[ch]);
+      auto& times = directTimes_[ch];
+      // A channel that also took untimed hits has lists out of step; it keeps no time.
+      const bool timed = timed_[ch] && timesInStep(direct, times);
+      for (std::size_t particleId = 0; particleId < direct.size(); ++particleId) {
+        if (timed)
+          coalesce(direct[particleId], times[particleId], cellKeyed_[ch]);
+        else
+          coalesce(direct[particleId], cellKeyed_[ch]);
+      }
 
       auto& out = channels[ch];
+      out.cellKeyed = cellKeyed_[ch];
       out.dfsOffsets.reserve(slotToParticle.size() + 1);
       out.dfsOffsets.push_back(0);
 
@@ -445,9 +532,13 @@ namespace truth {
         total += hits.size();
       out.directHits.reserve(total);
 
+      if (timed)
+        out.directHitTimes.reserve(total);
       for (const uint32_t particleId : slotToParticle) {
         auto const& hits = direct[particleId];
         out.directHits.insert(out.directHits.end(), hits.begin(), hits.end());
+        if (timed)
+          out.directHitTimes.insert(out.directHitTimes.end(), times[particleId].begin(), times[particleId].end());
         out.dfsOffsets.push_back(static_cast<uint32_t>(out.directHits.size()));
       }
     }
@@ -466,11 +557,18 @@ namespace truth {
         continue;
 
       auto& direct = directHits_[ch];
+      auto& times = directTimes_[ch];
 
       // Coalesce the per-particle direct-hit lists once, so the subgraph
       // aggregation and the CSR build both operate on sorted, de-duplicated spans.
-      for (auto& hits : direct)
-        coalesce(hits, cellKeyed_[ch]);
+      // A channel that also took untimed hits has lists out of step; it keeps no time.
+      const bool timed = timed_[ch] && timesInStep(direct, times);
+      for (std::size_t particleId = 0; particleId < direct.size(); ++particleId) {
+        if (timed)
+          coalesce(direct[particleId], times[particleId], cellKeyed_[ch]);
+        else
+          coalesce(direct[particleId], cellKeyed_[ch]);
+      }
 
       std::vector<HitList> subgraph(nParticles_);
       std::vector<uint8_t> visited(nParticles_, 0);
@@ -493,8 +591,15 @@ namespace truth {
       }
 
       auto& out = channels[ch];
+      out.cellKeyed = cellKeyed_[ch];
       buildHitCSR(direct, out.directOffsets, out.directHits);
       buildHitCSR(subgraph, out.subgraphOffsets, out.subgraphHits);
+      // Times for the direct hits only, concatenated in the order buildHitCSR uses.
+      if (timed) {
+        out.directHitTimes.reserve(out.directHits.size());
+        for (auto const& list : times)
+          out.directHitTimes.insert(out.directHitTimes.end(), list.begin(), list.end());
+      }
     }
 
     return LogicalGraphHitIndex(nParticles_, std::move(channels));
