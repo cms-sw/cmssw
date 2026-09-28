@@ -107,6 +107,13 @@ def applyTruthPreset(process, preset=None, fragment=None, **overrides):
         postProcessing = getattr(process, GRAPH_PRODUCER).postProcessing
         for field, value in fields.items():
             setattr(postProcessing, field, _TYPES[field](value))
+    else:
+        # The Signal flags are stamped on the graph by the job that builds it, which is
+        # the DIGI step in the default production. Here only the seeds change, and they
+        # find a signal object only if that job applied the same preset.
+        print("[truth] WARNING: no %s in this job, so the preset does not change the graph. "
+              "The signal seeds below match only if the job that built the graph applied the same preset."
+              % GRAPH_PRODUCER)
 
     # The signal-seed denominator is the preset's own signal object, so every module that
     # reads seeds reads the same ones: the targets producer publishes the denominators and

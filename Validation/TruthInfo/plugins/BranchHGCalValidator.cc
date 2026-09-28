@@ -89,8 +89,6 @@ private:
     MonitorElement* bestCompletenessEnergy = nullptr;
     MonitorElement* bestResponse = nullptr;
     // Self-match numerator: best hit-matched Branch == natural Branch (denom reused).
-    MonitorElement* selfMatchEta = nullptr;
-    MonitorElement* selfMatchPt = nullptr;
     // Merge/split: distinct Branches sharing >=10% of the object's hits.
     MonitorElement* nSharingBranches = nullptr;
   };
@@ -180,12 +178,11 @@ void BranchHGCalValidator::book(DQMStore::IBooker& ib, Plots& p, std::string con
   // per-cell fraction is its tracks' share of the deposit, i.e. the Branch's own
   // sim energy on that cell), so any deviation flags a fraction/deposit bug in PR
   // validation. Reconstructed-scale response is the informative one.
-  p.rawEnergyResponseSim =
-      ib.book1D("raw_energy_response_sim",
-                "Branch raw energy response (deposited, closure: ==1);E^{sim}_{Branch}/E^{sim}_{hits};objects",
-                80,
-                0.,
-                2.);
+  p.rawEnergyResponseSim = ib.book1D("raw_energy_response_sim",
+                                     "Branch raw energy response (deposited);E^{sim}_{Branch}/E^{sim}_{hits};objects",
+                                     80,
+                                     0.,
+                                     2.);
   p.rawEnergyResponseReco =
       ib.book1D("raw_energy_response_reco",
                 "Branch raw energy response (reconstructed);E^{rec}_{Branch}/E^{rec}_{hits};objects",
@@ -216,14 +213,14 @@ void BranchHGCalValidator::book(DQMStore::IBooker& ib, Plots& p, std::string con
                                       kEMax,
                                       0.,
                                       1.5);
-  p.rawResponseSimVsEnergy = ib.bookProfile(
-      "raw_response_sim_vs_energy",
-      "Branch raw energy response (deposited, closure: ==1) vs E;E [GeV];E^{sim}_{Branch}/E^{sim}_{hits}",
-      kEBins,
-      0.,
-      kEMax,
-      0.,
-      2.);
+  p.rawResponseSimVsEnergy =
+      ib.bookProfile("raw_response_sim_vs_energy",
+                     "Branch raw energy response (deposited) vs E;E [GeV];E^{sim}_{Branch}/E^{sim}_{hits}",
+                     kEBins,
+                     0.,
+                     kEMax,
+                     0.,
+                     2.);
   p.rawResponseRecoVsEnergy =
       ib.bookProfile("raw_response_reco_vs_energy",
                      "Branch raw energy response (reconstructed) vs E;E [GeV];E^{rec}_{Branch}/E^{rec}_{hits}",
@@ -241,10 +238,6 @@ void BranchHGCalValidator::book(DQMStore::IBooker& ib, Plots& p, std::string con
       "bestmatch_completeness_energy", "Best-match Branch energy completeness;completeness;objects", 52, -0.01, 1.03);
   p.bestResponse = ib.book1D(
       "bestmatch_response", "Best-match Branch sim-energy containment;E^{sim}_{Branch}/E_{gen};objects", 60, 0., 1.5);
-  p.selfMatchEta = ib.book1D(
-      "selfmatch_eta", "Objects whose best Branch is the natural one vs #eta;#eta;objects", kEtaBins, -kEtaMax, kEtaMax);
-  p.selfMatchPt = ib.book1D(
-      "selfmatch_pt", "Objects whose best Branch is the natural one vs p_{T};p_{T} [GeV];objects", kPtBins, 0., kPtMax);
   p.nSharingBranches = ib.book1D(
       "n_sharing_branches", "Distinct Branches sharing >=10% of the object hits;#Branches;objects", 51, -0.5, 50.5);
 }
@@ -408,13 +401,6 @@ void BranchHGCalValidator::validate(Collection const& objects,
         plots.effNumEnergy->Fill(energy);
       }
 
-      // --- "Other way around": the best hit-matched Branch's own performance. ---
-      // Self-match: the best Branch is the natural (trackId-seeded) one.
-      if (tightest == particleId) {
-        plots.selfMatchEta->Fill(eta);
-        plots.selfMatchPt->Fill(pt);
-      }
-
       // Merge/split: how many distinct Branches share >=10% of the object's hits.
       // For the SharedHits metric, BranchMatch::sharedEnergy is the shared-cell count.
       const double shareThreshold = 0.1 * static_cast<double>(hitsAndFractions.size());
@@ -527,7 +513,7 @@ void BranchHGCalValidator::analyze(edm::Event const& event, edm::EventSetup cons
 void BranchHGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("truthLogicalGraphProducer"));
-  desc.add<edm::InputTag>("rawSrc", edm::InputTag("truthGraphProducer"));
+  desc.add<edm::InputTag>("rawSrc", edm::InputTag("mix"));
   desc.add<edm::InputTag>("hitIndex", edm::InputTag("truthLogicalGraphHitIndexProducer"));
   desc.add<edm::InputTag>("caloParticles", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("simClusters", edm::InputTag("mix", "MergedCaloTruth"));

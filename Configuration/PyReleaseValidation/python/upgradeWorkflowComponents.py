@@ -1032,12 +1032,9 @@ class UpgradeWorkflow_enableTruth(UpgradeWorkflow):
                                 'customiseTruthGraphAssociators.customiseTruthBranchValidation')
 
     def setup_(self, step, stepName, stepDict, k, properties):
-        # enableTruth runs the truth-graph producers in RecoGlobal (step3). The graph
+        # The modifier goes to the GenSim, RecoGlobal and HARVESTGlobal steps. The graph
         # validators run in the RecoGlobal VALIDATION and their harvesting in
         # HARVESTGlobal (step4), so the modifier must reach the harvesting step too.
-        # GenSim (step1) needs no modifier: SimVertex ancestor reconnection
-        # (g4SimHits TrackingAction.ReconnectDroppedAncestors) is a baseline default,
-        # so the truth graph is connected to the generator in every sample.
         if 'GenSim' in step or 'RecoGlobal' in step or 'HARVESTGlobal' in step:
             stepDict[stepName][k] = deepcopy(stepDict[step][k])
 

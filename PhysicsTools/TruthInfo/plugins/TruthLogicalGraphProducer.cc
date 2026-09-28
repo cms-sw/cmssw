@@ -856,7 +856,9 @@ public:
                 cp.checkpointId = 0;
 
                 const auto& xb = t.getPositionAtBoundary();
-                cp.position = math::XYZTLorentzVectorF(xb.x(), xb.y(), xb.z(), xb.t());
+                // The boundary time is in seconds, as the SimVertex time; the graph uses ns.
+                constexpr double kSToNs = 1e9;
+                cp.position = math::XYZTLorentzVectorF(xb.x(), xb.y(), xb.z(), xb.t() * kSToNs);
 
                 const auto& pb = t.getMomentumAtBoundary();
                 cp.momentum = math::XYZTLorentzVectorF(pb.px(), pb.py(), pb.pz(), pb.e());
@@ -1015,13 +1017,18 @@ public:
     truth::fillMomentumFromDecayProducts(*out);
 
     // A GEN-only vertex has no creator process to read, so its reason comes from the
-    // particles that meet there, on the complete GEN topology.
+    // particles that meet there, on the complete GEN topology. So does a vertex merged
+    // with a SimVertex that Geant4 did not create, whose SIM reason is Primary: there the
+    // generator made the vertex, a pi0 or a D decay for example.
     for (uint32_t vertexId = 0; vertexId < out->nVertices(); ++vertexId) {
       auto& vertex = out->vertices()[vertexId];
-      if (vertex.isArtificial() || vertex.hasSim() || !vertex.hasGen())
+      if (vertex.isArtificial() || !vertex.hasGen())
+        continue;
+      if (vertex.hasSim() && vertex.reason != static_cast<uint8_t>(truth::VertexReason::Primary))
         continue;
 
-      vertex.reason = static_cast<uint8_t>(truth::genVertexReason(*out, vertexId));
+      if (const auto reason = truth::genVertexReason(*out, vertexId); reason != truth::VertexReason::Unknown)
+        vertex.reason = static_cast<uint8_t>(reason);
     }
 
     // Per-particle sim-hit presence for the hitless-subgraph pruning. A logical

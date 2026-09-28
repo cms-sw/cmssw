@@ -29,13 +29,13 @@ namespace truth {
       bool intimeOnly = false;      // bunchCrossing == 0
       bool chargedOnly = false;     // root particle electrically charged
       bool invertEta = false;       // keep eta OUTSIDE [etaMin, etaMax]
-      // Apply the pt and eta cuts ONLY to a root that Geant4 tracked. The cuts describe
-      // what a detector can see, and the momentum of a root that decayed is not a
-      // detector observable: a resonance produced at rest
-      // carries pt about 0 and therefore |eta| -> infinity, so a pt>1 GeV or |eta|<4 cut
-      // throws it away while its decay products are all over the calorimeter. Measured on
-      // DYToLL: 43% of the Z bosons were rejected that way, every one of them with a
-      // subgraph full of sim-hits.
+      // Skip the pt and eta cuts for a root whose momentum is not a detector observable:
+      // a parton, a top quark, a boson or another resonance that Geant4 never tracked and
+      // the generator did not emit as final state. A resonance produced at rest carries pt
+      // about 0 and therefore |eta| -> infinity, so a pt>1 GeV or |eta|<4 cut throws it
+      // away while its decay products are all over the calorimeter. Measured on DYToLL:
+      // 43% of the Z bosons were rejected that way. A hadron, a lepton and a photon keep
+      // the cuts, tracked or not, and so does every generator final-state particle.
       bool kinematicsOnStableOnly = true;
     };
 

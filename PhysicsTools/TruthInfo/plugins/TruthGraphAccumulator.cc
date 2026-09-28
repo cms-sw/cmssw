@@ -226,6 +226,9 @@ private:
   const std::vector<edm::InputTag> muonHitTags_;
   const std::vector<edm::InputTag> mtdHitTags_;
   const std::vector<int> pileupBunchCrossings_;
+  // The bunch spacing of the mixing in ns, which it adds to the time of every SimVertex of
+  // an out-of-time interaction.
+  const int bunchSpace_;
   const bool collapsePileupGen_;
   const bool collapseSignalGen_;
   const bool collapseGenShower_;
@@ -317,6 +320,7 @@ TruthGraphAccumulator::TruthGraphAccumulator(edm::ParameterSet const& cfg,
       muonHitTags_(cfg.getParameter<std::vector<edm::InputTag>>("muonHits")),
       mtdHitTags_(cfg.getParameter<std::vector<edm::InputTag>>("mtdHits")),
       pileupBunchCrossings_(cfg.getParameter<std::vector<int>>("pileupBunchCrossings")),
+      bunchSpace_(cfg.getParameter<int>("bunchSpace")),
       collapsePileupGen_(cfg.getParameter<bool>("collapsePileupGen")),
       collapseSignalGen_(cfg.getParameter<bool>("collapseSignalGen")),
       collapseGenShower_(cfg.getParameter<bool>("collapseGenShower")),
@@ -398,8 +402,14 @@ void TruthGraphAccumulator::addSubEvent(std::vector<truth::CompactGenParticle> c
     mergedSimTracks_.push_back(std::move(t));
   }
   mergedSimVertices_.reserve(mergedSimVertices_.size() + vertices.size());
+  // The mixing adds the crossing offset in ns to a SimVertex time that is in seconds.
+  // Remove it and add it back in seconds, so every merged vertex time is in seconds.
+  constexpr double kNsToS = 1e-9;
+  const double offsetNs = static_cast<double>(eid.bunchCrossing()) * bunchSpace_;
   for (SimVertex v : vertices) {
     v.setEventId(eid);
+    if (offsetNs != 0.)
+      v.setTof(v.position().t() - offsetNs + offsetNs * kNsToS);
     mergedSimVertices_.push_back(std::move(v));
   }
 
@@ -734,6 +744,20 @@ void TruthGraphAccumulator::accumulate(PileUpEventPrincipal const& pep, edm::Eve
   if (!keepBx(bx))
     return;
 
+  // One counter per bunch crossing, starting at 1, which is how the MixingModule numbers
+  // the sub-events it overlays. The tracker digi links carry those numbers, so a global
+  // counter across crossings would tag the same interaction differently on the two sides
+  // and attribute a link to another interaction that happens to reuse the local track id.
+  // EncodedEventId keeps the sign of the crossing in its own bit, so (-1,1) and (+1,1) are
+  // different packed ids and a per-crossing counter is unique. It advances for every
+  // sub-event, also for one this accumulator cannot read, as the mixing numbering does.
+  const int puIndex = ++pileupCount_[bx];
+  // EncodedEventId packs the event number into 16 bits; an unrealistic pileup
+  // multiplicity would overflow into the bunch-crossing bits and alias ids.
+  if (puIndex > 0xFFFF)
+    throw cms::Exception("TruthGraphAccumulator")
+        << "pileup sub-event count " << puIndex << " exceeds the 16-bit EncodedEventId event field";
+
   edm::Handle<edm::SimTrackContainer> tracks;
   edm::Handle<edm::SimVertexContainer> vertices;
   pep.getByLabel(simTrackTag_, tracks);
@@ -749,18 +773,6 @@ void TruthGraphAccumulator::accumulate(PileUpEventPrincipal const& pep, edm::Eve
   else
     fullGen = readFullGen(pep, hepmc3Tag_, hepmc2Tag_, collapseGenShower_, *tracks, degradedCollapseWarned_);
 
-  // One counter per bunch crossing, starting at 1, which is how the MixingModule numbers
-  // the sub-events it overlays. The tracker digi links carry those numbers, so a global
-  // counter across crossings would tag the same interaction differently on the two sides
-  // and attribute a link to another interaction that happens to reuse the local track id.
-  // EncodedEventId keeps the sign of the crossing in its own bit, so (-1,1) and (+1,1) are
-  // different packed ids and a per-crossing counter is unique.
-  const int puIndex = ++pileupCount_[bx];
-  // EncodedEventId packs the event number into 16 bits; an unrealistic pileup
-  // multiplicity would overflow into the bunch-crossing bits and alias ids.
-  if (puIndex > 0xFFFF)
-    throw cms::Exception("TruthGraphAccumulator")
-        << "pileup sub-event count " << puIndex << " exceeds the 16-bit EncodedEventId event field";
   const EncodedEventId puEid(bx, puIndex);
   addSubEvent(compactGen, interactionPosition, &fullGen, *tracks, *vertices, puEid, puIndex);
   addSubEventHits(pep, puEid);

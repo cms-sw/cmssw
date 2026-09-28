@@ -3,8 +3,26 @@
 #include "PhysicsTools/TruthInfo/interface/BranchSelector.h"
 
 #include <algorithm>
+#include <cstdlib>
+
+#include "PhysicsTools/TruthInfo/interface/TruthLevels.h"
 
 namespace truth {
+
+  namespace {
+    // Whether a detector measures the momentum of this particle, directly or as the sum
+    // of its decay products.
+    bool hasObservableMomentum(ParticleData const& particle) {
+      if (particle.hasSim() || particle.status == 1)
+        return true;
+      if (isShowerObject(particle.pdgId))
+        return false;
+      const int64_t a = std::abs(static_cast<int64_t>(particle.pdgId));
+      const bool photonOrLepton = a == 22 || (a >= 11 && a <= 16);
+      const bool hadron = a >= 100 && a < 1000000;
+      return photonOrLepton || hadron;
+    }
+  }  // namespace
 
   bool BranchSelector::operator()(Branch const& branch) const {
     return passesNonKinematic(branch) && failedKinematicCuts(branch) == 0u;
@@ -33,13 +51,9 @@ namespace truth {
     // a temporary Particle, so a reference to its momentum() would dangle.
     const auto rootParticle = branch.root();
 
-    // Skip the kinematic cuts for a root Geant4 never tracked. That is the line between
-    // an object whose momentum a detector could measure and one whose momentum is a
-    // bookkeeping quantity: a resonance is GEN-only, decays before anything, and at rest
-    // carries pt about 0 with |eta| unbounded, so a track-shaped cut throws it away while
-    // its decay products fill the calorimeter. A pion that showers has a SimTrack and its
-    // pt IS an observable, so it stays subject to the cuts even though it also "decayed".
-    if (config_.kinematicsOnStableOnly && !rootParticle.data().hasSim())
+    // A resonance at rest carries pt about 0 with |eta| unbounded, so a track-shaped cut
+    // would throw it away while its decay products fill the calorimeter.
+    if (config_.kinematicsOnStableOnly && !hasObservableMomentum(rootParticle.data()))
       return 0u;
 
     uint32_t failed = 0u;

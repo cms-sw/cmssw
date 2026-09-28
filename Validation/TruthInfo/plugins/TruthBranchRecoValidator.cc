@@ -565,8 +565,8 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
         // comparably small and no winner exists. Measured on the shared ENERGY each
         // candidate contributes, not on the score, because the score penalises every
         // contamination quadratically and so condemns an object that one branch
-        // plainly dominates. The row is sorted by score, not by shared energy, so the
-        // leader is taken by scan.
+        // plainly dominates. The row is not sorted by shared energy, so the leader is
+        // taken by scan.
         if (allCandidates == nullptr) {
           continue;
         }
@@ -615,7 +615,7 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
     // Reco side: every object, whether it found a branch, and whether that branch came
     // from a pileup interaction rather than the signal one.
     for (std::size_t r = 0; r < recoHandle->size(); ++r) {
-      // The maps are score-sorted, so [0] is the best match. "Associated" means the
+      // [0] is the best match: the best detector particle when one matches. "Associated" means the
       // object corresponds to something in the truth graph, and it is published on its
       // own as the no-candidate rate. The calorimetric recoToSim score is not folded in
       // here, because it is reco-normalised against the cell's total truth energy and at

@@ -496,19 +496,15 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
   // The selector-passing candidate roots, computed once per event by the shared
   // TruthBranchTargetsProducer alongside the level denominators and signal seeds.
   auto const& selectedRoots = event.get(targetsToken_);
-  // Membership test for the adaptive answer below, one lookup per candidate. The product
-  // is a sorted id list like every other target product; the mask is the per-event
-  // expansion of it. A composite domain answers with a vertex, so it needs no mask.
-  const bool anyAdaptiveWorkingPoint =
-      std::any_of(workingPoints_.begin(), workingPoints_.end(), [](WorkingPoint const& wp) { return wp.adaptive; });
+  // Membership test for the assignable roots, one lookup per candidate. The product is a
+  // sorted id list like every other target product; the mask is the per-event expansion
+  // of it. A composite domain answers with a vertex, so it needs no mask.
   std::vector<uint8_t> isAssignable;
   if constexpr (!ConstituentBasedDomain<RECO>) {
-    if (anyAdaptiveWorkingPoint) {
-      isAssignable.assign(nBranches, 0);
-      for (const unsigned int id : event.get(assignableTargetsToken_)) {
-        if (id < isAssignable.size()) {
-          isAssignable[id] = 1;
-        }
+    isAssignable.assign(nBranches, 0);
+    for (const unsigned int id : event.get(assignableTargetsToken_)) {
+      if (id < isAssignable.size()) {
+        isAssignable[id] = 1;
       }
     }
   }
@@ -554,19 +550,18 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
     // the particles that own tracker hits, which is what a track is made of. When the
     // input carries no tracker truth at all the requirement is dropped, because then it
     // would empty the denominator instead of cleaning it.
-    // One entry per physical particle: with Interaction resolution a whole decay chain
-    // resolves to one vertex, so a tau and its three prongs would all enter unless the
-    // candidates are reduced to their deepest antichain first. Immediate resolution needs
-    // no reduction, its members being one vertex's outgoing particles.
+    // With Interaction resolution the population is the generator particles: a Geant4
+    // secondary, a conversion electron or the product of a nuclear interaction, was not
+    // produced by the interaction, as a TrackingVertex does not count it either. The
+    // filters come first and the earliest member of each chain is kept, so a particle
+    // that interacted counts once, as itself. Immediate resolution needs no reduction,
+    // its members being one vertex's outgoing particles.
     const bool trackerTruthPresent = hitIndex.hasChannel(truth::HitChannel::Tracker);
     std::unordered_map<unsigned int, unsigned int> rootsPerVertex;
     std::unordered_map<unsigned int, unsigned int> signalRootsPerVertex;
     {
-      std::vector<uint32_t> counted = selectedRoots;
-      if (vertexResolution_ == VertexResolution::Interaction) {
-        truth::dropCoveredMembers(graph, counted, /*keepDeepest=*/true);
-      }
-      for (uint32_t root : counted) {
+      std::vector<uint32_t> counted;
+      for (uint32_t root : selectedRoots) {
         // In-time only, as the reference vertex validation counts only bunch-crossing-0
         // simulated vertices in its denominator
         // (Validation/RecoVertex/src/PrimaryVertexAnalyzer4PUSlimmed.cc:877-883).
@@ -579,6 +574,15 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
         if (trackerTruthPresent && hitIndex.directHits(truth::HitChannel::Tracker, root).empty()) {
           continue;
         }
+        if (vertexResolution_ == VertexResolution::Interaction && !graph.particles()[root].hasGen()) {
+          continue;
+        }
+        counted.push_back(root);
+      }
+      if (vertexResolution_ == VertexResolution::Interaction) {
+        truth::dropCoveredMembers(graph, counted, /*keepDeepest=*/false);
+      }
+      for (uint32_t root : counted) {
         // Same resolution the numerator uses. A denominator counted at a different set
         // of vertices than the numerator measures nothing.
         if (const auto vertexId = countingVertex(graph, root, vertexResolution_, interactionVertex)) {
@@ -828,6 +832,7 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
       // The candidates of one reco object, restricted to the roots an adaptive point may
       // answer with. Declared here and cleared per object, so it allocates once.
       std::vector<truth::BranchMatch> assignableMatches;
+      std::vector<truth::BranchMatch> fixedRow;
 
       for (unsigned int i = 0; i < nReco; ++i) {
         if (recoHitsPerObject[i].empty()) {
@@ -838,15 +843,19 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
 
         // A candidate root carries the hits of its whole subgraph, so a parton, a beam
         // particle or an invented node covers the reco object entirely and wins on score.
-        // An adaptive point may not answer with one. The barred roots stay in the first
-        // working point's map, which the truth-driven direction reads its pair scores
-        // from, so a level made of those particles keeps its efficiency.
+        // An adaptive point may not answer with one. A fixed point keeps the barred roots,
+        // which the truth-driven direction reads its pair scores from, but after every
+        // assignable root, so its row [0] is a detector particle whenever one matches.
         assignableMatches.clear();
-        if (anyAdaptiveWorkingPoint) {
-          for (auto const& match : matches) {
-            if (match.rootParticleId < isAssignable.size() && isAssignable[match.rootParticleId] != 0) {
-              assignableMatches.push_back(match);
-            }
+        for (auto const& match : matches) {
+          if (match.rootParticleId < isAssignable.size() && isAssignable[match.rootParticleId] != 0) {
+            assignableMatches.push_back(match);
+          }
+        }
+        fixedRow = assignableMatches;
+        for (auto const& match : matches) {
+          if (match.rootParticleId >= isAssignable.size() || isAssignable[match.rootParticleId] == 0) {
+            fixedRow.push_back(match);
           }
         }
         // Ascending score, tightest first, as bestBranches ordered it: the filter keeps
@@ -864,7 +873,7 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
               recoToTruthPerWp[wpIndex]->insert(i, match.rootParticleId, match.sharedEnergy, match.score);
             }
           } else {
-            for (auto const& match : matches) {
+            for (auto const& match : fixedRow) {
               recoToTruthPerWp[wpIndex]->insert(i, match.rootParticleId, match.sharedEnergy, match.score);
             }
           }
@@ -897,9 +906,9 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::produce(edm::StreamID,
       }
 
       for (std::size_t wpIndex = 0; wpIndex < workingPoints_.size(); ++wpIndex) {
-        // The rows keep the associator's order: ascending score, equal scores by the
-        // tightest branch first, so [0] is the best match. A sort by score and index
-        // here would hand a tie to the lowest id, an ancestor.
+        // The rows keep the order they were filled in: assignable roots first, each group
+        // by ascending score with equal scores by the tightest branch first, so [0] is the
+        // best detector particle. A sort by score and index here would undo both.
         // Every declared instance label must be put on every path, including the one
         // where the reco collection was absent: a missing put is a framework error.
         event.put(std::move(recoToTruthPerWp[wpIndex]), key + "RecoToTruth" + workingPoints_[wpIndex].name);
@@ -936,9 +945,11 @@ void AllRecoToTruthBranchAssociatorsProducer<RECO>::fillDescriptions(edm::Config
           "zero for every top");
   desc.add<bool>("truthToRecoSignalOnly", true)
       ->setComment(
-          "Restrict the TruthToReco denominator to the signal interaction. Efficiency, duplicate and split are "
-          "meaningless averaged over the overlaid pileup interactions. The associator's candidate set is NOT "
-          "restricted, so pileup branches stay matchable and a pileup-matched reco object is not counted a fake");
+          "Composite domains only: restrict the TruthToReco vertex targets to the ones that produced a signal "
+          "particle. Efficiency, duplicate and split are meaningless averaged over the overlaid pileup "
+          "interactions. Hit-based domains take their denominators from the targets producer. A pileup particle "
+          "is matchable when it passes the candidate selection of that producer, which has a pt and an eta cut, "
+          "so a reco object from a softer pileup particle finds no truth");
   desc.add<double>("maxConstituentScore", 0.25)
       ->setComment(
           "Composite domains only. A constituent whose best match scores worse than this places the constituent "

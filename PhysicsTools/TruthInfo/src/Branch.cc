@@ -180,16 +180,77 @@ namespace truth {
     return ids;
   }
 
+  std::vector<uint32_t> Branch::finalStateIds() const {
+    // The StableLeaves closure keeps the roots and the childless members only, so the walk
+    // below could not reach its leaves. Its final state is the one of the whole subtree.
+    if (spec_.kind == ClosureKind::StableLeaves)
+      return Branch(graph_, roots_, ClosureSpec::subtree()).finalStateIds();
+    const std::vector<uint32_t> members = traverse();
+    std::vector<uint32_t> out;
+    if (members.empty())
+      return out;
+    // traverse() returns the members in ascending order.
+    auto const isMember = [&members](uint32_t id) { return std::binary_search(members.begin(), members.end(), id); };
+    std::vector<uint32_t> stack;
+    for (uint32_t root : roots_) {
+      if (isMember(root))
+        stack.push_back(root);
+    }
+    auto const isGenVertex = [this](uint32_t vertexId) {
+      return vertexId < graph_->nVertices() && graph_->vertices()[vertexId].hasGen();
+    };
+    std::vector<uint32_t> visited;
+    while (!stack.empty()) {
+      const uint32_t id = stack.back();
+      stack.pop_back();
+      const auto at = std::lower_bound(visited.begin(), visited.end(), id);
+      if (at != visited.end() && *at == id)
+        continue;
+      visited.insert(at, id);
+      auto const& particle = graph_->particles()[id];
+      auto const decays = graph_->decayVertices(id);
+      // A tracked particle is final unless the generator decayed it, a tau say. Then the walk
+      // follows its GEN decay only, never the Geant4 secondaries of a SIM vertex.
+      const bool genDecayed = particle.hasGen() && std::any_of(decays.begin(), decays.end(), isGenVertex);
+      if (particle.hasSim() && !genDecayed) {
+        out.push_back(id);
+        continue;
+      }
+      bool hasMemberChild = false;
+      for (const uint32_t vertexId : decays) {
+        if (particle.hasSim() && !isGenVertex(vertexId))
+          continue;
+        for (const uint32_t child : graph_->outgoingParticles(vertexId)) {
+          if (isMember(child)) {
+            hasMemberChild = true;
+            stack.push_back(child);
+          }
+        }
+      }
+      if (!hasMemberChild)
+        out.push_back(id);
+    }
+    std::sort(out.begin(), out.end());
+    return out;
+  }
+
+  std::vector<Particle> Branch::finalState() const {
+    std::vector<Particle> out;
+    for (uint32_t id : finalStateIds())
+      out.push_back(graph_->particle(id));
+    return out;
+  }
+
   math::XYZTLorentzVectorD Branch::p4() const {
     math::XYZTLorentzVectorD sum;
-    for (uint32_t id : leaves())
+    for (uint32_t id : finalStateIds())
       sum += graph_->particles()[id].momentum;
     return sum;
   }
 
   math::XYZTLorentzVectorD Branch::visibleP4() const {
     math::XYZTLorentzVectorD sum;
-    for (uint32_t id : leaves()) {
+    for (uint32_t id : finalStateIds()) {
       auto const& particle = graph_->particles()[id];
       if (!isInvisible(particle.pdgId))
         sum += particle.momentum;

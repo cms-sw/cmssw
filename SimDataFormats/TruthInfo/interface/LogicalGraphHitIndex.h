@@ -78,7 +78,8 @@ namespace truth {
       // directHits. Empty on a channel that carries no time.
       std::vector<float> directHitTimes;
       // Whether recHitIndex holds a cell, so that two hits on one detId are two cells.
-      // The Tracker channel is cell keyed also where this flag was not written.
+      // isCellKeyed() reads the Tracker channel as cell keyed whatever this flag says. An
+      // index digitised before the tracker cells carries none: truth::isModuleKeyedTracker.
       bool cellKeyed = false;
     };
 
