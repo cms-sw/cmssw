@@ -168,11 +168,10 @@ namespace edm {
                                       typename T::Context const*) noexcept;
 
     //Called by Path to inject PathStatus and StreamSchedule to inject TriggerResults and PathStatus for empty paths.
-    template <typename T>
-    std::exception_ptr runModuleDirectly(typename T::TransitionInfoType const&,
+    std::exception_ptr runModuleDirectly(EventTransitionInfo const&,
                                          StreamID,
                                          ParentContext const&,
-                                         typename T::Context const*) noexcept;
+                                         StreamContext const*) noexcept;
 
     //called by TransformingProductResolver so only for global Event
     virtual size_t transformIndex(edm::ProductDescription const&) const noexcept = 0;
@@ -1211,13 +1210,13 @@ namespace edm {
     return rc;
   }
 
-  template <typename T>
-  std::exception_ptr Worker::runModuleDirectly(typename T::TransitionInfoType const& transitionInfo,
-                                               StreamID streamID,
-                                               ParentContext const& parentContext,
-                                               typename T::Context const* context) noexcept {
+  inline std::exception_ptr Worker::runModuleDirectly(EventTransitionInfo const& transitionInfo,
+                                                      StreamID streamID,
+                                                      ParentContext const& parentContext,
+                                                      StreamContext const* context) noexcept {
     std::exception_ptr prefetchingException;  // null because there was no prefetching to do
-    return runModuleAfterAsyncPrefetch<T>(prefetchingException, transitionInfo, streamID, parentContext, context);
+    return runModuleAfterAsyncPrefetch<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>>(
+        prefetchingException, transitionInfo, streamID, parentContext, context);
   }
 }  // namespace edm
 #endif

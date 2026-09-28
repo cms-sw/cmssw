@@ -283,8 +283,7 @@ namespace edm {
       }
       if (pathStatusInserterWorker_) {
         std::exception_ptr jException =
-            pathStatusInserterWorker_->runModuleDirectly<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>>(
-                iInfo, streamID, ParentContext(iContext), iContext);
+            pathStatusInserterWorker_->runModuleDirectly(iInfo, streamID, ParentContext(iContext), iContext);
         if (jException && not iException) {
           iException = jException;
         }

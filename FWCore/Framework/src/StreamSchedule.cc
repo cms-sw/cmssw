@@ -583,10 +583,8 @@ namespace edm {
       for (int empty_trig_path : empty_trig_paths_) {
         results_->at(empty_trig_path) = hltPathStatus;
         pathStatusInserters[empty_trig_path]->setPathStatus(streamID_, hltPathStatus);
-        std::exception_ptr except =
-            pathStatusInserterWorkers_[empty_trig_path]
-                ->runModuleDirectly<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>>(
-                    info, streamID_, ParentContext(&streamContext_), &streamContext_);
+        std::exception_ptr except = pathStatusInserterWorkers_[empty_trig_path]->runModuleDirectly(
+            info, streamID_, ParentContext(&streamContext_), &streamContext_);
         if (except) {
           iTask.doneWaiting(except);
           return;
@@ -594,10 +592,8 @@ namespace edm {
       }
       if (not endPathStatusInserterWorkers_.empty()) {
         for (int empty_end_path : empty_end_paths_) {
-          std::exception_ptr except =
-              endPathStatusInserterWorkers_[empty_end_path]
-                  ->runModuleDirectly<OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>>(
-                      info, streamID_, ParentContext(&streamContext_), &streamContext_);
+          std::exception_ptr except = endPathStatusInserterWorkers_[empty_end_path]->runModuleDirectly(
+              info, streamID_, ParentContext(&streamContext_), &streamContext_);
           if (except) {
             iTask.doneWaiting(except);
             return;
@@ -695,9 +691,8 @@ namespace edm {
         //Even if there was an exception, we need to allow results inserter
         // to run since some module may be waiting on its results.
         ParentContext parentContext(&streamContext_);
-        using Traits = OccurrenceTraits<EventPrincipal, TransitionActionGlobalBegin>;
 
-        auto expt = results_inserter_->runModuleDirectly<Traits>(info, streamID_, parentContext, &streamContext_);
+        auto expt = results_inserter_->runModuleDirectly(info, streamID_, parentContext, &streamContext_);
         if (expt) {
           std::rethrow_exception(expt);
         }
