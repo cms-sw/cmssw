@@ -127,6 +127,12 @@ namespace truth {
                                                     Level level,
                                                     ClosureSpec spec = ClosureSpec::subtree());
 
+  // The generation of every particle, indexed by particle id: 0 for a particle with no
+  // parent, otherwise one more than its deepest parent. In an acyclic graph a particle
+  // has a larger generation than each of its ancestors; a cycle is cut where the walk
+  // meets it.
+  [[nodiscard]] std::vector<uint32_t> particleGenerations(Graph const& graph);
+
 }  // namespace truth
 
 #endif

@@ -115,9 +115,8 @@ def buildCompactTruthAtDigi(process, includeTrackingHits=True):
     content.
 
     Channels: Calo (plus Tracker and Muon under includeTrackingHits) are pure
-    simHit reads and are built here. MTD is intentionally left out: its index needs
-    the reco Mtd cluster associations, which are RECO-stage products, so it cannot be
-    filled at DIGI (muon/MTD recHit linking is follow-up work in any case).
+    simHit reads and are built here. MTD is not in the list: add it to the
+    subdetectors of the index producer to fill it from mix:MergedMtdTruthLC.
     """
     from Validation.Configuration.truthPrevalidation_cff import (
         truthLogicalGraphProducer,
@@ -147,6 +146,7 @@ def buildCompactTruthAtDigi(process, includeTrackingHits=True):
         src=cms.InputTag("mix"),
         simTracks=cms.InputTag("mix", "mergedSimTracks"),
         simVertices=cms.InputTag("mix", "mergedSimVertices"),
+        rawGenPayload=cms.InputTag("mix", "genPayload"),
         simHitCollections=caloSimHits,
         trackerSimHitCollections=trackerSimHits,
         muonSimHitCollections=muonSimHits,

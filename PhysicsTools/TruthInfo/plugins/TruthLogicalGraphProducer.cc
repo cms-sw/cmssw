@@ -6,7 +6,8 @@
 // Build a logical truth::Graph from the raw heterogeneous TruthGraph.
 // The topology comes from the raw TruthGraph.
 // Standalone payload (momentum/position/checkpoints) is materialized from optional
-// HepMC2 / HepMC3 / SimTrack / SimVertex inputs.
+// HepMC2 / HepMC3 / SimTrack / SimVertex inputs, and for a graph built during mixing
+// from the GEN payload the accumulator keeps for every sub-event (rawGenPayload).
 //
 // GenParticle and SimTrack nodes are merged when a robust association exists.
 // A merged GEN+SIM particle takes its production vertex from the GEN side (the
@@ -38,6 +39,7 @@
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
+#include "PhysicsTools/TruthInfo/interface/GenGraphBuild.h"
 #include "PhysicsTools/TruthInfo/interface/TruthLevels.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -56,6 +58,7 @@
 #include "HepMC3/GenEvent.h"
 #include "HepMC3/GenParticle.h"
 #include "HepMC3/GenVertex.h"
+#include "HepMC3/Units.h"
 
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
 #include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
@@ -196,9 +199,6 @@ namespace {
                                 std::unordered_map<int, GenVertexPayload>& vertexPayload) {
     particlePayload.reserve(ev.particles_size() * 2);
     vertexPayload.reserve(ev.vertices_size() * 2);
-    constexpr double mmTocm = 0.1;
-    constexpr double mmOverCToNs = 1.0 / 299.792458;  // HepMC vertex time is c*t in mm -> ns
-
     for (auto p = ev.particles_begin(); p != ev.particles_end(); ++p) {
       if (*p == nullptr)
         continue;
@@ -220,10 +220,8 @@ namespace {
 
       const int barcode = (*v)->barcode();
       GenVertexPayload payload;
-      payload.position = math::XYZTLorentzVectorD((*v)->position().x() * mmTocm,
-                                                  (*v)->position().y() * mmTocm,
-                                                  (*v)->position().z() * mmTocm,
-                                                  (*v)->position().t() * mmOverCToNs);
+      payload.position =
+          truth::graphPosition((*v)->position().x(), (*v)->position().y(), (*v)->position().z(), (*v)->position().t());
 
       vertexPayload.emplace(barcode, payload);
     }
@@ -234,8 +232,6 @@ namespace {
                                 std::unordered_map<int, GenVertexPayload>& vertexPayload) {
     particlePayload.reserve(ev.particles().size() * 2);
     vertexPayload.reserve(ev.vertices().size() * 2);
-    constexpr double mmTocm = 0.1;
-    constexpr double mmOverCToNs = 1.0 / 299.792458;  // HepMC vertex time is c*t in mm -> ns
     for (auto const& pptr : ev.particles()) {
       if (!pptr)
         continue;
@@ -258,10 +254,8 @@ namespace {
       const int id = vptr->id();
 
       GenVertexPayload payload;
-      payload.position = math::XYZTLorentzVectorD(vptr->position().x() * mmTocm,
-                                                  vptr->position().y() * mmTocm,
-                                                  vptr->position().z() * mmTocm,
-                                                  vptr->position().t() * mmOverCToNs);
+      payload.position =
+          truth::graphPosition(vptr->position().x(), vptr->position().y(), vptr->position().z(), vptr->position().t());
 
       vertexPayload.emplace(id, payload);
     }
@@ -354,6 +348,10 @@ public:
         simVertexToken_(mayConsume<edm::SimVertexContainer>(cfg.getParameter<edm::InputTag>("simVertices"))),
         hepmc3Token_(mayConsume<edm::HepMC3Product>(cfg.getParameter<edm::InputTag>("genEventHepMC3"))),
         hepmc2Token_(mayConsume<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
+        rawGenPayloadTag_(cfg.getParameter<edm::InputTag>("rawGenPayload")),
+        rawGenPayloadToken_(mayConsume<std::vector<math::XYZTLorentzVectorD>>(rawGenPayloadTag_)),
+        rawGenPayloadNodesToken_(mayConsume<std::vector<uint32_t>>(edm::InputTag(
+            rawGenPayloadTag_.label(), rawGenPayloadTag_.instance() + "Nodes", rawGenPayloadTag_.process()))),
         mergeGenSimVertices_(cfg.getParameter<bool>("mergeGenSimVertices")),
         verbosity_(cfg.getUntrackedParameter<unsigned>("verbosity")),
         dropHitlessSimSubgraphs_(
@@ -383,6 +381,11 @@ public:
     desc.add<edm::InputTag>("simVertices", edm::InputTag("g4SimHits"));
     desc.add<edm::InputTag>("genEventHepMC3", edm::InputTag("generatorSmeared"));
     desc.add<edm::InputTag>("genEventHepMC", edm::InputTag("generatorSmeared"));
+    desc.add<edm::InputTag>("rawGenPayload", edm::InputTag(""))
+        ->setComment(
+            "GEN payload of the raw graph (TruthGraphAccumulator genPayload, with the node ids in the instance "
+            "plus 'Nodes'): the momentum of a GenParticle and the position of a GenVertex from the sub-event's "
+            "own record. It fills the GEN nodes the signal HepMC does not cover, the pile-up ones. Empty: none.");
 
     desc.addUntracked<unsigned>("verbosity", 0)
         ->setComment(
@@ -499,6 +502,7 @@ public:
 
         HepMC3::GenEvent ev3;
         ev3.read_data(*data);
+        ev3.set_units(HepMC3::Units::GEV, HepMC3::Units::MM);
 
         fillGenPayloadFromHepMC3(ev3, genParticlePayload, genVertexPayload);
         haveGenPayload = true;
@@ -514,6 +518,31 @@ public:
         haveGenPayload = true;
       }
     }
+
+    // The raw graph's own GEN payload, when the graph was built during mixing: the GEN
+    // node ids in ascending order and their momenta or positions, in step.
+    std::vector<uint32_t> const* rawGenPayloadNodes = nullptr;
+    std::vector<math::XYZTLorentzVectorD> const* rawGenPayload = nullptr;
+    if (!rawGenPayloadTag_.label().empty()) {
+      rawGenPayloadNodes = &evt.get(rawGenPayloadNodesToken_);
+      rawGenPayload = &evt.get(rawGenPayloadToken_);
+      if (rawGenPayloadNodes->size() != rawGenPayload->size() ||
+          !std::is_sorted(rawGenPayloadNodes->begin(), rawGenPayloadNodes->end()) ||
+          (!rawGenPayloadNodes->empty() && rawGenPayloadNodes->back() >= raw.nNodes()))
+        throw cms::Exception("TruthLogicalGraphProducer")
+            << "the GEN payload '" << rawGenPayloadTag_.encode()
+            << "' does not match the raw graph: " << rawGenPayloadNodes->size() << " node ids, "
+            << rawGenPayload->size() << " values, " << raw.nNodes() << " nodes";
+    }
+    // The payload of one raw node, or none.
+    auto rawGenPayloadOf = [&](uint32_t nodeId) -> math::XYZTLorentzVectorD const* {
+      if (rawGenPayloadNodes == nullptr)
+        return nullptr;
+      const auto it = std::lower_bound(rawGenPayloadNodes->begin(), rawGenPayloadNodes->end(), nodeId);
+      if (it == rawGenPayloadNodes->end() || *it != nodeId)
+        return nullptr;
+      return &(*rawGenPayload)[static_cast<std::size_t>(it - rawGenPayloadNodes->begin())];
+    };
 
     const auto keepRawNode = buildKeepMaskForAllRawNodes(raw);
     const auto genParticleToProductionGenVertex = buildGenParticleToProductionGenVertexMap(raw, keepRawNode);
@@ -721,11 +750,10 @@ public:
     out->particles().resize(particleRepToLogical.size());
     out->vertices().resize(vertexRepToLogical.size());
 
-    // Whether the GEN payload actually supplied a momentum/position for each
-    // logical object. For a merged GEN+SIM object whose GEN barcode is absent from
-    // the payload (e.g. pile-up GEN particles, which are not in the signal HepMC,
-    // or jobs with no HepMC product), the SimTrack/SimVertex value is used as the
-    // fallback instead of leaving the field default-constructed (zero momentum).
+    // Whether a GEN payload, the signal HepMC or the raw graph's own, supplied a
+    // momentum/position for each logical object. A merged GEN+SIM object with no GEN
+    // payload (a job with no HepMC product) takes the SimTrack/SimVertex value instead
+    // of keeping the default-constructed one (zero momentum).
     std::vector<uint8_t> genMomentumApplied(out->particles().size(), 0);
     std::vector<uint8_t> genPositionApplied(out->vertices().size(), 0);
 
@@ -764,7 +792,7 @@ public:
             p.statusFlags = raw.nodeStatusFlags(nodeId);
 
           // The HepMC payload is the signal interaction's. A pileup GEN node with the
-          // same barcode is a different particle and takes its SimTrack momentum below.
+          // same barcode is a different particle and takes its own record's momentum.
           if (haveGenPayload && raw.nodeEventId(nodeId) == 0) {
             const int barcode = static_cast<int>(ref.key);
             auto it = genParticlePayload.find(barcode);
@@ -778,6 +806,14 @@ public:
 
               // Keep the GEN four-momentum as nominal for GEN and GEN+SIM logical particles.
               p.momentum = it->second.momentum;
+              genMomentumApplied[static_cast<uint32_t>(rawToParticle[nodeId])] = 1;
+            }
+          }
+
+          // Any other GEN particle, a pile-up one, takes the momentum of its own record.
+          if (!genMomentumApplied[static_cast<uint32_t>(rawToParticle[nodeId])]) {
+            if (auto const* momentum = rawGenPayloadOf(nodeId)) {
+              p.momentum = *momentum;
               genMomentumApplied[static_cast<uint32_t>(rawToParticle[nodeId])] = 1;
             }
           }
@@ -809,9 +845,8 @@ public:
                   t.momentum().px(), t.momentum().py(), t.momentum().pz(), t.momentum().e());
 
               // Use the SimTrack momentum whenever the GEN side did not supply one:
-              // SIM-only particles, and merged GEN+SIM particles whose GEN barcode
-              // missed the payload (pile-up / no-HepMC). When a GEN momentum was
-              // applied it remains the nominal one.
+              // SIM-only particles, and merged GEN+SIM particles with no GEN payload.
+              // When a GEN momentum was applied it remains the nominal one.
               if (!genMomentumApplied[static_cast<uint32_t>(rawToParticle[nodeId])]) {
                 p.momentum = simMomentum;
               }
@@ -858,6 +893,14 @@ public:
             }
           }
 
+          // Any other GEN vertex, a pile-up one, takes the position of its own record.
+          if (!genPositionApplied[static_cast<uint32_t>(rawToVertex[nodeId])]) {
+            if (auto const* position = rawGenPayloadOf(nodeId)) {
+              v.position = *position;
+              genPositionApplied[static_cast<uint32_t>(rawToVertex[nodeId])] = 1;
+            }
+          }
+
         } else if (ref.kind == TruthGraph::NodeKind::SimVertex) {
           v.simNode = static_cast<int32_t>(nodeId);
 
@@ -878,11 +921,9 @@ public:
               constexpr double sToNs = 1e9;  // SimVertex time is stored in seconds -> ns
 
               // Use the SimVertex position whenever the GEN side did not supply one:
-              // SIM-only vertices, and merged GEN+SIM vertices whose GEN barcode
-              // missed the payload (pile-up / no-HepMC). Position is in cm; SimVertex
-              // time is converted from seconds to ns so it shares the (cm, ns)
-              // convention used for GEN vertices. When a GEN position was applied it
-              // remains the nominal one.
+              // SIM-only vertices, and merged GEN+SIM vertices with no GEN payload.
+              // The position is in cm and the time is converted from s to ns, the
+              // (cm, ns) of the GEN vertices. A GEN position, when applied, stays.
               if (!genPositionApplied[static_cast<uint32_t>(rawToVertex[nodeId])]) {
                 v.position = math::XYZTLorentzVectorD(pos.x(), pos.y(), pos.z(), pos.t() * sToNs);
               }
@@ -969,8 +1010,8 @@ public:
              out->vertexToIncomingParticleOffsets(),
              out->vertexToIncomingParticles());
 
-    // A pileup GEN particle has no generator payload after mixing, so a decaying one takes
-    // its momentum from its decay products, before the pruning removes any of them.
+    // A decaying GEN particle that no payload gave a momentum takes it from its decay
+    // products, before the pruning removes any of them.
     truth::fillMomentumFromDecayProducts(*out);
 
     // A GEN-only vertex has no creator process to read, so its reason comes from the
@@ -1117,6 +1158,9 @@ private:
   edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken_;
   edm::EDGetTokenT<edm::HepMC3Product> hepmc3Token_;
   edm::EDGetTokenT<edm::HepMCProduct> hepmc2Token_;
+  const edm::InputTag rawGenPayloadTag_;
+  edm::EDGetTokenT<std::vector<math::XYZTLorentzVectorD>> rawGenPayloadToken_;
+  edm::EDGetTokenT<std::vector<uint32_t>> rawGenPayloadNodesToken_;
   std::vector<edm::EDGetTokenT<std::vector<PCaloHit>>> caloSimHitTokens_;
   std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> trackerSimHitTokens_;
 

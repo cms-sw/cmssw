@@ -49,6 +49,8 @@
 <bin name="GenGraphBuild_t" file="GenGraphBuild_t.cpp">
   <use name="PhysicsTools/TruthInfo"/>
   <use name="DataFormats/HepMCCandidate"/>
+  <use name="hepmc"/>
+  <use name="hepmc3"/>
   <use name="cppunit"/>
 </bin>
 

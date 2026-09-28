@@ -138,6 +138,7 @@ class TestBranch : public CppUnit::TestFixture {
   CPPUNIT_TEST(testAncestorCount);
   CPPUNIT_TEST(testChildAndSiblingLookups);
   CPPUNIT_TEST(testLevelReaders);
+  CPPUNIT_TEST(testGenerations);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -154,6 +155,7 @@ public:
   void testAncestorCount();
   void testChildAndSiblingLookups();
   void testLevelReaders();
+  void testGenerations();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranch);
@@ -498,4 +500,20 @@ void TestBranch::testLevelReaders() {
   CPPUNIT_ASSERT(truth::isWeakBoson(-24));
   CPPUNIT_ASSERT(truth::isWeakBoson(23));
   CPPUNIT_ASSERT(!truth::isWeakBoson(25));  // the Higgs is not a weak boson
+}
+
+void TestBranch::testGenerations() {
+  // REQUIRED: a particle is one generation below its deepest parent, so every particle
+  // has a larger generation than each of its ancestors.
+  const truth::Graph tree = buildTtbarLike();
+  const std::vector<uint32_t> expected{0, 1, 1, 2, 2, 2, 3, 3};
+  CPPUNIT_ASSERT(truth::particleGenerations(tree) == expected);
+
+  // Where two parents meet, the deeper one sets the generation: pi+ is below q and qbar.
+  const truth::Graph rec = buildReconvergent();
+  const auto generations = truth::particleGenerations(rec);
+  CPPUNIT_ASSERT_EQUAL(uint32_t(2), generations[3]);
+  for (uint32_t id = 0; id < rec.nParticles(); ++id)
+    for (auto const& ancestor : truth::Particle(&rec, id).ancestors())
+      CPPUNIT_ASSERT(generations[id] > generations[ancestor.id()]);
 }

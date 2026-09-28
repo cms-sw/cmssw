@@ -31,13 +31,13 @@ namespace truth {
     // the energies that share one, and keep the valid recHit index, which sorts first
     // because the invalid sentinel is UINT32_MAX.
     //
-    // The tracker channel names a cell, not a module, and carries it in recHitIndex, so
-    // there two cells of one module are two hits. Merging them by detId alone would give
-    // an ancestor one entry per module while a leaf keeps one per cell, and a consumer
-    // that compares the two counts, such as the tightest-match rule of the tracking
-    // validator, would read the ancestor as the tighter match. This is the same
-    // cell-aware rule BranchHitAssociator applies.
-    const bool cellKeyed = channel == HitChannel::Tracker;
+    // A cell-keyed channel, the tracker and the MTD, carries the cell in recHitIndex,
+    // so there two cells of one module are two hits. Merging them by detId alone would
+    // give an ancestor one entry per module while a leaf keeps one per cell, and a
+    // consumer that compares the two counts, such as the tightest-match rule of the
+    // tracking validator, would read the ancestor as the tighter match. This is the
+    // same cell-aware rule BranchHitAssociator applies.
+    const bool cellKeyed = hitIndex_->isCellKeyed(channel);
     std::sort(hits.begin(), hits.end(), [](Hit const& a, Hit const& b) {
       if (a.detId != b.detId)
         return a.detId < b.detId;

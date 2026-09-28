@@ -128,13 +128,18 @@ namespace truth {
     // recHitEnergies, when given, weights every cell of the SharedEnergy metric by its
     // reconstructed energy instead of its total sim energy; it must outlive the
     // associator.
+    // generations, when given, is particleGenerations of the graph and must outlive the
+    // associator. It orders two candidates that tie on both scores, which happens when
+    // a particle and its ancestor own the same cells: the particle, with the larger
+    // generation, comes first. Without it, the lower particle id comes first.
     explicit BranchHitAssociator(LogicalGraphHitIndex const& hitIndex,
                                  std::vector<uint32_t> candidateRoots = {},
                                  Metric metric = Metric::SharedEnergy,
                                  HitChannel channel = HitChannel::Calo,
                                  bool emptyRootsMeansAll = true,
                                  uint32_t denominatorDetectors = kAllDetectors,
-                                 CellEnergyTable const* recHitEnergies = nullptr);
+                                 CellEnergyTable const* recHitEnergies = nullptr,
+                                 std::span<const uint32_t> generations = {});
 
     // Best branches for a reco object's hits, sorted by score ascending. If
     // maxResults > 0, only the best maxResults are returned.
@@ -194,11 +199,13 @@ namespace truth {
     Metric metric_;
     HitChannel channel_;
     // Whether a DetId of this channel names a module, so that two hits match only on
-    // the same cell. True for the tracker; on the other channels a DetId already names
-    // a cell and the field holds a recHit index instead.
+    // the same cell. True for a cell-keyed channel, the tracker and the MTD; on the
+    // other channels a DetId already names a cell and the field holds a recHit index.
     bool cellAware_ = false;
     uint32_t denominatorDetectors_;
     std::vector<uint32_t> roots_;
+    // particleGenerations of the graph, or empty.
+    std::span<const uint32_t> generations_;
 
     // Inverted index detId -> candidate roots, stored CSR-style: cellRootsKeys_
     // holds the distinct cell detIds (ascending); cellRootsOffsets_ indexes

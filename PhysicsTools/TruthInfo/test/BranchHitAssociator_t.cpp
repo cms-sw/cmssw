@@ -119,6 +119,18 @@ namespace {
     return b.finish();
   }
 
+  // A resonance that decays to a charged pion and a pi0 whose photons leave no hit:
+  // particle 0 has no hits of its own and its only child with hits is particle 1, so the
+  // two own exactly the same cells and tie on both scores.
+  truth::LogicalGraphHitIndex buildSameCellsIndex() {
+    truth::LogicalGraphHitIndexBuilder b(2);
+    b.setSimTrackForParticle(1, 0, 101);
+    b.addParticleChild(0, 1);
+    b.addHit(truth::HitChannel::Calo, 0, 101, 11, 1.0f, 0);
+    b.addHit(truth::HitChannel::Calo, 0, 101, 12, 2.0f, 0);
+    return b.finish();
+  }
+
   truth::BranchHitAssociator trackerAssociator(truth::LogicalGraphHitIndex const& index) {
     return truth::BranchHitAssociator(
         index, {}, truth::BranchHitAssociator::Metric::SharedHits, truth::HitChannel::Tracker);
@@ -140,6 +152,7 @@ class TestBranchHitAssociator : public CppUnit::TestFixture {
   CPPUNIT_TEST(testReverseScoreNeverExceedsOne);
   CPPUNIT_TEST(testRecHitEnergyTableWeightsCells);
   CPPUNIT_TEST(testEqualScoresRankTheTightestBranchFirst);
+  CPPUNIT_TEST(testAnExactTieRanksTheDescendantFirst);
   CPPUNIT_TEST(testAdaptivePicksTheObjectiveMinimum);
   CPPUNIT_TEST(testAdaptiveCeilingKeepsTheClimbLow);
   CPPUNIT_TEST(testAdaptiveFallsBackWhenTheCeilingRejectsEverything);
@@ -164,6 +177,7 @@ public:
   void testReverseScoreNeverExceedsOne();
   void testRecHitEnergyTableWeightsCells();
   void testEqualScoresRankTheTightestBranchFirst();
+  void testAnExactTieRanksTheDescendantFirst();
   void testAdaptivePicksTheObjectiveMinimum();
   void testAdaptiveCeilingKeepsTheClimbLow();
   void testAdaptiveFallsBackWhenTheCeilingRejectsEverything();
@@ -411,6 +425,33 @@ void TestBranchHitAssociator::testEqualScoresRankTheTightestBranchFirst() {
   CPPUNIT_ASSERT_EQUAL(uint32_t(1), matches[0].rootParticleId);
   CPPUNIT_ASSERT_EQUAL(uint32_t(0), matches[1].rootParticleId);
   CPPUNIT_ASSERT(matches[0].reverseScore < matches[1].reverseScore);
+}
+
+void TestBranchHitAssociator::testAnExactTieRanksTheDescendantFirst() {
+  // REQUIRED: when a particle and its ancestor own the same cells, the particle comes
+  // first, and the adaptive search picks it.
+  auto index = buildSameCellsIndex();
+  std::vector<truth::RecoHit> reco{{11, 0.f, 1.0f}, {12, 0.f, 1.0f}};
+  const std::vector<uint32_t> generations{0, 1};
+  truth::BranchHitAssociator assoc(index,
+                                   {},
+                                   truth::BranchHitAssociator::Metric::SharedHits,
+                                   truth::HitChannel::Calo,
+                                   true,
+                                   truth::BranchHitAssociator::kAllDetectors,
+                                   nullptr,
+                                   generations);
+  auto matches = assoc.bestBranches(reco);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(2), matches.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(matches[0].score, matches[1].score, 1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(matches[0].reverseScore, matches[1].reverseScore, 1e-6);
+  CPPUNIT_ASSERT_EQUAL(uint32_t(1), matches[0].rootParticleId);
+  CPPUNIT_ASSERT_EQUAL(uint32_t(1), truth::BranchHitAssociator::bestAdaptiveBranch(matches, 1.f, 1.f).rootParticleId);
+
+  // Without generations the lower id comes first, which is the ancestor.
+  truth::BranchHitAssociator noGenerations(
+      index, {}, truth::BranchHitAssociator::Metric::SharedHits, truth::HitChannel::Calo);
+  CPPUNIT_ASSERT_EQUAL(uint32_t(0), noGenerations.bestBranches(reco)[0].rootParticleId);
 }
 
 void TestBranchHitAssociator::testRecHitEnergyTableWeightsCells() {

@@ -48,14 +48,16 @@ namespace truth {
                                            HitChannel channel,
                                            bool emptyRootsMeansAll,
                                            uint32_t denominatorDetectors,
-                                           CellEnergyTable const* recHitEnergies)
+                                           CellEnergyTable const* recHitEnergies,
+                                           std::span<const uint32_t> generations)
       : hitIndex_(&hitIndex),
         recHitEnergies_(recHitEnergies != nullptr && !recHitEnergies->empty() ? recHitEnergies : nullptr),
         metric_(metric),
         channel_(channel),
-        cellAware_(channel == HitChannel::Tracker),
+        cellAware_(hitIndex.isCellKeyed(channel)),
         denominatorDetectors_(denominatorDetectors),
-        roots_(std::move(candidateRoots)) {
+        roots_(std::move(candidateRoots)),
+        generations_(generations) {
     if (roots_.empty() && emptyRootsMeansAll) {
       roots_.resize(hitIndex_->nParticles());
       std::iota(roots_.begin(), roots_.end(), 0u);
@@ -434,11 +436,18 @@ namespace truth {
     // Best first. Equal scores are common, because an ancestor's subgraph holds every
     // cell of its descendants: the tightest branch, the one with the smallest reverse
     // score, then comes first, so [0] is the particle itself and not a beam proton.
-    std::sort(result.begin(), result.end(), [](BranchMatch const& a, BranchMatch const& b) {
+    // An ancestor whose other descendants left no cells in this channel ties on both
+    // scores, and then the larger generation, the descendant, comes first.
+    auto generation = [this](uint32_t id) { return id < generations_.size() ? generations_[id] : 0u; };
+    std::sort(result.begin(), result.end(), [&generation](BranchMatch const& a, BranchMatch const& b) {
       if (a.score != b.score)
         return a.score < b.score;
       if (a.reverseScore != b.reverseScore)
         return a.reverseScore < b.reverseScore;
+      const uint32_t generationA = generation(a.rootParticleId);
+      const uint32_t generationB = generation(b.rootParticleId);
+      if (generationA != generationB)
+        return generationA > generationB;
       return a.rootParticleId < b.rootParticleId;
     });
 
