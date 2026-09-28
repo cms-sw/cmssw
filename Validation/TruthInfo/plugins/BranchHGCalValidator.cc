@@ -89,8 +89,6 @@ private:
     MonitorElement* bestCompletenessEnergy = nullptr;
     MonitorElement* bestResponse = nullptr;
     // Self-match numerator: best hit-matched Branch == natural Branch (denom reused).
-    MonitorElement* selfMatchEta = nullptr;
-    MonitorElement* selfMatchPt = nullptr;
     // Merge/split: distinct Branches sharing >=10% of the object's hits.
     MonitorElement* nSharingBranches = nullptr;
   };
@@ -240,10 +238,6 @@ void BranchHGCalValidator::book(DQMStore::IBooker& ib, Plots& p, std::string con
       "bestmatch_completeness_energy", "Best-match Branch energy completeness;completeness;objects", 52, -0.01, 1.03);
   p.bestResponse = ib.book1D(
       "bestmatch_response", "Best-match Branch sim-energy containment;E^{sim}_{Branch}/E_{gen};objects", 60, 0., 1.5);
-  p.selfMatchEta = ib.book1D(
-      "selfmatch_eta", "Objects whose best Branch is the natural one vs #eta;#eta;objects", kEtaBins, -kEtaMax, kEtaMax);
-  p.selfMatchPt = ib.book1D(
-      "selfmatch_pt", "Objects whose best Branch is the natural one vs p_{T};p_{T} [GeV];objects", kPtBins, 0., kPtMax);
   p.nSharingBranches = ib.book1D(
       "n_sharing_branches", "Distinct Branches sharing >=10% of the object hits;#Branches;objects", 51, -0.5, 50.5);
 }
@@ -405,13 +399,6 @@ void BranchHGCalValidator::validate(Collection const& objects,
         plots.effNumEta->Fill(eta);
         plots.effNumPt->Fill(pt);
         plots.effNumEnergy->Fill(energy);
-      }
-
-      // --- "Other way around": the best hit-matched Branch's own performance. ---
-      // Self-match: the best Branch is the natural (trackId-seeded) one.
-      if (tightest == particleId) {
-        plots.selfMatchEta->Fill(eta);
-        plots.selfMatchPt->Fill(pt);
       }
 
       // Merge/split: how many distinct Branches share >=10% of the object's hits.
