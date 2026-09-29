@@ -119,7 +119,8 @@ TEST_CASE("SoACustomizedMethods CUDA", "[SoACustomizedMethods][cuda]") {
       calculateDistance<<<(elems + 255) / 256, 256>>>(view, d_distance);
 
       CUDA_CHECK(cudaMemcpy(h_position_norms.data(), d_position_norms, elems * sizeof(float), cudaMemcpyDeviceToHost));
-      CUDA_CHECK(cudaMemcpy(h_distance.data(), d_distance, view.sizeMinusOne() * sizeof(float), cudaMemcpyDeviceToHost));
+      CUDA_CHECK(
+          cudaMemcpy(h_distance.data(), d_distance, view.sizeMinusOne() * sizeof(float), cudaMemcpyDeviceToHost));
       CUDA_CHECK(cudaMemcpy(h_velocity_norms.data(), d_velocity_norms, elems * sizeof(double), cudaMemcpyDeviceToHost));
 
       // Check for the correctness of the square_norm() functions

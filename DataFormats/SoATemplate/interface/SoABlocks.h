@@ -280,15 +280,13 @@
 
 // ============================================== AoS Macros ===========================================================
 
-#define _DECLARE_BLOCKS_TRANSPOSE_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) NAME().transpose(view.NAME(), index);
-
 /*
  * Declare transpose functions for SoA to AoS layout
  */
-#define _DECLARE_BLOCKS_TRANSPOSE(R, DATA, NAME)                                 \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
-              BOOST_PP_EMPTY(),                                                  \
-              BOOST_PP_EXPAND(_DECLARE_BLOCKS_TRANSPOSE_IMPL NAME))
+#define _DECLARE_BLOCKS_TRANSPOSE_IMPL(NAME) NAME().transpose(view.NAME(), index);
+
+#define _DECLARE_BLOCKS_TRANSPOSE(R, DATA, SPEC) \
+  _EXEC_IF_BLOCK(SPEC, _DECLARE_BLOCKS_TRANSPOSE_IMPL, (_BLOCK_GET_NAME(SPEC)))
 
 /*
  * A macro defining a SoA by blocks layout (collection of SoA layouts)
