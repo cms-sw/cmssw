@@ -69,15 +69,12 @@ namespace edm {
       return workerReg_.getWorkerFromExistingModule(label, actionTable_);
     }
 
-    void setupResolvers(typename TI::PrincipalType& principal, UnscheduledAuxiliary const* aux);
-
   private:
     TransitionWorker<TI, TP>* getWorkerForExistingModule(std::string const& label);
 
     WorkerRegistry<TI, TP> workerReg_;
     ExceptionToActionTable const* actionTable_;
     AllWorkers allWorkers_;
-    void const* lastSetupPrincipal_;
   };
 
   template <typename TI, typename TP>

@@ -5,7 +5,23 @@
 
 namespace edm {
   template <typename TI>
-  class WorkerManager<TI, TransitionPhaseGlobal> : private WorkerManagerCore<TI, TransitionPhaseGlobal> {
+  class GlobalWorkerManagerCore : public WorkerManagerCore<TI, TransitionPhaseGlobal> {
+  public:
+    GlobalWorkerManagerCore(std::shared_ptr<ModuleRegistry> modReg,
+                            std::shared_ptr<ActivityRegistry> actReg,
+                            ExceptionToActionTable const& actions)
+        : WorkerManagerCore<TI, TransitionPhaseGlobal>(modReg, actReg, actions), lastSetupPrincipal_(nullptr) {}
+
+    using WorkerManagerCore<TI, TransitionPhaseGlobal>::allWorkers;
+
+  protected:
+    void setupResolvers(typename TI::PrincipalType& principal, UnscheduledAuxiliary const* aux);
+
+  private:
+    void const* lastSetupPrincipal_;
+  };
+  template <typename TI>
+  class WorkerManager<TI, TransitionPhaseGlobal> : private GlobalWorkerManagerCore<TI> {
   public:
     WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
                   std::shared_ptr<ActivityRegistry> actReg,
@@ -16,7 +32,7 @@ namespace edm {
     using WorkerManagerCore<TI, TransitionPhaseGlobal>::getWorkerForModule;
     using WorkerManagerCore<TI, TransitionPhaseGlobal>::actionTable;
     using WorkerManagerCore<TI, TransitionPhaseGlobal>::resetAll;
-    using WorkerManagerCore<TI, TransitionPhaseGlobal>::setupResolvers;
+    using GlobalWorkerManagerCore<TI>::setupResolvers;
     using AllWorkers = typename WorkerManagerCore<TI, TransitionPhaseGlobal>::AllWorkers;
 
     //Called by SecondaryEventProvider
@@ -44,8 +60,7 @@ namespace edm {
           // global begin/end run/lumi transitions through here. They shouldn't
           // need prefetching either and for some years nothing has been using
           // that part of the code anyway...)
-          worker->template doWorkNoPrefetchingAsync<E>(
-              task, info, token, streamID, parentContext, topContext);
+          worker->template doWorkNoPrefetchingAsync<E>(task, info, token, streamID, parentContext, topContext);
         }
       }
     }
@@ -57,7 +72,7 @@ namespace edm {
 
   template <>
   class WorkerManager<EventTransitionInfo, TransitionPhaseGlobal>
-      : private WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal> {
+      : private GlobalWorkerManagerCore<EventTransitionInfo> {
   public:
     WorkerManager(WorkerManager&&) = default;
 
@@ -69,7 +84,7 @@ namespace edm {
     using WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal>::addToAllWorkers;
     using WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal>::getWorkerForModule;
     using WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal>::actionTable;
-    using WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal>::setupResolvers;
+    using GlobalWorkerManagerCore<EventTransitionInfo>::setupResolvers;
     using WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal>::resetAll;
     using AllWorkers = typename WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal>::AllWorkers;
 

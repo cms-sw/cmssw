@@ -20,13 +20,13 @@ namespace edm {
   WorkerManagerCore<TI, TP>::WorkerManagerCore(std::shared_ptr<ModuleRegistry> modReg,
                                                std::shared_ptr<ActivityRegistry> areg,
                                                ExceptionToActionTable const& actions)
-      : workerReg_(areg, modReg), actionTable_(&actions), allWorkers_(), lastSetupPrincipal_(nullptr) {}
+      : workerReg_(areg, modReg), actionTable_(&actions), allWorkers_() {}
 
   template <typename TI>
   WorkerManager<TI, TransitionPhaseGlobal>::WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
                                                           std::shared_ptr<ActivityRegistry> areg,
                                                           ExceptionToActionTable const& actions)
-      : WorkerManagerCore<TI, TransitionPhaseGlobal>(modReg, areg, actions) {}
+      : GlobalWorkerManagerCore<TI>(modReg, areg, actions) {}
 
   template <typename TI>
   WorkerManager<TI, TransitionPhaseStream>::WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
@@ -37,7 +37,7 @@ namespace edm {
   WorkerManager<EventTransitionInfo, TransitionPhaseGlobal>::WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
                                                                            std::shared_ptr<ActivityRegistry> areg,
                                                                            ExceptionToActionTable const& actions)
-      : WorkerManagerCore<EventTransitionInfo, TransitionPhaseGlobal>(modReg, areg, actions),
+      : GlobalWorkerManagerCore<EventTransitionInfo>(modReg, areg, actions),
         unscheduled_(*areg) {}  // WorkerManager::WorkerManager
 
   template <typename TI, typename TP>
@@ -98,8 +98,8 @@ namespace edm {
     }
   }
 
-  template <typename TI, typename TP>
-  void WorkerManagerCore<TI, TP>::setupResolvers(typename TI::PrincipalType& ep, UnscheduledAuxiliary const* aux) {
+  template <typename TI>
+  void GlobalWorkerManagerCore<TI>::setupResolvers(typename TI::PrincipalType& ep, UnscheduledAuxiliary const* aux) {
     if (&ep != lastSetupPrincipal_) {
       UnscheduledConfigurator config(allWorkers().begin(), allWorkers().end(), aux);
       ep.setupUnscheduled(config);
@@ -107,10 +107,6 @@ namespace edm {
     }
   }
 
-  template <typename TI>
-  void WorkerManager<TI, TransitionPhaseStream>::setupResolvers(typename TI::PrincipalType& ep) {
-    this->setupResolvers(ep, nullptr);
-  }
   template <typename TI>
   void WorkerManager<TI, TransitionPhaseGlobal>::setupResolvers(typename TI::PrincipalType& ep) {
     this->setupResolvers(ep, nullptr);

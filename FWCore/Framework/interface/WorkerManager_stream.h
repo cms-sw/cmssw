@@ -17,7 +17,6 @@ namespace edm {
     using WorkerManagerCore<TI, TransitionPhaseStream>::addToAllWorkers;
     using WorkerManagerCore<TI, TransitionPhaseStream>::getWorkerForModule;
     using WorkerManagerCore<TI, TransitionPhaseStream>::actionTable;
-    using WorkerManagerCore<TI, TransitionPhaseStream>::setupResolvers;
     using WorkerManagerCore<TI, TransitionPhaseStream>::resetAll;
     using AllWorkers = typename WorkerManagerCore<TI, TransitionPhaseStream>::AllWorkers;
 
@@ -50,8 +49,6 @@ namespace edm {
         }
       }
     }
-    //used by all but specialized for events
-    void setupResolvers(typename TI::PrincipalType& principal);
 
     void deleteModuleIfExists(std::string const& moduleLabel);
   };
