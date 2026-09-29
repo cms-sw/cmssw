@@ -2,6 +2,7 @@
 #define PhysicsTools_PyTorchAlpaka_interface_TensorCollection_h
 
 #include <map>
+#include <memory>
 #include <string>
 #include <tuple>
 #include <type_traits>
@@ -126,6 +127,9 @@ namespace cms::torch::alpakatools {
     friend class alpaka_cuda_async::torch::AlpakaModel;
     friend class alpaka_rocm_async::torch::AlpakaModel;
     friend class alpaka_serial_sync::torch::AlpakaModel;
+    template <typename UQueue>
+      requires alpaka::isQueue<UQueue>
+    friend class BatchedTensorCollection;
 
     TensorCollection() = default;
 
@@ -243,13 +247,13 @@ namespace cms::torch::alpakatools {
                         const bool is_scalar = false) {
       using T = std::remove_pointer_t<Tptr>;
       registry_.try_emplace(name,
-                            std::make_unique<cms::torch::alpakatools::detail::TensorHandle<TQueue, T>>(
+                            std::make_shared<cms::torch::alpakatools::detail::TensorHandle<TQueue, T>>(
                                 alignment, sizeof(T), ptr, batch_size, total_size, std::move(dims), is_scalar));
       order_.push_back(name);
     }
 
     std::vector<std::string> order_;
-    std::unordered_map<std::string, std::unique_ptr<cms::torch::alpakatools::detail::ITensorHandle<TQueue>>> registry_;
+    std::unordered_map<std::string, std::shared_ptr<cms::torch::alpakatools::detail::ITensorHandle<TQueue>>> registry_;
   };
 
 }  // namespace cms::torch::alpakatools

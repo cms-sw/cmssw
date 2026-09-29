@@ -19,28 +19,35 @@ namespace cms::torch::alpakatools {
     BatchedTensorCollection() = default;
 
     // Count the number of batches and check their consistency
-    uint32_t batchCount() const {
-      auto count = 0u;
-      auto first_recipe = true;
+    std::optional<uint32_t> batchCount() const {
+      std::optional<uint32_t> count;
 
       for (const auto& recipe : batch_recipes_) {
         if (!recipe.batch_size)
           continue;  // Full SoA: it does not determine the batch count.
 
         auto n_batches = recipe.total_size == 0 ? 0u : 1u + (recipe.total_size - 1u) / *recipe.batch_size;
-        if (first_recipe)
-          first_recipe = false;
-        else
-          assert(count == n_batches && "BatchedTensorCollection: inconsistent number of batches");
+        assert((!count || *count == n_batches) && "BatchedTensorCollection: inconsistent number of batches");
         count = n_batches;
       }
 
       return count;
     }
 
-    void materializeBatch(uint32_t batch_id, TensorCollection<TQueue>& destination) const {
-      for (const auto& recipe : batch_recipes_)
-        recipe.materialize(destination, batch_id);
+    void materializeBatch(uint32_t batch_id, TensorCollection<TQueue>& destination) {
+      for (const auto& recipe : batch_recipes_) {
+        if (recipe.batch_size) {
+          recipe.materialize(destination, batch_id);
+          continue;
+        }
+        // Materialize each full-SoA tensor only once.
+        if (!full_tensors_.registry_.contains(recipe.name))
+          recipe.materialize(full_tensors_, 0u);
+
+        // Preserve the registration order while sharing its handle.
+        destination.registry_.try_emplace(recipe.name, full_tensors_.registry_.at(recipe.name));
+        destination.order_.push_back(recipe.name);
+      }
     }
 
     // addBatched allows for registering an SoA with a fixed batch size
@@ -83,6 +90,7 @@ namespace cms::torch::alpakatools {
 
     std::vector<BatchRecipe> batch_recipes_;
     std::vector<std::unique_ptr<TensorCollection<TQueue>>> materialized_batches_;
+    TensorCollection<TQueue> full_tensors_;
   };
 }  // namespace cms::torch::alpakatools
 

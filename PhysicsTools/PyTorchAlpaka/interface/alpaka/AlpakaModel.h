@@ -59,14 +59,27 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torch {
                  cms::torch::alpakatools::BatchedTensorCollection<Queue> &inputs,
                  cms::torch::alpakatools::BatchedTensorCollection<Queue> &outputs,
                  std::optional<::torch::Dtype> dtype = std::nullopt) {
-      const auto input_count = inputs.batchCount();
-      const auto output_count = outputs.batchCount();
+      const auto input_batches = inputs.batchCount();
+      const auto output_batches = outputs.batchCount();
 
-      assert(input_count == output_count && "AlpakaModel::forwardBatched: incompatible batch counts");
+      assert((!input_batches || !output_batches || *input_batches == *output_batches) &&
+             "AlpakaModel::forwardBatched: incompatible batch counts");
+
+      const auto n_batches = input_batches.value_or(output_batches.value_or(1u));
+
       using Collection = cms::torch::alpakatools::TensorCollection<Queue>;
 
+      inputs.materialized_batches_.clear();
+      outputs.materialized_batches_.clear();
+
+      inputs.full_tensors_ = Collection{};
+      outputs.full_tensors_ = Collection{};
+
+      inputs.materialized_batches_.reserve(n_batches);
+      outputs.materialized_batches_.reserve(n_batches);
+
       // Prepare the TensorCollections
-      for (auto batch_id = 0u; batch_id < input_count; batch_id++) {
+      for (auto batch_id = 0u; batch_id < n_batches; batch_id++) {
         auto batch_input = std::make_unique<Collection>();
         inputs.materializeBatch(batch_id, *batch_input);
         inputs.materialized_batches_.push_back(std::move(batch_input));
@@ -77,7 +90,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torch {
       }
 
       // Run the inference
-      for (auto batch_id = 0u; batch_id < input_count; batch_id++) {
+      for (auto batch_id = 0u; batch_id < n_batches; ++batch_id) {
         forward(queue, *inputs.materialized_batches_[batch_id], *outputs.materialized_batches_[batch_id], dtype);
       }
     }

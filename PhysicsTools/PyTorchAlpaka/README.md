@@ -109,7 +109,15 @@ outputs.addBatched<portabletest::SimpleNetSoA>(
 model.forward(queue, inputs, outputs);
 ```
 
-The TorchScript model is responsible for interpreting the different input sizes. In this example, all hits and the hit-to-track mapping are passed to every batch; the model uses `hit_to_track` to select hits belonging to the current track batch. All sliced SoAs must imply the same number of batches, including the inputs and outputs. An `SOA_SCALAR` can be registered without a batch size to pass it in full.
+The TorchScript model is responsible for interpreting the different input sizes. In this example, all hits and the hit-to-track mapping are passed to every batch; the model uses `hit_to_track` and `track_begin` to select hits belonging to the current track batch.
+
+All sliced SoAs, across inputs and outputs, must imply the same number of batches. Full-SoA registrations do not determine this count and are passed in full to every batch. If neither collection contains a sliced registration, inference runs once. An explicitly sliced empty SoA implies zero batches. An `SOA_SCALAR` can be registered without a batch size to pass it in full.
+
+Full-SoA tensors share their handles across batches. For const inputs, this reuses a single writable buffer per registered full tensor; its contents are copied from the original SoA before each batch to protect the original data from model modifications. Sliced tensors retain separate per-batch handles.
+
+Each batched `forward()` call rebuilds the materialized collections from the current registrations. The registered SoA memory must remain valid until the queued operations complete.
+
+Full-SoA outputs refer to the same output memory for every batch. To store separate results for each batch, register the output with an explicit batch size.
 
 For manual batching, `TensorCollection::add()` accepts a `TensorSlice{batch_id, batch_size}`. Calls without a slice expose the full SoA.
 
