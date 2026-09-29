@@ -75,9 +75,9 @@ namespace truth {
     [[nodiscard]] bool hasAncestorPdgId(int pdgId) const;
     [[nodiscard]] std::optional<Particle> firstAncestorWithPdgId(int pdgId) const;
 
-    // The last copy of a radiating chain: follow the one same-species child through the
-    // one decay vertex until the species changes, the particle is stable, or the step is
-    // ambiguous. What a particle decays into is read from the copy this returns, so a
+    // The last copy of a radiating chain: follow the one same-species generator child,
+    // over all decay vertices, until the species changes, the particle is stable, or the
+    // step is ambiguous. What a particle decays into is read from the copy this returns, so a
     // child lookup on a radiating particle starts here.
     [[nodiscard]] Particle lastCopy() const;
 
