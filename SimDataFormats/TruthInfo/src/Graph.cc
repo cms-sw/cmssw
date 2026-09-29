@@ -308,16 +308,18 @@ truth::Graph::size_type truth::Graph::lastCopyOf(size_type particleId) const {
     if (particles_[current].status == 1)
       break;
 
-    const auto decays = decayVertices(current);
-    if (decays.size() != 1)
-      break;
-
+    // The copy collapse can leave a radiating particle with several decay vertices, one
+    // of them holding only the radiation, so the next copy is looked for in all of them.
+    // A copy is a generator particle: a Geant4 delta ray is not a copy of its electron.
     uint32_t sameIdChild = 0;
     uint32_t nSameId = 0;
-    for (const uint32_t childId : outgoingParticles(decays.front())) {
-      if (childId < nParticles() && childId != current && particles_[childId].pdgId == pdgId) {
-        sameIdChild = childId;
-        ++nSameId;
+    for (const uint32_t vertexId : decayVertices(current)) {
+      for (const uint32_t childId : outgoingParticles(vertexId)) {
+        if (childId < nParticles() && childId != current && particles_[childId].pdgId == pdgId &&
+            particles_[childId].hasGen()) {
+          sameIdChild = childId;
+          ++nSameId;
+        }
       }
     }
 
