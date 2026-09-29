@@ -1,12 +1,15 @@
 #ifndef DataFormats_Portable_interface_PortableDeviceCollection_h
 #define DataFormats_Portable_interface_PortableDeviceCollection_h
 
+#include <algorithm>
 #include <array>
 #include <cassert>
 #include <concepts>
 #include <cstddef>
+#include <cstring>
 #include <optional>
 #include <type_traits>
+#include <utility>
 
 #include <alpaka/alpaka.hpp>
 
@@ -129,10 +132,49 @@ public:
 
   // Copy column by column or block by block heterogeneously for device to host/device data transfer.
   template <typename TQueue>
+    requires(alpaka::isQueue<TQueue> && Layout::isSoA)
   void deepCopy(TQueue& queue, ConstView const& view) {
     ConstDescriptor desc{view};
     Descriptor desc_{view_};
     portablecollection::deepCopy(queue, desc_, desc);
+  }
+
+  // Transpose the data from a SoA view into an AoS collection.
+  // Requires that one of the two collections is SoA and the other is AoS,
+  // and that the AoS type is the AoSWrapper of the SoA type.
+  template <alpaka::concepts::Acc TAcc, typename TQueue, typename SourceCollection>
+  void transpose(TQueue& queue, const SourceCollection& sourceCollection)
+    requires alpaka::isQueue<TQueue> && (SourceCollection::Layout::isSoA != Layout::isSoA) &&
+             (std::is_same_v<typename SourceCollection::Layout, typename Layout::AoSWrapper> ||
+              std::is_same_v<typename SourceCollection::Layout::AoSWrapper, Layout>) &&
+             (requires { Layout::blocksNumber; } && requires { SourceCollection::Layout::blocksNumber; })
+  {
+    using SourceLayout = typename SourceCollection::Layout;
+    static_assert(Layout::blocksNumber == SourceLayout::blocksNumber,
+                  "PortableDeviceCollection::transpose: Source and target have differernt number of SoABlocks");
+
+    const auto sourceSize = sourceCollection.size();
+    auto maxSize = 0;
+    for (auto i = 0; i < Layout::blocksNumber; ++i) {
+      if (size()[i] != sourceSize[i]) {
+        throw std::runtime_error("PortableDeviceCollection::transpose: size mismatch between SoA and AoS");
+      }
+      maxSize = std::max(maxSize, size()[i]);
+    }
+    portablecollection::transpose<TAcc>(queue, view_, sourceCollection.const_view(), maxSize);
+  }
+
+  template <alpaka::concepts::Acc TAcc, typename TQueue, typename SourceCollection>
+  void transpose(TQueue& queue, const SourceCollection& sourceCollection)
+    requires alpaka::isQueue<TQueue> && (SourceCollection::Layout::isSoA != Layout::isSoA) &&
+             (std::is_same_v<typename SourceCollection::Layout, typename Layout::AoSWrapper> ||
+              std::is_same_v<typename SourceCollection::Layout::AoSWrapper, Layout>) &&
+             (!requires { Layout::blocksNumber; } && !requires { SourceCollection::Layout::blocksNumber; })
+  {
+    if (size() != sourceCollection.size()) {
+      throw std::runtime_error("PortableDeviceCollection::transpose: size mismatch between SoA and AoS");
+    }
+    portablecollection::transpose<TAcc>(queue, view_, sourceCollection.const_view(), size());
   }
 
   // Either Layout::size_type for normal layouts or std::array<Layout::size_type, N> for SoABlocks layouts
