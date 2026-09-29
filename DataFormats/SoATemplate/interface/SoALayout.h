@@ -296,7 +296,7 @@ namespace cms::soa {
               BOOST_PP_EXPAND(_DECLARE_CONST_CAST_COLUMNS_IMPL TYPE_NAME))
 
 /**
- * Declare the value_element data members
+ * Declare the RecordType data members
  */
 // clang-format off
 #define _DEFINE_VALUE_ELEMENT_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
@@ -307,32 +307,6 @@ namespace cms::soa {
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
               BOOST_PP_EMPTY(),                                                             \
               BOOST_PP_EXPAND(_DEFINE_VALUE_ELEMENT_MEMBERS_IMPL TYPE_NAME))
-
-/**
- * List of data members in the value_element constructor arguments
- */
-// clang-format off
-#define _VALUE_ELEMENT_CTOR_ARGS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
-  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (CPP_TYPE NAME))
-// clang-format on
-
-#define _VALUE_ELEMENT_CTOR_ARGS(R, DATA, TYPE_NAME)                                        \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
-              BOOST_PP_EXPAND(_VALUE_ELEMENT_CTOR_ARGS_IMPL TYPE_NAME))
-
-/**
- * List-initalise the value_element data members
- */
-// clang-format off
-#define _VALUE_ELEMENT_INITIALIZERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
-  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, (BOOST_PP_CAT(NAME, _){NAME}))
-// clang-format on
-
-#define _VALUE_ELEMENT_INITIALIZERS(R, DATA, TYPE_NAME)                                     \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
-              BOOST_PP_EXPAND(_VALUE_ELEMENT_INITIALIZERS_IMPL TYPE_NAME))
 
 /**
  * Freeing of the ROOT-allocated column or scalar buffer
@@ -1104,11 +1078,11 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
               BOOST_PP_EXPAND(_DECLARE_VIEW_ELEMENT_VALUE_COPY_IMPL TYPE_NAME))
 
 /**
- * Assign the value of the view from the values in the value_element.
+ * Assign the value of the view from the values in the RecordType.
  */
 // clang-format off
 #define _TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
-  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, NAME() = _soa_impl_value.NAME();)
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, NAME() = _soa_impl_value.BOOST_PP_CAT(NAME, _);)
 // clang-format on
 
 #define _TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT(R, DATA, TYPE_NAME)                              \
@@ -1259,33 +1233,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
               BOOST_PP_EMPTY(),                                                             \
               BOOST_PP_EXPAND(_DECLARE_VIEW_SOA_ACCESSOR_IMPL TYPE_NAME))
 
-/**
- * Declare an accessors for the AoS element of the SoA
- */
-// clang-format off
-#define _DECLARE_VALUE_ELEMENT_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
-  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, SOA_HOST_DEVICE SOA_INLINE auto& NAME() { return BOOST_PP_CAT(NAME, _); })
-// clang-format on
-
-#define _DECLARE_VALUE_ELEMENT_ACCESSORS(R, DATA, TYPE_NAME)                                \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
-              BOOST_PP_EXPAND(_DECLARE_VALUE_ELEMENT_ACCESSORS_IMPL TYPE_NAME))
-
-/**
- * Declare the const accessors for the AoS element of the SoA
- */
-// clang-format off
-#define _DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)           \
-  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, SOA_HOST_DEVICE SOA_INLINE                                  \
-                                    const auto& NAME() const { return BOOST_PP_CAT(NAME, _); })
-// clang-format on
-
-#define _DECLARE_VALUE_ELEMENT_CONST_ACCESSORS(R, DATA, TYPE_NAME)                          \
-  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
-              BOOST_PP_EMPTY(),                                                             \
-              BOOST_PP_EXPAND(_DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_IMPL TYPE_NAME))
-
 // ============================================== AoS Macros ===========================================================
 /**
  * Declare the AoS scalars as data members
@@ -1383,36 +1330,36 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
  * Declare the const forward declarations
  */
 // clang-format off
-#define _DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_FORWARD_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)          \
-  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, SOA_HOST_DEVICE SOA_INLINE                                         \
-                                    decltype(auto) NAME() const { return value_element_ptr_->NAME(); })
+#define _DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)       \
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, SOA_HOST_DEVICE SOA_INLINE                              \
+                                    const CPP_TYPE& NAME() const { return record_type_ptr_->BOOST_PP_CAT(NAME, _); })
 // clang-format on
 
-#define _DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_FORWARD(R, DATA, TYPE_NAME)                  \
+#define _DECLARE_VALUE_ELEMENT_CONST_ACCESSORS(R, DATA, TYPE_NAME)                          \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
               BOOST_PP_EMPTY(),                                                             \
-              BOOST_PP_EXPAND(_DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_FORWARD_IMPL TYPE_NAME))
+              BOOST_PP_EXPAND(_DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_IMPL TYPE_NAME))
 
 /**
  * Declare the forward declarations
  */
 // clang-format off
-#define _DECLARE_VALUE_ELEMENT_ACCESSORS_FORWARD_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                \
-  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, SOA_HOST_DEVICE SOA_INLINE                                         \
-                                    decltype(auto) NAME() { return value_element_ptr_->NAME(); })
+#define _DECLARE_VALUE_ELEMENT_ACCESSORS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)             \
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, SOA_HOST_DEVICE SOA_INLINE                              \
+                                    CPP_TYPE& NAME() { return record_type_ptr_->BOOST_PP_CAT(NAME, _); })
 // clang-format on
 
-#define _DECLARE_VALUE_ELEMENT_ACCESSORS_FORWARD(R, DATA, TYPE_NAME)                        \
+#define _DECLARE_VALUE_ELEMENT_ACCESSORS(R, DATA, TYPE_NAME)                                \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, TYPE_NAME), _VALUE_LAST_COLUMN_TYPE), \
               BOOST_PP_EMPTY(),                                                             \
-              BOOST_PP_EXPAND(_DECLARE_VALUE_ELEMENT_ACCESSORS_FORWARD_IMPL TYPE_NAME))
+              BOOST_PP_EXPAND(_DECLARE_VALUE_ELEMENT_ACCESSORS_IMPL TYPE_NAME))
 
 /**
  * Operator to assign a SoA element to an AoS element 
  */
 // clang-format off
 #define _DECLARE_AOS_ELEMENT_PARAMS_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
-  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, value_element_ptr_->NAME() = elem.NAME();)
+  _APPLY_FOR_NON_SCALAR(VALUE_TYPE, record_type_ptr_->BOOST_PP_CAT(NAME, _) = elem.NAME();)
 // clang-format on
 
 #define _DECLARE_AOS_ELEMENT_PARAMS(R, DATA, TYPE_NAME)                                     \
@@ -1431,7 +1378,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       ,                                                                                                                \
       /* Column */                                                                                                     \
       SOA_HOST_DEVICE SOA_INLINE auto NAME() const {                                                                   \
-        return ConstColumn<&value_element::BOOST_PP_CAT(NAME, _)>(aos_, elements_);                                    \
+        return ConstColumn<&RecordType::BOOST_PP_CAT(NAME, _)>(aos_, elements_);                                       \
       }                                                                                                                \
                                                                                                                        \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
@@ -1441,7 +1388,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       ,                                                                                                                \
       /* Eigen column */                                                                                               \
       SOA_HOST_DEVICE SOA_INLINE auto NAME() const {                                                                   \
-        return ConstColumn<&value_element::BOOST_PP_CAT(NAME, _)>(aos_, elements_);                                    \
+        return ConstColumn<&RecordType::BOOST_PP_CAT(NAME, _)>(aos_, elements_);                                       \
       }                                                                                                                \
                                                                                                                        \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
@@ -1466,7 +1413,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       ,                                                                                                                \
       /* Column */                                                                                                     \
       SOA_HOST_DEVICE SOA_INLINE auto NAME() {                                                                         \
-        return Column<&value_element::BOOST_PP_CAT(NAME, _)>(base_type::aos_, base_type::elements_);                   \
+        return Column<&RecordType::BOOST_PP_CAT(NAME, _)>(base_type::aos_, base_type::elements_);                      \
       }                                                                                                                \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       auto& NAME(cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) {                                     \
@@ -1475,7 +1422,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       ,                                                                                                                \
       /* Eigen column */                                                                                               \
       SOA_HOST_DEVICE SOA_INLINE auto NAME() {                                                                         \
-        return Column<&value_element::BOOST_PP_CAT(NAME, _)>(base_type::aos_, base_type::elements_);                   \
+        return Column<&RecordType::BOOST_PP_CAT(NAME, _)>(base_type::aos_, base_type::elements_);                      \
       }                                                                                                                \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       auto& NAME(cms::soa::detail::IndexWithSourceLocation<rangeChecking> index) {                                     \
@@ -1583,6 +1530,10 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       _ITERATE_ON_ALL(_ACCUMULATE_SOA_ELEMENT, ~, __VA_ARGS__)                                                         \
       return _soa_impl_ret;                                                                                            \
     }                                                                                                                  \
+    /* Underlying RecordType of the SoA, i.e., a struct that contains all columns and eigen columns as data member */  \
+    struct RecordType {                                                                                                \
+      _ITERATE_ON_ALL(_DEFINE_VALUE_ELEMENT_MEMBERS, ~, __VA_ARGS__)                                                   \
+    };                                                                                                                 \
                                                                                                                        \
     /**                                                                                                                \
      * Helper/friend class allowing SoA introspection.                                                                 \
@@ -1600,27 +1551,6 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       }                                                                                                                \
                                                                                                                        \
       _ITERATE_ON_ALL(_DEFINE_METADATA_MEMBERS, ~, __VA_ARGS__)                                                        \
-                                                                                                                       \
-      struct value_element {                                                                                           \
-        SOA_HOST_DEVICE SOA_INLINE value_element                                                                       \
-          BOOST_PP_IF(                                                                                                 \
-            BOOST_PP_SEQ_SIZE(_ITERATE_ON_ALL(_VALUE_ELEMENT_CTOR_ARGS, ~, __VA_ARGS__) ),                             \
-            (_ITERATE_ON_ALL_COMMA(_VALUE_ELEMENT_CTOR_ARGS, ~, __VA_ARGS__)):,                                        \
-            ())                                                                                                        \
-          BOOST_PP_TUPLE_ENUM(BOOST_PP_IF(                                                                             \
-            BOOST_PP_SEQ_SIZE(_ITERATE_ON_ALL(_VALUE_ELEMENT_CTOR_ARGS, ~, __VA_ARGS__)),                              \
-            BOOST_PP_SEQ_TO_TUPLE(_ITERATE_ON_ALL(_VALUE_ELEMENT_INITIALIZERS, ~, __VA_ARGS__)),                       \
-            ()                                                                                                         \
-          )                                                                                                            \
-        )                                                                                                              \
-        {}                                                                                                             \
-                                                                                                                       \
-        /* Useful accessors for the AoS element */                                                                     \
-        _ITERATE_ON_ALL(_DECLARE_VALUE_ELEMENT_ACCESSORS, ~, __VA_ARGS__)                                              \
-        _ITERATE_ON_ALL(_DECLARE_VALUE_ELEMENT_CONST_ACCESSORS, ~, __VA_ARGS__)                                        \
-                                                                                                                       \
-        _ITERATE_ON_ALL(_DEFINE_VALUE_ELEMENT_MEMBERS, ~, __VA_ARGS__)                                                 \
-      };                                                                                                               \
                                                                                                                        \
       Metadata& operator=(const Metadata&) = delete;                                                                   \
       Metadata(const Metadata&) = delete;                                                                              \
@@ -1937,7 +1867,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         }                                                                                                              \
         /* Extra operator=() for mutable element to emulate the aggregate initialisation syntax */                     \
         SOA_HOST_DEVICE SOA_INLINE constexpr element & operator=(const typename                                        \
-            BOOST_PP_CAT(CLASS, _parametrized)::Metadata::value_element _soa_impl_value) {                             \
+            BOOST_PP_CAT(CLASS, _parametrized)::RecordType _soa_impl_value) {                                          \
           _ITERATE_ON_ALL(_TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT, ~, __VA_ARGS__)                                          \
           return *this;                                                                                                \
         }                                                                                                              \
@@ -1991,13 +1921,13 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
     /* AoS as subclass of the SoA  */                                                                                  \
     struct AoSWrapper {                                                                                                \
       friend CLASS;                                                                                                    \
-      using value_element = typename CLASS::Metadata::value_element;                                                   \
+      using RecordType = typename CLASS::RecordType;                                                                   \
       static constexpr byte_size_type alignment = CLASS::alignment;                                                    \
       static constexpr bool isSoA = false;                                                                             \
                                                                                                                        \
       /* Helper function used by caller to externally allocate the storage */                                          \
       static constexpr byte_size_type computeDataSize(size_type elements) {                                            \
-        byte_size_type _aos_impl_ret = elements * sizeof(value_element);                                               \
+        byte_size_type _aos_impl_ret = elements * sizeof(RecordType);                                                  \
         _ITERATE_ON_ALL(_ACCUMULATE_AOS_SCALARS, ~, __VA_ARGS__)                                                       \
         /* Align the total buffer size. Important when multiple layouts use the same buffer */                         \
         return cms::soa::alignSize(_aos_impl_ret, alignment);                                                          \
@@ -2011,11 +1941,11 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         : mem_{mem},                                                                                                   \
           byteSize_{computeDataSize(elements)},                                                                        \
           elements_{elements},                                                                                         \
-          aos_{reinterpret_cast<value_element*>(mem)} {                                                                \
-        if (reinterpret_cast<std::uintptr_t>(mem) % alignof(value_element) != 0)                                       \
+          aos_{reinterpret_cast<RecordType*>(mem)} {                                                                   \
+        if (reinterpret_cast<std::uintptr_t>(mem) % alignof(RecordType) != 0)                                          \
           cms::soa::detail::throwRuntimeError("In " #CLASS "::AoSWrapper: misaligned memory.");                        \
         auto _aos_impl_curMem = mem_;                                                                                  \
-        _aos_impl_curMem += elements * sizeof(value_element);                                                          \
+        _aos_impl_curMem += elements * sizeof(RecordType);                                                             \
         _ITERATE_ON_ALL(_ASSIGN_AOS_SCALAR_MEMBERS, ~, __VA_ARGS__)                                                    \
         auto padding = (alignment - (reinterpret_cast<std::uintptr_t>(_aos_impl_curMem) % alignment)) % alignment;     \
         if (mem_ + byteSize_ != _aos_impl_curMem + padding)                                                            \
@@ -2049,12 +1979,12 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       template <cms::soa::RangeChecking::Mode RANGE_CHECKING>                                                          \
       struct ConstViewTemplate {                                                                                       \
         friend CLASS::AoSWrapper;                                                                                      \
-        using value_element = typename CLASS::Metadata::value_element;                                                 \
+        using RecordType = typename CLASS::RecordType;                                                                 \
         constexpr static cms::soa::RangeChecking::Mode rangeChecking = RANGE_CHECKING;                                 \
         constexpr static bool isSoA = AoSWrapper::isSoA;                                                               \
                                                                                                                        \
         template <auto Member>                                                                                         \
-        using ConstColumn = typename cms::soa::AoSConstMember<Member>::template AoSElement<value_element>::ConstColumn;\
+        using ConstColumn = typename cms::soa::AoSConstMember<Member>::template AoSElement<RecordType>::ConstColumn;   \
                                                                                                                        \
         /**                                                                                                            \
         * Helper/friend class allowing AoS introspection.                                                              \
@@ -2077,26 +2007,19 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
         struct const_element {                                                                                         \
           SOA_HOST_DEVICE SOA_INLINE                                                                                   \
-          explicit const_element(const value_element* value_element_ptr) : value_element_ptr_(value_element_ptr) {}    \
+          explicit const_element(const RecordType* record_type_ptr) : record_type_ptr_(record_type_ptr) {}             \
                                                                                                                        \
           /* Forward getters */                                                                                        \
-          _ITERATE_ON_ALL(_DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_FORWARD, ~, __VA_ARGS__)                              \
+          _ITERATE_ON_ALL(_DECLARE_VALUE_ELEMENT_CONST_ACCESSORS, ~, __VA_ARGS__)                                      \
                                                                                                                        \
-          /* generic assignment operator */                                                                            \
-          template<class T>                                                                                            \
-          SOA_HOST_DEVICE SOA_INLINE constexpr const_element& operator=(T const& elem) {                               \
-            _ITERATE_ON_ALL(_DECLARE_AOS_ELEMENT_PARAMS, ~, __VA_ARGS__)                                               \
-            return *this;                                                                                              \
-          }                                                                                                            \
-                                                                                                                       \
-          /* conversion operator for SoA::View::element to AoS const_element, needed for transpose SoA -> AoS*/        \
-          SOA_HOST_DEVICE SOA_INLINE operator const value_element&() const { return *value_element_ptr_; }             \
+          /* conversion operator for SoA::View::element to AoS const_element, needed for transpose SoA -> AoS */       \
+          SOA_HOST_DEVICE SOA_INLINE operator const RecordType&() const { return *record_type_ptr_; }                  \
                                                                                                                        \
           /* element methods defined const */                                                                          \
           ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_CONST_METHODS, ~, __VA_ARGS__))                                       \
                                                                                                                        \
           private:                                                                                                     \
-            const value_element* value_element_ptr_{nullptr};                                                          \
+            const RecordType* record_type_ptr_{nullptr};                                                               \
         };                                                                                                             \
                                                                                                                        \
         SOA_HOST_DEVICE SOA_INLINE                                                                                     \
@@ -2147,7 +2070,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                                                                                                        \
         private:                                                                                                       \
           size_type elements_ = 0;                                                                                     \
-          value_element* aos_ = nullptr;                                                                               \
+          RecordType* aos_ = nullptr;                                                                                  \
           _ITERATE_ON_ALL(_DECLARE_SCALAR_MEMBERS_AOS_CONSTVIEW, ~, __VA_ARGS__)                                       \
       };                                                                                                               \
       using ConstView = ConstViewTemplate<cms::soa::RangeChecking::Default>;                                           \
@@ -2156,20 +2079,20 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       struct ViewTemplate : public ConstViewTemplate<RANGE_CHECKING> {                                                 \
         friend CLASS::AoSWrapper;                                                                                      \
         using base_type = ConstViewTemplate<RANGE_CHECKING>;                                                           \
-        using value_element = typename CLASS::Metadata::value_element;                                                 \
+        using RecordType = typename CLASS::RecordType;                                                                 \
         constexpr static cms::soa::RangeChecking::Mode rangeChecking = RANGE_CHECKING;                                 \
         constexpr static bool isSoA = AoSWrapper::isSoA;                                                               \
                                                                                                                        \
         template <auto Member>                                                                                         \
-        using Column = typename cms::soa::AoSMember<Member>::template AoSElement<value_element>::Column;               \
+        using Column = typename cms::soa::AoSMember<Member>::template AoSElement<RecordType>::Column;                  \
                                                                                                                        \
         struct element {                                                                                               \
           SOA_HOST_DEVICE SOA_INLINE                                                                                   \
-          explicit element(value_element* value_element_ptr) : value_element_ptr_(value_element_ptr) {}                \
+          explicit element(RecordType* record_type_ptr) : record_type_ptr_(record_type_ptr) {}                         \
                                                                                                                        \
           /* Forward getters */                                                                                        \
-          _ITERATE_ON_ALL(_DECLARE_VALUE_ELEMENT_ACCESSORS_FORWARD, ~, __VA_ARGS__)                                    \
-          _ITERATE_ON_ALL(_DECLARE_VALUE_ELEMENT_CONST_ACCESSORS_FORWARD, ~, __VA_ARGS__)                              \
+          _ITERATE_ON_ALL(_DECLARE_VALUE_ELEMENT_ACCESSORS, ~, __VA_ARGS__)                                            \
+          _ITERATE_ON_ALL(_DECLARE_VALUE_ELEMENT_CONST_ACCESSORS, ~, __VA_ARGS__)                                      \
                                                                                                                        \
           /* generic assignment operator */                                                                            \
           template<class T>                                                                                            \
@@ -2183,7 +2106,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
           ENUM_IF_VALID(_ITERATE_ON_ALL(GENERATE_METHODS, ~, __VA_ARGS__))                                             \
                                                                                                                        \
           private:                                                                                                     \
-            value_element* value_element_ptr_{nullptr};                                                                \
+            RecordType* record_type_ptr_{nullptr};                                                                     \
         };                                                                                                             \
                                                                                                                        \
         SOA_HOST_DEVICE SOA_INLINE                                                                                     \
@@ -2258,7 +2181,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       template <typename T>                                                                                            \
       void ROOTReadStreamer(T& onfile) {                                                                               \
         _ITERATE_ON_ALL(_STREAMER_READ_AOS_DATA_MEMBER, ~, __VA_ARGS__)                                                \
-        memcpy(aos_, onfile.aos_, sizeof(typename CLASS::Metadata::value_element) * onfile.elements_);                 \
+        memcpy(aos_, onfile.aos_, sizeof(CLASS::RecordType) * onfile.elements_);                                       \
       }                                                                                                                \
                                                                                                                        \
       /* ROOT allocation cleanup */                                                                                    \
@@ -2274,7 +2197,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         std::byte* mem_ EDM_REFLEX_TRANSIENT = nullptr;                                                                \
         byte_size_type byteSize_ EDM_REFLEX_TRANSIENT = 0;                                                             \
         size_type elements_ = 0;                                                                                       \
-        CLASS::Metadata::value_element* aos_ = nullptr;                                                                \
+        CLASS::RecordType* aos_ = nullptr;                                                                             \
         _ITERATE_ON_ALL(_DECLARE_SCALAR_MEMBERS_AOS, ~, __VA_ARGS__)                                                   \
     };                                                                                                                 \
                                                                                                                        \
