@@ -206,17 +206,16 @@ class TruthGraphView:
         return self._particles[particleId]["p4"][3] > 0.0
 
     def lastCopy(self, particleId):
-        """The last copy of a radiating chain, as truth::lastCopyOf: follow the one child of
-        the same species through the one decay vertex until the species changes."""
+        """The last copy of a radiating chain, as truth::Graph::lastCopyOf: follow the one
+        generator child of the same species, over all decay vertices, until the particle is
+        stable or the step is ambiguous."""
         pdgId = self.pdgId(particleId)
         current = particleId
         for _ in range(self.nParticles()):
             if self._particles[current]["status"] == 1:
                 break
-            decays = self._decayVertices[current]
-            if len(decays) != 1:
-                break
-            same = [c for c in self._outgoing[decays[0]] if self.pdgId(c) == pdgId]
+            same = [c for v in self._decayVertices[current] for c in self._outgoing[v]
+                    if c != current and self.pdgId(c) == pdgId and self._particles[c]["hasGen"]]
             if len(same) != 1:
                 break
             current = same[0]

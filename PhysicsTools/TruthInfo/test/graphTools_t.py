@@ -205,6 +205,23 @@ class TestGraphToolsNavigation(unittest.TestCase):
         self.assertEqual(graph.lastCopy(1), 1)
         self.assertEqual(graph.lastCopy(3), 3)
 
+    def test_last_copy_over_several_decay_vertices(self):
+        # The copy collapse leaves tau(0) with two decay vertices: v0 -> gamma(2) and
+        # v1 -> tau(1) gamma(3). tau(1) -> v2 -> pi-(4); pi-(5) is a Geant4 delta ray of it.
+        rows = [(15, 2, True), (15, 2, True), (22, 1, True), (22, 1, True), (-211, 2, True), (-211, 0, False)]
+        particles = [
+            dict(id=i, pdgId=p, status=s, statusFlags=0, hasGen=g, hasSim=not g, eventId=0, genEvent=0,
+                 levelFlags=0, role="Normal", p4=(0.0, 0.0, 1.0, 1.0))
+            for i, (p, s, g) in enumerate(rows)
+        ]
+        vertices = [dict(id=v, role="Normal", reason="Decay", hasGen=True, hasSim=False, eventId=0, x4=(0, 0, 0, 0))
+                    for v in range(4)]
+        graph = TruthGraphView(particles, vertices, decayVertices=[[0, 1], [2], [], [], [3], []],
+                               productionVertices=[[], [1], [0], [1], [2], [3]], incoming=[[0], [0], [1], [4]],
+                               outgoing=[[2], [1, 3], [4], [5]])
+        self.assertEqual(graph.lastCopy(0), 1)
+        self.assertEqual(graph.lastCopy(4), 4)
+
     def test_event_id_decoding(self):
         self.assertTrue(isSignalEventId(0))
         self.assertEqual(bunchCrossingOf(0), 0)
