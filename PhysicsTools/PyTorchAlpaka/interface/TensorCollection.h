@@ -100,13 +100,13 @@ namespace cms::torch::alpakatools {
   //
   // can register the following:
   //
-  // TensorCollection<Device> registry(batch_size);
-  // registry.add<ParticleLayout>("features", batch_id, records.pt(), records.eta(), records.phi());
+  // TensorCollection<Device> registry;
+  // registry.add<ParticleLayout>("features", TensorSlice{batch_id, batch_size}, records.pt(), records.eta(), records.phi());
   //
   // In the above example, the add function automatically computes the offset for the batch and ensures the provided columns are contiguous in memory.
   // If the user wants to perform inference on the entire dataset without batching, he can simply register by passing just the total size:
   //
-  // TensorCollection<Device> registry();
+  // TensorCollection<Device> registry;
   // registry.add<ParticleLayout>("features", records.pt(), records.eta(), records.phi());
   //
   // If the user wants to use only pt() and phi() then below will not work as pt() and phi() are not contiguous:
