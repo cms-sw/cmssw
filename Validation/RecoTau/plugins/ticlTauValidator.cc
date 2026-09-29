@@ -92,8 +92,8 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   
   struct AssocCounts {
-    int nSigCh = 0;            // Signal charged PF cands
-    int nSigPho = 0;           // Signal photon + electron PF cands
+    int nSigCh = 0;             // Signal charged PF cands
+    int nSigPho = 0;            // Signal photon + electron PF cands
     int nAssocCalo = 0;         // Matched via TICL chain (endcap PF candidates)
     int nAssocTrack = 0;        // PF track is a sim-candidate track of a tau CP
     int nAssocAllParticles = 0; // Either path (calo OR track)
@@ -137,10 +137,8 @@ private:
   static constexpr int   kMaxCHLegs    = 3; // charged hadrons per tau
   static constexpr int   kMaxGammaLegs = 4; // truth photons from pi0 decays
   static constexpr int   kMaxPi0Legs   = 2; // truth pi0 equivalents
-  // Calo chain steps: (0..5) 
-  static constexpr int   kNSteps       = 6; 
-  // Track chain: (0..4)
-  static constexpr int   kNTrackSteps  = 5;
+  static constexpr int   kNSteps       = 6; // Calo chain steps: (0..5)
+  static constexpr int   kNTrackSteps  = 5; // Track chain: (0..4)
   // Both-path chain: the same truth CP must be represented through calo AND track paths
   static constexpr int   kNCombiSteps  = 3;
 
@@ -252,10 +250,10 @@ private:
     std::array<bool, kNSteps> stepPass{};            // calo chain steps
     std::array<bool, kNTrackSteps> trackStepPass{};  // track chain steps
     std::array<bool, kNCombiSteps> combiStepPass{};  // truth CP represented through both paths
-    std::set<size_t> jets;         // jets containing calo-chain PF candidates
-    std::set<size_t> trackJets;    // jets containing track-chain PF candidates
-    std::set<size_t> caloPFKeys;   // PF keys matched via calo chain
-    std::set<size_t> trackPFKeys;  // PF keys matched via track chain
+    std::set<size_t> jets;                           // jets containing calo-chain PF candidates
+    std::set<size_t> trackJets;                      // jets containing track-chain PF candidates
+    std::set<size_t> caloPFKeys;                     // PF keys matched via calo chain
+    std::set<size_t> trackPFKeys;                    // PF keys matched via track chain
     std::unordered_map<size_t, TauRegionFlags> tauRegion;
     std::unordered_map<size_t, TauRegionFlags> trackTauRegion;
   };
@@ -753,18 +751,18 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
 
 void TICLTauValidator::analyze(const edm::Event& iEvent,
                                const edm::EventSetup&) {
-  edm::Handle<std::vector<SimTauCPLink>> simTaus;            iEvent.getByToken(simTauToken_, simTaus);
-  edm::Handle<reco::PFTauCollection>     taus;               iEvent.getByToken(tauProducerToken_, taus);
-  edm::Handle<TracksterToTracksterMap>   simToRecoMap;       iEvent.getByToken(allTrkToSimTrkAssocByLCsToken_, simToRecoMap);
-  edm::Handle<TracksterToTracksterMap>   recoToSimMap;       iEvent.getByToken(recoToSimAssocByLCsToken_, recoToSimMap);
-  edm::Handle<std::vector<TICLCandidate>> ticlCandidates;    iEvent.getByToken(ticlCandidatesToken_, ticlCandidates);
-  edm::Handle<std::vector<TICLCandidate>> simTICLCandidates; iEvent.getByToken(simTICLCandidatesToken_, simTICLCandidates);
+  edm::Handle<std::vector<SimTauCPLink>> simTaus;                iEvent.getByToken(simTauToken_, simTaus);
+  edm::Handle<reco::PFTauCollection>     taus;                   iEvent.getByToken(tauProducerToken_, taus);
+  edm::Handle<TracksterToTracksterMap>   simToRecoMap;           iEvent.getByToken(allTrkToSimTrkAssocByLCsToken_, simToRecoMap);
+  edm::Handle<TracksterToTracksterMap>   recoToSimMap;           iEvent.getByToken(recoToSimAssocByLCsToken_, recoToSimMap);
+  edm::Handle<std::vector<TICLCandidate>> ticlCandidates;        iEvent.getByToken(ticlCandidatesToken_, ticlCandidates);
+  edm::Handle<std::vector<TICLCandidate>> simTICLCandidates;     iEvent.getByToken(simTICLCandidatesToken_, simTICLCandidates);
   edm::Handle<std::vector<ticl::Trackster>> simTrackstersFromCP; iEvent.getByToken(simTrackstersFromCPToken_, simTrackstersFromCP);
-  edm::Handle<reco::PFCandidateCollection> pfMerged;         iEvent.getByToken(pfToken_, pfMerged);
-  edm::Handle<reco::PFCandidateCollection> pfTmpBarrel;      iEvent.getByToken(pfTmpBarrelToken_, pfTmpBarrel);
-  edm::Handle<reco::PFJetCollection>      pfJets;            iEvent.getByToken(pfJetsToken_, pfJets);
-  edm::Handle<reco::GenParticleCollection> genParticles;     iEvent.getByToken(genParticlesToken_, genParticles);
-  edm::Handle<reco::GenParticleCollection> genVisTaus;       iEvent.getByToken(genVisTausToken_, genVisTaus);
+  edm::Handle<reco::PFCandidateCollection> pfMerged;             iEvent.getByToken(pfToken_, pfMerged);
+  edm::Handle<reco::PFCandidateCollection> pfTmpBarrel;          iEvent.getByToken(pfTmpBarrelToken_, pfTmpBarrel);
+  edm::Handle<reco::PFJetCollection>      pfJets;                iEvent.getByToken(pfJetsToken_, pfJets);
+  edm::Handle<reco::GenParticleCollection> genParticles;         iEvent.getByToken(genParticlesToken_, genParticles);
+  edm::Handle<reco::GenParticleCollection> genVisTaus;           iEvent.getByToken(genVisTausToken_, genVisTaus);
 
   std::vector<reco::PFTauRef> finalFilterTauRefs;
 
@@ -887,7 +885,6 @@ void TICLTauValidator::buildCpToSimIdx(const std::vector<ticl::Trackster>* simTr
     const int seedIdx = simTk.seedIndex();
     if (seedIdx < 0)
       continue;
-    //std::cout<<" ===>> buildCpToSimIdx: seedIdx "<<seedIdx<<", simTk.seedID(): "<<simTk.seedID()<<std::endl;    
     const auto [_, inserted] =
         ctx.cpToSimIdx.emplace(std::make_pair(simTk.seedID(), static_cast<unsigned int>(seedIdx)), i);
     if (!inserted) {
@@ -1611,10 +1608,6 @@ int TICLTauValidator::coverageDMFromTruthCPs(int nCharged, int nPhotons) {
   if (nCharged == 3) return nPi0Equivalents >= 1 ? 11 : 10;
   return -1;
 }
-
-
-
-
 
 
 // Fake rate: loop reco taus and reverse the association chain.
