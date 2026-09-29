@@ -10,6 +10,10 @@
 
 #include "FWCore/Utilities/interface/TypeDemangler.h"
 
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
+
 namespace portablecollection {
 
   template <std::size_t I = 0, typename TQueue, typename Descriptor, typename ConstDescriptor>
@@ -33,6 +37,29 @@ namespace portablecollection {
       deepCopy(queue, std::get<I>(dest.buff), std::get<I>(src.buff));
       deepCopy<I + 1>(queue, dest, src);
     }
+  }
+
+  // Kernel for transposing layouts between SoA and AoS
+  struct Transpose {
+    template <alpaka::concepts::Acc TAcc, typename DstView, typename SrcView>
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE void operator()(const TAcc& acc,
+                                                   DstView destView,
+                                                   const SrcView& sourceView,
+                                                   const int n) const {
+      for (auto local_idx : cms::alpakatools::uniform_elements(acc, n)) {
+        destView.transpose(sourceView, local_idx);
+      }
+    }
+  };
+
+  template <alpaka::concepts::Acc TAcc, typename TQueue, typename DstView, typename SrcView, std::integral Int>
+    requires(alpaka::isQueue<TQueue>)
+  ALPAKA_FN_HOST ALPAKA_FN_INLINE void transpose(TQueue& queue, DstView& dstView, const SrcView& srcView, const Int n) {
+    constexpr uint32_t BlockSize = 256;
+    auto const workDiv = cms::alpakatools::make_workdiv<TAcc>(
+        cms::alpakatools::divide_up_by(static_cast<alpaka_common::Idx>(n), BlockSize), BlockSize);
+
+    alpaka::exec<TAcc>(queue, workDiv, portablecollection::Transpose{}, dstView, srcView, static_cast<int>(n));
   }
 
   template <std::integral Int>
